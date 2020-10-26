@@ -49,6 +49,3 @@ atlas_add_library( TopJetSubstructure Root/*.cxx Root/*.h Root/*.icc
 		                ${FASTJET_INCLUDE_DIRS} 
 				${FASTJETCONTRIB_INCLUDE_DIRS})                                
 
-# Install data files from the package:
-atlas_install_data( share/* )
-

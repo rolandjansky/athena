@@ -1,1 +1,1 @@
-root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/phys-top/topreco/rel21/mc/group.phys-top.11303793.EXT0._000011.DAOD_TOPQ1.DAOD.root
+/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/AnalysisTop/ContinuousIntegration/MC/p4174/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.deriv.DAOD_TOPQ1.e6337_s3126_r9364_p4174/test.pool.root

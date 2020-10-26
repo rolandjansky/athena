@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef LJETSANALYSIS_H_
 #define LJETSANALYSIS_H_
@@ -18,18 +18,17 @@ namespace EL {
 }
 
 namespace top {
-
-class LJetsAnalysis : public AnalysisBase {
-public:
-    LJetsAnalysis(TFile* outputFile, EL::Worker* wk=nullptr);
+  class LJetsAnalysis: public AnalysisBase {
+  public:
+    LJetsAnalysis(TFile* outputFile, EL::Worker* wk = nullptr);
     ~LJetsAnalysis();
 
     void newFile(TFile* inputFile) override;
     void event(const top::Event& topEvent) override;
     void finalise(TFile* outputFile) override;
-
-private:
-    void printCutflow(std::ostream& out, const TH1D* const eventHist, const TH1D* const mcWeightHist, const std::string& name, const unsigned int localYield);
+  private:
+    void printCutflow(std::ostream& out, const TH1D* const eventHist, const TH1D* const mcWeightHist,
+                      const std::string& name, const unsigned int localYield);
 
     ///used for output filename (for MC)
     unsigned int m_mcChannelNumber;
@@ -47,8 +46,7 @@ private:
 
     unsigned int m_counterEl;
     unsigned int m_counterMu;
-};
-
+  };
 }
 
 #endif

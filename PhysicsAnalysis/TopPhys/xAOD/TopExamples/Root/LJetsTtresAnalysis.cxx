@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopExamples/LJetsTtresAnalysis.h"
 #include "TopExamples/DefaultPlots.h"
@@ -20,34 +20,31 @@
 
 
 namespace top {
-
-LJetsTtresAnalysis::LJetsTtresAnalysis(TFile* outputFile) :
-        m_mcChannelNumber(0),
-        m_histsREl("rejets", outputFile),
-        m_histsRMu("rmujets", outputFile),
-        m_histsBEl("bejets", outputFile),
-        m_histsBMu("bmujets", outputFile),
-        m_cutflowEventsREl(nullptr),
-        m_cutflowMCWeightsREl(nullptr),
-        m_cutflowEventsRMu(nullptr),
-        m_cutflowMCWeightsRMu(nullptr),
-        m_cutflowEventsBEl(nullptr),
-        m_cutflowMCWeightsBEl(nullptr),
-        m_cutflowEventsBMu(nullptr),
-        m_cutflowMCWeightsBMu(nullptr),
-        m_counterREl(0),
-        m_counterRMu(0),
-        m_counterBEl(0),
-        m_counterBMu(0),
-        m_neutrinoBuilder("MeV"),
-        m_chi2("MeV")
-    {
-
+  LJetsTtresAnalysis::LJetsTtresAnalysis(TFile* outputFile) :
+    m_mcChannelNumber(0),
+    m_histsREl("rejets", outputFile),
+    m_histsRMu("rmujets", outputFile),
+    m_histsBEl("bejets", outputFile),
+    m_histsBMu("bmujets", outputFile),
+    m_cutflowEventsREl(nullptr),
+    m_cutflowMCWeightsREl(nullptr),
+    m_cutflowEventsRMu(nullptr),
+    m_cutflowMCWeightsRMu(nullptr),
+    m_cutflowEventsBEl(nullptr),
+    m_cutflowMCWeightsBEl(nullptr),
+    m_cutflowEventsBMu(nullptr),
+    m_cutflowMCWeightsBMu(nullptr),
+    m_counterREl(0),
+    m_counterRMu(0),
+    m_counterBEl(0),
+    m_counterBMu(0),
+    m_neutrinoBuilder("MeV"),
+    m_chi2("MeV") {
     //tell it to load AKT10
     SetContainerNames()->largeJetCollectionName = "CorrectedSelectedAntiKt10LCTopoTrimmedPtFrac30SmallR5Jets"; // AntiKt10LCTopoTrimmedPtFrac30SmallR5Jets
     //SetContainerNames()->largeJetCollectionName = "CorrectedSelectedAntiKt10LCTopoJets";
     m_chi2.Init(TtresChi2::DATA2012SUMMER2013);
- 
+
     //add some default histograms for each channel
     top::addPlots(m_histsREl);
     top::addPlots(m_histsRMu);
@@ -115,12 +112,12 @@ LJetsTtresAnalysis::LJetsTtresAnalysis(TFile* outputFile) :
 
     m_histsBEl.addHist("mtt", ";boosted m_{tt} [GeV];Events", 30, 0, 3000);
     m_histsBMu.addHist("mtt", ";boosted m_{tt} [GeV];Events", 30, 0, 3000);
-}
+  }
 
-LJetsTtresAnalysis::~LJetsTtresAnalysis() {
-}
+  LJetsTtresAnalysis::~LJetsTtresAnalysis() {
+  }
 
-void LJetsTtresAnalysis::newFile(TFile* inputFile) {
+  void LJetsTtresAnalysis::newFile(TFile* inputFile) {
     updateCutflow("rejets/cutflow", m_cutflowEventsREl, inputFile);
     updateCutflow("rejets/cutflow_mc", m_cutflowMCWeightsREl, inputFile);
     updateCutflow("rmujets/cutflow", m_cutflowEventsRMu, inputFile);
@@ -129,38 +126,38 @@ void LJetsTtresAnalysis::newFile(TFile* inputFile) {
     updateCutflow("bejets/cutflow_mc", m_cutflowMCWeightsBEl, inputFile);
     updateCutflow("bmujets/cutflow", m_cutflowEventsBMu, inputFile);
     updateCutflow("bmujets/cutflow_mc", m_cutflowMCWeightsBMu, inputFile);
-}
+  }
 
-void LJetsTtresAnalysis::fillIt(top::PlotManager &hists, const top::Event& topEvent, bool isBoosted) {
+  void LJetsTtresAnalysis::fillIt(top::PlotManager& hists, const top::Event& topEvent, bool isBoosted) {
     double eventWeight = 1.;
+
     if (top::isSimulation(topEvent)) {
-        m_mcChannelNumber = topEvent.m_info->mcChannelNumber();
-//         eventWeight = topEvent.m_info->mcEventWeight();
-        eventWeight = topEvent.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+      m_mcChannelNumber = topEvent.m_info->mcChannelNumber();
+      eventWeight = topEvent.m_info->auxdataConst<float>("AnalysisTop_eventWeight");
     }
     top::fillPlots(topEvent, hists, eventWeight);
 
     double mwt = -1;
-    if (topEvent.m_electrons.size() == 1)
-      mwt = top::mwt(*topEvent.m_electrons[0], *topEvent.m_met);
-    if (topEvent.m_muons.size() == 1)
-      mwt = top::mwt(*topEvent.m_muons[0], *topEvent.m_met);
+    if (topEvent.m_electrons.size() == 1) mwt = top::mwt(*topEvent.m_electrons[0], *topEvent.m_met);
+    if (topEvent.m_muons.size() == 1) mwt = top::mwt(*topEvent.m_muons[0], *topEvent.m_met);
 
     hists.hist("mwt")->Fill(mwt * top::toGeV, eventWeight);
     hists.hist("met")->Fill(topEvent.m_met->met() * top::toGeV, eventWeight);
 
     TLorentzVector lepton;
-    if (topEvent.m_electrons.size() == 1)
-      lepton.SetPtEtaPhiE(topEvent.m_electrons[0]->pt(), topEvent.m_electrons[0]->eta(), topEvent.m_electrons[0]->phi(), topEvent.m_electrons[0]->e());
-    if (topEvent.m_muons.size() == 1)
-      lepton.SetPtEtaPhiE(topEvent.m_muons[0]->pt(), topEvent.m_muons[0]->eta(), topEvent.m_muons[0]->phi(), topEvent.m_muons[0]->e());
+    if (topEvent.m_electrons.size() == 1) lepton.SetPtEtaPhiE(
+        topEvent.m_electrons[0]->pt(), topEvent.m_electrons[0]->eta(),
+        topEvent.m_electrons[0]->phi(), topEvent.m_electrons[0]->e());
+    if (topEvent.m_muons.size() == 1) lepton.SetPtEtaPhiE(topEvent.m_muons[0]->pt(),
+                                                          topEvent.m_muons[0]->eta(),
+                                                          topEvent.m_muons[0]->phi(), topEvent.m_muons[0]->e());
 
     hists.hist("lep_pt")->Fill(lepton.Pt() * top::toGeV, eventWeight);
     hists.hist("lep_eta")->Fill(lepton.Eta(), eventWeight);
     hists.hist("lep_phi")->Fill(lepton.Phi(), eventWeight);
 
     if (isBoosted) {
-      const xAOD::Jet *selJet = nullptr;
+      const xAOD::Jet* selJet = nullptr;
       for (const auto* const jetPtr : topEvent.m_jets) {
         if (jetPtr->auxdata<int>("closeToLepton") == 1) {
           selJet = jetPtr;
@@ -168,7 +165,7 @@ void LJetsTtresAnalysis::fillIt(top::PlotManager &hists, const top::Event& topEv
         }
       }
 
-      const xAOD::Jet *largeJet = nullptr;
+      const xAOD::Jet* largeJet = nullptr;
       for (const auto* const jetPtr : topEvent.m_largeJets) {
         if (jetPtr->auxdata<int>("good") == 1) {
           largeJet = jetPtr;
@@ -184,12 +181,15 @@ void LJetsTtresAnalysis::fillIt(top::PlotManager &hists, const top::Event& topEv
         hists.hist("ljetSel_eta")->Fill(largeJet->eta(), eventWeight);
         hists.hist("ljetSel_phi")->Fill(largeJet->phi(), eventWeight);
 
-        TLorentzVector tt(0,0,0,0);
+        TLorentzVector tt(0, 0, 0, 0);
         tt += largeJet->p4();
         tt += lepton;
         tt += selJet->p4();
-        std::vector<TLorentzVector*> vec_nu = m_neutrinoBuilder.candidatesFromWMass_Rotation(&lepton, topEvent.m_met->met(), topEvent.m_met->phi(), true);
-        TLorentzVector nu(0,0,0,0);
+        std::vector<TLorentzVector*> vec_nu = m_neutrinoBuilder.candidatesFromWMass_Rotation(&lepton,
+                                                                                             topEvent.m_met->met(),
+                                                                                             topEvent.m_met->phi(),
+                                                                                             true);
+        TLorentzVector nu(0, 0, 0, 0);
         if (vec_nu.size() > 0) {
           nu = *(vec_nu[0]);
           for (size_t z = 0; z < vec_nu.size(); ++z) delete vec_nu[z];
@@ -210,30 +210,33 @@ void LJetsTtresAnalysis::fillIt(top::PlotManager &hists, const top::Event& topEv
         hists.hist("ljet_phi")->Fill(topEvent.m_largeJets[0]->phi(), eventWeight);
       }
     } else { // is resolved
-      // inputs 
+      // inputs
       // LEPTON --> TLorentzVector for your lepton
       // vjets -->  std::vector<TLorentzVector*> for the jets
       // vjets_btagged --> std::vector<bool> to say if the jets are btagged or not
       // met --> TLorentzVector for your MET
 
       // outputs, they will be filled by the TTBarLeptonJetsBuilder_chi2
-      int  igj3, igj4; // index for the Whad
+      int igj3, igj4; // index for the Whad
       int igb3, igb4; // index for the b's
-      int  ign1;  // index for the neutrino (because chi2 can test both pz solution)
+      int ign1;  // index for the neutrino (because chi2 can test both pz solution)
       double chi2ming1, chi2ming1H, chi2ming1L;
-      std::vector<TLorentzVector *> vjets;
+      std::vector<TLorentzVector*> vjets;
       std::vector<bool> vjets_btagged;
       for (size_t z = 0; z < topEvent.m_jets.size(); ++z) {
-        vjets.push_back(new TLorentzVector(0,0,0,0));
-        vjets[z]->SetPtEtaPhiE(topEvent.m_jets[z]->pt(), topEvent.m_jets[z]->eta(), topEvent.m_jets[z]->phi(), topEvent.m_jets[z]->e());
-        const xAOD::BTagging *myBTag = topEvent.m_jets[z]->btagging();
+        vjets.push_back(new TLorentzVector(0, 0, 0, 0));
+        vjets[z]->SetPtEtaPhiE(topEvent.m_jets[z]->pt(), topEvent.m_jets[z]->eta(),
+                               topEvent.m_jets[z]->phi(), topEvent.m_jets[z]->e());
+        const xAOD::BTagging* myBTag = topEvent.m_jets[z]->btagging();
         // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTagingxAODEDM
         // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarks
-        vjets_btagged.push_back(myBTag->SV1plusIP3D_discriminant() > 1.85); // best discriminant available for 8 TeV (cut at 70%)
+        vjets_btagged.push_back(myBTag->SV1plusIP3D_discriminant() > 1.85); // best discriminant available for 8 TeV
+                                                                            // (cut at 70%)
       }
-      TLorentzVector met(0,0,0,0);
+      TLorentzVector met(0, 0, 0, 0);
       met.SetPtEtaPhiM(topEvent.m_met->met(), 0, topEvent.m_met->phi(), 0);
-      bool status = m_chi2.findMinChiSquare(&lepton, &vjets, &vjets_btagged, &met, igj3, igj4, igb3, igb4, ign1, chi2ming1, chi2ming1H, chi2ming1L); // status has to be true
+      bool status = m_chi2.findMinChiSquare(&lepton, &vjets, &vjets_btagged, &met, igj3, igj4, igb3, igb4, ign1,
+                                            chi2ming1, chi2ming1H, chi2ming1L); // status has to be true
 
       double mtt = -1;
       if (status) mtt = m_chi2.getResult_Mtt();
@@ -244,20 +247,21 @@ void LJetsTtresAnalysis::fillIt(top::PlotManager &hists, const top::Event& topEv
       vjets.clear();
       vjets_btagged.clear();
     }
-}
+  }
 
-void LJetsTtresAnalysis::event(const top::Event& topEvent) {
+  void LJetsTtresAnalysis::event(const top::Event& topEvent) {
     double eventWeight = 1.;
+
     if (top::isSimulation(topEvent)) {
-        m_mcChannelNumber = topEvent.m_info->mcChannelNumber();
+      m_mcChannelNumber = topEvent.m_info->mcChannelNumber();
 //         eventWeight = topEvent.m_info->mcEventWeight();
-        eventWeight = topEvent.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
+      eventWeight = topEvent.m_truthEvent->at(0)->weights()[0];// FIXME temporary bugfix
     }
 
     int pass_rejets = top::passesPreSelection(topEvent, "rejets");
     int pass_rmujets = top::passesPreSelection(topEvent, "rmujets");
 
-    int pass_bejets  = top::passesPreSelection(topEvent, "bejets");
+    int pass_bejets = top::passesPreSelection(topEvent, "bejets");
     int pass_bmujets = top::passesPreSelection(topEvent, "bmujets");
 
     if (pass_rejets) fillIt(m_histsREl, topEvent, false);
@@ -268,54 +272,37 @@ void LJetsTtresAnalysis::event(const top::Event& topEvent) {
 
     // fill overlap histogram with 1 if there is an overlap
     // fill it with 0 for resolved only or 2 if it is boosted only
-    if (pass_rejets && pass_bejets)
-        m_histsREl.hist("overlap")->Fill(1.0, eventWeight);
+    if (pass_rejets && pass_bejets) m_histsREl.hist("overlap")->Fill(1.0, eventWeight);
 
-    if (pass_rejets && !pass_bejets)
-        m_histsREl.hist("overlap")->Fill(0.0, eventWeight);
+    if (pass_rejets && !pass_bejets) m_histsREl.hist("overlap")->Fill(0.0, eventWeight);
 
-    if (!pass_rejets && pass_bejets)
-        m_histsREl.hist("overlap")->Fill(2.0, eventWeight);
+    if (!pass_rejets && pass_bejets) m_histsREl.hist("overlap")->Fill(2.0, eventWeight);
 
-    if (pass_rmujets && pass_bmujets)
-        m_histsRMu.hist("overlap")->Fill(1.0, eventWeight);
+    if (pass_rmujets && pass_bmujets) m_histsRMu.hist("overlap")->Fill(1.0, eventWeight);
 
-    if (pass_rmujets && !pass_bmujets)
-        m_histsRMu.hist("overlap")->Fill(0.0, eventWeight);
+    if (pass_rmujets && !pass_bmujets) m_histsRMu.hist("overlap")->Fill(0.0, eventWeight);
 
-    if (!pass_rmujets && pass_bmujets)
-        m_histsRMu.hist("overlap")->Fill(2.0, eventWeight);
+    if (!pass_rmujets && pass_bmujets) m_histsRMu.hist("overlap")->Fill(2.0, eventWeight);
 
-    if (pass_rejets && pass_bejets)
-        m_histsBEl.hist("overlap")->Fill(1.0, eventWeight);
+    if (pass_rejets && pass_bejets) m_histsBEl.hist("overlap")->Fill(1.0, eventWeight);
 
-    if (pass_rejets && !pass_bejets)
-        m_histsBEl.hist("overlap")->Fill(0.0, eventWeight);
+    if (pass_rejets && !pass_bejets) m_histsBEl.hist("overlap")->Fill(0.0, eventWeight);
 
-    if (!pass_rejets && pass_bejets)
-        m_histsBEl.hist("overlap")->Fill(2.0, eventWeight);
+    if (!pass_rejets && pass_bejets) m_histsBEl.hist("overlap")->Fill(2.0, eventWeight);
 
-    if (pass_rmujets && pass_bmujets)
-        m_histsBMu.hist("overlap")->Fill(1.0, eventWeight);
+    if (pass_rmujets && pass_bmujets) m_histsBMu.hist("overlap")->Fill(1.0, eventWeight);
 
-    if (pass_rmujets && !pass_bmujets)
-        m_histsBMu.hist("overlap")->Fill(0.0, eventWeight);
+    if (pass_rmujets && !pass_bmujets) m_histsBMu.hist("overlap")->Fill(0.0, eventWeight);
 
-    if (!pass_rmujets && pass_bmujets)
-        m_histsBMu.hist("overlap")->Fill(2.0, eventWeight);
+    if (!pass_rmujets && pass_bmujets) m_histsBMu.hist("overlap")->Fill(2.0, eventWeight);
 
-    if (pass_rejets)
-      m_counterREl++;
-    if (pass_rmujets)
-      m_counterRMu++;
-    if (pass_bejets)
-      m_counterBEl++;
-    if (pass_bmujets)
-      m_counterBMu++;
+    if (pass_rejets) m_counterREl++;
+    if (pass_rmujets) m_counterRMu++;
+    if (pass_bejets) m_counterBEl++;
+    if (pass_bmujets) m_counterBMu++;
+  }
 
-}
-
-void LJetsTtresAnalysis::finalise(TFile* outputFile) {
+  void LJetsTtresAnalysis::finalise(TFile* outputFile) {
     std::cout << "Cutflows directly from the input files:\n";
     printCutflow(m_cutflowEventsREl, m_cutflowMCWeightsREl, "rejets", m_counterREl);
     printCutflow(m_cutflowEventsRMu, m_cutflowMCWeightsRMu, "rmujets", m_counterRMu);
@@ -326,8 +313,8 @@ void LJetsTtresAnalysis::finalise(TFile* outputFile) {
     //normalise to 1 fb-1 for MC simulation
     double sf = 1.;
     if (m_mcChannelNumber != 0) {
-        const double mcWeightsInSample = m_cutflowMCWeightsREl->GetBinContent(1);
-        sf = sfToOneInversefb(m_mcChannelNumber, mcWeightsInSample);
+      const double mcWeightsInSample = m_cutflowMCWeightsREl->GetBinContent(1);
+      sf = sfToOneInversefb(m_mcChannelNumber, mcWeightsInSample);
     }
 
     m_histsREl.scaleHistograms(sf);
@@ -336,31 +323,29 @@ void LJetsTtresAnalysis::finalise(TFile* outputFile) {
     m_histsBEl.scaleHistograms(sf);
     m_histsBMu.scaleHistograms(sf);
     outputFile->Write();
-}
+  }
 
-
-void LJetsTtresAnalysis::printCutflow(TH1D* eventHist, TH1D* mcWeightHist, const std::string& name, unsigned int localYield) {
+  void LJetsTtresAnalysis::printCutflow(TH1D* eventHist, TH1D* mcWeightHist, const std::string& name,
+                                        unsigned int localYield) {
     std::cout << name << " cutflow:\n";
-    std::cout << "    " << 
-            std::setw(4) << "Num" << 
-            std::setw(20) << "Name" <<
-            std::setw(20) << "Grid (Events)" <<
-            std::setw(20) << "Grid (MC Weights)" <<
-            std::setw(20) << "Local (Events)" << "\n";
+    std::cout << "    " <<
+      std::setw(4) << "Num" <<
+      std::setw(20) << "Name" <<
+      std::setw(20) << "Grid (Events)" <<
+      std::setw(20) << "Grid (MC Weights)" <<
+      std::setw(20) << "Local (Events)" << "\n";
 
     for (int i = 1; i <= eventHist->GetNbinsX(); ++i) {
-        std::cout << "    " << std::setw(4) << i
+      std::cout << "    " << std::setw(4) << i
                 << std::setw(20) << eventHist->GetXaxis()->GetBinLabel(i)
                 << std::setw(20) << eventHist->GetBinContent(i)
                 << std::setw(20) << mcWeightHist->GetBinContent(i);
 
-        if (i == eventHist->GetNbinsX())
-            std::cout << std::setw(20) << localYield;
+      if (i == eventHist->GetNbinsX()) std::cout << std::setw(20) << localYield;
 
-        std::cout << "\n";
+      std::cout << "\n";
     }
 
     std::cout << "\n";
-}
-
+  }
 }

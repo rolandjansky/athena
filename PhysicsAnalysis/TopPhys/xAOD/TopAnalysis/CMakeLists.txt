@@ -1,6 +1,7 @@
+# Auto-generated on: 2017-03-08 14:47:33.629640
 
 # Declare the name of this package:
-atlas_subdir( TopAnalysis )
+atlas_subdir( TopAnalysis None )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
@@ -11,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODJet
                           xAODMissingET
                           xAODCutFlow
+                          xAODMetaData
                           AsgTools
                           AthContainers
                           PATInterfaces
@@ -23,24 +25,27 @@ atlas_depends_on_subdirs( PUBLIC
                           TopPartons
                           TopObjectSelectionTools
                           TopSystematicObjectMaker
-                          TopFakes
-			  TopDataPreparation
-			  TopHLUpgrade )
+                          TopDataPreparation
+                          #TopHLUpgrade
+                          Tools/PathResolver
+                          #FakeBkgTools
+                        )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
 
+# Custom definitions needed for this package:
+add_definitions( -g )
+
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopAnalysis _cintDictSource
-   ROOT_HEADERS TopAnalysis/ObjectLoaderStandardCuts.h
-   TopAnalysis/EventSaverFlatNtuple.h TopAnalysis/EventSaverxAOD.h
-   TopAnalysis/EventSaverxAODNext.h Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
+                           ROOT_HEADERS Root/LinkDef.h
+                           EXTERNAL_PACKAGES ROOT )
 
 # Build a library that other components can link against:
 atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                    TopAnalysis/*.h TopAnalysis/*.icc TopAnalysis/*/*.h
-                   TopAnalysis/*/*.icc ${_cintDictSource} 
+                   TopAnalysis/*/*.icc ${_cintDictSource}
                    PUBLIC_HEADERS TopAnalysis
                    LINK_LIBRARIES xAODCore
                                   xAODRootAccess
@@ -49,6 +54,7 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                   xAODJet
                                   xAODMissingET
                                   xAODCutFlow
+                                  xAODMetaData
                                   AsgTools
                                   AthContainers
                                   PATInterfaces
@@ -61,9 +67,10 @@ atlas_add_library( TopAnalysis Root/*.cxx Root/*.h Root/*.icc
                                   TopPartons
                                   TopObjectSelectionTools
                                   TopSystematicObjectMaker
-                                  TopFakes
-				  TopDataPreparation
-				  TopHLUpgrade
+                                  TopDataPreparation
+                                  #TopHLUpgrade
+                                  PathResolver
+                                  #FakeBkgToolsLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 
@@ -83,6 +90,7 @@ atlas_add_executable( top-xaod
                                      xAODJet
                                      xAODMissingET
                                      xAODCutFlow
+                                     xAODMetaData
                                      AsgTools
                                      AthContainers
                                      PATInterfaces
@@ -95,9 +103,39 @@ atlas_add_executable( top-xaod
                                      TopPartons
                                      TopObjectSelectionTools
                                      TopSystematicObjectMaker
-                                     TopFakes
-				     TopDataPreparation
-                                     TopHLUpgrade
+                                     TopDataPreparation
+                                     #TopHLUpgrade
+                                     PathResolver
+                                     ${ROOT_LIBRARIES}
+                                     TopAnalysis
+                                     #FakeBkgToolsLib
+                    )
+
+atlas_add_executable( top-tool-ftag
+                      util/top-tool-ftag.cxx
+                      LINK_LIBRARIES xAODCore
+                                     xAODRootAccess
+                                     xAODEgamma
+                                     xAODMuon
+                                     xAODJet
+                                     xAODMissingET
+                                     xAODCutFlow
+                                     xAODMetaData
+                                     AsgTools
+                                     AthContainers
+                                     PATInterfaces
+                                     TopCPTools
+                                     TopEventSelectionTools
+                                     TopConfiguration
+                                     TopCorrections
+                                     TopEvent
+                                     TopParticleLevel
+                                     TopPartons
+                                     TopObjectSelectionTools
+                                     TopSystematicObjectMaker
+                                     TopDataPreparation
+                                     #TopHLUpgrade
+                                     PathResolver
                                      ${ROOT_LIBRARIES}
                                      TopAnalysis )
 

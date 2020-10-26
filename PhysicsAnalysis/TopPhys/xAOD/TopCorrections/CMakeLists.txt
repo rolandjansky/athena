@@ -10,12 +10,16 @@ atlas_depends_on_subdirs( PUBLIC
                           TopEvent
                           PileupReweighting
                           ElectronEfficiencyCorrection
-                          MuonEfficiencyCorrections
-                          xAODBTaggingEfficiency
                           TauAnalysisTools
                           JetJvtEfficiency
                           PhotonEfficiencyCorrection
-                          PMGTools )
+                          PMGTools
+			  PATInterfaces 
+			  FTagAnalysisInterfaces 
+			  MuonAnalysisInterfaces 
+			  TriggerAnalysisInterfaces
+			  PMGAnalysisInterfaces
+			  EgammaAnalysisInterfaces)
 
 # This package uses LHAPDF:
 find_package( Lhapdf )
@@ -25,22 +29,31 @@ find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
 # Custom definitions needed for this package:
 add_definitions( -g -std=c++14 )
 
+# Add a ROOT dictionary
+atlas_add_root_dictionary( TopCorrections _cintDictSource
+                           ROOT_HEADERS Root/LinkDef.h
+                           EXTERNAL_PACKAGES ROOT )
+
 # Build a library that other components can link against:
 atlas_add_library( TopCorrections Root/*.cxx Root/*.h Root/*.icc
                    TopCorrections/*.h TopCorrections/*.icc TopCorrections/*/*.h
-                   TopCorrections/*/*.icc 
+                   TopCorrections/*/*.icc ${_cintDictSource} 
                    PUBLIC_HEADERS TopCorrections
                    LINK_LIBRARIES xAODEgamma
                                   xAODMuon
                                   TopEvent
                                   PileupReweightingLib
                                   ElectronEfficiencyCorrectionLib
-                                  MuonEfficiencyCorrectionsLib
-                                  xAODBTaggingEfficiencyLib
                                   TauAnalysisToolsLib
                                   JetJvtEfficiencyLib
                                   PhotonEfficiencyCorrectionLib
                                   PMGToolsLib
+				  PATInterfaces
+				  FTagAnalysisInterfacesLib
+				  MuonAnalysisInterfacesLib
+				  #TriggerAnalysisInterfacesLib
+				  PMGAnalysisInterfacesLib
+				  EgammaAnalysisInterfacesLib
 				  ${LHAPDF_LIBRARIES}
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 

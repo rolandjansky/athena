@@ -13,11 +13,10 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODEgamma
                           xAODMuon
                           xAODJet
+                          xAODTracking
                           ElectronPhotonFourMomentumCorrection
                           ElectronPhotonSelectorTools
                           ElectronPhotonShowerShapeFudgeTool
-                          MuonMomentumCorrections
-			  MuonSelectorTools
                           TauAnalysisTools
                           JetCalibTools
                           JetCPInterfaces
@@ -30,8 +29,11 @@ atlas_depends_on_subdirs( PUBLIC
                           TopConfiguration
                           TopEvent
                           TopJetSubstructure
-                          xAODTracking
-                          InDetTrackSystematicsTools )
+                          TopParticleLevel
+                          InDetTrackSystematicsTools 
+			  MuonAnalysisInterfaces 
+        MuonMomentumCorrections 
+			  FTagAnalysisInterfaces)
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -55,12 +57,10 @@ atlas_add_library( TopSystematicObjectMaker Root/*.cxx Root/*.h Root/*.icc
                                   ElectronPhotonFourMomentumCorrectionLib
                                   ElectronPhotonSelectorToolsLib
                                   ElectronPhotonShowerShapeFudgeToolLib
-                                  MuonMomentumCorrectionsLib
-				  MuonSelectorToolsLib
                                   TauAnalysisToolsLib
                                   JetCalibToolsLib
                                   JetCPInterfaces
-                                  JetResolutionLib
+                                  #JetResolutionLib
                                   JetInterface
                                   METInterface
                                   METUtilitiesLib
@@ -69,8 +69,13 @@ atlas_add_library( TopSystematicObjectMaker Root/*.cxx Root/*.h Root/*.icc
                                   TopConfiguration
                                   TopEvent
                                   TopJetSubstructure
+                                  TopParticleLevel
                                   xAODTracking
                                   InDetTrackSystematicsToolsLib
+                                  MuonAnalysisInterfacesLib
+                                  MuonMomentumCorrectionsLib
+                                  FTagAnalysisInterfacesLib
+                                  #BoostedJetTaggersLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 
