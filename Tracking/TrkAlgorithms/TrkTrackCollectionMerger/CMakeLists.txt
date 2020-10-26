@@ -1,47 +1,36 @@
-################################################################################
-# Package: TrkTrackCollectionMerger
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkTrackCollectionMerger )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkTools/TrkToolInterfaces
-                          PRIVATE
-                          Tracking/TrkEvent/TrkPrepRawData )
-                          
+# External dependencies:
 find_package( Boost COMPONENTS unit_test_framework )
-find_package( Eigen )
-find_package( GeoModelCore )
-
+find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
+atlas_add_library( TrkTrackCollectionMergerLib
+                   src/*.cxx
+                   test/PutTrackCollectionsInSG.cxx
+                   PUBLIC_HEADERS TrkTrackCollectionMerger
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrkTrack TrkEventUtils TrkToolInterfaces
+                   PRIVATE_LINK_LIBRARIES TrkPrepRawData )
+
 atlas_add_component( TrkTrackCollectionMerger
-                     src/*.cxx
-                     test/PutTrackCollectionsInSG.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkTrack TrkToolInterfaces TrkPrepRawData )
-                     
+                     LINK_LIBRARIES TrkTrackCollectionMergerLib )
+
+# Tests in the package:
 atlas_add_test( TrackCollectionMerger_test
-                SOURCES test/TrackCollectionMerger_test.cxx test/PutTrackCollectionsInSG.cxx src/TrackCollectionMerger.cxx 
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-                LINK_LIBRARIES TestTools ${Boost_LIBRARIES} AthenaKernel GaudiKernel SGTools StoreGateLib CxxUtils AthenaBaseComps TrkTrack TrkToolInterfaces
-                POST_EXEC_SCRIPT "nopost.sh"
-)
+                SOURCES test/TrackCollectionMerger_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TrkTrackCollectionMergerLib
+                POST_EXEC_SCRIPT "nopost.sh" )
 
 atlas_add_test( SimpleTrackCollectionMerger_test
-                SOURCES test/SimpleTrackCollectionMerger_test.cxx test/PutTrackCollectionsInSG.cxx src/SimpleTrackCollectionMerger.cxx 
-                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} 
-                LINK_LIBRARIES TestTools ${Boost_LIBRARIES} AthenaKernel GaudiKernel SGTools StoreGateLib CxxUtils AthenaBaseComps TrkTrack TrkToolInterfaces
-                POST_EXEC_SCRIPT "nopost.sh"
-)
-
+                SOURCES test/SimpleTrackCollectionMerger_test.cxx
+                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} TrkTrackCollectionMergerLib
+                POST_EXEC_SCRIPT "nopost.sh" )
 
 # Install files from the package:
-atlas_install_headers( TrkTrackCollectionMerger )
 atlas_install_joboptions( share/*.txt )
-
