@@ -10,6 +10,7 @@
 
 // ROOT include(s):
 #include <TApplication.h>
+#include <TClass.h>
 #include <TError.h>
 #include <TSystem.h>
 
@@ -57,6 +58,30 @@ namespace xAOD {
          } else {
             ::TApplication::CreateApplication();
          }
+      }
+
+      // Load the libraries in a carefully selected order.
+      // This is a temporary work-around (26 Oct 20) until the current
+      // xAOD dictionary issues are worked out.
+      for (const char *name : {
+            "xAOD::TruthParticle_v1",
+            "xAOD::MuonRoI_v1",
+            "xAOD::CaloCluster_v1",
+            "xAOD::TrackParticle_v1",
+            "xAOD::Electron_v1",
+            "xAOD::Muon_v1",
+            "xAOD::Jet_v1",
+            "xAOD::TauJet_v1",
+            "xAOD::PFO_v1",
+            "xAOD::TrigElectron_v1",
+            "xAOD::L2CombinedMuon_v1"}) {
+        TClass* cl = TClass::GetClass( name );
+        if( cl == nullptr ) {
+          std::cerr << "xAOD::Init: "
+                    << "Failed to load the dictionary for: "
+                    << name << std::endl;
+          return xAOD::TReturnCode::kFailure;
+        }
       }
 
       // Let the user know what happened:
