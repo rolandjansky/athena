@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from DataQualityConfigurations.data09_900GeV import *
+from DataQualityConfigurations.data09_900GeV import dqconfig
 
 dqconfig.config        = "TCTReleaseHAN"
 dqconfig.hcfg          = "/afs/cern.ch/user/a/atlasdqm/dqmdisk/tier0/han_config/tct_reference_run.hcfg"
