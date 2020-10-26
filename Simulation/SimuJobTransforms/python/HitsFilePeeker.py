@@ -1,6 +1,6 @@
 from past.builtins import basestring
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def hitColls2SimulatedDetectors(inputlist):
     """Build a dictionary from the list of containers in the metadata"""
@@ -64,11 +64,11 @@ def HitsFilePeeker(runArgs, skeletonLog):
             try:
                 assert metadata_full['/TagInfo']['IOVDbGlobalTag'] is not None
                 metadatadict['IOVDbGlobalTag'] = metadata_full['/TagInfo']['IOVDbGlobalTag']
-            except:
+            except Exception:
                 try:
                     assert metadata_full['/Digitization/Parameters']['IOVDbGlobalTag'] is not None
                     metadatadict['IOVDbGlobalTag'] = metadata_full['/Digitization/Parameters']['IOVDbGlobalTag']
-                except:
+                except Exception:
                     skeletonLog.warning("Failed to find IOVDbGlobalTag.")
     else:
         ##Patch for older hit files
@@ -78,7 +78,6 @@ def HitsFilePeeker(runArgs, skeletonLog):
             else :
                 metadatadict['SimulatedDetectors'] = ['pixel','SCT','TRT','BCM','Lucid','LAr','Tile','MDT','CSC','TGC','RPC','Truth']
 
-    import re
     from AthenaCommon.GlobalFlags import globalflags
     globalflags.DataSource="geant4"
     ## Configure DetDescrVersion
@@ -128,7 +127,7 @@ def HitsFilePeeker(runArgs, skeletonLog):
             skeletonLog.debug(cmd)
             try:
                 exec(cmd)
-            except:
+            except Exception:
                 skeletonLog.warning('Failed to switch on subdetector %s',subdet)
         DetFlags.simulateLVL1.all_setOff()
         DetFlags.digitize.all_setOff()
