@@ -247,7 +247,7 @@ bool
 Trk::GsfMeasurementUpdator::invalidComponent(
   const Trk::TrackParameters* trackParameters) const
 {
-  auto measuredCov = trackParameters->covariance();
+  const auto *measuredCov = trackParameters->covariance();
   bool rebuildCov = false;
   if (!measuredCov) {
     rebuildCov = true;
