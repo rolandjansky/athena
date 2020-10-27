@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -211,9 +211,9 @@ namespace InDet{
     }
 
 
-    //BS Error Svc
-    if (m_bsError.retrieve().isFailure()){
-      ATH_MSG_FATAL( "Could not retrieve " << m_bsError );
+    //PixelConditionsSummaryTool
+    if (m_pixelConditionsTool.retrieve().isFailure()){
+      ATH_MSG_FATAL( "Could not retrieve " << m_pixelConditionsTool );
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
 
@@ -315,10 +315,6 @@ namespace InDet{
     //   Transform those indexes into a RDO collection.
     //-------------------------------------------------------------------------
 
-    //handling of decoding problems
-    m_bsError->resetCounts();
-
-
     // Get RoiDescriptor
     const TrigRoiDescriptor* roi;
     if ( HLT::OK != getFeature(outputTE, roi) ) {
@@ -383,30 +379,38 @@ namespace InDet{
       
       
       if (scdec.isSuccess()){
-	//check for recoverable errors
 	
+	// Here, store critical pixel module errors, which flagged as bad.
+	int bsErrors[12];
+  const EventContext& ctx{Gaudi::Hive::currentContext()};
+  for (size_t imod=0; imod<m_idHelper->wafer_hash_max(); imod++) {
+    uint64_t word = m_pixelConditionsTool->getBSErrorWord(imod,ctx);
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TruncatedROB))      { bsErrors[0]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MaskedROB))         { bsErrors[1]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))          { bsErrors[2]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))           { bsErrors[3]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))            { bsErrors[4]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::BCID))              { bsErrors[5]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Trailer))           { bsErrors[6]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCLVL1IDEoECheck)) { bsErrors[7]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCBCIDEoECheck))   { bsErrors[8]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCLVL1IDCheck))    { bsErrors[9]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCEoEOverflow))    { bsErrors[10]++; }
+    if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCHitOverflow))    { bsErrors[11]++; }
+  }
 	int n_err_total = 0;
-	
-	int bsErrors[IPixelByteStreamErrorsTool::AllPixErrTypes.size()];
-	
-	for (const auto idx : IPixelByteStreamErrorsTool::AllPixErrTypes ){
-	  int n_errors = m_bsError->getNumberOfErrors(idx);
-	  n_err_total += n_errors;
-	  bsErrors[idx] = n_errors;
-	}
-	
+  for (int idx=0; idx<12; idx++) { n_err_total+=bsErrors[idx]; }
+
 	ATH_MSG_DEBUG( "decoding errors: "  << n_err_total );
 	
 	if (n_err_total){
-	  for (const auto idx : IPixelByteStreamErrorsTool::AllPixErrTypes ){
-	    if (bsErrors[idx])
-	      m_PixBSErr.push_back(idx);
-	    if(msgLvl(MSG::DEBUG))
-	      msg(MSG::DEBUG) << " " << bsErrors[idx];
+    for (int idx=0; idx<12; idx++) {
+	    if (bsErrors[idx]) { m_PixBSErr.push_back(idx); }
+	    if (msgLvl(MSG::DEBUG)) { msg(MSG::DEBUG) << " " << bsErrors[idx]; }
 	  }
 	}	     
 	ATH_MSG_DEBUG( "" );
-	
+
       } else {
 	ATH_MSG_DEBUG( " m_rawDataProvider->decode failed" );
       }

@@ -108,19 +108,20 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
 
 bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, const EventContext& ctx) const {
   if (!m_useByteStream) { return false; }
-  uint64_t word = getBSErrorWord(moduleHash,ctx);
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))         { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::BCID))            { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))          { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))        { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Trailer))         { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Decoding))        { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Invalid))         { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LinkMaskedByPPC)) { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Limit))           { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TruncatedROB))    { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MaskedROB))       { return true; }
 
+  uint64_t word = getBSErrorWord(moduleHash,ctx);
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TruncatedROB))      { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MaskedROB))         { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))          { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))           { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))            { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::BCID))              { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Trailer))           { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCLVL1IDEoECheck)) { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCBCIDEoECheck))   { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCLVL1IDCheck))    { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCEoEOverflow))    { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCHitOverflow))    { return true; }
   return false;
 }
 
@@ -135,18 +136,16 @@ bool PixelConditionsSummaryTool::hasBSError(const IdentifierHash& moduleHash, Id
 
   int indexFE = (1+chFE)*maxHash+(int)moduleHash;    // (FE_channel+1)*2048 + moduleHash
   uint64_t word = getBSErrorWord(indexFE,ctx);
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))         { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::BCID))            { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))          { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))        { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Trailer))         { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Decoding))        { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Invalid))         { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LinkMaskedByPPC)) { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Limit))           { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TruncatedROB))    { return true; }
-  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MaskedROB))       { return true; }
-
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Preamble))          { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::TimeOut))           { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::LVL1ID))            { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::BCID))              { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::Trailer))           { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCLVL1IDEoECheck)) { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCBCIDEoECheck))   { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCLVL1IDCheck))    { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCEoEOverflow))    { return true; }
+  if (PixelByteStreamErrors::hasError(word,PixelByteStreamErrors::MCCHitOverflow))    { return true; }
   return false;
 }
 
@@ -171,7 +170,9 @@ bool PixelConditionsSummaryTool::isActive(const Identifier& /*elementId*/, const
 
 bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, const EventContext& ctx) const {
 
-  if (m_useByteStream && hasBSError(moduleHash, ctx)) { return false; }
+  // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
+  // Here, 52736 is a separator beween error flags and isActive flags.
+  if (m_useByteStream && getBSErrorWord(moduleHash+52736,ctx)!=1) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);
   bool isDCSActive = false;
@@ -189,7 +190,9 @@ bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, cons
 
 bool PixelConditionsSummaryTool::isActive(const IdentifierHash& moduleHash, const Identifier& elementId, const EventContext& ctx) const {
 
-  if (m_useByteStream && hasBSError(moduleHash, ctx)) { return false; }
+  // The index array is defined in PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer()
+  // Here, 52736 is a separator beween error flags and isActive flags.
+  if (m_useByteStream && getBSErrorWord(moduleHash+52736,ctx)!=1) { return false; }
 
   SG::ReadCondHandle<PixelDCSStateData> dcsstate_data(m_condDCSStateKey,ctx);
   bool isDCSActive = false;
