@@ -47,6 +47,7 @@ ActsVolumeMappingTool::initialize()
 
   /// The material mapper
   Acts::VolumeMaterialMapper::Config smmConfig;
+  smmConfig.mappingStep = 10;
   m_mapper = std::make_shared<Acts::VolumeMaterialMapper>(
       smmConfig,
       std::move(propagator),
