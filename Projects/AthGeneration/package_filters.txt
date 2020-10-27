@@ -132,6 +132,7 @@
 + Event/xAOD/xAODCutFlow
 + Event/xAOD/xAODCutFlowAthenaPool
 + Event/xAOD/xAODEventFormat
++ Event/xAOD/xAODEventFormatAthenaPool
 + Event/xAOD/xAODEventFormatCnv
 + Event/xAOD/xAODEventInfo
 + Event/xAOD/xAODEventInfoAthenaPool
