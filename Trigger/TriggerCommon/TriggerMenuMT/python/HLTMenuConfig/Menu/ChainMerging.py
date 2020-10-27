@@ -5,7 +5,7 @@ log = logging.getLogger( __name__ )
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import getAlignmentGroupOrdering
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import get_alignment_group_ordering as getAlignmentGroupOrdering
 from collections import OrderedDict
 from copy import deepcopy
 import re
