@@ -68,10 +68,19 @@ TrigConf::L1Threshold_TAU::load()
 void
 TrigConf::L1Threshold_JET::load()
 {
+   // allowed values for eta-range boundaries are 0, 0.1, 0.3, 0.5, 0.7, 0.9, 1.1, 1.3, 1.5, 1.7, 1.9, 2.1, 2.3, 2.5, 2.8, 3.1, 4.9 and their negatives
+
+   static const std::vector<int> allowedBoundaries{0, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 28, 31, 49};
    if( const auto & thrVs = data().get_child_optional("thrValues") ) {
       for( auto & x : thrVs.get() ) {
-         auto etamin = x.second.get_child("etamin").get_value<unsigned int>();
-         auto etamax = x.second.get_child("etamax").get_value<unsigned int>();
+         auto etamin = x.second.get_child("etamin").get_value<int>();
+         if(std::find(begin(allowedBoundaries), end(allowedBoundaries), abs(etamin)) == allowedBoundaries.end()) {
+            throw std::runtime_error(name() + ": etamin value " + std::to_string(etamin) + " not an allowed value for legacy JETs");
+         }
+         auto etamax = x.second.get_child("etamax").get_value<int>();
+         if(std::find(begin(allowedBoundaries), end(allowedBoundaries), abs(etamax)) == allowedBoundaries.end()) {
+            throw std::runtime_error(name() + ": etamax value " + std::to_string(etamax) + " not an allowed value for legacy JETs");
+         }
          auto priority = x.second.get_child("priority").get_value<unsigned int>();
          auto window = x.second.get_child("window").get_value<unsigned int>();
          m_etaDepWindow.addRangeValue(window, etamin, etamax, priority, /*symmetric=*/ false);

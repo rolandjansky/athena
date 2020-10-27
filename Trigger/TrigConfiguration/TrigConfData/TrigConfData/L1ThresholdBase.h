@@ -252,11 +252,6 @@ namespace TrigConf {
       void load();
    };
 
-
-
-
-
-
    /******************************************
     * Isolation for legacy L1Calo thresholds
     ******************************************/
