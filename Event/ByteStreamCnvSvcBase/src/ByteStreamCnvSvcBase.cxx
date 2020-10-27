@@ -12,7 +12,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 
 #include "AthenaKernel/IClassIDSvc.h"
-#include "StoreGate/StoreGate.h" 
 
 //______________________________________________________________________________
 ByteStreamCnvSvcBase::ByteStreamCnvSvcBase(const std::string& name, ISvcLocator* pSvcLocator) :
