@@ -96,6 +96,8 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
 
   ATH_CHECK( m_HTReadKey.initialize() );
 
+  ATH_CHECK( m_TRTPIDNNReadKey.initialize() );
+
   CHECK( m_TRTStrawSummaryTool.retrieve() );
   if ( !m_TRTStrawSummaryTool.empty()) ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummaryTool);
 
@@ -119,11 +121,13 @@ StatusCode InDet::TRT_ElectronPidToolRun2::finalize()
 std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const Trk::Track& track)
 {
   // Simply return values without calculation
-  std::vector<float> PIDvalues(4);
+  std::vector<float> PIDvalues(6);
   PIDvalues[0] = 0.5;
   PIDvalues[1] = 0.5;
   PIDvalues[2] = 0.0;
   PIDvalues[3] = 0.5;
+  PIDvalues[4] = 0.0;
+  PIDvalues[5] = 0.5;
   const Trk::TrackParameters* perigee = track.perigeeParameters();
   if (!perigee) { return PIDvalues; }
   return PIDvalues;
@@ -146,13 +150,22 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
    ATH_MSG_WARNING ("  No Pid calibration from the DB.");
  }
 
+ // Get the PID NN
+ SG::ReadCondHandle<InDet::TRTPIDNN> readHandlePIDNN{m_TRTPIDNNReadKey,ctx};
+ const InDet::TRTPIDNN* PIDNN = (*readHandlePIDNN);
+ // make sure some calibration is available
+ if(PIDNN==nullptr) {
+   ATH_MSG_WARNING ("  No PID NN available from the DB.");
+ }
+
   //Initialize the return vector
-  std::vector<float> PIDvalues(5);
+  std::vector<float> PIDvalues(6);
   float & prob_El_Comb      = PIDvalues[0] = 0.5;
   float & prob_El_HT        = PIDvalues[1] = 0.5;
   float & prob_El_ToT       = PIDvalues[2] = 0.5;
   float & prob_El_Brem      = PIDvalues[3] = 0.5;
   float & occ_local         = PIDvalues[4] = 0.0;
+  float & prob_El_NN        = PIDvalues[5] = 0.5;
 
   float dEdx = 0.0;
 
@@ -417,6 +430,11 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   prob_El_Brem = pHTel_prod; // decorates electron LH to el brem for now... (still used?)
 
   //std::cout << "Prob_HT = " << prob_El_HT << "   Prob_ToT = " << prob_El_ToT << "   Prob_Comb = " << prob_El_Comb << std::endl;
+
+  // Calculate RNN PID score
+  std::map<std::string, std::map<std::string, double>> scalarInputs_NN = PIDNN->getScalarInputs();
+  std::map<std::string, std::map<std::string, std::vector<double>>> vectorInputs_NN = PIDNN->getVectorInputs();
+  prob_El_NN = PIDNN->evaluate(scalarInputs_NN, vectorInputs_NN);
 
   return PIDvalues;
 }
