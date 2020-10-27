@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -18,7 +18,7 @@
 #define VP1SGACCESSHELPER_H
 
 #include "VP1Base/VP1HelperClassBase.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include <stdexcept>
 class VP1SGContentsHelper;
 
