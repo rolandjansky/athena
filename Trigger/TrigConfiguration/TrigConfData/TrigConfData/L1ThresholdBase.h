@@ -283,9 +283,9 @@ namespace TrigConf {
 
 
    /**************************************
-    * Isolation for new L1Calo thresholds
+    * Selection points for L1Calo thresholds
     **************************************/
-   class Isolation {
+   class Selection {
    public:
       enum class WP { NONE = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3 };
       static std::string wpToString(WP);

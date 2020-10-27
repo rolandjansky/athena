@@ -204,7 +204,7 @@ TrigConf::L1ThrExtraInfo_JETLegacy::load()
 /*******
  * eEM
  *******/
-TrigConf::L1ThrExtraInfo_eEM::Isolation_eEM::Isolation_eEM( const boost::property_tree::ptree & pt ) {
+TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost::property_tree::ptree & pt ) {
    m_isDefined = true;
    m_reta  = lround(100 * pt.get_optional<float>("reta").get_value_or(0));
    m_wstot = lround(100 * pt.get_optional<float>("wstot").get_value_or(0));
@@ -213,7 +213,7 @@ TrigConf::L1ThrExtraInfo_eEM::Isolation_eEM::Isolation_eEM( const boost::propert
 }
 
 std::ostream &
-TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eEM::Isolation_eEM & iso) {
+TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM & iso) {
    os << "reta=" << iso.reta() << ", wstot=" << iso.wstot() << ", rhad=" << iso.rhad();
    return os;
 }
@@ -226,13 +226,13 @@ TrigConf::L1ThrExtraInfo_eEM::load()
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
-            auto wp = Isolation::stringToWP(y.first);
+            auto wp = Selection::stringToWP(y.first);
             auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
             for(auto & c : y.second ) {
                int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
                int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
                unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
-               iso.addRangeValue(Isolation_eEM(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+               iso.addRangeValue(WorkingPoints_eEM(c.second), etamin, etamax, priority, /*symmetric=*/ false);
             }
          }
       }
@@ -243,7 +243,7 @@ TrigConf::L1ThrExtraInfo_eEM::load()
 /*******
  * eTAU
  *******/
-TrigConf::L1ThrExtraInfo_eTAU::eTauIsolation::eTauIsolation( const boost::property_tree::ptree & pt ) {
+TrigConf::L1ThrExtraInfo_eTAU::WorkingPoints_eTAU::WorkingPoints_eTAU( const boost::property_tree::ptree & pt ) {
    m_isolation = lround(100 * pt.get_optional<float>("isolation").get_value_or(0));
    m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
@@ -256,13 +256,13 @@ TrigConf::L1ThrExtraInfo_eTAU::load()
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
-            auto wp = TrigConf::Isolation::stringToWP(y.first);
+            auto wp = TrigConf::Selection::stringToWP(y.first);
             auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
             for(auto & c : y.second ) {
                int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
                int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
                unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
-               iso.addRangeValue(eTauIsolation(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+               iso.addRangeValue(WorkingPoints_eTAU(c.second), etamin, etamax, priority, /*symmetric=*/ false);
             }
          }
       }

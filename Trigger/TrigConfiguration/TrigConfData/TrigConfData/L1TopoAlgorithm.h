@@ -24,10 +24,8 @@ namespace TrigConf {
 
       struct VariableParameter {
       public:
-         VariableParameter(const std::string & name, int value, unsigned int selection) 
+         VariableParameter(const std::string & name, int value, std::optional<unsigned int> selection = std::nullopt)
             : m_name(name), m_value(value), m_selection(selection) {}
-         VariableParameter(const std::string & name, int value) 
-            : m_name(name), m_value(value) {}
          const std::string & name() const { return m_name; }
          int value() const { return m_value; }
          unsigned int selection() const { return m_selection.value_or(0); }

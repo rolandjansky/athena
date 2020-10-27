@@ -46,9 +46,9 @@ exampleL1Calo(const string & filename) {
    for( int ieta : { -30, -20, -10, 0, 10, 20, 30 } ) {
       unsigned int ptMinToTopo = ei_eEM.ptMinToTopo(); // the minimum energy to send to topo (not eta dependent yet)
       cout << "ptmin=" << ptMinToTopo << endl;
-      auto iso_loose  = ei_eEM.isolation(TrigConf::Isolation::WP::LOOSE, ieta);
-      auto iso_medium = ei_eEM.isolation(TrigConf::Isolation::WP::MEDIUM, ieta);
-      auto iso_tight  = ei_eEM.isolation(TrigConf::Isolation::WP::TIGHT, ieta);
+      auto iso_loose  = ei_eEM.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+      auto iso_medium = ei_eEM.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
+      auto iso_tight  = ei_eEM.isolation(TrigConf::Selection::WP::TIGHT, ieta);
       int reta_loose = iso_loose.reta(); 
       int had_loose = iso_loose.had(); 
       int wstot_loose = iso_loose.wstot(); 
@@ -332,25 +332,25 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
       cout << "    ptMinToTopo (counts)" << ex.ptMinToTopoCounts() << endl;
       cout << "    working point Loose" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::LOOSE)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::LOOSE)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
       }
       cout << "    working point Medium" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::MEDIUM)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::MEDIUM)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
       }
       cout << "    working point Tight" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::TIGHT)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::TIGHT)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
       }
-      //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Isolation::WP::MEDIUM,-20) << endl;
-      cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Isolation::WP::MEDIUM,20) << endl;
+      //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,-20) << endl;
+      cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,20) << endl;
    }
    {
       auto & ex = l1menu.thrExtraInfo().jJ();
@@ -371,19 +371,19 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
       cout << "    ptMinToTopo (counts)" << ex.ptMinToTopoCounts() << endl;
       cout << "    working point Loose" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::LOOSE)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::LOOSE)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value().isolation() << endl;
       }
       cout << "    working point Medium" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::MEDIUM)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::MEDIUM)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value().isolation() << endl;
       }
       cout << "    working point Tight" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::TIGHT)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::TIGHT)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value().isolation() << endl;

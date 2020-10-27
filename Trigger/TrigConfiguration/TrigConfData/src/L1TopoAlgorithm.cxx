@@ -64,11 +64,7 @@ TrigConf::L1TopoAlgorithm::load()
 
    if( m_type == AlgorithmType::DECISION || m_type == AlgorithmType::SORTING ) {
       for( auto & p : getList("variableParameters") ) {
-         if(p.hasAttribute("selection")) {
-            m_parameters.emplace_back(p["name"], p.getAttribute<int>("value"), p.getAttribute<unsigned int>("selection"));
-         } else {
-            m_parameters.emplace_back(p["name"], p.getAttribute<int>("value"));
-         }
+         m_parameters.emplace_back(p["name"], p.getAttribute<int>("value"), p.getAttribute_optional<unsigned int>("selection"));
       }
    }
 

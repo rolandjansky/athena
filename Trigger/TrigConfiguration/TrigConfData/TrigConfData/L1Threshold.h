@@ -144,9 +144,9 @@ namespace TrigConf {
       virtual ~L1Threshold_eEM() = default;
       virtual std::string className() const override { return "L1Threshold_eEM"; }
       // access functions
-      Isolation::WP reta() const { return m_reta; }
-      Isolation::WP rhad() const { return m_rhad; }
-      Isolation::WP wstot() const { return m_wstot; }      
+      Selection::WP reta() const { return m_reta; }
+      Selection::WP rhad() const { return m_rhad; }
+      Selection::WP wstot() const { return m_wstot; }
    protected:
       virtual void update() override {
          L1Threshold_Calo::update();
@@ -155,9 +155,9 @@ namespace TrigConf {
    private:
       void load();
       // the isolation requirement
-      Isolation::WP m_reta { Isolation::WP::NONE };
-      Isolation::WP m_rhad { Isolation::WP::NONE };
-      Isolation::WP m_wstot { Isolation::WP::NONE };
+      Selection::WP m_reta { Selection::WP::NONE };
+      Selection::WP m_rhad { Selection::WP::NONE };
+      Selection::WP m_wstot { Selection::WP::NONE };
    };
 
    class L1Threshold_eTAU final : public L1Threshold_Calo {

@@ -148,9 +148,9 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
 
          try {
             auto eEMThr = dynamic_cast<const TrigConf::L1Threshold_eEM &>(*thr);
-            jThr["reta"] = TrigConf::Isolation::wpToString(eEMThr.reta());
-            jThr["rhad"] = TrigConf::Isolation::wpToString(eEMThr.rhad());
-            jThr["wstot"] = TrigConf::Isolation::wpToString(eEMThr.wstot());
+            jThr["reta"] = TrigConf::Selection::wpToString(eEMThr.reta());
+            jThr["rhad"] = TrigConf::Selection::wpToString(eEMThr.rhad());
+            jThr["wstot"] = TrigConf::Selection::wpToString(eEMThr.wstot());
             jThr["thrValues"] = json::array_t({});
             for(auto & rv : eEMThr.thrValues()) {
                json jRV({});
@@ -281,8 +281,8 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
 
       if(thrType == "eEM") {
          auto & eeminfo = l1menu.thrExtraInfo().eEM();
-         for( auto wp : {TrigConf::Isolation::WP::LOOSE, TrigConf::Isolation::WP::MEDIUM, TrigConf::Isolation::WP::TIGHT} ) {
-            auto wpstr = TrigConf::Isolation::wpToString(wp);
+         for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
+            auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});
@@ -297,8 +297,8 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
 
       if(thrType == "eTAU") {
          auto & eeminfo = l1menu.thrExtraInfo().eTAU();
-         for( auto wp : {TrigConf::Isolation::WP::LOOSE, TrigConf::Isolation::WP::MEDIUM, TrigConf::Isolation::WP::TIGHT} ) {
-            auto wpstr = TrigConf::Isolation::wpToString(wp);
+         for( auto wp : {TrigConf::Selection::WP::LOOSE, TrigConf::Selection::WP::MEDIUM, TrigConf::Selection::WP::TIGHT} ) {
+            auto wpstr = TrigConf::Selection::wpToString(wp);
             jThrType["workingPoints"][wpstr] = json::array_t({});
             for(auto & iso : eeminfo.isolation(wp)) {
                json jWPIso({});

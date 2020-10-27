@@ -116,9 +116,9 @@ void
 TrigConf::L1Threshold_eEM::load()
 {
    // read the isolation requirements
-   m_reta  = Isolation::stringToWP(getAttribute("reta"));
-   m_rhad  = Isolation::stringToWP(getAttribute("rhad"));
-   m_wstot = Isolation::stringToWP(getAttribute("wstot"));
+   m_reta  = Selection::stringToWP(getAttribute("reta"));
+   m_rhad  = Selection::stringToWP(getAttribute("rhad"));
+   m_wstot = Selection::stringToWP(getAttribute("wstot"));
 }
 
 void

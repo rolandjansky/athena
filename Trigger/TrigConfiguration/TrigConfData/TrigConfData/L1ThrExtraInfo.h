@@ -126,10 +126,10 @@ namespace TrigConf {
     ***********************************/
    class L1ThrExtraInfo_eEM final : public L1ThrExtraInfoBase {
    public:
-      class Isolation_eEM {
+      class WorkingPoints_eEM {
       public:
-         Isolation_eEM() = default;
-         Isolation_eEM( const boost::property_tree::ptree & );
+         WorkingPoints_eEM() = default;
+         WorkingPoints_eEM( const boost::property_tree::ptree & );
          bool isDefined() const { return m_isDefined; } 
          int reta()       const { return m_reta; } 
          int wstot()      const { return m_wstot; }
@@ -153,25 +153,24 @@ namespace TrigConf {
       float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
       unsigned int ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
       unsigned int ptMinToTopoCounts() const { return energyInCounts( m_ptMinToTopoMeV, resolutionMeV() ); }
-      const Isolation_eEM & isolation(TrigConf::Isolation::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
-      const ValueWithEtaDependence<Isolation_eEM> & isolation(TrigConf::Isolation::WP wp) const { return m_isolation.at(wp); }
+      const WorkingPoints_eEM & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
+      const ValueWithEtaDependence<WorkingPoints_eEM> & isolation(TrigConf::Selection::WP wp) const { return m_isolation.at(wp); }
    private:
       /** Update the internal members */
       void load();
       /** eEM specific data */
       unsigned int m_ptMinToTopoMeV{0};
-      std::map<TrigConf::Isolation::WP, ValueWithEtaDependence<Isolation_eEM>> m_isolation{};
+      std::map<TrigConf::Selection::WP, ValueWithEtaDependence<WorkingPoints_eEM>> m_isolation{};
    };
-   using Isolation_eEM = L1ThrExtraInfo_eEM::Isolation_eEM;
-   std::ostream & operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eEM::Isolation_eEM & iso);
+   std::ostream & operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM & iso);
 
 
 
    class L1ThrExtraInfo_eTAU final : public L1ThrExtraInfoBase {
    public:
-      class eTauIsolation {
+      class WorkingPoints_eTAU {
       public:
-         eTauIsolation( const boost::property_tree::ptree & );
+         WorkingPoints_eTAU( const boost::property_tree::ptree & );
          int isolation() const { return m_isolation; }
          double isolation_d() const { return m_isolation/100.; }
          unsigned int maxEt() const { return m_maxEt; }
@@ -186,14 +185,14 @@ namespace TrigConf {
       float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
       unsigned int ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
       unsigned int ptMinToTopoCounts() const { return energyInCounts( m_ptMinToTopoMeV, resolutionMeV() ); }
-      const eTauIsolation & isolation(TrigConf::Isolation::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
-      const ValueWithEtaDependence<eTauIsolation> & isolation(TrigConf::Isolation::WP wp) const  { return m_isolation.at(wp); }
+      const WorkingPoints_eTAU & isolation(TrigConf::Selection::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
+      const ValueWithEtaDependence<WorkingPoints_eTAU> & isolation(TrigConf::Selection::WP wp) const  { return m_isolation.at(wp); }
    private:
       /** Update the internal members */
       void load();
       /** eEM specific data */
       unsigned int m_ptMinToTopoMeV{0};
-      std::map<TrigConf::Isolation::WP, ValueWithEtaDependence<eTauIsolation>> m_isolation{};
+      std::map<TrigConf::Selection::WP, ValueWithEtaDependence<WorkingPoints_eTAU>> m_isolation{};
    };
 
    class L1ThrExtraInfo_jJ final : public L1ThrExtraInfoBase {

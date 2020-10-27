@@ -306,29 +306,29 @@ TrigConf::operator<<(std::ostream & os, const TrigConf::IsolationLegacy & iso) {
 }
 
 std::string
-TrigConf::Isolation::wpToString(TrigConf::Isolation::WP wp)
+TrigConf::Selection::wpToString(TrigConf::Selection::WP wp)
 {
-   if (wp == Isolation::WP::NONE)
+   if (wp == Selection::WP::NONE)
       return "None";
-   if (wp == Isolation::WP::LOOSE)
+   if (wp == Selection::WP::LOOSE)
       return "Loose";
-   if (wp == Isolation::WP::MEDIUM)
+   if (wp == Selection::WP::MEDIUM)
       return "Medium";
-   if (wp == Isolation::WP::TIGHT)
+   if (wp == Selection::WP::TIGHT)
       return "Tight";
    throw std::runtime_error("Unknown working point " + std::to_string(int(wp)));
 }
 
-TrigConf::Isolation::WP
-TrigConf::Isolation::stringToWP(const std::string & wpStr)
+TrigConf::Selection::WP
+TrigConf::Selection::stringToWP(const std::string & wpStr)
 {
    if (wpStr == "None")
-      return Isolation::WP::NONE;
+      return Selection::WP::NONE;
    if (wpStr == "Loose")
-      return Isolation::WP::LOOSE;
+      return Selection::WP::LOOSE;
    if (wpStr == "Medium")
-      return Isolation::WP::MEDIUM;
+      return Selection::WP::MEDIUM;
    if (wpStr == "Tight")
-      return Isolation::WP::TIGHT;
+      return Selection::WP::TIGHT;
    throw std::runtime_error("Unknown working point name " + wpStr);
 }
