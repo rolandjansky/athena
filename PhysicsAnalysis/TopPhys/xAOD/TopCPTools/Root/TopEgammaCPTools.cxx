@@ -678,6 +678,10 @@ namespace top {
       file_path += ID;
       file_path += "_d0z0_v13";
       if (iso != "" && iso != "PLVTight" && iso != "PLVLoose") file_path += "_" + iso;
+      if (iso == "PLVTight" || iso == "PLVLoose") {
+	// not supported for now! -> set up a dummy tool and return 1 as SF
+	ATH_MSG_WARNING("The requested ISO WP (" + iso + ") is not supported for electron ChargeMisID SFs! Will set up a dummy tool and set the SFs to one.");
+      }
       if (m_config->useElectronChargeIDSelection()) {
         if (ID != "MediumLLH" && ID != "TightLLH") ATH_MSG_WARNING("The requested ID WP (" + ID + ") is not supported for electron ECIDS+ChargeMisID SFs! Try TightLH or MediumLH instead. Will now switch to regular ChargeMisID SFs.");
         else if (iso != "FCTight" && iso != "Gradient") ATH_MSG_WARNING("The requested ISO WP (" + iso + ") is not supported for electron ECIDS+ChargeMisID SFs! Try FCTight or Gradient instead. Will now switch to regular ChargeMisID SFs.");
