@@ -75,13 +75,11 @@ namespace xAOD {
             "xAOD::PFO_v1",
             "xAOD::TrigElectron_v1",
             "xAOD::L2CombinedMuon_v1"}) {
-        TClass* cl = TClass::GetClass( name );
-        if( cl == nullptr ) {
-          std::cerr << "xAOD::Init: "
-                    << "Failed to load the dictionary for: "
-                    << name << std::endl;
-          return xAOD::TReturnCode::kFailure;
-        }
+        // silently ignore missing classes, because this gets used in
+        // all projects, and not all projects contain all xAOD classes
+        static constexpr Bool_t LOAD = kTRUE;
+        static constexpr Bool_t SILENT = kTRUE;
+        TClass::GetClass( name, LOAD, SILENT );
       }
 
       // Let the user know what happened:
