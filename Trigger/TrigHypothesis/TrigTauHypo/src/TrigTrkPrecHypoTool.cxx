@@ -49,22 +49,22 @@ TrigTrkPrecHypoTool::~TrigTrkPrecHypoTool()
 StatusCode TrigTrkPrecHypoTool::initialize()
 {
   
-  ATH_MSG_INFO( "in initialize()" );
+  ATH_MSG_DEBUG( "in initialize()" );
   
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
 
-  ATH_MSG_INFO( " REGTEST: TrigTrkPrecHypoTool will cut on "                           );
-  ATH_MSG_INFO( " REGTEST: Lower pt cut for track selection: " << m_lowerTrackPtCut   );
-  ATH_MSG_INFO( " REGTEST: Tracks in core <= "                 << m_tracksInCoreCut   );  
-  ATH_MSG_INFO( " REGTEST: Tracks in outer <= "                << m_tracksInIsoCut    );  
-  ATH_MSG_INFO( " REGTEST: Relax High pT: "                    << m_relax_highpt      );
-  ATH_MSG_INFO( " REGTEST: Relax High pT Threshold: "           << m_highpt_threshold );
-  ATH_MSG_INFO( " REGTEST: ------ "                                                   );
+  ATH_MSG_DEBUG( " REGTEST: TrigTrkPrecHypoTool will cut on "                           );
+  ATH_MSG_DEBUG( " REGTEST: Lower pt cut for track selection: " << m_lowerTrackPtCut   );
+  ATH_MSG_DEBUG( " REGTEST: Tracks in core <= "                 << m_tracksInCoreCut   );  
+  ATH_MSG_DEBUG( " REGTEST: Tracks in outer <= "                << m_tracksInIsoCut    );  
+  ATH_MSG_DEBUG( " REGTEST: Relax High pT: "                    << m_relax_highpt      );
+  ATH_MSG_DEBUG( " REGTEST: Relax High pT Threshold: "           << m_highpt_threshold );
+  ATH_MSG_DEBUG( " REGTEST: ------ "                                                   );
 
 
-  ATH_MSG_INFO( "Initialization of TrigTrkPrecHypoTool completed successfully" );
+  ATH_MSG_DEBUG( "Initialization of TrigTrkPrecHypoTool completed successfully" );
   return StatusCode::SUCCESS;
 }
 

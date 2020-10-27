@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iterator>
@@ -50,22 +50,22 @@ TrigTrackPreSelHypoTool::~TrigTrackPreSelHypoTool()
 StatusCode TrigTrackPreSelHypoTool::initialize()
 {
   
-  ATH_MSG_INFO( "in initialize()" );
+  ATH_MSG_DEBUG( "in initialize()" );
   
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
   ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
 
-  ATH_MSG_INFO( " REGTEST: TrigTrackPreSelHypoTool will cut on "                           );
-  ATH_MSG_INFO( " REGTEST: Lower pt cut for track selection: " << m_lowerTrackPtCut   );
-  ATH_MSG_INFO( " REGTEST: Tracks in core <= "                 << m_tracksInCoreCut   );  
-  ATH_MSG_INFO( " REGTEST: Tracks in outer <= "                << m_tracksInIsoCut    );  
-  ATH_MSG_INFO( " REGTEST: Relax High pT: "                    << m_relax_highpt      );
-  ATH_MSG_INFO( " REGTEST: Relax High pT Threshold: "           << m_highpt_threshold );
-  ATH_MSG_INFO( " REGTEST: ------ "                                                   );
+  ATH_MSG_DEBUG( " REGTEST: TrigTrackPreSelHypoTool will cut on "                           );
+  ATH_MSG_DEBUG( " REGTEST: Lower pt cut for track selection: " << m_lowerTrackPtCut   );
+  ATH_MSG_DEBUG( " REGTEST: Tracks in core <= "                 << m_tracksInCoreCut   );  
+  ATH_MSG_DEBUG( " REGTEST: Tracks in outer <= "                << m_tracksInIsoCut    );  
+  ATH_MSG_DEBUG( " REGTEST: Relax High pT: "                    << m_relax_highpt      );
+  ATH_MSG_DEBUG( " REGTEST: Relax High pT Threshold: "           << m_highpt_threshold );
+  ATH_MSG_DEBUG( " REGTEST: ------ "                                                   );
 
 
-  ATH_MSG_INFO( "Initialization of TrigTrackPreSelHypoTool completed successfully" );
+  ATH_MSG_DEBUG( "Initialization of TrigTrackPreSelHypoTool completed successfully" );
   return StatusCode::SUCCESS;
 }
 
