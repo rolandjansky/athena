@@ -51,40 +51,38 @@ struct Cache
   bool assemblyDone;
 };
 
-typedef MultiComponentStateAssembler::Cache Cache;
-
 /** @brief resets the cache */
 void
-reset(Cache& cache);
+reset(MultiComponentStateAssembler::Cache& cache);
 
 /** Method to add a single set of Trk::ComponentParameters to the cached
  * Trk::MultiComponentState object under construction */
 bool
-addComponent(Cache& cache, ComponentParameters&&);
+addComponent(MultiComponentStateAssembler::Cache& cache,
+             ComponentParameters&& multiComponentState);
 
 /** Method to add a new Trk::MultiComponentState to the cached
  * Trk::MultiComponentState o bject under construction */
 bool
-addMultiState(Cache& cache, Trk::MultiComponentState&&);
+addMultiState(MultiComponentStateAssembler::Cache& cache,
+              Trk::MultiComponentState&& multiComponentState);
 
 /** Method to include the weights of states that are invalid */
 bool
-addInvalidComponentWeight(Cache& cache, const double);
+addInvalidComponentWeight(MultiComponentStateAssembler::Cache& cache,
+                          const double invalidComponentWeight);
 
 /** Method to return the cached state object -
  * it performs a reweighting before returning the object based on the
  * valid and invaid weights */
 MultiComponentState
-assembledState(Cache& cache);
+assembledState(MultiComponentStateAssembler::Cache&& cache);
 
 /** Method to return the cached state object -
  * it performs a reweighting based on the input parameter  */
 MultiComponentState
-assembledState(Cache& cache, const double);
-
-/** Method to Check component entries before full assembly */
-bool
-prepareStateForAssembly(Cache& cache);
+assembledState(MultiComponentStateAssembler::Cache&& cache,
+               const double newWeight);
 
 } // End MultiComponentStateAssembler namespace
 

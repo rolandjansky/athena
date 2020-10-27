@@ -9,8 +9,6 @@
  * @brief         Implementation code for GSF material mixture convolution
  */
 
-
-
 #include "TrkGaussianSumFilter/GsfMaterialMixtureConvolution.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "TrkGaussianSumFilter/IMultiStateMaterialEffects.h"
@@ -39,9 +37,9 @@ Trk::GsfMaterialMixtureConvolution::~GsfMaterialMixtureConvolution() = default;
 StatusCode
 Trk::GsfMaterialMixtureConvolution::initialize()
 {
-  if( m_maximumNumberOfComponents > 16){
-      ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
-      return StatusCode::FAILURE;
+  if (m_maximumNumberOfComponents > 16) {
+    ATH_MSG_FATAL("Requested MaximumNumberOfComponents > 16");
+    return StatusCode::FAILURE;
   }
   ATH_CHECK(m_materialEffects.retrieve());
   return StatusCode::SUCCESS;
@@ -438,7 +436,7 @@ Trk::GsfMaterialMixtureConvolution::update(
 
   // Check all weights
   Trk::MultiComponentState mergedState =
-    MultiComponentStateAssembler::assembledState(assemblerCache);
+    MultiComponentStateAssembler::assembledState(std::move(assemblerCache));
 
   if (mergedState.size() > m_maximumNumberOfComponents)
     ATH_MSG_ERROR("Merging failed, target size: " << m_maximumNumberOfComponents

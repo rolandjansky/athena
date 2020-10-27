@@ -65,7 +65,7 @@ mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
     cache.validWeightSum += state.second;
   }
   Trk::MultiComponentState mergedState =
-    Trk::MultiComponentStateAssembler::assembledState(cache);
+    Trk::MultiComponentStateAssembler::assembledState(std::move(cache));
   // Clear the state vector
   statesToMerge.clear();
   return mergedState;
@@ -83,7 +83,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(
   if (statesToMerge.size() <= maximumNumberOfComponents) {
     MultiComponentStateAssembler::addMultiState(cache,
                                                 std::move(statesToMerge));
-    return MultiComponentStateAssembler::assembledState(cache);
+    return MultiComponentStateAssembler::assembledState(std::move(cache));
   }
 
   // Scan all components for covariance matrices. If one or more component

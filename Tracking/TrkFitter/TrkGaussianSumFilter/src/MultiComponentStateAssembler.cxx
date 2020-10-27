@@ -38,13 +38,12 @@ isStateValid(const Cache& cache)
 
 /** Method to assemble state with correct weightings */
 Trk::MultiComponentState
-doStateAssembly(Cache& cache, const double newWeight)
+doStateAssembly(Cache&& cache, const double newWeight)
 {
   if (!isStateValid(cache)) {
     return {};
   }
   const size_t cacheSize = cache.multiComponentState.size();
-
   if (cache.validWeightSum <= 0.) {
     if (!cache.multiComponentState.empty()) {
       const double fixedWeights = 1. / static_cast<double>(cacheSize);
@@ -52,28 +51,80 @@ doStateAssembly(Cache& cache, const double newWeight)
         component.second = fixedWeights;
       }
     }
-    Trk::MultiComponentState assembledState;
-    assembledState.reserve(cacheSize);
-    for (auto& component : cache.multiComponentState) {
-      assembledState.emplace_back(std::move(component.first), component.second);
-    }
+    Trk::MultiComponentState assembledState =
+      std::move(cache.multiComponentState);
     // Reset the cache before leaving
-    reset(cache);
     return assembledState;
   }
-  Trk::MultiComponentState assembledState;
-  assembledState.reserve(cacheSize);
+
+  Trk::MultiComponentState assembledState =
+    std::move(cache.multiComponentState);
   const double scalingFactor =
     cache.validWeightSum > 0. ? newWeight / cache.validWeightSum : 1.;
-  for (auto& component : cache.multiComponentState) {
-    assembledState.emplace_back(std::move(component.first),
-                                component.second * scalingFactor);
+  for (auto& component : assembledState) {
+    component.second *= scalingFactor;
   }
   // Reset the cache before leaving
-  reset(cache);
   return assembledState;
 }
+
+bool
+prepareStateForAssembly(Cache& cache)
+{
+  // Protect against empty state
+  if (!isStateValid(cache)) {
+    return false;
+  }
+
+  // Check for minimum fraction of valid states
+  double den = cache.validWeightSum + cache.invalidWeightSum;
+  double validWeightFraction = den > 0 ? cache.validWeightSum / den : 0;
+  if (cache.invalidWeightSum > 0. &&
+      validWeightFraction < cache.minimumValidFraction) {
+    return false;
+  }
+  // Check to see assembly has not already been done
+  if (cache.assemblyDone) {
+    return true;
+  }
+
+  // Sort Multi-Component State by weights
+  std::sort(cache.multiComponentState.begin(),
+            cache.multiComponentState.end(),
+            SortByLargerSimpleComponentWeight());
+
+  double totalWeight(cache.validWeightSum + cache.invalidWeightSum);
+  if (totalWeight != 0.) {
+
+    // All elements where
+    //! comp,!(value>element),element>=value is true
+    // are before the value (i.e ordered descending).
+    // return the 1st element where (element<value)
+    Trk::ComponentParameters dummySmallestWeight(
+      nullptr, cache.minimumFractionalWeight * totalWeight);
+    auto lower_than = std::upper_bound(cache.multiComponentState.begin(),
+                                       cache.multiComponentState.end(),
+                                       dummySmallestWeight,
+                                       SortByLargerSimpleComponentWeight());
+
+    // reverse iterate , so as to delete removing the last
+    auto lower_than_reverse = std::make_reverse_iterator(lower_than);
+    for (auto itr = cache.multiComponentState.rbegin();
+         itr != lower_than_reverse;
+         ++itr) {
+      cache.multiComponentState.erase(itr.base() - 1);
+    }
+  }
+  // Now recheck to make sure the state is now still valid
+  if (!isStateValid(cache)) {
+    return false;
+  }
+  // Set assembly flag
+  cache.assemblyDone = true;
+  return true;
 }
+
+} // end anonymous namespace
 
 void
 Trk::MultiComponentStateAssembler::reset(Cache& cache)
@@ -128,81 +179,27 @@ Trk::MultiComponentStateAssembler::addInvalidComponentWeight(
   return true;
 }
 
-bool
-Trk::MultiComponentStateAssembler::prepareStateForAssembly(Cache& cache)
-{
-  // Protect against empty state
-  if (!isStateValid(cache)) {
-    return false;
-  }
-
-  // Check for minimum fraction of valid states
-  double den = cache.validWeightSum + cache.invalidWeightSum;
-  double validWeightFraction = den > 0 ? cache.validWeightSum / den : 0;
-  if (cache.invalidWeightSum > 0. &&
-      validWeightFraction < cache.minimumValidFraction) {
-    return false;
-  }
-  // Check to see assembly has not already been done
-  if (cache.assemblyDone) {
-    return true;
-  }
-
-  // Sort Multi-Component State by weights
-  std::sort(cache.multiComponentState.begin(),
-            cache.multiComponentState.end(),
-            SortByLargerSimpleComponentWeight());
-
-  double totalWeight(cache.validWeightSum + cache.invalidWeightSum);
-  if (totalWeight != 0.) {
-
-    // All elements where
-    //! comp,!(value>element),element>=value is true
-    // are before the value (i.e ordered descending).
-    // return the 1st element where (element<value)
-    ComponentParameters dummySmallestWeight(
-      nullptr, cache.minimumFractionalWeight * totalWeight);
-    auto lower_than = std::upper_bound(cache.multiComponentState.begin(),
-                                       cache.multiComponentState.end(),
-                                       dummySmallestWeight,
-                                       SortByLargerSimpleComponentWeight());
-
-    // reverse iterate , so as to delete removing the last
-    auto lower_than_reverse = std::make_reverse_iterator(lower_than);
-    for (auto itr = cache.multiComponentState.rbegin();
-         itr != lower_than_reverse;
-         ++itr) {
-      cache.multiComponentState.erase(itr.base() - 1);
-    }
-  }
-  // Now recheck to make sure the state is now still valid
-  if (!isStateValid(cache)) {
-    return false;
-  }
-  // Set assembly flag
-  cache.assemblyDone = true;
-  return true;
-}
-
 Trk::MultiComponentState
-Trk::MultiComponentStateAssembler::assembledState(Cache& cache)
+Trk::MultiComponentStateAssembler::assembledState(
+  MultiComponentStateAssembler::Cache&& cache)
 {
   if (!prepareStateForAssembly(cache)) {
     return {};
   }
+  double totalWeight = cache.validWeightSum;
   if (cache.invalidWeightSum > 0. || cache.validWeightSum <= 0.) {
-    const double totalWeight = cache.validWeightSum + cache.invalidWeightSum;
-    return doStateAssembly(cache, totalWeight);
+    totalWeight = cache.validWeightSum + cache.invalidWeightSum;
   }
-  return doStateAssembly(cache, cache.validWeightSum);
+
+  return doStateAssembly(std::move(cache), totalWeight);
 }
 
 Trk::MultiComponentState
-Trk::MultiComponentStateAssembler::assembledState(Cache& cache,
+Trk::MultiComponentStateAssembler::assembledState(Cache&& cache,
                                                   const double newWeight)
 {
   if (!prepareStateForAssembly(cache)) {
     return {};
   }
-  return doStateAssembly(cache, newWeight);
+  return doStateAssembly(std::move(cache), newWeight);
 }
