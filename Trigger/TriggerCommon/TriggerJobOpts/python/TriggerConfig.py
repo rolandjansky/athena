@@ -101,7 +101,6 @@ def collectFilters( steps ):
 def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
-    decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     decisionObjects.add( mapThresholdToL1DecisionCollection("FSNOSEED") ) # Include also Full Scan
     __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))

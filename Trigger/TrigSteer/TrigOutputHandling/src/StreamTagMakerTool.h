@@ -48,9 +48,6 @@ private:
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer> m_pebDecisionKeys {this, "PEBDecisionKeys", {},
     "Decisions including PEBInfo" };
 
-  Gaudi::Property<bool> m_allowRerunChains {this, "AllowRerunChains", false,
-    "Normally false, but if set to true this will allow resurrected chains which ran in the second pass to also add stream tags"};
-
   /// Chain to streams map filled from the HLT Menu JSON
   std::unordered_map<TrigCompositeUtils::DecisionID, std::vector<StreamTagInfo> > m_mapping;
 

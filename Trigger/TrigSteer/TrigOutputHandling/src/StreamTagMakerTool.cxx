@@ -104,27 +104,20 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
   }
 
   const Decision* passRawChains = nullptr;
-  const Decision* rerunChains = nullptr;
   for (const Decision* d : *chainsHandle) {
     if (d->name() == "HLTPassRaw") {
       passRawChains = d;
-    } else if (d->name() == "HLTRerun") {
-      rerunChains = d;
-    }
-    if (passRawChains && rerunChains) {
       break;
     }
   }
 
-  if (passRawChains == nullptr || rerunChains == nullptr) {
-    ATH_MSG_ERROR("Unable to read in the HLTNav_Summary from the DecisionSummaryMakerAlg");
+  if (passRawChains == nullptr) {
+    ATH_MSG_ERROR("Unable to read in the HLTPassRaw node from the HLTNav_Summary collection from the DecisionSummaryMakerAlg");
     return StatusCode::FAILURE;
   }
 
   DecisionIDContainer passRawIDs;
   decisionIDs(passRawChains, passRawIDs);
-  DecisionIDContainer rerunIDs;
-  decisionIDs(rerunChains, rerunIDs);
 
   if (passRawIDs.empty()) {
     ATH_MSG_DEBUG("No chains passed, event rejected");
@@ -136,14 +129,6 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
 
   // for each accepted chain look up the map of chainID -> ST
   for ( DecisionID chain: passRawIDs ) {
-
-    // Note: The default is to NOT allow rerun chains to add a stream tag
-    if (!m_allowRerunChains) {
-      if ( rerunIDs.find(chain) != rerunIDs.end() ) {
-        // This chain has entries in both the passedRaw and rerun sets. As we are not allowing rerun chains, we skip this one.
-        continue;
-      }
-    }
 
     if (TrigCompositeUtils::isLegId(HLT::Identifier(chain)) )
       continue;
