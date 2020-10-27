@@ -7,15 +7,18 @@
 #include "xAODMetaDataCnv/FileMetaDataTool.h"
 #include "../FileMetaDataCreatorTool.h"
 #include "../FileMetaDataMarkUpTool.h"
+#include "../FileMetaDataFixTool.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, FileMetaDataTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, FileMetaDataCreatorTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, FileMetaDataMarkUpTool )
+DECLARE_NAMESPACE_TOOL_FACTORY( xAODMaker, FileMetaDataFixTool )
 
 DECLARE_FACTORY_ENTRIES( xAODMetaDataCnv ) {
 
    DECLARE_NAMESPACE_TOOL( xAODMaker, FileMetaDataTool )
    DECLARE_NAMESPACE_TOOL( xAODMaker, FileMetaDataCreatorTool )
    DECLARE_NAMESPACE_TOOL( xAODMaker, FileMetaDataMarkUpTool )
+   DECLARE_NAMESPACE_TOOL( xAODMaker, FileMetaDataFixTool )
 
 }
