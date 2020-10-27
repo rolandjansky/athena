@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelModule/GeoDetModulePixelMap.h"
@@ -45,13 +45,14 @@ GeoDetModulePixelMap::GeoDetModulePixelMap(const PixelGeoBuilderBasics * basics,
 void GeoDetModulePixelMap::preBuild()
 {
   
-  std::string fileName="AlpineModules.xml";
+  std::string fileName="ITK_PixelModules.xml";
   std::string itemGen = "PixelModules";
   std::string itemName = "Module";
   if(m_bModule){
     if(const char* env_p = std::getenv("PIXEL_SILICONMODULES_GEO_XML")) fileName = std::string(env_p);
   }
   else{
+    fileName = "PixelModuleReadout.xml";
     if(const char* env_p = std::getenv("PIXEL_SILICONREADOUT_GEO_XML")) fileName = std::string(env_p);
     itemGen = "FrontEndChipReadout";
     itemName = "FrontEndChipGeo";

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "PixelLayoutUtils/PixelGeneralXMLHelper.h"
 #include "PathResolver/PathResolver.h"
@@ -12,7 +12,7 @@ PixelGeneralXMLHelper::PixelGeneralXMLHelper(std::string envFileName, const Pixe
 
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   bool bParsed = false;
-  std::string fileName_brl="GenericPixelGeneral.xml";
+  std::string fileName_brl="PixelGeneral.xml";
   if(readXMLfromDB)
     {
       if(const char* env_p = std::getenv(envFileName.c_str())) fileName_brl = std::string(env_p);
