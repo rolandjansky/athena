@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -15,7 +15,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 
-from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool
+# from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryHelperTool
 
 # from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
 # InDetTrigFastTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrigFastTrackSummaryTool",
@@ -42,8 +42,8 @@ from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummar
 
 
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
-    InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
-    InDetTrigHoleSearchTool,InDetTrigExtrapolator
+    InDetTrigTrackSummaryToolSharedHits, \
+    InDetTrigExtrapolator
 
 from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool, InDetTrigTrackSummaryToolSharedHitsWithTRTPid
 

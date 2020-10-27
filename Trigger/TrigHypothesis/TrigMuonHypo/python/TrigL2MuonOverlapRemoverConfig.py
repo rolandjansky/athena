@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+# flake8: noqa (trigger legacy code)
 
 from TrigMuonHypo.TrigMuonHypoConf import *
 from TrigMuonHypo.TrigL2MuonOverlapRemoverMonitoring import *

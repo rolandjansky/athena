@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+# flake8: noqa (trigger legacy code)
 
 from TrigSteering.TrigSteeringConf import *
 from TrigNavigation.TrigNavigationConfig import *
