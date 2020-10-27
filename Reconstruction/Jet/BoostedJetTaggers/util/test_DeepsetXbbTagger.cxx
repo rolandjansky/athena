@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstdlib>
 #include <string>
+#include <cmath>
 
 // ROOT include(s):
 #include <TFile.h>
@@ -133,12 +134,17 @@ int main( int argc, char* argv[] ) {
   // Fill a validation true with the tag return value
   std::unique_ptr<TFile> outputFile(TFile::Open( "output_Dexter.root", "recreate" ));
   int pass;
-  float dexter_pbb, dexter_pb, dexter_pl;
+  float dexter_pbb, dexter_pb, dexter_pl, dexter_Dbb;
+  float dexter_Dbb_flip;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
   Tree->Branch( "dexter_pbb", &dexter_pbb, "dexter_pb/F" );
   Tree->Branch( "dexter_pb", &dexter_pb, "dexter_pb/F" );
   Tree->Branch( "dexter_pl", &dexter_pl, "dexter_pb/F" );
+  Tree->Branch( "dexter_Dbb", &dexter_Dbb, "dexter_Dbb/F" );
+  Tree->Branch( "dexter_Dbb_flip", &dexter_Dbb_flip, "dexter_Dbb_flip/F" );
+  // free parameters b-jet fraction 
+  float f_b = 0.4; 
 
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
@@ -152,7 +158,6 @@ int main( int argc, char* argv[] ) {
   std::cout<<"Initializing DexterTool"<<std::endl;
   asg::AnaToolHandle<DexterTool> m_Tagger; //!
   m_Tagger.setTypeAndName("DexterTool","DexterTool");
-
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::VERBOSE);
   m_Tagger.setProperty( "neuralNetworkFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
   m_Tagger.setProperty( "tagThreshold", 0.5);
@@ -160,6 +165,19 @@ int main( int argc, char* argv[] ) {
   if (status_code.isFailure()) {
     return 1;
   }
+
+  // For Negative-tag
+  asg::AnaToolHandle<DexterTool> m_Tagger_flip; //!
+  m_Tagger_flip.setTypeAndName("DexterTool","DexterTool");
+  if(verbose) m_Tagger_flip.setProperty("OutputLevel", MSG::VERBOSE);
+  m_Tagger_flip.setProperty( "neuralNetworkFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
+  m_Tagger_flip.setProperty( "tagThreshold", 0.5);
+  m_Tagger_flip.setProperty( "negativeTagMode", "TrksFlip");
+  status_code = m_Tagger_flip.retrieve();
+  if (status_code.isFailure()) {
+    return 1;
+  }  
+
 
   ////////////////////////////////////////////////////
   // Loop over the events
@@ -191,16 +209,20 @@ int main( int argc, char* argv[] ) {
 
       if (m_Tagger->n_subjets(*jet) == 2 && jet->pt() > 20e3) {
         auto scores = m_Tagger->getScores(*jet);
+        auto scores_flip = m_Tagger_flip->getScores(*jet);
         if (verbose) {
           std::cout << "BB Score: " << scores.at("dexter_pbb") << std::endl;
           std::cout << "B Score: " << scores.at("dexter_pb") << std::endl;
           std::cout << "Light Score: " << scores.at("dexter_pl") << std::endl;
+          std::cout << "Dbb Score: " << log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) ) << std::endl;
         }
         bool res = m_Tagger->keep( *jet );
         pass = res;
         dexter_pbb = scores.at("dexter_pbb");
         dexter_pb = scores.at("dexter_pb");
         dexter_pl = scores.at("dexter_pl");
+        dexter_Dbb = log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) );
+        dexter_Dbb_flip = log(scores_flip.at("dexter_pbb") / (f_b * scores_flip.at("dexter_pb") + (1- f_b) * scores_flip.at("dexter_pl") ) );
         Tree->Fill();
       }
     }

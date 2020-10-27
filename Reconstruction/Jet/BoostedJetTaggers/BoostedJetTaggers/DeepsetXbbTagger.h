@@ -98,6 +98,9 @@ protected:
   std::string m_neuralNetworkFile;
   std::string m_configurationFile;
 
+  /** negative-tag mode */
+  std::string m_negativeTagMode;
+
   /** secvtx collection name */
   std::string m_secvtx_collection_name;
 
