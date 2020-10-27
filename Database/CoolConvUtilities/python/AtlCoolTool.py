@@ -262,7 +262,7 @@ class AtlCoolTool:
         elif not node.startswith('/'): node=self.curdir+'/'+node
         if (node.startswith('//')): node=node[1:]
         res=InfoList()
-        chk=raw_input('Delete folder(set) '+node+' ? (y/n)')
+        chk=input('Delete folder(set) '+node+' ? (y/n)')
         if not (chk=='y' or chk=='Y'):
             res.append('Deletion aborted!')
             return res
@@ -303,7 +303,7 @@ class AtlCoolTool:
             if (self.curtag==''):
                 restag=""
             else:
-                if not self.curtag in f.listTags():
+                if self.curtag not in f.listTags():
                     # tag is not defined here, try hierarchical tag
                     try:
                         restag=f.resolveTag(self.curtag)
@@ -391,8 +391,8 @@ class AtlCoolTool:
         res['description'] = f.description()
         if (doCount):
             res['cardinality'] = f.countObjects( cool.ValidityKeyMin,
-                                             cool.ValidityKeyMax,
-                                             cool.ChannelSelection.all() )
+                                                 cool.ValidityKeyMax,
+                                                 cool.ChannelSelection.all() )
             res['size'] = res['cardinality'] * byteSize( f.payloadSpecification() )
         else:
             res['cardinality']='-'
@@ -502,12 +502,12 @@ class AtlCoolTool:
             iseq=0
             for ichan in chanlist:
                 try:
-                    channame=f.channelName(ichan);
-                except:
+                    channame=f.channelName(ichan)
+                except Exception:
                     channame='<none>'
                 try:
-                    chandesc=f.channelDescription(ichan);
-                except:
+                    chandesc=f.channelDescription(ichan)
+                except Exception:
                     chandesc='<none>'
                 res.append('%i: %i %s %s' % (iseq,ichan,channame,chandesc))
                 iseq+=1
@@ -559,7 +559,7 @@ class AtlCoolTool:
             # check tag exists, confirm action if not
             if tag1 not in f.listTags():
                 print ("WARNING: Tag %s does not exist in node %s" % (tag1,node))
-                chk=raw_input("Do you want to proceed anyway (y/n)")
+                chk=input("Do you want to proceed anyway (y/n)")
                 if (chk.upper()!="Y"):
                     raise Exception('ABORTED - Tag %s does not exist' % tag1)
             try:
@@ -780,7 +780,7 @@ class AtlCoolTool:
                                     res.append('Tag %s already at state %i' % (rtag,curstate))
                             else:
                                 res.append('Skip tag %s due to UPD mode' % rtag)
-                        except:
+                        except Exception:
                             pass
             res.append('Changed state of %i tags' % nmod)
         else:
@@ -826,7 +826,7 @@ class AtlCoolTool:
                 if (multi):
                     try:
                         rtag=subf.resolveTag(tag)
-                    except:
+                    except Exception:
                         rtag='<nothing>'
                     res.append('Folder %s : tag %s' % (inode,rtag))
         return res
@@ -869,7 +869,7 @@ class AtlCoolTool:
                             if finode==('') : finode='/'
                         try:
                             subf=self.db.getFolder(inode)
-                        except:
+                        except Exception:
                             subf=self.db.getFolderSet(inode)
                         try:
                             rtag=subf.resolveTag(tag1)
@@ -880,7 +880,7 @@ class AtlCoolTool:
                             except Exception as e:
                                 print (e)
                                 res.append('createTagRelation failed with error %s' %e)
-                        except:
+                        except Exception:
                             res.append('Folder %s : no tag selected' % inode)
             res.append('All done')
         else:
