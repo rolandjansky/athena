@@ -25,8 +25,6 @@ if isOnline and useEmon:
 
 #ToolSvc.InDetCosmicsEventPhaseTool.GlobalOffset = 0
 
-ToolSvc.InDetPixelClusterOnTrackTool.ErrorStrategy=1 # Added 13 Jul 2020 from ATLASRECTS-5544
-
 
 # ----------------------------- Printout
 printfunc ("CHECK POINT PRINTING")
