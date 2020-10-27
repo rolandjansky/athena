@@ -17,6 +17,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Trigger/TrigAnalysis/TriggerMatchingTool
                           GaudiKernel
 			  PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection 
+			  Reconstruction/VKalVrt/TrkToLeptonPVTool
                          )
 
 # Component(s) in the package:
