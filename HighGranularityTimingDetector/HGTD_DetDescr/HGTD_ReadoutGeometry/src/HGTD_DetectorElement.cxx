@@ -8,19 +8,7 @@
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
-// #include "CLHEP/Geometry/Point3D.h"
-// #include "CLHEP/Geometry/Vector3D.h"
-// #include "CLHEP/Vector/ThreeVector.h"
-// #include "CLHEP/Units/PhysicalConstants.h" // for M_PI
-// #include "CLHEP/Units/SystemOfUnits.h"
-
-// #include "TrkSurfaces/PlaneSurface.h"
-// #include "TrkSurfaces/SurfaceBounds.h"
-
-// #include "InDetCondServices/ISiLorentzAngleSvc.h"
-// #include <cmath>
-// #include <cassert>
-// #include <limits>
+#include "TrkSurfaces/PlaneSurface.h"
 
 namespace InDetDD {
 

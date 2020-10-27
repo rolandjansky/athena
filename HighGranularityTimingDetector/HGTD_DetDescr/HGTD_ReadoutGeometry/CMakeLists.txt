@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/ReadoutGeometryBase
                           GaudiKernel
                           HighGranularityTimingDetector/HGTD_DetDescr/HGTD_Identifier
+                          Tracking/TrkDetDescr/TrkSurfaces
                           PRIVATE
                           Database/AthenaPOOL/AthenaPoolUtilities
                           DetectorDescription/IdDictDetDescr )
@@ -32,5 +33,5 @@ atlas_add_library( HGTD_ReadoutGeometry
                    PUBLIC_HEADERS HGTD_ReadoutGeometry
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel SGTools AtlasDetDescr GeoModelKernel GeoPrimitives Identifier ReadoutGeometryBase GaudiKernel HGTD_Identifier StoreGateLib SGtests
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaKernel SGTools AtlasDetDescr GeoModelKernel GeoPrimitives Identifier ReadoutGeometryBase GaudiKernel HGTD_Identifier TrkSurfaces StoreGateLib SGtests
                    PRIVATE_LINK_LIBRARIES AthenaPoolUtilities DetDescrConditions IdDictDetDescr )
