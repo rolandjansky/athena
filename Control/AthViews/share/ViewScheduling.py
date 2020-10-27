@@ -19,13 +19,15 @@ from AthenaCommon.AlgScheduler import AlgScheduler
 AlgScheduler.ShowControlFlow( True )
 AlgScheduler.ShowDataDependencies( True )
 AlgScheduler.EnableConditions( True )
+AlgScheduler.OutputLevel( INFO )
+AlgScheduler.setAlgRanking( "PCE" )
 
 # Control flow
 from AthenaCommon.AlgSequence import AthSequencer
 allViewAlgorithms = AthSequencer( "allViewAlgorithms" )
 allViewAlgorithms.ModeOR = False
 allViewAlgorithms.Sequential = False
-allViewAlgorithms.StopOverride = False
+allViewAlgorithms.StopOverride = True
 makeViewSequence = AthSequencer( "makeViewSequence" )
 makeViewSequence.ModeOR = False
 makeViewSequence.Sequential = True
