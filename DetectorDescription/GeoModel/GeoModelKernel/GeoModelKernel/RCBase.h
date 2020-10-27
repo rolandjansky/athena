@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //## begin module%1.5%.codegen_version preserve=yes
@@ -102,7 +102,7 @@ class RCBase
       //## Attribute: m_count%3CD12A9F013D
       //	The reference count
       //## begin RCBase::m_count%3CD12A9F013D.attr preserve=no  private: mutable unsigned short int {V} 0
-      mutable unsigned short int m_count;
+      mutable unsigned long int m_count;
       //## end RCBase::m_count%3CD12A9F013D.attr
 
     // Additional Private Declarations
