@@ -8,6 +8,14 @@
 #include "TrigLongLivedParticlesHypo/TrigCaloRatioHypo.h"
 #include "TrigLongLivedParticlesHypo/TrigLLPInnerDetectorHypo.h"
 
+#include "../TrigIsoHPtTrackTriggerHypoAlgMT.h"
+#include "../TrigIsoHPtTrackTriggerHypoTool.h"
+
+
+DECLARE_COMPONENT (TrigIsoHPtTrackTriggerHypoAlgMT )
+DECLARE_COMPONENT (TrigIsoHPtTrackTriggerHypoTool )
+
+
 
 DECLARE_COMPONENT( TrigL2HVJetHypoAllCuts )
 DECLARE_COMPONENT( TrigL2HVJetHypo )

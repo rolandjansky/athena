@@ -773,7 +773,8 @@ UnconventionalTrackingChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['unconvtrk'],
     'threshold'      : '',
-    'extra'          : '',
+    'isoInfo'        : ['icummedium','imedium','iloose'],
+    'extra'          : ["isohpttrack"],
     'addInfo'        : [],
 }
 # ---- Unconventional Tracking Dictionary of default Values ----
@@ -784,6 +785,7 @@ UnconventionalTrackingChainParts_Default = {
     'chainPartName'  : [],
     'multiplicity'   : '',
     'trigType'       : ['unconvtrk'],
+    'isoInfo'        : '',
     'threshold'      : '',
     'extra'          : '',
     'addInfo'        : [],
