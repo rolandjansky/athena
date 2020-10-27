@@ -104,3 +104,51 @@ string PixelGmxInterface::getstr(const string typeName, const string name, const
   }
   
 }
+
+void StripGmxInterface::addModule(string typeName, map<string, int> &index, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
+  //
+  //    Get the ATLAS "Offline" wafer identifier 
+  //
+  const Pixel_ID *pixelIdHelper = dynamic_cast<const Pixel_ID *> (m_commonItems->getIdHelper());
+  Identifier id = pixelIdHelper->module_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], 
+					index["eta_module"], index["side"]);
+  IdentifierHash hashId = pixelIdHelper->module_hash(id);
+  //
+  //    Now do our best to check if this is a valid id. If either the gmx file is wrong, or the xml file
+  //    defining the allowed id's is wrong, you can get disallowed id's. These cause a crash later 
+  //    if allowed through. To do the check, we ask for the hash-id of this id. Invalid ids give a 
+  //    special invalid hash-id (0xFFFFFFFF). But we don't exit the run, to help debug things quicker.
+  //
+  if (!hashId.is_valid()) {
+    *m_log << MSG::ERROR <<"Invalid id for sensitive module " << typeName << " volume with indices \n";
+    for (map<string, int>::iterator i = index.begin(); i != index.end(); ++i) {
+      *m_log << MSG::ERROR << i->first << " = " << i->second << "; ";
+    }
+    *m_log << MSG::ERROR << 
+      "\nRefusing to make it into a sensitive element. Incompatible gmx and identifier-xml files." << endmsg;
+    return;
+  }
+  //
+  //    Create the detector element and add to the DetectorManager
+  //
+  const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[typeName]);
+
+  if (!design) {
+    *m_log << MSG::FATAL << "PixelGmxInterface::addSensor: Error: Readout sensor type " << typeName << 
+      " not found.\n" << endmsg;
+    exit(999);
+  }
+  InDetDD::SiDetectorElement *detector = new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems);
+  m_detectorManager->addDetectorElement(detector);
+  //
+  //    Build up a map-structure for numerology
+  //
+  Module module((unsigned int) hashId);
+  string errorMessage("");
+  if (!m_moduleTree->add(index["barrel_endcap"], index["layer_wheel"], index["eta_module"], 
+			index["phi_module"], index["side"], module, errorMessage)) {
+    *m_log << MSG::ERROR << errorMessage << endmsg;
+  }
+  return;
+}
+
