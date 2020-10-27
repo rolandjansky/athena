@@ -408,7 +408,7 @@ def iPatFitterCfg(flags, name='iPatFitter', **kwargs):
 def iPatSLFitterCfg(flags, name='iPatSLFitter', **kwargs): 
     kwargs.setdefault("LineFit",True)
     kwargs.setdefault("LineMomentum", flags.Muon.straightLineFitMomentum )
-    return iPatFitterCfg(flags, **kwargs)
+    return iPatFitterCfg(flags, name, **kwargs)
 
 # track cleaner configured to use the same fitter
 def MuidTrackCleanerCfg(flags, name='MuidTrackCleaner', **kwargs ):
