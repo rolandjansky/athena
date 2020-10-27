@@ -55,7 +55,7 @@ cd ../
 echo "Creating new threadFive directory"
 mkdir threadFive; cd threadFive
 
-Reco_tf.py --steering "no" --athenaopts="--threads=5" --AMI=$1 --preExec "${preExecString}" "${preExecStringTwo}"  --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaFiveThreads.log
+Reco_tf.py --steering "no" --athenaopts="--threads=5" --AMI=$1 --preExec "${preExecStringOne}" "${preExecStringTwo}"  --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root | tee athenaFiveThreads.log
 rc5=${PIPESTATUS[0]}
 echo "art-result: $rc5 FiveThreads"
 
