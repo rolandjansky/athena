@@ -7,8 +7,8 @@
  -----------------------------------------
 ***************************************************************************/
 
-#ifndef MUONGEOMODEL_RPCREADOUTELEMENT_H
-# define MUONGEOMODEL_RPCREADOUTELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_RPCREADOUTELEMENT_H
+#define MUONREADOUTGEOMETRY_RPCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -384,4 +384,4 @@ namespace MuonGM {
 
 } // namespace MuonGM
 
-#endif // MUONGEOMODEL_RPCREADOUTELEMENT_H
+#endif // MUONREADOUTGEOMETRY_RPCREADOUTELEMENT_H

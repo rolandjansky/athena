@@ -7,8 +7,8 @@
  -------------------------------------------------------
  ***************************************************************************/
 
-#ifndef MUONGEOMODEL_TGCDETECTORELEMENT_H
-#define MUONGEOMODEL_TGCDETECTORELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_TGCDETECTORELEMENT_H
+#define MUONREADOUTGEOMETRY_TGCDETECTORELEMENT_H
 
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
@@ -78,4 +78,4 @@ private:
 
 } // namespace MuonGM
 
-#endif // MUONGEOMODEL_TGCDETECTORELEMENT_H
+#endif // MUONREADOUTGEOMETRY_TGCDETECTORELEMENT_H

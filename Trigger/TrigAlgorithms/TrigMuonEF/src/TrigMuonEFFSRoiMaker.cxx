@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFFSRoiMaker.h"
@@ -241,10 +241,6 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
 	xAOD::MuonContainer* outputContainer = new xAOD::MuonContainer(1);
 	xAOD::MuonAuxContainer auxCont;
 	outputContainer->setStore(&auxCont);
-	// using deep copy for now 
-	// maybe better to use ConstDataVector<MuonContainer> - but need to be able to attach to trigger element
-	//ConstDataVector<xAOD::MuonContainer>* outputContainer = new ConstDataVector<xAOD::MuonContainer>(1, SG::VIEW_ELEMENTS);
-	//(*outputContainer)[0] = const_cast<xAOD::Muon*>(muon);
 
 	// deep copy the muon
 	xAOD::Muon* muoncopy = new xAOD::Muon();

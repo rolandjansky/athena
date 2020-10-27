@@ -1131,7 +1131,7 @@ namespace MuonCombined {
             continue;
           }
           alreadyIncluded.insert(trackHash(primaryTag->primaryTrack()));
-	  //create a copy for ambi processing to avoid const_cast
+	  //create a copy for ambi processing
 	  //all we care about in the end is getting the right candidates anyway
 	  //muonTracks takes ownership of the memory
           Trk::Track* tmpTrack=new Trk::Track(*primaryTag->primaryTrack());

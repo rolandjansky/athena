@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONGEOMODEL_TGCREADOUTPARAMS_H
-#define MUONGEOMODEL_TGCREADOUTPARAMS_H
+#ifndef MUONREADOUTGEOMETRY_TGCREADOUTPARAMS_H
+#define MUONREADOUTGEOMETRY_TGCREADOUTPARAMS_H
 
 // ******************************************************************************
 // class TgcReadoutParams
@@ -131,4 +131,4 @@ const std::string TgcReadoutParams::GetName() const
 }
 } // namespace MuonGM
 
-#endif // MUONGEOMODEL_TGCREADOUTPARAMS_H
+#endif // MUONREADOUTGEOMETRY_TGCREADOUTPARAMS_H

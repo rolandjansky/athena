@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/Bootstrap.h"
@@ -56,16 +56,4 @@ TgcRdoContainer::hashFcn()
 // Insert a RawData
 void TgcRdoContainer::push_back(TgcRawData * /*rawData*/)
 {
-  // uint16_t rawDataId = TgcRdo::identifyRawData(*rawData);
-  // 
-  // // find TgcRdo
-  // MyBase::const_iterator it = MyBase::indexFind(rawDataId);
-  // if(it!=MyBase::end())
-  //   {
-  //     const TgcRdo * const_rdo = *it;
-  //     TgcRdo * rdo = const_cast<TgcRdo *>(const_rdo);
-  //     rdo->push_back(rawData); 
-  //   } 
-  // 
-  // return ; 
 }
