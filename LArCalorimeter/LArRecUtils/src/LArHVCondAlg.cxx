@@ -369,6 +369,8 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
 
   std::vector<unsigned int> listElec;
 
+  const float uAkOhm = 1.e-3; // current is uA, rValues kOhm, result should be V
+
   updatedCells.clear();
   hvmap.clear();
   currmap.clear();
@@ -426,7 +428,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                             hvmod.getEtaIndex(),
                                                                             igap,
                                                                             electrode.getElectrodeIndex() ));
-                    curr *= rValues[ridx];
+                    curr *= uAkOhm * rValues[ridx];
                  }
                  if (hasPathology) {
                     ATH_MSG_VERBOSE( "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]);
@@ -480,7 +482,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                         igap,
                                                                         0 // not used in EMBPS
                                                               ));
-                curr *= rValues[ridx];
+                curr *= uAkOhm * rValues[ridx];
              }
 	     addHV(v,hv,wt);
 	     addCurr(ihv,curr,wt);
@@ -533,7 +535,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                         hvmod.getEtaIndex(),
                                                                         hvmod.getSectorIndex(),
                                                                         electrode.getElectrodeIndex() ));
-                      curr *= rValues[ridx];
+                      curr *= uAkOhm * rValues[ridx];
                    }
                    if (hasPathology) {
                       msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larem_id->print_to_string(id)<<" "<<hasPathologyEM[index]<<endmsg;
@@ -584,7 +586,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                         igap,
                                                                         0 // not used in EMECPS
                                                                     ));
-                      curr *= rValues[ridx];
+                      curr *= uAkOhm * rValues[ridx];
                    }
                addHV(v,hv,wt);
                addCurr(ihv,curr,wt);
@@ -664,7 +666,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                 subgap.getSubgapIndex(),
                                                                 0 // not used in HEC
                                                                  ));
-              curr *= rValues[ridx];
+              curr *= uAkOhm * rValues[ridx];
            }
            //std::cout << "     hv value " << hv << std::endl;
            if (hasPathology) {
@@ -758,7 +760,7 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                 hvmod.getSectorIndex(),
                                                                 line->getLineIndex()
                                                                  ));
-              curr *= rValues[ridx];
+              curr *= uAkOhm * rValues[ridx];
            }
            //std::cout << " line " << line;
            if (hasPathology) {
