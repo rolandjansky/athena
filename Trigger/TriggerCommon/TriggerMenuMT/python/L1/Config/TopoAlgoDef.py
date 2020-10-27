@@ -87,8 +87,7 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 0)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax) 
-        alg.addgeneric('DoIsoCut', '0')
-        #alg.addgeneric('DoEtaCut', '1')
+        alg.addgeneric('DoIsoCut', 0)
         tm.registerTopoAlgo(alg) 
 
         
@@ -99,8 +98,7 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 3) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
-        alg.addgeneric('DoIsoCut', '1')
-        #alg.addgeneric('DoEtaCut', '1')
+        alg.addgeneric('DoIsoCut', 1)
         tm.registerTopoAlgo(alg)
 
 
@@ -111,8 +109,7 @@ class TopoAlgoDef:
         alg.addvariable('IsoMask', 2) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
-        alg.addgeneric('DoIsoCut', '1')
-        #alg.addgeneric('DoEtaCut', '1')
+        alg.addgeneric('DoIsoCut', 1)
         tm.registerTopoAlgo(alg)
 
         
@@ -757,8 +754,8 @@ class TopoAlgoDef:
                 setattr (d, k, x[k])
 
             toponame = "%iDETA%i-%s%s%s%s-%s%s%s%s"  % (d.minDeta, d.maxDeta,
-                                                        d.otype, str(d.ocut1) if d.ocut1 > 0 else "", d.olist, str(d.nleading1) if d.olist=="s" else "",
-                                                        d.otype, str(d.ocut2) if d.ocut2 > 0 else "", d.olist, str(d.nleading2) if d.olist=="s" else "")
+                                                        d.otype, d.ocut1 if d.ocut1 > 0 else "", d.olist, d.nleading1 if d.olist=="s" else "",
+                                                        d.otype, d.ocut2 if d.ocut2 > 0 else "", d.olist, d.nleading2 if d.olist=="s" else "")
             
             log.debug("Define %s", toponame)
             inputList = d.otype + d.olist

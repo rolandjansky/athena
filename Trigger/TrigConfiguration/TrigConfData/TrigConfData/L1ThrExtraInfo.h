@@ -81,8 +81,8 @@ namespace TrigConf {
       virtual ~L1ThrExtraInfo_JETLegacy() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_JETLegacy"; }
       unsigned int jetScale() const { return 1000 / resolutionMeV(); }
-      float ptMinToTopoLargeWindow() const { return m_ptMinToTopoLargeWindowMeV / 1000.0f; }
-      float ptMinToTopoSmallWindow() const { return m_ptMinToTopoSmallWindowMeV / 1000.0f; }
+      double ptMinToTopoLargeWindow() const { return m_ptMinToTopoLargeWindowMeV / 1000.0; }
+      double ptMinToTopoSmallWindow() const { return m_ptMinToTopoSmallWindowMeV / 1000.0; }
       unsigned int ptMinToTopoLargeWindowMeV() const { return m_ptMinToTopoLargeWindowMeV; }
       unsigned int ptMinToTopoSmallWindowMeV() const { return m_ptMinToTopoSmallWindowMeV; }
       unsigned int ptMinToTopoLargeWindowCounts() const { return energyInCounts( m_ptMinToTopoLargeWindowMeV, resolutionMeV() ); }
@@ -149,7 +149,8 @@ namespace TrigConf {
       public:
          Isolation( const boost::property_tree::ptree & );
          int isolation() const { return m_isolation; }
-         float isolation_f() const { return m_isolation/100.; }
+         double isolation_d() const { return m_isolation/100.; }
+         unsigned int maxEt() const { return m_maxEt; }
       private:
          int m_isolation {0};
          unsigned int m_maxEt { 0 };
@@ -161,8 +162,8 @@ namespace TrigConf {
       float ptMinToTopo() const { return m_ptMinToTopoMeV/1000.0f; }
       unsigned int ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
       unsigned int ptMinToTopoCounts() const { return energyInCounts( m_ptMinToTopoMeV, resolutionMeV() ); }
-      const Isolation & isolation(TrigConf::Isolation::WP wp, int eta) const;
-      const ValueWithEtaDependence<TrigConf::Isolation> & isolation(TrigConf::Isolation::WP wp) const;
+      const Isolation & isolation(TrigConf::Isolation::WP wp, int eta) const { return m_isolation.at(wp).at(eta); }
+      const ValueWithEtaDependence<Isolation> & isolation(TrigConf::Isolation::WP wp) const  { return m_isolation.at(wp); }
    private:
       /** Update the internal members */
       void load();
@@ -177,18 +178,18 @@ namespace TrigConf {
          L1ThrExtraInfoBase(thrTypeName, data) { load(); }
       virtual ~L1ThrExtraInfo_jJ() = default;
       virtual std::string className() const { return "L1ThrExtraInfo_jJ"; }
-      float ptMinToTopoLarge(int eta = 0) const { return ptMinToTopoLargeMeV(eta) / 1000.0f; }
-      float ptMinToTopoSmall(int eta = 0) const { return ptMinToTopoSmallMeV(eta) / 1000.0f; }
-      unsigned int ptMinToTopoLargeMeV(int eta = 0) const { return m_ptMinToTopoLargeMeV.at(eta); }
-      unsigned int ptMinToTopoSmallMeV(int eta = 0) const { return m_ptMinToTopoSmallMeV.at(eta); }
+      double ptMinToTopoLarge(int eta = 0) const { return ptMinToTopoLargeMeV(eta) / 1000.0; }
+      double ptMinToTopoSmall(int eta = 0) const { return ptMinToTopoSmallMeV(eta) / 1000.0; }
+      unsigned int ptMinToTopoLargeMeV(int eta = 0) const { return m_ptMinToTopoMeV.at(eta).second; }
+      unsigned int ptMinToTopoSmallMeV(int eta = 0) const { return m_ptMinToTopoMeV.at(eta).first; }
       unsigned int ptMinToTopoLargeCounts(int eta = 0) const { return energyInCounts( ptMinToTopoLargeMeV(eta), resolutionMeV() ); }
       unsigned int ptMinToTopoSmallCounts(int eta = 0) const { return energyInCounts( ptMinToTopoSmallMeV(eta), resolutionMeV() ); }
+      const ValueWithEtaDependence<std::pair<unsigned int,unsigned int>> & ptMinToTopoMeV() const { return m_ptMinToTopoMeV; }
    private:
       /** Update the internal members */
       void load();
       /** jJ specific data */
-      ValueWithEtaDependence<unsigned int> m_ptMinToTopoSmallMeV{"jJptMinTopoLarge"};
-      ValueWithEtaDependence<unsigned int> m_ptMinToTopoLargeMeV{"jJptMinTopoSmall"};
+      ValueWithEtaDependence<std::pair<unsigned int,unsigned int>> m_ptMinToTopoMeV{"jJptMinTopo"};
    };
 
 
@@ -231,7 +232,7 @@ namespace TrigConf {
       std::vector<unsigned int> knownRpcPtValues() const;
       std::vector<unsigned int> knownTgcPtValues() const;
       std::vector<std::string> exclusionListNames() const;
-      const std::map<std::string, std::vector<unsigned int>> & exlusionList(const std::string & listName) const;
+      const std::map<std::string, std::vector<unsigned int>> & exclusionList(const std::string & listName) const;
    private:
       /** Update the internal members */
       void load();

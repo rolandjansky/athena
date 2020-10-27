@@ -130,6 +130,10 @@ TrigConf::L1ThrExtraInfo::thrExtraInfo(const std::string & thrTypeName) const
 const TrigConf::IsolationLegacy &
 TrigConf::L1ThrExtraInfo_EMTAULegacy::isolation(const std::string & thrType, size_t bit) const
 {
+   if(bit<1 or bit>5) {
+      throw std::out_of_range("When accessing the legacy L1Calo EM or TAU isolation bit must be between 1 and 5, but bit=" 
+                              + std::to_string(bit) + " was requested");
+   }
    try {
       return m_isolation.at(thrType)[bit-1];
    }
@@ -227,6 +231,7 @@ TrigConf::L1ThrExtraInfo_eEMTAU::load()
  *******/
 TrigConf::L1ThrExtraInfo_eTAU::Isolation::Isolation( const boost::property_tree::ptree & pt ) {
    m_isolation = lround(100 * pt.get_optional<float>("isolation").get_value_or(0));
+   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
 void
@@ -237,8 +242,7 @@ TrigConf::L1ThrExtraInfo_eTAU::load()
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
-            auto wp = (y.first == "Loose") ? TrigConf::Isolation::WP::LOOSE :
-               ( (y.first == "Medium") ? TrigConf::Isolation::WP::MEDIUM : TrigConf::Isolation::WP::TIGHT );
+            auto wp = TrigConf::Isolation::stringToWP(y.first);
             auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
             for(auto & c : y.second ) {
                int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
@@ -269,8 +273,8 @@ TrigConf::L1ThrExtraInfo_jJ::load()
             auto small = k.second.get_child("small").get_value<float>();
             auto large = k.second.get_child("large").get_value<float>();
             auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);            
-            m_ptMinToTopoSmallMeV.addRangeValue( lround(1000*small), etamin, etamax, priority, /*symmetric=*/ false);
-            m_ptMinToTopoLargeMeV.addRangeValue( lround(1000*large), etamin, etamax, priority, /*symmetric=*/ false);
+            m_ptMinToTopoMeV.addRangeValue( std::make_pair<unsigned int, unsigned int>(lround(1000*small),lround(1000*large)),
+                                            etamin, etamax, priority, /*symmetric=*/ false);
          }
       }
    }
@@ -359,7 +363,7 @@ TrigConf::L1ThrExtraInfo_MU::exclusionListNames() const
 
 
 const std::map<std::string, std::vector<unsigned int> > &
-TrigConf::L1ThrExtraInfo_MU::exlusionList(const std::string & listName) const
+TrigConf::L1ThrExtraInfo_MU::exclusionList(const std::string & listName) const
 {
    try {
       return m_roiExclusionLists.at(listName);

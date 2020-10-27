@@ -62,6 +62,38 @@ TrigConf::L1Threshold_TAU::load()
    }
 }
 
+/**
+ * JET
+ */
+void
+TrigConf::L1Threshold_JET::load()
+{
+   if( const auto & thrVs = data().get_child_optional("thrValues") ) {
+      for( auto & x : thrVs.get() ) {
+         auto etamin = x.second.get_child("etamin").get_value<unsigned int>();
+         auto etamax = x.second.get_child("etamax").get_value<unsigned int>();
+         auto priority = x.second.get_child("priority").get_value<unsigned int>();
+         auto window = x.second.get_child("window").get_value<unsigned int>();
+         m_etaDepWindow.addRangeValue(window, etamin, etamax, priority, /*symmetric=*/ false);
+      }
+   }
+}
+unsigned int
+TrigConf::L1Threshold_JET::window(int eta) const {
+   return m_etaDepWindow.at(eta);
+}
+
+/**
+ * ZB
+ */
+void
+TrigConf::L1Threshold_ZB::load()
+{
+   m_seed = getAttribute("seed");
+   m_seedBcdelay = getAttribute<unsigned int>("seedBcdelay");
+   m_seedMultiplicity = getAttribute<unsigned int>("seedMultiplicity");
+}
+
 /******************************************
  *
  *  New L1Calo thresholds
@@ -87,6 +119,9 @@ void
 TrigConf::L1Threshold_eTAU::load()
 {}
 
+void
+TrigConf::L1Threshold_jJ::load()
+{}
 
 /******************************************
  *
@@ -116,7 +151,7 @@ TrigConf::L1Threshold_MU::load()
    m_idxForward = muInfo->tgcIdxForPt(m_ptForward);
 
    m_rpcExclROIList = getAttribute("rpcExclROIList", true, "");
-   m_tgcFlag = getAttribute("tgcFlags");
+   m_tgcFlags = getAttribute("tgcFlags");
    m_region = getAttribute("region");
 }
 

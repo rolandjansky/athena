@@ -14,7 +14,7 @@ TrigConf::L1TopoAlgorithm::L1TopoAlgorithm(const std::string & algoName, Algorit
       throw std::runtime_error("Algorithm category must be TOPO, R2TOPO, MUTOPO or MULTTOPO, but is '" + algoCategory + "'");
    }
    m_name = algoName;
-   update();
+   load();
 }
 
 TrigConf::L1TopoAlgorithm::~L1TopoAlgorithm()
@@ -26,7 +26,7 @@ TrigConf::L1TopoAlgorithm::className() const {
 }
 
 void
-TrigConf::L1TopoAlgorithm::update()
+TrigConf::L1TopoAlgorithm::load()
 {
    if(! isInitialized() || empty() ) {
       return;
@@ -45,7 +45,9 @@ TrigConf::L1TopoAlgorithm::update()
          m_outputs.push_back(o.getValue());
       }
    } else if( m_type == AlgorithmType::MULTIPLICITY ) { // MULTIPLICITY algo
-      m_inputs.push_back(getAttribute("input"));
+      if(auto & input = getAttribute("input"); input!="null") {
+         m_inputs.push_back(input);
+      }
       m_outputs.push_back(getAttribute("output"));
    } else { // SORTING algo
       if( hasAttribute("input") ) {
@@ -62,7 +64,11 @@ TrigConf::L1TopoAlgorithm::update()
 
    if( m_type == AlgorithmType::DECISION || m_type == AlgorithmType::SORTING ) {
       for( auto & p : getList("variableParameters") ) {
-         m_parameters.emplace_back(p["name"], p.getAttribute<int>("value"), p.getAttribute<unsigned int>("selection", /*ignore-if-missing*/true, 0));
+         if(p.hasAttribute("selection")) {
+            m_parameters.emplace_back(p["name"], p.getAttribute<int>("value"), p.getAttribute<unsigned int>("selection"));
+         } else {
+            m_parameters.emplace_back(p["name"], p.getAttribute<int>("value"));
+         }
       }
    }
 
@@ -166,7 +172,7 @@ TrigConf::L1TopoAlgorithm::print(std::ostream & os) const
       auto pars = parameters();
       unsigned int idx{0};
       for( auto & p : pars ) {
-         os << "    " << idx++ << "  " << p.name << "[" << p.selection << "]  ==>  " <<  p.value << std::endl;
+         os << "    " << idx++ << "  " << p.name() << "[" << p.selection() << "]  ==>  " <<  p.value() << std::endl;
       }
    }
    os << std::endl;
