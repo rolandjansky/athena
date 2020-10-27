@@ -139,6 +139,36 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 STDM7SkimmingTool=DerivationFramework__FilterCombinationAND(name="STDM7SkimmingTool", FilterList=[STDM7SkimmingTool_Trig,STDM7SkimmingTool_offsel] )
 ToolSvc+=STDM7SkimmingTool
 
+
+
+#====================================================================
+# AUGMENTATION TOOLS
+#====================================================================
+augmentationTools = []
+
+#====================================================================
+# Track-to-Lepton vertex fitting
+#====================================================================
+ExtraVariablesLeptonVertexFit = ''
+if af.fileinfos["eventdata_items"].__contains__(('xAOD::TrackParticleContainer', "LowPtRoITrackParticles")) :
+    import MagFieldServices.SetupField
+    vtxTool = CfgMgr.TrkToLeptonPVTool("STDM7TrkToLeptonPVTool",OutputLevel=INFO)
+    ToolSvc += vtxTool
+    
+    # the augmentation tool
+    fittingTool = CfgMgr.DerivationFramework__LeptonVertexFitting( name = "STDM7LeptonVertexFitting",
+                                                                   #OutputLevel    = DEBUG,
+                                                                   ElectronContainerName = "Electrons",
+                                                                   MuonContainerName     = "Muons",
+                                                                   TrackContainerName    = "LowPtRoITrackParticles",
+                                                                   DecorationPrefix      = "STDM7_",
+                                                                   VtxFittingTool        = vtxTool)
+    ToolSvc += fittingTool
+    augmentationTools.append( fittingTool )
+
+    ExtraVariablesLeptonVertexFit += "LowPtRoITrackParticles.STDM7_LepTrkVtx_z.STDM7_LepTrkVtx_chi2.STDM7_LepTrkVtx_ndf"
+
+
 #=====================================================
 # CREATE AND SCHEDULE THE DERIVATION KERNEL ALGORITHM   
 #=====================================================
@@ -150,8 +180,11 @@ STDM7Sequence = CfgMgr.AthSequencer("STDM7Sequence")
 
 # ADD KERNEL
 STDM7Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM7Kernel",
+                                                              RunSkimmingFirst = True,
                                                               SkimmingTools = [STDM7SkimmingTool],
-                                                              ThinningTools = thinningTools)
+                                                              ThinningTools = thinningTools,
+                                                              AugmentationTools = augmentationTools)
+
 # JET REBUILDING
 reducedJetList = ["AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList, STDM7Sequence, "STDM7Jets")
@@ -188,6 +221,7 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=STDM7Sequence, algname='
 # PFlow fJvt #
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=STDM7Sequence, algname='JetForwardPFlowJvtToolAlg')
 
+
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
@@ -220,6 +254,7 @@ STDM7SlimmingHelper.IncludeMuonTriggerContent = True
 
 STDM7SlimmingHelper.ExtraVariables = ExtraContentAll
 STDM7SlimmingHelper.ExtraVariables += ["AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"]
+STDM7SlimmingHelper.ExtraVariables += [ExtraVariablesLeptonVertexFit]
 
 # btagging variables
 from  DerivationFrameworkFlavourTag.BTaggingContent import *
