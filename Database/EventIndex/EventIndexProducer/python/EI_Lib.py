@@ -25,7 +25,7 @@ class IOV(object):
         try:
             (r,e) = a
             (r1,e1) = b
-        except:
+        except Exception:
             raise TypeError("element must be a tuple with two components")
 
         c = cmp(r,r1)       # compare most significant part
@@ -40,7 +40,7 @@ class IOV(object):
         try:
             if len(interval) != 4:
                 raise TypeError("interval must contain 4 elements")
-        except:
+        except Exception:
             raise TypeError("interval must be a tuple or list")
 
         # broke down the two parts of the interval
@@ -61,7 +61,7 @@ class IOV(object):
         try:
             if len(interval) != 4:
                 raise TypeError("interval must contain 4 elements")
-        except:
+        except Exception:
             raise TypeError("interval must be a tuple or list")
 
         try:
@@ -69,7 +69,7 @@ class IOV(object):
             interval2=[]
             for number in interval:
                 interval2.append(int(number))
-        except:
+        except Exception:
             raise TypeError("interval ranges must be a integers or longs")
         
         self._iovs[key].append((interval2,value))

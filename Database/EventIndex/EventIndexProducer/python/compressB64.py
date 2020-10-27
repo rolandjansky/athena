@@ -45,7 +45,7 @@ def compressB64(s):
     The encoded string is returned.
     """
 
-    count = 0;
+    count = 0
     res=""
     for k in range(0,len(s)):
         c = s[k]
