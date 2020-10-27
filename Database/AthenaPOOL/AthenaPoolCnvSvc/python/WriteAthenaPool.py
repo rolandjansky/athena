@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file WriteAthenaPool_jobOptions.py
 ## @brief AthenaPool job options file for writing event objects.
@@ -29,7 +29,7 @@ def _configureWriteAthenaPool():
     msg.debug( "Configuring Athena for writing POOL files..." )
 
     # Load the basic services
-    import AthenaPoolCnvSvc.AthenaPool
+    import AthenaPoolCnvSvc.AthenaPool  # noqa: F401
 
     from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
     # Switch off splitting by setting default SplitLevel to 0

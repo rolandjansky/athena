@@ -3,7 +3,6 @@
 ## @file ReadAthena.py
 ## @brief AthenaPool python module for reading event objects.
 ## @author Peter van Gemmeren <gemmeren@bnl.gov>
-## $Id: ReadAthenaPool.py,v 1.11 2008-11-18 22:44:00 binet Exp $
 ###############################################################
 """
     Copy of the one made for standard EventSelector to work with
@@ -22,7 +21,7 @@ def _configureReadAthenaPoolDouble():
     from AthenaCommon.AppMgr import theApp
 
     # Load the basic services
-    import AthenaPoolCnvSvc.AthenaPool
+    import AthenaPoolCnvSvc.AthenaPool  # noqa: F401
 
     # Switch on TTreeCache for CollectionTree
     svcMgr.AthenaPoolCnvSvc.InputPoolAttributes += [ "DatabaseName = '*'; ContainerName = 'CollectionTree'; TREE_CACHE = '-1'" ]

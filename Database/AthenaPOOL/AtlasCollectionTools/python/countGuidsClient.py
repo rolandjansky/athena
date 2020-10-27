@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-import urllib, re, string, os, time
+import re
 from eventLookupClient import eventLookupClient
 
 # client for countGuids Athenaeum service

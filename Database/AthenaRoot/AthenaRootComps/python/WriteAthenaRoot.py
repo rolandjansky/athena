@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaRootComps/python/WriteAthenaRoot.py
 # @purpose make the Athena framework write a set of ROOT files
@@ -19,7 +19,7 @@ def _configureWriteAthenaRoot():
     msg.debug( "Configuring Athena for writing ROOT files..." )
 
     # Load the basic services
-    import AthenaRootComps.AthenaRootBase
+    import AthenaRootComps.AthenaRootBase  # noqa: F401
 
     '''
     from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
