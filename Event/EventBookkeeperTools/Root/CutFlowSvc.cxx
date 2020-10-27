@@ -7,14 +7,17 @@
 //   Tadej Novak <tadej@cern.ch>
 //   Joao Firmino da Costa <joao.costa@cern.ch> and David Cote <david.cote@cern.ch>
 
-#include "CutFlowSvc.h"
+// Not dual use at the moment
+#ifndef XAOD_STANDALONE
 
-#include "GaudiKernel/Incident.h"
-#include "GaudiKernel/FileIncident.h"
-#include "GaudiKernel/IIncidentSvc.h"
+#include <EventBookkeeperTools/CutFlowSvc.h>
+
+#include <GaudiKernel/Incident.h>
+#include <GaudiKernel/FileIncident.h>
+#include <GaudiKernel/IIncidentSvc.h>
 
 // EDM includes
-#include "EventInfo/EventStreamInfo.h"
+#include <EventInfo/EventStreamInfo.h>
 
 
 CutFlowSvc::CutFlowSvc(const std::string& name,
@@ -39,8 +42,8 @@ CutFlowSvc::initialize()
   incSvc->addListener(this, IncidentType::BeginInputFile, 60); // pri has to be < 100 to be after MetaDataSvc.
   incSvc->addListener(this, "MetaDataStop", 30);
 
-  // Create bookkeeper container for bookkeepers in _this_ processing
-  ATH_CHECK(createContainer());
+  // Create initial bookkeeper container for bookkeepers in _this_ processing
+  ATH_CHECK(createContainers(1));
 
   // Determine the skimming cycle number that we should use now from the input file
   ATH_MSG_VERBOSE("Have currently the cycle number = " << m_skimmingCycle );
@@ -65,8 +68,9 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
   CutIdentifier cutID = newCbk->uniqueIdentifier();
 
   // Let's see if an CutBookkeeper of this name already exists
+  xAOD::CutBookkeeperContainer *container = m_containers.at(0);
   ATH_MSG_VERBOSE("Searching if this CutBookkeeper already exists");
-  for (xAOD::CutBookkeeper* cbk : *m_container) {
+  for (xAOD::CutBookkeeper* cbk : *container) {
     if (newCbk->isEqualTo(cbk)) {
       ATH_MSG_DEBUG("The CutBookkeeper with name '" << name << "' already exists"
                     << " and has cutID " << cbk->uniqueIdentifier() << "... Not adding!" );
@@ -77,7 +81,7 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
 
   // If it is a new CutBookkeeper, add it to the container
   ATH_MSG_DEBUG("Declaring a new filter with name '" << name << "' and cutID " << cutID );
-  m_container->push_back(std::move(newCbk));
+  container->push_back(std::move(newCbk));
 
   return cutID;
 }
@@ -96,7 +100,7 @@ CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
   // Call the registerFilter method and get the correct CutBookkeeper
   // from the returned cutID
   CutIdentifier cutID = registerFilter(name, description);
-  xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID);
+  xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
   if (cbk == nullptr) {
     ATH_MSG_ERROR("registerTopFilter: Could not find CutBookkeeper with cutID " << cutID);
     return 0;
@@ -117,8 +121,12 @@ CutFlowSvc::setFilterDescription( CutIdentifier cutID,
 {
   ATH_MSG_DEBUG("calling setFilterDescription(" << cutID << ", " << descr << ")" );
 
-  xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID);
-  cbk->setDescription(descr);
+  for (size_t i = 0; i < m_containers.size(); ++i) {
+    xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, i);
+    if (cbk != nullptr) {
+      cbk->setDescription(descr);
+    }
+  }
   return;
 }
 
@@ -131,43 +139,12 @@ CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
 
   std::lock_guard<std::recursive_mutex> lock(m_addEventMutex);
 
-  xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID);
+  xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
   if (cbk == nullptr) {
-    ATH_MSG_DEBUG("Could not find CutBookkeeper, creating a new one");
-
-    // Iterate over the complete bookkeepers and update the cutID-to-bookkeeper map
-    ATH_MSG_DEBUG( "addEvent: Going to re-populate the map. Have "
-                   << m_container->size() << " CutBookkeepers"
-                   << " and skimming cycle " << m_skimmingCycle
-                   << " and input Stream name " << m_inputStream );
-    for (xAOD::CutBookkeeper* ebk : *m_container) {
-      CutIdentifier cutIDCurrent = ebk->uniqueIdentifier();
-      ATH_MSG_VERBOSE( "addEvent: Have CutBookkeeper with"
-                       << " skimming cycle " << ebk->cycle()
-                       << " and input Stream name " << ebk->inputStream()
-                       << " and logic " << ebk->cutLogic()
-                       << " isTopFilter " << ebk->isTopFilter()
-                       << " and cutID " << cutIDCurrent
-                       << " and name " << ebk->name() );
-      if ( m_skimmingCycle == ebk->cycle() ) {
-        if ( m_inputStream == ebk->inputStream() ) {
-          CutIDMap_t::iterator mapIter = m_ebkMap.find(cutIDCurrent);
-          ATH_MSG_DEBUG( "current cycle and input stream: Have CutBookkeeper with"
-                         << " cutID " << cutIDCurrent
-                         <<  " and name " << ebk->name() );
-          if ( mapIter != m_ebkMap.end() ) { // we found this CutBookkeeper in the existing map
-            (*mapIter).second = ebk;
-          }
-        }
-      }
-    } // End: Loop over all complete CutBookkeepers
-    cbk = getCutBookkeeper(cutID);
-  }
-  if (cbk == nullptr) {
-    ATH_MSG_ERROR ( "Got a zero pointer to an CutBookkeeper with cutID="
-                    << cutID << "! This should never happen..." );
+    ATH_MSG_ERROR("Could not find CutBookkeeper for CutID " << cutID);
     return;
   }
+
   ATH_MSG_VERBOSE( "addEvent: have cutID " << cutID
                    << " and CutBookkeeper name " << cbk->name() );
   cbk->addNAcceptedEvents(1);
@@ -207,12 +184,14 @@ void CutFlowSvc::handle( const Incident& inc )
 
   // Clear the file bookkeeper
   if (inc.type() == IncidentType::BeginInputFile || inc.type() == "MetaDataStop") {
-    if (m_container != nullptr) {
+    if (!m_containers.empty()) {
       // Reset existing container
-      for (xAOD::CutBookkeeper* cbk : *m_container) {
-        cbk->setNAcceptedEvents(0);
-        cbk->setSumOfEventWeights(0);
-        cbk->setSumOfEventWeightsSquared(0);
+      for (size_t i = 0; i < m_containers.size(); ++i) {
+        for (xAOD::CutBookkeeper* cbk : *m_containers.at(i)) {
+          cbk->setNAcceptedEvents(0);
+          cbk->setSumOfEventWeights(0);
+          cbk->setSumOfEventWeightsSquared(0);
+        }
       }
     }
   }
@@ -250,36 +229,66 @@ StatusCode CutFlowSvc::determineCycleNumberFromInput( const std::string& collNam
 
 
 
-StatusCode CutFlowSvc::createContainer()
+StatusCode CutFlowSvc::createContainers(size_t count)
 {
-  ATH_MSG_VERBOSE("createContainer()");
-
   // Expect that this should only be called once for now
-  if (m_container != nullptr) {
-    ATH_MSG_ERROR("xAOD::CutBookkeeperContainer already exists. This is unexpected.");
+  if (!m_containers.empty() && m_containers.size() == count) {
+    return StatusCode::SUCCESS;
+  }
+
+  if (m_containers.size() > count) {
+    ATH_MSG_ERROR("Inconsistent variation count");
     return StatusCode::FAILURE;
   }
 
+  ATH_MSG_VERBOSE("Create containers with count " << count);
+
+  ATH_MSG_VERBOSE("Existing size " << m_containers.size());
+
   // Create the containers
-  m_container = std::make_unique<xAOD::CutBookkeeperContainer>();
-  m_containerAux = std::make_unique<xAOD::CutBookkeeperAuxContainer>();
-  m_container->setStore(m_containerAux.get());
+  CutBookkeepersLocalCache::prepareContainers(m_containers, count, true);
+  if (count == 1) {
+    return StatusCode::SUCCESS;
+  }
+
+  // Copy existing CutBookkeepers for consistency
+  xAOD::CutBookkeeperContainer *first = m_containers.at(0);
+  if (first->empty()) {
+    return StatusCode::SUCCESS;
+  }
+  for (size_t i = 1; i < count; ++i) {
+    xAOD::CutBookkeeperContainer *cont = m_containers.at(i);
+    for (const xAOD::CutBookkeeper *cbk : *first) {
+      xAOD::CutBookkeeper *newCbk = new xAOD::CutBookkeeper();
+      cont->push_back(newCbk);
+      *newCbk = *cbk;
+    }
+  }
 
   return StatusCode::SUCCESS;
 }
 
 
 
-const xAOD::CutBookkeeperContainer* CutFlowSvc::getCutBookkeepers() const
+StatusCode CutFlowSvc::setNumberOfWeightVariations(size_t count)
 {
-  return m_container.get();
+  ATH_CHECK(createContainers(count));
+  return StatusCode::SUCCESS;
 }
 
 
 
-xAOD::CutBookkeeper* CutFlowSvc::getCutBookkeeper(const CutIdentifier cutID) const
+const CutBookkeepersLocalCache& CutFlowSvc::getCutBookkeepers() const
 {
-  for (xAOD::CutBookkeeper* cbk : *m_container) {
+  return m_containers;
+}
+
+
+
+xAOD::CutBookkeeper* CutFlowSvc::getCutBookkeeper(const CutIdentifier cutID,
+                                                  size_t index) const
+{
+  for (xAOD::CutBookkeeper* cbk : *m_containers.at(index)) {
     if (cbk->uniqueIdentifier() == cutID) {
       return cbk;
     }
@@ -291,7 +300,7 @@ xAOD::CutBookkeeper* CutFlowSvc::getCutBookkeeper(const CutIdentifier cutID) con
 
 uint64_t CutFlowSvc::getNAcceptedEvents(const CutIdentifier cutID) const
 {
-  const xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID);
+  const xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
   if (cbk == nullptr) {
     return std::numeric_limits<uint64_t>::max();
   }
@@ -316,3 +325,5 @@ CutFlowSvc::queryInterface( const InterfaceID& riid, void** ppvi )
   // Interface is not directly availible: try out a base class
   return AthService::queryInterface( riid, ppvi );
 }
+
+#endif // dual use
