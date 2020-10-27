@@ -13,8 +13,8 @@ atlas_depends_on_subdirs( PUBLIC
 			  DetectorDescription/GeoModel/GeoModelUtilities
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
-                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-                          InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
+                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetSimEvent
                           PRIVATE
@@ -38,13 +38,13 @@ atlas_add_library( PixelGeoModelXmlLib
                    src/*.cxx
                    PUBLIC_HEADERS PixelGeoModelXml
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SCT_ReadoutGeometry StoreGateLib InDetSimEvent
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry PixelReadoutGeometry PixelReadoutGeometry StoreGateLib InDetSimEvent
                    PRIVATE_LINK_LIBRARIES SGTools AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier PathResolver)
 
 atlas_add_component( PixelGeoModelXml
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SCT_ReadoutGeometry SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier PixelGeoModelXmlLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry PixelReadoutGeometry PixelReadoutGeometry SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier PixelGeoModelXmlLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
