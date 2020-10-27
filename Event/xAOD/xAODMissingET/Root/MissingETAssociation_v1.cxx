@@ -7,6 +7,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 
 #include <iterator>
 #include <cstdio>

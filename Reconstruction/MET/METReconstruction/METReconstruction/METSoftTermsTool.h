@@ -29,9 +29,10 @@
 //Framework includes
 #include "StoreGate/DataHandle.h"
 
-// Forward declaration
-#include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODTracking/TrackParticleFwd.h"
+//#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+//#include "xAODTracking/TrackParticleFwd.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 namespace met{
 

@@ -168,8 +168,9 @@ namespace met {
       for(const xAOD::FlowElement* pfo : *constits.feCont) {
         if (pfo->isCharged()) {
           const TrackParticle* pfotrk = static_cast<const xAOD::TrackParticle*>(pfo->chargedObject(0));
-          for(const xAOD::TrackParticle* trk : jettracks) {
-            if (trk==pfotrk) {
+          for(const xAOD::IParticle* track : jettracks) {
+            const TrackParticle* jettrk = static_cast<const xAOD::TrackParticle*>(track);
+            if (jettrk==pfotrk) {
               consts.push_back(pfo);
               break;
             }
