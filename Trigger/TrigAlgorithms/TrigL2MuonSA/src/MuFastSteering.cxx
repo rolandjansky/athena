@@ -321,7 +321,7 @@ StatusCode MuFastSteering::execute()
 
   for (size_t size=0; size<roiCollection->size(); size++){
     const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(size)->roiWord(),  *recRoiCollection );
-    CHECK( recRoI != nullptr );
+    if( recRoI == nullptr ) continue;
     recRoIVector.push_back(recRoI);
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector.size());
