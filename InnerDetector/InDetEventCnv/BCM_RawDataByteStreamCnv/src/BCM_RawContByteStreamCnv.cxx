@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -17,7 +17,7 @@
 
 #include "BCM_RawDataByteStreamCnv/BCM_RawContByteStreamTool.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
 #include "InDetBCM_RawData/InDetBCM_RawDataCLASS_DEF.h"
