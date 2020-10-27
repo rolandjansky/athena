@@ -184,7 +184,11 @@ class TrigTauMonAlgBuilder:
     for trigger in triggers:
       info = self.getTrigInfo(trigger)
 
-      if info.isRNN() is True:
+
+    self.bookbasicVars( monAlg, trigger, online=True )
+    self.bookbasicVars( monAlg, trigger, online=False )
+
+    if info.isRNN() is True:
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
         self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
@@ -193,8 +197,6 @@ class TrigTauMonAlgBuilder:
         self.bookRNNTrack( monAlg, trigger, online=False )
         self.bookRNNCluster( monAlg, trigger, online=True )
         self.bookRNNCluster( monAlg, trigger, online=False )
-        self.bookbasicVars( monAlg, trigger, online=True )
-        self.bookbasicVars( monAlg, trigger, online=False )
 
   #
   # Book RNN Variables
@@ -254,16 +256,13 @@ class TrigTauMonAlgBuilder:
     
 def bookbasicVars( self, monAlg, trigger, online ):
   
-    monGroup = self.helper.addGroup( monAlg, trigger+'_basicVars_' + ('HLT' if online else 'Offline'), 
-                                     self.basePath+'/'+trigger+'_basicVars_' + ('HLT' if online else 'Offline') )+'/basicVars'
+    monGroupName = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/basicVars'
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupName )
     
     monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
     monGroup.defineHistogram('hEFEta', title='EF TrigCaloCluster Eta; #eta ; Nevents',xbins=26,xmin=-2.6,xmax=2.6)
-    #addHistogram(new TH1F("hEFNUM","Online mu; Online #mu ; Nevents",100,0,100));
-    monGroup.defineHistogram('hEFNUM,mu;hEFNUM_mu', type='TH2F', title='Online vs offline mu; Online #mu ; Offline #mu',
-                               path='Shifter/cell',
-                               xbins=100,xmin=0,xmax=100,ybins=100,ymin=0,ymax=100)
-    #/addHistogram(new TH2F('hEFNUMvsmu','Online vs offline mu; Online #mu ; Offline #mu',  100,0,100,100,0,100));
     monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
     monGroup.defineHistogram('hEFEta,Phi;hEFEta_Phi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents',
@@ -273,13 +272,13 @@ def bookbasicVars( self, monAlg, trigger, online ):
     monGroup.defineHistogram('hEFEt,Phi;hEFEt_Phi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
                                path='Shifter/cell',
                                xbins=16,xmin=-3.2,xmax=3.2,ybins=50,ymin=0,ymax=100)
-    #addHistogram(new TH2F("hEFEtVsPhi","Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]",16,-3.2,3.2,50,0.0,100.0));
+   
     monGroup.defineHistogram('hEFEt,Eta;hEFEt_Eta', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
                                path='Shifter/cell',
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=50,ymin=0,ymax=100)
-    #addHistogram(new TH2F("hEFEtVsEta","Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]",26,-2.6,2.6,50,0.0,100.0));
+   
     monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
     monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
 
-    monGroup.defineHistogram('hEFIsoFrac', title='Iso Fraction at EF; isoFrac at EF; Candidates',xbins=50,xmin=-0.1,xmax=1.1)
-    monGroup.defineHistogram('hEFEMFraction', title='Em Fraction at EF; EM Fraction at EF; Candidates',xbins=50,xmin=-0.05,xmax=1.1)
+    #monGroup.defineHistogram('hEFIsoFrac', title='Iso Fraction at EF; isoFrac at EF; Candidates',xbins=50,xmin=-0.1,xmax=1.1)
+    #monGroup.defineHistogram('hEFEMFraction', title='Em Fraction at EF; EM Fraction at EF; Candidates',xbins=50,xmin=-0.05,xmax=1.1)

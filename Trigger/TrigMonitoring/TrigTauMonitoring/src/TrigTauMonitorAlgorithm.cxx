@@ -141,6 +141,9 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     }
   }
     
+  fillbasicVars( trigger, tau_vec_1p, false);
+  fillbasicVars( trigger, tau_vec_np, false);
+
   // Offline
   if(info.isRNN){
     fillRNNInputVars( trigger, tau_vec_1p,"1P", false );
@@ -149,8 +152,6 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     fillRNNTrack( trigger, tau_vec_np, false );
     fillRNNCluster( trigger, tau_vec_1p, false );
     fillRNNCluster( trigger, tau_vec_np, false );
-    fillbasicVars( trigger, tau_vec_1p, false);
-    fillbasicVars( trigger, tau_vec_np, false);
   }
 
   tau_vec_1p.clear();
@@ -170,6 +171,10 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
       tau_vec_np.push_back(feat);
     }
   }
+
+  fillbasicVars( trigger, tau_vec_1p, true);
+  fillbasicVars( trigger, tau_vec_np, true);
+
   if(info.isRNN){ 
     fillRNNInputVars( trigger, tau_vec_1p,"1P", true );
     fillRNNInputVars( trigger, tau_vec_np,"MP", true );
@@ -177,9 +182,6 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     fillRNNTrack( trigger, tau_vec_np, true );
     fillRNNCluster( trigger, tau_vec_1p, true );
     fillRNNCluster( trigger, tau_vec_np, true );
-    fillbasicVars( trigger, tau_vec_1p, true);
-    fillbasicVars( trigger, tau_vec_np, true);
-
   }
   
   
@@ -406,13 +408,9 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
 
   auto monGroup = getGroup(trigger+( online ? "/basicVars/HLT" : "/basicVars/Offline"));  
 
-  //auto hEFEt           = Monitored::Collection("hEFEt", tau_vec,  [] (const xAOD::TauJet* tau){return tau->pt()/GeV; });
-  auto hEFEt           = Monitored::Collection("hEFEt", tau_vec,  [] (const xAOD::TauJet* tau){return tau->pt(); });
+  auto hEFEt           = Monitored::Collection("hEFEt", tau_vec,  [] (const xAOD::TauJet* tau){return tau->pt()/1000; });
   auto hEFEta          = Monitored::Collection("hEFEta", tau_vec,  [] (const xAOD::TauJet* tau){return tau->eta(); });                                                     
 
-  //int num_vxt = m_mu_online;
-  //auto hEFNUM          = Monitored::Collection("hEFNUM", tau_vec,  [] (const xAOD::TauJet* tau){return num_vxt; });   
-  //hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
   auto hEFPhi          = Monitored::Collection("hEFPhi", tau_vec,  [] (const xAOD::TauJet* tau){return tau->phi(); });
   auto hEFnTrack       = Monitored::Collection("hEFnTrack", tau_vec,  [] (const xAOD::TauJet* tau){
       int EFnTrack=-1;
