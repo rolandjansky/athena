@@ -3,8 +3,7 @@
 from __future__ import print_function
 
 import os
-import sys, string
-from datetime import datetime
+import sys
 
 from future import standard_library
 standard_library.install_aliases()
@@ -12,7 +11,7 @@ import subprocess
 
 ## Needed to correct ROOT behavior; see below
 CWD = os.getcwd()
-import ROOT
+import ROOT  # noqa: F401
 ## Importing gSystem may change the current directory to one of the
 ## command-line arguments; chdir to original directory to have
 ## predictable behavior
@@ -125,22 +124,22 @@ class FileStagerTool:
     # last fallback
     try:
       defaultTmpdir = os.environ['TMPDIR'] 
-    except Exception as inst:
+    except Exception:
       pass
     # cern lxbatch
     try:
       defaultTmpdir = os.environ['WORKDIR']
-    except Exception as inst:
+    except Exception:
       pass
     # osg
     try:
       defaultTmpdir = os.environ['OSG_WN_TMP']
-    except Exception as inst:
+    except Exception:
       pass
     # lcg
     try:
       defaultTmpdir = os.environ['EDG_WL_SCRATCH']
-    except Exception as inst:
+    except Exception:
       pass
 
     # use given tmpdir
@@ -176,7 +175,7 @@ class FileStagerTool:
       rfioPiece = self.sampleList[0].split(self.InfilePrefix)
       nPieces = len(rfioPiece)
       
-      inFile  = rfioPiece[nPieces-1]
+      inFile  = rfioPiece[nPieces-1]   # noqa: F841
       outFile = self.tmpSampleList[0]
       stderr  = outFile+"_stage.err"
       stdout  = outFile+"_stage.out"
