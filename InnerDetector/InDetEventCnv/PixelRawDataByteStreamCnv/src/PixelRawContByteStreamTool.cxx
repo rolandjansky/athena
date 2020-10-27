@@ -517,7 +517,7 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
 
                 ATH_MSG_DEBUG("doubleHit = " << std::boolalpha << doubleHit << std::noboolalpha << " ===> (col0 == col1) : 0x" << std::hex << col0 << " = 0x" << col1 
                                << ";    (row0 = row1 - 1) : 0x" << row0 << " => 0x" << row1 <<";     (tot0) : 0x" << tot0 << ", (tot1) : 0x" << tot1 << " => totInHitWord: 0x" << totInHitWord << std::dec);
-                rdo_same_it++;
+                ++rdo_same_it;
               } // end if "(col1==col0) && (row1 ==  (row0+1))"
             } // end if "(rdo_same_it + 1) != rdo_same_it_end" 
             else { 

@@ -94,11 +94,10 @@ class OrderRdos {
 
   public:
     OrderRdos(Identifier offlineId, const ServiceHandle<IPixelCablingSvc>& pixelCabling):
-      m_pixelCabling("dummy","dummy"),m_offlineId(offlineId) { m_pixelCabling=pixelCabling; }
+      m_pixelCabling(pixelCabling),m_offlineId(offlineId) {  }
 
     // copy constructor
-    OrderRdos(const OrderRdos & orderFunct):
-      m_pixelCabling("dummy","dummy"),m_offlineId(orderFunct.m_offlineId) { m_pixelCabling=orderFunct.m_pixelCabling; }
+    OrderRdos(const OrderRdos & orderFunct) = default;
 
     // assignment operator
     OrderRdos& operator= (const OrderRdos &other) { 
@@ -118,13 +117,13 @@ class OrderInitialRdos {
 
   public:
     OrderInitialRdos(const ServiceHandle<IPixelCablingSvc>& pixelCabling, const PixelID *pixelID, SG::ReadCondHandle<PixelCablingCondData> &pixCabling):
-      m_pixelCabling("dummy","dummy"),m_PixelID(pixelID),m_pixCabling(pixCabling) { m_pixelCabling=pixelCabling; }
+      m_pixelCabling(pixelCabling),m_PixelID(pixelID),m_pixCabling(pixCabling) {  }
 
     // copy constructor
-    OrderInitialRdos(const OrderInitialRdos & orderFunct): 
-      m_pixelCabling("dummy","dummy"),m_PixelID(orderFunct.m_PixelID),m_pixCabling(orderFunct.m_pixCabling) { m_pixelCabling=orderFunct.m_pixelCabling; }
+    OrderInitialRdos(const OrderInitialRdos & orderFunct) = default;
 
     // assignment operator
+    // cppcheck-suppress operatorEqVarError
     OrderInitialRdos& operator= (const OrderInitialRdos &other) { 
       m_pixelCabling = other.m_pixelCabling;
       return *this;
