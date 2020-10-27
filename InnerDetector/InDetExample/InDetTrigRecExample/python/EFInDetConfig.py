@@ -227,23 +227,6 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
       if runvtxxaodcnv:
         algos += [("InDetTrigVertexxAODCnv","")]
 
-      
-    elif seqType=="OutsideIn":
-      algos = [("PixelClustering",""),
-               ("SCTClustering",""),
-               ("TRTDriftCircleMaker",""),
-               ("InDetTrigPRD_MultiTruthMaker",""), 
-               ("SiTrigSpacePointFinder",""),
-               ("TRT_TrigTrackSegmentsFinder",    "InDetTrigTRT_TrackSegmentsFinder_%s_EFID"),
-               ("TRT_TrigSeededTrackFinder",      "InDetTrigTRT_SeededTrackFinder_%s_EFID"),
-               ("TRTSeededTrigAmbiguitySolver", ""),
-               ("InDetTrigTrackSlimmer",""),
-               ("InDetTrigTrackingxAODCnv",""),
-               ("InDetTrigDetailedTrackTruthMaker",""),
-               #("InDetTrigParticleCreation",""),
-               ("InDetTrigTrackParticleTruthMaker","")
-               ]
-
     elif seqType=="DataPrep":
       algos = [("PixelClustering", "PixelClustering_%s_IDTrig"),
                ("SCTClustering", "SCTClustering_%s_IDTrig"),
