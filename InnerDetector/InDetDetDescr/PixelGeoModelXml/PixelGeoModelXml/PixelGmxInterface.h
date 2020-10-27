@@ -31,7 +31,7 @@ class PixelGmxInterface: public GmxInterface {
 		 GeoVFullPhysVol *fpv);
   //  void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, 
   //GeoAlignableTransform *transform);
-
+  void makePixelModule(std::string typeName, std::map<std::string, std::string> &par);
   template <typename T> void getparm(const std::string typeName, const std::string name, 
 				     const std::map<std::string, std::string> &par, T &value) {
     std::map<std::string, std::string>::const_iterator found;

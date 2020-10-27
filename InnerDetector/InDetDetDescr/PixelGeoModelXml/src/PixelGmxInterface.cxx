@@ -62,7 +62,7 @@ void PixelGmxInterface::addModuleType(string clas, string typeName, map<string, 
   *m_log << MSG::DEBUG << "PixelGmxInterface::addModuleType called for class " << clas << " typeName " << typeName <<
                                     endmsg;
   if (clas == "PixelModule") {
-    makeModule(typeName, parameters);
+    makePixelModule(typeName, parameters);
   }
   else {
     *m_log << MSG::ERROR << "PixelGmxInterface::addModuleType: unrecognised module class, " << clas << endmsg;
@@ -135,7 +135,7 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
 }
 
 string PixelGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
-  map<string, string>::cons_iterator found;
+  map<string, string>::const_iterator found;
   if ((found = par.find(name)) != par.end()) {
     return found->second;
   }
@@ -147,11 +147,11 @@ string PixelGmxInterface::getstr(const string typeName, const string name, const
   
 }
 
-void StripGmxInterface::addModule(string typeName, map<string, int> &index, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
+void PixelGmxInterface::addModule(string typeName, map<string, int> &index, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
   //
   //    Get the ATLAS "Offline" wafer identifier 
   //
-  const Pixel_ID *pixelIdHelper = dynamic_cast<const Pixel_ID *> (m_commonItems->getIdHelper());
+  const PixelID *pixelIdHelper = dynamic_cast<const PixelID *> (m_commonItems->getIdHelper());
   Identifier id = pixelIdHelper->module_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], 
 					index["eta_module"], index["side"]);
   IdentifierHash hashId = pixelIdHelper->module_hash(id);
