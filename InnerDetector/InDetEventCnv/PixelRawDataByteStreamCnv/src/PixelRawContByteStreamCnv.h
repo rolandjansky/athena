@@ -21,14 +21,13 @@
 #include <stdint.h>
 #include <string>
 
-#include "GaudiKernel/Converter.h"
-
-
 #include "ByteStreamData/RawEvent.h" 
 
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
-#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthConstConverter.h"
+#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h" 
 #include "StoreGate/StoreGateSvc.h"
 
 class ByteStreamAddress;
@@ -37,7 +36,7 @@ class IByteStreamEventAccess;
 class PixelRDORawData;
 
 
-class PixelRawContByteStreamCnv: public Converter {
+class PixelRawContByteStreamCnv: public AthConstConverter {
  public:
 
   typedef InDetRawDataCollection<Pixel1RawData> COLLECTION; // define collection format here
@@ -47,7 +46,7 @@ class PixelRawContByteStreamCnv: public Converter {
   virtual StatusCode initialize() override;
 
   //! this creates the RawEvent fragments for Pixel
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+  virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
 
   /// Storage type and class ID
   virtual long repSvcType() const override { return i_repSvcType(); }
@@ -55,15 +54,8 @@ class PixelRawContByteStreamCnv: public Converter {
   static const CLID& classID();
 
 private: 
-
-  PixelRawContByteStreamTool* m_PixelRawContBSTool;
-
-  IByteStreamEventAccess* m_ByteStreamEventAccess; 
-
-  StoreGateSvc* m_StoreGate;
-
-  MsgStream m_log;
-
+  const PixelRawContByteStreamTool* m_PixelRawContBSTool;
+  ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess; 
 };
 #endif // PIXELBYTESTREAM_PXIELRAWCONTRAWEVENTCNV_H
 
