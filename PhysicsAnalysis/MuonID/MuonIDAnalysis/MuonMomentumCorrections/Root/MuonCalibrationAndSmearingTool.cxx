@@ -1146,7 +1146,9 @@ namespace CP {
 
       else if(m_currentParameters->SagittaBias != MCAST::SystVariation::Default){
         if(m_currentParameters->SagittaBias == MCAST::SystVariation::Up || m_currentParameters->SagittaBias == MCAST::SystVariation::Down){
+          float scale_factor = muonInfo.ptcb / (mu.pt() * MeVtoGeV);
           sgCode=applySagittaBiasCorrectionAuto(MCAST::DetectorType::CB, mu, true, MCAST::SagittaSysType::BIAS, muonInfo);
+          muonInfo.ptcb = muonInfo.ptcb * scale_factor;
         }
       }
 
