@@ -40,6 +40,7 @@ def CaloExtensionBuilder(useLRT):
 
     if True == useLRT:
       CaloExtensionBuilderTool.TrkPartContainerName = "InDetLargeD0TrackParticles"
+      CaloExtensionBuilderTool.ParticleCache = "ParticleCaloExtension_LRT"
 
     from AthenaCommon.BeamFlags import jobproperties
     ToolSvc += CaloExtensionBuilderTool.LastCaloExtentionTool
