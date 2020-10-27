@@ -19,9 +19,10 @@ the_signature_grouping = OrderedDict([
     ('Tau','Tau'),
     ('Jet','JetMET'),
     ('MET','JetMET'),
+    ('UnconventionalTracking','JetMET'),
     ('Bjet','JetMET'),
     ('MuonnoL1', 'MuonnoL1'),
-    ('UnconventionalTracking','UnconventionalTracking'),
+
     ])
 
 def getAlignmentGroupOrdering():
