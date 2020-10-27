@@ -210,8 +210,8 @@ def ConfigureField():
         if athenaCommonFlags.isOnline():
             from RecExOnline.OnlineISConfiguration import GetBFields
             Fields=GetBFields()
-            solenoidCurrent=Fields[0]
-            toroidCurrent=Fields[1]
+            solenoidCurrent=Fields[0].value
+            toroidCurrent=Fields[1].value
         # offline running -> getting field from COOL    
         else:
             solenoidCurrent,toroidCurrent=GetFieldFromCool()

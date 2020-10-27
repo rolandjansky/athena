@@ -66,7 +66,9 @@ if DetFlags.pixel_on():
         elif (globalflags.DataSource=='data'):
             from RecExConfig.AutoConfiguration import GetRunNumber
             runNum = GetRunNumber()
-            if (runNum<222222):
+            if (runNum is None):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+            elif (runNum<222222):
                 useCablingConditions = False
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
                 rodIDForSingleLink40=1300000
