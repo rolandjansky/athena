@@ -46,7 +46,7 @@ namespace InDetDDSLHC {
     //
     //    Create the detector manager... should allow the name to be set
     //
-    m_detectorManager = new InDetDD::PixelDetectorManager(detStore(),m_options->detectorName());
+    m_detectorManager = new InDetDD::PixelDetectorManager(detStore());//not possible for pix:  m_options->detectorName());
     //
     //   Set Detector Manager pixel version information
     //
@@ -107,8 +107,7 @@ namespace InDetDDSLHC {
       flags = 0;
       gmxInput = PathResolver::find_file(m_options->gmxFilename(), "DATAPATH");
       if (gmxInput == "") { // File not found
-	string errMessage("PixelDetectorFactory::create: Unable to find file " + m_op
-			  tions->gmxFilename() +
+	string errMessage("PixelDetectorFactory::create: Unable to find file " + m_options->gmxFilename() +
                                    " with PathResolver; check filename and DATAPATH environment variable");
 	throw runtime_error(errMessage);
       }

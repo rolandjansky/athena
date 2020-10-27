@@ -29,9 +29,9 @@ class PixelGmxInterface: public GmxInterface {
   void addModuleType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters);
   void addModule(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
 		 GeoVFullPhysVol *fpv);
-  //  void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, 
-  //GeoAlignableTransform *transform);
+  //  void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, GeoAlignableTransform *transform);
   void makePixelModule(std::string typeName, std::map<std::string, std::string> &par);
+  //  /*
   template <typename T> void getparm(const std::string typeName, const std::string name, 
 				     const std::map<std::string, std::string> &par, T &value) {
     std::map<std::string, std::string>::const_iterator found;
@@ -63,7 +63,7 @@ class PixelGmxInterface: public GmxInterface {
       exit(999);
     }
   }
-
+  //*/
   std::string getstr(const std::string typeName, const std::string name, const std::map<std::string, std::string> &par);
 
  private:

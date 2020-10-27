@@ -29,7 +29,8 @@ PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorMana
   m_detectorManager(detectorManager),
   m_commonItems(commonItems),
   m_moduleTree(moduleTree) {
-  
+  // Logging: ref https://wiki.bnl.gov/dayabay/index.php?title=Logging
+  // Turn on logging in job-options with: MessageSvc.setDebug += {"PixelGmxInterface"}
   ServiceHandle<IMessageSvc> msgh("MessageSvc", "PixelGmxInterface");
   
   m_log = new MsgStream(&(*msgh), "PixelGmxInterface");
@@ -42,8 +43,9 @@ PixelGmxInterface::~PixelGmxInterface() {
 int PixelGmxInterface::moduleId(map<string, int> &index){
   //
   //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers")
-  int hitIdOfModule = SiHitIdHelper::GetHelper->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"],
-							  index["eta_module"], index["phi_module"], index["side"]);
+  
+  int hitIdOfModule = SiHitIdHelper::GetHelper->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"], 
+							   index["eta_module"], index["phi_module"], index["side"]);
 
   *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " <<
                                      index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endmsg;
@@ -130,7 +132,7 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
 												  readoutSide, is3D); 
   m_detectorManager->addDesign(std::move(design));
 
-  //    Add to map for addSensor routine
+  //    Add to map for addModule routine
   m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
 }
 
@@ -152,9 +154,9 @@ void PixelGmxInterface::addModule(string typeName, map<string, int> &index, int 
   //    Get the ATLAS "Offline" wafer identifier 
   //
   const PixelID *pixelIdHelper = dynamic_cast<const PixelID *> (m_commonItems->getIdHelper());
-  Identifier id = pixelIdHelper->module_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], 
-					index["eta_module"], index["side"]);
-  IdentifierHash hashId = pixelIdHelper->module_hash(id);
+  Identifier id = pixelIdHelper->wafer_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], 
+					  index["eta_module"]);
+  IdentifierHash hashId = pixelIdHelper->wafer_hash(id);
   //
   //    Now do our best to check if this is a valid id. If either the gmx file is wrong, or the xml file
   //    defining the allowed id's is wrong, you can get disallowed id's. These cause a crash later 
@@ -188,7 +190,7 @@ void PixelGmxInterface::addModule(string typeName, map<string, int> &index, int 
   Module module((unsigned int) hashId);
   string errorMessage("");
   if (!m_moduleTree->add(index["barrel_endcap"], index["layer_wheel"], index["eta_module"], 
-			index["phi_module"], index["side"], module, errorMessage)) {
+			 index["phi_module"], index["side"], module, errorMessage)) {
     *m_log << MSG::ERROR << errorMessage << endmsg;
   }
   return;
