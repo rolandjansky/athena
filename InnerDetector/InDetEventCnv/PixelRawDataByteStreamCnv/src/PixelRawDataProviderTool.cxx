@@ -141,9 +141,12 @@ int PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer() const {
   //          2048 x 17 (module + FE) = 34816
   //
   //      IBL extra error information  : 
-  //          280(module) x 2(FE) x 32(error counter) = 35840
+  //          280(module) x 2(FE) x 32(error counter) = 17920
   //     -------------------------------------
-  //                             Total : 70656
+  //
+  //      isActive status : 2048
+  //     -------------------------------------
+  //                             Total : 54784
   //=========================================================
-  return 70656;
+  return 54784;
 }
