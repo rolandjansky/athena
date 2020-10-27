@@ -23,6 +23,7 @@ namespace FlavorTagDiscriminants {
   {
   public:
     HbbTag(const HbbTagConfig& config);
+    HbbTag(HbbTag&&);
     ~HbbTag();
     void decorate(const xAOD::Jet& jet) const;
 
