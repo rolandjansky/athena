@@ -47,7 +47,7 @@ then
 fi
 
 #find boost 
-boost=$(find /cvmfs/atlas.cern.ch/repo/sw/software/21.6/sw/lcg/releases/Boost/*/*/* -type d -name "boost-*")
+boost=$(find /cvmfs/atlas.cern.ch/repo/sw/software/21.6/sw/lcg/releases/Boost/*/*${LCG_PLATFORM}*/* -type d -name "boost-*")
 if [ -z $boost ]
 then
     echo "WARNING: lhapdf-config could not find boost headers"
