@@ -3,6 +3,7 @@
 */
 
 #include "TRTPIDNNCondAlg.h"
+#include "CoolKernel/IObject.h"
 
 TRTPIDNNCondAlg::TRTPIDNNCondAlg(const std::string& name
 				 , ISvcLocator* pSvcLocator )
@@ -54,12 +55,12 @@ StatusCode TRTPIDNNCondAlg::execute()
   SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readKey};
   const CondAttrListCollection* attrListColl{*readHandle};
   if (attrListColl==nullptr or attrListColl->size() != 1) {
-    ATH_MSG_ERROR(" Problem reading TRT/Calib/PID_NN cond object");
+    ATH_MSG_ERROR(" Problem reading /TRT/Calib/PID_NN cond object");
     return StatusCode::FAILURE;
   }
   // The NN configuration is stored as one big string in the first channel
   const coral::AttributeList& attrList = attrListColl->begin()->second;
-  const std::string json = attrList["NN_config"].data<std::string>();
+  const std::string json = attrList["NN_config"].data<cool::String16M>();
   if (StatusCode::SUCCESS != writeCdo->configure(json)) {
     ATH_MSG_ERROR ("Problem setting up TRTPIDNN.");
     return StatusCode::FAILURE;     

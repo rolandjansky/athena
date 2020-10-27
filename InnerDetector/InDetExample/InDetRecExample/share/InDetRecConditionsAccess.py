@@ -471,6 +471,8 @@ if DetFlags.haveRIO.TRT_on():
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
        conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
+    if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
 
     #
     # now do the services
@@ -522,6 +524,10 @@ if DetFlags.haveRIO.TRT_on():
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
+    # PID NN
+    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTPIDNNCondAlg
+    TRTPIDNNCondAlg = TRTPIDNNCondAlg(name = "TRTPIDNNCondAlg")
+
     # dEdx probability algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
     TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
@@ -542,6 +548,8 @@ if DetFlags.haveRIO.TRT_on():
     # Condition algorithms for Pid
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
+    if not hasattr(condSeq, "TRTPIDNNCondAlg"):
+        condSeq += TRTPIDNNCondAlg
     if not hasattr(condSeq, "TRTToTCondAlg"):
         condSeq += TRTToTCondAlg
 

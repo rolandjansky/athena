@@ -8,6 +8,7 @@
 #include "../TRTActiveCondAlg.h"
 #include "../TRTHWMapCondAlg.h"
 #include "../TRTPhaseCondAlg.h"
+#include "../TRTPIDNNCondAlg.h"
 
 
 DECLARE_COMPONENT( TRTCondWrite )
@@ -20,3 +21,4 @@ DECLARE_COMPONENT( TRTToTCondAlg )
 DECLARE_COMPONENT( TRTActiveCondAlg )
 DECLARE_COMPONENT( TRTHWMapCondAlg )
 DECLARE_COMPONENT( TRTPhaseCondAlg )
+DECLARE_COMPONENT( TRTPIDNNCondAlg )
