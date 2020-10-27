@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECONDITIONS_TILECONDTOOLTMDB_H
@@ -28,14 +28,14 @@ class TileCondToolTMDB: public AthAlgTool, virtual public ITileCondToolTMDB {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    virtual float getThreshold(unsigned int drawerIdx, TMDB::THRESHOLD threshold) const override;
-    virtual float getDelay(unsigned int drawerIdx, TMDB::CHANNEL channel) const override;
+    virtual float getThreshold(unsigned int drawerIdx, unsigned int threshold) const override;
+    virtual float getDelay(unsigned int drawerIdx, unsigned int channel) const override;
 
-    virtual void getCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, float& a, float& b) const override;
-    virtual unsigned int getWeights(unsigned int drawerIdx, TMDB::CHANNEL channel, TMDB::Weights& weights) const override;
+    virtual void getCalib(unsigned int drawerIdx, unsigned int channel, float& a, float& b) const override;
+    virtual unsigned int getWeights(unsigned int drawerIdx, unsigned int channel, TMDB::Weights& weights) const override;
 
-    virtual float channelCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, const std::vector<float>& samples) const override;
-    virtual float channelCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, float amplitude) const override;
+    virtual float channelCalib(unsigned int drawerIdx, unsigned int channel, const std::vector<float>& samples) const override;
+    virtual float channelCalib(unsigned int drawerIdx, unsigned int channel, float amplitude) const override;
 
   private:
 
