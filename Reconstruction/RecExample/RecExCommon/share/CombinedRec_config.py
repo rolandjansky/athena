@@ -34,9 +34,9 @@ if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   
     except Exception:
         treatException("Cannot include CaloExtensionBuilder !")
 
-    #Now setup Large Radius Tracks version (LRT), only if LRT enabled
-    from InDetRecExample.InDetKeys import InDetKeys
-    if InDetKeys.doR3LargeD0():
+    #Now setup Large Radius Tracks version (LRT), only if LRT enabled    
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.doR3LargeD0():
         #CaloExtensionBuilder was already imported above, and an exception would have been thrown
         #if that had failed.
         CaloExtensionBuilder(True)
