@@ -490,7 +490,7 @@ StatusCode PixelMainMon::fillRODErrorMon(void) {
           if ((fe_errorword & (static_cast<uint64_t>(1) << bit)) != 0) {
             // FE Error word contains 'bit', so take appropriate actions.
             if (is_fei4 && bit > 7) continue; // For FE-I4 we are interested only in trailer errors, which are the first 8 bits, service records are treated below
-
+	    if (!is_fei4 && !(bit >=4 && bit <=16)) continue; //avoid double-counting of ROD header errors
             num_errors[kLayer]++;
             num_errors_per_bit[kLayer][bit]++;
 
