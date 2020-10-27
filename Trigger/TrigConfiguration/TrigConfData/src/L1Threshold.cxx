@@ -106,13 +106,10 @@ TrigConf::L1Threshold_ZB::load()
 void
 TrigConf::L1Threshold_eEM::load()
 {
-   auto translate = [](const std::string &wp) { return wp=="Loose" ? Isolation::WP::LOOSE : 
-                                                ( wp=="Medium" ? Isolation::WP::MEDIUM : 
-                                                  ( wp=="Tight" ? Isolation::WP::TIGHT : Isolation::WP::NONE ) ); };
    // read the isolation requirements
-   m_reta = translate(getAttribute("reta"));
-   m_rhad = translate(getAttribute("rhad"));
-   m_wstot = translate(getAttribute("wstot"));
+   m_reta  = Isolation::stringToWP(getAttribute("reta"));
+   m_rhad  = Isolation::stringToWP(getAttribute("rhad"));
+   m_wstot = Isolation::stringToWP(getAttribute("wstot"));
 }
 
 void

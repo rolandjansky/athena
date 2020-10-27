@@ -29,7 +29,7 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
       return std::make_unique<L1ThrExtraInfo_MU>(thrTypeName, data);
 
    if( thrTypeName == "eEM" )
-      return std::make_unique<L1ThrExtraInfo_eEMTAU>(thrTypeName, data);
+      return std::make_unique<L1ThrExtraInfo_eEM>(thrTypeName, data);
 
    if( thrTypeName == "eTAU" )
       return std::make_unique<L1ThrExtraInfo_eTAU>(thrTypeName, data);
@@ -82,9 +82,9 @@ TrigConf::L1ThrExtraInfo::JET() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_JETLegacy&>( * m_thrExtraInfo.at("JET") );
 }
 
-const TrigConf::L1ThrExtraInfo_eEMTAU &
+const TrigConf::L1ThrExtraInfo_eEM &
 TrigConf::L1ThrExtraInfo::eEM() const {
-   return dynamic_cast<const TrigConf::L1ThrExtraInfo_eEMTAU&>( * m_thrExtraInfo.at("eEM") );
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_eEM&>( * m_thrExtraInfo.at("eEM") );
 }
 
 const TrigConf::L1ThrExtraInfo_eTAU &
@@ -204,21 +204,35 @@ TrigConf::L1ThrExtraInfo_JETLegacy::load()
 /*******
  * eEM
  *******/
+TrigConf::L1ThrExtraInfo_eEM::Isolation_eEM::Isolation_eEM( const boost::property_tree::ptree & pt ) {
+   m_isDefined = true;
+   m_reta  = lround(100 * pt.get_optional<float>("reta").get_value_or(0));
+   m_wstot = lround(100 * pt.get_optional<float>("wstot").get_value_or(0));
+   m_rhad  = lround(100 * pt.get_optional<float>("rhad").get_value_or(0));
+   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
+}
+
+std::ostream &
+TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eEM::Isolation_eEM & iso) {
+   os << "reta=" << iso.reta() << ", wstot=" << iso.wstot() << ", rhad=" << iso.rhad();
+   return os;
+}
+
 void
-TrigConf::L1ThrExtraInfo_eEMTAU::load()
+TrigConf::L1ThrExtraInfo_eEM::load()
 {
    for( auto & x : m_extraInfo ) {
       if( x.first == "ptMinToTopo" ) {
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
-            auto wp = (y.first == "Loose") ? Isolation::WP::LOOSE : ( (y.first == "Medium") ? Isolation::WP::MEDIUM : Isolation::WP::TIGHT );
+            auto wp = Isolation::stringToWP(y.first);
             auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
             for(auto & c : y.second ) {
                int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
                int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
                unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
-               iso.addRangeValue(Isolation(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+               iso.addRangeValue(Isolation_eEM(c.second), etamin, etamax, priority, /*symmetric=*/ false);
             }
          }
       }
@@ -229,7 +243,7 @@ TrigConf::L1ThrExtraInfo_eEMTAU::load()
 /*******
  * eTAU
  *******/
-TrigConf::L1ThrExtraInfo_eTAU::Isolation::Isolation( const boost::property_tree::ptree & pt ) {
+TrigConf::L1ThrExtraInfo_eTAU::eTauIsolation::eTauIsolation( const boost::property_tree::ptree & pt ) {
    m_isolation = lround(100 * pt.get_optional<float>("isolation").get_value_or(0));
    m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
@@ -248,7 +262,7 @@ TrigConf::L1ThrExtraInfo_eTAU::load()
                int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
                int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
                unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
-               iso.addRangeValue(Isolation(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+               iso.addRangeValue(eTauIsolation(c.second), etamin, etamax, priority, /*symmetric=*/ false);
             }
          }
       }

@@ -332,19 +332,3 @@ TrigConf::Isolation::stringToWP(const std::string & wpStr)
       return Isolation::WP::TIGHT;
    throw std::runtime_error("Unknown working point name " + wpStr);
 }
-
-
-TrigConf::Isolation::Isolation( const boost::property_tree::ptree & pt ) {
-   m_isDefined = true;
-   m_reta  = lround(100 * pt.get_optional<float>("reta").get_value_or(0));
-   m_wstot = lround(100 * pt.get_optional<float>("wstot").get_value_or(0));
-   m_rhad  = lround(100 * pt.get_optional<float>("rhad").get_value_or(0));
-   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
-}
-
-std::ostream &
-TrigConf::operator<<(std::ostream & os, const TrigConf::Isolation & iso) {
-   os << "reta=" << iso.reta() << ", wstot=" << iso.wstot() << ", rhad=" << iso.rhad();
-   return os;
-}
-
