@@ -1362,11 +1362,9 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     int stationNameMDT1 = m_idHelperSvc->mdtIdHelper().stationNameIndex(station1);
     int stationNameMDT2 = m_idHelperSvc->mdtIdHelper().stationNameIndex(station2);
 
-    int stationcode = stationCode(tgcid);
-
     // store station Inner and Middle codes
  	  	 
-    stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta1MDT);
+    int stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta1MDT);
     addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta1MDT);
     addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
