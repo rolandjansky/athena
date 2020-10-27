@@ -2,11 +2,9 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 import sys,os
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
-from ROOT import TFile, TTree
+from ROOT import TFile
 sys.argv.pop()
 
 setIgnoreLeaves=("Token","StreamESD_ref","StreamRDO_ref","StreamAOD_ref","RecoTimeRAWtoESD","RecoTimeESDtoAOD","RecoTimeRAWtoALL","JetMissingETWord")
@@ -29,13 +27,13 @@ def diffTTree(tOld,tNew,details=None):
     
     for l in leavesOld:
         name=l.GetName()
-        if not name in setIgnoreLeaves:
+        if name not in setIgnoreLeaves:
             checkLeavesOld.add(name)
 
     checkLeavesNew=set()
     for l in leavesNew:
         name=l.GetName()
-        if not name in setIgnoreLeaves:
+        if name not in setIgnoreLeaves:
             checkLeavesNew.add(name)
     
     #print checkLeavesOld
@@ -91,7 +89,7 @@ def diffTTree(tOld,tNew,details=None):
                     
                     evId="(Run %i, Evt %i)" % (rn, evt)
                     evId+="(Run %i, Evt %i)" % (rnO, evtO)
-                except:
+                except Exception:
                     evId=""
                     
                 #print "Event #",iEntry,"Difference:",name,
@@ -101,7 +99,7 @@ def diffTTree(tOld,tNew,details=None):
                 try:
                     d=100.0*(vNew-vOld)/vOld
                     diffmsg+=" (%.3f%%)" % d
-                except:
+                except Exception:
                     pass
                 if details is not None:
                     details.write(diffmsg+"\n")

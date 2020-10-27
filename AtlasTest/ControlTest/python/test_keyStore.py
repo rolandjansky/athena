@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
 from AthenaCommon.Constants import VERBOSE,INFO
-from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
+from AthenaCommon.KeyStore import CfgKeyStore
 
 
 from AthenaCommon.Logging import logging

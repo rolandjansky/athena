@@ -9,12 +9,10 @@
 # it produces a listing of all objects in the HIST file and a hash value for each of them.  This output can then be compared between the clean and patched runs to look 
 # for any changes in HIST output.  Since it's entirely possible to change the HIST output unintentionally without changing the AOD/ESD etc., this catches a new class of potential errors.
 
-from __future__ import print_function
-
 import ROOT
-import sys, os, operator
+import sys
+import os
 import argparse
-import zlib
 
 parser=argparse.ArgumentParser()
 parser.add_argument('filename',
@@ -32,7 +30,9 @@ args=parser.parse_args()
 
 ordering = args.rankorder
 
-accounting = {}; hashes = {}; types = {}
+accounting = {}
+hashes = {}
+types = {}
 
 ROOT.gInterpreter.LoadText("UInt_t bufferhash(TKey* key) { key->SetBuffer(); key->ReadFile(); UInt_t rv = TString::Hash(key->GetBuffer()+key->GetKeylen(), key->GetNbytes()-key->GetKeylen()); key->DeleteBuffer(); return rv; }")
 ROOT.gInterpreter.LoadText("void* getbuffer(TKey* key) { key->SetBuffer(); key->ReadFile(); return (void*) (key->GetBuffer()+key->GetKeylen()); }")
@@ -89,11 +89,11 @@ dumpdir(d)
 
 #sortedl = sorted(accounting.items(), key=operator.itemgetter(0,1), reverse=True)
 if ordering == 'onfile':
-    key=lambda x: (x[1][1], x[1][0], x[0])
+    key=lambda x: (x[1][1], x[1][0], x[0])  # noqa: E731
 elif ordering == 'uncompressed':
-    key=lambda x: (x[1][0], x[1][1], x[0])
+    key=lambda x: (x[1][0], x[1][1], x[0])  # noqa: E731
 else:
-    key=lambda x: (x[0], x[1][1], x[1][0])
+    key=lambda x: (x[0], x[1][1], x[1][0])  # noqa: E731
 sortedl = sorted(accounting.items(), key=key, reverse=True)
 if args.hash:
     print ('\n'.join('%s %s: %d uncompressed, %d on file (hash %s)' % (types[a], a, b, c, hashes[a]) for a, (b, c) in  sortedl))

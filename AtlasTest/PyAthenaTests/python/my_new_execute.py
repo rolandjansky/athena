@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from math import log10
 from PyAthenaTests.Lib import _patch
@@ -22,7 +22,7 @@ def new_execute(self):
     _clusE   = self.hsvc['/py/clusE'].Fill
     _clusEta = self.hsvc['/py/clusEta'].Fill
 
-    from ROOT import CaloClusterMoment
+    from ROOT import CaloClusterMoment  # noqa: F401
     from ROOT import Double as RDouble
 
     for i,cluster in enumerate(clusters):

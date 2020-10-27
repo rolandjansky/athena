@@ -12,8 +12,6 @@
 #                                                            #
 ##############################################################
 
-from __future__ import print_function
-
 import sys, os, argparse, subprocess, fnmatch
 
 # This is a bit ugly, but seems to be the only way for now
@@ -107,7 +105,7 @@ def main():
         extractEvents(args.run, eventList, args.inputfile, args.fileformat)
         sys.exit(0)
         
-    if args.fileformat == False:
+    if args.fileformat is False:
         print ("Unknown argument for -f/--fileformat - please provide a valid string describing the file format, i.e. one containing 'RAW', 'ESD' or 'AOD'")
         sys.exit(1)
 
@@ -135,7 +133,7 @@ def main():
             datasetNames.append(line.rstrip())
 
     # now get rid of all datasets that don't match the matching pattern
-    datasetNames = [ds for ds in datasetNames if not ".LOGARC" in ds]
+    datasetNames = [ds for ds in datasetNames if ".LOGARC" not in ds]
     if args.matchingstring != '':
         if args.verbose:
             print ("Removing datasets that don't match %s" % (args.matchingstring))

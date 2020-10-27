@@ -281,23 +281,23 @@ if __name__ == '__main__':
         ### Update conditions
         try:
             updateConditionsTag = int(sys.argv[5])
-        except:
+        except Exception:
             if sys.argv[5].lower() == "false":
                 updateConditionsTag = False
         ### coolSource
         try:
             coolSource = sys.argv[6]
-        except:
+        except Exception:
             print ("INFO: No coolSource specified -- this defaults to fronTier")
         ### Release project
         try:
             project = sys.argv[7]
-        except:
+        except Exception:
             print ("INFO: No project specified -- this defaults to Athena")
         ### Patch Area
         try:
             patchArea = sys.argv[8]
-        except:
+        except Exception:
             print ("INFO: No patch area specified -- this defaults to the default set by Tier0")
 
     doWhat="Dunno"
@@ -390,7 +390,7 @@ if __name__ == '__main__':
                 try:
                     #print ("key: " , key , " isOutput")
                     outputDic[key]=OutputsVsStreams[key]
-                except:
+                except Exception:
                     print ("Known outputs defined in the OutputsVsStreams dictionary are:")
                     print (OutputsVsStreams)
                     raise RuntimeError("Don't know what to do with out key %s, please add it to OutputsVsStreams to use it"%key)
