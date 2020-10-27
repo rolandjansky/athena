@@ -33,7 +33,7 @@ public:
 	           const IInterface* parent);
 
   std::shared_ptr<Acts::VolumeMaterialMapper>
-  mapper() const
+  mapper() const override
   {
     return m_mapper;
   };

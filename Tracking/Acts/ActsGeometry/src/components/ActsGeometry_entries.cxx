@@ -2,6 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "ActsGeometry/ActsGeantFollowerHelper.h"
+#include "ActsGeometry/ActsGeantFollowerTool.h"
+
 #include "ActsGeometry/ActsExtrapolationAlg.h"
 #include "ActsGeometry/ActsWriteTrackingGeometry.h"
 #include "ActsGeometry/ActsWriteTrackingGeometryTransforms.h"
@@ -10,7 +13,7 @@
 
 #include "ActsGeometry/ActsMaterialMapping.h"
 #include "ActsGeometry/ActsSurfaceMappingTool.h"
-// #include "ActsGeometry/ActsVolumeMappingTool.h"
+#include "ActsGeometry/ActsVolumeMappingTool.h"
 #include "ActsGeometry/ActsObjWriterTool.h"
 //#include "ActsGeometry/ActsExCellWriterSvc.h"
 #include "ActsGeometry/ActsMaterialTrackWriterSvc.h"
@@ -33,7 +36,7 @@ DECLARE_COMPONENT( ActsExtrapolationTool )
 
 DECLARE_COMPONENT( ActsMaterialMapping )
 DECLARE_COMPONENT( ActsSurfaceMappingTool )
-// DECLARE_COMPONENT( ActsVolumeMappingTool )
+DECLARE_COMPONENT( ActsVolumeMappingTool )
 DECLARE_COMPONENT( ActsObjWriterTool )
 //DECLARE_COMPONENT( ActsExCellWriterSvc )
 DECLARE_COMPONENT( ActsMaterialTrackWriterSvc )
@@ -47,3 +50,6 @@ DECLARE_COMPONENT( ActsTrackingGeometryTool )
 DECLARE_COMPONENT( ActsPropStepRootWriterSvc )
 DECLARE_COMPONENT( ActsAlignmentCondAlg )
 DECLARE_COMPONENT( ActsCaloTrackingVolumeBuilder )
+
+DECLARE_COMPONENT( ActsGeantFollowerTool )
+DECLARE_COMPONENT( ActsGeantFollowerHelper )
