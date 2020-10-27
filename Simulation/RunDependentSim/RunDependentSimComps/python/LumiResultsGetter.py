@@ -3,17 +3,13 @@
 # module LumiResultsGetter
 # Tool that gets all data for the RunDependentMC configuration.
 
-from __future__ import print_function
-
 import sys
 from PyCool import cool
 
 from CoolConvUtilities.AtlCoolLib import indirectOpen,RangeList
-from DetectorStatus.DetStatusLib import DetStatusNames,DetStatusReq
 from DetectorStatus.DetStatusCoolLib import statusCutsToRange
 
-import LumiBlockComps.LumiQuery as LumiQuery
-from  LumiBlockComps.LumiCalculator import RLBRange,IOVCache,lumiResult,coolLumiCalc
+from LumiBlockComps.LumiCalculator import IOVCache,lumiResult,coolLumiCalc
         
 class coolLumiResultsGetter(coolLumiCalc):
     """Queries the DB to determine the RunDependentMC configuration for each luminosity block."""
@@ -49,7 +45,7 @@ class coolLumiResultsGetter(coolLumiCalc):
         lumicache=IOVCache()
         folderLUMI=self.cooldblumi.getFolder(self.lumifoldername)
         if (not folderLUMI.existsChannel(self.lumimethod)):
-            if self.lumimethod != 'EXTERNAL': raise Error('This luminosity method is not supported by %s' % self.lumifoldername)
+            if self.lumimethod != 'EXTERNAL': raise RuntimeError('This luminosity method is not supported by %s' % self.lumifoldername)
             chid=cool.ChannelSelection(998)
         else:
             chid = cool.ChannelSelection(folderLUMI.channelId(self.lumimethod))
@@ -118,7 +114,6 @@ class coolLumiResultsGetter(coolLumiCalc):
                 # loop through the LBs for this range
                 # looping is driven by the LVL1COUNTERS folder which has 1 LB IOVs.
                 # Should be matched by LBLB which is also 1 LB IOVs.
-                nblocks=0
                 l1countitr=folderLBCOUNTL1.browseObjects(since,until-1,cool.ChannelSelection(chainnums[0]))
                 l1lbiter=folderL1LB.browseObjects(since,until-1,cool.ChannelSelection(0)) #just one channel in this folder.
                 while l1countitr.goToNext():
@@ -141,8 +136,6 @@ class coolLumiResultsGetter(coolLumiCalc):
                     else:
                         livefrac=1.
                         pass
-                    l2acc=0
-                    l3acc=0
                     if (len(gooddetstatus.getAllowedRanges(l1countobj.since(),l1countobj.until()))>0):
                         # calculate intL for block
                         # lumi is being given in units of 10^33 cm^-2s^-1
