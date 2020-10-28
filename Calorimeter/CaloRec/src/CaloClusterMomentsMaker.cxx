@@ -26,9 +26,10 @@
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
-//#include "CxxUtils/unordered_set.h"
-#include "CLHEP/Geometry/Point3D.h"
-#include "CLHEP/Geometry/Vector3D.h"
+
+#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
+
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CxxUtils/prefetch.h"
 #include <Eigen/Dense>
@@ -38,9 +39,6 @@
 #include <limits>
 #include <sstream>
 
-
-using HepGeom::Vector3D;
-using HepGeom::Point3D;
 using CLHEP::deg;
 using CLHEP::cm;
 
@@ -529,7 +527,7 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	xc/=w;
 	yc/=w;
 	zc/=w;
-	Point3D<double> showerCenter(xc,yc,zc);
+	Amg::Vector3D showerCenter(xc,yc,zc);
 	w=0;
 	
 
@@ -538,8 +536,8 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	// shower axis is just the vector pointing from the IP to the shower center
 	// in case there are less than 3 cells in the cluster
 	
-	Vector3D<double> showerAxis(xc,yc,zc);
-	showerAxis.setMag(1);
+	Amg::Vector3D showerAxis(xc,yc,zc);
+	Amg::setMag(showerAxis,1.0);
 
 	// otherwise the principal direction with the largest absolute 
 	// eigenvalue will be used unless it's angle w.r.t. the vector pointing
@@ -580,15 +578,15 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 
 	    if ( !( std::abs(S[0]) < epsilon || std::abs(S[1]) < epsilon || std::abs(S[2]) < epsilon ) ) { 
 	    
-	      Vector3D<double> prAxis(showerAxis);
+	      Amg::Vector3D prAxis(showerAxis);
 	      int iEigen = -1;
 	    
 	      for (i=0;i<3;i++) {
-		Vector3D<double> tmpAxis = Vector3D<double>(U(0,i),U(1,i),U(2,i));
+		Amg::Vector3D tmpAxis=U.col(i);
+
+		// calculate the angle		
+		double tmpAngle=Amg::angle(tmpAxis,showerAxis);
 		
-		// calculate the angle
-		  
-		double tmpAngle = tmpAxis.angle(showerAxis);
 		if ( tmpAngle > 90*deg ) { 
 		  tmpAngle = 180*deg - tmpAngle;
 		  tmpAxis = -tmpAxis;
@@ -609,14 +607,15 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	    
 	      // check the angle
 	    
-	      if ( angle < m_maxAxisAngle ) 
+	      if ( angle < m_maxAxisAngle ) {
 		showerAxis = prAxis;
+	      }
 	      else 
-		ATH_MSG_DEBUG("principal Direction (" << prAxis.x() << ", " 
-			      << prAxis.y() << ", " << prAxis.z() << ") deviates more than " 
+		ATH_MSG_DEBUG("principal Direction (" << prAxis[Amg::x] << ", " 
+			      << prAxis[Amg::y] << ", " << prAxis[Amg::z] << ") deviates more than " 
 			      << m_maxAxisAngle*(1./deg) 
-			      << " deg from IP-to-ClusterCenter-axis (" << showerAxis.x() << ", "
-			      << showerAxis.y() << ", " << showerAxis.z() << ")");
+			      << " deg from IP-to-ClusterCenter-axis (" << showerAxis[Amg::x] << ", "
+			      << showerAxis[Amg::y] << ", " << showerAxis[Amg::z] << ")");
 	    }//end if fabs(S)<epsilon
 	    else {
 	      ATH_MSG_DEBUG("Eigenvalues close to 0, do not use principal axis");
@@ -624,17 +623,16 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	  }//end got eigenvalues
 	} //end if ncell>2
       
-	ATH_MSG_DEBUG("Shower Axis = (" << showerAxis.x() << ", "
-		      << showerAxis.y() << ", " << showerAxis.z() << ")");
+	ATH_MSG_DEBUG("Shower Axis = (" << showerAxis[Amg::x] << ", "
+		      << showerAxis[Amg::y] << ", " << showerAxis[Amg::z] << ")");
 	
+
 	// calculate radial distance from and the longitudinal distance
 	// along the shower axis for each cell. The cluster center is 
 	// at r=0 and lambda=0
 	
-	//for(i=0;i<ncell;i++) {
-	//CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
 	for (auto& ci : cellinfo) {
-	  const Point3D<double> currentCell(ci.x,ci.y,ci.z);
+	  const Amg::Vector3D currentCell(ci.x,ci.y,ci.z);
 	  // calculate distance from shower axis r
 	  ci.r = ((currentCell-showerCenter).cross(showerAxis)).mag();
 	  // calculate distance from shower center along shower axis
