@@ -46,7 +46,7 @@ namespace Trk {
    {
       public:
         VKMassConstraint(int,double, VKVertex*); 
-        VKMassConstraint(int,double, const std::vector<int>&, VKVertex*); 
+        VKMassConstraint(int,double, std::vector<int>, VKVertex*); 
         ~VKMassConstraint(); 
         friend std::ostream& operator<<( std::ostream& out, const VKMassConstraint& );
         virtual VKConstraintBase* clone() const override;
