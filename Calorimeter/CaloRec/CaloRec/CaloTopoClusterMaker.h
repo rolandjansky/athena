@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //Dear emacs, this is -*-c++-*-
@@ -66,7 +66,7 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
  private: 
   
  
-  inline bool passCellTimeCut(const CaloCell*) const;
+  inline bool passCellTimeCut(const CaloCell*, float) const;
 
   const CaloDetDescrManager* m_calo_dd_man; 
   
@@ -154,9 +154,8 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
       seed level */
   float m_seedThresholdOnEtorAbsEt;              
 
-
   /**                                                                                                             
-   * threshold used for timing cut. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighbouring cells.*/
+   * threshold used for timing cut on seed cells. Implemented as |seed_cell_time|<m_seedThresholdOnTAbs. No such cut on neighboring cells.*/
   float m_seedThresholdOnTAbs;
 
 
@@ -282,6 +281,11 @@ class CaloTopoClusterMaker: public AthAlgTool, virtual public CaloClusterCollect
    * if set to true, time cut is applied to seed cells, no cut otherwise 
    */
   bool m_seedCutsInT;
+
+  /**                                                                                              
+   * if set to true, seed cells failing the time cut are also excluded from cluster at all 
+   */
+  bool m_cutOOTseed;
 
                                                  
   /**
