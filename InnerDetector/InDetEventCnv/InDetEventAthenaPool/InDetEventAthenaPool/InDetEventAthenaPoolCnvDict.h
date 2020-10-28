@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETEVENTATHENAPOOLDICT_H
@@ -18,6 +18,7 @@
 #include "InDetEventAthenaPool/InDetRawDataCollection_p1.h"
 #include "InDetEventAthenaPool/InDetRawDataContainer_p1.h"
 #include "InDetEventAthenaPool/InDetRawDataContainer_p2.h"
+#include "InDetEventAthenaPool/InDetRawDataContainer_p3.h"
 #include "InDetEventAthenaPool/SCT_RawDataContainer_p1.h"
 #include "InDetEventAthenaPool/SCT_RawDataContainer_p2.h"
 #include "InDetEventAthenaPool/SCT_RawDataContainer_p3.h"
