@@ -1842,7 +1842,8 @@ bool MuFastSteering::storeMSRoiDescriptor(const TrigRoiDescriptor*              
     const float phiHalfWidth = 0.1;
     const float etaHalfWidth = 0.1;
 
-    TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
+    TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
+                                                               roids->l1Id(),
                                                                roids->roiId(),
                                                                pattern.etaMap,
                                                                pattern.etaMap - etaHalfWidth,
@@ -1909,7 +1910,8 @@ bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*              
     if (pattern.isTgcFailure || pattern.isRpcFailure) 
       phiHalfWidth *= scalePhiWidthForFailure;
 
-    TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
+    TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
+                                                               roids->l1Id(),
                                                                roids->roiId(),
                                                                pattern.etaVtx,
                                                                pattern.etaVtx - etaHalfWidth,
