@@ -3,8 +3,7 @@
 #
 
 import CscRawDataMonitoring.CscRawMonLabels as labels
-from CscRawDataMonitoring.CscRawMonLabels import *
 
 def getCSCLabelx(x):
-	labelx = getattr(labels, x)
-	return labelx
+    labelx = getattr(labels, x)
+    return labelx

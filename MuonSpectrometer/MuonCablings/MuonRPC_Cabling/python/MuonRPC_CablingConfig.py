@@ -1,10 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-from MuonRPC_Cabling.MuonRPC_CablingConf import *
-
-from AthenaCommon.GlobalFlags import globalflags
+from MuonRPC_Cabling.MuonRPC_CablingConf import Configurable, MuonRPC_CablingSvc
 from AthenaCommon.AppMgr import ServiceMgr
 
 class MuonRPC_CablingConfig (MuonRPC_CablingSvc):

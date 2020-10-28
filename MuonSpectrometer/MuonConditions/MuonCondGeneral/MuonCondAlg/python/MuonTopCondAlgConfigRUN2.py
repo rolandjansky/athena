@@ -2,12 +2,9 @@
 
 ## Configuration Access to OFFLINE DB (COMP200)
 
-import copy
-
 from IOVDbSvc.CondDB import conddb
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -15,7 +12,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 def addFolder(parent, db, folder):
     log = logging.getLogger(parent.getName())        
     log.info("Adding folder %s:%s to IOVDbSvc", db, folder)
-    conddb.addFolder(db, folder, className='CondAttrListCollection');
+    conddb.addFolder(db, folder, className='CondAttrListCollection')
 
 
 class MdtCondDbAlg(CfgMgr.MdtCondDbAlg):

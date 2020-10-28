@@ -4,9 +4,7 @@
 # Import MM_Digitization job properties
 #
 from Digitization.DigitizationFlags import jobproperties
-from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon import CfgMgr
-from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the MdtDigitizationTool.

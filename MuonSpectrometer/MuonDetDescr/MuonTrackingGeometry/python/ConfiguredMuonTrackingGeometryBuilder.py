@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #####################################################
 # ConfiguredMuonTrackingGeometry module
@@ -7,9 +7,7 @@
 # standard configuration
 #
 ######################################################
-# import the include statement
-from AthenaCommon.Include import Include, IncludeError, include
- 
+
 # import the configurable
 from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonTrackingGeometryBuilder
 
@@ -39,6 +37,6 @@ class ConfiguredMuonTrackingGeometryBuilder( Muon__MuonTrackingGeometryBuilder )
         MuonInertMaterialBuilder= Muon__MuonInertMaterialBuilder(name = 'MuonInertMaterialBuilder')
         ToolSvc += MuonInertMaterialBuilder 
 
-        Muon__MuonTrackingGeometryBuilder.__init__(self,name,\
-                                                   EntryVolumeName=TrkDetFlags.MuonSystemEntryVolumeName(),\
+        Muon__MuonTrackingGeometryBuilder.__init__(self,name,
+                                                   EntryVolumeName=TrkDetFlags.MuonSystemEntryVolumeName(),
                                                    ExitVolumeName  = TrkDetFlags.MuonSystemContainerName())
