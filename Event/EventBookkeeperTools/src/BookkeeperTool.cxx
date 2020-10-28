@@ -142,6 +142,8 @@ StatusCode BookkeeperTool::metaDataStop()
   m_incompleteContainers.clear();
   m_completeContainers.clear();
 
+  ATH_MSG_DEBUG("Successfully copied CutBookkeepers to the output MetaDataStore");
+
   return StatusCode::SUCCESS;
 }
 

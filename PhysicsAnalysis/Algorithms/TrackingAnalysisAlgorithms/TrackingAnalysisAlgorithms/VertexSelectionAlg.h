@@ -1,13 +1,13 @@
 // Dear emacs, this is -*- c++ -*-
 //
-// Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 #ifndef TRACKINGANALYSISALGORITHMS_VERTEXSELECTIONALG_H
 #define TRACKINGANALYSISALGORITHMS_VERTEXSELECTIONALG_H
 
 // Framework include(s):
-#include "AnaAlgorithm/AnaAlgorithm.h"
-#include "AnaAlgorithm/FilterReporterParams.h"
+#include <AnaAlgorithm/AnaAlgorithm.h>
+#include <EventBookkeeperTools/FilterReporterParams.h>
 
 // System include(s):
 #include <string>
@@ -53,7 +53,7 @@ namespace CP {
       /// Number of track particles required per vertex
       unsigned m_minTracks;
 
-     EL::FilterReporterParams m_filterParams {this, "vertex selection"};
+      FilterReporterParams m_filterParams {this, "VertexSelection", "vertex selection"};
 
       /// @}
 
