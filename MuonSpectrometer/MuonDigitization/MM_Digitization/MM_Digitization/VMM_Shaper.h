@@ -10,7 +10,7 @@
 
 class VMM_Shaper{
  public:
-    VMM_Shaper(float peakTime, float lowerTimeWindow, float upperTimeWindow);
+    VMM_Shaper(const float peakTime, const float lowerTimeWindow, const float upperTimeWindow);
     virtual ~VMM_Shaper() {}
 
     void initialize();
@@ -25,7 +25,7 @@ class VMM_Shaper{
      double m_peakTime;
      double m_lowerTimeWindow, m_upperTimeWindow;
      
-     double m_timeStep;
+     double m_timeStep, m_inverseTimeStep;
 
      double m_preCalculationVMMShaper; 
      // shaper parameters

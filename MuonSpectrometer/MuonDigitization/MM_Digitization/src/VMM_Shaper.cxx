@@ -4,6 +4,7 @@
 
 #include "MM_Digitization/VMM_Shaper.h"
 #include <cmath>
+#include <algorithm>
 
 namespace {
     // VMM shaper parameters provided by G. Iakovidis
@@ -16,11 +17,12 @@ namespace {
     static constexpr double mmIonFlowTime = 150.;  // ns
 }
 
-VMM_Shaper::VMM_Shaper(float peakTime, float lowerTimeWindow, float upperTimeWindow):m_peakTime(peakTime),
+VMM_Shaper::VMM_Shaper(const float peakTime,const float lowerTimeWindow,const float upperTimeWindow):m_peakTime(peakTime),
 m_lowerTimeWindow(lowerTimeWindow),
 m_upperTimeWindow(upperTimeWindow),
 m_timeStep(0.1)
 {
+    m_inverseTimeStep = 1./m_timeStep;
     initialize();
 }
 
@@ -66,11 +68,10 @@ void VMM_Shaper::vmmPeakResponse(const std::vector<float> &effectiveCharge, cons
 
 
 void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) const{
-
+    
+    if (effectiveCharge.size() == 0) return;  // protect min_element
     double startTime = m_lowerTimeWindow;
-    double minElectronTime = 9999; // find minimum of electrons times
-    for(float t:electronsTime){if(t < minElectronTime){minElectronTime = t;}} //  find minimum of electrons time
-
+    double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
     if(startTime < minElectronTime) startTime = minElectronTime; // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
 
     double tmpTimeAtThreshold = -9999;
@@ -91,10 +92,9 @@ void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge,
 
 
 double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const{
+    if(effectiveCharge.size()==0) return -9999; // protect min_element
     double startTime = m_lowerTimeWindow;
-    double minElectronTime = 9999; // find minimum of electrons times
-    for(float t:electronsTime){if(t < minElectronTime){minElectronTime = t;}} //  find minimum of electrons time
-
+    double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
     if(startTime < minElectronTime) startTime = minElectronTime; // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
 
     double oldResponse = 0;
@@ -105,7 +105,7 @@ double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std
         double response = vmmResponse(effectiveCharge, electronsTime, time);
 
         oldDerivative = currentDerivative;
-        currentDerivative = (response-oldResponse)/m_timeStep;
+        currentDerivative = (response-oldResponse) * m_inverseTimeStep;
         //  check if sign of derivative has not changed ==> no peak;  or if response is below threshold
         if (oldDerivative*currentDerivative >= 0 || oldResponse < electronicsThreshold) {oldResponse = response; continue;}
 
@@ -122,7 +122,7 @@ double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std
            double response = vmmResponse(effectiveCharge, electronsTime, time + i_timeOfPeak * m_timeStep);
 
            tmp_checkOldDerivative = tmp_checkCurrentDerivative;
-           tmp_checkCurrentDerivative = (response - tmp_checkOldResponse)/m_timeStep;
+           tmp_checkCurrentDerivative = (response - tmp_checkOldResponse) * m_inverseTimeStep;
            tmp_checkOldResponse = response;
 
            if (i_timeOfPeak >= -searchWindow + 2  // needs two iterations to fill the variables
@@ -139,10 +139,9 @@ double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std
 
 
 bool VMM_Shaper::hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const{
+    if(effectiveCharge.size()==0) return false; // protect min_element
     double startTime = m_lowerTimeWindow;
-    double minElectronTime = 9999; // find minimum of electrons times
-    for(float t:electronsTime){if(t < minElectronTime){minElectronTime = t;}} //  find minimum of electrons time
-
+    double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
     if(startTime < minElectronTime) startTime = minElectronTime; // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
 
     for (double time = startTime; time < m_upperTimeWindow; time += m_timeStep) {
