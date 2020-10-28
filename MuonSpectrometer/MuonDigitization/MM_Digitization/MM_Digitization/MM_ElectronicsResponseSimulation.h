@@ -49,6 +49,7 @@
 #include <string>
 #include <sstream>
 #include <sys/stat.h>
+#include <memory>
 
 /// Projects
 #include "MM_Digitization/MM_ElectronicsToolInput.h"
@@ -57,6 +58,7 @@
 
 //VMM Mapping
 #include "MM_Digitization/MM_StripVmmMappingTool.h"
+#include "MM_Digitization/VMM_Shaper.h"
 
 /// ROOT Classed
 class TF1;
@@ -97,14 +99,10 @@ public :
   inline void setStripdeadtime(float val) { m_stripDeadTime = val;};
   inline void setARTdeadtime(float val)   { m_artDeadTime = val;};
 
-  inline void setStripResponseQThreshold    (float val) { m_stripResponseQThreshold    = val; };
-  inline void setStripResponseDriftVelocity (float val) { m_stripResponseDriftVelocity = val; };
-  inline void setStripResponseDriftGapWidth (float val) { m_stripResponseDriftGapWidth = val; };
   inline void setNeighborLogic              (bool  val) { m_useNeighborLogic           = val; };
 
 
   float getPeakTime() const { return m_peakTime;};
-  float getAlpha() const { return m_alpha;};
   float getTimeWindowLowerOffset() const { return m_timeWindowLowerOffset ;};
   float getTimeWindowUpperOffset() const { return m_timeWindowUpperOffset ;};
   float getElectronicsThreshold() const { return m_electronicsThreshold;};
@@ -120,24 +118,19 @@ private:
 
   /** power of responce function */
   float m_peakTime;
-  float m_alpha;
   float m_timeWindowLowerOffset;
   float m_timeWindowUpperOffset;
   float m_electronicsThreshold;
   float m_stripDeadTime;
   float m_artDeadTime;
-  float m_stripResponseQThreshold;
-  float m_stripResponseDriftGapWidth;
-  float m_stripResponseDriftVelocity;
   bool  m_useNeighborLogic;
 
-  int  m_decoupleShaperFunctionParamaters;
 
   std::vector <float> m_tStripElectronicsAbThr;
   std::vector <float> m_qStripElectronics;
   std::vector <int>   m_nStripElectronics;
 
-  TF1 *m_h_intFn;
+  std::unique_ptr<VMM_Shaper> m_vmmShaper;
 
 };
 
