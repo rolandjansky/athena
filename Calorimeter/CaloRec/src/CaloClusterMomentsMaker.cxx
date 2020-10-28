@@ -631,9 +631,10 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	// along the shower axis for each cell. The cluster center is 
 	// at r=0 and lambda=0
 	
-	for(i=0;i<ncell;i++) {
-          CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
-	  Point3D<double> currentCell(ci.x,ci.y,ci.z);
+	//for(i=0;i<ncell;i++) {
+	//CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
+	for (auto& ci : cellinfo) {
+	  const Point3D<double> currentCell(ci.x,ci.y,ci.z);
 	  // calculate distance from shower axis r
 	  ci.r = ((currentCell-showerCenter).cross(showerAxis)).mag();
 	  // calculate distance from shower center along shower axis
@@ -646,11 +647,11 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	double commonNorm = 0;
         double phi0 = ncell > 0 ? cellinfo[0].phi : 0;
 
-	for(i=0;i<ncell;i++) {
-          const CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
+	for(unsigned i=0;i<ncell;i++) {
+	  const CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
 	  // loop over all valid moments
 	  commonNorm += ci.energy;
-	  for(size_t iMoment = 0, size = m_validMoments.size();
+ 	  for(size_t iMoment = 0, size = m_validMoments.size();
               iMoment != size;
               ++ iMoment)
           {
