@@ -198,8 +198,8 @@ StatusCode InDet::SiTrackMakerITk_xk::initialize()
   else if(m_patternName == "SiSpacePointsSeedMaker_LargeD0"    )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0    );
   } 
-  else if(m_patternName == "SiSpacePointsSeedMaker_SLHCConversionTracks")  {
-    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_SLHCConversionTracks);
+  else if(m_patternName == "SiSpacePointsSeedMaker_ROIConvTracks")  {
+    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_ROIConvTracks);
   }
   else                                                            {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder                  );

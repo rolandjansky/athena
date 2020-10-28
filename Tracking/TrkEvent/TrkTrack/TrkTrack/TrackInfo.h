@@ -251,8 +251,8 @@ the track and determine this for yourself (especially as not all Track builders 
 /**  Large d0 for displaced vertex searches */
      SiSpacePointsSeedMaker_LargeD0             = 49,
 
-/** SLHCConversion Track flag */
-     SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
+/** SLHC ROIConv Track flag */
+     SiSpacePointsSeedMaker_ROIConvTracks       = 50,
 
 /** Pseudo-tracking flag */
      Pseudotracking				= 51,
