@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 # ********************* All Tools/Functions for the TriggerEDM **********************
@@ -24,7 +24,7 @@ import six
 #************************************************************
 # Let adding collections via preExec for detailed validation
 if flags.Trigger.ExtraEDMList:
-    log.info( "Adding extra collections to EDM (): {}".format(len(TriggerHLTListRun3), flags.Trigger.ExtraEDMList) )
+    log.info( "Adding {} extra collections to EDM (): {}".format(len(TriggerHLTListRun3), flags.Trigger.ExtraEDMList) )
     addExtraCollectionsToEDMList(TriggerHLTListRun3, flags.Trigger.ExtraEDMList)
     log.info( "Number of EDM items after adding extra collections: {}".format(len(TriggerHLTListRun3)) )
 

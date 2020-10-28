@@ -11,7 +11,6 @@ import six
 ## @package PyJobTransforms.trfUtils
 # @brief Transform utility functions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfUtils.py 785618 2016-11-21 22:03:04Z uworlika $
 
 import os
 import os.path as path
@@ -1082,7 +1081,7 @@ class ParallelJobProcessor(object):
             timeStampComplete = self.jobSubmission.timeStampComplete
         ))
         self.jobSubmission.processingTime = self.jobSubmission.timeStampComplete - self.jobSubmission.timeStampSubmission
-        msg.debug("{notifier}: time taken to process all {units}: {processingTime}".format(
+        msg.debug("{notifier}: time taken to process all {countOfJobs} {units}: {processingTime}".format(
             notifier = self.className,
             countOfJobs = self.countOfJobs,
             units = units(
