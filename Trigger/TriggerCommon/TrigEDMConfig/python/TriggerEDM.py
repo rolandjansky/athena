@@ -262,6 +262,10 @@ def getCategory(s):
         if (s == k):
             bestMatch = k
             category = item[2]
+
+    if category == '' and 'HLTNav' in s:
+        category = 'HLTNav'
+
     if category == '': return 'NOTFOUND'
     return category
 
