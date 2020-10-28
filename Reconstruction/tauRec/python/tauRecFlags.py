@@ -64,14 +64,6 @@ class useLargeD0Tracks(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-#deprecated
-class TauDiscriminantCVMFSPath(JobProperty):
-    """ path to cvmfs file location
-    """
-    statusOn=True
-    allowedTypes=['string']
-    StoredValue="TauDiscriminant/02-00-09/"
-
 class tauRecMVATrackClassification(JobProperty):
     """Run the MVA Track Classifier
     """
@@ -122,6 +114,13 @@ class tauRecSeedMaxEta(JobProperty):
     statusOn=True
     allowedTypes=['float']
     StoredValue=2.5
+
+class tauRecMaxNTracks(JobProperty):
+    """ maximum number of classifiedCharged tracks for a tau candidate
+    """
+    statusOn=True
+    allowedTypes=['int']
+    StoredValue=-1
 
 class tauRecToolsDevToolList(JobProperty):
     """ add extra devTools to TauBuilderTool
@@ -230,7 +229,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,TauDiscriminantCVMFSPath,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,useSubtractedCluster,useLargeD0Tracks]
+_list_tau=[Enabled,doTauRec,isStandalone,tauRecSeedJetCollection,tauRecToolsCVMFSPath,doTJVA,useLargeD0Tracks,tauRecMVATrackClassification,tauRecRNNTrackClassification,tauRecMVATrackClassificationConfig,tauRecRNNTrackClassificationConfig,tauRecDecayModeNNClassifierConfig,tauRecSeedMinPt,tauRecSeedMaxEta,tauRecMaxNTracks,tauRecToolsDevToolList,tauRecToolsDevToolListProcessor,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI,useSubtractedCluster]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau
