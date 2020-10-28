@@ -16,7 +16,7 @@ PixelRoutingServiceXMLHelper::PixelRoutingServiceXMLHelper(const std::string& en
   msg(MSG::DEBUG)<<"XML helper - PixelRoutingServiceXMLHelper"<<endmsg;
     
   msg(MSG::DEBUG)<<"SimpleServiceVolumeMakerMgr : env name "<<envName<<endmsg;
-  std::string fileName;
+  std::string fileName = "PixelRoutingService.xml";
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
 
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();

@@ -32,7 +32,7 @@ void PixelSimpleServiceXMLHelper::Setup(const std::string& envName)
   msg(MSG::DEBUG) << "XML helper - PixelSimpleServiceXMLHelper" << endmsg;   
   msg(MSG::DEBUG) << "SimpleServiceVolumeMakerMgr : env name " << envName<<endmsg;
   
-  std::string fileName;
+  std::string fileName = "PixelSimpleService.xml";
   if (const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
   if (fileName.size()==0){
     m_bXMLdefined = false;
