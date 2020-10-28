@@ -61,7 +61,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   if(!startingPatternPars.production(&startingParameters)) return false;
 
   /// get the surface belonging to our staring pars
-  const Trk::Surface* pl = startingPatternPars.associatedSurface();
+  const Trk::Surface* pl = &startingPatternPars.associatedSurface();
 
   /// Track propagation if needed
   /// if we are already on the correct surface, we can assign the params as they ar
@@ -81,7 +81,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   /// update starting cov for DBM case
   if(m_detelement->isDBM()) {
 
-    double tn = tan(startingPatternPars.par()[3]);
+    double tn = tan(startingPatternPars.parameters()[3]);
     cv[ 5]    = .0001           ;
     cv[14]    = (tn*tn*1.e-6)   ;
   } 
@@ -797,7 +797,7 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
 Trk::TrackStateOnSurface*  
 InDet::SiTrajectoryElement_xk::trackPerigeeStateOnSurface ()
 {
-  if(m_parametersUpdatedBackward.associatedSurface()!=m_surface) return 0;
+  if(&m_parametersUpdatedBackward.associatedSurface()!=m_surface) return 0;
   
   double step                   ;
   Trk::PatternTrackParameters Tp; 
@@ -841,7 +841,7 @@ InDet::SiTrajectoryElement_xk::trackParameters(bool cov,int Q)
         if(addCluster(m_parametersSM,m_parametersSM)){     
           return m_parametersSM.convert(cov);
         }
-        else if(m_parametersUpdatedBackward.cov()[14] < m_parametersPredForward.cov()[14]){
+        else if((*m_parametersUpdatedBackward.covariance())(4, 4) < (*m_parametersPredForward.covariance())(4, 4)){
           return m_parametersUpdatedBackward.convert(cov);
         }
         else{
@@ -869,7 +869,7 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   int Model = m_noisemodel; 
   if(Model < 1 || Model > 2) return; 
 
-  double q = fabs(Tp.par()[4]);   /// qoverp 
+  double q = fabs(Tp.parameters()[4]);   /// qoverp 
 
   /// projection of direction normal to surface 
   double s = fabs(m_localDir[0]*m_localTransform[6]+
@@ -939,7 +939,7 @@ InDet::SiTrajectoryElement_xk::trackParametersWithNewDirection(bool cov,int Q)
     if(Q==0) {
       if(m_cluster) {
 	if(addCluster(m_parametersSM,m_parametersSM))                return trackParameters(m_parametersSM,cov);
-	else if(m_parametersUpdatedBackward.cov()[14] < m_parametersPredForward.cov()[14]) return trackParameters(m_parametersUpdatedBackward,cov);
+	else if((*m_parametersUpdatedBackward.covariance())(4, 4) < (*m_parametersPredForward.covariance())(4, 4)) return trackParameters(m_parametersUpdatedBackward,cov);
 	else                                                         return trackParameters(m_parametersPredForward,cov);
       }
       else                                                           return trackParameters(m_parametersSM,cov);
@@ -1175,10 +1175,10 @@ void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
                                 double* globalPars) {
   /// obtain trigonometric functions required for transform                                   
   double sinPhi,cosPhi,cosTheta,sintheta;   
-  sincos(localParameters.par()[2],&sinPhi,&cosPhi);  
-  sincos(localParameters.par()[3],&sintheta,&cosTheta);
+  sincos(localParameters.parameters()[2],&sinPhi,&cosPhi);  
+  sincos(localParameters.parameters()[3],&sintheta,&cosTheta);
   /// get the surface corresponding to the local parameters
-  const Trk::Surface* pSurface=localParameters.associatedSurface();
+  const Trk::Surface* pSurface=&localParameters.associatedSurface();
   if (!pSurface){
     throw(std::runtime_error("TrackParameters associated surface is null pointer in InDet::SiTrajectoryElement_xk::transformPlaneToGlobal"));
   }
@@ -1190,15 +1190,15 @@ void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
   double Ay[3] = {T(0,1),T(1,1),T(2,1)};
 
   /// position 
-  globalPars[ 0] = localParameters.par()[0]*Ax[0]+localParameters.par()[1]*Ay[0]+T(0,3);                    // X
-  globalPars[ 1] = localParameters.par()[0]*Ax[1]+localParameters.par()[1]*Ay[1]+T(1,3);                    // Y
-  globalPars[ 2] = localParameters.par()[0]*Ax[2]+localParameters.par()[1]*Ay[2]+T(2,3);                    // Z
+  globalPars[ 0] = localParameters.parameters()[0]*Ax[0]+localParameters.parameters()[1]*Ay[0]+T(0,3);                    // X
+  globalPars[ 1] = localParameters.parameters()[0]*Ax[1]+localParameters.parameters()[1]*Ay[1]+T(1,3);                    // Y
+  globalPars[ 2] = localParameters.parameters()[0]*Ax[2]+localParameters.parameters()[1]*Ay[2]+T(2,3);                    // Z
   /// direction vectors
   globalPars[ 3] = cosPhi*sintheta;                                                         // Ax
   globalPars[ 4] = sinPhi*sintheta;                                                         // Ay
   globalPars[ 5] = cosTheta;          
   /// qoeverp                                                   // Az
-  globalPars[ 6] = localParameters.par()[4];                                                   // CM
+  globalPars[ 6] = localParameters.parameters()[4];                                                   // CM
   /// for very high momenta, truncate to avoid zero
   if(std::abs(globalPars[6])<1.e-20) {
     if (globalPars[6] < 0){ 
@@ -1330,12 +1330,12 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
     Jac[20] = 1.;                         // dCM /dCM
 
     /// covariance matrix production using jacobian - CovNEW = J*CovOLD*Jt
-    AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(startingParameters.covariance(), Jac);
+    AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(*startingParameters.covariance(), Jac);
     outputParameters.setParametersWithCovariance(m_surface, p, newCov);
 
     /// check for negative diagonals in the cov
-    const double* t = &outputParameters.cov()[0];
-    if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
+    const AmgSymMatrix(5) & t = *outputParameters.covariance();
+    if(t(0, 0)<=0. || t(1, 1)<=0. || t(2, 2)<=0. || t(3, 3)<=0. || t(4, 4)<=0.) return false;
   } else {
     /// write into output parameters. Assign our surface to them
     outputParameters.setParameters(m_surface,p);
