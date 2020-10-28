@@ -1009,7 +1009,7 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
     if existingConfigurable: # if configurable exists we try to merge with it
         _log.debug( "{}Pre-existing configurable {} was found, checking if has the same properties".format( indent, comp.getName() ) )
         __areSettingsSame( existingConfigurable, comp )
-        _log.debug( "{}Pre-existing configurable was found to have the same properties".format( indent, comp.name ) )
+        _log.debug( "{}Pre-existing configurable {} was found to have the same properties".format( indent, comp.name ) )
         instance = existingConfigurable if not suppressDupes else None
     else: # create new configurable
         _log.debug( "{}Creating component configurable {}".format( indent, comp.getFullJobOptName() ) )
