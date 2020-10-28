@@ -19,9 +19,14 @@
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Propagator/AbortList.hpp"
 #include "Acts/Propagator/ActionList.hpp"
+#include <Acts/Propagator/StraightLineStepper.hpp>
+
 #include "Acts/Surfaces/BoundaryCheck.hpp"
-#include "Acts/Surfaces/Surface.hpp"
 #include "Acts/Utilities/Logger.hpp"
+
+#include "Acts/Propagator/DefaultExtension.hpp"
+#include "Acts/Propagator/DenseEnvironmentExtension.hpp"
+
 
 // BOOST
 #include <boost/variant/variant.hpp>
@@ -33,10 +38,19 @@
 #include <memory>
 
 namespace ActsExtrapolationDetail {
+
+  
   using VariantPropagatorBase = boost::variant<
-    Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper>, Acts::Navigator>,
-    Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField>, Acts::Navigator>
-  >;
+      Acts::Propagator<Acts::EigenStepper<ATLASMagneticFieldWrapper, 
+                                          Acts::StepperExtensionList<Acts::DefaultExtension,  
+                                                                     Acts::DenseEnvironmentExtension>, 
+                                          Acts::detail::HighestValidAuctioneer>,
+                       Acts::Navigator>,
+      Acts::Propagator<Acts::EigenStepper<Acts::ConstantBField,
+                                          Acts::StepperExtensionList<Acts::DefaultExtension,  
+                                                                     Acts::DenseEnvironmentExtension>, 
+                                          Acts::detail::HighestValidAuctioneer>,        
+                       Acts::Navigator> > ;
 
   class VariantPropagator : public VariantPropagatorBase
   {
@@ -65,7 +79,7 @@ StatusCode
 ActsExtrapolationTool::initialize()
 {
   using namespace std::literals::string_literals;
-
+  m_logger = makeActsAthenaLogger(this, "ActsExtrapTool", "Prop");
 
   ATH_MSG_INFO("Initializing ACTS extrapolation");
 
@@ -80,13 +94,17 @@ ActsExtrapolationTool::initialize()
   if (m_fieldMode == "ATLAS"s) {    
     ATH_MSG_INFO("Using ATLAS magnetic field service");
     using BField_t = ATLASMagneticFieldWrapper;
-
+    using Stepper = Acts::EigenStepper<BField_t,
+                                       Acts::StepperExtensionList<Acts::DefaultExtension,
+                                                                  Acts::DenseEnvironmentExtension>,
+                                       Acts::detail::HighestValidAuctioneer>;
+                                       
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
-
     BField_t bField;
-    auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
-                                                                      std::move(navigator));
+
+    auto stepper = Stepper(std::move(bField));
+    auto propagator = Acts::Propagator<Stepper, Acts::Navigator>(std::move(stepper),
+                                                                 std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
   else if (m_fieldMode == "Constant") {
@@ -96,10 +114,14 @@ ActsExtrapolationTool::initialize()
     double Bz = constantFieldVector.at(2);
     ATH_MSG_INFO("Using constant magnetic field: (Bx, By, Bz) = (" << Bx << ", " << By << ", " << Bz << ")");
     using BField_t = Acts::ConstantBField;
+    using Stepper = Acts::EigenStepper<BField_t,
+                                       Acts::StepperExtensionList<Acts::DefaultExtension,
+                                                                  Acts::DenseEnvironmentExtension>,
+                                       Acts::detail::HighestValidAuctioneer>;
     BField_t bField(Bx, By, Bz);
-    auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
-    auto propagator = Acts::Propagator<decltype(stepper), Acts::Navigator>(std::move(stepper),
-                                                                      std::move(navigator));
+    auto stepper = Stepper(std::move(bField));
+    auto propagator = Acts::Propagator<Stepper, Acts::Navigator>(std::move(stepper),
+                                                                 std::move(navigator));
     m_varProp = std::make_unique<VariantPropagator>(propagator);
   }
 
@@ -128,7 +150,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   Acts::ActionList<SteppingLogger, Acts::MaterialInteractor>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
 
-  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+  using Options = Acts::DenseStepperPropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
@@ -137,6 +159,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
     = (Acts::VectorHelpers::perp(startParameters.momentum())
        < m_ptLoopers * 1_MeV);
   options.maxStepSize = m_maxStepSize * 1_m;
+  options.maxSteps = m_maxStep;
   options.direction = navDir;
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -197,9 +220,10 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   auto anygctx = gctx.any();
 
   // Action list and abort list
-  using ActionList = Acts::ActionList<Acts::MaterialInteractor>;
+  using ActionList =
+  Acts::ActionList<Acts::MaterialInteractor>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
-  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+  using Options = Acts::DenseStepperPropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
@@ -208,6 +232,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
     = (Acts::VectorHelpers::perp(startParameters.momentum())
        < m_ptLoopers * 1_MeV);
   options.maxStepSize = m_maxStepSize * 1_m;
+  options.maxSteps = m_maxStep;
   options.direction = navDir;
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -238,7 +263,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   using namespace Acts::UnitLiterals;
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__ << " begin");
 
-  Acts::MagneticFieldContext mctx;
+  Acts::MagneticFieldContext mctx = getMagneticFieldContext(ctx);;
   const ActsGeometryContext& gctx
     = m_trackingGeometryTool->getGeometryContext(ctx);
 
@@ -248,7 +273,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
   using ActionList =
   Acts::ActionList<SteppingLogger, Acts::MaterialInteractor>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
-  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+  using Options = Acts::DenseStepperPropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
@@ -257,6 +282,7 @@ ActsExtrapolationTool::propagationSteps(const EventContext& ctx,
     = (Acts::VectorHelpers::perp(startParameters.momentum())
        < m_ptLoopers * 1_MeV);
   options.maxStepSize = m_maxStepSize * 1_m;
+  options.maxSteps = m_maxStep;
   options.direction = navDir;
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();
@@ -313,7 +339,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
   using ActionList =
   Acts::ActionList<Acts::MaterialInteractor>;
   using AbortConditions = Acts::AbortList<EndOfWorld>;
-  using Options = Acts::PropagatorOptions<ActionList, AbortConditions>;
+  using Options = Acts::DenseStepperPropagatorOptions<ActionList, AbortConditions>;
 
   Options options(anygctx, mctx, Acts::LoggerWrapper{*m_logger});
   options.pathLimit = pathLimit;
@@ -322,6 +348,7 @@ ActsExtrapolationTool::propagate(const EventContext& ctx,
     = (Acts::VectorHelpers::perp(startParameters.momentum())
        < m_ptLoopers * 1_MeV);
   options.maxStepSize = m_maxStepSize * 1_m;
+  options.maxSteps = m_maxStep;
   options.direction = navDir;
 
   auto& mInteractor = options.actionList.get<Acts::MaterialInteractor>();

@@ -2,10 +2,8 @@
 
 # Script for checking the yield and skimming efficiency for derived data formats
 
-from __future__ import print_function
-
 # needed python imports
-import sys, os, argparse, subprocess
+import os, argparse, subprocess
 
 # use (rather than copy) some useful functions
 from PROCTools import ExtractEvents as ee

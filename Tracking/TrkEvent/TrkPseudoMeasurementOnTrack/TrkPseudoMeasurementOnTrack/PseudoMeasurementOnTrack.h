@@ -65,10 +65,10 @@ namespace Trk{
       virtual PseudoMeasurementOnTrack* clone() const override final;
 
       //! move constructor
-      PseudoMeasurementOnTrack(PseudoMeasurementOnTrack&& pmot);
+      PseudoMeasurementOnTrack(PseudoMeasurementOnTrack&& pmot) noexcept;
 
       //! move assignment operator
-      PseudoMeasurementOnTrack& operator=(PseudoMeasurementOnTrack&& pmot);   
+      PseudoMeasurementOnTrack& operator=(PseudoMeasurementOnTrack&& pmot) noexcept;   
 
       //! returns the surface for the local to global transformation (interface from MeasurementBase)
       virtual const Surface& associatedSurface() const override final;

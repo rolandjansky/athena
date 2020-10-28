@@ -12,8 +12,6 @@ import sys
 import time
 import os
 #from ctypes import *
-import struct 
-import array
 
 from PyCool import cool
 from optparse import OptionParser
@@ -21,7 +19,6 @@ from optparse import OptionParser
 import PlotCalibrationGains
 import PlotCalibrationHV
 
-import mergeEnergyRamps
 
 class HVCorrectionCOOLReader:
 
@@ -42,8 +39,7 @@ class HVCorrectionCOOLReader:
 
     folder_name = "/TRIGGER/Receivers/Factors/HVCorrections"
     folder=db.getFolder(folder_name)
-    ch = folder.listChannels()
-       
+
     startUtime = int(time.time())
     endUtime = int(time.time())
     startValKey = startUtime * self.UNIX2COOL

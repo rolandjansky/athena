@@ -10,8 +10,8 @@ isOfflineTest     = False
 
 #for the time being, running over file is not possible ONLINE (please see RecExOnline_File_Offline.py) 
 useEmon           = True
-#The number of machines we run with helpfully labelled "keycount"
-keycount          = 10 #10 #1000
+#The number of machines per single monitoring task we run with helpfully labelled "keycount"
+keycount          = 2
 buffersize        = 10
 updateperiod      = 200
 timeout           = 600000

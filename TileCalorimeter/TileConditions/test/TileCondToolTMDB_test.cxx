@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #undef NDEBUG
@@ -107,15 +107,15 @@ void test1() {
     std::unique_ptr<TileCalibDrawerFlt> tmdbDrawer = std::make_unique<TileCalibDrawerFlt>(*calibDrawer);
 
     if (drawerIdx == DELAY_DRAWER_IDX) {
-      tmdbDrawer->setData(TMDB::D5L, 0, 0, 10);
-      tmdbDrawer->setData(TMDB::D5R, 0, 0, 20);
-      tmdbDrawer->setData(TMDB::D6L, 0, 0, 30);
-      tmdbDrawer->setData(TMDB::D6R, 0, 0, 40);
+      tmdbDrawer->setData(0, 0, 0, 10);
+      tmdbDrawer->setData(1, 0, 0, 20);
+      tmdbDrawer->setData(2, 0, 0, 30);
+      tmdbDrawer->setData(3, 0, 0, 40);
     } else if (drawerIdx == THRESHOLD_DRAWER_IDX) {
-      tmdbDrawer->setData(TMDB::D6LOW, 0, 0, 100);
-      tmdbDrawer->setData(TMDB::D6HIGH, 0, 0, 200);
-      tmdbDrawer->setData(TMDB::D5D6LOW, 0, 0, 1000);
-      tmdbDrawer->setData(TMDB::D5D6HIGH, 0, 0, 2000);
+      tmdbDrawer->setData(0, 0, 0, 100);
+      tmdbDrawer->setData(1, 0, 0, 200);
+      tmdbDrawer->setData(2, 0, 0, 1000);
+      tmdbDrawer->setData(3, 0, 0, 2000);
     }
 
     data->setCalibDrawer(drawerIdx, tmdbDrawer.release());
@@ -156,41 +156,41 @@ void test1() {
   assert(tool->initialize());
 
 
-  float delay = tool->getDelay(DELAY_DRAWER_IDX, TMDB::D5L);
+  float delay = tool->getDelay(DELAY_DRAWER_IDX, 0);
   assert(Athena_test::isEqual(delay, 10.0));
 
-  delay = tool->getDelay(DELAY_DRAWER_IDX, TMDB::D5R);
+  delay = tool->getDelay(DELAY_DRAWER_IDX, 1);
   assert(Athena_test::isEqual(delay, 20.0));
 
-  delay = tool->getDelay(DELAY_DRAWER_IDX, TMDB::D6L);
+  delay = tool->getDelay(DELAY_DRAWER_IDX, 2);
   assert(Athena_test::isEqual(delay, 30.0));
 
-  delay = tool->getDelay(DELAY_DRAWER_IDX, TMDB::D6R);
+  delay = tool->getDelay(DELAY_DRAWER_IDX, 3);
   assert(Athena_test::isEqual(delay, 40.0));
 
 
 
-  float threshold = tool->getThreshold(THRESHOLD_DRAWER_IDX, TMDB::D6LOW);
+  float threshold = tool->getThreshold(THRESHOLD_DRAWER_IDX, 0);
   assert(Athena_test::isEqual(threshold, 100.0));
 
-  threshold = tool->getThreshold(THRESHOLD_DRAWER_IDX, TMDB::D6HIGH);
+  threshold = tool->getThreshold(THRESHOLD_DRAWER_IDX, 1);
   assert(Athena_test::isEqual(threshold, 200.0));
 
-  threshold = tool->getThreshold(THRESHOLD_DRAWER_IDX, TMDB::D5D6LOW);
+  threshold = tool->getThreshold(THRESHOLD_DRAWER_IDX, 2);
   assert(Athena_test::isEqual(threshold, 1000.0));
 
-  threshold = tool->getThreshold(THRESHOLD_DRAWER_IDX, TMDB::D5D6HIGH);
+  threshold = tool->getThreshold(THRESHOLD_DRAWER_IDX, 3);
   assert(Athena_test::isEqual(threshold, 2000.0));
 
 
   float a;
   float b;
-  tool->getCalib(CALIB_DRAWER_IDX, TMDB::D5L, a, b);
+  tool->getCalib(CALIB_DRAWER_IDX, 0, a, b);
   assert(Athena_test::isEqual(a, 1.0));
   assert(Athena_test::isEqual(b, 2.0));
 
   TMDB::Weights weights;
-  unsigned int nWeights = tool->getWeights(TMF_DRAWER_IDX, TMDB::D5L, weights);
+  unsigned int nWeights = tool->getWeights(TMF_DRAWER_IDX, 0, weights);
   assert(Athena_test::isEqual(nWeights, 7));
   assert(Athena_test::isEqual(weights[0], 1.0));
   assert(Athena_test::isEqual(weights[1], 2.0));
@@ -201,11 +201,11 @@ void test1() {
   assert(Athena_test::isEqual(weights[6], 1.0));
 
 
-  float amplitude = tool->channelCalib(CALIB_DRAWER_IDX, TMDB::D5L, 1.0);
+  float amplitude = tool->channelCalib(CALIB_DRAWER_IDX, 0, 1.0);
   assert(Athena_test::isEqual(amplitude, 3.0));
 
   std::vector<float> samples = {10, 20, 40, 80, 40, 20, 10};
-  amplitude = tool->channelCalib(TMF_DRAWER_IDX, TMDB::D5L, samples);
+  amplitude = tool->channelCalib(TMF_DRAWER_IDX, 0, samples);
   assert(Athena_test::isEqual(amplitude, 1062.0));
 
 }

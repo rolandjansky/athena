@@ -89,7 +89,7 @@ StatusCode Trk::GeometryJsonDumper::processNode(const Trk::Layer& lay, size_t /*
                 size_t is = 1;
                 // now loop of the surfaces and dumpt their position
                 m_outputFile << "\"Coords\": [";
-                for (auto& sf : lay.surfaceArray()->arrayObjects()){
+                for (const auto & sf : lay.surfaceArray()->arrayObjects()){
                     // get x,y,z 
                     double cx = sf->center().x();
                     double cy = sf->center().y();

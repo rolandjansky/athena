@@ -1,13 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import argparse
 import logging
 msg = logging.getLogger(__name__)
-import unittest
-import pickle
-import os
 
-from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argSubstep, trfArgParser, argList, argBool, argPOOLFile, argEVNT_TRFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool, argSubstepString
+from PyJobTransforms.trfArgClasses import argFactory, argFile, argInt, argFloat, argString, argBool, argPOOLFile, argEVNT_TRFile, argHITSFile, argRDOFile, argSubstepInt, argSubstepBool, argSubstepString
 #from PyJobTransforms.trfLogger import stdLogLevels
 #from PyJobTransforms.trfDecorators import silent
 #from PyJobTransforms.trfExitCodes import trfExit

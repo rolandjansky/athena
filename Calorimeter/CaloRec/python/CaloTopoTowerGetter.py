@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies Tower/TopoCluster -> TopoTower
 from AthenaCommon.JobProperties import jobproperties as jp
@@ -19,7 +19,7 @@ class CaloTopoTowerGetter ( Configured )  :
                 # get handle to upstream CaloCells
                 theCaloCellGetter = self.getInputGetter\
                                     (jp.CaloRecFlags.clusterCellGetterName())
-				
+
                 # ----- get handle to upstream tower objects
                 try:
                     from CaloRec.CaloTowerCmbGetter import CaloTowerCmbGetter
@@ -28,15 +28,15 @@ class CaloTopoTowerGetter ( Configured )  :
                     mlog.error("could not get handle to CaloTowerCmbGetter Quit")
                     print(traceback.format_exc())
                     return False
-			
+
                 if not theCaloTowerCmbGetter.usable():
                     if not self.ignoreConfigError():
                         mlog.error("CaloTowerCmbGetter unusable. Quit.")
                         return False
                     else:
                         mlog.error("CaloTowerCmbGetter unusable. Continue nevertheless")
-			
-			
+
+
                 # ------ get handle to upstream topo cluster object
                 try:
                     from CaloRec.CaloClusterTopoGetter import CaloClusterTopoGetter
@@ -52,7 +52,7 @@ class CaloTopoTowerGetter ( Configured )  :
                         return False
                     else:
                         mlog.error("theCaloClusterTopoGetter unusable. Continue nevertheless")
-			
+
                 # ------ get handle to upstream topo cluster object
                 try:
                     from CaloRec.CaloClusterTopoGetter import CaloClusterTopoGetter
@@ -63,14 +63,14 @@ class CaloTopoTowerGetter ( Configured )  :
                     mlog.error("could not get handle to CaloCell2TopoClusterMapperGetter  Quit")
                     print(traceback.format_exc())
                     return False
-		
+
                 if not theCaloCell2TopoClusterMapperGetter.usable():
                     if not self.ignoreConfigError():
                         mlog.error("theCaloCell2TopoClusterMapperGetter unusable. Quit.")
                         return False
                     else:
                         mlog.error("theCaloCell2TopoClusterMapperGetter unusable. Continue nevertheless")
-					
+
                 # now configure the algorithm, part of this could be done in a separate class
                 # cannot have same name
                 try:        
@@ -94,7 +94,7 @@ class CaloTopoTowerGetter ( Configured )  :
                     return False
     
                 theCaloTopoTowerAlgorithm.TowerBuilderTools+= [ theCaloTopoTowerBuilderTool.getFullName() ]
-		
+
         
                 ########################
                 # extra cuts which can be applied at the topo tower level
@@ -103,7 +103,7 @@ class CaloTopoTowerGetter ( Configured )  :
                 theCaloTopoTowerAlgorithm.ClusterContainerName = theCaloClusterTopoGetter.outputKey()
                 theCaloTopoTowerAlgorithm.CellContainerName =  theCaloCellGetter.outputKey()
                 theCaloTopoTowerAlgorithm.Cell2ClusterMapName = theCaloCell2TopoClusterMapperGetter.outputKey()
-	
+
                 # sets output key
                 theCaloTopoTowerAlgorithm.OutputTowerContainerName =self.outputKey()
 
@@ -136,12 +136,12 @@ class CaloTopoTowerGetter ( Configured )  :
                 topSequence += theCaloTopoTowerAlgorithm
 
                 return True
-	
+
         def caloTowerAlgorithmHandle(self):
                 return self._CaloTopoTowerAlgorithmHandle
-	
-	
-	# would work only if one output object type
+
+
+        # would work only if one output object type
         def outputKey(self):
                 return self._output[self._outputType]
 

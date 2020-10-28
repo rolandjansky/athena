@@ -78,25 +78,25 @@ void Trk::TrackingGeometry::registerTrackingVolumes ATLAS_NOT_THREAD_SAFE (const
     const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol.confinedVolumes();
     if (confinedVolumes){
         const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
-        for (auto& volumesIter: volumes)
+        for (const auto & volumesIter: volumes)
             if (volumesIter) registerTrackingVolumes(*volumesIter, &tvol, sublvl);
     }
 
     const std::vector<const Trk::TrackingVolume* >* confinedDenseVolumes = tvol.confinedDenseVolumes();
     if (confinedDenseVolumes){
-        for (auto& volumesIter : (*confinedDenseVolumes) )
+        for (const auto & volumesIter : (*confinedDenseVolumes) )
             if (volumesIter) registerTrackingVolumes(*volumesIter, &tvol, sublvl);
     }
     /** should detached tracking volumes be part of the tracking geometry ? */
     const std::vector< const Trk::DetachedTrackingVolume* >* confinedDetachedVolumes = tvol.confinedDetachedVolumes();
     if (confinedDetachedVolumes){
-        for (auto& volumesIter : (*confinedDetachedVolumes) )
+        for (const auto & volumesIter : (*confinedDetachedVolumes) )
             if (volumesIter && tvol.inside(volumesIter->trackingVolume()->center(),0.) )
                 registerTrackingVolumes(*(volumesIter->trackingVolume()), &tvol, sublvl);
     }
     /** register the boundary layers */
     // boundary layers
-    for (auto& bSurface : tvol.boundarySurfaces()){
+    for (const auto & bSurface : tvol.boundarySurfaces()){
         const Trk::Layer* bLayer = bSurface->surfaceRepresentation().materialLayer();
         if (bLayer){
             auto bfIter = m_boundaryLayers.find(bLayer);
@@ -177,7 +177,7 @@ void Trk::TrackingGeometry::printVolumeInformation(MsgStream& msg, const Trk::Tr
             msg << "  ";
         msg << "- found : " << volumes.size() << " confined TrackingVolumes" << std::endl;
 
-        for (auto& volumesIter : volumes )
+        for (const auto & volumesIter : volumes )
             if (volumesIter) printVolumeInformation(msg, *volumesIter, sublevel);
     }
 
@@ -187,7 +187,7 @@ void Trk::TrackingGeometry::printVolumeInformation(MsgStream& msg, const Trk::Tr
             msg << "  ";
         msg << "- found : " << confinedDenseVolumes->size() << " confined unordered (dense) TrackingVolumes" << std::endl;
 
-        for (auto& volumesIter : (*confinedDenseVolumes) )
+        for (const auto & volumesIter : (*confinedDenseVolumes) )
             if (volumesIter) printVolumeInformation(msg, *volumesIter, sublevel);
     }
 }

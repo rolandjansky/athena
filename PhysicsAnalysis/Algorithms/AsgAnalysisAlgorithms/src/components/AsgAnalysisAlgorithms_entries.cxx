@@ -4,9 +4,6 @@
 
 /// @author Nils Krumnack
 
-
-#include <GaudiKernel/DeclareFactoryEntries.h>
-
 #include <AsgAnalysisAlgorithms/AsgFlagSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgPtEtaSelectionTool.h>
 #include <AsgAnalysisAlgorithms/AsgCutBookkeeperAlg.h>

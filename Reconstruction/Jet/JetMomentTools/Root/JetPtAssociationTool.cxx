@@ -31,11 +31,13 @@ StatusCode JetPtAssociationTool::initialize() {
     ATH_MSG_ERROR("JetPtAssociationTool needs to have its input jet container configured!");
     return StatusCode::FAILURE;
   }
-  m_assocFracKey = m_jetContainerName.key() + "." + m_aname + m_assocFracKey.key();
-  m_assocLinkKey = m_jetContainerName.key() + "." + m_aname + m_assocLinkKey.key();
+  m_assocFracKey = m_jetContainerName + "." + m_aname + m_assocFracKey.key();
+  m_assocLinkKey = m_jetContainerName + "." + m_aname + m_assocLinkKey.key();
 
   ATH_CHECK(m_assocFracKey.initialize());
   ATH_CHECK(m_assocLinkKey.initialize());
+
+  ATH_CHECK(m_matchingContainerName.initialize());
 
   return StatusCode::SUCCESS;
 
@@ -59,10 +61,10 @@ StatusCode JetPtAssociationTool::decorate(const xAOD::JetContainer& jets) const 
     }
 
     // Retrieve the container of jets to be matched.
-    SG::ReadHandle<xAOD::JetContainer> handle (m_jetContainerName);
+    SG::ReadHandle<xAOD::JetContainer> handle (m_matchingContainerName);
     if (!handle.isValid()){
       ATH_MSG_WARNING("Matching jet container not found: "
-                      << m_jetContainerName); 
+                      << m_matchingContainerName); 
       return StatusCode::FAILURE;
     }
 

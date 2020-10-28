@@ -30,6 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetRecTools/SiClusterizationTool
                           InnerDetector/InDetRecTools/TRT_DriftCircleTool
                           InnerDetector/InDetTrigRecTools/InDetTrigToolInterfaces
+                          InnerDetector/InDetConditions/PixelConditionsData
                           InnerDetector/InDetConditions/SCT_ConditionsData
                           Tracking/TrkEvent/TrkTrack
                           Trigger/TrigEvent/TrigSteeringEvent
@@ -39,7 +40,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrigPrepRawDataFormat
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES Identifier GaudiKernel InDetPrepRawData TrigInterfacesLib AthenaKernel StoreGateLib SGtests AtlasDetDescr IRegionSelector InDetByteStreamErrors ByteStreamCnvSvcBaseLib TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetRawData SiClusterizationToolLib TrkTrack TrigSteeringEvent TrigTimeAlgsLib PixelConditionsToolsLib TRT_DriftCircleToolLib InDetTrigToolInterfacesLib SCT_ConditionsData )
+                     LINK_LIBRARIES Identifier GaudiKernel InDetPrepRawData TrigInterfacesLib AthenaKernel StoreGateLib SGtests AtlasDetDescr IRegionSelector InDetByteStreamErrors ByteStreamCnvSvcBaseLib TRT_ConditionsServicesLib InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry InDetRawData SiClusterizationToolLib TrkTrack TrigSteeringEvent TrigTimeAlgsLib PixelConditionsToolsLib TRT_DriftCircleToolLib InDetTrigToolInterfacesLib PixelConditionsData SCT_ConditionsData )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigPrepRawDataFormat )

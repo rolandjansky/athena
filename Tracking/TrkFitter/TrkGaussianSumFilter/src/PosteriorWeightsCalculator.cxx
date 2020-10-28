@@ -13,8 +13,10 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ProjectionMatricesSet.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkParameters/TrackParameters.h"
-
+#include <array>
+#include <stdexcept>
 namespace {
 
 using namespace Trk;
@@ -100,6 +102,17 @@ calculateWeight_2D_3(const TrackParameters* componentTrackParameters,
     det, 0.5 * ((r.transpose() * R.inverse() * r)(0, 0)));
 }
 
+struct componentsCache
+{
+  struct element
+  {
+    double determinantR;
+    double chi2;
+  };
+  std::array<element, GSFConstants::maxComponentsAfterConvolution> elements;
+  size_t numElements = 0;
+};
+
 } // end of anonymous namespace
 
 std::vector<Trk::ComponentParameters>
@@ -111,41 +124,38 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
   if (predictedStateSize == 0) {
     return {};
   }
+  if (predictedStateSize > GSFConstants::maxComponentsAfterConvolution) {
+    throw std::runtime_error(
+      "PosteriorWeightsCalculator :Invalid predictedState size");
+  }
   const Trk::LocalParameters& measurementLocalParameters =
     measurement.localParameters();
   int nLocCoord = measurement.localParameters().dimension();
-
   if (nLocCoord < 1 || nLocCoord > 5) {
     return {};
   }
 
-  std::vector<Trk::ComponentParameters> returnMultiComponentState{};
-  returnMultiComponentState.reserve(predictedStateSize);
-  std::vector<double> componentDeterminantR;
-  componentDeterminantR.reserve(predictedStateSize);
-  std::vector<double> componentChi2;
-  componentChi2.reserve(predictedStateSize);
+  //Move  to output and update
+  std::vector<Trk::ComponentParameters> returnMultiComponentState =
+    std::move(predictedState);
 
   // Calculate chi2 and determinant of each component.
+  componentsCache determinantRandChi2{};
   double minimumChi2(10.e10); // Initalise high
-
-  // Loop over all components in the prediction state
-  Trk::MultiComponentState::iterator component = predictedState.begin();
-  for (; component != predictedState.end(); ++component) {
+  // Loop over all components
+  for (const auto& component : returnMultiComponentState) {
 
     const Trk::TrackParameters* componentTrackParameters =
-      (*component).first.get();
-
+      component.first.get();
     if (!componentTrackParameters) {
       continue;
     }
-
     const AmgSymMatrix(5)* predictedCov =
       componentTrackParameters->covariance();
-
     if (!predictedCov) {
       continue;
     }
+
     std::pair<double, double> result(0, 0);
     switch (nLocCoord) {
       case 1: {
@@ -202,60 +212,60 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     if (result.first == 0) {
       continue;
     }
-    // Compute Chi2
-    componentDeterminantR.push_back(result.first);
-    componentChi2.push_back(result.second);
-
+    // Cache R and Chi2
+    determinantRandChi2.elements[determinantRandChi2.numElements] = {
+      result.first, result.second
+    };
+    ++determinantRandChi2.numElements;
     if (result.second < minimumChi2) {
       minimumChi2 = result.second;
     }
   } // end loop over components
 
-  if (componentDeterminantR.size() != predictedState.size() ||
-      componentChi2.size() != predictedState.size()) {
+  //If something went wrong in the loop return empty
+  if (determinantRandChi2.numElements != predictedStateSize) {
     return {};
   }
 
   // Calculate posterior weights.
-  unsigned int index(0);
+  size_t index(0);
   double sumWeights(0.);
-
-  component = predictedState.begin();
-
-  for (; component != predictedState.end(); ++component, ++index) {
-
-    double priorWeight = (*component).second;
-
+  std::array<double, GSFConstants::maxComponentsAfterConvolution>
+    fallBackWeights;
+  auto componentItr = returnMultiComponentState.begin();
+  for (; componentItr != returnMultiComponentState.end();
+       ++componentItr, ++index) {
     // Extract common factor to avoid numerical problems during exponentiation
-    double chi2 = componentChi2[index] - minimumChi2;
-
+    double chi2 = determinantRandChi2.elements[index].chi2 - minimumChi2;
+    const double priorWeight = componentItr->second;
+    fallBackWeights[index] = priorWeight;
     double updatedWeight(0.);
-    // Determinant can not be belowe 1e-19 in CLHEP .... rather ugly but protect
+    // Determinant can not be below 1e-19. Rather ugly but protect
     // against 0 determinants Normally occur when the component is a poor fit
-    if (componentDeterminantR[index] > 1e-20) {
-      updatedWeight = priorWeight * sqrt(1. / componentDeterminantR[index]) *
-                      exp(-0.5 * chi2);
+    if (determinantRandChi2.elements[index].determinantR > 1e-20) {
+      updatedWeight =
+        priorWeight *
+        sqrt(1. / determinantRandChi2.elements[index].determinantR) *
+        exp(-0.5 * chi2);
     } else {
       updatedWeight = 1e-10;
     }
-    returnMultiComponentState.emplace_back(std::move(component->first),
-                                           updatedWeight);
+    componentItr->second = updatedWeight;
     sumWeights += updatedWeight;
   }
 
-  // Renormalise the state to total weight = 1
-  Trk::MultiComponentState::iterator returnComponent =
-    returnMultiComponentState.begin();
-  component = predictedState.begin();
   if (sumWeights > 0.) {
-    for (; returnComponent != returnMultiComponentState.end();
-         ++returnComponent, ++component) {
-      (*returnComponent).second /= sumWeights;
+    double invertSumWeights= 1./sumWeights;
+    // Renormalise the state to total weight = 1
+    for (auto& returnComponent : returnMultiComponentState) {
+      returnComponent.second*= invertSumWeights;
     }
   } else {
-    for (; returnComponent != returnMultiComponentState.end();
-         ++returnComponent, ++component) {
-      (*returnComponent).second = component->second;
+    // If the sum weights is less than 0 revert them back
+    size_t fallbackIndex(0);
+    for (auto& returnComponent : returnMultiComponentState) {
+      returnComponent.second = fallBackWeights[fallbackIndex];
+      ++fallbackIndex;
     }
   }
   return returnMultiComponentState;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "JetRecTools/PuppiWeightTool.h"
 
@@ -41,7 +41,7 @@ StatusCode PuppiWeightTool::initialize() {
   
   ATH_CHECK(m_vertexContainer_key.initialize());
 
-  if(m_inputType==xAOD::Type::ParticleFlow) {
+  if(m_inputType==xAOD::Type::ParticleFlow || m_inputType==xAOD::Type::FlowElement) {
     if(!m_applyToNeutralPFO) {
       ATH_MSG_ERROR("Incompatible configuration: ApplyToNeutralPFO=False -- what kind of pileup do you wish to suppress?");
       return StatusCode::FAILURE;
@@ -67,6 +67,10 @@ StatusCode PuppiWeightTool::finalize() {
 //------------------------------------------------------------------------------
 
 StatusCode PuppiWeightTool::process_impl(xAOD::IParticleContainer* cont) const {
+  if(m_inputType == xAOD::Type::FlowElement){
+    xAOD::FlowElementContainer* feCont = static_cast<xAOD::FlowElementContainer*> (cont);
+    return applyPuppiWeights(feCont);
+  }
   xAOD::PFOContainer* pfoCont = static_cast<xAOD::PFOContainer*> (cont);
   return applyPuppiWeights(pfoCont);
 }
@@ -103,8 +107,8 @@ StatusCode PuppiWeightTool::applyPuppiWeights(xAOD::PFOContainer* cont) const{
     else{     
       if(isCharged){
         bool matchedToPrimaryVertex=PVMatchedAcc(*ppfo);
-	if(matchedToPrimaryVertex) chargedHSVector.push_back(pj);
-	else chargedPUVector.push_back(pj);
+        if(matchedToPrimaryVertex) chargedHSVector.push_back(pj);
+        else chargedPUVector.push_back(pj);
       }
       else neutralVector.push_back(pj);
     }
@@ -145,6 +149,80 @@ StatusCode PuppiWeightTool::applyPuppiWeights(xAOD::PFOContainer* cont) const{
     if ((!isCharged || isForward) && m_applyWeight) ppfo->setP4(weight*ppfo->p4());
     alphaAcc(*ppfo) = alpha;
     weightAcc(*ppfo) = weight;
+  }
+
+  ATH_MSG_DEBUG("Median: "<<m_puppi->getMedian());
+  ATH_MSG_DEBUG("RMS: "<<m_puppi->getRMS());
+
+  return StatusCode::SUCCESS;
+}
+
+StatusCode PuppiWeightTool::applyPuppiWeights(xAOD::FlowElementContainer* cont) const{
+
+  const static SG::AuxElement::Accessor<bool> PVMatchedAcc("matchedToPV");
+  const static SG::AuxElement::Accessor<double> alphaAcc("PUPPI_alpha");
+  const static SG::AuxElement::Accessor<double> weightAcc("PUPPI_weight");
+
+  std::vector<fastjet::PseudoJet> chargedHSVector;
+  std::vector<fastjet::PseudoJet> chargedPUVector;
+  std::vector<fastjet::PseudoJet> neutralVector;
+  std::vector<fastjet::PseudoJet> forwardVector;
+
+  // Fill input particle vectors for puppi
+  for ( xAOD::FlowElement* pfe : *cont ) {
+    if (!PVMatchedAcc.isAvailable(*pfe)){
+      ATH_MSG_ERROR("Not known if FlowElement is matched to primary vertex.  Run CorrectPFOTool before ChargedHadronSubtractionTool");
+      return StatusCode::FAILURE;
+    }
+
+    if (pfe->pt()<=FLT_MIN) continue;
+
+    fastjet::PseudoJet pj(pfe->p4());
+
+    if(fabs(pfe->eta()) > m_etaBoundary) forwardVector.push_back(pj);
+    else{     
+      if(pfe->isCharged()){
+        bool matchedToPrimaryVertex=PVMatchedAcc(*pfe);
+        if(matchedToPrimaryVertex) chargedHSVector.push_back(pj);
+        else chargedPUVector.push_back(pj);
+      }
+      else neutralVector.push_back(pj);
+    }
+  }
+
+  //Count the number of primary vertices
+  const xAOD::VertexContainer* pvtxs = nullptr;
+  auto handle = SG::makeHandle(m_vertexContainer_key);
+  if (!handle.isValid()){
+    ATH_MSG_WARNING(" This event has no primary vertices " );
+    return StatusCode::FAILURE;
+  }
+    
+  pvtxs = handle.cptr();
+  if(pvtxs->empty()){
+    ATH_MSG_WARNING(" This event has no primary vertices " );
+    return StatusCode::FAILURE;
+  }
+
+  int nPV=0;
+  for( auto vtx_itr : *pvtxs ){
+    if((int)vtx_itr->nTrackParticles() < 2 ) continue;
+    ++nPV;
+  }
+
+  m_puppi->setParticles(chargedHSVector, chargedPUVector, neutralVector, forwardVector, nPV);
+
+  for ( xAOD::FlowElement* pfe : *cont ) {
+    bool isForward = (fabs(pfe->eta()) > m_etaBoundary);
+
+    fastjet::PseudoJet pj(pfe->p4());
+
+    double weight = m_puppi->getWeight(pj);
+    double alpha = m_puppi->getAlpha(pj);
+
+    if ((!(pfe->isCharged()) || isForward) && m_applyWeight) pfe->setP4(weight*pfe->p4());
+    alphaAcc(*pfe) = alpha;
+    weightAcc(*pfe) = weight;
   }
 
   ATH_MSG_DEBUG("Median: "<<m_puppi->getMedian());

@@ -23,6 +23,7 @@
 #include "StoreGate/ThinningHandleKey.h"
 
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 class ThinNegativeEnergyNeutralPFOsAlg
 : public ::AthAlgorithm
@@ -54,7 +55,9 @@ private:
    
     /// Names of the containers to thin
     SG::ThinningHandleKey<xAOD::PFOContainer> m_neutralPFOsKey
-    { this, "NeutralPFOsKey", "JetETMissNeutralParticleFlowObjects", "StoreGate key for the PFOContainer to be thinned" };
+    { this, "NeutralPFOsKey", "JetETMissNeutralParticleFlowObjects", "StoreGate key for the PFOContainer to be thinned (if any)" };
+    SG::ThinningHandleKey<xAOD::FlowElementContainer> m_neutralPFOsFEKey
+    { this, "NeutralPFOsFEKey", "", "StoreGate key for the FlowElementContainer to be thinned (if any)" };
  
     /// Counters
     unsigned long m_nEventsProcessed;

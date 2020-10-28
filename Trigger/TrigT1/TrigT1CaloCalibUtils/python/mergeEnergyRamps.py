@@ -2,14 +2,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from __future__ import print_function
-
-import ROOT
 import sys
 import time
-import os
 
-from PyCool import cool, coral
+from PyCool import cool
 from optparse import OptionParser
 
 
@@ -29,12 +25,12 @@ class L1CaloGeometryConvertor:
                self.list_of_channels_had[(parts[0],parts[1])] = '0x'+hadCool
      
           input.close()
-	  
+
      def LoadReceiverPPMMap(self):
      
          self.receiver_to_ppm_map={}
          self.UNIX2COOL = 1000000000
-	 
+
          # get database service and open database
          dbSvc = cool.DatabaseSvcFactory.databaseService()
 
@@ -47,7 +43,6 @@ class L1CaloGeometryConvertor:
 
          folder_name = "/TRIGGER/Receivers/RxPpmIdMap"
          folder=db.getFolder(folder_name)
-         ch = folder.listChannels()
        
          startUtime = int(time.time())
          endUtime = int(time.time())
@@ -83,7 +78,7 @@ class L1CaloGeometryConvertor:
         
        ReceiverChannels = [item[0] for item in self.receiver_to_ppm_map.items() if item[1]==PPMId]       
 
-       if strategy_string == None:
+       if strategy_string is None:
          print (" Warning! in getReceiverfromPPM no runtype give, using default!")
          return ReceiverChannels[0]
 
@@ -111,7 +106,6 @@ class L1CaloGeometryConvertor:
 
        else:
          return ReceiverChannels[0]
-	 
 
      def getCoolEm(self,i_eta,i_phi):
           if (str(i_eta),str(i_phi)) in self.list_of_channels_em:
@@ -134,10 +128,10 @@ class L1CaloGeometryConvertor:
      
      def isCoolEm(self,CoolId):
           return (CoolId in self.list_of_channels_em.values())
-	  
+
      def isCoolHad(self,CoolId):
           return (CoolId in self.list_of_channels_had.values())
-	  	
+
      def getEtaBin(self,CoolId):
           if self.isCoolEm(CoolId):
             channel = [item[0] for item in self.list_of_channels_em.items() if item[1]==CoolId]
@@ -147,7 +141,7 @@ class L1CaloGeometryConvertor:
             return int(channel[0][0])
           else:
             return -1
-	  
+
      def getPhiBin(self,CoolId):
           if self.isCoolEm(CoolId):
             channel = [item[0] for item in self.list_of_channels_em.items() if item[1]==CoolId]
@@ -194,7 +188,7 @@ class L1CaloGeometryConvertor:
      def isPPMOverlap(self,CoolId):
 
        eta_bin = self.getEtaBin(CoolId)  
-       if self.isCoolEm(CoolId) == True and (eta_bin == 14 or eta_bin == -15):
+       if self.isCoolEm(CoolId) is True and (eta_bin == 14 or eta_bin == -15):
          return True
        else:
          return False
@@ -321,7 +315,6 @@ class GainsFromSqlite:
 
        folder_name = '/TRIGGER/L1Calo/V1/Results/EnergyScanResults'
        folder=db.getFolder(folder_name)
-       ch = folder.listChannels()
        
        startUtime = int(time.time())
        endUtime = int(time.time())
@@ -400,7 +393,6 @@ class GainsFromOracle:
 
        folder_name = "/TRIGGER/Receivers/Factors/CalibGains"
        folder=db.getFolder(folder_name)
-       ch = folder.listChannels()
        
        startUtime = int(time.time())
        endUtime = int(time.time())
@@ -434,7 +426,7 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
 
 #loop over gains3, fill in
 
-     if not gains3 == None:     
+     if gains3 is not None:
        good_gains=gains3.getGoodGains()
        print (" Using run ", gains3.run_nr, " run strategy= ", gains3.strategy       )
 
@@ -456,7 +448,7 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
        
 #loop over gains2, fill in
 
-     if not gains2 == None:
+     if gains2 is not None:
        good_gains=gains2.getGoodGains()
        print (" Using run ", gains2.run_nr, " run strategy= ", gains2.strategy       )
 
@@ -478,7 +470,7 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
        
 #loop over gains 1, fill in
 
-     if not gains1 == None:
+     if gains1 is not None:
        good_gains=gains1.getGoodGains()
        print (" Using run ", gains1.run_nr, " run strategy= ", gains1.strategy       )
 
@@ -500,7 +492,7 @@ def merge_gains(gains1,gains2,gains3,reference_gains,forced_list,geometry_map,wr
 
 #read in forced list, overwrite
 
-     if not forced_list == None:
+     if forced_list is not None:
        myfile = open(forced_list,'r')
        for line in myfile.readlines():
          line.rstrip()
@@ -556,17 +548,17 @@ if __name__ == "__main__":
 
   print ("Processing inputs")
   
-  if not options.input_file1 == None:
+  if options.input_file1 is not None:
     gains_1 = GainsFromSqlite(options.input_file1,geometry_convertor)
   else:
     gains_1 = None
 
-  if not options.input_file2 == None:
+  if options.input_file2 is not None:
     gains_2 = GainsFromSqlite(options.input_file2,geometry_convertor)
   else:
     gains_2 = None
 
-  if not options.input_file3 == None:
+  if options.input_file3 is not None:
     gains_3 = GainsFromSqlite(options.input_file3,geometry_convertor)
   else:
     gains_3 = None
@@ -582,7 +574,7 @@ if __name__ == "__main__":
   
   gains_to_load = merge_gains(gains_1,gains_2,gains_3,gains_reference,options.forced_file,geometry_convertor,options.writeAllChannels)
 
-  if not options.output_file == None:
+  if options.output_file is not None:
     output_file_name = options.output_file
   else:
     output_file_name = "MergedGains.sqlite"

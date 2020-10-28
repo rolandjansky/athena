@@ -1,18 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF for ISF_ParSimServicesConfig
 Miha Muskinja, 14/01/2015
 """
 
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-        getService,getServiceClone,getAlgorithm,getAlgorithmClone
+from AthenaCommon.CfgGetter import getPublicTool, getService
 
-from AthenaCommon.Constants     import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.DetFlags      import DetFlags
-
-from ISF_Config.ISF_jobProperties               import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
 from ISF_ParSimServices.ISF_ParSimJobProperties import ISF_ParSimFlags
 from ISF_ParSimServices.ISF_ParSimTuning        import ISF_ParSimTuningFlags
 

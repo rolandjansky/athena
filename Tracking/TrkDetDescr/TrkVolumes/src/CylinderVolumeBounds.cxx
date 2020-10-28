@@ -21,8 +21,8 @@
 #include "GaudiKernel/SystemOfUnits.h"
 
 //STD
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 const double Trk::CylinderVolumeBounds::s_numericalStable = 10e-2 * Gaudi::Units::mm;
 

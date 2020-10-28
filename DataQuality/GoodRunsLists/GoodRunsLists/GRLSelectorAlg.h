@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GOODRUNSLISTS_GRLSELECTORALG_H
 #define GOODRUNSLISTS_GRLSELECTORALG_H 1
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AnaAlgorithm/FilterReporterParams.h>
-#include <AsgTools/ToolHandle.h> //included under assumption you'll want to use some tools! Remove if you don't!
-
-#include "AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h"
+#include <AsgTools/ToolHandle.h>
+#include <AsgAnalysisInterfaces/IGoodRunsListSelectionTool.h>
+#include <EventBookkeeperTools/FilterReporterParams.h>
 
 ///Author: will buttinger
 ///To use this alg in your joboptions:
@@ -29,7 +28,7 @@ class GRLSelectorAlg: public EL::AnaAlgorithm {
 
  private: 
   ToolHandle<IGoodRunsListSelectionTool> m_grlTool;
-  EL::FilterReporterParams m_filterParams {this, "Good Runs Lists selection"};
+  FilterReporterParams m_filterParams {this, "GoodRunsList", "Good Runs Lists selection"};
 }; 
 
 #endif //> !GOODRUNSLISTS_GRLSELECTORALG_H

@@ -127,7 +127,7 @@ CutFlowSvc::setFilterDescription( CutIdentifier cutID,
 void
 CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
 {
-  ATH_MSG_VERBOSE("Adding event with weight "<< weight << "to cut " << cutID);
+  ATH_MSG_VERBOSE("Adding event with weight " << weight << " to cut " << cutID);
 
   std::lock_guard<std::recursive_mutex> lock(m_addEventMutex);
 

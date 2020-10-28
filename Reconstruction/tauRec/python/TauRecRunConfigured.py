@@ -31,10 +31,10 @@ class TauRecRunConfigured ( Configured ) :
         from tauRec.tauRecFlags import tauFlags
         self._TauRunnerAlgHandle = TauRunnerAlg ( name=self.name+'Alg', 
                                                   Key_tauInputContainer="tmp_TauJets",
-                                                  Key_Pi0ClusterInputContainer="TauInitialPi0Clusters",
+                                                  Key_Pi0ClusterInputContainer="TauPi0Clusters",
                                                   Key_tauOutputContainer="TauJets",
                                                   Key_neutralPFOOutputContainer="TauNeutralParticleFlowObjects",
-                                                  Key_pi0ClusterOutputContainer="TauPi0Clusters",
+                                                  Key_pi0ClusterOutputContainer="TauSelectedPi0Clusters",
                                                   Key_hadronicPFOOutputContainer="TauHadronicParticleFlowObjects",
                                                   Key_vertexOutputContainer = "TauSecondaryVertices",
                                                   Key_chargedPFOOutputContainer = "TauChargedParticleFlowObjects",

@@ -2,10 +2,8 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-import re,sys,os
-from string import *
+import re
+import sys
 import six
 
 def getOutputDictFromAMI(tag):

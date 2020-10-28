@@ -1,7 +1,5 @@
 // AsgExampleTools_entries.cxx
 
-#include <GaudiKernel/DeclareFactoryEntries.h>
-
 #include <EgammaAnalysisAlgorithms/EgammaCalibrationAndSmearingAlg.h>
 #include <EgammaAnalysisAlgorithms/EgammaIsGoodOQSelectionTool.h>
 #include <EgammaAnalysisAlgorithms/EgammaIsolationCorrectionAlg.h>

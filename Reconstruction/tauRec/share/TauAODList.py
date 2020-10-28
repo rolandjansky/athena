@@ -29,16 +29,11 @@ TauAODList += [ "xAOD::VertexContainer#TauSecondaryVertices" ]
 TauAODList += [ "xAOD::VertexAuxContainer#TauSecondaryVerticesAux.-vxTrackAtVertex" ]
 
 #------------------------------------------------------------------------------
-# Pi0 cells
+# Pi0 clusters and links to cells
 #------------------------------------------------------------------------------
-TauAODList += [ "CaloCellContainer#TauCommonPi0Cells" ]
-TauAODList += [ "CaloClusterCellLinkContainer#TauInitialPi0Clusters_links" ]
-
-#------------------------------------------------------------------------------
-# Pi0 initial clusters
-#------------------------------------------------------------------------------
-TauAODList += [ "xAOD::CaloClusterContainer#TauInitialPi0Clusters" ]
-TauAODList += [ "xAOD::CaloClusterAuxContainer#TauInitialPi0ClustersAux." ]
+TauAODList += [ "xAOD::CaloClusterContainer#TauPi0Clusters" ]
+TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
+TauAODList += [ "CaloClusterCellLinkContainer#TauPi0Clusters_links" ]
 
 #------------------------------------------------------------------------------
 # Shot clusters
@@ -57,12 +52,6 @@ TauAODList += [ "xAOD::ParticleAuxContainer#TauFinalPi0sAux." ]
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::PFOContainer#TauShotParticleFlowObjects" ]
 TauAODList += [ "xAOD::PFOAuxContainer#TauShotParticleFlowObjectsAux." ]
-
-#------------------------------------------------------------------------------
-# Cell-based charged ParticleFlowObjects
-#------------------------------------------------------------------------------
-TauAODList += [ "xAOD::PFOContainer#TauChargedParticleFlowObjects" ]
-TauAODList += [ "xAOD::PFOAuxContainer#TauChargedParticleFlowObjectsAux." ]
 
 #------------------------------------------------------------------------------
 # Cell-based neutral ParticleFlowObjects

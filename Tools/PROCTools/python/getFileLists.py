@@ -1,12 +1,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-import os,sys
+import os
+import sys
 from xml.dom.minidom import parse
 from time import time
 import re
-from string import *
 import json
 import six
 
@@ -22,7 +20,7 @@ class TCTChainInfo:
     def __init__(self,dir,log,runEventIn=()):
         self.directory=dir
         self.logfile=log
-        self.eventlist=runEventIn;
+        self.eventlist=runEventIn
         self.loglines=0
         self.cpulist=()
         self.memlist=()
@@ -43,7 +41,7 @@ class findTCTFiles:
     def checkFileAge(self,path):
         try:
             fileTime = os.stat(path)[8]
-        except:
+        except Exception:
             return
         age = time() - fileTime
 
@@ -97,7 +95,7 @@ class findTCTFiles:
         
         try:
             lf = open(tci.logfile,"r")
-        except:
+        except Exception:
             return None
 
         # loop through the log file and find all the output files being validated

@@ -31,7 +31,7 @@ def ActsExtrapolationAlgCfg(configFlags, name = "ActsExtrapolationAlg", **kwargs
 if "__main__" == __name__:
   from AthenaCommon.Configurable import Configurable
   from AthenaCommon.Logging import log
-  from AthenaCommon.Constants import VERBOSE
+  from AthenaCommon.Constants import VERBOSE,INFO
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 
@@ -69,9 +69,10 @@ if "__main__" == __name__:
   cfg.merge(alignCondAlgCfg)
 
   alg = ActsExtrapolationAlgCfg(ConfigFlags,
-                                OutputLevel=VERBOSE,
-                                NParticlesPerEvent = int(10),
-                                EtaRange = [-0.5, 0.5],
+                                OutputLevel=INFO,
+                                NParticlesPerEvent = int(100),
+                                WritePropStep = True,
+                                EtaRange = [-2.5, 2.5],
                                 PtRange = [20, 100])
 
   cfg.merge(alg)
@@ -80,4 +81,4 @@ if "__main__" == __name__:
 
   log.info("CONFIG DONE")
 
-  cfg.run(1)
+  cfg.run(100)

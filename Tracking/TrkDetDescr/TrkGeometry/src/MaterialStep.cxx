@@ -10,6 +10,8 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 // STD
+#include <cmath>
+
 #include <iostream>
 
 Trk::MaterialStep::MaterialStep()
@@ -34,7 +36,7 @@ Trk::MaterialStep::MaterialStep(
       m_hitX(x),
       m_hitY(y),
       m_hitZ(z),
-      m_hitR(sqrt(x*x+y*y)),
+      m_hitR(std::sqrt(x*x+y*y)),
       m_material(matX0, matL0, matA, matZ, matRho, matdEdX)
 {}
 
@@ -53,7 +55,7 @@ Trk::MaterialStep::MaterialStep(
       m_hitX(x),
       m_hitY(y),
       m_hitZ(z),
-      m_hitR(sqrt(x*x+y*y)),
+      m_hitR(std::sqrt(x*x+y*y)),
       m_material(matX0, matL0, matA, matZ, matRho, matdEdX, new Trk::MaterialComposition(elements, fractions))
 
     {}

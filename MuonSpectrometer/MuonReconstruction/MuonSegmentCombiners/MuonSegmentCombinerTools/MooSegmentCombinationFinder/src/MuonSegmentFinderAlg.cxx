@@ -22,7 +22,7 @@
 
 using HepGeom::Transform3D;
 MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator)
+    : AthReentrantAlgorithm(name, pSvcLocator)
 {
     declareProperty("PrintSummary", m_printSummary = false);
     //
@@ -76,19 +76,19 @@ MuonSegmentFinderAlg::initialize()
 }
 
 StatusCode
-MuonSegmentFinderAlg::execute()
+MuonSegmentFinderAlg::execute(const EventContext& ctx) const
 {
 
     // vector to hold segments
-    SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey);
+  SG::WriteHandle<Trk::SegmentCollection> handle(m_segmentCollectionKey, ctx);
     ATH_CHECK(handle.record(std::make_unique<Trk::SegmentCollection>()));
 
-    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey);
+    SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrds(m_tgcPrdsKey, ctx);
     const Muon::TgcPrepDataContainer*          tgcPrdCont = tgcPrds.cptr();
-    SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_rpcPrdsKey);
+    SG::ReadHandle<Muon::RpcPrepDataContainer> rpcPrds(m_rpcPrdsKey, ctx);
     const Muon::RpcPrepDataContainer*          rpcPrdCont = rpcPrds.cptr();
 
-    SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey);
+    SG::ReadHandle<MuonPatternCombinationCollection> patternColl(m_patternCollKey, ctx);
     if (!patternColl.isValid()) {
         ATH_MSG_FATAL("Could not to retrieve the PatternCombinations from StoreGate");
         return StatusCode::FAILURE;
@@ -120,12 +120,12 @@ MuonSegmentFinderAlg::execute()
 
     // do cluster based segment finding
     if (m_doTGCClust || m_doRPCClust) {
-        SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_mdtPrdsKey);
+      SG::ReadHandle<Muon::MdtPrepDataContainer> mdtPrds(m_mdtPrdsKey, ctx);
         const PRD_MultiTruthCollection*            tgcTruthColl = 0;
         const PRD_MultiTruthCollection*            rpcTruthColl = 0;
         if (m_doClusterTruth) {
-            SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth);
-            SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth);
+	  SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth, ctx);
+	  SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth, ctx);
             tgcTruthColl = tgcTruth.cptr();
             rpcTruthColl = rpcTruth.cptr();
         }
@@ -149,7 +149,7 @@ MuonSegmentFinderAlg::execute()
 
         std::vector<const Muon::CscPrepDataCollection*> cscCols;
 
-        SG::ReadHandle<Muon::CscPrepDataContainer> cscPrds(m_cscPrdsKey);
+        SG::ReadHandle<Muon::CscPrepDataContainer> cscPrds(m_cscPrdsKey, ctx);
 
         if (cscPrds.isValid()) {
 
@@ -210,15 +210,9 @@ MuonSegmentFinderAlg::execute()
 }  // execute
 
 
-StatusCode
-MuonSegmentFinderAlg::finalize()
-{
-    return AthAlgorithm::finalize();
-}
-
 void
 MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,
-                                                 Trk::SegmentCollection*             segments)
+                                                 Trk::SegmentCollection*             segments) const
 {
     // turn the PRD into MuonCluster
     std::map<int, std::vector<const Muon::MuonClusterOnTrack*> >   clustersPerSector;
@@ -266,7 +260,7 @@ MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombinat
 void
 MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
                                              const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                             const std::vector<const Muon::TgcPrepDataCollection*> tgcCols)
+                                             const std::vector<const Muon::TgcPrepDataCollection*> tgcCols) const
 {
 
     if (m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc()) {

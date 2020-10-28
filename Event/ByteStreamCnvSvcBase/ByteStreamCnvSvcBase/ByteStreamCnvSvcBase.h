@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVCBASE_BYTESTREAMCNVSVCBASE_H
@@ -37,15 +37,10 @@ public:
    /// Checks whether an IOpaqueAddress is a GenericAddress
    virtual StatusCode updateServiceState(IOpaqueAddress* pAddress) override;
 
-   /// Implementation of IByteStreamEventAccess: Get RawEvent
-   virtual RawEventWrite* getRawEvent() override { return m_rawEventWrite; }
-
    /// Implementation of IIncidentListener: Handle for EndEvent incidence
    virtual void handle(const Incident&) override;
 
 protected: // data
-   RawEventWrite* m_rawEventWrite;
-
    std::vector<std::string> m_initCnvs;
    std::vector<std::string> m_ROD2ROBmap;
 };

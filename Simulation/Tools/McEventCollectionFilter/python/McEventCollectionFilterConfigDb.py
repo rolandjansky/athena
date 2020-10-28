@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CfgGetter import addTool, addAlgorithm
+from AthenaCommon.CfgGetter import addAlgorithm
 addAlgorithm("McEventCollectionFilter.McEventCollectionFilterConfig.getMcEventCollectionFilter"    , "McEventCollectionFilter")

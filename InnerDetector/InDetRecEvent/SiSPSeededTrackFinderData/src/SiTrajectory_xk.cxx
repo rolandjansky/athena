@@ -42,7 +42,7 @@ void InDet::SiTrajectory_xk::erase(int n)
 DataVector<const Trk::TrackStateOnSurface>* 
 InDet::SiTrajectory_xk::convertToTrackStateOnSurface(int cosmic)
 {
-  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().par()[2] < 0.) {
+  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
     return convertToTrackStateOnSurface();
   }
   return convertToTrackStateOnSurfaceWithNewDirection();
@@ -136,7 +136,7 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurfaceWithNewDirection()
 DataVector<const Trk::TrackStateOnSurface>* 
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface(int cosmic)
 {
-  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().par()[2] < 0.) {
+  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
     return convertToSimpleTrackStateOnSurface();
   }
   return convertToSimpleTrackStateOnSurfaceWithNewDirection();
@@ -1338,7 +1338,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
   const double dfmax    = 2.2                                      ;
 
   /// this is the at the location of the first hit on track
-  double f0             = m_elements[m_elementsMap[m_firstElement]].parametersUF().par()[2];
+  double f0             = m_elements[m_elementsMap[m_firstElement]].parametersUF().parameters()[2];
 
 
   m_elements[m_elementsMap[index_currentElement]].setNdist(0);
@@ -1404,7 +1404,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       /// if we found a matching cluster at this element: 
       if     (currentElement.cluster()     ) {
         /// get the dPhi w.r.t the first hit 
-        double df = fabs(currentElement.parametersUF().par()[2]-f0); 
+        double df = fabs(currentElement.parametersUF().parameters()[2]-f0); 
         /// wrap into 0...pi space
         if (df > pi) df = pi2-df;
         /// and bail out if the track is curving too extremely in phi 
@@ -1422,14 +1422,14 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
         if (currentElement.nholesF() > maxholes || currentElement.dholesF() > maxdholes) break; 
         haveHole=true;
         /// and do the dPhi check again, but using the predicted parameters (as no hit) 
-        double df = fabs(currentElement.parametersPF().par()[2]-f0); 
+        double df = fabs(currentElement.parametersPF().parameters()[2]-f0); 
         if (df > pi) df = pi2-df;
         if (df > dfmax ) break;
       }
       /// we did not find a hit, but also do not cross the active surface (no hit expected)
       else                       {
         /// apply only the dPhi check 
-        double df = fabs(currentElement.parametersPF().par()[2]-f0); 
+        double df = fabs(currentElement.parametersPF().parameters()[2]-f0); 
         if (df > pi) df = pi2-df;
         if (df > dfmax) break;
       }

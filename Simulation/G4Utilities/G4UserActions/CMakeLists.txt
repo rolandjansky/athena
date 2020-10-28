@@ -20,6 +20,6 @@ atlas_add_component( G4UserActions
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} ${TBB_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel G4AtlasInterfaces G4AtlasToolsLib EventInfo InDetSimEvent MuonSimEvent MCTruth MCTruthBaseLib SimHelpers TrackWriteFastSimLib PathResolver G4DebuggingHelperLib)
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( share/*.dat )

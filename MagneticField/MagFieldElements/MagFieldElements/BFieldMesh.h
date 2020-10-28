@@ -18,6 +18,7 @@
 
 #include "MagFieldElements/BFieldCache.h"
 #include "MagFieldElements/BFieldVector.h"
+#include "CxxUtils/restrict.h"
 #include <array>
 #include <cmath>
 #include <vector>

@@ -55,7 +55,7 @@ atlas_add_test( CaloBCIDLumiCondAlg_test
    LINK_LIBRARIES CaloRecLib CaloLumiConditions LArRawConditions IdDictParser TestTools )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py share/*.txt )
 
 

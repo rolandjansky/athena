@@ -205,8 +205,6 @@ for theKey in CaloClusterKeys: #Fixme .. Apply this only to TopoClusters?
 
 CaloAODList+=CaloClusterItemList
 
-CaloAODList+=["CaloClusterContainer#Tau1P3PPi0ClusterContainer"]
-
 # E4' cells
 CaloAODList+=["TileCellContainer#E4prContainer"]
 

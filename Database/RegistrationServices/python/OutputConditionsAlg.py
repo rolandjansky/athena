@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # OutputConditionsAlg.py - configuration class for OutputConditionsAlg
 # usage:
@@ -12,14 +12,14 @@
 
 def OutputConditionsAlg(name='OutputConditionsAlg',outputFile='condobjs.root',
                         ObjectList=[],IOVTagList=[],WriteIOV=True):
-    import AthenaCommon.AtlasUnixStandardJob
+    import AthenaCommon.AtlasUnixStandardJob  # noqa: F401
 
     # get a handle on the top-level Algorithm sequence
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
     # Load POOL support
-    import AthenaPoolCnvSvc.WriteAthenaPool
+    import AthenaPoolCnvSvc.WriteAthenaPool  # noqa: F401
 
     from RegistrationServices.RegistrationServicesConf import OutputConditionsAlg as OPCAlg
     myAlg=OPCAlg(name,

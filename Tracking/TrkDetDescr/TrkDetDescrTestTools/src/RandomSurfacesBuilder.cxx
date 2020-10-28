@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -23,8 +23,8 @@
 Trk::RandomSurfaceBuilder::RandomSurfaceBuilder(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),    
   m_rndmSvc("RndmGenSvc", n),
-  m_gaussDist(0),
-  m_flatDist(0),
+  m_gaussDist(nullptr),
+  m_flatDist(nullptr),
   m_numberOfSurfaces(100),
   m_enableCones(false)
 {
@@ -89,9 +89,9 @@ const std::vector<const Trk::Surface*>* Trk::RandomSurfaceBuilder::surfaces() co
 
 const Trk::Surface* Trk::RandomSurfaceBuilder::surface() const
 {
-    if (m_worldDimensions.size() < 3 ) return 0;
+    if (m_worldDimensions.size() < 3 ) return nullptr;
     
-    const Trk::Surface* surface = 0;
+    const Trk::Surface* surface = nullptr;
     int sType = std::floor(m_flatDist->shoot()*6);
         
     // neglect 0 if you don't do cones

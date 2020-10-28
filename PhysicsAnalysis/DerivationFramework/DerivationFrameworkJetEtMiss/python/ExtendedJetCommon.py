@@ -115,12 +115,16 @@ def addAntiKt4TruthDressedWZJets(sequence,outputlist):
         addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10TruthJets(sequence,outputlist):
-    if DerivationFrameworkIsMonteCarlo:
-        addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+    if DerivationFrameworkHasTruth:
+        addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10TruthWZJets(sequence,outputlist):
-    if DerivationFrameworkIsMonteCarlo:
-        addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+    if DerivationFrameworkHasTruth:
+        addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
+
+def addAntiKt4EMPFlowJetsFE(sequence, outputlist):
+    addCHSPFlowObjectsFE()
+    addStandardJets("AntiKt", 0.4, "EMPFlowFE", ptmin=10000, ptminFilter=15000, mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 ##################################################################  
 
@@ -395,7 +399,7 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     if hasattr(ToolSvc,jetptassociationtoolname):
         jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
     else:
-        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer=truthjetalg, AssociationName="GhostTruth")
+        jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, JetContainer=jetalg+'Jets', MatchingJetContainer=truthjetalg, AssociationName="GhostTruth")
         ToolSvc += jetptassociationtool
         jetaugtool.JetPtAssociationTool = jetptassociationtool
 
@@ -405,8 +409,8 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
 ##################################################################
 
 def addJetTruthLabel(jetalg,algname,labelname,sequence):
-    supportedLabelNames = ['R10TruthLabel_R21Consolidated']
-    supportedTruthJets = ['AntiKt10TruthTrimmedPtFrac5SmallR20']
+    supportedLabelNames = ['R10TruthLabel_R21Consolidated','R10TruthLabel_R21Precision']
+    supportedTruthJets = ['AntiKt10Truth','AntiKt10TruthTrimmedPtFrac5SmallR20']
     supportedRecoJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKSoftDropBeta100Zcut10','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf','AntiKt10UFOCHSTrimmedPtFrac5SmallR20']
     supportedJets = supportedRecoJets + supportedTruthJets
     if not jetalg in supportedJets:
@@ -480,7 +484,7 @@ def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
         if hasattr(ToolSvc,jetptassociationtoolname):
             jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
         else:
-            jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, InputContainer=truthjetalg, AssociationName="GhostTruth")
+            jetptassociationtool = CfgMgr.JetPtAssociationTool(jetptassociationtoolname, JetContainer=jetalg+'Jets', MatchingJetContainer=truthjetalg, AssociationName="GhostTruth")
             ToolSvc += jetptassociationtool
             jetaugtool.JetPtAssociationTool = jetptassociationtool
 
@@ -693,6 +697,8 @@ def addConstModJets(jetalg,radius,inputtype,constmods,sequence,outputlist,custom
         constit = JetConstit( xAODType.CaloCluster, ["LC","Origin"])
     elif inputtype == "EMPFlow":
         constit = JetConstit( xAODType.ParticleFlow )
+    elif inputtype == "EMPFlowFE":
+        constit = JetConstit( xAODType.FlowElement )
 
     constit.modifiers += constmods
 

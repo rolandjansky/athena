@@ -37,6 +37,9 @@ def ActsTrackingGeometrySvcCfg(configFlags, name = "ActsTrackingGeometrySvc" ) :
       
   actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors=subDetectors)
 
+
+  actsTrackingGeometrySvc = Acts_ActsTrackingGeometrySvc(name, BuildSubDetectors=subDetectors)
+
   if configFlags.TrackingGeometry.MaterialSource == "Input":
     actsTrackingGeometrySvc.UseMaterialMap = True
     actsTrackingGeometrySvc.MaterialMapInputFile = "material-maps.json"
@@ -153,6 +156,21 @@ def ActsSurfaceMappingToolCfg(configFlags, name = "ActsSurfaceMappingTool" ) :
   ActsSurfaceMappingTool.OutputLevel = INFO
 
   result.addPublicTool(ActsSurfaceMappingTool, primary=True)
+  return result
+
+def ActsVolumeMappingToolCfg(configFlags, name = "ActsVolumeMappingTool" ) :
+  result=ComponentAccumulator()
+    
+  acc, actsTrackingGeometryTool = ActsTrackingGeometryToolCfg(configFlags) 
+  result.merge(acc)
+
+  Acts_ActsVolumeMappingTool = CompFactory.ActsVolumeMappingTool
+  ActsVolumeMappingTool = Acts_ActsVolumeMappingTool(name)
+
+  from AthenaCommon.Constants import INFO
+  ActsVolumeMappingTool.OutputLevel = INFO
+
+  result.addPublicTool(ActsVolumeMappingTool, primary=True)
   return result
 
 def ActsMaterialJsonWriterToolCfg(name= "ActsMaterialJsonWriterTool", **kwargs) :

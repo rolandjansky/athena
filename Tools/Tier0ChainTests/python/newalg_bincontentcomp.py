@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from DQConfMakerBase.DQElements import *
+from DQConfMakerBase.DQElements import DQAlgorithm, DQAlgorithmParameter, DQThreshold
 
 _alg = DQAlgorithm(id='BinContentComp', libname='libdqm_algorithms.so')
 _algpars = [DQAlgorithmParameter(name='NSigma', value=0.001),

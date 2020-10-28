@@ -231,18 +231,18 @@ topoEgammaBuilder::execute(const EventContext& ctx) const
 
   // Tools for ToolHandleArrays
   // First common photon/electron tools*/
-  for (auto& tool : m_egammaTools) {
+  for (const auto & tool : m_egammaTools) {
     ATH_CHECK(CallTool(ctx, tool, electrons, photons));
   }
   // Tools for only electrons
   if (m_doElectrons) {
-    for (auto& tool : m_electronTools) {
+    for (const auto & tool : m_electronTools) {
       ATH_CHECK(CallTool(ctx, tool, electrons, nullptr));
     }
   }
   // Tools for only photons
   if (m_doPhotons) {
-    for (auto& tool : m_photonTools) {
+    for (const auto & tool : m_photonTools) {
       ATH_CHECK(CallTool(ctx, tool, nullptr, photons));
     }
   }

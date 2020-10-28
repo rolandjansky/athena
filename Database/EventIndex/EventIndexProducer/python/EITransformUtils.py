@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Module with EventIndex transform options and substep
 
 import logging
 msg = logging.getLogger(__name__)
-
-import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from PyJobTransforms.trfExe import athenaExecutor
 
@@ -35,6 +33,6 @@ def addEI_MRG_Substep(executorSet):
 ### Append Sub-step Methods
 def appendEI_Substep(trf):
     executor = set()
-    addEISubstep(executor)
+    addEI_Substep(executor)
     trf.appendToExecutorSet(executor)
 

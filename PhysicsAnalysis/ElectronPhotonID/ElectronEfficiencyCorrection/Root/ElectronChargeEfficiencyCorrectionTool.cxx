@@ -24,7 +24,7 @@
 // #include "TRandom.h"
 
 // STL includes
-#include <stdlib.h>     /* atoi */
+#include <cstdlib>     /* atoi */
 
 
 // =============================================================================

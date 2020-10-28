@@ -448,9 +448,9 @@ class TriggerConfigGetter(Configured):
                 menuwriter.IsHLTJSONConfig = True
                 menuwriter.IsL1JSONConfig = True
                 menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
-                menuwriter.WritexAODMenuJSON = True
+                menuwriter.WritexAODTriggerMenuJson = True
                 writeTriggerMenu = menuwriter.WritexAODTriggerMenu
-                writeMenuJSON = menuwriter.WritexAODMenuJSON
+                writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
 
                 topAlgs += menuwriter
 

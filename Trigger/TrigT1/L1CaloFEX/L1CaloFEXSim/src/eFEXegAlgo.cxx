@@ -100,9 +100,8 @@ void LVL1::eFEXegAlgo::getRealEta(float & eta) {
 
 }
 
-std::vector<unsigned int> eFEXegAlgo::getReta() {
+void eFEXegAlgo::getReta(std::vector<unsigned int> & retavec) {
 
-  std::vector<unsigned int> retavec;
   unsigned int coresum  = 0;   // 3x2 L2 sum : core
   unsigned int totalsum = 0;   // 7x3 L2 sum : total
   unsigned int envsum   = 0;   // total - core : env
@@ -141,7 +140,6 @@ std::vector<unsigned int> eFEXegAlgo::getReta() {
   retavec.push_back(coresum);
   retavec.push_back(envsum);
 
-  return retavec;
 }
 
 void eFEXegAlgo::getRhad(std::vector<unsigned int> & rhadvec) {
@@ -196,8 +194,9 @@ void LVL1::eFEXegAlgo::getWstot(std::vector<unsigned int> & output){
       den += eT;
     }
   }
-  output.push_back(numer);
+
   output.push_back(den);
+  output.push_back(numer);
 
 }
 
@@ -238,7 +237,7 @@ std::unique_ptr<eFEXegTOB> LVL1::eFEXegAlgo::geteFEXegTOB() {
   getRhad(temvector);
   out->setRhadNum(temvector[1]);
   out->setRhadDen(temvector[0] + temvector[1]);
-  temvector = getReta();
+  getReta(temvector);
   out->setRetaNum(temvector[0]);
   out->setRetaDen(temvector[0] + temvector[1]);
   out->setSeedUnD(m_seed_UnD);

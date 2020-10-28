@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 import sys,pickle,os
 
 HIProjTag="data[0-9][0-9]_hi" # Only for Pb-Pb and p-Pb collisions (this regular expression matches with both "data11_hi" and "data11_hip")
@@ -229,7 +227,7 @@ if __name__ == '__main__':
         if len(sys.argv)>8:    
             try:
                 updateConditionsTag = int(sys.argv[8])
-            except:
+            except Exception:
                 if sys.argv[8].lower() == "false":
                     updateConditionsTag = False
 
@@ -329,7 +327,7 @@ if __name__ == '__main__':
                 try:
                     #print ("key: " , key , " isOutput")
                     outputDic[key]=OutputsVsStreams[key]
-                except:
+                except Exception:
                     print ("Known outputs defined in the OutputsVsStreams dictionnary are:")
                     print (OutputsVsStreams)
                     raise RuntimeError("Don't know what to do with out key %s, please add it to OutputsVsStreams to use it"%key)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetRecTools/SoftKillerWeightTool.h"
@@ -10,6 +10,7 @@
 #include "fastjet/contrib/SoftKiller.hh"
 
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 #include "xAODPFlow/TrackCaloCluster.h"
 
 
@@ -48,7 +49,7 @@ SoftKillerWeightTool::SoftKillerWeightTool(const std::string& name) : JetConstit
 
 
 StatusCode SoftKillerWeightTool::initialize() {
-  if(m_isCaloSplit && (m_inputType!=xAOD::Type::ParticleFlow && m_inputType!=xAOD::Type::CaloCluster)) {
+  if(m_isCaloSplit && (m_inputType!=xAOD::Type::ParticleFlow && m_inputType!=xAOD::Type::CaloCluster && m_inputType!=xAOD::Type::FlowElement)) {
     ATH_MSG_ERROR("SoftKillerWeightTool requires CaloCluster or PFO inputs when isCaloSplit is true."
 		  << " It cannot apply split calorimeters on objects of type "
 		  << m_inputType);
@@ -131,6 +132,14 @@ double SoftKillerWeightTool::getSoftKillerMinPt(xAOD::IParticleContainer& cont) 
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
       accept = (tcc->taste()!= 0);
     }
+    if(m_inputType==xAOD::Type::FlowElement){
+      xAOD::FlowElement* fe = static_cast<xAOD::FlowElement*>(part);
+      if(fe->signalType() & xAOD::FlowElement::PFlow){
+        if(m_ignoreChargedPFOs) accept = !fe->isCharged();
+      }
+      else
+        accept = !fe->isCharged();
+    }
     if(accept) {
       partPJ.push_back( fastjet::PseudoJet( part->p4() ));
     }
@@ -163,6 +172,14 @@ std::pair<double,double> SoftKillerWeightTool::getSoftKillerMinPtSplit(xAOD::IPa
     if(m_inputType==xAOD::Type::TrackCaloCluster) {
       xAOD::TrackCaloCluster* tcc = static_cast<xAOD::TrackCaloCluster*>(part);
       accept = (tcc->taste()!= 0);
+    }
+    if(m_inputType==xAOD::Type::FlowElement){
+      xAOD::FlowElement* fe = static_cast<xAOD::FlowElement*>(part);
+      if(fe->signalType() & xAOD::FlowElement::PFlow){
+        if(m_ignoreChargedPFOs) accept = !fe->isCharged();
+      }
+      else
+        accept = !fe->isCharged();
     }
     if(accept) {
       double center_lambda = acc_clambda.isAvailable(*part) ? acc_clambda(*part) : 0.;
