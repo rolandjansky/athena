@@ -7,8 +7,8 @@
  ----------------------------------------------------------------------
 ***************************************************************************/
 
-#ifndef MUONTRACKINGGEOMETRY_MUONPADDESIGN_H
-#define MUONTRACKINGGEOMETRY_MUONPADDESIGN_H
+#ifndef MUONREADOUTGEOMETRY_MUONPADDESIGN_H
+#define MUONREADOUTGEOMETRY_MUONPADDESIGN_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -179,4 +179,4 @@ namespace MuonGM {
   }
 
 }
-#endif // MUONTRACKINGGEOMETRY_MUONPADDESIGN_H
+#endif // MUONREADOUTGEOMETRY_MUONPADDESIGN_H

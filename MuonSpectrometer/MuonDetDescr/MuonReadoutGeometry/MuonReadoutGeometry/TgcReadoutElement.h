@@ -2,13 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- Tgc Readout Element properties
- -----------------------------------------
-***************************************************************************/
-
-#ifndef MUONGEOMODEL_TGCREADOUTELEMENT_H
-# define MUONGEOMODEL_TGCREADOUTELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_TGCREADOUTELEMENT_H
+#define MUONREADOUTGEOMETRY_TGCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -408,4 +403,4 @@ namespace MuonGM {
 
 } // namespace MuonGM
 
-#endif // MUONGEOMODEL_TGCREADOUTELEMENT_H
+#endif // MUONREADOUTGEOMETRY_TGCREADOUTELEMENT_H

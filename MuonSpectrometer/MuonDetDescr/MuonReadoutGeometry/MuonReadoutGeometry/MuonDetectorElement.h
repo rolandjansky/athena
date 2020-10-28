@@ -16,8 +16,8 @@
   methods will delegate the job to the appropriate MuonReadoutElement.  
 */
 
-#ifndef MUONGEOMODEL_MUONDETECTORELEMENT_H
-# define MUONGEOMODEL_MUONDETECTORELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_MUONDETECTORELEMENT_H
+#define MUONREADOUTGEOMETRY_MUONDETECTORELEMENT_H
 
 #include <string>
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -84,4 +84,4 @@ const MuonDetectorManager* MuonDetectorElement::manager() const
  
 } // namespace MuonGM
 
-#endif // MUONGEOMODEL_MUONDETECTORELEMENT_H
+#endif // MUONREADOUTGEOMETRY_MUONDETECTORELEMENT_H
