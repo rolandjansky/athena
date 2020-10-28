@@ -19,8 +19,7 @@ namespace {
 VMM_Shaper::VMM_Shaper(float peakTime, float lowerTimeWindow, float upperTimeWindow):m_peakTime(peakTime),
 m_lowerTimeWindow(lowerTimeWindow),
 m_upperTimeWindow(upperTimeWindow),
-m_timeStep(0.1),
-m_maxTime(700.0)
+m_timeStep(0.1)
 {
     initialize();
 }
@@ -35,7 +34,6 @@ void VMM_Shaper::initialize() {
     m_k1_abs = std::sqrt(Re_K1*Re_K1 + Im_K1*Im_K1);
     m_argK1 = std::atan2(Im_K1, Re_K1);
 
-    m_nBins = m_maxTime/m_timeStep;
     // scale factor for charge taking into account the mm ion flow time of ~150ns
     // if the peaking time is lower then that, only a fration of the total charge is integrated
     m_peakTimeChargeScaling = (m_peakTime < mmIonFlowTime ? 1.0*m_peakTime/mmIonFlowTime : 1.0);

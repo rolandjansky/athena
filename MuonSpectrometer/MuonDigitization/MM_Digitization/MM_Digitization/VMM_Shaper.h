@@ -26,8 +26,6 @@ class VMM_Shaper{
      double m_lowerTimeWindow, m_upperTimeWindow;
      
      double m_timeStep;
-     double m_maxTime;
-
 
      // shaper parameters
      double m_a, m_pole0, m_re_pole1, m_im_pole1, m_pole1_square, m_k1_abs, m_argK1;
