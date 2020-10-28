@@ -217,6 +217,8 @@ class _Tracking_fullScan( _Settings ):
       self._etaHalfWidth    = 3.
       self._phiHalfWidth    = 3.14159
       self._doTRT           = False
+      self._dRdoubletMax    = 200 
+      self._seedRadBinWidth = 10
 
 class _Tracking_minBias( _Settings ):     
    def __init__( self ): 
