@@ -563,17 +563,8 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	    C(2,2) += e2*(ci.z-zc)*(ci.z-zc);
 	    w += e2;
 	  } 
-
-	  //Symmetrize matrix (Eigen has not symmetric matrix class)
-	  C(0,1)=C(1,0);
-	  C(0,2)=C(2,0);
-	  C(1,2)=C(2,1);
 	  C/=w;
 	  
-
-	  //HepSymMatrix S(C);
-	  //HepMatrix U = diagonalize(&S);
-
 	  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(C);
 	  if (eigensolver.info() != Eigen::Success) {
 	    msg(MSG::WARNING) << "Failed to compute Eigenvalues -> Can't determine shower axis" << endmsg;
@@ -593,22 +584,20 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 	      int iEigen = -1;
 	    
 	      for (i=0;i<3;i++) {
-		if ( S[i] != 0 ) {
-		  Vector3D<double> tmpAxis = Vector3D<double>(U(0,i),U(1,i),U(2,i));
+		Vector3D<double> tmpAxis = Vector3D<double>(U(0,i),U(1,i),U(2,i));
 		
-		  // calculate the angle
+		// calculate the angle
 		  
-		  double tmpAngle = tmpAxis.angle(showerAxis);
-		  if ( tmpAngle > 90*deg ) { 
-		    tmpAngle = 180*deg - tmpAngle;
-		    tmpAxis = -tmpAxis;
-		  }
+		double tmpAngle = tmpAxis.angle(showerAxis);
+		if ( tmpAngle > 90*deg ) { 
+		  tmpAngle = 180*deg - tmpAngle;
+		  tmpAxis = -tmpAxis;
+		}
 		
-		  if ( iEigen == -1 || tmpAngle < angle ) {
-		    iEigen = i;
-		    angle = tmpAngle;
-		    prAxis = tmpAxis;
-		  }
+		if ( iEigen == -1 || tmpAngle < angle ) {
+		  iEigen = i;
+		  angle = tmpAngle;
+		  prAxis = tmpAxis;
 		}
 	      }//end for loop 	  
 	    
@@ -628,8 +617,11 @@ CaloClusterMomentsMaker::execute(const EventContext& ctx,
 			      << m_maxAxisAngle*(1./deg) 
 			      << " deg from IP-to-ClusterCenter-axis (" << showerAxis.x() << ", "
 			      << showerAxis.y() << ", " << showerAxis.z() << ")");
-	    }//end if !S[i]==0
-	  }// end else got Eigenvalues
+	    }//end if fabs(S)<epsilon
+	    else {
+	      ATH_MSG_DEBUG("Eigenvalues close to 0, do not use principal axis");
+	    }
+	  }//end got eigenvalues
 	} //end if ncell>2
       
 	ATH_MSG_DEBUG("Shower Axis = (" << showerAxis.x() << ", "
