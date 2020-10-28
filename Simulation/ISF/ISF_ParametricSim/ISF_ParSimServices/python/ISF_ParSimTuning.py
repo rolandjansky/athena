@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file ISF_ParSimTuning.py
 ## @brief Python module to hold common flags to configure JobOptions
@@ -7,8 +7,6 @@
 __author__ = "Miha Muskinja"
 __version__= "$Revision: 698492 $"
 __doc__    = "ParSimJobProperties"
-
-__all__    = [ "ISF_ParSimTuning" ]
 
 # kindly stolen from AthenaCommonFlags from S. Binet and M. Gallas
 

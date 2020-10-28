@@ -1,21 +1,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-from Gaudi.Configuration import *
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.BeamFlags import jobproperties
-
-# confgetter
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-        getService,getServiceClone,getAlgorithm,getAlgorithmClone
-
 G4Eng = None
 
 class iGeant4:
   def __init__(self, **kwargs):
     from G4AtlasApps.SimFlags import simFlags
-    from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
     ####################################
