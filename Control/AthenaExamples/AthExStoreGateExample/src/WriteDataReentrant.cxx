@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -40,11 +40,11 @@ WriteDataReentrant::WriteDataReentrant(const std::string& name,
 {
   declareProperty ("DObjKey", m_dobjKey = "dobj");
   declareProperty ("DObjKey2", m_dobjKey2 = "dobj2");
-  declareProperty ("DObjKey3", m_dobjKey3 = name);
+  declareProperty ("DObjKey3", m_dobjKey3);
   //declareProperty ("DObjKey4", m_dobjKey4 = "dobj4");
   declareProperty ("CObjKey", m_cobjKey = "cobj");
   declareProperty ("VFloatKey", m_vFloatKey = "vFloat");
-  declareProperty ("PLinkListKey", m_pLinkListKey = name);
+  declareProperty ("PLinkListKey", m_pLinkListKey);
   declareProperty ("MKey", m_mKey = "mkey");
   declareProperty ("LinkVectorKey", m_linkVectorKey = "linkvec");
   declareProperty ("TestObjectKey", m_testObjectKey = "testobj");
@@ -56,6 +56,11 @@ WriteDataReentrant::WriteDataReentrant(const std::string& name,
 StatusCode WriteDataReentrant::initialize()
 {
   errorcheck::ReportMessage::hideErrorLocus();
+
+  // If user did not set a key, use our own name. This cannot be done in the
+  // constructor as "DefaultName" is used during configurable generation (genconf).
+  if (m_dobjKey3.empty()) m_dobjKey3 = name();
+  if (m_pLinkListKey.empty()) m_pLinkListKey = name();
 
   ATH_MSG_INFO ("in initialize()");
   ATH_CHECK( m_dobjKey.initialize() );
@@ -233,7 +238,7 @@ StatusCode WriteDataReentrant::execute (const EventContext& ctx) const
   // persistency for it.  we use dobj3, which is an object registered with 
   // a key. 
 
-  DataLink<MyDataObj> dobjLink3(name()); 
+  DataLink<MyDataObj> dobjLink3(name());
   // now access it.  DataLink will do a retrieve to get it from the store. 
   dobjLink3->val(); 
 
