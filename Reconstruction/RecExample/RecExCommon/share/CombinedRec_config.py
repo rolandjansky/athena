@@ -30,9 +30,16 @@ pdr.flag_domain('CaloExtensionBuilder')
 if (rec.doESD()) and (recAlgs.doEFlow() or rec.doTau() or rec.doEgamma()) : #   or rec.readESD()
     try:
         from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
-        CaloExtensionBuilder()
+        CaloExtensionBuilder(False)
     except Exception:
         treatException("Cannot include CaloExtensionBuilder !")
+
+    #Now setup Large Radius Tracks version (LRT), only if LRT enabled    
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.doR3LargeD0():
+        #CaloExtensionBuilder was already imported above, and an exception would have been thrown
+        #if that had failed.
+        CaloExtensionBuilder(True)
 
 #
 # functionality : electron photon identification
