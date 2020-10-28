@@ -141,23 +141,18 @@ namespace {
 
 
 DexterTool::DexterTool( const std::string& name ) :
-  asg::AsgTool(name),
-  m_neuralNetworkFile(""),
-  m_configurationFile(NN_CONFIG),
+  JSSTaggerBase(name),
   m_negativeTagMode(""),
   m_secvtx_collection_name(SECVTX_NAME),
   m_lwnn(nullptr),
   m_input_builder(nullptr),
-  m_tag_threshold(1000000000.),  
   m_output_value_names(),
   m_decoration_names(),
   m_decorators(),
   m_offsets()
 {
-  declareProperty( "neuralNetworkFile",   m_neuralNetworkFile);
-  declareProperty( "configurationFile",   m_configurationFile);
   declareProperty( "secvtxCollection",   m_secvtx_collection_name);
-  declareProperty( "tagThreshold", m_tag_threshold);  
+  declareProperty( "JetEtaMax",  m_jetEtaMax = 2.0, "Eta cut to define fiducial phase space for the tagger");
   declareProperty( "decorationNames", m_decoration_names);
   declareProperty( "negativeTagMode", m_negativeTagMode);
   
@@ -184,8 +179,8 @@ StatusCode DexterTool::initialize(){
   }
 
   // read json file for DNN weights
-  ATH_MSG_INFO("Using NN file: "+ m_neuralNetworkFile);
-  std::string nn_path = PathResolverFindCalibFile(m_neuralNetworkFile);
+  ATH_MSG_INFO("Using NN file: "+ m_kerasConfigFileName);
+  std::string nn_path = PathResolverFindCalibFile(m_kerasConfigFileName);
   ATH_MSG_INFO("NN file resolved to: " + nn_path);
   lwt::GraphConfig config;
   try {
@@ -234,11 +229,19 @@ StatusCode DexterTool::initialize(){
   }
 
   // setup the input builder
-  ATH_MSG_INFO( "Using config file: "<< m_configurationFile );
-  std::string config_file = PathResolverFindDataFile(m_configurationFile);
+  ATH_MSG_INFO( "Using config file: "<< m_configFile );
+  std::string config_file = PathResolverFindDataFile(m_configFile);
   ATH_MSG_INFO( "Config file resolved to: "<< config_file );
   try {
     m_input_builder.reset(new DexterInputBuilder(config_file, m_offsets));
+
+    // get min and max jet pt. The unit is GeV now. Need to be consistent with ATLAS convention in the future
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json(config_file, pt);
+    ATH_MSG_DEBUG("Dexter valide jet pT range:");
+    m_jetPtMin = pt.get<float>("pTCutLow");
+    m_jetPtMax = pt.get<float>("pTCutHigh");
+    
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("Config file is garbage: " << err.what());
     return StatusCode::FAILURE;
@@ -252,8 +255,8 @@ StatusCode DexterTool::initialize(){
     ATH_MSG_INFO("Output names set in tool setup");
   } else {
     boost::property_tree::ptree pt;
-    boost::property_tree::read_json(config_file, pt);
-    if (pt.count("outputs") > 0) {
+    boost::property_tree::read_json(config_file, pt);    
+    if (pt.count("outputs") > 0) {  
       for (const auto& pair: pt.get_child("outputs.decoration_map") ) {
         m_decoration_names[pair.first] = pair.second.data();
       }
@@ -326,8 +329,30 @@ std::map<std::string, double> DexterTool::getScores(const xAOD::Jet& jet)
   return nn_output;
 }
 
-int DexterTool::keep(const xAOD::Jet& jet) const {
-  return getScore(jet) > m_tag_threshold;
+Root::TAccept& DexterTool::tag(const xAOD::Jet& jet) const{
+
+  ATH_MSG_DEBUG( ": Obtaining Dexter result" );
+
+  //clear all accept values
+  m_accept.clear();
+
+  // set the jet validity bits to 1 by default
+  m_accept.setCutResult( "ValidPtRangeLow" , true);  
+  m_accept.setCutResult( "ValidEtaRange"   , true);
+
+  // check basic kinematic selection
+  if (std::fabs(jet.eta()) > m_jetEtaMax) {
+    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
+    m_accept.setCutResult("ValidEtaRange", false);
+  }
+  if (jet.pt()/1000.0 < m_jetPtMin) {
+    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1000.0);
+    m_accept.setCutResult("ValidPtRangeLow", false);
+  }
+
+  // return the TAccept object that you created and filled
+  return m_accept;
+
 }
 
 double DexterTool::getScore(const xAOD::Jet& jet) const {

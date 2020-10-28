@@ -138,9 +138,9 @@ int main( int argc, char* argv[] ) {
   float dexter_Dbb_flip;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
-  Tree->Branch( "dexter_pbb", &dexter_pbb, "dexter_pb/F" );
+  Tree->Branch( "dexter_pbb", &dexter_pbb, "dexter_pbb/F" );
   Tree->Branch( "dexter_pb", &dexter_pb, "dexter_pb/F" );
-  Tree->Branch( "dexter_pl", &dexter_pl, "dexter_pb/F" );
+  Tree->Branch( "dexter_pl", &dexter_pl, "dexter_pl/F" );
   Tree->Branch( "dexter_Dbb", &dexter_Dbb, "dexter_Dbb/F" );
   Tree->Branch( "dexter_Dbb_flip", &dexter_Dbb_flip, "dexter_Dbb_flip/F" );
   // free parameters b-jet fraction 
@@ -159,8 +159,8 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<DexterTool> m_Tagger; //!
   m_Tagger.setTypeAndName("DexterTool","DexterTool");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::VERBOSE);
-  m_Tagger.setProperty( "neuralNetworkFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
-  m_Tagger.setProperty( "tagThreshold", 0.5);
+  m_Tagger.setProperty( "KerasConfigFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
+  m_Tagger.setProperty( "ConfigFile" ,"BoostedJetTaggers/DeepsetXbbTagger/test_config.json");
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
     return 1;
@@ -170,9 +170,9 @@ int main( int argc, char* argv[] ) {
   asg::AnaToolHandle<DexterTool> m_Tagger_flip; //!
   m_Tagger_flip.setTypeAndName("DexterTool","DexterTool");
   if(verbose) m_Tagger_flip.setProperty("OutputLevel", MSG::VERBOSE);
-  m_Tagger_flip.setProperty( "neuralNetworkFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
-  m_Tagger_flip.setProperty( "tagThreshold", 0.5);
-  m_Tagger_flip.setProperty( "negativeTagMode", "TrksFlip");
+  m_Tagger_flip.setProperty( "KerasConfigFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
+  m_Tagger_flip.setProperty( "ConfigFile" ,"BoostedJetTaggers/DeepsetXbbTagger/test_config.json");
+  m_Tagger_flip.setProperty( "negativeTagMode", "SVMassNegTrksFlip");
   status_code = m_Tagger_flip.retrieve();
   if (status_code.isFailure()) {
     return 1;
@@ -216,7 +216,7 @@ int main( int argc, char* argv[] ) {
           std::cout << "Light Score: " << scores.at("dexter_pl") << std::endl;
           std::cout << "Dbb Score: " << log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) ) << std::endl;
         }
-        bool res = m_Tagger->keep( *jet );
+        const Root::TAccept& res = m_Tagger->tag( *jet );
         pass = res;
         dexter_pbb = scores.at("dexter_pbb");
         dexter_pb = scores.at("dexter_pb");

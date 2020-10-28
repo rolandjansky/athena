@@ -1,5 +1,7 @@
 {
     "node_name": "node_0",
+    "pTCutLow"  : 20,
+    "pTCutHigh" : 500,
     "subjet": {
         "collection": "ExKt2GASubJets",
         "pt_threshold": 5000
