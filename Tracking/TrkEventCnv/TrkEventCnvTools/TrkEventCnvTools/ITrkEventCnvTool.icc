@@ -6,7 +6,6 @@
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "StoreGate/ReadHandle.h"
-#include "StoreGate/StoreGate.h"
 
 #include <typeinfo>
 
