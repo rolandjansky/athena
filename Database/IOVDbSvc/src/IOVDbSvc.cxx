@@ -555,7 +555,17 @@ StatusCode IOVDbSvc::getRange( const CLID&        clid,
     range = IOVRange (range.start(), extStop);
   }
 
-
+  // Special handling for IOV override: set the infinite validity range
+  if (folder->iovOverridden()) {
+    if (folder->timeStamp()) {
+      range = IOVRange ( IOVTime(IOVTime::MINTIMESTAMP)
+			 , IOVTime(IOVTime::MAXTIMESTAMP) );
+    }
+    else {
+      range = IOVRange ( IOVTime(IOVTime::MINRUN,IOVTime::MINEVENT)
+			 , IOVTime(IOVTime::MAXRUN,IOVTime::MAXEVENT) );
+    }
+  }
 
   return StatusCode::SUCCESS;
 }
