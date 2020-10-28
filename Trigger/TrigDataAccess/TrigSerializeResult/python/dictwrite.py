@@ -23,8 +23,8 @@ b) have a real class in the 'objects' list BEFORE the typedef
 """
 
 def update_streamerinfos(objects, updated_objects):
-  doEDM=False
-  #doEDM=True
+  #doEDM=False
+  doEDM=True
   doxAODonly=False
   bs_filename = 'bs-streamerinfos.root'
   import ROOT
@@ -45,10 +45,13 @@ def update_streamerinfos(objects, updated_objects):
   print("")
 
   if doEDM:
-    from TrigEDMConfig.TriggerEDM import EDMDetails
-    for item in EDMDetails.keys():
-      pers = EDMDetails[item]['persistent']
-      objects.append(pers)
+    from TrigEDMConfig.TriggerEDMRun3 import TriggerHLTListRun3
+    from TrigEDMConfig.DataScoutingInfo import DataScoutingIdentifiers
+    BS_destinations = ["BS"] + list(DataScoutingIdentifiers.keys())
+    print("BS_destinations = {}".format(BS_destinations))
+    for item in TriggerHLTListRun3:
+      if any(bs in item[1].split() for bs in BS_destinations):
+        objects.append(item[0].split("#")[0])
 
   for pers in objects:
     SIG.inspect(pers)
