@@ -7,7 +7,6 @@
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 
-#include "StoreGate/StoreGate.h"
 #include "SGTools/TransientAddress.h"
 #include "GaudiKernel/ListItem.h"
 
