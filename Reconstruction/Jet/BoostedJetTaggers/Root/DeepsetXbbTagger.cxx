@@ -173,7 +173,7 @@ StatusCode DexterTool::initialize(){
       ATH_MSG_INFO("Dexter tool run in Negative-tag mode: " + m_negativeTagMode);
     }
     else {
-      ATH_MSG_ERROR(m_negativeTagMode + " is NOT a valid Dexter Negative-tag mode!! Supported modes: TrksFlip / TrksSVMassFlip / NegTrksFlip / NegTrksSVMassFlip");
+      ATH_MSG_ERROR(m_negativeTagMode + " is NOT a valid Dexter Negative-tag mode!! Supported modes: TrksFlip / SVMassTrksFlip / NegTrksFlip / SVMassNegTrksFlip");
       return StatusCode::FAILURE;
     }
   }
@@ -598,6 +598,7 @@ namespace DeepsetXbbTagger {
         // For negative-tag
         if(!negativeTagMode.empty()) {
           if(negativeTagMode.find("NegTrksFlip") != std::string::npos && d0(*trk) > 0 ) continue;
+          track_input.push_back(pair.second(*trk));
         }
         else  track_input.push_back(pair.second(*trk));
       }
@@ -613,6 +614,7 @@ namespace DeepsetXbbTagger {
           if(negativeTagMode.find("TrksFlip") != std::string::npos && pair.first.find("IP3D_signed") != std::string::npos) {
             track_input.push_back( (-1) * pair.second(*trk));
           }
+          else track_input.push_back(pair.second(*trk));
         }
         // For nominal Dexter
         else track_input.push_back(pair.second(*trk));
@@ -626,6 +628,7 @@ namespace DeepsetXbbTagger {
         // For negative-tag
         if(!negativeTagMode.empty()) {
           if(negativeTagMode.find("NegTrksFlip") != std::string::npos && d0(*trk) > 0 ) continue;
+          track_input.push_back(pair.second(*trk));
         }
         else  track_input.push_back(pair.second(*trk));
       }
@@ -673,8 +676,9 @@ namespace DeepsetXbbTagger {
         // For negative-tag
         if(!negativeTagMode.empty()) {
           if(negativeTagMode.find("SVMass") != std::string::npos && pair.first.find("secvtx_log_mass") != std::string::npos ) {
-            secvtx_input.push_back( (-1) *pair.second(*vtx) + 13.77075356 );
+            secvtx_input.push_back( (-1) * pair.second(*vtx) + 13.77075356 );
           }
+          else secvtx_input.push_back(pair.second(*vtx));
         }
         else secvtx_input.push_back(pair.second(*vtx));
       }
