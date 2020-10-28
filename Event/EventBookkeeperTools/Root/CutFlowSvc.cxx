@@ -62,7 +62,8 @@ CutFlowSvc::initialize()
 
 
 CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
-                                          const std::string& description )
+                                          const std::string& description,
+                                          bool nominalOnly )
 {
   ATH_MSG_DEBUG("Registering filter with name '" << name << "' and description '" << description << "'");
 
@@ -89,6 +90,10 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
   ATH_MSG_DEBUG("Declaring a new filter with name '" << name << "' and cutID " << cutID );
   container->push_back(std::move(newCbk));
 
+  if (nominalOnly) {
+    m_nominalOnlyCuts.emplace(cutID);
+  }
+
   return cutID;
 }
 
@@ -98,14 +103,15 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
 CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
                                              const std::string& description,
                                              unsigned int logic,
-                                             const std::string& outputStream ) 
+                                             const std::string& outputStream,
+                                             bool nominalOnly ) 
 {
   ATH_MSG_DEBUG("Registering top filter with name '" << name << "' and description '" << description << "'"
                 << ", logic=" << logic << ", outputStream=" << outputStream << ")");
 
   // Call the registerFilter method and get the correct CutBookkeeper
   // from the returned cutID
-  CutIdentifier cutID = registerFilter(name, description);
+  CutIdentifier cutID = registerFilter(name, description, nominalOnly);
   xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
   if (cbk == nullptr) {
     ATH_MSG_ERROR("registerTopFilter: Could not find CutBookkeeper with cutID " << cutID);
@@ -137,26 +143,55 @@ CutFlowSvc::setFilterDescription( CutIdentifier cutID,
 }
 
 
-
 void
-CutFlowSvc::addEvent( CutIdentifier cutID, double weight)
+CutFlowSvc::addEvent( CutIdentifier cutID,
+                      const std::vector<float>& weights )
 {
-  ATH_MSG_VERBOSE("Adding event with weight " << weight << " to cut " << cutID);
-
-  std::lock_guard<std::recursive_mutex> lock(m_addEventMutex);
-
-  xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
-  if (cbk == nullptr) {
-    ATH_MSG_ERROR("Could not find CutBookkeeper for CutID " << cutID);
+  if (weights.size() != m_containers.size()) {
+    ATH_MSG_ERROR("Inconsistent weights and variation sizes " << weights.size() << " and " << m_containers.size());
     return;
   }
 
-  ATH_MSG_VERBOSE( "addEvent: have cutID " << cutID
-                   << " and CutBookkeeper name " << cbk->name() );
+  for (size_t i = 0; i < m_containers.size(); ++i) {
+    addEvent(cutID, i, weights[i]);
+  }
+}
+
+
+void
+CutFlowSvc::addEvent( CutIdentifier cutID,
+                      double weight )
+{
+  if (m_nominalOnlyCuts.count(cutID) == 1) {
+    addEvent(cutID, 0, weight);
+    return;
+  }
+
+  for (size_t i = 0; i < m_containers.size(); ++i) {
+    addEvent(cutID, i, weight);
+  }
+}
+
+
+
+void
+CutFlowSvc::addEvent( CutIdentifier cutID,
+                      size_t index,
+                      double weight )
+{
+  std::lock_guard<std::recursive_mutex> lock(m_addEventMutex);
+
+  ATH_MSG_VERBOSE("Adding event with weight " << weight << " to cut " << cutID << " for variation " << index);
+
+  xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, index);
+  if (cbk == nullptr) {
+    ATH_MSG_ERROR("Could not find CutBookkeeper for CutID " << cutID << " and variation " << index);
+    return;
+  }
+
   cbk->addNAcceptedEvents(1);
   cbk->addSumOfEventWeights(weight);
   cbk->addSumOfEventWeightsSquared(weight*weight);
-  return;
 }
 
 
@@ -294,6 +329,10 @@ const CutBookkeepersLocalCache& CutFlowSvc::getCutBookkeepers() const
 xAOD::CutBookkeeper* CutFlowSvc::getCutBookkeeper(const CutIdentifier cutID,
                                                   size_t index) const
 {
+  if (index >= m_containers.size()) {
+    return nullptr;
+  }
+
   for (xAOD::CutBookkeeper* cbk : *m_containers.at(index)) {
     if (cbk->uniqueIdentifier() == cutID) {
       return cbk;

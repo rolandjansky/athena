@@ -45,8 +45,10 @@ public:
   /// Register filter in the CutFlowSvc and returns the CutID of the
   /// corresponding EventBookkeeper.
   /// This method should be used by filters that register themselves.
+  /// Systematic variations are optional.
   virtual CutIdentifier registerFilter( const std::string& name,
-                                        const std::string& description ) = 0;
+                                        const std::string& description,
+                                        bool nominalOnly ) = 0;
 
   /// Tells CutFlowSvc that a filter is used directly by an outputStream with
   /// a given logical context. The only foreseen client should the DecisionSvc,
@@ -54,15 +56,22 @@ public:
   virtual CutIdentifier registerTopFilter( const std::string& name,
                                            const std::string& description,
                                            unsigned int logic,
-                                           const std::string& outputStream ) = 0;
+                                           const std::string& outputStream,
+                                           bool nominalOnly ) = 0;
 
   /// Set the description of an existing EventBookkeeper
   virtual void setFilterDescription( CutIdentifier cutID,
                                      const std::string& descr ) = 0;
 
-  /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID,
-  /// using CutIdentifier returned by selfRegisterFilter
-  virtual void addEvent( CutIdentifier cutID, double weight) = 0;
+  /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier
+  /// A vector of weights is provided for all systematic variations
+  virtual void addEvent( CutIdentifier cutID,
+                         const std::vector<float>& weights) = 0;
+
+  /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier
+  /// The same weight is for all systematic variations
+  virtual void addEvent( CutIdentifier cutID,
+                         double weight) = 0;
 
   /// Get number of accepted events for a cut
   virtual uint64_t getNAcceptedEvents( const CutIdentifier cutID ) const = 0;

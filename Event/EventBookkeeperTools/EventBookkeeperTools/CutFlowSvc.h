@@ -69,7 +69,8 @@ public:
   /// corresponding CutBookkeeper.
   /// This method should be used by filters that register themselves.
   virtual CutIdentifier registerFilter(const std::string& name,
-                                       const std::string& description)  override final;
+                                       const std::string& description,
+                                       bool nominalOnly) override final;
 
   /// Tells CutFlowSvc that a filter is used directly by an outputStream with
   /// a given logical context. The only foreseen client should the DecisionSvc,
@@ -77,11 +78,17 @@ public:
   virtual CutIdentifier registerTopFilter(const std::string& name,
                                           const std::string& description,
                                           unsigned int logic,
-                                          const std::string& outputStream) override final;
+                                          const std::string& outputStream,
+                                          bool nominalOnly) override final;
 
   /// Set the description of an existing CutBookkeeper
   virtual void setFilterDescription(CutIdentifier cutID,
                                     const std::string& descr) override final;
+
+  /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID,
+  /// using CutIdentifier returned by selfRegisterFilter
+  virtual void addEvent(CutIdentifier cutID,
+                        const std::vector<float>& weights) override final;
 
   /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID,
   /// using CutIdentifier returned by selfRegisterFilter
@@ -99,6 +106,12 @@ public:
 
 
 private:
+  /// Tells CutFlowSvc to update the weighted event counter of a CutIdentifier cutID
+  /// for a specific index in the cache
+  void addEvent(CutIdentifier cutID,
+                size_t index,
+                double weight);
+
   /// Helper function to determine the processing cycle number from the
   /// input meta-data store
   StatusCode determineCycleNumberFromInput(const std::string& collName);
@@ -130,6 +143,9 @@ private:
 
   /// Mutex to protect adding an event
   mutable std::recursive_mutex m_addEventMutex;
+
+  /// List of nominal-only filters
+  std::unordered_set<CutIdentifier> m_nominalOnlyCuts;
 };
 
 
