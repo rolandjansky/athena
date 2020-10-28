@@ -931,6 +931,12 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
 			     << " the identifier is ");
 	    parentId.show();
 	  }
+
+	  //There is some ambiguity in the channel/sectorId's, so need to explicitly filter 
+	  //out hashIDs outside of the RoI in seeded decoding mode
+	  if(!idVect.empty()){
+	    if(std::find(idVect.begin(), idVect.end(), rpcHashId) == idVect.end()) continue;
+	  }
 	  if ( msgLvl(MSG::DEBUG) ) {	    
 	    ATH_MSG_DEBUG("CM Hit decoded into offline Id " 
 			     << m_idHelperSvc->rpcIdHelper().show_to_string(channelId) 
