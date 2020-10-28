@@ -56,7 +56,7 @@ def defineMenu():
         'EM3', 'EM7', 'EM8VH',
         'EM10VH', 'EM12', 'EM15', 'EM15VH',
         'EM15VHI',
-        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 'EM24VHIM', 'EM30VHI', 
+        'EM18VHI', 'EM20VH', 'EM20VHI', 'EM22VH', 'EM22VHI', 'EM24VHI', 
         # ATR-19437
         # 4 x new EM1
         'eEM7', 'eEM8VH', 'eEM10VH', 'eEM15VH', 
@@ -72,7 +72,7 @@ def defineMenu():
         #--------------------------
 
         # 16 x TAU
-        'HA8', 'HA12', 'HA12IM',  'HA20', 'HA20IM', 'HA25', 'HA25IM', 'HA30', 'HA40', 'HA60',  'HA100',
+        'HA8', 'HA12', 'HA12IM', 'HA20', 'HA20IM', 'HA25IM', 'HA40', 'HA60', 'HA100',
         # ATR-19437
         # 3 x new TAU1
         'eTAU12', 'eTAU12IL', 'eTAU20', 
@@ -123,7 +123,7 @@ def defineMenu():
         #'TE3', 'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40',
         #'TE5', 'TE30', 'TE40', 'TE45', 'TE50', 'TE55', 'TE60', 'TE65',
         #'TE5', 'TE10', 'TE20', 'TE30', 'TE40', 'TE50', 'TE60', 'TE70',
-        'TE5', 'TE10', 'TE15', 'TE20', 'TE25', 'TE30', 'TE40', 'TE50',
+        'TE5', 'TE10', 'TE20', 'TE50',
         #'TE2', 'TE3', 'TE4', 'TE5', 'TE10', 'TE20', 'TE30', 'TE70',
 
         # 8 x XE (for standard XE)
@@ -131,8 +131,8 @@ def defineMenu():
         # 8 x XE (for restricted ETA XE: check ATR-13234 for any further change)
         #'XE10', 'XE20', 'XE25', 'XE30', 'XE65', 'XE75', 'XE150', 'XE300',
 
-        'XE10', 'XE20', 'XE25', 'XE30', 'XE35', 'XE40', 'XE45', 'XE50',
-        'XE55', 'XE60', 'XE65', 'XE70', 'XE75', 'XE80', 'XE150', 'XE300',
+        'XE30', 'XE35', 'XE40', 'XE45', 'XE50',
+        'XE55', 'XE60', 'XE300',
         # ATR-19437
         # 8 x new XE
         'gXERHO20', 'gXERHO30', 'gXERHO35', 'gXERHO40',   'gXERHO45', 'gXERHO50', 'gXEPUFIT20',  'gXEPUFIT50', 
@@ -140,7 +140,7 @@ def defineMenu():
         'jXE50',
         
         # 8 x XS
-        'XS20', 'XS30', 'XS40', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65', 
+        'XS20', 'XS30',
 
 
         #---------------------
@@ -444,10 +444,8 @@ def defineMenu():
         'L1_EM3','L1_EM7','L1_EM12', 'L1_EM8VH',
 #        'L1_EM8I',
         'L1_EM10VH', 'L1_EM15',
-        #ATR-19302
-        'L1_EM30VHI',
         'L1_EM15VHI',
-        'L1_EM24VHIM','L1_EM15VH', 'L1_EM18VHI', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM22VH','L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
+        'L1_EM15VH', 'L1_EM18VHI', 'L1_EM20VH', 'L1_EM20VHI', 'L1_EM22VHI', 'L1_EM22VH','L1_EM24VHI', # see Jira ATR-10334'L1_EM22VHLIL', #'L1_EM50V',
         'L1_EM3_EMPTY', 'L1_EM7_EMPTY', 'L1_EM7_UNPAIRED_ISO', 'L1_EM7_FIRSTEMPTY',
         'L1_EM20VH_FIRSTEMPTY',
         #'L1_EM15_BGRP7',
@@ -490,7 +488,7 @@ def defineMenu():
 
         # single tau
         "L1_TAU12", "L1_TAU12IM",   "L1_TAU20IM",
-        "L1_TAU30","L1_TAU30_EMPTY","L1_TAU30_UNPAIRED_ISO", "L1_TAU40", "L1_TAU60", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
+        "L1_TAU40", "L1_TAU60", "L1_TAU100", "L1_TAU8", "L1_TAU8_EMPTY", 
         "L1_TAU8_UNPAIRED_ISO","L1_TAU8_FIRSTEMPTY",
         'L1_eTAU12', 'L1_eTAU100',
 
@@ -645,7 +643,7 @@ def defineMenu():
 
         # XE
         "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
-        "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80",
+        "L1_XE55", "L1_XE60",
          'L1_XE30', 'L1_XE300',
          'L1_gXERHO50',
          'L1_gXEPUFIT50',
@@ -658,6 +656,10 @@ def defineMenu():
         'L1_EM12_XS20', 'L1_EM15_XS30',
         
         # TE
+        'L1_TE5',
+        'L1_TE10',
+        'L1_TE20',
+        'L1_TE50',
         #"L1_TE3",                                                        
         #                        "L1_TE45",                "L1_TE55",        "L1_TE60",        "L1_TE65",
         #      "L1_TE60", "L1_TE70",
@@ -1053,7 +1055,6 @@ def defineMenu():
         'L1_TAU12' : 45,
         'L1_TAU12IM' : 47,
         'L1_TAU20IM' : 51,
-        'L1_TAU30' : 53,
         'L1_TAU40' : 54,
         'L1_TAU60' : 55,
         'L1_TAU100' : 52,
@@ -1195,8 +1196,6 @@ def defineMenu():
         'L1_XE50' : 147,
         'L1_XE55' : 148,
         'L1_XE60' : 149,
-        'L1_XE70' : 150,
-        'L1_XE80' : 151,
         'L1_gXERHO20' : 177,
         'L1_gXERHO50' : 30,
         'L1_gXEPUFIT20' : 174,
@@ -1205,6 +1204,11 @@ def defineMenu():
         'L1_jXE50' : 219,
         'L1_EM12_XS20' : 154,
         'L1_EM15_XS30' : 155,
+
+        'L1_TE5' : 180,
+        'L1_TE10' : 72,
+        'L1_TE20' : 137,
+        'L1_TE50' : 211,
 
 #        'L1_MBTS_1_VTE2' : 160,
         'L1_BCM_Wide_UNPAIRED_NONISO' : 161,
@@ -1414,7 +1418,6 @@ def defineMenu():
         'L1_EM7_UNPAIRED_ISO': 389,
         'L1_TAU8_FIRSTEMPTY': 391,
         'L1_EM24VHI'           : 392,
-        "L1_EM24VHIM"    :402,
         "L1_EM15VHI"    :423,
         "L1_2EM15VHI"    :342,
         "L1_MU6_3MU4"  :403,
@@ -1455,8 +1458,6 @@ def defineMenu():
         
         'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
         
-        #ATR-19302
-        'L1_EM30VHI' : 188,
         #ATR-19355
         'L1_BPH-0M10-3MU4' : 189,
 
