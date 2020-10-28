@@ -17,6 +17,7 @@
 #include "IRoIsUnpackingTool.h"
 #include "IPrescalingTool.h"
 #include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigConfxAOD/IKeyWriterTool.h"
 
 /*
   @brief an algorithm used to unpack the RoIB result and provide CTP bits, active chains and RoIs
@@ -77,6 +78,9 @@ private:
 
   ToolHandle<IPrescalingTool> m_prescaler{this, "prescaler", "PrescalingTool/PrescalingTool", 
       "Prescaling tool"};
+
+  ToolHandle<TrigConf::IKeyWriterTool> m_keyWriterTool{this, "KeyWriterTool", "", 
+      "Writes the keys used when the trigger executes on an event"}; 
 
 };
 

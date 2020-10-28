@@ -427,6 +427,7 @@ def triggerPOOLOutputCfg(flags, edmSet):
     menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
     menuwriter.IsHLTJSONConfig = True
     menuwriter.IsL1JSONConfig = True
+    menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
 
     # Schedule the insertion of L1 prescales into the conditions store
@@ -440,7 +441,7 @@ def triggerPOOLOutputCfg(flags, edmSet):
     # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
     streamAlg.ExtraInputs += [
         ("xAOD::TrigDecision", decmaker.TrigDecisionKey),
-        ("xAOD::TrigConfKeys", menuwriter.EventObjectName)]
+        ("xAOD::TrigConfKeys", menuwriter.KeyWriterTool.ConfKeys)]
 
     # Produce xAOD L1 RoIs from RoIBResult
     from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg
