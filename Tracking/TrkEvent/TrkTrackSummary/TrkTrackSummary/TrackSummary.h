@@ -124,9 +124,10 @@ enum SummaryType {
         eProbabilityToT_res                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].   
         eProbabilityBrem_res                = 50, //!< Electron probability from Brem fitting (DNA) [float]. 
         pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
+        eProbabilityNN_res                  = 73, //!< Electron probability from NN [float].
 
  // -- numbers...
-        numberOfTrackSummaryTypes = 73
+        numberOfTrackSummaryTypes = 74
     };
 
 // Troels.Petersen@cern.ch:
@@ -135,11 +136,12 @@ enum SummaryType {
         eProbabilityHT              = 1,       //!< Electron probability from High Threshold (HT) information.
         eProbabilityToT             = 2,       //!< Electron probability from Time-Over-Threshold (ToT) information.
         eProbabilityBrem            = 3,       //!< Electron probability from Brem fitting (DNA).
-        numberOfeProbabilityTypes   = 4        
+        eProbabilityNN              = 4,       //!< Electron probability from NN.
+        numberOfeProbabilityTypes   = 5        
     }; 
   // the eProbability vector is abused to store : 
-  // [4] TRT local occupancy
-  // [5] TRT dE/dx
+  // [5] TRT local occupancy
+  // [6] TRT dE/dx
 
 /** enumerates the various detector types currently accessible from the isHit() method.
 \todo work out how to add muons to this*/

@@ -82,6 +82,11 @@ StatusCode TRTPIDNNCondAlg::execute()
     return StatusCode::FAILURE;
   }
 
+  ATH_MSG_INFO("Recorded InDet::TRTPIDNN " << writeHandle.key() 
+		  << " with EventRange " << rangeW
+		  << " into Conditions Store");
+
+
   return StatusCode::SUCCESS;
 }
 
