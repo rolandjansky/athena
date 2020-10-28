@@ -50,6 +50,7 @@ class TauProcessorAlg: public AthReentrantAlgorithm
        
   Gaudi::Property<double> m_maxEta {this, "MaxEta", 2.5, "maximum eta for jet seed"};
   Gaudi::Property<double> m_minPt {this, "MinPt", 10 * Gaudi::Units::GeV, "minimum pT for jet seed"};
+  Gaudi::Property<int> m_maxNTracks {this, "MaxNTracks", -1, "maximum number of classifiedCharged tracks"};
 
   const ToolHandleArray<ITauToolBase> m_tools {this, "Tools", {}, "Tools processing taus"};
   const ToolHandle<ICaloCellMakerTool> m_cellMakerTool {this, "CellMakerTool", "", "Tool to sort the CaloCellContainer"};
