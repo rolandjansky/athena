@@ -231,7 +231,7 @@ MuonChainParts_Default = {
 #==========================================================
 # Bphysics
 #==========================================================
-AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau']
+AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau','bJpsimumul2io']
 
 # ---- Bphysics Dictionary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)
