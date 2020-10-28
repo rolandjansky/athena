@@ -2,14 +2,11 @@
 
 from __future__ import print_function
 
-from ROOT import *
 import sys
 import time
-import os
-import struct 
-from array import *
+import struct
 
-from PyCool import cool, coral
+from PyCool import cool
 from optparse import OptionParser
 
 class HVRefUpdator:
@@ -57,7 +54,6 @@ class HVRefUpdator:
 
          folder_name = '/TRIGGER/L1Calo/V1/Results/HVCorrections'
          folder=db.getFolder(folder_name)
-         ch = folder.listChannels()
        
          startUtime = int(time.time())
          endUtime = int(time.time())
@@ -117,7 +113,6 @@ class HVRefUpdator:
 
          folder_name = '/TRIGGER/L1Calo/V1/Results/RxLayers'
          folder=db.getFolder(folder_name)
-         ch = folder.listChannels()
        
          startUtime = int(time.time())
          endUtime = int(time.time())
@@ -171,13 +166,13 @@ class HVRefUpdator:
          
          for iii in self.forced_HV.keys():
 
-           isNominal = false
+           isNominal = False
            if (self.forced_HV[iii][0] == 0 or  self.forced_HV[iii][0] == 1.) and \
               (self.forced_HV[iii][1] == 0 or  self.forced_HV[iii][1] == 1.) and \
               (self.forced_HV[iii][2] == 0 or  self.forced_HV[iii][2] == 1.) and \
               (self.forced_HV[iii][3] == 0 or  self.forced_HV[iii][3] == 1.) :
 
-             isNominal = true
+             isNominal = True
  
            if isNominal:                                # if the channel is on nominal HV, doesn't go to the file
              del self.reference_HV[iii]
