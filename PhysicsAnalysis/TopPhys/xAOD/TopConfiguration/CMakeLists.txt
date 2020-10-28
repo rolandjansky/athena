@@ -1,7 +1,5 @@
-# Auto-generated on: 2017-03-08 14:47:35.608258
-
 # Declare the name of this package:
-atlas_subdir( TopConfiguration None )
+atlas_subdir( TopConfiguration )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC

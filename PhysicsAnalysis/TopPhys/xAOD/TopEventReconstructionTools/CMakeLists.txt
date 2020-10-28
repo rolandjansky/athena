@@ -1,7 +1,5 @@
-# Auto-generated on: 2017-03-08 14:47:36.489231
-
 # Declare the name of this package:
-atlas_subdir( TopEventReconstructionTools None )
+atlas_subdir( TopEventReconstructionTools )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC

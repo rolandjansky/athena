@@ -1,7 +1,5 @@
-# Auto-generated on: 2017-03-08 14:47:34.346308
-
 # Declare the name of this package:
-atlas_subdir( TopCPTools None )
+atlas_subdir( TopCPTools )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
@@ -58,9 +56,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-
-# Custom definitions needed for this package:
-add_definitions( -g -std=c++14 )
 
 # Build a library that other components can link against:
 atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc

@@ -1,7 +1,5 @@
-# Auto-generated on: 2017-03-08 14:47:35.652165
-
 # Declare the name of this package:
-atlas_subdir( TopCorrections None )
+atlas_subdir( TopCorrections )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
@@ -25,9 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Lhapdf )
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-
-# Custom definitions needed for this package:
-add_definitions( -g -std=c++14 )
 
 # Add a ROOT dictionary
 atlas_add_root_dictionary( TopCorrections _cintDictSource

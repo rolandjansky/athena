@@ -1,7 +1,5 @@
-# Auto-generated on: 2017-03-08 14:47:37.990954
-
 # Declare the name of this package:
-atlas_subdir( TopObjectSelectionTools None )
+atlas_subdir( TopObjectSelectionTools )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
@@ -39,9 +37,6 @@ atlas_depends_on_subdirs( PUBLIC
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-
-# Custom definitions needed for this package:
-add_definitions( -g )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopObjectSelectionTools _cintDictSource

@@ -1,7 +1,5 @@
-# Auto-generated on: 2017-03-09 17:44:33.125987
-
 # Declare the name of this package:
-atlas_subdir( TopDataPreparation None )
+atlas_subdir( TopDataPreparation )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
