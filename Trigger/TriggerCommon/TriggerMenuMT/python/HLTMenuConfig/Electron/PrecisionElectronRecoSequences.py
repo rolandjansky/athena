@@ -107,4 +107,10 @@ def precisionElectronRecoSequence(RoIs):
     PrecisionElectronRecoMonAlgo.ElectronKey = trigTopoEgammaAlgo.ElectronOutputName
     thesequence += PrecisionElectronRecoMonAlgo
 
+    #online monitoring for TrigElectronSuperClusterBuilder
+    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronSuperClusterMonitorCfg
+    PrecisionElectronSuperClusterMonAlgo = PrecisionElectronSuperClusterMonitorCfg()
+    PrecisionElectronSuperClusterMonAlgo.InputEgammaRecContainerName = trigElectronAlgo.SuperElectronRecCollectionName
+    thesequence += PrecisionElectronSuperClusterMonAlgo
+
     return (thesequence, electronPrecisionTrack, collectionOut)

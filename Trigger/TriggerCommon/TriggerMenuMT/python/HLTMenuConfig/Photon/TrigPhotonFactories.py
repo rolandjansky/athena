@@ -84,3 +84,18 @@ def PrecisionPhotonTopoMonitorCfg(name = 'PrecisionPhotonTopoEgammaBuilder'):
             )
 
     return PrecisionPhotonTopoMonitor()
+
+def PrecisionPhotonSuperClusterMonitorCfg(name = 'PrecisionPhotonSuperClusterBuilder'):
+    
+    from TrigEgammaMonitoring import TrigEgammaMonitoringConf
+    from TrigEgammaMonitoring.egammaMonitorPrecisionConfig import egammaMonitorSuperClusterCfg
+    monTool = egammaMonitorSuperClusterCfg(name)
+
+    PrecisionPhotonSuperClusterMonitor = AlgFactory( TrigEgammaMonitoringConf.egammaMonitorSuperClusterAlgorithm,
+            name = name,
+            doAdd = False,
+            InputEgammaRecContainerName = TrigEgammaKeys.EgammaRecKey,
+            MonTool = monTool
+            )
+
+    return PrecisionPhotonSuperClusterMonitor()
