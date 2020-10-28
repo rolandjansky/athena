@@ -24,6 +24,7 @@ AFPSiLayerMonitor::AFPSiLayerMonitor(const std::string& type,
   m_hitMap(nullptr),
   m_hitMultiplicity(nullptr),
   m_timeOverThreshold(nullptr),
+  m_hitsInEventHotSpot(0),
   m_hitMultiplicityHotSpot(nullptr)
 {
   declareInterface<IAFPSiLayerMonitor>(this);
