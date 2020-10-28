@@ -192,10 +192,6 @@ public:
     virtual SiCellId connectedCell(const SiReadoutCellId &readoutId,
                                    int number) const = 0;
 
-    /** If cell is ganged return the id of the other cell which shares the readout
-        for this cell, otherwise return an invalid id. */
-    virtual SiCellId gangedCell(const SiCellId &cellId) const = 0;
-
     /** diode id -> readout id
         NB assignment of a SiReadoutCellId to a SiCellId is allowed so you are can
         pass SiReadoutCellId variables to functions expecting a SiCellId.  */
