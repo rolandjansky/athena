@@ -235,12 +235,11 @@ StatusCode DexterTool::initialize(){
   try {
     m_input_builder.reset(new DexterInputBuilder(config_file, m_offsets));
 
-    // get min and max jet pt. The unit is GeV now. Need to be consistent with ATLAS convention in the future
+    // get min jet pt. 
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(config_file, pt);
     ATH_MSG_DEBUG("Dexter valide jet pT range:");
     m_jetPtMin = pt.get<float>("pTCutLow");
-    m_jetPtMax = pt.get<float>("pTCutHigh");
     
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("Config file is garbage: " << err.what());
@@ -345,8 +344,8 @@ Root::TAccept& DexterTool::tag(const xAOD::Jet& jet) const{
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
     m_accept.setCutResult("ValidEtaRange", false);
   }
-  if (jet.pt()/1000.0 < m_jetPtMin) {
-    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1000.0);
+  if (jet.pt() < m_jetPtMin) {
+    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin/1000.0 << "). Jet pT = " << jet.pt()/1000.0);
     m_accept.setCutResult("ValidPtRangeLow", false);
   }
 
