@@ -39,6 +39,7 @@ namespace top {
     m_useRCJets(false),
     m_useVarRCJets(false),
     m_useJetGhostTrack(false),
+    m_useLargeRJetGhostTrack(false),
     m_useTracks(false),
     m_useTruthParticles(false),
     m_useTruthElectrons(false),
@@ -250,6 +251,8 @@ namespace top {
     m_jetEtacut(2.5),
     m_jetPtGhostTracks(30000.),
     m_jetEtaGhostTracks(2.5),
+    m_largeRjetPtGhostTracks(150000),
+    m_largeRjetEtaGhostTracks(2.0),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
     m_jetUncertainties_QGHistPatterns(),
@@ -271,6 +274,10 @@ namespace top {
     m_ghostTrackspT(500.),
     m_ghostTracksVertexAssociation("nominal"),
     m_ghostTracksQuality("TightPrimary"),
+    
+    m_ghostTrackspTLargeR(500.),
+    m_ghostTracksVertexAssociationLargeR("nominal"),
+    m_ghostTracksQualityLargeR("TightPrimary"),
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
@@ -1322,6 +1329,8 @@ namespace top {
         ATH_MSG_WARNING("jetPtGhostTracks set to " << m_jetPtGhostTracks <<" to ensure that all the selected jets have the ghost tracks associated");
     }
     this->jetEtaGhostTracks(std::stof(settings->value("JetEtaGhostTracks")));
+    this->largeRjetEtaGhostTracks(std::stof(settings->value("LargeRJetEtaGhostTracks")));
+    this->largeRjetPtGhostTracks(std::stof(settings->value("LargeRJetPtGhostTracks")));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
@@ -1377,6 +1386,10 @@ namespace top {
     this->ghostTrackspT(std::stof(settings->value("GhostTrackspT")));
     this->ghostTracksVertexAssociation(settings->value("GhostTracksVertexAssociation"));
     this->ghostTracksQuality(settings->value("GhostTracksQuality"));
+    
+    this->ghostTrackspTLargeR(std::stof(settings->value("GhostTrackspTLargeR")));
+    this->ghostTracksVertexAssociationLargeR(settings->value("GhostTracksVertexAssociationLargeR"));
+    this->ghostTracksQualityLargeR(settings->value("GhostTracksQualityLargeR"));
 
     this->trackPtcut(std::stof(settings->value("TrackPt")));
     this->trackEtacut(std::stof(settings->value("TrackEta")));
@@ -2079,7 +2092,11 @@ namespace top {
   void TopConfig::decoKeyJetGhostTrack(const std::string& key) {
     if (!m_configFixed) {
       m_useJetGhostTrack = false;
-      if (key != "None") m_useJetGhostTrack = true;
+      if (key != "None") 
+      {
+          m_useJetGhostTrack = true;
+          m_useLargeRJetGhostTrack = true;
+      }
 
       m_decoKeyJetGhostTrack = key;
     }
@@ -2088,7 +2105,7 @@ namespace top {
   // setting the run periods for ghost track
   // even if configuration is fixed - could be changed later
   void TopConfig::runPeriodJetGhostTrack(const std::vector<std::uint32_t>& vect) {
-    if (m_useJetGhostTrack == true) m_jetGhostTrackRunPeriods = vect;
+    if (m_useJetGhostTrack == true || m_useLargeRJetGhostTrack == true) m_jetGhostTrackRunPeriods = vect;
   }
 
   // setting the run periods for tracks                                                                                                                                                             
@@ -2827,7 +2844,7 @@ namespace top {
         m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
       }
     }
-    if (m_useJetGhostTrack) {
+    if (m_useJetGhostTrack || m_useLargeRJetGhostTrack) {
       for (Itr i = m_systMapJetGhostTrack->begin(); i != m_systMapJetGhostTrack->end(); ++i) {
         m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
       }

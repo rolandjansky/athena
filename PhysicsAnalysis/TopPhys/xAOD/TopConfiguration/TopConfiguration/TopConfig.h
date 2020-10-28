@@ -88,6 +88,7 @@ namespace top {
     inline bool useTrackJets()  const {return m_useTrackJets;}
     inline bool useTracks()  const {return m_useTracks;}
     inline bool useJetGhostTrack()  const {return m_useJetGhostTrack;}
+    inline bool useLargeRJetGhostTrack()  const {return m_useLargeRJetGhostTrack;}
     inline bool useRCJets()     const {return m_useRCJets;}
     inline bool useVarRCJets()  const {return m_useVarRCJets;}
 
@@ -1102,6 +1103,36 @@ namespace top {
         m_ghostTracksQuality = ghostTracksQuality;
      }
     }
+    
+    inline virtual void largeRjetPtGhostTracks(const float pt) {
+      if (!m_configFixed) {
+        m_largeRjetPtGhostTracks = pt;
+      }
+    }
+    
+    inline virtual void largeRjetEtaGhostTracks(const float eta) {
+      if (!m_configFixed) {
+        m_largeRjetEtaGhostTracks = eta;
+      }
+    }
+    
+    inline virtual void ghostTrackspTLargeR(const float pt) {
+      if (!m_configFixed) {
+        m_ghostTrackspTLargeR = pt;
+      }
+    }
+    
+    inline virtual void ghostTracksVertexAssociationLargeR(const std::string& vertexassociation) {
+      if (!m_configFixed) {
+        m_ghostTracksVertexAssociationLargeR = vertexassociation;
+      }
+    }
+    
+    inline virtual void ghostTracksQualityLargeR(const std::string& ghostTracksQuality) {
+     if (!m_configFixed) {
+        m_ghostTracksQualityLargeR = ghostTracksQuality;
+     }
+    }
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
@@ -1110,8 +1141,15 @@ namespace top {
     inline virtual const std::string& ghostTracksVertexAssociation()  const {return m_ghostTracksVertexAssociation;}
     inline virtual const std::string& ghostTracksQuality()  const {return m_ghostTracksQuality;}
     
+    inline virtual float ghostTrackspTLargeR()  const {return m_ghostTrackspTLargeR;}
+    inline virtual const std::string& ghostTracksVertexAssociationLargeR()  const {return m_ghostTracksVertexAssociationLargeR;}
+    inline virtual const std::string& ghostTracksQualityLargeR()  const {return m_ghostTracksQualityLargeR;}
+    
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
     inline virtual float jetEtaGhostTracks()  const {return m_jetEtaGhostTracks;}
+    
+    inline virtual float largeRjetEtaGhostTracks()  const {return m_largeRjetEtaGhostTracks;}
+    inline virtual float largeRjetPtGhostTracks()  const {return m_largeRjetPtGhostTracks;}
 
 
     inline virtual void largeRJetPtcut(const float pt) {
@@ -2011,6 +2049,7 @@ namespace top {
     // available. However, we want the systematics to be executed automatically
     // whenever the user has "configured" ghost tracks.
     bool m_useJetGhostTrack;
+    bool m_useLargeRJetGhostTrack;
 
     bool m_useTracks;
 
@@ -2275,6 +2314,8 @@ namespace top {
     float m_jetEtacut; // jet object selection (abs) eta cut
     float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
     float m_jetEtaGhostTracks; // jet eta threshold for ghost track systematic variations calculation
+    float m_largeRjetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
+    float m_largeRjetEtaGhostTracks; // jet eta threshold for ghost track systematic variations calculation
     std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
     std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
@@ -2297,6 +2338,10 @@ namespace top {
     float m_ghostTrackspT;
     std::string m_ghostTracksVertexAssociation;
     std::string m_ghostTracksQuality;
+    
+    float m_ghostTrackspTLargeR;
+    std::string m_ghostTracksVertexAssociationLargeR;
+    std::string m_ghostTracksQualityLargeR;
 
     // Large R jet configuration
     float m_largeRJetPtcut; // large R jet object selection pT cut

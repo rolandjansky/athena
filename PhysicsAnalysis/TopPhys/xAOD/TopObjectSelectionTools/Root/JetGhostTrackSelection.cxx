@@ -18,15 +18,20 @@ using namespace TopObjectSelectionTools;
 
 namespace top {
 
-  JetGhostTrackSelection::JetGhostTrackSelection(const double ptcut, const double etamax, const std::string vertexassociation, const double ptcut_jet, const double etacut_jet ) :
+  JetGhostTrackSelection::JetGhostTrackSelection(const double ptcut, const double etamax, const std::string vertexassociation, const double ptcut_jet, const double etacut_jet, bool smallJet ) :
     m_ptcut(ptcut),
     m_etamax(etamax),
     m_ptcut_jet(ptcut_jet),
     m_etamax_jet(etacut_jet),
-    m_vertexassociation(vertexassociation),
-    m_trkseltool("top::GhostTrackCPTools::TrkSelTool")
+    m_vertexassociation(vertexassociation)
   {
 
+    if (smallJet) {
+        m_trkseltool=ToolHandle<InDet::InDetTrackSelectionTool>("top::GhostTrackCPTools::TrkSelTool");
+    }
+    else     
+        m_trkseltool=ToolHandle<InDet::InDetTrackSelectionTool>("top::GhostTrackCPTools::TrkSelToolLargeR");
+       
     top::check(m_trkseltool.retrieve(), "Failed to retrieve InDetTrackSelectionTool");
     
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/TrackingCPRecsRun2Final
@@ -37,6 +42,7 @@ namespace top {
     else if(m_vertexassociation == "tight"){
         m_d0=0.5;
         m_z0sintheta=0.5;
+
     }
     else {
         ATH_MSG_INFO("Not applying any vertex association for GA tracks");

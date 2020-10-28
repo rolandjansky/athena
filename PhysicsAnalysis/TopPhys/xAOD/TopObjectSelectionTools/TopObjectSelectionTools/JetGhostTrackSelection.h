@@ -15,7 +15,7 @@
 namespace top {
   class JetGhostTrackSelection: public JetGhostTrackSelectionBase {
   public:
-    JetGhostTrackSelection(const double ptcut, const double etamax, const std::string vertexassociation, const double m_ptcut_jet, const double m_etamax_jet );
+    JetGhostTrackSelection(const double ptcut, const double etamax, const std::string vertexassociation, const double m_ptcut_jet, const double m_etamax_jet, bool smallJet=true);
     ~JetGhostTrackSelection();
     virtual bool JetConsideredForGhostTrackSelection(double pt, double eta) const override;
     virtual bool passSelection(const xAOD::TrackParticle&, const xAOD::Vertex&) const override;
