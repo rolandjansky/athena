@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
