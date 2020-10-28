@@ -37,6 +37,9 @@ void VMM_Shaper::initialize() {
     // scale factor for charge taking into account the mm ion flow time of ~150ns
     // if the peaking time is lower then that, only a fration of the total charge is integrated
     m_peakTimeChargeScaling = (m_peakTime < mmIonFlowTime ? 1.0*m_peakTime/mmIonFlowTime : 1.0);
+    
+    // preCalculate factor to avoid recalculating for each electron
+    m_preCalculationVMMShaper = chargeScaleFactor*m_peakTimeChargeScaling*std::pow(m_a, 3)*m_pole0*m_pole1_square;
 }
 
 double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time) const{
@@ -46,7 +49,7 @@ double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const 
             double t = (time-electronsTime.at(i_electron))*(10^-9);
             // now follows the vmm shaper response function provided by G. Iakovidis
             // It is described in section 7.1.3 of https://cds.cern.ch/record/1955475
-            double st = effectiveCharge.at(i_electron)*chargeScaleFactor*m_peakTimeChargeScaling*std::pow(m_a, 3)*m_pole0*m_pole1_square*((K0*std::exp(-t*m_pole0))+(2.*m_k1_abs*std::exp(-t*m_re_pole1)*std::cos(-t*m_im_pole1+m_argK1)));
+            double st = effectiveCharge.at(i_electron)*m_preCalculationVMMShaper*((K0*std::exp(-t*m_pole0))+(2.*m_k1_abs*std::exp(-t*m_re_pole1)*std::cos(-t*m_im_pole1+m_argK1)));
             response += st;
     }
     return response;

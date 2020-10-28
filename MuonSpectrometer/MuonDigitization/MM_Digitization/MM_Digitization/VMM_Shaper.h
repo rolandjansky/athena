@@ -27,6 +27,7 @@ class VMM_Shaper{
      
      double m_timeStep;
 
+     double m_preCalculationVMMShaper; 
      // shaper parameters
      double m_a, m_pole0, m_re_pole1, m_im_pole1, m_pole1_square, m_k1_abs, m_argK1;
      int m_nBins;
