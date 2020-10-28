@@ -51,7 +51,6 @@ StatusCode TauRunnerAlg::initialize() {
 
     ATH_CHECK( m_tauOutputContainer.initialize() );
     ATH_CHECK( m_neutralPFOOutputContainer.initialize() );
-    ATH_CHECK( m_pi0ClusterOutputContainer.initialize() );
     ATH_CHECK( m_hadronicPFOOutputContainer.initialize() );
     ATH_CHECK( m_vertexOutputContainer.initialize() );
     ATH_CHECK( m_chargedPFOOutputContainer.initialize() );
@@ -119,11 +118,6 @@ StatusCode TauRunnerAlg::execute() {
   ATH_CHECK(hadronicPFOHandle.record(std::make_unique<xAOD::PFOContainer>(), std::make_unique<xAOD::PFOAuxContainer>()));
   xAOD::PFOContainer* hadronicClusterPFOContainer = hadronicPFOHandle.ptr();
 
-  // write pi0 calo clusters
-  SG::WriteHandle<xAOD::CaloClusterContainer> pi0CaloClusHandle( m_pi0ClusterOutputContainer );
-  ATH_CHECK(pi0CaloClusHandle.record(std::make_unique<xAOD::CaloClusterContainer>(), std::make_unique<xAOD::CaloClusterAuxContainer>()));
-  xAOD::CaloClusterContainer* pi0CaloClusterContainer = pi0CaloClusHandle.ptr();
-
   // write secondary vertices
   SG::WriteHandle<xAOD::VertexContainer> vertOutHandle( m_vertexOutputContainer );
   ATH_CHECK(vertOutHandle.record(std::make_unique<xAOD::VertexContainer>(), std::make_unique<xAOD::VertexAuxContainer>()));
@@ -145,7 +139,7 @@ StatusCode TauRunnerAlg::execute() {
     ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << pi0ClusterInHandle.key());
     return StatusCode::FAILURE;
   }
-  const xAOD::CaloClusterContainer * pPi0ClusterContainer = pi0ClusterInHandle.cptr();
+  const xAOD::CaloClusterContainer * pi0ClusterContainer = pi0ClusterInHandle.cptr();
   
   // Read in temporary tau jets
   SG::ReadHandle<xAOD::TauJetContainer> tauInputHandle(m_tauInputContainer);
@@ -176,7 +170,7 @@ StatusCode TauRunnerAlg::execute() {
       for (ToolHandle<ITauToolBase>& tool : m_tools) {
 	ATH_MSG_DEBUG("RunnerAlg Invoking tool " << tool->name());
 	if ( tool->type() == "TauPi0ClusterCreator"){
-	  sc = tool->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0CaloClusterContainer, *pPi0ClusterContainer);
+	  sc = tool->executePi0ClusterCreator(*pTau, *neutralPFOContainer, *hadronicClusterPFOContainer, *pi0ClusterContainer);
 	}
 	else if ( tool->type() == "TauVertexVariables"){
 	  sc = tool->executeVertexVariables(*pTau, *pSecVtxContainer);

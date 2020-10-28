@@ -34,7 +34,6 @@ class TauRecRunConfigured ( Configured ) :
                                                   Key_Pi0ClusterInputContainer="TauPi0Clusters",
                                                   Key_tauOutputContainer="TauJets",
                                                   Key_neutralPFOOutputContainer="TauNeutralParticleFlowObjects",
-                                                  Key_pi0ClusterOutputContainer="TauSelectedPi0Clusters",
                                                   Key_hadronicPFOOutputContainer="TauHadronicParticleFlowObjects",
                                                   Key_vertexOutputContainer = "TauSecondaryVertices",
                                                   Key_chargedPFOOutputContainer = "TauChargedParticleFlowObjects",

@@ -176,7 +176,6 @@ StatusCode TauRecToolBase::executeShotFinder(xAOD::TauJet& /*pTau*/, xAOD::CaloC
 
 StatusCode TauRecToolBase::executePi0ClusterCreator(xAOD::TauJet& /*pTau*/, xAOD::PFOContainer& /*neutralPFOContainer*/, 
 					      xAOD::PFOContainer& /*hadronicPFOContainer*/, 
-					      xAOD::CaloClusterContainer& /*caloClusterContainer*/, 
 					      const xAOD::CaloClusterContainer& /*pCaloClusterContainer*/ ) const {
   ATH_MSG_ERROR("function not implemented");
   return StatusCode::FAILURE;
