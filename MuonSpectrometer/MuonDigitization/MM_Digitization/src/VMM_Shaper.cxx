@@ -41,7 +41,7 @@ void VMM_Shaper::initialize() {
     m_peakTimeChargeScaling = (m_peakTime < mmIonFlowTime ? 1.0*m_peakTime/mmIonFlowTime : 1.0);
 }
 
-double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time) {
+double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time) const{
     double response = 0;
     for (unsigned int i_electron = 0; i_electron < effectiveCharge.size(); i_electron++) {
             if (time < electronsTime.at(i_electron)) continue;
@@ -54,7 +54,7 @@ double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const 
     return response;
 }
 
-void VMM_Shaper::vmmPeakResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) {
+void VMM_Shaper::vmmPeakResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) const{
     double t_peak = findPeak(effectiveCharge, electronsTime, electronicsThreshold);
 
     if (t_peak == -9999 ) return;  // no peak found
@@ -64,7 +64,7 @@ void VMM_Shaper::vmmPeakResponse(const std::vector<float> &effectiveCharge, cons
 }
 
 
-void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) {
+void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) const{
 
     double startTime = m_lowerTimeWindow;
     double minElectronTime = 9999; // find minimum of electrons times
@@ -89,7 +89,7 @@ void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge,
 }
 
 
-double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold){
+double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const{
     double startTime = m_lowerTimeWindow;
     double minElectronTime = 9999; // find minimum of electrons times
     for(float t:electronsTime){if(t < minElectronTime){minElectronTime = t;}} //  find minimum of electrons time
@@ -137,7 +137,7 @@ double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std
 }
 
 
-bool VMM_Shaper::hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) {
+bool VMM_Shaper::hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const{
     double startTime = m_lowerTimeWindow;
     double minElectronTime = 9999; // find minimum of electrons times
     for(float t:electronsTime){if(t < minElectronTime){minElectronTime = t;}} //  find minimum of electrons time
