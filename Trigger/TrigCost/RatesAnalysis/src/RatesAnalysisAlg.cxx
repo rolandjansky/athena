@@ -9,12 +9,12 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TrigConfL1Data/BunchGroupSet.h"
-
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
 
 #include <sstream>
+
 
 RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAnalysisAlgorithm( name, pSvcLocator ),
@@ -236,7 +236,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
     // Get the prescale, express prescale and lower prescale. Note these prescales are from SUPPLIED JSON. 
     double prescale = 1., expressPrescale = -1., lowerPrescale = 1.;
     if (m_prescalesJSON.size() != 0) {
-      if (m_prescalesJSON[trigger] == 0) {
+      if (m_prescalesJSON.value().count(trigger) == 0) {
         ATH_MSG_WARNING("Unable to find " << trigger << " in supplied JSON. DISABLING." );
         prescale = 0.;
       } else {
@@ -244,7 +244,7 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
 	//expressPrescale = m_prescalesJSON.at( trigger ).m_expressPrescale;
       }
       if (isHLT) {
-        if (m_prescalesJSON[lowerName] == 0) {
+        if (m_prescalesJSON.value().count(lowerName) == 0) {
           ATH_MSG_WARNING("Unable to find " << trigger << "'s seed, " << lowerName << ", in supplied JSON. DISABLING." );
           lowerPrescale = 0.;
         } else {
@@ -708,19 +708,10 @@ void RatesAnalysisAlg::writeMetadata() {
   prescales.reserve(m_triggers.size());
   for (const auto& trigger : m_triggers) {
     triggers.push_back(trigger.first);
-    lowers.push_back( m_lowerTrigger[trigger.first] );
+    lowers.push_back(trigger.second->getSeedName());
     prescales.push_back(trigger.second->getPrescale() );
   }
 
-  //for (const auto& entry : m_triggers) {
-  //triggers.push_back();
-  // lowers.push_back( m_lowerTrigger[] );
-  //prescales.push_back( ->getPrescale() );
-    //triggers.push_back( entry.first );
-    //lowers.push_back( m_lowerTrigger[entry.first] );
-    
-    //prescales.push_back( entry.second->getPrescale() );
-  //}
   m_metadataTree->Branch("triggers", &triggers);
   m_metadataTree->Branch("lowers", &lowers);
   m_metadataTree->Branch("prescales", &prescales);
