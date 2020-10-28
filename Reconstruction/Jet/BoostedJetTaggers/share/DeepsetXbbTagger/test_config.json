@@ -31,6 +31,7 @@
         ] 
     },
     "sexctx": {
+        "fliptag_mass_offset": 13.77075356,
         "node_name": "node_1",
         "maximum_number": 12,
         "variables":[

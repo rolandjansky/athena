@@ -75,6 +75,7 @@ namespace DeepsetXbbTagger {
     typedef std::vector<ElementLink<xAOD::IParticleContainer> > ParticleLinks;
     SG::AuxElement::ConstAccessor<ParticleLinks> m_acc_subjets;
     double m_subjet_pt_threshold;
+    float m_sv_fliptag_mass_offset;
     std::string m_node_name;
     std::string m_tracks_node_name;
     std::string m_secvtx_node_name;
@@ -168,6 +169,9 @@ StatusCode DexterTool::initialize(){
   ATH_MSG_INFO("Initializing Dexter tool");
 
   // check if run in negative-tag
+  // TrksFlip: Reverse the sign of track IP
+  // NegTrksFlip: Reverse the sign of track IP and ONLY use  tracks with negative d0
+  // SVMass: Reflect the log secvtx mass across the light-jet log secvtx mass peak as axis  
   if(!m_negativeTagMode.empty()) {
     if(m_negativeTagMode == "TrksFlip" || m_negativeTagMode == "SVMassTrksFlip" || m_negativeTagMode == "NegTrksFlip" || m_negativeTagMode == "SVMassNegTrksFlip") {
       ATH_MSG_INFO("Dexter tool run in Negative-tag mode: " + m_negativeTagMode);
@@ -340,7 +344,7 @@ Root::TAccept& DexterTool::tag(const xAOD::Jet& jet) const{
   m_accept.setCutResult( "ValidEtaRange"   , true);
 
   // check basic kinematic selection
-  if (std::fabs(jet.eta()) > m_jetEtaMax) {
+  if (std::abs(jet.eta()) > m_jetEtaMax) {
     ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
     m_accept.setCutResult("ValidEtaRange", false);
   }
@@ -438,6 +442,7 @@ namespace DeepsetXbbTagger {
 
     auto sjets = pt.get<std::string>("subjet.collection");
     m_subjet_pt_threshold = pt.get<double>("subjet.pt_threshold");
+    m_sv_fliptag_mass_offset = pt.get<float>("sexctx.fliptag_mass_offset");
     m_acc_subjets = SG::AuxElement::ConstAccessor<ParticleLinks>(sjets);
 
     m_tracks_node_name = pt.get<std::string>("track.node_name");
@@ -675,7 +680,7 @@ namespace DeepsetXbbTagger {
         // For negative-tag
         if(!negativeTagMode.empty()) {
           if(negativeTagMode.find("SVMass") != std::string::npos && pair.first.find("secvtx_log_mass") != std::string::npos ) {
-            secvtx_input.push_back( (-1) * pair.second(*vtx) + 13.77075356 );
+            secvtx_input.push_back( (-1) * pair.second(*vtx) + m_sv_fliptag_mass_offset );
           }
           else secvtx_input.push_back(pair.second(*vtx));
         }
