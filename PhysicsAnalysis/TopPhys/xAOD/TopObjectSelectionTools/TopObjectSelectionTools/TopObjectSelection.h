@@ -207,6 +207,17 @@ namespace top {
      */
     void jetGhostTrackSelection(JetGhostTrackSelectionBase* ptr);
 
+    /**
+    * @brief Set the code used to select tracks ghost associated to large-R jets.
+    *
+    * Note that nullptr means that no selection will be applied (so all
+    * tracks associated to jets will be accepted).
+    *
+    * @param ptr The code used to perform the ghost track selection (see
+    * TopObjectSelectionTools).
+    */
+    void jetGhostTrackSelectionLargeR(JetGhostTrackSelectionBase* ptr);
+  
     /**                                                                                                                                                                                                 
      * @brief Set the code used to select tracks.                                                                                                                                                         
      *                                                                                                                                                                                                    
@@ -253,6 +264,7 @@ namespace top {
     void applySelectionPreOverlapRemovalLargeRJets();
     void applySelectionPreOverlapRemovalTrackJets();
     void applySelectionPreOverlapRemovalJetGhostTracks();
+    void applySelectionPreOverlapRemovalJetGhostTracksLargeR();
     void applySelectionPreOverlapRemovalTracks();
 
     virtual StatusCode applyOverlapRemoval();
@@ -307,6 +319,9 @@ namespace top {
     
     ///Ghost Track associated to small-R jets selection code - can load user defined classes   
     std::unique_ptr<top::JetGhostTrackSelectionBase> m_jetGhostTrackSelection;
+    
+    ///Ghost Track associated to Large-R jets selection code - can load user defined classes   
+    std::unique_ptr<top::JetGhostTrackSelectionBase> m_jetGhostTrackSelectionLargeR;
 
     ///Track selection code - can load user defined classes   
     std::unique_ptr<top::TrackSelectionBase> m_trackSelection;

@@ -646,8 +646,10 @@ void RCJetMC15::getPflowConstituent(std::vector<fastjet::PseudoJet>& clusters, c
         }
       }
     } else {
-      ATH_MSG_WARNING(
-        "RCJETMC15::No remaining tracks associated to the PFlow jet");
-          }
+        if (m_config->nominalHashValue() ==  event.m_hashValue){
+            ATH_MSG_WARNING(
+                "RCJETMC15::No remaining tracks associated to the PFlow jet");
+        }
+    }
   }
 }

@@ -41,6 +41,7 @@ namespace top {
     m_largeJetSelection(nullptr),
     m_trackJetSelection(nullptr),
     m_jetGhostTrackSelection(nullptr),
+    m_jetGhostTrackSelectionLargeR(nullptr),
     m_trackSelection(nullptr),
     m_overlapRemovalToolPostSelection(nullptr),
     m_electronInJetSubtractor(nullptr),
@@ -154,6 +155,10 @@ namespace top {
   void TopObjectSelection::jetGhostTrackSelection(JetGhostTrackSelectionBase* ptr) {
     m_jetGhostTrackSelection.reset(ptr);
   }
+  
+  void TopObjectSelection::jetGhostTrackSelectionLargeR(JetGhostTrackSelectionBase* ptr) {
+    m_jetGhostTrackSelectionLargeR.reset(ptr);
+  }
 
   void TopObjectSelection::trackSelection(TrackSelectionBase* ptr) {
     m_trackSelection.reset(ptr);
@@ -218,6 +223,9 @@ namespace top {
     }
     if (m_config->useJetGhostTrack() && m_jetGhostTrackSelection != nullptr) {
       applySelectionPreOverlapRemovalJetGhostTracks();
+    }
+    if (m_config->useLargeRJetGhostTrack() && m_jetGhostTrackSelectionLargeR != nullptr) {
+      applySelectionPreOverlapRemovalJetGhostTracksLargeR();
     }
     if (m_config->useTracks() && m_trackSelection != nullptr) {
       applySelectionPreOverlapRemovalTracks();
@@ -625,11 +633,13 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
             
             std::vector<const xAOD::TrackParticle*> jetTracks;
     
-            jetTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(currentSystematic.first));
+            try{jetTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(currentSystematic.first));}catch (...) { }
             
             if (jetTracks.size() == 0){
-                ATH_MSG_WARNING("TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() failed to retrieve tracks, jet pT and eta:" << jetPtr->pt() << " " << std::fabs(jetPtr->eta()) );
-                continue;
+                if (jetPtr->pt() > m_config->jetPtcut() && std::fabs(jetPtr->eta()) < m_config->jetEtacut() ){
+                    ATH_MSG_WARNING("TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() failed to retrieve tracks, jet pT and eta:" << jetPtr->pt() << " " << std::fabs(jetPtr->eta()) );
+                    continue;
+                }
             }
 
             const xAOD::VertexContainer* vertices = nullptr;
@@ -654,6 +664,72 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
     }
   }
 
+ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracksLargeR() {
+      
+    auto jetsystematic = *m_config->systSgKeyMapLargeRJets();  
+    CP::SystematicSet nominal;
+    std::size_t m_nominalHashValue = nominal.hash();
+    
+    for (auto currentSystematic : *m_config->systMapJetGhostTrack()) {
+      
+    // At this point some specific jet collection doesn't exist for tracking systematic so use the nominal jet collection to retrieve the ghost tracks
+      std::unordered_map<std::size_t, std::string>::const_iterator jetsyst_name = jetsystematic.find(currentSystematic.first);
+      if (jetsyst_name == jetsystematic.end()) {
+         jetsyst_name = jetsystematic.find(m_nominalHashValue); 
+      }    
+      
+      ///-- if executeNominal, skip other systematics (and vice-versa) --///                                                                                                                            
+      if (m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+
+      if (!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
+    
+      
+      const xAOD::JetContainer* jets(nullptr);
+      top::check(evtStore()->retrieve(jets,
+                                      (*jetsyst_name).second),
+                 "TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracksLargeR() failed to retrieve large-R jets");
+      ATH_MSG_DEBUG(" Cut on JetsGhostTracksLargeR with key = " << (*jetsyst_name).second);
+      
+     
+      
+      for (auto jetPtr : *jets)
+      {
+            if(!m_jetGhostTrackSelectionLargeR->JetConsideredForGhostTrackSelection(jetPtr->pt(),jetPtr->eta())) continue;
+
+            
+            std::vector<const xAOD::TrackParticle*> jetTracks;
+            try{jetTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(currentSystematic.first));} catch(...){}
+            
+            if (jetTracks.size() == 0){
+                if (jetPtr->pt() > m_config->largeRJetPtcut() && std::fabs(jetPtr->eta()) < m_config->largeRJetEtacut() ){
+                    if (jetPtr->pt() > m_config->largeRjetPtGhostTracks() && std::fabs(jetPtr->eta()) < m_config->largeRjetEtaGhostTracks() ){
+                        ATH_MSG_WARNING("TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracksLargeR() failed to retrieve tracks, jet pT and eta:" << jetPtr->pt() << " " << std::fabs(jetPtr->eta()) );
+                        continue;
+                    }
+                }
+            }
+
+            const xAOD::VertexContainer* vertices = nullptr;
+            top::check(evtStore() -> retrieve( vertices, "PrimaryVertices" ), "Failed to get primary vertices");
+            const auto it_pv = std::find_if(vertices->cbegin(), vertices->cend(),
+                                      [](const xAOD::Vertex* vtx)
+                                      {return vtx->vertexType() == xAOD::VxType::PriVtx;});
+            const xAOD::Vertex* primaryVertex = (it_pv == vertices->cend()) ? nullptr : *it_pv;
+            if (primaryVertex == nullptr) ATH_MSG_WARNING("TopObjectSelection No primary vertex found." );
+
+
+
+            for (auto jetTrIt : jetTracks){
+
+                //Decorate the tracks with a flag "passPreORSelection" to indicate if they passed the selection
+                jetTrIt->auxdecor<char>(m_passPreORSelection) = m_jetGhostTrackSelectionLargeR->passSelection(*jetTrIt, *primaryVertex);
+                jetTrIt->auxdecor<char>(m_ORToolDecoration)   = jetTrIt->auxdataConst<char>(m_passPreORSelection) * 2;
+
+            }
+            
+        }
+    }
+  } 
 
  void TopObjectSelection::applySelectionPreOverlapRemovalTracks() {
     
@@ -668,7 +744,8 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       top::check(evtStore()->retrieve(tracks,
                                       currentSystematic.second),
                  "TopObjectSelection::applySelectionPreOverlapRemovalTracks() failed to retrieve tracks");
-
+      
+      
       ATH_MSG_DEBUG(" Cut on Tracks with key = " << currentSystematic.second);
 
       const xAOD::VertexContainer* vertices = nullptr;
@@ -989,13 +1066,11 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
     //It doesn't work for the nominal systematic 
     if (m_config->useJetGhostTrack() && m_config->useJets()) {
         
-        std::vector<const xAOD::TrackParticle*> jetTracks;
-        
         xAOD::JetContainer* xaod_jet_ga(nullptr);
         top::check(evtStore()->retrieve(xaod_jet_ga, m_config->sgKeyJets(hash,looseLeptonOR)),
                                         "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve jets for ghost matching");
         
-        unsigned int index= -1;
+        int index= 0;
         
         for (const auto jetPtr : *xaod_jet_ga){
             
@@ -1008,16 +1083,63 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
                 continue;
             }
             
-            jetTracks.clear();
-            
             std::vector<const xAOD::TrackParticle*> goodJetGhostTracks;
-            jetTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(hash));
+            std::vector<const xAOD::TrackParticle*> jetTracks;
+            try{ jetTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(hash));} catch (...) {               ATH_MSG_WARNING("TopObjectSelection::applyOverlapRemoval(), failed to load tracks from the jet with pT "<< jetPtr->pt() << "you should decrease the jetPt requirements for ghost tracks"); 
+                
+            }
             
             if (jetTracks.size() != 0) {
                 
                 std::string passTopCuts = "passPreORSelection";
 
                 for (auto& track: jetTracks) {
+
+                    if (track->auxdataConst< char >(passTopCuts) == 1) {
+                        goodJetGhostTracks.push_back(track);
+                    }
+        
+                }
+ 
+                jetPtr->setAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(hash), goodJetGhostTracks);
+                
+            }
+        }
+        
+    }
+    
+   if (m_config->useLargeRJetGhostTrack() && m_config->useLargeRJets()) {
+        
+        
+        xAOD::JetContainer* xaod_largeRjet_ga(nullptr);
+        top::check(evtStore()->retrieve(xaod_largeRjet_ga, m_config->sgKeyLargeRJets(
+                                                                     hash)),
+                                        "TopObjectSelection::applyOverlapRemovalPostSelection() failed to retrieve large-R jets for ghost matching");
+        
+        int index= -1;
+        
+        for (const auto jetPtr : *xaod_largeRjet_ga){
+            
+            index=index+1;
+            
+            if(!m_jetGhostTrackSelectionLargeR->JetConsideredForGhostTrackSelection(jetPtr->pt(),jetPtr->eta()))
+                continue;
+            
+            
+            if (std::find(goodLargeRJets.begin(), goodLargeRJets.end(), index) == goodLargeRJets.end()){ 
+                continue;
+            }
+            
+            
+            std::vector<const xAOD::TrackParticle*> goodJetGhostTracks;
+            std::vector<const xAOD::TrackParticle*> jetTracks; 
+            try{ jetTracks = jetPtr->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack(hash));} catch (...) {               ATH_MSG_WARNING("TopObjectSelection::applyOverlapRemoval(), failed to load tracks from the large-R jet with pT "<< jetPtr->pt() << "you should decrease the largeRjetPt requirements for ghost tracks"); }
+            
+            
+            if (jetTracks.size() != 0) {
+                
+                std::string passTopCuts = "passPreORSelection";
+                for (const auto& track: jetTracks) {
 
                     if (track->auxdataConst< char >(passTopCuts) == 1) {
                         goodJetGhostTracks.push_back(track);
@@ -1256,10 +1378,16 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
     os << "GhostTracks\n";
     os << "  ContainerName: " << m_config->decoKeyJetGhostTrack() << "\n";
     if (m_config->useJetGhostTrack()) {
-      os << "  Selection: ";
+      os << "  Selection small-R jets: ";
       if (!m_jetGhostTrackSelection) os << "All";
-//       else m_jetGhostTrackSelection->print(os);
       else os << *m_jetGhostTrackSelection;
+    }
+    
+    if (m_config->useLargeRJetGhostTrack() && m_config->useLargeRJets()) {
+      os << "\n";  
+      os << "  Selection Large-R jets: ";
+      if (!m_jetGhostTrackSelectionLargeR) os << "All";
+      else os << *m_jetGhostTrackSelectionLargeR;
     }
     
 

@@ -60,6 +60,10 @@ namespace top {
     const std::string m_TrkSelName {
       "top::GhostTrackCPTools::TrkSelTool"
     };
+    
+    const std::string m_TrkSelNameLargeR {
+      "top::GhostTrackCPTools::TrkSelToolLargeR"
+    };
 
     ToolHandle<InDet::InDetTrackSmearingTool>      m_smearingTool;
     ToolHandle<InDet::InDetTrackTruthOriginTool>   m_truthOriginTool;
@@ -67,8 +71,11 @@ namespace top {
     ToolHandle<InDet::JetTrackFilterTool>          m_jetTrackFilterTool;
     ToolHandle<InDet::InDetTrackSelectionTool>     m_trackseltool;
     
-
     std::vector<ToolHandle<InDet::InDetTrackBiasingTool> > m_biasingTool;
+    
+    ToolHandle<InDet::InDetTrackSelectionTool>     m_trackseltoolLargeR;
+    
+    
 
     StatusCode setupSmearingTool();
     StatusCode setupBiasingTools();
