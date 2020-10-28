@@ -34,8 +34,11 @@ namespace top {
     declareProperty("CustomParameters", m_customParameters = "", "Define the custom parameters");
     declareProperty("SelectionName", m_selectionName = "kUndefined", "Define the name of the selection");
     declareProperty("LHType", m_LHType = "kUndefined", "Define the Likelihood type");
-    declareProperty( "CanBeBJets", m_canBeBJets, "Force KLF to run on these (>=2) B jets" );
-    declareProperty( "CanBeLFJets", m_canBeLFJets, "Force KLF to run on these (>=4) LF jets" );
+    //    declareProperty( "CanBeBJets", m_canBeBJets, "Force KLF to run on these (>=2) B jets" );
+    //    declareProperty( "CanBeLFJets", m_canBeLFJets, "Force KLF to run on these (>=4) LF jets" );
+    declareProperty("Njcut",m_Njcut=-1,"max number of jets to run on");
+    declareProperty("Nb",m_nb=-1,"number of jets that can only be treated as b-jets");
+    declareProperty("Delta",m_delta=-1,"number of jets that can be treated both as b and LF jets");
   }
 
   /// Function initialising the tool
@@ -309,7 +312,7 @@ namespace top {
       return StatusCode::FAILURE;
     }
 
-    if (m_isWorkingPoint) {
+    if (m_isWorkingPoint || m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kAutoSet) {
       m_btagging_eff_tool = "BTaggingEfficiencyTool_" + btagWP + "_" + m_config->sgKeyJets();
       top::check(m_btagging_eff_tool.retrieve(), "KLFitterTool:: Failed to retrieve b-tagging Efficiency tool");
     }
@@ -681,8 +684,8 @@ namespace top {
 
   bool KLFitterTool::setJets(const top::Event& event, KLFitter::Particles* inputParticles) {
     if(m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kAutoSet) {
-      ATH_MSG_DEBUG("Jet selection will be done together with combination loop");
-      return true;
+      ATH_MSG_DEBUG("Only set the lists of jets. Jet selection will be done together with combination loop.");
+      return setJetLists(event);
     }
     if (m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kLeadingThree) return setJetskLeadingThree(event,
                                                                                                                 inputParticles);
@@ -887,6 +890,57 @@ namespace top {
       ++index;
     }  // for (jet)
     return true;
+  }
+
+  bool KLFitterTool::setJetLists(const top::Event& event) {
+
+    //first order in b-weight
+    unsigned int index(0);
+    std::vector<std::pair<unsigned int,std::pair<double,double> > > bwOrd_jets(0);
+    for (const auto& jet : event.m_jets) {
+      double weight(-99.);
+      // THIS METHOD DOES NOT SET THE WEIGHT!!!      HasTag(*jet, weight);
+      //let's pick it by hand for now:
+      const auto& btag_object = jet->btagging();
+      const auto& tagger_name =m_btagging_eff_tool->getTaggerName();
+      if (!btag_object || !btag_object->MVx_discriminant(tagger_name, weight)) {
+	ATH_MSG_ERROR("Failed to retrieve "+tagger_name+" weight!");
+      }
+      bwOrd_jets.push_back(std::make_pair(index,std::make_pair(weight,jet->pt())));
+      index++;
+    }
+    std::sort(bwOrd_jets.begin(), bwOrd_jets.end(), [](auto &left, auto &right) { return left.second.first > right.second.first; });
+
+    //then separate which jet can be what
+    std::vector<std::pair<unsigned int,std::pair<double,double> > > onlyBjets(bwOrd_jets.begin(),bwOrd_jets.begin()+m_nb);
+    std::vector<std::pair<unsigned int,std::pair<double,double> > > canbeBOTHjets(bwOrd_jets.begin()+m_nb,bwOrd_jets.begin()+m_nb+m_delta);
+    std::vector<std::pair<unsigned int,std::pair<double,double> > > onlyQjets(bwOrd_jets.begin()+m_nb+m_delta,bwOrd_jets.end()); 
+
+    //now cut away excess jets (if any)
+    //always re-order the LF in pt, before cutting
+    std::sort(onlyQjets.begin(), onlyQjets.end(), [](auto &left, auto &right) { return left.second.second > right.second.second; }); 
+
+    //remove the extra LF jets: 
+    int NLFjcut=m_Njcut-(m_nb+m_delta);
+    if((int)onlyQjets.size()>NLFjcut) onlyQjets.erase(onlyQjets.begin()+NLFjcut,onlyQjets.end());
+
+    //now merge everything to prepare the lists
+    std::vector<std::pair<unsigned int,std::pair<double,double> > > Bjets = onlyBjets;
+    Bjets.insert(Bjets.end(),canbeBOTHjets.begin(),canbeBOTHjets.end());
+    std::vector<std::pair<unsigned int,std::pair<double,double> > > LFjets = onlyQjets;
+    LFjets.insert(LFjets.end(),canbeBOTHjets.begin(),canbeBOTHjets.end());
+
+    //re-sort in pt because we like it more (won't change a thing on how KLFitter loops)
+    std::sort(Bjets.begin(), Bjets.end(), [](auto &left, auto &right) { return left.second.second > right.second.second; }); 
+    std::sort(LFjets.begin(), LFjets.end(), [](auto &left, auto &right) { return left.second.second > right.second.second; }); 
+
+    //now fill the output lists
+    m_canBeBJets.clear();
+    for(uint jj=0;jj<Bjets.size();jj++) m_canBeBJets.push_back(Bjets.at(jj).first);
+    m_canBeLFJets.clear();
+    for(uint jj=0;jj<LFjets.size();jj++) m_canBeLFJets.push_back(LFjets.at(jj).first);
+
+    return (m_canBeBJets.size()>=2 && m_canBeLFJets.size()>=4);
   }
 
   bool KLFitterTool::setJetsFromAutoSet(const top::Event& event,KLFitter::Particles* inputParticles,std::vector<uint> BjetsToRun,std::vector<uint> LFjetsToRun)

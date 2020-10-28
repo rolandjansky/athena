@@ -103,6 +103,7 @@ namespace top {
 
     bool setJetskBtagPriority(const top::Event&, KLFitter::Particles* inputParticles, const unsigned int maxJets);
 
+    bool setJetLists(const top::Event& event);
     bool setJetsFromAutoSet(const top::Event& event,KLFitter::Particles* inputParticles,std::vector<uint> BjetsToRun,std::vector<uint> LFjetsToRun); 
 
     void permutationLoopStandard(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer);
@@ -145,9 +146,13 @@ namespace top {
     top::KLFitterJetSelection::JetSelectionMode m_jetSelectionModeKLFitterEnum;
     KLFitter::LikelihoodBase::BtaggingMethod m_bTaggingMethodKLFitterEnum;
 
-    //added for combinatorics
+    //added for AutoSet option   
+    int m_Njcut;
+    int m_nb;
+    int m_delta;
     std::vector<unsigned int> m_canBeBJets; //for AutoSet option
     std::vector<unsigned int> m_canBeLFJets; //for AutoSet option
+
 
     /// The KLFitter
     std::unique_ptr<KLFitter::Fitter> m_myFitter;

@@ -26,17 +26,15 @@ namespace top {
       enum jetPos { CANBEB=0, CANBELF , JETTYPESIZE};
 
       bool hasAutoSetOption(const std::string curtom_parameters);
-      std::vector<std::vector<unsigned int> > setJetsToRun(const top::Event&) const;
 
       std::string m_name;
-
-      std::unique_ptr<top::KLFitterTool> m_myFitter;
 
       bool m_useJetAutoSet;
       int m_Njcut;
       int m_nb;
       int m_delta;
 
+      std::unique_ptr<top::KLFitterTool> m_myFitter;
   };
 }
 #endif
