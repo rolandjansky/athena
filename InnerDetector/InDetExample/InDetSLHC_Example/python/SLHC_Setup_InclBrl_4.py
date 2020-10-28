@@ -26,6 +26,7 @@ class SLHC_Setup_XMLReader :
                                  createXML = True,
                                  doPix=True,
                                  doSCT=True,
+                                 doHGTD=False,
                                  isGMX=auto_isGMX,
                                  addBCL=False, #True # If you want to set this to True, you must also change InnerDetector/InDetDetDescr/GmxLayouts/cmt/requirements to point to the Strips layout containing the BCL, otherwise Reco will segfault - Ben
                                  )
@@ -38,6 +39,7 @@ class SLHC_Setup_XMLReader :
                                  createXML = True,
                                  doPix=True,
                                  doSCT=True,
+                                 doHGTD=False,
                                  isGMX=auto_isGMX,
                                  XML_SLHC_Version = "SLHC_InclinedAlternative"
                                  )          
@@ -51,6 +53,7 @@ class SLHC_Setup_XMLReader :
                                  createXML = True,
                                  doPix=True,
                                  doSCT=True,
+                                 doHGTD=False,
                                  isGMX=auto_isGMX,
                                  )
 
