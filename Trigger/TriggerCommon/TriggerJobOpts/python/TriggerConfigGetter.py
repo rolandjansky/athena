@@ -443,15 +443,15 @@ class TriggerConfigGetter(Configured):
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
             else:
-                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
                 menuwriter = TrigConf__xAODMenuWriterMT()
                 menuwriter.IsHLTJSONConfig = True
                 menuwriter.IsL1JSONConfig = True
                 menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
                 menuwriter.WritexAODTriggerMenuJson = True
+                menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
                 writeTriggerMenu = menuwriter.WritexAODTriggerMenu
                 writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
-
                 topAlgs += menuwriter
 
             # Set up the metadata for the output ESD and AOD:
