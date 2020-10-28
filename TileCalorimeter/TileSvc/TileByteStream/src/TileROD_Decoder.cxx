@@ -37,16 +37,15 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   , m_ampMinThresh_pC(-1.)
   , m_ampMinThresh_MeV(-1.)
   , m_of2Default(true)
+  , m_WarningCounter (0)
+  , m_ErrorCounter (0)
   , m_hid2re(nullptr)
   , m_hid2reHLT(nullptr)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
   , m_checkMaskedDrawers(false)
 {
   declareInterface<TileROD_Decoder>(this);
-
-  m_WarningCounter = 0;
-  m_ErrorCounter = 0;
-  
+ 
   for (std::atomic<const uint32_t*>& p : m_OFPtrs) {
     p = nullptr;
   }

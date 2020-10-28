@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-# $Id $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 This library defines a class for filtering events based on the beamspot size in athena.
 """
@@ -11,7 +10,6 @@ __version__ = '$Id $'
 # General setup
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
-from AthenaCommon.AppMgr import ServiceMgr
 
 #
 # Event filtering based on signal vertex position
@@ -58,7 +56,7 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
 
     # Initialize function --  get services  
     def initialize(self):
-        self.msg.info( '==> Initialize  %s...' % self.name() )
+        self.msg.info( '==> Initialize  %s...', self.name() )
 
         ## Initialize the counters
         self.nProcessed = 0
@@ -67,12 +65,12 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
         if self.initialBStag == '' :
           self.msg.info('Initial width will be taken from associated BS tag'  )
         else:
-          self.msg.info('Initial width will be taken from BS tag:  %s' % ( self.initialBStag ) )
+          self.msg.info('Initial width will be taken from BS tag:  %s', self.initialBStag )
 
         if self.targetBStag == '' :
-          self.msg.info('Target width (%f, %f, %f)' % (self.targetSigmaX,self.targetSigmaY,self.targetSigmaZ) )
+          self.msg.info('Target width (%f, %f, %f)', self.targetSigmaX, self.targetSigmaY, self.targetSigmaZ )
         else: 
-          self.msg.info('Target width will be taken from BS tag:  %s' % ( self.targetBStag ) )
+          self.msg.info('Target width will be taken from BS tag:  %s', self.targetBStag )
           
         self.sg = PyAthena.py_svc('StoreGateSvc')
         self.bs = PyAthena.py_svc('BeamCondSvc', iface='IBeamCondSvc' )
@@ -84,7 +82,7 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
         if math.fabs( sigmaO - sigmaT ) < 1e-6:
           return 1.
         if sigmaO < sigmaT:
-          self.msg.error( 'This will not work target width larger than original width: %f <  %f '  %(sigmaO, sigmaT) )
+          self.msg.error( 'This will not work target width larger than original width: %f <  %f ', sigmaO, sigmaT )
           return 1.
         value =   math.exp( -0.5*(x*x)*(1./(sigmaT*sigmaT) - 1./(sigmaO*sigmaO)))
         #print 'Targetn Original Prob ',x, ' ', sigmaT, ' ',  sigmaO, ' ', value
@@ -117,7 +115,7 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
           folderBS = cooldbBS.getFolder('/Indet/Beampos')
 
           if self.initialBStag != '': 
-            self.msg.info('Taking initial beamspot information from conditions database: %s' % self.initialBStag )
+            self.msg.info('Taking initial beamspot information from conditions database: %s', self.initialBStag )
             itrBS = folderBS.browseObjects(iov, iov, cool.ChannelSelection.all(), self.initialBStag )
             while itrBS.goToNext():
               obj = itrBS.currentRef()
@@ -131,12 +129,12 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
               self.initialPosZ = float(obj.payloadValue("posZ"))
               break
             self.initialBStag = ''
-            self.msg.info('Intial BS position from tag  (%f, %f, %f)' % (self.initialPosX,self.initialPosY,self.initialPosZ ) )
-            self.msg.info('Intial BS width from tag (%f, %f, %f)' % (self.initialSigmaX,self.initialSigmaY,self.initialSigmaZ ) ) 
+            self.msg.info('Intial BS position from tag  (%f, %f, %f)', self.initialPosX, self.initialPosY, self.initialPosZ )
+            self.msg.info('Intial BS width from tag (%f, %f, %f)', self.initialSigmaX, self.initialSigmaY, self.initialSigmaZ )
 
           if self.targetBStag != '': 
         
-            self.msg.info('Taking target beamspot information from conditions database: %s' % self.targetBStag )
+            self.msg.info('Taking target beamspot information from conditions database: %s', self.targetBStag )
             self.msg.info('Only widths are considered not positions!!!')
             itrBS = folderBS.browseObjects(iov, iov, cool.ChannelSelection.all(), self.targetBStag )
             while itrBS.goToNext():
@@ -146,7 +144,7 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
               self.targetSigmaZ = float(obj.payloadValue("sigmaZ"))
               break
             self.targetBStag = ''
-            self.msg.info('Target width (%f, %f, %f)' % (self.targetSigmaX,self.targetSigmaY,self.targetSigmaZ ) )  
+            self.msg.info('Target width (%f, %f, %f)', self.targetSigmaX, self.targetSigmaY, self.targetSigmaZ )
    
         targetSigmaX = self.targetSigmaX if self.targetSigmaX > 0. else initialSigmaX
         targetSigmaY = self.targetSigmaY if self.targetSigmaY > 0. else initialSigmaY
@@ -205,10 +203,10 @@ class SimBeamSpotShapeFilter( PyAthena.AthFilterAlgorithm ):
           self.msg.warning( 'Division by zero error when calculating the uncertainties on the pass efficiencies...' )
         
         
-        self.msg.info( '==> Finalize %s...' % self.name() )
+        self.msg.info( '==> Finalize %s...', self.name() )
         self.msg.info( '**********************************************************************' )
-        self.msg.info( ' Number of processed events: %r' % self.nProcessed )
-        self.msg.info( ' Events accepted:  %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventPassed, effiEvents, effiErrEvents ) )
+        self.msg.info( ' Number of processed events: %r', self.nProcessed )
+        self.msg.info( ' Events accepted:  %r and resulting efficiency = (%3.3f +/- %3.3f)%%', self.nEventPassed, effiEvents, effiErrEvents )
         self.msg.info( '**********************************************************************' )
 
         return StatusCode.Success

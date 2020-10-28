@@ -42,7 +42,7 @@ void InDet::SiTrajectory_xk::erase(int n)
 DataVector<const Trk::TrackStateOnSurface>* 
 InDet::SiTrajectory_xk::convertToTrackStateOnSurface(int cosmic)
 {
-  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().par()[2] < 0.) {
+  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
     return convertToTrackStateOnSurface();
   }
   return convertToTrackStateOnSurfaceWithNewDirection();
@@ -136,7 +136,7 @@ InDet::SiTrajectory_xk::convertToTrackStateOnSurfaceWithNewDirection()
 DataVector<const Trk::TrackStateOnSurface>* 
 InDet::SiTrajectory_xk::convertToSimpleTrackStateOnSurface(int cosmic)
 {
-  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().par()[2] < 0.) {
+  if (!cosmic ||  m_elements[m_elementsMap[m_firstElement]].parametersUB().parameters()[2] < 0.) {
     return convertToSimpleTrackStateOnSurface();
   }
   return convertToSimpleTrackStateOnSurfaceWithNewDirection();
@@ -303,7 +303,7 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
 
   out<<"| Has"<<std::setw(3)<<m_nElements
      <<" ("
-     <<std::setw(3)<<m_naElements
+     <<std::setw(3)<<m_nActiveElements
      <<")"
      <<" elements and "
      <<std::setw(2)<<m_nclusters+m_nclustersNoAdd<<" ("
@@ -312,9 +312,9 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
      <<"         |"
      <<std::endl;
   out<<"| Has number of holes before, inside, after and gap= "
-     <<std::setw(2)<<m_nholesb
+     <<std::setw(2)<<m_nHolesBefore
      <<std::setw(2)<<m_nholes
-     <<std::setw(2)<<m_nholese
+     <<std::setw(2)<<m_nHolesAfter
      <<std::setw(3)<<m_dholes<<"                                           |"
      <<std::endl;
   out<<"|                                                                                        F   B           |"
@@ -476,7 +476,7 @@ std::ostream& InDet::SiTrajectory_xk::dump( std::ostream& out ) const
 }   
   
 ///////////////////////////////////////////////////////////////////
-// Build initiate trajectory
+// Initiate trajectory
 ///////////////////////////////////////////////////////////////////
 
 bool InDet::SiTrajectory_xk::initialize
@@ -490,14 +490,15 @@ bool InDet::SiTrajectory_xk::initialize
  bool                                                & rquality  ,
  const EventContext                                  & ctx       )
 {
+  /// reset state
   m_nholes          =    0;
-  m_nholesb         =    0;
-  m_nholese         =    0;
+  m_nHolesBefore         =    0;
+  m_nHolesAfter         =    0;
   m_dholes          =    0;
   m_nclusters       =    0;
   m_nclustersNoAdd  =    0;
   m_nElements       =    0;
-  m_naElements      =    0;
+  m_nActiveElements      =    0;
   m_firstElement    = -100;
   m_lastElement     =    0;
   m_ndfcut          =    0;
@@ -506,133 +507,235 @@ bool InDet::SiTrajectory_xk::initialize
   int    ndfwrong   =    0;
   double Xi2cut     = 2.*m_tools->xi2max();
 
-  std::list<const InDet::SiCluster*>::iterator c;
+  std::list<const InDet::SiCluster*>::iterator iter_cluster;
   if (lSiCluster.size() < 2) return false;
 
-  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator r,re=DE.end();
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator iter_boundaryLink,endBoundaryLinks=DE.end();
 
   int up    = 0;
   int last  = 0;
 
-  for (r=DE.begin(); r!=re; ++r) {
+  /// loop over all detector elements and assign the starting set of silicon clusters 
+  /// at the right indices 
+  for (iter_boundaryLink=DE.begin(); iter_boundaryLink!=endBoundaryLinks; ++iter_boundaryLink) {
 
-    const InDetDD::SiDetectorElement* de = (*r)->detElement();
-    IdentifierHash           id = de->identifyHash();
-    const InDet::SiCluster* sic = nullptr;
+    /// get the associated detector element from the boundary link 
+    const InDetDD::SiDetectorElement* detectorElement = (*iter_boundaryLink)->detElement();
+    IdentifierHash           id = detectorElement->identifyHash();
 
-    if (de->isPixel()) {
-      if (PIX) {
-        InDet::PixelClusterCollection::const_iterator sib, sie;
-        const InDet::PixelClusterCollection *w = (*PIXc).indexFindPtr(id);
+    /// book a placeholder for a potential cluster on this element
+    const InDet::SiCluster* theCluster = nullptr;
 
-        if (w!=nullptr && w->begin()!=w->end()) {
+    /// First case: Current element is a pixel module
+    if (detectorElement->isPixel()) {
+      if (PIX) {  /// check if we are configured to use pixels! 
 
-          sib = w->begin(); sie = w->end();
+        InDet::PixelClusterCollection::const_iterator iter_PixelClusterColl, iter_PixelClusterCollEnd;
+        /// check for the pixel clusters on the given detector element, using the ID hash 
+        const InDet::PixelClusterCollection *clustersOnElement = (*PIXc).indexFindPtr(id);
+        /// if we have any hits: 
+        if (clustersOnElement!=nullptr && clustersOnElement->begin()!=clustersOnElement->end()) {
 
-          for (c=lSiCluster.begin(); c!=lSiCluster.end(); ++c) {
-            if ((*c)->detectorElement()==de) {
-              if (!m_nclusters) m_firstElement = m_nElements;
-              else              m_lastElement  = m_nElements;
+          /// set iterators to the local cluster collection
+          iter_PixelClusterColl = clustersOnElement->begin(); 
+          iter_PixelClusterCollEnd = clustersOnElement->end();
+          
+          /// Loop over the passed list with Si clusters to initiate the track with - these 
+          /// are for example the clusters on our seed in inside-out- or backtracking. 
+          for (iter_cluster=lSiCluster.begin(); iter_cluster!=lSiCluster.end(); ++iter_cluster) {
+            ///if this cluster is on the current element... 
+            if ((*iter_cluster)->detectorElement()==detectorElement) {
+              /// if it is the first cluster we see, set the first element to the current index
+              if (m_nclusters==0){ 
+                m_firstElement = m_nElements;
+              }
+              /// otherwise, set the last element to the current index (will eventually point to the final cluster)
+              else{
+                m_lastElement  = m_nElements;
+              }
+              /// increment cluster counter
               ++m_nclusters;
+              /// add 2 to the number of degrees of freedom counter (Pix is 2D)
               m_ndfcut+=2;
-              sic=(*c);
-              lSiCluster.erase(c);
+              /// set our cluster pointer to point to this cluster 
+              theCluster=(*iter_cluster);
+              /// remove the cluster from the list 
+              lSiCluster.erase(iter_cluster);
+              /// and exit the loop over Si clusters. We can do this 
+              /// because no two clusters are allowed to be on the same
+              /// detector element 
               break;
             }
           }
-          m_elements[m_nElements].set(1,(*r),sib,sie,sic,ctx);
-          ++m_naElements;
-        } else if (m_naElements) {
-          m_elements[m_nElements].set(0,(*r),sib,sie,sic,ctx);
-        } else {
+          /// done, now we know if one of the existing clusters is on this element
+          /// set status = 1 (there are hits on this module), give it the boundary link and the space points on this element. Finally, also give it the cluster, if we found one. 
+          m_elements[m_nElements].set(1,(*iter_boundaryLink),iter_PixelClusterColl,iter_PixelClusterCollEnd,theCluster,ctx);
+          /// and increment the counter of active (nonzero hits) elements
+          ++m_nActiveElements;
+        } 
+        /// this branch is the case of a pixel module with no hits on it, if we have previously had an active element 
+        else if (m_nActiveElements) {
+          /// here we set a status of 0. 
+          m_elements[m_nElements].set(0,(*iter_boundaryLink),iter_PixelClusterColl,iter_PixelClusterCollEnd,theCluster,ctx);
+        } 
+        /// this branch is taken if we have not yet found an active element and there are no hits on this module. No need to already start the trajectory! 
+        else {
+
           continue;
         }
+        /// map the index to itself. Always useful. Don't worry, it will get 
+        /// more interesting later... 
+        m_elementsMap[m_nElements] = m_nElements;
+        /// if we exceed the bounds of our array, bail out. 
+        /// Also increment the detector element index
+        if (++m_nElements==300) break;
+      }   /// end of check on pixel flag
+    }   /// end of pixel case
+    /// case 2: Strip module 
+    else if (SCT) {
+      InDet::SCT_ClusterCollection::const_iterator iter_stripClusterColl, iter_StripClusterCollEnd;
+      /// again, we fetch the clusters for this detector element
+      const InDet::SCT_ClusterCollection *clustersOnElement = (*SCTc).indexFindPtr(id);
 
-        m_elementsMap[m_nElements] = m_nElements; if (++m_nElements==300) break;
-      }
-    } else if (SCT) {
-      InDet::SCT_ClusterCollection::const_iterator sib, sie;
-      const InDet::SCT_ClusterCollection *w = (*SCTc).indexFindPtr(id);
+      /// do we have any? 
+      if (clustersOnElement!=nullptr && clustersOnElement->begin()!=clustersOnElement->end()) {
 
-      if (w!=nullptr && w->begin()!=w->end()) {
+        iter_stripClusterColl = clustersOnElement->begin(); 
+        iter_StripClusterCollEnd = clustersOnElement->end();
 
-        sib = w->begin(); sie = w->end();
-
-        for (c=lSiCluster.begin(); c!=lSiCluster.end(); ++c) {
-          if ((*c)->detectorElement()==de) {
-            if (!m_nclusters) m_firstElement = m_nElements;
-            else              m_lastElement  = m_nElements;
+        /// 
+        for (iter_cluster=lSiCluster.begin(); iter_cluster!=lSiCluster.end(); ++iter_cluster) {
+          if ((*iter_cluster)->detectorElement()==detectorElement) {
+            /// is this the first cluster we found? 
+            if (m_nclusters==0){
+              /// then mark it as the first element 
+              m_firstElement = m_nElements;
+            }
+            /// otherwise, mark it as the last element 
+            else{
+              m_lastElement  = m_nElements;
+            }
+            /// increment cluster counter 
             ++m_nclusters;
+            /// for SCT, add one degree of freedom (1D measurement) 
             m_ndfcut+=1;
-            sic=(*c);
-            lSiCluster.erase(c);
+            /// and update the cluster pointer, before cleaning up 
+            theCluster=(*iter_cluster);
+            lSiCluster.erase(iter_cluster);
+            /// remember - only one cluster per detector element is possible due to 
+            /// upstream filtering. So we can exit when we found one. 
             break;
           }
         }
-        m_elements[m_nElements].set(1,(*r),sib,sie,sic,ctx);
-        ++m_naElements;
-      } else if (m_naElements) {
-        m_elements[m_nElements].set(0,(*r),sib,sie,sic,ctx);
-      } else {
+        /// Now, set up the trajectory element (det status 1) as in the pixel case  
+        m_elements[m_nElements].set(1,(*iter_boundaryLink),iter_stripClusterColl,iter_StripClusterCollEnd,theCluster,ctx);
+        /// and increment the active element count 
+        ++m_nActiveElements;
+      } 
+      /// branch if no clusters on module and previously seen active element 
+      else if (m_nActiveElements) {
+        /// set an corresponding element to detstatus = 0  
+        m_elements[m_nElements].set(0,(*iter_boundaryLink),iter_stripClusterColl,iter_StripClusterCollEnd,theCluster,ctx);
+      }
+      /// branch for no clusters and no active elements seen so far  
+      else {
+        /// skip this one
         continue;
       }
-
+      /// update elements map 
       m_elementsMap[m_nElements] = m_nElements;
+      /// and array boundary checking (yuck!!)
+      /// Also increment the detector element index
       if (++m_nElements==300) break;
-    }    
+    } /// end of SCT if-statement    
 
+    /// if the element we are currently processing is the first one where we saw a cluster: 
     if (m_firstElement == m_nElements-1) {
-      up = m_nElements-1;
-      if (!m_elements[up].firstTrajectorElement(Tp)) return false;
-    } else if (sic) {
+      up = m_nElements-1;         /// set the upper populated point to the current index 
+      if (!m_elements[up].firstTrajectorElement(Tp)) return false;  /// and update the current trajectory     
+                                                                    /// element with the track parameters 
+                                                                    /// we obtained upstream for 
+                                                                    /// the starting surface
+    }
+    /// if the element we are currently processing saw a cluster but is not the first one  
+    else if (theCluster) {
 
+      /// run forward propagation from the last element with a cluster to this one 
       if (!m_elements[m_nElements-1].ForwardPropagationWithoutSearch(m_elements[up])) {
         return false;
       }
-
+      /// update index of last element that had a cluster to point to this one 
       up = m_nElements-1;
+      /// if the chi2 looks good for the forward extension step, update index of last good cluster
       if (m_elements[m_nElements-1].xi2F() <= Xi2cut) {
         last=up;
-      } else {
+      } 
+      /// if it does not look good
+      else {
+        /// add the ndf to "ndfwrong"
         ndfwrong+=m_elements[m_nElements-1].ndf();
+        /// if we have collected more than 3 badly fitting DoF (2 pix or 1 Pix + 1 SCT or 3 SCT), bail out 
         if (ndfwrong > 3) return false;
+        /// reduce ndf for cut by the bad degrees of freedom
         m_ndfcut-=m_elements[m_nElements-1].ndf();
+        /// reduce cluster count, don't include this track
         --m_nclusters;
+        /// and erase the cluster again
         m_elements[m_nElements-1].eraseClusterForwardPropagation();
       }
     }
+    /// Case if we already have clusters from the seed on track, 
+    /// and some clusters left to put on it, but no seed cluster on this element 
+    /// Corresponds to have a hole in the seed. 
     else if (m_nclusters && lSiCluster.size()) {
-
+      /// propagate to the current DE from the last one where we had a cluster from the seed
+      /// if the propagation fails
       if (!m_elements[m_nElements-1].ForwardPropagationWithoutSearch(m_elements[up])) {
+        /// if we have a cluster here, something went wrong in the upstream logic 
         if (m_elements[m_nElements-1].cluster()) return false;
+        /// otherwise, remove this guy from consideration. 
+        /// It will be overwritten by the next one we see
         --m_nElements;
-        if (m_elements[m_nElements-1].detstatus()) --m_naElements;
-      } else {
+        /// also adapt the number of active elements if needed
+        if (m_elements[m_nElements-1].detstatus()) --m_nActiveElements;
+      } 
+      /// if the propagation succeeded 
+      else {
+        /// increment hole count if we expect a hit 
         if (m_elements[m_nElements-1].inside()<0) ++m_nholes;
+        /// update the index of the last element
         up = m_nElements-1;
       }
-    }
-  }
+    } /// end of case of no hit and expecting a hit
+  } /// end of loop over boundary links
 
+  /// did we manage to assign all our seed hits to elements on the road? 
   if (lSiCluster.size()) {
+    /// no? Then our search road was badly chosen. Return this info for logging and bail out 
     rquality = false;
     return false;
   }
+  /// if some seed hits are badly fitting and we have less than 6 remaining good DoF, 
+  /// we give up 
   if (ndfwrong && m_ndfcut < 6) return false;
 
+  /// update degrees of freedom to the current count of good ones
   m_ndf = m_ndfcut;
+  /// truncate the ndfcut variable to 6 
   if (m_ndfcut > 6) m_ndfcut = 6;
 
-  // Kill empty trajectory elements in end of trajectory
-  //
+  /// Kill empty trajectory elements at the end of our trajectory
   int n = m_nElements-1;
+  /// count downwards 
   for (; n>0; --n) {
+    /// and if the element is active, stop looping
     if (m_elements[n].detstatus()>=0) break;
   }
+  /// the index where we aborted is the last one where we 
+  /// found an active element. 
   m_nElements = n+1;
   
-  // Find last detector element with clusters
-  //
+  /// Find last detector element with clusters
   for (; n>0; --n) {
     if (m_elements[n].detstatus() == 1) {
       m_elements[n].lastActive();
@@ -640,24 +743,33 @@ bool InDet::SiTrajectory_xk::initialize
     }
   }
 
-  // Kill uncrossed detector elements
-  //
+  /// Kill uncrossed detector elements
+  /// this repopulates the elementsMap we started to fill earlier
   int m         = m_firstElement+1;
   m_lastElement = last            ;
+  /// loop from the element after the one with the first hit to the one 
+  /// with the last hit from the seed
   for (n = m; n!=m_lastElement; ++n) {
     InDet::SiTrajectoryElement_xk& En = m_elements[m_elementsMap[n]];
+    /// if we either have a cluster on track or at least cross the element, 
+    /// plug it into the m_elementsMap at the next position
     if (En.cluster() || En.inside() <= 0) m_elementsMap[m++] = m_elementsMap[n];
   }
+  /// now m_elementsMap contains the interesting elements
 
+  /// if we kicked out some elements: 
   if (m!=n) {
+    /// update the index of the last element
     m_lastElement = m;
-    for (; n!=m_nElements; ++n) m_elementsMap[m++] = m_elementsMap[n];
+    /// then add the remaining ones beyond the last cluster back to the map
+    for (; n!=m_nElements; ++n){
+       m_elementsMap[m++] = m_elementsMap[n];
+    }
     m_nElements = m;
   }
   if (!m_tools->bremNoise()) return true;
 
-  // Change noise model for last trajectory elements
-  //
+  /// If we run with brem, update noise model for last trajectory elements
   for (n=m_lastElement; n!=m_nElements; ++n) {
     m_elements[m_elementsMap[n]].bremNoiseModel();
   }
@@ -681,18 +793,18 @@ bool InDet::SiTrajectory_xk::trackParametersToClusters
 
   std::multimap<double,const InDet::SiCluster*> xi2cluster;
 
-  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator r,re=DE.end();
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator iter_boundaryLink,endBoundaryLinks=DE.end();
   std::multimap<const Trk::PrepRawData*,const Trk::Track*>::const_iterator t, te =PT.end();
 
   double xi2Cut = .5;
   int    ndfCut =  6;
 
-  for (r=DE.begin(); r!=re; ++r) {
+  for (iter_boundaryLink=DE.begin(); iter_boundaryLink!=endBoundaryLinks; ++iter_boundaryLink) {
 
-    const InDetDD::SiDetectorElement* de = (*r)->detElement();
-    IdentifierHash id = de->identifyHash();
+    const InDetDD::SiDetectorElement* detectorElement = (*iter_boundaryLink)->detElement();
+    IdentifierHash id = detectorElement->identifyHash();
 
-    bool sct = de->isSCT();
+    bool sct = detectorElement->isSCT();
 
     if (!sct) {
       InDet::PixelClusterCollection::const_iterator sib, sie;
@@ -704,7 +816,7 @@ bool InDet::SiTrajectory_xk::trackParametersToClusters
       } else {
         continue;
       }
-      if (!m_elements[0].ForwardPropagationForClusterSeach(m_nElements,Tp,(*r),sib,sie)) return false;
+      if (!m_elements[0].ForwardPropagationForClusterSeach(m_nElements,Tp,(*iter_boundaryLink),sib,sie)) return false;
     } else {
       InDet::SCT_ClusterCollection::const_iterator sib, sie;
       const InDet::SCT_ClusterCollection *w = (*SCTc).indexFindPtr(id);
@@ -715,7 +827,7 @@ bool InDet::SiTrajectory_xk::trackParametersToClusters
       } else {
         continue;
       }
-      if (!m_elements[0].ForwardPropagationForClusterSeach(m_nElements,Tp,(*r),sib,sie)) return false;
+      if (!m_elements[0].ForwardPropagationForClusterSeach(m_nElements,Tp,(*iter_boundaryLink),sib,sie)) return false;
     }
 
     for (int i=0; i!=m_elements[0].nlinksF(); ++i) {
@@ -762,7 +874,7 @@ bool InDet::SiTrajectory_xk::globalPositionsToClusters
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT        ,
  std::list<const InDet::SiCluster*>                      & lSiCluster)
 {
-  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator r = DE.begin(), re = DE.end();
+  std::vector<const InDet::SiDetElementBoundaryLink_xk*>::iterator iter_boundaryLink = DE.begin(), endBoundaryLinks = DE.end();
   std::list<Amg::Vector3D>::const_iterator                    g,gb = Gp.begin(), ge = Gp.end();
   InDet::PixelClusterCollection::const_iterator pib, pie;
   InDet::SCT_ClusterCollection::const_iterator sib, sie;
@@ -780,9 +892,9 @@ bool InDet::SiTrajectory_xk::globalPositionsToClusters
   double xi2Cut = 10.;
   m_ndf         = 0  ;
 
-  for (; r!=re; ++r) {
+  for (; iter_boundaryLink!=endBoundaryLinks; ++iter_boundaryLink) {
 
-    const InDetDD::SiDetectorElement* d  = (*r)->detElement();
+    const InDetDD::SiDetectorElement* d  = (*iter_boundaryLink)->detElement();
     IdentifierHash                    id = d->identifyHash ();
     const Trk::Surface*               su = &d->surface();
     const Trk::PlaneSurface* pla = static_cast<const Trk::PlaneSurface*>(su);
@@ -828,8 +940,8 @@ bool InDet::SiTrajectory_xk::globalPositionsToClusters
 
       Tp.setParametersWithCovariance(su,pv,cv);
 
-      if (!sct) m_elements[0].CloseClusterSeach(Tp, (*r), pib, pie);
-      else      m_elements[0].CloseClusterSeach(Tp, (*r), sib, sie);
+      if (!sct) m_elements[0].CloseClusterSeach(Tp, (*iter_boundaryLink), pib, pie);
+      else      m_elements[0].CloseClusterSeach(Tp, (*iter_boundaryLink), sib, sie);
       const InDet::SiCluster* c =  m_elements[0].cluster();
       if (!c || m_elements[0].xi2F() > xi2Cut) continue;
       if (sct) {
@@ -901,7 +1013,7 @@ bool InDet::SiTrajectory_xk::backwardSmoother(bool TWO)
   n              = m_elementsMap[     n      ]        ;
   m_nclusters    = m_elements[m].nclustersB()         ;
   m_nholes       = m_elements[m].nholesB   ()         ;
-  m_nholesb      = m_elements[n].nholesB   ()-m_nholes;
+  m_nHolesBefore      = m_elements[n].nholesB   ()-m_nholes;
   m_ndf          = m_elements[m].ndfB()               ;
   if (m_ndf < m_ndfcut) return false;
 
@@ -912,14 +1024,14 @@ bool InDet::SiTrajectory_xk::backwardSmoother(bool TWO)
   for (; m!=m_lastElement; ++m) {
 
     InDet::SiTrajectoryElement_xk& Em = m_elements[m_elementsMap[m]];
-    if (Em.inside() > 0) {if (Em.detstatus() > 0) --m_naElements;   }
+    if (Em.inside() > 0) {if (Em.detstatus() > 0) --m_nActiveElements;   }
     else                {m_elementsMap[n++] = m_elementsMap[m];}
   }
   m_lastElement = n;
 
   // Test number trajector elemenst with clusters
   //
-  if (m_naElements < m_tools->clustersmin() && m_nholes+m_nholese) return false;
+  if (m_nActiveElements < m_tools->clustersmin() && m_nholes+m_nHolesAfter) return false;
   if (n!=m) {
     for (; m!=m_nElements; ++m) m_elementsMap[n++] =  m_elementsMap[m];
     m_nElements = n;
@@ -962,7 +1074,7 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
   for (; it!=itmax; ++it) {
 
     int  l = F;
-    int  p = F;
+    int  lastElementWithExpHit = F;
 
     for (--F; F>=0; --F) {
       
@@ -972,10 +1084,10 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
       if (!Ef.BackwardPropagationFilter(El))  break;
       
       if     (Ef.cluster()) {
-        p=F; l=F;
+        lastElementWithExpHit=F; l=F;
       }
       else if (Ef.inside() < 0  ) {
-        p=F; if (Ef.nholesB() > maxholes || Ef.dholesB() > maxdholes) break;
+        lastElementWithExpHit=F; if (Ef.nholesB() > maxholes || Ef.dholesB() > maxdholes) break;
       }
       int nm = Ef.nclustersB()+F;
       if (Ef.ndist() >  ndcut || nm < nclbest || (nm == nclbest && Ef.xi2totalB() > Xi2best) ) break;
@@ -1000,7 +1112,7 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
       nbest   = 0                                          ;
       ndfbest = 0                                          ;
       hbest   = nh                                         ;
-      hbestb  = m_elements[m_elementsMap[p]].nholesB()-nh  ;
+      hbestb  = m_elements[m_elementsMap[lastElementWithExpHit]].nholesB()-nh  ;
       itbest  = it                                         ;
       Xi2best = X                                          ;
       PA      = m_elements[m_elementsMap[l]].parametersUB();
@@ -1072,7 +1184,7 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
   if (!nbest) return true;
 
   m_nholes       = hbest ;
-  m_nholesb      = hbestb;
+  m_nHolesBefore      = hbestb;
   m_nclusters   += nbest ;
   m_ndf         += ndfbest;
   m_firstElement = TE[0] ;
@@ -1114,235 +1226,448 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
 
 bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 {
-  const double pi2 = 2.*M_PI, pi = M_PI;
-
+  const double pi2 = 2.*M_PI;
+  const double pi = M_PI;
+  
   if (m_firstElement >= m_lastElement) return false;
 
-  int L = m_lastElement, lElement = m_nElements-1;
+  /// index at which we start the extension 
+  int extensionStartIndex = m_lastElement;
+  /// last element on the trajectory
+  int lastElementOnTraj = m_nElements-1;
 
+  /// smoothing step, if requested.
+  /// Will re-evaluate the extension start and parameters there
   if (smoother) {
 
-    L = m_firstElement;
+    extensionStartIndex = m_firstElement;
 
-    if (m_elements[m_elementsMap[L]].difference()) {
-  
-      if (!m_elements[m_elementsMap[L]].firstTrajectorElement()) return false;
+    /// This checks if we already ran a forward and backward propagation within the current 
+    /// hits on the trajectory. Will enter this branch if we have not. 
+    if (m_elements[m_elementsMap[extensionStartIndex]].difference()) {
+      /// in this case, we will simply set up for forward propagation, projecting the predicted 
+      /// state forward without searching for new hits yet 
 
-      for (++L; L<=m_lastElement; ++L) {
-
-        InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[L-1]];
-        InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[L  ]];
-        if (!Ef.ForwardPropagationWithoutSearch(El)) return false;
+      /// prepare first element for forward propagation
+      if (!m_elements[m_elementsMap[extensionStartIndex]].firstTrajectorElement()) return false;
+      /// for all following elements with until the last with a known hit: 
+      for (++extensionStartIndex; extensionStartIndex<=m_lastElement; ++extensionStartIndex) {
+        InDet::SiTrajectoryElement_xk& previousElement = m_elements[m_elementsMap[extensionStartIndex-1]];
+        InDet::SiTrajectoryElement_xk& thisElement = m_elements[m_elementsMap[extensionStartIndex  ]];
+        /// propagate forward the state from the previous element
+        if (!thisElement.ForwardPropagationWithoutSearch(previousElement)) return false;
       }
     }
-    else                                          {
-      
+    /// this branch is entered if the first element is already in agreement between forward and back
+    /// so we already ran a smoothing step for the current hits on the trajectory
+    else{
       bool diff = false;
-      for (++L; L<=m_lastElement; ++L) {
+      /// for all elements starting from the one after our first hit, up to the last one with a hit: 
+      for (++extensionStartIndex; extensionStartIndex<=m_lastElement; ++extensionStartIndex) {
  
-        InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[L-1]];
-        InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[L  ]];
- 
+        InDet::SiTrajectoryElement_xk& previousElement = m_elements[m_elementsMap[extensionStartIndex-1]];
+        InDet::SiTrajectoryElement_xk& thisElement = m_elements[m_elementsMap[extensionStartIndex  ]];
+        /// this branch is entered while the range of hits we are looking at was still covered 
+        /// by the previously made backward smoothing 
         if (!diff) {
-          if ((diff = Ef.difference())) {
-            if (!Ef.addNextClusterF(El,Ef.cluster())) return false;
+          /// update flag if we are still covered by the smoothing
+          diff = thisElement.difference(); 
+          /// if not (first element not covered):  
+          if (diff) {
+            /// re-add cluster - this will update the counters and chi2 based on the refined upstream elements
+            if (!thisElement.addNextClusterF(previousElement,thisElement.cluster())) return false;
           }
         }
+        /// case if we have entered a piece of the tracks where there was no back smoothing yet
         else      {
-          if (!Ef.ForwardPropagationWithoutSearch(El)) return false;
+          /// propagate forward
+          if (!thisElement.ForwardPropagationWithoutSearch(previousElement)) return false;
         }
-      }
-    }
-    --L;
-  }
-  if ( L== lElement) return true;
+      } /// end loop from second to last element with hit 
+    } /// end case of existing smoothing
+    --extensionStartIndex;  /// decrement extensionStartIndex to get back to the last element with a hit on it
+  } /// end smoother 
+
+  /// if we are already at the last element on the trajectory, we have no-where to extend further
+  if ( extensionStartIndex== lastElementOnTraj) return true;
 
   // Search best forward trajectory prolongation
-  //  
+  /// These represent the indices used for the extension. Only contains 
+  /// the elements beyond the start (so not the piece already existing). 
   int                     MP    [300]                              ;
   int                     MPbest[300]                              ;
+  /// Trajectory elements of clusters on the best candidate
   int                     TE    [100]                              ;
+  /// Clusters on the best candidate
   const InDet::SiCluster* CL    [100]                              ;
 
+  /// hole and double-hole cuts
   int    maxholes       = m_tools->maxholes ()                     ;
   int    maxdholes      = m_tools->maxdholes()                     ;
+  /// max iteration we expect to reach
   const int itm         = itmax-1                                  ;
-  int    it             = 0                                        ;
+  /// current iteration
+  int    iteration      = 0                                        ;
+  /// index of best iteration so far
   int    itbest         = 0                                        ;
+  /// best quality seen so far
   int    qbest          =-100                                      ;
+  /// number of hits on the best extension
   int    nbest          = 0                                        ;
   int    ndfbest        = 0                                        ;
+  /// holes for best extension (only up to last hit)
   int    hbest          = 0                                        ;
+  /// holes beyond last hit for best extension
   int    hbeste         = 0                                        ;
+  /// number of missing expected hits on best extension (holes + deads)
   int    ndbest         = 0                                        ;
+  /// max holes plus deads
   int    ndcut          = 3                                        ;
+  /// best number of clusters
   int    nclbest        = 0                                        ;
-  int    lbest          = L                                        ;
-  int    F              = L                                        ;
-  int    M              = L                                        ;
-  MP    [M]             = L                                        ;
+  /// start index for best extension
+  int    lbest          = extensionStartIndex                      ;
+  /// index for looping over detector elements
+  int    index_currentElement              = extensionStartIndex   ;
+  /// current index in the MP array - runs along all elements on the candidate track
+  int    M              = extensionStartIndex                      ;
+  /// first point of current trajectory: start of extension
+  MP    [M]             = extensionStartIndex                      ;
   double Xi2best        = 0.                                       ;
+  /// maximum dPhi
   const double dfmax    = 2.2                                      ;
-  double f0             = m_elements[m_elementsMap[m_firstElement]].parametersUF().par()[2];
 
-  m_elements[m_elementsMap[F]].setNdist(0);
+  /// this is the at the location of the first hit on track
+  double f0             = m_elements[m_elementsMap[m_firstElement]].parametersUF().parameters()[2];
 
-  for (; it!=itmax; ++it) {
 
-    int  l  = F;
-    int  p  = F;
-    int  Fs = F;
-    int  Ml = M;
-    int  Cm = nclbest-lElement;
-    bool h  = false;
+  m_elements[m_elementsMap[index_currentElement]].setNdist(0);
 
-    for (++F; F!=m_nElements; ++F) {
+  /// start to iterate 
+  for (; iteration!=itmax; ++iteration) {
+
+    int  lastElementWithSeenHit  = index_currentElement;
+    int  lastElementWithExpHit  = index_currentElement;
+    /// index of the previous detector element in the forward propagation 
+    int  index_previousElement = index_currentElement;
+    /// Last index in the M array where we found a cluster 
+    int  mLastCluster = M;  
+    /// missing clusters on the best candidate compared to the maximum possible 
+    int  Cm = nclbest-lastElementOnTraj;
+    /// hole flag
+    bool haveHole  = false;
+
+    /// loop over detector elements - the first time this is called, we start at the first 
+    /// one beyond the one that saw the last hit 
+    for (++index_currentElement; index_currentElement!=m_nElements; ++index_currentElement) {
       
-      InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[Fs]];
-      InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[F ]];
+      /// 
+      InDet::SiTrajectoryElement_xk& prevElement    = m_elements[m_elementsMap[index_previousElement]];
+      InDet::SiTrajectoryElement_xk& currentElement = m_elements[m_elementsMap[index_currentElement ]];
 
-      if (!Ef.ForwardPropagationWithSearch(El)) {
+      /// propagate forward to the current element, and search for matching clusters
+      if (!currentElement.ForwardPropagationWithSearch(prevElement)) {
+        /// In case of a forward propagation error, try to recover cases due to barrel-endcap transitions 
 
-        if (!Ef.isBarrel() || Fs!=F-1) break;
+        /// we are already in the endcaps, or if the incompatible elements the failure are not subsequent: abooooort!  
+        if (!currentElement.isBarrel() || index_previousElement!=index_currentElement-1) break;
 
-        int f = F;
-        for (; f!=m_nElements; ++f) {
-          if (!m_elements[m_elementsMap[f]].isBarrel() ) break;
+        /// in the barrel or if the previous element is the one just before this, loop over the remaining elements
+        /// and look for the first one not in the barrel. 
+        /// This detects barrel-endcap transitions
+        int index_auxElement = index_currentElement;
+        for (; index_auxElement!=m_nElements; ++index_auxElement) {
+          if (!m_elements[m_elementsMap[index_auxElement]].isBarrel() ) break;
         }
-        if (f==m_nElements) break;
+        /// we didn't find any endcap elements? Likely a bad attempt, so abort 
+        if (index_auxElement==m_nElements) break;
 
-        F = f-1; continue;
-      }
-      else {Fs = F;}  MP[++M] = F;
+        /// If we found a barrel-endcap transition, 
+        /// we continue our loop at the first endcap element 
+        /// along the trajectory. 
+        index_currentElement = index_auxElement-1; 
+        continue;
+      } /// end of propagation failure handling 
 
-      if     (Ef.cluster()     ) {
-        double df = fabs(Ef.parametersUF().par()[2]-f0); if (df > pi) df = pi2-df;
+      /// NOTE: The 'else' here is mainly for clarity - due to the 'continue'/'break' statements
+      /// in the 'if' above, we only reach here if the condition above (propagation failure) is not met. 
+      else {    
+        /// if the forward propagation was succesful: 
+        /// update the 'previous element' to the current one 
+        index_previousElement = index_currentElement;
+      }  
+      /// Reminder: we only reach this point in case of a succesful forward propagation
+      
+      /// add the current element to the MP list, increment M index
+      MP[++M] = index_currentElement;
+
+      /// if we found a matching cluster at this element: 
+      if     (currentElement.cluster()     ) {
+        /// get the dPhi w.r.t the first hit 
+        double df = fabs(currentElement.parametersUF().parameters()[2]-f0); 
+        /// wrap into 0...pi space
+        if (df > pi) df = pi2-df;
+        /// and bail out if the track is curving too extremely in phi 
         if (df > dfmax) break;
-        p=F; l=F; Ml = M; h=false;
+        /// update indices for last hit 
+        lastElementWithExpHit=index_currentElement; 
+        lastElementWithSeenHit=index_currentElement; 
+        mLastCluster = M; 
+        haveHole=false;
       }
-
-      else if (Ef.inside() < 0  ) {
-        p=F; if (Ef.nholesF() > maxholes || Ef.dholesF() > maxdholes) break; h=true;
-
-        double df = fabs(Ef.parametersPF().par()[2]-f0); if (df > pi) df = pi2-df;
+      /// we did not find a compatible hit, but we would expect one --> hole! 
+      else if (currentElement.inside() < 0  ) {
+        lastElementWithExpHit=index_currentElement;     
+        /// check if we exceeded the maximum number of holes or double holes. If yes, abort! 
+        if (currentElement.nholesF() > maxholes || currentElement.dholesF() > maxdholes) break; 
+        haveHole=true;
+        /// and do the dPhi check again, but using the predicted parameters (as no hit) 
+        double df = fabs(currentElement.parametersPF().parameters()[2]-f0); 
+        if (df > pi) df = pi2-df;
         if (df > dfmax ) break;
       }
+      /// we did not find a hit, but also do not cross the active surface (no hit expected)
       else                       {
-        double df = fabs(Ef.parametersPF().par()[2]-f0); if (df > pi) df = pi2-df;
+        /// apply only the dPhi check 
+        double df = fabs(currentElement.parametersPF().parameters()[2]-f0); 
+        if (df > pi) df = pi2-df;
         if (df > dfmax) break;
       }
-      int nm = Ef.nclustersF()-F;
-      if (Ef.ndist() > ndcut ||  nm < Cm || (nm == Cm && Ef.xi2totalF() > Xi2best)) break;
-    }
+      /// number of missing clusters so far (for whatever reason) 
+      /// note: negative number (0 == all possible collected)
+      int nm = currentElement.nclustersF()-index_currentElement;
+      /// Now, check a number of reasons to exit early: 
+      if (     currentElement.ndist() > ndcut                       /// if we have too many deads
+           ||  nm < Cm                                              /// or we have  already missed more hits than in the best so far
+           || (nm == Cm && currentElement.xi2totalF() > Xi2best)    /// or we have missed the same #hits but have a worse chi2
+          ) break;
+    } /// end of loop over elements
 
-    int    m  = m_elementsMap[l];
+    /// now we have assembled a full candidate for the extended trajectory. 
+
+    /// get the index of the element where we last saw a hit 
+    int    m  = m_elementsMap[lastElementWithSeenHit];
+    /// get the number of clusters we saw at that point 
     int    nc = m_elements[m].nclustersF();
+    /// and the number of holes (this means we exclude holes after the last hit!) 
     int    nh = m_elements[m].nholesF();
-    m_nholese = m_elements[m_elementsMap[p]].nholesF()-nh;
+    /// set the number of holes after the last hit - total holes minus holes until last hit
+    m_nHolesAfter = m_elements[m_elementsMap[lastElementWithExpHit]].nholesF()-nh;
 
-    if (it==0 && nc==m_nclusters) return true;
+    /// if we are in the first iteration, and have not found any new clusters 
+    /// beyond the ones already collected in initialize(), return. 
+    if (iteration==0 && nc==m_nclusters) return true;
 
-    int    fl = F; if (fl==m_nElements) --fl;
-    int    nd =  m_elements[m_elementsMap[fl]].ndist();
+    /// get the last element we reached before exiting the loop
+    int    lastElementProcessed = index_currentElement; 
+    /// if we looped over all, make it the last element there is 
+    if (lastElementProcessed==m_nElements) --lastElementProcessed;
+
+    /// number of missed expected hits seen 
+    int    nd =  m_elements[m_elementsMap[lastElementProcessed]].ndist();
+    /// clusters minus holes before last hit
+    /// This is used as a quality estimator
     int    q  = nc-nh;
+    /// total chi2 
     double X  = m_elements[m].xi2totalF();
+    /// if the quality is better than the current best (chi2 as tie-breaker): 
     if     ( (q > qbest) || (q==qbest && X < Xi2best ) ) {
+      /// update the quality flags
       qbest   = q;
+      ///reset the running index of clusters on best track (will now be populated) 
       nbest   = 0;
+      /// and the degree-of-freedom count
       ndfbest = 0;
+      /// update best candidate hole counts
       hbest   = nh;
-      hbeste  = m_elements[m_elementsMap[p]].nholesF()-nh;
-      itbest  = it; 
-      lbest   = L ;
+      /// as well as holes after last hit 
+      hbeste  = m_elements[m_elementsMap[lastElementWithExpHit]].nholesF()-nh;
+      /// store the iteration number...
+      itbest  = iteration; 
+      /// extensionStartIndex-value used for the best candidate 
+      /// (starting point)
+      lbest   = extensionStartIndex ;
+      /// the chi2... 
       Xi2best = X ;
-      ndbest  = nd; if (fl==lElement && nd < ndcut) ndcut = nd;
+      /// the number of missed expected hits
+      ndbest  = nd; 
+      /// if our track went through the full trajectory and we collect a small number 
+      /// of  missed expected hits: update the cut for the future (need to be better)
+      if (lastElementProcessed==lastElementOnTraj && nd < ndcut) ndcut = nd;
 
-      for (int j=L+1; j<=Ml; ++j) {
-
+      /// now, loop over the elements on this possible extension again, up to the last cluster
+      for (int j=extensionStartIndex+1; j<=mLastCluster; ++j) {
+        /// get the corresponding element 
         int    i  = MP[j];
         InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[i]];
-
+        /// if we are inside or within tolerance
         if (Ei.inside() <= 0) {
+          /// then store this index in MPbest (meaning we skip any element that isn't crossed)  
           MPbest[++lbest] = i;
-          if (Ei.cluster()) {CL[nbest]=Ei.cluster(); TE[nbest++]=lbest; ndfbest+=Ei.ndf();}
+          /// if we have a hit here, 
+          if (Ei.cluster()) {
+            /// store the cluster and l-index 
+            CL[nbest]=Ei.cluster(); 
+            TE[nbest++]=lbest; 
+            /// and increment NDF count
+            ndfbest+=Ei.ndf();
+          }
         }
       }
+      /// best total cluster count: clusters we had so far + newly found ones 
       nclbest = m_nclusters+nbest;
-      if ( (nclbest >= 14 && !h) || (fl==lElement && ndbest == 0)) break;
-    }
+      /// if we have an amazing track with at least 14(!) clusters and no holes, or if we passed along the full trajectory 
+      /// without any missed expected hits, we stop iterating, as we can not improve
+      if ( (nclbest >= 14 && !haveHole) || (lastElementProcessed==lastElementOnTraj && ndbest == 0)) break;
+    } /// end of branch for quality better than current best
 
-    F = -1; bool cl = false; int nb = lElement-nclbest-1; double Xn;
+    /// set index_currentElement negative (use as iteration exit condition below)
+    index_currentElement = -1; 
+    /// boolean to check if we have two clusters on a given element 
+    bool cl = false; 
+    /// helper number - used below
+    int nb = lastElementOnTraj-nclbest-1; 
+    /// chi square holder
+    double Xn;
 
-    for (int j=Ml; j!=L; --j) {
-
+    /// Now, we prepare for the next iteration. 
+    /// This is done by walking backward along the found trajectory and seeing if, by not using one cluster,
+    /// we could theoretically come to a better solution if doing so would give us hits everywhere
+    /// else along the remaining
+    /// trajectory. The first such case is used to start the next iteration. 
+    
+    /// Start reverse loop  
+    for (int j=mLastCluster; j!=extensionStartIndex; --j) {
+      /// corresponding element 
       int i = MP[j];
       InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[i]];
 
-      if (i!=lElement && Ei.cluster() && Ei.isNextClusterHoleF(cl,Xn)) {
+      /// if we are not on the last element, have a hit, and removing the hit would not make us fail the cuts: 
+      if (i!=lastElementOnTraj && Ei.cluster() && Ei.isNextClusterHoleF(cl,Xn)) {
 
+        /// this is Ei.nclustersF() + [steps from lastElementOnTraj to i] - nclbest - 1
+        /// ==> change in number of hits that would be possible w.r.t the best track 
+        /// if ALL following elements had hits, if we removed this hit (to get a better extension) 
         int nm = nb-i+Ei.nclustersF();
 
-        if (!cl) {if (Ei.dist() < -2. && Ei.ndist() > ndcut-1) continue;}
+        /// if removing this hit would result in us losing a hit on track (no backup on hand): 
+        if (!cl) {
+          /// if we would gain a missed expected hit by removing this one and fail the missing hit cut due to this,
+          /// keep iterating and don't do anything here
+          if (Ei.dist() < -2. && Ei.ndist() > ndcut-1) continue;
+        }
+        /// if we would keep a hit even if we remove this cluster, increment the counter to account for this
         else  ++nm;
-
+        
+        /// if we can not possibly improve (nm < 0) or if we can not improve and the chi2 can not 
+        /// go below the best one, keep looping, look for another cluster to pull out
         if (nm < 0 || (nm == 0 &&   Xn > Xi2best)) continue;
-        F=i; M=j; break;
+        /// otherwise, start the next iteration here! 
+        index_currentElement=i; 
+        M=j; 
+        break;
       }
-    }
+    } /// end of reverse loop 
 
-    if (F < 0 ) break;
-    if (it!=itm) if (!m_elements[m_elementsMap[F]].addNextClusterF()) break;
+    /// if we did not find any candidate where we could improve by removing a hit, stop iteration 
+    if (index_currentElement < 0 ) break;
+    /// if we are not in the last iteration, final preparation for iterating by making our new start 
+    /// point skip the cluster used there so far. 
+    if (iteration!=itm && !m_elements[m_elementsMap[index_currentElement]].addNextClusterF()) break;
   }
 
-  if (it == itmax) --it;
+  /// if reaching max iterations, reset iteration counter to the last iteration that was run 
+  if (iteration == itmax) --iteration;
 
+  /// exit if no good track found 
   if (!nbest) return true;
 
+  /// set members to counters of best track 
   m_nholes      = hbest      ;
-  m_nholese     = hbeste     ;
+  m_nHolesAfter     = hbeste     ;
   m_nclusters  += nbest      ;
   m_ndf        += ndfbest    ;
   m_lastElement = TE[nbest-1];
   m_nElements   = m_lastElement+1;
 
+  /// if the indices do not match, there is an element along the way which we do not traverse on the sensitive area
   if (m_lastElement != MPbest[m_lastElement]) {
-    for (int n = L+1; n<=m_lastElement; ++n) m_elementsMap[n]=m_elementsMap[MPbest[n]];
+    /// update the element map, removing unused elements 
+    for (int n = extensionStartIndex+1; n<=m_lastElement; ++n){
+       m_elementsMap[n]=m_elementsMap[MPbest[n]];
+    }
   }
-  if (itbest==it) return true;
+  /// if the last iteration was the best, all is good and we return 
+  if (itbest==iteration) return true;
 
+  /// 
   int mb =  0;
-  F      = -1;
-  for (int n = L+1; n!=m_nElements; ++n) {
+  /// reset index_currentElement again
+  index_currentElement      = -1;
 
+  /// loop over all detector elements beyond the start point
+  for (int n = extensionStartIndex+1; n!=m_nElements; ++n) {
+    /// get the corresponding element 
     InDet::SiTrajectoryElement_xk& En = m_elements[m_elementsMap[n]];
 
     int m = mb;
+    /// find the index in the hits-on-track array corresponding to this DE 
     for (; m!=nbest; ++m) if (TE[m]==n) break;
-    
+    /// if we found this element in the array: 
     if (m!=nbest) {
+      /// if we have since switched to a different cluster on this element compared to the one in the best track: 
       if (CL[m]!=En.cluster()) {
-        if (F<0) {F=n; En.addNextClusterF(m_elements[m_elementsMap[n-1]],CL[m]);} 
-        else    {     En.setCluster(CL[m]);                                    }
-      }
+        /// if this is the time we need to update a cluster: 
+        if (index_currentElement<0) {
+          /// update the index
+          index_currentElement=n; 
+          /// set the cluster to be used at this element to the one used for the best extension
+          /// and propagate info from previous element 
+          En.addNextClusterF(m_elements[m_elementsMap[n-1]],CL[m]);
+        } 
+        /// if we already updated one element: Can't use addNextClusterF directly, 
+        /// need to clean up later. For now, just update the cluster info itself
+        else    {     
+          En.setCluster(CL[m]);                                    
+        }
+      } /// end branch for different active cluster on DE
+      /// exit if we have dealt with all of the clusters now
       if (++mb == nbest) break;
-    }
+    }  /// end of case if we found this element in the cluster-on-track array
+    /// case if a detector element is not on best trajectory 
     else {
+      /// if this element has an active cluster: 
       if (En.cluster()) {
-        if (F<0) {F=n; En.addNextClusterF(m_elements[m_elementsMap[n-1]],0);}
-        else    {     En.setCluster(0);                                    }
+        /// if this is the first we need to update a cluster, can do the full work 
+        if (index_currentElement<0) {
+          index_currentElement=n; 
+          /// tell this DE to not use a cluster, and propagate info from prev. element
+          En.addNextClusterF(m_elements[m_elementsMap[n-1]],0);
+        }
+        /// if we already updated one element: Can't use addNextClusterF directly, 
+        /// need to clean up later. For now, just update the cluster info itself
+        else    {     
+          /// tell this DE to not use a cluster 
+          En.setCluster(0);                                    
+        }
       }
     }
-  } 
-  if (F < 0 || m_lastElement == F) {
+  }  /// end of loop over all DE beyond start point 
+
+  /// if we did not have to update any cluster, or if we only had to 
+  /// change the last hit: all good, can exit
+  if (index_currentElement < 0 || m_lastElement == index_currentElement) {
     return true;
   }  
 
-  for (++F; F<=m_lastElement; ++F) {
-    
-    InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[F-1]];
-    InDet::SiTrajectoryElement_xk& Ef = m_elements[m_elementsMap[F  ]];
-    if (!Ef.ForwardPropagationWithoutSearch(El)) return false;
+  /// otherwise, if we had to update a cluster along the way, need one more forward propagation run
+  /// to make sure all the counters and chi2 etc reflect the best track's cluster configuration
+  for (++index_currentElement; index_currentElement<=m_lastElement; ++index_currentElement) {
+    InDet::SiTrajectoryElement_xk& prevElement = m_elements[m_elementsMap[index_currentElement-1]];
+    InDet::SiTrajectoryElement_xk& currentElement = m_elements[m_elementsMap[index_currentElement  ]];
+    if (!currentElement.ForwardPropagationWithoutSearch(prevElement)) return false;
   }
+  /// now we can finally exit
   return true;
 }
 
@@ -1484,7 +1809,7 @@ void  InDet::SiTrajectory_xk::sortStep()
     int e = m_elementsMap[n];
     if     (m_elements[e].cluster()) break;
     if     (m_elements[e].clusterNoAdd()) --m_nclustersNoAdd;
-    else if (m_elements[e].inside() < 0 && m_elements[e].detstatus()>=0) {--m_nholes; ++m_nholesb;}
+    else if (m_elements[e].inside() < 0 && m_elements[e].detstatus()>=0) {--m_nholes; ++m_nHolesBefore;}
   }
 
   // Search last detector elements with cluster
@@ -1495,7 +1820,7 @@ void  InDet::SiTrajectory_xk::sortStep()
     int e = m_elementsMap[m];
     if     (m_elements[e].cluster()) break;
     if     (m_elements[e].clusterNoAdd()) --m_nclustersNoAdd;
-    else if (m_elements[e].inside() < 0 && m_elements[e].detstatus()>=0) {--m_nholes; ++m_nholese;}
+    else if (m_elements[e].inside() < 0 && m_elements[e].detstatus()>=0) {--m_nholes; ++m_nHolesAfter;}
   }
   m_firstElement = n;
   m_lastElement  = m;

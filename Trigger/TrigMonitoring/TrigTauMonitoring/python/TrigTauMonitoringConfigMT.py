@@ -198,10 +198,11 @@ class TrigTauMonAlgBuilder:
   #
   def bookRNNInputVars( self, monAlg, trigger,nProng, online ):
 
-    monGroupName = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputScalar_'+nProng
+    monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputScalar_'+nProng
+    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputScalar_'+nProng
 
     monGroup = self.helper.addGroup( monAlg, monGroupName, 
-                              self.basePath+'/'+monGroupName )
+                              self.basePath+'/'+monGroupPath )
 
     monGroup.defineHistogram('centFrac', title='Centrality Fraction ('+nProng+'); centFrac; Events',xbins=50,xmin=-0.05,xmax=1.2)
     monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk log ('+nProng+'); etOverPtLeadTrk_log; Events',xbins=60,xmin=-3.,xmax=3.)
@@ -216,10 +217,11 @@ class TrigTauMonAlgBuilder:
 
   def bookRNNTrack( self, monAlg, trigger, online ):
 
-    monGroupName = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputTrack'
+    monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputTrack'
+    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputTrack'
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
-                              self.basePath+'/'+monGroupName )
+                              self.basePath+'/'+monGroupPath )
 
     monGroup.defineHistogram('track_pt_log',title='track_pt_log;track_pt_log;Events',xbins=20,xmin=2,xmax=7)
     monGroup.defineHistogram('track_pt_jetseed_log',title='track_pt_jetseed_log;track_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7)
@@ -233,10 +235,11 @@ class TrigTauMonAlgBuilder:
 
   def bookRNNCluster( self, monAlg, trigger, online ):
 
-    monGroupName = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputCluster'
+    monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputCluster'
+    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputCluster'
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
-                              self.basePath+'/'+monGroupName )
+                              self.basePath+'/'+monGroupPath )
                               
     monGroup.defineHistogram('cluster_et_log',title='cluster_et_log; cluster_et_log;Events',xbins=30,xmin=0,xmax=6)
     monGroup.defineHistogram('cluster_pt_jetseed_log',title='cluster_pt_jetseed_log; cluster_pt_jetseed_log;Events',xbins=50,xmin=2,xmax=7)

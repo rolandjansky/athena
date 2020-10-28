@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVScaleCorrCondAlg.h"
@@ -31,15 +31,13 @@ LArHVScaleCorrCondAlg::LArHVScaleCorrCondAlg(const std::string& name, ISvcLocato
     m_larfcal_id(nullptr),	
     m_electrodeID(nullptr)
 {
-
-  m_deltatupdate = 0;
   m_T0 = 90.371;   // parameter for vdrift
 
   declareProperty("fixHVCorr",    m_fixHVStrings);
-  declareProperty("DeltaTupdate", m_deltatupdate);
-  declareProperty("UpdateIfChanged",m_updateIfChanged=true,"Update HV regions for which the HV has acutally changed");
   declareProperty("UndoOnlineHVCorr",m_undoOnlineHVCorr=true,"Undo the HVCorr done online");
-
+  declareProperty("UseCurrentsInHVEMB",  m_useCurrentEMB=false, "Use currents in EMB as well");
+  declareProperty("UseCurrentsInHVFCAL1",  m_useCurrentFCAL1=false, "Use currents in FCAL1 as well");
+  declareProperty("UseCurrentsInHVOthers",  m_useCurrentOthers=false, "Use currents in other partitions as well");
 }
 
 
@@ -91,12 +89,7 @@ StatusCode LArHVScaleCorrCondAlg::initialize() {
   m_completeRange.push_back(std::make_pair<IdentifierHash,IdentifierHash>(0,182468));
 
 
-  if (m_updateIfChanged) 
-    ATH_MSG_INFO( "Will re-compute HV correction for channels with updated voltage" );
-  else {
-      if (m_deltatupdate) ATH_MSG_INFO( "Will re-compute HV corrections after " << m_deltatupdate <<" seconds." );
-      ATH_MSG_INFO( "Will re-compute HV corrections for each new LumiBlock" );
-  }
+  ATH_MSG_INFO( "Will re-compute HV correction for channels with updated voltage" );
 
   ATH_CHECK(m_cablingKey.initialize());
   ATH_CHECK(m_hvKey.initialize());
@@ -166,71 +159,19 @@ StatusCode LArHVScaleCorrCondAlg::execute() {
   vScale.resize(182468,(float)1.0);
 
   ATH_MSG_DEBUG("LArHVScaleCorrCondAlg execute()"); 
-  if (m_updateIfChanged) {
-    const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
-    if (updatedCells.size()) {
-      const HASHRANGEVEC hashranges=this->cellsIDsToPartition(updatedCells);
-      StatusCode sc=this->getScale(hashranges, vScale, hvdata, onlHVCorr, cabling);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
-	return sc;
-      }
+  const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
+  if (updatedCells.size()) {
+    const HASHRANGEVEC hashranges=this->cellsIDsToPartition(updatedCells);
+    StatusCode sc=this->getScale(hashranges, vScale, hvdata, onlHVCorr, cabling);
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
+      return sc;
     }
-    else {
-      ATH_MSG_DEBUG("No real voltage change, no update necessary");
-      return StatusCode::SUCCESS;
-    }
-  }//end if updateIfChanges
+  }
   else {
-    // FIXME: statics are not MT-safe!!!
-    static unsigned int timestamp_old = 0; 
-    static unsigned int lumiblock_old = 0;
-    static unsigned int run_old = 0;
-
-    const unsigned int lumiblock = ctx.eventID().lumi_block();
-    const unsigned int run       = ctx.eventID().run_number();
-    const unsigned int timestamp = ctx.eventID().time_stamp();
-  
-    ATH_MSG_DEBUG("run|lbn|timestamp [CURRENT][CACHED] --> [ " 
-		  << run << " | " << lumiblock << " | " << timestamp << " ] [ " 
-		  << run_old << " | " << lumiblock_old << " | " << timestamp_old << " ] ");
-    
-    const bool updateAfterDeltaT = ( m_deltatupdate && (timestamp - timestamp_old) >= m_deltatupdate );
-    const unsigned int deltat = m_deltatupdate > 0?m_deltatupdate:120;
-
-    if (lumiblock != lumiblock_old || run != run_old || updateAfterDeltaT ) {
-      
-      timestamp_old = timestamp;    
-      lumiblock_old = lumiblock;
-      run_old       = run;
-
-      const EventIDBase start{run, EventIDBase::UNDEFEVT, timestamp, 0, lumiblock, EventIDBase::UNDEFNUM};
-      const EventIDBase stop{run, EventIDBase::UNDEFEVT, timestamp+deltat, 0, lumiblock+1, EventIDBase::UNDEFNUM};
-      const EventIDRange rangeWLB{start, stop};
-
-      rangeW = EventIDRange::intersect(rangeW,rangeWLB);
-      const std::set<Identifier>& updatedCells=hvdata->getUpdatedCells();
-      if (updatedCells.size()) {
-	IChronoStatSvc* chrono;
-	if (StatusCode::SUCCESS!=service("ChronoStatSvc" , chrono )) {
-	  ATH_MSG_ERROR("cannot find chronostat " );
-	  return StatusCode::FAILURE;
-	}
-	std::string chronoName = "LArHVScaleCorrCondAlg";
-	chrono -> chronoStart( chronoName); 
-	StatusCode sc=this->getScale(m_completeRange, vScale, hvdata, onlHVCorr,cabling);
-	if (sc.isFailure()) {
-	  ATH_MSG_ERROR( " LArHVScaleCorrCondAlg::LoadCalibration error in getScale" );
-	  return sc;
-	}
-	chrono -> chronoStop( chronoName );
-	ATH_MSG_DEBUG("LArHVScaleCorrCondAlg Chrono stop : delta " 
-		      << chrono->chronoDelta (chronoName,IChronoStatSvc::USER ) 
-		      * (microsecond / second) << " second ");
-
-      }
-    }//end if 
-  }//end else m_updateIfChanged
+    ATH_MSG_DEBUG("No real voltage change, no update necessary");
+    return StatusCode::SUCCESS;
+  }
 
   // and now record output object
   std::unique_ptr<LArHVCorr> hvCorr = std::make_unique<LArHVCorr>(std::move(vScale), cabling, m_calocell_id );
@@ -392,30 +333,45 @@ StatusCode LArHVScaleCorrCondAlg::getScale(const HASHRANGEVEC& hashranges,
 	if (notfound) {
 	  ATH_MSG_WARNING( " At least one HV value not found in database for cell " << m_larem_id->show_to_string(offid) );
 	}
+        std::vector<LArHVData::CURRENT_t> currlist;
+        if(m_useCurrentEMB || m_useCurrentFCAL1 || m_useCurrentOthers) {
+             sc = hvdata->getCurrent(offid,currlist);
+             if (sc.isFailure() || currlist.size() != hvlist.size()) {
+	        ATH_MSG_WARNING( " Current values not the same size as hv for cell " << m_larem_id->show_to_string(offid) << " resetting to 0" );
+                currlist.resize(hvlist.size(),LArHVData::CURRENT_t{0,0});
+             }
+
+        }
 
 	mycorr=0.;
 	mynorm=0.;
 	for (unsigned int i=0;i<hvlist.size();i++) {
-	  double E = champ_e(hvlist[i].hv,d);
-
-	  // dont correct if E is very close to E nominal to avoid small glitches
-	  if (std::fabs(E_nominal)>1e-3) {
-	    const double deviation = std::fabs((E-E_nominal)/E_nominal);
-	    if (deviation<1e-3) E = E_nominal;
-	  }
-
 // barrel accordion
 	  if (isbarrelEM) {
-	    const double corr = this->Scale_barrel(hvlist[i].hv)*hvlist[i].weight;
-	    mycorr += corr;
+	    //const double corr = this->Scale_barrel(hvlist[i].hv)*hvlist[i].weight;
+	    //mycorr += corr;
+            if(m_useCurrentEMB) mycorr += this->Scale_barrel(hvlist[i].hv-currlist[i].current)*hvlist[i].weight;
+            else mycorr += this->Scale_barrel(hvlist[i].hv)*hvlist[i].weight;
 	  }
 //FCAL module 1
 	  else if (isFCAL1) {
-	    const double corr = this->Scale_FCAL1(hvlist[i].hv) * hvlist[i].weight;
-	    mycorr+=corr;
+	    //const double corr = this->Scale_FCAL1(hvlist[i].hv) * hvlist[i].weight;
+	    //mycorr+=corr;
+            if(m_useCurrentFCAL1) mycorr += this->Scale_FCAL1(hvlist[i].hv-currlist[i].current) * hvlist[i].weight;
+            else mycorr += this->Scale_FCAL1(hvlist[i].hv) * hvlist[i].weight;
 	  }
 // other subdetectors
 	  else {
+	    double E;
+            if(m_useCurrentOthers) E = champ_e(hvlist[i].hv-currlist[i].current,d);
+            else E = champ_e(hvlist[i].hv,d);
+
+	    // dont correct if E is very close to E nominal to avoid small glitches
+	    if (std::fabs(E_nominal)>1e-3) {
+	       const double deviation = std::fabs((E-E_nominal)/E_nominal);
+	       if (deviation<1e-3) E = E_nominal;
+	    }
+
 	    const double corr = Respo(E,E_nominal,T)*hvlist[i].weight;
 	    mycorr+= corr;
 	  }    

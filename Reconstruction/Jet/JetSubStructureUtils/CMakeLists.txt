@@ -15,7 +15,7 @@ atlas_add_library( JetSubStructureUtils
    INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES}
-   xAODJet xAODMuon MuonSelectorToolsLib
+   xAODJet xAODTracking xAODBTagging xAODMuon MuonSelectorToolsLib
    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
 
 # Install files from the package:

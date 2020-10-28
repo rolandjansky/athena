@@ -936,9 +936,33 @@ class RecoFragmentsPool(object):
         The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
         TODO, if that code survives migration to New JO we need to handle the case when the creator is an inner function
         """
-        requestHash = hash( ( creator, tuple(kwargs.keys()), tuple(kwargs.values()) ) )
+        from inspect import signature
+        def bind_callargs(func, *args, **kwargs):
+            """ Take a function and a set of args and kwargs and return a dictionary mapping argument name to value, accounting for defaults
+            """
+            sig = signature(func)
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+            return dict(bound.arguments)
+
+        allargs = bind_callargs(creator, flags, **kwargs)
+        # First arg is flags, which we don't want to depend on
+        firstkey = list(allargs.keys())[0]
+        del allargs[firstkey]
+        # Drop dict of kwargs if it is in allargs
+        if allargs.keys():
+            lastkey = list(allargs.keys())[-1]
+            if allargs[lastkey].__class__ == dict:
+               kwargs = allargs[lastkey]
+               del allargs[lastkey]
+               allargs.update(kwargs)
+        
+        sortedkeys = sorted(allargs.keys())
+        sortedvals = [allargs[key] for key in sortedkeys]
+
+        requestHash = hash( ( creator, tuple(sortedkeys), tuple(sortedvals) ) )
         if requestHash not in cls.fragments:
-            recoFragment = creator( flags, **kwargs )
+            recoFragment = creator( flags, **allargs )
             cls.fragments[requestHash] = recoFragment
             return recoFragment
         else:

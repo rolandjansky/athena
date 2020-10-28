@@ -4,10 +4,7 @@
 
 # To know the CURRENT COMCOND tag.
 
-from __future__ import print_function
-
 import sys
-from PyCool import cool
 sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
 from AtlCoolBKLib import resolveAlias
 

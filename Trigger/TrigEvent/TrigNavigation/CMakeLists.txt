@@ -45,6 +45,6 @@ foreach( name TriggerElement_test Holder_test Registration_test Ownership_test H
 endforeach()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/test.txt share/navigation2dot.py )
 

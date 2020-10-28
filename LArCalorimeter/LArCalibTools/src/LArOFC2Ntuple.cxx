@@ -94,9 +94,18 @@ StatusCode LArOFC2Ntuple::stop() {
        return StatusCode::FAILURE;
      }
   }
+  
+  const LArOnOffIdMapping *cabling=0;
+  if(m_isSC) {
+    ATH_MSG_DEBUG( "LArOFC2Ntuple: using SC cabling" );
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingSCKey};
+    cabling=*cablingHdl;
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling=*cablingHdl;
+  }
 
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling=*cablingHdl;
+
   if(!cabling) {
      ATH_MSG_WARNING( "Do not have cabling object LArOnOffIdMapping" );
      return StatusCode::FAILURE;

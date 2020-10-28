@@ -2,10 +2,7 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 import os,sys
-from PROCTools.getFileLists import *
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
 from ROOT import TFile,TTree
 from PROCTools.diffTAGTree import diffTTree

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -69,7 +69,8 @@ namespace InDet {
       ( std::list<Amg::Vector3D>& globalPositions,
 	      std::list<const InDetDD::SiDetectorElement*>& Road,
         bool testDirection, 
-        InDet::SiDetElementRoadMakerData_xk & roadMakerData) const=0;
+        InDet::SiDetElementRoadMakerData_xk & roadMakerData,
+        const EventContext& ctx) const=0;
 
       /// This is the signature used in most ATLAS clients. 
       /// @param[in] ctx: Event context

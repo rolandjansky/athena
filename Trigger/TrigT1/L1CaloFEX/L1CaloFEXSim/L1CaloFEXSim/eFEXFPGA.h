@@ -24,6 +24,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
+#include <vector>
 
 namespace LVL1 {
   
@@ -54,6 +55,8 @@ namespace LVL1 {
     virtual int ID() override {return m_id;}
 
     virtual void SetTowersAndCells_SG( int [][6] ) override ;
+
+    virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) override ;
 
     /** Internal data */
   private:

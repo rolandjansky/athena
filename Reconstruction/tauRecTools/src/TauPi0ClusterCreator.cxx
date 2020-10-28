@@ -42,7 +42,7 @@ StatusCode TauPi0ClusterCreator::initialize() {
 //______________________________________________________________________________
 StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer,
 							  xAOD::PFOContainer& hadronicClusterPFOContainer,
-							  xAOD::CaloClusterContainer& pi0CaloClusterContainer,
+							  xAOD::CaloClusterContainer& /*pi0CaloClusterContainer*/,
 							  const xAOD::CaloClusterContainer& pPi0ClusterContainer) const
 {
     // Any tau needs to have PFO vectors. Set empty vectors before nTrack cut
@@ -94,11 +94,16 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
         // (not a copy!) since the pointer will otherwise be different than in clusterToShotMap
         std::vector<unsigned> shotsInCluster = getShotsMatchedToCluster( shotVector, clusterToShotMap, cluster);
 
+	/*
         // Make a copy of the cluster to store in output container.
         xAOD::CaloCluster* pPi0Cluster = new xAOD::CaloCluster( *cluster );
 
         // store pi0 calo cluster in the output container
         pi0CaloClusterContainer.push_back(pPi0Cluster);
+	*/
+
+	// temporary, will be cleaned up once pi0CaloClusterContainer is dropped
+	const xAOD::CaloCluster* pPi0Cluster = cluster;
 
         // Calculate input variables for fake supression. 
         // Do this before applying the vertex correction, 
@@ -155,7 +160,9 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xA
 
         // Set PFO variables
         ElementLink<xAOD::CaloClusterContainer> clusElementLink;
-        clusElementLink.toContainedElement( pi0CaloClusterContainer, pPi0Cluster );
+	// will be cleaned up once pi0CaloClusterContainer is dropped
+        //clusElementLink.toContainedElement( pi0CaloClusterContainer, pPi0Cluster );
+        clusElementLink.toContainedElement( pPi0ClusterContainer, pPi0Cluster );
         neutralPFO->setClusterLink( clusElementLink );
         
         neutralPFO->setP4( (float) pPi0Cluster->pt(), (float) pPi0Cluster->eta(), (float) pPi0Cluster->phi(), (float) pPi0Cluster->m());

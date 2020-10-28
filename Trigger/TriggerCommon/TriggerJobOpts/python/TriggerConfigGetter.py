@@ -172,7 +172,7 @@ class TriggerConfigGetter(Configured):
         self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
         self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
         self.isRun1Data     = False 
-        self.hasxAODMeta    = ("metadata_items" in metadata and any(('TriggerMenu' in key) for key in metadata["metadata_items"].keys()))
+        self.hasxAODMeta    = ("metadata_items" in metadata and any(('TriggerMenu' or 'MenuJSON' in key) for key in metadata["metadata_items"].keys()))
         if globalflags.DataSource()=='data':
             from RecExConfig.AutoConfiguration  import GetRunNumber
             runNumber = GetRunNumber()
@@ -437,6 +437,8 @@ class TriggerConfigGetter(Configured):
         # Add the algorithm creating the trigger configuration metadata for
         # the output:
         try: 
+            writeTriggerMenu = True
+            writeMenuJSON = False
             if TriggerFlags.EDMDecodingVersion() <= 2:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
@@ -445,15 +447,36 @@ class TriggerConfigGetter(Configured):
                 menuwriter = TrigConf__xAODMenuWriterMT()
                 menuwriter.IsHLTJSONConfig = True
                 menuwriter.IsL1JSONConfig = True
-                topAlgs += menuwriter
+                menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
+                menuwriter.WritexAODTriggerMenuJson = True
+                writeTriggerMenu = menuwriter.WritexAODTriggerMenu
+                writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
 
-            # The metadata objects to add to the output:
-            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+                topAlgs += menuwriter
 
             # Set up the metadata for the output ESD and AOD:
             from RecExConfig.ObjKeyStore import objKeyStore
-            objKeyStore.addManyTypesMetaData( metadataItems )
+
+            # The metadata objects to add to the output:
+            if writeTriggerMenu:
+                metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                                  "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+                objKeyStore.addManyTypesMetaData( metadataItems )
+
+            if writeMenuJSON:
+                metadataItems = [ "xAOD::TriggerMenuJSONContainer#MenuJSON_HLT",
+                                  "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_HLTAux.",
+                                  "xAOD::TriggerMenuJSONContainer#MenuJSON_L1",
+                                  "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_L1Aux.",
+                                  "xAOD::TriggerMenuJSONContainer#MenuJSON_HLTPS",
+                                  "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_HLTPSAux.",
+                                  "xAOD::TriggerMenuJSONContainer#MenuJSON_L1PS",
+                                  "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_L1PSAux.",
+                                  # "xAOD::TriggerMenuJSONContainer#MenuJSON_BG", // TODO
+                                  # "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_BGAux.", // TODO
+                                ]
+                objKeyStore.addManyTypesMetaData( metadataItems )
+
         except ImportError: # don't want to branch in rel 18
             pass
 

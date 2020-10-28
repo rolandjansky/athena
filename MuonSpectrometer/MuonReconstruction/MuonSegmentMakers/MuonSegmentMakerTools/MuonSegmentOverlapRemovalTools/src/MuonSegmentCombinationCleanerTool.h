@@ -39,7 +39,7 @@ class MuonSegmentCombinationCleanerTool : virtual public IMuonSegmentCombination
 
     /** clean segment combination collections */
     std::unique_ptr<MuonSegmentCombinationCollection> clean(const MuonSegmentCombinationCollection&   combiCol,
-                                                            MuonSegmentCombPatternCombAssociationMap* segPattMap);
+                                                            MuonSegmentCombPatternCombAssociationMap* segPattMap) const;
 
     /** remove duplicates from a segment combination, returns a pointer to the original combi if unchanged */
     MuonSegmentCombination* removeDuplicateSegments(MuonSegmentCombination& combi) const;
@@ -48,7 +48,7 @@ class MuonSegmentCombinationCleanerTool : virtual public IMuonSegmentCombination
     /** remove overlaps between combination and merge combinations with large overlap */
     void cleanAndMergeCombis(const MuonSegmentCombinationCollection&   combiCol,
                              MuonSegmentCombinationCollection*         combiCleanCol,
-                             MuonSegmentCombPatternCombAssociationMap* segPattMap);
+                             MuonSegmentCombPatternCombAssociationMap* segPattMap) const;
 
     /** check whether current summary is a subset of the previous once */
     bool subSetOfPrevious(MuonSegmentCombiSummary& summary, std::vector<MuonSegmentCombiSummary>& summaries) const;

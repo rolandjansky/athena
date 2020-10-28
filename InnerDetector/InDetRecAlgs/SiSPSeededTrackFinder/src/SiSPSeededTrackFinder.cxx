@@ -616,7 +616,7 @@ void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,
   /// propagate from innermost hit to beam spot
   if (not m_proptool->propagate(TP, beamPosPerigee, TP, Trk::anyDirection, m_fieldprop, step, Trk::pion)) return;
 	      
-  const double* parsAtBeamSpot = TP.par();
+  const AmgVector(5)& parsAtBeamSpot = TP.parameters();
   if (std::abs(parsAtBeamSpot[0]) > m_imcut) return;
   /// determine bin number - m_zstep is the inverse bin width, where the histo axis extends from -m_zcut to +m_zcut
   int z = static_cast<int>((parsAtBeamSpot[1]+m_zcut)*m_zstep);

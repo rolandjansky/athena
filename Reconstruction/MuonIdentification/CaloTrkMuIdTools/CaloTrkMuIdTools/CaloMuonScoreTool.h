@@ -97,7 +97,9 @@ private:
 
   std::vector<int64_t> m_input_node_dims;
 
-  Gaudi::Property<std::string> m_modelFileName{this,"ModelFileName","CaloMuonCNN_0.onnx"};
+  // This path needs to point to the ATLAS calibration area (https://atlas-groupdata.web.cern.ch/atlas-groupdata/)
+  // It needs to be a full path relative to the root of the calibration area, e.g. `CaloTrkMuIdTools/nnBased_201022/CaloMuonCNN_1.onnx`
+  Gaudi::Property<std::string> m_modelFileName{this, "ModelFileName", "CaloTrkMuIdTools/nnBased_201022/CaloMuonCNN_1.onnx"};
 
   Gaudi::Property<double> m_CaloMuonEtaCut {this, "CaloMuonEtaCut", 1.0, "Eta cut (absolute value) up to which a track particle's muon score will be calculated"};
 };

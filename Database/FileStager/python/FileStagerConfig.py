@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Configurable import ConfigurableAlgorithm
-from AthenaCommon.Constants import *   # for "INFO"
+from AthenaCommon.Constants import WARNING
 
 class FileStagerAlg( ConfigurableAlgorithm ):
    # slots is a sequence of properties that the use is allowed to set

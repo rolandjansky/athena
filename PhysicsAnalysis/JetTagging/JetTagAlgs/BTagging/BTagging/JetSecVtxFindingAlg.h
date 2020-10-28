@@ -16,6 +16,8 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
+#include "xAODTracking/VertexContainer.h"
+
 namespace InDet {
   class ISecVertexInJetFinder;
 }

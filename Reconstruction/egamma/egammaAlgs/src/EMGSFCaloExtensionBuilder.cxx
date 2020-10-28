@@ -71,7 +71,7 @@ EMGSFCaloExtensionBuilder::execute(const EventContext& ctx) const
   CaloExtensionCollection* ptrPerigee = perigeeCache.ptr();
   CaloExtensionCollection* ptrLast = lastCache.ptr();
   std::vector<bool> mask(ptrTracks->size(), true);
-  for (auto trkIt : *ptrTracks) {
+  for (const auto *trkIt : *ptrTracks) {
     // If we have TRT-SA tracks we don't extrapolate
     if (xAOD::EgammaHelpers::numberOfSiHits(trkIt) < 4) {
       mask[trkIt->index()] = false;

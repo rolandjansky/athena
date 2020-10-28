@@ -95,7 +95,8 @@ namespace InDet{
       (std::list<Amg::Vector3D>& globalPositions, 
        std::list<const InDetDD::SiDetectorElement*>& Road,
        bool testDirection,
-       SiDetElementRoadMakerData_xk & roadMakerData) const override;
+       SiDetElementRoadMakerData_xk & roadMakerData,
+       const EventContext& ctx) const override;
 
 
       /// This is the signature used in most ATLAS clients. 
@@ -176,8 +177,8 @@ namespace InDet{
     MsgStream& dumpConditions(MsgStream& out) const;
 
     inline
-    const SiDetElementsLayerVectors_xk *getLayers() const {
-       SG::ReadCondHandle<SiDetElementsLayerVectors_xk> layerVec(m_layerVecKey);
+    const SiDetElementsLayerVectors_xk *getLayers(const EventContext& ctx) const {
+       SG::ReadCondHandle<SiDetElementsLayerVectors_xk> layerVec(m_layerVecKey,ctx);
        if (not layerVec.isValid()) {
           ATH_MSG_ERROR("Failed to get " << m_layerVecKey.key());
        }

@@ -1,14 +1,7 @@
-################################################################################
-# Package: InDetAlignTrkInfo
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetAlignTrkInfo )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers )
 
 # Component(s) in the package:
 atlas_add_library( InDetAlignTrkInfo
@@ -17,5 +10,4 @@ atlas_add_library( InDetAlignTrkInfo
                    src/AlignSiHit.cxx
                    src/AlignTRTHit.cxx
                    PUBLIC_HEADERS InDetAlignTrkInfo
-                   LINK_LIBRARIES AthContainers )
-
+                   LINK_LIBRARIES AthContainers AthenaKernel )

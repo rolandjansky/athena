@@ -4858,6 +4858,7 @@ CombinedMuonTrackBuilder::checkTrack(std::string txt, Trk::Track* newTrack, Trk:
 
     return newTrackOK;
 }
-
-
+  void CombinedMuonTrackBuilder::cleanUp() const {
+    m_muonHoleRecovery->cleanUp();
+  }
 }  // namespace Rec

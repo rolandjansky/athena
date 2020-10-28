@@ -18,7 +18,7 @@ StatusCode L1InfoHypoTool::initialize(){
 
 
 StatusCode L1InfoHypoTool::decide(const std::vector<IL1InfoHypoTool::L1Info>& input) const{
-    ATH_MSG_INFO("Executing decide() of " << name());
+    ATH_MSG_DEBUG("Executing decide() of " << name());
 
     std::vector<IL1InfoHypoTool::L1Info* > positive( input.size() );
 

@@ -291,7 +291,7 @@ if __name__=='__main__':
     cfg.merge(collmon) 
 
     ConfigFlags.dump()
-    f=open("CollTimeMonMaker.pkl","w")
+    f=open("CollTimeMonMaker.pkl","wb")
     cfg.store(f)
     f.close()
    

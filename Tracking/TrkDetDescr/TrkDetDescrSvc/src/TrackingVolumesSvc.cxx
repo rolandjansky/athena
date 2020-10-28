@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,20 +30,20 @@ Trk::TrackingVolumesSvc::TrackingVolumesSvc(const std::string& a_name,ISvcLocato
     m_volumeNames.reserve(Trk::ITrackingVolumesSvc::NumIdentifiers);
     
     //set defaults
-    m_volumeNames.push_back("CalorimeterEntryLayer");
-    m_volumeNames.push_back("MuonSpectrometerEntryLayer");
-    m_volumeNames.push_back("MuonSpectrometerExitLayer");
+    m_volumeNames.emplace_back("CalorimeterEntryLayer");
+    m_volumeNames.emplace_back("MuonSpectrometerEntryLayer");
+    m_volumeNames.emplace_back("MuonSpectrometerExitLayer");
     
     // For the moment, assuming volumes are at 0,0,0 and perfectly aligned (i.e. passing 0)
     // Adding values by hand - this should be changed (i.e. retrieved from a database?) 
     // EJWM
     
     m_volumes[Trk::ITrackingVolumesSvc::CalorimeterEntryLayer] 
-        = new Trk::Volume(0, new Trk::CylinderVolumeBounds(1100.0, 3200.0));
+        = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(1100.0, 3200.0));
     m_volumes[Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer] 
-        = new Trk::Volume(0, new Trk::CylinderVolumeBounds(4250.0, 6779.0));
+        = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(4250.0, 6779.0));
     m_volumes[Trk::ITrackingVolumesSvc::MuonSpectrometerExitLayer]
-        = new Trk::Volume(0, new Trk::CylinderVolumeBounds(15000.0, 21000.0)); // FIXME! Put in correct values. EJWM
+        = new Trk::Volume(nullptr, new Trk::CylinderVolumeBounds(15000.0, 21000.0)); // FIXME! Put in correct values. EJWM
     
   // the name of the TrackingVolume to be built --------------------------------
   //declareProperty( "VolumeNames",       m_volumeNames, "The names of the TrackingVolume to be built"); 

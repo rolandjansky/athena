@@ -1,15 +1,9 @@
-################################################################################
-# Package: InDetConditionsSummaryService
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetConditionsSummaryService )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel )
-
 atlas_add_library( InDetConditionsSummaryService
                    INTERFACE
                    PUBLIC_HEADERS InDetConditionsSummaryService
-                   LINK_LIBRARIES GaudiKernel )
+                   LINK_LIBRARIES GaudiKernel Identifier )

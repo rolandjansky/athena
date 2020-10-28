@@ -57,17 +57,13 @@ namespace Analysis {
 
         m_useGSFTrack.reset();
         for(int i : m_useGSFTrackIndices) m_useGSFTrack.set(i, true);
-        ATH_MSG_INFO("Initialize successful");
+        ATH_MSG_DEBUG("Initialize successful");
         
         return StatusCode::SUCCESS;
         
     }
     
-    StatusCode JpsiPlus1Track::finalize() {
-        return StatusCode::SUCCESS;
-        
-    }
-    
+
     JpsiPlus1Track::JpsiPlus1Track(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
     m_piMassHyp(false),
     m_kMassHyp(true),
@@ -135,7 +131,7 @@ namespace Analysis {
     //-------------------------------------------------------------------------------------
     // Find the candidates
     //-------------------------------------------------------------------------------------
-    StatusCode JpsiPlus1Track::performSearch(xAOD::VertexContainer*& bContainer, xAOD::VertexAuxContainer*& bAuxContainer)
+    StatusCode JpsiPlus1Track::performSearch(xAOD::VertexContainer*& bContainer, xAOD::VertexAuxContainer*& bAuxContainer) const
     {
         ATH_MSG_DEBUG( "JpsiPlus1Track::performSearch" );
         bContainer = new xAOD::VertexContainer;

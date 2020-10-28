@@ -91,7 +91,7 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     isUsedRevert = isUsed;
 
     // Check if used
-    auto egRec = egammaRecs->at(i);
+    const auto *egRec = egammaRecs->at(i);
     if (isUsed.at(i)) {
       continue;
     }
@@ -155,7 +155,7 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     const std::vector<std::size_t> secondaryIndices =
       searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
     for (const auto& secIndex : secondaryIndices) {
-      const auto secRec = egammaRecs->at(secIndex);
+      const auto *const secRec = egammaRecs->at(secIndex);
       accumulatedClusters.push_back(secRec->caloCluster());
     }
 
@@ -198,7 +198,7 @@ electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electr
   if (!egammaRecs) {
     return secondaryClusters;
   }
-  const auto seedEgammaRec = egammaRecs->at(electronIndex);
+  const auto *const seedEgammaRec = egammaRecs->at(electronIndex);
   const xAOD::CaloCluster* seedCluster = seedEgammaRec->caloCluster();
 
   const xAOD::TrackParticle* seedTrackParticle = seedEgammaRec->trackParticle();
@@ -210,7 +210,7 @@ electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electr
       continue;
     }
     // if not retrieve the relevant info
-    const auto egRec = egammaRecs->at(i);
+    const auto *const egRec = egammaRecs->at(i);
     const xAOD::CaloCluster* clus = egRec->caloCluster();
     float seedSecdEta(fabs(seedCluster->eta() - clus->eta()));
     float seedSecdPhi(fabs(P4Helpers::deltaPhi(seedCluster->phi(), clus->phi())));

@@ -76,22 +76,19 @@ MuPatHitTool::cleanUp() const
     {
         const std::lock_guard<std::mutex> lock(m_hitsMutex);
 
-        std::for_each(m_hitsToBeDeleted.begin(), m_hitsToBeDeleted.end(), MuonDeleteObject<MuPatHit>());
+	for (auto ptr : m_hitsToBeDeleted) {
+	  delete ptr;
+	}
         m_hitsToBeDeleted.clear();
-
-        // reset size of vector if its size increased
-        if (m_hitsToBeDeleted.capacity() > arraySize) m_hitsToBeDeleted.reserve(arraySize);
     }
 
     {
         const std::lock_guard<std::mutex> lock(m_parsMutex);
 
-        std::for_each(m_parsToBeDeleted.begin(), m_parsToBeDeleted.end(),
-                      MuonDeleteObject<const Trk::TrackParameters>());
+	for (auto ptr : m_parsToBeDeleted) {
+	  delete ptr;
+	}
         m_parsToBeDeleted.clear();
-
-        // reset size of vector if its size increased
-        if (m_parsToBeDeleted.capacity() > arraySize) m_parsToBeDeleted.reserve(arraySize);
     }
 }
 

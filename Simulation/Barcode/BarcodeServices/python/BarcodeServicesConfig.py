@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 BarcodeServices configurations
@@ -6,7 +6,6 @@ Elmar Ritsch, 23/10/2014
 """
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
 
 def getMC15BarcodeSvc(name="Barcode_MC15BarcodeSvc", **kwargs):
@@ -79,12 +78,12 @@ def getPhysicsProcessBarcodeSvc(name="Barcode_PhysicsProcessBarcodeSvc", **kwarg
 
 
 def getGlobalBarcodeSvc(name="Barcode_GlobalBarcodeSvc", **kwargs):
-    kwargs.setdefault("FirstSecondaryVertexBarcode"   ,  -200000    );
-    kwargs.setdefault("VertexIncrement"               ,  -1000000   );
-    kwargs.setdefault("FirstSecondaryBarcode"         ,   200001    );
-    kwargs.setdefault("SecondaryIncrement"            ,   1         );
-    kwargs.setdefault("DoUnderAndOverflowChecks"      ,   True      );
-    kwargs.setdefault("EncodePhysicsProcessInVertexBC",   True      );
+    kwargs.setdefault("FirstSecondaryVertexBarcode"   ,  -200000    )
+    kwargs.setdefault("VertexIncrement"               ,  -1000000   )
+    kwargs.setdefault("FirstSecondaryBarcode"         ,   200001    )
+    kwargs.setdefault("SecondaryIncrement"            ,   1         )
+    kwargs.setdefault("DoUnderAndOverflowChecks"      ,   True      )
+    kwargs.setdefault("EncodePhysicsProcessInVertexBC",   True      )
     return CfgMgr.Barcode__GlobalBarcodeSvc(name, **kwargs)
 
 
@@ -113,6 +112,6 @@ def barcodeOffsetForTruthStrategy(strategyName):
                'Validation':   200000
                }
     currentOffset=offsets.get(strategyName)
-    if currentOffset==None:
+    if currentOffset is None:
         raise RuntimeError("No barcode offset listed for truth strategy named "+str(strategyName))
     return currentOffset

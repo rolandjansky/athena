@@ -9,7 +9,6 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "../src/BareDataBucket.h"
 

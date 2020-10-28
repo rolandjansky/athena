@@ -18,7 +18,7 @@
 #include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkGaussianSumFilter/IBetheHeitlerEffects.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
+#include <array>
 namespace Trk {
 
 class GsfBetheHeitlerEffects
@@ -29,19 +29,6 @@ class GsfBetheHeitlerEffects
 public:
   struct ComponentValues
   {
-    // Default ctors/dtor/assignment operators
-    ComponentValues() = default;
-    ~ComponentValues() = default;
-    ComponentValues(const ComponentValues&) = default;
-    ComponentValues& operator=(const ComponentValues&) = default;
-    ComponentValues(ComponentValues&&) = default;
-    ComponentValues& operator=(ComponentValues&&) = default;
-    // Constructor with arguments
-    ComponentValues(double aWeight, double aMean, double aVariance)
-      : weight(aWeight)
-      , mean(aMean)
-      , variance(aVariance)
-    {}
     double weight;
     double mean;
     double variance;
@@ -51,36 +38,18 @@ public:
     std::array<ComponentValues, GSFConstants::maxNumberofBHComponents>;
 
   /** Helper class for construction and evaluation of polynomial */
-  class Polynomial
+  struct Polynomial
   {
-  public:
-    Polynomial() = default;
-    ~Polynomial() = default;
-    Polynomial(const Polynomial&) = default;
-    Polynomial& operator=(const Polynomial&) = default;
-    Polynomial(Polynomial&&) = default;
-    Polynomial& operator=(Polynomial&&) = default;
-
-    /** Constructor from a vector of coefficients
-     * (in decreasing order of powers of x) */
-    Polynomial(const std::vector<double>& coefficients)
-      : m_coefficients(coefficients){};
-
     // Evaluation of the polynomial for given material thickness (t)
     double operator()(const double& t) const
     {
       double sum(0.);
-      std::vector<double>::const_iterator coefficient = m_coefficients.begin();
-
-      for (; coefficient != m_coefficients.end(); ++coefficient) {
-        sum = t * sum + (*coefficient);
+      for (size_t i = 0; i < GSFConstants::polynomialCoefficients; ++i) {
+        sum = t * sum + coefficients[i];
       }
-
       return sum;
     }
-
-  private:
-    std::vector<double> m_coefficients;
+    std::array<double, GSFConstants::polynomialCoefficients> coefficients;
   };
 
   GsfBetheHeitlerEffects(const std::string&,
@@ -103,9 +72,6 @@ public:
 private:
   // Read polynomial fit parameters from a specified file
   bool readParameters();
-
-  // Read coeffients for a single polynomial fit
-  Polynomial readPolynomial(std::ifstream&, const int);
 
   std::array<Polynomial, GSFConstants::maxNumberofBHComponents>
     m_polynomialWeights;

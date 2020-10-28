@@ -91,7 +91,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   if (not m_roiSeeded.value()) {
     std::vector<uint32_t> rodList;
     m_cabling->getAllRods(rodList, ctx);
-    m_robDataProvider->getROBData(rodList , vecROBFrags);
+    m_robDataProvider->getROBData(ctx, rodList, vecROBFrags);
   }
   else {
     // Only load ROBs from RoI
@@ -106,7 +106,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
     }
     m_regionSelector->ROBIDList(superRoI, listOfROBs);
     m_regionSelector->HashIDList(superRoI, hashIDs);
-    m_robDataProvider->getROBData(listOfROBs, vecROBFrags);
+    m_robDataProvider->getROBData(ctx, listOfROBs, vecROBFrags);
   }
 
 
@@ -152,7 +152,7 @@ StatusCode SCTRawDataProvider::execute(const EventContext& ctx) const
   // Ask SCTRawDataProviderTool to decode it and to fill the IDC
   if (m_rawDataTool->convert(vecROBFrags,
                              *(rdoContainer.ptr()),
-			     *bsIDCErrContainer).isFailure()) {
+			     *bsIDCErrContainer,ctx).isFailure()) {
     ATH_MSG_WARNING("BS conversion into RDOs failed");
   }
 

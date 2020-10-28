@@ -15,6 +15,8 @@ atlas_add_library( TrigSerializeResultLib
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel
                    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CxxUtils DataModelRoot PathResolver )
 
+atlas_install_python_modules( python/*.py )
+
 atlas_add_component( TrigSerializeResult
                      src/components/*.cxx
                      LINK_LIBRARIES TrigSerializeResultLib )

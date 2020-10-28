@@ -147,7 +147,7 @@ void Trk::DetachedTrackingVolume::compactify ATLAS_NOT_THREAD_SAFE(size_t& cSurf
     // deal with the multi-layer representation
     if ( multilayerRepresentation() ){
         tSurfaces += m_multilayerRepresentation->size();
-        for ( auto& mLayerIter :  (*m_multilayerRepresentation) ){
+        for ( const auto & mLayerIter :  (*m_multilayerRepresentation) ){
             if ( (*mLayerIter).surfaceRepresentation().owner() == Trk::noOwn ){
                 (*mLayerIter).surfaceRepresentation().setOwner(Trk::TGOwn);
                 ++cSurfaces;

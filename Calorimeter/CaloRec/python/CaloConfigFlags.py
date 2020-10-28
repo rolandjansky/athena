@@ -20,6 +20,9 @@ def createCaloConfigFlags():
     ccf.addFlag("Calo.TopoCluster.doTwoGaussianNoise",True)     
     ccf.addFlag("Calo.TopoCluster.doTreatEnergyCutAsAbsolute",False)     
     ccf.addFlag("Calo.TopoCluster.doTopoClusterLocalCalib",True)
+    ccf.addFlag("Calo.TopoCluster.doTimeCut",False)
+    ccf.addFlag("Calo.TopoCluster.extendTimeCut",False)
+    ccf.addFlag("Calo.TopoCluster.useUpperLimitForTimeCut",False)
 
     #### Cluster correction flags:
     # If true, then reweight cells to prevent double-counting between clusters.

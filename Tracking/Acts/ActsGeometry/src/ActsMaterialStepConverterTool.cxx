@@ -55,10 +55,8 @@ ActsMaterialStepConverterTool::convertToMaterialTrack(const Trk::MaterialStepCol
 
 
   Acts::Vector3D v_pos{0, 0, colStep.front()->hitZ() - (z_lengh/r_lengh)*colStep.front()->hitR() };
-  // Acts::Vector3D v_pos{0, 0, 0};
-
   Acts::Vector3D v_imp{x_lengh*norm, y_lengh*norm, z_lengh*norm};
-  // Acts::Vector3D v_imp{1, 0, 0};
+  Acts::Vector3D prev_pos = v_pos;
 
   for(auto const& step: colStep) {
 
@@ -67,6 +65,18 @@ ActsMaterialStepConverterTool::convertToMaterialTrack(const Trk::MaterialStepCol
     Acts::Vector3D pos{step->hitX(), step->hitY(), step->hitZ()};
     Acts::MaterialSlab matProp(Acts::Material::fromMassDensity(step->x0(), step->l0(), step->A(), step->Z(), step->rho()),step->steplength());
     interaction.position = pos;
+
+    double x_dir = pos.x() - prev_pos.x();
+    double y_dir = pos.y() - prev_pos.y();
+    double z_dir = pos.z() - prev_pos.z();
+    double norm_dir = 1/(std::sqrt(x_dir*x_dir +
+                                 y_dir*y_dir +
+                                 z_dir*z_dir));
+
+    Acts::Vector3D dir{x_dir * norm_dir, y_dir * norm_dir, z_dir * norm_dir};
+    interaction.direction = dir;
+    prev_pos = pos;
+
     interaction.materialSlab = matProp;
     sum_X0 += step->steplengthInX0();
     sum_L0 += step->steplengthInL0();

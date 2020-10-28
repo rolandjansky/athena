@@ -47,6 +47,8 @@ namespace MuonCombined {
     virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
 				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const = 0;
 
+    void cleanUp() const {};
+
   };
 
   inline const InterfaceID& IMuonCombinedInDetExtensionTool::interfaceID()

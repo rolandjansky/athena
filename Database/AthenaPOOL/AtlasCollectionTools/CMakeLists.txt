@@ -19,7 +19,7 @@ atlas_add_executable( AthCollAppend
                       LINK_LIBRARIES AtlasCollectionTools CollectionUtilities )
 
 # Install files from the package:
-atlas_install_python_modules( python/countGuidsClient.py python/eventLookupClient.py )
+atlas_install_python_modules( python/countGuidsClient.py python/eventLookupClient.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( python/listDatasets.py )
 atlas_install_scripts( python/runEventLookup.py python/runGuidsCount.py python/tagExtract.py python/tagDSList.py )
 

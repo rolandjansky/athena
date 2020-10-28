@@ -24,7 +24,9 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODBase
   Event/xAOD/xAODMuon
   Event/xAOD/xAODJet
+  Event/xAOD/xAODBTagging
   Event/xAOD/xAODEventInfo
+  Event/xAOD/xAODTracking
   PRIVATE
   Tools/PathResolver
   )
@@ -51,7 +53,7 @@ atlas_add_library( FlavorTagDiscriminants
   Root/VRJetOverlapDecorator.cxx
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
-  LINK_LIBRARIES AsgTools xAODBase xAODJet xAODMuon xAODEventInfo PathResolver
+  LINK_LIBRARIES AsgTools xAODBase xAODJet xAODBTagging xAODTracking xAODMuon xAODEventInfo PathResolver
   JetInterface
   ${LWTNN_LIBRARIES})
 

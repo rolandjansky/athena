@@ -76,7 +76,7 @@ public:
     virtual Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const = 0;
 
-
+    virtual void cleanUp() const {};
 };
  
 }	// end of namespace

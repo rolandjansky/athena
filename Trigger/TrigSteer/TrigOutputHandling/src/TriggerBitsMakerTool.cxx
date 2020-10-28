@@ -99,15 +99,13 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
 
   passRaw.resize(m_largestBit + 1);
   prescaled.resize(m_largestBit + 1);
-  rerun.resize(m_largestBit + 1);
+  rerun.resize(m_largestBit + 1); // TODO: remove this fully in the future
 
   const Decision* HLTPassRaw = nullptr;
   const Decision* HLTPrescaled = nullptr;
-  const Decision* HLTRerun = nullptr;
 
   DecisionIDContainer passRawIDs; //!< The chains which returned a positive decision
   DecisionIDContainer prescaledIDs; //!< The chains which did not run due to being prescaled out
-  DecisionIDContainer rerunIDs; //!< The chains which were activated only in the rerun (not physics decisions)
 
   // Read the sets of chain IDs
   for (const Decision* decisionObject : *chainsHandle) {
@@ -116,21 +114,17 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
       HLTPassRaw = decisionObject;
     } else if (decisionObject->name() == "HLTPrescaled") {
       HLTPrescaled = decisionObject;
-    } else if (decisionObject->name() == "HLTRerun") {
-      HLTRerun = decisionObject;
     }
-    if (HLTPassRaw && HLTPrescaled && HLTRerun) {
+    if (HLTPassRaw && HLTPrescaled) {
       break;
     }
   }
 
   ATH_CHECK(HLTPassRaw != nullptr);
   ATH_CHECK(HLTPrescaled != nullptr);
-  ATH_CHECK(HLTRerun != nullptr);
 
   decisionIDs(HLTPassRaw, passRawIDs);
   decisionIDs(HLTPrescaled, prescaledIDs);
-  decisionIDs(HLTRerun, rerunIDs);
 
   for ( DecisionID chain: passRawIDs ) {
     ATH_CHECK(setBit(chain, passRaw));
@@ -138,10 +132,6 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
 
   for ( DecisionID chain: prescaledIDs ) {
     ATH_CHECK(setBit(chain, prescaled));
-  }
-
-  for ( DecisionID chain: rerunIDs ) {
-    ATH_CHECK(setBit(chain, rerun));
   }
 
   return StatusCode::SUCCESS;

@@ -53,10 +53,10 @@ std::pair<EventIDRange, const std::vector< const Trk::Layer* > > Trk::LayerProvi
     std::vector< const Trk::Layer* >            cLayers;
     // retrieving the cylinder layers from the layer builder
     std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* >  cylinderLayersPair = m_layerBuilder->cylindricalLayers(ctx);
-    auto cylinderLayers = cylinderLayersPair.second;
+    const auto *cylinderLayers = cylinderLayersPair.second;
     // loop over it and push into the return vector;
     if (cylinderLayers){
-        for (auto& cL : (*cylinderLayers))
+        for (const auto & cL : (*cylinderLayers))
             cLayers.push_back(cL);
     }
     // memory cleanup
@@ -79,11 +79,11 @@ std::pair<EventIDRange, const std::vector< const Trk::Layer* > > Trk::LayerProvi
     std::vector < const Trk::Layer* >   dLayers;
     // retrieving the cylinder layers from the layer builder
     std::pair<EventIDRange, const std::vector<const Trk::DiscLayer*>*>  discLayersPair = m_layerBuilder->discLayers(ctx);
-    auto discLayers = discLayersPair.second;
+    const auto *discLayers = discLayersPair.second;
     // loop and fill either cache or dLayers
     if (discLayers){
         // loop over and push into the return/cache vector 
-        for (auto& dL : (*discLayers) ){
+        for (const auto & dL : (*discLayers) ){
             // get the center posituion 
             double zpos = dL->surfaceRepresentation().center().z();
             if (posneg > 0){

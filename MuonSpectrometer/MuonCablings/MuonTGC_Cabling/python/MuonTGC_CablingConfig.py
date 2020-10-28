@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from MuonTGC_Cabling.MuonTGC_CablingConf import *
-from AthenaCommon.GlobalFlags import globalflags
+from MuonTGC_Cabling.MuonTGC_CablingConf import Configurable, MuonTGC_CablingSvc
 from AthenaCommon.AppMgr import ServiceMgr
 
 class MuonTGC_CablingConfig (MuonTGC_CablingSvc):

@@ -11,24 +11,33 @@
 template<typename T>
 int InDet::SiTrajectoryElement_xk::searchClustersSub
 (Trk::PatternTrackParameters& Tp, SiClusterLink_xk* L) {
+  /// Case a): No PRD association in use
   if (not m_useassoTool) {
+    /// a1): No stereo
     if (not m_stereo) {
       if (m_ndf == 2) {
         return searchClustersWithoutStereoPIX<T>(Tp, L);
       } else {
         return searchClustersWithoutStereoSCT<T>(Tp, L);
       }
-    } else {
+    }
+    /// a2): With stereo 
+    else {
       return searchClustersWithStereo<T>(Tp, L);
     }
-  } else {
+  } 
+  /// Case b) Using PRD association tool 
+  else {
+    /// b1): no stereo 
     if (not m_stereo) {
       if (m_ndf == 2) {
         return searchClustersWithoutStereoAssPIX<T>(Tp, L,*m_prdToTrackMap);
       } else {
         return searchClustersWithoutStereoAssSCT<T>(Tp, L,*m_prdToTrackMap);
       }
-    } else {
+    } 
+    /// b2): with stereo
+    else {
       return searchClustersWithStereoAss<T>(Tp, L, *m_prdToTrackMap);
     }
   }
@@ -44,22 +53,29 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereo
 {
   if (m_detstatus<=0) return 0;
 
-  int nl     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
-  double Xc  = m_xi2maxlink;
-  double Xl  = m_xi2maxlink;
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
+
+  int nLinksFound     = 0;
+  /// predicted local position
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
+  /// covariance for prediction 
+  double PV0 = Tp_cov(0, 0);   /// X,X
+  double PV1 = Tp_cov(0, 1);   /// X,Y
+  double PV2 = Tp_cov(1, 1);   /// Y,Y
+  /// chi² cut values 
+  double Xc  = m_xi2maxlink;     
+  double bestX2  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
 
+  /// holder for best cluster seen not pasing cuts
   const InDet::SiCluster* cl = nullptr;
 
   T* sibegin = std::any_cast<T>(&m_sibegin);
   T* siend = std::any_cast<T>(&m_siend);
   if (sibegin==nullptr or siend==nullptr) return 0;
 
+  /// loop over all clusters on this element
   for (T p=*sibegin; p!=*siend; ++p) {
     const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(*p);
     const Amg::Vector2D&    M = c->localPosition();
@@ -68,31 +84,73 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereo
     double MV0 = V(0,0);
     double MV1 = V(1,0);
     double MV2 = V(1,1);
+    /// add the two covariances
     double v0  = MV0+PV0;
     double v1  = MV1+PV1;
     double v2  = MV2+PV2;
+    /// get the distance from the cluster to the predicted location
     double r0  = M[0]-P0;
     double r1  = M[1]-P1;
-    double d   = v0*v2-v1*v1; if(d<=0.) continue; d=1./d;
-    double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))*d;
-    if(x > Xc) continue;
+    /// determinant of the cov matrix
+    double d   = v0*v2-v1*v1; 
+    if(d<=0.) continue; 
+    d=1./d;
 
+    /// chi² calculation 
+    double x   = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))*d;
+    if(x > Xc) continue;  /// if we don't satisfy the minimum, don't bother further
+
+    /// refine y estimate 
     r1  = fabs(r1+d*((PV1*v2-PV2*v1)*r0+(PV2*v0-PV1*v1)*r1));  
     x  -= (r1*r1)/MV2                                       ;
     r1 -= m_halflength                                      ;
     
-    if(r1 > 0. &&  (x+=((r1*r1)/PV2)) > Xc) continue;
-
-    if(x < Xm) {
-      InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
-      Xc = Xm+6.;
+    /// update the chi² estimate, and check again the cut
+    if(r1 > 0.){
+      x+=(r1*r1)/PV2; 
+      if (x > Xc) continue;
     }
-    else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
-  }
-  if(cl && !nl) {L[nl++].Set(cl,Xl);}
-  return nl;
+    /// if we satisfy the chi2 criterion: 
+    if(x < Xm) {
+      /// create a cluster link to this cluster
+      InDet::SiClusterLink_xk l(c,x);
+
+      /// This misleadingly named method actually is a sorting 
+      /// Mechanism: Our current link will take the place of the one 
+      /// it replaces in ascending chi², and we will be 
+      /// left with a link to the worst chi² one  
+      for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
+      /// Now our link points not the the cluster we just processed but the worst
+      /// so far 
+      /// If we have less  than 10 saved, save it in the next slot
+      if(nLinksFound<10){
+         L[nLinksFound++]=l;
+       } else {
+         /// otherwise, don't add it, and update the chi2 cut to 
+         /// the worst one in our list, to get rid of further 
+         /// candidates early on. 
+         Xm=L[9].xi2();
+       }
+       /// finally, update the chi2 cut - don't bother with anything worse 
+       /// than the current candidate by 6 units in chi2
+      Xc = Xm+6.;
+    } /// done with branch if we satisfy the chi2 criterion
+    /// if we have no links yet and this is the best chi2 so far 
+    else if(!nLinksFound && x < bestX2) {
+      /// update best chi2 
+      bestX2 = x; 
+      /// update max cut 
+      Xc = x+6.; 
+      /// update best cluster pointer
+      cl = c;
+    }
+  } /// end cluster loop 
+  /// If we didn't find any cluster satisfying the chi2 cut, 
+  /// but have at least one cluster, 
+  /// we write one link to the best (of the bad) candidate
+  if(cl && !nLinksFound) {L[nLinksFound++].Set(cl,bestX2);}
+  /// return number of found links
+  return nLinksFound;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -105,49 +163,88 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
 {
   if (m_detstatus<=0) return 0;
 
-  int nl     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
+  int nLinksFound     = 0;
+  /// predicted local position
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
+  /// covariance of prediction
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
+  /// chi2 cuts
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
 
+  /// best cluster seen
   const InDet::SiCluster* cl = nullptr;
 
   T* sibegin = std::any_cast<T>(&m_sibegin);
   T* siend = std::any_cast<T>(&m_siend);
   if (sibegin==nullptr or siend==nullptr) return 0;
 
+  /// loop over all hits
   for (T p=*sibegin; p!=*siend; ++p) {
     const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(*p); 
     const Amg::Vector2D& M = c->localPosition();
 
+    /// estimate the covariance by the pitch
+    /// Factors 1/sqrt(12) will be added later
     double MV0 = c->width().phiR();
     double MV2 = c->width().z   ();
 
-    double r0  = M[0]-P0, r02 = r0*r0; 
-    double r1  = M[1]-P1, r12 = r1*r1;
+    /// squared distance between prediction and hit location, 
+    double r0  = M[0]-P0, 
+    r02 = r0*r0; 
+    double r1  = M[1]-P1, 
+    r12 = r1*r1;
 
-    double v0  = .08333*(MV0*MV0)+PV0; if(r02 >(Xc*v0)) continue;
-    double v2  = .08333*(MV2*MV2)+PV2; if(r12 >(Xc*v2)) continue;
+    /// sum cov on X - using 1/sqrt(12) update of hit cov
+    double v0  = .08333*(MV0*MV0)+PV0; 
+    /// bail out if X alone sufficient to fail chi2 
+    if(r02 >(Xc*v0)) continue;
+
+    /// sum cov on Y - using 1/sqrt(12) update of hit cov
+    double v2  = .08333*(MV2*MV2)+PV2; 
+    /// bail out if Y alone sufficient to fail chi2 
+    if(r12 >(Xc*v2)) continue;
     double v1  =                  PV1;
-    double d   = v0*v2-v1*v1;          if(   d<=0.    ) continue;
+    /// determinant of cov matrix 
+    double d   = v0*v2-v1*v1;          
+    if(   d<=0.    ) continue;
+    /// chi2 
     double x   = (r02*v2+r12*v0-(r0*r1)*(2.*v1))/d;
 
+    /// skip clusters failing the cut
     if(x>Xc) continue;
 
+    /// if we satisfy the tighter requirement: 
     if(x < Xm) {
+      /// set up a cluster link 
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      /// This misleadingly named method actually is a sorting 
+      /// Mechanism: Our current link will take the place of the one 
+      /// it replaces in ascending chi², and we will be 
+      /// left with a link to the worst chi² one  
+      for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
+      /// and place the worst link (remember that l is now a different link, see above)!
+      /// If within capacity, increment counter and add
+      if(nLinksFound<10) L[nLinksFound++]=l; 
+      /// otherwise increment cut to avoid bothering with lower qualities in the future
+      else Xm=L[9].xi2();
+      /// update looser chi2 cut to match the tighter one - we found at least one good cluster
       Xc = Xm;
     }
-    else if(!nl) {Xc = x; cl = c;}
+    /// if we found no clusters yet satisfying the chi2 cut, use this one 
+    else if(!nLinksFound) {
+      Xc = x; cl = c;
+    }
+  } /// end of cluster loop 
+  /// if we found no cluster satisfying the chi2, we return one link to the best (least bad) we saw 
+  if(cl && !nLinksFound) {
+    L[nLinksFound++].Set(cl,Xc);
   }
-  if(cl && !nl) {L[nl++].Set(cl,Xc);}
-  return nl;
+  return nLinksFound;
 } 
 
 ///////////////////////////////////////////////////////////////////
@@ -160,57 +257,85 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
 {
   if (m_detstatus<=0) return 0;
 
-  int nl     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
+  int nLinksFound     = 0;
+  /// predicted local position
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
+  /// and cov of prediction
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
+  /// chi2 cuts
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
-
+  /// best cluster seen 
   const InDet::SiCluster* cl = nullptr;
 
   T* sibegin = std::any_cast<T>(&m_sibegin);
   T* siend = std::any_cast<T>(&m_siend);
   if (sibegin==nullptr or siend==nullptr) return 0;
 
+  /// loop over all hits on this element
   for (T p=*sibegin; p!=*siend; ++p) {
     const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(*p); 
     const Amg::Vector2D& M = c->localPosition();
 
+    /// estimate covariance by pitch 
     double MV0 = c->width().phiR()   ;
+    /// include 1/sqrt(12) factor and add to contribution from pred 
     double v0  = .08333*(MV0*MV0)+PV0;   
+    /// get residual in X 
     double r0  = M[0]-P0;
+    /// one over cov
     double d   = 1./v0;
+    /// chi2 
     double x   = (r0*r0)*d;
     
+    /// stop if chi2 too large 
     if(x>Xc) continue;
-    
+    /// estimate of Y residual
     double dP1 = (P1-M[1])+PV1*d*r0;
 
+    /// if residual beyond half-length: assume hit is on very end of strip and 
+    /// re-evaluate chi2 with a penalty term on the Y coordinate
     if(fabs(dP1) > m_halflength) {
-
-      double r1; 
-      dP1 > m_halflength ? r1 = m_halflength-P1 : r1 = -(m_halflength+P1);
-      
+      double r1 = (dP1 > m_halflength ?m_halflength-P1 : -(m_halflength+P1));
       double v1 = PV1;
       double v2 = PV2;  
-      d = v0*v2-v1*v1  ; if(d<=0.) continue; 
+      /// determinant of 2D covariance (only contribution from hit on X,X) 
+      d = v0*v2-v1*v1  ; 
+      if(d<=0.) continue; 
+      /// updated chi2 estimate, with penalty for being at end of strip
       x = (r0*(r0*v2-r1*v1)+r1*(r1*v0-r0*v1))/d;
+      /// and re-apply cut
       if(x>Xc) continue;
-    }
+    } /// end of branch for Y residual beyond half-length
 
+    /// if we satisfy the minimum criterion: 
     if(x < Xm) {
+      /// create a cluster link for our firend
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      /// This misleadingly named method actually is a sorting 
+      /// Mechanism: Our current link will take the place of the one 
+      /// it replaces in ascending chi², and we will be 
+      /// left with a link to the worst chi² one  
+      for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
+      /// and place the worst link so far at the end if space. 
+      if(nLinksFound<10) L[nLinksFound++]=l; 
+      /// otherwise, update chi2 cut to not bother with worse clusters anymore
+      else Xm=L[9].xi2();
+      /// update looser chi2 to match the tighter one - we have at least one good link now
       Xc = Xm;
     }
-    else if(!nl) {Xc = x; cl = c;}
+    /// if we didn't find any good links yet, keep this one as best so far 
+    /// update looser chi2 cut to only keep better candidates in the future 
+    else if(!nLinksFound) {Xc = x; cl = c;}
   }
-  if(cl && !nl) {L[nl++].Set(cl,Xc);}
-  return nl;
+  /// if we found no clusters satisfying the chi2 cut, we return 
+  /// a single link to the best (least bad) candidate
+  if(cl && !nLinksFound) {L[nLinksFound++].Set(cl,Xc);}
+  return nLinksFound;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -221,14 +346,18 @@ template <typename T>
 int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
 (Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L, const Trk::PRDtoTrackMap &prd_to_track_map) 
 {
+
+  /// for detailed documentation, please see searchClustersWithStereo
+
   if (m_detstatus<=0) return 0;
 
-  int nl     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
+  int nLinksFound     = 0;
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
   double Xc  = m_xi2maxlink;
   double Xl  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
@@ -241,7 +370,9 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
   for (T p=*sibegin; p!=*siend; ++p) {
     const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(*p); 
 
+    /// check the PRD association map, skip clusters already in use 
     if (prd_to_track_map.isUsed(*c)) continue;
+
     const Amg::Vector2D& M = c->localPosition();
     const Amg::MatrixX& V = c->localCovariance();
 
@@ -267,15 +398,19 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithStereoAss
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l;
+      /// This misleadingly named method actually is a sorting 
+      /// Mechanism: Our current link will take the place of the one 
+      /// it replaces in ascending chi², and we will be 
+      /// left with a link to the worst chi² one  
+      for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
+      if(nLinksFound<10) L[nLinksFound++]=l;
       else Xm=L[9].xi2();
       Xc = Xm+6.;
     }
-    else if(!nl && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
+    else if(!nLinksFound && x < Xl) {Xl = x; Xc = x+6.; cl = c;}
   }
-  if(cl && !nl) {L[nl++].Set(cl,Xl);}
-  return nl;
+  if(cl && !nLinksFound) {L[nLinksFound++].Set(cl,Xl);}
+  return nLinksFound;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -286,14 +421,16 @@ template <typename T>
 int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
 (Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L, const Trk::PRDtoTrackMap &prd_to_track_map)
 {
+  /// for detailed documentation, please see searchClustersWithoutStereoPIX
   if (m_detstatus<=0) return 0;
 
-  int nl     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
+  int nLinksFound     = 0;
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
 
@@ -324,14 +461,18 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      /// This misleadingly named method actually is a sorting 
+      /// Mechanism: Our current link will take the place of the one 
+      /// it replaces in ascending chi², and we will be 
+      /// left with a link to the worst chi² one  
+      for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
+      if(nLinksFound<10) L[nLinksFound++]=l; else Xm=L[9].xi2();
       Xc = Xm;
     }
-    else if(!nl) {Xc = x; cl = c;}
+    else if(!nLinksFound) {Xc = x; cl = c;}
   }
-  if(cl && !nl) {L[nl++].Set(cl,Xc);}
-  return nl;
+  if(cl && !nLinksFound) {L[nLinksFound++].Set(cl,Xc);}
+  return nLinksFound;
 } 
 
 ///////////////////////////////////////////////////////////////////
@@ -342,14 +483,16 @@ template <typename T>
 int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 (Trk::PatternTrackParameters& Tp,InDet::SiClusterLink_xk* L, const Trk::PRDtoTrackMap &prd_to_track_map) 
 {
+  /// for detailed documentation, please see searchClustersWithoutStereoSCT
   if (m_detstatus<=0) return 0;
 
-  int nl     = 0;
-  double P0  = Tp.par()[0];
-  double P1  = Tp.par()[1];
-  double PV0 = Tp.cov()[0];
-  double PV1 = Tp.cov()[1];
-  double PV2 = Tp.cov()[2];
+  const AmgSymMatrix(5) & Tp_cov = *Tp.covariance();
+  int nLinksFound     = 0;
+  double P0  = Tp.parameters()[0];
+  double P1  = Tp.parameters()[1];
+  double PV0 = Tp_cov(0, 0);
+  double PV1 = Tp_cov(0, 1);
+  double PV2 = Tp_cov(1, 1);
   double Xc  = m_xi2maxlink;
   double Xm  = m_xi2max    ;
 
@@ -388,14 +531,18 @@ int InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
-      for(int i=0; i!=nl; ++i) L[i].Comparison(l);
-      if(nl<10) L[nl++]=l; else Xm=L[9].xi2();
+      /// This misleadingly named method actually is a sorting 
+      /// Mechanism: Our current link will take the place of the one 
+      /// it replaces in ascending chi², and we will be 
+      /// left with a link to the worst chi² one  
+      for(int i=0; i!=nLinksFound; ++i) L[i].Comparison(l);
+      if(nLinksFound<10) L[nLinksFound++]=l; else Xm=L[9].xi2();
       Xc = Xm;
     }
-    else if(!nl) {Xc = x; cl = c;}
+    else if(!nLinksFound) {Xc = x; cl = c;}
   }
-  if(cl && !nl) {L[nl++].Set(cl,Xc);}
-  return nl;
+  if(cl && !nLinksFound) {L[nLinksFound++].Set(cl,Xc);}
+  return nLinksFound;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -422,32 +569,32 @@ void InDet::SiTrajectoryElement_xk::set
   if(m_tools->fieldTool().magneticFieldMode()!=0) m_fieldMode = true;
   m_status       = 0                       ;
   m_detstatus    = st                      ;
-  m_ndist        = 0                       ;
-  m_nlinksF      = 0                       ;
-  m_nlinksB      = 0                       ;
-  m_nholesF      = 0                       ;
-  m_nholesB      = 0                       ;
-  m_dholesF      = 0                       ;
-  m_dholesB      = 0                       ;
-  m_nclustersF   = 0                       ;
-  m_nclustersB   = 0                       ;
-  m_npixelsB     = 0                       ;
-  m_ndfF         = 0                       ;
-  m_ndfB         = 0                       ;
-  m_ntsos        = 0                       ;
-  m_detelement   = dl->detElement()        ;
-  m_detlink      = dl                      ;
-  m_surface      = &m_detelement->surface();
-  m_sibegin      = sb                      ;
-  m_siend        = se                      ; 
-  m_cluster      = si                      ;
-  m_clusterOld   = si                      ;
-  m_clusterNoAdd = 0                       ;
-  m_stereo       = false                   ; 
-  m_xi2F         = 10000.                  ;
-  m_xi2B         = 10000.                  ;
-  m_xi2totalF    = 0.                      ;
-  m_xi2totalB    = 0.                      ;
+  m_nMissing        = 0                       ;
+  m_nlinksForward      = 0                       ;
+  m_nlinksBackward     = 0                       ;
+  m_nholesForward      = 0                       ;
+  m_nholesBackward     = 0                       ;
+  m_dholesForward      = 0                       ;
+  m_dholesBackward     = 0                       ;
+  m_nclustersForward   = 0                       ;
+  m_nclustersBackward  = 0                       ;
+  m_npixelsBackward    = 0                       ;
+  m_ndfForward         = 0                       ;
+  m_ndfBackward        = 0                       ;
+  m_ntsos              = 0                       ;
+  m_detelement         = dl->detElement()        ;
+  m_detlink            = dl                      ;
+  m_surface            = &m_detelement->surface();
+  m_sibegin            = sb                      ;
+  m_siend              = se                      ; 
+  m_cluster            = si                      ;
+  m_clusterOld         = si                      ;
+  m_clusterNoAdd       = 0                       ;
+  m_stereo             = false                   ; 
+  m_xi2Forward         = 10000.                  ;
+  m_xi2Backward        = 10000.                  ;
+  m_xi2totalForward    = 0.                      ;
+  m_xi2totalBackward   = 0.                      ;
   m_tools->electron() ? m_xi2max = m_tools->xi2maxBrem() : m_xi2max = m_tools->xi2max();
   m_halflength   = 0.                      ;
   m_detelement->isSCT() ? m_ndf=1 : m_ndf=2;
@@ -472,12 +619,14 @@ void InDet::SiTrajectoryElement_xk::set
   
   const Amg::Transform3D& tr = m_surface->transform();
 
-  m_Tr[ 0] = tr(0,0); m_Tr[ 1]=tr(1,0); m_Tr[ 2]=tr(2,0);
-  m_Tr[ 3] = tr(0,1); m_Tr[ 4]=tr(1,1); m_Tr[ 5]=tr(2,1);
-  m_Tr[ 6] = tr(0,2); m_Tr[ 7]=tr(1,2); m_Tr[ 8]=tr(2,2);
-  m_Tr[ 9] = tr(0,3); m_Tr[10]=tr(1,3); m_Tr[11]=tr(2,3);
-  m_Tr[12] = m_Tr[ 9]*m_Tr[ 6]+m_Tr[10]*m_Tr[ 7]+m_Tr[11]*m_Tr[ 8];
-  m_A[0] = 1.; m_A[1] = 0.; m_A[2] = 0.;
+  m_localTransform[ 0] = tr(0,0); m_localTransform[ 1]=tr(1,0); m_localTransform[ 2]=tr(2,0);
+  m_localTransform[ 3] = tr(0,1); m_localTransform[ 4]=tr(1,1); m_localTransform[ 5]=tr(2,1);
+  m_localTransform[ 6] = tr(0,2); m_localTransform[ 7]=tr(1,2); m_localTransform[ 8]=tr(2,2);
+  m_localTransform[ 9] = tr(0,3); m_localTransform[10]=tr(1,3); m_localTransform[11]=tr(2,3);
+  m_localTransform[12] = m_localTransform[ 9]*m_localTransform[ 6]+m_localTransform[10]*m_localTransform[ 7]+m_localTransform[11]*m_localTransform[ 8];
+  m_localDir[0] = 1.; 
+  m_localDir[1] = 0.; 
+  m_localDir[2] = 0.;
   return;
 }
 
@@ -517,9 +666,9 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationForClusterSeach
 
   if(!n) {
     Trk::PatternTrackParameters Tp; if(!Tp.production(&Tpa)) return false;
-    if(!propagateParameters(Tp,m_parametersPF,m_step)) return false;
+    if(!propagateParameters(Tp,m_parametersPredForward,m_step)) return false;
  
-    if(!m_parametersPF.iscovariance()) {
+    if(!m_parametersPredForward.iscovariance()) {
 
       double cv[15]={ .02 ,
                       0., .02,
@@ -527,13 +676,13 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationForClusterSeach
                       0., 0.,   0.,.000001,
                       0., 0.,   0.,   0.,.000000001};
       
-      m_parametersPF.setCovariance(cv);
+      m_parametersPredForward.setCovariance(cv);
     }
   }
   else {
-    if(!propagate(m_parametersPF,m_parametersPF,m_step)) return false;
+    if(!propagate(m_parametersPredForward,m_parametersPredForward,m_step)) return false;
   }
-  m_nlinksF=searchClusters(m_parametersPF,m_linkF);
+  m_nlinksForward=searchClusters(m_parametersPredForward,m_linkForward);
   return true;
 }
 
@@ -570,7 +719,7 @@ void InDet::SiTrajectoryElement_xk::CloseClusterSeach
     m_stereo = true : m_stereo = false;
   if(m_detstatus && m_ndf == 1) m_halflength = (*sb)->width().z()*.5;
 
-  if(m_detlink->intersect(Tpa,m_dist) > 0 || !searchClusters(Tpa,m_linkF)) return;
-  m_cluster = m_linkF[0].cluster();
-  m_xi2F    = m_linkF[0].xi2    ();
+  if(m_detlink->intersect(Tpa,m_dist) > 0 || !searchClusters(Tpa,m_linkForward)) return;
+  m_cluster = m_linkForward[0].cluster();
+  m_xi2Forward    = m_linkForward[0].xi2    ();
 }

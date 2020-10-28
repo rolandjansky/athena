@@ -124,6 +124,8 @@ namespace Muon {
     return refittedTrack;
   }
 
-
+  void MuonCandidateTrackBuilderTool::cleanUp() const {
+    m_trackFitter->cleanUp();
+  }
 }
  

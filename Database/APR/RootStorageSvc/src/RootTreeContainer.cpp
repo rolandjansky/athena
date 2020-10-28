@@ -548,6 +548,9 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
                              ? m_tree != nullptr
                              : (m_tree && m_tree->GetBranch(m_branchName.c_str()) != nullptr));
       if ( hasBeenCreated && (mode&pool::READ || mode&pool::UPDATE) )   {
+         if (treeName.substr(0, 2) == "##") {
+            m_tree->SetCacheSize(0);
+         }
          int count;
          if ( !m_tree->InheritsFrom(TTree::Class()) )   {
             log << DbPrintLvl::Error << "Cannot open the container " << m_name << " of type "

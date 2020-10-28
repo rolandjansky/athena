@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,Logging
 
@@ -43,7 +43,7 @@ def getAthenaTrackingActionTool(name='G4UA::AthenaTrackingActionTool', **kwargs)
     from G4AtlasApps.SimFlags import simFlags
     if "ATLAS" in simFlags.SimLayout() and \
     (jobproperties.Beam.beamType() == 'cosmics' or \
-     (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ) ):
+     (simFlags.CavernBG.statusOn and 'Signal' not in simFlags.CavernBG.get_Value() ) ):
         subDetLevel=2
     kwargs.setdefault('SubDetVolumeLevel', subDetLevel)
     return CfgMgr.G4UA__AthenaTrackingActionTool(name,**kwargs)

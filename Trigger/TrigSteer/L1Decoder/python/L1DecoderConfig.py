@@ -51,7 +51,7 @@ def mapThresholdToL1RoICollection(threshold):
 
 
 def createCaloRoIUnpackers():
-    #from L1Decoder.L1DecoderConf import EMRoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool, RerunRoIsUnpackingTool, TAURoIsUnpackingTool
+    #from L1Decoder.L1DecoderConf import EMRoIsUnpackingTool, METRoIsUnpackingTool, JRoIsUnpackingTool, TAURoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     emUnpacker = CompFactory.EMRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("EM"),
@@ -60,9 +60,6 @@ def createCaloRoIUnpackers():
 
     #            emUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="EM", maxCount=30 )
 
-    emRerunUnpacker = CompFactory.RerunRoIsUnpackingTool("EMRerunRoIsUnpackingTool",
-                                                         SourceDecisions=mapThresholdToL1DecisionCollection("EM"),
-                                                         Decisions="HLTNav_RerunL1EM" )
 
     metUnpacker = CompFactory.METRoIsUnpackingTool(Decisions = mapThresholdToL1DecisionCollection("XE"))
 
@@ -77,10 +74,10 @@ def createCaloRoIUnpackers():
 
     jUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="J", maxCount=30 )
 
-    return [emUnpacker, metUnpacker, tauUnpacker, jUnpacker ],[emRerunUnpacker]
+    return [emUnpacker, metUnpacker, tauUnpacker, jUnpacker ]
 
 def createMuonRoIUnpackers():
-    #from L1Decoder.L1DecoderConf import MURoIsUnpackingTool, RerunRoIsUnpackingTool
+    #from L1Decoder.L1DecoderConf import MURoIsUnpackingTool
     from L1Decoder.L1DecoderMonitoring import RoIsUnpackingMonitoring
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -89,10 +86,7 @@ def createMuonRoIUnpackers():
 
     muUnpacker.MonTool = RoIsUnpackingMonitoring( prefix="MU", maxCount=20 )
 
-    muRerunUnpacker =  CompFactory.RerunRoIsUnpackingTool("MURerunRoIsUnpackingTool",
-                                                          SourceDecisions=mapThresholdToL1DecisionCollection("MU"),
-                                                          Decisions="HLTNav_RerunL1MU" )
-    return [muUnpacker],[muRerunUnpacker]
+    return [muUnpacker]
 
 def createPrescalingTool():
     from L1Decoder.L1DecoderMonitoring import PrescalingMonitoring
@@ -133,15 +127,13 @@ class L1Decoder(CompFactory.L1Decoder) :
                                                                OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED") )) ]
         # EM unpacker
         if TriggerFlags.doID() or TriggerFlags.doCalo():
-            unpackers, rerunUnpackers = createCaloRoIUnpackers()
+            unpackers = createCaloRoIUnpackers()
             self.roiUnpackers += unpackers
-            self.rerunRoiUnpackers += rerunUnpackers
 
         # MU unpacker
         if TriggerFlags.doMuon():
-            unpackers, rerunUnpackers = createMuonRoIUnpackers()
+            unpackers = createMuonRoIUnpackers()
             self.roiUnpackers += unpackers
-            self.rerunRoiUnpackers += rerunUnpackers
 
         self.prescaler = createPrescalingTool()
 
@@ -180,14 +172,12 @@ def L1DecoderCfg(flags, seqName = None):
                                   OutputTrigRoIs = recordable(mapThresholdToL1RoICollection("FSNOSEED")) ) ]
 
     if flags.Trigger.doCalo:
-        unpackers, rerunUnpackers = createCaloRoIUnpackers()
+        unpackers = createCaloRoIUnpackers()
         decoderAlg.roiUnpackers += unpackers
-        decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
     if flags.Trigger.doMuon:
-        unpackers, rerunUnpackers = createMuonRoIUnpackers()
+        unpackers = createMuonRoIUnpackers()
         decoderAlg.roiUnpackers += unpackers
-        decoderAlg.rerunRoiUnpackers += rerunUnpackers
 
     decoderAlg.prescaler = createPrescalingTool()
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
@@ -207,7 +197,6 @@ def L1DecoderCfg(flags, seqName = None):
     from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
     acc.merge( HLTPrescaleCondAlgCfg( flags ) )
-
 
     Configurable.configurableRun3Behavior -= 1
 

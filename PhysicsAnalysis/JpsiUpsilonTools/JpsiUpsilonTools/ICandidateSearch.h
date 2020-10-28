@@ -11,7 +11,7 @@ static const InterfaceID IID_ICandidateSearch("ICandidateSearch", 1, 0);
 
 class ICandidateSearch : virtual public IAlgTool {
 public:
-   virtual StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& ) = 0;
+   virtual StatusCode performSearch(xAOD::VertexContainer*& , xAOD::VertexAuxContainer*& ) const = 0;
    /** AlgTool interface methods */
    static const InterfaceID& interfaceID() { return IID_ICandidateSearch; }
 };

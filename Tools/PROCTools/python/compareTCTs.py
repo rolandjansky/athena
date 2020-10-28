@@ -2,11 +2,8 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 import os,sys
 from PROCTools.getFileLists import tctPath, findTCTFiles
-from PROCTools.getFileLists import *
 sys.argv += [ '-b' ] # tell ROOT to not use graphics
 from ROOT import TFile,TTree
 from PROCTools.diffTAGTree import diffTTree
@@ -80,7 +77,7 @@ def diffPoolFiles(ref,chk,details,toIgnore = ['RecoTimingObj_p1_RAWtoESD_timings
             df.printSummary(details)
         stat=df.status()
         del df
-    except:
+    except Exception:
         print ("Exception caught while diff'ing POOL files")
         stat=True
     return stat 
@@ -102,7 +99,7 @@ def diffPickleFiles(ref,chk,details):
         #    if refer != check:
         #        print ("Expected %r; got %r " % (refer,check))
         #stat=False
-    except:
+    except Exception:
         stat=True
         print ("Exception caught while comparinging jobReport(_RecoTrf)?.gpickle files")
     return stat 
@@ -194,10 +191,10 @@ if __name__ == "__main__":
             allPatterns.insert(0, fP)
 
     if refPath is None:
-        refPath = tctPath(nRef, rRef);
+        refPath = tctPath(nRef, rRef)
 
     if valPath is None:
-        valPath = tctPath(nVal, rVal);
+        valPath = tctPath(nVal, rVal)
 
     if not os.access(refPath, os.R_OK):
         print ("Can't access output of reference TCT at",refPath)
@@ -307,7 +304,7 @@ if __name__ == "__main__":
             cpu_r=info[0].cpulist[1]
             cpu_v=info[1].cpulist[1]
             if (cpu_r>0 and cpu_v>0):
-                ratio=100.0*(cpu_v-cpu_r)/cpu_r;
+                ratio=100.0*(cpu_v-cpu_r)/cpu_r
                 ln="\tESD CPU: %i -> %i (%.2f%%)" %  (cpu_r,cpu_v,ratio)
                 if abs(ratio)>15:
                     print (ln+"***")
@@ -319,7 +316,7 @@ if __name__ == "__main__":
             cpu_r=info[0].cpulist[4]
             cpu_v=info[1].cpulist[4]
             if (cpu_r>0 and cpu_v>0):
-                ratio=100.0*(cpu_v-cpu_r)/cpu_r;
+                ratio=100.0*(cpu_v-cpu_r)/cpu_r
                 ln="\tAOD CPU: %i -> %i (%.2f%%)" %  (cpu_r,cpu_v,ratio)
                 if abs(ratio)>15:
                     print (ln+"***")
@@ -331,7 +328,7 @@ if __name__ == "__main__":
             mem_r=info[0].memlist[1]
             mem_v=info[1].memlist[1]
             if (mem_r>0 and mem_v>0):
-                ratio=100.0*(mem_v-mem_r)/mem_r;
+                ratio=100.0*(mem_v-mem_r)/mem_r
                 ln="\tESD MEM: %i -> %i (%.2f%%)" %  (mem_r,mem_v,ratio)
                 if abs(ratio)>15:
                     print (ln+"***")
@@ -342,7 +339,7 @@ if __name__ == "__main__":
             mem_r=info[0].memlist[4]
             mem_v=info[1].memlist[4]
             if (mem_r>0 and mem_v>0):
-                ratio=100.0*(mem_v-mem_r)/mem_r;
+                ratio=100.0*(mem_v-mem_r)/mem_r
                 ln="\tAOD MEM: %i -> %i (%.2f%%)" %  (mem_r,mem_v,ratio)
                 if abs(ratio)>15:
                     print (ln+"***")

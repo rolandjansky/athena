@@ -1281,14 +1281,22 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
             from tauRec.tauRecFlags import tauFlags
-            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:
+            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:                
                 from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
-                alg = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauInitialPi0Clusters',
+                alg = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
                                                 StreamName = 'StreamAOD',
-                                                Clusters = 'TauInitialPi0Clusters',
-                                                Cells = 'TauCommonPi0Cells')
+                                                Clusters = 'TauPi0Clusters',
+                                                Cells = 'AllCalo')
                 topSequence += alg
 
+                from tauRec.tauRecConf import TauCellThinningAlg
+                alg = TauCellThinningAlg('TauCellThinningAlg',
+                                         StreamName = 'StreamAOD',
+                                         Cells = 'AllCalo',
+                                         Taus = "TauJets",
+                                         UseSubtractedCluster = tauFlags.useSubtractedCluster())
+                topSequence += alg
+                
         except Exception:
             treatException("Could not make AOD cells" )
 

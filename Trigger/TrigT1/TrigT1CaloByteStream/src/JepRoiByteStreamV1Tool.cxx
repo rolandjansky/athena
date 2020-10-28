@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -49,8 +49,8 @@ JepRoiByteStreamV1Tool::JepRoiByteStreamV1Tool(const std::string& type,
     const IInterface*  parent)
   : AthAlgTool(type, name, parent),
     m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
-    m_crates(2), m_modules(16), m_srcIdMap(0), m_subBlock(0), m_rodStatus(0),
-    m_fea(0)
+    m_crates(2), m_modules(16),
+    m_subDetector (eformat::TDAQ_CALO_JET_PROC_ROI)
 {
   declareInterface<JepRoiByteStreamV1Tool>(this);
 
@@ -62,9 +62,9 @@ JepRoiByteStreamV1Tool::JepRoiByteStreamV1Tool(const std::string& type,
                   "Offset of JEP crate numbers in RDOs");
 
   // Properties for reading bytestream only
-  declareProperty("ROBSourceIDs",       m_sourceIDs,
+  declareProperty("ROBSourceIDs",       m_sourceIDsProp,
                   "ROB fragment source identifiers");
-  declareProperty("ROBSourceIDsRoIB",   m_sourceIDsRoIB,
+  declareProperty("ROBSourceIDsRoIB",   m_sourceIDsRoIBProp,
                   "ROB fragment source identifiers");
 
   // Properties for writing bytestream only
@@ -92,20 +92,11 @@ JepRoiByteStreamV1Tool::~JepRoiByteStreamV1Tool()
 
 StatusCode JepRoiByteStreamV1Tool::initialize()
 {
-  msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+  ATH_MSG_INFO( "Initializing " << name() << " - package version "
+                << PACKAGE_VERSION);
 
-  StatusCode sc = m_errorTool.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
-    return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
+  ATH_CHECK( m_errorTool.retrieve() );
 
-  m_subDetector = eformat::TDAQ_CALO_JET_PROC_ROI;
-  m_srcIdMap    = new L1CaloSrcIdMap();
-  m_subBlock    = new JemRoiSubBlockV1();
-  m_rodStatus   = new std::vector<uint32_t>(2);
-  m_fea         = new FullEventAssembler<L1CaloSrcIdMap>();
   return StatusCode::SUCCESS;
 }
 
@@ -113,10 +104,6 @@ StatusCode JepRoiByteStreamV1Tool::initialize()
 
 StatusCode JepRoiByteStreamV1Tool::finalize()
 {
-  delete m_fea;
-  delete m_rodStatus;
-  delete m_subBlock;
-  delete m_srcIdMap;
   return StatusCode::SUCCESS;
 }
 
@@ -124,51 +111,59 @@ StatusCode JepRoiByteStreamV1Tool::finalize()
 
 StatusCode JepRoiByteStreamV1Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
-  DataVector<LVL1::JEMRoI>* const jeCollection)
+  DataVector<LVL1::JEMRoI>* const jeCollection) const
 {
-  m_jeCollection = jeCollection;
-  return convertBs(robFrags, JEM_ROI);
+  return convertBs(robFrags, jeCollection, nullptr);
 }
 
 // Conversion bytestream to CMM RoI
 
 StatusCode JepRoiByteStreamV1Tool::convert(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
-  LVL1::CMMRoI* const cmCollection)
+  LVL1::CMMRoI* const cmCollection) const
 {
-  m_cmCollection = cmCollection;
-  return convertBs(robFrags, CMM_ROI);
+  return convertBs(robFrags, nullptr, cmCollection);
 }
 
 // Conversion of JEP container to bytestream
 
 StatusCode JepRoiByteStreamV1Tool::convert(
   const LVL1::JEPRoIBSCollectionV1* const jep,
-  RawEventWrite* const re)
+  RawEventWrite* const re) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
 
   // Clear the event assembler
-
-  m_fea->clear();
-  const uint16_t minorVersion = m_srcIdMap->minorVersionPreLS1();
-  m_fea->setRodMinorVersion(minorVersion);
-  m_rodStatusMap.clear();
+  FullEventAssembler<L1CaloSrcIdMap> fea;
+  fea.clear();
+  const uint16_t minorVersion = m_srcIdMap.minorVersionPreLS1();
+  fea.setRodMinorVersion(minorVersion);
 
   // Pointer to ROD data vector
 
   FullEventAssembler<L1CaloSrcIdMap>::RODDATA* theROD = 0;
 
+  // Sub-block for neutral format
+  JemRoiSubBlockV1 subBlock;
+
   // Set up the container maps
 
   const bool neutralFormat = m_dataFormat == L1CaloSubBlock::NEUTRAL;
-  setupJemRoiMap(jep->JemRoi());
-  JemRoiMap::const_iterator mapIter    = m_roiMap.begin();
-  JemRoiMap::const_iterator mapIterEnd = m_roiMap.end();
+
+  // JEM RoI map
+  JemRoiMap  roiMap;
+  setupJemRoiMap(jep->JemRoi(), roiMap);
+  JemRoiMap::const_iterator mapIter    = roiMap.begin();
+  JemRoiMap::const_iterator mapIterEnd = roiMap.end();
+
+  // CMM hits map
+  CmmHitsMap cmmHitsMap;
+  // CMM energy sums map
+  CmmSumsMap cmmEtMap;
   if (neutralFormat) {
-    setupCmmHitsMap(jep->CmmHits());
-    setupCmmEtMap(jep->CmmSums());
+    setupCmmHitsMap(jep->CmmHits(), cmmHitsMap);
+    setupCmmEtMap(jep->CmmSums(), cmmEtMap);
   }
 
   // Loop over JEM RoI data
@@ -190,14 +185,13 @@ StatusCode JepRoiByteStreamV1Tool::convert(
                 << "Data Version/Format: " << m_version
                 << " " << m_dataFormat << endmsg;
         }
-        const uint32_t rodIdJem = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
+        const uint32_t rodIdJem = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
                                   m_subDetector);
-        theROD = m_fea->getRodData(rodIdJem);
+        theROD = fea.getRodData(rodIdJem);
         if (neutralFormat) {
           const L1CaloUserHeader userHeader;
           theROD->push_back(userHeader.header());
         }
-        m_rodStatusMap.insert(make_pair(rodIdJem, m_rodStatus));
       }
       if (debug) msg() << "JEM Module " << module << endmsg;
       if (!theROD) break; // for coverity, shouldn't happen
@@ -205,8 +199,8 @@ StatusCode JepRoiByteStreamV1Tool::convert(
       // Create a sub-block (Neutral format only)
 
       if (neutralFormat) {
-        m_subBlock->clear();
-        m_subBlock->setRoiHeader(m_version, hwCrate, module);
+        subBlock.clear();
+        subBlock.setRoiHeader(m_version, hwCrate, module);
       }
 
       // Find JEM RoIs for this module
@@ -218,7 +212,7 @@ StatusCode JepRoiByteStreamV1Tool::convert(
         if (roi->jem()   < module) continue;
         if (roi->jem()   > module) break;
         if (roi->hits() || roi->error()) {
-          if (neutralFormat) m_subBlock->fillRoi(*roi);
+          if (neutralFormat) subBlock.fillRoi(*roi);
           else theROD->push_back(roi->roiWord());
         }
       }
@@ -226,15 +220,15 @@ StatusCode JepRoiByteStreamV1Tool::convert(
       // Pack and write the sub-block
 
       if (neutralFormat) {
-        if ( !m_subBlock->pack()) {
+        if ( !subBlock.pack()) {
           msg(MSG::ERROR) << "JEM RoI sub-block packing failed" << endmsg;
           return StatusCode::FAILURE;
         }
         if (debug) {
           msg() << "JEM RoI sub-block data words: "
-                << m_subBlock->dataWords() << endmsg;
+                << subBlock.dataWords() << endmsg;
         }
-        m_subBlock->write(theROD);
+        subBlock.write(theROD);
       }
     }
     if (!theROD) break; // for coverity, shouldn't happen
@@ -278,7 +272,7 @@ StatusCode JepRoiByteStreamV1Tool::convert(
             continue;
           }
         }
-        const LVL1::CMMEtSums* const sums = findCmmSums(crate, dataID);
+        const LVL1::CMMEtSums* const sums = findCmmSums(crate, dataID, cmmEtMap);
         if ( sums ) {
           const unsigned int ex = sums->Ex();
           const unsigned int ey = sums->Ey();
@@ -345,7 +339,7 @@ StatusCode JepRoiByteStreamV1Tool::convert(
             continue;
           }
         }
-        const LVL1::CMMJetHits* const ch = findCmmHits(crate, dataID);
+        const LVL1::CMMJetHits* const ch = findCmmHits(crate, dataID, cmmHitsMap);
         if ( ch ) {
           const unsigned int hits = ch->Hits();
           const int          errs = ch->Error();
@@ -398,48 +392,71 @@ StatusCode JepRoiByteStreamV1Tool::convert(
 
   // Fill the raw event
 
-  m_fea->fill(re, msg());
-
-  // Set ROD status words
-
-  //L1CaloRodStatus::setStatus(re, m_rodStatusMap, m_srcIdMap);
+  fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
 }
 
 // Return reference to vector with all possible Source Identifiers
 
+std::vector<uint32_t> JepRoiByteStreamV1Tool::makeSourceIDs (bool roiDaq) const
+{
+  std::vector<uint32_t> sourceIDs;
+
+  if (roiDaq) {
+    sourceIDs = m_sourceIDsProp;
+  }
+  else {
+    sourceIDs = m_sourceIDsRoIBProp;
+  }
+
+  if (sourceIDs.empty()) {
+        const int maxCrates = m_crates + m_crateOffsetHw;
+        const int maxSlinks = m_srcIdMap.maxSlinks();
+        for (int hwCrate = m_crateOffsetHw; hwCrate < maxCrates; ++hwCrate)
+        {
+            for (int slink = 0; slink < maxSlinks; ++slink)
+            {
+                const int daqOrRoi = 1;
+                const uint32_t rodId = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
+                                       m_subDetector);
+                const uint32_t robId = m_srcIdMap.getRobID(rodId);
+                if (roiDaq)
+                {
+                    if (slink < 2) sourceIDs.push_back(robId);
+                }
+                else if (slink >= 2) sourceIDs.push_back(robId);
+            }
+        }
+
+  }
+  return sourceIDs;
+}
+
 const std::vector<uint32_t>& JepRoiByteStreamV1Tool::sourceIDs(
-  const std::string& sgKey)
+  const std::string& sgKey) const
 {
   const std::string flag("RoIB");
   const std::string::size_type pos = sgKey.find(flag);
   const bool roiDaq =
     (pos == std::string::npos || pos != sgKey.length() - flag.length());
-  const bool empty  = (roiDaq) ? m_sourceIDs.empty() : m_sourceIDsRoIB.empty();
-  if (empty) {
-    const int maxCrates = m_crates + m_crateOffsetHw;
-    const int maxSlinks = m_srcIdMap->maxSlinks();
-    for (int hwCrate = m_crateOffsetHw; hwCrate < maxCrates; ++hwCrate) {
-      for (int slink = 0; slink < maxSlinks; ++slink) {
-        const int daqOrRoi = 1;
-        const uint32_t rodId = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
-                               m_subDetector);
-        const uint32_t robId = m_srcIdMap->getRobID(rodId);
-        if (roiDaq) {
-          if (slink < 2) m_sourceIDs.push_back(robId);
-        } else if (slink >= 2) m_sourceIDsRoIB.push_back(robId);
-      }
-    }
+
+  if (roiDaq) {
+    static const std::vector<uint32_t> sourceIDs = makeSourceIDs(roiDaq);
+    return sourceIDs;
   }
-  return (roiDaq) ? m_sourceIDs : m_sourceIDsRoIB;
+  else {
+    static const std::vector<uint32_t> sourceIDsRoIB = makeSourceIDs(roiDaq);
+    return sourceIDsRoIB;
+  }
 }
 
 // Convert bytestream to given container type
 
 StatusCode JepRoiByteStreamV1Tool::convertBs(
   const IROBDataProviderSvc::VROBFRAG& robFrags,
-  const CollectionType collection)
+  DataVector<LVL1::JEMRoI>* jeCollection,
+  LVL1::CMMRoI* cmCollection) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
@@ -494,12 +511,12 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
 
     // Check identifier
     const uint32_t sourceID = (*rob)->rod_source_id();
-    if (m_srcIdMap->getRobID(sourceID) != robid           ||
-        m_srcIdMap->subDet(sourceID)   != m_subDetector   ||
-        m_srcIdMap->daqOrRoi(sourceID) != 1               ||
-        (m_srcIdMap->slink(sourceID) != 0 && m_srcIdMap->slink(sourceID) != 2) ||
-        m_srcIdMap->crate(sourceID)    <  m_crateOffsetHw ||
-        m_srcIdMap->crate(sourceID)    >= m_crateOffsetHw + m_crates) {
+    if (m_srcIdMap.getRobID(sourceID) != robid           ||
+        m_srcIdMap.subDet(sourceID)   != m_subDetector   ||
+        m_srcIdMap.daqOrRoi(sourceID) != 1               ||
+        (m_srcIdMap.slink(sourceID) != 0 && m_srcIdMap.slink(sourceID) != 2) ||
+        m_srcIdMap.crate(sourceID)    <  m_crateOffsetHw ||
+        m_srcIdMap.crate(sourceID)    >= m_crateOffsetHw + m_crates) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_ROD_ID);
       if (debug) {
         msg() << "Wrong source identifier in data: "
@@ -510,14 +527,14 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
 
     // Check minor version
     const int minorVersion = (*rob)->rod_version() & 0xffff;
-    if (minorVersion > m_srcIdMap->minorVersionPreLS1()) {
+    if (minorVersion > m_srcIdMap.minorVersionPreLS1()) {
       if (debug) msg() << "Skipping post-LS1 data" << endmsg;
       continue;
     }
-    const int rodCrate = m_srcIdMap->crate(sourceID);
+    const int rodCrate = m_srcIdMap.crate(sourceID);
     if (debug) {
       msg() << "Treating crate " << rodCrate
-            << " slink " << m_srcIdMap->slink(sourceID) << endmsg;
+            << " slink " << m_srcIdMap.slink(sourceID) << endmsg;
     }
 
     // First word may be User Header
@@ -546,31 +563,31 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
           if (CmmSubBlock::cmmType(*payload) == CmmSubBlock::CMM_JET) {
             CmmJetSubBlock subBlock;
             payload = subBlock.read(payload, payloadEnd);
-            if (collection == CMM_ROI) {
+            if (cmCollection != nullptr) {
               if (subBlock.dataWords() && !subBlock.unpack()) {
                 if (debug) {
                   std::string errMsg(subBlock.unpackErrorMsg());
                   msg() << "CMM-Jet sub-block unpacking failed: "
                         << errMsg << endmsg;
                 }
-                rodErr = m_subBlock->unpackErrorCode();
+                rodErr = subBlock.unpackErrorCode();
                 break;
               }
               const LVL1::CMMRoI roi(subBlock.jetEtMap(slice),
                                      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-              m_cmCollection->setRoiWord(roi.jetEtRoiWord());
+              cmCollection->setRoiWord(roi.jetEtRoiWord());
             }
           } else {
             CmmEnergySubBlock subBlock;
             payload = subBlock.read(payload, payloadEnd);
-            if (collection == CMM_ROI) {
+            if (cmCollection != nullptr) {
               if (subBlock.dataWords() && !subBlock.unpack()) {
                 if (debug) {
                   std::string errMsg(subBlock.unpackErrorMsg());
                   msg() << "CMM-Energy sub-block unpacking failed: "
                         << errMsg << endmsg;
                 }
-                rodErr = m_subBlock->unpackErrorCode();
+                rodErr = subBlock.unpackErrorCode();
                 break;
               }
               const LVL1::CMMRoI roi(0, subBlock.sumEtHits(slice),
@@ -583,30 +600,30 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
                                      subBlock.exError(slice, CmmEnergySubBlock::TOTAL),
                                      subBlock.eyError(slice, CmmEnergySubBlock::TOTAL),
                                      subBlock.etError(slice, CmmEnergySubBlock::TOTAL));
-              m_cmCollection->setRoiWord(roi.energyRoiWord0());
-              m_cmCollection->setRoiWord(roi.energyRoiWord1());
-              m_cmCollection->setRoiWord(roi.energyRoiWord2());
+              cmCollection->setRoiWord(roi.energyRoiWord0());
+              cmCollection->setRoiWord(roi.energyRoiWord1());
+              cmCollection->setRoiWord(roi.energyRoiWord2());
             }
           }
         } else {
           // JEM RoI
           JemRoiSubBlockV1 subBlock;
           payload = subBlock.read(payload, payloadEnd);
-          if (collection == JEM_ROI) {
+          if (jeCollection != nullptr) {
             if (subBlock.dataWords() && !subBlock.unpack()) {
               if (debug) {
                 std::string errMsg(subBlock.unpackErrorMsg());
                 msg() << "JEM RoI sub-block unpacking failed: "
                       << errMsg << endmsg;
               }
-              rodErr = m_subBlock->unpackErrorCode();
+              rodErr = subBlock.unpackErrorCode();
               break;
             }
             for (int frame = 0; frame < 8; ++frame) {
               for (int forward = 0; forward < 2; ++forward) {
                 const LVL1::JEMRoI roi = subBlock.roi(frame, forward);
                 if (roi.hits() || roi.error()) {
-                  m_jeCollection->push_back(new LVL1::JEMRoI(roi));
+                  jeCollection->push_back(new LVL1::JEMRoI(roi));
                 }
               }
             }
@@ -617,7 +634,7 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
         LVL1::JEMRoI jroi;
         LVL1::CMMRoI croi;
         if (jroi.setRoiWord(*payload)) {
-          if (collection == JEM_ROI) {
+          if (jeCollection != nullptr) {
             if (jroi.crate() != rodCrate - m_crateOffsetHw) {
               if (debug) msg() << "Inconsistent RoI crate number: "
                                  << jroi.crate() << endmsg;
@@ -627,7 +644,7 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
             const uint32_t location = (*payload) & 0xfffc0000;
             if (dupRoiCheck.insert(location).second) {
               if (jroi.hits() || jroi.error()) {
-                m_jeCollection->push_back(new LVL1::JEMRoI(*payload));
+                jeCollection->push_back(new LVL1::JEMRoI(*payload));
               }
             } else {
               if (debug) msg() << "Duplicate RoI word "
@@ -637,11 +654,11 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
             }
           }
         } else if (croi.setRoiWord(*payload)) {
-          if (collection == CMM_ROI) {
+          if (cmCollection != nullptr) {
             uint32_t roiType = (*payload) & 0xf0000000;
             if ((roiType & 0xe0000000) == 0xa0000000) roiType = 0xa0000000;
             if (dupRoiCheck.insert(roiType).second) {
-              m_cmCollection->setRoiWord(*payload);
+              cmCollection->setRoiWord(*payload);
             } else {
               if (debug) msg() << "Duplicate RoI word "
                                  << MSG::hex << *payload << MSG::dec << endmsg;
@@ -668,40 +685,43 @@ StatusCode JepRoiByteStreamV1Tool::convertBs(
 // Find CMM hits for given crate, dataID
 
 const LVL1::CMMJetHits* JepRoiByteStreamV1Tool::findCmmHits(const int crate,
-    const int dataID)
+    const int dataID,
+    const CmmHitsMap& cmmHitsMap) const
 {
   const LVL1::CMMJetHits* hits = 0;
   CmmHitsMap::const_iterator mapIter;
-  mapIter = m_cmmHitsMap.find(crate * 100 + dataID);
-  if (mapIter != m_cmmHitsMap.end()) hits = mapIter->second;
+  mapIter = cmmHitsMap.find(crate * 100 + dataID);
+  if (mapIter != cmmHitsMap.end()) hits = mapIter->second;
   return hits;
 }
 
 // Find CMM energy sums for given crate, module, dataID
 
 const LVL1::CMMEtSums* JepRoiByteStreamV1Tool::findCmmSums(const int crate,
-    const int dataID)
+    const int dataID,
+    const CmmSumsMap& cmmEtMap) const
 {
   const LVL1::CMMEtSums* sums = 0;
   CmmSumsMap::const_iterator mapIter;
-  mapIter = m_cmmEtMap.find(crate * 100 + dataID);
-  if (mapIter != m_cmmEtMap.end()) sums = mapIter->second;
+  mapIter = cmmEtMap.find(crate * 100 + dataID);
+  if (mapIter != cmmEtMap.end()) sums = mapIter->second;
   return sums;
 }
 
 // Set up JEM RoIs map
 
 void JepRoiByteStreamV1Tool::setupJemRoiMap(const JemRoiCollection*
-    const jeCollection)
+    const jeCollection,
+    JemRoiMap& roiMap) const
 {
-  m_roiMap.clear();
+  roiMap.clear();
   if (jeCollection) {
     JemRoiCollection::const_iterator pos  = jeCollection->begin();
     JemRoiCollection::const_iterator pose = jeCollection->end();
     for (; pos != pose; ++pos) {
       const LVL1::JEMRoI* const roi = *pos;
       const uint32_t key = roi->roiWord();
-      m_roiMap.insert(std::make_pair(key, roi));
+      roiMap.insert(std::make_pair(key, roi));
     }
   }
 }
@@ -709,9 +729,10 @@ void JepRoiByteStreamV1Tool::setupJemRoiMap(const JemRoiCollection*
 // Set up CMM hits map
 
 void JepRoiByteStreamV1Tool::setupCmmHitsMap(const CmmHitsCollection*
-    const hitCollection)
+    const hitCollection,
+    CmmHitsMap& cmmHitsMap) const
 {
-  m_cmmHitsMap.clear();
+  cmmHitsMap.clear();
   if (hitCollection) {
     CmmHitsCollection::const_iterator pos  = hitCollection->begin();
     CmmHitsCollection::const_iterator pose = hitCollection->end();
@@ -719,7 +740,7 @@ void JepRoiByteStreamV1Tool::setupCmmHitsMap(const CmmHitsCollection*
       const LVL1::CMMJetHits* const hits = *pos;
       const int crate = hits->crate() - m_crateOffsetSw;
       const int key   = crate * 100 + hits->dataID();
-      m_cmmHitsMap.insert(std::make_pair(key, hits));
+      cmmHitsMap.insert(std::make_pair(key, hits));
     }
   }
 }
@@ -727,9 +748,10 @@ void JepRoiByteStreamV1Tool::setupCmmHitsMap(const CmmHitsCollection*
 // Set up CMM energy sums map
 
 void JepRoiByteStreamV1Tool::setupCmmEtMap(const CmmSumsCollection*
-    const etCollection)
+    const etCollection,
+    CmmSumsMap& cmmEtMap) const
 {
-  m_cmmEtMap.clear();
+  cmmEtMap.clear();
   if (etCollection) {
     CmmSumsCollection::const_iterator pos  = etCollection->begin();
     CmmSumsCollection::const_iterator pose = etCollection->end();
@@ -737,7 +759,7 @@ void JepRoiByteStreamV1Tool::setupCmmEtMap(const CmmSumsCollection*
       const LVL1::CMMEtSums* const sums = *pos;
       const int crate = sums->crate() - m_crateOffsetSw;
       const int key   = crate * 100 + sums->dataID();
-      m_cmmEtMap.insert(std::make_pair(key, sums));
+      cmmEtMap.insert(std::make_pair(key, sums));
     }
   }
 }

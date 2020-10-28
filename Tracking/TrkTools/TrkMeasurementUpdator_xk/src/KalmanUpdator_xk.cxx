@@ -434,7 +434,7 @@ bool                        Trk::KalmanUpdator_xk::combineStates
 
     if(updateWithFiveDim(false,m,mv,p,pv,x2)) {
       testAngles(p,pv);
-      T3.setParametersWithCovariance(T1.associatedSurface(),p,pv);
+      T3.setParametersWithCovariance(&T1.associatedSurface(),p,pv);
       return true;
     }
     return false;
@@ -491,7 +491,7 @@ bool                        Trk::KalmanUpdator_xk::combineStates
 
     if(updateWithFiveDim(true,m,mv,p,pv,Q)) {
       testAngles(p,pv);
-      T3.setParametersWithCovariance(T1.associatedSurface(),p,pv);
+      T3.setParametersWithCovariance(&T1.associatedSurface(),p,pv);
       return true;
     }
     return false;
@@ -533,8 +533,11 @@ bool Trk::KalmanUpdator_xk::predictedStateFitQuality
 {
   if(!T.iscovariance()) {N = 0; return false;}
 
-  double t[5] = {T.par()[0],T.par()[1],
-		 T.cov()[0],T.cov()[1],T.cov()[2]};
+  const AmgVector(5) & p = T.parameters();
+  const AmgSymMatrix(5) & cov = *T.covariance();
+
+  double t[5] = {p[0],p[1],
+		 cov(0, 0),cov(0, 1),cov(1, 1)};
 
   return predictedStateFitQuality(t,P,E,N,X2); 
 }
@@ -645,8 +648,11 @@ bool Trk::KalmanUpdator_xk::fullStateFitQuality
 {
   if(!T.iscovariance()) {N = 0; return false;}
 
-  double t[5] = {T.par()[0],T.par()[1],
-		 T.cov()[0],T.cov()[1],T.cov()[2]};
+  const AmgVector(5) & p = T.parameters();
+  const AmgSymMatrix(5) & cov = *T.covariance();
+
+  double t[5] = {p[0],p[1],
+		 cov(0, 0),cov(0, 1),cov(1, 1)};
 
   return fullStateFitQuality(t,P,E,N,X2); 
 }
@@ -935,7 +941,7 @@ bool Trk::KalmanUpdator_xk::update
     else if(N==1) update = updateWithOneDim(O,X,m,mv,p,pv,Q);
     if(update) {
       testAngles(p,pv);
-      Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+      Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
     }
     return update;
   }
@@ -948,7 +954,7 @@ bool Trk::KalmanUpdator_xk::update
   else if(N==2) update = updateNoMeasuredWithTwoDim(m,mv,p,pv);
 
 
-  if(update) Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+  if(update) Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
   return update;
 }
 
@@ -990,7 +996,7 @@ bool Trk::KalmanUpdator_xk::updateOneDimension
     }
     if(update) {
       testAngles(p,pv);
-      Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+      Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
     }
     return update;
   }
@@ -1000,7 +1006,7 @@ bool Trk::KalmanUpdator_xk::updateOneDimension
   if(O<0) return false;
   Q = 0.;
   update = updateNoMeasuredWithTwoDim(m,mv,p,pv);
-  if(update) Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+  if(update) Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
   return update;
 }
 
@@ -1100,7 +1106,7 @@ bool Trk::KalmanUpdator_xk::update
     else                  update = updateWithAnyDim(O,X,m,mv,p,pv,Q,N,k);
    if(update) {
      testAngles(p,pv);
-     Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+     Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
    }
    return update;
   }
@@ -1112,7 +1118,7 @@ bool Trk::KalmanUpdator_xk::update
   if     (N==1 && k==1)  update = updateNoMeasuredWithOneDim(m,mv,p,pv);
   else if(N==2 && k==3)  update = updateNoMeasuredWithTwoDim(m,mv,p,pv);
   else                   update = updateNoMeasuredWithAnyDim(m,mv,p,pv,k);
-  if(update) Ta.setParametersWithCovariance(T.associatedSurface(),p,pv);
+  if(update) Ta.setParametersWithCovariance(&T.associatedSurface(),p,pv);
   return update;
 }
 
@@ -1843,7 +1849,7 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
 bool Trk::KalmanUpdator_xk::trackParametersToUpdator
 (const Trk::PatternTrackParameters& T,double* P,double* V) const
 {
-  const double* par = T.par();
+  const AmgVector(5) & par = T.parameters();
 
   P[0] = par[0];
   P[1] = par[1];
@@ -1853,23 +1859,23 @@ bool Trk::KalmanUpdator_xk::trackParametersToUpdator
 
   if(!T.iscovariance()) return false; 
 
-  const double* cov = T.cov();
+  const AmgSymMatrix(5) & cov = *T.covariance();
 
-  V[ 0] = cov[ 0];
-  V[ 1] = cov[ 1];
-  V[ 2] = cov[ 2];
-  V[ 3] = cov[ 3];
-  V[ 4] = cov[ 4];
-  V[ 5] = cov[ 5];
-  V[ 6] = cov[ 6];
-  V[ 7] = cov[ 7];
-  V[ 8] = cov[ 8];
-  V[ 9] = cov[ 9];
-  V[10] = cov[10];
-  V[11] = cov[11];
-  V[12] = cov[12];
-  V[13] = cov[13];
-  V[14] = cov[14];
+  V[ 0] = cov(0, 0);
+  V[ 1] = cov(0, 1);
+  V[ 2] = cov(1, 1);
+  V[ 3] = cov(0, 2);
+  V[ 4] = cov(1, 2);
+  V[ 5] = cov(2, 2);
+  V[ 6] = cov(0, 3);
+  V[ 7] = cov(1, 3);
+  V[ 8] = cov(2, 3);
+  V[ 9] = cov(3, 3);
+  V[10] = cov(0, 4);
+  V[11] = cov(1, 4);
+  V[12] = cov(2, 4);
+  V[13] = cov(3, 4);
+  V[14] = cov(4, 4);
   return true;
 }
 

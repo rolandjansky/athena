@@ -296,13 +296,13 @@ void InDet::SiCombinatorialTrackFinder_xk::newEvent
   newEvent(ctx, data);
   data.trackinfo() = info;
   
-  // Get track qulaity cuts information
-  //
+  /// Get track quality cuts information from argument and write it into
+  /// the event data
   getTrackQualityCuts(data, Cuts);
 
   data.heavyIon() = false;
   data.cosmicTrack() = 0;
-
+  /// update pattern recognition flags in the event data based on track info arg
   if (info.patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_Cosmic)) {
     data.cosmicTrack() = 1;
   } else if (info.patternRecoInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_HeavyIon)) {
@@ -345,7 +345,9 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 
   data.statistic().fill(false);
 
+  /// turn off brem fit & electron flags 
   data.tools().setBremNoise(false, false);
+  /// remove existing tracks
   data.tracks().erase(data.tracks().begin(), data.tracks().end());
 
   ++data.inputseeds();
@@ -353,21 +355,23 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
     return data.tracks();
   }
 
-  // Get track qulaity cuts information
-  //
+  // Get track quality cuts information and write them into the event data... again?
   getTrackQualityCuts(data, Cuts);
   std::multimap<const Trk::PrepRawData*, const Trk::Track*> PT;
 
+  ///try to find the tracks
   EStat_t FT = findTrack(data, Tp, Sp, Gp, DE, PT, ctx);
  
+  /// if we didn't find anything, bail out
   if(FT!=Success) {
     data.statistic()[FT] = true;
     return data.tracks();
   }
+
+  /// sort in step order
   data.trajectory().sortStep();
 
-  // Trk::Track production
-  //
+
   Trk::Track* t = convertToTrack(data);
   ++data.findtracks();
   data.tracks().push_back(t);
@@ -550,15 +554,14 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
  std::multimap<const Trk::PrepRawData*,const Trk::Track*>& PT,
  const EventContext& ctx) const
 {
+  /// init event data 
   if (not data.isInitialized()) initializeCombinatorialData(ctx, data);
 
-  // List detector element links preparation
-  //
+  /// populate a list of boundary links for the detector elements on our search road
   std::vector<const InDet::SiDetElementBoundaryLink_xk*> DEL;
   detectorElementLinks(DE, DEL,ctx);
 
-  // Retrieve cached pointers to SG collections, or create the cache
-  //
+  /// Retrieve cached pointers to SG collections, or create the cache
   const InDet::PixelClusterContainer* p_pixcontainer = data.pixContainer();
   if (m_usePIX && !p_pixcontainer) {
     SG::ReadHandle<InDet::PixelClusterContainer> pixcontainer(m_pixcontainerkey,ctx);
@@ -572,77 +575,106 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
     data.setSctContainer(p_sctcontainer);
   }
 
-  // List cluster preparation
-  //
+  /// Cluster list preparationn
   std::list<const InDet::SiCluster*> Cl;
-  bool TWO = false;
+  bool isTwoPointSeed = false; 
 
+  /// in inside-out track finding, Sp.size() is typically 3 
+  /// for TRT-seeded backtracking, it is 2  
+  /// both applications go into this branch
   if (Sp.size() > 1) {
+
+    /// returns false if two clusters are on the same detector element
     if (!spacePointsToClusters(Sp,Cl)) {
       return TwoCluster;
     }
-    if (Sp.size()<=2) TWO = true;
-  } else if (Gp.size() > 2) {
+    if (Sp.size()==2) isTwoPointSeed = true;
+  } 
+  /// use case if we have a set of global positions rather than space points to start from 
+  else if (Gp.size() > 2) {
     if (!data.trajectory().globalPositionsToClusters(p_pixcontainer, p_sctcontainer, Gp, DEL, PT, Cl)) return TwoCluster;
   } else {
+    /// use case if we have neither space-points nor global posittions, but track parameters to start from 
     if (!data.trajectory().trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return TwoCluster;
   }
   ++data.goodseeds();
 
-  // Build initial trajectory
-  //
+  /// Build initial trajectory
   bool Qr;
+  /// This will initialize the trajectory using the clusters we have and the parameter estimate 
   bool Q = data.trajectory().initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr,ctx);
 
+  /// if the initialisation fails (indicating this is probably a bad attempt) and we are running with
+  /// global positions instead of seeding  
   if (!Q && Sp.size() < 2 && Gp.size() > 3) {
-
+    /// reset our cluster list 
     Cl.clear();
+    /// try again using the clusters from the track parameters only
     if (!data.trajectory().trackParametersToClusters(p_pixcontainer, p_sctcontainer, Tp, DEL, PT, Cl)) return TwoCluster;
+    
     if (!data.trajectory().initialize(m_usePIX, m_useSCT, p_pixcontainer, p_sctcontainer, Tp, Cl, DEL, Qr,ctx)) return TwoCluster;
+    /// if it worked now, set the quality flag to true
+
     Q = Qr = true;
   }
 
-  if (!Qr){++data.roadbug(); return WrongRoad;} 
+  /// this can never happen?!
+  if (!Qr){
+    ++data.roadbug(); 
+    return WrongRoad;
+  } 
+  /// this can never happen either?!
   if (!Q) return WrongInit;
+
   ++data.inittracks();
+  /// if the last cluster on track is in the pixels, this is assumed to come from a pixel seed
   bool pixseed = data.trajectory().isLastPixel();
+  /// max #iterations
   int itmax    = 30;
   if (data.simpleTrack()) itmax = 10;
   if (data.heavyIon()) itmax = 50;
 
-  // Track finding
-  //
-  if (pixseed) {      // Strategy for pixel seeds
+  /// Track finding
+  if (pixseed) {      /// Strategy for pixel seeds
     if (!data.trajectory().forwardExtension (false,itmax)) return CantFindTrk;
     if (!data.trajectory().backwardSmoother (false)      ) return CantFindTrk;
     if (!data.trajectory().backwardExtension(itmax)      ) return CantFindTrk;
-
+    /// refine if needed
     if (data.trajectory().difference() > 0) {
       if (!data.trajectory().forwardFilter()          ) return CantFindTrk;
       if (!data.trajectory().backwardSmoother (false) ) return CantFindTrk;
     } 
     int na = data.trajectory().nclustersNoAdd();
+    /// check if we found enough clusters
     if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) return CantFindTrk;
-  } else {      // Strategy for mixed seeds
-    if (!data.trajectory().backwardSmoother(TWO)       ) return CantFindTrk;
+  } 
+  /// case of a strip seed or mixed PPS
+  else {      // Strategy for mixed seeds
+    if (!data.trajectory().backwardSmoother(isTwoPointSeed)       ) return CantFindTrk;
     if (!data.trajectory().backwardExtension(itmax)    ) return CantFindTrk;
     if (!data.trajectory().forwardExtension(true,itmax)) return CantFindTrk;
 
+    /// first application of hit cut 
     int na = data.trajectory().nclustersNoAdd();
     if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) return CantFindTrk;
+    /// backward smooting
     if (!data.trajectory().backwardSmoother(false)    ) return CantFindTrk;
 
+    /// apply hit cut again following smoothing step
     na     = data.trajectory().nclustersNoAdd();
     if (data.trajectory().nclusters()+na < data.nclusmin() || data.trajectory().ndf() < data.nwclusmin()) return CantFindTrk;
 
+    /// refine if needed
     if (data.trajectory().difference() > 0) {
       if (!data.trajectory().forwardFilter()         ) return CantFindTrk;
       if (!data.trajectory().backwardSmoother (false)) return CantFindTrk;
     }
   } 
-
+  /// quality cut 
   if (data.trajectory().qualityOptimization()     <           (m_qualityCut*data.nclusmin())    ) return CantFindTrk;
+
   if (data.trajectory().pTfirst  () < data.pTmin()     && data.trajectory().nclusters() < data.nclusmin() ) return CantFindTrk;
+
   if (data.trajectory().nclusters() < data.nclusminb() || data.trajectory().ndf      () < data.nwclusmin()) return CantFindTrk;
   
   return Success;
@@ -700,12 +732,16 @@ void InDet::SiCombinatorialTrackFinder_xk::magneticFieldInit()
 bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
 (const std::vector<const Trk::SpacePoint*>& Sp, std::list<const InDet::SiCluster*>& Sc) const
 {
+  /// loop over all SP
   for (const Trk::SpacePoint* s: Sp) {
+    /// get the first cluster on an SP
     const Trk::PrepRawData* p = s->clusterList().first;
     if (p) {
+      /// add to list 
       const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(p);
       if (c) Sc.push_back(c);
     }
+    /// for strips, also make sure to pick up the second one! 
     p = s->clusterList().second;
     if (p) {
       const InDet::SiCluster* c = static_cast<const InDet::SiCluster*>(p);
@@ -713,18 +749,18 @@ bool InDet::SiCombinatorialTrackFinder_xk::spacePointsToClusters
     }
   }
 
-  //  Detector elments test
-  //
-  std::list<const InDet::SiCluster*>::iterator c = Sc.begin(), cn, ce = Sc.end();
+  ///  Detector elments test
+  std::list<const InDet::SiCluster*>::iterator cluster = Sc.begin(), nextCluster, endClusters = Sc.end();
   
-  for (; c!=ce; ++c) {
+  /// here we reject cases where two subsequent clusters are on the same detector element
+  for (; cluster!=endClusters; ++cluster) {
 
-    const InDetDD::SiDetectorElement* de = (*c)->detectorElement();
+    const InDetDD::SiDetectorElement* de = (*cluster)->detectorElement();
 
-    cn = c;
-    ++cn;
-    for (; cn!=ce; ++cn) {
-      if (de == (*cn)->detectorElement()) return false;
+    nextCluster = cluster;
+    ++nextCluster;
+    for (; nextCluster!=endClusters; ++nextCluster) {
+      if (de == (*nextCluster)->detectorElement()) return false;
     }
 
   }
@@ -829,8 +865,8 @@ void  InDet::SiCombinatorialTrackFinder_xk::getTrackQualityCuts
 
 void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(const EventContext& ctx, SiCombinatorialTrackFinderData_xk& data) const {
 
-  // Add conditions object to SiCombinatorialTrackFinderData to be able to access the field cache for each new event
-  // Get conditions object for field cache 
+  /// Add conditions object to SiCombinatorialTrackFinderData to be able to access the field cache for each new event
+  /// Get conditions object for field cache 
   SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCondObjInputKey, ctx};
   const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
   if (fieldCondObj == nullptr) {
@@ -839,7 +875,7 @@ void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(const Eve
   }
   data.setFieldCondObj(fieldCondObj);
 
-  // Must have set fieldCondObj BEFORE calling setTools because fieldCondObj is used there
+  /// Must have set fieldCondObj BEFORE calling setTools because fieldCondObj is used there
   data.setTools(&*m_proptool,
                 &*m_updatortool,
                 &*m_riocreator,

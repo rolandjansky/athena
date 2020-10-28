@@ -11,7 +11,7 @@ find_package( Geant4 )
 atlas_add_component( TBDetDescrCnv
                      src/TB*.cxx
                      INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} DetDescrCnvSvcLib GaudiKernel StoreGateLib GeoPrimitives TBDetDescr )
+                     LINK_LIBRARIES ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} DetDescrCnvSvcLib GaudiKernel StoreGateLib GeoPrimitives TBDetDescr AthenaKernel )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

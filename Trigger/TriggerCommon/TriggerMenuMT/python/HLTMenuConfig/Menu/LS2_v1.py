@@ -113,6 +113,7 @@ def setupMenu():
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
+        #ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=SingleElectronGroup), Placeholder for GSF chain
         ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
@@ -397,6 +398,7 @@ def setupMenu():
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [
+       ChainProp(name='HLT_cscmon_CSCPEB_L1All', l1SeedThresholds=['FSNOSEED'], stream=['CSC'], groups=['RATE:Monitoring','BW:Other']),
 
     ]
 
@@ -420,6 +422,10 @@ def setupMenu():
 
 
     TriggerFlags.UnconventionalTrackingSlice.signatures = TriggerFlags.UnconventionalTrackingSlice.signatures() + [
-        ChainProp(name='HLT_unconvtrk0_L1EM3', groups=SinglePhotonGroup, l1SeedThresholds=['FSNOSEED']),
+        ChainProp(name='HLT_unconvtrk120_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
+        ChainProp(name='HLT_unconvtrk120_isohpttrack_icummedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk80_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_icummedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
     ]
 

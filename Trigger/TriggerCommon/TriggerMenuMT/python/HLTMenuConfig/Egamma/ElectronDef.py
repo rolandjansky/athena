@@ -84,6 +84,20 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'lhtightivarloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
                 'lhtightivarmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
                 'lhtightivartight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                # gsf sequences. For now just settin gup as normal non-gsf chains
+                'lhloosegsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhvloosegsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhmediumgsf'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtightgsf'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhloosegsfivarloose'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhloosegsfivarmedium' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhloosegsfivartight'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhlmediumgsfivarloose' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhlmediumgsfivarmedium': ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhlmediumgsfivartight' : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtightgsfivarloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtightgsfivarmedium'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
+                'lhtightgsfivartight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionElectron'],
                 }
 
         log.debug('electron chain part = ' + str(self.chainPart))

@@ -221,7 +221,8 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
     if flags.Detector.GeometryID:
       # TODO Not sure how to handle TrkDetFlags, specifically ISF_FatrasCustomGeometry, XMLFastCustomGeometry, SLHC_Geometry
       # So, here we only setup the default InDet geometry builder!
-      inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(name ='InDetTrackingGeometryBuilder', flags=flags, result=result, envelopeDefinitionSvc=atlas_env_def_service)
+      inDetTrackingGeometryBuilder = _getInDetTrackingGeometryBuilder(name ='InDetTrackingGeometryBuilder', flags=flags, result=result, envelopeDefinitionSvc=atlas_env_def_service,
+                                                                      buildTrtStrawLayers=flags.Beam.Type=='cosmics')
       
       atlas_geometry_builder.InDetTrackingGeometryBuilder = inDetTrackingGeometryBuilder
       

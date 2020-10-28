@@ -7,9 +7,11 @@
 #include "xAODJet/JetAccessorMap.h"
 
 #include "JetUtils/JetCaloQualityUtils.h"
+#include "PFlowUtils/FEHelpers.h"
 
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 
 #include <vector>
 
@@ -62,13 +64,17 @@ StatusCode JetCaloEnergies::decorate(const xAOD::JetContainer& jets) const {
     if ( ctype  == xAOD::Type::CaloCluster ) {
       ATH_MSG_VERBOSE("  Constituents are calo clusters.");
       fillEperSamplingCluster(*jet, ePerSampling);
-    
+
     } else if (ctype  == xAOD::Type::ParticleFlow) {
       ATH_MSG_VERBOSE("  Constituents are pflow objects.");
       fillEperSamplingPFO(*jet, ePerSampling);
 
+    } else if (ctype  == xAOD::Type::FlowElement) {
+      ATH_MSG_VERBOSE("  Constituents are FlowElements.");
+      fillEperSamplingFE(*jet, ePerSampling);
+
     }else {
-      ATH_MSG_VERBOSE("Constituents are not calo clusters nor pflow objects.");
+      ATH_MSG_VERBOSE("Constituents are not CaloClusters, PFOs, or FlowElements.");
     }
 
   }
@@ -97,10 +103,10 @@ void JetCaloEnergies::fillEperSamplingCluster(const xAOD::Jet& jet, std::vector<
   psFracHandle(jet) = jet::JetCaloQualityUtils::presamplerFraction( &jet );
 }
 
-#define FillESamplingPFO( LAYERNAME )					\
-  float E_##LAYERNAME = 0.0;						\
+#define FillESamplingPFO( LAYERNAME )                                        \
+  float E_##LAYERNAME = 0.0;                                                \
   if (constit->attribute(xAOD::PFODetails::eflowRec_LAYERENERGY_##LAYERNAME, E_##LAYERNAME)) { \
-    ePerSampling[CaloSampling::LAYERNAME] += E_##LAYERNAME;		\
+    ePerSampling[CaloSampling::LAYERNAME] += E_##LAYERNAME;                \
   }
   
 void JetCaloEnergies::fillEperSamplingPFO(const xAOD::Jet & jet, std::vector<float> & ePerSampling ) const {
@@ -114,50 +120,50 @@ void JetCaloEnergies::fillEperSamplingPFO(const xAOD::Jet & jet, std::vector<flo
     if (jet.rawConstituent(i)->type()==xAOD::Type::ParticleFlow){
       const xAOD::PFO* constit = static_cast<const xAOD::PFO*>(jet.rawConstituent(i));
       if ( fabs(constit->charge())>FLT_MIN ){
-	eTot += constit->track(0)->e();
+        eTot += constit->track(0)->e();
       } else {
-	eTot += constit->e();
-	FillESamplingPFO(PreSamplerB);
-	FillESamplingPFO(EMB1);
-	FillESamplingPFO(EMB2);
-	FillESamplingPFO(EMB3);
+        eTot += constit->e();
+        FillESamplingPFO(PreSamplerB);
+        FillESamplingPFO(EMB1);
+        FillESamplingPFO(EMB2);
+        FillESamplingPFO(EMB3);
 
-	FillESamplingPFO(PreSamplerE);
-	FillESamplingPFO(EME1);
-	FillESamplingPFO(EME2);
-	FillESamplingPFO(EME3);
+        FillESamplingPFO(PreSamplerE);
+        FillESamplingPFO(EME1);
+        FillESamplingPFO(EME2);
+        FillESamplingPFO(EME3);
 
-	FillESamplingPFO(HEC0);
-	FillESamplingPFO(HEC1);
-	FillESamplingPFO(HEC2);
-	FillESamplingPFO(HEC3);
+        FillESamplingPFO(HEC0);
+        FillESamplingPFO(HEC1);
+        FillESamplingPFO(HEC2);
+        FillESamplingPFO(HEC3);
 
-	FillESamplingPFO(TileBar0);
-	FillESamplingPFO(TileBar1);
-	FillESamplingPFO(TileBar2);
+        FillESamplingPFO(TileBar0);
+        FillESamplingPFO(TileBar1);
+        FillESamplingPFO(TileBar2);
 
-	FillESamplingPFO(TileGap1);
-	FillESamplingPFO(TileGap2);
-	FillESamplingPFO(TileGap3);
+        FillESamplingPFO(TileGap1);
+        FillESamplingPFO(TileGap2);
+        FillESamplingPFO(TileGap3);
 
-	FillESamplingPFO(TileExt0);
-	FillESamplingPFO(TileExt1);
-	FillESamplingPFO(TileExt2);
+        FillESamplingPFO(TileExt0);
+        FillESamplingPFO(TileExt1);
+        FillESamplingPFO(TileExt2);
 
-	FillESamplingPFO(FCAL0);
-	FillESamplingPFO(FCAL1);
-	FillESamplingPFO(FCAL2);
+        FillESamplingPFO(FCAL0);
+        FillESamplingPFO(FCAL1);
+        FillESamplingPFO(FCAL2);
 
-	FillESamplingPFO(MINIFCAL0);
-	FillESamplingPFO(MINIFCAL1);
-	FillESamplingPFO(MINIFCAL2);
-	FillESamplingPFO(MINIFCAL3);	
+        FillESamplingPFO(MINIFCAL0);
+        FillESamplingPFO(MINIFCAL1);
+        FillESamplingPFO(MINIFCAL2);
+        FillESamplingPFO(MINIFCAL3);        
 
-	emTot += ( E_PreSamplerB+E_EMB1+E_EMB2+E_EMB3+
-		  E_PreSamplerE+E_EME1+E_EME2+E_EME3+
-		  E_FCAL0 );
-	hecTot += ( E_HEC0+E_HEC1+E_HEC2+E_HEC3 );
-	
+        emTot += ( E_PreSamplerB+E_EMB1+E_EMB2+E_EMB3+
+                  E_PreSamplerE+E_EME1+E_EME2+E_EME3+
+                  E_FCAL0 );
+        hecTot += ( E_HEC0+E_HEC1+E_HEC2+E_HEC3 );
+        
       }//only consider neutral PFO
     } else {
       ATH_MSG_WARNING("Tried to call fillEperSamplingPFlow with a jet constituent that is not a PFO!");
@@ -186,4 +192,44 @@ void JetCaloEnergies::fillEperSamplingPFO(const xAOD::Jet & jet, std::vector<flo
   
 }
 
-//**********************************************************************
+void JetCaloEnergies::fillEperSamplingFE(const xAOD::Jet& jet, std::vector<float> & ePerSampling ) const {
+  float emTot = 0.;
+  float hecTot = 0.;
+  float psTot = 0.;
+  float eTot = 0.;
+  size_t numConstit = jet.numConstituents();    
+  for ( size_t i=0; i<numConstit; i++ ) {
+    if(jet.rawConstituent(i)->type()!=xAOD::Type::FlowElement) {
+      ATH_MSG_WARNING("Tried to call fillEperSamplingFE with a jet constituent that is not a FlowElement!");
+      continue;
+    }
+    const xAOD::FlowElement* constit = static_cast<const xAOD::FlowElement*>(jet.rawConstituent(i));
+    if(constit->isCharged()){
+      eTot += constit->chargedObject(0)->e();
+    }
+    else{
+      eTot += constit->e();
+      std::vector<float> constitEPerSampling = FEHelpers::getEnergiesPerSampling(*constit);
+      for ( size_t s = CaloSampling::PreSamplerB; s < CaloSampling::Unknown; s++ ) {
+        ePerSampling[s] += constitEPerSampling[s];
+      }
+      emTot += (constitEPerSampling[CaloSampling::PreSamplerB] + constitEPerSampling[CaloSampling::EMB1]
+              + constitEPerSampling[CaloSampling::EMB2]        + constitEPerSampling[CaloSampling::EMB3]
+              + constitEPerSampling[CaloSampling::PreSamplerE] + constitEPerSampling[CaloSampling::EME1]
+              + constitEPerSampling[CaloSampling::EME2]        + constitEPerSampling[CaloSampling::EME3]
+              + constitEPerSampling[CaloSampling::FCAL0]);
+
+      hecTot += (constitEPerSampling[CaloSampling::HEC0] + constitEPerSampling[CaloSampling::HEC1]
+               + constitEPerSampling[CaloSampling::HEC2] + constitEPerSampling[CaloSampling::HEC3]);
+
+      psTot += (constitEPerSampling[CaloSampling::PreSamplerB] + constitEPerSampling[CaloSampling::PreSamplerE]);
+    }
+  }
+  SG::WriteDecorHandle<xAOD::JetContainer, float> emFracHandle(m_emFracKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> hecFracHandle(m_hecFracKey);
+  SG::WriteDecorHandle<xAOD::JetContainer, float> psFracHandle(m_psFracKey);
+  
+  emFracHandle(jet)  = eTot != 0. ? emTot/eTot  : 0.;
+  hecFracHandle(jet) = eTot != 0. ? hecTot/eTot : 0.;
+  psFracHandle(jet)  = eTot != 0. ? psTot/eTot  : 0.;
+}

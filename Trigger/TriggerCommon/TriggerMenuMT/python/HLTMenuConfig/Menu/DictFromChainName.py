@@ -223,7 +223,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
         AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
     
-    from .MenuAlignmentTools import getAlignmentGroupFromPattern
+    from .MenuAlignmentTools import get_alignment_group_from_pattern as getAlignmentGroupFromPattern
     
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 class SCTLorentzAngleToolSetup:
     "Class to simplify setup of SCTLorentzAngleTool"
@@ -78,4 +78,6 @@ class SCTLorentzAngleToolSetup:
     def forceUseGeoModel(self) :
         "Force usage of GeoModel defaults"
         self.SCT_SiliconConditionsTool.ForceUseGeoModel = True
+        from AthenaCommon import Logging
+        msg = Logging.logging.getLogger("SCTLorentzAngleToolSetup")
         msg.warning("Please set forceUseGeoModel in constructor. Unnecessary service, algorithms, folders are configured")

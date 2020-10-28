@@ -2,11 +2,8 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-import sys,os,shutil,getFileLists
+import sys,os,shutil
 from PROCTools.getFileLists import findTCTFiles
-from PROCTools.getFileLists import *
 import six
 
 from future import standard_library
@@ -38,7 +35,7 @@ def getFileSize(pfn):
         try:
             statinfo=os.stat(pfn)
             size=statinfo[6]
-        except:
+        except Exception:
             print ("Can't acess regular file: ",pfn)
         return size
 

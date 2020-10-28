@@ -26,8 +26,8 @@
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 //STD
+#include <cmath>
 #include <iostream>
-#include <math.h>
 
 Trk::SubtractedVolumeBounds::SubtractedVolumeBounds() :
  VolumeBounds(),
@@ -60,7 +60,7 @@ Trk::SubtractedVolumeBounds::~SubtractedVolumeBounds()
 {
   m_boundsOrientation.clear();
   delete m_outer;
-  delete m_inner;  
+  delete m_inner;
 }
 
 Trk::SubtractedVolumeBounds& Trk::SubtractedVolumeBounds::operator=(const Trk::SubtractedVolumeBounds& bobo)
@@ -88,13 +88,13 @@ const std::vector<const Trk::Surface*>* Trk::SubtractedVolumeBounds::decomposeTo
 
     unsigned int nSurf = outerSurfaces->size() + innerSurfaces->size();
     m_boundsOrientation.resize(nSurf);
-    
+
     const Trk::CylinderVolumeBounds*   cylVol = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(m_outer->volumeBounds()));
     const Trk::SimplePolygonBrepVolumeBounds*   spbVol = dynamic_cast<const Trk::SimplePolygonBrepVolumeBounds*> (&(m_outer->volumeBounds()));
     const Trk::CombinedVolumeBounds*   comVol = dynamic_cast<const Trk::CombinedVolumeBounds*> (&(m_outer->volumeBounds()));
     const Trk::SubtractedVolumeBounds* subVol = dynamic_cast<const Trk::SubtractedVolumeBounds*> (&(m_outer->volumeBounds()));
-  
-    // loop over 'outer' boundary surfaces; modified by subtracted volume 
+
+    // loop over 'outer' boundary surfaces; modified by subtracted volume
     for (unsigned int out=0; out < outerSurfaces->size(); out++) {
       const SubtractedPlaneSurface* splo = dynamic_cast<const SubtractedPlaneSurface*> ((*outerSurfaces)[out]);
       const PlaneSurface* plo = dynamic_cast<const PlaneSurface*> ((*outerSurfaces)[out]);
@@ -114,7 +114,7 @@ const std::vector<const Trk::Surface*>* Trk::SubtractedVolumeBounds::decomposeTo
       Trk::Volume* innerSub = createSubtractedVolume((*outerSurfaces)[out]->transform().inverse()*transf,m_inner) ;
 
       if ( splo || sclo ) { // multiple subtraction
-        SharedObject<Trk::AreaExcluder> vEx; 
+        SharedObject<Trk::AreaExcluder> vEx;
         bool shared = false;
         if (splo) {
 	  vEx = splo->subtractedVolume();
@@ -133,11 +133,11 @@ const std::vector<const Trk::Surface*>* Trk::SubtractedVolumeBounds::decomposeTo
         else         comb_sub = new Trk::Volume(nullptr,new Trk::SubtractedVolumeBounds(outerSub,innerSub));
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(comb_sub);
 	if (splo) retsf->push_back(new Trk::SubtractedPlaneSurface(*splo,volEx,shared));
-	if (sclo) retsf->push_back(new Trk::SubtractedCylinderSurface(*sclo,volEx,shared));    
+	if (sclo) retsf->push_back(new Trk::SubtractedCylinderSurface(*sclo,volEx,shared));
       } else {
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(innerSub);
 	if (plo) retsf->push_back(new Trk::SubtractedPlaneSurface(*plo,volEx,false));
-	if (clo) retsf->push_back(new Trk::SubtractedCylinderSurface(*clo,volEx,false));        
+	if (clo) retsf->push_back(new Trk::SubtractedCylinderSurface(*clo,volEx,false));
 	if (dlo) {
 	  // turn disc into ellipse for simplification
 	  const DiscBounds* db = dynamic_cast<const DiscBounds*> (&(dlo->bounds()));
@@ -177,7 +177,7 @@ const std::vector<const Trk::Surface*>* Trk::SubtractedVolumeBounds::decomposeTo
 
       if ( spli || scli ) {
         bool shared = false;
-        SharedObject<Trk::AreaExcluder> vEx; 
+        SharedObject<Trk::AreaExcluder> vEx;
         if (spli) {
 	  vEx = spli->subtractedVolume();
           shared   = spli->shared();
@@ -189,16 +189,16 @@ const std::vector<const Trk::Surface*>* Trk::SubtractedVolumeBounds::decomposeTo
 	const Trk::VolumeExcluder* volExcl = dynamic_cast<const Trk::VolumeExcluder*> (vEx.get());
         if (!volExcl) throw std::logic_error("Not a VolumeExcluder");
 	Trk::Volume* innerSub = new Trk::Volume(*volExcl->volume());
-	
+
         // combined volume
 	Trk::Volume* comb_sub=nullptr;
         if (!shared) comb_sub = new Trk::Volume(nullptr,new Trk::SubtractedVolumeBounds(outerSub,innerSub));
         else         comb_sub = new Trk::Volume(nullptr,new Trk::CombinedVolumeBounds(innerSub,outerSub,true));
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(comb_sub);
 	if (spli) retsf->push_back(new Trk::SubtractedPlaneSurface(*spli,volEx,true));
-	if (scli) retsf->push_back(new Trk::SubtractedCylinderSurface(*scli,volEx,true));       
- 
-      } 
+	if (scli) retsf->push_back(new Trk::SubtractedCylinderSurface(*scli,volEx,true));
+
+      }
       else if (pli || cli){
 	Trk::VolumeExcluder* volEx = new Trk::VolumeExcluder(outerSub);
 	if (pli) retsf->push_back(new Trk::SubtractedPlaneSurface(*pli,volEx,true));
@@ -215,7 +215,7 @@ const std::vector<const Trk::Surface*>* Trk::SubtractedVolumeBounds::decomposeTo
       } else {
         throw std::runtime_error("Unhandled surface in Trk::SubtractedVolumeBounds::decomposeToSurfaces." );
       }
-    } 
+    }
 
     for (size_t i=0; i < outerSurfaces->size(); i++)
       delete (*outerSurfaces)[i];
@@ -236,20 +236,20 @@ MsgStream& Trk::SubtractedVolumeBounds::dump( MsgStream& sl ) const
     temp_sl << std::setprecision(7);
     temp_sl << "Trk::SubtractedVolumeBounds: outer,inner ";
     sl << temp_sl.str();
-    m_outer->volumeBounds().dump(sl);  
-    m_inner->volumeBounds().dump(sl);  
+    m_outer->volumeBounds().dump(sl);
+    m_inner->volumeBounds().dump(sl);
     return sl;
 }
 
-std::ostream& Trk::SubtractedVolumeBounds::dump( std::ostream& sl ) const 
+std::ostream& Trk::SubtractedVolumeBounds::dump( std::ostream& sl ) const
 {
     std::stringstream temp_sl;
     temp_sl << std::setiosflags(std::ios::fixed);
     temp_sl << std::setprecision(7);
     temp_sl << "Trk::SubtractedVolumeBounds: outer,inner ";
     sl << temp_sl.str();
-    m_outer->volumeBounds().dump(sl);  
-    m_inner->volumeBounds().dump(sl);  
+    m_outer->volumeBounds().dump(sl);
+    m_inner->volumeBounds().dump(sl);
     return sl;
 }
 
@@ -259,7 +259,7 @@ Trk::Volume* Trk::SubtractedVolumeBounds::createSubtractedVolume(const Amg::Tran
   if (!subtrVol) return subVol;
 
   subVol = new Trk::Volume( *subtrVol, transf );
-  
+
   return subVol;
 }
 

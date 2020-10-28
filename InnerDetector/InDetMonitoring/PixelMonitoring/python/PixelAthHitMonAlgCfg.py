@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -8,9 +8,8 @@
 '''
 
 from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, definePP0Histos, getLayerGroup
-from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
-from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx, bcidbinsx
+from PixelMonitoring.PixelAthMonitoringBase import layers, lumibinsx, bcidbinsx
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
 from PixelMonitoring.PixelAthMonitoringBase import runtext
 
@@ -74,8 +73,8 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
         fullvarstr+= ',{0}_{1}'.format(histoname, 'val')
         fullvarstr+= ';' + histoname + '_{0}'.format(layer)
         layerGroup.defineHistogram(fullvarstr, 
-                                    type='TProfile', path=pathGroup, title=title,
-                                    xbins=bcidbinsx, xmin=-0.5, xmax=-0.5+bcidbinsx)
+                                   type='TProfile', path=pathGroup, title=title,
+                                   xbins=bcidbinsx, xmin=-0.5, xmax=-0.5+bcidbinsx)
 
     histoGroupName = 'Hit_Occupancy_PP0'
     title = 'Average per module(FE) hit occupancy reset every 5 min'
@@ -109,7 +108,7 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
             titleLB      = 'Hit Level 1 Accept lowstat {0}'.format(layer) + runtext + ';Level 1 Accept;# hits'
             fullvarstrLB = varName + ';' + histonameLB
             layerGroup.defineHistogram(fullvarstrLB,
-                                       type='TH1F', path=pathLowStat, title=title,
+                                       type='TH1F', path=pathLowStat, title=titleLB,
                                        xbins=14, xmin=-1.5, xmax=12.5, duration='lowStat')
             
 ###

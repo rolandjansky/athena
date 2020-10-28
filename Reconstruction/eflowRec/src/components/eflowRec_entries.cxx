@@ -24,6 +24,7 @@
 #include "eflowRec/PFOChargedCreatorAlgorithm.h"
 #include "eflowRec/PFONeutralCreatorAlgorithm.h"
 #include "eflowRec/PFEGammaPFOAssoc.h"
+#include "eflowRec/PFMuonFlowElementAssoc.h"
 #include "eflowRec/PFEGamFlowElementAssoc.h"
 #include "eflowRec/PFTauFlowElementAssoc.h"
 
@@ -49,5 +50,6 @@ DECLARE_COMPONENT( PFTrackClusterMatchingTool )
 DECLARE_COMPONENT( eflowCellEOverPTool_mc12_JetETMiss)
 DECLARE_COMPONENT(  eflowCellEOverPTool_mc12_HLLHC)
 DECLARE_COMPONENT( eflowCellEOverPTool_mc12_LC)
+DECLARE_COMPONENT( PFMuonFlowElementAssoc )
 DECLARE_COMPONENT( PFEGamFlowElementAssoc )
 DECLARE_COMPONENT( PFTauFlowElementAssoc )

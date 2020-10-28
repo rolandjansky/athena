@@ -20,5 +20,5 @@ atlas_add_component( TileGeoG4Calib
                      LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${GEANT4_LIBRARIES} ${CLHEP_LIBRARIES} CaloG4SimLib CaloIdentifier CaloSimEvent CxxUtils StoreGateLib SGtests GeoModelInterfaces GeoModelUtilities GaudiKernel G4AtlasToolsLib MCTruth TileDetDescr TileGeoG4SDLib TileG4InterfacesLib TileSimEvent TileSimUtilsLib PathResolver )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

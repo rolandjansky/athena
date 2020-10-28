@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -39,7 +39,8 @@ class ISCTRawDataProviderTool : virtual public IAlgTool
   /** Main decoding methods */
   virtual StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>&,
                              SCT_RDO_Container&,
-                             IDCInDetBSErrContainer& errs) const = 0;
+                             IDCInDetBSErrContainer& errs,
+                             const EventContext& ctx) const = 0;
 
 };
 

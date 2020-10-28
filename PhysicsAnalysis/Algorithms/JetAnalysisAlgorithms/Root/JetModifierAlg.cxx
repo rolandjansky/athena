@@ -46,11 +46,7 @@ namespace CP
     return m_systematicsList.foreach ([&] (const CP::SystematicSet& sys) -> StatusCode {
         xAOD::JetContainer *jets = nullptr;
         ANA_CHECK (m_jetHandle.getCopy (jets, sys));
-        if (m_modifierTool->modify (*jets) != 0)
-        {
-          ANA_MSG_ERROR ("Failed to call \"m_modifierTool->modify (*jets)\"");
-          return StatusCode::FAILURE;
-        }
+        ANA_CHECK (m_modifierTool->modify (*jets));
         return StatusCode::SUCCESS;
       });
   }

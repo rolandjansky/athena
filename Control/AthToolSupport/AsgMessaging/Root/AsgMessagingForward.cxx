@@ -1,3 +1,4 @@
+
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -9,9 +10,10 @@ namespace asg
 {
   bool AsgMessagingForward::msgLvl( const MSG::Level lvl ) const
   {
-    if (m_msg->level() <= lvl)
+    MsgStream& msg = m_msg();
+    if (msg.level() <= lvl)
     {
-      (*m_msg) << lvl;
+      msg << lvl;
       return true;
     } else
     {
@@ -21,12 +23,13 @@ namespace asg
 
   MsgStream& AsgMessagingForward::msg() const
   {
-    return *m_msg;
+    return m_msg();
   }
 
   MsgStream& AsgMessagingForward::msg( const MSG::Level lvl ) const
   {
-    (*m_msg) << lvl;
-    return *m_msg;
+    MsgStream& msg = m_msg ();
+    msg << lvl;
+    return msg;
   }
 }

@@ -88,6 +88,7 @@ private:
     //! Some internally used functions
     //-------------------------------------------------------------
     float getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex* vertex) const;   //xAOD version
+    bool  isLargeD0Track(const xAOD::TrackParticle* track) const;   
 
     //-------------------------------------------------------------
     //! tools
@@ -107,6 +108,7 @@ private:
     Gaudi::Property<bool> m_bypassExtrapolator {this, "BypassExtrapolator", false};
 
     SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
+ 	SG::ReadHandleKey<xAOD::TrackParticleContainer> m_largeD0TracksInputContainer{this,"Key_LargeD0TrackInputContainer", "", "input LRT particle container key"}; //Expecting InDetLargeD0TrackParticles (offline tracks) if using LRT used
     SG::ReadHandleKey<CaloExtensionCollection>  m_ParticleCacheKey{this,"tauParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauTrackFinder"};
     
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };

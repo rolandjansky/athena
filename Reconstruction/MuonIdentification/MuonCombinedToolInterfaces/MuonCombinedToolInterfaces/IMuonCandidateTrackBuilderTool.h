@@ -28,6 +28,8 @@ namespace Muon {
     /** @brief build a track out of a MuonCandidate */
     virtual Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const = 0;
 
+    void cleanUp() const {};
+
   };
  
   inline const InterfaceID& IMuonCandidateTrackBuilderTool::interfaceID()

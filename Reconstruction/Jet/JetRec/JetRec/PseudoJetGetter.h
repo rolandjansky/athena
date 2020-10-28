@@ -22,6 +22,7 @@
 #ifndef GENERATIONBASE
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 #endif
 
 namespace PseudoJetGetter {
@@ -116,6 +117,15 @@ namespace PseudoJetGetter {
     }
 
     bool operator()(const xAOD::IParticle* ip){
+
+      if(ip->type() == xAOD::Type::FlowElement){
+        const xAOD::FlowElement* pfo = dynamic_cast<const xAOD::FlowElement*>(ip);
+        if( pfo->isCharged() ){
+          const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	        return !PVMatchedAcc(*pfo);
+        }
+        return skipNegativeEnergy && pfo->e()<FLT_MIN;
+      }
     
       const xAOD::PFO* pfo = dynamic_cast<const xAOD::PFO*>(ip);
     

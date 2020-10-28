@@ -3,6 +3,7 @@
 */
 
 #include "JetSubStructureUtils/Charge.h"
+#include "xAODTracking/TrackParticle.h"
 
 using namespace std;
 using namespace JetSubStructureUtils;

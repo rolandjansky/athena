@@ -8,6 +8,7 @@
 // EDM includes
 #include "xAODMuon/MuonContainer.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 // Local includes
 #include "AssociationUtils/IOverlapTool.h"

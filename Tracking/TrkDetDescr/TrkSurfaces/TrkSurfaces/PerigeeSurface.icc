@@ -85,14 +85,7 @@ PerigeeSurface::createParameters(const Amg::Vector3D& position,
 inline Surface::SurfaceType
 PerigeeSurface::type() const
 {
-  return Surface::Perigee;
-}
-
-/** Return the surface type static constexpr */
-inline constexpr Surface::SurfaceType
-PerigeeSurface::staticType()
-{
-  return Surface::Perigee;
+  return PerigeeSurface::staticType;
 }
 
 inline PerigeeSurface*

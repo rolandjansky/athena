@@ -16,9 +16,6 @@
 // xAOD include(s):
 #include "xAODBase/IParticle.h"
 #include "xAODBase/IParticleContainer.h"
-#if !defined(SIMULATIONBASE) and !defined(GENERATIONBASE)
-#include "xAODBTagging/BTaggingContainer.h"
-#endif // not SIMULATIONBASE or GENERATIONBASE
 
 // Local include(s):
 //#include "xAODJet/JetConstituentIterator.h"
@@ -236,14 +233,6 @@ namespace xAOD {
     /// Set  number by enum
     template<class T>
     void setAttribute( AttributeID type, const T& value );
-#if !defined(SIMULATIONBASE) and !defined(GENERATIONBASE)
-    /// Access to the associated btagging object
-    const BTagging* btagging() const;
-    /// Access to the associated btagging object
-    const ElementLink< BTaggingContainer >& btaggingLink() const;
-    /// Access to btagging objects
-    void setBTaggingLink( const ElementLink< BTaggingContainer>& el );
-#endif // not SIMULATIONBASE or GENERATIONBASE
 
     /// @}
     ////////////////////////////////////////////////////////    

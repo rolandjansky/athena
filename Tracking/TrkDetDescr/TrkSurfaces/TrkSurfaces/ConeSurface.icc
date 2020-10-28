@@ -8,14 +8,7 @@ namespace Trk {
 inline Surface::SurfaceType
 ConeSurface::type() const
 {
-  return Surface::Cone;
-}
-
-/** Return the surface type static constexpr */
-inline constexpr Surface::SurfaceType
-ConeSurface::staticType()
-{
-  return Surface::Cone;
+  return ConeSurface::staticType;
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -

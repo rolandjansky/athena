@@ -50,7 +50,7 @@ def getTransform():
                                      exe = 'setsid athenaHLT.py', 
                                      # setsid is needed to fix the process-group id of child processes to be the same as mother process; discussed in https://its.cern.ch/jira/browse/ATR-20513 
                                      substep = 'b2r', tryDropAndReload = False,
-                                     inData = ['BS_RDO', 'RDO'], outData = ['BS', 'BS_TRIGCOST', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'],
+                                     inData = ['BS_RDO', 'RDO'], outData = ['BS', 'DRAW_TRIGCOST', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'],
                                      perfMonFile = 'ntuple_BSRDOtoRAW.pmon.gz',
                                      literalRunargs = ['writeBS = runArgs.writeBS',
                                                        'from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
@@ -65,10 +65,11 @@ def getTransform():
     #runs in athena and will succeed if input BS file has costmon enabled
     executorSet.add(trigCostExecutor(name = 'RAWtoCOST', skeletonFile = 'TrigCostMonitor/readTrigCost.py',
                                      substep = 'r2c',
-                                     inData = ['BS_TRIGCOST'], outData = ['NTUP_TRIGCOST','NTUP_TRIGRATE','NTUP_TRIGEBWGHT'],
+                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST','NTUP_TRIGRATE','NTUP_TRIGEBWGHT'],
                                      perfMonFile = 'ntuple_RAWtoCOST.pmon.gz',
-                                     literalRunargs = ['BSRDOInput = runArgs.inputBSFile',
-                                                       'EvtMax = runArgs.maxEvents']))
+                                     literalRunargs = ['from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
+                                                       'jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(runArgs.inputDRAW_TRIGCOSTFile)',
+                                                       'jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(runArgs.maxEvents)']))
 
     #add default reconstruction steps
     # eventually to be replaced by:
@@ -190,17 +191,14 @@ def addTrigCostArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('TrigCost', 'Specific options related to the trigger costmon steps in trigger reprocessings')
 
-    #without a outputBS_TRIGCOSTFile name specified then it will not be possible to run any further COST mon if the BS is slimmed to a specific stream
-    parser.add_argument('--outputBS_TRIGCOSTFile', nargs='+',
-                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output', runarg=True, type='bs'),
-                        help='Output bytestream file of COST stream', group='TrigCost')
-    #input BS file for the TRIGCOST step (name just to be unique identifier)
-    parser.add_argument('--inputBS_TRIGCOSTFile', nargs='+',
-                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input', runarg=True, type='bs'),
-                        help='Input bytestream file of COST stream', group='TrigCost')
-    #For prodsys to make sure uses inputBS_TRIGCOSTFile rather than inputBSFile when running the r2c step
-    parser.add_argument('--prodSysBSTRIGCOST', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help='For prodsys to make sure uses inputBS_TRIGCOSTFile rather than inputBSFile when running the r2c step', group='TrigCost')
+    #without a outputDRAW_TRIGCOSTFile name specified then it will not be possible to run any further COST analysis if the BS is slimmed to a specific stream
+    parser.add_argument('--outputDRAW_TRIGCOSTFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output', runarg=True),
+                        help='Output bytestream file of CostMonitoring stream', group='TrigCost')
+    #input BS file for the TRIGCOST step (name just to be unique identifier for prodSys)
+    parser.add_argument('--inputDRAW_TRIGCOSTFile', nargs='+',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input', runarg=True),
+                        help='Input bytestream file of CostMonitoring stream', group='TrigCost')
     #NTUP_TRIG is used for COST monitoring - used in the reco release
     parser.add_argument('--outputNTUP_TRIGFile', nargs='+',
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),

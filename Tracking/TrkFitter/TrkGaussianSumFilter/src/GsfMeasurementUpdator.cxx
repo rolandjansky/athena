@@ -158,7 +158,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   }
 
   Trk::MultiComponentState assembledUpdatedState =
-    MultiComponentStateAssembler::assembledState(cache);
+    MultiComponentStateAssembler::assembledState(std::move(cache));
 
   if (assembledUpdatedState.empty()) {
     return {};
@@ -230,7 +230,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   }
 
   Trk::MultiComponentState assembledUpdatedState =
-    MultiComponentStateAssembler::assembledState(cache);
+    MultiComponentStateAssembler::assembledState(std::move(cache));
 
   if (assembledUpdatedState.empty()) {
     return {};
@@ -247,7 +247,7 @@ bool
 Trk::GsfMeasurementUpdator::invalidComponent(
   const Trk::TrackParameters* trackParameters) const
 {
-  auto measuredCov = trackParameters->covariance();
+  const auto *measuredCov = trackParameters->covariance();
   bool rebuildCov = false;
   if (!measuredCov) {
     rebuildCov = true;

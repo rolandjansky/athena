@@ -1559,12 +1559,6 @@ namespace Muon {
 		       << dcit->rot()->driftRadius() << "  r_new " 
 		       << dcit->r() );
 	}
-	const Trk::LocalParameters& clpars = dcit->rot()->localParameters();
-	Trk::LocalParameters* lpars = const_cast<Trk::LocalParameters*>(&clpars);
-	if(lpars){
-	  double sign = (*lpars)[Trk::locR] < 0. ? -1. : 1.;
-	  (*lpars)[Trk::locR] = sign*dcit->r();
-	}
 	continue;
 
       }

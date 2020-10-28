@@ -2,6 +2,7 @@
 
 # Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 import cppyy
+import ROOT
 
 class StreamerInfoGenerator:
   def __init__(self):
@@ -13,7 +14,7 @@ class StreamerInfoGenerator:
     self.blacklist = ['std::', 'vector<', 'map<', 'queue<', 'list<']
     self.type = cppyy.gbl.RootType
     self.type.EnableCintex()
-    cppyy.loadDict('libAtlasSTLAddReflexDict')
+    cppyy.load_library('libAtlasSTLAddReflexDict')
     #MN: switch off auto dict generation - god knows what that can mess up
     cppyy.gbl.gROOT.ProcessLine(".autodict")
 
@@ -45,8 +46,24 @@ class StreamerInfoGenerator:
       pass
 
     try:
-      cl = cppyy.makeClass(typename)
-      if not dontAdd: self.classlist.append(typename)
+      # This doesn't work in ROOT 6.22 anymore
+      # cl = cppyy.makeClass(typename)
+      #
+      bind_name = typename
+      # If it's a type with template argument, replace outermost <...> with ['...']
+      bind_name = bind_name.replace("<", "['", 1)[::-1].replace(">", "]'", 1)[::-1]
+      # Replace "::" with "." to set namespace, for the base type
+      base_and_arg = bind_name.split("[")
+      base_and_arg[0] = base_and_arg[0].replace("::", ".")
+      bind_name = "[".join(base_and_arg)
+      bind_name = "ROOT." + bind_name
+      print("Making class {} -> {}".format(typename, bind_name))
+      print("cl = " + bind_name)
+      exec("cl = " + bind_name, globals())
+      print(cl)
+      if not dontAdd:
+        self.classlist.append(typename)
+        print("appended type to the classlist")
     except:
       print('Cannot create class of ', typename)
 

@@ -13,6 +13,8 @@
 
 // EDM includes
 #include "xAODJet/Jet.h"
+#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 // external libraries
 #include "lwtnn/lightweight_network_config.hh"
@@ -121,7 +123,7 @@ namespace FlavorTagDiscriminants {
         {
         }
       NamedVar operator()(const xAOD::Jet& jet) const {
-        const xAOD::BTagging* btag = jet.btagging();
+        const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
         if (!btag) throw std::runtime_error("can't find btagging object");
         T ret_value = m_getter(*btag);
         bool is_default = m_default_flag(*btag);
@@ -151,7 +153,7 @@ namespace FlavorTagDiscriminants {
         {
         }
       NamedVar operator()(const xAOD::Jet& jet) const {
-        const xAOD::BTagging* btag = jet.btagging();
+        const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( jet );
         if (!btag) throw std::runtime_error("can't find btagging object");
         T ret_value = m_getter(*btag);
         if constexpr (std::is_floating_point<T>::value) {

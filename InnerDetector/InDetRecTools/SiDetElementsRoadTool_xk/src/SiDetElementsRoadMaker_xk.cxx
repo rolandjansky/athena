@@ -140,7 +140,9 @@ MsgStream& InDet::SiDetElementsRoadMaker_xk::dumpConditions(MsgStream& out) cons
   for (int i=0; i<n; ++i) s6.append(" ");
   s6.append("|");
 
-  const SiDetElementsLayerVectors_xk &layer = *getLayers();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  const SiDetElementsLayerVectors_xk &layer = *getLayers(ctx);
 
   int maps = 0;
   if (layer[0].size()) ++maps;
@@ -303,7 +305,8 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
 (std::list<Amg::Vector3D>& globalPositions,
  std::list<const InDetDD::SiDetectorElement*>& Road,
  bool testDirection,
- SiDetElementRoadMakerData_xk & roadMakerData) const
+ SiDetElementRoadMakerData_xk & roadMakerData,
+ const EventContext& ctx) const
 {  
   if (!m_usePIX && !m_useSCT) return;
 
@@ -318,7 +321,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
   /// for same r in phi.
   /// For the barrel, we first sort in R, then for same R in phi, then for same 
   /// phi in Z. 
-  const SiDetElementsLayerVectors_xk &layer = *getLayers();
+  const SiDetElementsLayerVectors_xk &layer = *getLayers(ctx);
 
   /// iterators over the positions to consider
   std::list<Amg::Vector3D>::iterator currentPosition=globalPositions.begin(), endPositions=globalPositions.end();
@@ -583,7 +586,7 @@ void InDet::SiDetElementsRoadMaker_xk::detElementsRoad
     }
   }
   /// now perform the road building using our set of positions
-  detElementsRoad(G, Road,testDirection, roadMakerData);
+  detElementsRoad(G, Road,testDirection, roadMakerData,ctx);
 }
 
 

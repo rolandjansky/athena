@@ -3,6 +3,7 @@
 */
 
 #include "FlavorTagDiscriminants/BTagTrackIpAccessor.h"
+#include "xAODBTagging/BTaggingUtilities.h" 
 
 #include <cmath>
 #include <cstddef>
@@ -101,7 +102,7 @@ void BTagTrackIpAccessor::augment_with_ip(const xAOD::TrackParticle &track, cons
 }
 void BTagTrackIpAccessor::augment_with_grades(const xAOD::TrackParticle &track, const xAOD::Jet &jet) {
   int ip3d_grade = -1;
-  const xAOD::BTagging &btagging = *jet.btagging();
+  const xAOD::BTagging &btagging = *xAOD::BTaggingUtilities::getBTagging( jet );
   const std::vector<ElementLink<xAOD::TrackParticleContainer> > ip3d_tracks = m_ip3d_trackParticleLinks(btagging);
   for (std::size_t ip3d_track_index = 0; ip3d_track_index < ip3d_tracks.size(); ++ip3d_track_index) {
     if (&track == *(ip3d_tracks.at(ip3d_track_index))) {

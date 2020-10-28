@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # AtlasExtrapolator module
@@ -7,9 +7,6 @@
 # the AtlasTrackingGeometrySvc
 #
 ######################################################
-
-# import the include statement
-from AthenaCommon.Include import Include, IncludeError, include
 
 # import the Extrapolator configurable
 from TrkExTools.TrkExToolsConf import Trk__Extrapolator
@@ -20,9 +17,8 @@ class AtlasExtrapolator( Trk__Extrapolator ):
     def __init__(self,name = 'AtlasExtrapolator'):
        
        # get the correct TrackingGeometry setup
-       from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+       from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc  # noqa: F401
        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-       AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc 
 
        # import the ToolSvc
        from AthenaCommon.AppMgr import ToolSvc
@@ -64,7 +60,7 @@ class AtlasExtrapolator( Trk__Extrapolator ):
        # the UNIQUE NAVIGATOR ( === UNIQUE GEOMETRY) --------------------------------------------------------------
        from TrkExTools.TrkExToolsConf import Trk__Navigator
        AtlasNavigator = Trk__Navigator(name = 'AtlasNavigator')
-       AtlasNavigator.TrackingGeometrySvc = AtlasTrackingGeometrySvc
+       AtlasNavigator.TrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc
        ToolSvc += AtlasNavigator
 
        # CONFIGURE PROPAGATORS/UPDATORS ACCORDING TO GEOMETRY SIGNATURE
@@ -100,12 +96,12 @@ class AtlasExtrapolator( Trk__Extrapolator ):
        # ----------------------------------------------------------------------------------------------------------          
        
        # call the base class constructor
-       Trk__Extrapolator.__init__(self,name,\
-                                  Navigator = AtlasNavigator,\
-                                  MaterialEffectsUpdators = self.AtlasUpdators,\
-                                  Propagators = self.AtlasPropagators,\
-                                  SubPropagators = AtlasSubPropagators,\
-                                  SubMEUpdators = AtlasSubUpdators,\
+       Trk__Extrapolator.__init__(self,name,
+                                  Navigator = AtlasNavigator,
+                                  MaterialEffectsUpdators = self.AtlasUpdators,
+                                  Propagators = self.AtlasPropagators,
+                                  SubPropagators = AtlasSubPropagators,
+                                  SubMEUpdators = AtlasSubUpdators,
                                   DoCaloDynamic = False
                                   )
 

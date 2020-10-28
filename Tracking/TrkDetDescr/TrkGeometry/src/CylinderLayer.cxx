@@ -246,7 +246,7 @@ const Trk::Surface& Trk::CylinderLayer::approachSurface(const Amg::Vector3D& pos
             const Trk::Surface* aSurface = nullptr;
             double aPathLength           = 10e10;
             // get the surfaces
-            for (auto& sfIter : (*surfacesOnApproach)){
+            for (const auto & sfIter : (*surfacesOnApproach)){
                 // get the intersection with the surface
                 Trk::Intersection sIntersection = sfIter->straightLineIntersection(pos, dir, true, bcheck); 
                 // validation

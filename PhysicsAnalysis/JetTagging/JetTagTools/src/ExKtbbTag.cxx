@@ -250,8 +250,9 @@ bool ExKtbbTag::CalculateInputVariables(xAOD::Jet& jetToTag, xAOD::BTagging* BTa
 
   // validity check
   if(ExKtSubJets.size() == 2){
-    const xAOD::BTagging* bjet_LeadExKtSubJet = ExKtSubJets[0]->btagging();
-    const xAOD::BTagging* bjet_SubLeadExKtSubJet = ExKtSubJets[1]->btagging();
+    const xAOD::BTagging* bjet_LeadExKtSubJet = xAOD::BTaggingUtilities::getBTagging( *ExKtSubJets[0] );
+    const xAOD::BTagging* bjet_SubLeadExKtSubJet = xAOD::BTaggingUtilities::getBTagging( *ExKtSubJets[1] );
+
 
     if( (!bjet_LeadExKtSubJet) || (!bjet_SubLeadExKtSubJet) ){
       ATH_MSG_ERROR("Exclusive kt subjet is not well b-tagged!");

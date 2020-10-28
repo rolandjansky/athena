@@ -38,10 +38,6 @@
 // Include the ClassID_traits class:
 #include "xAODCore/ClassID_traits.h"
 
-// Make sure that we get rid of the definitions from other places.
-// From AsgTools for instance...
-#undef CLASS_DEF
-
 // Present a dummy macro to ROOT 6's dictionary generator. Otherwise
 // it becomes over-eager, and starts generating dictionaries for types
 // that it should just ignore.

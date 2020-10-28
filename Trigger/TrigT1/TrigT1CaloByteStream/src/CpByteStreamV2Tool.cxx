@@ -196,9 +196,9 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
 
     FullEventAssembler<L1CaloSrcIdMap>::RODDATA *theROD = 0;
 
-    // Set up the container maps
-
     LVL1::TriggerTowerKey towerKey;
+
+    // Set up the container maps
 
     // CPM tower map
     ConstCpmTowerMap  ttMap;

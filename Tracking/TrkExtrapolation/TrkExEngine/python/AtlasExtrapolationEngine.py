@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # AtlasExtrapolationEngine module
@@ -7,9 +7,6 @@
 # the AtlasTrackingGeometrySvc
 #
 ######################################################
-
-# import the include statement
-from AthenaCommon.Include import Include, IncludeError, include
 
 # import the ExtrapolationEngine configurable
 from TrkExEngine.TrkExEngineConf import Trk__ExtrapolationEngine as ExEngine
@@ -23,7 +20,7 @@ class AtlasExtrapolationEngine( ExEngine ):
         if not TrackingGeometrySvc :
             from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-            AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc 
+            AtlasTrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc  # noqa: F811
         else :
             AtlasTrackingGeometrySvc = TrackingGeometrySvc
 
@@ -97,12 +94,12 @@ class AtlasExtrapolationEngine( ExEngine ):
         ToolSvc += StaticExtrapolator
        
         # call the base class constructor
-        ExEngine.__init__(self, name=nameprefix+'Extrapolation',\
-                          ExtrapolationEngines   = [ StaticExtrapolator ], \
-                          PropagationEngine      = StaticPropagator, \
-                          NavigationEngine       = StaticNavigator, \
-                          TrackingGeometrySvc    = AtlasTrackingGeometrySvc, \
-                          OutputPrefix           = '[ME] - ', \
+        ExEngine.__init__(self, name=nameprefix+'Extrapolation',
+                          ExtrapolationEngines   = [ StaticExtrapolator ],
+                          PropagationEngine      = StaticPropagator,
+                          NavigationEngine       = StaticNavigator,
+                          TrackingGeometrySvc    = AtlasTrackingGeometrySvc,
+                          OutputPrefix           = '[ME] - ',
                           OutputPostfix          = ' - ')
         # set the output level
         if ToolOutputLevel :

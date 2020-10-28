@@ -13,7 +13,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
 #include <iostream>
-#include <boost/io/ios_state.hpp> 
+#include <boost/io/ios_state.hpp>
 
 // default constructor
 Trk::CompetingRIOsOnTrack::CompetingRIOsOnTrack():
@@ -56,18 +56,21 @@ Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(const Trk::Compe
     return (*this);
 }
 
-Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(Trk::CompetingRIOsOnTrack&& compROT) {
-    if (this!=&compROT) {
-      Trk::MeasurementBase::operator=(compROT);
+Trk::CompetingRIOsOnTrack&
+Trk::CompetingRIOsOnTrack::operator=(
+  Trk::CompetingRIOsOnTrack&& compROT) noexcept
+{
+  if (this != &compROT) {
+    Trk::MeasurementBase::operator=(compROT);
 
-      delete m_assignProb;
-      m_assignProb = compROT.m_assignProb;
-      compROT.m_assignProb = nullptr;
+    delete m_assignProb;
+    m_assignProb = compROT.m_assignProb;
+    compROT.m_assignProb = nullptr;
 
-      m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
-      m_maxProbCalculated  = compROT.m_maxProbCalculated;
-    }
-    return (*this);
+    m_indexMaxAssignProb = compROT.m_indexMaxAssignProb.load();
+    m_maxProbCalculated = compROT.m_maxProbCalculated;
+  }
+  return (*this);
 }
 
 Trk::CompetingRIOsOnTrack::~CompetingRIOsOnTrack() {
@@ -85,7 +88,7 @@ void Trk::CompetingRIOsOnTrack::setLocalParametersAndErrorMatrix() {
     // std::cout << "CompROT - [1] " << rioOnTrack(0).localCovariance() << std::endl;
     Amg::MatrixX meanWeightMatrix = assignmentProbability(0) * rioOnTrack(0).localCovariance().inverse();
     for (unsigned int i=1; i<numberOfContainedROTs(); i++) {
-      meanWeightMatrix += assignmentProbability(i) * rioOnTrack(i).localCovariance().inverse();	
+      meanWeightMatrix += assignmentProbability(i) * rioOnTrack(i).localCovariance().inverse();
       // std::cout << "CompROT - ["<< i << "] " << rioOnTrack(i).localCovariance() << std::endl;
     }
     // limit weight values against values too close to 0, otherwise inversion will fail!
@@ -135,10 +138,10 @@ void Trk::CompetingRIOsOnTrack::setLocalParametersAndErrorMatrix() {
   }
 }
 
-unsigned int 
+unsigned int
 Trk::CompetingRIOsOnTrack::indexOfMaxAssignProb() const {
     // Check to see if it is calculated yet?
-    if (!m_maxProbCalculated) {    
+    if (!m_maxProbCalculated) {
         // No, so work it out.
         double maxAssgnProb = 0;
         for (unsigned int i=0; i<numberOfContainedROTs(); i++) {
@@ -149,13 +152,13 @@ Trk::CompetingRIOsOnTrack::indexOfMaxAssignProb() const {
         }
         //m_maxProbCalculated = true;
     }
-    
+
     return m_indexMaxAssignProb;
 }
 
 MsgStream& Trk::CompetingRIOsOnTrack::dump( MsgStream& out ) const
 {
-    
+
   boost::io::ios_all_saver ias(out.stream());
   out <<   "  - effective pars   locX : ";
   if (m_localParams.contains(Trk::locX)) {
@@ -190,7 +193,7 @@ MsgStream& Trk::CompetingRIOsOnTrack::dump( MsgStream& out ) const
 /*  out << std::resetiosflags(std::ios::right)<<std::resetiosflags(std::ios::adjustfield)
       << std::resetiosflags(std::ios::showpoint)<<std::resetiosflags(std::ios::fixed)
       << std::setprecision(7) << std::endl;*/
-  ias.restore(); 
+  ias.restore();
   return out;
 }
 

@@ -40,7 +40,6 @@ class OracleGainReader:
 
     folder_name = "/TRIGGER/Receivers/Factors/CalibGains"
     folder=db.getFolder(folder_name)
-    ch = folder.listChannels()
        
     startUtime = int(time.time())
     endUtime = int(time.time())

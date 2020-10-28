@@ -19,6 +19,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODEgamma
    Event/xAOD/xAODJet
+   Event/xAOD/xAODBTagging
    Event/xAOD/xAODMuon
    Event/xAOD/xAODTau
    Event/xAOD/xAODTracking
@@ -40,7 +41,7 @@ atlas_add_library( AssociationUtilsLib
    AssociationUtils/*.h Root/*.cxx
    PUBLIC_HEADERS AssociationUtils
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase xAODEgamma xAODJet
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase xAODEgamma xAODJet xAODBTagging
    xAODMuon xAODTau xAODTracking AthContainers AthLinks AnaAlgorithmLib
    PRIVATE_LINK_LIBRARIES CxxUtils FourMomUtils )
 
@@ -61,7 +62,7 @@ if( XAOD_STANDALONE )
       util/OverlapRemovalTester.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} xAODRootAccess
-      xAODEventInfo xAODEgamma xAODMuon xAODJet xAODTau xAODEgamma
+      xAODEventInfo xAODEgamma xAODMuon xAODJet xAODBTagging xAODTau xAODEgamma
       AssociationUtilsLib )
 endif()
 

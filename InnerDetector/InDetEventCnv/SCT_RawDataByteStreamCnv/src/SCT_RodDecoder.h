@@ -108,6 +108,7 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
                                     SCT_RDO_Container& rdoIDCont,
                                     IDCInDetBSErrContainer& errs,
+                                    const EventContext& ctx,
                                     const std::vector<IdentifierHash>* vecHash = nullptr) const override;
 
  private:
@@ -275,7 +276,8 @@ class SCT_RodDecoder : public extends<AthAlgTool, ISCT_RodDecoder>
                            CacheHelper& cache,
                            SCT_RodDecoderErrorsHelper& errs,
                            bool& hasError,
-                           bool& breakNow) const;
+                           bool& breakNow,
+                           const EventContext& ctx) const;
 
   /**
    * @brief Process hit word in Super-Condensed mode

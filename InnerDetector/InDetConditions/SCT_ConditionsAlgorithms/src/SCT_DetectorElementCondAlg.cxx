@@ -14,8 +14,10 @@
 SCT_DetectorElementCondAlg::SCT_DetectorElementCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : ::AthReentrantAlgorithm(name, pSvcLocator)
   , m_readKey{"SCTAlignmentStore", "SCTAlignmentStore"}
+  , m_detManagerName("SCT")
 {
   declareProperty("ReadKey", m_readKey);
+  declareProperty("DetManagerName", m_detManagerName);
 }
 
 StatusCode SCT_DetectorElementCondAlg::initialize()
@@ -31,8 +33,7 @@ StatusCode SCT_DetectorElementCondAlg::initialize()
   ATH_CHECK(m_condSvc.retrieve());
   // Register write handle
   ATH_CHECK(m_condSvc->regHandle(this, m_writeKey));
-
-  ATH_CHECK(detStore()->retrieve(m_detManager, "SCT"));
+  ATH_CHECK(detStore()->retrieve(m_detManager, m_detManagerName));
 
   return StatusCode::SUCCESS;
 }

@@ -51,6 +51,9 @@ class CylinderSurface : public Surface
 {
 
 public:
+  /** The surface type static constexpr */
+  static constexpr SurfaceType staticType = Surface::Cylinder;
+
   /**Default Constructor*/
   CylinderSurface();
 
@@ -167,10 +170,7 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
-  /** Return the surface type static constexpr */
-  static constexpr SurfaceType staticType() ;
-
-  /** Returns a global reference point:
+   /** Returns a global reference point:
      For the Cylinder this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
      Where  @f$ \phi @f$ denotes the averagePhi() of the cylinderBounds.
     */

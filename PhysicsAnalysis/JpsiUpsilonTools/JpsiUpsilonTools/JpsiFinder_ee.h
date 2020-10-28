@@ -59,18 +59,17 @@ namespace Analysis {
         JpsiFinder_ee(const std::string& t, const std::string& n, const IInterface*  p);
         ~JpsiFinder_ee();
         virtual StatusCode initialize() override;
-        virtual StatusCode finalize()   override;
         
         static const InterfaceID& interfaceID() { return IID_JpsiFinder_ee;}
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
-        virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) override;
+        virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) const override;
         std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&) const;
         std::vector<JpsiEECandidate> getPairs(const std::vector<const xAOD::Electron*>&) const;
         std::vector<JpsiEECandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Electron*>&, bool) const;
         double getInvariantMass(const JpsiEECandidate&, const std::vector<double>& ) const;
-        std::vector<JpsiEECandidate> selectCharges(const std::vector<JpsiEECandidate>& , const std::string&);
+        std::vector<JpsiEECandidate> selectCharges(const std::vector<JpsiEECandidate>& , const std::string&) const;
         xAOD::Vertex* fit(const std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticleContainer* importedTrackCollection) const;
         bool passesEgammaCuts(const xAOD::Electron*) const;
         bool isContainedIn(const xAOD::TrackParticle*, const xAOD::TrackParticleContainer*) const;
@@ -87,7 +86,6 @@ namespace Analysis {
         bool m_diElectrons;
         double m_trk1M;
         double m_trk2M;
-        const HepPDT::ParticleDataTable *m_particleDataTable;
         double m_thresholdPt;
         double m_higherPt;
         double m_trkThresholdPt;
@@ -108,7 +106,6 @@ namespace Analysis {
         bool m_egammaCuts;
         std::string m_elSelection;
         bool m_doTagAndProbe;
-        int m_numberOfEventsWithJpsi;
     };
 } // end of namespace
 #endif

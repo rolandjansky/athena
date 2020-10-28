@@ -59,6 +59,10 @@ class ParametersT;
 class PlaneSurface : public Surface
 {
 public:
+ 
+  /** The surface type static constexpr */
+  static constexpr SurfaceType staticType = Surface::Plane;
+
   /** Default Constructor - needed for persistency*/
   PlaneSurface();
 
@@ -142,9 +146,6 @@ public:
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
-
-  /** Return the surface type static constexpr */
-  static constexpr SurfaceType staticType() ;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */

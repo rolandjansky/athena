@@ -17,7 +17,7 @@
 TTree* get_tree(const std::string& filename)
 {
     TFile* f = TFile::Open(filename.c_str());
-    auto keys = f->GetListOfKeys();
+    auto *keys = f->GetListOfKeys();
     TTree* tree = nullptr;
     for (int ikey=0; ikey != keys->GetSize(); ++ikey)
     {

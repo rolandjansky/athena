@@ -138,6 +138,11 @@ namespace Muon {
 
     // clean up entry handler tool
     m_candidateTool->cleanUp();
+
+    // clean up track builder tools
+    m_mooBTool->cleanUp();
+    m_trackBTool->cleanUp();
+    
   }
 
   //-----------------------------------------------------------------------------------------------------------

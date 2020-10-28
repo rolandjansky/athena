@@ -15,6 +15,10 @@ if InDetFlags.doxAOD():
 
   if InDetFlags.keepAdditionalHitsOnTrackParticle():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
+
+  # remove track decorations used internally by FTAG software
+  excludedAuxData += ".-TrackCompatibility.-VxTrackAtVertex.-btagIp_d0Uncertainty.-btagIp_z0SinThetaUncertainty.-btagIp_z0SinTheta.-btagIp_d0.-btagIp_trackMomentum.-btagIp_trackDisplacement"
+
   InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
   from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags

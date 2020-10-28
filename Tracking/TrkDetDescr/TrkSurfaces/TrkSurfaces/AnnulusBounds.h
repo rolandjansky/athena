@@ -203,65 +203,7 @@ private:
   std::vector<TDD_real_t> m_solution_R_max;
 };
 
-inline AnnulusBounds*
-AnnulusBounds::clone() const
-{
-  return new AnnulusBounds(*this);
-}
-
-inline double
-AnnulusBounds::minR() const
-{
-  return m_boundValues[AnnulusBounds::bv_minR];
-}
-
-inline double
-AnnulusBounds::maxR() const
-{
-  return m_boundValues[AnnulusBounds::bv_maxR];
-}
-
-inline double
-AnnulusBounds::R() const
-{
-  return m_boundValues[AnnulusBounds::bv_R];
-}
-
-inline double
-AnnulusBounds::phi() const
-{
-  return m_boundValues[AnnulusBounds::bv_phi];
-}
-
-inline double
-AnnulusBounds::phiS() const
-{
-  return m_boundValues[AnnulusBounds::bv_phiS];
-}
-
-inline double
-AnnulusBounds::r() const
-
-{
-  return AnnulusBounds::bv_maxR;
-} // MW to be fixed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-inline bool
-AnnulusBounds::insideLoc1(const Amg::Vector2D& locpo, double tol1) const
-{
-  return (locpo[locX] > std::min(m_solution_L_min[0], m_solution_L_max[0]) - tol1 &&
-          locpo[locX] < std::max(m_solution_R_min[0], m_solution_R_max[0]) + tol1);
-}
-// MW Fix it
-
-inline bool
-AnnulusBounds::insideLoc2(const Amg::Vector2D& locpo, double tol2) const
-{
-  return (locpo[locY] > std::min(m_solution_L_min[1], m_solution_L_max[1]) - tol2 &&
-          locpo[locY] < std::max(m_solution_R_min[1], m_solution_R_max[1]) + tol2);
-}
-// MW Fix it
-
 } // end of namespace
 
+#include "TrkSurfaces/AnnulusBounds.icc"
 #endif // TRKSURFACES_ANNULUSBOUNDS_H

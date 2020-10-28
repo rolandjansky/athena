@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file EventContextByteStream.cxx
@@ -9,6 +9,7 @@
  **/
 
 #include "EventContextByteStream.h"
+#include "CxxUtils/checker_macros.h"
 
 //________________________________________________________________________________
 EventContextByteStream::EventContextByteStream(const IEvtSelector* selector) : m_evtSelector(selector) {
@@ -22,5 +23,6 @@ EventContextByteStream::~EventContextByteStream() {
 }
 //________________________________________________________________________________
 void* EventContextByteStream::identifier() const {
-   return((void*)(m_evtSelector));
+   IEvtSelector* id ATLAS_THREAD_SAFE = const_cast<IEvtSelector*> (m_evtSelector);
+   return id;
 }
