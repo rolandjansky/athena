@@ -453,6 +453,18 @@ class TriggerConfigGetter(Configured):
                 writeTriggerMenu = menuwriter.WritexAODTriggerMenu
                 writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
                 topAlgs += menuwriter
+                # Schedule also the prescale conditions algs
+                from AthenaCommon.Configurable import Configurable
+                Configurable.configurableRun3Behavior += 1
+                from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
+                from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
+                from AthenaConfiguration.AllConfigFlags import ConfigFlags
+                acc = ComponentAccumulator()
+                acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
+                acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
+                appendCAtoAthena( acc )
+                Configurable.configurableRun3Behavior -= 1
+
 
             # Set up the metadata for the output ESD and AOD:
             from RecExConfig.ObjKeyStore import objKeyStore
