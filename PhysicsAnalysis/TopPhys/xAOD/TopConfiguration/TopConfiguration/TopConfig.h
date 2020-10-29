@@ -1229,7 +1229,7 @@ namespace top {
     inline virtual float trackEtacut() const {return m_trackEtacut;}
 
 
-
+    virtual std::vector<std::string> readListOfSubstructureVariables(top::ConfigurationSettings* const& settings, const std::string& in) const;
 
     inline virtual float RCJetPtcut() const {return m_RCJetPtcut;}
     inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
@@ -1238,8 +1238,11 @@ namespace top {
     inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
     inline virtual float RCJetRadius() const {return m_RCJetRadius;}
     inline virtual bool useRCJetSubstructure() const {return m_useRCJetSubstructure;}
-    inline virtual bool useRCJetAdditionalSubstructure() const {return m_useRCJetAdditionalSubstructure;}
-
+    inline virtual const std::vector<std::string>& rcJetSubstructureVariables() const {return m_rcJetSubstructureVariables;}
+    
+    
+    
+    
     inline virtual void RCJetPtcut(const float pt) {
       if (!m_configFixed) {
         m_RCJetPtcut = pt;
@@ -1282,11 +1285,12 @@ namespace top {
       }
     }
 
-    inline virtual void useRCJetAdditionalSubstructure(const bool use) {
+    inline virtual void rcJetSubstructureVariables(const std::vector<std::string>& use) {
       if (!m_configFixed) {
-        m_useRCJetAdditionalSubstructure = use;
+        m_rcJetSubstructureVariables = use;
       }
     }
+
 
     inline virtual float VarRCJetPtcut() const {return m_VarRCJetPtcut;}
     inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
@@ -1295,7 +1299,7 @@ namespace top {
     inline virtual const std::string& VarRCJetRho() const {return m_VarRCJetRho;}
     inline virtual const std::string& VarRCJetMassScale() const {return m_VarRCJetMassScale;}
     inline virtual bool useVarRCJetSubstructure() const {return m_useVarRCJetSubstructure;}
-    inline virtual bool useVarRCJetAdditionalSubstructure() const {return m_useVarRCJetAdditionalSubstructure;}
+    inline virtual const std::vector<std::string>& VarRCJetSubstructureVariables() const {return m_VarRCJetSubstructureVariables;}
 
     inline virtual void VarRCJetPtcut(const float pt) {
       if (!m_configFixed) {
@@ -1339,9 +1343,9 @@ namespace top {
       }
     }
 
-    inline virtual void useVarRCJetAdditionalSubstructure(const bool use) {
+    inline virtual void VarRCJetSubstructureVariables(const std::vector<std::string>& use) {
       if (!m_configFixed) {
-        m_useVarRCJetAdditionalSubstructure = use;
+        m_VarRCJetSubstructureVariables = use;
       }
     }
 
@@ -2369,7 +2373,7 @@ namespace top {
     float m_RCJetTrimcut;
     float m_RCJetRadius;
     bool m_useRCJetSubstructure;
-    bool m_useRCJetAdditionalSubstructure;
+    std::vector<std::string> m_rcJetSubstructureVariables;
 
     // Jet configuration for variable large-R jets
     float m_VarRCJetPtcut;
@@ -2379,7 +2383,7 @@ namespace top {
     std::string m_VarRCJetRho;
     std::string m_VarRCJetMassScale;
     bool m_useVarRCJetSubstructure;
-    bool m_useVarRCJetAdditionalSubstructure;
+    std::vector<std::string> m_VarRCJetSubstructureVariables;
 
     std::string m_trackQuality; // track quality to be used in track selection                                                                                                                              
 

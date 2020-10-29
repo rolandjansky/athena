@@ -90,7 +90,7 @@ private:
   float m_massscale;
 
   bool m_useJSS;
-  bool m_useAdditionalJSS;
+  std::vector<std::string> m_substructureVariables;
 
   std::string m_treeName;
 
@@ -103,25 +103,25 @@ private:
 
 
   //Substructure tool definitions
-  std::shared_ptr<fastjet::JetDefinition> m_jet_def_rebuild;
-  std::shared_ptr<fastjet::contrib::Nsubjettiness> m_nSub1_beta1;
-  std::shared_ptr<fastjet::contrib::Nsubjettiness> m_nSub2_beta1;
-  std::shared_ptr<fastjet::contrib::Nsubjettiness> m_nSub3_beta1;
-  std::shared_ptr<fastjet::contrib::EnergyCorrelator> m_ECF1;
-  std::shared_ptr<fastjet::contrib::EnergyCorrelator> m_ECF2;
-  std::shared_ptr<fastjet::contrib::EnergyCorrelator> m_ECF3;
-  std::shared_ptr<JetSubStructureUtils::KtSplittingScale> m_split12;
-  std::shared_ptr<JetSubStructureUtils::KtSplittingScale> m_split23;
-  std::shared_ptr<JetSubStructureUtils::Qw> m_qw;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF332;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF461;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF322;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF331;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF422;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF441;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF212;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF321;
-  std::shared_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF311;
+  std::unique_ptr<fastjet::JetDefinition> m_jet_def_rebuild;
+  std::unique_ptr<fastjet::contrib::Nsubjettiness> m_nSub1_beta1;
+  std::unique_ptr<fastjet::contrib::Nsubjettiness> m_nSub2_beta1;
+  std::unique_ptr<fastjet::contrib::Nsubjettiness> m_nSub3_beta1;
+  std::unique_ptr<fastjet::contrib::EnergyCorrelator> m_ECF1;
+  std::unique_ptr<fastjet::contrib::EnergyCorrelator> m_ECF2;
+  std::unique_ptr<fastjet::contrib::EnergyCorrelator> m_ECF3;
+  std::unique_ptr<JetSubStructureUtils::KtSplittingScale> m_split12;
+  std::unique_ptr<JetSubStructureUtils::KtSplittingScale> m_split23;
+  std::unique_ptr<JetSubStructureUtils::Qw> m_qw;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF332;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF461;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF322;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF331;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF422;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF441;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF212;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF321;
+  std::unique_ptr<JetSubStructureUtils::EnergyCorrelatorGeneralized> m_gECF311;
 
   std::map<std::string, float> mass_scales = {
     {"m_t", 172500.},
