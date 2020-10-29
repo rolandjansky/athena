@@ -18,6 +18,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/ToolHandle.h"
 #include "LArByteStream/Hid2RESrcID.h"
+#include "LArByteStream/RodRobIdMap.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 #include "ByteStreamData/RawEvent.h" 
 #include "LArByteStream/LArRodDecoder.h"
@@ -44,7 +45,7 @@ class IByteStreamEventAccess;
       
 class LArRawDataContByteStreamTool: public AthAlgTool {
 public:
-  using FEA_t = FullEventAssembler<Hid2RESrcID>;
+  using FEA_t = FullEventAssembler<RodRobIdMap>;
 
   /** Constructor
       Standard AlgTool constructor

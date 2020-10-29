@@ -102,7 +102,7 @@ LArRawChannelContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*
 { // convert LArRawChannels in the container into ByteStream
    
    // Get Full Event Assembler
-  FullEventAssembler<Hid2RESrcID> *fea = 0;
+  FullEventAssembler<RodRobIdMap> *fea = 0;
   ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea,"LAr") );
 
   LArRawChannelContainer* ChannelContainer = nullptr;

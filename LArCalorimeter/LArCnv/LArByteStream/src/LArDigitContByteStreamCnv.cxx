@@ -119,7 +119,7 @@ LArDigitContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAd
   ATH_MSG_VERBOSE( "Execute CreateRep method of LArDigitContainer " );
 
   // Get Full Event Assembler
-  FullEventAssembler<Hid2RESrcID> *fea = 0;
+  FullEventAssembler<RodRobIdMap> *fea = 0;
   ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea,"LAr") );
 
   LArDigitContainer* DigitContainer=0;
