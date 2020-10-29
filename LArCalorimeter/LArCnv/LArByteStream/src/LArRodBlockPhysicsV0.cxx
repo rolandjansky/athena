@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of the LArRODBlockStructure_3 class
@@ -44,14 +44,14 @@ m_logstr(Athena::getMessageSvc(), BlockType())
  StatusCode sc =svcLoc->service( "DetectorStore", detStore );
  if (sc.isFailure()) {
    m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
-   exit(1);
+   std::abort();
  } else {
    m_logstr << MSG::INFO << "Successfully located DetectorStore" << endmsg;
  }     
  sc = detStore->retrieve(online_id, "LArOnlineID");
  if (sc.isFailure()) {
    m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
-   exit(1);
+   std::abort();
  } 
  else {
    m_onlineHelper=online_id;
@@ -225,7 +225,7 @@ void LArRodBlockPhysicsV0::setRawData(const int channel, const std::vector<short
    m_logstr << MSG::ERROR << "Number of samples mismatch!\n";
    m_logstr << "  nsamples       =" << nsamples;
    m_logstr << "  samples.size() =" << samples.size() << endmsg;
-   exit(0);
+   std::abort();
  }
  
  setBit(&m_RawDataBlock[0],rcNb);
@@ -307,7 +307,7 @@ void LArRodBlockPhysicsV0::finalizeFEB()
  n = m_HighEnergyBlock.size();
  BlockOffset=LE_getVectorHeader16(HighEBlkOffset);
  LARBSDBG("Checking High Energy Block n=" << n << "BlockOffset=" << BlockOffset);
- //Check if High Energy-Block exits and is not yet part of the fragment
+ //Check if High Energy-Block exists and is not yet part of the fragment
  if (n && !BlockOffset)
    {LE_setHeader16(HighEBlkOffset,m_vFragment->size());
    for(unsigned int i=0;i<n;i++)

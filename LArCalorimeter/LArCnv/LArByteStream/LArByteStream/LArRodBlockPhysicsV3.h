@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKPYSICSV3_H
@@ -322,9 +322,8 @@ inline int32_t  LArRodBlockPhysicsV3::getEx() const  // To be checked
   if ((*(m_CounterPtr+5))&(1<<15)) // number id negative
     ex = -ex;
   return ex;*/
-  uint32_t* copy32u = (uint32_t*)(m_CounterPtr+4);
-  int32_t* ex = (int32_t*)copy32u;
-  return *ex;
+  const uint32_t* copy32u = reinterpret_cast<const uint32_t*>(m_CounterPtr+4);
+  return *copy32u;
 }
 
 inline int32_t  LArRodBlockPhysicsV3::getEy() const  // To be checked
@@ -337,16 +336,14 @@ inline int32_t  LArRodBlockPhysicsV3::getEy() const  // To be checked
   if ((*(m_CounterPtr+7))&(1<<15)) // number id negative
     ey = -ey;
   return ey;*/
-  uint32_t* copy32u = (uint32_t*)(m_CounterPtr+6);
-  int32_t* ey = (int32_t*)copy32u;
-  return *ey;
+  const uint32_t* copy32u = reinterpret_cast<const uint32_t*>(m_CounterPtr+6);
+  return *copy32u;
 }
 
 inline int32_t LArRodBlockPhysicsV3::getEz() const
 {
-  uint32_t* aux = (uint32_t*)(m_CounterPtr+10);
-  int32_t* ez = (int32_t*)aux;
-  return *ez;
+  const uint32_t* aux = reinterpret_cast<const uint32_t*>(m_CounterPtr+10);
+  return *aux;
 }
 
 inline uint16_t  LArRodBlockPhysicsV3::getHottestCellIndex() // to be checked
