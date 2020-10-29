@@ -1930,10 +1930,10 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
       // Thus, setting path for plots to a subfolder "/PassingJets" of the chain
       setCurrentMonGroup(m_monGroups[Form("%s_PJ",theChain.c_str())]);
       count=0;
-      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > lifc = 
+      const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = 
         getTDT()->features<xAOD::JetContainer>( chain );
       std::list<const xAOD::Jet*> jetList; //structure needed to sort jets by ET
-      for(const auto& jetLinkInfo : lifc) {
+      for(const auto& jetLinkInfo : fc) {
         if (!jetLinkInfo.isValid()) {
           ATH_MSG_ERROR("Invalid ElementLink to online jet");
           continue;
@@ -2418,7 +2418,6 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
       if (theChain == m_hlt_DijetChains[k]){
 	ATH_MSG_DEBUG("pass");
 	setCurrentMonGroup(m_monGroups[(*hj).first]);
-	std::cout<<"JANNIK: HLTvsHLT: trying to setCurrentMonGroup to m_monGroups["<<(*hj).first<<"] = "<< m_monGroups[(*hj).first] <<std::endl;
 	
 	if (hltlead && hltsublead){
 	  if((h2 = hist2(Form("%s_leadEt_vs_%s_subleadEt",theChain.c_str(),theChain.c_str())))) h2->Fill(v_leadjet.Et(),v_subleadjet.Et(),m_lumi_weight);
