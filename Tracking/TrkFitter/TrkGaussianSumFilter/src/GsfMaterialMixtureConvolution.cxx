@@ -211,7 +211,7 @@ Trk::GsfMaterialMixtureConvolution::update(
       if (measuredCov) {
         caches[i].deltaCovariances[0] += *measuredCov;
       }
-      n += caches[i].weights.size();
+      n += caches[i].numWeights;
       continue;
     }
 
@@ -227,7 +227,7 @@ Trk::GsfMaterialMixtureConvolution::update(
       if (measuredCov) {
         caches[i].deltaCovariances[0] += *measuredCov;
       }
-      n += caches[i].weights.size();
+      n += caches[i].numWeights;
       continue;
     }
 
@@ -242,14 +242,14 @@ Trk::GsfMaterialMixtureConvolution::update(
                                particleHypothesis);
 
     // check vectors have the same size
-    if (caches[i].weights.size() != caches[i].deltaPs.size()) {
-      ATH_MSG_ERROR("Inconsistent number of components in the updator!!! no "
+    if (caches[i].numWeights != caches[i].numDeltaPs) {
+      ATH_MSG_WARNING("Inconsistent number of components in the updator!!! no "
                     "material effect will be applied");
       caches[i].resetAndAddDummyValues();
     }
 
     // Apply material effects to input state and store results in cache
-    for (size_t j(0); j < caches[i].weights.size(); ++j) {
+    for (size_t j(0); j < caches[i].numWeights; ++j) {
       if (measuredCov) {
         caches[i].deltaCovariances[j] += *measuredCov;
       } else {
@@ -272,7 +272,7 @@ Trk::GsfMaterialMixtureConvolution::update(
         caches[i].weights[j] = std::numeric_limits<float>::min();
       }
     }
-    n += caches[i].weights.size();
+    n += caches[i].numWeights;
   }
 
   // Fill information for to calculate which components to merge
@@ -285,7 +285,7 @@ Trk::GsfMaterialMixtureConvolution::update(
   size_t k(0);
   std::vector<std::pair<size_t, size_t>> indices(n);
   for (size_t i(0); i < inputState.size(); ++i) {
-    for (size_t j(0); j < caches[i].weights.size(); ++j) {
+    for (size_t j(0); j < caches[i].numWeights; ++j) {
       const AmgSymMatrix(5)* measuredCov = inputState[i].first->covariance();
       // Fill in infomation
       const double cov =

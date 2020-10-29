@@ -21,9 +21,8 @@
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
 #include "TrkMultiComponentStateOnSurface/MultiComponentState.h"
-
-#include <Eigen/StdVector>
 #include <memory>
 
 namespace Trk {
@@ -39,48 +38,37 @@ class IMultiStateMaterialEffects : virtual public IAlgTool
 public:
   struct Cache
   {
-    Cache()
-    {
-      weights.reserve(6);
-      deltaPs.reserve(6);
-      deltaParameters.reserve(6);
-      deltaCovariances.reserve(6);
-    }
+    std::array<double, GSFConstants::maxNumberofBHComponents> weights = {};
+    std::array<double, GSFConstants::maxNumberofBHComponents> deltaPs = {};
+    alignas(32)
+      std::array<AmgVector(5),
+                 GSFConstants::maxNumberofBHComponents> deltaParameters = {};
+    alignas(32)
+      std::array<AmgSymMatrix(5),
+                 GSFConstants::maxNumberofBHComponents> deltaCovariances = {};
 
-    Cache(Cache&&) noexcept = default;
-    Cache& operator=(Cache&&) noexcept = default;
-    Cache(const Cache&) noexcept = default;
-    Cache& operator=(const Cache&) noexcept = default;
-    ~Cache() noexcept = default;
-
-    std::vector<double> weights;
-    std::vector<double> deltaPs;
-    /*
-     * Suggested
-     * by Eigen 3.3.7 manual
-     * "you must use the Eigen::aligned_allocator (not another aligned
-     * allocator), and #include <Eigen/StdVector>."
-     */
-    std::vector<AmgVector(5), Eigen::aligned_allocator<AmgVector(5)>>
-      deltaParameters;
-    std::vector<AmgSymMatrix(5), Eigen::aligned_allocator<AmgSymMatrix(5)>>
-      deltaCovariances;
-
+    size_t numWeights = 0;
+    size_t numDeltaPs = 0;
+    size_t numDeltaParameters = 0;
+    size_t numDeltaCovariance = 0;
     void reset()
     {
-      weights.clear();
-      deltaPs.clear();
-      deltaParameters.clear();
-      deltaCovariances.clear();
+      numWeights = 0;
+      numDeltaPs = 0;
+      numDeltaParameters = 0;
+      numDeltaCovariance = 0;
     }
 
     void resetAndAddDummyValues()
     {
-      reset();
-      weights.push_back(1);
-      deltaPs.push_back(0);
-      deltaParameters.emplace_back(AmgVector(5)::Zero());
-      deltaCovariances.emplace_back(AmgSymMatrix(5)::Zero());
+      weights[0]=1;
+      deltaPs[0]=0;
+      deltaParameters[0]=AmgVector(5)::Zero();
+      deltaCovariances[0]=AmgSymMatrix(5)::Zero();
+      numWeights = 1;
+      numDeltaPs = 1;
+      numDeltaParameters = 1;
+      numDeltaCovariance = 1;
     }
   };
 
