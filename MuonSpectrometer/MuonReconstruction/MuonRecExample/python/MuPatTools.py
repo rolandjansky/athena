@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for muon track reconstruction"""
 
@@ -8,21 +8,15 @@ __doc__ = """Configuration of tools for muon track reconstruction"""
 #
 #==============================================================
 
-from AthenaCommon.AppMgr import ServiceMgr
-from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon.BFieldFlags import jobproperties
 from AthenaCommon import CfgMgr
 
-from RecExConfig.RecFlags import rec
-
 from .MuonRecFlags import muonRecFlags
-from .MuonStandaloneFlags import muonStandaloneFlags
+from .MuonRecUtils import ConfiguredBase
 
-from .MuonRecUtils import logMuon,ConfiguredBase
-
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
+from AthenaCommon.CfgGetter import getPublicTool
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 #==============================================================

@@ -5,19 +5,17 @@ logging.getLogger().info("Importing %s", __name__)
 
 from six import with_metaclass
 
-from GaudiKernel.GaudiHandles import \
-     GaudiHandle,GaudiHandleArray,\
-     PublicToolHandle,PublicToolHandleArray,\
-     PrivateToolHandle,PrivateToolHandleArray,\
-     ServiceHandle
+from GaudiKernel.GaudiHandles import (PublicToolHandle,PublicToolHandleArray,
+                                      PrivateToolHandle,PrivateToolHandleArray,
+                                      ServiceHandle )
 
 from AthenaCommon.JobProperties import JobProperty,jobproperties
 
 
-import os,sys,copy,re,subprocess
+import sys,copy
 
 # for backwards compat of clients. TO BE REMOVED !!!
-from AthenaCommon.ConfiguredFactory import getProperty
+from AthenaCommon.ConfiguredFactory import getProperty  # noqa: F401
 
 # logger to use for normal output
 logMuon = logging.getLogger("MuonRec")
@@ -498,7 +496,7 @@ def syncFlags( toProp, fromProp, logger = logMuon, ignoreLock = False ):
 def syncWinningFlag( prop1, prop2, logger = logMuon, ignoreLock = False ):
     if prop1.get_Value() != prop2.get_Value():
         contest = _whoWins( prop1, prop2, logger )
-        _syncFlags( contest.loser, contest.winner, logger, ignoreLock )
+        syncFlags( contest.loser, contest.winner, logger, ignoreLock )
 
 
 

@@ -13,15 +13,10 @@ from .MuonStandaloneFlags import muonStandaloneFlags,MoorelikeStrategy
 from .MuonRecFlags import muonRecFlags
 from .ConfiguredMuonRec import ConfiguredMuonRec
 
-from .MuonRecUtils import logMuon,ExtraFlags
+from .MuonRecUtils import ExtraFlags
 
-from RecExConfig.RecFlags import rec
-from AthenaCommon.DetFlags import DetFlags
-
-from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone,getPrivateTool
+from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
-
-import sys
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
@@ -151,8 +146,6 @@ class MuonStandalone(ConfiguredMuonRec):
         super(MuonStandalone,self).configure(keys)
         if not self.isEnabled(): return
 
-        from AthenaCommon.BeamFlags import jobproperties
-        beamFlags = jobproperties.Beam 
         SegmentLocation = "MuonSegments"
         if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
             SegmentLocation = "ThirdChainSegments"
@@ -234,6 +227,6 @@ class MuonStandalone(ConfiguredMuonRec):
                  'tracksKey'        : tracksKey,
                  'doPhi'            : muonStandaloneFlags.trackBuilder == 'Moore',
                  'segmentAuthor'    : 5,
-		 'trackAuthor'	   : 200
+                 'trackAuthor'     : 200
                  }
                   

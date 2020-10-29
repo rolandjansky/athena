@@ -1,16 +1,14 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Set up the flags (for RecExCommon) so that only Muon Standalone Reconstruction is run.
 It sets default values for muonRecFlags, recFlags, globalflags, DetFlags."""
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
-from MuonRecExample.MuonRecUtils import logMuon,logMuonResil
-from AthenaCommon.DetFlags import DetFlags 
+from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec as recFlags
 from RecExConfig.RecAlgsFlags import recAlgs as recAlgsFlags
-from RecExConfig.RecConfFlags import recConfFlags
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 
 import os
