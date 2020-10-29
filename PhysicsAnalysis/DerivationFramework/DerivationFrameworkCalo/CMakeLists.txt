@@ -9,4 +9,4 @@ atlas_add_component( DerivationFrameworkCalo
                      LINK_LIBRARIES LINK_LIBRARIES AthenaBaseComps CaloClusterCorrectionLib CaloEvent CaloGeoHelpers CaloIdentifier CaloUtilsLib DerivationFrameworkInterfaces ExpressionEvaluationLib FourMomUtils GaudiKernel LArCablingLib StoreGateLib xAODBase xAODCaloEvent xAODEgamma xAODJet xAODMuon xAODTau )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
