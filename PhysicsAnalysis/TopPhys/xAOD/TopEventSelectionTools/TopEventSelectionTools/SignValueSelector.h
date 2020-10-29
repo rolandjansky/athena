@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef SIGNVALUESELECTOR_H_
 #define SIGNVALUESELECTOR_H_
@@ -8,26 +8,25 @@
 #include "TopEventSelectionTools/EventSelectorBase.h"
 
 namespace top {
-
 /**
  * @brief Many of the tools need a sign (>=) and a value (2).  For example, if
  * we want at least two leptons.  This is an intermediate 'base' class that
  * implements all the functionality these tools need in one place.
  */
-class SignValueSelector : public EventSelectorBase {
-public:
+  class SignValueSelector: public EventSelectorBase {
+  public:
     /**
      * @brief Many of the tools will be supplied with an equality (or inequality) by
      * the user.  They're decoded from the text input and saved in this 'sign'
      * format.
      */
     enum Sign {
-        signNOIDEA,  //the user clearly did something wrong, expect to exit / crash
-        signEQ,      // ==
-        signLT,      // <
-        signGT,      // >
-        signLTEQ,    // <=
-        signGTEQ     // >=
+      signNOIDEA,  //the user clearly did something wrong, expect to exit / crash
+      signEQ,      // ==
+      signLT,      // <
+      signGT,      // >
+      signLTEQ,    // <=
+      signGTEQ     // >=
     };
 
     /**
@@ -46,14 +45,24 @@ public:
      * The default behaviour is false (the cut value is not a string). Note that
      * cutValueMode = true only makes sense if multiplicityMode = true
      */
-    SignValueSelector(const std::string& name, std::string params, bool multiplicityMode = false, bool cutValueMode = false);
+    SignValueSelector(const std::string& name, std::string params, bool multiplicityMode = false,
+                      bool cutValueMode = false);
+    /**
+     * @brief Overloaded constructor with additional options to do string splitting on delimiter and concatantion with a
+     *new string
+     * @param delim - delimiter to split with
+     * @param replace - string to replace the delimiter when concatanating
+     * @param default_prefix - if it was not possible to split, the code was probably expecting something to be
+     *prepended to the string so cover this
+     */
+    SignValueSelector(const std::string& name, std::string params, bool multiplicityMode, bool cutValueMode,
+                      std::string delim, std::string replace, std::string default_prefix);
 
     /**
      * @brief The name is generated in the constructor for this kind of tool.
      */
     virtual std::string name() const override;
-
-protected:
+  protected:
     /**
      * @brief Integers are annoying in C++.
      *
@@ -91,6 +100,12 @@ protected:
      * This is for when the cut is a string
      */
     std::string valueString() const;
+
+
+    /**
+     * @brief valueString which is manipulated to replace delimiter with new string
+     */
+    std::string valueStringDelimReplace() const;
 
     /**
      * @brief Get the cut multiplicity assigned in the constructor.
@@ -148,8 +163,7 @@ protected:
      * @return A short string version of the name
      */
     const std::string signstring() const;
-
-private:
+  private:
     ///Hold the name of the tool, filled by the constructor.
     std::string m_name;
 
@@ -164,8 +178,10 @@ private:
 
     ///The multiplicity for cuts that take both a value and a multiplicity e.g. EL_N 25000 >= 2
     double m_multiplicity;
-};
 
+    ///The value of the cut when it is a string, with replacement of delimiter with a replacement substring
+    std::string m_cutvalueStringDelimReplace;
+  };
 }
 
 #endif

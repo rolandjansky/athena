@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 // Filename: ObjectSelectorBase.h
 // Description:
@@ -11,14 +11,13 @@
 #define _TOP_OBJECTSELECTORBASE_H_
 
 namespace top {
-
-    template <typename ObjectT>
-    class ObjectSelectorBase {
-    public:
-	ObjectSelectorBase(){}
-	virtual ~ObjectSelectorBase(){}
-	virtual bool apply( const ObjectT & obj ) = 0;
-    };
+  template <typename ObjectT>
+  class ObjectSelectorBase {
+  public:
+    ObjectSelectorBase() {}
+    virtual ~ObjectSelectorBase() {}
+    virtual bool apply(const ObjectT& obj) = 0;
+  };
 }
 
 

@@ -5,7 +5,6 @@
 #include "../CutFlowSvc.h"
 #include "../EventCounterAlg.h"
 #include "../SkimDecisionMultiFilter.h"
-#include "../StreamSelectorTool.h"
 #include "../TestFilterReentrantAlg.h"
 
 DECLARE_COMPONENT( AllExecutedEventsCounterAlg )
@@ -14,5 +13,4 @@ DECLARE_COMPONENT( BookkeeperTool )
 DECLARE_COMPONENT( CutFlowSvc )
 DECLARE_COMPONENT( EventCounterAlg )
 DECLARE_COMPONENT( SkimDecisionMultiFilter )
-DECLARE_COMPONENT( StreamSelectorTool )
 DECLARE_COMPONENT( TestFilterReentrantAlg )
