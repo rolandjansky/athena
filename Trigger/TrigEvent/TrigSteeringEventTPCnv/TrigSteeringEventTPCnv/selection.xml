@@ -1,53 +1,7 @@
 <lcgdict>
-  <class name="HLT::HLTResult_p1" id="9567573D-F35E-4D5E-9A1A-A43B07D3CF3B" />
-  <class name="LVL1CTP::Lvl1Result_p2" id="F4208CCF-9FAA-4F01-9C0B-26E9E59CE49F" />
-
 <!-- TrigRoiDescriptorCollection -->
-  <class name="TrigRoiDescriptorCollection_tlp1" id="CE80FC4E-B16B-40B2-9D9E-EB4916B663B0"/>
-  <class name="TrigRoiDescriptorCollection_p1" id="D0A0B6E7-9E0C-484E-AE8C-AC57B5111EA0"/>
-  <class name="std::vector<TrigRoiDescriptorCollection_p1>" /> <!--Fab, is this thing needed?  we never have such nested object.-->  
-
-  <class name="TrigRoiDescriptorCollection_p2" id="D1A44F23-416C-4AB6-BFFA-2EA280565D4E"/>
-  <class name="TrigRoiDescriptorCollection_p3" id="615418EF-EEFB-4E87-A396-7313E67C547E"/>
-
-
-
-<!-- TrigRoiDescriptor -->
-  <class name="TrigRoiDescriptor_p1"  id="391FFE21-5D82-471E-9FFC-B77150142B8F" />
-  <class name="std::vector<TrigRoiDescriptor_p1>" />
-
-  <class name="TrigRoiDescriptor_p2"  id="D53CE59B-99A8-4B25-87D5-C08D1AF4BA8A" />
-  <class name="std::vector<TrigRoiDescriptor_p2>" />
-
   <class name="TrigRoiDescriptor_p3"  id="28F5BCC8-1F3D-47B1-8286-087F1B298F0A" />
   <class name="std::vector<TrigRoiDescriptor_p3>" />
+  <class name="TrigRoiDescriptorCollection_p3" id="615418EF-EEFB-4E87-A396-7313E67C547E"/>
 
-<!-- TrigPassBitsCollection -->
-  <class name="TrigPassBitsCollection_p1" id="E6E4F396-D696-4C1C-A0C4-7766E0AF9BB5"/>
-
-<!-- TrigPassBits -->
-  <class name="TrigPassBits_p1"  id="391FFE21-5D82-471E-9FFC-B77150142B8F" />
-  <class name="std::vector<TrigPassBits_p1>" />
-
-<!-- TrigPassFlags -->
-   <class name="TrigPassFlags_p1"  id="1FA7E531-B1F9-4EC5-9BD1-FD19CE7368B6" />
-   <class name="std::vector<TrigPassFlags_p1>" />
-
-<!-- TrigPassBitsCollection -->
-   <class name="TrigPassFlagsCollection_p1" id="7DE670AF-A256-4E8E-BC44-1CA30810F294"/>
-
-
-<!-- TrigOperationalInfo -->
-  <class name="TrigOperationalInfoCollection_tlp1" id="7D5A0227-E28B-4228-83C5-22F8BBB90BBF"/>
-  <class name="TrigOperationalInfoCollection_p1"   id="B6C95F89-C1B9-4B9D-A533-F6F4B57BD277"/>
-  <class name="TrigOperationalInfo_p1"             id="765F0281-801B-4F5C-8C4C-5BE7E7DB5E42"/>
-  <class name="std::vector<TrigOperationalInfo_p1>"/>
-  <class name="std::vector<TrigOperationalInfoCollection_p1>"/>
-
-<!-- event-wise config info - to be phased out -->
-<!--
-  <class name="TrigConf::HLTAODConfigData_p1" id="60B6E7BE-1A7F-4EF4-8647-CA495CDFF03E" />
-  <class name="TrigConf::Lvl1AODConfigData_p1" id="7D4922D4-DF4E-4B06-B8EC-F6E99A995D0A" />
-  <class name="TrigConf::Lvl1AODPrescaleConfigData_p1" id="3D7625A5-B887-467D-88E9-299447BAD150" />
--->
 </lcgdict>
