@@ -268,7 +268,7 @@ namespace met {
         constits.feCont = 0;
         SG::ReadHandle<xAOD::FlowElementContainer> feCont(m_fecollKey);
         if (!feCont.isValid()) {
-          ATH_MSG_WARNING("Unable to retrieve FlowElement container");
+          ATH_MSG_ERROR("Unable to retrieve FlowElement container");
           return StatusCode::FAILURE;
         }
         constits.feCont=feCont.cptr();
@@ -322,7 +322,7 @@ namespace met {
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
       if(!m_fecollKey.key().empty()){
         if(!m_useTracks){
-          ATH_MSG_WARNING("Attempting to build FlowElement MET without a track collection.");
+          ATH_MSG_ERROR("Attempting to build FlowElement MET without a track collection.");
           return StatusCode::FAILURE;
         }
         std::map<const IParticle*, MissingETBase::Types::constvec_t> momentumOverride;
