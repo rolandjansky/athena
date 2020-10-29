@@ -30,6 +30,9 @@ find_package( AtlasCMake QUIET )
 find_package( AthenaExternals REQUIRED )
 find_package( Gaudi REQUIRED )
 
+# Additional externals needed for the build/runtime:
+find_package( PNG )
+
 # Load all the files from the externals/ subdirectory:
 file( GLOB _externals "${CMAKE_CURRENT_SOURCE_DIR}/externals/*.cmake" )
 foreach( _external ${_externals} )
@@ -42,6 +45,7 @@ foreach( _external ${_externals} )
 endforeach()
 unset( _external )
 unset( _externals )
+
 
 # Disable the usage of the --no-undefined linker flag:
 atlas_disable_no_undefined()
