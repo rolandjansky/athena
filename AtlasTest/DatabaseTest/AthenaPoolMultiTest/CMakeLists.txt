@@ -47,12 +47,6 @@ athenapoolmultitest_run_test( AthenaPoolMultiTestEventNoSplit EventNoSplit_jo
 athenapoolmultitest_run_test( AthenaPoolMultiTestPropagate DecisionPropagation_jo
                               post_check_p
                               DEPENDS AthenaPoolMultiTestEventSplitDecision )
-athenapoolmultitest_run_test( AthenaPoolMultiTestStreamSelect CheckStreamSelector_jo
-                              post_check_ss
-                              DEPENDS AthenaPoolMultiTestEventSplitDecision )
-athenapoolmultitest_run_test( AthenaPoolMultiTestPropagateSelect CheckStreamPropagate_jo
-                              post_check_ss
-                              DEPENDS AthenaPoolMultiTestPropagate )
 #athenapoolmultitest_run_test( AthenaPoolMultiTestCheckNull CheckNull_jo
 #                              post_check_cn
 #                              DEPENDS AthenaPoolMultiTestEventSplit )
