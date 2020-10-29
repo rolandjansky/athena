@@ -13,5 +13,5 @@ atlas_add_component( DerivationFrameworkInDet
                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AthenaBaseComps AthenaKernel AtlasDetDescr CommissionEvent DerivationFrameworkInterfaces ExpressionEvaluationLib FourMomUtils GaudiKernel InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetReadoutGeometry InDetTrackSelectionToolLib LArRecEvent SCT_CablingLib SCT_ConditionsToolsLib StoreGateLib TRT_ConditionsServicesLib TRT_ElectronPidToolsLib TRT_ReadoutGeometry TrigDecisionToolLib TrkCompetingRIOsOnTrack TrkEventPrimitives TrkEventUtils TrkExInterfaces TrkParameters TrkPrepRawData TrkRIO_OnTrack TrkToolInterfaces TrkTrack TrkVertexFitterInterfaces xAODBase xAODCore xAODEgamma xAODEventInfo xAODJet xAODMuon xAODTau xAODTracking )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
