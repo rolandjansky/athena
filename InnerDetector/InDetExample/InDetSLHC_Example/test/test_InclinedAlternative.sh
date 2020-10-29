@@ -177,7 +177,7 @@ if [ $dophy -ne 0 ]; then
   )
   echo "art-result: $? physval"
 
-  mv ./physval.root ./$dcubemon_rec
+  mv ./MyPhysVal.root ./$dcubemon_rec
 
   # DCube InDetPhysValMonitoring performance plots
   dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"
