@@ -44,7 +44,7 @@ namespace Trk {
    class TWRK       // collection of temporary arrays for 
    {   
     public:
-      TWRK() = default;
+      TWRK() { }; //bypass initialization
      ~TWRK() = default;//default destructor allows compiler to optimize out method in this case.
 
      public:
