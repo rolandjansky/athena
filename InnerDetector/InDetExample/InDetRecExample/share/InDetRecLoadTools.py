@@ -376,7 +376,8 @@ if InDetFlags.doPattern():
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
                                                                  PropagatorTool        = TrackingCommon.getInDetPatternPropagator(),
                                                                  UpdatorTool           = TrackingCommon.getInDetPatternUpdator(),
-                                                                 RIOonTrackTool        = TrackingCommon.getInDetRotCreatorDigital(), # #NS HERE
+                                                                 RIOonTrackTool        = TrackingCommon.getInDetRotCreatorDigital(),
+                                                                 BoundaryCheckTool     = TrackingCommon.getInDetBoundaryCheckTool(),
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),

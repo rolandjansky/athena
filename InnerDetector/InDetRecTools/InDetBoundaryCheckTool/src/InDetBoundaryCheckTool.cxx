@@ -109,27 +109,9 @@ Trk::BoundaryCheckResult InDet::InDetBoundaryCheckTool::boundaryCheckSiElement(
          * configuration parameters.
          */
         phitol = 2.5;
-        etatol = 5.0;
+        etatol = 5;
     }
 
-    /*
-     * First, we check whether the local position on the silicon element is
-     * near the bonding gap of the module, which is insensitive. For this, we
-     * can simply delegate to the SiDetectorElement::newBondGap() method.
-     *
-     * Keen-eyed readers may note that bond gaps are only relevant for SCT
-     * modules and that Pixels do not have them. Therefore, we can technically
-     * consider this a check relevant only to SCTs. However, as this logic is
-     * abstracted into the SiDetectorElement class, we will treat is as a
-     * shared property and a shared check.
-     */
-    if (siElement.nearBondGap(parameters.localPosition(), etatol)) {
-        ATH_MSG_VERBOSE(
-            "Track parameter on bond gap within " << etatol << ", so hit " <<
-            "is on an insensitive part of the element."
-        );
-        return Trk::BoundaryCheckResult::Insensitive;
-    }
 
     /*
      * Next, we determine whether the hit is in the active region of the
@@ -139,47 +121,36 @@ Trk::BoundaryCheckResult InDet::InDetBoundaryCheckTool::boundaryCheckSiElement(
     InDetDD::SiIntersect intersection = siElement.inDetector(
         parameters.localPosition(), phitol, etatol
     );
-    bool isActiveElement = intersection.in();
 
-    if (!isActiveElement) {
+    /// catch if we are on the edge of an active element
+    if (intersection.nearBoundary()){
+        
         /*
-         * In this case, we are _not_ inside the active region of the element,
-         * but we may still want to determine if the element is active at all.
-         * First though, we handle a few edge conditions that may still lead
-         * to an inactive region result.
+         * If we are around the boundary, we return a special state which 
+         * will not be counted as a hole or missing hit in the pattern,
+         * while still being recorded on the trajectory for later 
+         * refinement. 
+         */
+        ATH_MSG_VERBOSE(
+            "Track parameter on the module edge"
+        );
+        return Trk::BoundaryCheckResult::OnEdge; 
+
+    }
+
+    if (intersection.out()) {
+        /*
+         * In this case, we are _not_ inside the active region of the element.
          */
         ATH_MSG_VERBOSE(
             "Track parameter not inside (active?) detector within " <<
-            phitol << " " << etatol << ", but check for dead module anyway"
+            phitol << " " << etatol 
         );
-
-        /*
-         * Next, we check the precision of our tolerances. If the tolerances
-         * are too high, which is to say higher than the defaults of 2.5 for
-         * \phi and 5.0 for \eta, we do an adjusted intersection check with
-         * the defaults.
-         */
-        if (phitol > 2.5 || etatol > 5) {
-            /*
-             * If, after scaling back the parameters, we still don't hit the
-             * active region of the detector, we know for sure we are in an
-             * insensitive region.
-             */
-            if (!siElement.inDetector(parameters.localPosition(), 2.5, 5.).in()) {
-                ATH_MSG_VERBOSE("Parameter position too close to inactive detector; abort search for dead module");
-                return Trk::BoundaryCheckResult::Insensitive;
-            }
-        } else {
-            /*
-             * If our tolerances are sufficiently narrow, that is to say our
-             * hit is sufficiently accurate, and we don't have an intersection
-             * with the active region, we can conclude that we have hit an
-             * inactive zone.
-             */
-            ATH_MSG_VERBOSE("Parameter precise enough and too close to inactive detector; abort search for dead module");
-            return Trk::BoundaryCheckResult::Insensitive;
-        }
+        return Trk::BoundaryCheckResult::Outside;
     }
+
+    /* Now, to proceed further we need to confirm that the module is actually active 
+    */ 
 
     Identifier id = siElement.identify();
 
@@ -204,7 +175,26 @@ Trk::BoundaryCheckResult InDet::InDetBoundaryCheckTool::boundaryCheckSiElement(
      * We now have all the necessary information to make a judgement about the
      * track parameters.
      */
-    if (alive && isActiveElement) {
+    if (alive) {
+        
+        /*
+        * now, we check whether the local position on the silicon element is
+        * near the bonding gap of the module, which is insensitive. For this, we
+        * can simply delegate to the SiDetectorElement::newBondGap() method.
+        *
+        * Keen-eyed readers may note that bond gaps are only relevant for SCT
+        * modules and that Pixels do not have them. Therefore, we can technically
+        * consider this a check relevant only to SCTs. However, as this logic is
+        * abstracted into the SiDetectorElement class, we will treat is as a
+        * shared property and a shared check.
+        */
+        if (siElement.nearBondGap(parameters.localPosition(), etatol )) {
+            ATH_MSG_VERBOSE(
+                "Track parameter on bond gap within " << etatol << ", so hit " <<
+                "is on an insensitive part of the element."
+            );
+            return Trk::BoundaryCheckResult::Insensitive;
+        }
         /*
          * If the module is alive and we hit the active region on it, we know
          * we have a good hit. Note that this is the only way we can return a
@@ -212,15 +202,9 @@ Trk::BoundaryCheckResult InDet::InDetBoundaryCheckTool::boundaryCheckSiElement(
          */
         ATH_MSG_VERBOSE("Module is good, and we're hitting a sensitive part!");
         return Trk::BoundaryCheckResult::Candidate;
-    } else if (alive) {
-        /*
-         * If the module is alive, but we do not hit the sensitive part, we
-         * have another insensitive result. We've thrown a lot of those
-         * already, and this one is mostly meant to be a fall-back.
-         */
-        ATH_MSG_VERBOSE("Track is hiting the insensitive part of a good module!");
-        return Trk::BoundaryCheckResult::Insensitive;
-    } else {
+
+    } 
+    else {
         /*
          * Finally, if the module is not alive, we simply return a DeadElement
          * result.

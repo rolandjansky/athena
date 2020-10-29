@@ -27,6 +27,18 @@
 
 namespace InDet{
 
+  
+  /// Helper struct for hole search results from the pattern recognition
+  struct PatternHoleSearchOutcome{ 
+    int nPixelHoles{0}; 
+    int nSCTHoles{0}; 
+    int nSCTDoubleHoles{0}; 
+    int nPixelDeads{0}; 
+    int nSCTDeads{0}; 
+    bool passPatternHoleCut{true};
+  }; 
+
+
   class SiTrajectory_xk
     {
       friend class  SiCombinatorialTrackFinder_xk;
@@ -57,6 +69,7 @@ namespace InDet{
       const int&  naElements    ()       const {return m_nActiveElements    ;}
       const int&  difference    ()       const {return m_difference    ;}
       const int&  elementsMap(int& i) const {return m_elementsMap[i];}
+      const PatternHoleSearchOutcome&  getHoleSearchResult() const {return m_patternHoleOutcome;}
 
       void setTools(const InDet::SiTools_xk*); 
       void setParameters(); 
@@ -106,6 +119,8 @@ namespace InDet{
 
       Trk::FitQuality* convertToFitQuality();
 
+      void updateHoleSearchResult(); 
+      
       void sortStep          ();
       bool goodOrder         ();
       bool jumpThroughPerigee();
@@ -143,6 +158,7 @@ namespace InDet{
                                                             /// Each one corresponds to one detector element on
                                                             /// the search road 
       const InDet::SiTools_xk*          m_tools           ; //
+      PatternHoleSearchOutcome    m_patternHoleOutcome; 
 
       ///////////////////////////////////////////////////////////////////
       // Methods

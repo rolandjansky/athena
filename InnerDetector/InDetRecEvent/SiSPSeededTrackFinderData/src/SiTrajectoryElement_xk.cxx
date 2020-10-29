@@ -227,7 +227,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
   /// if we have no cluster on this element
   else           {
     /// check the intersection of the propagated track with this surface
-    m_inside = m_detlink->intersect(m_parametersPredForward,m_dist);
+    checkBoundaries(m_parametersPredForward); 
     /// if we have hits on this element
     if( m_detstatus >=0) {
       /// and expect to be inside the active area
@@ -295,7 +295,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
   m_clusterNoAdd =         nullptr                           ;  
   m_xi2Forward         =    10000.                           ;
   /// re-evaluate if we are expected to intersect this element based on the updated prediction
-  m_inside       = m_detlink->intersect(m_parametersPredForward,m_dist);
+  checkBoundaries(m_parametersPredForward); 
   /// copy running counts from previous element
   m_nholesForward      = TE.m_nholesForward                        ;
   m_nMissing              = TE.m_nMissing                                ;
@@ -401,7 +401,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_cluster      =         0;
   m_clusterNoAdd =         0;
   m_xi2Backward         =    10000.;
-  m_inside       = m_detlink->intersect(m_parametersPredBackward,m_dist);
+  checkBoundaries(m_parametersPredBackward); 
   m_nholesBackward      = TE.m_nholesBackward                        ;
   m_nMissing        = TE.m_nMissing                          ;
   m_nclustersBackward   = TE.m_nclustersBackward                     ; 
@@ -471,7 +471,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
   m_cluster ? m_status = 3 : m_status = 2;
 
   double Xi2max = m_xi2max; if( isTwoSpacePointsSeed) Xi2max*=2.;
-  m_inside       = m_detlink->intersect(m_parametersSM,m_dist);
+  checkBoundaries(m_parametersSM); 
   m_nlinksBackward      =         0               ;
   m_clusterOld    	    = m_cluster               ;
   m_cluster       	    =         0               ;
@@ -614,7 +614,8 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   if(Cl) {
 
     if(!addCluster(m_parametersPredBackward,m_parametersUpdatedBackward,m_xi2Backward)) return false;
-    m_inside    = -1; noiseProduction(-1,m_parametersUpdatedBackward);
+    m_inside    = -1; 
+    noiseProduction(-1,m_parametersUpdatedBackward);
     ++m_nclustersBackward; m_xi2totalBackward+=m_xi2Backward; m_ndfBackward+=m_ndf; if(m_ndf==2) ++m_npixelsBackward;
   }
   else  {
@@ -1976,4 +1977,9 @@ int InDet::SiTrajectoryElement_xk::searchClusters(Trk::PatternTrackParameters& T
   if (m_itType==PixelClusterColl) return searchClustersSub<InDet::PixelClusterCollection::const_iterator>(Tp, L);
   if (m_itType==SCT_ClusterColl) return searchClustersSub<InDet::SCT_ClusterCollection::const_iterator>(Tp, L);
   return searchClustersSub<InDet::SiClusterCollection::const_iterator>(Tp, L);
+}
+void InDet::SiTrajectoryElement_xk::checkBoundaries(const Trk::PatternTrackParameters & pars){
+
+    m_inside = m_detlink->intersect(pars, m_dist); 
+  
 }

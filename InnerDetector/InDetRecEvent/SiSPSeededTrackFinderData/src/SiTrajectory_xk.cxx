@@ -1971,3 +1971,79 @@ double  InDet::SiTrajectory_xk::pTfirst ()
     return m_elements[m_elementsMap[m_firstElement]].parametersUB().pT();
   */
 }
+
+/// Helper method to determine the hole search outcome for use in the later reco
+void InDet::SiTrajectory_xk::updateHoleSearchResult(){
+
+  /// instantiate an outcome object to populate
+  m_patternHoleOutcome = InDet::PatternHoleSearchOutcome{0,0,0,0,0,true}; 
+
+  /// counter to find subsequent SCT holes 
+  bool prevIsSctHole = false;
+
+  /// loop between the first and last hit on the trajectory
+  
+  for (int theEle  = m_firstElement+1; theEle<m_lastElement; ++theEle) {
+    /// Now get the current element
+    int m = m_elementsMap[theEle];
+    InDet::SiTrajectoryElement_xk & theElement = m_elements[m]; 
+    /// check if this is a pixel element
+    bool isPix = theElement.ndf() == 2; 
+    bool isSCTHole=false;
+
+    /// if we have a cluster on-track, this is neither a hole nor a dead
+    /// Same goes for outliers
+    if (theElement.cluster() || theElement.clusterNoAdd()) {
+      prevIsSctHole = false; 
+      continue;
+    } 
+    
+    /// otherwise, need to check more carefully: 
+    else {
+      std::unique_ptr<const Trk::TrackParameters> pars {theElement.trackParameters(true,0)}; 
+      Trk::BoundaryCheckResult boundaryStatus = m_tools->boundaryCheckTool()->boundaryCheck(*pars); 
+      switch (boundaryStatus){
+        /// if this is a candidate (we expect a hit and we are not on a dead sensor) 
+        case Trk::BoundaryCheckResult::Candidate: 
+          /// in this case, we have a hole. 
+          if (isPix) {
+            ++m_patternHoleOutcome.nPixelHoles; 
+          }
+          else {
+            ++m_patternHoleOutcome.nSCTHoles;
+            isSCTHole=true; 
+          } /// end of SCT case
+          break; 
+        /// in all other cases, apart from dead, nothing to be incremented
+        case Trk::BoundaryCheckResult::Insensitive: /// fallthrough
+        case Trk::BoundaryCheckResult::OnEdge:      /// fallthrough
+        case Trk::BoundaryCheckResult::Outside:     /// fallthrough
+        case Trk::BoundaryCheckResult::Error:       /// fallthrough
+          /// in all of these cases, we have to reset the double holes
+          break; 
+        /// if we encounter a dead element, increment the appropriate counters
+        case Trk::BoundaryCheckResult::DeadElement:
+          if (isPix){
+            ++m_patternHoleOutcome.nPixelDeads;
+          }
+          else{
+            ++m_patternHoleOutcome.nSCTDeads;
+          }
+          break; 
+      } /// end switch over boundary check result
+    } /// end no-cluster case 
+
+    /// if the previous element was also an SCT hole, 
+    /// we now have a double hole
+    if (isSCTHole && prevIsSctHole){
+      prevIsSctHole = false; 
+      ++m_patternHoleOutcome.nSCTDoubleHoles; 
+    }
+    else {
+      prevIsSctHole = isSCTHole; 
+    }
+  } /// end loop over elements
+  if (m_patternHoleOutcome.nPixelHoles+m_patternHoleOutcome.nSCTHoles > m_tools->maxholes() || m_patternHoleOutcome.nSCTDoubleHoles > m_tools->maxdholes()){
+     m_patternHoleOutcome.passPatternHoleCut = false;
+  }
+}
