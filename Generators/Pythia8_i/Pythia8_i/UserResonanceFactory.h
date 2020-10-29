@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATOR_PYTHIA8_USER_RESONANCE_FACTORY_H
 #define GENERATOR_PYTHIA8_USER_RESONANCE_FACTORY_H
 
 #include "Pythia8/ResonanceWidths.h"
+#include "Pythia8/Pythia.h"
 
 #include <string>
 
