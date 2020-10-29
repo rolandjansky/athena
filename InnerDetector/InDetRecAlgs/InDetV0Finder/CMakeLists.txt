@@ -1,27 +1,7 @@
-################################################################################
-# Package: InDetV0Finder
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetV0Finder )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthContainers
-                          Control/CxxUtils
-                          GaudiKernel
-                          InnerDetector/InDetRecTools/InDetConversionFinderTools
-                          Reconstruction/RecoTools/ITrackToVertex
-                          InnerDetector/InDetConditions/BeamSpotConditionsData
-                          PRIVATE
-                          Event/xAOD/xAODTracking
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkVertexFitter/TrkV0Fitter
-                          Tracking/TrkVertexFitter/TrkVKalVrtFitter
-                          Tracking/TrkVertexFitter/TrkVertexAnalysisUtils
-                          Tracking/TrkVertexFitter/TrkVertexFitterInterfaces )
 
 # External dependencies:
 find_package( CLHEP )
@@ -31,11 +11,10 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( InDetV0FinderLib
                    src/*.cxx
                    PUBLIC_HEADERS InDetV0Finder
-                   INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthContainers GaudiKernel InDetConversionFinderToolsLib ITrackToVertex xAODTracking TrkExInterfaces TrkToolInterfaces TrkV0FitterLib TrkVKalVrtFitterLib TrkVertexAnalysisUtilsLib TrkVertexFitterInterfaces BeamSpotConditionsData )
+                   PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                   LINK_LIBRARIES AthContainers AthenaBaseComps BeamSpotConditionsData GaudiKernel StoreGateLib xAODTracking
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ITrackToVertex InDetConversionFinderToolsLib TrkExInterfaces TrkToolInterfaces TrkV0FitterLib TrkVKalVrtFitterLib TrkVertexAnalysisUtilsLib TrkVertexFitterInterfaces )
 
 atlas_add_component( InDetV0Finder
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthContainers GaudiKernel InDetConversionFinderToolsLib ITrackToVertex xAODTracking TrkExInterfaces TrkToolInterfaces TrkV0FitterLib TrkVKalVrtFitterLib TrkVertexAnalysisUtilsLib TrkVertexFitterInterfaces InDetV0FinderLib)
-
+                     LINK_LIBRARIES InDetV0FinderLib )
