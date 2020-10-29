@@ -159,7 +159,8 @@ except Exception:
 include( "McParticleAlgs/TruthParticleBuilder_jobOptions.py" )
 
 from TrackToCalo.CaloExtensionBuilderAlgConfig import CaloExtensionBuilder
-CaloExtensionBuilder() 
+#False tells it we don't want to extend Large Radius Tracks, only default InDetTrackParticles.
+CaloExtensionBuilder(False) 
 
 from egammaRec.egammaRecFlags import jobproperties
 
