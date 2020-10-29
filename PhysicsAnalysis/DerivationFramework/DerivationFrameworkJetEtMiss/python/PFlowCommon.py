@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from AthenaCommon import CfgMgr
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 
 def applyPFOAugmentation(sequence=DerivationFrameworkJob):
 
@@ -26,7 +25,7 @@ def applyPFOAugmentation(sequence=DerivationFrameworkJob):
             pfoaugtool = CfgMgr.DerivationFramework__PFlowAugmentationTool("PFlowAugmentationTool",
                                                                            WeightPFOTool=weightpfotool)
             ToolSvc += pfoaugtool
-        if not pfoaugtool in pfaug.AugmentationTools:
+        if pfoaugtool not in pfaug.AugmentationTools:
             pfaug.AugmentationTools.append(pfoaugtool)        
 
 ##################################################################

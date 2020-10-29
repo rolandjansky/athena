@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 # Set up custom MET reconstruction algorithms
 from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METRecoConfig import BuildConfig, RefConfig, METConfig, getMETRecoAlg
