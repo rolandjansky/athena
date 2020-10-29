@@ -38,6 +38,7 @@
 #include <cmath>
 #include <tuple>
 
+
 namespace DeepsetXbbTagger {
 
 // internal class to filter tracks in jet and return an std::vector of tracks
@@ -68,12 +69,13 @@ namespace DeepsetXbbTagger {
                     const std::map<std::string, double>& offsets);
     typedef std::map<std::string, std::map<std::string, double> > VMap;
     typedef std::map<std::string, std::map<std::string, std::vector<double>> > VSMap;
-    std::tuple<VMap,VSMap> get_map(const xAOD::Jet&,  const xAOD::VertexContainer*, const xAOD::Vertex*) const;
+    std::tuple<VMap,VSMap> get_map(const xAOD::Jet&,  const xAOD::VertexContainer*, const xAOD::Vertex*, const std::string& negativeTagMode) const;
     size_t n_subjets(const xAOD::Jet&) const;
   private:
     typedef std::vector<ElementLink<xAOD::IParticleContainer> > ParticleLinks;
     SG::AuxElement::ConstAccessor<ParticleLinks> m_acc_subjets;
     double m_subjet_pt_threshold;
+    float m_sv_fliptag_mass_offset;
     std::string m_node_name;
     std::string m_tracks_node_name;
     std::string m_secvtx_node_name;
@@ -140,23 +142,21 @@ namespace {
 
 
 DexterTool::DexterTool( const std::string& name ) :
-  asg::AsgTool(name),
-  m_neuralNetworkFile(""),
-  m_configurationFile(NN_CONFIG),
+  JSSTaggerBase(name),
+  m_negativeTagMode(""),
   m_secvtx_collection_name(SECVTX_NAME),
   m_lwnn(nullptr),
   m_input_builder(nullptr),
-  m_tag_threshold(1000000000.),  
   m_output_value_names(),
   m_decoration_names(),
   m_decorators(),
   m_offsets()
 {
-  declareProperty( "neuralNetworkFile",   m_neuralNetworkFile);
-  declareProperty( "configurationFile",   m_configurationFile);
   declareProperty( "secvtxCollection",   m_secvtx_collection_name);
-  declareProperty( "tagThreshold", m_tag_threshold);  
+  declareProperty( "JetEtaMax",  m_jetEtaMax = 2.0, "Eta cut to define fiducial phase space for the tagger");
   declareProperty( "decorationNames", m_decoration_names);
+  declareProperty( "negativeTagMode", m_negativeTagMode);
+  
 }
 
 DexterTool::~DexterTool() {}
@@ -168,9 +168,23 @@ StatusCode DexterTool::initialize(){
   // Initialize the DNN tagger tool
   ATH_MSG_INFO("Initializing Dexter tool");
 
+  // check if run in negative-tag
+  // TrksFlip: Reverse the sign of track IP
+  // NegTrksFlip: Reverse the sign of track IP and ONLY use  tracks with negative d0
+  // SVMass: Reflect the log secvtx mass across the light-jet log secvtx mass peak as axis  
+  if(!m_negativeTagMode.empty()) {
+    if(m_negativeTagMode == "TrksFlip" || m_negativeTagMode == "SVMassTrksFlip" || m_negativeTagMode == "NegTrksFlip" || m_negativeTagMode == "SVMassNegTrksFlip") {
+      ATH_MSG_INFO("Dexter tool run in Negative-tag mode: " + m_negativeTagMode);
+    }
+    else {
+      ATH_MSG_ERROR(m_negativeTagMode + " is NOT a valid Dexter Negative-tag mode!! Supported modes: TrksFlip / SVMassTrksFlip / NegTrksFlip / SVMassNegTrksFlip");
+      return StatusCode::FAILURE;
+    }
+  }
+
   // read json file for DNN weights
-  ATH_MSG_INFO("Using NN file: "+ m_neuralNetworkFile);
-  std::string nn_path = PathResolverFindCalibFile(m_neuralNetworkFile);
+  ATH_MSG_INFO("Using NN file: "+ m_kerasConfigFileName);
+  std::string nn_path = PathResolverFindCalibFile(m_kerasConfigFileName);
   ATH_MSG_INFO("NN file resolved to: " + nn_path);
   lwt::GraphConfig config;
   try {
@@ -219,11 +233,18 @@ StatusCode DexterTool::initialize(){
   }
 
   // setup the input builder
-  ATH_MSG_INFO( "Using config file: "<< m_configurationFile );
-  std::string config_file = PathResolverFindDataFile(m_configurationFile);
+  ATH_MSG_INFO( "Using config file: "<< m_configFile );
+  std::string config_file = PathResolverFindDataFile(m_configFile);
   ATH_MSG_INFO( "Config file resolved to: "<< config_file );
   try {
     m_input_builder.reset(new DexterInputBuilder(config_file, m_offsets));
+
+    // get min jet pt. 
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json(config_file, pt);
+    ATH_MSG_DEBUG("Dexter valide jet pT range:");
+    m_jetPtMin = pt.get<float>("pTCutLow");
+    
   } catch (boost::property_tree::ptree_error& err) {
     ATH_MSG_ERROR("Config file is garbage: " << err.what());
     return StatusCode::FAILURE;
@@ -237,8 +258,8 @@ StatusCode DexterTool::initialize(){
     ATH_MSG_INFO("Output names set in tool setup");
   } else {
     boost::property_tree::ptree pt;
-    boost::property_tree::read_json(config_file, pt);
-    if (pt.count("outputs") > 0) {
+    boost::property_tree::read_json(config_file, pt);    
+    if (pt.count("outputs") > 0) {  
       for (const auto& pair: pt.get_child("outputs.decoration_map") ) {
         m_decoration_names[pair.first] = pair.second.data();
       }
@@ -292,7 +313,7 @@ std::map<std::string, double> DexterTool::getScores(const xAOD::Jet& jet)
     ATH_MSG_WARNING("Unable to retrieve primary vertex container PrimaryVertices");
   }
 
-  std::tie(inputs, input_sequences) = m_input_builder->get_map(jet, secvtxs, priVertex);
+  std::tie(inputs, input_sequences) = m_input_builder->get_map(jet, secvtxs, priVertex, m_negativeTagMode);
 
   if (msgLvl(MSG::VERBOSE)) {
     ATH_MSG_VERBOSE("Dexter inputs:");
@@ -311,8 +332,30 @@ std::map<std::string, double> DexterTool::getScores(const xAOD::Jet& jet)
   return nn_output;
 }
 
-int DexterTool::keep(const xAOD::Jet& jet) const {
-  return getScore(jet) > m_tag_threshold;
+Root::TAccept& DexterTool::tag(const xAOD::Jet& jet) const{
+
+  ATH_MSG_DEBUG( ": Obtaining Dexter result" );
+
+  //clear all accept values
+  m_accept.clear();
+
+  // set the jet validity bits to 1 by default
+  m_accept.setCutResult( "ValidPtRangeLow" , true);  
+  m_accept.setCutResult( "ValidEtaRange"   , true);
+
+  // check basic kinematic selection
+  if (std::abs(jet.eta()) > m_jetEtaMax) {
+    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
+    m_accept.setCutResult("ValidEtaRange", false);
+  }
+  if (jet.pt() < m_jetPtMin) {
+    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin/1000.0 << "). Jet pT = " << jet.pt()/1000.0);
+    m_accept.setCutResult("ValidPtRangeLow", false);
+  }
+
+  // return the TAccept object that you created and filled
+  return m_accept;
+
 }
 
 double DexterTool::getScore(const xAOD::Jet& jet) const {
@@ -399,6 +442,7 @@ namespace DeepsetXbbTagger {
 
     auto sjets = pt.get<std::string>("subjet.collection");
     m_subjet_pt_threshold = pt.get<double>("subjet.pt_threshold");
+    m_sv_fliptag_mass_offset = pt.get<float>("sexctx.fliptag_mass_offset");
     m_acc_subjets = SG::AuxElement::ConstAccessor<ParticleLinks>(sjets);
 
     m_tracks_node_name = pt.get<std::string>("track.node_name");
@@ -494,7 +538,7 @@ namespace DeepsetXbbTagger {
   }
 
   std::tuple<DexterInputBuilder::VMap, DexterInputBuilder::VSMap> DexterInputBuilder::get_map(
-    const xAOD::Jet& jet,  const xAOD::VertexContainer* secvtxs, const xAOD::Vertex* priVertex) const {
+    const xAOD::Jet& jet,  const xAOD::VertexContainer* secvtxs, const xAOD::Vertex* priVertex, const std::string& negativeTagMode) const {
 
     // inputs dict
     std::map<std::string, std::map<std::string, double> > node_input;
@@ -548,12 +592,19 @@ namespace DeepsetXbbTagger {
     };
     std::sort(tracks.begin(), tracks.end(), signed_d0_sort);
 
+    static SG::AuxElement::ConstAccessor<float> d0("IP3D_signed_d0");
+
     size_t max_trk = (m_max_tracks < tracks.size()) ? m_max_tracks: tracks.size();
     for (const auto& pair: m_acc_track_doubles) {
       std::vector<double> track_input;
       for (size_t trk_n = 0; trk_n < max_trk; trk_n++) {
         const xAOD::TrackParticle* trk = tracks.at(trk_n);
-        track_input.push_back(pair.second(*trk));
+        // For negative-tag
+        if(!negativeTagMode.empty()) {
+          if(negativeTagMode.find("NegTrksFlip") != std::string::npos && d0(*trk) > 0 ) continue;
+          track_input.push_back(pair.second(*trk));
+        }
+        else  track_input.push_back(pair.second(*trk));
       }
       tracks_input_sequences[pair.first] = track_input;
     }
@@ -561,7 +612,16 @@ namespace DeepsetXbbTagger {
       std::vector<double> track_input;
       for (size_t trk_n = 0; trk_n < max_trk; trk_n++) {
         const xAOD::TrackParticle* trk = tracks.at(trk_n);
-        track_input.push_back(pair.second(*trk));
+        // For negative-tag
+        if(!negativeTagMode.empty()) {
+          if(negativeTagMode.find("NegTrksFlip") != std::string::npos && d0(*trk) > 0 ) continue;
+          if(negativeTagMode.find("TrksFlip") != std::string::npos && pair.first.find("IP3D_signed") != std::string::npos) {
+            track_input.push_back( (-1) * pair.second(*trk));
+          }
+          else track_input.push_back(pair.second(*trk));
+        }
+        // For nominal Dexter
+        else track_input.push_back(pair.second(*trk));
       }
       tracks_input_sequences[pair.first] = track_input;
     }
@@ -569,7 +629,12 @@ namespace DeepsetXbbTagger {
       std::vector<double> track_input;
       for (size_t trk_n = 0; trk_n < max_trk; trk_n++) {
         const xAOD::TrackParticle* trk = tracks.at(trk_n);
-        track_input.push_back(pair.second(*trk));
+        // For negative-tag
+        if(!negativeTagMode.empty()) {
+          if(negativeTagMode.find("NegTrksFlip") != std::string::npos && d0(*trk) > 0 ) continue;
+          track_input.push_back(pair.second(*trk));
+        }
+        else  track_input.push_back(pair.second(*trk));
       }
       tracks_input_sequences[pair.first] = track_input;
     }
@@ -612,7 +677,14 @@ namespace DeepsetXbbTagger {
       std::vector<double> secvtx_input;
       for (size_t vt_n = 0; vt_n < max_secvtx; vt_n++) {
         const xAOD::Vertex* vtx = msvtx.at(vt_n);
-        secvtx_input.push_back(pair.second(*vtx));
+        // For negative-tag
+        if(!negativeTagMode.empty()) {
+          if(negativeTagMode.find("SVMass") != std::string::npos && pair.first.find("secvtx_log_mass") != std::string::npos ) {
+            secvtx_input.push_back( (-1) * pair.second(*vtx) + m_sv_fliptag_mass_offset );
+          }
+          else secvtx_input.push_back(pair.second(*vtx));
+        }
+        else secvtx_input.push_back(pair.second(*vtx));
       }
       secvtx_input_sequences[pair.first] = secvtx_input;
     }

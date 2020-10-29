@@ -18,6 +18,7 @@
 #ifndef BOOSTEDJETSTAGGERS_DeepsetXbbTagger_H_
 #define BOOSTEDJETSTAGGERS_DeepsetXbbTagger_H_
 
+#include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetSelector.h"
 
@@ -53,19 +54,18 @@ namespace DeepsetXbbTagger {
      */
 
 
-class DexterTool :   public asg::AsgTool ,
-                       virtual public IJetSelector
-{
-  ASG_TOOL_CLASS1(DexterTool, IJetSelector )
+class DexterTool :   public JSSTaggerBase {
+  ASG_TOOL_CLASS0(DexterTool)
+
 public:
+
   DexterTool(const std::string &name);
   ~DexterTool();
+  
   virtual StatusCode initialize() override final;
 
-  /** keep method is inherited from IJetSelector, it returns 0 if the
-      jet doesn't pass. The threshold is set via the tagThreshold
-       property. */
-  virtual int keep(const xAOD::Jet& jet) const override;
+  /** IJSSTagger interface */
+  virtual Root::TAccept& tag(const xAOD::Jet& jet) const override final;
 
   /** get the tagger output (only defined for single output networks) */
   double getScore(const xAOD::Jet& jet) const;
@@ -94,9 +94,8 @@ public:
   xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer*) const;
 
 protected:
-  /** the location where CVMFS files live */
-  std::string m_neuralNetworkFile;
-  std::string m_configurationFile;
+  /** negative-tag mode */
+  std::string m_negativeTagMode;
 
   /** secvtx collection name */
   std::string m_secvtx_collection_name;
@@ -104,10 +103,6 @@ protected:
   /** neural network and feeder class */
   std::unique_ptr<lwt::LightweightGraph> m_lwnn;
   std::unique_ptr<DeepsetXbbTagger::DexterInputBuilder> m_input_builder;
-
-  /** threshold to cut on for keep() 
-      default 1000000000 - but the user must set this to use the tool sensibly */
-  double m_tag_threshold;
 
   /** internal stuff to keep track of the output node for the NN  */
   std::vector<std::string> m_output_value_names;

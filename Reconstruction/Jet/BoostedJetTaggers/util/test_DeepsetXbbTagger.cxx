@@ -6,6 +6,7 @@
 #include <memory>
 #include <cstdlib>
 #include <string>
+#include <cmath>
 
 // ROOT include(s):
 #include <TFile.h>
@@ -133,12 +134,15 @@ int main( int argc, char* argv[] ) {
   // Fill a validation true with the tag return value
   std::unique_ptr<TFile> outputFile(TFile::Open( "output_Dexter.root", "recreate" ));
   int pass;
-  float dexter_pbb, dexter_pb, dexter_pl;
+  float dexter_pbb, dexter_pb, dexter_pl, dexter_Dbb;
   TTree* Tree = new TTree( "tree", "test_tree" );
   Tree->Branch( "pass", &pass, "pass/I" );
-  Tree->Branch( "dexter_pbb", &dexter_pbb, "dexter_pb/F" );
+  Tree->Branch( "dexter_pbb", &dexter_pbb, "dexter_pbb/F" );
   Tree->Branch( "dexter_pb", &dexter_pb, "dexter_pb/F" );
-  Tree->Branch( "dexter_pl", &dexter_pl, "dexter_pb/F" );
+  Tree->Branch( "dexter_pl", &dexter_pl, "dexter_pl/F" );
+  Tree->Branch( "dexter_Dbb", &dexter_Dbb, "dexter_Dbb/F" );
+  // free parameters b-jet fraction 
+  float f_b = 0.4; 
 
   ////////////////////////////////////////////
   /////////// START TOOL SPECIFIC ////////////
@@ -152,10 +156,10 @@ int main( int argc, char* argv[] ) {
   std::cout<<"Initializing DexterTool"<<std::endl;
   asg::AnaToolHandle<DexterTool> m_Tagger; //!
   m_Tagger.setTypeAndName("DexterTool","DexterTool");
-
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::VERBOSE);
-  m_Tagger.setProperty( "neuralNetworkFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
-  m_Tagger.setProperty( "tagThreshold", 0.5);
+  m_Tagger.setProperty( "KerasConfigFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
+  m_Tagger.setProperty( "ConfigFile" ,"BoostedJetTaggers/DeepsetXbbTagger/test_config.json");
+  m_Tagger.setProperty( "negativeTagMode", "SVMassNegTrksFlip");  
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
     return 1;
@@ -195,12 +199,14 @@ int main( int argc, char* argv[] ) {
           std::cout << "BB Score: " << scores.at("dexter_pbb") << std::endl;
           std::cout << "B Score: " << scores.at("dexter_pb") << std::endl;
           std::cout << "Light Score: " << scores.at("dexter_pl") << std::endl;
+          std::cout << "Dbb Score: " << log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) ) << std::endl;
         }
-        bool res = m_Tagger->keep( *jet );
+        const Root::TAccept& res = m_Tagger->tag( *jet );
         pass = res;
         dexter_pbb = scores.at("dexter_pbb");
         dexter_pb = scores.at("dexter_pb");
         dexter_pl = scores.at("dexter_pl");
+        dexter_Dbb = log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) );
         Tree->Fill();
       }
     }
