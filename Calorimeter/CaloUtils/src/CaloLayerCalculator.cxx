@@ -62,7 +62,7 @@ CaloLayerCalculator::fill (const CaloDetDescrManager& mgr,
     }
   }
 
-  CaloCellList cell_list(cell_container); 
+  CaloCellList cell_list(cell_container);
   cell_list.select(mgr,eta,phi,deta,dphi,sampling);
 
   fill (cell_list.begin(),
@@ -143,18 +143,13 @@ void CaloLayerCalculator::resetOnNegativeEnergy(double eta, double phi)
 
   m_etas   = 0;
   m_phis   = 0;
-  //m_em     = 0;    
+  //m_em     = 0;
   m_emax   = 0;
 
   // Added to cluster in the calorimeter frame
-  m_etamr  = eta; 
-  m_phimr  = phi; 
+  m_etamr  = eta;
+  m_phimr  = phi;
 }
-
-
-
-/// Phi-wrapping helper.
-const CaloPhiRange CaloLayerCalculator::Helper::s_range;
 
 
 /**
@@ -220,7 +215,7 @@ CaloLayerCalculator::Helper::cell (const CaloCell* cell, double weight)
     double dphic = CaloPhiRange::diff (phic, m_phi);
     double dphir = CaloPhiRange::diff (phir, m_phi);
 
-    // The conditions are applied in the calorimeter frame, the biggest difference w.r.t. before... 
+    // The conditions are applied in the calorimeter frame, the biggest difference w.r.t. before...
     if (etar >= m_eta-m_deta/2. && etar <= m_eta+m_deta/2.) {
       if (dphir >= -m_dphi/2. && dphir <= m_dphi/2.) {
 
@@ -281,7 +276,7 @@ CaloLayerCalculator::Helper::~Helper()
     m_calc.m_phim = CaloPhiRange::fix (s1 + m_phi);
     m_calc.m_phis = m_s02/m_s00 - s1*s1;
 
-    
+
     m_calc.m_etam = m_s10/m_s00;
     m_calc.m_etas = m_s20/m_s00 - m_calc.m_etam*m_calc.m_etam;
 
@@ -302,14 +297,14 @@ CaloLayerCalculator::Helper::~Helper()
   else {
     //reset();//replaced by:
     m_calc.resetOnNegativeEnergy(m_eta,m_phi);
-      
-    //energy of a sampling CAN be negative (especially PS and back) 
+
+    //energy of a sampling CAN be negative (especially PS and back)
     //when there is the (gaussian) noise
-    //TEMPORARY SOLUTION ( energy negative is not reset to 0 anymore, 
+    //TEMPORARY SOLUTION ( energy negative is not reset to 0 anymore,
     //but m_etam, m_phim, m_etas, m_phis are still null !! )
-    // =>  << TO BE REDONE >>   
+    // =>  << TO BE REDONE >>
   }
-  
+
   if (m_calc.m_etas > 0.) m_calc.m_etas = sqrt(m_calc.m_etas);
   if (m_calc.m_phis > 0.) m_calc.m_phis = sqrt (m_calc.m_phis);
 }

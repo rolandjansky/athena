@@ -11,13 +11,6 @@
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 
-const CaloPhiRange CaloCellDetPos::s_range;
-
-CaloCellDetPos::CaloCellDetPos()
-{}
-
-CaloCellDetPos::~CaloCellDetPos()
-{}
 bool CaloCellDetPos::getDetPosition(const CaloDetDescrManager& mgr,
                                     CaloCell_ID::CaloSample sam,
                                     double etaAtlas, double phiAtlas,
