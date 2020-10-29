@@ -86,6 +86,7 @@ createEProbabilityMap(std::map<std::string, std::pair<Trk::eProbabilityType, boo
   // added as decorations
   eprob_map.insert(std::make_pair("eProbabilityToT", std::make_pair(Trk::eProbabilityToT, true)));
   eprob_map.insert(std::make_pair("eProbabilityBrem", std::make_pair(Trk::eProbabilityBrem, true)));
+  eprob_map.insert(std::make_pair("eProbabilityNN", std::make_pair(Trk::eProbabilityNN, true)));
   eprob_map.insert(std::make_pair("TRTTrackOccupancy", std::make_pair(Trk::numberOfeProbabilityTypes, true)));
   eprob_map.insert(std::make_pair(
     "TRTdEdx", std::make_pair(static_cast<Trk::eProbabilityType>(Trk::numberOfeProbabilityTypes + 1), true)));
@@ -106,7 +107,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
   , m_detID(nullptr)
   , m_pixelID(nullptr)
   , m_IBLParameterSvc("IBLParameterSvc", n)
-  , m_copyExtraSummaryName{ "eProbabilityComb", "eProbabilityHT", "TRTTrackOccupancy", "TRTdEdx", "TRTdEdxUsedHits" }
+  , m_copyExtraSummaryName{ "eProbabilityComb", "eProbabilityHT", "eProbabilityNN", "TRTTrackOccupancy", "TRTdEdx", "TRTdEdxUsedHits" }
   , m_copyEProbabilities{}
   , m_decorateEProbabilities{}
   , m_decorateSummaryTypes{}

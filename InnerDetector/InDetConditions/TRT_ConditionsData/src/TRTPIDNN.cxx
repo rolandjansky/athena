@@ -19,7 +19,7 @@
 double InDet::TRTPIDNN::evaluate(std::map<std::string, std::map<std::string, double>>& scalarInputs,
         std::map<std::string, std::map<std::string, std::vector<double>>>& vectorInputs) const {
   const auto result = m_nn->compute(scalarInputs, vectorInputs);
-  return result.at(m_outputNode);
+  return result.at("e_prob_0");
 }
 
 StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
