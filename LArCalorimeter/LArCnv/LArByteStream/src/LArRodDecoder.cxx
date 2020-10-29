@@ -57,9 +57,7 @@ LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,
     m_rodPhysicsV3(0),
     m_rodPhysicsV4(0),
     m_rodPhysicsV5(0),
-    m_rodPhysicsV6(0),
-    m_robFrag(0),
-    m_error(0)
+    m_rodPhysicsV6(0)
  {
   declareInterface< LArRodDecoder  >( this );
   declareProperty("IgnoreCheckFEBs",m_IgnoreCheckFEBs);
@@ -80,7 +78,6 @@ LArRodDecoder::LArRodDecoder ( const std::string& type, const std::string& name,
   declareProperty("CheckSum", m_CheckSum=false);
   declareProperty("StatusMask", m_StatusMask=0x00000212);
   declareProperty("RequiredPhysicsNSamples", m_requiredPhysicsNSamples = 0);
-  m_robFrag=NULL;
 }
 
 // destructor 
@@ -313,14 +310,15 @@ StatusCode LArRodDecoder::finalize()
 }
 
 
-void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArDigitContainer& coll, CaloGain::CaloGain RequestedGain) //const
+void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                   const uint32_t* p, uint32_t n, LArDigitContainer& coll, CaloGain::CaloGain RequestedGain) const
 { // Digit pointer
   LArDigit * dg=0 ;
   CaloGain::CaloGain calogain;
   uint32_t gain;
   int fcNb;
   std::vector<short> samples;
-  LArRodBlockStructure* BlStruct=prepareBlockStructure(p, n, RequestedGain);
+  LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
 
 
@@ -416,7 +414,8 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArDigitContai
 //*******
 
 
-void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelContainer& coll, CaloGain::CaloGain RequestedGain) 
+void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                   const uint32_t* p, uint32_t n, LArRawChannelContainer& coll, CaloGain::CaloGain RequestedGain) const
 { 
   int32_t energy;
   int32_t time;
@@ -424,7 +423,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelC
   uint32_t gain;
   int fcNb;
   HWIdentifier cId;
-  LArRodBlockStructure* BlStruct=prepareBlockStructure(p, n, RequestedGain);
+  LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
 
   //std::cout << "Decoding LArRawChannels from ROD size=0x" << std::hex << n << std::endl;
@@ -514,7 +513,11 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArRawChannelC
 }
 
 
-void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitContainer& coll, CaloGain::CaloGain RequestedGain)
+void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                   const uint32_t* p,
+                                   uint32_t n,
+                                   LArCalibDigitContainer& coll,
+                                   CaloGain::CaloGain RequestedGain)
 { // CalibDigit pointer
   LArCalibDigit * dg=0 ;
   uint32_t gain;
@@ -528,7 +531,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
   //  std::cout << " -     " << std::hex << p[i] << std::endl;
 
   ATH_MSG_VERBOSE("FillCollection for LArCalibDigitContainer is called.");
-  LArRodBlockStructure* BlStruct=prepareBlockStructure(p, n, RequestedGain);
+  LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   //  std::cout << "Done with LArRodBlock prepare" << std::endl;
   if (!BlStruct) return;
   // std::cout << " canSetCalibration() " << BlStruct->canSetCalibration() << std::endl;
@@ -721,7 +724,11 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitC
   return;
 }
 
-void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulatedCalibDigitContainer& coll, CaloGain::CaloGain RequestedGain) //const
+void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                   const uint32_t* p,
+                                   uint32_t n,
+                                   LArAccumulatedCalibDigitContainer& coll,
+                                   CaloGain::CaloGain RequestedGain)
 { // Accumulated Digit pointer
   LArAccumulatedCalibDigit * dg=0 ;
   CaloGain::CaloGain calogain;
@@ -738,7 +745,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
   //  for(int i=0;i<16;i++)
   //  std::cout << " -     " << std::hex << p[i] << std::endl;
 
-  LArRodBlockStructure* BlStruct=prepareBlockStructure(p, n, RequestedGain);
+  LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
   do
     {
@@ -846,7 +853,8 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
   return;
 }
 
-void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulatedDigitContainer& coll, CaloGain::CaloGain RequestedGain) //const
+void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                   const uint32_t* p, uint32_t n, LArAccumulatedDigitContainer& coll, CaloGain::CaloGain RequestedGain) const
 { // Accumulated Digit pointer
   LArAccumulatedDigit * dg=0 ;
   CaloGain::CaloGain calogain;
@@ -859,7 +867,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
   //  for(int i=0;i<16;i++)
   //  std::cout << " -     " << std::hex << p[i] << std::endl;
 
-  LArRodBlockStructure* BlStruct=prepareBlockStructure(p, n, RequestedGain);
+  LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
   do
     {
@@ -939,7 +947,8 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArAccumulated
   return;
 }
 
-void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArFebHeaderContainer& coll,const CaloGain::CaloGain RequestedGain)
+void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                   const uint32_t* p, uint32_t n, LArFebHeaderContainer& coll,const CaloGain::CaloGain RequestedGain) const
 {
   LArFebHeader* larFebHeader;
   //uint32_t NWtot=0;
@@ -948,7 +957,7 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArFebHeaderCo
   //  for(int i=0;i<16;i++)
   //  std::cout << " -     " << std::hex << p[i] << std::endl;
 
-  LArRodBlockStructure* BlStruct=prepareBlockStructure(p, n, RequestedGain);
+  LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
 
   do{
@@ -987,13 +996,13 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArFebHeaderCo
     larFebHeader=new LArFebHeader(FEBID);
     //setROD header data
     
-    larFebHeader->SetFormatVersion(m_robFrag->rod_version());
-    larFebHeader->SetSourceId(m_robFrag->rod_source_id());
-    larFebHeader->SetRunNumber(m_robFrag->rod_run_no());
-    larFebHeader->SetELVL1Id(m_robFrag->rod_lvl1_id());
-    larFebHeader->SetBCId(m_robFrag->rod_bc_id());
-    larFebHeader->SetLVL1TigType(m_robFrag->rod_lvl1_trigger_type());
-    larFebHeader->SetDetEventType(m_robFrag->rod_detev_type());
+    larFebHeader->SetFormatVersion(robFrag.rod_version());
+    larFebHeader->SetSourceId(robFrag.rod_source_id());
+    larFebHeader->SetRunNumber(robFrag.rod_run_no());
+    larFebHeader->SetELVL1Id(robFrag.rod_lvl1_id());
+    larFebHeader->SetBCId(robFrag.rod_bc_id());
+    larFebHeader->SetLVL1TigType(robFrag.rod_lvl1_trigger_type());
+    larFebHeader->SetDetEventType(robFrag.rod_detev_type());
   
     //set DSP data
     const unsigned nsample=BlStruct->getNumberOfSamples();
@@ -1010,8 +1019,8 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArFebHeaderCo
     larFebHeader->SetOfflineChecksum(BlStruct->offlineCheckSum());
 
     if(!BlStruct->hasControlWords()) {
-      larFebHeader->SetFebELVL1Id(m_robFrag->rod_lvl1_id());
-      larFebHeader->SetFebBCId(m_robFrag->rod_bc_id());
+      larFebHeader->SetFebELVL1Id(robFrag.rod_lvl1_id());
+      larFebHeader->SetFebBCId(robFrag.rod_bc_id());
     } else {
       const uint16_t evtid = BlStruct->getCtrl1(0) & 0x1f;
       const uint16_t bcid  = BlStruct->getCtrl2(0) & 0x1fff;
@@ -1034,7 +1043,9 @@ void LArRodDecoder::fillCollection(const uint32_t* p, uint32_t n, LArFebHeaderCo
 }
 
 
-LArRodBlockStructure* LArRodDecoder::prepareBlockStructure(const uint32_t* p, uint32_t n, const CaloGain::CaloGain RequestedGain)
+LArRodBlockStructure*
+LArRodDecoder::prepareBlockStructure(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                     const uint32_t* p, uint32_t n, const CaloGain::CaloGain RequestedGain) const
 { 
 #ifndef NDEBUG
   ATH_MSG_DEBUG("Prepare LArRodBlockStructure. Got a fragement of size " << n);
@@ -1049,9 +1060,9 @@ LArRodBlockStructure* LArRodDecoder::prepareBlockStructure(const uint32_t* p, ui
   //   return NULL;
   //  }
   //Get version and blocktype form header
-  eformat::helper::Version ver(m_robFrag->rod_version());
+  eformat::helper::Version ver(robFrag.rod_version());
   const uint16_t rodMinorVersion=ver.minor_version();
-  const uint32_t rodBlockType=m_robFrag->rod_detev_type()&0xff;
+  const uint32_t rodBlockType=robFrag.rod_detev_type()&0xff;
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
     {msg(MSG::ERROR) << "Unknown Rod block type " <<  rodBlockType << endmsg;
      return NULL;

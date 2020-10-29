@@ -73,8 +73,8 @@ StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION*
                               << MSG::dec);
               ATH_MSG_VERBOSE ( "Calling RodDecoder for source ID " << MSG::hex 
                                 << robFrag.rod_source_id() << MSG::dec );
-	      m_decoder->setRobFrag(&robFrag);
-	      m_decoder->fillCollection(p,n,*coll,gain); // ..and decode them.
+	      m_decoder->fillCollection(robFrag,
+                                        p,n,*coll,gain); // ..and decode them.
             }
             catch (eformat::Issue& ex) {
               ATH_MSG_WARNING ( " exception thrown by ROBFragment, badly corrupted event. Abort decoding " );
