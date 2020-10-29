@@ -185,10 +185,7 @@ class TrigTauMonAlgBuilder:
       info = self.getTrigInfo(trigger)
 
 
-    self.bookbasicVars( monAlg, trigger, online=True )
-    self.bookbasicVars( monAlg, trigger, online=False )
-
-    if info.isRNN() is True:
+      if info.isRNN() is True:
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
         self.bookRNNInputVars( monAlg, trigger,nProng='MP', online=True )
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=False )
@@ -197,6 +194,8 @@ class TrigTauMonAlgBuilder:
         self.bookRNNTrack( monAlg, trigger, online=False )
         self.bookRNNCluster( monAlg, trigger, online=True )
         self.bookRNNCluster( monAlg, trigger, online=False )
+        self.bookbasicVars( monAlg, trigger, online=True )
+        self.bookbasicVars( monAlg, trigger, online=False )
 
   #
   # Book RNN Variables
@@ -204,7 +203,7 @@ class TrigTauMonAlgBuilder:
   def bookRNNInputVars( self, monAlg, trigger,nProng, online ):
 
     monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputScalar_'+nProng
-    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputScalar_'+nProng
+    monGroupPath = 'RNN/InputScalar_'+nProng+'/'+trigger+('/HLT' if online else '/Offline')
 
     monGroup = self.helper.addGroup( monAlg, monGroupName, 
                               self.basePath+'/'+monGroupPath )
@@ -218,12 +217,13 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+'); ptRatioEflowApprox; Events',xbins=50,xmin=0.0,xmax=2.0)
     monGroup.defineHistogram('mEflowApprox', title='mEflowApprox log ('+nProng+'); mEflowApprox_log; Events',xbins=50,xmin=0.,xmax=5.)
     monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log ('+nProng+'); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.)
-    if nProng=='MP':  monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
+    if nProng=='MP':  
+      monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
 
   def bookRNNTrack( self, monAlg, trigger, online ):
 
     monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputTrack'
-    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputTrack'
+    monGroupPath = 'RNN/InputTrack/'+trigger+('/HLT' if online else '/Offline')
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
@@ -241,7 +241,7 @@ class TrigTauMonAlgBuilder:
   def bookRNNCluster( self, monAlg, trigger, online ):
 
     monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputCluster'
-    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputCluster'
+    monGroupPath = 'RNN/InputCluster/'+trigger+('/HLT' if online else '/Offline')
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
@@ -254,27 +254,29 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('cluster_SECOND_LAMBDA_log10',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
     monGroup.defineHistogram('cluster_CENTER_LAMBDA_log10',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
     
-def bookbasicVars( self, monAlg, trigger, online ):
+  def bookbasicVars( self, monAlg, trigger, online ):
   
-    monGroupName = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/basicVars'
+    monGroupName = trigger+('HLT' if online else 'Offline')+'_basicVars'
+    monGroupPath = 'basicVars/'+trigger+('/HLT' if online else '/Offline')
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
-                              self.basePath+'/'+monGroupName )
+                              self.basePath+'/'+monGroupPath )
     
     monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
     monGroup.defineHistogram('hEFEta', title='EF TrigCaloCluster Eta; #eta ; Nevents',xbins=26,xmin=-2.6,xmax=2.6)
     monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
-    monGroup.defineHistogram('hEFEta,Phi;hEFEta_Phi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents',
-                               path='Shifter/cell',
+
+    monGroup.defineHistogram('hEFEta;hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
+                               path=monGroupPath,
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2)
     #addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",26,-2.6,2.6,16,-3.2,3.2));
-    monGroup.defineHistogram('hEFEt,Phi;hEFEt_Phi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
-                               path='Shifter/cell',
+    monGroup.defineHistogram('hEFEt;hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
+                               path=monGroupPath,
                                xbins=16,xmin=-3.2,xmax=3.2,ybins=50,ymin=0,ymax=100)
    
-    monGroup.defineHistogram('hEFEt,Eta;hEFEt_Eta', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
-                               path='Shifter/cell',
+    monGroup.defineHistogram('hEFEta;hEFEt', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
+                               path=monGroupPath,
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=50,ymin=0,ymax=100)
    
     monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
