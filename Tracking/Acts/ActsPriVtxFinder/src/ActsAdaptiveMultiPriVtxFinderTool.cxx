@@ -222,13 +222,11 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
 
     // Convert tracks to Acts::BoundParameters
     std::vector<TrackWrapper> allTracks;
-    
-    std::unique_ptr<Amg::Transform3D> transform_perigee = std::make_unique<Amg::Transform3D>(trackVector.at(0)->parameters()->associatedSurface().transform());
-    
+
     for (const auto& trk : trackVector) {
 
       std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
-      Acts::Surface::makeShared<Acts::PerigeeSurface>(*(transform_perigee.release()));
+      Acts::Surface::makeShared<Acts::PerigeeSurface>(trk->parameters()->associatedSurface().transform());
 
       const auto& trkParams = trk->parameters();
       const auto& params = trkParams->parameters();
@@ -313,8 +311,8 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
           continue;
         }
 
-        Trk::Perigee* fittedPerigee = actsBoundToTrkPerigee(trk.fittedParams, beamSpotPos, transform_perigee);
-        Trk::Perigee* originalPerigee = actsBoundToTrkPerigee((trk.originalParams)->parameters(), beamSpotPos, transform_perigee);
+        Trk::Perigee* fittedPerigee = actsBoundToTrkPerigee(trk.fittedParams, beamSpotPos);
+        Trk::Perigee* originalPerigee = actsBoundToTrkPerigee((trk.originalParams)->parameters(), beamSpotPos);
 
         Trk::VxTrackAtVertex trkAtVtx(trk.chi2Track, fittedPerigee, originalPerigee);
         trkAtVtx.setVtxCompatibility(trk.vertexCompatibility);
@@ -368,7 +366,7 @@ return std::make_pair(theVertexContainer, theVertexAuxContainer);
 
 
 Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
-  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& /*surfCenter*/, std::unique_ptr<Amg::Transform3D>& transform) const {
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const {
   using namespace Acts::UnitLiterals;
   AmgSymMatrix(5)* cov =  new AmgSymMatrix(5)(bound.covariance()->block<5,5>(0,0));
   cov->col(Trk::qOverP) *= 1_MeV;
@@ -376,7 +374,7 @@ Trk::Perigee* ActsAdaptiveMultiPriVtxFinderTool::actsBoundToTrkPerigee(
   Acts::ActsVectorD<5> params = bound.parameters().head<5>();
   params[Trk::qOverP] *= 1_MeV;
 
-  return new Trk::Perigee(params, Trk::PerigeeSurface(transform.get()), cov);
+  return new Trk::Perigee(params, Trk::PerigeeSurface(surfCenter), cov);
 }
 
 double

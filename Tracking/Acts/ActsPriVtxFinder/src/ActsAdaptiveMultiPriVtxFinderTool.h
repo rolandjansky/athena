@@ -96,7 +96,7 @@ private:
   findVertex(const EventContext& ctx, std::vector<std::unique_ptr<Trk::ITrackLink>> trackVector) const;
 
   Trk::Perigee* actsBoundToTrkPerigee(
-  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter, std::unique_ptr<Amg::Transform3D>& transform) const;
+  const Acts::BoundTrackParameters& bound, const Acts::Vector3D& surfCenter) const;
 
   double estimateSignalCompatibility(xAOD::Vertex* vtx) const;
 
