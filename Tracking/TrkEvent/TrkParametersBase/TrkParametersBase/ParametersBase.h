@@ -200,9 +200,9 @@ protected:
   AmgVector(DIM) m_parameters; //!< contains the n parameters
   //!< contains the n x n covariance matrix
   std::unique_ptr<AmgSymMatrix(DIM)> m_covariance;
-  mutable Amg::Vector3D m_position ATLAS_THREAD_SAFE; //!< point on track
-  mutable Amg::Vector3D m_momentum ATLAS_THREAD_SAFE; //!< momentum at this point on track
-  mutable T m_chargeDef ATLAS_THREAD_SAFE; //!< charge definition for this track
+  Amg::Vector3D m_position; //!< point on track
+  Amg::Vector3D m_momentum; //!< momentum at this point on track
+  T m_chargeDef;            //!< charge definition for this track
 };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug
