@@ -16,13 +16,16 @@ def __sliceFlags():
 
 def __electronFlags():
     flags = __sliceFlags()
-    flags.minPT = Units.GeV * 0.5 # TODO revise values
+    flags.minPT = Units.GeV * 1.0
     flags.checkRedundantSeeds=True
     return flags
 
 def __muonFlags():
     flags = __sliceFlags()
     flags.minPT=Units.GeV * 1.0
+    flags.d0SeedMax = 10.0
+    flags.checkRedundantSeeds=True
+    flags.doResMon = True
     return flags
 
 def createTrigTrackingFlags():
