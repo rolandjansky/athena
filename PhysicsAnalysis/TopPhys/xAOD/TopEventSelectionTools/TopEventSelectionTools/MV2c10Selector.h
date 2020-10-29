@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef MV2C10SELECTOR_H_
 #define MV2C10SELECTOR_H_
@@ -8,12 +8,11 @@
 #include "TopEventSelectionTools/SignValueSelector.h"
 
 namespace top {
-
 /**
  * @brief Should count how many jets have an mv2c10 weight above some value.
  */
-class MV2c10Selector : public SignValueSelector {
-public:
+  class MV2c10Selector: public SignValueSelector {
+  public:
     explicit MV2c10Selector(const std::string& params);
 
     /**
@@ -28,8 +27,7 @@ public:
      * @return True if the event passes the cut, false otherwise.
      */
     bool apply(const top::Event& event) const override;
-};
-
+  };
 }
 
 #endif

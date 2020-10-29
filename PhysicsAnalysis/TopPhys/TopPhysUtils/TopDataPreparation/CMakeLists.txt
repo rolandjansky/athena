@@ -1,4 +1,3 @@
-
 # Declare the name of this package:
 atlas_subdir( TopDataPreparation )
 
@@ -7,9 +6,8 @@ find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopDataPreparation _cintDictSource
-   ROOT_HEADERS TopDataPreparation/SampleXsection.h
-   TopDataPreparation/SampleXsectionSvc.h Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
+                           ROOT_HEADERS Root/LinkDef.h
+                           EXTERNAL_PACKAGES ROOT )
 
 # Build a library that other components can link against:
 atlas_add_library( TopDataPreparation Root/*.cxx Root/*.h Root/*.icc

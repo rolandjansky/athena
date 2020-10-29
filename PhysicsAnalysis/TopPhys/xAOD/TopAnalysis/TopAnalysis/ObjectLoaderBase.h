@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef OBJECTLOADERBASE_H_
 #define OBJECTLOADERBASE_H_
@@ -9,8 +9,8 @@
 #include <memory>
 
 namespace top {
-class TopConfig;
-class TopObjectSelection;
+  class TopConfig;
+  class TopObjectSelection;
 
 /**
  * @brief People seem to want to be able to configure the objects used in their
@@ -19,8 +19,8 @@ class TopObjectSelection;
  * selection object then this can be deleted.
  *
  */
-class ObjectLoaderBase {
-public:
+  class ObjectLoaderBase {
+  public:
     /**
      * @brief This will inherit from this, but it doesn't do anything really.
      */
@@ -37,8 +37,7 @@ public:
     virtual top::TopObjectSelection* init(std::shared_ptr<top::TopConfig> topConfig) = 0;
 
     ClassDef(top::ObjectLoaderBase, 0)
-};
-
+  };
 }
 
 #endif
