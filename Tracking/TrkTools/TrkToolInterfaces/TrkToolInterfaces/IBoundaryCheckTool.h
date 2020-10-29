@@ -12,10 +12,12 @@ static const InterfaceID IID_IBoundaryCheckTool("Trk::IBoundaryCheckTool", 1, 0)
 
 namespace Trk {
     enum class BoundaryCheckResult {
-        Candidate,
-        Insensitive,
-        DeadElement,
-        Error
+        Candidate,      /// within the sensitive area of an active element
+        OnEdge,         /// close to the edge of an active element    
+        Insensitive,    /// with the insensitive area of an active element 
+        Outside,        /// outside the element 
+        DeadElement,    /// within the nominally active area of a dead element 
+        Error           /// error-state 
     };
     
     class IBoundaryCheckTool : virtual public IAlgTool {
