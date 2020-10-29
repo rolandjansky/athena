@@ -237,7 +237,7 @@ which can also combine the outputs.
 
 # Run Rivet on-the-fly with Gen_tf
 
-**Note that due to a bug in HepMC, this feature did not work with Rivet3 until release 21.6.44,AthGeneration or later.**
+**Note that due to a bug in HepMC, this feature did not work with Rivet3 until release 21.6.46,AthGeneration or later.**
 
 Rivet jobs can be run in the same job as a `Gen_tf` run, 
 without needing to modify the standard production jO fragment. 
