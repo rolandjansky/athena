@@ -85,7 +85,8 @@ if __name__=='__main__':
     ConfigFlags.Output.HISTFileName = 'TileTMDBDigitsMonitorOutput.root'
     ConfigFlags.DQ.useTrigger = False
     ConfigFlags.DQ.enableLumiAccess = False
-
+    ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -109,7 +110,7 @@ if __name__=='__main__':
     
     cfg.store( open('TileTMDBDigitsMonitorAlgorithm.pkl','wb') )
 
-    sc = cfg.run(maxEvents=-1)
+    sc = cfg.run()
 
     import sys
     sys.exit(not sc.isSuccess())

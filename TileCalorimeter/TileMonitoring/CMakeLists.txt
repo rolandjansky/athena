@@ -94,6 +94,16 @@ atlas_add_test( TileRODMonitorAlgorithm_test
                 PROPERTIES TIMEOUT 600
                 POST_EXEC_SCRIPT nopost.sh)
 
+atlas_add_test( TileTMDBMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileTMDBMonitorAlgorithm
+                PROPERTIES TIMEOUT 600
+                POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TileTMDBDigitsMonitorAlgorithm_test
+                SCRIPT python -m TileMonitoring.TileTMDBDigitsMonitorAlgorithm
+                PROPERTIES TIMEOUT 600
+                POST_EXEC_SCRIPT nopost.sh)
+
 atlas_add_test( TileMonitoringConfig_test
                 SCRIPT python -m TileMonitoring.TileMonitoringConfig
                 PROPERTIES TIMEOUT 300
