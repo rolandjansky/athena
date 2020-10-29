@@ -200,7 +200,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        ":key=HLT_IDTrack_FS_FTF",
+        "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:vtx=HLT_IDVertex_FS",
         "HLT_j.*b.*perf_split:key=HLT_IDTrack_Bjet_FTF",
         "HLT_j.*b.*perf_split:key=HLT_IDTrack_Bjet_IDTrig"
       ]
