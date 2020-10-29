@@ -16,6 +16,11 @@ class DoPFlow(JobProperty):
     allowedTypes = ['bool'] 
     StoredValue  = True
 
+class UseFlowElements(JobProperty):
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
 class UseTracks(JobProperty):
     statusOn = True
     allowedTypes = ['bool']
@@ -65,6 +70,7 @@ jobproperties.add_Container(METRecoFlags)
 
 jobproperties.METRecoFlags.add_JobProperty(DoRegions)
 jobproperties.METRecoFlags.add_JobProperty(DoPFlow)
+jobproperties.METRecoFlags.add_JobProperty(UseFlowElements)
 jobproperties.METRecoFlags.add_JobProperty(UseTracks)
 jobproperties.METRecoFlags.add_JobProperty(DecorateSoftConst)
 jobproperties.METRecoFlags.add_JobProperty(AllowOverwrite)
