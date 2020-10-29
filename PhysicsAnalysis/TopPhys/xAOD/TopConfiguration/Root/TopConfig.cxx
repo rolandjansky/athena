@@ -288,7 +288,6 @@ namespace top {
     m_RCJetTrimcut(0.05),
     m_RCJetRadius(1.0),
     m_useRCJetSubstructure(false),
-    m_useRCJetAdditionalSubstructure(false),
 
     m_VarRCJetPtcut(100000.),
     m_VarRCJetEtacut(2.0),
@@ -297,7 +296,6 @@ namespace top {
     m_VarRCJetRho("2"),
     m_VarRCJetMassScale("m_w,m_z,m_h,m_t"),
     m_useVarRCJetSubstructure(false),
-    m_useVarRCJetAdditionalSubstructure(false),
 
     m_trackQuality("SetMe"),
 
@@ -1342,6 +1340,8 @@ namespace top {
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
     
     
+    
+    
     // now get all substructure variables from the config file.
     std::string strSubstructure = settings->value("LargeRJetSubstructureVariables");
     // Making vector of strings with "," used as separator
@@ -1393,10 +1393,10 @@ namespace top {
     if (settings->value("UseRCJetSubstructure") == "True" ||
         settings->value("UseRCJetSubstructure") == "true") this->m_useRCJetSubstructure = true;
     else this->m_useRCJetSubstructure = false;
-
-    if (settings->value("UseRCJetAdditionalSubstructure") == "True" ||
-        settings->value("UseRCJetAdditionalSubstructure") == "true") this->m_useRCJetAdditionalSubstructure = true;
-    else this->m_useRCJetAdditionalSubstructure = false;
+    
+    if(this->m_useRCJetSubstructure) {
+      m_rcJetSubstructureVariables = readListOfSubstructureVariables(settings, "RCJetSubstructureVariables");
+    }
 
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")));
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")));
@@ -1409,10 +1409,10 @@ namespace top {
     if (settings->value("UseVarRCJetSubstructure") == "True" ||
         settings->value("UseVarRCJetSubstructure") == "true") this->m_useVarRCJetSubstructure = true;
     else this->m_useVarRCJetSubstructure = false;
-    if (settings->value("UseVarRCJetAdditionalSubstructure") == "True" ||
-        settings->value("UseVarRCJetAdditionalSubstructure") ==
-        "true") this->m_useVarRCJetAdditionalSubstructure = true;
-    else this->m_useVarRCJetAdditionalSubstructure = false;
+    
+    if(this->m_useVarRCJetSubstructure) {
+      m_VarRCJetSubstructureVariables = readListOfSubstructureVariables(settings, "VarRCJetSubstructureVariables");
+    }
 
     if (settings->value("StoreJetTruthLabels") == "False") {
       this->jetStoreTruthLabels(false);
@@ -3958,4 +3958,34 @@ namespace top {
     os << "\n";
     return os;
   }
+  
+  
+  std::vector<std::string> TopConfig::readListOfSubstructureVariables(top::ConfigurationSettings* const& settings, const std::string& in) const {
+    const std::string& message = settings->stringData().at(in).m_human_explanation;
+    const std::string& value = settings->value(in);
+    
+    const std::string substr = "Available variables:";
+    size_t found = message.find(substr);
+    if(found==std::string::npos) throw std::runtime_error("TopConfig: Expected 'Available variables:' string in " + in + " option description!");
+    
+    const std::string strDefinedVariables = message.substr(found+substr.length()); 
+    std::vector<std::string> vecDefinedVariables;
+    tokenize(strDefinedVariables,vecDefinedVariables,",",true); // splitting string
+    for(std::string& defVar : vecDefinedVariables) {// removing spaces
+      defVar.erase(std::remove_if(defVar.begin(), defVar.end(), isspace), defVar.end());
+    }
+    
+    std::vector<std::string> result;
+    tokenize(value,result,",",true); // splitting string
+    
+    for(std::string& var : result) {
+      var.erase(std::remove_if(var.begin(), var.end(), isspace), var.end()); // removing empty spaces
+      if(std::find(std::begin(vecDefinedVariables),std::end(vecDefinedVariables),var) == std::end(vecDefinedVariables)) // Compare with list of defined variables
+	throw std::runtime_error("TopConfig: Unknown variable " + var + " found in " + in);
+    }
+
+    return result;
+    
+  }
+  
 }

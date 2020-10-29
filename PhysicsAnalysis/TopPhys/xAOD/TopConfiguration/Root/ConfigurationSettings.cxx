@@ -247,8 +247,10 @@ namespace top {
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0", "1.0");
     registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",
                       "False");
-    registerParameter("UseRCJetAdditionalSubstructure",
-                      "Calculate Additional Reclustered Jet Substructure Variables. Default False", "False");
+    registerParameter("RCJetSubstructureVariables", 
+		      R"("List of reclustered jet substructure variables stored in the output separated by commas.
+		      Available variables: Tau32_clstr,Tau21_clstr,Tau3_clstr,Tau2_clstr,Tau1_clstr,d12_clstr,d23_clstr,Qw_clstr,nconstituent_clstr,D2_clstr,ECF1_clstr,ECF2_clstr,ECF3_clstr,gECF332_clstr,gECF461_clstr,gECF322_clstr,gECF331_clstr,gECF422_clstr,gECF441_clstr,gECF212_clstr,gECF321_clstr,gECF311_clstr,L1_clstr,L2_clstr,L3_clstr,L4_clstr,L5_clstr,rrcjet_pt,rrcjet_eta,rrcjet_phi,rrcjet_e)",
+		      " ");
 
     registerParameter("UseRCJets", "Use Reclustered Jets. Default False.", "False");
 
@@ -267,8 +269,11 @@ namespace top {
     registerParameter("UseVarRCJets", "Use Reclustered Jets (Variable-R Jets). Default False.", "False");
     registerParameter("UseVarRCJetSubstructure",
                       "Calculate Variable-R Reclustered Jet Substructure Variables. Default False", "False");
-    registerParameter("UseVarRCJetAdditionalSubstructure",
-                      "Calculate Additional Variable-R Reclustered Jet Substructure Variables. Default False", "False");
+    
+    registerParameter("VarRCJetSubstructureVariables",
+		      R"(List of variable-R reclustered jet substructure variables stored in the output separated by commas.
+		      Available variables: Tau32_clstr,Tau21_clstr,Tau3_clstr,Tau2_clstr,Tau1_clstr,d12_clstr,d23_clstr,Qw_clstr,nconstituent_clstr,D2_clstr,ECF1_clstr,ECF2_clstr,ECF3_clstr,gECF332_clstr,gECF461_clstr,gECF322_clstr,gECF331_clstr,gECF422_clstr,gECF441_clstr,gECF212_clstr,gECF321_clstr,gECF311_clstr,L1_clstr,L2_clstr,L3_clstr,L4_clstr,L5_clstr,rrcjet_pt,rrcjet_eta,rrcjet_phi,rrcjet_e)",
+		      " ");
 
     registerParameter("TauPt",
                       "Pt cut applied to both tight and loose taus (in MeV)."

@@ -48,7 +48,6 @@ RCJetMC15::RCJetMC15(const std::string& name) :
   m_minradius(0.),
   m_massscale(0.),
   m_useJSS(false),
-  m_useAdditionalJSS(false),
   m_egamma("EG_"),
   m_jetsyst("JET_"),
   m_muonsyst("MUON_"),
@@ -108,7 +107,7 @@ StatusCode RCJetMC15::initialize() {
     m_massscale = rho * m_scale * 1e-3;                   // e.g., 2*m_top; in [GeV]!
 
     m_useJSS = m_config->useVarRCJetSubstructure();
-    m_useAdditionalJSS = m_config->useVarRCJetAdditionalSubstructure();
+    m_substructureVariables = m_config->VarRCJetSubstructureVariables();
   } else {
     m_ptcut = std::stof(configSettings->value("RCJetPt"));     // for initialize [GeV] & passSelection
     m_etamax = std::stof(configSettings->value("RCJetEta"));    // for passSelection
@@ -117,63 +116,58 @@ StatusCode RCJetMC15::initialize() {
     m_minradius = -1.0;
     m_massscale = -1.0;
     m_useJSS = m_config->useRCJetSubstructure();
-    m_useAdditionalJSS = m_config->useRCJetAdditionalSubstructure();
+    m_substructureVariables = m_config->rcJetSubstructureVariables();
   }
 
   m_inputJetPtMin = std::stof(configSettings->value("RCInputJetPtMin"));
   m_inputJetEtaMax = std::stof(configSettings->value("RCInputJetEtaMax"));
 
 
-  if (m_useJSS || m_useAdditionalJSS) {
+  if (m_useJSS) {
     ATH_MSG_INFO("Calculating RCJet Substructure");
 
     // Setup a bunch of FastJet stuff
     //define the type of jets you will build (http://fastjet.fr/repo/doxygen-3.0.3/classfastjet_1_1JetDefinition.html)
-    m_jet_def_rebuild = std::make_shared<fastjet::JetDefinition>(fastjet::antikt_algorithm, 1.0, fastjet::E_scheme,
+    m_jet_def_rebuild = std::make_unique<fastjet::JetDefinition>(fastjet::antikt_algorithm, 1.0, fastjet::E_scheme,
                                                                  fastjet::Best);
-  }
-  if (m_useJSS) {
     //Substructure tool definitions
-    m_nSub1_beta1 = std::make_shared<fastjet::contrib::Nsubjettiness>(1,
+    m_nSub1_beta1 = std::make_unique<fastjet::contrib::Nsubjettiness>(1,
                                                                       fastjet::contrib::OnePass_WTA_KT_Axes(),
                                                                       fastjet::contrib::UnnormalizedMeasure(1.0));
-    m_nSub2_beta1 = std::make_shared<fastjet::contrib::Nsubjettiness>(2,
+    m_nSub2_beta1 = std::make_unique<fastjet::contrib::Nsubjettiness>(2,
                                                                       fastjet::contrib::OnePass_WTA_KT_Axes(),
                                                                       fastjet::contrib::UnnormalizedMeasure(1.0));
-    m_nSub3_beta1 = std::make_shared<fastjet::contrib::Nsubjettiness>(3,
+    m_nSub3_beta1 = std::make_unique<fastjet::contrib::Nsubjettiness>(3,
                                                                       fastjet::contrib::OnePass_WTA_KT_Axes(),
                                                                       fastjet::contrib::UnnormalizedMeasure(1.0));
 
 
-    m_split12 = std::make_shared<JetSubStructureUtils::KtSplittingScale>(1);
-    m_split23 = std::make_shared<JetSubStructureUtils::KtSplittingScale>(2);
+    m_split12 = std::make_unique<JetSubStructureUtils::KtSplittingScale>(1);
+    m_split23 = std::make_unique<JetSubStructureUtils::KtSplittingScale>(2);
 
-    m_qw = std::make_shared<JetSubStructureUtils::Qw>();
+    m_qw = std::make_unique<JetSubStructureUtils::Qw>();
     
-    m_ECF1 = std::make_shared<fastjet::contrib::EnergyCorrelator>(1, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
-    m_ECF2 = std::make_shared<fastjet::contrib::EnergyCorrelator>(2, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
-    m_ECF3 = std::make_shared<fastjet::contrib::EnergyCorrelator>(3, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+    m_ECF1 = std::make_unique<fastjet::contrib::EnergyCorrelator>(1, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+    m_ECF2 = std::make_unique<fastjet::contrib::EnergyCorrelator>(2, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
+    m_ECF3 = std::make_unique<fastjet::contrib::EnergyCorrelator>(3, 1.0, fastjet::contrib::EnergyCorrelator::pt_R);
 
-  }
-  if (m_useAdditionalJSS) {
-    
-    m_gECF332 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(3, 3, 2,
+    m_gECF332 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(3, 3, 2,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
-    m_gECF461 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(6, 4, 1,
+    m_gECF461 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(6, 4, 1,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
-    m_gECF322 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(2, 3, 2,
+    m_gECF322 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(2, 3, 2,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
-    m_gECF331 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(3, 3, 1,
+    m_gECF331 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(3, 3, 1,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
-    m_gECF422 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(2, 4, 2,
+    m_gECF422 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(2, 4, 2,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
-    m_gECF441 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(4, 4, 1,
+    m_gECF441 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(4, 4, 1,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
-    m_gECF212 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(1, 2, 2,
+    m_gECF212 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(1, 2, 2,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
-    m_gECF321 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(2, 3, 1,
+    m_gECF321 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(2, 3, 1,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
-    m_gECF311 = std::make_shared<JetSubStructureUtils::EnergyCorrelatorGeneralized>(1, 3, 1,
+    m_gECF311 = std::make_unique<JetSubStructureUtils::EnergyCorrelatorGeneralized>(1, 3, 1,
                                                                                     JetSubStructureUtils::EnergyCorrelator::pt_R);
   }
 
@@ -309,7 +303,7 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
       rcjet->auxdecor<bool>("PassedSelection") = passSelection(*rcjet);
     }
 
-    if (m_useJSS || m_useAdditionalJSS) {
+    if (m_useJSS) {
       static const SG::AuxElement::ConstAccessor<bool> passedSelection("PassedSelection");
 
       for (auto rcjet : *myJets) {
@@ -339,125 +333,108 @@ StatusCode RCJetMC15::execute(const top::Event& event) {
         }
 
         if (clusters.size() != 0) {
-          // Now rebuild the large jet from the small jet constituents aka the original clusters
-          fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
-          std::vector<fastjet::PseudoJet> my_pjets = fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0));
+	  // Now rebuild the large jet from the small jet constituents aka the original clusters
+	  fastjet::ClusterSequence clust_seq_rebuild = fastjet::ClusterSequence(clusters, *m_jet_def_rebuild);
+	  std::vector<fastjet::PseudoJet> my_pjets = fastjet::sorted_by_pt(clust_seq_rebuild.inclusive_jets(0.0));
 
 
-          fastjet::PseudoJet correctedJet;
-          correctedJet = my_pjets[0];
-          //Sometimes fastjet splits the jet into two, so need to correct for that!!
-          if (my_pjets.size() > 1) correctedJet += my_pjets[1];
+	  fastjet::PseudoJet correctedJet;
+	  correctedJet = my_pjets[0];
+	  //Sometimes fastjet splits the jet into two, so need to correct for that!!
+	  if (my_pjets.size() > 1) correctedJet += my_pjets[1];
 
-          if (m_useJSS) {
-            // Now finally we can calculate some substructure!
-            double tau32 = -1, tau21 = -1;
+	  
+	  // Now finally we can calculate some substructure!
+	  auto it1 = std::begin(m_substructureVariables);
+	  auto it2 = std::end(m_substructureVariables);
+	  
+	  float tau1(-999.),tau2(-999.),tau3(-999.);
+	  if(std::find(it1,it2,"Tau1_clstr")!=it2) rcjet->auxdecor<float>("Tau1_clstr") = tau1 = m_nSub1_beta1->result(correctedJet);
+	  if(std::find(it1,it2,"Tau2_clstr")!=it2) rcjet->auxdecor<float>("Tau2_clstr") = tau2 = m_nSub2_beta1->result(correctedJet);
+	  if(std::find(it1,it2,"Tau3_clstr")!=it2) rcjet->auxdecor<float>("Tau3_clstr") = tau3 = m_nSub3_beta1->result(correctedJet);
 
-            double tau1 = m_nSub1_beta1->result(correctedJet);
-            double tau2 = m_nSub2_beta1->result(correctedJet);
-            double tau3 = m_nSub3_beta1->result(correctedJet);
+	  
+	  if(std::find(it1,it2,"Tau21_clstr")!=it2) {
+	    if(tau1<0.) tau1 = m_nSub1_beta1->result(correctedJet);
+	    if(tau2<0.) tau2 = m_nSub2_beta1->result(correctedJet);
+	    rcjet->auxdecor<float>("Tau21_clstr") = std::abs(tau1) > 1e-8 ? tau2/tau1 : -999.;
+	  }
+	  if(std::find(it1,it2,"Tau32_clstr")!=it2) {
+	    if(tau3<0.) tau3 = m_nSub3_beta1->result(correctedJet);
+	    if(tau2<0.) tau2 = m_nSub2_beta1->result(correctedJet);
+	    rcjet->auxdecor<float>("Tau32_clstr") = std::abs(tau2) > 1e-8 ? tau3/tau2 : -999.;
+	  }
 
-            if (std::abs(tau1) > 1e-8) tau21 = tau2 / tau1;
-            else tau21 = -999.0;
-            if (std::abs(tau2) > 1e-8) tau32 = tau3 / tau2;
-            else tau32 = -999.0;
+	  if(std::find(it1,it2,"d12_clstr")!=it2) rcjet->auxdecor<float>("d12_clstr") = m_split12->result(correctedJet);      
+	  if(std::find(it1,it2,"d23_clstr")!=it2) rcjet->auxdecor<float>("d23_clstr") = m_split23->result(correctedJet);      
+	  if(std::find(it1,it2,"Qw_clstr")!=it2) rcjet->auxdecor<float>("Qw_clstr") = m_qw->result(correctedJet);      
+	  
+	  
+	  float vECF1(-999.),vECF2(-999.),vECF3(-999.);
+	  if(std::find(it1,it2,"ECF1_clstr")!=it2) rcjet->auxdecor<float>("ECF1_clstr") = vECF1 = m_ECF1->result(correctedJet);      
+	  if(std::find(it1,it2,"ECF2_clstr")!=it2) rcjet->auxdecor<float>("ECF2_clstr") = vECF2 = m_ECF2->result(correctedJet);      
+	  if(std::find(it1,it2,"ECF3_clstr")!=it2) rcjet->auxdecor<float>("ECF3_clstr") = vECF3 = m_ECF3->result(correctedJet);      
+	  
+	  if(std::find(it1,it2,"D2_clstr")!=it2) {
+	    if(vECF1<0.) vECF1 = m_ECF1->result(correctedJet);
+	    if(vECF2<0.) vECF2 = m_ECF2->result(correctedJet);
+	    if(vECF3<0.) vECF3 = m_ECF3->result(correctedJet);
+	    rcjet->auxdecor<float>("D2_clstr") = std::abs(vECF2) > 1e-8 ? vECF3 * vECF1* vECF1* vECF1 / (vECF2 * vECF2 * vECF2) : -999.;
+	  }
 
+	  if(std::find(it1,it2,"nconstituent_clstr")!=it2) rcjet->auxdecor<float>("nconstituent_clstr") = clusters.size();
+	  
+	  // MlB's t/H discriminators
+	  // E = (a*n) / (b*m)
+	  // for an ECFG_X_Y_Z, a=Y, n=Z -> dimenionless variable
+	  float gECF332(-999.), gECF461(-999.), gECF322(-999.), gECF331(-999.), gECF422(-999.), gECF441(-999.), gECF212(-999.), gECF321(-999.), gECF311(-999.);
 
+	  if(std::find(it1,it2,"gECF332_clstr")!=it2) rcjet->auxdecor<float>("gECF332_clstr") = gECF332 = m_gECF332->result(correctedJet);
+	  if(std::find(it1,it2,"gECF461_clstr")!=it2) rcjet->auxdecor<float>("gECF461_clstr") = gECF461 = m_gECF461->result(correctedJet);
+	  if(std::find(it1,it2,"gECF322_clstr")!=it2) rcjet->auxdecor<float>("gECF322_clstr") = gECF322 = m_gECF322->result(correctedJet);
+	  if(std::find(it1,it2,"gECF331_clstr")!=it2) rcjet->auxdecor<float>("gECF331_clstr") = gECF331 = m_gECF331->result(correctedJet);
+	  if(std::find(it1,it2,"gECF422_clstr")!=it2) rcjet->auxdecor<float>("gECF422_clstr") = gECF422 = m_gECF422->result(correctedJet);
+	  if(std::find(it1,it2,"gECF441_clstr")!=it2) rcjet->auxdecor<float>("gECF441_clstr") = gECF441 = m_gECF441->result(correctedJet);
+	  if(std::find(it1,it2,"gECF212_clstr")!=it2) rcjet->auxdecor<float>("gECF212_clstr") = gECF212 = m_gECF212->result(correctedJet);
+	  if(std::find(it1,it2,"gECF321_clstr")!=it2) rcjet->auxdecor<float>("gECF321_clstr") = gECF321 = m_gECF321->result(correctedJet);
+	  if(std::find(it1,it2,"gECF311_clstr")!=it2) rcjet->auxdecor<float>("gECF311_clstr") = gECF311 = m_gECF311->result(correctedJet);
 
-            double split12 = m_split12->result(correctedJet);
-            double split23 = m_split23->result(correctedJet);
-            double qw = m_qw->result(correctedJet);
-	    
-	    double D2 = -1;
-
-            double vECF1 = m_ECF1->result(correctedJet);
-            double vECF2 = m_ECF2->result(correctedJet);
-            double vECF3 = m_ECF3->result(correctedJet);
-            if (std::abs(vECF2) > 1e-8) D2 = vECF3 * vECF1* vECF1* vECF1 / (vECF2 * vECF2 * vECF2);
-            else D2 = -999.0;
-	    
-
-            // now attach the results to the original jet
-            rcjet->auxdecor<float>("Tau32_clstr") = tau32;
-            rcjet->auxdecor<float>("Tau21_clstr") = tau21;
-
-            // lets also write out the components so we can play with them later
-            rcjet->auxdecor<float>("Tau3_clstr") = tau3;
-            rcjet->auxdecor<float>("Tau2_clstr") = tau2;
-            rcjet->auxdecor<float>("Tau1_clstr") = tau1;
-
-            rcjet->auxdecor<float>("d12_clstr") = split12;
-            rcjet->auxdecor<float>("d23_clstr") = split23;
-            rcjet->auxdecor<float>("Qw_clstr") = qw;
-
-            rcjet->auxdecor<float>("nconstituent_clstr") = clusters.size();
-	    
-	    rcjet->auxdecor<float>("ECF1_clstr") = vECF1;
-            rcjet->auxdecor<float>("ECF2_clstr") = vECF2;
-            rcjet->auxdecor<float>("ECF3_clstr") = vECF3;
-            rcjet->auxdecor<float>("D2_clstr") = D2;
-	    
-          } // end of if useJSS
-
-          if (m_useAdditionalJSS) {
-
-            // MlB's t/H discriminators
-            // E = (a*n) / (b*m)
-            // for an ECFG_X_Y_Z, a=Y, n=Z -> dimenionless variable
-            double gECF332 = m_gECF332->result(correctedJet);
-            double gECF461 = m_gECF461->result(correctedJet);
-            double gECF322 = m_gECF322->result(correctedJet);
-            double gECF331 = m_gECF331->result(correctedJet);
-            double gECF422 = m_gECF422->result(correctedJet);
-            double gECF441 = m_gECF441->result(correctedJet);
-            double gECF212 = m_gECF212->result(correctedJet);
-            double gECF321 = m_gECF321->result(correctedJet);
-            double gECF311 = m_gECF311->result(correctedJet);
-
-            double L1 = -999.0, L2 = -999.0, L3 = -999.0, L4 = -999.0, L5 = -999.0;
-            if (std::abs(gECF212) > 1e-12) {
-              L1 = gECF321 / gECF212;
-              L2 = gECF331 / sqrt(gECF212*gECF212*gECF212);
-            }
-            if (std::abs(gECF331) > 1e-12) {
-              L3 = gECF311 / pow(gECF331,1./3.);
-              L4 = gECF322 / pow(gECF331,4./3.);
-            }
-            if (std::abs(gECF441) > 1e-12) {
-              L5 = gECF422/gECF441;
-            }
-
-            rcjet->auxdecor<float>("gECF332_clstr") = gECF332;
-            rcjet->auxdecor<float>("gECF461_clstr") = gECF461;
-            rcjet->auxdecor<float>("gECF322_clstr") = gECF322;
-            rcjet->auxdecor<float>("gECF331_clstr") = gECF331;
-            rcjet->auxdecor<float>("gECF422_clstr") = gECF422;
-            rcjet->auxdecor<float>("gECF441_clstr") = gECF441;
-            rcjet->auxdecor<float>("gECF212_clstr") = gECF212;
-            rcjet->auxdecor<float>("gECF321_clstr") = gECF321;
-            rcjet->auxdecor<float>("gECF311_clstr") = gECF311;
-            rcjet->auxdecor<float>("L1_clstr") = L1;
-            rcjet->auxdecor<float>("L2_clstr") = L2;
-            rcjet->auxdecor<float>("L3_clstr") = L3;
-            rcjet->auxdecor<float>("L4_clstr") = L4;
-            rcjet->auxdecor<float>("L5_clstr") = L5;
-            // lets also store the rebuilt jet incase we need it later
-            rcjet->auxdecor<float>("RRCJet_pt") = correctedJet.pt();
-            rcjet->auxdecor<float>("RRCJet_eta") = correctedJet.eta();
-            rcjet->auxdecor<float>("RRCJet_phi") = correctedJet.phi();
-            rcjet->auxdecor<float>("RRCJet_e") = correctedJet.e();
-          }// end of if useAdditional JSS
+	  if(std::find(it1,it2,"L1_clstr")!=it2) {
+	    if(gECF212<0.) gECF212 = m_gECF212->result(correctedJet);
+	    if(gECF321<0.) gECF321 = m_gECF321->result(correctedJet);
+	    rcjet->auxdecor<float>("L1_clstr") = std::abs(gECF212) > 1e-12 ? gECF321 / gECF212 : -999.;
+	  }
+	  if(std::find(it1,it2,"L2_clstr")!=it2) {
+	    if(gECF212<0.) gECF212 = m_gECF212->result(correctedJet);
+	    if(gECF331<0.) gECF331 = m_gECF331->result(correctedJet);
+	    rcjet->auxdecor<float>("L2_clstr") = std::abs(gECF212) > 1e-12 ? gECF331 / sqrt(gECF212*gECF212*gECF212) : -999.;
+	  }
+	  if(std::find(it1,it2,"L3_clstr")!=it2) {
+	    if(gECF331<0.) gECF331 = m_gECF331->result(correctedJet);
+	    if(gECF311<0.) gECF311 = m_gECF311->result(correctedJet);
+	    rcjet->auxdecor<float>("L3_clstr") = std::abs(gECF331) > 1e-12 ? gECF311 / pow(gECF331,1./3.) : -999.;
+	  }
+	  if(std::find(it1,it2,"L4_clstr")!=it2) {
+	    if(gECF331<0.) gECF331 = m_gECF331->result(correctedJet);
+	    if(gECF322<0.) gECF322 = m_gECF322->result(correctedJet);
+	    rcjet->auxdecor<float>("L4_clstr") = std::abs(gECF331) > 1e-12 ? gECF322 / pow(gECF331,4./3.) : -999.;
+	  }
+	  if(std::find(it1,it2,"L5_clstr")!=it2) {
+	    if(gECF441<0.) gECF441 = m_gECF441->result(correctedJet);
+	    if(gECF422<0.) gECF422 = m_gECF422->result(correctedJet);
+	    rcjet->auxdecor<float>("L5_clstr") = std::abs(gECF441) > 1e-12 ? gECF422/gECF441 : -999.;
+	  }
+	
+	  // lets also store the rebuilt jet incase we need it later
+	  if(std::find(it1,it2,"rrcjet_pt")!=it2) rcjet->auxdecor<float>("rrcjet_pt") = correctedJet.pt();
+	  if(std::find(it1,it2,"rrcjet_eta")!=it2) rcjet->auxdecor<float>("rrcjet_eta") = correctedJet.eta();
+	  if(std::find(it1,it2,"rrcjet_phi")!=it2) rcjet->auxdecor<float>("rrcjet_phi") = correctedJet.phi();
+	  if(std::find(it1,it2,"rrcjet_e")!=it2) rcjet->auxdecor<float>("rrcjet_e") = correctedJet.e();
+	  
         }
       }// end of rcjet loop
-    }//m_useJSS || m_useAdditionalJSS
+    }//m_useJSS
   } //if (!evtStore()->contains<xAOD::JetContainer>(m_OutputJetContainer))
-
-
-
-
-
-
-
 
 
   return StatusCode::SUCCESS;
