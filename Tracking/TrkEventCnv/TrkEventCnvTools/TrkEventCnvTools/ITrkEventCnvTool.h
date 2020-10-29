@@ -9,7 +9,7 @@
 #include "GaudiKernel/IAlgTool.h"
 
 #include "AthLinks/ElementLink.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 
 #include "GaudiKernel/ServiceHandle.h"
