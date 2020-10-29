@@ -1,13 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: xAODTrigTrackCountsCreator.py 600496 2014-06-05 15:45:08Z azemla $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import the package's configurables:
-from xAODTrigMinBiasCnv.xAODTrigMinBiasCnvConf import *
+from xAODTrigMinBiasCnv.xAODTrigMinBiasCnvConf import xAODMaker__TrigTrackCountsCnvAlg
 
 ## Helper function for creating xAOD TrigSpacePointCounts objects
 def xAODTrigTrackCountsCreator( sequence = None, stream = None,
-                             key = "HLT_trackcounts" ):
+                                key = "HLT_trackcounts" ):
     """
     Helper function that schedules all the components that create xAOD
     TrigSpacePointCounts objects out of existing AOD objects.
@@ -22,7 +20,6 @@ def xAODTrigTrackCountsCreator( sequence = None, stream = None,
     """
 
     # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "xAODTrigTrackCountsCreator" )
 
@@ -30,13 +27,13 @@ def xAODTrigTrackCountsCreator( sequence = None, stream = None,
     logger.info( "Creating xAOD::TrigTrackCounts from TrigDec::TrigTrackCounts" )
 
     # Get the main sequence if necessary:
-    if sequence == None:
+    if sequence is None:
         from AthenaCommon.AlgSequence import AlgSequence
         sequence = AlgSequence()
         pass
 
     # Access the stream if necessary:
-    if stream == None:
+    if stream is None:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         stream = MSMgr.GetStream( "StreamAOD" )
         pass
@@ -50,8 +47,5 @@ def xAODTrigTrackCountsCreator( sequence = None, stream = None,
     # Add the created objects to the output:
     stream.AddItem( "xAOD::TrigTrackCountsContainer_v1#%s" % key )
     stream.AddItem( "xAOD::TrigTrackCountsAuxContainer_v1#%sAux." % key )
-
-    # Reinstate the old logger if it existed:
-    if "orig_logger" in dir(): logger = orig_logger
 
     pass

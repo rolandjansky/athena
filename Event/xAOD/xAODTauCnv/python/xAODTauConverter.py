@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: xAODTauConverter.py 579184 2014-01-20 13:25:06Z janus $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import the package's configurables:
-from xAODTauCnv.xAODTauCnvConf import *
+from xAODTauCnv.xAODTauCnvConf import xAODMaker__TauJetCnvAlg
 
 ## Helper function for creating xAOD RoI objects/containers
 def xAODTauConverter( sequence = None, stream = None, key = "TauRecContainer" ):
@@ -21,7 +19,6 @@ def xAODTauConverter( sequence = None, stream = None, key = "TauRecContainer" ):
     """
 
     # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "xAODTauConverter" )
 
@@ -29,13 +26,13 @@ def xAODTauConverter( sequence = None, stream = None, key = "TauRecContainer" ):
     logger.info( "Creating xAOD TauJets from AOD objects" )
 
     # Get the main sequence if necessary:
-    if sequence == None:
+    if sequence is None:
         from AthenaCommon.AlgSequence import AlgSequence
         sequence = AlgSequence()
         pass
 
     # Access the stream if necessary:
-    if stream == None:
+    if stream is None:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         try:
             stream = MSMgr.GetStream( "StreamAOD" )
@@ -46,17 +43,13 @@ def xAODTauConverter( sequence = None, stream = None, key = "TauRecContainer" ):
 
     # Add the tau converter algorithm:
     outkey = "TauRecContainer"
-    from xAODTauCnv.xAODTauCnvConf import xAODMaker__TauJetCnvAlg
     tauAlg = xAODMaker__TauJetCnvAlg()
     #tauAlg.OutputLevel = VERBOSE
     tauAlg.OutputLevel = 1
     sequence += tauAlg
     # Add the tau objects to the output:
-    if stream != None:
+    if stream is not None:
         stream.AddItem( "xAOD::TauJetContainer_v1#%s" % outkey )
         stream.AddItem( "xAOD::TauJetAuxContainer_v1#%sAux." % outkey )
-
-    # Reinstate the old logger if it existed:
-    if "orig_logger" in dir(): logger = orig_logger
 
     pass
