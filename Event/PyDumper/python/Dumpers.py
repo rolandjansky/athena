@@ -19,7 +19,6 @@ __author__ = "Scott Snyder, Sebastien Binet"
 
 ### imports
 from contextlib import contextmanager
-import math
 import sys
 from io import StringIO
 from functools import cmp_to_key
@@ -33,7 +32,8 @@ from PyUtils.fprint import fprint, fprintln, fwrite
 import ROOT
 import cppyy
 
-cmp = lambda x, y: (x > y) - (x < y)
+def cmp(x, y):
+    return (x > y) - (x < y)
 
 # not available due to a reflex bug.
 etcone10 = 0
@@ -3090,7 +3090,7 @@ def dump_ExtendedVxCandidate (c, f):
 
 
 def dump_V0Hypothesis (h, f):
-    if h == None:
+    if h is None:
         fprint (f, None)
         return
     fprint (f, 'V0Hypothesis', h.positiveTrackID(),
@@ -3668,7 +3668,7 @@ def dump_CaloTopoTowerContainer (t, f):
     dl(t.GetTowers())
     dl(t.GetCells())
     if t.GetCellToClusterMap():
-        fprintln (f, '  ', GetCellToClusterMap().size())
+        fprintln (f, '  ', t.GetCellToClusterMap().size())
     else:
         fprintln (f, '  (null)')
     return
@@ -3814,7 +3814,7 @@ def dump_TrigRNNOutput (p, f):
 
 
 def dump_InDetLowBetaCandidate (p, f):
-    if p == None:
+    if p is None:
         fprint (f, '(null)')
         return
     if hasattr (p, 'getTRTInverseBeta'):
@@ -4714,9 +4714,9 @@ atomic_accessors = {
 
 
 def format_obj (x, name=None):
-    if type(x) == type(1.5):
+    if isinstance(x, float):
         return format_float (x)
-    if type(x) == type(1):
+    if isinstance(x, int):
         return format_int (x)
     tname = typename(type(x))
     if tname.startswith ('ROOT.'):
@@ -4855,7 +4855,7 @@ def dump_xAODObjectNL(o, f):
 def dump_list (l, f, dumper, nmax = None):
     i = 0
     for x in l:
-        if nmax != None and i >= nmax: break
+        if nmax is not None and i >= nmax: break
         i += 1
         fprint (f, '  ')
         dumper (x, f)
