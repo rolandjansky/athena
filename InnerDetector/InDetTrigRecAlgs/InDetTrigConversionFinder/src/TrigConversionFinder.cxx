@@ -182,10 +182,12 @@ namespace InDet
 	      int ncl  = summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits);
 	      int ntrt = summary->get(Trk::numberOfTRTHits);
 	      if(i==0) {
-		if(ncl>0) isSi1 = true; if(ncl==0 && ntrt>0) isTrt1 = true;
+		if(ncl>0) isSi1 = true;
+		if(ncl==0 && ntrt>0) isTrt1 = true;
 	      }
 	      if(i==1) {
-		if(ncl>0) isSi2 = true; if(ncl==0 && ntrt>0) isTrt2 = true;
+		if(ncl>0) isSi2 = true;
+		if(ncl==0 && ntrt>0) isTrt2 = true;
 	      }
 	    }//end of dynamic_cast check
 	  }//end of ITrackLink existance check
