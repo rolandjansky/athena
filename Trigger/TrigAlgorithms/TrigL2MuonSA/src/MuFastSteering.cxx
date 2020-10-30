@@ -321,7 +321,7 @@ StatusCode MuFastSteering::execute()
 
   for (size_t size=0; size<roiCollection->size(); size++){
     const LVL1::RecMuonRoI* recRoI = matchingRecRoI( roiCollection->at(size)->roiWord(),  *recRoiCollection );
-    CHECK( recRoI != nullptr );
+    if( recRoI == nullptr ) continue;
     recRoIVector.push_back(recRoI);
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " eta/phi = " << (recRoI)->eta() << "/" << (recRoI)->phi());
     ATH_MSG_DEBUG("REGTEST: " << m_recRoiCollectionKey.key() << " size = " << recRoIVector.size());
@@ -1842,7 +1842,8 @@ bool MuFastSteering::storeMSRoiDescriptor(const TrigRoiDescriptor*              
     const float phiHalfWidth = 0.1;
     const float etaHalfWidth = 0.1;
 
-    TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
+    TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
+                                                               roids->l1Id(),
                                                                roids->roiId(),
                                                                pattern.etaMap,
                                                                pattern.etaMap - etaHalfWidth,
@@ -1909,7 +1910,8 @@ bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*              
     if (pattern.isTgcFailure || pattern.isRpcFailure) 
       phiHalfWidth *= scalePhiWidthForFailure;
 
-    TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
+    TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
+                                                               roids->l1Id(),
                                                                roids->roiId(),
                                                                pattern.etaVtx,
                                                                pattern.etaVtx - etaHalfWidth,
