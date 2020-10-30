@@ -10,10 +10,9 @@
 JetSelectorAttribute::JetSelectorAttribute(const std::string &t) 
   : asg::AsgTool(t)
   , m_min(-std::numeric_limits<float>::max())
-  , m_max( std::numeric_limits<float>::max())
-  , m_var(this)
+  , m_max(std::numeric_limits<float>::max())
+  , m_var(0)
 {
-
   declareProperty("CutMin", m_min );
   declareProperty("CutMax", m_max );
   declareProperty("Var", m_var);
@@ -24,13 +23,22 @@ JetSelectorAttribute:: ~JetSelectorAttribute(){
 
 StatusCode JetSelectorAttribute::initialize() {
 
-  ATH_CHECK(m_var.retrieve() );
-  ATH_MSG_INFO( "Selecting on var ("<< m_var->describe() << ") in ["<< m_min << " , "<< m_max<< "]");
-
+  unsigned int it=0;
+  for (auto var : m_var) {
+    ATH_CHECK(var.retrieve() );
+    ATH_MSG_INFO( "Selecting on var ("<< var->describe() << ") in ["<< m_min.at(it) << " , "<< m_max.at(it)<< "]");
+    it++;
+  }
   return StatusCode::SUCCESS;
 }
 
 int JetSelectorAttribute::keep(const xAOD::Jet& jet) const {
-  float v = m_var->value(jet);
-  return (m_min < v ) && (v<m_max);
+  bool pass=true;
+  unsigned int it=0;
+  for (auto var : m_var) {
+    float v = var->value(jet);
+    if ((m_min.at(it) > v) || (m_max.at(it) < v)) pass=false;
+    it++;
+  }
+  return pass;
 }

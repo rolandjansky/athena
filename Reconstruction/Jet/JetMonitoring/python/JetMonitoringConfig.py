@@ -115,22 +115,25 @@ def interpretSelStr(selStr):
     if '>' in selStr:
         print("JetMonitoring ERROR interpreting selection string ", selStr)
         print("JetMonitoring ERROR  can not interpret '>', please use only '<' ")
-    parts = selStr.split('<')
-    cmin, cmax = None, None
-    var = selStr
-    if len(parts)==2:
+    selstrings = selStr.split(',') 
+    cmin, cmax, var = [], [], []
+    for substring in selstrings:
+      parts = substring.split('<') 
+      if len(parts)==2:
         ismin = False
         try :
-            var, cut = parts[0] , float(parts[1])
+          v, cut = parts[0] , float(parts[1]) #would fail
         except ValueError:
-            cut, var = float(parts[0]) ,parts[1]
-            ismin=True
-        if ismin : cmin = cut
-        else: cmax = cut
-    elif len(parts)==3:
-        cmin, var, cmax = parts
-        cmin = float(cmin)
-        cmax = float(cmax)
+          cut, v = float(parts[0]) , parts[1]
+          ismin=True
+        if ismin : cmin.append(cut)
+        else: cmax.append(cut)
+        var.append(v)
+      elif len(parts)==3:
+        cutmin, v, cutmax = parts
+        var.append(v)
+        cmin.append(float(cutmin))
+        cmax.append(float(cutmax))
 
     return cmin, var, cmax
     
@@ -425,14 +428,20 @@ class SelectSpec(ToolSpec):
         if '<' in selexpr:
             # interpret it as min<v<max
             cmin, v , cmax = interpretSelStr(selexpr)
+            VarList = []
             if args.setdefault('isEventVariable', False) :
               selProp = 'EventSelector'
-              selSpec = ToolSpec('JetEventSelector', v+'sel', Var = retrieveEventVarToolConf(v), )
+              for variable in v:
+                VarList.append(retrieveEventVarToolConf(v))
+              selSpec = ToolSpec('JetEventSelector', v+'sel', Var = VarList, ) 
             else:
               selProp = 'Selector'
-              selSpec = ToolSpec('JetSelectorAttribute', v+'sel', Var = retrieveVarToolConf(v), )
-            if cmin is not None: selSpec['CutMin'] = cmin
-            if cmax is not None: selSpec['CutMax'] = cmax
+              for variable in v:
+                VarList.append(retrieveVarToolConf(v))
+              selSpec = ToolSpec('JetSelectorAttribute', v+'sel', Var = VarList, )
+            #from numpy import array
+            if cmin is not []: selSpec['CutMin'] = cmin
+            if cmax is not []: selSpec['CutMax'] = cmax
             args[selProp] = selSpec
         elif selexpr != '':
             from JetMonitoring.JetStandardHistoSpecs import  knownSelector
