@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-# art-description: Test of transform HITS->RDO with serial athena followed by RDO->RDO_TRIG with threads=1
+# art-description: Test of transform HITS->RDO followed by RDO->RDO_TRIG
 # art-type: build
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.
@@ -13,6 +13,7 @@ from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 hit2rdo = ExecStep.ExecStep('HITtoRDO')
 hit2rdo.type = 'Reco_tf'
 hit2rdo.input = 'ttbar_HITS'
+hit2rdo.threads = 1
 hit2rdo.args = '--outputRDOFile=RDO.pool.root'
 
 pu_low = Input.get_input('pileup_low')

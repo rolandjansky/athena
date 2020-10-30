@@ -85,11 +85,19 @@ class ExecStep(Step):
         else:
             self.misconfig_abort('Cannot determine type of this step')
 
-        # Ensure no log duplication for transforms
         if self.executable.endswith('_tf.py'):
+            def del_env(varname):
+                if varname in os.environ:
+                    del os.environ[varname]
+
+            # Ensure no log duplication for transforms
             os.environ['TRF_NOECHO'] = '1'
-            if 'TRF_ECHO' in os.environ:
-                del os.environ['TRF_ECHO']
+            del_env('TRF_ECHO')
+
+            # We don't use the Reco_tf auto-configuration for MP/MT transforms,
+            # instead we pass our parameters of choice to athenaopts
+            del_env('ATHENA_NPROC_NUM')
+            del_env('ATHENA_CORE_NUMBER')
 
     def configure_input(self):
         self.log.debug('Configuring input for step %s', self.name)
