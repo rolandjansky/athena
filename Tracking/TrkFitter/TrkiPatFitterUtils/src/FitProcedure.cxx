@@ -165,7 +165,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
     }
     
     // then append the fitted TSOS
-    for (auto m : measurements)
+    for (auto *m : measurements)
     {
 	if (m->isMaterialDelimiter()) continue;
 	
@@ -796,7 +796,7 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
     m_chiSq		= 0.;
     double driftResidual= 0.;
     double DSqMax	= 0.;
-    for (auto m : measurements)
+    for (auto *m : measurements)
     {
 	if (! m->numberDoF()) continue;
 	// if (m->isPerigee())
@@ -922,7 +922,7 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 
 	(**measurements.begin()).printHeading(*m_log);
 	int n = 0;
-	for (auto m : measurements)
+	for (auto *m : measurements)
 	{
 	    *m_log << std::setiosflags(std::ios::fixed)
 		   << std::setw(3) << ++n;

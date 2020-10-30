@@ -675,7 +675,7 @@ namespace Trk {
       const TrackParameters &,
       const GXFTrackState &,
       PropDirection,
-      MagneticFieldProperties,
+      const MagneticFieldProperties&,
       bool,
       bool
     ) const;
@@ -725,7 +725,7 @@ namespace Trk {
       const TrackParameters &,
       const GXFTrackState &,
       PropDirection,
-      MagneticFieldProperties,
+      const MagneticFieldProperties&,
       bool,
       bool
     ) const;
@@ -840,7 +840,7 @@ namespace Trk {
       const TrackParameters *,
       const Surface *,
       PropDirection,
-      const MagneticFieldProperties
+      const MagneticFieldProperties&
     ) const;
 
     virtual int iterationsOfLastFit() const;
