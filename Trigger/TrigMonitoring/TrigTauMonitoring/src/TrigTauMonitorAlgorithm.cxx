@@ -192,14 +192,11 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::v
 
   auto monGroup = getGroup(trigger+( online ? "_RNN_HLT_InputScalar_"+nProng : "_RNN_Offline_InputScalar_"+nProng));  
 
-  ATH_MSG_DEBUG("check00");
-
   auto centFrac           = Monitored::Collection("centFrac", tau_vec,  [] (const xAOD::TauJet* tau){
                                                     float detail = -999;
                                                     if (tau->detail(xAOD::TauJetParameters::centFrac, detail)){
                                                       detail = std::min(detail, 1.0f);    
                                                     } return detail;});
-  ATH_MSG_DEBUG("check03");
   auto etOverPtLeadTrk    = Monitored::Collection("etOverPtLeadTrk", tau_vec,  [] (const xAOD::TauJet* tau){
                                                     float detail = -999;
                                                     if (tau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, detail)){
@@ -235,14 +232,12 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::v
                                                     }return detail;});
   auto ptDetectorAxis     = Monitored::Collection("ptDetectorAxis", tau_vec,  [] (const xAOD::TauJet* tau){
                                                     return TMath::Log10(std::min(tau->ptDetectorAxis() / 1000.0, 100.0));});
-  ATH_MSG_DEBUG("check01");
   auto massTrkSys         = Monitored::Collection("massTrkSys", tau_vec,  [&nProng] (const xAOD::TauJet* tau){
                                                 float detail = -999;
                                                 if ( tau->detail(xAOD::TauJetParameters::massTrkSys, detail) && nProng.find("MP") != std::string::npos ){
                                                   detail = TMath::Log10(std::max(detail, 140.0f));
                                                 }return detail;});
-
-  ATH_MSG_DEBUG("check02");    
+   
   fill(monGroup, centFrac,etOverPtLeadTrk,dRmax,absipSigLeadTrk,sumPtTrkFrac,emPOverTrkSysP,ptRatioEflowApprox,mEflowApprox,ptDetectorAxis,massTrkSys);     
 
   ATH_MSG_DEBUG("After fill RNN input variables: " << trigger);
