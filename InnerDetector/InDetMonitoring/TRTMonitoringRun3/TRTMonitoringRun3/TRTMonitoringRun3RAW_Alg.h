@@ -27,6 +27,7 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -113,6 +114,7 @@ private:
 
     // Services
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
+    ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
 
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};
