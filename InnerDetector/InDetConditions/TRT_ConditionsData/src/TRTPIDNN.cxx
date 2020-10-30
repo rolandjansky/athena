@@ -31,7 +31,6 @@ StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
     log << MSG::ERROR << " NN not readable: " << err.what() << endmsg;
     return StatusCode::FAILURE;
   }
-  std::cout << "============= Successfully read json config" << std::endl;
 
   try {
     m_nn.reset(new lwt::LightweightGraph(m_nnConfig));
@@ -39,25 +38,20 @@ StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
     log << MSG::ERROR << " NN configuration failed: " << err.what() << endmsg;
     return StatusCode::FAILURE;
   }
-  std::cout << "============= Successfully read json config" << std::endl;
 
   // store templates of the structure of the inputs to the NN
   m_scalarInputs.clear();
   for (auto input : m_nnConfig.inputs) {
-    std::cout << "============= Scalar input: " << input.name << std::endl;
     m_scalarInputs[input.name] = {};
     for (auto variable : input.variables) {
-      std::cout << "============= Input variable: " << variable.name << ", default: " << input.defaults[variable.name] << std::endl;
       m_scalarInputs[input.name][variable.name] = input.defaults[variable.name];
     }
   }
 
   m_vectorInputs.clear();
   for (auto input : m_nnConfig.input_sequences) {
-    std::cout << "============= Vector input: " << input.name << std::endl;
     m_vectorInputs[input.name] = {};
     for (auto variable : input.variables) {
-      std::cout << "============= Input variable: " << variable.name << ", default: " << input.defaults[variable.name] << std::endl;
       m_vectorInputs[input.name][variable.name] = {};
     }
   }
