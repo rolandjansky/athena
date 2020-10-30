@@ -16,7 +16,7 @@ atlas_add_library( HIJetRecLib
 
 atlas_add_component( HIJetRec
                      Root/*.cxx src/*.h src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps CaloEvent CaloInterfaceLib CaloRecLib CaloUtilsLib CxxUtils HIJetRecLib JetInterface JetRecLib NavFourMom Navigation PathResolver StoreGateLib xAODCore xAODEventInfo xAODTracking )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaBaseComps CaloEvent CaloInterfaceLib CaloRecLib CaloUtilsLib CxxUtils FourMomUtils HIEventUtilsLib HIJetRecLib JetInterface JetRecLib NavFourMom Navigation PathResolver StoreGateLib xAODBase xAODCaloEvent xAODCore xAODEventInfo xAODHIEvent xAODJet xAODTracking )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
