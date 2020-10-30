@@ -182,7 +182,7 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TRT_TrigTrackExtensionAlg::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  Iif(m_nprint)  return dumpEvent(out);
+  if(m_nprint)  return dumpEvent(out);
   return dumpConditions(out);
 }
 
