@@ -131,7 +131,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*, const
 //                         Propagator object 
 //
    vkalPropagator::vkalPropagator()= default;
-   vkalPropagator::~vkalPropagator() = default;
+   
 
    basePropagator::basePropagator() = default;
    basePropagator::~basePropagator() = default;

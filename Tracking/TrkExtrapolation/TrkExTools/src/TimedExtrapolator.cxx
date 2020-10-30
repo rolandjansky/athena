@@ -343,7 +343,7 @@ Trk::TimedExtrapolator::extrapolateWithPathLimit(
   std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
   for (; garbageIter != garbageEnd; ++garbageIter) if (garbageIter->first) {
     if(garbageIter->first == returnParms) {
-      auto ret=returnParms->clone();
+      auto *ret=returnParms->clone();
       ATH_MSG_DEBUG("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first<<" is the return param. Cloning to"<<ret);
       returnParms=ret;
     }
@@ -1393,7 +1393,7 @@ Trk::TimedExtrapolator::transportNeutralsWithPathLimit(const Trk::TrackParameter
   std::map<const Trk::TrackParameters *, bool>::iterator garbageEnd = cache.m_garbageBin.end();
   for (; garbageIter != garbageEnd; ++garbageIter) if (garbageIter->first) {
     if(garbageIter->first == returnParms) {
-      auto ret=returnParms->clone();
+      auto *ret=returnParms->clone();
       ATH_MSG_DEBUG("  [+] garbage - at " << positionOutput(garbageIter->first->position())<<" parm="<<garbageIter->first<<" is the return param. Cloning to"<<ret);
       returnParms=ret;
     }
