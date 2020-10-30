@@ -136,6 +136,12 @@ def TileCellMonitoringConfig(flags, **kwargs):
                                   title = 'Occupancy Map Over Threshod 300 GeV', path = 'Tile/Cell',
                                   subDirectory = True, run = run, triggers = l1Triggers, separator = '_')
 
+    # ) Configure histograms with Tile cell energy difference maps per partition
+    addTileModuleChannelMapsArray(helper, tileCellMonAlg, name = 'TileCellEneDiffChanMod',
+                                  title = 'Tile Cell energy difference between PMTs [MeV]', path = 'Tile/Cell',
+                                  subDirectory = True, type = 'TProfile2D', value = 'energyDiff',
+                                  run = run, triggers = l1Triggers, separator = '_')
+
     # 11) Configure histograms with occupancy maps over threshold per partition
     addTileModuleChannelMapsArray(helper, tileCellMonAlg, name = 'TileCellDetailOccMapOvThrGain',
                                   weight = 'weight', title = titleMapOvThr, path = 'Tile/Cell', subDirectory = True,
@@ -313,6 +319,8 @@ if __name__=='__main__':
     ConfigFlags.Output.HISTFileName = 'TileCellMonitorOutput.root'
     ConfigFlags.DQ.useTrigger = False
     ConfigFlags.DQ.enableLumiAccess = False
+    ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -333,7 +341,7 @@ if __name__=='__main__':
 
     cfg.store( open('TileCellMonitorAlgorithm.pkl','wb') )
 
-    sc = cfg.run(maxEvents=3)
+    sc = cfg.run()
 
     import sys
     # Success should be 0

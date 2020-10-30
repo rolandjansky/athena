@@ -75,6 +75,9 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_overThr300GeVOccupGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellDetailOccMapOvThr300GeV",
                                                               Tile::MAX_ROS - 1, nL1Triggers);
 
+  m_eneDiffChanModGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEneDiffChanMod",
+                                                          Tile::MAX_ROS - 1, nL1Triggers);
+
   m_overThrOccupGainGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileCellDetailOccMapOvThrGain",
                                                                          Tile::MAX_ROS - 1, Tile::MAX_GAIN, nL1Triggers);
 
@@ -104,6 +107,7 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_negOccupGroups = buildToolMap<int>(m_tools, "TileCellDetailNegOccMap", Tile::MAX_ROS - 1);
   m_timeBalGroups = buildToolMap<int>(m_tools, "TileCellTimeBalance", Tile::MAX_ROS - 1);
   m_energyBalGroups = buildToolMap<int>(m_tools, "TileCellEnergyBalance", Tile::MAX_ROS - 1);
+
 
   return TileMonitorAlgorithm::initialize();
 }
@@ -193,6 +197,10 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   std::vector<int> overThr300GeVOccupModule[Tile::MAX_ROS - 1];
   std::vector<int> overThr300GeVOccupChannel[Tile::MAX_ROS - 1];
+
+  std::vector<int> eneDiff[Tile::MAX_ROS - 1];
+  std::vector<int> eneDiffChannel[Tile::MAX_ROS - 1];
+  std::vector<int> eneDiffModule[Tile::MAX_ROS - 1];
 
   std::vector<int> maskedOnFlyDrawers[Tile::MAX_ROS - 1];
   std::vector<int> maskedOnFlyChannel[Tile::MAX_ROS - 1];
@@ -560,6 +568,14 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
             energyBal[partition1].push_back(energyRatio);
             energyBalModule[partition1].push_back(module);
 
+            eneDiff[partition1].push_back(energyDiff);
+            eneDiffChannel[partition1].push_back(channel1);
+            eneDiffModule[partition1].push_back(module);
+
+            eneDiff[partition2].push_back(-1.0 * energyDiff);
+            eneDiffChannel[partition2].push_back(channel2);
+            eneDiffModule[partition2].push_back(module);
+
             if (fillEneAndTimeDiff) {
               sampEnergyDiff[partition1][sample].push_back(energyDiff);
             }
@@ -783,6 +799,15 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       auto monChannel = Monitored::Collection("channel", overThr300GeVOccupChannel[partition]);
       for (int l1TriggerIdx : l1TriggersIndices) {
         fill(m_tools[m_overThr300GeVOccupGroups[partition][l1TriggerIdx]], monModule, monChannel);
+      }
+    }
+
+    if (!eneDiff[partition].empty()) {
+      auto monEnergyDiff = Monitored::Collection("energyDiff", eneDiff[partition]);
+      auto monModule = Monitored::Collection("module", eneDiffModule[partition]);
+      auto monChannel = Monitored::Collection("channel", eneDiffChannel[partition]);
+      for (int l1TriggerIdx : l1TriggersIndices) {
+        fill(m_tools[m_eneDiffChanModGroups[partition][l1TriggerIdx]], monModule, monChannel, monEnergyDiff);
       }
     }
 
