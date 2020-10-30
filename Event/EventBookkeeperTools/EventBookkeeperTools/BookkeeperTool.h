@@ -16,6 +16,7 @@
 
 #include <AsgTools/AsgMetadataTool.h>
 #include <AsgTools/PropertyWrapper.h>
+#include <AsgTools/SourceID.h>
 
 #ifndef XAOD_STANDALONE
 #include <AthenaKernel/ICutFlowSvc.h>
@@ -32,14 +33,6 @@
 #ifndef XAOD_STANDALONE
 
 class CutFlowSvc;
-
-#else
-
-namespace SG
-{
-  // TODO: do this properly
-  typedef std::string SourceID;
-}
 
 #endif // XAOD_STANDALONE
 
