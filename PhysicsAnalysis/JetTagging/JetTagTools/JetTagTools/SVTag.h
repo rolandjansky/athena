@@ -99,6 +99,7 @@ namespace Analysis
       // flag to turn ON/OFF the use of \DeltaR(jet,PV-SV) in the likelihood
       bool m_useDRJPVSV;    
       bool m_isFlipped; // true if tagger is configured in flipped mode. in that case adjusts DRJPVSV computation
+      bool m_save_probabilities;
 
     }; // End class
 

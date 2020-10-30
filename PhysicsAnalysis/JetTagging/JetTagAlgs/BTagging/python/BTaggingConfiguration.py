@@ -42,7 +42,6 @@ from BTagging.BTaggingConfiguration_IP3DNegTag import *
 from BTagging.BTaggingConfiguration_IP3DTag import *
 from BTagging.BTaggingConfiguration_IP3DTrigTag import *
 from BTagging.BTaggingConfiguration_IP3DTrigHybridTag import *
-from BTagging.BTaggingConfiguration_RNNIPTag import *
 
 # Jet fitter taggers
 #from BTagging.BTaggingConfiguration_JetFitterCOMB import *
@@ -107,26 +106,17 @@ from BTagging.BTaggingConfiguration_MV2c100Tag import *
 from BTagging.BTaggingConfiguration_MV2c100FlipTag import *
 from BTagging.BTaggingConfiguration_MV2cl100Tag import *
 from BTagging.BTaggingConfiguration_MV2cl100FlipTag import *
-from BTagging.BTaggingConfiguration_MV2mTag import *
-from BTagging.BTaggingConfiguration_MV2mFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c10hpTag import *
 from BTagging.BTaggingConfiguration_MV2c10hpFlipTag import *
 
 #JetVertexCharge tool
 from BTagging.BTaggingConfiguration_JetVertexCharge import *
 
-#ExKtbb tool
-from BTagging.BTaggingConfiguration_ExKtbbTag import *
-
 # MultivariateTagManager
 from BTagging.BTaggingConfiguration_MultivariateTagManager import *
 from BTagging.BTaggingConfiguration_MultivariateTrigTagManager import *
 from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
 from BTagging.BTaggingConfiguration_MultiTrigHybridTagManager import *
-
-# DL1 tagger
-from BTagging.BTaggingConfiguration_DL1Tag import *
-from BTagging.BTaggingConfiguration_DL1FlipTag import *
 
 # TagNtupleDumper
 from BTagging.BTaggingConfiguration_TagNtupleDumper import *
