@@ -1,15 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from AthenaCommon.SystemOfUnits import GeV
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def _IncTool(name, threshold, sel):
 
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionEtcutHypoTool    
 
     tool = TrigEgammaPrecisionEtcutHypoTool( name ) 
-
-    from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
-    monTool = GenericMonitoringTool("MonTool_"+name)
 
     tool.AcceptAll = True
     return tool

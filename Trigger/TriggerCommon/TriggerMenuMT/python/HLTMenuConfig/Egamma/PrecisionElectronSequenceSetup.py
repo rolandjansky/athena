@@ -1,10 +1,9 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-from AthenaCommon.Constants import DEBUG
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
@@ -44,7 +43,6 @@ def precisionElectronMenuSequence():
     thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT("TrigEgammaPrecisionElectronHypoAlgMT")
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.RunInView = True
-    thePrecisionElectronHypo.OutputLevel = DEBUG
 
     from TrigEgammaHypo.TrigEgammaPrecisionElectronHypoTool import TrigEgammaPrecisionElectronHypoToolFromDict
 

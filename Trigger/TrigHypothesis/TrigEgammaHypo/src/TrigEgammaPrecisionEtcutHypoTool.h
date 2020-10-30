@@ -30,7 +30,7 @@ class TrigEgammaPrecisionEtcutHypoTool : public extends<AthAlgTool, ITrigEgammaP
 
   virtual StatusCode decide( std::vector<ITrigEgammaPrecisionEtcutHypoTool::ClusterInfo>& input )  const override;
 
-  virtual bool decide( const ITrigEgammaPrecisionEtcutHypoTool::ClusterInfo& i ) const override;
+  virtual bool decide() const override;
 
  private:
   HLT::Identifier m_decisionId;
@@ -43,3 +43,4 @@ class TrigEgammaPrecisionEtcutHypoTool : public extends<AthAlgTool, ITrigEgammaP
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_PRECISIONETCUTHYPOTOOL_H
+

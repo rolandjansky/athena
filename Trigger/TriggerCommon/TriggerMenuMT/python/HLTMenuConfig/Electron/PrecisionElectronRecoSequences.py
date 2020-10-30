@@ -3,7 +3,6 @@
 #
 
 from AthenaCommon.CFElements import parOR
-from AthenaCommon.GlobalFlags import globalflags
 
 #logging
 from AthenaCommon.Logging import logging

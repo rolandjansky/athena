@@ -3,7 +3,6 @@
 #
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from AthenaCommon.Constants import DEBUG
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -47,7 +46,6 @@ def precisionTrackingMenuSequence(name):
 
     thePrecisionEtcutHypo = TrigEgammaPrecisionEtcutHypoAlgMT(name+"precisionEtcutHypo")
     thePrecisionEtcutHypo.CaloClusters = caloclusters
-    thePrecisionEtcutHypo.OutputLevel = DEBUG
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionEtcutViewsMaker, 

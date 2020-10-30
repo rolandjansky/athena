@@ -34,7 +34,7 @@ StatusCode TrigEgammaPrecisionEtcutHypoTool::initialize()  {
 TrigEgammaPrecisionEtcutHypoTool::~TrigEgammaPrecisionEtcutHypoTool(){}
 
 
-bool TrigEgammaPrecisionEtcutHypoTool::decide( const ITrigEgammaPrecisionEtcutHypoTool::ClusterInfo& input ) const {
+bool TrigEgammaPrecisionEtcutHypoTool::decide() const {
 
   bool pass = false;
   
@@ -52,11 +52,9 @@ bool TrigEgammaPrecisionEtcutHypoTool::decide( const ITrigEgammaPrecisionEtcutHy
 
 StatusCode TrigEgammaPrecisionEtcutHypoTool::decide( std::vector<ClusterInfo>& input )  const {
   for ( auto& i: input ) {
-    if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
-      if ( decide( i ) ) {
-	addDecisionID( m_decisionId, i.decision );
-      }
-    }
+    if ( i.previousDecisionIDs.count( m_decisionId.numeric() ) == 0 ) continue;
+    addDecisionID( m_decisionId, i.decision );
   }
   return StatusCode::SUCCESS;
 }
+

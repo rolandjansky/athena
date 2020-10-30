@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -116,8 +114,7 @@ def getEmptySeqName(stepName, chain_index, step_number, alignGroup):
     if re.search('^Step[0-9]_',stepName):
         stepName = stepName[6:]
 
-    seqName = 'Empty_'+ alignGroup +'_Seq'+str(step_number)+ '_'+ stepName + '_leg' + str(chain_index)
-    print("EmptySequenceName: ", seqName)
+    seqName = 'Empty'+ alignGroup +'Seq'+str(step_number)+ '_'+ stepName + '_leg' + str(chain_index)
     return seqName
 
 

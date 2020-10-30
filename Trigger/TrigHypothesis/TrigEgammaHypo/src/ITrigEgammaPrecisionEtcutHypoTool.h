@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGEGAMMAHYPO_ITPRECISIONETCUTHYPOTOOL_H
 #define TRIGEGAMMAHYPO_ITPRECISIONETCUTHYPOTOOL_H 1
@@ -45,7 +45,7 @@ class ITrigEgammaPrecisionEtcutHypoTool
    * @brief Makes a decision for a single object
    * The decision needs to be returned
    **/ 
-  virtual bool decide( const ClusterInfo& i ) const = 0;
+  virtual bool decide() const = 0;
 
  protected:
 
