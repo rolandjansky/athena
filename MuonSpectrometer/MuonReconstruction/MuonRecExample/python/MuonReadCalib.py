@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # MDT Calibration tools/services are defined in MuonCnvExample/python/MuonCalibConfig.py
 # For backwards compatibility, they are instantiated here, but this whole module
@@ -6,7 +6,7 @@
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
 
-from AthenaCommon.CfgGetter import getPublicTool,getService,getPrivateTool,getAlgorithm
+from AthenaCommon.CfgGetter import getPublicTool
 from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.setDefaults()
 
@@ -14,6 +14,6 @@ if muonRecFlags.doCSCs():
     CscCalibTool = getPublicTool("CscCalibTool")
 
 if muonRecFlags.doMDTs():
-    from MuonRecExample import MuonAlignConfig
+    from MuonRecExample import MuonAlignConfig  # noqa: F401
     from MuonCnvExample import MuonCalibConfig
     MuonCalibConfig.setupMdtCondDB()
