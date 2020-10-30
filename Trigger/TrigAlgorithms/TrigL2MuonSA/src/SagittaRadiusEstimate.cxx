@@ -36,7 +36,7 @@ void TrigL2MuonSA::SagittaRadiusEstimate::setMCFlag(BooleanProperty use_mcLUT,
 
 StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::RecMuonRoI*     p_roi,
 								 TrigL2MuonSA::RpcFitResult& rpcFitResult,
-								 TrigL2MuonSA::TrackPattern& trackPattern)
+								 TrigL2MuonSA::TrackPattern& trackPattern) const
 {
   const int MAX_STATION = 4;
   const float ZERO_LIMIT = 1e-5;
