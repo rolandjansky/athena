@@ -15,6 +15,7 @@
 #include "L1CaloSrcIdMap.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthContainers/DataVector.h"
 #include "eformat/SourceIdentifier.h"
@@ -81,12 +82,15 @@ class CpByteStreamV2Tool : public AthAlgTool {
                       DataVector<LVL1::CMXCPHits>* hitCollection) const;
 
    /// Convert CP Container to bytestream
-   StatusCode convert(const LVL1::CPBSCollectionV2* cp, RawEventWrite* re) const;
+   StatusCode convert(const LVL1::CPBSCollectionV2* cp) const;
 
    /// Return reference to vector with all possible Source Identifiers
    const std::vector<uint32_t>& sourceIDs() const;
 
  private:
+   ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+   { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+
    struct LocalData
    {
      /// Tower channels to accept (1=Core, 2=Overlap)
