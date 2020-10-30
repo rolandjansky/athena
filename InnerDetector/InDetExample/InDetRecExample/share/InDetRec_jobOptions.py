@@ -1066,7 +1066,7 @@ else:
                                                               OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
                                                               AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
                                                               AssociationMapName      = "PRDtoTrackMap" + InDetKeys.UnslimmedTracks(),
-                                                              UpdateSharedHitsOnly    = False,
+                                                              UpdateSharedHits        = True,
                                                               UpdateAdditionalInfo    = True,
                                                               SummaryTool             = merger_track_summary_tool)
         topSequence += TrkTrackCollectionMerger
@@ -1113,7 +1113,7 @@ else:
                                                                  TracksLocation          = DummyCollection,
                                                                  OutputTracksLocation    = InDetKeys.DisappearingTracks(),
                                                                  AssociationTool         = getInDetPRDtoTrackMapToolGangedPixels(),
-                                                                 UpdateSharedHitsOnly    = False,
+                                                                 UpdateSharedHits        = True,
                                                                  UpdateAdditionalInfo    = True,
                                                                  SummaryTool             = merger_track_summary_tool)
        #TrkTrackCollectionMerger_pix.OutputLevel = VERBOSE
