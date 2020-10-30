@@ -73,7 +73,10 @@ std::vector<Trk::SpaceTimePoint*> InDet::TRT_TrackTimingTool::timeMeasurements(c
   std::vector<Trk::SpaceTimePoint*> timeMeasurementsVector;
   // need to use constructor: SpaceTimePoint(const GlobalPosition& position, const float& t, const float& t_error, const float& weight);
 
-if (&track==0) return timeMeasurementsVector; // this function should not have been called in the first place
+  // Useless test; compiler can assume it's false and optimize it away.
+  // Tests for null must be done on pointers, not references
+  // (which by definition cannot be null).
+  //if (&track==0) return timeMeasurementsVector; // this function should not have been called in the first place
 	
 	float time = 0.;
 	Amg::Vector3D position(0., 0., 0.);
