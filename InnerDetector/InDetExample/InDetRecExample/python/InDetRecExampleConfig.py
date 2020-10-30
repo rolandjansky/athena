@@ -289,6 +289,16 @@ def InDetGlobalChi2Fitter(name='InDetGlobalChi2Fitter', **kwargs) :
                            Momentum            = 1000.*Units.MeV)
     return InDetGlobalChi2FitterBase(name, **kwargs)
 
+def InDetGlobalChi2FitterBT(name='InDetGlobalChi2FitterBT', **kwargs):
+    '''
+    Global Chi2 Fitter for backtracking
+    '''
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    kwargs=setDefaults(kwargs,
+                       MinPHFCut = 0.)
+    return InDetGlobalChi2Fitter(name, **kwargs)
+
+
 def InDetGlobalChi2FitterLowPt(name='InDetGlobalChi2FitterLowPt', **kwargs) :
     # @TODO TrackingGeometrySvc was not set but is set now
     #       RotCreatorTool and BroadRotCreatorTool not set
@@ -390,6 +400,13 @@ def InDetTrackFitter(name='InDetTrackFitter', **kwargs) :
         'GlobalChi2Fitter'        : InDetGlobalChi2Fitter,
         'GaussianSumFilter'       : GaussianSumFitter
     }[InDetFlags.trackFitterType()](name,**kwargs)
+
+def InDetTrackFitterBT(name='InDetTrackFitterBT', **kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.trackFitterType() != 'GlobalChi2Fitter' :
+        return InDetTrackFitter(name,**kwargs)
+    else :
+        return InDetGlobalChi2FitterBT(name,**kwargs)
 
 def InDetTrackFitterLowPt(name='InDetTrackFitter', **kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
