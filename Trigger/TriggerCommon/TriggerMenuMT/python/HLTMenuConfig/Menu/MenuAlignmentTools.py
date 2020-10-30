@@ -193,7 +193,7 @@ class MenuAlignment():
         aligngroups_set.reverse()
                       
         for align_grp_to_align in aligngroups_set:
-            chainConfig.insertEmptySteps(chainDict,'Empty'+align_grp_to_align+'Align',self.length_of_configs[align_grp_to_align],0)         
+            chainConfig.insertEmptySteps('Empty'+align_grp_to_align+'Align',self.length_of_configs[align_grp_to_align],0)         
             log.debug("Finished with retrieving chain configuration for chain %s", chainDict['chainName'])
             chainConfig.numberAllSteps()
 
@@ -233,7 +233,7 @@ class MenuAlignment():
            if length_firstgrp < max_length_firstgrp:
                #too short! need to add padding steps between two alignment groups...
                needed_steps = max_length_firstgrp - length_firstgrp
-               chainConfig.insertEmptySteps(chainDict,'Empty'+self.sets_to_align[alignment_grps[0]][0]+'Align',needed_steps,length_firstgrp) 
+               chainConfig.insertEmptySteps('Empty'+self.sets_to_align[alignment_grps[0]][0]+'Align',needed_steps,length_firstgrp) 
       
            elif length_firstgrp > max_length_firstgrp:
                log.error("%s first signature length %d is greater than the max calculated, %d",chainDict.name,length_firstgrp, max_length_firstgrp)     
@@ -279,11 +279,11 @@ class MenuAlignment():
                         #too short! gotta add padding steps between two alignmentGroups...
                         needed_steps = max_length_grp - length_in_chain
                         start_step = n_steps_before_grp + length_in_chain
-                        chainConfig.insertEmptySteps(chainDict,'Empty'+align_grp+'Align',needed_steps,start_step) 
+                        chainConfig.insertEmptySteps('Empty'+align_grp+'Align',needed_steps,start_step) 
                 else:
                     # this sig isn't in the chain, but we still will need empty steps for it
                     # always add them to the start, because we're running in reverse order
-                    chainConfig.insertEmptySteps(chainDict,'Empty'+align_grp+'Align',self.length_of_configs[align_grp],n_steps_before_grp) 
+                    chainConfig.insertEmptySteps('Empty'+align_grp+'Align',self.length_of_configs[align_grp],n_steps_before_grp) 
         else:
              log.error("Should never reach this point. alignmentGroups: %s, sets_to_align: %s",alignment_grps,self.sets_to_align)
              raise Exception("MenuAlignment.multi_align() needs checking, this should never happen.")

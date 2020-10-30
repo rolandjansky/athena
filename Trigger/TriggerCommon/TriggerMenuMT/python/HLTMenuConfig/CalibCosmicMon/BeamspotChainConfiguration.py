@@ -84,25 +84,30 @@ class BeamspotChainConfiguration(ChainConfigurationBase):
     def assembleChain(self):                            
         chainSteps = []
         log.debug("Assembling chain for " + self.chainName)
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
-        # --------------------
-        stepDictionary = {
-            "allTE_trkfast":[self.getAllTEStep()],
-            #"activeTE_trkfast":[self.activeTE_trkfast()],
-            "trkFS_trkfast":[self.getTrkFSStep()],
-        }
 
+        stepDictionary = self.getStepDictionary()
+      
         #key = self.chainPart['EFrecoAlg']
         key = self.chainPart['addInfo'][0] + "_" + self.chainPart['l2IDAlg'][0]#TODO: hardcoded index
         steps=stepDictionary[key]
         for step in steps:
-            chainSteps+=[step]
+            chainstep = getattr(self, step)()
+            chainSteps+=[chainstep]
             
         myChain = self.buildChain(chainSteps)
         return myChain
 
-   
+    def getStepDictionary(self):
+        # --------------------
+        # define here the names of the steps and obtain the chainStep configuration 
+        # --------------------
+        stepDictionary = {
+            "allTE_trkfast":['getAllTEStep'],
+            #"activeTE_trkfast":[self.activeTE_trkfast()],
+            "trkFS_trkfast":['getTrkFSStep']
+        }
+        return stepDictionary
+       
     # --------------------
     # Configuration of costmonitor (costmonitor ?? but isn't this is the actua chain configuration ??)
     # --------------------

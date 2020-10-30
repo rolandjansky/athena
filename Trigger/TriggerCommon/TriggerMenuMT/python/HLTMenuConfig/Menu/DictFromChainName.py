@@ -148,6 +148,7 @@ def getChainMultFromDict(chainDict):
     Look for all multiplicities stored in chains
     """
     allMultis = []
+   
     for cpart in chainDict['chainParts']:
         if cpart['multiplicity'] != '':
             allMultis.append( int(cpart['multiplicity']))
@@ -230,6 +231,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                      'trigType': sigToken, 'extra': ''}
         mdicts.append( groupdict )
 
+       
     log.debug("chain parts: %s", cparts)
     for cpart in cparts:
 
@@ -252,13 +254,13 @@ def analyseChainName(chainName, L1thresholds, L1item):
                 if theMultiChainIndex not in multichainindex:
                     multichainindex.append(theMultiChainIndex)
 
-            log.debug("HLTChainName: %s", hltChainName)
-            log.debug("HLTChainNameShort: %s", hltChainNameShort)
-            log.debug("cpart: %s", cpart)
-            log.debug("groupdict: %s", groupdict)
-            log.debug("multichainindex: %s", multichainindex)
+                    log.debug("HLTChainName: %s", hltChainName)
+                    log.debug("HLTChainNameShort: %s", hltChainNameShort)
+                    log.debug("cpart: %s", cpart)
+                    log.debug("groupdict: %s", groupdict)
+                    log.debug("multichainindex: %s", multichainindex)
 
-            sName = getSignatureNameFromToken(cpart)
+                sName = getSignatureNameFromToken(cpart)
             
             groupdict['signature'] = sName
             groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
@@ -501,7 +503,7 @@ def dictFromChainName(chainInfo):
         mergingOffset   = chainInfo.mergingOffset
         mergingOrder    = chainInfo.mergingOrder
         topoStartFrom   = chainInfo.topoStartFrom
-
+        
     else:
         assert True, "Format of chainInfo passed to genChainDict not known"
 
