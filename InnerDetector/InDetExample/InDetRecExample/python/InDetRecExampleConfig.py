@@ -232,6 +232,7 @@ def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs) :
                        RecalibrateSilicon     = True,
                        RecalibrateTRT         = True,
                        TRTTubeHitCut          = 1.75, # use tighter hit classification, old: TrackingCommon.default_ScaleHitUncertainty
+                       MinPHFCut              = TrackingCommon.getInDetNewTrackingCuts().minTRTPrecFrac(), # PHF cut during fit iterations to save CPU time
                        MaxIterations          = 40,
                        Acceleration           = True,
                        RecalculateDerivatives = InDetFlags.doMinBias() or InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
