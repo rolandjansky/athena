@@ -19,6 +19,8 @@
 //#include "GaudiKernel/ToolHandle.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "LArByteStream/RodRobIdMap.h"
+#include "LArCabling/LArOnOffIdMapping.h"
+#include "LArRecConditions/LArFebRodMapping.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 #include "ByteStreamData/RawEvent.h" 
 #include "LArByteStream/LArRodDecoder.h"
@@ -26,6 +28,7 @@
 #include "CaloIdentifier/CaloGain.h"
 #include "CaloConditions/CaloNoise.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CxxUtils/CachedUniquePtr.h"
 
 #include "LArRawEvent/LArFebHeaderContainer.h"
 // Map of ROBs need this
@@ -115,6 +118,10 @@ private:
   /** Prepare ROB index before conversion */
   StatusCode prepareRobIndex (const RawEvent* event, RobIndex_t& robIndex) const;
  
+
+  /** Construct a RodBlockStructure instance of the proper concrete type. */
+  std::unique_ptr<LArRodBlockStructure> makeRodBlockStructure() const;
+
   //StatusCode prepareWriting();
   /** 
    * @brief Check that all elements in a container have the same gain
@@ -124,8 +131,9 @@ private:
   template <class COLLECTION >
     bool checkGainConsistency(const COLLECTION* coll) const;
  
-  Hid2RESrcID m_hid2re;       //!< Contains the mapping from channel to ROD
+  CxxUtils::CachedUniquePtr<Hid2RESrcID> m_hid2re;       //!< Contains the mapping from channel to ROD (writing only)
   LArRodDecoder *m_decoder;   //!< Pointer to RodDecoder class
+  const Hid2RESrcID& getHid2RESrcID (const LArFebRodMapping& rodMapping) const;
 
   /** Pointer to @c LArRodBlockStructure base class. 
       Which concrete implementation is used depends on the value of 
@@ -155,8 +163,16 @@ private:
   // Name of Digit container to retrieve
   std::string m_DigitContName;
 
+  const LArOnlineID*    m_onlineHelper = nullptr;
+
   SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey
   { this, "CaloNoiseKey", "totalNoise", "" };
+
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_onOffIdMappingKey
+  { this, "OnOffIdMappingKey", "LArOnOffIdMap", "LArOnOffIdMap" };
+
+  SG::ReadCondHandleKey<LArFebRodMapping> m_febRodMappingKey
+  { this, "FebRodMappingKey", "LArFebRodMap", "LArFebRodMap" };
 };
 
 
