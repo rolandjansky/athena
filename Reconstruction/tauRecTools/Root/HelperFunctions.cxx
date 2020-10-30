@@ -162,7 +162,7 @@ TLorentzVector tauRecTools::GetConstituentP4(const xAOD::JetConstituent& constit
     constituentP4 = pfo->p4();
   }
   else {
-    ANA_MSG_ERROR("GetJetConstCluster: Seed jet constituent type not supported!");
+    ANA_MSG_ERROR("GetConstituentP4: Seed jet constituent type not supported!");
     constituentP4.SetPtEtaPhiE(constituent.pt(), constituent.eta(), constituent.phi(), constituent.e());
   }
 
@@ -187,7 +187,6 @@ const StatusCode tauRecTools::GetJetClusterList(const xAOD::Jet* jet, std::vecto
 	  const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>( constituent->rawConstituent() );
 	  ANA_MSG_DEBUG("CaloCluster: ");
 	  ANA_MSG_DEBUG("eta: " << cluster->eta() << " phi: " << cluster->phi() << " e: " << cluster->e());
-
 	  clusterList.push_back(cluster);
     }
     else if ( constituent->type() == xAOD::Type::ParticleFlow ) {
