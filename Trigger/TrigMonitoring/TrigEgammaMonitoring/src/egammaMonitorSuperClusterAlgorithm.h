@@ -5,6 +5,7 @@
 #ifndef egammaMonitorSuperClusterAlgorithm_H
 #define egammaMonitorSuperClusterAlgorithm_H
 
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "egammaMonitorSuperClusterAlgorithm.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -26,19 +27,15 @@
 
 class egammaRec;
 
-class egammaMonitorSuperClusterAlgorithm: public AthAlgorithm
+class egammaMonitorSuperClusterAlgorithm: public AthReentrantAlgorithm 
 {
 
   public:
 
     egammaMonitorSuperClusterAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
-    StatusCode initialize();
-    virtual StatusCode execute() override final {
-
-        return execute_r(Algorithm::getContext());
-    }
-
-    StatusCode execute_r(const EventContext& ctx) const;
+    
+    virtual StatusCode initialize() override;
+    virtual StatusCode execute (const EventContext& ctx) const override;
 
   protected:
 
