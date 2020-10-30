@@ -193,10 +193,12 @@ namespace InDet
         if( trackParticle->summaryValue( temp , xAOD::numberOfSCTHits)   ) ncl += temp; 
         if( trackParticle->summaryValue( temp , xAOD::numberOfTRTHits)   ) ntrt += temp; 
         if(i==0) {
-          if(ncl>0) isSi1 = true; if(ncl==0 && ntrt>0) isTrt1 = true;
+          if(ncl>0) isSi1 = true;
+          if(ncl==0 && ntrt>0) isTrt1 = true;
         }
         if(i==1) {
-          if(ncl>0) isSi2 = true; if(ncl==0 && ntrt>0) isTrt2 = true;
+          if(ncl>0) isSi2 = true;
+          if(ncl==0 && ntrt>0) isTrt2 = true;
         }
 
         //Decide on the type of track combination in vertex
