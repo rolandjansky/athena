@@ -175,6 +175,9 @@ class TrigEgammaMonAlgBuilder:
             ]
 
     monitoring_photon = [
+            'HLT_g20_loose_L1EM15VH',
+            'HLT_g20_medium_L1EM15VH',
+            'HLT_g20_tight_L1EM15VH',
             'HLT_g20_tight_icaloloose_L1EM15VH',
             'HLT_g22_tight_L1EM15VH',
             'HLT_g25_etcut_L1EM20VH',
@@ -189,6 +192,8 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e24_lhvloose_L1EM20VH', 
             'HLT_e26_lhtight_L1EM22VHI',
             'HLT_e26_lhtight_ivarloose_L1EM22VHI',
+            'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
+            'HLT_e26_lhtight_ivartight_L1EM22VHI',
             'HLT_e60_lhmedium_L1EM22VHI',
             'HLT_e140_lhloose_L1EM22VHI'
             ]
