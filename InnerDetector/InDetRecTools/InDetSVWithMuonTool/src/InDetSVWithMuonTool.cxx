@@ -119,7 +119,7 @@ InDetSVWithMuonTool::InDetSVWithMuonTool(const std::string& type,
        if( m_RlayerB  ==0.)  m_RlayerB  =34.0;
        if( m_Rlayer1  ==0.)  m_Rlayer1  =51.6;
        if( m_Rlayer2  ==0.)  m_Rlayer2  =90.0;
-                             m_Rlayer3  =122.5;
+       m_Rlayer3  =122.5;
      } else {   // 3-layer pixel detector
        if( m_Rbeampipe==0.)  m_Rbeampipe=29.4;    
        if( m_RlayerB  ==0.)  m_RlayerB  =51.5;

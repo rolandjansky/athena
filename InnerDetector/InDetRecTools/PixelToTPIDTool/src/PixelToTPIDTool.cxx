@@ -46,8 +46,8 @@ InDet::PixelToTPIDTool::PixelToTPIDTool(const std::string& t,
   AthAlgTool(t,n,p),
   m_IBLParameterSvc("IBLParameterSvc",n),
   m_overflowIBLToT(0),
-  m_pixelid(nullptr),
-  m_offlineCalibSvc("PixelOfflineCalibSvc", n)
+  m_offlineCalibSvc("PixelOfflineCalibSvc", n),
+  m_pixelid(nullptr)
 {
   declareInterface<IPixelToTPIDTool>(this);
   declareProperty("CalibrationFile", m_filename = "mcpar_signed_234.txt");

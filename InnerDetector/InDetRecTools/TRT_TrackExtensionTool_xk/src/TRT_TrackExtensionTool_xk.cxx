@@ -225,7 +225,8 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::finalize()
 MsgStream& InDet::TRT_TrackExtensionTool_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 
@@ -487,7 +488,8 @@ StatusCode InDet::TRT_TrackExtensionTool_xk::magneticFieldInit(IOVSVC_CALLBACK_A
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
+  magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 

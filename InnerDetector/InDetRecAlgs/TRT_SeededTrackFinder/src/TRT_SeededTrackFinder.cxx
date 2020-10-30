@@ -517,7 +517,8 @@ StatusCode InDet::TRT_SeededTrackFinder::finalize()
 MsgStream&  InDet::TRT_SeededTrackFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
