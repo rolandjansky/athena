@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACKSUMMARYTOOL_H
@@ -133,12 +133,6 @@ public:
     Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const override;
 
-  /** method to update additional information (PID,shared hits, dEdX), this is
-   * optimised for track collection merging.
-   */
-  virtual void updateAdditionalInfo(
-    Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const override;
 
   /** Update the shared hit count of the given track summary.
    * @param summary the summary to be updated i.e. a copy of the track summary
@@ -173,7 +167,6 @@ public:
    * summary is owned by the track.
    */
   virtual void updateAdditionalInfo(const Track& track,
-                                    const Trk::PRDtoTrackMap* prd_to_track_map,
                                     TrackSummary& summary) const override;
 
   /** method to update additional information (PID,shared hits, dEdX), this is
@@ -200,7 +193,6 @@ private:
                      bool suppress_hole_search) const;
   
   void updateAdditionalInfo(const Track& track,
-                            const Trk::PRDtoTrackMap* prd_to_track_map,
                             TrackSummary& summary,
                             bool initialise_to_zero) const;
 

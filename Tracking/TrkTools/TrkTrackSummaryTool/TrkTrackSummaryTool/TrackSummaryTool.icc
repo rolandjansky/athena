@@ -40,22 +40,6 @@ TrackSummaryTool::updateSharedHitCount(
   }
 }
 
-inline void
-TrackSummaryTool::updateAdditionalInfo(
-  Track& track,
-  const Trk::PRDtoTrackMap* prd_to_track_map) const
-{
-  if (!track.trackSummary()) {
-    computeAndReplaceTrackSummary(
-      track, prd_to_track_map, false /*DO NOT suppress hole search*/);
-  } else {
-    updateAdditionalInfo(
-      track,
-      prd_to_track_map,
-      *track.trackSummary(),
-      true); // @TODO set to false; true for backward compatibility
-  }
-}
 
 inline void
 TrackSummaryTool::updateSharedHitCount(Track& track) const
@@ -71,10 +55,9 @@ TrackSummaryTool::updateSharedHitCount(Track& track) const
 inline void
 TrackSummaryTool::updateAdditionalInfo(
   const Track& track,
-  const Trk::PRDtoTrackMap* prd_to_track_map,
   TrackSummary& summary) const
 {
-  updateAdditionalInfo(track, prd_to_track_map, summary, false);
+  updateAdditionalInfo(track, summary, false);
 }
 
 inline void
@@ -86,7 +69,6 @@ TrackSummaryTool::updateAdditionalInfo(Track& track) const
   } else {
     updateAdditionalInfo(
       track,
-      nullptr,
       *track.trackSummary(),
       true); // @TODO set to false; true for backward compatibility
   }

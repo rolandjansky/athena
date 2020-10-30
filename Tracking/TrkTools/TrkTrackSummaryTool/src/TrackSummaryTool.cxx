@@ -44,9 +44,7 @@ Trk::TrackSummaryTool::~TrackSummaryTool()
 StatusCode
   Trk::TrackSummaryTool::initialize()
 {
-    // StatusCode sc=StatusCode::SUCCESS;
-    //StatusCode sc = AlgTool::initialize();
-    //if (sc.isFailure()) return sc;
+
 
     ATH_CHECK( detStore()->retrieve(m_detID, "AtlasID" ));
 
@@ -360,7 +358,7 @@ void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::
   m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
 }
 
-void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map, TrackSummary &summary, bool initialise_to_zero) const
+void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, TrackSummary &summary, bool initialise_to_zero) const
 {
   unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
   std::vector<float> eProbability(numberOfeProbabilityTypes,0.5);
@@ -396,8 +394,6 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::
   }
 
   m_idTool->updateAdditionalInfo(summary, eProbability,dedx, nhitsuseddedx,noverflowhitsdedx);
-
-  m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
 
   m_idTool->updateExpectedHitInfo(track, summary);
 

@@ -549,7 +549,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
         summary = updated_summary.get();
       } else if (m_computeAdditionalInfo) {
         updated_summary = std::make_unique<Trk::TrackSummary>(*track.trackSummary());
-        m_trackSummaryTool->updateAdditionalInfo(track, prd_to_track_map, *updated_summary);
+        m_trackSummaryTool->updateAdditionalInfo(track, *updated_summary);
         summary = updated_summary.get();
       }
     } else {

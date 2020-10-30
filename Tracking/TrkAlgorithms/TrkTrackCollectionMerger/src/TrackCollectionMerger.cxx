@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 //   Implementation file for class Trk::TrackCollectionMerger
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
+
 ///////////////////////////////////////////////////////////////////
 // Version 1.0 11/26/2007 Thomas Koffas
 ///////////////////////////////////////////////////////////////////
@@ -23,7 +22,7 @@ Trk::TrackCollectionMerger::TrackCollectionMerger
 (const std::string& name, ISvcLocator* pSvcLocator  ) :
   AthAlgorithm(name, pSvcLocator ),
   m_createViewCollection(true),
-  m_updateSharedHitsOnly(true),
+  m_updateSharedHits(true),
   m_updateAdditionalInfo(false)
 {
   m_outtracklocation         = "CombinedInDetTracks"    ;
@@ -32,7 +31,7 @@ Trk::TrackCollectionMerger::TrackCollectionMerger
   declareProperty("OutputTracksLocation",           m_outtracklocation       ); 
   declareProperty("SummaryTool" ,                   m_trkSummaryTool         );
   declareProperty("CreateViewColllection" ,         m_createViewCollection   );
-  declareProperty("UpdateSharedHitsOnly" ,          m_updateSharedHitsOnly);
+  declareProperty("UpdateSharedHits" ,              m_updateSharedHits);
   declareProperty("UpdateAdditionalInfo" ,          m_updateAdditionalInfo);
 }
 
@@ -44,12 +43,6 @@ StatusCode Trk::TrackCollectionMerger::initialize()
 {
 
   ATH_MSG_DEBUG("Initializing TrackCollectionMerger");
-
-  if( m_updateSharedHitsOnly &&  m_updateAdditionalInfo){
-    msg(MSG::WARNING) << "Both UpdateAdditionalInfo and UpdateSharedHitsOnly set true - UpdateAdditionalInfo includes a shared hits update. " << endmsg;
-    msg(MSG::WARNING) << "If you *only* want to update shared hits, set UpdateAdditionalInfo=False and UpdateSharedHitsOnly=True" << endmsg;
-  }
-
   ATH_CHECK(  m_tracklocation.initialize() );
   ATH_CHECK( m_outtracklocation.initialize() );
   if (not m_trkSummaryTool.name().empty()) ATH_CHECK( m_trkSummaryTool.retrieve() );
@@ -93,11 +86,13 @@ Trk::TrackCollectionMerger::execute(){
     ATH_MSG_DEBUG("Update summaries");  
     // now loop over all tracks and update summaries with new shared hit counts
     // @TODO magic! tracks are now non-const !??
+    const bool createTrackSummary = not (m_updateAdditionalInfo or m_updateSharedHits);
     for (Trk::Track* trk : *outputCol) {
-      if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(*trk, pPrdToTrackMap.get());
-      else if (m_updateSharedHitsOnly) m_trkSummaryTool->updateSharedHitCount(*trk, pPrdToTrackMap.get());
-      else  {
+      if (createTrackSummary){
          m_trkSummaryTool->computeAndReplaceTrackSummary(*trk, pPrdToTrackMap.get(), false /* DO NOT suppress hole search*/);
+      } else {
+        if (m_updateAdditionalInfo)  m_trkSummaryTool->updateAdditionalInfo(*trk);
+        if (m_updateSharedHits) m_trkSummaryTool->updateSharedHitCount(*trk, pPrdToTrackMap.get());
       }
     }
   } else {
@@ -113,7 +108,6 @@ Trk::TrackCollectionMerger::execute(){
      }
   }
   //Print common event information
-  ATH_MSG_DEBUG(*this);
   ATH_MSG_DEBUG("Done !");  
   return StatusCode::SUCCESS;
 }
@@ -127,63 +121,6 @@ StatusCode Trk::TrackCollectionMerger::finalize()
    return StatusCode::SUCCESS;
 }
 
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream&  Trk::TrackCollectionMerger::dump( MsgStream& out ) const
-{
-  out<<std::endl;
-  if(msgLvl(MSG::DEBUG))  return dumpevent(out);
-  return dumptools(out);
-}
-
-///////////////////////////////////////////////////////////////////
-// Dumps conditions information into the MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& Trk::TrackCollectionMerger::dumptools( MsgStream& out ) const
-{
-  return out;
-}
-
-///////////////////////////////////////////////////////////////////
-// Dumps event information into the MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& Trk::TrackCollectionMerger::dumpevent( MsgStream& out ) const
-{
-  return out;
-}
-
-///////////////////////////////////////////////////////////////////
-// Dumps relevant information into the ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& Trk::TrackCollectionMerger::dump( std::ostream& out ) const
-{
-  return out;
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator MsgStream
-///////////////////////////////////////////////////////////////////
-
-MsgStream& Trk::operator    << 
-  (MsgStream& sl,const Trk::TrackCollectionMerger& se)
-{ 
-  return se.dump(sl); 
-}
-
-///////////////////////////////////////////////////////////////////
-// Overload of << operator std::ostream
-///////////////////////////////////////////////////////////////////
-
-std::ostream& Trk::operator << 
-  (std::ostream& sl,const Trk::TrackCollectionMerger& se)
-{
-  return se.dump(sl); 
-}   
 
 
 ///////////////////////////////////////////////////////////////////
