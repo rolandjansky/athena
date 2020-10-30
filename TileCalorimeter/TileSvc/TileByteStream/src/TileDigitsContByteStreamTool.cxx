@@ -36,6 +36,7 @@ TileDigitsContByteStreamTool::TileDigitsContByteStreamTool( const std::string& t
   , m_tileHWID(0)
   , m_hid2re(0)
   , m_verbose(false)
+  , m_runPeriod(0)
 {
   declareInterface< TileDigitsContByteStreamTool >( this );
   declareProperty("DoFragType1", m_doFragType1 = false);
@@ -56,6 +57,8 @@ StatusCode TileDigitsContByteStreamTool::initialize() {
   ATH_CHECK( dec.retrieve() );
 
   m_hid2re = dec->getHid2reHLT();
+  TileCablingService *cabling = TileCablingService::getInstance();
+  m_runPeriod = cabling->runPeriod();
 
   return StatusCode::SUCCESS;
 }
@@ -85,7 +88,7 @@ StatusCode TileDigitsContByteStreamTool::convert(DIGITS* digitsContainer, FullEv
 
     if (isTMDB){  
        reid = m_hid2re->getRodTileMuRcvID(frag_id);
-       mapEncoder[reid].setTileHWID(m_tileHWID);
+       mapEncoder[reid].setTileHWID(m_tileHWID,m_runPeriod);
     } else {
        reid = m_hid2re->getRodID(frag_id);
        mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 1);
