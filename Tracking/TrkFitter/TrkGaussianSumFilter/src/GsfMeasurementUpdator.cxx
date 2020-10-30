@@ -21,7 +21,6 @@ Trk::GsfMeasurementUpdator::update(
   Trk::MultiComponentState&& stateBeforeUpdate,
   const Trk::MeasurementBase& measurement) const
 {
-  MultiComponentState updatedState{};
   // Check all components have associated error matricies
   Trk::MultiComponentState::iterator component = stateBeforeUpdate.begin();
   bool rebuildStateWithErrors = false;
@@ -36,16 +35,12 @@ Trk::GsfMeasurementUpdator::update(
     Trk::MultiComponentState stateWithInsertedErrors =
       rebuildState(std::move(stateBeforeUpdate));
     // Perform the measurement update with the modified state
-    updatedState =
-      calculateFilterStep(std::move(stateWithInsertedErrors), measurement, 1);
-    return updatedState;
+    return calculateFilterStep(std::move(stateWithInsertedErrors), measurement, 1);
   }
 
   // Perform the measurement update
-  updatedState =
-    calculateFilterStep(std::move(stateBeforeUpdate), measurement, 1);
+   return  calculateFilterStep(std::move(stateBeforeUpdate), measurement, 1);
 
-  return updatedState;
 }
 
 Trk::MultiComponentState
@@ -54,8 +49,6 @@ Trk::GsfMeasurementUpdator::update(Trk::MultiComponentState&& stateBeforeUpdate,
                                    FitQualityOnSurface& fitQoS) const
 {
 
-  Trk::MultiComponentState updatedState{};
-
   // Check all components have associated error matricies
   Trk::MultiComponentState::iterator component = stateBeforeUpdate.begin();
 
@@ -72,7 +65,8 @@ Trk::GsfMeasurementUpdator::update(Trk::MultiComponentState&& stateBeforeUpdate,
     Trk::MultiComponentState stateWithInsertedErrors =
       rebuildState(std::move(stateBeforeUpdate));
     // Perform the measurement update with the modified state
-    updatedState = calculateFilterStep(
+
+    Trk::MultiComponentState updatedState = calculateFilterStep(
       std::move(stateWithInsertedErrors), measurement, fitQoS);
     if (updatedState.empty()) {
       return {};
@@ -81,7 +75,7 @@ Trk::GsfMeasurementUpdator::update(Trk::MultiComponentState&& stateBeforeUpdate,
   }
 
   // Perform the measurement update
-  updatedState =
+  Trk::MultiComponentState updatedState=
     calculateFilterStep(std::move(stateBeforeUpdate), measurement, fitQoS);
 
   if (updatedState.empty()) {
@@ -247,7 +241,7 @@ bool
 Trk::GsfMeasurementUpdator::invalidComponent(
   const Trk::TrackParameters* trackParameters) const
 {
-  const auto *measuredCov = trackParameters->covariance();
+  const auto* measuredCov = trackParameters->covariance();
   bool rebuildCov = false;
   if (!measuredCov) {
     rebuildCov = true;
