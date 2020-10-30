@@ -214,8 +214,9 @@ namespace TrigConf {
       const std::string & region() const { return m_region; }
       const std::string & tgcFlags() const { return m_tgcFlags; }
       const std::string & rpcExclROIList() const { return m_rpcExclROIList; }
-      //std::optional<std::reference_wrapper<std::string>> rpcExclROIListOptional() const { m_rpcExclROIList.empty() ? std::nullopt :
-      //       return std::optional<std::reference_wrapper<std::string>>{m_rpcExclROIList} ;
+      std::optional<std::string> rpcExclROIList_optional() const {
+         return m_rpcExclROIList.empty() ? std::nullopt : std::optional<std::string>{m_rpcExclROIList};
+      }
    protected:
       virtual void update() override {
          L1Threshold::update();

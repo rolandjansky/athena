@@ -135,7 +135,7 @@ namespace TrigConf {
          int wstot()      const { return m_wstot; }
          int rhad()       const { return m_rhad; }
          int had()        const { return m_rhad; }
-         int maxEt()      const { return m_maxEt; }
+         unsigned int maxEt()  const { return m_maxEt; }
          double reta_d()       const { return m_reta/100.; } 
          double wstot_d()     const { return m_wstot/100.; }
          double rhad_d()       const { return m_rhad/100.; }
