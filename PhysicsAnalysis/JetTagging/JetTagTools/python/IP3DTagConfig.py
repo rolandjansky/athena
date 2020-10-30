@@ -8,7 +8,6 @@ from JetTagTools.IPDetailedTrackGradeFactoryConfig import IPDetailedTrackGradeFa
 from JetTagTools.IPTrackSelectorConfig import IPTrackSelectorCfg
 from JetTagTools.NewLikelihoodToolConfig import NewLikelihoodToolCfg
 from JetTagTools.InDetTrackSelectorConfig import InDetTrackSelectorCfg
-from JetTagTools.SpecialTrackAssociatorConfig import SpecialTrackAssociatorCfg
 
 # import the IPTag configurable
 Analysis__IPTag=CompFactory.Analysis.IPTag
@@ -44,7 +43,6 @@ def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme 
         trackSelectorTool = acc.popToolsAndMerge(IPTrackSelectorCfg(flags, 'IP3DTrackSelector'))
         likelihood = acc.popToolsAndMerge(NewLikelihoodToolCfg(flags, 'IP3DNewLikelihoodTool', 'IP3D', scheme))
         inDetTrackSelectionTool = acc.popToolsAndMerge(InDetTrackSelectorCfg('InDetTrackSelector'))
-        trackVertexAssociationTool = acc.popToolsAndMerge(SpecialTrackAssociatorCfg('SpecialTrackAssociator', PrimaryVertexCollectionName))
 
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : flags.BTagging.ReferenceType,
@@ -65,7 +63,6 @@ def IP3DTagCfg( flags, name = 'IP3DTag', PrimaryVertexCollectionName="", scheme 
                      'trackGradeFactory'                : trackGradeFactory,
                      'TrackToVertexIPEstimator'         : trackToVertexIPEstimator,
                      'InDetTrackSelectionTool'          : inDetTrackSelectionTool,
-                     'TrackVertexAssociationTool'       : trackVertexAssociationTool,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
