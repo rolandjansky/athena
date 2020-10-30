@@ -44,6 +44,19 @@ namespace TrigConf {
       m_rangeValues.emplace_back( std::move(rv) );
    }
 
+
+   template<class T>
+   void ValueWithEtaDependence<T>::setOutsideRangeValue(const T & value) {
+      m_outsideRangeValue = value;
+   }
+
+   template<class T>
+   std::optional<std::reference_wrapper<const T>> 
+   ValueWithEtaDependence<T>::outsideRangeValue() const {
+      return m_outsideRangeValue;
+   }
+
+
    template<class T>
    const T & ValueWithEtaDependence<T>::at(int eta) const {
       // the ranges are by definition such that the lower boundary is inclusive, while the upper boundary is exclusive
@@ -65,8 +78,10 @@ namespace TrigConf {
       }
       if( retVal ) {
          return * retVal;
+      } else if(m_outsideRangeValue) {
+         return *m_outsideRangeValue;
       } else {
-         throw std::runtime_error(name() + ": no value found with eta = " + std::to_string(eta));
+         throw std::out_of_range(name() + ": no value found with eta = " + std::to_string(eta));
       }
    }
 
