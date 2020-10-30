@@ -41,8 +41,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
   
   xAOD::JetConstituentVector constituents = jetSeed->getConstituents();
   for (const xAOD::JetConstituent* constituent : constituents) {
-    TLorentzVector constituentP4;
-    constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
+    TLorentzVector constituentP4 = tauRecTools::GetConstituentP4(*constituent);
     baryCenter += constituentP4;
   }
   
@@ -53,8 +52,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
   int nConstituents = 0;
 
   for (const xAOD::JetConstituent* constituent : constituents) {
-    TLorentzVector constituentP4;
-    constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
+    TLorentzVector constituentP4 = tauRecTools::GetConstituentP4(*constituent);
     
     double dR = baryCenter.DeltaR(constituentP4);
     if (dR > m_clusterCone) continue;
