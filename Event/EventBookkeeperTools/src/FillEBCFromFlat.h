@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef FILL_EBC_FROM_FLAT_H
 #define FILL_EBC_FROM_FLAT_H
 
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "SGTools/StlVectorClids.h"
 #include "SGTools/BuiltinsClids.h"

@@ -2,14 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- Mdt Readout Element properties
- -----------------------------------------
-
-*/
-
-#ifndef MUONGEOMODEL_MDTREADOUTELEMENT_H
-# define MUONGEOMODEL_MDTREADOUTELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_MDTREADOUTELEMENT_H
+#define MUONREADOUTGEOMETRY_MDTREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -323,4 +317,4 @@ inline std::vector<const Trk::Surface*> MdtReadoutElement::surfaces() const {
 
 } // namespace MuonGM
 
-#endif // MUONGEOMODEL_MDTREADOUTELEMENT_H
+#endif // MUONREADOUTGEOMETRY_MDTREADOUTELEMENT_H

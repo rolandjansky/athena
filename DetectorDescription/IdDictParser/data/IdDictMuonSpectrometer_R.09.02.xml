@@ -393,13 +393,22 @@
   <region group="mdt">
     <range field="stationName" value="BIS" />
     <range field="stationEta" values="-7 7" />
-    <range field="stationPhi" minvalue="1" maxvalue="8" />
+    <range field="stationPhi" minvalue="1" maxvalue="3" />
     <range field="technology" value="MDT" />
     <range field="multiLayer" minvalue="1" maxvalue="2" />
     <range field="tubeLayer" minvalue="1" maxvalue="4" />
-    <range field="tube" minvalue="1" maxvalue="110" />
+    <range field="tube" minvalue="1" maxvalue="108" />
   </region>
 
+  <region group="mdt">
+    <range field="stationName" value="BIS" />
+    <range field="stationEta" values="-7 7" />
+    <range field="stationPhi" minvalue="4" maxvalue="8" />
+    <range field="technology" value="MDT" />
+    <range field="multiLayer" minvalue="1" maxvalue="2" />
+    <range field="tubeLayer" minvalue="1" maxvalue="4" />
+    <range field="tube" minvalue="1" maxvalue="96" />
+  </region>
   
   <region group="mdt">
     <range field="stationName" value="BEE" />

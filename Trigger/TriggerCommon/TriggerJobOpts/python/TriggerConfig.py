@@ -50,7 +50,7 @@ def collectHypos( steps ):
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    __log.debug("Hypo type is combo {}".format( __isCombo( hypo ) ) )
+    __log.debug("Hypo type {} is combo {}".format( hypo.getName(), __isCombo( hypo ) ) )
     if __isCombo( hypo ):
         return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
@@ -101,7 +101,6 @@ def collectFilters( steps ):
 def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
     decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
-    decisionObjects.update([ d.Decisions for d in l1decoder.rerunRoiUnpackers ])
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     decisionObjects.add( mapThresholdToL1DecisionCollection("FSNOSEED") ) # Include also Full Scan
     __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
@@ -130,9 +129,9 @@ def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
     decisionObjects = set()
     for step, stepFilters in six.iteritems (filters):
         for filt in stepFilters:
-            if inputs:
+            if inputs and hasattr( filt, "Input" ):
                 decisionObjects.update( filt.Input )
-            if outputs:
+            if outputs and hasattr( filt, "Output" ):
                 decisionObjects.update( filt.Output )
     __log.info("Collecting %i decision objects from filters", len(decisionObjects))
     return decisionObjects
@@ -235,6 +234,18 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 
     #mon.FinalChainStep = allChains
     mon.L1Decisions  = getProp( l1Decoder, 'L1DecoderSummaryKey' )
+
+    # For now use old svcMgr interface as this service is not available from acc.getService()
+    algToChainTool = CompFactory.getComp("TrigCompositeUtils::AlgToChainTool")()
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    if hasattr(svcMgr,'HltEventLoopMgr'):
+        svcMgr.HltEventLoopMgr.TrigErrorMonTool.AlgToChainTool = conf2toConfigurable(algToChainTool)
+
+        svcMgr.HltEventLoopMgr.TrigErrorMonTool.MonTool.defineHistogram(
+            'ErrorChainName,ErrorCode', path='EXPERT', type='TH2I',
+            title='Error StatusCodes per chain;Chain name;StatusCode',
+            xbins=1, xmin=0, xmax=1, ybins=1, ymin=0, ymax=1)
+
 
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in list(filters.values()) ]
@@ -369,6 +380,8 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
+        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamType = 'unknown'
+        writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamName = 'SingleStream'
         acc.merge( writingAcc )
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
@@ -414,7 +427,13 @@ def triggerPOOLOutputCfg(flags, edmSet):
     menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
     menuwriter.IsHLTJSONConfig = True
     menuwriter.IsL1JSONConfig = True
+    menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
+
+    # Schedule the insertion of L1 prescales into the conditions store
+    # Required for metadata production
+    from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg
+    acc.merge( L1PrescaleCondAlgCfg( flags ) )
 
     # Add metadata to the output stream
     streamAlg.MetadataItemList += [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
@@ -422,7 +441,7 @@ def triggerPOOLOutputCfg(flags, edmSet):
     # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
     streamAlg.ExtraInputs += [
         ("xAOD::TrigDecision", decmaker.TrigDecisionKey),
-        ("xAOD::TrigConfKeys", menuwriter.EventObjectName)]
+        ("xAOD::TrigConfKeys", menuwriter.KeyWriterTool.ConfKeys)]
 
     # Produce xAOD L1 RoIs from RoIBResult
     from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg

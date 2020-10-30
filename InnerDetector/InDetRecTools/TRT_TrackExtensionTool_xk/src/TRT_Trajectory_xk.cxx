@@ -76,7 +76,7 @@ void InDet::TRT_Trajectory_xk::initiateForPrecisionSeed
 
   // Primary trajectory direction calculation
   //
-  double A[4]; A[3]=Tp.par()[4];
+  double A[4]; A[3]=Tp.parameters()[4];
 
   for(++i; i!=ie; ++i) {
     if( (*i).second-(*i0).second > 1.) {
@@ -158,7 +158,7 @@ void InDet::TRT_Trajectory_xk::initiateForTRTSeed
 
   // Primary trajectory direction calculation
   //
-  double A[4]; A[3]=Tp.par()[4];
+  double A[4]; A[3]=Tp.parameters()[4];
 
   for(++i; i!=ie; ++i) {
     if( (*i).second-(*i0).second > 1.) {
@@ -522,7 +522,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
   // Test quality of propagation to perigee
   if(fabs(m_parameters.pT()) < m_minTRTSegmentpT) return 0;
 
-  const Trk::Surface* sur = m_parameters.associatedSurface();
+  const Trk::Surface* sur = &m_parameters.associatedSurface();
 
   DataVector<const Trk::MeasurementBase>* rio
       = new DataVector<const Trk::MeasurementBase>;
@@ -561,11 +561,12 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
   }
   // Track segment production
   //
-  double P[5]={m_parameters.par()[0],
-	       m_parameters.par()[1],
-	       m_parameters.par()[2],
-	       m_parameters.par()[3],
-	       m_parameters.par()[4]};
+  const AmgVector(5) & p = m_parameters.parameters();
+  double P[5]={p[0],
+	       p[1],
+	       p[2],
+	       p[3],
+	       p[4]};
 
   if(!m_ndf) {m_ndf = rio->size()-5; m_xi2 = 0.;}
 
@@ -574,7 +575,7 @@ Trk::TrackSegment* InDet::TRT_Trajectory_xk::convert()
   }
   Trk::FitQuality      * fqu = new Trk::FitQualityOnSurface(m_xi2,m_ndf)         ;
 
-  return new Trk::TrackSegment(Trk::LocalParameters(P[0],P[1],P[2],P[3],P[4]),m_parameters.covariance(),sur,rio,fqu,Trk::Segment::TRT_SegmentMaker);
+  return new Trk::TrackSegment(Trk::LocalParameters(P[0],P[1],P[2],P[3],P[4]),*m_parameters.covariance(),sur,rio,fqu,Trk::Segment::TRT_SegmentMaker);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -724,8 +725,8 @@ bool InDet::TRT_Trajectory_xk::fitter()
   double        rad =  0. ;
 
   if(!trackParametersEstimationForLastPoint() || std::abs(m_parameters.pT()) < m_minTRTSegmentpT) return false;
-  double sin2 = 1./sin(m_parameters.par()[3]); sin2*= sin2        ;
-  double P42  =        m_parameters.par()[4] ; P42  = P42*P42*134.;
+  double sin2 = 1./sin(m_parameters.parameters()[3]); sin2*= sin2        ;
+  double P42  =        m_parameters.parameters()[4] ; P42  = P42*P42*134.;
 
   if(!m_elements[m_lastTrajectory].addCluster(m_parameters,m_parameters,m_xi2)) return false;
 
@@ -867,8 +868,8 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
   if(!m_parameters.production((*(tsos->rbegin()))->trackParameters())) return 0;
 
-  double sin2 = 1./sin(m_parameters.par()[3]); sin2*= sin2        ;
-  double P42  =        m_parameters.par()[4] ; P42  = P42*P42*134.;
+  double sin2 = 1./sin(m_parameters.parameters()[3]); sin2*= sin2        ;
+  double P42  =        m_parameters.parameters()[4] ; P42  = P42*P42*134.;
 
   Trk::NoiseOnSurface  noise;
 
@@ -981,19 +982,21 @@ Trk::Track* InDet::TRT_Trajectory_xk::convert(const Trk::Track& Tr)
 
 void InDet::TRT_Trajectory_xk::updateTrackParameters(Trk::PatternTrackParameters& T)
 {
-  if(m_parameters.cov()[14] >= T.cov()[14]) return;
+  const AmgSymMatrix(5)& v = *T.covariance();
+  const AmgSymMatrix(5)& w = *m_parameters.covariance();
 
-  double Pi    = m_parameters.par()[ 4];
-  double CovPi = m_parameters.cov()[14];
+  if(w(4, 4) >= v(4, 4)) return;
 
-  const double* p = T.par();
-  const double* v = T.cov();
+  double Pi    = m_parameters.parameters()[ 4];
+  double CovPi = w(4, 4);
 
-  double V[15] = {v[ 0],
-		  v[ 1],v[ 2],
-		  v[ 3],v[ 4],v[ 5],
-		  v[ 6],v[ 7],v[ 8],v[ 9],
-		  v[10],v[11],v[12],v[13],v[14]};
+  const AmgVector(5)& p = T.parameters();
+
+  double V[15] = {v(0, 0),
+		  v(0, 1),v(1, 1),
+		  v(0, 2),v(1, 2),v(2, 2),
+		  v(0, 3),v(1, 3),v(2, 3),v(3, 3),
+		  v(0, 4),v(1, 4),v(2, 4),v(3, 4),v(4, 4)};
   double P[ 5] = {p[ 0],p[ 1],p[ 2],p[ 3],p[ 4]};
 
 
@@ -1030,7 +1033,7 @@ void InDet::TRT_Trajectory_xk::updateTrackParameters(Trk::PatternTrackParameters
   P[ 2] +=V[12]*Wd;
   P[ 3] +=V[13]*Wd;
   P[ 4]  = Pi;
-  T.setParametersWithCovariance(T.associatedSurface(),P,V);
+  T.setParametersWithCovariance(&T.associatedSurface(),P,V);
 }
 
 

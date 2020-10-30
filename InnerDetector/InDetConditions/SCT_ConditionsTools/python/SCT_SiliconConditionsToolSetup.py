@@ -87,24 +87,3 @@ class SCT_SiliconConditionsToolSetup:
             self.setAlgs()
         self.setTool()
         self.tool.UseDB = self.useDB
-
-def SCT_SiliconConditionsCfg( flags, toolName, dcsTool=None, hvAlgName="SCT_SiliconHVCondAlg"):
-    """
-    Sets up necessary tools for ID reco in trigger 
-    TDOD: Experts review to cover other use cases (i.e. missing dcsTool, dependence on flags)
-    """
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    acc = ComponentAccumulator()
-
-    tool = CompFactory.SCT_SiliconConditionsTool(toolName,
-                                                 UseDB = True, # TODO: repalce by the flag once there
-                                                 ForceUseGeoModel = False ) # TODO: derive from flags
-    acc.setPrivateTools( tool )
-
-    condAlg = CompFactory.SCT_SiliconHVCondAlg(name = hvAlgName,
-                                               UseState = dcsTool.ReadAllDBFolders,
-                                               DCSConditionsTool = dcsTool)
-    acc.addCondAlgo( condAlg )
-    return acc
-    

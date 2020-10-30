@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -39,8 +39,6 @@ CaloComputeSWcellWeights::CaloComputeSWcellWeights(const std::string& type,
                                                    const IInterface* parent)
   : AthAlgTool(type, name, parent)
 { 
-  // Not used, but required to use this with CaloRunClusterCorrections.
-  declareProperty ("order", m_order = 0);
 }
 
 // Make Corrections for SW cell weights 

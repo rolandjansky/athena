@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -81,8 +81,8 @@ StatusCode TileRawChannelContByteStreamTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContainer, FullEventAssembler<TileHid2RESrcID> *fea) {
-
+StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContainer, FullEventAssembler<TileHid2RESrcID> *fea) const
+{
   bool isTMDB = evtStore()->proxy(rawChannelContainer)->name() == "MuRcvRawChCnt";
 
   TileFragHash::TYPE contType = rawChannelContainer->get_type();
@@ -148,21 +148,19 @@ StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContai
                   << " number of channels " << MSG::dec << n );
   }
 
-  TileROD_Encoder* theEncoder;
-
   // TileROD_Encoder has collected all the channels, now can fill the
   // ROD block data.
 
-  for (std::pair<uint32_t, TileROD_Encoder> reidAndEncoder: mapEncoder) {
+  for (std::pair<const uint32_t, TileROD_Encoder>& reidAndEncoder: mapEncoder) {
 
     theROD = fea->getRodData(reidAndEncoder.first);
-    theEncoder = &(reidAndEncoder.second);
+    TileROD_Encoder& theEncoder = reidAndEncoder.second;
 
     if ((reidAndEncoder.first & 0xf00)) {
-       theEncoder->fillRODTileMuRcvRawChannel(*theROD);
+       theEncoder.fillRODTileMuRcvRawChannel(*theROD);
     } else {
-      if (m_doFragType4) theEncoder->fillROD4(*theROD);
-      if (m_doFragType5) theEncoder->fillROD5(*theROD);
+      if (m_doFragType4) theEncoder.fillROD4(*theROD);
+      if (m_doFragType5) theEncoder.fillROD5(*theROD);
     }
     ATH_MSG_DEBUG( " Number of TileRawChannel words in ROD " << MSG::hex << " 0x" << reidAndEncoder.first << MSG::dec << " : " << theROD->size() );
   }

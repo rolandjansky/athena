@@ -108,7 +108,8 @@ namespace {
 }
 
 //==========================================================================
-void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
+void InDet::InDetTrackSummaryHelperTool::analyse(const EventContext& ctx,
+                                                 const Trk::Track& track,
                                                  const Trk::PRDtoTrackMap *prd_to_track_map,
                                                  const Trk::RIO_OnTrack* rot,
                                                  const Trk::TrackStateOnSurface* tsos,
@@ -151,8 +152,12 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
           ATH_MSG_ERROR("Could not cast pixel RoT to PixelClusterOnTrack!");
         } else {
           const InDet::PixelCluster* pixPrd = pix->prepRawData();
-          const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pixPrd);
-          if ( pixPrd and splitProb.isSplit() ) { information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
+          const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo&
+            splitProb = getClusterSplittingProbability(ctx,pixPrd);
+          if (pixPrd and splitProb.isSplit()) {
+            information[Trk::numberOfPixelSplitHits]++;
+            hitIsSplit = true;
+          }
           if (pixPrd and m_pixelId->is_barrel(id) and
               m_pixelId->layer_disk(id) == 0 and splitProb.isSplit())
             information[Trk::numberOfInnermostLayerSplitHits]++;
@@ -238,7 +243,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
     bool isArgonStraw   = false;
     bool isKryptonStraw = false;
     if (not m_TRTStrawSummaryTool.empty()) {
-      int statusHT = m_TRTStrawSummaryTool->getStatusHT(id);
+      int statusHT = m_TRTStrawSummaryTool->getStatusHT(id,ctx);
       if ( statusHT == TRTCond::StrawStatus::Argon or
            statusHT == TRTCond::StrawStatus::Dead  or
            statusHT == TRTCond::StrawStatus::EmulateArgon ) {
@@ -302,7 +307,8 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
   return;
 }
 
-void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
+void InDet::InDetTrackSummaryHelperTool::analyse(const EventContext& ctx,
+                                                 const Trk::Track& track,
                                                  const Trk::PRDtoTrackMap *prd_to_track_map,
                                                  const Trk::CompetingRIOsOnTrack* crot,
                                                  const Trk::TrackStateOnSurface* tsos,
@@ -310,7 +316,13 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
                                                  std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
 {
   // re-produce prior behaviour (i.e. just take most probable ROT)
-  analyse(track, prd_to_track_map,  &crot->rioOnTrack(crot->indexOfMaxAssignProb() ), tsos, information, hitPattern);
+  analyse(ctx,
+          track,
+          prd_to_track_map,
+          &crot->rioOnTrack(crot->indexOfMaxAssignProb()),
+          tsos,
+          information,
+          hitPattern);
 }
 
 void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track,
@@ -376,6 +388,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
     summary.m_information[Trk::numberOfNextToInnermostLayerSplitHits]   = 0;
   }
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();
   if (measurements){
     for (const auto& ms : *measurements){
@@ -396,7 +409,8 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
             }
             if (pix) {
               const InDet::PixelCluster* pixPrd = pix->prepRawData();
-              const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &splitProb = getClusterSplittingProbability(pixPrd);
+              const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo&
+                splitProb = getClusterSplittingProbability(ctx, pixPrd);
               if (pixPrd and splitProb.isSplit()) {
                 summary.m_information[Trk::numberOfPixelSplitHits]++;
                 hitIsSplit=true;

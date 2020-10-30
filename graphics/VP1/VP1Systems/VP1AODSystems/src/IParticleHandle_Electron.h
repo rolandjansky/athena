@@ -52,7 +52,8 @@ public:
   virtual Amg::Vector3D position() const;
   const xAOD::IParticle& iParticle() const;
   virtual double charge() const ;//!< Returns unknown() in case of trouble.
-	
+
+  const xAOD::Electron& electron() const;
   virtual unsigned summaryValue(xAOD::SummaryType type) const;
   virtual unsigned getNPixelHits()   const;
   virtual unsigned getNSCTHits()     const;

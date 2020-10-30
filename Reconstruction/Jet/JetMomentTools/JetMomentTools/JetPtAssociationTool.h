@@ -65,7 +65,8 @@ private:  // data
 
   /// Properties.
   Gaudi::Property<std::string> m_aname{this, "AssociationName", "", "Key for association vector"};
-  SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerName{this, "JetContainer", "", "Input jet container"};
+  Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "Input jet container"};
+  SG::ReadHandleKey<xAOD::JetContainer> m_matchingContainerName{this, "MatchingJetContainer", "", "Jet container to match to"};
 
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_assocFracKey{this, "AssociationFractionName", "AssociationFraction", "SG key for output AssociationFraction decoration"};
   SG::WriteDecorHandleKey<xAOD::JetContainer> m_assocLinkKey{this, "AssociationLinkName", "AssociationLink", "SG key for output AssociationLink decoration"};

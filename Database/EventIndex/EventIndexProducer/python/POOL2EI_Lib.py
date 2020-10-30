@@ -115,7 +115,7 @@ class POOL2EI(PyAthena.Alg):
                     self._dsname = re.sub('_tid[0-9]{8}_[0-9]{2}', '', self._dsname)
                     self._dsname = re.sub('_sub[0-9]{10}', '', self._dsname)
                     self._dsname = re.sub('\\/$', '', self._dsname)
-                except:
+                except Exception:
                     _info('## Unable to get dataset name from realDatasetsIn or realDatasets')
                 
 
@@ -129,13 +129,13 @@ class POOL2EI(PyAthena.Alg):
 
         # load our pythonizations:
         for cls_name in ('EventStreamInfo', 'EventType', 'PyEventType'):
-            cls = getattr(PyAthena, cls_name)
+            cls = getattr(PyAthena, cls_name)  # noqa: F841
 
         _info("retrieving various stores...")
         for store_name in ('evtStore', 'inputStore', 'detStore', 
                            'tagStore', 'metaStore'):
             _info("retrieving [{}]...".format(store_name))
-            o = getattr(self, store_name)
+            o = getattr(self, store_name)  # noqa: F841
             _info("retrieving [{}]... [done]".format(store_name))
         _info("retrieving various stores... [done]")
 
@@ -148,10 +148,10 @@ class POOL2EI(PyAthena.Alg):
             self.trigDec = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
             self.trigDec.ExperimentalAndExpertMethods().enable()
             if self.HaveXHlt:
-                self.trigDec.setProperty("ConfigTool","TrigConf::xAODConfigTool");
+                self.trigDec.setProperty("ConfigTool","TrigConf::xAODConfigTool")
                 self.trigDec.setProperty("TrigDecisionKey","xTrigDecision")
             else:
-                self.trigDec.setProperty("ConfigTool","TrigConf::AODConfigTool");
+                self.trigDec.setProperty("ConfigTool","TrigConf::AODConfigTool")
                 self.trigDec.setProperty("TrigDecisionKey","TrigDecision")
 
 
@@ -171,7 +171,7 @@ class POOL2EI(PyAthena.Alg):
 
         try:
             self._eif = dbsqlite.open(oname,flags='w')
-        except:
+        except Exception:
             pass
 
         if self._eif is None:
@@ -191,7 +191,7 @@ class POOL2EI(PyAthena.Alg):
                 import newJobDef
                 self._eif['TaskID'] = "{}.G".format(newJobDef.job['taskID'])
                 self._eif['JobID'] = "{}.{}".format(newJobDef.job['PandaID'], newJobDef.job['attemptNr'])
-            except:
+            except Exception:
                 self._eif['TaskID'] = "{}.G".format(os.getenv('PanDA_TaskID', 0))
                 self._eif['JobID'] = "{}.0".format(os.getenv('PandaID', 0))
 
@@ -237,7 +237,7 @@ class POOL2EI(PyAthena.Alg):
         msg = self.msg
         try:
             obj = store[metadata_name]
-        except KeyError as err:
+        except KeyError:
             msg.warning('could not retrieve [{}]'.format(metadata_name))
             return ([],[])
         msg.info('processing container [{}]'.format(obj.folderName()))
@@ -333,23 +333,19 @@ class POOL2EI(PyAthena.Alg):
         store = self.inputStore
         esi_keys = store.keys('EventStreamInfo')
         nentries = None
-        ddt = None
         if len(esi_keys) >= 1:
             sg_key = esi_keys[-1]
             nentries = 0
-            stream_names = esi_keys[:]
             for sg_key in esi_keys:
                 esi = store.retrieve('EventStreamInfo', sg_key)
                 _info('=== [EventStreamInfo#{}] ==='.format(sg_key))
                 nentries += esi.getNumberOfEvents()
-                evt_types = PyAthena.EventStreamInfo.evt_types(esi)
+                evt_types = PyAthena.EventStreamInfo.evt_types(esi)  # noqa: F841
 
 
         # retrieve the GUID
         def _get_guid():
-            guid = None
             ROOT = _import_ROOT()
-            import os
             root_files = list(ROOT.gROOT.GetListOfFiles())
             if len(root_files)==0:
                 _info('could not find correct ROOT file')
@@ -444,7 +440,7 @@ class POOL2EI(PyAthena.Alg):
     # execute at end of file
     ##########################################
     def endFile(self):
-        import AthenaPython.PyAthena as PyAthena
+        import AthenaPython.PyAthena as PyAthena  # noqa: F401
         _info = self.msg.info
         _info("POOL2EI::endFile")
 
@@ -481,7 +477,7 @@ class POOL2EI(PyAthena.Alg):
                     if gtd_method:
                         try:
                             cc = self.trigDec.ExperimentalAndExpertMethods().getChainDetails(name).getChainCounter()
-                        except:
+                        except Exception:
                             gtd_method = False    # disable this method for next triggers 
                     if not gtd_method:
                         cc = self.trigDec.ExperimentalAndExpertMethods().getChainConfigurationDetails(name).chain_counter()
@@ -493,7 +489,7 @@ class POOL2EI(PyAthena.Alg):
                 cclen = 0
             else:
                 cclen = ccmax + 1
-        except:
+        except Exception:
             _info("POOL2EI::getChainCounter Unable to get trigger chains for {}".format(level))
             ccname = {}
             cclen = 0
@@ -543,7 +539,7 @@ class POOL2EI(PyAthena.Alg):
                     self.cclenL1 = 0
                 else:
                     self.cclenL1 += 1
-            except:
+            except Exception:
                 _info("POOL2EI::getChainCountersFromDetStore Unable to get L1 trigger names from detStore")
                 self.cclenL1 = 0
                 self.ccnameL1 = {}
@@ -580,7 +576,7 @@ class POOL2EI(PyAthena.Alg):
                         self.cclenEF = 0
                     else:
                         self.cclenEF += 1
-                except:
+                except Exception:
                     _info("POOL2EI::getChainCountersFromDetStore Unable to get L2 & EF trigger names from detStore")
                     self.cclenL2 = 0
                     self.ccnameL2 = {}
@@ -605,7 +601,7 @@ class POOL2EI(PyAthena.Alg):
                     else:
                         self.cclenL2 += 1
                     ( self.cclenEF, self.ccnameEF ) = ( self.cclenL2, self.ccnameL2 )
-                except:
+                except Exception:
                     _info("POOL2EI::getChainCountersFromDetStore Unable to get HLT trigger names from detStore")
                     self.cclenL2 = 0
                     self.ccnameL2 = {}
@@ -616,12 +612,12 @@ class POOL2EI(PyAthena.Alg):
     # execute event by event
     ##########################################
     def execute(self):
-        import AthenaPython.PyAthena as PyAthena
+        import AthenaPython.PyAthena as PyAthena  # noqa: F401
 
         if self._eif_totentries < 100:
             _info = self.msg.info
         else:
-            _info = lambda *x: None
+            _info = lambda *x: None  # noqa: E731
         _error = self.msg.error
 
         _info("POOL2EI::execute")
@@ -747,7 +743,7 @@ class POOL2EI(PyAthena.Alg):
                     else:
                         # Run-wise
                         HLTPSK = self.detStore['/TRIGGER/HLT/HltConfigKeys']['HltPrescaleConfigurationKey']
-                except:
+                except Exception:
                     pass
                 _info('## SMK*:    {}'.format(SMK))
                 _info('## L1PSK*:  {}'.format(L1PSK))
@@ -778,9 +774,9 @@ class POOL2EI(PyAthena.Alg):
             trigL1=compressB64("".join(trigL1X))
 
 
-            L2_passedRaw   = 0x1 << 8
+            L2_passedRaw   = 0x1 << 8    # noqa: F841
             L2_passThrough = 0x1 << 9
-            L2_prescaled   = 0x1 << 10
+            L2_prescaled   = 0x1 << 10   # noqa: F841
             L2_resurrected = 0x1 << 11
             nlvl2=self.cclenL2
             _info("LEN_L2*: {}".format(nlvl2))
@@ -806,13 +802,12 @@ class POOL2EI(PyAthena.Alg):
             trigL2 = trigL2_PH+";"+trigL2_PT+";"+trigL2_RS
 
 
-            EF_passedRaw   = 0x1
+            EF_passedRaw   = 0x1        # noqa: F841
             EF_passThrough = 0x1 << 1
-            EF_prescaled   = 0x1 << 2
+            EF_prescaled   = 0x1 << 2   # noqa: F841
             EF_resurrected = 0x1 << 3
             nlvlEF=self.cclenEF
             _info("LEN_EF*: {}".format(nlvlEF))
-            trigEFX=list(nlvlEF*"0")
             trigEF_PH=list(nlvlEF*"0")
             trigEF_PT=list(nlvlEF*"0")
             trigEF_RS=list(nlvlEF*"0")
@@ -836,7 +831,6 @@ class POOL2EI(PyAthena.Alg):
             trigEF_RS=compressB64("".join(trigEF_RS))
             trigEF_INC=compressB64("".join(trigEF_INC))
             trigEF  = trigEF_PH+";"+trigEF_PT+";"+trigEF_RS
-            trigEF2 = trigEF_PH+";"+trigEF_INC
 
             _info("## trigL1*: {}".format(trigL1))
             _info("## trigL2*: {}".format(trigL2))
@@ -864,7 +858,7 @@ class POOL2EI(PyAthena.Alg):
                     try:
                         tk=prv.getToken().toString()
                         match = self._re_pool_token(tk)
-                    except:
+                    except Exception:
                         tk=prv.getToken()
                         match = self._re_pool_token(tk)
                     if not match:
@@ -898,7 +892,7 @@ class POOL2EI(PyAthena.Alg):
                 if key in [ procTag, 'StreamAOD' ]:
                     try:
                         match = self._re_pool_token(dhe.getToken().toString())
-                    except:
+                    except Exception:
                         match = self._re_pool_token(dhe.getToken())
                     if not match:
                         continue
@@ -917,7 +911,7 @@ class POOL2EI(PyAthena.Alg):
             stk = store.proxy(dh).address().par().c_str()
             stream_refs["Sref0"]=stk
             _info("Updated ref token "+stk)
-        except:
+        except Exception:
             pass
 
         del dh
@@ -926,7 +920,7 @@ class POOL2EI(PyAthena.Alg):
             for sr,v in six.iteritems(stream_refs):
                 try:
                     eirec[sr] = v
-                except:
+                except Exception:
                     _info("Unable to insert " + sr + " in stream references with value "+v)
                     pass
             idx=1
@@ -934,7 +928,7 @@ class POOL2EI(PyAthena.Alg):
                 try:
                     eirec['Snam{:d}'.format(idx)] = sr
                     eirec['Sref{:d}'.format(idx)] = v
-                except:
+                except Exception:
                     _info("Unable to insert " + sr + " in provenance stream references with value "+v)
                     pass
                 idx += 1 

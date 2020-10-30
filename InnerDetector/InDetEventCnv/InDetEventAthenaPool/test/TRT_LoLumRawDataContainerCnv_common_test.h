@@ -84,22 +84,28 @@ void test1()
   TRT_RDO_Container trans1(containerSize);
   // Creating collection for first example module
   const IdentifierHash elementHash1(10026);
+  const Identifier::value_type collIdValue1 = 0x1612280000000000;
+  const Identifier collID1 = Identifier(collIdValue1);
+  std::unique_ptr<TRT_RDO_Collection> collection1 = std::make_unique<TRT_RDO_Collection>(elementHash1);
+  collection1->setIdentifier(collID1);
+  //Add a TRT_LoLumRawData object
   const Identifier::value_type idValue1 = 0x1612282000000000;
   const Identifier strawID1 = Identifier(idValue1);
   const unsigned int strawWord1(2147483696);
-  std::unique_ptr<TRT_RDO_Collection> collection1 = std::make_unique<TRT_RDO_Collection>(elementHash1);
-  //Add a TRT_LoLumRawData object
   std::unique_ptr<TRT_LoLumRawData> rdo1 = std::make_unique<TRT_LoLumRawData>(strawID1,strawWord1);
   collection1->push_back(rdo1.release());
   assert(trans1.addCollection(collection1.get(),elementHash1).isSuccess());
   collection1.release(); // Now owned by trans1
   // Creating collection for second example module
   const IdentifierHash elementHash2(10027);
+  const Identifier::value_type collIdValue2 = 0x16122c0000000000;
+  const Identifier collID2 = Identifier(collIdValue2);
+  std::unique_ptr<TRT_RDO_Collection> collection2 = std::make_unique<TRT_RDO_Collection>(elementHash2);
+  collection2->setIdentifier(collID2);
+  //Add a TRT_LoLumRawData object
   const Identifier::value_type idValue2 = 0x16122ce000000000;
   const Identifier strawID2 = Identifier(idValue2);
   const unsigned int strawWord2(2147499712);
-  std::unique_ptr<TRT_RDO_Collection> collection2 = std::make_unique<TRT_RDO_Collection>(elementHash2);
-  //Add a TRT_LoLumRawData object
   std::unique_ptr<TRT_LoLumRawData> rdo2 = std::make_unique<TRT_LoLumRawData>(strawID2,strawWord2);
   collection2->push_back(rdo2.release());
   assert(trans1.addCollection(collection2.get(),elementHash2).isSuccess());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -79,7 +79,7 @@ namespace Trk {
       AssociatedMaterial(const AssociatedMaterial& am);
 
       /** Move constructor*/
-      AssociatedMaterial(AssociatedMaterial&& am);
+      AssociatedMaterial(AssociatedMaterial&& am) noexcept;
 
       /** Destructor */
       virtual ~AssociatedMaterial();
@@ -88,7 +88,7 @@ namespace Trk {
       AssociatedMaterial& operator=(const AssociatedMaterial& am);
 
       /**Move Assignment operator */
-      AssociatedMaterial& operator=(AssociatedMaterial&& am);
+      AssociatedMaterial& operator=(AssociatedMaterial&& am) noexcept;
 
        /** Trivial Access methods */
        const Trk::MaterialProperties* materialProperties() const;

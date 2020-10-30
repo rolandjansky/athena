@@ -13,6 +13,7 @@
 #include "../TrigRoiUpdater.h"
 #include "../MergeTopoStarts.h"
 #include "../AcceptL1TopoMonitor.h"
+#include "../RandomErrorAlg.h"
 
 DECLARE_COMPONENT( DummyFEX )
 DECLARE_COMPONENT( PESA::DummyUnseededAllTEAlgo )
@@ -29,3 +30,4 @@ DECLARE_COMPONENT( PESA::SeededSuperRoiAllTEAlgo )
 DECLARE_COMPONENT( PESA::TrigRoiUpdater )
 DECLARE_COMPONENT( MergeTopoStarts )
 DECLARE_COMPONENT( AcceptL1TopoMonitor )
+DECLARE_COMPONENT( RandomErrorAlg )

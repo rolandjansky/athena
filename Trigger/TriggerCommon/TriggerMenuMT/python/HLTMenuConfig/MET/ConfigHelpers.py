@@ -44,6 +44,9 @@ def jetRecoDictForMET(**recoDict):
     if "jetDataType" in recoDict:
         # Allow for the renaming dataType -> jetDataType
         jrd["dataType"] = recoDict["jetDataType"]
+    from TriggerMenuMT.HLTMenuConfig.Jet import JetRecoConfiguration
+    if jrd["jetCalib"] == "default":
+        jrd["jetCalib"] = JetRecoConfiguration.interpretJetCalibDefault(jrd)
     return jrd
 
 

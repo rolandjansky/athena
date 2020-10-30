@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloComputeSWcellWeights.py,v 1.4 2007-10-17 21:05:52 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloComputeSWcellWeights.py
 # Created: Nov 2006, sss
@@ -17,15 +15,17 @@
 # Following this, the layer variables need to be recalculated.
 #
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_NOPOOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-cls = CaloClusterCorrectionConf.CaloComputeSWcellWeights
+cls = CompFactory.CaloComputeSWcellWeights # CaloClusterCorrection
 CaloComputeSWcellWeights_versions = [
     ['',              cls,
      ['CaloComputeSWcellWeights.CaloComputeSWcellWeights_parms',
@@ -35,6 +35,7 @@ CaloComputeSWcellWeights_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -52,14 +53,16 @@ CaloComputeSWcellWeights_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloComputeSWcellWeights (name = None,
+def make_CaloComputeSWcellWeights (flags,
+                                   name = None,
                                    suffix = None,
                                    version = None,
                                    key = CALOCORR_DEFAULT_KEY,
                                    source = None,
                                    confclass = None,
                                    **kw):
-    return makecorr (versions = CaloComputeSWcellWeights_versions,
+    return makecorr (flags,
+                     versions = CaloComputeSWcellWeights_versions,
                      name = name,
                      basename = 'weightsEM',
                      suffix = suffix,

@@ -1,6 +1,6 @@
 ## CaloExtensionBuilderAlg Stuff
 
-def CaloExtensionBuilder():
+def CaloExtensionBuilder(useLRT):
     try: 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         from TrackToCalo.TrackToCaloConf import Trk__ParticleCaloExtensionTool
@@ -32,7 +32,15 @@ def CaloExtensionBuilder():
     pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = theAtlasExtrapolator)
     ToolSvc += pcExtensionTool
 
-    CaloExtensionBuilderTool = CaloExtensionBuilderAlg(LastCaloExtentionTool = pcExtensionTool)
+    if (True == useLRT):
+      algName = "CaloExtensionBuilderAlg_LRT"      
+    else:
+      algName = "CaloExtensionBuilderAlg"
+    CaloExtensionBuilderTool = CaloExtensionBuilderAlg(algName, LastCaloExtentionTool = pcExtensionTool)
+
+    if True == useLRT:
+      CaloExtensionBuilderTool.TrkPartContainerName = "InDetLargeD0TrackParticles"
+      CaloExtensionBuilderTool.ParticleCache = "ParticleCaloExtension_LRT"
 
     from AthenaCommon.BeamFlags import jobproperties
     ToolSvc += CaloExtensionBuilderTool.LastCaloExtentionTool

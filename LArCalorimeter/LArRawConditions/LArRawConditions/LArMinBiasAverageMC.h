@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LArMinBiasAverageMC_H
@@ -28,9 +28,6 @@ class LArMinBiasAverageMC: public LArMinBiasAverageComplete {
   // retrieving Average of E in Minimum Bias events , using online ID
   
   virtual const float& minBiasAverage(const HWIdentifier&  CellID) const ;
-  
-  static float dummy;
-  
 };
 
 #include "AthenaKernel/CondCont.h"

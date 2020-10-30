@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
+#define ZLIB_CONST
 #include "v5_ESCompression.h"
 #include "zlib.h"
 #include <string.h>
@@ -62,7 +63,7 @@ namespace offline_EventStorage_v5{
 void offline_EventStorage_v5::zlibcompress(offline_EventStorage_v5::CompressionBuffer& compressed,
 				uint32_t& compressedsize,
 				const uint32_t& entries, 
-				const struct iovec* iov,
+				const struct iovec_const* iov,
 				const uint32_t& totalsize,
 				const uint32_t& level){
 
@@ -89,7 +90,7 @@ void offline_EventStorage_v5::zlibcompress(offline_EventStorage_v5::CompressionB
   
   for (unsigned int i=0; i < entries; ++i) {
 
-    strm.next_in = static_cast<Bytef*>(iov[i].iov_base);
+    strm.next_in = static_cast<const Bytef*>(iov[i].iov_base);
     strm.avail_in = iov[i].iov_len;
   
     int flush = ((i+1)==entries) ? Z_FINISH : Z_NO_FLUSH;

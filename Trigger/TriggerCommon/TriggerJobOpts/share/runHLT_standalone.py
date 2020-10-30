@@ -61,6 +61,7 @@ class opt:
     doMonitorSlice    = True
     doBeamspotSlice   = True
     doCosmicSlice     = True
+    doEnhancedBiasSlice = True
     doUnconventionalTrackingSlice   = True
     reverseViews      = False
     filterViews       = False
@@ -178,8 +179,9 @@ ConfigFlags.IOVDb.GlobalTag = globalflags.ConditionsTag()
 # Other defaults
 ConfigFlags.Beam.Type = jobproperties.Beam.beamType = 'collisions'
 jobproperties.Beam.bunchSpacing = 25
-globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
-ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
+if not ConfigFlags.Input.isMC:
+    globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
+    ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
 
 log.info('Configured the following global flags:')

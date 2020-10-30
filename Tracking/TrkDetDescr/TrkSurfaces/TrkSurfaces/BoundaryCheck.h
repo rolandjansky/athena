@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -110,7 +110,8 @@ public:
 
   /** Each Bounds has a method inside, which checks if a LocalPosition is inside the bounds.
             Inside can be called without/with boundary check */
-  void ComputeKDOP(const std::vector<Amg::Vector2D> &v, const std::vector<Amg::Vector2D> &KDOPAxes, std::vector<KDOP>& kdop) const;
+  void ComputeKDOP(const std::vector<Amg::Vector2D> &v, const std::vector<Amg::Vector2D> &KDOPAxes, 
+                   std::vector<KDOP>& kdop) const;
 
   std::vector<Amg::Vector2D> EllipseToPoly(int resolution = 3) const;
 
@@ -121,178 +122,7 @@ public:
   sincosCache FastSinCos(double x) const;
 };
 
-// should have maximum (average) error of 0.0015 (0.00089) radians or 0.0859 (0.0509) degrees, fine for us and much
-// faster (>4 times)
-inline double
-BoundaryCheck::FastArcTan(double x) const
-{
-  double y;
-  bool complement = false; // true if arg was >1
-  bool sign = false;       // true if arg was < 0
-  if (x < 0.) {
-    x = -x;
-    sign = true; // arctan(-x)=-arctan(x)
-  }
-  if (x > 1.) {
-    x = 1. / x; // keep arg between 0 and 1
-    complement = true;
-  }
-  y = M_PI_4 * x - x * (fabs(x) - 1) * (0.2447 + 0.0663 * fabs(x));
-  if (complement)
-    y = M_PI_2 - y; // correct for 1/x if we did that
-  if (sign)
-    y = -y; // correct for negative arg
-  return y;
 }
 
-// should have maximum (average) error of 0.001 (0.0005) radians or 0.0573 (0.029) degrees, fine for us and much faster
-// (>8 times)
-inline sincosCache
-BoundaryCheck::FastSinCos(double x) const
-{
-  sincosCache tmp;
-  // always wrap input angle to -PI..PI
-  if (x < -M_PI)
-    x += 2. * M_PI;
-  else if (x > M_PI)
-    x -= 2. * M_PI;
-
-  // compute sine
-  if (x < 0.) {
-    tmp.sinC = 1.27323954 * x + .405284735 * x * x;
-
-    if (tmp.sinC < 0.)
-      tmp.sinC = .225 * (tmp.sinC * -tmp.sinC - tmp.sinC) + tmp.sinC;
-    else
-      tmp.sinC = .225 * (tmp.sinC * tmp.sinC - tmp.sinC) + tmp.sinC;
-  } else {
-    tmp.sinC = 1.27323954 * x - 0.405284735 * x * x;
-
-    if (tmp.sinC < 0.)
-      tmp.sinC = .225 * (tmp.sinC * -tmp.sinC - tmp.sinC) + tmp.sinC;
-    else
-      tmp.sinC = .225 * (tmp.sinC * tmp.sinC - tmp.sinC) + tmp.sinC;
-  }
-
-  // compute cosine: sin(x + PI/2) = cos(x)
-  x += M_PI_2;
-  if (x > M_PI)
-    x -= 2. * M_PI;
-
-  if (x < 0.) {
-    tmp.cosC = 1.27323954 * x + 0.405284735 * x * x;
-
-    if (tmp.cosC < 0.)
-      tmp.cosC = .225 * (tmp.cosC * -tmp.cosC - tmp.cosC) + tmp.cosC;
-    else
-      tmp.cosC = .225 * (tmp.cosC * tmp.cosC - tmp.cosC) + tmp.cosC;
-  } else {
-    tmp.cosC = 1.27323954 * x - 0.405284735 * x * x;
-
-    if (tmp.cosC < 0.)
-      tmp.cosC = .225 * (tmp.cosC * -tmp.cosC - tmp.cosC) + tmp.cosC;
-    else
-      tmp.cosC = .225 * (tmp.cosC * tmp.cosC - tmp.cosC) + tmp.cosC;
-  }
-  return tmp;
-}
-
-// does the conversion of an ellipse of height h and width w to an polygon with 4 + 4*resolution points
-inline std::vector<Amg::Vector2D>
-BoundaryCheck::EllipseToPoly(int resolution) const
-{
-  const double h = nSigmas * sqrt(lCovariance(1, 1));
-  const double w = nSigmas * sqrt(lCovariance(0, 0));
-
-  // first add the four vertices
-  std::vector<Amg::Vector2D> v((1 + resolution) * 4);
-  Amg::Vector2D p;
-  p << w, 0;
-  v[0] = p;
-  p << -w, 0;
-  v[1] = p;
-  p << 0, h;
-  v[2] = p;
-  p << 0, -h;
-  v[3] = p;
-
-  // now add a number, equal to the resolution, of equidistant points  in each quadrant
-  // resolution == 3 seems to be a solid working point, but possibility open to change to any number in the future
-  Amg::Vector2D t(1, 1);
-  AmgSymMatrix(2) t1;
-  t1 << 1, 0, 0, -1;
-  AmgSymMatrix(2) t2;
-  t2 << -1, 0, 0, -1;
-  AmgSymMatrix(2) t3;
-  t3 << -1, 0, 0, 1;
-  if (resolution != 3) {
-    sincosCache scResult;
-    for (int i = 1; i <= resolution; i++) {
-      scResult = FastSinCos(M_PI_2 * i / (resolution + 1));
-      t << w * scResult.sinC, h * scResult.cosC;
-      v[i * 4 + 0] = t;
-      v[i * 4 + 1] = t1 * t;
-      v[i * 4 + 2] = t2 * t;
-      v[i * 4 + 3] = t3 * t;
-    }
-  } else {
-    t << w * s_cos22, h * s_cos67;
-    v[4] = t;
-    v[5] = t1 * t;
-    v[6] = t2 * t;
-    v[7] = t3 * t;
-    t << w * s_cos45, h * s_cos45;
-    v[8] = t;
-    v[9] = t1 * t;
-    v[10] = t2 * t;
-    v[11] = t3 * t;
-    t << w * s_cos67, h * s_cos22;
-    v[12] = t;
-    v[13] = t1 * t;
-    v[14] = t2 * t;
-    v[15] = t3 * t;
-  }
-  return v;
-}
-
-// calculates KDOP object from given polygon and set of axes
-inline void
-BoundaryCheck::ComputeKDOP(const std::vector<Amg::Vector2D> &v,
-                           const std::vector<Amg::Vector2D> &KDOPAxes,
-                           std::vector<KDOP>& kdop) const
-{
-  // initialize KDOP to first point
-  unsigned int k = KDOPAxes.size();
-  for (unsigned int i = 0; i < k; i++) {
-    kdop[i].max = KDOPAxes[i](0, 0) * v[0](0, 0) + KDOPAxes[i](1, 0) * v[0](1, 0);
-    kdop[i].min = KDOPAxes[i](0, 0) * v[0](0, 0) + KDOPAxes[i](1, 0) * v[0](1, 0);
-  }
-  // now for each additional point, update KDOP bounds if necessary
-  float value;
-  for (unsigned int i = 1; i < v.size(); i++) {
-    for (unsigned int j = 0; j < k; j++) {
-      value = KDOPAxes[j](0, 0) * v[i](0, 0) + KDOPAxes[j](1, 0) * v[i](1, 0);
-      if (value < kdop[j].min)
-        kdop[j].min = value;
-      else if (value > kdop[j].max)
-        kdop[j].max = value;
-    }
-  }
-}
-
-// this is the method to actually check if two KDOPs overlap
-inline bool
-BoundaryCheck::TestKDOPKDOP(const std::vector<KDOP>& a, const std::vector<KDOP>& b) const
-{
-  int k = a.size();
-  // check if any intervals are non-overlapping, return if so
-  for (int i = 0; i < k; i++)
-    if (a[i].min > b[i].max || a[i].max < b[i].min)
-      return false;
-  // all intervals are overlapping, so KDOPs must intersect
-  return true;
-}
-
-}
-
+#include "TrkSurfaces/BoundaryCheck.icc"
 #endif // TRKSURFACES_BOUNDARYCHECK_H

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -30,8 +30,7 @@ bool sort_pred(const int_pair& left, const int_pair& right) {
 }
 
 TileCellCont::TileCellCont()
-  : m_it(0)
-  , m_event(0)
+  : m_event(0)
   , m_MBTS(0)
   , m_MBTS_channel(0)
   , m_src(0) {
@@ -185,22 +184,17 @@ StatusCode TileCellCont::initialize() {
     // A collection per ROD/ROB/HashId
   } // end of for id
 #endif
-  m_it = new std::vector<TileCellCollection*>::const_iterator();
 
   return StatusCode::SUCCESS;
 }
 
 // This WILL NOT trigger BSCNV. This assumes BSCNV was done before
-const std::vector<TileCellCollection*>::const_iterator&
+const std::vector<TileCellCollection*>::const_iterator
 TileCellCont::find(const unsigned int& rodid) const {
-  *m_it = (std::vector<TileCellCollection*>::const_iterator) ((*this).begin() + rodid);
-  return *m_it;
+  return this->begin() + rodid;
 }
 
 StatusCode TileCellCont::finalize() {
-
-  // delete the pointer to collection
-  delete m_it;
 
   // Delete m_RwCells
   for (int i = 0; i < 4; i++)

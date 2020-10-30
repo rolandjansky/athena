@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/CollectionFactory.h"
@@ -24,7 +24,7 @@ using namespace std;
 using namespace pool;
 
 pool::CollectionFactory pool::CollectionFactory::s_instance;
-static string	thisModule( "POOLCollFactory" );
+static const string	thisModule( "POOLCollFactory" );
 
 const std::string pool::CollectionFactory::c_fileType = "PoolCollection";
 
@@ -466,7 +466,7 @@ pool::CollectionFactory::isUnique( const pool::FileCatalog::FileID& guid,
 
 
 void 
-pool::CollectionFactory::extract( const std::string physicalName,
+pool::CollectionFactory::extract( const std::string& physicalName,
                                   std::string& type,
                                   std::string& connection,
                                   std::string& name ) const

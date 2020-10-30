@@ -5,7 +5,7 @@
 #ifndef MOOSEGMENTFINDERS_MUOSEGMENTFINDERALGS_H
 #define MOOSEGMENTFINDERS_MUOSEGMENTFINDERALGS_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -33,15 +33,14 @@ class IMuonClusterSegmentFinder;
 class MsgStream;
 class ICscSegmentFinder;
 
-class MuonSegmentFinderAlg : public AthAlgorithm {
+class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
   public:
     MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     virtual ~MuonSegmentFinderAlg();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute() override;
-    virtual StatusCode finalize() override;
+    virtual StatusCode execute(const EventContext& ctx) const;
 
 
   private:
@@ -164,8 +163,8 @@ class MuonSegmentFinderAlg : public AthAlgorithm {
 
     void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segs,
                                 const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                const std::vector<const Muon::TgcPrepDataCollection*> tgcCols);
-    void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments);
+                                const std::vector<const Muon::TgcPrepDataCollection*> tgcCols) const;
+    void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const;
 
     bool m_printSummary;
 

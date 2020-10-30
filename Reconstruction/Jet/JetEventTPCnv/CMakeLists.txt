@@ -1,46 +1,25 @@
-################################################################################
-# Package: JetEventTPCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetEventTPCnv )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModelAthenaPool
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/EventCommonTPCnv
-                          PhysicsAnalysis/AnalysisCommon/ParticleEventTPCnv
-                          Reconstruction/Jet/JetEvent
-                          PRIVATE
-                          Control/AthenaKernel
-                          Control/AthAllocators
-                          PhysicsAnalysis/MuonID/MuonIDEvent
-                          Reconstruction/egamma/egammaEvent
-                          Tracking/TrkEvent/VxVertex )
-
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_tpcnv_library( JetEventTPCnv
                          src/*.cxx
                          PUBLIC_HEADERS JetEventTPCnv
                          INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                         PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                         LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel AthAllocators MuonIDEvent egammaEvent VxVertex )
+                         LINK_LIBRARIES ${Boost_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities DataModelAthenaPoolLib EventCommonTPCnv JetEvent ParticleEventTPCnv
+                         PRIVATE_LINK_LIBRARIES AthAllocators AthenaKernel MuonIDEvent VxVertex egammaEvent )
 
 atlas_add_dictionary( JetEventTPCnvDict
                       JetEventTPCnv/JetEventTPCnvDict.h
                       JetEventTPCnv/selection.xml
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel AthAllocators MuonIDEvent egammaEvent VxVertex JetEventTPCnv )
+                      LINK_LIBRARIES JetEventTPCnv )
 
 atlas_add_dictionary( OLD_JetEventTPCnvDict
                       JetEventTPCnv/JetEventTPCnvDict.h
                       JetEventTPCnv/OLD_selection.xml
-                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventCommonTPCnv ParticleEventTPCnv JetEvent AthenaKernel AthAllocators MuonIDEvent egammaEvent VxVertex JetEventTPCnv )
-
+                      LINK_LIBRARIES JetEventTPCnv )

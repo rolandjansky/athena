@@ -13,10 +13,7 @@
 #                     python CreateTierZeroArgdict.py --maxEvents 20 --jobnr 1 --ncores 4 --NoMergeTypeList AOD,ESD,DRAW_EGZ,DRAW_EMU,DRAW_TAUMUH,DRAW_ZMUMU f622 data15_13TeV.00284473.physics_Main.daq.RAW data15_13TeV.00284473.physics_Main.daq.RAW._lb0267._SFO-3._0001.data 
 
 
-from __future__ import print_function
-
-import os, sys, json, traceback, re, argparse
-from pprint import pprint as pp
+import sys, json, traceback, re, argparse
 
 #####################################
 # command line argument parsing 
@@ -97,7 +94,7 @@ def resolve(tag) :
                'transformation' : str(r.get('transformation','')),
                'trfsetupcmd' : str(r.get('trfsetupcmd','')),     
                }
-    except :
+    except Exception:
         traceback.print_exc()
         res = 'error'
     return res
@@ -147,7 +144,7 @@ if __name__ == '__main__':
         else: 
             print("WARNING >>> input file name does not have the expected format - no partition identifiers separated by '._' found in the inputfilename lbXXXX._SFO-X._XXXX, ._lb0000._SFO-0._0000.job,<jobnr>.log will be used instead for the log file name")
             pass
-    except:
+    except Exception:
         pass 
     
     logfilename=dsname+"."+ amitag+"."+taskstep+partID+".job.log"

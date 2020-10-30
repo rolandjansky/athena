@@ -12,6 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "MuonCondSvc/TGCTriggerData.h"
+#include "TGCTriggerCondSvc/TGCTriggerLUTs.h"
 #include "TrigT1TGC/TGCArguments.h"
 
 namespace LVL1TGCTrigger {
@@ -35,6 +36,7 @@ public:
 
   TGCRPhiCoincidenceMap(TGCArguments*,
                         const SG::ReadCondHandleKey<TGCTriggerData>& readCondKey,
+			const SG::ReadCondHandleKey<TGCTriggerLUTs>& readLUTsCondKey,
                         const std::string& version,
                         int   sideId=0, int octantId=0);
 
@@ -88,6 +90,9 @@ private:
   TGCArguments* m_tgcArgs;
 
   const SG::ReadCondHandleKey<TGCTriggerData>& m_readCondKey;
+  const SG::ReadCondHandleKey<TGCTriggerLUTs>& m_readLUTsCondKey;
+
+
 };
 
 inline 

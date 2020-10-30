@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConfiguredFactory
 
@@ -65,12 +65,6 @@ def getSCT_CablingCondAlgFromCoraCool(name="SCT_CablingCondAlgFromCoraCool", **k
     kwargs.setdefault("ReadKeyMur", folderPath+"MUR")
     kwargs.setdefault("ReadKeyGeo", folderPath+"Geog")
     return CfgMgr.SCT_CablingCondAlgFromCoraCool(name, **kwargs)
-
-def getSCT_CablingToolInc(name="SCT_CablingToolInc", **kwargs):
-    return CfgMgr.SCT_CablingToolInc(name, **kwargs)
-
-def getSCT_FillCablingFromCoraCool(name="SCT_FillCablingFromCoraCool", **kwargs):
-    return CfgMgr.SCT_FillCablingFromCoraCool(name, **kwargs)
 
 
 # https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/AthenaJobConfigRun3

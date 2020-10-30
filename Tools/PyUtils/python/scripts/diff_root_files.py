@@ -10,6 +10,8 @@ __author__ = "Sebastien Binet"
 
 ### imports -------------------------------------------------------------------
 import PyUtils.acmdlib as acmdlib
+import re
+from PyUtils.Decorators import memoize
 from math import isnan
 from numbers import Real
 
@@ -134,37 +136,16 @@ def main(args):
         fnew = ru.RootFileDumper(args.new, args.tree_name)
         pass
     
-    def build_ignore_list( all_leaves, ignore_leaves ):
-        """ Here we build the list of leaves that'll be ignored in the diff"""
-
-        import re
-        result = set()
-
-        # Loop over leaves and patterns, add matches to the results
-        # The set() is taken elsewhere in the code
-        for leaf in all_leaves:
-            for pattern in ignore_leaves:
-                try:
-                    m = re.match(pattern, leaf)
-                except TypeError:
-                    continue
-                if m:
-                    result.add(leaf)
-
-        return result
-
     def tree_infos(tree, args):
         nentries = tree.GetEntriesFast()
         # l.GetBranch().GetName() gives the full leaf path name
-        all_leaves = [ l.GetBranch().GetName() for l in tree.GetListOfLeaves() ]
-        ignore_leaves = build_ignore_list( all_leaves, args.ignore_leaves )
-        leaves = [ leaf for leaf in all_leaves if leaf not in ignore_leaves ]
+        leaves = [l.GetBranch().GetName() for l in tree.GetListOfLeaves()
+                  if l.GetBranch().GetName() not in args.ignore_leaves]
         if args.leaves_prefix:
             leaves = [l.replace(args.leaves_prefix, '') for l in leaves]
         return {
             'entries': nentries,
             'leaves': set(leaves),
-            'ignored': ignore_leaves
             }
     
     def ordered_indices(tree, reverse_order = False):
@@ -242,7 +223,7 @@ def main(args):
                 msg.warning(' - [%s]', l)
 
         # need to remove trailing dots as they confuse reach_next()
-        skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | infos['old']['ignored'].union(infos['new']['ignored']) ]
+        skip_leaves = [ l.rstrip('.') for l in old_leaves | new_leaves | set(args.ignore_leaves) ]
         for l in skip_leaves:
             msg.debug('skipping [%s]', l)
 
@@ -269,6 +250,29 @@ def main(args):
         def leafname_fromdump(entry):
             return '.'.join([s for s in entry[2] if not s.isdigit()])
         
+        @memoize
+        def skip_leaf(name_from_dump, skip_leaves):
+            """ Here decide if the current leaf should be skipped.
+            Previously the matching was done based on the full or partial
+            leaf name. E.g. foo.bar.zzz would be skipped if any of the
+            following were provided:
+                * foo
+                * foo.bar
+                * foo.bar.zzz
+                * Any of the foo, bar, or zzz
+            Now, we make a regex matching such that the user doesn't
+            need to provide full branch names.
+            """
+            for pattern in skip_leaves:
+                try:
+                    m = re.match(pattern, name_from_dump)
+                except TypeError:
+                    continue
+                if m:
+                    return True
+            else:
+                return False
+
         def reach_next(dump_iter, skip_leaves, leaves_prefix=None):
             keep_reading = True
             while keep_reading:
@@ -279,16 +283,9 @@ def main(args):
                 entry[2][0] = entry[2][0].rstrip('.\0')  # clean branch name
                 if leaves_prefix:
                     entry[2][0] = entry[2][0].replace(leaves_prefix, '')
-                name = []
-                skip = False
-                for n in leafname_fromdump(entry).split('.'):
-                    name.append(n)
-                    if '.'.join(name) in skip_leaves or n in skip_leaves:
-                        skip = True
-                        break
-                if not skip:
+                if not skip_leaf(leafname_fromdump(entry), tuple(set(skip_leaves))):
                     return entry
-                # print('SKIP:', leafname_fromdump(entry))
+                msg.debug('SKIP: {}'.format(leafname_fromdump(entry)))
             pass
 
         read_old = True

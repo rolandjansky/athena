@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -76,8 +76,8 @@ StatusCode TileMuRcvContByteStreamTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileMuRcvContByteStreamTool::convert(TileMuonReceiverContainer* cont, FullEventAssembler<TileHid2RESrcID> *fea) {
-
+StatusCode TileMuRcvContByteStreamTool::convert(TileMuonReceiverContainer* cont, FullEventAssembler<TileHid2RESrcID> *fea) const
+{
   ATH_MSG_INFO ("Executing TileMuRcvContByteStreamTool::convert method");
 
   int  n           = 0;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -67,6 +67,15 @@ public:
         return StatusCode::SUCCESS;
     }
     
+    virtual StatusCode addOrDelete(std::unique_ptr<const T> ptr, IdentifierHash hashId) override{
+        if(hashId >=  m_randomcont.size()) return StatusCode::FAILURE;
+        if(m_randomcont[hashId] == nullptr){
+            return addCollection(ptr.release(), hashId);
+        }
+        ptr.reset();
+        return StatusCode::SUCCESS;
+    }
+    
     virtual size_t fullSize() const override{
         return m_randomcont.size();
     }
@@ -86,7 +95,7 @@ public:
         return m_hasExternalCache;
     }
     
-    virtual StatusCode naughtyRetrieve(IdentifierHash hashId, T* &collToRetrieve) const override{
+    virtual StatusCode naughtyRetrieve ATLAS_NOT_THREAD_SAFE (IdentifierHash hashId, T* &collToRetrieve) const override{
         if(hashId >=  m_randomcont.size()) return StatusCode::FAILURE;
         collToRetrieve = const_cast<T*>( m_randomcont[hashId]);
         return StatusCode::SUCCESS; 
@@ -94,7 +103,7 @@ public:
     
     StatusCode MergeToRealContainer(IIdentifiableCont<T> *real){
         for(auto &x : m_usedhashes){
-          auto ptr = std::unique_ptr<T>(const_cast<T*>( x.second));
+          auto ptr = std::unique_ptr<const T>(x.second);
           auto sc = real->addOrDelete(std::move(ptr), x.first);
           if(sc.isFailure()) { return StatusCode::FAILURE; }
           m_randomcont[x.first] = nullptr;

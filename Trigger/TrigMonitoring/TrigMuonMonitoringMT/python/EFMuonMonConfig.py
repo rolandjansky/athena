@@ -10,7 +10,7 @@ def EFMuonMonConfig(helper):
 
     monAlg = helper.addAlgorithm(CompFactory.EFMuonMonMT,'EFMuonMonMT')
     # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    monAlg.MonitoredChains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20']
+    monAlg.MonitoredChains = ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_mu50_L1MU20', 'HLT_mu60_0eta105_msonly_L1MU20', 'HLT_2mu14_L12MU10']
     monAlg.Group = GroupName
 
     # configuration of etaphi2D and Ratio plots for non-specific chain
@@ -37,7 +37,6 @@ def EFMuonMonConfig(helper):
     for chain in monAlg.MonitoredChains:
 
         histGroup = helper.addGroup(monAlg, GroupName+'_'+chain, 'HLT/MuonMon/EFMuon/'+chain)
-    
 
         # basic EDM variables
         # EFSA

@@ -42,7 +42,7 @@ def addMCOverlayTrfArgs(parser):
                         group='MCOverlay')
 
 
-def addOverlayArguments(parser):
+def addOverlayArguments(parser, in_reco_chain=False):
     """Add all overlay command-line parser arguments."""
     # TODO: are forward detectors really needed?
     from SimuJobTransforms.simTrfArgs import addBasicDigiArgs  # , addForwardDetTrfArgs
@@ -50,7 +50,8 @@ def addOverlayArguments(parser):
     # addForwardDetTrfArgs(parser)
     addOverlayTrfArgs(parser)
     addMCOverlayTrfArgs(parser)
-    addDataOverlayTrfArgs(parser)
+    if not in_reco_chain:
+        addDataOverlayTrfArgs(parser)
 
 
 def addOverlaySubstep(executor_set, in_reco_chain=False):

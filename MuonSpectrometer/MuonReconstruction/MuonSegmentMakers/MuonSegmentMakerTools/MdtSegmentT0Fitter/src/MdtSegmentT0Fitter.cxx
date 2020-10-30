@@ -62,6 +62,8 @@ namespace TrkDriftCircleMath {
     m_minuit->SetPrintLevel(-1); // -1: no output, 1: std output
     if( msgLvl(MSG::VERBOSE) ) m_minuit->SetPrintLevel(1);
     gMinuit = oldMinuit;
+    
+    ATH_CHECK(m_calibrationDbTool.retrieve());
 
     return StatusCode::SUCCESS;
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiUtils/IFileCatalog.h"
@@ -22,10 +22,10 @@
 using namespace pool;
 
 pool::IFileCatalog::IFileCatalog()
-  : AthMessaging( Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc").get(), "APRFileCatalog" )
+  : AthMessaging( Gaudi::svcLocator()->service<IMessageSvc>("MessageSvc").get(), "APRFileCatalog" ),
+    m_mgr (Gaudi::svcLocator()->service<Gaudi::IFileCatalogMgr>( "Gaudi::MultiFileCatalog" )),
+    m_fc (m_mgr)
 {
-   _mgr = Gaudi::svcLocator()->service<Gaudi::IFileCatalogMgr>( "Gaudi::MultiFileCatalog" );
-   _fc = _mgr;
    // set the output level of this service
    setLevel( SystemTools::GetOutputLvl() );
    // set the output level of the XMLCatalog component - works only if the Gaudi AppMgr was initialized
@@ -84,7 +84,7 @@ registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid 
    }
    if( fid.empty() ) fid = createFID();
    ATH_MSG_DEBUG("Registering PFN=" << pfn << " of type=" << ftype << " GUID=" << fid);
-   _fc->registerPFN(fid, pfn, ftype);
+   m_fc->registerPFN(fid, pfn, ftype);
 }
 
 
@@ -92,7 +92,7 @@ registerPFN( const std::string& pfn, const std::string& ftype, std::string& fid 
 void pool::IFileCatalog::
 addReplicaPFN( const std::string& pfn, const std::string& replica_pfn )
 { 
-   std::string fid = _fc->lookupPFN(pfn);
+   std::string fid = m_fc->lookupPFN(pfn);
    if( fid.empty() )
       throw pool::Exception(std::string("PFN '") + pfn + "' not found", "addReplicaPFN", "FileCatalog");
    // find the filetype for the PFN being replicated
@@ -100,7 +100,7 @@ addReplicaPFN( const std::string& pfn, const std::string& replica_pfn )
    getPFNs( fid, pfns );
    for( const auto& pfns_entry: pfns ) {
       if( pfns_entry.first == pfn ) {
-         _fc->registerPFN(fid, replica_pfn, pfns_entry.second);
+         m_fc->registerPFN(fid, replica_pfn, pfns_entry.second);
          return;
       }
    }
@@ -112,7 +112,7 @@ addReplicaFID( const std::string& fid, const std::string& replica_pfn, const std
 { 
    if( fid.empty() )
       throw pool::Exception(std::string("FID not specified"), "addReplicaFID", "FileCatalog");
-   _fc->registerPFN(fid, replica_pfn, replica_tech);
+   m_fc->registerPFN(fid, replica_pfn, replica_tech);
 }
 
 
@@ -124,7 +124,7 @@ void pool::IFileCatalog::addCatalog( const std::string& connect )
 {
    URIParser p(connect);
    p.parse();
-   Catalogs& cats = _mgr->catalogs();     
+   Catalogs& cats = m_mgr->catalogs();     
    auto i = std::find_if( cats.begin(), cats.end(),
                           [&]( const Gaudi::IFileCatalog* f )
                           { return p.url() == f->connectInfo(); } );
@@ -136,7 +136,7 @@ void pool::IFileCatalog::addCatalog( const std::string& connect )
          fullconnectstr = "xmlcatalog_" + connect;
       }
       ATH_MSG_DEBUG("addCatalog(\"" << fullconnectstr << "\")" );
-      _mgr->addCatalog( fullconnectstr );
+      m_mgr->addCatalog( fullconnectstr );
    }
 }
 
@@ -146,7 +146,7 @@ void pool::IFileCatalog::setWriteCatalog( const std::string& connect )
    URIParser p(connect);
    p.parse();
    addCatalog( connect );
-   _mgr->setWriteCatalog( _mgr->findCatalog( p.url(), true ) );
+   m_mgr->setWriteCatalog( m_mgr->findCatalog( p.url(), true ) );
 }
      
 

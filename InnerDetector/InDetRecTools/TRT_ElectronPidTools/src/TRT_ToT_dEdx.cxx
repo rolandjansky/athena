@@ -261,7 +261,7 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
       if ( isGoodHit(ctx,(*itr), useHitsHT, length)) {
 	      double ToT_correct = correctToT_corrRZ(ctx,*itr, length);
 	      if (m_correctionType == kHitBased){
-	        correctionFactor = hitOccupancyCorrection(*itr);
+	        correctionFactor = hitOccupancyCorrection(ctx,*itr);
 	        ToT_correct*=correctionFactor;
 	      }
         vecToT.push_back(ToT_correct);
@@ -307,7 +307,7 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
         gasType=gasTypeInStraw(ctx,*itr);
 	      double ToT_correct = correctToT_corrRZ(ctx,*itr, length);
 	      if (m_correctionType == kHitBased) {
-          correctionFactor = hitOccupancyCorrection(*itr);
+          correctionFactor = hitOccupancyCorrection(ctx,*itr);
         }
 	      ToT_correct*=correctionFactor;
         if(gasType==kXenon) {
@@ -1105,9 +1105,11 @@ TRT_ToT_dEdx::fitFuncBarrel_corrRZL(const EventContext& ctx,
   return result;
 }
 
-double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const
+double
+TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
+                                     const Trk::TrackStateOnSurface* itr) const
 {
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle(m_ReadKey,ctx);
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
 
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();

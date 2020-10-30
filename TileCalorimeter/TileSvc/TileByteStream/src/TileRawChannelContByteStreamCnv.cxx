@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -35,13 +35,11 @@
 #include <stdint.h>
 
 TileRawChannelContByteStreamCnv::TileRawChannelContByteStreamCnv(ISvcLocator* svcloc) 
-  : Converter(storageType(), classID(), svcloc)
-  , ::AthMessaging(msgSvc(), "TileRawChannelContByteStreamCnv")
-  , m_name("TileRawChannelContByteStreamCnv")
+  : AthConstConverter(storageType(), classID(), svcloc, "TileRawChannelContByteStreamCnv")
   , m_tool("TileRawChannelContByteStreamTool")
-  , m_byteStreamEventAccess("ByteStreamCnvSvc", m_name)
+  , m_byteStreamEventAccess("ByteStreamCnvSvc", name())
   , m_byteStreamCnvSvc(0)
-  , m_robSvc("ROBDataProviderSvc", m_name)
+  , m_robSvc("ROBDataProviderSvc", name())
   , m_decoder("TileROD_Decoder")
   , m_hid2re(0)
 {
@@ -72,8 +70,8 @@ StatusCode TileRawChannelContByteStreamCnv::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) {
-
+StatusCode TileRawChannelContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const
+{
   ATH_MSG_DEBUG(" Executing createObj method ");
 
   ByteStreamAddress *pRE_Addr;
@@ -85,7 +83,7 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
   }
 
   const std::string containerName(*(pRE_Addr->par()));
-  bool isTMDB(containerName == "MuRcvRawChCnt");
+  bool isTMDB(containerName == std::string("MuRcvRawChCnt"));
 
   uint32_t newrob = 0x0;
 
@@ -175,7 +173,8 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
   return StatusCode::SUCCESS;  
 }
 
-StatusCode TileRawChannelContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
+StatusCode TileRawChannelContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const
+{
   // convert TileRawChannels in the container into ByteStream
 
   ATH_MSG_DEBUG(" Executing createRep method ");

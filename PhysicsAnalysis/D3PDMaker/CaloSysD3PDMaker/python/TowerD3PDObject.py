@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: TowerD3PDObject.py 470396 2011-11-24 16:42:13Z krasznaa $
 
@@ -16,10 +16,10 @@ def makeTowerD3PDObject (name, prefix, object_name='TowerD3PDObject', getter = N
     
     if sgkey== 'TopoTower': ContainerType='CaloTopoTowerContainer'
     
-    print " makeTowerD3PDObject: name = ", name
-    print " makeTowerD3PDObject: prefix = ", prefix
-    print " makeTowerD3PDObject: object_name = ", object_name
-    print " makeTowerD3PDObject: sgkey = ", sgkey
+    print(" makeTowerD3PDObject: name = ", name)
+    print(" makeTowerD3PDObject: prefix = ", prefix)
+    print(" makeTowerD3PDObject: object_name = ", object_name)
+    print(" makeTowerD3PDObject: sgkey = ", sgkey)
 
     if not getter:
         getter = D3PDMakerCoreComps.SGDataVectorGetterTool \

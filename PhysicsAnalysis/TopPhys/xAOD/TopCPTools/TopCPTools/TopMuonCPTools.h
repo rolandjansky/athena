@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOPCPTOOLS_TOPMUONCPTOOLS_H_
 #define TOPCPTOOLS_TOPMUONCPTOOLS_H_
@@ -20,54 +20,61 @@
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
 #include "MuonAnalysisInterfaces/IMuonEfficiencyScaleFactors.h"
+#include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 
 namespace top {
+  class TopConfig;
 
-class TopConfig;
+  class MuonCPTools final: public asg::AsgTool {
+  public:
+    explicit MuonCPTools(const std::string& name);
+    virtual ~MuonCPTools() {}
 
-class MuonCPTools final : public asg::AsgTool {
- public:
-  explicit MuonCPTools(const std::string& name);
-  virtual ~MuonCPTools() {}
+    StatusCode initialize();
+  private:
+    std::shared_ptr<top::TopConfig> m_config;
 
-  StatusCode initialize();
+    ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationPeriodTool;
 
- private:
-  std::shared_ptr<top::TopConfig> m_config;
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolLoose;
+    // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
+    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
 
-  int m_release_series = 24;  // Default to 2.4
+    ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_2015;
+    ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2015;
+    ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_2016;
+    ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2016;
+    ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_R21;
+    ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_R21;
 
-  ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCalibrationAndSmearingTool;
-  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolLoose;
-  // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
-  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsTool;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLoose;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolIso;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLooseIso;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolPromptLeptonIso;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolTTVA;
 
-  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_2015;
-  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2015;
-  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactors_2016;
-  ToolHandle<CP::IMuonTriggerScaleFactors> m_muonTriggerScaleFactorsLoose_2016;
-
-  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsTool;
-  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLoose;
-  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolIso;
-  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolLooseIso;
-  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_muonEfficiencyCorrectionsToolTTVA;
-
+    ToolHandle<CP::IMuonSelectionTool> m_softmuonSelectionTool;
+    ToolHandle<CP::IMuonEfficiencyScaleFactors> m_softmuonEfficiencyCorrectionsTool;
 
 
-  StatusCode setupCalibration();
-  StatusCode setupScaleFactors();
 
-  CP::IMuonSelectionTool*
-    setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta);
+    StatusCode setupCalibration();
+    StatusCode setupScaleFactors();
 
-  CP::IMuonTriggerScaleFactors*
-    setupMuonTrigSFTool(const std::string& name, const std::string& quality, const std::string& year);
+    CP::IMuonSelectionTool*
+    setupMuonSelectionTool(const std::string& name, const std::string& quality, double max_eta, const bool& useMVALowPt, const bool& use2stationMuonsHighPt);
 
-  CP::IMuonEfficiencyScaleFactors*
+    CP::IMuonTriggerScaleFactors*
+    setupMuonTrigSFTool(const std::string& name, const std::string& quality);
+
+    CP::IMuonEfficiencyScaleFactors*
     setupMuonSFTool(const std::string& name, const std::string& WP);
-};
+
+    CP::IMuonCalibrationAndSmearingTool*
+      setupMuonCalibrationAndSmearingTool(const std::string& name, const bool& doExtraSmearingHighPt, const bool& do2StationsHighPt);
+  };
 }  // namespace top
 
 #endif  // TOPCPTOOLS_TOPMUONCPTOOLS_H_

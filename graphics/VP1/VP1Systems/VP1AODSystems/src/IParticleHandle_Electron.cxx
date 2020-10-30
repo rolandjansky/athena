@@ -72,6 +72,10 @@ IParticleHandle_Electron::~IParticleHandle_Electron()
   delete m_d;
 }
 
+const xAOD::Electron& IParticleHandle_Electron::electron() const {
+    return *(m_d->electron);
+}
+
 bool IParticleHandle_Electron::has3DObjects(){
   return 0!=m_d->sep;
 }

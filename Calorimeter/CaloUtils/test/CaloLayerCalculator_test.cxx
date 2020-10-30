@@ -37,7 +37,6 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "CaloIdentifier/TileID.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "IdDictParser/IdDictParser.h"
-#include "StoreGate/StoreGate.h"
 #include "TestTools/initGaudi.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "CLHEP/Units/SystemOfUnits.h"

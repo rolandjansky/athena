@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootCollectionQuery.h"
@@ -113,9 +113,7 @@ pool::RootCollection::RootCollectionQuery::selectAll()
 void
 pool::RootCollection::RootCollectionQuery::addToCollectionFragmentList( const std::string& fragmentName )
 {
-   if( m_collectionFragmentNames.find( fragmentName ) == m_collectionFragmentNames.end() )  {
-      m_collectionFragmentNames.insert( fragmentName );
-
+   if (m_collectionFragmentNames.insert (fragmentName).second) {
       /*
       // Add data table associated with collection fragment to query table list.
       std::string dataTableName = ( m_dataTableNameForCollectionFragmentName.find( fragmentName ) )->second;

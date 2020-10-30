@@ -66,12 +66,12 @@ StatusCode PixelRawDataProviderTool::convert(std::vector<const ROBFragment*>& ve
   //    are we working on a new event ?
   bool isNewEvent = (m_checkLVL1ID ? ((*rob_it)->rod_lvl1_id() != ent->m_LastLvl1ID) : true);
   if (isNewEvent) {
-    LVL1Collection = SG::makeHandle(m_LVL1CollectionKey);
+    LVL1Collection = SG::makeHandle(m_LVL1CollectionKey,ctx);
     ATH_CHECK(LVL1Collection.record(std::make_unique<InDetTimeCollection>()));
     ATH_MSG_DEBUG("InDetTimeCollection " << LVL1Collection.name() << " registered in StoreGate");
     LVL1Collection->reserve(vecRobs.size());
 
-    BCIDCollection = SG::makeHandle(m_BCIDCollectionKey);
+    BCIDCollection = SG::makeHandle(m_BCIDCollectionKey,ctx);
     ATH_CHECK(BCIDCollection.record(std::make_unique<InDetTimeCollection>()));
     ATH_MSG_DEBUG("InDetTimeCollection " << BCIDCollection.name() << " registered in StoreGate");
     BCIDCollection->reserve(vecRobs.size());  
@@ -141,9 +141,12 @@ int PixelRawDataProviderTool::SizeOfIDCInDetBSErrContainer() const {
   //          2048 x 17 (module + FE) = 34816
   //
   //      IBL extra error information  : 
-  //          280(module) x 2(FE) x 32(error counter) = 35840
+  //          280(module) x 2(FE) x 32(error counter) = 17920
   //     -------------------------------------
-  //                             Total : 70656
+  //
+  //      isActive status : 2048
+  //     -------------------------------------
+  //                             Total : 54784
   //=========================================================
-  return 70656;
+  return 54784;
 }

@@ -58,14 +58,13 @@ namespace Analysis {
         JpsiFinder(const std::string& t, const std::string& n, const IInterface*  p);
         ~JpsiFinder();
         virtual StatusCode initialize() override;
-        virtual StatusCode finalize() override;
         
         static const InterfaceID& interfaceID() { return IID_JpsiFinder;}
         
         //-------------------------------------------------------------------------------------
         //Doing Calculation and inline functions
 
-        virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) override;
+        virtual StatusCode performSearch(xAOD::VertexContainer*& vxContainer, xAOD::VertexAuxContainer*& vxAuxContainer) const override;
         std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::TrackParticle*>&) const;
         std::vector<JpsiCandidate> getPairs(const std::vector<const xAOD::Muon*>&) const;
         std::vector<JpsiCandidate> getPairs2Colls(const std::vector<const xAOD::TrackParticle*>&, const std::vector<const xAOD::Muon*>&, bool) const;
@@ -89,7 +88,6 @@ namespace Analysis {
         bool m_diMuons;
         double m_trk1M;
         double m_trk2M;
-        const HepPDT::ParticleDataTable *m_particleDataTable;
         double m_thresholdPt;
         double m_higherPt;
         double m_trkThresholdPt;

@@ -70,5 +70,8 @@ fi
 python $topscript $scriptargs
 status=$?
 if [ ! $status -eq 0 ]; then
+    echo "leaving with code $status: \"failure\""
     exit $status
+else
+    echo "leaving with code 0: \"successful run\""
 fi

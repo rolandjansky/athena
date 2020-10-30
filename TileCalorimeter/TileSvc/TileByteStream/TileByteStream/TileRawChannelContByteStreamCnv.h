@@ -1,16 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILERAWCHANNELCONTRAWEVENTCNV_H
 #define TILEBYTESTREAM_TILERAWCHANNELCONTRAWEVENTCNV_H
 
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "TileEvent/TileMutableRawChannelContainer.h"
 #include "AthenaKernel/RecyclableDataObject.h"
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -40,8 +39,7 @@ template <class TYPE> class CnvFactory;
 
 
 class TileRawChannelContByteStreamCnv
-  : public Converter
-  , public ::AthMessaging
+  : public AthConstConverter
 {
   public:
     TileRawChannelContByteStreamCnv(ISvcLocator* svcloc);
@@ -49,8 +47,8 @@ class TileRawChannelContByteStreamCnv
     typedef TileRawChannelContByteStreamTool  BYTESTREAMTOOL ; 
 
     virtual StatusCode initialize() override;
-    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
-    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+    virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const override;
+    virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
     virtual StatusCode finalize() override;
     
     /// Storage type and class ID
@@ -59,9 +57,6 @@ class TileRawChannelContByteStreamCnv
     static const CLID& classID();
     
   private: 
-
-    std::string m_name;
-
     //    BYTESTREAMTOOL* m_tool ;
     ToolHandle<TileRawChannelContByteStreamTool> m_tool;
     
@@ -79,7 +74,7 @@ class TileRawChannelContByteStreamCnv
 
 
     /** Queue of data objects to recycle. */
-    Athena::RecyclableDataQueue<TileMutableRawChannelContainer> m_queue;
+    mutable Athena::RecyclableDataQueue<TileMutableRawChannelContainer> m_queue ATLAS_THREAD_SAFE;
 };
 #endif
 

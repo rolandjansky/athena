@@ -211,7 +211,7 @@ GeoPixelServices::GeoPixelServices(InDetDD::PixelDetectorManager* ddmgr,
     std::vector<const InDetDD::ServiceVolume *> servicesOther;
     double safety=0.001*Gaudi::Units::mm;
 
-    for(std::vector<const InDetDD::ServiceVolume *>::const_iterator it=services.begin(); it!=services.end(); it++)
+    for(std::vector<const InDetDD::ServiceVolume *>::const_iterator it=services.begin(); it!=services.end(); ++it)
       {
 	const std::string volName=(*it)->volName();
 	if(volName.find("BarrelStrip")!=std::string::npos){
@@ -384,7 +384,9 @@ void GeoPixelServices::initializeOld(const std::string & a)
     param.setVolName(m_gmt_mgr->PixelServiceName(a, ii));
 
     double zShift=0.;           // the famous IBL Z shift
-    int iShiftIndex = m_gmt_mgr->PixelServiceShift(a, ii); 
+    int iShiftIndex = m_gmt_mgr->PixelServiceShift(a, ii);
+    // FIXME: The magic number 100 here should be explained...
+    // cppcheck-suppress negativeContainerIndex
     if(iShiftIndex>0) zShift=m_layerShift[iShiftIndex-100];
     param.setZShift(zShift);
 

@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TBRec.TBRecConf import ExtrapolTrackToCaloTool
 
@@ -7,15 +6,7 @@ from TBRec.TBRecConf import ExtrapolTrackToCaloTool
             
 class ExtrapolTrackToCaloToolBase ( ExtrapolTrackToCaloTool )  :
 
-    # __slots__ = ( '_depth' )
-
-    def __init__(self):        
-        mlog = logging.getLogger( name+'(Base)::__init__ dummy for instance copy' )        
-        mlog.info('entering')
-        ExtrapolTrackToCaloTool.__init__( self) # call base class constructor
-        pass
-
-    def __init__(self, name="ExtrapolTrackToCaloToolBaseUNSET",depth="ETTCTunset",straightLine=False):        
+    def __init__(self, name="ExtrapolTrackToCaloToolBaseUNSET",depth="ETTCTunset",straightLine=False):
    
         ExtrapolTrackToCaloTool.__init__( self,name) # call base class constructor
 

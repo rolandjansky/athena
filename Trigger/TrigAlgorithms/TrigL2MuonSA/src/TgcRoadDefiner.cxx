@@ -44,6 +44,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
+                                                    const bool                   insideOut,
                                                     const TrigL2MuonSA::TgcHits& tgcHits,
                                                     TrigL2MuonSA::MuonRoad&      muonRoad,
                                                     TrigL2MuonSA::TgcFitResult&  tgcFitResult)
@@ -109,6 +110,8 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 		  << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3]);
     ATH_MSG_DEBUG("tgcFitResult.tgcMid2[0/1/2/3]=" << tgcFitResult.tgcMid2[0] << "/" << tgcFitResult.tgcMid2[1]
 		  << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3]);
+  } else {
+    ATH_MSG_DEBUG("Skip TGC Fit due to zero-tgcHits");
   }
    
   if (tgcHits.size()>0 && !isMiddleFailure){
@@ -256,6 +259,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     
   } else {
     // If no TGC hit are available, estimate the road from RoI
+    ATH_MSG_DEBUG("Because no TGC hits are available, estimate the road from RoI");
 
     roiEta = p_roi->eta();
     theta  = atan(exp(-fabs(roiEta)))*2.;
@@ -367,7 +371,30 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   
   muonRoad.MDT_sector_trigger = sector_trigger;
   muonRoad.MDT_sector_overlap = sector_overlap;
-  
+
+  if (insideOut) {
+    muonRoad.side      = (muonRoad.extFtfMiddleEta<0.)? 0 : 1;
+    muonRoad.phiMiddle =  muonRoad.extFtfMiddlePhi;
+    muonRoad.phiRoI    = p_roi->phi();
+    for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
+      ATH_MSG_DEBUG("Use aw_ftf and bw_ftf as aw and bw");
+      muonRoad.aw[endcap_inner][i_sector]  = muonRoad.aw_ftf[3][0];
+      muonRoad.bw[endcap_inner][i_sector]  = muonRoad.bw_ftf[3][0];
+      muonRoad.aw[endcap_middle][i_sector] = muonRoad.aw_ftf[4][0];
+      muonRoad.bw[endcap_middle][i_sector] = muonRoad.bw_ftf[4][0];
+      muonRoad.aw[endcap_outer][i_sector]  = muonRoad.aw_ftf[5][0];
+      muonRoad.bw[endcap_outer][i_sector]  = muonRoad.bw_ftf[5][0];
+      muonRoad.aw[endcap_extra][i_sector]  = muonRoad.aw_ftf[6][0];
+      muonRoad.bw[endcap_extra][i_sector]  = muonRoad.bw_ftf[6][0];
+      muonRoad.aw[csc][i_sector]           = muonRoad.aw_ftf[7][0];
+      muonRoad.bw[csc][i_sector]           = muonRoad.bw_ftf[7][0];
+      muonRoad.aw[bee][i_sector]           = muonRoad.aw_ftf[8][0];
+      muonRoad.bw[bee][i_sector]           = muonRoad.bw_ftf[8][0];
+      muonRoad.aw[barrel_inner][i_sector]  = muonRoad.aw_ftf[0][0];
+      muonRoad.bw[barrel_inner][i_sector]  = muonRoad.bw_ftf[0][0];
+    }
+  }
+
   //
   return StatusCode::SUCCESS;
 }

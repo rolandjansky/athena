@@ -15,7 +15,7 @@ extern const vkalMagFld      myMagFld;
 extern int cfdinv(double *, double *, long int );
 extern int cfInv5(double *cov, double *wgt );
 extern int translateToFittedPos(CascadeEvent &,double Step=1.);
-extern void vkvFastV( double* , double* , double*, double , double*);
+extern double vkvFastV( double* , double* , double*, double , double*);
 extern long int  vtcfit( VKVertex * vk);
 extern void cfdcopy(double *source, double *target, int);
 
@@ -100,7 +100,6 @@ int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, doubl
       for (it=0; it<NTv ; it++) {
         tk=vertexDefinition[iv][it];
         if( tk >= NTRK ) {
-          std::cout<<" WRONG INPUT!!!"<<'\n';
           return -1;
 	} 
         VRT->TrackList.emplace_back(new VKTrack(tk, &inp_Trk5[tk*5], &inp_CovTrk5[tk*15] , VRT.get(), wm[tk]));

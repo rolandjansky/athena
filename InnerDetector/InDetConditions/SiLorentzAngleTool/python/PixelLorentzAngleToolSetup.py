@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 class PixelLorentzAngleToolSetup:
   "Class to simplify setup of PixelLorentzAngleTool"
@@ -19,7 +19,6 @@ class PixelLorentzAngleToolSetup:
     if not conddb.folderRequested(tempFolder):
       conddb.addFolder(dbInstance, tempFolder, className="CondAttrListCollection")
 
-    from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
  
@@ -48,7 +47,6 @@ class PixelLorentzAngleToolSetup:
                                             SiPropertiesTool = ToolSvc.PixelSiPropertiesTool,
                                             UseMagFieldCache = True,
                                             UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
-      pixelSiLorentzAngleCondAlg = condSeq.PixelSiLorentzAngleCondAlg
 
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
       from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool

@@ -70,11 +70,13 @@ def getTRTOverlay(name="TRTOverlay", **kwargs):
     from Digitization.DigitizationFlags import digitizationFlags
 
     if overlayFlags.isOverlayMT():
+        kwargs.setdefault("SortBkgInput", overlayFlags.isDataOverlay())
         kwargs.setdefault("BkgInputKey", overlayFlags.bkgPrefix() + "TRT_RDOs");
         kwargs.setdefault("SignalInputKey", overlayFlags.sigPrefix() + "TRT_RDOs");
         kwargs.setdefault("OutputKey", "TRT_RDOs");
         kwargs.setdefault("SignalInputSDOKey", overlayFlags.sigPrefix() + "TRT_SDO_Map");
     else:
+        kwargs.setdefault("SortBkgInput", overlayFlags.isDataOverlay())
         kwargs.setdefault("BkgInputKey", overlayFlags.dataStore() + "+TRT_RDOs");
         kwargs.setdefault("SignalInputKey", overlayFlags.evtStore() + "+TRT_RDOs");
         kwargs.setdefault("OutputKey", overlayFlags.outputStore() + "+TRT_RDOs");

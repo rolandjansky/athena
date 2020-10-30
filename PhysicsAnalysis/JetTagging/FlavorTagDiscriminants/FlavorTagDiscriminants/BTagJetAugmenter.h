@@ -9,6 +9,7 @@
 #include "FlavorTagDiscriminants/ftagfloat_t.h"
 
 // ATLAS things
+#include "xAODBTagging/BTagging.h"
 #include "xAODJet/Jet.h"
 #include "xAODEventInfo/EventInfo.h"
 

@@ -1,21 +1,7 @@
-# $Id: CMakeLists.txt 776712 2016-10-05 16:37:44Z krasznaa $
-################################################################################
-# Package: egammaLayerRecalibTool
-###############################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( egammaLayerRecalibTool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODEgamma
-	Event/xAOD/xAODEventInfo
-   PRIVATE
-   Tools/PathResolver )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Hist Core RIO )
@@ -24,9 +10,9 @@ find_package( ROOT COMPONENTS Hist Core RIO )
 atlas_add_library( egammaLayerRecalibTool
    egammaLayerRecalibTool/*.h Root/*.cxx
    PUBLIC_HEADERS egammaLayerRecalibTool
-	PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES PATInterfaces AsgTools xAODCaloEvent xAODEgamma xAODEventInfo
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib PATInterfaces AsgTools xAODCaloEvent xAODEgamma xAODEventInfo
+   PRIVATE_LINK_LIBRARIES PathResolver )
 
 atlas_add_dictionary( egammaLayerRecalibToolDict
    egammaLayerRecalibTool/egammaLayerRecalibToolDict.h

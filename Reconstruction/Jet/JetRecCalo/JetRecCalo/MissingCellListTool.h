@@ -40,7 +40,7 @@
 
 #include "JetUtils/TiledEtaPhiMap.h"
 
-#include "AsgTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetExecuteTool.h"
 

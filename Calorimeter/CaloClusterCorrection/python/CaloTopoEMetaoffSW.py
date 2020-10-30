@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloTopoEMetaoffSW.py,v 1.1 2009-04-23 05:24:30 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloTopoEMetaoffSW.py
 # Created: Apr, 2009, sss
@@ -12,15 +10,17 @@
 # We need to get a copy of it under the topoem hierarchy.
 #
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_EMTOPO
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import topoem_valid_keys as keys
-cls_v2 = CaloClusterCorrectionConf.CaloSwEtaoff_v2
+from CaloClusterCorrection.constants import topoem_valid_keys as keys
+cls_v2 = CompFactory.CaloSwEtaoff_v2   # CaloClusterCorrection
 CaloTopoEMetaoffSW_versions = [
 
     # Copied from SW.
@@ -35,6 +35,7 @@ CaloTopoEMetaoffSW_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  SAMPLING is the calorimeter sampling (EMB1, EMB2, EME1, EME2) to which
 #   this correction will be applied, or None.
 #  NAME is the base name for this tool.  If defaulted, a name will
@@ -54,7 +55,8 @@ CaloTopoEMetaoffSW_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloTopoEMetaoffSW (sampling,
+def make_CaloTopoEMetaoffSW (flags,
+                             sampling,
                              name = None,
                              suffix = None,
                              version = None,
@@ -63,7 +65,8 @@ def make_CaloTopoEMetaoffSW (sampling,
                              confclass = None,
                              **kw):
     # Make the tool.
-    return makecorr (versions  = CaloTopoEMetaoffSW_versions,
+    return makecorr (flags,
+                     versions  = CaloTopoEMetaoffSW_versions,
                      name      = name,
                      basename  = 'topoetaoffsw',
                      suffix    = suffix,

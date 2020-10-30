@@ -89,7 +89,7 @@ def TrackSummaryToolWorkaround(flags):
                                                                      AssoTool        = InDetPrdAssociationTool,
                                                                      PixelToTPIDTool = '',
                                                                      TestBLayerTool  = '',
-                                                                     RunningTIDE_Ambi = True,
+                                                                     RunningTIDE_Ambi = flags.InDet.doTIDE_Ambi,
                                                                      DoSharedHits    = False,
                                                                      HoleSearch      = InDetHoleSearchTool,
                                                                      usePixel        = flags.Detector.GeometryPixel,

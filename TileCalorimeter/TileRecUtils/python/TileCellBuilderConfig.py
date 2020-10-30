@@ -52,7 +52,12 @@ def TileCellBuilderCfg(flags, **kwargs):
         from TileConditions.TileDCSConfig import TileDCSToolCfg
         kwargs['TileDCSTool'] = acc.popToolsAndMerge( TileDCSToolCfg(flags) )
 
-    if flags.Tile.NoiseFilter == 1:
+    if 'NoiseFilterTools' not in kwargs:
+        from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionToolsCfg
+        correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
+        kwargs['NoiseFilterTools'] = correctionTools
+
+    if len(kwargs['NoiseFilterTools']) > 0:
         if not (flags.Input.isMC or flags.Overlay.DataOverlay) and 'TileDSPRawChannelContainer' not in kwargs:
             from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
             corrAlgAcc = TileRawChannelCorrectionAlgCfg(flags)

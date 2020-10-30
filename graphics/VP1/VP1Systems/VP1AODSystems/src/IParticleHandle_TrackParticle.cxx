@@ -453,7 +453,7 @@ double IParticleHandle_TrackParticle::charge() const
 
 //____________________________________________________________________
 unsigned IParticleHandle_TrackParticle::summaryValue(xAOD::SummaryType type) const
-{ 
+{
   uint8_t num = 0;
   if (m_d->trackparticle->summaryValue(num,type)){
     return num;
@@ -493,8 +493,8 @@ unsigned IParticleHandle_TrackParticle::getNMuonPrecisionHoleLayers() const
 unsigned IParticleHandle_TrackParticle::getNMuonPhiLayers() const
 { 
   return summaryValue(xAOD::numberOfPhiLayers);
-
-}//____________________________________________________________________
+}
+//____________________________________________________________________
 unsigned IParticleHandle_TrackParticle::getNMuonPhiHoleLayers() const
 { 
   return summaryValue(xAOD::numberOfPhiHoleLayers);
@@ -502,9 +502,13 @@ unsigned IParticleHandle_TrackParticle::getNMuonPhiHoleLayers() const
 
 QString IParticleHandle_TrackParticle::shortInfo() const
 {
-  QString l("|P|="+VP1Msg::str(momentum().mag()/SYSTEM_OF_UNITS::GeV)+" [GeV], ");
-  l+= "Pix["+QString::number(getNPixelHits())+"], SCT["+QString::number(getNSCTHits())+"], TRT["+QString::number(getNTRTHits())
-   +"], Muon prec. layers/holes ["+QString::number(getNMuonPrecisionLayers())+"/"+QString::number(getNMuonPrecisionHoleLayers())+"]";
+  QString l("");
+  //l+= "|P|="+VP1Msg::str(momentum().mag()/SYSTEM_OF_UNITS::GeV)+" [GeV], ";
+  l+= "Pix["+QString::number(getNPixelHits())+"], ";
+  l+= "SCT["+QString::number(getNSCTHits())+"], " ;
+  l+= "TRT["+QString::number(getNTRTHits())+"], ";
+  l+= "Muon prec. layers/holes [";
+  l+= QString::number(getNMuonPrecisionLayers())+"/"+QString::number(getNMuonPrecisionHoleLayers())+"]";
   return l;
 }
 

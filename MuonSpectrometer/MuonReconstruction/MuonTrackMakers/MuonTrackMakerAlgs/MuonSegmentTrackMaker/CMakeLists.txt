@@ -13,4 +13,4 @@ atlas_add_component( MuonSegmentTrackMaker
 
 # Install files from the package:
 
-atlas_install_python_modules( python/MuonTrackMakerAlgsMonitoring.py)
+atlas_install_python_modules( python/MuonTrackMakerAlgsMonitoring.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

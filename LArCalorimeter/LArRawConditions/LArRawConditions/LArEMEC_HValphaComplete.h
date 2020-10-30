@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LAREMEC_HVALPHACOMPLETE_H
@@ -38,8 +38,6 @@ class LArEMEC_HValphaComplete: public ILArEMEC_HValpha,
   
   virtual const float& EMEC_HValpha(const HWIdentifier&  CellID) const ;
   
-  static float dummy;
-
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, float vEMEC_HValpha);

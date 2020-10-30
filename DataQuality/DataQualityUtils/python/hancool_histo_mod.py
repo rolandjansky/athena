@@ -1,17 +1,17 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 import os
 
 # Needed to correct ROOT behavior; see below
-CWD = os.getcwd() # noqa
+CWD = os.getcwd()
 # Importing gSystem may change the current directory to one of the
 # command-line arguments; chdir to original directory to have
 # predictable behavior
 from ROOT import gSystem
 
 # Import the ROOT library for reading han results
-gSystem.Load('libDataQualityUtils') # noqa
+gSystem.Load('libDataQualityUtils')
 from ROOT import dqutils
 
 from DataQualityUtils.hancool_histo_algdef import (ExtractNEntries, ExtractAverage, ExtractNBins, ExtractMean, ExtractEMean, ExtractRMS, ExtractERMS, ExtractPol0, ExtractPol1, ExtractMeanG, ExtractRMSG, ExtractConstG, ExtractSideBands, ExtractTotInt, ExtractXMean, ExtractYMean, ExtractXRMS, ExtractYRMS, ExtractOnlyNBins)

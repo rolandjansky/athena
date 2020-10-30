@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( TrackingAnalysisAlgorithms )
@@ -7,7 +7,7 @@ atlas_subdir( TrackingAnalysisAlgorithms )
 atlas_add_library( TrackingAnalysisAlgorithmsLib
    TrackingAnalysisAlgorithms/*.h Root/*.cxx
    PUBLIC_HEADERS TrackingAnalysisAlgorithms
-   LINK_LIBRARIES AnaAlgorithmLib
+   LINK_LIBRARIES AnaAlgorithmLib EventBookkeeperToolsLib
    PRIVATE_LINK_LIBRARIES xAODTracking )
 
 atlas_add_dictionary( TrackingAnalysisAlgorithmsDict

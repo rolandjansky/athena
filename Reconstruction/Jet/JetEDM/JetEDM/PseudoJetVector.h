@@ -9,7 +9,7 @@
 
 #include <vector>
 #include "fastjet/PseudoJet.hh"
-#include "AsgTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 
 // David Adams
 // January 2014

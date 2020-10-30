@@ -932,49 +932,49 @@ private:
   bool m_materialEffectsOnTrackValidation; //!< mat effects on track validation
 
   // extrapolation counters
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_extrapolateCalls; //!< number of calls: extrapolate() method
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_extrapolateBlindlyCalls; //!< number of calls: extrapolateBlindly() method
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_extrapolateDirectlyCalls; //!< number of calls: extrapolateDirectly() method
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_extrapolateStepwiseCalls; //!< number of calls: extrapolateStepwise() method
 
-  mutable Gaudi::Accumulators::Counter<int> m_startThroughAssociation; //!< navigation intialization
-  mutable Gaudi::Accumulators::Counter<int> m_startThroughRecall;      //!< navigation intialization
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<> m_startThroughAssociation; //!< navigation intialization
+  mutable Gaudi::Accumulators::Counter<> m_startThroughRecall;      //!< navigation intialization
+  mutable Gaudi::Accumulators::Counter<>
     m_startThroughGlobalSearch; //!< navigation intialization
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_destinationThroughAssociation; //!< navigation intialization
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_destinationThroughRecall; //!< navigation intialization
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_destinationThroughGlobalSearch; //!< navigation intialization
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_layerSwitched; //!< number of layers that have been switched
 
   // navigation counters
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_navigationBreakLoop; //!< number of navigation breaks due to loop
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_navigationBreakOscillation; //!< number of navigation breaks due to oscillation
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_navigationBreakNoVolume; //!< number of navigation breaks due no Volume found
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_navigationBreakDistIncrease; //!< number of navigation breaks due to distance increase
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_navigationBreakVolumeSignature; //!< number of navigation breaks due to distance increase
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_overlapSurfaceHit; //!< number of OverlapSurfaces found
 
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_meotSearchCallsFw; //!< how often the meot search is called: forward
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_meotSearchCallsBw; //!< how often the meot search is called: backward
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_meotSearchSuccessfulFw; //!< how often the meot search was successful: forward
-  mutable Gaudi::Accumulators::Counter<int>
+  mutable Gaudi::Accumulators::Counter<>
     m_meotSearchSuccessfulBw; //!< how often the meot search was successful: backward
 };
 

@@ -76,12 +76,10 @@ if __name__ == "__main__":
 
     acc = InDetClusterizationAlgorithmsCfg(ConfigFlags)
     top_acc.merge(acc)
-    # import pdb ; pdb.set_trace()
+
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
-    ##acc.setAppProperty("EvtMax",25)
-    ##acc.store(open("test_SiClusterization.pkl", "w"))
+
+    top_acc.printConfig()
     top_acc.run(25)
-    #with open('test4.pkl', mode="wb") as f:
-    #   dill.dump(acc, f)
-    top_acc.store(open("test00.pkl", "wb"))
+    top_acc.store(open("test_Clusterization.pkl", "wb"))

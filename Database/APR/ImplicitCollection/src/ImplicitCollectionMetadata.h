@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ImplicitCollectionMetadata_h
@@ -51,6 +51,7 @@ namespace pool {
     class ImplicitCollectionMetadataIterator
         : public ICollectionMetadata::ICollectionMetadataIterator
     {
+    public:
     friend class ImplicitCollectionMetadata;
       
       ImplicitCollectionMetadataIterator() {}
@@ -74,12 +75,12 @@ namespace pool {
     
     
     ICollectionMetadata::const_iterator        begin() const        {
-        return ICollectionMetadata::const_iterator( new ImplicitCollectionMetadataIterator() );
+        return ICollectionMetadata::const_iterator( std::make_unique<ImplicitCollectionMetadataIterator>() );
     }
 
     
     ICollectionMetadata::const_iterator        end() const        {
-        return ICollectionMetadata::const_iterator( new ImplicitCollectionMetadataIterator() );
+        return ICollectionMetadata::const_iterator( std::make_unique<ImplicitCollectionMetadataIterator>() );
     }
             
   };  // end ImplicitCollectionMetadata

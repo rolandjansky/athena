@@ -78,6 +78,7 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
+                        const TrackCollection& inputTracks,
                         TrackCollection& outputTracks,
                         const EventContext& ctx) const;
 
@@ -111,6 +112,7 @@ protected:
 
   //DataHandles
   SG::ReadHandleKey<TrigRoiDescriptorCollection> m_roiCollectionKey;
+  SG::ReadHandleKey<TrackCollection> m_inputTracksKey;
   SG::WriteHandleKey<TrackCollection> m_outputTracksKey;
 
   SG::ReadHandleKey<Trk::PRDtoTrackMap>       m_prdToTrackMap
@@ -177,8 +179,14 @@ protected:
   // GPU acceleration
 
   bool m_useGPU;
-  
+
   void makeSeedsOnGPU(const TrigCombinatorialSettings&, const IRoiDescriptor*, const std::vector<TrigSiSpacePointBase>&, std::vector<TrigInDetTriplet>&) const;
+
+  // read input tracks and remove previously-used clusters from seed-making
+
+  // Large Radius Tracking
+  bool m_LRTmode;
+  
 
 };
 

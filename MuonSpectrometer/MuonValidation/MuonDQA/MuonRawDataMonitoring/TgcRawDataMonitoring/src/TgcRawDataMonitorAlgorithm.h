@@ -37,6 +37,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     bool isolated;
     bool probeOK_any;
     bool probeOK_Z;
+    bool probeOK;
     std::set<int> matchedL1ThrExclusive;
     std::set<int> matchedL1ThrInclusive;
   };
@@ -55,6 +56,18 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int phi;
     int station;
     int bunch;
+    int sector;
+    int f;
+    int E;
+    int M;
+    int iphi;
+    int ieta;
+    int L;
+    TString name;
+    int istation;
+    int igasGap;
+    int iside;
+    TString side;
   };
   struct TgcTrig{
     float x_In;
@@ -84,7 +97,6 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
     int bunch;
     int inner;
   };
-
   
  private:
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -99,7 +111,8 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   
   StringProperty m_packageName{this,"PackageName","TgcRawDataMonitor","group name for histograming"};
   StringProperty m_trigTagList{this,"TagTrigList","HLT_mu26_ivarmedium_L1MU20","list of triggers to be used for trigger matching"};
-  BooleanProperty m_TagAndProbe{this,"TagAndProbe",true,"switch to perform tag-and-probe method"};
+  BooleanProperty m_TagAndProbe{this,"TagAndProbe",false,"switch to perform tag-and-probe method"};
+  BooleanProperty m_TagAndProbeZmumu{this,"TagAndProbeZmumu",false,"switch to perform tag-and-probe method Z->mumu"};
   BooleanProperty m_anaTgcPrd{this,"AnaTgcPrd",false,"switch to perform analysis on TGC PRD/Coin"};
   BooleanProperty m_anaOfflMuon{this,"AnaOfflMuon",true,"switch to perform analysis on xAOD::Muon"};
   BooleanProperty m_anaMuonRoI{this,"AnaMuonRoI",true,"switch to perform analysis on xAOD::LVL1MuonRoI"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARNOISEMC_H
@@ -29,8 +29,6 @@ class LArNoiseMC: public LArNoiseComplete {
   
   // retrieving Noise using online ID  
   virtual  const float& noise(const HWIdentifier&  CellID, int gain) const ;
-
-  static float dummy;  
 };
 
 #include "AthenaKernel/CondCont.h"

@@ -1,8 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,Logging
-from G4AtlasServices import G4AtlasServicesConfig
-
 
 def getTestActionTimerTool(name="G4UA::TestActionTimerTool", **kwargs):
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps

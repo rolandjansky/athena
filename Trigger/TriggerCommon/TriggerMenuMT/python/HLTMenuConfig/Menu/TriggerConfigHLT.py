@@ -45,6 +45,10 @@ class TriggerConfigHLT(object):
         return cls.__allChainDicts
 
     @classmethod
+    def configs(cls):
+        return cls.__allChainConfigs
+
+    @classmethod
     def dictsList(cls):
 
         return list(itervalues(cls.__allChainDicts))

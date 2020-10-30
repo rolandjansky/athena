@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARMINBIASMC_H
@@ -28,9 +28,6 @@ class LArMinBiasMC: public LArMinBiasComplete {
   // retrieving RMS of E in Minimum Bias events , using online ID
   
   virtual const float& minBiasRMS(const HWIdentifier&  CellID) const ;
-  
-  static float dummy;
-  
 };
 
 

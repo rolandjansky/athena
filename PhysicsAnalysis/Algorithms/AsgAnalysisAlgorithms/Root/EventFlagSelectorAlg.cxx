@@ -4,8 +4,8 @@
 
 /// @author Tadej Novak
 
-#include "AnaAlgorithm/FilterReporter.h"
 #include <AsgAnalysisAlgorithms/EventFlagSelectionAlg.h>
+#include <EventBookkeeperTools/FilterReporter.h>
 #include <xAODEventInfo/EventInfo.h>
 
 CP::EventFlagSelectionAlg::EventFlagSelectionAlg(const std::string &name,
@@ -46,7 +46,7 @@ StatusCode CP::EventFlagSelectionAlg::initialize()
 
 StatusCode CP::EventFlagSelectionAlg::execute()
 {
-  EL::FilterReporter filter (m_filterParams, false);
+  FilterReporter filter (m_filterParams, false);
 
   const xAOD::EventInfo *evtInfo = 0;
   ANA_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
@@ -71,7 +71,7 @@ StatusCode CP::EventFlagSelectionAlg::execute()
 
 StatusCode CP::EventFlagSelectionAlg::finalize()
 {
-  ANA_CHECK (m_filterParams.finalize());
+  ANA_MSG_INFO (m_filterParams.summary());
 
   return StatusCode::SUCCESS;
 }

@@ -1,9 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_NOPOOL, CALOCORR_DEFAULT_KEY
+from CaloClusterCorrection.common import makecorr
 
-from CaloClusterCorrection import CaloClusterCorrectionConf 
-cls = CaloClusterCorrectionConf.CaloClusterBadChannelList
+cls = CompFactory.CaloClusterBadChannelList # CaloClusterCorrection
 
 CaloClusterListBadChannel_versions = [
     ['',              cls,
@@ -11,7 +13,8 @@ CaloClusterListBadChannel_versions = [
       CALOCORR_NOPOOL]],
     ]
 
-def make_CaloClusterListBadChannel (corrclass,
+def make_CaloClusterListBadChannel (flags,
+                                    corrclass,
                                     name = None,
                                     suffix = None,
                                     version = None,
@@ -20,7 +23,8 @@ def make_CaloClusterListBadChannel (corrclass,
                                     confclass = None,
                                     **kw):
 
-    return  makecorr(versions= CaloClusterListBadChannel_versions,
+    return  makecorr(flags,
+                     versions= CaloClusterListBadChannel_versions,
                      name = name,
                      basename = 'listBadChannels',
                      suffix = suffix,

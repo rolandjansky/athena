@@ -36,8 +36,7 @@ CaloNoiseCondAlg(noisetype="electronicNoise")
 
 # configure cell weight calibration
 if jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
-    from CaloClusterCorrection.CaloClusterCorrectionConf import H1WeightToolCSC12Generic
-    from CaloClusterCorrection.StandardCellWeightCalib   import H1Calibration, getCellWeightTool
+    from CaloClusterCorrection.StandardCellWeightCalib   import getCellWeightTool
     CellWeights = CaloClusterCellWeightCalib("CellWeights")
     # -- configure weight tool
     finder = jobproperties.CaloTopoClusterFlags.cellWeightRefFinder.get_Value()
@@ -249,8 +248,8 @@ TopoSplitterForTaus.RestrictHECIWandFCalNeighbors  = False
 TopoSplitterForTaus.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 
 # cluster maker
-cluster_container = 'TauPi0SubtractedClusters'
-CaloTopoForTausMaker = CaloClusterMaker ("TauPi0SubtractedClusterMaker")
+cluster_container = 'TauInitialPi0Clusters'
+CaloTopoForTausMaker = CaloClusterMaker ("TauInitialPi0ClusterMaker")
 CaloTopoForTausMaker.ClustersOutputName=cluster_container
 CaloTopoForTausMaker.ClusterMakerTools=[
     TopoClusterForTaus.getFullName(),

@@ -9,7 +9,7 @@
 
 #include <map>
 #include "fastjet/PseudoJet.hh"
-#include "AsgTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 #include "xAODJet/Jet.h"
 
 // David Adams

@@ -94,5 +94,10 @@ MuonCombinedInDetExtensionAlg::execute()
             tool->extend(*indetCandidateCollection, tagMap.ptr(), combTracks, meTracks, segments);
     }
 
+    //Clean up at the end of execute
+    for (auto& tool : m_muonCombinedInDetExtensionTools) {
+      tool->cleanUp();
+    }
+
     return StatusCode::SUCCESS;
 }

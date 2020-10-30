@@ -246,7 +246,7 @@ class JetToolManager:
         tname = mod + "_" + salg + srad
         if not tname in self.tools:
           from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
-          self += JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth")
+          self += JetPtAssociationTool(tname, JetContainer=output, MatchingJetContainer=cname, AssociationName="GhostTruth")
         outmods += [self.tools[tname]]
       # trackassoc - Does track jet association replacing the input name with "Track"
       elif mod == "trackassoc":
@@ -265,7 +265,7 @@ class JetToolManager:
           tname = mod + "_" + salg + srad
           if not tname in self.tools:
             from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
-            self += JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTrack")
+            self += JetPtAssociationTool(tname, JetContainer=output, MatchingJetContainer=cname, AssociationName="GhostTrack")
           outmods += [self.tools[tname]]
       # jetfilter - Filter to remove jets with pT < self.ptminFilter
       elif mod == "jetfilter":

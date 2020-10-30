@@ -28,17 +28,17 @@ atlas_add_component( ByteStreamCnvSvc
 # Executables in the package:
 atlas_add_executable( AtlFindBSEvent test/AtlFindBSEvent.cxx
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES} )
+   LINK_LIBRARIES CxxUtils ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES} )
 
 atlas_add_executable( AtlCopyBSEvent test/AtlCopyBSEvent.cxx
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
    ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CORAL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES}
+   LINK_LIBRARIES CxxUtils ${CORAL_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES}
    CollectionBase FileCatalog PersistentDataModel )
 
 atlas_add_executable( AtlListBSEvents test/AtlListBSEvents.cxx
    INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-   LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES} )
+   LINK_LIBRARIES CxxUtils ${TDAQ-COMMON_LIBRARIES} ${Boost_LIBRARIES} )
 
 # Test(s) in the package:
 atlas_add_test( BSEventSelector

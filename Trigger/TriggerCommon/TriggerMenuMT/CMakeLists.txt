@@ -113,7 +113,8 @@ atlas_install_scripts( scripts/generateMenuMT.py
                        scripts/trigCompareOldandNewL1Menus.py
                        scripts/trigL1MenuMigrationCheck.sh
                        scripts/verify_menu_config.py
-                       scripts/test_full_menu_cf.py )
+                       scripts/test_full_menu_cf.py
+                       scripts/generateBunchGroupSetFromOldKey.py )
 
 atlas_install_joboptions( share/*.py )
 atlas_install_xmls( data/*.dtd data/*.xml )
@@ -143,7 +144,12 @@ atlas_add_test( full_menu_cf
 		        SCRIPT scripts/test_full_menu_cf.sh
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf 
                 PROPERTIES TIMEOUT 500)
-
+                
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
+atlas_add_test( LS2_emu_menu_DH
+		        SCRIPT test_emu_step_menu_processing.sh
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH
+                PROPERTIES TIMEOUT 500)
 
 #----------------------------------
 # List of menus to be created:

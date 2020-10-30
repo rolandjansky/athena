@@ -24,4 +24,4 @@ atlas_add_executable( trigCostHistToCSV
                       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AthenaBaseComps TrigCostAnalysisLib )
 
 atlas_install_joboptions( share/TrigCostAnalysis_JobOptions.py )
-atlas_install_scripts( share/TrigCostAnalysis.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( share/RunTrigCostAnalysis.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

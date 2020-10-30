@@ -33,7 +33,7 @@ void RecoMuonSegmentPlots::fill(const xAOD::Muon& mu){
 //use the link to fill
 void RecoMuonSegmentPlots::fill(const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments){
 
-  for(const auto Mu_Segment : Mu_Segments){
+  for(const auto& Mu_Segment : Mu_Segments){
     const ElementLink<DataVector<xAOD::MuonSegment_v1>> Mu_seg = Mu_Segment;
     if(Mu_seg.isValid()){
       const xAOD::MuonSegment* seg = *Mu_seg;

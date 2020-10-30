@@ -24,6 +24,9 @@
 
 #include "JetMonitoring/JetSelectorAttributeRunII.h"
 
+#include "JetMonitoring/JetMatcherAlg.h"
+#include "JetMonitoring/JetHistoMatchedFiller.h"
+
 #include "../JetMonitoringTool.h"
 
 DECLARE_COMPONENT( JetKinematicHistos )
@@ -53,6 +56,9 @@ DECLARE_COMPONENT( JetHistoResponseAndEff)
 DECLARE_COMPONENT( JetAttributeHisto )
 
 DECLARE_COMPONENT( JetSelectorAttributeRunII )
+
+DECLARE_COMPONENT( JetMatcherAlg )
+DECLARE_COMPONENT( JetHistoMatchedFiller )
 
 
 

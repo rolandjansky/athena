@@ -9,11 +9,11 @@
 #ifndef TRKPARAMETERSBASE_PARAMETERS_T_H
 #define TRKPARAMETERSBASE_PARAMETERS_T_H
 
-#include "TrkParametersBase/ParametersBase.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/SurfaceUniquePtrT.h"
-
+#include "TrkParametersBase/ParametersBase.h"
+#include "TrkSurfaces/Surface.h"
 /*
  * Needed for persistency
  * friends
@@ -50,6 +50,13 @@ template<int DIM, class T, class S>
 class ParametersT : public ParametersBase<DIM, T>
 {
 public:
+  static_assert(
+    (S::staticType == Surface::Cone || S::staticType == Surface::Cylinder ||
+     S::staticType == Surface::Disc || S::staticType == Surface::Perigee ||
+     S::staticType == Surface::Plane || S::staticType == Surface::Line),
+    "The surface type must be one of Cone, Cylinder, Disc, Perigee, Plane, "
+    "Line");
+
   /**
    * default constructor ONLY for POOL
    */

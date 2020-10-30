@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootCollectionMetadata.h"
@@ -232,7 +232,7 @@ namespace pool {
          if( !m_hasKeys )
             readKeys();
          return ICollectionMetadata::const_iterator(
-            new RootCollectionMetadataIterator( m_keyMap.begin(), this ) );
+             std::make_unique<RootCollectionMetadataIterator>( m_keyMap.begin(), this ) );
       }
 
         
@@ -243,7 +243,7 @@ namespace pool {
          if( !m_hasKeys )   // check also here, in case End is evaluated before Begin
             readKeys();
          return ICollectionMetadata::const_iterator(
-            new RootCollectionMetadataIterator( m_keyMap.end(), this ) );
+            std::make_unique<RootCollectionMetadataIterator>( m_keyMap.end(), this ) );
       }
         
    } // end namespace

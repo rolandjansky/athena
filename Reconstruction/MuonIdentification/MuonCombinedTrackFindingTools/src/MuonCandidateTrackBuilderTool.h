@@ -73,6 +73,8 @@ namespace Muon {
     /**IMuonCandidateTrackBuilderTool interface: buildCombinedTrack */   
     Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const;
 
+    void cleanUp() const;
+
   private:
     ToolHandle<IMuonSegmentTrackBuilder> m_muonTrackBuilder{this,"MuonSegmentTrackBuilder","Muon::MooTrackBuilder/MooMuonTrackBuilder"}; 
     ToolHandle<MuonEDMPrinterTool> m_printer{this,"MuonEDMPrinterTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"}; 

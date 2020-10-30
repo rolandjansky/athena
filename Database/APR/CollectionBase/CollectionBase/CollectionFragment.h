@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_COLLECTIONFRAGMENT_H
@@ -38,7 +38,7 @@ namespace pool {
      * @param usesForeignKey Flag indicating whether fragment uses foreign key to reference parent fragment.
      */
     CollectionFragment( const std::string& name,
-                        std::string parentFragmentName = "",
+                        const std::string& parentFragmentName = "",
                         bool usesForeignKey = true )
       : m_name( name ),
         m_parentFragmentName( parentFragmentName ),

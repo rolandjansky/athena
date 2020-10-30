@@ -2,28 +2,24 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-import os
 from optparse import OptionParser
 
 
 
 physicsStreams = ["physics_Main","physics_MinBias","physics_MinBiasOverlay","physics_ZeroBias","physics_HardProbes",
                   "physics_TauOverlay","physics_CosmicCalo", "physics_CosmicMuons","physics_IDCosmic",
-                    "physics_HLT_IDCosmic","physics_Standby","physics_Late","physics_L1Calo","physics_L1Topo",
-                    "express_express"] 
+                  "physics_HLT_IDCosmic","physics_Standby","physics_Late","physics_L1Calo","physics_L1Topo",
+                  "express_express"]
 
 
 monitoringStreams = ["calibration_Background","calibration_beamspot","calibration_IBLLumi","calibration_PixelBeam", 
-                         "caibration_vdM", "calibration_PIxelNoise", "calibration_SCTNoise", "calibration_IDTracks",
-                         "calibration_LArCells","calibration_LArCellsEmpty","calibration_LArNoiseBurst","calibration_Tile"
-                         "calibration_MuonAll","calibration_CostMonitoring"]
+                     "caibration_vdM", "calibration_PIxelNoise", "calibration_SCTNoise", "calibration_IDTracks",
+                     "calibration_LArCells","calibration_LArCellsEmpty","calibration_LArNoiseBurst","calibration_Tile"
+                     "calibration_MuonAll","calibration_CostMonitoring"]
 
 otherStream = ["calibration_IDFwd","calibration_ALFA","calibration_DataScoutingXX","debugrec_hltacc","debugrec_hltrej","debugrec_crashed"] 
 
 def readJson(filename):
-    import json
     s = open(filename, 'r').read()
     outputs =  eval(s)
     #print (outputs)
@@ -49,7 +45,7 @@ parser.add_option("-f","--filename"    ,type="string"        ,dest="filename"   
 if options.filename:
     try:
         outputs = readJson(options.filename)
-    except:
+    except Exception:
         print()
         print ("WARNING: file with dict %s not available... using default outputs dict" %(options.filename))
         print()

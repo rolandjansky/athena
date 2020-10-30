@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_COLLECTIONDESCRIPTION_H
@@ -47,8 +47,8 @@ namespace pool {
      */
     CollectionDescription( const std::string& name,
                            const std::string& type,
-                           std::string connection = "",
-                           std::string eventReferenceColumnName = "" );
+                           const std::string& connection = "",
+                           const std::string& eventReferenceColumnName = "" );
     
     /**
      * Copy constructor.
@@ -278,7 +278,7 @@ namespace pool {
      *
      * @param columnName Name of column for which constraint is applied.
      */
-    virtual void setUniqueConstraint( std::string constraintName, const std::string& columnName );
+    virtual void setUniqueConstraint( const std::string& constraintName, const std::string& columnName );
 
     /**
      * Sets a unique constraint on one or more columns of the collection description. Automatically generates
@@ -286,7 +286,7 @@ namespace pool {
      *
      * @param columnNames Names of columns for which constraint is applied.
      */
-    virtual void setUniqueConstraint( std::string constraintName, const std::vector<std::string>& columnNames );
+    virtual void setUniqueConstraint( const std::string& constraintName, const std::vector<std::string>& columnNames );
 
     /**
      * Unsets an existing unique constraint on a single column of the collection description, 
@@ -573,13 +573,16 @@ namespace pool {
     // check if the column contains tokens
     virtual bool 	isTokenColumn( const std::string& columnName, const std::string& method ) const;
 
-    // this version includes the 'mothod name' in the error message
-    virtual pool::CollectionColumn* column( const std::string& columnName, const std::string& methodName ) const;
+    // this version includes the 'method name' in the error message
+    virtual pool::CollectionColumn* column( const std::string& columnName, const std::string& methodName );
+    virtual const pool::CollectionColumn* column( const std::string& columnName, const std::string& methodName ) const;
 
     // returns non-const fragment pointer
-    virtual pool::CollectionFragment* collectionFragment( int fragmentId, const std::string& method  ) const;
+    virtual pool::CollectionFragment* collectionFragment( int fragmentId, const std::string& method  );
+    virtual const pool::CollectionFragment* collectionFragment( int fragmentId, const std::string& method  ) const;
     // returns non-const fragment pointer
-    virtual pool::CollectionFragment* collectionFragment( const std::string& fragmentName, const std::string& method ) const;
+    virtual pool::CollectionFragment* collectionFragment( const std::string& fragmentName, const std::string& method );
+    virtual const pool::CollectionFragment* collectionFragment( const std::string& fragmentName, const std::string& method ) const;
 
  public:
     /// print out the description (debugging)

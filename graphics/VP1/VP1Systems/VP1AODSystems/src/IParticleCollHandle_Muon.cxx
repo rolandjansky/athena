@@ -65,6 +65,7 @@ public:
   MuonCollectionSettingsButton* collSettingsButton;
 
   unsigned int last_minimumQuality;
+  bool hasPrimaryTrackParticleInfo;
 
   void possiblyUpdateGUI() {//Fixme: to IParticleCollHandleBase
     if (!((updateGUICounter++)%50)) {
@@ -80,8 +81,9 @@ IParticleCollHandle_Muon::IParticleCollHandle_Muon(AODSysCommonData * cd,
 {
   m_d->theclass = this;
   m_d->updateGUICounter = 0;
-  m_d->collSettingsButton=0;
-  m_d->last_minimumQuality=0;
+  m_d->collSettingsButton = 0;
+  m_d->last_minimumQuality = 0;
+  m_d->hasPrimaryTrackParticleInfo = false;  
 
   //The object names should not contain all sorts of funky chars (mat button style sheets wont work for instance):
   QString safetext(text());
@@ -121,7 +123,7 @@ void IParticleCollHandle_Muon::init(VP1MaterialButtonBase*)
   // Connections back to system
   connect(this,SIGNAL(shownAssociatedObjectsChanged(const QList<const xAOD::TrackParticle*>&)),systemBase(),SLOT(updateAssociatedObjects(const QList<const xAOD::TrackParticle*>&))) ;
 
-  // std::cout<<"IParticleCollHandle_Muon::init 2"<<std::endl;
+  // std::cout<<"IParticleCollHandle_Muon::init 2"<<std::endl; // debug
   // std::cout<<"swi: "<<collSwitch()<<std::endl;
   // std::cout<<"sep: "<<collSep()<<std::endl;
   // std::cout<<"mat: "<<material()<<std::endl;
@@ -182,7 +184,6 @@ bool IParticleCollHandle_Muon::load()
   const xAOD::MuonContainer * coll(nullptr);
 
   #if defined BUILDVP1LIGHT
-
     // Retrieve objects from the event
     if( !(systemBase()->getEvent())->retrieve( coll, name().toStdString()).isSuccess() ) {
       message("Error: Could not retrieve collection with key="+name());
@@ -224,12 +225,34 @@ bool IParticleCollHandle_Muon::load()
     // }
     IParticleHandle_Muon* muonH = new IParticleHandle_Muon(this,*it);
     addHandle(muonH );
-    listOfTrackParticles<<muonH->muon().primaryTrackParticle();
-    
+    //std::cout << "muons ---> " << muonH->muon().eta() // debug
+    //          << ", " << muonH->muon().primaryTrackParticle() << std::endl;    
+    if( muonH->muon().primaryTrackParticle() ) {
+        m_d->hasPrimaryTrackParticleInfo = true;
+        listOfTrackParticles << muonH->muon().primaryTrackParticle();
+    } else {
+        m_d->hasPrimaryTrackParticleInfo = false;
+        printMsgNoTrackParticle();
+    }
   }
-  emit shownAssociatedObjectsChanged(listOfTrackParticles);
-
+  if(listOfTrackParticles.size()>0) {
+    emit shownAssociatedObjectsChanged(listOfTrackParticles);
+  }
   return true;
+}
+
+
+//____________________________________________________________________
+void IParticleCollHandle_Muon::printMsgNoTrackParticle() 
+{
+    QString msg = "SEVERE WARNING! No 'primaryTrackParticle' information found within the Muons collection of the input file! As a consequence, several quantities cannot be calculated. Also, expect crashes... Please, check the data contained in your input data file.";
+    VP1Msg::messageWarningAllRed(msg);
+    systemBase()->message(msg);
+    return;
+}
+bool IParticleCollHandle_Muon::hasPrimaryTrackParticleInfo()
+{
+    return m_d->hasPrimaryTrackParticleInfo;
 }
 
 //____________________________________________________________________

@@ -424,6 +424,47 @@ namespace TrigCompositeUtils {
     const std::string& linkName,
     unsigned int behaviour = TrigDefs::allFeaturesOfType);
 
+  /**
+   * @brief Perform a recursive search for ElementLinks of any time and name 'linkName', starting from Decision object 'start'
+   * Returns the link data in a typeless way, as raw key, index and CLID values. These may be reconstituted into a typed ElementLink.
+   * For the case of multiple links, this function only returns the first one found. @see findLinks
+   * @param[in] start the Decision Object from where recursive search should begin
+   * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
+   * @param[out] key The storegate key (hash) of the located link's collection
+   * @param[out] clid The class ID of the link's collection
+   * @param[out] index The link's index inside its collection.
+   * @param[in] suppressMultipleLinksWarning findLink will print a warning if more than one ElementLink is found, this can be silenced here.
+   * @return True if a link was located
+   */
+  bool typelessFindLink(const Decision* start, 
+    const std::string& linkName,
+    uint32_t& key,
+    uint32_t& clid,
+    uint16_t& index,
+    const bool suppressMultipleLinksWarning = false);
+
+  /**
+   * @brief search back the TC links for the object of type T linked to the one of TC (recursively)
+   * Returns the link data in a typeless way, as raw key, index and CLID values. These may be reconstituted into a typed ElementLink.
+   * Populates provided vectors with all located links of the corresponding linkName. 
+   * @param[in] start the Decision Object from where recursive search should begin
+   * @param[in] linkName the name of the ElementLink stored inside one or more DecisionObjects.
+   * @param[inout] key The return vector of the storegate key (hash) of the located link's collection
+   * @param[inout] clid The return vector of the class ID of the link's collection
+   * @param[inout] index The return vector of the link's index inside its collection.
+   * @param[in] behaviour TrigDefs::allFeaturesOfType to explore all branches of the navigation graph all the
+                          way back to the L1 decoder, or TrigDefs::lastFeatureOfType to exit early from each
+                          branch once a link has been located and collected. 
+   * @param[inout] visitedCache Optional cache used by the recursive algorithm to avoid exploring each node multiple times. 
+   */
+  bool typelessfindLinks(const Decision* start, 
+    const std::string& linkName,
+    std::vector<uint32_t>& key,
+    std::vector<uint32_t>& clid,
+    std::vector<uint16_t>& index,
+    const unsigned int behaviour = TrigDefs::allFeaturesOfType, 
+    std::set<const xAOD::TrigComposite*>* visitedCache = nullptr);
+
 
   /**
    * Prints the Decision object including the linked seeds

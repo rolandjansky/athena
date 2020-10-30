@@ -44,10 +44,6 @@ namespace LVL1 {
     this->clearET();
   }
   
-  /** Destructor */
-  eTower::~eTower(){
-  }
-  
   /** Clear and resize ET value vector */
   void eTower::clearET()
   {
@@ -102,7 +98,7 @@ namespace LVL1 {
     int outET = eFEXCompression::Expand(ecode);
     
     //noise cut
-    bool SCpass = noiseCut(outET,layer);
+    const bool SCpass = noiseCut(outET,layer);
     if (SCpass){ m_et[cell] = outET;}
     else{ m_et[cell] = 0; }
   }
@@ -125,17 +121,16 @@ namespace LVL1 {
       int outET = eFEXCompression::Expand(ecode);
       
       //noise cut
-      bool SCpass = noiseCut(outET,layer);
+      const bool SCpass = noiseCut(outET,layer);
       if (SCpass){ m_et[cell] = outET;}
       else{ m_et[cell] = 0; }
       
     }
     else{
 
-      float et1 = et/2;
-      float et2 = et/2;
-      addET(et1, cell);
-      addET(et2, cell+1);
+      float et_half = et*0.5;
+      addET(et_half, cell);
+      addET(et_half, cell+1);
 
       unsigned int ecode1 = eFEXCompression::Compress(m_et_float[cell]);
       int outET1 = eFEXCompression::Expand(ecode1);
@@ -143,10 +138,10 @@ namespace LVL1 {
       int outET2 = eFEXCompression::Expand(ecode2);
 
       //noise cuts
-      bool SCpass1 = noiseCut(outET1,layer);
+      const bool SCpass1 = noiseCut(outET1,layer);
       if (SCpass1){ m_et[cell] = outET1;}
       else{ m_et[cell] = 0; }
-      bool SCpass2 = noiseCut(outET2,layer);
+      const bool SCpass2 = noiseCut(outET2,layer);
       if (SCpass2){ m_et[cell+1] = outET2;}
       else{ m_et[cell+1] = 0; }
 
@@ -157,7 +152,7 @@ namespace LVL1 {
   }
 
   /** Apply noise cut per layer **/
-  bool eTower::noiseCut(int et, int layer)
+  bool eTower::noiseCut(int et, int layer) const
   {
 
     bool pass=true;                                                                                                         
@@ -185,18 +180,19 @@ namespace LVL1 {
   /** Return global eta index.
       Should be derived from tower ID, should be corrected in the future.
       Need to also think what index range should be (thinking ahead to Run2) */
-  int eTower::iEta() {
-    int index = (m_eta + 2.5)/0.1;
+  int eTower::iEta() const {
+    const int index = (m_eta + 2.5)/0.1; // /0.1;  // Equivalent to divide by 0.1 which is the Tower size
     return index;
   }
   
   /** Return global phi index.
       Should be derived from tower ID, should be corrected in the future.
       Decision here is whether phi is signed or not */
-  int eTower::iPhi() {
+  int eTower::iPhi() const {
     int index = 32*m_phi/M_PI;
     if (m_phi < 0) index = 32*(m_phi + 2*M_PI)/M_PI;
-    return index;
+    const int cindex = index;
+    return cindex;
   }
   
   /** Return ET of specified supercell */

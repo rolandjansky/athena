@@ -91,7 +91,12 @@ StatusCode PrescalingTool::prescaleChains( const EventContext& ctx,
       try {
          const auto & prescale = hltPrescaleSet->prescale( ch.numeric() );
          if( prescale.enabled ) {
-            decisionToKeep = engine->flat() < 1./prescale.prescale;
+            auto flat = engine->flat();
+            if(ch.numeric() == 843341480) { // this is to explicitly monitor the chain HLT_costmonitor_CostMonDS_L1All (hash 843341480)
+               auto mon_rndm = Monitored::Scalar<double>("Random", flat);
+               Monitored::Group(m_monTool, mon_rndm);
+            }
+            decisionToKeep = flat < 1./prescale.prescale;
             ATH_MSG_DEBUG("Prescaling decision for chain " << ch << " " << decisionToKeep );
          } else {
             decisionToKeep = false;

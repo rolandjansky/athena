@@ -95,7 +95,7 @@ namespace TrigCompositeUtils {
     }
     // If not Early Exit, then recurse
     for (const auto& seed : getLinkToPrevious(start)) {
-      findLinks<T>(*seed, linkName, links, behaviour);
+      findLinks<T>(*seed, linkName, links, behaviour, visitedCache);
     }
     // Fully explored this node
     if (visitedCache != nullptr) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_COLLECTIONCOLUMN_H
@@ -44,7 +44,7 @@ namespace pool {
      */
     CollectionColumn( const std::string& name,
                       const std::string& type,
-                      std::string fragmentName = "",
+                      const std::string& fragmentName = "",
                       int maxSize = 0,
                       bool sizeIsFixed = true )
       : m_name( name ),

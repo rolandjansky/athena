@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef NOBADMUONSELECTOR_H_
 #define NOBADMUONSELECTOR_H_
@@ -11,22 +11,22 @@
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 
 namespace top {
+  class TopConfig;
 
 /**
  * @brief A tool that selects events containing no bad muons
  * https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool#is_BadMuon_Flag_Event_Veto
  *
  */
-  class NoBadMuonSelector : public EventSelectorBase {
-public:
-
+  class NoBadMuonSelector: public EventSelectorBase {
+  public:
     /**
      * @brief Event selection if bad muon detected using the official muon selector tool.
      *
      * Call the muon selector tool and reject the event if any of the muons that
      * passed the event selection are marked as bad.
      */
-    explicit NoBadMuonSelector();
+    explicit NoBadMuonSelector(std::shared_ptr<top::TopConfig> m_config);
 
     /**
      * @brief Events with a muon flagged bad are rejected
@@ -42,12 +42,11 @@ public:
      * @return The name of the tool for humans to see.
      */
     std::string name() const override;
-
-private:
+  private:
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
 
-};
-
+    std::shared_ptr<top::TopConfig> m_config;
+  };
 }
 
 #endif

@@ -9,7 +9,7 @@
 #include "xAODTracking/VertexContainerFwd.h"
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "egammaInterfaces/IEMExtrapolationTools.h"
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -22,22 +22,18 @@
    @author Kerstin Tackmann (based on work by many others)
 */
 
-class EMVertexBuilder : public AthAlgorithm {
+class EMVertexBuilder : public AthReentrantAlgorithm {
 
  public:
   EMVertexBuilder (const std::string& name, ISvcLocator* pSvcLocator);
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final
-  {
-    return execute_r(Algorithm::getContext());
-  }
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
   // This will become the normal execute when
   // inheriting from AthReentrantAlgorithm
-  StatusCode execute_r(const EventContext& ctx) const;
 	
   /** Maximum radius accepted for conversion vertices **/
   Gaudi::Property<float> m_maxRadius {this, "MaxRadius", 800., 

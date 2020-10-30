@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_TRIGGERCOOLSVC_H
@@ -12,10 +12,8 @@
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 
-
-#include "StoreGate/DataHandle.h"
 
 #include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthService.h"

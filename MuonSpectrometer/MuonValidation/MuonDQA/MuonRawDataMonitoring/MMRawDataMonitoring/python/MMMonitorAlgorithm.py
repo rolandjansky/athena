@@ -4,7 +4,7 @@
 #
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-from MMMonUtils import getMMLabel,getMMLabelY
+from .MMMonUtils import getMMLabel,getMMLabelY
 
 def MMMonitoringConfig(inputFlags):
     '''Function to configures some algorithms in the monitoring system.'''

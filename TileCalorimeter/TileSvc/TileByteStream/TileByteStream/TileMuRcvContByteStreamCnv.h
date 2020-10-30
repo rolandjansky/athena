@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEMURCVCONTBYTESTREAMCNV_H
 #define TILEBYTESTREAM_TILEMURCVCONTBYTESTREAMCNV_H
 
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "TileEvent/TileContainer.h"
-#include "AthenaBaseComps/AthMessaging.h"
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -27,15 +26,14 @@ template <class TYPE> class CnvFactory;
 
 /**
  * @class TileMuRcvContByteStreamCnv
- * @brief This Converter class provides conversion between ByteStream and TileMuRcvCont
+ * @brief This AthConstConverter class provides conversion between ByteStream and TileMuRcvCont
  * @author Joao Gentil Saraiva
  *
  * This class provides methods to convert the bytestream data into TileMuRcv objects and vice versa.
  */
 
 class TileMuRcvContByteStreamCnv
-  : public Converter
-  , public ::AthMessaging
+  : public AthConstConverter
 {
  public:
   TileMuRcvContByteStreamCnv(ISvcLocator* svcloc);
@@ -43,8 +41,8 @@ class TileMuRcvContByteStreamCnv
   typedef TileMuRcvContByteStreamTool  BYTESTREAMTOOL ; 
 
   virtual StatusCode initialize() override;
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+  virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const override;
+  virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
   virtual StatusCode finalize() override;
 
   /// Storage type and class ID
@@ -53,9 +51,6 @@ class TileMuRcvContByteStreamCnv
   static const CLID& classID();
 
  private: 
-
-  std::string m_name;
-
   /** Pointer to TileMuRcvContByteStreamTool */
   ToolHandle<BYTESTREAMTOOL> m_tool;
 

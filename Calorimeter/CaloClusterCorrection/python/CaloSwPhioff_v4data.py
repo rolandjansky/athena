@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id$
 #
 # File: CaloClusterCorrection/python/CaloSwPhioff_v4_data.py
 # Created: Sep 2010, sss
@@ -14,7 +12,7 @@
 # in the barrel.
 #
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import EME2, EMB2
 from CaloClusterCorrection.CaloSwPhioff_v4 import \
      CaloSwPhioff_v4_b2_parms, CaloSwPhioff_v4_e2_parms
 
@@ -33,6 +31,7 @@ def _flip_phi (corr):
     
 def _copy_parms (src, dst):
     for (k, v) in src.__dict__.items():
+        if k[0] == '_': continue
         if k == 'correction':
             v = _flip_phi (v)
         setattr (dst, k, v)

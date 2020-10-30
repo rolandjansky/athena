@@ -1,34 +1,20 @@
-################################################################################
-# Package: LArRawEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArRawEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          DetectorDescription/Identifier )
-
 # External dependencies:
 find_package( CLHEP )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( LArRawEvent
                    src/*.cxx
                    PUBLIC_HEADERS LArRawEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthContainers Identifier
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel CaloIdentifier AthContainers Identifier )
 
 atlas_add_dictionary( LArRawEventDict
                       LArRawEvent/LArRawEventDict.h
                       LArRawEvent/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloIdentifier AthContainers Identifier AthenaKernel LArRawEvent )
-
+                      LINK_LIBRARIES LArRawEvent )

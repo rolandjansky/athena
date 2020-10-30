@@ -6,6 +6,8 @@
 
 #include "gtest/gtest.h"
 
+#include <vector>
+
 #include "TestTools/initGaudi.h"
 
 #include "G4HCofThisEvent.hh"
@@ -63,9 +65,9 @@ TEST_F( BLMSensorSDtest, ProcessHits )
   G4HCofThisEvent hce;
 
   G4double totalenergydeposit = 3.0;
-  G4String physicalname = "physicalName";
+  std::vector<G4String> physicalname = {"physicalName"};
   G4String logicalname = "Pixel::blmDiamondLog";
-  G4int copyno = 2009;
+  std::vector<G4int> copynos = {2009};
   G4ThreeVector preStepPos = G4ThreeVector(0,0,1);
   G4ThreeVector postStepPos = G4ThreeVector(0,0,2);
   G4double globaltime0 = 0.5;
@@ -85,7 +87,7 @@ TEST_F( BLMSensorSDtest, ProcessHits )
   G4String nop1 = "opticalphoton";
   G4String nop2 = "opticalphoton";
   G4String nop3 = "photon";
-  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copyno, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);
+  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copynos, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);
 
   BLMSensorSD sd2("name2", "name2");
   sd2.Initialize( &hce );

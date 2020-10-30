@@ -38,7 +38,7 @@ def mu_dep_eff(mu):
     elif 8 <= mu < 27: return 0.3191 - 0.000493*mu
     elif 27 <= mu: return 0.3443 - 0.00143*mu
     else:
-        print 'WTF??'
+        print('WTF??')
         return ZATIMESC
 
 ROOT.gStyle.SetOptStat(0)
@@ -67,7 +67,7 @@ else:
     outfname = '%s_data.root' % runname[4:]
 
 runmode = args.mode
-print 'Running in', runmode, 'mode'
+print('Running in', runmode, 'mode')
 if runmode == 'Zee':
     z_m = fin.Get('%s/GLOBAL/DQTGlobalWZFinder/m_Z_Counter_el' % runname)
     if not z_m:
@@ -151,11 +151,11 @@ from DQUtils import fetch_iovs
 from DQUtils.iov_arrangement import inverse_lblb
 lblb = fetch_iovs("LBLB", runs=int(runname[4:]))
 lbtime = inverse_lblb(lblb)
-#print list(lbtime)
+#print(list(lbtime))
 iovs_acct = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LumiAccounting', lbtime.first.since, lbtime.last.until, tag=args.tag)
 if args.useofficial:
     iovs_lum = fetch_iovs('COOLOFL_TRIGGER::%s' % args.lumifolder, lblb.first.since, lblb.last.until, tag=args.lumitag, channels=[0])
-    #print list(iovs_lum)
+    #print(list(iovs_lum))
 lb_start_end = {}
 lb_lhcfill = {}
 for iov in lblb:
@@ -167,7 +167,7 @@ for iov in iovs_acct:
     lb_lhcfill[iov.LumiBlock] = iov.FillNumber
     if args.dblivetime:
         livetime.Fill(iov.LumiBlock, iov.LiveFraction)
-    #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
+    #print(iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi)
     if not args.useofficial:
         official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
         official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction/1e3)
@@ -175,8 +175,8 @@ for iov in iovs_acct:
     else:
         offlumiov = [_ for _ in iovs_lum if _.since.lumi==iov.LumiBlock]
         if len(offlumiov) != 1: 
-            print 'MAJOR PROBLEM, LUMI IOV MISMATCH'
-            print len(offlumiov)
+            print('MAJOR PROBLEM, LUMI IOV MISMATCH')
+            print(len(offlumiov))
             continue
         offlumiov = offlumiov[0]
         official_lum_zero.Fill(iov.LumiBlock, offlumiov.LBAvInstLumi/1e3)
@@ -219,7 +219,7 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
     profileflag=True
     try:
         z_m[ibin]
-    except IndexError, e:
+    except IndexError as e:
         logging.error('Something unfortunate has happened; LB %d missing from Z count' % (ibin + lbmin - 1))
         profileflag=False
     if args.mudep:
@@ -244,7 +244,7 @@ for ibin in xrange(1, int(lbmax-lbmin)+1):
 
     # fill tree
     if t:
-        #print ibin, lumiplot_raw_m.GetBinCenter(ibin)
+        #print(ibin, lumiplot_raw_m.GetBinCenter(ibin))
         o_lb[0] = int(lumiplot_raw_m.GetBinCenter(ibin))
         o_lbwhen[0] = lb_start_end[o_lb[0]][0]
         o_lbwhen[1] = lb_start_end[o_lb[0]][1]

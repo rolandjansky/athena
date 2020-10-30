@@ -152,8 +152,8 @@ class CaloCondBlobBase{
   /** @brief Returns the BLOB start address as uint32_t pointer. */
   uint32_t* getBlobStart();
 
-  /** @brief Non-const reference to the BLOB
-      (Only present if we were created with a non-const blob. */
+  /** @brief Non-const reference to the BLOB.
+      (Only present if we were created with a non-const blob.) */
   coral::Blob*  m_blob_nc;
 
   /** @brief Const reference to the BLOB (always there) */

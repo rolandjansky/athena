@@ -52,7 +52,8 @@ Pythia8B_i::Pythia8B_i
     declareProperty("pT0timesMPI", m_pt0timesMPI=1.0);
     declareProperty("numberAlphaS", m_numberAlphaS=3.0);
     declareProperty("useSameAlphaSasMPI", m_sameAlphaSAsMPI=false);
-    
+    declareProperty("MaxFailures", m_maxFailures = 10); // consecutive failures limit
+
     m_totalBQuark = 0;
     m_totalBBarQuark = 0;
     m_totalCQuark = 0;
@@ -65,6 +66,8 @@ Pythia8B_i::Pythia8B_i
     m_internal_event_number = 0;
     m_speciesCount.clear();
     m_SuppressSmallPT = 0;
+    m_failureCount = 0;
+
     for (std::vector<int>::iterator iit=m_bcodes.begin(); iit!=m_bcodes.end(); ++iit) {
         m_speciesCount[*iit] = 0;
     }
@@ -106,7 +109,15 @@ StatusCode Pythia8B_i::genInitialize() {
     ATH_MSG_INFO("genInitialize() from Pythia8B_i");
     if (m_doSuppressSmallPT) {
         m_SuppressSmallPT = new Pythia8::SuppressSmallPT(m_pt0timesMPI,m_numberAlphaS,m_sameAlphaSAsMPI);
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8300
+        Pythia8_i::m_pythia->setUserHooksPtr((UserHooksPtrType)m_SuppressSmallPT);
+#else
         Pythia8_i::m_pythia->setUserHooksPtr(m_SuppressSmallPT);
+  #endif
+#else
+        Pythia8_i::m_pythia->setUserHooksPtr((UserHooksPtrType)m_SuppressSmallPT);
+#endif
     }
 
     return StatusCode::SUCCESS;
@@ -168,8 +179,24 @@ StatusCode Pythia8B_i::callGenerator(){
         
         ++m_totalPythiaCalls;
         ATH_MSG_DEBUG("Throwing the dice....");
-        if (!Pythia8_i::m_pythia->next()) continue;
-        
+//        if (!Pythia8_i::m_pythia->next()) continue;
+        if ( !Pythia8_i::m_pythia->next() ) {
+            // First check if it failed because it ran out of events.
+            if ( Pythia8_i::m_pythia->info.atEndOfFile() ) {
+                return StatusCode::FAILURE;
+            }
+
+            // Otherwise, just make sure that it's not failing too many times in a row.
+            ++m_failureCount;
+            if ( m_failureCount >= m_maxFailures ) {
+                ATH_MSG_ERROR("Exceeded the max number of consecutive event failures.");
+                return StatusCode::FAILURE;
+            } else {
+                ATH_MSG_INFO("Event generation failed - re-trying.");
+                continue;
+            }
+        }
+
         // Find b(c)/antib(c) quarks and enforce cuts as required
         int nbBeforeSelection(0);
         int nbbarBeforeSelection(0);

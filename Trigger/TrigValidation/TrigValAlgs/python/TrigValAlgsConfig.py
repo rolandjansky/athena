@@ -64,15 +64,20 @@ class TrigEDMChecker ( TrigEDMChecker ):
 
 
 def getEDMAuxList():
-    from TrigEDMConfig.TriggerEDM import getTriggerObjList,TriggerHLTList
-    tlist=getTriggerObjList('AODFULL',[TriggerHLTList])
+    from TrigEDMConfig.TriggerEDM import getTriggerEDMList
+    from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
+    EDMVersion = EDMDecodingVersion()
+    tlist=getTriggerEDMList('AODFULL',EDMVersion)
     objlist=[]
     for t,kset in six.iteritems(tlist):
         for k in kset:
-             if 'Aux' in k: 
-                 s = k.split('-',1)[0]
+             if 'Aux.' in k:
+                 s = k.split('.',1)[0] + "."
+                 # Types of these collections from Run 2 do not inherit from xAOD::AuxContainerBase, so can't test them here
+                 if EDMVersion == 2 and "HLT_xAOD__JetContainer" in s or "xTrigDecisionAux" in s or "TrigNavigationAux" in s:
+                     continue
                  objlist += [s]
-    return objlist 
+    return objlist
 # TrigEDMChecker configurable
 class TrigEDMAuxChecker ( TrigEDMAuxChecker ):
     __slots__ = []

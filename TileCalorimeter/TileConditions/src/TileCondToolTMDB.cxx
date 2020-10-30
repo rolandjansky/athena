@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -54,7 +54,7 @@ StatusCode TileCondToolTMDB::finalize() {
 
 //
 //____________________________________________________________________
-float TileCondToolTMDB::getThreshold(unsigned int drawerIdx, TMDB::THRESHOLD threshold) const {
+float TileCondToolTMDB::getThreshold(unsigned int drawerIdx, unsigned int threshold) const {
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibThreshold(m_calibThresholdKey);
   return calibThreshold->getCalibDrawer(drawerIdx)->getData(threshold, 0, 0);
@@ -64,7 +64,7 @@ float TileCondToolTMDB::getThreshold(unsigned int drawerIdx, TMDB::THRESHOLD thr
 
 //
 //____________________________________________________________________
-float TileCondToolTMDB::getDelay(unsigned int drawerIdx, TMDB::CHANNEL channel) const {
+float TileCondToolTMDB::getDelay(unsigned int drawerIdx, unsigned int channel) const {
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibDelay(m_calibDelayKey);
   return calibDelay->getCalibDrawer(drawerIdx)->getData(channel, 0, 0);
@@ -73,7 +73,7 @@ float TileCondToolTMDB::getDelay(unsigned int drawerIdx, TMDB::CHANNEL channel) 
 
 //
 //____________________________________________________________________
-void TileCondToolTMDB::getCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, float& a, float& b) const {
+void TileCondToolTMDB::getCalib(unsigned int drawerIdx, unsigned int channel, float& a, float& b) const {
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibData(m_calibDataKey);
   a = calibData->getCalibDrawer(drawerIdx)->getData(channel, 0, 0);
@@ -84,7 +84,7 @@ void TileCondToolTMDB::getCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, f
 
 //
 //____________________________________________________________________
-unsigned int TileCondToolTMDB::getWeights(unsigned int drawerIdx, TMDB::CHANNEL channel, TMDB::Weights& weights) const {
+unsigned int TileCondToolTMDB::getWeights(unsigned int drawerIdx, unsigned int channel, TMDB::Weights& weights) const {
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibTMF(m_calibTmfKey);
   unsigned int nWeights = calibTMF->getCalibDrawer(drawerIdx)->getObjSizeUint32();
@@ -107,7 +107,7 @@ unsigned int TileCondToolTMDB::getWeights(unsigned int drawerIdx, TMDB::CHANNEL 
 
 //
 //____________________________________________________________________
-float TileCondToolTMDB::channelCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, float amplitude) const {
+float TileCondToolTMDB::channelCalib(unsigned int drawerIdx, unsigned int channel, float amplitude) const {
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibData(m_calibDataKey);
   return amplitude * calibData->getCalibDrawer(drawerIdx)->getData(channel, 0, 0)
@@ -118,7 +118,7 @@ float TileCondToolTMDB::channelCalib(unsigned int drawerIdx, TMDB::CHANNEL chann
 
 //
 //____________________________________________________________________
-float TileCondToolTMDB::channelCalib(unsigned int drawerIdx, TMDB::CHANNEL channel, const std::vector<float>& samples) const {
+float TileCondToolTMDB::channelCalib(unsigned int drawerIdx, unsigned int channel, const std::vector<float>& samples) const {
 
   SG::ReadCondHandle<TileCalibData<TileCalibDrawerFlt>> calibTMF(m_calibTmfKey);
 

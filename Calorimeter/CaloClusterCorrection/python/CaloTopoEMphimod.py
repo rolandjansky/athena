@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloTopoEMphimod.py,v 1.4 2007-10-17 21:05:53 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloTopoEMphimod.py
 # Created: Mar 2007, sss, from earlier job options.
@@ -9,15 +7,18 @@
 # for TopoEM clusters.
 #
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_EMTOPO, CALOCORR_COMBINED2
+from CaloClusterCorrection.common import makecorr
+     
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import topoem_valid_keys as keys
-cls = CaloClusterCorrectionConf.CaloTopoEMphimod
+from CaloClusterCorrection.constants import topoem_valid_keys as keys
+cls = CompFactory.CaloTopoEMphimod   # CaloClusterCorrection
 CaloTopoEMphimod_versions = [
 
     # v1 --- from the original job options file.
@@ -29,6 +30,7 @@ CaloTopoEMphimod_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -46,7 +48,8 @@ CaloTopoEMphimod_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloTopoEMphimod (name = None,
+def make_CaloTopoEMphimod (flags,
+                           name = None,
                            suffix = None,
                            version = None,
                            key = CALOCORR_DEFAULT_KEY,
@@ -54,7 +57,8 @@ def make_CaloTopoEMphimod (name = None,
                            confclass = None,
                            **kw):
     # Make the tool.
-    return makecorr (versions  = CaloTopoEMphimod_versions,
+    return makecorr (flags,
+                     versions  = CaloTopoEMphimod_versions,
                      name      = name,
                      basename  = 'topophimod',
                      suffix    = suffix,

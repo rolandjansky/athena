@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 // $Id: MiniToFlatAnalysis.h 733950 2016-04-05 11:21:48Z tneep $
 #ifndef TOPEXAMPLES_MINITOFLATANALYSIS_H_
@@ -26,8 +26,8 @@
 
 // Forward declaration(s):
 namespace top {
-class TopConfig;
-class PlotManager;
+  class TopConfig;
+  class PlotManager;
 }
 
 class TFile;
@@ -38,30 +38,29 @@ class TFile;
 #include "TopAnalysis/EventSaverFlatNtuple.h"
 
 namespace top {
-class MiniToFlatAnalysis : public asg::AsgTool {
- public:
-  explicit MiniToFlatAnalysis(const std::string& name);
-  virtual ~MiniToFlatAnalysis() {}
+  class MiniToFlatAnalysis: public asg::AsgTool {
+  public:
+    explicit MiniToFlatAnalysis(const std::string& name);
+    virtual ~MiniToFlatAnalysis() {}
 
-  // Delete Standard constructors
-  MiniToFlatAnalysis(const MiniToFlatAnalysis& rhs) = delete;
-  MiniToFlatAnalysis(MiniToFlatAnalysis&& rhs) = delete;
-  MiniToFlatAnalysis& operator=(const MiniToFlatAnalysis& rhs) = delete;
+    // Delete Standard constructors
+    MiniToFlatAnalysis(const MiniToFlatAnalysis& rhs) = delete;
+    MiniToFlatAnalysis(MiniToFlatAnalysis&& rhs) = delete;
+    MiniToFlatAnalysis& operator = (const MiniToFlatAnalysis& rhs) = delete;
 
-  virtual StatusCode initialize();
-  virtual StatusCode execute();
-  virtual StatusCode finalize();
+    virtual StatusCode initialize();
+    virtual StatusCode execute();
+    virtual StatusCode finalize();
+  private:
+    std::shared_ptr<top::TopConfig> m_config;
 
- private:
-  std::shared_ptr<top::TopConfig> m_config;
+    std::unique_ptr<top::TopToolStore> m_topTools;
+    std::unique_ptr<top::ScaleFactorCalculator> m_sfCalc;
+    std::unique_ptr<top::TopEventMaker> m_evtMaker;
+    std::unique_ptr<top::EventSaverFlatNtuple> m_event_saver;
 
-  std::unique_ptr<top::TopToolStore> m_topTools;
-  std::unique_ptr<top::ScaleFactorCalculator> m_sfCalc;
-  std::unique_ptr<top::TopEventMaker> m_evtMaker;
-  std::unique_ptr<top::EventSaverFlatNtuple> m_event_saver;
-
-  std::string m_outputFileName;
-  ::TFile* m_outputFile;
-};
+    std::string m_outputFileName;
+    ::TFile* m_outputFile;
+  };
 }  // namespace top
 #endif  // TOPEXAMPLES_MINITOFLATANALYSIS_H_

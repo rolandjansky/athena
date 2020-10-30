@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBDRAWEROFC_H
@@ -164,22 +164,32 @@ class TileCalibDrawerOfc : public TileCalibDrawerBase {
   void setPhases(unsigned int channel, unsigned int adc, const std::vector<float>& phases); 
   
  protected:
-  /** @brief Ctor. */
+  /** @brief Ctor (const). */
   TileCalibDrawerOfc(const coral::Blob& blob);
+  /** @brief Ctor (non0const). */
+  TileCalibDrawerOfc(coral::Blob& blob);
   
  private:
+  void initCheck();
+
   /** @brief Returns pointer to first data OFC for a given field, ADC & phase.
       @param field The field identifier
       @param channel The channel number
       @param adc The gain index
       @param phase The phase */
-  float* getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const;
+  const float* getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const;
+       float* getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase);
+
+  unsigned int getOfcStartOffset(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const;
 
   /** @brief Returns pointer to the requested phase value
       @param channel The channel number
       @param adc The gain index
       @param phaseIdx The phase index */
-  int32_t* getPhaseStartAddress(unsigned int channel, unsigned int adc, unsigned int phaseIdx) const;
+  const int32_t* getPhaseStartAddress(unsigned int channel, unsigned int adc, unsigned int phaseIdx) const;
+       int32_t* getPhaseStartAddress(unsigned int channel, unsigned int adc, unsigned int phaseIdx);
+
+  unsigned int getPhaseStartOffset(unsigned int channel, unsigned int adc, unsigned int phaseIdx) const;
 
   /** Returns the index for a given phase 
       @param channel The channel number
@@ -192,14 +202,14 @@ class TileCalibDrawerOfc : public TileCalibDrawerBase {
 //______________________________________________________________
 __attribute__((always_inline)) 
 inline uint32_t TileCalibDrawerOfc::getNSamples() const {
-  return *(static_cast<uint32_t*>(getAddress(0)));
+  return *(static_cast<const uint32_t*>(getAddress(0)));
 }
 
 //
 //______________________________________________________________
 __attribute__((always_inline)) 
 inline int32_t TileCalibDrawerOfc::getNPhases() const {
-  return *(static_cast<int32_t*>(getAddress(1)));
+  return *(static_cast<const int32_t*>(getAddress(1)));
 }
 
 //
@@ -208,9 +218,9 @@ __attribute__((always_inline))
 inline unsigned int TileCalibDrawerOfc::getPhaseNumber(unsigned int channel, unsigned int adc, float& phase) const {
 
   int db_phase = (int) std::round(phase * (1 / PHASE_PRECISION)); // Phases are stored as int(10*phase) in DB
-  int32_t* beg = getPhaseStartAddress(channel, adc, 0);
-  int32_t* end = beg + std::abs(getNPhases());
-  int32_t* pos = std::lower_bound(beg, end, db_phase);
+  const int32_t* beg = getPhaseStartAddress(channel, adc, 0);
+  const int32_t* end = beg + std::abs(getNPhases());
+  const int32_t* pos = std::lower_bound(beg, end, db_phase);
 
   if (pos == end || (*pos != db_phase && pos != beg && (*pos - db_phase) > (db_phase - *(pos - 1)))) {
     --pos;
@@ -255,7 +265,7 @@ inline void TileCalibDrawerOfc::fillOfc (unsigned int channel,unsigned int adc, 
                                          , float* w_a, float* w_b, float* w_c, float* g, float* dg) const {
 
 
-  float* startAddress = getOfcStartAddress(TileCalibDrawerOfc::FieldA, channel, adc, phase);
+  const float* startAddress = getOfcStartAddress(TileCalibDrawerOfc::FieldA, channel, adc, phase);
   size_t allSamplesSize = getNSamples() * sizeof(float); 
   size_t fieldSize = getObjSizeUint32() * getNSamples();
 
@@ -287,8 +297,8 @@ inline void TileCalibDrawerOfc::setOfc(unsigned int field,unsigned int channel, 
 //
 //______________________________________________________________
 __attribute__((always_inline)) 
-inline int32_t* TileCalibDrawerOfc::getPhaseStartAddress(unsigned int channel, unsigned int adc, unsigned int phaseIdx) const {
-
+inline unsigned int TileCalibDrawerOfc::getPhaseStartOffset(unsigned int channel, unsigned int adc, unsigned int phaseIdx) const
+{
   if(phaseIdx >= static_cast<unsigned int>(std::abs(getNPhases()))){
     throw TileCalib::IndexOutOfRange("TileCalibDrawerOfc::getPhaseStartAddress", phaseIdx, std::abs(getNPhases()));
   }
@@ -307,14 +317,30 @@ inline int32_t* TileCalibDrawerOfc::getPhaseStartAddress(unsigned int channel, u
   unsigned int offset = 2;
   unsigned int nPhases = std::abs(getNPhases());
   offset += channel * nPhases * getNGains() + adc * nPhases + phaseIdx;
-  return static_cast<int32_t*>(getAddress(offset));
+  return offset;
 }
 
 //
 //______________________________________________________________
 __attribute__((always_inline)) 
-inline float* TileCalibDrawerOfc::getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const {
+inline const int32_t* TileCalibDrawerOfc::getPhaseStartAddress(unsigned int channel, unsigned int adc, unsigned int phaseIdx) const
+{
+  return static_cast<const int32_t*>(getAddress(getPhaseStartOffset(channel, adc, phaseIdx)));
+}
 
+//
+//______________________________________________________________
+__attribute__((always_inline)) 
+inline int32_t* TileCalibDrawerOfc::getPhaseStartAddress(unsigned int channel, unsigned int adc, unsigned int phaseIdx)
+{
+  return static_cast<int32_t*>(getAddress(getPhaseStartOffset(channel, adc, phaseIdx)));
+}
+
+//
+//______________________________________________________________
+__attribute__((always_inline)) 
+inline unsigned int TileCalibDrawerOfc::getOfcStartOffset(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const
+{
   //=== check default policy
 
   if(channel >= getNChans()) {
@@ -362,7 +388,23 @@ inline float* TileCalibDrawerOfc::getOfcStartAddress(unsigned int field, unsigne
   unsigned int lChan   = lAdc * nGain;
   offset += channel * lChan + adc * lAdc + iPhase * lPhase + field * nSample;
   
-  return static_cast<float*>(getAddress(offset));
+  return offset;
+}
+
+//
+//______________________________________________________________
+__attribute__((always_inline)) 
+inline const float* TileCalibDrawerOfc::getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase) const
+{
+  return static_cast<const float*>(getAddress(getOfcStartOffset(field, channel, adc, phase)));
+}
+
+//
+//______________________________________________________________
+__attribute__((always_inline)) 
+inline float* TileCalibDrawerOfc::getOfcStartAddress(unsigned int field, unsigned int channel, unsigned int adc, float& phase)
+{
+  return static_cast<float*>(getAddress(getOfcStartOffset(field, channel, adc, phase)));
 }
 
 #endif

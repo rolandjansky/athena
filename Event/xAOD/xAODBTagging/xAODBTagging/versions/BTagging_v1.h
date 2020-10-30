@@ -16,6 +16,7 @@
 #include "xAODBTagging/BTaggingEnums.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
+#include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
 
 // STL include(s):

@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloTopoEMClusterUpdate.py,v 1.3 2009-04-25 17:57:00 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloTopoEMClusterUpdate.py
 # Created: Nov 2006, sss
@@ -15,15 +13,17 @@
 # leaves the total cluster energy unchanged.
 #
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_EMTOPO
+from CaloClusterCorrection.common import makecorr
 
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-cls = CaloClusterCorrectionConf.CaloClusterUpdate
+cls = CompFactory.CaloClusterUpdate  # CaloClusterCorrection
 CaloTopoEMClusterUpdate_versions = [
     # This version doesn't recalculate the total cluster energy.
     ['dont_update_e', cls,
@@ -39,6 +39,7 @@ CaloTopoEMClusterUpdate_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -56,14 +57,16 @@ CaloTopoEMClusterUpdate_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloTopoEMClusterUpdate (name = None,
+def make_CaloTopoEMClusterUpdate (flags,
+                                  name = None,
                                   suffix = None,
                                   version = None,
                                   key = CALOCORR_DEFAULT_KEY,
                                   source = None,
                                   confclass = None,
                                   **kw):
-    return makecorr (versions = CaloTopoEMClusterUpdate_versions,
+    return makecorr (flags,
+                     versions = CaloTopoEMClusterUpdate_versions,
                      name = name,
                      basename = 'larupdate',
                      suffix = suffix,

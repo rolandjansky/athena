@@ -83,7 +83,7 @@ def generateChains( flags, chainDict ):
     hypo = CompFactory.TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
     jetsfullname = HLT_AntiKt4EMTopo_subjesIS.fullname()
     hypo.Jets = jetsfullname
-    acc.addEventAlgo(hypo)
+    acc.addEventAlgo(hypo, sequenceName=stepView.getName() )
 
     jetSequence = CAMenuSequence( Sequence    = inEventReco.sequence(),
                                 Maker       = inEventReco.inputMaker(),

@@ -66,7 +66,7 @@ def LArCosmicsMonConfigCore(helper, algoinstance,inputFlags):
         'run'
     )
 
-    cosmic_path="CosmicsNewAlg/"
+    cosmic_path="Cosmics/"
 
     EM_bins=lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["C"]["2"]+lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["C"]["2"]+lArDQGlobals.Cell_Variables["etaRange"]["EMB"]["A"]["2"]+lArDQGlobals.Cell_Variables["etaRange"]["EMEC"]["A"]["2"]
     cosmicMonGroup.defineHistogram('mon_eta_EM,mon_phi;Muon2DHitsECAL',

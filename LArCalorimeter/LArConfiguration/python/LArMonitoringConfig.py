@@ -12,6 +12,8 @@ def LArMonitoringConfig(inputFlags):
     from LArMonitoring.LArNoisyROMonAlg import LArNoisyROMonConfig
     from LArMonitoring.LArFEBMonAlg import LArFEBMonConfig
     from LArMonitoring.LArHVCorrMonAlg import LArHVCorrMonConfig
+    from LArMonitoring.LArCoverageAlg import LArCoverageConfig
+    from LArMonitoring.LArNoiseCorrelationMonAlg import LArNoiseCorrelationMonConfig
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
@@ -35,6 +37,8 @@ def LArMonitoringConfig(inputFlags):
           acc.merge(LArFEBMonConfig(inputFlags))
           acc.merge(LArDigitMonConfig(inputFlags))
           acc.merge(LArRODMonConfig(inputFlags))
+          acc.merge(LArCoverageConfig(inputFlags))
+          acc.merge(LArNoiseCorrelationMonConfig(inputFlags))
 
     return acc
 

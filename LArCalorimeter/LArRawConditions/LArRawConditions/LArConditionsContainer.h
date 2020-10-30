@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -320,8 +320,8 @@ private:
     typedef typename SubsetDV::iterator                     iterator;
     
 
-    mutable CorrectionVectors    m_correctionsUndo;
-    mutable bool                 m_correctionsApplied;
+    /*mutable*/ CorrectionVectors    m_correctionsUndo;
+  /*mutable*/ bool                 m_correctionsApplied;
     CorrectionVector             m_emptyCorrectionVec;
 #endif 
 };

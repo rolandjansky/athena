@@ -107,7 +107,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_idHelper(0),
   m_particleHypothesis(Trk::pion),
   m_useNewLayerNumberScheme(false), 
-  m_useGPU(false)
+  m_useGPU(false),
+  m_LRTmode(false)
 {
 
   /** Doublet finding properties. */
@@ -149,6 +150,10 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
                   m_outputTracksKey = std::string("TrigFastTrackFinder_Tracks"),
                   "TrackCollection name");
 
+  declareProperty("inputTracksName", 
+                  m_inputTracksKey = std::string(""),
+                  "TrackCollection name");
+
   declareProperty("RoIs", m_roiCollectionKey = std::string("OutputRoIs"), "RoIs to read in");
  
   declareProperty( "UseBeamSpot",           m_useBeamSpot = true);
@@ -170,6 +175,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty("useGPU", m_useGPU = false);
 
+  declareProperty("LRT_Mode", m_LRTmode);
   // declare monitoring histograms
 
 }
@@ -189,6 +195,12 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     return HLT::BAD_JOB_SETUP;
   }
 
+  // optional input tracks collection if present the clusters on previously found tracks are not used to form seeds
+  if (m_LRTmode) {
+    if (m_inputTracksKey.initialize( !m_inputTracksKey.key().empty() ).isFailure() ) {
+      return HLT::BAD_JOB_SETUP;
+    }
+  }
   // optional PRD to track association map
   if (m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ).isFailure()) {
     return HLT::BAD_JOB_SETUP;
@@ -303,6 +315,13 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   }
 
   ATH_MSG_INFO("Use GPU acceleration : "<<std::boolalpha<<m_useGPU);
+
+  if (m_LRTmode) {
+    ATH_MSG_INFO(" FTF configures in Long Range Tracking Mode");
+    // set TrigTrackSeedGenerator to LRTmode
+    m_tcs.m_LRTmode=m_LRTmode;
+
+  }
   
   ATH_MSG_DEBUG(" Initialized successfully"); 
   return HLT::OK;
@@ -398,9 +417,17 @@ StatusCode TrigFastTrackFinder::execute() {
   SG::WriteHandle<TrackCollection> outputTracks(m_outputTracksKey, ctx);
   outputTracks = std::make_unique<TrackCollection>();
 
+  const TrackCollection* inputTracks = nullptr;
+  if (m_LRTmode) {
+    if (!m_inputTracksKey.key().empty()){
+      SG::ReadHandle<TrackCollection> inputTrackHandle(m_inputTracksKey, ctx);
+      ATH_CHECK(inputTrackHandle.isValid());
+      inputTracks = inputTrackHandle.ptr();
+    }
+  }
   InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap, ctx);
-  ATH_CHECK(findTracks(trackEventData, internalRoI, *outputTracks, ctx));
-  
+  ATH_CHECK(findTracks(trackEventData, internalRoI, *inputTracks, *outputTracks, ctx));
+
   return StatusCode::SUCCESS;
 }
 
@@ -416,7 +443,17 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
   TrackCollection* outputTracks = new TrackCollection(SG::OWN_ELEMENTS);
   InDet::FexSiTrackMakerEventData_xk trackEventData(*this, outputTE, m_prdToTrackMap.key());
 
-  StatusCode sc = findTracks(trackEventData, *internalRoI, *outputTracks, getContext());
+
+  const TrackCollection* inputTracks = nullptr;
+  if (m_LRTmode) {
+    if (!m_inputTracksKey.key().empty()){
+      if ( HLT::OK != getFeature(outputTE, inputTracks) ) {
+	ATH_MSG_DEBUG(" no input track collection found ");
+      } 
+    }
+  }
+  StatusCode sc = findTracks(trackEventData, *internalRoI, *inputTracks, *outputTracks, getContext());
+
   HLT::ErrorCode code = HLT::OK;
   if (sc != StatusCode::SUCCESS) {
     delete outputTracks;
@@ -435,6 +472,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
 
 StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trackEventData,
                                            const TrigRoiDescriptor& roi,
+                                           const TrackCollection& inputTracks,
                                            TrackCollection& outputTracks,
                                            const EventContext& ctx) const {
   // Run3 monitoring ---------->
@@ -462,7 +500,23 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
 
   std::vector<TrigSiSpacePointBase> convertedSpacePoints;
   convertedSpacePoints.reserve(5000);
-  ATH_CHECK(m_spacePointTool->getSpacePoints(roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT, ctx));
+
+  std::map<Identifier, std::vector<long int> > siClusterMap;
+
+  if (m_LRTmode) {
+    // In LRT mode read the input track collection and enter the clusters on track into the cluster map so these are not used for seeding
+    if (!m_inputTracksKey.key().empty()) {
+      ATH_MSG_DEBUG("LRT Mode: Got input track collection with "<<inputTracks.size()<< "tracks");
+      long int trackIndex=0;
+      for (auto t:inputTracks) {
+	updateClusterMap(trackIndex++, t, siClusterMap);
+      }
+    }
+    ATH_CHECK(m_spacePointTool->getSpacePoints(roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT, ctx, &siClusterMap));
+  } else {
+    ATH_CHECK(m_spacePointTool->getSpacePoints(roi, convertedSpacePoints, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT, ctx));
+  }
+
 
   mnt_timer_SpacePointConversion.stop();
   mnt_roi_nSPs    = mnt_roi_nSPsPIX + mnt_roi_nSPsSCT;
@@ -576,8 +630,6 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   auto monTrk_seed = Monitored::Group(m_monTool, mnt_roi_nSeeds);
 
   long int trackIndex=0;
-
-  std::map<Identifier, std::vector<long int> > siClusterMap;
 
   bool PIX = true;
   bool SCT = true;

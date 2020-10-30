@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -10,9 +10,6 @@
 
 // STL includes
 #include <string>
-
-// ROOT includes
-// #include <TH1.h>
 
 // Local include(s):
 #include "xAODCutFlow/CutBookkeeperContainer.h"
@@ -30,6 +27,9 @@ namespace xAOD {
                             const std::string& histName,
                             int minCycle=0, int maxCycle=-1 );
 
+    /// Helper function to update a container with information from another one
+    void updateContainer( xAOD::CutBookkeeperContainer *contToUpdate,
+                          const xAOD::CutBookkeeperContainer *otherCont );
   } // End: namespace CutFlowHelpers
 
 } // End: namespace xAOD

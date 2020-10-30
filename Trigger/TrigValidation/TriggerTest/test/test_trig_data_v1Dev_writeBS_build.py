@@ -8,6 +8,7 @@
 # If you create a grid version, check art-output in existing grid tests.
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Step
+from TrigValTools.TrigValSteering.Common import find_file
 
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
@@ -20,7 +21,7 @@ ex.args = '-c "setMenu=\'LS2_v1\';doWriteBS=True;doWriteRDOTrigger=False;"'
 checkBS = Step.Step("CheckBS")
 checkBS.executable = 'trigbs_dumpHLTContentInBS_run3.py'
 checkBS.args = ' --l1 --hlt --hltres --stag --sizeSummary'
-checkBS.args += ' `find . -name \'*Single_Stream.daq.RAW.*Athena.*.data\' | tail -n 1`'
+checkBS.args += ' ' + find_file('*unknown_SingleStream.daq.RAW.*Athena.*.data')
 checkBS.required = True
 checkBS.auto_report_result = True
 

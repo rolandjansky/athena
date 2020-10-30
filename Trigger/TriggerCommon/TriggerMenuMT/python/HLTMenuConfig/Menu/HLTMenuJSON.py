@@ -36,29 +36,21 @@ def __getChainSequencers(stepsData, chainName):
         Return a list of the per-Step name() of the Sequencer which is unlocked by the Chain's Filter in the Step.
     """
     sequencers = []
-    counter = 0
     from DecisionHandling.TrigCompositeUtils import chainNameFromLegName
-    for step in stepsData:
-        counter += 1
+    for counter, step in enumerate(stepsData, 1):
         mySequencer = None
-        endOfChain = False
         for sequencer in step:
             sequencerFilter = getSequenceChildren( sequencer )[0] # Always the first child in the step
-            if any(chainName in chainNameFromLegName(fChain) for fChain in sequencerFilter.Chains):
+            if hasattr(sequencerFilter, "Chains") and any(chainName in chainNameFromLegName(fChain) for fChain in sequencerFilter.Chains):
                 if mySequencer is not None:
                     __log.error( "Multiple Filters found (corresponding Sequencers %s, %s) for %s in Step %i!",
                         mySequencer.getName(), sequencer.getName(), chainName, counter)
                 mySequencer = sequencer
-        if mySequencer is None:
-            endOfChain = True
-            if counter == 1 and  'noalg' not in chainName:
-                __log.warn("No Filter found for %s in Step 1", chainName)
-        else:
-            if endOfChain is True:
-                __log.error( "Found another Step, (Step %i) for chain %s "
-                    "which looked like it had already finished after %i Steps!", 
-                    counter, chainName, sequencers.len())
-            sequencers.append(mySequencer.getName())
+
+        sequencers.append(mySequencer.getName() if mySequencer else "")
+    # drop trailing empty names
+    while len(sequencers) != 0 and sequencers[-1] == "":
+        del sequencers[-1]
     return sequencers
 
 def __getSequencerAlgs(stepsData):

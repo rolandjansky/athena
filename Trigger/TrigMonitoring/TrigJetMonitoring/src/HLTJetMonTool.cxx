@@ -116,6 +116,11 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("JetphiNBins",      m_jphinbins );
   declareProperty("JetphiBinLo",      m_jphibinlo );
   declareProperty("JetphiBinHi",      m_jphibinhi );
+
+  // Jet m bins
+  declareProperty("JetmNBins",        m_jmnbins );
+  declareProperty("JetmBinLo",        m_jmbinlo );
+  declareProperty("JetmBinHi",        m_jmbinhi );
   
   // Jet EMFrac bin 
   declareProperty("JetemfracNBins",   m_jemfracnbins );
@@ -236,7 +241,7 @@ void HLTJetMonTool::clearVectors() {
 
   // Jet ET bins
   m_jEtnbins.clear();
- m_jEtbinlo.clear();
+  m_jEtbinlo.clear();
   m_jEtbinhi.clear();
 
   // Jet eta bins
@@ -248,6 +253,11 @@ void HLTJetMonTool::clearVectors() {
   m_jphinbins.clear();
   m_jphibinlo.clear();
   m_jphibinhi.clear();
+
+  // Jet m bins
+  m_jmnbins.clear();
+  m_jmbinlo.clear();
+  m_jmbinhi.clear();
 
   // Jet emfrac bins
   m_jemfracnbins.clear();
@@ -369,6 +379,11 @@ StatusCode HLTJetMonTool::init() {
   if(m_jphinbins.empty()){m_jphinbins.push_back(35);}
   if(m_jphibinlo.empty()){m_jphibinlo.push_back(-1.115 * M_PI);}
   if(m_jphibinhi.empty()){m_jphibinhi.push_back(1.115 * M_PI);}
+
+  // Jet m bins
+  if(m_jmnbins.empty()){m_jmnbins.push_back(101);}
+  if(m_jmbinlo.empty()){m_jmbinlo.push_back(-0.5);}
+  if(m_jmbinhi.empty()){m_jmbinhi.push_back(300.5);}
 
   // Jet emfrac bins
   if(m_jemfracnbins.empty()){m_jemfracnbins.push_back(52);}
@@ -553,6 +568,10 @@ StatusCode HLTJetMonTool::book( ) {
     float thebinSize = m_jphinbins[k] > 0 ? fabs(m_jphibinhi[k]-m_jphibinlo[k]) / m_jphinbins[k] : -1.;
     m_jphiperbin.push_back(thebinSize);
   }
+  for(unsigned int k = 0; k < m_jmnbins.size(); k++) {
+    float thebinSize = m_jmnbins[k] > 0 ? fabs(m_jmbinhi[k]-m_jmbinlo[k]) / m_jmnbins[k] : -1.;
+    m_jmperbin.push_back(thebinSize);
+  }
   for(unsigned int k = 0; k < m_jemfracnbins.size(); k++) {
     float thebinSize = m_jemfracnbins[k] > 0 ? fabs(m_jemfracbinhi[k]-m_jemfracbinlo[k]) / m_jemfracnbins[k] : -1.;
     m_jemfracperbin.push_back(thebinSize);
@@ -642,7 +661,7 @@ void HLTJetMonTool::bookJetHists() {
   unsigned int k = 0; 
   for(JetSigIter hj= m_HLTJetKeys.begin(); hj != m_HLTJetKeys.end(); ++hj, k++) {
     // book histograms for each HLT jet container 
-    varlist = "n;et;high_et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
+    varlist = "n;et;high_et;eta;phi;m;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
     nvar = basicKineVar(varlist,bookvars);
     if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
 
@@ -701,7 +720,7 @@ void HLTJetMonTool::bookJetHists() {
 
   // HLT Chains
   // HLT basic histograms
-  varlist="et;leading_et;high_et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;sigma_vs_lb;n;";
+  varlist="et;leading_et;high_et;eta;phi;m;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;sigma_vs_lb;n;";
   nvar = basicKineVar(varlist,bookvars);
   levels.clear(); levels.push_back("HLT"); /*levels.push_back("L1");*/
   for(JetSigIter k= m_basicHLTTrig.begin(); k != m_basicHLTTrig.end(); ++k ) {
@@ -743,7 +762,7 @@ void HLTJetMonTool::bookJetHists() {
     k = 0; // FIXME
     for(JetSigIter ofj= m_OFJetKeys.begin(); ofj != m_OFJetKeys.end(); ++ofj, k++) {
       // book histograms for each offline jet container 
-      varlist = "n;et;eta;phi;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
+      varlist = "n;et;eta;phi;m;emfrac;hecfrac;jvt;sumpttrk500;phi_vs_eta;e_vs_eta;e_vs_phi;phi_vs_eta_lar;sigma_vs_lb;";
       nvar = basicKineVar(varlist,bookvars);
       if(nvar==0) ATH_MSG_INFO("Error in bookKineVars - variable list not tokenized!");
 
@@ -1159,6 +1178,13 @@ void HLTJetMonTool::bookBasicHists(std::vector<std::string>& level, std::vector<
         hname = Form("%sJet_phi",lvl.Data());
         addHistogram(new TH1F(hname, htitle,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
       }
+
+      // jet m
+      if(*var == "m") {
+        htitle = Form("%s mass; mass [GeV]; entries/%3.1f GeV",title.Data(),m_jmperbin[0]);
+        hname = Form("%sJet_m",lvl.Data());
+        addHistogram(new TH1F(hname, htitle,m_jmnbins[0],m_jmbinlo[0],m_jmbinhi[0]));
+      }
       
       // jet phi Efficiency v ET wrt L1
       if(*var == "phi_EffRelL1") {
@@ -1569,7 +1595,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
         if(et < epsilon) et = 0;
         double eta = thisjet->eta();
         double phi = thisjet->phi();
-
+        double m   = thisjet->m()/Gaudi::Units::GeV;
 	float  emfrac  =1;
 	float  hecfrac =1;
 	if ((m_isPP || m_isCosmic || m_isMC) &&
@@ -1595,6 +1621,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	if((h  = hist(Form("%sJet_HighEt",lvl.c_str()))))       h->Fill(et,m_lumi_weight);
         if((h  = hist(Form("%sJet_eta",lvl.c_str()))))          h->Fill(eta,m_lumi_weight);
         if((h  = hist(Form("%sJet_phi",lvl.c_str()))))          h->Fill(phi,m_lumi_weight);
+        if((h  = hist(Form("%sJet_m",lvl.c_str()))))            h->Fill(m,m_lumi_weight);
         if((h  = hist(Form("%sJet_emfrac",lvl.c_str()))))       h->Fill(emfrac,m_lumi_weight);
 	if((h  = hist(Form("%sJet_hecfrac",lvl.c_str()))))      h->Fill(hecfrac,m_lumi_weight);
         if((h  = hist(Form("%sJet_JVT",lvl.c_str()))))          h->Fill(jvt,m_lumi_weight);
@@ -1675,6 +1702,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
             ATH_MSG_DEBUG( lvl << " thisjet->pt().Et() =  " << et );
             double  eta     = thisjet->eta();
             double  phi     = thisjet->phi();
+            double  m       = thisjet->m()/Gaudi::Units::GeV;
 	    float  emfrac  =1;
 	    float  hecfrac =1;
 	    if ((m_isPP || m_isCosmic || m_isMC) &&
@@ -1700,6 +1728,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
             if((h  = hist(Form("%sJet_Et",lvl.c_str()))))           h->Fill(et,m_lumi_weight);
             if((h  = hist(Form("%sJet_eta",lvl.c_str()))))          h->Fill(eta,m_lumi_weight);
             if((h  = hist(Form("%sJet_phi",lvl.c_str()))))          h->Fill(phi,m_lumi_weight);
+            if((h  = hist(Form("%sJet_m",lvl.c_str()))))            h->Fill(m,m_lumi_weight);
             if((h  = hist(Form("%sJet_emfrac",lvl.c_str()))))       h->Fill(emfrac,m_lumi_weight);
 	    if((h  = hist(Form("%sJet_hecfrac",lvl.c_str()))))      h->Fill(hecfrac,m_lumi_weight);
 	    if((h  = hist(Form("%sJet_JVT",lvl.c_str()))))          h->Fill(jvt,m_lumi_weight);
@@ -1757,22 +1786,22 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
   TLorentzVector v_thisjet;
 
   double count=0;
+  std::string chain = Form("HLT_%s",theChain.c_str());
+  ATH_MSG_DEBUG("fillBasicHLTforChain CHAIN: " << chain << " passed TDT: " << getTDT()->isPassed(chain));
   
-  ATH_MSG_DEBUG("fillBasicHLTforChain CHAIN: " << Form("HLT_%s",theChain.c_str()) << " passed TDT: " << getTDT()->isPassed(Form("HLT_%s",theChain.c_str())));
-  
-  if (getTDT()->isPassed(Form("HLT_%s",theChain.c_str()))) {
+  if (getTDT()->isPassed(chain)) {
 
     if((h  = hist("HLTSigma_vs_LB"))){
       h->Fill(m_lumiBlock,m_lumi_weight);
     }
 
     if (getTDT()->getNavigationFormat() == "TriggerElement") {
-
-      auto cg = getTDT()->getChainGroup(Form("HLT_%s",theChain.c_str())); //get features
+	
+      auto cg = getTDT()->getChainGroup(chain); //get features
       auto fc = cg->features();
 
       auto JetFeatureContainers = fc.get<xAOD::JetContainer>(); //get features container
-       
+
       for(auto jcont : JetFeatureContainers) {
 
         // ATH_MSG_INFO("Loop Over Features");
@@ -1783,14 +1812,14 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 
           if(j->p4().Et() > epsilon) et = (j->p4().Et())/Gaudi::Units::GeV;
 
-           ATH_MSG_DEBUG("jet et = "<<et);
-
+          ATH_MSG_DEBUG("jet et = "<<et);
 
           if(et < epsilon) et = 0;
           bool hlt_thr_pass = ( et > thrHLT );
           if(hlt_thr_pass) {
             double eta     = j->eta();
             double phi     = j->phi();
+            double m       = j->m()/Gaudi::Units::GeV;
             float  emfrac  =1;
             float  hecfrac =1;
             if ((m_isPP || m_isCosmic || m_isMC) &&
@@ -1807,6 +1836,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
             if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
             if((h  = hist("HLTJet_eta")))           h->Fill(eta,     m_lumi_weight);
             if((h  = hist("HLTJet_phi")))           h->Fill(phi,     m_lumi_weight);
+            if((h  = hist("HLTJet_m")))             h->Fill(m,       m_lumi_weight);
             if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  m_lumi_weight);
             if((h  = hist("HLTJet_hecfrac")))       h->Fill(hecfrac, m_lumi_weight);
 
@@ -1825,39 +1855,46 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
       }// loop over features container
 
     } else { // TrigComposite mode
-
       // Note: Only getting jets which pass theChain here
       const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = 
-        getTDT()->features<xAOD::JetContainer>( Form("HLT_%s",theChain.c_str()) );
-       
+        getTDT()->features<xAOD::JetContainer>( chain );
+
+      std::list<const xAOD::Jet*> jetList; //structure needed to sort jets by ET
       for(const auto& jetLinkInfo : fc) {
         if (!jetLinkInfo.isValid()) {
           ATH_MSG_ERROR("Invalid ElementLink to online jet");
           continue;
         }
         ElementLink<xAOD::JetContainer> j = jetLinkInfo.link;
+        const xAOD::Jet *trigjet = dynamic_cast<const xAOD::Jet*>(*j);
+        jetList.push_back( trigjet );
+      }
+      auto sort = [] (const xAOD::Jet * j1, const xAOD::Jet * j2) {return j1->p4().Et() > j2->p4().Et(); } ;
+      jetList.sort( sort );
+      for(const xAOD::Jet* j : jetList) {
         // ATH_MSG_INFO("Loop Over Features");
-        double e = ((*j)->e())/Gaudi::Units::GeV;
+        double e = (j->e())/Gaudi::Units::GeV;
         double et = 0., epsilon = 1.e-3;
 
-        if((*j)->p4().Et() > epsilon) et = ((*j)->p4().Et())/Gaudi::Units::GeV;
+        if(j->p4().Et() > epsilon) et = (j->p4().Et())/Gaudi::Units::GeV;
 
         ATH_MSG_DEBUG("jet et = "<<et);
 
         if(et < epsilon) et = 0;
         bool hlt_thr_pass = ( et > thrHLT );
         if(hlt_thr_pass) {
-          double eta     = (*j)->eta();
-          double phi     = (*j)->phi();
+          double eta     = j->eta();
+          double phi     = j->phi();
+          double m       = j->m()/Gaudi::Units::GeV;
           float  emfrac  =1;
           float  hecfrac =1;
           if ((m_isPP || m_isCosmic || m_isMC) &&
-                   (*j)->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+                   j->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
           {
-            hecfrac = (*j)->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
+            hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
           }
 
-          v_thisjet.SetPtEtaPhiE((*j)->pt()/Gaudi::Units::GeV,(*j)->eta(), (*j)->phi(),(*j)->e()/Gaudi::Units::GeV);
+          v_thisjet.SetPtEtaPhiE(j->pt()/Gaudi::Units::GeV,j->eta(), j->phi(),j->e()/Gaudi::Units::GeV);
           m_v_HLTjet.push_back(v_thisjet);
           m_n_index++;
            
@@ -1865,6 +1902,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
           if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
           if((h  = hist("HLTJet_eta")))           h->Fill(eta,     m_lumi_weight);
           if((h  = hist("HLTJet_phi")))           h->Fill(phi,     m_lumi_weight);
+          if((h  = hist("HLTJet_m")))             h->Fill(m,       m_lumi_weight);
           if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  m_lumi_weight);
           if((h  = hist("HLTJet_hecfrac")))       h->Fill(hecfrac, m_lumi_weight);
 

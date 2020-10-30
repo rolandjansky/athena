@@ -12,7 +12,7 @@
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "AsgTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 
 namespace jet {
   

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ROOTCOLLECTION_ROOTCOLLECTION_H
@@ -188,7 +188,7 @@ namespace pool {
         /// copying unimplemented in this class.
         RootCollection & operator = (const RootCollection &);
     
-        void delayedFileOpen( std::string method );
+        void delayedFileOpen( const std::string& method );
         TTree* getCollectionTree();
         void setupTree() const;
         void readAttributeListSpecification() const;

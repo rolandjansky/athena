@@ -20,7 +20,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODBTagging/BTagging.h"
-//#include "../../Event/xAOD/xAODBTagging/xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 #include "AthenaBaseComps/AthCheckMacros.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
@@ -166,7 +166,7 @@ namespace JetTagDQA {
         //std::cout << "number of processed jet: " << njets << std::endl;
 
         //btagging
-        const xAOD::BTagging* btag =  jet->btagging();
+        const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *jet );
 
         int label(1000);
         //double dR(1000);

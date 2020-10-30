@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: CaloClusterCorrection/python/CaloSwLongWeights_pi0v1.py
 # Created:  Feb 2010  GU
@@ -8,7 +8,7 @@
 #  should be applied to low energy 3x5 seeded by EM topo
 
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 #######################################################################
 #######################################################################
 # 3x5 cluster size photons.

@@ -1,0 +1,92 @@
+/* -*- mode:c++ -*-
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+template<class T>
+StatusCode L2OverlapRemoverMonMT :: fillVariablesOverlapRemoverPlots(const std::string &chain, std::string &&trigstep) const
+{
+
+  auto NInMuon = Monitored::Scalar<int>(trigstep+"_"+chain+"_NInMuon", -999.);
+  auto NOutMuon = Monitored::Scalar<int>(trigstep+"_"+chain+"_NOutMuon", -999.);
+  auto NRemovedMuon = Monitored::Scalar<int>(trigstep+"_"+chain+"_NRemovedMuon", -999.);
+
+  using CONTAINER = DataVector<T>;
+  std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > featureCont = getTrigDecisionTool()->features<CONTAINER>( chain, TrigDefs::includeFailedDecisions );
+  NInMuon = featureCont.size();
+
+
+  // Check overlap
+  std::vector<int> vec_OverlapInsonsistent;
+  auto OverlapInsonsistent = Monitored::Collection(trigstep+"_"+chain+"_OverlapInsonsistent", vec_OverlapInsonsistent);
+
+  unsigned int i,j;
+  std::vector<unsigned int> muResult;
+  bool errorWhenIdentifyingOverlap = false;
+
+
+  for(i=0; i<featureCont.size(); i++) muResult.emplace_back(i);
+  for(i=0; i<featureCont.size(); i++){
+    ATH_CHECK( featureCont[i].isValid() );
+    for(j=i+1; j<featureCont.size(); j++){
+      ATH_CHECK( featureCont[j].isValid() );
+      bool overlapped = isOverlap(chain, featureCont[i].link, featureCont[j].link);
+      if( !overlapped ){ // judged as different
+        if( muResult[i] == muResult[j] ) { // but marked as same by someone
+          ATH_MSG_DEBUG( "inconsistentency in muFast overlap removal for more than two objects" );
+          ATH_MSG_DEBUG( "two objects are judged as different but both were already marked as identical by someone else as: " );
+          ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << muResult[i] << " / "  << muResult[j] );
+          vec_OverlapInsonsistent.push_back(0);
+          errorWhenIdentifyingOverlap = true;
+        }
+      }
+      else{ // judged as overlap
+        if( (muResult[j] != j && muResult[i] != muResult[j]) || (muResult[j] == j && muResult[i] != i) ){
+          ATH_MSG_DEBUG( "inconsistentency in muFast overlap removal for more than two objects" );
+          ATH_MSG_DEBUG( "two objects are judged as overlap but only either was already marked as overlap to someone else: " );
+          ATH_MSG_DEBUG( "i/j/result[i]/result[j]=" << i << " / " << j << " / " << muResult[i] << " / "  << muResult[j] );
+          vec_OverlapInsonsistent.push_back(1);
+          errorWhenIdentifyingOverlap = true;
+        }
+        if( muResult[i] == i ) {
+          ATH_MSG_DEBUG( "   i is not yet marked as overlap. so, it is a newly found overlap" );
+          ATH_MSG_DEBUG( "   -> marking muResult[j] as i..." );
+          muResult[j] = i;
+        } else {
+          ATH_MSG_DEBUG( "   both i/j already marked as overlap by: muResult[i]=" << muResult[i] );
+          ATH_MSG_DEBUG( "   -> do nothing..." );
+        }
+      }
+    }
+  }
+
+
+  // If there is inconsistency in the overlap judgment, input becomes output as it is.
+  if( errorWhenIdentifyingOverlap ) {
+    NOutMuon = featureCont.size();
+    NRemovedMuon = 0;
+    fill(m_group+"_"+chain, NInMuon, NOutMuon, NRemovedMuon);
+    return StatusCode::SUCCESS;
+  }
+
+  // check number of unique muon
+  unsigned int NUniqueMuon = 0;
+  for(i=0; i<featureCont.size(); i++) {
+    if( muResult[i] == i )  NUniqueMuon++;
+  }
+  ATH_MSG_DEBUG( "number of unique Muons after overlap removal=" << NUniqueMuon );
+
+
+  if( featureCont.size() != NUniqueMuon ){
+    ATH_CHECK( chooseBestMuon(chain, featureCont, muResult) );
+    NOutMuon = NUniqueMuon;
+  } else {
+    NOutMuon = featureCont.size();
+  }
+
+  NRemovedMuon = featureCont.size() - NUniqueMuon;
+
+  fill(m_group+"_"+chain, NInMuon, NOutMuon, NRemovedMuon);
+
+  return StatusCode::SUCCESS;
+
+}

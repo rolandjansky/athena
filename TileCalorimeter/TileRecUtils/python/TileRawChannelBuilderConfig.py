@@ -46,12 +46,13 @@ def TileRawChannelBuilderCfg(flags, name, TileRawChannelBuilder, **kwargs):
     kwargs.setdefault('TimeMaxForAmpCorrection', flags.Tile.TimeMaxForAmpCorrection)
 
     tileRawChannelContainerDSP = ""
-    if flags.Tile.NoiseFilter == 1 and createContainer and 'NoiseFilterTools' not in kwargs:
-        from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionToolsCfg
-        correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
-        kwargs['NoiseFilterTools'] = correctionTools
+    if createContainer:
+        if 'NoiseFilterTools' not in kwargs:
+            from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionToolsCfg
+            correctionTools = acc.popToolsAndMerge( TileRawChannelCorrectionToolsCfg(flags) )
+            kwargs['NoiseFilterTools'] = correctionTools
 
-        if not (flags.Input.isMC or flags.Overlay.DataOverlay):
+        if not (flags.Input.isMC or flags.Overlay.DataOverlay) and len(kwargs['NoiseFilterTools']) > 0:
             tileRawChannelContainerDSP = 'TileRawChannelCntCorrected'
             from TileRecUtils.TileRawChannelCorrectionConfig import TileRawChannelCorrectionAlgCfg
             acc.merge( TileRawChannelCorrectionAlgCfg(flags) )

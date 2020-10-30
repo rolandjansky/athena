@@ -43,7 +43,7 @@ class TriggerMatchingHelper(object):
             # us the same object, the output prefix mustn't collide because
             # otherwise we'll get errors trying to write containers
             if any(t.name() == properties["name"]
-                   for _, t in cls._register.itervalues() ):
+                   for _, t in iter(cls._register.values()) ):
                 raise ValueError("Attempting to create a new trigger matching tool with the same name as an existing one")
             tool = DerivationFramework__TriggerMatchingTool(**properties)
             AppMgr.ToolSvc += tool

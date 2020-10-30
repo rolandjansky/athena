@@ -1,32 +1,10 @@
-################################################################################
-# Package: TrkAlignEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkAlignEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthContainers
-                          Control/CxxUtils
-                          DetectorDescription/Identifier
-                          Event/xAOD/xAODTracking
-                          GaudiKernel
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkEvent/VxVertex
-                          PRIVATE
-                          Tracking/TrkDetDescr/TrkDetElementBase
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkMeasurementBase
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkRIO_OnTrack )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( TrkAlignEvent

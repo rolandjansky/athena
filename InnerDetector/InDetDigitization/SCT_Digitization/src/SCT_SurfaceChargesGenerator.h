@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,12 +36,16 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_Digitization/ISCT_SurfaceChargesGenerator.h"
 
+#include "SCT_InducedChargeModel.h"
+
 #include "Identifier/IdentifierHash.h"
 #include "InDetConditionsSummaryService/ISiliconConditionsTool.h"
 #include "InDetCondTools/ISiLorentzAngleTool.h"
+#include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "SCT_ConditionsTools/ISCT_RadDamageSummaryTool.h"
 #include "SCT_ModuleDistortions/ISCT_ModuleDistortionsTool.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // Gaudi
 #include "GaudiKernel/ITHistSvc.h" // for ITHistSvc
@@ -123,6 +127,7 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   BooleanProperty m_doHistoTrap{this, "doHistoTrap", false, "Histogram the charge trapping effect"};
   BooleanProperty m_doRamo{this, "doRamo", false, "Ramo Potential for charge trapping effect"};
   BooleanProperty m_isOverlay{this, "isOverlay", false, "flag for overlay"};
+  BooleanProperty m_doInducedChargeModel{this, "doInducedChargeModel", false, "Flag for Induced Charge Model"};
 
   //ToolHandles
   ToolHandle<ISCT_ModuleDistortionsTool> m_distortionsTool{this, "SCTDistortionsTool", "SCT_DistortionsTool", "Tool to retrieve SCT distortions"};
@@ -132,6 +137,9 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   ToolHandle<ISiLorentzAngleTool> m_lorentzAngleTool{this, "LorentzAngleTool", "SiLorentzAngleTool/SCTLorentzAngleTool", "Tool to retreive Lorentz angle"};
 
   ServiceHandle<ITHistSvc> m_thistSvc{this, "THistSvc", "THistSvc"};
+
+  SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCacheCondObjInputKey{
+    this, "AtlasFieldCacheCondObj", "fieldCondObj", "Name of the Magnetic Field conditions object key"};
 
   float m_tHalfwayDrift{0.}; //!< Surface drift time
   float m_distInterStrip{1.0}; //!< Inter strip distance normalized to 1
@@ -162,6 +170,9 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   TProfile* m_h_velocity_trap{nullptr};
   TProfile* m_h_mobility_trap{nullptr};
   TH1F* m_h_trap_pos{nullptr};
+
+  // For Induced Charge Module, M.Togawa
+  std::unique_ptr<SCT_InducedChargeModel> m_InducedChargeModel;
 };
 
 #endif // SCT_SURFACECHARGESGENERATOR_H

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##################################################################################
 # The AtlasTrackingGeometry Svc fragment
@@ -51,8 +51,7 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         AtlasGeometryBuilder.OutputLevel = TrkDetFlags.ConfigurationOutputLevel()
         
         # the envelope definition service
-        from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-           getService,getServiceClone,getAlgorithm,getAlgorithmClone
+        from AthenaCommon.CfgGetter import getService
         AtlasEnvelopeSvc = getService('AtlasGeometry_EnvelopeDefSvc')
            
         # (ID) 
@@ -86,7 +85,7 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
            ToolSvc += CaloVolumeCreator
 
            from CaloTrackingGeometry.ConfiguredCaloTrackingGeometryBuilder import ConfiguredCaloTrackingGeometryBuilder as ConfiguredCaloGeo 
-           CaloTrackingGeometryBuilder = ConfiguredCaloGeo(name='CaloTrackingGeometryBuilder');
+           CaloTrackingGeometryBuilder = ConfiguredCaloGeo(name='CaloTrackingGeometryBuilder')
            CaloTrackingGeometryBuilder.TrackingVolumeCreator = CaloVolumeCreator
            CaloTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
            CaloTrackingGeometryBuilder.OutputLevel           = TrkDetFlags.CaloBuildingOutputLevel()
@@ -105,7 +104,7 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         AtlasGeometryProcessors = []   
            
         # check whether the material retrieval is ment to be from COOL
-        if TrkDetFlags.MaterialSource() is 'COOL':
+        if TrkDetFlags.MaterialSource() == 'COOL':
             # the material provider
             from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialProvider as LayerMaterialProvider
             AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialProvider')
@@ -148,7 +147,7 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
                 # load the right folders (preparation for calo inclusion)
                 conddb.addFolderSplitMC('GLOBAL',cfolder,cfolder)
 
-        elif TrkDetFlags.MaterialSource() is 'Input' :
+        elif TrkDetFlags.MaterialSource() == 'Input' :
             # the material provider
             from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__InputLayerMaterialProvider
             AtlasMaterialProvider = Trk__InputLayerMaterialProvider('AtlasMaterialProvider')
@@ -165,11 +164,11 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
             AtlasGeometryProcessors += [ AtlasLayerMaterialInspector ]
 
         # call the base class constructor : sets the tools
-        Trk__TrackingGeometrySvc.__init__(self,name,\
-                                          GeometryBuilder = AtlasGeometryBuilder,\
-                                          TrackingGeometryName = AtlasTrackingGeometryName,\
-                                          GeometryProcessors = AtlasGeometryProcessors, \
-                                          BuildGeometryFromTagInfo = True,\
+        Trk__TrackingGeometrySvc.__init__(self,name,
+                                          GeometryBuilder = AtlasGeometryBuilder,
+                                          TrackingGeometryName = AtlasTrackingGeometryName,
+                                          GeometryProcessors = AtlasGeometryProcessors,
+                                          BuildGeometryFromTagInfo = True,
                                           OutputLevel = TrkDetFlags.ConfigurationOutputLevel())
         
         # screen output of the configuration

@@ -31,7 +31,7 @@ Interface definition for eFEXegAlgo
     virtual StatusCode safetyTest() = 0;
     virtual void setup(int inputTable[3][3]) = 0;
 
-    virtual std::vector<unsigned int> getReta() = 0;
+    virtual void getReta(std::vector<unsigned int> & ) = 0;
     virtual void getRhad(std::vector<unsigned int> & ) = 0;
     virtual void getWstot(std::vector<unsigned int> & ) = 0;
     virtual void getRealPhi(float & phi) = 0;
@@ -42,9 +42,6 @@ Interface definition for eFEXegAlgo
     virtual bool haveSeed() = 0;
     virtual void getCoreEMTowerET(unsigned int & et) = 0;
     virtual void getCoreHADTowerET(unsigned int & et) = 0;
-
-  private:
-    virtual void setSeed() = 0;
 
   };
 

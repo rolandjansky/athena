@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RelationalCollectionMetadata_h
@@ -58,6 +58,7 @@ namespace pool {
         class RelationalCollectionMetadataIterator
            : public ICollectionMetadata::ICollectionMetadataIterator
         {
+        public:
        friend class RelationalCollectionMetadata;
           
           RelationalCollectionMetadataIterator( const RelationalCollectionMetadata* meta,

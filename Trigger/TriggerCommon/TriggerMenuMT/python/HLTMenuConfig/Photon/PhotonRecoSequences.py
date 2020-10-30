@@ -67,6 +67,12 @@ def precisionPhotonRecoSequence(RoIs):
     isoBuilder = TrigPhotonIsoBuilderCfg()
     thesequence += isoBuilder
 
+    #online monitoring for topoEgammaBuilder
+    from TriggerMenuMT.HLTMenuConfig.Photon.TrigPhotonFactories import PrecisionPhotonTopoMonitorCfg
+    PrecisionPhotonRecoMonAlgo = PrecisionPhotonTopoMonitorCfg()
+    PrecisionPhotonRecoMonAlgo.PhotonKey = trigTopoEgammaAlgo.PhotonOutputName
+    thesequence += PrecisionPhotonRecoMonAlgo
+
     return (thesequence, collectionOut)
 
 

@@ -21,7 +21,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
         try:
             from CaloRec.CaloCellGetter import CaloCellGetter
             theCaloCellGetter = CaloCellGetter()
-        except:
+        except Exception:
             mlog.error("could not get handle to CaloCell Quit")
             traceback.print_exc()
             return False
@@ -38,7 +38,7 @@ class LArNoisyROSummaryGetter ( Configured )  :
         # cannot have same name
         try:        
             from LArCellRec.LArCellRecConf import LArNoisyROAlg,LArNoisyROTool
-        except:
+        except Exception:
             mlog.error("could not import LArNoisyROAlg or LArNoisyROTool")
             traceback.print_exc()
             return False

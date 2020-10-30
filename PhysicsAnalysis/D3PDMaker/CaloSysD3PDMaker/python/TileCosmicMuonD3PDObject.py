@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import CaloSysD3PDMaker
 import D3PDMakerCoreComps
@@ -14,10 +14,10 @@ def makeTileCosmicMuonD3PDObject (name, prefix, object_name='TileCosmicMuonD3PDO
     if label == None: label = prefix
 
     
-    print " makeTileCosmicMuonD3PDObject: name = ", name
-    print " makeTileCosmicMuonD3PDObject: prefix = ", prefix
-    print " makeTileCosmicMuonD3PDObject: object_name = ", object_name
-    print " makeTileCosmicMuonD3PDObject: sgkey = ", sgkey
+    print(" makeTileCosmicMuonD3PDObject: name = ", name)
+    print(" makeTileCosmicMuonD3PDObject: prefix = ", prefix)
+    print(" makeTileCosmicMuonD3PDObject: object_name = ", object_name)
+    print(" makeTileCosmicMuonD3PDObject: sgkey = ", sgkey)
 
     if not getter:
         getter = D3PDMakerCoreComps.SGDataVectorGetterTool \

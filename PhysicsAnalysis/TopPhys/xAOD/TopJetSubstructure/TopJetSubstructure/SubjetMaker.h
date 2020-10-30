@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef SUBJETMAKER_H
 #define SUBJETMAKER_H
@@ -9,13 +9,12 @@
 #include "TopJetSubstructure/TopJetSubstructure.h"
 
 namespace top {
-
 /**
  * @brief Derived class that constructs subjets while derivations are not ready.
  */
 
-class SubjetMaker : public TopJetSubstructure {
-public:
+  class SubjetMaker: public TopJetSubstructure {
+  public:
     SubjetMaker();
     ~SubjetMaker();
 
@@ -23,11 +22,8 @@ public:
 
     ///Useful messages on the screen.
     void print(std::ostream&) const;
-
-private:
-};
-
+  private:
+  };
 }
 
 #endif
-

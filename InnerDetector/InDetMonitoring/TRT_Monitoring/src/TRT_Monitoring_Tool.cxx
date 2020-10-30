@@ -1173,11 +1173,11 @@ StatusCode TRT_Monitoring_Tool::fillHistograms() {
 		}
 		// NOTE: failing to retrieve ComTime from store for some reason
 		if (!comTimeObject.isValid()) {
-			ATH_MSG_INFO("Could not find com time object " << m_comTimeObjectKey.key() <<
+			ATH_MSG_DEBUG("Could not find com time object " << m_comTimeObjectKey.key() <<
 			             " in store");
 		}
 		if (m_passEventBurst) {
-			ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.ptr()) );
+			ATH_CHECK( fillTRTTracks(*trackCollection, trigDecision, comTimeObject.isValid() ? comTimeObject.cptr() : nullptr) );
 		}
 	}
 

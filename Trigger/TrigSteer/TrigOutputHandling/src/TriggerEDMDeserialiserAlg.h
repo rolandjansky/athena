@@ -12,6 +12,7 @@
 #include "AthenaKernel/IAthenaSerializeSvc.h"
 #include "TrigSerializeTP/TrigSerTPTool.h"
 
+#include "TList.h"
 
 
 /**
@@ -46,6 +47,8 @@ public:
 private:
   friend StatusCode tester( TriggerEDMDeserialiserAlg* );
 
+  void add_bs_streamerinfos();
+
   SG::ReadHandleKey<HLT::HLTResultMT> m_resultKey { this, "ResultKey", "HLTResultMT", "Key of the HLT result object"  };
   Gaudi::Property<std::string> m_prefix{ this, "Prefix", "", "Set for testing to avoid clash with the input collections" };
   Gaudi::Property<int> m_moduleID{ this, "ModuleID", 0, "Module ID of HLT result ROB, default 0 is the main HLT result, others are for TLA, calibration etc." };
@@ -56,6 +59,8 @@ private:
   ServiceHandle<IAthenaSerializeSvc> m_serializerSvc{ this, "Serializer", "AthenaRootSerializeSvc", "Service that translates persistent to transient representation" };
   
   ToolHandle<TrigSerTPTool> m_tpTool{ this, "TPTool", "TrigSerTPTool/TrigSerTPTool", "Tool to do Transient/Persistent conversion (Old EDM)"};
+
+  std::unique_ptr<TList> m_streamerInfoList;
 
   typedef  std::vector<uint32_t> Payload;
   typedef  std::vector<uint32_t>::const_iterator PayloadIterator;

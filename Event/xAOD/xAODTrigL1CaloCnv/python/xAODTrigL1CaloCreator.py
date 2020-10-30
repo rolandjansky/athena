@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: xAODTrigL1CaloCreator.py 576327 2013-12-19 16:08:56Z morrisj $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import the package's configurables:
-from xAODTrigL1CaloCnv.xAODTrigL1CaloCnvConf import *
+import xAODTrigL1CaloCnv.xAODTrigL1CaloCnvConf as conf
 
 ## Helper function for creating xAODTrigL1Calo objects/containers
 def xAODTrigL1CaloCreator( sequence = None, stream = None ):
@@ -19,7 +17,6 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     """
 
     # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "xAODTrigL1CaloCreator" )
 
@@ -27,13 +24,13 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     logger.info( "Creating xAOD L1Calo objects from ESD L1Calo objects" )
 
     # Get the main sequence if necessary:
-    if sequence == None:
+    if sequence is None:
         from AthenaCommon.AlgSequence import AlgSequence
         sequence = AlgSequence()
         pass
 
     # Access the stream if necessary:
-    if stream == None:
+    if stream is None:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         stream = MSMgr.GetStream( "StreamXAOD" )
         pass
@@ -41,7 +38,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     ### CMM Section    
     # Add the CMMCPHits converter algorithm:
     SGkey = "CMMCPHits"
-    alg = xAODMaker__CMMCPHitsCnvAlg()
+    alg = conf.xAODMaker__CMMCPHitsCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -51,7 +48,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the CMMEtSums converter algorithm:
     SGkey = "CMMEtSums"
-    alg = xAODMaker__CMMEtSumsCnvAlg()
+    alg = conf.xAODMaker__CMMEtSumsCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -61,7 +58,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the CMMJetHits converter algorithm:
     SGkey = "CMMJetHits"
-    alg = xAODMaker__CMMJetHitsCnvAlg()
+    alg = conf.xAODMaker__CMMJetHitsCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -71,7 +68,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the CMMRoIs converter algorithm:
     SGkey = "CMMRoIs"
-    alg = xAODMaker__CMMRoICnvAlg()
+    alg = conf.xAODMaker__CMMRoICnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -83,7 +80,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     ### CPM Section    
     # Add the CPMHits converter algorithm:
     SGkey = "CPMHits"
-    alg = xAODMaker__CPMHitsCnvAlg()
+    alg = conf.xAODMaker__CPMHitsCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -93,7 +90,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the CPMTower converter algorithm:
     SGkey = "CPMTowers"
-    alg = xAODMaker__CPMTowerCnvAlg()
+    alg = conf.xAODMaker__CPMTowerCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -103,7 +100,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the CPMRoI converter algorithm:
     SGkey = "CPMRoIs"
-    alg = xAODMaker__CPMRoICnvAlg()
+    alg = conf.xAODMaker__CPMRoICnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -115,7 +112,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     ### JEM Section    
     # Add the JEMHits converter algorithm:
     SGkey = "JEMHits"
-    alg = xAODMaker__JEMHitsCnvAlg()
+    alg = conf.xAODMaker__JEMHitsCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -125,7 +122,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the JEMEtSums converter algorithm:
     SGkey = "JEMEtSums"
-    alg = xAODMaker__JEMEtSumsCnvAlg()
+    alg = conf.xAODMaker__JEMEtSumsCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -135,7 +132,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the JEMRoI converter algorithm:
     SGkey = "JEMRoIs"
-    alg = xAODMaker__JEMRoICnvAlg()
+    alg = conf.xAODMaker__JEMRoICnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -148,7 +145,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the JetElement converter algorithm:
     SGkey = "JetElements"
-    alg = xAODMaker__JetElementCnvAlg()
+    alg = conf.xAODMaker__JetElementCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -158,7 +155,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the RODHeaders converter algorithm:
     SGkey = "RODHeaders"
-    alg = xAODMaker__RODHeaderCnvAlg()
+    alg = conf.xAODMaker__RODHeaderCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -168,7 +165,7 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     
     # Add the TriggerTower converter algorithm:
     SGkey = "TriggerTowers"
-    alg = xAODMaker__TriggerTowerCnvAlg()
+    alg = conf.xAODMaker__TriggerTowerCnvAlg()
     alg.ESDKey = SGkey
     alg.xAODKey = SGkey
     sequence += alg
@@ -176,7 +173,4 @@ def xAODTrigL1CaloCreator( sequence = None, stream = None ):
     stream.AddItem( "xAOD::TriggerTowerContainer_v1#%s" % SGkey )
     stream.AddItem( "xAOD::TriggerTowerAuxContainer_v1#%sAux." % SGkey )  
     
-    # Reinstate the old logger if it existed:
-    if "orig_logger" in dir(): logger = orig_logger
-
     pass

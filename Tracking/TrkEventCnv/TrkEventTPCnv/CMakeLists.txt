@@ -1,54 +1,7 @@
-# $Id: CMakeLists.txt 730480 2016-03-16 15:59:44Z krasznaa $
-################################################################################
-# Package: TrkEventTPCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkEventTPCnv )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Control/DataModelAthenaPool
-   Control/StoreGate
-   Database/AthenaPOOL/AthenaPoolCnvSvc
-   Database/AthenaPOOL/AthenaPoolUtilities
-   DetectorDescription/GeoPrimitives
-   DetectorDescription/Identifier
-   Event/EventPrimitives
-   GaudiKernel
-   InnerDetector/InDetDetDescr/InDetIdentifier
-   Tracking/TrkDetDescr/TrkDistortedSurfaces
-   Tracking/TrkDetDescr/TrkSurfaces
-   Tracking/TrkEvent/TrkCompetingRIOsOnTrack
-   Tracking/TrkEvent/TrkEventPrimitives
-   Tracking/TrkEvent/TrkMaterialOnTrack
-   Tracking/TrkEvent/TrkMeasurementBase
-   Tracking/TrkEvent/TrkNeutralParameters
-   Tracking/TrkEvent/TrkParameters
-   Tracking/TrkEvent/TrkParametersBase
-   Tracking/TrkEvent/TrkParticleBase
-   Tracking/TrkEvent/TrkPrepRawData
-   Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-   Tracking/TrkEvent/TrkRIO_OnTrack
-   Tracking/TrkEvent/TrkSegment
-   Tracking/TrkEvent/TrkTrack
-   Tracking/TrkEvent/TrkTrackSummary
-   Tracking/TrkEvent/TrkV0Vertex
-   Tracking/TrkEvent/TrkVertexOnTrack
-   Tracking/TrkEvent/VxMultiVertex
-   Tracking/TrkEvent/VxVertex
-   Tracking/TrkEventCnv/TrkEventCnvTools
-   PRIVATE
-   AtlasTest/TestTools
-   Control/AthenaBaseComps
-   Control/AthenaKernel
-   Control/CxxUtils
-   Tracking/TrkDetDescr/TrkDetDescrUtils
-   Tracking/TrkEvent/TrkTrackLink
-   )
 
 # External dependencies:
 find_package( CLHEP )
@@ -97,14 +50,14 @@ atlas_add_tpcnv_library( TrkEventTPCnv
    PUBLIC_HEADERS TrkEventTPCnv
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthContainers AthLinks DataModelAthenaPoolLib
-   StoreGateLib AthenaPoolCnvSvcLib AthenaPoolUtilities GeoPrimitives Identifier
+   StoreGateLib AthenaPoolCnvSvcLib AthenaPoolUtilities CxxUtils GeoPrimitives Identifier
    EventPrimitives GaudiKernel InDetIdentifier TrkDistortedSurfaces TrkSurfaces
    TrkCompetingRIOsOnTrack TrkEventPrimitives TrkMaterialOnTrack
    TrkMeasurementBase TrkNeutralParameters TrkParameters TrkParametersBase
    TrkParticleBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack
    TrkSegment TrkTrack TrkTrackSummary TrkV0Vertex TrkVertexOnTrack TrkEventCnvToolsLib TrkEventUtils
    VxMultiVertex VxVertex 
-   PRIVATE_LINK_LIBRARIES AthenaKernel CxxUtils TrkDetDescrUtils
+   PRIVATE_LINK_LIBRARIES AthenaKernel TrkDetDescrUtils TrkTrackLink
    DEFINITIONS ${_definitions} )
 
 atlas_add_dictionary( TrkEventTPCnvDict

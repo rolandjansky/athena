@@ -112,6 +112,8 @@ if jetFlags.eventShapeTools() == None:
     jetFlags.eventShapeTools += ['emtopo', 'lctopo']
   if jetFlags.usePFlow():
     jetFlags.eventShapeTools += ['empflow']
+  if jetFlags.usePFlowFE():
+    jetFlags.eventShapeTools += ['empflow_fe']
 
 # Import the jet tool manager.
 from JetRec.JetRecStandardToolManager import jtm

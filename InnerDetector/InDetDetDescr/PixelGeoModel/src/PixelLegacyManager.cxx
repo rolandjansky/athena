@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,43 +21,41 @@ PixelLegacyManager::PixelLegacyManager(IRDBAccessSvc * rdbSvc,
 				       const std::string & detectorKey, 
 				       const std::string & detectorNode)
   :
+    // These are for the new description of the Pixel Frame
+    m_pfba (rdbSvc->getRecordsetPtr("PFBA",     detectorKey, detectorNode)),
+    m_pbba (rdbSvc->getRecordsetPtr("PBBA",     detectorKey, detectorNode)),
+    m_ptba (rdbSvc->getRecordsetPtr("PTBA",     detectorKey, detectorNode)),
+    m_pfec (rdbSvc->getRecordsetPtr("PFEC",     detectorKey, detectorNode)),
+    m_pbec (rdbSvc->getRecordsetPtr("PBEC",     detectorKey, detectorNode)),
+    m_ptec (rdbSvc->getRecordsetPtr("PTEC",     detectorKey, detectorNode)),
+    m_pecn (rdbSvc->getRecordsetPtr("PECN",     detectorKey, detectorNode)),
+    m_pecf (rdbSvc->getRecordsetPtr("PECF",     detectorKey, detectorNode)),
+    m_pecb (rdbSvc->getRecordsetPtr("PECB",     detectorKey, detectorNode)),
+    m_pect (rdbSvc->getRecordsetPtr("PECT",     detectorKey, detectorNode)),
+
+    // These are for the design
+    m_pxbi (rdbSvc->getRecordsetPtr("PXBI",     detectorKey, detectorNode)),
+    m_pdch (rdbSvc->getRecordsetPtr("PDCH",     detectorKey, detectorNode)),
+    m_pxbd (rdbSvc->getRecordsetPtr("PXBD",     detectorKey, detectorNode)),
+
+    // These are (r a detailed description of the ladders and services on ladde),
+    m_ptla (rdbSvc->getRecordsetPtr("PTLA",     detectorKey, detectorNode)),
+    m_pctr (rdbSvc->getRecordsetPtr("PCTR",     detectorKey, detectorNode)),
+    m_pftr (rdbSvc->getRecordsetPtr("PFTR",     detectorKey, detectorNode)),
+    m_pttr (rdbSvc->getRecordsetPtr("PTTR",     detectorKey, detectorNode)),
+    m_pome (rdbSvc->getRecordsetPtr("POME",     detectorKey, detectorNode)),
+    m_poti (rdbSvc->getRecordsetPtr("POTI",     detectorKey, detectorNode)),
+    m_pobi (rdbSvc->getRecordsetPtr("POBI",     detectorKey, detectorNode)),
+    m_poai (rdbSvc->getRecordsetPtr("POAI",     detectorKey, detectorNode)),
+    m_poci (rdbSvc->getRecordsetPtr("POCI",     detectorKey, detectorNode)),
+    m_posi (rdbSvc->getRecordsetPtr("POSI",     detectorKey, detectorNode)),
+    m_pccf (rdbSvc->getRecordsetPtr("PCCF",     detectorKey, detectorNode)),
+    m_pcff (rdbSvc->getRecordsetPtr("PCFF",     detectorKey, detectorNode)),
     m_BarrelInSFrame(false),
     m_EndcapInSFrame(false),
     m_EndConeSFrame(false),
     m_dc1Geometry(false)
 {
-
-  // These are for the new description of the Pixel Frame
-  m_pfba = rdbSvc->getRecordsetPtr("PFBA",     detectorKey, detectorNode);
-  m_pbba = rdbSvc->getRecordsetPtr("PBBA",     detectorKey, detectorNode);
-  m_ptba = rdbSvc->getRecordsetPtr("PTBA",     detectorKey, detectorNode);
-  m_pfec = rdbSvc->getRecordsetPtr("PFEC",     detectorKey, detectorNode);
-  m_pbec = rdbSvc->getRecordsetPtr("PBEC",     detectorKey, detectorNode);
-  m_ptec = rdbSvc->getRecordsetPtr("PTEC",     detectorKey, detectorNode);
-  m_pecn = rdbSvc->getRecordsetPtr("PECN",     detectorKey, detectorNode);
-  m_pecf = rdbSvc->getRecordsetPtr("PECF",     detectorKey, detectorNode);
-  m_pecb = rdbSvc->getRecordsetPtr("PECB",     detectorKey, detectorNode);
-  m_pect = rdbSvc->getRecordsetPtr("PECT",     detectorKey, detectorNode);
-
-  // These are for the design
-  m_pxbi = rdbSvc->getRecordsetPtr("PXBI",     detectorKey, detectorNode);
-  m_pdch = rdbSvc->getRecordsetPtr("PDCH",     detectorKey, detectorNode);
-  m_pxbd = rdbSvc->getRecordsetPtr("PXBD",     detectorKey, detectorNode);
-
-  // These are for a detailed description of the ladders and services on ladder
-  m_ptla = rdbSvc->getRecordsetPtr("PTLA",     detectorKey, detectorNode);
-  m_pctr = rdbSvc->getRecordsetPtr("PCTR",     detectorKey, detectorNode);
-  m_pftr = rdbSvc->getRecordsetPtr("PFTR",     detectorKey, detectorNode);
-  m_pttr = rdbSvc->getRecordsetPtr("PTTR",     detectorKey, detectorNode);
-  m_pome = rdbSvc->getRecordsetPtr("POME",     detectorKey, detectorNode);
-  m_poti = rdbSvc->getRecordsetPtr("POTI",     detectorKey, detectorNode);
-  m_pobi = rdbSvc->getRecordsetPtr("POBI",     detectorKey, detectorNode);
-  m_poai = rdbSvc->getRecordsetPtr("POAI",     detectorKey, detectorNode);
-  m_poci = rdbSvc->getRecordsetPtr("POCI",     detectorKey, detectorNode);
-  m_posi = rdbSvc->getRecordsetPtr("POSI",     detectorKey, detectorNode);
-  m_pccf = rdbSvc->getRecordsetPtr("PCCF",     detectorKey, detectorNode);
-  m_pcff = rdbSvc->getRecordsetPtr("PCFF",     detectorKey, detectorNode);
-
 }
 
 

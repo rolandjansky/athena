@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILERAWCHANNELCONTRAWEVENTTOOL_H
@@ -47,12 +47,12 @@ class TileRawChannelContByteStreamTool: public AthAlgTool {
      */
     static const InterfaceID& interfaceID();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** Provides conversion from TileRawChannelContainer to BS
      */
-    StatusCode convert(CONTAINER* cont, FullEventAssembler<TileHid2RESrcID> *fea);
+    StatusCode convert(CONTAINER* cont, FullEventAssembler<TileHid2RESrcID> *fea) const;
 
   private:
 

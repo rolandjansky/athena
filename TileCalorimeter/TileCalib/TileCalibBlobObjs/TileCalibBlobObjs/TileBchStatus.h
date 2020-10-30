@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBBLOBOBJS_TILEBCHSTATUS_H
@@ -11,8 +11,10 @@
 */
 
 #include "TileCalibBlobObjs/TileBchPrbs.h"
+#include "CxxUtils/checker_macros.h"
 #include <set>
 #include <string>
+#include <mutex>
 
 class TileBchStatus
 {
@@ -64,12 +66,43 @@ class TileBchStatus
  private:
   PrbSet m_prbSet;
   //=== reference sets
-  static PrbSet m_refBad;
-  static PrbSet m_refNoisy;
-  static PrbSet m_refNoGainL1;
-  static PrbSet m_refBadTiming;
-  static PrbSet m_refWrongBCID;
-  static PrbSet m_refTimingDmuBcOffset;
+  struct LockedPrbSet
+  {
+    size_t size() const
+    {
+      std::lock_guard lock (m_mutex);
+      return m_set.size();
+    }
+    void set (const PrbSet& s)
+    {
+      std::lock_guard lock (m_mutex);
+      m_set = s;
+    }
+    void set (PrbSet&& s)
+    {
+      std::lock_guard lock (m_mutex);
+      m_set = std::move(s);
+    }
+    operator TileBchStatus() const
+    {
+      std::lock_guard lock (m_mutex);
+      return TileBchStatus (m_set, true);
+    }
+    bool test (const PrbSet& s) const;
+
+  private:
+    PrbSet m_set;
+    mutable std::mutex m_mutex;
+  };
+
+  TileBchStatus (const PrbSet& s, bool) : m_prbSet (s) {}
+
+  static LockedPrbSet s_refBad ATLAS_THREAD_SAFE;
+  static LockedPrbSet s_refNoisy ATLAS_THREAD_SAFE;
+  static LockedPrbSet s_refNoGainL1 ATLAS_THREAD_SAFE;
+  static LockedPrbSet s_refBadTiming ATLAS_THREAD_SAFE;
+  static LockedPrbSet s_refWrongBCID ATLAS_THREAD_SAFE;
+  static LockedPrbSet s_refTimingDmuBcOffset ATLAS_THREAD_SAFE;
 };
 
 //
@@ -109,7 +142,7 @@ TileBchStatus::isAffected() const
 inline bool
 TileBchStatus::isBad() const
 {
-  return m_prbSet.size() ? (testFor(m_refBad).size() != 0) : false;
+  return m_prbSet.size() ? (s_refBad.test (m_prbSet)) : false;
 }
 
 //
@@ -117,7 +150,7 @@ TileBchStatus::isBad() const
 inline bool
 TileBchStatus::isNoisy() const
 {
-  return m_prbSet.size() ? (testFor(m_refNoisy).size() != 0) : false;
+  return m_prbSet.size() ? (s_refNoisy.test (m_prbSet)) : false;
 }
 
 //
@@ -141,7 +174,7 @@ TileBchStatus::isIgnoredInHlt() const
 inline bool
 TileBchStatus::isNoGainL1() const
 {
-  return m_prbSet.size() ? (testFor(m_refNoGainL1).size()!=0) : false;
+  return m_prbSet.size() ? (s_refNoGainL1.test (m_prbSet)) : false;
 }
 
 //
@@ -157,7 +190,7 @@ TileBchStatus::isHalfGainL1() const
 inline bool
 TileBchStatus::isBadTiming() const
 {
-  return m_prbSet.size() ? (testFor(m_refBadTiming).size() != 0) : false;
+  return m_prbSet.size() ? (s_refBadTiming.test (m_prbSet)) : false;
 }
 
 //
@@ -165,7 +198,7 @@ TileBchStatus::isBadTiming() const
 inline bool
 TileBchStatus::isTimingDmuBcOffset() const
 {
-  return m_prbSet.size() ? (testFor(m_refTimingDmuBcOffset).size() != 0) : false;
+  return m_prbSet.size() ? (s_refTimingDmuBcOffset.test (m_prbSet)) : false;
 }
 
 //
@@ -173,7 +206,7 @@ TileBchStatus::isTimingDmuBcOffset() const
 inline bool
 TileBchStatus::isWrongBCID() const
 {
-  return m_prbSet.size() ? (testFor(m_refWrongBCID).size() != 0) : false;
+  return m_prbSet.size() ? (s_refWrongBCID.test (m_prbSet)) : false;
 }
 
 #endif

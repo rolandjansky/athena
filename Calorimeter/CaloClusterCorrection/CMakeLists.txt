@@ -14,8 +14,8 @@ atlas_add_library( CaloClusterCorrectionLib
                    PUBLIC_HEADERS CaloClusterCorrection
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaKernel CaloConditions CaloEvent CaloInterfaceLib CaloRecLib CaloUtilsLib CxxUtils GaudiKernel StoreGateLib TileConditionsLib xAODCaloEvent
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaBaseComps CaloDetDescrLib CaloGeoHelpers CaloIdentifier LArRecConditions PathResolver )
+                   LINK_LIBRARIES AthenaKernel CaloConditions CaloEvent CaloInterfaceLib CaloRecLib CaloUtilsLib CxxUtils GaudiKernel LArRecConditions StoreGateLib TileConditionsLib xAODCaloEvent
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaBaseComps CaloDetDescrLib CaloGeoHelpers CaloIdentifier PathResolver )
 
 atlas_add_component( CaloClusterCorrection
                      src/components/*.cxx
@@ -28,7 +28,12 @@ atlas_add_test( interpolate_test
                 INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                 LINK_LIBRARIES ${Boost_LIBRARIES} CaloClusterCorrectionLib )
 
+atlas_add_test( config_test
+                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/config_t.py
+                ENVIRONMENT FRONTIER_SERVER=$ENV{FRONTIER_SERVER}
+                LOG_IGNORE_PATTERN "Current filenames|by peeking" )
+
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

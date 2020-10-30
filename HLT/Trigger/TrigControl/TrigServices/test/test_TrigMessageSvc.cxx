@@ -45,10 +45,13 @@ int main() {
   //--------------------------------------------------
   // Initialise and start the services
   //--------------------------------------------------
-  assert(msgsvc.initialize().isSuccess());
+  StatusCode sc = msgsvc.initialize();
+  assert(sc.isSuccess());
 
-  assert(hsvc->start().isSuccess());
-  assert(msgsvc.start().isSuccess());
+  sc = hsvc->start();
+  assert(sc.isSuccess());
+  sc = msgsvc.start();
+  assert(sc.isSuccess());
 
   //--------------------------------------------------
   // Prepare the benchmark
@@ -81,11 +84,15 @@ int main() {
   //--------------------------------------------------
   // Stop and finalise the services
   //--------------------------------------------------
-  assert(msgsvc.stop().isSuccess());
-  assert(hsvc->stop().isSuccess());
+  sc = msgsvc.stop();
+  assert(sc.isSuccess());
+  sc = hsvc->stop();
+  assert(sc.isSuccess());
 
-  assert(msgsvc.finalize().isSuccess());
-  assert(hsvc->finalize().isSuccess());
+  sc = msgsvc.finalize();
+  assert(sc.isSuccess());
+  sc = hsvc->finalize();
+  assert(sc.isSuccess());
 
   return 0;
 }

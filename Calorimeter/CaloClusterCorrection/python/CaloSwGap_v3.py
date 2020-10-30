@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwGap_v3.py,v 1.3 2006-11-10 03:47:27 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwGap_v3.py
 # Created: Nov 2006, sss
@@ -21,7 +19,7 @@
 #
 
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_CLUSTER
 
 #############################################################################
 # Gap energy correction for versions 12.x.x and later

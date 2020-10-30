@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -43,6 +43,8 @@ namespace offline_EventStorage_v5 {
   class CompressionBuffer{
     
   public:
+    using iovec_const = offline_EventStorage_v5::iovec_const;
+
     virtual ~CompressionBuffer() {};
 
     /**
@@ -103,7 +105,7 @@ namespace offline_EventStorage_v5 {
   void zlibcompress(CompressionBuffer& compressed,
 		    uint32_t& compressedsize,
 		    const uint32_t& entries, 
-		    const struct iovec* iov,
+		    const struct iovec_const* iov,
 		    const uint32_t& totalsize,
 		    const uint32_t& level);
   

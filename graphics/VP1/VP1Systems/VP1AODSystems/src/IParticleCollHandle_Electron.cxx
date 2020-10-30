@@ -222,7 +222,11 @@ bool IParticleCollHandle_Electron::load()
       messageDebug("WARNING: Ignoring Electron which claims to be neutral (charge()==0.0).");
       continue;
     }
-    addHandle(new IParticleHandle_Electron(this,*it));
+    IParticleHandle_Electron* elH = new IParticleHandle_Electron(this,*it); 
+    std::cout << "elHandle ---> " << elH->electron().eta() << ", " 
+              <<  elH->electron().nTrackParticles() << ", " 
+              << elH->electron().trackParticle(0) << std::endl; 
+    addHandle(elH);
   }
 
   return true;

@@ -1,16 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF
 KG Tan, 17/06/2012
 """
-
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.DetFlags import DetFlags
-
-from ISF_Config.ISF_jobProperties import ISF_Flags # IMPORTANT: Flags must be set before tools are retrieved
-
 
 def getEntryLayerTool(name="ISF_EntryLayerTool", **kwargs):
     kwargs.setdefault('GeoIDSvc'        , 'ISF_GeoIDSvc')

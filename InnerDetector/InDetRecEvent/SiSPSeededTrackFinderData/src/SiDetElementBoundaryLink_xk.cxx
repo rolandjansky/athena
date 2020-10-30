@@ -85,8 +85,9 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
 
 int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParameters& Tp,double& a) const
 {
-  double x = Tp.par()[0];
-  double y = Tp.par()[1]-m_dR;
+  const AmgVector(5) & p = Tp.parameters();
+  double x = p[0];
+  double y = p[1]-m_dR;
 
   int    n  = 0;
   a         = m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2]; 
@@ -94,16 +95,18 @@ int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParamet
   double a3 = m_bound[2][0]*x+m_bound[2][1]*y-m_bound[2][2]; if(a3>a) {a=a3; n=2;}
   double a4 = m_bound[3][0]*x+m_bound[3][1]*y-m_bound[3][2]; if(a4>a) {a=a4; n=3;}
 
+  const AmgSymMatrix(5) & cov = *Tp.covariance();
+
   if(a > 20. ) return 1;
-  double D  = (m_bound[n][0]*m_bound[n][0]* Tp.cov()[0]+
-	       m_bound[n][1]*m_bound[n][1]* Tp.cov()[2]+
-	       m_bound[n][0]*m_bound[n][1]*(Tp.cov()[1]*2.))*100.;
+  double D  = (m_bound[n][0]*m_bound[n][0]* cov(0, 0)+
+	       m_bound[n][1]*m_bound[n][1]* cov(1, 1)+
+	       m_bound[n][0]*m_bound[n][1]*(cov(0, 1)*2.))*100.;
 
   if((a*a) <= D) return 0;
 
   if(a >  2.) return 1;
   if(a < -2.) {
-    if(!m_detelement->nearBondGap(Tp.localPosition(), 3.*sqrt(Tp.cov()[2]))) return -1;
+    if(!m_detelement->nearBondGap(Tp.localPosition(), 3.*sqrt(cov(1, 1)))) return -1;
   }
   return 0;
 }

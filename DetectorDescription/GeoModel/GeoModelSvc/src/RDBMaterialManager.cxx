@@ -10,7 +10,6 @@
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelKernel/Units.h"
 
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/DataHandle.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"

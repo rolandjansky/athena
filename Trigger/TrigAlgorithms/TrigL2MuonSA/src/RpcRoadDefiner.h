@@ -39,6 +39,7 @@ class RpcRoadDefiner: public AthAlgTool
   
  public:
   StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
+			const bool                   insideOut,
 			TrigL2MuonSA::MuonRoad&      muonRoad,
 			TrigL2MuonSA::RpcHits&       rpcHits,
 			ToolHandle<RpcPatFinder>*    rpcPatFinder,

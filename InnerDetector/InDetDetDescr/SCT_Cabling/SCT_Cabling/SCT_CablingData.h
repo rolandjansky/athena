@@ -25,10 +25,9 @@
 
 /**
  * @class SCT_CablingData
- * A class to hold the data necessary for SCT_CablingTool and SCT_CablingToolInc.
+ * A class to hold the data necessary for SCT_CablingTool.
  * This class is filled by
- * SCT_CablingCondAlgFromCoraCool or SCT_CablingCondAlgFromText for SCT_CablingTool, and
- * SCT_CablingCondAlgFromCoraCool or SCT_FillCablingFromText for SCT_CablingToolInc.
+ * SCT_CablingCondAlgFromCoraCool or SCT_CablingCondAlgFromText for SCT_CablingTool.
  **/
 
 class SCT_CablingData {

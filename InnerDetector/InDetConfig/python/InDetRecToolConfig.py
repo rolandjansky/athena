@@ -136,26 +136,7 @@ def PixelConditionsSummaryToolCfg(flags, name = "InDetPixelConditionsSummaryTool
 def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryTool", **kwargs) :
   result = ComponentAccumulator()
   
-  # Load conditions configuration service and load folders and algorithm for it
-  # Load folders that have to exist for both MC and Data
-  SCTConfigurationFolderPath='/SCT/DAQ/Config/'
-  #if its COMP200, use old folders...
-  if (flags.IOVDb.DatabaseInstance == "COMP200"):
-      SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-  #...but now check if we want to override that decision with explicit flag (if there is one)
-  if flags.InDet.ForceCoraCool:
-      SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
-  if flags.InDet.ForceCoolVectorPayload:
-      SCTConfigurationFolderPath='/SCT/DAQ/Config/'
-  
-  if (flags.InDet.ForceCoolVectorPayload and flags.InDet.ForceCoraCool):
-      print ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
-      SCTConfigurationFolderPath=''
-
-  cond_kwargs={"ChannelFolder" : SCTConfigurationFolderPath+("ChipSlim" if flags.Input.isMC else "Chip"),
-               "ModuleFolder"  : SCTConfigurationFolderPath+"Module",
-               "MurFolder"     : SCTConfigurationFolderPath+"MUR"}
-  cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags,name, cond_kwargs=cond_kwargs)
+  cfgCondToolAcc = SCT_ConfigurationConditionsToolCfg(flags, name)
   SCT_ConfigurationConditionsTool = cfgCondToolAcc.popPrivateTools()
   result.merge(cfgCondToolAcc)
   if (flags.InDet.doPrintConfigurables):
@@ -242,39 +223,61 @@ def InDetSCT_ConditionsSummaryToolCfg(flags, name = "InDetSCT_ConditionsSummaryT
   result.setPrivateTools(InDetSCT_ConditionsSummaryTool)
   return result
 
-def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsTool", cond_kwargs={}, **kwargs):
-  cond_kwargs.setdefault("ChannelFolder", "/SCT/DAQ/Config/ChipSlim" if flags.Input.isMC else "/SCT/DAQ/Config/Chip")
-  cond_kwargs.setdefault("ModuleFolder","/SCT/DAQ/Config/Module")
-  cond_kwargs.setdefault("MurFolder","/SCT/DAQ/Config/MUR")
-  cond_kwargs.setdefault("dbInstance","SCT")
-  cond_kwargs.setdefault("SCT_ConfigurationCondAlgName","SCT_ConfigurationCondAlg")
+def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsTool", **kwargs):
+  # Load conditions configuration service and load folders and algorithm for it
+  # Load folders that have to exist for both MC and Data
+  SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+  #if its COMP200, use old folders...
+  if (flags.IOVDb.DatabaseInstance == "COMP200"):
+      SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
+  #...but now check if we want to override that decision with explicit flag (if there is one)
+  if flags.InDet.ForceCoraCool:
+      SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
+  if flags.InDet.ForceCoolVectorPayload:
+      SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+  
+  if (flags.InDet.ForceCoolVectorPayload and flags.InDet.ForceCoraCool):
+    print ('*** SCT DB CONFIGURATION FLAG CONFLICT: Both CVP and CoraCool selected****')
+    SCTConfigurationFolderPath=''
+
+  cond_kwargs = {}
+  cond_kwargs["ChannelFolder"] = SCTConfigurationFolderPath+("ChipSlim" if flags.Input.isMC else "Chip")
+  cond_kwargs["ModuleFolder"] = SCTConfigurationFolderPath+"Module"
+  cond_kwargs["MurFolder"] = SCTConfigurationFolderPath+"MUR"
+  cond_kwargs["dbInstance"] = "SCT"
+  cond_kwargs["SCT_ConfigurationCondAlgName"] = "SCT_ConfigurationCondAlg"
 
   result = ComponentAccumulator()
+
+  # For SCT_ID and SCT_DetectorElementCollection used in SCT_ConfigurationCondAlg and SCT_ConfigurationConditionsTool
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+  result.merge(SCT_GeometryCfg(flags))
+
   if 'ChannelFolderDB' not in cond_kwargs:
     result.merge(addFoldersSplitOnline(flags,
-                                             detDb=cond_kwargs['dbInstance'],
-                                             online_folders=cond_kwargs["ChannelFolder"],
-                                             offline_folders=cond_kwargs["ChannelFolder"],
-                                             className='CondAttrListVec',
-                                             splitMC=True))
+                                       detDb=cond_kwargs['dbInstance'],
+                                       online_folders=cond_kwargs["ChannelFolder"],
+                                       offline_folders=cond_kwargs["ChannelFolder"],
+                                       className='CondAttrListVec',
+                                       splitMC=True))
   else:
     result.merge(addFolders(flags, [cond_kwargs["ChannelFolderDB"]], detDb = cond_kwargs['dbInstance'], className='CondAttrListVec'))
   if 'ModuleFolderDB' not in cond_kwargs:
     result.merge(addFoldersSplitOnline(flags,
-                                             detDb=cond_kwargs['dbInstance'],
-                                             online_folders=cond_kwargs["ModuleFolder"],
-                                             offline_folders=cond_kwargs["ModuleFolder"],
-                                             className='CondAttrListVec',
-                                             splitMC=True))
+                                       detDb=cond_kwargs['dbInstance'],
+                                       online_folders=cond_kwargs["ModuleFolder"],
+                                       offline_folders=cond_kwargs["ModuleFolder"],
+                                       className='CondAttrListVec',
+                                       splitMC=True))
   else:
     result.merge(addFolders(flags, [cond_kwargs["ModuleFolderDB"]], detDb = cond_kwargs['dbInstance'], className='CondAttrListVec'))
   if 'MurFolderDB' not in cond_kwargs:
     result.merge(addFoldersSplitOnline(flags,
-                                             detDb=cond_kwargs['dbInstance'],
-                                             online_folders=cond_kwargs["MurFolder"],
-                                             offline_folders=cond_kwargs["MurFolder"],
-                                             className='CondAttrListVec',
-                                             splitMC=True))
+                                       detDb=cond_kwargs['dbInstance'],
+                                       online_folders=cond_kwargs["MurFolder"],
+                                       offline_folders=cond_kwargs["MurFolder"],
+                                       className='CondAttrListVec',
+                                       splitMC=True))
   else:
     result.merge(addFolders(flags, [cond_kwargs["MurFolderDB"]], detDb = cond_kwargs['dbInstance'],  className='CondAttrListVec'))
 
@@ -333,27 +336,30 @@ def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs
 def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}, **kwargs):
   result = ComponentAccumulator()
 
+  # For SCT_ID and SCT_DetectorElementCollection used in SCT_ReadCalibDataCondAlg and SCT_ReadCalibDataTool
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+  result.merge(SCT_GeometryCfg(flags))
+
   cond_kwargs.setdefault("NoiseFolder","/SCT/DAQ/Calibration/NoiseOccupancyDefects")
   cond_kwargs.setdefault("GainFolder","/SCT/DAQ/Calibration/NPtGainDefects")
   cond_kwargs.setdefault("ReadCalibDataCondAlgName","SCT_ReadCalibDataCondAlg")
 
   result.merge(addFoldersSplitOnline(flags,
-                                           detDb="SCT",
-                                           online_folders=cond_kwargs["NoiseFolder"],
-                                           offline_folders=cond_kwargs["NoiseFolder"],
-                                           className='CondAttrListCollection',
-                                           splitMC=True))
+                                     detDb="SCT",
+                                     online_folders=cond_kwargs["NoiseFolder"],
+                                     offline_folders=cond_kwargs["NoiseFolder"],
+                                     className='CondAttrListCollection',
+                                     splitMC=True))
   result.merge(addFoldersSplitOnline(flags,
-                                           detDb="SCT",
-                                           online_folders=cond_kwargs["GainFolder"],
-                                           offline_folders=cond_kwargs["GainFolder"],
-                                           className='CondAttrListCollection',
-                                           splitMC=True))
+                                     detDb="SCT",
+                                     online_folders=cond_kwargs["GainFolder"],
+                                     offline_folders=cond_kwargs["GainFolder"],
+                                     className='CondAttrListCollection',
+                                     splitMC=True))
 
-  result.addCondAlgo(CompFactory.SCT_ReadCalibDataCondAlg(
-                                        name = cond_kwargs["ReadCalibDataCondAlgName"],
-                                        ReadKeyGain = cond_kwargs["GainFolder"],
-                                        ReadKeyNoise = cond_kwargs["NoiseFolder"]))
+  result.addCondAlgo(CompFactory.SCT_ReadCalibDataCondAlg(name = cond_kwargs["ReadCalibDataCondAlgName"],
+                                                          ReadKeyGain = cond_kwargs["GainFolder"],
+                                                          ReadKeyNoise = cond_kwargs["NoiseFolder"]))
   acc = SCT_CablingToolCfg(flags)
   kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
   result.merge(acc)
@@ -375,6 +381,10 @@ def SCT_MonitorConditionsToolCfg(flags, name="InDetSCT_MonitorConditionsTool", c
   cond_kwargs.setdefault("MonitorCondAlgName", "SCT_MonitorCondAlg")
 
   result = ComponentAccumulator()
+
+  # For SCT_ID used in SCT_MonitorConditionsTool
+  from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+  result.merge(GeoModelCfg(flags))
 
   if  "FolderDb" not in cond_kwargs:
     cond_kwargs["FolderDb"] = cond_kwargs["Folder"]
@@ -404,29 +414,29 @@ def SCT_CablingToolCfg(flags):
     result.setPrivateTools(tool)
     return result
 
-def SCT_TdaqEnabledToolCfg(flags):
-  # Copied from https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetConditions/SCT_ConditionsTools/python/SCT_TdaqEnabledToolSetup.py
-  result = SCT_TdaqEnabledCondAlgCfg(flags)
-  tool = CompFactory.SCT_TdaqEnabledTool()
-  result.setPrivateTools(tool)
-  return result
-
-def SCT_TdaqEnabledCondAlgCfg(flags, name="SCT_TdaqEnabledCondAlg", **kwargs):
+def SCT_TdaqEnabledToolCfg(flags, name="InDetSCT_TdaqEnabledTool", **kwargs):
   if flags.Input.isMC:
     print("Warning: should not setup SCT_TdaqEnabledCond for MC")
     return
+
   result = ComponentAccumulator()
 
+  # For SCT_ID used in SCT_TdaqEnabledTool
+  from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+  result.merge(GeoModelCfg(flags))
+
+  # Folder
   #FIXME - is there a better way to do this? What about run3?
   folder = '/TDAQ/Resources/ATLAS/SCT/Robins' if (flags.IOVDb.DatabaseInstance == "CONDBR2") else '/TDAQ/EnabledResources/ATLAS/SCT/Robins'
-
   result.merge( addFolders(flags, [folder], detDb="TDAQ", className="CondAttrListCollection") )
-  
-  acc = SCT_CablingToolCfg(flags)
-  kwargs.setdefault( "SCT_CablingTool", acc.popPrivateTools() )
-  result.merge(acc)
 
-  result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg(name=name, **kwargs) )
+  # Algorithm
+  kwargs.setdefault( "SCT_CablingTool", result.popToolsAndMerge(SCT_CablingToolCfg(flags)) )
+  result.addCondAlgo( CompFactory.SCT_TdaqEnabledCondAlg(**kwargs) )
+
+  # Tool
+  result.setPrivateTools(CompFactory.SCT_TdaqEnabledTool(name=name))
+
   return result
 
 def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs):

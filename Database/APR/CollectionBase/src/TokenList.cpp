@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CollectionBase/TokenList.h"
@@ -99,14 +99,29 @@ pool::TokenList::extend( const std::string& name )
 Token&
 pool::TokenList::operator[]( const std::string& name )
 {
-   return const_cast<Token&>( ((const TokenList&)*this)[name] );
+   std::map< std::string, Token* >::iterator iData = m_tokenMap.find( name );
+
+   if( iData == m_tokenMap.end() )   {
+      std::string errorMsg = "Cannot find Token with name `" + name + "' in Token list.";
+      throw pool::Exception( errorMsg,
+			     "TokenList::operator[](name)",
+			     "CollectionBase" );
+   }
+   return *( iData->second );
 }
 
 
 Token&
 pool::TokenList::operator[]( unsigned int index )
 {
-   return const_cast<Token&>( ((const TokenList&)*this)[index] );
+   if( index >= m_tokenVector.size() ) {
+      std::ostringstream errorMsg;
+      errorMsg << "Cannot find Token with index `" << index << "' in Token list.";
+      throw pool::Exception( errorMsg.str(),
+			     "TokenList::operator[](index)",
+			     "CollectionBase" );
+   }
+   return *m_tokenVector[index];
 }
 
 
@@ -143,7 +158,7 @@ pool::TokenList::operator[]( unsigned int index ) const
 std::ostream&
 pool::TokenList::toOutputStream( std::ostream& os ) const
 {
-   for( size_t i = 0; i <= m_tokenVector.size(); ++i ) {
+   for( size_t i = 0; i < m_tokenVector.size(); ++i ) {
       os << "[" << m_tokenNames[i] << " (Token) : " << m_tokenVector[i]->toString()<< "]";
    }
 

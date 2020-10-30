@@ -3,11 +3,10 @@
 */
 
 #include "egammaConditions/EMClusterPhiErrorsMatrix.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <cmath>
 #include <utility>
 
-using CLHEP::GeV;
 
 // Constructors
 EMClusterPhiErrorsMatrix::EMClusterPhiErrorsMatrix() : 
@@ -46,7 +45,7 @@ double EMClusterPhiErrorsMatrix::getError(double eta, double clusterEnergy) cons
   // for protection, to not divide by 0;
   if (clusterEnergy < 1.0) clusterEnergy = 1.0;
 
-  const double clusterEnergyGeV = clusterEnergy*(1./GeV);  //GeV
+  const double clusterEnergyGeV = clusterEnergy*(1./Gaudi::Units::GeV);  //GeV
   
   /** Error on phi = C(eta) mrad/sqrt(Energy) */
   /** NOTE : Eta dependence of C  will be implemented later. C=70mrad based on EG6 note*/

@@ -14,14 +14,7 @@ import re
 from collections import deque
 import PyUtils.acmdlib as acmdlib
 import argparse
-
-# Hack until atlasexternals!747 is deployed:
-try:
-   import pygraphviz
-except ImportError:
-   import sys
-   sys.path.append('/cvmfs/sft.cern.ch/lcg/releases/LCG_98python3/pygraphviz/1.5/'+os.getenv('BINARY_TAG')+'/lib/python3.7/site-packages')
-   import pygraphviz
+import pygraphviz
 
 
 def read_package_list(package_file):

@@ -52,9 +52,10 @@ if DetFlags.overlay.Truth_on():
 
 if DetFlags.overlay.pixel_on():
    outStream.ItemList += ["PixelRDO_Container#*"]
-   outStream.ItemList += ["IDCInDetBSErrContainer#*"]
+   outStream.ItemList += ["IDCInDetBSErrContainer#PixelByteStreamErrs"]
 if DetFlags.overlay.SCT_on():
    outStream.ItemList += ["SCT_RDO_Container#*"]
+   outStream.ItemList += ["IDCInDetBSErrContainer#SCT_ByteStreamErrs"]
 if DetFlags.overlay.TRT_on():
    outStream.ItemList += ["TRT_RDO_Container#*"]
    outStream.ItemList += ["TRT_BSIdErrContainer#*"]

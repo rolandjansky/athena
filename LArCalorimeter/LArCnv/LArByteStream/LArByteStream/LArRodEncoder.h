@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARROD_ENCODER_H
@@ -49,8 +49,8 @@
 #include "ByteStreamData/RawEvent.h" 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "LArIdentifier/LArOnlineID.h"
+#include "CaloConditions/CaloNoise.h"
 
-class ICaloNoiseTool;
 class LArRodEncoder
 {
 public: 
@@ -77,7 +77,7 @@ public:
 
   // convert all LArRawChannels in the current list to a vector of 32bit words
 //  void fillROD(std::vector<uint32_t>& v, MsgStream& logstr) ; 
-  void fillROD(std::vector<uint32_t>& v, MsgStream& logstr, ICaloNoiseTool* calonoisetool, double nsigma) ;
+  void fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const CaloNoise& noise, double nsigma) ;
 
   static void setRodBlockStructure(LArRodBlockStructure* BlStructPtr);
 

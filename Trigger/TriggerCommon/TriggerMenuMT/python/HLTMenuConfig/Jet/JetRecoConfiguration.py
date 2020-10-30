@@ -13,6 +13,12 @@ TriggerJetMods.ConstitFourMom_copy
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration")
 
+def interpretJetCalibDefault(recoDict):
+    if recoDict['dataType'].endswith('tc'):
+        return 'subresjesgscIS' if recoDict['trkopt'] == 'ftf' else 'subjesIS'
+    elif recoDict['dataType'].endswith('pf'):
+      return 'subresjesgscIS'
+
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
     # interpret the reco configuration only
@@ -30,6 +36,10 @@ def extractRecoDict(chainParts):
                         exit(1)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
+
+    # set proper jetCalib key in default case
+    if recoDict['jetCalib'] == "default":
+        recoDict['jetCalib'] = interpretJetCalibDefault(recoDict)
 
     return recoDict
 
@@ -129,7 +139,7 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
     groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
     groomDef = {
         "sd":JetSoftDrop(ungroomedDef,zcut=0.1,beta=1.0),
-        "t" :JetTrimming(ungroomedDef,smallR=0.2,ptfrac=0.05),
+        "t" :JetTrimming(ungroomedDef,smallR=0.2,ptfrac=0.04),
     }[groomAlg]
     return groomDef
 
@@ -188,8 +198,10 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
                 calibContext = "TrigSoftDrop"
                 calibSeq = "EtaJES_JMS"
             else:
-                calibContext = "TrigLS2"
-                calibSeq = "JetArea_Residual_EtaJES_GSC"
+                calibContext,calibSeq = {
+                  ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
+                  ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
+                  }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
             pvname = "HLT_IDVertex_FS"
 
         if jetRecoDict["jetCalib"].endswith("IS") and (dataSource=="data"):

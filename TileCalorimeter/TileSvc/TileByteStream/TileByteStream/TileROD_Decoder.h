@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEROD_DECODER_H
@@ -44,6 +44,8 @@
 
 // Gaudi includes
 #include "GaudiKernel/ToolHandle.h"
+
+#include "CxxUtils/checker_macros.h"
 
 
 #include <map>
@@ -541,10 +543,10 @@ class TileROD_Decoder: public AthAlgTool {
 
     // OFWeights for different units and different drawers:
     // every element contains OFC for single drawer and one of 4 different units
-    mutable std::vector<uint32_t> m_OFWeights[4 * TileCalibUtils::MAX_DRAWERIDX];
+    mutable std::vector<uint32_t> m_OFWeights[4 * TileCalibUtils::MAX_DRAWERIDX] ATLAS_THREAD_SAFE;
 
     // Pointers to the start of the data for each vector.
-    mutable std::atomic<const uint32_t*> m_OFPtrs[4 * TileCalibUtils::MAX_DRAWERIDX];
+    mutable std::atomic<const uint32_t*> m_OFPtrs[4 * TileCalibUtils::MAX_DRAWERIDX] ATLAS_THREAD_SAFE;
 
     // Mutex protecting access to weight vectors.
     mutable std::mutex m_OFWeightMutex;

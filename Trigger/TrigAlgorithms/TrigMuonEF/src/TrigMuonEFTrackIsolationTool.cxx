@@ -46,7 +46,7 @@ TrigMuonEFTrackIsolationTool::TrigMuonEFTrackIsolationTool(const std::string& ty
  * @param selfremoval - Vector storing the selfpt and removed pt 
  */
 
-StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, vector<double> conesizes, vector<double>& results, vector<double>* dzvals, vector<double>* drvals, vector<double>* selfremoval) {
+StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* efmuon, const xAOD::TrackParticleContainer* idtrks, vector<double> conesizes, vector<double>& results, vector<double>* dzvals, vector<double>* drvals, vector<double>* selfremoval) const {
 
 
   if (m_debug)
@@ -108,7 +108,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
 
 
 // Generic function to take whatever kind of muon and check isolation (so can pass a L2 or EF muon)
-StatusCode TrigMuonEFTrackIsolationTool::checkIsolation(const xAOD::IParticle* muon, double selfpt, const xAOD::TrackParticle* muon_idtrk, const Trk::Perigee* muidtrk_perigee, const xAOD::TrackParticleContainer* trks, vector<double> conesizes, vector<double>& results, vector<double>* dzvals, vector<double>* drvals, vector<double>* selfremoval) {
+StatusCode TrigMuonEFTrackIsolationTool::checkIsolation(const xAOD::IParticle* muon, double selfpt, const xAOD::TrackParticle* muon_idtrk, const Trk::Perigee* muidtrk_perigee, const xAOD::TrackParticleContainer* trks, vector<double> conesizes, vector<double>& results, vector<double>* dzvals, vector<double>* drvals, vector<double>* selfremoval) const {
   
   /// consistency checks
   if(m_removeSelf && selfpt==0.0) {

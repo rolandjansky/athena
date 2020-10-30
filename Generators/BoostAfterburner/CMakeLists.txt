@@ -1,16 +1,7 @@
-################################################################################
-# Package: BoostAfterburner
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( BoostAfterburner )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          PRIVATE
-                          GaudiKernel
-                          Generators/GeneratorObjects )
 
 # External dependencies:
 find_package( CLHEP )
@@ -22,12 +13,11 @@ atlas_add_library( BoostAfterburnerLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaBaseComps
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GaudiKernel GeneratorObjects )
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeneratorObjects )
 
 atlas_add_component( BoostAfterburner
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel GeneratorObjects BoostAfterburnerLib )
+                     LINK_LIBRARIES BoostAfterburnerLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

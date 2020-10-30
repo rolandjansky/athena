@@ -1,6 +1,4 @@
-################################################################################
-# Package: ALFA_Digitization
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ALFA_Digitization )
@@ -17,7 +15,7 @@ atlas_add_component( ALFA_Digitization
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel PileUpToolsLib ALFA_RawEv ALFA_SimEv GaudiKernel HitManagement Identifier GeneratorObjects PathResolver )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( xtalk/*.txt )
 

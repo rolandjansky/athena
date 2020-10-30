@@ -4,7 +4,7 @@
 
 #include "TestPixelModuleDisablingSvc.h"
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "InDetIdentifier/PixelID.h"
 

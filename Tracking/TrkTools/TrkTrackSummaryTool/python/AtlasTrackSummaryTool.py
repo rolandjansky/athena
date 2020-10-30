@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ######################################################
 # AtlasTrackSummaryTool module
@@ -6,12 +6,6 @@
 # it inherits from Trk__TrackSummaryTool and uses
 #
 ######################################################
-
-# import the include statement
-from AthenaCommon.Include import Include, IncludeError, include
-
-# import the ToolSvc
-from AthenaCommon.AppMgr import ToolSvc
 
 # import detflags
 from AthenaCommon.DetFlags import DetFlags
@@ -92,8 +86,7 @@ class AtlasTrackSummaryTool( Trk__TrackSummaryTool ):
         # Configurable version of TrkTrackSummaryTool
         #
         from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
-        AtlasTrackSummaryTool = Trk__TrackSummaryTool(
-                                                     )
+
         # call the base class constructor
         Trk__TrackSummaryTool.__init__(self, name = name,
                                              InDetSummaryHelperTool = AtlasTrackSummaryHelperTool,

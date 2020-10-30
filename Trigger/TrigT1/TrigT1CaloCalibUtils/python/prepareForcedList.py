@@ -1,12 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-from ROOT import *
-import sys
 from optparse import OptionParser
 
-from PlotCalibrationGains import *
+from PlotCalibrationGains import L1CaloGeometryConvertor
 
 
 print ("Starting prepareForcedList")
@@ -25,7 +21,7 @@ file_output = open(options.output_file_name,'w')
 geometry_convertor = L1CaloGeometryConvertor()
 geometry_convertor.LoadReceiverPPMMap()
 
-if options.strategy == None:
+if options.strategy is None:
   print ("taking default strategy string")
   strategy ="GainOneOvEmecFcalLowEta"
 #  strategy ="GainOneOvEmbFcalHighEta" 
@@ -38,9 +34,10 @@ for line in file_input.readlines():
   line2=line.rstrip()
   parts = line2.split(' ')
   parts_stripped = [iii for iii in parts if not iii==''] 
-#  print (parts_stripped)
-  file_output.write("%s %.3f   # %s %s %s %s \n" % (geometry_convertor.getReceiverfromPPM(parts_stripped[2],strategy),float(parts_stripped[3]), \
-           parts_stripped[0],parts_stripped[1],parts_stripped[2],parts_stripped[3]))
+  #  print (parts_stripped)
+  file_output.write("%s %.3f   # %s %s %s %s \n" % (geometry_convertor.getReceiverfromPPM(parts_stripped[2],strategy),
+                                                    float(parts_stripped[3]),
+                                                    parts_stripped[0],parts_stripped[1],parts_stripped[2],parts_stripped[3]))
 #  print (geometry_convertor.getReceiverfromPPM(parts_stripped[2]), " ", parts_stripped[3], " # ", parts_stripped)
 
 

@@ -8,6 +8,7 @@
 #include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
 #include "TrkPatternParameters/PatternTrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkTrackSummary/TrackSummary.h"
 
 #include <set>
 
@@ -330,6 +331,16 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
        m_trackSummaryTool->computeAndReplaceTrackSummary(*qualityAndTrack.second,
                                                          trackEventData.combinatorialData().PRDtoTrackMap(),
                                                          false /* DO NOT suppress hole search*/);
+       InDet::PatternHoleSearchOutcome theOutcome; 
+       /// Check if we have a hole search result for this guy
+       if (m_writeHolesFromPattern && trackEventData.combinatorialData().findPatternHoleSearchOutcome(qualityAndTrack.second,theOutcome)){
+         /// If yes: Write this information into the track summary. 
+         qualityAndTrack.second->trackSummary()->update(Trk::numberOfPixelHoles, theOutcome.nPixelHoles); 
+         qualityAndTrack.second->trackSummary()->update(Trk::numberOfSCTHoles, theOutcome.nSCTHoles); 
+         qualityAndTrack.second->trackSummary()->update(Trk::numberOfSCTDoubleHoles, theOutcome.nSCTDoubleHoles); 
+         qualityAndTrack.second->trackSummary()->update(Trk::numberOfSCTDeadSensors, theOutcome.nSCTDeads); 
+         qualityAndTrack.second->trackSummary()->update(Trk::numberOfPixelDeadSensors, theOutcome.nPixelDeads); 
+       }
     }
     outputTracks->push_back(qualityAndTrack.second);
   }
@@ -616,7 +627,7 @@ void InDet::SiSPSeededTrackFinder::fillZHistogram(const Trk::Track* Tr,
   /// propagate from innermost hit to beam spot
   if (not m_proptool->propagate(TP, beamPosPerigee, TP, Trk::anyDirection, m_fieldprop, step, Trk::pion)) return;
 	      
-  const double* parsAtBeamSpot = TP.par();
+  const AmgVector(5)& parsAtBeamSpot = TP.parameters();
   if (std::abs(parsAtBeamSpot[0]) > m_imcut) return;
   /// determine bin number - m_zstep is the inverse bin width, where the histo axis extends from -m_zcut to +m_zcut
   int z = static_cast<int>((parsAtBeamSpot[1]+m_zcut)*m_zstep);

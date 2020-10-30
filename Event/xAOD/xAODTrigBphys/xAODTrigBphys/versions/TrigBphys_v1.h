@@ -68,6 +68,8 @@ namespace xAOD {
             DZMUKX    = 18, // D0 -> mu+ K- X
             DZKPI     = 19, // D0 -> K- pi+
             DPKPIPI   = 20, // D+ -> K- pi+ pi+
+            BCPIMUMU  = 21, // B_c+ -> pi+ mu mu
+            LBPQMUMU  = 22, // Lambda_b0 -> P_c+ (-> J/psi p) K-, pentaquark states
 
            UNKNOWNPTYPE = 9999
         };

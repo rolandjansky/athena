@@ -69,6 +69,7 @@ namespace TrigConf {
 }
 
 #ifndef TRIGCONF_STANDALONE
+#ifndef XAOD_STANDALONE
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::L1PrescalesSet , 146597935 , 1 )
@@ -76,6 +77,7 @@ CLASS_DEF( TrigConf::L1PrescalesSet , 146597935 , 1 )
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::L1PrescalesSet , 124562173 );
 
+#endif
 #endif
 
 #endif

@@ -11,6 +11,7 @@
 #include "AthenaKernel/StorableConversions.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/tools/copyAuxStoreThinned.h"
 #include "AthContainers/debug.h"
 #include "xAODCore/AuxContainerBase.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
@@ -297,7 +298,28 @@ StatusCode TriggerEDMSerialiserTool::serialisexAODAuxContainer( void* data,
   SGImplSvc* evtStore) const
 {
   ATH_MSG_DEBUG("xAOD Aux Container");
-  ATH_CHECK( serialiseContainer( data, address, buffer ) );
+
+  void* copy = data;
+  RootType classDesc = RootType::ByNameNoQuiet( address.persType );
+  static const RootType interface = RootType::ByNameNoQuiet( "SG::IAuxStore" );
+  static const RootType interface_c = RootType::ByNameNoQuiet( "xAOD::AuxContainerBase" );
+
+  void* data_interface = classDesc.Cast (interface_c, data, true);
+  if (data_interface) {
+    const xAOD::AuxContainerBase* store = reinterpret_cast<const xAOD::AuxContainerBase*> (data_interface);
+    copy = classDesc.Construct();
+    void* copy_interface = classDesc.Cast (interface, copy, true);
+    SG::copyAuxStoreThinned (*store,
+                             *reinterpret_cast<SG::IAuxStore*> (copy_interface),
+                             nullptr);
+  }
+
+  ATH_CHECK( serialiseContainer( copy, address, buffer ) );
+
+  if (copy != data) {
+    classDesc.Destruct (copy);
+  }
+
   size_t baseSize = buffer.size();
   if ( not m_saveDynamic )
     return StatusCode::SUCCESS;

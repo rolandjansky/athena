@@ -93,7 +93,7 @@ StatusCode CpReadByteStreamV1V2Cnv::createObj( IOpaqueAddress* pAddr,
   }
 
   // get SourceIDs
-  const std::vector<uint32_t>& vID1(m_tool1->sourceIDs(nm));
+  const std::vector<uint32_t>& vID1(m_tool1->sourceIDs());
   const std::vector<uint32_t>& vID2(m_tool2->sourceIDs());
 
   // get ROB fragments
@@ -115,7 +115,7 @@ StatusCode CpReadByteStreamV1V2Cnv::createObj( IOpaqueAddress* pAddr,
 
   // Pre-LS1 data
   if (robFrags1.size() > 0) {
-    ATH_CHECK( m_tool1->convert(robFrags1, towerCollection.get()) );
+    ATH_CHECK( m_tool1->convert(nm, robFrags1, towerCollection.get()) );
   }
   // Post-LS1 data
   if (robFrags2.size() > 0) {

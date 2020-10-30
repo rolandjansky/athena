@@ -1,42 +1,7 @@
-################################################################################
-# Package: Run3AFPMonitoring
-# Author: N. Dikic 
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Run3AFPMonitoring )
-
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-    PUBLIC
-        Control/AthenaBaseComps
-        Control/AthenaMonitoringKernel
-        GaudiKernel
-        Event/xAOD/xAODForward
-        xAODForward/AFPSiHit
-        xAODForward/AFPToFHit
-        LumiBlock/LumiBlockComps
-        LumiBlock/LumiBlockData
-        Trigger/TrigEvent/TrigDecisionInterface
-    PRIVATE
-        Control/AthenaMonitoring
-        AtlasTest/TestTools
-        Control/AthenaKernel
-        Control/CxxUtils
-        Control/SGMon/SGAudCore
-        Database/AthenaPOOL/AthenaPoolUtilities
-        Event/xAOD/xAODEventInfo
-        Event/EventInfo
-        Tools/LWHists
-        Trigger/TrigAnalysis/TrigDecisionTool
-        Trigger/TrigAnalysis/TrigAnalysisInterfaces
-        MuonSpectrometer/MuonAlignment/MuonAlignmentData
-        
-        Event/EventContainers
-        #Tools/PathResolver
-        #Control/StoreGate
-)
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core )
@@ -48,23 +13,12 @@ atlas_add_component( Run3AFPMonitoring
         ${ROOT_INCLUDE_DIRS}
     LINK_LIBRARIES
         ${ROOT_LIBRARIES}
-        AthenaBaseComps
         AthenaMonitoringLib
         AthenaMonitoringKernelLib
-        GaudiKernel
-        LumiBlockCompsLib
         LumiBlockData
-        TrigDecisionToolLib
-        TrigAnalysisInterfaces
+        StoreGateLib
         xAODForward
-        xAODTrigger
-        #Trigger
-        AthenaKernel
-        SGAudCore
-        AthenaPoolUtilities
         EventInfo
-        LWHists
 )
 
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

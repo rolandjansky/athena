@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 ## @file:   AlignTrackFitter.py
@@ -8,7 +8,6 @@
 
 from AthenaCommon.Logging import logging
 from TrkAlignGenTools.AlignmentFlags import AlignmentFlags as align
-from GaudiKernel.Constants import *
 
 ## AlignmentTrackFitter determines which type of fitter and configuration to 
 #  use based on AlignmentFlags and creates the fitter 
@@ -76,10 +75,8 @@ class AlignmentTrackFitter () :
 
     ## set iPatFitter
     def set_iPatFitter(self) :
-        from AthenaCommon.AppMgr import ToolSvc        
-        from MuonRecExample import MuonRecTools
-        MuonExtrapolator  = MuonRecTools.getPublicTool('MuonExtrapolator')
-        
+        from AthenaCommon.AppMgr import ToolSvc
+
         from AthenaCommon.Include import include
         include('TrkDetDescrSvc/AtlasTrackingGeometrySvc.py')
         
@@ -181,7 +178,7 @@ class AlignmentTrackFitter () :
 
     ## returns fitter
     def fitter (self) :
-              return self._fitter
+        return self._fitter
           
     ## returns straight-line version of fitter
     def slfitter (self) :

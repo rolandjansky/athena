@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METRecoConfig import BuildConfig, METConfig
-from METReconstruction.METAssocConfig import METAssocConfig, AssocConfig
+#from METReconstruction.METAssocConfig import METAssocConfig, AssocConfig
 
 ## Simple truth terms
 

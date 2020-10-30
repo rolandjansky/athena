@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: xAODTrigT2MbtsBitsCreator.py 608462 2014-07-24 16:15:08Z azemla $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import the package's configurables:
-from xAODTrigMinBiasCnv.xAODTrigMinBiasCnvConf import *
+from xAODTrigMinBiasCnv.xAODTrigMinBiasCnvConf import xAODMaker__TrigT2MbtsBitsCnvAlg
 
 ## Helper function for creating xAOD TrigSpacePointCounts objects
 def xAODTrigT2MbtsBitsCreator( sequence = None, stream = None,
@@ -22,7 +20,6 @@ def xAODTrigT2MbtsBitsCreator( sequence = None, stream = None,
     """
 
     # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "xAODTrigT2MbtsBitsCreator" )
 
@@ -30,13 +27,13 @@ def xAODTrigT2MbtsBitsCreator( sequence = None, stream = None,
     logger.info( "Creating xAOD::TrigT2MbtsBits from TrigDec::TrigT2MbtsBits" )
 
     # Get the main sequence if necessary:
-    if sequence == None:
+    if sequence is None:
         from AthenaCommon.AlgSequence import AlgSequence
         sequence = AlgSequence()
         pass
 
     # Access the stream if necessary:
-    if stream == None:
+    if stream is None:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         stream = MSMgr.GetStream( "StreamAOD" )
         pass
@@ -50,8 +47,5 @@ def xAODTrigT2MbtsBitsCreator( sequence = None, stream = None,
     # Add the created objects to the output:
     stream.AddItem( "xAOD::TrigT2MbtsBitsContainer_v1#%s" % key )
     stream.AddItem( "xAOD::TrigT2MbtsBitsAuxContainer_v1#%sAux." % key )
-
-    # Reinstate the old logger if it existed:
-    if "orig_logger" in dir(): logger = orig_logger
 
     pass

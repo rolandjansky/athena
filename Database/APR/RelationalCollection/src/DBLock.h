@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RELATIONALCOLLECTION_DBLOCK_H
@@ -14,7 +14,7 @@ namespace pool {
       class DBLock
       {
      public:
-        DBLock( coral::ISessionProxy& session, std::string collName );
+        DBLock( coral::ISessionProxy& session, const std::string& collName );
         ~DBLock();
  
         /// set a global lock to serialize collection operations (creation etc)

@@ -45,6 +45,8 @@ namespace Muon {
     */
     virtual std::vector<std::unique_ptr<MuPatTrack> > find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const = 0;
 
+
+    virtual void cleanUp() const {};
   };
   
   inline const InterfaceID& IMuonTrackBuilder::interfaceID()

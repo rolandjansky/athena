@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOREC_CALOTOPOTOWERBUILDERTOOLBASE_H
@@ -20,7 +20,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/ICaloTopoTowerBuilderToolBase.h"
 #include "CaloEvent/CaloTowerSeg.h"
-#include "StoreGate/StoreGate.h"
 #include <string>
 
 class CaloTowerContainer;

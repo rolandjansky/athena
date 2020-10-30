@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file LArCellRec/python/LArCollisionTimeGetter.py
 # @author scott snyder <snyder@bnl.gov>
@@ -47,7 +46,7 @@ class LArCollisionTimeGetter ( Configured )  :
             objKeyStore.addTransient (self.outputType(),self.outputKey())
 
             self.seq += self._handle
-        except:
+        except Exception:
             mlog.error ("Error configuring LArCollisionTimeAlg.")
             traceback.print_exc()
 

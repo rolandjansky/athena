@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: CaloClusterCorrection/python/CaloSwCalibHitsCalibration.py
@@ -14,15 +14,17 @@
 #
 
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import sw_valid_keys as keys
-cls = CaloClusterCorrectionConf.CaloSwCalibHitsCalibration
+from CaloClusterCorrection.constants import sw_valid_keys as keys
+cls = CompFactory.CaloSwCalibHitsCalibration # CaloClusterCorrection
 CaloSwCalibHitsCalibration_versions = [
 
     # 12.0.3 simulation and reconstruction, with ideal (calib0) geometry.
@@ -120,6 +122,7 @@ CaloSwCalibHitsCalibration_versions = [
         
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -137,7 +140,8 @@ CaloSwCalibHitsCalibration_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwCalibHitsCalibration (name = None,
+def make_CaloSwCalibHitsCalibration (flags,
+                                     name = None,
                                      suffix = None,
                                      version = None,
                                      key = CALOCORR_DEFAULT_KEY,
@@ -145,7 +149,8 @@ def make_CaloSwCalibHitsCalibration (name = None,
                                      confclass = None,
                                      **kw):
     # Make the tool.
-    return makecorr (versions  = CaloSwCalibHitsCalibration_versions,
+    return makecorr (flags,
+                     versions  = CaloSwCalibHitsCalibration_versions,
                      name      = name,
                      basename  = 'calhits',
                      suffix    = suffix,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -37,6 +37,7 @@ class ISCT_RodDecoder : virtual public IAlgTool
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment&,
                                     SCT_RDO_Container&,
                                     IDCInDetBSErrContainer& errs,
+                                    const EventContext& ctx,
                                     const std::vector<IdentifierHash>* vecHash = nullptr) const = 0;
 };
 

@@ -1,5 +1,5 @@
 #**************   ESD list  ************************************************
-
+from CaloRec.CaloRecFlags import jobproperties
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.Logging import logging
 
@@ -204,8 +204,6 @@ for theKey in CaloClusterKeys: #Fixme .. Apply this only to TopoClusters?
 
 
 CaloAODList+=CaloClusterItemList
-
-CaloAODList+=["CaloClusterContainer#Tau1P3PPi0ClusterContainer"]
 
 # E4' cells
 CaloAODList+=["TileCellContainer#E4prContainer"]

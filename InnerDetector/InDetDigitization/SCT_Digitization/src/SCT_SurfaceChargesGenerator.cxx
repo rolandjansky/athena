@@ -10,6 +10,7 @@
 
 // Athena
 #include "GeneratorObjects/HepMcParticleLink.h"
+#include "InDetIdentifier/SCT_ID.h"
 #include "InDetSimEvent/SiHit.h" // for SiHit, SiHit::::xDep, etc
 #include "HitManagement/TimedHitPtr.h" // for TimedHitPtr
 
@@ -48,6 +49,8 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
 
   // Get ISiliconConditionsSvc
   ATH_CHECK(m_siConditionsTool.retrieve());
+
+  ATH_CHECK(m_fieldCacheCondObjInputKey.initialize(m_doInducedChargeModel));
 
   if (m_doTrapping) {
     // -- Get Radiation Damage Tool
@@ -128,6 +131,13 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
     ATH_CHECK(m_thistSvc->regHist("/file1/trap_pos", m_h_trap_pos));
   }
   ///////////////////////////////////////////////////
+
+  // Induced Charge Module.
+  if (m_doInducedChargeModel) {
+    const SCT_ID* sct_id{nullptr};
+    ATH_CHECK(detStore()->retrieve(sct_id, "SCT_ID"));
+    m_InducedChargeModel = std::make_unique<SCT_InducedChargeModel>(sct_id->wafer_hash_max());
+  }
 
   // Surface drift time calculation Stuff
   m_tHalfwayDrift = m_tSurfaceDrift * 0.5;
@@ -304,7 +314,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
                                                const SiHit& phit,
                                                const ISiSurfaceChargesInserter& inserter,
                                                float p_eventTime,
-                                               unsigned short p_eventId, CLHEP::HepRandomEngine * rndmEngine) const {
+                                               unsigned short p_eventId, CLHEP::HepRandomEngine* rndmEngine) const {
   const SCT_ModuleSideDesign* design{dynamic_cast<const SCT_ModuleSideDesign*>(&(element->design()))};
   if (design==nullptr) {
     ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " << design);
@@ -352,6 +362,24 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
   float xhit{xEta};
   float yhit{xPhi};
   float zhit{xDep};
+
+  SCT_InducedChargeModel::SCT_InducedChargeModelData* data{nullptr};
+  if (m_doInducedChargeModel) { // Setting magnetic field for the ICM.
+    SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, Gaudi::Hive::currentContext()};
+    const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
+    float vdepl{m_vdepl};
+    float vbias{m_vbias};
+    if (m_useSiCondDB) {
+      vdepl = m_siConditionsTool->depletionVoltage(hashId);
+      vbias = m_siConditionsTool->biasVoltage(hashId);
+    }
+    data = m_InducedChargeModel->setWaferData(vdepl,
+                                              vbias,
+                                              element,
+                                              fieldCondObj,
+                                              m_siConditionsTool,
+                                              rndmEngine);
+  }
 
   if (m_doDistortions) {
     if (element->isBarrel()) {// Only apply disortions to barrel modules
@@ -420,8 +448,12 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
     if (t_drift > 0.0) {
       const float x1{xhit + StepX * dstep};
       float y1{yhit + StepY * dstep};
-      y1 += tanLorentz * zReadout; // !< Taking into account the magnetic field
-      const float sigma{diffusionSigma(zReadout, element)};
+
+      float sigma{0.};
+      if (not m_doInducedChargeModel) {
+        sigma = diffusionSigma(zReadout, element);
+        y1 += tanLorentz * zReadout; // !< Taking into account the magnetic field
+      } // These are treated in Induced Charge Model.
 
       for (int i{0}; i < m_numberOfCharges; ++i) {
         const float rx{CLHEP::RandGaussZiggurat::shoot(rndmEngine)};
@@ -491,21 +523,59 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
             } // m_doRamo==true
           } // chargeIsTrapped()
         } // m_doTrapping==true
-        
+
         if (not m_doRamo) {
-          const SiLocalPosition position{element->hitLocalToLocal(xd, yd)};
-          if (design->inActiveArea(position)) {
-            const float sdist{static_cast<float>(design->scaledDistanceToNearestDiode(position))}; // !< dist on the surface from the hit point to the nearest strip (diode)
-            const float t_surf{surfaceDriftTime(2.0 * sdist)}; // !< Surface drift time
-            const float totaltime{(m_tfix > -998.) ? m_tfix.value() : t_drift + timeOfFlight + t_surf}; // !< Total drift time
-            inserter(SiSurfaceCharge(position, SiCharge(q1, totaltime, hitproc, trklink)));
-          } else {
-            ATH_MSG_VERBOSE(std::fixed << std::setprecision(8) << "Local position (phi, eta, depth): ("
-                            << position.xPhi() << ", " << position.xEta() << ", " << position.xDepth() 
-                            << ") of the element is out of active area, charge = " << q1);
+          if (m_doInducedChargeModel) { // Induced Charge Model
+            // Charges storages for 50 ns. 0.5 ns steps.
+            double Q_m2[SCT_InducedChargeModel::NTransportSteps]={0};
+            double Q_m1[SCT_InducedChargeModel::NTransportSteps]={0};
+            double Q_00[SCT_InducedChargeModel::NTransportSteps]={0};
+            double Q_p1[SCT_InducedChargeModel::NTransportSteps]={0};
+            double Q_p2[SCT_InducedChargeModel::NTransportSteps]={0};
+
+            const double mm2cm = 0.1; // For mm -> cm conversion
+            // Unit for y and z : mm -> cm in SCT_InducedChargeModel
+            m_InducedChargeModel->holeTransport(*data,
+                                                y0*mm2cm, z0*mm2cm,
+                                                Q_m2, Q_m1, Q_00, Q_p1, Q_p2,
+                                                hashId, m_siPropertiesTool);
+            m_InducedChargeModel->electronTransport(*data,
+                                                    y0*mm2cm, z0*mm2cm,
+                                                    Q_m2, Q_m1, Q_00, Q_p1, Q_p2,
+                                                    hashId, m_siPropertiesTool);
+
+            for (int it{0}; it<SCT_InducedChargeModel::NTransportSteps; it++) {
+              if (Q_00[it] == 0.0) continue;
+              double ICM_time{(it+0.5)*0.5 + timeOfFlight};
+              double Q_new[SCT_InducedChargeModel::NStrips]{
+                Q_m2[it], Q_m1[it], Q_00[it], Q_p1[it], Q_p2[it]
+              };
+              for (int strip{SCT_InducedChargeModel::StartStrip}; strip<=SCT_InducedChargeModel::EndStrip; strip++) {
+                double ystrip{y1 + strip * stripPitch};
+                SiLocalPosition position{element->hitLocalToLocal(x1, ystrip)};
+                if (design->inActiveArea(position)) {
+                  inserter(SiSurfaceCharge(position,
+                                           SiCharge(q1 * Q_new[strip+SCT_InducedChargeModel::Offset],
+                                                    ICM_time, hitproc, trklink)));
+                }
+              }
+            }
+          } else { // not m_doInducedChargeModel
+            const SiLocalPosition position{element->hitLocalToLocal(xd, yd)};
+            if (design->inActiveArea(position)) {
+              const float sdist{static_cast<float>(design->scaledDistanceToNearestDiode(position))};
+              // !< dist on the surface from the hit point to the nearest strip (diode)
+              const float t_surf{surfaceDriftTime(2.0 * sdist)}; // !< Surface drift time
+              const float totaltime{(m_tfix > -998.) ? m_tfix.value() : t_drift + timeOfFlight + t_surf}; // !< Total drift time
+              inserter(SiSurfaceCharge(position, SiCharge(q1, totaltime, hitproc, trklink)));
+            } else {
+              ATH_MSG_VERBOSE(std::fixed << std::setprecision(8) << "Local position (phi, eta, depth): ("
+                              << position.xPhi() << ", " << position.xEta() << ", " << position.xDepth()
+                              << ") of the element is out of active area, charge = " << q1);
+            }
           }
-        } // end of loop on charges
-      }
+        }
+      } // end of loop on charges
     }
   }
   return;

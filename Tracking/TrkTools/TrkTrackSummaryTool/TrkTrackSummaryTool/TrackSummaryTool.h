@@ -6,8 +6,8 @@
 #define TRKTRACKSUMMARYTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CxxUtils/checker_macros.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
@@ -277,7 +277,8 @@ private:
 
   /**loops over TrackStatesOnSurface and uses this to produce the summary
      information Fills 'information', 'eProbability', and 'hitPattern'*/
-  void processTrackStates(const Track& track,
+  void processTrackStates(const EventContext& ctx,
+                          const Track& track,
                           const Trk::PRDtoTrackMap* prd_to_track_map,
                           const DataVector<const TrackStateOnSurface>* tsos,
                           std::vector<int>& information,
@@ -285,7 +286,8 @@ private:
                           bool doHolesInDet,
                           bool doHolesMuon) const;
 
-  void processMeasurement(const Track& track,
+  void processMeasurement(const EventContext& ctx,
+                          const Track& track,
                           const Trk::PRDtoTrackMap* prd_to_track_map,
                           const Trk::MeasurementBase* meas,
                           const Trk::TrackStateOnSurface* tsos,

@@ -98,7 +98,7 @@ ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 topSequence += TrigEDMChecker
-TrigEDMChecker.doDumpAll = True
+TrigEDMChecker.doDumpAll = False
 
 
 

@@ -141,7 +141,7 @@ private:
     Trk::SmoothedTrajectory& smoothedTrajectory) const;
 
   /** Forward GSF fit using PrepRawData */
-  std::unique_ptr<ForwardTrajectory> fitPRD(
+  ForwardTrajectory fitPRD(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
     const PrepRawDataSet&,
@@ -149,7 +149,7 @@ private:
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Forward GSF fit using MeasurementSet */
-  std::unique_ptr<ForwardTrajectory> fitMeasurements(
+  ForwardTrajectory fitMeasurements(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
     const MeasurementSet&,
@@ -160,7 +160,7 @@ private:
   bool stepForwardFit(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
-    ForwardTrajectory*,
+    ForwardTrajectory&,
     const PrepRawData*,
     const MeasurementBase*,
     const Surface&,
@@ -195,6 +195,7 @@ private:
     "Store Multicomponent State (preferred if we slim later on) or Single "
     "state in final trajectory"
   };
+
 
   Gaudi::Property<bool> m_reintegrateOutliers{ this,
                                                "ReintegrateOutliers",
@@ -242,19 +243,19 @@ private:
 
   // Counters for fit statistics
   // Number of Fit PrepRawData Calls
-  mutable std::atomic<int> m_FitPRD;
+  mutable std::atomic<unsigned long int> m_FitPRD;
   // Number of Fit MeasurementBase Calls
-  mutable std::atomic<int> m_FitMeasurementBase;
+  mutable std::atomic<unsigned long int> m_FitMeasurementBase;
   // Number of Foward Fit Failures
-  mutable std::atomic<int> m_ForwardFailure;
+  mutable std::atomic<unsigned long int> m_ForwardFailure;
   // Number of Smoother Failures
-  mutable std::atomic<int> m_SmootherFailure;
+  mutable std::atomic<unsigned long int> m_SmootherFailure;
   // Number of MakePerigee Failures
-  mutable std::atomic<int> m_PerigeeFailure;
+  mutable std::atomic<unsigned long int> m_PerigeeFailure;
   // Number of Tracks that fail fit Quailty test
-  mutable std::atomic<int> m_fitQualityFailure;
+  mutable std::atomic<unsigned long int> m_fitQualityFailure;
   // Number of Tracks that are successfull
-  mutable std::atomic<int> m_fitSuccess;
+  mutable std::atomic<unsigned long int> m_fitSuccess;
 };
 
 } // end Trk namespace

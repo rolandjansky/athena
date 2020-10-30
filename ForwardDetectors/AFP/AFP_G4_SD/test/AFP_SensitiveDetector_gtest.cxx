@@ -6,6 +6,8 @@
 
 #include "gtest/gtest.h"
 
+#include <vector>
+
 #include "TestTools/initGaudi.h"
 
 #include "G4HCofThisEvent.hh"
@@ -60,9 +62,9 @@ TEST_F( AFP_SensitiveDetectortest, Initialize )
   G4TouchableHistory th;
 
   G4double totalenergydeposit = 0.8;
-  G4String physicalname = "physicsTDQuarticBar[9]";
+  std::vector<G4String> physicalname = {"physicsTDQuarticBar[9]"};
   G4String logicalname = "BBBBBBBBBTubeGas";
-  G4int copyno = 2009;
+  std::vector<G4int> copynos = {2009};
   G4ThreeVector preStepPos = G4ThreeVector(0,0,1);
   G4ThreeVector postStepPos = G4ThreeVector(0,0,2);
   G4double globaltime0 = 0.5;
@@ -82,7 +84,7 @@ TEST_F( AFP_SensitiveDetectortest, Initialize )
   G4String nop1 = "opticalphoton";
   G4String nop2 = "opticalphoton";
   G4String nop3 = "photon";
-  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copyno, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);
+  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copynos, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);
 
   AFP_SensitiveDetector sd21("name21", "name21", "name21");
   sd21.Initialize(&hce);
@@ -130,9 +132,9 @@ TEST_F( AFP_SensitiveDetectortest, ProcessHits2 )//this test aims to test the sp
   G4TouchableHistory th;
 
   G4double totalenergydeposit = 8;
-  G4String physicalname = "phy01lSIDSensor[9]";
+  std::vector<G4String> physicalname = {"phy01lSIDSensor[9]"};
   G4String logicalname = "BBBBBBBBBTubeGas";
-  G4int copyno = 2009;
+  std::vector<G4int> copynos = {2009};
   G4ThreeVector preStepPos = G4ThreeVector(1,1,1);
   G4ThreeVector postStepPos = G4ThreeVector(2,2,2);
   G4double globaltime0 = 0.5;
@@ -152,7 +154,7 @@ TEST_F( AFP_SensitiveDetectortest, ProcessHits2 )//this test aims to test the sp
   G4String nop1 = "opticalphoton";
   G4String nop2 = "opticalphoton";
   G4String nop3 = "photon";
-  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copyno, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);
+  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copynos, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);
 
   AFP_SensitiveDetector sd22("name22", "name22", "name22");
   sd22.Initialize(&hce);

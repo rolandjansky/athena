@@ -114,6 +114,7 @@ namespace InDet {
     m_q = q;
     bool pixb = !m_s0->spacepoint->clusterList().second;
     bool pixt = !m_s2->spacepoint->clusterList().second;
+    /// if PPP or SSS, just update quality, don't cut
     if(pixb==pixt) {
       m_s0->setQuality(q);
       m_s1->setQuality(q);

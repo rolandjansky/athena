@@ -60,19 +60,25 @@ namespace InDet
    virtual StatusCode initialize() override;
 
    /** standard Athena-Algorithm method */
-   virtual StatusCode finalize  () override; 
+   virtual StatusCode finalize  () override;
 
-   /** Return the local occupancy for the sectors crossed by a given track */ 
-   virtual float LocalOccupancy( const Trk::Track& track) const override;
-   virtual float LocalOccupancy(const double eta, const double phi) const override;
+   /** Return the local occupancy for the sectors crossed by a given track */
+   using ITRT_LocalOccupancy::LocalOccupancy;
+   virtual float LocalOccupancy(const EventContext& ctx,
+                                const Trk::Track& track) const override;
+   virtual float LocalOccupancy(const EventContext& ctx,
+                                const double eta,
+                                const double phi) const override;
 
    /** Return a map of the occupancy in the barrel (-1,+1) and endcaps (-2,+2) */
    virtual std::map<int, double> getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const override;
 
    /** Return the global occupancy of the event*/ 
-   /** 7 Floats: TRT, Barrel A / C, endcapA/B A/C */ 
-   virtual std::vector<float> GlobalOccupancy( ) const override;
+   /** 7 Floats: TRT, Barrel A / C, endcapA/B A/C */
 
+   using ITRT_LocalOccupancy::GlobalOccupancy;
+   virtual std::vector<float> GlobalOccupancy(
+     const EventContext& ctx) const override;
 
    //Total TRT, (B, ECA, ECB)side C, (B, ECA, ECB)side A [7]
    static const int NTOTAL = 7;
@@ -94,8 +100,8 @@ namespace InDet
 
 
   private:
-      const OccupancyData* getData() const;
-      std::unique_ptr<OccupancyData> makeData() const;
+      const OccupancyData* getData(const EventContext& ctx) const;
+      std::unique_ptr<OccupancyData> makeData(const EventContext& ctx) const;
       std::unique_ptr<OccupancyData> makeDataTrigger() const;
 
       bool isMiddleBXOn(unsigned int word) const;

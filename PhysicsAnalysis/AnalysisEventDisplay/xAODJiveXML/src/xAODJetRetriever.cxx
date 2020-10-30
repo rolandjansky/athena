@@ -8,6 +8,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 #include "xAODJet/JetAttributes.h"
 
 #include "TrkTrack/Track.h"
@@ -278,7 +279,7 @@ namespace JiveXML {
       pz.push_back(DataType((*jetItr)->pz()/GeV));
 
       // bjet tagger values
-      const xAOD::BTagging *bTagJet = (*jetItr)->btagging();
+      const xAOD::BTagging *bTagJet = xAOD::BTaggingUtilities::getBTagging( **jetItr );
 
 
       bTagName.push_back( DataType( "default" ));

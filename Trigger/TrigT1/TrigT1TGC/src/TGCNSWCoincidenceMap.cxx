@@ -148,15 +148,9 @@ namespace LVL1TGCTrigger {
     std::string kCWtype[2] = {"EtaPhi","EtaDtheta"};
 
     std::string dbname="";
-    //Files below are put in calib dirctory when the files are fixed.
-    //dbname = "/NSW/cm_" + kSide[m_side] + moduleName +kCWtype[cw_type]+"_"+m_verName+".db";
-    //std::string fullName = PathResolver::FindCalibDirectory("TrigT1TGC_CW")+fn;
-	  
-    // Coincidence Map files haven't fixed.
-    // The files are temporary and just for test.
-    // These files are in lxplus.cern.ch:/afs/cern.ch/user/h/hhibi/public/TrigT1TGC/
 
-    std::string fullName = "./cm_" + kSide[m_side] + moduleName+kCWtype[cw_type]+"_0030.db";
+    dbname = "/NSW/cm_" + kSide[m_side] + moduleName +kCWtype[cw_type]+"_Octant_"+m_verName+".db";
+    std::string fullName = PathResolver::FindCalibDirectory("dev")+"/TrigT1TGC"+dbname;
 
     std::ifstream data(fullName);
     if(!data.is_open()){return false;}
@@ -216,22 +210,14 @@ namespace LVL1TGCTrigger {
     int triggerSector;
 
     //------- Read Endcap Shift
-    std::string dbname="";
-	  
-    // Files for decording haven't fixed.
-    // The files are temporary and just for test.
-    // These files are in lxplus.cern.ch:/afs/cern.ch/user/h/hhibi/public/TrigT1TGC/
-    if(m_region==ENDCAP){dbname = "./RoIpos_Endcap.db";}
-    if(m_region==FORWARD){dbname = "./RoIpos_Forward.db";}
+    std::string dbname="/NSW/";
 
-    //Files below are put in calib dirctory when the files are fixed.
-    //if(m_region==ENDCAP){dbname = "/NSW/decorder_Endcap_"+m_verName+".db";}
-    //if(m_region==FORWARD){dbname = "/NSW/decorder_Forward_"+m_verName+".db";}
-    //fullName = PathResolver::FindCalibDirectory("TrigT1TGC_CW")+fn;
+    if(m_region==ENDCAP){dbname += "RoIpos_Endcap.db";}
+    if(m_region==FORWARD){dbname += "RoIpos_Forward.db";}
+    std::string fullName = PathResolver::FindCalibDirectory("dev")+"/TrigT1TGC"+dbname;
 
-    std::ifstream data(dbname);
+    std::ifstream data(fullName);
     if(!data.is_open()){return false;}
-
     while (std::getline(data, field, delimiter)) {
       std::istringstream header(field); 
       header >> tag;

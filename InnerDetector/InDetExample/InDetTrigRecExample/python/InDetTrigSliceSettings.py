@@ -153,10 +153,17 @@ class InDetTrigSliceSettingsDB:
     for i in _slices:
       drdoubletmax[i] = 270
       seedradbinwidth[i] = 2
-    drdoubletmax['beamSpot'] = 200
+
+    drdoubletmax['beamSpot']    = 200
     seedradbinwidth['beamSpot'] = 10
+
+    drdoubletmax['fullScan']    = 200
+    seedradbinwidth['fullScan'] = 10
+
     self.db['dRdoubletMax'] = drdoubletmax
     self.db['seedRadBinWidth'] = seedradbinwidth
+
+
 
     #etaHalfWidth
     etahalf = {

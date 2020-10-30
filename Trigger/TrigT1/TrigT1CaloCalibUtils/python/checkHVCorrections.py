@@ -6,21 +6,15 @@
 from __future__ import print_function
 
 import ROOT
-import sys
-import time
 import os
 
 import PlotCalibrationGains
 
 import PlotCalibrationHV
 
-from PyCool import cool
 from optparse import OptionParser
 
-from math import fabs
-
 import numpy as np
-import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 
 plt.xkcd()
@@ -132,7 +126,7 @@ if __name__ == "__main__":
            gainPredictorEmHVCorrection = 1.
 
          if (not gain == '') and (not reference_gain == ''):        # both  gains should be available
-	 
+
            h_gains_em.Fill(i_eta,i_phi,gain)
            h_gains_em_noHV.Fill(i_eta,i_phi,reference_gain)
            h_corr_em.Fill(i_eta,i_phi,meanEmHVCorrection)

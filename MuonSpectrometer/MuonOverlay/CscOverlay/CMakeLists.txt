@@ -17,4 +17,4 @@ atlas_add_component( CscOverlay
 
 # Install files from the package:
 atlas_install_headers( CscOverlay )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

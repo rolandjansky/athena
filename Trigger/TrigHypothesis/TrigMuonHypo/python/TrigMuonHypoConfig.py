@@ -1,4 +1,6 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+# flake8: noqa   (trigger legacy code)
 
 from __future__ import print_function
 
@@ -527,32 +529,6 @@ class MufastCALHypoConfig(MufastCALHypo) :
         cosmic     = MufastCALHypoCosmicMonitoring()
 
         self.AthenaMonTools = [ validation, online, cosmic ]
-
-
-class MufastOTRHypoConfig(MufastOTRHypo) :
-
-    __slots__ = []
-
-    def __new__( cls, *args, **kwargs ):
-        if len(args) == 2:
-            newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
-        if len(args) == 4:
-            newargs = ['%s_%s_%s_%s_%s' % (cls.getType(),args[0],args[1],args[2],args[3])] + list(args)
-        return super( MufastOTRHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
-
-    def __init__( self, name, *args, **kwargs ):
-        super( MufastOTRHypoConfig, self ).__init__( name )
-
-        threshold = int(args[1])
-
-        self.SegmentsTh = threshold
-
-        validation = MufastOTRHypoValidationMonitoring()
-        online     = MufastOTRHypoOnlineMonitoring()
-        cosmic     = MufastOTRHypoCosmicMonitoring()
-
-        self.AthenaMonTools = [ validation, online, cosmic ]
-
 
 
 class MucombHypoConfig(MucombHypo) :

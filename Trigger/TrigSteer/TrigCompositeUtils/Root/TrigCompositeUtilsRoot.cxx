@@ -336,6 +336,79 @@ namespace TrigCompositeUtils {
   }
 
 
+  bool typelessFindLinks(const Decision* start, const std::string& linkName,
+    std::vector<uint32_t>& keyVec, std::vector<uint32_t>& clidVec, std::vector<uint16_t>& indexVec,
+    const unsigned int behaviour, std::set<const Decision*>* visitedCache)
+  {
+    using namespace msgFindLink;
+    if (visitedCache != nullptr) {
+      // We only need to recursivly explore back from each node in the graph once.
+      // We can keep a record of nodes which we have already explored, these we can safely skip over.
+      if (visitedCache->count(start) == 1) {
+        return false; // Early exit
+      }
+    }
+
+    bool found = false;
+    if (start->hasObjectCollectionLinks(linkName)) {
+      found = start->typelessGetObjectCollectionLinks(linkName, keyVec, clidVec, indexVec);
+    }
+    if (start->hasObjectLink(linkName)) {
+      uint32_t key, clid;
+      uint16_t index;
+      found |= start->typelessGetObjectLink(linkName, key, clid, index);
+      keyVec.push_back(key);
+      clidVec.push_back(clid);
+      indexVec.push_back(index);
+    }
+    // Early exit
+    if (found && behaviour == TrigDefs::lastFeatureOfType) {
+      return true;
+    }
+    // If not Early Exit, then recurse
+    for (const auto& seed : getLinkToPrevious(start)) {
+      found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, behaviour, visitedCache);
+    }
+    // Fully explored this node
+    if (visitedCache != nullptr) {
+      visitedCache->insert(start);
+    }
+    return found;
+  }
+
+
+  bool typelessFindLink(const Decision* start, const std::string& linkName, 
+    uint32_t& key, uint32_t& clid, uint16_t& index,
+    const bool suppressMultipleLinksWarning)
+  {
+    using namespace msgFindLink;
+    // We use findLink in cases where there is only one link to be found, or if there are multiple then we 
+    // only want the most recent.
+    // Hence we can supply TrigDefs::lastFeatureOfType.                                                         /--> parent3(link)
+    // We can still have more then one link found if there is a branch in the navigation. E.g. start --> parent1 --> parent2(link)
+    // If both parent2 and parent3 posessed an admisable ElementLink, then the warning below will trigger, and only one of the
+    // links will be returned (whichever of parent2 or parent3 happened to be the first seed of parent1).
+    std::vector<uint32_t> keyVec;
+    std::vector<uint32_t> clidVec;
+    std::vector<uint16_t> indexVec;
+    std::set<const xAOD::TrigComposite*> visitedCache;
+
+    const bool result = typelessFindLinks(start, linkName, keyVec, clidVec, indexVec, TrigDefs::lastFeatureOfType, &visitedCache);
+    if (!result) {
+      return false; // Nothing found
+    }
+
+    if (keyVec.size() > 1 && !suppressMultipleLinksWarning) {
+      ANA_MSG_WARNING (keyVec.size() << " typeless links found for " << linkName
+                       << " returning the first link, consider using findLinks.");
+    }
+    key = keyVec.at(0);
+    clid = clidVec.at(0);
+    index = indexVec.at(0);
+    return true; 
+  }
+
+
   std::string dump( const Decision* tc, std::function< std::string( const Decision* )> printerFnc ) {
     std::string ret; 
     ret += printerFnc( tc );

@@ -35,8 +35,8 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 ## Output NTUP_FCS File
 if hasattr(runArgs,"outputNTUP_FCSFile"):
-    print "Output is"
-    print  runArgs.outputNTUP_FCSFile
+    print("Output is")
+    print(runArgs.outputNTUP_FCSFile)
     ServiceMgr.THistSvc.Output +=["ISF_HitAnalysis DATAFILE='"+runArgs.outputNTUP_FCSFile+"' OPT='RECREATE'"] # FIXME top level directory name
 else:
     fcsntuplog.warning('No output file set')

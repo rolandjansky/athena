@@ -41,31 +41,38 @@ void VP1Msg::messageDebug( const QString& str )
   if (!debug()){
     return;
   }
-  std::cout << prefix_debug() << ": "<< str.toStdString()<<std::endl;
+ std::cout << prefix_debug() << ": "<< str.toStdString()<<std::endl;
 }
 
 //____________________________________________________________________
-void VP1Msg::messageWarning( const QString& str )
+void VP1Msg::messageWarning( const QString& str, IVP1System* sys /* defaults to: 0 */  )
 {
+  if (sys)
+    sys->message(str);
   std::cout << prefix_warning() << ": "<< str.toStdString()<<std::endl;
 }
 
 // only the 'Warning' label is printed in red
 //____________________________________________________________________
-void VP1Msg::messageWarningRed( const QString& str )
+void VP1Msg::messageWarningRed( const QString& str, IVP1System* sys /* defaults to: 0 */  )
 {
-	// colors, see:
+    if (sys)
+        sys->message(str);
+	
+    // colors, see:
 	// - http://brianmilco.blogspot.ch/2011/11/color-debug-output-with-qt-and-qdebug.html
 	// - http://misc.flogisoft.com/bash/tip_colors_and_formatting
 	std::string msg = str.toStdString();
 	fprintf(stderr, "\033[1m\033[31mWarning:\033[21m\033[0m: %s\n", msg.c_str() );
 }
-
 // The whole 'Warning' message is printed in red
 //____________________________________________________________________
-void VP1Msg::messageWarningAllRed( const QString& str )
+void VP1Msg::messageWarningAllRed( const QString& str, IVP1System* sys /* defaults to: 0 */ )
 {
-	// colors, see:
+    if (sys)
+        sys->message(str);
+	
+    // colors, see:
 	// - http://brianmilco.blogspot.ch/2011/11/color-debug-output-with-qt-and-qdebug.html
 	// - http://misc.flogisoft.com/bash/tip_colors_and_formatting
 	std::string msg = str.toStdString();

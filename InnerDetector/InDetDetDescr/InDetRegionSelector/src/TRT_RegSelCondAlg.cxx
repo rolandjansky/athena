@@ -22,7 +22,6 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h" 
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h" 

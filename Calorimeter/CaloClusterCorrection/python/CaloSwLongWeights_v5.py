@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: CaloClusterCorrection/python/CaloSwLongWeights_v5.py
 # Created: July 2008, NK, SP
@@ -7,7 +7,7 @@
 # These corrections were derived by Nicolas Kerschen and Stathes Paganis
 # The geometry is ATLAS-CSC-05-00-00
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 
 #######################################################################
 # 5x5 cluster size electrons.

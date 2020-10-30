@@ -6,6 +6,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GaudiKernel/PhysicalConstants.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
+#include "MuonReadoutGeometry/sTgcReadoutElement.h"
 
 namespace {
   static constexpr double const& toRad = M_PI/180;
@@ -138,6 +139,8 @@ StatusCode Muon::NSWCalibTool::calibrateClus(const Muon::MMPrepData* prepData, c
   return StatusCode::SUCCESS;
 }
 
+
+
 StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double charge, const double lorentzAngle, NSWCalib::CalibratedStrip& calibStrip) const {
   calibStrip.charge = charge;
   calibStrip.time = time;
@@ -152,6 +155,7 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const double time, const double ch
   calibStrip.dx = std::sin(lorentzAngle) * calibStrip.time * m_vDrift;
   return StatusCode::SUCCESS;
 }
+
 
 StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData, NSWCalib::CalibratedStrip& calibStrip) const
 {
@@ -177,6 +181,28 @@ StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::MM_RawData* mmRawData,
 
   return StatusCode::SUCCESS;
 }
+
+StatusCode Muon::NSWCalibTool::calibrateStrip(const Muon::STGC_RawData* sTGCRawData, NSWCalib::CalibratedStrip& calibStrip) const
+{
+  Identifier rdoId = sTGCRawData->identify();
+
+  // MuonDetectorManager from the conditions store
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> muDetMgrHandle{m_muDetMgrKey};
+  const MuonGM::MuonDetectorManager* muDetMgr = muDetMgrHandle.cptr();
+
+  //get globalPos
+  Amg::Vector3D globalPos;
+  const MuonGM::sTgcReadoutElement* detEl = muDetMgr->getsTgcReadoutElement(rdoId);
+  detEl->stripGlobalPosition(rdoId,globalPos);
+
+  calibStrip.charge =sTGCRawData->charge();
+  calibStrip.time = sTGCRawData->time() - globalPos.norm() * reciprocalSpeedOfLight + m_timeOffset;
+  calibStrip.identifier = sTGCRawData->identify();
+
+  return StatusCode::SUCCESS;
+}
+
+
 
 double Muon::NSWCalibTool::pdoToCharge(const int pdoCounts, const Identifier& stripID) const {
   double charge = 0;

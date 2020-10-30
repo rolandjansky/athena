@@ -1,25 +1,11 @@
-################################################################################
-# Package: EvtGen_i
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EvtGen_i )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/StoreGate
-                          GaudiKernel
-                          Generators/GeneratorModules
-                          Generators/GeneratorObjects
-                          Generators/AtlasHepMC
-                          PRIVATE
-                          Control/AthenaKernel )
-
 #set( PHOTOSPP_VERSION 3.61 )
 #set( PHOTOSPP_ROOT
 #   /cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/photos++/${PHOTOSPP_VERSION}/${LCG_PLATFORM} )
-
-
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -58,8 +44,7 @@ atlas_add_library( EvtGen_iLib
 
 atlas_add_component( EvtGen_i
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS} ${PHOTOSPP_INCLUDE_DIRS} ${TAUOLAPP_INCLUDE_DIRS}  ${EVTGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} ${PHOTOSPP_LIBRARIES} ${TAUOLAPP_LIBRARIES} AtlasHepMCLib ${EVTGEN_LIBRARIES} StoreGateLib SGtests GaudiKernel GeneratorModulesLib GeneratorObjects AthenaKernel EvtGen_iLib )
+                     LINK_LIBRARIES EvtGen_iLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/common/*.py )

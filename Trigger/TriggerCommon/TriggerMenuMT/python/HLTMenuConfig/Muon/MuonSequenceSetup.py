@@ -5,7 +5,8 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND, seqOR
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
+from AthenaCommon.Logging import logging
+log = logging.getLogger('MuonSequenceSetup')
 
 #-----------------------------------------------------#
 ### Used the algorithms as Step1 "muFast step" ###
@@ -115,7 +116,7 @@ def muCombAlgSequence(ConfigFlags):
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
 
     ### get ID tracking and muComb reco sequences ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muFastRecoSequence, muCombRecoSequence, muonIDFastTrackingSequence
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
@@ -126,7 +127,10 @@ def muCombAlgSequence(ConfigFlags):
     muonChainFilter.ChainsToFilter=bphysChains
     muonChainFilter.InputDecisions = [ CFNaming.inputMakerOutName(l2muCombViewsMaker.name()) ]
     muonChainFilter.L2MuCombContainer = sequenceOut
+    muonChainFilter.WriteMuFast = False
+    muonChainFilter.WriteMuComb = True
 
+    # for nominal muComb
     muCombFilterSequence = seqAND("l2muCombFilterSequence", [muonChainFilter, muCombRecoSequence])
 
     extraLoads = []
@@ -135,7 +139,22 @@ def muCombAlgSequence(ConfigFlags):
       extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+'+decision )]
 
     muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
-    muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
+    # muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
+
+    # for Inside-out L2SA
+    muFastIORecoSequence, sequenceOutL2SAIO = muFastRecoSequence( "MURoIs", doFullScanID=False, InsideOutMode=True )
+    insideoutMuonChainFilter = MuonChainFilterAlg("FilterInsideOutMuonChains")
+    insideoutMuonChains = getInsideOutMuonChainNames()
+    insideoutMuonChainFilter.ChainsToFilter = insideoutMuonChains
+    insideoutMuonChainFilter.InputDecisions = [ CFNaming.inputMakerOutName(l2muCombViewsMaker.name()) ]
+    insideoutMuonChainFilter.L2MuFastContainer = sequenceOutL2SAIO
+    insideoutMuonChainFilter.L2MuCombContainer = muNames.L2CBName+"IOmode"
+    insideoutMuonChainFilter.WriteMuFast = True
+    insideoutMuonChainFilter.WriteMuComb = True
+
+    muFastIOFilterSequence = seqAND("l2muFastIOFilterSequence", [insideoutMuonChainFilter, muFastIORecoSequence])
+
+    muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence, muFastIOFilterSequence])
 
     l2muCombViewsMaker.ViewNodeName = muCombIDSequence.name()
 
@@ -179,6 +198,25 @@ def muCombOvlpRmSequence():
                          Maker       = l2muCombViewsMaker,
                          Hypo        = trigmuCombHypo,
                          HypoToolGen = TrigmuCombHypoToolwORFromDict )
+
+
+
+def mul2IOOvlpRmSequence():
+
+    (l2muCombSequence, l2muCombViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombAlgSequence, ConfigFlags)
+
+    ### set up muCombHypo algorithm ###
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBIOHypoAlg")
+    trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = muNames.L2CBName+"IOmode"
+
+    # from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigL2MuonOverlapRemoverMucombToolFromDict
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import Trigl2IOHypoToolwORFromDict
+
+    return MenuSequence( Sequence    = l2muCombSequence,
+                         Maker       = l2muCombViewsMaker,
+                         Hypo        = trigmuCombHypo,
+                         HypoToolGen = Trigl2IOHypoToolwORFromDict )
 
 
 
@@ -484,51 +522,6 @@ def efLateMuSequence():
 
 
 ######################
-### l2Muiso step ###
-######################
-def muIsoAlgSequence(ConfigFlags):
-
-    l2muIsoViewsMaker = EventViewCreatorAlgorithm("IMl2muIso")
-    #
-    l2muIsoViewsMaker.RoIsLink = "roi" # Merge based on L2SA muon
-    l2muIsoViewsMaker.RoITool = ViewCreatorPreviousROITool() # Spawn EventViews on L2SA muon ROI 
-    #
-    l2muIsoViewsMaker.Views = "MUIsoViewRoIs"
-    l2muIsoViewsMaker.InViewRoIs = "MUIsoRoIs"
-    #
-    l2muIsoViewsMaker.RequireParentView = True
-    l2muIsoViewsMaker.ViewFallThrough = True
-
-    ### get EF reco sequence ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import l2muisoRecoSequence
-    l2muisoRecoSequence, sequenceOut = l2muisoRecoSequence( l2muIsoViewsMaker.InViewRoIs )
- 
-    l2muIsoViewsMaker.ViewNodeName = l2muisoRecoSequence.name()
-     
-    ### Define a Sequence to run for muIso ### 
-    l2muIsoSequence = seqAND("l2muIsoSequence", [ l2muIsoViewsMaker, l2muisoRecoSequence ] )
-
-    return (l2muIsoSequence, l2muIsoViewsMaker, sequenceOut)
-
-def muIsoSequence():
- 
-    (l2muIsoSequence, l2muIsoViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muIsoAlgSequence, ConfigFlags)
-
-    # set up hypo    
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoAlg
-    trigmuIsoHypo = TrigMuisoHypoAlg("L2MuisoHypoAlg")
-    trigmuIsoHypo.MuonL2ISInfoName = sequenceOut
-   
-    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuisoHypoToolFromDict
-
-    return MenuSequence( Sequence    = l2muIsoSequence,
-                         Maker       = l2muIsoViewsMaker,
-                         Hypo        = trigmuIsoHypo,
-                         HypoToolGen = TrigMuisoHypoToolFromDict )
-
-
-
-######################
 ### efMuiso step ###
 ######################
 def muEFIsoAlgSequence(ConfigFlags):
@@ -602,4 +595,27 @@ def getBphysChainNames():
     if bphysSlice:
         for chain in bphysSlice:
             chains.append(chain.name)
+    return chains
+
+############################################################
+### Get muon triggers except L2 inside-out trigger
+### to filter chains where we don't want to run L2SA IO mode
+############################################################
+
+def getInsideOutMuonChainNames():
+
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
+    muonSlice = TriggerFlags.MuonSlice.signatures()
+    bphysSlice = TriggerFlags.BphysicsSlice.signatures()
+    chains =[]
+
+    try:
+        chains += [chain.name for chain in muonSlice if "l2io" not in chain.name]
+    except Exception as e:
+        log.debug(e)
+    try:
+        chains += [chain.name for chain in bphysSlice if "l2io" not in chain.name]
+    except Exception as e:
+        log.debug(e)
+
     return chains

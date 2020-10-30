@@ -23,6 +23,7 @@
 #   useVertices - Toggles whether PFlow jet reconstruction makes use of vertex information.
 #   useMuonSegmentss - Muon segemnt association is enabled
 #   usePFlow - PFlow jets and associations are enabled
+#   usePFlowFE - PFlow jets using FlowElements are enabled
 #   useInDetTrackSelection - The inner detector track selection
 #     tool is used. This requires track propagator exist.
 #   jetAODList - The list of jet collections to be written out
@@ -108,6 +109,13 @@ class usePFlow(JobProperty):
   statusOn     = True
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
+
+class usePFlowFE(JobProperty):
+  """ If true, pflow objects are present as FlowElements and used in jet reconstruction.
+  """
+  statusOn     = True
+  allowedTypes = ['bool']  # type
+  StoredValue  = False     # default value
 
 class eventShapeTools(JobProperty):
   """ List of event shape tools that should be called to calculate rho.
@@ -251,6 +259,7 @@ jobproperties.JetRecFlags.add_JobProperty(useVertices)
 jobproperties.JetRecFlags.add_JobProperty(useInDetTrackSelection)
 jobproperties.JetRecFlags.add_JobProperty(useMuonSegments)
 jobproperties.JetRecFlags.add_JobProperty(usePFlow)
+jobproperties.JetRecFlags.add_JobProperty(usePFlowFE)
 jobproperties.JetRecFlags.add_JobProperty(eventShapeTools)
 jobproperties.JetRecFlags.add_JobProperty(jetAODList)
 jobproperties.JetRecFlags.add_JobProperty(useCells)

@@ -1,34 +1,7 @@
-################################################################################
-# Package: LArROD
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArROD )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          LArCalorimeter/LArCabling
-                          LArCalorimeter/LArElecCalib
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRawConditions
-                          LArCalorimeter/LArRawEvent
-                          LArCalorimeter/LArRawUtils
-                          LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArRecUtils
-                          TestBeam/TBEvent
-                          PRIVATE
-                          Control/CxxUtils
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloEvent
-                          Commission/CommissionEvent
-                          Control/AthContainers
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          LArCalorimeter/LArCOOLConditions )
 
 # External dependencies:
 find_package( CLHEP )
@@ -42,8 +15,8 @@ atlas_add_library( LArRODLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArRecConditions TBEvent StoreGateLib SGtests LArCablingLib LArRawUtilsLib LArRecUtilsLib CaloDetDescrLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CommissionEvent AthContainers AthenaPoolUtilities LArCOOLConditions )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthContainers AthenaBaseComps AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArRawConditions LArRawEvent LArRecConditions TBEvent StoreGateLib LArCablingLib LArElecCalib LArRawUtilsLib LArRecUtilsLib
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloDetDescrLib CommissionEvent LArCOOLConditions )
 
 atlas_add_component( LArROD
                      src/components/*.cxx

@@ -70,7 +70,7 @@ def make_grl(iovset, name="unknown", version="unknown"):
           name=name, version=version, 
           time=datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f"))).strip()]
           
-    for run, iovs in sorted(iovset.by_run.iteritems()):
+    for run, iovs in sorted(iovset.by_run.items()):
         result.append("      <LumiBlockCollection>")
         result.append("         <Run>%i</Run>" % run)
         for iov in iovs:

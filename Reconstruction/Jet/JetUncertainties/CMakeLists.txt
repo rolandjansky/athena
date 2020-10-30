@@ -1,32 +1,7 @@
-# $Id: CMakeLists.txt 786868 2016-11-28 12:40:09Z krasznaa $
-################################################################################
-# Package: JetUncertainties
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetUncertainties )
-
-# Extra dependencies, based on the build environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODJet
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   Reconstruction/Jet/JetCPInterfaces
-   PRIVATE
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODTracking
-   Tools/PathResolver
-   ${extra_deps} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf Gpad )
@@ -36,7 +11,7 @@ atlas_add_library( JetUncertaintiesLib
    JetUncertainties/*.h Root/*.cxx
    PUBLIC_HEADERS JetUncertainties
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet PATInterfaces
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools xAODEventInfo xAODJet PATInterfaces
    JetCPInterfaces
    PRIVATE_LINK_LIBRARIES xAODCore xAODTracking PathResolver )
 

@@ -19,7 +19,6 @@
 #include "../TgcPrepDataCollectionGetterTool.h" // David
 #include "../CscPrepDataCollectionGetterTool.h" // David
 #include "../MuonPatternCombinationFillerTool.h" // Daniel
-#include "../MuonPatternCombinationMissedHitFillerTool.h" // Daniel
 #include "../MuonSegmentTruthFillerTool.h" // Daniel
 
 #include "../MDTSimHitFillerTool.h"
@@ -49,7 +48,6 @@ DECLARE_COMPONENT( D3PD::RpcPrepDataCollectionGetterTool ) // David
 DECLARE_COMPONENT( D3PD::TgcPrepDataCollectionGetterTool ) // David
 DECLARE_COMPONENT( D3PD::CscPrepDataCollectionGetterTool ) // David
 DECLARE_COMPONENT( D3PD::MuonPatternCombinationFillerTool ) // Daniel
-DECLARE_COMPONENT( D3PD::MuonPatternCombinationMissedHitFillerTool ) // Daniel
 DECLARE_COMPONENT( D3PD::MuonSegmentTruthFillerTool ) // Daniel
 
 DECLARE_COMPONENT( D3PD::MDTSimHitFillerTool )

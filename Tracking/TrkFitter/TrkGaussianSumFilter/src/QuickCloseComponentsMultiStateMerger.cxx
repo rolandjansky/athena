@@ -42,13 +42,13 @@ mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
   }
 
   // Gather the merges
-  const std::vector<std::pair<int16_t, int16_t>> merges =
+  const std::vector<std::pair<int8_t, int8_t>> merges =
     findMerges(components.buffer(), n, maximumNumberOfComponents);
 
   // Do the full 5D calculations of the merge
   for (const auto& mergePair : merges) {
-    const int16_t mini = mergePair.first;
-    const int16_t minj = mergePair.second;
+    const int8_t mini = mergePair.first;
+    const int8_t minj = mergePair.second;
     Trk::MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini],
                                                         statesToMerge[minj]);
     statesToMerge[minj].first.reset();
@@ -61,11 +61,11 @@ mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
       continue;
     }
     cache.multiComponentState.emplace_back(
-      Trk::ComponentParameters(state.first.release(), state.second));
+      Trk::ComponentParameters(std::move(state.first), state.second));
     cache.validWeightSum += state.second;
   }
   Trk::MultiComponentState mergedState =
-    Trk::MultiComponentStateAssembler::assembledState(cache);
+    Trk::MultiComponentStateAssembler::assembledState(std::move(cache));
   // Clear the state vector
   statesToMerge.clear();
   return mergedState;
@@ -83,7 +83,7 @@ Trk::QuickCloseComponentsMultiStateMerger::merge(
   if (statesToMerge.size() <= maximumNumberOfComponents) {
     MultiComponentStateAssembler::addMultiState(cache,
                                                 std::move(statesToMerge));
-    return MultiComponentStateAssembler::assembledState(cache);
+    return MultiComponentStateAssembler::assembledState(std::move(cache));
   }
 
   // Scan all components for covariance matrices. If one or more component

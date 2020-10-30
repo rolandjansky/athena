@@ -20,6 +20,17 @@ StatusCode EFMuonMonMT :: initialize(){
   ATH_CHECK( m_MStrackContainerKey.initialize() );
   ATH_CHECK( m_CBtrackContainerKey.initialize() );
   ATH_CHECK( m_muonIso30Key.initialize() );
+
+  for( std::string chain : m_monitored_chains ){
+    m_doEFSA[chain] = true;
+
+    if( chain.find("msonly") != std::string::npos ) m_doEFCB[chain] = false;
+    else m_doEFCB[chain] = true;
+
+    if( chain.find("ivar") != std::string::npos ) m_doEFIso[chain] = true;
+    else m_doEFIso[chain] = false;
+  }
+
   return sc;
 }
 
@@ -31,65 +42,71 @@ StatusCode EFMuonMonMT :: fillVariablesPerChain(const EventContext &ctx, const s
   const float ZERO_LIMIT = 0.00001;
 
   // EFSA
-  std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContSA = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_Muons_.*");
-
-  for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muSALinkInfo : featureContSA) {
-    ATH_CHECK( muSALinkInfo.isValid() );
-    const ElementLink<xAOD::MuonContainer> muSAEL = muSALinkInfo.link;
-    if ( (*muSAEL)->muonType() != xAOD::Muon::MuonType::MuonStandAlone ) continue;
-
-    auto EFSAPt = Monitored::Scalar<float>(chain+"_EFSA_Pt", -999.);
-    auto EFSAEta = Monitored::Scalar<float>(chain+"_EFSA_Eta", -999.);
-    auto EFSAPhi = Monitored::Scalar<float>(chain+"_EFSA_Phi", -999.);
-
-    EFSAPt = (*muSAEL)->pt()/1e3 * (*muSAEL)->charge();
-    EFSAEta = (*muSAEL)->eta();
-    EFSAPhi = (*muSAEL)->phi(); 
-
-    fill(m_group+"_"+chain, EFSAPt, EFSAEta, EFSAPhi);
+  if( m_doEFSA.at(chain) ){
+    std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContSA = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_Muons_.*");
+  
+    for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muSALinkInfo : featureContSA) {
+      ATH_CHECK( muSALinkInfo.isValid() );
+      const ElementLink<xAOD::MuonContainer> muSAEL = muSALinkInfo.link;
+      if ( (*muSAEL)->muonType() != xAOD::Muon::MuonType::MuonStandAlone ) continue;
+  
+      auto EFSAPt = Monitored::Scalar<float>(chain+"_EFSA_Pt", -999.);
+      auto EFSAEta = Monitored::Scalar<float>(chain+"_EFSA_Eta", -999.);
+      auto EFSAPhi = Monitored::Scalar<float>(chain+"_EFSA_Phi", -999.);
+  
+      EFSAPt = (*muSAEL)->pt()/1e3 * (*muSAEL)->charge();
+      EFSAEta = (*muSAEL)->eta();
+      EFSAPhi = (*muSAEL)->phi(); 
+  
+      fill(m_group+"_"+chain, EFSAPt, EFSAEta, EFSAPhi);
+    }
   }
 
 
   // EFCB
-  std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContCB = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_MuonsCB.*");
-
-  for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muCBLinkInfo : featureContCB) {
-    ATH_CHECK( muCBLinkInfo.isValid() );
-    const ElementLink<xAOD::MuonContainer> muCBEL = muCBLinkInfo.link;
-    if ( (*muCBEL)->muonType() != xAOD::Muon::MuonType::Combined ) continue;
-
-    auto EFCBPt = Monitored::Scalar<float>(chain+"_EFCB_Pt", -999.);
-    auto EFCBEta = Monitored::Scalar<float>(chain+"_EFCB_Eta", -999.);
-    auto EFCBPhi = Monitored::Scalar<float>(chain+"_EFCB_Phi", -999.);
-
-    EFCBPt = (*muCBEL)->pt()/1e3 * (*muCBEL)->charge();
-    EFCBEta = (*muCBEL)->eta();
-    EFCBPhi = (*muCBEL)->phi(); 
-
-    fill(m_group+"_"+chain, EFCBPt, EFCBEta, EFCBPhi);
+  if( m_doEFCB.at(chain) ){
+    std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContCB = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_MuonsCB.*");
+  
+    for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muCBLinkInfo : featureContCB) {
+      ATH_CHECK( muCBLinkInfo.isValid() );
+      const ElementLink<xAOD::MuonContainer> muCBEL = muCBLinkInfo.link;
+      if ( (*muCBEL)->muonType() != xAOD::Muon::MuonType::Combined ) continue;
+  
+      auto EFCBPt = Monitored::Scalar<float>(chain+"_EFCB_Pt", -999.);
+      auto EFCBEta = Monitored::Scalar<float>(chain+"_EFCB_Eta", -999.);
+      auto EFCBPhi = Monitored::Scalar<float>(chain+"_EFCB_Phi", -999.);
+  
+      EFCBPt = (*muCBEL)->pt()/1e3 * (*muCBEL)->charge();
+      EFCBEta = (*muCBEL)->eta();
+      EFCBPhi = (*muCBEL)->phi(); 
+  
+      fill(m_group+"_"+chain, EFCBPt, EFCBEta, EFCBPhi);
+    }
   }
 
 
   // EFIso
-  std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContIso = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_MuonsIso");
-  for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muIsoLinkInfo : featureContIso) {
-    ATH_CHECK( muIsoLinkInfo.isValid() );
-    const ElementLink<xAOD::MuonContainer> muIsoEL = muIsoLinkInfo.link;
-    if ( (*muIsoEL)->muonType() != xAOD::Muon::MuonType::Combined ) continue;
-
-    // basic variables used decision
-    auto PtCone03 = Monitored::Scalar<float>(chain+"_PtCone03",-999.);
-    auto PtCone03overMuonPt = Monitored::Scalar<float>(chain+"_PtCone03overMuonPt",-999.);
-
-    SG::ReadDecorHandle<xAOD::MuonContainer, double> muonIso30 ( m_muonIso30Key, ctx );
-    float ptcone30 = muonIso30(*(*muIsoEL));
-
-    if (ptcone30 > ZERO_LIMIT ){
-      PtCone03 = ptcone30/1e3;
-      PtCone03overMuonPt = ptcone30 / (*muIsoEL)->pt();
+  if( m_doEFIso.at(chain) ){
+    std::vector< TrigCompositeUtils::LinkInfo<xAOD::MuonContainer> > featureContIso = getTrigDecisionTool()->features<xAOD::MuonContainer>( chain, TrigDefs::includeFailedDecisions, "HLT_MuonsIso");
+    for (const TrigCompositeUtils::LinkInfo<xAOD::MuonContainer>& muIsoLinkInfo : featureContIso) {
+      ATH_CHECK( muIsoLinkInfo.isValid() );
+      const ElementLink<xAOD::MuonContainer> muIsoEL = muIsoLinkInfo.link;
+      if ( (*muIsoEL)->muonType() != xAOD::Muon::MuonType::Combined ) continue;
+  
+      // basic variables used decision
+      auto PtCone03 = Monitored::Scalar<float>(chain+"_PtCone03",-999.);
+      auto PtCone03overMuonPt = Monitored::Scalar<float>(chain+"_PtCone03overMuonPt",-999.);
+  
+      SG::ReadDecorHandle<xAOD::MuonContainer, double> muonIso30 ( m_muonIso30Key, ctx );
+      float ptcone30 = muonIso30(*(*muIsoEL));
+  
+      if (ptcone30 > ZERO_LIMIT ){
+        PtCone03 = ptcone30/1e3;
+        PtCone03overMuonPt = ptcone30 / (*muIsoEL)->pt();
+      }
+  
+      fill(m_group+"_"+chain, PtCone03, PtCone03overMuonPt);
     }
-
-    fill(m_group+"_"+chain, PtCone03, PtCone03overMuonPt);
   }
 
   return StatusCode::SUCCESS;
@@ -107,7 +124,7 @@ StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext
 
 
   // OfflineSA
-  if( OfflineSATrack ){
+  if( m_doEFSA.at(chain) && OfflineSATrack ){
     auto OfflineSAPt = Monitored::Scalar<float>(chain+"_OfflineSA_Pt",-999.);
     auto OfflineSAEta = Monitored::Scalar<float>(chain+"_OfflineSA_Eta",-999.);
     auto OfflineSAPhi = Monitored::Scalar<float>(chain+"_OfflineSA_Phi",-999.);
@@ -177,7 +194,7 @@ StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext
 
 
   // OfflineCB
-  if( OfflineCBTrack ){
+  if( m_doEFCB.at(chain) && OfflineCBTrack ){
     auto OfflineCBPt = Monitored::Scalar<float>(chain+"_OfflineCB_Pt",-999.);
     auto OfflineCBEta = Monitored::Scalar<float>(chain+"_OfflineCB_Eta",-999.);
     auto OfflineCBPhi = Monitored::Scalar<float>(chain+"_OfflineCB_Phi",-999.);
@@ -249,7 +266,7 @@ StatusCode EFMuonMonMT :: fillVariablesPerOfflineMuonPerChain(const EventContext
   // offoine isolation variable
   float OfflineIsoptcone30=-1.;
   mu->isolation(OfflineIsoptcone30, xAOD::Iso::IsolationType::ptvarcone30);
-  if ( OfflineIsoptcone30 > ZERO_LIMIT ){
+  if ( m_doEFIso.at(chain) && OfflineIsoptcone30 > ZERO_LIMIT ){
 
     auto OfflineIsoPtCone03 = Monitored::Scalar<float>(chain+"_OfflineIsoPtCone03",-999.);
     auto OfflineIsoPtCone03overMuonPt = Monitored::Scalar<float>(chain+"_OfflineIsoPtCone03overMuonPt",-999.);

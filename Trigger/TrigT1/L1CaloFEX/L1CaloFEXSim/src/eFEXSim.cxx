@@ -47,10 +47,13 @@ namespace LVL1 {
   void eFEXSim::reset()
   {
 
+    int rows = sizeof m_eTowersIDs / sizeof m_eTowersIDs[0];
+    int cols = sizeof m_eTowersIDs[0] / sizeof m_eTowersIDs[0][0];
+
     m_id = -1;
     m_eFEXFPGACollection.clear();
-    for (int i=0; i<10; i++){
-      for (int j=0; j<18; j++){
+    for (int i=0; i<rows; i++){
+      for (int j=0; j<cols; j++){
 	  m_eTowersIDs[i][j] = 0;
 	}
     }
@@ -126,7 +129,7 @@ StatusCode eFEXSim::NewExecute(int tmp_eTowersIDs_subset[10][18]){
       tmp_eTowersIDs_subset_FPGA[myrow][mycol-12] = tmp_eTowersIDs_subset[myrow][mycol];
     }
   }
-  ATH_CHECK(m_eFEXFPGATool->init(0, m_id));
+  ATH_CHECK(m_eFEXFPGATool->init(3, m_id));
   m_eFEXFPGATool->SetTowersAndCells_SG(tmp_eTowersIDs_subset_FPGA);
   ATH_CHECK(m_eFEXFPGATool->execute());
   m_eFEXFPGATool->reset();

@@ -8,7 +8,7 @@ atlas_add_library( TriggerAnalysisAlgorithmsLib
    TriggerAnalysisAlgorithms/*.h TriggerAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS TriggerAnalysisAlgorithms
    LINK_LIBRARIES xAODEventInfo SelectionHelpersLib SystematicsHandlesLib
-      AnaAlgorithmLib AsgAnalysisInterfaces TrigDecisionInterface
+      AnaAlgorithmLib AsgAnalysisInterfaces EventBookkeeperToolsLib TrigDecisionInterface
    PRIVATE_LINK_LIBRARIES RootCoreUtils )
 
 atlas_add_dictionary( TriggerAnalysisAlgorithmsDict

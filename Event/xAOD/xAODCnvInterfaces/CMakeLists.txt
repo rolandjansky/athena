@@ -1,13 +1,7 @@
-################################################################################
-# Package: xAODCnvInterfaces
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( xAODCnvInterfaces )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel )
 
 # Component(s) in the package:
 atlas_add_library( xAODCnvInterfaces

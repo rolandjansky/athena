@@ -217,14 +217,14 @@ SCTLorentzMonTool::fillHistograms() {
 
               bool passesCuts{true};
               if ((AthenaMonManager::dataType() == AthenaMonManager::cosmics) and
-                  (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
+                  (trkp->momentum().perp() > 500.) and  // Pt > 500MeV
                   (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                   ) {
                 passesCuts = true;
               } else if ((track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) and // use negative track only
                          (std::abs(perigee->parameters()[Trk::d0]) < 1.) and // d0 < 1mm
-                         (std::abs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // d0 < 1mm
-                         (trkp->momentum().mag() > 500.) and  // Pt > 500MeV
+                         // (std::abs(perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta])) < 1.) and // z0*sin(theta) < 1mm
+                         (trkp->momentum().perp() > 500.) and  // Pt > 500MeV
                          (summary->get(Trk::numberOfSCTHits) > 6)// and // #SCTHits >6
                          ) {
                 passesCuts = true;

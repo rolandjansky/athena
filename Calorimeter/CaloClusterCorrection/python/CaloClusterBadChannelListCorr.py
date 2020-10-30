@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 def CaloClusterBadChannelListCorr() :
 
-      from CaloBadChannelTool.CaloBadChannelToolConf import CaloBadChanTool 
-      theCaloBadChannelTool = CaloBadChanTool()
+      theCaloBadChannelTool = CompFactory.CaloBadChanTool() # CaloBadChannelTool
 
-      from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterBadChannelList
-      corr = CaloClusterBadChannelList()
-      #ToolSvc += corr
+      corr = CompFactory.CaloClusterBadChannelList() # CaloClusterCorrection
       corr.badChannelTool = theCaloBadChannelTool
       return corr

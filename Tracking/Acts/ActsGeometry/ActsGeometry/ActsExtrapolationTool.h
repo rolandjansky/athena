@@ -121,6 +121,7 @@ private:
 
   Gaudi::Property<double> m_ptLoopers{this, "PtLoopers", 300, "PT loop protection threshold. Will be converted to Acts MeV unit"};
   Gaudi::Property<double> m_maxStepSize{this, "MaxStepSize", 10, "Max step size in Acts m unit"};
+  Gaudi::Property<double> m_maxStep{this, "MaxSteps", 4000, "Max number of steps"};
 
   // Material inteaction option
   Gaudi::Property<bool> m_interactionMultiScatering{this, "InteractionMultiScatering", false, "Whether to consider multiple scattering in the interactor"};

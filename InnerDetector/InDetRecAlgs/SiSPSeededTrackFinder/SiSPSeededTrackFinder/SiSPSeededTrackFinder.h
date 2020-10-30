@@ -89,6 +89,7 @@ namespace InDet {
     /// @name Flags to configure SiSPSeededTrackFinder
     //@{
     BooleanProperty m_useZvertexTool{this, "useZvertexTool", true}; 
+    BooleanProperty m_writeHolesFromPattern{this, "writeHolesFromPattern", false,"Flag to activate writing hole info from the pattern recognition"}; 
     BooleanProperty m_useMBTS{this, "useMBTSTimeDiff", false};
     BooleanProperty m_useNewStrategy{this, "useNewStrategy", false};
     BooleanProperty m_useZBoundaryFinding{this, "useZBoundFinding", false};

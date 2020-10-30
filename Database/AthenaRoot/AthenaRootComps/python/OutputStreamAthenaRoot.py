@@ -1,16 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file OutputStreamAthenaRoot.py
 ## @brief Helper methods to create output streams
 ## @author Sebastien Binet <binet@cern.ch>, Peter van Gemmeren <gemmeren@bnl.gov>
-## $Id: OutputStreamAthenaRoot.py 723505 2016-02-11 22:29:40Z gemmeren $
 ###############################################################
-
-from __future__ import print_function
 
 import AthenaCommon.CfgMgr as CfgMgr
 from AthenaCommon.AppMgr import theApp
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaRootComps.AthenaRootCompsConf import Athena__RootOutputStreamTool as AthenaRootOutputStreamTool
 
 def createNtupleOutputStream(streamName, fileName, tupleName="physics", asAlg = False):
@@ -107,7 +103,6 @@ class AthenaRootOutputStreamProtect(CfgMgr.AthenaOutputStream):
     pass
 """
 
-from AthenaCommon import CfgMgr
 class AthenaRootNtupleOutputStreamProtect(CfgMgr.Athena__RootNtupleOutputStream):
     def __init__(self, name='Stream1', **kw):
         kw['name'] = kw.get('name', name)

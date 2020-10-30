@@ -19,7 +19,7 @@
 #include "Acts/Geometry/GeometryIdentifier.hpp"
 #include "Acts/Utilities/Helpers.hpp"
 #include "Acts/Material/SurfaceMaterialMapper.hpp"
-
+#include "Acts/Material/VolumeMaterialMapper.hpp"
 // PACKAGE
 #include "ActsGeometry/ActsTrackingGeometryTool.h"
 
@@ -45,6 +45,7 @@ namespace Acts {
 class IActsMaterialTrackWriterSvc;
 class IActsMaterialStepConverterTool;
 class IActsSurfaceMappingTool;
+class IActsVolumeMappingTool;
 class IActsMaterialJsonWriterTool;
 
 class ActsMaterialMapping : public AthReentrantAlgorithm {
@@ -56,14 +57,18 @@ public:
 
 private:
   ServiceHandle<IActsMaterialTrackWriterSvc>      m_materialTrackWriterSvc;
+  Gaudi::Property<bool>                           m_mapSurfaces{this, "mapSurfaces", true, "Map the material onto surfaces"};
+  Gaudi::Property<bool>                           m_mapVolumes{this, "mapVolumes", true, "Map the material onto volumes"};
   ToolHandle<IActsMaterialStepConverterTool>      m_materialStepConverterTool{this, "MaterialStepConverterTool", "ActsMaterialStepConverterTool"};
   SG::ReadHandleKey<Trk::MaterialStepCollection>  m_inputMaterialStepCollection;
   ToolHandle<IActsSurfaceMappingTool>             m_surfaceMappingTool{this, "SurfaceMappingTool", "ActsSurfaceMappingTool"};
+  ToolHandle<IActsVolumeMappingTool>              m_volumeMappingTool{this, "VolumeMappingTool", "ActsVolumeMappingTool"};
   ToolHandle<IActsMaterialJsonWriterTool>         m_materialJsonWriterTool{this, "MaterialJsonWriterTool", "ActsMaterialJsonWriterTool"};
 
   Acts::MagneticFieldContext                      m_mctx;
   Acts::GeometryContext                           m_gctx;
   Acts::SurfaceMaterialMapper::State              m_mappingState;
+  Acts::VolumeMaterialMapper::State               m_mappingStateVol;
 };
 
 #endif // ActsGeometry_ActsExtrapolation_h

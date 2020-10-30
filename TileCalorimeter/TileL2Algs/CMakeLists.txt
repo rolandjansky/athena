@@ -1,30 +1,14 @@
-################################################################################
-# Package: TileL2Algs
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TileL2Algs )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          TileCalorimeter/TileEvent
-                          TileCalorimeter/TileIdentifier
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaKernel
-                          TileCalorimeter/TileCalib/TileCalibBlobObjs
-                          TileCalorimeter/TileConditions
-                          TileCalorimeter/TileDetDescr )
 
 # Component(s) in the package:
 atlas_add_library( TileL2AlgsLib
                    src/*.cxx
                    PUBLIC_HEADERS TileL2Algs
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel TileEvent TileIdentifier CaloDetDescrLib TileConditionsLib
-                   PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaKernel TileCalibBlobObjs TileDetDescr )
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TileEvent TileIdentifier TileConditionsLib
+                   PRIVATE_LINK_LIBRARIES CaloDetDescrLib CaloIdentifier AthenaKernel TileCalibBlobObjs TileDetDescr )
 
 atlas_add_component( TileL2Algs
                      src/components/*.cxx

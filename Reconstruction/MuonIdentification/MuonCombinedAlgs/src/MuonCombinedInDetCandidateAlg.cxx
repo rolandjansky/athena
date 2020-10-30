@@ -22,10 +22,10 @@ MuonCombinedInDetCandidateAlg::MuonCombinedInDetCandidateAlg(const std::string& 
 StatusCode
 MuonCombinedInDetCandidateAlg::initialize()
 {
-    ATH_CHECK(m_trackSelector.retrieve());
+    ATH_CHECK(m_trackSelector.retrieve(DisableTool{m_trackSelector.empty()}));
     ATH_CHECK(m_muonSystemExtensionTool.retrieve());
     ATH_CHECK(m_indetTrackParticleLocation.initialize());
-    ATH_CHECK(m_indetForwardTrackParticleLocation.initialize());
+    ATH_CHECK(m_indetForwardTrackParticleLocation.initialize(m_doSiliconForwardMuons));
     ATH_CHECK(m_candidateCollectionName.initialize());
 
     ATH_CHECK(m_forwardTrackSelector.retrieve(DisableTool{!m_doSiliconForwardMuons}));
@@ -88,7 +88,9 @@ MuonCombinedInDetCandidateAlg::create(const ToolHandle<Trk::ITrackSelectorTool>&
 
     for (auto* tp : indetTrackParticles) {
         ++trackIndex;
-        if (!isValidTrackParticle(currentTrackSelector, tp)) continue;
+	if(!currentTrackSelector.empty()){
+	  if (!isValidTrackParticle(currentTrackSelector, tp)) continue;
+	}
 
         ElementLink<xAOD::TrackParticleContainer> link(indetTrackParticles, trackIndex);
         if (!link.isValid()) {

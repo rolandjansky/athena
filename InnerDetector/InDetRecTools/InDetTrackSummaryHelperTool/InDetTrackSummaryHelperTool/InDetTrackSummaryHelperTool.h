@@ -57,34 +57,43 @@ namespace InDet {
         Output: Changes in information and hitPattern
         Input quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits in hitPattern.
     */
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::PRDtoTrackMap *prd_to_track_map,
-                         const Trk::RIO_OnTrack* rot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information, 
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
+    using IExtendedTrackSummaryHelperTool::analyse;
+    virtual void analyse(
+      const EventContext& ctx,
+      const Trk::Track& track,
+      const Trk::PRDtoTrackMap* prd_to_track_map,
+      const Trk::RIO_OnTrack* rot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final;
 
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::PRDtoTrackMap *prd_to_track_map,
-                         const Trk::CompetingRIOsOnTrack* crot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information, 
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
+    virtual void analyse(
+      const EventContext& ctx,
+      const Trk::Track& track,
+      const Trk::PRDtoTrackMap* prd_to_track_map,
+      const Trk::CompetingRIOsOnTrack* crot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final;
 
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::RIO_OnTrack* rot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information,
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override {
-      analyse(track,nullptr,rot,tsos,information,hitPattern);
+    virtual void analyse(
+      const Trk::Track& track,
+      const Trk::RIO_OnTrack* rot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override
+    {
+      analyse(track, nullptr, rot, tsos, information, hitPattern);
     }
 
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::CompetingRIOsOnTrack* crot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information,
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override {
-      analyse(track,nullptr, crot,tsos,information,hitPattern);
+    virtual void analyse(
+      const Trk::Track& track,
+      const Trk::CompetingRIOsOnTrack* crot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override
+    {
+      analyse(track, nullptr, crot, tsos, information, hitPattern);
     }
 
     /** Input : track, partHyp
@@ -109,8 +118,13 @@ namespace InDet {
       updateSharedHitCount(track,nullptr,summary);
     }
 
-    /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */
-    virtual void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const override;
+    /** this method simply updaes the electron PID content - it is
+     * designed/optimised for track collection merging */
+    virtual void updateAdditionalInfo(Trk::TrackSummary& summary,
+                                      std::vector<float>& eprob,
+                                      float& dedx,
+                                      int& nclus,
+                                      int& noverflowclus) const override;
     /** This method updates the expect... hit info*/
     virtual void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const override;
 
@@ -120,14 +134,20 @@ namespace InDet {
 
 
   private:
-    const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo &getClusterSplittingProbability(const InDet::PixelCluster*pix) const {
-       if (!pix || m_clusterSplitProbContainer.key().empty())  return Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
-
-       SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer(m_clusterSplitProbContainer);
-       if (!splitProbContainer.isValid()) {
-          ATH_MSG_FATAL("Failed to get cluster splitting probability container " << m_clusterSplitProbContainer);
-       }
-       return splitProbContainer->splitProbability(pix);
+    const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo&
+    getClusterSplittingProbability(const EventContext& ctx,
+                                   const InDet::PixelCluster* pix) const
+    {
+      if (!pix || m_clusterSplitProbContainer.key().empty()) {
+        return Trk::ClusterSplitProbabilityContainer::getNoSplitProbability();
+      }
+      SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainer(
+        m_clusterSplitProbContainer, ctx);
+      if (!splitProbContainer.isValid()) {
+        ATH_MSG_FATAL("Failed to get cluster splitting probability container "
+                      << m_clusterSplitProbContainer);
+      }
+      return splitProbContainer->splitProbability(pix);
     }
     /**ID pixel helper*/
     const PixelID* m_pixelId{nullptr};

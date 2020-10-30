@@ -37,7 +37,8 @@ def getOverallL1item(chainName):
         return ''
     if l1seed == 'L1_test': #Multiseeded chains are build like this
         return 'L1_EM24VHI,L1_MU20'
-    if l1seed == 'L1_Bkg' or l1seed == 'L1_Standby' or l1seed == 'L1_Calo' or l1seed == 'L1_Calo_EMPTY':
+    if l1seed in ['L1_Bkg', 'L1_Standby', 'L1_Calo', 'L1_Calo_EMPTY', 'L1_PhysicsHigh_noPS', 'L1_PhysicsVeryHigh_noPS',
+        'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS'] :
         # For these item seed specifications we need to derive the precise list of item names from the L1Menu.
         # During the transition period to the new menu format it is important to pick the correct kind based
         # on the temporary TriggerFlag readLVL1FromJSON.
@@ -222,7 +223,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
     from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
         AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
     
-    from .MenuAlignmentTools import getAlignmentGroupFromPattern
+    from .MenuAlignmentTools import get_alignment_group_from_pattern as getAlignmentGroupFromPattern
     
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',

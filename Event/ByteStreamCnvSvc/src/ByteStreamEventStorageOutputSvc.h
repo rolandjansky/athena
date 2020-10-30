@@ -69,8 +69,8 @@ class ByteStreamEventStorageOutputSvc :
 
 
   /// Implementation of the ByteStreamOutputSvc interface method putEvent.
-  bool putEvent(RawEvent* re) override;
-  bool putEvent(RawEvent* re, const EventContext& ctx) override;
+  virtual bool putEvent(const RawEvent* re) override;
+  virtual bool putEvent(const RawEvent* re, const EventContext& ctx) override;
 
   // Callback method to reinitialize the internal state of the component
   // for I/O purposes (e.g. upon @c fork(2))
@@ -174,8 +174,8 @@ class ByteStreamEventStorageOutputSvc :
   bool initDataWriter(const EventContext* ctx = nullptr);
   bool initDataWriterContents(
       const xAOD::EventInfo*, const ByteStreamMetadata*);
-  const ByteStreamMetadata * getByteStreamMetadata(
-      const EventContext* ctx = nullptr);
+  const ByteStreamMetadata * getByteStreamMetadata();
+  const ByteStreamMetadata * getByteStreamMetadata(const EventContext& ctx);
 
   struct EventCache {
     inline void releaseEvent() {

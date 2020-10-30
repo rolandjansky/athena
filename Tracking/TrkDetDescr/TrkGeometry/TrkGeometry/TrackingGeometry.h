@@ -63,13 +63,19 @@ namespace Trk {
     
     friend class GeometryBuilderCond;
     friend class IGeometryBuilderCond;
-  
+
+    // give access to private members to allow the  class below to mirror a TrackingGeometry.
+    // This is needed for a temporary workaround to allow using the TrackingGeometryCondAlg and
+    // TrackingGeometrySvc at the same time.
+    // @TODO revert once the TrackingGeometrySvc is completly replaced
+    friend class TrackingGeometryMirror;
+
     public :
       /** Constructor */
       TrackingGeometry(const TrackingVolume* highestVolume, NavigationLevel navlevel=globalSearch);
       
       /** Destructor */
-      ~TrackingGeometry();
+      virtual ~TrackingGeometry();
       
       /** return the world */
       const TrackingVolume* highestTrackingVolume() const;

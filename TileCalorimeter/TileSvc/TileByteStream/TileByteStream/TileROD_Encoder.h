@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEROD_ENCODER_H
 #define TILEBYTESTREAM_TILEROD_ENCODER_H
 
-#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 #include "TileIdentifier/TileFragHash.h"
 #include "TileIdentifier/TileRawChannelUnit.h"
@@ -40,8 +41,9 @@ class TileHWID;
  Split from TileROD_Decoder. 
 */
 
-class TileROD_Encoder {
-
+class TileROD_Encoder
+  : public AthMessaging
+{
   public:
 
     /** constructor 
@@ -111,12 +113,6 @@ class TileROD_Encoder {
      */
     void dumpROD(const std::vector<uint32_t>& v);
 
-    // Log a message using the Athena controlled logging system.
-    MsgStream& msg(MSG::Level lvl) const { return m_msg << lvl; }
-
-    // Check whether the logging system is active at the provided verbosity level
-    bool msgLvl(MSG::Level lvl) { return m_msg.get().level() <= lvl; }
-
   private:
 
     /** set the bitmap for a channel
@@ -150,7 +146,6 @@ class TileROD_Encoder {
     unsigned int m_unitType;
     unsigned int m_rChUnit;
 
-    mutable Athena::MsgStreamMember m_msg;
     int m_maxChannels;
 };
 

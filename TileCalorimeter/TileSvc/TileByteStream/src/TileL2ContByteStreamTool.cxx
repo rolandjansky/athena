@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -81,7 +81,7 @@ StatusCode TileL2ContByteStreamTool::finalize() {
 }
 
 StatusCode TileL2ContByteStreamTool::convert(TileL2Container* cont,
-    FullEventAssembler<TileHid2RESrcID> *fea) {
+    FullEventAssembler<TileHid2RESrcID> *fea) const {
 
   //fea->clear(); 
 

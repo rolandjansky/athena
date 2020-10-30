@@ -664,7 +664,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
 
     //Get list of InDet Elements
     std::list<const InDetDD::SiDetectorElement*> DE;
-    m_roadmaker->detElementsRoad(ctx, fieldCache, *per,Trk::alongMomentum,DE);
+    m_roadmaker->detElementsRoad(ctx, fieldCache, *per,Trk::alongMomentum,DE,event_data.roadMakerData());
     delete per;
     if( int(DE.size()) < m_nclusmin){ //Not enough detector elements to satisfy the minimum number of clusters requirement. Stop
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Too few detector elements, not expected" << endmsg;
@@ -707,7 +707,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     // --------------- Get the Si extensions using the combinatorial track finding tool
     //
     std::list<Amg::Vector3D> Gp;
-    aTracks = m_tracksfinder->getTracks(combinatorialData, *mesTP, SpVec, Gp, DE, m_trackquality);
+    aTracks = m_tracksfinder->getTracks(combinatorialData, *mesTP, SpVec, Gp, DE, m_trackquality, ctx);
     if(int(aTracks.size())==0) {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No tracks found by the combinatorial track finder!"<<endmsg;
     }

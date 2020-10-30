@@ -16,6 +16,8 @@ def LArHVDBCfg(configFlags):
    if not isMC and not isOnline:
       result.merge(addFolders(configFlags,["/LAR/DCS/HV/BARREl/I16","/LAR/DCS/HV/BARREL/I8"],detDb="DCS_OFL",className="CondAttrListCollection"))
       result.merge(addFolders(configFlags,["/LAR/IdentifierOfl/HVLineToElectrodeMap","/LAR/HVPathologiesOfl/Pathologies"],detDb="LAR_OFL",className="AthenaAttributeList"))
+      if configFlags.GeoModel.Run != "RUN1": 
+         result.merge(addFolders(configFlags,["/LAR/HVPathologiesOfl/Rvalues"],detDb="LAR_OFL",className="AthenaAttributeList"))
  
       from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg
       result.addCondAlgo(LArHVIdMappingAlg(ReadKey="/LAR/IdentifierOfl/HVLineToElectrodeMap",WriteKey="LArHVIdMap"))
@@ -24,7 +26,10 @@ def LArHVDBCfg(configFlags):
       result.addCondAlgo(LArHVPathologyDbCondAlg(PathologyFolder="/LAR/HVPathologiesOfl/Pathologies",HVMappingKey="LArHVIdMap", HVPAthologyKey="LArHVPathology"))
  
       from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
-      result.addCondAlgo(LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData"))
+      if configFlags.GeoModel.Run == "RUN1": 
+         result.addCondAlgo(LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData",doR=False))
+      else:   
+         result.addCondAlgo(LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData"))
  
       from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg
       hvscale = LArHVScaleCorrCondAlg(keyHVdata="LArHVData",keyOutputCorr="LArHVScaleCorrRecomputed")

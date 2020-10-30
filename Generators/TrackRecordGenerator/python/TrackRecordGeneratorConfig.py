@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ############## Input: Reading Particles from TrackRecord Input File ###############
 def getInput_TrackRecordGenerator(name="TrackRecordGenerator", **kwargs):
     ## Configuring the Athena application for a 'track record' job
-    import G4AtlasApps.AtlasCosmicTrackRecordJob
+    import G4AtlasApps.AtlasCosmicTrackRecordJob  # noqa: F401
     kwargs.setdefault('TRCollection','CosmicRecord') # Collection name
     kwargs.setdefault('TRSmearing', -1) #in millimeters, e.g. 10
     kwargs.setdefault('TRPSmearing', -1) #in radians, e.g. 0.01

@@ -17,7 +17,6 @@
 #include <iostream>
 #include <utility>
 
-const double Trk::Surface::s_onSurfaceTolerance = 10e-5; // 0.1 * micron
 
 #ifndef NDEBUG
 std::atomic<unsigned int> Trk::Surface::s_numberOfInstantiations{ 0 };
@@ -192,7 +191,7 @@ Trk::Surface::isOnSurface(const Amg::Vector3D& glopo,
   if (posOnSurface) {
     delete posOnSurface;
     return true;
-  } 
+  }
     return false;
 }
 

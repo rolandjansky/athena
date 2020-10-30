@@ -1,25 +1,19 @@
-################################################################################
-# Package: TrkGaussianSumFilter
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkGaussianSumFilter )
-# External dependencies:
-find_package( Eigen )
 
 #Component(s) in the package:
 atlas_add_component( TrkGaussianSumFilter
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES  ${EIGEN_LIBRARIES} AthenaBaseComps AthContainers GeoPrimitives EventPrimitives GaudiKernel
+                     LINK_LIBRARIES AthenaBaseComps GeoPrimitives GaudiKernel
                      TrkGeometry  TrkSurfaces TrkEventPrimitives TrkEventUtils TrkMaterialOnTrack TrkMultiComponentStateOnSurface
                      TrkParameters TrkExInterfaces TrkExUtils TrkFitterInterfaces TrkFitterUtils TrkToolInterfaces CxxUtils PathResolver TrkDetElementBase
                      TrkCaloCluster_OnTrack TrkMeasurementBase  TrkPrepRawData TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkTrack
-                     TrkParametersBase KalmanParameterUpdatorLib)
+                     KalmanParameterUpdatorLib)
 
 # Install files from the package:
-atlas_install_headers( TrkGaussianSumFilter )
 atlas_install_runtime( Data/*.par )
 
 #Executables for tests

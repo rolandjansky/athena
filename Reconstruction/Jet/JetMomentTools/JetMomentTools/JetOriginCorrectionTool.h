@@ -30,6 +30,7 @@
 #include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTracking/VertexContainer.h"
 
 class JetOriginCorrectionTool : public asg::AsgTool,
                                 virtual public IJetDecorator {

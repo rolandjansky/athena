@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -21,7 +21,6 @@
 //#include <strstream>
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
 #include "CaloIdentifier/LArID.h"
 #include "CaloIdentifier/LArID_Exception.h"
 #include "LArIdentifier/LArOnlineID.h"

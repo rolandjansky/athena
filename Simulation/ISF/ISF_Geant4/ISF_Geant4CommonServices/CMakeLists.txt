@@ -18,5 +18,5 @@ atlas_add_component( ISF_Geant4CommonServices
                      LINK_LIBRARIES ${GEANT4_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} GaudiKernel AthenaBaseComps AtlasDetDescr ISF_Event ISF_InterfacesLib SubDetectorEnvelopesLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

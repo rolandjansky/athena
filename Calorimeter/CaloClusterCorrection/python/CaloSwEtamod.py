@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwEtamod.py,v 1.9 2008-01-25 04:14:21 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwEtamod.py
 # Created: Nov 2006, sss
@@ -23,16 +21,18 @@
 #
 
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import sw_valid_keys as keys
-cls_g3 = CaloClusterCorrectionConf.CaloSwEtamod_g3
-cls_v2 = CaloClusterCorrectionConf.CaloSwEtamod_v2
+from CaloClusterCorrection.constants import sw_valid_keys as keys
+cls_g3 = CompFactory.CaloSwEtamod_g3 # CaloClusterCorrection
+cls_v2 = CompFactory.CaloSwEtamod_v2 # CaloClusterCorrection
 CaloSwEtamod_versions = [
 
     # The original G3-based correction, translated from the
@@ -64,6 +64,7 @@ CaloSwEtamod_versions = [
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -81,7 +82,8 @@ CaloSwEtamod_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwEtamod (name = None,
+def make_CaloSwEtamod (flags,
+                       name = None,
                        suffix = None,
                        version = None,
                        key = CALOCORR_DEFAULT_KEY,
@@ -89,7 +91,8 @@ def make_CaloSwEtamod (name = None,
                        confclass = None,
                        **kw):
     # Make the tool.
-    return makecorr (versions  = CaloSwEtamod_versions,
+    return makecorr (flags,
+                     versions  = CaloSwEtamod_versions,
                      name      = name,
                      basename  = 'etamod',
                      suffix    = suffix,

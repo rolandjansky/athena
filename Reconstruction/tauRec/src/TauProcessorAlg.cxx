@@ -157,6 +157,12 @@ StatusCode TauProcessorAlg::execute(const EventContext& ctx) const {
       }
       else if ( tool->type() == "tauRecTools::TauTrackClassifier" || tool->type() == "tauRecTools::TauTrackRNNClassifier" ) {
 	sc = tool->executeTrackClassifier(*pTau, *pTauTrackCont);
+
+	// skip candidate if it has too many classifiedCharged tracks, if skimming is required
+	if(m_maxNTracks>0 && static_cast<int>(pTau->nTracks())>m_maxNTracks) {
+	  sc = StatusCode::FAILURE;
+	  break;
+	}
       }
       else if ( tool->type() == "TauShotFinder") {
 	sc = tool->executeShotFinder(*pTau, *tauShotClusContainer, *tauShotPFOContainer);

@@ -6,8 +6,9 @@
 // Authors: Tadej Novak <tadej@cern.ch>
 //          Jack Cranshaw <Jack.Cranshaw@cern.ch>
 
+#include <xAODCutFlow/xAODCutFlowHelpers.h>
+
 #include "BookkeeperTool.h"
-#include "CutBookkeeperUtils.h"
 #include "CutFlowSvc.h"
 
 
@@ -61,7 +62,7 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID &source)
   if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(incompleteCollName)) {
     if (inputMetaStore()->retrieve(inIncomplete, incompleteCollName).isSuccess()) {
       // update incomplete output with any incomplete input
-      ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(m_incompleteContainers.at(0), inIncomplete));
+      xAOD::CutFlowHelpers::updateContainer(m_incompleteContainers.at(0), inIncomplete);
       ATH_MSG_DEBUG("Successfully merged input incomplete bookkeepers with output");
     }
   } else {
@@ -76,7 +77,7 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID &source)
       auto [it, status] = m_inputContainers.emplace(source, LocalContainers());
       ATH_CHECK(prepareContainers(it->second));
 
-      ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(it->second.at(0), inComplete));
+      xAOD::CutFlowHelpers::updateContainer(it->second.at(0), inComplete);
       ATH_MSG_DEBUG("Successfully copied complete bookkeepers to temp container");
     } else {
       ATH_MSG_INFO("No complete bookkeepers in this file with name " << m_inputCollName);
@@ -128,8 +129,8 @@ StatusCode BookkeeperTool::metaDataStop()
         ATH_MSG_ERROR("Could not get " << "Incomplete" + name << " CutBookkeepers from output MetaDataStore");
         return StatusCode::FAILURE;
       }
-      ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(complete, m_completeContainers.at(i)));
-      ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(incomplete, m_incompleteContainers.at(i)));
+      xAOD::CutFlowHelpers::updateContainer(complete, m_completeContainers.at(i));
+      xAOD::CutFlowHelpers::updateContainer(incomplete, m_incompleteContainers.at(i));
     } else {
       ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.cont[i]), name));
       ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.aux[i]), name + "Aux."));
@@ -140,6 +141,8 @@ StatusCode BookkeeperTool::metaDataStop()
 
   m_incompleteContainers.clear();
   m_completeContainers.clear();
+
+  ATH_MSG_DEBUG("Successfully copied CutBookkeepers to the output MetaDataStore");
 
   return StatusCode::SUCCESS;
 }
@@ -158,7 +161,7 @@ StatusCode BookkeeperTool::copyInputContainersToOutput(LocalContainers &target,
     }
 
     for (std::size_t i = 0; i < it->second.size(); ++i) {
-      ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(target.at(i), it->second.at(i)));
+      xAOD::CutFlowHelpers::updateContainer(target.at(i), it->second.at(i));
     }
     m_inputContainers.erase(it);
 
@@ -167,7 +170,7 @@ StatusCode BookkeeperTool::copyInputContainersToOutput(LocalContainers &target,
 
   for (auto &[s, list] : m_inputContainers) {
     for (std::size_t i = 0; i < list.size(); ++i) {
-      ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(target.at(i), list.at(i)));
+      xAOD::CutFlowHelpers::updateContainer(target.at(i), list.at(i));
     }
   }
   m_inputContainers.clear();
@@ -182,7 +185,7 @@ StatusCode BookkeeperTool::copyCutflowFromService()
   // Get the bookkeeper from the current processing
   const xAOD::CutBookkeeperContainer* cbkCont = m_cutFlowSvcPrivate->getCutBookkeepers();
   if (cbkCont != nullptr) {
-    ATH_CHECK(xAOD::CutBookkeeperUtils::updateContainer(m_completeContainers.at(0), cbkCont));
+    xAOD::CutFlowHelpers::updateContainer(m_completeContainers.at(0), cbkCont);
   } else {
     ATH_MSG_ERROR("No cutflow container in the CutFlowSvc");
     return StatusCode::FAILURE;

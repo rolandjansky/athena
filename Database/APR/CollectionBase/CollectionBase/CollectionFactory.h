@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COLLECTIONBASE_COLLECTIONFACTORY_H
@@ -8,6 +8,7 @@
 #include "CollectionBase/ICollection.h"
 #include "CollectionBase/CollectionDescription.h"
 #include "FileCatalog/IFileCatalog.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <string>
 #include <vector>
@@ -27,7 +28,8 @@ namespace pool {
    * collection fragments, the latter of which contain a subset of the metadata of a 
    * full collection.
    */
-  class CollectionFactory
+  class ATLAS_NOT_THREAD_SAFE CollectionFactory
+  // not thread-safe due to constness violations wrt the catalog.
   {
   public:
     /// Retrieves the collection factory singleton.
@@ -209,7 +211,7 @@ namespace pool {
      * @param name Name of collection.
      * @param physicalName physical name of collection in catalog.
      */    
-    void extract( const std::string physicalName,
+    void extract( const std::string& physicalName,
                   std::string& type, 
                   std::string& connection,
                   std::string& name ) const;    

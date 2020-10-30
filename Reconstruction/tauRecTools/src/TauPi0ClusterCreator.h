@@ -8,14 +8,15 @@
 #include "tauRecTools/TauRecToolBase.h"
 #include "tauRecTools/ITauVertexCorrection.h"
 
-#include "xAODPFlow/PFOAuxContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODPFlow/PFOContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "AsgTools/ToolHandle.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <string>
 #include <vector>
+#include <map>
 
 /**
  * @brief Creates Pi0 clusters (Pi0 Finder).
@@ -34,8 +35,7 @@ public:
     virtual StatusCode initialize() override;
     virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
 						xAOD::PFOContainer& hadronicClusterPFOContainer,
-						xAOD::CaloClusterContainer& pi0CaloClusContainer,
-						const xAOD::CaloClusterContainer& pPi0CaloClusContainer) const override;
+						const xAOD::CaloClusterContainer& pi0CaloClusContainer) const override;
     
 private:
     /** @brief fraction of cluster enegry in central EM1 cells */
@@ -46,13 +46,13 @@ private:
 
     std::map<unsigned, xAOD::CaloCluster*> getClusterToShotMap(
         const std::vector<const xAOD::PFO*>& shotVector,
-        const xAOD::CaloClusterContainer& pPi0ClusterContainer,
+        const xAOD::CaloClusterContainer& pi0ClusterContainer,
         const xAOD::TauJet &pTau) const;
 
     std::vector<unsigned> getShotsMatchedToCluster(
         const std::vector<const xAOD::PFO*>& shotVector,
         const std::map<unsigned, xAOD::CaloCluster*>& clusterToShotMap,
-        const xAOD::CaloCluster* pPi0Cluster) const;
+        const xAOD::CaloCluster* pi0Cluster) const;
 
     int getNPhotons( const std::vector<const xAOD::PFO*>& shotVector,
                      const std::vector<unsigned>& shotsInCluster) const;

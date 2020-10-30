@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -34,10 +34,10 @@
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "Identifier/IdentifierHash.h"
 
-#include "PixelConditionsTools/IPixelByteStreamErrorsTool.h"
+#include "InDetConditionsSummaryService/IInDetConditionsTool.h"
+#include "PixelConditionsData/PixelByteStreamErrors.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
 #include "SiClusterizationTool/PixelGangedAmbiguitiesFinder.h"
-
 
 #include <string>
 
@@ -121,8 +121,9 @@ namespace InDet {
     bool m_doFullScan;             //!< support for FullScan mode
     double                   m_etaHalfWidth;       //!< ROI half-width in eta
     double                   m_phiHalfWidth;       //!< ROI half-width in phi
-    ToolHandle<IPixelByteStreamErrorsTool> m_bsError
-    {this, "PixelByteStreamErrorsTool", "PixelByteStreamErrorsTool", "Tool for PixelByteStreamError"};
+
+    ToolHandle<IInDetConditionsTool> m_pixelConditionsTool
+    {this, "PixelConditionsSummaryTool", "PixelConditionsSummaryTool", "Tool to retrieve Pixel Conditions summary"};
 
     ServiceHandle<IROBDataProviderSvc>    m_robDataProvider;   //!< ROB Data Provide Service
     bool                     m_doTimeOutChecks;   //check global timer

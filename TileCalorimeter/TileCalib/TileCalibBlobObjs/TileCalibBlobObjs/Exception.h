@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBBLOBOBJS_EXCEPTION_H
@@ -22,13 +22,14 @@ namespace TileCalib {
   class Exception : public std::exception {
   public:
     explicit Exception( const std::string& domain, const std::string& message)
-      : m_domain(domain), m_message(message){}
+      : m_domain(domain), m_message(message)
+    {
+      format();
+    }
     virtual ~Exception() throw() {}
 
     virtual const char* what() const throw(){
-      static std::string result;
-      result = m_domain + ": "+ m_message;
-      return result.c_str();
+      return m_result.c_str();
     }
     
     virtual const std::string& domain() const{
@@ -38,11 +39,18 @@ namespace TileCalib {
   protected:
     virtual void setMessage( const std::string& message ){
       m_message = message;
+      format();
     }
     
   private:
+    void format()
+    {
+      m_result = m_domain + ": "+ m_message;
+    }
+
     std::string m_domain;
     std::string m_message;
+    std::string m_result;
   };
 
 

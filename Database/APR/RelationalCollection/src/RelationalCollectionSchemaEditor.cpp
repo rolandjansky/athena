@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RelationalCollectionSchemaEditor.h"
@@ -434,7 +434,7 @@ dropColumn( const std::string& columnName )
   
   
   for( std::map< int, std::string >::iterator iData = m_collectionColumnNameForTableColumnPosition.begin();
-       iData != m_collectionColumnNameForTableColumnPosition.end(); iData++ )
+       iData != m_collectionColumnNameForTableColumnPosition.end(); ++iData )
   {
     if( iData->second == columnName ) {
       m_collectionColumnNameForTableColumnPosition.erase( iData );
@@ -529,7 +529,7 @@ pool::RelationalCollection::RelationalCollectionSchemaEditor::renameColumn( cons
     m_collectionRowBuffer.setAttributeList( attributeList );
   }
   for ( std::map< int, std::string >::iterator iData = m_collectionColumnNameForTableColumnPosition.begin();
-          iData != m_collectionColumnNameForTableColumnPosition.end(); iData++ )
+          iData != m_collectionColumnNameForTableColumnPosition.end(); ++iData )
   {
     int pos = iData->first;
     if ( iData->second == oldName )
@@ -764,7 +764,7 @@ pool::RelationalCollection::RelationalCollectionSchemaEditor::dropIndex( const s
 
 void
 pool::RelationalCollection::RelationalCollectionSchemaEditor::
-setUniqueConstraint( std::string constraintName, const std::string& columnName )
+setUniqueConstraint( const std::string& constraintName, const std::string& columnName )
 {
    setUniqueConstraint( constraintName, std::vector<std::string>( 1, columnName ) );
 }
@@ -772,15 +772,15 @@ setUniqueConstraint( std::string constraintName, const std::string& columnName )
 
 void
 pool::RelationalCollection::RelationalCollectionSchemaEditor::
-setUniqueConstraint( std::string constraintName, const std::vector< std::string >& columnNames )
+setUniqueConstraint( const std::string& constraintNameIn, const std::vector< std::string >& columnNames )
 {
   coral::ISchema& nominalSchema = m_session->nominalSchema();
 
   // Set unique constraint in collection description object.
-  m_description->setUniqueConstraint( constraintName, columnNames );
+  m_description->setUniqueConstraint( constraintNameIn, columnNames );
 
   // Get newly generated name for unique constraint.
-  constraintName = m_description->uniqueConstraint( columnNames ).name();
+  std::string constraintName = m_description->uniqueConstraint( columnNames ).name();
 
   // Get data table column names for columns used by this unique constraint.
   std::vector< std::string > tableColumnNames;
@@ -1076,12 +1076,9 @@ addCollectionFragment( const std::string& fragmentName,
   const pool::ICollectionFragment& fragment = m_description->collectionFragment( fragmentName );
   coral::AttributeList* dataTableRowBuffer = new coral::AttributeList;
   int        tokPos = 0;
-  for( std::vector< pool::CollectionColumn* >::const_iterator
-          iColumn = fragment.tokenColumns().begin();
-        iColumn != fragment.tokenColumns().end();
-        iColumn++ )
+  for (pool::CollectionColumn* column : fragment.tokenColumns())
   {
-     std::string collectionColumnName = (*iColumn)->name();
+     std::string collectionColumnName = column->name();
      std::string variableName = RelationalCollectionNames::variableDataVariableInCollectionDataTable( tokPos );
      std::string tableColumnPrefix = dataTableName + "." + variableName + "_";
      //std::cout << " >>>> Adding Token Column prefix: " << collectionColumnName
@@ -1100,10 +1097,10 @@ addCollectionFragment( const std::string& fragmentName,
      tokPos++;
   }
   int        attrPos = 0;
-  for ( std::vector< pool::CollectionColumn* >::const_iterator iColumn = fragment.attributeColumns().begin(); iColumn != fragment.attributeColumns().end(); iColumn++ )
+  for (pool::CollectionColumn* column : fragment.attributeColumns())
   {
-    std::string collectionColumnName = (*iColumn)->name();
-    std::string columnType = (*iColumn)->type();
+    std::string collectionColumnName = column->name();
+    std::string columnType = column->type();
     std::string tableColumnName = dataTableName + "." + RelationalCollectionNames::variableDataVariableInCollectionDataTable( attrPos );
     m_tableAttributeColumnNameForCollectionAttributeColumnName.insert( std::make_pair( collectionColumnName, 
                                                                                        tableColumnName ) );
@@ -1231,7 +1228,7 @@ dropCollectionFragment( const std::string& fragmentName )
     m_tableTokenColumnPrefixForCollectionTokenColumnName.erase( collectionColumnName );
     m_tableColumnNameForCollectionColumnName.erase( collectionColumnName );
     for ( std::map< int, std::string >::iterator iData = m_collectionColumnNameForTableColumnPosition.begin();
-          iData != m_collectionColumnNameForTableColumnPosition.end(); iData++ )
+          iData != m_collectionColumnNameForTableColumnPosition.end(); ++iData )
     {
       if ( iData->second == collectionColumnName ) {
         m_collectionColumnNameForTableColumnPosition.erase( iData->first );
@@ -1248,7 +1245,7 @@ dropCollectionFragment( const std::string& fragmentName )
     m_tableAttributeColumnNameForCollectionAttributeColumnName.erase( collectionColumnName );
     m_tableColumnNameForCollectionColumnName.erase( collectionColumnName );
     for ( std::map< int, std::string >::iterator iData = m_collectionColumnNameForTableColumnPosition.begin();
-          iData != m_collectionColumnNameForTableColumnPosition.end(); iData++ )
+          iData != m_collectionColumnNameForTableColumnPosition.end(); ++iData )
     {
       if ( iData->second == collectionColumnName ) {
         m_collectionColumnNameForTableColumnPosition.erase( iData->first );

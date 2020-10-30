@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # RunLister.py
 
@@ -273,6 +273,9 @@ class coolRunLister:
         folderLB_Params=self.cooldb.getFolder(self.coolpath+'/LB_Params')
         itr=folderLB_Params.browseObjects(time1,time2,cool.ChannelSelection.all())
         srun=-1
+        slbmax = None
+        sstart = None
+        send = None
         runlist={}
         while itr.goToNext():
             obj=itr.currentRef()
@@ -410,6 +413,9 @@ class coolRunLister:
     def correlateTrigger(self):
         "Retrieve run/LB information from trigger and correlate with RunCtrl"
         srun=-1
+        slbmax = None
+        sstart = None
+        send = None
         self.triglbmap={}
         folderTrigLBLB=self.cooltrigdb.getFolder(self.cooltlbpath+'/LBLB')
         itr=folderTrigLBLB.browseObjects((self.minrun << 32),((self.maxrun+1) << 32),cool.ChannelSelection.all())
@@ -548,7 +554,7 @@ Black runs were not recorded.
             # set colour based on status
             col='000000' # black for non-recorded runs
             if (runp.rec):
-                if (runp.cleanstop==True):
+                if (runp.cleanstop is True):
                     col='008000' # green - for runs with EOR and cleanstop
                 else:
                     col='FF0000' # red - for runs without EOR or cleanstop

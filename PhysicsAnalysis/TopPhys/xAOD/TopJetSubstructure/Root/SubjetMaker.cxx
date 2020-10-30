@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include "TopJetSubstructure/SubjetMaker.h"
 
@@ -29,20 +29,18 @@ void top::SubjetMaker::correctJet(xAOD::Jet& jet) {
   xAOD::JetConstituentVector vec = jet.getConstituents();
   std::vector<fastjet::PseudoJet> p_c;
 
-  for(auto it : vec){   
-    PseudoJet p(0,0,0,0);
+  for (auto it : vec) {
+    PseudoJet p(0, 0, 0, 0);
     float pt = (*it)->pt();
     float y = (*it)->rapidity();
     float phi = (*it)->phi();
     float m = (*it)->m();
     if (y != y) {
       continue;
+    } else {
+      p.reset_PtYPhiM(pt, y, phi, m);
+      p_c.push_back(p);
     }
-    else {
-    p.reset_PtYPhiM(pt, y, phi, m);
-    p_c.push_back(p);
-    }
-    
   }
 
   JetDefinition jet_def_small = JetDefinition(cambridge_algorithm, 0.2, fastjet::E_scheme, fastjet::Best);
@@ -51,18 +49,17 @@ void top::SubjetMaker::correctJet(xAOD::Jet& jet) {
   if (ljets.size() == 0) {
     return;
   }
-  std::vector<float> sje,sjpx,sjpy,sjpz;
+  std::vector<float> sje, sjpx, sjpy, sjpz;
   for (size_t z = 0; z < ljets.size(); ++z) {
     sje.push_back(ljets[z].e());
     sjpx.push_back(ljets[z].px());
     sjpy.push_back(ljets[z].py());
     sjpz.push_back(ljets[z].pz());
   }
- jet.auxdata<std::vector<float> >("Subjet_E") = sje;
- jet.auxdata<std::vector<float> >("Subjet_Px") = sjpx;
- jet.auxdata<std::vector<float> >("Subjet_Py") = sjpy;
- jet.auxdata<std::vector<float> >("Subjet_Pz") = sjpz;
-
+  jet.auxdata<std::vector<float> >("Subjet_E") = sje;
+  jet.auxdata<std::vector<float> >("Subjet_Px") = sjpx;
+  jet.auxdata<std::vector<float> >("Subjet_Py") = sjpy;
+  jet.auxdata<std::vector<float> >("Subjet_Pz") = sjpz;
 }
 
 void top::SubjetMaker::print(std::ostream& o) const {

@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import os
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-from AthenaCommon.BeamFlags     import jobproperties
-
-#print "Beam Energy: ", jobproperties.Beam.energy.get_Value()
 
 class detectorFlag(JobProperty):
     """ Detector Flag. """

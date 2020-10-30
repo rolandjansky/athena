@@ -1,18 +1,9 @@
-# $Id: CMakeLists.txt 744476 2016-05-03 13:24:11Z krasznaa $
-################################################################################
-# Package: TruthUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TruthUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Generators/AtlasHepMC )
-
 # External dependencies:
-find_package( Boost )
 find_package( HEPUtils )
 find_package( MCUtils )
 find_package( HepMC )
@@ -37,5 +28,5 @@ endif()
 atlas_add_library( TruthUtils
    TruthUtils/*.h Root/*.cxx
    PUBLIC_HEADERS TruthUtils
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${extra_includes}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${extra_libs} )
+   INCLUDE_DIRS ${extra_includes}
+   LINK_LIBRARIES ${extra_libs} )

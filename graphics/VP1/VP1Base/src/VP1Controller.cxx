@@ -120,7 +120,7 @@ QString VP1Controller::toString( SbColor4f p )
 }
 
 //____________________________________________________________________
-void VP1Controller::initDialog(QWidget * dialog, QPushButton* launchButton, QPushButton* closebutton,QAbstractButton* enabledButton)
+void VP1Controller::initDialog(QWidget * dialog, QPushButton* launchButton, QPushButton* closeButton,QAbstractButton* enabledButton)
 {
   QString txt(enabledButton?enabledButton->text():launchButton->text());
   txt.replace("&&","&");
@@ -145,13 +145,15 @@ void VP1Controller::initDialog(QWidget * dialog, QPushButton* launchButton, QPus
   connect(launchButton,SIGNAL(clicked()),this,SLOT(toggleDialogState()));
   if (enabledButton)
     connect(enabledButton,SIGNAL(toggled(bool)),this,SLOT(enabledButtonStateChanged()));
-  connect(closebutton,SIGNAL(clicked()),dialog,SLOT(close()));
   CloseEventEater* closeEventEater = new CloseEventEater(this);
   dialog->installEventFilter(closeEventEater);
 
-  closebutton->setText("&Close");
+  if(closeButton) {
+    closeButton->setText("&Close");
+    closeButton->setToolTip("Close this dialog [Esc]");
+    connect(closeButton,SIGNAL(clicked()),dialog,SLOT(close()));
+  }
   connect(new QShortcut(QKeySequence(Qt::Key_Escape), dialog),SIGNAL(activated()),dialog,SLOT(close()));
-  closebutton->setToolTip("Close this dialog [Esc]");
 
   //To avoid an extra call in the code we do this a few times more than necessary (fixme: put in initLastVars!!):
   int maxwidth(0);

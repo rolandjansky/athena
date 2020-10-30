@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // The ResonanceExcited class handles excited-fermion resonances.
@@ -38,6 +38,11 @@ namespace Pythia8{
       m_coupF         = settingsPtr->parm("ExcitedFermion:coupF");
       m_coupFprime    = settingsPtr->parm("ExcitedFermion:coupFprime");
       m_coupFcol      = settingsPtr->parm("ExcitedFermion:coupFcol");
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8300
+      CoupSM*        couplingsPtr = infoPtr->coupSMPtr;
+  #endif
+#endif
       m_sin2tW        = couplingsPtr->sin2thetaW();
       m_cos2tW        = 1. - m_sin2tW;
       
@@ -50,6 +55,11 @@ namespace Pythia8{
     
     void calcPreFac(bool) {
       // Common coupling factors.
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8300
+      CoupSM*        couplingsPtr = infoPtr->coupSMPtr;
+  #endif
+#endif
       alpEM         = couplingsPtr->alphaEM(mHat * mHat);
       alpS          = couplingsPtr->alphaS(mHat * mHat);
       preFac        = pow3(mHat) / pow2(m_lambda);

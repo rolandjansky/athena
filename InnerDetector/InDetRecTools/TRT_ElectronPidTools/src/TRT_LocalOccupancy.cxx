@@ -45,7 +45,7 @@ TRT_LocalOccupancy::TRT_LocalOccupancy(const std::string& t,
   :
   base_class(t,n,p),
   m_TRTHelper(nullptr),
-  m_CalDbTool("TRT_CalDbTool",this),    
+  m_CalDbTool("TRT_CalDbTool",this),
   m_StrawStatusSummaryTool("TRT_StrawStatusSummaryTool",this)
 {
  declareProperty("isTrigger",            m_isTrigger = false);
@@ -65,7 +65,7 @@ TRT_LocalOccupancy::~TRT_LocalOccupancy()
 // =======================================================================
 StatusCode TRT_LocalOccupancy::initialize()
 {
-  // The TRT helper: 
+  // The TRT helper:
   CHECK( detStore()->retrieve(m_TRTHelper, "TRT_ID") );
 
   // access to t0 and straw status
@@ -75,10 +75,10 @@ StatusCode TRT_LocalOccupancy::initialize()
   else { //use wider validity gate if no T0 shift
     m_lowGate  = m_lowWideGate ;
     m_highGate = m_highWideGate ;
-  }  
+  }
   CHECK( m_StrawStatusSummaryTool.retrieve());
 
-  
+
   ATH_MSG_INFO ("initialize() successful in " << name());
 
   //Initlalize ReadHandleKey
@@ -96,14 +96,14 @@ StatusCode TRT_LocalOccupancy::finalize()
 }
 
 
-std::vector<float> TRT_LocalOccupancy::GlobalOccupancy( ) const {
+std::vector<float> TRT_LocalOccupancy::GlobalOccupancy(const EventContext& ctx) const {
   std::vector<float> 	output				;
   if (m_isTrigger) {
     ATH_MSG_INFO("Cannot compute Global Occupancies in trigger environment! Returning empty vector");
     return output;
   }
 
-  const OccupancyData* data = getData();
+  const OccupancyData* data = getData(ctx);
   if (!data) {
     ATH_MSG_INFO("Cannot get occupancy data.  Returning empty vector.");
     return output;
@@ -127,7 +127,7 @@ std::vector<float> TRT_LocalOccupancy::GlobalOccupancy( ) const {
 }
 
 
-float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
+float TRT_LocalOccupancy::LocalOccupancy(const EventContext& ctx,const Trk::Track& track ) const {
   ATH_MSG_DEBUG("Compute LocalOccupancy(const Trk::Track& track ) for tool: " << name());
 
   int track_local[NLOCAL][NLOCALPHI]= {{0}};
@@ -148,7 +148,7 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
       }
     }
 
-    if(!driftcircle) { 
+    if(!driftcircle) {
       continue;
     }
 
@@ -170,7 +170,7 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
     data = data_ptr.get();
   }
   else
-    data = getData();
+    data = getData(ctx);
 
   if (!data) {
     ATH_MSG_INFO("Cannot get occupancy data.  Returning 0.");
@@ -184,7 +184,7 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
   for (int i=0; i<6; ++i){
      for (int j = 0; j < 32; j++){
 
-        float hits_array  = track_local[i][j] ; 
+        float hits_array  = track_local[i][j] ;
         if (hits_array<1) continue;
 	float occ=0;
 	occ =  (data->m_occ_local [i][j])*1.e-2 ;
@@ -193,11 +193,11 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
 	    ATH_MSG_DEBUG("Occupancy is 0 for : " << i << " " << j << " BUT THERE ARE HITS!!!: " << hits_array);
 	    continue;
 	  }
-	}	
+	}
         averageocc  += (occ*hits_array);
-        nhits       += hits_array;	
-	
-	ATH_MSG_DEBUG("new track: " << i << " " << j << "\t" << hits_array << "\t" << occ ); 
+        nhits       += hits_array;
+
+	ATH_MSG_DEBUG("new track: " << i << " " << j << "\t" << hits_array << "\t" << occ );
      }
   }
   if (nhits>0)	averageocc 	= averageocc / nhits;
@@ -209,7 +209,7 @@ float TRT_LocalOccupancy::LocalOccupancy(const Trk::Track& track ) const {
 
 std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_Container* p_trtRDOContainer ) const
 {
-  
+
   std::map<int,int> hitCounter;
   std::map<int,double> occResults;
 
@@ -219,14 +219,14 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
     const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
     if (!RDO_Collection) continue;
     if (!RDO_Collection->empty()){
-      DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end(); 
-      
+      DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end();
+
       for(r=rb; r!=re; ++r) {
         if (!*r)
           continue;
 
         Identifier  rdo_id  = (*r)->identify    ()                          ;
-        
+
         //Check if straw is OK
         if((m_StrawStatusSummaryTool->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
             || (m_StrawStatusSummaryTool->getStatusPermanent(rdo_id))) {
@@ -239,16 +239,16 @@ std::map<int, double>  TRT_LocalOccupancy::getDetectorOccupancy( const TRT_RDO_C
 
         double t0 = 0.;
         if (m_T0Shift) {
-           unsigned  mask = 0x02000000; 
-          bool SawZero = false; 
-          int tdcvalue; 
-          for(tdcvalue=0;tdcvalue<24;++tdcvalue) 
-          { 
-            if      (  (word & mask) && SawZero) break; 
-            if ( !(word & mask) ) SawZero = true; 
-            mask>>=1; 
-            if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
-          } 
+           unsigned  mask = 0x02000000;
+          bool SawZero = false;
+          int tdcvalue;
+          for(tdcvalue=0;tdcvalue<24;++tdcvalue)
+          {
+            if      (  (word & mask) && SawZero) break;
+            if ( !(word & mask) ) SawZero = true;
+            mask>>=1;
+            if(tdcvalue==7 || tdcvalue==15) mask>>=1;
+          }
           if(!(tdcvalue==0 || tdcvalue==24)) {
             t0 =  m_CalDbTool->getT0(rdo_id);
           }
@@ -280,10 +280,10 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 {
     SG::ReadHandle<TRT_RDO_Container> p_trtRDOContainer(m_trt_rdo_location);
     if ( !p_trtRDOContainer.isValid() ) {
-      ATH_MSG_DEBUG( "Could not find the TRT_RDO_Container " 
+      ATH_MSG_DEBUG( "Could not find the TRT_RDO_Container "
 		     << m_trt_rdo_location.key() );
       return;
-    } 
+    }
 
     bool allOfEndcapAFound[2][NLOCALPHI] = {{false}};
 
@@ -302,12 +302,12 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 	  const InDetRawDataCollection<TRT_RDORawData>* RDO_Collection(*RDO_collection_iter);
 	  if (!RDO_Collection) return;
 	  if (!RDO_Collection->empty()){
-	    DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end(); 
-	    
+	    DataVector<TRT_RDORawData>::const_iterator r,rb=RDO_Collection->begin(),re=RDO_Collection->end();
+
 	    for(r=rb; r!=re; ++r) {
 	      if (!*r)                                continue;
 	      Identifier   rdo_id  = (*r)->identify    ()                          ;
-	      
+
 	      if((m_StrawStatusSummaryTool->getStatus(rdo_id) != TRTCond::StrawStatus::Good)
 		 || (m_StrawStatusSummaryTool->getStatusPermanent(rdo_id))) {
 		continue;
@@ -324,15 +324,15 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 
 	      double t0 = 0.;
 	      if (m_T0Shift) {
-		unsigned  mask = 0x02000000; 
-		bool SawZero = false; 
-		int tdcvalue; 
-		for(tdcvalue=0;tdcvalue<24;++tdcvalue) 
-		  { if      (  (word & mask) && SawZero) break; 
-		    if ( !(word & mask) ) SawZero = true; 
-		    mask>>=1; 
-		    if(tdcvalue==7 || tdcvalue==15) mask>>=1; 
-		  } 
+		unsigned  mask = 0x02000000;
+		bool SawZero = false;
+		int tdcvalue;
+		for(tdcvalue=0;tdcvalue<24;++tdcvalue)
+		  { if      (  (word & mask) && SawZero) break;
+		    if ( !(word & mask) ) SawZero = true;
+		    mask>>=1;
+		    if(tdcvalue==7 || tdcvalue==15) mask>>=1;
+		  }
 		if(!(tdcvalue==0 || tdcvalue==24)) {
                   t0 =  m_CalDbTool->getT0(rdo_id);
 		}
@@ -372,14 +372,16 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
 	  // && we already rescaled this region:
 	  // scale it back up to count all of endcapA
 	  data.m_occ_local[i][j]*=(data.m_stws_ratio[(i<3?0:1)][j]);
-	  region_rescaled[i][j]=false; 
+	  region_rescaled[i][j]=false;
 	}
       }
     }
-    
+
     }
 
-  float TRT_LocalOccupancy::LocalOccupancy(const double t_eta, const double t_phi) const {
+  float TRT_LocalOccupancy::LocalOccupancy(const EventContext& ctx,
+                                           const double t_eta,
+                                           const double t_phi) const {
     // take eta, phi of track, RoI, ... what have you
     // return local occupancy in an appropriate region of the detector
     // size of region is:
@@ -387,7 +389,7 @@ TRT_LocalOccupancy::countHitsNearTrack (OccupancyData& data,
     //   - 1 of 32 phi modules (in triangular shape of chips, not 'pie slices')
     ATH_MSG_DEBUG("LocalOccupancy(eta,phi)");
 
-    const OccupancyData* data = getData();
+    const OccupancyData* data = getData(ctx);
     if (!data) {
       ATH_MSG_ERROR ("Cannot get occupancy data.");
       return 0;
@@ -430,18 +432,18 @@ bool TRT_LocalOccupancy::passValidityGate(unsigned int word, float t0) const {
       if (thisTime >= m_lowGate && thisTime <= m_highGate) foundInterval = true;
     }
     mask >>= 1;
-    if (i == 7 || i == 15) 
+    if (i == 7 || i == 15)
       mask >>= 1;
     i++;
   }
   return foundInterval;
 }
 // ========================================================================
-	
+
 
   int TRT_LocalOccupancy::findArrayTotalIndex(const int det, const int lay) const {
     int arrayindex = 0; // to be reset below
-    // NOTE: Below, arrayindex starts at 1 
+    // NOTE: Below, arrayindex starts at 1
     // because index 0 is filled with TOTAL value.
     if      (det == -1) arrayindex = 1; // barrel side C
     else if (det == -2) {               // endcap side C
@@ -463,7 +465,7 @@ int TRT_LocalOccupancy::mapPhiToPhisector(const double t_phi) const {
   // do phi selection
   // shift all phi to positive numbers
   float dphi = 0; // TBD
-  
+
   double phi2pi = (t_phi > 0) ? t_phi : t_phi + 2*M_PI;
 
   phisector = int ( (phi2pi + dphi)*32./(2*M_PI) );
@@ -488,24 +490,24 @@ int TRT_LocalOccupancy::mapEtaToPartition(const double t_eta) const {
 }
 
 
-const TRT_LocalOccupancy::OccupancyData* TRT_LocalOccupancy::getData() const
+const TRT_LocalOccupancy::OccupancyData* TRT_LocalOccupancy::getData(const EventContext& ctx) const
 {
   SG::ReadHandle<OccupancyData> rh (name() + "OccupancyData");
   if (rh.isValid())
     return rh.cptr();
 
   SG::WriteHandle<OccupancyData> wh (name() + "OccupancyData");
-  return wh.put (makeData(), true);
+  return wh.put (makeData(ctx), true);
 }
 
 
 std::unique_ptr<TRT_LocalOccupancy::OccupancyData>
-TRT_LocalOccupancy::makeData() const
+TRT_LocalOccupancy::makeData(const EventContext& ctx) const
 {
 
-  SG::ReadHandle<TRT_DriftCircleContainer> driftCircleContainer( m_trt_driftcircles );
+  SG::ReadHandle<TRT_DriftCircleContainer> driftCircleContainer( m_trt_driftcircles,ctx );
   // count live straws
-  SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle{m_strawReadKey};
+  SG::ReadCondHandle<TRTCond::AliveStraws> strawHandle(m_strawReadKey,ctx);
   const TRTCond::AliveStraws* strawCounts{*strawHandle};
 
   auto data = std::make_unique<OccupancyData>(strawCounts->getStwLocal());
@@ -522,12 +524,12 @@ TRT_LocalOccupancy::makeData() const
 	const TRT_DriftCircle* rdo = (*p_rdo);
 	if(!rdo)        continue;
 	Identifier id = rdo->identify();
-	
+
 	int det      = m_TRTHelper->barrel_ec(         id)     ;
 	int lay      = m_TRTHelper->layer_or_wheel(    id)     ;
 	int phi      = m_TRTHelper->phi_module(        id)     ;
 	int i_total  = findArrayTotalIndex(det, lay);
-	
+
 	data->m_hit_total[0]                        +=1;
 	data->m_hit_total[i_total]                  +=1;
 	data->m_hit_local[i_total-1][phi]           +=1;
@@ -557,8 +559,10 @@ TRT_LocalOccupancy::makeData() const
       data->m_occ_local[i][j] = int(occ);
     }
   }
-   
-  ATH_MSG_DEBUG("Active straws: " << stw_total[0] << "\t total number of hits: " << data->m_hit_total[0] << "\t occ: " << data->m_occ_total[0] );
+
+  ATH_MSG_DEBUG("Active straws: " << stw_total[0] << "\t total number of hits: "
+                                  << data->m_hit_total[0]
+                                  << "\t occ: " << data->m_occ_total[0]);
   return data;
 }
 

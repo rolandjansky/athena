@@ -14,8 +14,7 @@ def JetParticleAssociationAlgCfg(ConfigFlags, JetCollection="", ParticleCollecti
     jetcol = JetCollection
     partcol = ParticleCollection
 
-    
-    release = options.get('Release', None)
+    release = options.get('Release', '21')
 
     optionAssoc = {} 
     if release == '21':

@@ -14,6 +14,9 @@ def PixelRawDataProviderAlgCfg(flags, name="PixelRawDataProvider", **kwargs):
 
     kwargs.setdefault("RDOKey", flags.Overlay.BkgPrefix + "PixelRDOs")
 
+    from RegionSelector.RegSelToolConfig import regSelTool_Pixel_Cfg
+    kwargs.setdefault("RegSelTool", acc.popToolsAndMerge(regSelTool_Pixel_Cfg(flags)))
+
     PixelRawDataProvider = CompFactory.PixelRawDataProvider
     alg = PixelRawDataProvider(name, **kwargs)
     acc.addEventAlgo(alg)

@@ -34,4 +34,7 @@ def PrescalingMonitoring():
     tool.defineHistogram('LB,HLTPSK', path='EXPERT', type='TH2I', opt='kAddBinsDynamically',
                          title='HLT prescale key used in LB;Lumiblock;HLTPSK',
                          xbins=100, xmin=0, xmax=100, ybins=5, ymin=0, ymax=5)
+    tool.defineHistogram('Random', path='EXPERT', type='TH1F',
+                         title='Random number distribution;random number',
+                         xbins=100, xmin=0, xmax=1)
     return tool

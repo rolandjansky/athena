@@ -88,7 +88,10 @@ if hasattr(topSequence,"EDtpIsoForwardAlg") :
 if hasattr(topSequence,"IsolationBuilder") :
     iso=getattr(topSequence,"IsolationBuilder")
     topSequence.remove(iso)
-    iso.EgIsoTypes=iso.MuIsoTypes
+    #EgIsoTypes doesn't exist in IsolationBulder any more, replace with ElIsoTypes and PhIsoTypes
+    #iso.EgIsoTypes=iso.MuIsoTypes 
+    iso.ElIsoTypes=iso.MuIsoTypes
+    iso.PhIsoTypes=iso.MuIsoTypes
     iso.CellCollectionName='SubtractedCells'
     topSequence+=iso
 

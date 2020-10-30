@@ -9,10 +9,10 @@
 #include "StoreGate/StoreGateSvc.h"
 
 LArAutoCorr2Ntuple::LArAutoCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator)
-  : LArCond2NtupleBase(name, pSvcLocator),m_nsamples(7)
+  : LArCond2NtupleBase(name, pSvcLocator)//,m_nsamples(7)
 {
   declareProperty("ContainerKey",m_objKey);
-  declareProperty("Nsamples",    m_nsamples);
+  declareProperty("Nsamples",    m_nsamples=32);
   
   m_ntTitle="AutoCorrelation";
   m_ntpath="/NTUPLES/FILE1/AUTOCORR";
@@ -64,6 +64,7 @@ StatusCode LArAutoCorr2Ntuple::stop() {
    for (;it!=it_e;it++) {
      const HWIdentifier hwid = *it;
      ILArAutoCorr::AutoCorrRef_t corr=larAutoCorr->autoCorr(hwid,igain);
+
      if (corr.size()>0) {
        fillFromIdentifier(hwid); 
        gain = igain;

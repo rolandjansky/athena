@@ -321,9 +321,10 @@ private:
                                int StrawLayer) const;
 
   /* Calibration functions for occupancy corrections */
-  double hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const;
-  double trackOccupancyCorrection(const Trk::Track* track,  bool useHThits) const;
-
+  double hitOccupancyCorrection(const EventContext& ctx,
+                                const Trk::TrackStateOnSurface* itr) const;
+  double trackOccupancyCorrection(const Trk::Track* track,
+                                  bool useHThits) const;
 
 public:
   // Setters and getters

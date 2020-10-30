@@ -1,16 +1,7 @@
-################################################################################
-# Package: CavernBkgGenerator
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CavernBkgGenerator )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          GaudiKernel
-                          Generators/AtlasHepMC
-                          Generators/GeneratorModules )
 
 # External dependencies:
 find_package( CLHEP )
@@ -35,8 +26,7 @@ atlas_add_library( CavernBkgGeneratorLib
 
 atlas_add_component( CavernBkgGenerator
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaKernel GaudiKernel GeneratorModulesLib CavernBkgGeneratorLib )
+                     LINK_LIBRARIES CavernBkgGeneratorLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

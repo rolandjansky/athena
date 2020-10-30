@@ -44,8 +44,8 @@ SiRegSelCondAlg::SiRegSelCondAlg(const std::string& name, ISvcLocator* pSvcLocat
 StatusCode SiRegSelCondAlg::initialize()
 {
   ATH_MSG_DEBUG("SiRegSelCondAlg::initialize() ");
-  ATH_CHECK(m_pixCablingKey.initialize());
-  ATH_CHECK(m_sctCablingKey.initialize());
+  ATH_CHECK(m_pixCablingKey.initialize(!m_pixCablingKey.empty()));
+  ATH_CHECK(m_sctCablingKey.initialize(!m_sctCablingKey.empty()));
   ATH_CHECK(m_detEleCollKey.initialize());
   ATH_CHECK(m_tableKey.initialize());
   ATH_MSG_INFO("SiRegSelCondAlg::initialize() " << m_tableKey );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMonTHistSvc.h"
@@ -280,14 +280,9 @@ StatusCode TrigMonTHistSvc::regHist(const std::string& id, std::unique_ptr<TH1> 
   return regHist_i(std::move(hist), id, false, hid);
 }
 
-StatusCode TrigMonTHistSvc::regHist(const std::string& id, std::unique_ptr<TH1> hist, TH1* hist_ptr)
+StatusCode TrigMonTHistSvc::regHist(const std::string& id, std::unique_ptr<TH1> hist, TH1* /*hist_ptr*/)
 {
   THistID* hid = nullptr;
-  // This is only to support a common use case where the histogram is used after
-  // its registration
-  if (hist_ptr != nullptr) {
-    hist_ptr = hist.get();
-  }
   return regHist_i(std::move(hist), id, false, hid);
 }
 

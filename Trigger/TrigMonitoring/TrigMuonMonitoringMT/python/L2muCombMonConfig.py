@@ -10,7 +10,7 @@ def L2muCombMonConfig(helper):
 
     monAlg = helper.addAlgorithm(CompFactory.L2muCombMonMT,'L2muCombMonMT')
     # HLT_mu6_L1MU6 is test chain for small statistics, so it will be removed.
-    monAlg.MonitoredChains =  ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20']
+    monAlg.MonitoredChains =  ['HLT_mu6_L1MU6', 'HLT_mu26_ivarmedium_L1MU20', 'HLT_2mu14_L12MU10']
     monAlg.Group = GroupName
 
     # configuration of etaphi2D and Ratio plots for non-specific chain

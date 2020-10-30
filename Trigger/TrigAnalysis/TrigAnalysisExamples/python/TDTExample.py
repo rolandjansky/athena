@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from types import (IntType,LongType,FloatType,BooleanType)
 from array import array
@@ -6,8 +6,8 @@ from math import (pi,hypot)
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 from ROOT import (TTree,)
-from AthenaCommon.SystemOfUnits import (GeV,cm)
-from operator import (attrgetter,itemgetter,setitem,getitem)
+from AthenaCommon.SystemOfUnits import GeV
+from operator import itemgetter
 
 class TriggerTree(PyAthena.Alg):
     def __init__(self, name="JetTurnOnTree", **kw):
@@ -21,17 +21,14 @@ class TriggerTree(PyAthena.Alg):
         return
 
     def treewrap(self,variable=None,value=None):
-        if not self.DATA.has_key(variable):
+        if variable not in self.DATA:
             if type(value) in [IntType,LongType]:
-                CHANGE=True
                 self.DATA[variable]=array('i',[0])
                 self.BRANCHES[variable]=self.tree.Branch(variable,self.DATA[variable],"%s/I" % variable)
             elif type(value) in [FloatType]:
-                CHANGE=True
                 self.DATA[variable]=array('d',[0.0])
                 self.BRANCHES[variable]=self.tree.Branch(variable,self.DATA[variable],"%s/D" % variable)
             elif type(value) in [BooleanType]:
-                CHANGE=True
                 self.DATA[variable]=array('i',[0])
                 self.BRANCHES[variable]=self.tree.Branch(variable,self.DATA[variable],"%s/I" % variable)
         self.DATA[variable][0]=value

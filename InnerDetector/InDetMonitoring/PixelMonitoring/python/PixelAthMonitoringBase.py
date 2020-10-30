@@ -9,11 +9,12 @@
 # hack to deal with global variables in this module
 # check if we are in "old-" or "new-style" configuration
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from RecExConfig.AutoConfiguration import GetRunNumber
 if ConfigFlags.DQ.isReallyOldStyle:
-    from RecExConfig.AutoConfiguration import GetRunNumber
-    runtext = ' (Run %d)' % GetRunNumber()
+    runtext = ''
+    if GetRunNumber() is not None:
+        runtext = ' (Run %d)' % GetRunNumber()
 else:
-    from AthenaConfiguration.AllConfigFlags import ConfigFlags
     runtext = ' (Run %d)' % ConfigFlags.Input.RunNumber[0]
 
 

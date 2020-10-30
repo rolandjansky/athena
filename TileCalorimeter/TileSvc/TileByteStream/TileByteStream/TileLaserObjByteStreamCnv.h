@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //author Renato Febbraro
@@ -10,12 +10,11 @@
 #define TILELASEROBJ_BYTESTREAMCNV_H
 
 // Gaudi includes
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Athena includes
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthConstConverter.h"
 
 #include "eformat/ROBFragment.h"
 
@@ -37,8 +36,7 @@ template <class TYPE> class CnvFactory;
 
 
 class TileLaserObjByteStreamCnv
-  : public Converter
-  , public ::AthMessaging
+  : public AthConstConverter
  {
   public:
     TileLaserObjByteStreamCnv(ISvcLocator* svcloc);
@@ -46,8 +44,8 @@ class TileLaserObjByteStreamCnv
     typedef TileLaserObjByteStreamTool  BYTESTREAMTOOL ;
 
     virtual StatusCode initialize() override;
-    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
-    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+    virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const override;
+    virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
     
     /// Storage type and class ID
     virtual long repSvcType() const override { return i_repSvcType(); }
@@ -55,9 +53,6 @@ class TileLaserObjByteStreamCnv
     static const CLID& classID();
     
   private: 
-
-    std::string m_name;
-
     /** Pointer to IROBDataProviderSvc */
     ServiceHandle<IROBDataProviderSvc> m_robSvc;
     

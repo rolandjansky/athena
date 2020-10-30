@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of TileROD_Decoder class
@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <iomanip>
 #include <sstream>
+#include <atomic>
 
 
 #define DO_NOT_USE_MUON_TAG true
@@ -36,16 +37,15 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   , m_ampMinThresh_pC(-1.)
   , m_ampMinThresh_MeV(-1.)
   , m_of2Default(true)
+  , m_WarningCounter (0)
+  , m_ErrorCounter (0)
   , m_hid2re(nullptr)
   , m_hid2reHLT(nullptr)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
   , m_checkMaskedDrawers(false)
 {
   declareInterface<TileROD_Decoder>(this);
-
-  m_WarningCounter = 0;
-  m_ErrorCounter = 0;
-  
+ 
   for (std::atomic<const uint32_t*>& p : m_OFPtrs) {
     p = nullptr;
   }
@@ -258,10 +258,13 @@ void TileROD_Decoder::unpack_frag0(uint32_t version,
   // int channelCountReal,chipCountReal;
   
   // Digitizer mode doesn't change between events
-  static int digiMode = -1;
+  static std::atomic<int> savedDigiMode = -1;
+
+  int digiMode = savedDigiMode;
   
   if (digiMode < 0 && size > 0) { // try to find digi mode until good mode is found
     digiMode = m_d2Bytes.getDigiMode(data, chipCount, blockSize);
+    savedDigiMode = digiMode;
   }
   
   if (digiMode > 0 || (digiMode < 0 && blockSize == 17)) {
@@ -479,7 +482,7 @@ void TileROD_Decoder::unpack_frag0(uint32_t version,
   }
   
   if (dataWordsPerChip > 14) { // can not be true !!!
-    digiMode = -1; // check again digiMode in next fragment
+    savedDigiMode = -1; // check again digiMode in next fragment
   }
 }
 
@@ -936,7 +939,7 @@ void TileROD_Decoder::unpack_frag5(uint32_t /* version */,
   digitsMetaData[0].push_back(0);
   
   TileRawChannel2Bytes5::TileChanData ChanData[48];
-  uint32_t* ptrFrag = (uint32_t*) (p - 1); // begin of fragment
+  const uint32_t* ptrFrag = reinterpret_cast<const uint32_t*> (p - 1); // begin of fragment
   const uint32_t* ptrOFW = getOFW(frag, unit); // get OF Weights
   m_rc2bytes5.unpack(ptrOFW, ptrFrag, ChanData);
   
@@ -1217,7 +1220,7 @@ void TileROD_Decoder::unpack_fragAHLT(uint32_t /* version */, const uint32_t* p,
   // second word is frag ID (0x100-0x4ff) and frag type
   uint16_t frag = (*(++p)) & 0xfff;
   
-  uint16_t* w = (uint16_t*) (++p); // Jump to first DQ word
+  const uint16_t* w = reinterpret_cast<const uint16_t*> (++p); // Jump to first DQ word
   /* order of 16bit DQ words in DQ fragment
    ---------------------
    | Global CRC
@@ -3734,7 +3737,7 @@ void TileROD_Decoder::unpack_frag5HLT(uint32_t /* version */,
   
   p += 2; // 2 words so far
   int wc = sizeOverhead; // can be 2 or 3 words
-  uint16_t* ptr_bad = (uint16_t*) (p + 48 + size_L2); // Reco + Size_L2
+  const uint16_t* ptr_bad = reinterpret_cast<const uint16_t*> (p + 48 + size_L2); // Reco + Size_L2
   uint16_t bad_bits[3] = { ptr_bad[1], ptr_bad[0], ptr_bad[3] };
   
   uint32_t code;

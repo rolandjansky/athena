@@ -4345,7 +4345,7 @@
 
 <tubs   name="JDSH_SmallWheelHub_NSW"    material="ShieldBrass"    Rio_Z="JDSH_SWHinnRa_SmallWheelHub_innerRadius ; JDSH_SWHoutR1_SmallWheelHub_outerRadius1 - JDSH_SWHPthic_SmallWheelHub_Polythickness - JDSH_SWHLthic_SmallWheelHub_Leadthickness ; JDSH_SWHlengt_SmallWheelHub_length"/>
 
-<pcon name="JDSH_SmallWheelHubPoly" material="PolyBoronB2O3" >
+<pcon name="JDSH_SmallWheelHubPoly" material="shield::Polyboron" >
   <polyplane Rio_Z="JDSH_SWHoutR1_SmallWheelHub_outerRadius1 + GENV_Eps; JDSH_SWHoutR1_SmallWheelHub_outerRadius1 + JDSH_SWHPthic_SmallWheelHub_Polythickness; 0." />
   <polyplane Rio_Z="JDSH_SWHoutR2_SmallWheelHub_outerRadius2 + GENV_Eps; JDSH_SWHoutR2_SmallWheelHub_outerRadius2 + JDSH_SWHPthic_SmallWheelHub_Polythickness; JDSH_SWHlengt_SmallWheelHub_length" />
 </pcon>

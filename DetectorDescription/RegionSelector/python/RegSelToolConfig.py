@@ -17,7 +17,7 @@ def _condAlgName(detector):
 
 def _createRegSelCondAlg( detector,  CondAlgConstructor ):
     """
-    Cretes conditions alg that provides dat to a RegSel Tool
+    Creates conditions alg that provides data to a RegSel Tool
     """
     condAlg = CondAlgConstructor( name = _condAlgName( detector ),
                                   ManagerName = detector,
@@ -26,8 +26,10 @@ def _createRegSelCondAlg( detector,  CondAlgConstructor ):
 
     if detector == "Pixel":
         condAlg.DetEleCollKey = "PixelDetectorElementCollection"
+        condAlg.PixelCablingCondData = "PixelCablingCondData"
     elif detector == "SCT":
         condAlg.DetEleCollKey = "SCT_DetectorElementCollection"
+        condAlg.SCT_CablingData = "SCT_CablingData"
     return condAlg
 
 def _createRegSelTool( detector, enable ):
@@ -176,10 +178,10 @@ def makeRegSelTool_TILE() :
 
 ##### new JO counterparts
 
-def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=0):
+def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=None):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     ca = ComponentAccumulator()
-    if(CablingConfigCfg != 0):
+    if CablingConfigCfg:
         ca.merge(CablingConfigCfg(flags))
     ca.setPrivateTools(_createRegSelTool(detector, True))
     ca.addCondAlgo(_createRegSelCondAlg(detector, CondAlg))
@@ -188,13 +190,17 @@ def regSelToolCfg(flags, detector, CondAlg, CablingConfigCfg=0):
 # inner detector
 
 def regSelTool_Pixel_Cfg(flags):
-    return regSelToolCfg(flags, "Pixel", CompFactory.SiRegSelCondAlg)
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
+    return regSelToolCfg(flags, "Pixel", CompFactory.SiRegSelCondAlg, CablingConfigCfg=PixelCablingCondAlgCfg)
 
 def regSelTool_SCT_Cfg(flags):
-    return regSelToolCfg(flags, "SCT", CompFactory.SiRegSelCondAlg)
+    from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
+    return regSelToolCfg(flags, "SCT", CompFactory.SiRegSelCondAlg, CablingConfigCfg=SCT_CablingCondAlgCfg)
 
 def regSelTool_TRT_Cfg(flags):
-    return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg)
+    # temporary
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelCablingCondAlgCfg
+    return regSelToolCfg(flags, "TRT", CompFactory.TRT_RegSelCondAlg, CablingConfigCfg=PixelCablingCondAlgCfg)
 
 
 # muon spectrometer

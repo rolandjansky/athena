@@ -199,6 +199,11 @@ namespace InDet {
     FloatProperty m_drmin{this, "mindRadius", 5.};
     FloatProperty m_maxdImpact{this, "maxdImpact", 10.};
     FloatProperty m_maxdImpactSSS{this, "maxdImpactSSS", 50.};
+    /// these flags allow to dynamically tighten the d0 cut on non-confirmed seeds based on 
+    /// the penalty score they receive for kinking in the r-z plane. 
+    /// The cut is adapted as cut_value = original - slope x penalty
+    FloatProperty m_dImpactCutSlopeUnconfirmedSSS{this, "dImpactCutSlopeUnconfirmedSSS", 1.0};
+    FloatProperty m_dImpactCutSlopeUnconfirmedPPP{this, "dImpactCutSlopeUnconfirmedPPP", 0.};
     FloatProperty m_maxdImpactDecays{this, "maxdImpactForDecays", 20.};
     FloatProperty m_ptmin{this, "pTmin", 500.};
     //@}
@@ -246,6 +251,7 @@ namespace InDet {
     float m_dzdrmax0{0.};   ///< implicitly store eta cut
     float m_ipt{0.};    ///< inverse of 90% of the ptmin cut 
     float m_ipt2{0.};   ///< inverse square of 90% of the pt min cut 
+    // static constexpr float m_COF{134*.05*9};    ///< appears to be an approximated term related to multiple-scattering of particles traversing the ID during the seed formation 
     static constexpr float m_COF{134*.05*9};    ///< appears to be an approximated term related to multiple-scattering of particles traversing the ID during the seed formation 
 
     /// @name Binning parameters 

@@ -35,9 +35,6 @@ CaloClusterRemoveBad::CaloClusterRemoveBad(const std::string& type,
   // Energy threshold for cluster removal.
   declareProperty ("EMin", m_eThreshold = 0.0,
                    "Energy threshold for cluster removal.");
-
-  // Not used, but required to use this with CaloRunClusterCorrections.
-  declareProperty ("order",    m_order = 0);
 }
 
 

@@ -589,7 +589,7 @@ egammaSuperClusterBuilder::makeCorrection1(xAOD::CaloCluster* cluster,
   // Given the range refine the position employing the smaller window
   if (detastr > 0 && dphistr > 0) {
     CaloLayerCalculator helper;
-    const auto cellLink = cluster->getCellLinks();
+    const auto *const cellLink = cluster->getCellLinks();
     helper.fill(cellLink->begin(), cellLink->end(), etamax, phimax, detastr, dphistr, sample);
 
     // Here is where we (re-)fill the eta in the 1st sampling
@@ -632,7 +632,7 @@ egammaSuperClusterBuilder::addTileGap3CellsinWindow(xAOD::CaloCluster* myCluster
     cells.insert(cells.end(), myList.begin(), myList.end());
   }
 
-  for (auto cell : cells) {
+  for (const auto *cell : cells) {
     if (!cell || !cell->caloDDE()) {
       continue;
     }
@@ -652,7 +652,7 @@ egammaSuperClusterBuilder::findCentralPosition(
 {
 
   CentralPosition cp;
-  for (auto cluster : clusters) {
+  for (const auto *cluster : clusters) {
     if (cluster->hasSampling(CaloSampling::EMB2)) {
       float thisEmax = cluster->energy_max(CaloSampling::EMB2);
       if (thisEmax > cp.emaxB) {

@@ -368,8 +368,9 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    NameH = "DL1_mv_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
 	    auto DL1_mv = Monitored::Scalar<double>(NameH,0.0);
-	    if ( LLR (DL1_pu, DL1_pc, DL1_pb, DL1_mv) ) fill("TrigBjetMonitor",DL1_mv);
-	    ATH_MSG_DEBUG("        DL1_mv: " << DL1_mv << " LLR: " << LLR); 
+            bool theLLR = LLR (DL1_pu, DL1_pc, DL1_pb, DL1_mv);
+	    if ( theLLR ) fill("TrigBjetMonitor",DL1_mv);
+	    ATH_MSG_DEBUG("        DL1_mv: " << DL1_mv << " LLR: " << theLLR); 
 
 
 	    NameH = "DL1r_pu_tr_"+trigName;
@@ -396,8 +397,9 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    NameH = "DL1r_mv_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
 	    auto DL1r_mv = Monitored::Scalar<double>(NameH,0.0);
-	    if ( LLR (DL1r_pu, DL1r_pc, DL1r_pb, DL1r_mv) ) fill("TrigBjetMonitor",DL1r_mv);
-	    ATH_MSG_DEBUG("        DL1r_mv: " << DL1r_mv << " LLR: " << LLR); 
+            theLLR = LLR (DL1r_pu, DL1r_pc, DL1r_pb, DL1r_mv);
+	    if ( theLLR ) fill("TrigBjetMonitor",DL1r_mv);
+	    ATH_MSG_DEBUG("        DL1r_mv: " << DL1r_mv << " LLR: " << theLLR); 
 
 	  } // if (ijet == 0)
 	  

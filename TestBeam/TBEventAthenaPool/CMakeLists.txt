@@ -1,19 +1,7 @@
-################################################################################
-# Package: TBEventAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TBEventAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          PRIVATE
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          GaudiKernel
-                          TestBeam/TBEvent
-                          TestBeam/TBTPCnv )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( TBEventAthenaPoolPoolCnv

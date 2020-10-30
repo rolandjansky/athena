@@ -4345,7 +4345,7 @@
 
 <tubs   name="JDSH_SmallWheelHub_NSW"    material="ShieldBrass"    Rio_Z="JDSH_SWHinnRa_SmallWheelHub_innerRadius ; JDSH_SWHoutR1_SmallWheelHub_outerRadius1 - JDSH_SWHPthic_SmallWheelHub_Polythickness - JDSH_SWHLthic_SmallWheelHub_Leadthickness ; JDSH_SWHlengt_SmallWheelHub_length"/>
 
-<pcon name="JDSH_SmallWheelHubPoly" material="PolyBoronB2O3" >
+<pcon name="JDSH_SmallWheelHubPoly" material="shield::Polyboron" >
   <polyplane Rio_Z="JDSH_SWHoutR1_SmallWheelHub_outerRadius1 + GENV_Eps; JDSH_SWHoutR1_SmallWheelHub_outerRadius1 + JDSH_SWHPthic_SmallWheelHub_Polythickness; 0." />
   <polyplane Rio_Z="JDSH_SWHoutR2_SmallWheelHub_outerRadius2 + GENV_Eps; JDSH_SWHoutR2_SmallWheelHub_outerRadius2 + JDSH_SWHPthic_SmallWheelHub_Polythickness; JDSH_SWHlengt_SmallWheelHub_length" />
 </pcon>
@@ -10086,7 +10086,7 @@ author     = "Niko Tsutskiridze, Davit Shekiladze" -->
 <!-- End NJD Disk -->
 
 <!-- Vertical Shielding HO -->
-<tubs name="Vertical_Shielding_HO_Poly" material="PolyBoronB2O3"  Rio_Z=" 840. ; 1655. ; 40."  nbPhi="32." /> <!-- HD PE Borotron 5% HD050 - Density: 1010kg/m3 -->
+<tubs name="Vertical_Shielding_HO_Poly" material="shield::Polyboron"  Rio_Z=" 840. ; 1655. ; 40."  nbPhi="32." /> <!-- HD PE Borotron 5% HD050 - Density: 1010kg/m3 -->
 <tubs name="Lateral_plate_TubeCut_Lead" material="Lead"  Rio_Z=" 870. ; 1655. ; 10."  nbPhi="32." />
 
 <composition  name="Vertical_Shielding_HO_Assembly" > 
@@ -10102,7 +10102,7 @@ author     = "Niko Tsutskiridze, Davit Shekiladze" -->
 
     <!-- Middle -->
 <tubs name="Middle_Iron" material="Iron"  Rio_Z="1135. ; 1359.9 ; 70."  nbPhi="32." />
-<tubs name="Middle_Borotron" material="PolyBoronB2O3"  Rio_Z=" 1360. ; 1589.9 ; 70."  nbPhi="32." /> <!-- HD PE Borotron 5% HD050 - Density: 1010kg/m3 -->
+<tubs name="Middle_Borotron" material="PolyBoron207HD5"  Rio_Z=" 1360. ; 1589.9 ; 70."  nbPhi="32." /> <!-- SHIELDWERX 207HD5 with 1.6 g/cm^3 and 5% boron -->
 <tubs name="Middle_Lead" material="Lead"  Rio_Z="1590. ; 1610. ; 70."  nbPhi="32." />
 
 <composition  name="Middle_VS" > 
@@ -10113,7 +10113,7 @@ author     = "Niko Tsutskiridze, Davit Shekiladze" -->
     <!-- End Middle -->
 
     <!-- Outer -->
-<tubs name="Outer_Borotron" material="PolyBoronB2O3"  Rio_Z="1643. ; 1762.9 ; 50."  nbPhi="32." /> <!-- HD PE Borotron 5% HD050 - Density: 1010kg/m3 -->
+<tubs name="Outer_Borotron" material="PolyBoron207HD5"  Rio_Z="1643. ; 1762.9 ; 50."  nbPhi="32." /> <!-- SHIELDWERX 207HD5 with 1.6 g/cm^3 and 5% boron -->
 <tubs name="Outer_Lead" material="Lead"  Rio_Z="1763. ; 1772.9 ; 50."  nbPhi="32." /> 
 <tubs name="Outer_SSteel" material="ShieldSteel"  Rio_Z="1773. ; 1777. ; 50."  nbPhi="32." /> 
 

@@ -61,13 +61,13 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     summaryGroup = helper.addGroup(
         larDigitMonAlg,
         summaryGroupName,
-        '/LAr/DigitsNewAlg'
+        '/LAr/Digits'
     )
 
 
     summary_hist_path=summaryGroupName+'/'
     
-    summaryGroup.defineHistogram('sumbin,partition;Summary', 
+    summaryGroup.defineHistogram('sumbin,partition;RAW_Summary', 
                                   title='Gain',
                                   type='TH2F',
                                   path=summary_hist_path,
@@ -75,7 +75,7 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   xbins=lArDQGlobals.N_DigitsSummary,xmin=-0.5,xmax=lArDQGlobals.N_DigitsSummary-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   xlabels=lArDQGlobals.DigitsSummary,ylabels=lArDQGlobals.Partitions)
-    summaryGroup.defineHistogram('gain,partition;summaryGain', 
+    summaryGroup.defineHistogram('gain,partition;RAW_summaryGain', 
                                   title='Gain',
                                   type='TH2F',
                                   path=summary_hist_path,
@@ -87,7 +87,7 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
     # now individual partitions, because we need a different directories, will have only 2dim arrays (side)
     for subdet in range(0,lArDQGlobals.N_SubDet):
        array = helper.addArray([lArDQGlobals.Partitions[2*subdet:2*subdet+2]],larDigitMonAlg,lArDQGlobals.SubDet[subdet])
-       hist_path='/LAr/DigitsNewAlg/'+lArDQGlobals.SubDet[subdet]+'/'
+       hist_path='/LAr/Digits/'+lArDQGlobals.SubDet[subdet]+'/'
        slot_low = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][0] - 0.5
        slot_up  = lArDQGlobals.FEB_Slot[lArDQGlobals.Partitions[subdet*2]][1] + 0.5
        slot_n = int(slot_up - slot_low)
@@ -107,13 +107,13 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   weight='weight',
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('Outslot,OutFT,Outweight;OutOfRange', 
+       array.defineHistogram('Outslot,OutFT,Outweight;RAW_OutOfRange', 
                                   title='% chan/FEB/events with max out of ',
                                   type='TProfile2D',
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('Outcrate,Outchan;OutOfRangeChan', 
+       array.defineHistogram('Outcrate,Outchan;RAW_OutOfRangeChan', 
                                   title='% chan/FEB/events with max out of  ',
                                   type='TH2I',
                                   path=hist_path,
@@ -128,13 +128,13 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   weight='weight',
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('Saturslot,SaturFT,Saturweight;Saturation', 
+       array.defineHistogram('Saturslot,SaturFT,Saturweight;RAW_Saturation', 
                                   title='% chan/FEB/events with max=4095 ADC ',
                                   type='TProfile2D',
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('Saturcrate,Saturchan;SaturationChan', 
+       array.defineHistogram('Saturcrate,Saturchan;RAW_SaturationChan', 
                                   title='% chan/FEB/events with max=4095 ADC - Med/High Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
@@ -148,13 +148,13 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('SaturLowslot,SaturLowFT,SaturLowweight;SaturationLow', 
+       array.defineHistogram('SaturLowslot,SaturLowFT,SaturLowweight;RAW_SaturationLow', 
                                   title='% chan/FEB/events with max=4095 ADC ',
                                   type='TProfile2D',
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('SaturLowcrate,SaturLowchan;SaturationChanLow', 
+       array.defineHistogram('SaturLowcrate,SaturLowchan;RAW_SaturationChanLow', 
                                   title='% chan/FEB/events with max=4095 ADC - Low Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
@@ -169,20 +169,20 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
                                   weight='weight',
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('Nullslot,NullFT,Nullweight;NullDigit', 
+       array.defineHistogram('Nullslot,NullFT,Nullweight;RAW_NullDigit', 
                                   title='% chan/FEB/events with min=0 ADC ',
                                   type='TProfile2D',
                                   path=hist_path,
                                   xbins=int(slot_n),xmin=slot_low,xmax=slot_up,
                                   ybins=int(ft_n), ymin=ft_low, ymax=ft_up)
-       array.defineHistogram('Nullcrate,Nullchan;NullDigitChan', 
+       array.defineHistogram('Nullcrate,Nullchan;RAW_NullDigitChan', 
                                   title='% chan/FEB/events with min=0 ADC - All Gain - All Stream',
                                   type='TH2I',
                                   path=hist_path,
                                   xbins=crates_n,xmin=crates_low,xmax=crates_up,
                                   ybins=chan_n, ymin=chan_low, ymax=chan_up)
 
-       array.defineHistogram('slot,FT,MaxPos;AvePosMaxDig', 
+       array.defineHistogram('slot,FT,MaxPos;RAW_AvePosMaxDig', 
                                   title='Average position of Max Digit ',
                                   type='TProfile2D',
                                   path=hist_path,

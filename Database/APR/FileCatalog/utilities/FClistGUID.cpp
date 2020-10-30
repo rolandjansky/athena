@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**FClistGUID.cpp -- FileCatalog command line tool to list guid
@@ -21,8 +21,6 @@ using namespace pool;
 void printUsage(){
   std::cout<<"usage: FClistGUID [-p pfname -l lfname -q query -u contactstring -h]" <<std::endl; 
 }
-
-static const char* opts[] = {"p","l","q","u","h",0};
 
 class contactParser{
 public:
@@ -62,6 +60,7 @@ int main(int argc, char** argv)
   std::string  query;
   try{
     CommandLine commands(argc,argv);
+    const char* opts[] = {"p","l","q","u","h",0};
     commands.CheckOptions(opts);
     
     if( commands.Exists("u") ){
@@ -80,11 +79,11 @@ int main(int argc, char** argv)
     }
     if( commands.Exists("h") ){
       printUsage();
-      exit(0);
+      return 0;
     }
   }catch(std::string& strError){
     std::cerr<< "Error: command parsing error "<<strError<<std::endl;
-    exit(1);
+    return 1;
   }
 
   if(!query.empty()&&!mypfn.empty()){
@@ -110,7 +109,7 @@ int main(int argc, char** argv)
     pool::IFileCatalog::Strings fids;
     if( !query.empty() ){
        std::cerr << "Query option not supported" << std::endl;
-       exit(2); 
+       return 2;
     } else if( !mypfn.empty() ){
        fids.push_back( mycatalog->lookupPFN( mypfn ) );
     } else if( !mylfn.empty() ){
@@ -125,10 +124,10 @@ int main(int argc, char** argv)
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }catch (const std::exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }
 }
 

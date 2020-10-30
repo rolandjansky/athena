@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**FCdeleteEntry.cpp -- FileCatalog command line tool to delete all entries associated with given file.
@@ -19,8 +19,6 @@ void printUsage(){
   std::cout<<"usage: FCdeleteEntry [-q query -l lfname -p pfname -u contactstring -h]" <<std::endl;
 }
 
-static const char* opts[] = {"q","l","p","u","h",0};
-
 
 int main(int argc, char** argv)
 {
@@ -32,6 +30,7 @@ int main(int argc, char** argv)
   std::string  myquery;
   try{
     CommandLine commands(argc,argv);
+    const char* opts[] = {"q","l","p","u","h",0};
     commands.CheckOptions(opts);
 
     if( commands.Exists("u") ){
@@ -51,23 +50,23 @@ int main(int argc, char** argv)
     
     if( commands.Exists("h") ){
       printUsage();
-      exit(0);
+      return 0;
     }
   }catch(std::string& strError){
     std::cerr << "Error: command parsing error "<<strError<<std::endl;
-    exit(0);
+    return 0;
   }
   
   if( mylfn.empty() && mypfn.empty() && myquery.empty() ){
     printUsage();
     std::cerr<<"Error: must specify lfname using -l , pfname using -p, query using -q"<<std::endl;
-    exit(0);
+    return 0;
   }
 
   if( !mylfn.empty() && !mypfn.empty() ){
     printUsage();
     std::cerr<<"Error: can only delete either PFN or LFN"<<std::endl;
-    exit(0);
+    return 0;
   }
   try{  
     std::unique_ptr<IFileCatalog> mycatalog(new IFileCatalog);
@@ -79,7 +78,7 @@ int main(int argc, char** argv)
     mycatalog->start();
     if( !myquery.empty() ){
        std::cerr << "Query option not supported" << std::endl;
-       exit(2); 
+       return 2;
     }else if( !mylfn.empty() ){
        mycatalog->deleteFID( mycatalog->lookupLFN( mylfn ) );
     }else if( !mypfn.empty() ) {
@@ -89,10 +88,10 @@ int main(int argc, char** argv)
     mycatalog->disconnect();
   }catch (const pool::Exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }catch (const std::exception& er){
     std::cerr<<er.what()<<std::endl;
-    exit(1);
+    return 1;
   }
 }
 

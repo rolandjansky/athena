@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of TileROD_Encoder class 
@@ -22,12 +22,12 @@
 
 
 TileROD_Encoder::TileROD_Encoder(): 
+  AthMessaging (Athena::getMessageSvc(), "TileROD_Encoder"),
   m_tileHWID(0), 
   m_verbose(false), 
   m_type(0), 
   m_unitType(0),
   m_rChUnit(0),
-  m_msg("TileROD_Encoder"), 
   m_maxChannels(TileCalibUtils::MAX_CHAN) {
 }
 

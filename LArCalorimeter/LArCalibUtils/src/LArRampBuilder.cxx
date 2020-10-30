@@ -26,6 +26,7 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
     m_peakParabolaTool("LArParabolaPeakRecoTool"),
     m_peakShapeTool("LArShapePeakRecoTool"),
     m_peakOFTool("LArOFPeakRecoTool"),
+    m_sc2ccMappingTool("CaloSuperCellIDTool"),
     m_event_counter(0),
     m_recoType(OF),
     m_onlineHelper(),
@@ -87,6 +88,7 @@ StatusCode LArRampBuilder::initialize()
   
   StatusCode sc;
   if ( m_isSC ) {
+    ATH_MSG_DEBUG("==== LArRampBuilder - looking at SuperCells ====");
     const LArOnline_SuperCellID* ll;
     sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
     if (sc.isFailure()) {
@@ -111,8 +113,19 @@ StatusCode LArRampBuilder::initialize()
     }
     
   }
-  
+  if ( m_isSC ) ATH_CHECK( m_sc2ccMappingTool.retrieve() );
+
   ATH_CHECK( m_cablingKey.initialize() );
+  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
+
+  // Initialise keys for calib line mapping
+  if (m_isSC){   
+    ATH_CHECK( m_calibMapSCKey.initialize() );
+    ATH_CHECK( m_calibMapKey.initialize() );
+  }else{
+    ATH_CHECK( m_calibMapKey.initialize() );
+  }
+    
 
   if(m_doBadChannelMask) { 
     sc=m_badChannelMask.retrieve(); 
@@ -151,6 +164,9 @@ StatusCode LArRampBuilder::initialize()
        ATH_MSG_INFO( " register callback for HEC map " );
      }
   }
+ 
+  
+
 
   return StatusCode::SUCCESS;
 }
@@ -229,6 +245,55 @@ StatusCode LArRampBuilder::execute()
     if (m_event_counter==1)
       ATH_MSG_WARNING("No FebErrorSummaryObject found! Feb errors not checked!");
  
+  
+
+  ///*
+  // calib line mapping for SC
+  const LArCalibLineMapping *clCont=0;
+  const LArCalibLineMapping *clContSC=0;
+  if(m_isSC) {
+    ATH_MSG_DEBUG( "LArRampBuilder: using SC calib map" );
+    SG::ReadCondHandle<LArCalibLineMapping> clHdlSC{m_calibMapSCKey};
+    clContSC=*clHdlSC;
+
+    if(!clContSC) {
+      ATH_MSG_WARNING( "Do not have SC calib line mapping !!!" );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_DEBUG( "DONE THE SETUP SC calib line" );
+    }
+  }//} else {
+  // calib line mapping for main readout
+  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+  clCont=*clHdl;
+  //}
+  if(!clCont) {
+    ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_DEBUG( "DONE THE SETUP calib line" );
+  }
+  // end of calib line mapping
+  // */
+  
+  const LArOnOffIdMapping* cabling(0);
+  if( m_isSC ){
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
+        return StatusCode::FAILURE;
+    }
+  }else{
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+       ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+       return StatusCode::FAILURE;
+    }
+  }
+  
+  
 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
   std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
@@ -301,6 +366,8 @@ StatusCode LArRampBuilder::execute()
 	  int DAC = larCaliWave.getDAC();
 	  IdentifierHash chidwave_hash = m_onlineHelper->channel_Hash(itVec.channelId());
 	  
+
+
 	  bool IsBad = false;
 	  for(int i=0;i<24*NSamplesKeep;i++){
 	    tempWave[i] = larCaliWave.getSample(i);
@@ -371,6 +438,27 @@ StatusCode LArRampBuilder::execute()
 	}
       }
 
+      // HEC Calibration lines
+      const std::vector<HWIdentifier>& calibLineV = clCont->calibSlotLine(chid);
+      ATH_MSG_DEBUG( "pulsed lines: "<< calibLineV.size() );
+      if(m_isSC){
+	const std::vector<HWIdentifier>& calibLineVSC = clContSC->calibSlotLine(chid);
+	ATH_MSG_DEBUG( "pulsed SC lines: "<< calibLineVSC.size() );
+      }
+      // std::vector<HWIdentifier>::const_iterator calibLineIt = calibLineV.begin();
+      // for(calibLineIt = calibLineV.begin(); calibLineIt != calibLineV.end();++calibLineIt) {
+      // ATH_MSG_DEBUG( "CALIB LINE "<< m_onlineHelper->channel(*calibLineIt) );
+      // }
+      
+      std::vector<Identifier> ccellIds(0);
+      if( m_isSC ){
+	Identifier myofflineID = cabling->cnvToIdentifier((*it)->hardwareID()) ;
+
+	ccellIds = m_sc2ccMappingTool->superCellToOfflineID( myofflineID );
+	ATH_MSG_DEBUG( "Cell: " << myofflineID << " " << (*it)->channelID() << " " << chid << " " << ccellIds.size() << " : " << ccellIds );
+      }
+
+
       if (m_delay==-1) { //First (pulsed) cell to be processed:
 	m_delay=(*it)->delay();
       }
@@ -440,16 +528,28 @@ StatusCode LArRampBuilder::execute()
       //            << " mean " << (*it)->mean()[0] << " " << (*it)->mean()[1] << " " << (*it)->mean()[2] << " " << (*it)->mean()[3]
       //            << " " << (*it)->mean()[4] << " " << (*it)->mean()[5] << " " << (*it)->mean()[6] << std::endl;
       //     }
-      //  }
+      //  }      
+
       
-      LArCalibTriggerAccumulator& accpoints=(m_ramps->get(chid,gain))[(*it)->DAC()];
-      //rawramp.addAccumulatedEvent( (*it)->mean(),(*it)->RMS(), (*it)->nTriggers() );
-      LArCalibTriggerAccumulator::ERRTYPE ec=accpoints.add((*it)->sampleSum(),(*it)->sample2Sum(),(*it)->nTriggers());
-      if (ec==LArCalibTriggerAccumulator::WrongNSamples) {
-	ATH_MSG_ERROR( "Failed to accumulate sub-steps: Inconsistent number of ADC samples");
-      }
-      if (ec==LArCalibTriggerAccumulator::NumericOverflow) {
-	ATH_MSG_ERROR( "Failed to accumulate sub-steps: Numeric Overflow");
+      if (m_isSC){  // Changed here to give DAC value for supercell, rather than DAC for a constituent cell
+	LArCalibTriggerAccumulator& accpoints=(m_ramps->get(chid,gain))[(*it)->DAC()*ccellIds.size()];
+	LArCalibTriggerAccumulator::ERRTYPE ec=accpoints.add((*it)->sampleSum(),(*it)->sample2Sum(),(*it)->nTriggers());
+	if (ec==LArCalibTriggerAccumulator::WrongNSamples) {
+	  ATH_MSG_ERROR( "Failed to accumulate sub-steps: Inconsistent number of ADC samples");
+	}
+	if (ec==LArCalibTriggerAccumulator::NumericOverflow) {
+	  ATH_MSG_ERROR( "Failed to accumulate sub-steps: Numeric Overflow");
+	}
+      }else{
+	LArCalibTriggerAccumulator& accpoints=(m_ramps->get(chid,gain))[(*it)->DAC()];
+	//rawramp.addAccumulatedEvent( (*it)->mean(),(*it)->RMS(), (*it)->nTriggers() );
+	LArCalibTriggerAccumulator::ERRTYPE ec=accpoints.add((*it)->sampleSum(),(*it)->sample2Sum(),(*it)->nTriggers());
+	if (ec==LArCalibTriggerAccumulator::WrongNSamples) {
+	  ATH_MSG_ERROR( "Failed to accumulate sub-steps: Inconsistent number of ADC samples");
+	}
+	if (ec==LArCalibTriggerAccumulator::NumericOverflow) {
+	  ATH_MSG_ERROR( "Failed to accumulate sub-steps: Numeric Overflow");
+	}
       }
     }//End loop over all cells
   } //End loop over all containers
@@ -483,12 +583,16 @@ StatusCode LArRampBuilder::stop()
   else
     larRampComplete=NULL;
   
+  
   SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
   const LArOnOffIdMapping* cabling{*cablingHdl};
   if(!cabling) {
-     ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
-     return StatusCode::FAILURE;
+    ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+    return StatusCode::FAILURE;
   }
+
+
+
 
   int containerCounter=0;
   //Outermost loop goes over all gains (different containers).
@@ -524,6 +628,9 @@ StatusCode LArRampBuilder::stop()
       float adcpeak, timepeak;
       std::vector<float> adc0v;
       bool isADCsat = false;
+
+
+
 
       for (;dac_it!=dac_it_e;dac_it++) {
 

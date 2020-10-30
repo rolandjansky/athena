@@ -28,7 +28,7 @@ find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODPFLOWATHENAPOOL_REFERENCE_TAG
-       xAODPFlowAthenaPoolReference-01-00-00 )
+       xAODPFlowAthenaPoolReference-01-01-00 )
   run_tpcnv_legacy_test( xAODPFlowAthenaPool_21.0.79   AOD-21.0.79-full
                    REQUIRED_LIBRARIES xAODPFlowAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODPFLOWATHENAPOOL_REFERENCE_TAG} )

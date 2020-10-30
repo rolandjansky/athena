@@ -57,10 +57,10 @@ namespace CP
     const xAOD::FileMetaData *fmd{};
     ANA_CHECK (inputMetaStore()->retrieve(fmd, "FileMetaData"));
 
-    float _flt_channel_number{};
-    if (fmd->value(xAOD::FileMetaData::mcProcID, _flt_channel_number))
+    float flt_channel_number{};
+    if (fmd->value(xAOD::FileMetaData::mcProcID, flt_channel_number))
     {
-      m_mcChannelNumber = static_cast<uint32_t>(_flt_channel_number);
+      m_mcChannelNumber = static_cast<uint32_t>(flt_channel_number);
     }
     if (m_mcChannelNumber == 0)
     {
@@ -100,9 +100,9 @@ namespace CP
       const xAOD::FileMetaData *fmd{};
       ANA_CHECK (inputMetaStore()->retrieve(fmd, "FileMetaData"));
 
-      float _flt_channel_number{};
-      if (fmd->value(xAOD::FileMetaData::mcProcID, _flt_channel_number)) {
-        m_mcChannelNumber = static_cast<uint32_t>(_flt_channel_number);
+      float flt_channel_number{};
+      if (fmd->value(xAOD::FileMetaData::mcProcID, flt_channel_number)) {
+        m_mcChannelNumber = static_cast<uint32_t>(flt_channel_number);
       }
     }
 

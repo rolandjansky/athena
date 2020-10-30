@@ -35,9 +35,6 @@ CaloClusterRemoveDuplicates::CaloClusterRemoveDuplicates(const std::string& type
 { 
   declareProperty ("deta_cut", m_deta_cut = 0.05 );
   declareProperty ("dphi_cut", m_dphi_cut = 0.05 );
-
-  // Not used, but required to use this with CaloRunClusterCorrections.
-  declareProperty ("order",    m_order = 0);
 }
 
 StatusCode

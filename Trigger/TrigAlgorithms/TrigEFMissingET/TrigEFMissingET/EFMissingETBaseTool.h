@@ -26,6 +26,7 @@ tools must implement the execute(...) method.
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTrigMissingET/TrigMissingET.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTracking/VertexContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include <vector>
 

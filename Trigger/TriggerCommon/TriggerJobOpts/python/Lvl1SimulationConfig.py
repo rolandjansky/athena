@@ -87,6 +87,10 @@ def Lvl1SimulationSequence( flags = None ):
             #conddb.addFolderWithTag("TRIGGER_OFL", l1calofolder, "HEAD")
             conddb.addFolder( "TRIGGER_OFL", l1calofolder )
 
+    if flags.Trigger.enableL1Phase1:
+        from AthenaCommon import CfgMgr
+        l1CaloSim += CfgMgr.LVL1__eFEXDriver('MyeFEXDriver')
+
     ##################################################
     # Muons
     ##################################################
@@ -168,10 +172,16 @@ def Lvl1SimulationSequence( flags = None ):
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_EIFI", className="CondAttrListCollection")
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_BW", className="CondAttrListCollection")
     conddb.addFolder("TGC_OFL", "/TGC/TRIGGER/CW_TILE", className="CondAttrListCollection")
+    #COOL DB will be used.
+    from PathResolver import PathResolver
+    bwCW_Run3_filePath=PathResolver.FindCalibFile("TrigT1TGC_CW/BW/CW_BW_Run3.v01.db")
+    conddb.addFolder(bwCW_Run3_filePath,"/TGC/TRIGGER/CW_BW_RUN3 <tag>TgcTriggerCwBwRun3-01</tag>", className='CondAttrListCollection')
+
     condSeq = AthSequencer("AthCondSeq")
     from MuonCondSvc.MuonCondSvcConf import TGCTriggerDbAlg
     condSeq += TGCTriggerDbAlg()
-
+    from TGCTriggerCondSvc.TGCTriggerCondSvcConf import TGCTriggerCondAlg
+    condSeq += TGCTriggerCondAlg()
     ##################################################
     # Topo
     ##################################################

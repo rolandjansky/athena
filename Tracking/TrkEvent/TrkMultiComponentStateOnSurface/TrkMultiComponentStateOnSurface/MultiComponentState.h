@@ -31,15 +31,21 @@ namespace Trk {
 typedef std::vector<ComponentParameters> MultiComponentState;
 
 namespace MultiComponentStateHelpers {
-/** Clone method */
+
+/** create a unique_ptr from input, moves (does not clone) the TrackParameters
+ */
+std::unique_ptr<MultiComponentState>
+toPtr(MultiComponentState&& in);
+
+/** Clone TrackParameters method */
 std::unique_ptr<MultiComponentState>
 clone(const MultiComponentState& in);
 
-/** Clone with covariance matricies scaled by a factor */
+/** Clone TrackParameters with covariance matricies scaled by a factor */
 std::unique_ptr<MultiComponentState>
 cloneWithScaledError(const MultiComponentState& in, double);
 
-/** Clone with covariance matrix componants scaled by individual factors
+/** Clone TrackParameters with covariance matrix components scaled by individual factors
     This will only work if there are 5 track parameters in each componant
 */
 std::unique_ptr<MultiComponentState>

@@ -95,14 +95,20 @@ namespace Trk
       public:
        friend class TrackSlimmingTool;  					     	    
  
-       Track (); //!<needed by POOL. DO NOT USE YOURSELF!			            
+       /**
+        * Default constructor
+        * Here for POOL and simple tests.
+        * The track will return isValid() == false.
+        * It is not expected to be used in
+        * production.
+        */
+       Track (); 		 
+
        /**									            
         * Full constructor							            
         *									            
-        * Pass everything possible to form a track, including			            
-        * As usual, since the FitQuality and the vectors are passed by  	            
-        * pointer, they will be owned by the Track (i.e. the Track will 	            
-        * delete them)  							            
+        * Pass everything possible to form a track.
+        * The Track assumes ownership of the pointers. 							            
         *									            
         * <b>PLEASE NOTE!</b>							            
         * if there is more than one Perigee in trackStateOnSurfaces		            
@@ -128,16 +134,25 @@ namespace Trk
 
        virtual ~Track (); //!< destructor					            
 
-       /**									            
-        * return fit quality. this pointer is NULL (==0) if no FitQuality	            
-        * is assigned to the Track						            
-        */									            
-       const FitQuality* fitQuality () const	{ 
-         return m_fitQuality;
-       }
+       /**
+        * returns true if the track has non-nullptr 
+        * fitQuality  and  DataVector<const TrackStateOnSurface>*
+        */
+       bool isValid() const;
 
        /**									            
-        * return Perigee. this pointer is NULL (==0) if no perigee parameters	            
+        * return fit quality pointer.  It will be nullptr if no FitQuality	            
+        * is assigned to the Track						            
+        */									            
+       const FitQuality* fitQuality () const;
+
+       /**
+        * set FitQuality. The Track takes ownership.
+        */
+       void setFitQuality(const FitQuality* quality);
+       
+       /**									            
+        * return Perigee. Can be nullptr if no perigee parameters	            
         * were assigned to the Track.
         *
         * This method performs lazy initialization and caches the result.						            
@@ -151,8 +166,8 @@ namespace Trk
         * Return a pointer to a vector of TrackParameters.
         * It is created Lazily by this method	and then cached.
         * 							            
-        * The pointer will be NULL (==0) if the track was created		            
-        * without parameters.							            
+        * The pointer will be nullptr if the track was created		            
+        * without parameters. 							            
         *									            
         * In general, it will be defined and will have at least one entry	            
         *									            
@@ -271,8 +286,8 @@ namespace Trk
         * These objects link the various parameters related to a surface,	   
         * for example, TrackParameter, RIO_OnTrack and FitQualityOnSurface	   
         */									   
-       DataVector<const TrackStateOnSurface>* m_trackStateVector;		   
- 
+       DataVector<const TrackStateOnSurface>* m_trackStateVector{nullptr};		   
+
         /**									   
         * A vector of TrackParameters: these can be any of the classes that	   
         * derive from Trk::TrackParameters, for example, Perigee, MeasuredPerigee, 
@@ -302,7 +317,6 @@ namespace Trk
         */									   
        CxxUtils::CachedValue<DataVector<const MeasurementBase>> m_cachedOutlierVector;	   
         									     
-   
        /**									   
         * A pointer to the Track's Perigee parameters.  			   
         *									   
@@ -310,13 +324,13 @@ namespace Trk
         * or MeasuredPerigee parameter  					   
         */									   
        CxxUtils::CachedValue<const Perigee*> m_perigeeParameters;				   
-        									     
+       									     
        
        /**
         * A pointer to the Track's FitQuality. This is guaranteed to		   
         * exist and will never be null. 					   
         */									   
-       const FitQuality*   m_fitQuality;					   
+       const FitQuality*   m_fitQuality{nullptr};					   
         									        									   
        /**									   
         * Datamember to cache the TrackSummary  				   

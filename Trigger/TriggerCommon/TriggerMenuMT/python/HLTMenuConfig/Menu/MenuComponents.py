@@ -306,7 +306,8 @@ def isFilterAlg(alg):
 def isComboHypoAlg(alg):
     return  ('MultiplicitiesMap'  in alg.__class__.__dict__)
 
-
+def isHypoAlg(alg):
+    return isHypoBase(alg) and not isComboHypoAlg(alg)
 
 
 ##########################################################
@@ -515,6 +516,7 @@ class CAMenuSequence(MenuSequence):
         return self._hypo
 
 
+
 class Chain(object):
     """Basic class to define the trigger menu """
     __slots__ ='name','steps','nSteps','alignmentGroups','vseeds','L1decisions'
@@ -655,6 +657,7 @@ class Chain(object):
                 # new way to configure hypo tools, works if the chain dictionaries have been attached to the steps
                 log.debug('%s in new hypo tool creation method, step mult= %d, isCombo=%d', self.name, sum(step.multiplicity), step.isCombo)
                 log.debug("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.chainDicts))
+
                 assert len(step.sequences)==len(step.chainDicts), "createHypoTools only makes sense if number of sequences == number of chain dicts"
                 for seq, onePartChainDict in zip(step.sequences, step.chainDicts):
                     log.debug('    seq: %s, onePartChainDict:', seq.name)
@@ -933,9 +936,33 @@ class RecoFragmentsPool(object):
         The flags are not part of unique identifier as creation of new reco fragments should not be caused by difference in the unrelated flags.
         TODO, if that code survives migration to New JO we need to handle the case when the creator is an inner function
         """
-        requestHash = hash( ( creator, tuple(kwargs.keys()), tuple(kwargs.values()) ) )
+        from inspect import signature
+        def bind_callargs(func, *args, **kwargs):
+            """ Take a function and a set of args and kwargs and return a dictionary mapping argument name to value, accounting for defaults
+            """
+            sig = signature(func)
+            bound = sig.bind(*args, **kwargs)
+            bound.apply_defaults()
+            return dict(bound.arguments)
+
+        allargs = bind_callargs(creator, flags, **kwargs)
+        # First arg is flags, which we don't want to depend on
+        firstkey = list(allargs.keys())[0]
+        del allargs[firstkey]
+        # Drop dict of kwargs if it is in allargs
+        if allargs.keys():
+            lastkey = list(allargs.keys())[-1]
+            if allargs[lastkey].__class__ == dict:
+               kwargs = allargs[lastkey]
+               del allargs[lastkey]
+               allargs.update(kwargs)
+        
+        sortedkeys = sorted(allargs.keys())
+        sortedvals = [allargs[key] for key in sortedkeys]
+
+        requestHash = hash( ( creator, tuple(sortedkeys), tuple(sortedvals) ) )
         if requestHash not in cls.fragments:
-            recoFragment = creator( flags, **kwargs )
+            recoFragment = creator( flags, **allargs )
             cls.fragments[requestHash] = recoFragment
             return recoFragment
         else:

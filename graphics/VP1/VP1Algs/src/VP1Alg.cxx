@@ -7,6 +7,7 @@
 #include "VP1Gui/VP1Gui.h"
 #include "VP1UtilsBase/VP1FileUtilities.h"
 
+#include <xAODEventInfo/EventInfo.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventID.h"
@@ -24,7 +25,7 @@
 #include <iomanip>
 #include <cstdint> // for uint64_t (unsigned long long)
 #include <cstdlib> //For setenv
-
+ 
 
 //____________________________________________________________________
 VP1Alg::VP1Alg(const std::string& name, ISvcLocator* svcLocator):
@@ -126,6 +127,11 @@ StatusCode VP1Alg::initialize()
 //____________________________________________________________________
 StatusCode VP1Alg::execute()
 {
+
+    // Here you do everything that needs to be done on every single
+    // events, e.g. read input variables, apply cuts, and fill
+    // histograms and trees, if any.  
+
   msg(MSG::DEBUG) <<" in execute() " << endmsg;
 
   if (!m_vp1gui)
@@ -135,20 +141,32 @@ StatusCode VP1Alg::execute()
     m_vp1gui->init();//Launch!
   }
 
+
+
+
+  // Get L1 trigger type from the EventInfo
+  unsigned int trigType = 0;
   const EventInfo*  evt;
-  StatusCode status = evtStore()->retrieve(evt);
+  StatusCode statusEvt = evtStore()->retrieve(evt);
+  if(statusEvt.isSuccess()) {
+   const TriggerInfo* trig = evt->trigger_info();
+   trigType = trig ? trig->level1TriggerType() : 0;
+  }
+
+  // retrieve the eventInfo object from the event store
+  const xAOD::EventInfo *eventInfo = nullptr;
+  StatusCode status = evtStore()->retrieve (eventInfo, "EventInfo");
+  
   if(status.isSuccess()) {
+    
     // Get run/event number:
-	const uint64_t eventNumber = evt->event_ID()->event_number();
-    int runNumber = evt->event_ID()->run_number();
+	const unsigned long long eventNumber = eventInfo->eventNumber();
+    const uint32_t           runNumber   = eventInfo->runNumber();
     msg(MSG::DEBUG) << " Got run number = " << runNumber
 	<< ", event number = " << eventNumber << endmsg;
+    
     // Get time stamp:
-    unsigned time = evt->event_ID()->time_stamp();//0 means no info.
-
-    // Get L1 trigger type
-    const TriggerInfo* trig = evt->trigger_info();
-    unsigned int trigType = trig ? trig->level1TriggerType() : 0;
+    uint32_t time = eventInfo->timeStamp();//0 means no info.
 
     if (m_noGui||m_vp1gui->executeNewEvent(runNumber,eventNumber,trigType,time)) {
       return StatusCode::SUCCESS;
@@ -156,10 +174,11 @@ StatusCode VP1Alg::execute()
       msg(MSG::INFO) << " Ending application gracefully." << endmsg;
       return StatusCode::FAILURE;
     }
+  return StatusCode::SUCCESS;
   };
 
   msg(MSG::WARNING) << " Unable to retrieve EventInfo from StoreGate. Skipping" << endmsg;
-  return StatusCode::SUCCESS;
+  return StatusCode::FAILURE;
 
 }
 

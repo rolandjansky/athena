@@ -1987,12 +1987,14 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
           /// evaluate distance the two closest-by SP in this seed candidate 
           float dr = data.R[b];
           if (data.R[t] < data.R[b]) dr = data.R[t];
-          /// update the d0 estimate
-          d0+=std::abs((Tzb-data.Tz[t])/(dr*sTzb2));
+          /// obtain a quality score - start from the d0 estimate, and add 
+          /// a penalty term corresponding to how far the seed segments 
+          /// deviate from a straight line in r-z
+          data.SP[t]->setScorePenalty(std::abs((Tzb-data.Tz[t])/(dr*sTzb2)));
+          data.SP[t]->setParam(d0);
           /// record one possible seed candidate, sort by the curvature 
           data.CmSp.emplace_back(std::make_pair(B/std::sqrt(onePlusAsquare), data.SP[t]));
           /// store the transverse IP, will later be used as a quality estimator 
-          data.SP[t]->setParam(d0);
 
         }
       }   ///< end loop over top space point candidates
@@ -2276,8 +2278,9 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
   for (; it_commonTopSP!=ie; ++it_commonTopSP) {
 
     /// the seed quality is set to d0 initially 
-    float seedQuality    = (*it_commonTopSP).second->param();
-    float originalSeedQuality   = (*it_commonTopSP).second->param();
+    float seedIP   = (*it_commonTopSP).second->param();
+    float seedQuality    = seedIP + (*it_commonTopSP).second->scorePenalty();
+    float originalSeedQuality   = seedQuality;
 
     if(m_maxdImpact > 50){      //This only applies to LRT
 
@@ -2288,7 +2291,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
       float eta1=-std::log(std::tan(.5*theta1));
 
       float Zot=bottomZ - (bottomR-originalSeedQuality) * ((topZ-bottomZ)/(topR-bottomR));
-      float theta0=std::atan2((*it_commonTopSP).second->param(),Zot);
+      float theta0=std::atan2(seedIP,Zot);
       float eta0=-std::log(std::tan(.5*theta0));
 
       float deltaEta=std::abs(eta1-eta0); //For LLP daughters, the direction of the track is correlated with the direction of the LLP (which is correlated with the direction of the point of closest approach
@@ -2353,16 +2356,21 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
     if (seedQuality > data.maxScore) continue;
     
     /// if we have PPS seeds and no confirmation SP exists (which would give the -200 bonus)
-    /// or the seed quality is worse than the quality of the individual SP, skip this seed
+    /// or the hits on this seed were already used on a higher quality PPP/SSS seed, kick this one
     if (bottomSPisPixel!=topSPisPixel) {
       if (seedQuality > 0. || 
         (seedQuality > bottomSPQuality && seedQuality > centralSPQuality && seedQuality > (*it_commonTopSP).second->quality()) 
       ) continue;
     }
-    /// if we have a SSS seed, apply the d0 cut. 
-    /// Exception: If the SSS seed has a confirmation seed (-400 from SSS and -200 from confirmation), 
-    /// then we skip the d0 cut  
-    if (!bottomSPisPixel && (originalSeedQuality > m_maxdImpactSSS) && (seedQuality > m_seedScoreThresholdSSSConfirmationSeed)) continue;
+    /// If we have a non-confirmed seed, apply a stricter d0 cut. 
+    /// This, is determined using the original cut and the score penalty modifier. 
+    if (!isConfirmedSeed(SPb,it_commonTopSP->second,seedQuality)){
+      /// PPP seeds
+      double                maxdImpact = m_maxdImpact    - (m_dImpactCutSlopeUnconfirmedPPP * (*it_commonTopSP).second->scorePenalty()); 
+      /// SSS seeds
+      if (!bottomSPisPixel) maxdImpact = m_maxdImpactSSS - (m_dImpactCutSlopeUnconfirmedSSS * (*it_commonTopSP).second->scorePenalty()); 
+      if (seedIP > maxdImpact) continue; 
+    }
     /// this is a good seed, save it (unless we have too many seeds per SP)
     newOneSeed(data, SPb, SP0, (*it_commonTopSP).second, Zob, seedQuality);
   } ///< end of loop over top SP candidates
@@ -2394,7 +2402,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds(EventData& data) const
     theSeed       = (*it_seedCandidate).second;
     /// if this is not the highest-quality seed in the list and we have the first hit in the IBL, require a confirmation seed (score is then boosted by -200 for PPP + -200 for confirmation --> below -200)
     if (it_seedCandidate!=it_firstSeedCandidate && theSeed->spacepoint0()->radius() < m_radiusCutIBL && quality > m_seedScoreThresholdPPPConfirmationSeed) continue;
-    /// this will return false for strip seeds if the quality of the seed is worse than the one of all of the space points on the seed. 
+    /// this will set the quality member of all points on the seed to the quality score of this candidate
     if (!theSeed->setQuality(quality)) continue;
     
     /// if we have space, write the seed directly into an existing slot 

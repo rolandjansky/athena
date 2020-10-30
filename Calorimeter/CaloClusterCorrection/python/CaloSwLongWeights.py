@@ -1,7 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-#
-# $Id: CaloSwLongWeights.py,v 1.10 2009-04-22 17:26:22 ssnyder Exp $
 #
 # File: CaloClusterCorrection/python/CaloSwLongWeights.py
 # Created: Nov 2006, sss
@@ -24,15 +22,17 @@
 #
 
 
-from CaloClusterCorrection import CaloClusterCorrectionConf
-from CaloClusterCorrection.common import *
+from AthenaConfiguration.ComponentFactory import CompFactory
+from CaloClusterCorrection.constants import \
+     CALOCORR_COOL, CALOCORR_DEFAULT_KEY, CALOCORR_SW
+from CaloClusterCorrection.common import makecorr
 
 #
 # This table lists all available versions of this correction.
 # See common.py for a description of the contents.
 #
-from CaloClusterCorrection.common import sw_valid_keys as keys
-cls = CaloClusterCorrectionConf.CaloSwLongWeights
+from CaloClusterCorrection.constants import sw_valid_keys as keys
+cls = CompFactory.CaloSwLongWeights # CaloClusterCorrection
 CaloSwLongWeights_versions = [
 
     # From SP and KL.  The original version.
@@ -93,13 +93,14 @@ CaloSwLongWeights_versions = [
     ['atlfast_v1', cls,
      ['CaloSwLongWeights_atlfast_v1.CaloSwLongWeights_atlfast_v1_parms',
       'caloswcorr_pool', CALOCORR_COOL], keys],
-	  		  
+                          
 
     ]
 
 
 #
 # Create a new tool instance.
+#  FLAGS is the configuration flags instance.
 #  NAME is the base name for this tool.  If defaulted, a name will
 #   be constructed from the name of the correction, the version, and the key.
 #  If SUFFIX is not None, it will be added onto the end of the tool name.
@@ -117,7 +118,8 @@ CaloSwLongWeights_versions = [
 # Additional keyword arguments may be passed to override any tool
 # parameters/constants.
 #
-def make_CaloSwLongWeights (name = None,
+def make_CaloSwLongWeights (flags,
+                            name = None,
                             suffix = None,
                             version = None,
                             key = CALOCORR_DEFAULT_KEY,
@@ -125,7 +127,8 @@ def make_CaloSwLongWeights (name = None,
                             confclass = None,
                             **kw):
     # Make the tool.
-    return makecorr (versions  = CaloSwLongWeights_versions,
+    return makecorr (flags,
+                     versions  = CaloSwLongWeights_versions,
                      name      = name,
                      basename  = 'lwc',
                      suffix    = suffix,

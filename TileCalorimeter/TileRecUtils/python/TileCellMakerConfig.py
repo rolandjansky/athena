@@ -121,8 +121,10 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.Tile.RunType = 'PHY'
     ConfigFlags.Tile.doOptATLAS = True
+    ConfigFlags.Tile.correctTimeJumps = True
     ConfigFlags.Tile.NoiseFilter = 1
     ConfigFlags.Output.ESDFileName = "myESD.pool.root"
+    ConfigFlags.Exec.MaxEvents=3
     ConfigFlags.fillFromArgs()
 
     ConfigFlags.lock()
@@ -145,7 +147,7 @@ if __name__ == "__main__":
     acc.printConfig(withDetails = True, summariseProps = True)
     acc.store( open('TileCellMaker.pkl','wb') )
 
-    sc = acc.run(maxEvents = 3)
+    sc = acc.run()
 
     import sys
     # Success should be 0

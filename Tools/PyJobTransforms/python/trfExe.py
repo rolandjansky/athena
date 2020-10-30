@@ -15,7 +15,6 @@ from builtins import int
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 792052 2017-01-13 13:36:51Z mavogel $
 
 import copy
 import json
@@ -1377,7 +1376,7 @@ class athenaExecutor(scriptExecutor):
         self._dbsetup     = dbsetup
         self._wrapperFile = 'runwrapper.{name}.sh'.format(name = self._name)
         msg.debug(
-            'Preparing wrapper file {wrapperFileName} with ' +
+            'Preparing wrapper file {wrapperFileName} with '
             'asetup={asetupStatus} and dbsetup={dbsetupStatus}'.format(
                 wrapperFileName = self._wrapperFile,
                 asetupStatus    = self._asetup,

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -7,13 +7,13 @@
 #define TILEBYTESTREAM_TILEDIGITS_BYTESTREAMCNV_H
 
 
-#include "AthenaBaseComps/AthMessaging.h"
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "TileEvent/TileMutableDigitsContainer.h"
 #include "AthenaKernel/RecyclableDataObject.h"
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "CxxUtils/checker_macros.h"
 
 
 class DataObject;
@@ -35,7 +35,7 @@ template <class TYPE> class CnvFactory;
 
 /**
  * @class TileDigitsContByteStreamCnv
- * @brief This Converter class provides conversion from ByteStream to TileDigitsContainer
+ * @brief This AthConstConverter class provides conversion from ByteStream to TileDigitsContainer
  * @author Alexander Solodkov
  *
  * This class provides methods to convert the bytestream data into TileDigits.
@@ -43,8 +43,7 @@ template <class TYPE> class CnvFactory;
  */
 
 class TileDigitsContByteStreamCnv
-  : public Converter
-  , public ::AthMessaging
+  : public AthConstConverter
 {
   
   public:
@@ -53,8 +52,8 @@ class TileDigitsContByteStreamCnv
     typedef TileDigitsContByteStreamTool  BYTESTREAMTOOL; 
   
     virtual StatusCode initialize() override;
-    virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj) override;
-    virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+    virtual StatusCode createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj) const override;
+    virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
     virtual StatusCode finalize() override;
     
     /// Storage type and class ID
@@ -63,9 +62,6 @@ class TileDigitsContByteStreamCnv
     static const CLID& classID();
 
   private: 
-
-    std::string m_name;
-
     //    BYTESTREAMTOOL* m_tool ;
     ToolHandle<TileDigitsContByteStreamTool> m_tool;
     
@@ -82,7 +78,7 @@ class TileDigitsContByteStreamCnv
     const TileHid2RESrcID* m_hid2re; 
 
     /** Queue of data objects to recycle. */
-    Athena::RecyclableDataQueue<TileMutableDigitsContainer> m_queue;
+    mutable Athena::RecyclableDataQueue<TileMutableDigitsContainer> m_queue ATLAS_THREAD_SAFE;
 };
 #endif
 

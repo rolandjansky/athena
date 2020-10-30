@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This is a test cxx file for IdentifiableContainer. 
@@ -46,7 +46,7 @@ namespace IDC_TEST
         typedef std::vector<DIGIT*>::const_iterator const_iterator; 
 
         MyCollection( ) :m_id(0) { return; } 
-        MyCollection(MyID& id ){ m_id=id; return; } 
+        MyCollection(MyID& id ) : m_id(id) {  } 
         ~MyCollection()         {
             std::vector<DIGIT*>::const_iterator it = m_vector.begin();
             std::vector<DIGIT*>::const_iterator it_end = m_vector.end();
@@ -112,7 +112,7 @@ ID_ContainerTest::ID_ContainerTest()
 } 
 
 // ------ initialize() 
-int ID_ContainerTest::initialize()  
+int ID_ContainerTest::initialize(EventContainers::Mode)  
 { 
     // we own the Container 
 
@@ -133,7 +133,7 @@ return 0;}
 
 //------ execute() 
 
-int ID_ContainerTest::execute(){
+int ID_ContainerTest::execute(EventContainers::Mode){
 
     typedef SelectAllObject<MyCollectionContainer,MyDigit> SELECTOR ;
     typedef SELECTOR::const_iterator digit_const_iterator; 
@@ -159,14 +159,7 @@ int ID_ContainerTest::execute(){
 
     std::string key("MyDIgitCont"); 
 
-    static bool first=true; 
-
     int skip= m_nskip; 
-
-    if(first) { 
-	first = false;	
-        //	skip = 0 ; 
-    }
 
     std::vector< MyCollection* > vColl; 
     std::vector< const MyCollection* > vCollRem; 
@@ -422,8 +415,8 @@ int main (int /*argc*/, char** /*argv[]*/)
 {  
 
     ID_ContainerTest test;
-    test.initialize();
-    for (unsigned int i = 0; i < 5; i++) test.execute();
+    test.initialize(EventContainers::Mode::OfflineFast);
+    for (unsigned int i = 0; i < 5; i++) test.execute(EventContainers::Mode::OfflineFast);
     test.finalize();
 }
 

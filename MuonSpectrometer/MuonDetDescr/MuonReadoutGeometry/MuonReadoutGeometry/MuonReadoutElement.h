@@ -7,8 +7,8 @@
  -----------------------------------------
  ***************************************************************************/
 
-#ifndef MUONGEOMODEL_MUONREADOUTELEMENT_H
-# define MUONGEOMODEL_MUONREADOUTELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_MUONREADOUTELEMENT_H
+#define MUONREADOUTGEOMETRY_MUONREADOUTELEMENT_H
 
 #include <string>
 #include "TrkDetElementBase/TrkDetElementBase.h"
@@ -272,4 +272,4 @@ inline const Amg::Transform3D & MuonReadoutElement::defTransform() const
 } // namespace MuonGM
 
 
-#endif // MUONGEOMODEL_MUONREADOUTELEMENT_H
+#endif // MUONREADOUTGEOMETRY_MUONREADOUTELEMENT_H

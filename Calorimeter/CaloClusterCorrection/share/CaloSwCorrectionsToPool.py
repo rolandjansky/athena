@@ -20,9 +20,13 @@ CaloSwCorrKeys = ['ele55', 'ele35', 'ele37',
 from CaloClusterCorrection.CaloSwCorrections import CaloSwCorrections
 from CaloClusterCorrection.common import CALOCORR_SW
 
-(corr_output_list, tag_list) =\
-                   CaloSwCorrections.config_for_pool (CaloSwCorrKeys,
+from CaloClusterCorrection.compat import makeFlags
+from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
+(corr_output_list, tag_list, ca) =\
+                   CaloSwCorrections.config_for_pool (makeFlags(),
+                                                      CaloSwCorrKeys,
                                                       CALOCORR_SW)
+appendCAtoAthena (ca)
 
 # include the basic setup for the conditions output stream
 pool_file = CALOCORR_POOLFILE

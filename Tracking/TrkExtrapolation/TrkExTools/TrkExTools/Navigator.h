@@ -192,16 +192,16 @@ namespace Trk {
       // ------ PERFORMANCE STATISTICS -------------------------------- //
       /* All performance stat counters are atomic (the simplest solution perhaps
        * not the most performant one)*/
-      mutable Gaudi::Accumulators::Counter<int>       m_forwardCalls;              //!< counter for forward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>       m_forwardFirstBoundSwitch;   //!< counter for failed first forward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>       m_forwardSecondBoundSwitch;  //!< counter for failed second forward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>       m_forwardThirdBoundSwitch;   //!< counter for failed third forward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>       m_backwardCalls;             //!< counter for backward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>       m_backwardFirstBoundSwitch;  //!< counter for failed first backward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>       m_backwardSecondBoundSwitch; //!< counter for failed second backward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>       m_backwardThirdBoundSwitch;  //!< counter for failed third backward nextBounday calls
-      mutable Gaudi::Accumulators::Counter<int>       m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
-      mutable Gaudi::Accumulators::Counter<int>       m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc
+      mutable Gaudi::Accumulators::Counter<>       m_forwardCalls;              //!< counter for forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<>       m_forwardFirstBoundSwitch;   //!< counter for failed first forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<>       m_forwardSecondBoundSwitch;  //!< counter for failed second forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<>       m_forwardThirdBoundSwitch;   //!< counter for failed third forward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<>       m_backwardCalls;             //!< counter for backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<>       m_backwardFirstBoundSwitch;  //!< counter for failed first backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<>       m_backwardSecondBoundSwitch; //!< counter for failed second backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<>       m_backwardThirdBoundSwitch;  //!< counter for failed third backward nextBounday calls
+      mutable Gaudi::Accumulators::Counter<>       m_outsideVolumeCase;         //!< counter for navigation-break in outside volume cases (ovc)
+      mutable Gaudi::Accumulators::Counter<>       m_sucessfulBackPropagation;  //!< counter for sucessful recovery of navigation-break in ovc
     };
 
 } // end of namespace

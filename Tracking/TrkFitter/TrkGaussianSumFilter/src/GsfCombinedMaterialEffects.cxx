@@ -48,12 +48,7 @@ Trk::GsfCombinedMaterialEffects::compute(
   Trk::PropDirection direction,
   Trk::ParticleHypothesis particleHypothesis) const
 {
-
-  // Reset everything before computation
-  cache.reset();
-
   const AmgSymMatrix(5)* measuredCov = componentParameters.first->covariance();
-
   /*
    * 1.  Retrieve multiple scattering corrections
    */
@@ -80,47 +75,40 @@ Trk::GsfCombinedMaterialEffects::compute(
                      particleHypothesis);
   }
 
-  // Protect if there are no new components
-  if (cache_energyLoss.weights.empty()) {
-    cache_energyLoss.weights.push_back(1.);
-    cache_energyLoss.deltaPs.push_back(0.);
-    cache_energyLoss.deltaQOvePCov.push_back(0.);
+  // Protect if there are no new energy loss
+  // components
+  // we want at least on dummy to "combine"
+  // with scattering
+  if (cache_energyLoss.numElements == 0) {
+    cache_energyLoss.elements[0] = { 1, 0, 0 };
+    cache_energyLoss.numElements = 1;
   }
-
   /*
    * 3. Combine the multiple scattering with each of the  energy loss components
    */
-  // Iterators over the energy loss components
-  auto energyLoss_weightsIterator = cache_energyLoss.weights.begin();
-  auto energyLoss_deltaPsIterator = cache_energyLoss.deltaPs.begin();
-  auto energyLoss_deltaQOvePCovIterator =
-    cache_energyLoss.deltaQOvePCov.begin();
-
-  // Loop over energy loss components
-  for (; energyLoss_weightsIterator != cache_energyLoss.weights.end();
-       ++energyLoss_weightsIterator,
-       ++energyLoss_deltaPsIterator,
-       ++energyLoss_deltaQOvePCovIterator) {
-
-    double combinedWeight = (*energyLoss_weightsIterator);
-    double combinedDeltaP = (*energyLoss_deltaPsIterator);
-    cache.weights.push_back(combinedWeight);
-    cache.deltaPs.push_back(combinedDeltaP);
-
+  // Reset everything before computation
+  cache.reset();
+  for (int i = 0; i < cache_energyLoss.numElements; ++i) {
+    double combinedWeight = cache_energyLoss.elements[i].weight;
+    double combinedDeltaP = cache_energyLoss.elements[i].deltaP;
+    cache.weights[i] = combinedWeight;
+    cache.deltaPs[i] = combinedDeltaP;
     if (measuredCov) {
-      // Create a covariance to sum scattering and energy loss effects
-      AmgSymMatrix(5) summedCovariance;
-      summedCovariance.setZero();
-      // Add  the multiple Scattering
-      summedCovariance(Trk::theta, Trk::theta) +=
-        cache_multipleScatter.deltaThetaCov;
-      summedCovariance(Trk::phi, Trk::phi) += cache_multipleScatter.deltaPhiCov;
-      // Add  energy loss
-      summedCovariance(Trk::qOverP, Trk::qOverP) +=
-        (*energyLoss_deltaQOvePCovIterator);
-
-      cache.deltaCovariances.push_back(std::move(summedCovariance));
+      // Create the covariance
+      const double covPhi = cache_multipleScatter.deltaPhiCov;
+      const double covTheta = cache_multipleScatter.deltaThetaCov;
+      const double covQoverP = cache_energyLoss.elements[i].deltaQOvePCov;
+      cache.deltaCovariances[i] << 0, 0, 0, 0, 0, // 5
+        0, 0, 0, 0, 0,                            // 10
+        0, 0, covPhi, 0, 0,                       // 15
+        0, 0, 0, covTheta, 0,                     // 20
+        0, 0, 0, 0, covQoverP;
+    } else {
+      cache.deltaCovariances[i].setZero();
     }
+    ++cache.numWeights;
+    ++cache.numDeltaPs;
+    ++cache.numDeltaCovariance;
   } // end for loop over energy loss components
 }
 
@@ -174,8 +162,8 @@ Trk::GsfCombinedMaterialEffects::energyLoss(
   PropDirection direction,
   ParticleHypothesis particleHypothesis) const
 {
-  // Reset the cache
-  cache.reset();
+
+  cache.numElements = 0;
 
   // Request track parameters from component parameters
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
@@ -199,7 +187,6 @@ Trk::GsfCombinedMaterialEffects::energyLoss(
   // update for mean energy loss
   const double deltaE = energyLoss ? energyLoss->deltaE() : 0;
   const double sigmaDeltaE = energyLoss ? energyLoss->sigmaDeltaE() : 0;
-
   // Calculate the pathlength encountered by the track
   const double p = globalMomentum.mag();
   const double m = s_particleMasses.mass[particleHypothesis];
@@ -209,7 +196,6 @@ Trk::GsfCombinedMaterialEffects::energyLoss(
   // Calculate energy loss values uncertainty
   const double sigmaQoverP = sigmaDeltaE / pow(beta * p, 2);
 
-  cache.weights.push_back(1.);
-  cache.deltaPs.push_back(deltaE);
-  cache.deltaQOvePCov.push_back(sigmaQoverP * sigmaQoverP);
+  cache.elements[0] = { 1., deltaE, sigmaQoverP * sigmaQoverP };
+  cache.numElements = 1;
 }

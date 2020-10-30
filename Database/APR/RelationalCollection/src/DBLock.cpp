@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DBLock.h"
@@ -63,7 +63,7 @@ using namespace pool::RelationalCollection;
 
 
  
-DBLock::DBLock( coral::ISessionProxy& session, std::string collName )
+DBLock::DBLock( coral::ISessionProxy& session, const std::string& collName )
       : m_session( session ),
         m_name( collName ),
         m_locked( false ),

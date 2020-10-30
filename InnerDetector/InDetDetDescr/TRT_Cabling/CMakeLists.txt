@@ -1,21 +1,7 @@
-################################################################################
-# Package: TRT_Cabling
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TRT_Cabling )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/CxxUtils
-                          DetectorDescription/Identifier
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          Tools/PathResolver )
 
 # External dependencies:
 find_package( tdaq-common )
@@ -32,7 +18,7 @@ atlas_add_component( TRT_Cabling
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils Identifier InDetIdentifier InDetReadoutGeometry TRT_ReadoutGeometry PathResolver TRT_CablingLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils Identifier InDetIdentifier TRT_ReadoutGeometry PathResolver TRT_CablingLib )
 
 # Install files from the package:
 atlas_install_runtime( share/*.dat )

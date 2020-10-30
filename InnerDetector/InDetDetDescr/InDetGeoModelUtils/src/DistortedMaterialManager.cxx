@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -7,7 +7,7 @@
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 #include "AthenaKernel/MsgStreamMember.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"

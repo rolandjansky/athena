@@ -33,6 +33,7 @@ LArCalibDigitMaker::LArCalibDigitMaker(const std::string& name, ISvcLocator* pSv
  declareProperty("BoardIDs",m_vBoardIDs);
  declareProperty("DelayScale",m_delayScale=(25./240.)*ns);
  declareProperty("DontRun",m_dontRun=false); //Put only Board configuration in DetectorStore
+ declareProperty("isSC",m_isSC=false);
 }
 
 LArCalibDigitMaker::~LArCalibDigitMaker() 
@@ -42,7 +43,18 @@ LArCalibDigitMaker::~LArCalibDigitMaker()
 StatusCode LArCalibDigitMaker::initialize()
 {
   ATH_MSG_DEBUG ( "======== LArCalibDigitMaker Initialize ========" );
-  ATH_CHECK( m_calibMapKey.initialize() );
+  // bool containsKeySC = false;
+  for (unsigned int i = 0; i < m_keylist.size(); ++i) {
+    if (m_keylist.at(i).compare("SC") == 0) {
+       m_isSC = true;
+       ATH_MSG_DEBUG ( "======== LArCalibDigitMaker isSC is True  ========" );
+    }
+  }
+  if(m_isSC){
+    ATH_CHECK( m_calibMapSCKey.initialize() );
+  }else{
+    ATH_CHECK( m_calibMapKey.initialize() );
+  }
     
 //  std::cout << "Pattern.size()=" << m_vPattern.size() << std::endl;
 //   std::cout << "DAC.size()=" << m_vDAC.size() << std::endl;
@@ -51,6 +63,9 @@ StatusCode LArCalibDigitMaker::initialize()
 //   std::cout << "BoardIDs.size()=" << m_vBoardIDs.size() << std::endl;
 
   //Check if calibParams are given consistently: Either all or non
+
+
+
   if (!((m_vBoardIDs.size()==0 && m_vDAC.size()==0 && m_vDelay.size()==0 && m_vPattern.size()==0 && m_nTrigger==0) ||
       (m_vBoardIDs.size() && m_vDAC.size() && m_vDelay.size() && m_vPattern.size() && m_nTrigger))) {
     ATH_MSG_ERROR ( "Problem with jobOptions! Please set either ALL calibration parameters" << std:: endl 
@@ -92,8 +107,18 @@ StatusCode LArCalibDigitMaker::execute() {
 
  const EventContext& ctx = Gaudi::Hive::currentContext();
 
- SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
- const LArCalibLineMapping* clcabling{*clHdl};
+
+ const LArCalibLineMapping *clcabling=0;
+ if(m_isSC) {
+   ATH_MSG_DEBUG ( "======== LArCalibDigitMaker: using SC calib line map" );
+   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapSCKey};
+   clcabling=*clHdl;
+ } else {
+   SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+   clcabling=*clHdl;
+ }
+ 
+
  if(!clcabling) {
     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_calibMapKey.key() );
     return StatusCode::FAILURE;

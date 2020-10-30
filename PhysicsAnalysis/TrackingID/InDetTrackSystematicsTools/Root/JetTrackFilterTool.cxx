@@ -3,6 +3,7 @@
 */
 
 #include "InDetTrackSystematicsTools/JetTrackFilterTool.h"
+#include "xAODTracking/TrackParticleContainer.h"
 
 #include "FourMomUtils/xAODP4Helpers.h"
 

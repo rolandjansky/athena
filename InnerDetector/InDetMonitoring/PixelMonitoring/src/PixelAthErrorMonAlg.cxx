@@ -69,26 +69,36 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
 
   for (int i=0; i<maxHash; i++) {
     // Get accumulated errors (Module)
-    
     uint64_t kErrorWord = m_pixelCondSummaryTool->getBSErrorWord(i,ctx);
 
     ATH_MSG_DEBUG("Module hash=" << i << " has");
-    if      (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TimeOut        )) { ATH_MSG_DEBUG("      TimeOut         state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BCID           )) { ATH_MSG_DEBUG("      BCID            state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LVL1ID         )) { ATH_MSG_DEBUG("      LVL1ID          state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Preamble       )) { ATH_MSG_DEBUG("      Preamble        state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Trailer        )) { ATH_MSG_DEBUG("      Trailer         state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Flagged        )) { ATH_MSG_DEBUG("      Flagged         state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::DisableFE      )) { ATH_MSG_DEBUG("      DisableFE       state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BadFE          )) { ATH_MSG_DEBUG("      BadFE           state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::ROD            )) { ATH_MSG_DEBUG("      ROD             state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Decoding       )) { ATH_MSG_DEBUG("      Decoding        state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Invalid        )) { ATH_MSG_DEBUG("      Invalid         state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LinkMaskedByPPC)) { ATH_MSG_DEBUG("      LinkMaskedByPPC state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Limit          )) { ATH_MSG_DEBUG("      Limit           state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TruncatedROB   )) { ATH_MSG_DEBUG("      TruncatedROB    state..."); }
-    else if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MaskedROB      )) { ATH_MSG_DEBUG("      MaskedROB       state..."); }
-    else                                                                                         { ATH_MSG_DEBUG("      no entry             ..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TimeOut           )) { ATH_MSG_DEBUG("      TimeOut            state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BCID              )) { ATH_MSG_DEBUG("      BCID               state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LVL1ID            )) { ATH_MSG_DEBUG("      LVL1ID             state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Preamble          )) { ATH_MSG_DEBUG("      Preamble           state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Trailer           )) { ATH_MSG_DEBUG("      Trailer            state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Flagged           )) { ATH_MSG_DEBUG("      Flagged            state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::BadFE             )) { ATH_MSG_DEBUG("      BadFE              state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Decoding          )) { ATH_MSG_DEBUG("      Decoding           state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Invalid           )) { ATH_MSG_DEBUG("      Invalid            state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::LinkMaskedByPPC   )) { ATH_MSG_DEBUG("      LinkMaskedByPPC    state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::Limit             )) { ATH_MSG_DEBUG("      Limit              state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::TruncatedROB      )) { ATH_MSG_DEBUG("      TruncatedROB       state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MaskedROB         )) { ATH_MSG_DEBUG("      MaskedROB          state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MCCUndefined      )) { ATH_MSG_DEBUG("      MCCUndefined       state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MCCLVL1IDEoECheck )) { ATH_MSG_DEBUG("      MCCLVL1IDEoECheck  state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MCCBCIDEoECheck   )) { ATH_MSG_DEBUG("      MCCBCIDEoECheck    state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MCCLVL1IDCheck    )) { ATH_MSG_DEBUG("      MCCLVL1IDCheck     state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MCCEoEOverflow    )) { ATH_MSG_DEBUG("      MCCEoEOverflow     state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::MCCHitOverflow    )) { ATH_MSG_DEBUG("      MCCHitOverflow     state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::FEWarning         )) { ATH_MSG_DEBUG("      FEWarning          state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::FEHitParity       )) { ATH_MSG_DEBUG("      FEHitParity        state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::FERegisterParity  )) { ATH_MSG_DEBUG("      FERegisterParity   state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::FEHammingCode     )) { ATH_MSG_DEBUG("      FEHammingCode      state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::FEEoCOverflow     )) { ATH_MSG_DEBUG("      FEEoCOverflow      state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::RODTrailerBitError)) { ATH_MSG_DEBUG("      RODTrailerBitError state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::RODHeaderLimit    )) { ATH_MSG_DEBUG("      RODHeaderLimit     state..."); }
+    if (PixelByteStreamErrors::hasError(kErrorWord,PixelByteStreamErrors::RODDataOVerflow   )) { ATH_MSG_DEBUG("      RODDataOVerflow    state..."); }
 
     // Loop over all FE
     int nFE = 16;
@@ -98,21 +108,28 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
     for (int j=0; j<nFE; j++) {
       int channelFE = (1+j)*maxHash+i;    // (FE_channel+1)*2048 + moduleHash
       uint64_t kErrorFEWord = m_pixelCondSummaryTool->getBSErrorWord(channelFE,ctx);
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TimeOut        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      TimeOut         state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BCID           )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      BCID            state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LVL1ID         )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      LVL1ID          state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Preamble       )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Preamble        state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Trailer        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Trailer         state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Flagged        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Flagged         state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::DisableFE      )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      DisableFE       state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BadFE          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      BadFE           state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::ROD            )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      ROD             state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Decoding       )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Decoding        state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Invalid        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Invalid         state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LinkMaskedByPPC)) { ATH_MSG_DEBUG("  FE ch.=" << j << "      LinkMaskedByPPC state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Limit          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Limit           state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TruncatedROB   )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      TruncatedROB    state..."); }
-      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MaskedROB      )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MaskedROB       state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::TimeOut          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      TimeOut           state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BCID             )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      BCID              state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LVL1ID           )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      LVL1ID            state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Preamble         )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Preamble          state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Trailer          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Trailer           state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Flagged          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Flagged           state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::BadFE            )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      BadFE             state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Decoding         )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Decoding          state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Invalid          )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Invalid           state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::LinkMaskedByPPC  )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      LinkMaskedByPPC   state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::Limit            )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      Limit             state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MCCUndefined     )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MCCUndefined      state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MCCLVL1IDEoECheck)) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MCCLVL1IDEoECheck state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MCCBCIDEoECheck  )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MCCBCIDEoECheck   state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MCCLVL1IDCheck   )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MCCLVL1IDCheck    state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MCCEoEOverflow   )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MCCEoEOverflow    state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::MCCHitOverflow   )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      MCCHitOverflow    state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::FEWarning        )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      FEWarning         state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::FEHitParity      )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      FEHitParity       state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::FERegisterParity )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      FERegisterParity  state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::FEHammingCode    )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      FEHammingCode     state..."); }
+      if (PixelByteStreamErrors::hasError(kErrorFEWord,PixelByteStreamErrors::FEEoCOverflow    )) { ATH_MSG_DEBUG("  FE ch.=" << j << "      FEEoCOverflow     state..."); }
     }
 
     // Get IBL SearviceRecords : IBL hashID[156-435]

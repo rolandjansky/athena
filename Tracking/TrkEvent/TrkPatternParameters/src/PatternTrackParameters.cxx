@@ -24,18 +24,10 @@
 const Trk::ParametersBase<5,Trk::Charged>*  Trk::PatternTrackParameters::convert(bool covariance) const
 {
   AmgSymMatrix(5)* e = nullptr;
-  if(covariance && m_iscovariance) {
-
-    const double* c = &m_covariance[0];
-    e = new AmgSymMatrix(5);
-    (*e)<<
-      c[ 0],c[ 1],c[ 3],c[ 6],c[10],
-      c[ 1],c[ 2],c[ 4],c[ 7],c[11],
-      c[ 3],c[ 4],c[ 5],c[ 8],c[12],
-      c[ 6],c[ 7],c[ 8],c[ 9],c[13],
-      c[10],c[11],c[12],c[13],c[14];
+  if(covariance && m_covariance != nullptr) {
+    e = new AmgSymMatrix(5)(*m_covariance);
   }
-  const double* p = &m_parameters[0];
+  const AmgVector(5)& p = m_parameters;
   return m_surface ? (m_surface->createTrackParameters(p[0],p[1],p[2],p[3],p[4],e)): nullptr;
 }
 
@@ -47,33 +39,35 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
 
   if(!T) { return false;
 }
+  if (!T->hasSurface()) {
+    return false;
+  }
 
-  m_surface = &T->associatedSurface(); if(!m_surface) { return false;
-}
+  m_surface.reset(T->associatedSurface().isFree() ? T->associatedSurface().clone() : &T->associatedSurface());
 
-  const AmgVector(5) Vp = T->parameters() ;
-  m_parameters[0] = Vp[0];
-  m_parameters[1] = Vp[1];
-  m_parameters[2] = Vp[2];
-  m_parameters[3] = Vp[3];
-  m_parameters[4] = Vp[4];
+  m_parameters = T->parameters();
 
   const AmgSymMatrix(5)* C = T->covariance();   
 
   if(C) {
+    if (m_covariance == nullptr) {
+      m_covariance = std::make_unique<AmgSymMatrix(5)>();
+    }
 
-    const AmgSymMatrix(5)& V = *C              ;
-    double*                c = &m_covariance[0];
-    c[ 0]=V(0,0);
-    c[ 1]=V(1,0); c[ 2]=V(1,1);
-    c[ 3]=V(2,0); c[ 4]=V(2,1); c[ 5]=V(2,2);
-    c[ 6]=V(3,0); c[ 7]=V(3,1); c[ 8]=V(3,2); c[ 9]=V(3,3);
-    c[10]=V(4,0); c[11]=V(4,1); c[12]=V(4,2); c[13]=V(4,3); c[14]=V(4,4);
-    m_iscovariance = true;
+    for (std::size_t i = 0; i < 5; i++) {
+      for (std::size_t j = 0; j <= i; j++) {
+        m_covariance->fillSymmetric(i, j, (*C)(i, j));
+      }
+    }
   }
   else {
-    m_iscovariance = false;
+    m_covariance.reset(nullptr);
   }
+
+  m_pposition.reset();
+  m_pmomentum.reset();
+  m_pchargeDef.reset();
+
   return true;
 }
 
@@ -81,104 +75,75 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
 // Covariance matrix production using jacobian cov(this) = J*( Tp cov)*Jt
 ///////////////////////////////////////////////////////////////////
       
-void Trk::PatternTrackParameters::newCovarianceMatrix
-(Trk::PatternTrackParameters& Tp,double* Jac)
+
+AmgSymMatrix(5) Trk::PatternTrackParameters::newCovarianceMatrix
+(const AmgSymMatrix(5) & V, const double * Jac)
 {
-  double* V  = &Tp.m_covariance[0];
-  double a11 = (Jac[ 0]*V[ 0]+Jac[ 1]*V[ 1]+Jac[ 2]*V[ 3])+(Jac[ 3]*V[ 6]+Jac[ 4]*V[10]);
-  double a12 = (Jac[ 0]*V[ 1]+Jac[ 1]*V[ 2]+Jac[ 2]*V[ 4])+(Jac[ 3]*V[ 7]+Jac[ 4]*V[11]);  
-  double a13 = (Jac[ 0]*V[ 3]+Jac[ 1]*V[ 4]+Jac[ 2]*V[ 5])+(Jac[ 3]*V[ 8]+Jac[ 4]*V[12]);   
-  double a14 = (Jac[ 0]*V[ 6]+Jac[ 1]*V[ 7]+Jac[ 2]*V[ 8])+(Jac[ 3]*V[ 9]+Jac[ 4]*V[13]);   
-  double a15 = (Jac[ 0]*V[10]+Jac[ 1]*V[11]+Jac[ 2]*V[12])+(Jac[ 3]*V[13]+Jac[ 4]*V[14]);   
+  AmgSymMatrix(5) rv;
 
-  m_covariance[ 0] = (a11*Jac[ 0]+a12*Jac[ 1]+a13*Jac[ 2])+(a14*Jac[ 3]+a15*Jac[ 4]);
-  
-  double a21 = (Jac[ 5]*V[ 0]+Jac[ 6]*V[ 1]+Jac[ 7]*V[ 3])+(Jac[ 8]*V[ 6]+Jac[ 9]*V[10]);   
-  double a22 = (Jac[ 5]*V[ 1]+Jac[ 6]*V[ 2]+Jac[ 7]*V[ 4])+(Jac[ 8]*V[ 7]+Jac[ 9]*V[11]);   
-  double a23 = (Jac[ 5]*V[ 3]+Jac[ 6]*V[ 4]+Jac[ 7]*V[ 5])+(Jac[ 8]*V[ 8]+Jac[ 9]*V[12]);   
-  double a24 = (Jac[ 5]*V[ 6]+Jac[ 6]*V[ 7]+Jac[ 7]*V[ 8])+(Jac[ 8]*V[ 9]+Jac[ 9]*V[13]);   
-  double a25 = (Jac[ 5]*V[10]+Jac[ 6]*V[11]+Jac[ 7]*V[12])+(Jac[ 8]*V[13]+Jac[ 9]*V[14]);   
+  double a11 = (Jac[ 0]*V(0, 0)+Jac[ 1]*V(0, 1)+Jac[ 2]*V(0, 2))+(Jac[ 3]*V(0, 3)+Jac[ 4]*V(0, 4));
+  double a12 = (Jac[ 0]*V(0, 1)+Jac[ 1]*V(1, 1)+Jac[ 2]*V(1, 2))+(Jac[ 3]*V(1, 3)+Jac[ 4]*V(1, 4));
+  double a13 = (Jac[ 0]*V(0, 2)+Jac[ 1]*V(1, 2)+Jac[ 2]*V(2, 2))+(Jac[ 3]*V(2, 3)+Jac[ 4]*V(2, 4));
+  double a14 = (Jac[ 0]*V(0, 3)+Jac[ 1]*V(1, 3)+Jac[ 2]*V(2, 3))+(Jac[ 3]*V(3, 3)+Jac[ 4]*V(3, 4));
+  double a15 = (Jac[ 0]*V(0, 4)+Jac[ 1]*V(1, 4)+Jac[ 2]*V(2, 4))+(Jac[ 3]*V(3, 4)+Jac[ 4]*V(4, 4));
 
-  m_covariance[ 1] = (a21*Jac[ 0]+a22*Jac[ 1]+a23*Jac[ 2])+(a24*Jac[ 3]+a25*Jac[ 4]);
-  m_covariance[ 2] = (a21*Jac[ 5]+a22*Jac[ 6]+a23*Jac[ 7])+(a24*Jac[ 8]+a25*Jac[ 9]);
-  
-  double a31 = (Jac[10]*V[ 0]+Jac[11]*V[ 1]+Jac[12]*V[ 3])+(Jac[13]*V[ 6]+Jac[14]*V[10]);   
-  double a32 = (Jac[10]*V[ 1]+Jac[11]*V[ 2]+Jac[12]*V[ 4])+(Jac[13]*V[ 7]+Jac[14]*V[11]);   
-  double a33 = (Jac[10]*V[ 3]+Jac[11]*V[ 4]+Jac[12]*V[ 5])+(Jac[13]*V[ 8]+Jac[14]*V[12]);   
-  double a34 = (Jac[10]*V[ 6]+Jac[11]*V[ 7]+Jac[12]*V[ 8])+(Jac[13]*V[ 9]+Jac[14]*V[13]);   
-  double a35 = (Jac[10]*V[10]+Jac[11]*V[11]+Jac[12]*V[12])+(Jac[13]*V[13]+Jac[14]*V[14]);   
-  
-  m_covariance[ 3] = (a31*Jac[ 0]+a32*Jac[ 1]+a33*Jac[ 2])+(a34*Jac[ 3]+a35*Jac[ 4]);
-  m_covariance[ 4] = (a31*Jac[ 5]+a32*Jac[ 6]+a33*Jac[ 7])+(a34*Jac[ 8]+a35*Jac[ 9]);
-  m_covariance[ 5] = (a31*Jac[10]+a32*Jac[11]+a33*Jac[12])+(a34*Jac[13]+a35*Jac[14]);
+  rv.fillSymmetric(0, 0, (a11*Jac[ 0]+a12*Jac[ 1]+a13*Jac[ 2])+(a14*Jac[ 3]+a15*Jac[ 4]));
 
-  double a41 = (Jac[15]*V[ 0]+Jac[16]*V[ 1]+Jac[17]*V[ 3])+(Jac[18]*V[ 6]+Jac[19]*V[10]);   
-  double a42 = (Jac[15]*V[ 1]+Jac[16]*V[ 2]+Jac[17]*V[ 4])+(Jac[18]*V[ 7]+Jac[19]*V[11]);   
-  double a43 = (Jac[15]*V[ 3]+Jac[16]*V[ 4]+Jac[17]*V[ 5])+(Jac[18]*V[ 8]+Jac[19]*V[12]);   
-  double a44 = (Jac[15]*V[ 6]+Jac[16]*V[ 7]+Jac[17]*V[ 8])+(Jac[18]*V[ 9]+Jac[19]*V[13]);   
-  double a45 = (Jac[15]*V[10]+Jac[16]*V[11]+Jac[17]*V[12])+(Jac[18]*V[13]+Jac[19]*V[14]);   
+  double a21 = (Jac[ 5]*V(0, 0)+Jac[ 6]*V(0, 1)+Jac[ 7]*V(0, 2))+(Jac[ 8]*V(0, 3)+Jac[ 9]*V(0, 4));
+  double a22 = (Jac[ 5]*V(0, 1)+Jac[ 6]*V(1, 1)+Jac[ 7]*V(1, 2))+(Jac[ 8]*V(1, 3)+Jac[ 9]*V(1, 4));
+  double a23 = (Jac[ 5]*V(0, 2)+Jac[ 6]*V(1, 2)+Jac[ 7]*V(2, 2))+(Jac[ 8]*V(2, 3)+Jac[ 9]*V(2, 4));
+  double a24 = (Jac[ 5]*V(0, 3)+Jac[ 6]*V(1, 3)+Jac[ 7]*V(2, 3))+(Jac[ 8]*V(3, 3)+Jac[ 9]*V(3, 4));
+  double a25 = (Jac[ 5]*V(0, 4)+Jac[ 6]*V(1, 4)+Jac[ 7]*V(2, 4))+(Jac[ 8]*V(3, 4)+Jac[ 9]*V(4, 4));
 
-  m_covariance[ 6] = (a41*Jac[ 0]+a42*Jac[ 1]+a43*Jac[ 2])+(a44*Jac[ 3]+a45*Jac[ 4]);
-  m_covariance[ 7] = (a41*Jac[ 5]+a42*Jac[ 6]+a43*Jac[ 7])+(a44*Jac[ 8]+a45*Jac[ 9]);
-  m_covariance[ 8] = (a41*Jac[10]+a42*Jac[11]+a43*Jac[12])+(a44*Jac[13]+a45*Jac[14]);
-  m_covariance[ 9] = (a41*Jac[15]+a42*Jac[16]+a43*Jac[17])+(a44*Jac[18]+a45*Jac[19]);
-  
-  double a51 = Jac[20]*V[10];   
-  double a52 = Jac[20]*V[11];   
-  double a53 = Jac[20]*V[12];   
-  double a54 = Jac[20]*V[13];   
-  double a55 = Jac[20]*V[14];   
+  rv.fillSymmetric(1, 0, (a21*Jac[ 0]+a22*Jac[ 1]+a23*Jac[ 2])+(a24*Jac[ 3]+a25*Jac[ 4]));
+  rv.fillSymmetric(1, 1, (a21*Jac[ 5]+a22*Jac[ 6]+a23*Jac[ 7])+(a24*Jac[ 8]+a25*Jac[ 9]));
 
-  m_covariance[10] = (a51*Jac[ 0]+a52*Jac[ 1]+a53*Jac[ 2])+(a54*Jac[ 3]+a55*Jac[ 4]);
-  m_covariance[11] = (a51*Jac[ 5]+a52*Jac[ 6]+a53*Jac[ 7])+(a54*Jac[ 8]+a55*Jac[ 9]);
-  m_covariance[12] = (a51*Jac[10]+a52*Jac[11]+a53*Jac[12])+(a54*Jac[13]+a55*Jac[14]);
-  m_covariance[13] = (a51*Jac[15]+a52*Jac[16]+a53*Jac[17])+(a54*Jac[18]+a55*Jac[19]);
-  m_covariance[14] =                                                    a55*Jac[20];
-  m_iscovariance   = true;
+  double a31 = (Jac[10]*V(0, 0)+Jac[11]*V(0, 1)+Jac[12]*V(0, 2))+(Jac[13]*V(0, 3)+Jac[14]*V(0, 4));
+  double a32 = (Jac[10]*V(0, 1)+Jac[11]*V(1, 1)+Jac[12]*V(1, 2))+(Jac[13]*V(1, 3)+Jac[14]*V(1, 4));
+  double a33 = (Jac[10]*V(0, 2)+Jac[11]*V(1, 2)+Jac[12]*V(2, 2))+(Jac[13]*V(2, 3)+Jac[14]*V(2, 4));
+  double a34 = (Jac[10]*V(0, 3)+Jac[11]*V(1, 3)+Jac[12]*V(2, 3))+(Jac[13]*V(3, 3)+Jac[14]*V(3, 4));
+  double a35 = (Jac[10]*V(0, 4)+Jac[11]*V(1, 4)+Jac[12]*V(2, 4))+(Jac[13]*V(3, 4)+Jac[14]*V(4, 4));
+
+  rv.fillSymmetric(2, 0, (a31*Jac[ 0]+a32*Jac[ 1]+a33*Jac[ 2])+(a34*Jac[ 3]+a35*Jac[ 4]));
+  rv.fillSymmetric(2, 1, (a31*Jac[ 5]+a32*Jac[ 6]+a33*Jac[ 7])+(a34*Jac[ 8]+a35*Jac[ 9]));
+  rv.fillSymmetric(2, 2, (a31*Jac[10]+a32*Jac[11]+a33*Jac[12])+(a34*Jac[13]+a35*Jac[14]));
+
+  double a41 = (Jac[15]*V(0, 0)+Jac[16]*V(0, 1)+Jac[17]*V(0, 2))+(Jac[18]*V(0, 3)+Jac[19]*V(0, 4));
+  double a42 = (Jac[15]*V(0, 1)+Jac[16]*V(1, 1)+Jac[17]*V(1, 2))+(Jac[18]*V(1, 3)+Jac[19]*V(1, 4));
+  double a43 = (Jac[15]*V(0, 2)+Jac[16]*V(1, 2)+Jac[17]*V(2, 2))+(Jac[18]*V(2, 3)+Jac[19]*V(2, 4));
+  double a44 = (Jac[15]*V(0, 3)+Jac[16]*V(1, 3)+Jac[17]*V(2, 3))+(Jac[18]*V(3, 3)+Jac[19]*V(3, 4));
+  double a45 = (Jac[15]*V(0, 4)+Jac[16]*V(1, 4)+Jac[17]*V(2, 4))+(Jac[18]*V(3, 4)+Jac[19]*V(4, 4));
+
+  rv.fillSymmetric(3, 0, (a41*Jac[ 0]+a42*Jac[ 1]+a43*Jac[ 2])+(a44*Jac[ 3]+a45*Jac[ 4]));
+  rv.fillSymmetric(3, 1, (a41*Jac[ 5]+a42*Jac[ 6]+a43*Jac[ 7])+(a44*Jac[ 8]+a45*Jac[ 9]));
+  rv.fillSymmetric(3, 2, (a41*Jac[10]+a42*Jac[11]+a43*Jac[12])+(a44*Jac[13]+a45*Jac[14]));
+  rv.fillSymmetric(3, 3, (a41*Jac[15]+a42*Jac[16]+a43*Jac[17])+(a44*Jac[18]+a45*Jac[19]));
+
+  double a51 = Jac[20]*V(0, 4);
+  double a52 = Jac[20]*V(1, 4);
+  double a53 = Jac[20]*V(2, 4);
+  double a54 = Jac[20]*V(3, 4);
+  double a55 = Jac[20]*V(4, 4);
+
+  rv.fillSymmetric(4, 0, (a51*Jac[ 0]+a52*Jac[ 1]+a53*Jac[ 2])+(a54*Jac[ 3]+a55*Jac[ 4]));
+  rv.fillSymmetric(4, 1, (a51*Jac[ 5]+a52*Jac[ 6]+a53*Jac[ 7])+(a54*Jac[ 8]+a55*Jac[ 9]));
+  rv.fillSymmetric(4, 2, (a51*Jac[10]+a52*Jac[11]+a53*Jac[12])+(a54*Jac[13]+a55*Jac[14]));
+  rv.fillSymmetric(4, 3, (a51*Jac[15]+a52*Jac[16]+a53*Jac[17])+(a54*Jac[18]+a55*Jac[19]));
+  rv.fillSymmetric(4, 4,                                                    a55*Jac[20]);
+
+  return rv;
 }
 
 ///////////////////////////////////////////////////////////////////
 // Global position of simple track parameters
 ///////////////////////////////////////////////////////////////////
 
-Amg::Vector3D Trk::PatternTrackParameters::position() const
+const Amg::Vector3D& Trk::PatternTrackParameters::position() const
 {
-  
-  Amg::Vector3D gp(0.,0.,0.);
-  if(!m_surface) { return gp;
-}
-
-  const Trk::PlaneSurface       * plane  ;
-  if((plane   = dynamic_cast<const Trk::PlaneSurface*>       (m_surface))) {
-    return localToGlobal(plane   );
+  if (!m_pposition.isValid()) {
+    updatePositionCache();
   }
-  
-  const Trk::StraightLineSurface* line   ; 
-  if((line    = dynamic_cast<const Trk::StraightLineSurface*>(m_surface))) {
-    return localToGlobal(line    );
-  }
-
-  const Trk::DiscSurface        * disc   ;
-  if((disc    = dynamic_cast<const Trk::DiscSurface*>        (m_surface))) {
-    return localToGlobal(disc    );
-  }
-
-  const Trk::CylinderSurface    * cylinder;
-  if((cylinder= dynamic_cast<const Trk::CylinderSurface*>    (m_surface))) {
-    return localToGlobal(cylinder);
-  }
-
-  const Trk::PerigeeSurface     * pline   ;
-  if((pline   = dynamic_cast<const Trk::PerigeeSurface*>     (m_surface))) {
-    return localToGlobal(pline   );
-  }
-
-  const Trk::ConeSurface        *  cone   ;
-  if((cone    = dynamic_cast<const Trk::ConeSurface*>        (m_surface))) {
-    return localToGlobal(cone   );
-  }
-
-  return gp;
+  return *m_pposition.ptr();
 } 
 
 ///////////////////////////////////////////////////////////////////
@@ -203,9 +168,8 @@ MsgStream& Trk::operator    <<
 
 std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 {
-  const Trk::Surface*  s = m_surface; 
-  const double* P        = &m_parameters[0];
-  const double* V        = &m_covariance[0];
+  const Trk::Surface*  s = m_surface.get();
+  const AmgVector(5)&  P = m_parameters;
   std::string name;
   std::string iscov;
 
@@ -236,17 +200,18 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
   out.setf  (std::ios::showpos);
   out.setf  (std::ios::scientific);
 
-  if (m_iscovariance) {
+  if (m_covariance != nullptr) {
+    const AmgSymMatrix(5) & V = *m_covariance;
     out << std::setprecision(4) <<
-      P[ 0]<<" |"<<V[ 0] << std::endl;
+      P[ 0]<<" |"<<V(0, 0) << std::endl;
     out << std::setprecision(4) <<
-      P[ 1]<<" |"<<V[ 1]<<" "<<V[ 2] << std::endl;
+      P[ 1]<<" |"<<V(0, 1)<<" "<<V(1, 1) << std::endl;
     out << std::setprecision(4) <<
-      P[ 2]<<" |"<<V[ 3]<<" "<<V[ 4]<<" "<<V[ 5] << std::endl;
+      P[ 2]<<" |"<<V(0, 2)<<" "<<V(1, 2)<<" "<<V(2, 2) << std::endl;
     out << std::setprecision(4) <<
-      P[ 3]<<" |"<<V[ 6]<<" "<<V[ 7]<<" "<<V[ 8]<<" "<<V[ 9] << std::endl;
+      P[ 3]<<" |"<<V(0, 3)<<" "<<V(1, 3)<<" "<<V(2, 3)<<" "<<V(3, 3) << std::endl;
     out << std::setprecision(4) <<
-      P[ 4]<<" |"<<V[10]<<" "<<V[11]<<" "<<V[12]<<" "<<V[13]<<" "<<V[14] << std::endl;
+      P[ 4]<<" |"<<V(0, 4)<<" "<<V(1, 4)<<" "<<V(2, 4)<<" "<<V(3, 4)<<" "<<V(4, 4) << std::endl;
   }
   else {
     out << std::setprecision(4) << P[ 0] << " |" << std::endl;
@@ -270,9 +235,8 @@ std::ostream& Trk::PatternTrackParameters::dump( std::ostream& out ) const
 
 MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
 {
-  const Trk::Surface*  s = m_surface; 
-  const double* P        = &m_parameters[0];
-  const double* V        = &m_covariance[0];
+  const Trk::Surface*  s = m_surface.get();
+  const AmgVector(5)&  P = m_parameters;
   std::string name;
   std::string iscov;
 
@@ -300,17 +264,18 @@ MsgStream& Trk::PatternTrackParameters::dump(MsgStream& out) const
   out.setf  (std::ios::showpos);
   out.setf  (std::ios::scientific);
 
-  if (m_iscovariance) {
+  if (m_covariance != nullptr) {
+    const AmgSymMatrix(5) & V = *m_covariance;
     out << std::setprecision(4) <<
-      P[ 0]<<" |"<<V[ 0] << std::endl;
+      P[ 0]<<" |"<<V(0, 0) << std::endl;
     out << std::setprecision(4) <<
-      P[ 1]<<" |"<<V[ 1]<<" "<<V[ 2] << std::endl;
+      P[ 1]<<" |"<<V(0, 1)<<" "<<V(1, 1) << std::endl;
     out << std::setprecision(4) <<
-      P[ 2]<<" |"<<V[ 3]<<" "<<V[ 4]<<" "<<V[ 5] << std::endl;
+      P[ 2]<<" |"<<V(0, 2)<<" "<<V(1, 2)<<" "<<V(2, 2) << std::endl;
     out << std::setprecision(4) <<
-      P[ 3]<<" |"<<V[ 6]<<" "<<V[ 7]<<" "<<V[ 8]<<" "<<V[ 9] << std::endl;
+      P[ 3]<<" |"<<V(0, 3)<<" "<<V(1, 3)<<" "<<V(2, 3)<<" "<<V(3, 3) << std::endl;
     out << std::setprecision(4) <<
-      P[ 4]<<" |"<<V[10]<<" "<<V[11]<<" "<<V[12]<<" "<<V[13]<<" "<<V[14] << std::endl;
+      P[ 4]<<" |"<<V(0, 4)<<" "<<V(1, 4)<<" "<<V(2, 4)<<" "<<V(3, 4)<<" "<<V(4, 4) << std::endl;
   }
   else {
     out << std::setprecision(4) << P[ 0] << " |" << std::endl;
@@ -495,38 +460,43 @@ bool Trk::PatternTrackParameters::initiate
   int n = E.rows(); if(n<=0 || n>2) { return false;
 }
 
-  m_parameters[0] = P  (0); 
-  m_covariance[0] = E(0,0); 
+  if (Tp.m_covariance != nullptr) {
+    if (m_covariance == nullptr) {
+      m_covariance = std::make_unique<AmgSymMatrix(5)>(*Tp.m_covariance);
+    } else {
+      *m_covariance = *Tp.m_covariance;
+    }
+  } else {
+    if (m_covariance == nullptr) {
+      m_covariance = std::make_unique<AmgSymMatrix(5)>();
+    }
+  }
+
+  m_parameters[0] = P  (0);
+
+  m_covariance->fillSymmetric(0, 0, E(0,0));
   
   if(n==2) {
     m_parameters[ 1] = P(1);
-    m_covariance[ 1] = E(1,0);
-    m_covariance[ 2] = E(1,1);
+    m_covariance->fillSymmetric(0, 1, E(1,0));
+    m_covariance->fillSymmetric(1, 1, E(1,1));
   }
   else    {
     m_parameters[ 1] = Tp.m_parameters[ 1];
-    m_covariance[ 1] = Tp.m_covariance[ 1];
-    m_covariance[ 2] = Tp.m_covariance[ 2];
   }
   m_parameters[ 2] = Tp.m_parameters[ 2];
   m_parameters[ 3] = Tp.m_parameters[ 3];
   m_parameters[ 4] = Tp.m_parameters[ 4];
-  
-  m_covariance[ 3] = Tp.m_covariance[ 3];
-  m_covariance[ 4] = Tp.m_covariance[ 4];
-  m_covariance[ 5] = Tp.m_covariance[ 5];
-  m_covariance[ 6] = Tp.m_covariance[ 6];
-  m_covariance[ 7] = Tp.m_covariance[ 7];
-  m_covariance[ 8] = Tp.m_covariance[ 8];
-  m_covariance[ 9] = Tp.m_covariance[ 9];
-  m_covariance[10] = Tp.m_covariance[10];
-  m_covariance[11] = Tp.m_covariance[11];
-  m_covariance[12] = Tp.m_covariance[12];
-  m_covariance[13] = Tp.m_covariance[13];
-  m_covariance[14] = Tp.m_covariance[14];
-  
-  m_surface        = Tp.m_surface;  
-  m_iscovariance   = true        ;
+
+  if (Tp.m_surface != nullptr) {
+    m_surface.reset(Tp.m_surface->isFree() ? Tp.m_surface->clone() : Tp.m_surface.get());
+  } else {
+    m_surface.reset(nullptr);
+  }
+
+  m_pposition.reset();
+  m_pmomentum.reset();
+  m_pchargeDef.reset();
   
   return true;
 }
@@ -548,30 +518,104 @@ void Trk::PatternTrackParameters::changeDirection()
 }
 
 
-  if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface) &&
-     !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface)) {
+  if(!dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()) &&
+     !dynamic_cast<const Trk::PerigeeSurface*>     (m_surface.get())) {
     
-    if(!m_iscovariance) { return;
+    if(m_covariance == nullptr) { return;
 }
 
-    m_covariance[ 6] = -m_covariance[ 6];
-    m_covariance[ 7] = -m_covariance[ 7];
-    m_covariance[ 8] = -m_covariance[ 8];
-    m_covariance[10] = -m_covariance[10];
-    m_covariance[11] = -m_covariance[11];
-    m_covariance[12] = -m_covariance[12];
+    m_covariance->fillSymmetric(0, 3, -(*m_covariance)(0, 3));
+    m_covariance->fillSymmetric(1, 3, -(*m_covariance)(1, 3));
+    m_covariance->fillSymmetric(2, 3, -(*m_covariance)(2, 3));
+    m_covariance->fillSymmetric(0, 4, -(*m_covariance)(0, 4));
+    m_covariance->fillSymmetric(1, 4, -(*m_covariance)(1, 4));
+    m_covariance->fillSymmetric(2, 4, -(*m_covariance)(2, 4));
+
+    m_pposition.reset();
+    m_pmomentum.reset();
+    m_pchargeDef.reset();
     return;
   }
 
   m_parameters[ 0] = -m_parameters[ 0];
 
-  if(!m_iscovariance) { return;
+  m_pposition.reset();
+  m_pmomentum.reset();
+  m_pchargeDef.reset();
+
+  if(m_covariance == nullptr) { return;
 }
 
-  m_covariance[ 1] = -m_covariance[ 1];
-  m_covariance[ 3] = -m_covariance[ 3];
-  m_covariance[ 7] = -m_covariance[ 7];
-  m_covariance[ 8] = -m_covariance[ 8];
-  m_covariance[11] = -m_covariance[11];
-  m_covariance[12] = -m_covariance[12];
+  m_covariance->fillSymmetric(0, 1, -(*m_covariance)(0, 1));
+  m_covariance->fillSymmetric(0, 2, -(*m_covariance)(0, 2));
+  m_covariance->fillSymmetric(1, 3, -(*m_covariance)(1, 3));
+  m_covariance->fillSymmetric(2, 3, -(*m_covariance)(2, 3));
+  m_covariance->fillSymmetric(1, 4, -(*m_covariance)(1, 4));
+  m_covariance->fillSymmetric(2, 4, -(*m_covariance)(2, 4));
+}
+
+void Trk::PatternTrackParameters::updateChargeCache(void) const {
+  if (m_parameters[4] > 0.0) {
+    m_pchargeDef.set(1);
+  } else {
+    m_pchargeDef.set(-1);
+  }
+}
+
+void Trk::PatternTrackParameters::updatePositionCache(void) const {
+  if (!m_surface) {
+    m_pposition.set(Amg::Vector3D(0, 0, 0));
+    return;
+  }
+
+  if (const Trk::PlaneSurface * plane = dynamic_cast<const Trk::PlaneSurface*>(m_surface.get()); plane != nullptr) {
+    m_pposition.set(localToGlobal(plane));
+  } else if (const Trk::StraightLineSurface * line = dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()); line != nullptr) {
+    m_pposition.set(localToGlobal(line));
+  } else if (const Trk::DiscSurface * disc = dynamic_cast<const Trk::DiscSurface*>(m_surface.get()); disc != nullptr) {
+    m_pposition.set(localToGlobal(disc));
+  } else if (const Trk::CylinderSurface * cylinder = dynamic_cast<const Trk::CylinderSurface*>(m_surface.get()); cylinder != nullptr) {
+    m_pposition.set(localToGlobal(cylinder));
+  } else if (const Trk::PerigeeSurface * pline = dynamic_cast<const Trk::PerigeeSurface*>(m_surface.get()); pline != nullptr) {
+    m_pposition.set(localToGlobal(pline));
+  } else if (const Trk::ConeSurface * cone = dynamic_cast<const Trk::ConeSurface*>(m_surface.get()); cone != nullptr) {
+    m_pposition.set(localToGlobal(cone));
+  } else {
+    m_pposition.set(Amg::Vector3D(0, 0, 0));
+  }
+}
+
+void Trk::PatternTrackParameters::updateMomentumCache(void) const {
+  double p = m_parameters[4] != 0. ? 1. / std::abs(m_parameters[4]) : 10e9;
+
+  double Sf = std::sin(m_parameters[2]), Cf = std::cos(m_parameters[2]);
+  double Se = std::sin(m_parameters[3]), Ce = std::cos(m_parameters[3]);
+
+  m_pmomentum.set(Amg::Vector3D(p * Se * Cf, p * Se * Sf, p * Ce));
+}
+
+bool Trk::PatternTrackParameters::hasSurface() const {
+  return m_surface != nullptr;
+}
+
+Amg::RotationMatrix3D Trk::PatternTrackParameters::measurementFrame() const {
+  return associatedSurface().measurementFrame(this->position(), this->momentum());
+}
+
+Trk::PatternTrackParameters * Trk::PatternTrackParameters::clone() const {
+  return new PatternTrackParameters(*this);
+}
+
+Trk::ParametersType Trk::PatternTrackParameters::type() const {
+  return Trk::AtaSurface;
+}
+
+int Trk::PatternTrackParameters::surfaceType() const {
+  return m_surface->type();
+}
+
+void Trk::PatternTrackParameters::updateParametersHelper(const AmgVector(5) &) {
+  updatePositionCache();
+  updateMomentumCache();
+  updateChargeCache();
 }

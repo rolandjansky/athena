@@ -64,7 +64,7 @@ def getAssociator(config,suffix,doPFlow=False,
 
     import cppyy
     try: cppyy.load_library('libMETReconstructionDict')
-    except: pass
+    except Exception: pass
 
     from AthenaCommon.AppMgr import ToolSvc
     # Construct tool and set defaults for case-specific configuration
@@ -130,7 +130,7 @@ def getAssociator(config,suffix,doPFlow=False,
 
 class METAssocConfig:
     def outputCollections(self):
-        if doTruth: return 'MET_Core_'+self.suffix
+        if self.doTruth: return 'MET_Core_'+self.suffix
         else: return 'MET_Core_'+self.suffix,'MET_Reference_'+self.suffix
     #
     def outputMap(self):
@@ -230,7 +230,6 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[]):
         assocTools.append(assoctool)
         metFlags.METAssocTools()[key] = assoctool
 
-    from AthenaCommon.AppMgr import ToolSvc
     for tool in assocTools:
         print (prefix, 'Added METAssocTool \''+tool.name()+'\' to alg '+algName)
 

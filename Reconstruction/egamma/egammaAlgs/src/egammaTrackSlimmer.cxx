@@ -105,7 +105,7 @@ StatusCode egammaTrackSlimmer::execute (const EventContext& ctx) const {
    */
   ATH_MSG_DEBUG("Number of In Det TrackParticles "<< indetTrackPC->size());
   keptInDetTrackParticles.resize( indetTrackPC->size(), true );
-  for (auto trkIt : *indetTrackPC)  {
+  for (const auto *trkIt : *indetTrackPC)  {
     if (xAOD::EgammaHelpers::numberOfSiHits(trkIt) < 4) {
       keptInDetTrackParticles[trkIt->index()] = false;
     }

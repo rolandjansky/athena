@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILERAWCHANNEL2BYTES5_H 
@@ -174,7 +174,7 @@ class TileRawChannel2Bytes5
 
     int amplitude(const uint32_t* ofw, int unit, int chan, int gain, int s[]) const;
 
-    void unpack(const uint32_t* ofw, uint32_t* ptr_frag, TileChanData* ChanData) const;
+    void unpack(const uint32_t* ofw, const uint32_t* ptr_frag, TileChanData* ChanData) const;
     bool check_raw(const uint32_t* feb, int of_energy[], TileChanData* ChanData) const;
     bool check_reco(const uint32_t* frag, int of_energy[]) const;
 };

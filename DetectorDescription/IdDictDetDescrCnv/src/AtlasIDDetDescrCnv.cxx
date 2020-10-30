@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -17,8 +17,8 @@
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h" 
 #include "AthenaKernel/StorableConversions.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "IdDictDetDescr/IdDictManager.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -122,7 +122,7 @@ AtlasIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     } else {}
  
     // Get the dictionary manager from the detector store
-    const DataHandle<IdDictManager> idDictMgr;
+    const IdDictManager* idDictMgr;
     status = detStore->retrieve(idDictMgr, "IdDict");
     if (status.isFailure()) {
 	log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;

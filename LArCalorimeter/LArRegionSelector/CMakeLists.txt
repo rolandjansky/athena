@@ -1,29 +1,7 @@
-################################################################################
-# Package: LArRegionSelector
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArRegionSelector )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloIdentifier
-                          Control/AthenaBaseComps
-                          DetectorDescription/Identifier
-                          DetectorDescription/IRegionSelector
-                          DetectorDescription/RegionSelector
-                          DetectorDescription/RegSelLUT
-			  InnerDetector/InDetConditions/PixelConditionsData
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloDetDescr
-                          Calorimeter/CaloTTDetDescr
-                          Calorimeter/CaloTriggerTool
-                          Control/StoreGate
-                          Event/ByteStreamData
-                          LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArRawUtils
-                          LArCalorimeter/LArCabling )
 
 # External dependencies:
 find_package( tdaq-common )
@@ -33,9 +11,7 @@ atlas_add_component( LArRegionSelector
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier RegionSelectorLib GaudiKernel CaloDetDescrLib CaloTTDetDescr CaloTriggerToolLib StoreGateLib SGtests ByteStreamData ByteStreamData_test LArIdentifier LArRawUtilsLib LArCablingLib PixelConditionsData )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} CaloIdentifier AthenaBaseComps Identifier IRegionSelector RegionSelectorLib GaudiKernel CaloDetDescrLib CaloTTDetDescr CaloTriggerToolLib StoreGateLib ByteStreamData LArIdentifier LArRawUtilsLib PixelConditionsData )
 
 # Install files from the package:
-atlas_install_headers( LArRegionSelector )
 atlas_install_joboptions( share/*.py )
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBBLOBOBJS_TILECALIBDRAWERDAT_H
@@ -84,9 +84,12 @@ class TileCalibDrawerDat : public TileCalibDrawerBase
   virtual void dump(std::ostream& stm) const;
   
  protected:
-  /** @brief Ctor.
+  /** @brief Ctor (const).
       Derived classes should set doTypeCheck=false and do their own check. */
   TileCalibDrawerDat(const coral::Blob& blob) : TileCalibDrawerBase(blob){}
+  /** @brief Ctor (non-const).
+      Derived classes should set doTypeCheck=false and do their own check. */
+  TileCalibDrawerDat(coral::Blob& blob) : TileCalibDrawerBase(blob){}
 
   /** @brief Returns a pointer to the first value for the specified channel & ADC. 
       @param channel The channel number; If channel number >= getNChans() 
@@ -94,7 +97,8 @@ class TileCalibDrawerDat : public TileCalibDrawerBase
                      if channel number > (maximum number of channels in drawer)
                      otherwise it is reset to 0 without warning (default policy)   
       @param adc The gain index; if >= getNGains() it is reset to 0 without warning (default policy) */
-  T* getAddress(unsigned int channel, unsigned int adc) const;
+  const T* getAddress(unsigned int channel, unsigned int adc) const;
+        T* getAddress(unsigned int channel, unsigned int adc);
 };
 
 //
@@ -186,8 +190,17 @@ TileCalibDrawerDat<T>::setData(unsigned int channel, unsigned int adc, const std
 
 //
 //______________________________________________________________
-template<class T> T* 
+template<class T> const T* 
 TileCalibDrawerDat<T>::getAddress(unsigned int channel, unsigned int adc) const
+{
+  unsigned int idx = channel*getNGains() + adc;
+  return static_cast<const T*>(TileCalibDrawerBase::getAddress(idx));
+}
+
+//
+//______________________________________________________________
+template<class T> T* 
+TileCalibDrawerDat<T>::getAddress(unsigned int channel, unsigned int adc)
 {
   unsigned int idx = channel*getNGains() + adc;
   return static_cast<T*>(TileCalibDrawerBase::getAddress(idx));

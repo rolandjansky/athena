@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file ByteStreamOutputStreamCopyTool.cxx
@@ -86,12 +86,11 @@ StatusCode ByteStreamOutputStreamCopyTool::connectOutput(const std::string& /*ou
 StatusCode ByteStreamOutputStreamCopyTool::commitOutput(bool/* doCommit*/) {
    MsgStream log(msgSvc(), name());
    log << MSG::DEBUG << "In commitOutput" << endmsg;
-   const RawEvent* re_c = m_inputSvc->currentEvent() ; 
-   if(!re_c){
+   const RawEvent* re = m_inputSvc->currentEvent() ; 
+   if(!re){
      log << MSG::ERROR << " failed to get the current event from ByteStreamInputSvc  " << endmsg; 
      return StatusCode::FAILURE ; 
    }
-   RawEvent* re =  const_cast<RawEvent*>(re_c); 
    if( ! m_outputSvc->putEvent(re) ) {
 
      log << MSG::ERROR << " failed to write event to ByteStreamOutputSvc  " << endmsg; 

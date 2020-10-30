@@ -78,6 +78,10 @@ public: // Non-static members
    /// @param compName [IN] string name of the component to be loaded.
    void loadComponent(const std::string& compName) const;
 
+   /// @return void
+   /// @param shareCat [IN] bool to share the file catalog.
+   void setShareMode(bool shareCat);
+
    /// @return the file catalog.
    const pool::IFileCatalog* catalog() const;
 
@@ -98,7 +102,8 @@ public: // Non-static members
    /// @param collectionName [IN] string containing the persistent name of the collection.
    /// @param openMode [IN] ICollection open mode of the collection.
    /// @param contextId [IN] id for PoolSvc persistency service to use for input.
-   pool::ICollection* createCollection(const std::string& collectionType,
+   pool::ICollection* createCollection ATLAS_NOT_THREAD_SAFE
+          (const std::string& collectionType,
 	   const std::string& connection,
 	   const std::string& collectionName,
 	   const pool::ICollection::OpenMode& openMode = pool::ICollection::READ,
@@ -108,7 +113,7 @@ public: // Non-static members
    /// @param c [IN] collection to be registered
    /// @param overwrite [IN] whether to overwrite
    /// @param sharedCat [IN] whether to use same catalog as data
-   void registerExistingCollection(pool::ICollection* c, bool overwrite, bool sharedCat = true);
+   void registerExistingCollection ATLAS_NOT_THREAD_SAFE (pool::ICollection* c, bool overwrite, bool sharedCat = true);
 
    /// @return a token for a container entry.
    /// @param connection [IN] string containing the connection/file name.
@@ -184,6 +189,7 @@ private: // data
    typedef std::recursive_mutex CallMutex;
    mutable CallMutex                                 m_pool_mut ATLAS_THREAD_SAFE;
    coral::Context*                                   m_context{nullptr};
+   bool                                              m_shareCat{false};
    pool::IFileCatalog*                               m_catalog{nullptr};
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
    mutable std::vector<CallMutex*>                   m_pers_mut ATLAS_THREAD_SAFE;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWCONDITIONS_LARWFPARAMSCOMPLETE_H
@@ -39,11 +39,6 @@ class LArWFParamsComplete :public LArConditionsContainer<LArWFParams>
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
   void set(const HWIdentifier& CellID, int gain, LArWFParams theParams);
-
- private: 
-
-  static LArWFParams s_dummyParams ;
-
 };
 
 CLASS_DEF( LArWFParamsComplete, 243713630, 1) 

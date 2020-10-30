@@ -127,7 +127,7 @@ def ELG_prun(sample) :
 
     jediTaskID = 0
     try:
-        line = re.findall(r'TaskID=\d+', out)[0]
+        line = re.findall(r'TaskID=\d+', str(out))[0]
         jediTaskID = int(re.findall(r'\d+', line)[0])
     except IndexError:
         print (out)

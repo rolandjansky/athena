@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
@@ -7,7 +7,7 @@
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigger/TrigDecision.h"
 
@@ -108,6 +108,9 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& t, const std::stri
 StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
    ATH_MSG_DEBUG("In connectOutput");
 
+   const EventContext& ctx = Gaudi::Hive::currentContext();
+   SlotData& slot = *m_slots.get(ctx);
+
    // Get the EventInfo obj for run/event number
    const xAOD::EventInfo* evtInfo{nullptr};
    ATH_CHECK( m_evtStore->retrieve(evtInfo) );
@@ -124,11 +127,10 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
    uint64_t global_id = event;
    uint16_t lumi_block = evtInfo->lumiBlock();
    uint16_t bc_id = evtInfo->bcid();
-   static uint8_t nevt = 0;
-   nevt = nevt%255;
+   uint8_t nevt = 0;
    // create an empty RawEvent
    eformat::helper::SourceIdentifier sid = eformat::helper::SourceIdentifier(eformat::FULL_SD_EVENT, nevt);
-   m_rawEventWrite = new RawEventWrite(sid.code(), bc_time_sec, bc_time_ns, global_id, run_type, run_no, lumi_block, lvl1_id, bc_id, lvl1_type);
+   RawEventWrite* re = setRawEvent (std::make_unique<RawEventWrite>(sid.code(), bc_time_sec, bc_time_ns, global_id, run_type, run_no, lumi_block, lvl1_id, bc_id, lvl1_type));
 
    // set stream tags
    std::vector<eformat::helper::StreamTag> on_streamTags;
@@ -136,9 +138,9 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
       on_streamTags.emplace_back(sTag.name(), sTag.type(), sTag.obeysLumiblock(), sTag.robs(), detsOnline(sTag.dets()));
    }
    uint32_t nStreamTagWords = eformat::helper::size_word(on_streamTags);
-   uint32_t* sTagBuff = newCachedArray(nStreamTagWords);
-   eformat::helper::encode(on_streamTags, nStreamTagWords, sTagBuff);
-   m_rawEventWrite->stream_tag(nStreamTagWords, sTagBuff);
+   slot.m_tagBuff.resize (nStreamTagWords);
+   eformat::helper::encode(on_streamTags, nStreamTagWords, slot.m_tagBuff.data());
+   re->stream_tag(nStreamTagWords, slot.m_tagBuff.data());
 
    // try to get TrigDecision
    const xAOD::TrigDecision *trigDecision{nullptr};
@@ -153,34 +155,32 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
    const std::vector<uint32_t> &tav = trigDecision->tav();
    const size_t l1TotSize = tbp.size() + tap.size() + tav.size();
    if (l1TotSize > 0) {
-      uint32_t* l1Buff = newCachedArray(l1TotSize);
+      slot.m_l1Buff.resize (l1TotSize);
       size_t l1Size{0};
       for (const uint32_t tb : tbp) {
-         l1Buff[l1Size++] = tb;
+         slot.m_l1Buff[l1Size++] = tb;
       }
       for (const uint32_t tb : tap) {
-         l1Buff[l1Size++] = tb;
+         slot.m_l1Buff[l1Size++] = tb;
       }
       for (const uint32_t tb : tav) {
-         l1Buff[l1Size++] = tb;
+         slot.m_l1Buff[l1Size++] = tb;
       }
-      m_rawEventWrite->lvl1_trigger_info(l1TotSize, l1Buff);
+      re->lvl1_trigger_info(l1TotSize, slot.m_l1Buff.data());
    }
 
    // LVL2 info
    const std::vector<uint32_t>& lvl2PP = trigDecision->lvl2PassedPhysics();
    if (lvl2PP.size() > 0) {
-      uint32_t* l2Buff = newCachedArray(lvl2PP.size());
-      std::copy(lvl2PP.begin(), lvl2PP.end(), l2Buff);
-      m_rawEventWrite->lvl2_trigger_info(lvl2PP.size(), l2Buff);
+      slot.m_l2Buff = lvl2PP;
+      re->lvl2_trigger_info(lvl2PP.size(), slot.m_l2Buff.data());
    }
 
    // EF info
    const std::vector<uint32_t>& efPP = trigDecision->efPassedPhysics();
    if (efPP.size() > 0) {
-      uint32_t* efBuff = newCachedArray(efPP.size());
-      std::copy(efPP.begin(), efPP.end(), efBuff);
-      m_rawEventWrite->event_filter_info(efPP.size(), efBuff);
+      slot.m_efBuff = efPP;
+      re->event_filter_info(efPP.size(), slot.m_efBuff.data());
    }
 
    return(StatusCode::SUCCESS);
@@ -189,21 +189,26 @@ StatusCode ByteStreamCnvSvc::connectOutput(const std::string& /*t*/) {
 StatusCode ByteStreamCnvSvc::commitOutput(const std::string& outputConnection, bool /*b*/) {
    ATH_MSG_DEBUG("In flushOutput " << outputConnection);
 
+   const EventContext& ctx = Gaudi::Hive::currentContext();
+   SlotData& slot = *m_slots.get(ctx);
+
    if (m_ioSvcMap.size() == 0) {
       ATH_MSG_ERROR("ByteStreamCnvSvc not configure for output");
       return(StatusCode::FAILURE);
    }
-   writeFEA();
+
+   writeFEA (slot);
 
    // convert RawEventWrite to RawEvent
-   uint32_t rawSize = m_rawEventWrite->size_word();
-   uint32_t* buffer = newCachedArray(rawSize);
-   uint32_t count = eformat::write::copy(*(m_rawEventWrite->bind()), buffer, rawSize);
+   RawEventWrite* re = slot.m_rawEventWrite.get();
+   uint32_t rawSize = re->size_word();
+   std::vector<uint32_t> buffer (rawSize);
+   uint32_t count = eformat::write::copy(*(re->bind()), buffer.data(), rawSize);
    if (count != rawSize) {
       ATH_MSG_ERROR("Memcopy failed");
       return(StatusCode::FAILURE);
    }
-   RawEvent rawEvent(buffer);
+   RawEvent rawEvent(buffer.data());
    // check validity
    try {
       rawEvent.check_tree();
@@ -225,25 +230,27 @@ StatusCode ByteStreamCnvSvc::commitOutput(const std::string& outputConnection, b
          return(StatusCode::FAILURE);
       }
    }
-   // delete RawEventWrite
-   delete m_rawEventWrite; m_rawEventWrite = 0;
-   // delete FEA
-   for (std::map<std::string, FullEventAssemblerBase*>::const_iterator it = m_feaMap.begin(),
-	   itE = m_feaMap.end(); it != itE; it++) {
-      delete it->second;
-   }
-   m_feaMap.clear();
-   // delete cache
-   m_serialiseCache.clear();
+   // Clear slot-specific data.
+   slot.clear();
    return(StatusCode::SUCCESS);
 }
 
-void ByteStreamCnvSvc::writeFEA() {
-   ATH_MSG_DEBUG("before FEAMAP size = " << m_feaMap.size());
-   for (std::map<std::string, FullEventAssemblerBase*>::const_iterator it = m_feaMap.begin(),
-	   itE = m_feaMap.end(); it != itE; it++) {
+void ByteStreamCnvSvc::writeFEA (SlotData& slot)
+{
+   FEAMap_t& feaMap = slot.m_feaMap;
+   ATH_MSG_DEBUG("before FEAMAP size = " << feaMap.size());
+   for (auto& p : feaMap) {
       MsgStream log(msgSvc(), name());
-      (*it).second->fill(m_rawEventWrite, log);
+      p.second->fill(slot.m_rawEventWrite.get(), log);
    }
-   ATH_MSG_DEBUG("after FEAMAP size = " << m_feaMap.size());
+   ATH_MSG_DEBUG("after FEAMAP size = " << feaMap.size());
 }
+
+RawEventWrite*
+ByteStreamCnvSvc::setRawEvent (std::unique_ptr<RawEventWrite> rawEventWrite)
+{
+  RawEventWrite* ptr = rawEventWrite.get();
+  m_slots->m_rawEventWrite = std::move (rawEventWrite);
+  return ptr;
+}
+

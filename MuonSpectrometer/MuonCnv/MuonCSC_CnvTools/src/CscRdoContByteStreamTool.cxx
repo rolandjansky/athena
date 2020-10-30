@@ -7,7 +7,6 @@
 
 #include "MuonRDO/CscRawDataContainer.h"
 
-#include "StoreGate/StoreGate.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
 #include <map> 

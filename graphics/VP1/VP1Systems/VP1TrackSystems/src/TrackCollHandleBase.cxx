@@ -315,7 +315,8 @@ bool TrackCollHandleBase::cut(TrackHandleBase* handle)
 
   messageVerbose("TrackCollHandleBase::cut - checking hit cuts.");
   if (mightHaveSubSystemHitInfo()&&!m_cut_requiredNHits.isEmpty()&&handle->hasSubSystemHitInfo()) {
-    assert(m_cut_requiredNHits.count()==4);
+    //assert(m_cut_requiredNHits.count()==4); // for old code
+    assert(m_cut_requiredNHits.count()==5);
     // Only apply ID cuts to tracks which have ID hits (so ID only and combined muons)
     if (handle->isIDTrack()){
       if (handle->getNPixelHits()<m_cut_requiredNHits[0]) return false;
@@ -725,7 +726,7 @@ TrackHandleBase* TrackCollHandleBase::getNextTrackHandle() {
 
 
 void TrackCollHandleBase::setUseDefaultCuts(bool useDefaults){
-  if (m_d->last_useDefaultCuts==useDefaults) return;
+  if ( (m_d->last_useDefaultCuts) == useDefaults) return;
   messageVerbose("setUseDefaultCuts changed to "+str(useDefaults)+"- rechecking all handles");
   // recheckCutStatusOfAllHandles();
   

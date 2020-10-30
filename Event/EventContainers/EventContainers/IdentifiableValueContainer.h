@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTCONTAINERS_IDENTIFIABLEVALUECONTAINER_H
@@ -25,6 +25,7 @@ public:
 
    //Prevent accidental copying
    IdentifiableValueContainer(const IdentifiableValueContainer<T>&) = delete;
+   IdentifiableValueContainer& operator=(const IdentifiableValueContainer&) = delete;
 
    ~IdentifiableValueContainer()  { if(m_own) delete m_cache; }
 

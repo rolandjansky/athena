@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # AtlCoolLib.py
 # module defining utilities for ATLAS command line tool use of COOL
 # Richard Hawkings, started 5/2/07
@@ -9,15 +9,15 @@ Module defining utilities for ATLAS command line/python use of COOL
 """
 
 from __future__ import print_function
-import sys,os,traceback,getopt,time,calendar
-from PyCool import cool,coral
+import sys,os,getopt,time,calendar
+from PyCool import cool
 
 def transConn(conn):
     """
     Translate simple connection string (no slash) to mycool.db with given
     instance, all others left alone
     """
-    if (not '/' in conn):
+    if ('/' not in conn):
         return 'sqlite://X;schema=mycool.db;dbname='+conn
     else:
         return conn
@@ -106,7 +106,7 @@ def timeVal(val):
         try:
             ts=time.strptime(val+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
             return int(calendar.timegm(ts))
-        except ValueError as e:
+        except ValueError:
             print ("ERROR in time specification, use e.g. 2007-05-25:14:01:00")
             sys.exit(-1)
         
@@ -135,7 +135,7 @@ def indirectOpen(coolstr,readOnly=True,oracle=False,debug=False):
     forceSQLite='ATLAS_COOL_FORCESQLITE' in os.environ
     if (debug and forceSQLite):
         print ("ATLAS_COOL_FORCESQLITE: Force consideration of SQLite replicas")
-    if (len(splitname)!=2 or readOnly==False or oracle==False or forceSQLite):
+    if (len(splitname)!=2 or readOnly is False or oracle is False or forceSQLite):
         try:
             db=dbSvc.openDatabase(connstr,readOnly)
         except Exception as e:
@@ -174,7 +174,7 @@ def indirectOpen(coolstr,readOnly=True,oracle=False,debug=False):
                 if (debug): print ("Established connection to %s" % server)
                 return dbconn
             if (debug): print ("Cannot connect to %s" % server)
-        except Exception as e:
+        except Exception:
             if (debug): print ("Exception connecting to %s" % server)
     # all replicas tried - give up
     print ("All available replicas tried - giving up")
@@ -195,7 +195,6 @@ def replicaList():
         if (epos>0 and line[0]!="#"):
             domains=line[0:epos].split()
             for dom in domains:
-                i=hostname.find(dom)
                 if ((hostname[-len(dom):]==dom and len(dom)>best) or (best==0 and dom=='default')):
                     best=len(dom)
                     serverlist=line[epos+1:].split()
@@ -218,7 +217,7 @@ def pathResolver(leaf,retFile=True):
     paths=['.']+paths
     for path in paths:
         try:
-            s=os.stat(path+'/'+leaf)
+            os.stat(path+'/'+leaf)
             if (retFile):
                 return open(path+'/'+leaf,'r')
             else:
@@ -389,38 +388,6 @@ class coolTool:
         # default implementation of procopts - do nothing
         pass
 
-class coolWrapper:
-    """
-    comment
-    """
-    def __init__(self,db,folder,spec=[],version=cool.FolderVersioning.SINGLE_VERSION):
-        # setup the db reference
-        # if its a string, try to open it
-        if (type(db)==str):
-            self.db=forceOpen(db)
-        else:
-            # assume its an already existing database object
-            self.db=db
-        self.folder=folder
-        self.spec=spec
-        self.version=version
-        # check the database is open
-        if (not self.db.isOpen()):
-            raise RuntimeError ('Database not open')
-        
-
-    def storeDataIOV(self,data,since=cool.ValidityKeyMin,
-                     until=cool.ValidityKeyMax,channel=0,tag=''):
-        if (type(channel)==int):
-            chanid=channel
-        elif (type(channel)==string):
-            # lookup channel
-            print ('channel is string')
-
-    def storeDataRun(self,data,run,channel=0,tag=''):
-        since=(run << 32)
-        until=((run+1) << 32)
-        storeDataIOV(since,until,channel,data,tag)
 
 class RangeList:
     """Hold a list of IOVs (start/end pairs) which are good, allowing parts
@@ -449,7 +416,6 @@ class RangeList:
                     self._ends[ix]=start
                 elif (start>self._starts[ix] and end<self._ends[ix]):
                     # have to split the stored interval
-                    oldstart=self._starts[ix]
                     oldend=self._ends[ix]
                     self._ends[ix]=start
                     self._insert(ix+1,end,oldend)
@@ -507,11 +473,11 @@ class TimeStampToRLB:
         # First try to read timestamp info            
         isFirst=True
         try:
-            readobjs=readfolder.browseObjects(self.since,self.until,cool.ChannelSelection.all());
+            readobjs=readfolder.browseObjects(self.since,self.until,cool.ChannelSelection.all())
             while readobjs.goToNext():
                 readobj=readobjs.currentRef()
                 payload=readobj.payload()
-                if (isFirst == True):
+                if (isFirst is True):
                     isFirst=False
                     self.StartTime=payload['StartTime']
                 else:
@@ -532,7 +498,7 @@ class TimeStampToRLB:
             print ("Problem accessing folder %s" % lbtimename)
             raise RuntimeError ("TimeStampToRLB: Initialisation error")
         try:
-            readobjs=readfolder.browseObjects(self.StartTime, self.EndTime, cool.ChannelSelection.all());
+            readobjs=readfolder.browseObjects(self.StartTime, self.EndTime, cool.ChannelSelection.all())
             while readobjs.goToNext():
                 readobj=readobjs.currentRef()
                 payload=readobj.payload()

@@ -32,6 +32,7 @@
 #include "AthenaKernel/SlotSpecificObj.h"
 #include <vector>
 #include <map>
+#include <memory>
 
 class ROBDataProviderSvc :  public extends<AthService, IROBDataProviderSvc> {
 
@@ -90,13 +91,12 @@ public:
 
 protected:
    /// vector of ROBFragment class
-   typedef std::vector<ROBF*> VROBF;
+   //typedef std::vector<ROBF*> VROBF;
 
    /// map for all the ROB fragments
-   typedef std::map<uint32_t, const ROBF*, std::less<uint32_t> > ROBMAP;
+   typedef std::map<uint32_t, std::unique_ptr<const ROBF>, std::less<uint32_t> > ROBMAP;
 
   struct EventCache {
-    ~EventCache();
     const RawEvent* event = 0;
     uint32_t eventStatus = 0;    
     uint32_t currentLvl1ID = 0;    

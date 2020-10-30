@@ -11,7 +11,7 @@ from time import sleep
 from DataQualityUtils.dqu_subprocess import apply as _local_apply
 
 ## Needed to correct ROOT behavior; see below
-CWD = os.getcwd() # noqa
+CWD = os.getcwd()
 
 import sys
 import ROOT
@@ -27,8 +27,8 @@ from DataQualityUtils.hancoolmod import hancool
 from DataQualityUtils.DQHistogramMergeMod import DQHistogramMerge
 import DataQualityUtils.HanMetadata
 
-gSystem.Load("libdqm_core"); # noqa 
-gSystem.Load("libDataQualityInterfaces"); # noqa
+gSystem.Load("libdqm_core")
+gSystem.Load("libDataQualityInterfaces")
 from ROOT import dqutils
 
 os.chdir(CWD)

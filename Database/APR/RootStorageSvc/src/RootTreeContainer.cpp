@@ -367,9 +367,6 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
   return Error;
 }
 
-#include <iostream>
-using namespace std;
-
 DbStatus
 RootTreeContainer::loadObject(void** obj_p, ShapeH /*shape*/, Token::OID_t& oid)
 {
@@ -405,12 +402,6 @@ RootTreeContainer::loadObject(void** obj_p, ShapeH /*shape*/, Token::OID_t& oid)
             //dsc.branch->SetAddress( &p.ptr );
             dsc.branch->SetAddress( obj_p );
             break;
-        }
-        // Must move tree entry to correct value
-        if (m_tree) {
-           if (m_tree->GetReadEntry() < evt_id) m_tree->LoadTree(evt_id);
-        } else if (dsc.branch->GetTree()->GetReadEntry() < evt_id) {
-           dsc.branch->GetTree()->LoadTree(evt_id);
         }
         // read the object
         numBytesBranch = dsc.branch->GetEntry(evt_id);
@@ -557,6 +548,9 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
                              ? m_tree != nullptr
                              : (m_tree && m_tree->GetBranch(m_branchName.c_str()) != nullptr));
       if ( hasBeenCreated && (mode&pool::READ || mode&pool::UPDATE) )   {
+         if (treeName.substr(0, 2) == "##") {
+            m_tree->SetCacheSize(0);
+         }
          int count;
          if ( !m_tree->InheritsFrom(TTree::Class()) )   {
             log << DbPrintLvl::Error << "Cannot open the container " << m_name << " of type "

@@ -1,40 +1,22 @@
-################################################################################
-# Package: ALFA_LocRec
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ALFA_LocRec )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/EventInfo
-                          ForwardDetectors/ALFA/ALFA_Geometry
-                          ForwardDetectors/ALFA/ALFA_RawEv
-                          ForwardDetectors/ALFA/ALFA_RecEv/ALFA_LocRecEv
-                          GaudiKernel
-                          Generators/GeneratorObjects
-                          Generators/AtlasHepMC
-                           )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Matrix Physics HistPainter Rint Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
-
-# tag ROOTBasicLibs was not recognized in automatic conversion in cmt2cmake
-
-# tag ROOTSTLDictLibs was not recognized in automatic conversion in cmt2cmake
+find_package( ROOT COMPONENTS Core Tree MathCore Hist )
 
 # Component(s) in the package:
+atlas_add_library( ALFA_LocRecLib
+                   ALFA_LocRec/*.h src/*.cxx
+                   INTERFACE
+                   PUBLIC_HEADERS ALFA_LocRec
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ALFA_Geometry ALFA_LocRecEv ALFA_RawEv AthenaBaseComps AthenaKernel AthenaPoolUtilities AtlasHepMCLib EventInfo GaudiKernel GeneratorObjects StoreGateLib )
+
 atlas_add_component( ALFA_LocRec
-                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel StoreGateLib SGtests AthenaPoolUtilities EventInfo ALFA_Geometry ALFA_RawEv ALFA_LocRecEv GaudiKernel GeneratorObjects )
+                     LINK_LIBRARIES ALFA_LocRecLib )
 
 # Install files from the package:
-atlas_install_headers( ALFA_LocRec )
 atlas_install_joboptions( share/*.py )
-

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of RegSelSvc
 # example of a configuration in class deriving from a Configurable
@@ -42,34 +42,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
       
         from AthenaCommon.DetFlags import DetFlags
 
-        if DetFlags.detdescr.ID_on():
-            if DetFlags.detdescr.pixel_on():
-                from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-                pixTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
-                                                 ManagerName = "Pixel",
-                                                 OutputFile  = "RoITablePixel.txt",
-                                                 PrintHashId = True,
-                                                 PrintTable  = False)
-                mlog.debug(pixTable)
-        
-            if DetFlags.detdescr.SCT_on():
-                from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
-                sctTable = SiRegionSelectorTable(name        = "SCT_RegionSelectorTable",
-                                                 ManagerName = "SCT",
-                                                 OutputFile  = "RoITableSCT.txt",
-                                                 PrintHashId = True,
-                                                 PrintTable  = False)
-                mlog.debug(sctTable)
-
-            if DetFlags.detdescr.TRT_on():
-                from InDetRegionSelector.InDetRegionSelectorConf import TRT_RegionSelectorTable
-                trtTable = TRT_RegionSelectorTable(name = "TRT_RegionSelectorTable",
-                                                   ManagerName = "TRT",
-                                                   OutputFile  = "RoITableTRT.txt",
-                                                   PrintHashId = True,
-                                                   PrintTable  = False)
-                mlog.debug(trtTable)
-                
         if DetFlags.detdescr.Calo_on():
             from LArRegionSelector.LArRegionSelectorConf import LArRegionSelectorTable
             larTable =  LArRegionSelectorTable(name="LArRegionSelectorTable")

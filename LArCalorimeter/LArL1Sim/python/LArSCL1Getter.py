@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # LArSCL1 creation from LArHits with LArSCL1Maker algorithm
 
@@ -19,7 +19,7 @@ class LArSCL1Getter ( Configured )  :
         try:
             from LArL1Sim.LArSCL1Getter import LArSCL1Getter
             theLArSCL1Getter=LArSCL1Getter()
-        except:
+        except Exception:
             mlog.error("could not get handle to LArSCL1Getter Quit")
             traceback.print_exc()
             return False
@@ -34,7 +34,7 @@ class LArSCL1Getter ( Configured )  :
         # Instantiation of the C++ algorithm
         try:        
             from LArL1Sim.LArL1SimConf import LArSCL1Maker                
-        except:
+        except Exception:
             mlog.error("could not import LArL1Sim.LArSCL1Maker")
             traceback.print_exc()
             return False
@@ -53,13 +53,12 @@ class LArSCL1Getter ( Configured )  :
 
         theLArSCL1Maker.SCL1ContainerName = "LArDigitSCL1"
 
-        self._LArSCL1Maker = theLArSCL1Maker ;
+        self._LArSCL1Maker = theLArSCL1Maker
 
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
         # check if LArdigitization is run before. If yes, uses hit map from detector store produces from lardigitization
-        from Digitization.DigitizationFlags import jobproperties
         from AthenaCommon.DetFlags import DetFlags
         if DetFlags.digitize.LAr_on():
             mlog.info("Using hit map from LArDigitMaker algoritm")

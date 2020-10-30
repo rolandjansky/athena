@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,6 +30,8 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 // Gaudi
 #include "GaudiKernel/SystemOfUnits.h"
+
+#include <memory>
 
 #include <stdexcept>
 
@@ -134,11 +136,11 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& f
 
     if (msgLvl(MSG::VERBOSE)) {
         ATH_MSG_VERBOSE( "Glue Volume '" << firstVol.volumeName() << "' to " << secondVolumes.size() << " volume(s): " );
-        for (auto& volIter : secondVolumes)
+        for (const auto & volIter : secondVolumes)
             ATH_MSG_VERBOSE( "              -> " << (volIter)->volumeName() );
     }
     // prepare the material layer if needed
-    const Trk::Layer* mLayer = 0;
+    const Trk::Layer* mLayer = nullptr;
     // ----------------------------------------------------------------------------------------
     // create a MaterialLayer as a boundary
     if (buildBoundaryLayer){
@@ -159,7 +161,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& f
         glueTrackingVolumes(firstVol, firstFace, *(secondVolumes[0]), secondFace);
     } else {
         // create the navigation bin array
-        Trk::BinnedArray<Trk::TrackingVolume>* navArray = 0;
+        Trk::BinnedArray<Trk::TrackingVolume>* navArray = nullptr;
         // create the Array - either r-binned or z-binned
         if (firstFace == Trk::negativeFaceXY || firstFace == Trk::positiveFaceXY )
             navArray = m_trackingVolumeArrayCreator->cylinderVolumesArrayInR(secondVolumes, true);
@@ -179,12 +181,12 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const Trk::TrackingVolume& f
             // get the dimension of boundary surface of the first volume
             const Trk::SharedObject< const BoundarySurface<TrackingVolume> > bSurface = firstVol.boundarySurfaces()[firstFace];
             // replace the boundary surface
-            for ( auto& volIter: secondVolumes )             
+            for ( const auto & volIter: secondVolumes )             
                 setBoundarySurface(*volIter, bSurface, secondFace);
         } else {
          // [2] the traditional way, keeping two boundary surfaces    
          // now set the face to the volume array -------------------------------------------------------------------------------
-            for ( auto& volIter: secondVolumes ) {
+            for ( const auto & volIter: secondVolumes ) {
                 // the secondGlueFace
                 Trk::BoundarySurfaceFace secondGlueFace = secondFace;
                 if (secondFace == Trk::tubeOuterCover) {
@@ -219,8 +221,8 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
 {
     
     
-    Trk::BinnedArray<Trk::TrackingVolume>* navArrayOne = 0;
-    Trk::BinnedArray<Trk::TrackingVolume>* navArrayTwo = 0;
+    Trk::BinnedArray<Trk::TrackingVolume>* navArrayOne = nullptr;
+    Trk::BinnedArray<Trk::TrackingVolume>* navArrayTwo = nullptr;
 
     std::unique_ptr<const Trk::Surface>     mLayerSurface;
     std::unique_ptr<const Trk::Layer>       mLayer;
@@ -235,7 +237,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
         // build a disc to separate the two
         if (buildBoundaryLayer || boundaryFaceExchange){
             double rmin = 10e10; double rmax = 0; double boundaryz = 0.; double centerzOne = 0.;
-            for (auto& volIter : firstVolumes ){
+            for (const auto & volIter : firstVolumes ){
                 const Trk::CylinderVolumeBounds* cb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(volIter->volumeBounds()));
                 if (cb) {
                     takeSmaller(rmin,cb->innerRadius());
@@ -249,15 +251,15 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                 Amg::Transform3D* mLayerTransform = new Amg::Transform3D;
                 (*mLayerTransform) = Amg::Translation3D(0.,0.,boundaryz);
                 // layer surface
-                mLayerSurface.reset( new Trk::DiscSurface(mLayerTransform,rmin,rmax) );
+                mLayerSurface = std::make_unique<Trk::DiscSurface>( mLayerTransform,rmin,rmax );
                 // create a MaterialLayer
                 std::unique_ptr<const Trk::LayerMaterialProperties> lmps( layerMaterialProperties(*mLayerSurface) );
                 // MaterialLayer clones the LayerMaterialPropteries.
 
                 if (lmps) {
-                  mLayer.reset( new Trk::MaterialLayer(
+                  mLayer = std::make_unique<Trk::MaterialLayer>( 
                                                        std::shared_ptr<const Trk::Surface>(std::move(mLayerSurface)), 
-                                                       *lmps) );
+                                                       *lmps );
                 }
             }
             if (boundaryFaceExchange){
@@ -287,11 +289,11 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                     boundarySurface->surfaceRepresentation().setMaterialLayer(*(mLayer.release()));
                 }
                 // set the boundary surface to the volumes of both sides
-                for (auto& volIter : firstVolumes){
+                for (const auto & volIter : firstVolumes){
                     ATH_MSG_VERBOSE("  -> first array : setting a newly created boundary surface to  " << volIter->volumeName());
                     setBoundarySurface(*volIter,sharedBoundarySurface,firstFace);
                 }
-                for (auto& volIter : secondVolumes){
+                for (const auto & volIter : secondVolumes){
                     ATH_MSG_VERBOSE("  -> second array : setting a newly created boundary surface to  " << volIter->volumeName());
                     setBoundarySurface(*volIter,sharedBoundarySurface,secondFace);
                 }
@@ -307,7 +309,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
         if (buildBoundaryLayer || boundaryFaceExchange){
             // build a cylinder to separate the two
             double zmin = 10e10; double zmax = -10e10; double boundaryr = 0.; double volumerOne = 0.; double volumerTwo = 10e10;
-            for (auto& volIter : firstVolumes ){
+            for (const auto & volIter : firstVolumes ){
                 const Trk::CylinderVolumeBounds* cb = dynamic_cast<const Trk::CylinderVolumeBounds*>(&(volIter->volumeBounds()));
                 if (cb) {
                     takeSmaller(zmin,volIter->center().z()-cb->halflengthZ());
@@ -320,23 +322,23 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
             }
             // check if boundary layer should be built
             if (buildBoundaryLayer){
-                Amg::Transform3D* mLayerTransform = ((zmin+zmax)*(zmin+zmax)<10e-4) ? 0 : new Amg::Transform3D;
+                Amg::Transform3D* mLayerTransform = ((zmin+zmax)*(zmin+zmax)<10e-4) ? nullptr : new Amg::Transform3D;
                 if (mLayerTransform) (*mLayerTransform) = Amg::Translation3D(0.,0.,0.5*(zmin+zmax));
                 mLayerSurface.reset( mLayerTransform ? new Trk::CylinderSurface(mLayerTransform,boundaryr,0.5*(zmax-zmin))  :
                                      new Trk::CylinderSurface(boundaryr,0.5*(zmax-zmin)) );
                 // create a MaterialLayer
                 std::unique_ptr<const Trk::LayerMaterialProperties>  lmps( layerMaterialProperties(*mLayerSurface) );
                 // LayerMaterialProperties will be cloned in MaterialLayer
-                if (lmps) mLayer.reset( new Trk::MaterialLayer( 
+                if (lmps) mLayer = std::make_unique<Trk::MaterialLayer>( 
                                                                std::shared_ptr<const Trk::Surface>(std::move(mLayerSurface)), 
-                                                               *lmps) );
+                                                               *lmps );
             }
             // check if boundary face should be exchanged
             if (boundaryFaceExchange) {
                 // creating only one boundary surface
                 ATH_MSG_VERBOSE("Creating a joint boundary surface for n-to-n glueing case.");
                 // the boundary transform can be 0 for cylinder surfaces
-                Amg::Transform3D* boundaryTransform = ((zmin+zmax)*(zmin+zmax)<10e-4) ? 0 : new Amg::Transform3D;
+                Amg::Transform3D* boundaryTransform = ((zmin+zmax)*(zmin+zmax)<10e-4) ? nullptr : new Amg::Transform3D;
                 if (boundaryTransform) (*boundaryTransform) = Amg::Translation3D(0.,0.,0.5*(zmin+zmax));
                 // create the cylinder surface for the shared boundary
                 Trk::CylinderSurface cSurface = boundaryTransform ? Trk::CylinderSurface(boundaryTransform,boundaryr,0.5*(zmax-zmin)) :
@@ -364,11 +366,11 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                     boundarySurface->surfaceRepresentation().setMaterialLayer(*(mLayer.release()));
                 }
                 // set the boundary surface to the volumes of both sides
-                for (auto& volIter : firstVolumes){
+                for (const auto & volIter : firstVolumes){
                     ATH_MSG_VERBOSE("  -> first array : setting a newly created boundary surface to  " << volIter->volumeName());
                     setBoundarySurface(*volIter,sharedBoundarySurface,firstFace);
                 }
-                for (auto& volIter : secondVolumes){
+                for (const auto & volIter : secondVolumes){
                     ATH_MSG_VERBOSE("  -> second array : setting a newly created boundary surface to  " << volIter->volumeName());
                     setBoundarySurface(*volIter,sharedBoundarySurface,secondFace);
                 }
@@ -389,7 +391,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
 
     const Trk::Layer                       *mLayer_ptr=mLayer.get();
     // (a) to the first set of volumes
-    for (auto& tVolIter: firstVolumes) {
+    for (const auto & tVolIter: firstVolumes) {
         // take care of the orientation of the normal vector
         if (firstFace != Trk::tubeInnerCover) {
             setOutsideTrackingVolumeArray(*tVolIter,firstFace,navArrayTwoShared);
@@ -409,7 +411,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
                     
     }
     // (b) to the second set of volumes
-    for (auto& tVolIter : secondVolumes) {
+    for (const auto & tVolIter : secondVolumes) {
         // take care of the orientation of the normal vector
         if (secondFace != Trk::tubeInnerCover) {
             ATH_MSG_VERBOSE( "Set outsideTrackingVolumeArray at face " << secondFace << " to " << (*tVolIter).volumeName() );
@@ -435,7 +437,7 @@ Trk::TrackingVolume* Trk::TrackingVolumeHelper::glueTrackingVolumeArrays(
                                                     const Trk::TrackingVolume& secondVol,
                                                     Trk::BoundarySurfaceFace secondFace, std::string name) const
 { 
-    Trk::TrackingVolume* enclosingVolume = 0;
+    Trk::TrackingVolume* enclosingVolume = nullptr;
 
     const Trk::CylinderVolumeBounds* cyl1 = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(firstVol.volumeBounds()));
     const Trk::CylinderVolumeBounds* cyl2 = dynamic_cast<const Trk::CylinderVolumeBounds*> (&(secondVol.volumeBounds()));
@@ -456,9 +458,9 @@ Trk::TrackingVolume* Trk::TrackingVolumeHelper::glueTrackingVolumeArrays(
 
     // build volume envelope
     std::vector<const Trk::TrackingVolume*> vols;
-    Trk::CylinderVolumeBounds* envBounds =  0;
-    Amg::Transform3D* envTransf = 0;
-    Trk::BinnedArray<Trk::TrackingVolume>*  subVols = 0;
+    Trk::CylinderVolumeBounds* envBounds =  nullptr;
+    Amg::Transform3D* envTransf = nullptr;
+    Trk::BinnedArray<Trk::TrackingVolume>*  subVols = nullptr;
     vols.push_back(&firstVol);
     vols.push_back(&secondVol);
     std::vector<const Trk::TrackingVolume*> envGlueNegXY;
@@ -509,7 +511,7 @@ Trk::TrackingVolume* Trk::TrackingVolumeHelper::glueTrackingVolumeArrays(
             envBounds =  new Trk::CylinderVolumeBounds(cyl1->outerRadius(),
                                                        cyl1->halflengthZ());
         }
-        envTransf = firstVol.transform().isApprox(Amg::Transform3D::Identity()) ? 0 : new Amg::Transform3D;
+        envTransf = firstVol.transform().isApprox(Amg::Transform3D::Identity()) ? nullptr : new Amg::Transform3D;
         if (envTransf)
            (*envTransf) = Amg::Translation3D(firstVol.center());
         // revert vols
@@ -529,7 +531,7 @@ Trk::TrackingVolume* Trk::TrackingVolumeHelper::glueTrackingVolumeArrays(
         envBounds =  new Trk::CylinderVolumeBounds(cyl1->innerRadius(),
                                                    cyl2->outerRadius(),
                                                    cyl1->halflengthZ());
-        envTransf = firstVol.transform().isApprox(Amg::Transform3D::Identity()) ? 0 : new Amg::Transform3D;
+        envTransf = firstVol.transform().isApprox(Amg::Transform3D::Identity()) ? nullptr : new Amg::Transform3D;
         if (envTransf)
            (*envTransf) = Amg::Translation3D(firstVol.center());
         subVols = m_trackingVolumeArrayCreator->cylinderVolumesArrayInR(vols,false);
@@ -546,7 +548,7 @@ Trk::TrackingVolume* Trk::TrackingVolumeHelper::glueTrackingVolumeArrays(
     enclosingVolume  =  new Trk::TrackingVolume(envTransf,
                                                 envBounds,
                                                 firstVol,
-                                                0,subVols,
+                                                nullptr,subVols,
                                                 name);
 
     // ENVELOPE GLUE DESCRIPTION -----------------------------------------------------------------
@@ -592,7 +594,7 @@ void Trk::TrackingVolumeHelper::fillGlueVolumes(const std::vector< const Trackin
                 // get the GlueVolumesDescriptor
                 const Trk::GlueVolumesDescriptor& glueVolDescriptor = (*refVolIter)->glueVolumesDescriptor();
                 // if the size of glue volumes is 0 -> the referenceVolume is at navigation level
-                if ( (glueVolDescriptor.glueVolumes(glueFace)).size() == 0) {
+                if ( (glueVolDescriptor.glueVolumes(glueFace)).empty()) {
                     glueVols.push_back(*refVolIter);
                 } else {
                     // fill all the sub-volumes described by the glueVolumeDescriptor
@@ -640,14 +642,14 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
 
         // trivial cases
         // (glue one to the other)
-        if (glueVols1.size()==0 && glueVols2.size()==0) {
+        if (glueVols1.empty() && glueVols2.empty()) {
             glueTrackingVolumes(**firstVol,firstFace,**secondVol,secondFace);
             continue;
             // (glue one to many)
-        } else if (glueVols1.size()==0 && glueVols2.size()>0) {
+        } else if (glueVols1.empty() && !glueVols2.empty()) {
             glueVols1.push_back(*firstVol);
             // (glue the other one to many)
-        } else if (glueVols1.size()>0 && glueVols2.size()==0) {
+        } else if (!glueVols1.empty() && glueVols2.empty()) {
             glueVols2.push_back(*secondVol);
         }
 
@@ -715,7 +717,7 @@ void Trk::TrackingVolumeHelper::glueTrackingVolumes(const std::vector<const Trk:
 
 const Trk::LayerMaterialProperties* Trk::TrackingVolumeHelper::layerMaterialProperties(const Trk::Surface& boundarySurface) const
 {
-  Trk::LayerMaterialProperties* layerMaterial = 0;
+  Trk::LayerMaterialProperties* layerMaterial = nullptr;
   if (boundarySurface.type() == Trk::Surface::Cylinder){
         const Trk::CylinderBounds* cb = dynamic_cast<const Trk::CylinderBounds*>(&boundarySurface.bounds());
         if (!cb) throw std::logic_error("Not CylinderBounds");

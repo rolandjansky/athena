@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawConditions/LArEMEC_CphiComplete.h" 
@@ -14,8 +14,6 @@
 
 #include <iostream> 
 using namespace std ;
-
-float LArEMEC_CphiComplete::dummy = ERRORCODE;
 
 LArEMEC_CphiComplete::LArEMEC_CphiComplete()  {}
 

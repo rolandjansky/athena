@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-from ROOT import *
+from ROOT import gStyle, gDirectory, TCanvas, TH1F, TFile
 import sys
 import os
 from optparse import OptionParser
@@ -10,7 +10,7 @@ from optparse import OptionParser
 
 def PlotCalibrationTiming(input_file_name=None):
 
-  if input_file_name == None:
+  if input_file_name is None:
     print ("No input file name, assuming output.root")
     input_file_name = "output.root"
 
@@ -30,7 +30,7 @@ def PlotCalibrationTiming(input_file_name=None):
   graphs.cd('ADC/FineTime')
   key_list = gDirectory.GetListOfKeys()
 
-  directory_name = None              # find name of directory with histos
+  run_directory_name = None              # find name of directory with histos
 
   try:
     for iii in key_list:
@@ -39,7 +39,7 @@ def PlotCalibrationTiming(input_file_name=None):
       for name in line:
         if 'run#' in name:
           run_directory_name = name
-      if run_directory_name == None:
+      if run_directory_name is None:
         raise NameError
   except Exception:
     print ("ERROR, the file doesn't contain run# directory!")
@@ -50,20 +50,17 @@ def PlotCalibrationTiming(input_file_name=None):
   gDirectory.cd(run_directory_name)
 
 
-  nPlot = 0
-  nPage = 0
-
   c1.Print("CalibrationTimingPlots.ps[")
 
-  ppm_em_2d_profile_etaPhi_adc_fineTime.SetMinimum(-10.)
-  ppm_em_2d_profile_etaPhi_adc_fineTime.SetMaximum(10.)
-  ppm_em_2d_profile_etaPhi_adc_fineTime.Draw("colz")
+  ppm_em_2d_profile_etaPhi_adc_fineTime.SetMinimum(-10.)  # noqa: F821
+  ppm_em_2d_profile_etaPhi_adc_fineTime.SetMaximum(10.)   # noqa: F821
+  ppm_em_2d_profile_etaPhi_adc_fineTime.Draw("colz")      # noqa: F821
   c1.Print("CalibrationTimingPlots.ps")
 
 
-  ppm_had_2d_profile_etaPhi_adc_fineTime.SetMinimum(-10.)
-  ppm_had_2d_profile_etaPhi_adc_fineTime.SetMaximum(10.)
-  ppm_had_2d_profile_etaPhi_adc_fineTime.Draw("colz")
+  ppm_had_2d_profile_etaPhi_adc_fineTime.SetMinimum(-10.)  # noqa: F821
+  ppm_had_2d_profile_etaPhi_adc_fineTime.SetMaximum(10.)   # noqa: F821
+  ppm_had_2d_profile_etaPhi_adc_fineTime.Draw("colz")      # noqa: F821
   c1.Print("CalibrationTimingPlots.ps")
 
 # now produce histograms for each partition

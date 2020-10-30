@@ -506,6 +506,12 @@ class doHolesOnTrack(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class useHolesFromPattern(InDetFlagsJobProperty):
+    """ use holes from the pattern recognition """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class useZvertexTool(InDetFlagsJobProperty):
     """ start with Zvertex finding """
     statusOn     = True
@@ -2520,6 +2526,8 @@ class InDetJobProperties(JobPropertyContainer):
        print('* SCT PRD Formation is off')
     if not self.doTRT_PRDFormation():
        print('* TRT PRD Formation is off')
+    if self.useHolesFromPattern():
+       print('* Using holes and deads from pattern recognition')
 
     # -----------------------------------------
     print('*')
@@ -2661,6 +2669,7 @@ _list_InDetJobProperties = [Enabled,
                             propagatorType,
                             trackFitterType,
                             doHolesOnTrack,
+                            useHolesFromPattern,
                             useZvertexTool,
                             useActsPriVertexing,
                             doSiSPSeededTrackFinder,

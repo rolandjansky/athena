@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef COPYTRUTHJETPARTICLES_H
@@ -47,10 +47,12 @@ public:
   
 private:
   // Options for storate
+  bool m_includeBSMNonInt; //!< Include non-interacting BSM particles in particles
   bool m_includeNu; //!< Include neutrinos in particles
   bool m_includeMu; //!< Include muons in particles
   bool m_includePromptLeptons; //!< Include particles from prompt decays, i.e. not from hadrons
-  //  bool m_includeTau; //!< Include particles from tau decays
+  bool m_includePromptPhotons; //!< Include photons from prompt decays, e.g. Higgs decays
+  bool m_chargedOnly; //!< Include only charged particles
   // -- added for dark jet clustering -- //
   bool m_includeSM; //!< Include SM particles
   bool m_includeDark; //!< Include dark hadrons
@@ -64,19 +66,30 @@ private:
   MCTruthPartClassifier::ParticleOrigin getPartOrigin(const xAOD::TruthParticle* tp,
 						      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
 
+  /// Maximum allowed eta for particles in jets
   float m_maxAbsEta;
 
+  /// Offset for Geant4 particle barcodes
   // this is set to mutable so that it changes if the metadata information is available
   //http://stackoverflow.com/questions/12247970/error-in-assignment-of-member-in-read-only-object
   mutable int m_barcodeOffset;
 
   /// Determine how the barcode offset is set from metadata
   ///  0 -> no metdata access, use BarCodeOffset property
-  ///  >0 from metadata. If it is not found it will keep the BarCodeOffset property
+  ///  1 -> from metadata. Fails if not found
+  ///  2 -> from metadata, use BarCodeOffset property if not found (default)
   int m_barcodeFromMetadata;
 
+  /// Cone to be used for removing FSR photons from around prompt leptons
   float m_photonCone;
 
+  std::vector<int> m_vetoPDG_IDs; //! List of PDG IDs that should be ignored (and whose children should be ignored)
+  bool comesFrom( const xAOD::TruthParticle* tp, const int pdgID, std::vector<int>& used_vertices ) const;
+
+  /// Name of the decoration to be used for identifying FSR (dressing) photons
+  std::string m_dressingName;
+
+  /// Handle on MCTruthClassifier for finding prompt leptons
   ToolHandle<IMCTruthClassifier> m_classif;
 };
 

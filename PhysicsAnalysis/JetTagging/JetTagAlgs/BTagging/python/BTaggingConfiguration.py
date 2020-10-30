@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Python function implementation of B-tagging configuration
 # Wouter van den Wollenberg (2013-2015)
@@ -1475,9 +1475,11 @@ class Configuration:
       #options.setdefault('BTagLabelingTool', None)
       #options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
       #options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
-      btagtool = toolMainBTaggingTool('btag', **options)
       if self._name == "Trig":
+          btagtool = toolMainBTaggingTool('btag_Trig', **options)
           ToolSvc += btagtool
+      else:
+          btagtool = toolMainBTaggingTool('btag', **options)
       if BTaggingFlags.OutputLevel < 3:
           print (self.BTagTag()+' - DEBUG - Setting up BTagTool for jet collection: '+jetcol)
       if self._BTaggingConfig_JetCollections.get(jetcol, None) is None:

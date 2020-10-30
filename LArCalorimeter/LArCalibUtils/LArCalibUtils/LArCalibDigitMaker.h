@@ -23,6 +23,7 @@ class LArCalibDigitMaker : public AthAlgorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
   SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapKey{this,"CalibMapKey","LArCalibLineMap","SG Key of calib line mapping object"};
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibMapSCKey{this,"CalibMapSCKey","LArCalibIdMapSC","SG Key of calib line mapping object"};
   std::vector<std::string> m_keylist;
   std::vector<unsigned> m_vPattern;
   std::vector<unsigned> m_vDAC;
@@ -31,6 +32,8 @@ class LArCalibDigitMaker : public AthAlgorithm
   unsigned m_nTrigger;
   double m_delayScale;
   bool m_dontRun;
+  bool m_isSC;
+  
 };
 
 #endif

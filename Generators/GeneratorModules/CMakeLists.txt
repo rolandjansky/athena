@@ -1,18 +1,7 @@
-################################################################################
-# Package: GeneratorModules
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( GeneratorModules )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          GaudiKernel
-                          Generators/AtlasHepMC
-                          Generators/GeneratorObjects )
 
 # External dependencies:
 find_package( CLHEP )
@@ -25,12 +14,11 @@ atlas_add_library( GeneratorModulesLib
                    PUBLIC_HEADERS GeneratorModules
                    INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel GaudiKernel GeneratorObjects StoreGateLib SGtests )
+                   LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel GaudiKernel GeneratorObjects StoreGateLib )
 
 atlas_add_component( GeneratorModules
                      src/components/*.cxx
-                     INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel StoreGateLib SGtests GaudiKernel GeneratorObjects GeneratorModulesLib )
+                     LINK_LIBRARIES GeneratorModulesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

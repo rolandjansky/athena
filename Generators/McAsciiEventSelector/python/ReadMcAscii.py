@@ -1,10 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file McAsciiEventSelector/python/ReadMcAscii.py
 ## @brief: install the McAsciiEventSelector
 
 def _loadReadMcAscii():
-    import AthenaCommon.AtlasUnixStandardJob
+    import AthenaCommon.AtlasUnixStandardJob  # noqa: F401
     from AthenaCommon.AppMgr import theApp
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 

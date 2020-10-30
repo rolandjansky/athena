@@ -29,8 +29,10 @@ if DetFlags.readRDOBS.pixel_on():
                                                    RDOKey       = InDetKeys.PixelRDOs(),
                                                    ProviderTool = InDetPixelRawDataProviderTool)
 
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
-  InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
+  from OverlayCommonAlgs.OverlayFlags import overlayFlags
+  if not (globalflags.isOverlay() and overlayFlags.isDataOverlay()):
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
+    InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
 
   topSequence += InDetPixelRawDataProvider
 
@@ -99,8 +101,10 @@ if DetFlags.readRDOBS.TRT_on():
                                               RDOKey       = InDetKeys.TRT_RDOs(),
                                               ProviderTool = InDetTRTRawDataProviderTool)
 
-  from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
-  InDetTRTRawDataProvider.RegSelTool = makeRegSelTool_TRT()
+  from OverlayCommonAlgs.OverlayFlags import overlayFlags
+  if not (globalflags.isOverlay() and overlayFlags.isDataOverlay()):
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_TRT
+    InDetTRTRawDataProvider.RegSelTool = makeRegSelTool_TRT()
 
   topSequence += InDetTRTRawDataProvider
   if (InDetFlags.doPrintConfigurables()):

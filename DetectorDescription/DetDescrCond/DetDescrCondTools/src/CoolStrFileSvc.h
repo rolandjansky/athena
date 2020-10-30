@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCONDTOOLS_COOLSTRFILESVC_H
@@ -10,7 +10,7 @@
 #include "DetDescrCondTools/ICoolStrFileSvc.h"
 #include "AthenaBaseComps/AthService.h"
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 class CoolStrFileSvc : public virtual ICoolStrFileSvc, public virtual AthService
 {
   template <class TYPE> class SvcFactory;

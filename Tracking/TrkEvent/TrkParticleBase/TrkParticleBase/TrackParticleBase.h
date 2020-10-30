@@ -84,7 +84,7 @@ namespace Trk
 
     /** Assignement operator */
     TrackParticleBase &operator= (const TrackParticleBase &);
-    TrackParticleBase &operator= (TrackParticleBase &&);
+    TrackParticleBase &operator= (TrackParticleBase &&) noexcept;
     
     /** Destructor */
     virtual ~TrackParticleBase();

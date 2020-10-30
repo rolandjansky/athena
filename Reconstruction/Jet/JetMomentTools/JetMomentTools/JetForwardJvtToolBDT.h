@@ -28,6 +28,7 @@
 // EDM includes
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODTracking/VertexContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

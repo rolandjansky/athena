@@ -14,6 +14,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
+#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <type_traits>
 
@@ -84,10 +85,10 @@ public:
   const AmgSymMatrix(DIM) * covariance() const;
 
   /** Access method for the position */
-  const Amg::Vector3D& position() const;
+  virtual const Amg::Vector3D& position() const;
 
   /** Access method for the momentum */
-  const Amg::Vector3D& momentum() const;
+  virtual const Amg::Vector3D& momentum() const;
 
   /** Access method for transverse momentum */
   double pT() const;
@@ -100,7 +101,7 @@ public:
   constexpr bool isCharged() const;
   /** Returns the charge
    * */
-  double charge() const;
+  virtual double charge() const;
 
   /** Access method for the local coordinates, \f$(loc1,loc2)\f$
       local parameter definitions differ for each surface type. */

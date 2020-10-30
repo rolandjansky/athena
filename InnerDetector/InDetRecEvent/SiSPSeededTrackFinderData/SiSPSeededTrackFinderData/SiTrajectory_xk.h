@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -27,6 +27,18 @@
 
 namespace InDet{
 
+  
+  /// Helper struct for hole search results from the pattern recognition
+  struct PatternHoleSearchOutcome{ 
+    int nPixelHoles{0}; 
+    int nSCTHoles{0}; 
+    int nSCTDoubleHoles{0}; 
+    int nPixelDeads{0}; 
+    int nSCTDeads{0}; 
+    bool passPatternHoleCut{true};
+  }; 
+
+
   class SiTrajectory_xk
     {
       friend class  SiCombinatorialTrackFinder_xk;
@@ -48,15 +60,16 @@ namespace InDet{
 
       const int&  nholes        ()       const {return m_nholes        ;}
       const int&  dholes        ()       const {return m_dholes        ;}
-      const int&  nholesb       ()       const {return m_nholesb       ;}
-      const int&  nholese       ()       const {return m_nholese       ;}
+      const int&  nHolesBefore       ()       const {return m_nHolesBefore       ;}
+      const int&  nHolesAfter       ()       const {return m_nHolesAfter       ;}
       const int&  nclusters     ()       const {return m_nclusters     ;}
       const int&  ndf           ()       const {return m_ndf           ;}
       const int&  nclustersNoAdd()       const {return m_nclustersNoAdd;}
       const int&  nElements     ()       const {return m_nElements     ;}
-      const int&  naElements    ()       const {return m_naElements    ;}
+      const int&  naElements    ()       const {return m_nActiveElements    ;}
       const int&  difference    ()       const {return m_difference    ;}
       const int&  elementsMap(int& i) const {return m_elementsMap[i];}
+      const PatternHoleSearchOutcome&  getHoleSearchResult() const {return m_patternHoleOutcome;}
 
       void setTools(const InDet::SiTools_xk*); 
       void setParameters(); 
@@ -68,7 +81,8 @@ namespace InDet{
          const Trk::TrackParameters                          &,
          std::list<const InDet::SiCluster*>                  &,
          std::vector<const InDet::SiDetElementBoundaryLink_xk*>&,
-         bool                                                &);
+         bool                                                &,
+         const EventContext&);
 
       bool trackParametersToClusters
         (const PixelClusterContainer*                             ,
@@ -105,6 +119,8 @@ namespace InDet{
 
       Trk::FitQuality* convertToFitQuality();
 
+      void updateHoleSearchResult(); 
+      
       void sortStep          ();
       bool goodOrder         ();
       bool jumpThroughPerigee();
@@ -119,25 +135,30 @@ namespace InDet{
       // Protected Data
       ///////////////////////////////////////////////////////////////////
 
-      int                               m_firstElement    ;
-      int                               m_lastElement     ;
-      int                               m_nclusters       ; // (NCL)
+      int                               m_firstElement    ; /// index of the first element where we have 
+                                                            /// a cluster 
+      int                               m_lastElement     ; /// index of the last element where we have 
+                                                            /// a cluster
+      int                               m_nclusters       ; /// Number of clusters on trajectory
       int                               m_nclustersNoAdd  ; // (NCL)
       int                               m_difference      ; // forward-bacward diff 
-      int                               m_nholesb         ; // holes before
-      int                               m_nholese         ; // holes after
+      int                               m_nHolesBefore         ; // holes before
+      int                               m_nHolesAfter         ; // holes after
       int                               m_nholes          ; // holes
       int                               m_dholes          ; // dholes
-      int                               m_naElements      ; // 
-      int                               m_nElements       ; // nindex
+      int                               m_nActiveElements      ; /// count active elements 
+      int                               m_nElements       ; // index 
       int                               m_elementsMap[300]; // index
       int                               m_ndfcut          ; //
       int                               m_ndf             ; //
       int                               m_ntos            ; //
       int                               m_atos[100]       ; //
       int                               m_itos[100]       ; //
-      SiTrajectoryElement_xk            m_elements   [300]; // mC
+      SiTrajectoryElement_xk            m_elements   [300]; /// Trajectory elements on this trajectory. 
+                                                            /// Each one corresponds to one detector element on
+                                                            /// the search road 
       const InDet::SiTools_xk*          m_tools           ; //
+      PatternHoleSearchOutcome    m_patternHoleOutcome; 
 
       ///////////////////////////////////////////////////////////////////
       // Methods

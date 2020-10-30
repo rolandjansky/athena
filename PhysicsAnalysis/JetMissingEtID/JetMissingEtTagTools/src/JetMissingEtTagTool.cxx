@@ -22,6 +22,8 @@ Purpose : create a collection of JetMissingEtJetTag
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingUtilities.h" 
 
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
@@ -471,8 +473,8 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
       /** B-tagging using selection tools*/
 
       /** B-tagging */
-      const xAOD::BTagging* btag = selectedJet->btagging();
-      if (bool(btag)) {
+      const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *selectedJet );
+      if ( btag ) {
 	if ( m_FixedCutBEff_60->accept( selectedJet ) ) pid |= 1 << 12; 	 // MV2c20 @ 60%
 	if ( m_FixedCutBEff_70->accept( selectedJet ) ) pid |= 1 << 13; 	 // MV2c20 @ 70%
 	if ( m_FixedCutBEff_85->accept( selectedJet ) ) pid |= 1 << 14; 	 // MV2c20 @ 85%
@@ -507,7 +509,7 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
       if (jetP4.pt() > 100.0 * CLHEP::GeV)
 	ij100++;
 
-      const xAOD::BTagging* btag = selectedJet->btagging();
+      const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *selectedJet );
       if (bool(btag)) {
 	double mvx;
 	btag->MVx_discriminant("MV2c20", mvx);

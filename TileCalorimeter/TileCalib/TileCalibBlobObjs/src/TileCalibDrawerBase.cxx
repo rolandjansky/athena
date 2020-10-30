@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileCalibBlobObjs/TileCalibDrawerBase.h"
@@ -10,9 +10,22 @@
 //
 //_____________________________________________________________
 TileCalibDrawerBase::TileCalibDrawerBase(const coral::Blob& blob) : 
-  m_blob(const_cast<coral::Blob*>(&blob)),
-  m_blobStart32(static_cast<uint32_t*>(m_blob->startingAddress())),
-  m_blobStart16(static_cast<uint16_t*>(m_blob->startingAddress())),
+  m_blob_nc(nullptr),
+  m_blob(&blob),
+  m_blobStart32(static_cast<const uint32_t*>(m_blob->startingAddress())),
+  m_blobStart16(static_cast<const uint16_t*>(m_blob->startingAddress())),
+  m_blobSize32(m_blob->size()/sizeof(uint32_t)),
+  m_isBlobOwner(false)
+{
+}
+
+//
+//_____________________________________________________________
+TileCalibDrawerBase::TileCalibDrawerBase(coral::Blob& blob) : 
+  m_blob_nc(&blob),
+  m_blob(&blob),
+  m_blobStart32(static_cast<const uint32_t*>(m_blob->startingAddress())),
+  m_blobStart16(static_cast<const uint16_t*>(m_blob->startingAddress())),
   m_blobSize32(m_blob->size()/sizeof(uint32_t)),
   m_isBlobOwner(false)
 {
@@ -29,9 +42,10 @@ TileCalibDrawerBase::~TileCalibDrawerBase()
 //
 //_____________________________________________________________
 TileCalibDrawerBase::TileCalibDrawerBase(const TileCalibDrawerBase& other) : 
-  m_blob(new coral::Blob(*other.m_blob)),
-  m_blobStart32(static_cast<uint32_t*>(m_blob->startingAddress())),
-  m_blobStart16(static_cast<uint16_t*>(m_blob->startingAddress())),
+  m_blob_nc(new coral::Blob(*other.m_blob)),
+  m_blob(m_blob_nc),
+  m_blobStart32(static_cast<const uint32_t*>(m_blob->startingAddress())),
+  m_blobStart16(static_cast<const uint16_t*>(m_blob->startingAddress())),
   m_blobSize32(m_blob->size()/sizeof(uint32_t)),
   m_isBlobOwner(true)
 {
@@ -44,6 +58,8 @@ TileCalibDrawerBase::operator=(const TileCalibDrawerBase& other)
 {
   //=== catch self-assignment
   if(&other == this) {return *this;}
+  if (m_isBlobOwner) delete m_blob;
+  m_blob_nc     = other.m_blob_nc;
   m_blob        = other.m_blob;
   m_blobStart32 = other.m_blobStart32;
   m_blobStart16 = other.m_blobStart16;
@@ -58,10 +74,10 @@ void
 TileCalibDrawerBase::clone(const TileCalibDrawerBase& other)
 {
   //=== copy content of other blob
-  *m_blob = *other.m_blob;
+  *m_blob_nc = *other.m_blob;
   //=== and reset cached attributes
-  m_blobStart32 = static_cast<uint32_t*>(m_blob->startingAddress());
-  m_blobStart16 = static_cast<uint16_t*>(m_blob->startingAddress());
+  m_blobStart32 = static_cast<const uint32_t*>(m_blob->startingAddress());
+  m_blobStart16 = static_cast<const uint16_t*>(m_blob->startingAddress());
   m_blobSize32  = m_blob->size()/sizeof(uint32_t);
 }
 
@@ -92,24 +108,27 @@ TileCalibDrawerBase::createBlob(uint16_t objType,
   
   //=== create blob
   uint32_t blobSizeInBytes = dataSizeByte+commentSizeChar;
-  m_blob->resize(blobSizeInBytes);
-  m_blobStart32 = static_cast<uint32_t*>(m_blob->startingAddress());
-  m_blobStart16 = static_cast<uint16_t*>(m_blob->startingAddress());
-  m_blobSize32  = m_blob->size()/sizeof(uint32_t);
+  m_blob_nc->resize(blobSizeInBytes);
+  uint32_t* blobStart32 = static_cast<uint32_t*>(m_blob_nc->startingAddress());
+  uint16_t* blobStart16 = static_cast<uint16_t*>(m_blob_nc->startingAddress());
+  m_blobSize32  = m_blob_nc->size()/sizeof(uint32_t);
+
+  m_blobStart32 = blobStart32;
+  m_blobStart16 = blobStart16;
 
   //=== fill header
-  m_blobStart16[0] = objType;
-  m_blobStart16[1] = objVersion;
-  m_blobStart32[1] = objSizeUint32;
-  m_blobStart32[2] = nObjs;
-  m_blobStart16[6] = nChans;
-  m_blobStart16[7] = nGains;
-  m_blobStart32[4] = commentSizeChar/sizeof(uint32_t);
+  blobStart16[0] = objType;
+  blobStart16[1] = objVersion;
+  blobStart32[1] = objSizeUint32;
+  blobStart32[2] = nObjs;
+  blobStart16[6] = nChans;
+  blobStart16[7] = nGains;
+  blobStart32[4] = commentSizeChar/sizeof(uint32_t);
   
   //==== fill comment fields
   if(commentSizeChar){
     if(!timeStamp) timeStamp = ::time(0);
-    uint64_t* pTimeStamp = reinterpret_cast<uint64_t*>(m_blobStart32+dataSizeByte/sizeof(uint32_t));
+    uint64_t* pTimeStamp = reinterpret_cast<uint64_t*>(blobStart32+dataSizeByte/sizeof(uint32_t));
     pTimeStamp[0] = timeStamp;
     char* pChar = reinterpret_cast<char*>(++pTimeStamp); 
     std::string::const_iterator iStr = author.begin();
@@ -128,9 +147,10 @@ std::string
 TileCalibDrawerBase::getAuthor() const
 {
   if(!getCommentSizeUint32()) return std::string("");
-  char* iBeg = reinterpret_cast<char*>(m_blobStart32 + m_hdrSize32     +
-				       getNObjs()*getObjSizeUint32()   +
-				       sizeof(uint64_t)/sizeof(uint32_t));
+  const char* iBeg =
+    reinterpret_cast<const char*>(m_blobStart32 + m_hdrSize32     +
+                                  getNObjs()*getObjSizeUint32()   +
+                                  sizeof(uint64_t)/sizeof(uint32_t));
   return std::string(iBeg);
 }
 
@@ -141,10 +161,11 @@ std::string
 TileCalibDrawerBase::getComment() const
 {
   if(!getCommentSizeUint32()) return std::string("");
-  char* iBeg = reinterpret_cast<char*>(m_blobStart32 + m_hdrSize32     +
-				       getNObjs()*getObjSizeUint32()   +
-				       sizeof(uint64_t)/sizeof(uint32_t));
-  char* iEnd = iBeg + getCommentSizeChar();
+  const char* iBeg =
+    reinterpret_cast<const char*>(m_blobStart32 + m_hdrSize32     +
+                                  getNObjs()*getObjSizeUint32()   +
+                                  sizeof(uint64_t)/sizeof(uint32_t));
+  const char* iEnd = iBeg + getCommentSizeChar();
   iBeg = std::find(iBeg,iEnd,0);
   return std::string(++iBeg);
 }
@@ -156,7 +177,8 @@ TileCalibDrawerBase::getDate() const
 {
   if(!getCommentSizeUint32()) return std::string("");
   ::time_t timeStamp = getTimeStamp();
-  char* iBeg = ::ctime(&timeStamp);
+  char buf[32];
+  char* iBeg = ::ctime_r(&timeStamp, buf);
   char* iEnd = iBeg;
   while(*iEnd!='\n'){++iEnd;}
   return std::string(iBeg,iEnd-iBeg);

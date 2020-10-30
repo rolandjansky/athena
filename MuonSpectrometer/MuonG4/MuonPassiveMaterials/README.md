@@ -8,9 +8,9 @@ Previously the AGDD primary numbers were contained in an xml block inside the [a
 Content
 ---
 
-`passiveMat_r.08.02.xml`: file used to create `MuonSpectrometer-R.08.02` layout: Run 2 detector geometry, based on AGDD xml block of `amdb_simrec.r.08.01`, fixes of JFSH and JTSH, fixed floor position, updated HFTruck description, updated description of flexible chain in sectors 9, 11 and 15, updated description of ATLAS feet
+`passiveMat_r.08.02.xml`: file used to create `MuonSpectrometer-R.08.02` layout: Run 2 detector geometry, based on AGDD xml block of `amdb_simrec.r.08.01`, fixes of JFSH and JTSH, fixed floor position, updated HFTruck description, updated description of flexible chain in sectors 9, 11 and 15, updated description of ATLAS feet, use correct Boron fraction in Polyboron in JDSH_SmallWheelHubPoly
 
-`passiveMat_r.09.02.xml`: file used to create `MuonSpectrometer-R.09.02` layout: Run 3 detector geometry (symmetric NSW & BIS7/8), based on `passiveMat_r.08.02.xml`, added `JDSH_Shield_NSW` on both sides, removed Run 2 `JDSH_Shield`
+`passiveMat_r.09.02.xml`: file used to create `MuonSpectrometer-R.09.02` layout: Run 3 detector geometry (symmetric NSW & BIS7/8), based on `passiveMat_r.08.02.xml`, added `JDSH_Shield_NSW` on both sides, removed Run 2 `JDSH_Shield`, use correct Boron fraction in Polyboron in NSW JD
 
-`passiveMat_r.09.02.Asym.xml`: file used to create `MuonSpectrometer-R.09.02.Asym` layout: Run 3 detector geometry (NSW & BIS7/8 on Aside only), based on `passiveMat_r.08.02.xml`, added `JDSH_Shield_NSW` on Aside replacing Run 2 `JDSH_Shield`
+`passiveMat_r.09.02.Asym.xml`: file used to create `MuonSpectrometer-R.09.02.Asym` layout: Run 3 detector geometry (NSW & BIS7/8 on Aside only), based on `passiveMat_r.08.02.xml`, added `JDSH_Shield_NSW` on Aside replacing Run 2 `JDSH_Shield`, use correct Boron fraction in Polyboron in NSW JD
 

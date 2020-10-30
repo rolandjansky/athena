@@ -4,9 +4,8 @@
 # Import MDT_Digitization job properties
 #
 from Digitization.DigitizationFlags import jobproperties
-from AthenaCommon.BeamFlags import jobproperties
+import AthenaCommon.BeamFlags # noqa: F401
 from AthenaCommon import CfgMgr
-from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the MdtDigitizationTool.
@@ -20,7 +19,7 @@ def MDT_LastXing():
     return 150
 
 def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
-   import MuonCondAlg.MdtCondDbAlgConfig # MT-safe conditions access
+   import MuonCondAlg.MdtCondDbAlgConfig # noqa: F401 (MT-safe conditions access)
    kwargs.setdefault("MaskedStations", [])
    kwargs.setdefault("UseDeadChamberSvc", True)
    kwargs.setdefault("DiscardEarlyHits", True)

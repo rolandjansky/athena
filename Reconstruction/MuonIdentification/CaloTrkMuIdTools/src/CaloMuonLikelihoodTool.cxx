@@ -26,10 +26,17 @@
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonLikelihoodTool::CaloMuonLikelihoodTool(const std::string& type, const std::string& name, const IInterface* parent) : 
   AthAlgTool(type,name,parent),
-  m_fileNames{"CaloMuonLikelihood.PDF.A0.root", "CaloMuonLikelihood.PDF.A1.root", 
-  "CaloMuonLikelihood.PDF.A2.root", "CaloMuonLikelihood.PDF.B0.root", "CaloMuonLikelihood.PDF.B1.root",
-  "CaloMuonLikelihood.PDF.B2.root", "CaloMuonLikelihood.PDF.C0.root", "CaloMuonLikelihood.PDF.C1.root",
-  "CaloMuonLikelihood.PDF.C2.root"}
+  m_fileNames{
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.A0.root"),
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.A1.root"),
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.A2.root"),
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.B0.root"),
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.B1.root"),
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.B2.root"),
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.C0.root"),
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.C1.root"),
+  PathResolverFindCalibFile( "CaloTrkMuIdTools/cutBased_release21/CaloMuonLikelihood.PDF.C2.root")
+}
 {
   declareInterface<ICaloMuonLikelihoodTool>(this);  
   declareProperty("RootFileNames", m_fileNames);
@@ -71,8 +78,8 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
     }
 
     // --- Retrieving root files and list of keys ---
-    std::string rootFilePath = PathResolver::find_file(fileName, "DATAPATH");
-    TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");	
+    
+    TFile* rootFile = TFile::Open(fileName.c_str(), "READ");	
     if (!rootFile) {
       ATH_MSG_FATAL("Could not retrieve root file: " << fileName);
       return StatusCode::FAILURE;

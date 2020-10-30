@@ -5,7 +5,7 @@
 # art-include: master/Athena
 # art-input: mc15_13TeV.107237.ParticleGenerator_mu_Pt4to100_vertxy20.recon.RDO.e3603_s2726_r7728
 # art-input-nfiles: 10
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -56,8 +56,8 @@ for opt,arg in opts:
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon']
 rdo2aod.max_events = 20000 
-rdo2aod.threads = 1 # TODO: change to 4
-rdo2aod.concurrent_events = 1 # TODO: change to 4
+rdo2aod.threads = 8
+rdo2aod.concurrent_events = 8
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 if local:
@@ -113,6 +113,7 @@ test.check_steps.append(comp7)
 comp8=TrigInDetCompStep('Comp_EFmuonLowpt_off','EF','muon',lowpt=True)
 comp8.type = 'offline'
 test.check_steps.append(comp8)
+
 # CPU cost steps
 cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
 test.check_steps.append(cpucost)

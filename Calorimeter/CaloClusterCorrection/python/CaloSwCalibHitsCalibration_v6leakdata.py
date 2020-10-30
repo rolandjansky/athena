@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 #######################################################################
@@ -36,7 +36,7 @@
 # Where YY is "conv" for converted or "unconv" for unconverted
 #######################################################################
 
-from CaloClusterCorrection.common import *
+from CaloClusterCorrection.constants import CALOCORR_COMBINED2
 
 #######################################################################
 
@@ -2686,7 +2686,7 @@ samplings_depths = [
 [ 2.4375 , 0.0  , 3.84839   , 15.3758 , 31.5893  ],
 [ 2.4625 , 0.0  , 3.7751    , 15.3528 , 31.7805  ],
 [ 2.4875 , 0.0  , 3.82319   , 15.5724 , 32.3008  ]
-];
+]
 
 #######################################################################
 

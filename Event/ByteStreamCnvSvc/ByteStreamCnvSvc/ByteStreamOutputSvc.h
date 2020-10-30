@@ -33,10 +33,10 @@ class ByteStreamOutputSvc : public ::AthService {
   static const InterfaceID& interfaceID();
 
   /// virtual method for writing the event
-  virtual bool putEvent(RawEvent* re) = 0;
+  virtual bool putEvent(const RawEvent* re) = 0;
 
   /// context-aware method for writing the event
-  virtual bool putEvent(RawEvent* re, const EventContext& ctx) = 0;
+  virtual bool putEvent(const RawEvent* re, const EventContext& ctx) = 0;
 };
 
 

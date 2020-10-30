@@ -150,7 +150,7 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
   // Now finalize the cluster: based on code in CaloClusterStoreHelper::finalizeClusters
   // Note: I don't specifically set the IProxyDict, since I also don't set it when I create
   //    data handles, either. 
-  auto sg = outClusterContainer.storeHandle().get();
+  auto *sg = outClusterContainer.storeHandle().get();
   for (xAOD::CaloCluster* cl : *outClusterContainer) {
     cl->setLink(outClusterContainerCellLink.ptr(), sg);
   }

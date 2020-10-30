@@ -1,33 +1,11 @@
-################################################################################
-# Package: JetSubStructureMomentTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetSubStructureMomentTools )
 
-# Extra dependencies, based on the build environment:
-set( extra_deps )
-if( NOT XAOD_STANDALONE )
-   set( extra_deps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Control/AthToolSupport/AsgTools
-  Event/xAOD/xAODCaloEvent
-  Event/xAOD/xAODJet
-  Reconstruction/Jet/JetInterface
-  Reconstruction/Jet/JetRec
-  PRIVATE
-  Control/CxxUtils
-  Event/xAOD/xAODMuon
-  Reconstruction/Jet/JetEDM
-  Reconstruction/Jet/JetSubStructureUtils
-  ${extra_deps} )
-
 # External dependencies:
 find_package( FastJet )
+find_package( FastJetContrib COMPONENTS Nsubjettiness EnergyCorrelator )
 find_package( ROOT COMPONENTS Core Hist )
 
 # Component(s) in the package:
@@ -42,9 +20,9 @@ endif()
 atlas_add_library( JetSubStructureMomentToolsLib
    JetSubStructureMomentTools/*.h Root/*.cxx ${extra_srcs}
    PUBLIC_HEADERS JetSubStructureMomentTools
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
    LINK_LIBRARIES AsgTools xAODCaloEvent xAODJet JetInterface JetRecLib
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} xAODMuon CxxUtils
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} ${FASTJET_LIBRARIES} xAODMuon CxxUtils
    JetEDM JetSubStructureUtils ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )

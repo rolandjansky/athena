@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD->NTUP_PHYSVAL with serial athena (legacy trigger) and PHYSVAL_WEB stage
 # art-type: grid
 # art-include: master/Athena

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArRawDataContByteStreamTool.h"
@@ -21,9 +21,8 @@
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
 #include "GaudiKernel/MsgStream.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/ReadCondHandle.h"
 
 // STL stuff
 #include <map> 
@@ -40,14 +39,12 @@ const InterfaceID& LArRawDataContByteStreamTool::interfaceID( )
  
 LArRawDataContByteStreamTool::LArRawDataContByteStreamTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AthAlgTool(type,name,parent),
-     m_noisetool("CaloNoiseTool/CaloNoiseToolDefault")
+  :  AthAlgTool(type,name,parent)
 { declareInterface< LArRawDataContByteStreamTool  >( this );
   declareProperty("DSPRunMode",m_DSPRunMode=4);
   declareProperty("RodBlockVersion",m_RodBlockVersion=0);
   declareProperty("FebNoiseCut",m_nfebsigma=2);
   declareProperty("InitializeForWriting",m_initializeForWriting=false);
-  declareProperty("NoiseTool",m_noisetool);
   declareProperty("SubDetectorId",m_subDetId=0);
   declareProperty("IncludeDigits",m_includeDigits=false);
   declareProperty("DigitsContainer",m_DigitContName="LArDigitContainer_MC_Thinned");
@@ -64,15 +61,12 @@ LArRawDataContByteStreamTool::initialize()
 {
   ATH_CHECK( AthAlgTool::initialize() );
   ATH_MSG_DEBUG ( "Initializing LArRawDataContByteStream" );
- 
+
   ATH_CHECK( toolSvc()->retrieveTool("LArRodDecoder",m_decoder) );
 
   if (m_initializeForWriting) {
    ATH_CHECK( m_hid2re.initialize() );
 
-   ATH_CHECK( m_noisetool.retrieve() );
-   ATH_MSG_DEBUG ( "Successfully retrieved CaloNoiseTool " );
-   
    //Set LArRodBlockStructure according to jobOpts.
    switch(m_DSPRunMode)
      {case 0:  //Obsolete mode 
@@ -113,11 +107,14 @@ LArRawDataContByteStreamTool::initialize()
    // Set chosen RodBlockType
    LArRodEncoder::setRodBlockStructure(m_RodBlockStructure);
    ATH_MSG_INFO ( "Initialization done for reading and writing" );
+
  }
   else {
-    m_noisetool.disable();
     ATH_MSG_INFO ( "Initialization done for reading only" );
   }
+
+  ATH_CHECK( m_caloNoiseKey.initialize (m_initializeForWriting) );
+
   return StatusCode::SUCCESS;  
 }
 
@@ -192,6 +189,8 @@ StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer*
       ATH_MSG_VERBOSE(" number of channels added to framgent: "<<n );
      }//  end else-if(can set Raw data)
 
+ SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey);
+
  // Now loop over map and fill all ROD Data Blocks
  std::map<uint32_t,LArRodEncoder>::iterator it  =mapEncoder.begin(); 
  std::map<uint32_t,LArRodEncoder>::iterator it_end=mapEncoder.end();
@@ -199,7 +198,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer*
  // ROD block data.
  for(; it!=it_end;++it) {
    theROD  = fea->getRodData( (*it).first );
-   ((*it).second).fillROD(*theROD,msg(), &(*m_noisetool), m_nfebsigma ) ; 
+   ((*it).second).fillROD(*theROD,msg(), **noise, m_nfebsigma ) ; 
  } 
  ATH_MSG_DEBUG ( "Filled " << mapEncoder.size() << " Rod Blocks" );
  // Finally, fill full event
@@ -259,6 +258,8 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
  ATH_MSG_VERBOSE(" number of channels in the LArCalibDigitContainer for gain " 
                  << fixgain << ": "<<n );
 
+ SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey);
+
  // Now loop over map and fill all ROD Data Blocks
  std::map<uint32_t,LArRodEncoder>::iterator it  =mapEncoder.begin(); 
  std::map<uint32_t,LArRodEncoder>::iterator it_end=mapEncoder.end();
@@ -266,7 +267,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
  // ROD block data.
  for(; it!=it_end;++it) {
    theROD  = fea->getRodData( (*it).first ); 
-   ((*it).second).fillROD( *theROD,msg(), &(*m_noisetool), m_nfebsigma ) ; 
+   ((*it).second).fillROD( *theROD,msg(), **noise, m_nfebsigma ) ; 
  } 
  ATH_MSG_DEBUG ( "Filled " << mapEncoder.size() << " Rod Blocks" );
  return StatusCode::SUCCESS;
@@ -343,6 +344,8 @@ StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannel
 	  } // End of check whether format allows to include RawData
 	} // Finish checking for Digit container in SG
    } // End of check for digits inclusion
+
+ SG::ReadCondHandle<CaloNoise> noise (m_caloNoiseKey);
       
  // Now loop over map and fill all ROD Data Blocks
  std::map<uint32_t,LArRodEncoder>::iterator it_m  =mapEncoder.begin(); 
@@ -351,7 +354,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannel
  // ROD block data.
  for(; it_m!=it_m_e;++it_m) {
    theROD  = fea->getRodData( (*it_m).first ); 
-   ((*it_m).second).fillROD( *theROD,msg(), &(*m_noisetool), m_nfebsigma ) ; 
+   ((*it_m).second).fillROD( *theROD,msg(), **noise, m_nfebsigma ) ; 
    // delete ((*it_m).second);
    // ((*it_m).second)=NULL;
  } 

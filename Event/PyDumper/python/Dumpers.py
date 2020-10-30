@@ -4668,7 +4668,10 @@ def format_float_vector(v): return ''.join ([format_float(x) for x in v])
 def format_el(x):
     if x.isDefaultIndex():
         return '(null)'
-    return '%s[%d]' % (x.dataID(), x.index())
+    key = x.dataID()
+    if not key:
+        key = '(%d)' % x.key()
+    return '%s[%d]' % (key, x.index())
 char_accessor_ = getattr (ROOT, 'SG::AuxElement::ConstAccessor<char>')
 class char_accessor:
     def __init__ (self, name):

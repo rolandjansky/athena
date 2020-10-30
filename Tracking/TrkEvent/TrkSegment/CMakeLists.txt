@@ -7,7 +7,7 @@ atlas_subdir( TrkSegment )
 atlas_add_library( TrkSegment
    TrkSegment/*.h src/*.cxx
    PUBLIC_HEADERS TrkSegment
-   LINK_LIBRARIES AthenaKernel AthContainers Identifier TrkMeasurementBase
+   LINK_LIBRARIES AthenaKernel AthContainers AthLinks Identifier TrkMeasurementBase
    PRIVATE_LINK_LIBRARIES GaudiKernel TrkSurfaces TrkEventPrimitives )
 
 atlas_add_dictionary( TrkSegmentDict

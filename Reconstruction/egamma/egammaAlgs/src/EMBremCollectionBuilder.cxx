@@ -32,7 +32,7 @@
 
 EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& name,
                                                  ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {
 }
 
@@ -66,7 +66,7 @@ StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){
 }
 
 StatusCode
-EMBremCollectionBuilder::execute_r(const EventContext& ctx) const
+EMBremCollectionBuilder::execute(const EventContext& ctx) const
 {
   /*
    * Read in the input
