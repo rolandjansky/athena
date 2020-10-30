@@ -281,6 +281,9 @@ def _compareComponent(compRef, compChk, prefix, args, component):
         allProps.sort()
 
         for prop in allProps:
+            if args.ignoreIrrelevant and prop in args.ignoreList:
+                continue
+
             if prop not in compRef.keys():
                 print(
                     "%s%s = %s: \033[94m exists only in 2nd file \033[0m \033[91m<< !!!\033[0m"
@@ -298,9 +301,7 @@ def _compareComponent(compRef, compChk, prefix, args, component):
             refVal = compRef[prop]
             chkVal = compChk[prop]
 
-            if args.ignoreIrrelevant and any(
-                element in args.ignoreList for element in [chkVal, prop]
-            ):
+            if args.ignoreIrrelevant and chkVal in args.ignoreList:
                 continue
 
             refVal, chkVal = _parseNumericalValues(refVal, chkVal)
