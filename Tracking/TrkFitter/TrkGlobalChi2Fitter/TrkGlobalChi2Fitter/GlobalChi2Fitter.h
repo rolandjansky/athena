@@ -924,6 +924,7 @@ namespace Trk {
     Gaudi::Property<double> m_p {this, "Momentum", 0.0};
     Gaudi::Property<double> m_chi2cut {this, "TrackChi2PerNDFCut", 1.e15};
     Gaudi::Property<double> m_scalefactor {this, "TRTTubeHitCut", 2.5};
+    Gaudi::Property<double> m_minphfcut {this, "MinPHFCut", 0.};
 
     Gaudi::Property<int> m_maxoutliers {this, "MaxOutliers", 10};
     Gaudi::Property<int> m_maxit {this, "MaxIterations", 30};
