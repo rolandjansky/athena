@@ -63,7 +63,8 @@ int vtcfitc( VKVertex * vk )
 //
 //  Start of calc
 //
-    std::vector< Vect3DF > al0(totNC);
+    //This is deliberately written without make_unqiue to bypass auto intialization!!
+    std::unique_ptr< Vect3DF[] > al0( new Vect3DF[ totNC ]);
     for(ic=0;ic<totNC; ic++){ al0[ic].X=0.; al0[ic].Y=0.; al0[ic].Z=0.;}
     std::vector<double> anum(totNC,0.);
     for (ic=0; ic<totNC; ++ic) {
@@ -102,7 +103,6 @@ int vtcfitc( VKVertex * vk )
 
 
 /*  calculation (AL0)t * VCOV * AL0 and (F0T)t * WCI * F0T */
-    TWRK * t_trk;
     for (ic=0; ic<totNC; ++ic) {
 	for (jc=0; jc<totNC; ++jc) {
 	    denom[ic][jc] =     al0[ic].X * vk->fitVcov[0] * al0[jc].X 
@@ -125,7 +125,7 @@ int vtcfitc( VKVertex * vk )
 			      + al0[jc].Z * vk->fitVcov[5] * al0[ic].Z;
 
 	    for (it=0; it<NTRK; ++it) {
-                t_trk=vk->tmpArr[it].get();
+                TWRK * t_trk=vk->tmpArr[it].get();
 		denom[ic][jc] +=          tf0t[ic][it]->X * t_trk->wci[0] * tf0t[jc][it]->X 
 					+ tf0t[ic][it]->Y * t_trk->wci[1] * tf0t[jc][it]->X 
 					+ tf0t[ic][it]->Z * t_trk->wci[3] * tf0t[jc][it]->X 
@@ -151,7 +151,8 @@ int vtcfitc( VKVertex * vk )
 /*    Solving of system DENOM(i,j)*COEF(j)=ANUM(i) */
 /*            for lagrange couplings               */
 /*-------------------------------------------------*/
-    auto coef = std::make_unique<double[]>(totNC);
+    //This is deliberately written without make_unqiue to bypass auto intialization!!
+    auto coef = std::unique_ptr<double[]>(new double[totNC]);
     if (totNC == 1) {
 	if (denom[0][0] != 0.) {
 	    coef[0] = anum[0] / denom[0][0];
@@ -159,10 +160,12 @@ int vtcfitc( VKVertex * vk )
 	    coef[0] = 1.e3;
 	}
     } else {
-        auto adenom = std::make_unique<double[]>(totNC*totNC);
+    	//This is deliberately written without make_unqiue to bypass auto intialization!!
+    	std::unique_ptr<double[]> adenom( new double[totNC*totNC] );
 //        auto work   = std::make_unique<double[]>(totNC*totNC);
 //        auto eigv   = std::make_unique<double[]>(totNC*totNC);
-        auto scale  = std::make_unique<double[]>(totNC);
+        std::unique_ptr<double[]> scale( new double[totNC] );
+
 	for (ic=0; ic<totNC; ic++) {
 	    for (jc=0; jc<totNC; jc++) {
 		adenom[ic*totNC + jc] = denom[ic][jc];
@@ -194,7 +197,9 @@ int vtcfitc( VKVertex * vk )
     dxyz[0] = 0.;
     dxyz[1] = 0.;
     dxyz[2] = 0.;
-    auto tmpVec = std::make_unique<Vect3DF[]>(totNC);
+
+    //This is deliberately written without make_unqiue to bypass auto intialization!!
+    auto tmpVec = std::unique_ptr<Vect3DF[]>(new  Vect3DF[totNC]);
     for (ic=0; ic<totNC; ++ic) {
 	tmpVec[ic].X =     vk->fitVcov[0] * al0[ic].X 
 	                 + vk->fitVcov[1] * al0[ic].Y 
@@ -218,7 +223,7 @@ int vtcfitc( VKVertex * vk )
 
 /*  new momenta */
     for (it=0; it<NTRK; ++it) {
-        t_trk=vk->tmpArr[it].get();
+       TWRK * t_trk=vk->tmpArr[it].get();
 	tmp[0] = 0.;
 	tmp[1] = 0.;
 	tmp[2] = 0.;
@@ -250,7 +255,7 @@ int vtcfitc( VKVertex * vk )
 //
 //  Get sum of squared aa[ic]  for all constraints. It's needed for postfit. 
 //
-double getCnstValues2( VKVertex * vk )
+double getCnstValues2( VKVertex * vk ) noexcept
 {
     if (vk->ConstraintList.empty()) return 0.;
     double sumSQ=0.;

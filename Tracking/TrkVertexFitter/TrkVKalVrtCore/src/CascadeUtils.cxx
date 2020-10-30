@@ -22,9 +22,10 @@ int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEve
 {
 
    int iv,it,ivnext;
-   auto DerivC = std::make_unique<double[]>(NPar);
-   auto DerivP = std::make_unique<double[]>(NPar);
-   auto DerivT = std::make_unique<double[]>(NPar);
+   //Deliberately not make_unique to bypass inititalization
+   std::unique_ptr<double[]> DerivC( new double[NPar] );
+   std::unique_ptr<double[]> DerivP( new double[NPar] );
+   std::unique_ptr<double[]> DerivT( new double[NPar] );
 //
    std::vector<double> vMagFld; double vBx,vBy,vBz;
    for( iv=0; iv<cascadeEvent_.cascadeNV; iv++){
@@ -265,7 +266,7 @@ void copyFullMtx(double *Input, long int IPar, long int IDIM,
 //--------------------------------------------------------------------
 //  Make the convolution Cov=D*OldCov*Dt
 //
-void getNewCov(double *OldCov, double* Der, double* Cov, long int DIM)
+void getNewCov(double *OldCov, double* Der, double* Cov, long int DIM) noexcept
 {
    int i,j,it,jt;
    for( i=0; i<DIM; i++){
