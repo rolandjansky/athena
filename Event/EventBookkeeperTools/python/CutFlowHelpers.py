@@ -96,10 +96,10 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         # Explicitely add file metadata from input and from transient store,
         # but only the ones that we always create.
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+primary_name )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+primary_name+"Aux.*" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+primary_name )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+primary_name+"Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+primary_name+"*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+primary_name+"*Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+primary_name+"*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+primary_name+"*Aux.*" )
         pass
 
     return
