@@ -116,6 +116,7 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
 
     //Now move on to selecting the correct eta window
     //first get the map of eta windows to hists.
+
     const std::map< std::vector<double>, TH1*>& etaMinEtaMax_hists = selectedEnergy->second;
 
     std::map< std::vector<double>, TH1*>::const_iterator itSelectedEtaWindow, itSecondEtaWindow;
@@ -180,7 +181,6 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
     }
 
 
-
     //Implementation for 2D hist
     if(!m_energy_etaRange_hists2D.empty()){
     //Select energy values neighbouring input energy
@@ -242,8 +242,6 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
     }
 
 
-
-
     //Now move on to selecting the correct eta window
     //first get the map of eta windows to hists.
     const std::map< std::vector<double>, TH2*>& etaMinEtaMax_hists = selectedEnergy->second;
@@ -292,19 +290,25 @@ double ISF::PDFcreator::getRand(const std::vector<double>& inputParameters, cons
 
     TH2* hist2d = itSelectedEtaWindow->second;
 
+    //get x bin with most entries (excluding under and overflow)
+    //this is what we approach if we find an empty bin in next step
+    Int_t maxBin = (hist2d->ProjectionX())->GetMaximumBin();
+
+    //Get y projection of bin that closest matches output energy
     TAxis *xaxis = hist2d->GetXaxis();
     Int_t binx = xaxis->FindBin(outEnergy);
 
     TH1 * hist = hist2d->ProjectionY("projectionHist",binx,binx);
     std::unique_ptr<TH1> hist_unique(hist);
 
-    //incase we select an empty x bin, chose next closest appropriate bin
+
+    //incase we select an empty x bin, chose next closest appropriate bin by stepping towards maxBin
     while (hist->GetEntries() == 0.){
-      if(outEnergy > (xaxis->GetXmax() + xaxis->GetXmin())/2.){
-        binx--; //increment bin choice towards center of distribution
+      if(binx > maxBin){
+        binx--; //increment bin choice towards maxBin
       }
       else{
-        binx++; //increment bin choice towards center of distribution
+        binx++; //increment bin choice towards maxBin
       }
       hist = hist2d->ProjectionY("projectionHist",binx,binx);
     }
