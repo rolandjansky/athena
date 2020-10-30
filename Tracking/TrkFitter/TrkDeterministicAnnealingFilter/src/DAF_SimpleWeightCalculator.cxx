@@ -141,7 +141,7 @@ Trk::DAF_SimpleWeightCalculator::normalize (
 
     // copy given assgnProbs to new vector
     ATH_MSG_DEBUG("copy vector<AssignmentProb> to a new one");
-    auto newAssgnProbs  = new std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >(*assgnProbs);
+    auto *newAssgnProbs  = new std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >(*assgnProbs);
     //*newAssgnProbs = *assgnProbs;
     ATH_MSG_DEBUG("call other normalize()");
     Trk::DAF_SimpleWeightCalculator::normalize( *newAssgnProbs, ROTs, beta, cutValue );
