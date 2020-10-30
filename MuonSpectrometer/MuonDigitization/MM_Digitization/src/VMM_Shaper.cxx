@@ -79,6 +79,7 @@ void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge,
     for (double time = startTime; time < m_upperTimeWindow; time += m_timeStep) {
         if (vmmResponse(effectiveCharge, electronsTime, time) >= electronicsThreshold) {
             tmpTimeAtThreshold = time;
+            break;
         }
     }
 
@@ -96,6 +97,8 @@ double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std
     if(effectiveCharge.size()==0) return -9999; // protect min_element
     double startTime = m_lowerTimeWindow;
     double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
+
+    minElectronTime += 0.8*m_peakTime;  // only start looking for the peak close to the first possible peak
     if(startTime < minElectronTime) startTime = minElectronTime; // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
 
     double oldResponse = 0;
