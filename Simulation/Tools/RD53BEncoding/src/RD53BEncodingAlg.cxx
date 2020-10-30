@@ -55,7 +55,7 @@ StatusCode RD53BEncodingAlg::initialize() {
 StatusCode RD53BEncodingAlg::initializeStreams(const ToolHandleArray< RD53BEncodingTool >& encondingTools) {
   
   std::vector < std::vector < float > > barrel_module_z = {{0.}, {0.}, {0.}, {0.}, {0.}};
-  std::vector < std::vector < float > > endcap_module_z = {{}, {}, {}, {}, {}};
+  std::vector < std::vector < float > > endcap_module_z = {{}, {}, {}, {}, {}, {}, {}, {}};
     
   InDetDD::SiDetectorElementCollection::const_iterator element;
   for (element = m_pixelManager->getDetectorElementBegin(); element != m_pixelManager->getDetectorElementEnd(); ++element) {
@@ -85,8 +85,8 @@ StatusCode RD53BEncodingAlg::initializeStreams(const ToolHandleArray< RD53BEncod
     // using phi_module == 0 is an arbitrary choice
     if (pixPhiMod==0) {
       float module_z = (*element)->center().z();
-      (*element)->isBarrel() ? barrel_module_z.at(pixLayerDisk).push_back(module_z) : endcap_module_z.at(pixLayerDisk).push_back(module_z);  
       ATH_MSG_DEBUG("--> MODULES: " << pixBrlEc << "/" << pixLayerDisk << "/" << pixEtaMod << "/" << pixPhiMod << " --> " << module_z << "| chips: " << chips << " --> rows/cols: " << design->rowsPerCircuit() << "/" << design->columnsPerCircuit());
+      (*element)->isBarrel() ? barrel_module_z.at(pixLayerDisk).push_back(module_z) : endcap_module_z.at(pixLayerDisk).push_back(module_z);  
     }
     
     for (const ToolHandle<RD53BEncodingTool>& encodingTool : encondingTools) {
@@ -99,7 +99,7 @@ StatusCode RD53BEncodingAlg::initializeStreams(const ToolHandleArray< RD53BEncod
     } 
     
   }
-    
+  
   for (const ToolHandle<RD53BEncodingTool>& encodingTool : encondingTools) {
     // when booking the histograms, you pass as well the module position
     // it is then stored in the tools and is used to bin the histograms accordingly
