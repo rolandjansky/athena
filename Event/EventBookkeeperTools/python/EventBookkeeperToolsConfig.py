@@ -27,7 +27,7 @@ def CutFlowSvcCfg(flags):
     # Determine current input stream name
     # inputStreamName = GetCurrentStreamName( msg=msg )
 
-    acc.addService(CompFactory.CutFlowSvc())
+    acc.addService(CompFactory.CutFlowSvc(Configured=True))
     # svcMgr.CutFlowSvc.InputStream   = inputStreamName
 
     acc.merge(BookkeeperToolCfg(flags))

@@ -33,6 +33,12 @@ CutFlowSvc::initialize()
 {
   ATH_MSG_DEBUG( "Initializing " << name() );
 
+  // Only run if explicitly configured
+  if (m_configured.value() == false) {
+    ATH_MSG_ERROR("CutFlowSvc should be explicitly configured!");
+    return StatusCode::FAILURE;
+  }
+
   //Get input MetaData StoreGate
   ATH_CHECK( m_inMetaDataStore.retrieve() );
 
