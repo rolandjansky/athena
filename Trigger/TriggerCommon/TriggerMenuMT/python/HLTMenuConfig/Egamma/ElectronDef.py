@@ -11,7 +11,7 @@ from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import fastCa
 from TriggerMenuMT.HLTMenuConfig.Egamma.ElectronSequenceSetup import fastElectronMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuSequence
 from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionElectronSequenceSetup import precisionElectronMenuSequence
-from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionEtcutSequenceSetup import precisionTrackingMenuSequence
+from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionTrackingSequenceSetup import precisionTrackingMenuSequence
 
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
 #----------------------------------------------------------------
