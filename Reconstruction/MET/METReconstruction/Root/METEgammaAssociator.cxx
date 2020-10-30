@@ -88,8 +88,8 @@ namespace met {
   //**********************************************************************
   // Get Egamma constituents
   StatusCode METEgammaAssociator::extractTopoClusters(const xAOD::IParticle* obj,
-						      std::vector<const xAOD::IParticle*>& tclist,
-						      const met::METAssociator::ConstitHolder& constits) const
+                                                      std::vector<const xAOD::IParticle*>& tclist,
+                                                      const met::METAssociator::ConstitHolder& constits) const
   {
     const Egamma *eg = static_cast<const Egamma*>(obj);
     // safe to assume a single SW cluster?
@@ -104,11 +104,11 @@ namespace met {
     
     if(m_tcMatch_method==DeltaR) {
       for(const auto& cl : *constits.tcCont) {
-	// this can probably be done more elegantly
-	if(P4Helpers::isInDeltaR(*swclus,*cl,m_tcMatch_dR,m_useRapidity) && cl->e()>FLT_MIN) {
-	  // could consider also requirements on the EM fraction or depth
-	  inputTC.push_back(cl);
-	} // match TC in a cone around SW cluster
+        // this can probably be done more elegantly
+        if(P4Helpers::isInDeltaR(*swclus,*cl,m_tcMatch_dR,m_useRapidity) && cl->e()>FLT_MIN) {
+          // could consider also requirements on the EM fraction or depth
+          inputTC.push_back(cl);
+        } // match TC in a cone around SW cluster
       }
       ATH_MSG_VERBOSE("Found " << inputTC.size() << " nearby topoclusters");
       std::sort(inputTC.begin(),inputTC.end(),greaterPt);
@@ -116,7 +116,7 @@ namespace met {
       static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
       // Fill a vector of vectors
       for(const auto& el : tcLinkAcc(*swclus)) {
-	inputTC.push_back(*el);
+        inputTC.push_back(*el);
       }
       ATH_MSG_VERBOSE("Found " << inputTC.size() << " linked topoclusters");
     } else {
@@ -131,24 +131,24 @@ namespace met {
 
 
   StatusCode METEgammaAssociator::extractTracks(const xAOD::IParticle* obj,
-						std::vector<const xAOD::IParticle*>& constlist,
-						const met::METAssociator::ConstitHolder& constits) const
+                                                std::vector<const xAOD::IParticle*>& constlist,
+                                                const met::METAssociator::ConstitHolder& constits) const
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
     std::set<const xAOD::TrackParticle*> trackset; // use a set for duplicate-free retrieval
     ATH_CHECK( selectEgammaTracks(eg, constits.trkCont, trackset) );
     for(const auto& track : trackset) {
       if(acceptTrack(track,constits.pv) && isGoodEoverP(track)) {
-	constlist.push_back(track);
+        constlist.push_back(track);
       }
     }
     return StatusCode::SUCCESS;
   }
 
   StatusCode METEgammaAssociator::extractPFO(const xAOD::IParticle* obj,
-					     std::vector<const xAOD::IParticle*>& pfolist,
-					     const met::METAssociator::ConstitHolder& constits,
-					     std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
+                                             std::vector<const xAOD::IParticle*>& pfolist,
+                                             const met::METAssociator::ConstitHolder& constits,
+                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
     // safe to assume a single SW cluster?
@@ -160,15 +160,15 @@ namespace met {
     nearbyPFO.reserve(20);
     for(const auto& pfo : *constits.pfoCont) {
       if(P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, m_useRapidity)) {
-	// We set a small -ve pt for cPFOs that were rejected
-	// by the ChargedHadronSubtractionTool
-	const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");	
-	if( ( !pfo->isCharged() && pfo->e() > FLT_MIN ) ||
-	    ( pfo->isCharged() && PVMatchedAcc(*pfo)
-	      && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) )
-	    ) {
-	  nearbyPFO.push_back(pfo);
-	} // retain +ve E neutral PFOs and charged PFOs passing PV association
+        // We set a small -ve pt for cPFOs that were rejected
+        // by the ChargedHadronSubtractionTool
+        const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
+        if( ( !pfo->isCharged() && pfo->e() > FLT_MIN ) ||
+            ( pfo->isCharged() && PVMatchedAcc(*pfo)
+              && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) )
+            ) {
+          nearbyPFO.push_back(pfo);
+        } // retain +ve E neutral PFOs and charged PFOs passing PV association
       } // DeltaR check
     } // PFO loop
     ATH_MSG_VERBOSE("Found " << nearbyPFO.size() << " nearby pfos");
@@ -177,9 +177,9 @@ namespace met {
     ATH_CHECK( selectEgammaTracks(eg, constits.trkCont, trackset) );
     for(const auto& track : trackset) {
       for(const auto& pfo : nearbyPFO) {
-	if(pfo->isCharged() && pfo->track(0) == track) {
-	  pfolist.push_back(pfo);
-	} // PFO/track match
+        if(pfo->isCharged() && pfo->track(0) == track) {
+          pfolist.push_back(pfo);
+        } // PFO/track match
       } // PFO loop
     } // Track loop
     double eg_cl_e = swclus->e();
@@ -200,24 +200,107 @@ namespace met {
       // skip cluster if it's above our bad match threshold or outside the matching radius
       if(pfo_e>m_tcMatch_maxRat*eg_cl_e) {
         ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (pfo_e/eg_cl_e));
-    	if( !bestbadmatch || (fabs(pfo_e/eg_cl_e-1.) < fabs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = pfo;
-	continue;
+            if( !bestbadmatch || (fabs(pfo_e/eg_cl_e-1.) < fabs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = pfo;
+        continue;
       }
 
       ATH_MSG_VERBOSE("E match with new nPFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
       if( (doSum = fabs(sumE_pfo+pfo_e-eg_cl_e) < fabs(sumE_pfo - eg_cl_e)) ) {
-	pfolist.push_back(pfo);
-	sumE_pfo += pfo_e;
-    	ATH_MSG_VERBOSE("Accept pfo with pt " << pfo->pt() << ", e " << pfo->e() << " in sum.");
-    	ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << pfo_e / eg_cl_e);
-    	ATH_MSG_VERBOSE("E match with new PFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
+        pfolist.push_back(pfo);
+        sumE_pfo += pfo_e;
+            ATH_MSG_VERBOSE("Accept pfo with pt " << pfo->pt() << ", e " << pfo->e() << " in sum.");
+            ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << pfo_e / eg_cl_e);
+            ATH_MSG_VERBOSE("E match with new PFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
       } // if we will retain the topocluster
       else {break;}
     } // loop over nearby clusters
     if(sumE_pfo<FLT_MIN && bestbadmatch) {
       ATH_MSG_VERBOSE("No better matches found -- add bad match topocluster with pt "
-    		      << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
+                          << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
       pfolist.push_back(bestbadmatch);
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode METEgammaAssociator::extractFE(const xAOD::IParticle* obj,
+                                            std::vector<const xAOD::IParticle*>& felist,
+                                            const met::METAssociator::ConstitHolder& constits,
+                                            std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
+  {
+    const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
+    // safe to assume a single SW cluster?
+    // will do so for now...
+    const xAOD::IParticle* swclus = eg->caloCluster();
+
+    // Preselect PFOs based on proximity: dR<0.4
+    std::vector<const xAOD::FlowElement*> nearbyFE;
+    nearbyFE.reserve(20);
+    for(const xAOD::FlowElement* fe : *constits.feCont) {
+      if(!(fe->signalType() & xAOD::FlowElement::PFlow)){
+        ATH_MSG_ERROR("Attempted to extract non-PFlow FlowElements. This is not supported!");
+        return StatusCode::FAILURE;
+      }
+      if(P4Helpers::isInDeltaR(*fe, *swclus, 0.4, m_useRapidity)) {
+        // We set a small -ve pt for cPFOs that were rejected
+        // by the ChargedHadronSubtractionTool
+        const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
+        if( ( !fe->isCharged() && fe->e() > FLT_MIN ) ||
+            ( fe->isCharged() && PVMatchedAcc(*fe)
+              && ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) )
+            ) {
+          nearbyFE.push_back(fe);
+        } // retain +ve E neutral PFOs and charged PFOs passing PV association
+      } // DeltaR check
+    } // PFO loop
+    ATH_MSG_VERBOSE("Found " << nearbyFE.size() << " nearby FlowElements (PFOs)");
+
+    std::set<const xAOD::TrackParticle*> trackset; // use a set for duplicate-free retrieval
+    ATH_CHECK( selectEgammaTracks(eg, constits.trkCont, trackset) );
+    for(const xAOD::TrackParticle* track : trackset) {
+      for(const xAOD::FlowElement* fe : nearbyFE) {
+        if(fe->isCharged() && fe->chargedObject(0) == track) {
+          felist.push_back(fe);
+        } // PFO/track match
+      } // PFO loop
+    } // Track loop
+    double eg_cl_e = swclus->e();
+
+    // the matching strategy depends on how the cluster container is sorted
+    // easier if it's sorted in descending pt order
+    // ideally this should be done using cell matching, but we can't use the links from topoclusters reliably
+    // because some PFOs don't correspond to the original TC
+    bool doSum = true;
+    double sumE_pfo = 0.;
+    const IParticle* bestbadmatch = 0;
+    std::sort(nearbyFE.begin(),nearbyFE.end(),greaterPtFE);
+    for(const xAOD::FlowElement* fe : nearbyFE) {
+      // Skip charged PFOs, as we already matched them
+      if(fe->isCharged() || !P4Helpers::isInDeltaR(*fe, *swclus, m_tcMatch_dR, m_useRapidity)) continue;
+      // Handle neutral PFOs like topoclusters
+      // TODO: Use EM-scale energy here in the future? No way to access from FlowElement in general.
+      double pfo_e = fe->e();
+      // skip cluster if it's above our bad match threshold or outside the matching radius
+      if(pfo_e > m_tcMatch_maxRat*eg_cl_e) {
+        ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (pfo_e/eg_cl_e));
+        if( !bestbadmatch || (fabs(pfo_e/eg_cl_e-1.) < fabs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = fe;
+        continue;
+      }
+
+      ATH_MSG_VERBOSE("E match with new nPFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
+      if( (doSum = fabs(sumE_pfo+pfo_e-eg_cl_e) < fabs(sumE_pfo - eg_cl_e)) ) {
+        felist.push_back(fe);
+        sumE_pfo += pfo_e;
+        ATH_MSG_VERBOSE("Accept pfo with pt " << fe->pt() << ", e " << fe->e() << " in sum.");
+        ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << pfo_e / eg_cl_e);
+        ATH_MSG_VERBOSE("E match with new PFO: " << fabs(sumE_pfo+pfo_e - eg_cl_e) / eg_cl_e);
+      } // if we will retain the topocluster
+      else break;
+    } // loop over nearby clusters
+    if(sumE_pfo<FLT_MIN && bestbadmatch) {
+      ATH_MSG_VERBOSE("No better matches found -- add bad match topocluster with pt "
+                          << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
+      felist.push_back(bestbadmatch);
     }
 
     return StatusCode::SUCCESS;
@@ -227,8 +310,8 @@ namespace met {
   // Select Egamma tracks & clusters
 
   StatusCode METEgammaAssociator::selectEgammaClusters(const xAOD::CaloCluster* swclus,
-						       const std::vector<const IParticle*>& inputTC,
-						       std::vector<const xAOD::IParticle*>& tclist) const
+                                                       const std::vector<const IParticle*>& inputTC,
+                                                       std::vector<const xAOD::IParticle*>& tclist) const
   {    
     double eg_cl_e = swclus->e();
 
@@ -240,38 +323,38 @@ namespace met {
       // skip cluster if it's above our bad match threshold
       // retain pointer of the closest matching cluster in case no better is found
       if(tcl_e>m_tcMatch_maxRat*eg_cl_e) {
-    	ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (tcl_e/eg_cl_e));
-    	if( !bestbadmatch || (fabs(tcl_e/eg_cl_e-1.) < fabs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = cl;
-    	continue;
+            ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (tcl_e/eg_cl_e));
+            if( !bestbadmatch || (fabs(tcl_e/eg_cl_e-1.) < fabs(bestbadmatch->e()/eg_cl_e-1.)) ) bestbadmatch = cl;
+            continue;
       }
 
       ATH_MSG_VERBOSE("E match with new cluster: " << fabs(sumE_tc+tcl_e - eg_cl_e) / eg_cl_e);
       if( (doSum = (fabs(sumE_tc+tcl_e - eg_cl_e) < fabs(sumE_tc - eg_cl_e))) ) {
-    	ATH_MSG_VERBOSE("Accept topocluster with pt " << cl->pt() << ", e " << cl->e() << " in sum.");
-    	ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << tcl_e / eg_cl_e);
-    	ATH_MSG_VERBOSE("E match with new cluster: " << fabs(sumE_tc+tcl_e - eg_cl_e) / eg_cl_e);
-    	tclist.push_back(cl);
-    	sumE_tc += tcl_e;
+            ATH_MSG_VERBOSE("Accept topocluster with pt " << cl->pt() << ", e " << cl->e() << " in sum.");
+            ATH_MSG_VERBOSE("Energy ratio of nPFO to eg: " << tcl_e / eg_cl_e);
+            ATH_MSG_VERBOSE("E match with new cluster: " << fabs(sumE_tc+tcl_e - eg_cl_e) / eg_cl_e);
+            tclist.push_back(cl);
+            sumE_tc += tcl_e;
       } // if we will retain the topocluster
     } // loop over nearby clusters
     if(sumE_tc<FLT_MIN && bestbadmatch) {
       ATH_MSG_VERBOSE("No better matches found -- add bad match topocluster with pt "
-    		      << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
+                          << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
       tclist.push_back(bestbadmatch);
     }
     return StatusCode::SUCCESS;
   }
 
   StatusCode METEgammaAssociator::selectEgammaTracks(const xAOD::Egamma* eg,
-						     const xAOD::TrackParticleContainer* trkCont,
-						     std::set<const xAOD::TrackParticle*>& tracklist) const
+                                                     const xAOD::TrackParticleContainer* trkCont,
+                                                     std::set<const xAOD::TrackParticle*>& tracklist) const
   {
     // switch to using egamma helpers for track extraction
     // set ensures that there's no duplication
     const std::set<const xAOD::TrackParticle*> egtracks = EgammaHelpers::getTrackParticles(eg);
     for(const auto& track : egtracks) {
-	ATH_MSG_VERBOSE("Accept " << eg->type() << " track " << track << " px, py = " << track->p4().Px() << ", " << track->p4().Py());
-	tracklist.insert(track);
+        ATH_MSG_VERBOSE("Accept " << eg->type() << " track " << track << " px, py = " << track->p4().Px() << ", " << track->p4().Py());
+        tracklist.insert(track);
     } // end initial egamma track loop
 
     // for objects with ambiguous author, grab the tracks matched to the counterpart ambiguous object too
@@ -279,44 +362,44 @@ namespace met {
     if (eg->author() & xAOD::EgammaParameters::AuthorAmbiguous && eg->ambiguousObject()) {
       const std::set<const xAOD::TrackParticle*> ambitracks = EgammaHelpers::getTrackParticles(eg->ambiguousObject());
       for(const auto& track : egtracks) {
-	ATH_MSG_VERBOSE("Accept ambiguous " << eg->type() << " track " << track << " px, py = " << track->p4().Px() << ", " << track->p4().Py());
-	tracklist.insert(track);
+        ATH_MSG_VERBOSE("Accept ambiguous " << eg->type() << " track " << track << " px, py = " << track->p4().Px() << ", " << track->p4().Py());
+        tracklist.insert(track);
       }
     } // end ambiguous track case
 
     // in a small dR window, also accept tracks without an IBL hit
     for(const auto& track : *trkCont) {
       if(P4Helpers::isInDeltaR(*track, *eg, m_extraTrkMatch_dR, m_useRapidity)) {
-	// dR check should be faster than track summary retrieval
-	uint8_t expect_innermostHit(false);
-	uint8_t N_innermostHit(false);
-	uint8_t expect_nextToInnermostHit(false);
-	uint8_t N_nextToInnermostHit(false);
-	if( !track->summaryValue(expect_innermostHit, expectInnermostPixelLayerHit)
-	    || !track->summaryValue(expect_nextToInnermostHit, expectNextToInnermostPixelLayerHit)) {
-	  ATH_MSG_WARNING("Track summary retrieval failed for 'expect(NextTo)InnermostPixelLayerHit'");
-	  return StatusCode::FAILURE;
-	}
-	if(expect_innermostHit) {
-	  if( !track->summaryValue(N_innermostHit, numberOfInnermostPixelLayerHits) ) {
-	    ATH_MSG_WARNING("Track summary retrieval failed for 'numberOfInnermostPixelLayerHits'");
-	    return StatusCode::FAILURE;
-	    if(N_innermostHit==0 ) {
-	      ATH_MSG_VERBOSE("Accept nearby track w/o innermost hit");
-	      tracklist.insert(track);
-	    }
-	  }
-	} else if(expect_nextToInnermostHit) {
-	  if( !track->summaryValue(N_nextToInnermostHit, numberOfNextToInnermostPixelLayerHits) ) {
-	    ATH_MSG_WARNING("Track summary retrieval failed for 'numberOfNextToInnermostPixelLayerHits'");
-	    return StatusCode::FAILURE;
-	    if(N_nextToInnermostHit==0 ) {
-	      ATH_MSG_VERBOSE("Accept nearby track w/o next-to-innermost hit");
-	      tracklist.insert(track);
-	    }
-	  }
-	}
-	
+        // dR check should be faster than track summary retrieval
+        uint8_t expect_innermostHit(false);
+        uint8_t N_innermostHit(false);
+        uint8_t expect_nextToInnermostHit(false);
+        uint8_t N_nextToInnermostHit(false);
+        if( !track->summaryValue(expect_innermostHit, expectInnermostPixelLayerHit)
+            || !track->summaryValue(expect_nextToInnermostHit, expectNextToInnermostPixelLayerHit)) {
+          ATH_MSG_WARNING("Track summary retrieval failed for 'expect(NextTo)InnermostPixelLayerHit'");
+          return StatusCode::FAILURE;
+        }
+        if(expect_innermostHit) {
+          if( !track->summaryValue(N_innermostHit, numberOfInnermostPixelLayerHits) ) {
+            ATH_MSG_WARNING("Track summary retrieval failed for 'numberOfInnermostPixelLayerHits'");
+            return StatusCode::FAILURE;
+            if(N_innermostHit==0 ) {
+              ATH_MSG_VERBOSE("Accept nearby track w/o innermost hit");
+              tracklist.insert(track);
+            }
+          }
+        } else if(expect_nextToInnermostHit) {
+          if( !track->summaryValue(N_nextToInnermostHit, numberOfNextToInnermostPixelLayerHits) ) {
+            ATH_MSG_WARNING("Track summary retrieval failed for 'numberOfNextToInnermostPixelLayerHits'");
+            return StatusCode::FAILURE;
+            if(N_nextToInnermostHit==0 ) {
+              ATH_MSG_VERBOSE("Accept nearby track w/o next-to-innermost hit");
+              tracklist.insert(track);
+            }
+          }
+        }
+        
       } // end dR check
     } // end extra track loop
     return StatusCode::SUCCESS;
