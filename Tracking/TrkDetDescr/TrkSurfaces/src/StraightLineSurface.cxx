@@ -22,49 +22,49 @@ const Trk::NoBounds Trk::StraightLineSurface::s_boundless;
 // default constructor
 Trk::StraightLineSurface::StraightLineSurface()
   : Surface()
-  , m_lineDirection(nullptr)
+  , m_lineDirection{}
   , m_bounds()
 {}
 
 // constructors by arguments: boundless surface
 Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans)
   : Surface(htrans)
-  , m_lineDirection(nullptr)
+  , m_lineDirection{}
   , m_bounds()
 {}
 
 // constructors by arguments: boundless surface
 Trk::StraightLineSurface::StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans)
   : Surface(std::move(htrans))
-  , m_lineDirection(nullptr)
+  , m_lineDirection{}
   , m_bounds()
 {}
 
 // constructors by arguments
 Trk::StraightLineSurface::StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez)
   : Surface(htrans)
-  , m_lineDirection(nullptr)
+  , m_lineDirection{}
   , m_bounds(new Trk::CylinderBounds(radius, halez))
 {}
 
 // dummy implementation
 Trk::StraightLineSurface::StraightLineSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id)
   : Surface(detelement, id)
-  , m_lineDirection(nullptr)
+  , m_lineDirection{}
   , m_bounds()
 {}
 
 // copy constructor
 Trk::StraightLineSurface::StraightLineSurface(const Trk::StraightLineSurface& slsf)
   : Surface(slsf)
-  , m_lineDirection(nullptr)
+  , m_lineDirection{}
   , m_bounds(slsf.m_bounds)
 {}
 
 // copy constructor with shift
 Trk::StraightLineSurface::StraightLineSurface(const StraightLineSurface& csf, const Amg::Transform3D& transf)
   : Surface(csf, transf)
-  , m_lineDirection(nullptr)
+  , m_lineDirection{}
   , m_bounds(csf.m_bounds)
 {}
 
@@ -74,8 +74,8 @@ Trk::StraightLineSurface&
 Trk::StraightLineSurface::operator=(const Trk::StraightLineSurface& slsf)
 {
   if (this != &slsf) {
-    m_lineDirection.store(nullptr);
     Trk::Surface::operator=(slsf);
+    m_lineDirection=slsf.m_lineDirection;
     m_bounds = slsf.m_bounds;
   }
   return *this;
@@ -245,9 +245,9 @@ Trk::StraightLineSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,
   double dist = dxyz.dot(dxyz) - Lz * Lz;
   dist = (dist > Rm * Rm) ? sqrt(dist) - Rm : 0.;
   double dL = fabs(Lz) - Lzm;
-  if (dL > 0.)
+  if (dL > 0.){
     dist = sqrt(dist * dist + dL * dL);
-
+  }
   return Trk::DistanceSolution(1, dist, false, s);
 }
 

@@ -17,6 +17,7 @@
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/CachedValue.h"
 
 class MsgStream;
 
@@ -267,7 +268,7 @@ public:
 protected:
   //!< data members
   //!< cache of the line direction (speeds up)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_lineDirection;
+  CxxUtils::CachedValue<Amg::Vector3D> m_lineDirection;
   static const NoBounds s_perigeeBounds;
 };
 
