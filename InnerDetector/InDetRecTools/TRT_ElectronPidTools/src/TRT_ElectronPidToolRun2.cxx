@@ -135,15 +135,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::finalize()
 std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const Trk::Track& track)
 {
   // Simply return values without calculation
-  std::vector<float> PIDvalues(Trk::numberOfeProbabilityTypes);
-  PIDvalues[Trk::eProbabilityComb] = 0.5;
-  PIDvalues[Trk::eProbabilityHT] = 0.5;
-  PIDvalues[Trk::eProbabilityToT] = 0.5;
-  PIDvalues[Trk::eProbabilityBrem] = 0.5;
-  PIDvalues[Trk::eProbabilityNN] = 0.5;
-  PIDvalues[Trk::TRTTrackOccupancy] = 0.0;
-  PIDvalues[Trk::TRTdEdx] = 0.0;
-  PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] = 0.0;
+  std::vector<float> PIDvalues = defaultElectronProbability();
   const Trk::TrackParameters* perigee = track.perigeeParameters();
   if (!perigee) { return PIDvalues; }
   return PIDvalues;
@@ -175,15 +167,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
  }
 
   // Initialize the vector with default PID values
-  std::vector<float> PIDvalues(Trk::numberOfeProbabilityTypes);
-  PIDvalues[Trk::eProbabilityComb] = 0.5;
-  PIDvalues[Trk::eProbabilityHT] = 0.5;
-  PIDvalues[Trk::eProbabilityToT] = 0.5;
-  PIDvalues[Trk::eProbabilityBrem] = 0.5;
-  PIDvalues[Trk::eProbabilityNN] = 0.5;
-  PIDvalues[Trk::TRTTrackOccupancy] = 0.0;
-  PIDvalues[Trk::TRTdEdx] = 0.0;
-  PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] = 0.0;
+  std::vector<float> PIDvalues = defaultElectronProbability();
 
   // Check for perigee:
   const Trk::TrackParameters* perigee = track.perigeeParameters();

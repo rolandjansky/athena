@@ -4,6 +4,7 @@
 
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
@@ -191,7 +192,7 @@ information.resize(std::min(information.size(),
                             static_cast<size_t>(numberOfTrackSummaryTypes)));
 
 // Troels.Petersen@cern.ch:
-std::vector<float> eProbability(Trk::numberOfeProbabilityTypes, 0.5);
+std::vector<float> eProbability = ITRT_ElectronPidTool::defaultElectronProbability();
 
   float dedx = -1;
   int nhitsuseddedx = -1;
@@ -339,7 +340,7 @@ void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::
 
 void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, TrackSummary &summary, bool initialise_to_zero) const
 {
-  std::vector<float> eProbability(Trk::numberOfeProbabilityTypes, 0.5);
+  std::vector<float> eProbability = ITRT_ElectronPidTool::defaultElectronProbability();
   if (!m_eProbabilityTool.empty()) {
     eProbability = m_eProbabilityTool->electronProbability(track);
     int nHits = eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx];
