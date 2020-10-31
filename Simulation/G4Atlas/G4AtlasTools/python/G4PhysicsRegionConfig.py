@@ -32,7 +32,7 @@ def getBeampipeFwdCutPhysicsRegionTool(name='BeampipeFwdCutPhysicsRegionTool', *
 
 def getFWDBeamLinePhysicsRegionTool(name='FWDBeamLinePhysicsRegionTool', **kwargs):
     kwargs.setdefault("RegionName", 'FWDBeamLine')
-    volumeList = ['BeamPipe::SectionF46']
+    volumeList = ['BeamPipe::SectionF197']
     kwargs.setdefault("VolumeList",  volumeList)
     return CfgMgr.RegionCreator(name, **kwargs)
 
