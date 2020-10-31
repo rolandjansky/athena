@@ -17,9 +17,16 @@
 #include "boost/property_tree/exceptions.hpp"
 
 double InDet::TRTPIDNN::evaluate(std::map<std::string, std::map<std::string, double>>& scalarInputs,
-        std::map<std::string, std::map<std::string, std::vector<double>>>& vectorInputs) const {
-  const auto result = m_nn->compute(scalarInputs, vectorInputs);
-  return result.at("e_prob_0");
+        std::map<std::string, std::map<std::string, std::vector<double>>>& vectorInputs,
+        const std::string& outputNode, const std::string& outputLabel) const {
+  MsgStream log(Athena::getMessageSvc(),"TRTPIDNN");
+  const auto result = m_nn->compute(scalarInputs, vectorInputs, outputNode);
+  const auto itResult = result.find(outputLabel);
+  if (itResult == result.end()) {
+    log << MSG::ERROR << " unable to find output: node=" << outputNode << ", label=" << outputLabel << endmsg;
+    return 0.5;
+  }
+  return itResult->second;
 }
 
 StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
@@ -39,6 +46,14 @@ StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
     return StatusCode::FAILURE;
   }
 
+  // set the default output node name
+  if (m_nnConfig.outputs.empty() or m_nnConfig.outputs.begin()->second.labels.empty()) {
+    log << MSG::ERROR << " unable to define NN output." << endmsg;
+    return StatusCode::FAILURE;
+  }
+  m_outputNode = m_nnConfig.outputs.begin()->first;
+  m_outputLabel = *(m_nnConfig.outputs[m_outputNode].labels.begin());
+
   // store templates of the structure of the inputs to the NN
   m_scalarInputs.clear();
   for (auto input : m_nnConfig.inputs) {
@@ -47,7 +62,6 @@ StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
       m_scalarInputs[input.name][variable.name] = input.defaults[variable.name];
     }
   }
-
   m_vectorInputs.clear();
   for (auto input : m_nnConfig.input_sequences) {
     m_vectorInputs[input.name] = {};
@@ -55,7 +69,6 @@ StatusCode InDet::TRTPIDNN::configure(const std::string& json) {
       m_vectorInputs[input.name][variable.name] = {};
     }
   }
-
 
   return StatusCode::SUCCESS;
 }

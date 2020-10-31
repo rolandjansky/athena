@@ -87,9 +87,8 @@ createEProbabilityMap(std::map<std::string, std::pair<Trk::eProbabilityType, boo
   eprob_map.insert(std::make_pair("eProbabilityToT", std::make_pair(Trk::eProbabilityToT, true)));
   eprob_map.insert(std::make_pair("eProbabilityBrem", std::make_pair(Trk::eProbabilityBrem, true)));
   eprob_map.insert(std::make_pair("eProbabilityNN", std::make_pair(Trk::eProbabilityNN, true)));
-  eprob_map.insert(std::make_pair("TRTTrackOccupancy", std::make_pair(Trk::numberOfeProbabilityTypes, true)));
-  eprob_map.insert(std::make_pair(
-    "TRTdEdx", std::make_pair(static_cast<Trk::eProbabilityType>(Trk::numberOfeProbabilityTypes + 1), true)));
+  eprob_map.insert(std::make_pair("TRTdEdx", std::make_pair(Trk::TRTdEdx, true)));
+  eprob_map.insert(std::make_pair("TRTTrackOccupancy", std::make_pair(Trk::TRTTrackOccupancy, true)));
 }
 
 void

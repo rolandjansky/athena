@@ -1252,6 +1252,11 @@ double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface*
   const InDetDD::TRT_BaseElement* element = driftcircle->detectorElement();
   double strawphi = element->center(DCId).phi();
 
+  // check if track is an outlier
+  if (Trt_Rtrack >= 2.0) {
+    return 0.;
+  }
+
   double length=0;
   if (HitPart == 1) { //Barrel
     length = 2*std::sqrt(4-Trt_Rtrack*Trt_Rtrack)*1./std::abs(std::sin(Trt_HitTheta));
