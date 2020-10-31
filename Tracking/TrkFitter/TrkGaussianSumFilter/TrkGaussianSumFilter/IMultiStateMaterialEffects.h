@@ -40,10 +40,10 @@ public:
   {
     std::array<double, GSFConstants::maxNumberofBHComponents> weights = {};
     std::array<double, GSFConstants::maxNumberofBHComponents> deltaPs = {};
-    alignas(32)
+    alignas(GSFConstants::alignment)
       std::array<AmgVector(5),
                  GSFConstants::maxNumberofBHComponents> deltaParameters = {};
-    alignas(32)
+    alignas(GSFConstants::alignment)
       std::array<AmgSymMatrix(5),
                  GSFConstants::maxNumberofBHComponents> deltaCovariances = {};
 
