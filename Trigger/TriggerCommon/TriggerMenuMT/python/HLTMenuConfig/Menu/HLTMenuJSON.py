@@ -95,6 +95,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
 
         # Find L1 Threshold information for current chain
         l1Thresholds  = []
+        
         [ l1Thresholds.append(p['L1threshold']) for p in chain['chainParts'] ]
 
         # Now have all information to write the chain to the menu dictionary

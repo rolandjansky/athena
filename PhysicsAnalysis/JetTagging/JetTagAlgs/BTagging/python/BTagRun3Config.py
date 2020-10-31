@@ -273,11 +273,6 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
         ]
     }
 
-    if jet in postTagDL2JetToTrainingMap:
-        #Remove DL1 and RNNIP from taggers list, those taggers are run with HighLevelBTagAlg
-        TaggerList.remove('RNNIP')
-        TaggerList.remove('DL1')
-
     #Track Association
     TrackToJetAssociators = list(set(SecVertexingAndAssociators.values()))
 

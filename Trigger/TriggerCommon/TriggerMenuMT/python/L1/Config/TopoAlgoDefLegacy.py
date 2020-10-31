@@ -79,8 +79,7 @@ class TopoAlgoDefLegacy:
         alg.addvariable('IsoMask', 0)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax) 
-        alg.addgeneric('DoIsoCut', '0')
-        #alg.addgeneric('DoEtaCut', '1')
+        alg.addgeneric('DoIsoCut', 0)
         tm.registerTopoAlgo(alg) 
 
         
@@ -91,8 +90,7 @@ class TopoAlgoDefLegacy:
         alg.addvariable('IsoMask', 3) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
-        alg.addgeneric('DoIsoCut', '1')
-        #alg.addgeneric('DoEtaCut', '1')
+        alg.addgeneric('DoIsoCut', 1)
         tm.registerTopoAlgo(alg)
 
 
@@ -103,8 +101,7 @@ class TopoAlgoDefLegacy:
         alg.addvariable('IsoMask', 2) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
-        alg.addgeneric('DoIsoCut', '1')
-        #alg.addgeneric('DoEtaCut', '1')
+        alg.addgeneric('DoIsoCut', 1)
         tm.registerTopoAlgo(alg)
 
         
@@ -595,7 +592,7 @@ class TopoAlgoDefLegacy:
             alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.OutputWidthSortEM)
-            alg.addgeneric('MaxTob', str(d.nleading))
+            alg.addgeneric('MaxTob', d.nleading)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET1', str(d.ocut))
             alg.addvariable('MinET2', 0)
@@ -1177,7 +1174,7 @@ class TopoAlgoDefLegacy:
             alg = AlgConf.TransverseMassInclusive1( name = toponame, inputs = [ inputList, 'XE'], outputs = [ toponame ], algoId = currentAlgoId )
             currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.OutputWidthSortEM)
-            alg.addgeneric('MaxTob', str(d.nleading))
+            alg.addgeneric('MaxTob', d.nleading)
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET1', str(d.ocut))
             alg.addvariable('MinET2', 0)

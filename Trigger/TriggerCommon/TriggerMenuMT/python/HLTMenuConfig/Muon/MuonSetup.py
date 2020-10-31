@@ -347,29 +347,26 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   muFastRecoSequence = parOR("l2Mu"+postFix+"ViewNode")
 
   # In insideout mode, need to inherit muon decoding objects for TGC, RPC, MDT, CSC
+  import AthenaCommon.CfgMgr as CfgMgr
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastRecoVDV"+postFix)
   if InsideOutMode:
-    import AthenaCommon.CfgMgr as CfgMgr
-    ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastIOmodeViewDataVerifier")
     ViewVerify.DataObjects = [('Muon::TgcPrepDataContainer','StoreGateSvc+TGC_Measurements'),
                               ('TgcRdoContainer' , 'StoreGateSvc+TGCRDO'),
                               ('Muon::RpcPrepDataContainer','StoreGateSvc+RPC_Measurements'),
-                              ('Muon::MdtPrepDataContainer','StoreGateSvc+MDT_DriftCircles'),
-                              ('TrigRoiDescriptorCollection','StoreGateSvc+MURoIs')]
+                              ('Muon::MdtPrepDataContainer','StoreGateSvc+MDT_DriftCircles')]
     if MuonGeometryFlags.hasCSC():
       ViewVerify.DataObjects += [('Muon::CscPrepDataContainer','StoreGateSvc+CSC_Clusters')]
     if MuonGeometryFlags.hasSTGC():
       ViewVerify.DataObjects += [('Muon::sTgcPrepDataContainer','StoreGateSvc+STGC_Measurements')]
     if MuonGeometryFlags.hasMM():
       ViewVerify.DataObjects += [('Muon::MMPrepDataContainer','StoreGateSvc+MM_Measurements')]
-    muFastRecoSequence+=ViewVerify
+    #muFastRecoSequence+=ViewVerify
+  else:
+    ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
+  ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                             ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
 
-  import AthenaCommon.CfgMgr as CfgMgr
-  muFastRecoVDV = CfgMgr.AthViews__ViewDataVerifier("muFastRecoVDV")
-  muFastRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs ),
-                               ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                               ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
-
-  muFastRecoSequence += muFastRecoVDV
+  muFastRecoSequence += ViewVerify
 
   if MuonGeometryFlags.hasCSC():
     # Configure the L2 CSC data preparator - we can turn off the data decoding here
@@ -480,7 +477,9 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   muFastAlg.FILL_FSIDRoI = doFullScanID
   muFastAlg.InsideOutMode = InsideOutMode
   muFastAlg.TrackParticlesContainerName = TrackParticlesName
-
+  #Do not run topo road and inside-out mode at the same time
+  if InsideOutMode:
+    muFastAlg.topoRoad = False
   muFastRecoSequence += muFastAlg
   sequenceOut = muFastAlg.MuonL2SAInfo
 

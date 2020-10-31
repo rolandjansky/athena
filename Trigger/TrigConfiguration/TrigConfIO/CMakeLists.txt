@@ -5,6 +5,7 @@ atlas_subdir( TrigConfIO )
 
 # External dependencies:
 find_package( Boost )
+find_package( nlohmann_json )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 
 # Component(s) in the package:
@@ -14,7 +15,7 @@ atlas_add_library( TrigConfIO
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
   PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   LINK_LIBRARIES TrigConfData TrigConfBase
-  PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} -lstdc++fs
+  PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} nlohmann_json::nlohmann_json -lstdc++fs
   )
 
 atlas_add_library( TrigConfIOSA
@@ -24,7 +25,7 @@ atlas_add_library( TrigConfIOSA
   PRIVATE_INCLUDE_DIRS ${CORAL_INCLUDE_DIRS}
   LINK_LIBRARIES TrigConfDataSA TrigConfBase
   DEFINITIONS -DTRIGCONF_STANDALONE
-  PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} -lstdc++fs
+  PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} nlohmann_json::nlohmann_json -lstdc++fs
   )
 
 atlas_add_executable( TestTriggerMenuAccess utils/TestTriggerMenuAccess.cxx 

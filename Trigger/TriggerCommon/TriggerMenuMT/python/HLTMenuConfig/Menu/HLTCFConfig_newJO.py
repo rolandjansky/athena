@@ -4,7 +4,7 @@ from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqAND, isSequence
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInLegs
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import (isComboHypoAlg,
                                                              isFilterAlg,
                                                              isHypoAlg,
@@ -380,8 +380,8 @@ def generateDecisionTree(chains):
                     hypoAlg.HypoTools.append( step.sequences[sequenceCounter]._hypoToolConf.confAndCreate( chainDict ) )
                 pass
 
-            chainDictLegs = splitChainInDict( chain.name )
-            # possible cases: A) number of seqeunces == number of chain parts, e5_mu10 or just e3 type of chain
+            chainDictLegs = splitChainInLegs( chain.name )
+            # possible cases: A) number of seqeunces == number of chain parts, e5_mu10 or just e3 type of chain 
             # ([0, 1], [0, 1]) is the set of indices
             indices = zip( range( len( step.sequences ) ), range( len( chainDictLegs ) ) )# case A
             # B) number of sequences == 1 && number of chain parts > 1 for single signature assymetric combined chains e5_e3 type chain
@@ -407,6 +407,7 @@ def generateDecisionTree(chains):
                     # if chan requires special combo tools (TODO understand why not only one tool?)
                     for comboToolConf in step.comboToolConfs:
                         comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+
 
     for chain in chains:
         log.info( "CF algorithms for chain {}".format(chain.name))

@@ -69,8 +69,16 @@ class L1EmulationTest(L1Decoder):
 
         self.L1DecoderSummaryKey = "L1DecoderSummary"
 
-
-
+from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
+class makeChainStep(object):
+    """ Used to store the step info, regardless of the chainDict"""
+    def __init__(self, name, seq=[], multiplicity=[1], comboHypoCfg=ComboHypoCfg, comboToolConfs=[]):
+        self.name=name
+        self.seq=seq
+        self.mult=multiplicity
+        self.comboToolConfs=comboToolConfs
+        self.comboHypoCfg=comboHypoCfg
+    
 
 chainsCounter = 0
 
@@ -83,6 +91,7 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     prop = ChainProp( name=name,  l1SeedThresholds=L1Thresholds, groups=Groups )
 
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
     chainDict = dictFromChainName( prop )
@@ -93,8 +102,17 @@ def makeChain( name, L1Thresholds, ChainSteps, Streams="physics:Main", Groups=["
     #set default chain prescale
     chainDict['prescale'] = 1
 
+    from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDictInLegs
+
+    listOfChainDicts = splitChainDictInLegs(chainDict)
+    
+    # create the ChainSteps, with the chaindict
+    StepConfig = []
+    for step in ChainSteps:
+        StepConfig+=[ChainStep(step.name, step.seq,  multiplicity=step.mult, chainDicts=listOfChainDicts, comboHypoCfg=step.comboHypoCfg, comboToolConfs=step.comboToolConfs)]
+
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain
-    chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=ChainSteps )
+    chainConfig = Chain( name=name, L1Thresholds=L1Thresholds, ChainSteps=StepConfig )
 
     TriggerConfigHLT.registerChain( chainDict, chainConfig )
 

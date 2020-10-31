@@ -28,8 +28,11 @@ TrigConf::L1ThrExtraInfo::createExtraInfo(const std::string & thrTypeName, const
    if( thrTypeName == "MU" )
       return std::make_unique<L1ThrExtraInfo_MU>(thrTypeName, data);
 
-   if( thrTypeName == "eEM" or thrTypeName == "eTAU" )
-      return std::make_unique<L1ThrExtraInfo_eEMTAU>(thrTypeName, data);
+   if( thrTypeName == "eEM" )
+      return std::make_unique<L1ThrExtraInfo_eEM>(thrTypeName, data);
+
+   if( thrTypeName == "eTAU" )
+      return std::make_unique<L1ThrExtraInfo_eTAU>(thrTypeName, data);
 
    if( thrTypeName == "jJ" )
       return std::make_unique<L1ThrExtraInfo_jJ>(thrTypeName, data);      
@@ -79,14 +82,14 @@ TrigConf::L1ThrExtraInfo::JET() const {
    return dynamic_cast<const TrigConf::L1ThrExtraInfo_JETLegacy&>( * m_thrExtraInfo.at("JET") );
 }
 
-const TrigConf::L1ThrExtraInfo_eEMTAU &
+const TrigConf::L1ThrExtraInfo_eEM &
 TrigConf::L1ThrExtraInfo::eEM() const {
-   return dynamic_cast<const TrigConf::L1ThrExtraInfo_eEMTAU&>( * m_thrExtraInfo.at("eEM") );
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_eEM&>( * m_thrExtraInfo.at("eEM") );
 }
 
-const TrigConf::L1ThrExtraInfo_eEMTAU &
+const TrigConf::L1ThrExtraInfo_eTAU &
 TrigConf::L1ThrExtraInfo::eTAU() const {
-   return dynamic_cast<const TrigConf::L1ThrExtraInfo_eEMTAU&>( * m_thrExtraInfo.at("eTAU") );
+   return dynamic_cast<const TrigConf::L1ThrExtraInfo_eTAU&>( * m_thrExtraInfo.at("eTAU") );
 }
 
 const TrigConf::L1ThrExtraInfo_jJ &
@@ -127,6 +130,10 @@ TrigConf::L1ThrExtraInfo::thrExtraInfo(const std::string & thrTypeName) const
 const TrigConf::IsolationLegacy &
 TrigConf::L1ThrExtraInfo_EMTAULegacy::isolation(const std::string & thrType, size_t bit) const
 {
+   if(bit<1 or bit>5) {
+      throw std::out_of_range("When accessing the legacy L1Calo EM or TAU isolation bit must be between 1 and 5, but bit=" 
+                              + std::to_string(bit) + " was requested");
+   }
    try {
       return m_isolation.at(thrType)[bit-1];
    }
@@ -197,39 +204,73 @@ TrigConf::L1ThrExtraInfo_JETLegacy::load()
 /*******
  * eEM
  *******/
-const TrigConf::Isolation &
-TrigConf::L1ThrExtraInfo_eEMTAU::isolation(TrigConf::Isolation::WP wp, int eta) const
-{
-   return m_isolation.at(wp).at(eta);
+TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM::WorkingPoints_eEM( const boost::property_tree::ptree & pt ) {
+   m_isDefined = true;
+   m_reta  = lround(100 * pt.get_optional<float>("reta").get_value_or(0));
+   m_wstot = lround(100 * pt.get_optional<float>("wstot").get_value_or(0));
+   m_rhad  = lround(100 * pt.get_optional<float>("rhad").get_value_or(0));
+   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
 }
 
-const TrigConf::ValueWithEtaDependence<TrigConf::Isolation> &
-TrigConf::L1ThrExtraInfo_eEMTAU::isolation(TrigConf::Isolation::WP wp) const
-{
-   return m_isolation.at(wp);
+std::ostream &
+TrigConf::operator<<(std::ostream & os, const TrigConf::L1ThrExtraInfo_eEM::WorkingPoints_eEM & iso) {
+   os << "reta=" << iso.reta() << ", wstot=" << iso.wstot() << ", rhad=" << iso.rhad();
+   return os;
 }
-
 
 void
-TrigConf::L1ThrExtraInfo_eEMTAU::load()
+TrigConf::L1ThrExtraInfo_eEM::load()
 {
    for( auto & x : m_extraInfo ) {
       if( x.first == "ptMinToTopo" ) {
          m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
       } else if( x.first == "workingPoints" ) {
          for( auto & y : x.second.data() ) {
-            auto wp = (y.first == "Loose") ? Isolation::WP::LOOSE : ( (y.first == "Medium") ? Isolation::WP::MEDIUM : Isolation::WP::TIGHT );
+            auto wp = Selection::stringToWP(y.first);
             auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
             for(auto & c : y.second ) {
                int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
                int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
                unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
-               iso.addRangeValue(Isolation(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+               iso.addRangeValue(WorkingPoints_eEM(c.second), etamin, etamax, priority, /*symmetric=*/ false);
             }
          }
       }
    }
 }
+
+
+/*******
+ * eTAU
+ *******/
+TrigConf::L1ThrExtraInfo_eTAU::WorkingPoints_eTAU::WorkingPoints_eTAU( const boost::property_tree::ptree & pt ) {
+   m_isolation = lround(100 * pt.get_optional<float>("isolation").get_value_or(0));
+   m_maxEt = pt.get_optional<unsigned int>("maxEt").get_value_or(0);
+}
+
+void
+TrigConf::L1ThrExtraInfo_eTAU::load()
+{
+   for( auto & x : m_extraInfo ) {
+      if( x.first == "ptMinToTopo" ) {
+         m_ptMinToTopoMeV = lround(1000 * x.second.getValue<float>());
+      } else if( x.first == "workingPoints" ) {
+         for( auto & y : x.second.data() ) {
+            auto wp = TrigConf::Selection::stringToWP(y.first);
+            auto & iso = m_isolation.emplace(wp, string("eEM_WP_" + y.first)).first->second;
+            for(auto & c : y.second ) {
+               int etamin = c.second.get_optional<int>("etamin").get_value_or(-49);
+               int etamax = c.second.get_optional<int>("etamax").get_value_or(49);
+               unsigned int priority = c.second.get_optional<unsigned int>("priority").get_value_or(0);
+               iso.addRangeValue(WorkingPoints_eTAU(c.second), etamin, etamax, priority, /*symmetric=*/ false);
+            }
+         }
+      }
+   }
+}
+
+
+
 
 
 /*******
@@ -246,8 +287,8 @@ TrigConf::L1ThrExtraInfo_jJ::load()
             auto small = k.second.get_child("small").get_value<float>();
             auto large = k.second.get_child("large").get_value<float>();
             auto priority = k.second.get_optional<unsigned int>("priority").get_value_or(0);            
-            m_ptMinToTopoSmallMeV.addRangeValue( lround(1000*small), etamin, etamax, priority, /*symmetric=*/ false);
-            m_ptMinToTopoLargeMeV.addRangeValue( lround(1000*large), etamin, etamax, priority, /*symmetric=*/ false);
+            m_ptMinToTopoMeV.addRangeValue( std::make_pair<unsigned int, unsigned int>(lround(1000*small),lround(1000*large)),
+                                            etamin, etamax, priority, /*symmetric=*/ false);
          }
       }
    }
@@ -336,7 +377,7 @@ TrigConf::L1ThrExtraInfo_MU::exclusionListNames() const
 
 
 const std::map<std::string, std::vector<unsigned int> > &
-TrigConf::L1ThrExtraInfo_MU::exlusionList(const std::string & listName) const
+TrigConf::L1ThrExtraInfo_MU::exclusionList(const std::string & listName) const
 {
    try {
       return m_roiExclusionLists.at(listName);

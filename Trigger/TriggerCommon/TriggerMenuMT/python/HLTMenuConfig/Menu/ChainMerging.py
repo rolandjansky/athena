@@ -140,7 +140,7 @@ def serial_zip(allSteps, chainName, chainDefList):
                 if emptyStep is None:
                     seqName = getEmptySeqName(step.name, chain_index, step_index+1, chainDefList[0].alignmentGroups[0])
                     emptySeq =  RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
-                    stepList[step_index2] = ChainStep( seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)            
+                    stepList[step_index2] = ChainStep( seqName, Sequences=[emptySeq], chainDicts=step.stepDicts)            
             
             newsteps.append(stepList)
     log.debug('After serial_zip')
@@ -219,7 +219,7 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             stepSeq.append(emptySeq)
             stepMult.append(1)
             # we need a chain dict here, use the one corresponding to this leg of the chain
-            stepDicts.append(deepcopy(chainDefList[chain_index].steps[-1].chainDicts[-1]))
+            stepDicts.append(deepcopy(chainDefList[chain_index].steps[-1].stepDicts[-1]))
         else:
             # Standard step, append it to the combined step
             log.debug("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
@@ -242,7 +242,7 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             stepMult.append(sum(step.multiplicity))
             comboHypoTools.extend(step.comboToolConfs)
             # update the chain dict list for the combined step with the chain dict from this step
-            stepDicts += deepcopy(step.chainDicts)
+            stepDicts += deepcopy(step.stepDicts)
 
 
         # the step naming for combined chains needs to be revisted!!

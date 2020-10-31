@@ -146,7 +146,7 @@ class AthMonitorCfgHelper(object):
         Finalize the creation of the set of monitoring algorithms.
 
         Returns:
-        (resobj, monSeq) -- a tuple with a ComponentAccumulator and an AthSequencer
+        resobj -- a ComponentAccumulator 
         '''
         self.resobj.addSequence(self.monSeq)
         return self.resobj

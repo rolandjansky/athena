@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for CSC reconstruction"""
 
@@ -10,28 +10,13 @@ __doc__ = """Configuration of tools for CSC reconstruction"""
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
 
-import copy
-
-from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from AthenaCommon import CfgMgr
+from AthenaCommon.CfgGetter import getPublicTool, getPrivateTool
 
-from RecExConfig.RecFlags import rec
-
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
-
-from AthenaCommon.ConfiguredFactory import getProperty
-
-from MuonRecExample.MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 from MuonRecExample.MuonAlignFlags import muonAlignFlags
-
-from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
-     addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
-     addPropertiesToExcludeIfDefault, \
-     addTypesToSkipIfNotAvailable, addNamesToSkipIfNotAvailable, addFullNamesToSkipIfNotAvailable, \
-     addTypesOnlyToSkip
 
 
 def CscAlignmentTool(name="CscAlignmentTool",extraFlags=None,**kwargs):

@@ -549,7 +549,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
         summary = updated_summary.get();
       } else if (m_computeAdditionalInfo) {
         updated_summary = std::make_unique<Trk::TrackSummary>(*track.trackSummary());
-        m_trackSummaryTool->updateAdditionalInfo(track, prd_to_track_map, *updated_summary);
+        m_trackSummaryTool->updateAdditionalInfo(track, *updated_summary);
         summary = updated_summary.get();
       }
     } else {
@@ -824,7 +824,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     // Attempt to fill the position enums - will necessarily be a bit of a hack, since we don't have all the information.
     std::vector< xAOD::ParameterPosition> positions;
     bool firstMeasurement = false;
-    for (auto parameter : trackParticle.trackParameters()){
+    for (const auto *parameter : trackParticle.trackParameters()){
       if (!firstMeasurement && parameter && !parameter->associatedSurface().isFree()){
         // if the surface isn't free, it must belong to a detector element => measurement
         firstMeasurement=true;
@@ -926,7 +926,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
       setNumberOfUsedHits(*trackparticle,summary->numberOfUsedHitsdEdx());
       setNumberOfOverflowHits(*trackparticle,summary->numberOfOverflowHitsdEdx());
     }
-    auto beamspot = CacheBeamSpotData(Gaudi::Hive::currentContext());
+    const auto *beamspot = CacheBeamSpotData(Gaudi::Hive::currentContext());
     if (beamspot) {
       setTilt(*trackparticle,beamspot->beamTilt(0),beamspot->beamTilt(1));
     }
@@ -987,7 +987,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
     MagField::AtlasFieldCache fieldCache;
     fieldCondObj->getInitializedCache (fieldCache);
 
-    for ( auto param : parameters ){
+    for ( const auto *param : parameters ){
       std::vector<float>& values = parametersVec[numParam];
       values.resize(6);
       const Amg::Vector3D & pos = param->position();

@@ -139,7 +139,9 @@ def all_DataFlow_to_dot(name, step_list):
                 file.write('  }\n')              
                 file.write(findConnections(cfseq_algs))
                 file.write('\n')
-               
+
+#            print ("Step connections: ")
+#            print (step_connections)
             file.write(findConnections(step_connections))
             nstep+=1
 
@@ -208,7 +210,7 @@ def findConnections(alg_list):
         if len(dataIntersection) > 0:
             for line in dataIntersection:
                 lineconnect+=addConnection(compName(nodeA.Alg), compName(nodeB.Alg), line)
-#                print "Data connections between %s and %s: %s"%(nodeA.Alg.getName(), nodeB.Alg.getName(), line)
+#                print ("Data connections between ", compName(nodeA.Alg)," and ",compName(nodeB.Alg) ,": ", line)
 
     return lineconnect
 
