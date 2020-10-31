@@ -232,7 +232,6 @@ def InDetGlobalChi2FitterBase(name='GlobalChi2FitterBase', **kwargs) :
                        RecalibrateSilicon     = True,
                        RecalibrateTRT         = True,
                        TRTTubeHitCut          = 1.75, # use tighter hit classification, old: TrackingCommon.default_ScaleHitUncertainty
-                       MinPHFCut              = TrackingCommon.getInDetNewTrackingCuts().minTRTPrecFrac(), # PHF cut during fit iterations to save CPU time
                        MaxIterations          = 40,
                        Acceleration           = True,
                        RecalculateDerivatives = InDetFlags.doMinBias() or InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
@@ -245,6 +244,11 @@ def InDetGlobalChi2Fitter(name='InDetGlobalChi2Fitter', **kwargs) :
     pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
 
     from InDetRecExample import TrackingCommon as TrackingCommon
+
+    # PHF cut during fit iterations to save CPU time
+    kwargs=setDefaults(kwargs,
+                       MinPHFCut                 = TrackingCommon.getInDetNewTrackingCuts().minTRTPrecFrac()) 
+
     if 'RotCreatorTool' not in kwargs :
         kwargs=setDefaults(kwargs,
                            RotCreatorTool        = TrackingCommon.getInDetRotCreator(**pix_cluster_on_track_args))
