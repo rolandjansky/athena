@@ -1293,6 +1293,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                 alg = TauCellThinningAlg('TauCellThinningAlg',
                                          StreamName = 'StreamAOD',
                                          Cells = 'AllCalo',
+                                         CellLinks = 'CaloCalTopoClusters_links',
                                          Taus = "TauJets",
                                          UseSubtractedCluster = tauFlags.useSubtractedCluster())
                 topSequence += alg
