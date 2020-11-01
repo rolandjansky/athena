@@ -96,15 +96,14 @@ if [ $dosim -ne 0 ]; then
     --outputHITSFile  "$hits" \
     --skipEvents      0 \
     --maxEvents       10 \
-    --AMI             s3595
+    --AMI             s3595 \
+    --postInclude     "all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,LArROD/LArSuperCellEnable.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py" "HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py" "RAWtoESD:InDetSLHC_Example/postInclude.AnalogueClustering.py" 
 
-
-
-
-
-  echo "art-result: $? sim"
 
   mv ./SiHitValid.root ./$dcubemon_sim
+  
+  echo "art-result: $? sim"
+
 
   # DCube Sim hit plots
   dcube Sim_tf sim-plot "$dcubemon_sim" "$dcubecfg_sim" "$lastref_dir/$dcubemon_sim" "$dcube_sim_lastref"
@@ -123,6 +122,7 @@ if [ $dorec -ne 0 ]; then
 
   # Reco step: based on RecoInclinedDuals_GMX RTT job
   # some preExecs for E2D step are workarounds - should be revisited. 
+
   run Reco_tf.py \
     --inputHITSFile    "$hits" \
     --outputRDOFile    physval.RDO.root \
@@ -131,15 +131,13 @@ if [ $dorec -ne 0 ]; then
     --outputDAOD_IDTRKVALIDFile "$daod" \
     --maxEvents        10 \
     --AMI              r12166 \
-    --steering doRAWtoALL \
+    --steering         doRAWtoALL 
+
+
+
+
     
-#    --maxEvents        10 \
-#    --AMI              r12064 \
-#    --preExec 'HITtoRDO:from Digitization.DigitizationFlags import digitizationFlags; digitizationFlags.doInDetNoise.set_Value_and_Lock(False); digitizationFlags.overrideMetadata+=["SimLayout","PhysicsList"];' 'RAWtoALL:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False)' \
-
-
-
-
+    
   reco_stat=$?
   echo "art-result: $reco_stat reco"
   if [ "$reco_stat" -ne 0 ]; then
