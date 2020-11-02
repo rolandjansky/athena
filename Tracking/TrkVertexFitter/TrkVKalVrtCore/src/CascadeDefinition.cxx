@@ -263,7 +263,7 @@ int setCascadeMassConstraint(CascadeEvent & cascadeEvent_, long int IV, std::vec
        tmpIndex.push_back(pseudoInVrt[it]+nRealTrk);
     }
 
-    vk->ConstraintList.emplace_back(new VKMassConstraint( NTRK, Mass, tmpIndex, vk));
+    vk->ConstraintList.emplace_back(new VKMassConstraint( NTRK, Mass, std::move(tmpIndex), vk));
     return 0; 
 }
 
