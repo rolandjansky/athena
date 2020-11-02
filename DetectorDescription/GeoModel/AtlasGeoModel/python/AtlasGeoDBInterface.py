@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 
@@ -126,10 +126,10 @@ class AtlasGeoDBInterface:
 
         # Check if the geometry tag was found in the DB
         if self.dbGeoTagId=="":
-            Logging.log.error("The geometry tag "+self.dbGeoTag+" could not be found in the database.")
+            Logging.log.error("The geometry tag %s could not be found in the database.", self.dbGeoTag)
             Logging.log.error("Its name might be misspelled and/or the script might access a local DB that is not up to date.")
             import sys
-            sys.exit();
+            sys.exit()
 
         # Get node ids for the geometry tag
         tagIdList=[int(self.dbGeoTagId)]    # start with the geometry tag Id
@@ -137,7 +137,7 @@ class AtlasGeoDBInterface:
         # Loop while child tags are found
         while not bStopLoop :
 
-            query0 = self.dbSchema.newQuery();
+            query0 = self.dbSchema.newQuery()
 
             query0.addToOutputList('C.NODE_NAME',"nodename")
             query0.addToOutputList('A.TAG_NAME',"tagname")
@@ -177,7 +177,7 @@ class AtlasGeoDBInterface:
         upLeafName=leafName.upper()
 
         # check if table is defined in the current geometry
-        if not leafName in self.TagAndNodeVersionDict:
+        if leafName not in self.TagAndNodeVersionDict:
             dbId=[]
             dbContent={}
             paramName=[]

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags    import DetFlags
@@ -56,5 +56,5 @@ relversion = rel_metadata['release'].split('.')
 if len(relversion) < 3:
     relversion = rel_metadata['base release'].split('.')
 
-Logging.log.info("SetGeometryVersion.py obtained major release version %s" % relversion[0])
+Logging.log.info("SetGeometryVersion.py obtained major release version %s", relversion[0])
 GeoModelSvc.SupportedGeometry = int(relversion[0])
