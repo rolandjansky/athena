@@ -410,7 +410,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
             }
           
             const xAOD::TruthVertex *matchVertex = getTruthVertex(vertex);
-            if(not matchVertex) continue;
+            if(!matchVertex) continue;
             float residual_z = matchVertex->z() - vertex->z();
             float residual_x = matchVertex->x() - vertex->x();
             float residual_y = matchVertex->y() - vertex->y();
