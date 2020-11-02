@@ -1,5 +1,5 @@
 #!/bin/bash
-# art-description: ATLAS-P2-ITK-22-02-00 sim+reco
+# art-description: ttbar sim+reco
 # art-type: grid
 # art-include: 21.9/Athena
 # art-output: *.root
