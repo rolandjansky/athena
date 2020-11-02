@@ -52,6 +52,7 @@ flags.needFlagsCategory('Trigger')
 setupMenuModule.setupMenu(flags)
 flags.Exec.MaxEvents=50
 flags.Input.isMC = False
+flags.Common.isOnline=True
 
 
 flags.Concurrency.NumThreads=1

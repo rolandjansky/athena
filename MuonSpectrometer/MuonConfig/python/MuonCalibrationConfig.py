@@ -107,8 +107,8 @@ def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     result.merge(acc)
 
     # set some default proper ties
-    from IOVDbSvc.CondDB import conddb
-    if conddb.isOnline and not conddb.isMC:
+    # from IOVDbSvc.CondDB import conddb
+    if flags.Common.isOnline and not flags.Input.isMC:
        kwargs.setdefault("TubeFolder", "/MDT/T0")
        kwargs.setdefault("RtFolder",  "/MDT/RT")
     else:

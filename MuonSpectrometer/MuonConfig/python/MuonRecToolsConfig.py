@@ -15,7 +15,7 @@ def MuonEDMPrinterTool(flags, name="MuonEDMPrinterTool", **kwargs):
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
     Muon__MuonTrackToSegmentTool=CompFactory.Muon.MuonTrackToSegmentTool
     #MDT conditions information not available online
-    if(flags.Common.isOnline):
+    if flags.Common.isOnline:
         kwargs.setdefault("MdtCondKey","")
     
     result = MuonStationIntersectSvcCfg(flags)

@@ -26,9 +26,9 @@ def SCT_DCSConditionsCfg(flags, name="InDetSCT_DCSConditions", **kwargs):
     stateFolder = kwargs.get("stateFolder", dcsFolder + "/CHANSTAT")
     ReadAllDBFolders = kwargs.get("ReadAllDBFolders", True)
     ReturnHVTemp = kwargs.get("ReturnHVTemp", True)
-
+    
     # Condition algorithms
-    if ReadAllDBFolders == ReturnHVTemp:
+    if ReadAllDBFolders == ReturnHVTemp and not flags.Common.isOnline:
         acc.merge(addFolders(flags, stateFolder, dbInstance, className="CondAttrListCollection"))
         # algo
         statArgs = {
