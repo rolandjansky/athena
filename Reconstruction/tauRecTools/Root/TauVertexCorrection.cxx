@@ -18,9 +18,15 @@ TauVertexCorrection::TauVertexCorrection(const std::string& name):
 StatusCode TauVertexCorrection::initialize() {  
   ATH_MSG_INFO("in initialize");
 
+  // For AntiKt4LCTopoJets: CALIBRATED -- jet vertex corrected at LCScale, UNCALIBRATED -- EMScale
+  // For AntiKt4EMTopoJets: CALIBRATED -- jet vertex corrected at EMScale, UNCALIBRATED -- EMScale
   if (m_seedJet == "AntiKt4LCTopoJets") {
     m_isPFO = false;
     m_clusterState = xAOD::CaloCluster::State::CALIBRATED; 
+  }
+  else if (m_seedJet == "AntiKt4EMTopoJets") {
+    m_isPFO = false;
+    m_clusterState = xAOD::CaloCluster::State::CALIBRATED;
   }
   else if (m_seedJet == "AntiKt4EMPFlowJets") {
     m_isPFO = true;
