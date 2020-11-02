@@ -26,7 +26,8 @@ egammaSelectedTrackCopy = AlgFactory(
     name='egammaSelectedTrackCopy',
     ExtrapolationTool=EMExtrapolationTools,
     ExtrapolationToolCommonCache=EMExtrapolationToolsCommonCache,
-    ClusterContainerName=jobproperties.egammaRecFlags.egammaTopoClusterCollection(),
+    ClusterContainerName=(
+        jobproperties.egammaRecFlags.egammaTopoClusterCollection()),
     TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
     egammaCaloClusterSelector=egammaCaloClusterGSFSelector
 )
