@@ -48,11 +48,6 @@ private:
                                           const MeasurementBase&,
                                           FitQualityOnSurface& fitQoS) const;
 
-  bool invalidComponent(const Trk::TrackParameters* trackParameters) const;
-
-  MultiComponentState rebuildState(
-    Trk::MultiComponentState&& stateBeforeUpdate) const;
-
   KalmanParameterUpdator m_updator{};
 };
 }
