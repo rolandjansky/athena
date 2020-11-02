@@ -93,7 +93,7 @@ int DBXMLUtils::getSchemaVersion(std::string xmlName) const
 	  res = version;
 	  latest_file = keyword;
 	}
-	else msg(MSG::WARNING)<<"Older version detected for "<<keyword<<" ("<<version<<") than "<<latest_file<<" ("<<res<<"). Taking newest ("<<res<<")!"<<endreq;
+	else if(version < res) msg(MSG::WARNING)<<"Older version detected for "<<keyword<<" ("<<version<<") than "<<latest_file<<" ("<<res<<"). Taking newest ("<<res<<")!"<<endreq;
 	nbCLOB++;
       }
     }
