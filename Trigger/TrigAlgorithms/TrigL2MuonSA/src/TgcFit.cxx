@@ -48,7 +48,7 @@ double TrigL2MuonSA::TgcFit::LinStats::eval(double fX) const
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::TgcFit::SimpleStatistics(TrigL2MuonSA::TgcFit::PointArray& points, TrigL2MuonSA::TgcFit::SimpleStats& stats)
+void TrigL2MuonSA::TgcFit::SimpleStatistics(TrigL2MuonSA::TgcFit::PointArray& points, TrigL2MuonSA::TgcFit::SimpleStats& stats) const
 {
   double *y = new double[points.size()];
   double *w = new double[points.size()];
@@ -104,7 +104,7 @@ void TrigL2MuonSA::TgcFit::SimpleStatistics(TrigL2MuonSA::TgcFit::PointArray& po
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::TgcFit::linReg(TrigL2MuonSA::TgcFit::PointArray& points, TrigL2MuonSA::TgcFit::LinStats& stats)
+void TrigL2MuonSA::TgcFit::linReg(TrigL2MuonSA::TgcFit::PointArray& points, TrigL2MuonSA::TgcFit::LinStats& stats) const
 {
   double *x = new double[points.size()];
   double *y = new double[points.size()];
@@ -179,7 +179,7 @@ void TrigL2MuonSA::TgcFit::linReg(TrigL2MuonSA::TgcFit::PointArray& points, Trig
 
 TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::TgcFit::PointArray& stripPoints,
     TrigL2MuonSA::TgcFit::PointArray& wirePoints,
-    TrigL2MuonSA::TgcFitResult& tgcFitResult)
+    TrigL2MuonSA::TgcFitResult& tgcFitResult) const
 {
   ATH_MSG_DEBUG("TrigL2MuonSA::TgcFit::runTgcMiddle stripPoints=" << stripPoints.size()
       << " wirePoints=" << wirePoints.size());
@@ -304,7 +304,7 @@ TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcMiddle(TrigL2MuonSA::Tg
 
 TrigL2MuonSA::TgcFit::Status TrigL2MuonSA::TgcFit::runTgcInner(TrigL2MuonSA::TgcFit::PointArray& stripPoints,
     TrigL2MuonSA::TgcFit::PointArray& wirePoints,
-    TrigL2MuonSA::TgcFitResult& tgcFitResult)
+    TrigL2MuonSA::TgcFitResult& tgcFitResult) const
 {
   Status status = FIT_NONE;
   SimpleStats stripStats;

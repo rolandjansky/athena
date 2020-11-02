@@ -40,7 +40,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
                                                     double                       roiEtaMinLow,
                                                     double                       roiEtaMaxLow,
                                                     double                       roiEtaMinHigh,
-                                                    double                       roiEtaMaxHigh)
+                                                    double                       roiEtaMaxHigh) const
 {
 
   const double ZERO_LIMIT = 1e-5;
