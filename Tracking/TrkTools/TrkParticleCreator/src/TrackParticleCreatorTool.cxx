@@ -1067,9 +1067,8 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
       if ( i >= Trk::numberOfMdtHits && i <= Trk::numberOfRpcEtaHits ) continue;
       if ( i == Trk::numberOfCscUnspoiltEtaHits ) continue;
       if ( i >= Trk::numberOfCscEtaHoles && i <= Trk::numberOfTgcPhiHoles ) continue;
-      if ( i >= offset && i < offset+Trk::numberOfeProbabilityTypes+1){
-        continue;
-      }
+      // skip values which are floats
+      if ( std::find(floatSummaryTypes.begin(), floatSummaryTypes.end(), i) != floatSummaryTypes.end() ) continue;
       if ( i >= Trk::numberOfStgcEtaHits && i <= Trk::numberOfMmHoles) continue;
       // coverity[mixed_enums]
       if (i == Trk::numberOfTRTHitsUsedFordEdx ) continue;

@@ -233,9 +233,9 @@ std::vector<float> eProbability = ITRT_ElectronPidTool::defaultElectronProbabili
     information[numberOfTRTTubeHits] = 0;
     information[numberOfTRTSharedHits] = 0;
 
-    // Troels.Petersen@cern.ch:
     if (!m_eProbabilityTool.empty()) {
       eProbability = m_eProbabilityTool->electronProbability(track);
+      information[Trk::numberOfTRTHitsUsedFordEdx] = static_cast<int>(eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx]);
     }
   }
 
@@ -313,7 +313,6 @@ std::vector<float> eProbability = ITRT_ElectronPidTool::defaultElectronProbabili
     searchHolesStepWise(track,information, doHolesInDet, doHolesMuon);
   }
 
-  information[Trk::numberOfTRTHitsUsedFordEdx] = eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx];
   ts.m_eProbability = eProbability;
   ts.m_idHitPattern = hitPattern.to_ulong();
   ts.m_dedx = dedx;

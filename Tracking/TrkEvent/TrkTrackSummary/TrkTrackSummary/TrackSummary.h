@@ -132,6 +132,10 @@ enum SummaryType {
         numberOfTrackSummaryTypes = 76
     };
 
+// summary types that are stored as float values
+static const std::vector<unsigned int> floatSummaryTypes = {eProbabilityComb_res, eProbabilityHT_res, eProbabilityToT_res, eProbabilityBrem_res,
+                                                      pixeldEdx_res, eProbabilityNN_res, TRTTrackOccupancy_res, TRTdEdx_res};
+
 // Troels.Petersen@cern.ch:
     enum eProbabilityType {
         eProbabilityComb            = 0,       //!< Electron probability from combining the below probabilities.
