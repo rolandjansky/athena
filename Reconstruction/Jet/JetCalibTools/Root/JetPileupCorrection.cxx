@@ -131,10 +131,12 @@ StatusCode JetPileupCorrection::initializeTool(const std::string& name) {
     m_residual3DCorr->loadParameters(calibFilePU);
     m_residual3DCorr->m_rhoEnergyScale = m_config->GetValue("PU3DCorrection.rhoEnergyScale", 0.001);
     m_residual3DCorr->m_pTEnergyScale = m_config->GetValue("PU3DCorrection.pTEnergyScale", 0.001);
+    m_residual3DCorr->m_applyDeltaPtTerm = m_config->GetValue("PU3DCorrection.applyDeltaPtTerm", true);
     ATH_MSG_INFO("Pile-up 3D correction. Configured with :");
     ATH_MSG_INFO("  calib constants file="<< m_config->GetValue("PU3DCorrection.constants", "pu3DResidualsConstants.root") );
     ATH_MSG_INFO("  rho scale ="<<m_residual3DCorr->m_rhoEnergyScale );
     ATH_MSG_INFO("  pT scale ="<<m_residual3DCorr->m_pTEnergyScale);    
+    ATH_MSG_INFO("  apply deltaPt term = " << m_residual3DCorr->m_applyDeltaPtTerm);
   }else if ( m_doResidual ) { 
     std::string suffix = "_Residual";
     m_residualOffsetCorr = new ResidualOffsetCorrection(name+suffix,m_config,m_jetAlgo,m_calibAreaTag,m_isData,m_dev);
