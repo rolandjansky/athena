@@ -1,33 +1,19 @@
-################################################################################
-# Package: EventShapeEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EventShapeEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          Event/EventKernel
-                          Event/NavFourMom )
-
 # External dependencies:
 find_package( FastJet )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( EventShapeEvent
                    src/*.cxx
                    PUBLIC_HEADERS EventShapeEvent
                    INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers EventKernel NavFourMom
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES ${FASTJET_LIBRARIES} AthContainers AthenaKernel EventKernel NavFourMom )
 
 atlas_add_dictionary( EventShapesDict
                       EventShapeEvent/EventShapeEventDict.h
                       EventShapeEvent/selection.xml
-                      INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} AthContainers EventKernel NavFourMom EventShapeEvent )
-
+                      LINK_LIBRARIES EventShapeEvent )
