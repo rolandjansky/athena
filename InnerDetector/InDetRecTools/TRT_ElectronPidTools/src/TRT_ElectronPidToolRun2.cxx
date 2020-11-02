@@ -259,7 +259,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
 
     nTRThits++;
     if (isHTMB) nTRThitsHTMB++;
-    hit_HTMB.push_back(double(isHTMB));
+    hit_HTMB.push_back(static_cast<double>(isHTMB));
 
 
     // ------------------------------------------------------------------------------------
@@ -296,7 +296,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
       HitR = gp.perp();
       HitZ = gp.z();
       rTrkWire = fabs((*tsosIter)->trackParameters()->parameters()[Trk::driftRadius]);
-      if (rTrkWire > 2.2) rTrkWire = 2.175;   // Happens once in a while - no need for warning!
+      if (rTrkWire > 2.2) rTrkWire = 2.175;   // cut off track-to-wire distance for outliers
     } else {
       // Otherwise just use the straw coordinates:
       hasTrackParameters = false; // Jared - pass this to HT calculation
@@ -360,7 +360,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
                   << "  Occ_Local: " << PIDvalues[Trk::TRTTrackOccupancy]  << "  HTMB: " << isHTMB);
 
     // RNN gas type observables
-    hit_gasType.push_back(double(GasType));
+    hit_gasType.push_back(static_cast<double>(GasType));
     if (GasType == 0) {
       nXehits++;
     } else if (GasType == 1) {
@@ -374,7 +374,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
       isPrec = true;
       nPrecHits++;
     }
-    hit_isPrec.push_back(double(isPrec));
+    hit_isPrec.push_back(static_cast<double>(isPrec));
 
     // Then call pHT functions with these values:
     // ------------------------------------------
@@ -456,20 +456,20 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   std::map<std::string, std::map<std::string, std::vector<double>>> vectorInputs_NN = PIDNN->getVectorInputs();
   
   // Calculate the hit fraction
-  double fAr = double(nArhits) / nTRThits;
-  double fHTMB = double(nTRThitsHTMB) / nTRThits;
-  double PHF = double(nPrecHits) / nTRThits;
+  double fAr = static_cast<double>(nArhits) / nTRThits;
+  double fHTMB = static_cast<double>(nTRThitsHTMB) / nTRThits;
+  double PHF = static_cast<double>(nPrecHits) / nTRThits;
 
   if (!scalarInputs_NN.empty()) {
     std::map<std::string, double>& trackVarMap = scalarInputs_NN.begin()->second;
-    storeNNVariable(trackVarMap, "trkOcc", (double) PIDvalues[Trk::TRTTrackOccupancy]);
+    storeNNVariable(trackVarMap, "trkOcc", static_cast<double>(PIDvalues[Trk::TRTTrackOccupancy]));
     storeNNVariable(trackVarMap, "p", pTrk);
     storeNNVariable(trackVarMap, "pT", pT);
-    storeNNVariable(trackVarMap, "nXehits", (double) nXehits);
+    storeNNVariable(trackVarMap, "nXehits", static_cast<double>(nXehits));
     storeNNVariable(trackVarMap, "fAr", fAr);
     storeNNVariable(trackVarMap, "fHTMB", fHTMB);
     storeNNVariable(trackVarMap, "PHF", PHF);
-    storeNNVariable(trackVarMap, "dEdx", (double) dEdx_noHTHits);
+    storeNNVariable(trackVarMap, "dEdx", static_cast<double>(dEdx_noHTHits));
   }
 
   if (!vectorInputs_NN.empty()) {
