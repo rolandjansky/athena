@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -68,7 +68,7 @@ def mergeParallel(chainDefList, offset):
     chainName = ''
     l1Thresholds = []
     alignmentGroups = []
-
+   
     for cConfig in chainDefList:
         if chainName == '':
             chainName = cConfig.name
@@ -109,12 +109,12 @@ def mergeParallel(chainDefList, offset):
 
     return combinedChainDef
 
-def getEmptySeqName(stepName, chain_index, step_number):
+def getEmptySeqName(stepName, chain_index, step_number, alignGroup):
     #remove redundant instances of StepN
     if re.search('^Step[0-9]_',stepName):
         stepName = stepName[6:]
 
-    seqName = 'EmptySeq'+str(step_number)+ '_'+ stepName + '_leg' + str(chain_index)
+    seqName = 'Empty'+ alignGroup +'Seq'+str(step_number)+ '_'+ stepName + '_leg' + str(chain_index)
     return seqName
 
 
@@ -122,7 +122,7 @@ def getEmptyMenuSequence(flags, name):
     return EmptyMenuSequence(name)
 
 
-def serial_zip(allSteps, chainName):
+def serial_zip(allSteps, chainName, chainDefList):
     n_chains = len(allSteps)
     newsteps = []
     for chain_index, chainsteps in enumerate(allSteps):
@@ -138,7 +138,7 @@ def serial_zip(allSteps, chainName):
             # all other steps should contain an empty sequence
             for step_index2, emptyStep in enumerate(stepList):
                 if emptyStep is None:
-                    seqName = getEmptySeqName(step.name, chain_index, step_index+1)
+                    seqName = getEmptySeqName(step.name, chain_index, step_index+1, chainDefList[0].alignmentGroups[0])
                     emptySeq =  RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
                     stepList[step_index2] = ChainStep( seqName, Sequences=[emptySeq], chainDicts=step.stepDicts)            
             
@@ -170,7 +170,7 @@ def mergeSerial(chainDefList):
             log.error("Merging an already merged chain? This is odd! %s",cConfig.alignmentGroups)
         alignmentGroups.append(cConfig.alignmentGroups[0])
 
-    serialSteps = serial_zip(allSteps, chainName)
+    serialSteps = serial_zip(allSteps, chainName,chainDefList)
     mySerialSteps = deepcopy(serialSteps)
     combChainSteps =[]
     for step_index, steps in enumerate(mySerialSteps):
@@ -212,7 +212,7 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
         if step is None:
             # this happens for merging chains with different numbers of steps, we need to "pad" out with empty sequences to propogate the decisions
             currentStepName = "Step" + str(stepNumber) + "_Empty" + str(chain_index)
-            seqName = getEmptySeqName(currentStepName, chain_index, stepNumber)
+            seqName = getEmptySeqName(currentStepName, chain_index, stepNumber, chainDefList[0].alignmentGroups[0])
             log.debug("  step %s,  empty sequence %s", currentStepName, seqName)
             emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
 
@@ -256,5 +256,4 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
   
     
     return theChainStep
-
 
