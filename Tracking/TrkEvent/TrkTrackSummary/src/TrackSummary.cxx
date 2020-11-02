@@ -11,6 +11,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
+#include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "GaudiKernel/MsgStream.h"
 
 std::atomic<unsigned int> Trk::TrackSummary::s_numberOfInstantiations{0};
@@ -19,7 +20,7 @@ const int    Trk::TrackSummary::SummaryTypeNotSet=-1;
 Trk::TrackSummary::TrackSummary()
     :
     m_information(numberOfTrackSummaryTypes, SummaryTypeNotSet),
-    m_eProbability(numberOfeProbabilityTypes, 0.5),
+    m_eProbability(ITRT_ElectronPidTool::defaultElectronProbability()),
     m_dedx(-1),
     m_nhitsdedx(-1),
     m_nhitsoverflowdedx(-1),
@@ -105,8 +106,9 @@ Trk::TrackSummary& Trk::TrackSummary::operator+=(const TrackSummary& ts)
 }
            m_information[i]+= ts.m_information[i];
         }
-        for (int i=0;i<numberOfeProbabilityTypes;++i) { m_eProbability[i] *= ts.m_eProbability[i];
-}
+        if (ts.m_eProbability != ITRT_ElectronPidTool::defaultElectronProbability()) {
+          m_eProbability = ts.m_eProbability;
+        }
         if (m_dedx<0 && ts.m_dedx>=0) {
           m_dedx=ts.m_dedx;
           m_nhitsdedx=ts.m_nhitsdedx;
@@ -198,6 +200,10 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
   out << " * Electron probability from HT:   " << trackSum.getPID(eProbabilityHT)   << "\n";
   out << " * Electron probability from ToT:  " << trackSum.getPID(eProbabilityToT)  << "\n";
   out << " * Electron probability from Brem: " << trackSum.getPID(eProbabilityBrem) << "\n";
+  out << " * Electron probability from NN: "   << trackSum.getPID(eProbabilityNN)   << "\n";
+  out << " * TRT track occupancy: "            << trackSum.getPID(TRTTrackOccupancy)   << "\n";
+  out << " * dE/dx from TRT: "                 << trackSum.getPID(TRTdEdx)   << "\n";
+  out << " * number of TRT hits used for dE/dx: " << trackSum.getPID(eProbabilityNumberOfTRTHitsUsedFordEdx)   << "\n";
   out << " --------------------------------- " << "\n";
 
   out << " dE/dx from pixels               : " << trackSum.getPixeldEdx() << " MeV g^-1 cm^2" << "\n";
