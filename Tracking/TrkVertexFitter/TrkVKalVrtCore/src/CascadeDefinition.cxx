@@ -23,7 +23,7 @@ int initCascadeEngine(CascadeEvent &);
  
 VKVertex* startCascade( std::unique_ptr<VKVertex> vk)
 {  
-   auto ptr = vk.get();
+   auto *ptr = vk.get();
    ptr->vk_fitterControl->getCascadeEvent()->cascadeNV=1;
    ptr->vk_fitterControl->getCascadeEvent()->nearPrmVertex=0;
    ptr->vk_fitterControl->getCascadeEvent()->cascadeVertexList.clear();
@@ -33,7 +33,7 @@ VKVertex* startCascade( std::unique_ptr<VKVertex> vk)
 
 VKVertex* addCascadeEntry( std::unique_ptr<VKVertex> vk)
 {
-   auto ptr = vk.get();
+   auto *ptr = vk.get();
    ptr->vk_fitterControl->getCascadeEvent()->cascadeNV++;
    ptr->vk_fitterControl->getCascadeEvent()->cascadeVertexList.push_back(std::move(vk));
    return ptr->vk_fitterControl->getCascadeEvent()->cascadeVertexList.back().get();
@@ -48,7 +48,7 @@ VKVertex* addCascadeEntry( std::unique_ptr<VKVertex> vk, const std::vector<int> 
      vk->includedVrt.push_back(predecessor);
    }
 //
-   auto ptr = vk.get();
+   auto *ptr = vk.get();
    ptr->vk_fitterControl->getCascadeEvent()->cascadeNV++;
    ptr->vk_fitterControl->getCascadeEvent()->cascadeVertexList.push_back(std::move(vk));
    return ptr->vk_fitterControl->getCascadeEvent()->cascadeVertexList.back().get();
@@ -135,7 +135,7 @@ int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, doubl
       if(!includeNV) {                     // no predecessors
         addCascadeEntry( std::move(VRT) );
       }else{
-        auto vrttemp = addCascadeEntry( std::move(VRT), cascadeDefinition[iv]);
+        auto *vrttemp = addCascadeEntry( std::move(VRT), cascadeDefinition[iv]);
         for (it=0; it<includeNV ; it++) {             // tracks created out of predecessing vertices
           vrttemp->TrackList.emplace_back(new VKTrack(-999, tmp, tmp , vrttemp, 0.));
           vrttemp->tmpArr.emplace_back(new TWRK());
@@ -147,7 +147,7 @@ int makeCascade(VKalVrtControl & FitCONTROL, long int NTRK, long int *ich, doubl
     if(vEstimDone){ 
       IERR = translateToFittedPos(*(FitCONTROL.getCascadeEvent()),1.); if(IERR)return IERR;
       for( iv=0; iv<FitCONTROL.getCascadeEvent()->cascadeNV; iv++){
-        auto VRT=FitCONTROL.getCascadeEvent()->cascadeVertexList[iv].get();
+        auto *VRT=FitCONTROL.getCascadeEvent()->cascadeVertexList[iv].get();
         int NTv = VRT->TrackList.size();            // Number of tracks at vertex
         for(it=0; it<NTv; it++){
           trk=VRT->TrackList[it].get();
