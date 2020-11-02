@@ -1277,8 +1277,8 @@ namespace top {
     this->muonMuonDoSmearing2stationHighPt(muonDoSmearing2stationHighPt);
     bool muonDoExtraSmearingHighPt = false;
     settings->retrieve("MuonDoExtraSmearingHighPt", muonDoExtraSmearingHighPt);
-    if ( settings->value("MuonQuality") != "HighPt" && muonDoExtraSmearingHighPt ) {
-      ATH_MSG_WARNING("Could not set MuonDoExtraSmearingHighPt True without using the HighPt muon WP. MuonDoExtraSmearingHighPt is now setted to the default value (False)");
+    if ( settings->value("MuonQuality") == "HighPt" && muonDoExtraSmearingHighPt ) {
+      ATH_MSG_WARNING("Could not set MuonDoExtraSmearingHighPt True when using the HighPt muon WP, HighPt muons are not affected by this setting. MuonDoExtraSmearingHighPt is now setted to the default value (False)");
       muonDoExtraSmearingHighPt = false;
     }
     this->muonMuonDoExtraSmearingHighPt( muonDoExtraSmearingHighPt );
