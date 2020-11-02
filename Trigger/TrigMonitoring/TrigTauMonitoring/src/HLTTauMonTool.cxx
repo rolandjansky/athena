@@ -3727,7 +3727,7 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
     } else { // TrigComposite
 
       const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > features = 
-        getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, TrigDefs::includeFailedDecisions, "TrigTauRecMerged" );
+        getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, TrigDefs::includeFailedDecisions, ".*TrigTauRecMerged_.*" );
 
       for(const auto& tauJetLinkInfo : features){
         if (!tauJetLinkInfo.isValid()) {
