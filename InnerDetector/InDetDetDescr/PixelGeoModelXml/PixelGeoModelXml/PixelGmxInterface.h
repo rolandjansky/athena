@@ -31,39 +31,39 @@ class PixelGmxInterface: public GmxInterface {
 		 GeoVFullPhysVol *fpv);
   //  void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, GeoAlignableTransform *transform);
   void makePixelModule(std::string typeName, std::map<std::string, std::string> &par);
-  //  /*
+
   template <typename T> void getparm(const std::string typeName, const std::string name, 
 				     const std::map<std::string, std::string> &par, T &value) {
-    std::map<std::string, std::string>::const_iterator found;
-    if ((found = par.find(name)) != par.end()) {
-      std::istringstream(found->second) >> value;
-    }
-    else {
-      std::cerr << "PixelGmxInterface::addModuleType: Error: missing parameter " << name << " for " << typeName << std::endl;
-      exit(999);
-    }
+      std::map<std::string, std::string>::const_iterator found;
+      if ((found = par.find(name)) != par.end()) {
+	  std::istringstream(found->second) >> value;
+      }
+      else {
+	  std::cerr << "PixelGmxInterface::addModuleType: Error: missing parameter " << name << " for " << typeName << std::endl;
+	  exit(999);
+      }
   }
 
   template <typename T, typename A> void getparms(const std::string typeName, const std::string name, 
 						  const std::map<std::string, std::string> &par, std::vector<T, A> &vec) {
-    std::map<std::string, std::string>::const_iterator found;
-    if ((found = par.find(name)) != par.end()) {
-      T value;
-      std::string strVal(found->second);
-      strVal.erase(strVal.find_last_not_of(" \t\n\r\f\v") + 1); // Pixel trailing white space or you get an extra 0
-      std::istringstream inString(strVal);
-      do {
-	inString >> value;
-	vec.push_back(value);
+      std::map<std::string, std::string>::const_iterator found;
+      if ((found = par.find(name)) != par.end()) {
+	  T value;
+	  std::string strVal(found->second);
+	  strVal.erase(strVal.find_last_not_of(" \t\n\r\f\v") + 1); // Pixel trailing white space or you get an extra 0
+	  std::istringstream inString(strVal);
+	  do {
+	      inString >> value;
+	      vec.push_back(value);
+	  }
+	  while (inString.good());
       }
-      while (inString.good());
-    }
-    else {
-      std::cerr << "PixelGmxInterface::addModuleType: Error: missing parameter " << name << " for " << typeName << std::endl;
-      exit(999);
-    }
+      else {
+	  std::cerr << "PixelGmxInterface::addModuleType: Error: missing parameter " << name << " for " << typeName << std::endl;
+	  exit(999);
+      }
   }
-  //*/
+
   std::string getstr(const std::string typeName, const std::string name, const std::map<std::string, std::string> &par);
 
  private:

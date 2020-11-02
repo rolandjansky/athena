@@ -33,7 +33,7 @@ namespace InDetDDSLHC {
     // Get the xml from the database instead of a file. Returns gzipped xml as a string.
     std::string getBlob();
     // Determine which alignment folders are loaded to decide if we register old or new folders
-    virtual InDetDD::AlignFolderType getAlignFolderType() const;
+    //virtual InDetDD::AlignFolderType getAlignFolderType() const;
 
   private: 
     // Copy and assignments operations illegal and so are made private

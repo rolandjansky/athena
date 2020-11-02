@@ -121,7 +121,7 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
   getparm(typeName, "cellRowsPerCircuit", par, cellRowsPerCircuit);  
   getparm(typeName, "diodeColumnsPerCircuit", par, diodeColumnsPerCircuit);  
   getparm(typeName, "diodeRowsPerCircuit", par, diodeRowsPerCircuit);  
-  getparm(typeName, "matrix", par, matrix);
+  //  getparm(typeName, "matrix", par, matrix);
   getparm(typeName, "is3D", par, is3D);
 
   //
