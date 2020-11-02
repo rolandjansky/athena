@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: AthExThinning/python/Lib.py
 # @purpose: a set of Py-components to tests py-thinning
@@ -41,8 +41,7 @@ class PyWriteThinnedData( PyAthena.Alg ):
     def initialize(self):
         self.msg.info( "Initializing %s", self.name )
         ## storegate
-        self.sg = PyAthena.StoreGate.pointer("StoreGateSvc")
-        # or: PyAthena.py_svc("StoreGateSvc",createIf=True)
+        self.sg = PyAthena.py_svc("StoreGateSvc")
         
         ## Datavector stuff
         import cppyy
@@ -304,8 +303,7 @@ class PyReadNonThinnedData( PyAthena.Alg ):
     def initialize(self):
         self.msg.info( "Initializing %s", self.name )
         ## storegate
-        self.sg = PyAthena.StoreGate.pointer("StoreGateSvc")
-        # or: PyAthena.py_svc("StoreGateSvc",createIf=True)
+        self.sg = PyAthena.py_svc("StoreGateSvc")
         
         ## Datavector stuff
         import cppyy
