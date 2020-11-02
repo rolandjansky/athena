@@ -100,7 +100,6 @@ if [ $dosim -ne 0 ]; then
     --postInclude     "all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py" "EVNTtoHITS:BeamEffects/postInclude.CrabKissingVertexPositioner_Nominal.py"
 
 
-#    --postInclude     "all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,LArROD/LArSuperCellEnable.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py" "HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization_lowthresh.py" "RAWtoESD:InDetSLHC_Example/postInclude.AnalogueClustering.py" 
 
 
   mv ./SiHitValid.root ./$dcubemon_sim
