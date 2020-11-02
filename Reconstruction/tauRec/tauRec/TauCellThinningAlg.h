@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "CaloEvent/CaloClusterCellLinkContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ThinningHandleKey.h"
@@ -44,6 +45,10 @@ class TauCellThinningAlg : public AthReentrantAlgorithm
   // Cell container to thin
   SG::ThinningHandleKey<CaloCellContainer> m_cells
     { this, "Cells", "AllCalo", "Cell container to thin" };
+
+  // Cluster cell link container to thin
+  SG::ThinningHandleKey<CaloClusterCellLinkContainer> m_cellLinks
+    { this, "CellLinks", "CaloCalTopoClusters_links", "Cell container to thin" };
 
   // Tau container
   SG::ReadHandleKey<xAOD::TauJetContainer> m_taus
