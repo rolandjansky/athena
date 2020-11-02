@@ -40,7 +40,10 @@ namespace PUCorrection {
 					 mu,
 					 NPV);
       pt_ref =  pt_ref - areaCorr - calibration3D;
-      float deltaPt = deltaPtCorrection( pt_ref, eta );
+      float deltaPt = 0.0;
+      if(m_applyDeltaPtTerm){
+	deltaPt = deltaPtCorrection( pt_ref, eta );
+      }
 
       return (pt*m_pTEnergyScale -areaCorr - calibration3D + deltaPt)/m_pTEnergyScale;      
     }
@@ -195,6 +198,8 @@ namespace PUCorrection {
     float m_maxPt=170.0 ; // GeV !!
     float m_rhoEnergyScale = 0.001; // 0.001 when rho is given in MeV. 
     float m_pTEnergyScale = 0.001; // 0.001 when pT is given in MeV. 
+
+    bool m_applyDeltaPtTerm = true; //boolean to switch on/off the deltaPt correction
 
     // ***************
     // 
