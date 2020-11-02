@@ -244,6 +244,11 @@ def InDetGlobalChi2Fitter(name='InDetGlobalChi2Fitter', **kwargs) :
     pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
 
     from InDetRecExample import TrackingCommon as TrackingCommon
+
+    # PHF cut during fit iterations to save CPU time
+    kwargs=setDefaults(kwargs,
+                       MinPHFCut                 = TrackingCommon.getInDetNewTrackingCuts().minTRTPrecFrac()) 
+
     if 'RotCreatorTool' not in kwargs :
         kwargs=setDefaults(kwargs,
                            RotCreatorTool        = TrackingCommon.getInDetRotCreator(**pix_cluster_on_track_args))
@@ -287,6 +292,16 @@ def InDetGlobalChi2Fitter(name='InDetGlobalChi2Fitter', **kwargs) :
         kwargs=setDefaults(kwargs,
                            Momentum            = 1000.*Units.MeV)
     return InDetGlobalChi2FitterBase(name, **kwargs)
+
+def InDetGlobalChi2FitterBT(name='InDetGlobalChi2FitterBT', **kwargs):
+    '''
+    Global Chi2 Fitter for backtracking
+    '''
+    from InDetRecExample import TrackingCommon as TrackingCommon
+    kwargs=setDefaults(kwargs,
+                       MinPHFCut = 0.)
+    return InDetGlobalChi2Fitter(name, **kwargs)
+
 
 def InDetGlobalChi2FitterLowPt(name='InDetGlobalChi2FitterLowPt', **kwargs) :
     # @TODO TrackingGeometrySvc was not set but is set now
@@ -389,6 +404,13 @@ def InDetTrackFitter(name='InDetTrackFitter', **kwargs) :
         'GlobalChi2Fitter'        : InDetGlobalChi2Fitter,
         'GaussianSumFilter'       : GaussianSumFitter
     }[InDetFlags.trackFitterType()](name,**kwargs)
+
+def InDetTrackFitterBT(name='InDetTrackFitterBT', **kwargs) :
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    if InDetFlags.trackFitterType() != 'GlobalChi2Fitter' :
+        return InDetTrackFitter(name,**kwargs)
+    else :
+        return InDetGlobalChi2FitterBT(name,**kwargs)
 
 def InDetTrackFitterLowPt(name='InDetTrackFitter', **kwargs) :
     from InDetRecExample.InDetJobProperties import InDetFlags
