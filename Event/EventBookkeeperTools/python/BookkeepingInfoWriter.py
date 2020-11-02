@@ -93,11 +93,11 @@ class BookkeepingWriterBase( PyAthena.Alg ):
 
             if alg:
                 dic[name]["Alg"]=alg
-                self.msg.debug("Succesfully added algorithm '%s'"%name)
+                self.msg.debug("Succesfully added algorithm '%s'", name)
 
 
             else:
-                self.msg.warning("BookkeepingWriterBase cannot get algorithm '%s'. This alg will not be bookkept."%name)
+                self.msg.warning("BookkeepingWriterBase cannot get algorithm '%s'. This alg will not be bookkept.", name)
                 dic.pop(name)
         return
 
@@ -119,7 +119,7 @@ class SkimDecisionsWriter(BookkeepingWriterBase):
         return
 
     def initialize(self):
-        self.msg.info("SkimDecisionsContainer name: '%s'"%self.SkimDecisionsContainerName)
+        self.msg.info("SkimDecisionsContainer name: '%s'", self.SkimDecisionsContainerName)
         self.sg = PyAthena.py_svc("StoreGateSvc")
         return BookkeepingWriterBase.initialize(self)
 
@@ -129,12 +129,12 @@ class SkimDecisionsWriter(BookkeepingWriterBase):
             sd.setName(prefix+"_"+key)
             try:
                 sd.setIsAccepted(dic[key]["Alg"].filterPassed())
-            except:
-                self.msg.error("problem with filterPassed() for alg %s..."%key)
+            except Exception:
+                self.msg.error("problem with filterPassed() for alg %s...", key)
 
             sdc.push_back(sd)
             ROOT.SetOwnership (sd, False)
-            self.msg.debug("Skim %s: %i (%s)"%(key,sd.isAccepted(),prefix))
+            self.msg.debug("Skim %s: %i (%s)", key, sd.isAccepted(), prefix)
         return
 
     def execute(self):
