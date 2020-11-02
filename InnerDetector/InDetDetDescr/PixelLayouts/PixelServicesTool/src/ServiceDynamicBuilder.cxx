@@ -149,6 +149,7 @@ void ServiceDynamicBuilder::addServiceDynVolume( const ServiceDynVolume& vol, co
   double sectorWidth = vol.getSectorWidth();
   bool splitLayers = vol.splitLayersInPhi();
   double splitMat = splitLayers ? 1. : 1./nSectors;
+  int phiStep = vol.getPhiStep();
 
   // check is split of layers feasible
   if (splitLayers) {
@@ -242,10 +243,11 @@ void ServiceDynamicBuilder::addServiceDynVolume( const ServiceDynVolume& vol, co
   } // end no split section
     else {    // layer split : 1 per section, empty sections not built
       // assume material coming from a single layer
+      // looping over layer content, phi sector defined by "phiSplitStepInSectors"
       int isector =0;
       for (std::vector<ServiceDynMaterial>::const_iterator ism=vol.materials().begin(); ism!=vol.materials().end(); ++ism) {
 	msgRouting<<MSG::DEBUG<<"loop over materials:"<<ism->name()<< endreq;
-
+        
 	InDetDD::ServiceVolume * pSect = new InDetDD::ServiceVolume;
 	std::ostringstream os;
 	os << vol.name()<<"_sector"<<isector;
@@ -315,7 +317,8 @@ void ServiceDynamicBuilder::addServiceDynVolume( const ServiceDynVolume& vol, co
 	  addService(pSect);
 	} else delete pSect;
 	//
-	isector++;
+        isector +=phiStep;
+        while (isector > nSectors-1) { isector -= nSectors; isector++; }
       } // end loop over materials/layers
 
     }  // end split layer section
