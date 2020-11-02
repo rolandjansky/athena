@@ -427,6 +427,8 @@ def triggerPOOLOutputCfg(flags, edmSet):
     menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
     menuwriter.IsHLTJSONConfig = True
     menuwriter.IsL1JSONConfig = True
+    menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
+    menuwriter.WritexAODTriggerMenuJson = True
     menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
 
@@ -436,7 +438,11 @@ def triggerPOOLOutputCfg(flags, edmSet):
     acc.merge( L1PrescaleCondAlgCfg( flags ) )
 
     # Add metadata to the output stream
-    streamAlg.MetadataItemList += [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
+    if menuwriter.WritexAODTriggerMenu:
+      streamAlg.MetadataItemList += [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
+
+    if menuwriter.WritexAODTriggerMenuJson:
+      streamAlg.MetadataItemList += [ "xAOD::TriggerMenuJsonContainer#*", "xAOD::TriggerMenuJsonAuxContainer#*" ]
 
     # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
     streamAlg.ExtraInputs += [
