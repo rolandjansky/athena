@@ -4,6 +4,8 @@
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with threads=1 followed by AOD->NTUP_PHYSVAL with serial athena and PHYSVAL_WEB stage
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
+# art-memory: 7000
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -25,11 +27,6 @@
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_physvalweb_steps
-import os
-
-# To run single-process transform on MCORE sites
-if 'ATHENA_NPROC_NUM' in os.environ:
-    del os.environ['ATHENA_NPROC_NUM']
 
 preExec = ';'.join([
   'setMenu=\'LS2_v1_TriggerValidation_mc_prescale\'',
@@ -40,8 +37,9 @@ preExec = ';'.join([
 rdo2aod = ExecStep.ExecStep('RDOtoAOD')
 rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
-rdo2aod.max_events = 500
-rdo2aod.threads = 1
+rdo2aod.max_events = 800
+rdo2aod.threads = 4
+rdo2aod.concurrent_events = 4
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --valid=True'
 rdo2aod.args += ' --preExec="all:{:s};"'.format(preExec)
 
