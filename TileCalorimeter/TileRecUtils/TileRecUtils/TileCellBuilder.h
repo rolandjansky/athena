@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECUTILS_TILECELLBUILDER_H
@@ -158,6 +158,10 @@ private:
     SG::WriteHandleKey<TileCellContainer> m_E4prContainerKey{this, "E4prContainer", 
                                                              "E4prContainer",
                                                              "Output Tile E4 prime container key"};
+
+    SG::WriteDecorHandleKey<xAOD::EventInfo> m_EventInfoTileStatusKey{this, "EventInfoTileStatus",
+                                                                      "EventInfo.TileStatus",
+                                                                      "Dummy decoration key to aid scheduling"};
 
 
     std::string m_dspRawChannelContainer;

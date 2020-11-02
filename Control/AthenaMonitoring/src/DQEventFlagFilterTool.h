@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQEVENTFLAGFILTERTOOL_H
@@ -32,6 +32,7 @@ class DQEventFlagFilterTool :  public AthAlgTool, virtual public IDQFilterTool  
   Gaudi::Property<bool> m_doSCT{this, "doSCT", true};
   Gaudi::Property<bool> m_doCore{this, "doCore", true};
   SG::ReadHandleKey<xAOD::EventInfo> m_EventInfoKey{this, "EventInfoKey", "EventInfo"};
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_TileStatusKey{this, "TileStatusKey", "EventInfo.TileStatus"};
 };
 
 #endif //DQEVENTFLAGFILTERTOOL_H

@@ -37,9 +37,11 @@ def TgcRawDataMonitoringConfig(inputFlags):
     if not inputFlags.DQ.triggerDataAvailable:
         tgcRawDataMonAlg.MuonRoIContainerName = ''
 
-    if 'HLT_xAOD__MuonContainer_MuonEFInfo' in inputFlags.Input.Collections:
+    isBS = (inputFlags.Input.Format == 'BS')
+    # if input is raw data, objects won't be in input collections
+    if (isBS and inputFlags.DQ.triggerDataAvailable) or 'HLT_xAOD__MuonContainer_MuonEFInfo' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.MuonEFContainerName='HLT_xAOD__MuonContainer_MuonEFInfo'
-    if 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
+    if isBS or 'TGC_MeasurementsAllBCs' in inputFlags.Input.Collections:
         tgcRawDataMonAlg.AnaTgcPrd=True
     
     mainDir = 'Muon/MuonRawDataMonitoring/TGC/'

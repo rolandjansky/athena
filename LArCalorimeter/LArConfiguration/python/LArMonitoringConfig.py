@@ -18,18 +18,18 @@ def LArMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     acc = ComponentAccumulator()
     
-    if not inputFlags.Input.isMC:
-         acc.merge(LArAffectedRegionsConfig(inputFlags))
-         acc.merge(LArNoisyROMonConfig(inputFlags))
-         if 'online' not in inputFlags.DQ.Environment:
-            acc.merge(LArHVCorrMonConfig(inputFlags))
-
     # algos which can run in ESD but not AOD:
     if inputFlags.DQ.Environment != 'AOD':
         if inputFlags.DQ.DataType != 'cosmics':
             from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
             acc.merge(BunchCrossingCondAlgCfg(inputFlags))
             acc.merge(LArCollisionTimeMonConfig(inputFlags))
+        if not inputFlags.Input.isMC:
+            acc.merge(LArNoisyROMonConfig(inputFlags))
+            acc.merge(LArAffectedRegionsConfig(inputFlags))
+            if 'online' not in inputFlags.DQ.Environment:
+                acc.merge(LArHVCorrMonConfig(inputFlags))
+
 
     # and others on RAW data only
     if inputFlags.DQ.Environment in ('online', 'tier0', 'tier0Raw'):
