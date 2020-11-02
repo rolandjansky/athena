@@ -9,6 +9,7 @@
 #include "TrkGaussianSumFilter/GsfConstants.h"
 #include <limits>
 #include <stdexcept>
+#include <vector>
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
 #else
@@ -124,10 +125,10 @@ recalculateDistances(const Component1D* componentsIn,
                      const int32_t n)
 {
   const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, alignment));
+    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
 
-  float* distances =
-    static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+  float* distances = static_cast<float*>(
+    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
 
   const int32_t j = mini;
   const int32_t indexConst = (j - 1) * j / 2;
@@ -167,9 +168,9 @@ calculateAllDistances(const Component1D* componentsIn,
 {
 
   const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, alignment));
-  float* distances =
-    static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  float* distances = static_cast<float*>(
+    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
 
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
@@ -187,8 +188,8 @@ calculateAllDistances(const Component1D* componentsIn,
 void
 resetDistances(float* distancesIn, const int32_t minj, const int32_t n)
 {
-  float* distances =
-    static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+  float* distances = static_cast<float*>(
+    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
   const int32_t j = minj;
   const int32_t indexConst = (j - 1) * j / 2;
   // Rows
@@ -210,33 +211,31 @@ namespace GSFUtils {
  * which componets got merged.
  */
 std::vector<std::pair<int8_t, int8_t>>
-findMerges(Component1D* componentsIn,
-           const int8_t inputSize,
-           const int8_t reducedSize)
+findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
 {
   Component1D* components = static_cast<Component1D*>(
-    __builtin_assume_aligned(componentsIn, alignment));
+    __builtin_assume_aligned(componentsIn.components.data(), GSFConstants::alignment));
+
+  const int32_t n = componentsIn.numComponents;
 
   // Sanity check. Function  throw on invalid inputs
-  if (inputSize < 0 ||
-      inputSize > GSFConstants::maxComponentsAfterConvolution ||
-      reducedSize > inputSize) {
+  if (n < 0 || n > GSFConstants::maxComponentsAfterConvolution ||
+      reducedSize > n) {
     throw std::runtime_error("findMerges :Invalid InputSize or reducedSize");
   }
   // We need just one for the full duration of a job
   const static std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 
-  // Based on the inputSize allocate enough space for the pairwise distances
-  const int8_t n = inputSize;
+  // Based on the inputSize n allocate enough space for the pairwise distances
   const int32_t nn = n * (n - 1) / 2;
   // We work with a  multiple of 8*floats (32 bytes).
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
-  AlignedDynArray<float, alignment> distances(
+  AlignedDynArray<float, GSFConstants::alignment> distances(
     nn2, std::numeric_limits<float>::max());
 
   // vector to be returned
   std::vector<std::pair<int8_t, int8_t>> merges;
-  merges.reserve(inputSize - reducedSize);
+  merges.reserve(n - reducedSize);
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
 
@@ -291,7 +290,8 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
+  float* array =
+    (float*)__builtin_assume_aligned(distancesIn, GSFConstants::alignment);
   const vec<int, 8> increment = { 8, 8, 8, 8, 8, 8, 8, 8 };
   vec<int, 8> indicesIn = { 0, 1, 2, 3, 4, 5, 6, 7 };
   vec<int, 8> minindices = indicesIn;
@@ -326,7 +326,8 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
+  float* array =
+    (float*)__builtin_assume_aligned(distancesIn, GSFConstants::alignment);
   // Do 2 vectors of 4 elements , so 8 at time
   const vec<int, 4> increment = { 8, 8, 8, 8 };
   vec<int, 4> indices1 = { 0, 1, 2, 3 };
@@ -379,7 +380,8 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
+  float* array =
+    (float*)__builtin_assume_aligned(distancesIn, GSFConstants::alignment);
   const vec<int, 4> increment = { 8, 8, 8, 8 };
   vec<int, 4> indices1 = { 0, 1, 2, 3 };
   vec<int, 4> indices2 = { 4, 5, 6, 7 };
