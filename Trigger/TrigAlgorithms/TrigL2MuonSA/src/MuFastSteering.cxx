@@ -1932,7 +1932,8 @@ bool MuFastSteering::storeIDRoiDescriptor(const TrigRoiDescriptor*              
 
  } else { // pt = 0.
     
-    TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
+    TrigRoiDescriptor* IDroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
+                                                               roids->l1Id(),
                                                                roids->roiId(),
                                                                roids->eta(),
                                                                roids->eta() - (roids->eta() - roids->etaMinus()) * scaleRoIforZeroPt,
