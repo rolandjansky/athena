@@ -25,5 +25,11 @@ StatusCode CTPUnpackingToolBase::initialize()
 }
 
 StatusCode CTPUnpackingToolBase::passBeforePrescaleSelection(const ROIB::RoIBResult* /*roib*/, const std::vector<std::string>& /*l1ItemNames*/, bool& /*pass*/) const {
-  return StatusCode::SUCCESS;
+  ATH_MSG_ERROR("Base class should not call this function");
+  return StatusCode::FAILURE;
+}
+
+StatusCode CTPUnpackingToolBase::decode(const ROIB::RoIBResult& /*roib*/, HLT::IDVec& /*enabledChains*/) const {
+  ATH_MSG_ERROR("Base class should not call this function");
+  return StatusCode::FAILURE;
 }
