@@ -27,6 +27,21 @@ namespace DerivationFramework {
   SG::AuxElement::Decorator<std::vector<float> > ExKtbbAugmentation::ExKtbbDecorators::secvtx_3dsig("SoftBVrtClusterTool_MSVTight_Vertices_3dsig");
   SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_maxsd0("ExKtbb_maxsd0");
   SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_av3sd0("ExKtbb_av3sd0");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb("ExKtbb_dexter_pbb");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb("ExKtbb_dexter_pb");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl("ExKtbb_dexter_pl");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb_trksflip("ExKtbb_dexter_pbb_trksflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb_trksflip("ExKtbb_dexter_pb_trksflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl_trksflip("ExKtbb_dexter_pl_trksflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb_trksflip_svmassflip("ExKtbb_dexter_pbb_trksflip_svmassflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb_trksflip_svmassflip("ExKtbb_dexter_pb_trksflip_svmassflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl_trksflip_svmassflip("ExKtbb_dexter_pl_trksflip_svmassflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb_negtrksflip("ExKtbb_dexter_pbb_negtrksflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb_negtrksflip("ExKtbb_dexter_pb_negtrksflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl_negtrksflip("ExKtbb_dexter_pl_negtrksflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pbb_negtrksflip_svmassflip("ExKtbb_dexter_pbb_negtrksflip_svmassflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pb_negtrksflip_svmassflip("ExKtbb_dexter_pb_negtrksflip_svmassflip");
+  SG::AuxElement::Decorator<float> ExKtbbAugmentation::ExKtbbDecorators::jet_dexter_pl_negtrksflip_svmassflip("ExKtbb_dexter_pl_negtrksflip_svmassflip");
   SG::AuxElement::Decorator<int> ExKtbbAugmentation::ExKtbbDecorators::smalljet_largeJetLabel("LargeJetLabel");
 
 ExKtbbAugmentation::ExKtbbAugmentation(const std::string& t, const std::string& n, const IInterface* p):
@@ -43,6 +58,7 @@ ExKtbbAugmentation::ExKtbbAugmentation(const std::string& t, const std::string& 
     declareProperty("PrimaryVerticesCollectionName",m_primaryVerticesCollectionName="PrimaryVertices");
 
     declareProperty("isMC",m_isMC=false);
+
 }
 
 
@@ -54,6 +70,7 @@ ExKtbbAugmentation::~ExKtbbAugmentation(){}
 StatusCode ExKtbbAugmentation::initialize(){
 
   ATH_MSG_INFO("Initializing ExKtbbAugmentation tool... " );
+  ATH_CHECK(m_dexter.retrieve());
 
   return StatusCode::SUCCESS;
 
@@ -172,7 +189,62 @@ StatusCode ExKtbbAugmentation::addBranches() const{
       }
     }
 
+    if (ExKtSubjets.size() == 2) {
+      ATH_MSG_VERBOSE("Adding DexTer scores to AntiKt8 jets");
+
+      auto scores = m_dexter->getScores(*jet);
+      tj_decorators.jet_dexter_pbb(*jet) = scores.at("dexter_pbb");
+      tj_decorators.jet_dexter_pb(*jet) = scores.at("dexter_pb");
+      tj_decorators.jet_dexter_pl(*jet) = scores.at("dexter_pl");
+
+      m_dexter->setProperty("negativeTagMode", "TrksFlip");
+      auto scores_TrksFlip = m_dexter->getScores(*jet);
+      tj_decorators.jet_dexter_pbb_trksflip(*jet) = scores_TrksFlip.at("dexter_pbb");
+      tj_decorators.jet_dexter_pb_trksflip(*jet) = scores_TrksFlip.at("dexter_pb");
+      tj_decorators.jet_dexter_pl_trksflip(*jet) = scores_TrksFlip.at("dexter_pl");
+
+      m_dexter->setProperty("negativeTagMode", "SVMassTrksFlip");
+      auto scores_SVMassTrksFlip = m_dexter->getScores(*jet);
+      tj_decorators.jet_dexter_pbb_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pbb");
+      tj_decorators.jet_dexter_pb_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pb");
+      tj_decorators.jet_dexter_pl_trksflip_svmassflip(*jet) = scores_SVMassTrksFlip.at("dexter_pl");
+
+      m_dexter->setProperty("negativeTagMode", "NegTrksFlip");
+      auto scores_NegTrksFlip = m_dexter->getScores(*jet);
+      tj_decorators.jet_dexter_pbb_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pbb");
+      tj_decorators.jet_dexter_pb_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pb");
+      tj_decorators.jet_dexter_pl_negtrksflip(*jet) = scores_NegTrksFlip.at("dexter_pl");
+
+      m_dexter->setProperty("negativeTagMode", "SVMassNegTrksFlip");
+      auto scores_SVMassNegTrksFlip = m_dexter->getScores(*jet);
+      tj_decorators.jet_dexter_pbb_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pbb");
+      tj_decorators.jet_dexter_pb_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pb");
+      tj_decorators.jet_dexter_pl_negtrksflip_svmassflip(*jet) = scores_SVMassNegTrksFlip.at("dexter_pl");
+
+    } else {
+      tj_decorators.jet_dexter_pbb(*jet) = -999.;
+      tj_decorators.jet_dexter_pb(*jet) = -999.;
+      tj_decorators.jet_dexter_pl(*jet) = -999.;
+
+      tj_decorators.jet_dexter_pbb_trksflip(*jet) = -999.;
+      tj_decorators.jet_dexter_pb_trksflip(*jet) = -999.;
+      tj_decorators.jet_dexter_pl_trksflip(*jet) = -999.;
+
+      tj_decorators.jet_dexter_pbb_trksflip_svmassflip(*jet) = -999.;
+      tj_decorators.jet_dexter_pb_trksflip_svmassflip(*jet) = -999.;
+      tj_decorators.jet_dexter_pl_trksflip_svmassflip(*jet) = -999.;
+
+      tj_decorators.jet_dexter_pbb_negtrksflip(*jet) = -999.;
+      tj_decorators.jet_dexter_pb_negtrksflip(*jet) = -999.;
+      tj_decorators.jet_dexter_pl_negtrksflip(*jet) = -999.;
+
+      tj_decorators.jet_dexter_pbb_negtrksflip_svmassflip(*jet) = -999.;
+      tj_decorators.jet_dexter_pb_negtrksflip_svmassflip(*jet) = -999.;
+      tj_decorators.jet_dexter_pl_negtrksflip_svmassflip(*jet) = -999.;
+    }
+
     if (ExKtSubjets.size() == 0) continue;
+
         
     std::vector<std::vector<float> > vtx_pt(ExKtSubjets.size());
     std::vector<std::vector<float> > vtx_eta(ExKtSubjets.size());
@@ -200,7 +272,7 @@ StatusCode ExKtbbAugmentation::addBranches() const{
 
       auto trackJet = std::min_element(ExKtSubjets.begin(), ExKtSubjets.end(), 
 				       [&SecVtxVector](const xAOD::Jet* j1, const xAOD::Jet* j2){
-					 return (j1->pt()*SecVtxVector.DeltaR(j1->p4()) < j2->pt()*SecVtxVector.DeltaR(j2->p4()));
+					 return (SecVtxVector.DeltaR(j1->p4()) < SecVtxVector.DeltaR(j2->p4()));
 				       }
 				       );
       
