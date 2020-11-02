@@ -1,7 +1,7 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-#include "TRT_ConditionsData/TRTPIDNN.h"
+#include "TRT_ConditionsNN/TRTPIDNN.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
 #include <iostream>

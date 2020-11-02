@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/WriteCondHandleKey.h"
-#include "TRT_ConditionsData/TRTPIDNN.h"
+#include "TRT_ConditionsNN/TRTPIDNN.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "GaudiKernel/ICondSvc.h"
 #include "Gaudi/Property.h"

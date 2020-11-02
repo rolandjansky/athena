@@ -13,8 +13,3 @@ atlas_add_component( TRT_ConditionsAlgs
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS}
                      LINK_LIBRARIES LINK_LIBRARIES ${CORAL_LIBRARIES} ${COOL_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities DetDescrConditions GaudiKernel GeoModelUtilities GeoPrimitives InDetIdentifier StoreGateLib TRT_ConditionsData TRT_ConditionsServicesLib TRT_ReadoutGeometry )
-
-# Install files from the package:
-atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.txt share/*.py )
-

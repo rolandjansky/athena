@@ -527,7 +527,7 @@ if DetFlags.haveRIO.TRT_on():
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
     # PID NN
-    from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTPIDNNCondAlg
+    from TRT_ConditionsNN.TRT_ConditionsNNConf import TRTPIDNNCondAlg
     TRTPIDNNCondAlg = TRTPIDNNCondAlg(name = "TRTPIDNNCondAlg")
 
     # dEdx probability algorithm

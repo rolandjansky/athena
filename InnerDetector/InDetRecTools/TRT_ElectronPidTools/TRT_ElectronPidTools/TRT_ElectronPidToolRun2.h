@@ -19,7 +19,7 @@
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TRT_ElectronPidTools/ITRT_ElectronToTTool.h"
 #include "TRT_ConditionsData/HTcalculator.h"
-#include "TRT_ConditionsData/TRTPIDNN.h"
+#include "TRT_ConditionsNN/TRTPIDNN.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
 #include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
