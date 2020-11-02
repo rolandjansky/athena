@@ -61,7 +61,6 @@ class opt:
     doMonitorSlice    = True
     doBeamspotSlice   = True
     doCosmicSlice     = True
-    doEnhancedBiasSlice = True
     doUnconventionalTrackingSlice   = True
     reverseViews      = False
     filterViews       = False
