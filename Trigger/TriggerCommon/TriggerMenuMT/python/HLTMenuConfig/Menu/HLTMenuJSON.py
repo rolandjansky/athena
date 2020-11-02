@@ -103,6 +103,7 @@ def __generateJSON( chainDicts, chainConfigs, HLTAllSteps, menuName, fileName ):
         menuDict["chains"][chainName] = odict([
             ("counter", chain["chainCounter"]),
             ("nameHash", chain["chainNameHash"]),
+            ("legMultiplicities", chain["chainMultiplicities"]),
             ("l1item", chain["L1item"]),
             ("l1thresholds", l1Thresholds),
             ("groups", chain["groups"]),

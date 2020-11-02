@@ -215,7 +215,7 @@ namespace TrigCompositeUtils {
     return composite->hasObjectCollectionLinks( m_name );
   }
 
- std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionID id) {
+ std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionIDContainer ids) {
     std::vector<const Decision*> output;
     // The list of containers we need to read can change on a file-by-file basis (it depends on the SMK)
     // Hence we query SG for all collections rather than maintain a large and ever changing ReadHandleKeyArray
@@ -276,10 +276,10 @@ namespace TrigCompositeUtils {
         // So the size of activeChainsIntoThisDecision corresponds to the number of HypoTools which will have run
         // What do we care about? A chain, or all chains?
         DecisionIDContainer chainsToCheck;
-        if (id == 0) { // We care about *all* chains
+        if (ids.size() == 0) { // We care about *all* chains
           chainsToCheck = activeChainsIntoThisDecision;
-        } else { // We care about *one* chain
-          chainsToCheck.insert(id);
+        } else { // We care about sepcified chains
+          chainsToCheck = ids;
         }
         // We have found a rejected decision node *iff* a chainID to check is *not* present here
         // I.e. the HypoTool for the chain returned a NEGATIVE decision
@@ -300,12 +300,11 @@ namespace TrigCompositeUtils {
   void recursiveGetDecisionsInternal(const Decision* node, 
     const Decision* comingFrom, 
     NavGraph& navGraph, 
-    const DecisionID id,
+    const DecisionIDContainer ids,
     const bool enforceDecisionOnNode) {
 
     // Does this Decision satisfy the chain requirement?
-    DecisionIDContainer idSet = {id};
-    if (enforceDecisionOnNode && id != 0 && !isAnyIDPassing(node, idSet)) {
+    if (enforceDecisionOnNode && ids.size() != 0 && !isAnyIDPassing(node, ids)) {
       return; // Stop propagating down this leg. It does not concern the chain with DecisionID = id
     }
 
@@ -318,7 +317,7 @@ namespace TrigCompositeUtils {
       for ( ElementLink<DecisionContainer> seed : getLinkToPrevious(node)) {
         const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
-        recursiveGetDecisionsInternal(seedDecision, node, navGraph, id, /*enforceDecisionOnNode*/ true);
+        recursiveGetDecisionsInternal(seedDecision, node, navGraph, ids, /*enforceDecisionOnNode*/ true);
       }
     }
     return;
@@ -326,11 +325,11 @@ namespace TrigCompositeUtils {
 
   void recursiveGetDecisions(const Decision* start, 
     NavGraph& navGraph, 
-    const DecisionID id,
+    const DecisionIDContainer ids,
     const bool enforceDecisionOnStartNode) {
 
     // Note: we do not require navGraph to be an empty graph. We can extend it.
-    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, id, enforceDecisionOnStartNode);
+    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, ids, enforceDecisionOnStartNode);
     
     return;
   }

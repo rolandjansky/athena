@@ -61,6 +61,17 @@ TrigConf::Chain::l1item() const
    return getAttribute("l1item");
 }
 
+std::vector<size_t> TrigConf::Chain::legMultiplicities() const {
+   std::vector<size_t> returnMultiplicities;
+   const auto& theMultiplicities = getList("legMultiplicities");
+   if( !theMultiplicities.empty() ) {
+      returnMultiplicities.reserve(theMultiplicities.size());
+      for( auto& m : theMultiplicities ) {
+         returnMultiplicities.push_back( m.getValue<size_t>() );
+      }
+   } 
+   return returnMultiplicities;
+}
 
 std::vector<std::string>
 TrigConf::Chain::l1thresholds() const
