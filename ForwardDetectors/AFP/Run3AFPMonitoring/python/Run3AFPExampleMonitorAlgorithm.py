@@ -12,6 +12,10 @@ def Run3AFPExampleMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
+    # don't run in RAWtoESD
+    if inputFlags.DQ.Environment in ('tier0Raw',):
+        return result
+
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     result.merge(BunchCrossingCondAlgCfg(inputFlags))
     

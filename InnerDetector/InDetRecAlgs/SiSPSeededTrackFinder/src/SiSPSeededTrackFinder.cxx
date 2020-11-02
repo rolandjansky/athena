@@ -28,6 +28,7 @@ InDet::SiSPSeededTrackFinder::SiSPSeededTrackFinder
 StatusCode InDet::SiSPSeededTrackFinder::initialize() 
 {
   ATH_CHECK(m_evtKey.initialize());
+  ATH_CHECK(m_mbtsKey.initialize(m_useMBTS));
   if (not m_SpacePointsPixelKey.empty()) {
     ATH_CHECK(m_SpacePointsPixelKey.initialize());
   }
