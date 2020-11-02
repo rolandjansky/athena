@@ -18,7 +18,7 @@
 #include "xAODTau/TauJet.h"
 
 /**
- * @brief Create ROIs for the Pi0 finder.
+ * @brief Find the cells used to create pi0 cluster
  * 
  * @author Will Davey <will.davey@cern.ch> 
  * @author Benedict Winter <benedict.tobias.winter@cern.ch> 
@@ -26,17 +26,21 @@
  */
 
 class TauPi0CreateROI : public TauRecToolBase {
-public:
-    TauPi0CreateROI(const std::string& name);
-    ASG_TOOL_CLASS2(TauPi0CreateROI, TauRecToolBase, ITauToolBase);
-    virtual ~TauPi0CreateROI();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer, boost::dynamic_bitset<>& map) const override;
+public:
+
+  ASG_TOOL_CLASS2(TauPi0CreateROI, TauRecToolBase, ITauToolBase);
+  
+  TauPi0CreateROI(const std::string& name);
+  virtual ~TauPi0CreateROI() = default;
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& Pi0CellContainer, boost::dynamic_bitset<>& map) const override;
 
 private:
-    SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
+    
+  SG::ReadHandleKey<CaloCellContainer> m_caloCellInputContainer{this,"Key_caloCellInputContainer", "AllCalo", "input vertex container key"};
+
 };
 
 #endif	/* TAUPI0CREATEROI_H */
-

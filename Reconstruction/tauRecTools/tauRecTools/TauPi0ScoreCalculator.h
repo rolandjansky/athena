@@ -5,11 +5,12 @@
 #ifndef TAUREC_TAUPI0SCORECALCULATOR_H
 #define	TAUREC_TAUPI0SCORECALCULATOR_H
 
-#include <string>
-#include <map>
 #include "tauRecTools/TauRecToolBase.h"
-#include "xAODPFlow/PFO.h"
 #include "tauRecTools/BDTHelper.h"
+
+#include "xAODPFlow/PFO.h"
+
+#include <string>
 
 /**
  * @brief Selectes pi0Candidates (Pi0 Finder).
@@ -21,20 +22,24 @@
  */
 
 class TauPi0ScoreCalculator : public TauRecToolBase {
-public:
-    TauPi0ScoreCalculator(const std::string& name);
-    ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase)
-    virtual ~TauPi0ScoreCalculator();
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const override;
+public:
+
+  ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase)
+  
+  TauPi0ScoreCalculator(const std::string& name);
+  virtual ~TauPi0ScoreCalculator() = default;
+
+  virtual StatusCode initialize() override;
+  virtual StatusCode executePi0nPFO(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const override;
 
 private:
-    /** @brief function used to calculate BDT score */
-    float calculateScore(const xAOD::PFO* neutralPFO) const;
+  
+  /** @brief Calculate pi0 BDT score */
+  float calculateScore(const xAOD::PFO* neutralPFO) const;
 
-    std::string m_weightfile;    
-    std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT;
+  std::string m_weightfile = "";
+  std::unique_ptr<tauRecTools::BDTHelper> m_mvaBDT = nullptr;
 };
 
 #endif	/* TAUPI0SCORECALCULATOR_H */
