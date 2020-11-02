@@ -89,9 +89,3 @@ StatusCode TRTPIDNNCondAlg::execute()
 
   return StatusCode::SUCCESS;
 }
-
-StatusCode TRTPIDNNCondAlg::finalize()
-{
-  ATH_MSG_DEBUG("finalize " << name());
-  return StatusCode::SUCCESS;
-}

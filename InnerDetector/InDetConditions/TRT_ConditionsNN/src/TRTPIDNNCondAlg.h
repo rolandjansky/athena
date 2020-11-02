@@ -28,7 +28,6 @@ class TRTPIDNNCondAlg : public AthAlgorithm
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute() override;
-  virtual StatusCode finalize() override;
 
  private:
   ServiceHandle<ICondSvc> m_condSvc;
