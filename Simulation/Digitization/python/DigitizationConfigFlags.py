@@ -95,6 +95,9 @@ def createDigitizationCfgFlags():
     # Override the HIT file Run Number with one from a data run
     flags.addFlag("Digitization.DataRunNumber", -1)
     
+    # Run radiation damage simulation
+    flags.addFlag("Digitization.DoRadiationDamage", False)
+    
     # for PileUp digitization
     # Beam Halo input collections
     flags.addFlag("Digitization.PU.BeamHaloInputCols", [])
