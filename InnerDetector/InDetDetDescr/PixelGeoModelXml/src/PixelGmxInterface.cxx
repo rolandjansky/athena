@@ -44,7 +44,7 @@ int PixelGmxInterface::moduleId(map<string, int> &index){
   //
   //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers")
   
-  int hitIdOfModule = SiHitIdHelper::GetHelper->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"], 
+  int hitIdOfModule = SiHitIdHelper::GetHelper()->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"], 
 							   index["eta_module"], index["phi_module"], index["side"]);
 
   *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " <<
@@ -77,13 +77,14 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
   // Get all parameters.
   // This comes from PixelModuleDesign
   //
-  double thickness();
-  int circuitsPerColumn();
-  int circuitsPerRow();
-  int cellColumnsPerCircuit();
-  int cellRowsPerCircuit();
-  int diodeColumnsPerCircuit();
-  int diodeRowsPerCircuit();
+  double thickness(2.075);
+  int circuitsPerColumn(10);
+  int circuitsPerRow(10);
+  int cellColumnsPerCircuit(10);
+  int cellRowsPerCircuit(10);
+  int diodeColumnsPerCircuit(10);
+  int diodeRowsPerCircuit(10);
+  std::shared_ptr<InDetDD::PixelDiodeMatrix> matrix;
   InDetDD::CarrierType carrier(InDetDD::electrons);
   int readoutSide(-1);
   bool is3D(false);
@@ -120,15 +121,18 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
   getparm(typeName, "cellRowsPerCircuit", par, cellRowsPerCircuit);  
   getparm(typeName, "diodeColumnsPerCircuit", par, diodeColumnsPerCircuit);  
   getparm(typeName, "diodeRowsPerCircuit", par, diodeRowsPerCircuit);  
+  getparm(typeName, "matrix", par, matrix);
   getparm(typeName, "is3D", par, is3D);
-  //TO DO":  add pixel diode matrix?
+
   //
   //   Make Module Design and add to DetectorManager
   //
-  std::unique_ptr<InDetDD::PixelModuleDesign> design=std::make_unique<InDetDD::PixelModuleDesign>(thickness, circuitsPerColumn, 
-												  circuitsPerRow, cellColumnsPerCircuit, 
-												  cellRowsPerCircuit, diodeColumnsPerCircuit, 
-												  diodeRowsPerCircuit, carrier, 
+  std::unique_ptr<InDetDD::PixelModuleDesign> design=std::make_unique<InDetDD::PixelModuleDesign>(thickness, 
+												  circuitsPerColumn, circuitsPerRow, 
+												  cellColumnsPerCircuit, cellRowsPerCircuit, 
+												  diodeColumnsPerCircuit, diodeRowsPerCircuit,
+												  matrix,
+												  carrier, 
 												  readoutSide, is3D); 
   m_detectorManager->addDesign(std::move(design));
 
