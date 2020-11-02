@@ -75,8 +75,8 @@ private:
   SG::ReadHandleKey< xAOD::VertexContainer> m_vertexContainer_key{this, "VertexContainer", "", "Vertex container key"};
   SG::ReadHandleKey<jet::TrackVertexAssociation> m_tva_key{this, "TrackVertexAssociation", "", "Track vertex association key"};
   
-  SG::WriteDecorHandleKey<xAOD::JetContainer> m_trackSumPtKey{this, "SumPtName", "SumPt", "SG key for output track SumPt decoration"};
-  SG::WriteDecorHandleKey<xAOD::JetContainer> m_trackSumMassKey{this, "SumMassName", "SumMass", "SG key for output track SumMass decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_trackSumPtKey{this, "SumPtName", "TrackSumPt", "SG key for output track SumPt decoration"};
+  SG::WriteDecorHandleKey<xAOD::JetContainer> m_trackSumMassKey{this, "SumMassName", "TrackSumMass", "SG key for output track SumMass decoration"};
 };
 
 #endif
