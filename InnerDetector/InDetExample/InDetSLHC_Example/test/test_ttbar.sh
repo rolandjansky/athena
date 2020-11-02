@@ -48,10 +48,10 @@ fi
 #jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
 dcubemon_sim=SiHitValid_alt.root
 dcubemon_rec=physval_alt.root
-dcubecfg_sim=$artdata/InDetSLHC_Example/dcube/config/InclinedDuals_SiHitValid.xml
-dcubecfg_rec=$artdata/InDetSLHC_Example/dcube/config/InclinedDuals_physval.xml
-dcuberef_sim=$artdata/InDetSLHC_Example/ReferenceHistograms/InclinedDuals_SiHitValid.root
-dcuberef_rec=$artdata/InDetSLHC_Example/ReferenceHistograms/InclinedDuals_physval.root
+dcubecfg_sim=$artdata/InDetSLHC_Example/dcube/config/ttbar_SiHitValid.xml
+dcubecfg_rec=$artdata/InDetSLHC_Example/dcube/config/ttbar_physval.xml
+dcuberef_sim=$artdata/InDetSLHC_Example/ReferenceHistograms/ttbar_SiHitValid.root
+dcuberef_rec=$artdata/InDetSLHC_Example/ReferenceHistograms/ttbar_physval.root
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
 lastref_dir=last_results
 
