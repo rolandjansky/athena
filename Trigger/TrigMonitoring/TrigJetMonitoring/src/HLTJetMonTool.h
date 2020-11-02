@@ -205,6 +205,7 @@ class HLTJetMonTool : public IHLTMonTool {
     void setHistProperties(TH1* h);
     void set2DHistProperties(TH2* h);
     int basicKineVar(const std::string& hist, std::vector<std::string>& kinevars);
+    std::string GetJetCollectionName(const std::string& theChain);
     void clearVectors();
     
     // offline jet cuts
