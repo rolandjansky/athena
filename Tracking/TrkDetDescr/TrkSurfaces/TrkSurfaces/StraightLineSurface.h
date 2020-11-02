@@ -18,6 +18,7 @@
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/CachedValue.h"
 
 class Identifier;
 class MsgStream;
@@ -269,7 +270,7 @@ protected: //!< data members
   template<class SURFACE, class BOUNDS_CNV>
   friend class ::BoundSurfaceCnv_p1;
   //!< cache of the line direction (speeds up)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_lineDirection;
+  CxxUtils::CachedValue<Amg::Vector3D> m_lineDirection;
   //!< bounds (shared)
   SharedObject<const CylinderBounds> m_bounds;
   //!< NoBounds as return object when no bounds are declared
