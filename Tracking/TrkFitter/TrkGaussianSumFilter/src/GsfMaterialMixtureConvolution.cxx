@@ -349,7 +349,7 @@ Trk::GsfMaterialMixtureConvolution::update(
   // Merge components
   MultiComponentStateAssembler::Cache assemblerCache;
   int nMerges(0);
-  std::vector<bool> isMerged(n, false);
+  GSFUtils::IsMergedArray isMerged={};
   for (const auto& mergePair : merges) {
     const int8_t mini = mergePair.first;
     const int8_t minj = mergePair.second;
