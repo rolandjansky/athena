@@ -16,6 +16,7 @@
 #include "AthContainers/AuxElement.h"  
 #include "GaudiKernel/ToolHandle.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "BoostedJetTaggers/DeepsetXbbTagger.h"
 
 
 namespace DerivationFramework {
@@ -40,6 +41,8 @@ namespace DerivationFramework {
     std::string m_primaryVerticesCollectionName;
     bool m_isMC;
 
+    ToolHandle<DexterTool> m_dexter;
+
     struct ExKtbbDecorators {
 
       static SG::AuxElement::Decorator<std::vector<float> > secvtx_pt;
@@ -56,6 +59,21 @@ namespace DerivationFramework {
       static SG::AuxElement::Decorator<std::vector<float> > secvtx_3dsig;
       static SG::AuxElement::Decorator<float> jet_maxsd0;
       static SG::AuxElement::Decorator<float> jet_av3sd0;
+      static SG::AuxElement::Decorator<float> jet_dexter_pbb;
+      static SG::AuxElement::Decorator<float> jet_dexter_pb;
+      static SG::AuxElement::Decorator<float> jet_dexter_pl;
+      static SG::AuxElement::Decorator<float> jet_dexter_pbb_trksflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pb_trksflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pl_trksflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pbb_trksflip_svmassflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pb_trksflip_svmassflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pl_trksflip_svmassflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pbb_negtrksflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pb_negtrksflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pl_negtrksflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pbb_negtrksflip_svmassflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pb_negtrksflip_svmassflip;
+      static SG::AuxElement::Decorator<float> jet_dexter_pl_negtrksflip_svmassflip;
       static SG::AuxElement::Decorator<int> smalljet_largeJetLabel;
 
     };

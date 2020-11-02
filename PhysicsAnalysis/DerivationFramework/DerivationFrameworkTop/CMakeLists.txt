@@ -18,6 +18,7 @@ atlas_depends_on_subdirs(
    Control/AthenaKernel
    PhysicsAnalysis/CommonTools/ExpressionEvaluation
    PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
+   Reconstruction/Jet/BoostedJetTaggers
    Event/xAOD/xAODJet
    Event/xAOD/xAODEventInfo
    Event/xAOD/xAODBTagging
@@ -30,6 +31,7 @@ atlas_add_library( DerivationFrameworkTopLib
    LINK_LIBRARIES AthenaBaseComps xAODTruth GaudiKernel
    DerivationFrameworkInterfacesLib
    FlavorTagDiscriminants
+   BoostedJetTaggersLib
    PRIVATE_LINK_LIBRARIES AthenaKernel ExpressionEvaluationLib xAODJet
    xAODEventInfo xAODBTagging xAODTracking )
 
