@@ -9,42 +9,48 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 namespace dqm_algorithms {
 
-  struct LessThan {
+  class LessThan {
+  public:
     bool operator() (double a, double b, double /*error = 0.*/) const {
       return a < b;
     }
   };
 
-    struct GreaterThan {
+  class GreaterThan {
+  public:
     bool operator() (double a, double b, double /*error = 0.*/) const {
       return a > b;
     }
   };
 
-  struct DifferentThan {
+  class DifferentThan {
+  public:
     bool operator() (double a, double b, double error = 0.) const {
       return std::abs(a - b) > error;
     }
   };
 
-  struct NoAction {
+  class NoAction {
+  public:
     void operator() (const std::string&, std::string&, double, double) const {}
   };
 
-  struct TileDQAction {
+  class TileDQAction {
+  public:
     void operator() (const std::string& histogramName, std::string action,
                      double averageBinContent, double lastBinContent) const;
   };
 
   template<class Exceed, class Action>
-  struct LastBinThresholdAction : public dqm_core::Algorithm  {
+  class LastBinThresholdAction : public dqm_core::Algorithm  {
+  public:
     LastBinThresholdAction(const std::string & name);
 
     // Overwrites virtual functions
     virtual LastBinThresholdAction* clone( ) override;
     virtual dqm_core::Result* execute( const std::string& , const TObject& , const dqm_core::AlgorithmConfig& ) override;
     using dqm_core::Algorithm::printDescription;
-    virtual void printDescription(std::ostream& out);
+    virtual void printDescription(std::ostream& out) const;
 
   private:
     std::string m_name;

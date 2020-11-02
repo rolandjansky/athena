@@ -187,7 +187,7 @@ dqm_algorithms::LastBinThresholdAction<Exceed, Action>::execute(const std::strin
 }
 
 template<class Exceed, class Action>
-void dqm_algorithms::LastBinThresholdAction<Exceed, Action>::printDescription(std::ostream& out) {
+void dqm_algorithms::LastBinThresholdAction<Exceed, Action>::printDescription(std::ostream& out) const {
 
   out << m_name + ": Checks for number of bins exceded threshold value" << std::endl;
   out << "Mandatory Parameter: BinThreshold: Look for bins exceeded BinTreshold; Count number of bins satifying requirement" << std::endl;
