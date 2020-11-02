@@ -8,8 +8,11 @@
 //  Joao Firmino da Costa <joao.costa@cern.ch> and David Cote <david.cote@cern.ch>
 
 ///////////////////////////////////////////////////////////////////
-#ifndef CUTFLOWSVC_H
-#define CUTFLOWSVC_H
+#ifndef EVENT_BOOKKEEPER_TOOLS__CUT_FLOW_SVC_H
+#define EVENT_BOOKKEEPER_TOOLS__CUT_FLOW_SVC_H
+
+// Not dual use at the moment
+#ifndef XAOD_STANDALONE
 
 /**
  * @class CutFlowSvc
@@ -22,19 +25,18 @@
 #include <unordered_map>
 
 // FrameWork includes
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include <GaudiKernel/ISvcLocator.h>
+#include <GaudiKernel/IIncidentListener.h>
+#include <GaudiKernel/ServiceHandle.h>
 
 // Athena includes
-#include "AthenaBaseComps/AthService.h"
-#include "AthenaKernel/ICutFlowSvc.h"
-#include "StoreGate/StoreGateSvc.h"
+#include <AthenaBaseComps/AthService.h>
+#include <AthenaKernel/ICutFlowSvc.h>
+#include <StoreGate/StoreGateSvc.h>
 
 // EDM includes
-#include "xAODCutFlow/CutBookkeeper.h"
-#include "xAODCutFlow/CutBookkeeperContainer.h"
-#include "xAODCutFlow/CutBookkeeperAuxContainer.h"
+#include <xAODCutFlow/CutBookkeeper.h>
+#include <EventBookkeeperTools/CutBookkeepersLocalCache.h>
 
 
 class CutFlowSvc :
@@ -86,22 +88,27 @@ public:
   virtual void addEvent(CutIdentifier cutID,
                         double weight) override final;
 
-  /// Get current container
-  const xAOD::CutBookkeeperContainer *getCutBookkeepers() const;
-
   /// Get number of accepted events for a cut
   virtual uint64_t getNAcceptedEvents(const CutIdentifier cutID) const override final;
+
+  /// Get CutBookkeepers cache
+  const CutBookkeepersLocalCache &getCutBookkeepers() const;
+
+  /// Set number of weight variations
+  StatusCode setNumberOfWeightVariations(size_t count);
+
 
 private:
   /// Helper function to determine the processing cycle number from the
   /// input meta-data store
   StatusCode determineCycleNumberFromInput(const std::string& collName);
 
-  /// Helper function to create an empty container (and its aux store)
-  StatusCode createContainer();
+  /// Helper function to create an empty containers (and its aux store)
+  StatusCode createContainers(size_t count);
 
   /// Get a CutBookkeeper given a CutID
-  xAOD::CutBookkeeper* getCutBookkeeper(const CutIdentifier cutID) const;
+  xAOD::CutBookkeeper* getCutBookkeeper(const CutIdentifier cutID,
+                                        size_t index) const;
 
   /// The input meta-data store
   ServiceHandle<StoreGateSvc> m_inMetaDataStore{this, "InputMetaDataStore", "StoreGateSvc/InputMetaDataStore", ""};
@@ -109,9 +116,8 @@ private:
   /// The name of the completed, i.e., fully processed, CutBookkeeperContainer
   Gaudi::Property<std::string> m_completeCollName{this, "OutputCollName", "CutBookkeepers", ""};
 
-  /// Primary cutflow container (and its aux store)
-  std::unique_ptr<xAOD::CutBookkeeperContainer> m_container{};
-  std::unique_ptr<xAOD::CutBookkeeperAuxContainer> m_containerAux{};
+  /// Local CutBookkeeperContainers
+  CutBookkeepersLocalCache m_containers;
 
   /// The current skimming cycle, i.e., how many processing stages we already had
   int m_skimmingCycle{};
@@ -119,13 +125,7 @@ private:
   /// The name of the currently used input file stream
   Gaudi::Property<std::string> m_inputStream{this, "InputStream", "N/A", "The name of the input file stream"};
 
-  /// Declare a simple typedef for the internal map
-  typedef std::unordered_map<CutIdentifier, xAOD::CutBookkeeper*> CutIDMap_t;
-
-  /// This internal map keeps the association between the instance identifier of each algorithm
-  /// to the pointer of associated CutBookkeeper
-  CutIDMap_t m_ebkMap;
-
+  /// Mutex to protect adding an event
   mutable std::recursive_mutex m_addEventMutex;
 };
 
@@ -139,4 +139,6 @@ inline const InterfaceID& CutFlowSvc::interfaceID() {
   return ICutFlowSvc::interfaceID();
 }
 
-#endif //> !CUTFLOWSVC_H
+#endif // dual use
+
+#endif // EVENT_BOOKKEEPER_TOOLS__CUT_FLOW_SVC_H

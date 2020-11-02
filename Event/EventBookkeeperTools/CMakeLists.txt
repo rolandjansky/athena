@@ -35,7 +35,7 @@ if( NOT XAOD_STANDALONE )
                         src/*.cxx
                         src/components/*.cxx
                         LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel EventBookkeeperToolsLib
-                                       SGTools StoreGateLib EventBookkeeperMetaData EventInfo )
+                                       SGTools StoreGateLib EventBookkeeperMetaData )
 endif()
 
 atlas_add_executable( dump-cbk

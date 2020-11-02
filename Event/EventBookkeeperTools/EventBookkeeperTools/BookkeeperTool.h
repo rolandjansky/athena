@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef BOOKKEEPERTOOL_H
-#define BOOKKEEPERTOOL_H
+#ifndef EVENT_BOOKKEEPER_TOOLS__BOOKKEEPER_TOOL_H
+#define EVENT_BOOKKEEPER_TOOLS__BOOKKEEPER_TOOL_H
 
 /** @file BookkeeperTool.h
  *  @brief This class is an implementation of the AsgMetadataTool
@@ -15,24 +15,38 @@
 #include <memory>
 
 #include <AsgTools/AsgMetadataTool.h>
-#include <AthenaBaseComps/AthAlgTool.h>
-#include <AthenaKernel/ICutFlowSvc.h>
+#include <AsgTools/PropertyWrapper.h>
+#include <AsgTools/SourceID.h>
+
 #ifndef XAOD_STANDALONE
+#include <AthenaKernel/ICutFlowSvc.h>
 #include <AthenaKernel/IMetaDataTool.h>
-#endif // XAOD_STANDALONE
 #include <GaudiKernel/ServiceHandle.h>
+#endif // XAOD_STANDALONE
 
 #include <xAODCutFlow/CutBookkeeperContainer.h>
 #include <xAODCutFlow/CutBookkeeperAuxContainer.h>
 
+#include <EventBookkeeperTools/CutBookkeepersLocalCache.h>
+
+
+#ifndef XAOD_STANDALONE
+
 class CutFlowSvc;
+
+#endif // XAOD_STANDALONE
+
 
 class BookkeeperTool : public asg::AsgMetadataTool
 #ifndef XAOD_STANDALONE
                      , public virtual ::IMetaDataTool
 #endif // XAOD_STANDALONE
 {
-  ASG_TOOL_CLASS0(BookkeeperTool)
+#ifndef XAOD_STANDALONE
+  /// Declare the correct constructor for Athena
+  ASG_TOOL_CLASS( BookkeeperTool, IMetaDataTool )
+#endif
+
 public: // Constructor and Destructor
   /// Standard Service Constructor
   BookkeeperTool(const std::string& name = "BookkeeperTool");
@@ -43,37 +57,34 @@ public: // Constructor and Destructor
 public:
   virtual StatusCode initialize() override;
   virtual StatusCode metaDataStop() override;
+#ifdef XAOD_STANDALONE
+  virtual StatusCode beginInputFile() override;
+  virtual StatusCode endInputFile() override;
+#else
   virtual StatusCode beginInputFile() override {return StatusCode::SUCCESS;}
   virtual StatusCode endInputFile() override {return StatusCode::SUCCESS;}
   virtual StatusCode beginInputFile(const SG::SourceID &source) override;
   virtual StatusCode endInputFile(const SG::SourceID &source) override;
+#endif
 
 private:
-  /// Helper in-memory structure
-  struct LocalContainers {
-    std::vector<std::unique_ptr<xAOD::CutBookkeeperContainer>> cont;
-    std::vector<std::unique_ptr<xAOD::CutBookkeeperAuxContainer>> aux;
-
-    bool empty() { return cont.empty(); }
-    std::size_t size() { return cont.size(); }
-    xAOD::CutBookkeeperContainer *at(std::size_t n) { return cont.at(n).get(); }
-    void clear() { cont.clear(); aux.clear(); }
-  };
-
   /// Copy input containers to the output
-  StatusCode copyInputContainersToOutput(LocalContainers &target,
+  StatusCode copyInputContainersToOutput(CutBookkeepersLocalCache &target,
                                          const SG::SourceID &source = "");
 
   /// Fill Cutflow information from the service
   StatusCode copyCutflowFromService();
 
-  /// Prepare containers
-  StatusCode prepareContainers(LocalContainers &target);
+  /// Initialisation helpers
+  StatusCode loadXAODMetaData();
+  StatusCode loadPOOLMetaData();
 
+#ifndef XAOD_STANDALONE
   /// Pointer to the public CutFlowSvc interface
   ServiceHandle<ICutFlowSvc> m_cutFlowSvc{ this, "CutFlowSvc", "CutFlowSvc/CutFlowSvc", "Pointer to the CutFlowSvc"};
   /// Direct pointer to the CutFlowSvc for "private" methods access
-  const CutFlowSvc *m_cutFlowSvcPrivate;
+  CutFlowSvc *m_cutFlowSvcPrivate;
+#endif // XAOD_STANDALONE
 
   /// The name of the input CutBookkeeperContainer
   Gaudi::Property<std::string> m_inputCollName{this, "InputCollName", "CutBookkeepers",
@@ -83,12 +94,15 @@ private:
   Gaudi::Property<std::string> m_outputCollName{this, "OutputCollName", "CutBookkeepers",
     "The default name of the xAOD::CutBookkeeperContainer for output files"};
 
+  /// Number of event weight variations
+  size_t m_numberOfWeightVariations{};
+
   /// Input CutBookkeeperContainers
-  std::unordered_map<SG::SourceID, LocalContainers> m_inputContainers;
+  std::unordered_map<SG::SourceID, CutBookkeepersLocalCache> m_inputContainers;
 
   /// Local CutBookkeeperContainers
-  LocalContainers m_completeContainers;
-  LocalContainers m_incompleteContainers;
+  CutBookkeepersLocalCache m_completeContainers;
+  CutBookkeepersLocalCache m_incompleteContainers;
 };
 
-#endif // BOOKKEEPERTOOL_H
+#endif // EVENT_BOOKKEEPER_TOOLS__BOOKKEEPER_TOOL_H
