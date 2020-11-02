@@ -7,17 +7,11 @@
 # Contains all basic includes for running the derivation framework
 #-------------------------------------------------------------
 
-from __future__ import print_function
-
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import theApp
 # Derivation names and locations of job options
-from DerivationFrameworkCore.DerivationFrameworkProdFlags import derivationFlags
-# Multiple stream manager
-from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+from DerivationFrameworkCore.DerivationFrameworkProdFlags import derivationFlags  # noqa: F401
 # Athena common properties
-from AthenaCommon.JobProperties import jobproperties
-from AthenaCommon import CfgMgr 
+from AthenaCommon import CfgMgr
 from AthenaCommon.AlgSequence import AlgSequence 
 from JetRec.JetRecFlags import jetFlags 
 from AthenaCommon.GlobalFlags  import globalflags
@@ -26,7 +20,7 @@ from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 import os
 if "AthAnalysisBase" not in os.environ.get("CMTEXTRATAGS",""):
-  from AODFix.AODFix import *
+  from AODFix.AODFix import *  # noqa: F401, F403
 
 # Trap for ROOT6 errors
 theApp.CreateSvc += ["AthROOTErrorHandlerSvc"]
@@ -60,11 +54,12 @@ if inputFileSummary is not None:
 # Set up the metadata tool:
 if not globalflags.InputFormat=="bytestream":
     # Extra config: make sure if we are using EVNT that we don't try to check sim/digi/reco metadata 
-    from RecExConfig.ObjKeyStore import objKeyStore
+#    from RecExConfig.ObjKeyStore import objKeyStore
 #    ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
 #                                  isEVNT = objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ),
 #                                  OutputLevel = 2 )
 #    svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+     pass
 
 # Set up stream auditor
 if not hasattr(svcMgr, 'DecisionSvc'):
@@ -95,7 +90,7 @@ if globalflags.DataSource()=='geant4':
         # Make sure input file is not EVNT
         if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
             DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
-    except:
+    except Exception:
         print ('Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k')
 
 def buildFileName(derivationStream):
