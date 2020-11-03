@@ -1,15 +1,11 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 from AthenaCommon.AlgSequence import AlgSequence
 from RecExConfig.ObjKeyStore  import cfgKeyStore
-from JetRecTools.JetRecToolsConf import *
-from JetRec.JetGetters import *
+from JetRec.JetGetters import make_StandardJetGetter
 
 def JetVarToolConfig (seq = AlgSequence):
 
-    from RecExConfig.ObjKeyStore import cfgKeyStore
     if (cfgKeyStore.isInInput ('CaloCellContainer', 'AllCalo') and
         cfgKeyStore.isInInput ('CaloCellLinkContainer','CaloCalTopoCluster_Link') ):
                                
@@ -22,11 +18,11 @@ def JetVarToolConfig (seq = AlgSequence):
         jetFlags.doJVF = False ##the following jet getter seems to fail if we don't deactivate the jet vertex finder.
         #make_StandardJetGetter('AntiKt',0.4,'Topo',disable=False, doCalib=True, calibName='H1NumInv', outputCollectionName='AntiKt4TopoJets',seq=seq)
         #make_StandardJetGetter('AntiKt',0.6,'Topo',disable=False, doCalib=True, calibName='H1NumInv', outputCollectionName='AntiKt6TopoJets',seq=seq)
-	# MB: April 19, 2011, Suggested fix from SS
+        # MB: April 19, 2011, Suggested fix from SS
         make_StandardJetGetter('AntiKt',0.4,'Topo',disable=False, doCalib=True, calibName='EM:H1NumInv', outputCollectionName='AntiKt4TopoJets',seq=seq)
         make_StandardJetGetter('AntiKt',0.6,'Topo',disable=False, doCalib=True, calibName='EM:H1NumInv', outputCollectionName='AntiKt6TopoJets',seq=seq)
 
-	# MB: April 7, 2011 : Suggested fix from SS
+        # MB: April 7, 2011 : Suggested fix from SS
         from JetMomentTools.JetMomentToolsConf import \
              JetBadChanCorrTool, JetBadCellCorrTool, JetCaloQualityTool
         atool4 = JetBadChanCorrTool("JetBadChanCorrTool_anti04",ConeDr=0.4,UseCalibScale=False)
