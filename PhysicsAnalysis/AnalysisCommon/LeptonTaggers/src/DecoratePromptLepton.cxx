@@ -338,7 +338,9 @@ void Prompt::DecoratePromptLepton::initializeDecorators()
   //
   // Instantiate decorators
   //
-  m_decoratorBDT = std::make_unique<SG::AuxElement::Decorator<float> >(m_BDTName);
+  std::string decoratorNameBDT = 
+    TString(m_BDTName).Contains("LowPtPromptLeptonVeto") ? "LowPtPLV" : m_BDTName;
+  m_decoratorBDT = std::make_unique<SG::AuxElement::Decorator<float> >(decoratorNameBDT);
   m_decoratorDR  = std::make_unique<SG::AuxElement::Decorator<float> >(m_auxVarPrefix + "DRlj");
 }
 

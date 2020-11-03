@@ -85,7 +85,7 @@ def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False, onlyBDT=True):
         return prompt_lep_vars
  
  
-    prompt_vars  = "PromptLeptonVeto.PromptLeptonIso."
+    prompt_vars  = "PromptLeptonVeto.PromptLeptonIso.LowPtPromptLeptonVeto."
     prompt_vars += "PromptLeptonInput_TrackJetNTrack.PromptLeptonInput_sv1_jf_ntrkv."
     prompt_vars += "PromptLeptonInput_ip2.PromptLeptonInput_ip3."
     prompt_vars += "PromptLeptonInput_LepJetPtFrac.PromptLeptonInput_DRlj."
@@ -255,7 +255,7 @@ def DecoratePromptLeptonImproved(BDT_name, lepton_name, track_jet_name):
         raise Exception('Decorate%s - unknown lepton type: "%s"' %(BDT_name, lepton_name))  
 
     alg.stringIntVars            = getStringIntVars  (BDT_name)
-    alg.stringFloatVars          = getStringFloatVars(BDT_name,part_type)
+    alg.stringFloatVars          = getStringFloatVars(BDT_name)
     alg.extraDecoratorFloatVars  = []
     alg.extraDecoratorShortVars  = ['CandVertex_NPassVtx']
     alg.vetoDecoratorFloatVars   = ['PromptLeptonRNN_prompt']
@@ -343,7 +343,7 @@ def DecoratePromptTau(BDT_name, lepton_name, track_jet_name):
     alg.PrintTime                   = False
 
     alg.StringIntVars   = getStringIntVars  (BDT_name)
-    alg.StringFloatVars = getStringFloatVars(BDT_name,part_type)
+    alg.StringFloatVars = getStringFloatVars(BDT_name)
 
     log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
 
@@ -465,7 +465,7 @@ def getStringIntVars(BDT_name):
     return int_vars
 
 #------------------------------------------------------------------------------
-def getStringFloatVars(BDT_name,part_type):
+def getStringFloatVars(BDT_name, part_type=''):
 
     float_vars = []
 
