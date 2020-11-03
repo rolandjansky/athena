@@ -3,6 +3,5 @@
         "ms-vscode.cpptools",
         "twxs.cmake"
     ],
-    "remote.SSH.lockfilesInTmp": true,
-    "python.formatting.provider": "black"
+    "remote.SSH.lockfilesInTmp": true
 }
