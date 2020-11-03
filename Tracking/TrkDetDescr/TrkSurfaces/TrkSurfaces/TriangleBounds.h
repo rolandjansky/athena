@@ -79,28 +79,28 @@ public:
   virtual TriangleBounds* clone() const override;
 
   /** Return the type of the bounds for persistency */
-  virtual BoundsType type() const override { return SurfaceBounds::Triangle; }
+  virtual BoundsType type() const override final { return SurfaceBounds::Triangle; }
 
   /**This method checks if the provided local coordinates are inside the surface bounds*/
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override final;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /** This method checks inside bounds in loc1
     - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /** This method checks inside bounds in loc2
     - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-  virtual double minDistance(const Amg::Vector2D& pos) const override;
+  virtual double minDistance(const Amg::Vector2D& pos) const override final;
 
   /**This method returns the coordinates of vertices*/
   std::vector<std::pair<TDD_real_t, TDD_real_t>> vertices() const;
 
   /**This method returns the maximal extension on the local plane, i.e. @f$s\sqrt{h_{\phi}^2 + h_{\eta}^2}\f$*/
-  virtual double r() const override;
+  virtual double r() const override final;
 
   /** Output Method for MsgStream*/
   virtual MsgStream& dump(MsgStream& sl) const override;
