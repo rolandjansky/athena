@@ -100,7 +100,6 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
                                     doEnergyCorrection = correctEnergy,
                                     doAxisCorrection = correctAxis,
                                     doPtResponse = True,
-                                    countOnlyPileupVertices = True,
                                     Key_vertexInputContainer = _DefaultVertexContainer 
                                     )
             
