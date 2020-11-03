@@ -9,5 +9,5 @@ atlas_add_component( DerivationFrameworkTop
                      LINK_LIBRARIES AthenaBaseComps DerivationFrameworkInterfaces ExpressionEvaluationLib GaudiKernel StoreGateLib xAODBTagging xAODEventInfo xAODJet xAODTracking xAODTruth )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )

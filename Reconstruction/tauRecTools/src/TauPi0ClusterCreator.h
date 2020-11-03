@@ -27,50 +27,64 @@
  */
 
 class TauPi0ClusterCreator : public TauRecToolBase {
+
 public:
-    TauPi0ClusterCreator(const std::string& name) ;
-    ASG_TOOL_CLASS2(TauPi0ClusterCreator, TauRecToolBase, ITauToolBase);
-    virtual ~TauPi0ClusterCreator();
+  
+  ASG_TOOL_CLASS2(TauPi0ClusterCreator, TauRecToolBase, ITauToolBase);
+  
+  TauPi0ClusterCreator(const std::string& name) ;
+  virtual ~TauPi0ClusterCreator() = default;
 
-    virtual StatusCode initialize() override;
-    virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
-						xAOD::PFOContainer& hadronicClusterPFOContainer,
-						const xAOD::CaloClusterContainer& pi0CaloClusContainer) const override;
-    
+  virtual StatusCode initialize() override;
+  virtual StatusCode executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer, 
+  					xAOD::PFOContainer& hadronicClusterPFOContainer,
+  					const xAOD::CaloClusterContainer& pi0CaloClusContainer) const override;
+  
 private:
-    /** @brief fraction of cluster enegry in central EM1 cells */
-    float getEM1CoreFrac( const xAOD::CaloCluster* pi0Candidate) const;
-    
-    /** @brief number of cells from cluster with positive energy in PS, EM1 and EM2 */
-    std::vector<int> getNPosECells( const xAOD::CaloCluster* pi0Candidate) const;
+  
+  /** @brief Configure the neutral PFO*/
+  StatusCode configureNeutralPFO(const xAOD::CaloCluster& cluster,
+                                 const xAOD::CaloClusterContainer& pi0ClusterContainer,
+                                 const xAOD::TauJet& tau,
+                                 const std::vector<const xAOD::PFO*>& shotPFOs,
+                                 const std::map<unsigned, const xAOD::CaloCluster*>& shotsInCluster,
+                                 xAOD::PFO& neutralPFO) const;
 
-    std::map<unsigned, xAOD::CaloCluster*> getClusterToShotMap(
-        const std::vector<const xAOD::PFO*>& shotVector,
-        const xAOD::CaloClusterContainer& pi0ClusterContainer,
-        const xAOD::TauJet &pTau) const;
+  /** @brief Configure the haronic PFO*/
+  StatusCode configureHadronicPFO(const xAOD::CaloCluster& cluster,
+                                  double clusterEnergyHad,
+                                  xAOD::PFO& hadronicPFO) const;
 
-    std::vector<unsigned> getShotsMatchedToCluster(
-        const std::vector<const xAOD::PFO*>& shotVector,
-        const std::map<unsigned, xAOD::CaloCluster*>& clusterToShotMap,
-        const xAOD::CaloCluster* pi0Cluster) const;
+  std::map<unsigned, const xAOD::CaloCluster*> getShotToClusterMap(
+      const std::vector<const xAOD::PFO*>& shotVector,
+      const xAOD::CaloClusterContainer& pi0ClusterContainer,
+      const xAOD::TauJet &pTau) const;
 
-    int getNPhotons( const std::vector<const xAOD::PFO*>& shotVector,
-                     const std::vector<unsigned>& shotsInCluster) const;
+  std::vector<unsigned> getShotsMatchedToCluster(
+      const std::vector<const xAOD::PFO*>& shotVector,
+      const std::map<unsigned, const xAOD::CaloCluster*>& clusterToShotMap,
+      const xAOD::CaloCluster& pi0Cluster) const;
 
-    /** @brief first eta moment in PS, EM1 and EM2 w.r.t cluster eta: (eta_i - eta_cluster) */
-    std::vector<float> get1stEtaMomWRTCluster( const xAOD::CaloCluster* pi0Candidate) const;
+  int getNPhotons( const std::vector<const xAOD::PFO*>& shotVector,
+                   const std::vector<unsigned>& shotsInCluster) const;
 
-    /** @brief second eta moment in PS, EM1 and EM2 w.r.t cluster eta: (eta_i - eta_cluster)^2 */ 
-    std::vector<float> get2ndEtaMomWRTCluster(const xAOD::CaloCluster* pi0Candidate) const;
+  /** @brief fraction of cluster enegry in central EM1 cells */
+  float getEM1CoreFrac(const xAOD::CaloCluster& cluster) const;
+  
+  /** @brief number of cells from cluster with positive energy in PS, EM1 and EM2 */
+  std::vector<int> getNPosECells(const xAOD::CaloCluster& cluster) const;
 
-    /** @brief get hadronic cluster PFOs*/
-    bool setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronicClusterContainer) const;
+  /** @brief first eta moment in PS, EM1 and EM2 w.r.t cluster eta */
+  std::vector<float> get1stEtaMomWRTCluster(const xAOD::CaloCluster& cluster) const;
 
-    Gaudi::Property<double> m_clusterEtCut {this, "ClusterEtCut", 0.5 * Gaudi::Units::GeV, "Et threshould for pi0 candidate clusters"};
-    Gaudi::Property<bool> m_useSubtractedCluster {this, "UseSubtractedCluster", true, "use shower subtracted clusters in calo calculations"};
+  /** @brief second eta moment in PS, EM1 and EM2 w.r.t cluster eta */ 
+  std::vector<float> get2ndEtaMomWRTCluster(const xAOD::CaloCluster& cluster) const;
 
-    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
-      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
+  Gaudi::Property<double> m_clusterEtCut {this, "ClusterEtCut", 0.5 * Gaudi::Units::GeV, "Et threshould for pi0 candidate clusters"};
+  Gaudi::Property<bool> m_useSubtractedCluster {this, "UseSubtractedCluster", true, "use shower subtracted clusters in calo calculations"};
+
+  ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
+    "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
 };
 
 #endif	/* TAUPI0CLUSTERCREATOR_H */

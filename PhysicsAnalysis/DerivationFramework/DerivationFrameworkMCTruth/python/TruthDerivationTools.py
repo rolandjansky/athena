@@ -2,10 +2,10 @@
 
 from AthenaCommon.AppMgr import ToolSvc
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkSimBarcodeOffset
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
 DFCommonTruthClassifier = MCTruthClassifier(name = "DFCommonTruthClassifier",
-                                    ParticleCaloExtensionTool = "") 
+                                            ParticleCaloExtensionTool = "")
 ToolSvc += DFCommonTruthClassifier
 
 #==============================================================================
@@ -75,7 +75,7 @@ DFCommonTruthBSMTool = DerivationFramework__TruthCollectionMaker(name           
 ToolSvc += DFCommonTruthBSMTool
 
 # Set up a tool to keep forward protons for AFP
-# Note that we have inputFileSummary coming from derivation framework master
+from RecExConfig.InputFilePeeker import inputFileSummary
 if 'beam_energy' in inputFileSummary:
     beam_energy = inputFileSummary['beam_energy']
 elif '/TagInfo' in inputFileSummary and 'beam_energy' in inputFileSummary['/TagInfo']:

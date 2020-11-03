@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileDQFragMonitorAlgorithm.h"
@@ -29,6 +29,7 @@ StatusCode TileDQFragMonitorAlgorithm::initialize() {
   ATH_CHECK( m_DCSStateKey.initialize(m_checkDCS) );
   ATH_CHECK( m_digitsContainerKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_rawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_eventInfoTileStatusKey.initialize() );
 
   using Tile = TileCalibUtils;
 

@@ -5,19 +5,13 @@
 # @author  Sebastien Binet <binet@cern.ch>
 # @date    August 2009
 
-from __future__ import with_statement, print_function
-import sys
 import os
-
-from future import standard_library
-standard_library.install_aliases()
 
 __doc__ = """\
 API for the sg-dump script (which dumps an ASCII representation of events in
 POOL or RAW files
 """
 __author__ = "Sebastien Binet <binet@cern.ch>"
-__version__= "$Revision$"
 
 __all__ = [
     'run_sg_dump',
@@ -226,7 +220,7 @@ def _gen_jobo(dct):
     return job
 
 def _run_jobo(job, msg, options):
-    import os,atexit,tempfile,shutil,glob
+    import os,atexit,tempfile,shutil
     # capture current directory's content
     keep_files = [os.path.abspath(item)
                   for item in os.listdir(os.getcwd())]
@@ -275,7 +269,7 @@ def _run_jobo(job, msg, options):
     if options.use_recex_links:
         sc,out = subprocess.getstatusoutput ('RecExCommon_links.sh')
         if sc != 0:
-            msg.error("could not run 'RecExCommon_links.sh':\n%s"%out)
+            msg.error("could not run 'RecExCommon_links.sh':\n%s", out)
             return sc, out
         msg.info ('installed RecExCommon links')
     
@@ -309,7 +303,7 @@ def _run_jobo(job, msg, options):
                             stderr=logfile,
                             env=env)
     pos = 0
-    import time, re
+    import re
     pat = re.compile (r'^Py:pyalg .*')
     evt_pat = re.compile (
         r'^Py:pyalg .*? ==> processing event \[(?P<evtnbr>\d*?)\].*'

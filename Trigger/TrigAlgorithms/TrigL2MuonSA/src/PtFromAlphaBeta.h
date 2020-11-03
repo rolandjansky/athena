@@ -32,7 +32,7 @@ class PtFromAlphaBeta: public AthAlgTool
  public:
     
     StatusCode setPt(TrigL2MuonSA::TrackPattern& trackPattern,
-                     TrigL2MuonSA::TgcFitResult& tgcFitResult);
+                     TrigL2MuonSA::TgcFitResult& tgcFitResult) const;
     
     double     compute_radius(double InnerSlope, double InnerR, double InnerZ,
 			      double MiddleSlope, double MiddleR, double MiddleZ,

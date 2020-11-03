@@ -724,8 +724,16 @@ void HLTJetMonTool::bookJetHists() {
   nvar = basicKineVar(varlist,bookvars);
   levels.clear(); levels.push_back("HLT"); /*levels.push_back("L1");*/
   for(JetSigIter k= m_basicHLTTrig.begin(); k != m_basicHLTTrig.end(); ++k ) {
-    const std::string theDir = HLTdir + "/" + (*k).first;
+    std::string theDir = HLTdir + "/" + (*k).first;
     m_monGroups[(*k).first] = theDir;
+    ATH_MSG_DEBUG("Booking histograms for " << theDir);
+    addMonGroup (new MonGroup(this, theDir, run));
+    setCurrentMonGroup(theDir);
+    bookBasicHists(levels,bookvars);
+    //Add MonGroup for plots based only on jets passing the chain criteria,
+    //to be stored in expert folder chain/PassingJets
+    theDir = HLTdir + "/" + (*k).first + "/PassingJets";
+    m_monGroups[(*k).first + "_PJ"] = theDir;
     ATH_MSG_DEBUG("Booking histograms for " << theDir);
     addMonGroup (new MonGroup(this, theDir, run));
     setCurrentMonGroup(theDir);
@@ -1855,10 +1863,75 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
       }// loop over features container
 
     } else { // TrigComposite mode
+
+      // First: retrieve all jets in the underlying jet container
+      // so that we can compare with the Legacy code above
+
+      std::string jetcollname = GetJetCollectionName(theChain); //need to retrieve underlying jet container name - hard-coded function!
+      const xAOD::JetContainer *jcont = 0;
+      StatusCode sc = StatusCode::SUCCESS;
+      sc = evtStore()->retrieve(jcont, jetcollname);
+      if(sc.isFailure() || !jcont) {
+        ATH_MSG_INFO ("Could not retrieve JetCollection with key \"" << jetcollname << "\" from TDS"  );
+      }
+      else {
+        ATH_MSG_DEBUG("FOUND JetCollection with key \"" << jetcollname << "\" from TDS"  );
+	for (const xAOD::Jet* j : *jcont) {
+
+          double e = (j->e())/Gaudi::Units::GeV;
+          double et = 0., epsilon = 1.e-3;
+
+          if(j->p4().Et() > epsilon) et = (j->p4().Et())/Gaudi::Units::GeV;
+
+          ATH_MSG_DEBUG("jet et = "<<et);
+
+          if(et < epsilon) et = 0;
+          bool hlt_thr_pass = ( et > thrHLT );
+          if(hlt_thr_pass) {
+            double eta     = j->eta();
+            double phi     = j->phi();
+            double m       = j->m()/Gaudi::Units::GeV;
+            float  emfrac  =1;
+            float  hecfrac =1;
+            if ((m_isPP || m_isCosmic || m_isMC) &&
+              j->getAttribute<float>(xAOD::JetAttribute::EMFrac, emfrac))
+            {
+              hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
+            }
+
+            v_thisjet.SetPtEtaPhiE(j->pt()/Gaudi::Units::GeV,j->eta(), j->phi(),j->e()/Gaudi::Units::GeV);
+            m_v_HLTjet.push_back(v_thisjet);
+            m_n_index++;
+
+            if((h  = hist("HLTJet_Et")))            h->Fill(et,      m_lumi_weight);
+            if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
+            if((h  = hist("HLTJet_eta")))           h->Fill(eta,     m_lumi_weight);
+            if((h  = hist("HLTJet_phi")))           h->Fill(phi,     m_lumi_weight);
+            if((h  = hist("HLTJet_m")))             h->Fill(m,       m_lumi_weight);
+            if((h  = hist("HLTJet_emfrac")))        h->Fill(emfrac,  m_lumi_weight);
+            if((h  = hist("HLTJet_hecfrac")))       h->Fill(hecfrac, m_lumi_weight);
+
+            if (count==0){
+              if((h  = hist("HLTJet_Leading_Et")))            h->Fill(et,      m_lumi_weight);
+            }
+
+            if((h2 = hist2("HLTJet_phi_vs_eta")))   h2->Fill(eta,phi,m_lumi_weight);  
+            if((h2 = hist2("HLTJet_E_vs_eta")))     h2->Fill(eta,e,m_lumi_weight); 
+            if((h2 = hist2("HLTJet_E_vs_phi")))     h2->Fill(phi,e,m_lumi_weight); 
+
+          }// if hlt threshold
+          count++;
+        }// loop over jet container
+      if((h  = hist("HLTJet_n")))            h->Fill(count,      m_lumi_weight);
+      } //else found jetcontainer
+      m_v_HLTindex.push_back(m_n_index);
+
       // Note: Only getting jets which pass theChain here
+      // Thus, setting path for plots to a subfolder "/PassingJets" of the chain
+      setCurrentMonGroup(m_monGroups[Form("%s_PJ",theChain.c_str())]);
+      count=0;
       const std::vector< TrigCompositeUtils::LinkInfo<xAOD::JetContainer> > fc = 
         getTDT()->features<xAOD::JetContainer>( chain );
-
       std::list<const xAOD::Jet*> jetList; //structure needed to sort jets by ET
       for(const auto& jetLinkInfo : fc) {
         if (!jetLinkInfo.isValid()) {
@@ -1869,7 +1942,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
         const xAOD::Jet *trigjet = dynamic_cast<const xAOD::Jet*>(*j);
         jetList.push_back( trigjet );
       }
-      auto sort = [] (const xAOD::Jet * j1, const xAOD::Jet * j2) {return j1->p4().Et() > j2->p4().Et(); } ;
+      auto sort = [] (const xAOD::Jet * j1, const xAOD::Jet * j2) {return j1->p4().Et() > j2->p4().Et(); } ; //can choose different way of sorting!
       jetList.sort( sort );
       for(const xAOD::Jet* j : jetList) {
         // ATH_MSG_INFO("Loop Over Features");
@@ -1893,10 +1966,6 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
           {
             hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
           }
-
-          v_thisjet.SetPtEtaPhiE(j->pt()/Gaudi::Units::GeV,j->eta(), j->phi(),j->e()/Gaudi::Units::GeV);
-          m_v_HLTjet.push_back(v_thisjet);
-          m_n_index++;
            
           if((h  = hist("HLTJet_Et")))            h->Fill(et,      m_lumi_weight);
           if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
@@ -3300,5 +3369,19 @@ int HLTJetMonTool::basicKineVar(const std::string& hist, std::vector<std::string
   for(Tokenizer::const_iterator vars = tokComp.begin(); vars != tokComp.end(); ++vars) kinevars.push_back(*vars);
   retval = (int)kinevars.size();
   return retval;
+}
+// ------------------------------------------------------------------------------------
+std::string HLTJetMonTool::GetJetCollectionName(const std::string& theChain) {
+  std::string jetcoll = "HLT_AntiKt4EMTopoJets_subjesIS"; //default small-R EMTopo jets
+  if (theChain.find("a10t") != std::string::npos) jetcoll = "HLT_AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets_jes";
+  else if(theChain.find("a10r") != std::string::npos) jetcoll = "HLT_AntiKt10JetRCJets_subjesIS";
+  else if(theChain.find("a10") != std::string::npos) jetcoll = "HLT_AntiKt10LCTopoJets_subjes"; //default large-R jets
+  else if(theChain.find("ftf") != std::string::npos) { //EMPFlow jets
+    if (theChain.find("subjesgsc") != std::string::npos) jetcoll = "HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf";
+    else if (theChain.find("pf_nojcalib") != std::string::npos) jetcoll = "HLT_AntiKt4EMPFlowJets_nojcalib_ftf";
+    else if (theChain.find("csskpf_nojcalib") != std::string::npos) jetcoll = "HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf";
+    else jetcoll = "HLT_AntiKt4EMPFlowJets_subjesIS_ftf"; //default small-R EMPFlow
+  }
+  return jetcoll;
 }
 // ------------------------------------------------------------------------------------

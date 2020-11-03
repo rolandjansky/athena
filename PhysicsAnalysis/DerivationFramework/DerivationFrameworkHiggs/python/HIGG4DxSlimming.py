@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #################################################
 # Common code used for the HIGG4 slimming       #
@@ -7,8 +7,7 @@
 # Nov 2015                                      #
 #################################################
 
-from DerivationFrameworkMCTruth.MCTruthCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs
 
 def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
     from AthenaCommon.GlobalFlags import globalflags

@@ -118,8 +118,6 @@ def getStandardInDetPileUpTools():
             PileUpToolsList += [ "PixelLightDigitizationTool" ]
         elif 'doSmearedPixelDigi' in digitizationFlags.experimentalDigi():
             PileUpToolsList += [ "PixelSmearedDigitizationTool" ]
-        elif digitizationFlags.doRadiationDamage():
-            PileUpToolsList += [ "PixelRadDamDigitizationTool" ]
         else:
             PileUpToolsList += [ "PixelDigitizationTool" ]
     if DetFlags.digitize.SCT_on():

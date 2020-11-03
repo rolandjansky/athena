@@ -192,7 +192,7 @@ int fitVertex(VKVertex * vk)
        if(vrtForCFT.wmfit[ic]>0){    // new mass constraint
            index.clear();
            for(tk=0; tk<NTRK; tk++){ if( vrtForCFT.indtrkmc[ic][tk] )index.push_back(tk); }
-           vk->ConstraintList.emplace_back(std::make_unique<VKMassConstraint>( NTRK, vrtForCFT.wmfit[ic], index, vk));
+           vk->ConstraintList.emplace_back(std::make_unique<VKMassConstraint>( NTRK, vrtForCFT.wmfit[ic], std::move(index), vk));
         }
       }
     }

@@ -29,7 +29,7 @@ public:
 
   virtual StatusCode start() override;
 
-  StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const;
+  virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const;
 
 private:
   // Menu objects (that act here as configuration) need to be available in detector store.

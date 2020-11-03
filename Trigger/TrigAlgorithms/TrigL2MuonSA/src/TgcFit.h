@@ -176,18 +176,18 @@ class TgcFit: public AthAlgTool
    * @param points The input list of data points.
    * @param stats The statistics struct to fill with fit results.
    */
-  void linReg(PointArray& points, LinStats& stats);
+  void linReg(PointArray& points, LinStats& stats) const;
   /*
    *  Calculate simple statistics for the Y values of a set of points.
    * @param points The input list of data points.
    * @param stats The statistics struct to fill with fit results.
    */
-  void SimpleStatistics(PointArray& points, SimpleStats& stats);
+  void SimpleStatistics(PointArray& points, SimpleStats& stats) const;
   /*
    *  Fit data to TGC. Calculate outliers and fit lines to strip and wire points.
    */
-  Status runTgcMiddle(PointArray& stripPoints, PointArray& wirePoints, TgcFitResult& fitResult);
-  Status runTgcInner(PointArray& stripPoints, PointArray& wirePoints, TgcFitResult& fitResult);
+  Status runTgcMiddle(PointArray& stripPoints, PointArray& wirePoints, TgcFitResult& fitResult) const;
+  Status runTgcInner(PointArray& stripPoints, PointArray& wirePoints, TgcFitResult& fitResult) const;
   
  protected:
   PointArray m_superPoints;           /**< List of wire (eta) super-points. */
@@ -196,7 +196,7 @@ class TgcFit: public AthAlgTool
   unsigned m_MIN_WIRE_POINTS { 4 };   /**< Minimum number of wire points for linear fit. */
   unsigned m_MIN_STRIP_POINTS { 3 };  /**< Minimum number of strip points for linear fit. */
   
-  void printDebug(const std::string& str){ ATH_MSG_DEBUG(str); };
+  void printDebug(const std::string& str) const { ATH_MSG_DEBUG(str); };
 };
  
 }

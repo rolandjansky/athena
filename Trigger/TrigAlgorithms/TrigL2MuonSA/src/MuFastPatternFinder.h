@@ -47,20 +47,20 @@ class MuFastPatternFinder: public AthAlgTool
     
    private:
 
-      double calc_residual(double aw,double bw,double x,double y);
-      void  doMdtCalibration(TrigL2MuonSA::MdtHitData& mdtHit, double track_phi, double phi0, bool isEndcap);
+      double calc_residual(double aw,double bw,double x,double y) const;
+      void  doMdtCalibration(TrigL2MuonSA::MdtHitData& mdtHit, double track_phi, double phi0, bool isEndcap) const;
 
    public:
 
       StatusCode findPatterns(const TrigL2MuonSA::MuonRoad& muonRoad,
 			      TrigL2MuonSA::MdtHits&        mdtHits,
-			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
 
       StatusCode findPatterns(const TrigL2MuonSA::MuonRoad& muonRoad,
 			      TrigL2MuonSA::MdtHits&        mdtHits,
 			      TrigL2MuonSA::StgcHits&       stgcHits,
 			      TrigL2MuonSA::MmHits&         mmHits,
-			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+			      std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
    private:
       ToolHandle<NswPatternFinder>  m_nswPatternFinder {this, "NswPatternFinder", "TrigL2MuonSA::NswPatternFinder"};
 

@@ -26,7 +26,7 @@ StatusCode TrigL2MuonSA::FtfRoadDefiner::initialize()
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::FtfRoadDefiner::defineRoad(const xAOD::TrackParticle* idtrack,
-						    TrigL2MuonSA::MuonRoad&    muonRoad)
+						    TrigL2MuonSA::MuonRoad&    muonRoad) const
 {
   ATH_MSG_DEBUG("FtfRoadDefiner::defineRoad");
 
@@ -145,7 +145,8 @@ StatusCode TrigL2MuonSA::FtfRoadDefiner::defineRoad(const xAOD::TrackParticle* i
 // --------------------------------------------------------------------------------
 
 // extrapolate a FTF track to MS in order to define FTF Road
-std::unique_ptr<const Trk::TrackParameters> TrigL2MuonSA::FtfRoadDefiner::extTrack( const xAOD::TrackParticle* trk, const double R, const double halflength, int& extFlag ) {
+std::unique_ptr<const Trk::TrackParameters> TrigL2MuonSA::FtfRoadDefiner::extTrack( const xAOD::TrackParticle* trk, const double R, const double halflength, int& extFlag ) const 
+{
 
   const bool boundaryCheck = true;
   bool bCylinder = false;

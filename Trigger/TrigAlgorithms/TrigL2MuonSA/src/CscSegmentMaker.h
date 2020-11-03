@@ -63,27 +63,29 @@ namespace TrigL2MuonSA{
     virtual StatusCode initialize() override;
 
 
-    ReturnCode	FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits, std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns, const TrigL2MuonSA::TgcFitResult &tgcFitResult, const TrigL2MuonSA::MuonRoad &muroad);
+    ReturnCode	FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits, 
+                                   std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns, 
+                                   const TrigL2MuonSA::TgcFitResult &tgcFitResult, 
+                                   const TrigL2MuonSA::MuonRoad &muroad) const;
 
 
-    ReturnCode make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8], CscSegment &cscsegment, CscSegment &cscsegment_noip, const MuonGM::MuonDetectorManager* muDetMgr);
+    ReturnCode make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8], CscSegment &cscsegment, CscSegment &cscsegment_noip, const MuonGM::MuonDetectorManager* muDetMgr) const;
 
-    ReturnCode make_2dsegment(int measphi, const localCscHit &ip_loc,const std::vector<localCscHit> hits_loc[4], local2dSegment &seg2d_eta,local2dSegment &local2d_noip, int &nhite);
+    ReturnCode make_2dsegment(int measphi, const localCscHit &ip_loc,const std::vector<localCscHit> hits_loc[4], local2dSegment &seg2d_eta,local2dSegment &local2d_noip, int &nhite) const;
 
-    ReturnCode make_2dseg4hit(int measphi, const localCscHit &ip_loc,std::vector<localCscHit> hits_loc[4], std::vector<local2dSegment> &seg2d_4hitCollection, int &nhite);
+    ReturnCode make_2dseg4hit(int measphi, const localCscHit &ip_loc,std::vector<localCscHit> hits_loc[4], std::vector<local2dSegment> &seg2d_4hitCollection, int &nhite) const;
 
-    ReturnCode make_2dseg3hit(int measphi, const localCscHit &ip_loc, const std::vector<localCscHit> hits_loc[4], std::vector<local2dSegment> &seg2d_4hitCollection, int &nhit);
-
-    ReturnCode fit_clusters(int measphi, const std::vector<localCscHit> &hits_fit, local2dSegment &seg2d);
+    ReturnCode make_2dseg3hit(int measphi, const localCscHit &ip_loc, const std::vector<localCscHit> hits_loc[4], std::vector<local2dSegment> &seg2d_4hitCollection, int &nhit) const;
+    ReturnCode fit_clusters(int measphi, const std::vector<localCscHit> &hits_fit, local2dSegment &seg2d) const;
 
     ReturnCode make_4dsegment(const local2dSegment &seg2d_eta, const local2dSegment &seg2d_phi,
-			      Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir);
+			      Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir) const;
 
-    ReturnCode getModuleSP(int mod_hash[2], const TrigL2MuonSA::TgcFitResult &tgcFitResult, int phibin, const TrigL2MuonSA::MuonRoad &muroad, const int exist_clusters[32]);
+    ReturnCode getModuleSP(int mod_hash[2], const TrigL2MuonSA::TgcFitResult &tgcFitResult, int phibin, const TrigL2MuonSA::MuonRoad &muroad, const int exist_clusters[32]) const;
 
-    ReturnCode display_hits(const std::vector<localCscHit> localHits[4]);
+    ReturnCode display_hits(const std::vector<localCscHit> localHits[4]) const;
 
-    CscSegment segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::CscSegment *mu_seg);
+    CscSegment segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::CscSegment *mu_seg) const;
 
   private:
     UtilTools m_util;

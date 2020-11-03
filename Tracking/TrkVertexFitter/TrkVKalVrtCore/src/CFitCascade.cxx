@@ -43,7 +43,7 @@ extern double cfVrtDstSig( VKVertex * , bool );
 extern void robtest(VKVertex * , long int );
 
 extern int fixPseudoTrackPt(long int NPar, double * fullMtx, double * LSide, CascadeEvent&);
-extern void getNewCov(double *OldCov, double* Der, double* Cov, long int DIM);
+extern void getNewCov(double *OldCov, double* Der, double* Cov, long int DIM) noexcept;
 
 //--------------------------------------------------------------------
 //
@@ -433,12 +433,12 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
        IERR = vkMSolve(fullMatrix, fullLSide, fullNPar);
        if(IERR){ delete[] fullMatrix; delete[] fullLSide; delete[] tmpLSide; delete[] iniCovMatrix;return IERR;}
      }else{                                               //Last step. Solution+full error matrix
-       cascadeEvent_.fullCovMatrix = std::make_unique< double[] >(fullNPar*fullNPar);     //Create fresh matrix
+       cascadeEvent_.fullCovMatrix.reset( new double[fullNPar*fullNPar] );     //Create fresh matrix
        IERR = vkMSolve(fullMatrix, fullLSide, fullNPar, cascadeEvent_.fullCovMatrix.get());
        if(IERR){ delete[] fullMatrix; delete[] fullLSide; delete[] tmpLSide; delete[] iniCovMatrix;
                  cascadeEvent_.fullCovMatrix.reset(); return IERR;}
 //std::cout<<"fulcov="; for(int tt=0; tt<fullNPar; tt++)std::cout<<cascadeEvent_.fullCovMatrix[tt*fullNPar+tt]<<", "; std::cout<<'\n';
-       auto  newCov = std::make_unique<double[]>(fullNPar*fullNPar);  //Check via error transfer from left side (measured values). Gives exactly the same errors - correct!!! 
+       std::unique_ptr<double[]> newCov(new double[fullNPar*fullNPar]); //Check via error transfer from left side (measured values). Gives exactly the same errors - correct!!! 
        getNewCov(iniCovMatrix, cascadeEvent_.fullCovMatrix.get(), newCov.get(), fullNPar);
        cascadeEvent_.fullCovMatrix=std::move(newCov); //Unique_ptr will handle deletion automatically
      }

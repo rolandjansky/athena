@@ -87,9 +87,8 @@ def publish_success_to_mq(run, ptag, stream, incr, ami, procpass, hcfg, isprod):
   import stomp, json, ssl
   from DataQualityUtils import stompconfig
   dest='/topic/atlas.dqm.progress'
-  conn=stomp.Connection([('atlas-mb.cern.ch', 61013)], **stompconfig.config())
-  conn.start()
-  conn.connect(wait=True)
+  conn=stomp.Connection([('atlas-mb.cern.ch', 61013)])
+  conn.connect(wait=True, **stompconfig.config())
 
   body = {
     'run': run,
@@ -107,7 +106,7 @@ def publish_success_to_mq(run, ptag, stream, incr, ami, procpass, hcfg, isprod):
     'persistent': 'true',
     'destination': dest,
     }
-  conn.send(message=json.dumps(body), destination=dest,headers=headers,ack='auto')
+  conn.send(body=json.dumps(body), destination=dest,headers=headers,ack='auto')
   conn.disconnect()
 
 #########################################################################

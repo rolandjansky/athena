@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #################################################
 # Common code used for the HIGG4 skimming       #
@@ -42,7 +42,7 @@ def setup(HIGG4DxName, ToolSvc):
         tauReq1 = '(count( '+tauSubl+' && '+tauTrks+' && '+tauId+' ) >= 1)'
         tauReq2 = '(count( '+tauLead+' && '+tauTrks+' ) >= 1)'
         skim_expression = tauReq0 + '&&' + tauReq1 + '&&' + tauReq2
-	#skim_expression = tauReq0 + '&&' + tauReq2
+        #skim_expression = tauReq0 + '&&' + tauReq2
     elif HIGG4DxName == 'HIGG4D4':
         ditau = '(count(((TauJets.nTracks == 1) || (TauJets.nTracks == 3)) && (TauJets.pt > 45.0*GeV)) >= 2)'
         tau1 = '(count((TauJets.pt > 100.0*GeV)) >= 1)'

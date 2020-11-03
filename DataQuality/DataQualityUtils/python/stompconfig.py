@@ -3,6 +3,6 @@
 
 def config():
     with open('/afs/cern.ch/user/a/atlasdqm/atlas/mqinfo') as f:
-        return {'user': 'atlasdqm',
+        return {'username': 'atlasdqm',
                 'passcode': f.read().strip()}
     raise RuntimeError('Unable to read STOMP connection info')
