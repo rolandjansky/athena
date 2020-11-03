@@ -3,9 +3,6 @@
 # Declare the package name:
 atlas_subdir( TriggerMenuMT )
 
-# External dependencies:
-find_package( six )
-
 atlas_add_test( flake8
    SCRIPT flake8 --select=ATL,F,E7,E9,W6,E101 --enable-extension=ATL900,ATL901,ATL902
    ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/scripts
