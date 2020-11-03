@@ -349,26 +349,6 @@ if not hasattr(topSequence,"SGInputLoader"):
     theApp.exit(1)
 topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
 
-
-#--------------------------------------------------------------
-# Event Info setup
-#--------------------------------------------------------------
-# If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
-if ConfigFlags.Input.Format == 'POOL':
-    from RecExConfig.ObjKeyStore import objKeyStore
-    from PyUtils.MetaReaderPeeker import convert_itemList
-    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-    if objKeyStore.isInInput("xAOD::EventInfo"):
-        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-    else:
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSeq = AthSequencer("AthCondSeq")
-        if not hasattr(condSeq, "xAODMaker::EventInfoCnvAlg"):
-            from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-            xAODEventInfoCnvAlgDefault(sequence=condSeq)
-else:
-    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-
 # ----------------------------------------------------------------
 # Detector geometry
 # ----------------------------------------------------------------
@@ -442,16 +422,42 @@ from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 
 # ---------------------------------------------------------------
-# HLT prep: RoIBResult and L1Decoder
+# Create main sequences
 # ---------------------------------------------------------------
-
-# main HLT top sequence
 from AthenaCommon.CFElements import seqOR,parOR
 hltTop = seqOR("HLTTop")
 hltBeginSeq = parOR("HLTBeginSeq")
 hltTop += hltBeginSeq
 topSequence += hltTop
 
+# ---------------------------------------------------------------
+# Event Info setup
+# ---------------------------------------------------------------
+# If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
+if ConfigFlags.Input.Format == 'POOL':
+    from RecExConfig.ObjKeyStore import objKeyStore
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+    if objKeyStore.isInInput("xAOD::EventInfo"):
+        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    else:
+        from AthenaCommon.AlgSequence import AthSequencer
+        condSeq = AthSequencer("AthCondSeq")
+        if not hasattr(hltBeginSeq, "xAODMaker::EventInfoCnvAlg"):
+            from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+            xAODEventInfoCnvAlgDefault(sequence=hltBeginSeq)
+else:
+    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+
+# ---------------------------------------------------------------
+# Add LumiBlockMuWriter creating xAOD::EventInfo decorations for pileup values
+# ---------------------------------------------------------------
+from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+LumiBlockMuWriterDefault(sequence=hltBeginSeq)
+
+# ---------------------------------------------------------------
+# Add L1Decoder providing inputs to HLT
+# ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
         ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = opt.forceEnableAllChains
@@ -627,11 +633,6 @@ include("TriggerTest/disableChronoStatSvcPrintout.py")
 #-------------------------------------------------------------
 if ConfigFlags.Input.isMC:
     svcMgr.MessageSvc.setError += ['HepMcParticleLink']
-
-#-------------------------------------------------------------
-# Enable xAOD::EventInfo decorations for pileup values
-#-------------------------------------------------------------
-include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
 
 #-------------------------------------------------------------
 # Apply modifiers
