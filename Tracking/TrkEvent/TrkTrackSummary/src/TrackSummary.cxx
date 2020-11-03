@@ -11,7 +11,6 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/InDetTrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
-#include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "GaudiKernel/MsgStream.h"
 
 std::atomic<unsigned int> Trk::TrackSummary::s_numberOfInstantiations{0};
@@ -20,7 +19,7 @@ const int    Trk::TrackSummary::SummaryTypeNotSet=-1;
 Trk::TrackSummary::TrackSummary()
     :
     m_information(numberOfTrackSummaryTypes, SummaryTypeNotSet),
-    m_eProbability(ITRT_ElectronPidTool::defaultElectronProbability()),
+    m_eProbability(Trk::eProbabilityDefault),
     m_dedx(-1),
     m_nhitsdedx(-1),
     m_nhitsoverflowdedx(-1),
@@ -106,7 +105,7 @@ Trk::TrackSummary& Trk::TrackSummary::operator+=(const TrackSummary& ts)
 }
            m_information[i]+= ts.m_information[i];
         }
-        if (ts.m_eProbability != ITRT_ElectronPidTool::defaultElectronProbability()) {
+        if (ts.m_eProbability != Trk::eProbabilityDefault) {
           m_eProbability = ts.m_eProbability;
         }
         if (m_dedx<0 && ts.m_dedx>=0) {

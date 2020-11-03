@@ -149,6 +149,8 @@ static const std::vector<unsigned int> floatSummaryTypes = {eProbabilityComb_res
         numberOfeProbabilityTypes   = 8        
     };
 
+static const std::vector<float> eProbabilityDefault(numberOfeProbabilityTypes, 0.5);
+
 /** enumerates the various detector types currently accessible from the isHit() method.
 \todo work out how to add muons to this*/
 enum DetectorType {

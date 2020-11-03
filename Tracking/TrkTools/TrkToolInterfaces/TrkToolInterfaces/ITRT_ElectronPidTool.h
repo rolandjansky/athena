@@ -45,19 +45,6 @@ namespace Trk {
     virtual double probHT( const double p, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) const = 0;
     virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const = 0;
 
-    static std::vector<float> defaultElectronProbability() {
-      std::vector<float> PIDvalues(Trk::numberOfeProbabilityTypes);
-      PIDvalues[Trk::eProbabilityComb] = 0.5;
-      PIDvalues[Trk::eProbabilityHT] = 0.5;
-      PIDvalues[Trk::eProbabilityToT] = 0.5;
-      PIDvalues[Trk::eProbabilityBrem] = 0.5;
-      PIDvalues[Trk::eProbabilityNN] = 0.5;
-      PIDvalues[Trk::TRTTrackOccupancy] = 0.0;
-      PIDvalues[Trk::TRTdEdx] = 0.0;
-      PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] = 0.0;
-      return PIDvalues;
-    }
-
   };
 
   inline const InterfaceID& Trk::ITRT_ElectronPidTool::interfaceID()

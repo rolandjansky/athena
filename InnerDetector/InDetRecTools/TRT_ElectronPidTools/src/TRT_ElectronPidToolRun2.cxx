@@ -135,7 +135,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::finalize()
 std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const Trk::Track& track)
 {
   // Simply return values without calculation
-  std::vector<float> PIDvalues = defaultElectronProbability();
+  std::vector<float> PIDvalues = Trk::eProbabilityDefault;
   const Trk::TrackParameters* perigee = track.perigeeParameters();
   if (!perigee) { return PIDvalues; }
   return PIDvalues;
@@ -167,7 +167,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
  }
 
   // Initialize the vector with default PID values
-  std::vector<float> PIDvalues = defaultElectronProbability();
+  std::vector<float> PIDvalues = Trk::eProbabilityDefault;
 
   // Check for perigee:
   const Trk::TrackParameters* perigee = track.perigeeParameters();

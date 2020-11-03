@@ -7,7 +7,7 @@ atlas_subdir( TrkTrackSummary )
 atlas_add_library( TrkTrackSummary
                    src/*.cxx
                    PUBLIC_HEADERS TrkTrackSummary
-                   LINK_LIBRARIES Identifier TrkToolInterfaces
+                   LINK_LIBRARIES Identifier
                    PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_dictionary( TrkTrackSummaryDict

@@ -192,7 +192,7 @@ information.resize(std::min(information.size(),
                             static_cast<size_t>(numberOfTrackSummaryTypes)));
 
 // Troels.Petersen@cern.ch:
-std::vector<float> eProbability = ITRT_ElectronPidTool::defaultElectronProbability();
+std::vector<float> eProbability = Trk::eProbabilityDefault;
 
   float dedx = -1;
   int nhitsuseddedx = -1;
@@ -339,7 +339,7 @@ void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::
 
 void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, TrackSummary &summary, bool initialise_to_zero) const
 {
-  std::vector<float> eProbability = ITRT_ElectronPidTool::defaultElectronProbability();
+  std::vector<float> eProbability = Trk::eProbabilityDefault;
   if (!m_eProbabilityTool.empty()) {
     eProbability = m_eProbabilityTool->electronProbability(track);
     int nHits = eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx];
