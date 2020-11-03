@@ -78,13 +78,28 @@ void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge,
     double startTime = m_lowerTimeWindow;
     double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
     if (startTime < minElectronTime) startTime = minElectronTime;  // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
-
+    
     double tmpTimeAtThreshold = -9999;
-    for (double time = startTime; time < m_upperTimeWindow; time += m_timeStep) {
-        if (vmmResponse(effectiveCharge, electronsTime, time) >= electronicsThreshold) {
-            tmpTimeAtThreshold = time;
-            break;
-        }
+    
+    for (double time = startTime; time < minElectronTime + 0.9*m_peakTime; time += 10*m_timeStep) { // quick search till the first possible peak
+      if(vmmResponse(effectiveCharge, electronsTime, time) <= electronicsThreshold ) continue;
+      for(double fineTime = time; fineTime >= time - 10*m_timeStep; fineTime -= m_timeStep) { // since value above threshold was found, loop back in time to find the crossing with the timeStep precission
+          if(vmmResponse(effectiveCharge, electronsTime, fineTime) >= electronicsThreshold) continue;
+              tmpTimeAtThreshold = fineTime + 0.5*m_timeStep; //  get time between time above and time below threshold 
+              break;
+          }
+      break;
+    } 
+    
+    if(tmpTimeAtThreshold == -9999) {  // threshold crossing not yet found 
+        double tmpStartTime = (minElectronTime + 0.9*m_peakTime < startTime ? startTime : minElectronTime + 0.9*m_peakTime  );
+        for (double time = tmpStartTime; time < m_upperTimeWindow; time += m_timeStep) {
+          if (vmmResponse(effectiveCharge, electronsTime, time) >= electronicsThreshold) {
+              tmpTimeAtThreshold = time;
+              break;
+          }
+       } 
+    
     }
 
     if (tmpTimeAtThreshold == -9999) return;
