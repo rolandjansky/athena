@@ -1,50 +1,7 @@
-################################################################################
-# Package: InDetTrackSelectionTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetTrackSelectionTool )
-
-# Declare the package's dependencies:
-if( XAOD_STANDALONE )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Event/xAOD/xAODTracking
-      PhysicsAnalysis/AnalysisCommon/PATCore
-      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-      PRIVATE
-      Control/xAODRootAccess )
-elseif( XAOD_ANALYSIS )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Event/xAOD/xAODTracking
-      PhysicsAnalysis/AnalysisCommon/PATCore
-      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-      GaudiKernel
-      PRIVATE
-      Control/AthenaBaseComps )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgTools
-      Event/xAOD/xAODTracking
-      GaudiKernel
-      PhysicsAnalysis/AnalysisCommon/PATCore
-      PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-      Tracking/TrkEvent/TrkParameters
-      Tracking/TrkExtrapolation/TrkExInterfaces
-      Tracking/TrkTools/TrkToolInterfaces
-      PRIVATE
-      Control/AthenaBaseComps
-      InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-      Tracking/TrkEvent/TrkEventPrimitives
-      Tracking/TrkEvent/TrkRIO_OnTrack
-      Tracking/TrkEvent/TrkTrack
-      Tracking/TrkEvent/TrkTrackSummary
-      Tracking/TrkEvent/VxVertex )
-endif()
 
 # External(s):
 find_package( ROOT COMPONENTS Core RIO Hist MathCore )
