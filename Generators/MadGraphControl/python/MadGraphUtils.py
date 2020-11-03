@@ -136,26 +136,26 @@ def error_check(errors):
                 mglog.error(l.replace('\n',''))
         mglog.error('End of debug file output')
 
-    if len(bad_variables)>0:
+    if bad_variables:
         mglog.warning('Appeared to detect variables in your run card that MadGraph did not understand:')
-        mglog.warning('  Check your run card / JO settings for '+' '.join(bad_variables))
+        mglog.warning('  Check your run card / JO settings for %s',bad_variables)
 
     # Now raise an error if we were in either of the error states
     if unmasked_error or my_debug_file is not None:
         # Beta feature: offline stand-alone reproduction script
-        standalone_script = open('standalone_script.sh','w')
-        mglog.info('Beta feature: Stand-alone debugging script')
-        mglog.info('This is an attempt to provide you commands that you can use')
-        mglog.info('to reproduce the error locally\n\n')
-        global MADGRAPH_COMMAND_STACK
-        mglog.info('# Script start; trim off columns left of the "#"')
-        for command in MADGRAPH_COMMAND_STACK:
-            for line in command.split('\n'):
-                mglog.info(line)
-                standalone_script.write(line+'\n')
-        mglog.info('# Script end')
-        standalone_script.close()
-        mglog.info('Script also written to '+os.getcwd()+'/standalone_script.sh')
+        with open('standalone_script.sh','w') as standalone_script:
+            mglog.info('Beta feature: Stand-alone debugging script')
+            mglog.info('This is an attempt to provide you commands that you can use')
+            mglog.info('to reproduce the error locally\n\n')
+            global MADGRAPH_COMMAND_STACK
+            mglog.info('# Script start; trim off columns left of the "#"')
+            for command in MADGRAPH_COMMAND_STACK:
+                for line in command.split('\n'):
+                    mglog.info(line)
+                    standalone_script.write(line+'\n')
+            mglog.info('# Script end')
+            standalone_script.close()
+        mglog.info('Script also written to %s/standalone_script.sh',os.getcwd())
 
         raise RuntimeError('Error detected in MadGraphControl process')
     return
