@@ -241,7 +241,13 @@ class TrigEgammaMonAlgBuilder:
     MediumLHSelector                  = CfgMgr.AsgElectronLikelihoodTool("T0HLTMediumLHSelector")
     TightLHSelector                   = CfgMgr.AsgElectronLikelihoodTool("T0HLTTightLHSelector")
     VeryLooseLHSelector               = CfgMgr.AsgElectronLikelihoodTool("T0HLTVeryLooseLHSelector")
-  
+ 
+    LoosePhotonSelector               = CfgMgr.AsgPhotonIsEMSelector( "T0HLTLoosePhotonSelector" )
+    MediumPhotonSelector              = CfgMgr.AsgPhotonIsEMSelector( "T0HLTMediumPhotonSelector" )
+    TightPhotonSelector               = CfgMgr.AsgPhotonIsEMSelector( "T0HLTTightPhotonSelector" )
+
+
+
     acc.addPublicTool(LooseElectronSelector)
     acc.addPublicTool(MediumElectronSelector)
     acc.addPublicTool(TightElectronSelector)
@@ -260,6 +266,12 @@ class TrigEgammaMonAlgBuilder:
       MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodMediumOfflineConfig2017_Smooth.conf"
       TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodTightOfflineConfig2017_Smooth.conf"
       VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc16_20170828/ElectronLikelihoodVeryLooseOfflineConfig2017_Smooth.conf"
+    
+      # cutbased for photons
+      TightPhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
+      MediumPhotonSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"
+      LoosePhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"
+      
     elif self.runFlag == '2017':
       # cut based
       LooseElectronSelector.ConfigFile  = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMLooseSelectorCutDefs.conf"
@@ -270,6 +282,12 @@ class TrigEgammaMonAlgBuilder:
       MediumLHSelector.ConfigFile       = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodMediumOfflineConfig2016_Smooth.conf"
       TightLHSelector.ConfigFile        = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodTightOfflineConfig2016_Smooth.conf"
       VeryLooseLHSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20160512/ElectronLikelihoodVeryLooseOfflineConfig2016_Smooth.conf"
+    
+      # cut based for photons 
+      TightPhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMTightSelectorCutDefs.conf"
+      MediumPhotonSelector.ConfigFile   = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMMediumSelectorCutDefs.conf"
+      LoosePhotonSelector.ConfigFile    = "ElectronPhotonSelectorTools/offline/mc15_20150712/PhotonIsEMLooseSelectorCutDefs.conf"
+    
     else:
       # raise since the configuration its not defined
       raise RuntimeError( 'Wrong run flag configuration' )
@@ -350,8 +368,7 @@ class TrigEgammaMonAlgBuilder:
       self.phMonAlg.PhotonKey = 'Photons'
       self.phMonAlg.isEMResultNames=self.isemnames
       self.phMonAlg.LHResultNames=self.lhnames
-      self.phMonAlg.ElectronIsEMSelector =[TightElectronSelector,MediumElectronSelector,LooseElectronSelector]
-      self.phMonAlg.ElectronLikelihoodTool =[TightLHSelector,MediumLHSelector,LooseLHSelector]
+      self.phMonAlg.PhotonIsEMSelector =[TightPhotonSelector,MediumPhotonSelector,LoosePhotonSelector]
       self.phMonAlg.TriggerList=self.photonList
       self.phMonAlg.DetailedHistograms=self.detailedHistograms
 
