@@ -144,9 +144,9 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     hole_recovery_tool =  acc.getPrimary()
     result.addPublicTool(hole_recovery_tool)
     result.merge(acc)
-    kwargs.setdefault("HitRecoveryTool", hole_recovery_tool)    
+    kwargs.setdefault("HitRecoveryTool", hole_recovery_tool)
     kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) # FIXME? Remove duplicate from cxx?
-        
+
     acc  = MagneticFieldSvcCfg(flags) 
     result.merge(acc)
     

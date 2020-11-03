@@ -560,6 +560,10 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     result.merge(acc)
     kwargs.setdefault("SegmentAmbiguityTool", ambi)
 
+    from MuonConfiguration.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
+    acc = MuonTrackToSegmentToolCfg(flags)
+    kwargs.setdefault( "TrackToSegmentTool", results.popToolsAndMerge(acc))
+
     # FIXME - remaining tools
     result.setPrivateTools(Muon__MuonClusterSegmentFinderTool(**kwargs))
     return result
@@ -599,6 +603,10 @@ def MuonClusterSegmentFinderCfg(flags, **kwargs):
     acc.addPublicTool(cleaner)
     result.merge(acc)
     kwargs.setdefault("TrackCleaner", cleaner)
+
+    from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
+    acc = MuonTrackToSegmentToolCfg(flags)
+    kwargs.setdefault( "TrackToSegmentTool", result.popToolsAndMerge(acc))
 
     result.addPublicTool(Muon__MuonClusterSegmentFinder(**kwargs),primary=True)
     return result

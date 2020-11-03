@@ -27,26 +27,28 @@ _basicServicesToCreateOrder=("CoreDumpSvc/CoreDumpSvc", "GeoModelSvc/GeoModelSvc
 
 
 
-def printProperties(msg, c, nestLevel = 0, printDefaults=False):
+def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponents=False):
     # Iterate in sorted order.
     propnames= sorted(c._descriptors.keys())
     for propname in propnames:
         
         if not printDefaults and not c.is_property_set(propname):
             continue
+
         propval=getattr(c,propname)
         # Ignore empty lists
         
         if isinstance(propval,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)) and propval.data is None:
             continue
         # Printing EvtStore could be relevant for Views?
-        if propname in ["DetStore","EvtStore"]:
+        if  not c.is_property_set(propname) and propname in ["DetStore","EvtStore", "AuditFinalize", "AuditInitialize", "AuditReinitialize", "AuditRestart", "AuditStart", "AuditStop", "AuditTools", "ExtraInputs", "ExtraOutputs"]:
             continue
 
         if isinstance( propval, GaudiConfig2.Configurable ):
             msg.info( " "*nestLevel +"    * {0}: {1}/{2}".format(propname, propval.__cpp_type__, propval.getName()))
             printProperties(msg, propval, nestLevel+3)
             continue
+        propstr=""
         if isinstance(propval,GaudiHandles.PublicToolHandleArray):
             ths = [th.getName() for th in propval]
             propstr = "PublicToolHandleArray([ {0} ])".format(', '.join(ths))
@@ -55,9 +57,12 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False):
             propstr = "PrivateToolHandleArray([ {0} ])".format(', '.join(ths))
         elif isinstance(propval,GaudiHandles.GaudiHandle): # Any other handle
             propstr = "Handle( {0} )".format(propval.typeAndName)
-        else:
-            propstr = str(propval)            
-        msg.info( " "*nestLevel +"    * {0}: {1}".format(propname,propstr))
+        elif not onlyComponents:
+            propstr = str(propval)
+        if propstr:
+            msg.info( " "*nestLevel +"    * {}: {} {}".format(propname,
+                                                              propstr,
+                                                              "set" if c.is_property_set(propname) else "default"))
     return
 
 

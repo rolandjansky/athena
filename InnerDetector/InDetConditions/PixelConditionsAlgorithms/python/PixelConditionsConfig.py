@@ -371,7 +371,7 @@ def PixelDCSCondHVAlgCfg(flags, name="PixelDCSCondHVAlg", **kwargs):
         kwargs.update( ReadKey="/PIXEL/HLT/DCS/HV")
         acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
     else:
-        kwargs.update( ReadKey="/PIXEL/HLT/DCS/HV")
+        kwargs.update( ReadKey="/PIXEL/DCS/HV")
         acc.merge(addFolders(flags, kwargs["ReadKey"], "DCS_OFL", className="CondAttrListCollection"))
 
     kwargs.setdefault("WriteKey", "PixelDCSHVCondData")

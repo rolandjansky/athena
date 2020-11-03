@@ -24,7 +24,7 @@ def SCT_DCSConditionsCfg(flags, name="InDetSCT_DCSConditions", **kwargs):
     hvFolder = kwargs.get("hvFolder", dcsFolder + "/HV")
     tempFolder = kwargs.get("tempFolder", dcsFolder + "/MODTEMP")
     stateFolder = kwargs.get("stateFolder", dcsFolder + "/CHANSTAT")
-    ReadAllDBFolders = kwargs.get("ReadAllDBFolders", True)
+    ReadAllDBFolders = kwargs.get("ReadAllDBFolders", not flags.Common.isOnline)
     ReturnHVTemp = kwargs.get("ReturnHVTemp", True)
     
     # Condition algorithms
