@@ -38,7 +38,7 @@ namespace InDetDDSLHC {
 
   PixelDetectorFactory::PixelDetectorFactory(InDetDD::AthenaComps *athenaComps,
 					     InDetDD::SiCommonItems *commonItems,
-					     StripOptions &options) :
+					     PixelOptions &options) :
     InDetDD::DetectorFactoryBase(athenaComps),
     m_athenaComps(athenaComps),
     m_commonItems(commonItems),
@@ -80,7 +80,7 @@ namespace InDetDDSLHC {
     msg(MSG::INFO) << "C R E A T E   W O R L D" << endmsg; 
    
     msg(MSG::INFO) << m_detectorManager->getVersion().fullDescription() << endmsg;
-    PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_waferTree);
+    PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
     //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
     //    comment out above line and uncomment the following line; also, switch header files above.
     //    GmxInterface gmxInterface;
@@ -166,7 +166,7 @@ namespace InDetDDSLHC {
   void PixelDetectorFactory::doNumerology() {
     InDetDD::SiNumerology n;
     
-    msg(MSG::INFO) << "\n\nPixel Numerology:\n===============\n\nNumber of parts is " << m_waferTree.nParts() << endl << endl;
+    msg(MSG::INFO) << "\n\nPixel Numerology:\n===============\n\nNumber of parts is " << m_moduleTree.nParts() << endl << endl;
     
   }
 

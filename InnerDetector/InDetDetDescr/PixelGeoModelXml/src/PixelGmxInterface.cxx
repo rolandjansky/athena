@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelGeoModelXml/PixelGmxInterface.h"
@@ -15,9 +15,7 @@
 
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "PixelReadoutGeometry/PixelDiodeMap.h"
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
-#include "PixelReadoutGeometry/PixelReadoutScheme.h"
 #include "PixelReadoutGeometry/PixelMultipleConnection1D.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -27,10 +25,10 @@ const int PixelHitIndex = 0;
 
 using namespace std;
 
-PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *waferTree):
+PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, ModuleTree *moduleTree):
   m_detectorManager(detectorManager),
   m_commonItems(commonItems),
-  m_waferTree(waferTree) {
+  m_moduleTree(moduleTree) {
   
   ServiceHandle<IMessageSvc> msgh("MessageSvc", "PixelGmxInterface");
   
@@ -44,18 +42,18 @@ PixelGmxInterface::~PixelGmxInterface() {
 int PixelGmxInterface::moduleId(map<string, int> &index){
   //
   //    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers")
-  int hitIdOfWafer = SiHitIdHelper::GetHelper->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"],
+  int hitIdOfModule = SiHitIdHelper::GetHelper->buildHitId(PixelHitIndex, index["barrel_endcap"], index["layer_wheel"],
 							  index["eta_module"], index["phi_module"], index["side"]);
 
   *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " <<
                                      index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endmsg;
-  *m_log << MSG::DEBUG << "hitIdOfWafer = " << std::hex << hitIdOfWafer << std::dec << endmsg;
-  *m_log << MSG::DEBUG << " bec = " << SiHitIdHelper::GetHelper()->getBarrelEndcap(hitIdOfWafer) <<
-                                    " lay = " << SiHitIdHelper::GetHelper()->getLayerDisk(hitIdOfWafer) <<
-                                    " eta = " << SiHitIdHelper::GetHelper()->getEtaModule(hitIdOfWafer) <<
-                                    " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfWafer) <<
-                                    " side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << endmsg;
-  return hitIdOfWafer;
+  *m_log << MSG::DEBUG << "hitIdOfModule = " << std::hex << hitIdOfModule << std::dec << endmsg;
+  *m_log << MSG::DEBUG << " bec = " << SiHitIdHelper::GetHelper()->getBarrelEndcap(hitIdOfModule) <<
+                                    " lay = " << SiHitIdHelper::GetHelper()->getLayerDisk(hitIdOfModule) <<
+                                    " eta = " << SiHitIdHelper::GetHelper()->getEtaModule(hitIdOfModule) <<
+                                    " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfModule) <<
+                                    " side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfModule) << endmsg;
+  return hitIdOfModule;
 }
 
 
@@ -63,11 +61,8 @@ void PixelGmxInterface::addModuleType(string clas, string typeName, map<string, 
 
   *m_log << MSG::DEBUG << "PixelGmxInterface::addModuleType called for class " << clas << " typeName " << typeName <<
                                     endmsg;
-  if (clas == "SingleChip") {
-    makeSingleChipModule(typeName, parameters);
-  }
-  else if (clas == "QuadChip") {
-    makeQuadChipModule(typeName, parameters);
+  if (clas == "PixelModule") {
+    makeModule(typeName, parameters);
   }
   else {
     *m_log << MSG::ERROR << "PixelGmxInterface::addModuleType: unrecognised module class, " << clas << endmsg;
@@ -75,21 +70,68 @@ void PixelGmxInterface::addModuleType(string clas, string typeName, map<string, 
   }
 }
 
-void PixelGmxInterface::makeSingleChipModule(string typeName, map<string, string> &par){
+void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &par){
   //
   // Get all parameters.
+  // This comes from PixelModuleDesign
   //
-  double chipLength(20.0);
-  double chipWidth(19.2);
-  double pitchEta(0.050);
-  double pitchPhi(0.050);
-  double nCols(400);
-  double nRows(384);
-  
-}
+  double thickness();
+  int circuitsPerColumn();
+  int circuitsPerRow();
+  int cellColumnsPerCircuit();
+  int cellRowsPerCircuit();
+  int diodeColumnsPerCircuit();
+  int diodeRowsPerCircuit();
+  InDetDD::CarrierType carrier(InDetDD::electrons);
+  int readoutSide(-1);
+  bool is3D(false);
 
-void PixelGmxInterface::makeQuadChipModule(string typeName, map<string, string> &par){
+  string car = getstr(typeName, "carrierType", par);
+  if (car == "electrons") {
+    carrier = InDetDD::electrons;
+  }
+  else if (car == "holes") {
+    carrier = InDetDD::holes;
+  }
+  else {
+    *m_log << MSG::FATAL <<
+      "PixelGmxInterface::makePixelModule: Error: parameter carrierType should be electrons or holes for " <<
+      typeName << endmsg;
+    exit(999);
+  }
+  string ros = getstr(typeName, "readoutSide", par);
+  if (ros == "+") {
+    readoutSide = 1;
+  }
+  else if (ros == "-") {
+    readoutSide = -1;
+  }
+  else {
+    *m_log << MSG::FATAL <<
+      "PixelGmxInterface::makePixelModule: Error: parameter readoutSide should be + or - for " << typeName << endmsg;
+    exit(999);
+  }
+  getparm(typeName, "thickness", par, thickness);
+  getparm(typeName, "circuitsPerColumn", par, circuitsPerColumn);
+  getparm(typeName, "circuitsPerRow", par, circuitsPerRow);
+  getparm(typeName, "cellColumnsPerCircuit", par, cellColumnsPerCircuit);
+  getparm(typeName, "cellRowsPerCircuit", par, cellRowsPerCircuit);  
+  getparm(typeName, "diodeColumnsPerCircuit", par, diodeColumnsPerCircuit);  
+  getparm(typeName, "diodeRowsPerCircuit", par, diodeRowsPerCircuit);  
+  getparm(typeName, "is3D", par, is3D);
+  //TO DO":  add pixel diode matrix?
+  //
+  //   Make Module Design and add to DetectorManager
+  //
+  std::unique_ptr<InDetDD::PixelModuleDesign> design=std::make_unique<InDetDD::PixelModuleDesign>(thickness, circuitsPerColumn, 
+												  circuitsPerRow, cellColumnsPerCircuit, 
+												  cellRowsPerCircuit, diodeColumnsPerCircuit, 
+												  diodeRowsPerCircuit, carrier, 
+												  readoutSide, is3D); 
+  m_detectorManager->addDesign(std::move(design));
 
+  //    Add to map for addSensor routine
+  m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
 }
 
 string PixelGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
