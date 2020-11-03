@@ -154,7 +154,6 @@ def error_check(errors):
                     mglog.info(line)
                     standalone_script.write(line+'\n')
             mglog.info('# Script end')
-            standalone_script.close()
         mglog.info('Script also written to %s/standalone_script.sh',os.getcwd())
 
         raise RuntimeError('Error detected in MadGraphControl process')
