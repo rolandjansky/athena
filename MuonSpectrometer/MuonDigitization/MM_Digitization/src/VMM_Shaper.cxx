@@ -121,41 +121,52 @@ double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std
     if(startTime < minElectronTime) startTime = minElectronTime; // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
 
     double oldResponse = 0;
-    double oldDerivative = 0 , currentDerivative = 0;
+    //double currentDerivative = 0;
 
-    for (double time = startTime; time < m_upperTimeWindow; time += m_timeStep) {
+    double timeStepScaleFactor = 5.0;
+
+    for (double time = startTime; time < m_upperTimeWindow; time += m_timeStep*timeStepScaleFactor) {
 
         double response = vmmResponse(effectiveCharge, electronsTime, time);
-
-        oldDerivative = currentDerivative;
-        currentDerivative = (response-oldResponse) * m_inverseTimeStep;
-        //  check if sign of derivative has not changed ==> no peak;  or if response is below threshold
-        if (oldDerivative*currentDerivative >= 0 || oldResponse < electronicsThreshold) {oldResponse = response; continue;}
-
-        // from here one its assumed that a peak above threshold was found
-
-        //  check if the derivative is monoton falling within the given window of 5 bins
-        bool checkDerivative = true;
-        double tmp_checkOldDerivative = 0, tmp_checkCurrentDerivative = 0;
-        double tmp_checkOldResponse = 0;
+        if(oldResponse < response){oldResponse=response; continue;}
 
         int searchWindow = 5;
 
-        for (int i_timeOfPeak = -searchWindow; i_timeOfPeak <= searchWindow; i_timeOfPeak ++) {
-           double response = vmmResponse(effectiveCharge, electronsTime, time + i_timeOfPeak * m_timeStep);
+        std::vector<double> tmpTime, tmpResponse;
 
-           tmp_checkOldDerivative = tmp_checkCurrentDerivative;
-           tmp_checkCurrentDerivative = (response - tmp_checkOldResponse) * m_inverseTimeStep;
-           tmp_checkOldResponse = response;
+        tmpTime.reserve(2*timeStepScaleFactor);
+        tmpResponse.reserve(2*timeStepScaleFactor);
 
-           if (i_timeOfPeak >= -searchWindow + 2  // needs two iterations to fill the variables
-                && tmp_checkOldDerivative < tmp_checkCurrentDerivative) {  // derivative is not falling monothonic
-               checkDerivative = false;
-               break;
-           }
+
+        for(double fineTime = (time-1.5*m_timeStep*timeStepScaleFactor); fineTime < time+0.5*m_timeStep*timeStepScaleFactor; fineTime += m_timeStep) {
+          tmpTime.push_back(fineTime);
+          tmpResponse.push_back(vmmResponse(effectiveCharge,electronsTime,fineTime));     
         }
-        if (!checkDerivative) continue;
-        return time - m_timeStep;
+
+        int nBins = tmpTime.size();
+
+        for(int i_time = 1; i_time < nBins-1;i_time++){
+            if(tmpResponse.at(i_time)<tmpResponse.at(i_time+1)) continue;
+
+            if(tmpResponse.at(i_time) < electronicsThreshold) break; 
+            
+            bool checkTimeWindow = false;
+            for(int i_timeOfPeak = i_time - searchWindow + 1; i_timeOfPeak <= i_time + searchWindow; i_timeOfPeak++) {
+              if(i_timeOfPeak < 1 || i_timeOfPeak == nBins - 1) continue;
+              
+              double oldDerivative = (tmpResponse.at(i_time) - tmpResponse.at(i_time-1));
+              double newDerivative = (tmpResponse.at(i_time+1) - tmpResponse.at(i_time));
+              if (newDerivative > oldDerivative){
+                checkTimeWindow = false;
+                break; 
+              } else {
+                checkTimeWindow = true;
+              }
+            
+           }
+           if(checkTimeWindow) return tmpTime.at(i_time);
+
+        }
     }
     return -9999;  // no peak found
 }
