@@ -66,9 +66,16 @@ namespace InDet
       
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize() override;
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize() override;
 
+    /** 
+     * Decide what to do with a candidate track
+     *  - count and characterize hits on track
+     *  - not those which are used too often (decideWhichHitsToKeep)
+     *  - accept the track as is, remove hits and make a subtrack, or
+     *    reject track
+     *  - track candidate are also checked against accepted tracks to
+     *    ensure accepted tracks are not pushed over threshold
+     * */
     virtual std::tuple<Trk::Track*,bool> getCleanedOutTrack(const Trk::Track *track,
                                                             const Trk::TrackScore score,
                                                             Trk::ClusterSplitProbabilityContainer &splitProbContainer,
@@ -84,112 +91,143 @@ namespace InDet
       SplitSharedHit = 2, 
       // A measurement shared with another track
       SharedHit   = 3, 
+      // A hit that needs to be removed from the track 
+      // because it is used on too many tracks already
+      RejectedHitOverUse = 4,
       // A hit that needs to be removed from the track
-      RejectedHit = 4,
+      // because sharing it would invalidate an accepted track
+      RejectedHitInvalid = 5,
+      // A hit that needs to be removed from the track
+      // reason other than the above two
+      RejectedHit = 6,
       // an outlier, to be copied in case
-      Outlier     = 5,
+      Outlier     = 7,
       // other TSOS types to be copied in case
-      OtherTsos   = 6
+      OtherTsos   = 8
     };
     
      
     struct TrackHitDetails
     {  
-      bool  isPatternTrack        ;
-      bool  inROI                 ;
-      bool  thishasblayer         ; //Track has a hit in the b-layer
-      bool  hassharedblayer       ; //Track has a shared it in the b-layer
-      bool  hassharedpixel        ; //Track has a shared pixel hit
-      bool  firstisshared         ; //The first hit on track is shared
+      bool  m_isPatternTrack        ;
+      bool  m_thisHasIBLHit         ; //Track has a hit in the IBL
+      bool  m_hasSharedIBLHit       ; //Track has a shared hit in the IBL
+      bool  m_hasSharedPixel        ; //Track has a shared pixel hit (does not include IBL)
+      bool  m_firstPixIsShared      ; //The first pixel hit on track is shared (includes IBL)
+      bool  m_passHadronicROI       ; //Track is within hadronic ROI
+      bool  m_passConversionSel     ; //Track is compatible with a conversion
+      bool  m_trkCouldBeAccepted    ; //No rejected hits on track
    
-      int   numPixelDeadSensor    ;// I don't think i need to explain these
-      int   numSCTDeadSensor      ;
-      int   numPixelHits          ;
-      int   numPixelHoles         ;
-      int   numSCTHoles           ;
-      int   numSCTHits            ;
+      int   m_numPixelDeadSensor    ; //Taken from track summary. Stored value not changed in this tool
+      int   m_numSCTDeadSensor      ; //Taken from track summary. Stored value not changed in this tool
+      int   m_numPixelHits          ; //Taken from track summary. Stored value not changed in this tool  
+      int   m_numPixelHoles         ; //Taken from track summary. Stored value not changed in this tool 
+      int   m_numSCTHoles           ; //Taken from track summary. Stored value not changed in this tool 
+      int   m_numSCTHits            ; //Taken from track summary. Stored value not changed in this tool 
         
-      int   numUnused             ; //Number of unique hits
-      int   numTRT_Unused         ; //Number of unique TRT hits
-      int   numSCT_Unused         ; //Number of unique SCT hits 
-      int   numPseudo             ; //Number of pseudo measurements on track
+      // values counted in this tool
+      int   m_numUnused             ; //Number of unique hits
+      int   m_numTRT_Unused         ; //Number of unique TRT hits (NOT included within m_numUnused)
+      int   m_numSCT_Unused         ; //Number of unique SCT hits (    included within m_numUnused)
+      int   m_numPseudo             ; //Number of pseudo measurements on track
   
-      float averageSplit1         ; //Average split prob1
-      float averageSplit2         ; //Averege split prob2
-  
-      int   numSplitSharedPix     ; //Number of Pixel clusters comptaible with being split that are also shared
-      int   numSplitSharedSCT     ; //Number of SCT clusters comptaible with being split that are also shared
-      int   numSharedOrSplit      ; //Number of split + shared clusters
-      int   numSharedOrSplitPixels; //Number of pixel clusters that are either split or shared
-      int   numShared             ; //Number of shared hits on track
-      int   numWeightedShared     ; //Weighted number of shared hits on trak (pixels count for 2)
-                 
+      int   m_numSplitSharedPix     ; //Number of Pixel clusters comptaible with being split that are also shared
+      int   m_numSplitSharedSCT     ; //Number of SCT clusters comptaible with being split that are also shared
+      int   m_numShared             ; //Number of shared hits on track (does not include SplitShared)
+      int   m_numSCT_Shared         ; //Number of shared sct hits on track (included within m_numShared)
+      int   m_numWeightedShared     ; //Weighted number of shared hits on track used to test shared module cuts (pixels count for 2)
+      
       TrackHitDetails()
       {          
-        isPatternTrack    = true;
-        inROI             = false;
-        thishasblayer     = false;   
-        hassharedblayer   = false;
-        hassharedpixel    = false;
-        firstisshared     = true;
+        m_isPatternTrack    = true;
+        m_thisHasIBLHit     = false;   
+        m_hasSharedIBLHit   = false;
+        m_hasSharedPixel    = false;
+        m_firstPixIsShared  = false;
+        m_passHadronicROI   = false;
+        m_passConversionSel = false;
+        m_trkCouldBeAccepted = true;
           
-        numPixelDeadSensor = -1;
-        numSCTDeadSensor   = -1;
-        numPixelHits       = 0;
-        numPixelHoles      = 0;
-        numSCTHoles        = 0;
-        numSCTHits         = 0;
+        m_numPixelDeadSensor = -1;
+        m_numSCTDeadSensor   = -1;
+        m_numPixelHits       = 0;
+        m_numPixelHoles      = 0;
+        m_numSCTHoles        = 0;
+        m_numSCTHits         = 0;
  
-        numUnused         = 0;
-        numSCT_Unused     = 0;
-        numTRT_Unused     = 0;
-        numPseudo         = 0;
+        m_numUnused         = 0;
+        m_numSCT_Unused     = 0;
+        m_numTRT_Unused     = 0;
+        m_numPseudo         = 0;
           
-        averageSplit1 = 0;
-        averageSplit2 = 0;
-          
-        numSplitSharedPix = 0;
-        numSplitSharedSCT = 0;
-        numSharedOrSplit = 0;
-        numSharedOrSplitPixels = 0;
-        numShared = 0;
-        numWeightedShared = 0;
+        m_numSplitSharedPix = 0;
+        m_numSplitSharedSCT = 0;
+        m_numShared = 0;
+        m_numSCT_Shared = 0; 
+        m_numWeightedShared = 0;
       }
-        
-      int totalSiHits()
+       
+      // All SiHits including shared
+      int totalSiHits() const
       { 
-        return numUnused + numPixelDeadSensor + numSCTDeadSensor + numSplitSharedPix + numSplitSharedSCT + (inROI ? numShared/2 : 0) ;
+        return (m_numUnused + m_numPixelDeadSensor + m_numSCTDeadSensor + m_numSplitSharedPix + m_numSplitSharedSCT + m_numShared);
+      };
+
+      // SplitShared are not counted as shared (no penality) 
+      // since are compatible with originating from multiple particles
+      int totalUniqueSiHits() const
+      { 
+        return (totalSiHits() - m_numShared);
+      };
+
+      // No counters, for pixel hits. Solve for them to avoid too many counters
+      int totalUniquePixelHits() const
+      { 
+        // m_numTRT_Unused not included in m_numUnused
+        return (m_numUnused - m_numSCT_Unused);
+      };
+
+      // No counters, for pixel hits. Solve for them to avoid too many counters
+      int totalSharedPixelHits() const
+      { 
+        return (m_numShared - m_numSCT_Shared);
+      };
+
+      int totalPixelHits() const
+      { 
+        return (totalUniquePixelHits() + totalSharedPixelHits() + m_numSplitSharedPix + m_numPixelDeadSensor);
       };
         
-      void dumpInfo()
+      void dumpInfo() const
       {
-        std::cout << "isPatternTrack: " << isPatternTrack    << std::endl;
-        std::cout << "thishasblayer : " << thishasblayer     << std::endl;   
-        std::cout << "hassharedblayer:" << hassharedblayer   << std::endl;
-        std::cout << "hassharedpixel: " << hassharedpixel    << std::endl;
-        std::cout << "firstisshared:  " << firstisshared     << std::endl;
+        std::cout << "isPatternTrack    : " << m_isPatternTrack    << std::endl;
+        std::cout << "thisHasIBLHit     : " << m_thisHasIBLHit     << std::endl;   
+        std::cout << "hasSharedIBLHit   : " << m_hasSharedIBLHit   << std::endl;
+        std::cout << "hasSharedPixel    : " << m_hasSharedPixel    << std::endl;
+        std::cout << "firstPixIsShared  : " << m_firstPixIsShared  << std::endl;
+        std::cout << "passHadronicROI   : " << m_passHadronicROI   << std::endl;
+        std::cout << "passConversionSel : " << m_passConversionSel << std::endl; 
+        std::cout << "trkCouldBeAccepted: " << m_trkCouldBeAccepted<< std::endl; 
           
-        std::cout << "Dead Pixels:    " << numPixelDeadSensor<< std::endl;
-        std::cout << "Dead SCT:       " << numSCTDeadSensor  << std::endl;
-        std::cout << "Pixel hit       " << numPixelHits      << std::endl;
-        std::cout << "Pixel holes     " << numPixelHoles     << std::endl;
-        std::cout << "SCT hits        " << numSCTHits        << std::endl;
-        std::cout << "SCT holes       " << numSCTHoles       << std::endl;
+        std::cout << "Dead Pixels:    " << m_numPixelDeadSensor<< std::endl;
+        std::cout << "Dead SCT:       " << m_numSCTDeadSensor  << std::endl;
+        std::cout << "Pixel hit       " << m_numPixelHits      << std::endl;
+        std::cout << "Pixel holes     " << m_numPixelHoles     << std::endl;
+        std::cout << "SCT hits        " << m_numSCTHits        << std::endl;
+        std::cout << "SCT holes       " << m_numSCTHoles       << std::endl;
  
-        std::cout << "Unique hits     " << numUnused         << std::endl;
-        std::cout << "Unique SCT      " << numSCT_Unused     << std::endl;
-        std::cout << "Unique TRT      " << numTRT_Unused     << std::endl;
-        std::cout << "Pseudo          " << numPseudo         << std::endl;
+        std::cout << "Unique hits     " << m_numUnused         << std::endl;
+        std::cout << "Unique SCT      " << m_numSCT_Unused     << std::endl;
+        std::cout << "Unique TRT      " << m_numTRT_Unused     << std::endl;
+        std::cout << "Unique Pix      " << totalUniquePixelHits() << std::endl;
+        std::cout << "Pseudo          " << m_numPseudo         << std::endl;
           
-        std::cout << "Average Split1  " << averageSplit1     << std::endl;
-        std::cout << "Average Split2  " << averageSplit2     << std::endl;
-          
-        std::cout << "SplitSharedPix  " << numSplitSharedPix << std::endl;
-        std::cout << "SplitSharedSCT  " << numSplitSharedSCT << std::endl;
-        std::cout << "Shared/split    " << numSharedOrSplit  << std::endl;
-        std::cout << "Shared/split px " << numSharedOrSplitPixels << std::endl;
-        std::cout << "Shared          " << numShared         << std::endl;
-        std::cout << "Weighted shared " << numWeightedShared << std::endl;
+        std::cout << "SplitSharedPix  " << m_numSplitSharedPix << std::endl;
+        std::cout << "SplitSharedSCT  " << m_numSplitSharedSCT << std::endl;
+        std::cout << "Shared          " << m_numShared         << std::endl;
+        std::cout << "Shared SCT      " << m_numSCT_Shared     << std::endl;
+        std::cout << "Shared Pix      " << totalSharedPixelHits() << std::endl;
+        std::cout << "Weighted shared " << m_numWeightedShared << std::endl;
       };
     };
 
@@ -208,15 +246,15 @@ namespace InDet
  
     struct TSoS_Details
     {
-      unsigned int        nTSoS;
-      std::vector<int>    type;                                   // The type of TSOS 
-      std::vector<int>    detType;                                // The Detector type 1== Pixel, 11 = b-layer, 2 SCT, 3 TRT
-      std::vector<int>    hitIsShared;                            // Number of tracks the hit is shared with
-      std::vector<float>  splitProb1;                             // The Probablilty that the cluster on that surface is from 2 tracks
-      std::vector<float>  splitProb2;                             // The Probablilty that the cluster on that surface is from 3 or more tracks
-      std::vector<const Trk::RIO_OnTrack*> RIO;                   // The cluster on track
-      std::multimap<const Trk::Track*, int, lessTrkTrack >  overlappingTracks;   // The tracks that overlap with the current track
-      std::multimap< int, const Trk::Track*> tracksSharingHit;    // The tracks that overlap with the current track
+      unsigned int        m_nTSoS;
+      std::vector<int>    m_type;                                   // The type of TSOS 
+      std::vector<int>    m_detType;                                // The Detector type 1== Pixel, 11 = b-layer, 2 SCT, 3 TRT
+      std::vector<int>    m_hitIsShared;                            // Number of tracks the hit is shared with
+      std::vector<float>  m_splitProb1;                             // The Probablilty that the cluster on that surface is from 2 tracks
+      std::vector<float>  m_splitProb2;                             // The Probablilty that the cluster on that surface is from 3 or more tracks
+      std::vector<const Trk::RIO_OnTrack*> m_RIO;                   // The cluster on track
+      std::multimap<const Trk::Track*, int, lessTrkTrack >  m_overlappingTracks;   // The tracks that overlap with the current track
+      std::multimap< int, const Trk::Track*> m_tracksSharingHit;    // The tracks that overlap with the current track
 
       TSoS_Details()
       {
@@ -225,20 +263,20 @@ namespace InDet
         
       TSoS_Details(unsigned int temp_nTSoS)
       { 
-        nTSoS = temp_nTSoS;
-        type.resize(nTSoS,OtherTsos);    
-        detType.resize(nTSoS,-1.);
-        hitIsShared.resize(nTSoS, 0 );
-        splitProb1.resize(nTSoS,-1.) ;
-        splitProb2.resize(nTSoS,-1.) ;
-        RIO.resize(nTSoS,0);
+        m_nTSoS = temp_nTSoS;
+        m_type.resize(m_nTSoS,OtherTsos);    
+        m_detType.resize(m_nTSoS,-1.);
+        m_hitIsShared.resize(m_nTSoS, 0 );
+        m_splitProb1.resize(m_nTSoS,-1.) ;
+        m_splitProb2.resize(m_nTSoS,-1.) ;
+        m_RIO.resize(m_nTSoS,0);
       };
         
       int findIndexOfPreviousMeasurement( int currentIndex ) const
       {
         int indexPreviousMeasurement = currentIndex-1;
         while(indexPreviousMeasurement >= 0){
-          if ( type[indexPreviousMeasurement] != OtherTsos ){
+          if ( m_type[indexPreviousMeasurement] != OtherTsos ){
             break;
           } else {
             --indexPreviousMeasurement;
@@ -252,9 +290,17 @@ namespace InDet
     struct CacheEntry {
       EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
 
-      int m_maxShared;    // Max shared hits -- calulated from  m_maxSharedModules
-      int m_minNotShared; // Min number of hits that are not shared -- can change if we are in ROI
-      int m_minSiHits;    // Min number of hits before we allow split sharing of hits -- can change if we are in ROI
+      // Max shared modules -- calulated from  m_maxSharedModules
+      //  1 pixel hit is 1 module
+      //  a double sided SCT hit (2 SCT hits) is 1 module
+      //  so count by 2s for shared pixel hits and 1 per SCT (single sided hit) hit
+      int m_maxSharedModules; 
+      // Min number of unique hits that are not already used on any other track
+      // but split hits can be used on multiple tracks and be considered unique
+      //  - can change in ROI
+      int m_minNotShared;
+      // Min number of hits before we allow split sharing of hits -- can change if we are in ROI
+      int m_minSiHits;    
 
       std::vector<double> m_hadF;
       std::vector<double> m_hadE;
@@ -278,20 +324,38 @@ namespace InDet
                           TrackHitDetails& trackHitDetails,
                           TSoS_Details& tsosDetails ) const;
 
-    /** Determine which hits to keep on this track*/
-    bool decideWhichHitsToKeep(const Trk::Track*,
+    /** Determine which hits to keep on this track
+     * Look at the hits on track and decided if they should be kept on the track or rejected.
+     * The decision focuses on the track in question and how often clusters are used 
+     * Within getCleanedOutTrack (from which this is called), accepted tracks are checked 
+     * to see if they are pushed over limits
+     * */
+    void decideWhichHitsToKeep(const Trk::Track*,
                                const Trk::TrackScore score,
                                Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                Trk::PRDtoTrackMap &prd_to_track_map,
                                TrackHitDetails& trackHitDetails,
                                TSoS_Details& tsosDetails,
-                               int nCutTRT,
                                CacheEntry* ent) const;
+
+    /** Specific logic for identifing conversions with the goal 
+     * of passing those tracks through to the final collection 
+     * will as little loss as possible
+     * */
+    bool performConversionCheck(const Trk::Track* ptrTrack,
+        Trk::PRDtoTrackMap &prd_to_track_map,
+        TrackHitDetails& trackHitDetails,
+        TSoS_Details& tsosDetails,
+        CacheEntry* ent) const;
+
 
     /** Update the pixel clusters split information*/
     void setPixelClusterSplitInformation(TSoS_Details& tsosDetails,
                                          Trk::ClusterSplitProbabilityContainer &clusterSplitProbMap) const;
       
+    /** Does track pass criteria for hadronic ROI? */
+    bool inHadronicROI(const Trk::Track* ptrTrack, CacheEntry* ent) const;
+
     /** Check if the cluster is compatible with a hadronic cluster*/
     bool isHadCaloCompatible(const Trk::TrackParameters& Tp, CacheEntry* ent) const;
 
@@ -301,19 +365,17 @@ namespace InDet
     /** Fill hadronic & EM cluster map*/
     void newEvent(CacheEntry* ent) const;
       
-    /** Returns the number of track that use that hit already
-        Need to let it know if that cluster is splittable
-        maxiShared  = max number of shared hits on a  shared track
-        which has maxothernpixel pixe hits and blayer hit if maxotherhasblayer is true
+    /** Returns true if accepted tracks remain about thresholds, false otherwise
+        maxiShared  = max number of shared modules on an accepted shared track
+        which has maxOtherNPixel pixel hits and blayer hit if maxOtherHasIBL is true
     */
-    int checkOtherTracksValidity(const Trk::RIO_OnTrack*,
-                                 bool isSplitable,
+    bool checkOtherTracksValidity(TSoS_Details& tsosDetails,
+                                 int index,
                                  Trk::ClusterSplitProbabilityContainer &splitProbContainer,
                                  Trk::PRDtoTrackMap &prd_to_track_map,
                                  int& maxiShared,
-                                 int& maxothernpixel,
-                                 bool& maxotherhasblayer,
-                                 bool& failMinHits,
+                                 int& maxOtherNPixel,
+                                 bool& maxOtherHasIBL,
                                  CacheEntry* ent) const;
 
 
@@ -322,12 +384,25 @@ namespace InDet
     getOverlapTrackParameters(int n, const Trk::Track* track1,
                               const Trk::Track* track2,
                               const Trk::PRDtoTrackMap &prd_to_track_map,
-                              int numSplitSharedPix ) const;
+                              int splitSharedPix ) const;
 
     /** Check if two sets of track paremeters are compatible with being from a the same low mass particle decay. 
         It is assumed that the track parmeters are on the same surface.*/
     bool isNearbyTrackCandidate(const Trk::TrackParameters* paraA, const Trk::TrackParameters* paraB) const;
 
+    /** Simple helper functions to tell is cluster is split*/
+    bool clusCanBeSplit(float splitProb1, float splitProb2) const;
+    bool isTwoPartClus(float splitProb1, float splitProb2) const;
+    bool isMultiPartClus(float splitProb2) const;
+
+    void rejectHitOverUse(TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
+    void rejectHit       (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
+    void rejectSharedHit (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
+    void rejectSharedHitInvalid (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
+    void sharedToSplitPix(TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
+    void addSharedHit    (TrackHitDetails& trackHitDetails, TSoS_Details& tsosDetails, int index) const;
+    void increaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) const;
+    void decreaseSharedHitCounters(TrackHitDetails& trackHitDetails, bool isPix, bool isSCT) const;
 
     /** TRT minimum number of drift circles tool- returns allowed minimum number of TRT drift circles */
     PublicToolHandle<ITrtDriftCircleCutTool>  m_selectortool{this, "DriftCircleCutTool", "InDet::InDetTrtDriftCircleCutTool"};
@@ -343,10 +418,10 @@ namespace InDet
     IntegerProperty m_minHits{this, "minHits", 5, "Min Number of hits on track"};
     IntegerProperty m_minTRT_Hits{this, "minTRTHits", 0, "Min Number of TRT hits on track"};
     IntegerProperty m_maxSharedModules{this, "maxShared", 1, "Max number of shared modules"};
-    IntegerProperty m_maxSharedModulesInROI{this, "maxSharedModulesInROI", 2, "Max number of shared modules in ROI. Test value for recovering B jet efficiency at high pt"};
-    IntegerProperty m_maxTracksPerPRD{this, "maxTracksPerSharedPRD", 2, "Max number of tracks per hit if it is nor split"};
-    IntegerProperty m_minNotSharedModules{this, "minNotShared", 6, "Min number of non shared modules"};
-    IntegerProperty m_minNotSharedModulesInROI{this, "minNotSharedInROI", 4, "Min number of non shared modules  in ROI. Test value for recovering B jet efficiency at high pt"};
+    IntegerProperty m_maxSharedModulesInROI{this, "maxSharedModulesInROI", 2, "Max number of shared modules in a hadronic ROI. Test value for recovering B jet efficiency at high pt"};
+    IntegerProperty m_maxTracksPerPRD{this, "maxTracksPerSharedPRD", 2, "Max number of tracks per hit. When NN is used, other flags set the limits."};
+    IntegerProperty m_minNotSharedHits{this, "minNotShared", 6, "Min number of non shared hits"};
+    IntegerProperty m_minNotSharedHitsInROI{this, "minNotSharedInROI", 4, "Min number of non shared hits in ROI. Test value for recovering B jet efficiency at high pt"};
     FloatProperty m_minScoreShareTracks{this, "minScoreShareTracks", 0.0, "Min track score to alow it to share hits"};
     BooleanProperty m_cosmics{this, "Cosmics", false, "Trying to reco cosmics?"};
     BooleanProperty m_parameterization{this, "UseParameterization", true, "Use table of min number DCs"};
@@ -359,7 +434,11 @@ namespace InDet
     IntegerProperty m_minUniqueSCTHits{this, "minUniqueSCTHits", 2, "Min number of hits in the SCT that we need before we allow hit sharing in the SCT"};
     IntegerProperty m_minSiHitsToAllowSplitting{this, "minSiHitsToAllowSplitting", 9, "Min number of hits before we allow split sharing of hits"};
     IntegerProperty m_minSiHitsToAllowSplittingInROI{this, "minSiHitsToAllowSplittingInROI", 7, "Min number of hits before we allow split sharing of hits In ROI. Test value for recovering B jet efficiency"}; 
-    IntegerProperty m_maxPixMultiCluster{this, "maxPixMultiCluster", 4, "Max number of tracks that can be associated to a split cluster"};
+    IntegerProperty m_maxPixOnePartCluster{this, "maxPixOnePartCluster", 2, "Max number of tracks that can be associated to a 1 particle cluster"};
+    IntegerProperty m_maxPixTwoPartCluster{this, "maxPixTwoPartCluster", 2, "Max number of tracks that can be associated to a 2 particle cluster"};
+    IntegerProperty m_maxPixMultiCluster{this, "maxPixMultiCluster", 4, "Max number of tracks that can be associated to a >= 3 particle cluster"};
+    BooleanProperty m_shareSplitHits{this, "shareSplitHits", false, "Allow shared hits to be shared on 1 more track"};
+    IntegerProperty m_minPixHitAccepted{this, "minPixHitAccepted", 2, "Min number of pixel hits needed to be allowed to push accepted tracks over shared module limits"};
 
     // ROI stuff
     BooleanProperty m_useHClusSeed{this, "doHadCaloSeed", false};
@@ -379,13 +458,8 @@ namespace InDet
     //Track Pair Selection
     BooleanProperty m_doPairSelection{this, "doPairSelection", true};
     FloatProperty m_minPairTrackPt{this, "minPairTrackPt", 1000., "In MeV"};
-    FloatProperty m_pairDeltaX{this, "pairDeltaX", 0.5, "Seperation distance in mm"};
-    FloatProperty m_pairDeltaY{this, "pairDeltaY", 2.0};
-    FloatProperty m_pairDeltaPhi{this, "pairDeltaPhi", 5e-2, "Seperation distance in rad"};
-    FloatProperty m_pairDeltaEta{this, "pairDeltaEta", 5e-2};
 
     BooleanProperty m_monitorTracks{this, "MonitorAmbiguitySolving", false, "to track observeration/monitoring (default is false)"};
-    BooleanProperty m_doSCTSplitting{this, "doSCTSplitting", false}; //WPM
 
   }; 
 } // end of namespace
