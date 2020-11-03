@@ -236,7 +236,7 @@ namespace top {
                       "Path to directory containing large-R jet uncertainties config",
                       "rel21/Summer2019");
     registerParameter("LargeRJESJMSConfig",
-                      "Calibration for large-R JES/JMS. CombMass, CaloMass or TCCMass (default CombMass).",
+                      "Calibration for large-R JES/JMS. CombMass, CaloMass, TCCMass or UFOSDMass (default CombMass).",
                       "CombMass");
     registerParameter("BoostedJetTagging",
                       "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
