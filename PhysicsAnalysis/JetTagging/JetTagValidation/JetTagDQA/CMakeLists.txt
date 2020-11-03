@@ -1,22 +1,7 @@
-################################################################################
-# Package: JetTagDQA
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetTagDQA )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaMonitoring
-                          Event/xAOD/xAODBTagging
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODTracking
-                          PhysicsAnalysis/AnalysisCommon/ParticleJetTools
-                          Tracking/TrkValidation/TrkValHistUtils )
 
 # External dependencies:
 find_package( CLHEP )
