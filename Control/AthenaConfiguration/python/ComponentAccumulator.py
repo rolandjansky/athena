@@ -1,11 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
     checkSequenceConsistency, findAllAlgorithmsByName
 from AthenaConfiguration.ComponentFactory import CompFactory
-#from AthenaConfiguration.AlgSequence import AthSequencer
 from AthenaCommon.Debugging import DbgStage
 from AthenaCommon.Constants import INFO
 
@@ -14,17 +12,13 @@ import GaudiConfig2
 from AthenaConfiguration.Deduplication import deduplicate, DeduplicationFailed
 
 import collections
-import six
 import copy
 import sys
-
-
 
 
 class ConfigurationError(RuntimeError):
     pass
 _basicServicesToCreateOrder=("CoreDumpSvc/CoreDumpSvc", "GeoModelSvc/GeoModelSvc", "DetDescrCnvSvc/DetDescrCnvSvc")
-
 
 
 def printProperties(msg, c, nestLevel = 0, printDefaults=False):
@@ -44,7 +38,7 @@ def printProperties(msg, c, nestLevel = 0, printDefaults=False):
             continue
 
         if isinstance( propval, GaudiConfig2.Configurable ):
-            msg.info( " "*nestLevel +"    * {0}: {1}/{2}".format(propname, propval.__cpp_type__, propval.getName()))
+            msg.info( "%s    * %s: %s/%s", " "*nestLevel, propname, propval.__cpp_type__, propval.getName() )
             printProperties(msg, propval, nestLevel+3)
             continue
         if isinstance(propval,GaudiHandles.PublicToolHandleArray):
@@ -148,7 +142,7 @@ class ComponentAccumulator(object):
     def printCondAlgs(self, summariseProps=False, onlyComponents=[], printDefaults=False):
         self._msg.info( "Condition Algorithms" )
         for (c, flag) in filterComponents (self._conditionsAlgs, onlyComponents):
-            self._msg.info( " " +"\\__ "+ c.name +" (cond alg)" )
+            self._msg.info( " \\__ %s (cond alg)", c.name )
             if summariseProps and flag:
                 printProperties(self._msg, c, 1, printDefaults)
         return
@@ -174,19 +168,20 @@ class ComponentAccumulator(object):
                         return seq._properties[name]
                     return seq._descriptors[name].default
 
-                self._msg.info( " "*nestLevel +"\\__ "+ seq.name +" (seq: %s %s)",
-                                "SEQ" if __prop("Sequential") else "PAR", "OR" if __prop("ModeOR") else "AND" )
+                self._msg.info( "%s\\__ %s (seq: %s %s)", " "*nestLevel, seq.name,
+                                "SEQ" if __prop("Sequential") else "PAR",
+                                "OR" if __prop("ModeOR") else "AND" )
                 nestLevel += 3
-                for (c, flag) in filterComponents (seq.Members, onlyComponents):
+                for (c, flag) in filterComponents(seq.Members, onlyComponents):
                     if isSequence(c):
                         printSeqAndAlgs(c, nestLevel, onlyComponents = onlyComponents )
                     else:
-                        self._msg.info( " "*nestLevel +"\\__ "+ c.name +" (alg)" )
+                        self._msg.info( "%s\\__ %s (alg)", " "*nestLevel, c.name )
                         if summariseProps and flag:
                             printProperties(self._msg, c, nestLevel, printDefaults)
 
             for n,s in enumerate(self._allSequences):
-                self._msg.info( "Top sequence {}".format(n) )
+                self._msg.info( "Top sequence %s", n )
                 printSeqAndAlgs(s, onlyComponents = onlyComponents)
 
         self.printCondAlgs (summariseProps = summariseProps,
@@ -197,7 +192,7 @@ class ComponentAccumulator(object):
         self._msg.info( "Public Tools" )
         self._msg.info( "[" )
         for (t, flag) in filterComponents (self._publicTools, onlyComponents):
-            self._msg.info( "  {0},".format(t.getFullJobOptName()) )
+            self._msg.info( "  %s,", t.getFullJobOptName() )
             # Not nested, for now
             if summariseProps and flag:
                 printProperties(self._msg, t, printDefaults)
@@ -206,19 +201,19 @@ class ComponentAccumulator(object):
         self._msg.info( "[" )
         if (isinstance(self._privateTools, list)):
             for (t, flag) in filterComponents (self._privateTools, onlyComponents):
-                self._msg.info( "  {0},".format(t.getFullJobOptsName()) )
+                self._msg.info( "  %s,", t.getFullJobOptsName() )
                 # Not nested, for now
                 if summariseProps and flag:
                     printProperties(self._msg, t, printDefaults)
         else:
             if self._privateTools is not None:
-                self._msg.info( "  {0},".format(self._privateTools.getFullJobOptName()) )
+                self._msg.info( "  %s,", self._privateTools.getFullJobOptName() )
                 if summariseProps:
                     printProperties(self._msg, self._privateTools, printDefaults)
         self._msg.info( "]" )
-        self._msg.info( "TheApp properties" )
-        for k,v in six.iteritems(self._theAppProps):
-            self._msg.info("  {} : {}".format(k,v))
+        self._msg.info( "theApp properties" )
+        for k, v in self._theAppProps.items():
+            self._msg.info("  %s : %s", k, v)
 
 
     def addSequence(self, newseq, parentName = None ):
@@ -239,7 +234,7 @@ class ComponentAccumulator(object):
 
         parent.Members.append(newseq)
         algsByName = findAllAlgorithmsByName(newseq)
-        for name, existingAlgs in six.iteritems(algsByName):
+        for name, existingAlgs in algsByName.items():
             startingIndex = 0
             if name not in self._algorithms:
                 firstAlg, parent, idx = existingAlgs[0]
@@ -513,7 +508,7 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.debug("  Merging sequence %s to a sequence %s", c.name, dest.name )
                         algorithmsByName = findAllAlgorithmsByName(c)
-                        for name, existingAlgs in six.iteritems(algorithmsByName):
+                        for name, existingAlgs in algorithmsByName.items():
                             startingIndex = 0
                             if name not in self._algorithms:
                                 firstAlg, parent, idx = existingAlgs[0]
@@ -566,7 +561,7 @@ class ComponentAccumulator(object):
 
             
         # Additional checking and updating other accumulator's algorithms list
-        for name, alg in six.iteritems(other._algorithms):
+        for name in other._algorithms:
             if name not in self._algorithms:
                 raise ConfigurationError('Error in merging. Algorithm {} missing in destination accumulator'.format(name))
             other._algorithms[name] = self._algorithms[name]
@@ -582,7 +577,7 @@ class ComponentAccumulator(object):
             self.addPublicTool(pt) #Profit from deduplicaton here
 
         #Merge AppMgr properties:
-        for (k,v) in six.iteritems(other._theAppProps):
+        for (k,v) in other._theAppProps.items():
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
@@ -657,12 +652,9 @@ class ComponentAccumulator(object):
             self.__cpp_type__, self.name
         )
 
-        appPropsToSet = {}
+        appPropsToSet = {k: str(v) for k, v in self._theAppProps.items()}
         mspPropsToSet = {}
         bshPropsToSet = []
-        for (k, v) in six.iteritems(self._theAppProps):
-            appPropsToSet[k] = str(v)
-
         svcToCreate = []
         extSvc = []
         for svc in self._services:
@@ -715,8 +707,7 @@ class ComponentAccumulator(object):
             ):  # MessageSvc will exist already! Needs special treatment
                 getCompsToBeAdded(svc)
             else:
-                for k, v in svc._properties.items():
-                    mspPropsToSet[k] = str(v)
+                mspPropsToSet.update((k,str(v)) for k,v in svc._properties.items())
         try:
             from AthenaPython import PyAthenaComps
 
@@ -724,9 +715,7 @@ class ComponentAccumulator(object):
         except ImportError:
             PyAlg = type(None)
 
-        for seqName, algoList in six.iteritems(
-            flatSequencers(self._sequence, algsCollection=self._algorithms)
-        ):
+        for seqName, algoList in flatSequencers(self._sequence, algsCollection=self._algorithms).items():
             seq = self.getSequence(seqName)
             for k, v in seq._properties.items():
                 if k != "Members":  # This property his handled separatly
@@ -839,19 +828,18 @@ def __indent( indent = ""):
 
 def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
     _log = logging.getLogger( "__setProperties".ljust(30) )
-    for pname, pvalue in six.iteritems( sourceConf2Instance._properties ):
+    for pname, pvalue in sourceConf2Instance._properties.items():
         if destConfigurableInstance.__class__.__name__ == 'AlgSequence' and pname == 'Members':
             continue
         propType = sourceConf2Instance._descriptors[pname].cpp_type
         if "PrivateToolHandleArray" in propType:
             setattr( destConfigurableInstance, pname, [conf2toConfigurable( tool, __indent( indent ) ) for tool in pvalue] )
-            _log.debug( "{}Set the private tools array {} of {}".format( indent, pname,  destConfigurableInstance.name() ) )
+            _log.debug( "%sSet the private tools array %s of %s", indent, pname, destConfigurableInstance.name() )
         elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
-            _log.debug( "{}Set the property {}  that is private tool {} ".format( indent,  pname, destConfigurableInstance.name() ) )
+            _log.debug( "%sSet the property %s that is private tool %s", indent,  pname, destConfigurableInstance.name() )
             try: #sometimes it is not printable
-                _log.debug("{}Tool: {}".format(indent, pvalue))
+                _log.debug("%sTool: %s", indent, pvalue)
             except Exception:
-                _log.debug("{}Could not print it".format(indent))
                 pass
             if pvalue is not None:
                 setattr( destConfigurableInstance, pname, conf2toConfigurable( pvalue, indent=__indent( indent ) ) )
@@ -862,7 +850,7 @@ def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
             if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
                 pvalue=pvalue.data
             try: #sometimes values are not printable
-                _log.debug( "{}Setting property {} to value {}".format( indent, pname, pvalue ) )
+                _log.debug( "%sSetting property %s to value %s", indent, pname, pvalue )
             except Exception:
                 pass
             setattr( destConfigurableInstance, pname, pvalue )
@@ -880,14 +868,14 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
 
 
     if __isOldConfigurable( comp ):
-        _log.debug( "{}Component is already OLD Configurable object {}, no conversion".format(indent, compName(comp) ) )
+        _log.debug( "%sComponent is already OLD Configurable object %s, no conversion", indent, compName(comp) )
         return comp
 
     if isinstance( comp, str ):
-        _log.warning( "{}Component: \"{}\" is of type string, no conversion, some properties possibly not set?".format(indent, comp ) )
+        _log.warning( "%sComponent: \"%s\" is of type string, no conversion, some properties possibly not set?", indent, comp )
         return comp
 
-    _log.info( "{}Converting from GaudiConfig2 object {} type {}".format(indent, compName(comp), comp.__class__.__name__ ))
+    _log.info( "%sConverting from GaudiConfig2 object %s type %s", indent, compName(comp), comp.__class__.__name__ )
 
     def __alreadyConfigured( instanceName ):
         from AthenaCommon.Configurable import Configurable
@@ -900,14 +888,15 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
         return CompFactory.getComp( typename.replace( "__", "::" ) )( instanceName )
 
     def __configurableToConf2( comp, indent="" ):
-        _log.debug( "{}Converting Conf2 to Configurable class {}, type {}".format( indent, comp.getFullName(), type(comp) ) )
+        _log.debug( "%sConverting Conf2 to Configurable class %s, type %s", indent, comp.getFullName(), type(comp) )
         conf2Object = __createConf2Object( comp.getFullName() )
         __getProperties( comp, conf2Object, __indent( indent ) )
         return conf2Object
 
     def __getProperties( sourceConfigurableInstance, destConf2Instance, indent="" ):
-        for prop, value in six.iteritems( sourceConfigurableInstance.getProperties() ):
-            _log.debug( "{}Dealing with class {} property {} value type {}".format( indent, sourceConfigurableInstance.getFullJobOptName(), prop,  str( type( value ) ) ) )
+        for prop, value in sourceConfigurableInstance.getProperties().items():
+            _log.debug( "%sDealing with class %s property %s value type %s",
+                        indent, sourceConfigurableInstance.getFullJobOptName(), prop, type(value) )
             if "ServiceHandle" in str( type( value ) ):
                 instance = __alreadyConfigured(value)
                 if instance:
@@ -942,25 +931,26 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
             return listOrDictHelper
 
     def __areSettingsSame( existingConfigurableInstance, newConf2Instance, indent="" ):
-        _log.debug( "{}Checking if setting is the same {} {}".format( indent, existingConfigurableInstance.getFullName(), newConf2Instance.getFullJobOptName() ) )
-        alreadySetProperties = dict([ (pname, pvalue) for pname,pvalue
-                                      in six.iteritems(existingConfigurableInstance.getValuedProperties()) ])
-        _log.debug("Existing properties: {}".format(alreadySetProperties))
-        _log.debug("New properties: {}".format(newConf2Instance._properties))
-        for pname, pvalue in six.iteritems( newConf2Instance._properties ): # six.iteritems(comp._properties):
+        _log.debug( "%sChecking if settings are the same %s %s",
+                    indent, existingConfigurableInstance.getFullName(), newConf2Instance.getFullJobOptName() )
+        alreadySetProperties = existingConfigurableInstance.getValuedProperties().copy()
+        _log.debug( "Existing properties: %s", alreadySetProperties )
+        _log.debug( "New properties: %s", newConf2Instance._properties )
+        for pname, pvalue in newConf2Instance._properties.items():
             if __isOldConfigurable( pvalue ):
-                _log.warning( "{}New configuration object {} property {} has legacy configuration components assigned to it {}"
-                              .format(indent, compName(newConf2Instance), pname, compName(pvalue) ) )
-                _log.warning( "Skipping comparison, no guarantees about configuration consistency" )
+                _log.warning( "%sNew configuration object %s property %s has legacy configuration "
+                              "components assigned to it %s. Skipping comparison, no guarantees "
+                              "about configuration consistency.",
+                              indent, compName(newConf2Instance), pname, compName(pvalue) )
                 continue
             propType = newConf2Instance._descriptors[pname].cpp_type
-            _log.debug("{}Comparing type: {} for: {}".format(indent, propType, pname))
+            _log.debug( "%sComparing type: %s for: %s", indent, propType, pname )
             if  "PrivateToolHandleArray" in  propType:
                 toolDict = {_.getName(): _ for _ in alreadySetProperties[pname]}
-                _log.debug('Private tool properties? {}'.format(toolDict))
+                _log.debug('Private tool properties? %s', toolDict)
                 newCdict = {_.getName() : _ for _ in pvalue}
                 oldCset = set(toolDict); newCset = set(newCdict)
-                _log.debug('Private tool property names? {} {}'.format(oldCset, newCset))
+                _log.debug('Private tool property names? %s %s', oldCset, newCset)
                 for oldC in oldCset & newCset:
                     __areSettingsSame( toolDict[oldC], newCdict[oldC], __indent(indent))
                 for newC in newCset-oldCset:
@@ -968,10 +958,10 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
                     alreadySetProperties[pname].append(conf2toConfigurable(newCdict[newC]))
             elif "PublicToolHandleArray" in propType:
                 toolSet = {_.getName() for _ in alreadySetProperties[pname]}
-                _log.debug('Public tool handle array properties? {} {}'.format(toolSet, pvalue))
+                _log.debug('Public tool handle array properties? %s %s', toolSet, pvalue)
                 # strings?
                 for newC in pvalue:
-                    if isinstance(newC, six.string_types):
+                    if isinstance(newC, str):
                         pubtoolclass, pubtoolname = newC.split('/')
                         if pubtoolname not in toolSet:
                             klass = __findConfigurableClass( pubtoolclass )
@@ -982,19 +972,22 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
             elif "PrivateToolHandle" in propType or "GaudiConfig2.Configurables" in propType or "ServiceHandle" in propType:
                 existingVal = getattr(existingConfigurableInstance, pname)
                 if isinstance( pvalue, str ):
-                    _log.warning("{}The handle {} of component {}.{} is just a string {}, skipping deeper checks, configuration may be incorrect".format(indent, propType, newConf2Instance.name, pname, pvalue))
+                    _log.warning("%sThe handle %s of component %s.%s is just a string %s, "
+                                 "skipping deeper checks, configuration may be incorrect",
+                                 indent, propType, newConf2Instance.name, pname, pvalue)
                 else:
-                    _log.debug( "{}Some kind of handle  and, object type {} existing {}".format( indent, type(pvalue), type(existingVal) ) )
+                    _log.debug( "%sSome kind of handle and, object type %s existing %s",
+                                indent, type(pvalue), type(existingVal) )
                     __areSettingsSame( existingVal, pvalue, indent)
             else:
                 if isinstance(pvalue,(GaudiConfig2.semantics._ListHelper,GaudiConfig2.semantics._DictHelper)):
                     pvalue=pvalue.data
 
                 if pname not in alreadySetProperties:
-                    _log.info("{}Adding property: {} for {}".format(indent, pname, newConf2Instance.getName() ))
+                    _log.info( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )
                     setattr(existingConfigurableInstance, pname, pvalue)
                 elif alreadySetProperties[pname] != pvalue:
-                    _log.info("{}Merging property: {} for {}".format(indent, pname, newConf2Instance.getName() ))
+                    _log.info( "%sMerging property: %s for %s", indent, pname, newConf2Instance.getName() )
                     # create surrogate
                     clone = newConf2Instance.getInstance("Clone")
                     setattr(clone, pname, alreadySetProperties[pname])
@@ -1002,17 +995,19 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
                         
                     setattr(existingConfigurable, pname, updatedPropValue)
                     del clone
-                    _log.info("{} invoked GaudiConf2 semantics to merge the {} and the {} to {} for property {} of {}".format(
-                        indent, alreadySetProperties[pname], pvalue, pname,  updatedPropValue, existingConfigurable.getFullName()))
+                    _log.info("%s invoked GaudiConf2 semantics to merge the %s and the %s to %s "
+                              "for property %s of %s",
+                              indent, alreadySetProperties[pname], pvalue, pname,
+                              updatedPropValue, existingConfigurable.getFullName())
 
     existingConfigurable = __alreadyConfigured( comp.name )
     if existingConfigurable: # if configurable exists we try to merge with it
-        _log.debug( "{}Pre-existing configurable {} was found, checking if has the same properties".format( indent, comp.getName() ) )
+        _log.debug( "%sPre-existing configurable %s was found, checking if has the same properties", indent, comp.getName() )
         __areSettingsSame( existingConfigurable, comp )
-        _log.debug( "{}Pre-existing configurable {} was found to have the same properties".format( indent, comp.name ) )
+        _log.debug( "%sPre-existing configurable %s was found to have the same properties", indent, comp.name )
         instance = existingConfigurable if not suppressDupes else None
     else: # create new configurable
-        _log.debug( "{}Creating component configurable {}".format( indent, comp.getFullJobOptName() ) )
+        _log.debug( "%sCreating component configurable %s", indent, comp.getFullJobOptName() )
         configurableClass = __findConfigurableClass( comp.getFullJobOptName().split( "/" )[0] )
         instance = configurableClass( comp.name )
         __setProperties( instance, comp, __indent( indent ) )
@@ -1067,7 +1062,7 @@ def appendCAtoAthena(ca):
 
     if len( ca.getAppProps() ) != 0:
         _log.info( "Merging ApplicationMgr properties" )
-        for (propName, propValue) in six.iteritems(ca.getAppProps()):
+        for propName, propValue in ca.getAppProps().items():
             # Same logic as in ComponentAccumulator.setAppProperty()
             if not hasattr(theApp, propName):
                 setattr(theApp, propName, propValue)
@@ -1100,7 +1095,8 @@ def appendCAtoAthena(ca):
             sequence = __fetchOldSeq( conf2Sequence.name )
             __setProperties( sequence, conf2Sequence, indent=__indent( indent ) )
             currentConfigurableSeq += sequence
-            _log.info( "{}Created missing AlgSequence {} and added to {}".format( __indent( indent ), sequence.name(), currentConfigurableSeq.name() ) )
+            _log.info( "%sCreated missing AlgSequence %s and added to %s",
+                       __indent( indent ), sequence.name(), currentConfigurableSeq.name() )
 
         for el in conf2Sequence.Members:
             if el.__class__.__name__ == "AthSequencer":
@@ -1109,8 +1105,8 @@ def appendCAtoAthena(ca):
                 toadd = conf2toConfigurable( el, indent=__indent( indent ), suppressDupes=True)
                 if toadd is not None:
                     sequence += toadd
-                    _log.info( "{}Algorithm {} and added to the sequence {}".format( __indent( indent ),  el.getFullJobOptName(), sequence.name() ) )
-
+                    _log.info( "%sAlgorithm %s and added to the sequence %s",
+                               __indent( indent ),  el.getFullJobOptName(), sequence.name() )
 
     preconfigured = [athCondSeq,athOutSeq,athAlgSeq,topSequence]
 
@@ -1118,18 +1114,20 @@ def appendCAtoAthena(ca):
         merged = False
         for pre in preconfigured:
             if seq.getName() == pre.getName():
-                _log.info( "{}found sequence {} to have the same name as predefined {}".format( __indent(), seq.getName(),  pre.getName() ) )
+                _log.info( "%sfound sequence %s to have the same name as predefined %s",
+                           __indent(), seq.getName(),  pre.getName() )
                 __mergeSequences( pre, seq )
                 merged = True
                 break
             if findSubSequence( pre, seq.name ):
-                _log.info( "{}found sequence {} in predefined {}".format( __indent(), seq.getName(),  pre.getName() ) )
+                _log.info( "%sfound sequence %s in predefined %s",
+                           __indent(), seq.getName(),  pre.getName() )
                 __mergeSequences( pre, seq )
                 merged = True
                 break
 
         if not merged:
-            _log.info( "{}not found sequence {} merging it to AthAlgSeq".format( __indent(), seq.name ) )
+            _log.info( "%snot found sequence %s merging it to AthAlgSeq", __indent(), seq.name )
             __mergeSequences( athAlgSeq, seq )
 
     ca.wasMerged()
