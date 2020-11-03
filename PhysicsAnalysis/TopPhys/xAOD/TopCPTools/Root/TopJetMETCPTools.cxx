@@ -382,9 +382,11 @@ namespace top {
           calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_calo_12Oct2018.config";
         } else if (calibChoice == "TCCMass") {
           calibConfigLargeR = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config";
+	} else if (calibChoice == "UFOSDMass") {
+	  calibConfigLargeR = "JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config";
         } else {
           ATH_MSG_ERROR(
-            "Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass and TCCMass)) : " + calibChoice);
+            "Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass, TCCMass and UFOSDMass)) : " + calibChoice);
           return StatusCode::FAILURE;
         }
       } else { //Insitu calibration for Data
@@ -394,15 +396,19 @@ namespace top {
         } else if (calibChoice == "TCCMass") {
           calibConfigLargeR = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config"; //There's no insitu
                                                                                              // calibration yet
-        } else {
+        } else if (calibChoice == "UFOSDMass") {
+	  calibConfigLargeR = "JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config"; //There's no insitu
+	                                                                                     // calibration yet
+	} else {
           ATH_MSG_ERROR(
-            "Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass and TCCMass) : " + calibChoice);
+            "Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass, TCCMass and UFOSDMass) : " + calibChoice);
           return StatusCode::FAILURE;
         }
       }
       std::string calibSequenceLargeR = "EtaJES_JMS";
       if ((!m_config->isMC()) &&
-          (calibChoice != "TCCMass")) calibSequenceLargeR = "EtaJES_JMS_Insitu_InsituCombinedMass"; //For data, there's
+          (calibChoice != "TCCMass") &&
+	  (calibChoice != "UFOSDMass")) calibSequenceLargeR = "EtaJES_JMS_Insitu_InsituCombinedMass"; //For data, there's
                                                                                                     // is insitu
                                                                                                     // calibration for
                                                                                                     // lc-topo jets
