@@ -74,6 +74,7 @@
 #include "GeneratorFilters/TTbarWithJpsimumuFilter.h"
 #include "GeneratorFilters/TTbarLJetsVptFilter.h"
 #include "GeneratorFilters/ALPDecayPositionFilter.h"
+#include "GeneratorFilters/M4MuIntervalFilter.h"
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -146,6 +147,7 @@ DECLARE_ALGORITHM_FACTORY(TransverseMassVVFilter)
 DECLARE_ALGORITHM_FACTORY(TTbarWithJpsimumuFilter)
 DECLARE_ALGORITHM_FACTORY(TTbarLJetsVptFilter)
 DECLARE_ALGORITHM_FACTORY(ALPDecayPositionFilter)
+DECLARE_ALGORITHM_FACTORY(M4MuIntervalFilter)
 
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
@@ -219,6 +221,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(TTbarWithJpsimumuFilter)
     DECLARE_ALGORITHM(TTbarLJetsVptFilter)
     DECLARE_ALGORITHM(ALPDecayPositionFilter)
+    DECLARE_ALGORITHM(M4MuIntervalFilter)
 
 }
 
