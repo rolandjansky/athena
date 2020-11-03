@@ -65,7 +65,7 @@ class MooSegmentCombinationFinder : virtual public IMooSegmentCombinationFinder,
                       const std::vector<const CscPrepDataCollection*>& cscCols,
                       const std::vector<const TgcPrepDataCollection*>& tgcCols,
                       const std::vector<const RpcPrepDataCollection*>& rpcCols,
-                      IMooSegmentCombinationFinder::Output&            output) const;
+                      IMooSegmentCombinationFinder::Output&            output, const EventContext& ctx) const;
 
   private:
     /** helper functions to print summary output for the different stages */

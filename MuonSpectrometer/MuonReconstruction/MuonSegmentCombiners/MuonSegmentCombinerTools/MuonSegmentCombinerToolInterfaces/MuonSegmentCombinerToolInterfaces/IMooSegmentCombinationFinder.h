@@ -43,7 +43,7 @@ namespace Muon
 			       const std::vector<const CscPrepDataCollection*>& cscCols,
 			       const std::vector<const TgcPrepDataCollection*>& tgcCols,
 			       const std::vector<const RpcPrepDataCollection*>& rpcCols,
-			       Output& output) const = 0;
+			       Output& output, const EventContext& ctx) const = 0;
     
   };
 

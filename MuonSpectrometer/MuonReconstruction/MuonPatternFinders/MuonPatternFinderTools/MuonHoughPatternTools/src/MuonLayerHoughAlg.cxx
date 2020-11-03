@@ -12,7 +12,7 @@
 #include "MuonPrepRawData/MMPrepDataCollection.h"
 
 MuonLayerHoughAlg::MuonLayerHoughAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator)
+  AthReentrantAlgorithm(name,pSvcLocator)
 {
 }
 
@@ -36,17 +36,17 @@ StatusCode MuonLayerHoughAlg::initialize()
   return StatusCode::SUCCESS; 
 }
 
-StatusCode MuonLayerHoughAlg::execute()
+StatusCode MuonLayerHoughAlg::execute(const EventContext& ctx) const
 {
-  const Muon::RpcPrepDataContainer* rpcPrds = GetObject(m_keyRpc);
-  const Muon::MdtPrepDataContainer* mdtPrds = GetObject(m_keyMdt);
-  const Muon::TgcPrepDataContainer* tgcPrds = GetObject(m_keyTgc);
-  const Muon::CscPrepDataContainer* cscPrds = m_keyCsc.empty() ? nullptr : GetObject(m_keyCsc);      
-  const Muon::sTgcPrepDataContainer* stgcPrds = m_keysTgc.empty() ? nullptr : GetObject(m_keysTgc);
-  const Muon::MMPrepDataContainer* mmPrds = m_keyMM.empty() ? nullptr : GetObject(m_keyMM);
+  const Muon::RpcPrepDataContainer* rpcPrds = GetObject(m_keyRpc, ctx);
+  const Muon::MdtPrepDataContainer* mdtPrds = GetObject(m_keyMdt, ctx);
+  const Muon::TgcPrepDataContainer* tgcPrds = GetObject(m_keyTgc, ctx);
+  const Muon::CscPrepDataContainer* cscPrds = m_keyCsc.empty() ? nullptr : GetObject(m_keyCsc, ctx);      
+  const Muon::sTgcPrepDataContainer* stgcPrds = m_keysTgc.empty() ? nullptr : GetObject(m_keysTgc, ctx);
+  const Muon::MMPrepDataContainer* mmPrds = m_keyMM.empty() ? nullptr : GetObject(m_keyMM, ctx);
   ATH_MSG_VERBOSE("calling layer tool ");
-  auto [combis, houghDataPerSectorVec] = m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds);
-  SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis);
+  auto [combis, houghDataPerSectorVec] = m_layerTool->analyse(mdtPrds,cscPrds,tgcPrds,rpcPrds,stgcPrds,mmPrds, ctx);
+  SG::WriteHandle<MuonPatternCombinationCollection> Handle(m_combis, ctx);
   if( combis ){
     if (Handle.record(std::move(combis)).isFailure()) {
       ATH_MSG_WARNING("Failed to record MuonPatternCombinationCollection at MuonLayerHoughCombis");
@@ -63,7 +63,7 @@ StatusCode MuonLayerHoughAlg::execute()
   }
 
   // write hough data to SG
-  SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey};
+  SG::WriteHandle<Muon::MuonLayerHoughTool::HoughDataPerSectorVec> handle {m_houghDataPerSectorVecKey, ctx};
   if (houghDataPerSectorVec) {
     ATH_CHECK(handle.record(std::move(houghDataPerSectorVec)));
   }

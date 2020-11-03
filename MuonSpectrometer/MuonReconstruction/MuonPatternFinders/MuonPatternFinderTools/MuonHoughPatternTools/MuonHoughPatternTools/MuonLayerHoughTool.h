@@ -126,7 +126,7 @@ namespace Muon {
 					       const TgcPrepDataContainer*  tgcCont,  
 					       const RpcPrepDataContainer*  rpcCont,
 					       const sTgcPrepDataContainer* stgcCont,  
-					       const MMPrepDataContainer*  mmCont ) const;
+		 const MMPrepDataContainer*  mmCont, const EventContext& ctx ) const;
 
     /** find patterns for a give set of MuonPrepData collections + optionally CSC segment combinations */
     virtual std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>>
@@ -134,7 +134,7 @@ namespace Muon {
           const std::vector<const CscPrepDataCollection*>& cscCols,  
           const std::vector<const TgcPrepDataCollection*>& tgcCols,  
           const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-          const MuonSegmentCombinationCollection* ) const override;
+          const MuonSegmentCombinationCollection*, const EventContext& ctx ) const override;
 
     void reset() const;
 
@@ -219,7 +219,7 @@ namespace Muon {
 
     void matchTruth( std::set<Identifier>& truthHits, const PRD_MultiTruthCollection& truthCol, const Identifier& id, MuonHough::HitDebugInfo& debug ) const;
     void initializeSectorMapping(const MuonGM::MuonDetectorManager* detMgr);
-    void getTruth() const;
+    void getTruth(const EventContext& ctx) const;
     void printTruthSummary( std::set<Identifier>& truth, std::set<Identifier>& found ) const;
 
     void buildRoads(MaximumVec& seedMaxima, MuonHough::MuonDetectorHough& detectorHoughTransforms, 
