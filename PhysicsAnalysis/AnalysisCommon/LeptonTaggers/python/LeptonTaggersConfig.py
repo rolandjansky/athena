@@ -75,17 +75,20 @@ def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False, onlyBDT=True):
     #
     # Decorate lepton only with the BDT outputs when the onlyBDT flag is true.
     #
+    # NOTE: The output score name for BDTname=LowPtPromptLeptonVeto is "LowPtPLV" instead "LowPtPromptLeptonVeto".
+    #       This is to harmonize with the variable augmented in CP::IsolationLowPtPLVTool
+    #
     if onlyBDT:
         if name == "" or name == "Electrons":
-            prompt_lep_vars += ["Electrons.PromptLeptonVeto.PromptLeptonIso.LowPtPromptLeptonVeto."]
+            prompt_lep_vars += ["Electrons.PromptLeptonVeto.PromptLeptonIso.LowPtPLV."]
 
         if name == "" or name == "Muons":
-            prompt_lep_vars += ["Muons.PromptLeptonVeto.PromptLeptonIso.LowPtPromptLeptonVeto."]
+            prompt_lep_vars += ["Muons.PromptLeptonVeto.PromptLeptonIso.LowPtPLV."]
 
         return prompt_lep_vars
  
  
-    prompt_vars  = "PromptLeptonVeto.PromptLeptonIso.LowPtPromptLeptonVeto."
+    prompt_vars  = "PromptLeptonVeto.PromptLeptonIso.LowPtPLV."
     prompt_vars += "PromptLeptonInput_TrackJetNTrack.PromptLeptonInput_sv1_jf_ntrkv."
     prompt_vars += "PromptLeptonInput_ip2.PromptLeptonInput_ip3."
     prompt_vars += "PromptLeptonInput_LepJetPtFrac.PromptLeptonInput_DRlj."
