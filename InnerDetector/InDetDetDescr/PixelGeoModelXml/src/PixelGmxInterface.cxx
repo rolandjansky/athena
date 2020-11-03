@@ -194,7 +194,7 @@ void PixelGmxInterface::addModule(string typeName, map<string, int> &index, int 
   Module module((unsigned int) hashId);
   string errorMessage("");
   if (!m_moduleTree->add(index["barrel_endcap"], index["layer_wheel"], index["eta_module"], 
-			 index["phi_module"], index["side"], module, errorMessage)) {
+			 index["phi_module"], module, errorMessage)) {
     *m_log << MSG::ERROR << errorMessage << endmsg;
   }
   return;
