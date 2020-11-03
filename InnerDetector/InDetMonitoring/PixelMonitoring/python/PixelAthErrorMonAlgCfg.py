@@ -22,6 +22,7 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
          alg     -- algorithm Configurable object returned from addAlgorithm
          kwargs  -- jo agruments
     '''
+    doLumiBlock = kwargs.get('doLumiBlock', False)
     path        = '/Pixel/Errors/'
     pathExpert  = '/Pixel/ErrorsExpert/'
     pathLowStat = '/Pixel/LumiBlock/'
