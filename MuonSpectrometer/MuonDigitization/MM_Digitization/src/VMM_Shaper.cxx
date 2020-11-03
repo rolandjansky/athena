@@ -42,16 +42,20 @@ void VMM_Shaper::initialize() {
     
     // preCalculate factor to avoid recalculating for each electron
     m_preCalculationVMMShaper = chargeScaleFactor*m_peakTimeChargeScaling*std::pow(m_a, 3)*m_pole0*m_pole1_square;
+
+    m_pole0_ns = m_pole0*(10^-9);
+    m_re_pole1_ns = m_re_pole1*(10^-9);
+    m_im_pole1_ns = m_im_pole1*(10^-9);
 }
 
 double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time) const{
     double response = 0;
     for (unsigned int i_electron = 0; i_electron < effectiveCharge.size(); i_electron++) {
             if (time < electronsTime.at(i_electron)) continue;
-            double t = (time-electronsTime.at(i_electron))*(10^-9);
+            double t = (time-electronsTime.at(i_electron));
             // now follows the vmm shaper response function provided by G. Iakovidis
             // It is described in section 7.1.3 of https://cds.cern.ch/record/1955475
-            double st = effectiveCharge.at(i_electron)*m_preCalculationVMMShaper*((K0*std::exp(-t*m_pole0))+(2.*m_k1_abs*std::exp(-t*m_re_pole1)*std::cos(-t*m_im_pole1+m_argK1)));
+            double st = effectiveCharge.at(i_electron)*m_preCalculationVMMShaper*((K0*std::exp(-t*m_pole0_ns))+(2.*m_k1_abs*std::exp(-t*m_re_pole1_ns)*std::cos(-t*m_im_pole1_ns+m_argK1)));
             response += st;
     }
     return response;
