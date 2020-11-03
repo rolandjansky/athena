@@ -95,6 +95,8 @@ ExtraContainersPhotons=["Photons",
 
 # for trigger studies and for trigger matching
 ExtraContainersTrigger=[
+        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgamma",
+        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgammaAux.",
 	"HLT_xAOD__MuonContainer_MuonEFInfo",
 	"HLT_xAOD__MuonContainer_MuonEFInfoAux.",
         "HLT_xAOD__MuonContainer_MuonEFInfo_FullScan",
