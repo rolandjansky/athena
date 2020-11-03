@@ -1,11 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
     checkSequenceConsistency, findAllAlgorithmsByName
 from AthenaConfiguration.ComponentFactory import CompFactory
-#from AthenaConfiguration.AlgSequence import AthSequencer
 from AthenaCommon.Debugging import DbgStage
 from AthenaCommon.Constants import INFO
 
@@ -14,7 +12,6 @@ import GaudiConfig2
 from AthenaConfiguration.Deduplication import deduplicate, DeduplicationFailed
 
 import collections
-import six
 import copy
 import sys
 
@@ -216,8 +213,8 @@ class ComponentAccumulator(object):
                 if summariseProps:
                     printProperties(self._msg, self._privateTools, printDefaults)
         self._msg.info( "]" )
-        self._msg.info( "TheApp properties" )
-        for k,v in six.iteritems(self._theAppProps):
+        self._msg.info( "theApp properties" )
+        for k, v in self._theAppProps.items():
             self._msg.info("  {} : {}".format(k,v))
 
 
@@ -239,7 +236,7 @@ class ComponentAccumulator(object):
 
         parent.Members.append(newseq)
         algsByName = findAllAlgorithmsByName(newseq)
-        for name, existingAlgs in six.iteritems(algsByName):
+        for name, existingAlgs in algsByName.items():
             startingIndex = 0
             if name not in self._algorithms:
                 firstAlg, parent, idx = existingAlgs[0]
@@ -513,7 +510,7 @@ class ComponentAccumulator(object):
                     else:
                         self._msg.debug("  Merging sequence %s to a sequence %s", c.name, dest.name )
                         algorithmsByName = findAllAlgorithmsByName(c)
-                        for name, existingAlgs in six.iteritems(algorithmsByName):
+                        for name, existingAlgs in algorithmsByName.items():
                             startingIndex = 0
                             if name not in self._algorithms:
                                 firstAlg, parent, idx = existingAlgs[0]
@@ -566,7 +563,7 @@ class ComponentAccumulator(object):
 
             
         # Additional checking and updating other accumulator's algorithms list
-        for name, alg in six.iteritems(other._algorithms):
+        for name in other._algorithms:
             if name not in self._algorithms:
                 raise ConfigurationError('Error in merging. Algorithm {} missing in destination accumulator'.format(name))
             other._algorithms[name] = self._algorithms[name]
@@ -582,7 +579,7 @@ class ComponentAccumulator(object):
             self.addPublicTool(pt) #Profit from deduplicaton here
 
         #Merge AppMgr properties:
-        for (k,v) in six.iteritems(other._theAppProps):
+        for (k,v) in other._theAppProps.items():
             self.setAppProperty(k,v)  #Will warn about overrides
             pass
         other._wasMerged=True
@@ -657,12 +654,9 @@ class ComponentAccumulator(object):
             self.__cpp_type__, self.name
         )
 
-        appPropsToSet = {}
+        appPropsToSet = {k: str(v) for k, v in self._theAppProps.items()}
         mspPropsToSet = {}
         bshPropsToSet = []
-        for (k, v) in six.iteritems(self._theAppProps):
-            appPropsToSet[k] = str(v)
-
         svcToCreate = []
         extSvc = []
         for svc in self._services:
@@ -715,8 +709,7 @@ class ComponentAccumulator(object):
             ):  # MessageSvc will exist already! Needs special treatment
                 getCompsToBeAdded(svc)
             else:
-                for k, v in svc._properties.items():
-                    mspPropsToSet[k] = str(v)
+                mspPropsToSet.update((k,str(v)) for k,v in svc._properties.items())
         try:
             from AthenaPython import PyAthenaComps
 
@@ -724,9 +717,7 @@ class ComponentAccumulator(object):
         except ImportError:
             PyAlg = type(None)
 
-        for seqName, algoList in six.iteritems(
-            flatSequencers(self._sequence, algsCollection=self._algorithms)
-        ):
+        for seqName, algoList in flatSequencers(self._sequence, algsCollection=self._algorithms).items():
             seq = self.getSequence(seqName)
             for k, v in seq._properties.items():
                 if k != "Members":  # This property his handled separatly
@@ -839,7 +830,7 @@ def __indent( indent = ""):
 
 def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
     _log = logging.getLogger( "__setProperties".ljust(30) )
-    for pname, pvalue in six.iteritems( sourceConf2Instance._properties ):
+    for pname, pvalue in sourceConf2Instance._properties.items():
         if destConfigurableInstance.__class__.__name__ == 'AlgSequence' and pname == 'Members':
             continue
         propType = sourceConf2Instance._descriptors[pname].cpp_type
@@ -906,7 +897,7 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
         return conf2Object
 
     def __getProperties( sourceConfigurableInstance, destConf2Instance, indent="" ):
-        for prop, value in six.iteritems( sourceConfigurableInstance.getProperties() ):
+        for prop, value in sourceConfigurableInstance.getProperties().items():
             _log.debug( "{}Dealing with class {} property {} value type {}".format( indent, sourceConfigurableInstance.getFullJobOptName(), prop,  str( type( value ) ) ) )
             if "ServiceHandle" in str( type( value ) ):
                 instance = __alreadyConfigured(value)
@@ -943,11 +934,10 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
 
     def __areSettingsSame( existingConfigurableInstance, newConf2Instance, indent="" ):
         _log.debug( "{}Checking if setting is the same {} {}".format( indent, existingConfigurableInstance.getFullName(), newConf2Instance.getFullJobOptName() ) )
-        alreadySetProperties = dict([ (pname, pvalue) for pname,pvalue
-                                      in six.iteritems(existingConfigurableInstance.getValuedProperties()) ])
+        alreadySetProperties = existingConfigurableInstance.getValuedProperties().copy()
         _log.debug("Existing properties: {}".format(alreadySetProperties))
         _log.debug("New properties: {}".format(newConf2Instance._properties))
-        for pname, pvalue in six.iteritems( newConf2Instance._properties ): # six.iteritems(comp._properties):
+        for pname, pvalue in newConf2Instance._properties.items():
             if __isOldConfigurable( pvalue ):
                 _log.warning( "{}New configuration object {} property {} has legacy configuration components assigned to it {}"
                               .format(indent, compName(newConf2Instance), pname, compName(pvalue) ) )
@@ -971,7 +961,7 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
                 _log.debug('Public tool handle array properties? {} {}'.format(toolSet, pvalue))
                 # strings?
                 for newC in pvalue:
-                    if isinstance(newC, six.string_types):
+                    if isinstance(newC, str):
                         pubtoolclass, pubtoolname = newC.split('/')
                         if pubtoolname not in toolSet:
                             klass = __findConfigurableClass( pubtoolclass )
@@ -1067,7 +1057,7 @@ def appendCAtoAthena(ca):
 
     if len( ca.getAppProps() ) != 0:
         _log.info( "Merging ApplicationMgr properties" )
-        for (propName, propValue) in six.iteritems(ca.getAppProps()):
+        for propName, propValue in ca.getAppProps().items():
             # Same logic as in ComponentAccumulator.setAppProperty()
             if not hasattr(theApp, propName):
                 setattr(theApp, propName, propValue)
