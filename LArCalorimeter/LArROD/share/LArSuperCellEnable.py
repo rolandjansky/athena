@@ -17,6 +17,7 @@ if ( "streamRDO" in dir() ):
 
   streamRDO.ItemList+=["LArDigitContainer#LArDigitSCL1"]
   streamRDO.ItemList+=["CaloCellContainer#SCell"]
+  streamRDO.ItemList+=["CaloCellContainer#SCellnoBCID"]
   topSequence.remove(streamRDO)
   topSequence += streamRDO
 
@@ -24,7 +25,9 @@ if ( "StreamESD" in dir() ):
   print "Copying SuperCells from RDO to ESD"
   StreamESD.ItemList+=["LArDigitContainer#LArDigitSCL1"]; # This might need to be controlled later to avoid increase of ESD size
   StreamESD.ItemList+=["CaloCellContainer#SCell"]
+  StreamESD.ItemList+=["CaloCellContainer#SCellnoBCID"]
 if ( "StreamAOD" in dir() ):
   print "Copying SuperCells from ESD to AOD"
   StreamAOD.ItemList+=["LArDigitContainer#LArDigitSCL1"]; # This might need to be controlled later to avoid increase of AOD size
   StreamAOD.ItemList+=["CaloCellContainer#SCell"]         # This might need to be controlled later to avoid increase of AOD size
+  StreamAOD.ItemList+=["CaloCellContainer#SCellnoBCID"]         # This might need to be controlled later to avoid increase of AOD size

@@ -32,6 +32,7 @@ def LArAutoCorrTotalSCToolDefault (name="LArAutoCorrTotalSCToolDefault", **kw):
         tool.keyNoise = "LArNoiseSC"
         tool.keyPedestal = "LArPedestalSC"
         tool.keyfSampl = "LARfSamplSC"
+        tool.keyMinBias = "LArMinBiasSC"
 
     from AthenaCommon.BeamFlags import jobproperties
     tool.deltaBunch = int(jobproperties.Beam.bunchSpacing()/( 25.*ns)+0.5)                

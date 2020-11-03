@@ -41,7 +41,8 @@ LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
   m_pedestalTools(),
   m_oldPedestal(0.),
   m_larCablingSvc("LArSuperCellCablingTool"),
-  m_counter(0)
+  m_counter(0),
+  m_outputSCellContainer("SCellnoBCID")
 {
   declareProperty("LArRawChannelContainerName",   m_ChannelContainerName);
   declareProperty("DataLocation",                 m_DataLocation );
@@ -55,6 +56,7 @@ LArSuperCellBuilderDriver::LArSuperCellBuilderDriver (const std::string& name,
   declareProperty("bCIDLowLim",                   m_bcidLowLim={8,-8,-8});
   declareProperty("bCIDUpLim",                    m_bcidUpLim={-8,8,16});
   declareProperty("bCIDbands",                    m_bcidBands={-1e4,0,10,1e4});
+  declareProperty("OutputSCellContainer",         m_outputSCellContainer);
 }
 
 LArSuperCellBuilderDriver::~LArSuperCellBuilderDriver()
@@ -164,7 +166,7 @@ StatusCode LArSuperCellBuilderDriver::execute() {
   
   // Put this LArRawChannel container in the transient store
   CaloCellContainer* caloCell= new CaloCellContainer();
-  ATH_CHECK( evtStore()->record(caloCell, "SCell") );
+  ATH_CHECK( evtStore()->record(caloCell, m_outputSCellContainer) );
 
   ATH_MSG_VERBOSE(  "LArDigitContainer container size = " <<  digitContainer->size()  );
   //

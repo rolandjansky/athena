@@ -108,6 +108,7 @@ class LArSuperCellBuilderDriver : public AthAlgorithm
   std::vector<float>	      m_bcidLowLim;
   std::vector<float>	      m_bcidUpLim;
   std::vector<float>	      m_bcidBands;
+  std::string 		      m_outputSCellContainer;
 };
 
 #include "LArROD/LArSuperCellBuilderDriver.icc"
