@@ -38,7 +38,7 @@ template <class TYPE> class SvcFactory;
 typedef std::map<std::string, IRDBRecordset_ptr> RecordsetPtrMap;
 
 // Pointers to recordset maps by connection name
-typedef std::map<std::string, RecordsetPtrMap*> RecordsetPtrsByConn;
+typedef std::map<std::string, RecordsetPtrMap> RecordsetPtrsByConn;
 
 // Session map
 typedef std::map<std::string, coral::ISessionProxy*> SessionMap;

@@ -53,7 +53,7 @@ bool RDBAccessSvc::connect(const std::string& connName)
     // 3. Recordset by connection
     m_sessions[connName] = 0;
     m_openConnections[connName] = 0;
-    m_recordsetptrs[connName] = new RecordsetPtrMap();
+    m_recordsetptrs.emplace(connName,RecordsetPtrMap());
   }
 
   // Use existing Connection Proxy if available
@@ -166,9 +166,9 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node
     return IRDBRecordset_ptr(new RDBRecordset(this));
   }
 
-  RecordsetPtrMap* recordsets = m_recordsetptrs[connName];
-  RecordsetPtrMap::const_iterator it = recordsets->find(key);
-  if(it != recordsets->end()) {
+  RecordsetPtrMap& recordsets = m_recordsetptrs[connName];
+  RecordsetPtrMap::const_iterator it = recordsets.find(key);
+  if(it != recordsets.end()) {
     ATH_MSG_DEBUG("Reusing existing recordset");
     disconnect(connName);
     return it->second;
@@ -208,7 +208,7 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node
     ATH_MSG_ERROR("Exception caught(...)");
   }
 
-  (*recordsets)[key] = rec;
+  recordsets.emplace(key,rec);
   disconnect(connName);
   return rec;
 }
@@ -501,12 +501,6 @@ StatusCode RDBAccessSvc::initialize()
 
 StatusCode RDBAccessSvc::finalize()
 {
-  // Clean up all remaining recordsets
-  RecordsetPtrsByConn::iterator first_ptr_map = m_recordsetptrs.begin();
-  RecordsetPtrsByConn::iterator last_ptr_map = m_recordsetptrs.end();
-  for(;first_ptr_map!=last_ptr_map;++first_ptr_map) {
-    delete first_ptr_map->second;
-  }
   m_recordsetptrs.clear();
 
   // Clear global tag lookup table
