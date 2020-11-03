@@ -125,7 +125,7 @@ private:
   // For details check ACTS documentation
   //
   // Annealing tool config
-  DoubleArrayProperty m_annealingTemps{this, "annealingTemps", {8.0, 4.0, 2.0, 1.4142136, 1.2247449, 1.0}, "Annealing temperatures"};
+  DoubleArrayProperty m_annealingTemps{this, "annealingTemps", {1.0}, "Annealing temperatures"};
   DoubleProperty m_annealingCutOff{this, "annealingCutOff", 9., "Annealing cut-off value"};
   // Fitter config variables
   UnsignedIntegerProperty m_fitterMaxIterations{this, "fitterMaxIterations", 30, "Vertex fitter max. iterations"};
@@ -148,7 +148,7 @@ private:
   DoubleProperty m_maximumVertexContamination{this, "maximumVertexContamination", 0.5, "Max. vertex contamination"};
   DoubleProperty m_looseConstrValue{this, "looseConstrValue", 1e+8, "Loose constraint value"};
   BooleanProperty m_useVertexCovForIPEstimation{this, "useVertexCovForIPEstimation", false, "Use seed vertex cov for IPEstimation"};
-  BooleanProperty m_useSeedConstraint{this, "useSeedConstraint", true, "Use seed constraint in fit"};
+  BooleanProperty m_useSeedConstraint{this, "useSeedConstraint", false, "Use seed constraint in fit"};
   // Final vertex selection variables
   DoubleProperty m_finalCutMaxVertexChi2{this, "finalCutMaxVertexChi2", 18.42, "Final cut max. vertex chi2"};
   // Gaussian seed finder variables
