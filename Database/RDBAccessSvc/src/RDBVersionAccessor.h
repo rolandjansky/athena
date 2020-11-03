@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,8 +12,8 @@
  * $Id: RDBVersionAccessor.h,v 1.11 2006-05-11 22:34:39 tsulaia Exp $
  */
 
-#ifndef _RDB_VERSIONACCESSOR_H_
-#define _RDB_VERSIONACCESSOR_H_
+#ifndef RDBACCESSSVC_RDBVERSIONACCESSOR_H
+#define RDBACCESSSVC_RDBVERSIONACCESSOR_H
 
 #include <string>
 #include "GaudiKernel/MsgStream.h"

@@ -5,12 +5,10 @@
 #include "RDBQuery.h"
 #include "RDBAccessSvc.h"
 #include <stdexcept>
-#include <iostream>
 
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/ISessionProxy.h"
-#include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/ISchema.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ITableDescription.h"
@@ -61,9 +59,6 @@ void RDBQuery::execute()
 
   try
   {
-    // ... Start readonly transaction
-    m_session->transaction().start(true); 
-
     // ... Get the node name and change to to Upper Case
     std::string upperName = m_nodeName;
     std::string::iterator it = upperName.begin();
@@ -150,21 +145,8 @@ long RDBQuery::size()
 
 void RDBQuery::finalize()
 {
-  if(m_cursor)
-    m_cursor->close();
+  if(m_cursor) m_cursor->close();
 
-  if(m_session) {
-    try {
-      // finish the transaction
-      m_session->transaction().commit();
-    }
-    catch(std::exception& e) {
-      m_accessSvc->msg() << MSG::WARNING << "QUERY Finalize: Exception : " + std::string(e.what()) << endmsg;
-    }
-    catch(...) {
-      m_accessSvc->msg() << MSG::WARNING << "QUERY Finalize : Exception caught... "  << endmsg;
-    }
-  }
   m_accessSvc->disconnect(m_connName);
 }
 

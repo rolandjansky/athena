@@ -18,7 +18,6 @@
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IQuery.h"
 #include "RelationalAccess/SchemaException.h"
 
@@ -28,7 +27,6 @@
 #include "CoralBase/AttributeList.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 
 #include <stdexcept>
 #include <sstream>

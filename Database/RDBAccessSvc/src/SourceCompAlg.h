@@ -6,7 +6,6 @@
 #define RDBACCESSSVC_SOURCECOMPALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
 
 #include <string>
 #include <fstream>

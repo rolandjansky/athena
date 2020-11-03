@@ -15,8 +15,6 @@
 #include "RDBAccessSvc.h"
 #include "RDBRecordset.h"
 #include "RDBRecord.h"
-#include "RDBVersionAccessor.h"
-#include "RDBQuery.h"
 
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ICursor.h"

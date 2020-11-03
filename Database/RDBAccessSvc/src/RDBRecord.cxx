@@ -22,7 +22,6 @@
 
 #include <stdexcept>
 #include <sstream>
-#include <iostream>
 
 RDBRecord::RDBRecord(const coral::AttributeList& attList, 
 		     std::string tableName):

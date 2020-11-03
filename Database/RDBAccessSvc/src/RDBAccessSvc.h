@@ -18,7 +18,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBRecordset.h"
 
-#include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include <string>
@@ -30,7 +29,6 @@ class RDBRecordset;
 namespace coral 
 {
   class ISessionProxy;
-  class IRelationalService;
 }
 
 template <class TYPE> class SvcFactory;
@@ -43,7 +41,7 @@ typedef std::map<std::string, IRDBRecordset_ptr> RecordsetPtrMap;
 typedef std::map<std::string, RecordsetPtrMap*> RecordsetPtrsByConn;
 
 // Session map
-typedef std::map<std::string, coral::ISessionProxy*, std::less<std::string> > SessionMap;
+typedef std::map<std::string, coral::ISessionProxy*> SessionMap;
 
 // Lookup table for global tag contents quick access
 typedef std::pair<std::string, std::string> TagNameId;
@@ -59,8 +57,6 @@ typedef std::map<std::string, TagNameIdByNode*> GlobalTagLookupMap; // Key - <Gl
 
 class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc 
 {
-  friend class RDBRecordset;
-
  public:
 
   /// Retrieve interface ID
@@ -139,12 +135,13 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
 
 private:
   SessionMap m_sessions;
-  std::map<std::string, unsigned int, std::less<std::string> > m_openConnections;
+  std::map<std::string, unsigned int> m_openConnections;
 
   RecordsetPtrsByConn m_recordsetptrs;  
   GlobalTagLookupMap m_globalTagLookup;
 
-  std::mutex m_mutex;
+  std::mutex m_recordsetMutex;
+  std::mutex m_sessionMutex;
 
   bool shutdown_connection(const std::string& connName);
 };
