@@ -89,11 +89,11 @@ public:
   virtual CylinderBounds* clone() const override;
 
   /** Return the bounds type */
-  virtual BoundsType type() const override { return SurfaceBounds::Cylinder; }
+  virtual BoundsType type() const override final { return SurfaceBounds::Cylinder; }
 
   /**This method checks if a LocalPosition is inside z bounds and rphi value- interface method */
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1, double tol2) const override;
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1, double tol2) const override final;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /**This method checks if a GlobalPosition is inside the Cylinder - not an interface method,
     assumes that GlobalPosition is in the right frame*/
@@ -101,20 +101,20 @@ public:
 
   /** This method checks inside bounds in loc1
     - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /** This method checks inside bounds in loc1
     - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-  virtual double minDistance(const Amg::Vector2D& pos) const override;
+  virtual double minDistance(const Amg::Vector2D& pos) const override final;
 
   /**This method checks if a LocalPosition is inside z bounds and inside the radius (for straws) */
   bool insideRadius(const Amg::Vector2D& locpo, double tol) const;
 
   /**This method returns the radius*/
-  virtual double r() const override;
+  virtual double r() const override final;
 
   /**This method returns the average phi*/
   double averagePhi() const;

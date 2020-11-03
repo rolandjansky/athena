@@ -66,7 +66,7 @@ public:
   virtual ~PerigeeSurface() = default;
 
   /**Virtual constructor*/
-  virtual PerigeeSurface* clone() const override;
+  virtual PerigeeSurface* clone() const override final;
 
   /**Assignment operator*/
   PerigeeSurface& operator=(const PerigeeSurface& slsf);
@@ -134,18 +134,18 @@ public:
 
   /**Return method for transfromation, overwrites the transform() form base
    * class*/
-  virtual const Amg::Transform3D& transform() const override;
+  virtual const Amg::Transform3D& transform() const override final;
 
   /**Return method for surface center infromation, overwrites the center() form
    * base class*/
-  virtual const Amg::Vector3D& center() const override;
+  virtual const Amg::Vector3D& center() const override final;
 
   /**Return method for surface center infromation, overwrites the center() form
    * base class*/
-  virtual const Amg::Vector3D& normal() const override;
+  virtual const Amg::Vector3D& normal() const override final;
 
   /**Returns a normal vector at a specific localPosition*/
-  virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const override;
+  virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const override final;
 
   /** Return the measurement frame - this is needed for alignment, in particular
      for StraightLine and Perigee Surface
@@ -153,7 +153,7 @@ public:
    */
   virtual Amg::RotationMatrix3D measurementFrame(
     const Amg::Vector3D& glopos,
-    const Amg::Vector3D& glomom) const override;
+    const Amg::Vector3D& glomom) const override final;
 
   /** Local to global method:
       Take care that by just providing locR and locZ the global position cannot
@@ -234,31 +234,31 @@ public:
 
   /** the pathCorrection for derived classes with thickness */
   virtual double pathCorrection(const Amg::Vector3D&,
-                                const Amg::Vector3D&) const override;
+                                const Amg::Vector3D&) const override final;
 
   /**This method checks if a globalPosition in on the Surface or not*/
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
                            BoundaryCheck bchk = true,
                            double tol1 = 0.,
-                           double tol2 = 0.) const override;
+                           double tol2 = 0.) const override final;
 
   /**This surface calls the iside method of the bounds*/
   virtual bool insideBounds(const Amg::Vector2D& locpos,
                             double tol1 = 0.,
-                            double tol2 = 0.) const override;
+                            double tol2 = 0.) const override final;
 
   virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override;
+                                 const BoundaryCheck& bchk) const override final;
 
   /** Special method for StraightLineSurface - provides the Line direction from
    * cache: speedup */
   const Amg::Vector3D& lineDirection() const;
 
   /** Return bounds() method */
-  virtual const NoBounds& bounds() const override;
+  virtual const NoBounds& bounds() const override final;
 
   /** Return properly formatted class name for screen output */
-  virtual std::string name() const override;
+  virtual std::string name() const override final;
 
   /** Output Method for MsgStream*/
   virtual MsgStream& dump(MsgStream& sl) const override;

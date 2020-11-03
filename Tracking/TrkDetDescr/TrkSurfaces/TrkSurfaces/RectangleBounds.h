@@ -68,24 +68,24 @@ public:
   virtual RectangleBounds* clone() const override;
 
   /** Return the type of the bounds for persistency */
-  virtual BoundsType type() const override { return SurfaceBounds::Rectangle; }
+  virtual BoundsType type() const override final { return SurfaceBounds::Rectangle; }
 
   /**This method checks if the provided local coordinates are inside the surface bounds*/
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override final;
 
   /**This method checks if the provided local coordinates are inside the surface bounds*/
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /** This method checks inside bounds in loc1
     - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /** This method checks inside bounds in loc2
     - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-  virtual double minDistance(const Amg::Vector2D& pos) const override;
+  virtual double minDistance(const Amg::Vector2D& pos) const override final;
 
   /**This method returns the halflength in phi (first coordinate of local surface frame)*/
   double halflengthPhi() const;
