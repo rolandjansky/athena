@@ -36,9 +36,15 @@ def parse_args():
 
     parser.add_argument("file", nargs="+", help="Files to work with")
     parser.add_argument(
-        "--comps",
+        "--includeComps",
         nargs="*",
-        help="Report only component containing this string",
+        help="Report only component matching this string",
+        action="append",
+    )
+    parser.add_argument(
+        "--excludeComps",
+        nargs="*",
+        help="Exclude components matching this string",
         action="append",
     )
     parser.add_argument(
@@ -182,23 +188,32 @@ def _loadSingleFile(fname, args):
     if conf is None:
         sys.exit("Unable to load %s file" % fname)
 
-    if args.comps:  # returning only wanted components
+    if (
+        args.includeComps or args.excludeComps
+    ):  # returning only wanted components
 
-        def is_component_from_list(component):
-            return True in [s in component for s in compsToReport]
+        def flatten_list(l):
+            return [item for elem in l for item in elem] if l else []
 
-        compsToReport = [
-            item for elem in args.comps for item in elem
-        ]  # creates flat list of wanted components
+        compsToReport = flatten_list(args.includeComps)
+        compsToExclude = flatten_list(args.excludeComps)
+
+        def eligible(component):
+            include = any(re.match(s, component) for s in compsToReport)
+            exclude = any(re.match(s, component) for s in compsToExclude)
+            if args.includeComps and args.excludeComps:
+                return include and not exclude
+            elif args.includeComps:
+                return include
+            elif args.excludeComps:
+                return not exclude
+
         conf = [
-            {
-                key: value
-                for (key, value) in dic.items()
-                if is_component_from_list(key)
-            }
+            {key: value for (key, value) in dic.items() if eligible(key)}
             for dic in conf
             if isinstance(dic, dict)
         ]
+
     return conf
 
 
@@ -229,7 +244,7 @@ def _compareConfig(configRef, configChk, args):
                 print(
                     "\n\033[91m Component ",
                     component,
-                    " \033[94m exists only in Chk \033[0m \033[0m \n",
+                    " \033[94m exists only in 2nd file \033[0m \033[0m \n",
                 )
             continue
 
@@ -238,7 +253,7 @@ def _compareConfig(configRef, configChk, args):
                 print(
                     "\n\033[91m Component",
                     component,
-                    " \033[92m exists only in Ref \033[0m  \033[0m \n",
+                    " \033[92m exists only in 1st file \033[0m  \033[0m \n",
                 )
             continue
 
@@ -301,6 +316,14 @@ def _compareComponent(compRef, compChk, prefix, args, component):
             refVal = compRef[prop]
             chkVal = compChk[prop]
 
+            try:
+                refVal = ast.literal_eval(str(refVal)) if refVal else ""
+                chkVal = ast.literal_eval(str(chkVal)) if chkVal else ""
+            except SyntaxError:
+                pass
+            except ValueError:
+                pass  # literal_eval exception when parsing particular strings
+
             if args.ignoreIrrelevant and chkVal in args.ignoreList:
                 continue
 
@@ -318,14 +341,6 @@ def _compareComponent(compRef, compChk, prefix, args, component):
                     "%s%s : \033[92m %s \033[0m vs \033[94m %s \033[0m %s"
                     % (prefix, prop, str(refVal), str(chkVal), diffmarker)
                 )
-
-            try:
-                refVal = ast.literal_eval(str(refVal)) if refVal else ""
-                chkVal = ast.literal_eval(str(chkVal)) if chkVal else ""
-            except SyntaxError:
-                pass
-            except ValueError:
-                pass  # literal_eval exception when parsing particular strings
 
             if refVal and (
                 isinstance(refVal, list) or isinstance(refVal, dict)
