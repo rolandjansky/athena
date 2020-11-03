@@ -41,11 +41,11 @@ class RDBVersionAccessor
   /// @param parentNode [IN] parent node name
   /// @param parentTag [IN] parent tag name
   /// @param session [IN] active relational session  
-  RDBVersionAccessor(std::string childNode,
-		     std::string parentNode,
-		     std::string parentTag,
-		     coral::ISessionProxy* session,
-		     MsgStream& stream);
+  RDBVersionAccessor(std::string childNode
+		     , std::string parentNode
+		     , std::string parentTag
+		     , coral::ISessionProxy* session
+		     , MsgStream& stream);
   
   /// Constructs SQL query and retrieves child tag ID and Name from DB
   void getChildTagData();
@@ -68,8 +68,8 @@ class RDBVersionAccessor
   RDBVersionAccessor();
 
   // Convert attribute value to std::string
-  std::string attribute2String(const coral::AttributeList& attList,
-			       std::string fieldName);
+  std::string attribute2String(const coral::AttributeList& attList
+			       , std::string fieldName);
 
   coral::ISessionProxy* m_session;
 

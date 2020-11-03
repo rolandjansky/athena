@@ -74,14 +74,16 @@ void RDBQuery::execute()
     // Add fields
     if(m_fields.size()>0) {
       // Custom fields
-      for(unsigned int i=0; i<m_fields.size(); ++i)
+      for(unsigned int i=0; i<m_fields.size(); ++i) {
 	m_query->addToOutputList(upperName+"_DATA."+m_fields[i]);
+      }
     }
     else {
       // All fields from the table
       const coral::ITableDescription& dataTableDesc = m_session->nominalSchema().tableHandle(upperName + "_DATA").description();
-      for(int i=0; i<dataTableDesc.numberOfColumns(); ++i)
+      for(int i=0; i<dataTableDesc.numberOfColumns(); ++i) {
 	m_query->addToOutputList(upperName+"_DATA."+dataTableDesc.columnDescription(i).name());
+      }
     }
 
     m_queryCount->addToOutputList("COUNT("+upperName+"_DATA_ID)","SUMREC");
@@ -93,10 +95,12 @@ void RDBQuery::execute()
     m_queryCount->addToTableList(upperName + "_DATA2TAG");    
 
     // ... Define order
-    if(m_orderField.empty())
+    if(m_orderField.empty()) {
       m_query->addToOrderList(upperName + "_DATA." + upperName + "_DATA_ID");
-    else
+    }
+    else {
       m_query->addToOrderList(upperName + "_DATA." + m_orderField);
+    }
 
     // ... Define conditions
     coral::AttributeList bindsData ATLAS_THREAD_SAFE;

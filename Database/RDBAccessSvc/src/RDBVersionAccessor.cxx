@@ -31,19 +31,19 @@
 #include <stdexcept>
 #include <sstream>
 
-RDBVersionAccessor::RDBVersionAccessor(std::string childNode,
-				       std::string parentNode,
-				       std::string parentTag,
-				       coral::ISessionProxy* session,
-				       MsgStream& msgStream):
-  m_session(session),
-  m_childNode(childNode),
-  m_parentNode(parentNode),
-  m_parentTag(parentTag),
-  m_tagName(""),
-  m_tagID(""),
-  m_isChildLeaf(false),
-  m_msgStream(msgStream)
+RDBVersionAccessor::RDBVersionAccessor(std::string childNode
+				       , std::string parentNode
+				       , std::string parentTag
+				       , coral::ISessionProxy* session
+				       , MsgStream& msgStream)
+  : m_session(session)
+  , m_childNode(childNode)
+  , m_parentNode(parentNode)
+  , m_parentTag(parentTag)
+  , m_tagName("")
+  , m_tagID("")
+  , m_isChildLeaf(false)
+  , m_msgStream(msgStream)
 {
 }
 
@@ -52,18 +52,17 @@ void RDBVersionAccessor::getChildTagData()
   std::string parentNodeId, childNodeId, parentTagId;
   int nRows;
 
-  if(!m_session)
-  {
+  if(!m_session) {
     m_msgStream << MSG::ERROR << "VersionAccessor: No connection to database!" << endmsg;
     return;
   }
 
-  try 
-  {
-    if(m_msgStream.level()==MSG::VERBOSE)
+  try {
+    if(m_msgStream.level()==MSG::VERBOSE) {
       m_msgStream << MSG::VERBOSE << "VersionAccessor:  Version accessor for \n    ChildNode = " << m_childNode 
 		  << "     ParentNode = " << m_parentNode 
 		  << "     ParentTag = " << m_parentTag << endmsg;
+    }
 
     coral::ITable& tableTag2Node = m_session->nominalSchema().tableHandle("HVS_TAG2NODE");
     coral::ITable& tableNode = m_session->nominalSchema().tableHandle("HVS_NODE");
@@ -84,10 +83,8 @@ void RDBVersionAccessor::getChildTagData()
 
     coral::ICursor& cursorTag2Node = queryTag2Node->execute();
     nRows = 0;
-    while(cursorTag2Node.next())
-    {
-      if(++nRows>1)
-      {
+    while(cursorTag2Node.next()) {
+      if(++nRows>1) {
 	delete queryTag2Node;
 	throw std::runtime_error( "The tag " + m_parentTag + " is not unique in HVS_TAG2NODE table!");
       }      
@@ -96,15 +93,15 @@ void RDBVersionAccessor::getChildTagData()
       parentTagId = attribute2String(row,"TAG_ID");
 
     }
-    if(nRows==0)
-    {
+    if(nRows==0) {
       delete queryTag2Node;
       throw std::runtime_error( "The tag " + m_parentTag + " not found in HVS_TAG2NODE table!");
     }
 
     delete queryTag2Node;
-    if(m_msgStream.level()==MSG::VERBOSE)
+    if(m_msgStream.level()==MSG::VERBOSE) {
       m_msgStream << MSG::VERBOSE << "VersionAccessor:  Parent Tag Id = " << parentTagId << endmsg;
+    }
 
     //
     // STEP 2. Get NodeIDs for parentNode and child 
@@ -132,22 +129,21 @@ void RDBVersionAccessor::getChildTagData()
     coral::ICursor& cursorNodeIDs = queryNodeIDs->execute();
 
     nRows = 0;
-    while(cursorNodeIDs.next())
-    {
-      if(++nRows>2)
+    while(cursorNodeIDs.next()) {
+      if(++nRows>2) {
 	break;
+      }
       const coral::AttributeList& row = cursorNodeIDs.currentRow();
 
-      if(attribute2String(row,"NODE_NAME")==m_childNode)
-      {
+      if(attribute2String(row,"NODE_NAME")==m_childNode) {
 	childNodeId = attribute2String(row,"NODE_ID");
 	m_isChildLeaf = (attribute2String(row,"BRANCH_FLAG")=="0");
       }
-      else
+      else {
 	parentNodeId = attribute2String(row,"NODE_ID");
+      }
     }
-    if(nRows!=2 && m_childNode!=m_parentNode)
-    {
+    if(nRows!=2 && m_childNode!=m_parentNode) {
       delete queryNodeIDs;
       throw std::runtime_error("Error processing HVS_NODE, Number of fetched records !=2");
     }
@@ -159,8 +155,7 @@ void RDBVersionAccessor::getChildTagData()
 
     delete queryNodeIDs;
 
-    if(m_childNode==m_parentNode)
-    {
+    if(m_childNode==m_parentNode) {
       m_tagName = m_parentTag;
       m_tagID = parentTagId;
       return;
@@ -186,8 +181,7 @@ void RDBVersionAccessor::getChildTagData()
     coral::AttributeList bindsNode ATLAS_THREAD_SAFE;
     bindsNode.extend<std::string>("nodeId");
 
-    while(currentParrent != parentNodeId)
-    {
+    while(currentParrent != parentNodeId) {
       //
       // Query: "SELECT PARENT_ID FROM HVS_NODE WHERE NODE_ID='currentChild'"
       //
@@ -204,18 +198,15 @@ void RDBVersionAccessor::getChildTagData()
       nRows = 0;
 
       // Process Query results
-      while(cursorNode.next())
-      {
-	if(++nRows>1)
-	{
+      while(cursorNode.next()) {
+	if(++nRows>1) {
 	  delete queryNode;
 	  throw std::runtime_error("The node " + currentChild + " has more than one parent!");
 	}	
 
 	const coral::AttributeList& row = cursorNode.currentRow();
 	
-	if(row[0].isNull())
-	{
+	if(row[0].isNull()) {
 	  delete queryNode;
 	  throw std::runtime_error("The requested child and parent nodes are not on the same branch!");
 	}	
@@ -224,8 +215,7 @@ void RDBVersionAccessor::getChildTagData()
 	currentChild = currentParrent;
 	path.push_back(currentParrent);
       }
-      if(nRows==0)
-      {
+      if(nRows==0) {
 	delete queryNode;
 	throw std::runtime_error("The node " + currentChild + " has no parent!");
       }
@@ -243,8 +233,7 @@ void RDBVersionAccessor::getChildTagData()
     bindsLtag2Ltag.extend<std::string>("parentN");
 
 
-    for(unsigned int ind=1; ind<path.size(); ind++)
-    {
+    for(unsigned int ind=1; ind<path.size(); ind++) {
       // Query: "SELECT CHILD_TAG FROM HVS_LTAG2LTAG WHERE
       //         CHILD_NODE  = 'path[path.size()-ind-1]' AND
       //         PARENT_TAG  = 'parentTagId' AND
@@ -265,10 +254,8 @@ void RDBVersionAccessor::getChildTagData()
 
       nRows = 0;
       // Process Query results
-      while(cursorLtag2Ltag.next())
-      {
-	if(++nRows>1)
-	{
+      while(cursorLtag2Ltag.next()) {
+	if(++nRows>1) {
 	  delete queryLtag2Ltag;
 	  throw std::runtime_error("Version " + parentTagId + 
 				   " has more than one child of type " + path[path.size()-ind-1] + "!");
@@ -277,17 +264,16 @@ void RDBVersionAccessor::getChildTagData()
 	const coral::AttributeList& row = cursorLtag2Ltag.currentRow();
 	parentTagId = attribute2String(row,"CHILD_TAG");
       }
-      if(nRows==0)
-      {
+      if(nRows==0) {
 	delete queryLtag2Ltag;
 	throw std::runtime_error("Version " + parentTagId + " has no child of type " + path[path.size()-ind-1] + "!");
       }
 
       delete queryLtag2Ltag;
 
-      if(m_msgStream.level()==MSG::VERBOSE)
+      if(m_msgStream.level()==MSG::VERBOSE) {
 	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Parent Tag Id = " << parentTagId << endmsg;
-
+      }
     }
 
     //
@@ -309,10 +295,8 @@ void RDBVersionAccessor::getChildTagData()
     coral::ICursor& cursorTagName = queryTagName->execute();
 
     nRows = 0;
-    while(cursorTagName.next())
-    {
-      if(++nRows>1)
-      {
+    while(cursorTagName.next()) {
+      if(++nRows>1) {
 	delete queryTagName;
 	throw std::runtime_error("More than one record retrieved when getting tag name for given ID");
       }  
@@ -322,8 +306,9 @@ void RDBVersionAccessor::getChildTagData()
       m_tagName =attribute2String(row,"TAG_NAME"); 
       m_tagID = parentTagId;
 
-      if(m_msgStream.level()==MSG::VERBOSE)
+      if(m_msgStream.level()==MSG::VERBOSE) {
 	m_msgStream << MSG::VERBOSE << "VersionAccessor:  Child Tag Name = " << m_tagName << endmsg;
+      }
     }
     delete queryTagName;
 

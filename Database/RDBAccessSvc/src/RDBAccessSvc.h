@@ -58,6 +58,17 @@ typedef std::map<std::string, TagNameIdByNode*> GlobalTagLookupMap; // Key - <Gl
 class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc 
 {
  public:
+  /// Standard Service Constructor
+  RDBAccessSvc(const std::string& name, ISvcLocator* svc);
+
+  /// Standard Service Destructor
+  ~RDBAccessSvc() override;
+
+  StatusCode initialize() override;
+  StatusCode finalize() override;
+  StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
+
+  friend class SvcFactory<RDBAccessSvc>;
 
   /// Retrieve interface ID
   static const InterfaceID& interfaceID() { return IID_IRDBAccessSvc; }
@@ -83,10 +94,10 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
   /// tag of the HVS branch node specified by tag2node otherwise
   /// @param tag2node [IN] some parent of the HVS leaf node specified by node parameter
   /// @return pointer to the recordset object
-  IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
-					    const std::string& tag,
-					    const std::string& tag2node="",
-					    const std::string& connName = "ATLASDD") override;
+  IRDBRecordset_ptr getRecordsetPtr(const std::string& node
+				    , const std::string& tag
+				    , const std::string& tag2node=""
+				    , const std::string& connName = "ATLASDD") override;
 
   /// Gets the tag name for the node by giving its parent node tag
   /// @param childNode [IN] name of the child node
@@ -94,44 +105,32 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
   /// @param parentNode [IN] name of the parent node
   /// @param fetchData [IN] if true fetch the corresponding data
   /// this parameter has no sence if child is the branch node
-  std::string getChildTag(const std::string& childNode,
-				  const std::string& parentTag,
-				  const std::string& parentNode,
-				  const std::string& connName) override;
+  std::string getChildTag(const std::string& childNode
+			  , const std::string& parentTag
+			  , const std::string& parentNode
+			  , const std::string& connName) override;
 
-  std::string getChildTag(const std::string& childNode,
-			  const std::string& parentTag,
-			  const std::string& parentNode,
-			  const std::string& connName,
-			  bool force);
+  std::string getChildTag(const std::string& childNode
+			  , const std::string& parentTag
+			  , const std::string& parentNode
+			  , const std::string& connName
+			  , bool force);
 
-  std::unique_ptr<IRDBQuery> getQuery(const std::string& node,
-				      const std::string& tag,
-				      const std::string& tag2node,
-				      const std::string& connName) override;
+  std::unique_ptr<IRDBQuery> getQuery(const std::string& node
+				      , const std::string& tag
+				      , const std::string& tag2node
+				      , const std::string& connName) override;
 
-  void getTagDetails(RDBTagDetails& tagDetails,
-                     const std::string& tag,
-                     const std::string& connName = "ATLASDD") override;
+  void getTagDetails(RDBTagDetails& tagDetails
+		     , const std::string& tag
+		     , const std::string& connName = "ATLASDD") override;
 
-  void getAllLeafNodes(std::vector<std::string>& list,
-		       const std::string& connName = "ATLASDD");
+  void getAllLeafNodes(std::vector<std::string>& list
+		       , const std::string& connName = "ATLASDD");
 
   std::vector<std::string> getLockedSupportedTags(const std::string& connName = "ATLASDD");
 
   inline MsgStream& msgStream() { return msg(); }
-
-  StatusCode initialize() override;
-  StatusCode finalize() override;
-  StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
-
-  friend class SvcFactory<RDBAccessSvc>;
-
-  /// Standard Service Constructor
-  RDBAccessSvc(const std::string& name, ISvcLocator* svc);
-
-  /// Standard Service Destructor
-  ~RDBAccessSvc() override;
 
 private:
   SessionMap m_sessions;

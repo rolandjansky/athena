@@ -32,8 +32,8 @@
 
 #include <thread>
 
-RDBAccessSvc::RDBAccessSvc(const std::string& name, ISvcLocator* svc):
-  AthService(name,svc)
+RDBAccessSvc::RDBAccessSvc(const std::string& name, ISvcLocator* svc)
+  : AthService(name,svc)
 {
 }
 
@@ -149,10 +149,10 @@ bool RDBAccessSvc::shutdown_connection(const std::string& connName)
   return true;
 }
 
-IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
-						const std::string& tag,
-						const std::string& tag2node,
-						const std::string& connName)
+IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node
+						, const std::string& tag
+						, const std::string& tag2node
+						, const std::string& connName)
 {
   std::string key = node + "::" + tag;
   if(tag2node!="")
@@ -213,10 +213,10 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
   return rec;
 }
 
-std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node,
-						  const std::string& tag,
-						  const std::string& tag2node,
-						  const std::string& connName)
+std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node
+						  , const std::string& tag
+						  , const std::string& tag2node
+						  , const std::string& connName)
 {
   ATH_MSG_DEBUG("getQuery (" << node << "," << tag << "," << tag2node << "," << connName << ")");
   std::lock_guard<std::mutex> guard(m_recordsetMutex);
@@ -268,10 +268,10 @@ std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node,
   return query;
 }
 
-std::string RDBAccessSvc::getChildTag(const std::string& childNode,
-				      const std::string& parentTag,
-				      const std::string& parentNode,
-				      const std::string& connName)
+std::string RDBAccessSvc::getChildTag(const std::string& childNode
+				      , const std::string& parentTag
+				      , const std::string& parentNode
+				      , const std::string& connName)
 {
   return getChildTag(childNode
 		     , parentTag
@@ -280,11 +280,11 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
 		     , false);
 }
 
-std::string RDBAccessSvc::getChildTag(const std::string& childNode,
-				      const std::string& parentTag,
-				      const std::string& parentNode,
-				      const std::string& connName,
-				      bool force)
+std::string RDBAccessSvc::getChildTag(const std::string& childNode
+				      , const std::string& parentTag
+				      , const std::string& parentNode
+				      , const std::string& connName
+				      , bool force)
 {
   ATH_MSG_DEBUG("getChildTag for " << childNode << " " << parentTag << " " << parentNode);
   std::lock_guard<std::mutex> guard(m_recordsetMutex);
@@ -333,9 +333,9 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
   return childTag;
 }
 
-void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails,
-                                 const std::string& tag,
-                                 const std::string& connName)
+void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails
+                                 , const std::string& tag
+                                 , const std::string& connName)
 {
   ATH_MSG_DEBUG("getTagDetails for tag: " << tag);
   std::lock_guard<std::mutex> guard(m_recordsetMutex);
@@ -410,8 +410,8 @@ void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails,
   disconnect(connName);
 }
 
-void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
-				   const std::string& connName)
+void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list
+				   , const std::string& connName)
 {
   list.clear();
   if(!connect(connName)) {
