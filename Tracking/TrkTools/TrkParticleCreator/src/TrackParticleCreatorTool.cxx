@@ -1054,9 +1054,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
   }
 
   void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const TrackSummary& summary ) const {
-    // int types
-    unsigned int offset = 47;// where the floats start in xAOD::SummaryType
-
     // ensure that xAOD TrackSummary and TrackSummary enums are in sync.
     constexpr unsigned int xAodReferenceEnum=static_cast<unsigned int>(xAOD::pixeldEdx);
     constexpr unsigned int TrkReferenceEnum=static_cast<unsigned int>(Trk::pixeldEdx_res);
