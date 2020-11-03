@@ -189,7 +189,7 @@ StatusCode ExKtbbAugmentation::addBranches() const{
       }
     }
 
-    if (ExKtSubjets.size() == 2) {
+    if (m_dexter->n_subjets(*jet) == 2) {
       ATH_MSG_VERBOSE("Adding DexTer scores to AntiKt8 jets");
 
       auto scores = m_dexter->getScores(*jet);
