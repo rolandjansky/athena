@@ -8,7 +8,6 @@ Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "LArConditionsTest/LArConditionsTestReadNoReg_jobOptions.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas_Gen.UnixStandardJob.py"
 Py:Athena            INFO including file "AtlasGeoModel/SetGeometryVersion.py"
-AtlasGeoModel/SetGeometryVersion.py is OBSOLETE
 Py:Athena            INFO SetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
 Py:ConfigurableDb    INFO Read module info for 5569 configurables from 10 genConfDb files
