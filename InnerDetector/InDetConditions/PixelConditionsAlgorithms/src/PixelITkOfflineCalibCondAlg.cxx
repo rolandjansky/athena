@@ -107,16 +107,16 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
       writeCdo->setConstants(constants);
     }
 
-    if (writeHandle.record(rangeW, writeCdo).isFailure()) {
-      ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
-      return StatusCode::FAILURE;
-    }
+// //  this will be valid for master. In 21.9 is causing the issue mentioned in ATLITKSW-128
+//     if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+//       ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+//       return StatusCode::FAILURE;
+//     }
 
     ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
 
     // For 21.9 only, to be removed in master
-
     if(m_detStore->record(writeCdo,writeHandle.key()).isFailure()) {
       ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << "into StoreGate");
       return StatusCode::FAILURE;
@@ -242,15 +242,14 @@ StatusCode PixelITkOfflineCalibCondAlg::execute_r(const EventContext& ctx) const
 
     writeCdo->setConstants(constants);
 
-
-    if (writeHandle.record(rangeW, writeCdo).isFailure()) {
-      ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
+// //  this will be valid for master. In 21.9 is causing the issue mentioned in ATLITKSW-128
+//     if (writeHandle.record(rangeW, writeCdo).isFailure()) {
+//       ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
+//       return StatusCode::FAILURE;
+//     }
+//     ATH_MSG_DEBUG("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
 
     // For 21.9 only, to be removed in master
-
     if(m_detStore->record(writeCdo,writeHandle.key()).isFailure()) {
       ATH_MSG_FATAL("Could not record PixelCalib::PixelITkOfflineCalibData " << writeHandle.key() << "into StoreGate");
       return StatusCode::FAILURE;
