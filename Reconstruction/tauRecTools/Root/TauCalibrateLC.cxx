@@ -19,7 +19,6 @@ TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   declareProperty("calibrationFile", m_calibrationFile = "");
   declareProperty("doEnergyCorrection", m_doEnergyCorr = false);
   declareProperty("doPtResponse", m_doPtResponse = false);
-  declareProperty("countOnlyPileupVertices", m_countOnlyPileupVertices = false);
   declareProperty("doAxisCorrection", m_doAxisCorr = false);
   declareProperty("usePantauAxis", m_usePantauAxis = false);
   declareProperty("isCaloOnly", m_isCaloOnly = false);
@@ -169,10 +168,7 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
       }
       const xAOD::VertexContainer * vxContainer = vertexInHandle.cptr();
       for (const auto vertex : *vxContainer) {
-        if (m_countOnlyPileupVertices && vertex->vertexType() == xAOD::VxType::PileUp) {
-          ++nVertex;
-        }
-        else if (!m_countOnlyPileupVertices && vertex->nTrackParticles() >= m_minNTrackAtVertex) {
+        if (vertex->vertexType() == xAOD::VxType::PileUp) {
           ++nVertex;
         }
       } 
