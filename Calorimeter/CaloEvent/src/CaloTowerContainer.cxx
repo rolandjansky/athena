@@ -124,6 +124,10 @@ void CaloTowerContainer::init()
   double deltaPhi = m_towerSeg.dphi();
   double minPhi   = CaloPhiRange::fix (m_towerSeg.phimin() + deltaPhi / 2.);
 
+#ifdef CALOTOWERCONTAINER_USES_DATAPOOL
+  DataPool<CaloTower> towersPool (etaBins * phiBins);
+#endif
+
   // insert empty towers
   // NOTE: eta/phi indexing is 1-based.
   for (index_t etaIndex = 1; etaIndex <= etaBins; ++etaIndex) {
@@ -132,7 +136,6 @@ void CaloTowerContainer::init()
       double thePhi = CaloPhiRange::fix (minPhi + (phiIndex-1) * deltaPhi);
       index_t towerIndex   = this->getTowerIndex(etaIndex,phiIndex);
 #ifdef CALOTOWERCONTAINER_USES_DATAPOOL
-      DataPool<CaloTower> towersPool (etaBins * phiBins);
       CaloTower& tower = *towersPool.nextElementPtr();
       Base::operator[] (towerIndex) = &tower;
       tower.removeCells();
