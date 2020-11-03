@@ -297,7 +297,6 @@ def InDetGlobalChi2FitterBT(name='InDetGlobalChi2FitterBT', **kwargs):
     '''
     Global Chi2 Fitter for backtracking
     '''
-    from InDetRecExample import TrackingCommon as TrackingCommon
     kwargs=setDefaults(kwargs,
                        MinPHFCut = 0.)
     return InDetGlobalChi2Fitter(name, **kwargs)
