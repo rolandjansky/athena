@@ -98,44 +98,45 @@ namespace CP {
     // Check if input variables exist
     bool inputvar_missing = false;
     if (!s_acc_TrackJetNTrack.isAvailable(Particle)){
-      if(!m_varMissing) ATH_MSG_WARNING( "TrackJetNTrack not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "TrackJetNTrack not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_DRlj.isAvailable(Particle)){
-      if(!m_varMissing) ATH_MSG_WARNING( "DRlj not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "DRlj not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_PtRel.isAvailable(Particle)){
-      if(!m_varMissing) ATH_MSG_WARNING( "PtRel not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "PtRel not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_PtFrac.isAvailable(Particle)){
-      if(!m_varMissing) ATH_MSG_WARNING( "PtFrac not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "PtFrac not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_topoetcone20.isAvailable(Particle)){
-      if(!m_varMissing) ATH_MSG_WARNING( "topoetcone20 not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "topoetcone20 not available" );
       inputvar_missing = true;
     }
 
     if (Particle.type() == xAOD::Type::ObjectType::Electron && !s_acc_ptvarcone20.isAvailable(Particle)){
-      if(!m_varMissing) ATH_MSG_WARNING( "ptvarcone20 not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "ptvarcone20 not available" );
       inputvar_missing = true;
     }
 
     if (Particle.type() == xAOD::Type::ObjectType::Muon && !s_acc_ptvarcone30.isAvailable(Particle)){
-      if(!m_varMissing) ATH_MSG_WARNING( "ptvarcone30 not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "ptvarcone30 not available" );
       inputvar_missing = true;
     }
 
     if (inputvar_missing){
-      if(!m_varMissing){ 
+      if(!m_varMissingMsg){ 
 	ATH_MSG_WARNING( "input variable(s) missing, augmenting fixed value 1.1" );
-	m_varMissing = true;
+	//Print the warnings for missing variables only once 
+	m_varMissingMsg = true;
       }
       s_dec_iso_PLT(Particle) = 1.1;
       return StatusCode::SUCCESS;

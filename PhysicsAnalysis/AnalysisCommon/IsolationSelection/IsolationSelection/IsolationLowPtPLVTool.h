@@ -35,7 +35,7 @@ namespace CP {
 	    float m_varTMVA_Muon[ N_VARIABLES ];
 	    float m_varTMVA_Elec[ N_VARIABLES ];
 
-	    bool m_varMissing = false;
+	    bool m_varMissingMsg = false;
     };
 
 }
