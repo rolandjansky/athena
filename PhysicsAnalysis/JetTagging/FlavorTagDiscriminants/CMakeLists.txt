@@ -1,6 +1,4 @@
-#####################################
-# Flavor tagging discriminant tools
-#####################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # This package is a collection of 'duel-use' tools to calculate
 # high-level flavor tagging discriminants. Because it should work both
@@ -8,28 +6,13 @@
 # atlas geometry, or material maps, but neural networks etc are all
 # fine.
 
-
 # Declare the package name:
 atlas_subdir( FlavorTagDiscriminants )
 
-# we use lwtnn in here a bit
+# External dependencies:
+find_package( Boost COMPONENTS filesystem )
 find_package( lwtnn )
-find_package( ROOT )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Control/AthToolSupport/AsgTools
-  Reconstruction/Jet/JetInterface
-  Event/xAOD/xAODBase
-  Event/xAOD/xAODMuon
-  Event/xAOD/xAODJet
-  Event/xAOD/xAODBTagging
-  Event/xAOD/xAODEventInfo
-  Event/xAOD/xAODTracking
-  PRIVATE
-  Tools/PathResolver
-  )
+find_package( ROOT COMPONENTS Core MathCore )
 
 # Build a shared library:
 atlas_add_library( FlavorTagDiscriminants
@@ -51,17 +34,17 @@ atlas_add_library( FlavorTagDiscriminants
   Root/HbbTagConfig.cxx
   Root/HbbGraphConfig.cxx
   Root/VRJetOverlapDecorator.cxx
-  INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
   PUBLIC_HEADERS FlavorTagDiscriminants
-  LINK_LIBRARIES AsgTools xAODBase xAODJet xAODBTagging xAODTracking xAODMuon xAODEventInfo PathResolver
-  JetInterface
-  ${LWTNN_LIBRARIES})
+  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
+  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver
+  LINK_LIBRARIES ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} AsgTools AthContainers AthLinks JetInterface xAODBTagging xAODEventInfo xAODJet xAODMuon xAODTracking )
+
 
 if (NOT XAOD_STANDALONE)
   atlas_add_component( FlavorTagDiscriminantsLib
     src/components/FlavorTagDiscriminants_entries.cxx
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} FlavorTagDiscriminants
+    LINK_LIBRARIES FlavorTagDiscriminants
     )
 endif()
 
@@ -70,5 +53,4 @@ atlas_add_dictionary( FlavorTagDiscriminantsDict
    FlavorTagDiscriminants/selection.xml
    LINK_LIBRARIES FlavorTagDiscriminants )
 
-
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

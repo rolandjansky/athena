@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Python package containing lists of discriminants that are defined by
 # the code here.
 
