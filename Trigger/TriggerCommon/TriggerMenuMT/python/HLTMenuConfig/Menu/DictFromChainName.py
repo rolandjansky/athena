@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Class to obtain the chain configuration dictionary from the short or long name
@@ -281,7 +281,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
                                   (['eb'], 'EnhancedBias', 'eb')]:
                 if cpart in chainCategory[0]:
-                    log.debug('Doing chain type {}'.format(chainCategory[1]))
+                    log.debug('Doing chain type %s', chainCategory[1])
                     multichainindex.append(hltChainNameShort.index(cpart))
                     buildDict(chainCategory[1], chainCategory[2])
 

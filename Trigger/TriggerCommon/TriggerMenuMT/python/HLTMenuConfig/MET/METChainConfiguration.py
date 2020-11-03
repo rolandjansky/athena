@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 
@@ -38,6 +38,6 @@ class METChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
         conf = AlgConfig.fromRecoDict(**self.recoDict)
         return self.buildChain(conf.make_steps(self.dict))
