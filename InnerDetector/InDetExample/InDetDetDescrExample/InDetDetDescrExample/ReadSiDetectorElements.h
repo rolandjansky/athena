@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetDetDescrExample_ReadSiDetectorElements_h
@@ -70,6 +70,8 @@ public:
 
   bool m_useSiProperties;
   bool m_testNegativeStrips;
+  bool m_useConditionsTools;
+  bool m_printProbePositions;
 
 };
 
