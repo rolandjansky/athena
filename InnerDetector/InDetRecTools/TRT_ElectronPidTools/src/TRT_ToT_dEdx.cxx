@@ -1215,7 +1215,10 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
     corr=dEdxCorrection->trackOccPar0NoHt[index]+dEdxCorrection->trackOccPar1NoHt[index]*trackOcc+dEdxCorrection->trackOccPar2NoHt[index]*pow(trackOcc,2);
   }
 
-  return corr;
+  if (corr != 0) {
+    return 1./corr;
+  }
+  return 0.;
 }
 
 double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface* trackState, const TRT_ID* identifier) {
