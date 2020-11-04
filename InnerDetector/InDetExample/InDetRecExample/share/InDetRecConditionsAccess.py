@@ -472,9 +472,10 @@ if DetFlags.haveRIO.TRT_on():
        conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
     if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
-       conddb.addFolderSplitOnline( "TRT", "/TRT/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
+       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
     # FIXME: force tag until the folder is included in global tag
     conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
+    conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
 
     #
     # now do the services
