@@ -11,7 +11,7 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics
   m_bXMLfileExist(false)
 {
 
-  std::string fileName="GenericRingSupport.xml";
+  std::string fileName="DiskSupport.xml";
   if(const char* env_p = std::getenv("PIXEL_PIXELDISCSUPPORT_GEO_XML")) fileName = std::string(env_p);
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   bool bParsed=false;

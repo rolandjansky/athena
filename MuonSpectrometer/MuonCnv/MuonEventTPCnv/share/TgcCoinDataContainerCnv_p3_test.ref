@@ -25,7 +25,6 @@ ApplicationMgr Ready
  Volume pmdum3 not found: returning 0
  INFO Initialize from dictionary
  DEBUG (Re)initialize
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
  DEBUG decode index and bit fields for each level: 
  DEBUG indet          decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
@@ -72,7 +71,6 @@ eta_index     7
  DEBUG Pixel range -> 2/1/0/0/0:21/-6:6/0:327/0:191 | 2/1/0/1/0:37/-6:6/0:327/0:143 | 2/1/0/2/0:51/-6:6/0:327/0:143 | 2/1/-2,2/0:2/0:47/0/0:327/0:143
 SCT_ID               INFO Initialize from dictionary
  DEBUG (Re)initialize
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
  DEBUG decode index and bit fields for each level: 
  DEBUG indet    decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
@@ -99,7 +97,6 @@ strip0 0:767 3ff fffffc00ffffffff 32 10 22
  DEBUG Strip range -> 2/2/0/0/0:31/-6:-1/0:1/0:767 | 2/2/0/1/0:39/-6:-1/0:1/0:767 | 2/2/0/2/0:47/-6:-1/0:1/0:767 | 2/2/0/3/0:55/-6:-1/0:1/0:767 | 2/2/0/0/0:31/1:6/0:1/0:767 | 2/2/0/1/0:39/1:6/0:1/0:767 | 2/2/0/2/0:47/1:6/0:1/0:767 | 2/2/0/3/0:55/1:6/0:1/0:767 | 2/2/-2,2/0:8/0:51/0/0:1/0:767 | 2/2/-2,2/0/0:39/1/0:1/0:767 | 2/2/-2,2/1:5/0:39/1:2/0:1/0:767 | 2/2/-2,2/6:7/0:39/1/0:1/0:767
 INFO Initialize from dictionary cout 0
  DEBUG (Re)initialize
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
  DEBUG decode index and bit fields for each level: 
  DEBUG indet     decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
@@ -119,7 +116,6 @@ AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required 
  DEBUG Module range -> 2/3/-1,1/0:31/0 | 2/3/-1,1/0:31/1 | 2/3/-1,1/0:31/2 | 2/3/-2,2/0:31/0:5 | 2/3/-2,2/0:31/6:13 | 2/3/-2,2/0:31/14:17
  DEBUG Straw layer range -> 2/3/-1,1/0:31/0/0 | 2/3/-1,1/0:31/0/1:4 | 2/3/-1,1/0:31/0/5:9 | 2/3/-1,1/0:31/0/10:14 | 2/3/-1,1/0:31/0/15:17 | 2/3/-1,1/0:31/0/18 | 2/3/-1,1/0:31/1/0 | 2/3/-1,1/0:31/1/1:5 | 2/3/-1,1/0:31/1/6:10 | 2/3/-1,1/0:31/1/11:15 | 2/3/-1,1/0:31/1/16:20 | 2/3/-1,1/0:31/1/21:22 | 2/3/-1,1/0:31/1/23 | 2/3/-1,1/0:31/2/0 | 2/3/-1,1/0:31/2/1:4 | 2/3/-1,1/0:31/2/5:9 | 2/3/-1,1/0:31/2/10:14 | 2/3/-1,1/0:31/2/15:19 | 2/3/-1,1/0:31/2/20:24 | 2/3/-1,1/0:31/2/25:28 | 2/3/-1,1/0:31/2/29 | 2/3/-2,2/0:31/0:5/0:15 | 2/3/-2,2/0:31/6:13/0:7 | 2/3/-2,2/0:31/14:17/0:15
  DEBUG Straw range -> 2/3/-1,1/0:31/0/0/0:14 | 2/3/-1,1/0:31/0/1:4/0:15 | 2/3/-1,1/0:31/0/5:9/0:16 | 2/3/-1,1/0:31/0/10:14/0:17 | 2/3/-1,1/0:31/0/15:17/0:18 | 2/3/-1,1/0:31/0/18/0:17 | 2/3/-1,1/0:31/1/0/0:18 | 2/3/-1,1/0:31/1/1:5/0:19 | 2/3/-1,1/0:31/1/6:10/0:20 | 2/3/-1,1/0:31/1/11:15/0:21 | 2/3/-1,1/0:31/1/16:20/0:22 | 2/3/-1,1/0:31/1/21:22/0:23 | 2/3/-1,1/0:31/1/23/0:22 | 2/3/-1,1/0:31/2/0/0:22 | 2/3/-1,1/0:31/2/1:4/0:23 | 2/3/-1,1/0:31/2/5:9/0:24 | 2/3/-1,1/0:31/2/10:14/0:25 | 2/3/-1,1/0:31/2/15:19/0:26 | 2/3/-1,1/0:31/2/20:24/0:27 | 2/3/-1,1/0:31/2/25:28/0:28 | 2/3/-1,1/0:31/2/29/0:27 | 2/3/-2,2/0:31/0:5/0:15/0:23 | 2/3/-2,2/0:31/6:13/0:7/0:23 | 2/3/-2,2/0:31/14:17/0:15/0:17
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
 CscIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
 CscIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 257
@@ -129,7 +125,6 @@ CscIdHelper          INFO The element hash max is 32
 CscIdHelper          INFO The detector element hash max is 64
 CscIdHelper          INFO The channel hash max is 61440
 CscIdHelper          INFO Initializing CSC hash indices for finding neighbors ... 
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
 RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 261
 RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 261
@@ -138,7 +133,6 @@ RpcIdHelper          INFO Initializing RPC hash indices ...
 RpcIdHelper          INFO The element hash max is 600
 RpcIdHelper          INFO The detector element hash max is 1122
 RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
 TgcIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
 TgcIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 218
@@ -147,7 +141,6 @@ TgcIdHelper          INFO Initializing TGC hash indices ...
 TgcIdHelper          INFO The element hash max is 1578
 TgcIdHelper          INFO The detector element hash max is 1578
 TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... 
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
 MdtIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 218
 MdtIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 261
@@ -156,7 +149,6 @@ MdtIdHelper          INFO Initializing MDT hash indices ...
 MdtIdHelper          INFO The element hash max is 1188
 MdtIdHelper          INFO The detector element hash max is 2328
 MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ... 
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
 sTgcIdHelper         INFO MultiRange built successfully to Technology: MultiRange size is 218
 sTgcIdHelper         INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 253
@@ -165,7 +157,6 @@ sTgcIdHelper         INFO Initializing sTGC hash indices ...
 sTgcIdHelper         INFO The element hash max is 96
 sTgcIdHelper         INFO The detector element hash max is 192
 sTgcIdHelper         INFO Initializing sTGC hash indices for finding neighbors ... 
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
 MmIdHelper           INFO MultiRange built successfully to Technology: MultiRange size is 218
 MmIdHelper           INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 257
@@ -174,6 +165,5 @@ MmIdHelper           INFO Initializing MicroMegas hash indices ...
 MmIdHelper           INFO The element hash max is 64
 MmIdHelper           INFO The detector element hash max is 128
 MmIdHelper           INFO Initializing MicroMegas hash indices for finding neighbors ... 
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
  AtlasDetectorID::initialize_from_dictionary - OK 
 test1

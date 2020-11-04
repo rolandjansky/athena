@@ -328,8 +328,10 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
   int brlModuleCmpt=-1;
   nbModuleSvc[brlModuleIndex]=m_barrelModuleNumber/2+m_barrelModuleNumber%2;
   if(transModuleIndex>0)nbModuleSvc[transModuleIndex]=m_transitionModuleNumber/2;
-  if(endcapModuleIndex)nbModuleSvc[endcapModuleIndex]=m_endcapModuleNumber;  
 
+  if(endcapModuleIndex>0){
+    nbModuleSvc[endcapModuleIndex]=m_endcapModuleNumber;  
+  }
   if(bVerbose){
     std::cout<<"MODULE SERVICES init for layer  "<<m_layer <<" : ";  for(int i=0; i<(int)nbModuleSvc.size(); i++) std::cout<<nbModuleSvc[i]<<" "; std::cout<<std::endl;
   }

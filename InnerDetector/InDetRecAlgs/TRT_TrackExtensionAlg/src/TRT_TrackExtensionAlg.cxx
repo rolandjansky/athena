@@ -89,7 +89,8 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute()
  
   for (t=inputTracks->begin(); t!=te; ++t) {
 
-    if(!(*t)) continue; ++m_nTracks;
+    if(!(*t)) continue;
+    ++m_nTracks;
          
     std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*t));
     if(!tn.size()) continue;
@@ -150,7 +151,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TRT_TrackExtensionAlg::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////

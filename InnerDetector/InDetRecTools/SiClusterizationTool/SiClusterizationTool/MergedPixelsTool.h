@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -42,19 +42,38 @@ namespace InDetDD {
 
 namespace InDet {
 
+  // class needed to build network for fast clusterization implemented for ITk
   class rowcolID {
   public:
+    
+    rowcolID(int ncl, int row, int col, int tot, int lvl1, Identifier id):
+      NCL(ncl), ROW(row), COL(col), TOT(tot), LVL1(lvl1), ID(id) {};
+      
+    ~rowcolID() {};      
+    
     int        NCL;
     int        ROW;
     int        COL;
     int        TOT;
+    int       LVL1;
     Identifier ID ;
   };
 
   class network {
   public:
-    int        NC;
-    int    CON[4];
+    network():
+      NC(0), CON({0,0,0,0,0,0,0,0}) {};
+      
+    ~network() {};
+
+    int               NC;
+    std::array<int,8> CON;
+  };
+  
+  const auto pixel_less = [] (rowcolID const&  id1,rowcolID const& id2) -> bool {
+    if(id1.COL == id2.COL) 
+      return id1.ROW < id2.ROW;
+    return id1.COL < id2.COL;
   };
   
   class PixelCluster;
@@ -147,9 +166,9 @@ namespace InDet {
                                           const InDetDD::SiDetectorManager&,
                                           const PixelID& pixelID) const;
                                           
-    void addClusterNumber(int r, 
-                          int Ncluster,
-                          std::vector<network> connections,    
+    void addClusterNumber(const int& r, 
+                          const int& Ncluster,
+                          const std::vector<network>& connections,    
                           std::vector<rowcolID>& collectionID) const;
                           
     ServiceHandle<IIncidentSvc>                         m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
@@ -176,7 +195,9 @@ namespace InDet {
     //ServiceHandle< StoreGateSvc >                       m_detStore;
     //const PixelID*                                      m_idHelper;
     
+    // used to define the clustering mechanism
     bool m_doITkClustering;
+    bool m_addCorners;
   };
 }
 

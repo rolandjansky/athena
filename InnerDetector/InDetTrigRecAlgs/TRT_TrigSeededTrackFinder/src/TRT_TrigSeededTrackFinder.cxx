@@ -345,7 +345,8 @@ HLT::ErrorCode InDet::TRT_TrigSeededTrackFinder::hltFinalize() {
 MsgStream&  InDet::TRT_TrigSeededTrackFinder::dump( MsgStream& out ) const {
 
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,16 +11,14 @@ PixelRingSupportXMLHelper::PixelRingSupportXMLHelper():
   m_bXMLfileExist(false)
 {
 
-  std::string fileName="GenericRingSupport.xml";
+  std::string fileName="DiskSupport.xml";
   if(const char* env_p = std::getenv("PIXEL_PIXELDISCSUPPORT_GEO_XML")) fileName = std::string(env_p);
-  //  std::cout<<"XML disc support : "<<fileName<<std::endl;
 
   std::string file = PathResolver::find_file (fileName, "DATAPATH");
   InitializeXML();
   bool bParsed = ParseFile(file);
 
   if(!bParsed){
-    //    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
     return;
   }
 

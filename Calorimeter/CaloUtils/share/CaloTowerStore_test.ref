@@ -139,7 +139,6 @@ DetDescrCnvSvc       INFO  filling address for LArHEC_SuperCell_ID with CLID 254
 DetDescrCnvSvc       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for LArFCAL_SuperCell_ID with CLID 12829437 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for LArMiniFCAL_ID with CLID 79264204 and storage type 68 to detector store 
-DetDescrCnvSvc       INFO  filling address for HGTD_ID with CLID 79264207 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for LArOnline_SuperCellID with CLID 115600394 and storage type 68 to detector store 
@@ -237,9 +236,6 @@ LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/21
 CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
-CaloIDHelper_ID...   INFO in createObj: creating a HGTD_ID helper object in the detector store
-AtlasDetectorID      INFO initialize_from_dictionary - OK
-HGTD_ID              INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain HGTD description. Unable to initialize HGTD_ID.
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 TileHWIDDetDesc...   INFO in createObj: creating a TileHWID helper object in the detector store
 TileHWID             INFO initialize_from_dictionary 

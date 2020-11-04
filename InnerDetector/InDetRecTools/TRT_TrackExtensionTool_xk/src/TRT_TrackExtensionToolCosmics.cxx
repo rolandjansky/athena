@@ -142,7 +142,8 @@ StatusCode InDet::TRT_TrackExtensionToolCosmics::finalize()
 MsgStream& InDet::TRT_TrackExtensionToolCosmics::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 

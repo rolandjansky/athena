@@ -31,6 +31,9 @@ JGTowerMaker::JGTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
   declareProperty("SuperCellType",m_scType="SCell");
   declareProperty("SuperCellQuality",m_scQuality=0x200);
   declareProperty("EmulateSuperCellTiming",m_EmulateSC=false); 
+  declareProperty("minSCETp", m_minSCETp=-1);//initialize to -1. To require positive ET > 125 MeV, set to 125 
+  declareProperty("maxSCETm", m_maxSCETm=1);//initialize to 1. To require negative ET < -125 MeV, set to -125 
+  declareProperty("minTowerET",m_minTowerEt=-9e9); 
 }
 
 
@@ -109,6 +112,8 @@ StatusCode JGTowerMaker::FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT
 	   }
 	   else{
 	     if(m_useSCQuality && !( scell->provenance()  &  m_scQuality ) )  continue;
+	     if(scell_et>0 && scell_et<m_minSCETp)continue;//allows us to implement supercell ET cuts when building towers 
+	     if(scell_et<0 && scell_et>m_maxSCETm)continue; 
 	   }
            jgEt += scell_et; 
            lar_et+=scell_et;
@@ -150,6 +155,7 @@ StatusCode JGTowerMaker::FexAlg(const std::vector<std::shared_ptr<JGTower>>& jgT
           }
    
       }
+      if(jgEt<m_minTowerEt)jgEt=0; 
       xAOD::JGTower* m_trigTower = new xAOD::JGTower();
       jgTContainer->push_back(m_trigTower);
       m_trigTower->initialize(hs,jgt->Eta(),jgt->Phi());

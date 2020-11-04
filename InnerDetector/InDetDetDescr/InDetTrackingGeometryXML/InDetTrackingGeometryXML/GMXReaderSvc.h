@@ -72,6 +72,8 @@ namespace InDet {
 
     bool m_useDb;
 
+    bool m_doHGTD;
+
     std::string m_pathToGMXFile;
   };
 }

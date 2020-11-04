@@ -12,6 +12,8 @@ from AthenaCommon.DetFlags import DetFlags
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 auto_isGMX = (SLHC_Flags.doGMX()) or (CommonGeometryFlags.StripGeoType() == "GMX") 
 
+auto_doHGTD = DetFlags.geometry.HGTD_on()
+
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
     def __init__(self):
@@ -21,6 +23,7 @@ class SLHC_Setup_XMLReader :
                             createXML = True,
                             doPix=True,
                             doSCT=True,
+                            doHGTD=auto_doHGTD,
                             isGMX=auto_isGMX,
                                  )
 

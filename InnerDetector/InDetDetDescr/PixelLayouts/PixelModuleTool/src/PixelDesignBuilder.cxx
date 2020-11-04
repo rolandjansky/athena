@@ -7,7 +7,7 @@
 #include "PixelGeoModel/PixelGeoBuilder.h"
 
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 #include "ReadoutGeometryBase/SiCommonItems.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 
@@ -107,7 +107,7 @@ PixelModuleDesign* PixelDesignBuilder::getDesign(const PixelGeoBuilderBasics* ba
 PixelModuleDesign* PixelDesignBuilder::build( const PixelGeoBuilderBasics* basics, int moduleIndex)
 {
 
-  std::string fileName="PixelModules.xml";
+  std::string fileName="ITK_PixelModules.xml";
   if(const char* env_p = std::getenv("PIXEL_SILICONMODULES_GEO_XML")) fileName = std::string(env_p);
 
   bool readXMLfromDB = basics->ReadInputDataFromDB();

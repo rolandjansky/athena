@@ -15,7 +15,7 @@
 BCMPrimeXMLHelper::BCMPrimeXMLHelper(int module, const PixelGeoBuilderBasics *basics) : GeoXMLUtils(), PixelGeoBuilder(basics), m_module(module)
 {
 
-    std::string fileName = "BcmPrime.xml";
+    std::string fileName = "BCMPrime.xml";
     if (const char *env_p = std::getenv("PIXEL_BCMPRIME_GEO_XML"))
         fileName = std::string(env_p);
 

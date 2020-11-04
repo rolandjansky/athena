@@ -56,7 +56,7 @@ public:
   
 private:
   
-  const static int N_LAYERS=5;
+  const static int N_LAYERS=8;
   
   enum Region {
     INVALID_REGION=-1, BARREL, ENDCAP, N_REGIONS

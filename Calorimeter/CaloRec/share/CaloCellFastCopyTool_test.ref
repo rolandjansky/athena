@@ -26,7 +26,6 @@ ApplicationMgr Ready
 test1
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -45,7 +44,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
  channel range -> 4/1/-1,1/0/0/0:60/0:63/0 | 4/1/-1,1/1/0/1:447/0:63/0 | 4/1/-1,1/1/1/0:2/0:255/0 | 4/1/-1,1/2/0/0:55/0:255/0 | 4/1/-1,1/2/1/0/0:255/0 | 4/1/-1,1/3/0/0:26/0:255/0 | 4/1/-2,2/0/0/0:11/0:63/0 | 4/1/-2,2/1/0/0/0:63/0 | 4/1/-2,2/1/1/0:2/0:63/0 | 4/1/-2,2/1/2/0:95/0:63/0 | 4/1/-2,2/1/3/0:47/0:63/0 | 4/1/-2,2/1/4/0:63/0:63/0 | 4/1/-2,2/1/5/0:3/0:63/0 | 4/1/-2,2/2/0/0/0:255/0 | 4/1/-2,2/2/1/0:42/0:255/0 | 4/1/-2,2/3/0/0:19/0:255/0 | 4/1/-3,3/1/0/0:6/0:63/0 | 4/1/-3,3/2/0/0:6/0:63/0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -65,7 +63,6 @@ initialize_from_dict :
  LArHEC_Base_ID::init_neighbors 
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -83,7 +80,6 @@ is-slar  decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff
  module range -> 4/3/-2,2/1 | 4/3/-2,2/2 | 4/3/-2,2/3
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
@@ -91,22 +87,12 @@ AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'Det
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
  AtlasDetectorID::initialize_from_dictionary - OK 
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
 AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
-AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
-AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
-AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
- AtlasDetectorID::initialize_from_dictionary - OK 
-HGTD_ID              INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain HGTD description. Unable to initialize HGTD_ID.
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
-AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
-AtlasDetectorID::initLevelsFromDict - unable to find 'HGTD' label (not required when not running HGTD)
 AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
 AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
 AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter

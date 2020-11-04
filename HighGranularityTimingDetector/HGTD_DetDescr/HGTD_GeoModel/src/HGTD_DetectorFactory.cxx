@@ -26,9 +26,9 @@
 #include "GeoModelUtilities/StoredAlignX.h"
 
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
+#include "HGTD_ReadoutGeometry/HGTD_ModuleDesign.h"
 
-#include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
@@ -692,7 +692,7 @@ std::vector<ModulePosition> HGTD_DetectorFactory::calculateHgtdModulePositionsIn
     return modulePositions;
 }
 
-InDetDD::PixelModuleDesign* HGTD_DetectorFactory::createPixelDesign(double thickness, bool isBaseline, bool /*isflipped*/) {
+InDetDD::HGTD_ModuleDesign* HGTD_DetectorFactory::createHgtdDesign(double thickness, bool isBaseline, bool /*isflipped*/) {
 
     double phiPitch = 1.3; // mm
     double etaPitch = 1.3; // mm
@@ -719,7 +719,7 @@ InDetDD::PixelModuleDesign* HGTD_DetectorFactory::createPixelDesign(double thick
     int circuitsPhi = 1;
     int circuitsEta = 1;
 
-    InDetDD::PixelModuleDesign* design = new InDetDD::PixelModuleDesign( thickness, circuitsPhi, circuitsEta,
+    InDetDD::HGTD_ModuleDesign* design = new InDetDD::HGTD_ModuleDesign( thickness, circuitsPhi, circuitsEta,
                                                                          colsPerChip, rowsPerChip, colsPerChip, rowsPerChip,
                                                                          fullMatrix, InDetDD::CarrierType::electrons, readout_side);
 

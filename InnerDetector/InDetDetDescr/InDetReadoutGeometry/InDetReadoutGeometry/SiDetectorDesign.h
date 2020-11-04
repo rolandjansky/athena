@@ -106,6 +106,10 @@ public:
     virtual std::pair<SiLocalPosition, SiLocalPosition> endsOfStrip(
         const SiLocalPosition &position) const = 0;
 
+    /** If cell is ganged return the id of the other cell which shares the readout
+        for this cell, otherwise return an invalid id. */
+    virtual SiCellId gangedCell(const SiCellId &cellId) const = 0;
+
     ///////////////////////////////////////////////////////////////////
     // Private methods:
     ///////////////////////////////////////////////////////////////////

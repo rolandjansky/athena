@@ -112,7 +112,11 @@ void MM_StripsResponseSimulation::initFunctions()
 
 	m_longitudinalDiffusionFunction = new TF1("longdiff","gaus", -5., 5.);
 
-	m_transverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
+	//m_transverseDiffusionFunction = new TF1("transdiff", "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))", -1., 1.);
+	m_transverseDiffusionFunction = new TF1("transdiff", "gaus(0) + gaus(3)", -1., 1.);
+  m_transverseDiffusionFunction->SetParameters(1.,0.,1.,0.001,0.,1.);
+	//m_transverseDiffusionFunction = new TF1("transdiff", "gaus", -1., 1.);
+  //m_transverseDiffusionFunction->SetParameters(1.,0.,1.);
 
 	m_random = new TRandom3(0);
 
@@ -200,7 +204,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 	ATH_MSG_DEBUG("LorentzAngle vs theta: " <<lorentzAngle <<" " <<theta);
     ATH_MSG_DEBUG("Function pointer points to " << m_interactionDensityFunction);
 
-	float pathLengthTraveled = ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
+	float pathLengthTraveled = getPathLengthTraveled(); 
 
 	float pathLength  = m_driftGapWidth/TMath::Cos(theta); // Increasing path length based on XZ angle
 	pathLength       /= TMath::Cos(alpha);                 // Further increasing path length for YZ angle
@@ -229,19 +233,19 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 		for (auto& Electron : IonizationCluster.getElectrons()){
 
-			m_longitudinalDiffusionFunction->SetParameters(1.0, 0., initialPosition.Y()*m_longitudinalDiffusionSigma);
+		//	m_longitudinalDiffusionFunction->SetParameters(1.0, 0., initialPosition.Y()*m_longitudinalDiffusionSigma);
 
-			if ( m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
+		//	if ( m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
 
-				m_transverseDiffusionFunction->SetParameters( initialPosition.Y()*m_transverseDiffusionSigma , 0.0);
+		//		m_transverseDiffusionFunction->SetParameters( initialPosition.Y()*m_transverseDiffusionSigma , 0.0);
 
-			} else {
+		//	} else {
 
-				m_transverseDiffusionFunction->SetParameters( initialPosition.Y()*m_transverseDiffusionSigma , 1.0);
+		//		m_transverseDiffusionFunction->SetParameters( initialPosition.Y()*m_transverseDiffusionSigma , 1.0);
 
-			}
+		//	}
 
-			Electron->setOffsetPosition(m_transverseDiffusionFunction->GetRandom(), m_longitudinalDiffusionFunction->GetRandom());
+			Electron->setOffsetPosition(getTransversDiffusion(initialPosition.Y()) , getLongitudenalDiffusion(initialPosition.Y()) );
 
 		}
 
@@ -252,7 +256,8 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 		for (auto& Electron : IonizationCluster.getElectrons()){
 
-			float effectiveCharge = m_polyaFunction->GetRandom();
+			//float effectiveCharge = m_polyaFunction->GetRandom();
+			float effectiveCharge = getEffectiveCharge();
 
 			Electron->setCharge( effectiveCharge );
 
@@ -273,7 +278,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 		//---
 		m_IonizationClusters.push_back(IonizationCluster);
 
-		pathLengthTraveled +=  (1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
+		pathLengthTraveled +=  getPathLengthTraveled();
 
 		ATH_MSG_DEBUG("Path length traveled: " << pathLengthTraveled);
 

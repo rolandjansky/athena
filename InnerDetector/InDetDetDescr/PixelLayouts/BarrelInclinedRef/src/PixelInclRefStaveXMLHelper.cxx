@@ -14,7 +14,7 @@ PixelInclRefStaveXMLHelper::PixelInclRefStaveXMLHelper(int layer, const PixelGeo
   m_layer(layer)
 {
 
-  std::string fileName="GenericExtRefStave.xml";
+  std::string fileName="SlimStaveSupport.xml";
   if(const char* env_p = std::getenv("PIXEL_STAVESUPPORT_GEO_XML")) fileName = std::string(env_p);
 
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();

@@ -173,11 +173,11 @@ if [ $dophy -ne 0 ]; then
   # Run InDetPhysValMonitoring on ESD.
   # It should eventually be possible to include this in the reco step, but this needs Reco_tf to support the ITk IDPVM setup.
   ( set -x
-    inputDAOD_IDTRKVALIDFile="$daod" exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py
+    exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py --filesInput="$daod"
   )
   echo "art-result: $? physval"
 
-  mv ./physval.root ./$dcubemon_rec
+  mv ./MyPhysVal.root ./$dcubemon_rec
 
   # DCube InDetPhysValMonitoring performance plots
   dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"

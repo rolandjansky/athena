@@ -1289,7 +1289,7 @@ GeoVPhysVol* GeoPixelServices::Build( ) {
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 #include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "ReadoutGeometryBase/SiCommonItems.h"
 

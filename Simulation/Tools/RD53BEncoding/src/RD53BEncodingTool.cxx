@@ -909,34 +909,63 @@ StatusCode RD53BEncodingTool::bookHistograms(std::vector < std::vector < float >
   m_bins[BARREL]={{0.,}, {0.,}, {0.,}, {0.,}, {0.,}};
   m_bins[ENDCAP]={{200.,}, {200.,}, {1000.,}, {1000.,}, {1000.,}};
   
-  for (unsigned int layer = 0; layer<5 ; layer++) {
-    // sorting the z values before calculating the bin ranges
-    std::sort(barrel_z.at(layer).begin(), barrel_z.at(layer).end());
-    std::sort(endcap_z.at(layer).begin(), endcap_z.at(layer).end());
-    // skipping first bin since it is 0. for the barrel
-    for (unsigned int z_bin = 1; z_bin<(barrel_z.at(layer).size()-1); z_bin++) {
-      m_bins[BARREL].at(layer).push_back(0.5*(barrel_z.at(layer).at(z_bin)+barrel_z.at(layer).at(z_bin+1)));
-    }
-    // add last values
-    double last_value = 2.*barrel_z.at(layer).back()-barrel_z.at(layer).at(barrel_z.at(layer).size()-2);
-    if (last_value<1500.)
-      m_bins[BARREL].at(layer).push_back(last_value);
-    m_bins[BARREL].at(layer).push_back(1500.);
+  // this triggers the new identifier schema for new geometries. 
+  unsigned int maxLayersBarrel = 0;
+  for (auto& module_positions : m_module_z_layer[BARREL])
+    if (not module_positions.empty()) maxLayersBarrel++;    
+  unsigned int maxLayersEndcap = 0;
+  for (auto& module_positions : m_module_z_layer[ENDCAP])
+    if (not module_positions.empty()) maxLayersEndcap++;    
     
-    for (unsigned int z_bin = 0; z_bin<(endcap_z.at(layer).size()-1); z_bin++) {
-      m_bins[ENDCAP].at(layer).push_back(0.5*(endcap_z.at(layer).at(z_bin)+endcap_z.at(layer).at(z_bin+1)));
+  ATH_MSG_DEBUG("--> Using " << maxLayersBarrel << "/" << maxLayersEndcap << " layers...");
+  
+  m_bins[BARREL] = {{0.,}, {0.,}, {0.,}, {0.,}, {0.,}};
+  
+  if (maxLayersEndcap>m_bins[ENDCAP].size()) {
+    ATH_MSG_DEBUG("--> Resetting min value for bins...");
+    m_bins[ENDCAP]={{200.,}, {200.,}, {350.,}, {1000.,}, {350.,}, {1000.,}, {350.,}, {1000.,}};
+  }  
+  
+  unsigned int maxLayers = std::max(maxLayersBarrel, maxLayersEndcap);
+  
+  for (unsigned int layer = 0; layer<maxLayers ; layer++) {
+    if (layer<maxLayersBarrel) {
+      ATH_MSG_DEBUG("--> BARREL: " << layer);
+      // sorting the z values before calculating the bin ranges
+      std::sort(barrel_z.at(layer).begin(), barrel_z.at(layer).end());
+      // skipping first bin since it is 0. for the barrel
+      for (unsigned int z_bin = 1; z_bin<(barrel_z.at(layer).size()-1); z_bin++) {
+        m_bins[BARREL].at(layer).push_back(0.5*(barrel_z.at(layer).at(z_bin)+barrel_z.at(layer).at(z_bin+1)));
+      }
+      // add last values
+      double last_value = 2.*barrel_z.at(layer).back()-barrel_z.at(layer).at(barrel_z.at(layer).size()-2);
+      if (last_value<1500.)
+        m_bins[BARREL].at(layer).push_back(last_value);
+      m_bins[BARREL].at(layer).push_back(1500.);
     }
-    // add last values
-    last_value = 2.*endcap_z.at(layer).back()-endcap_z.at(layer).at(endcap_z.at(layer).size()-2);
-    if (last_value<3000.)
-      m_bins[ENDCAP].at(layer).push_back(last_value);
-    m_bins[ENDCAP].at(layer).push_back(3000.);
+    
+    if (layer<maxLayersEndcap) {
+      ATH_MSG_DEBUG("--> ENDCAP: " << layer);
+      // sorting the z values before calculating the bin ranges
+      std::sort(endcap_z.at(layer).begin(), endcap_z.at(layer).end());    
+      for (unsigned int z_bin = 0; z_bin<(endcap_z.at(layer).size()-1); z_bin++) {
+        m_bins[ENDCAP].at(layer).push_back(0.5*(endcap_z.at(layer).at(z_bin)+endcap_z.at(layer).at(z_bin+1)));
+      }
+      // add last values
+      double last_value = 2.*endcap_z.at(layer).back()-endcap_z.at(layer).at(endcap_z.at(layer).size()-2);
+      if (last_value<3000.)
+        m_bins[ENDCAP].at(layer).push_back(last_value);
+      m_bins[ENDCAP].at(layer).push_back(3000.);
+    }
   }
   
   for (int region=0; region<N_REGIONS; region++) {
     
-    for (unsigned int layer=0; layer<5; layer++) {
+    for (unsigned int layer=0; layer<maxLayers; layer++) {
       
+      if (region==BARREL and layer>=maxLayersBarrel)
+        continue;
+            
       std::vector < double >& bins = m_bins[region].at(layer);
         
       m_p_streamlength_per_stream[layer][region] = new TProfile(("m_p_streamlength_per_stream_"+m_regionLabels[region]+"_"+std::to_string(layer)).c_str(), (m_regionLabels[region]+" Stream Length - Layer "+std::to_string(layer)+"; z[mm]; <stream length> [bits]").c_str(), int(bins.size()-1), &bins[0]);

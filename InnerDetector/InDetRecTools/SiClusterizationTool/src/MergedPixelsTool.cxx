@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -47,15 +47,6 @@ using CLHEP::micrometer;
 
 namespace InDet {
   
-  class pixel_less {
-  public:
-    bool operator() (rowcolID& id1,rowcolID& id2) {
-      if(id1.COL == id2.COL) 
-        return id1.ROW < id2.ROW;
-      return id1.COL < id2.COL;
-    }
-  };
-  
 // Constructor with parameters:
   MergedPixelsTool::MergedPixelsTool(const std::string &type,
                                      const std::string &name,
@@ -80,7 +71,8 @@ namespace InDet {
     m_largeClusters(0),
     m_overflowIBLToT(0),
     m_pixofflinecalibSvc("PixelOfflineCalibSvc", name),
-    m_doITkClustering(false)
+    m_doITkClustering(false),
+    m_addCorners(true)
     //m_detStore("DetectorStore", name),
     //m_idHelper(0)
     {
@@ -94,7 +86,8 @@ namespace InDet {
       declareProperty("ClusterSplitter",             m_clusterSplitter);
       declareProperty("DoIBLSplitting",		     m_doIBLSplitting);
       declareProperty("SplitClusterAmbiguityMap",    m_splitClusterMapName);
-      declareProperty("doITkClustering",              m_doITkClustering);
+      declareProperty("doITkClustering",             m_doITkClustering);
+      declareProperty("addCorners",                  m_addCorners);
     }
   
 //---------------------------------------------------------------------------
@@ -609,6 +602,7 @@ namespace InDet {
             clusterCollection->size());
             /** end new stuff */
             clusterCollection->push_back(cluster);
+
           }
           (**group).clear();
       }
@@ -942,78 +936,112 @@ namespace InDet {
     if(collection.empty() || !m_summarySvc->isGood(idHash))  return 0;
 
     InDetDD::SiDetectorElement* element = manager.getDetectorElement(elementID);
-    if(!element) return 0;
+    if(!element) return nullptr;
     const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-    if(!design ) return 0; 
+    if(!design ) return nullptr;
 
+     // loop on the rdo collection and save the relevant quantities for each fired pixel
+    // rowcolID contains: number of connected pixels, phi/eta pixel indices, tot, lvl1, rdo identifier
     std::vector<rowcolID> collectionID;
-    std::vector<network> connections;
-
-    InDetRawDataCollection<PixelRDORawData>::const_iterator RD = collection.begin(), RDE = collection.end();
-
-    Identifier rdoID= (*RD)->identify();
-
-    rowcolID   RCI;
-    network    NET;
-    for(; RD!=RDE; ++RD) {
-
-      rdoID   = (*RD)->identify();
-      int tot = (*RD)->getToT  ();
-      if (m_summarySvc->isGood(idHash,rdoID)) {
-        RCI.NCL = -1                      ;
-        RCI.ROW = pixelID.phi_index(rdoID);
-        RCI.COL = pixelID.eta_index(rdoID);
-        RCI.TOT = tot;
-        RCI.ID  = rdoID;
-        NET.NC  = 0;
-        collectionID.push_back(RCI);	
-        connections .push_back(NET);
-      }
+    
+    for(const auto & rdo : collection) {
+      
+      const Identifier rdoID= rdo->identify();
+      if (m_useModuleMap &&  !(m_summarySvc->isGood(idHash))) 
+        return nullptr;
+          
+      const int lvl1= rdo->getLVL1A();      
+      const int tot = rdo->getToT();
+      
+      rowcolID   RCI(-1, pixelID.phi_index(rdoID), pixelID.eta_index(rdoID), tot, lvl1, rdoID); 
+      collectionID.push_back(RCI);
+      
+      // check if this is a ganged pixel    
+      Identifier gangedID;
+      const bool ganged = isGanged(rdoID, element, gangedID);  
+      
+      if (not ganged) continue;
+          
+      // if it is a ganged pixel, add its ganged RDO id to the collection
+      rowcolID   RCI_ganged(-1, pixelID.phi_index(gangedID), pixelID.eta_index(gangedID), tot, lvl1, gangedID);
+      collectionID.push_back(RCI_ganged);      
     }
-
+    
     // Sort pixels in ascending columns order
     // 
-    if(collectionID.empty()) return 0; 
-    if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less());
+    if(collectionID.empty()) return nullptr;   
+    if(collectionID.size() > 1) std::sort(collectionID.begin(),collectionID.end(),pixel_less);
+    
+    // initialize the networks
+    //
+    std::vector<network> connections(collectionID.size());
 
     // Network production
     //
-    int r = 0, re = collectionID.size();
+    int collectionSize = collectionID.size();
+    
+    // the maximum number of elements to save can be either 2 or 3
+    // m_addCorners == true requires saving the bottom (or top), the side and the corner connection for each pixel,
+    // otherwise you only save bottom (or top) and the side
+    int maxElements = m_addCorners ? 3 : 2;
 
-    for(; r!=re-1; ++r) {
-
+    // start looping on the pixels
+    // for each pixel you build the network connection accordingly to the 4- or 8-cells connections
+    for(int currentPixel = 0; currentPixel!=collectionSize-1; ++currentPixel) {
       int NB  = 0;
-      int row = collectionID[r].ROW  ;
-      int col = collectionID[r].COL+1; 
+      int row = collectionID[currentPixel].ROW;
+      int col = collectionID[currentPixel].COL; 
+      
+      for(int otherPixel = currentPixel+1; otherPixel!=collectionSize; ++otherPixel) {
+        int deltaCol = std::abs(collectionID[otherPixel].COL - col);
+        int deltaRow = std::abs(collectionID[otherPixel].ROW - row);
 
-      for(int rn = r+1; rn!=re; ++rn) {
-        int dc = collectionID[rn].COL - col;
+        // break if you are too far way in columns, as these ones will be taken in the next iterations
+        if( deltaCol > 1) {
+          break;
+        }
         
-        if( dc > 0) break;
+        // if you need the corners, you jump the next rows, as these ones will be taken in the next iterations
+        if ( m_addCorners and deltaRow > 1 ) {
+          continue;
+        }
         
-        if( fabs(collectionID[rn].ROW-row)+dc == 0 ) {
-          connections[ r].CON[connections[r ].NC++] = rn;
-          connections[rn].CON[connections[rn].NC++] = r ;
-          if(++NB==2) break;
+        // Two default cases are considered:
+        // 1) top/bottom connection (deltaCol=1 and deltaRow=0)
+        // 2) side connection (deltaCol=0 and deltaRow=1)
+        // In both cases the satisfied condition is:
+        // deltaRow+deltaCol = 1
+        // 
+        // As an optional case (true by defaul) we save also add a corner connection:
+        // 3) corner connection (deltaCol=1 and deltaRow=1)
+        
+        // this builds the single pixel connection and breaks if the max number of elements is reached:        
+        if( (deltaCol+deltaRow) == 1 or (m_addCorners and deltaCol == 1 and deltaRow == 1) ) {
+          connections[currentPixel].CON[connections[currentPixel].NC++] = otherPixel;
+          connections[otherPixel].CON[connections[otherPixel].NC++] = currentPixel ;
+          if(++NB==maxElements) {
+            break;
+          }
         }
       }
     }
 
     // Pixels clusterization
     //
+    // Once the connections are built, the pixel clusterisation can start grouping together pixels
     int Ncluster = 0;
-    for(r=0; r!=re; ++r) {
-      if(collectionID[r].NCL < 0) {
-        collectionID[r].NCL = Ncluster;
-        addClusterNumber(r,Ncluster,connections,collectionID);
+    for(int currentPixel=0; currentPixel!=collectionSize; ++currentPixel) {
+      if(collectionID[currentPixel].NCL < 0) {
+        collectionID[currentPixel].NCL = Ncluster;
+        addClusterNumber(currentPixel,Ncluster,connections,collectionID);
         ++Ncluster;
       }
     }
 
     // Clusters sort in Ncluster order
     //
-    if(--re > 1) {
-      for(int i(1); i<re; ++i ) {
+    if(--collectionSize > 1) {
+      for(int i(1); i<collectionSize; ++i ) {
         rowcolID U  = collectionID[i+1];
         
         int j(i);
@@ -1031,115 +1059,53 @@ namespace InDet {
     clusterCollection->setIdentifier(elementID);
     clusterCollection->reserve(Ncluster);
 
-    // Output pixel clusters prodcution
-    //     
-    double phiPitch =  design ->phiPitch();
-    double etaPitch =  design ->etaPitch();
-    double shift    =  element->getLorentzCorrection();
-
-    AmgSymMatrix(2) COV;
-    COV.setIdentity();
-    COV.fillSymmetric(0,0,(phiPitch*phiPitch)*(1./12.));
-    COV.fillSymmetric(1,1,(etaPitch*etaPitch)*(1./12.));
-
-    int i0         = 0                    ;
-    int NCL0       = 0                    ;
-    int ROW0       = collectionID[0].ROW;
-    int COL0       = collectionID[0].COL;
-    Identifier IDc = collectionID[0].ID ;
-    int rowMin(0),rowMax(0);
-    int colMin(0),colMax(0);
-    int ROWP  (0),COLP  (0);
-
-    std::vector<Identifier> DVid;
-    std::vector<int> Totg;
+    std::vector<Identifier> DVid = {collectionID[0].ID };
+    std::vector<int>        Totg = {collectionID[0].TOT};
+    std::vector<int>        Lvl1 = {collectionID[0].LVL1};
     
-    DVid.push_back(collectionID[0].ID );
-    Totg.push_back(collectionID[0].TOT);
-
-    InDetDD::SiLocalPosition sum0= design->positionFromColumnRow(COL0,ROW0);
+    int clusterNumber = 0;
+    int NCL0          = 0;
     
-    ++re;
-    
-    for(int i=1; i!=re; ++i) {
+    DVid.reserve(collectionID.back().NCL);
+    Totg.reserve(collectionID.back().NCL);
+    Lvl1.reserve(collectionID.back().NCL);
 
-      if(collectionID[i].NCL==NCL0) {
+    ++collectionSize;    
+    for(int i=1; i<=collectionSize; ++i) {
+
+      if(i!=collectionSize and collectionID[i].NCL==NCL0) {
         DVid.push_back(collectionID[i].ID );
         Totg.push_back(collectionID[i].TOT);
-        
-        int row = collectionID[i].ROW-ROW0; ROWP+=row;
-        int col = collectionID[i].COL-COL0; COLP+=col;
-        
-        if     (row > rowMax) rowMax = row;
-        else if(row < rowMin) rowMin = row;
-        if     (col > colMax) colMax = col;
-        else if(col < colMin) colMin = col;
+        Lvl1.push_back(collectionID[i].LVL1);
       
       } else {
         
         // Cluster production
-        //
-        int    is  = i-i0;
-        double Np  = 1./double(is);
-        double Phi = sum0.xPhi()+double(ROWP)*(phiPitch*Np);
-        double Eta = sum0.xEta()+double(COLP)*(etaPitch*Np);
+        ++m_processedClusters;
+        PixelCluster* cluster = makeCluster(DVid,
+                                            Totg,
+                                            Lvl1,
+                                            element,
+                                            pixelID, 
+                                            ++clusterNumber);
         
-        if (is > 2 ) {
-          InDetDD::SiLocalPosition centroid(Eta,Phi,0.);
-          IDc = element->identifierOfPosition(centroid);
+        // no merging has been done;
+        if (cluster) { 
+          // statistics output
+          cluster->setHashAndIndex(clusterCollection->identifyHash(), clusterCollection->size());
+          clusterCollection->push_back(cluster);
         }
-
-        Amg::Vector2D position(Phi+shift,Eta);
         
-        double  rowWidth = double(rowMax-rowMin+1);
-        double  colWidth = double(colMax-colMin+1);
-        SiWidth siWidth(Amg::Vector2D(rowWidth,colWidth),
-                        Amg::Vector2D(rowWidth*phiPitch,colWidth*etaPitch));
         
-        Amg::MatrixX* errorMatrix = new Amg::MatrixX(COV);
-        PixelCluster* cluster     = new PixelCluster(IDc,position, DVid, 0, Totg, siWidth, element, errorMatrix);
-        
-        cluster->setHashAndIndex(idHash,NCL0);
-        clusterCollection->push_back(cluster);
-
         // Preparation for next cluster
-        //
-        i0     = i                                       ;
-        NCL0   = collectionID[i].NCL                     ;
-        IDc    = collectionID[i].ID                      ;
-        rowMin = rowMax = ROWP = collectionID[i].ROW-ROW0;
-        colMin = colMax = COLP = collectionID[i].COL-COL0;
-        
-        DVid.clear(); DVid.push_back(collectionID[i].ID );
-        Totg.clear(); Totg.push_back(collectionID[i].TOT);
-        
+        if (i!=collectionSize) {
+          NCL0   = collectionID[i].NCL                     ;
+          DVid.clear(); DVid = {collectionID[i].ID };
+          Totg.clear(); Totg = {collectionID[i].TOT};
+          Lvl1.clear(); Lvl1 = {collectionID[i].LVL1};
+        }
       }
     }
-    
-    // Last cluster production
-    //    
-    int    is  = re-i0;
-    double Np  = 1./double(is);
-    double Phi = sum0.xPhi()+double(ROWP)*(phiPitch*Np);
-    double Eta = sum0.xEta()+double(COLP)*(etaPitch*Np);
-
-    if (is > 2 ) {
-      InDetDD::SiLocalPosition centroid(Eta,Phi,0.);
-      IDc = element->identifierOfPosition(centroid);
-    }
-
-    Amg::Vector2D position(Phi+shift,Eta);
-  
-    double  rowWidth = double(rowMax-rowMin+1);
-    double  colWidth = double(colMax-colMin+1);
-    SiWidth siWidth(Amg::Vector2D(rowWidth,colWidth),
-                    Amg::Vector2D(rowWidth*phiPitch,colWidth*etaPitch));
-
-    Amg::MatrixX* errorMatrix = new Amg::MatrixX(COV);
-    PixelCluster* cluster     = new PixelCluster(IDc, position, DVid, 0, Totg, siWidth, element, errorMatrix);
-
-    cluster->setHashAndIndex(idHash,NCL0);
-    clusterCollection->push_back(cluster);
 
     return clusterCollection;
   }
@@ -1148,19 +1114,19 @@ namespace InDet {
 // Clusterization for fast mode 
 ///////////////////////////////////////////////////////////////////
 
-void MergedPixelsTool::addClusterNumber(int r, 
-                                        int Ncluster,
-                                        std::vector<network> connections,                                         
+void MergedPixelsTool::addClusterNumber(const int& r, 
+                                        const int& Ncluster,
+                                        const std::vector<network>& connections,                                         
                                         std::vector<rowcolID>& collectionID) const {
-                                          
     for(int i=0; i!=connections[r].NC; ++i) {      
-      int k = connections[r].CON[i];
+      const int k = connections[r].CON[i];
       if(collectionID[k].NCL < 0) {
         collectionID[k].NCL = Ncluster;
         addClusterNumber(k, Ncluster, connections, collectionID);
       }
     }
   }
+  
 }
 
 //----------------------------------------------------------------------------
