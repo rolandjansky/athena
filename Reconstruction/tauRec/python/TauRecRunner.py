@@ -12,13 +12,8 @@
 #
 ################################################################################
 
-import os, sys, string
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.BeamFlags import jobproperties
-import traceback
-from RecExConfig.Configured import Configured
 from .TauRecRunConfigured import TauRecRunConfigured
 
 ################################################################################
@@ -37,8 +32,7 @@ class TauRecRunner ( TauRecRunConfigured ) :
     def configure(self):
         mlog = logging.getLogger ('TauRecRunner.py::configure:')
         mlog.info('entering')
-                
-        from RecExConfig.RecFlags import rec                
+
         import tauRec.TauAlgorithmsHolder as taualgs        
         from tauRec.tauRecFlags import tauFlags                
         
