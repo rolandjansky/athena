@@ -198,8 +198,11 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   ToolSvc += MuonMdtRawDataProviderTool
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
+  from MuonCnvExample import MuonCalibConfig
+
   MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name                     = "MdtRdoToPrepDataTool",
-                                                         MdtPrdContainerCacheKey = MuonPrdCacheNames.MdtCache)
+                                                         MdtPrdContainerCacheKey = MuonPrdCacheNames.MdtCache,
+                                                         CalibrationTool=MuonCalibConfig.MdtCalibrationTool())
 
   ToolSvc += MdtRdoToMdtPrepDataTool
 

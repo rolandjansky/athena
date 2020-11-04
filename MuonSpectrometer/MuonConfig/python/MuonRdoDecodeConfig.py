@@ -121,6 +121,7 @@ def TgcRDODecodeCfg(flags, forTrigger=False):
 
 def MdtRDODecodeCfg(flags, forTrigger=False):
     acc = ComponentAccumulator()
+    from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg
 
     # We need the MDT cabling to be setup
     from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
@@ -135,13 +136,14 @@ def MdtRDODecodeCfg(flags, forTrigger=False):
 
     # Get the RDO -> PRD tool
     Muon__MdtRdoToPrepDataToolMT=CompFactory.Muon.MdtRdoToPrepDataToolMT
-    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name = "MdtRdoToMdtPrepDataTool")
-    
+    calibTool =  acc.popToolsAndMerge( MdtCalibrationToolCfg(flags)) 
+    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataToolMT(name = "MdtRdoToMdtPrepDataTool", CalibrationTool = calibTool)
+
     # Get the RDO -> PRD alorithm
     MdtRdoToMdtPrepData=CompFactory.MdtRdoToMdtPrepData
     MdtRdoToMdtPrepData = MdtRdoToMdtPrepData(name          = "MdtRdoToMdtPrepData",
                                               DecodingTool  = MdtRdoToMdtPrepDataTool,
-                                              PrintPrepData = False )
+                                              PrintPrepData = False)
     # add RegSelTool
     from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
     MdtRdoToMdtPrepData.RegSel_MDT = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )

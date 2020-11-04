@@ -189,8 +189,8 @@ namespace Muon {
       double muonErrorStrategy(const MuonDriftCircleErrorStrategy* myStrategy, double sigmaR, const Identifier& id) const;
       
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-      ToolHandle<MdtCalibrationTool> m_mdtCalibrationTool{this,"CalibrationTool","MdtCalibrationTool"};
-      ToolHandle<MdtCalibrationDbTool> m_mdtCalibrationDbTool{this,"CalibrationDbTool","MdtCalibrationDbTool"};
+      ToolHandle<MdtCalibrationTool>        m_mdtCalibrationTool{this,"CalibrationTool","MdtCalibrationTool"};
+      ToolHandle<MdtCalibrationDbTool>      m_mdtCalibrationDbTool{this,"CalibrationDbTool","MdtCalibrationDbTool"};
 
       // Configuration variables
       bool                                 m_doMdt; //!< Process MDT ROTs
@@ -218,6 +218,7 @@ namespace Muon {
       bool                                m_doIndividualChamberReweights; //!< Deweight individual chambers
       bool                                m_isMC; //!< toggle between MC and data alignment errors (to be removed in rel. 21!)
       bool                                m_looseErrors; //!< toggle between loose errors (initial before alignment) and tight after alignment
+      Gaudi::Property<bool>               m_wasConfigured {this,"WasConfigured",false,"This tool is too complicated to rely on defaults. Will fail if not configured."};
     
       const double m_inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458, needed inside timeOfFlight()
     };

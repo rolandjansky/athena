@@ -97,12 +97,15 @@ def MuonStauInsideOutRecoTool( name="MuonStauInsideOutRecoTool", **kwargs ):
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonStauRecoTool( name="MuonStauRecoTool", **kwargs ):
+   from MuonCnvExample.MuonCalibConfig import MdtCalibrationDbTool
+
    kwargs.setdefault("ConsideredPDGs", [13,-13,1000015,-1000015])
    kwargs.setdefault("DoTruth", rec.doTruth() )
    kwargs.setdefault("DoSummary", muonCombinedRecFlags.printSummary() )
    kwargs.setdefault("MuonSegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
    kwargs.setdefault("MuonInsideOutRecoTool", getPublicTool("MuonStauInsideOutRecoTool") )
    kwargs.setdefault("TrackAmbiguityProcessor", getPublicTool("MuonAmbiProcessor") )
+   kwargs.setdefault("MdtCalibrationDbTool", MdtCalibrationDbTool())
    return CfgMgr.MuonCombined__MuonStauRecoTool(name,**kwargs )
 
 
