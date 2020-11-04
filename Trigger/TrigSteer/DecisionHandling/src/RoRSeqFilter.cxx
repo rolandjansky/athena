@@ -27,7 +27,6 @@ StatusCode RoRSeqFilter::initialize()
   CHECK( not m_inputKeys.empty() );
   CHECK( not m_outputKeys.empty() );
 
-
   CHECK( m_inputKeys.initialize() );
   CHECK( m_outputKeys.initialize() );
 
@@ -88,6 +87,13 @@ StatusCode RoRSeqFilter::initialize()
   for ( const std::string& el: m_chainsProperty ) 
     m_chains.insert( HLT::Identifier( el ).numeric() );
 
+
+  // m_chainsPerInput.clear();
+  // for ( const auto& m : m_chainsPerInputProperty ) {
+  //   for ( const std::string& el: m.second )
+  //       m_chainsPerInput[m.first].insert( HLT::Identifier( el ).numeric() );
+  // }
+
   m_chainsPerInput.resize( m_chainsPerInputProperty.size() );
   for ( size_t i = 0; i < m_chainsPerInputProperty.size(); ++i ) {
     for ( const std::string& el: m_chainsPerInputProperty[i] )
@@ -98,6 +104,14 @@ StatusCode RoRSeqFilter::initialize()
     ATH_MSG_DEBUG( "Configured to require these chains: ");
     for ( const HLT::Identifier& id: m_chains )
       ATH_MSG_DEBUG( " - " << id );
+
+    // ATH_MSG_DEBUG( "Configured to require these chains per input: ");
+    // for ( const auto& m : m_chainsPerInput ){
+    //   ATH_MSG_DEBUG( " - " << m.first <<":  ");
+    //   for (const HLT::Identifier& id: m.second )
+    //     ATH_MSG_DEBUG( " - " << id );
+
+    // }
   }
   
   if ( not m_monTool.name().empty() ) {
@@ -159,6 +173,7 @@ StatusCode RoRSeqFilter::execute( const EventContext& ctx ) const {
       for ( auto inputIndex : m_ioMapping[outputIndex] ) {
         if ( inputHandles[inputIndex].isValid() and not inputHandles[inputIndex]->empty() ) {
           ATH_MSG_DEBUG( "Checking inputHandle: "<< inputHandles[inputIndex].key() <<" has " << inputHandles[inputIndex]->size() <<" elements");
+          std::string input_key = std::string(inputHandles[inputIndex].key());
           if ( not m_chainsPerInput.empty() ) {
             passCounter += copyPassing( *inputHandles[inputIndex], *output, m_chainsPerInput[inputIndex], ctx );
           } else {
