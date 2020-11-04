@@ -214,8 +214,8 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   //each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
   declareProperty("qThreshold",                 m_qThreshold = 0.001);     // Charge Threshold
   declareProperty("DriftGapWidth",              m_driftGapWidth = 5.168);  // Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)
-  declareProperty("crossTalk1",		          m_crossTalk1 = 0.1);       // Strip Cross Talk with Nearest Neighbor
-  declareProperty("crossTalk2",		          m_crossTalk2 = 0.03);      // Strip Cross Talk with 2nd Nearest Neighbor
+  declareProperty("crossTalk1",		          m_crossTalk1 = 0.2);       // Strip Cross Talk with Nearest Neighbor
+  declareProperty("crossTalk2",		          m_crossTalk2 = 0.04);      // Strip Cross Talk with 2nd Nearest Neighbor
 
   declareProperty("AvalancheGain",				m_avalancheGain = 8.0e3); //avalanche Gain for rach gas mixture
   
