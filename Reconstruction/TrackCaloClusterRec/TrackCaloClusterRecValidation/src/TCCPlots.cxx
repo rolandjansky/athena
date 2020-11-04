@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "GaudiKernel/SystemOfUnits.h"
 #include "TCCPlots.h"
 #include <cmath>
 
-using CLHEP::GeV;
+using Gaudi::Units::GeV;
 
 TCCPlots::TCCPlots(TCCPlotsBase* pParent, const std::string& sDir, const std::string& collection) :
   TCCPlotsBase(pParent, sDir),
@@ -2801,7 +2802,3 @@ void TCCPlots::resizeHistograms() {
     }
   } else return;
 }
-
-   
-   
-   
