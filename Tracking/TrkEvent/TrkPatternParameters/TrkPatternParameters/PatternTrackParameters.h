@@ -50,7 +50,8 @@ namespace Trk {
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      const Surface&   associatedSurface ()     const {return   *m_surface;}
+      virtual
+      const Surface&   associatedSurface ()     const override {return   *m_surface;}
       bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
       double           sinPhi            ()     const;
       double           cosPhi            ()     const;
@@ -110,8 +111,8 @@ namespace Trk {
       // Print
       ///////////////////////////////////////////////////////////////////
 
-      std::ostream& dump(std::ostream&) const;
-      MsgStream&    dump(MsgStream&   ) const;	
+      virtual std::ostream& dump(std::ostream&) const override;
+      virtual MsgStream&    dump(MsgStream&   ) const override;
 
     protected:
       
