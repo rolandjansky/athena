@@ -27,7 +27,13 @@ monitoring_tau = [
     'tau1_cosmic_track_L1MU4_EMPTY',
     'tau1_cosmic_ptonly_L1MU4_EMPTY',
     'tau8_cosmic_ptonly',
-    'tau8_cosmic_track'
+    'tau8_cosmic_track',
+    # new
+    'tau25_idperf_tracktwoMVA_L1eTAU12',
+    'tau25_mediumRNN_tracktwoMVA_L1eTAU12',
+    'tau160_idperf_tracktwoMVA_L1eTAU100',
+    'tau160_medium1_tracktwoEF_L1eTAU100',
+    'tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1TAU20IM_2TAU12IM_4J12.0ETA25',
 ]
 
 # Trigger lists that are dependent on the running mode.
@@ -39,12 +45,12 @@ monitoring_tau_pp = [
     #'tau25_idperf_track',
     'tau25_idperf_tracktwo',
     'tau25_perf_tracktwo',
-     'tau25_idperf_tracktwoMVABDT',
-     'tau25_perf_tracktwoMVABDT',
-     'tau25_mediumRNN_tracktwoMVABDT',
-     'tau25_idperf_tracktwoRNN',
-     'tau25_perf_tracktwoRNN',
-     'tau25_mediumRNN_tracktwoRNN',
+    'tau25_idperf_tracktwoMVABDT',
+    'tau25_perf_tracktwoMVABDT',
+    'tau25_mediumRNN_tracktwoMVABDT',
+    'tau25_idperf_tracktwoRNN',
+    'tau25_perf_tracktwoRNN',
+    'tau25_mediumRNN_tracktwoRNN',
     'tau25_medium1_tracktwo',
     'tau25_idperf_tracktwoMVA',
     'tau25_perf_tracktwoMVA',
@@ -74,6 +80,13 @@ monitoring_tau_pp = [
     #'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo', # tau+e+J non-L1TOPO
     #'e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo', # tau+e, high ET
     #'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_xe50' # tau+e+xe
+    # new
+    'tau25_idperf_tracktwoMVA_L1eTAU12',
+    'tau25_mediumRNN_tracktwoMVA_L1eTAU12',
+    'tau160_idperf_tracktwoMVA_L1eTAU100',
+    'tau160_medium1_tracktwoEF_L1eTAU100',
+    'tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1TAU20IM_2TAU12IM_4J12.0ETA25',
+
 ]
 # removed monitoring_tau_pp chains:
 #    'tau0_perf_ptonly_L1TAU60',
@@ -136,15 +149,22 @@ monitoring_tau_validation = [
     'mu14_ivarloose_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12I-J25', # tau+mu L1TOPO
     'mu14_ivarloose_tau25_medium1_tracktwo_L1MU10_TAU20IM_J25_2J20', # tau+mu non-L1TOPO
     'mu14_ivarloose_tau35_medium1_tracktwo', # tau+mu, high ET
-    'mu14_ivarloose_tau25_medium1_tracktwo_xe50', # tau+mu+xe
-	'mu14_ivarloose_tau25_medium1_tracktwo_03dR30',
-	'mu14_ivarloose_tau25_medium1_tracktwo_03dR30_L1DR-MU10TAU12I_TAU12I-J25',
+    'mu14_ivarloose_tau25_medium1_tracktwo_xe50', # tau+mu+x
+    'mu14_ivarloose_tau25_medium1_tracktwo_03dR30',
+    'mu14_ivarloose_tau25_medium1_tracktwo_03dR30_L1DR-MU10TAU12I_TAU12I-J25',
     'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25', # tau+e+J L1TOPO
     'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo', # tau+e+J non-L1TOPO
     'e24_lhmedium_nod0_ivarloose_tau35_medium1_tracktwo', # tau+e, high ET
     'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_xe50', # tau+e+xe
-	'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_03dR30',
-	'e17_lhmedium_nod0_tau25_medium1_tracktwo_03dR30_L1DR-EM15TAU12I-J25',
+    'e17_lhmedium_nod0_ivarloose_tau25_medium1_tracktwo_03dR30',
+    'e17_lhmedium_nod0_tau25_medium1_tracktwo_03dR30_L1DR-EM15TAU12I-J25',
+    # new
+    'tau25_idperf_tracktwoMVA_L1eTAU12',
+    'tau25_mediumRNN_tracktwoMVA_L1eTAU12',
+    'tau160_idperf_tracktwoMVA_L1eTAU100',
+    'tau160_medium1_tracktwoEF_L1eTAU100',
+    'tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1TAU20IM_2TAU12IM_4J12.0ETA25',
+
 ]
     #'tau35_medium1_tracktwo_tau25_medium1_tracktwo', # 2tau non-L1TOPO    -- moved to tau_topo_chains
     #'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25', # 2tau L1TOPO+J -- moved to tau_topo_chains
