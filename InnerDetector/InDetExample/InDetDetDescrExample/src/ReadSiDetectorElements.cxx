@@ -198,7 +198,7 @@ void ReadSiDetectorElements::printAllElements() {
     for (iter = m_manager->getDetectorElementBegin(); iter != m_manager->getDetectorElementEnd(); ++iter){
       const SiDetectorElement * element = *iter; 
       if (element) {
-        cout << m_idHelper->show_to_string(element->identify()) << endl;;
+        ATH_MSG_ALWAYS(m_idHelper->show_to_string(element->identify()));
         // The id helper is also available through  the elements
         //
         // element->getIdHelper()->show(element->identify());
@@ -245,7 +245,7 @@ void ReadSiDetectorElements::printAllElements() {
         //   << element->swapEtaReadoutDirection() << endl;
         //cout << "isBarrel: " << element->isBarrel() << endl;
 
-        cout << " HashId, Id : " << hashId << "\t" << element->identify().getString() << endl;
+        ATH_MSG_ALWAYS(" HashId, Id : " << hashId << "\t" << element->identify().getString());
 
         // Make some consistency tests for the identifier.
         Identifier idTest;
