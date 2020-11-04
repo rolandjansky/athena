@@ -141,7 +141,7 @@ class RouteParameter{
 		std::vector<int> layerIndices, double svcThick,
 		bool bFirstSeg, bool bLastSeg, std::string type, bool isPhiRouting,
 		std::vector<double> EOScardLength = std::vector<double>(), double EOSsvcLength = 0.,
-                int nSectors = 1, float refPhi = 0., float sectorWidth = 2*M_PI, bool splitLayersInPhi = false ):
+                int nSectors = 1, float refPhi = 0., float sectorWidth = 2*M_PI, bool splitLayersInPhi = false, int phiStepInSectors = 1 ):
     m_routeId(iRoute), m_segId(iSeg),
     m_bBarrel(bBarrel),
     m_r1(r1), m_r2(r2), m_z1(z1), m_z2(z2), 
@@ -150,7 +150,7 @@ class RouteParameter{
     m_type(type),
     m_isPhiRouting(isPhiRouting),
     m_EOScardLength(EOScardLength), m_EOSsvcLength(EOSsvcLength),
-    m_nSectors(nSectors),m_refPhi(refPhi),m_sectorWidth(sectorWidth),m_splitLayersInPhi(splitLayersInPhi)  {};
+      m_nSectors(nSectors),m_refPhi(refPhi),m_sectorWidth(sectorWidth),m_splitLayersInPhi(splitLayersInPhi), m_phiStepInSectors(phiStepInSectors)  {};
   ~RouteParameter(){};
   
   int getRouteId() const { return m_routeId; }
@@ -173,7 +173,7 @@ class RouteParameter{
   double getPhiRefFirstSector() const { return m_refPhi; }
   double getSectorVolumeWidth() const { return m_sectorWidth; }
   bool     splitLayersInPhi() const { return m_splitLayersInPhi; }
-
+  int     phiStep() const { return m_phiStepInSectors; }
 
  private:
   int m_routeId, m_segId;
@@ -192,6 +192,7 @@ class RouteParameter{
   float m_refPhi;
   float m_sectorWidth;
   bool m_splitLayersInPhi;
+  int  m_phiStepInSectors;
 
 };
 

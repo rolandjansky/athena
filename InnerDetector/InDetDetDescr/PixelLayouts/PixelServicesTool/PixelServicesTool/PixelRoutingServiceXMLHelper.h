@@ -49,6 +49,7 @@ class PixelRoutingServiceXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder
   double getPhiRefFirstSector(int index) const;
   double getSectorVolumeWidth(int index) const;
   bool     splitLayersInPhi(int index) const;
+  int   phiSplitStepInSectors(int index) const;
  
  private:
 

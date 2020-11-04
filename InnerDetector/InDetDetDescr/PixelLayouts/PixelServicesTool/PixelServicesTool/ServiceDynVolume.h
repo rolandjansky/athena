@@ -100,17 +100,19 @@ public:
     return false;
   }
 
-  void splitIntoSectors( int nSect, double phiRef, double sectorWidth, bool splitLayersInPhi) {
+  void splitIntoSectors( int nSect, double phiRef, double sectorWidth, bool splitLayersInPhi, int phiStepInSectors) {
     m_nSectors = nSect;
     m_refPhiSector = phiRef;
     m_sectorWidth = sectorWidth;
     m_splitLayersInPhi = splitLayersInPhi;
+    m_phiStepInSectors = phiStepInSectors;
   }
 
   int getNumSectors() const {return m_nSectors;}
   float getRefPhiSector() const {return m_refPhiSector; }
   float getSectorWidth() const {return m_sectorWidth; }
   bool splitLayersInPhi() const {return m_splitLayersInPhi; }
+  int getPhiStep() const {return m_phiStepInSectors;}
 
 private:
 
@@ -134,6 +136,7 @@ private:
   float  m_refPhiSector;
   float  m_sectorWidth;
   bool m_splitLayersInPhi; 
+  int m_phiStepInSectors;
 
 };
 
