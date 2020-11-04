@@ -129,6 +129,7 @@ double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std
 
         double response = vmmResponse(effectiveCharge, electronsTime, time);
         if(oldResponse < response){oldResponse=response; continue;}
+        oldResponse = response;
 
         int searchWindow = 5;
 
