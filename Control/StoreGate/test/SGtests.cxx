@@ -32,7 +32,6 @@
 #include "StoreGate/SGWPtr.h"
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataStore.h"
 #include "SGTools/SGVersionedKey.h"
