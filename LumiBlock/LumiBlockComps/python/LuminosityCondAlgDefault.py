@@ -7,6 +7,7 @@
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.AlgSequence import AthSequencer
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 
 _isOnline = False
@@ -14,7 +15,7 @@ _isOnline = False
 
 def LuminosityCondAlgDefault (name = 'LuminosityCondAlg',
                               suffix = '',
-                              isOnline = None):
+                              isOnline = athenaCommonFlags.isOnline()):
     if name is None:
         name = 'LuminosityCondAlg' + suffix
 

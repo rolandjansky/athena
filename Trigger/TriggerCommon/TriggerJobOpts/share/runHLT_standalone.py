@@ -182,6 +182,7 @@ if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
     ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
+ConfigFlags.Common.isOnline = athenaCommonFlags.isOnline()
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
@@ -441,8 +442,6 @@ if ConfigFlags.Input.Format == 'POOL':
     if objKeyStore.isInInput("xAOD::EventInfo"):
         topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
     else:
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSeq = AthSequencer("AthCondSeq")
         if not hasattr(hltBeginSeq, "xAODMaker::EventInfoCnvAlg"):
             from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
             xAODEventInfoCnvAlgDefault(sequence=hltBeginSeq)
