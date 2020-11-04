@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #################################################
 # Common code used for the HIGG4 augmentation  	#
@@ -66,14 +66,14 @@ def setup(HIGG4DxName, ToolSvc):
         augmentationTools.append(HIGG4DxTauPVRefittingTool)
 
     if DFisMC:
-   	# Tau truth matching 
+        # Tau truth matching
         from TauAnalysisTools.TauAnalysisToolsConf import TauAnalysisTools__TauTruthMatchingTool
         HIGG4DxTauTruthMatchingTool = TauAnalysisTools__TauTruthMatchingTool(name="HIGG4DxTauTruthMatchingTool",
                                                                              WriteTruthTaus = True)
         
         ToolSvc += HIGG4DxTauTruthMatchingTool
 
-   	# Tau truth matching wrapper 
+        # Tau truth matching wrapper
         from DerivationFrameworkTau.DerivationFrameworkTauConf import DerivationFramework__TauTruthMatchingWrapper
         HIGG4DxTauTruthMatchingWrapper = DerivationFramework__TauTruthMatchingWrapper( name = "HIGG4DxTauTruthMatchingWrapper",
                                                                                 TauTruthMatchingTool = HIGG4DxTauTruthMatchingTool)

@@ -56,13 +56,13 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
             from InDetRecExample.InDetJobProperties import InDetFlags
             from tauRec.tauRecFlags import jobproperties
-            doMVATrackClassification = jobproperties.tauRecFlags.tauRecMVATrackClassification()
-            doRNNTrackClassification = jobproperties.tauRecFlags.tauRecRNNTrackClassification()
+            doMVATrackClassification = tauFlags.tauRecMVATrackClassification()
+            doRNNTrackClassification = tauFlags.tauRecRNNTrackClassification()
 
             if tauFlags.isStandalone() or InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA))
             tools.append(taualgs.getTauAxis())
-            tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))
+            tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(tauFlags.removeDuplicateCoreTracks() ) ))
             if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
             if not doMVATrackClassification and doRNNTrackClassification:
                 tools.append(taualgs.getTauTrackRNNClassifier())

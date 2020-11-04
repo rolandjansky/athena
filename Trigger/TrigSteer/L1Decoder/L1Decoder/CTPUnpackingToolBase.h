@@ -29,12 +29,12 @@ public:
                        const IInterface* parent);
 
   virtual StatusCode decode(const ROIB::RoIBResult& /*roib*/,
-                            HLT::IDVec& /*enabledChains*/) const override
-  { return StatusCode::SUCCESS; }
+                            HLT::IDVec& /*enabledChains*/) const override;
 
   virtual StatusCode initialize() override;
 
-  virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const override;
+  virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* /*roib*/,
+                            const std::vector<std::string>& /*l1ItemNames*/, bool& /*pass*/) const override;
 
 protected:
 

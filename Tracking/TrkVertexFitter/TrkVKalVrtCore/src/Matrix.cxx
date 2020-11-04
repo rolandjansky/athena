@@ -42,7 +42,7 @@ double cfSmallEigenvalue(double *cov,long int n )
 
 int cfInv5(double *cov, double *wgt )
 {
-    extern void dsinv(long int *, double *, long int, long int *);
+    extern void dsinv(long int , double *, long int, long int *) noexcept;
     double dest[25];
     long int  i, j, k, N;
 /* -----------------------------------------*/
@@ -63,7 +63,7 @@ int cfInv5(double *cov, double *wgt )
 	for (j = 0; j < N; ++j) dest[i*N+j] -= X[i]*X[j]/cov[14];
     }
     long int jerr;
-    dsinv(&N, dest, N, &jerr);
+    dsinv(N, dest, N, &jerr);
     if(jerr) return jerr;
 
     double L[4]={0.,0.,0.,0.};
@@ -82,7 +82,7 @@ int cfInv5(double *cov, double *wgt )
 
 int cfdinv(double *cov, double *wgt, long int NI )
 {
-    extern void dsinv(long int *, double *, long int, long int *);
+    extern void dsinv(long int , double *, long int, long int *) noexcept;
 
     double dest[100]              /* was [10][10] */;
     long int  i, j, k, n, ib;
@@ -129,7 +129,7 @@ int cfdinv(double *cov, double *wgt, long int NI )
 /* -- INVERT */
 /* ccc      CALL DINV(N,DEST,N,TMP,JERR) */
     long int jerr;
-    dsinv(&n, dest, n, &jerr);
+    dsinv(n, dest, n, &jerr);
     //if (eig[0]<=eig[n-1]*1.e-12 && NI>0)std::cout<<" in dsinv="<<jerr<<'\n'; 
     if(jerr)return jerr;
 /* -- PACK MATRIX */
@@ -145,7 +145,7 @@ int cfdinv(double *cov, double *wgt, long int NI )
 } 
 
 
-void  dsinv(long int *n, double *a, long int DIM, long int *ifail)
+void  dsinv(long int n, double *a, long int DIM, long int *ifail) noexcept
 {
     long int a_dim1, a_offset, i__1, i__2, i__3;
     long int i__, j, k, l;
@@ -161,17 +161,17 @@ void  dsinv(long int *n, double *a, long int DIM, long int *ifail)
     /* Function Body */
     jp1 = 0;
     *ifail = 0;
-    i__1 = *n;
+    i__1 = n;
     for (j = 1; j <= i__1; ++j) {
 	if (a[j + j * a_dim1] <= 0.) {
 	    goto L150;
 	}
 	a[j + j * a_dim1] = 1. / a[j + j * a_dim1];
-	if (j == *n) {
+	if (j == n) {
 	    goto L199;
 	}
 	jp1 = j + 1;
-	i__2 = *n;
+	i__2 = n;
 	for (l = jp1; l <= i__2; ++l) {
 	    a[j + l * a_dim1] = a[j + j * a_dim1] * a[l + j * a_dim1];
 	    s1 = -a[l + (j + 1) * a_dim1];
@@ -187,15 +187,15 @@ L150:
     return;
 L199:
 
-    if (*n == 1) {
+    if (n == 1) {
 	goto L399;
     }
     a[(a_dim1 << 1) + 1] = -a[(a_dim1 << 1) + 1];
     a[a_dim1 + 2] = a[(a_dim1 << 1) + 1] * a[(a_dim1 << 1) + 2];
-    if (*n == 2) {
+    if (n == 2) {
 	goto L320;
     }
-    i__1 = *n;
+    i__1 = n;
     for (j = 3; j <= i__1; ++j) {
 	jm2 = j - 2;
 	i__2 = jm2;
@@ -216,9 +216,9 @@ L320:
     j = 1;
 L323:
     s33 = a[j + j * a_dim1];
-    if (j == *n)	goto L325;
+    if (j == n)	goto L325;
     jp1 = j + 1;
-    i__1 = *n;
+    i__1 = n;
     for (i__ = jp1; i__ <= i__1; ++i__) {
 	s33 = a[j + i__ * a_dim1] * a[i__ + j * a_dim1] + s33;
     }
@@ -229,21 +229,21 @@ L325:
     i__1 = jm1;
     for (k = 1; k <= i__1; ++k) {
 	s32 = 0.;
-	i__2 = *n;
+	i__2 = n;
 	for (i__ = j; i__ <= i__2; ++i__) {
 	    s32 = a[k + i__ * a_dim1] * a[i__ + j * a_dim1] + s32;
 	}
 	a[k + j * a_dim1] = s32;
 	a[j + k * a_dim1] = s32;
     }
-    if (j < *n)	goto L323;
+    if (j < n)	goto L323;
 L399:
     return;
 } 
 
 
 
-void scaleg(double *g, double *scale, long int N, long int mfirst)
+void scaleg(double *g, double *scale, long int N, long int mfirst) noexcept
 {
 
    long int g_dim1, g_offset, i__, j;

@@ -16,6 +16,8 @@
 #define MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
 
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
+#include "MuidInterfaces/IMuonAlignmentUncertTool.h"
+
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -61,7 +63,7 @@ namespace Rec {
 class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
   public:
     CombinedMuonTrackBuilder(const std::string& type, const std::string& name, const IInterface* parent);
-    ~CombinedMuonTrackBuilder() = default;
+    ~CombinedMuonTrackBuilder();
 
     StatusCode initialize();
     StatusCode finalize();
@@ -258,6 +260,12 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
         "CaloMaterialProvider",
         "Trk::TrkMaterialProviderTool/TrkMaterialProviderTool",
     };
+    
+    /// ToolHandles to retrieve the uncertainties for theta and phi for 
+    /// the scattering uncertainties
+    ToolHandle<Muon::IMuonAlignmentUncertTool> m_alignUncertTool_theta;
+    ToolHandle<Muon::IMuonAlignmentUncertTool> m_alignUncertTool_phi;
+    
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc",
                                                         "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
@@ -294,23 +302,22 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     double   m_vertex3DSigmaRPhi;
     double   m_vertex3DSigmaZ;
     double   m_zECToroid;
-    double   m_IDMS_xySigma;
-    double   m_IDMS_rzSigma;
+
 
     // dummy (unused - kept for backwards compatibility)
     bool m_indetSlimming;
     bool m_inputSlimming;
 
     // constants
-    const Trk::Volume*         m_calorimeterVolume;
-    const Trk::Volume*         m_indetVolume;
+    std::unique_ptr<const Trk::Volume>         m_calorimeterVolume;
+    std::unique_ptr<const Trk::Volume>         m_indetVolume;
     const Trk::TrackingVolume* m_spectrometerEntrance;
 
     // vertex region and phi modularity for pseudo-measurement constraints
-    Trk::RecVertex*      m_beamAxis;
-    Trk::PerigeeSurface* m_perigeeSurface;
+    std::unique_ptr<Trk::RecVertex>      m_beamAxis;
+    std::unique_ptr<Trk::PerigeeSurface> m_perigeeSurface;
     double               m_sigmaPhiSector;
-    Trk::RecVertex*      m_vertex;
+    std::unique_ptr<Trk::RecVertex>      m_vertex;
 
     // counters
     mutable std::atomic_uint m_countAcceptedStandaloneFit;
@@ -322,7 +329,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     mutable std::atomic_uint m_countVertexRegion;
 
     // count warnings
-    MessageHelper* m_messageHelper;
+    std::unique_ptr<MessageHelper> m_messageHelper;
 
     bool m_updateWithCaloTG;
     bool m_useCaloTG;

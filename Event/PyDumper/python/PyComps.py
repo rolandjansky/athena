@@ -3,7 +3,6 @@
 # @file:    PyDumper/python/PyComps.py
 # @purpose: A set of PyAthena components to test reading/writing EDM classes
 # @author:  Sebastien Binet <binet@cern.ch>
-# $Id: PyComps.py,v 1.11 2008-12-17 10:19:03 binet Exp $
 
 __doc__     = 'A set of PyAthena components to test reading/writing EDM classes'
 __version__ = '$Revision: 1.11 $'
@@ -11,7 +10,7 @@ __author__  = 'Sebastien Binet <binet@cern.ch>'
 
 import os
 from fnmatch import fnmatch
-import AthenaCommon.SystemOfUnits as Units
+from io import IOBase
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
 
@@ -149,7 +148,7 @@ class PyReader (PyAthena.Alg):
             pass
         elif isinstance(self.ofile, str):
             self.ofile = open(self.ofile, 'w')
-        elif isinstance(self.ofile, file):
+        elif isinstance(self.ofile, IOBase):
             pass
         else:
             self.msg.error("don't know how to handle ofile value/type [%s/%s]!",
@@ -261,7 +260,7 @@ class PySgDumper (PyAthena.Alg):
             pass
         elif isinstance(self.ofile, str):
             self.ofile = open(self.ofile, 'w')
-        elif isinstance(self.ofile, file):
+        elif isinstance(self.ofile, IOBase):
             pass
         else:
             self.msg.error("don't know how to handle ofile value/type [%s/%s]!",
@@ -441,12 +440,8 @@ class DataProxyLoader(PyAthena.Alg):
         return StatusCode.Success
 
     def execute(self):
-        _debug= self.msg.debug
-        _info = self.msg.info
-        _warn = self.msg.warning
-        _fatal= self.msg.fatal
         _add_fail = self.failed_dumps.add
-        _info('==> processing event [%s]...', self._evt_nbr)
+        self.msg.info('==> processing event [%s]...', self._evt_nbr)
         self._evt_nbr += 1
         if self.items is None:
             # take all from storegate
@@ -466,13 +461,13 @@ class DataProxyLoader(PyAthena.Alg):
         for p in proxies:
             clid = p.clID()
             sgkey= p.name()
-            _debug('loading proxy [%s#%s]...', clid, sgkey)
+            self.msg.debug('loading proxy [%s#%s]...', clid, sgkey)
             try:
                 dobj = p.accessData()
                 if not dobj:
                     all_good = False
             except Exception as err:
-                _fatal('problem loading proxy [%s#%s]', clid, sgkey)
+                self.msg.fatal('problem loading proxy [%s#%s]', clid, sgkey)
                 _add_fail((sgkey, clid, str(err)))
                 all_good = False
                 

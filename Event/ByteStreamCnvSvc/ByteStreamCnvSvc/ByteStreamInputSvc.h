@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BYTESTREAMCNVSVC_BYTESTREAMINPUTSVC_H
@@ -38,7 +38,7 @@ public:
   virtual const RawEvent* currentEvent() const = 0;
   /// virtual method for accessing the current event status
   virtual unsigned int currentEventStatus() const;
-  virtual std::pair<long,std::string> getBlockIterator(const std::string /* file */);
+  virtual std::pair<long,std::string> getBlockIterator(const std::string& /* file */);
   virtual void closeBlockIterator(bool);
   virtual bool ready() const;
   virtual StatusCode generateDataHeader(); 
@@ -57,7 +57,7 @@ inline unsigned int ByteStreamInputSvc::currentEventStatus() const {
 }
 
 // Virtual methods needed for file input
-inline std::pair<long,std::string> ByteStreamInputSvc::getBlockIterator(const std::string /* file */) {return std::make_pair(-1,"GUID");}
+inline std::pair<long,std::string> ByteStreamInputSvc::getBlockIterator(const std::string& /* file */) {return std::make_pair(-1,"GUID");}
 inline void ByteStreamInputSvc::closeBlockIterator(bool) {}
 inline bool ByteStreamInputSvc::ready() const {return false;}
 inline StatusCode ByteStreamInputSvc::generateDataHeader() {return StatusCode::SUCCESS;}

@@ -518,7 +518,7 @@ ByteStreamEventStorageInputSvc::ready() const
 
 /******************************************************************************/
 std::pair<long,std::string>
-ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName)
+ByteStreamEventStorageInputSvc::getBlockIterator(const std::string& fileName)
 {
   // open the file
   if(m_reader != 0) closeBlockIterator();

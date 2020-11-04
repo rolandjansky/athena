@@ -19,6 +19,7 @@ StatusCode MonitorElectronAlgorithm::initialize() {
     using namespace Monitored;
     ATH_CHECK( AthMonitorAlgorithm::initialize() );
     ATH_CHECK( m_ParticleContainerKey.initialize() );
+    ATH_CHECK( m_ElectronIsolationKey.initialize() );
     return StatusCode::SUCCESS;
 }
 

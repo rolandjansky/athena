@@ -26,4 +26,4 @@ atlas_add_dictionary( EventKernelDict
                       LINK_LIBRARIES EventKernel )
 
 # Install files from the package:
-atlas_install_python_modules( python/__init__.py python/ParticleDataType.py )
+atlas_install_python_modules( python/__init__.py python/ParticleDataType.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

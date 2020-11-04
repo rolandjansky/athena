@@ -16,13 +16,13 @@ class RecMuonRoIUtils
       ~RecMuonRoIUtils() {};
 
    public:
-      bool isBarrel(const LVL1::RecMuonRoI* p_roi){
+      bool isBarrel(const LVL1::RecMuonRoI* p_roi) const {
         return (p_roi->sysID()==0) ? true : false; 
       };
-      bool isLowPt(const LVL1::RecMuonRoI* p_roi){
+      bool isLowPt(const LVL1::RecMuonRoI* p_roi) const {
         return (p_roi->getThresholdNumber() <4) ? true : false;
       };
-      bool isHighPt(const LVL1::RecMuonRoI* p_roi){
+      bool isHighPt(const LVL1::RecMuonRoI* p_roi) const {
         return (p_roi->getThresholdNumber()>=4) ? true : false;
       };
 };

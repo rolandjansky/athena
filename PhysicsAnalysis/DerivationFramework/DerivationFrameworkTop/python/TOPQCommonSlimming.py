@@ -7,16 +7,14 @@
 #     DerivationFrameworkTop.TOPQCommonSlimming.setup('TOPQX', TOPQStream)
 #====================================================================
 
-from __future__ import print_function
-
 #================================
 # IMPORTS
 #================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from AthenaCommon.GlobalFlags import globalflags
-from DerivationFrameworkTop.TOPQCommonExtraContent import *
-from DerivationFrameworkJetEtMiss.METCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
+import DerivationFrameworkTop.TOPQCommonExtraContent as tec
+from DerivationFrameworkJetEtMiss.METCommon import addMETOutputs
+from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs
 
 import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
 
@@ -34,7 +32,7 @@ def setup(TOPQname, stream):
   # SMART SLIMMING
   #================================
   TOPQSlimmingHelper.SmartCollections =  []
-  TOPQSlimmingHelper.SmartCollections += TOPQSmartSlimmingCollections
+  TOPQSlimmingHelper.SmartCollections += tec.TOPQSmartSlimmingCollections
 
   print ("TOPQSlimmingHelper.SmartCollections: " , TOPQSlimmingHelper.SmartCollections)
 
@@ -42,27 +40,27 @@ def setup(TOPQname, stream):
   # EXTRA VARIABLES FROM DerivationFrameworkTop.TOPQCommonExtraContent
   #=================================================================
   TOPQSlimmingHelper.ExtraVariables = []
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesAntiKt4EMTopoJets
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesAntiKt4EMPFlowJets
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesBTagging_AntiKt4EMPFlow
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesBTagging_AntiKt4EMTopo
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesPhotons
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesElectrons
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesMuons
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTaus
-  TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTrackJets
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesAntiKt4EMTopoJets
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesAntiKt4EMPFlowJets
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesBTagging_AntiKt4EMPFlow
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesBTagging_AntiKt4EMTopo
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesPhotons
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesElectrons
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesMuons
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesTaus
+  TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesTrackJets
   TOPQSlimmingHelper.ExtraVariables += Config.GetExtraPromptVariablesForDxAOD()
   #  TOPQSlimmingHelper.ExtraVariables += ["CaloCalTopoClusters.calE.calEta.calPhi.calM.rawM.rawE.rawEta.rawPhi.e_sampl.eta_sampl.etaCalo.phiCalo"]
   TOPQSlimmingHelper.ExtraVariables += ["CaloCalTopoClusters.calPt.calEta.calPhi.calM.calE.CENTER_MAG"]
 
   if DFisMC:
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesPhotonsTruth
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesElectronsTruth
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesMuonsTruth
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariablesTausTruth
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsBTag_HLT_Container
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsJet_EF_Container
-    TOPQSlimmingHelper.ExtraVariables += TOPQExtraVarsJet_Split_Container
+    TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesPhotonsTruth
+    TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesElectronsTruth
+    TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesMuonsTruth
+    TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVariablesTausTruth
+    TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVarsBTag_HLT_Container
+    TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVarsJet_EF_Container
+    TOPQSlimmingHelper.ExtraVariables += tec.TOPQExtraVarsJet_Split_Container
 
   print ("TOPQSlimmingHelper.ExtraVariables: " , TOPQSlimmingHelper.ExtraVariables)
 
@@ -70,11 +68,11 @@ def setup(TOPQname, stream):
   # EXTRA COLLECTIONS - user added
   #================================
   TOPQSlimmingHelper.AllVariables = []
-  TOPQSlimmingHelper.AllVariables += TOPQExtraContainersStandard
-  TOPQSlimmingHelper.AllVariables += TOPQExtraContainersTrigger
+  TOPQSlimmingHelper.AllVariables += tec.TOPQExtraContainersStandard
+  TOPQSlimmingHelper.AllVariables += tec.TOPQExtraContainersTrigger
 
   if DFisMC:
-    TOPQSlimmingHelper.AllVariables += TOPQExtraContainersTruth
+    TOPQSlimmingHelper.AllVariables += tec.TOPQExtraContainersTruth
 
   print ("TOPQSlimmingHelper.AllVariables: " , TOPQSlimmingHelper.AllVariables)
 
@@ -82,10 +80,10 @@ def setup(TOPQname, stream):
   # CREATED ON-THE-FLY COLLECTIONS
   #================================
   TOPQSlimmingHelper.StaticContent = []
-  TOPQSlimmingHelper.StaticContent += TOPQStaticContent
+  TOPQSlimmingHelper.StaticContent += tec.TOPQStaticContent
 
   if DFisMC:
-    TOPQSlimmingHelper.StaticContent += TOPQStaticContentTruth
+    TOPQSlimmingHelper.StaticContent += tec.TOPQStaticContentTruth
 
   print ("TOPQSlimmingHelper.StaticContent: " , TOPQSlimmingHelper.StaticContent)
 

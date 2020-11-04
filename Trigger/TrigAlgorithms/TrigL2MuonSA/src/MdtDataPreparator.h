@@ -77,9 +77,6 @@ namespace TrigL2MuonSA {
     void setMdtDataCollection(bool use_mdtcsm){m_use_mdtcsm = use_mdtcsm;};
     void setRoIBasedDataAccess(bool use_RoIBasedDataAccess){m_use_RoIBasedDataAccess = use_RoIBasedDataAccess;};
 
-  public:
-    float etaMinChamber[11],etaMaxChamber[11],phiMinChamber[11],phiMaxChamber[11];
-
   private:
 
     StatusCode getMdtHits(const LVL1::RecMuonRoI* p_roi,
@@ -91,11 +88,11 @@ namespace TrigL2MuonSA {
 
     void getMdtIdHashesBarrel(const TrigL2MuonSA::MdtRegion& mdtRegion,
 			std::vector<IdentifierHash>& mdtIdHashes_normal,
-			std::vector<IdentifierHash>& mdtIdHashes_overlap);
+			std::vector<IdentifierHash>& mdtIdHashes_overlap) const;
 
     void getMdtIdHashesEndcap(const TrigL2MuonSA::MdtRegion& mdtRegion,
 			std::vector<IdentifierHash>& mdtIdHashes_normal,
-			std::vector<IdentifierHash>& mdtIdHashes_overlap);
+			std::vector<IdentifierHash>& mdtIdHashes_overlap) const;
 
     StatusCode getMdtCsm(const MdtCsmContainer* pMdtCsmContainer,
 			 const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& v_robFragments,
@@ -121,8 +118,6 @@ namespace TrigL2MuonSA {
 
 
     // Geometry Services
-    const MuonGM::MdtReadoutElement* m_mdtReadout {nullptr};
-    const MuonGM::MuonStation* m_muonStation {nullptr};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     IdentifierHash m_hash_id;
 

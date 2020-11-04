@@ -66,10 +66,14 @@ namespace Trk {
     int numberOfPerigeeParameters();
     int numberOfFitParameters();
     int numberOfSiliconHits();
+    int numberOfTRTPrecHits();
+    int numberOfTRTTubeHits();
     int numberOfTRTHits();
     int numberOfHits();
     int numberOfPseudoMeasurements();
     int numberOfOutliers();
+
+    void updateTRTHitCount(int index, float oldError);
 
     const std::vector<std::unique_ptr<GXFTrackState>> & trackStates() const;
     std::vector<std::unique_ptr<GXFTrackState>> & trackStates();
@@ -121,6 +125,8 @@ namespace Trk {
     int m_noutl;
     int m_nsihits;
     int m_ntrthits;
+    int m_ntrtprechits;
+    int m_ntrttubehits;
     int m_npseudo;
     int m_nmeasoutl;
     std::unique_ptr<const TrackParameters> m_refpar;

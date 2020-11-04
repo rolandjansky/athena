@@ -107,6 +107,11 @@ struct Component1DArray
   int32_t numComponents = 0;
 };
 
+/* typedef tracking which component has been merged
+ */
+
+using IsMergedArray = std::array<bool,GSFConstants::maxComponentsAfterConvolution>; 
+
 /**
  * @brief Merge the componentsIn and return
  * which componets got merged

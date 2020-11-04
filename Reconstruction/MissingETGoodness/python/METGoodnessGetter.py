@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file MissingETGoodness/python/METGoodnessGetter.py
@@ -79,7 +79,7 @@ class METGoodnessGetter ( Configured )  :
 
             self._handle = manager
 
-        except:
+        except Exception:
             mlog.error ("Error configuring METGoodness.") 
             traceback.print_exc()
 

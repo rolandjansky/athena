@@ -5209,6 +5209,20 @@ namespace Trk {
             }
           }
         }
+
+	// PHF cut at iteration 3 (to save CPU time)
+	int ntrtprechits = trajectory.numberOfTRTPrecHits();
+	int ntrttubehits = trajectory.numberOfTRTTubeHits();
+	float phf = 1.;
+	if (ntrtprechits+ntrttubehits) {
+	  phf = float(ntrtprechits)/float(ntrtprechits+ntrttubehits);
+	}
+	if (phf<m_minphfcut && it>=3) {
+	  if ((ntrtprechits+ntrttubehits)>=15) {
+	    return nullptr;
+	  }
+	}
+	ATH_MSG_DEBUG("Iter = " << it << " | nTRTStates = " << ntrthits << " | nTRTPrecHits = " << ntrtprechits << " | nTRTTubeHits = " << ntrttubehits << " | nOutliers = " << trajectory.numberOfOutliers());
         
         if (!trajectory.converged()) {
           cache.m_fittercode = updateFitParameters(trajectory, b, lu);
@@ -6272,6 +6286,8 @@ namespace Trk {
 
             double *errors = state->measurementErrors();
             double olderror = errors[0];
+
+	    trajectory.updateTRTHitCount(stateno, olderror);
             
             for (int i = 0; i < nfitpars; i++) {
               if (weightderiv(measno, i) == 0) {
@@ -6331,6 +6347,8 @@ namespace Trk {
                 double newres = newradius - state->trackParameters()->parameters()[Trk::driftRadius];
                 errors[0] = newerror;
                 state->setMeasurement(std::move(newrot));
+
+		trajectory.updateTRTHitCount(stateno, olderror);
 
                 for (int i = 0; i < nfitpars; i++) {
                   if (weightderiv(measno, i) == 0) {

@@ -1,2 +1,0 @@
-from AtlasGeoModel import LArGM
-

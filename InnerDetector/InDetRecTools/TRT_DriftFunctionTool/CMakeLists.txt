@@ -1,22 +1,7 @@
-################################################################################
-# Package: TRT_DriftFunctionTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TRT_DriftFunctionTool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          PRIVATE
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          Event/EventInfo
-                          InnerDetector/InDetConditions/TRT_ConditionsServices
-                          InnerDetector/InDetDetDescr/InDetIdentifier )
 
 # External dependencies:
 find_package( CLHEP )
@@ -32,5 +17,4 @@ atlas_add_component( TRT_DriftFunctionTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry GeoModelUtilities EventInfo TRT_ConditionsServicesLib InDetIdentifier TRT_DriftFunctionToolLib )
-
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry GeoModelInterfaces GeoModelUtilities TRT_ConditionsServicesLib InDetIdentifier TRT_DriftFunctionToolLib )

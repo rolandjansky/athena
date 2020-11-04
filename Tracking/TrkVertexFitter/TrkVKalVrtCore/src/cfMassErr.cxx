@@ -14,7 +14,8 @@ namespace Trk {
 void cfmasserr(VKVertex * vk, int *list, double BMAG, double *MASS, double *sigM)
 {
   int NTRK=vk->TrackList.size();
-  auto deriv = std::make_unique< double[] >(3*NTRK+3);
+  //Deliberately not using make_unique
+  std::unique_ptr < double[] > deriv(new double[3*NTRK+3]);
   double ptot[4]={0.};
   std::vector< std::array<double,6> > pmom(NTRK);
   double dm2dpx, dm2dpy, dm2dpz, ee, pt, px, py, pz, cth;

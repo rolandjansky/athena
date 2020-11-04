@@ -120,6 +120,8 @@ namespace InDet {
 
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
 
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_mbtsKey{this, "MBTSKey", "EventInfo.MBTSBackground"};
+
     SG::WriteHandleKey<TrackCollection> m_outputTracksKey{this, "TracksLocation", "SiSPSeededTracks"};
     //@}
 

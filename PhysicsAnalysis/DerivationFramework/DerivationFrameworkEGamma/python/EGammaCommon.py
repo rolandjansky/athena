@@ -1,13 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 #********************************************************************
 # EGammaCommon.py 
 # Schedules all tools needed for e-gamma object selection and writes
 # results into SG. These may then be accessed along the train   
 #********************************************************************
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkSimBarcodeOffset
+from AthenaCommon import CfgMgr
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AppMgr import ToolSvc, ServiceMgr as svcMgr
 
 #====================================================================
 # PHOTON ETA (=ETA2), ET (=E/COSH(ETA2))
@@ -178,7 +179,6 @@ ToolSvc += EGAMCOM_caloFillRect711
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__AsgSelectionToolWrapper
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGElectronLikelihoodToolWrapper
 
@@ -188,7 +188,7 @@ ElectronPassLHVeryLoose = DerivationFramework__EGElectronLikelihoodToolWrapper( 
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonElectronsLHVeryLoose",
-	                                                                  ContainerName = "Electrons",
+                                                                          ContainerName = "Electrons",
                                                                           StoreTResult = False)
 ToolSvc += ElectronPassLHVeryLoose
 print(ElectronPassLHVeryLoose)
@@ -247,7 +247,7 @@ ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name =
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonElectronsECIDS",
-	                                                                  ContainerName = "Electrons",
+                                                                          ContainerName = "Electrons",
                                                                           StoreTResult = True)
 ToolSvc += ElectronPassECIDS
 print (ElectronPassECIDS)
@@ -455,7 +455,6 @@ if  rec.doTruth():
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGammaCommonKernel",
                                                                          AugmentationTools = EGAugmentationTools
                                                                          )

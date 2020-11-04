@@ -72,8 +72,68 @@ private:
     // For reco-truth resolutions:
     TH2* m_vx_hs_truth_long_reso_vs_PU;
     TH2* m_vx_hs_truth_trans_reso_vs_PU;
+    TH2* m_vx_all_truth_long_reso_vs_PU;
+    TH2* m_vx_all_truth_trans_reso_vs_PU;
+
+    TH2* m_vx_hs_truth_long_pull_vs_PU;
+    TH2* m_vx_hs_truth_trans_pull_vs_PU;
+    TH2* m_vx_all_truth_long_pull_vs_PU;
+    TH2* m_vx_all_truth_trans_pull_vs_PU;
+
+    TH2* m_vx_hs_truth_long_reso_vs_nTrk;
+    TH2* m_vx_hs_truth_trans_reso_vs_nTrk;
+    TH2* m_vx_all_truth_long_reso_vs_nTrk;
+    TH2* m_vx_all_truth_trans_reso_vs_nTrk;
+    TH2* m_vx_hs_truth_long_pull_vs_nTrk;
+    TH2* m_vx_hs_truth_trans_pull_vs_nTrk;
+    TH2* m_vx_all_truth_long_pull_vs_nTrk;
+    TH2* m_vx_all_truth_trans_pull_vs_nTrk;
+
     TH1* m_vx_hs_truth_long_reso;
     TH1* m_vx_hs_truth_trans_reso;
+     
+    TH1* m_vx_hs_z_pull;
+    TH1* m_vx_hs_y_pull;
+    TH1* m_vx_hs_x_pull;
+    TH1* m_vx_all_z_pull;
+    TH1* m_vx_all_y_pull;
+    TH1* m_vx_all_x_pull;
+    
+    TH1* m_vx_hs_z_res;
+    TH1* m_vx_hs_y_res;
+    TH1* m_vx_hs_x_res;
+    TH1* m_vx_all_z_res;
+    TH1* m_vx_all_y_res;
+    TH1* m_vx_all_x_res;
+
+    TH2* m_vx_all_truth_z_res_vs_PU;
+    TH2* m_vx_all_truth_x_res_vs_PU;
+    TH2* m_vx_all_truth_y_res_vs_PU;
+    TH2* m_vx_all_truth_z_pull_vs_PU;
+    TH2* m_vx_all_truth_x_pull_vs_PU;
+    TH2* m_vx_all_truth_y_pull_vs_PU;
+
+    TH2* m_vx_all_truth_z_res_vs_nTrk;
+    TH2* m_vx_all_truth_x_res_vs_nTrk;
+    TH2* m_vx_all_truth_y_res_vs_nTrk;
+    TH2* m_vx_all_truth_z_pull_vs_nTrk;
+    TH2* m_vx_all_truth_x_pull_vs_nTrk;
+    TH2* m_vx_all_truth_y_pull_vs_nTrk;
+
+    TH2* m_vx_hs_truth_z_res_vs_PU;
+    TH2* m_vx_hs_truth_x_res_vs_PU;
+    TH2* m_vx_hs_truth_y_res_vs_PU;
+    TH2* m_vx_hs_truth_z_pull_vs_PU;
+    TH2* m_vx_hs_truth_x_pull_vs_PU;
+    TH2* m_vx_hs_truth_y_pull_vs_PU;
+
+    TH2* m_vx_hs_truth_z_res_vs_nTrk;
+    TH2* m_vx_hs_truth_x_res_vs_nTrk;
+    TH2* m_vx_hs_truth_y_res_vs_nTrk;
+    TH2* m_vx_hs_truth_z_pull_vs_nTrk;
+    TH2* m_vx_hs_truth_x_pull_vs_nTrk;
+    TH2* m_vx_hs_truth_y_pull_vs_nTrk;
+
     ///@}
 private:
     // plot base has no default implementation of this; we use it to book the histos

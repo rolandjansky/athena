@@ -102,6 +102,9 @@ addTool("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonScoreTool","CaloMuonScor
 addService("MuonCombinedRecExample.MuonCaloTagTool.CaloMuonScoreONNXRuntimeSvc","CaloMuonScoreONNXRuntimeSvc")
 
 ####### muid tools
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonAlignmentUncertToolTheta","MuonAlignmentUncertToolTheta")
+addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonAlignmentUncertToolPhi"  ,"MuonAlignmentUncertToolPhi")
+
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonMatchQuality","MuonMatchQuality")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuidMuonRecovery","MuidMuonRecovery")
 addTool("MuonCombinedRecExample.MuonCombinedFitTools.MuonCombinedTrackFitter","MuonCombinedTrackFitter")

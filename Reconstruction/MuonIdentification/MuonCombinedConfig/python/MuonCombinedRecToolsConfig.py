@@ -567,6 +567,20 @@ def MuidErrorOptimisationToolCfg(flags, name='MuidErrorOptimisationToolFit', **k
     kwargs.setdefault("TrackSummaryTool",  result.popPrivateTools() )
     return result
 
+def MuonAlignmentUncertToolThetaCfg(flags,name ="MuonAlignmentUncertToolTheta", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("HistoName", "ThetaScattering")
+    kwargs.setdefault("InFile", "MuonCombinedBaseTools/AlignmentUncertainties/201029_initial/ID_MS_Uncertainties.root")
+    tool = CompFactory.Muon.MuonAlignmentUncertTool(name,**kwargs)
+    result.addPublicTool(tool)
+    return result
+def MuonAlignmentUncertToolPhiCfg(flags,name ="MuonAlignmentUncertToolPhi", **kwargs):
+    result = ComponentAccumulator()
+    kwargs.setdefault("HistoName", "PhiScattering")
+    kwargs.setdefault("InFile", "MuonCombinedBaseTools/AlignmentUncertainties/201029_initial/ID_MS_Uncertainties.root")
+    tool =  CompFactory.Muon.MuonAlignmentUncertTool(name,**kwargs)
+    result.addPublicTool(tool)
+    return result
 def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs ):
     from AthenaCommon.SystemOfUnits import meter
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
@@ -581,7 +595,13 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     acc = MuidTrackCleanerCfg(flags)
     kwargs.setdefault("Cleaner"                      , acc.popPrivateTools() )
     result.merge(acc)
-
+    acc = MuonAlignmentUncertToolPhiCfg(flags)
+    result.merge(acc)
+    kwargs.setdefault("AlignmentUncertToolPhi", result.getPublicTool('MuonAlignmentUncertToolPhi') )      
+    acc = MuonAlignmentUncertToolThetaCfg(flags)
+    result.merge(acc)
+    kwargs.setdefault("AlignmentUncertToolTheta", result.getPublicTool('MuonAlignmentUncertToolTheta') )
+      
     if flags.Detector.GeometryCSC and not flags.Muon.MuonTrigger:
         acc = CscClusterOnTrackCreatorCfg(flags)
         kwargs.setdefault("CscRotCreator"                 , acc.popPrivateTools() )
@@ -687,8 +707,7 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     tool = CompFactory.Rec.CombinedMuonTrackBuilder(name,**kwargs)
     result.setPrivateTools(tool)
     return result
-
-
+   
 def CombinedMuonTrackBuilderFitCfg(flags, name='CombinedMuonTrackBuilderFit', **kwargs ):
     # In the old configuration we had duplication between CombinedMuonTrackBuilder and CombinedMuonTrackBuilderFit
     # Here we just call the Combined
@@ -699,7 +718,6 @@ def CombinedMuonTrackBuilderFitCfg(flags, name='CombinedMuonTrackBuilderFit', **
     acc = CombinedMuonTrackBuilderCfg(flags, name, **kwargs)
     tool = acc.popPrivateTools() #Need to reset this to be the primary tool
     result.merge(acc)
-
     result.setPrivateTools(tool)
     return result
 

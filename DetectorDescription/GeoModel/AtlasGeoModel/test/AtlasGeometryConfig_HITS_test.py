@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """Run a test on Atlas Geometry configuration using a HITS file as input
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 if __name__ == "__main__":
-    import os
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     from AthenaCommon.Configurable import Configurable

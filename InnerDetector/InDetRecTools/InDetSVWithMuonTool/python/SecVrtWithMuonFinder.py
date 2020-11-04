@@ -1,12 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from GaudiKernel.GaudiHandles import *
-from GaudiKernel.Proxy.Configurable import *
-from AthenaCommon.Include  import Include, IncludeError, include
 from AthenaCommon.Logging  import logging
-from AthenaCommon.AppMgr   import ToolSvc
-from AthenaCommon          import CfgMgr
-
 from InDetSVWithMuonTool.InDetSVWithMuonToolConf import InDet__InDetSVWithMuonTool
 
 # define the class

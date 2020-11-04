@@ -78,26 +78,26 @@ public:
   virtual bool operator==(const SurfaceBounds& sbo) const override;
 
   /**Virtual constructor*/
-  virtual DiscBounds* clone() const override;
+  virtual DiscBounds* clone() const override final;
 
   /** Return the type - mainly for persistency */
-  virtual SurfaceBounds::BoundsType type() const override { return SurfaceBounds::Disc; }
+  virtual SurfaceBounds::BoundsType type() const override final { return SurfaceBounds::Disc; }
 
   /**This method cheks if the radius given in the LocalPosition is inside [rMin,rMax]
      if only tol1 is given and additional in the phi sector is tol2 is given */
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override final;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /** This method checks inside bounds in loc1
     - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /** This method checks inside bounds in loc2
     - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-  virtual double minDistance(const Amg::Vector2D& pos) const override;
+  virtual double minDistance(const Amg::Vector2D& pos) const override final;
 
   /**This method returns inner radius*/
   double rMin() const;
@@ -106,7 +106,7 @@ public:
   double rMax() const;
 
   /**This method returns the maximum expansion on the plane (=rMax)*/
-  virtual double r() const override;
+  virtual double r() const override final;
 
   /**This method returns the average phi*/
   double averagePhi() const;

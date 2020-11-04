@@ -36,7 +36,7 @@ def main():
         "tau"      : ["^Tau", "^DiTauJets"],
         "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects"],
         "egamma"   : ["^GSF", "^ForwardElectron", "^egamma", "^Electron", "^Photon"],
-        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", ".*Stau", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks"],
+        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", ".*Stau", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", "^sTGC", "^Micromegas", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks"],
         "BTag"     : ["^BTag"],
         "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
         "Jet"      : ["^CamKt", "^AntiKt", "^Jet"],
