@@ -560,7 +560,7 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
     result.merge(acc)
     kwargs.setdefault("SegmentAmbiguityTool", ambi)
 
-    from MuonConfiguration.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
+    from MuonConfig.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
     acc = MuonTrackToSegmentToolCfg(flags)
     kwargs.setdefault( "TrackToSegmentTool", result.popToolsAndMerge(acc))
 
