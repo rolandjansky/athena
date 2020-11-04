@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -63,6 +63,9 @@ namespace InDet {
    // return z
    double z() const;
 
+   // comparison
+   bool operator <(const SiWidth& width) const;
+   bool operator >(const SiWidth& width) const;
 
    ///////////////////////////////////////////////////////////////////
    // Non-const methods:
@@ -128,6 +131,28 @@ namespace InDet {
   {
     return m_phirzWidth[Trk::locZ];    
   }
+
+  // comparison
+  // return true if smaller in either direction
+  inline bool InDet::SiWidth::operator <(const InDet::SiWidth &width) const
+  {
+    // size phi
+    if ( m_colrow[0] < width.colRow()[0] ) { return true; }
+    // size z
+    if ( m_colrow[1] < width.colRow()[1] ) { return true; }
+    return false;
+  }
+
+  // flip logic of <
+  inline bool InDet::SiWidth::operator >(const InDet::SiWidth &width) const
+  {
+    // size phi
+    if ( m_colrow[0] < width.colRow()[0] ) { return false; }
+    // size z
+    if ( m_colrow[1] < width.colRow()[1] ) { return false; }
+    return true;
+  }
+
   
   inline void SiWidth::setColumn(const double col)
   {
@@ -137,7 +162,7 @@ namespace InDet {
   inline void SiWidth::setRow(const double row)
   {
    m_colrow[1] = row;
-   }
+  }
 
   inline void SiWidth::setColRow(const Amg::Vector2D& colRow)
   {
