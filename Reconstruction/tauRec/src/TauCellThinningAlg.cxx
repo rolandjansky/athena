@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 */
 
-#include "tauRec/TauCellThinningAlg.h"
+#include "TauCellThinningAlg.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ThinningHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
