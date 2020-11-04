@@ -18,6 +18,7 @@ CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
 #include <unordered_map>
 #include <regex>
 #include <iomanip> // std::setfill
+#include <mutex>
 
 static const SG::AuxElement::Accessor< std::vector<TrigCompositeUtils::DecisionID> > readWriteAccessor("decisions");
 static const SG::AuxElement::ConstAccessor< std::vector<TrigCompositeUtils::DecisionID> > readOnlyAccessor("decisions");
@@ -220,28 +221,37 @@ namespace TrigCompositeUtils {
     // The list of containers we need to read can change on a file-by-file basis (it depends on the SMK)
     // Hence we query SG for all collections rather than maintain a large and ever changing ReadHandleKeyArray
 
-    std::vector<std::string> keys;
+    static std::vector<std::string> keys ATLAS_THREAD_SAFE;
+    static std::mutex keysMutex;
     // TODO TODO TODO NEED TO REPLACE THIS WITH A STANDALONE-FRIENDLY VERSION
 #ifndef XAOD_STANDALONE
-    eventStore->keys(static_cast<CLID>( ClassID_traits< DecisionContainer >::ID() ), keys);
+    {
+      std::lock_guard<std::mutex> lock(keysMutex);
+      if (keys.size() == 0) {
+        // In theory this can change from file to file, 
+        // the use case for this function is monitoring, and this is typically over a single run.
+        eventStore->keys(static_cast<CLID>( ClassID_traits< DecisionContainer >::ID() ), keys);
+      }
+    }
 #else
+    eventStore->event(); // Avoid unused warning
     throw std::runtime_error("Cannot yet obtain rejected HLT features in AnalysisBase");
 #endif
 
     // Loop over each DecisionContainer,
     for (const std::string& key : keys) {
       // Get and check this container
-      if ( key.find("HLTNav") != 0 ) {
+      if ( key.find("HLTNav_") != 0 ) {
         continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
       }
       if ( key == "HLTNav_Summary" ) {
         continue; //  This is where accepted paths start. We are looking for rejected ones
       }
-      const DecisionContainer* container = nullptr;
-      if ( eventStore->retrieve( container, key ).isFailure() ) {
+      SG::ReadHandle<DecisionContainer> containerRH(key);
+      if (!containerRH.isValid()) {
         throw std::runtime_error("Unable to retrieve " + key + " from event store.");
       }
-      for (const Decision* d : *container) {
+      for (const Decision* d : *containerRH) {
         if (!d->hasObjectLink(featureString())) {
           // TODO add logic for ComboHypo where this is expected
           continue; // Only want Decision objects created by HypoAlgs
