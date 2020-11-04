@@ -1,3 +1,3 @@
-#include "PixelGeoModelXml/PixelDetectorTool.h"
+#include "PixelGeoModelXml/ITkPixelDetectorTool.h"
 
-DECLARE_COMPONENT( ItkPixelDetectorTool )
+DECLARE_COMPONENT( ITkPixelDetectorTool )

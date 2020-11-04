@@ -3,8 +3,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef PixelGeoModelXml_PIXELDETECTORTOOL_H
-#define PixelGeoModelXml_PIXELDETECTORTOOL_H
+#ifndef PixelGeoModelXml_ITKPIXELDETECTORTOOL_H
+#define PixelGeoModelXml_ITKPIXELDETECTORTOOL_H
 //
 //    Create an Athena Tool; handle Athena services and Tools needed for
 //    building the Pixel geometry. Then create the geometry using the PixelDetectorFactory.
@@ -27,10 +27,10 @@ namespace InDetDD {
   class SiCommonItems;
 }
 
-class PixelDetectorTool : public GeoModelTool {
+class ITkPixelDetectorTool : public GeoModelTool {
  public: 
-  PixelDetectorTool(const std::string &type, const std::string &name, const IInterface *parent);
-  virtual ~PixelDetectorTool();
+  ITkPixelDetectorTool(const std::string &type, const std::string &name, const IInterface *parent);
+  virtual ~ITkPixelDetectorTool();
   StatusCode create() override final;
   StatusCode clear() override final;
   StatusCode registerCallback() override final;
@@ -49,4 +49,4 @@ class PixelDetectorTool : public GeoModelTool {
   ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
 };
 
-#endif // PixelGeoModelXml_PIXELDETECTORTOOL_H
+#endif // PixelGeoModelXml_ITKPIXELDETECTORTOOL_H

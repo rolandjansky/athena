@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "PixelGeoModelXml/PixelDetectorTool.h"
+#include "PixelGeoModelXml/ITkPixelDetectorTool.h"
 #include "PixelGeoModelXml/PixelDetectorFactory.h"
 #include "PixelGeoModelXml/PixelOptions.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
@@ -23,7 +23,7 @@ using InDetDD::PixelDetectorManager;
 using InDetDD::SiDetectorManager;
 
 
-PixelDetectorTool::PixelDetectorTool(const std::string &type,
+ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface *parent) :
     GeoModelTool(type, name, parent),
@@ -52,11 +52,11 @@ PixelDetectorTool::PixelDetectorTool(const std::string &type,
 
 }
 
-PixelDetectorTool::~PixelDetectorTool() {
+ITkPixelDetectorTool::~ITkPixelDetectorTool() {
     delete m_athenaComps;
 }
 
-StatusCode PixelDetectorTool::create() {
+StatusCode ITkPixelDetectorTool::create() {
 //
 //   Retrieve all services except LorentzAngleSvc, which has to be done later
 //
@@ -188,7 +188,7 @@ StatusCode PixelDetectorTool::create() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode PixelDetectorTool::clear() {
+StatusCode ITkPixelDetectorTool::clear() {
     SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<InDetDD::PixelDetectorManager>::ID(),m_manager->getName());
     if(proxy) {
         proxy->reset();
@@ -197,7 +197,7 @@ StatusCode PixelDetectorTool::clear() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode PixelDetectorTool::registerCallback() {
+StatusCode ITkPixelDetectorTool::registerCallback() {
 // 
 //    Register call-back for software alignment
 //
@@ -225,7 +225,7 @@ StatusCode PixelDetectorTool::registerCallback() {
     return sc;
 }
 
-StatusCode PixelDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
+StatusCode ITkPixelDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
 //
 //    The call-back routine, which just calls the real call-back routine from the manager.
 //
