@@ -46,7 +46,7 @@ namespace InDetDDSLHC {
     //
     //    Create the detector manager... should allow the name to be set
     //
-    m_detectorManager = new InDetDD::PixelDetectorManager(detStore());//not possible for pix:  m_options->detectorName());
+    m_detectorManager = new InDetDD::PixelDetectorManager(detStore(),m_options->detectorName());
     //
     //   Set Detector Manager pixel version information
     //
