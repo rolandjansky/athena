@@ -22,25 +22,20 @@
 #include "CxxUtils/checker_macros.h"
 
 RDBQuery::RDBQuery(RDBAccessSvc* accessSvc
-		   , coral::ISessionProxy* session
 		   , const std::string& nodeName
 		   , const std::string& tagId
 		   , const std::string& connName)
-   : IRDBQuery()
-   , m_query(0)
-   , m_queryCount(0)
-   , m_accessSvc(accessSvc)
-   , m_session(session)
-   , m_nodeName(nodeName)
-   , m_tagId(tagId)
-   , m_connName(connName)
-   , m_size(0)
-   , m_cursor(0)
+  : IRDBQuery()
+  , m_query(nullptr)
+  , m_queryCount(nullptr)
+  , m_accessSvc(accessSvc)
+  , m_nodeName(nodeName)
+  , m_tagId(tagId)
+  , m_connName(connName)
+  , m_size(0)
+  , m_cursor(nullptr)
+  , m_executed(false)
 {
-  if (!m_accessSvc->connect(m_connName)) {
-    m_accessSvc->msg() << MSG::ERROR << "Can't connect to database: "
-                       << connName << endmsg;
-  }
 }
 
 RDBQuery::~RDBQuery()
@@ -51,14 +46,30 @@ RDBQuery::~RDBQuery()
 
 void RDBQuery::execute()
 {
-  if(m_accessSvc->msg().level() <= MSG::DEBUG)
+  if(m_executed) {
+    m_accessSvc->msg() << MSG::WARNING << "RDBQuery cannot be executed more than once! Query: "
+		       << m_nodeName << ", "
+		       << m_tagId << ", "
+		       << m_orderField << ", "
+		       << m_fields.size() << endmsg;
+    return;
+  }
+
+  if(m_accessSvc->msg().level() <= MSG::DEBUG) {
     m_accessSvc->msg() << MSG::DEBUG << "Query execute " << m_nodeName << ", "
 		       << m_tagId << ", "
 		       << m_orderField << ", "
 		       << m_fields.size() << endmsg;
+  }
 
-  try
-  {
+  if (!m_accessSvc->connect(m_connName)) {
+    m_accessSvc->msg() << MSG::ERROR << "Cannot connect to the database: "
+                       << m_connName << endmsg;
+    throw std::runtime_error( "Cannot connect to the database " + m_connName);
+  }
+
+  m_executed=true;
+  try {
     // ... Get the node name and change to to Upper Case
     std::string upperName = m_nodeName;
     std::string::iterator it = upperName.begin();
@@ -68,8 +79,8 @@ void RDBQuery::execute()
     }
 
     // ... Create query objects
-    m_query = m_session->nominalSchema().newQuery();
-    m_queryCount = m_session->nominalSchema().newQuery();
+    m_query = m_accessSvc->getSession(m_connName)->nominalSchema().newQuery();
+    m_queryCount = m_accessSvc->getSession(m_connName)->nominalSchema().newQuery();
 
     // Add fields
     if(m_fields.size()>0) {
@@ -80,7 +91,7 @@ void RDBQuery::execute()
     }
     else {
       // All fields from the table
-      const coral::ITableDescription& dataTableDesc = m_session->nominalSchema().tableHandle(upperName + "_DATA").description();
+      const coral::ITableDescription& dataTableDesc = m_accessSvc->getSession(m_connName)->nominalSchema().tableHandle(upperName + "_DATA").description();
       for(int i=0; i<dataTableDesc.numberOfColumns(); ++i) {
 	m_query->addToOutputList(upperName+"_DATA."+dataTableDesc.columnDescription(i).name());
       }
@@ -126,7 +137,6 @@ void RDBQuery::execute()
 
     // ... Get the data cursor
     m_cursor = &(m_query->execute());
-
     return;
   }
   catch(coral::SchemaException& se) {
@@ -150,7 +160,6 @@ long RDBQuery::size()
 void RDBQuery::finalize()
 {
   if(m_cursor) m_cursor->close();
-
   m_accessSvc->disconnect(m_connName);
 }
 

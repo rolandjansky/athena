@@ -251,7 +251,7 @@ std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node
       ATH_MSG_WARNING("Could not get the tag for " << node << " node. Returning 0 pointer to IRDBQuery");
     }
     else {
-      query = std::unique_ptr<IRDBQuery>(new RDBQuery(this,session,node,childTagId,connName));
+      query = std::unique_ptr<IRDBQuery>(new RDBQuery(this,node,childTagId,connName));
     }
   }
   catch(coral::SchemaException& se) {
@@ -492,6 +492,12 @@ std::vector<std::string> RDBAccessSvc::getLockedSupportedTags(const std::string&
   }
   disconnect(connName);
   return taglist;
+}
+
+coral::ISessionProxy* RDBAccessSvc::getSession(const std::string& connName)
+{
+  auto sessionIt = m_sessions.find(connName);
+  return sessionIt == m_sessions.end() ? nullptr : sessionIt->second;
 }
 
 StatusCode RDBAccessSvc::initialize()

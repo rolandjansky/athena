@@ -130,6 +130,8 @@ class RDBAccessSvc final : public AthService, virtual public IRDBAccessSvc
 
   std::vector<std::string> getLockedSupportedTags(const std::string& connName = "ATLASDD");
 
+  coral::ISessionProxy* getSession(const std::string& connName = "ATLASDD");
+
   inline MsgStream& msgStream() { return msg(); }
 
 private:

@@ -13,7 +13,6 @@
 namespace coral
 {
   class IQuery;
-  class ISessionProxy;
   class ICursor;
 }
 
@@ -30,7 +29,6 @@ class RDBQuery final : public IRDBQuery
 {
  public:
   RDBQuery(RDBAccessSvc* accessSvc
-	   , coral::ISessionProxy* session
 	   , const std::string& nodeName
 	   , const std::string& tagId
 	   , const std::string& connName);
@@ -51,7 +49,6 @@ class RDBQuery final : public IRDBQuery
   coral::IQuery*           m_query;
   coral::IQuery*           m_queryCount;
   RDBAccessSvc*            m_accessSvc;
-  coral::ISessionProxy*    m_session;
   std::string              m_nodeName;
   std::string              m_tagId;
   std::string              m_connName;
@@ -59,6 +56,7 @@ class RDBQuery final : public IRDBQuery
   std::vector<std::string> m_fields;
   coral::ICursor*          m_cursor;
   std::string              m_orderField;
+  bool                     m_executed;
 };
 
 #endif
