@@ -3,8 +3,6 @@
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
 
-from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
-from AthenaCommon.Constants import *
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -13,7 +11,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
-from MuonRecExample.MuonRecUtils import logMuon,ConfiguredBase,uglyHackedInclude,ExtraFlags
+from MuonRecExample.MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.setDefaults()
@@ -23,13 +21,7 @@ muonStandaloneFlags.setDefaults()
 
 from RecExConfig.RecFlags import rec
 
-
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,\
-     getService,getServiceClone,getAlgorithm,getAlgorithmClone
-
-# temporarily for backwards compat. TO BE REMOVED
-from AthenaCommon.CfgGetter import addTool,addToolClone,addService
-
+from AthenaCommon.CfgGetter import getPrivateTool, getPrivateToolClone, getPublicTool, getService
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -50,6 +42,7 @@ def MMClusterOnTrackCreator(name="MMClusterOnTrackCreator",**kwargs):
 
 def getMuonRIO_OnTrackErrorScalingCondAlg() :
     error_scaling_def=["CSCRIO_OnTrackErrorScaling:/MUON/TrkErrorScalingCSC"]
+    from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg
     return getRIO_OnTrackErrorScalingCondAlg( name                = "MuonRIO_OnTrackErrorScalingCondAlg",
                                               ReadKey             = "/MUON/TrkErrorScaling",
                                               CondDataAssociation = error_scaling_def)
@@ -59,7 +52,7 @@ def CscClusterOnTrackCreator(name="CscClusterOnTrackCreator",**kwargs):
     kwargs.setdefault("CscClusterFitter", getPrivateTool("QratCscClusterFitter") )
     kwargs.setdefault("CscClusterUtilTool", getPrivateTool("CscClusterUtilTool") )
     if False  : # enable CscClusterOnTrack error scaling :
-        from InDetRecExample.TrackingCommon import getRIO_OnTrackErrorScalingCondAlg,createAndAddCondAlg
+        from InDetRecExample.TrackingCommon import createAndAddCondAlg
         createAndAddCondAlg(getMuonRIO_OnTrackErrorScalingCondAlg,'RIO_OnTrackErrorScalingCondAlg')
 
         kwargs.setdefault("CSCErrorScalingKey","/MUON/TrkErrorScalingCSC")
@@ -77,14 +70,16 @@ def CscBroadClusterOnTrackCreator(name="CscBroadClusterOnTrackCreator",**kwargs)
 
 def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     # setup dependencies missing in C++. TODO: fix in C++
-    from MuonRecExample import MuonAlignConfig
-    from MuonCnvExample import MuonCalibConfig
+    from MuonRecExample import MuonAlignConfig  # noqa: F401
+    from MuonCnvExample import MuonCalibConfig  # noqa: F401
     MuonCalibConfig.setupMdtCondDB()
     from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
     mdtCalibFlags.setDefaults()
     kwargs.setdefault("DoMagneticFieldCorrection", mdtCalibFlags.correctMdtRtForBField())
     kwargs.setdefault("DoWireSag", muonRecFlags.useWireSagCorrections())
     kwargs.setdefault("DoSlewingCorrection", mdtCalibFlags.correctMdtRtForTimeSlewing())
+    kwargs.setdefault("CalibrationTool", MuonCalibConfig.MdtCalibrationTool())
+    kwargs.setdefault("CalibrationDbTool", MuonCalibConfig.MdtCalibrationDbTool())
 
     if beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' :
         kwargs.setdefault("DoTofCorrection", False)
@@ -111,7 +106,7 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("doMDT", True)
 
-    return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
+    return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs)
 # end of factory function MdtDriftCircleOnTrackCreator
 
 
@@ -191,7 +186,7 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
 # combined tracking geometry service
 def AtlasTrackingGeometrySvc(name="AtlasTrackingGeometrySvc",**kwargs):
     global ServiceMgr
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc  # noqa: F401
     return ServiceMgr.AtlasTrackingGeometrySvc
 
 
@@ -353,9 +348,10 @@ def MuonSegmentMomentum(name="MuonSegmentMomentum",**kwargs):
 
 def MdtSegmentT0Fitter(name="MdtSegmentT0Fitter",**kwargs):
     # setup dependencies missing in C++. TODO: fix in C++
-    from MuonRecExample import MuonAlignConfig
-    from MuonCnvExample import MuonCalibConfig
+    from MuonRecExample import MuonAlignConfig  # noqa: F401
+    from MuonCnvExample import MuonCalibConfig  # noqa: F401
     MuonCalibConfig.setupMdtCondDB()
+    kwargs.setdefault("CalibrationDbTool", MuonCalibConfig.MdtCalibrationDbTool())
     return CfgMgr.TrkDriftCircleMath__MdtSegmentT0Fitter(name,**kwargs)
 
 def MdtMathSegmentFinder(name="MdtMathSegmentFinder",extraFlags=None,**kwargs):
@@ -390,7 +386,7 @@ def MuonClusterSegmentFinder(name="MuonClusterSegmentFinder", extraFlags=None,**
 
 def MuonClusterSegmentFinderTool(name="MuonClusterSegmentFinderTool", extraFlags=None,**kwargs):
     kwargs.setdefault("SLFitter","Trk::GlobalChi2Fitter/MCTBSLFitterMaterialFromTrack")
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401
     from AthenaCommon.AppMgr import ToolSvc
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )

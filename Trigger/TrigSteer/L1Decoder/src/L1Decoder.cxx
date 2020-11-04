@@ -7,6 +7,7 @@
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "TrigConfHLTData/HLTUtils.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigConfxAOD/KeyWriterTool.h"
 #include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
@@ -30,6 +31,10 @@ StatusCode L1Decoder::initialize() {
   ATH_CHECK( m_ctpUnpacker.retrieve() );
   ATH_CHECK( m_roiUnpackers.retrieve() );
   ATH_CHECK( m_prescaler.retrieve() );
+
+  if ( !m_keyWriterTool.empty() ) {
+    ATH_CHECK( m_keyWriterTool.retrieve() );
+  }
 
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "CTPSimulation");
   ATH_CHECK(incidentSvc.retrieve());
@@ -137,6 +142,10 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   HLT::IDSet activeChainSet( activeChains.begin(), activeChains.end() );
   for ( auto unpacker: m_roiUnpackers ) {
     ATH_CHECK( unpacker->unpack( ctx, *roib, activeChainSet ) );
+  }
+
+  if ( !m_keyWriterTool.empty() ) {
+    ATH_CHECK( m_keyWriterTool->writeKeys(ctx) );
   }
 
   return StatusCode::SUCCESS;  

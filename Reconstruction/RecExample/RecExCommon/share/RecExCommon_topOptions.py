@@ -1283,19 +1283,26 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             from tauRec.tauRecFlags import tauFlags
             if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:                
                 from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
-                alg = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
-                                                StreamName = 'StreamAOD',
-                                                Clusters = 'TauPi0Clusters',
-                                                Cells = 'AllCalo')
-                topSequence += alg
+                tauCellAlg1 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
+                                                        StreamName = 'StreamAOD',
+                                                        Clusters = 'TauPi0Clusters',
+                                                        Cells = 'AllCalo')
+                topSequence += tauCellAlg1
+
+                tauCellAlg2 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauShotClusters',
+                                                        StreamName = 'StreamAOD',
+                                                        Clusters = 'TauShotClusters',
+                                                        Cells = 'AllCalo')
+                topSequence += tauCellAlg2
 
                 from tauRec.tauRecConf import TauCellThinningAlg
-                alg = TauCellThinningAlg('TauCellThinningAlg',
-                                         StreamName = 'StreamAOD',
-                                         Cells = 'AllCalo',
-                                         Taus = "TauJets",
-                                         UseSubtractedCluster = tauFlags.useSubtractedCluster())
-                topSequence += alg
+                tauCellAlg3 = TauCellThinningAlg('TauCellThinningAlg',
+                                                 StreamName = 'StreamAOD',
+                                                 Cells = 'AllCalo',
+                                                 CellLinks = 'CaloCalTopoClusters_links',
+                                                 Taus = "TauJets",
+                                                 UseSubtractedCluster = tauFlags.useSubtractedCluster())
+                topSequence += tauCellAlg3
                 
         except Exception:
             treatException("Could not make AOD cells" )

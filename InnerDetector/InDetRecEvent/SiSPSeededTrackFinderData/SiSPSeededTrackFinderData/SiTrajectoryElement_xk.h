@@ -395,6 +395,7 @@ namespace InDet{
       bool straightLineStepToPlane(bool updateJacobian, double* globalPars);
       //@}
 
+
     private:
       
       ///////////////////////////////////////////////////////////////////
@@ -493,7 +494,8 @@ namespace InDet{
       const Trk::IPatternParametersUpdator*       m_updatorTool ;
       const Trk::IPatternParametersPropagator*    m_proptool    ;
       const Trk::IRIO_OnTrackCreator*             m_riotool     ;
-      const Trk::PRDtoTrackMap                   *m_prdToTrackMap;
+      const Trk::PRDtoTrackMap                   *m_prdToTrackMap;      
+
       Trk::TrackStateOnSurface*                   m_tsos[3]     ;
       Amg::MatrixX                                m_covariance  ;
 
@@ -504,6 +506,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
       
       void patternCovariances(const InDet::SiCluster*,double&,double&,double&);
+      void checkBoundaries(const Trk::PatternTrackParameters & pars);
     };
   
 } // end of name space

@@ -230,8 +230,8 @@ class LegacyThreshold( Threshold ):
                     ("isobits", thrV.isobits),
                     ("etamin", thrV.etamin),
                     ("etamax", thrV.etamax),
-                    ("phimin", thrV.phimax),
-                    ("phimax", thrV.phimin),
+                    ("phimin", thrV.phimin),
+                    ("phimax", thrV.phimax),
                     ("priority", thrV.priority)
                 ]) )
         elif self.ttype == ThrType.TAU:
@@ -244,8 +244,8 @@ class LegacyThreshold( Threshold ):
                     ("value", thrV.value),
                     ("etamin", thrV.etamin),
                     ("etamax", thrV.etamax),
-                    ("phimin", thrV.phimax),
-                    ("phimax", thrV.phimin),
+                    ("phimin", thrV.phimin),
+                    ("phimax", thrV.phimax),
                     ("window", thrV.window),
                     ("priority", thrV.priority)
                 ]) )

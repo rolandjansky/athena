@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from ReweightUtils.ReweightUtilsConf import * 
+from ReweightUtils.ReweightUtilsConf import McEventWeight, PDFWeight, SumOfWeightsAlg, WeightsAgregator
 
 
 def addWeights(seq, pdfMap = {'CT14nlo':20}, pref = ""):
@@ -89,7 +89,7 @@ def addWeightsHist(stream, seq, svcMgr, CfgMgr, ToolSvc, derivName, fileName, pd
       seq += CfgMgr.CP__PileupReweightingProvider(derivName+"_pdfProvWeight"+pdfName+"_"+str(i),Tool=provTools[i],ConfigOutputStream="METADATA/pdfWeight"+pdfName+"_"+str(i))
 
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 #addWeights(DerivationFrameworkJob, {'CT10nlo':52, 'MSTW2008nlo68cl': 40, 'NNPDF23_lo_as_0130_qed': 100, 'NNPDF30_nlo_as_0118': 100}, "")
 listPDF = {}
 #listPDF["CT14nlo"] = 56

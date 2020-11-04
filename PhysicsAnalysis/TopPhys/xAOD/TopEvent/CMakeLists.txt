@@ -1,4 +1,3 @@
-
 # Declare the name of this package:
 atlas_subdir( TopEvent )
 
@@ -17,17 +16,25 @@ atlas_depends_on_subdirs( PUBLIC
                           xAODTau
                           xAODMissingET
                           xAODTracking
+                          FourMomUtils
                           TopConfiguration
-                          TopPartons )
+                          TopPartons
+                          JetAnalysisInterfaces
+                          JetSubStructureMomentTools
+                          JetSubStructureUtils
+                          JetReclustering )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
 
+# Need fast jet for the RC jet substructure code
+find_package( FastJet COMPONENTS fastjetplugins fastjettools )
+find_package( FastJetContrib COMPONENTS EnergyCorrelator Nsubjettiness )
+
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopEvent _cintDictSource
-   ROOT_HEADERS TopEvent/SystematicEvent.h TopEvent/KLFitterResult.h
-   TopEvent/PseudoTopResult.h Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
+                           ROOT_HEADERS Root/LinkDef.h
+                           EXTERNAL_PACKAGES ROOT )
 
 # Build a library that other components can link against:
 atlas_add_library( TopEvent Root/*.cxx Root/*.h Root/*.icc
@@ -47,8 +54,15 @@ atlas_add_library( TopEvent Root/*.cxx Root/*.h Root/*.icc
                                   xAODTau
                                   xAODMissingET
                                   xAODTracking
+                                  FourMomUtils
                                   TopConfiguration
                                   TopPartons
+                                  JetAnalysisInterfacesLib
+                                  JetSubStructureMomentToolsLib
+                                  JetSubStructureUtils
+                                  JetReclusteringLib
+                                  ${FASTJET_LIBRARIES}
+                                  ${FASTJETCONTRIB_LIBRARIES}
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
 

@@ -16,12 +16,56 @@
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include <memory>
 
+namespace {
+bool
+invalidComponent(const Trk::TrackParameters* trackParameters)
+{
+  const auto* measuredCov = trackParameters->covariance();
+  bool rebuildCov = false;
+  if (!measuredCov) {
+    rebuildCov = true;
+  } else {
+    for (int i(0); i < 5; ++i) {
+      if ((*measuredCov)(i, i) <= 0.) {
+        rebuildCov = true;
+      }
+    }
+  }
+  return rebuildCov;
+}
+
+Trk::MultiComponentState
+rebuildState(Trk::MultiComponentState&& stateBeforeUpdate)
+{
+  Trk::MultiComponentState stateWithInsertedErrors =
+    std::move(stateBeforeUpdate);
+  // We need to loop checking for invalid componets i.e negative covariance
+  // diagonal elements and update them with a large covariance matrix
+  for (auto& component : stateWithInsertedErrors) {
+    const Trk::TrackParameters* trackParameters = component.first.get();
+    const bool rebuildCov = invalidComponent(trackParameters);
+    if (rebuildCov) {
+      AmgSymMatrix(5) bigNewCovarianceMatrix = AmgSymMatrix(5)::Zero();
+      const double covarianceScaler = 1.;
+      bigNewCovarianceMatrix(0, 0) = 250. * covarianceScaler;
+      bigNewCovarianceMatrix(1, 1) = 250. * covarianceScaler;
+      bigNewCovarianceMatrix(2, 2) = 0.25;
+      bigNewCovarianceMatrix(3, 3) = 0.25;
+      bigNewCovarianceMatrix(4, 4) = 0.001 * 0.001;
+      component.first->updateParameters(trackParameters->parameters(),
+                                        bigNewCovarianceMatrix);
+    }
+  }
+  return stateWithInsertedErrors;
+}
+
+} // end of anonymous namespace
+
 Trk::MultiComponentState
 Trk::GsfMeasurementUpdator::update(
   Trk::MultiComponentState&& stateBeforeUpdate,
   const Trk::MeasurementBase& measurement) const
 {
-  MultiComponentState updatedState{};
   // Check all components have associated error matricies
   Trk::MultiComponentState::iterator component = stateBeforeUpdate.begin();
   bool rebuildStateWithErrors = false;
@@ -36,16 +80,12 @@ Trk::GsfMeasurementUpdator::update(
     Trk::MultiComponentState stateWithInsertedErrors =
       rebuildState(std::move(stateBeforeUpdate));
     // Perform the measurement update with the modified state
-    updatedState =
-      calculateFilterStep(std::move(stateWithInsertedErrors), measurement, 1);
-    return updatedState;
+    return calculateFilterStep(
+      std::move(stateWithInsertedErrors), measurement, 1);
   }
 
   // Perform the measurement update
-  updatedState =
-    calculateFilterStep(std::move(stateBeforeUpdate), measurement, 1);
-
-  return updatedState;
+  return calculateFilterStep(std::move(stateBeforeUpdate), measurement, 1);
 }
 
 Trk::MultiComponentState
@@ -54,8 +94,6 @@ Trk::GsfMeasurementUpdator::update(Trk::MultiComponentState&& stateBeforeUpdate,
                                    FitQualityOnSurface& fitQoS) const
 {
 
-  Trk::MultiComponentState updatedState{};
-
   // Check all components have associated error matricies
   Trk::MultiComponentState::iterator component = stateBeforeUpdate.begin();
 
@@ -72,7 +110,8 @@ Trk::GsfMeasurementUpdator::update(Trk::MultiComponentState&& stateBeforeUpdate,
     Trk::MultiComponentState stateWithInsertedErrors =
       rebuildState(std::move(stateBeforeUpdate));
     // Perform the measurement update with the modified state
-    updatedState = calculateFilterStep(
+
+    Trk::MultiComponentState updatedState = calculateFilterStep(
       std::move(stateWithInsertedErrors), measurement, fitQoS);
     if (updatedState.empty()) {
       return {};
@@ -81,7 +120,7 @@ Trk::GsfMeasurementUpdator::update(Trk::MultiComponentState&& stateBeforeUpdate,
   }
 
   // Perform the measurement update
-  updatedState =
+  Trk::MultiComponentState updatedState =
     calculateFilterStep(std::move(stateBeforeUpdate), measurement, fitQoS);
 
   if (updatedState.empty()) {
@@ -243,59 +282,3 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   return assembledUpdatedState;
 }
 
-bool
-Trk::GsfMeasurementUpdator::invalidComponent(
-  const Trk::TrackParameters* trackParameters) const
-{
-  const auto *measuredCov = trackParameters->covariance();
-  bool rebuildCov = false;
-  if (!measuredCov) {
-    rebuildCov = true;
-  } else {
-    for (int i(0); i < 5; ++i) {
-      if ((*measuredCov)(i, i) <= 0.) {
-        rebuildCov = true;
-      }
-    }
-  }
-  return rebuildCov;
-}
-
-Trk::MultiComponentState
-Trk::GsfMeasurementUpdator::rebuildState(
-  Trk::MultiComponentState&& stateBeforeUpdate) const
-{
-  Trk::MultiComponentState stateWithInsertedErrors{};
-
-  auto component = stateBeforeUpdate.begin();
-  for (; component != stateBeforeUpdate.end(); ++component) {
-
-    const Trk::TrackParameters* trackParameters = component->first.get();
-    double weight = component->second;
-    bool rebuildCov = invalidComponent(trackParameters);
-    if (rebuildCov) {
-      AmgSymMatrix(5)* bigNewCovarianceMatrix = new AmgSymMatrix(5);
-      bigNewCovarianceMatrix->setZero();
-      double covarianceScaler = 1.;
-      (*bigNewCovarianceMatrix)(0, 0) = 250. * covarianceScaler;
-      (*bigNewCovarianceMatrix)(1, 1) = 250. * covarianceScaler;
-      (*bigNewCovarianceMatrix)(2, 2) = 0.25;
-      (*bigNewCovarianceMatrix)(3, 3) = 0.25;
-      (*bigNewCovarianceMatrix)(4, 4) = 0.001 * 0.001;
-
-      AmgVector(5) par = trackParameters->parameters();
-      Trk::TrackParameters* trackParametersWithError =
-        trackParameters->associatedSurface().createTrackParameters(
-          par[Trk::loc1],
-          par[Trk::loc2],
-          par[Trk::phi],
-          par[Trk::theta],
-          par[Trk::qOverP],
-          bigNewCovarianceMatrix);
-      stateWithInsertedErrors.emplace_back(trackParametersWithError, weight);
-    } else {
-      stateWithInsertedErrors.push_back(std::move(*component));
-    }
-  }
-  return stateWithInsertedErrors;
-}

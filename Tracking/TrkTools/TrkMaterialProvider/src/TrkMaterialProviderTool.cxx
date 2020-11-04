@@ -744,7 +744,7 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
   double ElossID = 0.; 
   double ElossCalo = 0.; 
   double ElossMS = 0.; 
-  for(auto m : *caloTSOS) {
+  for(const auto *m : *caloTSOS) {
     if(m->materialEffectsOnTrack()) {
       const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(m->materialEffectsOnTrack());
       if(meot) {
@@ -1434,7 +1434,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
   typePatternDeposit.set(Trk::TrackStateOnSurface::CaloDeposit);
   //typePatternDeposit.set(Trk::TrackStateOnSurface::Scatterer);
 
-  for(auto m : *matvec) {
+  for(const auto *m : *matvec) {
 
     if(!m->trackParameters()) {
       ATH_MSG_WARNING("No trackparameters on TrackStateOnSurface ");
@@ -1839,7 +1839,7 @@ void Trk::TrkMaterialProviderTool::getMopAndIoniEnergyLoss(const std::vector<con
   double deltaE_rad_tot = 0.; 
   double sigmaDeltaE_rad_tot =0.;
 
-  for(auto m : *matvec) {    
+  for(const auto *m : *matvec) {    
     if(!m->trackParameters()) {
       ATH_MSG_WARNING("No trackparameters on TrackStateOnSurface ");
       continue;

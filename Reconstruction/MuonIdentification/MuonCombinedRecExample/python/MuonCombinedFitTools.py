@@ -226,12 +226,25 @@ def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
         materialProviderTool.UseCaloEnergyMeasurement = False
     return materialProviderTool
 
+def MuonAlignmentUncertToolTheta(name ="MuonAlignmentUncertToolTheta", **kwargs):
+    kwargs.setdefault("HistoName", "ThetaScattering")
+    kwargs.setdefault("InFile", "MuonCombinedBaseTools/AlignmentUncertainties/201029_initial/ID_MS_Uncertainties.root")
+    return CfgMgr.Muon__MuonAlignmentUncertTool(name,**kwargs)
+
+def MuonAlignmentUncertToolPhi(name ="MuonAlignmentUncertToolPhi", **kwargs):
+    kwargs.setdefault("HistoName", "PhiScattering")
+    kwargs.setdefault("InFile", "MuonCombinedBaseTools/AlignmentUncertainties/201029_initial/ID_MS_Uncertainties.root")
+    return CfgMgr.Muon__MuonAlignmentUncertTool(name,**kwargs)
+        
 def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("CaloEnergyParam"               , getPublicTool("MuidCaloEnergyToolParam") )
     kwargs.setdefault("CaloTSOS"                      , getPublicTool("MuidCaloTrackStateOnSurface") )
     kwargs.setdefault("MaterialAllocator"             , getPublicTool("MuidMaterialAllocator") )
     kwargs.setdefault("MdtRotCreator"                 , getPublicTool("MdtDriftCircleOnTrackCreator") )
+    kwargs.setdefault("AlignmentUncertToolPhi"        , getPublicTool("MuonAlignmentUncertToolPhi") )
+    kwargs.setdefault("AlignmentUncertToolTheta"      , getPublicTool("MuonAlignmentUncertToolTheta") )
+    
     kwargs.setdefault("CleanCombined"                 , True )
     kwargs.setdefault("CleanStandalone"               , True )
     kwargs.setdefault("BadFitChi2"                    , 2.5 )

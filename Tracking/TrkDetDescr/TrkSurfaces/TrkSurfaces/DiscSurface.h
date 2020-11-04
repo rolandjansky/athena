@@ -167,7 +167,7 @@ public:
      For the Disc this is @f$ (R*cos(\phi), R*sin(\phi),0)*transform() @f$
      Where  @f$ r,  \phi @f$ denote the r(), averagePhi() of the Bounds.
    */
-  virtual const Amg::Vector3D& globalReferencePoint() const override;
+  virtual const Amg::Vector3D& globalReferencePoint() const override final; 
 
   /**This method returns the bounds by reference*/
   const SurfaceBounds& bounds() const override;
@@ -177,7 +177,7 @@ public:
                             double tol1 = 0.,
                             double tol2 = 0.) const override;
   virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override;
+                                 const BoundaryCheck& bchk) const override final;
 
   /** This method returns true if the GlobalPosition is on the Surface for both,
     within or without check of whether the local position is inside boundaries

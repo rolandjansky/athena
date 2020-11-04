@@ -37,6 +37,7 @@
 #include "../TileMuonFitMonitorAlgorithm.h"
 #include "../TileRODMonitorAlgorithm.h"
 #include "../TileTMDBDigitsMonitorAlgorithm.h"
+#include "../TileTMDBMonitorAlgorithm.h"
 
 DECLARE_COMPONENT( TileFatherMonTool )
 DECLARE_COMPONENT( TilePaterMonTool )
@@ -77,3 +78,4 @@ DECLARE_COMPONENT( TileRawChannelNoiseMonitorAlgorithm )
 DECLARE_COMPONENT( TileMuonFitMonitorAlgorithm )
 DECLARE_COMPONENT( TileRODMonitorAlgorithm )
 DECLARE_COMPONENT( TileTMDBDigitsMonitorAlgorithm )
+DECLARE_COMPONENT( TileTMDBMonitorAlgorithm )

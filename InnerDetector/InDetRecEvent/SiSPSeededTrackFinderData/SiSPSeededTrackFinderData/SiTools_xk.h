@@ -22,6 +22,7 @@
 #include "TrkToolInterfaces/IPatternParametersUpdator.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+#include "TrkToolInterfaces/IBoundaryCheckTool.h"
 
 namespace InDet{
 
@@ -51,6 +52,7 @@ namespace InDet{
       const Trk::IRIO_OnTrackCreator*           rioTool    () const {return m_riotool    ;}
       const IInDetConditionsTool*               pixcond    () const {return m_pixcond    ;}
       const IInDetConditionsTool*               sctcond    () const {return m_sctcond    ;}
+      const Trk::IBoundaryCheckTool*            boundaryCheckTool() const {return m_boundaryCheckTool;}
       const double&                       xi2max     () const {return m_xi2max     ;}
       const double&                       xi2maxBrem () const {return m_xi2maxBrem ;}
       const double&                       xi2maxNoAdd() const {return m_xi2maxNoAdd;}
@@ -83,6 +85,7 @@ namespace InDet{
 
       void setTools(const Trk::MagneticFieldProperties*);
       void setTools(const IInDetConditionsTool*, const IInDetConditionsTool*);
+      void setTools(const Trk::IBoundaryCheckTool*);
       void setXi2pTmin(const double&,const double&,const double&,const double&);
       void setHolesClusters(const int&,const int&,const int&);
       void setAssociation(const int&);
@@ -105,6 +108,7 @@ namespace InDet{
       const Trk::IRIO_OnTrackCreator* m_riotool    ;  // RIOonTrack creator
       const IInDetConditionsTool*     m_pixcond    ;  // Condtionos for pixels 
       const IInDetConditionsTool*     m_sctcond    ;  // Conditions for sct
+      const Trk::IBoundaryCheckTool*  m_boundaryCheckTool; // Boundary checking tool for detector sensitivities
       const Trk::PRDtoTrackMap*       m_prdToTrackMap = nullptr; ///< PRD to track association maps
 
       double                          m_xi2max     ;  // Max Xi2 for updator 
@@ -139,7 +143,8 @@ namespace InDet{
       m_updatortool = nullptr;
       m_riotool     = nullptr;  
       m_pixcond     = nullptr;
-      m_sctcond     = nullptr;
+      m_sctcond     = nullptr;      
+      m_boundaryCheckTool = nullptr;
       m_xi2max      = 9.  ;
       m_xi2maxBrem  = 15. ;
       m_xi2maxlink  = 200.;
@@ -175,7 +180,13 @@ namespace InDet{
     (const Trk::MagneticFieldProperties* MF)
     {
       m_fieldtool = MF;
-    }
+    }  
+  inline void SiTools_xk::setTools
+    (const Trk::IBoundaryCheckTool* bound)
+    {
+      m_boundaryCheckTool = bound;
+    } 
+
 
   inline void SiTools_xk::setTools
     (const IInDetConditionsTool* pix,

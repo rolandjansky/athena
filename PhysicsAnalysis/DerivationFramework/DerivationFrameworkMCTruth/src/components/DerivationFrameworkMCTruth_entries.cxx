@@ -17,6 +17,9 @@
 #include "src/HardScatterCollectionMaker.h"
 #include "src/TruthLinkRepointTool.h"
 #include "DerivationFrameworkMCTruth/TruthPVCollectionMaker.h"
+#include "src/GenFilterTool.h"
+#include "src/TruthEDDecorator.h"
+#include "src/TruthMetaDataWriter.h"
 
 using namespace DerivationFramework;
 
@@ -39,3 +42,6 @@ DECLARE_COMPONENT( TruthBornLeptonCollectionMaker )
 DECLARE_COMPONENT( HardScatterCollectionMaker )
 DECLARE_COMPONENT( TruthLinkRepointTool )
 DECLARE_COMPONENT( TruthPVCollectionMaker )
+DECLARE_COMPONENT( GenFilterTool )
+DECLARE_COMPONENT( TruthEDDecorator )
+DECLARE_COMPONENT( TruthMetaDataWriter )

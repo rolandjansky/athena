@@ -52,7 +52,9 @@ namespace InDetDD {
       
       /** Constructor */
       PixelDetectorManager(StoreGateSvc* detStore);
-    
+      /** Constructor with name */
+      PixelDetectorManager(StoreGateSvc* detStore, std::string name);
+
       /** Destructor */
       ~PixelDetectorManager();
     

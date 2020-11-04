@@ -376,7 +376,8 @@ if InDetFlags.doPattern():
     InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder',
                                                                  PropagatorTool        = TrackingCommon.getInDetPatternPropagator(),
                                                                  UpdatorTool           = TrackingCommon.getInDetPatternUpdator(),
-                                                                 RIOonTrackTool        = TrackingCommon.getInDetRotCreatorDigital(), # #NS HERE
+                                                                 RIOonTrackTool        = TrackingCommon.getInDetRotCreatorDigital(),
+                                                                 BoundaryCheckTool     = TrackingCommon.getInDetBoundaryCheckTool(),
                                                                  usePixel              = DetFlags.haveRIO.pixel_on(),
                                                                  useSCT                = DetFlags.haveRIO.SCT_on(),
                                                                  PixelClusterContainer = InDetKeys.PixelClusters(),
@@ -595,7 +596,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__DetAnnealingMaker
   if(InDetFlags.primaryVertexSetup() == 'GaussAdaptiveMultiFinding'):
     InDetAnnealingMaker = Trk__DetAnnealingMaker(name="InDetAnnealingMaker",
-                                                 SetOfTemperatures=[8., 4., 2., 1.4142136, 1.2247449, 1.])  # 'standard' annealing temps raised to 0.5
+                                                 SetOfTemperatures=[1.])  # switching off annealing for AMVF
   else:
       InDetAnnealingMaker = Trk__DetAnnealingMaker(name="InDetAnnealingMaker",
                                                    SetOfTemperatures=[64., 16., 4., 2., 1.5, 1.])  # not default
@@ -850,7 +851,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                                       TrackSelector     = InDetTrackSelectorTool,
                                                                       useBeamConstraint = InDetFlags.useBeamConstraint(),
                                                                       selectiontype     = 0,
-  								                                                    TracksMaxZinterval = 3,#mm 
+  								      TracksMaxZinterval = 3,#mm 
+                                                                      m_useSeedConstraint = False, #switching off seed constraint
                                                                       do3dSplitting     = InDetFlags.doPrimaryVertex3DFinding())
     else:
       from ActsGeometry.ActsTrackingGeometryTool import ActsTrackingGeometryTool

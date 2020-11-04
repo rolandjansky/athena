@@ -15,6 +15,8 @@ extern "C" {
 #include <set>
 #include <map> // For std::pair...
 
+#include "TrigConfxAOD/IKeyWriterTool.h"
+
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -65,7 +67,7 @@ namespace TrigConf {
       virtual StatusCode execute(const EventContext& ctx) const override;
 
    private:
-      /// 
+ 
       SG::WriteHandleKey<xAOD::TrigConfKeys> m_eventName {this, "EventObjectName", "TrigConfKeys",
         "StoreGate key for the event object"};
 
@@ -117,6 +119,9 @@ namespace TrigConf {
 
       ServiceHandle< StoreGateSvc > m_metaStore {this, "MetaDataStore", "MetaDataStore",
         "The MetaDataStore"};
+
+      ToolHandle<IKeyWriterTool> m_keyWriterTool{this, "KeyWriterTool", "KeyWriterTool/OfflineKeyWriterTool", 
+          "Writes the keys which are configured when the trigger configuration is written to in-file metadata."};
 
       StatusCode populateL1FromTrigConf(xAOD::TriggerMenu* menu) const;
 

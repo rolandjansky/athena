@@ -50,6 +50,9 @@ namespace TrigConf {
       /** Accessor to the l1 thresholds */
       std::vector<std::string> l1thresholds() const;
 
+      /** Accessor to the chains multiplicitiy requirements for each of its legs */
+      std::vector<size_t> legMultiplicities() const;
+
       /** Accessor to the connected output streams */
       std::vector<std::string> streams() const;
 

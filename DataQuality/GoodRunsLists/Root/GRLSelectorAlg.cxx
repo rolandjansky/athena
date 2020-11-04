@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // GoodRunsLists includes
-#include <GoodRunsLists/GRLSelectorAlg.h>
-#include <AnaAlgorithm/FilterReporter.h>
 #include <AsgMessaging/MessageCheck.h>
-#include "xAODEventInfo/EventInfo.h"
+#include <EventBookkeeperTools/FilterReporter.h>
+#include <GoodRunsLists/GRLSelectorAlg.h>
+#include <xAODEventInfo/EventInfo.h>
 
 GRLSelectorAlg::GRLSelectorAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AnaAlgorithm( name, pSvcLocator )
 										    , m_grlTool("GoodRunsListSelectionTool", this)
@@ -30,13 +30,13 @@ StatusCode GRLSelectorAlg::initialize() {
 StatusCode GRLSelectorAlg::finalize() {
   //  ATH_MSG_INFO ("Finalizing " << name() << "...");
 
-  ANA_CHECK (m_filterParams.finalize());
+  ANA_MSG_INFO (m_filterParams.summary());
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode GRLSelectorAlg::execute() {  
-  EL::FilterReporter filter (m_filterParams, false);
+  FilterReporter filter (m_filterParams, false);
 
   const xAOD::EventInfo* evtInfo = 0;
   ANA_CHECK( evtStore()->retrieve( evtInfo, "EventInfo" ) );

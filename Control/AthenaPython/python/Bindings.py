@@ -250,12 +250,6 @@ def _py_init_StoreGateSvc():
 
     return StoreGateSvc
 
-@memoize
-def _py_init_StoreGate():
-    _py_init_StoreGateSvc()
-    from StoreGateBindings.Bindings import StoreGate
-    return StoreGate
-
 ### pythonizations for IIncidentSvc
 @memoize
 def _py_init_IIncidentSvc():
@@ -820,7 +814,6 @@ def _std_map_pythonize(cls, key_type, value_type):
 def _setup():
     _register = _PyAthenaBindingsCatalog.register
     _register('StoreGateSvc', _py_init_StoreGateSvc)
-    _register('StoreGate',    _py_init_StoreGate   )
 
     _register( 'IncidentSvc', _py_init_IIncidentSvc)
     _register('IIncidentSvc', _py_init_IIncidentSvc)

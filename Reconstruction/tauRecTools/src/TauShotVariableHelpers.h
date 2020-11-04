@@ -14,65 +14,33 @@
 #define TAUSHOTVARIABLEHELPERS_H
 
 #include "xAODPFlow/PFO.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "CaloInterface/IHadronicCalibrationTool.h"
+#include "CaloIdentifier/LArNeighbours.h"
+
+#include "AsgMessaging/MessageCheck.h"
+#include "GaudiKernel/ToolHandle.h"
+
+class CaloCell_ID;
 
 namespace TauShotVariableHelpers {
+  
+  ANA_MSG_HEADER(msgHelperFunction)
 
-    /** @brief get cell block with (currently) 5x2 cells in correct order for variable calculations */
-    std::vector<std::vector<const CaloCell*> > getCellBlock(xAOD::PFO* shot,
-                                                            const CaloCell_ID* calo_id);
+  /** @brief Obtain the required neighbour cell */
+  const CaloCell* getNeighbour(const CaloCell* cell,
+                               const CaloClusterCellLink& links,
+                               const CaloCell_ID* calo_id,
+                               const LArNeighbours::neighbourOption& option);
 
-    /** @brief mean eta, used by other functions */
-    float mean_eta(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                   const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
+  /** @brief Get cell block with (currently) 2 x 5 cells in correct order for variable calculations */
+  std::vector<std::vector<const CaloCell*>> getCellBlock(const xAOD::PFO& shot,
+                                                         const CaloCell_ID* calo_id);
 
-    /** @brief mean pt, used by other functions */ 
-    float mean_pt(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                  const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
+  /** @brief pt in a window of (currently) 2 x windowSize cells */
+  float ptWindow(const std::vector<std::vector<const CaloCell*>>& shotCells, 
+                 int windowSize, 
+                 const ToolHandle<IHadronicCalibrationTool>& caloWeightTool);
 
-    /** @brief pt in windows */
-    float ptWindow(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                   int /*windowSize*/, 
-                   const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
-
-    /** @brief ws5 variable (egamma) */
-    float ws5(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-	      const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
-
-    /** @brief standard deviation in eta WRT mean */
-    float sdevEta_WRTmean(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                          const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
-
-    /** @brief standard deviation in eta WRT mode */
-    float sdevEta_WRTmode(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                          const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
-
-    /** @brief normalized standard deviation in pt */
-    float sdevPt(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-		 const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
-
-    /** @brief pT diff b/w lead and sub-lead cell */
-    float deltaPt12_min(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                        const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
-
-    /** @brief Fside variable (egamma) */
-    float Fside(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                int /*largerWindow*/, 
-                int /*smallerWindow*/, 
-                const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
-
-    /** @brief similar than Fside but in unit of eta instead of number of cells */
-    float fracSide(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                   int /*largerWindow*/, 
-                   int /*smallerWindow*/, 
-                   ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
-
-    /** @brief pt window fraction */
-    float ptWindowFrac(std::vector<std::vector<const CaloCell*> > /*shotCells*/, 
-                       int /*largerWindow*/, 
-                       int /*smallerWindow*/, 
-                       const ToolHandle<IHadronicCalibrationTool>& /*caloWeightTool*/);
 }
 
 #endif // TAUSHOTVARIABLEHELPERS_H

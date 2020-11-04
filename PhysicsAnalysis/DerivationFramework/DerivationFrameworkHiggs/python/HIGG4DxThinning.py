@@ -58,16 +58,16 @@ def setup(HIGG4DxName, streamName, ToolSvc):
         ToolSvc += HIGG4DxJetTrackThinningTool1
         thinningTools.append(HIGG4DxJetTrackThinningTool1)
 
-    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
-        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
-        HIGG4DxJetTrackThinningTool2 = DerivationFramework__JetTrackParticleThinning( name          	    = HIGG4DxName+"JetTrackThinningTool2",
-                                                                                      StreamName              = streamName,
-                                                                                      JetKey                 = "AntiKt2PV0TrackJets",
-                                                                                      SelectionString        = "AntiKt2PV0TrackJets.pt > 6*GeV",
-                                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                                      ApplyAnd               = True)
-        #ToolSvc += HIGG4DxJetTrackThinningTool2
-        #thinningTools.append(HIGG4DxJetTrackThinningTool2)
+    #if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+    #    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
+    #    HIGG4DxJetTrackThinningTool2 = DerivationFramework__JetTrackParticleThinning( name          	    = HIGG4DxName+"JetTrackThinningTool2",
+    #                                                                                  StreamName              = streamName,
+    #                                                                                  JetKey                 = "AntiKt2PV0TrackJets",
+    #                                                                                  SelectionString        = "AntiKt2PV0TrackJets.pt > 6*GeV",
+    #                                                                                  InDetTrackParticlesKey = "InDetTrackParticles",
+    #                                                                                  ApplyAnd               = True)
+    #    ToolSvc += HIGG4DxJetTrackThinningTool2
+    #    thinningTools.append(HIGG4DxJetTrackThinningTool2)
 
     # Tracks associated with Muons
     HIGG4DxMuonSelectionString = ""
@@ -120,9 +120,9 @@ def setup(HIGG4DxName, streamName, ToolSvc):
     # PreserveDescendants keeps all particles including those that come from Geant processes
 
     if DFisMC:
-    	#thin special containers
+        #thin special containers
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__GenericTruthThinning
-    	#thin taus
+        #thin taus
         HIGG4DxTruthTool_TAU = DerivationFramework__GenericTruthThinning(name                         = HIGG4DxName+"TruthTool_TAU",
                                                                          StreamName                   = streamName,
                                                                          ParticleSelectionString      = truth_cond_tau,
@@ -133,7 +133,7 @@ def setup(HIGG4DxName, streamName, ToolSvc):
         ToolSvc += HIGG4DxTruthTool_TAU
         thinningTools.append(HIGG4DxTruthTool_TAU)
 
-	#thin leptons and taus
+        #thin leptons and taus
         HIGG4DxTruthTool_COMB = DerivationFramework__GenericTruthThinning(name                         = HIGG4DxName+"TruthTool_COMB",
                                                                           StreamName                   = streamName,
                                                                           ParticleSelectionString      = truth_cond_comb,
@@ -145,7 +145,7 @@ def setup(HIGG4DxName, streamName, ToolSvc):
         ToolSvc += HIGG4DxTruthTool_COMB
         thinningTools.append(HIGG4DxTruthTool_COMB)
 
-    	#thin photons
+        #thin photons
         """HIGG4DxTruthTool_PHO = DerivationFramework__GenericTruthThinning(name                    = "HIGG4DxTruthTool_PHO",
                                                                      StreamName              = streamName,
                                                                      ParticlesKey            = "TruthPhotons",
@@ -154,9 +154,9 @@ def setup(HIGG4DxName, streamName, ToolSvc):
                                                                      ToolSvc += HIGG4DxTruthTool_PHO
                                                                      thinningTools.append(HIGG4DxTruthTool_PHO)"""
 
-    	#thinning the master truth collection
+        #thinning the master truth collection
         from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
-        HIGG4DxTruthTool_MENU = DerivationFramework__MenuTruthThinning(  name 			    = HIGG4DxName+"TruthTool_MENU",
+        HIGG4DxTruthTool_MENU = DerivationFramework__MenuTruthThinning(  name                       = HIGG4DxName+"TruthTool_MENU",
                                                                          StreamName                 = streamName,
                                                                          WritePartons               = False,
                                                                          WriteHadrons               = False,

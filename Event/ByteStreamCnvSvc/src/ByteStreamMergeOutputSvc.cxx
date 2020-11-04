@@ -147,7 +147,7 @@ bool  ByteStreamMergeOutputSvc::putEvent(const RawEvent* newEvent) {
    mergedEventWrite->stream_tag(event->nstream_tag(), tmp);
    mergedEventWrite->checksum_type(event->checksum_type());
    // copy robs
-   for(ROBMAP::iterator it = robsToAdd.begin(), itEnd = robsToAdd.end(); it != itEnd; it++) {
+   for(ROBMAP::iterator it = robsToAdd.begin(), itEnd = robsToAdd.end(); it != itEnd; ++it) {
       mergedEventWrite->append(it->second);
    }
    // convert RawEventWrite to RawEvent
@@ -160,7 +160,7 @@ bool  ByteStreamMergeOutputSvc::putEvent(const RawEvent* newEvent) {
    }
    RawEvent newRawEvent(buffer);
    StatusCode sc = m_outSvc->putEvent(&newRawEvent) ? StatusCode::SUCCESS : StatusCode::FAILURE;
-   for(ROBMAP::iterator it = robsToAdd.begin(), itEnd = robsToAdd.end(); it != itEnd; it++) {
+   for(ROBMAP::iterator it = robsToAdd.begin(), itEnd = robsToAdd.end(); it != itEnd; ++it) {
       delete it->second; it->second = 0;
    }
    delete mergedEventWrite; mergedEventWrite = 0;

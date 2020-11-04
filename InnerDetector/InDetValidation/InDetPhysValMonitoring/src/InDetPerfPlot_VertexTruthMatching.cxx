@@ -8,6 +8,8 @@
  **/
 
 #include "InDetPerfPlot_VertexTruthMatching.h"
+#include "EventPrimitives/EventPrimitives.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 
 using namespace IDPVM;
 
@@ -34,35 +36,117 @@ InDetPerfPlot_VertexTruthMatching::InDetPerfPlot_VertexTruthMatching(InDetPlotBa
     m_vx_hs_truth_long_reso_vs_PU(nullptr),
     m_vx_hs_truth_trans_reso_vs_PU(nullptr),
     m_vx_hs_truth_long_reso(nullptr),
-    m_vx_hs_truth_trans_reso(nullptr)
+    m_vx_hs_truth_trans_reso(nullptr),
+    m_vx_hs_z_pull(nullptr),
+    m_vx_hs_y_pull(nullptr),
+    m_vx_hs_x_pull(nullptr),
+    m_vx_all_z_pull(nullptr),
+    m_vx_all_y_pull(nullptr),
+    m_vx_all_x_pull(nullptr),
+    m_vx_hs_z_res(nullptr),
+    m_vx_hs_y_res(nullptr),
+    m_vx_hs_x_res(nullptr),
+    m_vx_all_z_res(nullptr),
+    m_vx_all_y_res(nullptr),
+    m_vx_all_x_res(nullptr),
+    m_vx_all_truth_z_res_vs_PU(nullptr),
+    m_vx_all_truth_x_res_vs_PU(nullptr),
+    m_vx_all_truth_y_res_vs_PU(nullptr),
+    m_vx_all_truth_z_pull_vs_PU(nullptr),
+    m_vx_all_truth_x_pull_vs_PU(nullptr),
+    m_vx_all_truth_y_pull_vs_PU(nullptr),
+    m_vx_all_truth_z_res_vs_nTrk(nullptr),
+    m_vx_all_truth_x_res_vs_nTrk(nullptr),
+    m_vx_all_truth_y_res_vs_nTrk(nullptr),
+    m_vx_all_truth_z_pull_vs_nTrk(nullptr),
+    m_vx_all_truth_x_pull_vs_nTrk(nullptr),
+    m_vx_all_truth_y_pull_vs_nTrk(nullptr),
+    m_vx_hs_truth_z_res_vs_PU(nullptr),
+    m_vx_hs_truth_x_res_vs_PU(nullptr),
+    m_vx_hs_truth_y_res_vs_PU(nullptr),
+    m_vx_hs_truth_z_pull_vs_PU(nullptr),
+    m_vx_hs_truth_x_pull_vs_PU(nullptr),
+    m_vx_hs_truth_y_pull_vs_PU(nullptr),
+    m_vx_hs_truth_z_res_vs_nTrk(nullptr),
+    m_vx_hs_truth_x_res_vs_nTrk(nullptr),
+    m_vx_hs_truth_y_res_vs_nTrk(nullptr),
+    m_vx_hs_truth_z_pull_vs_nTrk(nullptr),
+    m_vx_hs_truth_x_pull_vs_nTrk(nullptr),
+    m_vx_hs_truth_y_pull_vs_nTrk(nullptr)
+
 {
   // nop
 }
 
 void InDetPerfPlot_VertexTruthMatching::initializePlots() {
 
-    IDPVM_BOOK(m_vx_type_truth);
+    book(m_vx_type_truth,"vx_type_truth");
     if (m_iDetailLevel >= 200) {
-        IDPVM_BOOK(m_vx_hs_classification);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_inclusive);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_matched);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_merged);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_split);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_fake);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_dummy);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_clean);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_lowpu);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_highpu);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_hssplit);
-        IDPVM_BOOK(m_vx_nReco_vs_nTruth_none);
-        IDPVM_BOOK(m_vx_hs_reco_eff);
-        IDPVM_BOOK(m_vx_hs_sel_eff);
-        IDPVM_BOOK(m_vx_hs_reco_long_reso);
-        IDPVM_BOOK(m_vx_hs_reco_trans_reso);
-        IDPVM_BOOK(m_vx_hs_truth_long_reso);
-        IDPVM_BOOK(m_vx_hs_truth_trans_reso);
-        IDPVM_BOOK(m_vx_hs_truth_long_reso_vs_PU);
-        IDPVM_BOOK(m_vx_hs_truth_trans_reso_vs_PU);
+        book(m_vx_hs_classification,"vx_hs_classification");
+        book(m_vx_nReco_vs_nTruth_inclusive,"vx_nReco_vs_nTruth_inclusive");
+        book(m_vx_nReco_vs_nTruth_matched,"vx_nReco_vs_nTruth_matched");
+        book(m_vx_nReco_vs_nTruth_merged,"vx_nReco_vs_nTruth_merged");
+        book(m_vx_nReco_vs_nTruth_split,"vx_nReco_vs_nTruth_split");
+        book(m_vx_nReco_vs_nTruth_fake,"vx_nReco_vs_nTruth_fake");
+        book(m_vx_nReco_vs_nTruth_dummy,"vx_nReco_vs_nTruth_dummy");
+        book(m_vx_nReco_vs_nTruth_clean,"vx_nReco_vs_nTruth_clean");
+        book(m_vx_nReco_vs_nTruth_lowpu,"vx_nReco_vs_nTruth_lowpu");
+        book(m_vx_nReco_vs_nTruth_highpu,"vx_nReco_vs_nTruth_highpu");
+        book(m_vx_nReco_vs_nTruth_hssplit,"vx_nReco_vs_nTruth_hssplit");
+        book(m_vx_nReco_vs_nTruth_none,"vx_nReco_vs_nTruth_none");
+        book(m_vx_hs_reco_eff,"vx_hs_reco_eff");
+        book(m_vx_hs_sel_eff,"vx_hs_sel_eff");
+        book(m_vx_hs_reco_long_reso,"vx_hs_reco_long_reso");
+        book(m_vx_hs_reco_trans_reso,"vx_hs_reco_trans_reso");
+        book(m_vx_hs_truth_long_reso,"vx_hs_truth_long_reso");
+        book(m_vx_hs_truth_trans_reso,"vx_hs_truth_trans_reso");
+        book(m_vx_hs_truth_long_reso_vs_PU,"vx_hs_truth_long_reso_vs_PU");
+        book(m_vx_hs_truth_trans_reso_vs_PU,"vx_hs_truth_trans_reso_vs_PU");
+ 
+        book(m_vx_hs_z_pull,"vx_TYPE_z_pull","vx_hs_z_pull");
+        book(m_vx_hs_y_pull,"vx_TYPE_y_pull","vx_hs_y_pull");
+        book(m_vx_hs_x_pull,"vx_TYPE_x_pull","vx_hs_x_pull");
+   
+        book(m_vx_all_z_pull,"vx_TYPE_z_pull","vx_all_z_pull");
+        book(m_vx_all_y_pull,"vx_TYPE_y_pull","vx_all_y_pull");
+        book(m_vx_all_x_pull,"vx_TYPE_x_pull","vx_all_x_pull");
+
+        book(m_vx_hs_z_res,"vx_TYPE_z_reso","vx_hs_z_res");
+        book(m_vx_hs_y_res,"vx_TYPE_y_reso","vx_hs_y_res");
+        book(m_vx_hs_x_res,"vx_TYPE_x_reso","vx_hs_x_res");
+        book(m_vx_all_z_res,"vx_TYPE_z_reso","vx_all_z_res");
+        book(m_vx_all_y_res,"vx_TYPE_y_reso","vx_all_y_res");
+        book(m_vx_all_x_res,"vx_TYPE_x_reso","vx_all_x_res");
+
+        book(m_vx_all_truth_z_res_vs_PU, "vx_TYPE_truth_reso_z_vs_PU", "vx_all_truth_reso_z_vs_PU");
+        book(m_vx_all_truth_x_res_vs_PU, "vx_TYPE_truth_reso_x_vs_PU", "vx_all_truth_reso_x_vs_PU");
+        book(m_vx_all_truth_y_res_vs_PU, "vx_TYPE_truth_reso_y_vs_PU", "vx_all_truth_reso_y_vs_PU");
+        book(m_vx_all_truth_z_res_vs_nTrk, "vx_TYPE_truth_reso_z_vs_nTrk", "vx_all_truth_reso_z_vs_nTrk");
+        book(m_vx_all_truth_x_res_vs_nTrk, "vx_TYPE_truth_reso_x_vs_nTrk", "vx_all_truth_reso_x_vs_nTrk");
+        book(m_vx_all_truth_y_res_vs_nTrk, "vx_TYPE_truth_reso_y_vs_nTrk", "vx_all_truth_reso_y_vs_nTrk");
+
+        book(m_vx_all_truth_z_pull_vs_PU, "vx_TYPE_truth_pull_z_vs_PU", "vx_all_truth_pull_z_vs_PU");
+        book(m_vx_all_truth_x_pull_vs_PU, "vx_TYPE_truth_pull_x_vs_PU", "vx_all_truth_pull_x_vs_PU");
+        book(m_vx_all_truth_y_pull_vs_PU, "vx_TYPE_truth_pull_y_vs_PU", "vx_all_truth_pull_y_vs_PU");
+        book(m_vx_all_truth_z_pull_vs_nTrk, "vx_TYPE_truth_pull_z_vs_nTrk", "vx_all_truth_pull_z_vs_nTrk");
+        book(m_vx_all_truth_x_pull_vs_nTrk, "vx_TYPE_truth_pull_x_vs_nTrk", "vx_all_truth_pull_x_vs_nTrk");
+        book(m_vx_all_truth_y_pull_vs_nTrk, "vx_TYPE_truth_pull_y_vs_nTrk", "vx_all_truth_pull_y_vs_nTrk");
+
+        book(m_vx_hs_truth_z_res_vs_PU, "vx_TYPE_truth_reso_z_vs_PU", "vx_hs_truth_reso_z_vs_PU");
+        book(m_vx_hs_truth_x_res_vs_PU, "vx_TYPE_truth_reso_x_vs_PU", "vx_hs_truth_reso_x_vs_PU");
+        book(m_vx_hs_truth_y_res_vs_PU, "vx_TYPE_truth_reso_y_vs_PU", "vx_hs_truth_reso_y_vs_PU");
+        book(m_vx_hs_truth_z_res_vs_nTrk, "vx_TYPE_truth_reso_z_vs_nTrk", "vx_hs_truth_reso_z_vs_nTrk");
+        book(m_vx_hs_truth_x_res_vs_nTrk, "vx_TYPE_truth_reso_x_vs_nTrk", "vx_hs_truth_reso_x_vs_nTrk");
+        book(m_vx_hs_truth_y_res_vs_nTrk, "vx_TYPE_truth_reso_y_vs_nTrk", "vx_hs_truth_reso_y_vs_nTrk");
+
+        book(m_vx_hs_truth_z_pull_vs_PU, "vx_TYPE_truth_pull_z_vs_PU", "vx_hs_truth_pull_z_vs_PU");
+        book(m_vx_hs_truth_x_pull_vs_PU, "vx_TYPE_truth_pull_x_vs_PU", "vx_hs_truth_pull_x_vs_PU");
+        book(m_vx_hs_truth_y_pull_vs_PU, "vx_TYPE_truth_pull_y_vs_PU", "vx_hs_truth_pull_y_vs_PU");
+        book(m_vx_hs_truth_z_pull_vs_nTrk, "vx_TYPE_truth_pull_z_vs_nTrk", "vx_hs_truth_pull_z_vs_nTrk");
+        book(m_vx_hs_truth_x_pull_vs_nTrk, "vx_TYPE_truth_pull_x_vs_nTrk", "vx_hs_truth_pull_x_vs_nTrk");
+        book(m_vx_hs_truth_y_pull_vs_nTrk, "vx_TYPE_truth_pull_y_vs_nTrk", "vx_hs_truth_pull_y_vs_nTrk");
+
+
     }
 
 }
@@ -324,6 +408,42 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
                     minTruthRecoRadialDiff2 = truthRecoRadialDiff2;
                 }
             }
+          
+            const xAOD::TruthVertex *matchVertex = getTruthVertex(vertex);
+            if(!matchVertex) continue;
+            float residual_z = matchVertex->z() - vertex->z();
+            float residual_x = matchVertex->x() - vertex->x();
+            float residual_y = matchVertex->y() - vertex->y();
+            const AmgSymMatrix(3)& covariance = vertex->covariancePosition();
+            float vtxerr_x = fabs(Amg::error(covariance, 0)) > 1e-7 ? Amg::error(covariance, 0) : 1000.;
+            float vtxerr_y = fabs(Amg::error(covariance, 1)) > 1e-7 ? Amg::error(covariance, 1) : 1000.;
+            float vtxerr_z = fabs(Amg::error(covariance, 2)) > 1e-7 ? Amg::error(covariance, 2) : 1000.;
+            localPUDensity = getLocalPUDensity(matchVertex, truthHSVertices, truthPUVertices);
+    
+            fillHisto(m_vx_all_z_pull, residual_z/vtxerr_z);
+            fillHisto(m_vx_all_y_pull, residual_y/vtxerr_y);
+            fillHisto(m_vx_all_x_pull, residual_x/vtxerr_x);
+
+            fillHisto(m_vx_all_truth_z_res_vs_PU, localPUDensity, residual_z);
+            fillHisto(m_vx_all_truth_x_res_vs_PU, localPUDensity, residual_x);
+            fillHisto(m_vx_all_truth_y_res_vs_PU, localPUDensity, residual_y);
+
+            fillHisto(m_vx_all_z_res, residual_z);
+            fillHisto(m_vx_all_y_res, residual_y);
+            fillHisto(m_vx_all_x_res, residual_x);
+            
+            fillHisto(m_vx_all_truth_z_pull_vs_PU, localPUDensity, residual_z/vtxerr_z);
+            fillHisto(m_vx_all_truth_x_pull_vs_PU, localPUDensity, residual_x/vtxerr_y);
+            fillHisto(m_vx_all_truth_y_pull_vs_PU, localPUDensity, residual_y/vtxerr_x);
+
+            fillHisto(m_vx_all_truth_z_res_vs_nTrk, vertex->nTrackParticles(), residual_z);
+            fillHisto(m_vx_all_truth_x_res_vs_nTrk, vertex->nTrackParticles(), residual_x);
+            fillHisto(m_vx_all_truth_y_res_vs_nTrk, vertex->nTrackParticles(), residual_y);
+            
+            fillHisto(m_vx_all_truth_z_pull_vs_nTrk, vertex->nTrackParticles(), residual_z/vtxerr_z);
+            fillHisto(m_vx_all_truth_x_pull_vs_nTrk, vertex->nTrackParticles(), residual_x/vtxerr_y);
+            fillHisto(m_vx_all_truth_y_pull_vs_nTrk, vertex->nTrackParticles(), residual_y/vtxerr_x);
+
 
         } // end loop over vertices
 
@@ -331,11 +451,45 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
         if (truthHSVertices.size() != 0) {
             localPUDensity = getLocalPUDensity(truthHSVtx, truthHSVertices, truthPUVertices);
             if (truthHSVtxRecoed) {
+                float residual_z = truthHSVtx->z() - bestRecoHSVtx_truth->z();
+                float residual_r = std::sqrt(std::pow(truthHSVtx->x() - bestRecoHSVtx_truth->x(), 2) + std::pow(truthHSVtx->y() - bestRecoHSVtx_truth->y(), 2));
+                float residual_x = truthHSVtx->x() - bestRecoHSVtx_truth->x();
+                float residual_y = truthHSVtx->y() - bestRecoHSVtx_truth->y();
                 fillHisto(m_vx_hs_reco_eff, localPUDensity, 1);
                 fillHisto(m_vx_hs_reco_long_reso, localPUDensity, getRecoLongitudinalReso(bestRecoHSVtx_truth));
                 fillHisto(m_vx_hs_reco_trans_reso, localPUDensity, getRecoTransverseReso(bestRecoHSVtx_truth));
-                fillHisto(m_vx_hs_truth_long_reso_vs_PU, localPUDensity, truthHSVtx->z() - bestRecoHSVtx_truth->z());
-                fillHisto(m_vx_hs_truth_trans_reso_vs_PU, localPUDensity, std::sqrt(std::pow(truthHSVtx->x() - bestRecoHSVtx_truth->x(), 2) + std::pow(truthHSVtx->y() - bestRecoHSVtx_truth->y(), 2)));
+                fillHisto(m_vx_hs_truth_long_reso_vs_PU, localPUDensity, residual_z);
+                fillHisto(m_vx_hs_truth_trans_reso_vs_PU, localPUDensity, residual_r);
+
+                const AmgSymMatrix(3)& covariance = bestRecoHSVtx_truth->covariancePosition();
+                float vtxerr_x = Amg::error(covariance, 0);
+                float vtxerr_y = Amg::error(covariance, 1);
+                float vtxerr_z = Amg::error(covariance, 2);
+
+                if(fabs(vtxerr_z) > 1e-7) fillHisto(m_vx_hs_z_pull, residual_z/vtxerr_z);
+                if(fabs(vtxerr_y) > 1e-7) fillHisto(m_vx_hs_y_pull, residual_y/vtxerr_y);
+                if(fabs(vtxerr_x) > 1e-7) fillHisto(m_vx_hs_x_pull, residual_x/vtxerr_x);
+
+                fillHisto(m_vx_hs_truth_z_res_vs_PU, localPUDensity, residual_z);
+                fillHisto(m_vx_hs_truth_x_res_vs_PU, localPUDensity, residual_x);
+                fillHisto(m_vx_hs_truth_y_res_vs_PU, localPUDensity, residual_y);
+
+                fillHisto(m_vx_hs_z_res, residual_z);
+                fillHisto(m_vx_hs_y_res, residual_y);
+                fillHisto(m_vx_hs_x_res, residual_x);            
+
+                fillHisto(m_vx_hs_truth_z_pull_vs_PU, localPUDensity, residual_z/vtxerr_z);
+                fillHisto(m_vx_hs_truth_x_pull_vs_PU, localPUDensity, residual_x/vtxerr_y);
+                fillHisto(m_vx_hs_truth_y_pull_vs_PU, localPUDensity, residual_y/vtxerr_x);
+
+                fillHisto(m_vx_hs_truth_z_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_z);
+                fillHisto(m_vx_hs_truth_x_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_x);
+                fillHisto(m_vx_hs_truth_y_res_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_y);
+            
+                fillHisto(m_vx_hs_truth_z_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_z/vtxerr_z);
+                fillHisto(m_vx_hs_truth_x_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_x/vtxerr_y);
+                fillHisto(m_vx_hs_truth_y_pull_vs_nTrk, bestRecoHSVtx_truth->nTrackParticles(), residual_y/vtxerr_x);
+
             }
             else {
                 fillHisto(m_vx_hs_reco_eff, localPUDensity, 0);

@@ -57,36 +57,41 @@ namespace met{
     protected: 
 
     StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
-			    const xAOD::IParticleContainer* hardObjs) const final;
+                            const xAOD::IParticleContainer* hardObjs) const final;
     StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
     //
     StatusCode associateJets(xAOD::MissingETAssociationMap* metMap) const;
     //
     StatusCode extractTruthParticles(const xAOD::IParticle* obj,
-				     std::vector<const xAOD::IParticle*>& truthlist) const;
+                                     std::vector<const xAOD::IParticle*>& truthlist) const;
     StatusCode extractTruthFromElectron(const xAOD::IParticle* obj,
-					std::vector<const xAOD::IParticle*>& truthlist) const;
+                                        std::vector<const xAOD::IParticle*>& truthlist) const;
     StatusCode extractTruthFromPhoton(const xAOD::IParticle* obj,
-				      std::vector<const xAOD::IParticle*>& truthlist) const;
+                                      std::vector<const xAOD::IParticle*>& truthlist) const;
     StatusCode extractTruthFromMuon(const xAOD::IParticle* obj,
-				    std::vector<const xAOD::IParticle*>& truthlist) const;
+                                    std::vector<const xAOD::IParticle*>& truthlist) const;
     StatusCode extractTruthFromTau(const xAOD::IParticle* obj,
-				     std::vector<const xAOD::IParticle*>& truthlist) const;
+                                     std::vector<const xAOD::IParticle*>& truthlist) const;
     //
     StatusCode computeSoftTerms(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
     //
     StatusCode extractPFO(const xAOD::IParticle*,
-			  std::vector<const xAOD::IParticle*>&,
-			  const met::METAssociator::ConstitHolder&,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const final
+                          std::vector<const xAOD::IParticle*>&,
+                          const met::METAssociator::ConstitHolder&,
+                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const final
+    {return StatusCode::FAILURE;} // should not be called
+    StatusCode extractFE(const xAOD::IParticle*,
+                         std::vector<const xAOD::IParticle*>&,
+                         const met::METAssociator::ConstitHolder&,
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const final
     {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTracks(const xAOD::IParticle*,
-			     std::vector<const xAOD::IParticle*>&,
-			     const met::METAssociator::ConstitHolder&) const final
+                             std::vector<const xAOD::IParticle*>&,
+                             const met::METAssociator::ConstitHolder&) const final
     {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
-				   std::vector<const xAOD::IParticle*>&,
-				   const met::METAssociator::ConstitHolder&) const final
+                                   std::vector<const xAOD::IParticle*>&,
+                                   const met::METAssociator::ConstitHolder&) const final
     {return StatusCode::FAILURE;} // should not be called
 
     private:

@@ -41,8 +41,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
   
   xAOD::JetConstituentVector constituents = jetSeed->getConstituents();
   for (const xAOD::JetConstituent* constituent : constituents) {
-    TLorentzVector constituentP4;
-    constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
+    TLorentzVector constituentP4 = tauRecTools::GetConstituentP4(*constituent);
     baryCenter += constituentP4;
   }
   
@@ -53,8 +52,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
   int nConstituents = 0;
 
   for (const xAOD::JetConstituent* constituent : constituents) {
-    TLorentzVector constituentP4;
-    constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
+    TLorentzVector constituentP4 = tauRecTools::GetConstituentP4(*constituent);
     
     double dR = baryCenter.DeltaR(constituentP4);
     if (dR > m_clusterCone) continue;
@@ -93,15 +91,23 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
       tauInterAxis = tauDetectorAxis;
     }
     else {
+      // barycenter at the tau vertex
+      TLorentzVector baryCenterTauVertex; 
+  
       for (const xAOD::JetConstituent* constituent : constituents) {
-        TLorentzVector constituentP4;
-        constituentP4.SetPtEtaPhiE(constituent->pt(), constituent->eta(), constituent->phi(), constituent->e());
+        TLorentzVector constituentP4 = m_tauVertexCorrection->getVertexCorrectedP4(*constituent, tauVertex, jetVertex);
+        baryCenterTauVertex += constituentP4;
+      }
+      ATH_MSG_DEBUG("barycenter (eta, phi) at tau vertex: "  << baryCenterTauVertex.Eta() << " " << baryCenterTauVertex.Phi());
+
+
+      for (const xAOD::JetConstituent* constituent : constituents) {
+        TLorentzVector constituentP4 = m_tauVertexCorrection->getVertexCorrectedP4(*constituent, tauVertex, jetVertex);
       
-        double dR = baryCenter.DeltaR(constituentP4);
+        double dR = baryCenterTauVertex.DeltaR(constituentP4);
         if (dR > m_clusterCone) continue;
         
-        TLorentzVector vertexCorrectedP4 = m_tauVertexCorrection->getVertexCorrectedP4(*constituent, tauVertex, jetVertex); 
-        tauInterAxis += vertexCorrectedP4;
+        tauInterAxis += constituentP4;
       }
     }
 

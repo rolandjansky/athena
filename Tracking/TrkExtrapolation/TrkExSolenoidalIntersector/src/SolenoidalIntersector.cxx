@@ -94,7 +94,7 @@ SolenoidalIntersector::intersectSurface(const Surface&		surface,
 			    (*perigee, trackIntersection, qOverP);
     
     ATH_MSG_WARNING( " unrecognized Surface" );
-    return 0;
+    return nullptr;
 }
 	           
 /**IIntersector interface method for specific Surface type : PerigeeSurface */
@@ -134,7 +134,7 @@ SolenoidalIntersector::intersectCylinderSurface(const CylinderSurface&	surface,
 
     double radius2 = isect->position().perp2();
     if (std::abs(endRadius - sqrt(radius2)) > m_surfaceTolerance
-	&& ! extrapolateToR(*isect, radius2, *com, endRadius))	return 0;
+	&& ! extrapolateToR(*isect, radius2, *com, endRadius))	return nullptr;
     return intersection(std::move(isect), *com, surface);
 }
 
@@ -163,7 +163,7 @@ SolenoidalIntersector::intersectDiscSurface (const DiscSurface&		surface,
     if (std::abs(endZ -trackIntersection->position().z()) > m_surfaceTolerance
 	&& ! extrapolateToZ(*isect, *com, endZ))
     {
-	return 0;
+	return nullptr;
     }
     
     return intersection(std::move(isect), *com, surface);
@@ -207,18 +207,18 @@ SolenoidalIntersector::intersectPlaneSurface(const PlaneSurface&	surface,
     while (std::abs(offset) > m_surfaceTolerance*std::abs(dot))
     {
 	// take care if grazing incidence - quit if looper
-	if (std::abs(dot) < 0.0001) 						return 0;
+	if (std::abs(dot) < 0.0001) 						return nullptr;
 	double distance	= offset/dot;
 
 	// extrapolate
 	if (com->m_sinTheta < 0.9)
 	{
-            if (! extrapolateToZ(*isect, *com, pos.z()+distance*dir.z()))	return 0;
+            if (! extrapolateToZ(*isect, *com, pos.z()+distance*dir.z()))	return nullptr;
             radius2 = pos.perp2();
 	}
 	else
 	{
-	    if (! extrapolateToR(*isect, radius2,  *com, (pos+distance*dir).perp())) return 0;
+	    if (! extrapolateToR(*isect, radius2,  *com, (pos+distance*dir).perp())) return nullptr;
 	}
 
 	// check we are getting closer to the plane, switch to RK in case of difficulty
@@ -247,17 +247,13 @@ SolenoidalIntersector::isValid (Amg::Vector3D startPosition,
       getSolenoidParametrization();
 
     // check cylinder bounds for valid parametrization
-    if (solenoidParametrization &&
+    return solenoidParametrization &&
+
         std::abs(endPosition.z())	< solenoidParametrization->maximumZ()
+
 	&& endPosition.perp()		< solenoidParametrization->maximumR()
-	&& getSolenoidParametrization()->validOrigin(startPosition))
-    {
-	
-	return true;
-    }
-    
-	
-    return false;
+
+	&& getSolenoidParametrization()->validOrigin(startPosition);
 }
 
 /** tabulate parametrization details */ 

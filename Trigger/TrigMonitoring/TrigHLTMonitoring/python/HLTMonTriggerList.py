@@ -97,6 +97,7 @@ class HLTMonTriggerList:
   # Implementation of https://its.cern.ch/jira/browse/ATR-13200
   def get_monitoring_mode(self):
     # Set monitoring mode
+    print ('jmasik: DQMonFlags.monManDataType(): ', DQMonFlags.monManDataType())
     self.data_type = DQMonFlags.monManDataType()
     
     if self.data_type == 'monteCarlo':
@@ -200,7 +201,8 @@ class HLTMonTriggerList:
     self.monitoring_tau = tau.monitoring_tau_pp
     
     #override if both pp and MC are true
-    if DQMonFlags.monManDataType()=='monteCarlo':
+    from AthenaCommon.GlobalFlags import globalflags
+    if globalflags.DataSource.get_Value() == 'geant4':
       self.monitoring_tau = tau.monitoring_tau_validation
 
   def set_HLTMonTrigList_HI(self):

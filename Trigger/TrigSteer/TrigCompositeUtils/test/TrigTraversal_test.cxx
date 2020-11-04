@@ -331,11 +331,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
   NavGraph graph_HLT_em_chain;
   NavGraph graph_HLT_all;
 
-  recursiveGetDecisions(END, graph_HLT_mufast_chain, HLT_mufast_chain, true);
-  recursiveGetDecisions(END, graph_HLT_mu_chain, HLT_mu_chain, true);
-  recursiveGetDecisions(END, graph_HLT_mu_em_chain, HLT_mu_em_chain, true);
-  recursiveGetDecisions(END, graph_HLT_em_chain, HLT_em_chain, true);
-  recursiveGetDecisions(END, graph_HLT_all, 0, true);
+  recursiveGetDecisions(END, graph_HLT_mufast_chain, {HLT_mufast_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_mu_chain, {HLT_mu_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_mu_em_chain, {HLT_mu_em_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_em_chain, {HLT_em_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_all, {}, true);
 
 
   log << MSG::INFO << "HLT_mufast_chain" << endmsg;
@@ -375,26 +375,26 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
   std::cout << " ---------- Now Include Failing Features " << std::endl;
 
-  std::vector<const Decision*> extraStart_HLT_mufast_chain = getRejectedDecisionNodes(pSG, HLT_mufast_chain);
-  std::vector<const Decision*> extraStart_HLT_mu_chain = getRejectedDecisionNodes(pSG, HLT_mu_chain);
-  std::vector<const Decision*> extraStart_HLT_mu_em_chain = getRejectedDecisionNodes(pSG, HLT_mu_em_chain);
-  std::vector<const Decision*> extraStart_HLT_em_chain = getRejectedDecisionNodes(pSG, HLT_em_chain);
-  std::vector<const Decision*> extraStart_HLT_all = getRejectedDecisionNodes(pSG, 0);
+  std::vector<const Decision*> extraStart_HLT_mufast_chain = getRejectedDecisionNodes(pSG, {HLT_mufast_chain});
+  std::vector<const Decision*> extraStart_HLT_mu_chain = getRejectedDecisionNodes(pSG, {HLT_mu_chain});
+  std::vector<const Decision*> extraStart_HLT_mu_em_chain = getRejectedDecisionNodes(pSG, {HLT_mu_em_chain});
+  std::vector<const Decision*> extraStart_HLT_em_chain = getRejectedDecisionNodes(pSG, {HLT_em_chain});
+  std::vector<const Decision*> extraStart_HLT_all = getRejectedDecisionNodes(pSG, {});
 
   for (const Decision* d : extraStart_HLT_mufast_chain) {
-    recursiveGetDecisions(d, graph_HLT_mufast_chain, HLT_mufast_chain, false);
+    recursiveGetDecisions(d, graph_HLT_mufast_chain, {HLT_mufast_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_mu_chain) {
-    recursiveGetDecisions(d, graph_HLT_mu_chain, HLT_mu_chain, false);
+    recursiveGetDecisions(d, graph_HLT_mu_chain, {HLT_mu_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_mu_em_chain) {
-    recursiveGetDecisions(d, graph_HLT_mu_em_chain, HLT_mu_em_chain, false);
+    recursiveGetDecisions(d, graph_HLT_mu_em_chain, {HLT_mu_em_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_em_chain) {
-    recursiveGetDecisions(d, graph_HLT_em_chain, HLT_em_chain, false);
+    recursiveGetDecisions(d, graph_HLT_em_chain, {HLT_em_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_all) {
-    recursiveGetDecisions(d, graph_HLT_all, 0, false);
+    recursiveGetDecisions(d, graph_HLT_all, {}, false);
   }
 
   log << MSG::INFO << "HLT_mufast_chain" << endmsg;

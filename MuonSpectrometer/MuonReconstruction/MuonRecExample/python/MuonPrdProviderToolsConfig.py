@@ -1,35 +1,23 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Include import include
-
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-source = globalflags.DataSource()
-
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.CfgGetter import getService,getPrivateTool
-from RecExConfig.RecAlgsFlags import recAlgs
-
-
 def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
-  global source
-
   # setup dependencies which are not yet in C++
-  import MuonCnvExample.MuonCablingConfig
+  import MuonCnvExample.MuonCablingConfig  # noqa: F401
 
-  if source == 'data':
+  if globalflags.DataSource.is_data():
     kwargs["reduceCablingOverlap"] = True
     kwargs["produceRpcCoinDatafromTriggerWords"] = True
     kwargs["overlap_timeTolerance"] = 1000
     kwargs["solvePhiAmbiguities"] = True
     kwargs["etaphi_coincidenceTime"] = 1000
-  elif source == 'geant4':
+  elif globalflags.DataSource.is_geant4():
     pass
   #kwargs["etaphi_coincidenceTime"] = 100
   else:
-    raise ValueError( "RpcPrepDataProviderTool: unsupported dataSource %s" % source )
+    raise ValueError( "RpcPrepDataProviderTool: unsupported dataSource %s" % globalflags.DataSource() )
 
   from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataToolMT
   if athenaCommonFlags.isOnline: 
@@ -38,17 +26,17 @@ def RpcPrepDataProviderTool(name="RpcPrepDataProviderTool",**kwargs):
 
 
 def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
-  global source,include,getService,getPrivateTool
-
   # setup dependencies which are not yet in C++
-  import MuonCnvExample.MuonCablingConfig
-  from MuonRecExample import MuonAlignConfig
-  from MuonCnvExample import MuonCalibConfig
+  import MuonCnvExample.MuonCablingConfig     # noqa: F401
+  from MuonRecExample import MuonAlignConfig  # noqa: F401
+  from MuonCnvExample import MuonCalibConfig  # noqa: F401
+  from AthenaCommon.Include import include
   MuonCalibConfig.setupMdtCondDB()
   include("AmdcAth/AmdcAth_jobOptions.py")
   
-  if source == 'data':
+  if globalflags.DataSource.is_data():
     kwargs.setdefault("UseTwin", True)
+  kwargs.setdefault("CalibrationTool", MuonCalibConfig.MdtCalibrationTool())
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
   return Muon__MdtRdoToPrepDataToolMT(name,**kwargs)
@@ -56,7 +44,7 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
 
 def TgcPrepDataProviderTool(name="TgcPrepDataProviderTool", **kwargs):
   # setup dependencies which are not yet in C++  
-  import MuonCnvExample.MuonCablingConfig
+  import MuonCnvExample.MuonCablingConfig  # noqa: F401
 
   from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataToolMT
   return Muon__TgcRdoToPrepDataToolMT(name, **kwargs)
@@ -64,7 +52,7 @@ def TgcPrepDataProviderTool(name="TgcPrepDataProviderTool", **kwargs):
   
 def CscPrepDataProviderTool(name="CscPrepDataProviderTool", **kwargs):
   # setup dependencies which are not yet in C++
-  import MuonCnvExample.MuonCablingConfig
+  import MuonCnvExample.MuonCablingConfig  # noqa: F401
 
   from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataToolMT
   return Muon__CscRdoToCscPrepDataToolMT(name, **kwargs)
@@ -95,19 +83,3 @@ def STGC_PrepDataProviderTool(name="STGC_PrepDataProviderTool", **kwargs):
   return Muon__sTgcRdoToPrepDataTool(name,**kwargs)
 
 ### algorithms for other technologies can use C++ defaults
-
-
-### TODO: remove following backwards compat as soon as all clients have migrated to using CfgGetter
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
-
-#if DetFlags.haveRDO.CSC_on() or DetFlags.digitize.CSC_on():
-#  CscRdoToPrepDataTool = getPublicTool("CscPrepDataProviderTool")
-
-#if DetFlags.haveRDO.MDT_on() or DetFlags.digitize.MDT_on():
-#  MdtRdoToPrepDataTool = getPublicTool("MdtPrepDataProviderTool")
-
-#if DetFlags.haveRDO.RPC_on() or DetFlags.digitize.RPC_on():
-#  RpcRdoToPrepDataTool = getPublicTool("RpcPrepDataProviderTool")
-
-#if DetFlags.haveRDO.TGC_on() or DetFlags.digitize.TGC_on():
-#  TgcRdoToPrepDataTool = getPublicTool("TgcPrepDataProviderTool")

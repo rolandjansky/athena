@@ -57,7 +57,6 @@ find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 #find_package( Eigen )
 find_package( lwtnn )
-find_package( FastJet )
 find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread
     MathMore Minuit Minuit2 Matrix Physics HistPainter Rint RooFitCore RooFit )
 
@@ -81,12 +80,12 @@ atlas_add_library( JetTagToolsLib
     src/MV1Tag.cxx src/MV2Tag.cxx
     src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
     src/MultiSVTag.cxx src/SoftMuonTag.cxx
-    src/ExKtbbTagTool.cxx src/MultivariateTagManager.cxx
+    src/MultivariateTagManager.cxx
     src/DL1Tag.cxx src/TagNtupleDumper.cxx src/RNNIPTag.cxx
 
     PUBLIC_HEADERS JetTagTools
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
-    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
+    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
     DEFINITIONS ${CLHEP_DEFINITIONS}
 
     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LWTNN_LIBRARIES}
@@ -97,7 +96,7 @@ atlas_add_library( JetTagToolsLib
     MuonSelectorToolsLib MuonMomentumCorrectionsLib TrkNeuralNetworkUtilsLib
     InDetSVWithMuonToolLib ITrackToVertex
 
-    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel
+    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthenaKernel
     Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives
     TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxVertex VxSecVertex
     TrkVertexFitterInterfaces InDetTrackSelectionToolLib

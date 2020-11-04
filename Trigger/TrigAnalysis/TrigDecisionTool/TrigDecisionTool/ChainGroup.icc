@@ -1,5 +1,13 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
+        SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
         unsigned int condition, const std::string& containerSGKey,
         const unsigned int featureCollectionMode, const std::string& navElementLinkKey) const {
 
@@ -19,8 +27,8 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   }
 
   // TODO when we decide what happens to CacheGlobalMemory - this needs to be updated to use a ReadHandle
-  const TrigCompositeUtils::DecisionContainer* navigationSummaryContainer = nullptr;
-  if (eventStore->retrieve(navigationSummaryContainer, "HLTNav_Summary").isFailure() || navigationSummaryContainer == nullptr) {
+  SG::ReadHandle<TrigCompositeUtils::DecisionContainer> navigationSummaryRH = SG::ReadHandle(HLTSummaryKeyIn);
+  if (!navigationSummaryRH.isValid()) {
     ATH_MSG_ERROR("Unable to read Run 3 trigger navigation. Cannot retrieve features.");
     errState = true;
   }
@@ -28,7 +36,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   // We always want to search from the passed raw terminus node to find features for passed chains.
   const TrigCompositeUtils::Decision* terminusNode = nullptr;
   if (!errState) {
-    for (const TrigCompositeUtils::Decision* decision : *navigationSummaryContainer) {
+    for (const TrigCompositeUtils::Decision* decision : *navigationSummaryRH) {
       if (decision->name() == "HLTPassRaw") {
         terminusNode = decision;
         break;
@@ -45,53 +53,77 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
     return std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> >();
   }
 
-  // For each chain, collect Navigation information
-  TrigCompositeUtils::NavGraph navGraph;
+  // The sub-graph from which we will extract features
+  TrigCompositeUtils::NavGraph navGraph; 
 
-  // Loop over HLT chains
-  TrigCompositeUtils::DecisionIDContainer chainIDs;
+  // Collect the set of chains (and chain legs) which we are fetching
+  // Perform the fetches using the full set of IDs for each chain (include all legs)
+  TrigCompositeUtils::DecisionIDContainer allRequestedChainIDs;
   std::set<const TrigConf::HLTChain*>::const_iterator chIt;
   for (chIt=conf_chain_begin(); chIt != conf_chain_end(); ++chIt) {
+
+    TrigCompositeUtils::DecisionIDContainer thisChainIDs;
+    HLT::Identifier chainID("");
+
     const HLT::Chain* fchain = cgm()->chain(**chIt);
     if (fchain) {
-      chainIDs.insert( fchain->getChainHashId() );
-
-      // Obtain navigation routes for passed chains
-      // Final parameter TRUE as the chain passed (has its ID in terminusNode)
-      TrigCompositeUtils::recursiveGetDecisions(terminusNode, navGraph, fchain->getChainHashId(), true);
-
-      ATH_MSG_DEBUG("Added all passed navigation data for chain " << fchain->getChainName() 
-        << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
-      if (msg().level() <= MSG::DEBUG && navGraph.finalNodes().size()) {
-        for (const TrigCompositeUtils::NavGraphNode* n : navGraph.finalNodes()) {
-          ATH_MSG_DEBUG("  Final node:" << TrigCompositeUtils::decisionToElementLink(n->node()).dataID() << " #" << n->node()->index());
+      chainID = HLT::Identifier( fchain->getChainName() );
+      const std::vector<size_t> legMultiplicites = fchain->getLegMultiplicities();
+      allRequestedChainIDs.insert( chainID.numeric() );
+      thisChainIDs.insert( chainID.numeric() );
+      if (legMultiplicites.size() == 0) {
+        ATH_MSG_ERROR("chain " << chainID << " has invalid configuration, no multiplicity data.");
+      } else if (legMultiplicites.size() > 1) {
+        // For multi-leg chains, the DecisionIDs are handled per leg.
+        // We don't care here exactly how many objects are required per leg, just that there are two-or-more legs
+        for (size_t legNumeral = 0; legNumeral < legMultiplicites.size(); ++legNumeral) {
+          HLT::Identifier legID = TrigCompositeUtils::createLegName(chainID, legNumeral);
+          allRequestedChainIDs.insert( legID.numeric() );
+          thisChainIDs.insert( legID.numeric() );
         }
       }
-
-      if (condition == TrigDefs::includeFailedDecisions) {
-        std::vector<const TrigCompositeUtils::Decision*> rejectedDecisionNodes = 
-          TrigCompositeUtils::getRejectedDecisionNodes(eventStore, fchain->getChainHashId());
-
-        ATH_MSG_DEBUG("Chain " << fchain->getChainName() << " has " << rejectedDecisionNodes.size() 
-          << " dangling nodes in the graph from objects which were rejected.");
-
-        for (const TrigCompositeUtils::Decision* rejectedNode : rejectedDecisionNodes) {
-          // Final parameter FALSE as the chain failed here (its ID was removed from rejectedNode)
-          TrigCompositeUtils::recursiveGetDecisions(rejectedNode, navGraph, fchain->getChainHashId(), false);
+      ATH_MSG_DEBUG("Adding navigation data for chain " << chainID << " with " << legMultiplicites.size() << " leg(s)." );
+      if (msg().level() <= MSG::VERBOSE) {
+        for (const TrigCompositeUtils::DecisionID printID : thisChainIDs) {
+          ATH_MSG_VERBOSE(" -- Collecting for chain or chain-leg: " << HLT::Identifier(printID));
         }
-
-        ATH_MSG_DEBUG("Added all failed navigation data for chain " << fchain->getChainName() 
-          << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
-        if (msg().level() <= MSG::DEBUG && navGraph.finalNodes().size()) {
-          for (const TrigCompositeUtils::NavGraphNode* n : navGraph.finalNodes()) {
-            ATH_MSG_DEBUG("  Final node:" << TrigCompositeUtils::decisionToElementLink(n->node()).dataID() << " #" << n->node()->index());
-          }
-        }
-
       }
-
     } else {
       ATH_MSG_ERROR("Cannot access configuration for one of the ChainGroup's chains");
+      continue;
+    }
+
+    // Obtain navigation routes for objects which pass
+    // Final parameter TRUE as the chain passed (has its ID in terminusNode)
+    TrigCompositeUtils::recursiveGetDecisions(terminusNode, navGraph, thisChainIDs, true);
+
+    ATH_MSG_DEBUG("Added all passed navigation data for chain " << chainID
+      << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
+
+    // Obtain navigation routes for objects which fail
+    if (condition == TrigDefs::includeFailedDecisions) {
+      std::vector<const TrigCompositeUtils::Decision*> rejectedDecisionNodes = 
+        TrigCompositeUtils::getRejectedDecisionNodes(eventStore, thisChainIDs);
+
+      ATH_MSG_DEBUG("Chain " << chainID << " has " << rejectedDecisionNodes.size() 
+        << " dangling nodes in the graph from objects which were rejected.");
+
+      for (const TrigCompositeUtils::Decision* rejectedNode : rejectedDecisionNodes) {
+        // Final parameter FALSE as the chain failed here (its ID was removed from rejectedNode)
+        TrigCompositeUtils::recursiveGetDecisions(rejectedNode, navGraph, thisChainIDs, false);
+      }
+
+      ATH_MSG_DEBUG("Added all failed navigation data for chain " << chainID
+        << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
+    }
+
+  }
+
+  ATH_MSG_DEBUG("Finished adding nodes to sub-graph. "
+    << ", total nodes:" << navGraph.nodes() << " total edges:" << navGraph.edges() << " final nodes:" << navGraph.finalNodes().size());
+  if (msg().level() <= MSG::DEBUG && navGraph.finalNodes().size()) {
+    for (const TrigCompositeUtils::NavGraphNode* n : navGraph.finalNodes()) {
+      ATH_MSG_DEBUG("  Final node:" << TrigCompositeUtils::decisionToElementLink(n->node()).dataID() << " #" << n->node()->index());
     }
   }
 
@@ -107,7 +139,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   const bool lastFeatureOfTypeFlag = (featureCollectionMode == TrigDefs::lastFeatureOfType);
 
   std::vector<TrigCompositeUtils::LinkInfo<CONTAINER>> returnVector =
-    TrigCompositeUtils::recursiveGetFeaturesOfType<CONTAINER>(navGraph, containerSGKey, lastFeatureOfTypeFlag, navElementLinkKey, chainIDs);
+    TrigCompositeUtils::recursiveGetFeaturesOfType<CONTAINER>(navGraph, containerSGKey, lastFeatureOfTypeFlag, navElementLinkKey, allRequestedChainIDs);
 
   // Check for missing navigation data if requesting the default "feature" links
   if (navElementLinkKey == TrigCompositeUtils::featureString()) {

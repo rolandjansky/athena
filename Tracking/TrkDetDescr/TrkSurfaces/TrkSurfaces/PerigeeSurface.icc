@@ -181,12 +181,16 @@ PerigeeSurface::straightLineIntersection(const Amg::Vector3D& pos,
 inline const Amg::Vector3D&
 PerigeeSurface::lineDirection() const
 {
-  if (m_lineDirection)
-    return (*m_lineDirection);
-  if (!m_lineDirection && Surface::m_transform) {
-    m_lineDirection.set(
-      std::make_unique<Amg::Vector3D>(transform().rotation().col(2)));
-    return (*m_lineDirection);
+  if (m_lineDirection.isValid()) {
+    return *(m_lineDirection.ptr());
+  }
+
+  if (Surface::m_transform) {
+
+    if (!m_lineDirection.isValid()) {
+      m_lineDirection.set(transform().rotation().col(2));
+      return *(m_lineDirection.ptr());
+    }
   }
   return Trk::s_zAxis;
 }

@@ -277,7 +277,9 @@ namespace TrigConf {
       // Try to read the R2 metadata object:
       m_tmc = nullptr;
       m_triggerMenuContainerAvailable = true;
-      if( inputMetaStore()->retrieve( m_tmc, m_metaName_run2 ).isFailure() ) {
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuContainer>(m_metaName_run2) 
+          or inputMetaStore()->retrieve( m_tmc, m_metaName_run2 ).isFailure() )
+      {
          m_triggerMenuContainerAvailable = false;
       }
 
@@ -288,16 +290,24 @@ namespace TrigConf {
       m_l1psJson = nullptr;
       m_bgJson = nullptr;
       m_menuJSONContainerAvailable = true;
-      if( inputMetaStore()->retrieve( m_hltJson, m_metaNameJSON_hlt ).isFailure() ) {
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hlt) 
+          or inputMetaStore()->retrieve( m_hltJson, m_metaNameJSON_hlt ).isFailure() )
+      {
          m_menuJSONContainerAvailable = false;
       }
-      if( inputMetaStore()->retrieve( m_l1Json, m_metaNameJSON_l1 ).isFailure() ) {
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1) 
+          or inputMetaStore()->retrieve( m_l1Json, m_metaNameJSON_l1 ).isFailure() )
+      {
          m_menuJSONContainerAvailable = false;
       }
-      if( inputMetaStore()->retrieve( m_hltpsJson, m_metaNameJSON_hltps ).isFailure() ) {
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hltps) 
+          or inputMetaStore()->retrieve( m_hltpsJson, m_metaNameJSON_hltps ).isFailure() )
+      {
          m_menuJSONContainerAvailable = false;
       }
-      if( inputMetaStore()->retrieve( m_l1psJson, m_metaNameJSON_l1ps ).isFailure() ) {
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1ps) 
+          or inputMetaStore()->retrieve( m_l1psJson, m_metaNameJSON_l1ps ).isFailure() )
+      {
          m_menuJSONContainerAvailable = false;
       }
       // if( inputMetaStore()->retrieve( m_bgJson, m_metaNameJSON_bg ).isFailure() ) {

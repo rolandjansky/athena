@@ -1,30 +1,27 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import os
 import sys
 import time
-import subprocess
-
-import PyJobTransforms.trfArgClasses as trfArgClasses
 
 def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
 #def main( runNum = None, procType = None, forceSkipQueue = 0 ):
     #===== Run number =====
-    if runNum == None:
+    if runNum is None:
         print('ERROR no run number given')
         return False
     Run0 = runNum
     #===== procType =====
-    if procType == None:
+    if procType is None:
         print('ERROR no process type given')
         return False
-    if Stream == None:
+    if Stream is None:
         print('ERROR no stream given')
         return False
     for iType in procType:
-        if not iType in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency','doLorentzAngle']:
+        if iType not in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency','doLorentzAngle']:
             print('ERROR process type does not match any possible candidates')
             return False
         else :
@@ -221,17 +218,17 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
 if __name__ == "__main__":
     try :
         runNumber = int( sys.argv[1] )
-    except :
+    except Exception:
         print("Failed to read run number" %(sys.argv[1]))
         sys.exit( -1 )
     try :
         processType = str( sys.argv[2] )
-    except :
+    except Exception:
         print("Failed to read proces type" %(sys.argv[2]))
         sys.exit( -1 )
     try :
         skipQueue = int( sys.argv[3] )
-    except :
+    except Exception:
         print("Setting skipqueue to default (wait until previous runs are analysed)")
         skipQueue = 0
 

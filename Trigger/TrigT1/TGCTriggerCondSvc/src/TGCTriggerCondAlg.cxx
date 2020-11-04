@@ -37,7 +37,7 @@ StatusCode TGCTriggerCondAlg::initialize(){
 }
 
 StatusCode TGCTriggerCondAlg::execute(){
-  
+ 
   ATH_MSG_DEBUG( "start execute " << name() ); 
     
   SG::WriteCondHandle<TGCTriggerLUTs> writeHandle{m_writeKey};
@@ -69,35 +69,7 @@ StatusCode TGCTriggerCondAlg::execute(){
   } 
   ATH_MSG_INFO("Range of input is " << rangeW_bw);
 
-  if(!m_bwCWReader.loadParameters(writeCdo.get(), readCdo_bw)){
-    ATH_MSG_ERROR("Could not get MessageSvc");
-  }
-
-  // fill maps 
-  if(!m_bwCWReader.readLUT(writeCdo.get())){
-    ATH_MSG_ERROR("Could not get MessageSvc");
-  }
-
-
-  /*
-  // other LUTs will be implemented (NSW,RPCBIS78,HotRoI,WichInner...)
-  // write condition object
-  EventIDRange rangeIntersection = EventIDRange::intersect(rangeW_bw);
-  if(rangeIntersection.start()>rangeIntersection.stop()) {
-    ATH_MSG_ERROR("Invalid intersection range: " << rangeIntersection);
-    return StatusCode::FAILURE;
-  }
-
-  if (writeHandle.record(rangeIntersection, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record TGCTriggerLUTs " << writeHandle.key() 
-                  << " with EventRange " << rangeIntersection
-                  << " into Conditions Store");
-    return StatusCode::FAILURE;
-  }                  
-  ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeIntersection << " into Conditions Store");
-  */
-
-
+  //LUT loader will be implemented.
 
   if (writeHandle.record(rangeW_bw, std::move(writeCdo)).isFailure()) {
     ATH_MSG_FATAL("Could not record TGCTriggerLUTs " << writeHandle.key() 

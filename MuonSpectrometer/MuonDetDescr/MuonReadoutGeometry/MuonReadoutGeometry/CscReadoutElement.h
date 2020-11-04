@@ -7,11 +7,8 @@
  -----------------------------------------
 ***************************************************************************/
 
-//<doc><file>	$Id: CscReadoutElement.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-#ifndef MUONGEOMODEL_CSCREADOUTELEMENT_H
-# define MUONGEOMODEL_CSCREADOUTELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_CSCREADOUTELEMENT_H
+#define MUONREADOUTGEOMETRY_CSCREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -354,4 +351,4 @@ namespace MuonGM {
 } // namespace MuonGM
 
 
-#endif // MUONGEOMODEL_CSCREADOUTELEMENT_H
+#endif // MUONREADOUTGEOMETRY_CSCREADOUTELEMENT_H

@@ -1,41 +1,14 @@
-################################################################################
-# Package: TRT_TrackSegmentsTool_xk
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TRT_TrackSegmentsTool_xk )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkEventUtils
-                          Tracking/TrkTools/TrkToolInterfaces
-                          PRIVATE
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkExtrapolation/TrkExInterfaces )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
+find_package( ROOT COMPONENTS Core MathCore Graf )
 
 # Component(s) in the package:
 atlas_add_component( TRT_TrackSegmentsTool_xk
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces TrkGeometry TrkEventPrimitives TrkParameters TrkToolInterfaces EventInfo TrkSurfaces TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkExInterfaces )
-
-# Install files from the package:
-atlas_install_headers( TRT_TrackSegmentsTool_xk )
-
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities CxxUtils GaudiKernel GeoModelInterfaces InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces StoreGateLib TRT_ReadoutGeometry TrkEventPrimitives TrkEventUtils TrkExInterfaces TrkGeometry TrkParameters TrkPseudoMeasurementOnTrack TrkRIO_OnTrack TrkSurfaces TrkToolInterfaces )

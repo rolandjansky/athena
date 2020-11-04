@@ -77,7 +77,6 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
         trackGradeFactory= toolIP3DDetailedTrackGradeFactory('IP3DDetailedTrackGradeFactory')
         trackSelectorTool = toolIP3DTrackSelector('IP3DTrackSelector')
         inDetTrackSelectionTool = toolInDetTrackSelector('InDetTrackSelector')
-        trackVertexAssociationTool = toolSpecialTrackAssociator('SpecialTrackAssociator')
         likelihood = toolIP3DNewLikelihoodTool('IP3DNewLikelihoodTool')
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
@@ -103,7 +102,6 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
                      'SVForIPTool'                      : svForIPTool,
                      'trackGradeFactory'                : trackGradeFactory,
                      'TrackToVertexIPEstimator'         : trackToVertexIPEstimator,
-                     'TrackVertexAssociationTool'       : trackVertexAssociationTool,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

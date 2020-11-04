@@ -90,19 +90,20 @@ int FullMCNSTfill(VKVertex * vk, double * ader, double * LSide)
 //    int NPar=3*NTrkM+3;
 
     for (i=0; i<NPar; i++) { for (j=0; j<NPar; j++) ader[i+j*NPar]=0.; }
-    std::vector<std::vector< Vect3DF> > tf0t;  // derivative collectors
-    std::vector< Vect3DF >              th0t;  // derivative collectors
+    std::vector<std::vector< const Vect3DF*> > tf0t;  // derivative collectors
+    std::vector< const Vect3DF* >              th0t;  // derivative collectors
     std::vector< double >               taa;   // derivative collectors
-    std::vector< Vect3DF > tmpVec;
+    std::vector< const Vect3DF* > tmpVec;
     for(ii=0; ii<(int)vk->ConstraintList.size();ii++){
        for(ic=0; ic<(int)vk->ConstraintList[ii]->NCDim; ic++){
          taa.push_back(  vk->ConstraintList[ii]->aa[ic] );
-         th0t.push_back( vk->ConstraintList[ii]->h0t[ic] );
+         th0t.push_back( &(vk->ConstraintList[ii]->h0t[ic]) );
          tmpVec.clear();
+         tmpVec.reserve(vk->ConstraintList[ii]->f0t.size());
          for(it=0; it<(int)vk->ConstraintList[ii]->f0t.size(); it++){
-	    tmpVec.push_back( vk->ConstraintList[ii]->f0t[it][ic] );
+	    tmpVec.push_back( &(vk->ConstraintList[ii]->f0t[it][ic]) );
          }
-	 tf0t.push_back( tmpVec );
+	 tf0t.push_back( std::move(tmpVec) );
        }
     }
 //-----------------------------------------------------------------------------
@@ -179,19 +180,19 @@ int FullMCNSTfill(VKVertex * vk, double * ader, double * LSide)
 //
     int NTrP=NTRK*3 + 3; // track part of matrix
     for(ic=0; ic<totNC; ic++){
-       ader[(0)      + (NTrP+ic)*NPar] = -2.*th0t[ic].X;
-       ader[(1)      + (NTrP+ic)*NPar] = -2.*th0t[ic].Y;
-       ader[(2)      + (NTrP+ic)*NPar] = -2.*th0t[ic].Z;
-       ader[(0)*NPar + (NTrP+ic)     ] = -2.*th0t[ic].X;
-       ader[(1)*NPar + (NTrP+ic)     ] = -2.*th0t[ic].Y;
-       ader[(2)*NPar + (NTrP+ic)     ] = -2.*th0t[ic].Z;
+       ader[(0)      + (NTrP+ic)*NPar] = -2.*th0t[ic]->X;
+       ader[(1)      + (NTrP+ic)*NPar] = -2.*th0t[ic]->Y;
+       ader[(2)      + (NTrP+ic)*NPar] = -2.*th0t[ic]->Z;
+       ader[(0)*NPar + (NTrP+ic)     ] = -2.*th0t[ic]->X;
+       ader[(1)*NPar + (NTrP+ic)     ] = -2.*th0t[ic]->Y;
+       ader[(2)*NPar + (NTrP+ic)     ] = -2.*th0t[ic]->Z;
        for (it=0; it<NTRK; ++it) {
-         ader[(it*3+3+0)      + (NTrP+ic)*NPar] = - 2.*tf0t[ic][it].X;
-         ader[(it*3+3+1)      + (NTrP+ic)*NPar] = - 2.*tf0t[ic][it].Y;
-         ader[(it*3+3+2)      + (NTrP+ic)*NPar] = - 2.*tf0t[ic][it].Z;
-         ader[(it*3+3+0)*NPar + (NTrP+ic)]      = - 2.*tf0t[ic][it].X;
-         ader[(it*3+3+1)*NPar + (NTrP+ic)]      = - 2.*tf0t[ic][it].Y;
-         ader[(it*3+3+2)*NPar + (NTrP+ic)]      = - 2.*tf0t[ic][it].Z;
+         ader[(it*3+3+0)      + (NTrP+ic)*NPar] = - 2.*tf0t[ic][it]->X;
+         ader[(it*3+3+1)      + (NTrP+ic)*NPar] = - 2.*tf0t[ic][it]->Y;
+         ader[(it*3+3+2)      + (NTrP+ic)*NPar] = - 2.*tf0t[ic][it]->Z;
+         ader[(it*3+3+0)*NPar + (NTrP+ic)]      = - 2.*tf0t[ic][it]->X;
+         ader[(it*3+3+1)*NPar + (NTrP+ic)]      = - 2.*tf0t[ic][it]->Y;
+         ader[(it*3+3+2)*NPar + (NTrP+ic)]      = - 2.*tf0t[ic][it]->Z;
        }
     }
 //

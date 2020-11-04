@@ -29,7 +29,7 @@ class PtFromRadius: public AthAlgTool
  public:
   
   // For Barrel
-  StatusCode setPt(TrigL2MuonSA::TrackPattern& trackPattern);
+  StatusCode setPt(TrigL2MuonSA::TrackPattern& trackPattern) const;
   
  private:
   BooleanProperty  m_use_mcLUT{0};

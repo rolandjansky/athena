@@ -172,8 +172,7 @@ namespace MuonCalib {
 
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-    //maximum channel and chamber hashes (num of each -1). These are set
-    //with a const_cast from the id helper
+    //maximum channel and chamber hashes (num of each -1)
     unsigned int m_maxChamberHash; 
     const unsigned int m_maxChanHash; 
 

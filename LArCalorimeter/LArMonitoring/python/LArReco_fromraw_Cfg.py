@@ -38,8 +38,7 @@ if __name__=="__main__":
 
    #collision time algo 
    from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
-   cfg.merge(LArCollisionTimeCfg(ConfigFlags))
-   cfg.getEventAlgo("LArCollisionTimeAlg").cutIteration=False
+   cfg.merge(LArCollisionTimeCfg(ConfigFlags, cutIteration=False))
 
    # and collision time monitoring algo
    from LArMonitoring.LArCollisionTimeMonAlg import LArCollisionTimeMonConfig

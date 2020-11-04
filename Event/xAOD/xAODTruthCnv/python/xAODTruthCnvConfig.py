@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon import CfgMgr
 
 def getGEN_AOD2xAOD(name="GEN_AOD2xAOD", **kwargs):
@@ -6,7 +8,7 @@ def getGEN_AOD2xAOD(name="GEN_AOD2xAOD", **kwargs):
         from PyUtils.MetaReaderPeekerFull import metadata
         if metadata['/Digitization/Parameters']['digiSteeringConf'] == 'StandardInTimeOnlyGeantinoTruthPileUpToolsAlg':
             writeInTimePileUpTruth = True
-    except:
+    except Exception:
         pass
     kwargs.setdefault('WriteInTimePileUpTruth',  writeInTimePileUpTruth)
     return CfgMgr.xAODMaker__xAODTruthCnvAlg(name, **kwargs)

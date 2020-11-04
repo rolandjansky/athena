@@ -1,4 +1,3 @@
-
 # Declare the name of this package:
 atlas_subdir( TopPartons )
 
@@ -16,8 +15,8 @@ find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore TMVA Gra
 
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopPartons _cintDictSource
-   ROOT_HEADERS TopPartons/PartonHistory.h Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
+                           ROOT_HEADERS Root/LinkDef.h
+                           EXTERNAL_PACKAGES ROOT )
 
 # Build a library that other components can link against:
 atlas_add_library( TopPartons Root/*.cxx Root/*.h Root/*.icc

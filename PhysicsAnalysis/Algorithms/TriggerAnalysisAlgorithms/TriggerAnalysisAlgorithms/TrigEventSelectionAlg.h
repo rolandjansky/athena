@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak
@@ -8,9 +8,9 @@
 #define TRIGGER_ANALYSIS_ALGORITHMS__TRIG_EVENT_SELECTION_ALG_H
 
 #include <AnaAlgorithm/AnaAlgorithm.h>
-#include <AnaAlgorithm/FilterReporterParams.h>
 #include <AsgTools/ToolHandle.h> 
 #include <AthContainers/AuxElement.h>
+#include <EventBookkeeperTools/FilterReporterParams.h>
 #include <TrigDecisionInterface/ITrigDecisionTool.h>
 
 namespace CP
@@ -38,8 +38,8 @@ namespace CP
     /// \brief the accessors for \ref m_selectionDecoration and \ref m_trigList combination
     std::vector<SG::AuxElement::Decorator<bool>> m_selectionAccessors;
 
-    /// \brief the filter reporter parameters
-    EL::FilterReporterParams m_filterParams {this, "trigger event selection"};
+    /// \brief the filter reporter params
+    FilterReporterParams m_filterParams {this, "TriggerEventSelection", "trigger event selection"};
   };
 }
 

@@ -26,6 +26,8 @@ namespace Trk {
     m_nupstreambrems = 0;
     m_nsihits = 0;
     m_ntrthits = 0;
+    m_ntrtprechits = 0;
+    m_ntrttubehits = 0;
     m_npseudo = 0;
     m_nhits = 0;
     m_noutl = 0;
@@ -55,6 +57,8 @@ namespace Trk {
     m_nupstreambrems = rhs.m_nupstreambrems;
     m_nsihits = rhs.m_nsihits;
     m_ntrthits = rhs.m_ntrthits;
+    m_ntrtprechits = rhs.m_ntrtprechits;
+    m_ntrttubehits = rhs.m_ntrttubehits;
     m_npseudo = rhs.m_npseudo;
     m_nhits = rhs.m_nhits;
     m_noutl = rhs.m_noutl;
@@ -104,6 +108,8 @@ namespace Trk {
       m_nupstreambrems = rhs.m_nupstreambrems;
       m_nsihits = rhs.m_nsihits;
       m_ntrthits = rhs.m_ntrthits;
+      m_ntrtprechits = rhs.m_ntrtprechits;
+      m_ntrttubehits = rhs.m_ntrttubehits;
       m_nhits = rhs.m_nhits;
       m_npseudo = rhs.m_npseudo;
       m_noutl = rhs.m_noutl;
@@ -199,6 +205,8 @@ namespace Trk {
     
     if (state->measurementType() == TrackState::TRT) {
       m_ntrthits++;
+      if (errors[0]<1) m_ntrtprechits++;
+      if (errors[0]>1) m_ntrttubehits++;
     }
     
     if (state->measurementType() == TrackState::Pseudo) {
@@ -383,6 +391,22 @@ namespace Trk {
     }
   }
 
+  void GXFTrajectory::updateTRTHitCount(int index, float oldError) {
+    double error = (m_states[index]->measurementErrors())[0];
+    if (m_states[index]->getStateType(TrackStateOnSurface::Outlier)) {
+      if (oldError<1) { m_ntrtprechits--; }
+      else {m_ntrttubehits--; }
+    }
+    if (error>1 && oldError<1) { // was precison, became tube
+      m_ntrttubehits++;
+      m_ntrtprechits--;
+    }
+    else if (error<1 && oldError>1) { // was tube, became precision
+      m_ntrttubehits--;
+      m_ntrtprechits++;
+    }
+  }
+
   void GXFTrajectory::setPrefit(int isprefit) {
     m_prefit = isprefit;
   }
@@ -423,6 +447,14 @@ namespace Trk {
 
   int GXFTrajectory::numberOfTRTHits() {
     return m_ntrthits;
+  }
+
+  int GXFTrajectory::numberOfTRTPrecHits() {
+    return m_ntrtprechits;
+  }
+
+  int GXFTrajectory::numberOfTRTTubeHits() {
+    return m_ntrttubehits;
   }
 
   int GXFTrajectory::numberOfPseudoMeasurements() {

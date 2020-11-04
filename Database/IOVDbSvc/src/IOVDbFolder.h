@@ -64,6 +64,7 @@ public:
   // in subsequent events.
   bool extensible() const;
   bool dropped() const;
+  bool iovOverridden() const;
   const std::string& joTag() const;
   const std::string& resolvedTag() const;
   const std::string& eventStore() const;
@@ -315,6 +316,8 @@ inline bool IOVDbFolder::fromMetaDataOnly() const { return m_fromMetaDataOnly; }
 inline bool IOVDbFolder::extensible() const { return m_extensible; }
 
 inline bool IOVDbFolder::dropped() const { return m_dropped; }
+
+inline bool IOVDbFolder::iovOverridden() const { return m_iovoverridden; }
 
 inline const std::string& IOVDbFolder::joTag() const { return m_jotag; }
 

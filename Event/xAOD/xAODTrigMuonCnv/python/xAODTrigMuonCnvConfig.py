@@ -1,8 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from xAODTrigMuonCnv.xAODTrigMuonCnvConf import TrigMuonEFInfoToMuonCnvTool, TrigMuonEFInfoCnvTestAlg, xAODMaker__TrigMuonEFInfoToMuonCnvAlg, MuonFeatureCnvTool, MuonFeatureCnvTestAlg, xAODMaker__MuonFeatureCnvAlg
-
-from AthenaCommon import CfgMgr
+from xAODTrigMuonCnv.xAODTrigMuonCnvConf import TrigMuonEFInfoToMuonCnvTool, TrigMuonEFInfoCnvTestAlg, xAODMaker__TrigMuonEFInfoToMuonCnvAlg, MuonFeatureCnvTestAlg, xAODMaker__MuonFeatureCnvAlg
 
 # Version of the converter tool that does not
 # make links to xAOD ID tracks (needed until EF ID is converted)

@@ -7,7 +7,7 @@ import os
 def getWikiFile():
 	WikiFile = "svn+ssh://svn.cern.ch/reps/atlasphys/Physics/Top/Software/Production/TopMC12twiki/status/"
 	com = "svn co "+WikiFile
-	print com
+	print(com)
 	os.system(com)
 
 
@@ -31,9 +31,9 @@ def producePDFfile(fileout_name='PDF-MC12-8TeV.data'):
 			if DSID>="110899" and DSID<="110910":
 				PDF = "21000"
 			else:
-				print "wrong format for",line[:-1]
-				print "-->",PDF,"===="
-				print "\n"
+				print("wrong format for",line[:-1])
+				print("-->",PDF,"====")
+				print("\n")
 				continue
 				
 		else : # good format
@@ -43,9 +43,9 @@ def producePDFfile(fileout_name='PDF-MC12-8TeV.data'):
 		
 		if dico.has_key(DSID):
 			if dico[DSID] != PDF:
-				print DSID,"already exists"
-				print "\told:",dico[DSID]
-				print "\tnew:",PDF
+				print(DSID,"already exists")
+				print("\told:",dico[DSID])
+				print("\tnew:",PDF)
 		else :
 			dico[DSID]=PDF
 			out = DSID+"\t"+PDF
@@ -53,13 +53,13 @@ def producePDFfile(fileout_name='PDF-MC12-8TeV.data'):
 	
 	for sample in ["110906", "110909"]:
 		if not dico.has_key(sample):
-			print "adding missing sample",sample,"by hand"
+			print("adding missing sample",sample,"by hand")
 			out = sample+"\t21000"
 			fileout.write(out+"\n")
 		
 	for sample in ["203307", "203308", "203309", "203310", "203311", "203312", "203313", "203314", "203315", "203316", "203317", "203318"]:
 		if not dico.has_key(sample):
-			print "adding missing sample",sample,"by hand"
+			print("adding missing sample",sample,"by hand")
 			out = sample+"\t10042"
 			fileout.write(out+"\n")
 		

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EVENTSELECTIONTOOLLOADER_H_
 #define EVENTSELECTIONTOOLLOADER_H_
@@ -8,7 +8,6 @@
 #include "TopEventSelectionTools/ToolLoaderBase.h"
 
 namespace top {
-
 /**
  * @brief This is used to load tools in this package in a factory like way.  It
  * has one important function.  After that has been called, you can dispose of
@@ -19,8 +18,8 @@ namespace top {
  * you'll be glad to hear that it's fine but we're not there yet.
  * 2) Don't put any xAOD headers in here.  Same reason.
  */
-class TopEventSelectionToolsLoader : public ToolLoaderBase {
-public:
+  class TopEventSelectionToolsLoader: public ToolLoaderBase {
+  public:
     /**
      * @brief Convert the string name into a tool-object.
      *
@@ -44,11 +43,11 @@ public:
      * the name was not found (since this might not be the only tool loader in
      * the program).
      */
-    top::EventSelectorBase* initTool(const std::string& name, const std::string& line, TFile* outputFile, std::shared_ptr<top::TopConfig> config,EL::Worker* wk = nullptr);
+    top::EventSelectorBase* initTool(const std::string& name, const std::string& line, TFile* outputFile,
+                                     std::shared_ptr<top::TopConfig> config, EL::Worker* wk = nullptr);
 
     ClassDef(top::TopEventSelectionToolsLoader, 0)
-};
-
+  };
 }
 
 #endif

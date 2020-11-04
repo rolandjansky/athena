@@ -25,7 +25,6 @@ TrigConf::L1Menu::update()
    if(! isInitialized() || empty() ) {
       return;
    }
-
    try {
       m_name = getAttribute("name");
       // thresholds
@@ -126,6 +125,15 @@ TrigConf::L1Menu::update()
    }
    catch(std::exception & ex) {
       std::cerr << "ERROR: problem when building L1 menu structure (algorithms). " << ex.what() << std::endl;
+      throw;
+   }
+
+   try {
+      // CTP
+      m_ctp.setData(data().get_child("ctp"));
+   }
+   catch(std::exception & ex) {
+      std::cerr << "ERROR: problem when building L1 menu structure (CTP). " << ex.what() << std::endl;
       throw;
    }
 }

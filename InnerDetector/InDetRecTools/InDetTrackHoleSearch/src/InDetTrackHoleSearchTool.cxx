@@ -611,6 +611,8 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
             ++SctDead;
           }
         case Trk::BoundaryCheckResult::Insensitive:
+        case Trk::BoundaryCheckResult::Outside: 
+        case Trk::BoundaryCheckResult::OnEdge: 
         case Trk::BoundaryCheckResult::Error:
           continue;
         case Trk::BoundaryCheckResult::Candidate:

@@ -17,7 +17,7 @@ TrigL2MuonSA::NswStationFitter::NswStationFitter(const std::string& type,
 }
 
 StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const LVL1::RecMuonRoI* p_roi,
-                                                            TrigL2MuonSA::TrackPattern& trackPattern)
+                                                            TrigL2MuonSA::TrackPattern& trackPattern) const
 {
 
   ATH_MSG_DEBUG("NswStationFitter::findSuperPoints() was called.");
@@ -34,7 +34,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::superPointFitter(const LVL1::RecMuonR
 }
 
 StatusCode TrigL2MuonSA::NswStationFitter::selectStgcHits(const LVL1::RecMuonRoI* p_roi,
-                                                          TrigL2MuonSA::StgcHits& stgcHits)
+                                                          TrigL2MuonSA::StgcHits& stgcHits) const
 {
 
   TrigL2MuonSA::StgcHits selectedStgcHits;
@@ -80,7 +80,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::selectStgcHits(const LVL1::RecMuonRoI
 }
 
 StatusCode TrigL2MuonSA::NswStationFitter::selectMmHits(const LVL1::RecMuonRoI* p_roi,
-                                                        TrigL2MuonSA::MmHits& mmHits)
+                                                        TrigL2MuonSA::MmHits& mmHits) const
 {
 
   TrigL2MuonSA::MmHits selectedMmHits;
@@ -127,7 +127,7 @@ StatusCode TrigL2MuonSA::NswStationFitter::selectMmHits(const LVL1::RecMuonRoI* 
 
 }
 
-StatusCode TrigL2MuonSA::NswStationFitter::calcWeightedSumHit(TrigL2MuonSA::TrackPattern& trackPattern)
+StatusCode TrigL2MuonSA::NswStationFitter::calcWeightedSumHit(TrigL2MuonSA::TrackPattern& trackPattern) const
 {
 
   TrigL2MuonSA::StgcHits stgcHits = trackPattern.stgcSegment;

@@ -89,6 +89,7 @@ namespace InDet {
     /// @name Flags to configure SiSPSeededTrackFinder
     //@{
     BooleanProperty m_useZvertexTool{this, "useZvertexTool", true}; 
+    BooleanProperty m_writeHolesFromPattern{this, "writeHolesFromPattern", false,"Flag to activate writing hole info from the pattern recognition"}; 
     BooleanProperty m_useMBTS{this, "useMBTSTimeDiff", false};
     BooleanProperty m_useNewStrategy{this, "useNewStrategy", false};
     BooleanProperty m_useZBoundaryFinding{this, "useZBoundFinding", false};
@@ -118,6 +119,8 @@ namespace InDet {
     SG::ReadHandleKey<Trk::PRDtoTrackMap> m_prdToTrackMap{this,"PRDtoTrackMap",""};
 
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey{this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot"};
+
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_mbtsKey{this, "MBTSKey", "EventInfo.MBTSBackground"};
 
     SG::WriteHandleKey<TrackCollection> m_outputTracksKey{this, "TracksLocation", "SiSPSeededTracks"};
     //@}

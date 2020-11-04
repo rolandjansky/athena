@@ -27,10 +27,10 @@ def makeDict(scope, query):
 
 def makeTable(name, ids):
 
-    print '---++ %s (%d)' % (name, len(ids))
+    print('---++ %s (%d)' % (name, len(ids)))
 
-    print '''%TABLE{tablewidth="100%" columnwidths="6%,70%,12%,12%"}%'''
-    print '|  %8s  |  %60s  |  %22s  |  %22s  |  %22s  |  %22s  |' % ( '*DSID*', '*Description*', '*Primary xAOD  yield*', '*TOPQ1 yield*', '*Primary size [GB]*', '*xAOD size [GB]*' )
+    print('''%TABLE{tablewidth="100%" columnwidths="6%,70%,12%,12%"}%''')
+    print('|  %8s  |  %60s  |  %22s  |  %22s  |  %22s  |  %22s  |' % ( '*DSID*', '*Description*', '*Primary xAOD  yield*', '*TOPQ1 yield*', '*Primary size [GB]*', '*xAOD size [GB]*' ))
 
     for id in ids:
         dsids_sofar.append(id)
@@ -96,35 +96,17 @@ def makeTable(name, ids):
 
         topq1_size_txt = "%15d (%0.0f%%)" % (topq1_size * toGB, frac)
 
-        print '|  %d|%s|  %d|  %s|  %4.2f|  %s|' % (id, twisty, aod_yield, topq1_yield_txt, aod_size * toGB, topq1_size_txt)
+        print('|  %d|%s|  %d|  %s|  %4.2f|  %s|' % (id, twisty, aod_yield, topq1_yield_txt, aod_size * toGB, topq1_size_txt))
 
-    print ''
+    print('')
 
 if __name__ == '__main__':
     query = '*.AOD.*_r5591_r5625'
     query13 = '*.merge.AOD.*_r5787_r5853' 
 
-    print '%TOC%'
+    print('%TOC%')
 
-    print '''
-On this page we have listed the main DC14 samples.  You can find more details on
-the DC14StartPage and DC14DataMCSampleInfo.
- 
-For 8 !TeV we list
-   * *Primary xAOD:* =%s=
-   * *TOPQ1:* =%s=
-
-For 13 !TeV we list
-   * *Primary xAOD:* =%s=
-   * *TOPQ1:* =%s=
- 
-For more details on which containers are removed see TopDerivations. 
-No event selection is currently applied to MC in TOPQ1.
-Since the only difference between TOPQ1 and TOPQ2 is the event selection we
-don't make TOPQ2 for MC. 
-''' % (query, query.replace('AOD','DAOD_TOPQ1') + '_p1854', query13, query13.replace('AOD','DAOD_TOPQ1') + '_p1852')
-
-    print '---+ Introduction'
+    print('---+ Introduction')
 
     aods_idtag, aods_idonly = makeDict('mc14_8TeV', query)
     topq1_idtag, topq1_idonly = makeDict('mc14_8TeV', query.replace('AOD','DAOD_TOPQ1') + '_p1854')
@@ -138,7 +120,7 @@ don't make TOPQ2 for MC.
     #sys.exit()
     dsids_sofar = []
 
-    print '---+ 8 !TeV'
+    print('---+ 8 !TeV')
 
     makeTable('ttbar', [117050])
     makeTable('single top', [110101, 110119, 110140])
@@ -163,7 +145,7 @@ don't make TOPQ2 for MC.
     
     dsids_sofar = []
 
-    print '---+ 13 !TeV'
+    print('---+ 13 !TeV')
 
     makeTable('ttbar', [110401])
     makeTable('single top', [110070, 110071, 110305])

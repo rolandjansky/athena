@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: xAODBunchConfCreator.py 583381 2014-02-14 15:58:20Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import the needed configurables:
 from xAODTriggerCnv.xAODTriggerCnvConf import xAODMaker__BunchConfCnvAlg
-from TrigBunchCrossingTool.BunchCrossingConfProvider import \
-    BunchCrossingConfProvider
+from TrigBunchCrossingTool.BunchCrossingConfProvider import BunchCrossingConfProvider
 
 ## Helper function for creating xAOD bunch configuration metadata
 def xAODBunchConfCreator( sequence = None, stream = None, source = "" ):
@@ -23,7 +20,6 @@ def xAODBunchConfCreator( sequence = None, stream = None, source = "" ):
     """
 
     # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "xAODBunchConfCreator" )
 
@@ -31,13 +27,13 @@ def xAODBunchConfCreator( sequence = None, stream = None, source = "" ):
     logger.info( "Creating xAOD bunch configuration metadata" )
 
     # Get the main sequence if necessary:
-    if sequence == None:
+    if sequence is None:
         from AthenaCommon.AlgSequence import AlgSequence
         sequence = AlgSequence()
         pass
 
     # Access the stream if necessary:
-    if stream == None:
+    if stream is None:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         stream = MSMgr.GetStream( "StreamAOD" )
         pass
@@ -52,8 +48,5 @@ def xAODBunchConfCreator( sequence = None, stream = None, source = "" ):
     stream.AddMetaDataItem( "xAOD::BunchConfContainer_v1#BunchConfiguration" )
     stream.AddMetaDataItem(
         "xAOD::BunchConfAuxContainer_v1#BunchConfigurationAux." )
-
-    # Reinstate the old logger if it existed:
-    if "orig_logger" in dir(): logger = orig_logger
 
     pass

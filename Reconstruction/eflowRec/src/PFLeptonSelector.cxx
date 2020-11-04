@@ -38,9 +38,11 @@ StatusCode PFLeptonSelector::execute(){
   }
 
   /* Select  muons */
-  StatusCode sc = this->selectMuons(selectedMuonsWriteHandle,leptonCaloCellsWriteHandle);
-   //if fail to select muons issue warning, but carry on processing event
-  if (sc.isFailure()) ATH_MSG_WARNING("Problem selecting muons ");
+  if (m_selectMuons){
+    StatusCode sc = this->selectMuons(selectedMuonsWriteHandle,leptonCaloCellsWriteHandle);
+     //if fail to select muons issue warning, but carry on processing event
+    if (sc.isFailure()) ATH_MSG_WARNING("Problem selecting muons ");
+  } 
 
   return StatusCode::SUCCESS;
 }

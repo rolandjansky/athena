@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: xAODTrigMissingETCreator.py 592539 2014-04-11 10:17:29Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import the package's configurables:
-from xAODTrigMissingETCnv.xAODTrigMissingETCnvConf import *
+from xAODTrigMissingETCnv.xAODTrigMissingETCnvConf import xAODMaker__TrigMissingETCnvAlg
 
 ## Helper function for creating xAOD TrigMissingET objects
 def xAODTrigMissingETCreator( sequence = None, stream = None,
@@ -22,7 +20,6 @@ def xAODTrigMissingETCreator( sequence = None, stream = None,
     """
 
     # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "xAODTrigMissingETCreator" )
 
@@ -30,13 +27,13 @@ def xAODTrigMissingETCreator( sequence = None, stream = None,
     logger.info( "Creating xAOD::TrigMissingET from TrigDec::TrigMissingET" )
 
     # Get the main sequence if necessary:
-    if sequence == None:
+    if sequence is None:
         from AthenaCommon.AlgSequence import AlgSequence
         sequence = AlgSequence()
         pass
 
     # Access the stream if necessary:
-    if stream == None:
+    if stream is None:
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         stream = MSMgr.GetStream( "StreamAOD" )
         pass
@@ -50,8 +47,5 @@ def xAODTrigMissingETCreator( sequence = None, stream = None,
     # Add the created objects to the output:
     stream.AddItem( "xAOD::TrigMissingETContainer_v1#%s" % key )
     stream.AddItem( "xAOD::TrigMissingETAuxContainer_v1#%sAux." % key )
-
-    # Reinstate the old logger if it existed:
-    if "orig_logger" in dir(): logger = orig_logger
 
     pass

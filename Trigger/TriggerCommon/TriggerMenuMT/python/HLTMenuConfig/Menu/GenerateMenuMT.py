@@ -460,7 +460,7 @@ class GenerateMenuMT(object):
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:
             log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
-            EventBuildingSequenceSetup.addEventBuildingSequence(theChainConfig, eventBuildType)
+            EventBuildingSequenceSetup.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs

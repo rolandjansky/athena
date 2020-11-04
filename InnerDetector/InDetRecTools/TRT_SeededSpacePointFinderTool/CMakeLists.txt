@@ -1,31 +1,7 @@
-################################################################################
-# Package: TRT_SeededSpacePointFinderTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TRT_SeededSpacePointFinderTool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/IRegionSelector
-                          GaudiKernel
-			  Control/StoreGate
-                          InnerDetector/InDetRecEvent/SiSpacePointsSeed
-                          InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          MagneticField/MagFieldInterfaces
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkEvent/TrkSpacePoint
-                          Tracking/TrkEvent/TrkEventUtils
-                          PRIVATE
-                          DetectorDescription/RoiDescriptor
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkTools/TrkToolInterfaces
-                          MagneticField/MagFieldElements
-                          MagneticField/MagFieldConditions
-			  )
 
 # External dependencies:
 find_package( CLHEP )
@@ -35,8 +11,4 @@ atlas_add_component( TRT_SeededSpacePointFinderTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps IRegionSelector GaudiKernel SiSpacePointsSeed InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkSpacePoint RoiDescriptor InDetIdentifier InDetPrepRawData TrkSurfaces TrkToolInterfaces TrkEventUtils MagFieldElements MagFieldConditions)
-
-# Install files from the package:
-atlas_install_headers( TRT_SeededSpacePointFinderTool )
-
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel IRegionSelector InDetIdentifier InDetPrepRawData InDetRecToolInterfaces MagFieldConditions MagFieldElements RoiDescriptor SiSpacePointsSeed StoreGateLib TrkEventUtils TrkGeometry TrkSpacePoint TrkSurfaces )

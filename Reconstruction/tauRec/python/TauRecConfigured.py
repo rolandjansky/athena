@@ -45,6 +45,7 @@ class TauRecConfigured ( Configured ) :
                                                         Key_tauPi0CellOutputContainer = "TauCommonPi0Cells" if doPi0Clus else "",
                                                         MaxEta = tauFlags.tauRecSeedMaxEta(),
                                                         MinPt = tauFlags.tauRecSeedMinPt(),
+                                                        MaxNTracks = tauFlags.tauRecMaxNTracks(),
                                                         CellMakerTool = TauCellContainerFinalizer)
 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
@@ -98,14 +99,8 @@ class TauRecConfigured ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
         from tauRec.tauRecFlags import tauFlags
         for tool in tools :
-            # if tool.__slots__['calibFolder'].count('TauDiscriminant'):
-            #     tool.calibFolder = tauFlags.TauDiscriminantCVMFSPath()
-            # else :
-            #     tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             if tool not in ToolSvc : ToolSvc += tool            
-            pass
 
     def TauProcessorAlgHandle(self):
         return self._TauProcessorAlgHandle
-

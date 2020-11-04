@@ -3,7 +3,6 @@
 #
 
 from AthenaCommon.CFElements import parOR
-from AthenaCommon.GlobalFlags import globalflags
 
 #logging
 from AthenaCommon.Logging import logging
@@ -21,66 +20,34 @@ def precisionElectronRecoSequence(RoIs):
     """
 
     log.debug('precisionElectronRecoSequence(RoIs = %s)',RoIs)
-
+    
+    import AthenaCommon.CfgMgr as CfgMgr
     # First the data verifiers:
     # Here we define the data dependencies. What input needs to be available for the Fexs (i.e. TopoClusters from precisionCalo) in order to run
     from TriggerMenuMT.HLTMenuConfig.Egamma.PrecisionCaloSequenceSetup import precisionCaloMenuDefs
-    import AthenaCommon.CfgMgr as CfgMgr
-
-
-    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
-    IDTrigConfig = getInDetTrigConfig( 'electron' )
-
-    ## Taking Fast Track information computed in 2nd step ##
-    #TrackCollection = IDTrigConfig.FT().trkTracksFTF()
-    ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("FastTrackViewDataVerifier")
     
-    ViewVerifyTrk.DataObjects = [ #( 'TrackCollection' , 'StoreGateSvc+' + TrackCollection ),
+    # precision Tracking related data dependencies
+    from TriggerMenuMT.HLTMenuConfig.Egamma.EgammaDefs import TrigEgammaKeys
+
+    ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier")
+
+    ViewVerifyTrk.DataObjects = [( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
-                                 ( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+precisionElectron' ),
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                 ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )] # the load below doesn't always work
+                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+' + TrigEgammaKeys.TrigElectronTracksCollectionName)] 
 
-    # These objects must be loaded from SGIL if not from CondInputLoader
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    if globalflags.InputFormat.is_bytestream():
-      ViewVerifyTrk.DataObjects += [( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                    ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
-    else:
-      topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
-      ViewVerifyTrk.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
-
-    """ Precision Track Related Setup.... """
-    PTAlgs = []
-    PTTracks = []
-    PTTrackParticles = []
-
-    from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
-
-    PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois= RoIs )
-    PTSeq = parOR("precisionTrackingInElectrons", PTAlgs)
-    trackParticles = PTTrackParticles[-1]
-    
-    electronPrecisionTrack = parOR("electronPrecisionTrack")
-    electronPrecisionTrack += ViewVerifyTrk
-    electronPrecisionTrack += PTSeq
 
     """ Retrieve the factories now """
     from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectronCfg
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigEMTrackMatchBuilder
-
-     
+   
     #The sequence of these algorithms
     thesequence = parOR( "precisionElectron_"+RoIs)
    
+    thesequence += ViewVerifyTrk
     # Create the sequence of three steps:
     #  - TrigEgammaRecElectron, TrigElectronSuperClusterBuilder, TrigTopoEgammaElectron
     trackMatchBuilder = TrigEMTrackMatchBuilder()
-    trackMatchBuilder.TrackParticlesName = trackParticles
+    trackMatchBuilder.TrackParticlesName = TrigEgammaKeys.TrigElectronTracksCollectionName
     TrigEgammaAlgo = TrigEgammaRecElectron()
    
     TrigEgammaAlgo.InputTopoClusterContainerName = precisionCaloMenuDefs.precisionCaloClusters
@@ -107,4 +74,10 @@ def precisionElectronRecoSequence(RoIs):
     PrecisionElectronRecoMonAlgo.ElectronKey = trigTopoEgammaAlgo.ElectronOutputName
     thesequence += PrecisionElectronRecoMonAlgo
 
-    return (thesequence, electronPrecisionTrack, collectionOut)
+    #online monitoring for TrigElectronSuperClusterBuilder
+    from TriggerMenuMT.HLTMenuConfig.Electron.TrigElectronFactories import PrecisionElectronSuperClusterMonitorCfg
+    PrecisionElectronSuperClusterMonAlgo = PrecisionElectronSuperClusterMonitorCfg()
+    PrecisionElectronSuperClusterMonAlgo.InputEgammaRecContainerName = trigElectronAlgo.SuperElectronRecCollectionName
+    thesequence += PrecisionElectronSuperClusterMonAlgo
+
+    return (thesequence, collectionOut)

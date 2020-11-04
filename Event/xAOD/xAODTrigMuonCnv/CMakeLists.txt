@@ -16,6 +16,6 @@ atlas_add_component( xAODTrigMuonCnv
                      LINK_LIBRARIES AthLinks AthenaBaseComps AthenaKernel FourMomUtils TrigMuonEvent xAODTrigMuonCnvLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/xAODTrigMuonCnvConfig.py python/xAODTrigMuonCnvConfigDb.py )
+atlas_install_python_modules( python/xAODTrigMuonCnvConfig.py python/xAODTrigMuonCnvConfigDb.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/addEFMuonxAODCnv_jobOptions.py share/runEFMuonAODCnvAlg_topOptions.py )
 

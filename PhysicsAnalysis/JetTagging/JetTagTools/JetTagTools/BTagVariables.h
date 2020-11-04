@@ -69,19 +69,6 @@ namespace btagvar {
   static const char* JF_DETA   = "jf_deta";
   static const char* JF_SIG3D  = "jf_sig3d";
 
-  static const char* JF_NTRK_VTX1         = "nTrk_vtx1";//"jf_ntrk_vtx1";
-  static const char* JF_MASS_VTX1         = "mass_first_vtx";//"jf_m_vtx1";
-  static const char* JF_E_VTX1            = "e_first_vtx";//"jf_e_vtx1";
-  static const char* JF_E_FRAC_VTX1       = "e_frac_vtx1";//"jf_efc_vtx1";
-  static const char* JF_L3D_VTX1          = "closestVtx_L3D";//"jf_L3d_vtx1";
-  static const char* JF_Lxy_VTX1          = "JF_Lxy1";//"jf_Lxy_vtx1";
-  static const char* JF_RAPIDITY_VTX1_MAX = "vtx1_MaxTrkRapidity_jf_path";//"jf_trky_max_vtx1";
-  static const char* JF_RAPIDITY_VTX1_AVG = "vtx1_AvgTrkRapidity_jf_path";//"jf_trky_avg_vtx1";
-  static const char* JF_RAPIDITY_VTX1_MIN = "vtx1_MinTrkRapidity_jf_path";//"jf_trky_min_vtx1";
-  static const char* JF_RAPIDITY_MAX      = "MaxTrkRapidity_jf_path";//"jf_trky_max";
-  static const char* JF_RAPIDITY_MIN      = "MinTrkRapidity_jf_path";//"jf_trky_min";
-  static const char* JF_RAPIDITY_AVG      = "AvgTrkRapidity_jf_path";//"jf_trky_avg";
-
   static const char* TRKSUM_NTRK   = "trkSum_ntrk";
   static const char* TRKSUM_SPT    = "trkSum_sPt";
   static const char* TRKSUM_VPT    = "trkSum_vPt";

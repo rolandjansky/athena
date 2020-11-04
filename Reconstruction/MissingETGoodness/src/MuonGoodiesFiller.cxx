@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -8,7 +8,6 @@
 #include "muonEvent/MuonContainer.h"
 #include "MissingETGoodness/MuonGoodiesFiller.h"
 #include "MissingETGoodness/MuonSpShowerHelper.h"
-///#include "MuonTimingInfoToolsInterfaces/IMuonTRTTimingTool.h"
 
 using namespace std;
 

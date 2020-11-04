@@ -427,6 +427,9 @@ def triggerPOOLOutputCfg(flags, edmSet):
     menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
     menuwriter.IsHLTJSONConfig = True
     menuwriter.IsL1JSONConfig = True
+    menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
+    menuwriter.WritexAODTriggerMenuJson = True
+    menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')
     acc.addEventAlgo( menuwriter )
 
     # Schedule the insertion of L1 prescales into the conditions store
@@ -435,12 +438,16 @@ def triggerPOOLOutputCfg(flags, edmSet):
     acc.merge( L1PrescaleCondAlgCfg( flags ) )
 
     # Add metadata to the output stream
-    streamAlg.MetadataItemList += [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
+    if menuwriter.WritexAODTriggerMenu:
+      streamAlg.MetadataItemList += [ "xAOD::TriggerMenuContainer#*", "xAOD::TriggerMenuAuxContainer#*" ]
+
+    if menuwriter.WritexAODTriggerMenuJson:
+      streamAlg.MetadataItemList += [ "xAOD::TriggerMenuJsonContainer#*", "xAOD::TriggerMenuJsonAuxContainer#*" ]
 
     # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
     streamAlg.ExtraInputs += [
         ("xAOD::TrigDecision", decmaker.TrigDecisionKey),
-        ("xAOD::TrigConfKeys", menuwriter.EventObjectName)]
+        ("xAOD::TrigConfKeys", menuwriter.KeyWriterTool.ConfKeys)]
 
     # Produce xAOD L1 RoIs from RoIBResult
     from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg

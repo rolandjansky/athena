@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef TOOLLOADERBASE_H_
 #define TOOLLOADERBASE_H_
@@ -13,7 +13,7 @@
 class TFile;
 
 namespace EL {
-class Worker;
+  class Worker;
 }
 
 namespace top {
@@ -30,8 +30,8 @@ namespace top {
  * should act as a good reference.  Basically you want an if (blah == "mytool")
  * then new MyTool().
  */
-class ToolLoaderBase {
-public:
+  class ToolLoaderBase {
+  public:
     ///Constructor doesn't do anything.
     ToolLoaderBase() {}
 
@@ -56,11 +56,11 @@ public:
      * the name was not found (since this might not be the only tool loader in
      * the program).
      */
-    virtual top::EventSelectorBase* initTool(const std::string& name, const std::string& line, TFile* outputFile, std::shared_ptr<top::TopConfig> config,EL::Worker* wk = nullptr) = 0;
+    virtual top::EventSelectorBase* initTool(const std::string& name, const std::string& line, TFile* outputFile,
+                                             std::shared_ptr<top::TopConfig> config, EL::Worker* wk = nullptr) = 0;
 
     ClassDef(top::ToolLoaderBase, 0);
-};
-
+  };
 }
 
 #endif

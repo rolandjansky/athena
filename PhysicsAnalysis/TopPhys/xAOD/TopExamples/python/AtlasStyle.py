@@ -3,7 +3,7 @@
 import ROOT
 
 def SetAtlasStyle():
-  print 'Applying ATLAS style settings...'
+  print('Applying ATLAS style settings...')
   atlasStyle = AtlasStyle()
   ROOT.gROOT.SetStyle("ATLAS")
   ROOT.gROOT.ForceStyle()

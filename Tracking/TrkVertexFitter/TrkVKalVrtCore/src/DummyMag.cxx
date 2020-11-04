@@ -31,7 +31,7 @@ vkalMagFld::vkalMagFld():
    m_saveBZ=0.;
 }
 
-vkalMagFld::~vkalMagFld() = default;
+
 
 
 baseMagFld::baseMagFld() = default;
