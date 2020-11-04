@@ -66,6 +66,7 @@ public:
   const SCT_ID * m_sctIdHelper;
 
   bool m_first;
+  bool m_printProbePositions;
   
 
 };
