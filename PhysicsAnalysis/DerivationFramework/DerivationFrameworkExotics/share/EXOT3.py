@@ -73,6 +73,20 @@ EXOT3TCCTPThinningTool = DerivationFramework__TCCTrackParticleThinning(name     
 ToolSvc += EXOT3TCCTPThinningTool
 thinningTools.append(EXOT3TCCTPThinningTool)
 
+# Tracks and CaloClusters associated with UFOs
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UFOTrackParticleThinning
+EXOT3EMUFOCSSKTPThinningTool = DerivationFramework__UFOTrackParticleThinning(name                   = "EXOT3UFOCSSKTPThinningTool",
+                                                                             ThinningService        = EXOT3ThinningHelper.ThinningSvc(),
+                                                                             JetKey                 = "AntiKt10UFOCSSKJets",
+                                                                             UFOKey                 = "UFOCSSK",
+                                                                             InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                             PFOCollectionSGKey     = "JetETMiss",
+                                                                             AdditionalPFOKey       = ["CSSK"])
+
+ToolSvc += EXOT3EMUFOCSSKTPThinningTool
+thinningTools.append(EXOT3EMUFOCSSKTPThinningTool)
+
+
 # Tracks associated with Muons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
 EXOT3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "EXOT3MuonTPThinningTool",
@@ -241,13 +255,34 @@ triggers = [
             "HLT_ht1000_L1J100",
            ]
 
-topology_selection_1jet = "((count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 1))"
+### Define selection for event skimming
+largeRJetsForSkimming = [
+    "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_",
+    "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets.",
+    "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets.",
+    ]
 
-topology_selection_2jet_lowpt =  "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 100*GeV && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_m > 30*GeV)  >= 2)"
+### 1jet
+sel_1jet_template = "((count (abs({0}eta) < 2.8 && {0}pt > 150*GeV && {0}m > 30*GeV)  >= 1))"
+topology_selection_1jet = "({})".format(
+    " || ".join([sel_1jet_template.format(j) for j in largeRJetsForSkimming])
+)
+###
 
-topology_selection_2jet_highpt = "(count (abs(AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_eta) < 2.8 && AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.DFCommonJets_Calib_pt > 1000*GeV)  >= 2)"
+### 2jets
+sel_2jet_lowpt_template = "((count (abs({0}eta) < 2.8 && {0}pt > 150*GeV && {0}m > 30*GeV)  >= 2))"
+topology_selection_2jet_lowpt = "({})".format(
+    " || ".join([sel_2jet_lowpt_template.format(j) for j in largeRJetsForSkimming])
+)
 
-topology_selection_2jet_rcpflow_lowpt =  "(count (abs(AntiKt10RCEMPFlowJets.eta) < 2.8 && AntiKt10RCEMPFlowJets.pt > 100*GeV && AntiKt10RCEMPFlowJets.m > 30*GeV)  >= 2)"
+sel_2jet_highpt_template = "(count (abs({0}eta) < 2.8 && {0}pt > 1000*GeV)  >= 2)"
+topology_selection_2jet_highpt = "({})".format(
+    " || ".join([sel_2jet_highpt_template.format(j) for j in largeRJetsForSkimming])
+)
+###
+
+### rcpflow
+topology_selection_2jet_rcpflow_lowpt =  "(count (abs(AntiKt10RCEMPFlowJets.eta) < 2.8 && AntiKt10RCEMPFlowJets.pt > 150*GeV && AntiKt10RCEMPFlowJets.m > 30*GeV)  >= 2)"
 
 topology_selection_2jet_rcpflow_highpt = "(count (abs(AntiKt10RCEMPFlowJets.eta) < 2.8 && AntiKt10RCEMPFlowJets.pt > 1000*GeV)  >= 2)"
 
@@ -465,7 +500,7 @@ EXOT3SlimmingHelper = SlimmingHelper("EXOT3SlimmingHelper")
 
 TruthAssociationVars = '.GhostTruth.GhostTruthAssociationLink.GhostPartons.GhostPartonsPt.PartonTruthLabelID.TruthLabelDeltaR_B.TruthLabelDeltaR_C.TruthLabelDeltaR_T.GhostTruthCount'
 
-EXOT3SlimmingHelper.ExtraVariables = ["AntiKt4EMTopoJets"+TruthAssociationVars,"AntiKt4EMPFlowJets"+TruthAssociationVars,"AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"+TruthAssociationVars
+EXOT3SlimmingHelper.ExtraVariables = ["AntiKt4EMTopoJets"+TruthAssociationVars,"AntiKt4EMPFlowJets"+TruthAssociationVars,"AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets"+TruthAssociationVars,"AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets"+TruthAssociationVars
                                       ]
 
 
@@ -506,8 +541,10 @@ EXOT3SlimmingHelper.AppendToDictionary = {
     "AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJetsAux"              :   "xAOD::JetAuxContainer"     ,
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2Sub"            :   "xAOD::BTaggingContainer"   ,
     "BTagging_AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubAux"         :   "xAOD::BTaggingAuxContainer",
-
 }
+EXOT3SlimmingHelper.AppendToDictionary["UFOCSSK"] = "xAOD::TrackCaloClusterContainer"
+EXOT3SlimmingHelper.AppendToDictionary["UFOCSSKAux"] = "xAOD::TrackCaloClusterAuxContainer"
+
 
 # Add all variabless for VR track-jets
 EXOT3SlimmingHelper.AllVariables  += ["AntiKt10LCTopoTrimmedPtFrac5SmallR20ExCoM2SubJets"
@@ -548,6 +585,7 @@ EXOT3SlimmingHelper.ExtraVariables += [
 if isMC:
   listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
   listJets.extend(['AntiKt10RCTruthJets'])
+  listJets.extend(['AntiKt10TruthSoftDropBeta100Zcut10Jets'])
 for i in listJets:
   EXOT3SlimmingHelper.AppendToDictionary[i] = 'xAOD::JetContainer'
   EXOT3SlimmingHelper.AppendToDictionary[i+'Aux'] = 'xAOD::JetAuxContainer'
