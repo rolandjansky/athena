@@ -538,7 +538,9 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFConf.TrigMuonEFStandaloneTr
         from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
         from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
         from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigEFMdtRdoToPrepDataTool")
+        from MuonCnvExample import MuonCalibConfig
+
+        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigEFMdtRdoToPrepDataTool", CalibrationTool=MuonCalibConfig.MdtCalibrationTool())
         CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigEFCscRdoToPrepDataTool")
         TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigEFTgcRdoToPrepDataTool")
         RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigEFRpcRdoToPrepDataTool")
