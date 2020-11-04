@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILERECALGS_MBTSTIMEDIFFEVENTINFOALG_
@@ -42,6 +42,7 @@ class MBTSTimeDiffEventInfoAlg: public AthReentrantAlgorithm {
     SG::ReadHandleKey<TileCellContainer> m_mbtsContainerKey{this,"MBTSContainer","MBTSContainer","Input MBTS container key"};
     SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{this, "EventInfo", "EventInfo", "Input Event info key"};
     SG::WriteHandleKey<MBTSCollisionTime> m_mbtsCollisionTimeKey{this,"MBTSCollisionTime","MBTSCollisionTime","Output MBTS collision time key"};
+    SG::WriteDecorHandleKey<xAOD::EventInfo> m_eventInfoDecorKey{this, "EventInfoDecorKey", "EventInfo.MBTSBackground", "EventInfo decoration key"};
 
     const TileTBID* m_tileTBID{nullptr};
 

@@ -19,8 +19,6 @@
 #   * GenericTruthThinning (fine-grained thinning)
 #====================================================================
 
-from __future__ import print_function
-
 #============================
 # Define trigger chain output
 #============================
@@ -54,13 +52,13 @@ def setup(TOPQname, streamName, ToolSvc):
   # Track Particle Thinning !!! BUGGY (yes, that's a technical term)...CURRENTLY NOT USING !!!
   #========================
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkInDet/trunk/src/TrackParticleThinning.cxx
-  thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
-  from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-  TOPQTPThinningTool = DerivationFramework__TrackParticleThinning(  
-                         name                    = TOPQname + "TPThinningTool",
-                         StreamName              = streamName,
-                         SelectionString         = thinning_expression,
-                         InDetTrackParticlesKey  = "InDetTrackParticles")
+  #thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV) && (InDetTrackParticles.numberOfPixelHits > 0) && (InDetTrackParticles.numberOfSCTHits > 5) && (abs(DFCommonInDetTrackZ0AtPV) < 1.5)"
+  #from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+  #TOPQTPThinningTool = DerivationFramework__TrackParticleThinning(
+  #                       name                    = TOPQname + "TPThinningTool",
+  #                       StreamName              = streamName,
+  #                       SelectionString         = thinning_expression,
+  #                       InDetTrackParticlesKey  = "InDetTrackParticles")
 
   #ToolSvc += TOPQTPThinningTool
   #thinningTools.append(TOPQTPThinningTool)
@@ -259,7 +257,6 @@ def setup(TOPQname, streamName, ToolSvc):
 
   # we remove photons below 9GeV
   from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-  pTPhotonVariableToCutOn = ".pt"
   photonColl = "Photons"
   TOPQPhotonThinning = DerivationFramework__GenericObjectThinning(
     name = TOPQname + photonColl + "Thinning_lowpTphotons",

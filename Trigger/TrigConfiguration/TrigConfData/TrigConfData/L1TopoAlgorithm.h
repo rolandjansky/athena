@@ -7,6 +7,7 @@
 
 #include "TrigConfData/DataStructure.h"
 #include <vector>
+#include <optional>
 
 namespace TrigConf {
 
@@ -22,11 +23,17 @@ namespace TrigConf {
       enum class AlgorithmType { SORTING, DECISION, MULTIPLICITY, UNKNOWN };
 
       struct VariableParameter {
-      VariableParameter(const std::string & _name, int _value, unsigned int _selection) 
-      : name(_name), value(_value), selection(_selection) {}
-         std::string name{""};
-         int value{0};
-         unsigned int selection{0};
+      public:
+         VariableParameter(const std::string & name, int value, std::optional<unsigned int> selection = std::nullopt)
+            : m_name(name), m_value(value), m_selection(selection) {}
+         const std::string & name() const { return m_name; }
+         int value() const { return m_value; }
+         unsigned int selection() const { return m_selection.value_or(0); }
+         std::optional<unsigned int> selection_optional() const { return m_selection; }
+      private:
+         std::string m_name{""};
+         int m_value{0};
+         std::optional<unsigned int> m_selection{};
       };
 
       /** Constructor */
@@ -83,10 +90,14 @@ namespace TrigConf {
       /** print main info */
       void print(std::ostream & os = std::cout) const override;
 
+   protected:
+
+      virtual void update() override { load(); }
+
    private:
 
       /** Update the internal data after modification of the data object */
-      virtual void update() override;
+      void load();
 
       AlgorithmType m_type{ AlgorithmType::UNKNOWN };
 

@@ -314,6 +314,9 @@ This allows the possibility of later adding a new IOV using IOVSvc::setRange."""
                 if (ix2!=-1):
                     xmltag=(folderstr[ix+1:ix2]).strip()
                     ix=ix2+1
+                    if xmltag[-1] == '/':
+                        xmltag=""
+                        ix=ix+1
             elif (folderstr[ix:ix+2]=='</' and xmltag!=""):
                 ix2=folderstr.find('>',ix)
                 if (ix2!=-1):

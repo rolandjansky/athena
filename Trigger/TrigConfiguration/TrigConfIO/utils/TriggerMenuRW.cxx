@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "TrigConfIO/JsonFileLoader.h"
+#include "TrigConfIO/JsonFileWriter.h"
 #include "TrigConfIO/TrigDBMenuLoader.h"
 #include "TrigConfIO/TrigDBJobOptionsLoader.h"
 #include "TrigConfIO/TrigDBL1PrescalesSetLoader.h"
@@ -24,7 +25,7 @@ public:
    ~Config(){}
    Config(){}
 
-   std::vector<std::string> knownParameters { "file", "f", "smk", "l1psk", "hltpsk", "bgsk", "db", "write", "w", "help", "h", "detail", "d" };
+   std::vector<std::string> knownParameters { "file", "f", "smk", "l1psk", "hltpsk", "bgsk", "db", "write", "w", "Write", "W", "help", "h", "detail", "d" };
 
    // parameters
    // input
@@ -37,6 +38,7 @@ public:
 
    // output
    bool         write { false }; // flag to enable writing
+   bool         writeFromDataStructure { false }; // flag to enable writing of the L1Menu structure (if available)
    std::string  base { "" };
 
    // other
@@ -68,6 +70,7 @@ void Config::usage() {
   cout << "  --db                  dbalias                       ... dbalias (default " << dbalias << ") \n";
   cout << "[Output options]\n";
   cout << "  -w|--write            [base]                        ... to write out json files, e.g. L1menu[_<base>].json. base is optional.\n";
+  cout << "  -W|--Write            [base]                        ... to write out json files from the internal structure (only for L1Menu), e.g. L1menu[_<base>].json. base is optional.\n";
   cout << "[Other options]\n";
   cout << "  -h|--help                                           ... this help\n";
   cout << "  -d|--detail                                         ... prints detailed job options\n";
@@ -104,6 +107,7 @@ Config::parseProgramOptions(int argc, char* argv[]) {
          if(paramName == "h" || paramName == "help" ) { help = true; continue; }
          if(paramName == "d" || paramName == "detail" ) { detail = true; continue; }
          if(paramName == "w" || paramName == "write" ) { write = true; }
+         if(paramName == "W" || paramName == "Write" ) { writeFromDataStructure = true; }
          currentParameter = paramName;
          continue;
       }
@@ -137,7 +141,7 @@ Config::parseProgramOptions(int argc, char* argv[]) {
       }
 
       // output
-      if(currentParameter == "write" || currentParameter == "w") {
+      if(currentParameter == "write" || currentParameter == "w" || currentParameter == "Write" || currentParameter == "W") {
          base = currentWord;
          continue; 
       }
@@ -158,16 +162,24 @@ Config::parseProgramOptions(int argc, char* argv[]) {
 namespace {
    bool
    writeJsonFile(const TrigConf::DataStructure & ds, const std::string & kind, const Config & cfg) {
-      if( ! cfg.write )
-         return true;
-
-      std::string filename = kind;
-      if ( cfg.base != "" ) {
-         filename += "_" + cfg.base;
+      if( cfg.write ) {
+         std::string filename = kind;
+         if ( cfg.base != "" ) {
+            filename += "_" + cfg.base;
+         }
+         filename += ".json";
+         TrigConf::JsonFileLoader fileLoader;
+         return fileLoader.saveFile(filename, ds); 
+      } else if ( cfg.writeFromDataStructure && kind=="L1Menu" ) {
+         std::string filename = kind;
+         if ( cfg.base != "" ) {
+            filename += "_" + cfg.base;
+         }
+         filename += ".fromDS.json";
+         TrigConf::JsonFileWriter fileWriter;
+         const auto & l1menu = dynamic_cast<const TrigConf::L1Menu &>(ds);
+         return fileWriter.writeJsonFile(filename, l1menu); 
       }
-      filename += ".json";
-      TrigConf::JsonFileLoader fileLoader;
-      fileLoader.saveFile(filename, ds);
       return true;
    }
 

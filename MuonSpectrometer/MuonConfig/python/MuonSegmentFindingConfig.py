@@ -562,7 +562,7 @@ def MuonClusterSegmentFinderToolCfg(flags, **kwargs):
 
     from MuonConfiguration.MuonRecToolsConfig import MuonTrackToSegmentToolCfg
     acc = MuonTrackToSegmentToolCfg(flags)
-    kwargs.setdefault( "TrackToSegmentTool", results.popToolsAndMerge(acc))
+    kwargs.setdefault( "TrackToSegmentTool", result.popToolsAndMerge(acc))
 
     # FIXME - remaining tools
     result.setPrivateTools(Muon__MuonClusterSegmentFinderTool(**kwargs))

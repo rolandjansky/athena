@@ -1,5 +1,4 @@
 <lcgdict>
-   <class name="StoreGate"/>
    <class name="StoreGateSvc"/>
 
    <namespace name="AthenaInternal"/>

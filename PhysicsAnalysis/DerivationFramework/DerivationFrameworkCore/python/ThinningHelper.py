@@ -12,9 +12,6 @@
 # (3) passes the thinning service back to the job options on request 
 ####################################################################
 
-# Needed import(s):
-import AthenaCommon.CfgMgr as CfgMgr
-
 ## Class helping to set up (navigation) thinning in derivation jobs
 #
 # In order to hide the complexity of using navigation thinning from the users,
@@ -34,7 +31,6 @@ class ThinningHelper:
     # @param helperName The instance name of this helper object
     #
     def __init__( self, helperName ):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         self.helperName = helperName
         self.TriggerChains = ""
         from AthenaCommon.Logging import logging
@@ -54,11 +50,7 @@ class ThinningHelper:
     def AppendToStream( self, augmentedStream, extraTriggerContent = [] ):
         # Access the stream object:
         stream = augmentedStream.GetEventStream()
-        # Get the name of the "format":
-        formatName = stream.name().strip( "StreamDAOD_" )
-        # The necessary import(s):
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        
+
         if self.TriggerChains == "":
             # No trigger selection required.
             return
@@ -96,7 +88,7 @@ class ThinningHelper:
                 t.TrigNavigationThinningSvc = tSvc
                 break
         else:
-            log.error ("Can't find ThinningCacheTool for stream %s", stream)
+            self.log.error ("Can't find ThinningCacheTool for stream %s", stream)
 
         return
 

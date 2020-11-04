@@ -36,31 +36,31 @@ InDetPerfPlot_Vertex::InDetPerfPlot_Vertex(InDetPlotBase* pParent, const std::st
 
 void
 InDetPerfPlot_Vertex::initializePlots() {
-  IDPVM_BOOK(m_vx_x);
-  IDPVM_BOOK(m_vx_y);
-  IDPVM_BOOK(m_vx_z);
+  book(m_vx_x,"vx_x");
+  book(m_vx_y,"vx_y");
+  book(m_vx_z,"vx_z");
 
-  IDPVM_BOOK(m_vx_err_x);
-  IDPVM_BOOK(m_vx_err_y);
-  IDPVM_BOOK(m_vx_err_z);
+  book(m_vx_err_x,"vx_err_x");
+  book(m_vx_err_y,"vx_err_y");
+  book(m_vx_err_z,"vx_err_z");
 
-  IDPVM_BOOK(m_vx_chi2_over_ndf);
-  IDPVM_BOOK(m_vx_type);
+  book(m_vx_chi2_over_ndf,"vx_chi2_over_ndf");
+  book(m_vx_type,"vx_type");
   
-  IDPVM_BOOK(m_vx_nTracks);
-  IDPVM_BOOK(m_vx_track_weights);
+  book(m_vx_nTracks,"vx_nTracks");
+  book(m_vx_track_weights,"vx_track_weights");
 
 
 
   if (m_iDetailLevel >= 100) {
-    IDPVM_BOOK(m_vx_track_pt);
-    IDPVM_BOOK(m_vx_track_eta);
-    IDPVM_BOOK(m_vx_track_nSiHits);
-    IDPVM_BOOK(m_vx_track_nSiHoles);
-    IDPVM_BOOK(m_vx_track_d0);
-    IDPVM_BOOK(m_vx_track_err_d0);
-    IDPVM_BOOK(m_vx_track_z0);
-    IDPVM_BOOK(m_vx_track_err_z0);
+    book(m_vx_track_pt,"vx_track_pt");
+    book(m_vx_track_eta,"vx_track_eta");
+    book(m_vx_track_nSiHits,"vx_track_nSiHits");
+    book(m_vx_track_nSiHoles,"vx_track_nSiHoles");
+    book(m_vx_track_d0,"vx_track_d0");
+    book(m_vx_track_err_d0,"vx_track_err_d0");
+    book(m_vx_track_z0,"vx_track_z0");
+    book(m_vx_track_err_z0,"vx_track_err_z0");
   }
 }
 

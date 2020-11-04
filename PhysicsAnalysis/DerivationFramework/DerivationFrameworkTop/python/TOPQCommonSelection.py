@@ -8,8 +8,6 @@
 #   skimmingTools_jet = DerivationFrameworkTop.TOPQCommonSelection.setup_jet('TOPQ1', ToolSvc)
 #====================================================================
 
-from __future__ import print_function
-
 #================================
 # SKIMMING SELECTIONS
 #================================
@@ -43,7 +41,7 @@ from __future__ import print_function
 #================================
 # IMPORTS
 #================================
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+import DerivationFrameworkCore.DerivationFrameworkMaster  # noqa: F401
 
 #================
 # ELECTRONS
@@ -105,9 +103,9 @@ def setup_lep(TOPQname, ToolSvc):
   elif TOPQname == 'TOPQ2':
     TOPQ2_LEP10 = "( (count("+EL10+") >= 2) || (count("+MU10+") >= 2) || (count("+EL10+")>= 1 && count("+MU10+") >= 1) )" 
     TOPQ2_LEP15 = "( (count("+EL15+") >= 2) || (count("+MU15+") >= 2) || (count("+EL15+")>= 1 && count("+MU15+") >= 1) )"
-    TOPQ2_LEP17 = "( (count("+EL17+") >= 2) || (count("+MU17+") >= 2) || (count("+EL17+")>= 1 && count("+MU17+") >= 1) )"  
+    TOPQ2_LEP17 = "( (count("+EL17+") >= 2) || (count("+MU17+") >= 2) || (count("+EL17+")>= 1 && count("+MU17+") >= 1) )"  # noqa: F841 (FIXME, not used)
     TOPQ2_LEP20 = "( (count("+EL20+") >= 1) || (count("+MU20+") >= 1) )"
-    TOPQ2_LEP22 = "( (count("+EL22+") >= 1) || (count("+MU22+") >= 1) )"
+    TOPQ2_LEP22 = "( (count("+EL22+") >= 1) || (count("+MU22+") >= 1) )"  # noqa: F841 (FIXME, not used)
     TOPQ_Selection_lep = "( ("+TOPQ2_LEP15+") || (("+TOPQ2_LEP10+") && ("+TOPQ2_LEP20+")) )"
   elif TOPQname == 'TOPQ3':
     TOPQ_Selection_lep = "( (count("+MU13+") >= 1) || (count("+EL13+") >= 1) )"

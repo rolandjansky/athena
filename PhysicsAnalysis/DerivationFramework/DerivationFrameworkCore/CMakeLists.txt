@@ -9,6 +9,6 @@ atlas_add_component( DerivationFrameworkCore
                      LINK_LIBRARIES AsgAnalysisInterfaces AthAnalysisBaseCompsLib AthContainers AthLinks AthenaKernel DerivationFrameworkInterfaces GoodRunsListsLib PathResolver SGTools TrigDecisionToolLib TriggerMatchingToolLib xAODBase xAODEgamma xAODEventInfo xAODMuon )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( scripts/frozen_derivation_test.py )

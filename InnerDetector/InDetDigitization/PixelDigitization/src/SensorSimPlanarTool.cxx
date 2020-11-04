@@ -68,7 +68,7 @@ StatusCode SensorSimPlanarTool::initialize() {
   // For each layer one configuration
   TCADpath_list = {iblFiles, sensorFiles, sensorFiles, sensorFiles};           //IBL - 200um sensor depth, B layer - 20um, layer 1, layer 2
 
-  if (m_fluence==1) {
+  if (static_cast<int>(m_fluence)==1) {
     ATH_MSG_INFO("Use benchmark point 1!");
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl0em10.root") );  //IBL  PL - Barrel
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_250V_fl7e13.root") );    //B-Layer - Barrel                                                                                                  
@@ -85,7 +85,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_voltage_layers.push_back(150);
     m_voltage_layers.push_back(150);
   }
-  else if (m_fluence==2) {
+  else if (static_cast<int>(m_fluence)==2) {
     ATH_MSG_INFO("Use benchmark point 2!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl1e14.root") );
@@ -103,7 +103,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_voltage_layers.push_back(200);
     m_voltage_layers.push_back(150);
   }
-  else if (m_fluence==3) {
+  else if (static_cast<int>(m_fluence)==3) {
     ATH_MSG_INFO("Use benchmark point 3!");
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_80V_fl2e14.root") );
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_PIX_350V_fl1_7e14.root") );                                                                                                            
@@ -120,7 +120,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_voltage_layers.push_back(200);
     m_voltage_layers.push_back(150);
   }
-  else if (m_fluence==4) {
+  else if (static_cast<int>(m_fluence)==4) {
     ATH_MSG_INFO("Use benchmark point 4!");
 
     mapsPath_list.push_back(  PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_150V_fl2e14.root") );
@@ -138,7 +138,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_voltage_layers.push_back(200);
     m_voltage_layers.push_back(150);
   }
-  else if (m_fluence==5) {
+  else if (static_cast<int>(m_fluence)==5) {
     ATH_MSG_INFO("Use benchmark point 5!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_PL_350V_fl5e14.root") );
@@ -156,7 +156,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_voltage_layers.push_back(200);
     m_voltage_layers.push_back(150);
   }
-  else if (m_fluence==6) {
+  else if (static_cast<int>(m_fluence)==6) {
     ATH_MSG_INFO("Use benchmark point 6!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_400V_fl8_7e14.root") );
@@ -174,7 +174,7 @@ StatusCode SensorSimPlanarTool::initialize() {
     m_voltage_layers.push_back(250);
     m_voltage_layers.push_back(250);
   }
-  else if (m_fluence==7) {
+  else if (static_cast<int>(m_fluence)==7) {
     ATH_MSG_INFO("Use benchmark point 7!");
 
     mapsPath_list.push_back( PathResolverFindCalibFile("PixelDigitization/maps_IBL_endLHC.root") );

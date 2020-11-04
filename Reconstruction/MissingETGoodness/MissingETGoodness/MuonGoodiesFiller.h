@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GOODNESSMUONFILLER_H
@@ -7,7 +7,6 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ObjectVector.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/MsgStream.h"
 #include "MissingETGoodness/Goodies.h"
 #include "AthenaBaseComps/AthAlgTool.h"

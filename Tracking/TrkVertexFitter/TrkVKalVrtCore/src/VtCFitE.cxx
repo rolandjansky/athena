@@ -24,7 +24,7 @@ namespace Trk {
 
 int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 {
-    extern void scaleg(double *, double *, long int  ,long int );
+    extern void scaleg(double *, double *, long int  ,long int ) noexcept;
 
     int i,j,ic1,ic2;
 
@@ -32,7 +32,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
     double  cnt = 1e8;
 
 
-    extern void dsinv(long int *, double  *, long int , long int *);
+    extern void dsinv(long int, double  *, long int , long int *) noexcept;
     extern void FullMTXfill( VKVertex* , double *);
     extern void vkSVDCmp(double**, int, int, double*, double**);
 
@@ -148,7 +148,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
         double * Scale=new double[NVar]; scaleg(ader, Scale, NVar, vkalNTrkM*3+3);              // Balance matrix
         double **ta = new double*[NVar+1]; for(i=0; i<NVar+1; i++) ta[i] = new double[NVar+1];  // Make a copy 
  	for (i=1; i<=NVar; ++i) for (j = i; j<=NVar; ++j) ta[i][j] = ta[j][i] = ader_ref(i,j);  // for failure treatment
-	dsinv(&NVar, ader, vkalNTrkM*3+3, &IERR);
+	dsinv(NVar, ader, vkalNTrkM*3+3, &IERR);
 	if ( IERR != 0) {
           double **tv = new double*[NVar+1]; for(i=0; i<NVar+1; i++) tv[i] = new double[NVar+1];
           double **tr = new double*[NVar+1]; for(i=0; i<NVar+1; i++) tr[i] = new double[NVar+1];
@@ -307,7 +307,7 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double verr[6][6])
 	      for(i=0; i<NVar; i++) RCRt[ic*totNC + jc] += RC[ic][i]*R[jc][i];
 	    }
           }
-	  dsinv(&totNC, RCRt, totNC, &IERR);
+	  dsinv(totNC, RCRt, totNC, &IERR);
 	  if ( IERR != 0) return IERR;
 // Correction matrix
 	 for(i=0; i<NVar; i++){

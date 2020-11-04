@@ -48,16 +48,13 @@ def getConfig_eEM():
     confObj = odict()
     confObj["workingPoints"] = odict()
     confObj["workingPoints"]["Loose"] = [
-        odict([("etamin",0),("etamax",21), ("reta", 16), ("wstot", 15), ("had", 30)]),
-        odict([("etamin",21),("etamax",49), ("reta", 20), ("wstot", 25), ("had", 35)])
+        odict([("reta", 0.12), ("wstot", 0.79), ("rhad", 0.31), ("maxEt", 60)]),
     ]
     confObj["workingPoints"]["Medium"] = [
-        odict([("etamin",0),("etamax",21), ("reta", 17), ("wstot", 20), ("had", 30)]),
-        odict([("etamin",21),("etamax",49), ("reta", 21), ("wstot", 25), ("had", 35)])
+        odict([("reta", 0.09), ("wstot", 0.65), ("rhad", 0.20), ("maxEt", 60)]),
     ]
     confObj["workingPoints"]["Tight"] = [
-        odict([("etamin",0),("etamax",21), ("reta", 18), ("wstot", 22), ("had", 30)]),
-        odict([("etamin",21),("etamax",49), ("reta", 22), ("wstot", 25), ("had", 35)])
+        odict([("reta", 0.08), ("wstot", 0.52), ("rhad", 0.19), ("maxEt", 60)]),
     ]
     confObj["ptMinToTopo"] = 3
     confObj["resolutionMeV"] = 100
@@ -68,16 +65,13 @@ def getConfig_eTAU():
     confObj = odict()
     confObj["workingPoints"] = odict()
     confObj["workingPoints"]["Loose"] = [
-        odict([("etamin",0),("etamax",21), ("reta", 16), ("wstot", 15), ("had", 30)]),
-        odict([("etamin",21),("etamax",49), ("reta", 20), ("wstot", 25), ("had", 35)])
+        odict([("isolation", 16), ("maxEt", 25)]),
     ]
     confObj["workingPoints"]["Medium"] = [
-        odict([("etamin",0),("etamax",21), ("reta", 17), ("wstot", 20), ("had", 30)]),
-        odict([("etamin",21),("etamax",49), ("reta", 21), ("wstot", 25), ("had", 35)])
+        odict([("isolation", 17), ("maxEt", 25)]),
     ]
     confObj["workingPoints"]["Tight"] = [
-        odict([("etamin",0),("etamax",21), ("reta", 18), ("wstot", 22), ("had", 30)]),
-        odict([("etamin",21),("etamax",49), ("reta", 22), ("wstot", 25), ("had", 35)])
+        odict([("isolation", 18), ("maxEt", 25)]),
     ]
     confObj["ptMinToTopo"] = 6
     confObj["resolutionMeV"] = 100

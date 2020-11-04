@@ -21,6 +21,8 @@ StatusCode egammaMonitorElectronAlgorithm::initialize()
 {
   
   ATH_CHECK(m_electronsKey.initialize());
+  m_ptcone20Key = m_electronsKey.key() + ".ptcone20";
+  ATH_CHECK(m_ptcone20Key.initialize());
   if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }
@@ -133,15 +135,23 @@ void egammaMonitorElectronAlgorithm::filltopoElectronIsolation( const EventConte
     auto ptcone30_col = Monitored::Collection("ptcone30", ptcone30_vec);
     auto ptcone40_col = Monitored::Collection("ptcone40", ptcone40_vec);
 
-    
-    for (const auto& electron : *electrons) {
+    for (const xAOD::Electron* electron : *electrons){
 
-        topoetcone20_vec.push_back( electron->isolationValue(val,xAOD::Iso::topoetcone20)/Gaudi::Units::GeV);
-        ptcone20_vec.push_back(electron->isolationValue(val,xAOD::Iso::ptcone20));
-        ptcone30_vec.push_back(electron->isolationValue(val,xAOD::Iso::ptcone30));
-        ptcone40_vec.push_back(electron->isolationValue(val,xAOD::Iso::ptcone40));
+        val = 0;
+        electron->isolationValue(val,xAOD::Iso::topoetcone20);
+        topoetcone20_vec.push_back( val/Gaudi::Units::GeV );
 
+        val = 0;
+        electron->isolationValue(val,xAOD::Iso::ptcone20);
+        ptcone20_vec.push_back( val/Gaudi::Units::GeV );
 
+        val = 0;
+        electron->isolationValue(val,xAOD::Iso::ptcone30);
+        ptcone30_vec.push_back( val/Gaudi::Units::GeV );
+
+        val = 0;
+        electron->isolationValue(val,xAOD::Iso::ptcone40);
+        ptcone40_vec.push_back( val/Gaudi::Units::GeV );
     }
 
     auto mon = Monitored::Group(m_monTool,ptcone20_col, ptcone30_col, ptcone40_col, topoetcone20_col);

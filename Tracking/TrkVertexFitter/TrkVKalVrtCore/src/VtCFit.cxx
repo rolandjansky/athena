@@ -61,7 +61,7 @@ namespace Trk {
     int ic, jj, it, jt, ii, kt;
     int j, k, l;
 
-    extern void dsinv(long int *, double *, long int , long int *);
+    extern void dsinv(long int , double *, long int , long int *) noexcept;
     //extern void digx(double *, double *, double *, long int , long int );
     extern void vkGetEigVal(double ci[], double d[], int n);
     extern int cfdinv(double *, double *, long int);
@@ -552,7 +552,7 @@ namespace Trk {
 	  }
 //----------------------------------------------------------------------------------
 	long int NParam = NTRK*3 + 3;
-	dsinv(&NParam, vk->ader, vkalNTrkM*3+3, &IERR);
+	dsinv(NParam, vk->ader, vkalNTrkM*3+3, &IERR);
 	if ( IERR != 0) {
         std::cout << " Bad problem in CFIT inversion ierr="<<IERR<<", "<<eigv[2]<<'\n'; return IERR;
 	} 
@@ -666,7 +666,7 @@ namespace Trk {
 
   extern double finter(double , double , double , double , double , double );
   extern double cfchi2(double *, double *, VKTrack *);
-  extern double getCnstValues2( VKVertex * vk );
+  extern double getCnstValues2( VKVertex * vk ) noexcept;
   extern void applyConstraints( VKVertex * vk );
 
   double setLimitedFitVrt(VKVertex * vk, double alf, double bet, double dCoefNorm, double newVrt[3])

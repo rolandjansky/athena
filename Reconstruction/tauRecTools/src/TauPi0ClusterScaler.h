@@ -19,51 +19,39 @@
  * @author Will Davey <will.davey@cern.ch> 
  */
 
-//namespace Trk {
-//    class IParticleCaloExtensionTool;
-//}
 class TauPi0ClusterScaler : virtual public TauRecToolBase {
-public:
-    TauPi0ClusterScaler(const std::string& name);
-    ASG_TOOL_CLASS2(TauPi0ClusterScaler, TauRecToolBase, ITauToolBase)
-    virtual ~TauPi0ClusterScaler();
 
-    virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer, xAOD::PFOContainer& pChargedPFOContainer) const override; 
+public:
+  
+  ASG_TOOL_CLASS2(TauPi0ClusterScaler, TauRecToolBase, ITauToolBase)
+
+  TauPi0ClusterScaler(const std::string& name);
+  virtual ~TauPi0ClusterScaler() = default;
+
+  virtual StatusCode executePi0ClusterScaler(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer, xAOD::PFOContainer& pChargedPFOContainer) const override; 
 
 private:
+  
+  /** @brief Clear accosicated partcle links for the pfo container */
+  void clearAssociatedParticleLinks(xAOD::PFOContainer& pfoContainer, xAOD::PFODetails::PFOParticleType type) const;
 
-    /** @brief tool handles */
-    //ToolHandle<Trk::IParticleCaloExtensionTool> m_caloExtensionTool;
+  /** @brief Get extrapolated position to the CAL */
+  float getExtrapolatedPosition(const xAOD::PFO& chargedPFO, xAOD::TauJetParameters::TrackDetail detail) const; 
 
-    /** @brief reset neutral PFO kinematics (for AOD running) */
-    void resetNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
+  /** @brief Correct neutral PFO kinematics to point at the current tau vertex */
+  void correctNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
 
-    /** @brief create charged PFOs */
-    void createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
+  /** @brief create charged PFOs */
+  void createChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
 
-    /** @brief extrapolate charged PFO tracks to EM and HAD layers */
-    //void extrapolateChargedPFOs(xAOD::TauJet& pTau);
-    
-    /** @brief associate hadronic PFOs to charged PFOs */
-    void associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
-    
-    /** @brief associate charged PFOs to neutral PFOs */
-    void associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
-    
-    /** @brief associate charged PFOs to neutral PFOs */
-    void subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& pNeutralPFOContainer) const;
-
-    /** @brief sets of EM/Had samplings for track extrapolation */
-    //std::set<CaloSampling::CaloSample> m_EMSamplings;
-    //std::set<CaloSampling::CaloSample> m_HadSamplings;
-
-    /** dodgy re-purposed PFOAttributes enums */
-    //xAOD::PFODetails::PFOAttributes ETAECAL; 
-    //xAOD::PFODetails::PFOAttributes PHIECAL;
-    //xAOD::PFODetails::PFOAttributes ETAHCAL;
-    //xAOD::PFODetails::PFOAttributes PHIHCAL;
-
+  /** @brief associate hadronic PFOs to charged PFOs */
+  void associateHadronicToChargedPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pChargedPFOContainer) const;
+  
+  /** @brief associate charged PFOs to neutral PFOs */
+  void associateChargedToNeutralPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pNeutralPFOContainer) const;
+  
+  /** @brief associate charged PFOs to neutral PFOs */
+  void subtractChargedEnergyFromNeutralPFOs(xAOD::PFOContainer& pNeutralPFOContainer) const;
 };
 
 #endif  /* TAUPI0CLUSTERSCALER_H */
-

@@ -173,7 +173,7 @@ namespace Trk
       }
     }
 
-    for (auto ptr : measuredPerigees_delete){ delete ptr; }
+    for (const auto *ptr : measuredPerigees_delete){ delete ptr; }
 
     return fittedVxCandidate;
   }

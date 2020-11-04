@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 #Content included in addition to the Smart Slimming Content
@@ -31,8 +31,8 @@ ExtraMuonsTruth=[
     ]
 
 ExtraContentPhotons=[
-	]
-	
+        ]
+
 ExtraContentPrimaryVertices=["PrimaryVertices.x.y.sumPt2"]
 
 ExtraPhotonsTruth=[
@@ -42,18 +42,18 @@ ExtraPhotonsTruth=[
     ]
 
 ExtraContentGSFConversionVertices=[
-	"GSFConversionVertices.x",
-	"GSFConversionVertices.y",
-	"GSFConversionVertices.z",
-	"GSFConversionVertices.px",
-	"GSFConversionVertices.py",
-	"GSFConversionVertices.pz",
-	"GSFConversionVertices.pt1",
-	"GSFConversionVertices.pt2",
-	"GSFConversionVertices.etaAtCalo",
-	"GSFConversionVertices.phiAtCalo",
-	"GSFConversionVertices.trackParticleLinks"
-	]
+        "GSFConversionVertices.x",
+        "GSFConversionVertices.y",
+        "GSFConversionVertices.z",
+        "GSFConversionVertices.px",
+        "GSFConversionVertices.py",
+        "GSFConversionVertices.pz",
+        "GSFConversionVertices.pt1",
+        "GSFConversionVertices.pt2",
+        "GSFConversionVertices.etaAtCalo",
+        "GSFConversionVertices.phiAtCalo",
+        "GSFConversionVertices.trackParticleLinks"
+        ]
 
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations
 GainDecoratorTool = GainDecorator()
@@ -67,10 +67,10 @@ ExtraContainersTruth=["TruthEvents",
                       "TruthParticles",
                       "TruthVertices",
                       "AntiKt4TruthJets",
-		      "egammaTruthParticles"
+                      "egammaTruthParticles"
                       #,"BTagging_AntiKt4TruthWZ"
                       #,"AntiKt4TruthWZJets"
-		      ]
+                      ]
 
 ExtraContainersElectrons=["Electrons",
                           "ForwardElectrons",

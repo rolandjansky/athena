@@ -8,7 +8,7 @@
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "L1Decoder/CTPUnpackingTool.h"
+#include "L1Decoder/ICTPUnpackingTool.h"
 
 #include "IL1InfoHypoTool.h"
 
@@ -26,7 +26,7 @@ public:
 private:
     HLT::Identifier m_decisionId;
     Gaudi::Property <std::vector<std::string>> m_l1ItemNames {this, "L1ItemNames"};
-    ToolHandle <CTPUnpackingTool> m_ctpUnpackingTool {this, "CTPUnpackingTool", "CTPUnpackingTool"};
+    ToolHandle <ICTPUnpackingTool> m_ctpUnpackingTool {this, "CTPUnpackingTool", "CTPUnpackingTool"};
 };
 
 #endif //TRIGHYPOCOMMONTOOLS_L1INFOHYPOTOOL_H

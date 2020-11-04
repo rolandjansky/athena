@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Creation: Karsten Koeneke
 def GetCurrentStreamName( msg ):
@@ -6,7 +6,7 @@ def GetCurrentStreamName( msg ):
     # First, try to get the info from the RecFlags
     try:
         from RecExConfig.RecFlags import rec
-        msg.debug("Got the stream name from the RecFlags: %s" % rec.mergingStreamName())
+        msg.debug("Got the stream name from the RecFlags: %s", rec.mergingStreamName())
         streamName = rec.mergingStreamName()
         if streamName == "":
             streamName = "unknownStream"
@@ -39,7 +39,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
 
     # Determine current input stream name
     inputStreamName = GetCurrentStreamName( msg=msg )
-    msg.debug("CreateCutFlowSvc: Have inputStreamName = %s" % (inputStreamName) )
+    msg.debug("CreateCutFlowSvc: Have inputStreamName = %s", inputStreamName)
 
     # Create the CutFlowSvc instance
     import AthenaCommon.CfgMgr as CfgMgr
@@ -81,11 +81,11 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
                     if alg.getName() == "xAODMaker::EventInfoCnvAlg": break
                     pass
                 pass
-            msg.debug("Adding EventCounterAlg with name AllExecutedEvents to sequence with name %s at position %i" % (seq.getName(),index))
+            msg.debug("Adding EventCounterAlg with name AllExecutedEvents to sequence with name %s at position %i", seq.getName(), index)
             seq.insert( index, CfgMgr.EventCounterAlg("AllExecutedEvents") )
             pass
         else :
-            msg.info("Could NOT add EventCounterAlg with name AllExecutedEvents to locked sequence with name %s" % seq.getName())
+            msg.info("Could NOT add EventCounterAlg with name AllExecutedEvents to locked sequence with name %s", seq.getName())
             pass
         pass
 

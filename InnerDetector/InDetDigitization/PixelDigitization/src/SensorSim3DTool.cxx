@@ -51,35 +51,35 @@ StatusCode SensorSim3DTool::initialize() {
 
   if (!m_doRadDamage) { m_fluence=0; }
 
-  if (m_fluence==1) {
+  if (static_cast<int>(m_fluence)==1) {
     mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_0_20V.root")); 
     m_fluence_layers.push_back(1e-10);
   }
-  else if (m_fluence==2) {
+  else if (static_cast<int>(m_fluence)==2) {
     mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e14_20V.root"));
     m_fluence_layers.push_back(1e14);
   }
-  else if (m_fluence==3) {
+  else if (static_cast<int>(m_fluence)==3) {
     mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_2e14_30V.root"));
     m_fluence_layers.push_back(2e14);
   }
-  else if (m_fluence==4) {
+  else if (static_cast<int>(m_fluence)==4) {
     mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e14_40V.root")); 
     m_fluence_layers.push_back(5e14);
   } 
-  else if (m_fluence==5) {
+  else if (static_cast<int>(m_fluence)==5) {
     mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e15_50V.root"));
     m_fluence_layers.push_back(1e15); 
   }
-  else if (m_fluence==6) {
+  else if (static_cast<int>(m_fluence)==6) {
     mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_5e15_160V.root"));
     m_fluence_layers.push_back(5e15);
   }
-  else if (m_fluence==7) {
+  else if (static_cast<int>(m_fluence)==7) {
     mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_6e15_190V_new.root"));       
     m_fluence_layers.push_back(6e15);
   }
-  else if (m_fluence==8) {
+  else if (static_cast<int>(m_fluence)==8) {
     mapsPath_list.push_back(PathResolverFindCalibFile("PixelDigitization/TCAD_IBL_3Dsensors_efields/phi_1e16_260V_new.root"));
     m_fluence_layers.push_back(1e16);
   }

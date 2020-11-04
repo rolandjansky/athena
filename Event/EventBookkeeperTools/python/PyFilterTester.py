@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        PyFilterTester
@@ -35,5 +35,5 @@ class PyFilterTester( AthFilterAlgorithm ):
         return StatusCode.Success
 
     def finalize(self):
-        self.msg.info( ' Number of processed events:  %r' % self.nProcessed )
+        self.msg.info( ' Number of processed events:  %r', self.nProcessed )
         return StatusCode.Success

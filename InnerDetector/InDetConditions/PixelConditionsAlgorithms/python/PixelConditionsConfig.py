@@ -9,7 +9,6 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelConfigCondAlg"""
     acc = ComponentAccumulator()
-#    acc.merge(addFolders(flags, "/PIXEL/PixMapOverlay", "PIXEL_OFL", className="CondAttrListCollection"))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixMapOverlay",
                                         "/PIXEL/PixMapOverlay", "CondAttrListCollection"))
     runNum = flags.Input.RunNumber[0]
@@ -467,7 +466,6 @@ def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
 def PixelOfflineCalibCondAlgCfg(flags, name="PixelOfflineCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
-#    acc.merge(addFolders(flags, "/PIXEL/PixReco", "PIXEL_OFL", className="DetCondCFloat"))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat"))
     kwargs.setdefault("InputSource", 1 if flags.Common.isOnline else 2)
     kwargs.setdefault("PixelClusterErrorDataFile", "PixelClusterErrorData.txt")

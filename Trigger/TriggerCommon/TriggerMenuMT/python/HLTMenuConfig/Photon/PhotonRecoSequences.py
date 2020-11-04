@@ -73,6 +73,12 @@ def precisionPhotonRecoSequence(RoIs):
     PrecisionPhotonRecoMonAlgo.PhotonKey = trigTopoEgammaAlgo.PhotonOutputName
     thesequence += PrecisionPhotonRecoMonAlgo
 
+    #online monitoring for TrigPhotonSuperClusterBuilder
+    from TriggerMenuMT.HLTMenuConfig.Photon.TrigPhotonFactories import PrecisionPhotonSuperClusterMonitorCfg
+    PrecisionPhotonSuperClusterMonAlgo = PrecisionPhotonSuperClusterMonitorCfg()
+    PrecisionPhotonSuperClusterMonAlgo.InputEgammaRecContainerName = trigPhotonAlgo.SuperPhotonRecCollectionName
+    thesequence += PrecisionPhotonSuperClusterMonAlgo
+
     return (thesequence, collectionOut)
 
 

@@ -37,7 +37,7 @@ void TrigL2MuonSA::AlphaBetaEstimate::setMCFlag(BooleanProperty use_mcLUT,
 StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*   p_roi,
 							 TrigL2MuonSA::TgcFitResult& tgcFitResult,
 							 TrigL2MuonSA::TrackPattern& trackPattern,
-                                                         const TrigL2MuonSA::MuonRoad& /*muonRoad*/)
+                                                         const TrigL2MuonSA::MuonRoad& /*muonRoad*/) const
 {
   const int MAX_STATION = 6;
   const double PHI_RANGE = 12./(M_PI/8.);
@@ -270,7 +270,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
 
 double TrigL2MuonSA::AlphaBetaEstimate::computeRadius(double InnerSlope, double InnerR, double InnerZ,
 						       double MiddleSlope, double MiddleR, double MiddleZ,
-						       double sign)
+						       double sign) const
 {
   double cr1 = 0.080/400;
   double cr2 = cr1;

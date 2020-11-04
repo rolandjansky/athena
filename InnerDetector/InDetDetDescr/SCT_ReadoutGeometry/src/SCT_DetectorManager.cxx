@@ -24,24 +24,7 @@ namespace InDetDD {
 
 
   SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore )
-    : SiDetectorManager(detStore, "SCT"),
-      m_idHelper(0),
-      m_isLogical(false) // Change to true to change the definition of local module corrections
-  {
-    //  
-    // Initialized the Identifier helper.
-    //
-    StatusCode sc = detStore->retrieve(m_idHelper, "SCT_ID");  
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve SCT id helper");
-    }
-    // Initialize the collections.
-    if (m_idHelper) {
-      m_elementCollection.resize(m_idHelper->wafer_hash_max());
-      m_alignableTransforms.resize(m_idHelper->wafer_hash_max());
-      m_moduleAlignableTransforms.resize(m_idHelper->wafer_hash_max()/2);
-    } 
-  }
+    : SCT_DetectorManager(detStore, "SCT") {}
 
   SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore , std::string name)
     : SiDetectorManager(detStore,name),

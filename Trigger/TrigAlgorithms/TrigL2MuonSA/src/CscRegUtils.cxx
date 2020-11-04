@@ -122,7 +122,7 @@ StatusCode CscRegDict :: initialize(){
 }
 
 
-int CscRegDict :: get_hash(int stationname, int stationeta, int stationphi){
+int CscRegDict :: get_hash(int stationname, int stationeta, int stationphi) const{
 
   int sname, seta, sphi;
   if (stationname == 50 || stationname == 51)  sname = stationname-50;
@@ -171,7 +171,7 @@ ReturnCode CscRegDict :: initializeHashDictionary(){
 
 
 
-Amg::Vector3D CscRegDict::nomalVector(int module){
+Amg::Vector3D CscRegDict::nomalVector(int module) const{
     
   double phi=m_reg_dict[module].phiCen;
   double theta=m_reg_dict[module].idealAtanNormal;
@@ -204,7 +204,7 @@ double CscRegDict :: posCorrectionZ(int module, int charge/*0 or 1*/){
 
 
 
-double UtilTools :: calc_phi(double x, double y){
+double UtilTools :: calc_phi(double x, double y) const{
   
   double /*abs_x=fabs(x),*/ abs_y=fabs(y);
   double abs_sine=abs_y/sqrt(x*x+y*y);
@@ -226,8 +226,8 @@ double UtilTools :: calc_phi(double x, double y){
 }
 
 
-double UtilTools :: calc_dphi(double phi1, double phi2){
-  
+double UtilTools :: calc_dphi(double phi1, double phi2) const
+{  
   double dphi=phi1-phi2;
   
   if (dphi > M_PI) {
@@ -236,13 +236,12 @@ double UtilTools :: calc_dphi(double phi1, double phi2){
     dphi += 2*M_PI;
   }
   
-  return dphi;
-  
+  return dphi; 
 }
 
 
-double UtilTools :: average_phi(double phi1, double phi2){
-  
+double UtilTools :: average_phi(double phi1, double phi2) const
+{  
   double phi = 0.;
   
   if (phi1*phi2<0. && fabs(phi1)>M_PI/2.){

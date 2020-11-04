@@ -40,7 +40,7 @@ def generateChains(flags, chainDict):
                                      HypoToolGen = TrigEgammaFastCaloHypoToolFromDict,
                                      CA = accCalo )
 
-    fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
+    fastCaloStep = ChainStep(firstStepName, [fastCaloSequence], multiplicity=[1],chainDicts=[chainDict] )
 
 
     secondStepName = 'FastPhoton'
@@ -64,7 +64,7 @@ def generateChains(flags, chainDict):
                                      HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict,
                                      CA = accPhoton )
 
-    l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
+    l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence], multiplicity=[1],chainDicts=[chainDict] )
 
 
     l1Thresholds=[]

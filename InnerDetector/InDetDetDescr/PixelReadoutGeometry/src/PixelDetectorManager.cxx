@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DetDescrConditions/AlignableTransformContainer.h"
@@ -25,8 +25,8 @@ namespace InDetDD {
   const int FIRST_HIGHER_LEVEL = 1;
 
 
-  PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore) 
-    : SiDetectorManager(detStore, "Pixel"),
+  PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore, std::string name) 
+    : SiDetectorManager(detStore,name),
       m_idHelper(0),
       m_isLogical(false) // Change to true to change the definition of local module corrections
   {
@@ -46,6 +46,9 @@ namespace InDetDD {
       m_alignableTransforms.resize(m_idHelper->wafer_hash_max());
     } 
   }
+ 
+   PixelDetectorManager::PixelDetectorManager(StoreGateSvc* detStore) 
+     : PixelDetectorManager(detStore, "Pixel"){ }
 
 
   PixelDetectorManager::~PixelDetectorManager()

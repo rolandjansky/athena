@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DataQualityTools/DQTBackgroundMon.h"
@@ -18,6 +18,7 @@ StatusCode DQTBackgroundMon::initialize() {
     ATH_CHECK( m_LUCID_RawDataContainerKey.initialize() );
     ATH_CHECK( m_BeamBackgroundDataKey.initialize() );
     ATH_CHECK( m_VertexContainerKey.initialize() );
+    ATH_CHECK( m_eventInfoDecorKey.initialize() );
 
     return AthMonitorAlgorithm::initialize();
 }

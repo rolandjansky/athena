@@ -38,7 +38,7 @@ namespace Trk {
   class vkalMagFld {
   public:
      vkalMagFld();
-    ~vkalMagFld();
+    ~vkalMagFld() = default;
 
      void getMagFld(const double,const double,const double,double&,double&,double&, const VKalVrtControlBase*)  const;
      double getMagFld(const double xyz[3], const VKalVrtControlBase* FitControl)  const;

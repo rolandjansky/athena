@@ -142,7 +142,7 @@ def muCombAlgSequence(ConfigFlags):
     # muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
 
     # for Inside-out L2SA
-    muFastIORecoSequence, sequenceOutL2SAIO = muFastRecoSequence( "MURoIs", doFullScanID=False, InsideOutMode=True )
+    muFastIORecoSequence, sequenceOutL2SAIO = muFastRecoSequence( l2muCombViewsMaker.InViewRoIs, doFullScanID=False, InsideOutMode=True )
     insideoutMuonChainFilter = MuonChainFilterAlg("FilterInsideOutMuonChains")
     insideoutMuonChains = getInsideOutMuonChainNames()
     insideoutMuonChainFilter.ChainsToFilter = insideoutMuonChains

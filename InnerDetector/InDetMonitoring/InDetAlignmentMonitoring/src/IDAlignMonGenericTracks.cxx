@@ -1632,17 +1632,18 @@ void IDAlignMonGenericTracks::RegisterHisto(MonGroup& mon, TH2* histo) {
 StatusCode IDAlignMonGenericTracks::fillHistograms()
 {
   m_events++;
- 
+  ATH_MSG_DEBUG ("IDAlignMonGenericTracks::fillHistograms ** START ** call for m_events " << m_events << " for track collection: " <<   m_tracksName.key());
+
   //get tracks
   SG::ReadHandle<TrackCollection> tracks{m_tracksName};
   if (not tracks.isValid()) {
-    ATH_MSG_ERROR(m_tracksName.key() << " could not be retrieved");
+    ATH_MSG_DEBUG ("IDAlignMonGenericTracks::fillHistograms() --" << m_tracksName.key() << " could not be retrieved");
     return StatusCode::RECOVERABLE;
   }
   const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(tracks);
-
-
-  
+  ATH_MSG_DEBUG ("IDAlignMonGenericTracks::fillHistograms() -- event: " << m_events
+		 << " with Track collection " << m_tracksName.key()
+		 << " has size =" << tracks->size());
 
   float xv=-999;
   float yv=-999;

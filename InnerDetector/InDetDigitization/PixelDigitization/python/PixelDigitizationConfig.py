@@ -4,7 +4,7 @@ from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
-
+        
 # The earliest bunch crossing time for which interactions will be sent
 # to the Pixel Digitization code.
 def Pixel_FirstXing():
@@ -55,12 +55,24 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
-#    kwargs.setdefault("LorentzAngleTool", pixelLorentzAngleToolSetup.PixelLorentzAngleTool)
+    kwargs.setdefault("doRadDamage", digitizationFlags.doRadiationDamage.get_Value())
+    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
+    kwargs.setdefault("fluence", 6.4)
+    kwargs.setdefault("fluenceB", 4.6)
+    kwargs.setdefault("fluence1", 2.1)
+    kwargs.setdefault("fluence2", 1.3)
+    kwargs.setdefault("voltage", 400)
+    kwargs.setdefault("voltageB", 400)
+    kwargs.setdefault("voltage1", 250)
+    kwargs.setdefault("voltage2", 250)
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
+    kwargs.setdefault("doRadDamage", digitizationFlags.doRadiationDamage.get_Value())
+    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
+    kwargs.setdefault("fluence", 6)
     return CfgMgr.SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):

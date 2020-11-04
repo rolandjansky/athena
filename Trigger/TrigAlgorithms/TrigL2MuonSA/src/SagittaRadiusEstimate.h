@@ -36,7 +36,7 @@ namespace TrigL2MuonSA {
   
   StatusCode setSagittaRadius(const LVL1::RecMuonRoI*     p_roi,
 			      TrigL2MuonSA::RpcFitResult& rpcFitResult,
-			      TrigL2MuonSA::TrackPattern& trackPattern);
+			      TrigL2MuonSA::TrackPattern& trackPattern) const;
   
  private:
   

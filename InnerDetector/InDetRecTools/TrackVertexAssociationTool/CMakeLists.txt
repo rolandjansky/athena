@@ -1,7 +1,4 @@
-# $Id: CMakeLists.txt 787108 2016-11-29 14:45:15Z krasznaa $
-################################################################################
-# Package: TrackVertexAssociationTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrackVertexAssociationTool )
@@ -14,20 +11,6 @@ else()
    set( extra_deps Control/AthenaBaseComps GaudiKernel )
 endif()
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthContainers
-   Control/AthLinks
-   Control/AthToolSupport/AsgTools
-   Control/AthToolSupport/AsgDataHandles
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODTracking
-   PRIVATE
-   Event/xAOD/xAODEventInfo
-   Tools/PathResolver
-   ${extra_deps} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )
 find_package( lwtnn REQUIRED )
@@ -37,8 +20,8 @@ atlas_add_library( TrackVertexAssociationToolLib
    Root/*.cxx
    PUBLIC_HEADERS TrackVertexAssociationTool
    INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS}
-   LINK_LIBRARIES AthContainers AthLinks AsgTools xAODCore xAODTracking AsgDataHandlesLib ${LWTNN_LIBRARIES}
-   PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
+   LINK_LIBRARIES AthContainers AthLinks AsgTools xAODCore xAODEventInfo xAODTracking AsgDataHandlesLib ${LWTNN_LIBRARIES}
+   PRIVATE_LINK_LIBRARIES PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TrackVertexAssociationTool

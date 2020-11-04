@@ -5,9 +5,8 @@
 # Schedules default DF MET content building tools and writes the
 # results into SG. These may then be accessed along the train  
 #********************************************************************
-from __future__ import print_function
-
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from AthenaCommon import CfgMgr
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 
 ##########################################################################################
 # MET
@@ -73,7 +72,7 @@ metalgs = {}
 def addMETTruthMap(jetcoll='AntiKt4EMTopo',configlist="CustomMET"):
     assocname = 'Truth_'+jetcoll
     customMETConfigs.setdefault(configlist,{})
-    if not assocname in customMETConfigs[configlist]:
+    if assocname not in customMETConfigs[configlist]:
         from METReconstruction.METAssocConfig import METAssocConfig,AssocConfig
         cfg_truthassoc = METAssocConfig(assocname,
                         [AssocConfig('Truth',jetcoll+'Jets')],

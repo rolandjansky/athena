@@ -16,10 +16,6 @@ def TRTMonitoringRun3ESD_AlgConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
-    from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
-    result.merge (TrackCollectionReadCfg (inputFlags, 'CombinedInDetTracks'))
-    result.merge (TrackCollectionReadCfg (inputFlags, 'Tracks'))
-
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags, 'TRTMonitoringCfg')
 
@@ -220,6 +216,11 @@ if __name__ == '__main__':
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     geoCfg = AtlasGeometryCfg(ConfigFlags)
     cfg.merge(geoCfg)
+
+    # Force special handling of converters
+    from TrkConfig.TrackCollectionReadConfig import TrackCollectionReadCfg
+    cfg.merge (TrackCollectionReadCfg (ConfigFlags, 'CombinedInDetTracks'))
+    cfg.merge (TrackCollectionReadCfg (ConfigFlags, 'Tracks'))
 
     TRTMonitoringRun3Acc = TRTMonitoringRun3ESD_AlgConfig(ConfigFlags)
     ServiceMgr.Dump = False

@@ -37,8 +37,7 @@ def MagneticFieldSvcCfg(flags, **kwargs):
         afmArgs['UseMapsFromCOOL'] = False
     magFieldMapCondAlg = CompFactory.MagField.AtlasFieldMapCondAlg(**afmArgs) 
     result.addCondAlgo(magFieldMapCondAlg)
-    # import code
-    # code.interact(local=locals())
+
     # AtlasFieldCacheCondAlg - for reading in current
     afcArgs = {
       "name": "AtlasFieldCacheCondAlg",

@@ -21,7 +21,7 @@
 using namespace std;
 
 namespace Trk {
-  extern void dsinv(long int * , double *, long int , long int *);             
+  extern void dsinv(long int, double *, long int , long int *) noexcept;
 }
 
 namespace VKalVrtAthena {
@@ -54,7 +54,7 @@ namespace VKalVrtAthena {
     mmm[2][2] =             VrtErr1[5]+VrtErr2[5];
 
     long int jfail,NN=3;
-    Trk::dsinv( &NN, &mmm[0][0], NN, &jfail);
+    Trk::dsinv( NN, &mmm[0][0], NN, &jfail);
 
     if(jfail==0){
       Signif = distx*mmm[0][0]*distx

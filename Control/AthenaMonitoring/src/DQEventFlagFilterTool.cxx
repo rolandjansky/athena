@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DQEventFlagFilterTool.h"
@@ -18,6 +18,7 @@ StatusCode DQEventFlagFilterTool::initialize()
   ATH_MSG_VERBOSE("ATLAS Ready initialize");
   // don't register callback if we always return true anyway
   ATH_CHECK( m_EventInfoKey.initialize(!m_alwaysReturnTrue) );
+  ATH_CHECK( m_TileStatusKey.initialize(!m_alwaysReturnTrue) );
   return StatusCode::SUCCESS;
 }
 

@@ -1,13 +1,11 @@
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from AthenaCommon import CfgMgr
 
 from DerivationFrameworkCore.ThinningHelper import ThinningHelper
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning, DerivationFramework__MuonTrackParticleThinning, DerivationFramework__EgammaTrackParticleThinning, DerivationFramework__TauTrackParticleThinning
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from AthenaCommon.SystemOfUnits import GeV
-from AthenaCommon.AppMgr import ToolSvc
 from DerivationFrameworkJetEtMiss.PFlowCommon import applyPFOAugmentation
 
 class METTriggerDerivationContentManager(object):

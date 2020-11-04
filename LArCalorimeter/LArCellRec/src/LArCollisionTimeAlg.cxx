@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCollisionTimeAlg.h"
@@ -12,8 +12,6 @@ LArCollisionTimeAlg:: LArCollisionTimeAlg(const std::string& name, ISvcLocator* 
     AthAlgorithm(name,pSvcLocator),
     m_calo_id(nullptr)
   {
-    declareProperty("cellContainerName", m_cellsContName="AllCalo" );
-    declareProperty("collisionTime", m_collTimeName="LArCollisionTime" );
   }
   
 //__________________________________________________________________________

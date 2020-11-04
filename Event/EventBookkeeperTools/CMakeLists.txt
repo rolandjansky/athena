@@ -35,7 +35,7 @@ if( NOT XAOD_STANDALONE )
                         src/*.cxx
                         src/components/*.cxx
                         LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel EventBookkeeperToolsLib
-                                       SGTools StoreGateLib EventBookkeeperMetaData EventInfo )
+                                       SGTools StoreGateLib EventBookkeeperMetaData )
 endif()
 
 atlas_add_executable( dump-cbk
@@ -43,7 +43,7 @@ atlas_add_executable( dump-cbk
                       LINK_LIBRARIES ${xaod_access_lib} AsgTools )  
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 # Tests

@@ -31,7 +31,7 @@ the position within mother navigation object
 */
 
 template<class T>
-class NavBinnedArray1DT : public BinnedArrayT<T>
+class NavBinnedArray1DT final : public BinnedArrayT<T>
 {
 
 public:

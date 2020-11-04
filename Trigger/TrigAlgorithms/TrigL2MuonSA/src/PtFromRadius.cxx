@@ -32,7 +32,7 @@ void TrigL2MuonSA::PtFromRadius::setMCFlag(BooleanProperty use_mcLUT,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPattern)
+StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPattern) const
 {
   const double ZERO_LIMIT = 1e-5;
 

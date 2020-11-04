@@ -14,7 +14,7 @@ from AthenaCommon.Logging import logging
 log = logging.getLogger('EventBuildingSequenceSetup')
 
 
-def addEventBuildingSequence(chain, eventBuildType):
+def addEventBuildingSequence(chain, eventBuildType, chainDict):
     '''
     Add an extra ChainStep to a Chain object with a PEBInfoWriter sequence configured for the eventBuildType
     '''
@@ -36,7 +36,7 @@ def addEventBuildingSequence(chain, eventBuildType):
         HypoToolGen = pebInfoWriterToolGenerator)
 
     step_name = 'Step{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1, eventBuildType)
-    step = ChainStep(name=step_name, Sequences=[seq])
+    step = ChainStep(name=step_name, Sequences=[seq], chainDicts=[chainDict])
     chain.steps.append(step)
 
 
@@ -163,4 +163,4 @@ def alignEventBuildingSteps(all_chains):
         if pebStepPosition < maxPebStepPosition[ebt]:
             numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
             log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainDict['chainName'], numStepsNeeded)
-            chainConfig.insertEmptySteps(chainDict,'EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
+            chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
