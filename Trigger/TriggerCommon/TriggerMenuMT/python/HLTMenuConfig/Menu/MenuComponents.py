@@ -79,7 +79,7 @@ class AlgNode(Node):
             if self.outputProp != '':
                 self.setPar(self.outputProp,name)
             else:
-                log.error("no OutputProp set")
+                log.debug("no outputProp set for output of %s", self.Alg.getName())
         Node.addOutput(self, name)
 
 
@@ -132,6 +132,8 @@ def algColor(alg):
         return "cyan3"
     if isFilterAlg(alg):
         return "chartreuse3"
+    if isPassFilterAlg(alg):
+        return "darkgreen"
     return "cadetblue1"
 
 
@@ -233,11 +235,8 @@ class RoRSequenceFilterNode(SequenceFilterNode):
     def addChain(self, name, input_name):
         input_index = self.readInputList().index(input_name)
         chains_in_input = self.getPar("ChainsPerInput")
-        print ("CACCA " + str(len(chains_in_input))+ " " + str(input_index))
-        print (chains_in_input)
         if len(chains_in_input) == input_index:
-            new_input = [name]
-            chains_in_input.append(new_input)
+            chains_in_input.append([name])
         elif len(chains_in_input) > input_index:
             chains_in_input[input_index].append(name)
         else:
@@ -247,7 +246,6 @@ class RoRSequenceFilterNode(SequenceFilterNode):
         self.Alg.ChainsPerInput= chains_in_input
         return self.setPar("Chains", name) # still neded?
         
-
     def getChains(self):
         return self.getPar("Chains")
 
@@ -255,6 +253,7 @@ class RoRSequenceFilterNode(SequenceFilterNode):
         return self.getPar("ChainsPerInput")
 
 class PassFilterNode(SequenceFilterNode):
+    """ PassFilter is a Filter node without inputs/outputs, so OutputProp=InputProp=empty"""
     def __init__(self, name):
         Alg= PassFilter(name)
         SequenceFilterNode.__init__(self,  Alg, '', '')
@@ -335,6 +334,9 @@ def isInputMakerBase(alg):
 
 def isFilterAlg(alg):
     return isinstance(alg, RoRSeqFilter)
+
+def isPassFilterAlg(alg):
+    return isinstance(alg, PassFilter)
 
 def isComboHypoAlg(alg):
     return  ('MultiplicitiesMap'  in alg.__class__.__dict__)
