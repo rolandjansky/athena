@@ -5,9 +5,6 @@
 # Declare the package name:
 atlas_subdir( AthenaCommon )
 
-# External dependencies:
-find_package( six )
-
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/Utils
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )

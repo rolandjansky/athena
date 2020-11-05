@@ -17,7 +17,6 @@
 from __future__ import print_function
 from past.builtins import cmp
 import functools
-import six
 
 #
 #
@@ -53,7 +52,7 @@ def _isCompatible( allowedTypes, value ):
         elif type(value) == str and not isinstance( value, tp ):
          # similarly, insist on exact match for str (no conversions allowed)
             pass # offcount will cause a failure, unless another type matches
-        elif tp in six.integer_types and type(value) == float:
+        elif tp == int  and type(value) == float:
          # special case, insist on strict match for integer types
             pass # id. as for strings above
         elif ( tp == bool ) and not (type(value) in [bool, int]):
@@ -103,8 +102,7 @@ class _JobPropertyMeta(type):
 
 
 @functools.total_ordering
-@six.add_metaclass(_JobPropertyMeta)
-class JobProperty(object):
+class JobProperty(metaclass = _JobPropertyMeta):
     """ Base class for the job properties.  
         
            The job properties are class definitions that will be 
@@ -174,10 +172,8 @@ class JobProperty(object):
         return self() < rhs
 
     def __cmp__(self, rhs):
-        if isinstance (rhs, JobProperty):
-            return cmp (self(), rhs())
-        return cmp (self(), rhs)
-    
+        return (self > rhs) - (self < rhs)    
+
     def __call__(self):
         return self.get_Value()  
 

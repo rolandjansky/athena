@@ -7,7 +7,6 @@
 from __future__ import print_function
 
 import copy, os, weakref
-import six
 from AthenaCommon import ConfigurableMeta
 
 # Note: load iProperty etc. from GaudiPython only as-needed
@@ -32,7 +31,7 @@ log = logging.getLogger( 'Configurable' )
 
 
 ### base class for configurable Gaudi algorithms/services/algtools/etc. ======
-class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, object)):
+class Configurable(metaclass=ConfigurableMeta.ConfigurableMeta ):
    """Base class for Gaudi components that implement the IProperty interface.
       Provides most of the boilerplate code, but the actual useful classes
       are its derived ConfigurableAlgorithm, ConfigurableService, and
@@ -77,15 +76,15 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
       if 'name' in kwargs:
        # simple keyword (by far the easiest)
          name = kwargs[ 'name' ]
-      elif 'name' in six.get_function_code(cls.__init__).co_varnames:
+      elif 'name' in cls.__init__.__code__.co_varnames:
        # either positional in args, or default
-         index =  list(six.get_function_code(cls.__init__).co_varnames).index( 'name' )
+         index =  list(cls.__init__.__code__.co_varnames).index( 'name' )
          try:
           # var names index is offset by one as __init__ is to be called with self
             name = args[ index - 1 ]
          except IndexError:
           # retrieve default value, then
-            name = six.get_function_defaults(cls.__init__)[ index - (len(args)+1) ]
+            name = cls.__init__.__defaults__[ index - (len(args)+1) ]
       else:
        # positional index is assumed (will work most of the time)
          try:
@@ -144,7 +143,7 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
                       # the following may result in the same init tried several
                       # times, but we shouldn't be in this loop too often anyway
                         confinit = getattr( confklass, '__init__' )
-                        if n in six.get_function_code(confinit).co_varnames:
+                        if n in confinit.__code__.co_varnames:
                            acceptableKeyWord = True
                            break
                      except AttributeError:
@@ -767,7 +766,7 @@ class Configurable( six.with_metaclass (ConfigurableMeta.ConfigurableMeta, objec
       self._flags |= self._fIsPrinting
       properties = self.getValuedProperties()
       propstr = ""
-      for key,val in sorted(six.iteritems(properties)):
+      for key,val in sorted(properties.items()):
          if isinstance(val,GaudiHandles.PublicToolHandle) or isinstance(val,GaudiHandles.PrivateToolHandle):
             propstr += val.getFullName()
          elif isinstance(val,Configurable):

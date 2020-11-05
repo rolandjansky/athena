@@ -4,13 +4,7 @@
 # @author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # @author: Sebastien Binet <binet@cern.ch>
 
-from __future__ import print_function
-import six
-
-try:
-   import cPickle as pickle
-except ImportError:
-   import pickle
+import pickle
 import shelve
 
 """Shelves for writing jars of configuration. Example:
@@ -38,23 +32,6 @@ __all__ = [ 'ConfigurationShelve', 'ConfigurationJar',
             'saveToPickle', 'loadFromPickle',
             'cmpConfigs',
             ]
-
-### FIXME: --- hack to workaround bug #34752
-###        http://savannah.cern.ch/bugs/?34752
-def _monkeypatch_bug_34752():
-   from GaudiKernel.GaudiHandles import GaudiHandleArray
-   if 'typesAndNames' in GaudiHandleArray.__slots__:
-      try:
-         del GaudiHandleArray.__getstate__
-         del GaudiHandleArray.__setstate__
-      except AttributeError: pass # already done, or not relevant anymore
-   return
-try:
-   _monkeypatch_bug_34752()
-except: # noqa: E722 
-   pass
-del _monkeypatch_bug_34752
-
 
 ### representation of job databases ==========================================
 class ConfigurationShelve( object ):
@@ -190,7 +167,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
    theApp.setup( recursive = True )
 
    app_props = [ (k,v.value())
-                 for k,v in six.iteritems(theApp.getHandle().properties()) ]
+                 for k,v in theApp.getHandle().properties().items() ]
    _fillCfg( 'ApplicationMgr', app_props )
 
  # get all services that now already exist, as they require special treatment;
@@ -211,7 +188,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
       evLoop = getattr( svcMgr, evLoopName )
 
       props = []
-      for k,v in six.iteritems(evLoop.properties()):
+      for k,v in evLoop.properties().items():
          if v != C.propertyNoValue:
             props.append( (k,v) )
       _fillCfg( evLoopName, props )
@@ -238,7 +215,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
 
  # workaround for pycomps
    pycomps = []
-   for c in six.itervalues(C.allConfigurables):
+   for c in C.allConfigurables.items():
       if not isinstance( c, (PyAthena.Alg,
                              PyAthena.AlgTool,
                              PyAthena.Svc,
@@ -304,13 +281,13 @@ def loadJobOptionsCatalogue( cfg_fname ):
       if client == "ApplicationMgr":
          # ApplicationMgr properties are already set
          continue
-      for n,v in six.iteritems(jocat[ client ]):
+      for n,v in jocat[ client ].items():
          josvc.set( client+'.'+n, v )
 
  # restore special services properties
    for client in jocfg:
       svc = PyAthena.py_svc( client, createIf = False, iface='IProperty' )
-      for n,v in six.iteritems(jocfg[ client ]):
+      for n,v in jocfg[ client ].items():
          # See comment above.
          p = gaudi.StringProperty()
          p.setName(n)
@@ -466,7 +443,7 @@ def cmpConfigs (ref, chk, refName=None, chkName=None):
             return v
 
          from AthenaCommon.Configurable import Configurable
-         for k,v in six.iteritems(props):
+         for k,v in props.items():
             if not isinstance(v, Configurable):
                all_cfgs[name][k] = _get_value(cfg,k,v)
             else:

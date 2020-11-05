@@ -5,10 +5,7 @@
 
 """Application manager and other global Gaudi components."""
 
-from __future__ import print_function
-
 import sys, os
-import six
 from AthenaCommon import ExitCodes
 
 from AthenaCommon import AlgSequence, Configurable, Logging
@@ -281,7 +278,7 @@ class AthAppMgr( AppMgr ):
          # transfer old TopAlg to new AthAlgSeq
          _top_alg = _as.AlgSequence("TopAlg")
          # first transfer properties
-         for n,prop in six.iteritems(_top_alg.properties()):
+         for n,prop in _top_alg.properties().items():
             if hasattr(_top_alg, n) and n != "Members":
                setattr(athAlgSeq, n, prop)
                
