@@ -137,6 +137,10 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
     ATH_MSG_ERROR( "Time Correction Type too large! Aborting." );
     return StatusCode::FAILURE;
   }
+
+  if (!m_wasConfigured){
+    ATH_MSG_WARNING( "This tool is too complicated to rely on defaults. Potential configuration issue." );
+  }
   
   return StatusCode::SUCCESS; 
 } 

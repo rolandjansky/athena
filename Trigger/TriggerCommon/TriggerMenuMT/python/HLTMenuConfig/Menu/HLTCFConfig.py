@@ -35,12 +35,9 @@ from AthenaCommon.CFElements import parOR, seqAND
 from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Configurable import Configurable
-
 from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
 import re
-
 
 
 from AthenaCommon.Logging import logging

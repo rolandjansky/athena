@@ -18,9 +18,7 @@ def MooTrackFitterCfg(flags, name = 'MooTrackFitter', **kwargs):
     result.addPublicTool(mctb_fitter)
     kwargs.setdefault("Fitter",          mctb_fitter)
     kwargs.setdefault("FitterPreFit",          mctb_fitter)
-    
-    # FIXME MuPatHitTool currently isn't configured, but should be.
-    MuPatHitToolCfg
+        
     acc = MuPatHitToolCfg(flags)
     mu_pat_hit_tool = acc.getPrimary()
     result.addPublicTool(mu_pat_hit_tool)
@@ -341,6 +339,8 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
     Muon__MuPatCandidateTool=CompFactory.Muon.MuPatCandidateTool
     # https://gitlab.cern.ch/atlas/athena/blob/release/22.0.3/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuPatTools.py#L32
     from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
+    from MuonConfig.MuonRecToolsConfig import MuPatHitToolCfg
+
     result = MdtDriftCircleOnTrackCreatorCfg(flags)
     mdt_dcot_creator = result.getPrimary()
     kwargs.setdefault("MdtRotCreator", mdt_dcot_creator)
@@ -352,16 +352,28 @@ def MuPatCandidateToolCfg(flags, name="MuPatCandidateTool", **kwargs):
         
     kwargs.setdefault("MuonPrinterTool", MuonEDMPrinterTool(flags) )
 
+    acc = MuPatHitToolCfg(flags)
+    mu_pat_hit_tool = acc.getPrimary()
+    result.merge(acc)
+    kwargs.setdefault("HitTool",          mu_pat_hit_tool)
+
     mu_pat_cand_tool = Muon__MuPatCandidateTool(name, **kwargs)
     result.setPrivateTools(mu_pat_cand_tool)
     return result
     
 def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **kwargs):
+    from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg,MdtDriftCircleOnTrackCreatorCfg
+
     Muon__MuonChamberHoleRecoveryTool=CompFactory.Muon.MuonChamberHoleRecoveryTool
     result=ComponentAccumulator()
+    # Not setting explicitly MuonStationIntersectSvc
+    acc = MdtDriftCircleOnTrackCreatorCfg(flags)
+    mdt_dcot_creator = acc.getPrimary()
+    kwargs.setdefault("MdtRotCreator", mdt_dcot_creator)
+    result.merge(acc)
+
     kwargs.setdefault("AddMeasurements",  not flags.Muon.doSegmentT0Fit )
     if flags.Detector.GeometryCSC:
-        from MuonConfig.MuonRIO_OnTrackCreatorConfig import CscClusterOnTrackCreatorCfg
         extrakwargs={}
         if flags.Muon.enableErrorTuning or not flags.Input.isMC:
             extrakwargs["ErrorScalerBeta"] = 0.200

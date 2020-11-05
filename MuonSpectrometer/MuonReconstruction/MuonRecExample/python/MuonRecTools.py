@@ -78,6 +78,8 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     kwargs.setdefault("DoMagneticFieldCorrection", mdtCalibFlags.correctMdtRtForBField())
     kwargs.setdefault("DoWireSag", muonRecFlags.useWireSagCorrections())
     kwargs.setdefault("DoSlewingCorrection", mdtCalibFlags.correctMdtRtForTimeSlewing())
+    kwargs.setdefault("CalibrationTool", MuonCalibConfig.MdtCalibrationTool())
+    kwargs.setdefault("CalibrationDbTool", MuonCalibConfig.MdtCalibrationDbTool())
 
     if beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' :
         kwargs.setdefault("DoTofCorrection", False)
@@ -104,7 +106,7 @@ def MdtDriftCircleOnTrackCreator(name="MdtDriftCircleOnTrackCreator",**kwargs):
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("doMDT", True)
 
-    return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name,**kwargs)
+    return CfgMgr.Muon__MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs)
 # end of factory function MdtDriftCircleOnTrackCreator
 
 
@@ -349,6 +351,7 @@ def MdtSegmentT0Fitter(name="MdtSegmentT0Fitter",**kwargs):
     from MuonRecExample import MuonAlignConfig  # noqa: F401
     from MuonCnvExample import MuonCalibConfig  # noqa: F401
     MuonCalibConfig.setupMdtCondDB()
+    kwargs.setdefault("CalibrationDbTool", MuonCalibConfig.MdtCalibrationDbTool())
     return CfgMgr.TrkDriftCircleMath__MdtSegmentT0Fitter(name,**kwargs)
 
 def MdtMathSegmentFinder(name="MdtMathSegmentFinder",extraFlags=None,**kwargs):

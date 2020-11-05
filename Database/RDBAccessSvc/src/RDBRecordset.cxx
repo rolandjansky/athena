@@ -15,8 +15,6 @@
 #include "RDBAccessSvc.h"
 #include "RDBRecordset.h"
 #include "RDBRecord.h"
-#include "RDBVersionAccessor.h"
-#include "RDBQuery.h"
 
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ICursor.h"
@@ -38,29 +36,31 @@
 #include <iostream>
 #include <set>
 
-RDBRecordset::RDBRecordset(RDBAccessSvc* accessSvc):
-  m_tableName(""),
-  m_tagName(""),
-  m_accessSvc(accessSvc)
+RDBRecordset::RDBRecordset(RDBAccessSvc* accessSvc)
+  : m_tableName("")
+  , m_tagName("")
+  , m_accessSvc(accessSvc)
 {
 }
 
 RDBRecordset::~RDBRecordset()
 {
-  for(unsigned int ind=0; ind<m_records.size(); ind++)
-    delete m_records[ind];
+  for(auto record : m_records) {
+    delete record;
+  }
   m_records.clear();
 }
 
-void RDBRecordset::getData(coral::ISessionProxy* session,
-			   const std::string& nodeName,
-			   const std::string& tagName,
-			   const std::string& tagId)
+void RDBRecordset::getData(coral::ISessionProxy* session
+			   , const std::string& nodeName
+			   , const std::string& tagName
+			   , const std::string& tagId)
 {
-  if(m_accessSvc->msg().level() <= MSG::DEBUG)
+  if(m_accessSvc->msg().level() <= MSG::DEBUG) {
     m_accessSvc->msg() << MSG::DEBUG << "Recordset get data " << nodeName << ", " 
 		       << tagName << ", " 
 		       << tagId << endmsg;
+  }
 
   if(session==0) {
     m_accessSvc->msg() << MSG::ERROR << "RT: No connection to database!" << endmsg;
@@ -92,8 +92,9 @@ void RDBRecordset::getData(coral::ISessionProxy* session,
 
     // Compose the list of output fields for queryStructure
     const coral::ITableDescription& dataTableDesc = session->nominalSchema().tableHandle(upperName + "_DATA").description();
-    for(int i=0; i<dataTableDesc.numberOfColumns(); i++)
+    for(int i=0; i<dataTableDesc.numberOfColumns(); i++) {
       queryStructure->addToOutputList(upperName + "_DATA." + dataTableDesc.columnDescription(i).name());
+    }
 
     // Create table list for query >> data and data2vers tables
     queryStructure->addToTableList(upperName + "_DATA");
@@ -165,8 +166,7 @@ IRDBRecordset::const_iterator RDBRecordset::end() const
 
 bool RDBRecordset::operator!=(const RDBRecordset& rhs) const
 {
-  if(m_records.size()!=rhs.m_records.size())
-    return true;
+  if(m_records.size()!=rhs.m_records.size()) return true;
 
   for(size_t i=0; i<m_records.size(); ++i) {
     RDBRecord* rec1 = dynamic_cast<RDBRecord*>(m_records[i]);
@@ -254,23 +254,26 @@ void RDBRecordset::compare(const RDBRecordset& rec, std::ostream& os) const
 	break;
       }
     }
-    if(!found)
+    if(!found) {
       uniq1.insert(i);
+    }
   }
 
   // print out results
   if(uniq0.size()>0) {
     os << "Records with the following data ids are present in recordset 0 and missing in recordset 1: " << std::endl;
     std::set<size_t>::const_iterator it = uniq0.begin();
-    for(; it!=uniq0.end(); ++it)
+    for(; it!=uniq0.end(); ++it) {
       os << m_records[*it]->getLong(upperName+"_DATA_ID") << " ";
+    }
     os << std::endl;
   }
   if(uniq1.size()>0) {
     os << "Records with the following data ids are present in recordset 1 and missing in recordset 0: " << std::endl;
     std::set<size_t>::const_iterator it = uniq1.begin();
-    for(; it!=uniq1.end(); ++it)
+    for(; it!=uniq1.end(); ++it) {
       os << rec.m_records[*it]->getLong(upperName+"_DATA_ID") << " ";
+    }
     os << std::endl;
   }
 
@@ -278,6 +281,5 @@ void RDBRecordset::compare(const RDBRecordset& rec, std::ostream& os) const
 
 void RDBRecordset::setNodeName(const std::string& nodeName)
 {
-  if(m_tableName.empty())
-    m_tableName = nodeName; 
+  if(m_tableName.empty()) m_tableName = nodeName; 
 }

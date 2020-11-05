@@ -7,6 +7,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.Unco
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import seqAND
+from ..CommonSequences.FullScanDefs import caloFSRoI
 
 def unconventionalTrackingChainParts(chainParts):
     unconvtrkChainParts = []
@@ -89,8 +90,7 @@ def IsoHPtTrackTriggerSequence(ConfigFlags):
 
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     from TrigInDetConfig.InDetSetup import makeInDetAlgsNoView
-    RoIs = 'HLT_FSJETRoI'
-    TrkInputNoViewAlg = makeInDetAlgsNoView( config = IDTrigConfig, rois=recordable(RoIs))
+    TrkInputNoViewAlg = makeInDetAlgsNoView( config = IDTrigConfig, rois=caloFSRoI)
 
     
 

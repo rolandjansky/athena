@@ -166,6 +166,10 @@ There are three types of sequence that can be configured by this code
   The menu sequence describes a full 'input maker' + reco + hypo grouping, i.e.
   a segment that calculates a MET value and then creates a decision using it
 
+All of these are divided into 'steps'. As hypos only appear at the end of each
+step these are the only points at which early rejection is possible. This
+motivates running CPU intensive reconstruction in later steps.
+
 The 'difficult' part of this is the first part - the reco sequence. The MET code
 uses a helper class
 `TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences.AlgConfig`.
@@ -173,6 +177,10 @@ These are split by `EFrecoAlg`, which allows the code to select the correct
 config class, which then knows how to interpret the rest of the `recoDict` to
 correctly configure the sequence. (In fact this class is used to configure all
 stages).
+
+These then further use helper classes based on
+`TriggerMenuMT.HLTMenuConfig.MET.AlgInputConfig.AlgInputConfig`
+to provide the input sequences (e.g. clusters, tracks).
 
 In our example, `xe110_tcpufit_lcw` gets converted into the `recoDict`
 ``` python
@@ -184,7 +192,8 @@ In our example, `xe110_tcpufit_lcw` gets converted into the `recoDict`
 ```
 This is passed to the `TCPufitConfig` class, which sets up the input sequence
 creating the clusters and the MET algorithm calculating the MET according to the
-`tcpufit` algorithm.
+`tcpufit` algorithm. The cluster input sequence is set up by the
+`ClusterInputConfig` class.
 
 The same happens to the `xe70_cell` piece, except it gets passed to the
 `CellConfig` class.
@@ -280,12 +289,20 @@ defined) so it's guaranteed that your class will be known to python when
 A new `AlgConfig` class must define two things
 - a `@classmethod` called `algType` that returns the name of the EFrecoAlg that
   it defines
-- an `__init__` method that receives the `recoDict` and defines `self.inputs`
-  and `self.fexAlg`. The base class `__init__` method must receive the **whole**
-  `recoDict` or it will not construct the correct names.
+- an `__init__` method that receives the `recoDict` and calculates the necessary
+  inputs. The base class `__init__` method must receive the **whole** `recoDict`
+  or it will not construct the correct names.
+- a make_fex function
 
 Look at the other classes in that module for inspiration and consult the
 `AlgConfig` docstring as well.
+
+#### Creating a new input config
+
+You may require a new input config as well (i.e. something which calculates
+an input object for one of the MET calculations). In order to do this, read the
+documentation in `TriggerMenuMT.HLTMenuConfig.MET.AlgInputConfig` and check the
+existing versions in `TriggerMenuMT.HLTMenuConfig.MET.METRecoSequences`.
 
 #### Creating a new C++ class
 

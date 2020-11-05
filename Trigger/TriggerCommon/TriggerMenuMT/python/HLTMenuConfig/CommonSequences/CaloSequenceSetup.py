@@ -4,6 +4,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import RecoFragmentsPool, MenuSequence
 from AthenaCommon.CFElements import seqAND, parOR
 from TrigEDMConfig.TriggerEDMRun3 import recordable
+from .FullScanDefs import caloFSRoI
 
 class CaloMenuDefs(object):
       """Static Class to collect all string manipulations in Calo sequences """
@@ -48,7 +49,7 @@ def fastCaloMenuSequence(name, doRinger):
                          HypoToolGen = TrigEgammaFastCaloHypoToolFromDict )
 
 
-def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs="HLT_FSJETRoI", outputName="CaloCellsFS"):
+def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs=caloFSRoI, outputName="CaloCellsFS"):
     """ Produce the full scan cell collection """
     if not RoIs:
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
@@ -64,7 +65,7 @@ def cellRecoSequence(flags, name="HLTCaloCellMakerFS", RoIs="HLT_FSJETRoI", outp
     return parOR(name+"RecoSequence", [alg]), alg.CellsName
 
 def caloClusterRecoSequence(
-        flags, name="HLTCaloClusterMakerFS", RoIs="HLT_FSJETRoI",
+        flags, name="HLTCaloClusterMakerFS", RoIs=caloFSRoI,
         outputName="HLT_TopoCaloClustersFS"):
     """ Create the EM-level fullscan clusters """
     cell_sequence, cells_name = RecoFragmentsPool.retrieve(cellRecoSequence, flags=None, RoIs=RoIs)
@@ -78,7 +79,7 @@ def caloClusterRecoSequence(
     return parOR(name+"RecoSequence", [cell_sequence, alg]), alg.CaloClusters
 
 def LCCaloClusterRecoSequence(
-        flags, name="HLTCaloClusterCalibratorLCFS", RoIs="HLT_FSJETRoI",
+        flags, name="HLTCaloClusterCalibratorLCFS", RoIs=caloFSRoI,
         outputName="HLT_TopoCaloClustersLCFS"):
     """ Create the LC calibrated fullscan clusters
 
