@@ -198,26 +198,10 @@ private:
   mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("MMStripResponseSimulation");
 
   // seperate random number generation for performance monitoring
-  float getTransversDiffusion(float posY){
-			if ( m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
-
-				m_transverseDiffusionFunction->SetParameter(2, posY*m_transverseDiffusionSigma);
-				m_transverseDiffusionFunction->SetParameter(5, 0.0);
-
-			} else {
-				m_transverseDiffusionFunction->SetParameter(2, posY*m_transverseDiffusionSigma);
-				m_transverseDiffusionFunction->SetParameter(5, 1.0);
-
-			}
-
-      return m_transverseDiffusionFunction->GetRandom(); 
-  }
-
-  float getLongitudenalDiffusion(float posY){m_longitudinalDiffusionFunction->SetParameters(1.0, 0., posY*m_longitudinalDiffusionSigma);return m_longitudinalDiffusionFunction->GetRandom();}
-  float getEffectiveCharge(){return m_polyaFunction->GetRandom();}
-
-  float getPathLengthTraveled(){return  ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() ); }
-
+  float getTransversDiffusion(float posY);
+  float getLongitudinalDiffusion(float posY);
+  float getEffectiveCharge();
+  float getPathLengthTraveled();
 
 
 
