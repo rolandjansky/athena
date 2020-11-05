@@ -51,6 +51,11 @@ class TrigJetHypoAlgMT : public ::HypoBase {
      
   SG::ReadHandleKey< xAOD::JetContainer > m_jetsKey {
     this, "Jets", "Jets", "jet container key, full scan"};  
+
+  // For preselection, we want to only generate one decision object
+  // a la L1, rather than one per jet
+  Gaudi::Property<bool> m_doPresel {
+    this, "DoPresel", false, "is this preselection rather than main decision?"};
   
 }; 
 

@@ -6,7 +6,7 @@ atlas_subdir( TrigStreamerHypo )
 # Component(s) in the package:
 atlas_add_component( TrigStreamerHypo
                      src/*.cxx src/components/*.cxx
-                     LINK_LIBRARIES AsgTools AthenaBaseComps DecisionHandlingLib GaudiKernel TrigCompositeUtilsLib )
+                     LINK_LIBRARIES AsgTools AthenaBaseComps DecisionHandlingLib GaudiKernel TrigCompositeUtilsLib TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
