@@ -546,7 +546,7 @@ def addLargeRJetD2(kernel=None):
     #Extra classifier for D2 variable
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthD2Decorator
     TruthD2Decorator= DerivationFramework__TruthD2Decorator("TruthD2Decorator",
-                                                            JetContainerKey = "AntiKt10TruthTrimmedPtFrac5SmallR20Jets",
+                                                            JetContainerKey = "AntiKt10TruthSoftDropBeta100Zcut10Jets",
                                                             DecorationName = "D2")
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += TruthD2Decorator
@@ -655,5 +655,5 @@ def addTruth3ContentToSlimmerTool(slimmer):
     ]
     slimmer.ExtraVariables += [
         "AntiKt4TruthDressedWZJets.GhostCHadronsFinalCount.GhostBHadronsFinalCount.pt.HadronConeExclTruthLabelID.ConeTruthLabelID.PartonTruthLabelID.TrueFlavor",
-        "AntiKt10TruthTrimmedPtFrac5SmallR20Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
+        "AntiKt10TruthSoftDropBeta100Zcut10Jets.pt.Tau1_wta.Tau2_wta.Tau3_wta.D2",
         "TruthEvents.Q.XF1.XF2.PDGID1.PDGID2.PDFID1.PDFID2.X1.X2.crossSection"]
