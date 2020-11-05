@@ -77,9 +77,9 @@ namespace InDetDDSLHC {
   }
 
   void PixelDetectorFactory::create(GeoPhysVol *world) {
-    msg(MSG::INFO) << "C R E A T E   W O R L D" << endmsg; 
+    ATH_MSG_INFO( "C R E A T E   W O R L D" );
    
-    msg(MSG::INFO) << m_detectorManager->getVersion().fullDescription() << endmsg;
+    ATH_MSG_INFO( m_detectorManager->getVersion().fullDescription() );
     PixelGmxInterface gmxInterface(m_detectorManager, m_commonItems, &m_moduleTree);
     //    To set up solid geometry only, without having to worry about sensitive detectors etc., and get loads of debug output,
     //    comment out above line and uncomment the following line; also, switch header files above.
@@ -89,12 +89,12 @@ namespace InDetDDSLHC {
     string gmxInput;
     
     if (m_options->gmxFilename() == "") {
-      msg(MSG::INFO) << "gmxFilename not set; getting .gmx from Geometry database Blob"
-		     << endmsg;
+      ATH_MSG_INFO( "gmxFilename not set; getting .gmx from Geometry database Blob"
+		     );
       flags = 0x1; // Lowest bit ==> string; next bit implies gzip'd but we decided not to gzip
       gmxInput = getBlob();
       string dtdFile = '"' + PathResolver::find_file("geomodel.dtd", "DATAPATH") + '"';
-      msg(MSG::INFO) << "dtdFile = " << dtdFile << endmsg;
+      ATH_MSG_INFO( "dtdFile = " << dtdFile );
       size_t index = gmxInput.find("\"geomodel.dtd\"");
       if (index != string::npos) {
 	gmxInput.replace(index, 14, dtdFile);
@@ -141,14 +141,14 @@ namespace InDetDDSLHC {
     DecodeVersionKey versionKey(geoDbTagSvc(), "Pixel");
     std::string versionTag  = versionKey.tag();
     std::string versionNode = versionKey.node();
-    msg(MSG::INFO) << "getBlob: versionTag = " << versionTag << endmsg;
-    msg(MSG::INFO) << "getBlob: versionNode = " << versionNode << endmsg;
+    ATH_MSG_INFO( "getBlob: versionTag = " << versionTag );
+    ATH_MSG_INFO( "getBlob: versionNode = " << versionNode );
 
     IRDBAccessSvc *accessSvc = m_athenaComps->rdbAccessSvc();
     //   ADA  accessSvc->connect();
     IRDBRecordset_ptr recordSetPixel = accessSvc->getRecordsetPtr("ITKXDD", versionTag, versionNode);
     if (!recordSetPixel || recordSetPixel->size() == 0) {
-      msg(MSG::FATAL) << "getBlob: Unable to obtain Pixel recordSet" << endmsg;
+      ATH_MSG_FATAL( "getBlob: Unable to obtain Pixel recordSet" );
       throw runtime_error("getBlob: Unable to obtain Pixel recordSet");
     }
     const IRDBRecord *recordPixel =  (*recordSetPixel)[0];
@@ -165,7 +165,7 @@ namespace InDetDDSLHC {
   void PixelDetectorFactory::doNumerology() {
     InDetDD::SiNumerology n;
     
-    msg(MSG::INFO) << "\n\nPixel Numerology:\n===============\n\nNumber of parts is " << m_moduleTree.nParts() << endl << endl;
+    ATH_MSG_INFO( "\n\nPixel Numerology:\n===============\n\nNumber of parts is " << m_moduleTree.nParts() );
     
   }
 

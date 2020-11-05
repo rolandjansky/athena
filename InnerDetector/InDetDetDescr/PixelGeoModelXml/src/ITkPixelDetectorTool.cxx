@@ -92,25 +92,25 @@ StatusCode ITkPixelDetectorTool::create() {
 //
     DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
     if (versionKey.tag() == "AUTO"){
-        msg(MSG::ERROR) << "Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00." << endmsg;
+        ATH_MSG_ERROR( "Atlas version tag is AUTO. You must set a version-tag like ATLAS_P2_ITK-00-00-00." );
         return StatusCode::FAILURE;
     }
     if (versionKey.custom()) 
-        msg(MSG::INFO) << "Building custom ";
+        ATH_MSG_INFO( "Building custom ");
     else
-        msg(MSG::INFO) << "Building ";
-    msg(MSG::INFO) << "Pixel SLHC with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() << endmsg;
+        ATH_MSG_INFO( "Building ");
+    ATH_MSG_INFO( "Pixel SLHC with Version Tag: "<< versionKey.tag() << " at Node: " << versionKey.node() );
 //
 //    Get the Database Access Service and from there the pixel version tag
 //
     std::string pixelVersionTag = m_rdbAccessSvc->getChildTag("Pixel", versionKey.tag(), versionKey.node());
-    msg(MSG::INFO) << "Pixel Version: " << pixelVersionTag <<  "  Package Version: " << PACKAGE_VERSION << endmsg;
+    ATH_MSG_INFO( "Pixel Version: " << pixelVersionTag <<  "  Package Version: " << PACKAGE_VERSION );
 //
 //   Check if pixel version tag is empty. If so, then the pixel cannot be built.
 //   This may or may not be intentional. We just issue an INFO message.
 //
     if (pixelVersionTag.empty()) {
-        msg(MSG::INFO) <<  "No Pixel Version. PixelSLHC will not be built." << endmsg;
+        ATH_MSG_INFO(  "No Pixel Version. PixelSLHC will not be built." );
         return StatusCode::SUCCESS;
     }
 //
@@ -127,14 +127,14 @@ StatusCode ITkPixelDetectorTool::create() {
     m_manager = thePixel.getDetectorManager();
 
     if (!m_manager) {
-        msg(MSG::ERROR) << "PixelDetectorManager not found; not created in PixelDetectorFactory?" << endmsg;
+        ATH_MSG_ERROR( "PixelDetectorManager not found; not created in PixelDetectorFactory?" );
         return(StatusCode::FAILURE);
     }
 
     StatusCode sc;
     sc = detStore()->record(m_manager, m_manager->getName());
     if (sc.isFailure() ) {
-        msg(MSG::ERROR) << "Could not register PixelDetectorManager" << endmsg;
+        ATH_MSG_ERROR( "Could not register PixelDetectorManager" );
         return StatusCode::FAILURE;
     }
     theExpt->addManager(m_manager);
@@ -144,7 +144,7 @@ StatusCode ITkPixelDetectorTool::create() {
     const SiDetectorManager *siDetManager = m_manager;
     sc = detStore()->symLink(m_manager, siDetManager);
     if(sc.isFailure()){
-        msg(MSG::ERROR) << "Could not make link between PixelDetectorManager and SiDetectorManager" << endmsg;
+        ATH_MSG_ERROR( "Could not make link between PixelDetectorManager and SiDetectorManager" );
         return StatusCode::FAILURE;
     }
 //
@@ -152,15 +152,15 @@ StatusCode ITkPixelDetectorTool::create() {
 //    which has to be after the manager is made by the DetectorFactory.
 //
 //    if (m_lorentzAngleSvc.empty()) {
-//        msg(MSG::INFO) << "Lorentz angle service not requested." << endmsg;
+//        ATH_MSG_INFO( "Lorentz angle service not requested." );
 //    }
 //    else {
 //        sc = m_lorentzAngleSvc.retrieve();
 //        if (sc.isFailure()) {
-//            msg(MSG::INFO) << "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc << endmsg;
+//            ATH_MSG_INFO( "Could not retrieve Lorentz angle service:" <<  m_lorentzAngleSvc );
 //        }
 //        else {
-//            msg(MSG::INFO) << "Lorentz angle service retrieved: " << m_lorentzAngleSvc << endmsg;
+//            ATH_MSG_INFO( "Lorentz angle service retrieved: " << m_lorentzAngleSvc );
 //        }
 //    }
 
@@ -184,21 +184,21 @@ StatusCode ITkPixelDetectorTool::registerCallback() {
     if (m_alignable) {
         std::string folderName = "/Indet/Align";
         if (detStore()->contains<AlignableTransformContainer>(folderName)) {
-            msg(MSG::DEBUG) << "Registering callback on AlignableTransformContainer with folder " << folderName << endmsg;
+            ATH_MSG_DEBUG( "Registering callback on AlignableTransformContainer with folder " << folderName );
             const DataHandle<AlignableTransformContainer> atc;
             sc =  detStore()->regFcn(&IGeoModelTool::align, dynamic_cast<IGeoModelTool *>(this), atc, folderName);
             if(sc.isFailure()) {
-                msg(MSG::ERROR) << "Could not register callback on AlignableTransformContainer with folder " << 
-                                    folderName << endmsg;
+                ATH_MSG_ERROR( "Could not register callback on AlignableTransformContainer with folder " << 
+                                    folderName );
             } 
         } 
         else {
-            msg(MSG::WARNING) << "Unable to register callback on AlignableTransformContainer with folder " <<
-                                 folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" << endmsg;
+            ATH_MSG_WARNING( "Unable to register callback on AlignableTransformContainer with folder " <<
+                                 folderName << ", Alignment disabled (only if no Run2 scheme is loaded)!" );
         }
     } 
     else {
-        msg(MSG::INFO) << "Alignment disabled. No callback registered" << endmsg;
+        ATH_MSG_INFO( "Alignment disabled. No callback registered" );
         // We return failure otherwise it will try and register a GeoModelSvc callback associated with this callback.
     }
     return sc;
@@ -209,14 +209,14 @@ StatusCode ITkPixelDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
 //    The call-back routine, which just calls the real call-back routine from the manager.
 //
     if (!m_manager) {
-        msg(MSG::WARNING) << "Manager does not exist" << endmsg;
+        ATH_MSG_WARNING( "Manager does not exist" );
         return StatusCode::FAILURE;
     }
     if (m_alignable) {
         return m_manager->align(I, keys);
     } 
     else {
-        msg(MSG::DEBUG) << "Alignment disabled. No alignments applied" << endmsg;
+        ATH_MSG_DEBUG( "Alignment disabled. No alignments applied" );
         return StatusCode::SUCCESS;
     }
 }
