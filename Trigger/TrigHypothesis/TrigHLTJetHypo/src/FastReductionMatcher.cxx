@@ -12,7 +12,7 @@
 
 
 
-FastReductionMatcher::FastReductionMatcher(ConditionsMT conditions,
+FastReductionMatcher::FastReductionMatcher(ConditionPtrs conditions,
 					   const Tree& tree,
 					   const std::vector<std::vector<int>>& sharedNodes):
   m_conditions(std::move(conditions)),

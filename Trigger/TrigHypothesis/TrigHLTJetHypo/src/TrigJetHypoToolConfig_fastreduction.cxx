@@ -15,6 +15,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "./groupsMatcherFactoryMT.h"
+#include "./CapacityCheckedCondition.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -126,20 +127,32 @@ StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
 
 
 
-std::optional<ConditionsMT>
-TrigJetHypoToolConfig_fastreduction::getConditions() const {
+std::optional<ConditionPtrs>
+TrigJetHypoToolConfig_fastreduction::getCapacityCheckedConditions() const {
 
-  ConditionsMT conditions;
+  ConditionPtrs conditions;
 
   // collect the Conditions objects from the various sources
   // return an invalid optional if any src signals a problem
+
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(cm->getCondition());
+    conditions.push_back(std::make_unique<CapacityCheckedCondition>(std::move(cm->getCondition())));
   }
-    
-  return std::make_optional<ConditionsMT>(std::move(conditions));
+      
+  return std::make_optional<ConditionPtrs>(std::move(conditions));
 }
 
+std::optional<ConditionsMT>
+TrigJetHypoToolConfig_fastreduction::getConditions() const {
+  /* obtain an unchecked set of conditions */
+  
+  ConditionsMT conditions;
+  for(const auto& cm : m_conditionMakers){
+    conditions.push_back(std::move(cm->getCondition()));
+  }
+  
+  return std::make_optional<ConditionsMT>(std::move(conditions));
+}
 
 // following function not used for treeless hypos
 std::size_t
@@ -156,7 +169,7 @@ TrigJetHypoToolConfig_fastreduction::getJetGrouper() const {
 std::unique_ptr<IGroupsMatcherMT>
 TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 
-  auto opt_conds = getConditions();
+  auto opt_conds = getCapacityCheckedConditions();
 
   if(!opt_conds.has_value()){
     return std::unique_ptr<IGroupsMatcherMT>(nullptr);

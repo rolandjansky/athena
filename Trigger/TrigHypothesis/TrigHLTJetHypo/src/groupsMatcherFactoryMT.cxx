@@ -47,7 +47,7 @@ groupsMatcherFactoryMT_Partitions (ConditionsMT&& conditions){
 
 
 std::unique_ptr<IGroupsMatcherMT> 
-groupsMatcherFactoryMT_FastReduction (ConditionsMT&& conditions,
+groupsMatcherFactoryMT_FastReduction (ConditionPtrs&& conditions,
 				      const std::vector<std::size_t>& treeVec,
 				      const std::vector<std::vector<int>>& sharedNodes){
   
