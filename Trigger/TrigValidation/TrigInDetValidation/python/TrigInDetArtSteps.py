@@ -71,6 +71,7 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 chains += "'HLT_mu24_idperf_L1MU20',"
                 chains += "'HLT_mu26_ivarmedium_L1MU20',"
+                chains += "'HLT_mu28_ivarmedium_L1MU20',"
                 flags += 'doMuonSlice=True;'
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu
@@ -118,6 +119,7 @@ class TrigInDetAna(AthenaCheckerStep):
         AthenaCheckerStep.__init__(self, name, 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py')
         self.max_events=-1
         self.required = True
+        self.depends_on_previous = False
         self.input_file = in_file
 
 ##################################################
