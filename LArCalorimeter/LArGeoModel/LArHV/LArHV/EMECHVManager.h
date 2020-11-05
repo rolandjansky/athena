@@ -14,10 +14,10 @@
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
-class CondAttrListCollection;
 #endif 
 
 struct EMECHVPayload;
+class CondAttrListCollection;
 
 /**
  * @class EMECHVManager

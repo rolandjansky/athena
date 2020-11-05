@@ -13,9 +13,9 @@
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
-class CondAttrListCollection;
 #endif
 
+class CondAttrListCollection;
 struct EMECPresamplerHVPayload;
 class CellBinning;
 
