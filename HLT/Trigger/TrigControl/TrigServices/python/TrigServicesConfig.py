@@ -156,6 +156,13 @@ class HltEventLoopMgr(_HltEventLoopMgr):
                                    title='Time between freeing and assigning a scheduler slot;Time [ms];Events',
                                    xbins=400, xmin=0, xmax=800, opt='kCanRebin')
 
+      self.MonTool.defineHistogram('TIME_clearStore', path='EXPERT', type='TH1F',
+                                   title='Time of clearStore() calls;Time [ms];Calls',
+                                   xbins=200, xmin=0, xmax=50)
+      self.MonTool.defineHistogram('TIME_clearStore;TIME_clearStore_extRange', path='EXPERT', type='TH1F',
+                                   title='Time of clearStore() calls;Time [ms];Calls',
+                                   xbins=200, xmin=0, xmax=200, opt='kCanRebin')
+
       from TrigSteerMonitor.TrigSteerMonitorConfig import getTrigErrorMonTool
       self.TrigErrorMonTool = getTrigErrorMonTool()
 
