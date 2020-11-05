@@ -92,7 +92,8 @@ void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge,
     } 
     
     if(tmpTimeAtThreshold == -9999) {  // threshold crossing not yet found 
-        double tmpStartTime = (minElectronTime + 0.9*m_peakTime < startTime ? startTime : minElectronTime + 0.9*m_peakTime  );
+        // check if first possible peak was before start time
+        double tmpStartTime = std::max(minElectronTime + 0.9*m_peakTime, startTime); 
         for (double time = tmpStartTime; time < m_upperTimeWindow; time += m_timeStep) {
           if (vmmResponse(effectiveCharge, electronsTime, time) >= electronicsThreshold) {
               tmpTimeAtThreshold = time;
