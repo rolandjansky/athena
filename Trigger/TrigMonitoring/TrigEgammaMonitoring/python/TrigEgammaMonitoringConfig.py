@@ -294,5 +294,10 @@ class TrigEgammaMonToolBuilder:
                             "TrigEgammaNavAnalysisTool/HLTEgammaElectronAnalysis"])
         else:
             tool = self.configureDefaultMonTool()
+
+        # Dependency required by TrigEgammaAnalysisBaseTool.
+        # Not propagated automatically though HLTEgammaMon
+        # because it doesn't use ToolHandle's as intended.
+        tool.ExtraInputs += [('LuminosityCondData', 'ConditionStore+LuminosityCondDataOnline')]
         
         return [tool]
