@@ -160,9 +160,6 @@ def getConstitModAlg(constit, monTool=None):
     return constitmodalg
 
 
-
-
-
 def constitModWithAlternateTrk(mod, trkopt):
     """Generates a new JetConstitModifier cloned from mod and stores it in the standard jetconstitmoddic.
     The cloned JetConstitModifier has all its track related properties changed according to trackcollectionmap[trkopt]
