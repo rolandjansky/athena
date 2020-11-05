@@ -185,9 +185,8 @@ def MuonHoughPatternFinderTool(name="MuonHoughPatternFinderTool",**kwargs):
 
 # combined tracking geometry service
 def AtlasTrackingGeometrySvc(name="AtlasTrackingGeometrySvc",**kwargs):
-    global ServiceMgr
-    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc  # noqa: F401
-    return ServiceMgr.AtlasTrackingGeometrySvc
+    from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+    return AtlasTrackingGeometrySvc
 
 
 # default muon navigator
