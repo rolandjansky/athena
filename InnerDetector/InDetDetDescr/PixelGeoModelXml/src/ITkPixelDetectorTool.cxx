@@ -22,7 +22,6 @@
 using InDetDD::PixelDetectorManager;
 using InDetDD::SiDetectorManager;
 
-
 ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
                                              const std::string &name,
                                              const IInterface *parent) :
@@ -53,7 +52,7 @@ ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
 }
 
 ITkPixelDetectorTool::~ITkPixelDetectorTool() {
-    delete m_athenaComps;
+  //    delete m_athenaComps;
 }
 
 StatusCode ITkPixelDetectorTool::create() {
