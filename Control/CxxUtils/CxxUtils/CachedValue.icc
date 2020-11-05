@@ -1,14 +1,15 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file CxxUtils/CachedValue.icc
  * @author scott snyder <snyder@bnl.gov>
  * @date Sep, 2017
  * @brief Cached value with atomic update.
  */
+
+
+#include "CxxUtils/AthUnlikelyMacros.h"
 
 
 namespace CxxUtils {
@@ -230,7 +231,8 @@ template <class T>
 inline
 bool CachedValue<T>::isValid() const
 {
-  CacheState stat;
+  CacheState stat = m_cacheValid;
+  if (ATH_LIKELY(stat == VALID)) return true;
   // Get the state flag.
   // Spin if another thread is currently updating.
   while ((stat = m_cacheValid) == UPDATING) {
