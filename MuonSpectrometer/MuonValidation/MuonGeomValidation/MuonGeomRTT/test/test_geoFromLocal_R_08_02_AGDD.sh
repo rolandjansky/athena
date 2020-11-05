@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Run simulation from existing layout of geometry database and from local amdb file (for muon geometry MuonSpectrometer-R.08.01)
+# art-description: Run simulation from existing layout of geometry database and from local AGDD file (for muon geometry MuonSpectrometer-R.08.02)
 #
 # art-type: grid
 # art-include: master/Athena
@@ -14,17 +14,17 @@ art.py createpoolfile
 set -x
 
 #######################################
-# run simulation with ATLAS layout ATLAS-R2-2016-01-00-01 (official Run2) based on MuonSpectrometer-R.08.01
-# but from local file (in this case: amdb_simrec.r.08.01)
+# run simulation with ATLAS layout ATLAS-R2-2016-01-02-01 (best knowledge Run2) based on MuonSpectrometer-R.08.02
+# but from local file (in this case: passiveMat_r.08.02.xml)
 #######################################
 
-# download amdb file
-wget http://atlas.web.cern.ch/Atlas/GROUPS/MUON/AMDB/amdb_simrec.r.08.01
-# run simulation from local amdb file
+# download AGDD file
+get_files passiveMat_r.08.02.xml
+# run simulation from local AGDD file
 # NOTE: the simFlags.G4Commands+=["/process/em/applyCuts true"] is added by hand, since it is part of the nominal s3512 job, but apparently overwritten when giving a custom postExec
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
-          --postExec 'input_amdb_simrec="amdb_simrec.r.08.01";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");simFlags.G4Commands+=["/process/em/applyCuts true"]' \
+          --geometryVersion 'default:ATLAS-R2-2016-01-02-01_VALIDATION' \
+          --postExec 'input_agdd_xml="passiveMat_r.08.02.xml";include("InitGeoFromLocal_postIncl.py");simFlags.G4Commands+=["/process/em/applyCuts true"]' \
           --AMI=s3512 \
           --maxEvents 25 \
           --imf False \
@@ -40,11 +40,11 @@ fi
 mv log.EVNTtoHITS log.EVNTtoHITS_fromLocal
 
 #######################################
-# run simulation with ATLAS layout ATLAS-R2-2016-01-00-01 (official Run2) based on MuonSpectrometer-R.08.01
+# run simulation with ATLAS layout ATLAS-R2-2016-01-02-01 (best knowledge Run2) based on MuonSpectrometer-R.08.02
 #######################################
 
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
+          --geometryVersion 'default:ATLAS-R2-2016-01-02-01_VALIDATION' \
           --AMI=s3512 \
           --maxEvents 25 \
           --imf False \
