@@ -58,20 +58,14 @@ if hasattr(runArgs,"outputAODFile"):
         if DQMonFlags.useTrigger() and rec.doTrigger():
             DQMonFlags.useTrigger.set_Value_and_Lock(True)
         # Don't run any trigger - only pass the HLT contents from ESD to AOD
+        # Configure here, and extract HLT content in RecExCommon_topOptions
+        # after the rest of the job is configured
         from RecExConfig.RecAlgsFlags import recAlgs
         recAlgs.doTrigger.set_Value_and_Lock( False )
         rec.doTrigger.set_Value_and_Lock( False )
-        # Add HLT output
-        from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-        hltOutput = HLTTriggerResultGetter()
-        # Add Trigger menu metadata
-        if rec.doFileMetaData():
-            from RecExConfig.ObjKeyStore import objKeyStore
-            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-            objKeyStore.addManyTypesMetaData( metadataItems )
     else: # not TriggerFlags.doMT()
-        pass # See TriggerJobOpts/python/TriggerGetter.py for Run 2. Called by RecExCommon
+        pass
+
 
 if hasattr(runArgs,"outputTAGFile"):
     # should be used as outputTAGFile_e2a=myTAG.root so that it does not trigger AODtoTAG

@@ -568,6 +568,23 @@ if rec.doTrigger:
             treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
             recAlgs.doTrigger=False
 
+#MT part
+## Outputs
+if rec.readESD() and rec.doAOD():
+    # Don't run any trigger - only pass the HLT contents from ESD to AOD
+    if TriggerFlags.doMT():
+        # Add HLT output
+        from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+        hltOutput = HLTTriggerResultGetter()
+        # Add Trigger menu metadata
+        if rec.doFileMetaData():
+            from RecExConfig.ObjKeyStore import objKeyStore
+            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+            objKeyStore.addManyTypesMetaData( metadataItems )
+    else: # not TriggerFlags.doMT()
+        pass # See TriggerJobOpts/python/TriggerGetter.py for Run 2. Called by RecExCommon
+
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
