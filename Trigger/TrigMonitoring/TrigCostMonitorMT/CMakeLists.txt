@@ -18,7 +18,7 @@ atlas_add_component( TrigCostMonitorMT
                      src/*.cxx
                      src/components/*.cxx 
                      INCLUDE_DIRS ${TBB_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TBB_LIBRARIES} AthContainers AthViews AthenaKernel TrigConfHLTData TrigCostMonitorMTLib TrigSteeringEvent TrigTimeAlgsLib )
+                     LINK_LIBRARIES ${TBB_LIBRARIES} AthContainers AthViews AthenaKernel TrigConfHLTData TrigCompositeUtilsLib TrigCostMonitorMTLib TrigSteeringEvent TrigTimeAlgsLib )
 
 
 atlas_add_test( AlgorithmIdentifier_test
