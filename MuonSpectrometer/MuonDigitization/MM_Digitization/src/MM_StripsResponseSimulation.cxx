@@ -245,7 +245,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 		//	}
 
-			Electron->setOffsetPosition(getTransversDiffusion(initialPosition.Y()) , getLongitudenalDiffusion(initialPosition.Y()) );
+			Electron->setOffsetPosition(getTransversDiffusion(initialPosition.Y()) , getLongitudinalDiffusion(initialPosition.Y()) );
 
 		}
 
