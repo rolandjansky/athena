@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetDetDescrExample/ReadSiDetectorElements.h"
@@ -75,6 +75,8 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("SiPropertiesSvc", m_siPropertiesSvc);
   declareProperty("UseSiProperties", m_useSiProperties);
   declareProperty("TestNegativeStrips", m_testNegativeStrips);
+  declareProperty("UseConditionsTools", m_useConditionsTools = false);
+  declareProperty("PrintProbePositions", m_printProbePositions = true);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -196,45 +198,46 @@ void ReadSiDetectorElements::printAllElements() {
     for (iter = m_manager->getDetectorElementBegin(); iter != m_manager->getDetectorElementEnd(); ++iter){
       const SiDetectorElement * element = *iter; 
       if (element) {
-        cout << m_idHelper->show_to_string(element->identify()) << endl;;
+        ATH_MSG_ALWAYS(m_idHelper->show_to_string(element->identify()));
         // The id helper is also available through  the elements
         //
         // element->getIdHelper()->show(element->identify());
         //
-  
-        cout << " center = " << element->center() << endl;
-        cout << " sin(tilt), sin(stereo) = " <<  element->sinTilt() << " " 
-             << element->sinStereo() << endl;
-        cout << " width, minWidth, maxWidth, length (mm) = " 
-             << element->width()/CLHEP::mm << " " 
-             << element->minWidth()/CLHEP::mm << " " 
-             << element->maxWidth()/CLHEP::mm << " " 
-             << element->length()/CLHEP::mm << endl;
-  
+        ATH_MSG_ALWAYS(" center (x,y,z)   = " << element->center().x() << "," << element->center().y() << "," << element->center().z());
+	ATH_MSG_ALWAYS(" center (r,phi,z) = " << element->center().perp() << "," << element->center().phi() << "," <<element->center().z());
+	if(m_printProbePositions){
+	  ATH_MSG_ALWAYS(" global (r,phi,z) position of (1,1)          = " <<element->globalPosition(Amg::Vector2D(1,1)).perp() << "," << element->globalPosition(Amg::Vector2D(1,1)).phi() <<","<< element->globalPosition(Amg::Vector2D(1,1)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) position of (-1,-1)        = " <<element->globalPosition(Amg::Vector2D(-1,-1)).perp() << "," << element->globalPosition(Amg::Vector2D(-1,-1)).phi() <<","<< element->globalPosition(Amg::Vector2D(-1,-1)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) hit position of (1,1,0)    = " <<element->globalPositionHit(Amg::Vector3D(1,1,0)).perp() << "," << element->globalPositionHit(Amg::Vector3D(1,1,0)).phi() <<","<< element->globalPositionHit(Amg::Vector3D(1,1,0)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) hit  position of (-1,-1,0) = " <<element->globalPositionHit(Amg::Vector3D(-1,-1,0)).perp() << "," << element->globalPositionHit(Amg::Vector3D(-1,-1,0)).phi() <<","<< element->globalPositionHit(Amg::Vector3D(-1,-1,0)).z()); 
+	}
+        ATH_MSG_ALWAYS(" sin(tilt), sin(stereo) = " <<  element->sinTilt() << " " 
+                       << element->sinStereo());
+        ATH_MSG_ALWAYS(" width, minWidth, maxWidth, length (mm) = " 
+                       << element->width()/CLHEP::mm << " " 
+                       << element->minWidth()/CLHEP::mm << " " 
+                       << element->maxWidth()/CLHEP::mm << " " 
+                       << element->length()/CLHEP::mm);
+
+	IdentifierHash hashId = element->identifyHash();
+	if(m_useConditionsTools){  
         // These are no longer accessed through the detector element.
-        IdentifierHash hashId = element->identifyHash();
-        cout << " Temperature (C), bias voltage, depletion voltage: "
+        ATH_MSG_ALWAYS(" Temperature (C), bias voltage, depletion voltage: "
              << m_siConditionsSvc->temperature(hashId) << " "
              << m_siConditionsSvc->biasVoltage(hashId) << " "
-             << m_siConditionsSvc->depletionVoltage(hashId) << endl;
+			<< m_siConditionsSvc->depletionVoltage(hashId));
   
-        //cout << "Via SiDetectorElement:"
-        cout << " Lorentz correction (mm), tanLorentzPhi = "
-             << element->getLorentzCorrection()/CLHEP::mm << " " 
-             << element->getTanLorentzAnglePhi() << endl;
-  
-        //cout << "Direct from SiLorentzAngleSvc:"
-        //cout << " Lorentz correction (mm), tanLorentzPhi = "
-        //     << m_siLorentzAngleSvc->getLorentzShift(hashId)/CLHEP::mm << " "  
-        //     << m_siLorentzAngleSvc->getTanLorentzAngle(hashId) << endl;
-  
-        // These are no longer accessed through the detector element.
+        ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
+		      << element->getLorentzCorrection()/CLHEP::mm << " " 
+		      << element->getTanLorentzAnglePhi());
+	}
+
 	if(m_useSiProperties){
 	  const InDet::SiliconProperties & siProperties =  m_siPropertiesSvc->getSiProperties(hashId);
-	  cout << " Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
-	       << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-	       << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
-	       << siProperties.diffusionConstant(element->carrierType()) /(CLHEP::cm2/CLHEP::s) << endl;
+	  ATH_MSG_ALWAYS(" Hall Mobility (cm2/volt/s), Drift mobility (cm2/volt/s), diffusion constant (cm2/s) = " 
+			 << siProperties.hallMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
+			 << siProperties.driftMobility(element->carrierType()) /(CLHEP::cm2/CLHEP::volt/CLHEP::s) << " " 
+			 << siProperties.diffusionConstant(element->carrierType()) /(CLHEP::cm2/CLHEP::s));
 	}
 	//Assuming these are left here for future refefence...
         //cout << element->hitDepthDirection() << " "
@@ -244,7 +247,7 @@ void ReadSiDetectorElements::printAllElements() {
         //   << element->swapEtaReadoutDirection() << endl;
         //cout << "isBarrel: " << element->isBarrel() << endl;
 
-        cout << " HashId, Id : " << hashId << "\t" << element->identify().getString() << endl;
+        ATH_MSG_ALWAYS(" HashId, Id : " << hashId << "\t" << element->identify().getString());
 
         // Make some consistency tests for the identifier.
         Identifier idTest;
@@ -261,17 +264,17 @@ void ReadSiDetectorElements::printAllElements() {
         const SiDetectorElement * elementtest1 = m_manager->getDetectorElement(element->identify());
         const SiDetectorElement * elementtest2 = m_manager->getDetectorElement(hashId);
         bool idOK = true;
-        if (idHashTest != hashId) {cout << " Id test 1 FAILED!" << endl; idOK = false;}
-        if (idTest != element->identify()) {cout << " Id test 2 FAILED!" << endl; idOK = false;}
-        if (elementtest1 != element) {cout << " Id test 3 FAILED!" << endl; idOK = false;}
-        if (elementtest2 != element) {cout << " Id test 4 FAILED!" << endl; idOK = false;}
-        if (idOK) cout << " ID tests OK" << std::endl;
+        if (idHashTest != hashId) {ATH_MSG_ALWAYS(" Id test 1 FAILED!"); idOK = false;}
+        if (idTest != element->identify()) {ATH_MSG_ALWAYS(" Id test 2 FAILED!"); idOK = false;}
+        if (elementtest1 != element) {ATH_MSG_ALWAYS(" Id test 3 FAILED!"); idOK = false;}
+        if (elementtest2 != element) {ATH_MSG_ALWAYS(" Id test 4 FAILED!"); idOK = false;}
+        if (idOK) ATH_MSG_ALWAYS(" ID tests OK");
       } else {
-	cout << "Missing element!!!!!!!!!!!" << endl;
+	ATH_MSG_ALWAYS("Missing element!!!!!!!!!!!");
       }
+      ATH_MSG_ALWAYS("-----------------------------");
     }
   }
-  cout << endl;
   // Testing numerology
   const SiNumerology  siNumerology(m_manager->numerology());
   int nSides = 1;
