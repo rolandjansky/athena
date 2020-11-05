@@ -9,8 +9,7 @@
 #@author Felix Friedrich <felix.friedrich@cern.ch>
 ################################################################################
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
+from AthenaCommon.SystemOfUnits import GeV, mm
 from tauRec.tauRecFlags import tauFlags
 
 cached_instances = {}
@@ -287,8 +286,6 @@ def getTauVertexVariables():
     if _name in cached_instances:
         return cached_instances[_name]
 
-    from tauRec.tauRecFlags import jobproperties
-
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
                                               VertexFitter = getTauAdaptiveVertexFitter(),
@@ -559,7 +556,6 @@ def getInDetTrackSelectorToolxAOD():
 # setup up JVA tools
 # Currently not used - moved into TauRecConfigured.py and added directly to topSequence
 def setupTauJVFTool():
-    from AthenaCommon.AppMgr import ToolSvc
 
     #Configures tau track selection tool for TJVA
     """
@@ -1023,7 +1019,7 @@ def getTauVertexCorrection():
 def getParticleCache():
     #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
     from RecExConfig.RecFlags import rec
-    if True == rec.doESD:
+    if rec.doESD is True:
         ParticleCache = "ParticleCaloExtension"
     else : 
         ParticleCache = ""

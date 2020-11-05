@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "tauRec/TauProcessorAlg.h"
+#include "TauProcessorAlg.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"

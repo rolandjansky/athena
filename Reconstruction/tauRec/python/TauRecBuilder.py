@@ -12,13 +12,8 @@
 #
 ################################################################################
 
-import os, sys, string
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-from AthenaCommon.BeamFlags import jobproperties
 import traceback
-from RecExConfig.Configured import Configured
 from .TauRecConfigured import TauRecConfigured
 
 ################################################################################
