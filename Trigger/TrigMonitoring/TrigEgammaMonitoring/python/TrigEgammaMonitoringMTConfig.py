@@ -8,7 +8,7 @@
 
 
 #from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
-from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron, SelectionDefPhoton
+from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 import cppyy

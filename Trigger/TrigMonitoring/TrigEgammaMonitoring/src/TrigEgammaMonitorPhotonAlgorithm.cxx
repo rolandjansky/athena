@@ -61,7 +61,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
           
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs;
     
-        if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,pairObjs).isFailure() ) 
+        if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType,pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
@@ -84,7 +84,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
 
 
 
-StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventContext& ctx, std::string trigItem, float etthr, 
+StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventContext& ctx, std::string trigItem, float etthr, std::string pidname,  
                                                        std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> &pairObjs) 
   const
 {
@@ -109,7 +109,18 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
           continue;
       } 
       if( !(getCluster_et(eg) > (etthr-5.)*Gaudi::Units::GeV)) continue; //Take 2GeV above threshold
-      if(!eg->passSelection(m_photonPid)) continue;
+      
+
+      //if(!eg->passSelection(m_photonPid)) continue;
+      if(m_forcePidSelection){///default is true
+        if(!ApplyPhotonPid(eg,pidname)){
+	        ATH_MSG_DEBUG("Fails PhotonID "<< pidname);
+	        continue;
+	      }
+	      ATH_MSG_DEBUG("Passes PhotonID "<< pidname);
+      }
+
+      
       if(m_doUnconverted){
           if (eg->vertex()){
               ATH_MSG_DEBUG("Removing converted photons, continuing...");

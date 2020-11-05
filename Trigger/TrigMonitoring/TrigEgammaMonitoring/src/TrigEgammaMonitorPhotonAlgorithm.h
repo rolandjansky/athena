@@ -31,7 +31,7 @@ class TrigEgammaMonitorPhotonAlgorithm: public TrigEgammaMonitorAnalysisAlgorith
   
     
     /*! navigation method called by executeNavigation */
-    StatusCode executeNavigation(const EventContext& ctx, const std::string trigItem,float,
+    StatusCode executeNavigation(const EventContext& ctx, const std::string trigItem,float, std::string pidname,
                                  std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision*>> &) const;
   
     /*! List of triggers to study */
@@ -44,6 +44,8 @@ class TrigEgammaMonitorPhotonAlgorithm: public TrigEgammaMonitorAnalysisAlgorith
     Gaudi::Property<std::vector<std::string>> m_trigInputList{this, "TriggerList", {}};
     /*! Directory name for each algorithm */
     Gaudi::Property<std::string> m_anatype{this, "Analysis", "Photon"};
+    /*! force pid selection into photon navigation */
+    Gaudi::Property<bool> m_forcePidSelection{ this, "ForcePidSelection", true};
  
     // Containers 
     /*! Event Wise offline ElectronContainer Access and end iterator */
