@@ -9,6 +9,7 @@
 //#include "GaudiKernel/MsgStream.h"
 
 #include <map>
+#include <memory>
 // For template functions getparm(s):-----------
 #include <string>
 #include <cstdlib>
@@ -71,7 +72,7 @@ class PixelGmxInterface: public GmxInterface {
   InDetDD::PixelDetectorManager *m_detectorManager;
   InDetDD::SiCommonItems *m_commonItems;
   ModuleTree *m_moduleTree;
-  MsgStream *m_log;
+  std::unique_ptr<MsgStream> m_log;
 };
 
 

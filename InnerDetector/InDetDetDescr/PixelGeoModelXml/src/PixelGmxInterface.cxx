@@ -33,11 +33,10 @@ PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorMana
   // Turn on logging in job-options with: MessageSvc.setDebug += {"PixelGmxInterface"}
   ServiceHandle<IMessageSvc> msgh("MessageSvc", "PixelGmxInterface");
   
-  m_log = new MsgStream(&(*msgh), "PixelGmxInterface");
+  m_log = std::make_unique<MsgStream>(&(*msgh), "PixelGmxInterface");
 }
 
 PixelGmxInterface::~PixelGmxInterface() {
-  delete m_log;
   delete m_commonItems;
 }
 
