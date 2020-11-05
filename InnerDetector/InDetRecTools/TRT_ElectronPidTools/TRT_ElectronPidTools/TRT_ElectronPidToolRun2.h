@@ -19,6 +19,7 @@
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TRT_ElectronPidTools/ITRT_ElectronToTTool.h"
 #include "TRT_ConditionsData/HTcalculator.h"
+#include "TRT_ConditionsNN/TRTPIDNN.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
 #include "TRT_ElectronPidTools/ITRT_LocalOccupancy.h"
@@ -143,6 +144,11 @@ namespace InDet
                                                      "HTcalculator",
                                                      "HTcalculator",
                                                      "HTcalculator in-key" };
+
+    SG::ReadCondHandleKey<InDet::TRTPIDNN> m_TRTPIDNNReadKey{ this,
+                                                     "TRTPIDNN",
+                                                     "TRTPIDNN",
+                                                     "TRTPIDNN in-key" };
    }; 
 } // end of namespace
 
