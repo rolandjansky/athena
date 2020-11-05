@@ -468,16 +468,9 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       // HV extrapolation
       double current;
       double hv=m_hv[ipm][ielec][ieta][iside];
-      //       std::cout << " etaBin,phiBin " << etaBin << " " << phiBin << std::endl;
-      //       std::cout << " ipm,ielec,ieta,iside " << ipm << " " << ielec << " " << ieta
-      //            << " " << iside << std::endl;
-      //       std::cout << " hv " << hv << std::endl;
-      //       std::cout << " current0,current1,current2 " << current0 << " " << current1
-      //         << " " << current2 << std::endl;
       if (hv>1995.) current=current0;
       else if (hv>5.) current=ScaleHV(hv,current0,current1,current2);
       else current=0.;
-      //       std::cout << " current " << current << std::endl;
 
       // extrapolation for non nominal gap (allows to include sagging effect)
       //  i ~ (gap/gap2)**1.3

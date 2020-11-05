@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LocalCalibrationCalculator.h"
@@ -23,9 +23,6 @@ namespace LArG4 {
        declareProperty("GeometryCalculator", m_geometryCalculator);
        declareProperty("GeometryType",m_strgeometryType="ACTIVE");
        m_strgeometryType.declareUpdateHandler(&LocalCalibrationCalculator::GeometryTypeUpdateHandler, this);
-#ifdef DEBUG_HITS
-       std::cout << "LArG4::HEC::LocalCalibrationCalculator constructed" << std::endl;
-#endif
      }
 
     void LocalCalibrationCalculator::GeometryTypeUpdateHandler(Gaudi::Details::PropertyBase&)
@@ -73,15 +70,9 @@ namespace LArG4 {
                                           const eCalculatorProcessing process) const
     {
 
-#ifdef DEBUG_HITS
-	  std::cout << "LArG4::HEC::LocalCalibrationCalculator::Process" << std::endl;
-#endif
       energies.clear();
       if ( process == kEnergyAndID  ||  process == kOnlyEnergy )
 	{
-#ifdef DEBUG_HITS
-          std::cout << " calling SimulationEnergies" << std::endl;
-#endif
 	  m_energyCalculator.Energies( step, energies );
 	}
       else
@@ -95,9 +86,6 @@ namespace LArG4 {
            const G4TouchableHistory* theTouchable = static_cast<const G4TouchableHistory*>(pre_step_point->GetTouchable());
            // Volume name 
            G4String hitVolume = theTouchable->GetVolume(0)->GetName();
-#ifdef DEBUG_HITS
-          std::cout<<"LArHECLocalCalibrationCalculator::Process Volume: "<<hitVolume<<std::endl;
-#endif
           if(hitVolume.contains("::") ) {
              const int last = hitVolume.last(':');
              hitVolume.remove(0,last+1);
@@ -120,18 +108,6 @@ namespace LArG4 {
                  identifier = m_geometryCalculator->CalculateIdentifier(step, kLocActive, -1);
 	     } else identifier = LArG4Identifier();
 	  } else identifier = m_geometryCalculator->CalculateIdentifier(step, m_geometryType, 0, 4.*CLHEP::mm);
-
-#ifdef DEBUG_HITS
-	  G4double energy = accumulate(energies.begin(),energies.end(),0.);
-	  std::cout << "LArG4::HEC::LocalCalibrationCalculator::Process"
-		    << " ID=" << std::string(identifier)
-		    << " energy=" << energy
-		    << " energies=(" << energies[0]
-		    << "," << energies[1]
-		    << "," << energies[2]
-		    << "," << energies[3] << ")"
-		    << std::endl;
-#endif
 
           // Check for bad result.
           if ( identifier == LArG4Identifier() ) return false;

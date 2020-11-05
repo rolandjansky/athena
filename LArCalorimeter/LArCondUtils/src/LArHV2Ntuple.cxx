@@ -416,8 +416,6 @@
             for (unsigned int iSector=hvManager_FCAL.beginSectorIndex(iSampling);iSector<hvManager_FCAL.endSectorIndex(iSampling);iSector++) {
  
                  const FCALHVModule& hvMod = hvManager_FCAL.getHVModule(iSide,iSector,iSampling);
-                 //std::cout << " FCAL HVModule side,sampling,sector " << iSide << " " << iSampling << " " << iSector << std::endl;
-                 //std::cout << "   HV nominal " << HVnominal << std::endl;
   
                  float dphi=CaloPhiRange::twopi()/16;
                  if (iSampling==1) dphi=CaloPhiRange::twopi()/8.;

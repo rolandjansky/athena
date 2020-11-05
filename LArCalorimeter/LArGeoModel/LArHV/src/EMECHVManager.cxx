@@ -278,7 +278,6 @@ EMECHVManager::getData (idfunc_t idfunc,
       unsigned int chanID = (*citr).first;
       int cannode = chanID/1000;
       int line = chanID%1000;
-      //std::cout << "    ++ found data for cannode, line " << cannode << " " << line << std::endl;
 
       // 2. Construct the identifier
       HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
@@ -346,9 +345,6 @@ EMECHVManager::getData (idfunc_t idfunc,
             if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
             float current = 0.;
             if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();
-
-            //std::cout << "             hvlineId,elecHWID,cannode,line, side,phi module, sector,eta,electrode,gap,index " << std::hex << id << " " << elecHWID << std::dec << " " << cannode << " " << line << " " << m_c->elecId->zside(elecHWID) << " " << m_c->elecId->module(elecHWID) << " " << m_c->elecId->hv_phi(elecHWID) << " " << m_c->elecId->hv_eta(elecHWID) << " " << m_c->elecId->electrode(elecHWID)
-            // << " " << gapIndex << "  " << index << " " << voltage << std::endl;
 
 	  
             payload->m_payloadArray[index].voltage[gapIndex]=voltage;

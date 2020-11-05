@@ -209,7 +209,6 @@ EMECPresamplerHVManager::getData (idfunc_t idfunc,
       unsigned int chanID = (*citr).first;
       int cannode = chanID/1000;
       int line = chanID%1000;
-      //std::cout << "    ++ found data for cannode, line " << cannode << " " << line << std::endl;
 
       // 2. Construct the identifier
       HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);

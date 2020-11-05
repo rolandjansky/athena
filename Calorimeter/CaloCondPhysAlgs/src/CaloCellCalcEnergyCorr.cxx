@@ -191,7 +191,6 @@ StatusCode CaloCellCalcEnergyCorr::stop ATLAS_NOT_THREAD_SAFE ()
         if(!m_hvlines.empty() && m_hvlines[0]>0) {
            Identifier offId=calocell_id->cell_id(h);
            std::vector<int> hvlineId = GetHVLines(hvdata, offId);
-           //std::cout<<offId.getString()<<" : ";
            int nfound=0;
            float hvval=-1;
            std::vector<int>::const_iterator poshv;
@@ -207,7 +206,6 @@ StatusCode CaloCellCalcEnergyCorr::stop ATLAS_NOT_THREAD_SAFE ()
            }
         }
     }
-    //std::cout << h << " " << value << std::endl;
     setVec[0]=value;
     flt->setData(h,0,setVec);
   }//end loop over hash

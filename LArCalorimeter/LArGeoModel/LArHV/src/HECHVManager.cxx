@@ -233,7 +233,6 @@ HECHVManager::getData (idfunc_t idfunc,
 
         // check we are in HEC
         if (detector != 4) {
-          //std::cout << " Not HEC ??? " << std::endl;
           continue;
         }
 

@@ -211,7 +211,6 @@ FCALHVManager::getData (idfunc_t idfunc,
       unsigned int chanID = (*citr).first;
       int cannode = chanID/1000;
       int line = chanID%1000;
-      //std::cout << " cannode,line " << cannode << " " << line << std::endl;
 
       // 2. Construct the identifier
       HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
@@ -224,8 +223,6 @@ FCALHVManager::getData (idfunc_t idfunc,
         int detector = m_c->elecId->detector(elecHWID);
         if (detector==5) {
 
-          //std::cout << " FCAl channel found " << (*citr).first << std::endl; 
-
           float voltage = -99999.;
           if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
           float current = 0.;
@@ -235,8 +232,6 @@ FCALHVManager::getData (idfunc_t idfunc,
           unsigned int samplingIndex=m_c->elecId->hv_eta(elecHWID)-1;   // 0 to 2 for the FCAL modules 1-2-3
           unsigned int sectorIndex=m_c->elecId->module(elecHWID);       // 0-15 FCAL1, 0-7 FCAl2, 0-3 FCAL3
           unsigned int lineIndex=m_c->elecId->gap(elecHWID);            // 0-3
-
-          //std::cout << " channel found " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << " "<< voltage << std::endl;
 
           // do we have to worry about phi sector numbering running backwards in phi for z<0 like in EM/HEC  ????
 

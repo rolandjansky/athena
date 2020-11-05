@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EnergyCalculator
@@ -318,7 +318,6 @@ StatusCode EnergyCalculator::initialize()
     const std::string A0 = A0STR.str();
     const std::string colName = "ZIW" + A0;
     ziw[i] = (*emecSamplingSep)[0]->getDouble(colName)*CLHEP::cm;
-    //     cout<<"i,ziw= "<<i<<" "<<ziw[i]<<endl;
   }
   for(int i = 0; i < 44; i ++){
     std::ostringstream A0STR;
@@ -326,7 +325,6 @@ StatusCode EnergyCalculator::initialize()
     const std::string A0 = A0STR.str();
     const std::string colName = "ZSEP12" + A0;
     zsep12[i] = (*emecSamplingSep)[0]->getDouble(colName)*CLHEP::cm;
-    //     cout<<"i,zsep12= "<<i<<" "<<zsep12[i]<<endl;
   }
   for(int i = 0; i < 22; i ++){
     std::ostringstream A0STR;
@@ -334,7 +332,6 @@ StatusCode EnergyCalculator::initialize()
     const std::string A0 = A0STR.str();
     const std::string colName = "ZSEP23" + A0;
     zsep23[i] = (*emecSamplingSep)[0]->getDouble(colName)*CLHEP::cm;
-    //       cout<<"i,zsep23= "<<i<<" "<<zsep23[i]<<endl;
   }
 
   m_ElectrodeFanHalfThickness = LArWheelCalculator::GetFanHalfThickness(LArG4::InnerElectrodWheel);
@@ -544,9 +541,6 @@ G4double EnergyCalculator::CalculateChargeCollection(
                                                      G4double Barret_PhiStart) const
 // ****************************************************************************
 {
-  // std::cout<<"*** CalculateChargeCollection is called, a_energy="<<a_energy
-  //       <<std::endl;
-
   ATH_MSG_DEBUG("starting CalculateChargeCollection:"
                 << "a_energy   = " << a_energy
                 << ", startPoint = " << MSG_VECTOR(a_startPoint)
@@ -892,30 +886,22 @@ G4bool EnergyCalculator::FindIdentifier_Default(
       if(pinLocal.z() >  lwc()->GetWheelThickness()-zEndofC9e19 &&
          pinLocal.z() <= lwc()->GetWheelThickness()-zSepofC9e18 &&
          pinLocal.perp() < r0aofC9e18 ) {
-        //          G4cout<<" Skip of Hit in aC9e18"<<" r="<<pinLocal.perp()<<
-        //                  " zinWheel="<<pinLocal.z()<<G4endl;
         validhit=false;
 
       }
       if(pinLocal.z() > lwc()->GetWheelThickness()-zSepofC9e18 &&
          pinLocal.perp() <
          r0cofC9e18+txofC9e18*(pinLocal.z()-(lwc()->GetWheelThickness()-zSepofC9e18))){
-        //          G4cout<<" Skip of Hit in cC9e18"<<" r="<<pinLocal.perp()<<
-        //                  " zinWheel="<<pinLocal.z()<<G4endl;
         validhit=false;
 
       }
       break;
     case 19:
       if(pinLocal.z() > lwc()->GetWheelThickness()-zEndofC9e19) {
-        //           G4cout<<" Skip of Hit in z crack C9e19"<<" r="<<pinLocal.perp()<<
-        //                  " zinWheel="<<pinLocal.z()<<G4endl;
         validhit=false;
 
       }
       if(DistanceToEtaLine( pforcell, eta_mid) < DistMinatEdgeinCrack) {
-        //           G4cout<<" Skip of Hit in eta crack of C9e19"<<
-        //                   " r="<<pinLocal.perp()<< " zinWheel="<<pinLocal.z()<<G4endl;
         validhit=false;
       }
       break;
@@ -998,18 +984,11 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
   if(cnew >= 0 && cnew <= 10 ){
 
-    /* G4cout<<" edep in HV bus: old:comp="<<c+1<<" sampl="<<sampling<<
-       " eta="<<etaBin<<" reg="<<region
-       <<G4endl;*/
-
     c=cnew;
     compartment = c + 1;
     sampling = s_geometry[c].sampling;
     region   = s_geometry[c].region;
     etaBin = G4int(eta * s_geometry[c].etaScale - s_geometry[c].etaOffset);
-    /* G4cout<<" edep in HV bus: new:comp="<<c+1<<" sampl="<<sampling<<
-       " eta="<<etaBin<<" reg="<<region
-       <<G4endl;*/
   }
   //=== end of edge and HV bus treatment================
 

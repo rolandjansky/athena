@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // implementation of MakeLArCellFromRaw
@@ -378,7 +378,6 @@ MakeLArCellFromRaw::getCorrection(LArCell* cell,
          } 
 
 	double c=  cell->energy()/en; 
-// 	std::cout<<" Correction init = "<<c<<std::endl;
 	return c;        
 }
 
