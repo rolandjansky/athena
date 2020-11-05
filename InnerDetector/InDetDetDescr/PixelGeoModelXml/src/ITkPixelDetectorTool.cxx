@@ -63,34 +63,13 @@ StatusCode ITkPixelDetectorTool::create() {
 
     // Get the detector configuration.
     ATH_CHECK(m_geoDbTagSvc.retrieve());
-
-    StatusCode sc;
-    sc = m_geoModelSvc.retrieve();
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
-        return (StatusCode::FAILURE);
-    }
-    sc = m_rdbAccessSvc.retrieve();
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
-        return StatusCode::FAILURE;
-    }
-    sc = m_geometryDBSvc.retrieve();
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not locate Geometry DB Interface: " << m_geometryDBSvc.name() << endmsg;
-        return (StatusCode::FAILURE);
-    }
+    ATH_CHECK(m_rdbAccessSvc.retrieve());
+    ATH_CHECK(m_geometryDBSvc.retrieve());
     GeoModelExperiment *theExpt;
-    sc = detStore()->retrieve(theExpt, "ATLAS");
-    if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not find GeoModelExperiment ATLAS" << endmsg;
-        return (StatusCode::FAILURE);
-    }
+    ATH_CHECK(detStore()->retrieve(theExpt, "ATLAS"));
     const PixelID *idHelper;
-    if (detStore()->retrieve(idHelper, "PixelID").isFailure()) {
-        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(idHelper, "PixelID"));
+
 //
 //    Get their interfaces to pass to the DetectorFactory
 //
@@ -153,6 +132,7 @@ StatusCode ITkPixelDetectorTool::create() {
         return(StatusCode::FAILURE);
     }
 
+    StatusCode sc;
     sc = detStore()->record(m_manager, m_manager->getName());
     if (sc.isFailure() ) {
         msg(MSG::ERROR) << "Could not register PixelDetectorManager" << endmsg;
