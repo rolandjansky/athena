@@ -94,26 +94,39 @@ def JetRecCfg(jetdef0, configFlags):
 
 
 ########################################################################
-def JetInputCfg(jetdef, configFlags, sequenceName):
+def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
     """Function for setting up inputs to jet finding
-    
+
     This includes constituent modifications, track selection, copying of
     input truth particles and event density calculations
+    
+    jetOrConstitdef can either be 
+     * a JetDefinition : this happens when called from JetRecCfg, then the jetdef._prereqDic/Order are used.
+     * a JetConstitSource : to allow scheduling the corresponding constituents algs independently of any jet alg. 
     """
 
     jetlog.info("Setting up jet inputs.")
     components = ComponentAccumulator(sequenceName)
 
+    
+    from .JetDefinition import JetConstitSource, JetDefinition
+    if isinstance(jetOrConstitdef, JetConstitSource):
+        jetdef = JetDefinition('Kt', 0., jetOrConstitdef.clone())
+        instantiateAliases(jetdef)        
+        removeComponentFailingConditions(jetdef, configFlags, raiseOnFailure= not jetdef.standardRecoMode)
+    else:
+        jetdef = jetOrConstitdef
+    
     jetlog.info("Inspecting input file contents")
     filecontents = configFlags.Input.Collections
 
     inputdeps = [ inputkey for inputkey in jetdef._prereqOrder if inputkey.startswith('input:')]
+
     
     for inputfull in inputdeps:
-        #inputkey = inputfull[6:] # remove 'input:'
         inputInstance = jetdef._prereqDic[inputfull]
-        from .JetDefinition import JetConstitSource
-
+        isprimary = False # actually not using it yet.
+        
         if isinstance(inputInstance, JetConstitSource):
             if inputInstance.containername in filecontents:
                 jetlog.debug("Input container {0} for label {1} already in input file.".format(inputInstance.containername, inputInstance.name))
@@ -124,12 +137,12 @@ def JetInputCfg(jetdef, configFlags, sequenceName):
                 from . import ConstModHelpers
                 constitalg = ConstModHelpers.getConstitModAlg(inputInstance)
                 if constitalg:
-                    components.addEventAlgo(constitalg)
+                    components.addEventAlgo(constitalg, primary=isprimary)
         else:
             jetlog.debug("Requesting input {} with function {} and specs {}".format(inputInstance.name, inputInstance.algoBuilder, inputInstance.specs) )
             # inputInstance must be a JetInputDef
             if inputInstance.algoBuilder:
-                components.addEventAlgo( inputInstance.algoBuilder( jetdef, inputInstance.specs )  )
+                components.addEventAlgo( inputInstance.algoBuilder( jetdef, inputInstance.specs ), primary=isprimary )
             else:
                 # for now just hope the input will be present... 
                 pass
@@ -314,8 +327,9 @@ def instantiateAliases( jetdef ):
       * implies calls to recursives function constH.aliasToInputDef and modH.aliasToModDef
     """
 
-    # start with the inputdef (replacing the jetdef attribute to ensure it really is an instance, not only a str)
-    jetdef.inputdef = constH.aliasToInputDef(jetdef.inputdef, jetdef)
+    # start with the inputdef, cloning it so we're not altering a private copy
+    jetdef.inputdef = jetdef.inputdef.clone()
+    constH.instantiateJetConstitAliases(jetdef.inputdef, jetdef)
 
     jetdef._prereqDic['input:'+jetdef.inputdef.name] = jetdef.inputdef
     jetdef._prereqOrder.append('input:'+jetdef.inputdef.name)
