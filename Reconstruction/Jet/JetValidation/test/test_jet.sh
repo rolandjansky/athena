@@ -28,7 +28,6 @@ Reco_tf.py \
     --outputNTUP_PHYSVALFile ${ART_Validation} \
     --validationFlags noExample \
     --autoConfiguration everything \
-    --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger=False' \
-    direct
+    --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger=False'
 
 echo "art-result: $? Reco"
