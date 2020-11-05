@@ -151,8 +151,8 @@ class MM_DigitizationTool : public PileUpToolBase {
 		//each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
 		Gaudi::Property<float> m_qThreshold{this,"qThreshold",0.001,"Charge Threshold"};
 		Gaudi::Property<float> m_driftGapWidth{this,"DriftGapWidth",5.168,"Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)"};
-		Gaudi::Property<float> m_crossTalk1{this,"crossTalk1",0.1,"Strip Cross Talk with Nearest Neighbor"};
-		Gaudi::Property<float> m_crossTalk2{this,"crossTalk2",0.03,"Strip Cross Talk with 2nd Nearest Neighbor"};
+		Gaudi::Property<float> m_crossTalk1{this,"crossTalk1",0.2,"Strip Cross Talk with Nearest Neighbor"};
+		Gaudi::Property<float> m_crossTalk2{this,"crossTalk2",0.04,"Strip Cross Talk with 2nd Nearest Neighbor"};
 
 		Gaudi::Property<float> m_avalancheGain{this,"AvalancheGain",8.0e3,"avalanche Gain for rach gas mixture"};
 
