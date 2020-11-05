@@ -27,12 +27,12 @@ def GetDecoratePromptLeptonAlgs(name="", addSpectators=False):
     if name == "" or name == 'Electrons':
         algs += [DecoratePromptLepton('PromptLeptonIso',  'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecoratePromptLepton('PromptLeptonVeto', 'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
-        algs += [DecoratePromptLepton('LowPtPromptLeptonVeto', 'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
+        algs += [DecorateLowPtPromptLepton('LowPtPromptLeptonVeto', 'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
 
     if name == "" or name == 'Muons':
         algs += [DecoratePromptLepton('PromptLeptonIso',  'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecoratePromptLepton('PromptLeptonVeto', 'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
-        algs += [DecoratePromptLepton('LowPtPromptLeptonVeto', 'Muons', 'AntiKt4PV0TrackJets', addSpectators)]    
+        algs += [DecorateLowPtPromptLepton('LowPtPromptLeptonVeto', 'Muons', 'AntiKt4PV0TrackJets', addSpectators)]    
 
     return algs
 
@@ -179,6 +179,47 @@ def GetExtraPromptTauVariablesForDxAOD():
 
 #------------------------------------------------------------------------------
 def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name, addSpectators=False):
+
+    # Check lepton container is correct
+    if lepton_name == 'Electrons':
+        part_type = 'Electron'
+    elif lepton_name == 'Muons':
+        part_type = 'Muon'
+    else:
+        raise Exception('Decorate%s - unknown lepton type: "%s"' %(BDT_name, lepton_name))  
+
+    #
+    # Check track jet container is correct
+    #
+    if track_jet_name != 'AntiKt4PV0TrackJets':
+        raise Exception('Decorate%s - unknown track jet collection: "%s"' %(BDT_name, track_jet_name))
+
+    #
+    # Prepare DecoratePromptLepton alg
+    #
+    alg = Conf.Prompt__DecoratePromptLepton('%s_decorate%s' %(lepton_name, BDT_name))
+
+    alg.LeptonContainerName   = lepton_name
+    alg.TrackJetContainerName = track_jet_name
+    alg.ConfigFileVersion     = 'InputData-2017-10-27/%s/%s' %(part_type, BDT_name)
+    alg.MethodTitleMVA        = 'BDT_%s_%s' %(part_type, BDT_name)
+    alg.BDTName               = '%s' %BDT_name
+    alg.AuxVarPrefix          = 'PromptLeptonInput_'
+    alg.PrintTime             = False
+
+    alg.StringIntVars   = getStringIntVars  (BDT_name)
+    alg.StringFloatVars = getStringFloatVars(BDT_name)
+
+    if addSpectators :
+        alg.StringIntSpecVars   = getStringIntSpecVars  (BDT_name)
+        alg.StringFloatSpecVars = getStringFloatSpecVars(BDT_name)
+
+    log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
+
+    return alg
+
+#------------------------------------------------------------------------------
+def DecorateLowPtPromptLepton(BDT_name, lepton_name, track_jet_name, addSpectators=False):
 
     # Check lepton container is correct
     if lepton_name == 'Electrons':
