@@ -87,6 +87,7 @@ StatusCode CpmRoiByteStreamV1Tool::initialize()
                 << PACKAGE_VERSION);
 
   ATH_CHECK( m_errorTool.retrieve() );
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -270,17 +271,18 @@ StatusCode CpmRoiByteStreamV1Tool::convert(
 // Convert CPM RoI to bytestream
 
 StatusCode CpmRoiByteStreamV1Tool::convert(
-           const DataVector<LVL1::CPMRoI>* const roiCollection,
-	   RawEventWrite* const re) const
+           const DataVector<LVL1::CPMRoI>* const roiCollection) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
 
-  // Clear the event assembler
+  // Get the event assembler
 
-  FullEventAssembler<L1CaloSrcIdMap> fea;
+  FullEventAssembler<L1CaloSrcIdMap>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "CpmRoiByteStreamV1") );
   uint16_t minorVersion = m_srcIdMap.minorVersionPreLS1();
-  fea.setRodMinorVersion(minorVersion);
+  fea->setRodMinorVersion(minorVersion);
 
   // Pointer to ROD data vector
 
@@ -322,7 +324,7 @@ StatusCode CpmRoiByteStreamV1Tool::convert(
         }
 	const uint32_t rodIdCpm = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
 	                                                        m_subDetector);
-	theROD = fea.getRodData(rodIdCpm);
+	theROD = fea->getRodData(rodIdCpm);
 	if (neutralFormat) {
           const L1CaloUserHeader userHeader;
 	  theROD->push_back(userHeader.header());
@@ -366,10 +368,6 @@ StatusCode CpmRoiByteStreamV1Tool::convert(
       }
     }
   }
-
-  // Fill the raw event
-
-  fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
 }
