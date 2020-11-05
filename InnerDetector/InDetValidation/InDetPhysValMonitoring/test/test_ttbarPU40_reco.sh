@@ -2,7 +2,7 @@
 # art-description: Standard test for Run2 with ttbar input, PU=40
 # art-type: grid
 # art-include: master/Athena
-# art-output: *.root
+# art-output: physval*.root
 # art-output: *.xml
 # art-output: dcube*
 
