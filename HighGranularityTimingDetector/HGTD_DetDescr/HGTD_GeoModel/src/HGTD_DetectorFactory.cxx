@@ -48,7 +48,7 @@ HGTD_DetectorFactory::HGTD_DetectorFactory(InDetDD::AthenaComps* athenaComps, bo
 //
 //    Create the detector manager
 //
-    m_detectorManager = new HGTD_DetectorManager();
+    m_detectorManager = new HGTD_DetectorManager(detStore());
 //
 //    Set Detector Manager HGTD version information
 //

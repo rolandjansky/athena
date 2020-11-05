@@ -18,6 +18,7 @@
 
 namespace InDetDD {
     class AthenaComps;
+    class SiCommonItems;
 }
 
 class HGTD_DetectorManager;
@@ -44,6 +45,7 @@ private:
     bool m_alignable;
     const HGTD_DetectorManager *m_manager;
     InDetDD::AthenaComps *m_athenaComps;
+    InDetDD::SiCommonItems *m_commonItems;
     ServiceHandle<IGeoModelSvc> m_geoModelSvc;
     ServiceHandle<IRDBAccessSvc> m_rdbAccessSvc;
     ServiceHandle<IGeometryDBSvc> m_geometryDBSvc;

@@ -4,11 +4,40 @@
 
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 
-HGTD_DetectorManager::HGTD_DetectorManager(){
-  setName("HGTD");
+#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+HGTD_DetectorManager::HGTD_DetectorManager(StoreGateSvc* detStore)
+    : m_idHelper(0)
+{
+    setName("HGTD");
+
+    //
+    // Initialize the Identifier helper
+    //
+    StatusCode sc = detStore->retrieve(m_idHelper,"HGTD_ID");
+    if (sc.isFailure() ) {
+        ATH_MSG_ERROR ("Could not retrieve HGTD id helper");
+    }
+
+    // Initialize the collections
+    if (m_idHelper) {
+        m_elementCollection.resize(m_idHelper->wafer_hash_max());
+    }
 }
 
-HGTD_DetectorManager::~HGTD_DetectorManager(){}
+HGTD_DetectorManager::~HGTD_DetectorManager()
+{
+    // Clean up
+    HGTD_DetectorElementCollection::iterator iter;
+    for (iter = m_elementCollection.begin(); iter != m_elementCollection.end(); ++iter){
+        delete *iter;
+    }
+
+    for (size_t i=0; i < m_volume.size(); i++) {
+        m_volume[i]->unref();
+    }
+}
 
 unsigned int HGTD_DetectorManager::getNumTreeTops() const
 {
@@ -23,4 +52,76 @@ PVConstLink HGTD_DetectorManager::getTreeTop(unsigned int i) const
 void HGTD_DetectorManager::addTreeTop(PVLink vol){
     vol->ref();
     m_volume.push_back(vol);
+}
+
+HGTD_DetectorElement* HGTD_DetectorManager::getDetectorElement(const Identifier & id) const
+{
+    // Make sure it is a wafer Id
+    Identifier waferId =  m_idHelper->wafer_id(id);
+    IdentifierHash idHash = m_idHelper->wafer_hash(waferId);
+    if (idHash.is_valid()) {
+        return m_elementCollection[idHash];
+    } else {
+        return 0;
+    }
+}
+
+HGTD_DetectorElement* HGTD_DetectorManager::getDetectorElement(const IdentifierHash & idHash) const
+{
+    return m_elementCollection[idHash];
+}
+
+HGTD_DetectorElement* HGTD_DetectorManager::getDetectorElement(int endcap, int disk, int side, int quadrant, int row, int module) const
+{
+    return getDetectorElement(m_idHelper->wafer_id(endcap, disk, side, quadrant, row, module));
+}
+
+const HGTD_DetectorElementCollection* HGTD_DetectorManager::getDetectorElementCollection() const
+{
+    return &m_elementCollection;
+}
+
+HGTD_DetectorElementCollection::const_iterator HGTD_DetectorManager::getDetectorElementBegin() const
+{
+    return m_elementCollection.begin();
+}
+
+HGTD_DetectorElementCollection::const_iterator HGTD_DetectorManager::getDetectorElementEnd() const
+{
+    return m_elementCollection.end();
+}
+
+void HGTD_DetectorManager::addDetectorElement(HGTD_DetectorElement * element)
+{
+    IdentifierHash idHash = element->identifyHash();
+    if (idHash >=  m_elementCollection.size())
+        ATH_MSG_ERROR ("HGTD_DetectorManager: Error adding detector element.");
+    m_elementCollection[idHash] = element;
+}
+
+const HGTD_ID* HGTD_DetectorManager::getIdHelper() const
+{
+    return m_idHelper;
+}
+
+void HGTD_DetectorManager::invalidateAll() const
+{
+    for (HGTD_DetectorElementCollection::const_iterator element_iter = getDetectorElementBegin();
+    element_iter != getDetectorElementEnd();
+    ++element_iter) {
+        if (*element_iter) {
+            (*element_iter)->invalidate();
+        }
+    }
+}
+
+void HGTD_DetectorManager::updateAll() const
+{
+    for (HGTD_DetectorElementCollection::const_iterator element_iter = getDetectorElementBegin();
+    element_iter != getDetectorElementEnd();
+    ++element_iter) {
+        if (*element_iter) {
+            (*element_iter)->updateAllCaches();
+        }
+    }
 }
