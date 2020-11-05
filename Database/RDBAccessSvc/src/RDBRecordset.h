@@ -49,10 +49,10 @@ class RDBRecordset final: public IRDBRecordset
   /// Constructs SQL query and retrieves the data from DB
   /// @param session [IN] active relational session
   /// @param taginfo [IN] object holding information about the node tag
-  void getData(coral::ISessionProxy* session,
-	       const std::string& nodeName,
-	       const std::string& tagName,
-	       const std::string& tagId);
+  void getData(coral::ISessionProxy* session
+	       , const std::string& nodeName
+	       , const std::string& tagName
+	       , const std::string& tagId);
 
   /// @return number of records
   unsigned int size() const override;

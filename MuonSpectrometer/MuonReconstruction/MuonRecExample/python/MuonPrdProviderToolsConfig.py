@@ -36,6 +36,7 @@ def MdtPrepDataProviderTool(name="MdtPrepDataProviderTool", **kwargs):
   
   if globalflags.DataSource.is_data():
     kwargs.setdefault("UseTwin", True)
+  kwargs.setdefault("CalibrationTool", MuonCalibConfig.MdtCalibrationTool())
 
   from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataToolMT
   return Muon__MdtRdoToPrepDataToolMT(name,**kwargs)

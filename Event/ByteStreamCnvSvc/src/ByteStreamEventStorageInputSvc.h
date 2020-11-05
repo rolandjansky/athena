@@ -61,7 +61,7 @@ public:
   virtual void         validateEvent     (); 
 
   virtual long positionInBlock   ();
-  virtual std::pair<long,std::string> getBlockIterator(const std::string fileName);
+  virtual std::pair<long,std::string> getBlockIterator(const std::string& fileName);
   void         closeBlockIterator(bool clearMetadata=true);
   bool         setSequentialRead ();
   bool         ready             () const;

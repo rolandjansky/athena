@@ -144,7 +144,9 @@ namespace Trig {
     EventPtr_t store() const { return m_store; }
 
     void setDecisionKeyPtr(SG::ReadHandleKey<xAOD::TrigDecision>* k) { m_decisionKeyPtr = k; }
-    void setNavigationKeyPtr(SG::ReadHandleKey<xAOD::TrigNavigation>* k) { m_navigationKeyPtr = k; }
+    void setRun2NavigationKeyPtr(SG::ReadHandleKey<xAOD::TrigNavigation>* k) { m_run2NavigationKeyPtr = k; }
+    void setRun3NavigationKeyPtr(SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>* k) { m_run3NavigationKeyPtr = k; }
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& getRun3NavigationKeyPtr() { return *m_run3NavigationKeyPtr; }
 
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
     void setOldDecisionKeyPtr(SG::ReadHandleKey<TrigDec::TrigDecision>* k) { m_oldDecisionKeyPtr = k; }
@@ -223,7 +225,8 @@ namespace Trig {
     SG::ReadHandleKey<EventInfo>* m_oldEventInfoKeyPtr; //!< Parent TDT's read handle key
 #endif
 
-    SG::ReadHandleKey<xAOD::TrigNavigation>* m_navigationKeyPtr; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<xAOD::TrigNavigation>* m_run2NavigationKeyPtr; //!< Parent TDT's read handle key
+    SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>* m_run3NavigationKeyPtr; //!< Parent TDT's read handle key
 
     typedef std::unordered_map<std::string, const TrigConf::HLTChain*> ChainHashMap_t;
     ChainHashMap_t     m_mConfChains;            //!< map of conf chains

@@ -106,7 +106,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
   //start loop over files
   std::vector<std::string>::const_iterator it=fileNames.begin();
   std::vector<std::string>::const_iterator it_e=fileNames.end();
-  for (;!found && it!=it_e;it++) {
+  for (;!found && it!=it_e;++it) {
     const std::string& fName=*it;
     eventCounter=0;
 

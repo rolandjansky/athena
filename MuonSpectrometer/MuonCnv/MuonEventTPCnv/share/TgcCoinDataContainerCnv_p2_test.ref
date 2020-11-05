@@ -1,18 +1,18 @@
 
 
-Initializing Gaudi ApplicationMgr using job opts /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/MuonEventTPCnv/MuonEventTPCnv_test.txt
-JobOptionsSvc        INFO # =======> /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/MuonEventTPCnv/MuonEventTPCnv_test.txt
+Initializing Gaudi ApplicationMgr using job opts /home/emoyse/master2/build/x86_64-centos7-gcc8-opt/jobOptions/MuonEventTPCnv/MuonEventTPCnv_test.txt
+JobOptionsSvc        INFO # =======> /home/emoyse/master2/build/x86_64-centos7-gcc8-opt/jobOptions/MuonEventTPCnv/MuonEventTPCnv_test.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.Dlls += ["StoreGate", "CLIDComps"]
 JobOptionsSvc        INFO # (2,1): ApplicationMgr.ExtSvc += ["StoreGateSvc", "StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore", "Athena::RCUSvc"]
-JobOptionsSvc        INFO Job options successfully read in from /afs/cern.ch/user/s/ssnyder/atlas-work3/build-x86_64-centos7-gcc8-opt/x86_64-centos7-gcc8-opt/jobOptions/MuonEventTPCnv/MuonEventTPCnv_test.txt
+JobOptionsSvc        INFO Job options successfully read in from /home/emoyse/master2/build/x86_64-centos7-gcc8-opt/jobOptions/MuonEventTPCnv/MuonEventTPCnv_test.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v33r0)
-                                          running on lxplus719.cern.ch on Sun Mar  8 00:21:46 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
+                                          running on pcumass4 on Wed Nov  4 09:35:29 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : StoreGate, CLIDComps
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 11360 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 12350 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
@@ -140,5 +140,7 @@ MmIdHelper           INFO The element hash max is 64
 MmIdHelper           INFO The detector element hash max is 128
 MmIdHelper           INFO Initializing MicroMegas hash indices for finding neighbors ... 
  AtlasDetectorID::initialize_from_dictionary - OK 
-ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+SCTDetectorManager   INFO Using contructor with name specification, to create SCT_DetectorManager named SCT
+SCTDetectorManager   INFO 
+ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
 test1

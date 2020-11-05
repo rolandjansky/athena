@@ -117,40 +117,58 @@ def generateChains():
     ##################################################################
     # jet chains
     ##################################################################
-    if opt.doJetSlice == True:
-        from DecisionHandling.jetMenuHelper import jetMenuSequenceFromString
 
-        # small-R jets, different calibrations HLT_AntiKt4EMTopoJets_subjesIS
-        jetSeq_a4_tc_em = jetMenuSequenceFromString("a4_tc_em_subjesIS")
-        step_a4_tc_em =makeChainStep("Step_jet_a4_tc_em", [jetSeq_a4_tc_em])
+    from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration import jetRecoDictFromString
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    def jetCaloHypoMenuSequenceFromString(jet_def_str):
+        jetRecoDict = jetRecoDictFromString(jet_def_str)
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
+        return jetCaloHypoMenuSequence(ConfigFlags, **jetRecoDict)
+
+    def jetCaloPreselMenuSequenceFromString(jet_def_str):
+        jetRecoDict = jetRecoDictFromString(jet_def_str)
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloPreselMenuSequence
+        return jetCaloPreselMenuSequence(ConfigFlags, **jetRecoDict)
+
+    def jetTrackingHypoMenuSequenceFromString(jet_def_str,clustersKey):
+        jetRecoDict = jetRecoDictFromString(jet_def_str)
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
+        return jetTrackingHypoMenuSequence(ConfigFlags, clustersKey=clustersKey, **jetRecoDict)
+
+    if opt.doJetSlice == True:
+
+        # small-R jets
+        jetSeq_a4_tc_em = jetCaloHypoMenuSequenceFromString("a4_tc_em_subjesIS")
+        step_a4_tc_em = makeChainStep("Step_jet_a4_tc_em", [jetSeq_a4_tc_em])
         
-        jetSeq_a4_tc_em_subjes = jetMenuSequenceFromString("a4_tc_em_subjes")
-        step_a4_tc_em_subjes = makeChainStep("Step_jet_a4_subjes_tc_em", [jetSeq_a4_tc_em_subjes])
-        
-        jetSeq_a4_tc_em_nocalib = jetMenuSequenceFromString("a4_tc_em_nojcalib")
-        step_a4_tc_em_nocalib=makeChainStep("Step_jet_a4_nojcalib_tc_em", [jetSeq_a4_tc_em_nocalib])
-        
-        #    jetSeq_a4_tc_lcw = jetMenuSequenceFromString("a10_tc_lcw_subjesIS")
-        #    step_a4_tc_lcw=ChainStep("Step_jet_a10_tc_lcw", [jetSeq_a4_tc_lcw])
-    
         # large-R jets
-        jetSeq_a10_tc_lcw_subjes = jetMenuSequenceFromString("a10_tc_lcw_subjes")
-        step_a10_tc_lcw_subjes=makeChainStep("Step_jet_a10_subjes_tc_lcw", [jetSeq_a10_tc_lcw_subjes])
+        jetSeq_a10_tc_lcw_subjes = jetCaloHypoMenuSequenceFromString("a10_tc_lcw_subjes")
+        step_a10_tc_lcw_subjes = makeChainStep("Step_jet_a10_subjes_tc_lcw", [jetSeq_a10_tc_lcw_subjes])
         
-        jetSeq_a10r = jetMenuSequenceFromString("a10r_tc_em_subjesIS")
-        step_a10r=makeChainStep("Step_jet_a10r", [jetSeq_a10r])
+        jetSeq_a10r = jetCaloHypoMenuSequenceFromString("a10r_tc_em_subjesIS")
+        step_a10r = makeChainStep("Step_jet_a10r", [jetSeq_a10r])
+
+        jetSeq_a10t = jetCaloHypoMenuSequenceFromString("a10t_tc_lcw_jes")
+        step_a10t = makeChainStep("Step_jet_a10t", [jetSeq_a10t])
         
+        # Jet chains with tracking
+        jetSeq_a4_tc_em_presel, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
+        step_a4_tc_em_presel = makeChainStep("Step_jet_a4_tc_em_presel", [jetSeq_a4_tc_em_presel])
+        jetSeq_a4_pf_em_ftf = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subresjesgscIS_ftf",emclusters)
+        step_a4_pf_em_ftf = makeChainStep("Step_jet_a4_pf_em_ftf", [jetSeq_a4_pf_em_ftf])
+
         jetChains  = [
             makeChain(name='HLT_j45_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
             makeChain(name='HLT_j85_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
             makeChain(name='HLT_j420_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
             makeChain(name='HLT_j260_320eta490_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
-        # makeChain(name='HLT_j225_gsc420_boffperf_split',   ChainSteps=[step_a4_tc_em]  ),
             makeChain(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
             makeChain(name='HLT_j460_a10_lcw_subjes_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a10_tc_lcw_subjes]  ),
             makeChain(name='HLT_j460_a10r_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a10r]  ),
+            makeChain(name='HLT_j460_a10t_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a10t]  ),
             makeChain(name='HLT_3j200_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ),
             makeChain(name='HLT_5j70_0eta240_L1J20', L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em]  ), # 5j70_0eta240_L14J15 (J20 until multi-object L1 seeds supported)
+            makeChain(name='HLT_j45_pf_subresjesgscIS_ftf_L1J20',  L1Thresholds=["J20"], ChainSteps=[step_a4_tc_em_presel,step_a4_pf_em_ftf]  ),
             ]
 
         testChains += jetChains
@@ -160,18 +178,19 @@ def generateChains():
     # bjet chains
     ##################################################################
     if opt.doBjetSlice == True:
-        from DecisionHandling.jetMenuHelper import jetMenuSequenceFromString
         from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 
-        jetSequence = jetMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf")
+        jetSeq_a4_tc_em_presel, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
+        jetSeq_a4_tc_em_gsc_ftf = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf",emclusters)
         
-        step1 = makeChainStep("Step1_bjet", [jetSequence] )
-        step2 = makeChainStep("Step2_bjet", [getBJetSequence()])
+        step1 = makeChainStep("Step_jet_a4_tc_em_presel", [jetSeq_a4_tc_em_presel])
+        step2 = makeChainStep("Step_jet_a4_tc_em_gsc_ftf", [jetSeq_a4_tc_em_gsc_ftf])
+        step3 = makeChainStep("Step3_bjet", [getBJetSequence()])
         
         bjetChains  = [
-            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2] ),
-            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2] )
+            makeChain(name='HLT_j45_ftf_subjesgscIS_boffperf_split_L1J20' , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
+            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_split_L1J20', L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] ),
+            makeChain(name='HLT_j45_ftf_subjesgscIS_bmv2c1070_L1J20'      , L1Thresholds=["J20"], ChainSteps=[step1,step2,step3] )
             ]
         testChains += bjetChains
     
@@ -204,17 +223,20 @@ def generateChains():
     ##################################################################
     if opt.doMETSlice == True:
         from TriggerMenuMT.HLTMenuConfig.MET.METMenuSequences import metMenuSequence
-        from TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers import extractMETRecoDict
+        from TriggerMenuMT.HLTMenuConfig.MET.METChainConfiguration import extractMETRecoDict
+        from TriggerMenuMT.HLTMenuConfig.MET.ConfigHelpers import AlgConfig
 
         cellRecoDict = extractMETRecoDict({'EFrecoAlg': "cell"})
-        metCellSeq = metMenuSequence(None, **cellRecoDict)
+        metCellConf = AlgConfig.fromRecoDict(**cellRecoDict)
+        metCellSeqs = metCellConf.menuSequences()
 
         pufitRecoDict = extractMETRecoDict({'EFrecoAlg': "tcpufit"})
-        metClusterPufitSeq = metMenuSequence(None, **pufitRecoDict)
+        metClusterPufitConf = AlgConfig.fromRecoDict(**pufitRecoDict)
+        metClusterPufitSeqs = metClusterPufitConf.menuSequences()
         
-        metCellStep = makeChainStep("Step1_met_cell", [metCellSeq])
-        metClusterPufitStep          = makeChainStep("Step1_met_clusterpufit", [metClusterPufitSeq])
-        comboStep_cell_clusterpufit  = makeChainStep("Step1_combo_cell_clusterpufit", [metCellSeq, metClusterPufitSeq], multiplicity=[1,1])
+        metCellStep = makeChainStep("Step1_met_cell", metCellSeqs)
+        metClusterPufitStep          = makeChainStep("Step1_met_clusterpufit", metClusterPufitSeqs)
+        comboStep_cell_clusterpufit  = makeChainStep("Step1_combo_cell_clusterpufit", metCellSeqs + metClusterPufitSeqs, multiplicity=[1,1])
 
         metChains = [
             makeChain(name="HLT_xe65_L1XE50",         L1Thresholds=["XE50"], ChainSteps=[metCellStep]),

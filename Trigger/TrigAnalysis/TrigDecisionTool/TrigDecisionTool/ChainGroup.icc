@@ -1,5 +1,13 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "AsgDataHandles/ReadHandle.h"
+#include "AsgDataHandles/ReadHandleKey.h"
+
 template<class CONTAINER>
 std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::features(EventPtr_t eventStore,
+        SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
         unsigned int condition, const std::string& containerSGKey,
         const unsigned int featureCollectionMode, const std::string& navElementLinkKey) const {
 
@@ -19,8 +27,8 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   }
 
   // TODO when we decide what happens to CacheGlobalMemory - this needs to be updated to use a ReadHandle
-  const TrigCompositeUtils::DecisionContainer* navigationSummaryContainer = nullptr;
-  if (eventStore->retrieve(navigationSummaryContainer, "HLTNav_Summary").isFailure() || navigationSummaryContainer == nullptr) {
+  SG::ReadHandle<TrigCompositeUtils::DecisionContainer> navigationSummaryRH = SG::ReadHandle(HLTSummaryKeyIn);
+  if (!navigationSummaryRH.isValid()) {
     ATH_MSG_ERROR("Unable to read Run 3 trigger navigation. Cannot retrieve features.");
     errState = true;
   }
@@ -28,7 +36,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::ChainGroup::feature
   // We always want to search from the passed raw terminus node to find features for passed chains.
   const TrigCompositeUtils::Decision* terminusNode = nullptr;
   if (!errState) {
-    for (const TrigCompositeUtils::Decision* decision : *navigationSummaryContainer) {
+    for (const TrigCompositeUtils::Decision* decision : *navigationSummaryRH) {
       if (decision->name() == "HLTPassRaw") {
         terminusNode = decision;
         break;

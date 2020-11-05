@@ -143,6 +143,7 @@ Trig::TrigDecisionTool::initialize() {
 #endif
 
    cgm()->navigation(&*m_navigation);
+
    cgm()->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
    
 #ifndef XAOD_STANDALONE
@@ -188,7 +189,8 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 
   CacheGlobalMemory* cgmPtr = cgm();
   cgmPtr->setDecisionKeyPtr( &m_decisionKey );
-  cgmPtr->setNavigationKeyPtr( &m_navigationKey );
+  cgmPtr->setRun2NavigationKeyPtr( &m_navigationKey );
+  cgmPtr->setRun3NavigationKeyPtr( &m_HLTSummaryKeyIn );
 
   size_t slot = 0;
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena

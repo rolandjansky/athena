@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,8 +12,8 @@
  * $Id: RDBVersionAccessor.h,v 1.11 2006-05-11 22:34:39 tsulaia Exp $
  */
 
-#ifndef _RDB_VERSIONACCESSOR_H_
-#define _RDB_VERSIONACCESSOR_H_
+#ifndef RDBACCESSSVC_RDBVERSIONACCESSOR_H
+#define RDBACCESSSVC_RDBVERSIONACCESSOR_H
 
 #include <string>
 #include "GaudiKernel/MsgStream.h"
@@ -41,11 +41,11 @@ class RDBVersionAccessor
   /// @param parentNode [IN] parent node name
   /// @param parentTag [IN] parent tag name
   /// @param session [IN] active relational session  
-  RDBVersionAccessor(std::string childNode,
-		     std::string parentNode,
-		     std::string parentTag,
-		     coral::ISessionProxy* session,
-		     MsgStream& stream);
+  RDBVersionAccessor(std::string childNode
+		     , std::string parentNode
+		     , std::string parentTag
+		     , coral::ISessionProxy* session
+		     , MsgStream& stream);
   
   /// Constructs SQL query and retrieves child tag ID and Name from DB
   void getChildTagData();
@@ -68,8 +68,8 @@ class RDBVersionAccessor
   RDBVersionAccessor();
 
   // Convert attribute value to std::string
-  std::string attribute2String(const coral::AttributeList& attList,
-			       std::string fieldName);
+  std::string attribute2String(const coral::AttributeList& attList
+			       , std::string fieldName);
 
   coral::ISessionProxy* m_session;
 

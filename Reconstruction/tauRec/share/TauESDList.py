@@ -36,10 +36,11 @@ TauESDList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
 TauESDList += [ "CaloClusterCellLinkContainer#TauPi0Clusters_links" ]
 
 #------------------------------------------------------------------------------
-# Shot clusters
+# Shot clusters and cell links
 #------------------------------------------------------------------------------
 TauESDList += [ "xAOD::CaloClusterContainer#TauShotClusters"]
 TauESDList += [ "xAOD::CaloClusterAuxContainer#TauShotClustersAux."]
+TauESDList += [ "CaloClusterCellLinkContainer#TauShotClusters_links" ]
 
 #------------------------------------------------------------------------------
 # Final reconstructed 4-vectors of Pi0s

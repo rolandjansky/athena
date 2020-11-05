@@ -1088,7 +1088,6 @@ def getInDetTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
                          doSharedHits           = False,
                          doHolesInDet           = do_holes,
                          TRT_ElectronPidTool    = None,         # we don't want to use those tools during pattern
-                         TRT_ToT_dEdxTool       = None,         # dito
                          PixelToTPIDTool        = None)         # we don't want to use those tools during pattern
     from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
     return Trk__TrackSummaryTool(name = the_name, **kwargs)
@@ -1111,16 +1110,12 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
     if 'TRT_ElectronPidTool' not in kwargs :
         kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool())
 
-    if 'TRT_ToT_dEdxTool' not in kwargs :
-        kwargs = setDefaults( kwargs, TRT_ToT_dEdxTool       = getInDetTRT_dEdxTool())
-
     if 'PixelToTPIDTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelToTPIDTool        = getInDetPixelToTPIDTool())
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults(kwargs,
-                         doSharedHits           = InDetFlags.doSharedHits(),
-                         minTRThitsForTRTdEdx   = 1)    # default is 1
+                         doSharedHits           = InDetFlags.doSharedHits())
 
     return getInDetTrackSummaryTool( name, **kwargs)
 

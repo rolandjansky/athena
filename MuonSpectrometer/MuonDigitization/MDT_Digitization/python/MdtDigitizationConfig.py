@@ -19,7 +19,9 @@ def MDT_LastXing():
     return 150
 
 def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
-   import MuonCondAlg.MdtCondDbAlgConfig # noqa: F401 (MT-safe conditions access)
+   import MuonCondAlg.MdtCondDbAlgConfig # noqa: F401 MT-safe conditions access 
+   from MuonCnvExample import MuonCalibConfig
+
    kwargs.setdefault("MaskedStations", [])
    kwargs.setdefault("UseDeadChamberSvc", True)
    kwargs.setdefault("DiscardEarlyHits", True)
@@ -50,6 +52,8 @@ def MdtDigitizationTool(name="MdtDigitizationTool",**kwargs):
       kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "MDT_SDO")
    else:
       kwargs.setdefault("OutputSDOName", "MDT_SDO")
+   
+   kwargs.setdefault("CalibrationDbTool", MuonCalibConfig.MdtCalibrationDbTool()) 
 
    return CfgMgr.MdtDigitizationTool(name,**kwargs)
       #return CfgMgr.MDT_PileUpTool(name,**kwargs)

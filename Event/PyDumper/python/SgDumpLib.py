@@ -279,7 +279,6 @@ def _run_jobo(job, msg, options):
         return sc, out
     sh = out
 
-    from time import time
     logfile = tempfile.NamedTemporaryFile(prefix='sg_dumper_job_',
                                           suffix='.logfile.txt',
                                           dir=os.getcwd(),
@@ -329,6 +328,7 @@ def _run_jobo(job, msg, options):
                 
         return pos
 
+    import time
     while app_handle.poll() is None:
         pos = _monitor(pos)
         time.sleep (5)

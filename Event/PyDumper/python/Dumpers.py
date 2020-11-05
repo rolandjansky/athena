@@ -50,6 +50,10 @@ Muon = getattr (Analysis, 'Muon', None) if Analysis else None
 jetAssocNull = cppyy.bind_object(cppyy.nullptr, JetAssociationBase) if JetAssociationBase else None
 muonNull = cppyy.bind_object(cppyy.nullptr, Muon) if Muon else None
 
+InDet = getattr (cppyy.gbl, 'InDet', None)
+InDetLowBetaCandidate = getattr (InDet, 'InDetLowBetaCandidate', None)
+InDetLowBetaCandidateNull = cppyy.bind_object(cppyy.nullptr, InDetLowBetaCandidate) if InDetLowBetaCandidate else None
+
 
 # Work around a cling bug.
 if hasattr(ROOT,'TrackParticleTruthCollection'):
@@ -3814,7 +3818,7 @@ def dump_TrigRNNOutput (p, f):
 
 
 def dump_InDetLowBetaCandidate (p, f):
-    if p is None:
+    if p == InDetLowBetaCandidateNull:
         fprint (f, '(null)')
         return
     if hasattr (p, 'getTRTInverseBeta'):
