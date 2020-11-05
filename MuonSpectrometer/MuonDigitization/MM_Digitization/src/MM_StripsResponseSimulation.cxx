@@ -335,6 +335,33 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 } // end of whichStrips()
 
+float MM_StripsResponseSimulation::getTransversDiffusion(float posY){
+  if ( m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
+
+	  m_transverseDiffusionFunction->SetParameter(2, posY*m_transverseDiffusionSigma);
+	  m_transverseDiffusionFunction->SetParameter(5, 0.0);
+
+	} else {
+	  m_transverseDiffusionFunction->SetParameter(2, posY*m_transverseDiffusionSigma);
+    m_transverseDiffusionFunction->SetParameter(5, 1.0);
+	}
+  return m_transverseDiffusionFunction->GetRandom(); 
+  }
+
+float MM_StripsResponseSimulation::getLongitudinalDiffusion(float posY){
+  m_longitudinalDiffusionFunction->SetParameters(1.0, 0., posY*m_longitudinalDiffusionSigma);
+  return m_longitudinalDiffusionFunction->GetRandom();
+}
+
+float  MM_StripsResponseSimulation::getEffectiveCharge(){return m_polyaFunction->GetRandom();}
+
+float MM_StripsResponseSimulation::getPathLengthTraveled(){
+	return  ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
+}
+
+
+
+
 /*******************************************************************************/
 MM_StripsResponseSimulation::~MM_StripsResponseSimulation()
 {
