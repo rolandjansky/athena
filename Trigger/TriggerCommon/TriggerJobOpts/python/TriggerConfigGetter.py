@@ -489,6 +489,16 @@ class TriggerConfigGetter(Configured):
                                 ]
                 objKeyStore.addManyTypesMetaData( metadataItems )
 
+            if TriggerFlags.EDMDecodingVersion() >= 3:
+                from TrigEDMConfig.TriggerEDMRun3 import recordable
+                from AthenaConfiguration.ComponentFactory import CompFactory
+                from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+
+                enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
+                enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
+
+                topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
+
         except ImportError: # don't want to branch in rel 18
             pass
 
