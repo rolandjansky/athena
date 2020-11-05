@@ -10,6 +10,7 @@
 #include "HECHVPayload.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -251,8 +252,9 @@ HECHVManager::getData (idfunc_t idfunc,
 
 
         if (index>1023) {
-          std::cout << "invalid index " << index << " side,phi,sampling,gap " << sideIndex << " " << phiIndex << " " << samplingIndex
-                    << " " << subgapIndex << std::endl;
+          MsgStream msg (Athena::getMessageSvc(), "EMECHVManager");
+          msg << MSG::ERROR << "invalid index " << index << " side,phi,sampling,gap " << sideIndex << " " << phiIndex << " " << samplingIndex
+              << " " << subgapIndex << endmsg;
           continue;
         }
 	  

@@ -7,6 +7,7 @@
 
 #include "FCALHVPayload.h"
 
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -238,7 +239,8 @@ FCALHVManager::getData (idfunc_t idfunc,
           unsigned int index             = 192*sideIndex+12*sectorIndex+4*samplingIndex+lineIndex;
 
           if (index>384) {
-            std::cout << " invalid index for FCAL " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << std::endl;
+            MsgStream msg (Athena::getMessageSvc(), "EMECHVManager");
+            msg << MSG::ERROR << " invalid index for FCAL " << sideIndex << " " << samplingIndex << " " << sectorIndex << " " << lineIndex << endmsg;
             continue;
           }
 	    

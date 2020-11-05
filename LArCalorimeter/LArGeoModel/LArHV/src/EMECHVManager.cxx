@@ -11,6 +11,7 @@
 #include "EMECHVPayload.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -324,19 +325,22 @@ EMECHVManager::getData (idfunc_t idfunc,
               512*sideIndex+256*(etaIndex-7)+32*phiIndex+4*sectorIndex+electrodeIndex;
 
             if (m_c->iWheel==EMECHVModule::OUTER && index>10752) {
-              std::cout << "invalid index outer " << index << " side,eta,phi,sector,electrode " << sideIndex << " " << etaIndex << " " << phiIndex <<
-                " " << sectorIndex << " " << electrodeIndex << std::endl;
+              MsgStream msg (Athena::getMessageSvc(), "EMECHVManager");
+              msg << MSG::ERROR << "invalid index outer " << index << " side,eta,phi,sector,electrode " << sideIndex << " " << etaIndex << " " << phiIndex <<
+                " " << sectorIndex << " " << electrodeIndex << endmsg;
               continue;
             }
             if (m_c->iWheel==EMECHVModule::INNER && index>1024) {
-              std::cout << "invalid index inner " << index << " side,eta,phi,sector,electrode " << sideIndex << " " << etaIndex << " " << phiIndex <<
-                " " << sectorIndex << " " << electrodeIndex << std::endl;
+              MsgStream msg (Athena::getMessageSvc(), "EMECHVManager");
+              msg << MSG::ERROR << "invalid index inner " << index << " side,eta,phi,sector,electrode " << sideIndex << " " << etaIndex << " " << phiIndex <<
+                " " << sectorIndex << " " << electrodeIndex << endmsg;
               continue;
             }
 	  
             unsigned int gapIndex=m_c->elecId->gap(elecHWID);
             if (gapIndex>1) {
-              std::cout << "invalid gapIndex " << gapIndex << std::endl;
+              MsgStream msg (Athena::getMessageSvc(), "EMECHVManager");
+              msg << MSG::ERROR << "invalid gapIndex " << gapIndex << endmsg;
               continue;
             }
             if (sideIndex==0) gapIndex=1-gapIndex;
