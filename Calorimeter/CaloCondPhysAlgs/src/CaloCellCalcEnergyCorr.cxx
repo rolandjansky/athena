@@ -243,9 +243,11 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const HVData& hvdata,
         const EMECHVElectrode& electrode = cell->getElectrode(i);
         const EMECHVManager::EMECHVData& hvdata_EMEC =
           electrode.getModule().getWheelIndex() == EMECHVModule::INNER ?
-          hvdata.m_hvdata_EMEC_IN :
-          hvdata.m_hvdata_EMEC_OUT ;
-        for (unsigned int igap=0;igap<2;igap++) hv.insert(hvdata_EMEC.hvLineNo (electrode, igap));
+            hvdata.m_hvdata_EMEC_IN :
+            hvdata.m_hvdata_EMEC_OUT ;
+        for (unsigned int igap=0;igap<2;igap++) {
+          hv.insert(hvdata_EMEC.hvLineNo (electrode, igap));
+        }
       }
     }
   } else if (m_larhec_id->is_lar_hec(id)) { // LAr HEC
