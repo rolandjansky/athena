@@ -101,7 +101,8 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
     *m_log << MSG::FATAL <<
       "PixelGmxInterface::makePixelModule: Error: parameter carrierType should be electrons or holes for " <<
       typeName << endmsg;
-    exit(999);
+    throw runtime_error("PixelGmxInterface::makePixelModule: Error: parameter carrierType should be electrons or holes for " 
+			+ typeName);
   }
   string ros = getstr(typeName, "readoutSide", par);
   if (ros == "+") {
@@ -113,7 +114,7 @@ void PixelGmxInterface::makePixelModule(string typeName, map<string, string> &pa
   else {
     *m_log << MSG::FATAL <<
       "PixelGmxInterface::makePixelModule: Error: parameter readoutSide should be + or - for " << typeName << endmsg;
-    exit(999);
+    throw runtime_error("PixelGmxInterface::makePixelModule: Error: parameter readoutSide should be + or - for " + typeName);
   }
   getparm(typeName, "thickness", par, thickness);
   getparm(typeName, "circuitsPerColumn", par, circuitsPerColumn);
@@ -149,7 +150,7 @@ string PixelGmxInterface::getstr(const string typeName, const string name, const
   else {
     *m_log << MSG::FATAL << "PixelGmxInterface::addModuleType: Error: missing parameter " << name << " for " <<
                                       typeName << endmsg;
-    exit(999);
+    throw runtime_error("PixelGmxInterface::addModuleType: Error: missing parameter " + name + " for " + typeName);
   }
   
 }
@@ -185,7 +186,7 @@ void PixelGmxInterface::addModule(string typeName, map<string, int> &index, int 
   if (!design) {
     *m_log << MSG::FATAL << "PixelGmxInterface::addSensor: Error: Readout sensor type " << typeName << 
       " not found.\n" << endmsg;
-    exit(999);
+    throw runtime_error("PixelGmxInterface::addSensor: Error: Readout sensor type " + typeName + " not found.");
   }
   InDetDD::SiDetectorElement *detector = new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems);
   m_detectorManager->addDetectorElement(detector);
