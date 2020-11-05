@@ -14,8 +14,6 @@
     
 """
 
-from __future__ import print_function
-from past.builtins import cmp
 import functools
 
 #
@@ -170,9 +168,6 @@ class JobProperty(metaclass = _JobPropertyMeta):
             #        OTOH, JobProperty-derived classes are 'singleton'...
             return self() < rhs()
         return self() < rhs
-
-    def __cmp__(self, rhs):
-        return (self > rhs) - (self < rhs)    
 
     def __call__(self):
         return self.get_Value()  
