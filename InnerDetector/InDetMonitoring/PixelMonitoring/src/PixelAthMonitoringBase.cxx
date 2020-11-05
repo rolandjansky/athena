@@ -63,14 +63,18 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum( const VecAccumulator2DMap& ac
 ///
 /// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
 ///
-void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname, int lumiblock, float* values) const {
+void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname, int lumiblock, float* values, int nlayers) const {
   ATH_MSG_VERBOSE( "in fill1DProfLumiLayers()" );
 
   // Define the monitored variables
   auto lb = Monitored::Scalar<int>( prof1Dname + "_lb", lumiblock );
   auto val = Monitored::Scalar<float>( prof1Dname + "_val", 1.0);
 
-  for (int i = 0; i < PixLayers::COUNT; i++) {
+  int i_start = 0;
+  int i_end   = PixLayers::COUNT;
+  if (nlayers == PixLayers::NFEI3LAYERS) i_end = nlayers;
+  if (nlayers == PixLayers::COUNT - PixLayers::NFEI3LAYERS) i_start = PixLayers::NFEI3LAYERS;
+  for (int i = i_start; i < i_end; i++) {
     val = values[i];
     fill( pixLayersLabel[i], lb, val);
   }

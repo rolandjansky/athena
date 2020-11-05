@@ -14,7 +14,7 @@ class PixelID;
 
 class PixLayers {
  public:
-  enum PixLayersID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, kDBMA, kDBMC, COUNT};
+  enum PixLayersID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, NFEI3LAYERS=kIBL, kDBMA, kDBMC, COUNT};
 };
 const std::string pixLayersLabel[PixLayers::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "DBMA", "DBMC"};
 const float inv_nmod_per_layer[PixLayers::COUNT] = {1./144., 1./144., 1./286., 1./494., 1./676., 1./448., 1./12., 1./12.};
@@ -41,7 +41,7 @@ namespace PixMon {
 class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
 
  public:
-  void fill1DProfLumiLayers( const std::string& prof1Dname, int lb, float* weights ) const;
+  void fill1DProfLumiLayers( const std::string& prof1Dname, int lb, float* weights, int nlayers = PixLayers::COUNT ) const;
   void fill2DProfLumiLayers( const std::string& prof2Dname, int lb, float (*weights)[PixLayers::COUNT], const int* nCategories ) const;
 
   int getPixLayersID(int ec, int ld) const;
