@@ -223,11 +223,10 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     // Convert tracks to Acts::BoundParameters
     std::vector<TrackWrapper> allTracks;
 
+    std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
+      Acts::Surface::makeShared<Acts::PerigeeSurface>((trackVector[0])->parameters()->associatedSurface().transform());
+
     for (const auto& trk : trackVector) {
-
-      std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
-      Acts::Surface::makeShared<Acts::PerigeeSurface>(trk->parameters()->associatedSurface().transform());
-
       const auto& trkParams = trk->parameters();
       const auto& params = trkParams->parameters();
 
