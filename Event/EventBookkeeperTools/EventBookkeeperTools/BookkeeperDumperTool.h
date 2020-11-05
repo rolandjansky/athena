@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENT_BOOKKEEPER_TOOLS__BOOKKEEPER_DUMPER_TOOL_H
@@ -46,6 +46,7 @@ public:
   virtual StatusCode endInputFile(const SG::SourceID &) final { return StatusCode::SUCCESS; }
 #endif
 
+  Gaudi::Property<bool> m_allVariations{this, "AllVariations", false, "Dump all variations"};
   Gaudi::Property<bool> m_standaloneMode{this, "StandaloneMode", false, "Dump on initialize when running standalone"};
 };
 
