@@ -56,7 +56,7 @@ class JetChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        log.debug("Assembling chain " + self.chainName)
+        log.debug("Assembling chain %s", self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 

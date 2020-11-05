@@ -33,8 +33,7 @@ def extractRecoDict(chainParts):
                 # found the key, check for consistency with other chain parts of this chain
                 if k in recoDict.keys():
                     if p[k] != recoDict[k]:
-                        log.error('Inconsistent reco setting for' + k)
-                        exit(1)
+                        raise RuntimeError('Inconsistent reco setting for %s' % k)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
 

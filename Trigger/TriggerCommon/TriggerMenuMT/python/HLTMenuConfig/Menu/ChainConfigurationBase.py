@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -47,7 +47,7 @@ class ChainConfigurationBase(object):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
         if self.mult >1 :
             stepName = 'Step%d'%stepID + '_N' + stepPartName
-        log.debug("Configuring step " + stepName)
+        log.debug("Configuring step %s", stepName)
         seqArray = []
         for sequenceCfg in sequenceCfgArray:
             seqArray.append( RecoFragmentsPool.retrieve( sequenceCfg, None))
@@ -55,7 +55,7 @@ class ChainConfigurationBase(object):
 
     def getEmptyStep(self, stepID, stepPartName):
         stepName = 'Step%d'%stepID + '_%d'%self.mult + stepPartName
-        log.debug("Configuring empty step " + stepName)        
+        log.debug("Configuring empty step %s", stepName)
         return ChainStep(stepName, Sequences=[], multiplicity=[] ,chainDicts=[self.dict])
  
     def buildChain(self, chainSteps):

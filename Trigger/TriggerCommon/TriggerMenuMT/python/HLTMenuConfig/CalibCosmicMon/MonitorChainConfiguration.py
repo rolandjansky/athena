@@ -47,7 +47,7 @@ class MonitorChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):                            
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         if self.chainPartName == 'costmonitor':
             pass  # costmonitor is a streamer so has no steps
