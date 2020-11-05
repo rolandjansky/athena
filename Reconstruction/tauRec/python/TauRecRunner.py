@@ -85,7 +85,6 @@ class TauRecRunner ( TauRecRunConfigured ) :
                                                          OutputVarname="RNNEleScore", MaxTracks=10, MaxClusters=6))
             tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
-            tools.append(taualgs.getTauEleOLRDecorator())              
             
             ################################
 
