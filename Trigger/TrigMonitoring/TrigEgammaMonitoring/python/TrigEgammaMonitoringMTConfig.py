@@ -8,6 +8,7 @@
 
 
 #from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_electron, monitoring_photon, monitoringTP_electronJpsiee, monitoringTP_electron
+from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron, SelectionDefPhoton
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 import cppyy
@@ -246,6 +247,12 @@ class TrigEgammaMonAlgBuilder:
     MediumPhotonSelector              = CfgMgr.AsgPhotonIsEMSelector( "T0HLTMediumPhotonSelector" )
     TightPhotonSelector               = CfgMgr.AsgPhotonIsEMSelector( "T0HLTTightPhotonSelector" )
 
+    LoosePhotonSelector.ForceConvertedPhotonPID = True
+    LoosePhotonSelector.isEMMask = SelectionDefPhoton.PhotonLoose
+    MediumPhotonSelector.ForceConvertedPhotonPID = True
+    MediumPhotonSelector.isEMMask = SelectionDefPhoton.PhotonMedium
+    TightPhotonSelector.ForceConvertedPhotonPID = True
+    TightPhotonSelector.isEMMask = SelectionDefPhoton.PhotonTight
 
 
     acc.addPublicTool(LooseElectronSelector)
