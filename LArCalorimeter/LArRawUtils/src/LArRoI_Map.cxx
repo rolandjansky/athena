@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawUtils/LArRoI_Map.h" 
@@ -65,9 +65,6 @@ StatusCode LArRoI_Map::initialize()
   ATH_CHECK( detStore()->regFcn(&LArCablingLegacyService::iovCallBack,&(*m_cablingSvc),
                                 &LArRoI_Map::iovCallBack,
                                 this,true) );
-  ATH_CHECK(  detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,&(*m_ttSvc),
-                                 &LArRoI_Map::iovCallBack,
-                                 this,true) ) ;
 
   if (m_loadAtBegin) {
     ATH_MSG_DEBUG( "Setting callback function to load id map at begin of run"  );
