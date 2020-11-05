@@ -214,7 +214,7 @@ class SequenceFilterNode(AlgNode):
     def __init__(self, Alg, inputProp, outputProp):
         AlgNode.__init__(self,  Alg, inputProp, outputProp)
 
-    def addChain(self, name, input_index):
+    def addChain(self, name, input_name):
         return
 
     def getChains(self):
