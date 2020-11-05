@@ -2,7 +2,7 @@
 
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
-    ChainStep, Chain, createStepView, EmptyMenuSequence
+    ChainStep, Chain, createStepView, EmptyMenuSequence, InViewReco
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -37,7 +37,7 @@ def generateChains( flags,  chainDict ):
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
-    fastCaloSequence = CAMenuSequence( Sequence    = l2CaloReco.sequence(),
+    fastCaloSequence = CAMenuSequence( Sequence  = l2CaloReco.sequence(),
                                      Maker       = l2CaloReco.inputMaker(),
                                      Hypo        = l2CaloHypo,
                                      HypoToolGen = TrigEgammaFastCaloHypoToolFromDict, 
@@ -55,11 +55,33 @@ def generateChains( flags,  chainDict ):
     accTrk = ComponentAccumulator()
     accTrk.addSequence(stepView)
 
-    # # # fast ID
-    from TrigInDetConfig.TrigInDetConfig import indetInViewRecoCfg
-    fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet', signature='Electron')
-    accTrk.merge( fastInDetReco, sequenceName=stepReco.getName() )
-    # TODO once tracking fully works remove fake hypos
+    # # # fast ID (need to be customised because require secialised configuration of the views maker - i.e. parent has to be linked)
+    name = "IMFastElectron"
+    evtViewMaker = CompFactory.EventViewCreatorAlgorithm(name,
+                                                          ViewFallThrough = True,
+                                                          RoIsLink        = 'initialRoI',
+                                                          RoITool         = CompFactory.ViewCreatorInitialROITool(),
+                                                          InViewRoIs      = name+'RoIs',
+                                                          Views           = name+'Views',
+                                                          ViewNodeName    = name+"InView",
+                                                          RequireParentView = True)
+    del name
+
+    from TrigInDetConfig.TrigInDetConfig import trigInDetCfg
+    idTracking = trigInDetCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName="Electron")
+
+    fastInDetReco = InViewReco("FastElectron", viewMaker=evtViewMaker)
+    fastInDetReco.mergeReco(idTracking)
+    fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier( name = 'VDVElectronFastCalo',
+                              DataObjects=[('xAOD::TrigEMClusterContainer' , 'StoreGateSvc+HLT_FastCaloEMClusters')]) )
+
+    from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import fastElectronFexAlgCfg
+    fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=evtViewMaker.InViewRoIs))
+
+    accTrk.merge(fastInDetReco, sequenceName=stepReco.getName())
+
+    accVDVCalo = ComponentAccumulator()
+
 
 
     # TODO remove once full tracking is in place
@@ -71,11 +93,11 @@ def generateChains( flags,  chainDict ):
 
     accTrk.addEventAlgo(fakeHypoAlg, sequenceName=stepView.getName())
 
-    fastInDetSequence = CAMenuSequence( Sequence    = fastInDetReco.sequence(),
-                                      Maker       = fastInDetReco.inputMaker(),
-                                      Hypo        = fakeHypoAlg,
-                                      HypoToolGen = makeFakeHypoTool,
-                                      CA = accTrk)
+    fastInDetSequence = CAMenuSequence(Sequence    = fastInDetReco.sequence(),
+                                       Maker       = fastInDetReco.inputMaker(),
+                                       Hypo        = fakeHypoAlg,
+                                       HypoToolGen = makeFakeHypoTool,
+                                       CA = accTrk)
 
     fastInDetStep = ChainStep( name=secondStepName, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
@@ -89,6 +111,6 @@ def generateChains( flags,  chainDict ):
     
     # # # offline egamma
     emptyStep = ChainStep(name="EmptyElStep", Sequences=[EmptyMenuSequence("EmptyElStep")], chainDicts=[chainDict])
-    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep, emptyStep] )
+    chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep, emptyStep])
     
     return chain

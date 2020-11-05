@@ -367,7 +367,7 @@ def TrigInDetCondCfg( flags ):
   acc.merge( mfsc )
   return acc
 
-def TrigInDetConfig( inflags, roisKey="EMRoIs", signatureName='' ):
+def trigInDetCfg( inflags, roisKey="EMRoIs", signatureName='' ):
 
   # redirect InDet.Tracking flags to point to a specific trigger setting
   flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
@@ -665,19 +665,6 @@ def TrigInDetConfig( inflags, roisKey="EMRoIs", signatureName='' ):
 
   return acc
 
-def indetInViewRecoCfg( flags, viewMakerName, signature='' ):
-  """ TBD if this function should be defined here or moved to the menu are, for sake of symmetry it is kept here now
-  There would certainly be additional algorithms
-  """
-
-  from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
-  reco = InViewReco( viewMakerName )
-  algAcc = TrigInDetConfig( flags, roisKey=reco.inputMaker().InViewRoIs, signatureName=signature )
-
-  reco.mergeReco( algAcc )
-  return reco
-
-
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -704,7 +691,7 @@ if __name__ == "__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(ConfigFlags))
 
-    acc.merge( indetInViewRecoCfg( ConfigFlags, viewMakerName="IMTest", signature="Electron" ) )
+    acc.merge( trigInDetCfg( ConfigFlags, viewMakerName="IMTest", signature="Electron" ) )
     from RegionSelector.RegSelConfig import regSelCfg
     rsc = regSelCfg( ConfigFlags )
     acc.merge( rsc )
