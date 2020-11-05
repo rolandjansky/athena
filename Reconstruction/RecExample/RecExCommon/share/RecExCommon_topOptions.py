@@ -582,6 +582,10 @@ if rec.readESD() and rec.doAOD():
             metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
                               "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
             objKeyStore.addManyTypesMetaData( metadataItems )
+        # Add L1 output (to be consistent with R2)
+        from TrigEDMConfig.TriggerEDM import getLvl1AODList
+        objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
+
     else: # not TriggerFlags.doMT()
         pass # See TriggerJobOpts/python/TriggerGetter.py for Run 2. Called by RecExCommon
 
