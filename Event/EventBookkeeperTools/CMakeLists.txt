@@ -10,7 +10,7 @@ if( XAOD_STANDALONE )
    set( xaod_access_lib xAODRootAccess )
 # ... for AthAnalysisBase (Athena calls this POOLRootAccess)
 else()
-   set( extra_libs GaudiKernel AthenaKernel AthenaPoolUtilities EventInfo IOVDbDataModel )
+   set( extra_libs GaudiKernel AthenaKernel AthenaPoolUtilities EventInfo IOVDbDataModel StoreGateLib )
    set( xaod_access_lib POOLRootAccessLib )
 endif()
 
@@ -34,8 +34,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_component( EventBookkeeperTools
                         src/*.cxx
                         src/components/*.cxx
-                        LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel EventBookkeeperToolsLib
-                                       SGTools StoreGateLib EventBookkeeperMetaData )
+                        LINK_LIBRARIES GaudiKernel AthenaKernel EventBookkeeperToolsLib)
 endif()
 
 atlas_add_executable( dump-cbk

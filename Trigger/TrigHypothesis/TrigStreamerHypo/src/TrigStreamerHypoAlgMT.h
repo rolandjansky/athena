@@ -27,6 +27,9 @@ class TrigStreamerHypoAlgMT : public ::HypoBase {
 
   ToolHandleArray<ITrigStreamerHypoToolMT> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};
+
+  Gaudi::Property<bool> m_setInitialRoiAsFeature {
+    this, "SetInitialRoIAsFeature", false, "For use in a passthrough step 1"};
      
 }; 
 

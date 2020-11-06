@@ -33,8 +33,7 @@ namespace LVL1BS {
 CpByteStreamCnv::CpByteStreamCnv( ISvcLocator* svcloc )
     : Converter( storageType(), classID(), svcloc ),
       m_name("CpByteStreamCnv"),
-      m_tool("LVL1BS::CpByteStreamTool/CpByteStreamTool"),
-      m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name)
+      m_tool("LVL1BS::CpByteStreamTool/CpByteStreamTool")
 {
 }
 
@@ -60,7 +59,6 @@ long CpByteStreamCnv::storageType()
 StatusCode CpByteStreamCnv::initialize()
 {
   ATH_CHECK( Converter::initialize() );
-  ATH_CHECK( m_ByteStreamEventAccess.retrieve() );
   ATH_CHECK( m_tool.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -71,8 +69,6 @@ StatusCode CpByteStreamCnv::initialize()
 StatusCode CpByteStreamCnv::createRep( DataObject* pObj,
                                         IOpaqueAddress*& pAddr )
 {
-  RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
-
   LVL1::CPBSCollection* cp = 0;
   if( !SG::fromStorable( pObj, cp ) ) {
     REPORT_ERROR (StatusCode::FAILURE) << " Cannot cast to CPBSCollection";
@@ -86,7 +82,7 @@ StatusCode CpByteStreamCnv::createRep( DataObject* pObj,
   pAddr = addr;
 
   // Convert to ByteStream
-  return m_tool->convert( cp, re );
+  return m_tool->convert( cp );
 }
 
 } // end namespace

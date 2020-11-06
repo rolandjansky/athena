@@ -962,13 +962,13 @@ class pixelClusterSplitProb1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.6
+   StoredValue = 0.55
 
 class pixelClusterSplitProb2 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into three parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.2
+   StoredValue = 0.45
 
 class pixelClusterSplitProb1_run1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
@@ -1152,10 +1152,10 @@ class doNNToTCalibration(InDetFlagsJobProperty):
   StoredValue  = False
 
 class useNNTTrainedNetworks(InDetFlagsJobProperty):
-  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available."""
+  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available. True gives rel21 (Run 2) configuration."""
   statusOn     = True
   allowedTypes = ['bool']
-  StoredValue  = True
+  StoredValue  = False
 
 class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
   """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 

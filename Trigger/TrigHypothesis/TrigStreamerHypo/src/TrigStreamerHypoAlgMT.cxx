@@ -6,6 +6,7 @@
 #include "Gaudi/Property.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using namespace TrigCompositeUtils;
 
@@ -46,6 +47,13 @@ StatusCode TrigStreamerHypoAlgMT::execute( const EventContext& context ) const {
   
   // Create output Decision object, link it to prevDecision & its "feature"
   auto newDecision = TrigCompositeUtils::newDecisionIn(newDecisions, previousDecision, "", context);
+
+  // We may want to use this as a 1st step PassThrough hypo
+  // In this case, we need to be more explicit about setting a feature on the Decision object
+  if(m_setInitialRoiAsFeature && !newDecision->hasObjectLink(featureString())) {
+    newDecision->setObjectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::featureString(), 
+							    TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDecision, TrigCompositeUtils::initialRoIString()).link);
+  }
   
   // Get set of active chains
   const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs{

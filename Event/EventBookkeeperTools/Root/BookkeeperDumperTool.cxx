@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
  * @file BookkeeperDumperTool.cxx
  * @brief Implementation of class BookkeeperDumperTool
  */
- 
+
 #include <xAODCutFlow/CutBookkeeperContainer.h>
 
 #include <EventBookkeeperTools/BookkeeperDumperTool.h>
@@ -34,41 +34,77 @@ StatusCode BookkeeperDumperTool::initialize()
 StatusCode BookkeeperDumperTool::beginInputFile()
 {
   // Complete CutBookkeepers
-  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>("CutBookkeepers")) {
-    const xAOD::CutBookkeeperContainer* completeBookkeepers = nullptr;
-    ATH_CHECK(inputMetaStore()->retrieve(completeBookkeepers, "CutBookkeepers"));
-
-    ATH_MSG_INFO("Complete CBK size = " << completeBookkeepers->size());
-    for (const xAOD::CutBookkeeper *cbk : *completeBookkeepers) {
-      ATH_MSG_INFO("Complete CBK"
-                   << " name= " << cbk->name()
-                   << " cycle=" << cbk->cycle()
-                   << " stream=" << cbk->inputStream()
-                   << " N=" << cbk->nAcceptedEvents()
-                   << " W=" << cbk->sumOfEventWeights()
-                   << " nc=" << cbk->nChildren());
+  size_t index{};
+  while (true)
+  {
+    std::string name{"CutBookkeepers"};
+    if (index > 0) {
+      name.append("_weight_");
+      name.append(std::to_string(index));
     }
-  } else {
-    ATH_MSG_INFO("No complete CutBookkeepers found");
+
+    if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(name)) {
+      const xAOD::CutBookkeeperContainer* completeBookkeepers{};
+      ATH_CHECK(inputMetaStore()->retrieve(completeBookkeepers, name));
+
+      ATH_MSG_INFO("Complete CBK " << name << " size = " << completeBookkeepers->size());
+      for (const xAOD::CutBookkeeper *cbk : *completeBookkeepers) {
+        ATH_MSG_INFO("Complete CBK"
+                    << " name= " << cbk->name()
+                    << " cycle=" << cbk->cycle()
+                    << " stream=" << cbk->inputStream()
+                    << " N=" << cbk->nAcceptedEvents()
+                    << " W=" << cbk->sumOfEventWeights()
+                    << " nc=" << cbk->nChildren());
+      }
+      index++;
+    } else {
+      if (index == 0) {
+        ATH_MSG_INFO("No complete CutBookkeepers found");
+      }
+      break;
+    }
+
+    if (!m_allVariations) {
+      break;
+    }
   }
 
   // Incomplete CutBookkeepers
-  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>("IncompleteCutBookkeepers")) {
-    const xAOD::CutBookkeeperContainer* incompleteBookkeepers = nullptr;
-    ATH_CHECK(inputMetaStore()->retrieve(incompleteBookkeepers, "IncompleteCutBookkeepers"));
-
-    ATH_MSG_INFO("Incomplete CBK size = " << incompleteBookkeepers->size());
-    for (const xAOD::CutBookkeeper *cbk : *incompleteBookkeepers) {
-      ATH_MSG_INFO("Incomplete CBK"
-                   << " name= " << cbk->name()
-                   << " cycle=" << cbk->cycle()
-                   << " stream=" << cbk->inputStream()
-                   << " N=" << cbk->nAcceptedEvents()
-                   << " W=" << cbk->sumOfEventWeights()
-                   << " nc=" << cbk->nChildren());
+  index = 0;
+  while (true)
+  {
+    std::string name{"IncompleteCutBookkeepers"};
+    if (index > 0) {
+      name.append("_weight_");
+      name.append(std::to_string(index));
     }
-  } else {
-    ATH_MSG_INFO("No incomplete CutBookkeepers found");
+
+    if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>(name)) {
+      const xAOD::CutBookkeeperContainer* incompleteBookkeepers{};
+      ATH_CHECK(inputMetaStore()->retrieve(incompleteBookkeepers, name));
+
+      ATH_MSG_INFO("Incomplete CBK " << name << " size = " << incompleteBookkeepers->size());
+      for (const xAOD::CutBookkeeper *cbk : *incompleteBookkeepers) {
+        ATH_MSG_INFO("Incomplete CBK"
+                    << " name= " << cbk->name()
+                    << " cycle=" << cbk->cycle()
+                    << " stream=" << cbk->inputStream()
+                    << " N=" << cbk->nAcceptedEvents()
+                    << " W=" << cbk->sumOfEventWeights()
+                    << " nc=" << cbk->nChildren());
+      }
+      index++;
+    } else {
+      if (index == 0) {
+        ATH_MSG_INFO("No incomplete CutBookkeepers found");
+      }
+      break;
+    }
+
+    if (!m_allVariations) {
+      break;
+    }
   }
 
   // Complete PDF CutBookkeepers
@@ -89,9 +125,9 @@ StatusCode BookkeeperDumperTool::beginInputFile()
   } else {
     ATH_MSG_INFO("No PDF CutBookkeepers found");
   }
-  
+
   // Incomplete PDF CutBookkeepers
-  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>("IncompletePDFSumOfWeights")) {    
+  if (inputMetaStore()->contains<xAOD::CutBookkeeperContainer>("IncompletePDFSumOfWeights")) {
     const xAOD::CutBookkeeperContainer* pdfBookkeepers = nullptr;
     ATH_CHECK(inputMetaStore()->retrieve(pdfBookkeepers, "IncompletePDFSumOfWeights"));
 

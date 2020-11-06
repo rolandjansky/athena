@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from .Limits import CaloLimits as CL
 IsolationOff = CL.IsolationOff
@@ -6,7 +6,6 @@ IsolationOff = CL.IsolationOff
 from copy import deepcopy
 
 from past.builtins import cmp
-import six
 
 class ThresholdValue(object):
 
@@ -385,11 +384,8 @@ class LVL1Thresholds(object):
         return None
 
     def xml(self, ind=1, step=2):
-        if six.PY2:
-            self.thresholds.sort(LVL1Thresholds.compThreshold)
-        else:
-            import functools
-            self.thresholds.sort(key=functools.cmp_to_key(LVL1Thresholds.compThreshold))
+        import functools
+        self.thresholds.sort(key=functools.cmp_to_key(LVL1Thresholds.compThreshold))
         s = ind * step * ' ' + '<TriggerThresholdList>\n'
         for thr in self.thresholds:
             s += thr.xml(ind+1,step)

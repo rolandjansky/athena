@@ -6,7 +6,7 @@
 #define MUONCOMBINEDALGS_MUONCOMBINEDINDETEXTENSIONALG_H
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
@@ -20,13 +20,13 @@
 
 #include <string>
 
-class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
+class MuonCombinedInDetExtensionAlg : public AthReentrantAlgorithm {
   public:
     MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator);
     ~MuonCombinedInDetExtensionAlg()=default;
 
     StatusCode initialize();
-    StatusCode execute();
+    StatusCode execute(const EventContext& ctx) const;
 
   private:
     ToolHandleArray<MuonCombined::IMuonCombinedInDetExtensionTool> m_muonCombinedInDetExtensionTools{this,"MuonCombinedInDetExtensionTools",{}};

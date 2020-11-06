@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -35,7 +35,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
     # ----------------------
     def assembleBphysChain(self):
 
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         stepDictionary = self.getBphysStepDictionary()
         key = self.getBphysKey()

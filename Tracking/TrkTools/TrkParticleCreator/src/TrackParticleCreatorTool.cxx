@@ -86,9 +86,9 @@ createEProbabilityMap(std::map<std::string, std::pair<Trk::eProbabilityType, boo
   // added as decorations
   eprob_map.insert(std::make_pair("eProbabilityToT", std::make_pair(Trk::eProbabilityToT, true)));
   eprob_map.insert(std::make_pair("eProbabilityBrem", std::make_pair(Trk::eProbabilityBrem, true)));
-  eprob_map.insert(std::make_pair("TRTTrackOccupancy", std::make_pair(Trk::numberOfeProbabilityTypes, true)));
-  eprob_map.insert(std::make_pair(
-    "TRTdEdx", std::make_pair(static_cast<Trk::eProbabilityType>(Trk::numberOfeProbabilityTypes + 1), true)));
+  eprob_map.insert(std::make_pair("eProbabilityNN", std::make_pair(Trk::eProbabilityNN, true)));
+  eprob_map.insert(std::make_pair("TRTdEdx", std::make_pair(Trk::TRTdEdx, true)));
+  eprob_map.insert(std::make_pair("TRTTrackOccupancy", std::make_pair(Trk::TRTTrackOccupancy, true)));
 }
 
 void
@@ -106,7 +106,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
   , m_detID(nullptr)
   , m_pixelID(nullptr)
   , m_IBLParameterSvc("IBLParameterSvc", n)
-  , m_copyExtraSummaryName{ "eProbabilityComb", "eProbabilityHT", "TRTTrackOccupancy", "TRTdEdx", "TRTdEdxUsedHits" }
+  , m_copyExtraSummaryName{ "eProbabilityComb", "eProbabilityHT", "eProbabilityNN", "TRTTrackOccupancy", "TRTdEdx", "TRTdEdxUsedHits" }
   , m_copyEProbabilities{}
   , m_decorateEProbabilities{}
   , m_decorateSummaryTypes{}
@@ -1054,9 +1054,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
   }
 
   void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const TrackSummary& summary ) const {
-    // int types
-    unsigned int offset = 47;// where the floats start in xAOD::SummaryType
-
     // ensure that xAOD TrackSummary and TrackSummary enums are in sync.
     constexpr unsigned int xAodReferenceEnum=static_cast<unsigned int>(xAOD::pixeldEdx);
     constexpr unsigned int TrkReferenceEnum=static_cast<unsigned int>(Trk::pixeldEdx_res);
@@ -1067,9 +1064,8 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const s
       if ( i >= Trk::numberOfMdtHits && i <= Trk::numberOfRpcEtaHits ) continue;
       if ( i == Trk::numberOfCscUnspoiltEtaHits ) continue;
       if ( i >= Trk::numberOfCscEtaHoles && i <= Trk::numberOfTgcPhiHoles ) continue;
-      if ( i >= offset && i < offset+Trk::numberOfeProbabilityTypes+1){
-        continue;
-      }
+      // skip values which are floats
+      if ( std::find(floatSummaryTypes.begin(), floatSummaryTypes.end(), i) != floatSummaryTypes.end() ) continue;
       if ( i >= Trk::numberOfStgcEtaHits && i <= Trk::numberOfMmHoles) continue;
       // coverity[mixed_enums]
       if (i == Trk::numberOfTRTHitsUsedFordEdx ) continue;

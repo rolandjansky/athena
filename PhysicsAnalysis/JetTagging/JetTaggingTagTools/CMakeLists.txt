@@ -1,19 +1,7 @@
-################################################################################
-# Package: JetTaggingTagTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetTaggingTagTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          GaudiKernel
-                          PhysicsAnalysis/EventTag/TagEvent
-                          PRIVATE
-                          Reconstruction/Jet/JetEvent )
 
 # External dependencies:
 find_package( CLHEP )
@@ -24,13 +12,12 @@ atlas_add_library( JetTaggingTagToolsLib
                    PUBLIC_HEADERS JetTaggingTagTools
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities GaudiKernel TagEvent StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} JetEvent )
+                   LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities TagEvent StoreGateLib
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GaudiKernel JetEvent )
 
 atlas_add_component( JetTaggingTagTools
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps StoreGateLib SGtests AthenaPoolUtilities GaudiKernel TagEvent JetEvent JetTaggingTagToolsLib )
+                     LINK_LIBRARIES JetTaggingTagToolsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

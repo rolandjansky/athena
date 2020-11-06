@@ -18,7 +18,7 @@ class CalibChainConfiguration(ChainConfigurationBase):
     def assembleChain(self):       
                          
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
         if self.chainPartName == 'larnoiseburst':
            chainSteps.append(self.getLArNoiseBurst())
         myChain = self.buildChain(chainSteps)

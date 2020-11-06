@@ -65,12 +65,9 @@ private:
 
   /// Service for reading bytestream
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-  /// Service for writing bytestream
-  ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
 
   /// Message log
   bool m_debug;
-
 };
 
 } // end namespace

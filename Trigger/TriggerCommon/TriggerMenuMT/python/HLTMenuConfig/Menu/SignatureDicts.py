@@ -4,7 +4,6 @@ log = logging.getLogger( __name__ )
 log.info("Importing %s",__name__)
 
 from copy import deepcopy
-import six
 
 #==========================================================
 # This is stored in chainDict['Signature']
@@ -134,6 +133,7 @@ JetChainParts = {
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
     'trkopt'       : ['notrk','ftk','ftkrefit','ftf'],
+    'trkpresel'    : ['nopresel','preselj45'],
     'hypoScenario' : ['simple', 'vbenf',
                       'vbenfSEP30etSEP34mass35SEP50fbet',
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
@@ -172,6 +172,7 @@ JetChainParts_Default = {
     'bMatching'     : [],
     'dataScouting'  : '',
     'trkopt'        : 'notrk',
+    'trkpresel'     : 'nopresel',
     'hypoScenario'  : 'simple',
     'smc'           : 'nosmc',
     'sigFolder'     : 'Jet',
@@ -892,7 +893,7 @@ AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_Bphysics + Allowe
 #==========================================================
 def getSignatureNameFromToken(chainpart):
     theMatchingTokens = []
-    reverseSliceIDDict = dict([(value, key) for key, value in six.iteritems (SliceIDDict)]) #reversed SliceIDDict
+    reverseSliceIDDict = { value: key for key, value in SliceIDDict.items() } #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
         if (token in chainpart):
             theMatchingTokens += [token]

@@ -90,6 +90,8 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
       }
     }
   }
+  /// update detail level of all the child tools 
+  setDetailLevel(m_iDetailLevel); 
 }
 
 //

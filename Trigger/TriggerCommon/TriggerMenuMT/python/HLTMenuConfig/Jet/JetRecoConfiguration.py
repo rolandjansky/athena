@@ -19,11 +19,12 @@ def interpretJetCalibDefault(recoDict):
     elif recoDict['dataType'].endswith('pf'):
       return 'subresjesgscIS'
 
+recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','trkpresel']
+
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
     # interpret the reco configuration only
     # eventually should just be a subdict in the chainDict
-    recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','cleaning']
     recoDict = {}
     for p in chainParts:
         for k in recoKeys:
@@ -32,8 +33,7 @@ def extractRecoDict(chainParts):
                 # found the key, check for consistency with other chain parts of this chain
                 if k in recoDict.keys():
                     if p[k] != recoDict[k]:
-                        log.error('Inconsistent reco setting for' + k)
-                        exit(1)
+                        raise RuntimeError('Inconsistent reco setting for %s' % k)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
 
@@ -42,6 +42,40 @@ def extractRecoDict(chainParts):
         recoDict['jetCalib'] = interpretJetCalibDefault(recoDict)
 
     return recoDict
+
+# Translate the reco dict to a string for suffixing etc
+def jetRecoDictToString(jetRecoDict):
+    strtemp = "{recoAlg}_{dataType}_{calib}_{jetCalib}"
+    if jetRecoDict["trkopt"] != "notrk":
+        strtemp += "_{trkopt}_{trkpresel}"
+    return strtemp.format(**jetRecoDict)
+
+# Inverse of the above, essentially only for CF tests
+def jetRecoDictFromString(jet_def_string):
+
+    # Translate the definition string into an approximation
+    # of the "recoParts" in the jet chainParts.
+    jetRecoDict = {}
+    # Insert values from string
+    # Python names are more descriptive. May want to sync
+    # these names with the SignatureDict, needs coordination with
+    # menu group when they start to implement this
+    trkopt = "notrk"
+    trkpresel = "nopresel"
+    if "_ftf" in jet_def_string:
+        jetalg, inputtype, clusterscale, jetcalib, trkopt = jet_def_string.split('_')
+    else:
+        jetalg, inputtype, clusterscale, jetcalib = jet_def_string.split('_')
+
+    jetRecoDict = {
+        "recoAlg":   jetalg,
+        "dataType":  inputtype,
+        "calib":     clusterscale,
+        "jetCalib":  jetcalib,
+        "trkopt" :   trkopt,
+        "trkpresel": trkpresel
+    }
+    return jetRecoDict
 
 # Define the jet constituents to be interpreted by JetRecConfig
 # When actually specifying the reco, clustersKey should be

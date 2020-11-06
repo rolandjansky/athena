@@ -13,6 +13,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthContainers/DataVector.h"
 #include "eformat/SourceIdentifier.h"
@@ -72,12 +73,15 @@ class JepRoiByteStreamV2Tool : public AthAlgTool {
                       LVL1::CMXRoI* cmCollection) const;
 
    /// Convert JEP RoI Container to bytestream
-   StatusCode convert(const LVL1::JEPRoIBSCollectionV2* jep, RawEventWrite* re) const;
+   StatusCode convert(const LVL1::JEPRoIBSCollectionV2* jep) const;
 
    /// Return reference to vector with all possible Source Identifiers
    const std::vector<uint32_t>& sourceIDs(const std::string& sgKey) const;
 
  private:
+   ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+   { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+
    typedef DataVector<LVL1::JEMTobRoI>                   JemRoiCollection;
    typedef DataVector<LVL1::CMXEtSums>                   CmxSumsCollection;
    typedef std::map<uint32_t, const LVL1::JEMTobRoI*>    JemRoiMap;

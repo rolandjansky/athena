@@ -9,10 +9,10 @@
 from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist
 from PixelMonitoring.PixelAthMonitoringBase import defineMapVsLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
-from PixelMonitoring.PixelAthMonitoringBase import layers
+from PixelMonitoring.PixelAthMonitoringBase import layers, fei3layers, fei4layers
 from PixelMonitoring.PixelAthMonitoringBase import fullDressTitle
 from PixelMonitoring.PixelAthMonitoringBase import errbbinsy, errbminsy, errbbsizy, errtbinsy
-from PixelMonitoring.PixelAthMonitoringBase import ErrBitLabels, ErrCatRODModLabels, ErrCatLabels, ErrCatRODModLabelsNorm, ErrCatLabelsNorm
+from PixelMonitoring.PixelAthMonitoringBase import ErrCatRODModLabels, ErrCatLabels, ErrCatRODModLabelsNorm, ErrCatLabelsNorm
 from PixelMonitoring.PixelAthMonitoringBase import ErrStateLabelsFEI3, ErrStateLabelsFEI4
 
 def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
@@ -22,8 +22,10 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
          alg     -- algorithm Configurable object returned from addAlgorithm
          kwargs  -- jo agruments
     '''
+    doLumiBlock = kwargs.get('doLumiBlock', False)
     path        = '/Pixel/Errors/'
     pathExpert  = '/Pixel/ErrorsExpert/'
+    pathLowStat = '/Pixel/LumiBlock/'
 
     errorGroup = helper.addGroup(alg, 'Error')
 
@@ -32,9 +34,12 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
     yaxistext      = ';# errors/event'
     define1DProfLumiLayers(helper, alg, histoGroupName, title, path, yaxistext, type='TProfile')
 
-    histoGroupName = 'ErrorBit_per_lumi'
-    title          = 'Average Errors by Error Bits'
-    defineMapVsLumiLayers(helper, alg, histoGroupName, title, path, ';lumi block', ';error bit', ybins=errbbinsy, ymins=errbminsy, binsizes=errbbsizy, ylabels=ErrBitLabels, type='TProfile2D')
+    histoGroupName = 'ErrorState_per_lumi'
+    title          = 'Average Errors by Error States'
+    ylabels        = [[i[1] for i in ErrStateLabelsFEI3]]*len(layers)
+    defineMapVsLumiLayers(helper, alg, histoGroupName, title, path, ';lumi block', ';error state', ybins=errbbinsy, ymins=errbminsy, binsizes=errbbsizy, ylabels=ylabels, type='TProfile2D', onlylayers=fei3layers)
+    ylabels        = [[i[1] for i in ErrStateLabelsFEI4]]*len(layers)
+    defineMapVsLumiLayers(helper, alg, histoGroupName, title, path, ';lumi block', ';error state', ybins=errbbinsy, ymins=errbminsy, binsizes=errbbsizy, ylabels=ylabels, type='TProfile2D', onlylayers=fei4layers)
 
     histoGroupName = 'ErrorCatRODMod_per_lumi'
     title          = 'Average Errors by Error Types'
@@ -66,47 +71,49 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
 
     histoGroupName = "femcc_errorwords"
     title          = "Average FE/MCC Error Words"
-    define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D', onlylayers=fei3layers)
 
-    histoGroupName = "Errors_LB"
-    title          = "Errors"
-    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F', lifecycle='lowStat')
+    if doLumiBlock:
+        histoGroupName = "Errors_LB"
+        title          = "Errors"
+        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', doWeight=True, lifecycle='lowStat')
 
-    histoGroupName = "Errors_ModSync_LB"
-    title          = "Errors_ModSync"
-    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F', lifecycle='lowStat')
+        histoGroupName = "Errors_ModSync_LB"
+        title          = "Errors_ModSync"
+        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lowStat')
 
-    histoGroupName = "Errors_RODSync_LB"
-    title          = "Errors_RODSync"
-    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F', lifecycle='lowStat')
+        histoGroupName = "Errors_RODSync_LB"
+        title          = "Errors_RODSync"
+        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lowStat')
 
     for state in ErrStateLabelsFEI3:
         histoGroupName = state[0]+"_Map"
         title          = state[1]+" per event per LB"
-        define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F')
+        define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
         histoGroupName = state[0]+"_per_lumi"
         title          = 'Average '+state[1]
         yaxistext      = ';# errors/event'
-        define1DProfLumiLayers(helper, alg, histoGroupName, title, pathExpert, yaxistext, type='TProfile')
+        define1DProfLumiLayers(helper, alg, histoGroupName, title, pathExpert, yaxistext, type='TProfile', onlylayers=fei3layers)
 
     for state in ErrStateLabelsFEI4:
         histoGroupName = state[0]+"_Map"
         title          = state[1]+" per event per LB"
-        define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F')
+        define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
         histoGroupName = state[0]+"_per_lumi"
         title          = 'Average '+state[1]
         yaxistext      = ';# errors/event'
-        define1DProfLumiLayers(helper, alg, histoGroupName, title, pathExpert, yaxistext, type='TProfile')
+        define1DProfLumiLayers(helper, alg, histoGroupName, title, pathExpert, yaxistext, type='TProfile', onlylayers=fei4layers)
 
     varName = 'ServiceRecord_val'
     title = fullDressTitle('IBL ServiceRecord Unweighted', False, ';SR',';# errors/event')
     varName += ';ServiceRecord_Unweighted_IBL'
     errorGroup.defineHistogram(varName, 
                                type='TH1F', path=pathExpert, title=title,
-                               xbins=40, xmin=-0.5, xmax=39.5)
+                               xbins=32, xmin=-0.5, xmax=31.5)
     varName = 'ServiceRecord_val'
     title = fullDressTitle('IBL ServiceRecord Weighted with Payload', False, ';SR',';# errors/event')
     varName += ';ServiceRecord_Weighted_IBL'
     errorGroup.defineHistogram(varName, weight='ServiceRecord_wgt',
                                type='TH1F', path=pathExpert, title=title,
-                               xbins=40, xmin=-0.5, xmax=39.5)
+                               xbins=32, xmin=-0.5, xmax=31.5)
+ 

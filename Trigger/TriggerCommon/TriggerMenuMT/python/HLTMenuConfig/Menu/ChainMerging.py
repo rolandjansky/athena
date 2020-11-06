@@ -127,13 +127,13 @@ def serial_zip(allSteps, chainName, chainDefList):
     newsteps = []
     for chain_index, chainsteps in enumerate(allSteps):
         for step_index, step in enumerate(chainsteps):
-            log.debug('chain_index: ' + str(chain_index) + " step_index: " + str(step_index))
+            log.debug('chain_index: %s step_index: %s', chain_index, step_index)
             # create list of correct length
             stepList = [None]*n_chains
             
             # put the step from the current sub-chain into the right place
             stepList[chain_index] = step
-            log.debug('Put step: ' + str(step.name))
+            log.debug('Put step: %s', step.name)
 
             # all other steps should contain an empty sequence
             for step_index2, emptyStep in enumerate(stepList):

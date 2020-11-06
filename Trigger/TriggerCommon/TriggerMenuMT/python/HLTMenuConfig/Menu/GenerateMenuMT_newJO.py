@@ -6,7 +6,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import generateDecisionT
 from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainMerging import mergeChainDefs
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitInterSignatureChainDict
-from six import iteritems
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -46,7 +45,7 @@ def generateMenu( flags ):
     menuAcc.addSequence( seqAND(mainSequenceName) )
 
 
-    for name, cfgFlag in list(iteritems(flags._flagdict)):
+    for name, cfgFlag in list(flags._flagdict.items()):
         if 'Trigger.menu.' not in name:
             continue
         value = flags._get(name)
@@ -86,7 +85,7 @@ def generateMenu( flags ):
                 signature = chainDict['signature'].lower()
 
                 if signature not in signatureToGenerator:
-                    log.warning('Generator for {} is missing. Chain dict will not be built'.format(signature))
+                    log.warning('Generator for %s is missing. Chain dict will not be built', signature)
                     continue
 
                 chainConfig = signatureToGenerator[signature](flags, chainDict)

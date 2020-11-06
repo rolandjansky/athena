@@ -14,7 +14,7 @@
 #include "LArIdentifier/LArOnlID_Exception.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
-#include "LArCabling/LArCablingLegacyService.h"
+#include "CaloIdentifier/LArEM_ID.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -23,7 +23,6 @@ CaloTriggerTowerService::CaloTriggerTowerService( const std::string& type,
 						const std::string& name,
 						const IInterface* parent )
   : AthAlgTool(type,name,parent),
-    m_larcablingSvc(nullptr) ,
     m_onlineHelper(nullptr) ,
     m_emHelper(nullptr) ,
     m_lvl1Helper(nullptr) ,
@@ -95,50 +94,6 @@ StatusCode CaloTriggerTowerService::initialize ()
     msg() << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endmsg;
   }
 
-
-  status= detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,this,
-			     m_TTCellMap,m_TTCellMapKey);
-  if (status.isFailure()) {
-    msg() << MSG::ERROR << "Unable to regFcn for "<<m_TTCellMapKey << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-
-  status= detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,this,
-			     m_caloTTOnOffIdMap,m_caloTTOnOffIdMapKey);
-  if (status.isFailure()) {
-    msg() << MSG::ERROR << "Unable to regFcn for "<<m_caloTTOnOffIdMapKey << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-
-  status= detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,this,
-			     m_caloTTOnAttrIdMap,m_caloTTOnAttrIdMapKey);
-  if (status.isFailure()) {
-    msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTOnAttrIdMapKey << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  status= detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,this,
-			     m_caloTTPpmRxIdMap,m_caloTTPpmRxIdMapKey);
-  if (status.isFailure()) {
-    msg() << MSG::ERROR << "Unable to regFcn for "<< m_caloTTPpmRxIdMapKey << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  IToolSvc* toolSvc;
-  status   = service( "ToolSvc",toolSvc  );
-  if(status.isSuccess()) {
-    status = toolSvc->retrieveTool("LArCablingLegacyService",m_larcablingSvc);
-    if(status.isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve LArCablingLegacyService"<< endmsg;
-      return(StatusCode::FAILURE);
-    }
-  } else    {
-    msg() << MSG::ERROR << "Could not get ToolSvc"<< endmsg;
-    return(StatusCode::FAILURE);
-  }
-
   msg()<<MSG::INFO<<" ====> ...CaloTriggerTowerService::init() OK "<< endmsg;
   return StatusCode::SUCCESS;
 }
@@ -155,7 +110,7 @@ StatusCode CaloTriggerTowerService::finalize ()
 //===========================================================
 bool CaloTriggerTowerService::is_initialized () const
 {
-  return m_TTCellMap.isValid()&&m_caloTTOnOffIdMap.isValid()&&m_caloTTOnAttrIdMap.isValid();
+  return getTTCellMap() != nullptr && getCaloTTOnOffIdMap() != nullptr && getCaloTTOnAttrIdMap() != nullptr;
 }
 
 
@@ -165,7 +120,8 @@ HWIdentifier  CaloTriggerTowerService::createTTChannelID(const Identifier & id, 
 
 	HWIdentifier invalidId (0);
 
-	if(!m_caloTTOnOffIdMap ) {// no mapping object
+        const CaloTTOnOffIdMap* caloTTOnOffIdMap = getCaloTTOnOffIdMap();
+	if(!caloTTOnOffIdMap ) {// no mapping object
 		msg() << MSG::ERROR << " No CaloTTOnOffIdMap !" << endmsg;
 		msg() << MSG::ERROR << " Has the DB folder holding the CaloTTOnOffIdMap been added to IOVDbSvc ? " << endmsg;
 		msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
@@ -174,7 +130,7 @@ HWIdentifier  CaloTriggerTowerService::createTTChannelID(const Identifier & id, 
 	} else {
 
 		// have mapping object, forward the call
-		HWIdentifier sid = m_caloTTOnOffIdMap->createSignalChannelID( id ) ;
+                HWIdentifier sid = caloTTOnOffIdMap->createSignalChannelID( id ) ;
 		if(bQuiet) {
 			return sid;
 
@@ -196,7 +152,8 @@ Identifier  CaloTriggerTowerService::cnvToIdentifier(const HWIdentifier & id, bo
 {
 	Identifier invalidId (0);
 
-	if(!m_caloTTOnOffIdMap ) {
+        const CaloTTOnOffIdMap* caloTTOnOffIdMap = getCaloTTOnOffIdMap();
+	if(!caloTTOnOffIdMap ) {
 		msg() << MSG::ERROR << " No CaloTTOnOffIdMap !" << endmsg;
 		msg() << MSG::ERROR << " Has the DB folder holding the CaloTTOnOffIdMap been added to IOVDbSvc ? " << endmsg;
 		msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
@@ -204,13 +161,12 @@ Identifier  CaloTriggerTowerService::cnvToIdentifier(const HWIdentifier & id, bo
 
 	} else {
 		// mapping object exist, forward the call
-		Identifier offid = m_caloTTOnOffIdMap->cnvToIdentifier(id, bQuiet);
+                Identifier offid = caloTTOnOffIdMap->cnvToIdentifier(id, bQuiet);
 		if(bQuiet) {
 			return offid;
 
 		} else {
-			static Identifier def = Identifier()  ;
-			if(offid==def) {
+			if(!offid.is_valid()) {
 				CaloID_Exception except;
 				except.code(6) ;
 				except.message(" Online ID not found in map ") ;
@@ -225,7 +181,8 @@ L1CaloCoolChannelId CaloTriggerTowerService::cnvRxIdToCoolChannelId(const L1Calo
 
    L1CaloCoolChannelId invalidId;
 
-   if(!m_caloTTPpmRxIdMap ) {
+   const CaloTTPpmRxIdMap* caloTTPpmRxIdMap = getCaloTTPpmRxIdMap();
+   if(!caloTTPpmRxIdMap ) {
      msg() << MSG::ERROR << " No CaloTTPpmRxIdMap !" << endmsg;
      msg() << MSG::ERROR << " Has the DB folder holding the CaloTTPpmRxIdMap been added to IOVDbSvc ? " << endmsg;
      msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
@@ -233,7 +190,7 @@ L1CaloCoolChannelId CaloTriggerTowerService::cnvRxIdToCoolChannelId(const L1Calo
 
    } else {
      // mapping object exist, forward the call
-     L1CaloCoolChannelId ppmId = m_caloTTPpmRxIdMap->rxToPpmId(rxCoolChannelId);
+     L1CaloCoolChannelId ppmId = caloTTPpmRxIdMap->rxToPpmId(rxCoolChannelId);
      if(ppmId==L1CaloCoolChannelId()) {
          CaloID_Exception except;
          except.code(6) ;
@@ -246,7 +203,8 @@ L1CaloCoolChannelId CaloTriggerTowerService::cnvRxIdToCoolChannelId(const L1Calo
 
 std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRxId(const L1CaloCoolChannelId& ppmCoolChannelId) const {
 
-   if(!m_caloTTPpmRxIdMap ) {
+   const CaloTTPpmRxIdMap* caloTTPpmRxIdMap = getCaloTTPpmRxIdMap();
+   if(!caloTTPpmRxIdMap ) {
      msg() << MSG::ERROR << " No CaloTTPpmRxIdMap !" << endmsg;
      msg() << MSG::ERROR << " Has the DB folder holding the CaloTTPpmRxIdMap been added to IOVDbSvc ? " << endmsg;
      msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
@@ -254,7 +212,7 @@ std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRx
 
    } else {
      // mapping object exist, forward the call
-     std::vector<L1CaloRxCoolChannelId> rxChannels = m_caloTTPpmRxIdMap->ppmToRxId(ppmCoolChannelId);
+     std::vector<L1CaloRxCoolChannelId> rxChannels = caloTTPpmRxIdMap->ppmToRxId(ppmCoolChannelId);
      if(rxChannels.empty()) {
          CaloID_Exception except;
          except.code(6) ;
@@ -268,13 +226,14 @@ std::vector<L1CaloRxCoolChannelId> CaloTriggerTowerService::cnvCoolChannelIdToRx
 //==========================================================================
 unsigned int CaloTriggerTowerService::barrel_endcap_fcal(const HWIdentifier & id) const {
 
-    if(!m_caloTTOnAttrIdMap) {
+  const CaloTTOnAttrIdMap* caloTTOnAttrIdMap = getCaloTTOnAttrIdMap();
+  if(!caloTTOnAttrIdMap) {
      msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
      msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
      msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
      return (0);
     } else {
-        unsigned int barrel_endcap_fcal = m_caloTTOnAttrIdMap->barrel_endcap_fcal(id);
+        unsigned int barrel_endcap_fcal = caloTTOnAttrIdMap->barrel_endcap_fcal(id);
         return barrel_endcap_fcal;
     }
 }
@@ -282,13 +241,14 @@ unsigned int CaloTriggerTowerService::barrel_endcap_fcal(const HWIdentifier & id
 //==========================================================================
 unsigned int CaloTriggerTowerService::em_had(const HWIdentifier & id) const {
 
-    if(!m_caloTTOnAttrIdMap) {
+    const CaloTTOnAttrIdMap* caloTTOnAttrIdMap = getCaloTTOnAttrIdMap();
+    if(!caloTTOnAttrIdMap) {
      msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
      msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
      msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
      return (0);
     } else {
-        unsigned int em_had = m_caloTTOnAttrIdMap->em_had(id);
+        unsigned int em_had = caloTTOnAttrIdMap->em_had(id);
         return em_had;
     }
 }
@@ -296,13 +256,14 @@ unsigned int CaloTriggerTowerService::em_had(const HWIdentifier & id) const {
 //==========================================================================
 unsigned int CaloTriggerTowerService::pos_neg(const HWIdentifier & id) const {
 
-    if(!m_caloTTOnAttrIdMap) {
+    const CaloTTOnAttrIdMap* caloTTOnAttrIdMap = getCaloTTOnAttrIdMap();
+    if(!caloTTOnAttrIdMap) {
      msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
      msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
      msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
      return (0);
     } else {
-        unsigned int pos_neg = m_caloTTOnAttrIdMap->pos_neg(id);
+        unsigned int pos_neg = caloTTOnAttrIdMap->pos_neg(id);
         return pos_neg;
     }
 }
@@ -310,13 +271,14 @@ unsigned int CaloTriggerTowerService::pos_neg(const HWIdentifier & id) const {
 unsigned int CaloTriggerTowerService::module_type(const HWIdentifier & id) const {
 
 
-    if(!m_caloTTOnAttrIdMap) {
+    const CaloTTOnAttrIdMap* caloTTOnAttrIdMap = getCaloTTOnAttrIdMap();
+    if(!caloTTOnAttrIdMap) {
      msg() << MSG::ERROR << " No TTOnAttrIdMap !" << endmsg;
      msg() << MSG::ERROR << " Has the DB folder holding the TTOnAttrIdMap been added to IOVDbSvc ? " << endmsg;
      msg() << MSG::ERROR << " IOVDbSvc.Folders+=[ FolderName + DBConnection + \"<tag>\"+TagSpec+\"</tag>\" ] " << endmsg;
      return (0);
     } else {
-        unsigned int module_type = m_caloTTOnAttrIdMap->module_type(id);
+        unsigned int module_type = caloTTOnAttrIdMap->module_type(id);
         return module_type;
     }
 }
@@ -325,14 +287,15 @@ unsigned int CaloTriggerTowerService::module_type(const HWIdentifier & id) const
 //===========================================================
 L1CaloCoolChannelId CaloTriggerTowerService::createL1CoolChannelId( const HWIdentifier & id ) const {
 
-    if(m_caloTTOnAttrIdMap) {
+    const CaloTTOnAttrIdMap* caloTTOnAttrIdMap = getCaloTTOnAttrIdMap();
+    if(caloTTOnAttrIdMap) {
 
         unsigned int crate       = m_ttonlineHelper->crate(id);
         unsigned int module      = m_ttonlineHelper->module(id); // this returns the physical slot position !
         unsigned int submodule   = m_ttonlineHelper->submodule(id);
         unsigned int channel     = m_ttonlineHelper->channel(id);
 
-        unsigned int module_type = m_caloTTOnAttrIdMap->module_type(id);
+        unsigned int module_type = caloTTOnAttrIdMap->module_type(id);
 
 		// since the module argument is the physical position and not the logical one, the logical flag is set to false
         return L1CaloCoolChannelId(crate, L1CaloModuleType( (L1CaloModuleType::L1CaloModuleEnum) module_type), module, submodule, channel, false);
@@ -363,77 +326,6 @@ HWIdentifier CaloTriggerTowerService::cnvCoolChannelIdToHWID( const L1CaloCoolCh
 
 
 //==========================================================================
-std::vector<HWIdentifier> CaloTriggerTowerService::createChannelIDvec(const HWIdentifier & id, int extTt) const 
-{
-  std::vector<HWIdentifier> channel_id_vec;
-  std::vector<HWIdentifier> febs_of_tt;
-  std::vector<Identifier> cell_id_vec;
-
-  if(m_emHelper->dictionaryVersion() == "fullAtlas" ||
-     m_emHelper->dictionaryVersion() == "H8TestBeam") {
-
-    if(!m_TTCellMap) {
-      msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
-      return channel_id_vec;
-    }
-
-    Identifier ttId=cnvToIdentifier(id);
-    if(extTt) {
-      cell_id_vec=createCellIDvecLayer(ttId);
-    } else {
-      cell_id_vec=createCellIDvecTT(ttId);
-    }
-    std::vector<Identifier>::const_iterator it  = cell_id_vec.begin();
-    std::vector<Identifier>::const_iterator it_e  = cell_id_vec.end();
-    for (; it!=it_e; ++it)      {
-      HWIdentifier onlId=m_larcablingSvc->createSignalChannelID(*it);
-      channel_id_vec.push_back(onlId);
-    }
-
-  }
-
-  return channel_id_vec;
-}
-
-
-
-//==========================================================================
-HWIdentifier CaloTriggerTowerService::whichTTChannelID(const HWIdentifier & id) const
-{
-//==========================================================================
-//
-// Input : channel Online identifier
-// Output: trigger tower Online identifier
-//
-//==========================================================================
-
-  HWIdentifier triggerTower(0);
-
-  if(m_emHelper->dictionaryVersion() == "fullAtlas" ||
-     m_emHelper->dictionaryVersion() == "H8TestBeam") {
-
-    if(!m_TTCellMap) {
-      msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
-      return triggerTower;
-    }
-
-    Identifier cellId=m_larcablingSvc->cnvToIdentifier(id);
-    //Identifier ttId=whichTTID(cellId);
-
-    // WhichTTID returns a layer_id which embed the layer information
-    // while createTTChannelID expect a tower_id
-    Identifier ttLayerId=whichTTID(cellId);
-    Identifier ttId = m_lvl1Helper->tower_id(ttLayerId);
-
-    triggerTower=createTTChannelID(ttId);
-
-  }
-
-  return triggerTower;
-}
-
-
-//==========================================================================
 std::vector<Identifier>
 CaloTriggerTowerService::createCellIDvecTT(const Identifier& id) const 
 //==========================================================================
@@ -443,7 +335,8 @@ CaloTriggerTowerService::createCellIDvecTT(const Identifier& id) const
   if(m_emHelper->dictionaryVersion() == "fullAtlas" ||
      m_emHelper->dictionaryVersion() == "H8TestBeam") {
 
-    if(!m_TTCellMap) {
+    const LArTTCellMap* TTCellMap = getTTCellMap();
+    if(!TTCellMap) {
       msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
       return vec;
     }
@@ -455,7 +348,7 @@ CaloTriggerTowerService::createCellIDvecTT(const Identifier& id) const
     for(int iLay=0;iLay<=maxLay;++iLay) {
       // Rem: not all iLay correspond to physically existing layers
       Identifier layId = m_lvl1Helper->layer_id(ttId,iLay);
-      std::vector<Identifier> vecp = m_TTCellMap->createCellIDvec(layId);
+      std::vector<Identifier> vecp = TTCellMap->createCellIDvec(layId);
       std::vector<Identifier>::const_iterator it  = vecp.begin();
       std::vector<Identifier>::const_iterator it_e  = vecp.end();
       for (; it!=it_e; ++it)      {
@@ -474,14 +367,15 @@ CaloTriggerTowerService::createCellIDvecLayer(const Identifier& id) const
 //==========================================================================
 {
   std::vector<Identifier> vec ;
+  const LArTTCellMap* TTCellMap = getTTCellMap();
 
   if(m_emHelper->dictionaryVersion() == "fullAtlas" ||
      m_emHelper->dictionaryVersion() == "H8TestBeam") {
-    if(!m_TTCellMap) {
+    if(!TTCellMap) {
       msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
       return vec;
     }
-    vec = m_TTCellMap->createCellIDvec(id);
+    vec = TTCellMap->createCellIDvec(id);
   }
 
   return vec;
@@ -496,11 +390,12 @@ Identifier CaloTriggerTowerService::whichTTID(const Identifier & id) const
   if(m_emHelper->dictionaryVersion() == "fullAtlas" ||
      m_emHelper->dictionaryVersion() == "H8TestBeam") {
 
-    if(!m_TTCellMap) {
+    const LArTTCellMap* TTCellMap = getTTCellMap();
+    if(!TTCellMap) {
       msg() << MSG::ERROR << " No TTCellMap  !" << endmsg;
       return sid;
     }
-    sid = m_TTCellMap->whichTTID( id ) ;
+    sid = TTCellMap->whichTTID( id ) ;
     Identifier invalidId (0);
     if(sid == invalidId ){
       LArID_Exception except;
@@ -512,24 +407,6 @@ Identifier CaloTriggerTowerService::whichTTID(const Identifier & id) const
   return sid;
 }
 
-
-//=============================================================
-bool CaloTriggerTowerService::is_in_lvl1(const HWIdentifier & id) const
-//=============================================================
-//
-// input = channel online id
-// some channels are mapped to a TT although not in lvl1
-// 2 cases: barrel end and last compartment of hec.
-//
-//=============================================================
-{
-
-  Identifier cellId=m_larcablingSvc->cnvToIdentifier(id);
-  bool lvl1 = is_in_lvl1(cellId);
-
-  return lvl1;
-
-}
 
 //=============================================================
 bool CaloTriggerTowerService::is_in_lvl1(const Identifier & id) const
@@ -580,3 +457,50 @@ StatusCode CaloTriggerTowerService::iovCallBack(IOVSVC_CALLBACK_ARGS) {
 
 }
 
+
+const LArTTCellMap* CaloTriggerTowerService::getTTCellMap() const
+{
+  if (!m_TTCellMap.get()) {
+    const LArTTCellMap* TTCellMap = nullptr;
+    if (detStore()->retrieve (TTCellMap, m_TTCellMapKey).isSuccess()) {
+      m_TTCellMap.set (TTCellMap);
+    }
+  }
+  return m_TTCellMap.get();
+}
+
+
+const CaloTTOnOffIdMap* CaloTriggerTowerService::getCaloTTOnOffIdMap() const
+{
+  if (!m_caloTTOnOffIdMap.get()) {
+    const CaloTTOnOffIdMap* caloTTOnOffIdMap = nullptr;
+    if (detStore()->retrieve (caloTTOnOffIdMap, m_caloTTOnOffIdMapKey).isSuccess()) {
+      m_caloTTOnOffIdMap.set (caloTTOnOffIdMap);
+    }
+  }
+  return m_caloTTOnOffIdMap.get();
+}
+
+
+const CaloTTOnAttrIdMap* CaloTriggerTowerService::getCaloTTOnAttrIdMap() const
+{
+  if (!m_caloTTOnAttrIdMap.get()) {
+    const CaloTTOnAttrIdMap* caloTTOnAttrIdMap = nullptr;
+    if (detStore()->retrieve (caloTTOnAttrIdMap, m_caloTTOnAttrIdMapKey).isSuccess()) {
+      m_caloTTOnAttrIdMap.set (caloTTOnAttrIdMap);
+    }
+  }
+  return m_caloTTOnAttrIdMap.get();
+}
+
+
+const CaloTTPpmRxIdMap* CaloTriggerTowerService::getCaloTTPpmRxIdMap() const
+{
+  if (!m_caloTTPpmRxIdMap.get()) {
+    const CaloTTPpmRxIdMap* caloTTPpmRxIdMap = nullptr;
+    if (detStore()->retrieve (caloTTPpmRxIdMap, m_caloTTPpmRxIdMapKey).isSuccess()) {
+      m_caloTTPpmRxIdMap.set (caloTTPpmRxIdMap);
+    }
+  }
+  return m_caloTTPpmRxIdMap.get();
+}
