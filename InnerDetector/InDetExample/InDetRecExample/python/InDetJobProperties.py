@@ -522,7 +522,7 @@ class useActsPriVertexing(InDetFlagsJobProperty):
     """ use ACTS primary vertexing """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doSiSPSeededTrackFinder(InDetFlagsJobProperty):
     """ use track finding in silicon """

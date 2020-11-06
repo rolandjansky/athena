@@ -87,7 +87,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     fitterCfg.annealingTool = annealingUtility;
     fitterCfg.maxIterations = m_fitterMaxIterations;
     fitterCfg.maxDistToLinPoint = m_fitterMaxDistToLinPoint;
-    fitterCfg.minWeight = m_minWeight;
+    fitterCfg.minWeight = m_minWeightFitter;
     fitterCfg.maxRelativeShift = m_fitterMaxRelativeShift;
     fitterCfg.doSmoothing = m_fitterDoSmoothing;
     VertexFitter fitter(fitterCfg, extractParameters);
@@ -214,20 +214,34 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     Acts::Vertex<TrackWrapper> beamSpotConstraintVtx(beamSpotPos);
     beamSpotConstraintVtx.setCovariance(beamSpotHandle->beamVtx().covariancePosition());
 
-    std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
-    Acts::Surface::makeShared<Acts::PerigeeSurface>(beamSpotPos);
-
     // Get the magnetic field context
     Acts::MagneticFieldContext magFieldContext = m_extrapolationTool->getMagneticFieldContext(ctx);
 
     const auto& geoContext
     = m_trackingGeometryTool->getGeometryContext(ctx).any();
 
+    // The output vertex containers
+    xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
+    xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
+    theVertexContainer->setStore(theVertexAuxContainer);
+
+    if(trackVector.empty()){
+      xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
+      theVertexContainer->push_back(dummyxAODVertex);
+      dummyxAODVertex->setPosition(beamSpotHandle->beamVtx().position());
+      dummyxAODVertex->setCovariancePosition(beamSpotHandle->beamVtx().covariancePosition());
+      dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
+
+      return std::make_pair(theVertexContainer, theVertexAuxContainer);
+    }
+
+    std::shared_ptr<Acts::PerigeeSurface> perigeeSurface =
+      Acts::Surface::makeShared<Acts::PerigeeSurface>((trackVector[0])->parameters()->associatedSurface().transform());
+
     // Convert tracks to Acts::BoundParameters
     std::vector<TrackWrapper> allTracks;
 
     for (const auto& trk : trackVector) {
-
       const auto& trkParams = trk->parameters();
       const auto& params = trkParams->parameters();
 
@@ -271,10 +285,6 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
     VertexFinder::State finderState;
 
     auto findResult = m_vertexFinder->find(allTrackPtrs, vertexingOptions, finderState);
-
-    xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
-    xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
-    theVertexContainer->setStore(theVertexAuxContainer);
 
     if(!findResult.ok()){
       xAOD::Vertex* dummyxAODVertex = new xAOD::Vertex;
