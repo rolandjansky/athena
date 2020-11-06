@@ -111,6 +111,15 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
 
    from AthenaCommon.CfgGetter import getService
    getService("AtlasTrackingGeometrySvc")
+
+   # load the tracking geometry cond alg
+   from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+   TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+   from AthenaCommon.AlgSequence import AthSequencer
+   condSeq = AthSequencer("AthCondSeq")
+   condSeq+= TrkGeoCondAlg
+
+
    from MuonTruthAlgs.MuonTruthAlgsConf import Muon__MuonTruthDecorationAlg
    topSequence += Muon__MuonTruthDecorationAlg("MuonTruthDecorationAlg")
    from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier

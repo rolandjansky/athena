@@ -7,10 +7,7 @@ __doc__ = """Configuration of tools for Moore muon reconstruction"""
 # Configuration for Moore
 #
 #==============================================================
-from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s", __name__)
 
-from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
@@ -522,7 +519,15 @@ class MuonTrackExtrapolationTool(CfgMgr.Muon__MuonTrackExtrapolationTool,Configu
         self.applyUserDefaults(kwargs,name)
         super(MuonTrackExtrapolationTool,self).__init__(name,**kwargs)
 
-MuonTrackExtrapolationTool.setDefaultProperties( TrackingGeometrySvc=ServiceMgr.AtlasTrackingGeometrySvc )
+
+# load the tracking geometry cond alg
+from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq+= TrkGeoCondAlg
+
+
 if beamFlags.beamType() == 'cosmics':
     MuonTrackExtrapolationTool.setDefaultProperties( Cosmics = True )
 
