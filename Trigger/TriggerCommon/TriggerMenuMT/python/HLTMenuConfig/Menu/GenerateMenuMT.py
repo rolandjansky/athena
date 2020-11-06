@@ -417,8 +417,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
             else:
                 log.error('Chain %s ignored - Signature "%s" not available', chainPartDict['chainName'], currentSig)
                 log.error('Available signature(s): %s', self.availableSignatures)
-                import sys
-                sys.exit('Stopping the execution. Please, correct the configuration.')
+                raise Exception('Stopping the execution. Please, correct the configuration.')
 
             log.debug("Chain %s chain configs: %s",chainPartDict['chainName'],chainPartConfig)
             listOfChainConfigs.append(chainPartConfig)
