@@ -111,7 +111,7 @@ private:
                                         size_t index) const;
 
   /// CutFlow service should be explicitly configured
-  Gaudi::Property<bool> m_configured{this, "Configured", false, ""};
+  Gaudi::Property<bool> m_configured{this, "Configured", true, "configuration check"};
 
   /// The input meta-data store
   ServiceHandle<StoreGateSvc> m_inMetaDataStore{this, "InputMetaDataStore", "StoreGateSvc/InputMetaDataStore", ""};
