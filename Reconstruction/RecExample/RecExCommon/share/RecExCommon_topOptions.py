@@ -949,7 +949,7 @@ if rec.doFileMetaData():
         if 'xAOD::CutBookkeeperContainer_v1' in set(metadata_items.values()):
             logRecExCommon_topOptions.debug("Existing CutBookkeeperContainer found")
             hasBookkeepers = True
-    if hasBookkeepers or hasattr(runArgs, "reductionConf"): # TODO: no other way to detect we are running derivations
+    if hasBookkeepers or ('runArgs' in dir() and hasattr(runArgs, "reductionConf")): # TODO: no other way to detect we are running derivations
         # TODO: check all DAOD workflows
         from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
         logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
