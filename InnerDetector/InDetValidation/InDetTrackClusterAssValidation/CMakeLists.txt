@@ -1,23 +1,7 @@
-################################################################################
-# Package: InDetTrackClusterAssValidation
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetTrackClusterAssValidation )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/CxxUtils
-                          Control/StoreGate
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          Tracking/TrkEvent/TrkSpacePoint
-                          Tracking/TrkEvent/TrkTruthData
-                          PRIVATE
-                          GaudiKernel
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkTrack 
-                          Generators/AtlasHepMC )
 
 # External dependencies:
 find_package( HepPDT )

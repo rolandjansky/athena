@@ -24,6 +24,8 @@ from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
 topSequence += alg
 
+from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
 
 from AthenaCommon.AppMgr import theApp
 theApp.EvtMax = 200000

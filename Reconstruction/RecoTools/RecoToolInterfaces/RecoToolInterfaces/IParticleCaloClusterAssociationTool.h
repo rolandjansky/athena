@@ -40,7 +40,7 @@ namespace Rec
         @return true if the call was successful
     */
     virtual bool particleClusterAssociation( const xAOD::IParticle& particle,  const ParticleClusterAssociation*& association, float dr, 
-                                             const xAOD::CaloClusterContainer* container = 0, bool useCaching = true ) const = 0;
+                                             const xAOD::CaloClusterContainer* container, bool useCaching = true ) const = 0;
 
     static const InterfaceID& interfaceID( ) ;
   };

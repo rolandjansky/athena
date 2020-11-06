@@ -93,6 +93,7 @@ StatusCode CpmRoiByteStreamV2Tool::initialize()
                   << PACKAGE_VERSION);
 
     ATH_CHECK( m_errorTool.retrieve() );
+    ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
 
     return StatusCode::SUCCESS;
 }
@@ -331,16 +332,17 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
 // Convert CPM RoI to bytestream
 
 StatusCode CpmRoiByteStreamV2Tool::convert(
-    const DataVector<LVL1::CPMTobRoI> *const roiCollection,
-    RawEventWrite *const re) const
+    const DataVector<LVL1::CPMTobRoI> *const roiCollection) const
 {
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
 
-    // Clear the event assembler
-    FullEventAssembler<L1CaloSrcIdMap> fea;
+    // Get the event assembler
+    FullEventAssembler<L1CaloSrcIdMap>* fea = nullptr;
+    ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                          "CpmRoiByteStreamV2") );
     const uint16_t minorVersion = m_srcIdMap.minorVersion();
-    fea.setRodMinorVersion(minorVersion);
+    fea->setRodMinorVersion(minorVersion);
 
     // Pointer to ROD data vector
 
@@ -394,7 +396,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
                 }
                 const uint32_t rodIdCpm = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
                                           m_subDetector);
-                theROD = fea.getRodData(rodIdCpm);
+                theROD = fea->getRodData(rodIdCpm);
                 if (neutralFormat)
                 {
                     const L1CaloUserHeader userHeader;
@@ -451,9 +453,6 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
         msg() << "Number of RoIs written = " << count << endmsg;
     }
 
-    // Fill the raw event
-
-    fea.fill(re, msg());
     if (debug) msg() << MSG::dec; // fill seems to leave it in hex
 
     return StatusCode::SUCCESS;

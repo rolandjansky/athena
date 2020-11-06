@@ -172,8 +172,8 @@ class MenuAlignment():
     def single_align(self, chainDict, chainConfig):
       
       if len(set(chainDict['alignmentGroups'])) != 1:
-          log.error("Cannot call single_align on chain {} with alignment groups {}".format(
-            chainDict['chainName'], ",".join(chainDict['alignmentGroups'])))
+          log.error("Cannot call single_align on chain %s with alignment groups %s",
+                    chainDict['chainName'], ",".join(chainDict['alignmentGroups']))
           raise Exception("Will not proceed, the chain is not suitable for single alignment.")
 
       alignment_grp = chainDict['alignmentGroups'][0]
@@ -292,6 +292,3 @@ class MenuAlignment():
         chainConfig.numberAllSteps()
         
         return chainConfig
-        
-
-    

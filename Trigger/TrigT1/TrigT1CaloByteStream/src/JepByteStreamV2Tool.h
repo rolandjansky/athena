@@ -15,6 +15,7 @@
 #include "TrigT1CaloUtils/JetElementKey.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthContainers/DataVector.h"
 #include "eformat/SourceIdentifier.h"
@@ -99,12 +100,15 @@ class JepByteStreamV2Tool : public AthAlgTool {
                       DataVector<LVL1::CMXEtSums>* etCollection) const;
 
    /// Convert JEP Container to bytestream
-   StatusCode convert(const LVL1::JEPBSCollectionV2* jep, RawEventWrite* re) const;
+   StatusCode convert(const LVL1::JEPBSCollectionV2* jep) const;
 
    /// Return reference to vector with all possible Source Identifiers
    const std::vector<uint32_t>& sourceIDs() const;
 
  private:
+   ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+   { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+
   struct LocalData
   {
     /// Jet elements to accept (0=Core, 1=Overlap)

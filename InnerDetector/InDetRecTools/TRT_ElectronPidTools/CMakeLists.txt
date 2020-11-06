@@ -11,8 +11,7 @@ atlas_add_library( TRT_ElectronPidToolsLib
                    TRT_ElectronPidTools/*.h
                    INTERFACE
                    PUBLIC_HEADERS TRT_ElectronPidTools
-                   LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaKernel TrkTrack InDetRawData TrkParameters TrkToolInterfaces TRT_ConditionsData TrkEventPrimitives TRT_ConditionsServicesLib InDetPrepRawData StoreGateLib TRT_ConditionsData )
-
+                   LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaKernel TrkTrack InDetRawData TrkParameters TrkToolInterfaces TRT_ConditionsData TrkEventPrimitives TRT_ConditionsServicesLib InDetPrepRawData StoreGateLib TRT_ConditionsNNLib )
 # Component(s) in the package:
 atlas_add_component( TRT_ElectronPidTools
                      src/*.cxx

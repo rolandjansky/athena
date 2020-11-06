@@ -61,7 +61,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration
@@ -90,21 +90,21 @@ class ElectronChainConfiguration(ChainConfigurationBase):
                 'lhtightivartight'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 }
 
-        log.debug('electron chain part = ' + str(self.chainPart))
+        log.debug('electron chain part = %s', self.chainPart)
         key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['L2IDAlg'] + self.chainPart['isoInfo']
 
 
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
 
-        log.debug('electron key = ' + key)
+        log.debug('electron key = %s', key)
         if key in stepDictionary:
             steps=stepDictionary[key]
         else:
             raise RuntimeError("Chain configuration unknown for electron chain with key: " + key )
         
         for step in steps:
-            log.debug('Adding electron trigger step ' + str(step))
+            log.debug('Adding electron trigger step %s', step)
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
 
@@ -136,7 +136,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     def getPrecisionElectron(self):
 
         isocut = self.chainPart['isoInfo']
-        log.debug(' isolation cut = ' + str(isocut))
+        log.debug(' isolation cut = %s', isocut)
 
         if "Zee" in self.chainName:
             stepName = "precision_topoelectron"+isocut

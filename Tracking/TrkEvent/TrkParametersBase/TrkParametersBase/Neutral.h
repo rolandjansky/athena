@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,7 +9,6 @@
 #ifndef TRKPARAMETERSBASE_NEUTRAL_H
 #define TRKPARAMETERSBASE_NEUTRAL_H 1
 
-#include <iostream>
 #include <cmath>
 
 namespace Trk

@@ -54,9 +54,6 @@ private:
 
   /// Tool that does the actual work
   ToolHandle<LVL1BS::JepRoiByteStreamV1Tool> m_tool;
-
-  /// Service for writing bytestream
-  ServiceHandle<IByteStreamEventAccess> m_ByteStreamEventAccess;
 };
 
 } // end namespace

@@ -292,14 +292,19 @@ StatusCode BookkeeperTool::loadXAODMetaData()
 
   // If no such object is found then return
   if (itTruthMetaDataPtr == metaDataContainer->end()) {
-    ATH_MSG_ERROR("Could not load weight meta data!");
-    return StatusCode::FAILURE;
+    m_numberOfWeightVariations = 1;
+    ATH_MSG_DEBUG("Could not load weight meta data! Assumming 1 variation.");
+    return StatusCode::SUCCESS;
   }
 
   // Update cached weight data
   const std::vector<std::string> &truthWeightNames = (*itTruthMetaDataPtr)->weightNames();
 
   m_numberOfWeightVariations = truthWeightNames.size();
+  if (m_numberOfWeightVariations == 0) {
+    ATH_MSG_DEBUG("No variations present, setting to 1.");
+    m_numberOfWeightVariations = 1;
+  }
 
   return StatusCode::SUCCESS;
 #endif

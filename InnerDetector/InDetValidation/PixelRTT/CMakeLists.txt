@@ -1,17 +1,7 @@
-################################################################################
-# Package: PixelRTT
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PixelRTT )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   InnerDetector/InDetCalibAlgs/PixelCalibAlgs
-   PRIVATE
-   InnerDetector/InDetConditions/PixelConditionsData
-   Tools/PathResolver )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core MathCore Hist RIO Gpad )
@@ -21,12 +11,12 @@ atlas_add_library( PixelValidation
    PixelRTT/*.h src/*.cxx
    PUBLIC_HEADERS PixelRTT
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} PixelCalibAlgsLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils PixelCalibAlgsLib
    PRIVATE_LINK_LIBRARIES PixelConditionsData PathResolver )
 
 atlas_add_executable( doPixelValidation
    Application/doPixelValidation.cxx
-   LINK_LIBRARIES PixelValidation )
+   LINK_LIBRARIES CxxUtils PixelValidation )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

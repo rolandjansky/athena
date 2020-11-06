@@ -10,11 +10,11 @@
 #define TRKPARAMETERSBASE_PARAMETERSBASE_H
 
 // Amg
+#include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
-#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <type_traits>
 
@@ -84,12 +84,6 @@ public:
    * matrix is given */
   const AmgSymMatrix(DIM) * covariance() const;
 
-  /** Access method for the position */
-  virtual const Amg::Vector3D& position() const;
-
-  /** Access method for the momentum */
-  virtual const Amg::Vector3D& momentum() const;
-
   /** Access method for transverse momentum */
   double pT() const;
 
@@ -99,16 +93,12 @@ public:
   /** Returns true if Charged or false if Neutral
    */
   constexpr bool isCharged() const;
-  /** Returns the charge
-   * */
-  virtual double charge() const;
-
   /** Access method for the local coordinates, \f$(loc1,loc2)\f$
       local parameter definitions differ for each surface type. */
   Amg::Vector2D localPosition() const;
 
   /** Update parameters and covariance.
-   * 
+   *
    * Derived classes override the
    * implementation via updateParametersHelper
    */
@@ -122,6 +112,15 @@ public:
    * implementation via updateParametersHelper
    */
   void updateParameters(const AmgVector(DIM) &, const AmgSymMatrix(DIM) &);
+  /** Returns the charge
+   * */
+  virtual double charge() const;
+
+  /** Access method for the position */
+  virtual const Amg::Vector3D& position() const = 0;
+
+  /** Access method for the momentum */
+  virtual const Amg::Vector3D& momentum() const = 0;
 
   //** equality operator */
   virtual bool operator==(const ParametersBase<DIM, T>&) const;
@@ -138,7 +137,7 @@ public:
      transform */
   virtual Amg::RotationMatrix3D measurementFrame() const = 0;
 
-  /** clone method for polymorphic deep copy 
+  /** clone method for polymorphic deep copy
        @return new object copied from the concrete type of this object.*/
   virtual ParametersBase<DIM, T>* clone() const = 0;
 
@@ -164,13 +163,9 @@ protected:
   /* Helper ctors for derived classes*/
   ParametersBase(const AmgVector(DIM) parameters,
                  AmgSymMatrix(DIM) * covariance,
-                 const Amg::Vector3D& position,
-                 const Amg::Vector3D& momentum,
                  const T chargeDef);
 
-  ParametersBase(const Amg::Vector3D& pos,
-                 const Amg::Vector3D& mom,
-                 AmgSymMatrix(DIM) * covariance = nullptr);
+  ParametersBase(AmgSymMatrix(DIM) * covariance);
 
   ParametersBase(const AmgVector(DIM) & parameters,
                  AmgSymMatrix(DIM) * covariance = nullptr);
@@ -181,7 +176,6 @@ protected:
    */
   ParametersBase(ParametersBase&&) = default;
   ParametersBase& operator=(ParametersBase&&) = default;
-
   /*
    * Default copy ctor/assignment
    * Deleted due unique_ptr.
@@ -200,9 +194,7 @@ protected:
   AmgVector(DIM) m_parameters; //!< contains the n parameters
   //!< contains the n x n covariance matrix
   std::unique_ptr<AmgSymMatrix(DIM)> m_covariance;
-  Amg::Vector3D m_position; //!< point on track
-  Amg::Vector3D m_momentum; //!< momentum at this point on track
-  T m_chargeDef;            //!< charge definition for this track
+  T m_chargeDef; //!< charge definition for this track
 };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug

@@ -122,7 +122,7 @@ class EnhancedBiasChainConfiguration(ChainConfigurationBase):
 
     def assembleChain(self):
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         chainSteps.append( self.getStep(1,"EnhancedBias", [enahncedBiasSequence_Cfg]) )
 

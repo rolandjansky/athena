@@ -118,6 +118,7 @@ class TrigInDetAna(AthenaCheckerStep):
         AthenaCheckerStep.__init__(self, name, 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py')
         self.max_events=-1
         self.required = True
+        self.depends_on_previous = False
         self.input_file = in_file
 
 ##################################################

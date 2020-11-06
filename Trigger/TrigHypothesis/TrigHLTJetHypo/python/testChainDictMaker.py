@@ -10,7 +10,9 @@ from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 
-    
+from chainDict2jetLabel import chainDict2jetLabel 
+from TrigJetHypoToolConfig import trigJetHypoToolFromDict
+
 def testChainDictMaker():
 
     chain_props = [
@@ -19,6 +21,10 @@ def testChainDictMaker():
 
         ChainProp(name='HLT_j80_j60_L1J15',
                   l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+
+        ChainProp(name='HLT_2j80_3j60_L1J15',
+                  l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+
 
         ChainProp(name='HLT_j0_HTSEP1000htSEP100etSEP0eta320_L1J15',
                   l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
@@ -45,3 +51,16 @@ if __name__ == '__main__':
     for d in dicts:
         print('')
         print (d)
+
+    print ('\n chain_labels:\n')
+    
+    for d in dicts:
+        print (d[0])
+        print (chainDict2jetLabel(d[1]))
+        print ()
+
+    print ('\nMaking TrigJetHypoTool for each dictiomary\n')
+    for d in dicts:
+        print (d[0])
+        print (trigJetHypoToolFromDict(d[1]))
+        print ()

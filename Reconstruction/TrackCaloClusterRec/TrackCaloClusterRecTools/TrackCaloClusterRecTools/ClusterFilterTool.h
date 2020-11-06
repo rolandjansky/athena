@@ -32,11 +32,11 @@ class ClusterFilterTool : virtual public IClusterFilterTool, public AthAlgTool {
      *  @return true if the cluster has been rejected
      * 
      */
-    bool rejectCluster(const xAOD::CaloCluster& cluster) final;
+    bool rejectCluster(const xAOD::CaloCluster& cluster) const final;
     
   private:    
     // Get a data container; implementation at end of this header file
-    template<class T> const T* getContainer( const std::string & containerName);
+    template<class T> const T* getContainer( const std::string & containerName) const ;
   
     std::string m_caloEntryMapName;
     
@@ -54,7 +54,7 @@ class ClusterFilterTool : virtual public IClusterFilterTool, public AthAlgTool {
 };
 
 template<class T>
-inline const T* ClusterFilterTool::getContainer(const std::string & containerName){
+inline const T* ClusterFilterTool::getContainer(const std::string & containerName) const{
   const T * ptr = evtStore()->retrieve< const T >( containerName );
   if (!ptr) {
     ATH_MSG_WARNING("Container '"<<containerName<<"' could not be retrieved");

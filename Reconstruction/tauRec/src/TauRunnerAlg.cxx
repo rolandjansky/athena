@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "tauRec/TauRunnerAlg.h"
+#include "TauRunnerAlg.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"

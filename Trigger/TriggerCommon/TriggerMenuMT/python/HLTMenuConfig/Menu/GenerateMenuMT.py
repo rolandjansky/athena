@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
-from six import add_metaclass
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -33,8 +32,7 @@ class Singleton(type):
 
 
 # for now we make this a singleton because calling menu generation twice leads to problems
-@add_metaclass(Singleton)
-class GenerateMenuMT(object):
+class GenerateMenuMT(object, metaclass=Singleton):
 
     @staticmethod
     def overwriteSignaturesWith(f):
