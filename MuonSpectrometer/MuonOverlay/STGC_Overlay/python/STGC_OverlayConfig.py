@@ -5,7 +5,7 @@ from AthenaCommon import CfgMgr
 def getSTGC_Overlay(name="STGC_Overlay", **kwargs):
     kwargs.setdefault("mainInputSTGC_Name", "sTGC_DIGITS")
     kwargs.setdefault("overlayInputSTGC_Name", "sTGC_DIGITS")
-    kwargs.setdefault("IntegrationWindow", 50)
+    kwargs.setdefault("IntegrationWindow", 30)
     kwargs.setdefault("DigitizationTool", "STGC_OverlayDigitizationTool")
     kwargs.setdefault("ConvertRDOToDigitTool", "STGC_RdoToDigitOverlay")
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
