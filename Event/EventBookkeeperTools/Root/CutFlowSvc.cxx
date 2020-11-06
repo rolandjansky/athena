@@ -80,14 +80,14 @@ CutIdentifier CutFlowSvc::registerFilter( const std::string& name,
   for (xAOD::CutBookkeeper* cbk : *container) {
     if (newCbk->isEqualTo(cbk)) {
       ATH_MSG_DEBUG("The CutBookkeeper with name '" << name << "' already exists"
-                    << " and has cutID " << cbk->uniqueIdentifier() << "... Not adding!" );
+                    << " and has CutID " << cbk->uniqueIdentifier() << "... Not adding!" );
       // Return the existing cut ID
       return cbk->uniqueIdentifier();
     }
   }
 
   // If it is a new CutBookkeeper, add it to the container
-  ATH_MSG_DEBUG("Declaring a new filter with name '" << name << "' and cutID " << cutID );
+  ATH_MSG_DEBUG("Declaring a new filter with name '" << name << "' and CutID " << cutID );
   container->push_back(std::move(newCbk));
 
   if (nominalOnly) {
@@ -114,7 +114,7 @@ CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
   CutIdentifier cutID = registerFilter(name, description, nominalOnly);
   xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
   if (cbk == nullptr) {
-    ATH_MSG_ERROR("registerTopFilter: Could not find CutBookkeeper with cutID " << cutID);
+    ATH_MSG_ERROR("Could not find CutBookkeeper with CutID " << cutID);
     return 0;
   }
 
@@ -122,6 +122,37 @@ CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
   cbk->setCutLogic(xAOD::CutBookkeeper::CutLogic(logic));
   cbk->setTopFilter(true);
   cbk->addOutputStreamForAllUsed(outputStream);
+
+  return cutID;
+}
+
+
+CutIdentifier CutFlowSvc::registerCut( const std::string& name,
+                                       const std::string& description,
+                                       CutIdentifier parentCutID,
+                                       bool nominalOnly )
+{
+  ATH_MSG_DEBUG("Registering cut with name '" << name << "', description '" << description
+                << "' and original CutID " << parentCutID);
+
+  // Get the CutBookkeeper of the origin Filter Algorithm/Tool
+  xAOD::CutBookkeeper* parentCbk = getCutBookkeeper(parentCutID, 0);
+  if (parentCbk == nullptr) {
+    ATH_MSG_ERROR("Could not find parent CutBookkeeper with CutID " << parentCutID);
+    return 0;
+  }
+
+  // Call the registerFilter method and get the correct CutBookkeeper
+  // from the returned cutID
+  CutIdentifier cutID = registerFilter(name, description, nominalOnly);
+  xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
+  if (cbk == nullptr) {
+    ATH_MSG_ERROR("Could not find CutBookkeeper with CutID " << cutID);
+    return 0;
+  }
+
+  // Add child to parent
+  parentCbk->addChild(cbk);
 
   return cutID;
 }

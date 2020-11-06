@@ -81,6 +81,14 @@ public:
                                           const std::string& outputStream,
                                           bool nominalOnly) override final;
 
+  /// Register cut as child of a filter in the CutFlowSvc and returns the CutID
+  /// of the corresponding EventBookkeeper. This method should be used by
+  /// filters to register their internal cuts that are not the Algs themselves.
+  virtual CutIdentifier registerCut(const std::string& name,
+                                    const std::string& description,
+                                    CutIdentifier parentCutID,
+                                    bool nominalOnly) override final;
+
   /// Set the description of an existing CutBookkeeper
   virtual void setFilterDescription(CutIdentifier cutID,
                                     const std::string& descr) override final;
