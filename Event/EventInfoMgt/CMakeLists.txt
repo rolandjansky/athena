@@ -6,13 +6,13 @@ atlas_subdir( EventInfoMgt )
 atlas_add_library( EventInfoMgtLib
                    INTERFACE
                    PUBLIC_HEADERS EventInfoMgt
-                   LINK_LIBRARIES AthenaKernel GaudiKernel )
+                   LINK_LIBRARIES AthenaKernel GaudiKernel EventInfo )
 
 # Component(s) in the package:
 atlas_add_component( EventInfoMgt
                      src/TagInfoMgr.cxx
                      src/EventInfoMgt_entries.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventInfo EventInfoMgtLib EventInfoUtils IOVDbMetaDataToolsLib SGTools StoreGateLib )
+                     LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities EventInfoMgtLib EventInfoUtils IOVDbMetaDataToolsLib SGTools StoreGateLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
