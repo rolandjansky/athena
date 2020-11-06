@@ -105,6 +105,9 @@ namespace TrigConf {
       void setUseFrontier(bool useFrontier) { m_useFrontier = useFrontier; } 
       bool useFrontier() const { return m_useFrontier; } 
 
+      void setUseSQLite(bool useSQLite) { m_useSQLite = useSQLite; } 
+      bool useSQLite() const { return m_useSQLite; } 
+
       void setRetrialPeriod(int retrialPeriod) { m_retrialPeriod = retrialPeriod; }
       void setRetrialTimeout(int retrialTimeout) { m_retrialTimeout = retrialTimeout; }
       void setConnectionTimeout(int connectionTimeout) { m_connectionTimeout = connectionTimeout; }
@@ -131,6 +134,7 @@ namespace TrigConf {
       std::string     m_user {""};    ///< user name        
       std::string     m_password {""};///< password         
       bool            m_useFrontier {false}; ///< using frontier to connect to oracle (if set, disables sqlite) 
+      bool            m_useSQLite {true}; ///< using frontier to connect to oracle (if set, disables sqlite) 
       std::ostream &  m_ostream; ///< output stream    
 
       int             m_retrialPeriod {0};
