@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import six
 from collections import OrderedDict as odict
 
 from AthenaCommon.Logging import logging
@@ -9,7 +8,7 @@ log = logging.getLogger('Menu.L1.Config.TypeWideThresholdConfig')
 from ..Base.ThresholdType import ThrType
 
 def getTypeWideThresholdConfig(ttype):
-    if isinstance(ttype,six.string_types):
+    if isinstance(ttype, str):
         ttype = ThrType[ttype]
 
     if ttype == ThrType.MU:

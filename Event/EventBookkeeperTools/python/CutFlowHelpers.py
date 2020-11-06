@@ -44,7 +44,8 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
     # Create the CutFlowSvc instance
     import AthenaCommon.CfgMgr as CfgMgr
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
-    svcMgr.CutFlowSvc.InputStream   = inputStreamName
+    svcMgr.CutFlowSvc.Configured  = True
+    svcMgr.CutFlowSvc.InputStream = inputStreamName
 
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):

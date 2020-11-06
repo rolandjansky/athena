@@ -23,7 +23,7 @@ class IClusterFilterTool : virtual public IAlgTool {
      * 
      */
     
-    virtual bool rejectCluster(const xAOD::CaloCluster& cluster) = 0;
+    virtual bool rejectCluster(const xAOD::CaloCluster& cluster) const = 0;
     
     static const InterfaceID& interfaceID( ) ;
 };

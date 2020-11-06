@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
    */
 
 #include "BTagging/JetBTaggerTool.h"
@@ -20,7 +20,6 @@
 #include "BTagging/BTagTrackAssociation.h"
 #include "BTagging/BTagSecVertexing.h"
 #include "BTagging/BTagJetPtScaling.h"
-#include "TRandom.h"
 
 #include <iostream>
 #include <string>

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -81,7 +81,7 @@ class TestChainConfiguration(ChainConfigurationBase):
         stepDictionary = self.getStepDictionary()
         key = self.chainPart['extra']
 
-        log.debug('testChain key = ' + key)
+        log.debug('testChain key = %s', key)
         if key in stepDictionary:
             steps=stepDictionary[key]
         else:

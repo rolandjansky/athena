@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """ Helper functions for configuring MET chains
 """
@@ -124,7 +124,7 @@ class AlgConfig(ABC):
 
         inputMakers = self.inputMakers()
         # Retrieve the inputss
-        log.verbose(f"Create inputs for {self._suffix}")
+        log.verbose("Create inputs for %s", self._suffix)
         steps, inputs = self.inputRegistry.build_steps(
             self._inputs, metFSRoIs, self.recoDict
         )

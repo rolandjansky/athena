@@ -43,6 +43,7 @@ def testUrl(url):
     return True
 
 def getFrontierCursor(url, schema):
+    log = logging.getLogger( "TrigConfFrontier.py" )
     if useFrontierClient:
         log.info("Using frontier_client from TrigConfDBConnection")
         return FrontierCursor2( url = url, schema = schema)

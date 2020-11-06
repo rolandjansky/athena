@@ -124,7 +124,7 @@ class L1MenuConfig(object):
         if algo.name in self._registeredTopoAlgos[self.currentAlgoDef]:
             raise RuntimeError('%s algo %s is already registered as such' % (self.currentAlgoDef.desc, algo.name))
         self._registeredTopoAlgos[self.currentAlgoDef][algo.name] = algo
-        log.debug("Added in the {0} type the algo: {1} ID:{2}" .format(self.currentAlgoDef.desc, algo.name,algo.algoId))
+        log.debug("Added in the %s type the algo: %s ID:%s", self.currentAlgoDef.desc, algo.name, algo.algoId)
 
         return algo
 
@@ -285,7 +285,8 @@ class L1MenuConfig(object):
             log.info("... L1 legacy menu %s contains %i legacy boards (%s)", self.menuFilesToLoad, len(L1MenuFlags.legacyBoards()), ', '.join(L1MenuFlags.legacyBoards().keys()))
         except ImportError as ie:
             if ie.name == 'TriggerMenuMT.L1.Menu.Menu_%s_inputs_legacy' % self.menuFilesToLoad:
-                log.info(f"==> No menu defining the legacy inputs was found, will assume this intended. {ie.msg} {ie.name} {ie.path}")
+                log.info("==> No menu defining the legacy inputs was found, will assume this intended. %s %s %s",
+                         ie.msg, ie.name, ie.path)
             else:
                 raise
 

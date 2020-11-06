@@ -14,7 +14,7 @@
 
 
 #include "ITrigJetHypoToolConfig.h"
-#include "./ConditionsDefsMT.h"
+#include "./CapacityCheckedConditionsDefs.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -57,6 +57,8 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
     this, "sharedVector", {}, "nodeID groups for nodes that see input jets"};
 
   std::vector<std::vector<int>> m_sharedNodes{};
- 
+
+  std::optional<ConditionPtrs> getCapacityCheckedConditions() const;
+
 };
 #endif

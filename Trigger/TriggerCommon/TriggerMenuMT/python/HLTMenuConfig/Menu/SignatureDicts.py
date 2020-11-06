@@ -4,7 +4,6 @@ log = logging.getLogger( __name__ )
 log.info("Importing %s",__name__)
 
 from copy import deepcopy
-import six
 
 #==========================================================
 # This is stored in chainDict['Signature']
@@ -894,7 +893,7 @@ AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_Bphysics + Allowe
 #==========================================================
 def getSignatureNameFromToken(chainpart):
     theMatchingTokens = []
-    reverseSliceIDDict = dict([(value, key) for key, value in six.iteritems (SliceIDDict)]) #reversed SliceIDDict
+    reverseSliceIDDict = { value: key for key, value in SliceIDDict.items() } #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
         if (token in chainpart):
             theMatchingTokens += [token]

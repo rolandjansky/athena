@@ -20,6 +20,7 @@
 #include "AsgTools/ToolHandleArray.h"
 #include "xAODCore/ShallowCopy.h"
 
+#include "xAODBase/IParticleHelpers.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/TrackCaloClusterContainer.h"
@@ -118,12 +119,14 @@ JetConstituentModSequence::copyModRecord(const SG::ReadHandleKey<T>& inKey,
   std::pair< T*, xAOD::ShallowAuxContainer* > newconstit =
     xAOD::shallowCopyContainer(*inHandle);    
   newconstit.second->setShallowIO(m_saveAsShallow);
-  
+
   for (auto t : m_modifiers) {ATH_CHECK(t->process(newconstit.first));}
 
   auto handle = makeHandle(outKey);
   ATH_CHECK(handle.record(std::unique_ptr<T>(newconstit.first),
                           std::unique_ptr<xAOD::ShallowAuxContainer>(newconstit.second)));
+  
+  xAOD::setOriginalObjectLink(*inHandle, *handle);
   
   return StatusCode::SUCCESS;
 }

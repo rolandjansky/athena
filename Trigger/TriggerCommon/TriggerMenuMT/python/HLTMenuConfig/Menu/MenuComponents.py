@@ -177,7 +177,8 @@ class HypoAlgNode(AlgNode):
         elif self.initialOutput in outputs:
             AlgNode.addOutput(self, name)
         else:
-            log.error("Hypo " + self.name +" has already %s as configured output: you may want to duplicate the Hypo!" + outputs[0])
+            log.error("Hypo %s has already %s as configured output: you may want to duplicate the Hypo!",
+                      self.name, outputs[0])
 
 
     def addHypoTool (self, hypoToolConf):
@@ -632,7 +633,7 @@ class Chain(object):
         for stepID in range(1,n_new_steps+1):
             new_step_name =  prev_step_name+'_'+empty_step_name+'%d_'%stepID+next_step_name
 
-            log.debug("Configuring empty step " + new_step_name)
+            log.debug("Configuring empty step %s", new_step_name)
             steps_to_add += [ChainStep(new_step_name, [], [], chainDicts=prev_chain_dict, comboHypoCfg=ComboHypoCfg)]
         
         self.steps = chain_steps_pre_split + steps_to_add + chain_steps_post_split
@@ -682,7 +683,7 @@ class Chain(object):
             log.debug("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.stepDicts))
             for seq, onePartChainDict in zip(step.sequences, step.stepDicts):
                 log.debug('    seq: %s, onePartChainDict:', seq.name)
-                log.debug('    ' + str(onePartChainDict))
+                log.debug('    %s', onePartChainDict)
                 seq.createHypoTools( onePartChainDict )
 
             step.createComboHypoTools(self.name) 

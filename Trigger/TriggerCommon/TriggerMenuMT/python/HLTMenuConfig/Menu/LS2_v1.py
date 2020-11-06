@@ -90,7 +90,10 @@ def setupMenu():
         ChainProp(name="HLT_mu24_L1MU20", groups=SingleMuonGroup),
         ChainProp(name="HLT_mu26_L1MU20", groups=SingleMuonGroup),
 
-
+        #ATR-21003
+        ChainProp(name='HLT_mu4_l2io_L1MU4', groups=SingleMuonGroup),
+        ChainProp(name='HLT_2mu14_l2io_L12MU10', groups=MultiMuonGroup),
+        ChainProp(name='HLT_2mu6_l2io_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
     ]
 
     TriggerFlags.EgammaSlice.signatures = TriggerFlags.EgammaSlice.signatures() + [
@@ -355,10 +358,6 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4', groups=BphysicsGroup),
         #ATR-20839
         ChainProp(name='HLT_2mu4_bDimu_L12MU4', groups=BphysicsGroup),
-        #ATR-21003
-        ChainProp(name='HLT_mu4_l2io_L1MU4', groups=SingleMuonGroup),
-        ChainProp(name='HLT_2mu14_l2io_L12MU10', groups=MultiMuonGroup),
-        ChainProp(name='HLT_2mu6_l2io_L12MU6',     l1SeedThresholds=['MU6'],   groups=MultiMuonGroup),
     ]
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [

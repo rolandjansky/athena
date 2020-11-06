@@ -17,17 +17,8 @@
 ################################################################################
 
 
-import os, sys, string
-
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-from AthenaCommon.AlgSequence import AlgSequence
-from AthenaCommon.Resilience import treatException
-from AthenaCommon.Include import include
 import traceback
-
-from RecExConfig.Configured import Configured
 from TauRecConfigured import TauRecConfigured
 
 ################################################################################
@@ -89,12 +80,9 @@ class TauRecAODProcessor ( TauRecConfigured ) :
                 import TauDiscriminant.TauDiscriGetter as tauDisc
                 tauDiscTools=tauDisc.getTauDiscriminantTools(mlog)
                 if len(tauDiscTools)==0:
-                    try: import DOESNOTEXIST
-                    except Exception:
-                        mlog.error("No TauDiscriminantTools appended")
-                        traceback.print_exc()
-                        return False
-                    pass                
+                    mlog.error("No TauDiscriminantTools appended")
+                    traceback.print_stack()
+                    return False
                 tools+=tauDiscTools
                 pass
             

@@ -181,7 +181,6 @@ class ConditionsDictMaker(object):
 
 
     def makeDict(self, params):
-
         # conditions example: ['10et,0eta320', '20et']
         conditions = self.get_conditions(params)
 
@@ -256,8 +255,21 @@ class ConditionsDictMaker(object):
             
             result.append(cdict)
 
+
+        # Example: input condition string:
+        #
+        # 260et,320eta490
+        # 
+        # result:
+        #
+        # [
+        #  defaultdict(<class 'dict'>, {'et': {'min': '260000.0', 'max': 'inf'},
+        #                               'eta': {'min': '3.2', 'max': '4.9'}})
+        # ]
+
         msgs = ['ConditionsDict OK']
         error = False
+        print ('ConditionsDictMaker::makeDict(), result', result)
         return result, error, msgs
 
 

@@ -4,13 +4,10 @@ from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import findViewAlgs, checkVDV
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.CFElements import seqOR
 import AthenaCommon.CfgMgr as CfgMgr
-import six
 
 import unittest
 
 class ViewCFTest( unittest.TestCase ):
-    if six.PY2:
-        assertRaisesRegex = unittest.TestCase.assertRaisesRegexp        
 
     def runTest( self ):
 

@@ -96,6 +96,7 @@ StatusCode JepRoiByteStreamV1Tool::initialize()
                 << PACKAGE_VERSION);
 
   ATH_CHECK( m_errorTool.retrieve() );
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -128,17 +129,17 @@ StatusCode JepRoiByteStreamV1Tool::convert(
 // Conversion of JEP container to bytestream
 
 StatusCode JepRoiByteStreamV1Tool::convert(
-  const LVL1::JEPRoIBSCollectionV1* const jep,
-  RawEventWrite* const re) const
+  const LVL1::JEPRoIBSCollectionV1* const jep) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
 
-  // Clear the event assembler
-  FullEventAssembler<L1CaloSrcIdMap> fea;
-  fea.clear();
+  // Get the event assembler
+  FullEventAssembler<L1CaloSrcIdMap>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "JepRoiByteStreamV1") );
   const uint16_t minorVersion = m_srcIdMap.minorVersionPreLS1();
-  fea.setRodMinorVersion(minorVersion);
+  fea->setRodMinorVersion(minorVersion);
 
   // Pointer to ROD data vector
 
@@ -187,7 +188,7 @@ StatusCode JepRoiByteStreamV1Tool::convert(
         }
         const uint32_t rodIdJem = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
                                   m_subDetector);
-        theROD = fea.getRodData(rodIdJem);
+        theROD = fea->getRodData(rodIdJem);
         if (neutralFormat) {
           const L1CaloUserHeader userHeader;
           theROD->push_back(userHeader.header());
@@ -389,10 +390,6 @@ StatusCode JepRoiByteStreamV1Tool::convert(
       }
     }
   }
-
-  // Fill the raw event
-
-  fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
 }

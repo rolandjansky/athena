@@ -14,6 +14,7 @@
 #include "L1CaloSrcIdMap.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthContainers/DataVector.h"
 #include "eformat/SourceIdentifier.h"
@@ -62,13 +63,14 @@ class CpmRoiByteStreamV2Tool : public AthAlgTool {
                       DataVector<LVL1::CPMTobRoI>* roiCollection) const;
 
    /// Convert CPM RoI to bytestream
-   StatusCode convert(const DataVector<LVL1::CPMTobRoI>* roiCollection,
-                      RawEventWrite* re) const;
+   StatusCode convert(const DataVector<LVL1::CPMTobRoI>* roiCollection) const;
 
    /// Return reference to vector with all possible Source Identifiers
    const std::vector<uint32_t>& sourceIDs(const std::string& sgKey) const;
 
  private:
+   ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+   { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
 
    typedef DataVector<LVL1::CPMTobRoI>                   CpmRoiCollection;
    typedef std::map<uint32_t, const LVL1::CPMTobRoI*>    CpmRoiMap;

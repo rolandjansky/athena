@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,8 +10,6 @@
 #include "AthenaKernel/errorcheck.h"
 #include <vector>
 #include <string>
-
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackingPrimitives.h"

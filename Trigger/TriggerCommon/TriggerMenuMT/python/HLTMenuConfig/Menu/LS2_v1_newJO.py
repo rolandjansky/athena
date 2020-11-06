@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-import six
-
 # def get_flag_item(chainName, L1itemsChainParts, groups):
 #     PhysicsStream = 'Main'
 
@@ -109,7 +107,7 @@ if __name__ == "__main__":
     # print all hypo algs and their hypo tools for debugging
     from AthenaCommon.CFElements import flatAlgorithmSequences    
     fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )
-    for seq, algs in six.iteritems (fs):
+    for seq, algs in fs.items():
         for alg in algs:
             if 'HypoTools' in alg._properties:
                 log.verbose("%s %s", alg.name, [ t.getFullJobOptName() for t in alg.HypoTools ])
