@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef TOPEVENT_H_
@@ -20,8 +20,8 @@
 #include "xAODTruth/TruthParticleContainer.h"
 
 #include "TopPartons/PartonHistory.h"
-#include "TopEvent/KLFitterResult.h"
-#include "TopEvent/PseudoTopResult.h"
+#include "TopEvent/KLFitterResultContainer.h"
+#include "TopEvent/PseudoTopResultContainer.h"
 
 #include <ostream>
 #include <iostream>
@@ -131,7 +131,7 @@ namespace top {
     ///Container of track jets (can be sorted)
     xAOD::JetContainer m_trackJets;
 
-    ///Container of tracks (can be sorted)                                                                                                                                                                
+    ///Container of tracks (can be sorted)
     xAOD::TrackParticleContainer m_tracks;
 
     ///Container of taujets (can be sorted)
