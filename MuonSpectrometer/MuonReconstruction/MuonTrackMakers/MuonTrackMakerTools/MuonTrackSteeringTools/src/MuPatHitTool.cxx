@@ -25,7 +25,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 
-static constexpr unsigned int arraySize = 1000;
 
 namespace Muon {
 
