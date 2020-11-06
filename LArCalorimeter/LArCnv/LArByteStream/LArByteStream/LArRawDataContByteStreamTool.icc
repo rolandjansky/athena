@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRAWDATACONTBYTESTREAMTOOL_ICC
@@ -13,7 +13,7 @@
 
 
 template <class COLLECTION >
-bool LArRawDataContByteStreamTool::checkGainConsistency(const COLLECTION* coll)
+bool LArRawDataContByteStreamTool::checkGainConsistency(const COLLECTION* coll) const
 {typedef typename COLLECTION::const_iterator contIter;
  contIter it=coll->begin();
  contIter it_e=coll->end();
@@ -33,14 +33,15 @@ bool LArRawDataContByteStreamTool::checkGainConsistency(const COLLECTION* coll)
 // LArAccumulatedCalibDigit, LArAccumulatedDigit, LArCalibDigit, LArDigit,
 // LArFebHeader and LArRawChannel
 template <class COLLECTION >
-StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION* coll, CaloGain::CaloGain gain)
-{ 
-	if (prepareRobIndex(re).isFailure()){
+StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION* coll, CaloGain::CaloGain gain) const
+{
+        RobIndex_t robIndex;
+	if (prepareRobIndex(re, robIndex).isFailure()){
           ATH_MSG_ERROR ( "Error in prepareRobIndex " );
           return StatusCode::FAILURE;
 	}
-        std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> >::const_iterator it = m_robIndex.find(eformat::LAR);
-        if ( it != m_robIndex.end() ) {
+        RobIndex_t::const_iterator it = robIndex.find(eformat::LAR);
+        if ( it != robIndex.end() ) {
           const std::vector<const uint32_t*>& robs = (*it).second;
 	  std::vector<const uint32_t*>::const_iterator rob_add;
           for(rob_add = robs.begin(); rob_add!=robs.end();++rob_add){
