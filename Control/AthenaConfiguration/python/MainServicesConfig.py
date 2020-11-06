@@ -22,9 +22,8 @@ def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'
     return cfg
 
 
-def MainServicesCfg(cfgFlags):
+def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     # Run a serial job for threads=0
-    LoopMgr = 'AthenaEventLoopMgr'
     if cfgFlags.Concurrency.NumThreads>0:
         if cfgFlags.Concurrency.NumConcurrentEvents==0:
             # In a threaded job this will mess you up because no events will be processed
