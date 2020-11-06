@@ -1,18 +1,7 @@
-################################################################################
-# Package: TrackCaloClusterRecInterfaces
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrackCaloClusterRecInterfaces )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   GaudiKernel
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCaloEvent
-   Tracking/TrkEvent/TrkCaloExtension
-   Tracking/TrkEvent/TrkEventPrimitives )
 
 # Declare an interface library for the package.
 atlas_add_library( TrackCaloClusterRecInterfacesLib
