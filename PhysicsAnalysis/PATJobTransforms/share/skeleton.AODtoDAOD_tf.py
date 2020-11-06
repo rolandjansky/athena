@@ -52,6 +52,8 @@ elif hasattr(runArgs,'inputEVNTFile') or hasattr(runArgs,'jobConfig'):
     rec.doForwardDet.set_Value_and_Lock(False)
     rec.doFileMetaData.set_Value_and_Lock(False)
     rec.doTruth.set_Value_and_Lock( True )
+    rec.doTrigger.set_Value_and_Lock( False )
+    rec.doWriteTAG.set_Value_and_Lock( False )
     from AthenaCommon.DetFlags      import DetFlags
     DetFlags.detdescr.BField_setOff()
     athenaCommonFlags.FilesInput = runArgs.inputEVNTFile
