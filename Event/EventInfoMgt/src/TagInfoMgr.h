@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOMGT_TAGINFOMGR_H
@@ -13,8 +13,6 @@
  *  Store with current tag values. 
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: TagInfoMgr.h,v 1.11 2009-04-29 07:47:40 schaffer Exp $
  */
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -111,6 +109,15 @@ public:
     StatusCode           checkTagInfo(IOVSVC_CALLBACK_ARGS);
     //@}
 
+    /// Find tag by name, return by value
+    virtual std::string findTag(const std::string & name) const override final;
+
+    /// Return a vector with all current input tags
+    virtual NameTagPairVec getInputTags() const override final;
+
+    /// Dump the content of the current TagInfo to std::string for debug
+    virtual std::string dumpTagInfoToStr() const override final;
+   
     /// @name TagInfo management methods:
     //@{
     /// Callback at BeginRun and BeginEvent

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -949,3 +949,40 @@ TagInfoMgr::createAddress(long svcType,
     refpAddress = new GenericAddress(TagInfoMgr_StorageType, clid, refAddress);
     return(StatusCode::SUCCESS);
 }
+
+//______________________________________________________________________________
+std::string TagInfoMgr::findTag(const std::string & name) const
+{
+   const TagInfo *tagInfo = 0;
+   const auto iter = m_extraTagValuePairsViaInterface.find(name);
+   if( iter != m_extraTagValuePairsViaInterface.end() ) {
+      return iter->second;
+   }
+   if( m_detStore->retrieve(tagInfo, m_tagInfoKeyValue).isFailure() ) {
+      return "";
+   }
+   return tagInfo->findTag(name);
+}
+
+//______________________________________________________________________________
+ITagInfoMgr::NameTagPairVec
+TagInfoMgr::getInputTags() const
+{
+   const TagInfo *tagInfo = 0; 
+   if( m_detStore->retrieve(tagInfo, m_tagInfoKeyValue).isFailure() ) {
+      return TagInfo::NameTagPairVec{};
+   }
+   return tagInfo->getInputTags();
+}
+
+//______________________________________________________________________________
+std::string 
+TagInfoMgr::dumpTagInfoToStr() const
+{
+   const TagInfo *tagInfo = 0; 
+   if( m_detStore->retrieve(tagInfo, m_tagInfoKeyValue).isFailure() ) {
+      return "";
+   }
+   return tagInfo->str();
+}
+
