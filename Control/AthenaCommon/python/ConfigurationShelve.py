@@ -215,7 +215,7 @@ def storeJobOptionsCatalogue( cfg_fname ):
 
  # workaround for pycomps
    pycomps = []
-   for c in C.allConfigurables.items():
+   for c in C.allConfigurables.values():
       if not isinstance( c, (PyAthena.Alg,
                              PyAthena.AlgTool,
                              PyAthena.Svc,
