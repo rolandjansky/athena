@@ -94,8 +94,10 @@ namespace top {
     if (m_config->useLargeRJets()) {
       top::check(m_jetCalibrationToolLargeR.retrieve(),
                  "Failed to retrieve JetCalibrationToolLargeR");
-      top::check(m_jetUncertaintiesToolLargeR.retrieve(),
-                 "Failed to retrieve JetUncertaintiesToolLargeR");
+      if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
+	top::check(m_jetUncertaintiesToolLargeR.retrieve(),
+		   "Failed to retrieve JetUncertaintiesToolLargeR");
+      }
     }
 
     if (m_config->getDerivationStream() == "PHYS") {
