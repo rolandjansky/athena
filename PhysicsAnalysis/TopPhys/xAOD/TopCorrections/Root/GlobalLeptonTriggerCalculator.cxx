@@ -1,11 +1,11 @@
 /*
-   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopCorrections/GlobalLeptonTriggerCalculator.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopEvent/EventTools.h"
-#include "TopEvent/SystematicEvent.h"
+#include "TopEvent/SystematicEventContainer.h"
 
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
@@ -107,9 +107,9 @@ namespace top {
     const xAOD::ElectronContainer* electrons(nullptr);
     std::vector<const xAOD::Muon*> selectedMuons;
     std::vector<const xAOD::Electron*> selectedElectrons;
-    
+
     if (m_config->useMuons()) top::check(evtStore()->retrieve(muons, m_config->sgKeyMuons(hash)), "Failed to retrieve muons");
-    
+
     // Put into a vector
     for (size_t index : systEvent->goodMuons()) {
       selectedMuons.push_back(muons->at(index));
