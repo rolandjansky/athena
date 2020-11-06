@@ -22,6 +22,7 @@ namespace CP {
   static const FloatAccessor s_acc_topoetcone20("topoetcone20");
   static const FloatAccessor s_acc_ptvarcone20("ptvarcone20");
   static const FloatAccessor s_acc_ptvarcone30("ptvarcone30");
+  static const FloatAccessor s_acc_PLV("PromptLeptonVeto");
   static const FloatDecorator s_dec_iso_PLT("LowPtPLV");    
   
   IsolationLowPtPLVTool::IsolationLowPtPLVTool(const std::string& toolName) :
@@ -95,47 +96,61 @@ namespace CP {
   }
     
   StatusCode IsolationLowPtPLVTool::augmentPLV( const xAOD::IParticle& Particle) {
+
+    //Check is PLV variable is set
+    if( s_acc_PLV.isAvailable(Particle) ) {
+      if( s_acc_PLV(Particle) <= -1.1 ){
+	ATH_MSG_WARNING( "Nominal PLV score " << s_acc_PLV(Particle) << ". Returning -1.1" );
+	s_dec_iso_PLT(Particle) = -1.1;
+	return StatusCode::SUCCESS;
+      }
+    }
+
     // Check if input variables exist
     bool inputvar_missing = false;
     if (!s_acc_TrackJetNTrack.isAvailable(Particle)){
-      ATH_MSG_ERROR( "TrackJetNTrack not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "TrackJetNTrack not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_DRlj.isAvailable(Particle)){
-      ATH_MSG_ERROR( "DRlj not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "DRlj not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_PtRel.isAvailable(Particle)){
-      ATH_MSG_ERROR( "PtRel not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "PtRel not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_PtFrac.isAvailable(Particle)){
-      ATH_MSG_ERROR( "PtFrac not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "PtFrac not available" );
       inputvar_missing = true;
     }
 
     if (!s_acc_topoetcone20.isAvailable(Particle)){
-      ATH_MSG_ERROR( "topoetcone20 not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "topoetcone20 not available" );
       inputvar_missing = true;
     }
 
     if (Particle.type() == xAOD::Type::ObjectType::Electron && !s_acc_ptvarcone20.isAvailable(Particle)){
-      ATH_MSG_ERROR( "ptvarcone20 not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "ptvarcone20 not available" );
       inputvar_missing = true;
     }
 
     if (Particle.type() == xAOD::Type::ObjectType::Muon && !s_acc_ptvarcone30.isAvailable(Particle)){
-      ATH_MSG_ERROR( "ptvarcone30 not available" );
+      if(!m_varMissingMsg) ATH_MSG_WARNING( "ptvarcone30 not available" );
       inputvar_missing = true;
     }
 
     if (inputvar_missing){
-      ATH_MSG_ERROR( "input variable(s) missing, augmenting fixed value 1.1" );
+      if(!m_varMissingMsg){ 
+	ATH_MSG_WARNING( "input variable(s) missing, augmenting fixed value 1.1" );
+	//Print the warnings for missing variables only once 
+	m_varMissingMsg = true;
+      }
       s_dec_iso_PLT(Particle) = 1.1;
-      return StatusCode::FAILURE;
+      return StatusCode::SUCCESS;
     }
 
     short TrackJetNTrack = s_acc_TrackJetNTrack(Particle);
