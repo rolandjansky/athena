@@ -164,7 +164,7 @@ namespace TrigCompositeUtils {
   /**
    * @brief Links to the previous object, location of previous 'seed' decision supplied by hand
    **/
-  void linkToPrevious(Decision* d, const std::string& previousCollectionKey, size_t previousIndex, const EventContext& ctx = Gaudi::Hive::currentContext());
+  void linkToPrevious(Decision* d, const std::string& previousCollectionKey, size_t previousIndex);
 
   /**
    * @brief Links to the previous object, 'seed' decision provided explicitly.

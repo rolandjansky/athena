@@ -138,8 +138,8 @@ namespace TrigCompositeUtils {
   }
 #endif
 
-  void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex, const EventContext& ctx  ) {
-    ElementLink<DecisionContainer> seed = ElementLink<DecisionContainer>( previousCollectionKey, previousIndex, ctx );
+  void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex  ) {
+    ElementLink<DecisionContainer> seed = ElementLink<DecisionContainer>( previousCollectionKey, previousIndex );
     if (!seed.isValid()) {
       throw std::runtime_error("TrigCompositeUtils::linkToPrevious Invalid Decision Link key or index provided");
     } else {
