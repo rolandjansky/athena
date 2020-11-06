@@ -198,6 +198,7 @@ private:
   mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("MMStripResponseSimulation");
 
   // seperate random number generation for performance monitoring
+  float generateTransverseDiffusion(float posY);
   float getTransversDiffusion(float posY);
   float getLongitudinalDiffusion(float posY);
   float getEffectiveCharge();
