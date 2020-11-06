@@ -664,7 +664,7 @@ def trigInDetCfg( inflags, roisKey="EMRoIs", signatureName='' ):
   acc.addEventAlgo(trackParticleCnv)
 
   return acc
-
+  
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
@@ -691,7 +691,7 @@ if __name__ == "__main__":
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge(ByteStreamReadCfg(ConfigFlags))
 
-    acc.merge( trigInDetCfg( ConfigFlags, viewMakerName="IMTest", signature="Electron" ) )
+    acc.merge( trigInDetCfg( ConfigFlags, roisKey="ElectronRoIs", signatureName="Electron" ) )
     from RegionSelector.RegSelConfig import regSelCfg
     rsc = regSelCfg( ConfigFlags )
     acc.merge( rsc )

@@ -80,9 +80,6 @@ def generateChains( flags,  chainDict ):
 
     accTrk.merge(fastInDetReco, sequenceName=stepReco.getName())
 
-    accVDVCalo = ComponentAccumulator()
-
-
 
     # TODO remove once full tracking is in place
     fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForElectron')
