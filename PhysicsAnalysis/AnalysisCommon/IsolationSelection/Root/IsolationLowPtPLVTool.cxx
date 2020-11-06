@@ -22,6 +22,7 @@ namespace CP {
   static const FloatAccessor s_acc_topoetcone20("topoetcone20");
   static const FloatAccessor s_acc_ptvarcone20("ptvarcone20");
   static const FloatAccessor s_acc_ptvarcone30("ptvarcone30");
+  static const FloatAccessor s_acc_PLV("PromptLeptonVeto");
   static const FloatDecorator s_dec_iso_PLT("LowPtPLV");    
   
   IsolationLowPtPLVTool::IsolationLowPtPLVTool(const std::string& toolName) :
@@ -95,6 +96,16 @@ namespace CP {
   }
     
   StatusCode IsolationLowPtPLVTool::augmentPLV( const xAOD::IParticle& Particle) {
+
+    //Check is PLV variable is set
+    if( s_acc_PLV.isAvailable(Particle) ) {
+      if( s_acc_PLV(Particle) <= -1.1 ){
+	ATH_MSG_WARNING( "Nominal PLV score " << s_acc_PLV(Particle) << ". Returning -1.1" );
+	s_dec_iso_PLT(Particle) = -1.1;
+	return StatusCode::SUCCESS;
+      }
+    }
+
     // Check if input variables exist
     bool inputvar_missing = false;
     if (!s_acc_TrackJetNTrack.isAvailable(Particle)){
