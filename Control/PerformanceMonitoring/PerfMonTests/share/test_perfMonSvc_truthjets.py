@@ -99,7 +99,7 @@ if not 'OUTPUT' in dir():
   pass
 outStream.OutputFile = OUTPUT
 
-from GaudiSvc.GaudiSvcConf import MessageSvc
+from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
 svcMgr += MessageSvc( defaultLimit = 4000000 )
 svcMgr.MessageSvc.OutputLevel  = ERROR
 

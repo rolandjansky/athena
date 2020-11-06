@@ -73,7 +73,7 @@ regSvc.OverrideTypes = [ "String4k" ]
 
 ### configure the event selector
 
-from GaudiSvc.GaudiSvcConf import EventSelector
+from GaudiCoreSvc.GaudiCoreSvcConf import EventSelector
 
 ServiceMgr += EventSelector()
 

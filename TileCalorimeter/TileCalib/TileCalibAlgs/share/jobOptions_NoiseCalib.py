@@ -383,7 +383,7 @@ topSequence += theTileRawChNoiseCalibAlg
 if 'doPerfMon' in dir():
     if doPerfMon:
 
-        from GaudiSvc.GaudiSvcConf import AuditorSvc
+        from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
         theAuditorSvc = svcMgr.AuditorSvc
         theApp.AuditAlgorithms=True  
         theApp.AuditServices=True

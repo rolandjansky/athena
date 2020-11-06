@@ -11,7 +11,7 @@ import AthenaCommon.AtlasUnixStandardJob
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
 
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
