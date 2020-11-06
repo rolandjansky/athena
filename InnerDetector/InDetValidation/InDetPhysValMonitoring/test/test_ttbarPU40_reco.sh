@@ -2,7 +2,7 @@
 # art-description: Standard test with ttbar input, PU=40
 # art-type: grid
 # art-include: 21.9/Athena
-# art-output: *.root
+# art-output: physval*.root
 # art-output: *.xml
 # art-output: dcube*
 
@@ -13,7 +13,7 @@ run() { (set -x; exec "$@") }
 lastref_dir=last_results
 artdata=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art
 inputRDO=${artdata}/InDetPhysValMonitoring/inputs/OUT.RDO_ttbar_PU40.pool.root 
-dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/IDPVMPlots_R22.xml"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/dcube/config/run2_physval.xml"
 dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetPhysValMonitoring/ReferenceHistograms/physval_ttbarPU40_reco_r21.9.root"
 
 # Reco step based on test InDetPhysValMonitoring ART setup from Josh Moss.
