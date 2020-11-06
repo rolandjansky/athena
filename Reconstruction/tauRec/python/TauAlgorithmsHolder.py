@@ -982,15 +982,6 @@ def getTauDecayModeNNClassifier():
     cached_instances[_name] = TauDecayModeNNClassifier
     return TauDecayModeNNClassifier
 
-def getTauEleOLRDecorator():
-    _name = sPrefix + 'TauEleOLRDecorator'
-    from tauRecTools.tauRecToolsConf import TauEleOLRDecorator
-    myTauEleOLRDecorator = TauEleOLRDecorator(name=_name,
-                                              Key_electronInputContainer="Electrons",
-                                              EleOLRFile="eVetoAODfix.root")
-    cached_instances[_name] = myTauEleOLRDecorator
-    return myTauEleOLRDecorator
-
 def getTauVertexCorrection():
     from tauRec.tauRecFlags import tauFlags
     from tauRecTools.tauRecToolsConf import TauVertexCorrection
