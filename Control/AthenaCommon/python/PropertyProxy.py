@@ -4,18 +4,11 @@
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
-from __future__ import print_function
-
-import six
 import os, weakref, copy
 from GaudiKernel.GaudiHandles import GaudiHandle, GaudiHandleArray
 
 # dictionary with configurable class : python module entries
 from AthenaCommon import ConfigurableDb
-
-if six.PY3:
-   long = int
-
 
 ### data ---------------------------------------------------------------------
 __version__ = '2.0.0'
@@ -54,12 +47,10 @@ def _isCompatible( tp, value, context = "" ):
  # compatibility check that relies on conversion (which will always fail
  # for configurables) is acceptable.
 
-   if six.PY2 and type(value) == unicode: # noqa: F821
-      value = value.encode()
    if ( tp == str or type(value) == str ) and not isinstance( value, tp ):
     # special case, insist on exact match for str (no conversions allowed)
       raise ValueError( "received an instance of %s, but %s expected, context: %s" % (type(value),tp, context) )
-   elif ( tp == int or tp == long ) and type(value) == float:
+   elif ( tp == int ) and type(value) == float:
     # special case, insist on strict match for integer types
       raise ValueError( "received an instance of %s, but %s expected, context: %s" % (type(value),tp, context) )
    else:

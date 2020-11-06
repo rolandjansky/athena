@@ -22,8 +22,7 @@ import sys
 import os
 import subprocess
 import time
-import six
-from past.builtins import basestring
+import io
 
 def dump( buf, stdout = sys.stdout ):
     """
@@ -32,10 +31,7 @@ def dump( buf, stdout = sys.stdout ):
     fname = None
     if isinstance(buf, str):
         fname = buf
-    if six.PY3:
-        import io
-        file = io.IOBase # noqa: F811
-    if isinstance(buf, file):
+    if isinstance(buf, io.IOBase):
         fname = buf.name
     with open(fname, 'r') as fd:
         map(stdout.write, (l for l in fd.readlines()))
@@ -278,7 +274,7 @@ class AthenaApp(object):
         self._jobo = tempfile.NamedTemporaryFile(suffix='-jobo.py', mode='w+')
         if cmdlineargs is None:
             cmdlineargs = []
-        if isinstance(cmdlineargs, basestring):
+        if isinstance(cmdlineargs, str):
             cmdlineargs = cmdlineargs.split()
         self._cmdlineargs = cmdlineargs[:]
         
