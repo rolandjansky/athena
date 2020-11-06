@@ -1392,7 +1392,9 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
 StatusCode HltEventLoopMgr::clearWBSlot(size_t evtSlot) const
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+  auto monTime = Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_clearStore");
   StatusCode sc = m_whiteboard->clearStore(evtSlot);
+  Monitored::Group(m_monTool, monTime);
   if( !sc.isSuccess() )  {
     ATH_MSG_WARNING("Clear of event data store failed");
   }

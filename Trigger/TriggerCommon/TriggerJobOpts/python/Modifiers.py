@@ -1117,8 +1117,12 @@ class enableSchedulerMon(_modifier):
     Enable SchedulerMonSvc
     """
     def preSetup(self):
-        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        if not flags.Trigger.Online.isPartition:
+            log.debug('SchedulerMonSvc currently only works with athenaHLT / online partition. Skipping setup.')
+            return
+
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
         from TrigSteerMonitor.TrigSteerMonitorConfig import SchedulerMonSvcCfg
         CAtoGlobalWrapper(SchedulerMonSvcCfg, flags)
     

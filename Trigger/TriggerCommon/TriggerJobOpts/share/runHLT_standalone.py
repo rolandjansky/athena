@@ -244,6 +244,7 @@ else:           # More data modifiers
                      #Monitoring L1Topo at ROB level
                      #'L1TopoCheck',
                      'forceTileRODMap',
+                     'enableSchedulerMon'
     ]
 
 TriggerFlags.doID = ConfigFlags.Trigger.doID = opt.doID
