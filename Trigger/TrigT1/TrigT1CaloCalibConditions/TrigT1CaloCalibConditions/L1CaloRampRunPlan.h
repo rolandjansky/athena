@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALORAMPRUNPLAN_H
@@ -23,7 +23,7 @@ class L1CaloRampRunPlan : public AbstractL1CaloPersistentCondition, public DataO
 
 public:
     L1CaloRampRunPlan();
-    L1CaloRampRunPlan(int nEventsPerStep, std::vector<double> vEnergySteps);
+    L1CaloRampRunPlan(int nEventsPerStep, const std::vector<double>& vEnergySteps);
 
 	virtual ~L1CaloRampRunPlan() {};
 

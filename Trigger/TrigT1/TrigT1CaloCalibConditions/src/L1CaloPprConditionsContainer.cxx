@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainer.h"
@@ -139,7 +139,7 @@ DataObject* L1CaloPprConditionsContainer::makePersistent() const {
 	return 0;
 }
 
-void L1CaloPprConditionsContainer::makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap) {
+void L1CaloPprConditionsContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
 
 	this->clear();
 

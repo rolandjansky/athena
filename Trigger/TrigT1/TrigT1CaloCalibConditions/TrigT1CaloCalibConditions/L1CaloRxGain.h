@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALORXGAIN_H
@@ -29,8 +29,8 @@ public:
 //    L1CaloRxGain( unsigned int channelId, unsigned int identifier, std::string crate, unsigned int slot, unsigned int channel, int gain, std::string comment );
 //    L1CaloRxGain( const L1CaloRxCoolChannelId& channelId, unsigned int identifier, std::string crate, unsigned int slot, unsigned int channel, int gain, std::string comment );
 
-    L1CaloRxGain( unsigned int channelId, int gain, std::string comment );
-    L1CaloRxGain( const L1CaloRxCoolChannelId& channelId, int gain, std::string comment );
+    L1CaloRxGain( unsigned int channelId, int gain, const std::string& comment );
+    L1CaloRxGain( const L1CaloRxCoolChannelId& channelId, int gain, const std::string& comment );
 
 
 	virtual ~L1CaloRxGain() {};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigT1CaloCalibConditions/L1CaloReadoutConfigContainer.h"
 
@@ -69,6 +69,7 @@ L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer()
 L1CaloReadoutConfigContainer::L1CaloReadoutConfigContainer(const std::string& folderKey)
   : L1CaloReadoutConfigContainer() // delegating constructor
 {
+  // cppcheck-suppress useInitializationList
   m_coolFolderKey = folderKey;
 }
 
@@ -140,7 +141,7 @@ DataObject* L1CaloReadoutConfigContainer::makePersistent() const
   return static_cast<DataObject*>(attrListCollection.release());
 }
 
-void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap)
+void L1CaloReadoutConfigContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
 {
   clear();
 
