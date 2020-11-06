@@ -37,8 +37,9 @@ class VMM_Shaper{
      double vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time) const;
      double findPeak(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const;
      bool aboveThresholdSimple(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const;
-
-
+     double m_pole0_ns;
+     double m_re_pole1_ns; 
+     double m_im_pole1_ns;
 };
 
 #endif  // MM_DIGITIZATION_VMM_SHAPER_H
