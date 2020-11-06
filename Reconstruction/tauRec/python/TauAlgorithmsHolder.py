@@ -97,8 +97,6 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
                                     calibrationFile = "TES_MC16a_prelim.root",
-                                    doEnergyCorrection = correctEnergy,
-                                    doAxisCorrection = correctAxis,
                                     doPtResponse = True,
                                     Key_vertexInputContainer = _DefaultVertexContainer 
                                     )

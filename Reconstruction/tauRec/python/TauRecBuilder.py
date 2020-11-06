@@ -67,7 +67,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             if not doMVATrackClassification and doRNNTrackClassification:
                 tools.append(taualgs.getTauTrackRNNClassifier())
             if jobproperties.Beam.beamType()!="cosmics":
-                tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+                tools.append(taualgs.getEnergyCalibrationLC())
             
             tools.append(taualgs.getCellVariables())
             tools.append(taualgs.getElectronVetoVars())
