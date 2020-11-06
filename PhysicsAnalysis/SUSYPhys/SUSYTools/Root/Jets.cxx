@@ -745,7 +745,7 @@ namespace ST {
         ATH_MSG_VERBOSE("This jet is " << (acc_bjet(*jet) ? "" : "not ") << "b-tagged.");
         ATH_MSG_VERBOSE("This jet's truth label is " << truthlabel);
 
-        if ( acc_bjet(*jet) ) {
+        if ( acc_bjet(*jet) or m_BtagWP == "Continuous") {
           result = m_btagEffTool->getScaleFactor(*jet, sf);
 
           switch (result) {
