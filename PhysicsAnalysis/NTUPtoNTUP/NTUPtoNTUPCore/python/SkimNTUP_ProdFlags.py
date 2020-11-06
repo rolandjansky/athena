@@ -106,7 +106,4 @@ listAllKnownSkimNTUP.append (prodFlags.WriteMySkimNTUP2)
 # Egamma D3PDs
 _importFlagsFromModule ('EgammaN2N.EgammaN2NProdFlags')
 
-# Jet D3PDs
-_importFlagsFromModule ('JetN2N.JetN2NProdFlags')
-
 print ('Known NTUPs are', listAllKnownSkimNTUP)
