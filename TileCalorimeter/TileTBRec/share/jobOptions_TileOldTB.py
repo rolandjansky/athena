@@ -40,14 +40,14 @@ if not 'OutputLevel' in dir():
     OutputLevel = 3
 
 if not hasattr(svcMgr, 'MessageSvc'):
-    from GaudiSvc.GaudiSvcConf import MessageSvc
+    from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
     svcMgr += MessageSvc()
 svcMgr.MessageSvc.defaultLimit = 1000000
 svcMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M"
 svcMgr.MessageSvc.OutputLevel  = OutputLevel
 
 if not hasattr(svcMgr, 'HistorySvc'):
-    from GaudiSvc.GaudiSvcConf import HistorySvc
+    from GaudiMonitor.GaudiMonitorConf import HistorySvc
     svcMgr += HistorySvc()
 svcMgr.HistorySvc.OutputLevel = 4
 

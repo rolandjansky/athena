@@ -389,7 +389,7 @@ if doAtlantis:
 #-----------------------
 if doPerfMon and not athenaCommonFlags.isOnline():
 
-    from GaudiSvc.GaudiSvcConf import AuditorSvc
+    from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
     theAuditorSvc = svcMgr.AuditorSvc
     theApp.AuditAlgorithms = True  
     theApp.AuditServices = True

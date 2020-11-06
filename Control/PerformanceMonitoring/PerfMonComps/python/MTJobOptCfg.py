@@ -53,7 +53,7 @@ class PerfMonMTSvc ( _PerfMonMTSvc  ):
 
         ## Make sure the auditor service is there
         if not hasattr(svcMgr, 'AuditorSvc'):
-            from GaudiSvc.GaudiSvcConf import AuditorSvc
+            from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
             svcMgr += AuditorSvc()
 
         ## Turn on component-level monitoring if asked by the user

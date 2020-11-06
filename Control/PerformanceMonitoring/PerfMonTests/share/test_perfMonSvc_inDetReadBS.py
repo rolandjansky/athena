@@ -129,7 +129,7 @@ if not doReadBS:
   #ServiceMgr.EventSelector.InputCollections += ["castor:/castor/cern.ch/grid/atlas/datafiles/egamma/DC3.007040.singlepart_gamma_Et20/digit/120031/ideal0_mc12.007040.singlepart_gamma_Et20.digit.RDO.v12003108_tid005022._00002.pool.root"]
 ###############################################################
 
-from GaudiSvc.GaudiSvcConf import MessageSvc
+from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
 svcMgr += MessageSvc( defaultLimit = 4000000 )
 svcMgr.MessageSvc.OutputLevel  = ERROR
 

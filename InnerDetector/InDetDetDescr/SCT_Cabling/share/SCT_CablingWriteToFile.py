@@ -53,7 +53,7 @@ ServiceMgr.IOVDbSvc.OutputToFile = True
 #--------------------------------------------------------------
 # use auditors
 #--------------------------------------------------------------
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 ServiceMgr.AuditorSvc.Auditors += [ "ChronoAuditor"]
 ServiceMgr.AuditorSvc.Auditors += [ "MemStatAuditor" ]
