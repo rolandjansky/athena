@@ -445,10 +445,12 @@ namespace top {
     // jets) are applied
     bool JERisMC = true;
 
-    m_jetUncertaintiesToolLargeR
-      = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
-                                  jetCalibrationNameLargeR, MC_type, JERisMC,
-                                  configDir + "/R10_" + largeRJESJMS_config + ".config", nullptr, "", calibArea);
+    if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
+      m_jetUncertaintiesToolLargeR
+	= setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
+				    jetCalibrationNameLargeR, MC_type, JERisMC,
+				    configDir + "/R10_" + largeRJESJMS_config + ".config", nullptr, "", calibArea);
+    }
 
     return StatusCode::SUCCESS;
   }
