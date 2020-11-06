@@ -1,135 +1,173 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackParticleClusterAssociationAlg.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODCaloEvent/CaloClusterAuxContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODAssociations/TrackParticleClusterAssociation.h"
-#include "xAODAssociations/TrackParticleClusterAssociationContainer.h"
-#include "xAODAssociations/TrackParticleClusterAssociationAuxContainer.h"
 
-#include "TrkToolInterfaces/ITrackSelectorTool.h"
-#include "RecoToolInterfaces/IParticleCaloClusterAssociationTool.h"
-#include "TrackToCalo/CrossedCaloCellHelper.h"
-#include "CaloUtils/CaloClusterStoreHelper.h"
+#include "StoreGate/WriteDecorHandle.h"
+
+#include "FourMomUtils/P4Helpers.h"
+
+#include "AthContainers/AuxElement.h"
+
 
 TrackParticleClusterAssociationAlg::TrackParticleClusterAssociationAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator),
-  m_caloClusterAssociationTool("Rec::ParticleCaloClusterAssociationTool/ParticleCaloClusterAssociationTool"),
-  m_trackSelector("InDet::InDetDetailedTrackSelectorTool/MuonCombinedInDetDetailedTrackSelectorTool") {  
-
-  declareProperty("ParticleCaloClusterAssociationTool"  ,   m_caloClusterAssociationTool);
-  declareProperty("TrackParticleContainerName"          ,   m_trackParticleCollectionName = "InDetTrackParticles" );
-  declareProperty("PtCut"                               ,   m_ptCut                       = 25000. );
-  declareProperty("OutputCollectionPostFix"             ,   m_outputPostFix               = "" );
-  declareProperty("CaloClusterLocation"                 ,   m_caloClusters                = "CaloCalTopoClusters"   );
-}
-
-TrackParticleClusterAssociationAlg::~TrackParticleClusterAssociationAlg()
-{
-
-}
+  AthAlgorithm(name,pSvcLocator) {  }
 
 StatusCode TrackParticleClusterAssociationAlg::initialize()
 {
-  ATH_CHECK(m_caloClusterAssociationTool.retrieve());
-  // ATH_CHECK(m_trackSelector.retrieve());
 
+  ATH_CHECK( m_caloExtKey.initialize() );
+  ATH_CHECK( m_trackParticleCollectionHandle.initialize() );
+  ATH_CHECK( m_caloClusters.initialize() );
+  ATH_CHECK( m_assocClustersDecor.initialize() );
+
+  ATH_CHECK(m_caloEntryParsDecor.initialize( !m_caloEntryParsDecor.empty() ) );
+
+  ATH_CHECK( m_vertexContHandle.initialize( !m_vertexContHandle.empty() ) );
+  if(!m_vertexContHandle.empty() ) {
+    ATH_CHECK(m_trackvertexassoTool.retrieve() );
+  }
+
+  ATH_MSG_DEBUG(" cluster decoration = "<< m_assocClustersDecor.key() );
   return StatusCode::SUCCESS; 
 }
 
 StatusCode TrackParticleClusterAssociationAlg::execute()
 {
 
+  ATH_MSG_DEBUG("excute()");
   // get track particles
-  const xAOD::TrackParticleContainer* trackParticles = 0;
-  if(evtStore()->contains<xAOD::TrackParticleContainer>(m_trackParticleCollectionName)) {
-    if(evtStore()->retrieve(trackParticles,m_trackParticleCollectionName).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_trackParticleCollectionName );
-      return StatusCode::FAILURE;
-    }
-  }else{
-    // in case nothing is found return
-    return StatusCode::SUCCESS;
+  SG::ReadHandle<xAOD::TrackParticleContainer> trackParticles(m_trackParticleCollectionHandle);  
+  ATH_MSG_DEBUG("retrieved "<< m_trackParticleCollectionHandle.key()<< " size ="<< trackParticles->size() );
+  
+  // pre-calculate a width of clusters, set it as dynamica attribute so we don't have to recalculate it
+  SG::ReadHandle<xAOD::CaloClusterContainer> clusterContainer(m_caloClusters);
+  ATH_MSG_DEBUG("retrieved "<< m_caloClusters.key() << " size = "<< clusterContainer->size() );
+  static SG::AuxElement::Decorator<float> sig_dec("sigmaWidth");
+  //for(const xAOD::CaloCluster *cl : *clusterContainer){
+  for(const xAOD::CaloCluster *cl : *clusterContainer){
+    double rad;
+    cl->retrieveMoment(xAOD::CaloCluster::SECOND_R,rad);
+    double cent;
+    cl->retrieveMoment(xAOD::CaloCluster::CENTER_MAG,cent);
+    double sigmaWidth = atan(sqrt(rad)/cent)*cosh(cl->eta());
+    sig_dec(*cl) = sigmaWidth;
   }
 
-  // create strings for locations based on input track collection
-  // std::string clusterContainerName = m_trackParticleCollectionName + "AssociatedClusters" + m_outputPostFix;
-  std::string associationContainerName = m_trackParticleCollectionName + "ClusterAssociations" + m_outputPostFix;
 
-  // Create the xAOD container and its auxiliary store:
-  xAOD::TrackParticleClusterAssociationContainer* xaoda = new xAOD::TrackParticleClusterAssociationContainer();
-  ATH_CHECK( evtStore()->record( xaoda, associationContainerName ) );
+  // obtain the CaloExtension from the map in the event store
+  SG::ReadHandle<CaloExtensionCollection> caloExts( m_caloExtKey );
+  ATH_MSG_DEBUG("CaloExtensionCollection "<< m_caloExtKey.key() << "  : size="<< caloExts->size() );
 
-  xAOD::TrackParticleClusterAssociationAuxContainer* auxa = new xAOD::TrackParticleClusterAssociationAuxContainer();
-  ATH_CHECK( evtStore()->record( auxa, associationContainerName + "Aux." ) );
-  xaoda->setStore( auxa );
-  ATH_MSG_DEBUG( "Recorded TrackParticleClusterAssociationContainer with key: " << associationContainerName );    
+  const xAOD::Vertex * pv0 = nullptr;
+  if(!m_vertexContHandle.empty()){
+    SG::ReadHandle<xAOD::VertexContainer> vxCont(m_vertexContHandle);
+    if(!vxCont->empty()) pv0=(*vxCont)[0]; // Hard code HS vertex as PV0
+  }
 
+  SG::WriteDecorHandle<xAOD::TrackParticleContainer,
+		       std::vector<ElementLink<xAOD::CaloClusterContainer>> > assoClustDecor(m_assocClustersDecor);
+    
+  ATH_MSG_DEBUG("will decorate with "<<assoClustDecor.key()<< " and adding trkParam : "<< m_caloEntryParsDecor.key()  );
+
+  // ******************************************
+  // main loop over tracks 
   unsigned int ntracks = 0;
-  for( unsigned int i=0;i<trackParticles->size();++i ){
+  for( const xAOD::TrackParticle* tp : *trackParticles){
 
-    // slect track
-    const xAOD::TrackParticle* tp = (*trackParticles)[i];
-    // if( !m_trackSelector->decision(*tp) || tp->pt() < m_ptCut ) continue;
+
     if( tp->pt() < m_ptCut ) continue;
 
-    // get ParticleCellAssociation
-    ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );
-    const Rec::ParticleClusterAssociation* association = 0;
-    if( !m_caloClusterAssociationTool->particleClusterAssociation(*tp,association,0.1) ){
-      ATH_MSG_DEBUG("failed to obtain the ParticleClusterAssociation");
+    if( pv0 != nullptr) if(! m_trackvertexassoTool->isCompatible(*tp, *pv0 )) continue;
+    
+    ATH_MSG_DEBUG(" Selected track " << tp->index() << "  pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );
+
+
+    // IMMPORTANT : this assumes a correspondance between the TrackParticleContainer and the CaloExtensionCollection !
+    const Trk::CaloExtension * caloExtension = (*caloExts)[tp->index() ] ;
+    if (caloExtension == nullptr ) {
+      ATH_MSG_DEBUG(" Selected track "<< tp->index() << " has no caloExtension ");
       continue;
     }
 
-    // require container as it should be there
-    if( !association->container() ){
-      ATH_MSG_WARNING("Failed to obtain CaloClusterContainer from ParticleCellAssociation");
-      continue;
+
+    // build the associated clusters
+    std::vector<const xAOD::CaloCluster*> assoClusters = associatedClusters( *caloExtension, *clusterContainer); 
+
+
+    // retrieve the vector of links to cluster (and creating it )
+    std::vector< ElementLink< xAOD::CaloClusterContainer > > & caloClusterLinks = assoClustDecor(*tp);
+    // translate in ElementLink
+    caloClusterLinks.reserve( assoClusters.size() );
+    for(const xAOD::CaloCluster* cluster : assoClusters) caloClusterLinks.emplace_back( *clusterContainer,cluster->index() );
+    ntracks++;     
+  }// end loop over tracks
+
+  // 2nd loop over track, only to decorate with Track parameter if requested.
+  if (! m_caloEntryParsDecor.empty() ){
+    // we can not do this in the above loop because declaring a WriteDecorHandle requires a non empty key
+    //  (otherwise : run-time error).
+    SG::WriteDecorHandle<xAOD::TrackParticleContainer,  const Trk::TrackParameters*> trkParamDecor( m_caloEntryParsDecor );
+    for( const xAOD::TrackParticle* tp : *trackParticles){
+      const Trk::CaloExtension * caloExtension = (*caloExts)[tp->index() ] ;
+      if (caloExtension == nullptr ) trkParamDecor( *tp ) =  nullptr ;
+      else trkParamDecor( *tp ) = caloExtension->caloEntryLayerIntersection();      
     }
-    
-    // create element links
-    ElementLink< xAOD::TrackParticleContainer > trackLink(m_trackParticleCollectionName,i);
-    std::vector< ElementLink< xAOD::CaloClusterContainer > > caloClusterLinks;
-    
-    for(auto cluster : association->data())
-    {
-        ElementLink< xAOD::CaloClusterContainer >   clusterLink(m_caloClusters,cluster->index());
-        // if valid create TrackParticleClusterAssociation
-        if( clusterLink.isValid() ){
-            caloClusterLinks.push_back( clusterLink );
-        }
-        ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() );
-    }
-    
-    if( trackLink.isValid() && caloClusterLinks.size()!=0){
-        xAOD::TrackParticleClusterAssociation* trackAssociation = new xAOD::TrackParticleClusterAssociation();
-        xaoda->push_back(trackAssociation);
-        trackAssociation->setTrackParticleLink( trackLink );
-        trackAssociation->setCaloClusterLinks(caloClusterLinks);
-        ATH_MSG_DEBUG("added association");
-        ++ntracks;
-    }
-    else{
-        if( !trackLink.isValid() )   ATH_MSG_WARNING("Failed to create track ElementLink ");
-        if( caloClusterLinks.size()==0 ) ATH_MSG_VERBOSE("Failed to create cluster ElementLink - this is probably a trackonly TCC ");
-    }
-   
+
   }
-
+  
   ATH_MSG_DEBUG(" Total number of selected tracks: " << ntracks );
-
-  // if (CaloClusterStoreHelper::finalizeClusters(&(*evtStore()), xaod,clusterContainerName,msg()).isFailure() ) 
-    // ATH_MSG_WARNING("finalizeClusters failed");
 
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode TrackParticleClusterAssociationAlg::finalize()
-{
-  return StatusCode::SUCCESS;
+std::vector<const xAOD::CaloCluster* > TrackParticleClusterAssociationAlg::associatedClusters(const Trk::CaloExtension & caloExtension, const xAOD::CaloClusterContainer & allClusters ){
+
+  std::vector<const xAOD::CaloCluster* > clusters;
+
+  const Trk::TrackParameters*  pars = caloExtension.caloEntryLayerIntersection();
+  if(!pars) {
+    ATH_MSG_WARNING( " NO TrackParameters caloExtension.caloEntryLayerIntersection() ");
+    return clusters;
+  } 
+    
+  float eta = pars->position().eta();
+  float phi = pars->position().phi();
+
+  double uncertEta = 0.;
+  double uncertPhi = 0.;
+  if(pars->covariance()) {
+    uncertEta = -2.*sin(pars->position().theta()) / (cos(2.*pars->position().theta())-1.) * sqrt((*pars->covariance())(Trk::theta,Trk::theta));
+    uncertPhi = sqrt((*pars->covariance())(Trk::phi,Trk::phi));
+  } 
+  double uncertExtrp = uncertEta*uncertEta + uncertPhi*uncertPhi;
+
+  float dr2Cut0 = m_dr*m_dr;
+  // to access the pre-calculated width :
+  static SG::AuxElement::ConstAccessor<float> sig_acc("sigmaWidth");
+
+  for(const xAOD::CaloCluster * cl : allClusters){
+
+    float dPhi = P4Helpers::deltaPhi( cl->phi(), phi);
+    float dEta = cl->eta()-eta;
+    float dr2  = dPhi*dPhi+ dEta*dEta;
+    float dr2Cut = dr2Cut0;
+    
+    if(m_useCovariance) {                        
+      
+      double sigmaWidth = sig_acc(*cl);          
+      double uncertClus  = 2.*sigmaWidth*sigmaWidth;
+      if(uncertExtrp>uncertClus){
+	ATH_MSG_DEBUG("Extrapolation uncertainty larger than cluster width! Returning without association.");
+	continue;
+      }
+      
+      dr2Cut = (sigmaWidth+uncertEta)*(sigmaWidth+uncertEta)+(sigmaWidth+uncertPhi)*(sigmaWidth+uncertPhi);   
+    }
+    if( dr2 < dr2Cut ) clusters.push_back( cl );    
+  }
+
+  return clusters;
 }

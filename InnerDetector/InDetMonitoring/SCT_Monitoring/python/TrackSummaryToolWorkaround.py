@@ -100,7 +100,6 @@ def TrackSummaryToolWorkaround(flags):
                                                   doSharedHits           = False,
                                                   doHolesInDet           = True,
                                                   TRT_ElectronPidTool    = '',
-                                                  TRT_ToT_dEdxTool       = '',
                                                   PixelToTPIDTool        = '')
     result.setPrivateTools(InDetTrackSummaryTool)
     ############################## WORKAROUND (END) ############################

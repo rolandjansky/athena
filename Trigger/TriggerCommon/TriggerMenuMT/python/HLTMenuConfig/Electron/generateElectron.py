@@ -44,8 +44,9 @@ def generateChains( flags,  chainDict ):
                                      CA = accCalo)
 
     accCalo.printConfig()
-
+    # this cannot work for asymmetric combined chains....FP
     fastCaloStep = ChainStep(name=firstStepName, Sequences=[fastCaloSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+    
 
 
     secondStepName = 'ElectronFTF'

@@ -578,6 +578,7 @@ class TileROD_Decoder: public AthAlgTool {
 
     unsigned int m_maxChannels;
     bool m_checkMaskedDrawers;
+    int m_runPeriod;
 
     const uint32_t * get_data(const ROBData * rob) const {
       const uint32_t * p;

@@ -13,7 +13,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from ActsGeometry.ActsGeometryConfig import ActsMaterialStepConverterToolCfg
-from ActsGeometry.ActsGeometryConfig import ActsSurfaceMappingToolCfg
+from ActsGeometry.ActsGeometryConfig import ActsSurfaceMappingToolCfg, ActsVolumeMappingToolCfg
 from ActsGeometry.ActsGeometryConfig import ActsMaterialJsonWriterToolCfg
 
 from ActsGeometry.ActsGeometryConfig import ActsAlignmentCondAlgCfg
@@ -29,9 +29,14 @@ def ActsMaterialMappingCfg(configFlags, name = "ActsMaterialMapping", **kwargs):
   kwargs["SurfaceMappingTool"] = ActsSurfaceMappingTool.getPrimary()   
   result.merge(ActsSurfaceMappingTool)
 
+  ActsVolumeMappingTool = ActsVolumeMappingToolCfg(configFlags)
+  kwargs["VolumeMappingTool"] = ActsVolumeMappingTool.getPrimary()
+  result.merge(ActsVolumeMappingTool)
+
   ActsMaterialJsonWriterTool = ActsMaterialJsonWriterToolCfg(OutputFile = "material-maps.json",
                                                             processSensitives = False,
                                                             processnonmaterial = False)
+                                                            
   kwargs["MaterialJsonWriterTool"] = ActsMaterialJsonWriterTool.getPrimary()   
   result.merge(ActsMaterialJsonWriterTool)
 
@@ -89,7 +94,9 @@ if "__main__" == __name__:
   cfg.merge(alignCondAlgCfg)
 
   alg = ActsMaterialMappingCfg(ConfigFlags,
-                               OutputLevel=INFO)
+                               OutputLevel=INFO,
+                               mapSurfaces = True,
+                               mapVolumes = True)
 
   cfg.merge(alg)
 

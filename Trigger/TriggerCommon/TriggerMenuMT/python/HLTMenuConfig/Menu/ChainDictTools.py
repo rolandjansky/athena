@@ -86,7 +86,7 @@ def splitInterSignatureChainDict(chainDict):
 
     return listOfSplitChainDicts
 
-# maybe obsolete?
+
 def splitChainDict(chainDict):
     listOfChainDicts = []
     for chainPart in chainDict['chainParts']:
@@ -95,10 +95,22 @@ def splitChainDict(chainDict):
         listOfChainDicts += [newChainDict]
     return listOfChainDicts
 
+def splitChainDictInLegs(chainDict):
+      from TrigCompositeUtils.TrigCompositeUtils import legName
+      if len(chainDict['chainParts']) ==1:
+            return [chainDict]
+
+      chainName= chainDict['chainName']
+      listOfChainDicts = []     
+      for count, chainDictPart in enumerate(chainDict['chainParts']):
+            onePartChainDict = deepcopy( chainDict )
+            onePartChainDict['chainParts'] = [ chainDictPart ]
+            onePartChainDict['chainName'] = legName(chainName, count)            
+            listOfChainDicts += [onePartChainDict]
+      return listOfChainDicts
 
 
-
-def splitChainInDict(chainName):
+def splitChainInLegs(chainName):
       from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
       from TrigCompositeUtils.TrigCompositeUtils import legName
       chainDict = TriggerConfigHLT.getChainDictFromChainName(chainName)

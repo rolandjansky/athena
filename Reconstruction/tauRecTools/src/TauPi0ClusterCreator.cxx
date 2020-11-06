@@ -3,35 +3,20 @@
 */
 
 #ifndef XAOD_ANALYSIS
-//-----------------------------------------------------------------------------
-// file:        TauPi0ClusterCreator.cxx
-// package:     Reconstruction/tauEvent
-// authors:     Benedict Winter, Will Davey, Stephanie Yuen
-// date:        2012-10-09
-//-----------------------------------------------------------------------------
+
+#include "TauPi0ClusterCreator.h"
+#include "tauRecTools/HelperFunctions.h"
 
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODJet/Jet.h"
 
-#include "TauPi0ClusterCreator.h"
-#include "tauRecTools/HelperFunctions.h"
 
-//-------------------------------------------------------------------------
-// Constructor
-//-------------------------------------------------------------------------
 
 TauPi0ClusterCreator::TauPi0ClusterCreator(const std::string& name) :
     TauRecToolBase(name) {
 }
 
-//-------------------------------------------------------------------------
-// Destructor
-//-------------------------------------------------------------------------
-
-TauPi0ClusterCreator::~TauPi0ClusterCreator() 
-{
-}
 
 
 StatusCode TauPi0ClusterCreator::initialize() {
@@ -39,462 +24,463 @@ StatusCode TauPi0ClusterCreator::initialize() {
   return StatusCode::SUCCESS;
 }
 
-//______________________________________________________________________________
-StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& pTau, xAOD::PFOContainer& neutralPFOContainer,
-							  xAOD::PFOContainer& hadronicClusterPFOContainer,
-							  xAOD::CaloClusterContainer& pi0CaloClusterContainer,
-							  const xAOD::CaloClusterContainer& pPi0ClusterContainer) const
-{
-    // Any tau needs to have PFO vectors. Set empty vectors before nTrack cut
-    std::vector<ElementLink<xAOD::PFOContainer> > empty;
-    pTau.setProtoChargedPFOLinks(empty);
-    pTau.setProtoNeutralPFOLinks(empty);
-    pTau.setProtoPi0PFOLinks(empty);
-    pTau.setHadronicPFOLinks(empty);
-
-    // only run shower subtraction on 1-5 prong taus 
-    if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
-        return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("ClusterCreator: new tau. \tpt = " << pTau.pt() << "\teta = " << pTau.eta() << "\tphi = " << pTau.phi() << "\tnprongs = " << pTau.nTracks());
-
-    // Retrieve Ecal1 shots and match them to clusters
-    // pPi0ClusterContainer from CaloClusterMaker
-    std::vector<const xAOD::PFO*> shotVector;
-    unsigned nShots = pTau.nShotPFOs();
-    for(unsigned iShot=0;iShot<nShots;++iShot){
-        const xAOD::PFO* thisShot = pTau.shotPFO(iShot);
-        shotVector.push_back( thisShot );
-    }
-    std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap = getClusterToShotMap(shotVector, pPi0ClusterContainer, pTau);
- 
-    if (! pTau.jetLink().isValid()) {
-      ATH_MSG_ERROR("Tau jet link is invalid.");
-      return StatusCode::FAILURE;
-    }
-    const xAOD::Jet *jetSeed = pTau.jet();
-    
-    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
-    
-    const xAOD::Vertex* tauVertex = nullptr;
-    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
-    
-    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
-
-    for (const xAOD::CaloCluster* cluster: pPi0ClusterContainer){
-        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
-        
-        // selection
-        if (clusterP4.Pt() < m_clusterEtCut)   continue;
-        // Cluster container has clusters for all taus.
-        // Only run on clusters that belong to this tau
-        if (clusterP4.DeltaR(tauAxis) > 0.4) continue;
-
-        // Get shots in this cluster. Need to use (CaloCluster*) (*clusterItr) 
-        // (not a copy!) since the pointer will otherwise be different than in clusterToShotMap
-        std::vector<unsigned> shotsInCluster = getShotsMatchedToCluster( shotVector, clusterToShotMap, cluster);
-
-        // Make a copy of the cluster to store in output container.
-        xAOD::CaloCluster* pPi0Cluster = new xAOD::CaloCluster( *cluster );
-
-        // store pi0 calo cluster in the output container
-        pi0CaloClusterContainer.push_back(pPi0Cluster);
-
-        // Calculate input variables for fake supression. 
-        // Do this before applying the vertex correction, 
-        // since the position of the cluster in the 
-        // calorimeter is required.
-        float EM1CoreFrac = getEM1CoreFrac(pPi0Cluster);
-        int NHitsInEM1 = getNPhotons(shotVector, shotsInCluster);
-	std::vector<int> NPosECellsInLayer = getNPosECells(pPi0Cluster);
-	std::vector<float> firstEtaWRTClusterPositionInLayer = get1stEtaMomWRTCluster(pPi0Cluster);
-	std::vector<float> secondEtaWRTClusterPositionInLayer = get2ndEtaMomWRTCluster(pPi0Cluster);
-
-        // Retrieve cluster moments that are used for fake supression and that are not stored in AOD
-        // for every cluster. Do this after applying the vertex correction, since the moments 
-        // (especcially DELTA_PHI and DELTA_THETA) must be calculated WRT the tau vertex
-        double CENTER_MAG = 0.0;
-        double FIRST_ETA = 0.0;
-        double SECOND_R = 0.0;
-        double SECOND_LAMBDA = 0.0;
-        double DELTA_PHI = 0.0;
-        double DELTA_THETA = 0.0;
-        double CENTER_LAMBDA = 0.0;
-        double LATERAL = 0.0;
-        double LONGITUDINAL = 0.0;
-        double ENG_FRAC_EM = 0.0;
-        double ENG_FRAC_MAX = 0.0;
-        double ENG_FRAC_CORE = 0.0;
-        double SECOND_ENG_DENS = 0.0;
-
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_MAG, CENTER_MAG) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_MAG moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::FIRST_ETA, FIRST_ETA) ) ATH_MSG_WARNING("Couldn't retrieve FIRST_ETA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R, SECOND_R) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_R moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, SECOND_LAMBDA) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_LAMBDA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::DELTA_PHI, DELTA_PHI) ) ATH_MSG_WARNING("Couldn't retrieve DELTA_PHI moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::DELTA_THETA, DELTA_THETA) ) ATH_MSG_WARNING("Couldn't retrieve DELTA_THETA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, CENTER_LAMBDA) ) ATH_MSG_WARNING("Couldn't retrieve CENTER_LAMBDA moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::LATERAL, LATERAL) ) ATH_MSG_WARNING("Couldn't retrieve LATERAL moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::LONGITUDINAL, LONGITUDINAL) ) ATH_MSG_WARNING("Couldn't retrieve LONGITUDINAL moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_EM, ENG_FRAC_EM) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_EM moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_MAX, ENG_FRAC_MAX) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_MAX moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::ENG_FRAC_CORE, ENG_FRAC_CORE) ) ATH_MSG_WARNING("Couldn't retrieve ENG_FRAC_CORE moment. Set it to 0.");
-        if( !pPi0Cluster->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_ENG_DENS, SECOND_ENG_DENS) ) ATH_MSG_WARNING("Couldn't retrieve SECOND_ENG_DENS moment. Set it to 0.");
-
-       	float E_EM1 = pPi0Cluster->eSample(CaloSampling::EMB1) + pPi0Cluster->eSample(CaloSampling::EME1);
-	      float E_EM2 = pPi0Cluster->eSample(CaloSampling::EMB2) + pPi0Cluster->eSample(CaloSampling::EME2);
-        
-        // create neutral PFO. Set BDTScore to dummy value <-1. The BDT score is calculated within TauPi0Selector.cxx.
-        xAOD::PFO* neutralPFO = new xAOD::PFO();
-        neutralPFOContainer.push_back( neutralPFO );
-
-        // Create element link from tau to neutral PFO
-        ElementLink<xAOD::PFOContainer> PFOElementLink;
-        PFOElementLink.toContainedElement( neutralPFOContainer, neutralPFO );
-        pTau.addProtoNeutralPFOLink( PFOElementLink );
-
-        // Set PFO variables
-        ElementLink<xAOD::CaloClusterContainer> clusElementLink;
-        clusElementLink.toContainedElement( pi0CaloClusterContainer, pPi0Cluster );
-        neutralPFO->setClusterLink( clusElementLink );
-        
-        neutralPFO->setP4( (float) pPi0Cluster->pt(), (float) pPi0Cluster->eta(), (float) pPi0Cluster->phi(), (float) pPi0Cluster->m());
-        neutralPFO->setBDTPi0Score( (float) -9999. );
-        neutralPFO->setCharge( 0. );
-        neutralPFO->setCenterMag( (float) CENTER_MAG);
-        neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::nPi0Proto, -1);
-
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_FIRST_ETA,       (float) FIRST_ETA);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_SECOND_R,        (float) SECOND_R);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_SECOND_LAMBDA,   (float) SECOND_LAMBDA);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_DELTA_PHI,       (float) DELTA_PHI);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_DELTA_THETA,     (float) DELTA_THETA);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_CENTER_LAMBDA,   (float) CENTER_LAMBDA);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_LATERAL,         (float) LATERAL);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_LONGITUDINAL,    (float) LONGITUDINAL);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_ENG_FRAC_EM,     (float) ENG_FRAC_EM);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_ENG_FRAC_MAX,    (float) ENG_FRAC_MAX);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_ENG_FRAC_CORE,   (float) ENG_FRAC_CORE);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_SECOND_ENG_DENS, (float) SECOND_ENG_DENS);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_energy_EM1,      (float) E_EM1);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_energy_EM2,      (float) E_EM2);
 
 
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_EM1CoreFrac, EM1CoreFrac);
-        neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NHitsInEM1, NHitsInEM1);
-        neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_PS,  NPosECellsInLayer.at(0));
-        neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_EM1, NPosECellsInLayer.at(1));
-        neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_EM2, NPosECellsInLayer.at(2));
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_firstEtaWRTClusterPosition_EM1, firstEtaWRTClusterPositionInLayer.at(1));
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_firstEtaWRTClusterPosition_EM2, firstEtaWRTClusterPositionInLayer.at(2));
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_secondEtaWRTClusterPosition_EM1, secondEtaWRTClusterPositionInLayer.at(1));
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_secondEtaWRTClusterPosition_EM2, secondEtaWRTClusterPositionInLayer.at(2));
+StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAOD::PFOContainer& neutralPFOContainer,
+							  xAOD::PFOContainer& hadronicPFOContainer,
+							  const xAOD::CaloClusterContainer& pi0ClusterContainer) const {
+  // Any tau needs to have PFO vectors. Set empty vectors before nTrack cut
+  std::vector<ElementLink<xAOD::PFOContainer>> empty;
+  tau.setProtoNeutralPFOLinks(empty);
+  tau.setHadronicPFOLinks(empty);
 
-        // Store shot element links in neutral PFO
-        std::vector<ElementLink<xAOD::IParticleContainer> > shotlinks;
-        for(unsigned iShot = 0;iShot<shotsInCluster.size();++iShot){
-            ElementLink<xAOD::PFOContainer> shotPFOElementLink = pTau.shotPFOLinks().at(shotsInCluster.at(iShot));
-            ElementLink<xAOD::IParticleContainer> shotElementLink;
-            shotPFOElementLink.toPersistent();
-            shotElementLink.resetWithKeyAndIndex( shotPFOElementLink.persKey(), shotPFOElementLink.persIndex() ); 
-            if (!shotElementLink.isValid()) ATH_MSG_WARNING("Created an invalid element link to xAOD::PFO");
-            shotlinks.push_back(shotElementLink);
-        }
-        if(!neutralPFO->setAssociatedParticleLinks( xAOD::PFODetails::TauShot,shotlinks)) 
-            ATH_MSG_WARNING("Couldn't add shot links to neutral PFO!");
-    }
-
-    // Create hadronic PFOs, put them in output container and store links to tau
-    if(!setHadronicClusterPFOs(pTau, hadronicClusterPFOContainer)){
-        ATH_MSG_ERROR("Could not set hadronic PFOs");
-        return StatusCode::FAILURE;
-    }
-
+  // only run shower subtraction on 1-5 prong taus 
+  if (tau.nTracks() == 0 || tau.nTracks() > 5) {
     return StatusCode::SUCCESS;
-}
+  }
 
-//______________________________________________________________________________
-// Functions used to calculate BDT variables other than those provided by the CaloClusterMomentsMaker
-float TauPi0ClusterCreator::getEM1CoreFrac(const xAOD::CaloCluster* pi0Candidate) const
-{
-    float coreEnergy=0.;
-    float sumEPosCellsEM1=0.;
+  // Retrieve Ecal1 shots and match them to clusters
+  std::vector<const xAOD::PFO*> shotPFOs;
+  
+  unsigned nShots = tau.nShotPFOs();
+  for (unsigned index=0; index<nShots; ++index) {
+    const xAOD::PFO* shotPFO = tau.shotPFO(index);
+    shotPFOs.push_back(shotPFO);
+  }
+  
+  // Map shot to the pi0 cluster 
+  std::map<unsigned, const xAOD::CaloCluster*> shotToClusterMap = getShotToClusterMap(shotPFOs, pi0ClusterContainer, tau);
 
-    const CaloClusterCellLink* theCellLink = pi0Candidate->getCellLinks();
-    CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
-    CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
-    for(;cellInClusterItr!=cellInClusterItrE;++cellInClusterItr){
-        CaloCell* cellInCluster = (CaloCell*) *cellInClusterItr;
-        int sampling = cellInCluster->caloDDE()->getSampling();
-        if(sampling!=1 && sampling!=5) continue;
-        float cellE = cellInCluster->e() * cellInClusterItr.weight();
-        if(cellE<=0) continue;
-        sumEPosCellsEM1 += cellE;
-        float cellEtaWRTCluster = cellInCluster->eta()-pi0Candidate->eta();
-        float cellPhiWRTCluster = P4Helpers::deltaPhi(cellInCluster->phi(), pi0Candidate->phi());
-        if(std::abs(cellPhiWRTCluster) > 0.05 || std::abs(cellEtaWRTCluster) > 2 * 0.025/8.) continue;
-        coreEnergy+=cellE;
-    }
-    if(sumEPosCellsEM1<=0.) return 0.;
-    return coreEnergy/sumEPosCellsEM1;
-}
+  // FIXME: These clusters are custom ones, so could be corrected using tau vertex directly
+  if (! tau.jetLink().isValid()) {
+    ATH_MSG_ERROR("Tau jet link is invalid.");
+    return StatusCode::FAILURE;
+  }
+  const xAOD::Jet *jetSeed = tau.jet();
+  const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+  const xAOD::Vertex* tauVertex = nullptr;
+  if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
+  TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
 
-//______________________________________________________________________________
-// Do cluster to shot matching. 
-// A cluster is matched to a shot if the seed cell of the shot is in the cluster
-std::map<unsigned, xAOD::CaloCluster*> TauPi0ClusterCreator::getClusterToShotMap(const std::vector<const xAOD::PFO*>& shotVector,
-										 const xAOD::CaloClusterContainer& pPi0ClusterContainer,
-										 const xAOD::TauJet &pTau) const
-{
-    std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap;
-    for(unsigned iShot = 0;iShot<shotVector.size();++iShot){
-        int seedHash_int = -1;
-        if( shotVector.at(iShot)->attribute(xAOD::PFODetails::PFOAttributes::tauShots_seedHash, seedHash_int) == false) {
-            std::cout << "WARNING: Couldn't find seed hash. Set it to -1, no cluster will be associated to shot." << std::endl;
-        }
-        const IdentifierHash seedHash = (const IdentifierHash) seedHash_int; 
-        xAOD::CaloClusterContainer::const_iterator clusterItr   (pPi0ClusterContainer.begin()),
-                                                   clusterItrEnd(pPi0ClusterContainer.end());
-        float weightInCluster=-1.;
-        float weightInPreviousCluster=-1;
+  // Loop over clusters, and create neutral PFOs
+  for (const xAOD::CaloCluster* cluster: pi0ClusterContainer) {
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
     
-        const xAOD::Jet *jetSeed = pTau.jet();
-        if (!jetSeed) {
-          ATH_MSG_ERROR("Tau jet link is invalid.");
-          return clusterToShotMap;
-        }
-        const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    // Clusters must have enough energy, and within 0.4 cone of the tau candidate
+    if (clusterP4.Pt() < m_clusterEtCut)   continue;
+    if (clusterP4.DeltaR(tauAxis) > 0.4) continue;
+
+    // Create the neutral PFOs
+    xAOD::PFO* neutralPFO = new xAOD::PFO();
+    neutralPFOContainer.push_back(neutralPFO);
     
-        const xAOD::Vertex* tauVertex = nullptr;
-        if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
-      
-        TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
+    // Add the link to the tau candidate 
+    ElementLink<xAOD::PFOContainer> PFOElementLink;
+    PFOElementLink.toContainedElement(neutralPFOContainer, neutralPFO);
+    tau.addProtoNeutralPFOLink(PFOElementLink);
 
-        for (; clusterItr != clusterItrEnd; ++clusterItr){
-            xAOD::CaloCluster* cluster = (xAOD::CaloCluster*) (*clusterItr);
-            TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
-            
-            weightInCluster=-1.;
-            if (clusterP4.Et() < m_clusterEtCut) continue; // Not interested in clusters that fail the Et cut
-            // Cluster container has clusters for all taus.
-            // Only run on clusters that belong to this tau
-            if (clusterP4.DeltaR(tauAxis) > 0.4)  continue;
-            const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
-            CaloClusterCellLink::const_iterator cellItr  = theCellLink->begin();
-            CaloClusterCellLink::const_iterator cellItrE = theCellLink->end();
-            for(;cellItr!=cellItrE; ++cellItr){
-                CaloCell* cellInCluster = (CaloCell*) *cellItr;
-                // Check if seed cell is in cluster.
-                if(cellInCluster->caloDDE()->calo_hash()!=seedHash) continue;
-                weightInCluster = cellItr.weight();
-                // found cell, no need to loop over other cells
-                break;
-            }
-            if(weightInCluster<0) continue;
-            // Check if cell was already found in a previous cluster
-            if(weightInPreviousCluster<0){
-                // Cell not found in a previous cluster. 
-                // Have to check whether cell is shared with other cluster
-                clusterToShotMap[iShot] = cluster;
-                weightInPreviousCluster = weightInCluster;
-            }
-            else{
-                // Cell has been found in a previous cluster
-                // assign shot to this cluster if it has larger weight for the cell
-                // otherwise the shots keeps assigned to the previous cluster
-                if(weightInCluster>weightInPreviousCluster){
-                    clusterToShotMap[iShot] = cluster;
-                }
-                // No need to loop over other clusters as cells can not be shared by more than two clusters
-                break;
-            }
-        }
+    ATH_CHECK(configureNeutralPFO(*cluster, pi0ClusterContainer, tau, shotPFOs, shotToClusterMap, *neutralPFO));
+  }
+
+  // Loop over clusters, and create hadronic PFOs
+  std::vector<const xAOD::CaloCluster*> clusterList;
+  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster));
+  for (const xAOD::CaloCluster* cluster: clusterList) {
+    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+       
+    // Clusters must have positive energy, and within 0.2 cone of the tau candidate 
+    if(clusterP4.E()<=0.) continue;
+    if(clusterP4.DeltaR(tauAxis) > 0.2) continue;
+
+    double clusterEnergyHad = 0.;
+    const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
+    CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
+	for (; cellLink != cellLinks->end(); ++cellLink) {
+	  const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
+       
+      int sampling = cell->caloDDE()->getSampling();
+      if (sampling < 8) continue;
+
+      double cellEnergy = cell->e() * cellLink.weight();
+      clusterEnergyHad += cellEnergy;
     }
-    return clusterToShotMap;
+    
+    // Energy in Had Calorimeter must be positive
+    if(clusterEnergyHad <= 0.) continue;
+  
+    // Create the hadrnic PFO
+    xAOD::PFO* hadronicPFO = new xAOD::PFO();
+    hadronicPFOContainer.push_back(hadronicPFO);
+    
+    // Add element link from tau to hadronic PFO
+    ElementLink<xAOD::PFOContainer> PFOElementLink;
+    PFOElementLink.toContainedElement( hadronicPFOContainer, hadronicPFO );
+    tau.addHadronicPFOLink( PFOElementLink );
+    
+    ATH_CHECK(configureHadronicPFO(*cluster, clusterEnergyHad, *hadronicPFO));
+  }
+
+  return StatusCode::SUCCESS;
 }
 
-//______________________________________________________________________________
-std::vector<unsigned> TauPi0ClusterCreator::getShotsMatchedToCluster(const std::vector<const xAOD::PFO*>& shotVector,
-								     const std::map<unsigned, xAOD::CaloCluster*>& clusterToShotMap, 
-								     const xAOD::CaloCluster* pPi0Cluster) const
-{
-    std::vector<unsigned> shotsMatchedToCluster;
-    for(unsigned iShot = 0;iShot<shotVector.size();++iShot){
-        auto itr = clusterToShotMap.find(iShot);
-        if(itr==clusterToShotMap.end()) continue;
-        if(itr->second!=pPi0Cluster) continue;
-        shotsMatchedToCluster.push_back(iShot);
+
+
+std::map<unsigned, const xAOD::CaloCluster*> TauPi0ClusterCreator::getShotToClusterMap(const std::vector<const xAOD::PFO*>& shotPFOs,
+										 const xAOD::CaloClusterContainer& pi0ClusterContainer,
+										 const xAOD::TauJet &tau) const {
+  std::map<unsigned, const xAOD::CaloCluster*> shotToClusterMap;
+  for (unsigned index = 0; index < shotPFOs.size(); ++index) {
+    const xAOD::PFO* shotPFO = shotPFOs.at(index);
+
+    int seedHashInt = -1;
+    if (!shotPFO->attribute(xAOD::PFODetails::PFOAttributes::tauShots_seedHash, seedHashInt)) {
+      ATH_MSG_WARNING("Couldn't find seed hash. Set it to -1, no cluster will be associated to shot.");
     }
-    return shotsMatchedToCluster;
-}
+    const IdentifierHash seedHash = static_cast<const IdentifierHash>(seedHashInt);
 
-//______________________________________________________________________________
-int TauPi0ClusterCreator::getNPhotons(const std::vector<const xAOD::PFO*>& shotVector,
-				      const std::vector<unsigned>& shotsInCluster ) const
-{
-    int nPhotons = 0;
-    for(unsigned iShot = 0;iShot<shotsInCluster.size();++iShot){
-        int curNPhotons=0;
-        if(shotVector.at(shotsInCluster.at(iShot))->attribute(xAOD::PFODetails::PFOAttributes::tauShots_nPhotons,curNPhotons) == false)
-            ATH_MSG_WARNING("Can't find NHitsInEM1. Set it to 0.");
-        nPhotons+=curNPhotons;
-    }
-    return nPhotons;
-}
-
-//______________________________________________________________________________
-std::vector<int> TauPi0ClusterCreator::getNPosECells(const xAOD::CaloCluster* pi0Candidate) const
-{
-    std::vector<int> nPosECellsInLayer(3,0); // 3 layers initialised with 0 +ve cells
-
-    const CaloClusterCellLink* theCellLink = pi0Candidate->getCellLinks();
-    CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
-    CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
-
-    for(;cellInClusterItr!=cellInClusterItrE; ++cellInClusterItr){
-        const CaloCell* cellInCluster = static_cast<const CaloCell*>( *cellInClusterItr);
-        int sampling = cellInCluster->caloDDE()->getSampling();
-        // Get cell layer: PSB and PSE belong to layer 0,  
-        // EMB1 and EME1 to layer 1, EMB2 and EME2 to layer 2. 
-        int cellLayer = sampling%4;  
-        if(cellLayer < 3 && cellInCluster->e() > 0) nPosECellsInLayer[cellLayer]++;
-    }
-    return nPosECellsInLayer;
-}
-
-//______________________________________________________________________________
-std::vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(const xAOD::CaloCluster* pi0Candidate) const
-{
-    std::vector<float> firstEtaWRTClusterPositionInLayer (4, 0.);  //init with 0. for 0-3 layers
-    std::vector<float> sumEInLayer (4, 0.); //init with 0. for 0-3 layers
-
-    const CaloClusterCellLink* theCellLink = pi0Candidate->getCellLinks();
-    CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
-    CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
-
-    for(;cellInClusterItr!=cellInClusterItrE;++cellInClusterItr){
-        CaloCell* cellInCluster = (CaloCell*) *cellInClusterItr;
-        int sampling = cellInCluster->caloDDE()->getSampling();
-        // Get cell layer: PSB and PSE belong to layer 0,  
-        // EMB1 and EME1 to layer 1, EMB2 and EME2 to layer 2. 
-        int cellLayer = sampling%4;
-        
-        float cellEtaWRTClusterPos=cellInCluster->eta()-pi0Candidate->eta();
-        float cellE=cellInCluster->e();
-        if(cellE<=0  || cellLayer>=3) continue;
-        firstEtaWRTClusterPositionInLayer[cellLayer]+=cellEtaWRTClusterPos*cellE;
-        sumEInLayer[cellLayer]+=cellE;
-    }
-
-    for(int iLayer=0;iLayer<4;++iLayer){
-        if(sumEInLayer[iLayer]!=0) 
-            firstEtaWRTClusterPositionInLayer[iLayer]/=std::abs(sumEInLayer[iLayer]);
-        else firstEtaWRTClusterPositionInLayer[iLayer]=0.;
-    }
-    return firstEtaWRTClusterPositionInLayer;
-}
-
-//______________________________________________________________________________
-std::vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster( const xAOD::CaloCluster* pi0Candidate) const
-{
-      std::vector<float> secondEtaWRTClusterPositionInLayer (4, 0.); //init with 0. for 0-3 layers
-      std::vector<float> sumEInLayer (4, 0.); //init with 0. for 0-3 layers
-
-      const CaloClusterCellLink* theCellLinks = pi0Candidate->getCellLinks();
-
-      for(const CaloCell* cellInCluster: *theCellLinks){
-            int sampling = cellInCluster->caloDDE()->getSampling();
-            // Get cell layer: PSB and PSE belong to layer 0,  
-            // EMB1 and EME1 to layer 1, EMB2 and EME2 to layer 2. 
-            int cellLayer = sampling%4;
-
-            float cellEtaWRTClusterPos=cellInCluster->eta()-pi0Candidate->eta();
-            float cellE=cellInCluster->e();
-            if(cellE<=0  || cellLayer>=3) continue;
-            secondEtaWRTClusterPositionInLayer[cellLayer]+=cellEtaWRTClusterPos*cellEtaWRTClusterPos*cellE;
-            sumEInLayer[cellLayer]+=cellE;
-      }
-
-      for(int iLayer=0;iLayer<4;++iLayer){
-            if(sumEInLayer[iLayer]!=0) 
-                secondEtaWRTClusterPositionInLayer[iLayer]/=std::abs(sumEInLayer[iLayer]);
-            else secondEtaWRTClusterPositionInLayer[iLayer]=0.;
-      }
-      return secondEtaWRTClusterPositionInLayer;
-}
-
-//______________________________________________________________________________
-bool TauPi0ClusterCreator::setHadronicClusterPFOs(xAOD::TauJet& pTau, xAOD::PFOContainer& pHadronPFOContainer) const
-{
-    if (! pTau.jetLink().isValid()) {
+    const xAOD::Jet *jetSeed = tau.jet();
+    if (!jetSeed) {
       ATH_MSG_ERROR("Tau jet link is invalid.");
-      return false;
+      return shotToClusterMap;
     }
-    const xAOD::Jet *jetSeed = pTau.jet();
-    
     const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
-    
+  
     const xAOD::Vertex* tauVertex = nullptr;
-    if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+    if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
     
-    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
+    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
+
+    float weightInCluster = -1.;
+    float weightInPreviousCluster = -1;
     
-    std::vector<const xAOD::CaloCluster*> clusterList;
-    StatusCode sc = tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster);
-    if (!sc) return false;
-
-    for (const xAOD::CaloCluster* cluster : clusterList){
-        // Procedure: 
-        // - Calculate cluster energy in Hcal. This is to treat -ve energy cells correctly
-        // - Then set 4momentum via setP4(E/cosh(eta), eta, phi, m). This forces the PFO to have the correct energy and mass
-        // - Ignore clusters outside 0.2 cone and those with overall negative energy or negative energy in Hcal
-
-        // Don't create PFOs for clusters with overall (Ecal+Hcal) negative energy (noise)
-        TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+    for (const xAOD::CaloCluster* cluster : pi0ClusterContainer) {
+      // FIXME: cluster here is not corrected
+      TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+      
+      weightInCluster = -1.;
+      if (clusterP4.Et() < m_clusterEtCut) continue;
+      if (clusterP4.DeltaR(tauAxis) > 0.4)  continue;
         
-        if(clusterP4.E()<=0.) continue;
-
-        // Only need clusters in core cone. Others are not needed for subtraction
-        if(tauAxis.DeltaR(clusterP4) > 0.2) continue;
-
-        // Loop over cells to calculate cluster energy in Hcal
-        double clusterE_Hcal=0.;
-	const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
-	CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
-	CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
-
-	for(; cellInClusterItr != cellInClusterItrE; ++cellInClusterItr){
-	   const CaloCell* cellInCluster = static_cast<const CaloCell*> (*cellInClusterItr);
-
-            //Get only HCAL cells
-            int sampling = cellInCluster->caloDDE()->getSampling();
-            if (sampling < 8) continue;
-
-            double cellE = cellInCluster->e()*cellInClusterItr.weight();
-            clusterE_Hcal+=cellE;
+      const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
+      CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
+	  for (; cellLink != cellLinks->end(); ++cellLink) {
+        const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
+        
+        // Check if seed cell is in cluster.
+        if (cell->caloDDE()->calo_hash() != seedHash) continue;
+        
+        weightInCluster = cellLink.weight();
+        // found cell, no need to loop over other cells
+        break;
+      }
+      
+      if (weightInCluster < 0) continue;
+        
+      // Check if cell was already found in a previous cluster
+      if (weightInPreviousCluster < 0) {
+        // Cell not found in a previous cluster. 
+        // Have to check whether cell is shared with other cluster
+        shotToClusterMap[index] = cluster;
+        weightInPreviousCluster = weightInCluster;
+      }
+      else {
+        // Cell has been found in a previous cluster
+        // assign shot to this cluster if it has larger weight for the cell
+        // otherwise the shots keeps assigned to the previous cluster
+        if (weightInCluster > weightInPreviousCluster) {
+            shotToClusterMap[index] = cluster;
         }
-        // Don't save PFOs for clusters with negative energy in Hcal 
-        if(clusterE_Hcal<=0.) continue;
-
-        // Create hadronic PFO
-        xAOD::PFO* hadronicPFO = new xAOD::PFO();
-        pHadronPFOContainer.push_back( hadronicPFO );
-
-        // Set 4mom. Eta and phi are taken from cluster
-        double cluster_Pt_Hcal = clusterE_Hcal/std::cosh(cluster->eta());
-        hadronicPFO->setP4( (float) cluster_Pt_Hcal, (float) cluster->eta(), (float) cluster->phi(), (float) 0.);
-
-        // TODO: May want to set element link to the cluster the PFO is originating from
-        // ElementLink<xAOD::CaloClusterContainer> clusElementLink;
-        // clusElementLink.toContainedElement( CLUSTERCONTAINER, cluster );
-        // hadronicPFO->setClusterLink( clusElementLink );
-
-        // Create element link from tau to hadronic PFO
-        ElementLink<xAOD::PFOContainer> PFOElementLink;
-        PFOElementLink.toContainedElement( pHadronPFOContainer, hadronicPFO );
-        pTau.addHadronicPFOLink( PFOElementLink );
+        // FIXME: why break here ? Should loop all the cluster, and find the largest weight
+        break;
+      }
     }
-    return true;
+  }
+  
+  return shotToClusterMap;
+}
+
+
+
+std::vector<unsigned> TauPi0ClusterCreator::getShotsMatchedToCluster(const std::vector<const xAOD::PFO*>& shotPFOs,
+								                                     const std::map<unsigned, const xAOD::CaloCluster*>& shotToClusterMap, 
+								                                     const xAOD::CaloCluster& pi0Cluster) const {
+  std::vector<unsigned> shotsMatchedToCluster;
+  
+  // Loop over the shots, and select those matched to the cluster
+  for (unsigned index = 0; index < shotPFOs.size(); ++index) {
+    auto iterator = shotToClusterMap.find(index);
+    if (iterator == shotToClusterMap.end()) continue;
+    if (iterator->second != &pi0Cluster) continue;
+    
+    shotsMatchedToCluster.push_back(index);
+  }
+  
+  return shotsMatchedToCluster;
+}
+
+
+
+int TauPi0ClusterCreator::getNPhotons(const std::vector<const xAOD::PFO*>& shotPFOs,
+				                      const std::vector<unsigned>& shotsInCluster) const {
+  int totalPhotons = 0;
+  
+  for (unsigned index = 0; index < shotsInCluster.size(); ++index) {
+    int nPhotons = 0;
+    const xAOD::PFO* shotPFO = shotPFOs.at(shotsInCluster.at(index));
+    if (! shotPFO->attribute(xAOD::PFODetails::PFOAttributes::tauShots_nPhotons, nPhotons)) { 
+      ATH_MSG_WARNING("Can't find NHitsInEM1. Set it to 0.");
+    }
+    totalPhotons += nPhotons;
+  }
+  
+  return totalPhotons;
+}
+
+
+
+std::vector<int> TauPi0ClusterCreator::getNPosECells(const xAOD::CaloCluster& cluster) const {
+  std::vector<int> nPosECells(3, 0);
+
+  const CaloClusterCellLink* cellLinks = cluster.getCellLinks();
+  CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
+  for (; cellLink != cellLinks->end(); ++cellLink) {
+    const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
+    int sampling = cell->caloDDE()->getSampling();
+    
+    // layer0: PS, layer1: EM1, layer2: EM2
+    int layer = sampling%4;  
+    if (layer < 3 && cell->e() > 0) {
+      ++nPosECells[layer];
+    }
+  }
+
+  return nPosECells;
+}
+
+
+
+float TauPi0ClusterCreator::getEM1CoreFrac(const xAOD::CaloCluster& cluster) const {
+  float coreEnergyEM1 = 0.;
+  float totalEnergyEM1 = 0.;
+  
+  const CaloClusterCellLink* cellLinks = cluster.getCellLinks();
+  CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
+  for (; cellLink != cellLinks->end(); ++cellLink) {
+    const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
+    
+    // Only consider EM1
+    int sampling = cell->caloDDE()->getSampling();
+    if (sampling != 1 && sampling != 5) continue;
+    
+    // Only consider positive cells
+    // FIXME: is the weight needed ?
+    float cellEnergy = cell->e() * cellLink.weight();
+    if (cellEnergy <= 0) continue;
+    
+    totalEnergyEM1 += cellEnergy;
+
+    float deltaEta = cell->eta() - cluster.eta();
+    float deltaPhi = P4Helpers::deltaPhi(cell->phi(), cluster.phi());
+    
+    // Core region: [0.05, 0.05/8]
+    if(std::abs(deltaPhi) > 0.05 || std::abs(deltaEta) > 2 * 0.025/8.) continue;
+    
+    coreEnergyEM1 += cellEnergy;
+  }
+  
+  if (totalEnergyEM1 <= 0.) return 0.;
+  return coreEnergyEM1/totalEnergyEM1;
+}
+
+
+
+std::vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(const xAOD::CaloCluster& cluster) const {
+  std::vector<float> deltaEtaFirstMom (3, 0.);
+  std::vector<float> totalEnergy (3, 0.);
+
+  const CaloClusterCellLink* cellLinks = cluster.getCellLinks();
+  CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
+  for (; cellLink != cellLinks->end(); ++cellLink) {
+    const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
+    
+    // Only consider PS, EM1, and EM2
+    int sampling = cell->caloDDE()->getSampling();
+    int layer = sampling%4;
+    if (layer >= 3) continue;
+
+    // Only consider positive cells
+    float cellEnergy = cell->e();
+    if (cellEnergy <= 0) continue;
+
+    float deltaEta = cell->eta() - cluster.eta();
+    deltaEtaFirstMom[layer] += deltaEta * cellEnergy;
+    totalEnergy[layer] += cellEnergy;
+  }
+
+  for (int layer=0; layer < 3; ++layer) {
+    if (totalEnergy[layer] != 0.) {
+      deltaEtaFirstMom[layer]/=std::abs(totalEnergy[layer]);
+    }
+    else {
+      deltaEtaFirstMom[layer]=0.;
+    }
+  }
+  
+  return deltaEtaFirstMom;
+}
+
+
+
+std::vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster(const xAOD::CaloCluster& cluster) const {
+  std::vector<float> deltaEtaSecondMom (3, 0.);
+  std::vector<float> totalEnergy (3, 0.);
+
+  const CaloClusterCellLink* cellLinks = cluster.getCellLinks();
+  CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
+  for (; cellLink != cellLinks->end(); ++cellLink) {
+    const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
+    
+    // Only consider PS, EM1, and EM2
+    int sampling = cell->caloDDE()->getSampling();
+    int layer = sampling%4;
+    if (layer >= 3) continue;
+
+    // Only consider positive cells
+    float cellEnergy=cell->e();
+    if (cellEnergy <= 0) continue;
+
+    float deltaEta = cell->eta() - cluster.eta();
+    deltaEtaSecondMom[layer] += deltaEta * deltaEta * cellEnergy;
+    totalEnergy[layer] += cellEnergy;
+  }
+
+  for (int layer=0; layer < 3; ++layer) {
+    if (totalEnergy[layer] != 0.) {
+      deltaEtaSecondMom[layer]/=std::abs(totalEnergy[layer]);
+    }
+    else {
+      deltaEtaSecondMom[layer]=0.;
+    }
+  }
+  
+  return deltaEtaSecondMom;
+}
+
+
+
+StatusCode TauPi0ClusterCreator::configureNeutralPFO(const xAOD::CaloCluster& cluster,
+                                                     const xAOD::CaloClusterContainer& pi0ClusterContainer,
+                                                     const xAOD::TauJet& tau,
+                                                     const std::vector<const xAOD::PFO*>& shotPFOs, 
+                                                     const std::map<unsigned, const xAOD::CaloCluster*>& shotToClusterMap,
+                                                     xAOD::PFO& neutralPFO) const {
+  // Set the property of the PFO
+  // -- Four momentum: not corrected yet
+  neutralPFO.setP4(cluster.pt(), cluster.eta(), cluster.phi(), cluster.m());
+  
+  // -- Default value
+  neutralPFO.setBDTPi0Score(-9999.);
+  neutralPFO.setCharge(0);
+  neutralPFO.setAttribute<int>(xAOD::PFODetails::PFOAttributes::nPi0Proto, -1);
+
+  // -- CENTER_MAG
+  double CENTER_MAG = 0.0;
+  if (!cluster.retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_MAG, CENTER_MAG)) {
+    ATH_MSG_WARNING("Couldn't retrieve CENTER_MAG moment. Set it to 0.");
+  }
+  neutralPFO.setCenterMag( (float) CENTER_MAG);
+  
+  // -- Number of photons 
+  std::vector<unsigned> shotsInCluster = getShotsMatchedToCluster(shotPFOs, shotToClusterMap, cluster);
+  int NHitsInEM1 = getNPhotons(shotPFOs, shotsInCluster);
+  neutralPFO.setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NHitsInEM1, NHitsInEM1);
+  
+  // -- Energy at each layer
+  float eEM1 = cluster.eSample(CaloSampling::EMB1) + cluster.eSample(CaloSampling::EME1);
+  neutralPFO.setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_energy_EM1, eEM1);
+  
+  float eEM2 = cluster.eSample(CaloSampling::EMB2) + cluster.eSample(CaloSampling::EME2);
+  neutralPFO.setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_energy_EM2, eEM2);
+  
+  // -- Number of positive cells in each layer
+  std::vector<int> nPosECells = getNPosECells(cluster);
+  neutralPFO.setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_PS,  nPosECells.at(0));
+  neutralPFO.setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_EM1, nPosECells.at(1));
+  neutralPFO.setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_EM2, nPosECells.at(2));
+ 
+  // -- Core Fraction of the energy in EM1 
+  float EM1CoreFrac = getEM1CoreFrac(cluster);
+  neutralPFO.setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_EM1CoreFrac, EM1CoreFrac);
+
+  // -- First moment of deltaEta(cluster, cell) in EM1 and EM2 
+  std::vector<float> deltaEtaFirstMom = get1stEtaMomWRTCluster(cluster);
+  neutralPFO.setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_firstEtaWRTClusterPosition_EM1, deltaEtaFirstMom.at(1));
+  neutralPFO.setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_firstEtaWRTClusterPosition_EM2, deltaEtaFirstMom.at(2));
+  
+  // -- Second moment of deltaEta(cluster, cell) in EM1 and EM2
+  std::vector<float> secondEtaWRTClusterPositionInLayer = get2ndEtaMomWRTCluster(cluster);
+  neutralPFO.setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_secondEtaWRTClusterPosition_EM1, secondEtaWRTClusterPositionInLayer.at(1));
+  neutralPFO.setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_secondEtaWRTClusterPosition_EM2, secondEtaWRTClusterPositionInLayer.at(2));
+
+  // -- Retrieve cluster moments
+  using Moment = xAOD::CaloCluster::MomentType;
+  using Attribute = xAOD::PFODetails::PFOAttributes; 
+  const std::array< std::pair<Moment, Attribute>, 12> momentAttributePairs {{
+      {Moment::FIRST_ETA, Attribute::cellBased_FIRST_ETA},
+      {Moment::SECOND_R, Attribute::cellBased_SECOND_R}, 
+      {Moment::SECOND_LAMBDA, Attribute::cellBased_SECOND_LAMBDA},
+      {Moment::DELTA_PHI, Attribute::cellBased_DELTA_PHI},
+      {Moment::DELTA_THETA, Attribute::cellBased_DELTA_THETA},
+      {Moment::CENTER_LAMBDA, Attribute::cellBased_CENTER_LAMBDA},
+      {Moment::LATERAL, Attribute::cellBased_LATERAL},
+      {Moment::LONGITUDINAL, Attribute::cellBased_LONGITUDINAL},
+      {Moment::ENG_FRAC_EM, Attribute::cellBased_ENG_FRAC_EM},
+      {Moment::ENG_FRAC_MAX, Attribute::cellBased_ENG_FRAC_MAX},
+      {Moment::ENG_FRAC_CORE, Attribute::cellBased_ENG_FRAC_CORE},
+      {Moment::SECOND_ENG_DENS, Attribute::cellBased_SECOND_ENG_DENS}
+  }};
+  
+  for (const auto& [moment, attribute] : momentAttributePairs) {
+    double value = 0.0;
+    if (! cluster.retrieveMoment(moment, value)) {
+      ATH_MSG_WARNING("Cound not retrieve " << moment);
+    }
+    neutralPFO.setAttribute(attribute, static_cast<float>(value));
+  }
+
+  // -- Element link to the cluster 
+  ElementLink<xAOD::CaloClusterContainer> clusElementLink;
+  clusElementLink.toContainedElement(pi0ClusterContainer, &cluster);
+  neutralPFO.setClusterLink( clusElementLink );
+ 
+  // -- Element link to the shots
+  std::vector<ElementLink<xAOD::IParticleContainer>> shotlinks;
+  for (unsigned index = 0; index < shotsInCluster.size(); ++index) {
+    ElementLink<xAOD::PFOContainer> shotPFOElementLink = tau.shotPFOLinks().at(shotsInCluster.at(index));
+    ElementLink<xAOD::IParticleContainer> shotElementLink;
+    shotPFOElementLink.toPersistent();
+    shotElementLink.resetWithKeyAndIndex(shotPFOElementLink.persKey(), shotPFOElementLink.persIndex()); 
+    if (!shotElementLink.isValid()) {
+      ATH_MSG_WARNING("Created an invalid element link to xAOD::PFO");
+    }
+    shotlinks.push_back(shotElementLink);
+  }
+  if(!neutralPFO.setAssociatedParticleLinks( xAOD::PFODetails::TauShot,shotlinks)) { 
+    ATH_MSG_WARNING("Couldn't add shot links to neutral PFO!");
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode TauPi0ClusterCreator::configureHadronicPFO(const xAOD::CaloCluster& cluster, 
+                                                      double clusterEnergyHad, 
+                                                      xAOD::PFO& hadronicPFO) const {
+  double clusterPtHad = clusterEnergyHad/std::cosh(cluster.eta());
+  hadronicPFO.setP4(clusterPtHad, cluster.eta(), cluster.phi(), 0.);
+
+  return StatusCode::SUCCESS;
 }
 
 #endif

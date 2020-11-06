@@ -722,8 +722,8 @@ Trk::STEP_Propagator::intersectSurface(const EventContext&             ctx,
                                        ParticleHypothesis       particle) const 
 {
 
-  Amg::Vector3D origin = trackIntersection->position();
-  Amg::Vector3D direction = trackIntersection->direction();
+  const Amg::Vector3D& origin = trackIntersection->position();
+  const Amg::Vector3D& direction = trackIntersection->direction();
 
   PerigeeSurface* perigeeSurface  = new PerigeeSurface(origin);
   const Trk::TrackParameters* trackParameters = perigeeSurface->createTrackParameters(0.,0.,
@@ -2719,7 +2719,7 @@ Trk::STEP_Propagator::propagateNeutral(const Trk::TrackParameters&   parm,
   std::vector<std::pair<unsigned int,double> >::iterator oIter = currentDist.begin();
   std::vector<DestSurf >::iterator sBeg  = targetSurfaces.begin();
 
-  Amg::Vector3D position(parm.position()); 
+  const Amg::Vector3D& position(parm.position()); 
   Amg::Vector3D direction(parm.momentum().normalized()); 
 
   for (; sIter!=targetSurfaces.end(); sIter++) {

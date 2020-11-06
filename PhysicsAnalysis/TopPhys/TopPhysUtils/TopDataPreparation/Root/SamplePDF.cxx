@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #include <fstream>
 #include <sstream>
@@ -12,28 +12,30 @@
 
 using namespace std;
 
-SamplePDF &SamplePDF::operator=(const SamplePDF &xs)
-{
-  if (this!=&xs) {
-     m_PDFs=xs.m_PDFs;
+SamplePDF& SamplePDF::operator = (const SamplePDF& xs) {
+  if (this != &xs) {
+    m_PDFs = xs.m_PDFs;
   }
   return *this;
 }
 
-bool SamplePDF::readFromFile(const char *fName)
-{
+bool SamplePDF::readFromFile(const char* fName) {
   ifstream in(fName);
-  if (!in) {cerr << "SamplePDF::readFromFile : issue with " << fName << endl; return false;}
 
-  for( ; !in.eof() ; ) {
+  if (!in) {
+    cerr << "SamplePDF::readFromFile : issue with " << fName << endl;
+    return false;
+  }
+
+  for (; !in.eof(); ) {
     string line;
-    if (!getline(in,line)) break;
-    if (!line.empty() && line[0]!='#') {
+    if (!getline(in, line)) break;
+    if (!line.empty() && line[0] != '#') {
       istringstream istr(line);
-      int dsid, PDFid=-1;
+      int dsid, PDFid = -1;
       istr >> dsid >> PDFid;
       //cout << dsid << "\t" << PDFid << endl;
-      setSample(dsid,PDFid);
+      setSample(dsid, PDFid);
     }
   }
 
@@ -41,21 +43,21 @@ bool SamplePDF::readFromFile(const char *fName)
   return true;
 }
 
-void SamplePDF::setSample(const int dsid, const int PDFid)
-{ 
-  if (dsid<0) return;
-  map<int, int >::const_iterator it=m_PDFs.find(dsid);
-  if (it!=m_PDFs.end()) {
-     cerr << "ERROR!! SamplePDF::setSample: duplicate entry ! DSID= " << dsid <<endl;
-     //cerr << "ERROR!! SamplePDF::setSample:                   xSect=" << xSect << "\told xSect=" << it->second.first <<endl;
+void SamplePDF::setSample(const int dsid, const int PDFid) {
+  if (dsid < 0) return;
+
+  map<int, int >::const_iterator it = m_PDFs.find(dsid);
+  if (it != m_PDFs.end()) {
+    cerr << "ERROR!! SamplePDF::setSample: duplicate entry ! DSID= " << dsid << endl;
+    //cerr << "ERROR!! SamplePDF::setSample:                   xSect=" << xSect << "\told xSect=" << it->second.first
+    // <<endl;
   }
-  m_PDFs[dsid]=PDFid;
+  m_PDFs[dsid] = PDFid;
 }
 
+int SamplePDF::getPDFid(const int dsid) const {
+  map<int, int >::const_iterator it = m_PDFs.find(dsid);
+  if (it != m_PDFs.end()) return it->second;
 
-int SamplePDF::getPDFid(const int dsid) const
-{
-  map<int,int >::const_iterator it=m_PDFs.find(dsid);
-  if (it!=m_PDFs.end()) return it->second;
   return unknown;
 }

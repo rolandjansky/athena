@@ -61,7 +61,7 @@ namespace met {
     declareProperty( "PrimVxColl",         m_pvcoll      = "PrimaryVertices"     );
     declareProperty( "TrkColl",            m_trkcoll     = "InDetTrackParticles" );
     declareProperty( "ClusColl",           m_clcoll      = "CaloCalTopoClusters" );
-    declareProperty( "UseModifiedClus",    m_useModifiedClus = false            );
+    declareProperty( "UseModifiedClus",    m_useModifiedClus = false             );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
@@ -69,7 +69,7 @@ namespace met {
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
     declareProperty( "CaloIsolationTool",  m_caloIsolationTool                   );
     declareProperty( "IgnoreJetConst",     m_skipconst = false                   );
-    declareProperty( "ForwardColl",        m_forcoll   = ""                       );
+    declareProperty( "ForwardColl",        m_forcoll   = ""                      );
     declareProperty( "ForwardDef",         m_foreta    = 2.5                     );
     declareProperty( "CentralTrackPtThr",  m_cenTrackPtThr = 30e+3               );
     declareProperty( "ForwardTrackPtThr",  m_forTrackPtThr = 30e+3               );
@@ -93,17 +93,17 @@ namespace met {
 
     if(m_clcoll == "CaloCalTopoClusters") {
       if(m_useModifiedClus) {
-	ATH_MSG_ERROR("Configured to use modified topocluster collection but \"CaloCalTopoClusters\" collection specified!");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Configured to use modified topocluster collection but \"CaloCalTopoClusters\" collection specified!");
+        return StatusCode::FAILURE;
       } else {
-	ATH_MSG_INFO("Configured to use standard topocluster collection.");
+        ATH_MSG_INFO("Configured to use standard topocluster collection.");
       }
     } else {
       if(m_useModifiedClus) {
-	ATH_MSG_INFO("Configured to use modified topocluster collection \"" << m_clcoll << "\".");
+        ATH_MSG_INFO("Configured to use modified topocluster collection \"" << m_clcoll << "\".");
       } else {
-	ATH_MSG_ERROR("Configured to use topocluster collection \"" << m_clcoll << "\", but modified clusters flag not set!");
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Configured to use topocluster collection \"" << m_clcoll << "\", but modified clusters flag not set!");
+        return StatusCode::FAILURE;
       }
     }
 
@@ -114,7 +114,11 @@ namespace met {
       ATH_CHECK( m_trkcollKey.assign(m_trkcoll));
       ATH_CHECK( m_trkcollKey.initialize());
     }
-    if(m_pflow){
+    if(!m_fecollKey.key().empty()){
+      ATH_CHECK(m_fecollKey.initialize());
+      ATH_MSG_INFO("Configured to use FlowElement collection \"" << m_fecollKey.key() << "\".");
+    }
+    else if(m_pflow){
       ATH_CHECK( m_pfcollKey.initialize());
       if(m_pfcollKey.key() == "JetETMissParticleFlowObjects") {
         ATH_MSG_ERROR("Configured to use standard pflow collection \"" << m_pfcollKey.key() << "\".");
@@ -151,8 +155,8 @@ namespace met {
       ATH_MSG_WARNING("Invalid pointer to MissingETAssociationMap supplied! Abort.");
       return StatusCode::FAILURE;
     }
-    if(m_pflow && !m_useTracks ){
-      ATH_MSG_WARNING("Attempting to build PFlow without a track collection.");
+    if((m_pflow || !m_fecollKey.key().empty())&& !m_useTracks ){
+      ATH_MSG_WARNING("Attempting to build PFlow/FlowElement MET without a track collection.");
       return StatusCode::FAILURE;
     }
 
@@ -231,8 +235,8 @@ namespace met {
     }else{
       SG::ReadHandle<VertexContainer> vxCont(m_pvcollKey);
       if (!vxCont.isValid()) {
-	ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
-	//this is actually really bad.  If it's empty that's okay
+        ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
+        //this is actually really bad.  If it's empty that's okay
         return StatusCode::FAILURE;
       }
 
@@ -240,31 +244,41 @@ namespace met {
       ATH_MSG_DEBUG("Container holds " << vxCont->size() << " vertices");
 
       for(const auto& vx : *vxCont) {
-	ATH_MSG_VERBOSE( "Testing vertex " << vx->index() );
-	if(vx->vertexType()==VxType::PriVtx)
-	  {constits.pv = vx; break;}
+        ATH_MSG_VERBOSE( "Testing vertex " << vx->index() );
+        if(vx->vertexType()==VxType::PriVtx)
+          {constits.pv = vx; break;}
       }
       if(!constits.pv) {
-	ATH_MSG_DEBUG("Failed to find primary vertex! Reject all tracks.");
+        ATH_MSG_DEBUG("Failed to find primary vertex! Reject all tracks.");
       } else {
-	ATH_MSG_VERBOSE("Primary vertex has z = " << constits.pv->z());
+        ATH_MSG_VERBOSE("Primary vertex has z = " << constits.pv->z());
       }
 
       constits.trkCont=0;
       ATH_MSG_DEBUG("Retrieving Track collection " << m_trkcoll);
       SG::ReadHandle<TrackParticleContainer> trCont(m_trkcollKey);
       if (!trCont.isValid()) {
-	ATH_MSG_WARNING("Unable to retrieve track particle container");
+        ATH_MSG_WARNING("Unable to retrieve track particle container");
         return StatusCode::FAILURE;
       }
       constits.trkCont=trCont.cptr();
 
-      if(m_pflow) {
-	ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcollKey.key());
-	constits.pfoCont = 0;
+      if(!m_fecollKey.key().empty()){
+        ATH_MSG_DEBUG("Retrieving FlowElement collection " << m_fecollKey.key());
+        constits.feCont = 0;
+        SG::ReadHandle<xAOD::FlowElementContainer> feCont(m_fecollKey);
+        if (!feCont.isValid()) {
+          ATH_MSG_ERROR("Unable to retrieve FlowElement container");
+          return StatusCode::FAILURE;
+        }
+        constits.feCont=feCont.cptr();
+      }
+      else if(m_pflow) {
+        ATH_MSG_DEBUG("Retrieving PFlow collection " << m_pfcollKey.key());
+        constits.pfoCont = 0;
         SG::ReadHandle<PFOContainer> pfCont(m_pfcollKey);
         if (!pfCont.isValid()) {
-	  ATH_MSG_WARNING("Unable to PFlow object container");
+          ATH_MSG_WARNING("Unable to PFlow object container");
           return StatusCode::FAILURE;
         }
         constits.pfoCont=pfCont.cptr();
@@ -285,7 +299,7 @@ namespace met {
   ///////////////////////////////////////////////////////////////////
 
   StatusCode METAssociator::fillAssocMap(xAOD::MissingETAssociationMap* metMap,
-					 const xAOD::IParticleContainer* hardObjs) const
+                                         const xAOD::IParticleContainer* hardObjs) const
   {
     ConstitHolder constits;
 
@@ -306,28 +320,37 @@ namespace met {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
       constlist.clear();
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
-      if (m_pflow) {
-	if(!m_useTracks){
-	  ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
-	  return StatusCode::FAILURE;
-	}else{
-	  std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
-	  ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
-	  MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
-	}
+      if(!m_fecollKey.key().empty()){
+        if(!m_useTracks){
+          ATH_MSG_ERROR("Attempting to build FlowElement MET without a track collection.");
+          return StatusCode::FAILURE;
+        }
+        std::map<const IParticle*, MissingETBase::Types::constvec_t> momentumOverride;
+        ATH_CHECK( this->extractFE(obj, constlist, constits, momentumOverride) );
+        MissingETComposition::insert(metMap, obj, constlist, momentumOverride);
+      }
+      else if (m_pflow) {
+        if(!m_useTracks){
+          ATH_MSG_DEBUG("Attempting to build PFlow without a track collection.");
+          return StatusCode::FAILURE;
+        }else{
+          std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
+          ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
+          MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
+        }
       } else {
-	std::vector<const IParticle*> tclist;
-	tclist.reserve(20);
+        std::vector<const IParticle*> tclist;
+        tclist.reserve(20);
         ATH_CHECK( this->extractTopoClusters(obj,tclist,constits) );
-	if(m_useModifiedClus) {
-	  for(const auto& cl : tclist) {
-	    // use index-parallelism to identify shallow copied constituents
-	    constlist.push_back((*constits.tcCont)[cl->index()]);
-	  }
-	} else {
-	  constlist = tclist;
-	}
-	if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
+        if(m_useModifiedClus) {
+          for(const auto& cl : tclist) {
+            // use index-parallelism to identify shallow copied constituents
+            constlist.push_back((*constits.tcCont)[cl->index()]);
+          }
+        } else {
+          constlist = tclist;
+        }
+        if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
         MissingETComposition::insert(metMap,obj,constlist);
       }
     }
@@ -348,7 +371,7 @@ namespace met {
   {
 
     if( (fabs(trk->eta())<1.5 && trk->pt()>m_cenTrackPtThr) ||
-	(fabs(trk->eta())>=1.5 && trk->pt()>m_forTrackPtThr) ) {
+        (fabs(trk->eta())>=1.5 && trk->pt()>m_forTrackPtThr) ) {
 
       // Get relative error on qoverp
       float Rerr = Amg::error(trk->definingParametersCovMatrix(),4)/fabs(trk->qOverP());
@@ -363,9 +386,9 @@ namespace met {
       xAOD::TrackCorrection trkIsoCorr;
       trkIsoCorr.trackbitset.set(xAOD::Iso::IsolationTrackCorrection::coreTrackPtr); 
       m_trkIsolationTool->trackIsolation(trkIsoResult,
-					 *trk,
-					 trkIsoCones,
-					 trkIsoCorr);
+                                         *trk,
+                                         trkIsoCones,
+                                         trkIsoCorr);
       ptcone20 = trkIsoResult.ptcones.size() > 0 ? trkIsoResult.ptcones[0] : 0;
       isolfrac = ptcone20/trk->pt();
       // etcone
@@ -378,15 +401,15 @@ namespace met {
       xAOD::CaloCorrection caloIsoCorr_coreCone;
       caloIsoCorr_coreCone.calobitset.set(xAOD::Iso::IsolationCaloCorrection::coreCone); // this is etcone10
       m_caloIsolationTool->caloTopoClusterIsolation(caloIsoResult,
-						    *trk,
-						    caloIsoCones,
-						    caloIsoCorr_coreCone);
+                                                    *trk,
+                                                    caloIsoCones,
+                                                    caloIsoCorr_coreCone);
       if(caloIsoResult.etcones.size() > 0) {
-	// retrieve the correction value for the core cone
-	etcone10 = caloIsoResult.coreCorrections[xAOD::Iso::IsolationCaloCorrection::coreCone][xAOD::Iso::IsolationCorrectionParameter::coreEnergy];
+        // retrieve the correction value for the core cone
+        etcone10 = caloIsoResult.coreCorrections[xAOD::Iso::IsolationCaloCorrection::coreCone][xAOD::Iso::IsolationCorrectionParameter::coreEnergy];
       } else {
-	ATH_MSG_WARNING("isGoodEoverP: Failed to retrieve the isolation core correction (etcone10)! Setting etcone10=0");
-	etcone10 = 0.;
+        ATH_MSG_WARNING("isGoodEoverP: Failed to retrieve the isolation core correction (etcone10)! Setting etcone10=0");
+        etcone10 = 0.;
       }
       EoverP   =  etcone10/trk->pt(); 
       /////////////////////////////////////////////////////////////////////////
@@ -394,13 +417,13 @@ namespace met {
       ATH_MSG_VERBOSE( "Track E/P = " << EoverP );
 
       if(isolfrac<0.1) {
-	    // isolated track cuts
-	    if(Rerr>0.4) return false;
-	    else if (EoverP<0.65 && ((EoverP>0.1 && Rerr>0.05) || Rerr>0.1)) return false;
+            // isolated track cuts
+            if(Rerr>0.4) return false;
+            else if (EoverP<0.65 && ((EoverP>0.1 && Rerr>0.05) || Rerr>0.1)) return false;
       } else {
-	    // non-isolated track cuts
-	    float trkptsum = ptcone20+trk->pt();
-	    if(etcone10/trkptsum<0.6 && trk->pt()/trkptsum>0.6) return false;
+            // non-isolated track cuts
+            float trkptsum = ptcone20+trk->pt();
+            if(etcone10/trkptsum<0.6 && trk->pt()/trkptsum>0.6) return false;
       }
     }
     return true;

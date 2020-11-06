@@ -47,7 +47,7 @@ TileMuRcvContByteStreamTool::TileMuRcvContByteStreamTool(const std::string& type
   : AthAlgTool(type, name, parent)
   , m_tileHWID(0)
   , m_hid2re(0)
-    //, m_verbose(false)
+  , m_runPeriod(0)
 {
   declareInterface<TileMuRcvContByteStreamTool>(this);
 }
@@ -67,6 +67,8 @@ StatusCode TileMuRcvContByteStreamTool::initialize() {
   ATH_CHECK( dec.retrieve() );
 
   m_hid2re = dec->getHid2reHLT();
+  TileCablingService *cabling = TileCablingService::getInstance();
+  m_runPeriod = cabling->runPeriod();
 
   return StatusCode::SUCCESS;
 }
@@ -98,7 +100,7 @@ StatusCode TileMuRcvContByteStreamTool::convert(TileMuonReceiverContainer* cont,
       n++;
       frag_id = (*it_cont)->identify();
       reid = m_hid2re->getRodTileMuRcvID(frag_id);
-      mapEncoder[reid].setTileHWID(m_tileHWID);
+      mapEncoder[reid].setTileHWID(m_tileHWID,m_runPeriod);
       const TileMuonReceiverObj* tileMuRcv = *it_cont;	
       mapEncoder[reid].addTileMuRcvObj(tileMuRcv);
     }                                                            

@@ -14,9 +14,9 @@ ROOT.gROOT.SetBatch(True)
 def makeDirectory(outputDirectory):
     try:
         os.makedirs(outputDirectory)
-        print 'Made directory', outputDirectory
+        print('Made directory', outputDirectory)
     except:
-        print 'directory already exists:', outputDirectory
+        print('directory already exists:', outputDirectory)
         pass
 
 class Proc:
@@ -42,9 +42,9 @@ class Plotter:
 
         makeDirectory(self.imgDirectory)
 
-        print logger.OKBLUE +'Stack configuration'+ logger.ENDC
+        print(logger.OKBLUE +'Stack configuration'+ logger.ENDC)
         for currentProcess in stack:
-            print '  Name %s Colour %d Caption %s' % (currentProcess.name, currentProcess.colour, currentProcess.caption)
+            print('  Name %s Colour %d Caption %s' % (currentProcess.name, currentProcess.colour, currentProcess.caption))
 
     def doneAndDusted(self):
         self.out.write('</html>\n')
@@ -54,7 +54,7 @@ class Plotter:
         if not self.files.has_key(fileName):
             f = ROOT.TFile.Open(fileName)
             if not f:
-                print logger.FAIL + 'Failed to open %s' % fileName + logger.ENDC
+                print(logger.FAIL + 'Failed to open %s' % fileName + logger.ENDC)
                 raise Exception('Failed to open %s' % fileName)
 
             self.files[fileName] = f
@@ -81,7 +81,7 @@ class Plotter:
         return legend
 
     def plot(self, histName):
-        print 'plotting ', histName
+        print('plotting ', histName)
         self.c1.Clear()
 
         entries = []

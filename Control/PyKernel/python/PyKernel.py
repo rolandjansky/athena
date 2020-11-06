@@ -131,8 +131,8 @@ def retrieve (aClass, aKey=None):
         return rootStream
     global storeGate
     if storeGate == None:
-        import StoreGateBindings.Bindings
-        storeGate = StoreGateBindings.Bindings.StoreGate.pointer()
+        import AthenaPython.PyAthena as PyAthena
+        storeGate = PyAthena.py_svc('StoreGateSvc/StoreGateSvc')
     if aKey:
         ret = storeGate.retrieve(aClass,aKey)
     else:
@@ -158,8 +158,8 @@ def retrieveDet (aClass, aKey=None):
     #import workaround    
     global detStore
     if detStore == None:
-        import StoreGateBindings.Bindings
-        detStore = StoreGateBindings.Bindings.StoreGate.pointer("DetectorStore")
+        import AthenaPython.PyAthena as PyAthena
+        storeGate = PyAthena.py_svc('StoreGateSvc/DetectorStore')
     if aKey:
         ret = detStore.retrieve(aClass,aKey)
     else:

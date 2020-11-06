@@ -377,10 +377,11 @@ def createDataFlow(chains, allDicts):
         log.debug("\n Configuring chain %s with %d steps: \n   - %s ", chain.name,len(chain.steps),'\n   - '.join(map(str, [{step.name:step.multiplicity} for step in chain.steps])))
 
         lastCFseq = None
+        lastDecisions = []
         for nstep, chainStep in enumerate( chain.steps ):
             log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, chainStep.name, chain.name)
 
-            filterInput = chain.L1decisions if nstep == 0 else lastCFseq.decisions
+            filterInput = chain.L1decisions if nstep == 0 else lastDecisions
             log.debug("Seeds added; having in the filter now: %s", filterInput)
 
 
@@ -392,8 +393,9 @@ def createDataFlow(chains, allDicts):
             sequenceFilter= None
             filterName = CFNaming.filterName(chainStep.name)
             filterOutput =[ CFNaming.filterOutName(filterName, inputName) for inputName in filterInput ]
-            log.debug("Filter outputps: %s", filterOutput)
+#            log.debug("Filter outputps: %s", filterOutput)
 
+# note: can use 
             (foundFilter, foundCFSeq) = findCFSequences(filterName, CFseqList[nstep])
             log.debug("Found %d CF sequences with filter name %s", foundFilter, filterName)
              # add error if more than one
@@ -402,23 +404,28 @@ def createDataFlow(chains, allDicts):
                 CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sequenceFilter)
                 CFseq.connect(filterOutput)
                 CFseqList[nstep].append(CFseq)
+                lastDecisions=CFseq.decisions
                 lastCFseq=CFseq
             else:
                 if len(foundCFSeq) > 1:
                     log.error("Found more than one seuqences containig this filter %s", filterName)
                 lastCFseq=foundCFSeq[0]
                 sequenceFilter=lastCFseq.filter
-                lastCFseq.connect(filterOutput)
+                #lastCFseq.connect(filterOutput)
                 [ sequenceFilter.addInput(inputName) for inputName in filterInput ]
                 [ sequenceFilter.addOutput(outputName) for outputName in  filterOutput ]
-
+                lastCFseq.connect(filterOutput)
+                if chainStep.isEmpty:
+                    lastDecisions=filterOutput
+                else:
+                    lastDecisions=lastCFseq.decisions
 
             # add chains to the filter:
-            chainLegs = chain.getChainLegs()
+            chainLegs = chainStep.getChainLegs()
             for leg in chainLegs:
                 sequenceFilter.addChain(leg)
                 log.debug("Adding chain %s to %s", leg, sequenceFilter.Alg.name())
-            log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
+#            log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
 
             if chainStep.isCombo:
                 if chainStep.combo is not None:
@@ -427,7 +434,7 @@ def createDataFlow(chains, allDicts):
 
             if len(chain.steps) == nstep+1:
                 log.debug("Adding finalDecisions for chain %s at step %d:", chain.name, nstep+1)
-                for dec in lastCFseq.decisions:
+                for dec in lastDecisions:
                     finalDecisions[nstep].append(dec)
                     log.debug(dec)
                     

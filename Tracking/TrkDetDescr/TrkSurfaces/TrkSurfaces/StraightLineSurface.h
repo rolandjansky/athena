@@ -18,6 +18,7 @@
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/CachedValue.h"
 
 class Identifier;
 class MsgStream;
@@ -141,7 +142,7 @@ public:
    */
   virtual Amg::RotationMatrix3D measurementFrame(
     const Amg::Vector3D& glopos,
-    const Amg::Vector3D& glomom) const override;
+    const Amg::Vector3D& glomom) const override final;
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
@@ -241,7 +242,7 @@ public:
 
   /** the pathCorrection for derived classes with thickness */
   virtual double pathCorrection(const Amg::Vector3D&,
-                                const Amg::Vector3D&) const override;
+                                const Amg::Vector3D&) const override final;
 
   /** This method checks if the provided GlobalPosition is inside the assigned
     straw radius, but no check is done whether the GlobalPosition is inside
@@ -250,26 +251,26 @@ public:
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
                            BoundaryCheck bchk = true,
                            double tol1 = 0.,
-                           double tol2 = 0.) const override;
+                           double tol2 = 0.) const override final;
 
   /**This method returns the bounds of the Surface by reference */
-  virtual const SurfaceBounds& bounds() const override;
+  virtual const SurfaceBounds& bounds() const override final;
 
   /**This surface calls the iside method of the bouns */
   virtual bool insideBounds(const Amg::Vector2D& locpos,
                             double tol1 = 0.,
-                            double tol2 = 0.) const override;
+                            double tol2 = 0.) const override final;
   virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override;
+                                 const BoundaryCheck& bchk) const override final;
 
   /** Return properly formatted class name for screen output */
-  virtual std::string name() const override;
+  virtual std::string name() const override final;
 
 protected: //!< data members
   template<class SURFACE, class BOUNDS_CNV>
   friend class ::BoundSurfaceCnv_p1;
   //!< cache of the line direction (speeds up)
-  CxxUtils::CachedUniquePtrT<Amg::Vector3D> m_lineDirection;
+  CxxUtils::CachedValue<Amg::Vector3D> m_lineDirection;
   //!< bounds (shared)
   SharedObject<const CylinderBounds> m_bounds;
   //!< NoBounds as return object when no bounds are declared

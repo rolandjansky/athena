@@ -66,7 +66,7 @@ class TriggerConfigL1Topo(object):
             raise RuntimeError('L1Topo algo %s is already registered' % algo.name)
             
         self.registeredAlgos[algo.name] = algo
-        log.debug("Added in the algo list: {0}, ID:{1}" .format(algo.name,algo.algoId))
+        log.debug("Added in the algo list: %s, ID:%s", algo.name, algo.algoId)
         return algo
 
 

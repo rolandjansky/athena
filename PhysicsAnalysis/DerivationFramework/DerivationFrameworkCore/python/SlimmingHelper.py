@@ -34,17 +34,13 @@
 # may be unreadable.
 ####################################################################
 
-from __future__ import print_function
-
-from DerivationFrameworkCore.CompulsoryContent import *
-from DerivationFrameworkCore.ContentHandler import *
+from DerivationFrameworkCore.CompulsoryContent import CompulsoryContent, CompulsoryTriggerNavigation
+from DerivationFrameworkCore.ContentHandler import ContentHandler
 from DerivationFrameworkCore.ContainersForExpansion import ContainersForExpansion
 from DerivationFrameworkCore.ContainersOnTheFly import ContainersOnTheFly
 from DerivationFrameworkCore.AllVariablesDisallowed import AllVariablesDisallowed
 from DerivationFrameworkCore.FullListOfSmartContainers import FullListOfSmartContainers
 from DerivationFrameworkCore.PreliminarySmartContainers import PreliminarySmartContainers
-from AthenaCommon.BeamFlags import jobproperties
-from AthenaCommon.GlobalFlags  import globalflags
 import PyUtils.Logging as L
 msg = L.logging.getLogger('DerivationFramework__SlimmingHelper')
 msg.setLevel(L.logging.INFO)
@@ -56,13 +52,13 @@ class lockable_list(list):
                 list.__init__(self,data)
                 self.__dict__["_locked"] = False
         def append(self,name):
-                if self._locked == True:
+                if self._locked is True:
                         msg.error("Attempting to Modify SlimmingHelper after AppendContentToStream has Been Called")
                         raise RuntimeError("Late Modification to SlimmingHelper do not modify after calling AppendContentToStream")
                 else:
                         return list.append(self, name)
         def __setattr__(self,name,value):
-                if self._locked==True:
+                if self._locked is True:
                         msg.error("Attempting to Modify SlimmingHelper after AppendContentToStream has Been Called")
                         raise RuntimeError("Late Modification to SlimmingHelper do not modify after calling AppendContentToStream")
                 else:
@@ -107,7 +103,7 @@ class SlimmingHelper:
 
         # This hack prevents any members from being modified after lock is set to true, this happens in AppendContentToStream
         def __setattr__(self,name,value):
-                if self._locked==True:
+                if self._locked is True:
                         msg.error("Attempting to Modify SlimmingHelper "+self.name+" After AppendContentToStream has Been Called")
                         raise RuntimeError("Late Modification to SlimmingHelper, do not modifiy after calling AppendContentToStream")
                 elif type(value)==list:
@@ -157,44 +153,44 @@ class SlimmingHelper:
                 # Trigger objects: add them by hand to the smart collection list (to keep the previous interface)
                 triggerContent = False
 
-                if (self.IncludeAdditionalTriggerContent == True):
+                if (self.IncludeAdditionalTriggerContent is True):
                         triggerContent = True
 
-                if (self.IncludeMuonTriggerContent == True):
+                if (self.IncludeMuonTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__MuonContainer_MuonEFInfo")
 
-                if (self.IncludeEGammaTriggerContent == True):
+                if (self.IncludeEGammaTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__PhotonContainer_egamma_Photons")
 
-                if (self.IncludeJetTriggerContent == True):
+                if (self.IncludeJetTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__JetContainer_a4tcemsubjesFS")
                         from DerivationFrameworkCore.JetTriggerFixContent import JetTriggerFixContent
                         for item in JetTriggerFixContent:
                                 Stream.AddItem(item)
 
-                if (self.IncludeEtMissTriggerContent == True):
+                if (self.IncludeEtMissTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TrigMissingETContainer_TrigEFMissingET")
                         from DerivationFrameworkCore.EtMissTriggerFixContent import EtMissTriggerFixContent
                         for item in EtMissTriggerFixContent:
                                 Stream.AddItem(item)
 
-                if (self.IncludeTauTriggerContent == True):
+                if (self.IncludeTauTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TauJetContainer_TrigTauRecMerged")
 
-                if (self.IncludeBJetTriggerContent == True):
+                if (self.IncludeBJetTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__BTaggingContainer_HLTBjetFex")
 
-                if (self.IncludeBPhysTriggerContent == True):
+                if (self.IncludeBPhysTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TrigBphysContainer_EFBMuMuFex")
 
-                if (self.IncludeMinBiasTriggerContent == True):
+                if (self.IncludeMinBiasTriggerContent is True):
                         triggerContent = True
                         self.SmartCollections.append("HLT_xAOD__TrigVertexCountsContainer_vertexcounts")
 
@@ -270,13 +266,13 @@ class SlimmingHelper:
 
                 # Add trigger item (not covered by smart slimming so no expansion)
                 # Old, will be removed (kept just to not break some deriavtions)
-                if (self.IncludeJetTauEtMissTriggerContent == True):
+                if (self.IncludeJetTauEtMissTriggerContent is True):
                         from DerivationFrameworkCore.JetTauEtMissTriggerContent import JetTauEtMissTriggerContent
                         for item in JetTauEtMissTriggerContent:
                                 Stream.AddItem(item)
 
                 # non xAOD collections for MinBias
-                if (self.IncludeMinBiasTriggerContent == True):
+                if (self.IncludeMinBiasTriggerContent is True):
                         from DerivationFrameworkCore.MinBiasTrigger_nonxAOD_Content import MinBiasTrigger_nonxAOD_Content
                         for item in MinBiasTrigger_nonxAOD_Content:
                                 Stream.AddItem(item)
@@ -661,7 +657,7 @@ class SlimmingHelper:
                 elif collectionName=="PrimaryVertices":
                         from DerivationFrameworkInDet.PrimaryVerticesCPContent import PrimaryVerticesCPContent
                         items.extend(PrimaryVerticesCPContent)
-                elif self.IncludeAdditionalTriggerContent == True:
+                elif self.IncludeAdditionalTriggerContent is True:
                         from DerivationFrameworkCore.AdditionalTriggerContent import AdditionalTriggerContent
                         items.extend(AdditionalTriggerContent)
 
@@ -727,7 +723,6 @@ class SlimmingHelper:
                         return "WILDCARD"
                 # No xAOD containers
                 sep = item.split("#")
-                collection = sep[1]
                 if ("xAOD::" in item and sep[1] in self.NamesAndTypes.keys()):
                         return "XAOD"
                 return "OK"

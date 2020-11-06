@@ -61,7 +61,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   if(!startingPatternPars.production(&startingParameters)) return false;
 
   /// get the surface belonging to our staring pars
-  const Trk::Surface* pl = startingPatternPars.associatedSurface();
+  const Trk::Surface* pl = &startingPatternPars.associatedSurface();
 
   /// Track propagation if needed
   /// if we are already on the correct surface, we can assign the params as they ar
@@ -81,7 +81,7 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
   /// update starting cov for DBM case
   if(m_detelement->isDBM()) {
 
-    double tn = tan(startingPatternPars.par()[3]);
+    double tn = tan(startingPatternPars.parameters()[3]);
     cv[ 5]    = .0001           ;
     cv[14]    = (tn*tn*1.e-6)   ;
   } 
@@ -227,7 +227,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
   /// if we have no cluster on this element
   else           {
     /// check the intersection of the propagated track with this surface
-    m_inside = m_detlink->intersect(m_parametersPredForward,m_dist);
+    checkBoundaries(m_parametersPredForward); 
     /// if we have hits on this element
     if( m_detstatus >=0) {
       /// and expect to be inside the active area
@@ -295,7 +295,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
   m_clusterNoAdd =         nullptr                           ;  
   m_xi2Forward         =    10000.                           ;
   /// re-evaluate if we are expected to intersect this element based on the updated prediction
-  m_inside       = m_detlink->intersect(m_parametersPredForward,m_dist);
+  checkBoundaries(m_parametersPredForward); 
   /// copy running counts from previous element
   m_nholesForward      = TE.m_nholesForward                        ;
   m_nMissing              = TE.m_nMissing                                ;
@@ -401,7 +401,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_cluster      =         0;
   m_clusterNoAdd =         0;
   m_xi2Backward         =    10000.;
-  m_inside       = m_detlink->intersect(m_parametersPredBackward,m_dist);
+  checkBoundaries(m_parametersPredBackward); 
   m_nholesBackward      = TE.m_nholesBackward                        ;
   m_nMissing        = TE.m_nMissing                          ;
   m_nclustersBackward   = TE.m_nclustersBackward                     ; 
@@ -471,7 +471,7 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
   m_cluster ? m_status = 3 : m_status = 2;
 
   double Xi2max = m_xi2max; if( isTwoSpacePointsSeed) Xi2max*=2.;
-  m_inside       = m_detlink->intersect(m_parametersSM,m_dist);
+  checkBoundaries(m_parametersSM); 
   m_nlinksBackward      =         0               ;
   m_clusterOld    	    = m_cluster               ;
   m_cluster       	    =         0               ;
@@ -614,7 +614,8 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   if(Cl) {
 
     if(!addCluster(m_parametersPredBackward,m_parametersUpdatedBackward,m_xi2Backward)) return false;
-    m_inside    = -1; noiseProduction(-1,m_parametersUpdatedBackward);
+    m_inside    = -1; 
+    noiseProduction(-1,m_parametersUpdatedBackward);
     ++m_nclustersBackward; m_xi2totalBackward+=m_xi2Backward; m_ndfBackward+=m_ndf; if(m_ndf==2) ++m_npixelsBackward;
   }
   else  {
@@ -797,7 +798,7 @@ InDet::SiTrajectoryElement_xk::trackSimpleStateOnSurface
 Trk::TrackStateOnSurface*  
 InDet::SiTrajectoryElement_xk::trackPerigeeStateOnSurface ()
 {
-  if(m_parametersUpdatedBackward.associatedSurface()!=m_surface) return 0;
+  if(&m_parametersUpdatedBackward.associatedSurface()!=m_surface) return 0;
   
   double step                   ;
   Trk::PatternTrackParameters Tp; 
@@ -841,7 +842,7 @@ InDet::SiTrajectoryElement_xk::trackParameters(bool cov,int Q)
         if(addCluster(m_parametersSM,m_parametersSM)){     
           return m_parametersSM.convert(cov);
         }
-        else if(m_parametersUpdatedBackward.cov()[14] < m_parametersPredForward.cov()[14]){
+        else if((*m_parametersUpdatedBackward.covariance())(4, 4) < (*m_parametersPredForward.covariance())(4, 4)){
           return m_parametersUpdatedBackward.convert(cov);
         }
         else{
@@ -869,7 +870,7 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   int Model = m_noisemodel; 
   if(Model < 1 || Model > 2) return; 
 
-  double q = fabs(Tp.par()[4]);   /// qoverp 
+  double q = fabs(Tp.parameters()[4]);   /// qoverp 
 
   /// projection of direction normal to surface 
   double s = fabs(m_localDir[0]*m_localTransform[6]+
@@ -939,7 +940,7 @@ InDet::SiTrajectoryElement_xk::trackParametersWithNewDirection(bool cov,int Q)
     if(Q==0) {
       if(m_cluster) {
 	if(addCluster(m_parametersSM,m_parametersSM))                return trackParameters(m_parametersSM,cov);
-	else if(m_parametersUpdatedBackward.cov()[14] < m_parametersPredForward.cov()[14]) return trackParameters(m_parametersUpdatedBackward,cov);
+	else if((*m_parametersUpdatedBackward.covariance())(4, 4) < (*m_parametersPredForward.covariance())(4, 4)) return trackParameters(m_parametersUpdatedBackward,cov);
 	else                                                         return trackParameters(m_parametersPredForward,cov);
       }
       else                                                           return trackParameters(m_parametersSM,cov);
@@ -1175,10 +1176,10 @@ void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
                                 double* globalPars) {
   /// obtain trigonometric functions required for transform                                   
   double sinPhi,cosPhi,cosTheta,sintheta;   
-  sincos(localParameters.par()[2],&sinPhi,&cosPhi);  
-  sincos(localParameters.par()[3],&sintheta,&cosTheta);
+  sincos(localParameters.parameters()[2],&sinPhi,&cosPhi);  
+  sincos(localParameters.parameters()[3],&sintheta,&cosTheta);
   /// get the surface corresponding to the local parameters
-  const Trk::Surface* pSurface=localParameters.associatedSurface();
+  const Trk::Surface* pSurface=&localParameters.associatedSurface();
   if (!pSurface){
     throw(std::runtime_error("TrackParameters associated surface is null pointer in InDet::SiTrajectoryElement_xk::transformPlaneToGlobal"));
   }
@@ -1190,15 +1191,15 @@ void InDet::SiTrajectoryElement_xk::transformPlaneToGlobal(bool useJac,
   double Ay[3] = {T(0,1),T(1,1),T(2,1)};
 
   /// position 
-  globalPars[ 0] = localParameters.par()[0]*Ax[0]+localParameters.par()[1]*Ay[0]+T(0,3);                    // X
-  globalPars[ 1] = localParameters.par()[0]*Ax[1]+localParameters.par()[1]*Ay[1]+T(1,3);                    // Y
-  globalPars[ 2] = localParameters.par()[0]*Ax[2]+localParameters.par()[1]*Ay[2]+T(2,3);                    // Z
+  globalPars[ 0] = localParameters.parameters()[0]*Ax[0]+localParameters.parameters()[1]*Ay[0]+T(0,3);                    // X
+  globalPars[ 1] = localParameters.parameters()[0]*Ax[1]+localParameters.parameters()[1]*Ay[1]+T(1,3);                    // Y
+  globalPars[ 2] = localParameters.parameters()[0]*Ax[2]+localParameters.parameters()[1]*Ay[2]+T(2,3);                    // Z
   /// direction vectors
   globalPars[ 3] = cosPhi*sintheta;                                                         // Ax
   globalPars[ 4] = sinPhi*sintheta;                                                         // Ay
   globalPars[ 5] = cosTheta;          
   /// qoeverp                                                   // Az
-  globalPars[ 6] = localParameters.par()[4];                                                   // CM
+  globalPars[ 6] = localParameters.parameters()[4];                                                   // CM
   /// for very high momenta, truncate to avoid zero
   if(std::abs(globalPars[6])<1.e-20) {
     if (globalPars[6] < 0){ 
@@ -1330,12 +1331,12 @@ bool InDet::SiTrajectoryElement_xk::transformGlobalToPlane
     Jac[20] = 1.;                         // dCM /dCM
 
     /// covariance matrix production using jacobian - CovNEW = J*CovOLD*Jt
-    AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(startingParameters.covariance(), Jac);
+    AmgSymMatrix(5) newCov = Trk::PatternTrackParameters::newCovarianceMatrix(*startingParameters.covariance(), Jac);
     outputParameters.setParametersWithCovariance(m_surface, p, newCov);
 
     /// check for negative diagonals in the cov
-    const double* t = &outputParameters.cov()[0];
-    if(t[0]<=0. || t[2]<=0. || t[5]<=0. || t[9]<=0. || t[14]<=0.) return false;
+    const AmgSymMatrix(5) & t = *outputParameters.covariance();
+    if(t(0, 0)<=0. || t(1, 1)<=0. || t(2, 2)<=0. || t(3, 3)<=0. || t(4, 4)<=0.) return false;
   } else {
     /// write into output parameters. Assign our surface to them
     outputParameters.setParameters(m_surface,p);
@@ -1976,4 +1977,9 @@ int InDet::SiTrajectoryElement_xk::searchClusters(Trk::PatternTrackParameters& T
   if (m_itType==PixelClusterColl) return searchClustersSub<InDet::PixelClusterCollection::const_iterator>(Tp, L);
   if (m_itType==SCT_ClusterColl) return searchClustersSub<InDet::SCT_ClusterCollection::const_iterator>(Tp, L);
   return searchClustersSub<InDet::SiClusterCollection::const_iterator>(Tp, L);
+}
+void InDet::SiTrajectoryElement_xk::checkBoundaries(const Trk::PatternTrackParameters & pars){
+
+    m_inside = m_detlink->intersect(pars, m_dist); 
+  
 }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr
 def getCombinedScintillatorSD(name="CombinedScintillatorSD", **kwargs):
@@ -8,9 +8,9 @@ def getCombinedScintillatorSD(name="CombinedScintillatorSD", **kwargs):
 
 def getCombinedScintillatorTool(name="CombinedScintillator", **kwargs):
     kwargs.setdefault("DectectorName", "CScintillatorLayer")
-    kwargs.setdefault("RMin", 2266.5, "");
-    kwargs.setdefault("RMax", 2281.5, "");
-    kwargs.setdefault("DZSci",  220., "");
-    kwargs.setdefault("PhiPos", 2.50, "");
-    kwargs.setdefault("PhiNeg", -19.3,"");
+    kwargs.setdefault("RMin", 2266.5, "")
+    kwargs.setdefault("RMax", 2281.5, "")
+    kwargs.setdefault("DZSci",  220., "")
+    kwargs.setdefault("PhiPos", 2.50, "")
+    kwargs.setdefault("PhiNeg", -19.3,"")
     return CfgMgr.CombinedScintillatorTool(name, **kwargs)

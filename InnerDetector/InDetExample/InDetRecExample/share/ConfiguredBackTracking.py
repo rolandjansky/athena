@@ -164,7 +164,7 @@ class ConfiguredBackTracking:
          from TRT_SeededTrackFinder.TRT_SeededTrackFinderConf import InDet__TRT_SeededTrackFinder
          import InDetRecExample.TrackingCommon as TrackingCommon
          InDetTRT_SeededTrackFinder = InDet__TRT_SeededTrackFinder(name                  = 'InDetTRT_SeededTrackFinder',
-                                                                   RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitter'),
+                                                                   RefitterTool          = CfgGetter.getPublicTool('InDetTrackFitterBT'),
                                                                    TrackTool             = InDetTRT_SeededTrackTool,
                                                                    PRDtoTrackMap         = prefix+'PRDtoTrackMap'+suffix \
                                                                                                if usePrdAssociationTool else "",
@@ -262,7 +262,7 @@ class ConfiguredBackTracking:
          #
          from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
          InDetTRT_SeededAmbiguityProcessor = Trk__SimpleAmbiguityProcessorTool(name               = 'InDetTRT_SeededAmbiguityProcessor',
-                                                                               Fitter             = CfgGetter.getPublicTool('InDetTrackFitter'),
+                                                                               Fitter             = CfgGetter.getPublicTool('InDetTrackFitterBT'),
                                                                                AssociationTool    = TrackingCommon.getInDetPRDtoTrackMapToolGangedPixels(),
                                                                                TrackSummaryTool   = InDetTRT_SeededSummaryTool,
                                                                                SelectionTool      = InDetTRT_SeededAmbiTrackSelectionTool,

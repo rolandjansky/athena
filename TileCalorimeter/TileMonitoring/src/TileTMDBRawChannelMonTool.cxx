@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -201,7 +201,7 @@ StatusCode TileTMDBRawChannelMonTool::fillHistograms() {
       if (m_eff == true) {
         if (ros > 2) {
           m_TMDB_D56_amplitude[ros - 3][drawer] += amplitude;
-          if (channel == TMDB::D6L || channel == TMDB::D6R) { m_TMDB_D6_amplitude[ros - 3][drawer] += amplitude;}
+          if (channel == 2 || channel == 3) { m_TMDB_D6_amplitude[ros - 3][drawer] += amplitude;}
         }
 
         //////////////////////////
@@ -267,19 +267,19 @@ StatusCode TileTMDBRawChannelMonTool::fillHistograms() {
             
             drawerIdx = TileCalibUtils::getDrawerIdx(ros, module);
             
-            if( (m_TMDB_D56_amplitude[rosIdx][module] > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6HIGH)  )) {
+            if( (m_TMDB_D56_amplitude[rosIdx][module] > m_tileToolTMDB->getThreshold(drawerIdx, 3)  )) {
               m_drawer[ros][1][1]->Fill(module + 1);
             }
 
-            if( (m_TMDB_D56_amplitude[rosIdx][module] > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6LOW)  )) {
+            if( (m_TMDB_D56_amplitude[rosIdx][module] > m_tileToolTMDB->getThreshold(drawerIdx, 2)  )) {
               m_drawer[ros][1][0]->Fill(module + 1);
             }
             
-            if( (m_TMDB_D6_amplitude[rosIdx][module] > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6HIGH)  )) {
+            if( (m_TMDB_D6_amplitude[rosIdx][module] > m_tileToolTMDB->getThreshold(drawerIdx, 1)  )) {
               m_drawer[ros][0][1]->Fill(module+1);
             }
 
-            if( m_TMDB_D6_amplitude[rosIdx][module]  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6LOW) ) {
+            if( m_TMDB_D6_amplitude[rosIdx][module]  > m_tileToolTMDB->getThreshold(drawerIdx, 0) ) {
               m_drawer[ros][0][0]->Fill(module+1);
             }
           

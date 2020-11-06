@@ -141,7 +141,7 @@ def defineMenu():
        
         
         # multi jet
-        'L1_J45.0ETA20_3J15.0ETA25',
+        'L1_J45.0ETA23_3J15.0ETA25',
         'L1_J50_2J40.0ETA25_3J15.0ETA25',
         'L1_3J50', 'L1_4J15', 'L1_4J20',
         'L1_3J15.0ETA25_XE40',
@@ -479,7 +479,7 @@ def defineMenu():
         'L1_4J15' : 131,
         'L1_4J20' : 132,
         'L1_3J15.0ETA25_XE40' : 184,
-        'L1_J45.0ETA20_3J15.0ETA25' : 86,
+        'L1_J45.0ETA23_3J15.0ETA25' : 86,
         'L1_J50_2J40.0ETA25_3J15.0ETA25' : 87,
  
         'L1_6J15' : 135,

@@ -81,8 +81,9 @@ StatusCode TileMuonReceiverDecision::initialize() {
 
   CHECK(m_tileToolEmscale.retrieve());
 
-  ATH_CHECK( m_rawChannelContainerKey.initialize(true));
-  ATH_CHECK( m_muonReceiverContainerKey.initialize(true));
+  bool doTileMuonReceiverCnt = (m_runPeriod > 1);
+  ATH_CHECK( m_rawChannelContainerKey.initialize(doTileMuonReceiverCnt) );
+  ATH_CHECK( m_muonReceiverContainerKey.initialize(doTileMuonReceiverCnt) );
 
   ATH_MSG_INFO("TileMuonReceiverDecision initialization completed" );
   return StatusCode::SUCCESS;

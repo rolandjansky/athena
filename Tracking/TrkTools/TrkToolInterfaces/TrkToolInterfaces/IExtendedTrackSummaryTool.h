@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKIEXTENDEDTRACKSUMMARYTOOL_H
@@ -108,12 +108,9 @@ public:
    * summary is owned by the track.
    */
   virtual void updateAdditionalInfo(const Track& track,
-                                    const Trk::PRDtoTrackMap* prd_to_track_map,
                                     TrackSummary& summary) const = 0;
 
-  virtual void updateAdditionalInfo(
-    Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const = 0;
+  virtual void updateAdditionalInfo(Track& track) const = 0;
 };
 
 inline const InterfaceID&

@@ -57,7 +57,6 @@ namespace Analysis {
     void fill_sv1(var_map& inputs, xAOD::BTagging& BTag) const;
     void fill_jetfitter(var_map& inputs, xAOD::BTagging& BTag) const;
     void fill_mvb(var_map& inputs, xAOD::Jet& jet, xAOD::BTagging& BTag) const;
-    void fill_mv2cl100(var_map& inputs, xAOD::BTagging& BTag) const;
     void fill_trkSum(var_map& inputs, xAOD::BTagging& BTag) const;
     void fill_softmuon(var_map& inputs, xAOD::BTagging& BTag) const;
 

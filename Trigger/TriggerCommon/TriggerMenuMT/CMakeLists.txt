@@ -3,9 +3,6 @@
 # Declare the package name:
 atlas_subdir( TriggerMenuMT )
 
-# External dependencies:
-find_package( six )
-
 atlas_add_test( flake8
    SCRIPT flake8 --select=ATL,F,E7,E9,W6,E101 --enable-extension=ATL900,ATL901,ATL902
    ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/scripts
@@ -144,7 +141,12 @@ atlas_add_test( full_menu_cf
 		        SCRIPT scripts/test_full_menu_cf.sh
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf 
                 PROPERTIES TIMEOUT 500)
-
+                
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
+atlas_add_test( LS2_emu_menu_DH
+		        SCRIPT test_emu_step_menu_processing.sh
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH
+                PROPERTIES TIMEOUT 500)
 
 #----------------------------------
 # List of menus to be created:

@@ -29,7 +29,7 @@ public:
    RpcPadContainer(unsigned int hashmax) ; 
    RpcPadContainer(RpcPad_Cache* cache) ; 
 
-  ~RpcPadContainer() ; 
+  ~RpcPadContainer()=default; 
 
   typedef RpcPad::size_type size_type ; 
   typedef IdentifiableContainer<RpcPad> MyBase; 

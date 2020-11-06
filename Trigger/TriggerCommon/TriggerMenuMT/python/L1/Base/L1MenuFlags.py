@@ -4,7 +4,6 @@ __doc__="Level 1 specific configuration for L1 Run 3"
 
 from .Limits import Limits
 from collections import Iterable, OrderedDict
-import six
 
 
 class FlagWrapper:
@@ -37,12 +36,12 @@ class L1MenuFlagsCont(object):
     statusOn = set()
 
     __slots__ = {
-        "MenuSetup"               :  FlagArgs( six.string_types ),
+        "MenuSetup"               :  FlagArgs( str ),
         "CTPVersion"              :  FlagArgs( int, 4,   val_check = lambda x: x in range(5), action = lambda x: Limits.setLimits(x) ),
         "BunchGroupPartitioning"  :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: y not in range(16), x)))==0 ),
-        "BunchGroupNames"         :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: not isinstance(y, six.string_types), x)))==0),
+        "BunchGroupNames"         :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: not isinstance(y, str), x)))==0),
         "MenuPartitioning"        :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: y not in range(512), x)))==0 ),
-        "items"                   :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: not isinstance(y, six.string_types), x)))==0),
+        "items"                   :  FlagArgs( Iterable, val_check = lambda x: len(list(filter(lambda y: not isinstance(y, str), x)))==0),
         "boards"                  :  FlagArgs( OrderedDict, OrderedDict() ),
         "legacyBoards"            :  FlagArgs( OrderedDict, OrderedDict() ),
         "prescales"               :  FlagArgs( dict, dict() ),

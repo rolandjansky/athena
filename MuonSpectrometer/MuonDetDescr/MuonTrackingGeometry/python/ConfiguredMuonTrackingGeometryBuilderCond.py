@@ -7,9 +7,7 @@
 # standard configuration
 #
 ######################################################
-# import the include statement
-from AthenaCommon.Include import Include, IncludeError, include
- 
+
 # import the configurable
 from MuonTrackingGeometry.MuonTrackingGeometryConf import Muon__MuonTrackingGeometryBuilderCond
 
@@ -39,6 +37,6 @@ class ConfiguredMuonTrackingGeometryBuilderCond( Muon__MuonTrackingGeometryBuild
         MuonInertMaterialBuilder= Muon__MuonInertMaterialBuilder(name = 'MuonInertMaterialBuilder')
         ToolSvc += MuonInertMaterialBuilder 
 
-        Muon__MuonTrackingGeometryBuilderCond.__init__(self,name,\
-                                                   EntryVolumeName=TrkDetFlags.MuonSystemEntryVolumeName(),\
-                                                   ExitVolumeName  = TrkDetFlags.MuonSystemContainerName())
+        Muon__MuonTrackingGeometryBuilderCond.__init__(self,name,
+                                                       EntryVolumeName=TrkDetFlags.MuonSystemEntryVolumeName(),
+                                                       ExitVolumeName  = TrkDetFlags.MuonSystemContainerName())

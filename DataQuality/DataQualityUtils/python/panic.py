@@ -10,11 +10,10 @@ def panic(msg):
     import traceback
     import time
 
-    conn=stomp.Connection([('atlas-mb.cern.ch', 61013)], **stompconfig.config())
-    conn.start()
+    conn=stomp.Connection([('atlas-mb.cern.ch', 61013)])
     print('panic: started connection')
     
-    conn.connect(wait=True)
+    conn.connect(wait=True, **stompconfig.config())
     print('panic: connected')
 
     header={'MsgClass':'DQ', 
@@ -32,7 +31,6 @@ def panic(msg):
                      'time': time.time(),
                      'usrtime': time.strftime('%Y-%m-%d %H:%H:%M %Z', time.localtime()),
                      })
-    #print(msg)
     conn.send(body, **header)
     print('panic: sent message')
     print(header)

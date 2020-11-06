@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from EventShapeTools.EventShapeToolsConf import EventDensityTool, EventShapeCopier, EventDensityAthAlg
 import logging
@@ -43,7 +43,7 @@ def configEventShapeCopierAlg( input ):
 ## EventDensity Alg for Athena
 
 def EventDensityAlg(name, EventDensityTool=None, **args):
-    edLogger.warning("When instantiating "+name+" : call of EventDensityAlg is deprecated")
+    edLogger.warning("When instantiating %s : call of EventDensityAlg is deprecated", name)
     edLogger.warning("  please use EventDensityAthAlg (from  EventShapeTools.EventShapeToolsConf import EventDensityAthAlg) ")
     alg = EventDensityAthAlg(name,EventDensityTool=EventDensityTool, **args)
     return alg

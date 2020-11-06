@@ -1,25 +1,7 @@
-################################################################################
-# Package: InDetExtensionProcessor
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetExtensionProcessor )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/CxxUtils
-                          GaudiKernel
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkFitter/TrkFitterUtils
-                          PRIVATE
-                          Control/StoreGate
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkFitter/TrkFitterInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces )
 
 # Component(s) in the package:
 atlas_add_component( InDetExtensionProcessor

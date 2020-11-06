@@ -15,9 +15,11 @@ if ("EventInfo#McEventInfo" not in inputFileSummary['eventdata_itemsList']) and 
 
 # Decide what kind of input HepMC container we are dealing with
 if ("McEventCollection#GEN_EVENT" in inputFileSummary['eventdata_itemsList']):
-    DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT")
+    if not hasattr(DerivationFrameworkJob,'GEN_EVNT2xAOD'):
+        DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="GEN_EVENT")
 elif ("McEventCollection#TruthEvent" in inputFileSummary['eventdata_itemsList']):
-    DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent")
+    if not hasattr(DerivationFrameworkJob,'GEN_AOD2xAOD'):
+        DerivationFrameworkJob += xAODMaker__xAODTruthCnvAlg("GEN_EVNT2xAOD",AODContainerName="TruthEvent")
 
 #==============================================================================
 # Create the derivation kernel algorithm
@@ -48,4 +50,10 @@ TRUTH0Stream.AddItem( "xAOD::TruthVertexContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthVertexAuxContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthParticleContainer#*" )
 TRUTH0Stream.AddItem( "xAOD::TruthParticleAuxContainer#*" )
+# Keep the metadata of course!
 TRUTH0Stream.AddMetaDataItem( [ "xAOD::TruthMetaDataContainer#TruthMetaData", "xAOD::TruthMetaDataAuxContainer#TruthMetaDataAux." ] )
+
+# If we don't have a conditions tag set by now, then assume this job isn't going to have one and kill the conditions service
+if len(globalflags.ConditionsTag())==0:
+    for a in svcMgr.PoolSvc.ReadCatalog:
+        svcMgr.PoolSvc.ReadCatalog.remove(a)

@@ -140,12 +140,12 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void SetMinWindow(TH1* h1, float min, float max);
 
   std::string m_stream{};
-  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "ExtendedTracks"};
+  SG::ReadHandleKey<TrackCollection> m_tracksName{this, "tracksName", "CombinedInDetTracks"};
   std::string m_triggerChainName{};
   std::string m_Pixel_Manager{};
   std::string m_SCT_Manager{};
   std::string m_TRT_Manager{};
-  
+
   //Layer/Disk/Ring Gap for modified module histograms
   int m_gap_pix{};
   int m_gap_sct{};
@@ -169,6 +169,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float m_minPIXResYFillRange{};  
   float m_RangeOfPullHistos{};
   float m_PtRange{};
+  float m_xHitErrorRange{};
+  float m_yHitErrorRange{};
   float m_ClusterSizeRange{};
   float m_PixelBarrelXSize{};
   float m_PixelBarrelYSize{};
@@ -179,7 +181,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   int m_nBinsPtRange{};
   int m_histosBooked{};
   int m_checkrate{};
-  int m_events{};
+  unsigned int m_events{};
   int m_mapSplit{};
   int m_NPixLayers{};
   bool m_doPulls{};
@@ -828,8 +830,12 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   TH1F* m_hiterror_x_pix_b{};
   TH1F* m_hiterror_x_pix_ec{};
+  TH1F* m_hiterror_x_pix_eca{};
+  TH1F* m_hiterror_x_pix_ecc{};
   TH1F* m_hiterror_y_pix_b{};
   TH1F* m_hiterror_y_pix_ec{};
+  TH1F* m_hiterror_y_pix_eca{};
+  TH1F* m_hiterror_y_pix_ecc{};
 
   TH1F* m_hiterror_x_pix_b_WideRange{};
   TH1F* m_hiterror_x_pix_ec_WideRange{};

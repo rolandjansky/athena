@@ -339,6 +339,7 @@ namespace TrigConf {
          chain->set_rerun_prescale( -1.0 ); // Not used in R3
          chain->set_pass_through( -1.0 );  // Not used in R3
          chain->set_prescale( loadedPrescale.prescale );
+         chain->set_leg_multiplicities( loadedChain.legMultiplicities() );
 
          // Add it to the list of chains:
          if( ! chainList.addHLTChain( chain ) ) {

@@ -1,9 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
-from AtlasGeoModel.CommonGMJobProperties import CommonGMFlags, CommonGeometryFlags
+from AtlasGeoModel.CommonGMJobProperties import CommonGMFlags
 
 # -------------------------------------------------------------------------------------
 #  Muon geometry flags initialization

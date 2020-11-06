@@ -53,7 +53,7 @@ class TileROD_Encoder
     /** set all necessary parameters for the encoder
      */
     void setTileHWID(const TileHWID* tileHWID, bool verbose, unsigned int type = 4);
-    void setTileHWID(const TileHWID* tileHWID);
+    void setTileHWID(const TileHWID* tileHWID, int m_runPeriod);
 
     /** set OF algorigtm type and amplitude units for a drawer
      */
@@ -147,6 +147,7 @@ class TileROD_Encoder
     unsigned int m_rChUnit;
 
     int m_maxChannels;
+    int m_runPeriod;
 };
 
 #endif

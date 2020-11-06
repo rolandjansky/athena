@@ -18,7 +18,7 @@ TrigTrackPreSelHypoAlgMT::TrigTrackPreSelHypoAlgMT( const std::string& name,
 StatusCode TrigTrackPreSelHypoAlgMT::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   ATH_CHECK( m_fastTracksKey.initialize() );
-  ATH_CHECK( m_roiForID2ReadKey.initialize() );
+  ATH_CHECK( m_roiForID2ReadKey.initialize(SG::AllowEmpty) );
   renounce( m_fastTracksKey );// tau candidates are made in views, so they are not in the EvtStore: hide them
   renounce( m_roiForID2ReadKey);
 
@@ -61,15 +61,21 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
       continue;
     }
 
+    const TrigRoiDescriptor *roi = nullptr;
     //get RoI
-    auto roiHandle = ViewHelper::makeHandle( *viewEL, m_roiForID2ReadKey, context);
-    ATH_CHECK( roiHandle.isValid() );    
-    if( roiHandle ->size() != 1 ) {
-      ATH_MSG_ERROR("Expect exactly one updated ROI");
-      return StatusCode::FAILURE;
+    if(m_roiForID2ReadKey.key().empty()) {
+       auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString());
+       ATH_CHECK( roiELInfo.isValid() );
+       roi = *(roiELInfo.link);
+    }else{
+       auto roiHandle = ViewHelper::makeHandle( *viewEL, m_roiForID2ReadKey, context);
+       ATH_CHECK( roiHandle.isValid() );    
+       if( roiHandle ->size() != 1 ) {
+         ATH_MSG_ERROR("Expect exactly one updated ROI");
+         return StatusCode::FAILURE;
+       }
+       roi = roiHandle->at(0);
     }
-    const TrigRoiDescriptor* updatedROI = roiHandle->at(0);
-
     // create new decision
     auto d = newDecisionIn( decisions, name() );
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
@@ -78,7 +84,7 @@ StatusCode TrigTrackPreSelHypoAlgMT::execute( const EventContext& context ) cons
     ATH_CHECK( el.isValid() );
     d->setObjectLink( featureString(),  el );
     
-    toolInput.emplace_back( d, updatedROI, tracksHandle.cptr(), previousDecision );
+    toolInput.emplace_back( d, roi, tracksHandle.cptr(), previousDecision );
 
     ATH_MSG_DEBUG( "Added view, roi, tracks, previous decision to new decision " << counter << " for view " << (*viewEL)->name()  );
   }

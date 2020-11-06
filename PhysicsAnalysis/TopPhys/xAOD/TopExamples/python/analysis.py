@@ -85,18 +85,18 @@ class TopDataPreparation:
 def queryAmi(amiSamples, tag):
     sys.stdout.write('-> %s: ' % tag)
     sys.stdout.flush()
-    print tag
+    print(tag)
     ds = ami.askAmi(tag)
-    print len(ds), 'datasets'
+    print(len(ds), 'datasets')
     amiSamples.update(ds)
 
 def cacheAmi(ptaglist):
     try:
         amiSamples = pickle.load(open("amiyields.pickle", "rb" ))
-        print logger.OKBLUE + 'Using cached yields - to force me to query AMI delete amiyields.pickle' + logger.ENDC
-    except IOError, ioex:
+        print(logger.OKBLUE + 'Using cached yields - to force me to query AMI delete amiyields.pickle' + logger.ENDC)
+    except IOError as ioex:
         if ioex.errno == 2:
-            print logger.OKBLUE + 'Asking AMI' + logger.ENDC
+            print(logger.OKBLUE + 'Asking AMI' + logger.ENDC)
 
             amiSamples = {}
             
@@ -109,7 +109,7 @@ def cacheAmi(ptaglist):
               queryAmi(amiSamples, 'mc15_13TeV.%.DAOD_TOPQ%.%' + ptag)
 
             if len(amiSamples) == 0:
-                print logger.FAIL + 'Something went wrong when trying to get the data from ami' + logger.ENDC
+                print(logger.FAIL + 'Something went wrong when trying to get the data from ami' + logger.ENDC)
                 sys.exit(1)
             else:
                 pickle.dump(amiSamples, open("amiyields.pickle", "wb"))
@@ -134,7 +134,7 @@ def getDatasetYield(directoryName):
         f = ROOT.TFile.Open(fileName)
 
         if not f:
-            print logger.FAIL + 'ERROR: Failed to open %s' % fileName + logger.ENDC
+            print(logger.FAIL + 'ERROR: Failed to open %s' % fileName + logger.ENDC)
             continue
 
         #Look for TDirectory file (not TTree) and read the cutflow from
@@ -154,7 +154,7 @@ def getDatasetYield(directoryName):
 def makeDirectory(outputDirectory):
     try:
         os.makedirs(outputDirectory)
-        print 'Made directory', outputDirectory
+        print('Made directory', outputDirectory)
     except:
         #directory already exists
         pass
@@ -207,7 +207,7 @@ def check(analysis, directory, runDirectory, samples):
             if not IsInList:
               ptaglist.append(tag)
 
-    print ptaglist
+    print(ptaglist)
 
     amiSamples = cacheAmi(ptaglist)
 
@@ -228,11 +228,11 @@ def check(analysis, directory, runDirectory, samples):
     analyses = []
     bad = []
 
-    print '%s%50s %90s %12s %12s%s' % (logger.OKBLUE, 'dsid.gridtag', 'local location', 'local yield', 'ami yield', logger.ENDC)
+    print('%s%50s %90s %12s %12s%s' % (logger.OKBLUE, 'dsid.gridtag', 'local location', 'local yield', 'ami yield', logger.ENDC))
     for sample in samples:
         existingSampleFilenames = []
 
-        print logger.OKBLUE + sample.name + logger.ENDC
+        print(logger.OKBLUE + sample.name + logger.ENDC)
         for ds in sample.datasets:
             splitName = ds.replace('/','').split('.')
             shortname = splitName[1] + '.' + splitName[-2] + '.' + splitName[-1]
@@ -268,7 +268,7 @@ def check(analysis, directory, runDirectory, samples):
             evenshortername = makeNameFitOnTerminal(shortname, 50)
             eventshorterfilename = makeFileNameFitOnTerminal(directory.split('/')[-1], 60)
 
-            print '%s%50s %90s %12d %12d%s' % (colourstart, evenshortername, eventshorterfilename, directoryYield, amiYield,  colourend)
+            print('%s%50s %90s %12d %12d%s' % (colourstart, evenshortername, eventshorterfilename, directoryYield, amiYield,  colourend))
 
             if amiYield > 0 and directoryYield != amiYield:
                 bad.append(ds)
@@ -294,31 +294,31 @@ def check(analysis, directory, runDirectory, samples):
             analyses.append('cd %s;hadd -f %s.root %s' % (runDirectory, sample.name, mergelist))
 
     if '--debug' in sys.argv:
-        print ''
-        print ''
-        print 'These commands are going to be run:'
+        print('')
+        print('')
+        print('These commands are going to be run:')
         for l in analyses:
-            print l
+            print(l)
 
     if '--bad' in sys.argv:
-        print ''
-        print ''
-        print 'These are datasets where the ami yield does not match'
-        print 'TopExamples.grid.Add("Resubmit").datasets = ['
+        print('')
+        print('')
+        print('These are datasets where the ami yield does not match')
+        print('TopExamples.grid.Add("Resubmit").datasets = [')
 
         for l in bad:
-            print '"%s",' % l
+            print('"%s",' % l)
 
-        print ']'
-        print "resubmit = TopExamples.grid.Samples(['Resubmit'])"
-        print 'TopExamples.grid.submit(config, resubmit)'
+        print(']')
+        print("resubmit = TopExamples.grid.Samples(['Resubmit'])")
+        print('TopExamples.grid.submit(config, resubmit)')
 
     if '--run' in sys.argv:
         makeDirectory(runDirectory)
 
-        print ''
-        print ''
-        print analyses
+        print('')
+        print('')
+        print(analyses)
         for i, l in enumerate(analyses):
-            print logger.OKBLUE + l + logger.ENDC
-            os.system(l)
+            print(logger.OKBLUE + l + logger.ENDC)
+            o.ssysteml()

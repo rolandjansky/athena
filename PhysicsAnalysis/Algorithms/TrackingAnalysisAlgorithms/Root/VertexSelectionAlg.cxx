@@ -8,7 +8,7 @@
 // EDM include(s):
 #include "xAODTracking/VertexContainer.h"
 
-#include "AnaAlgorithm/FilterReporter.h"
+#include <EventBookkeeperTools/FilterReporter.h>
 
 namespace CP {
 
@@ -40,7 +40,7 @@ namespace CP {
    }
 
    StatusCode VertexSelectionAlg::finalize() {
-      ANA_CHECK (m_filterParams.finalize());
+      ANA_MSG_INFO (m_filterParams.summary());
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -48,7 +48,7 @@ namespace CP {
 
    StatusCode VertexSelectionAlg::execute() {
 
-      EL::FilterReporter filter (m_filterParams, false);
+      FilterReporter filter (m_filterParams, false);
 
       // Retrieve the vertex container:
       const xAOD::VertexContainer* vertices = nullptr;

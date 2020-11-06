@@ -37,7 +37,6 @@
 #include <atomic>
 #include <functional>
 #include <unordered_map>
-#include <mutex>
 #include <vector>
 
 /** forward declarations */
@@ -101,7 +100,7 @@ private:
   const SCT_ID* m_sct_id{nullptr};
   IdContext m_cntx_sct;
 
-  mutable std::mutex m_cacheMutex{};
+  mutable SG::SlotSpecificObj<std::mutex> m_cacheMutex ATLAS_THREAD_SAFE;
   struct IDCCacheEntry {
     EventContext::ContextEvt_t eventId{EventContext::INVALID_CONTEXT_EVT}; // invalid event ID for the start
     const IDCInDetBSErrContainer_Cache* IDCCache{nullptr};
@@ -125,7 +124,7 @@ private:
     }
     
   };
-  mutable SG::SlotSpecificObj<IDCCacheEntry> m_eventCache ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
+  mutable SG::SlotSpecificObj<IDCCacheEntry> m_eventCache ATLAS_THREAD_SAFE;
 
   /**
    * Obtains container form the SG, if it is missing it will complain (hard-coded 3 times per job) and return nullptr

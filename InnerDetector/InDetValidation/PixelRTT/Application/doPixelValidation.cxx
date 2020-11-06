@@ -10,18 +10,18 @@
 
 using namespace PixelValid;
 
-int doAll(std::string input, std::string output, std::string reference, int maxentries);
+int doAll ATLAS_NOT_THREAD_SAFE (std::string input, std::string output, std::string reference, int maxentries);
 
 int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]){ // Thread unsafe doAll function is used.
 
 	if(argc < 3 || argc > 5){
 		std::cout << std::endl;
 		std::cout << "Please enter input files on command line!" << std::endl;
-		std::cout << std::endl;		
+		std::cout << std::endl;
 		//PixelCalib::PrintFillInstruction();
-		std::cout << std::endl;		
+		std::cout << std::endl;
 		//PixelCalib::PrintCompareInstruction();
-		std::cout << std::endl;		
+		std::cout << std::endl;
 		return -1;
 	}
 
@@ -37,7 +37,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]){ // Thread unsafe doAll 
 		maxentries = atol(argv[3]);
 		if(maxentries == 0) reference = std::string(argv[3]);
 	}
-	
+
 	return doAll(input,output,reference,maxentries);
 }
 
@@ -61,7 +61,7 @@ int doAll ATLAS_NOT_THREAD_SAFE (std::string input, std::string output, std::str
 
 	std::cout <<  "Starting analysis for calibration" << std::endl;
 	s->Analyse(output,reference);
-	
+
 	std::cout << "End processing!" << std::endl;
 	delete s;
 	return 0;

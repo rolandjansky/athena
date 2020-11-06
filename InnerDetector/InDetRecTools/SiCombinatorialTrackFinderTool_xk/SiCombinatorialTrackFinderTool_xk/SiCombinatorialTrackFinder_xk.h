@@ -136,6 +136,9 @@ namespace InDet {
           "PixelConditionsSummaryTool"};
       ToolHandle<IInDetConditionsTool> m_sctCondSummaryTool{this, "SctSummaryTool",
           "InDetSCT_ConditionsSummaryTool/SCT_ConditionsSummaryTool", "Tool to retrieve SCT Conditions summary"};
+      ToolHandle<Trk::IBoundaryCheckTool> m_boundaryCheckTool{this, "BoundaryCheckTool",
+          "InDet::InDetBoundaryCheckTool", "Boundary checking tool for detector sensitivities"};
+
       PublicToolHandle<Trk::IPatternParametersPropagator> m_proptool{this, "PropagatorTool",
           "Trk::RungeKuttaPropagator/InDetPropagator"};
       PublicToolHandle<Trk::IPatternParametersUpdator> m_updatortool{this, "UpdatorTool",
@@ -166,6 +169,7 @@ namespace InDet {
       BooleanProperty m_useSCT{this, "useSCT", true};
       StringProperty m_fieldmode{this, "MagneticFieldMode", "MapSolenoid", "Mode of magnetic field"};
       DoubleProperty m_qualityCut{this, "TrackQualityCut", 9.3, "Simple track quality cut"};
+      BooleanProperty m_writeHolesFromPattern{this, "writeHolesFromPattern", false,"Flag to activate writing hole info from the pattern recognition"}; 
       //@}
 
       /// @name Data members, which are updated in only initialize

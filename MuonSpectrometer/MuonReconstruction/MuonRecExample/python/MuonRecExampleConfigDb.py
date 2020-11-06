@@ -1,13 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, \
-     addTypesToExcludeIfDefaultValue, addNamesToExcludeIfDefaultValue, addFullNamesToExcludeIfDefaultValue, \
-     addPropertiesToExcludeIfDefault, \
-     addTypesToSkipIfNotAvailable, addNamesToSkipIfNotAvailable, addFullNamesToSkipIfNotAvailable, \
-     addTypesOnlyToSkip
-
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-
+from AthenaCommon.CfgGetter import addTool, addToolClone, addService, addAlgorithm, addNamesToSkipIfNotAvailable, addTypesOnlyToSkip
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 

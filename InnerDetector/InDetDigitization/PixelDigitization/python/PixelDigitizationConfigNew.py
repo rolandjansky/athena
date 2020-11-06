@@ -83,6 +83,16 @@ def SensorSimPlanarToolCfg(flags, name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("SiPropertiesTool", SiTool)
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
+    kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
+    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
+    kwargs.setdefault("fluence", 6.4)
+    kwargs.setdefault("fluenceB", 4.6)
+    kwargs.setdefault("fluence1", 2.1)
+    kwargs.setdefault("fluence2", 1.3)
+    kwargs.setdefault("voltage", 400)
+    kwargs.setdefault("voltageB", 400)
+    kwargs.setdefault("voltage1", 250)
+    kwargs.setdefault("voltage2", 250)
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
     return acc
 
@@ -94,6 +104,9 @@ def SensorSim3DToolCfg(flags, name="SensorSim3DTool", **kwargs):
     acc.popToolsAndMerge(PixelLorentzAngleCfg(flags))
     kwargs.setdefault("SiPropertiesTool", SiTool)
     SensorSim3DTool = CompFactory.SensorSim3DTool
+    kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
+    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
+    kwargs.setdefault("fluence", 6)
     acc.setPrivateTools(SensorSim3DTool(name, **kwargs))
     return acc
 

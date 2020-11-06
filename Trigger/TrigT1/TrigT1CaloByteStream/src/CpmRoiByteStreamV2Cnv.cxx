@@ -37,7 +37,6 @@ CpmRoiByteStreamV2Cnv::CpmRoiByteStreamV2Cnv( ISvcLocator* svcloc )
       m_name("CpmRoiByteStreamV2Cnv"),
       m_tool("LVL1BS::CpmRoiByteStreamV2Tool/CpmRoiByteStreamV2Tool"),
       m_robDataProvider("ROBDataProviderSvc", m_name),
-      m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name),
       m_debug(false)
 {
 }
@@ -66,7 +65,6 @@ StatusCode CpmRoiByteStreamV2Cnv::initialize()
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
 
   ATH_CHECK( Converter::initialize() );
-  ATH_CHECK( m_ByteStreamEventAccess.retrieve() );
   ATH_CHECK( m_tool.retrieve() );
 
   // Get ROBDataProvider
@@ -128,8 +126,6 @@ StatusCode CpmRoiByteStreamV2Cnv::createObj( IOpaqueAddress* pAddr,
 StatusCode CpmRoiByteStreamV2Cnv::createRep( DataObject* pObj,
                                         IOpaqueAddress*& pAddr )
 {
-  RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
-
   DataVector<LVL1::CPMTobRoI>* roiCollection = 0;
   if( !SG::fromStorable( pObj, roiCollection ) ) {
     REPORT_ERROR (StatusCode::FAILURE) << " Cannot cast to DataVector<CPMTobRoI>";
@@ -138,12 +134,10 @@ StatusCode CpmRoiByteStreamV2Cnv::createRep( DataObject* pObj,
 
   const std::string nm = pObj->registry()->name();
 
-  ByteStreamAddress* addr = new ByteStreamAddress( classID(), nm, "" );
-
-  pAddr = addr;
+  pAddr = new ByteStreamAddress( classID(), nm, "" );
 
   // Convert to ByteStream
-  return m_tool->convert( roiCollection, re );
+  return m_tool->convert( roiCollection );
 }
 
 } // end namespace

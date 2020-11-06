@@ -411,7 +411,6 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
   rdoHashVec.reserve(13*robIdsToBeDecoded.size()); // most ROBs have 13 RDOs, some have less
   ATH_CHECK(rpcCabling->giveRDO_fromROB(robIdsToBeDecoded, rdoHashVec) );
   
-  std::vector<IdentifierHash> idVect; //vector passed to processPad - if empty, turns off decoding of additional RDOs for ambiguity solving
   std::vector<IdentifierHash> idWithDataVect; //vector passed to processPad - filled with IDs of created PrepRawData collections
 
   // start here to process the RDOs
@@ -445,7 +444,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( const std::vector<uint32_t>& 
                    processingetaview, 
                    processingphiview, 
                    nPrepRawData,   
-                   idVect, 
+                   rdoHashVec, 
                    idWithDataVect, 
                    rpcContext)
       );
@@ -930,6 +929,12 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::processPad(const RpcPad *rdoColl,
 			     << " context end_index  = " << rpcContext.end_index()
 			     << " the identifier is ");
 	    parentId.show();
+	  }
+
+	  //There is some ambiguity in the channel/sectorId's, so need to explicitly filter 
+	  //out hashIDs outside of the RoI in seeded decoding mode
+	  if(!idVect.empty()){
+	    if(std::find(idVect.begin(), idVect.end(), rpcHashId) == idVect.end()) continue;
 	  }
 	  if ( msgLvl(MSG::DEBUG) ) {	    
 	    ATH_MSG_DEBUG("CM Hit decoded into offline Id " 

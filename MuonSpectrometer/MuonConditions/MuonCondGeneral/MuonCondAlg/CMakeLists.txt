@@ -23,4 +23,4 @@ atlas_add_component( MuonCondAlg
                      LINK_LIBRARIES GaudiKernel MuonCondAlgLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

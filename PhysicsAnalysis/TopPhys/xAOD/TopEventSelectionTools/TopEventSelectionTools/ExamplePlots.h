@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EXAMPLEPLOTS_H_
 #define EXAMPLEPLOTS_H_
@@ -11,18 +11,18 @@
 class TFile;
 
 namespace EL {
-class Worker;
+  class Worker;
 }
 
 namespace top {
-class TopConfig;
+  class TopConfig;
 
 /**
  * @brief An example of how to quickly make some plots at a certain point in
  * the cutflow.
  */
-class ExamplePlots : public EventSelectorBase {
-public:
+  class ExamplePlots: public EventSelectorBase {
+  public:
     /**
      * @brief Setup some example plots.
      *
@@ -34,7 +34,8 @@ public:
      * so that we can attach the files.
      * @param wk Only used by EventLoop, ok as nullptr as default.
      */
-    ExamplePlots(const std::string& name, TFile* outputFile, EL::Worker* wk = nullptr, std::shared_ptr<top::TopConfig> config = nullptr);
+    ExamplePlots(const std::string& name, TFile* outputFile, EL::Worker* wk = nullptr,
+                 std::shared_ptr<top::TopConfig> config = nullptr);
 
     /**
      * @brief Fill the histograms.
@@ -49,20 +50,18 @@ public:
      * @return The word EXAMPLEPLOTS.
      */
     std::string name() const override;
-
-private:
+  private:
     ///File units are MeV and normally people like plots in GeV.
     static const double toGeV;
 
     ///Easy access to histograms.
     PlotManager m_hists;
-    
+
     // Nominal hash value
     std::size_t m_nominalHashValue;
 
     std::shared_ptr<top::TopConfig> m_config;
-};
-
+  };
 }
 
 #endif

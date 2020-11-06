@@ -5,6 +5,7 @@ atlas_subdir( TRT_ReadoutGeometry )
 
 # External dependencies:
 find_package( CLHEP )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_library( TRT_ReadoutGeometry

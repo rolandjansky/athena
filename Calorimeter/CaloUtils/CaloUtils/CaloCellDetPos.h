@@ -25,16 +25,6 @@ class CaloCellDetPos
  public:
 
   /**
-   * @brief constructor of CaloCellDetPos
-   */
-  CaloCellDetPos();
-
-  /**
-   * @brief destructor of CaloCellDetPos
-   */
-  ~CaloCellDetPos();
-
-  /**
    * @brief  get Detector level eta-phi position from Atlas level (aligned) position
    * @param  const CaloDetDescrManager mgr CaloDetDescManager Instance
    * @param  CaloCell_ID::CaloSample sam  layer to use
@@ -86,9 +76,6 @@ class CaloCellDetPos
   bool getAtlasPosition(CaloCell_ID::CaloSample sam , double etaDet, double phiDet, 
                         double & etaAtlas, double & phiAtlas) const;
 
-  private:
-
-   static const CaloPhiRange s_range;
 
 };
 #endif

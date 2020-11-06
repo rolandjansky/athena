@@ -21,6 +21,7 @@
 #include "xAODTrigger/EmTauRoIContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "StoreGate/ReadDecorHandleKey.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -49,6 +50,7 @@ class egammaMonitorElectronAlgorithm: public AthAlgorithm
   
   private:
     SG::ReadHandleKey<xAOD::ElectronContainer> m_electronsKey{ this, "ElectronKey", "Electrons", ""};
+    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_ptcone20Key{ this, "ElectronPtcone20Key", "Electrons.ptcone20", ""};
     ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 };
  

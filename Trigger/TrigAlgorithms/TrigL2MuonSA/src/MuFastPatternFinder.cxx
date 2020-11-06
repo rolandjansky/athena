@@ -32,7 +32,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitData& mdtHit, double track_phi, double phi0, bool isEndcap)
+void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitData& mdtHit, double track_phi, double phi0, bool isEndcap) const
 {
    int StationName  = mdtHit.name;
    int StationEta   = mdtHit.StationEta;
@@ -108,7 +108,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 							   TrigL2MuonSA::MdtHits&                   mdtHits,
 							   TrigL2MuonSA::StgcHits&                  stgcHits,
 							   TrigL2MuonSA::MmHits&                    mmHits,
-							   std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+							   std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
 {
   ATH_CHECK( findPatterns(muonRoad, mdtHits, v_trackPatterns) );
   ATH_CHECK( m_nswPatternFinder->findPatterns(muonRoad, stgcHits, mmHits, v_trackPatterns.back()) );
@@ -128,7 +128,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 
 StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::MuonRoad&            muonRoad,
 							   TrigL2MuonSA::MdtHits&                   mdtHits,
-							   std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+							   std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const
 {
 
    // find only 1 track pattern
@@ -309,7 +309,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-double TrigL2MuonSA::MuFastPatternFinder::calc_residual(double aw,double bw,double x,double y)
+double TrigL2MuonSA::MuFastPatternFinder::calc_residual(double aw,double bw,double x,double y) const
 {
    const double ZERO_LIMIT = 1e-4;
    if( fabs(aw) < ZERO_LIMIT ) return y-bw;

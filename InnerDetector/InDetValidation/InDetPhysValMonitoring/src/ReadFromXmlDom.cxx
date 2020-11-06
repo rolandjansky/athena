@@ -175,7 +175,8 @@ ReadFromXmlDom::parseXmlElement(const xercesc::DOMElement* element) {
   //if get to here and axisDef0 is null, theres a problem
   if (not axisDef0) return s;
   const xercesc::DOMElement* axisDef1 = axisDef0->getNextElementSibling();
-  // only allow two axes, but could be ordered x-y or y-x
+  if (not axisDef1) return s; //no y axis, abort
+  // only allow two axes, but could be ordered x-y or y-x. The following assumes x, y, z ordering for now.
   std::string axisName0 = toNative(axisDef0->getTagName());
   std::string axisName1 = toNative(axisDef1->getTagName());
   const xercesc::DOMElement* axisDef2 = axisDef1->getNextElementSibling();

@@ -217,6 +217,8 @@ class _Tracking_fullScan( _Settings ):
       self._etaHalfWidth    = 3.
       self._phiHalfWidth    = 3.14159
       self._doTRT           = False
+      self._dRdoubletMax    = 200 
+      self._seedRadBinWidth = 10
 
 class _Tracking_minBias( _Settings ):     
    def __init__( self ): 
@@ -450,6 +452,16 @@ class _Settings_muonCore( _GlobalSettings ):
       self._configPT = _PrecisionTracking( signatureType = 'muonCore', nameSuffix = 'MuonCore' )
       self._doRecord = True #Allow recording of track collections
 
+class _Settings_tauTau( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "tauTau" #To be appended to alg names                                                                                                
+      self._roi      = "HLT_Roi_Tau" #FIXME: possibly different!                                                                                         
+      self._configFT =  _FastTracking(      signatureType = 'tau', nameSuffix = 'Tau' )
+      #There should not be a need for tauCore PT!                                                                                                            
+      self._configPT =   _PrecisionTracking( signatureType = 'tau', nameSuffix = 'Tau' )                                                           
+      self._doRecord = True #Allow recording of track collections      
+
 class _Settings_tauCore( _GlobalSettings ): 
    def __init__( self ): 
       _GlobalSettings.__init__(self)
@@ -464,50 +476,10 @@ class _Settings_tauIso( _GlobalSettings ):
    def __init__( self ): 
       _GlobalSettings.__init__(self)
       self._name     = "tauIso" #To be appended to alg names
-      self._roi      = "HLT_Roi_TauIso" #FIXME: possibly different!  
+      self._roi      = "RoiForTauIso" #FIXME: possibly different!  
       self._configFT = _FastTracking(      signatureType = 'tauIso', nameSuffix = 'TauIso' )
       self._configPT = _PrecisionTracking( signatureType = 'tauIso', nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
       self._doRecord = True #Allow recording of track collections
-
-#This might be redundant but lets keep them for the time being...
-class _Settings_tauId( _GlobalSettings ): 
-   def __init__( self ): 
-      _GlobalSettings.__init__(self)
-      self._name     = "tauId" #To be appended to alg names
-      self._roi      = "HLT_Roi_Tau" #FIXME: possibly different!  
-      self._configFT = _FastTracking(      signatureType = 'tau', nameSuffix = 'Tau' )
-      self._configPT = _PrecisionTracking( signatureType = 'tau', nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = False #FIXME: Do I need to record these?
-
-#This might be redundant but lets keep them for the time being...
-class _Settings_tauEF( _GlobalSettings ): 
-   def __init__( self ): 
-      _GlobalSettings.__init__(self)
-      self._name     = "tauEF" #To be appended to alg names
-      self._roi      = "HLT_Roi_TauIso" #FIXME: possibly different!  
-      self._configFT = _FastTracking(      signatureType = 'tauIso', nameSuffix = 'TauIso' ) #
-      self._configPT = _PrecisionTracking( signatureType = 'tau',    nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = False #FIXME: Do I need to record these?
-
-#This might be redundant but lets keep them for the time being...
-class _Settings_tauTrk( _GlobalSettings ): 
-   def __init__( self ): 
-      _GlobalSettings.__init__(self)
-      self._name     = "tauTrk" #To be appended to alg names
-      self._roi      = "HLT_Roi_Tau" #FIXME: possibly different!  
-      self._configFT = _FastTracking(      signatureType = 'tau',    nameSuffix = 'Tau' ) #
-      self._configPT = _PrecisionTracking( signatureType = 'tau',    nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = False #FIXME: Do I need to record these?
-
-#This might be redundant but lets keep them for the time being...
-class _Settings_tauTrkTwo( _GlobalSettings ): 
-   def __init__( self ): 
-      _GlobalSettings.__init__(self)
-      self._name     = "tauTrkTwo" #To be appended to alg names
-      self._roi      = "HLT_Roi_TauIso" #FIXME: possibly different!  
-      self._configFT = _FastTracking(      signatureType = 'tauIso', nameSuffix = 'TauIso' ) #
-      self._configPT = _PrecisionTracking( signatureType = 'tau',    nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = False #FIXME: Do I need to record these?
 
 class _Settings_bjet( _GlobalSettings ): 
    def __init__( self ): 
@@ -573,14 +545,10 @@ _ConfigSettings = {
     "muonLate"    : _Settings_muonLate(),
    
     #Tau signatures
+    "tauTau"      : _Settings_tauTau(),
     "tauCore"     : _Settings_tauCore(),
     "tauIso"      : _Settings_tauIso(),
-    #Might be potentially removed
-    "tauId"       : _Settings_tauId(),     
-    "tauTrk"      : _Settings_tauTrk(),    
-    "tauTrkTwo"   : _Settings_tauTrkTwo(), 
-    "tauEF"       : _Settings_tauEF(),     
-   
+
     "bjet"        : _Settings_bjet(),
     "jet"         : _Settings_jet(),
    

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file: AtlasGeoModel/python/GeoModelInit.py
 ## @brief: Encapsulate GeoModel configuration
@@ -13,24 +13,24 @@ def _setupGeoModel():
             import DetDescrCnvSvc.DetStoreConfig
             svcMgr.DetDescrCnvSvc.IdDictFromRDB = True
     except ImportError:
-        import DetDescrCnvSvc.DetStoreConfig
+        import DetDescrCnvSvc.DetStoreConfig  # noqa: F401
         svcMgr.DetDescrCnvSvc.IdDictFromRDB = True
 
     # Conditions DB setup and TagInfo
-    from IOVDbSvc.CondDB import conddb
-    import EventInfoMgt.EventInfoMgtInit
+    from IOVDbSvc.CondDB import conddb    # noqa: F401
+    import EventInfoMgt.EventInfoMgtInit  # noqa: F401
  
     if ( jobproperties.Global.DataSource() == "geant3" ):
-        from AtlasGeoModel import GeoModelInitDC1
- 
+        from AtlasGeoModel import GeoModelInitDC1  # noqa: F401
+
     elif ( jobproperties.Global.DetGeo() == "ctbh8" ):
-        from AtlasGeoModel import GeoModelInitCTB
+        from AtlasGeoModel import GeoModelInitCTB  # noqa: F401
  
     elif ( jobproperties.Global.DetGeo() == "ctbh6" ):
-        from AtlasGeoModel import GeoModelInitH6
+        from AtlasGeoModel import GeoModelInitH6   # noqa: F401
  
     else:
-        from AtlasGeoModel import GeoModelInitStandard
+        from AtlasGeoModel import GeoModelInitStandard  # noqa: F401
 
     pass
 

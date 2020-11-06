@@ -26,6 +26,13 @@ namespace InDet{
     {
       Identifier ida = (a!=0 ? a->identify() : Identifier(0));
       Identifier idb = (b!=0 ? b->identify() : Identifier(0));
+
+      // sometimes different clusters have the same identity
+      // use the size to determine the order/break degeneracy
+      if( ida == idb && ida != Identifier(0) ) { 
+        return (a->width() < b->width());
+      }
+        
       return ida < idb;
     }
   };

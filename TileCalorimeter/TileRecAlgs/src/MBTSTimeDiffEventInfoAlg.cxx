@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -36,6 +36,7 @@ StatusCode MBTSTimeDiffEventInfoAlg::initialize() {
   ATH_CHECK( m_mbtsContainerKey.initialize() );
   ATH_CHECK( m_eventInfoKey.initialize() );
   ATH_CHECK( m_mbtsCollisionTimeKey.initialize() );
+  ATH_CHECK( m_eventInfoDecorKey.initialize() );
 
   return StatusCode::SUCCESS;
 }

@@ -16,7 +16,7 @@
 #
 
 
-import CaloSysD3PDMakerConf
+from . import CaloSysD3PDMakerConf
 for k, v in list(CaloSysD3PDMakerConf.__dict__.items()):
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v

@@ -8,7 +8,8 @@ if not conddb.isMC and not conddb.isOnline:
     conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8",className="CondAttrListCollection")
     conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/HVLineToElectrodeMap",className="AthenaAttributeList")
     conddb.addFolder("LAR_OFL","/LAR/HVPathologiesOfl/Pathologies",className="AthenaAttributeList")
-    conddb.addFolder("LAR_OFL","/LAR/HVPathologiesOfl/Rvalues",className="AthenaAttributeList")
+    if conddb.dbdata != 'COMP200': 
+       conddb.addFolder("LAR_OFL","/LAR/HVPathologiesOfl/Rvalues",className="AthenaAttributeList")
 
     from AthenaCommon.AlgSequence import AthSequencer
     from Gaudi.Configuration import DEBUG
@@ -23,7 +24,10 @@ if not conddb.isMC and not conddb.isOnline:
     condseq += hvpath
 
     from LArRecUtils.LArRecUtilsConf import LArHVCondAlg
-    hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData")
+    if conddb.dbdata != 'COMP200': 
+      hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData")
+    else:  
+      hvcond = LArHVCondAlg(HVPathologies="LArHVPathology",OutputHVData="LArHVData",doR=False)
     condseq += hvcond
 
     from LArRecUtils.LArRecUtilsConf import LArHVScaleCorrCondAlg

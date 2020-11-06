@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-
 '''@file TileTMDBDigitsMonitorAlgorithm.py
 @author
 @date
@@ -32,30 +31,30 @@ def TileTMDBDigitsMonitoringConfig(flags):
 
 
 
-    addTileTMDB_2DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDBDigitsPedestal',
+    addTileTMDB_2DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDB_DigitsPedestal',
                                   value = 'pedestal', title = 'Mean pedestal (sample[0])',
-                                  path = 'Tile/TMDBDigits', type='TProfile2D', run = run)   
-    
-    addTileTMDB_2DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDBDigitsAmplitude',
+                                  path = 'Tile/TMDBDigits', type='TProfile2D', run = run)
+
+    addTileTMDB_2DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDB_DigitsAmplitude',
                                   value = 'amplitude', title = 'Difference between maximum and minimum sample',
                                   path = 'Tile/TMDBDigits', type='TProfile2D', run = run)
-                                    
-    addTileTMDB_2DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDBDigitsHFN',
-                                  value = 'HFN', title = 'Mean RMS of 7 samples (HFN)',
-                                  path = 'Tile/TMDBDigits', type='TProfile2D', run = run)                                     
-     
 
-    addTileTMDB_1DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDBDigitsCellPedestal', 
-                                    xvalue = 'pedestal', title = 'Pedestal (sample[0]);[ADC]', 
+    addTileTMDB_2DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDB_DigitsHFN',
+                                  value = 'HFN', title = 'Mean RMS of 7 samples (HFN)',
+                                  path = 'Tile/TMDBDigits', type='TProfile2D', run = run)
+
+
+    addTileTMDB_1DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDB_DigitsCellPedestal',
+                                    xvalue = 'pedestal', title = 'Pedestal (sample[0]);[ADC]',
                                     path = 'Tile/TMDBDigits', type='TH1D', run = run,
                                     xbins = 101, xmin = -0.5, xmax = 100.5)
 
-    addTileTMDB_1DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDBDigitsCellHFN',
-                                    xvalue = 'HFN', title = 'Mean RMS (HFN);[ADC]', 
+    addTileTMDB_1DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDB_DigitsCellHFN',
+                                    xvalue = 'HFN', title = 'Mean RMS (HFN);[ADC]',
                                     path = 'Tile/TMDBDigits', type='TH1D', run = run,
                                     xbins = 41, xmin = -0.5, xmax = 40.5)
 
-    addTileTMDB_1DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDBDigitsCellAmplitude', 
+    addTileTMDB_1DHistogramsArray(helper, tileTMDBDigitsMonAlg, name = 'TMDB_DigitsCellAmplitude',
                                     xvalue = 'amplitude', title = 'Difference between maximum and minimum sample;[ADC]',
                                     path = 'Tile/TMDBDigits', type='TH1D', run = run,
                                     xbins = 101, xmin = -0.5, xmax = 100.5)
@@ -85,11 +84,12 @@ if __name__=='__main__':
     ConfigFlags.Output.HISTFileName = 'TileTMDBDigitsMonitorOutput.root'
     ConfigFlags.DQ.useTrigger = False
     ConfigFlags.DQ.enableLumiAccess = False
-
+    ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
-    from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     cfg = MainServicesCfg(ConfigFlags)
 
 
@@ -97,7 +97,7 @@ if __name__=='__main__':
     tileTypeNames = ['TileDigitsContainer/MuRcvDigitsCnt']
     cfg.merge( ByteStreamReadCfg(ConfigFlags, type_names = tileTypeNames) )
 
-  
+
 
     tileTMDBDigitsMonitorAccumulator  = TileTMDBDigitsMonitoringConfig(ConfigFlags)
 
@@ -106,10 +106,10 @@ if __name__=='__main__':
     cfg.printConfig(withDetails = True, summariseProps = True)
     ConfigFlags.dump()
 
-    
+
     cfg.store( open('TileTMDBDigitsMonitorAlgorithm.pkl','wb') )
 
-    sc = cfg.run(maxEvents=-1)
+    sc = cfg.run()
 
     import sys
     sys.exit(not sc.isSuccess())

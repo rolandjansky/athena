@@ -223,7 +223,7 @@ std::cout<<"================================================="<<sum_dstToVrt<<'\
 //  if(sum_dstToVrt>limDstToVrt*(cascadeEvent_.cascadeNV-1) )return -2;        //Pointing is not resolved
 
   long int fullNPar = getCascadeNPar(cascadeEvent_);
-  cascadeEvent_.fullCovMatrix = std::make_unique< double[] >(fullNPar*fullNPar);
+  cascadeEvent_.fullCovMatrix.reset( new double[fullNPar*fullNPar] );
   for(int im=0; im<fullNPar*fullNPar; im++)cascadeEvent_.fullCovMatrix[im]=0.;
   for(int im=0; im<fullNPar; im++)cascadeEvent_.fullCovMatrix[im*fullNPar + im]=1.;
   int NStart=0;

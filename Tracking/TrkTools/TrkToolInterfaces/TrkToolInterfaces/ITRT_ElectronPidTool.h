@@ -10,6 +10,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkTrackSummary/TrackSummary.h"
 #include <vector>
 
 namespace Trk {
@@ -43,8 +44,6 @@ namespace Trk {
     */
     virtual double probHT( const double p, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) const = 0;
     virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const = 0;
-
-
 
   };
 

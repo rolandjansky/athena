@@ -29,22 +29,18 @@ TauESDList += [ "xAOD::VertexContainer#TauSecondaryVertices" ]
 TauESDList += [ "xAOD::VertexAuxContainer#TauSecondaryVerticesAux.-vxTrackAtVertex" ]
 
 #------------------------------------------------------------------------------
-# Pi0 cells
+# Pi0 clusters and links to cells
 #------------------------------------------------------------------------------
-TauESDList += [ "CaloCellContainer#TauCommonPi0Cells" ]
-TauESDList += [ "CaloClusterCellLinkContainer#TauInitialPi0Clusters_links" ]
+TauESDList += [ "xAOD::CaloClusterContainer#TauPi0Clusters" ]
+TauESDList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
+TauESDList += [ "CaloClusterCellLinkContainer#TauPi0Clusters_links" ]
 
 #------------------------------------------------------------------------------
-# Pi0 initial clusters
-#------------------------------------------------------------------------------
-TauESDList += [ "xAOD::CaloClusterContainer#TauInitialPi0Clusters" ]
-TauESDList += [ "xAOD::CaloClusterAuxContainer#TauInitialPi0ClustersAux." ]
-
-#------------------------------------------------------------------------------
-# Shot clusters
+# Shot clusters and cell links
 #------------------------------------------------------------------------------
 TauESDList += [ "xAOD::CaloClusterContainer#TauShotClusters"]
 TauESDList += [ "xAOD::CaloClusterAuxContainer#TauShotClustersAux."]
+TauESDList += [ "CaloClusterCellLinkContainer#TauShotClusters_links" ]
 
 #------------------------------------------------------------------------------
 # Final reconstructed 4-vectors of Pi0s

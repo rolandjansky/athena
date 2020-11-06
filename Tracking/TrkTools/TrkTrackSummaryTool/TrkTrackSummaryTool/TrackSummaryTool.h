@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACKSUMMARYTOOL_H
@@ -12,7 +12,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
-#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
 #include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
 #include "TrkToolInterfaces/IPixelToTPIDTool.h"
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
@@ -22,7 +21,6 @@
 
 class AtlasDetectorID;
 class Identifier;
-class ITRT_ToT_dEdx;
 
 namespace Trk {
 class ITRT_ElectronPidTool;
@@ -133,12 +131,6 @@ public:
     Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const override;
 
-  /** method to update additional information (PID,shared hits, dEdX), this is
-   * optimised for track collection merging.
-   */
-  virtual void updateAdditionalInfo(
-    Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const override;
 
   /** Update the shared hit count of the given track summary.
    * @param summary the summary to be updated i.e. a copy of the track summary
@@ -173,7 +165,6 @@ public:
    * summary is owned by the track.
    */
   virtual void updateAdditionalInfo(const Track& track,
-                                    const Trk::PRDtoTrackMap* prd_to_track_map,
                                     TrackSummary& summary) const override;
 
   /** method to update additional information (PID,shared hits, dEdX), this is
@@ -200,7 +191,6 @@ private:
                      bool suppress_hole_search) const;
   
   void updateAdditionalInfo(const Track& track,
-                            const Trk::PRDtoTrackMap* prd_to_track_map,
                             TrackSummary& summary,
                             bool initialise_to_zero) const;
 
@@ -230,8 +220,6 @@ private:
                                                        "TRT_ElectronPidTool",
                                                        "",
                                                        "" };
-  /** tool to calculate the TRT_ToT_dEdx.*/
-  ToolHandle<ITRT_ToT_dEdx> m_trt_dEdxTool{ this, "TRT_ToT_dEdxTool", "", "" };
   /**tool to calculate dE/dx using pixel clusters*/
   ToolHandle<IPixelToTPIDTool> m_dedxtool{ this, "PixelToTPIDTool", "", "" };
   /**tool to decipher muon RoTs*/
@@ -260,13 +248,6 @@ private:
                                                   "" };
   /** switch to deactivate Pixel info init */
   Gaudi::Property<bool> m_pixelExists{ this, "PixelExists", true, "" };
-
-  /** Only compute TRT dE/dx if there are at least this number of TRT hits or
-   * outliers.*/
-  Gaudi::Property<int> m_minTRThitsForTRTdEdx{ this,
-                                               "minTRThitsForTRTdEdx",
-                                               1,
-                                               "" };
 
   Gaudi::Property<bool> m_alwaysRecomputeHoles {
     this, "AlwaysRecomputeHoles", false, ""

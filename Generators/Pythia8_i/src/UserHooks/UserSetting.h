@@ -13,7 +13,6 @@
 
 
 namespace Pythia8_UserHooks{
- 
   
   template <class T>
   class UserSetting{
@@ -25,12 +24,10 @@ namespace Pythia8_UserHooks{
     m_param(defaultValue),
     m_settingsPtr(0),
     m_retrieved(false){
-    
       
       typename std::map<std::string, T>::const_iterator test = UserHooksFactory::userSettings<T>().find(m_paramName);
       if(test != UserHooksFactory::userSettings<T>().end()) throw std::runtime_error("Duplicate user-defined setting already exists: " + m_paramName);
       UserHooksFactory::userSettings<T>()[m_paramName] = defaultValue;
-      
       
     }
     
@@ -78,6 +75,17 @@ namespace Pythia8_UserHooks{
     throw std::runtime_error("UserSetting " + m_paramName + " does not exist!");
     return m_param;
   }
+
+template<>
+  inline bool UserSetting<bool>::uncachedRetrieve(){
+    if(m_settingsPtr->isFlag(m_paramName)){
+      return m_settingsPtr->flag(m_paramName);
+    }
+
+    throw std::runtime_error("UserSetting " + m_paramName + " does not exist!");
+    return m_param;
+  }
+
   
   template<>
   inline std::string UserSetting<std::string>::uncachedRetrieve(){

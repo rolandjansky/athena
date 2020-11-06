@@ -3,7 +3,7 @@
 from TrigHypoCommonTools.TrigHypoCommonToolsConf import L1InfoHypo, L1InfoHypoTool
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence, RecoFragmentsPool
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
 from AthenaCommon.CFElements import seqAND
 
@@ -84,22 +84,12 @@ def enhancedBiasAthSequence(ConfigFlags):
 
         return (enhancedBiasAthSequence, inputMakerAlg, enhancedBiasSequence)
 
-class EnhancedBiasChainConfiguration(ChainConfigurationBase):
-    def __init__(self, chainDict):
-        ChainConfigurationBase.__init__(self, chainDict)
+
+def enahncedBiasSequence_Cfg(flags):
+    return enhancedBiasMenuSequence()
 
 
-    def assembleChain(self):
-        chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
-
-        ebSeq = self.enhancedBiasMenuSequence()
-        chainSteps.append( ChainStep(name='Step1_EnhancedBias', Sequences=[ebSeq]) )
-
-        return self.buildChain(chainSteps)
-
-
-    def enhancedBiasMenuSequence(self):
+def enhancedBiasMenuSequence():
         # InputMaker and sequence
         (_, inputMakerAlg, enhancedBiasSequence) = RecoFragmentsPool.retrieve(enhancedBiasAthSequence, None)
 
@@ -123,3 +113,17 @@ class EnhancedBiasChainConfiguration(ChainConfigurationBase):
                             Maker       = inputMakerAlg,
                             Hypo        = hypoAlg,
                             HypoToolGen = EnhancedBiasHypoToolGen )
+
+
+class EnhancedBiasChainConfiguration(ChainConfigurationBase):
+    def __init__(self, chainDict):
+        ChainConfigurationBase.__init__(self, chainDict)
+
+
+    def assembleChain(self):
+        chainSteps = []
+        log.debug("Assembling chain for %s", self.chainName)
+
+        chainSteps.append( self.getStep(1,"EnhancedBias", [enahncedBiasSequence_Cfg]) )
+
+        return self.buildChain(chainSteps)

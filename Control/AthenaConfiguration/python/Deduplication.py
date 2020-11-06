@@ -1,11 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
-
-#Functions used by the ComponentAccumulator to de-duplicate componentes defined multiple times
-
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+# Functions used by the ComponentAccumulator to de-duplicate componentes defined multiple times
+#
 
 from AthenaCommon.Logging import logging
 
@@ -30,7 +26,7 @@ def deduplicate(newComp,compList):
     #end loop over existing components
 
     #No component of the same type & name found, simply append
-    _msg.debug("Adding component {}/{} to the job".format(newComp.__cpp_type__,newComp.name))
+    _msg.debug("Adding component %s/%s to the job", newComp.__cpp_type__, newComp.name)
 
     #The following is to work with internal list of service as well as gobal svcMgr as second parameter
     try:

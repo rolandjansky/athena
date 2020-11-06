@@ -7,6 +7,7 @@
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 #include "TrigConfHLTData/HLTUtils.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigConfxAOD/KeyWriterTool.h"
 #include "L1Decoder.h"
 
 L1Decoder::L1Decoder(const std::string& name, ISvcLocator* pSvcLocator)
@@ -30,7 +31,10 @@ StatusCode L1Decoder::initialize() {
   ATH_CHECK( m_ctpUnpacker.retrieve() );
   ATH_CHECK( m_roiUnpackers.retrieve() );
   ATH_CHECK( m_prescaler.retrieve() );
-  ATH_CHECK( m_rerunRoiUnpackers.retrieve() );
+
+  if ( !m_keyWriterTool.empty() ) {
+    ATH_CHECK( m_keyWriterTool.retrieve() );
+  }
 
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "CTPSimulation");
   ATH_CHECK(incidentSvc.retrieve());
@@ -126,10 +130,6 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
   ATH_CHECK( saveChainsInfo( prescaledChains, chainsInfo, "prescaled" ) );
   //Note: 'prescaled' can be deduced from 'l1seeded' and 'unprescaled'. This non-persistent collection is provided for convenience.
 
-  // for now all the chains that were pre-scaled out are set to re-run in the second pass
-  HLT::IDVec rerunChains = prescaledChains; // Perform copy of vector<uint32_t>
-  ATH_CHECK( saveChainsInfo( rerunChains, chainsInfo, "rerun" ) );
-
   // Do cost monitoring, this utilises the HLT_costmonitor chain
   if (m_doCostMonitoring) {
     const static HLT::Identifier costMonitorChain(m_costMonitoringChain);
@@ -144,10 +144,8 @@ StatusCode L1Decoder::execute (const EventContext& ctx) const {
     ATH_CHECK( unpacker->unpack( ctx, *roib, activeChainSet ) );
   }
 
-  ATH_MSG_DEBUG( "Unpacking RoIs for re-running" );
-  HLT::IDSet rerunChainSet( rerunChains.begin(), rerunChains.end() );
-  for ( auto unpacker: m_rerunRoiUnpackers ) {
-    ATH_CHECK( unpacker->unpack( ctx, *roib, rerunChainSet ) );
+  if ( !m_keyWriterTool.empty() ) {
+    ATH_CHECK( m_keyWriterTool->writeKeys(ctx) );
   }
 
   return StatusCode::SUCCESS;  

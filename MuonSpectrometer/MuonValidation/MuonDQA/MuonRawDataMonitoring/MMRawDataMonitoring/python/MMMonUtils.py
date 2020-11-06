@@ -3,7 +3,6 @@
 # 
 
 import MMRawDataMonitoring.MMRawMonLabels as labels
-from MMRawDataMonitoring.MMRawMonLabels import *
 
 def getMMLabel(x,y):
 

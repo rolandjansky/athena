@@ -9,6 +9,7 @@
 
 #include <map>
 #include <vector>
+#include <optional>
 
 namespace TrigConf {
 
@@ -54,12 +55,15 @@ namespace TrigConf {
       bool empty() const;
       size_t size() const;
       const T & at(int eta) const;
+      std::optional<std::reference_wrapper<const T>> outsideRangeValue() const;
       const_iterator begin() const noexcept;
       const_iterator end() const noexcept;
       void addRangeValue(const T & value, int etaMin, int etaMax, unsigned int priority, bool symmetric = true);
+      void setOutsideRangeValue(const T & value);
    private:
       const std::string m_name {""};
       std::vector<RangeValue> m_rangeValues{};
+      std::optional<T> m_outsideRangeValue {std::nullopt};
    };
 
 
@@ -90,6 +94,9 @@ namespace TrigConf {
       const std::string & thresholdTypeName() const;
 
       bool hasExtraInfo( const std::string & key = "") const;
+
+      std::optional<std::reference_wrapper<const TrigConf::DataStructure>>
+      getExtraInfo( const std::string & key) const;
 
       unsigned int resolutionMeV() const { 
          return m_resolutionMeV;
@@ -245,11 +252,6 @@ namespace TrigConf {
       void load();
    };
 
-
-
-
-
-
    /******************************************
     * Isolation for legacy L1Calo thresholds
     ******************************************/
@@ -281,25 +283,14 @@ namespace TrigConf {
 
 
    /**************************************
-    * Isolation for new L1Calo thresholds
+    * Selection points for L1Calo thresholds
     **************************************/
-   class Isolation {
+   class Selection {
    public:
       enum class WP { NONE = 0, LOOSE = 1, MEDIUM = 2, TIGHT = 3 };
-      Isolation() = default;
-      Isolation( const boost::property_tree::ptree & );
-      bool isDefined() const { return m_isDefined; } 
-      int reta()       const { return m_reta; } 
-      int wstot()      const { return m_wstot; }
-      int had()        const { return m_had; }
-   private:
-      bool m_isDefined { false };
-      int m_reta { 0 };
-      int m_wstot { 0 };
-      int m_had { 0 };
+      static std::string wpToString(WP);
+      static WP stringToWP(const std::string &);
    };
-   std::ostream & operator<<(std::ostream & os, const TrigConf::Isolation & iso);
-
 }
 
 #include "TrigConfData/L1ThresholdBase.icc"

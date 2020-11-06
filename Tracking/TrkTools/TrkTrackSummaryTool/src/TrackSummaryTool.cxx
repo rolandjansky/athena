@@ -4,6 +4,7 @@
 
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
@@ -44,9 +45,7 @@ Trk::TrackSummaryTool::~TrackSummaryTool()
 StatusCode
   Trk::TrackSummaryTool::initialize()
 {
-    // StatusCode sc=StatusCode::SUCCESS;
-    //StatusCode sc = AlgTool::initialize();
-    //if (sc.isFailure()) return sc;
+
 
     ATH_CHECK( detStore()->retrieve(m_detID, "AtlasID" ));
 
@@ -71,11 +70,6 @@ StatusCode
         return StatusCode::FAILURE;
     }
        if ( !m_eProbabilityTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_eProbabilityTool << endmsg;
-
-
-    if (!m_trt_dEdxTool.empty()) {
-      ATH_CHECK( m_trt_dEdxTool.retrieve() );
-    }
 
 
     if ( !m_dedxtool.empty() && m_dedxtool.retrieve().isFailure() )
@@ -198,8 +192,7 @@ information.resize(std::min(information.size(),
                             static_cast<size_t>(numberOfTrackSummaryTypes)));
 
 // Troels.Petersen@cern.ch:
-unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes + 1;
-std::vector<float> eProbability(numberOfeProbabilityTypes, 0.5);
+std::vector<float> eProbability = Trk::eProbabilityDefault;
 
   float dedx = -1;
   int nhitsuseddedx = -1;
@@ -240,9 +233,9 @@ std::vector<float> eProbability(numberOfeProbabilityTypes, 0.5);
     information[numberOfTRTTubeHits] = 0;
     information[numberOfTRTSharedHits] = 0;
 
-    // Troels.Petersen@cern.ch:
     if (!m_eProbabilityTool.empty()) {
       eProbability = m_eProbabilityTool->electronProbability(track);
+      information[Trk::numberOfTRTHitsUsedFordEdx] = static_cast<int>(eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx]);
     }
   }
 
@@ -320,22 +313,6 @@ std::vector<float> eProbability(numberOfeProbabilityTypes, 0.5);
     searchHolesStepWise(track,information, doHolesInDet, doHolesMuon);
   }
 
-  if (!m_trt_dEdxTool.empty()) {
-    if (information[Trk::numberOfTRTHits]+information[Trk::numberOfTRTOutliers]>=m_minTRThitsForTRTdEdx) {
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track) );
-      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track) : 0.0);
-      eProbability.push_back(fvalue);
-      information[ numberOfTRTHitsUsedFordEdx] = static_cast<uint8_t>(std::max(nhits,0));
-    }
-    else {
-      information[ numberOfTRTHitsUsedFordEdx]=0;
-      eProbability.push_back(0.0);
-    }
-  }
-  else {
-    eProbability.push_back(0.0);
-  }
-
   ts.m_eProbability = eProbability;
   ts.m_idHitPattern = hitPattern.to_ulong();
   ts.m_dedx = dedx;
@@ -360,30 +337,16 @@ void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::
   m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
 }
 
-void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map, TrackSummary &summary, bool initialise_to_zero) const
+void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, TrackSummary &summary, bool initialise_to_zero) const
 {
-  unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
-  std::vector<float> eProbability(numberOfeProbabilityTypes,0.5);
-  if ( !m_eProbabilityTool.empty() ) eProbability = m_eProbabilityTool->electronProbability(track);
-
-  if (!m_trt_dEdxTool.empty()) {
-    if (summary.get(Trk::numberOfTRTHits)+summary.get(Trk::numberOfTRTOutliers)>=m_minTRThitsForTRTdEdx) {
-      int nhits = static_cast<int>( m_trt_dEdxTool->usedHits(&track) );
-      double fvalue = (nhits>0 ? m_trt_dEdxTool->dEdx(&track) : 0.0);
-      eProbability.push_back(fvalue);
-      if (!summary.update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nhits,0)) )) {
-        ATH_MSG_WARNING( "Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "
-                         "already set. numberOfTRTHitsUsedFordEdx is:" << summary.get(numberOfTRTHitsUsedFordEdx)
-                         << " =?= should:" << nhits );
-      }
-    }
-    else {
-      eProbability.push_back(0.0);
-      if (!summary.update(Trk::numberOfTRTHitsUsedFordEdx, 0) ) {
-        ATH_MSG_WARNING( "Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "
-                         "already set. numberOfTRTHitsUsedFordEdx is:" << summary.get(numberOfTRTHitsUsedFordEdx)
-                         << " =?= should:" << 0 );
-      }
+  std::vector<float> eProbability = Trk::eProbabilityDefault;
+  if (!m_eProbabilityTool.empty()) {
+    eProbability = m_eProbabilityTool->electronProbability(track);
+    int nHits = eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx];
+    if (!summary.update(Trk::numberOfTRTHitsUsedFordEdx, static_cast<uint8_t>(std::max(nHits,0)) )) {
+      ATH_MSG_WARNING("Attempt to update numberOfTRTHitsUsedFordEdx but this summary information is "
+                      "already set. numberOfTRTHitsUsedFordEdx is:" << summary.get(numberOfTRTHitsUsedFordEdx)
+                      << " =?= should:" << nHits );
     }
   }
 
@@ -395,9 +358,7 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, const Trk::
     dedx = m_dedxtool->dEdx(track, nhitsuseddedx, noverflowhitsdedx);
   }
 
-  m_idTool->updateAdditionalInfo(summary, eProbability,dedx, nhitsuseddedx,noverflowhitsdedx);
-
-  m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
+  m_idTool->updateAdditionalInfo(summary, eProbability, dedx, nhitsuseddedx, noverflowhitsdedx);
 
   m_idTool->updateExpectedHitInfo(track, summary);
 

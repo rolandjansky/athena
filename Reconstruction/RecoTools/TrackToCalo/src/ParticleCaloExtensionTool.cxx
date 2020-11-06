@@ -183,6 +183,8 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
    */
 
   ParticleHypothesis particleType = m_particleType;
+
+  ATH_MSG_DEBUG("caloExtension for tracks. "<< particleType << "  index= "<< particle.index() );
   
   if(m_particleType == electron || 
      particle.particleHypothesis() ==  xAOD::electron ){  
@@ -248,13 +250,12 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
  
   /* The last argument to the extrapolate  overload 
    * corresponds  to a GeometrySignature value from
-   * TrkDetDescrUtils/TrkGeometrySignature.h
-   * The extrapolation stop at 
-   * the indicated subdetector exit
+   * TrkDetDescrUtils/GeometrySignature.h
+   * The extrapolation stop at the indicated subdetector exit
    */
-
   const std::vector<std::pair<const Trk::TrackParameters *,int>>* caloParameters=
-    m_extrapolator->extrapolate(ctx, startPars, propDir, particleType, material, 3);
+    m_extrapolator->extrapolate(ctx, startPars, propDir, particleType, material, m_extrapolDetectorID); 
+
   if (material) {
     ATH_MSG_DEBUG("Got material " << material->size() );
     for( auto& m : *material ) {
@@ -279,7 +280,7 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
   const TrackParameters* muonEntry = nullptr;
   std::vector<const CurvilinearParameters*> caloLayers;
   caloLayers.reserve(caloParameters->size()-1);
-  ATH_MSG_DEBUG( " Found calo parameters: " << caloParameters->size() );
+  ATH_MSG_DEBUG( " Found calo parameters: " << caloParameters->size() << "  extrapolation exit ID="<<m_extrapolDetectorID);
 
   for( const auto& p : *caloParameters ){
     if( !p.first ) {

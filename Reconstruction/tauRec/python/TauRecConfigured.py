@@ -15,7 +15,7 @@
 
 from RecExConfig.Configured import Configured
 from AthenaCommon.BeamFlags import jobproperties
-from AthenaCommon.SystemOfUnits import *
+from AthenaCommon.SystemOfUnits import mm
 
 ################################################################################
 ## @class TauRecConfigured
@@ -34,7 +34,6 @@ class TauRecConfigured ( Configured ) :
         from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool
         # add calo cell finalizer tool
         TauCellContainerFinalizer = CaloCellContainerFinalizerTool(name='tauRec_tauPi0CellContainerFinalizer')
-        from AthenaCommon.AppMgr import ToolSvc
 
         self._TauProcessorAlgHandle = TauProcessorAlg ( name=self.name+'Alg',
                                                         Key_jetInputContainer=tauFlags.tauRecSeedJetCollection(),
@@ -45,6 +44,7 @@ class TauRecConfigured ( Configured ) :
                                                         Key_tauPi0CellOutputContainer = "TauCommonPi0Cells" if doPi0Clus else "",
                                                         MaxEta = tauFlags.tauRecSeedMaxEta(),
                                                         MinPt = tauFlags.tauRecSeedMinPt(),
+                                                        MaxNTracks = tauFlags.tauRecMaxNTracks(),
                                                         CellMakerTool = TauCellContainerFinalizer)
 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
@@ -98,14 +98,8 @@ class TauRecConfigured ( Configured ) :
         from AthenaCommon.AppMgr import ToolSvc
         from tauRec.tauRecFlags import tauFlags
         for tool in tools :
-            # if tool.__slots__['calibFolder'].count('TauDiscriminant'):
-            #     tool.calibFolder = tauFlags.TauDiscriminantCVMFSPath()
-            # else :
-            #     tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             tool.calibFolder = tauFlags.tauRecToolsCVMFSPath()
             if tool not in ToolSvc : ToolSvc += tool            
-            pass
 
     def TauProcessorAlgHandle(self):
         return self._TauProcessorAlgHandle
-

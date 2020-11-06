@@ -57,17 +57,22 @@ namespace met{
     StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const;
 
     StatusCode extractPFO(const xAOD::IParticle*,
-			  std::vector<const xAOD::IParticle*>&,
-			  const met::METAssociator::ConstitHolder&,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const
+                          std::vector<const xAOD::IParticle*>&,
+                          const met::METAssociator::ConstitHolder&,
+                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const
+    {return StatusCode::FAILURE;} // should not be called
+    StatusCode extractFE(const xAOD::IParticle*,
+                         std::vector<const xAOD::IParticle*>&,
+                         const met::METAssociator::ConstitHolder&,
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&) const
     {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTracks(const xAOD::IParticle*,
-			     std::vector<const xAOD::IParticle*>&,
-			     const met::METAssociator::ConstitHolder&) const
+                             std::vector<const xAOD::IParticle*>&,
+                             const met::METAssociator::ConstitHolder&) const
     {return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
-				   std::vector<const xAOD::IParticle*>&,
-				   const met::METAssociator::ConstitHolder&) const
+                                   std::vector<const xAOD::IParticle*>&,
+                                   const met::METAssociator::ConstitHolder&) const
     {return StatusCode::FAILURE;} // should not be called
 
     private:

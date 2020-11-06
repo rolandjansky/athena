@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.JobProperties import jobproperties
@@ -13,15 +13,15 @@ class PFLocalHadCal:
         try:
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
             Calib = CaloClusterLocalCalib(name+"_CaloClusterLocalCalib")
-        except:
+        except Exception:
             mlog.error("could not import CaloClusterCorrection.CaloClusterLocalCalib")
             traceback.print_exc()
             return False
         
         try:
-            from CaloUtils.CaloUtilsConf import CaloLCClassificationTool;
+            from CaloUtils.CaloUtilsConf import CaloLCClassificationTool
             LCClassify   = CaloLCClassificationTool(name+"_CaloLCClassificationTool")
-        except:
+        except Exception:
             mlog.error("could not import CaloUtils.EMFracClusterClassificationTool")
             traceback.print_exc()
             return False
@@ -59,17 +59,16 @@ class PFLocalHadCal:
         mlog = logging.getLogger( 'PFLocalHadCal::getLCWeightTool' )
 
         try:
-            from CaloUtils.CaloUtilsConf import CaloLCWeightTool;
+            from CaloUtils.CaloUtilsConf import CaloLCWeightTool
             LCWeight = CaloLCWeightTool(name+"_CaloLCWeightTool")
-        except:
+        except Exception:
             mlog.error("could not import CaloUtils.CaloLCWeightTool")
             traceback.print_exc()
             return False
 
             from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
             #For LCWeightsTool needs electronic noise
-            CaloNoiseCondAlg(noisetype="electronicNoise")     
-            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+            CaloNoiseCondAlg(noisetype="electronicNoise")
                    
         LCWeight.CorrectionKey       = "H1ClusterCellWeights"
         LCWeight.SignalOverNoiseCut  = 2.0
@@ -84,7 +83,7 @@ class PFLocalHadCal:
         try:
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
             CalibDM = CaloClusterLocalCalib(name+"_CaloClusterLocalCalibDM")
-        except:
+        except Exception:
             mlog.error("could not import CaloClusterCorrection.CaloClusterLocalCalib")
             traceback.print_exc()
             return False
@@ -105,7 +104,7 @@ class PFLocalHadCal:
         try:
             from CaloUtils.CaloUtilsConf import CaloLCDeadMaterialTool
             LCDeadMaterial = CaloLCDeadMaterialTool(name+"_CaloLCDeadMaterialTool")
-        except:
+        except Exception:
             mlog.error("could not import CaloUtils.CaloLCDeadMaterialTool")
             traceback.print_exc()
             return False
@@ -124,7 +123,7 @@ class PFLocalHadCal:
         try:
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
             CalibOO = CaloClusterLocalCalib(name+"_CaloClusterLocalCalibOO")
-        except:
+        except Exception:
             mlog.error("could not import CaloClusterCorrection.CaloClusterLocalCalib")
             traceback.print_exc()
             return False
@@ -146,7 +145,7 @@ class PFLocalHadCal:
         try:
             from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
             CalibOOPi0 = CaloClusterLocalCalib(name+"_CaloClusterLocalCalibOOPi0")
-        except:
+        except Exception:
             mlog.error("could not import CaloClusterCorrection.CaloClusterLocalCalib")
             traceback.print_exc()
             return False
@@ -167,7 +166,7 @@ class PFLocalHadCal:
         try:
             from CaloUtils.CaloUtilsConf import CaloLCOutOfClusterTool
             OOCC = CaloLCOutOfClusterTool(name+"_CaloLCOutOfClusterTool")
-        except:
+        except Exception:
             mlog.error("Could not import CaloUtils.CaloLCOutOfClusterTool")
             traceback.print_exc()
             return False
@@ -185,7 +184,7 @@ class PFLocalHadCal:
         try:
             from CaloUtils.CaloUtilsConf import CaloLCOutOfClusterTool
             OOCCPi0 = CaloLCOutOfClusterTool(name+"_CaloLCOutOfClusterPi0Tool")
-        except:
+        except Exception:
             mlog.error("Could not import CaloUtils.CaloLCOutOfClusterTool")
             traceback.print_exc()
             return False

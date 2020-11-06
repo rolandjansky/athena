@@ -23,7 +23,6 @@ atlas_depends_on_subdirs( PUBLIC
                           TopPartons
                           TopObjectSelectionTools
                           TopSystematicObjectMaker
-                          TopFakes
 			  TopDataPreparation
 			  TopHLUpgrade )
 
@@ -53,7 +52,6 @@ atlas_add_library( $pkgname Root/*.cxx Root/*.h Root/*.icc
                                   TopPartons
                                   TopObjectSelectionTools
                                   TopSystematicObjectMaker
-                                  TopFakes
 				  TopDataPreparation
 				  TopHLUpgrade
                                   \${ROOT_LIBRARIES}
@@ -77,7 +75,6 @@ atlas_install_scripts( scripts/*.py )
 #                                     TopPartons
 #                                     TopObjectSelectionTools
 #                                     TopSystematicObjectMaker
-#                                     TopFakes
 #				     TopDataPreparation
 #                                     TopHLUpgrade
 #                                     ${ROOT_LIBRARIES}

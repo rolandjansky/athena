@@ -7,9 +7,6 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: MdtDetectorElement.h 
-//<version>	$Name: not supported by cvs2svn $
-
 //!  A MdtDetectorElement Class
 /*!
   MdtDetectorElements are as granular as offline mdt data collections 
@@ -19,8 +16,8 @@
   methods will delegate the job to the appropriate MdtReadoutElement.  
 */
 
-#ifndef MDTGEOMODEL_MDTDETECTORELEMENT_H
-# define MDTGEOMODEL_MDTDETECTORELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_MDTDETECTORELEMENT_H
+#define MUONREADOUTGEOMETRY_MDTDETECTORELEMENT_H
 
 #include <string>
 #include "MuonReadoutGeometry/MuonDetectorElement.h"
@@ -111,4 +108,4 @@ private:
 
 } // namespace MuonGM
 
-#endif // MDTGEOMODEL_MDTDETECTORELEMENT_H
+#endif // MUONREADOUTGEOMETRY_MDTDETECTORELEMENT_H

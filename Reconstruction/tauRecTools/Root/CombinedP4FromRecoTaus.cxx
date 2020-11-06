@@ -334,11 +334,11 @@ double CombinedP4FromRecoTaus::getWeight(const double& caloSigma,
 double CombinedP4FromRecoTaus::getCombinedSigma(const double& caloSigma,
 					                            const double& panTauSigma,
                                                 const double& correlation) const {
-  // FIXME: the calculation seems not right
-  double combinedSigma2 = std::pow(caloSigma, 2) + std::pow(panTauSigma, 2) 
-                          - 2 * correlation * caloSigma * panTauSigma;
+  double numerator = std::pow(caloSigma, 2) * std::pow(panTauSigma, 2) * (1 - std::pow(correlation, 2));
+  double denominator = std::pow(caloSigma, 2) + std::pow(panTauSigma, 2) 
+                       - 2 * correlation * caloSigma * panTauSigma;
   
-  return std::sqrt(combinedSigma2);
+  return std::sqrt(numerator/denominator);
 }
 
 

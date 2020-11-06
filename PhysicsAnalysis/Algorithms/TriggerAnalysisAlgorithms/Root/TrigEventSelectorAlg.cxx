@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Tadej Novak
 
-#include <AnaAlgorithm/FilterReporter.h>
+#include <EventBookkeeperTools/FilterReporter.h>
 #include <RootCoreUtils/StringUtil.h>
 #include <TriggerAnalysisAlgorithms/TrigEventSelectionAlg.h>
 #include <xAODEventInfo/EventInfo.h>
@@ -41,7 +41,7 @@ StatusCode CP::TrigEventSelectionAlg::initialize()
 
 StatusCode CP::TrigEventSelectionAlg::execute()
 {
-  EL::FilterReporter filter (m_filterParams, false);
+  FilterReporter filter (m_filterParams, false);
 
   if (m_trigList.empty()) {
     filter.setPassed(true);
@@ -65,7 +65,7 @@ StatusCode CP::TrigEventSelectionAlg::execute()
 
 StatusCode CP::TrigEventSelectionAlg::finalize()
 {
-  ANA_CHECK (m_filterParams.finalize());
+  ANA_MSG_INFO (m_filterParams.summary());
 
   return StatusCode::SUCCESS;
 }

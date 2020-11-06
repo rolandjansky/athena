@@ -1,39 +1,18 @@
-################################################################################
-# Package: tauRec
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( tauRec )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          PhysicsAnalysis/AnalysisCommon/ParticleEvent
-                          Reconstruction/tauRecTools
-                          PRIVATE
-                          Reconstruction/tauEvent )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( Boost )
 
 # Component(s) in the package:
-atlas_add_library( tauRecLib
-                   src/*.cxx
-                   PUBLIC_HEADERS tauRec
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel InDetReadoutGeometry TRT_ReadoutGeometry ParticleEvent tauRecToolsLib
-                   PRIVATE_LINK_LIBRARIES tauEvent )
-
 atlas_add_component( tauRec
+                     src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel ParticleEvent tauRecToolsLib tauEvent tauRecLib )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps CaloEvent CaloInterfaceLib CaloUtilsLib GaudiKernel InDetReadoutGeometry NavFourMom StoreGateLib TRT_ReadoutGeometry tauRecToolsLib xAODCaloEvent xAODCore xAODJet xAODPFlow xAODParticleEvent xAODTau xAODTracking )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-

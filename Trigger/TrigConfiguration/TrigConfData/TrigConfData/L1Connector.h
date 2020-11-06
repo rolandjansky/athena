@@ -63,8 +63,10 @@ namespace TrigConf {
       /** Accessor to the number of trigger lines */
       std::size_t size() const;
 
+      std::string type() const;
+
       /** Accessor to the connector type */
-      ConnectorType type() const;
+      ConnectorType connectorType() const;
 
       /** names of all trigger lines */
       std::vector<std::string> triggerLineNames() const;
@@ -84,7 +86,14 @@ namespace TrigConf {
 
       const TrigConf::TriggerLine & triggerLine( const std::string & lineName ) const;
 
+      bool legacy() const { return m_isLegacy; }
+      
+      [[deprecated("Use legacy() instead.")]]
       bool isLegacy() const { return m_isLegacy; }
+      
+      std::size_t maxFpga() const { return m_maxFpga; }
+
+      std::size_t maxClock() const { return m_maxClock; }
 
    private:
 

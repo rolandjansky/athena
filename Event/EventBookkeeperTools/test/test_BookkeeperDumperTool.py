@@ -26,7 +26,7 @@ Configurable.configurableRun3Behavior = True
 if args.input:
     ConfigFlags.Input.Files = [args.input]
 else:
-    ConfigFlags.Input.Files = defaultTestFiles.AOD
+    ConfigFlags.Input.Files = defaultTestFiles.AOD_MC
 ConfigFlags.lock()
 
 # Setup tools

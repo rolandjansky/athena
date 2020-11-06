@@ -16,7 +16,7 @@ atlas_add_component( CaloTools
    LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${CORAL_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities AtlasDetDescr CaloCondBlobObjs CaloConditions CaloDetDescrLib CaloEvent CaloGeoHelpers CaloIdentifier CaloInterfaceLib CxxUtils GaudiKernel Identifier LArCablingLib LArElecCalib LArRawConditions LArRecEvent StoreGateLib TileConditionsLib TileEvent TileIdentifier xAODBase )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
 atlas_add_test( CaloEstimatedGainToolConfig_test

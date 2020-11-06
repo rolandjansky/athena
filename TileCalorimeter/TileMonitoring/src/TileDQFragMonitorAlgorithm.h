@@ -87,6 +87,10 @@ class TileDQFragMonitorAlgorithm : public AthMonitorAlgorithm {
     SG::ReadHandleKey<TileDigitsContainer> m_digitsContainerKey{this,
         "TileDigitsContainer", "TileDigitsCnt", "Input Tile digits container key"};
 
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoTileStatusKey{this, "EventInfoTileStatus",
+                                                                    "EventInfo.TileStatus",
+                                                                    "Aid to MT scheduling, do not change"};
+
     std::vector<std::vector<int>> m_errorsGroups;
     std::vector<std::vector<int>> m_errorsVsLBGroups;
 
