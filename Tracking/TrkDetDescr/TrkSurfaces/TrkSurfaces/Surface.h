@@ -130,7 +130,7 @@ public:
   virtual bool operator==(const Surface& sf) const = 0;
 
   /**Non-equality operator*/
-  virtual bool operator!=(const Surface& sf) const;
+  bool operator!=(const Surface& sf) const ;
 
   /**Implicit constructor - uses the copy constructor */
   virtual Surface* clone() const = 0;

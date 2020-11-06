@@ -116,9 +116,7 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
 template<int DIM, class T, class S>
 CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   const CurvilinearParametersT<DIM, T, S>& rhs)
-  : ParametersBase<DIM, T>(rhs.parameters(),
-                           nullptr,
-                           rhs.charge())
+  : ParametersBase<DIM, T>(rhs.parameters(), nullptr, rhs.charge())
 
   , m_position(rhs.position())
   , m_momentum(rhs.momentum())
@@ -167,6 +165,13 @@ void
 CurvilinearParametersT<DIM, T, S>::setcIdentifier(unsigned int cIdentifier)
 {
   m_cIdentifier = cIdentifier;
+}
+
+template<int DIM, class T, class S>
+double
+CurvilinearParametersT<DIM, T, S>::charge() const
+{
+  return m_chargeDef.charge();
 }
 
 template<int DIM, class T, class S>

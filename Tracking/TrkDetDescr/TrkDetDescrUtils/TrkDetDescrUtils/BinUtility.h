@@ -35,7 +35,7 @@ namespace Trk {
     @author Andreas.Salzburger@cern.ch
   */
 
-class BinUtility
+class BinUtility final
 {
 
 public:
@@ -123,11 +123,11 @@ public:
     return (*this);
   }
 
-  /** Virtual Destructor */
-  virtual ~BinUtility() {}
+  /** Destructor */
+  ~BinUtility() {}
 
   /** Implizit Constructor */
-  virtual BinUtility* clone() const { return new BinUtility(*this); }
+  BinUtility* clone() const { return new BinUtility(*this); }
 
   /** return the binning data */
   const std::vector<BinningData>& binningData() const { return m_binningData; }
