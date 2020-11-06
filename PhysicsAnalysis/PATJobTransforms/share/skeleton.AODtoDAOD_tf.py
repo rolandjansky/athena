@@ -55,6 +55,8 @@ elif hasattr(runArgs,'inputEVNTFile') or hasattr(runArgs,'jobConfig'):
     from AthenaCommon.DetFlags      import DetFlags
     DetFlags.detdescr.BField_setOff()
     athenaCommonFlags.FilesInput = runArgs.inputEVNTFile
+    # Do not load conditions; this is running on EVNT
+    globalflags.ConditionsTag = ''
     # Leave the remainder for the internal setup
 else:
     msg.error('AOD Reduction job started, but with no AOD inputs - aborting')
