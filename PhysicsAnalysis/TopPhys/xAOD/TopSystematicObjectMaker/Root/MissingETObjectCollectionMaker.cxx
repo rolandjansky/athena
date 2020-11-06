@@ -1,13 +1,12 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-// $Id: MissingETObjectCollectionMaker.cxx 806051 2017-06-07 00:32:41Z tpelzer $
 #include "TopSystematicObjectMaker/MissingETObjectCollectionMaker.h"
 #include "TopConfiguration/TopConfig.h"
 #include "TopConfiguration/TreeFilter.h"
 #include "TopEvent/EventTools.h"
-#include "TopEvent/SystematicEvent.h"
+#include "TopEvent/SystematicEventContainer.h"
 
 
 #include "xAODEgamma/PhotonContainer.h"
@@ -305,7 +304,7 @@ namespace top {
 //    // Save corrected xAOD Container to StoreGate / TStore
 //    std::string outputSGKey = m_config->sgKeyMissingEt(hash);
 //    if (is_loose_event) outputSGKey = m_config->sgKeyMissingEtLoose(hash);
-//    
+//
 //    outputSGKey+=outputContainerSuffix;
 //    std::string outputSGKeyAux = outputSGKey + "Aux.";
 //
@@ -326,9 +325,9 @@ namespace top {
       m_met_systematics->recommendedSystematics());
 
     for (auto s : systList) {
-      
+
       if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
-      
+
       ///-- Recommendation is to use soft track terms and not soft calo terms --///
       ///-- Soft calo systematics are irrelevant, let's ignore them --///
       if (s.name().find("SoftCalo") == std::string::npos) {

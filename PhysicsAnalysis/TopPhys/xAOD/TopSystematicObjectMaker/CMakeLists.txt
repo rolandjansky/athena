@@ -1,79 +1,17 @@
-# Declare the name of this package:
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+# Declare the name of this package.
 atlas_subdir( TopSystematicObjectMaker )
 
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          xAODCore
-                          xAODRootAccess
-                          xAODEventInfo
-                          PATInterfaces
-                          AsgTools
-                          xAODEgamma
-                          xAODMuon
-                          xAODJet
-                          xAODTracking
-                          ElectronPhotonFourMomentumCorrection
-                          ElectronPhotonSelectorTools
-                          ElectronPhotonShowerShapeFudgeTool
-                          TauAnalysisTools
-                          JetCalibTools
-                          JetCPInterfaces
-                          JetResolution
-                          JetInterface
-                          METInterface
-                          METUtilities
-                          IsolationSelection
-                          IsolationCorrections
-                          TopConfiguration
-                          TopEvent
-                          TopJetSubstructure
-                          TopParticleLevel
-                          InDetTrackSystematicsTools 
-			  MuonAnalysisInterfaces 
-        MuonMomentumCorrections 
-			  FTagAnalysisInterfaces)
-
-# This package uses ROOT:
-find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-
-# Build a library that other components can link against:
-atlas_add_library( TopSystematicObjectMaker Root/*.cxx Root/*.h Root/*.icc
-                   TopSystematicObjectMaker/*.h TopSystematicObjectMaker/*.icc TopSystematicObjectMaker/*/*.h
-                   TopSystematicObjectMaker/*/*.icc 
-                   PUBLIC_HEADERS TopSystematicObjectMaker
-                   LINK_LIBRARIES xAODCore
-                                  xAODRootAccess
-                                  xAODEventInfo
-                                  PATInterfaces
-                                  AsgTools
-                                  xAODEgamma
-                                  xAODMuon
-                                  xAODJet
-                                  ElectronPhotonFourMomentumCorrectionLib
-                                  ElectronPhotonSelectorToolsLib
-                                  ElectronPhotonShowerShapeFudgeToolLib
-                                  TauAnalysisToolsLib
-                                  JetCalibToolsLib
-                                  JetCPInterfaces
-                                  #JetResolutionLib
-                                  JetInterface
-                                  METInterface
-                                  METUtilitiesLib
-                                  IsolationSelectionLib
-                                  IsolationCorrectionsLib
-                                  TopConfiguration
-                                  TopEvent
-                                  TopJetSubstructure
-                                  TopParticleLevel
-                                  xAODTracking
-                                  InDetTrackSystematicsToolsLib
-                                  MuonAnalysisInterfacesLib
-                                  MuonMomentumCorrectionsLib
-                                  FTagAnalysisInterfacesLib
-                                  #BoostedJetTaggersLib
-                                  ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
-
-# Install data files from the package:
-atlas_install_data( share/* )
-
+# Component(s) in the package.
+atlas_add_library( TopSystematicObjectMaker
+   TopSystematicObjectMaker/*.h Root/*.cxx
+   PUBLIC_HEADERS TopSystematicObjectMaker
+   LINK_LIBRARIES AsgTools PATInterfaces EgammaAnalysisInterfacesLib
+   FTagAnalysisInterfacesLib JetAnalysisInterfacesLib MuonAnalysisInterfacesLib
+   IsolationSelectionLib IsolationCorrectionsLib JetCalibToolsLib
+   JetCPInterfaces JetInterface METInterface xAODEgamma xAODJet xAODTracking
+   TopJetSubstructure MuonMomentumCorrectionsLib TauAnalysisToolsLib
+   PRIVATE_LINK_LIBRARIES AthContainers xAODBase xAODCore xAODEventInfo
+   xAODMissingET xAODMuon xAODTau TopConfiguration TopEvent
+   InDetTrackSystematicsToolsLib METUtilitiesLib )
