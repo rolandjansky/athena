@@ -64,6 +64,9 @@ def constBunchSpacingPattern(constBunchSpacing):
 def createDigitizationCfgFlags():
     """Return an AthConfigFlags object with required flags"""
     flags = AthConfigFlags()
+    # Digitization Steering - needed for easy comparison with the
+    # old-style configuration, but can potentially drop
+    flags.addFlag("Digitization.DigiSteeringConf", "StandardPileUpToolsAlg")
     # Run Inner Detector noise simulation
     flags.addFlag("Digitization.DoInnerDetectorNoise", True)
     # Run pile-up digitization on one bunch crossing at a time?
