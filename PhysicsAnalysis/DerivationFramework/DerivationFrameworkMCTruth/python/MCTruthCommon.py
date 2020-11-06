@@ -30,7 +30,6 @@ if DerivationFrameworkIsMonteCarlo:
         # If we are going to be making the truth collection (dfInputIsEVNT) then this will be made elsewhere
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += CfgMgr.DerivationFramework__TruthMetaDataWriter(name='DFCommonTruthMetaDataWriter')
-        from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
         DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonMetaDataWriterKernel",
                                                                     AugmentationTools = [ToolSvc.DFCommonTruthMetaDataWriter]
@@ -573,7 +572,6 @@ def addTruthEnergyDensity(kernel=None):
     # Truth energy density tools
     from EventShapeTools.EventDensityConfig import configEventDensityTool,EventDensityAthAlg
     from AthenaCommon.AppMgr import ToolSvc
-    from JetRec.JetRecStandard import jtm
     # Algorithms for the energy density - needed only if e/gamma hasn't set things up already
     if not hasattr(ToolSvc,'EDTruthCentralTool'):
         DFCommonTruthCentralEDTool = configEventDensityTool("DFCommonTruthCentralEDTool",
