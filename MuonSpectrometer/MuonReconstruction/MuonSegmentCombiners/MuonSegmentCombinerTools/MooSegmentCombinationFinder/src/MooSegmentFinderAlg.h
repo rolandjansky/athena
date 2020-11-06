@@ -33,7 +33,7 @@ class MooSegmentFinderAlg : public AthReentrantAlgorithm {
     virtual ~MooSegmentFinderAlg();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute(const EventContext& ctx) const;
+    virtual StatusCode execute(const EventContext& ctx) const override;
     virtual StatusCode finalize() override;
 
   private:
