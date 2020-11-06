@@ -320,7 +320,6 @@ StatusCode HLTTauMonTool::fill() {
   //   }
 
   //Pileup
-  //m_mu_offline = Pileup();
   if(m_lumiBlockMuTool){
     float avg_mu = (float)m_lumiBlockMuTool->averageInteractionsPerCrossing();
     m_mu_offline = avg_mu;
@@ -3850,11 +3849,6 @@ int HLTTauMonTool::PrimaryVertices(){
    }
 
   return nGoodVtx;
-}
-
-// not working 
-float HLTTauMonTool::Pileup(){
-  return lbAverageInteractionsPerCrossing();
 }
 
 

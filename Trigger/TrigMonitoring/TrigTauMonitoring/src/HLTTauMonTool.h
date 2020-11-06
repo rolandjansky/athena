@@ -152,7 +152,6 @@ class HLTTauMonTool : public IHLTMonTool {
   bool Match_Offline_L1(const xAOD::TauJet *aOfflineTau, const std::string & trigItem);
   bool Match_Offline_EF(const xAOD::TauJet *aOfflineTau, const std::string & trigItem);
   int PrimaryVertices();
-  float Pileup();
   void FillRelDiffHist(TH1 * hist, float val1, float val2, float checkVal, int checkMode);
   template<class T> void FillRelDiffProfile(TProfile * prof, float val1, float val2, T val3, float checkVal, int checkMode);
 
