@@ -341,7 +341,7 @@ void Prompt::DecoratePromptLepton::initializeDecorators()
 
   // Small hack in the output score name for LowPtPLV to harmonize with what is augmented in CP::IsolationLowPtPLVTool
   std::string decoratorNameBDT = 
-    TString(m_BDTName).Contains("LowPtPromptLeptonVeto") ? "LowPtPLV" : m_BDTName;
+    m_BDTName.find("LowPtPromptLeptonVeto")!=std::string::npos ? "LowPtPLV" : m_BDTName;
   m_decoratorBDT = std::make_unique<SG::AuxElement::Decorator<float> >(decoratorNameBDT);
   m_decoratorDR  = std::make_unique<SG::AuxElement::Decorator<float> >(m_auxVarPrefix + "DRlj");
 }
