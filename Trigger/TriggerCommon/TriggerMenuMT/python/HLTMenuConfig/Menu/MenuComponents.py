@@ -933,7 +933,8 @@ class RecoFragmentsPool(object):
                allargs.update(kwargs)
         
         sortedkeys = sorted(allargs.keys())
-        sortedvals = [allargs[key] for key in sortedkeys]
+        sortedvals = [str(allargs[key]) if isinstance(allargs[key], DataHandle)
+                      else allargs[key] for key in sortedkeys]
 
         requestHash = hash( ( creator, tuple(sortedkeys), tuple(sortedvals) ) )
         if requestHash not in cls.fragments:
