@@ -14,6 +14,8 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODBTagging/BTaggingUtilities.h"
+
 #include "PATInterfaces/SystematicsUtil.h"
 
 #include "TopJetSubstructure/TopJetSubstructure.h"
@@ -880,18 +882,18 @@ namespace top {
         = (trackJets ? m_btagSelToolsDL1Decor_trkJet : m_btagSelToolsDL1Decor);
       for (std::pair<std::string, ToolHandle<IBTaggingSelectionTool>> algo : m_btagDecorTools) {
         double DL1_weight = -999.;
-        //double dl1_pb = -10.;
-        //double dl1_pc = -10.;
-        //double dl1_pu = -10.;
-        //if (jet->btagging()->pb(algo.first, dl1_pb)
-        //    && jet->btagging()->pc(algo.first, dl1_pc)
-        //    && jet->btagging()->pu(algo.first, dl1_pu)) {
-        //  if (!algo.second->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)) {
-        //    DL1_weight = -999.; // value for errors from retrieving DL1x weight
-        //  }
-        //} else {
-        //  DL1_weight = -100.; // value for errors from nonexistence of probabilities
-        //}
+        double dl1_pb = -10.;
+        double dl1_pc = -10.;
+        double dl1_pu = -10.;
+        if (xAOD::BTaggingUtilities::getBTagging(*jet)->pb(algo.first, dl1_pb)
+            && xAOD::BTaggingUtilities::getBTagging(*jet)->pc(algo.first, dl1_pc)
+            && xAOD::BTaggingUtilities::getBTagging(*jet)->pu(algo.first, dl1_pu)) {
+          if (!algo.second->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)) {
+            DL1_weight = -999.; // value for errors from retrieving DL1x weight
+          }
+        } else {
+          DL1_weight = -100.; // value for errors from nonexistence of probabilities
+        }
         DLx.at(algo.first)(*jet) = DL1_weight;
       }
     }

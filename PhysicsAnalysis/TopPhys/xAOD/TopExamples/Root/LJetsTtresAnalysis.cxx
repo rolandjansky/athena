@@ -9,6 +9,8 @@
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
 
+#include "xAODBTagging/BTaggingUtilities.h"
+
 #include "TFile.h"
 #include "TH1.h"
 
@@ -227,10 +229,10 @@ namespace top {
         vjets.push_back(new TLorentzVector(0, 0, 0, 0));
         vjets[z]->SetPtEtaPhiE(topEvent.m_jets[z]->pt(), topEvent.m_jets[z]->eta(),
                                topEvent.m_jets[z]->phi(), topEvent.m_jets[z]->e());
-        //const xAOD::BTagging* myBTag = topEvent.m_jets[z]->btagging();
+        const xAOD::BTagging* myBTag = xAOD::BTaggingUtilities::getBTagging(*topEvent.m_jets[z]);
         // https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/BTagingxAODEDM
         // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTaggingBenchmarks
-        //vjets_btagged.push_back(myBTag->SV1plusIP3D_discriminant() > 1.85); // best discriminant available for 8 TeV
+        vjets_btagged.push_back(myBTag->SV1plusIP3D_discriminant() > 1.85); // best discriminant available for 8 TeV
                                                                             // (cut at 70%)
       }
       TLorentzVector met(0, 0, 0, 0);
