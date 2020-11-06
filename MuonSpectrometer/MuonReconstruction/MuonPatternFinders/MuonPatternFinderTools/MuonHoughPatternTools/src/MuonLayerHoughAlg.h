@@ -18,7 +18,7 @@ class MuonLayerHoughAlg : public AthReentrantAlgorithm
   virtual ~MuonLayerHoughAlg() = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& ctx) const;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
  private:
