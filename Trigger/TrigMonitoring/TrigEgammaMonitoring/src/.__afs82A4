@@ -103,7 +103,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
   }
 
 
-  const std::string decor="is"+pidName;
+  const std::string decor="is"+pidname;
   for(const auto& eg : *offElectrons ){
 
       const TrigCompositeUtils::Decision *dec=nullptr; 

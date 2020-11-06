@@ -100,7 +100,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
   }
  
 
-  const std::string decor="is"+pidName;
+  const std::string decor="is"+m_photonPid;
 
   for(const auto& eg : *offPhotons ){
       const TrigCompositeUtils::Decision *dec=nullptr; 
