@@ -14,7 +14,7 @@ def PileUpMergeSvcCfg(flags, name="PileUpMergeSvc", Intervals=[], **kwargs):
     """
     acc = ComponentAccumulator()
 
-    if flags.Digitization.DoXingByXingPileUp:
+    if not flags.Digitization.DoXingByXingPileUp:
         # handle input type variety
         if not isinstance(Intervals, list):
             Intervals = [Intervals]
