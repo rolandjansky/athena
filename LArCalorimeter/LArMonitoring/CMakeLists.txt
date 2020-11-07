@@ -9,7 +9,7 @@ find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread Graf Graf3d Gpad Html Postscript Gui GX11TTF GX11 )
 
 atlas_add_library( LArStrHelper
-                   src/LArStrHelper.cxx LArMonitoring/LArStrHelper.h
+                   src/StrHelper/LArStrHelper.cxx LArMonitoring/LArStrHelper.h
 		   PUBLIC_HEADERS LArMonitoring
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES})
@@ -20,7 +20,7 @@ atlas_add_component( LArMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaMonitoringLib  SGtests Identifier LArIdentifier LArRawEvent LArRecConditions LArCablingLib TrigDecisionToolLib CaloConditions AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions LArRawConditions LArRecEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloDetDescrLib CaloGeoHelpers CaloIdentifier AthenaMonitoringLib  SGtests Identifier LArIdentifier LArRawEvent LArRecConditions LArCablingLib TrigDecisionToolLib CaloConditions AthenaKernel AthenaPoolUtilities xAODEventInfo LArCOOLConditions LArRawConditions LArRecEvent LArStrHelper )
 
 atlas_add_dictionary( LArStrHelperDict
                       LArMonitoring/LArStrHelperDict.h
