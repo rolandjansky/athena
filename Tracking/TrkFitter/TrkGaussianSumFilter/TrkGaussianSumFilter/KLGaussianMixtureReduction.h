@@ -114,7 +114,9 @@ using IsMergedArray = std::array<bool,GSFConstants::maxComponentsAfterConvolutio
 
 /**
  * @brief Merge the componentsIn and return
- * which componets got merged
+ * which componets got merged in each step
+ * the first element of the pair is the merged to
+ * the secone element is the merged from
  *
  * inputSize is expected to be >0, <128
  * and reducedSize < inputsize. Invalid input
@@ -122,7 +124,6 @@ using IsMergedArray = std::array<bool,GSFConstants::maxComponentsAfterConvolutio
  *
  * Furthemore, the input component array is assumed to be
  * GSFConstants::alignment aligned.
- * Can be created via the AlignedDynArray.
  */
 std::vector<std::pair<int8_t, int8_t>>
 findMerges(Component1DArray& componentsIn, const int8_t reducedSize);
