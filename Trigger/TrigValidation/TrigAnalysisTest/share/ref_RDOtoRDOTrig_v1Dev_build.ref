@@ -109,6 +109,12 @@ TrigSignatureMoniMT                                 INFO -- #3304584056 Features
 TrigSignatureMoniMT                                 INFO HLT_2mu6_L12MU6 #1747073535
 TrigSignatureMoniMT                                 INFO -- #1747073535 Events         4          4          0          0          0          0          0          3          2          2          2          -          -          -          -          -          2
 TrigSignatureMoniMT                                 INFO -- #1747073535 Features                             0          0          0          0          0          12         8          8          8          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO HLT_2mu6_bJpsimumu_L12MU6 #1924924067
+TrigSignatureMoniMT                                 INFO -- #1924924067 Events         4          4          0          0          0          0          0          3          3          2          2          -          -          -          -          -          0
+TrigSignatureMoniMT                                 INFO -- #1924924067 Features                             0          0          0          0          0          12         12         8          4          -          -          -          -          -
+TrigSignatureMoniMT                                 INFO HLT_2mu6_bJpsimumul2io_L12MU6 #882785822
+TrigSignatureMoniMT                                 INFO -- #882785822 Events          4          4          0          0          0          0          0          3          3          2          2          -          -          -          -          -          0
+TrigSignatureMoniMT                                 INFO -- #882785822 Features                              0          0          0          0          0          12         28         8          4          -          -          -          -          -
 TrigSignatureMoniMT                                 INFO HLT_2mu6_l2io_L12MU6 #2996403520
 TrigSignatureMoniMT                                 INFO -- #2996403520 Events         4          4          0          0          0          0          0          3          3          2          2          -          -          -          -          -          2
 TrigSignatureMoniMT                                 INFO -- #2996403520 Features                             0          0          0          0          0          12         28         8          8          -          -          -          -          -
