@@ -174,20 +174,6 @@ std::tuple<Trk::Track*,bool> InDet::InDetDenseEnvAmbiTrackSelectionTool::getClea
   ATH_MSG_DEBUG ("totalUniqueSiHits " << trackHitDetails.totalUniqueSiHits());
   ATH_MSG_DEBUG ("score " << score );
 
-  //------------------------------------------------------------------------------------//
-  // if have passed the conversion selection, send to the track to the final collection
-  // before checking basic cuts
-  if( trackHitDetails.m_passConversionSel ) {
-    ATH_MSG_DEBUG ("track m_passConversionSel, so accept it as is");
-    //  Change pixel hits property for shared hits as this track will be 
-    //  accepted into the final track colection
-    if (!trackHitDetails.m_isPatternTrack){
-      setPixelClusterSplitInformation( tsosDetails, splitProbContainer );
-    }
-    return std::make_tuple(static_cast<Trk::Track *>(nullptr),true); // keep input track
-  }
-  //------------------------------------------------------------------------------------//
-
 
   //------------------------------------------------------------------------------------//
   //
@@ -970,8 +956,6 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
     trackHitDetails.m_passConversionSel = performConversionCheck(ptrTrack, 
         prd_to_track_map, trackHitDetails, tsosDetails, ent);
   }
-  // if pass conversion selection, don't mess with it further
-  if( trackHitDetails.m_passConversionSel ) { return; }
   //------------------------------------------------------------------//
 
   
