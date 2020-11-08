@@ -475,6 +475,9 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
                                            const TrackCollection& inputTracks,
                                            TrackCollection& outputTracks,
                                            const EventContext& ctx) const {
+
+  ATH_MSG_DEBUG("Input RoI " << roi);
+  
   // Run3 monitoring ---------->
   auto mnt_roi_nTracks = Monitored::Scalar<int>("roi_nTracks", 0);
   auto mnt_roi_nSPs    = Monitored::Scalar<int>("roi_nSPs",    0);
