@@ -740,7 +740,7 @@ if InDetTrigFlags.loadSummaryTool():
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
   if InDetFlags.doTRTPIDNN():
-    if not conddb.folderRequested( "/TRT/Calib/PID_NN") or \
+    if not (conddb.folderRequested( "/TRT/Calib/PID_NN") or \
            conddb.folderRequested( "/TRT/Onl/Calib/PID_NN")):
       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
     # FIXME: force tag until the folder is included in global tag
