@@ -105,6 +105,7 @@
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/tauRecTools
 + Reconstruction/PanTau/PanTauAlgs
++ Reconstruction/LwtnnUtils
 + Tools/ART
 + Tools/DirectIOART
 + Tools/PathResolver
