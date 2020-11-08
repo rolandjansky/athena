@@ -24,7 +24,7 @@ get_files passiveMat_r.08.02.xml
 # NOTE: the simFlags.G4Commands+=["/process/em/applyCuts true"] is added by hand, since it is part of the nominal s3512 job, but apparently overwritten when giving a custom postExec
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
           --geometryVersion 'default:ATLAS-R2-2016-01-02-01_VALIDATION' \
-          --postExec 'input_agdd_xml="passiveMat_r.08.02.xml";include("InitGeoFromLocal_postIncl.py");simFlags.G4Commands+=["/process/em/applyCuts true"]' \
+          --postExec 'input_agdd_xml="passiveMat_r.08.02.xml";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");simFlags.G4Commands+=["/process/em/applyCuts true"]' \
           --AMI=s3512 \
           --maxEvents 25 \
           --imf False \
