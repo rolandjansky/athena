@@ -60,6 +60,17 @@ StatusCode TrigL2MuonSA::StgcDataPreparator::prepareData(const TrigRoiDescriptor
   std::vector<IdentifierHash> stgcHashList;
   std::vector<IdentifierHash> stgcHashList_cache;
 
+  // Get sTGC container
+  const Muon::sTgcPrepDataContainer* stgcPrds;
+  auto stgcPrepContainerHandle = SG::makeHandle(m_stgcPrepContainerKey);
+  stgcPrds = stgcPrepContainerHandle.cptr();
+  if (!stgcPrepContainerHandle.isValid()) {
+    ATH_MSG_ERROR("Cannot retrieve sTgc PRD Container key: " << m_stgcPrepContainerKey.key());
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_DEBUG("sTgc PRD Container retrieved with key: " << m_stgcPrepContainerKey.key());
+  }
+
   if (m_use_RoIBasedDataAccess) {
     // ATH_MSG_ERROR("RoI based data access is not available yet");
 
@@ -85,60 +96,41 @@ StatusCode TrigL2MuonSA::StgcDataPreparator::prepareData(const TrigRoiDescriptor
        }
      }//do decoding
 
+     if (!stgcHashList.empty()) {
+
+       // Get sTGC collections
+       for(const IdentifierHash& id : stgcHashList) {
+
+	 Muon::sTgcPrepDataContainer::const_iterator STGCcoll = stgcPrds->indexFind(id);
+
+	 if( STGCcoll == stgcPrds->end() ) {
+	   continue;
+	 }
+
+	 if( (*STGCcoll)->size() == 0) {
+	   ATH_MSG_DEBUG("Empty STGC list");
+	   continue;
+	 }
+
+	 stgcHashList_cache.push_back(id);
+	 stgcCols.push_back(*STGCcoll);
+       }
+     }
+
   }
   else {
     ATH_MSG_DEBUG("Use full data access");
 
-    TrigRoiDescriptor fullscan_roi( true );
-    m_regionSelector->HashIDList(fullscan_roi, stgcHashList);
-    ATH_MSG_DEBUG("stgcHashList.size()=" << stgcHashList.size());
-
-    std::vector<uint32_t> stgcRobList;
-    m_regionSelector->ROBIDList(fullscan_roi, stgcRobList);
-    if(m_doDecoding) {
-      if(m_decodeBS) {
-	if ( m_rawDataProviderTool->convert(stgcRobList).isFailure()) {
-	  ATH_MSG_WARNING("Conversion of BS for decoding of sTgcs failed");
-	}
-	ATH_MSG_ERROR("Conversion of BS for decoding of sTgcs is not available yet");
-      }
-      if ( m_stgcPrepDataProvider->decode(stgcRobList).isFailure() ) {
-	ATH_MSG_WARNING("Problems when preparing sTgc PrepData ");
-      }
-    }//do decoding
-
-  }
-
-  if (!stgcHashList.empty()) {
-
-    // Get sTGC container
-    const Muon::sTgcPrepDataContainer* stgcPrds;
-    auto stgcPrepContainerHandle = SG::makeHandle(m_stgcPrepContainerKey);
-    stgcPrds = stgcPrepContainerHandle.cptr();
-    if (!stgcPrepContainerHandle.isValid()) {
-      ATH_MSG_ERROR("Cannot retrieve sTgc PRD Container key: " << m_stgcPrepContainerKey.key());
+    if(m_doDecoding || m_decodeBS) {
+      ATH_MSG_ERROR("decoding of sTGCs is not available yet");
       return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("sTgc PRD Container retrieved with key: " << m_stgcPrepContainerKey.key());
     }
 
-    // Get sTGC collections
-    for(const IdentifierHash& id : stgcHashList) {
-
-      Muon::sTgcPrepDataContainer::const_iterator STGCcoll = stgcPrds->indexFind(id);
-
-      if( STGCcoll == stgcPrds->end() ) {
-	continue;
-      }
-
-      if( (*STGCcoll)->size() == 0) {
-	ATH_MSG_DEBUG("Empty STGC list");
-	continue;
-      }
-
-      stgcHashList_cache.push_back(id);
-      stgcCols.push_back(*STGCcoll);
+    // Get sTgc collections
+    for(const auto& stgccoll : *stgcPrds) {
+      stgcCols.push_back(stgccoll);
     }
+
   }
 
   for( const Muon::sTgcPrepDataCollection* stgc : stgcCols ){
