@@ -55,12 +55,26 @@ namespace {
   VectorXd LazySource::at(size_t index) const
   {
     const auto& preproc = *m_preprocs.at(index);
-    return preproc(m_nodes.at(m_input_indices.scalar.at(index)));
+    size_t source_index = m_input_indices.scalar.at(index);
+    if (source_index >= m_nodes.size()) {
+      throw NNEvaluationException(
+        "The NN needs an input VectorXd at position "
+        + std::to_string(source_index) + " but only "
+        + std::to_string(m_nodes.size()) + " inputs were given");
+    }
+    return preproc(m_nodes.at(source_index));
   }
   MatrixXd LazySource::matrix_at(size_t index) const
   {
     const auto& preproc = *m_vec_preprocs.at(index);
-    return preproc(m_seqs.at(m_input_indices.sequence.at(index)));
+    size_t source_index = m_input_indices.sequence.at(index);
+    if (source_index >= m_nodes.size()) {
+      throw NNEvaluationException(
+        "The NN needs an input MatrixXd at position "
+        + std::to_string(source_index) + " but only "
+        + std::to_string(m_nodes.size()) + " inputs were given");
+    }
+    return preproc(m_seqs.at(source_index));
   }
 
   // utility functions
