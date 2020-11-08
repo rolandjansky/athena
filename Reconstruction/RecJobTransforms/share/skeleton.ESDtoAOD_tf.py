@@ -63,9 +63,6 @@ if hasattr(runArgs,"outputAODFile"):
         from RecExConfig.RecAlgsFlags import recAlgs
         recAlgs.doTrigger.set_Value_and_Lock( False )
         rec.doTrigger.set_Value_and_Lock( False )
-    else: # not TriggerFlags.doMT()
-        pass
-
 
 if hasattr(runArgs,"outputTAGFile"):
     # should be used as outputTAGFile_e2a=myTAG.root so that it does not trigger AODtoTAG

@@ -570,24 +570,20 @@ if rec.doTrigger:
 
 #MT part
 ## Outputs
-if rec.readESD() and rec.doAOD():
+if TriggerFlags.doMT() and rec.readESD() and rec.doAOD():
     # Don't run any trigger - only pass the HLT contents from ESD to AOD
-    if TriggerFlags.doMT():
-        # Add HLT output
-        from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-        hltOutput = HLTTriggerResultGetter()
-        # Add Trigger menu metadata
-        if rec.doFileMetaData():
-            from RecExConfig.ObjKeyStore import objKeyStore
-            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-            objKeyStore.addManyTypesMetaData( metadataItems )
-        # Add L1 output (to be consistent with R2)
-        from TrigEDMConfig.TriggerEDM import getLvl1AODList
-        objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
-
-    else: # not TriggerFlags.doMT()
-        pass # See TriggerJobOpts/python/TriggerGetter.py for Run 2. Called by RecExCommon
+    # Add HLT output
+    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+    hltOutput = HLTTriggerResultGetter()
+    # Add Trigger menu metadata
+    if rec.doFileMetaData():
+        from RecExConfig.ObjKeyStore import objKeyStore
+        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                          "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+        objKeyStore.addManyTypesMetaData( metadataItems )
+    # Add L1 output (to be consistent with R2)
+    from TrigEDMConfig.TriggerEDM import getLvl1AODList
+    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
 
 AODFix_postTrigger()
 
