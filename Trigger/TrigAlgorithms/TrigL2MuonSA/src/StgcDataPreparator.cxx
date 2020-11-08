@@ -61,15 +61,18 @@ StatusCode TrigL2MuonSA::StgcDataPreparator::prepareData(const TrigRoiDescriptor
   std::vector<IdentifierHash> stgcHashList_cache;
 
   // Get sTGC container
-  const Muon::sTgcPrepDataContainer* stgcPrds;
+  if(m_stgcPrepContainerKey.empty()) {
+    ATH_MSG_INFO("no stgcPrepContainerKey");
+    return StatusCode::SUCCESS;
+  }
   auto stgcPrepContainerHandle = SG::makeHandle(m_stgcPrepContainerKey);
-  stgcPrds = stgcPrepContainerHandle.cptr();
   if (!stgcPrepContainerHandle.isValid()) {
     ATH_MSG_ERROR("Cannot retrieve sTgc PRD Container key: " << m_stgcPrepContainerKey.key());
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG("sTgc PRD Container retrieved with key: " << m_stgcPrepContainerKey.key());
   }
+  const Muon::sTgcPrepDataContainer* stgcPrds = stgcPrepContainerHandle.cptr();
 
   if (m_use_RoIBasedDataAccess) {
     // ATH_MSG_ERROR("RoI based data access is not available yet");

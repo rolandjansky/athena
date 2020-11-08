@@ -61,15 +61,18 @@ StatusCode TrigL2MuonSA::MmDataPreparator::prepareData(const TrigRoiDescriptor* 
   std::vector<IdentifierHash> mmHashList_cache;
 
   // Get MM container
-  const Muon::MMPrepDataContainer* mmPrds;
+  if(m_mmPrepContainerKey.empty()) {
+    ATH_MSG_INFO("no mmPrepContainerKey");
+    return StatusCode::SUCCESS;
+  }
   auto mmPrepContainerHandle = SG::makeHandle(m_mmPrepContainerKey);
-  mmPrds = mmPrepContainerHandle.cptr();
   if (!mmPrepContainerHandle.isValid()) {
     ATH_MSG_ERROR("Cannot retrieve MM PRD Container key: " << m_mmPrepContainerKey.key());
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG("MM PRD Container retrieved with key: " << m_mmPrepContainerKey.key());
   }
+  const Muon::MMPrepDataContainer* mmPrds = mmPrepContainerHandle.cptr();
 
   if (m_use_RoIBasedDataAccess) {
     // ATH_MSG_ERROR("RoI based data access is not available yet");
