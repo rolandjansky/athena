@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -305,13 +305,15 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
 float 
 FCAL_ChannelMap::x(int isam, int eta, int phi) const
 {
-  if(m_invert_xy){ 
-   // temp turn off the flag 
-   m_invert_xy=false; 
-   float y1 =  y(isam,eta,phi); 
-   m_invert_xy=true; 
-   return y1; 
-  } 
+  if(m_invert_xy) { 
+    return y1(isam,eta,phi); 
+  }
+  return x1 (isam, eta, phi);
+}
+
+float 
+FCAL_ChannelMap::x1(int isam, int eta, int phi) const
+{
   float x;
 
   tileName_t tilename = (eta << 16) + phi  ; 
@@ -348,15 +350,14 @@ float
 FCAL_ChannelMap::y(int isam, int eta, int phi) const
 {
   if(m_invert_xy){
-
-   // temp turn off the flag 
-   m_invert_xy=false; 
-   float x1 =  x(isam,eta,phi); 
-   m_invert_xy=true; 
-   return x1; 
-
+    return x1(isam,eta,phi); 
   }
+  return y1 (isam, eta, phi);
+}
 
+float 
+FCAL_ChannelMap::y1(int isam, int eta, int phi) const
+{
   float y;
 
   tileName_t tilename = (eta << 16) + phi  ; 

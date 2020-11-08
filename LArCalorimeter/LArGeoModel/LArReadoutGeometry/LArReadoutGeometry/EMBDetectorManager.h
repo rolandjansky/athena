@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMBDETECTORMANAGER_H
@@ -10,6 +10,7 @@
 #include "LArReadoutGeometry/EMBAccordionDetails.h"
 #include "LArHV/EMBHVManager.h"
 #include "LArHV/EMBPresamplerHVManager.h"
+#include "CxxUtils/CachedUniquePtr.h"
 
 class EMBDetDescr;
 class EMBDetectorRegion;
@@ -129,8 +130,8 @@ class EMBDetectorManager : public GeoVDetectorManager
    *	by this manager.
    */
   EMBDetRegionArray             m_DetRegionsRandom;
-  const EMBBasicReadoutNumbers* m_basicReadoutNumbers;
-  mutable EMBAccordionDetails*  m_accordionDetails;
+  std::unique_ptr<const EMBBasicReadoutNumbers>  m_basicReadoutNumbers;
+  CxxUtils::CachedUniquePtr<EMBAccordionDetails> m_accordionDetails;
   const EMBHVManager&           m_hvManager;
   const EMBPresamplerHVManager& m_presamplerHVManager;
 };
@@ -138,15 +139,16 @@ class EMBDetectorManager : public GeoVDetectorManager
 
 inline const EMBAccordionDetails * EMBDetectorManager::getAccordionDetails () const
 {
-
-  if (!m_accordionDetails) m_accordionDetails = new EMBAccordionDetails();
-  return m_accordionDetails;
+  if (!m_accordionDetails) {
+    m_accordionDetails.set (std::make_unique<EMBAccordionDetails>());
+  }
+  return m_accordionDetails.get();
 }
 
 
 inline const EMBBasicReadoutNumbers * EMBDetectorManager::getBasicReadoutNumbers () const
 {
-  return m_basicReadoutNumbers;
+  return m_basicReadoutNumbers.get();
 }
 
 
