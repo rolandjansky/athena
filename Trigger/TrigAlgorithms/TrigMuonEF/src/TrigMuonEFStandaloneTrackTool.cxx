@@ -610,13 +610,13 @@ HLT::ErrorCode
 TrigMuonEFStandaloneTrackTool::getSpectrometerTracks(const IRoiDescriptor* muonRoI,
 						     SegmentCache*& cache,
 						     TrigMuonEFMonVars& monVars,
-						     std::vector<TrigTimer*>& timers )
+						     std::vector<TrigTimer*>& timers, const EventContext& ctx)
 {
   //
   // Segment finding
   //
   ATH_MSG_DEBUG("In getSpectrometerTracks, about to call findSegments");
-  HLT::ErrorCode hltStatus = findSegments(muonRoI, cache, monVars.segs, timers, 0);
+  HLT::ErrorCode hltStatus = findSegments(muonRoI, cache, monVars.segs, timers, 0, ctx);
   if (hltStatus!=HLT::OK) {
     return hltStatus;
   }    	
@@ -640,15 +640,15 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::getExtrapolatedTracks(const IRoiDe
 								    TrackCollection& extrapolatedTracks,
 								    SegmentCache*& cache,
 								    TrigMuonEFMonVars& monVars,
-								    std::vector<TrigTimer*>& timers) 
+								    std::vector<TrigTimer*>& timers, const EventContext& ctx) 
 {
 
   ATH_MSG_DEBUG("In getExtrapolatedTracks with cache");
-  HLT::ErrorCode hltStatus = getSpectrometerTracks( muonRoI, cache, monVars, timers );
+  HLT::ErrorCode hltStatus = getSpectrometerTracks( muonRoI, cache, monVars, timers, ctx );
   //  if fail to get trks from L2 hits, retry with all hits
   if(m_useL2Hits && (hltStatus==HLT::MISSING_FEATURE || !m_spectrometerTracks || m_spectrometerTracks->empty()) ){
     m_useL2Hits=false;
-    hltStatus = getSpectrometerTracks( muonRoI, cache, monVars, timers );
+    hltStatus = getSpectrometerTracks( muonRoI, cache, monVars, timers, ctx );
     m_useL2Hits=true;
   }
   if (hltStatus!=HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
@@ -744,7 +744,7 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::findSegments(const IRoiDescriptor*
 							   SegmentCache*& cache,
 							   TrigMuonEFSegmentMonVars& monVars,
 							   std::vector<TrigTimer*>& timers, 
-							   unsigned int firstTimerIndex )
+							   unsigned int firstTimerIndex, const EventContext& ctx )
 {
 #if DEBUG_ROI_VS_FULL
   m_fileWithHashIds_rpc << "\n#####\n\n";
@@ -904,7 +904,7 @@ if (m_useMdtData>0) {
       }
       if (m_rpcPrepDataProvider->decode( getRpcRobList(muonRoI) ).isSuccess()) {
 	ATH_MSG_DEBUG("ROB-based seeded PRD decoding of RPC done successfully");
-	SG::ReadCondHandle<RpcCablingCondData> rpcCableHandle{m_rpcCablingKey};
+	SG::ReadCondHandle<RpcCablingCondData> rpcCableHandle{m_rpcCablingKey, ctx};
 	const RpcCablingCondData* rpcCabling{*rpcCableHandle};
 	if(!rpcCabling){
 	  ATH_MSG_ERROR("nullptr to the read rpc cabling conditions object");
@@ -955,7 +955,7 @@ if (m_useMdtData>0) {
       }
       if (m_mdtPrepDataProvider->decode( getMdtRobList(muonRoI) ).isSuccess()) {
 	ATH_MSG_DEBUG("ROB-based seeded decoding of MDT done successfully");
-	SG::ReadCondHandle<MuonMDT_CablingMap> mdtCableHandle{m_mdtCablingKey};
+	SG::ReadCondHandle<MuonMDT_CablingMap> mdtCableHandle{m_mdtCablingKey, ctx};
 	const MuonMDT_CablingMap* mdtCabling{*mdtCableHandle};
 	if(!mdtCabling){
 	  ATH_MSG_ERROR("nullptr to the read mdt cabling conditions object");
@@ -1039,7 +1039,7 @@ if (m_useMdtData>0) {
   
   CscPrepDataContainer* cscPrds = nullptr;
   if (m_useCscData && !csc_hash_ids.empty()) {// CSC decoding
-    SG::WriteHandle<Muon::CscPrepDataContainer> wh_clusters(m_cscClustersKey);
+    SG::WriteHandle<Muon::CscPrepDataContainer> wh_clusters(m_cscClustersKey, ctx);
     cscPrds = new CscPrepDataContainer(m_idHelperSvc->cscIdHelper().module_hash_max());
     if (!wh_clusters.isPresent()) {
       /// record the container in storeGate
@@ -1132,7 +1132,7 @@ if (m_useMdtData>0) {
   // Get RPC container
   if (m_useRpcData && !rpc_hash_ids.empty()) {
     const RpcPrepDataContainer* rpcPrds = 0;
-    SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_rpcKey);
+    SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_rpcKey, ctx);
     if( !RpcCont.isValid() ) {
       msg() << MSG::ERROR << " Cannot retrieve RPC PRD Container" << endmsg;
       return HLT::NAV_ERROR;
@@ -1193,7 +1193,7 @@ if (m_useMdtData>0) {
   if (m_useMdtData && !mdt_hash_ids.empty()) {
 
     const MdtPrepDataContainer* mdtPrds = 0;
-    SG::ReadHandle<Muon::MdtPrepDataContainer> MdtCont(m_mdtKey);
+    SG::ReadHandle<Muon::MdtPrepDataContainer> MdtCont(m_mdtKey, ctx);
     if( !MdtCont.isValid() ) {
       ATH_MSG_ERROR(" Cannot retrieve MDT PRD Container");
       return HLT::NAV_ERROR;
@@ -1293,7 +1293,7 @@ if (m_useMdtData>0) {
   if (m_useTgcData && !tgc_hash_ids.empty()) {
     
     const TgcPrepDataContainer* tgcPrds = 0;
-    SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKey);
+    SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKey, ctx);
     if( !TgcCont.isValid() ) {
       ATH_MSG_ERROR(" Cannot retrieve TGC PRD Container");
       return HLT::NAV_ERROR;
@@ -1378,7 +1378,7 @@ if (m_useMdtData>0) {
 			   << " with size " << TGCcoll->size());
       }
       const TgcPrepDataContainer* tgcPrdsNextBC = 0;
-      SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKeyNextBC);
+      SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_tgcKeyNextBC, ctx);
       if( !TgcCont.isValid() ) {
 	ATH_MSG_ERROR(" Cannot retrieve TGC PRD Container");
 	return HLT::NAV_ERROR;
@@ -1470,7 +1470,7 @@ if (m_useMdtData>0) {
   if (dataPrepTime) dataPrepTime->stop();
   
   // check time-out
-  if (m_doTimeOutChecks && Athena::Timeout::instance().reached() ) {
+  if (m_doTimeOutChecks && Athena::Timeout::instance(ctx).reached() ) {
     ATH_MSG_WARNING("Timeout reached. Aborting sequence.");
     return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
   }
@@ -1607,15 +1607,15 @@ if (m_useMdtData>0) {
     output.segmentCollection=segColl.get();
     if(m_useL2Hits){
       if(mdtCols2.size()>0){
-    	m_segmentsFinderTool->findSegments(mdtCols2, cscCols, tgcCols, rpcCols, output);
+    	m_segmentsFinderTool->findSegments(mdtCols2, cscCols, tgcCols, rpcCols, output, ctx);
     	if(output.segmentCollection->size()==0){
 	  ATH_MSG_DEBUG("didn't find mstrk with l2 hits, use all mdt hits in roi");
-	  m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output);
+	  m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output, ctx);
 	}
       }
-      else m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output);
+      else m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output, ctx);
     }
-    else m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output);
+    else m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output, ctx);
     if (!output.segmentCollection) {
       if (segFinderTime) segFinderTime->stop();
       ATH_MSG_WARNING("Segment finder returned an invalid pointer for the segments");
@@ -2365,20 +2365,20 @@ void TrigMuonEFStandaloneTrackTool::handle(const Incident &inc)
 HLT::ErrorCode 
 TrigMuonEFStandaloneTrackTool::getSegments(const IRoiDescriptor* muonRoI,
 					   TrigMuonEFMonVars& monVars,
-					   std::vector<TrigTimer*>& timers )
+					   std::vector<TrigTimer*>& timers, const EventContext& ctx )
 {
   SegmentCache* cache = 0;
-  return findSegments(muonRoI, cache, monVars.segs, timers, 0 );
+  return findSegments(muonRoI, cache, monVars.segs, timers, 0, ctx );
 }
 
 //________________________________________________________________________
 HLT::ErrorCode
 TrigMuonEFStandaloneTrackTool::getSpectrometerTracks(const IRoiDescriptor* muonRoI,
 						     TrigMuonEFMonVars& monVars,
-						     std::vector<TrigTimer*>& timers )
+						     std::vector<TrigTimer*>& timers, const EventContext& ctx )
 {
   SegmentCache* cache = 0;
-  return getSpectrometerTracks( muonRoI, cache, monVars, timers );
+  return getSpectrometerTracks( muonRoI, cache, monVars, timers, ctx );
 }
 
 //________________________________________________________________________
@@ -2387,11 +2387,11 @@ TrigMuonEFStandaloneTrackTool::getExtrapolatedTracks(const IRoiDescriptor* muonR
 						     MuonCandidateCollection& candidateCollection,
 						     TrackCollection& extrapolatedTracks,
 						     TrigMuonEFMonVars& monVars,
-						     std::vector<TrigTimer*>& timers) 
+						     std::vector<TrigTimer*>& timers, const EventContext& ctx) 
 {
   SegmentCache* cache = 0;
   ATH_MSG_DEBUG("In getExtrapolatedTracks without cache");
-  return getExtrapolatedTracks( muonRoI, candidateCollection, extrapolatedTracks, cache, monVars, timers );
+  return getExtrapolatedTracks( muonRoI, candidateCollection, extrapolatedTracks, cache, monVars, timers, ctx );
 }
 
 //________________________________________________________________________

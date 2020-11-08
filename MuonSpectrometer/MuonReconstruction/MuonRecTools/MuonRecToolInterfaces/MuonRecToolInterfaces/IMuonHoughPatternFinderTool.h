@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONHOUGHPATTERNFINDERTOOL_H
@@ -40,7 +40,7 @@ namespace Muon {
           const std::vector<const CscPrepDataCollection*>& cscCols,  
           const std::vector<const TgcPrepDataCollection*>& tgcCols,  
           const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-          const MuonSegmentCombinationCollection* cscSegmentCombis ) const = 0;
+          const MuonSegmentCombinationCollection* cscSegmentCombis, const EventContext& ctx ) const = 0;
 
   };
   

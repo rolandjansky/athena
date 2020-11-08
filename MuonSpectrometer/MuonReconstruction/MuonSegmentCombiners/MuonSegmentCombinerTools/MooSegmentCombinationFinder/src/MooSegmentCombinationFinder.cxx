@@ -105,7 +105,7 @@ Muon::MooSegmentCombinationFinder::findSegments(const std::vector<const MdtPrepD
                                                 const std::vector<const CscPrepDataCollection*>& cscCols,
                                                 const std::vector<const TgcPrepDataCollection*>& tgcCols,
                                                 const std::vector<const RpcPrepDataCollection*>& rpcCols,
-                                                Muon::IMooSegmentCombinationFinder::Output&      output) const
+                                                Muon::IMooSegmentCombinationFinder::Output&      output, const EventContext& ctx) const
 {
     // Super tool has various different stages.
     // 1. 2d Csc segment making, which produces MuonSegmentCombinations that are passed to the 4D segment maker, and the
@@ -145,7 +145,7 @@ Muon::MooSegmentCombinationFinder::findSegments(const std::vector<const MdtPrepD
     if (m_doMdtSegments) {
         // search for global patterns
         auto [combis, houghData] =
-            m_houghPatternFinder->find(mdtCols, cscCols, tgcCols, rpcCols, csc4dSegmentCombinations.get());
+	  m_houghPatternFinder->find(mdtCols, cscCols, tgcCols, rpcCols, csc4dSegmentCombinations.get(), ctx);
         output.patternCombinations   = combis.release();
         output.houghDataPerSectorVec = std::move(houghData);
         printSummary("Pattern finding", output.patternCombinations);
