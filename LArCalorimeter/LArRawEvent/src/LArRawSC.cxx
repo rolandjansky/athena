@@ -35,14 +35,12 @@ LArRawSC::operator std::string() const{
 }
 
 // set method
-void LArRawSC::setEnergies(std::vector<int> energies)
+void LArRawSC::setEnergies(const std::vector<int>& energies)
 {
-  m_energies.clear();
   m_energies = energies;
 }
 
-void LArRawSC::setBCIds(std::vector<unsigned short> bcids)
+void LArRawSC::setBCIds(const std::vector<unsigned short>& bcids)
 {
-  m_BCId.clear();
   m_BCId = bcids;
 }

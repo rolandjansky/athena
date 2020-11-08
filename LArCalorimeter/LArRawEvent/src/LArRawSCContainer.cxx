@@ -24,12 +24,8 @@ LArRawSCContainer::operator std::string () const {
  
  LArRawSCContainer::const_iterator it ;
  int counter = 0 ;
- const LArRawSC * digit ;    
- 
-     for(it = this->begin() ; it != this->end() ; it++ ){ // Loop over Hits
-     
-       digit = *it ;
-             
+
+     for (const LArRawSC * digit : *this) { // Loop over Hits
        sprintf( stCounter , "%d" , counter ) ;     
         
        digitContainerString += "LArRawSC[" ;
