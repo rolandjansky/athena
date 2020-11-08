@@ -739,6 +739,13 @@ if InDetTrigFlags.loadSummaryTool():
   if not (conddb.folderRequested("/TRT/Calib/ToT/ToTValue") or \
             conddb.folderRequested("/TRT/Onl/Calib/ToT/ToTValue")):
     conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToT/ToTValue","/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
+  if InDetFlags.doTRTPIDNN():
+    if not conddb.folderRequested( "/TRT/Calib/PID_NN") or \
+           conddb.folderRequested( "/TRT/Onl/Calib/PID_NN")):
+      conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
+    # FIXME: force tag until the folder is included in global tag
+    conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
+    conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
 
   from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy,TRT_ToT_dEdx
@@ -771,9 +778,9 @@ if InDetTrigFlags.loadSummaryTool():
   InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
                                                                 TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
                                                                 TRTStrawSummaryTool= InDetTrigTRTStrawStatusSummaryTool,
-                                                                OccupancyUsedInPID = True,
                                                                 TRT_ToT_dEdx_Tool = InDetTrigTRT_ToT_dEdx,
-                                                                isData = (globalflags.DataSource == 'data'))
+                                                                MinimumTrackPtForNNPid = 2000., # default 2 GeV
+                                                                CalculateNNPid = InDetTrigFlags.doTRTPIDNN() )
 
   ToolSvc += InDetTrigTRT_ElectronPidTool
   if (InDetTrigFlags.doPrintConfigurables()):
