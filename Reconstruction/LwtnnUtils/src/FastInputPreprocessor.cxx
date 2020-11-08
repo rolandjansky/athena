@@ -1,5 +1,14 @@
-#include "LwtnnUtils/FastInputPreprocessor.h"
+// this is -*- C++ -*-
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
+// Any modifications to this file may be copied to lwtnn[1] without
+// attribution.
+//
+// [1]: https::www.github.com/lwtnn/lwtnn
+
+#include "LwtnnUtils/FastInputPreprocessor.h"
 #include "lwtnn/Exceptions.hh"
 
 namespace {
