@@ -1205,6 +1205,13 @@ class nnCutLargeD0Threshold(InDetFlagsJobProperty):
   allowedTypes = ['float']
   StoredValue  = -1.0
 
+class doTRTPIDNN(InDetFlagsJobProperty): 
+  """calculate NN-based TRT electron probability""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -2783,7 +2790,8 @@ _list_InDetJobProperties = [Enabled,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
                             nnCutLargeD0Threshold,
-                            useMuForTRTErrorScaling
+                            useMuForTRTErrorScaling,
+                            doTRTPIDNN
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

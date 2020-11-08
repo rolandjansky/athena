@@ -1003,6 +1003,8 @@ def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
 
     if 'TRT_ToT_dEdx_Tool' not in kwargs :
         kwargs = setDefaults( kwargs, TRT_ToT_dEdx_Tool = getInDetTRT_dEdxTool())
+    
+    kwargs = setDefaults( kwargs, CalculateNNPid = InDetFlags.doTRTPIDNN() )
 
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
     return InDet__TRT_ElectronPidToolRun2(name = the_name, **kwargs)
@@ -1105,7 +1107,7 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
         kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits(**id_helper_args))
 
     if 'TRT_ElectronPidTool' not in kwargs :
-        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool())
+        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool(MinimumTrackPtForNNPid = 2000.)) # default is 2GeV
 
     if 'PixelToTPIDTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelToTPIDTool        = getInDetPixelToTPIDTool())
