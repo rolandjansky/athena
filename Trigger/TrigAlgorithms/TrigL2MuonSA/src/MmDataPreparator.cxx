@@ -60,6 +60,20 @@ StatusCode TrigL2MuonSA::MmDataPreparator::prepareData(const TrigRoiDescriptor* 
   std::vector<IdentifierHash> mmHashList;
   std::vector<IdentifierHash> mmHashList_cache;
 
+  // Get MM container
+  if(m_mmPrepContainerKey.empty()) {
+    ATH_MSG_INFO("no mmPrepContainerKey");
+    return StatusCode::SUCCESS;
+  }
+  auto mmPrepContainerHandle = SG::makeHandle(m_mmPrepContainerKey);
+  if (!mmPrepContainerHandle.isValid()) {
+    ATH_MSG_ERROR("Cannot retrieve MM PRD Container key: " << m_mmPrepContainerKey.key());
+    return StatusCode::FAILURE;
+  } else {
+    ATH_MSG_DEBUG("MM PRD Container retrieved with key: " << m_mmPrepContainerKey.key());
+  }
+  const Muon::MMPrepDataContainer* mmPrds = mmPrepContainerHandle.cptr();
+
   if (m_use_RoIBasedDataAccess) {
     // ATH_MSG_ERROR("RoI based data access is not available yet");
 
@@ -75,61 +89,43 @@ StatusCode TrigL2MuonSA::MmDataPreparator::prepareData(const TrigRoiDescriptor* 
     std::vector<uint32_t> mmRobList;
     m_regionSelector->ROBIDList(*iroi, mmRobList);
 
+    if (!mmHashList.empty()) {
+
+      // Get MM collections
+      for(const IdentifierHash& id : mmHashList) {
+
+	Muon::MMPrepDataContainer::const_iterator MMcoll = mmPrds->indexFind(id);
+
+	if( MMcoll == mmPrds->end() ) {
+	  continue;
+	}
+
+	if( (*MMcoll)->size() == 0) {
+	  ATH_MSG_DEBUG("Empty MM list");
+	  continue;
+	}
+
+	mmHashList_cache.push_back(id);
+	mmCols.push_back(*MMcoll);
+      }
+    }
+
   }
   else {
     ATH_MSG_DEBUG("Use full data access");
 
-    TrigRoiDescriptor fullscan_roi( true );
-    m_regionSelector->HashIDList(fullscan_roi, mmHashList);
-    ATH_MSG_DEBUG("mmHashList.size()=" << mmHashList.size());
-
-    std::vector<uint32_t> mmRobList;
-    m_regionSelector->ROBIDList(fullscan_roi, mmRobList);
-    if(m_doDecoding) {
-      if(m_decodeBS) {
-	// if ( m_rawDataProviderTool->convert(mmRobList).isFailure()) {
-	//   ATH_MSG_WARNING("Conversion of BS for decoding of MMs failed");
-	// }
-	ATH_MSG_ERROR("Conversion of BS for decoding of MMs is not available yet");
-      }
-      if ( m_mmPrepDataProvider->decode(mmRobList).isFailure() ) {
-	ATH_MSG_WARNING("Problems when preparing MM PrepData ");
-      }
-    }//do decoding
-
-  }
-
-  if (!mmHashList.empty()) {
-
-    // Get MM container
-    const Muon::MMPrepDataContainer* mmPrds;
-    auto mmPrepContainerHandle = SG::makeHandle(m_mmPrepContainerKey);
-    mmPrds = mmPrepContainerHandle.cptr();
-    if (!mmPrepContainerHandle.isValid()) {
-      ATH_MSG_ERROR("Cannot retrieve MM PRD Container key: " << m_mmPrepContainerKey.key());
+    if(m_doDecoding || m_decodeBS) {
+      ATH_MSG_ERROR("decoding of MMs is not available yet");
       return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG("MM PRD Container retrieved with key: " << m_mmPrepContainerKey.key());
     }
 
     // Get MM collections
-    for(const IdentifierHash& id : mmHashList) {
-
-      Muon::MMPrepDataContainer::const_iterator MMcoll = mmPrds->indexFind(id);
-
-      if( MMcoll == mmPrds->end() ) {
-	continue;
-      }
-
-      if( (*MMcoll)->size() == 0) {
-	ATH_MSG_DEBUG("Empty MM list");
-	continue;
-      }
-
-      mmHashList_cache.push_back(id);
-      mmCols.push_back(*MMcoll);
+    for(const auto& mmcoll : *mmPrds) {
+      mmCols.push_back(mmcoll);
     }
+
   }
+
 
   for( const Muon::MMPrepDataCollection* mm : mmCols ){
 
