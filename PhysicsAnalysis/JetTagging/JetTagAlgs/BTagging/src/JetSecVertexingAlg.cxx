@@ -177,7 +177,7 @@ namespace Analysis {
     Trk::VxSecVertexInfoContainer::const_iterator infoSVIter = h_VxSecVertexInfoName->begin();
     for (xAOD::JetContainer::const_iterator jetIter = h_JetCollectionName->begin(); jetIter != h_JetCollectionName->end(); ++jetIter, ++infoSVIter) {
       const xAOD::Jet& jetToTag = **jetIter;
-      const Trk::VxSecVertexInfo& myVertexInfo = **infoSVIter;
+      const Trk::VxSecVertexInfo* myVertexInfo = *infoSVIter;
       const xAOD::TrackParticleContainer* theTrackParticleContainer = 0;
 
       //Get it from decor jet
@@ -205,7 +205,7 @@ namespace Analysis {
         inputIParticles.push_back(*inputTrackParticle);
       }
 
-      if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(&myVertexInfo)) {
+      if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
 	      ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
         if(basename.find("MSV") == 0){
           StatusCode sc = m_MSVvarFactory->createMSVContainer(jetToTag, myVertexInfoVKal, &(*h_BTagSVCollectionName), PrimaryVtx);
@@ -224,7 +224,7 @@ namespace Analysis {
 	          return sc;
 	        }
         }
-      } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(&myVertexInfo)) {
+      } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
         ATH_MSG_DEBUG("#BTAG# Found VxJetFitterVertexInfo information");
         SG::WriteDecorHandle<xAOD::JetContainer,std::vector<ElementLink< xAOD::BTagVertexContainer> > > h_jetSVLinkName(m_jetSVLinkName);
         std::vector< ElementLink< xAOD::BTagVertexContainer > > JFVtxLinks;
