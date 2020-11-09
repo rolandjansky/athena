@@ -131,6 +131,15 @@ CondSvc::finalize() {
 
 
 StatusCode
+CondSvc::start()
+{
+  // Call this now, in case there's no CondInputLoader.
+  ATH_CHECK( setupDone() );
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode
 CondSvc::stop() {
 
   ATH_MSG_DEBUG( "CondSvc::stop()" );
@@ -342,7 +351,10 @@ CondSvc::getValidIDs(const EventContext& ctx, DataObjIDColl& validIDs) {
 
 bool
 CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
-  std::lock_guard<mutex_t> lock(m_lock);
+  // Don't take out the lock here.
+  // In many-thread jobs, a lock here becomes heavily contended.
+  // The only potential conflict is with startConditionSetup(),
+  // which should only be called during START.
 
   EventIDBase now(ctx.eventID());
 
@@ -352,13 +364,15 @@ CondSvc::isValidID(const EventContext& ctx, const DataObjID& id) const {
     sk.erase(0,15);
   }
 
-  if (m_sgs->contains<CondContBase>( sk ) ) {
-    CondContBase *cib;
-    if (m_sgs->retrieve(cib, sk).isSuccess()) {
-      ATH_MSG_VERBOSE("CondSvc::isValidID:  now: " << ctx.eventID() << "  id : " 
-                    << id << (cib->valid(now) ? ": T" : ": F") );
-      return cib->valid(now);
-    }
+  auto it = m_condConts.find (sk);
+  if (it != m_condConts.end()) {
+    bool valid = it->second->valid (now);
+    ATH_MSG_VERBOSE("CondSvc::isValidID:  now: " << ctx.eventID() << "  id : " 
+                    << id << (valid ? ": T" : ": F") );
+    return valid;
+  }
+  else {
+    ATH_MSG_ERROR( "Cannot find CondCont " << id );
   }
 
   ATH_MSG_DEBUG("CondSvc::isValidID:  now: " << ctx.eventID() << "  id: " 
@@ -396,3 +410,20 @@ CondSvc::conditionIDs() const {
 
 }
 
+//---------------------------------------------------------------------------
+
+
+StatusCode CondSvc::setupDone()
+{
+  std::lock_guard<mutex_t> lock(m_lock);
+
+  SG::ConstIterator<CondContBase> cib, cie;
+  if (m_sgs->retrieve(cib,cie).isSuccess()) {
+    while(cib != cie) {
+      m_condConts[cib.key()] = &*cib;
+      ++cib;      
+    }
+  }
+
+  return StatusCode::SUCCESS;
+}
