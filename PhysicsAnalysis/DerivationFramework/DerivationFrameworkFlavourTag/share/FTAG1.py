@@ -167,7 +167,7 @@ FTAG1Seq += softTagAlgMedium
 # used by Tight
 SoftBJetSVFinderToolTight      = InDetVKalVxInJetFinder("SoftBJetSVFinderTight")
 ToolSvc += SoftBJetSVFinderToolTight
-SoftBJetSVFinderTool.ConeForTag = 0.6
+SoftBJetSVFinderToolTight.ConeForTag = 0.6
 
 softTagAlgTight = CfgMgr.SoftBVrt__SoftBVrtClusterTool(  "SoftBVrtClusterToolTight",
                            OutputLevel=INFO, #DEBUG
