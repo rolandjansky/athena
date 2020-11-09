@@ -199,7 +199,7 @@ private:
 
   // seperate random number generation for performance monitoring
   float generateTransverseDiffusion(float posY);
-  float getTransversDiffusion(float posY);
+  float getTransverseDiffusion(float posY);
   float getLongitudinalDiffusion(float posY);
   float getEffectiveCharge();
   float getPathLengthTraveled();

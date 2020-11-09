@@ -232,7 +232,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 			);
 
         for (auto& Electron : IonizationCluster.getElectrons()) {
-            Electron->setOffsetPosition(getTransversDiffusion(initialPosition.Y()) , getLongitudinalDiffusion(initialPosition.Y()) );
+            Electron->setOffsetPosition(getTransverseDiffusion(initialPosition.Y()) , getLongitudinalDiffusion(initialPosition.Y()) );
         }
 
 		IonizationCluster.propagateElectrons( lorentzAngle , m_driftVelocity );
@@ -339,7 +339,7 @@ float MM_StripsResponseSimulation::generateTransverseDiffusion(float posY) {
 }
 
 
-float MM_StripsResponseSimulation::getTransversDiffusion(float posY) {
+float MM_StripsResponseSimulation::getTransverseDiffusion(float posY) {
     // the random numbers are generate from the following function:
     // "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))"
     // in the range from -1 to 1
@@ -364,7 +364,7 @@ float MM_StripsResponseSimulation::getTransversDiffusion(float posY) {
 float MM_StripsResponseSimulation::getLongitudinalDiffusion(float posY) {
   float tmp = m_random->Gaus(0.0, posY*m_longitudinalDiffusionSigma);
   // We only want random numbers between -5 and 5
-  while (std::fabs(tmp) > 5) { tmp = m_random->Gaus(0.0, posY*m_longitudinalDiffusionSigma); }
+  while (std::abs(tmp) > 5) { tmp = m_random->Gaus(0.0, posY*m_longitudinalDiffusionSigma); }
   return tmp;
 }
 
