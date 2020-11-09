@@ -143,6 +143,8 @@ StatusCode HltROBDataProviderSvc::initialize()
   // Retrieve the monitoring tool
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 
+  if (m_doCostMonitoring) ATH_CHECK(m_trigCostSvcHandle.retrieve());
+
   return(StatusCode::SUCCESS);
 }
 
@@ -326,6 +328,19 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 
   // check input ROB list against cache
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
+
+  // check if event should be monitored
+  if (m_doCostMonitoring && m_trigCostSvcHandle->isMonitoredEvent(context, /*includeMultiSlot =*/ false)) {
+
+    for (const uint32_t id : robIds) {
+      auto ROBData = robmonitor::ROBDataStruct(id);
+
+      if (m_trigCostSvcHandle->monitorROS(context, std::move(ROBData)).isFailure()) {
+        ATH_MSG_WARNING("TrigCost ROS monitoring failed!");
+      }
+    }
+  }
+
 
   // no missing ROB fragments, return the found ROB fragments 
   if (robIds_missing.size() == 0) {
