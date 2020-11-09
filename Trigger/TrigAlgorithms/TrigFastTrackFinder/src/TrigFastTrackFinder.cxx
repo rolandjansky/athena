@@ -426,7 +426,7 @@ StatusCode TrigFastTrackFinder::execute() {
     }
   }
   InDet::ExtendedSiTrackMakerEventData_xk trackEventData(m_prdToTrackMap, ctx);
-  ATH_CHECK(findTracks(trackEventData, internalRoI, *inputTracks, *outputTracks, ctx));
+  ATH_CHECK(findTracks(trackEventData, internalRoI, inputTracks, *outputTracks, ctx));
 
   return StatusCode::SUCCESS;
 }
@@ -452,7 +452,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
       } 
     }
   }
-  StatusCode sc = findTracks(trackEventData, *internalRoI, *inputTracks, *outputTracks, getContext());
+  StatusCode sc = findTracks(trackEventData, *internalRoI, inputTracks, *outputTracks, getContext());
 
   HLT::ErrorCode code = HLT::OK;
   if (sc != StatusCode::SUCCESS) {
@@ -472,7 +472,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
 
 StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trackEventData,
                                            const TrigRoiDescriptor& roi,
-                                           const TrackCollection& inputTracks,
+                                           const TrackCollection* inputTracks,
                                            TrackCollection& outputTracks,
                                            const EventContext& ctx) const {
 
@@ -509,9 +509,9 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   if (m_LRTmode) {
     // In LRT mode read the input track collection and enter the clusters on track into the cluster map so these are not used for seeding
     if (!m_inputTracksKey.key().empty()) {
-      ATH_MSG_DEBUG("LRT Mode: Got input track collection with "<<inputTracks.size()<< "tracks");
+      ATH_MSG_DEBUG("LRT Mode: Got input track collection with "<<inputTracks->size()<< "tracks");
       long int trackIndex=0;
-      for (auto t:inputTracks) {
+      for (auto t:*inputTracks) {
 	updateClusterMap(trackIndex++, t, siClusterMap);
       }
     }

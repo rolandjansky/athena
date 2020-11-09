@@ -78,7 +78,7 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
-                        const TrackCollection& inputTracks,
+                        const TrackCollection* inputTracks,
                         TrackCollection& outputTracks,
                         const EventContext& ctx) const;
 
