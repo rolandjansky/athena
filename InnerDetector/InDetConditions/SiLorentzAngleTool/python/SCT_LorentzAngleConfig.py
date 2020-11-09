@@ -43,5 +43,5 @@ def SCT_LorentzAngleCfg(flags, name="SCT_SiLorentzAngleCondAlg",
     toolkwargs["DetectorName"] = "SCT"
     toolkwargs["DetEleCollKey"] = "SCT_DetectorElementCollection"
     toolkwargs["SiLorentzAngleCondData"] = "SCTSiLorentzAngleCondData"
-    acc.setPrivateTools(SiLorentzAngleTool(name, **toolkwargs))
+    acc.setPrivateTools(SiLorentzAngleTool(name="SCTLorentzAngleTool", **toolkwargs))
     return acc
