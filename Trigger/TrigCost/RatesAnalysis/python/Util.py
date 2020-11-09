@@ -18,7 +18,37 @@ def toCSV(fileName, HLTTriggers):
     rates_csv_writer.writerow(['Integrated length of all lumi blocks which contributed events to this rates prediction.','The group this chain belongs to.','Rate after applying all prescale(s) as weights.','Error on rate after applying all prescale(s) as weights','The prescale of this chain. Only displayed for simple combinations.','The CPTID or HLT Chain ID','Raw underlying statistics on the number events processed for this chain.','Raw underlying statistics on the number events passed by this chain.','Number of events in which the chain - or at least one chain in the combination - was executed.','Input rate to this chain or combination of chains. At L1 this will be the collision frequency for the bunch pattern.','Fraction of events which pass this trigger before prescale.','Fraction of events which pass this trigger after prescale.','Number of events this chain or combination passed after applying prescales as weighting factors.'])
 
     for trig in HLTTriggers:
-      rates_csv_writer.writerow([trig.name,'1','',trig.rate,trig.rateErr,trig.prescale,'ID',trig.activeRaw,trig.rate,'0','0',trig.passWeighted*trig.prescale])
+      if trig.name.startswith("HLT_e"):
+        group_name="RATE_SingleElectron"
+      elif trig.name.startswith("HLT_mu"):
+        group_name="RATE_SingleMuon"
+      elif trig.name.startswith("HLT_g"):
+        group_name="RATE_SinglePhoton"
+      elif trig.name.startswith("HLT_j"):
+        group_name="RATE_SingleJet"
+      elif trig.name.startswith("HLT_xe"):
+        group_name="RATE_MET"
+      elif trig.name.startswith("HLT_tau"):
+        group_name="RATE_SingleTau"
+      elif trig.name.startswith("HLT_2j") or trig.name.startswith("HLT_3j") or trig.name.startswith("HLT_4j") or trig.name.startswith("HLT_5j") or trig.name.startswith("HLT_6j"):
+        group_name="RATE_MultiJet"
+      elif trig.name.startswith("HLT_2e") or trig.name.startswith("HLT_3e") or trig.name.startswith("HLT_4e"):
+        group_name="RATE_MultiElectron"
+      elif trig.name.startswith("HLT_2mu_b") or trig.name.startswith("HLT_3mu_b") or trig.name.startswith("HLT_4mu_b"):
+        group_name="RATE_Bphysics"
+      elif trig.name.startswith("HLT_2mu") or trig.name.startswith("HLT_3mu") or trig.name.startswith("HLT_4mu"):
+        group_name="RATE_MultiMuon"
+      elif trig.name.startswith("HLT_2tau"):
+        group_name="RATE_MultiTau"
+      elif trig.name.startswith("HLT_2g"):
+        group_name="RATE_MultiPhoton"
+      elif trig.name.startswith("HLT_noalg"):
+        group_name="RATE_SeededStreamers"
+      else:
+        group_name="UNDEFINED"
+
+      if trig.name.startswith("HLT"):
+        rates_csv_writer.writerow([trig.name,trig.rateDenominator,group_name,trig.rate,trig.rateErr,trig.prescale,'ID',trig.activeRaw,trig.passRaw,trig.activeWeighted,float(trig.activeWeighted)/float(trig.rateDenominator),float(trig.passRaw)/float(trig.activeRaw),float(trig.passWeighted)/float(trig.activeWeighted),trig.passWeighted])
     
     
 
