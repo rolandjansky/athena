@@ -1023,13 +1023,9 @@ def getTauVertexCorrection():
 def getParticleCache():
     #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
     from RecExConfig.RecFlags import rec
-    if rec.doESD is True:
+    if rec.doESD():
         ParticleCache = "ParticleCaloExtension"
-    else : 
+    else: 
         ParticleCache = ""
     
     return ParticleCache
-
-
-
-
