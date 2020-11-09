@@ -6,6 +6,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from Digitization.PileUpMergeSvcConfigNew import PileUpMergeSvcCfg, PileUpXingFolderCfg
+from Digitization.PileUpToolsConfig import PileUpToolsCfg
 
 def getTileFirstXing():
     """Return the earliest bunch crossing time for which interactions will be sent to the TileHitVecToCntTool"""
@@ -76,8 +77,7 @@ def TileHitVecToCntToolCfg(flags, **kwargs):
     if flags.Digitization.DoXingByXingPileUp: # PileUpTool approach
         kwargs.setdefault("FirstXing", getTileFirstXing() )
         kwargs.setdefault("LastXing",  getTileLastXing() )
-
-    if flags.Detector.OverlayTile:
+    elif flags.Digitization.Pileup:
         rangetool = acc.popToolsAndMerge(TileRangeCfg(flags))
         acc.merge(PileUpMergeSvcCfg(flags, Intervals=rangetool))
 
@@ -94,7 +94,6 @@ def TileHitVecToCntCfg(flags, **kwargs):
         flags  -- Athena configuration flags (ConfigFlags)
     """
 
-    kwargs.setdefault('name', 'TileHitVecToCnt')
     acc = ComponentAccumulator()
 
     if 'DigitizationTool' not in kwargs:
@@ -102,14 +101,13 @@ def TileHitVecToCntCfg(flags, **kwargs):
         kwargs.setdefault('DigitizationTool', tool)
 
     # choose which alg to attach to, following PileUpToolsCfg
-    if flags.Digitization.DoXingByXingPileUp or flags.Detector.OverlayTile:
+    if flags.Detector.OverlayTile:
+        kwargs.setdefault('name', 'TileHitVecToCnt')
         Alg = CompFactory.TileHitVecToCnt
+        acc.addEventAlgo(Alg(**kwargs))
     else:
-        Alg = CompFactory.DigitizationAlg
-        kwargs["name"] = "StandardPileUpToolsAlg"
         kwargs["PileUpTools"] = [kwargs.pop("DigitizationTool")]
-
-    acc.addEventAlgo(Alg(**kwargs))
+        acc.merge(PileUpToolsCfg(flags, **kwargs))
 
     return acc
 
