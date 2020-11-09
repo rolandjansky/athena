@@ -3,12 +3,16 @@
 # l1 trigger to monitor: 
 met_triggers_l1_shifter = [
     "L1_XE50",
-    "L1_XE55",
+    "L1_jXENC50",
+    "L1_jXERHO50",
+    "L1_gXENC50",
+    "L1_gXEJWOJ50",
     "L1_gXERHO50",
     "L1_gXEPUFIT50",
 ]
 
 met_triggers_l1_expert = [
+    "L1_XE55",
     "L1_XE60",
     ]
 
