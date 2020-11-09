@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file RootUtils/src/Type.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -14,6 +13,7 @@
 #include "RootUtils/Type.h"
 #include "TError.h"
 #include "TROOT.h"
+#include "TInterpreter.h"
 #include <memory>
 #include <sstream>
 #include <stdexcept>
@@ -38,7 +38,9 @@ Type::Type ()
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
+    m_assign(new TMethodCall()),
     m_assignInitialized(false),
+    m_tsAssign(TMCDeleter::destroy),
     m_defElt(0)
 {
 }
@@ -53,7 +55,9 @@ Type::Type (TClass* cls)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
+    m_assign(new TMethodCall()),
     m_assignInitialized(false),
+    m_tsAssign(TMCDeleter::destroy),
     m_defElt(0)
 {
   init (cls);
@@ -69,7 +73,9 @@ Type::Type (EDataType type)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
+    m_assign(new TMethodCall()),
     m_assignInitialized(false),
+    m_tsAssign(TMCDeleter::destroy),
     m_defElt(0)
 {
   init (type);
@@ -89,7 +95,9 @@ Type::Type (const std::string& typname)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
+    m_assign(new TMethodCall()),
     m_assignInitialized(false),
+    m_tsAssign(TMCDeleter::destroy),
     m_defElt(0)
 {
   init (typname);
@@ -105,8 +113,9 @@ Type::Type (const Type& other)
     m_type (other.m_type),
     m_ti (other.m_ti),
     m_size (other.m_size),
-    m_assign (other.m_assign),
+    m_assign (std::unique_ptr<TMethodCall, TMCDeleter>(new TMethodCall(*(other.m_assign)))),
     m_assignInitialized (false),
+    m_tsAssign(TMCDeleter::destroy),
     m_defElt (0)
 {
   // Don't copy m_tsAssign.
@@ -127,7 +136,7 @@ Type& Type::operator= (const Type& other)
     m_type = other.m_type;
     m_ti = other.m_ti;
     m_size = other.m_size;
-    m_assign = other.m_assign;
+    *m_assign = *(other.m_assign);
     m_assignInitialized = false;
     if (m_defElt)
       destroy (m_defElt);
@@ -216,7 +225,7 @@ void Type::init (const std::string& typname)
       type = kULong_t;
     else if (sizeof(unsigned long long) == 8)
       type = kULong64_t;
-        
+
   }
   else if (typname == "int64_t") {
     if (sizeof(long) == 8)
@@ -513,7 +522,7 @@ void Type::swap (void* a, size_t a_index,
  */
 void Type::swap (void* a, void* b) const
 {
-  if (m_cls && m_assign.IsValid()) {
+  if (m_cls && m_assign->IsValid()) {
     void* tmp = create();
     assign (tmp, a);
     assign (a, b);
@@ -574,8 +583,8 @@ bool Type::checkAssign() const
       std::string proto = "const ";
       proto += m_cls->GetName();
       proto += "&";
-      m_assign.InitWithPrototype (m_cls, "operator=", proto.c_str());
-      if (!m_assign.IsValid()) {
+      m_assign->InitWithPrototype (m_cls, "operator=", proto.c_str());
+      if (!m_assign->IsValid()) {
         ::Warning ("RootUtils::Type",
                    "Can't get assignent op for type `%s'.",
                    m_cls->GetName());
@@ -584,12 +593,29 @@ bool Type::checkAssign() const
     }
   }
 
-  if (!m_assign.IsValid()) return false;
+  if (!m_assign->IsValid()) return false;
 
-  if (m_tsAssign.get() == 0 || m_tsAssign->GetMethod() != m_assign.GetMethod())
-    m_tsAssign.reset (new TMethodCall (m_assign));
+  if (m_tsAssign.get() == 0 || m_tsAssign->GetMethod() != m_assign->GetMethod())
+    m_tsAssign.reset (new TMethodCall (*m_assign));
 
   return true;
+}
+
+
+void Type::TMCDeleter::destroy(TMethodCall* ptr)
+{
+  // Don't try to run the TMethodCall destructor if gCling is gone.
+  TInterpreter* cling = gCling;
+  if (cling) {
+    delete ptr;
+  }
+}
+
+
+void Type::TMCDeleter::operator() (void* ptr)
+{
+  // Use the static function for the heavy lifting.
+  destroy(static_cast<TMethodCall*>(ptr));
 }
 
 

@@ -1,11 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataVector.h 800990 2017-03-19 23:15:21Z ssnyder $
-
 /**
  * @file  AthContainers/DataVector.h
  * @author scott snyder, Paolo Calafiura, etc
@@ -42,8 +39,8 @@
  * Beware of ownership issues when you modify a @c DataVector.
  * Obviously you should not delete explicitly a @c DataVector element.
  * A @c DataVector should never have two elements pointing to the same object.
- * This may seem obvious but certain std algorithms (e.g. @c remove_if) may 
- * leave a @c DataVector with two copies of the same element in the 
+ * This may seem obvious but certain std algorithms (e.g. @c remove_if) may
+ * leave a @c DataVector with two copies of the same element in the
  * "left-over" range.  To avoid a crash when clearing the vector (e.g. in the
  * destructor we have introduced a @f$n\log n@f$ helper function that searches
  * and removes duplicates in the @c DataVector.  This is used by the destructor
@@ -51,7 +48,7 @@
  * in the future to improve performance, do not rely on this functionality
  * and do avoid introducing duplicated elements in a @c DataVector.
  *
- * All these cautions do not apply when a @c DataVector it is created with 
+ * All these cautions do not apply when a @c DataVector it is created with
  * the flag @c SG::VIEW_ELEMENTS (see <code>enum OwnershipPolicy</code>)
  * and hence does not own its elements. This is typically used
  * to have @c DataVector elements allocated by @c DataPool.
@@ -986,7 +983,7 @@ public:
    * If the container is shrunk, elements will be deleted as with @c erase().
    */
   void resize(size_type sz);
-  
+
 
   /**
    * @fn size_type capacity() const
@@ -1041,7 +1038,7 @@ public:
    * @brief Access an element, as an rvalue.
    * @param n Array index to access.
    * @return The element at @a n.
-   * 
+   *
    * This is a synonym for operator[] const, to be used when calling from root
    * (where we can't readily call just the const version of a method).
    */
@@ -1529,7 +1526,7 @@ public:
   //========================================================================
   /** @name Non-standard operations. */
   //@{
-  
+
 
   /**
    * @brief Swap one element out of the container.
@@ -1583,7 +1580,7 @@ public:
    *
    * Reference @a oldElem is initialized with element @a index of the
    * collection (no bounds checking).  Then element @a index is set
-   * to @c newElem.  
+   * to @c newElem.
    *
    * The collection must own its elements to use its interface.
    * The collection will take ownership of @c newElem and will return
@@ -1926,10 +1923,6 @@ private:
   /// We set this to true in the top-level constructor; the constructor
   /// then calls @c clearMostDerived on the base classes.
   SG::IsMostDerivedFlag m_isMostDerived;
-
-
-  /// The DV/DL info struct for this class.
-  static DataModel_detail::DVLInfo<DataVector<T> > s_info;
 
 
   typedef typename
@@ -2286,7 +2279,7 @@ public:
    * @brief Access an element, as an rvalue.
    * @param n Array index to access.
    * @return The element at @a n.
-   * 
+   *
    * This is a synonym for operator[] const, to be used when calling from root
    * (where we can't readily call just the const version of a method).
    */
@@ -3174,10 +3167,6 @@ private:
   SG::IsMostDerivedFlag m_isMostDerived;
 
 
-  /// The DV/DL info struct for this class.
-  static DataModel_detail::DVLInfo<DataVector<T> > s_info;
-
-
   typedef typename
     ROOT_SELECTION_NS::DataVector<T, DataVector_BASE>::self self;
 };
@@ -3288,7 +3277,7 @@ public:
    /// Automatically generate dictionary for contained vector
     //MN: this causes massive dictionary duplication.  Disabling for now.
    // ROOT_SELECTION_NS::MemberAttributes< kAutoSelected > m_pCont;
-#endif  
+#endif
    /// Declare the automatically created variable transient
    ROOT_SELECTION_NS::MemberAttributes< kTransient > m_isMostDerived;
 

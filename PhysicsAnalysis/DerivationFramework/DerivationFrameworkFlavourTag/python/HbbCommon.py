@@ -690,3 +690,18 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):
    BTaggingFlags.CalibrationChannelAliases += [ jetname[:-4].replace("PV0", "")+"->AntiKt4EMTopo" for jetname in ExKtJetCollection__SubJet ]
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterBtag", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
+
+def addExKtDoubleTaggerScore(sequence, 
+                             ToolSvc,
+                             sec_vtx_collection = 'SoftBVrtClusterTool_MSVTight_Vertices',
+                             nn_file_name = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/BTagging/DeepsetXbbTagger/202010/nn-config.json',
+                             nn_config_file = 'BoostedJetTaggers/DeepsetXbbTagger/test_config.json'):
+
+    dexter_tagger_name = 'DexterTool' 
+    if not hasattr(ToolSvc, dexter_tagger_name):
+        dexterTagger = CfgMgr.DexterTool(
+            dexter_tagger_name,
+            KerasConfigFile = nn_file_name,
+            ConfigFile = nn_config_file,
+            secvtxCollection = sec_vtx_collection)
+        ToolSvc += dexterTagger

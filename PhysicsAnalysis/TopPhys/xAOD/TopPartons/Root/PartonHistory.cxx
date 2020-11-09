@@ -467,7 +467,7 @@ namespace xAOD {
   }
 
   // Initialize variables for thqtautau events
-  void PartonHistory::IniVarThqtautau() {
+  void PartonHistory::IniVarThq() {
     //t variables
     this->auxdecor< float >("MC_t_beforeFSR_m") = -1000;
     this->auxdecor< float >("MC_t_beforeFSR_pt") = -1000;
@@ -512,79 +512,47 @@ namespace xAOD {
     this->auxdecor< float >("MC_Higgs_eta") = -1000;
     this->auxdecor< float >("MC_Higgs_phi") = -1000;
 
-    this->auxdecor< float >("MC_Tau1_from_Higgs_m") = -1000;
-    this->auxdecor< float >("MC_Tau1_from_Higgs_pt") = -1000;
-    this->auxdecor< float >("MC_Tau1_from_Higgs_eta") = -1000;
-    this->auxdecor< float >("MC_Tau1_from_Higgs_phi") = -1000;
-    this->auxdecor< int >("MC_Tau1_from_Higgs_pdgId") = -9999;
+    this->auxdecor< float >("MC_Higgs_decay1_m") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_pt") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_phi") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_eta") = -1000;
+    this->auxdecor< int >("MC_Higgs_tau_decay1_isHadronic") = -1000;
+    this->auxdecor< int >("MC_Higgs_decay1_pdgId") = -1000;
 
-    this->auxdecor< float >("MC_Tau2_from_Higgs_m") = -1000;
-    this->auxdecor< float >("MC_Tau2_from_Higgs_pt") = -1000;
-    this->auxdecor< float >("MC_Tau2_from_Higgs_eta") = -1000;
-    this->auxdecor< float >("MC_Tau2_from_Higgs_phi") = -1000;
-    this->auxdecor< int >("MC_Tau2_from_Higgs_pdgId") = -9999;
-    
-    this->auxdecor< float >("MC_El1_from_Higgs_m") = -1000;
-    this->auxdecor< float >("MC_El1_from_Higgs_pt") = -1000;
-    this->auxdecor< float >("MC_El1_from_Higgs_eta") = -1000;
-    this->auxdecor< float >("MC_El1_from_Higgs_phi") = -1000;
-    this->auxdecor< int >("MC_El1_from_Higgs_pdgId") = -9999;
-    this->auxdecor< int >("MC_El1_from_Higgs_status") = -9999;
-    
-    
-    this->auxdecor< float >("MC_El2_from_Higgs_m") = -1000;
-    this->auxdecor< float >("MC_El2_from_Higgs_pt") = -1000;
-    this->auxdecor< float >("MC_El2_from_Higgs_eta") = -1000;
-    this->auxdecor< float >("MC_El2_from_Higgs_phi") = -1000;
-    this->auxdecor< int >("MC_El2_from_Higgs_pdgId") = -9999;
-    this->auxdecor< int >("MC_El2_from_Higgs_status") = -9999;
-    
+    this->auxdecor< float >("MC_Higgs_decay2_m") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_pt") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_phi") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_eta") = -1000;
+    this->auxdecor< int >("MC_Higgs_tau_decay2_isHadronic") = -1000;
+    this->auxdecor< int >("MC_Higgs_decay2_pdgId") = -1000;
 
+    this->auxdecor< float >("MC_Higgs_decay1_from_decay1_m") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_from_decay1_pt") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_from_decay1_phi") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_from_decay1_eta") = -1000;
+    this->auxdecor< int >("MC_Higgs_tau_decay1_from_decay1_isHadronic") = -1000;
+    this->auxdecor< int >("MC_Higgs_decay1_from_decay1_pdgId") = -1000;
 
-    this->auxdecor< float >("MC_nu_from_Tau1_m") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau1_pt") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau1_eta") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau1_phi") = -1000;
-    this->auxdecor< int >("MC_nu_from_Tau1_pdgId") = -9999;
+    this->auxdecor< float >("MC_Higgs_decay2_from_decay1_m") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_from_decay1_pt") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_from_decay1_phi") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_from_decay1_eta") = -1000;
+    this->auxdecor< int >("MC_Higgs_tau_decay2_from_decay1_isHadronic") = -1000;
+    this->auxdecor< int >("MC_Higgs_decay2_from_decay1_pdgId") = -1000;
 
-    this->auxdecor< float >("MC_nu_from_Tau2_m") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau2_pt") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau2_eta") = -1000;
-    this->auxdecor< float >("MC_nu_from_Tau2_phi") = -1000;
-    this->auxdecor< int >("MC_nu_from_Tau2_pdgId") = -9999;
+    this->auxdecor< float >("MC_Higgs_decay1_from_decay2_m") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_from_decay2_pt") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_from_decay2_phi") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay1_from_decay2_eta") = -1000;
+    this->auxdecor< int >("MC_Higgs_tau_decay1_from_decay2_isHadronic") = -1000;
+    this->auxdecor< int >("MC_Higgs_decay1_from_decay2_pdgId") = -1000;
 
-    this->auxdecor< float >("MC_Wdecay1_from_Tau1_m") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau1_pt") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau1_eta") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau1_phi") = -1000;
-    this->auxdecor< int >("MC_Wdecay1_from_Tau1_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_Wdecay2_from_Tau1_m") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau1_pt") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau1_eta") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau1_phi") = -1000;
-    this->auxdecor< int >("MC_Wdecay2_from_Tau1_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_Wdecay1_from_Tau2_m") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau2_pt") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau2_eta") = -1000;
-    this->auxdecor< float >("MC_Wdecay1_from_Tau2_phi") = -1000;
-    this->auxdecor< int >("MC_Wdecay1_from_Tau2_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_Wdecay2_from_Tau2_m") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau2_pt") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau2_eta") = -1000;
-    this->auxdecor< float >("MC_Wdecay2_from_Tau2_phi") = -1000;
-    this->auxdecor< int >("MC_Wdecay2_from_Tau2_pdgId") = -9999;
-
-    this->auxdecor< float >("MC_b_m") = -1000;
-    this->auxdecor< float >("MC_b_pt") = -1000;
-    this->auxdecor< float >("MC_b_eta") = -1000;
-    this->auxdecor< float >("MC_b_phi") = -1000;
-    this->auxdecor< int >("MC_b_pdgId") = -9999;
-
-    this->auxdecor< int >("MC_hadr_Tau_Jet1") = 0;
-    this->auxdecor< int >("MC_hadr_Tau_Jet2") = 0;
+    this->auxdecor< float >("MC_Higgs_decay2_from_decay2_m") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_from_decay2_pt") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_from_decay2_phi") = -1000;
+    this->auxdecor< float >("MC_Higgs_decay2_from_decay2_eta") = -1000;
+    this->auxdecor< int >("MC_Higgs_tau_decay2_from_decay2_isHadronic") = -1000;
+    this->auxdecor< int >("MC_Higgs_decay2_from_decay2_pdgId") = -1000;
   }
   
   // Initialize variables for tZq events

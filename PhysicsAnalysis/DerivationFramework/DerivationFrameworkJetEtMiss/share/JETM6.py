@@ -224,6 +224,37 @@ JETM6TauTPThinningTool = DerivationFramework__TauTrackParticleThinning( name    
 ToolSvc += JETM6TauTPThinningTool
 thinningTools.append(JETM6TauTPThinningTool)
 
+
+# Tracks and CaloClusters associated with UFOs
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__UFOTrackParticleThinning
+JETM6EMUFOCSSKTPThinningTool = DerivationFramework__UFOTrackParticleThinning(name                   = "JETM6UFOCSSKTPThinningTool",
+                                                                             ThinningService        = "JETM6ThinningSvc",
+                                                                             JetKey                 = "AntiKt10UFOCSSKJets",
+                                                                             UFOKey                 = "UFOCSSK",
+                                                                             InDetTrackParticlesKey = "InDetTrackParticles",
+                                                                             PFOCollectionSGKey     = "JetETMiss",
+                                                                             AdditionalPFOKey       = ["CSSK"])
+
+ToolSvc += JETM6EMUFOCSSKTPThinningTool
+thinningTools.append(JETM6EMUFOCSSKTPThinningTool)
+
+#====================================================================
+# Thin TruthParticles for truth jet constituents
+#====================================================================
+
+if DerivationFrameworkHasTruth:
+  from DerivationFrameworkJetEtMiss.DerivationFrameworkJetEtMissConf import DerivationFramework__ViewContainerThinning
+  JETM6TruthJetInputThin = DerivationFramework__ViewContainerThinning( name = "JETM6ViewContThinning",
+                                                                       ThinningService        = "JETM6ThinningSvc",
+                                                                       SourceContainer = "TruthParticles",
+                                                                       ViewContainer = "JetInputTruthParticles",
+                                                                       ParticleType = 201, # truthParticles
+                                                                       ApplyAnd = False)
+
+  ToolSvc += JETM6TruthJetInputThin
+  thinningTools.append(JETM6TruthJetInputThin)
+
+
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
@@ -320,6 +351,7 @@ for alg in largeRJetAlgs:
 if DerivationFrameworkHasTruth:
   for alg in largeRJetAlgs:
     addJetTruthLabel(jetalg=alg,sequence=jetm6Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+    addJetTruthLabel(jetalg=alg,sequence=jetm6Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Precision")
 
 addVRJets(jetm6Seq, largeRColls = largeRJetCollections)
 addVRJets(jetm6Seq, largeRColls = largeRJetCollections, training='201903')
@@ -373,12 +405,11 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "MET_Reference_AntiKt4EMPFlow",
                                         "AntiKt2TruthJets",
                                         "AntiKt2LCTopoJets",
-                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets","AntiKt4TruthJets",
+                                        "AntiKt4EMTopoJets","AntiKt4EMPFlowJets",
+                                        "AntiKt4TruthJets","AntiKt4TruthWZJets","AntiKt4TruthDressedWZJets",
                                         "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCHSTrimmedPtFrac5SmallR20Jets",
                                         "AntiKt10UFOCSSKTrimmedPtFrac5SmallR20Jets",
-                                        "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
-                                        "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets",
                                         "AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5NinfJets",
                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
                                         "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
@@ -393,12 +424,22 @@ JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         ]
 JETM6SlimmingHelper.AllVariables = [
   "TruthEvents",
-  "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"
+  "Kt4EMTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape",
+  "UFOCSSK",
+  "TruthParticles",
+  "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
+  "AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5Jets"
   ]
 
+JETM6SlimmingHelper.AppendToDictionary["UFOCSSK"] = "xAOD::TrackCaloClusterContainer"
+JETM6SlimmingHelper.AppendToDictionary["UFOCSSKAux"] = "xAOD::TrackCaloClusterAuxContainer"
+
 JETM6SlimmingHelper.ExtraVariables  = ['CaloCalTopoClusters.calE.calEta.calM.calPhi.CENTER_MAG']
+#JETM6SlimmingHelper.ExtraVariables += ['UFOCSSK.pt.eta.phi.taste']
 JETM6SlimmingHelper.ExtraVariables += ['Electrons.'+NewTrigVars["Electrons"],'Muons.'+NewTrigVars["Muons"],'Photons.'+NewTrigVars["Photons"]]
 JETM6SlimmingHelper.ExtraVariables += [
+    'AntiKt10TruthJets.Split12.Split23.SizeParameter',
+    'AntiKt10UFOCSSKJets.SizeParameter',
     'HLT_xAOD__JetContainer_a4tcemsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.BchCorrCell.CentroidR.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.Timing.eta.kinematics.m.phi.pt',
     'HLT_xAOD__JetContainer_a4tcemsubjesISFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.BchCorrCell.CentroidR.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.Timing.eta.kinematics.m.phi.pt',
     'HLT_xAOD__JetContainer_a10tclcwsubjesFS.ActiveArea.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.BchCorrCell.CentroidR.DetectorEta.EMFrac.EnergyPerSampling.FracSamplingMax.FracSamplingMaxIndex.HECFrac.HECQuality.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_m.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_m.JetEMScaleMomentum_phi.JetEMScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_m.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_m.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_pt.LArQuality.N90Constituents.NegativeE.Timing.eta.kinematics.m.phi.pt',

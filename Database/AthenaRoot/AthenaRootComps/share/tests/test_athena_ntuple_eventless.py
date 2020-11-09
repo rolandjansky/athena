@@ -29,7 +29,7 @@ theApp.EvtMax = 5
 #--------------------------------------------------------------
 
 #svcMgr.EventSelector.InputCollections = [ "root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/small.ntuple.0.root" ]
-svcMgr.EventSelector.InputCollections = [ "root://eosatlas//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root"]
+svcMgr.EventSelector.InputCollections = [ "root://eosatlas.cern.ch//eos/atlas/user/b/binet/utests/utests/filter-d3pd/ntuple.0.root"]
 svcMgr.EventSelector.TupleName = "egamma"
 svcMgr.EventSelector.CreateEventInfo=True
 #--------------------------------------------------------------

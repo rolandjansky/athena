@@ -70,8 +70,6 @@ MuonQuality Medium
 MuonQualityLoose Medium
 MuonIsolation FCTight_FixedRad
 MuonIsolationLoose None
-doExtraSmearing False
-do2StationsHighPt False
 
 ### Jet configuration
 JetPt 25000

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODConfigTool.cxx 673576 2015-06-09 08:44:29Z krasznaa $
@@ -21,12 +21,29 @@
 
 namespace TrigConf {
 
+   struct xAODConfigTool::Impl
+   {
+      /// The "translated" LVL1 configuration object
+      CTPConfig m_ctpConfig;
+      /// The "translated" HLT configuration object
+      HLTChainList m_chainList;
+      /// The "translated" HLT configuration object
+      HLTSequenceList m_sequenceList;
+      /// The "translated" bunch group set object
+      BunchGroupSet m_bgSet;
+   };
+
    xAODConfigTool::xAODConfigTool( const std::string& name )
       : asg::AsgMetadataTool( name ),
-        m_tmc( 0 ), m_menu( 0 ) {
+        m_tmc( 0 ), m_menu( 0 ),
+        m_impl (std::make_unique<Impl>()) {
 
       declareProperty( "EventObjectName", m_eventName = "TrigConfKeys" );
       declareProperty( "MetaObjectName", m_metaName = "TriggerMenu" );
+   }
+
+   xAODConfigTool::~xAODConfigTool()
+   {
    }
 
    StatusCode xAODConfigTool::initialize() {
@@ -52,7 +69,7 @@ namespace TrigConf {
       }
 
       // Return the pointer:
-      return &m_ctpConfig;
+      return &m_impl->m_ctpConfig;
    }
 
    const BunchGroupSet* xAODConfigTool::bunchGroupSet() const {
@@ -64,7 +81,7 @@ namespace TrigConf {
       }
 
       // Return the pointer:
-      return &m_bgSet;
+      return &m_impl->m_bgSet;
    }
 
    uint32_t xAODConfigTool::lvl1PrescaleKey() const {
@@ -88,7 +105,7 @@ namespace TrigConf {
       }
 
       // Return the pointer:
-      return &m_chainList;
+      return &m_impl->m_chainList;
    }
 
    const HLTChainList& xAODConfigTool::chains() const {
@@ -100,7 +117,7 @@ namespace TrigConf {
       }
 
       // Return the object:
-      return m_chainList;
+      return m_impl->m_chainList;
    }
 
    const HLTSequenceList* xAODConfigTool::sequenceList() const {
@@ -112,7 +129,7 @@ namespace TrigConf {
       }
 
       // Return the pointer:
-      return &m_sequenceList;
+      return &m_impl->m_sequenceList;
    }
 
    const HLTSequenceList& xAODConfigTool::sequences() const {
@@ -124,7 +141,7 @@ namespace TrigConf {
       }
 
       // Return the object:
-      return m_sequenceList;
+      return m_impl->m_sequenceList;
    }
 
    uint32_t xAODConfigTool::masterKey() const {
@@ -173,8 +190,10 @@ namespace TrigConf {
       // Point the menu pointer to the first element by default:
       m_menu = m_tmc->at( 0 );
       // Cache the menu's configuration:
-      ATH_CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList,
-                                     m_sequenceList, m_bgSet, msg() ) );
+      ATH_CHECK( prepareTriggerMenu( m_menu, m_impl->m_ctpConfig,
+                                     m_impl->m_chainList,
+                                     m_impl->m_sequenceList,
+                                     m_impl->m_bgSet, msg() ) );
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -208,8 +227,10 @@ namespace TrigConf {
          // Remember it's pointer:
          m_menu = *menu_itr;
          // Cache the menu's configuration:
-         ATH_CHECK( prepareTriggerMenu( m_menu, m_ctpConfig, m_chainList,
-                                        m_sequenceList, m_bgSet, msg() ) );
+         ATH_CHECK( prepareTriggerMenu( m_menu, m_impl->m_ctpConfig,
+                                        m_impl->m_chainList,
+                                        m_impl->m_sequenceList,
+                                        m_impl->m_bgSet, msg() ) );
          // We're done:
          return StatusCode::SUCCESS;
       }

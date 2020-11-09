@@ -122,6 +122,11 @@ def setup(HIGG4DxName, HIGG4DxStream, HIGG4DxSlimmingHelper):
         ExtraContentTaus[0] += ".centFrac.ChPiEMEOverCaloEME.dRmax.etOverPtLeadTrk.EMPOverTrkSysP.innerTrkAvgDist.ipSigLeadTrk.absipSigLeadTrk.massTrkSys.mEflowApprox.ptRatioEflowApprox.SumPtTrkFrac.trFlightPathSig"
         ExtraContentTaus += ["TauTracks.CaloSamplingEtaEM.CaloSamplingEtaHad.CaloSamplingPhiEM.CaloSamplingPhiHad"]
 
+    if HIGG4DxName in ['HIGG4D2', 'HIGG4D3']:
+        # further extra content for CP analysis
+        ExtraContentTaus[0] += ".pt.eta.phi.m.tauTrackLinks.jetLink.vertexLink.secondaryVertexLink.hadronicPFOLinks.shotPFOLinks.chargedPFOLinks.neutralPFOLinks.pi0PFOLinks.protoChargedPFOLinks.protoNeutralPFOLinks.protoPi0PFOLinks.charge.isTauFlags.BDTJetScore.BDTEleScore.conversionTrackLinks.charged_PFOLinks.neutral_PFOLinks.pi0_PFOLinks.cellBased_Charged_PFOLinks.cellBased_Neutral_PFOLinks.cellBased_Pi0_PFOLinks.eflowRec_Charged_PFOLinks.eflowRec_Neutral_PFOLinks.eflowRec_Pi0_PFOLinks.shot_PFOLinks.ptFinalCalib.etaFinalCalib.phiFinalCalib.mFinalCalib.ele_match_lhscore.ele_olr_pass.electronLink.EleMatchLikelihoodScore.pt_combined.eta_combined.phi_combined.m_combined.BDTJetScoreSigTrans.BDTEleScoreSigTrans.PanTau_DecayMode.RNNJetScore.RNNJetScoreSigTrans.seedJetWidth.seedJetJvt.BDTEleScore_retuned.BDTEleScoreSigTrans_retuned.BDTEleLoose_retuned.BDTEleMedium_retuned.BDTEleTight_retuned.seedTrackWidthPt1000.truthParticleLink.pi0Links"
+        ExtraContentTaus += [ "TauTruthParticles.IsHadronicTau.originalTruthParticle.numCharged.numChargedPions.numNeutral.numNeutralPions.pt_vis.eta_vis.phi_vis.m_vis.pt_prompt.eta_prompt.phi_prompt.m_prompt.pt_vis_charged.eta_vis_charged.phi_vis_charged.m_vis_charged.pt_vis_neutral.eta_vis_neutral.phi_vis_neutral.m_vis_neutral.DecayModeVector" ]
+
 
     ExtraTausTruth = [
         "TauJets.IsTruthMatched.truthParticleLink.truthJetLink"

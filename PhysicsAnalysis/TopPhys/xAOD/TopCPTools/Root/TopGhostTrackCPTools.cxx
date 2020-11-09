@@ -30,7 +30,7 @@ namespace top {
       return StatusCode::SUCCESS;
     }
 
-    if (!m_config->useJets() || !m_config->useJetGhostTrack()) {
+    if ((!m_config->useJets() || !m_config->useJetGhostTrack()) && (!m_config->useLargeRJets() || !m_config->useLargeRJetGhostTrack() )) {
       ATH_MSG_INFO(
         "top::GhostTrackCPTools: no need to initialise anything since not using jets or tracks ghost-matched to jets");
       return StatusCode::SUCCESS;
@@ -73,13 +73,26 @@ namespace top {
 
   StatusCode GhostTrackCPTools::setupSelectionTool() {
    
-    if (asg::ToolStore::contains<InDet::InDetTrackSelectionTool>(m_TrkSelName)) {
-      m_trackseltool = asg::ToolStore::get<InDet::InDetTrackSelectionTool>(m_TrkSelName);
-    } else {
-      auto selTool = std::make_unique<InDet::InDetTrackSelectionTool>( m_TrkSelName ,m_config->ghostTracksQuality());    
-      top::check(selTool -> initialize(), "Failed to initialize InDetTrackSelectionTool for GA tracks");
-      m_trackseltool = selTool.release();
-      ATH_MSG_INFO("Creating selection tool " + m_TrkSelName);
+    if(m_config->useJets() && m_config->useJetGhostTrack()) {
+        if (asg::ToolStore::contains<InDet::InDetTrackSelectionTool>(m_TrkSelName)) {
+            m_trackseltool = asg::ToolStore::get<InDet::InDetTrackSelectionTool>(m_TrkSelName);
+        } else {
+            auto selTool = std::make_unique<InDet::InDetTrackSelectionTool>( m_TrkSelName ,m_config->ghostTracksQuality());    
+            top::check(selTool -> initialize(), "Failed to initialize InDetTrackSelectionTool for GA tracks");
+            m_trackseltool = selTool.release();
+            ATH_MSG_INFO("Creating selection tool " + m_TrkSelName);
+        }
+    }
+    
+    if(m_config->useLargeRJets() && m_config->useLargeRJetGhostTrack()) {
+        if (asg::ToolStore::contains<InDet::InDetTrackSelectionTool>(m_TrkSelNameLargeR)) {
+            m_trackseltoolLargeR = asg::ToolStore::get<InDet::InDetTrackSelectionTool>(m_TrkSelNameLargeR);
+        } else {
+            auto selTool = std::make_unique<InDet::InDetTrackSelectionTool>( m_TrkSelNameLargeR ,m_config->ghostTracksQualityLargeR());    
+            top::check(selTool -> initialize(), "Failed to initialize InDetTrackSelectionTool for GA tracks in LargeR jets");
+            m_trackseltoolLargeR = selTool.release();
+            ATH_MSG_INFO("Creating selection tool " + m_TrkSelNameLargeR);
+        } 
     }
     
     return StatusCode::SUCCESS;

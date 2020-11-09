@@ -16,11 +16,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODJet
                           GaudiKernel
+                          Tools/PathResolver
                           Generators/GeneratorObjects
                           Reconstruction/RecoTools/ITrackToVertex
+                          Reconstruction/MVAUtils
                           DetectorDescription/AtlasDetDescr
                           InnerDetector/InDetConditions/InDetConditionsSummaryService
                           InnerDetector/InDetDetDescr/InDetIdentifier
+			  InnerDetector/InDetConditions/InDetBeamSpotService
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkExtrapolation/TrkExInterfaces
@@ -43,7 +46,7 @@ atlas_add_library( VrtSecInclusiveLib
                    src/*.cxx
                    PUBLIC_HEADERS VrtSecInclusive
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${LAPACK_INCLUDE_DIRS} ${BLAS_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTracking xAODTruth xAODMuon xAODEgamma xAODJet GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces StoreGateLib SGtests TrkVKalVrtFitterLib AtlasDetDescr InDetIdentifier
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES} AthenaBaseComps xAODEventInfo xAODTracking xAODTruth xAODMuon xAODEgamma xAODJet GaudiKernel GeneratorObjects ITrackToVertex TrkDetDescrInterfaces TrkSurfaces TrkExInterfaces TrkToolInterfaces TrkVertexFitterInterfaces StoreGateLib SGtests TrkVKalVrtFitterLib AtlasDetDescr InDetIdentifier MVAUtils PathResolver
                    PRIVATE_LINK_LIBRARIES xAODEventInfo TrkTrackSummary VxVertex )
 
 atlas_add_component( VrtSecInclusive

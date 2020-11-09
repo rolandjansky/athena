@@ -21,7 +21,9 @@
 #include "JetUncertainties/PtUncertaintyComponent.h"
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
 #include "JetUncertainties/PtLogPtMassForTagSFUncertaintyComponent.h"
+#include "JetUncertainties/PtAbsMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassUncertaintyComponent.h"
+#include "JetUncertainties/PtAbsMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/ELogMassUncertaintyComponent.h"
 #include "JetUncertainties/ELogMassEtaUncertaintyComponent.h"
@@ -1180,6 +1182,8 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             case CompParametrization::PtEta:
             case CompParametrization::PtAbsEta:
                 return new PtEtaUncertaintyComponent(component);
+            case CompParametrization::PtAbsMass:
+                return new PtAbsMassUncertaintyComponent(component);
             case CompParametrization::PtMass:
                 return new PtMassUncertaintyComponent(component);
             case CompParametrization::PtLOGPtMassForTagSF:
@@ -1187,6 +1191,9 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
                 return new PtMassEtaUncertaintyComponent(component);
+            case CompParametrization::PtAbsMassEta:
+            case CompParametrization::PtAbsMassAbsEta:
+                return new PtAbsMassEtaUncertaintyComponent(component);
             case CompParametrization::eLOGmOe:
                 return new ELogMassUncertaintyComponent(component);
             case CompParametrization::eLOGmOeEta:
@@ -1835,6 +1842,9 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4ve
         case CompParametrization::PtAbsEta:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
             break;
+        case CompParametrization::PtAbsMass:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale);
+            break;
         case CompParametrization::PtMass:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
             break;
@@ -1846,6 +1856,12 @@ double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4ve
             break;
         case CompParametrization::PtMassAbsEta:
             value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::PtAbsMassEta:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale,jet4vec.Eta());
+            break;
+        case CompParametrization::PtAbsMassAbsEta:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale,fabs(jet4vec.Eta()));
             break;
         case CompParametrization::eLOGmOe:
             value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()));

@@ -33,6 +33,7 @@ atlas_depends_on_subdirs(
    Generators/TruthRivetTools
    Generators/TruthUtils
    Tools/PathResolver
+   Reconstruction/VKalVrt/VrtSecInclusive
    PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
    PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces
    PhysicsAnalysis/AnalysisCommon/PMGOverlapRemovalTools
@@ -53,7 +54,7 @@ atlas_add_component( DerivationFrameworkHiggs
    xAODEgamma xAODJet xAODMuon xAODTracking xAODTruth FourMomUtils TrkVKalVrtFitterLib
    TrkVertexFitterInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib xAODEventInfo
    GaudiKernel VxVertex xAODTrigger PhotonVertexSelection GammaORToolsLib ExpressionEvaluationLib AthContainers
-   TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib PFlowUtilsLib JpsiUpsilonToolsLib)
+   TruthConvertersLib TruthRivetToolsLib TruthUtils PathResolver EgammaAnalysisInterfacesLib VrtSecInclusive ElectronPhotonSelectorToolsLib PFlowUtilsLib JpsiUpsilonToolsLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

@@ -136,6 +136,11 @@ namespace top {
                          2.5,topConfig->ghostTracksVertexAssociation(),topConfig->jetPtGhostTracks(), 2.5));
     }
     
+        ///-- Ghost Track Jets --///
+    if (topConfig->useLargeRJetGhostTrack() && topConfig->useLargeRJets()) {
+      objectSelection->jetGhostTrackSelectionLargeR(new top::JetGhostTrackSelection(topConfig->ghostTrackspTLargeR(),2.5,topConfig->ghostTracksVertexAssociationLargeR(),topConfig->largeRjetPtGhostTracks(),topConfig->largeRjetEtaGhostTracks(),false));
+    }
+    
     ///-- Tracks --///                                                                                                                                                                              
     if (topConfig->useTracks()) {
       objectSelection->trackSelection(new top::TrackSelection(topConfig->trackPtcut(), topConfig->trackEtacut()));

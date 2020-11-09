@@ -97,6 +97,10 @@ Some components of Hbb tagging also live here. These include:
    - `VRJetOverlapDecoratorTool`: ASG interface around the class
      above.
 
+   - `HbbSelector`: Class to retrieve the Hbb discriminant as a single
+     variable. Provides a method `getHbbScore(const xAOD::Jet&)` which
+     returns a double.
+
 
 ### Other Files ###
 

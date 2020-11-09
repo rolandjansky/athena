@@ -17,6 +17,7 @@ EXOT15AllVariablesContent = [
     "TruthEvents",
     "TruthVertices",
     "TruthParticles",
+    "MuonSpectrometerTrackParticles",
     "MuonSegments",
     "MSDisplacedVertex",
     "MSonlyTracklets",

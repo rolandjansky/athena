@@ -84,26 +84,30 @@ namespace top {
 
     m_jetPtCut = m_config->jetPtGhostTracks();
     m_jetEtaCut = m_config->jetEtaGhostTracks();
+    m_largeRjetPtCut = m_config->largeRjetPtGhostTracks();
+    m_largeRjetEtaCut = m_config->largeRjetEtaGhostTracks();
 
     ATH_MSG_INFO(
-      " top::GhostTrackSystematicsMaker: Systematic variations of ghost tracks will be done only for jets with pt >= " << m_jetPtCut << " MeV and eta <= " << m_jetEtaCut <<
-        ".");
+      " top::GhostTrackSystematicsMaker: Systematic variations of ghost tracks will be done only for small-R jets with pt >= " << m_jetPtCut << " MeV and eta <= " << m_jetEtaCut <<
+        " and all large-R jets.");
 
     ATH_MSG_INFO(" top::GhostTrackSystematicsMaker completed initialize");
     return StatusCode::SUCCESS;
   }
 
   StatusCode GhostTrackSystematicsMaker::applyNoOpSystematic(xAOD::JetContainer* nominal,
-                                                             const CP::SystematicSet& syst) const {
+                                                             const CP::SystematicSet& syst,bool smallRjets) const {
     ///-- Loop over the xAOD Container --///
     
     static int warningCounter=0;
     const int warningLimit=20;
     
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
+      if (smallRjets && ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut))) continue;
+      if (!smallRjets && ((jet->pt() < m_largeRjetPtCut) || (std::abs(jet->eta()) > m_largeRjetEtaCut))) continue;
       // Copy nominal ghost track container into the systematic variation.
 
+      
       const auto& ghostTracks =
         jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
       std::vector<const xAOD::IParticle*> newGhosts;
@@ -114,12 +118,14 @@ namespace top {
         // We can re-use the existing xAOD::IParticle.
         newGhosts.push_back(ghostTracks[iGhost]);
       }
-
+      
       if (newGhosts.size() == 0 && warningCounter<warningLimit) {
-	ATH_MSG_WARNING(
-          "in GhostTrackSystematicsMaker: All ghost tracks are null pointers. There may be something wrong with your configuration or derivation. Jet pt: " << jet->pt() << " Jet eta: " <<
-        jet->eta());
-	warningCounter++;
+          if (jet->pt() > m_config->jetPtcut() && std::fabs(jet->eta()) < m_config->jetEtacut() ){  
+              ATH_MSG_WARNING(
+                  "in GhostTrackSystematicsMaker: All ghost tracks are null pointers. There may be something wrong with your configuration or derivation. Jet pt: " << jet->pt() << " Jet eta: " <<
+                  jet->eta());
+              warningCounter++;
+          }
       }
 
       jet->setAssociatedObjects(m_config->decoKeyJetGhostTrack(syst.hash()),
@@ -131,14 +137,15 @@ namespace top {
 
   StatusCode GhostTrackSystematicsMaker::applyTruthFilterSystematic(xAOD::JetContainer* nominal,
                                                                     InDet::InDetTrackTruthFilterTool* tool,
-                                                                    const CP::SystematicSet& syst) const {
+                                                                    const CP::SystematicSet& syst,bool smallRjets) const {
     ///-- Inform the tool --///
     top::check(tool->applySystematicVariation(syst),
                "Failed to configure tool for systematic variation");
 
     ///-- Loop over the xAOD Container --///
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
+      if (smallRjets && ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut))) continue;
+      if (!smallRjets && ((jet->pt() < m_largeRjetPtCut) || (std::abs(jet->eta()) > m_largeRjetEtaCut))) continue;
       const auto& ghostTracks =
         jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
       std::vector<const xAOD::IParticle*> newGhosts;
@@ -167,14 +174,15 @@ namespace top {
 
   StatusCode GhostTrackSystematicsMaker::applyJetTrackFilterSystematic(xAOD::JetContainer* nominal,
                                                                        InDet::JetTrackFilterTool* tool,
-                                                                       const CP::SystematicSet& syst) const {
+                                                                       const CP::SystematicSet& syst,bool smallRjets) const {
     ///-- Inform the tool --///
     top::check(tool->applySystematicVariation(syst),
                "Failed to configure tool for systematic variation");
 
     ///-- Loop over the xAOD Container --///
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
+      if (smallRjets && ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut))) continue;
+      if (!smallRjets && ((jet->pt() < m_largeRjetPtCut) || (std::abs(jet->eta()) > m_largeRjetEtaCut))) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
       std::vector<const xAOD::IParticle*> newGhosts;
 
@@ -203,15 +211,23 @@ namespace top {
 
   StatusCode GhostTrackSystematicsMaker::applySmearingSystematic(xAOD::JetContainer* nominal,
                                                                  InDet::InDetTrackSmearingTool* tool,
-                                                                 const CP::SystematicSet& syst) const {
+                                                                 const CP::SystematicSet& syst, bool smallRjets) const {
     ///-- Inform the tool --///
     top::check(tool->applySystematicVariation(syst),
                "Failed to configure tool for systematic variation");
-
+    
+    std::string additionalInfo="";   
+    if (smallRjets == false){
+        additionalInfo="LargeR_";
+    }
+    
+    
     const std::string sgKey {
       m_config->decoKeyJetGhostTrack() +
-      "_Particles_" + syst.name()
+      "_Particles_"+additionalInfo+ syst.name()
     };
+    
+    
     const std::string sgKeyAux {
       sgKey + "Aux."
     };
@@ -227,7 +243,8 @@ namespace top {
     newTrackParticles->setStore(newTrackParticlesAux);
 
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
+      if (smallRjets && ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut))) continue;
+      if (!smallRjets && ((jet->pt() < m_largeRjetPtCut) || (std::abs(jet->eta()) > m_largeRjetEtaCut))) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
       std::vector<const xAOD::IParticle*> newGhosts;
@@ -250,9 +267,12 @@ namespace top {
 
         newTrackParticles->push_back(newTp);
         newGhosts.push_back(newTp);
+
+        
       }
 
       jet->setAssociatedObjects(m_config->decoKeyJetGhostTrack(syst.hash()), newGhosts);
+      
     }
 
     return StatusCode::SUCCESS;
@@ -260,14 +280,19 @@ namespace top {
 
   StatusCode GhostTrackSystematicsMaker::applyBiasingSystematic(xAOD::JetContainer* nominal,
                                                                 InDet::InDetTrackBiasingTool* tool,
-                                                                const CP::SystematicSet& syst) const {
+                                                                const CP::SystematicSet& syst, bool smallRjets) const {
     ///-- Inform the tool --///
     top::check(tool->applySystematicVariation(syst),
                "Failed to configure tool for systematic variation");
+    
+    std::string additionalInfo="";   
+    if (smallRjets == false){
+        additionalInfo="LargeR_";
+    }
 
     const std::string sgKey {
       m_config->decoKeyJetGhostTrack() +
-      "_Particles_" + syst.name()
+      "_Particles_" +additionalInfo+ syst.name()
     };
     const std::string sgKeyAux {
       sgKey + "Aux."
@@ -284,7 +309,8 @@ namespace top {
     newTrackParticles->setStore(newTrackParticlesAux);
 
     for (const auto& jet : *nominal) {
-      if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
+      if (smallRjets && ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut))) continue;
+      if (!smallRjets && ((jet->pt() < m_largeRjetPtCut) || (std::abs(jet->eta()) > m_largeRjetEtaCut))) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
       std::vector<const xAOD::IParticle*> newGhosts;
@@ -317,14 +343,29 @@ namespace top {
 
   StatusCode GhostTrackSystematicsMaker::execute(bool executeNominal) {
     ATH_MSG_DEBUG(" top::GhostTrackSystematicsMaker execute:");
+    
+    if (m_config->useJets()){
+        top::check(execute_smallR(executeNominal),"Failed to propagate the tracking unc on the tracks ghost-matched to the small-R jets");
+    }
+    
+    if (m_config->useLargeRJets()) {
+        top::check(execute_largeR(executeNominal),"Failed to propagate the tracking unc on the tracks ghost-matched to the large-R jets");
+    }
+    
+    return StatusCode::SUCCESS;
 
-
-    ///-- Get nominal jets --///
+  }
+  
+  StatusCode GhostTrackSystematicsMaker::execute_smallR(bool executeNominal){
+      
+      
+     ///-- Get nominal jets --///
     xAOD::JetContainer* nominalJets(nullptr);
     top::check(evtStore()->retrieve(nominalJets,
                                     m_config->sgKeyJetsStandAlone(m_nominalSystematicSet.hash())),
                "Failed to retrieve Jets");
-
+      
+      
     // applyNoOpSystematic is used just to remove ghost track vector from thinned jets
     top::check(applyNoOpSystematic(nominalJets, m_nominalSystematicSet),
                "Failure to apply GhostTrackSystematic");
@@ -405,8 +446,105 @@ namespace top {
                  "Failure to apply GhostTrackSystematic");
     }
 
-    ATH_MSG_DEBUG(" top::GhostTrackSystematicsMaker completed execute");
+    ATH_MSG_DEBUG(" top::GhostTrackSystematicsMaker on small-R jets completed execute");
     return StatusCode::SUCCESS;
+
+  }
+  
+   StatusCode GhostTrackSystematicsMaker::execute_largeR(bool executeNominal){
+      
+      
+     ///-- Get nominal jets --///
+    xAOD::JetContainer* nominalJets(nullptr);
+    top::check(evtStore()->retrieve(nominalJets,
+                                    m_config->sgKeyLargeRJets(m_nominalSystematicSet.hash())),
+               "Failed to retrieve Jets");
+      
+      
+    // applyNoOpSystematic is used just to remove ghost track vector from thinned jets
+    top::check(applyNoOpSystematic(nominalJets, m_nominalSystematicSet,false),
+               "Failure to apply GhostTrackSystematic");
+
+    // We don't want to do anything on Data -> bail early so that we can
+    // rely on the inputs to be MC.
+    if (!m_config->isMC()) {
+      return StatusCode::SUCCESS;
+    }
+
+    ///-- Only run this on the systematic execution --///
+    if (executeNominal) return StatusCode::SUCCESS;
+
+
+    ///-- SMEARING --///
+    for (const auto& syst : m_systs.smearing) {
+      top::check(applySmearingSystematic(nominalJets, &(*m_tools.smearing), syst, false),
+                 "Failure to apply GhostTrackSystematic");
+    }
+
+    ///-- BIASING --///
+    InDet::InDetTrackBiasingTool* biasingTool {
+      nullptr
+    };
+    if (m_runPeriods.size() == 1) {
+      biasingTool = &(*m_tools.bias[0]);
+
+      top::check(biasingTool, "Failure to selected biasing tool");
+      for (const auto& syst : m_systs.bias) {
+        top::check(applyBiasingSystematic(nominalJets, biasingTool, syst, false),
+                   "Failure to apply GhostTrackSystematic");
+      }
+    } else {
+      const xAOD::EventInfo* ei {
+        nullptr
+      };
+      top::check(evtStore()->retrieve(ei, "EventInfo"),
+                 "Failure to retrieve EventInfo");
+
+      top::check(ei->isAvailable<unsigned int>("RandomRunNumber"),
+                 "Require that RandomRunNumber decoration is available.");
+      auto randomRunNumber = ei->auxdataConst<unsigned int>("RandomRunNumber");
+
+      if (randomRunNumber == 0) {
+        for (const auto& syst : m_systs.bias) {
+          top::check(applyNoOpSystematic(nominalJets, syst),
+                     "Failure to apply GhostTrackSystematic");
+        }
+      } else {
+        top::check(m_runPeriods[0] <= randomRunNumber,
+                   "RandomRunNumber is below valid range.");
+        top::check(randomRunNumber < m_runPeriods[m_runPeriods.size() - 1],
+                   "RandomRunNumber is above valid range.");
+
+        for (std::size_t i = 1; i < m_runPeriods.size(); ++i) {
+          if (randomRunNumber < m_runPeriods[i]) {
+            biasingTool = &(*m_tools.bias[i - 1]);
+            break;
+          }
+        }
+        top::check(biasingTool, "Failure to selected biasing tool");
+        for (const auto& syst : m_systs.bias) {
+          top::check(applyBiasingSystematic(nominalJets, biasingTool, syst,false),
+                     "Failure to apply GhostTrackSystematic");
+        }
+      }
+    }
+
+    ///-- TRUTH FILTER --///
+    for (const auto& syst : m_systs.truthFilter) {
+      top::check(applyTruthFilterSystematic(nominalJets, &(*m_tools.truthFilter), syst,false),
+                 "Failure to apply GhostTrackSystematic");
+    }
+
+    ///-- JET TRACK FILTER --///
+    for (const auto& syst : m_systs.jetTrackFilter) {
+      top::check(applyJetTrackFilterSystematic(nominalJets, &(*m_tools.jetTrackFilter), syst,false),
+                 "Failure to apply GhostTrackSystematic");
+    }
+
+    ATH_MSG_DEBUG(" top::GhostTrackSystematicsMaker on large-R jets completed execute");
+    return StatusCode::SUCCESS;
+
+      
   }
 
   void GhostTrackSystematicsMaker::specifiedSystematics(const std::set<std::string>& specSys) {

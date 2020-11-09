@@ -89,6 +89,8 @@ ExtraContainersPhotons=["Photons",
 
 # for trigger studies
 ExtraContainersTrigger=[
+        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgamma",
+        "HLT_xAOD__TrigRingerRingsContainer_TrigT2CaloEgammaAux.",
 	"HLT_xAOD__ElectronContainer_egamma_Electrons",
 	"HLT_xAOD__ElectronContainer_egamma_ElectronsAux.",
 	"HLT_xAOD__PhotonContainer_egamma_Photons",

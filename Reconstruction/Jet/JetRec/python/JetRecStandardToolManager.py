@@ -226,6 +226,11 @@ if jetFlags.useTruth():
   if jtm.haveParticleJetTools:
     truth_ungroomed_modifiers += [jtm.jetdrlabeler]
 
+  # Modifiers for ungroomed truth large-R jets
+  truth_ungroomed_larger_modifiers = truth_ungroomed_modifiers
+  # Add splitting scale modifiers for truth labeling
+  truth_ungroomed_larger_modifiers += [jtm.ktsplitter]
+
 # Modifiers for track jets.
 track_ungroomed_modifiers = list(common_ungroomed_modifiers)
 if jetFlags.useTruth() and jtm.haveParticleJetTools:
@@ -369,9 +374,10 @@ jtm.modifiersMap["pflow_groomed"]         =      list(pflow_groomed_modifiers)
 jtm.modifiersMap["tcc_groomed"]           =      list(tcc_groomed_modifiers)
 
 if jetFlags.useTruth():
-  jtm.modifiersMap["truth_ungroomed"]     =      list(truth_ungroomed_modifiers)
-  jtm.modifiersMap["truth_groomed"]       =      list(truth_groomed_modifiers)
-jtm.modifiersMap["track_ungroomed"]       =      list(track_ungroomed_modifiers)
+  jtm.modifiersMap["truth_ungroomed"]        =      list(truth_ungroomed_modifiers)
+  jtm.modifiersMap["truth_ungroomed_larger"] =      list(truth_ungroomed_larger_modifiers)
+  jtm.modifiersMap["truth_groomed"]          =      list(truth_groomed_modifiers)
+jtm.modifiersMap["track_ungroomed"]          =      list(track_ungroomed_modifiers)
 
 # Also index modifier type names by input type name.
 # These are used when the modifier list is omitted.

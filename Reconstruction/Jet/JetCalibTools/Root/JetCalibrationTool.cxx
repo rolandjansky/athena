@@ -156,6 +156,8 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   m_nJetPtThreshold = m_globalConfig->GetValue("OffsetCorrection.nJetPtThreshold", 20);
   m_nJetContainerName = m_globalConfig->GetValue("OffsetCorrection.nJetContainerName", "HLT_xAOD__JetContainer_a4tcemsubjesISFS");
 
+  m_doMuOnlyInResidual = m_globalConfig->GetValue("ApplyOnlyMuResidual", false);
+
   // save the pt after area-based correction for jets in the jet container used to calculate nJet
   m_saveAreaCorrectedScaleMomentum = m_globalConfig->GetValue("SaveAreaCorrectedScaleMomentum",false);
 
@@ -518,7 +520,7 @@ StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const
     // To do this, we need the primary vertices
     // However, other users of the GSC may not have the PV collection (in particular: trigger GSC in 2016)
     // So only retrieve vertices if needed for NPV (residual) or a non-zero PV index was specified (GSC)
-    if ((m_doResidual && !m_useNjetInResidual) || (m_doGSC && jetEventInfo.PVIndex()))
+    if ((m_doResidual && !( m_useNjetInResidual || m_doMuOnlyInResidual )) || (m_doGSC && jetEventInfo.PVIndex()))
     {
       //Retrieve VertexContainer object, use it to obtain NPV for the residual correction or check validity of GSC non-PV0 usage
       const xAOD::VertexContainer * vertices = 0;

@@ -334,14 +334,14 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
   //// GoodRunsLists/data17_13TeV/20180619/physics_25ns_Triggerno17e33prim.lumicalc.OflLumi-13TeV-010.root
   ////
   //// For mc16e:
-  //// GoodRunsLists/data18_13TeV/20190219/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
+  //// GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root
   ////
   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   std::vector<std::string> prw_lumicalc;
   if (ilumicalc_file == "DUMMY") {
     ANA_CHECK( objTool.setProperty( "mcCampaign", "mc16e" ) );
-    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data18_13TeV/20190219/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root"));
+    prw_lumicalc.push_back(PathResolverFindCalibFile("GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root"));
   } else {
     prw_lumicalc = getTokens(ilumicalc_file,",");
   }
@@ -502,7 +502,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     ANA_CHECK( event.retrieve( ei, "EventInfo" ) );
 
 
-    if (entry % period == 0) {
+    if (entry==0 || entry % period == 99) {
       Info( APP_NAME,
             "===>>>  start processing event #%i, "
             "run #%i %i events processed so far  <<<===",
@@ -1322,7 +1322,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     store.clear();
 
     // Close with a message:
-    if (entry % period == 0) {
+    if (entry==0 || entry % period == 99) {
       Info( APP_NAME,
             "===>>>  done processing event #%i, "
             "run #%i %i events processed so far  <<<===",

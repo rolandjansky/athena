@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -1428,30 +1428,32 @@ namespace xAOD {
          }
       }
 
-      // Prepare the objects for writing:
+      // Prepare the objects for writing. Note that we need to iterate over a
+      // copy of the m_outputObjects container. Since the putAux(...) function
+      // called inside the loop may itself add elements to the m_outputObject
+      // container.
       std::string unsetObjects;
-      Object_t::const_iterator itr = m_outputObjects.begin();
-      Object_t::const_iterator end = m_outputObjects.end();
-      for( ; itr != end; ++itr ) {
+      Object_t outputObjectsCopy = m_outputObjects;
+      for( auto& itr : outputObjectsCopy ) {
          // Check that a new object was provided in the event:
-         if( ! itr->second->isSet() ) {
+         if( ! itr.second->isSet() ) {
             // We are now going to fail. But let's collect the names of
             // all the unset objects:
             if( unsetObjects.size() ) {
-               unsetObjects.append( ", \"" + itr->first + "\"" );
+               unsetObjects.append( ", \"" + itr.first + "\"" );
             } else {
-               unsetObjects.append( "\"" + itr->first + "\"" );
+               unsetObjects.append( "\"" + itr.first + "\"" );
             }
             continue;
          }
          // Make sure that any dynamic auxiliary variables that
          // were added to the object after it was put into the event,
          // get added to the output:
-         if( ! putAux( *m_outTree, *( itr->second ) ) ) {
+         if( ! putAux( *m_outTree, *( itr.second ) ) ) {
             ::Error( "xAOD::TEvent::fill",
                      XAOD_MESSAGE( "Failed to put dynamic auxiliary variables "
                                    "in the output for object \"%s\"" ),
-                     itr->first.c_str() );
+                     itr.first.c_str() );
             return 0;
          }
       }
@@ -2234,7 +2236,7 @@ namespace xAOD {
       // If not, update the output manager. This can happen when we copy
       // objects from the input to the output files, and we process
       // multiple input files.
-         
+
       // Check if the output manager is of the right type:
       TAuxManager* mgr = dynamic_cast< TAuxManager* >( vitr->second );
       if( ! mgr ) {

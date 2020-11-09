@@ -66,14 +66,18 @@ class SUSYToolsAlg : public EL::AnaAlgorithm {
     std::vector<std::string> syst_tau_weights;
     std::vector<std::string> syst_jet_weights;
     std::vector<std::string> syst_fatjet_weights;
+    std::vector<std::string> syst_trkjet_weights;
     std::vector<std::string> syst_btag_weights;
     std::vector<std::string> syst_event_weights;
 
     asg::AnaToolHandle<ST::ISUSYObjDef_xAODTool> m_SUSYTools;
 
     unsigned int m_Nevts;
+    std::string m_kernel;
     std::string m_configFile;
     std::string m_FatJetCollection;
+    std::string m_TrkJetCollection;
+    std::string m_TrkJetTimeStamp;
 
     TStopwatch m_clock0;
     TStopwatch m_clock1;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -1061,7 +1061,7 @@ namespace asg
     }
   }
 
-  INSTANTIATE_TEST_CASE_P
+  INSTANTIATE_TEST_SUITE_P
   (MySubtoolTest1, SubtoolTest, ::testing::Values
    (std::make_tuple ("regPublicHandle",  "public",  "ATH"),
     std::make_tuple ("anaPublicHandle",  "public",  "ATH"),
@@ -1080,7 +1080,7 @@ namespace asg
     std::make_tuple ("regPrivateHandle", "private", "empty"),
     std::make_tuple ("anaPrivateHandle", "private", "empty"),
     std::make_tuple ("regPrivateHandle", "private", "none"),
-    std::make_tuple ("anaPrivateHandle", "private", "none")),);
+    std::make_tuple ("anaPrivateHandle", "private", "none")));
 }
 
 ATLAS_GOOGLE_TEST_MAIN

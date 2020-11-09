@@ -9,9 +9,10 @@
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
-isSimulation = False
-if globalflags.DataSource()=='geant4':
-    isSimulation = True
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+isSimulation = DerivationFrameworkHasTruth
+
+print isSimulation
 
 
 #====================================================================
@@ -231,7 +232,7 @@ print BPHY14TruthThinTool
 
 # Added by ASC
 BPHY14ThinningTools = [BPHY14Thin_vtxTrk, BPHY14MuonTPThinningTool,BPHY14PhotonTPThinningTool]
-if globalflags.DataSource()=='geant4':
+if isSimulation:
     BPHY14ThinningTools.append(BPHY14TruthThinTool)
 
 # The name of the kernel (BPHY14Kernel in this case) must be unique to this derivation

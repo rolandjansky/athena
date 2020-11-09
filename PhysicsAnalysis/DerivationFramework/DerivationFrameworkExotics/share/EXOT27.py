@@ -160,6 +160,9 @@ vrGhostTagTrackJets, vrGhostTagTrackJetsGhosts = HbbCommon.buildVRJets(
     sequence = EXOT27Seq, do_ghost = True, logger = logger)
 JetCommon.OutputJets["EXOT27Jets"].append(ExtendedJetCommon.nameJetsFromAlg(vrGhostTagTrackJets))
 
+vrTrackJets_201903, vrTrackJetGhosts_201903 = HbbCommon.buildVRJets(
+    sequence = EXOT27Seq, do_ghost = False, logger = logger, training='201903')
+JetCommon.OutputJets["EXOT27Jets"].append(ExtendedJetCommon.nameJetsFromAlg(vrTrackJets_201903))
 
 # schedule pflow tagging
 FlavorTagInit(JetCollections=['AntiKt4EMPFlowJets'], Sequencer=EXOT27Seq)
@@ -188,12 +191,7 @@ ExtendedJetCommon.replaceAODReducedJets(
 # Includes the 5% pT trimmed R=1.0 jets
 ExtendedJetCommon.addDefaultTrimmedJets(EXOT27Seq, "EXOT27Jets")
 ExtendedJetCommon.addTCCTrimmedJets(EXOT27Seq,"EXOT27Jets")
-
-# add in the retrained vr jets
-HbbCommon.addVRJets(
-    sequence=EXOT27Seq, do_ghost=False, logger=logger, training='201903')
-JetCommon.OutputJets["EXOT27Jets"].append(
-    "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903")
+ExtendedJetCommon.addDefaultUFOSoftDropJets(EXOT27Seq,"EXOT27Jets",dotruth=True)
 
 # add akt2
 JetCommon.addStandardJets("AntiKt",0.2,"LCTopo", mods="lctopo_ungroomed", calibOpt="none", ghostArea=0.01, ptmin=2000, ptminFilter=7000, algseq=EXOT27Seq, outputGroup="EXOT27Jets")
@@ -208,6 +206,7 @@ EXOT27ExtraVariables["AntiKt2LCTopoJets"].update([
 OutputLargeR = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
   "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+  "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
   ]
 # XAMPP seems to use the 'Width' variable from these?
 for lrj in OutputLargeR:
@@ -227,9 +226,11 @@ for lrj in OutputLargeRParent:
 toBeAssociatedTo = [
   "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
   "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets",
+  "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
   ]
 toAssociate = {
   vrTrackJetGhosts : vrTrackJetGhosts.lower(),
+  vrTrackJetGhosts_201903 : vrTrackJetGhosts_201903.lower(),
   vrGhostTagTrackJetsGhosts : vrGhostTagTrackJetsGhosts.lower()
 }
 for collection in toBeAssociatedTo:
@@ -608,6 +609,8 @@ JetCommon.addJetOutputs(
       "AntiKt2LCTopoJets",
       "AntiKtVR30Rmax4Rmin02TrackGhostTagJets",
       "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+      "AntiKt10UFOCSSKJets",
+      "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets",
     ],
     vetolist = [
     "AntiKt2PV0TrackJets",

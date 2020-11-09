@@ -33,6 +33,10 @@ namespace DerivationFramework {
     m_dojvt(false),
     m_fjvtTool(""),
     m_dofjvt(false),
+    m_customSumTrkTool(""),
+    m_docustomSumTrk(false),
+    m_customJvfTool(""),
+    m_docustomJvf(false),
     m_MVfJvtTool(""),                 
     m_doMVfJvt(false),                
     m_dobtag(false),
@@ -71,6 +75,12 @@ namespace DerivationFramework {
     declareProperty("fJvtMomentKey",   m_fjvtMomentKey = "fJvt");
     declareProperty("JetForwardPFlowJvtTool",     m_fjvtTool);
 
+    declareProperty("customSumTrkMomentKey",   m_customSumTrkMomentKey = "customSumPtTrkPt500");
+    declareProperty("CustomSumTrkTool",     m_customSumTrkTool);
+
+    declareProperty("customJvfMomentKey",   m_customJvfMomentKey = "customJVFCorr");
+    declareProperty("CustomJvfTool",     m_customJvfTool);
+
     declareProperty("MVfJvtMomentKey", m_MVfJvtMomentKey = "MVfJVT");
     declareProperty("JetForwardJvtToolBDT", m_MVfJvtTool);
     
@@ -87,6 +97,17 @@ namespace DerivationFramework {
   {
     ATH_MSG_INFO("Initialising JetAugmentationTool");
 
+        if(!m_customSumTrkTool.empty()) {
+          CHECK(m_customSumTrkTool.retrieve());
+          m_docustomSumTrk = true;
+          dec_customSumTrk  = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_customSumTrkMomentKey);
+        }
+        if(!m_customJvfTool.empty()) {
+          CHECK(m_customJvfTool.retrieve());
+          m_docustomJvf = true;
+          dec_customJvf  = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_customJvfMomentKey);
+        }
+
     if(!m_jetCalibTool.empty()) {
       CHECK(m_jetCalibTool.retrieve());
       ATH_MSG_INFO("Augmenting jets with calibration \"" << m_momentPrefix+m_calibMomentKey << "\"");
@@ -96,6 +117,7 @@ namespace DerivationFramework {
       dec_calibeta = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_eta");
       dec_calibphi = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_phi");
       dec_calibm   = new SG::AuxElement::Decorator<float>(m_momentPrefix+m_calibMomentKey+"_m");
+
 
       if(!m_jvtTool.empty()) {
         CHECK(m_jvtTool.retrieve());
@@ -127,6 +149,7 @@ namespace DerivationFramework {
 
           dec_fjvt  = std::make_unique< SG::AuxElement::Decorator<float> >(m_momentPrefix+m_fjvtMomentKey);
         }
+
 
         if(!m_btagSelTools.empty()) {
           size_t ibtag(0);
@@ -345,11 +368,32 @@ namespace DerivationFramework {
       }
 
     }
+    if(m_docustomSumTrk){
+      if(m_customSumTrkTool->modify(*jets_copy))
+      {
+        ATH_MSG_ERROR("Problem computing custom jvt");
+        return StatusCode::FAILURE;
+      }
+    }
+    if(m_docustomJvf){
+      if(m_customJvfTool->modify(*jets_copy))
+      {
+        ATH_MSG_ERROR("Problem computing custom jvt");
+        return StatusCode::FAILURE;
+      }
+    }
 
     // loop over the copies
     for(const xAOD::Jet *jet : *jets_copy) {
       // get the original jet so we can decorate it
       const xAOD::Jet& jet_orig( *(*jets)[jet->index()] );
+
+          if(m_docustomSumTrk) {
+            (*dec_customSumTrk)(jet_orig) = jet->auxdata<float>(m_customSumTrkMomentKey);
+          }
+          if(m_docustomJvf) {
+            (*dec_customJvf)(jet_orig) = jet->auxdata<float>(m_customJvfMomentKey);
+          }
 
       if(m_docalib) {
         // generate static decorators to avoid multiple lookups

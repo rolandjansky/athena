@@ -221,7 +221,7 @@ namespace top {
         largeRsysts.insert(m_jetUncertaintiesToolLargeR->recommendedSystematics());
       } else {
         ATH_MSG_WARNING(
-          "TA Mass & Calo Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
+          "TA Mass & Calo Mass & UFO SD Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
       }
     }
 

@@ -204,30 +204,30 @@ namespace top {
       top::check(jetUpdateJvtTool->initialize(), "Failed to initialize");
       m_jetUpdateJvtTool = jetUpdateJvtTool;
     }
-
+    
     ///-- Calculate fJVT --///
     //Only setup fJVT tool if user actually wants it
     if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
-      
+    
       const std::string fjvt_tool_name = "JetSelectfJvtTool";
       if (asg::ToolStore::contains<IJetModifier>(fjvt_tool_name)) {
-	m_jetSelectfJvtTool = asg::ToolStore::get<IJetModifier>(fjvt_tool_name);
+        m_jetSelectfJvtTool = asg::ToolStore::get<IJetModifier>(fjvt_tool_name);
       } else {
-	IJetModifier* JetSelectfJvtTool = new JetForwardJvtTool(fjvt_tool_name);
-	top::check(asg::setProperty(JetSelectfJvtTool, "JvtMomentName", "AnalysisTop_JVT"), //fJVT uses JVT decision
-		   "Failed to set JvtMomentName for JetForwardJvtTool");
-	
-	//Default fJVT WP is medium but this can't be used with default Tight MET WP
-	//MET WP takes precidence so making ATop default fJVT=Tight 
-	if (m_config->getfJVTWP() != "Medium"){ 
-	  top::check(asg::setProperty(JetSelectfJvtTool, "UseTightOP", true),
-                     "Failed to set UseTightOP for JetForwardJvtTool");
-	}
-	top::check(asg::setProperty(JetSelectfJvtTool, "OutputDec", "AnalysisTop_fJVTdecision"), //Adds custom decorator, 'AnalysisTop_fJVTdecision', to all jets
-		   "Failed to set OutputDec for JetForwardJvtTool");
-
-	top::check(JetSelectfJvtTool->initialize(), "Failed to initialize " + fjvt_tool_name);
-	m_jetSelectfJvtTool = JetSelectfJvtTool;
+        IJetModifier* JetSelectfJvtTool = new JetForwardJvtTool(fjvt_tool_name);
+        top::check(asg::setProperty(JetSelectfJvtTool, "JvtMomentName", "AnalysisTop_JVT"), //fJVT uses JVT decision
+        	   "Failed to set JvtMomentName for JetForwardJvtTool");
+        
+        //Default fJVT WP is medium but this can't be used with default Tight MET WP
+        //MET WP takes precidence so making ATop default fJVT=Tight 
+        if (m_config->getfJVTWP() != "Medium"){ 
+          top::check(asg::setProperty(JetSelectfJvtTool, "UseTightOP", true),
+                           "Failed to set UseTightOP for JetForwardJvtTool");
+        }
+        top::check(asg::setProperty(JetSelectfJvtTool, "OutputDec", "AnalysisTop_fJVTdecision"), //Adds custom decorator, 'AnalysisTop_fJVTdecision', to all jets
+        	   "Failed to set OutputDec for JetForwardJvtTool");
+  
+        top::check(JetSelectfJvtTool->initialize(), "Failed to initialize " + fjvt_tool_name);
+        m_jetSelectfJvtTool = JetSelectfJvtTool;
       }
     }
 
@@ -382,9 +382,11 @@ namespace top {
           calibConfigLargeR = "JES_MC16recommendation_FatJet_Trimmed_JMS_calo_12Oct2018.config";
         } else if (calibChoice == "TCCMass") {
           calibConfigLargeR = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config";
+	} else if (calibChoice == "UFOSDMass") {
+	  calibConfigLargeR = "JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config";
         } else {
           ATH_MSG_ERROR(
-            "Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass and TCCMass)) : " + calibChoice);
+            "Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass, TCCMass and UFOSDMass)) : " + calibChoice);
           return StatusCode::FAILURE;
         }
       } else { //Insitu calibration for Data
@@ -394,15 +396,19 @@ namespace top {
         } else if (calibChoice == "TCCMass") {
           calibConfigLargeR = "JES_MC16recommendation_FatJet_TCC_JMS_calo_30Oct2018.config"; //There's no insitu
                                                                                              // calibration yet
-        } else {
+        } else if (calibChoice == "UFOSDMass") {
+	  calibConfigLargeR = "JES_MC16recommendation_R10_UFO_CSSK_SoftDrop_JMS_01April2020.config"; //There's no insitu
+	                                                                                     // calibration yet
+	} else {
           ATH_MSG_ERROR(
-            "Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass and TCCMass) : " + calibChoice);
+            "Unknown largeRJESJMSConfig (Available options: TAMass, CaloMass, CombMass, TCCMass and UFOSDMass) : " + calibChoice);
           return StatusCode::FAILURE;
         }
       }
       std::string calibSequenceLargeR = "EtaJES_JMS";
       if ((!m_config->isMC()) &&
-          (calibChoice != "TCCMass")) calibSequenceLargeR = "EtaJES_JMS_Insitu_InsituCombinedMass"; //For data, there's
+          (calibChoice != "TCCMass") &&
+	  (calibChoice != "UFOSDMass")) calibSequenceLargeR = "EtaJES_JMS_Insitu_InsituCombinedMass"; //For data, there's
                                                                                                     // is insitu
                                                                                                     // calibration for
                                                                                                     // lc-topo jets
@@ -534,14 +540,14 @@ namespace top {
       }
      
       if (m_config->doForwardJVTinMET()) { 
-	if (m_config->getfJVTWP() == "Medium") {
-	  top::check(metMaker->setProperty("JetSelection", "Tenacious"), "Failed to set METMaker JetSelection to Tenacious");
-	}
+        if (m_config->getfJVTWP() == "Medium") {
+          top::check(metMaker->setProperty("JetSelection", "Tenacious"), "Failed to set METMaker JetSelection to Tenacious");
+        }
         top::check(metMaker->setProperty("JetRejectionDec","AnalysisTop_fJVTdecision"), "Failed to set METMaker JetRejectionDec to AnalysisTop_fJVTdecision");
-	top::check(metMaker->initialize(), "Failed to initialize");
-	metMaker->msg().setLevel(MSG::INFO);
-	m_met_maker = metMaker;
       }
+      top::check(metMaker->initialize(), "Failed to initialize");
+      metMaker->msg().setLevel(MSG::INFO);
+      m_met_maker = metMaker;
     }
 
     // MET Systematics tool

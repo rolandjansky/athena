@@ -184,7 +184,7 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'],Sequencer = jetm7Seq)
 # background generator filters
 #==============================================================================
 augmentationTools = [TrigMatchAug]
-if globalflags.DataSource() == 'geant4':
+if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.GenFilterToolSetup import *
     augmentationTools.append(ToolSvc.DFCommonTruthGenFilt)
 

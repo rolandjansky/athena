@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Compare HLT variables from Run1 bytestream before and after the conversion to xAOD.
 // The test will be running within the AnalysisBase ATN group, while the input xAOD file is
-// produced in the AtlasAnalysis. Since we are not sure about the order of these tests, 
+// produced in the AtlasAnalysis. Since we are not sure about the order of these tests,
 // let us use as the input the output of the yesterday's AtlasAnalysis nightly.
 // Oleg Kuprash  <oleg.kuprash@cern.ch>
 #include <iostream>
@@ -30,8 +30,8 @@ int main()
   std::cout << "the path for AOD from yesterday's ATN is: " << s_nightly_aod_yesterday << std::endl;
   // use this file if the ATN test upstream was not successful
   // it is also used for ROOTCORE_RELEASE_SERIES = 23
-  TString s_ref_file = "root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_xAODmadeWithAtlasAnalysis207XVAL151124_forATNAnalysisBase.root";
-  
+  TString s_ref_file = "root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_xAODmadeWithAtlasAnalysis207XVAL151124_forATNAnalysisBase.root";
+
   std::cout << "check if the ATN output file exists..." << std::endl;
   Long_t id,size,flags,modtime;
   TString s_file = "";
@@ -50,7 +50,7 @@ int main()
   }
 
   std::cout << s_file << " will be used as the input for this test" << std::endl;
-  
+
   gSystem->Setenv("ROOTCORE_TEST_FILE", s_file);
 
   return TrigAnalysisTest::runTrigAnalysisTest("Run1BStoxAODTrigger");

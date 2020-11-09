@@ -4,12 +4,14 @@ from JetRec.JetRecStandard import jtm
 from JetRec.JetRecFlags import jetFlags
 from AthenaCommon.GlobalFlags import globalflags
 
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
+
 jtm.modifiersMap["calib_notruth"] = jtm.modifiersMap["lctopo_ungroomed"]
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     jtm.modifiersMap["calib_notruth"].remove('truthassoc')
 
 jtm.modifiersMap["exotJetMods"] = jtm.modifiersMap["lctopo_groomed"]
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     jtm.modifiersMap["exotJetMods"] += [jtm.truthpartondr]
 
 print "EXOT derivations use the calib_notruth modifier for jets defined as: ", jtm.modifiersMap["calib_notruth"]

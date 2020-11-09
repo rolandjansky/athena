@@ -105,7 +105,6 @@ Btag.Tagger: MV2c10
 Btag.WP: ${BTAG_WP}
 Btag.MinPt: 20000.
 #
-BtagTrkJet.TimeStamp: 
 BtagTrkJet.MinPt: 10000.
 #
 # set the -999. to positive number to override default
@@ -180,7 +179,7 @@ class TestSUSYTools(unittest.TestCase):
     #Files and commands
     theConfig = 'mySTdefs_conf.tmp'
 
-    theSample = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4017.PHYSVAL.pool.root'
+    theSample = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.FS_mc16e_p4237.PHYSVAL.pool.root'
 
     theTest = 'SUSYToolsTester %s maxEvents=10 isData=0 isAtlfast=0 Debug=0 NoSyst=0 ConfigFile=%s ' % (theSample, theConfig)
 
@@ -188,7 +187,7 @@ class TestSUSYTools(unittest.TestCase):
     theTest += ' PRWFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/PileupReweighting/mc16_13TeV/pileup_mc16e_dsid410470_FS.root'
 
     # The lumicalc file
-    theTest += ' ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20190219/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root'
+    theTest += ' ilumicalcFile=/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root'
 
     #Working points
     EL_ID_WP  = ['LooseAndBLayerLLH', 'MediumLLH', 'TightLLH']

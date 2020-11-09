@@ -88,6 +88,7 @@ namespace top {
     inline bool useTrackJets()  const {return m_useTrackJets;}
     inline bool useTracks()  const {return m_useTracks;}
     inline bool useJetGhostTrack()  const {return m_useJetGhostTrack;}
+    inline bool useLargeRJetGhostTrack()  const {return m_useLargeRJetGhostTrack;}
     inline bool useRCJets()     const {return m_useRCJets;}
     inline bool useVarRCJets()  const {return m_useVarRCJets;}
 
@@ -143,6 +144,14 @@ namespace top {
     inline void setFilterParticleLevelBranches(const std::vector<std::string>& value) {
       if (!m_configFixed) {
         m_filterParticleLevelBranches = value;
+      }
+    }
+
+    // List of NominalLoose branches to be removed
+    inline std::vector<std::string> filterNominalLooseBranches() const {return m_filterNominalLooseBranches;}
+    inline void setFilterNominalLooseBranches(const std::vector<std::string>& value) {
+      if (!m_configFixed) {
+        m_filterNominalLooseBranches = value;
       }
     }
 
@@ -1094,6 +1103,36 @@ namespace top {
         m_ghostTracksQuality = ghostTracksQuality;
      }
     }
+    
+    inline virtual void largeRjetPtGhostTracks(const float pt) {
+      if (!m_configFixed) {
+        m_largeRjetPtGhostTracks = pt;
+      }
+    }
+    
+    inline virtual void largeRjetEtaGhostTracks(const float eta) {
+      if (!m_configFixed) {
+        m_largeRjetEtaGhostTracks = eta;
+      }
+    }
+    
+    inline virtual void ghostTrackspTLargeR(const float pt) {
+      if (!m_configFixed) {
+        m_ghostTrackspTLargeR = pt;
+      }
+    }
+    
+    inline virtual void ghostTracksVertexAssociationLargeR(const std::string& vertexassociation) {
+      if (!m_configFixed) {
+        m_ghostTracksVertexAssociationLargeR = vertexassociation;
+      }
+    }
+    
+    inline virtual void ghostTracksQualityLargeR(const std::string& ghostTracksQuality) {
+     if (!m_configFixed) {
+        m_ghostTracksQualityLargeR = ghostTracksQuality;
+     }
+    }
 
     inline virtual float jetPtcut()  const {return m_jetPtcut;}
     inline virtual float jetEtacut() const {return m_jetEtacut;}
@@ -1102,8 +1141,15 @@ namespace top {
     inline virtual const std::string& ghostTracksVertexAssociation()  const {return m_ghostTracksVertexAssociation;}
     inline virtual const std::string& ghostTracksQuality()  const {return m_ghostTracksQuality;}
     
+    inline virtual float ghostTrackspTLargeR()  const {return m_ghostTrackspTLargeR;}
+    inline virtual const std::string& ghostTracksVertexAssociationLargeR()  const {return m_ghostTracksVertexAssociationLargeR;}
+    inline virtual const std::string& ghostTracksQualityLargeR()  const {return m_ghostTracksQualityLargeR;}
+    
     inline virtual float jetPtGhostTracks()  const {return m_jetPtGhostTracks;}
     inline virtual float jetEtaGhostTracks()  const {return m_jetEtaGhostTracks;}
+    
+    inline virtual float largeRjetEtaGhostTracks()  const {return m_largeRjetEtaGhostTracks;}
+    inline virtual float largeRjetPtGhostTracks()  const {return m_largeRjetPtGhostTracks;}
 
 
     inline virtual void largeRJetPtcut(const float pt) {
@@ -1183,7 +1229,7 @@ namespace top {
     inline virtual float trackEtacut() const {return m_trackEtacut;}
 
 
-
+    virtual std::vector<std::string> readListOfSubstructureVariables(top::ConfigurationSettings* const& settings, const std::string& in) const;
 
     inline virtual float RCJetPtcut() const {return m_RCJetPtcut;}
     inline virtual float RCJetEtacut() const {return m_RCJetEtacut;}
@@ -1192,8 +1238,11 @@ namespace top {
     inline virtual float RCJetTrimcut() const {return m_RCJetTrimcut;}
     inline virtual float RCJetRadius() const {return m_RCJetRadius;}
     inline virtual bool useRCJetSubstructure() const {return m_useRCJetSubstructure;}
-    inline virtual bool useRCJetAdditionalSubstructure() const {return m_useRCJetAdditionalSubstructure;}
-
+    inline virtual const std::vector<std::string>& rcJetSubstructureVariables() const {return m_rcJetSubstructureVariables;}
+    
+    
+    
+    
     inline virtual void RCJetPtcut(const float pt) {
       if (!m_configFixed) {
         m_RCJetPtcut = pt;
@@ -1236,11 +1285,12 @@ namespace top {
       }
     }
 
-    inline virtual void useRCJetAdditionalSubstructure(const bool use) {
+    inline virtual void rcJetSubstructureVariables(const std::vector<std::string>& use) {
       if (!m_configFixed) {
-        m_useRCJetAdditionalSubstructure = use;
+        m_rcJetSubstructureVariables = use;
       }
     }
+
 
     inline virtual float VarRCJetPtcut() const {return m_VarRCJetPtcut;}
     inline virtual float VarRCJetEtacut() const {return m_VarRCJetEtacut;}
@@ -1249,7 +1299,7 @@ namespace top {
     inline virtual const std::string& VarRCJetRho() const {return m_VarRCJetRho;}
     inline virtual const std::string& VarRCJetMassScale() const {return m_VarRCJetMassScale;}
     inline virtual bool useVarRCJetSubstructure() const {return m_useVarRCJetSubstructure;}
-    inline virtual bool useVarRCJetAdditionalSubstructure() const {return m_useVarRCJetAdditionalSubstructure;}
+    inline virtual const std::vector<std::string>& VarRCJetSubstructureVariables() const {return m_VarRCJetSubstructureVariables;}
 
     inline virtual void VarRCJetPtcut(const float pt) {
       if (!m_configFixed) {
@@ -1293,9 +1343,9 @@ namespace top {
       }
     }
 
-    inline virtual void useVarRCJetAdditionalSubstructure(const bool use) {
+    inline virtual void VarRCJetSubstructureVariables(const std::vector<std::string>& use) {
       if (!m_configFixed) {
-        m_useVarRCJetAdditionalSubstructure = use;
+        m_VarRCJetSubstructureVariables = use;
       }
     }
 
@@ -2003,6 +2053,7 @@ namespace top {
     // available. However, we want the systematics to be executed automatically
     // whenever the user has "configured" ghost tracks.
     bool m_useJetGhostTrack;
+    bool m_useLargeRJetGhostTrack;
 
     bool m_useTracks;
 
@@ -2045,7 +2096,7 @@ namespace top {
 
     bool m_isMC;
     bool m_isAFII;
-    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches;
+    std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches;
     std::string m_generators;
     std::string m_AMITag;
     bool m_isPrimaryxAOD;
@@ -2267,6 +2318,8 @@ namespace top {
     float m_jetEtacut; // jet object selection (abs) eta cut
     float m_jetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
     float m_jetEtaGhostTracks; // jet eta threshold for ghost track systematic variations calculation
+    float m_largeRjetPtGhostTracks; // jet pt threshold for ghost track systematic variations calculation
+    float m_largeRjetEtaGhostTracks; // jet eta threshold for ghost track systematic variations calculation
     std::string m_jetUncertainties_NPModel; // AllNuisanceParameters, 19NP or 3NP
     std::string m_jetUncertainties_QGFracFile; // to improve Flavour composition and response
     std::vector<std::string> m_jetUncertainties_QGHistPatterns; // to improve Flavour composition and response, with
@@ -2289,6 +2342,10 @@ namespace top {
     float m_ghostTrackspT;
     std::string m_ghostTracksVertexAssociation;
     std::string m_ghostTracksQuality;
+    
+    float m_ghostTrackspTLargeR;
+    std::string m_ghostTracksVertexAssociationLargeR;
+    std::string m_ghostTracksQualityLargeR;
 
     // Large R jet configuration
     float m_largeRJetPtcut; // large R jet object selection pT cut
@@ -2316,7 +2373,7 @@ namespace top {
     float m_RCJetTrimcut;
     float m_RCJetRadius;
     bool m_useRCJetSubstructure;
-    bool m_useRCJetAdditionalSubstructure;
+    std::vector<std::string> m_rcJetSubstructureVariables;
 
     // Jet configuration for variable large-R jets
     float m_VarRCJetPtcut;
@@ -2326,7 +2383,7 @@ namespace top {
     std::string m_VarRCJetRho;
     std::string m_VarRCJetMassScale;
     bool m_useVarRCJetSubstructure;
-    bool m_useVarRCJetAdditionalSubstructure;
+    std::vector<std::string> m_VarRCJetSubstructureVariables;
 
     std::string m_trackQuality; // track quality to be used in track selection                                                                                                                              
 

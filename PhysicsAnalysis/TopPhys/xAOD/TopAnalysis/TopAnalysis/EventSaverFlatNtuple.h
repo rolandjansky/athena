@@ -751,12 +751,6 @@ namespace top {
 
     //re-clustered jets
     //  -> need unordered map for systematics
-    bool m_makeRCJets; // making re-clustered jets
-    bool m_makeVarRCJets; // making VarRC jets
-    bool m_useRCJSS; // write RCJSS variables
-    bool m_useRCAdditionalJSS; // write RCJSS additional variables
-    bool m_useVarRCJSS; // write Variable-R RCJSS variables
-    bool m_useVarRCAdditionalJSS; // write Variable-R RCJSS additional variables
     bool m_useElectronChargeIDSelection; // write ECID tool output variables
     std::string m_RCJetContainer;       // name for RC jets container in TStore
     std::vector<std::string> m_VarRCJetRho;
@@ -781,42 +775,9 @@ namespace top {
     std::vector<std::vector<float> > m_rcjetsub_phi;
     std::vector<std::vector<float> > m_rcjetsub_e;
     std::vector<std::vector<float> > m_rcjetsub_mv2c10;
-
-    std::vector<float> m_rrcjet_pt;
-    std::vector<float> m_rrcjet_eta;
-    std::vector<float> m_rrcjet_phi;
-    std::vector<float> m_rrcjet_e;
-
-    std::vector<float> m_rcjet_tau32_clstr;
-    std::vector<float> m_rcjet_tau21_clstr;
-    std::vector<float> m_rcjet_tau3_clstr;
-    std::vector<float> m_rcjet_tau2_clstr;
-    std::vector<float> m_rcjet_tau1_clstr;
-
-    std::vector<float> m_rcjet_D2_clstr;
-    std::vector<float> m_rcjet_ECF1_clstr;
-    std::vector<float> m_rcjet_ECF2_clstr;
-    std::vector<float> m_rcjet_ECF3_clstr;
-
-    std::vector<float> m_rcjet_d12_clstr;
-    std::vector<float> m_rcjet_d23_clstr;
-    std::vector<float> m_rcjet_Qw_clstr;
-    std::vector<float> m_rcjet_nconstituent_clstr;
-
-    std::vector<float> m_rcjet_gECF332_clstr;
-    std::vector<float> m_rcjet_gECF461_clstr;
-    std::vector<float> m_rcjet_gECF322_clstr;
-    std::vector<float> m_rcjet_gECF331_clstr;
-    std::vector<float> m_rcjet_gECF422_clstr;
-    std::vector<float> m_rcjet_gECF441_clstr;
-    std::vector<float> m_rcjet_gECF212_clstr;
-    std::vector<float> m_rcjet_gECF321_clstr;
-    std::vector<float> m_rcjet_gECF311_clstr;
-    std::vector<float> m_rcjet_L1_clstr;
-    std::vector<float> m_rcjet_L2_clstr;
-    std::vector<float> m_rcjet_L3_clstr;
-    std::vector<float> m_rcjet_L4_clstr;
-    std::vector<float> m_rcjet_L5_clstr;
+    // maps containing rc jet substructure variables
+    std::map<std::string,std::vector<float>> m_rcjetJSSVariables;
+    std::map<std::string,std::map<std::string,std::vector<float>>> m_VarRCjetJSSVariables;
 
 
     //met
@@ -1426,8 +1387,6 @@ namespace top {
 
     //re-clustered jets
     // -> need unordered map for systematics
-    const bool& makeRCJets() const {return m_makeRCJets;} // making re-clustered jets
-    const bool& makeVarRCJets() const {return m_makeVarRCJets;} // making VarRC jets
     const std::string& RCJetContainer() const {return m_RCJetContainer;} // name for RC jets container in TStore
     const std::vector<std::string>& VarRCJetRho() const {return m_VarRCJetRho;}
     const std::vector<std::string>& VarRCJetMassScale() const {return m_VarRCJetMassScale;}
@@ -1449,34 +1408,10 @@ namespace top {
     const std::vector<std::vector<float> >& rcjetsub_phi() const {return m_rcjetsub_phi;}
     const std::vector<std::vector<float> >& rcjetsub_e() const {return m_rcjetsub_e;}
     const std::vector<std::vector<float> >& rcjetsub_mv2c10() const {return m_rcjetsub_mv2c10;}
-    const std::vector<float>& rcjet_tau32_clstr() const {return m_rcjet_tau32_clstr;}
-    const std::vector<float>& rcjet_tau21_clstr() const {return m_rcjet_tau21_clstr;}
-    const std::vector<float>& rcjet_tau3_clstr() const {return m_rcjet_tau3_clstr;}
-    const std::vector<float>& rcjet_tau2_clstr() const {return m_rcjet_tau2_clstr;}
-    const std::vector<float>& rcjet_tau1_clstr() const {return m_rcjet_tau1_clstr;}
-    const std::vector<float>& rcjet_D2_clstr() const {return m_rcjet_D2_clstr;}
-    const std::vector<float>& rcjet_ECF1_clstr() const {return m_rcjet_ECF1_clstr;}
-    const std::vector<float>& rcjet_ECF2_clstr() const {return m_rcjet_ECF2_clstr;}
-    const std::vector<float>& rcjet_ECF3_clstr() const {return m_rcjet_ECF3_clstr;}
-    const std::vector<float>& rcjet_d12_clstr() const {return m_rcjet_d12_clstr;}
-    const std::vector<float>& rcjet_d23_clstr() const {return m_rcjet_d23_clstr;}
-    const std::vector<float>& rcjet_Qw_clstr() const {return m_rcjet_Qw_clstr;}
-    const std::vector<float>& rcjet_nconstituent_clstr() const {return m_rcjet_nconstituent_clstr;}
-    const std::vector<float>& rcjet_gECF332_clstr() const {return m_rcjet_gECF332_clstr;}
-    const std::vector<float>& rcjet_gECF461_clstr() const {return m_rcjet_gECF461_clstr;}
-    const std::vector<float>& rcjet_gECF322_clstr() const {return m_rcjet_gECF322_clstr;}
-    const std::vector<float>& rcjet_gECF331_clstr() const {return m_rcjet_gECF331_clstr;}
-    const std::vector<float>& rcjet_gECF422_clstr() const {return m_rcjet_gECF422_clstr;}
-    const std::vector<float>& rcjet_gECF441_clstr() const {return m_rcjet_gECF441_clstr;}
-    const std::vector<float>& rcjet_gECF212_clstr() const {return m_rcjet_gECF212_clstr;}
-    const std::vector<float>& rcjet_gECF321_clstr() const {return m_rcjet_gECF321_clstr;}
-    const std::vector<float>& rcjet_gECF311_clstr() const {return m_rcjet_gECF311_clstr;}
-
-    const std::vector<float>& rcjet_L1_clstr() const {return m_rcjet_L1_clstr;}
-    const std::vector<float>& rcjet_L2_clstr() const {return m_rcjet_L2_clstr;}
-    const std::vector<float>& rcjet_L3_clstr() const {return m_rcjet_L3_clstr;}
-    const std::vector<float>& rcjet_L4_clstr() const {return m_rcjet_L4_clstr;}
-    const std::vector<float>& rcjet_L5_clstr() const {return m_rcjet_L5_clstr;}
+    
+    const std::map<std::string,std::vector<float>>& rcjetJSSVariables() const {return m_rcjetJSSVariables;}
+    const std::map<std::string,std::map<std::string,std::vector<float>>>& VarRCjetJSSVariables() const {return m_VarRCjetJSSVariables;}
+    
 
     //met
     const float& met_met() const {return m_met_met;}

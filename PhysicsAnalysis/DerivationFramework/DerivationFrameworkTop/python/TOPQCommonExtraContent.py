@@ -10,6 +10,16 @@
 # EXTRA VARIABLES - Data & MC
 #================================
 # Full list: DerivationFrameworkEGamma/python/ElectronsCPContent.py
+
+TOPQExtraVariables_AFP = ["AFPSiHitContainer."
+                         + "depositedCharge."
+                         + "timeOverThreshold."
+                         + "stationID."
+                         + "pixelLayerID."
+                         + "pixelRowIDChip."
+                         + "pixelColIDChip."
+                         ]
+
 TOPQExtraVariables_Electrons  = ["Electrons."
                                  + "etcone30."
                                  + "etcone40."
@@ -172,7 +182,22 @@ TOPQExtraVariables_AntiKt4EMPFlowJets_ForTOPQ1           =  ["AntiKt4EMPFlowJets
                                                              + "LargeJetLabel."]
 TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ1           =  ["AntiKt8EMPFlowJets."
                                                              + "ExKt2GASubJets."
-                                                             + "ExKt2SubJets."]
+                                                             + "ExKt2SubJets."
+                                                             + "ExKtbb_dexter_pbb."
+                                                             + "ExKtbb_dexter_pb."
+                                                             + "ExKtbb_dexter_pl."
+                                                             + "ExKtbb_dexter_pbb_trksflip."
+                                                             + "ExKtbb_dexter_pb_trksflip."
+                                                             + "ExKtbb_dexter_pl_trksflip."
+                                                             + "ExKtbb_dexter_pbb_trksflip_svmassflip."
+                                                             + "ExKtbb_dexter_pb_trksflip_svmassflip."
+                                                             + "ExKtbb_dexter_pl_trksflip_svmassflip."
+                                                             + "ExKtbb_dexter_pbb_negtrksflip."
+                                                             + "ExKtbb_dexter_pb_negtrksflip."
+                                                             + "ExKtbb_dexter_pl_negtrksflip."
+                                                             + "ExKtbb_dexter_pbb_negtrksflip_svmassflip."
+                                                             + "ExKtbb_dexter_pb_negtrksflip_svmassflip."
+                                                             + "ExKtbb_dexter_pl_negtrksflip_svmassflip."]
 TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ1 =  ["AntiKt8EMPFlowExKt2GASubJets."
                                                              + "AlgorithmType."
                                                              + "ConeExclTausFinal."
@@ -927,6 +952,7 @@ TOPQExtraVariables_TruthParticles = ["TruthParticles."
                                      + "classifierParticleOrigin."
                                      + "classifierParticleOutCome."
                                      + "classifierParticleType."
+                                     + "Classification."
                                      + "decayVtxLink."
                                      + "dressedPhoton."
                                      + "e."

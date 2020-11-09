@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
@@ -420,6 +420,9 @@ double CombinedMassUncertaintyComponent::readHistoFromParam(const xAOD::JetFourM
         case CompParametrization::PtEta:
             resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
             break;
+        case CompParametrization::PtAbsMass:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale*massShiftFactor);
+            break;
         case CompParametrization::PtAbsEta:
             resolution = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
             break;
@@ -431,6 +434,12 @@ double CombinedMassUncertaintyComponent::readHistoFromParam(const xAOD::JetFourM
             break;
         case CompParametrization::PtMassAbsEta:
             resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*massShiftFactor/jet4vec.Pt(),fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::PtAbsMassEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale*massShiftFactor,jet4vec.Eta());
+            break;
+        case CompParametrization::PtAbsMassAbsEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale*massShiftFactor,fabs(jet4vec.Eta()));
             break;
         case CompParametrization::eLOGmOe:
             resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()*massShiftFactor/jet4vec.E()));

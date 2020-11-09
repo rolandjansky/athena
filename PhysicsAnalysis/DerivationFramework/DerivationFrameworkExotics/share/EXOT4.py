@@ -401,7 +401,7 @@ EXOT4MCGenThinningTool = DerivationFramework__GenericTruthThinning(name = "EXOT4
 
 # all truth thinning tools set up, so add them in the sequence now
 from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     ToolSvc += EXOT4MCThinningTool
     thinningTools.append(EXOT4MCThinningTool)
     ToolSvc += EXOT4TMCThinningTool
@@ -561,11 +561,11 @@ EXOT4SlimmingHelper.ExtraVariables = EXOT4ExtraVariables
 # think now there is a check somewhere in the basic
 # infra-structure
 EXOT4SlimmingHelper.AllVariables = EXOT4AllVariables
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     EXOT4SlimmingHelper.AllVariables += EXOT4AllVariablesTruth
 
 EXOT4SlimmingHelper.StaticContent = EXOT4Content
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     EXOT4SlimmingHelper.StaticContent.extend(EXOT4TruthContent)
 
 # note that we add the jets outputs, but not
@@ -578,7 +578,7 @@ if globalflags.DataSource()=='geant4':
 #So not using addJetOutputs, add the collections and variables explicitly bellow
 
 listJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets','AntiKt10LCTopoCSSKSoftDropBeta100Zcut10Jets','AntiKtVR30Rmax4Rmin02TrackJets','AntiKt4EMPFlowJets','AntiKt4EMTopoJets','AntiKt2PV0TrackJets']#FIX #ATLJETMET-744
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
     listJets.extend(['AntiKt10TruthTrimmedPtFrac5SmallR20Jets'])
 # need to add the jets that are made on-the-fly into the dictionary, otherwise there is a crash
 # for the ones already in the input xAOD, this is done automatically

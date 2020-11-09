@@ -8,7 +8,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool #read xAOD files
 
 theApp.EvtMax = 400 #set to -1 to run on all events
 
-inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.AFII.46.mc16e.PHYSVAL.pool.root'
+inputFile = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SUSYTools/DAOD_PHYSVAL.mc16_13TeV.410470.AFII_mc16e_p4237.PHYSVAL.pool.root'
 
 svcMgr.EventSelector.InputCollections = [ inputFile ] #specify input files here, takes a list
 svcMgr.MessageSvc.OutputLevel = INFO 
@@ -18,9 +18,7 @@ ToolSvc += CfgMgr.ST__SUSYObjDef_xAOD("SUSYTools")
 ToolSvc.SUSYTools.ConfigFile = "SUSYTools/SUSYTools_Default.conf" # Grab the default config file
 
 ToolSvc.SUSYTools.AutoconfigurePRWTool = True
-ToolSvc.SUSYTools.PRWLumiCalcFiles = [
-    "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20181111/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-001.root"
-    ]
+ToolSvc.SUSYTools.PRWLumiCalcFiles = [ "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/GoodRunsLists/data18_13TeV/20190318/ilumicalc_histograms_None_348885-364292_OflLumi-13TeV-010.root" ]
 
 ToolSvc.SUSYTools.DataSource = 2  #configure to run on AFII sim
 

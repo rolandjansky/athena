@@ -21,6 +21,23 @@ from DerivationFrameworkHiggs.TruthCategories import *
 from AthenaCommon.GlobalFlags import globalflags
 
 #====================================================================
+# Setup Soft B-vertex search tool
+#====================================================================
+#from NewVrtSecInclusiveTool.NewVrtSecInclusive import SoftBFinderTool
+from VrtSecInclusive.MultiSecVertexTool import SoftBFinderTool
+SVBFinder  = SoftBFinderTool("SVBFinder")
+ToolSvc += SVBFinder
+
+from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__SoftBVertexTool
+HIGG3D1_SoftBVertexTool = DerivationFramework__SoftBVertexTool( name = "HIGG3D1_SoftBVertexTool",
+                                    BVertexContainerName="SoftBVertices",                                    
+                                    TrackContainerName="InDetTrackParticles",
+                                    PVContainerName="PrimaryVertices",
+				    BVertexTool=SVBFinder)
+ToolSvc += HIGG3D1_SoftBVertexTool
+DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("SoftBVertexKernel", AugmentationTools = [HIGG3D1_SoftBVertexTool])
+
+#====================================================================
 # SET UP STREAM
 #====================================================================
 streamName = derivationFlags.WriteDAOD_HIGG3D1Stream.StreamName
@@ -338,6 +355,7 @@ if globalflags.DataSource()=='geant4':
     addBSMAndDownstreamParticles()
 
     HIGG3D1SlimmingHelper.AppendToDictionary.update({
+                                                     'SoftBVertices':'xAOD::VertexContainer','SoftBVerticesAux': 'xAOD::VertexAuxContainer',
                                                      'TruthElectrons':'xAOD::TruthParticleContainer','TruthElectronsAux':'xAOD::TruthParticleAuxContainer',
                                                      'TruthMuons':'xAOD::TruthParticleContainer','TruthMuonsAux':'xAOD::TruthParticleAuxContainer',
                                                      'TruthPhotons':'xAOD::TruthParticleContainer','TruthPhotonsAux':'xAOD::TruthParticleAuxContainer',
@@ -397,3 +415,5 @@ addJetOutputs(HIGG3D1SlimmingHelper, ["HIGG3D1"],
                                      )
 
 HIGG3D1SlimmingHelper.AppendContentToStream(HIGG3D1Stream)
+HIGG3D1Stream.AddItem("xAOD::VertexContainer#SoftBVertices")
+HIGG3D1Stream.AddItem("xAOD::VertexAuxContainer#SoftBVerticesAux.")

@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file RootUtils/Type.h
  * @author scott snyder <snyder@bnl.gov>
@@ -23,6 +22,7 @@
 #include "boost/thread/tss.hpp"
 #include <typeinfo>
 #include <atomic>
+#include <memory>
 #include <mutex>
 
 
@@ -157,7 +157,7 @@ public:
    */
   TClass* getClass() const;
 
-  
+
   /**
    * @brief Return the ROOT data type code for the described type.
    *
@@ -336,6 +336,15 @@ private:
   /// The size in bytes of an instance of the described type.
   size_t m_size;
 
+  /// TMethodCall "safe deleter"
+  struct TMCDeleter
+  {
+    /// Static function to use with @c boost::thread_specific_ptr
+    static void destroy (TMethodCall* ptr);
+    /// Operator to use with @c std::unique_ptr
+    void operator() (void* ptr);
+  };
+
   /// Object to call the assignment operator on the payload type.
   /// This will be left invalid if the payload is not a class type.
   /// This instance is not actually used for calls --- since we have
@@ -343,7 +352,7 @@ private:
   /// arguments), this is not thread-safe.  Instead, we use the
   /// thread-specific instances accessed through @c m_tsAssign.
   /// Mutable, to allow calls to GetMethod().
-  mutable TMethodCall m_assign;
+  mutable std::unique_ptr<TMethodCall, TMCDeleter> m_assign;
 
   /// Flag whether or not m_assign has been initialized.
   /// We don't want to do that before we actually need it,

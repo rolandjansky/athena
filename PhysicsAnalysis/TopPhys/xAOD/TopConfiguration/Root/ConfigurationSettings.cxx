@@ -133,7 +133,7 @@ namespace top {
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonDoSmearing2stationHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True", "True");
-    registerParameter("MuonDoExtraSmearingHighPt", "True/False, To be used by analyses willing to check their sensitivity to momentum resolution effects at large muon momenta. - Default: false", "false");
+    registerParameter("MuonDoExtraSmearingHighPt", "True/False, To be used by analyses using willing to check their sensitivity to momentum resolution effects at large muon momenta and in case move to the HighPt WP - Default: false", "false");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
     registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
@@ -189,6 +189,21 @@ namespace top {
                       "WP of the ghost track vertex association. Option: none, nominal and tight. Default nominal.","nominal");
     registerParameter("GhostTracksQuality",
                       "WP of the ghost track quality. Option: TightPrimary, LoosePrimary. Loose, NoCut. Default TightPrimary.","TightPrimary");
+    
+    registerParameter("LargeRJetPtGhostTracks",
+                      "Jet pT threshold for ghost track systematic variations calculation (in MeV). Default 150000 GeV.",
+                      "150000.");
+    registerParameter("LargeRJetEtaGhostTracks",
+                      "Jet eta threshold for ghost track systematic variations calculation. Default 2.0",
+                      "2.0");
+    registerParameter("GhostTrackspTLargeR",
+                      "PT of the ghost tracks associated large-R jets (in MeV). Default 500 MeV.",
+                      "500.");
+    registerParameter("GhostTracksVertexAssociationLargeR",
+                      "WP of the ghost track vertex association (for largeR jets). Option: none, nominal and tight. Default nominal.","nominal");
+    registerParameter("GhostTracksQualityLargeR",
+                      "WP of the ghost track quality (for largeR jets). Option: TightPrimary, LoosePrimary. Loose, NoCut. Default TightPrimary.","TightPrimary");
+    
     registerParameter("JetUncertainties_NPModel",
                       "AllNuisanceParameters, CategoryReduction (default), GlobalReduction, StrongReduction - for JetUncertainties",
                       "CategoryReduction");
@@ -221,7 +236,7 @@ namespace top {
                       "Path to directory containing large-R jet uncertainties config",
                       "rel21/Summer2019");
     registerParameter("LargeRJESJMSConfig",
-                      "Calibration for large-R JES/JMS. CombMass, CaloMass or TCCMass (default CombMass).",
+                      "Calibration for large-R JES/JMS. CombMass, CaloMass, TCCMass or UFOSDMass (default CombMass).",
                       "CombMass");
     registerParameter("BoostedJetTagging",
                       "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
@@ -247,8 +262,10 @@ namespace top {
     registerParameter("RCJetRadius", "Reclustered Jet radius for object selection. Default 1.0", "1.0");
     registerParameter("UseRCJetSubstructure", "Calculate Reclustered Jet Substructure Variables. Default False",
                       "False");
-    registerParameter("UseRCJetAdditionalSubstructure",
-                      "Calculate Additional Reclustered Jet Substructure Variables. Default False", "False");
+    registerParameter("RCJetSubstructureVariables", 
+		      R"("List of reclustered jet substructure variables stored in the output separated by commas.
+		      Available variables: Tau32_clstr,Tau21_clstr,Tau3_clstr,Tau2_clstr,Tau1_clstr,d12_clstr,d23_clstr,Qw_clstr,nconstituent_clstr,D2_clstr,ECF1_clstr,ECF2_clstr,ECF3_clstr,gECF332_clstr,gECF461_clstr,gECF322_clstr,gECF331_clstr,gECF422_clstr,gECF441_clstr,gECF212_clstr,gECF321_clstr,gECF311_clstr,L1_clstr,L2_clstr,L3_clstr,L4_clstr,L5_clstr,rrcjet_pt,rrcjet_eta,rrcjet_phi,rrcjet_e)",
+		      " ");
 
     registerParameter("UseRCJets", "Use Reclustered Jets. Default False.", "False");
 
@@ -267,8 +284,11 @@ namespace top {
     registerParameter("UseVarRCJets", "Use Reclustered Jets (Variable-R Jets). Default False.", "False");
     registerParameter("UseVarRCJetSubstructure",
                       "Calculate Variable-R Reclustered Jet Substructure Variables. Default False", "False");
-    registerParameter("UseVarRCJetAdditionalSubstructure",
-                      "Calculate Additional Variable-R Reclustered Jet Substructure Variables. Default False", "False");
+    
+    registerParameter("VarRCJetSubstructureVariables",
+		      R"(List of variable-R reclustered jet substructure variables stored in the output separated by commas.
+		      Available variables: Tau32_clstr,Tau21_clstr,Tau3_clstr,Tau2_clstr,Tau1_clstr,d12_clstr,d23_clstr,Qw_clstr,nconstituent_clstr,D2_clstr,ECF1_clstr,ECF2_clstr,ECF3_clstr,gECF332_clstr,gECF461_clstr,gECF322_clstr,gECF331_clstr,gECF422_clstr,gECF441_clstr,gECF212_clstr,gECF321_clstr,gECF311_clstr,L1_clstr,L2_clstr,L3_clstr,L4_clstr,L5_clstr,rrcjet_pt,rrcjet_eta,rrcjet_phi,rrcjet_e)",
+		      " ");
 
     registerParameter("TauPt",
                       "Pt cut applied to both tight and loose taus (in MeV)."
@@ -376,6 +396,8 @@ namespace top {
                       "Comma separated list of names of the parton-level branches that will be removed from the output", " ");
     registerParameter("FilterParticleLevelBranches",
                       "Comma separated list of names of the particle-level branches that will be removed from the output", " ");
+    registerParameter("FilterNominalLooseBranches",
+                      "Comma separated list of names of the nominal_Loose tree branches that will be removed from the output", " ");
     registerParameter("FilterTrees",
                       "Comma separated list of names of the trees that will be removed from the output", " ");
 
@@ -403,12 +425,12 @@ namespace top {
                       "Special: run overlap removal on : Tight (top default) or Loose (not top default) lepton definitions",
                       "Tight");
     registerParameter("ApplyTightSFsInLooseTree",
-                      "Special: in Loose trees, calculate lepton SFs with tight leptons only, and considering they are tight: True or False (default)",
+                      "Special: in Loose trees, calculate electron/muon SFs with tight leptons only, and considering they are tight: True or False (default)",
                       "False");
 
     registerParameter("ApplyElectronInJetSubtraction",
                       "Subtract electrons close to jets for boosted analysis : True or False(top default)", "False");
-    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHqtautau, False (default)", "False");
+    registerParameter("TopPartonHistory", "ttbar, tb, Wtb, ttz, ttgamma, tHq, False (default)", "False");
     registerParameter("TopPartonLevel", "Perform parton level analysis (stored in truth tree)? True or False", "True");
     
     registerParameter("TopParticleLevel", "Perform particle level selection (stored in particleLevel tree)? True or False", "False");

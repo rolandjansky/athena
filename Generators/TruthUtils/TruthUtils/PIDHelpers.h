@@ -123,7 +123,7 @@ namespace MC {
              isHeavyNeutrino(pid) || isExotic(pid) || isBSMBoson(pid) ||
              isFourthGen(pid) ||
              abs(pid)==5100039 || // Special case: Gravitino in Pythia
-             abs(pid)==43 || in_closed_range(abs(pid), 601,606) || // Extra lepto-quark UFOs
+             abs(pid)==43 || in_closed_range(abs(pid), 601,606) || abs(pid)==9000007 || // Extra lepto-quark UFOs
              abs(pid)==1999 || // Coloron (rho)
              abs(pid)==6666 || // Pseudo Nambu-Goldstone ED model Higgs particle
              abs(pid)==9000006 || // New 'phi' particle from cosmo UFO model

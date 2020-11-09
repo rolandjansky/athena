@@ -176,6 +176,12 @@ namespace xAOD {
       return mcEventWeights().at( i );
    }
 
+   // Does this event have MC event weights?
+   static SG::AuxElement::Accessor< std::vector< float > > mcWeightAcc("mcEventWeights");
+   bool EventInfo_v1::hasMCEventWeights() const {
+     return mcWeightAcc.isAvailable( *this );
+   }
+
    AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( EventInfo_v1, uint32_t,
                                          eventTypeBitmask, setEventTypeBitmask )
 

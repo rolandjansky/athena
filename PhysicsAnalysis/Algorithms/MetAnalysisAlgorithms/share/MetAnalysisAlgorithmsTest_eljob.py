@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -24,6 +24,7 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 # Set up (Py)ROOT.
 import ROOT
 ROOT.xAOD.Init().ignore()
+ROOT.xAOD.LoadDictionaries().ignore()
 
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
@@ -65,7 +66,7 @@ for alg in algSeq:
     job.algsAdd( alg )
     pass
 
-# Find the right output directory:                                                                                      
+# Find the right output directory:
 submitDir = options.submission_dir
 if options.unit_test:
     import os

@@ -39,6 +39,7 @@ namespace top {
     m_useRCJets(false),
     m_useVarRCJets(false),
     m_useJetGhostTrack(false),
+    m_useLargeRJetGhostTrack(false),
     m_useTracks(false),
     m_useTruthParticles(false),
     m_useTruthElectrons(false),
@@ -250,6 +251,8 @@ namespace top {
     m_jetEtacut(2.5),
     m_jetPtGhostTracks(30000.),
     m_jetEtaGhostTracks(2.5),
+    m_largeRjetPtGhostTracks(150000),
+    m_largeRjetEtaGhostTracks(2.0),
     m_jetUncertainties_NPModel("AllNuisanceParameters"),
     m_jetUncertainties_QGFracFile("None"),
     m_jetUncertainties_QGHistPatterns(),
@@ -271,6 +274,10 @@ namespace top {
     m_ghostTrackspT(500.),
     m_ghostTracksVertexAssociation("nominal"),
     m_ghostTracksQuality("TightPrimary"),
+    
+    m_ghostTrackspTLargeR(500.),
+    m_ghostTracksVertexAssociationLargeR("nominal"),
+    m_ghostTracksQualityLargeR("TightPrimary"),
 
     m_largeRJetPtcut(25000.),
     m_largeRJetEtacut(2.5),
@@ -288,7 +295,6 @@ namespace top {
     m_RCJetTrimcut(0.05),
     m_RCJetRadius(1.0),
     m_useRCJetSubstructure(false),
-    m_useRCJetAdditionalSubstructure(false),
 
     m_VarRCJetPtcut(100000.),
     m_VarRCJetEtacut(2.0),
@@ -297,7 +303,6 @@ namespace top {
     m_VarRCJetRho("2"),
     m_VarRCJetMassScale("m_w,m_z,m_h,m_t"),
     m_useVarRCJetSubstructure(false),
-    m_useVarRCJetAdditionalSubstructure(false),
 
     m_trackQuality("SetMe"),
 
@@ -898,10 +903,6 @@ namespace top {
       bool topParticleLevel=true;
       settings->retrieve("TopParticleLevel",topParticleLevel);
       this->setTopParticleLevel(topParticleLevel);
-      
-      settings->retrieve("UseLooseObjectsInMETInLooseTree", m_useLooseObjectsInMETInLooseTree);
-      settings->retrieve("UseLooseObjectsInMETInNominalTree", m_useLooseObjectsInMETInNominalTree);
-      settings->retrieve("WriteMETBuiltWithLooseObjects", m_writeMETBuiltWithLooseObjects);
 
       // Particle-level OR
       if (settings->value("DoParticleLevelOverlapRemoval") == "True") {
@@ -1000,6 +1001,17 @@ namespace top {
       this->setFilterParticleLevelBranches(branches);
     }
 
+    // Get list of nominal_Loose branches to be filtered
+    if (settings->value("FilterNominalLooseBranches") != " ") {
+      std::vector<std::string> branches;
+      tokenize(settings->value("FilterNominalLooseBranches"), branches, ",");
+
+      if (branches.size() == 0) {
+        ATH_MSG_WARNING("You provided \"FilterNominalLooseBranches\" option but you did not provide any meaningful values. Ignoring");
+      }
+      this->setFilterNominalLooseBranches(branches);
+    }
+
     // Force recomputation of CP variables?
     if (settings->value("RecomputeCPVariables") == "False") m_recomputeCPvars = false;
 
@@ -1008,7 +1020,10 @@ namespace top {
       this->setSaveBootstrapWeights(true);
       this->setNumberOfBootstrapReplicas(std::atoi(settings->value("NumberOfBootstrapReplicas").c_str()));
     }
-
+    
+    settings->retrieve("UseLooseObjectsInMETInLooseTree", m_useLooseObjectsInMETInLooseTree);
+    settings->retrieve("UseLooseObjectsInMETInNominalTree", m_useLooseObjectsInMETInNominalTree);
+    settings->retrieve("WriteMETBuiltWithLooseObjects", m_writeMETBuiltWithLooseObjects);
 
     if (this->isMC()) {
       m_doLooseEvents = (settings->value("DoLoose") == "MC" || settings->value("DoLoose") == "Both");
@@ -1262,8 +1277,8 @@ namespace top {
     this->muonMuonDoSmearing2stationHighPt(muonDoSmearing2stationHighPt);
     bool muonDoExtraSmearingHighPt = false;
     settings->retrieve("MuonDoExtraSmearingHighPt", muonDoExtraSmearingHighPt);
-    if ( settings->value("MuonQuality") != "HighPt" && muonDoExtraSmearingHighPt ) {
-      ATH_MSG_WARNING("Could not set MuonDoExtraSmearingHighPt True without using the HighPt muon WP. MuonDoExtraSmearingHighPt is now setted to the default value (False)");
+    if ( settings->value("MuonQuality") == "HighPt" && muonDoExtraSmearingHighPt ) {
+      ATH_MSG_WARNING("Could not set MuonDoExtraSmearingHighPt True when using the HighPt muon WP, HighPt muons are not affected by this setting. MuonDoExtraSmearingHighPt is now setted to the default value (False)");
       muonDoExtraSmearingHighPt = false;
     }
     this->muonMuonDoExtraSmearingHighPt( muonDoExtraSmearingHighPt );
@@ -1312,6 +1327,8 @@ namespace top {
         ATH_MSG_WARNING("jetPtGhostTracks set to " << m_jetPtGhostTracks <<" to ensure that all the selected jets have the ghost tracks associated");
     }
     this->jetEtaGhostTracks(std::stof(settings->value("JetEtaGhostTracks")));
+    this->largeRjetEtaGhostTracks(std::stof(settings->value("LargeRJetEtaGhostTracks")));
+    this->largeRjetPtGhostTracks(std::stof(settings->value("LargeRJetPtGhostTracks")));
     this->jetUncertainties_NPModel(settings->value("JetUncertainties_NPModel"));
     this->jetUncertainties_QGFracFile(settings->value("JetUncertainties_QGFracFile"));
     this->jetUncertainties_QGHistPatterns(settings->value("JetUncertainties_QGHistPatterns"));
@@ -1330,6 +1347,8 @@ namespace top {
 
     this->largeRJetPtcut(std::stof(settings->value("LargeRJetPt")));
     this->largeRJetEtacut(std::stof(settings->value("LargeRJetEta")));
+    
+    
     
     
     // now get all substructure variables from the config file.
@@ -1367,6 +1386,10 @@ namespace top {
     this->ghostTrackspT(std::stof(settings->value("GhostTrackspT")));
     this->ghostTracksVertexAssociation(settings->value("GhostTracksVertexAssociation"));
     this->ghostTracksQuality(settings->value("GhostTracksQuality"));
+    
+    this->ghostTrackspTLargeR(std::stof(settings->value("GhostTrackspTLargeR")));
+    this->ghostTracksVertexAssociationLargeR(settings->value("GhostTracksVertexAssociationLargeR"));
+    this->ghostTracksQualityLargeR(settings->value("GhostTracksQualityLargeR"));
 
     this->trackPtcut(std::stof(settings->value("TrackPt")));
     this->trackEtacut(std::stof(settings->value("TrackEta")));
@@ -1383,10 +1406,10 @@ namespace top {
     if (settings->value("UseRCJetSubstructure") == "True" ||
         settings->value("UseRCJetSubstructure") == "true") this->m_useRCJetSubstructure = true;
     else this->m_useRCJetSubstructure = false;
-
-    if (settings->value("UseRCJetAdditionalSubstructure") == "True" ||
-        settings->value("UseRCJetAdditionalSubstructure") == "true") this->m_useRCJetAdditionalSubstructure = true;
-    else this->m_useRCJetAdditionalSubstructure = false;
+    
+    if(this->m_useRCJetSubstructure) {
+      m_rcJetSubstructureVariables = readListOfSubstructureVariables(settings, "RCJetSubstructureVariables");
+    }
 
     this->VarRCJetPtcut(std::stof(settings->value("VarRCJetPt")));
     this->VarRCJetEtacut(std::stof(settings->value("VarRCJetEta")));
@@ -1399,10 +1422,10 @@ namespace top {
     if (settings->value("UseVarRCJetSubstructure") == "True" ||
         settings->value("UseVarRCJetSubstructure") == "true") this->m_useVarRCJetSubstructure = true;
     else this->m_useVarRCJetSubstructure = false;
-    if (settings->value("UseVarRCJetAdditionalSubstructure") == "True" ||
-        settings->value("UseVarRCJetAdditionalSubstructure") ==
-        "true") this->m_useVarRCJetAdditionalSubstructure = true;
-    else this->m_useVarRCJetAdditionalSubstructure = false;
+    
+    if(this->m_useVarRCJetSubstructure) {
+      m_VarRCJetSubstructureVariables = readListOfSubstructureVariables(settings, "VarRCJetSubstructureVariables");
+    }
 
     if (settings->value("StoreJetTruthLabels") == "False") {
       this->jetStoreTruthLabels(false);
@@ -2069,7 +2092,11 @@ namespace top {
   void TopConfig::decoKeyJetGhostTrack(const std::string& key) {
     if (!m_configFixed) {
       m_useJetGhostTrack = false;
-      if (key != "None") m_useJetGhostTrack = true;
+      if (key != "None") 
+      {
+          m_useJetGhostTrack = true;
+          m_useLargeRJetGhostTrack = true;
+      }
 
       m_decoKeyJetGhostTrack = key;
     }
@@ -2078,7 +2105,7 @@ namespace top {
   // setting the run periods for ghost track
   // even if configuration is fixed - could be changed later
   void TopConfig::runPeriodJetGhostTrack(const std::vector<std::uint32_t>& vect) {
-    if (m_useJetGhostTrack == true) m_jetGhostTrackRunPeriods = vect;
+    if (m_useJetGhostTrack == true || m_useLargeRJetGhostTrack == true) m_jetGhostTrackRunPeriods = vect;
   }
 
   // setting the run periods for tracks                                                                                                                                                             
@@ -2817,7 +2844,7 @@ namespace top {
         m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
       }
     }
-    if (m_useJetGhostTrack) {
+    if (m_useJetGhostTrack || m_useLargeRJetGhostTrack) {
       for (Itr i = m_systMapJetGhostTrack->begin(); i != m_systMapJetGhostTrack->end(); ++i) {
         m_systAllTTreeNames->insert(std::make_pair((*i).first, (*i).second.name()));
       }
@@ -3948,4 +3975,34 @@ namespace top {
     os << "\n";
     return os;
   }
+  
+  
+  std::vector<std::string> TopConfig::readListOfSubstructureVariables(top::ConfigurationSettings* const& settings, const std::string& in) const {
+    const std::string& message = settings->stringData().at(in).m_human_explanation;
+    const std::string& value = settings->value(in);
+    
+    const std::string substr = "Available variables:";
+    size_t found = message.find(substr);
+    if(found==std::string::npos) throw std::runtime_error("TopConfig: Expected 'Available variables:' string in " + in + " option description!");
+    
+    const std::string strDefinedVariables = message.substr(found+substr.length()); 
+    std::vector<std::string> vecDefinedVariables;
+    tokenize(strDefinedVariables,vecDefinedVariables,",",true); // splitting string
+    for(std::string& defVar : vecDefinedVariables) {// removing spaces
+      defVar.erase(std::remove_if(defVar.begin(), defVar.end(), isspace), defVar.end());
+    }
+    
+    std::vector<std::string> result;
+    tokenize(value,result,",",true); // splitting string
+    
+    for(std::string& var : result) {
+      var.erase(std::remove_if(var.begin(), var.end(), isspace), var.end()); // removing empty spaces
+      if(std::find(std::begin(vecDefinedVariables),std::end(vecDefinedVariables),var) == std::end(vecDefinedVariables)) // Compare with list of defined variables
+	throw std::runtime_error("TopConfig: Unknown variable " + var + " found in " + in);
+    }
+
+    return result;
+    
+  }
+  
 }

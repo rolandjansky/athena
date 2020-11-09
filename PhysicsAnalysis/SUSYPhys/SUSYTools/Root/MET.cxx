@@ -141,6 +141,7 @@ StatusCode SUSYObjDef_xAOD::GetMET(xAOD::MissingETContainer &met,
   ATH_CHECK( m_metMaker->rebuildJetMET(m_jetTerm, softTerm, &met, jet, metcore, metMap, doJVTCut) );
 
   if (!isData()) {
+    m_metSystTool->setRandomSeed(static_cast<int>(1e6*met[softTerm]->phi()));
     ATH_MSG_VERBOSE("Original soft term " << met[softTerm]->name() << " (met: " << met[softTerm]->met() << ")" );
     if ( m_metSystTool->applyCorrection(*met[softTerm]) != CP::CorrectionCode::Ok ) {
       ATH_MSG_WARNING("GetMET: Failed to apply MET soft term systematics.");
@@ -210,6 +211,7 @@ StatusCode SUSYObjDef_xAOD::GetTrackMET(xAOD::MissingETContainer &met,
   ATH_CHECK( m_metMaker->rebuildTrackMET(m_jetTerm, softTerm, &met, jet, metcore, metMap, true) );
 
   if (!isData()) {
+    m_metSystTool->setRandomSeed(static_cast<int>(1e6*met[softTerm]->phi()));
 
     if (m_trkMETsyst) {
       ATH_MSG_VERBOSE("Apply trkMET systematics");

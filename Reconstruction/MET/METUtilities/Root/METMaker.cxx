@@ -432,7 +432,7 @@ namespace met {
             ATH_MSG_VERBOSE("Add object with pt " << obj->pt());
             *met += obj;
           } else {
-            MissingETBase::Types::constvec_t constvec = MissingETComposition::getConstVec(map,obj,objScale);
+            MissingETBase::Types::constvec_t constvec = MissingETComposition::getConstVec(map,orig,objScale);
             ATH_MSG_VERBOSE("Add truth object with pt " << constvec.cpt());
             met->add(constvec.cpx(),constvec.cpy(),constvec.cpt());
           }

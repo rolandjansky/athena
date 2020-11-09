@@ -5,6 +5,7 @@
 
 # Set the minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+project( WorkDir )
 
 # Let the user pick up updated AtlasCMake/AtlasLCG versions for testing.
 # Remember that it's not a problem if AtlasCMake is not found, that's why
@@ -24,7 +25,7 @@ foreach( _pp ${_parentProjectNames} )
       # Only turn off Fortran support for the AnalysisBase and AnalysisTop projects for now:
       if( "${_pp}" STREQUAL "AnalysisBase" OR
       	  "${_pp}" STREQUAL "AnalysisTop")
-         set( _defaultUseFortran FALSE )	 
+         set( _defaultUseFortran FALSE )
       endif()
       break()
    endif()

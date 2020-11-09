@@ -199,11 +199,11 @@ def addAntiKt4TruthWZJets(sequence,outputlist):
 
 def addAntiKt10TruthJets(sequence,outputlist):
     if DerivationFrameworkHasTruth:
-        addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+        addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10TruthWZJets(sequence,outputlist):
     if DerivationFrameworkHasTruth:
-        addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
+        addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4TruthDressedWZJets(sequence,outputlist):
     if DerivationFrameworkHasTruth:
@@ -484,8 +484,8 @@ def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def addJetTruthLabel(jetalg,algname,labelname,sequence):
-    supportedLabelNames = ['R10TruthLabel_R21Consolidated']
-    supportedTruthJets = ['AntiKt10TruthTrimmedPtFrac5SmallR20']
+    supportedLabelNames = ['R10TruthLabel_R21Consolidated','R10TruthLabel_R21Precision']
+    supportedTruthJets = ['AntiKt10Truth','AntiKt10TruthTrimmedPtFrac5SmallR20']
     supportedRecoJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKSoftDropBeta100Zcut10','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf','AntiKt10UFOCHSTrimmedPtFrac5SmallR20']
     supportedJets = supportedRecoJets + supportedTruthJets
     if not jetalg in supportedJets:
@@ -579,6 +579,68 @@ def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",ove
             jetaugtool.fJvtMomentKey = outLabel
 
         extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
+        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
+def getCustomJvt(jetalg,sequence,algname,outLabel="customJvt",z0cutLowEta=3.,z0cutHighEta=3.,z0etaDiv=1.5):
+    supportedJets = ['AntiKt4EMPFlow']
+    if not jetalg in supportedJets:
+        extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        return
+    else:
+        jetaugtool = getJetAugmentationTool(jetalg,suffix=algname)
+
+        if(jetaugtool==None):
+            extjetlog.error('*** Custom Jvt called but required augmentation tool does not exist! ***')
+            return
+
+        customSumPtToolname = 'DFJetCustomJvt_'+jetalg+algname
+        customJvfToolname = 'DFJetCustomJvf_'+jetalg+algname
+
+        from AthenaCommon.AppMgr import ToolSvc
+
+        if hasattr(ToolSvc,customSumPtToolname):
+            jetaugtool.JetCustomSumTrkTool = getattr(ToolSvc,customSumPtToolname)
+            jetaugtool.JetCustomJvfTool = getattr(ToolSvc,customJvfToolname)
+        else:
+            customSumPtTool = CfgMgr.JetCustomVertexTaggerTool(customSumPtToolname)
+            customJvfTool = CfgMgr.JetCustomVertexFractionTool(customJvfToolname)
+            ToolSvc += customSumPtTool
+            ToolSvc += customJvfTool
+            jetaugtool.CustomSumTrkTool = customSumPtTool
+            jetaugtool.CustomJvfTool = customJvfTool
+        jetaugtool.customSumTrkMomentKey = "SumPtTrkPt500_"+outLabel
+        jetaugtool.customJvfMomentKey = "JVF"+outLabel+"Corr"
+
+        customSumPtTool.customSumPtTrkName = "SumPtTrkPt500_"+outLabel
+        customSumPtTool = getattr(ToolSvc,customSumPtToolname)
+        customSumPtTool.z0cutLowEta = z0cutLowEta
+        customSumPtTool.z0cutHighEta = z0cutHighEta
+        customSumPtTool.z0etaDiv = z0etaDiv
+
+        customJvfTool.JVFName = "JVF"+outLabel
+        customJvfTool = getattr(ToolSvc,customJvfToolname)
+        customJvfTool.z0cutLowEta = z0cutLowEta
+        customJvfTool.z0cutHighEta = z0cutHighEta
+        customJvfTool.z0etaDiv = z0etaDiv
+
+        TrackSelToolName = 'DFTrackSelection_CustomJvt'
+        if hasattr(ToolSvc, TrackSelToolName):
+          customSumPtTool.TrackSelector = getattr(ToolSvc, TrackSelToolName)
+          customJvfTool.TrackSelector = getattr(ToolSvc, TrackSelToolName)
+        else:
+          IDTrackSelToolName = 'DFIDTrackSelection_CustomJvt'
+          idtrackselectiontool = CfgMgr.InDet__InDetTrackSelectionTool( IDTrackSelToolName )
+          idtrackselectiontool.CutLevel = "Loose"
+          ToolSvc += idtrackselectiontool
+
+          trackselectiontool = CfgMgr.JetTrackSelectionTool( TrackSelToolName )
+          trackselectiontool.Selector = idtrackselectiontool
+          ToolSvc += trackselectiontool
+
+          customSumPtTool.TrackSelector = getattr(ToolSvc, TrackSelToolName)
+          customJvfTool.TrackSelector = getattr(ToolSvc, TrackSelToolName)
+
+        extjetlog.info('ExtendedJetCommon: Applying Custom Jvt augmentation to jet collection: '+jetalg+'Jets')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):

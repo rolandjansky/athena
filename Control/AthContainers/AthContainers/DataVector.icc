@@ -1,10 +1,8 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: DataVector.icc 797205 2017-02-14 19:38:03Z ssnyder $
 /**
  * @file  AthContainers/DataVector.icc
  * @author scott snyder, Paolo Calafiura, etc
@@ -495,7 +493,7 @@ DataVector<T, BASE>::DataVector
   // which would otherwise compile.
   typedef typename std::iterator_traits<InputIterator>::value_type ittype;
   BOOST_STATIC_ASSERT ((::boost::is_convertible<ittype, const T*>::value));
-  
+
   this->m_ownPolicy = ownPolicy;
   this->template initAuxVectorBase<DataVector> (ownPolicy, trackIndices);
   this->m_isMostDerived = true;
@@ -685,7 +683,7 @@ DataVector<T, BASE>::size() const
  */
 template <class T, class BASE>
 void DataVector<T, BASE>::resize(size_type sz)
-{ 
+{
   if (sz < this->size()) {
     this->erase (this->begin()+sz, this->end());
   } else {
@@ -693,7 +691,7 @@ void DataVector<T, BASE>::resize(size_type sz)
   }
   // xxx ??? Is this redundant with the erase() above?
   SG::AuxVectorBase::resize<DataVector> (sz);
-} 
+}
 
 
 /**
@@ -733,7 +731,7 @@ const T* DataVector<T, BASE>::operator[] (size_type n) const
  * @brief Access an element, as an rvalue.
  * @param n Array index to access.
  * @return The element at @a n.
- * 
+ *
  * This is a synonym for operator[] const, to be used when calling from root
  * (where we can't readily call just the const version of a method).
  */
@@ -1369,7 +1367,7 @@ DataVector<T, BASE>::insertMove (iterator position, DataVector& other)
 template <class T, class BASE>
 typename DataVector<T, BASE>::iterator
 DataVector<T, BASE>::erase(iterator position)
-{ 
+{
   if (this->m_ownPolicy != SG::OWN_ELEMENTS)
     this->clearIndex (position);
   iterator ret (this->erase_base (position.base()), this);
@@ -1712,7 +1710,8 @@ void DataVector<T, BASE>::clear (SG::OwnershipPolicy ownPolicy,
 template <class T, class BASE>
 const DataModel_detail::DVLInfoBase& DataVector<T, BASE>::dvlinfo()
 {
-  return s_info;
+  static const DataModel_detail::DVLInfo<DataVector<T, BASE> > info;
+  return info;
 }
 
 
@@ -1724,7 +1723,7 @@ const DataModel_detail::DVLInfoBase& DataVector<T, BASE>::dvlinfo()
 template <class T, class BASE>
 const DataModel_detail::DVLInfoBase& DataVector<T, BASE>::dvlinfo_v() const
 {
-  return s_info;
+  return DataVector<T, BASE>::dvlinfo();
 }
 
 
@@ -2014,11 +2013,6 @@ void DataVector<T, BASE>::setMostDerived()
   m_isMostDerived = true;
   BASE::clearMostDerived();
 }
-
-
-/// The DV/DL info struct for this class.
-template <class T, class BASE>
-DataModel_detail::DVLInfo<DataVector<T> > DataVector<T, BASE>::s_info;
 
 
 //****************************************************************************
@@ -2371,7 +2365,7 @@ typename DATAVECTOR::size_type DATAVECTOR::max_size() const
  */
 template <class T>
 void DATAVECTOR::resize(size_type sz)
-{ 
+{
   if (sz < this->size()) {
     this->erase (this->begin()+sz, this->end());
   } else {
@@ -2379,7 +2373,7 @@ void DATAVECTOR::resize(size_type sz)
   }
   // xxx ??? Is this redundant with the erase() above?
   SG::AuxVectorBase::resize<DataVector> (sz);
-} 
+}
 
 
 /**
@@ -2472,7 +2466,7 @@ const T* DATAVECTOR::operator[] (size_type n) const
  * @brief Access an element, as an rvalue.
  * @param n Array index to access.
  * @return The element at @a n.
- * 
+ *
  * This is a synonym for operator[] const, to be used when calling from root
  * (where we can't readily call just the const version of a method).
  */
@@ -3085,7 +3079,7 @@ DATAVECTOR::insertMove (iterator position, DataVector& other)
 template <class T>
 inline
 typename DATAVECTOR::iterator DATAVECTOR::erase(iterator position)
-{ 
+{
   if (this->m_ownPolicy != SG::OWN_ELEMENTS)
     this->clearIndex (position);
   iterator ret (this->erase_base (position.base()), this);
@@ -3452,7 +3446,8 @@ void DATAVECTOR::clear (SG::OwnershipPolicy ownPolicy,
 template <class T>
 const DataModel_detail::DVLInfoBase& DATAVECTOR::dvlinfo()
 {
-  return s_info;
+  static const DataModel_detail::DVLInfo<DataVector<T, DataModel_detail::NoBase> > info;
+  return info;
 }
 
 
@@ -3464,7 +3459,7 @@ const DataModel_detail::DVLInfoBase& DATAVECTOR::dvlinfo()
 template <class T>
 const DataModel_detail::DVLInfoBase& DATAVECTOR::dvlinfo_v() const
 {
-  return s_info;
+  return DATAVECTOR::dvlinfo();
 }
 
 
@@ -3694,7 +3689,7 @@ const std::type_info& DATAVECTOR::dv_typeid() const
 template <class T>
 typename DATAVECTOR::PtrVector::iterator
 DATAVECTOR::erase_base(typename PtrVector::iterator position)
-{ 
+{
   if (m_ownPolicy == SG::OWN_ELEMENTS && position != m_pCont.end())
     delete *position;
   return m_pCont.erase(position);
@@ -3792,11 +3787,6 @@ void DATAVECTOR::setMostDerived()
 {
   m_isMostDerived = true;
 }
-
-
-/// The DV/DL info struct for this class.
-template <class T>
-DataModel_detail::DVLInfo<DataVector<T> > DATAVECTOR::s_info;
 
 
 #undef DATAVECTOR

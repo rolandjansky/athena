@@ -16,5 +16,7 @@
 <class name="JetTrackSumMomentsTool"/>
 <class name="JetVertexFractionTool"/>
 <class name="JetVertexTaggerTool"/>
+<class name="JetCustomVertexFractionTool"/>
+<class name="JetCustomVertexTaggerTool"/>
 <class name="JetWidthTool"/>
 </lcgdict>

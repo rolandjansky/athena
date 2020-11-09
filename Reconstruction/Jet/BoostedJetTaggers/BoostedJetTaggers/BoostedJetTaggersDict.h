@@ -21,5 +21,6 @@
 #include "BoostedJetTaggers/JetQGTaggerBDT.h"
 #include "BoostedJetTaggers/HbbTaggerDNN.h"
 #include "BoostedJetTaggers/MassDecoXbbTagger.h"
+#include "BoostedJetTaggers/DeepsetXbbTagger.h"
 
 #endif // BOOSTEDJETTAGGERS_BOOSTEDJETTAGGERSDICT_H

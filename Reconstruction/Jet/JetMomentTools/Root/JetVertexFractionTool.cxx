@@ -14,10 +14,10 @@ JetVertexFractionTool::JetVertexFractionTool(const std::string& name)
 , m_tvaName("")
 , m_tracksName("")
 , m_htsel("") {
-  declareProperty("VertexContainer", m_verticesName);
-  declareProperty("AssociatedTracks", m_assocTracksName);
+  declareProperty("VertexContainer", m_verticesName="PrimaryVertices");
+  declareProperty("AssociatedTracks", m_assocTracksName="GhostTrack");
   declareProperty("TrackVertexAssociation", m_tvaName);
-  declareProperty("TrackParticleContainer",m_tracksName);
+  declareProperty("TrackParticleContainer",m_tracksName="InDetTrackParticles");
   declareProperty("SumPtTrkName",m_sumPtTrkName="SumPtTrkPt500");
   declareProperty("TrackSelector", m_htsel);
   declareProperty("JVFName", m_jvfname ="JVF");

@@ -114,28 +114,35 @@ namespace top {
     virtual void specifiedSystematics(const std::set<std::string>& specifiedSystematics);
   protected:
     StatusCode applyNoOpSystematic(xAOD::JetContainer* nominal,
-                                   const CP::SystematicSet& syst) const;
+                                   const CP::SystematicSet& syst, bool smallRjets = true) const;
 
     StatusCode applyTruthFilterSystematic(xAOD::JetContainer* nominal,
                                           InDet::InDetTrackTruthFilterTool* tool,
-                                          const CP::SystematicSet& syst) const;
+                                          const CP::SystematicSet& syst, bool smallRjets = true) const;
 
     StatusCode applySmearingSystematic(xAOD::JetContainer* nominal,
                                        InDet::InDetTrackSmearingTool* tool,
-                                       const CP::SystematicSet& syst) const;
+                                       const CP::SystematicSet& syst, bool smallRjets = true) const;
 
     StatusCode applyBiasingSystematic(xAOD::JetContainer* nominal,
                                       InDet::InDetTrackBiasingTool* tool,
-                                      const CP::SystematicSet& syst) const;
+                                      const CP::SystematicSet& syst, bool smallRjets = true) const;
 
     StatusCode applyJetTrackFilterSystematic(xAOD::JetContainer* nominal,
                                              InDet::JetTrackFilterTool* tool,
-                                             const CP::SystematicSet& syst) const;
+                                             const CP::SystematicSet& syst, bool smallRjets = true) const;
+                                             
+   /*
+    * Since the systematics can be applied both to tracks associated to the large-R jets than the small-R Jets this accounts for both
+    */                                 
+   StatusCode execute_smallR(bool executeNominal);
+   StatusCode execute_largeR(bool executeNominal);
+   
   private:
     StatusCode retrieveGhostTrackCPTool();
   private:
     std::shared_ptr<top::TopConfig> m_config;
-    double m_jetPtCut, m_jetEtaCut;
+    double m_jetPtCut, m_jetEtaCut,m_largeRjetPtCut,m_largeRjetEtaCut;
     std::vector<std::uint32_t> m_runPeriods;
 
     std::list<CP::SystematicSet> m_specifiedSystematics;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Source code for the ConstituentSubtractorTool implementation class
@@ -54,7 +54,7 @@ StatusCode ConstituentSubtractorTool::initialize() {
     }
   }
 
-  
+
   if(m_doRapidityRescaling && m_doRapidityPhiRescaling) {
     ATH_MSG_ERROR("Incompatible configuration: You set both, DoRapidityRescaling and DoRapidityPhiRescaling, to true. Use maximally only one of them.");
     return StatusCode::FAILURE;
@@ -106,24 +106,24 @@ StatusCode ConstituentSubtractorTool::initialize() {
     }
   }
 
-  
+
 
   return StatusCode::SUCCESS;
 }
 
-	
+
 StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* cont) const {
 
   contrib::ConstituentSubtractor subtractor;
-  
+
   // free parameter for the maximal allowed distance sqrt((y_i-y_k)^2+(phi_i-phi_k)^2) between particle i and ghost k
-  subtractor.set_max_standardDeltaR(m_maxDeltaR); 
+  subtractor.set_max_standardDeltaR(m_maxDeltaR);
 
   // free parameter for the distance measure (the exponent of particle pt). The larger the parameter alpha, the more are favoured the lower pt particles in the subtraction process
-  subtractor.set_alpha(m_alpha);  
+  subtractor.set_alpha(m_alpha);
 
   // free parameter for the density of ghosts. The smaller, the better - but also the computation is slower.
-  subtractor.set_ghost_area(m_ghostArea); 
+  subtractor.set_ghost_area(m_ghostArea);
 
   // prepare PseudoJet input
   std::vector<PseudoJet> inputs_to_correct, inputs_to_not_correct;
@@ -160,13 +160,13 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
       ATH_MSG_VERBOSE("Using " << part->type() << " with pt " << part->pt());
       inputs_to_correct.push_back(pj);
       // Minimal and maximum rapidities needed for the workaround for the bug in fastjet-contrib ConstituentSubtractor, see ATLASG-1417
-      if (pj.rap()<minRap) minRap = pj.rap(); 
-      if (pj.rap()>maxRap) maxRap = pj.rap(); 
+      if (pj.rap()<minRap) minRap = pj.rap();
+      if (pj.rap()>maxRap) maxRap = pj.rap();
     } else {
       ATH_MSG_VERBOSE("Will not correct " << part->type() << " with pt " << part->pt());
       inputs_to_not_correct.push_back(pj);
     }
-    
+
     ++i;
   }
 
@@ -215,8 +215,6 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
   bge_rho.set_particles(inputs_to_correct);
   subtractor.set_background_estimator(&bge_rho);
 
-  // this sets the same background estimator to be used for deltaMass density, rho_m, as for pt density, rho:
-  subtractor.set_common_bge_for_rho_and_rhom(m_commonBgeForRhoAndRhom); 
   // for massless input particles it does not make any difference (rho_m is always zero)
 
   ATH_MSG_DEBUG("Subtracting event density from constituents");
@@ -249,8 +247,7 @@ StatusCode ConstituentSubtractorTool::process_impl(xAOD::IParticleContainer* con
     ATH_MSG_VERBOSE("Initial phi: " << part->phi() << ", subtracted pt: " << corrected_p4s[i].Phi());
     ATH_CHECK( setP4(part,corrected_p4s[i], &weightAcc) );
     ++i;
-  }  
+  }
 
   return StatusCode::SUCCESS;
 }
-

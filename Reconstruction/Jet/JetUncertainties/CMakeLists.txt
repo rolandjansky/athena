@@ -23,11 +23,14 @@ atlas_depends_on_subdirs(
    PhysicsAnalysis/AnalysisCommon/PATInterfaces
    PhysicsAnalysis/AnalysisCommon/PATCore 
    Reconstruction/Jet/JetCPInterfaces
+   Reconstruction/Jet/JetInterface
    PRIVATE
    Reconstruction/Jet/BoostedJetTaggers
+   Reconstruction/Jet/JetCalibTools
    Event/xAOD/xAODCore
    Event/xAOD/xAODTracking
    Tools/PathResolver
+   PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    ${extra_deps} )
 
 # External dependencies:
@@ -39,7 +42,7 @@ atlas_add_library( JetUncertaintiesLib
    PUBLIC_HEADERS JetUncertainties
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet PATInterfaces
-   JetCPInterfaces PATCoreLib 
+   JetCPInterfaces JetInterface PATCoreLib 
    PRIVATE_LINK_LIBRARIES xAODCore xAODTracking PathResolver)
 
 if( NOT XAOD_STANDALONE )
@@ -75,6 +78,14 @@ if( XAOD_STANDALONE )
       util/testResolution.cxx
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODEventInfo
       xAODRootAccess JetUncertaintiesLib )
+
+   atlas_add_executable( FFJetSmearingTool_MyExample
+      util/FFJetSmearingTool_MyExample.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODJet
+      xAODEventShape xAODCore xAODRootAccess BoostedJetTaggersLib JetUncertaintiesLib JetCalibToolsLib ParticleJetToolsLib )
+
+
 endif()
 
 # Install files from the package:

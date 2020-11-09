@@ -78,6 +78,7 @@ JETM3MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name   
 ToolSvc += JETM3MuonTPThinningTool
 thinningTools.append(JETM3MuonTPThinningTool)
 
+
 # TrackParticles associated with electrons
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__EgammaTrackParticleThinning
 JETM3ElectronTPThinningTool = DerivationFramework__EgammaTrackParticleThinning(name                    = "JETM3ElectronTPThinningTool",
@@ -242,6 +243,13 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm3Seq, algname='JetFo
 
 # PFlow fJvt #
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetForwardPFlowJvtToolAlg')
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetCustomJvtToolAlg1',z0cutLowEta=1.0,z0cutHighEta=1.0,z0etaDiv=1.5,outLabel="1")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetCustomJvtToolAlg2',z0cutLowEta=1.5,z0cutHighEta=1.5,z0etaDiv=1.5,outLabel="1p5")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetCustomJvtToolAlg3',z0cutLowEta=2.0,z0cutHighEta=2.0,z0etaDiv=1.5,outLabel="2")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetCustomJvtToolAlg4',z0cutLowEta=3.0,z0cutHighEta=3.0,z0etaDiv=1.5,outLabel="3")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetCustomJvtToolAlg5',z0cutLowEta=3.0,z0cutHighEta=1.0,z0etaDiv=1.5,outLabel="3_1")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetCustomJvtToolAlg6',z0cutLowEta=3.0,z0cutHighEta=1.5,z0etaDiv=1.5,outLabel="3_1p5")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetCustomJvtToolAlg7',z0cutLowEta=3.0,z0cutHighEta=2.0,z0etaDiv=1.5,outLabel="3_2")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here

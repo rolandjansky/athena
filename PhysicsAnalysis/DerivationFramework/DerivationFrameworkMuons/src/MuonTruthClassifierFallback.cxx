@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -28,6 +28,7 @@ DerivationFramework::MuonTruthClassifierFallback::MuonTruthClassifierFallback(co
   declareProperty("TruthPileupContainerKey", m_truthPileupSGKey="TruthPileupEvents");
   declareProperty("TruthMuonContainerKey", m_truthMuonSGKey="MuonTruthParticles");
   declareProperty("MinPt", m_minPt=2.5e3);
+  declareProperty("MaxDr", m_maxDr=0.05);
   declareProperty("MCTruthClassifierTool", m_mcTruthClassifier,"Handle of MCTruthClassifier");
 
 }
@@ -109,6 +110,7 @@ StatusCode DerivationFramework::MuonTruthClassifierFallback::addBranches() const
         if (!tpart->charge()) continue;
         if (abs(tpart->pdgId())==13) continue;
         if (tpart->pt()<m_minPt) continue;
+        if (tpart->p4().DeltaR(part->p4())>m_maxDr) continue;
         if (closest && closest->p4().DeltaR(part->p4()) < tpart->p4().DeltaR(part->p4())) continue;
         closest = tpart;
       }
@@ -133,14 +135,15 @@ StatusCode DerivationFramework::MuonTruthClassifierFallback::addBranches() const
       const xAOD::TruthParticle *closestPileup = nullptr;
       for (auto event : *tpec) {
         for (size_t parti = 0; parti < event->nTruthParticles(); parti++) {
-          const xAOD::TruthParticle *part = event->truthParticle(parti);
-          if (!part) continue;
-          if (part->status()!=1) continue;
-          if (part->barcode()>2e5) continue;
-          if (!part->charge()) continue;
-          if (part->pt()<m_minPt) continue;
-          if (closestPileup && closestPileup->p4().DeltaR(part->p4()) < part->p4().DeltaR(part->p4())) continue;
-          closestPileup = part;
+          const xAOD::TruthParticle *tpart = event->truthParticle(parti);
+          if (!tpart) continue;
+          if (tpart->status()!=1) continue;
+          if (tpart->barcode()>2e5) continue;
+          if (!tpart->charge()) continue;
+          if (tpart->pt()<m_minPt) continue;
+          if (tpart->p4().DeltaR(part->p4())>m_maxDr) continue;
+          if (closestPileup && closestPileup->p4().DeltaR(part->p4()) < tpart->p4().DeltaR(part->p4())) continue;
+          closestPileup = tpart;
         }
       }
       decorator_pu_dR(*part) = (closestPileup ? closestPileup->p4().DeltaR(part->p4()) : -1);

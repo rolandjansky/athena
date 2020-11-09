@@ -495,10 +495,10 @@ namespace SH
 
     RucioDownloadResult result;
     result.did = readLine (output, "DID ");
-    result.totalFiles = readLineUnsigned (output, "Total files : ");
-    result.downloadedFiles = readLineUnsigned (output, "Downloaded files : ");
-    result.alreadyLocal = readLineUnsigned (output, "Files already found locally : ");
-    result.notDownloaded = readLineUnsigned (output, "Files that cannot be downloaded : ");
+    result.totalFiles = readLineUnsigned (output, "Total files: ");
+    result.downloadedFiles = readLineUnsigned (output, "Downloaded files: ");
+    result.alreadyLocal = readLineUnsigned (output, "Files already found locally: ");
+    result.notDownloaded = readLineUnsigned (output, "Files that cannot be downloaded: ");
     return result;
   }
 

@@ -265,10 +265,16 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     if IsSUSYSignal():
         from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
         augmentationToolsList += DecorateSUSYProcess('MCTruthCommon')
+
     from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
     kernel += CfgMgr.DerivationFramework__CommonAugmentation("MCTruthCommonPostJetKernel",
                                                              AugmentationTools = augmentationToolsList
                                                              )
+
+    # add SoW of individual SUSY final states, relies on augmentation from DecorateSUSYProcess()
+    if IsSUSYSignal():
+        from DerivationFrameworkSUSY.SUSYWeightMetadata import addSUSYWeights
+        addSUSYWeights(kernel)
 
 # This adds the entirety of TRUTH3
 def addStandardTruthContents(kernel=None,

@@ -559,7 +559,7 @@ applyJetCalibration_xAODColl("AntiKt4EMPFlow", exot5Seq)
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
 isMC = False
-if globalflags.DataSource() == 'geant4':
+if DerivationFrameworkHasTruth:
   isMC = True
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 if isMC:

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -42,3 +42,7 @@ ServiceMgr.THistSvc.Output += [
 
 # Reduce the printout from Athena:
 include( "AthAnalysisBaseComps/SuppressLogging.py" )
+
+# Work around ROOT-10940.
+import ROOT
+ROOT.xAOD.LoadDictionaries().ignore()

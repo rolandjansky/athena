@@ -204,6 +204,13 @@ addDistanceInTrain(jetm1Seq)
 #add pFlow fJVT and MVfJVT for EMTopo
 applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm1Seq, algname='JetForwardJvtToolBDTAlg')
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetForwardPFlowJvtToolAlg')
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetCustomJvtToolAlg1',z0cutLowEta=1.0,z0cutHighEta=1.0,z0etaDiv=1.5,outLabel="1")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetCustomJvtToolAlg2',z0cutLowEta=1.5,z0cutHighEta=1.5,z0etaDiv=1.5,outLabel="1p5")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetCustomJvtToolAlg3',z0cutLowEta=2.0,z0cutHighEta=2.0,z0etaDiv=1.5,outLabel="2")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetCustomJvtToolAlg4',z0cutLowEta=3.0,z0cutHighEta=3.0,z0etaDiv=1.5,outLabel="3")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetCustomJvtToolAlg5',z0cutLowEta=3.0,z0cutHighEta=1.0,z0etaDiv=1.5,outLabel="3_1")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetCustomJvtToolAlg6',z0cutLowEta=3.0,z0cutHighEta=1.5,z0etaDiv=1.5,outLabel="3_1p5")
+getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetCustomJvtToolAlg7',z0cutLowEta=3.0,z0cutHighEta=2.0,z0etaDiv=1.5,outLabel="3_2")
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT

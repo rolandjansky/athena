@@ -199,6 +199,7 @@ for alg in largeRJetAlgs:
 if DerivationFrameworkHasTruth:
   for alg in largeRJetAlgs:
     addJetTruthLabel(jetalg=alg,sequence=jetm8Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Consolidated")
+    addJetTruthLabel(jetalg=alg,sequence=jetm8Seq,algname="JetTruthLabelingAlg",labelname="R10TruthLabel_R21Precision")
 
 # Add VR track jets for b-tagging
 addVRJets(jetm8Seq, largeRJetCollections)
@@ -292,6 +293,8 @@ JETM8SlimmingHelper.AppendToDictionary["UFOCSSKAux"] = "xAOD::TrackCaloClusterAu
 JETM8SlimmingHelper.ExtraVariables += ["UFOCSSK.pt.eta.phi.taste"]
 JETM8SlimmingHelper.ExtraVariables += ['AntiKt10LCTopoJets.SizeParameter',
                                        'AntiKt10TruthJets.SizeParameter',
+                                       'AntiKt10TruthJets.Split12',
+                                       'AntiKt10TruthJets.Split23',
                                        'AntiKt10TrackCaloClusterJets.SizeParameter',
                                        'AntiKt10UFOCSSKJets.SizeParameter',
                                        'AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets.SizeParameter',

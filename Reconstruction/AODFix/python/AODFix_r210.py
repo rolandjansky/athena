@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from AthenaCommon.Logging import logging
@@ -162,7 +162,7 @@ class AODFix_r210(AODFix_base):
           mc15_13TeV.364177.Sherpa_221_NNPDF30NNLO_Wenu_MAXHTPTV140_280_CFilterBVeto.evgen.EVNT.e5340
           mc15_13TeV.364190.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CVetoBVeto.evgen.EVNT.e5340
           mc15_13TeV.364191.Sherpa_221_NNPDF30NNLO_Wtaunu_MAXHTPTV140_280_CFilterBVeto.evgen.EVNT.e5340
-        """
+          """
           if input_mcChanNb>=364310 and input_mcChanNb<=364312:
             schedule_evtRunNum = True
           if input_mcChanNb==364132:
@@ -183,6 +183,12 @@ class AODFix_r210(AODFix_base):
             schedule_evtRunNum = True
           if input_mcChanNb>=364190 and input_mcChanNb<=364191:
             schedule_evtRunNum = True
+          if input_mcChanNb==700092:
+            schedule_evtRunNum = True
+          if input_mcChanNb in range(700096, 700103):
+            schedule_evtRunNum = True
+          if input_mcChanNb==700106:
+            schedule_evtRunNum = True
 
         if schedule_evtRunNum:
           variables = {}
@@ -198,8 +204,21 @@ class AODFix_r210(AODFix_base):
 
           if isSimulation and runNumber and runNumber != input_mcChanNb:
             from xAODEventInfoCnv.xAODEventInfoCnvConf import xAOD__EventInfoRunNumberFixAlg 
+            # Fix MC channel number in EventInfo's EventType and xAOD::EventInfo
             EventInfoRunNumberFixAlg = xAOD__EventInfoRunNumberFixAlg( McChannelNumber = int(runNumber) )
             topSequence+=EventInfoRunNumberFixAlg
+
+            from xAODMetaDataCnv.xAODMetaDataCnvConf import xAODMaker__FileMetaDataFixTool
+            from AthenaCommon.AppMgr import ToolSvc
+            from AthenaCommon.AppMgr import ServiceMgr
+            # Fix mcProcID in FileMetaData
+            ToolSvc += xAODMaker__FileMetaDataFixTool(
+                "FileMetaDataFixTool", McChannelNumber=int(runNumber)
+            )
+            ServiceMgr.MetaDataSvc.MetaDataTools += [
+                ToolSvc.FileMetaDataFixTool
+            ]
+
 
     def trklinks_postSystemRec(self, topSequence):
         """This fixes the links to tracks in muons and btagging

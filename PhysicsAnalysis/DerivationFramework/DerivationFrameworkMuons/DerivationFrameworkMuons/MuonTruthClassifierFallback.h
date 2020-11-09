@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -40,6 +40,7 @@ namespace DerivationFramework {
     std::string m_truthPileupSGKey;
     std::string m_truthMuonSGKey;
     float m_minPt;
+    float m_maxDr;
     ToolHandle<IMCTruthClassifier>   m_mcTruthClassifier;
 
 

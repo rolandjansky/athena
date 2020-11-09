@@ -1,6 +1,7 @@
 
 # The minimum required CMake version:
 cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+project( AthDerivation )
 
 # Read in the project's version from a file called version.txt. But let it be
 # overridden from the command line if necessary.
@@ -29,7 +30,7 @@ foreach( _external ${_externals} )
    include( ${_external} )
    get_filename_component( _extName ${_external} NAME_WE )
    string( TOUPPER ${_extName} _extNameUpper )
-   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_ROOT}" )
+   message( STATUS "Taking ${_extName} from: ${${_extNameUpper}_LCGROOT}" )
    unset( _extName )
    unset( _extNameUpper )
 endforeach()

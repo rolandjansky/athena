@@ -97,7 +97,7 @@ public:
   // Local method to return the HS vertex - that of type PriVtx
   const xAOD::Vertex* findHSVertex() const;
 
-private:  // data
+protected:  // data
 
   // Configurable parameters
   std::string m_verticesName;

@@ -108,12 +108,18 @@ int main(int argc, char** argv) {
   StatusCode::enableFailure();
 
   xAOD::TStore store;
+  
+  ATH_MSG_INFO("INPUT: Configuration file (argv[1]) = "
+	       << argv[1] << "\n");
+  std::string settingsFilename = PathResolver::find_file(argv[1],"DATAPATH",PathResolver::LocalSearch);
 
-  std::string settingsFilename = std::string(argv[1]);
+  ATH_MSG_INFO("LOCATED (using PathResolverFindFile ): Configuration file = "
+	       << settingsFilename << "\n");
+  
   ATH_MSG_INFO("Configuration Files:\n"
-      << settingsFilename << "\n"
-      << std::string(argv[2]) << "\n");
-
+	       << settingsFilename << "\n"
+	       << argv[2] << "\n");
+  
   //load the settings from the input file
   auto* const settings = top::ConfigurationSettings::get();
   settings->loadFromFile(settingsFilename);
@@ -385,7 +391,7 @@ int main(int argc, char** argv) {
                                                     "top::CalcTtbarGammaPartonHistory"));
     top::check(topPartonHistory->setProperty("config",
                                              topConfig), "Failed to setProperty of top::CalcTtbarGammaPartonHistory");
-  } else if (settings->value("TopPartonHistory") == "tHqtautau") {
+  } else if (settings->value("TopPartonHistory") == "tHq") {
     topPartonHistory =
       std::unique_ptr<top::CalcTopPartonHistory>(new top::CalcThqPartonHistory("top::CalcThqPartonHistory"));
     top::check(topPartonHistory->setProperty("config", topConfig),

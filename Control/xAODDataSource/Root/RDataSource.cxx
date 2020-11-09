@@ -304,7 +304,7 @@ namespace xAOD {
          ::Error( "xAOD::RDataSource::GetTypeName",
                   XAOD_MESSAGE( "Column/object \"%s\" not available" ),
                   column.data() );
-         throw std::runtime_error( "Column/object \"" + column +
+         throw std::runtime_error( "Column/object \"" + std::string( column ) +
                                    "\" not available" );
       }
 
@@ -373,7 +373,7 @@ namespace xAOD {
          ::Error( "xAOD::RDataSource::GetColumnReadersImpl",
                   XAOD_MESSAGE( "Column/object \"%s\" not available" ),
                   column.data() );
-         throw std::runtime_error( "Column/object \"" + column +
+         throw std::runtime_error( "Column/object \"" + std::string( column ) +
                                    "\" not available" );
       }
       PRINT_VERBOSE( "GetColumnReadersImpl: Creating column readers for \""

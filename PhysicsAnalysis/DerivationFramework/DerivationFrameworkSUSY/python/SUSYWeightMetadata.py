@@ -31,11 +31,3 @@ def addSUSYWeights(seq, pref = ""):
     
   sumOfWeightsAlg.WeightTools = listTools
   seq += sumOfWeightsAlg
-
-
-from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
-
-# skip this in data
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource() == 'geant4':
-    addSUSYWeights(DerivationFrameworkJob, "")

@@ -22,6 +22,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODBase
    Event/xAOD/xAODJet 
    Event/xAOD/xAODTruth 
+   Event/xAOD/xAODTracking
    PhysicsAnalysis/MuonID/MuonSelectorTools
    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections 
    PhysicsAnalysis/AnalysisCommon/PATCore 
@@ -30,6 +31,7 @@ atlas_depends_on_subdirs(
    Reconstruction/Jet/JetCalibTools
    Reconstruction/Jet/JetUncertainties
    Reconstruction/Jet/JetRec
+   PhysicsAnalysis/JetTagging/FlavorTagDiscriminants
    PhysicsAnalysis/AnalysisCommon/ParticleJetTools
    PhysicsAnalysis/Interfaces/JetAnalysisInterfaces
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
@@ -52,6 +54,7 @@ find_package( lwtnn )
 # Build a shared library:
 atlas_add_library( BoostedJetTaggersLib
   BoostedJetTaggers/*.h
+  Root/DeepsetXbbTagger.cxx
   Root/BoostedXbbTagger.cxx
   Root/HbbTaggerDNN.cxx
   Root/MassDecoXbbTagger.cxx
@@ -71,8 +74,8 @@ atlas_add_library( BoostedJetTaggersLib
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES}
    ${LWTNN_LIBRARIES}
    AsgTools 
-   xAODBase xAODJet xAODTruth JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib  JetUncertaintiesLib ParticleJetToolsLib 
-   MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces 
+   xAODBase xAODJet xAODTruth xAODTracking JetInterface JetRecLib JetEDM JetSelectorToolsLib JetCalibToolsLib  JetUncertaintiesLib ParticleJetToolsLib 
+   MuonSelectorToolsLib MuonMomentumCorrectionsLib PATCoreLib PATInterfaces FlavorTagDiscriminants
    JetAnalysisInterfacesLib InDetTrackSelectionToolLib InDetTrackSystematicsToolsLib 
    MuonAnalysisInterfacesLib ${extra_libs} 
    PRIVATE_LINK_LIBRARIES PathResolver JetEDM )
@@ -111,6 +114,13 @@ if( XAOD_STANDALONE )
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
       xAODEventInfo xAODJet xAODCore PATInterfaces xAODCore AsgTools
       BoostedJetTaggersLib
+   )
+   atlas_add_executable( test_DeepsetXbbTagger
+   util/test_DeepsetXbbTagger.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
+   xAODEventInfo xAODJet xAODCore xAODTracking FlavorTagDiscriminants PATInterfaces xAODCore AsgTools
+   BoostedJetTaggersLib
    )
    atlas_add_executable( test_JetQGTagger
       util/test_JetQGTagger.cxx

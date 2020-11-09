@@ -5,7 +5,7 @@ import json
 def addLHE3Weights(seq, pref = '', var_dict = {}):
   
   from AthenaCommon.AppMgr import ToolSvc
-  from ReweightUtils.ReweightUtilsConf import * 
+  from ReweightUtils.ReweightUtilsConf import SumOfWeightsAlg,McEventWeight
 
   sumOfWeightsAlg = SumOfWeightsAlg(name = pref+"LHE3SumWeightsAlg")
 
@@ -22,11 +22,10 @@ def addLHE3Weights(seq, pref = '', var_dict = {}):
   seq += sumOfWeightsAlg
 
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth,DerivationFrameworkJob
 
 # skip this in datfrom AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.GlobalFlags import globalflags
-if globalflags.DataSource() == 'geant4':
+if DerivationFrameworkHasTruth:
 
   mcweight_dict_orig = dict()
   mcweight_dict = dict()

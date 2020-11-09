@@ -6,12 +6,14 @@
 #define JETUNCERTAINTIES_OPTIONHELPER_H
 
 #include "AsgTools/AsgMessaging.h"
+#include <vector>
 #include <utility>
 #include <stdexcept>
 #include "TString.h"
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
 #include "ParticleJetTools/LargeRJetLabelEnum.h"
+#include "BoostedJetTaggers/TagResultEnum.h"
 
 namespace jet
 {
@@ -36,6 +38,7 @@ class OptionHelper : public asg::AsgMessaging
         TString GetCalibArea()    const { checkInit(); return m_calibArea;      }
         TString GetPath()         const { checkInit(); return m_path;           }
         bool    GetIsData()       const { checkInit(); return m_isData;         }
+        bool    IgnoreNoMatch()   const { checkInit(); return m_ignoreNoMatch;  }
 
         // Plot control
         bool    DoATLASLabel()    const { checkInit(); return m_doATLASLabel;  }
@@ -50,12 +53,15 @@ class OptionHelper : public asg::AsgMessaging
         bool    AbsValue()        const { checkInit(); return m_absVal;        }
         bool    LogPt()           const { checkInit(); return m_logPt;         }
         TString getMassType()     const { checkInit(); return m_massType;      }
+        std::pair<double,double> fillShift() const { checkInit(); return m_fillShift; }
+        bool    TwoColumnLegend() const { checkInit(); return m_twoColumnLegend; }
 
         std::vector<double> GetPtBins()             const;
         std::vector<double> GetEtaBins()            const;
         std::vector<double> GetFixedPtVals()        const;
         std::vector<double> GetFixedEtaVals()       const;
         std::vector<double> GetFixedMoverPtVals()   const;
+        std::vector<double> GetFixedMassVals()      const;
         
         // Uncertainty types
         bool IsSmallR() const { checkInit(); return m_isSmallR; }
@@ -70,6 +76,11 @@ class OptionHelper : public asg::AsgMessaging
         int  GetNjetFlavour()       const { checkInit(); return m_nJetFlavour;       }
         int  FixedTruthLabel()      const { checkInit(); return m_truthLabel;        }
         LargeRJetTruthLabel::TypeEnum FixedLargeRJetTruthLabel() const {checkInit(); return m_largeRJetTruthLabel; }
+        
+        // Tagging SFs
+        TString TagScaleFactorName() const { checkInit(); return m_tagSFname;        }
+        TString FixedLargeRJetTagResultName() const { checkInit(); return m_largeRjetTagResultName; }
+        int FixedLargeRJetTagAccept() const { checkInit(); return m_largeRjetTagAccept; }
 
         // Comparison helpers
         bool                 CompareOnly()    const { checkInit(); return m_onlyCompare; }
@@ -97,6 +108,7 @@ class OptionHelper : public asg::AsgMessaging
         TString m_calibArea;
         TString m_path;
         bool    m_isData;
+        bool    m_ignoreNoMatch;
 
         bool    m_doATLASLabel;
         TString m_ATLASLabel;
@@ -110,12 +122,15 @@ class OptionHelper : public asg::AsgMessaging
         bool    m_absVal;
         bool    m_logPt;
         TString m_massType;
+        std::pair<double,double> m_fillShift;
+        bool    m_twoColumnLegend;
         
         TString m_ptBins;
         TString m_etaBins;
         TString m_fixedPtVals;
         TString m_fixedEtaVals;
         TString m_fixedMoverPtVals;
+        TString m_fixedMassVals;
 
         bool    m_isSmallR;
         bool    m_isLargeR;
@@ -127,6 +142,10 @@ class OptionHelper : public asg::AsgMessaging
         int     m_truthLabel;
         LargeRJetTruthLabel::TypeEnum m_largeRJetTruthLabel;
         bool    m_isDijet; // legacy support
+
+        TString m_tagSFname;
+        TString m_largeRjetTagResultName;
+        int m_largeRjetTagAccept;
 
         bool    m_onlyCompare;
         TString m_doCompare;
@@ -163,6 +182,7 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_calibArea("")
     , m_path("")
     , m_isData(false)
+    , m_ignoreNoMatch(false)
 
     , m_doATLASLabel(true)
     , m_ATLASLabel("Internal")
@@ -176,12 +196,15 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_absVal(true)
     , m_logPt(true)
     , m_massType("")
+    , m_fillShift(0,0)
+    , m_twoColumnLegend(false)
     
     , m_ptBins("")
     , m_etaBins("")
     , m_fixedPtVals("")
     , m_fixedEtaVals("")
     , m_fixedMoverPtVals("")
+    , m_fixedMassVals("")
 
     , m_isSmallR(true)
     , m_isLargeR(false)
@@ -193,6 +216,10 @@ OptionHelper::OptionHelper(const std::string& name)
     , m_truthLabel(0)
     , m_largeRJetTruthLabel(LargeRJetTruthLabel::UNKNOWN)
     , m_isDijet(false)
+
+    , m_tagSFname("")
+    , m_largeRjetTagResultName("")
+    , m_largeRjetTagAccept(0)
 
     , m_onlyCompare(false)
     , m_doCompare("")
@@ -227,6 +254,7 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_calibArea      = getOptionValueWithDefault(options,"CalibArea",m_calibArea);
     m_path           = getOptionValueWithDefault(options,"Path",m_path);
     m_isData         = getOptionValueWithDefault(options,"IsData",m_isData);
+    m_ignoreNoMatch  = getOptionValueWithDefault(options,"IgnoreNoMatch",m_ignoreNoMatch);
 
     m_doATLASLabel   = getOptionValueWithDefault(options,"DoATLASLabel",m_doATLASLabel);
     m_ATLASLabel     = getOptionValueWithDefault(options,"ATLASLabel",m_ATLASLabel);
@@ -253,12 +281,27 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
     m_absVal         = getOptionValueWithDefault(options,"absVal",m_absVal);
     m_logPt          = getOptionValueWithDefault(options,"logPt",m_logPt);
     m_massType       = getOptionValueWithDefault(options,"massDef",m_massType);
+    TString fillShift = getOptionValue(options,"FillLabelShift");
+    if (fillShift != "")
+    {
+        std::vector<double> shift = jet::utils::vectorize<double>(fillShift,"&");
+        if (shift.size() != 2)
+            ATH_MSG_WARNING("FillLabelShift doesn't match expected format of \"val1&val2\". Skipping.");
+        else
+        {
+            const double lowShift  = shift.at(0);
+            const double highShift = shift.at(1);
+            m_fillShift = std::make_pair(lowShift,highShift);
+        }
+    }
+    m_twoColumnLegend = getOptionValueWithDefault(options,"TwoColumnLegend",m_twoColumnLegend);
     
     m_ptBins         = getOptionValueWithDefault(options,"ptBins",m_ptBins);
     m_etaBins        = getOptionValueWithDefault(options,"etaBins",m_etaBins);
     m_fixedPtVals    = getOptionValueWithDefault(options,"fixedPtVals",m_fixedPtVals);
     m_fixedEtaVals   = getOptionValueWithDefault(options,"fixedEtaVals",m_fixedEtaVals);
     m_fixedMoverPtVals = getOptionValueWithDefault(options,"fixedMoverPtVals",m_fixedMoverPtVals);
+    m_fixedMassVals  = getOptionValueWithDefault(options,"fixedMassVals",m_fixedMassVals);
 
     m_isLargeR       = getOptionValueWithDefault(options,"isLargeR",m_isLargeR);
     m_isJER          = getOptionValueWithDefault(options,"isJER",m_isJER);
@@ -286,6 +329,18 @@ bool OptionHelper::Initialize(const std::vector<TString>& options)
         {
             ATH_MSG_ERROR("The composition was double-specified, please check that you don't specify both \"Composition\" and \"isDijet\"");
             throw std::runtime_error("Double composition failure");
+        }
+    }
+
+    m_tagSFname             = getOptionValueWithDefault(options,"TagSFName",m_tagSFname);
+    m_largeRjetTagResultName   = getOptionValueWithDefault(options,"TagAcceptName",m_largeRjetTagResultName);
+    if (m_largeRjetTagResultName != "")
+    {
+        m_largeRjetTagAccept = getOptionValueWithDefault(options,"TagAcceptResult",0);
+        if (TagResult::intToEnum(m_largeRjetTagAccept) == TagResult::UNKNOWN)
+        {
+            ATH_MSG_ERROR("The specified tag result doesn't match any expected value");
+            throw std::runtime_error("Bad tag result value");
         }
     }
 
@@ -522,6 +577,17 @@ std::vector<double> OptionHelper::GetFixedMoverPtVals() const
     else
         bins = jet::utils::vectorize<double>("0.001,0.05,0.101,0.15,0.201,0.25,0.301,0.35,0.401,0.45,0.501,0.55,0.601,0.65,0.701,0.75,0.801,0.85,0.901,0.95,1.001",",");
     
+    return bins;
+}
+
+std::vector<double> OptionHelper::GetFixedMassVals() const
+{
+    checkInit();
+    std::vector<double> bins;
+
+    if (m_fixedMassVals != "" && m_fixedMassVals != "NONE")
+        bins = jet::utils::vectorize<double>(m_fixedMassVals,",");
+
     return bins;
 }
 

@@ -47,6 +47,9 @@ namespace EL
       //
 
     public:
+      virtual ::StatusCode preFileInitialize (ModuleData& data) override;
+
+    public:
       virtual ::StatusCode onInitialize (ModuleData& data) override;
 
     public:

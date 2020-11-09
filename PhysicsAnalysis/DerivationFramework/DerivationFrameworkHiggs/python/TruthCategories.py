@@ -2,7 +2,7 @@
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
-if globalflags.DataSource()=='geant4':
+if DerivationFrameworkHasTruth:
 
     from DerivationFrameworkHiggs.DerivationFrameworkHiggsConf import DerivationFramework__TruthCategoriesDecorator
     DFHTXSdecorator = DerivationFramework__TruthCategoriesDecorator(name = "DFHTXSdecorator")
