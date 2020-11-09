@@ -291,6 +291,10 @@ namespace xAOD {
     void setClusterLinks( const IParticleLinks_t& clusters );
     /// Get the pointer to a given cluster associated with this tau
     const IParticle* cluster( size_t i) const;
+    
+    //* @brief Get the clusters within dR cone of the tau candidate */
+    std::vector<const IParticle*> clusters(double dR = 0.2) const;
+    
     /// Get TLV to a given cluster in calibrated state
     FourMom_t calibratedCluster( size_t i, xAOD::CaloCluster::State state=xAOD::CaloCluster::State::CALIBRATED) const;
     //number of cluster with associated to tau

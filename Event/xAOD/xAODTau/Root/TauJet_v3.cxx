@@ -17,7 +17,7 @@
 #include "xAODTau/versions/TauJetCalibMapper_v1.h"
 //#include "xAODTau/versions/TauJetCalibMapper_v3.h"
 #include "TauJetAccessors_v3.h"
-
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 namespace{
   bool
@@ -626,6 +626,50 @@ namespace xAOD {
   const IParticle* TauJet_v3::cluster( size_t i) const {
     return *(clusterAcc(*this).at(i));
   }
+
+
+  std::vector<const IParticle*> TauJet_v3::clusters(double dRMax) const {
+    std::vector<const IParticle*> particleList;
+
+    for (const auto& link : clusterAcc(*this)) {
+      const IParticle* particle = *link;
+
+      if (dRMax > 0.0) {
+        const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
+        const xAOD::Vertex* vertex = nullptr;
+        TLorentzVector clusterP4;
+        TLorentzVector tauP4;
+        
+        // Apply the vertex correction if there is a vertex
+        if (this->vertexLink().isValid()) {
+          vertex = this->vertex();
+          tauP4 = this->p4(xAOD::TauJetParameters::IntermediateAxis);  
+        }
+        else {
+          const xAOD::Jet* jet = this->jet();
+          bool isAvailable = jet->getAssociatedObject("OriginVertex", vertex);
+          if (!isAvailable) vertex = nullptr;
+          tauP4 = this->p4(xAOD::TauJetParameters::DetectorAxis);
+        }
+
+        if (vertex) {
+          clusterP4 = xAOD::CaloVertexedTopoCluster(*cluster, vertex->position()).p4();
+        }
+        else {
+          clusterP4 = cluster->p4();
+        }
+
+        double dR = clusterP4.DeltaR(tauP4);
+        if (dR > dRMax) continue;
+      }
+
+      particleList.push_back(particle);
+    }
+
+    return particleList;
+  }
+
+
 
   TauJet_v3::FourMom_t TauJet_v3::calibratedCluster( size_t i, xAOD::CaloCluster::State state/*=xAOD::CaloCluster::State::CALIBRATED*/) const{
     const xAOD::IParticle* part = this->cluster(i);

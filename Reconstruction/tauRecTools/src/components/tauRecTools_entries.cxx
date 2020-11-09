@@ -3,6 +3,7 @@
 #include "../TauAxisSetter.h"
 #include "../TauCellVariables.h"
 #include "../TauTrackFinder.h"
+#include "../TauClusterFinder.h"
 #include "../TauVertexFinder.h"
 #include "../TauElectronVetoVariables.h"
 #include "../TauShotFinder.h"
@@ -34,6 +35,7 @@ DECLARE_COMPONENT( JetSeedBuilder )
 DECLARE_COMPONENT( TauAxisSetter )
 DECLARE_COMPONENT( TauCellVariables )
 DECLARE_COMPONENT( TauTrackFinder )
+DECLARE_COMPONENT( TauClusterFinder )
 DECLARE_COMPONENT( TauVertexFinder )
 DECLARE_COMPONENT( TauElectronVetoVariables )
 DECLARE_COMPONENT( TauShotFinder )
