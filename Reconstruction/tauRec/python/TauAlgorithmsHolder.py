@@ -667,6 +667,21 @@ def getTauTrackFinder(removeDuplicateTracks=True):
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
 
+
+# Associate the cluster in jet constituents to the tau candidate
+def getTauClusterFinder():
+    _name = sPrefix + 'TauClusterFinder'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from tauRecTools.tauRecToolsConf import TauClusterFinder
+    TauClusterFinder = TauClusterFinder(name = _name)
+
+    cached_instances[_name] = TauClusterFinder
+    return TauClusterFinder
+
+
 ########################################################################
 # MvaTESVariableDecorator
 def getMvaTESVariableDecorator():
