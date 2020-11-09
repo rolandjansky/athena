@@ -18,19 +18,19 @@
 
 /**
  * @class $(klass)s
- * @brief 
+ * @brief
  **/
 
 class RerunRoIsUnpackingTool : public RoIsUnpackingToolBase
-{ 
+{
 
- public: 
+ public:
 
   RerunRoIsUnpackingTool( const std::string& type,
-			  const std::string& name, 
+			  const std::string& name,
 			  const IInterface* parent );
 
-  virtual ~RerunRoIsUnpackingTool(); 
+  virtual ~RerunRoIsUnpackingTool();
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
   virtual StatusCode updateConfiguration() override;
@@ -40,10 +40,12 @@ class RerunRoIsUnpackingTool : public RoIsUnpackingToolBase
 		     const HLT::IDSet& activeChains ) const override;
 
 
- private: 
-  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_sourceKey{ this, "SourceDecisions", "UnspecifiedRoIDecisionsForRerunning", "The collection which has to be checked for RoIs to re-enable" };
+ private:
+  SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer> m_sourceKey{
+    this, "SourceDecisions", "UnspecifiedRoIDecisionsForRerunning",
+    "The collection which has to be checked for RoIs to re-enable" };
 
-}; 
+};
 
 
 #endif //> !L1DECODER_RERUNROISUNPACKINGTOOL_H
