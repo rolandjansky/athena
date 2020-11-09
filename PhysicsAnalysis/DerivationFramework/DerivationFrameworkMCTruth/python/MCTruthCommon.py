@@ -282,12 +282,12 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     augmentationToolsList = [ dfTruth.DFCommonTruthTauDressingTool ]
 
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
-    from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
+    #from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
     # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-    from DerivationFrameworkMCTruth.TruthDerivationTools import DFCommonTruthQGLabelTool
-    augmentationToolsList += [ DFCommonTruthGenFilter,
-                              DFCommonTruthQGLabelTool]
+    #from DerivationFrameworkMCTruth.TruthDerivationTools import DFCommonTruthQGLabelTool
+    #augmentationToolsList += [ DFCommonTruthGenFilter,
+    #                          DFCommonTruthQGLabelTool]
     augmentationToolsList = []
     #if decorationDressing is not None:
     #    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
