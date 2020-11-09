@@ -5,9 +5,8 @@ from __future__ import print_function
 def ResolveTag(folder, tag):
 	theTag=tag
 	if tag.upper() in ['NEXT', 'CURRENT']:
-		from PyCool import cool
 		import sys
-		if not '/afs/cern.ch/user/a/atlcond/utils/python/' in sys.path:
+		if '/afs/cern.ch/user/a/atlcond/utils/python/' not in sys.path:
 			sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
 		from AtlCoolBKLib import resolveAlias
 		if tag.upper()=="NEXT":

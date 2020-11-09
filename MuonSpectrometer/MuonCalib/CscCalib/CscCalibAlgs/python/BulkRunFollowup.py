@@ -61,16 +61,12 @@ class BulkRunFollowup :
         #have files to run on
         if runNumber in self.AllowedRuns:
           runNumbers += [runNumber]
-          try:
-            self.RunAthena(pattern,runNumber)
-          except:
-            "Failure during RunAthena!"
-            raise
+          self.RunAthena(pattern,runNumber)
         else:
           if(self.debug):
             print ("Skipping file from runNumber " + str(runNumber) + " (Not allowed)")
           #Add files we're skipping into file list
-          newProcessedFiles = glob(pattern);
+          newProcessedFiles = glob(pattern)
           self.AddProcessedFiles(newProcessedFiles)
 
       else:
@@ -90,19 +86,10 @@ class BulkRunFollowup :
 
     ProcessedFiles = []
 
-    try:
-      #Get processed files
-      f = open(self.ProcessedFilesList,"rb") 
-      ProcessedFiles = pickle.load(f)
-      f.close()
-    except:
-      print ("No processed file list yet...")
-     
-    #Remove newline character from each filename
-
-    #for index in range(len(ProcessedFiles)) : 
-    #  file = ProcessedFiles[index]
-    #  ProcessedFiles[index] = file[0:len(file)-1] 
+    #Get processed files
+    f = open(self.ProcessedFilesList,"rb") 
+    ProcessedFiles = pickle.load(f)
+    f.close()
 
     print ('Processed String: ')
     print (ProcessedFiles)
@@ -140,8 +127,6 @@ class BulkRunFollowup :
       print()
       print ("Searching for file")
       print ("InputPattern: " + self.InputPattern)
-      #print ("inputFiles: ")
-      #print (inputFiles)
 
     pattern = ""
     runNumber = ""
@@ -178,18 +163,11 @@ class BulkRunFollowup :
     outputDirPath = self.OutputDirBase + "/" + runNumber
       
     if(self.AllowDirOverwrite):
-      try:
-        subprocess.call("rm -rf " + outputDirPath)
-      except:
-        pass
+      subprocess.call("rm -rf " + outputDirPath)
 
     print ("Making directory" + outputDirPath)
     #Create output directory
     os.mkdir(outputDirPath,0o755)
-
-    #Change directory to output directory
-    #(Causes problems)
-    #os.chdir(outputDirPath)
 
     #Athena options
     athOpt = "outputPre='" + outputDirPath +"/" + runNumber 
@@ -203,22 +181,17 @@ class BulkRunFollowup :
     #Output log file
     logFile = open(outputDirPath + "/run2.log","w")
 
-    try:
-      print()
-      print ("**************************************")
-      print ("Starting running on run " + str(runNumber))
-      sys.stdout.flush()
-      subprocess.Popen(athArgs,stdout=logFile,stderr=subprocess.STDOUT).wait()
-      print ("Finished run " + str(runNumber))
-      print ("**************************************")
-      print()
-    except:
-      print ("Error while running athena!")
-      raise
+    print()
+    print ("**************************************")
+    print ("Starting running on run " + str(runNumber))
+    sys.stdout.flush()
+    subprocess.Popen(athArgs,stdout=logFile,stderr=subprocess.STDOUT).wait()
+    print ("Finished run " + str(runNumber))
+    print ("**************************************")
+    print()
 
     logFile.close()
 
-
     #Add files we just ran on to file list
-    newProcessedFiles = glob(pattern);
+    newProcessedFiles = glob(pattern)
     self.AddProcessedFiles(newProcessedFiles)

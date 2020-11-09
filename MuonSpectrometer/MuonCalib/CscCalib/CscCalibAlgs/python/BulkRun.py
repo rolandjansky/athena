@@ -56,11 +56,7 @@ class BulkRun :
       if(pattern != ""):
         #have files to run on
         runNumbers += [runNumber]
-        try:
-          self.RunAthena(pattern,runNumber)
-        except:
-          "Failure during RunAthena!"
-          raise
+        self.RunAthena(pattern,runNumber)
       else:
         print ("No more unprocessed files. Congrats!")
         print ("N runs done: " + str(runCnt +1))
@@ -78,13 +74,10 @@ class BulkRun :
 
     ProcessedFiles = []
 
-    try:
-      #Get processed files
-      f = open(self.ProcessedFilesList,"rb") 
-      ProcessedFiles = pickle.load(f)
-      f.close()
-    except:
-      print ("No processed file list yet...")
+    #Get processed files
+    f = open(self.ProcessedFilesList,"rb") 
+    ProcessedFiles = pickle.load(f)
+    f.close()
      
     #Remove newline character from each filename
 
@@ -160,10 +153,7 @@ class BulkRun :
     outputDirPath = self.OutputDirBase + "/" + runNumber
       
     if(self.AllowDirOverwrite):
-      try:
-        subprocess.call("rm -rf " + outputDirPath)
-      except:
-        pass
+      subprocess.call("rm -rf " + outputDirPath)
 
     print ("Making directory" + outputDirPath)
     #Create output directory
@@ -184,22 +174,18 @@ class BulkRun :
     #Output log file
     logFile = open(outputDirPath + "/run.log","w")
 
-    try:
-      print()
-      print ("**************************************")
-      print ("Starting running on run " + str(runNumber))
-      sys.stdout.flush()
-      subprocess.Popen(athArgs,stdout=logFile,stderr=subprocess.STDOUT).wait()
-      print ("Finished run " + str(runNumber))
-      print ("**************************************")
-      print()
-    except:
-      print ("Error while running athena!")
-      raise
+    print()
+    print ("**************************************")
+    print ("Starting running on run " + str(runNumber))
+    sys.stdout.flush()
+    subprocess.Popen(athArgs,stdout=logFile,stderr=subprocess.STDOUT).wait()
+    print ("Finished run " + str(runNumber))
+    print ("**************************************")
+    print()
 
     logFile.close()
 
 
     #Add files we just ran on to file list
-    newProcessedFiles = glob(pattern);
+    newProcessedFiles = glob(pattern)
     self.AddProcessedFiles(newProcessedFiles)

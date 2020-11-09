@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 import sys
-from PyCool import cool,coral
 import CoolConvUtilities.AtlCoolLib as AtlCoolLib
 from MuonCalibDbOperations.MuonCalibResolveTag import ResolveTag
 
@@ -13,7 +12,7 @@ MuonCalib__gCalibrationTargetConfigs = []
 class MuonCalib__CalibrationTargetConfig:
 
 	def __init__(self, FolderType="T0"):
-		if not FolderType in ["T0", "RT", "T0BLOB", "RTBLOB"]:
+		if FolderType not in ["T0", "RT", "T0BLOB", "RTBLOB"]:
 			print ("FATAL Folder type must be 'T0[BLOB]' or 'RT[BLOB]'")
 			sys.exit(1)
 
