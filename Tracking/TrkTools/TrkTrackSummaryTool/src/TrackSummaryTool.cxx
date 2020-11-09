@@ -7,9 +7,6 @@
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-
-#include "Identifier/Identifier.h"
-
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -19,11 +16,30 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkParameters/TrackParameters.h"
+#include "Identifier/Identifier.h"
 
+#include "GaudiKernel/EventContext.h"
+#include <initializer_list>
+#include <algorithm> //std::min/max
+#include <cmath> //std::sqrt
 
-#include <cassert>
-#include <vector>
-#include <algorithm>
+namespace {
+  template<class Indexable, class IntegerArray>
+  void
+  setTheseElements(Indexable& container, const IntegerArray & indices, const typename Indexable::value_type & toValue){
+   for (const auto idx: indices){
+     container[idx] = toValue;
+   }
+  }
+  //
+  template <class Indexable>
+  void
+  setTheseElements(Indexable& container, const std::initializer_list<size_t> & indices, const typename Indexable::value_type & toValue){
+   for (const auto idx: indices){
+     container[idx] = toValue;
+   }
+  }
+}
 
 
 Trk::TrackSummaryTool::TrackSummaryTool(const std::string& t,
@@ -31,83 +47,38 @@ Trk::TrackSummaryTool::TrackSummaryTool(const std::string& t,
   const IInterface*  p )
   :
   base_class(t,n,p),
-  m_detID{}
-{
+  m_detID{}{
   declareInterface<ITrackSummaryTool>(this);
 }
 
 
-Trk::TrackSummaryTool::~TrackSummaryTool()
-{
+Trk::TrackSummaryTool::~TrackSummaryTool(){
 }
 
 
 StatusCode
-  Trk::TrackSummaryTool::initialize()
-{
-
-
-    ATH_CHECK( detStore()->retrieve(m_detID, "AtlasID" ));
-
-    if (m_idTool.empty() && m_muonTool.empty()) {
-        ATH_MSG_ERROR ("Could get neither InDetHelperTool nor MuonHelperTool. Must abort.");
-        return StatusCode::FAILURE;
-    }
-
-    if ( !m_idTool.empty() && m_idTool.retrieve().isFailure() ) {
-        ATH_MSG_ERROR ("Failed to retrieve InDet helper tool "<< m_idTool);
-        ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
-        return StatusCode::FAILURE;
-    }
-        if ( !m_idTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_idTool << endmsg;
-
-
-  // Troels.Petersen@cern.ch:
-    if ( !m_eProbabilityTool.empty() && m_eProbabilityTool.retrieve().isFailure() )
-    {
-        ATH_MSG_ERROR ("Failed to retrieve electron probability tool " << m_eProbabilityTool);
-        ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
-        return StatusCode::FAILURE;
-    }
-       if ( !m_eProbabilityTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_eProbabilityTool << endmsg;
-
-
-    if ( !m_dedxtool.empty() && m_dedxtool.retrieve().isFailure() )
-    {
-        ATH_MSG_ERROR ("Failed to retrieve pixel dEdx tool " << m_dedxtool);
-        ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
-        return StatusCode::FAILURE;
-    }
-       if ( !m_dedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_dedxtool << endmsg;
-
-
-    if ( !m_muonTool.empty() && m_muonTool.retrieve().isFailure() )
-    {
-        ATH_MSG_ERROR ("Failed to retrieve Muon helper tool "<< m_muonTool);
-        ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
-    }
-    else {
-        if ( !m_muonTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_muonTool<<endmsg;
-    }
-
-    if (m_doHolesInDet)
-        ATH_MSG_INFO ("Search for InDet holes using external tool turned ON");
-    else
-        ATH_MSG_INFO ("Search for InDet holes using external tool turned OFF");
-
-    if (m_doHolesMuon)
-        ATH_MSG_INFO ("Search for Muon holes using external tool turned ON");
-    else
-        ATH_MSG_INFO ("Search for Muon holes using external tool turned OFF");
-
-    ATH_MSG_INFO ("initialize() successful in " << name());
-    return StatusCode::SUCCESS;
+Trk::TrackSummaryTool::initialize(){
+  ATH_CHECK( detStore()->retrieve(m_detID, "AtlasID" ));
+  if (m_idTool.empty() && m_muonTool.empty()) {
+      ATH_MSG_ERROR ("Could get neither InDetHelperTool nor MuonHelperTool. Must abort.");
+      return StatusCode::FAILURE;
+  }
+  if (not m_idTool.empty()) ATH_CHECK(m_idTool.retrieve());
+  if (not m_eProbabilityTool.empty()) ATH_CHECK(m_eProbabilityTool.retrieve());
+  if (not m_dedxtool.empty()) ATH_CHECK(m_dedxtool.retrieve());
+  if (not m_muonTool.empty()) ATH_CHECK(m_muonTool.retrieve());
+  auto bool2Txt = [](const bool flag)->std::string {return flag?"ON":"OFF";};
+  const std::string indetOnOff=bool2Txt(m_doHolesInDet);
+  ATH_MSG_INFO ("Search for InDet holes using external tool turned "<<indetOnOff);
+  const std::string muonOnOff=bool2Txt(m_doHolesMuon);
+  ATH_MSG_INFO ("Search for Muon holes using external tool turned "<<muonOnOff);
+  ATH_MSG_DEBUG ("initialize() successful in " << name());
+  return StatusCode::SUCCESS;
 }
 
 
 StatusCode
-  Trk::TrackSummaryTool::finalize()
-{
+Trk::TrackSummaryTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
@@ -122,49 +93,42 @@ StatusCode
 void
 Trk::TrackSummaryTool::computeAndReplaceTrackSummary(
   Trk::Track& track,
-  const Trk::PRDtoTrackMap* prd_to_track_map,
-  bool suppress_hole_search) const
-{
-  track.setTrackSummary(createSummary(track,
-                                      prd_to_track_map,
+  const Trk::PRDtoTrackMap* pPrdToTrackMap,
+  bool suppress_hole_search) const{
+  track.setTrackSummary(createSummary(track, pPrdToTrackMap,
                                       m_doHolesInDet & !suppress_hole_search,
                                       m_doHolesMuon & !suppress_hole_search));
 }
 
 std::unique_ptr<Trk::TrackSummary>
-Trk::TrackSummaryTool::summary(const Track& track) const
-{
+Trk::TrackSummaryTool::summary(const Track& track) const{
   return createSummary(track, nullptr, m_doHolesInDet, m_doHolesMuon);
 }
 
 std::unique_ptr<Trk::TrackSummary>
 Trk::TrackSummaryTool::summary(const Track& track,
-                               const Trk::PRDtoTrackMap* prd_to_track_map) const
-{
-  return createSummary(track, prd_to_track_map, m_doHolesInDet, m_doHolesMuon);
+                               const Trk::PRDtoTrackMap* pPrdToTrackMap) const{
+  return createSummary(track, pPrdToTrackMap, m_doHolesInDet, m_doHolesMuon);
 }
 
 std::unique_ptr<Trk::TrackSummary>
-Trk::TrackSummaryTool::summaryNoHoleSearch(const Track& track) const
-{
+Trk::TrackSummaryTool::summaryNoHoleSearch(const Track& track) const{
   return createSummary(track, nullptr, false, false);
 }
 
 std::unique_ptr<Trk::TrackSummary>
 Trk::TrackSummaryTool::summaryNoHoleSearch(
   const Track& track,
-  const Trk::PRDtoTrackMap* prd_to_track_map) const
-{
-  return createSummary(track, prd_to_track_map, false, false);
+  const Trk::PRDtoTrackMap* pPrdToTrackMap) const{
+  return createSummary(track, pPrdToTrackMap, false, false);
 }
 
 //Method to create a new summary
 std::unique_ptr<Trk::TrackSummary>
 Trk::TrackSummaryTool::createSummary( const Track& track,
-                                      const Trk::PRDtoTrackMap *prd_to_track_map,
+                                      const Trk::PRDtoTrackMap *pPrdToTrackMap,
                                       bool doHolesInDet,
-                                      bool doHolesMuon) const
-{
+                                      bool doHolesMuon) const{
   std::unique_ptr<Trk::TrackSummary> ts;
 
   // first check if track has summary already and then clone it.
@@ -175,126 +139,92 @@ Trk::TrackSummaryTool::createSummary( const Track& track,
     ts = std::make_unique<Trk::TrackSummary>();
   }
   //fill the summary
-  fillSummary(*ts, track, prd_to_track_map, doHolesInDet, doHolesMuon);
+  fillSummary(*ts, track, pPrdToTrackMap, doHolesInDet, doHolesMuon);
   return ts;
 }
 
 // Method filling the summary with information
 void
-Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,
-                                   const Trk::Track& track,
-                                   const Trk::PRDtoTrackMap *prd_to_track_map,
-                                   bool doHolesInDet,
-                                   bool doHolesMuon) const {
+Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,const Trk::Track& track,const Trk::PRDtoTrackMap *prdToTrackMap,bool doHolesInDet,bool doHolesMuon) const {
+  std::vector<int>& information = ts.m_information;
+  information.resize(std::min(information.size(),static_cast<size_t>(numberOfTrackSummaryTypes)));
 
-std::vector<int>& information = ts.m_information;
-information.resize(std::min(information.size(),
-                            static_cast<size_t>(numberOfTrackSummaryTypes)));
-
-// Troels.Petersen@cern.ch:
-std::vector<float> eProbability = Trk::eProbabilityDefault;
-
+  // Troels.Petersen@cern.ch:
+  std::vector<float> eProbability = Trk::eProbabilityDefault;;
   float dedx = -1;
-  int nhitsuseddedx = -1;
-  int noverflowhitsdedx = -1;
-
+  int nHitsUsed_dEdx = -1;
+  int nOverflowHits_dEdx = -1;
   // Now set values to 0 for the ones we evaluate
+  const int toZero{0};
   if (!m_idTool.empty()) {
     if (m_pixelExists) {
-      information[numberOfContribPixelLayers] = 0;
-      information[numberOfInnermostPixelLayerHits] = 0;
-      information[numberOfInnermostPixelLayerOutliers] = 0;
-      information[numberOfNextToInnermostPixelLayerHits] = 0;
-      information[numberOfNextToInnermostPixelLayerOutliers] = 0;
-      information[numberOfPixelHits] = 0;
-      information[numberOfPixelOutliers] = 0;
-      information[numberOfGangedPixels] = 0;
-      information[numberOfGangedFlaggedFakes] = 0;
-      information[numberOfPixelSpoiltHits] = 0;
-      information[numberOfGangedFlaggedFakes] = 0;
-      information[numberOfPixelSplitHits] = 0;
-      information[numberOfInnermostLayerSplitHits] = 0;
-      information[numberOfNextToInnermostLayerSplitHits] = 0;
-      if (track.info().trackFitter() != TrackInfo::Unknown &&
-          !m_dedxtool.empty()) {
-        dedx = m_dedxtool->dEdx(track, nhitsuseddedx, noverflowhitsdedx);
+      constexpr size_t numberOfPixelCounters{14};
+      const std::array<size_t, numberOfPixelCounters> atPixelIndices{
+        numberOfContribPixelLayers, 
+        numberOfInnermostPixelLayerHits, numberOfInnermostPixelLayerOutliers, 
+        numberOfNextToInnermostPixelLayerHits, numberOfNextToInnermostPixelLayerOutliers,
+        numberOfPixelHits, numberOfPixelOutliers,
+        numberOfGangedPixels, numberOfGangedFlaggedFakes,
+        numberOfPixelSpoiltHits, numberOfGangedFlaggedFakes,
+        numberOfPixelSplitHits, numberOfInnermostLayerSplitHits, numberOfNextToInnermostLayerSplitHits
+      };
+      setTheseElements(information, atPixelIndices, toZero);
+      if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
+        dedx = m_dedxtool->dEdx(track, nHitsUsed_dEdx, nOverflowHits_dEdx);
       }
       information[Trk::numberOfDBMHits] = 0;
     }
-    information[numberOfSCTHits] = 0;
-    information[numberOfSCTSpoiltHits] = 0;
-    information[numberOfSCTOutliers] = 0;
-    information[numberOfTRTHits] = 0;
-    information[numberOfTRTXenonHits] = 0;
-    information[numberOfTRTHighThresholdHits] = 0;
-    information[numberOfTRTHighThresholdHitsTotal] = 0;
-    information[numberOfTRTOutliers] = 0;
-    information[numberOfTRTHighThresholdOutliers] = 0;
-    information[numberOfTRTTubeHits] = 0;
-    information[numberOfTRTSharedHits] = 0;
-
+    constexpr size_t numberOfSctOrTrtCounters{11};
+    const std::array<size_t, numberOfSctOrTrtCounters> atSctOrTrtIndices{
+      numberOfSCTHits, numberOfSCTSpoiltHits, numberOfSCTOutliers,
+      numberOfTRTHits, numberOfTRTXenonHits, numberOfTRTHighThresholdHits, numberOfTRTHighThresholdHitsTotal,
+      numberOfTRTOutliers, numberOfTRTHighThresholdOutliers, numberOfTRTTubeHits, numberOfTRTSharedHits
+    };
+    setTheseElements(information, atSctOrTrtIndices, toZero);
     if (!m_eProbabilityTool.empty()) {
       eProbability = m_eProbabilityTool->electronProbability(track);
       information[Trk::numberOfTRTHitsUsedFordEdx] = static_cast<int>(eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx]);
     }
   }
-
   if (m_doSharedHits) {
     information [numberOfSCTSharedHits]      = 0;
     if (m_pixelExists) {
-      information [numberOfInnermostPixelLayerSharedHits] = 0;
-      information [numberOfNextToInnermostPixelLayerSharedHits] = 0;
-      information [numberOfPixelSharedHits]  = 0;
+      setTheseElements(information, {numberOfInnermostPixelLayerSharedHits, numberOfNextToInnermostPixelLayerSharedHits, numberOfPixelSharedHits}, toZero);
     }
   }
   if (!m_muonTool.empty()) {
-    information [numberOfMdtHits]    = 0;
-    information [numberOfTgcPhiHits] = 0;
-    information [numberOfTgcEtaHits] = 0;
-    information [numberOfCscPhiHits] = 0;
-    information [numberOfCscEtaHits] = 0;
-    information [numberOfCscUnspoiltEtaHits] = 0;
-    information [numberOfRpcPhiHits] = 0;
-    information [numberOfRpcEtaHits] = 0;
-    information[Trk::numberOfMdtHoles] =0;// no matter what, we either use an external tool or count holes on track, so set zero
-    information[Trk::numberOfCscEtaHoles] =0;
-    information[Trk::numberOfCscPhiHoles] =0;
-    information[Trk::numberOfRpcEtaHoles] =0;
-    information[Trk::numberOfRpcPhiHoles] =0;
-    information[Trk::numberOfTgcEtaHoles] =0;
-    information[Trk::numberOfTgcPhiHoles] =0;
+    constexpr size_t numberOfMuonRelatedCounters{15};
+    const std::array<size_t, numberOfMuonRelatedCounters> atMuonIndices{
+      numberOfMdtHits,
+      numberOfTgcPhiHits, numberOfTgcEtaHits, 
+      numberOfCscPhiHits, numberOfCscEtaHits, numberOfCscUnspoiltEtaHits,
+      numberOfRpcPhiHits, numberOfRpcEtaHits,
+      Trk::numberOfMdtHoles,
+      Trk::numberOfTgcEtaHoles, Trk::numberOfTgcPhiHoles,
+      Trk::numberOfCscEtaHoles, Trk::numberOfCscPhiHoles,
+      Trk::numberOfRpcEtaHoles, Trk::numberOfRpcPhiHoles,
+    };
     // New Small Wheel
-    information[Trk::numberOfStgcEtaHits] =0;
-    information[Trk::numberOfStgcPhiHits] =0;
-    information[Trk::numberOfMmHits] =0;
-    information[Trk::numberOfStgcEtaHoles] =0;
-    information[Trk::numberOfStgcPhiHoles] =0;
-    information[Trk::numberOfMmHoles] =0;
+    constexpr size_t numberOfNswRelatedCounters{6};
+    const std::array<size_t, numberOfNswRelatedCounters> atNswIndices{
+      Trk::numberOfStgcEtaHits, Trk::numberOfStgcPhiHits, Trk::numberOfMmHits,
+      Trk::numberOfStgcEtaHoles, Trk::numberOfStgcPhiHoles, Trk::numberOfMmHoles
+    };
+    setTheseElements(information, atMuonIndices, toZero);
+    setTheseElements(information, atNswIndices, toZero);
   }
 
   std::bitset<numberOfDetectorTypes> hitPattern;
-
   ATH_MSG_DEBUG ("Produce summary for: "<<track.info().dumpInfo());
-
-
   const EventContext& ctx= Gaudi::Hive::currentContext();
-  if (track.trackStateOnSurfaces()!=nullptr)
-  {
+  if (track.trackStateOnSurfaces()){
     information[Trk::numberOfOutliersOnTrack] = 0;
-    processTrackStates(ctx,
-                       track,
-                       prd_to_track_map,
-                       track.trackStateOnSurfaces(),
-                       information,
-                       hitPattern,
-                       doHolesInDet,
-                       doHolesMuon);
+    processTrackStates(ctx,track,prdToTrackMap,track.trackStateOnSurfaces(),information,hitPattern,doHolesInDet,doHolesMuon);
   } else {
-    ATH_MSG_WARNING ("Null pointer to TSoS found on Track (author = "
-      <<track.info().dumpInfo()<<"). This should never happen! ");
+    ATH_MSG_WARNING ("Null pointer to TSoS found on Track (author = "<<track.info().dumpInfo()<<"). This should never happen! ");
   }
 
-  bool hole_search_done = (
+  bool holeSearchDone = (
     information[Trk::numberOfPixelHoles] != -1 &&
     information[Trk::numberOfSCTHoles] != -1 &&
     information[Trk::numberOfSCTDoubleHoles] != -1 &&
@@ -302,10 +232,8 @@ std::vector<float> eProbability = Trk::eProbabilityDefault;
     information[Trk::numberOfSCTDeadSensors] != -1
   );
 
-  if ((doHolesInDet || doHolesMuon) && (!hole_search_done || m_alwaysRecomputeHoles.value()))
-  {
-    if (m_pixelExists)
-    {
+  if ((doHolesInDet || doHolesMuon) && (!holeSearchDone || m_alwaysRecomputeHoles.value())){
+    if (m_pixelExists){
       information [numberOfPixelHoles] = 0;
     }
     information [numberOfSCTHoles]       = 0;
@@ -316,8 +244,8 @@ std::vector<float> eProbability = Trk::eProbabilityDefault;
   ts.m_eProbability = eProbability;
   ts.m_idHitPattern = hitPattern.to_ulong();
   ts.m_dedx = dedx;
-  ts.m_nhitsdedx = nhitsuseddedx;
-  ts.m_nhitsoverflowdedx = noverflowhitsdedx;
+  ts.m_nhitsdedx = nHitsUsed_dEdx;
+  ts.m_nhitsoverflowdedx = nOverflowHits_dEdx;
 
   // add detailed summary for indet
   if( m_addInDetDetailedSummary && !m_idTool.empty() ){
@@ -327,18 +255,17 @@ std::vector<float> eProbability = Trk::eProbabilityDefault;
   if( m_addMuonDetailedSummary && !m_muonTool.empty() ){
     m_muonTool->addDetailedTrackSummary(track,ts);
   }
-  // move this part to VERBOSE
-  ATH_MSG_VERBOSE ( ts << endmsg << "Finished!");
 }
 
-void Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prd_to_track_map,TrackSummary &summary) const
-{
+void 
+Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prdToTrackMap,TrackSummary &summary) const{
   // first check if track has no summary - then it is recreated
-  m_idTool->updateSharedHitCount(track, prd_to_track_map, summary);
+  m_idTool->updateSharedHitCount(track, prdToTrackMap, summary);
 }
 
-void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, TrackSummary &summary, bool initialise_to_zero) const
-{
+
+void 
+Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,  TrackSummary &summary, bool initialiseToZero) const{
   std::vector<float> eProbability = Trk::eProbabilityDefault;
   if (!m_eProbabilityTool.empty()) {
     eProbability = m_eProbabilityTool->electronProbability(track);
@@ -349,41 +276,27 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track, TrackSummar
                       << " =?= should:" << nHits );
     }
   }
-
-  float dedx=            (initialise_to_zero ? 0 : -1);
-  int nhitsuseddedx=     (initialise_to_zero ? 0 : -1);
-  int noverflowhitsdedx= (initialise_to_zero ? 0 : -1);
-
+  const int initialValue(initialiseToZero ? 0 : -1);
+  float dedx=             initialValue;
+  int nHitsUsed_dEdx=     initialValue;
+  int nOverflowHits_dEdx= initialValue;
   if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
-    dedx = m_dedxtool->dEdx(track, nhitsuseddedx, noverflowhitsdedx);
+    dedx = m_dedxtool->dEdx(track, nHitsUsed_dEdx, nOverflowHits_dEdx);
   }
-
-  m_idTool->updateAdditionalInfo(summary, eProbability, dedx, nhitsuseddedx, noverflowhitsdedx);
-
+  m_idTool->updateAdditionalInfo(summary, eProbability,dedx, nHitsUsed_dEdx,nOverflowHits_dEdx);
   m_idTool->updateExpectedHitInfo(track, summary);
-
   if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,summary);
 }
+
+
 
 
 /*
  * Then the internal helpers
  */
-
 void
-Trk::TrackSummaryTool::processTrackStates(
-  const EventContext& ctx,
-  const Track& track,
-  const Trk::PRDtoTrackMap* prd_to_track_map,
-  const DataVector<const TrackStateOnSurface>* tsos,
-  std::vector<int>& information,
-  std::bitset<numberOfDetectorTypes>& hitPattern,
-  bool doHolesInDet,
-  bool doHolesMuon) const
-{
+Trk::TrackSummaryTool::processTrackStates(const EventContext& ctx,const Track& track,const Trk::PRDtoTrackMap* prdToTrackMap,const DataVector<const TrackStateOnSurface>* tsos,std::vector<int>& information,std::bitset<numberOfDetectorTypes>& hitPattern,bool doHolesInDet,bool doHolesMuon) const{
   ATH_MSG_DEBUG ("Starting to process " << tsos->size() << " track states");
-
-
   int measCounter = 0;
   int cntAddChi2 = 0;
   float chi2Sum = 0;
@@ -391,40 +304,40 @@ Trk::TrackSummaryTool::processTrackStates(
   DataVector<const TrackStateOnSurface>::const_iterator it = tsos->begin();
   DataVector<const TrackStateOnSurface>::const_iterator itEnd = tsos->end();
   for ( ; it!=itEnd; ++it){
-    if ((*it)->type(Trk::TrackStateOnSurface::Measurement) || (*it)->type(Trk::TrackStateOnSurface::Outlier)){
+    const auto & trackState = **it;
+    const auto isMeasurement = trackState.type(Trk::TrackStateOnSurface::Measurement);
+    const auto isOutlier = trackState.type(Trk::TrackStateOnSurface::Outlier);
+    if (isMeasurement or isOutlier){
       ++measCounter;
-      const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+      const Trk::MeasurementBase *measurement = trackState.measurementOnTrack();
       if (!measurement) {
-        ATH_MSG_WARNING ("measurementOnTrack == Null for a TrackStateOnSurface "
-          << "of type Measurement or Outlier");
+        ATH_MSG_WARNING ("measurementOnTrack == null for a TrackStateOnSurface of type Measurement or Outlier");
       } else {
-        if ((*it)->type(Trk::TrackStateOnSurface::Outlier)) ++information[Trk::numberOfOutliersOnTrack]; // increment outlier counter
-        ATH_MSG_VERBOSE ("analysing TSoS " << measCounter << " of type " << (*it)->dumpType() );
-        processMeasurement(ctx,track, prd_to_track_map, measurement, *it, information, hitPattern);
+        if (isOutlier) ++information[Trk::numberOfOutliersOnTrack]; // increment outlier counter
+        ATH_MSG_VERBOSE ("analysing TSoS " << measCounter << " of type " << trackState.dumpType() );
+        processMeasurement(ctx,track, prdToTrackMap, measurement, *it, information, hitPattern);
       } // if have measurement pointer
     } // if type measurement, scatterer or outlier
 
-    if ((*it)->type(Trk::TrackStateOnSurface::Measurement) &&
-      (*it)->fitQualityOnSurface() &&
-      (*it)->fitQualityOnSurface()->numberDoF()>0 )
-    {
-      ++cntAddChi2;
-      if ((*it)->fitQualityOnSurface()->chiSquared() > 1.e5) {// limit unphysical values and protect against FPE
-        chi2Sum += 1.e5;
-        chi2Sum2 += 1.e10;
-        ATH_MSG_DEBUG ("TSOS has unphysical chi2: "<< (*it)->fitQualityOnSurface()->chiSquared());
-      } else {
-        float chi2add =(*it)->fitQualityOnSurface()->chiSquared()/
-          (*it)->fitQualityOnSurface()->numberDoF();
-        chi2Sum+=chi2add;
-        chi2Sum2+=chi2add*chi2add;
+    if (isMeasurement){
+      if (const auto pFitQuality{trackState.fitQualityOnSurface()}; pFitQuality and pFitQuality->numberDoF()>0){
+        ++cntAddChi2;
+        if (const auto & chiSq{pFitQuality->chiSquared()}; chiSq > 1.e5) {// limit unphysical values and protect against FPE
+          chi2Sum += 1.e5;
+          chi2Sum2 += 1.e10;
+          ATH_MSG_DEBUG ("TSOS has unphysical chi2: "<< chiSq);
+        } else {
+          const float chi2add = chiSq/pFitQuality->numberDoF();
+          chi2Sum+=chi2add;
+          chi2Sum2+=chi2add*chi2add;
+        }
       }
     }
 
-    if ( (*it)->type(Trk::TrackStateOnSurface::Hole) && (*it)->trackParameters() ){
+    if ( trackState.type(Trk::TrackStateOnSurface::Hole) && trackState.trackParameters() ){
       if (!doHolesInDet || !doHolesMuon ){ // no dedicated hole search via extrapolation, but take what might be on the track already.
-        if ( (*it)->trackParameters()->associatedSurface().associatedDetectorElement()!=nullptr ) {
-          const Identifier& id = (*it)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
+        if ( trackState.trackParameters()->associatedSurface().associatedDetectorElement()!=nullptr ) {
+          const Identifier& id = trackState.trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
           if ( !doHolesInDet && m_detID->is_pixel( id ) ) ++information[Trk::numberOfPixelHoles];
           if ( !doHolesInDet && m_detID->is_sct( id ) )    ++information[Trk::numberOfSCTHoles];
           if ( !doHolesMuon && m_detID->is_mdt( id ) )    ++information[Trk::numberOfMdtHoles];
@@ -434,36 +347,30 @@ Trk::TrackSummaryTool::processTrackStates(
   } // end loop
 
   float varChi2 = 0;
-  if (cntAddChi2>0) varChi2=chi2Sum2/cntAddChi2 - (chi2Sum/cntAddChi2) *(chi2Sum/cntAddChi2) ;
-  if (varChi2>0 && varChi2<1.e13) information[Trk::standardDeviationOfChi2OS] = int(sqrt(varChi2)*100);
+  if (cntAddChi2>0){
+    const auto inverseCount{1./cntAddChi2};
+    varChi2 = (chi2Sum2 - (chi2Sum * chi2Sum * inverseCount)) * inverseCount;
+  } 
+  if (varChi2>0 && varChi2<1.e13) information[Trk::standardDeviationOfChi2OS] = int(std::sqrt(varChi2)*100);
 }
 
-void Trk::TrackSummaryTool::processMeasurement(const EventContext& ctx,
-                                               const Track& track,
-                                               const Trk::PRDtoTrackMap *prd_to_track_map,
-                                               const Trk::MeasurementBase* meas,
-                                               const Trk::TrackStateOnSurface* tsos,
-                                               std::vector<int>& information,
-                                               std::bitset<numberOfDetectorTypes>& hitPattern) const
-{
-
+void 
+Trk::TrackSummaryTool::processMeasurement(const EventContext& ctx,const Track& track,const Trk::PRDtoTrackMap *prdToTrackMap,const Trk::MeasurementBase* meas,const Trk::TrackStateOnSurface* tsos,std::vector<int>& information,std::bitset<numberOfDetectorTypes>& hitPattern) const{
   // Check if the measurement type is RIO on Track (ROT)
   const RIO_OnTrack* rot = nullptr;
   if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
     rot = static_cast<const RIO_OnTrack*>(meas);
   }
-
   if ( rot ){
     // have RIO_OnTrack
     const Trk::IExtendedTrackSummaryHelperTool* tool = getTool(rot->identify());
     if (tool==nullptr){
       ATH_MSG_WARNING("Cannot find tool to match ROT. Skipping.");
     } else {
-      tool->analyse(ctx,track,prd_to_track_map, rot,tsos,information, hitPattern);
+      tool->analyse(ctx,track,prdToTrackMap, rot,tsos,information, hitPattern);
     }
   } else {
     //check if the measurement type is CompetingRIOsOnTrack
-    //
     const Trk::CompetingRIOsOnTrack *compROT =nullptr;
     if ( meas->type(Trk::MeasurementBaseType::CompetingRIOsOnTrack)) {
       compROT = static_cast<const CompetingRIOsOnTrack *>(meas);
@@ -476,27 +383,24 @@ void Trk::TrackSummaryTool::processMeasurement(const EventContext& ctx,
       if (tool==nullptr){
         ATH_MSG_WARNING("Cannot find tool to match cROT. Skipping.");
       } else {
-        tool->analyse(ctx,track,prd_to_track_map, compROT,tsos,information, hitPattern);
+        tool->analyse(ctx,track,prdToTrackMap, compROT,tsos,information, hitPattern);
       }
     }
   }
 }
 
 Trk::IExtendedTrackSummaryHelperTool*
-Trk::TrackSummaryTool::getTool(const Identifier& id)
-{
+Trk::TrackSummaryTool::getTool(const Identifier& id){
   if (m_detID->is_indet(id)){
     if (!m_idTool.empty()){
       return &*m_idTool;
     }
-      ATH_MSG_WARNING("getTool: Identifier is from ID but have no ID tool");
-
+    ATH_MSG_WARNING("getTool: Identifier is from ID but have no ID tool");
   } else if(m_detID->is_muon(id)) {
     if (!m_muonTool.empty()) {
       return &*m_muonTool;
     }
-      ATH_MSG_WARNING("getTool: Identifier is from Muon but have no Muon tool");
-
+    ATH_MSG_WARNING("getTool: Identifier is from Muon but have no Muon tool");
   } else {
     ATH_MSG_WARNING("getTool: Identifier is of unknown type! id: "<<id.getString());
   }
@@ -504,90 +408,70 @@ Trk::TrackSummaryTool::getTool(const Identifier& id)
 }
 
 const Trk::IExtendedTrackSummaryHelperTool*
-Trk::TrackSummaryTool::getTool(const Identifier& id) const
-{
+Trk::TrackSummaryTool::getTool(const Identifier& id) const{
   if (m_detID->is_indet(id)){
     if (!m_idTool.empty()){
       return &*m_idTool;
     }
-      ATH_MSG_WARNING("getTool: Identifier is from ID but have no ID tool");
-
+    ATH_MSG_WARNING("getTool: Identifier is from ID but have no ID tool");
   } else if(m_detID->is_muon(id)) {
     if (!m_muonTool.empty()) {
       return &*m_muonTool;
     }
-      ATH_MSG_WARNING("getTool: Identifier is from Muon but have no Muon tool");
-
+    ATH_MSG_WARNING("getTool: Identifier is from Muon but have no Muon tool");
   } else {
     ATH_MSG_WARNING("getTool: Identifier is of unknown type! id: "<<id.getString());
   }
   return nullptr;
 }
 
-void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,
-                                                 std::vector<int>& information,
-                                                 bool doHolesInDet,
-                                                 bool doHolesMuon) const
-{
-
+void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,std::vector<int>& information,bool doHolesInDet,bool doHolesMuon) const{
   ATH_MSG_VERBOSE ("Entering Trk::TrackSummaryTool::searchHolesStepWise");
 // -------- obtain hits in Pixel and SCT only
-  if (track.trackStateOnSurfaces()==nullptr)
-  {
+  if (track.trackStateOnSurfaces()==nullptr){
     ATH_MSG_DEBUG ("No trackStatesOnSurface!!!!");
-    information [numberOfPixelHoles]           = -1;
-    information [numberOfPixelDeadSensors]     = -1;
-    information [numberOfSCTHoles]             = -1;
-    information [numberOfSCTDoubleHoles]       = -1;
-    information [numberOfSCTDeadSensors]       = -1;
-    information [numberOfTRTHoles]             = -1;
-    information [numberOfTRTDeadStraws]        = -1;
-    // NOTE: Eta holes was used twice instead of Phi holes
-    information [numberOfCscEtaHoles]          = -1;
-    information [numberOfCscPhiHoles]          = -1;
-    information [numberOfRpcEtaHoles]          = -1;
-    information [numberOfRpcPhiHoles]          = -1;
-    information [numberOfTgcEtaHoles]          = -1;
-    information [numberOfTgcPhiHoles]          = -1;
-    // New Small Wheel
-    information [numberOfStgcEtaHoles]         = -1;
-    information [numberOfStgcPhiHoles]         = -1;
-    information [numberOfMmHoles]              = -1;
+    const int toMinusOne{-1};
+    const std::array<size_t, 16> atIndices{
+      numberOfPixelHoles, numberOfPixelDeadSensors,
+      numberOfSCTHoles, numberOfSCTDoubleHoles, numberOfSCTDeadSensors,
+      numberOfTRTHoles, numberOfTRTDeadStraws,
+      numberOfCscEtaHoles, numberOfCscPhiHoles, 
+      numberOfRpcEtaHoles, numberOfRpcPhiHoles,
+      numberOfTgcEtaHoles, numberOfTgcPhiHoles,
+      //new small wheels
+      numberOfStgcEtaHoles, numberOfStgcPhiHoles,
+      numberOfMmHoles
+    };
+    setTheseElements(information, atIndices, toMinusOne);
     return;
   }
 
-
-    if (doHolesInDet)
-    {
-      // -------- perform the InDet hole search
-      if (m_pixelExists) {
-        information [numberOfPixelHoles]           = 0;
-        information [numberOfPixelDeadSensors]     = 0;
-      }
-      information [numberOfSCTHoles]             = 0;
-      information [numberOfSCTDoubleHoles]       = 0;
-      information [numberOfSCTDeadSensors]       = 0;
-      // ME : revert to take the summary helper, this is a temporary thing for 16.0.X
-      m_idTool->searchForHoles(track,information,Trk::pion);
+  const int toZero{0};
+  if (doHolesInDet){
+    // -------- perform the InDet hole search
+    if (m_pixelExists) {
+      setTheseElements(information, {numberOfPixelHoles, numberOfPixelDeadSensors}, toZero);
     }
-    if (!m_muonTool.empty() && doHolesMuon)
-    {
-      // now do Muon hole search. It works completely differently to the above,
-      // so we need to make this all a bit more general
-      // and probably more efficient. But this hopefully works for now! EJWM
-      information [numberOfMdtHoles]             = 0;
-      information [numberOfCscEtaHoles]          = 0;
-      information [numberOfCscPhiHoles]          = 0;
-      information [numberOfRpcEtaHoles]          = 0;
-      information [numberOfRpcPhiHoles]          = 0;
-      information [numberOfTgcEtaHoles]          = 0;
-      information [numberOfTgcPhiHoles]          = 0;
-      // New Small Wheel
-      information [numberOfStgcEtaHoles]         = 0;
-      information [numberOfStgcPhiHoles]         = 0;
-      information [numberOfMmHoles] = 0;
-      m_muonTool->searchForHoles(track,information,Trk::muon) ;
-    }
-
+    setTheseElements(information, {numberOfSCTHoles, numberOfSCTDoubleHoles, numberOfSCTDeadSensors}, toZero );
+    // ME : revert to take the summary helper, this is a temporary thing for 16.0.X
+    m_idTool->searchForHoles(track,information,Trk::pion);
   }
+  if (!m_muonTool.empty() && doHolesMuon){
+    // now do Muon hole search. It works completely differently to the above,
+    // so we need to make this all a bit more general
+    // and probably more efficient. But this hopefully works for now! EJWM
+    constexpr size_t numberOfRelatedMuonCounters{10};
+    const std::array<size_t, numberOfRelatedMuonCounters> atMuonIndices{
+      numberOfMdtHoles, 
+      numberOfCscEtaHoles, numberOfCscPhiHoles,
+      numberOfRpcEtaHoles, numberOfRpcPhiHoles,
+      numberOfTgcEtaHoles, numberOfTgcPhiHoles,
+      //new small wheels
+      numberOfStgcEtaHoles, numberOfStgcPhiHoles,
+      numberOfMmHoles
+    };
+    setTheseElements(information, atMuonIndices, toZero);
+    m_muonTool->searchForHoles(track,information,Trk::muon) ;
+  }
+}
 
