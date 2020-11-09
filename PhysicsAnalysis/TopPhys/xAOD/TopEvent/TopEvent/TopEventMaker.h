@@ -1,22 +1,8 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
-
-// $Id: TopEventMaker.h 661108 2015-04-17 00:01:16Z morrisj $
 #ifndef ANALYSISTOP_TOPEVENT_TOPEVENTMAKER_H
 #define ANALYSISTOP_TOPEVENT_TOPEVENTMAKER_H
-
-/**
- * @author John Morris <john.morris@cern.ch>
- *
- * @brief TopEventMaker
- *   produce top::Event objects from xAOD::SystematicEvent objects
- *
- *
- * $Revision: 661108 $
- * $Date: 2015-04-17 01:01:16 +0100 (Fri, 17 Apr 2015) $
- *
- **/
 
 // system include(s):
 #include <memory>
@@ -27,6 +13,7 @@
 
 #include "TopEvent/Event.h"
 #include "TopEvent/SystematicEvent.h"
+#include "TopEvent/SystematicEventContainer.h"
 #include "TopEvent/RCJetMC15.h"
 
 
@@ -36,6 +23,12 @@ namespace top {
   class TopConfig;
 
 
+  /**
+   * @author John Morris <john.morris@cern.ch>
+   *
+   * @brief TopEventMaker
+   *   produce top::Event objects from xAOD::SystematicEvent objects
+   **/
   class TopEventMaker final: public asg::AsgTool {
   public:
     explicit TopEventMaker(const std::string& name);
@@ -69,10 +62,10 @@ namespace top {
     /// Very annoying
     const xAOD::SystematicEventContainer* systematicEvents(const std::string& sgKey) const;
   private:
-  
+
     void decorateTopEvent(top::Event &event);
     void decorateTopEventSoftMuons(top::Event &event);
-  
+
     std::shared_ptr<top::TopConfig> m_config;
     std::unique_ptr<RCJetMC15> m_rc;
     std::map<std::string, std::unique_ptr<RCJetMC15> > m_VarRC;

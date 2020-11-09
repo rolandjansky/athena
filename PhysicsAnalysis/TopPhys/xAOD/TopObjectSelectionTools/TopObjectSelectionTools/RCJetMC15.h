@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RCJETMC15_H_
@@ -93,7 +93,7 @@ private:
     std::string m_OutJetContainerBase;
     std::string m_InputJetContainer;
     std::string m_OutputJetContainer;
-    int m_loose_hashValue; 
+    int m_loose_hashValue;
     bool m_unique_syst;
 
     typedef std::map<std::size_t,std::string>::iterator m_iterator;
@@ -111,7 +111,6 @@ private:
     std::unordered_map<std::size_t, JetReclusteringTool*> m_jetReclusteringTool;
     typedef std::unordered_map<std::size_t, JetReclusteringTool*>::iterator m_tool_iterator;
 
-    ClassDef(RCJetMC15, 0);
 };
 
 #endif

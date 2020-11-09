@@ -1,12 +1,12 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/EventSaverxAOD.h"
 
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
-#include "TopEvent/SystematicEvent.h"
+#include "TopEvent/SystematicEventContainer.h"
 
 #include "TopPartons/PartonHistory.h"
 
