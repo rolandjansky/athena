@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUHISTUTILS_RECOTAUPLOTS_H
@@ -23,11 +23,6 @@ class RecoTauPlots: public PlotBase {
     Tau::ParamPlots m_oParamPlots;
 
     //Here I try to include CellBased substructure variables, from the Particle FLow Object (PFO), begining with basic charged and neutral PFO 4-vector.
-    TH1* m_cellBased_charPFO_Pt;
-    TH1* m_cellBased_charPFO_Eta;
-    TH1* m_cellBased_charPFO_Phi;
-    TH1* m_cellBased_charPFO_E;
-
     TH1* m_cellBased_neuPFO_Pt;
     TH1* m_cellBased_neuPFO_Eta;
     TH1* m_cellBased_neuPFO_Phi;
