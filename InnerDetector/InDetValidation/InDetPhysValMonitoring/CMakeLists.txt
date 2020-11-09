@@ -63,3 +63,10 @@ atlas_add_test( InDetPlotBase_test
                 POST_EXEC_SCRIPT "nopost.sh"
 )
 
+
+atlas_add_test( StandaloneRun_test 
+                SCRIPT test/IDPVM_standalone_test.sh 
+                POST_EXEC_SCRIPT "nopost.sh"                
+)
+
+
