@@ -17,16 +17,7 @@
 //======================================================================================================
 Prompt::DecoratePromptLepton::DecoratePromptLepton(const std::string& name,
 						   ISvcLocator* pSvcLocator):  
-  AthAlgorithm(name, pSvcLocator),
-  m_TMVAReader            (0),
-  m_TMVAReaderOneTrack    (0),
-  m_TMVAReaderThreeTrack  (0),
-  m_accessCalIsolation20  (0),
-  m_accessCalIsolation30  (0),
-  m_accessTrackIsolation30(0),
-  m_accessSV1Vertices     (0),
-  m_decoratorBDT          (0),
-  m_decoratorDR           (0)
+  AthAlgorithm(name, pSvcLocator)
 {
   declareProperty("LeptonContainerName",         m_leptonContainerName);
   declareProperty("TrackJetContainerName",       m_trackJetContainerName);
@@ -133,20 +124,6 @@ StatusCode Prompt::DecoratePromptLepton::finalize()
   //
   // Delete pointers
   //
-  if(m_leptonContainerName == "TauJets") {
-    delete m_TMVAReaderOneTrack;
-    delete m_TMVAReaderThreeTrack;
-  }
-  else {
-    delete m_TMVAReader;
-  }
-  
-  delete m_accessCalIsolation20;
-  delete m_accessCalIsolation30;
-  delete m_accessTrackIsolation30;
-  delete m_accessSV1Vertices;
-  delete m_decoratorBDT;
-  delete m_decoratorDR;
 
   for(Float_t *var: m_varTMVA) {
     delete var;
@@ -234,7 +211,7 @@ bool Prompt::DecoratePromptLepton::initializeTMVAReader()
   //
   // Make new instance of TMVA Reader and add variables
   //
-  m_TMVAReader = new TMVA::Reader();
+  m_TMVAReader = std::make_unique<TMVA::Reader>();
 
   for(Prompt::Def::Var &var: m_allVars) {
     Float_t *new_var = new Float_t(0.0);
@@ -277,8 +254,8 @@ bool Prompt::DecoratePromptLepton::initializeTMVAReaderTau()
   //
   // Make new instances of TMVA Readers and add variables
   //
-  m_TMVAReaderOneTrack   = new TMVA::Reader();
-  m_TMVAReaderThreeTrack = new TMVA::Reader();
+  m_TMVAReaderOneTrack   = std::make_unique<TMVA::Reader>();
+  m_TMVAReaderThreeTrack = std::make_unique<TMVA::Reader>();
 
   for(Prompt::Def::Var &var: m_allVars) {
     Float_t *new_var = new Float_t(0.0);
@@ -361,8 +338,12 @@ void Prompt::DecoratePromptLepton::initializeDecorators()
   //
   // Instantiate decorators
   //
-  m_decoratorBDT = new SG::AuxElement::Decorator<float>(m_BDTName);
-  m_decoratorDR  = new SG::AuxElement::Decorator<float>(m_auxVarPrefix + "DRlj");
+
+  // Small hack in the output score name for LowPtPLV to harmonize with what is augmented in CP::IsolationLowPtPLVTool
+  std::string decoratorNameBDT = 
+    m_BDTName.find("LowPtPromptLeptonVeto")!=std::string::npos ? "LowPtPLV" : m_BDTName;
+  m_decoratorBDT = std::make_unique<SG::AuxElement::Decorator<float> >(decoratorNameBDT);
+  m_decoratorDR  = std::make_unique<SG::AuxElement::Decorator<float> >(m_auxVarPrefix + "DRlj");
 }
 
 //=============================================================================
@@ -371,10 +352,11 @@ void Prompt::DecoratePromptLepton::initializeConstAccessors()
   //
   // Instantiate accessors
   //
-  m_accessCalIsolation20   = new AccessFloat ("topoetcone20");
-  m_accessCalIsolation30   = new AccessFloat ("topoetcone30");
-  m_accessTrackIsolation30 = new AccessFloat ("ptvarcone30");
-  m_accessSV1Vertices      = new AccessVertex("SV1_vertices"); 
+  m_accessCalIsolation20   = std::make_unique<AccessFloat> ("topoetcone20");
+  m_accessCalIsolation30   = std::make_unique<AccessFloat> ("topoetcone30");
+  m_accessTrackIsolation20 = std::make_unique<AccessFloat> ("ptvarcone20");
+  m_accessTrackIsolation30 = std::make_unique<AccessFloat> ("ptvarcone30");
+  m_accessSV1Vertices      = std::make_unique<AccessVertex>("SV1_vertices"); 
 }
 
 //=============================================================================
@@ -718,16 +700,19 @@ void Prompt::DecoratePromptLepton::getLeptonVariables(const xAOD::IParticle* par
   //
   // Get lepton variables - isolation
   //
-  float topoetcone20rel = -99.0, topoetcone30rel = -99.0, ptvarcone30rel = -99.0;
+  float topoetcone20rel = -99.0, topoetcone30rel = -99.0, ptvarcone20rel = -99.0, ptvarcone30rel = -99.0;
 
   topoetcone20rel = accessIsolation(&(*m_accessCalIsolation20),   &(*particle));
   topoetcone30rel = accessIsolation(&(*m_accessCalIsolation30),   &(*particle));
+  ptvarcone20rel  = accessIsolation(&(*m_accessTrackIsolation20), &(*particle));
   ptvarcone30rel  = accessIsolation(&(*m_accessTrackIsolation30), &(*particle));
 
-  vars.AddVar(Prompt::Def::EtTopoCone20Rel, topoetcone20rel);  
-  vars.AddVar(Prompt::Def::EtTopoCone30Rel, topoetcone30rel);  
-  vars.AddVar(Prompt::Def::TopoEtCone30Rel, topoetcone30rel);  
-  vars.AddVar(Prompt::Def::PtVarCone30Rel,  ptvarcone30rel);  
+  vars.AddVar(Prompt::Def::EtTopoCone20Rel, topoetcone20rel);
+  vars.AddVar(Prompt::Def::EtTopoCone30Rel, topoetcone30rel);
+  vars.AddVar(Prompt::Def::TopoEtCone20Rel, topoetcone20rel);
+  vars.AddVar(Prompt::Def::TopoEtCone30Rel, topoetcone30rel);
+  vars.AddVar(Prompt::Def::PtVarCone20Rel,  ptvarcone20rel);
+  vars.AddVar(Prompt::Def::PtVarCone30Rel,  ptvarcone30rel);
 }
 
 //=============================================================================

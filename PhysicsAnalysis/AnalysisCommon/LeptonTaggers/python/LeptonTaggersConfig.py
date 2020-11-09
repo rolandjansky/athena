@@ -27,11 +27,13 @@ def GetDecoratePromptLeptonAlgs(name="", addSpectators=False):
     if name == "" or name == 'Electrons':
         algs += [DecoratePromptLepton('PromptLeptonIso',  'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecoratePromptLepton('PromptLeptonVeto', 'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
+        algs += [DecorateLowPtPromptLepton('LowPtPromptLeptonVeto', 'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
 
     if name == "" or name == 'Muons':
         algs += [DecoratePromptLepton('PromptLeptonIso',  'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecoratePromptLepton('PromptLeptonVeto', 'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
-    
+        algs += [DecorateLowPtPromptLepton('LowPtPromptLeptonVeto', 'Muons', 'AntiKt4PV0TrackJets', addSpectators)]    
+
     return algs
 
 #------------------------------------------------------------------------------
@@ -73,22 +75,26 @@ def GetExtraPromptVariablesForDxAOD(name='', addSpectators=False, onlyBDT=True):
     #
     # Decorate lepton only with the BDT outputs when the onlyBDT flag is true.
     #
+    # NOTE: The output score name for BDTname=LowPtPromptLeptonVeto is "LowPtPLV" instead "LowPtPromptLeptonVeto".
+    #       This is to harmonize with the variable augmented in CP::IsolationLowPtPLVTool
+    #
     if onlyBDT:
         if name == "" or name == "Electrons":
-            prompt_lep_vars += ["Electrons.PromptLeptonVeto.PromptLeptonIso."]
+            prompt_lep_vars += ["Electrons.PromptLeptonVeto.PromptLeptonIso.LowPtPLV."]
 
         if name == "" or name == "Muons":
-            prompt_lep_vars += ["Muons.PromptLeptonVeto.PromptLeptonIso."]
+            prompt_lep_vars += ["Muons.PromptLeptonVeto.PromptLeptonIso.LowPtPLV."]
 
         return prompt_lep_vars
  
  
-    prompt_vars  = "PromptLeptonVeto.PromptLeptonIso."
+    prompt_vars  = "PromptLeptonVeto.PromptLeptonIso.LowPtPLV."
     prompt_vars += "PromptLeptonInput_TrackJetNTrack.PromptLeptonInput_sv1_jf_ntrkv."
     prompt_vars += "PromptLeptonInput_ip2.PromptLeptonInput_ip3."
     prompt_vars += "PromptLeptonInput_LepJetPtFrac.PromptLeptonInput_DRlj."
     prompt_vars += "PromptLeptonInput_PtFrac.PromptLeptonInput_PtRel."
     prompt_vars += "PromptLeptonInput_DL1mu.PromptLeptonInput_rnnip."
+    prompt_vars += "PromptLeptonInput_TopoEtCone20Rel.PromptLeptonInput_PtVarCone20Rel."
     prompt_vars += "PromptLeptonInput_TopoEtCone30Rel.PromptLeptonInput_PtVarCone30Rel."
 
     prompt_vars += "PromptLeptonInput_SecondaryVertexIndexVector.PromptLeptonInput_SecondaryVertexIndexVectorInDet.PromptLeptonInput_SecondaryVertexIndexVectorMerge.PromptLeptonInput_SecondaryVertexIndexVectorDeepMerge."
@@ -203,6 +209,47 @@ def DecoratePromptLepton(BDT_name, lepton_name, track_jet_name, addSpectators=Fa
 
     alg.StringIntVars   = getStringIntVars  (BDT_name)
     alg.StringFloatVars = getStringFloatVars(BDT_name)
+
+    if addSpectators :
+        alg.StringIntSpecVars   = getStringIntSpecVars  (BDT_name)
+        alg.StringFloatSpecVars = getStringFloatSpecVars(BDT_name)
+
+    log.info('Decorate%s - prepared %s algorithm for: %s, %s' %(BDT_name, BDT_name, lepton_name, track_jet_name))
+
+    return alg
+
+#------------------------------------------------------------------------------
+def DecorateLowPtPromptLepton(BDT_name, lepton_name, track_jet_name, addSpectators=False):
+
+    # Check lepton container is correct
+    if lepton_name == 'Electrons':
+        part_type = 'Electron'
+    elif lepton_name == 'Muons':
+        part_type = 'Muon'
+    else:
+        raise Exception('Decorate%s - unknown lepton type: "%s"' %(BDT_name, lepton_name))  
+
+    #
+    # Check track jet container is correct
+    #
+    if track_jet_name != 'AntiKt4PV0TrackJets':
+        raise Exception('Decorate%s - unknown track jet collection: "%s"' %(BDT_name, track_jet_name))
+
+    #
+    # Prepare DecoratePromptLepton alg
+    #
+    alg = Conf.Prompt__DecoratePromptLepton('%s_decorate%s' %(lepton_name, BDT_name))
+
+    alg.LeptonContainerName   = lepton_name
+    alg.TrackJetContainerName = track_jet_name
+    alg.ConfigFileVersion     = 'InputData-2019-11-09/%s/%s' %(part_type, BDT_name)
+    alg.MethodTitleMVA        = 'BDT_%s_%s' %(part_type, BDT_name)
+    alg.BDTName               = '%s' %BDT_name
+    alg.AuxVarPrefix          = 'PromptLeptonInput_'
+    alg.PrintTime             = False
+
+    alg.StringIntVars   = getStringIntVars  (BDT_name)
+    alg.StringFloatVars = getStringFloatVars(BDT_name,part_type)
 
     if addSpectators :
         alg.StringIntSpecVars   = getStringIntSpecVars  (BDT_name)
@@ -442,6 +489,9 @@ def getStringIntVars(BDT_name):
     elif BDT_name == 'PromptLeptonVeto':
         int_vars += ['TrackJetNTrack']
 
+    elif BDT_name == 'LowPtPromptLeptonVeto':
+        int_vars += ['TrackJetNTrack']
+
     elif BDT_name == 'PromptTauIso':
         int_vars += ['TrackJetNTrack']
 
@@ -459,7 +509,7 @@ def getStringIntVars(BDT_name):
     return int_vars
 
 #------------------------------------------------------------------------------
-def getStringFloatVars(BDT_name):
+def getStringFloatVars(BDT_name, part_type=''):
 
     float_vars = []
 
@@ -479,6 +529,16 @@ def getStringFloatVars(BDT_name):
                        'DRlj',
                        'TopoEtCone30Rel',
                        'PtVarCone30Rel']
+
+    elif BDT_name == 'LowPtPromptLeptonVeto':
+        float_vars += ['PtRel',
+                       'PtFrac',
+                       'DRlj',                       
+                       'TopoEtCone20Rel']
+        if part_type == "Electron" : 
+            float_vars += ['PtVarCone20Rel']
+        else :
+            float_vars += ['PtVarCone30Rel']
 
     elif BDT_name == 'PromptTauIso':
         float_vars += ['MV2c10',                      
@@ -532,7 +592,7 @@ def getStringFloatSpecVars(BDT_name):
                        'JetPhi',
                        'JetM']
 
-    elif BDT_name == 'PromptLeptonVeto':
+    elif BDT_name == 'PromptLeptonVeto' or BDT_name == 'LowPtPromptLeptonVeto':
         float_vars += ['JetPt',
                        'JetEta',
                        'JetPhi',
