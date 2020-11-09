@@ -4,12 +4,15 @@
 
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "CxxUtils/features.h"
+#include "CxxUtils/restrict.h"
+#include "CxxUtils/vectorize.h"
 #include "CxxUtils/vec.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "TrkGaussianSumFilter/GsfConstants.h"
 #include <limits>
 #include <stdexcept>
 #include <vector>
+
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
 #else
@@ -20,6 +23,7 @@
 #endif
 #endif
 
+ATH_ENABLE_VECTORIZATION;
 /**
  * @file  KLGaussianMixtureReduction.cxx
  * @author Anthony Morley , Christos Anastopoulos
@@ -27,7 +31,6 @@
  *
  * Implementation of KLGaussianMixtureReduction
  */
-
 namespace {
 using namespace GSFUtils;
 
@@ -66,7 +69,8 @@ createToIJMaxRowCols()
  * covI * invCovJ + covJ * invCovI + (mean1-mean2) (invcov+invcov) (mean1-mean2)
  */
 float
-symmetricKL(const Component1D& componentI, const Component1D& componentJ)
+symmetricKL(const Component1D& ATH_RESTRICT componentI,
+            const Component1D& ATH_RESTRICT componentJ)
 {
   const double meanDifference = componentI.mean - componentJ.mean;
   const double inverCovSum = componentI.invCov + componentJ.invCov;
@@ -84,7 +88,8 @@ symmetricKL(const Component1D& componentI, const Component1D& componentJ)
  * equations (2),(3),(4)
  */
 void
-combine(GSFUtils::Component1D& updated, GSFUtils::Component1D& removed)
+combine(GSFUtils::Component1D& ATH_RESTRICT updated,
+        GSFUtils::Component1D& ATH_RESTRICT removed)
 {
 
   const double sumWeight = updated.weight + removed.weight;
@@ -121,6 +126,7 @@ combine(GSFUtils::Component1D& updated, GSFUtils::Component1D& removed)
 void
 recalculateDistances(const Component1D* componentsIn,
                      float* distancesIn,
+                     const IsMergedArray& ismerged,
                      const int32_t mini,
                      const int32_t n)
 {
@@ -142,9 +148,9 @@ recalculateDistances(const Component1D* componentsIn,
     const int32_t index = indexConst + i;
     // if the component has been merged already
     // keep the distance wrt to it max always
-    distances[index] = componentI.weight < 0
-                         ? std::numeric_limits<float>::max()
-                         : symmetricKL(componentI, componentJ);
+    if (!ismerged[i]) {
+      distances[index] = symmetricKL(componentI, componentJ);
+    }
   }
   // Columns
   for (int32_t i = j + 1; i < n; ++i) {
@@ -152,9 +158,9 @@ recalculateDistances(const Component1D* componentsIn,
     const int32_t index = (i - 1) * i / 2 + j;
     // if the component has been merged already
     // keep the distance wrt to it max always
-    distances[index] = componentI.weight < 0
-                         ? std::numeric_limits<float>::max()
-                         : symmetricKL(componentI, componentJ);
+    if (!ismerged[i]) {
+      distances[index] = symmetricKL(componentI, componentJ);
+    }
   }
 }
 
@@ -213,9 +219,8 @@ namespace GSFUtils {
 std::vector<std::pair<int8_t, int8_t>>
 findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
 {
-  Component1D* components = static_cast<Component1D*>(
-    __builtin_assume_aligned(componentsIn.components.data(), GSFConstants::alignment));
-
+  Component1D* components = static_cast<Component1D*>(__builtin_assume_aligned(
+    componentsIn.components.data(), GSFConstants::alignment));
   const int32_t n = componentsIn.numComponents;
 
   // Sanity check. Function  throw on invalid inputs
@@ -224,9 +229,10 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
     throw std::runtime_error("findMerges :Invalid InputSize or reducedSize");
   }
   // We need just one for the full duration of a job
+  // so static and const
   const static std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 
-  // Based on the inputSize n allocate enough space for the pairwise distances
+  //Based on the inputSize n allocate enough space for the pairwise distances
   const int32_t nn = n * (n - 1) / 2;
   // We work with a  multiple of 8*floats (32 bytes).
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
@@ -238,9 +244,10 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
   merges.reserve(n - reducedSize);
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
-
-  // merge loop
+  //keep track of where we are
   int32_t numberOfComponentsLeft = n;
+  IsMergedArray ismerged={};
+  // merge loop
   while (numberOfComponentsLeft > reducedSize) {
     // see if we have the next already
     const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
@@ -249,11 +256,14 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
     const int8_t minj = conversion.J;
     // Combine the 2 components
     combine(components[mini], components[minj]);
-    // re-calculate distances wrt the new component at mini
-    recalculateDistances(components, distances.buffer(), mini, n);
-    // Reset old weights wrt the  minj position
+    // Reset all distances wrt  to minj to float max
+    // so they can not be re-found as minimum distances.
     resetDistances(distances.buffer(), minj, n);
-    // keep track and decrement
+    //Set minj as merged
+    ismerged[minj]=true;
+    // re-calculate distances wrt the new component at mini
+    recalculateDistances(components, distances.buffer(), ismerged, mini, n);
+   // keep track and decrement
     merges.emplace_back(mini, minj);
     --numberOfComponentsLeft;
   } // end of merge while
