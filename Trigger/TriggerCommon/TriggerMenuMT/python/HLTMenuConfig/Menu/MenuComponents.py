@@ -829,10 +829,7 @@ class InEventReco( ComponentAccumulator ):
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
 
-        # Details below to be checked
         self.inputMakerAlg = inputMaker
-
-        # Avoid registering a duplicate
         self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name )
         self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name )
         self.addSequence( self.recoSeq, self.mainSeq.name )
@@ -853,7 +850,7 @@ class InEventReco( ComponentAccumulator ):
 
 
 
-class InViewReco( ComponentAccumulator ):
+class InViewReco(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
     def __init__(self, name, viewMaker=None, roisKey=None):
         super( InViewReco, self ).__init__()
@@ -878,18 +875,19 @@ class InViewReco( ComponentAccumulator ):
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )
         self.addSequence( self.viewsSeq, self.mainSeq.name )
 
-    def addInputFromFilter(self, filterAlg ):
-        assert len(filterAlg.Output) == 1, "Can only oprate on filter algs with one configured output, use addInput to setup specific inputs"
-        self.addInput( filterAlg.Output[0], "Reco_"+( filterAlg.Output[0].replace("Filtered_", "") ) )
-
     def addInput(self, inKey, outKey ):
         """Adds input (DecisionsContainer) from which the views should be created """
         self.viewMakerAlg.InputMakerInputDecisions += [ inKey ]
         self.viewMakerAlg.InputMakerOutputDecisions = outKey
 
     def mergeReco( self, ca ):
-        """ Merged CA movnig reconstruction algorithms into the right sequence """
+        """ Merge CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.getName() )
+
+    def addRecoAlgo( self, algo ):
+        """ Place algorithm in the correct reconstruction sequence """
+        return self.addEventAlgo( algo, sequenceName=self.viewsSeq.getName() )
+
 
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )
