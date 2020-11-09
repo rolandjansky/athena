@@ -9,7 +9,6 @@
 //     email                : jacob.julian.kempster@cern.ch
 //  ***************************************************************************/
 #include "L1CaloFEXSim/eFEXFPGA.h"
-#include "L1CaloFEXSim/eTower.h"
 #include "L1CaloFEXSim/eTowerContainer.h"
 #include "L1CaloFEXSim/eFEXegAlgo.h"
 #include "L1CaloFEXSim/eFEXegTOB.h"
@@ -30,7 +29,6 @@
 #include "StoreGate/ReadHandle.h"
 #include "SGTools/TestStore.h"
 
-
 namespace LVL1 {
 
   // default constructor for persistency
@@ -40,19 +38,20 @@ eFEXFPGA::eFEXFPGA(const std::string& type,const std::string& name,const IInterf
 {
   declareInterface<IeFEXFPGA>(this);
 }
-  
+ 
     
   /** Destructor */
   eFEXFPGA::~eFEXFPGA()
   {
   }
 
-//================ Initialisation =================================================
+//---------------- Initialisation -------------------------------------------------
   
 StatusCode eFEXFPGA::initialize()
 {
 
   ATH_CHECK(m_eFEXFPGA_eTowerContainerKey.initialize());
+
   //ATH_CHECK(m_eFEXFPGA_eFEXOutputCollectionKey.initialize());
   return StatusCode::SUCCESS;
 }
@@ -76,6 +75,8 @@ void eFEXFPGA::reset(){
 
 StatusCode eFEXFPGA::execute(){
 
+  m_tobwords.clear();
+
   SG::ReadHandle<eTowerContainer> jk_eFEXFPGA_eTowerContainer(m_eFEXFPGA_eTowerContainerKey/*,ctx*/);
   if(!jk_eFEXFPGA_eTowerContainer.isValid()){
     ATH_MSG_FATAL("Could not retrieve jk_eFEXFPGA_eTowerContainer " << m_eFEXFPGA_eTowerContainerKey.key() );
@@ -95,7 +96,7 @@ StatusCode eFEXFPGA::execute(){
   
   StatusCode sc_tobs = evtStore()->retrieve(eFEXOutputs, "eFEXOutputCollection");
   if(sc_tobs == StatusCode::SUCCESS){ }
-  else if(sc_tobs == StatusCode::FAILURE) {ATH_MSG_DEBUG("\n==== eFEXegAlgo ========= Failed to find eFEXOutputCollection in eFEXFPGA"); }
+  else if(sc_tobs == StatusCode::FAILURE) {ATH_MSG_DEBUG("\n---- eFEXegAlgo --------- Failed to find eFEXOutputCollection in eFEXFPGA"); }
   
 
   for(int ieta = 1; ieta < 5; ieta++) {
@@ -135,6 +136,12 @@ StatusCode eFEXFPGA::execute(){
       SetIsoWP(RetaCoreEnv,tempThrs,RetaWP);
       SetIsoWP(RhadCoreEnv,tempThrs,RhadWP);
       SetIsoWP(WstotCoreEnv,tempThrs,WstotWP);
+      int eta_ind = ieta - 1;
+      int phi_ind = iphi - 1;    
+
+
+      uint32_t tobword = formEmTOB(eta_ind,phi_ind);
+      if ( tobword != 0 ) m_tobwords.push_back(tobword);
 
       std::unique_ptr<eFEXegTOB> tmp_tob = m_eFEXegAlgoTool->geteFEXegTOB();
       
@@ -169,7 +176,10 @@ StatusCode eFEXFPGA::execute(){
     }
   }
 
-  // =============== TAU =============
+
+  //ATH_CHECK(store())
+
+  // --------------- TAU -------------
   for(int ieta = 1; ieta < 5; ieta++)
   {
     for(int iphi = 1; iphi < 9; iphi++)
@@ -197,9 +207,34 @@ StatusCode eFEXFPGA::execute(){
     }
   }
 
+
   return StatusCode::SUCCESS;
 
 }
+
+
+
+std::vector<uint32_t> eFEXFPGA::getEmTOBs()
+{
+  auto tobsSort = m_tobwords;
+
+  ATH_MSG_DEBUG("number of tobs: " <<tobsSort.size() << " in FPGA: " << m_id << " before truncation");
+
+  // sort tobs by their et (last 12 bits of the 32 bit tob word)
+  std::sort (tobsSort.begin(), tobsSort.end(), etSort);
+
+  /*
+  for(auto &j : tobsSort){
+    std::cout << "values: post sort " << std::bitset<32>(j) << std::endl;
+  }
+  */
+
+  // return the top 6 highest ET TOBs from the FPGA
+  tobsSort.resize(6);
+  return tobsSort;
+
+}
+
 
 void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
     
@@ -209,7 +244,7 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
   std::copy(&tmp_eTowersIDs_subset[0][0], &tmp_eTowersIDs_subset[0][0]+(10*6),&m_eTowersIDs[0][0]);
   
   if(false){ //this prints out the eTower IDs that each FPGA is responsible for
-    ATH_MSG_DEBUG("\n==== eFEXFPGA ========= FPGA (" << m_id << ") IS RESPONSIBLE FOR eTOWERS :");
+    ATH_MSG_DEBUG("\n---- eFEXFPGA --------- FPGA (" << m_id << ") IS RESPONSIBLE FOR eTOWERS :");
     for (int thisRow=rows-1; thisRow>=0; thisRow--){
       for (int thisCol=0; thisCol<cols; thisCol++){
 	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_eTowersIDs[thisRow][thisCol] << "  "); }
@@ -219,6 +254,7 @@ void eFEXFPGA::SetTowersAndCells_SG(int tmp_eTowersIDs_subset[][6]){
   }
   
 }
+
 
 void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigned int> & thresholds, unsigned int & workingPoint) {
 
@@ -258,6 +294,34 @@ void eFEXFPGA::SetIsoWP(std::vector<unsigned int> & CoreEnv, std::vector<unsigne
 
 }
 
+
+
+
+uint32_t eFEXFPGA::formEmTOB(int & ieta, int & iphi)
+{
+  uint32_t tobWord = 0;
+  const unsigned int eFexTobstep = 100;
+
+
+  //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in MeV
+  unsigned int et = m_eFEXegAlgoTool->getET();
+  unsigned int eFexTobEt = et/eFexTobstep;//steps of 100 MeV for the TOB
+
+  if (eFexTobEt > 0xfff) eFexTobEt = 0xfff; //truncate at 12 bits, set to max value of 4095, 0xfff, or 111111111111
+  int eta = ieta;
+  int phi = iphi;
+
+  //Create bare minimum tob word with et, eta, phi, and fpga index, bitshifted to the appropriate locations
+  tobWord = tobWord + eFexTobEt + (phi << 24) + (eta << 27) + (m_id << 30);
+
+  ATH_MSG_DEBUG("tobword with et, eta, phi, fpga: " << std::bitset<32>(tobWord) );
+
+  //some arbitrary cut so that we're not flooded with tobs. to be taken from the Trigger menu in the future!
+  unsigned int minEtThreshold = 30;
+  if (et < minEtThreshold) return 0;  
+  else return tobWord;
+
+}
   
 } // end of namespace bracket
 

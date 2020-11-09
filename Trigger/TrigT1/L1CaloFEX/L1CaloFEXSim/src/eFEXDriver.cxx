@@ -13,6 +13,7 @@
 
 #include "L1CaloFEXSim/eTower.h"
 #include "L1CaloFEXSim/eTowerBuilder.h"
+#include "L1CaloFEXSim/eTowerContainer.h"
 #include "L1CaloFEXSim/eFEXDriver.h"
 
 #include "L1CaloFEXSim/eSuperCellTowerMapper.h"
@@ -30,7 +31,8 @@
 #include "StoreGate/WriteHandle.h"
 #include "StoreGate/ReadHandle.h"
 
-#include "L1CaloFEXSim/eTowerContainer.h"
+#include "xAODTrigger/eFexEMRoI.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
 
 #include <cassert>
 #include "SGTools/TestStore.h"
@@ -83,6 +85,8 @@ StatusCode eFEXDriver::initialize()
   ATH_CHECK( m_eFEXSysSimTool.retrieve() );
 
   ATH_CHECK( m_eTowerContainerSGKey.initialize() );
+
+  ATH_CHECK( m_eEDMKey.initialize() );
 
   //ATH_CHECK( m_eFEXOutputCollectionSGKey.initialize() );
 
@@ -154,6 +158,9 @@ StatusCode eFEXDriver::finalize()
   // STEP 6 - Run THE eFEXSysSim
   ATH_CHECK(m_eFEXSysSimTool->execute());
 
+  ///STEP 6.5 - test the EDM
+  ATH_CHECK(testEDM());
+
   // STEP 7 - Close and clean the event  
   m_eFEXSysSimTool->cleanup();
   m_eSuperCellTowerMapperTool->reset();
@@ -165,6 +172,36 @@ StatusCode eFEXDriver::finalize()
 
   return StatusCode::SUCCESS;
 }
-  
+
+
+  StatusCode eFEXDriver::testEDM(){
+
+    const xAOD::eFexEMRoI* myRoI = 0;
+    
+    SG::ReadHandle<xAOD::eFexEMRoIContainer> myRoIContainer(m_eEDMKey);
+    if(!myRoIContainer.isValid()){
+      ATH_MSG_FATAL("Could not retrieve EDM Container " << m_eEDMKey.key());
+      return StatusCode::FAILURE;
+    }
+
+    ATH_MSG_DEBUG("----got container: " << myRoIContainer.key());
+
+    for(const auto& it : * myRoIContainer){
+      myRoI = it;
+      ATH_MSG_DEBUG("EDM eFex Number: " 
+		    << +myRoI->eFexNumber() // returns an 8 bit unsigned integer referring to the eFEX number 
+		    << " et: " 
+		    << myRoI->et() // returns the et value of the EM cluster in MeV
+		    << " eta: "
+		    << myRoI->eta() // returns a floating point global eta (will be at full precision 0.025, but currently only at 0.1)
+		    << " phi: "
+		    << myRoI->phi() // returns a floating point global phi
+		    << " is TOB? "
+		    << +myRoI->isTOB() // returns 1 if true, returns 0 if xTOB
+		    );
+    }
+
+    return StatusCode::SUCCESS;
+  }
   
 } // end of LVL1 namespace
