@@ -21,22 +21,22 @@ TrackSummaryTool::updateTrackSummary(Track& track) const
 
 inline void
 TrackSummaryTool::updateTrackSummary(Track& track,
-                                     const Trk::PRDtoTrackMap* prd_to_track_map,
+                                     const Trk::PRDtoTrackMap* pPrdToTrackMap,
                                      bool suppress_hole_search) const
 {
-  UpdateSummary(track, prd_to_track_map, suppress_hole_search);
+  UpdateSummary(track, pPrdToTrackMap, suppress_hole_search);
 }
 
 inline void
 TrackSummaryTool::updateSharedHitCount(
   Track& track,
-  const Trk::PRDtoTrackMap* prd_to_track_map) const
+  const Trk::PRDtoTrackMap* pPrdToTrackMap) const
 {
   if (!track.trackSummary()) {
     computeAndReplaceTrackSummary(
-      track, prd_to_track_map, false /*DO NOT suppress hole search*/);
+      track, pPrdToTrackMap, false /*DO NOT suppress hole search*/);
   } else {
-    updateSharedHitCount(track, prd_to_track_map, *track.trackSummary());
+    updateSharedHitCount(track, pPrdToTrackMap, *track.trackSummary());
   }
 }
 
@@ -75,7 +75,7 @@ TrackSummaryTool::updateAdditionalInfo(Track& track) const
 }
 inline void
 TrackSummaryTool::UpdateSummary(Track& track,
-                                const Trk::PRDtoTrackMap* prd_to_track_map,
+                                const Trk::PRDtoTrackMap* pPrdToTrackMap,
                                 bool suppress_hole_search) const
 {
   if (!track.trackSummary()) {
@@ -83,7 +83,7 @@ TrackSummaryTool::UpdateSummary(Track& track,
   }
   fillSummary(*(track.trackSummary()),
               track,
-              prd_to_track_map,
+              pPrdToTrackMap,
               m_doHolesInDet && !suppress_hole_search,
               m_doHolesMuon && !suppress_hole_search);
 }
