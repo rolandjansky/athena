@@ -189,12 +189,6 @@ from D3PDMakerConfig.CommonJSD3PD  import AddHadronicInfo
 #AddHadronicInfo(ExtendedJetD3PDObject, ['Tau1','Tau2','Tau3', 'ZCUT12', 'ZCUT23','ZCUT34','Dip12', 'Dip13', 'Dip23','DipExcl12','PlanarFlow','Angularity'], theblockname = 'substructureblocks', level=99)
 
 
-#from HSG5DPDUtils.HSG5D3PD  import addSTRUCTCalib
-#addSTRUCTCalib('AntiKt4TopoEMJetsReTagged', input='Topo', mainParam=0.4)
-#addSTRUCTCalib('AntiKt6TopoEMJetsReTagged', input='Topo', mainParam=0.6)
-#addSTRUCTCalib('AntiKt4LCTopoJetsReTagged', input='Topo', mainParam=0.4)
-#addSTRUCTCalib('AntiKt6LCTopoJetsReTagged', input='Topo', mainParam=0.6)
-
 
 #from JetD3PDMaker import JetMomentFillerTool
 #ExtendedJetD3PDObject.defineBlock(99, 'splitInfoBlock', JetMomentFillerTool,Moments= ['SPLIT12', 'SPLIT23', 'SPLIT34'])
