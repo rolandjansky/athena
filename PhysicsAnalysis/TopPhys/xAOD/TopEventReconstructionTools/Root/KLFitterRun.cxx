@@ -31,6 +31,7 @@ namespace top {
       m_useJetAutoSet = top::KLFitterRun::hasAutoSetOption(kCustomParameters);
     } else kLeptonType = kParameters;
     m_name = "RECO::KLFitterRun_" + kLeptonType;
+    if(m_useJetAutoSet) m_name=m_name+Form("_Nb%dDelta%dNjcut%d",m_nb,m_delta,m_Njcut);
     m_myFitter = std::unique_ptr<top::KLFitterTool> (new top::KLFitterTool(m_name));
     top::check(m_myFitter->setProperty("config", config), "Failed to setProperty of KLFitterTool");
     top::check(m_myFitter->setProperty("LeptonType", kLeptonType), "Failed to setProperty of KLFitterTool");
