@@ -471,11 +471,12 @@ if DetFlags.haveRIO.TRT_on():
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
        conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
-    if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
-       conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
-    # FIXME: force tag until the folder is included in global tag
-    conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
-    conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
+    if InDetFlags.doTRTPIDNN():
+        if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
+            conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
+        # FIXME: force tag until the folder is included in global tag
+        conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
+        conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
 
     #
     # now do the services
@@ -528,8 +529,9 @@ if DetFlags.haveRIO.TRT_on():
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
     # PID NN
-    from TRT_ConditionsNN.TRT_ConditionsNNConf import TRTPIDNNCondAlg
-    TRTPIDNNCondAlg = TRTPIDNNCondAlg(name = "TRTPIDNNCondAlg")
+    if InDetFlags.doTRTPIDNN():
+        from TRT_ConditionsNN.TRT_ConditionsNNConf import TRTPIDNNCondAlg
+        TRTPIDNNCondAlg = TRTPIDNNCondAlg(name = "TRTPIDNNCondAlg")
 
     # dEdx probability algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
@@ -551,7 +553,7 @@ if DetFlags.haveRIO.TRT_on():
     # Condition algorithms for Pid
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
-    if not hasattr(condSeq, "TRTPIDNNCondAlg"):
+    if (InDetFlags.doTRTPIDNN() and not hasattr(condSeq, "TRTPIDNNCondAlg")):
         condSeq += TRTPIDNNCondAlg
     if not hasattr(condSeq, "TRTToTCondAlg"):
         condSeq += TRTToTCondAlg
