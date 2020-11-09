@@ -75,6 +75,8 @@ private :
 	std::vector<noise> m_noise;
 	bool m_compNoise;
 	bool m_addBCID;
+        std::string m_inputSCellName;
+        std::string m_inputBaseSCellName;
 
 };
 
