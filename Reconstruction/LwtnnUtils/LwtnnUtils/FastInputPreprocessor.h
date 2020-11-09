@@ -9,8 +9,8 @@
 // [1]: https::www.github.com/lwtnn/lwtnn
 
 
-#ifndef FAST_INPUT_PREPROCESSOR_HH
-#define FAST_INPUT_PREPROCESSOR_HH
+#ifndef LWTNN_UTILS_FAST_INPUT_PREPROCESSOR_H
+#define LWTNN_UTILS_FAST_INPUT_PREPROCESSOR_H
 
 #include "lwtnn/lightweight_network_config.hh"
 #include "lwtnn/Exceptions.hh"

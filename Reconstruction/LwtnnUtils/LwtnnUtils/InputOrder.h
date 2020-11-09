@@ -8,8 +8,8 @@
 //
 // [1]: https::www.github.com/lwtnn/lwtnn
 
-#ifndef INPUT_ORDER_H
-#define INPUT_ORDER_H
+#ifndef LWTNN_UTILS_INPUT_ORDER_H
+#define LWTNN_UTILS_INPUT_ORDER_H
 
 #include <vector>
 #include <string>
@@ -33,4 +33,4 @@ namespace lwt::atlas {
 }
 
 
-#endif // INPUT_ORDER_HH
+#endif

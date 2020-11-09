@@ -8,8 +8,8 @@
 //
 // [1]: https::www.github.com/lwtnn/lwtnn
 
-#ifndef FAST_GRAPH_H
-#define FAST_GRAPH_H
+#ifndef LWTNN_UTILS_FAST_GRAPH_H
+#define LWTNN_UTILS_FAST_GRAPH_H
 
 #include "lwtnn/lightweight_network_config.hh"
 
