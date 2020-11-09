@@ -9,12 +9,14 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 
 # The earliest bunch crossing time for which interactions will be sent
-# to the MdtDigitizationTool.
+# to the MMDigitizationTool.
+# MM readout window is 8BC. To be safe, do [-7,7]
 def MM_FirstXing():
-    return -250
+    return -175
 
 # The latest bunch crossing time for which interactions will be sent
-# to the MdtDigitizationTool.
+# to the MMDigitizationTool.
+# MM readout window is 8BC. To be safe, do [-7,7]
 def MM_LastXing():
     return 200
 

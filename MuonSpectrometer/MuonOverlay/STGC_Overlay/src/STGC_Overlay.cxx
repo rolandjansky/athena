@@ -93,7 +93,7 @@ STGC_Overlay::STGC_Overlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("TempBkgStore", m_storeGateTempBkg, "help");
   declareProperty("mainInputSTGC_Name", m_mainInputSTGC_Name="sTGC_DIGITS");
   declareProperty("overlayInputSTGC_Name", m_overlayInputSTGC_Name="sTGC_DIGITS");
-  declareProperty("IntegrationWindow", m_timeIntegrationWindow = 50.0 ); // in ns 
+  declareProperty("IntegrationWindow", m_timeIntegrationWindow = 30.0 ); // in ns 
   declareProperty("DigitizationTool", m_digTool);
   declareProperty("ConvertRDOToDigitTool", m_rdoTool);
   declareProperty("CopyObject", m_copyObjects=false);
