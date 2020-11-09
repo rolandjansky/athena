@@ -37,7 +37,7 @@ initialize (bool enabled)
   {
     ANA_CHECK (m_cutFlowSvc.retrieve());
 
-    m_cutID = m_cutFlowSvc->registerFilter (m_filterKey, m_filterDescription);
+    m_cutID = m_cutFlowSvc->registerFilter (m_filterKey, m_filterDescription, false);
     if (m_cutID == 0)
     {
       ANA_MSG_ERROR ("problem registering myself with the CutFlowSvc");

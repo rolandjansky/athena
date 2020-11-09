@@ -40,8 +40,8 @@ def CutFlowSvcCfg(flags):
 def CutFlowOutputList(flags, base_name='CutBookkeepers'):
     """CutFlow output metadata list"""
     return [
-        'xAOD::CutBookkeeperContainer#' + base_name,
-        'xAOD::CutBookkeeperAuxContainer#' + base_name + 'Aux.*',
-        'xAOD::CutBookkeeperContainer#Incomplete' + base_name,
-        'xAOD::CutBookkeeperAuxContainer#Incomplete' + base_name + 'Aux.*'
+        'xAOD::CutBookkeeperContainer#' + base_name + '*',
+        'xAOD::CutBookkeeperAuxContainer#' + base_name + '*Aux.*',
+        'xAOD::CutBookkeeperContainer#Incomplete' + base_name + '*',
+        'xAOD::CutBookkeeperAuxContainer#Incomplete' + base_name + '*Aux.*'
     ]

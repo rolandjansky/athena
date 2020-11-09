@@ -981,7 +981,11 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
-        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
+
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=seq, addMetaDataToAllOutputFiles=True )
+
         seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
