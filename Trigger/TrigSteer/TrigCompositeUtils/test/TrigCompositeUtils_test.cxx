@@ -21,7 +21,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   xAOD::TrigComposite::s_throwOnCopyError = true;
 
   errorcheck::ReportMessage::hideFunctionNames (true);
-
+  
   // initialize Gaudi, SG
   ISvcLocator* pSvcLoc;
   Athena_test::initGaudi(pSvcLoc); 
