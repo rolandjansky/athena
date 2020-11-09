@@ -7,12 +7,14 @@ from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
 
 # The earliest bunch crossing time for which interactions will be sent
-# to the MdtDigitizationTool.
+# to the MMDigitizationTool.
+# MM readout window is 8BC. To be safe, do [-7,7]
 def MM_FirstXing():
-    return -250
+    return -200
 
 # The latest bunch crossing time for which interactions will be sent
-# to the MdtDigitizationTool.
+# to the MMDigitizationTool.
+# MM readout window is 8BC. To be safe, do [-7,7]
 def MM_LastXing():
     return 200
 

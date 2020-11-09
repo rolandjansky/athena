@@ -7,14 +7,14 @@ from Digitization.DigitizationFlags import jobproperties
 from AthenaCommon import CfgMgr
 
 # The earliest bunch crossing time for which interactions will be sent 
-# to the sTGCDigitizationTool. 
+# to the sTGCDigitizationTool. BCID = -4
 def sTGC_FirstXing(): 
-    return -375 
+    return -100
  
 # The latest bunch crossing time for which interactions will be sent 
-# to the sTGCDigitizationTool. 
+# to the sTGCDigitizationTool. BCID = 3
 def sTGC_LastXing(): 
-    return 175 
+    return 100
 
 def sTgcDigitizationTool(name="sTgcDigitizationTool",**kwargs):
     if jobproperties.Digitization.doXingByXingPileUp():
