@@ -23,7 +23,7 @@ def main():
                       help='Tag identifying this processing to be used in the output folder name (any underscores will be removed)')
   parser.add_argument('--outputJSONFile', default='rates.json', 
                       help='JSON file of rates for use with the RuleBook')
-  parser.add_argument('--outputCSVFile', default='rates.csv', 
+  parser.add_argument('--outputCSVFile', default='Table_Rate_ChainHLT_HLT_All.csv', 
                       help='CSV file of rates for webpage visualization')
   parser.add_argument('--userDetails',
                       help='User supplied metadata string giving any extra details about this run.')                      

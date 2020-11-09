@@ -10,13 +10,14 @@
 
 def toCSV(fileName, HLTTriggers):
   import csv
-  
+
   with open(fileName, mode='w') as outputCSV_file:
     rates_csv_writer = csv.writer(outputCSV_file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
 
     rates_csv_writer.writerow(['Name','Active Time [s]','Group','Weighted PS Rate [Hz]','Weighted PS Rate Err [Hz]','Prescale','ID','Raw Active Events','Raw Pass Events','Active Events','Input Rate [Hz]','Pass Fraction before PS [%]','Pass Fraction after PS [%]','Pass Weighted PS'])
     rates_csv_writer.writerow(['Trigger name','Integrated length of all lumi blocks which contributed events to this rates prediction.','The group this chain belongs to.','Rate after applying all prescale(s) as weights.','Error on rate after applying all prescale(s) as weights','The prescale of this chain. Only displayed for simple combinations.','The CPTID or HLT Chain ID','Raw underlying statistics on the number events processed for this chain.','Raw underlying statistics on the number events passed by this chain.','Number of events in which the chain - or at least one chain in the combination - was executed.','Input rate to this chain or combination of chains. At L1 this will be the collision frequency for the bunch pattern.','Fraction of events which pass this trigger before prescale.','Fraction of events which pass this trigger after prescale.','Number of events this chain or combination passed after applying prescales as weighting factors.'])
 
+    # Provisional mapping of HLT chains and Group names
     for trig in HLTTriggers:
       if trig.name.startswith("HLT_e"):
         group_name="RATE_SingleElectron"
@@ -52,14 +53,14 @@ def toCSV(fileName, HLTTriggers):
       if float(trig.activeRaw)==0:
         passFrac_beforePS=0
       else:
-        passFrac_beforePS=float(trig.passRaw)/float(trig.activeRaw)
+        passFrac_beforePS=100*float(trig.passRaw)/float(trig.activeRaw)
       if float(trig.activeWeighted)==0:
         passFrac_afterPS=0
       else:
-        passFrac_afterPS=float(trig.passWeighted)/float(trig.activeWeighted)
+        passFrac_afterPS=100*float(trig.passWeighted)/float(trig.activeWeighted)
 
-      rates_csv_writer.writerow([trig.name,trig.rateDenominator,group_name,trig.rate,trig.rateErr,trig.prescale,'ID',trig.activeRaw,trig.passRaw,trig.activeWeighted,float(trig.activeWeighted)/float(trig.rateDenominator),passFrac_beforePS,passFrac_afterPS,trig.passWeighted])
-    
+      rates_csv_writer.writerow([trig.name,"%.4f" % trig.rateDenominator,group_name,"%.4f" % trig.rate,"%.4f" % trig.rateErr,trig.prescale,'ID',"%.0f" % trig.activeRaw,"%.0f" % trig.passRaw,"%.4f" % trig.activeWeighted,"%.4f" % (float(trig.activeWeighted)/float(trig.rateDenominator)),"%.4f" % passFrac_beforePS,"%.4f" % passFrac_afterPS,"%.4f" % trig.passWeighted])
+      
     
 
 def toJson(fileName, metadata, L1Triggers, HLTTriggers):
