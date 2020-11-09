@@ -18,6 +18,8 @@
 #include "AthenaBaseComps/AthService.h"
 #include "AthenaKernel/SlotSpecificObj.h"
 #include "AthenaMonitoringKernel/Monitored.h"
+#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
+#include "TrigDataAccessMonitoring/ROBDataMonitor.h"
 
 // STL includes
 #include <string>
@@ -164,6 +166,12 @@ private:
   // prefetch all ROBs from a ROS if ROB data from this ROS are requested
   Gaudi::Property<bool> m_prefetchAllROBsfromROS{
     this, "prefetchAllROBsfromROS", false , "When ROBs from a ROS are requested then prefetch all ROBs in this ROS"};
+
+  Gaudi::Property<bool> m_doCostMonitoring{
+    this, "DoCostMonitoring", true, "Enables start-of-event cost monitoring behavior."};
+
+  ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle{ 
+    this, "TrigCostMTSvc", "TrigCostMTSvc", "The trigger cost service" };
 
   /*------------------------+
    * Methods acting on ROBs |

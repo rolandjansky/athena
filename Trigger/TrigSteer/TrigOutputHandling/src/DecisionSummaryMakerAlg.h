@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
 #define TRIGOUTPUTHANDLING_DECISIONSUMMARYMAKERALG_H
@@ -34,6 +34,9 @@ private:
 
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_costWriteHandleKey { this, "CostWriteHandleKey", "HLT_TrigCostContainer",
     "TrigComposite collections summarising the HLT execution" };
+
+  SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_rosWriteHandleKey { this, "ROSWriteHandleKey", "HLT_TrigCostROSContainer",
+    "TrigComposite collections summarising the ROS requests" };
 
   SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_l1SummaryKey { this, "L1DecoderSummaryKey", "L1DecoderSummary",
     "Chains status after L1 and prescaling" };
