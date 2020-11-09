@@ -54,7 +54,8 @@ public:
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
   void fill(const xAOD::TrackParticle& particle, const float mu, const unsigned int nVtx); //mu dependent plots
-  void fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx); 
+  void fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, const unsigned int nTrkBAT, const float mu, const unsigned int nVtx);
+  void fill(const unsigned int nTracks, const unsigned int mu, const unsigned nVtx);
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle& particle);
   ///Fill for efficiency plots
