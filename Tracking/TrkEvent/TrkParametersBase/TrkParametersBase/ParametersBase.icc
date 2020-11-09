@@ -89,12 +89,6 @@ ParametersBase<DIM, T>::isCharged() const
   }
 }
 
-template<int DIM, class T>
-double
-ParametersBase<DIM, T>::charge() const
-{
-  return m_chargeDef.charge();
-}
 
 template<int DIM, class T>
 Amg::Vector2D

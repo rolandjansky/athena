@@ -203,7 +203,7 @@ public:
 
   /**This method returns the bounds by reference, static NoBounds in case of no
    * boundaries*/
-  virtual const SurfaceBounds& bounds() const override;
+  virtual const SurfaceBounds& bounds() const override final;
 
   /**This method calls the inside() method of the Bounds*/
   virtual bool insideBounds(const Amg::Vector2D& locpos,

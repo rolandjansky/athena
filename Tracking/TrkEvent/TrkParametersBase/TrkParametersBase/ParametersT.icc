@@ -194,6 +194,13 @@ ParametersT<DIM, T, S>::operator=(const ParametersT<DIM, T, S>& rhs)
 }
 
 template<int DIM, class T, class S>
+double
+ParametersT<DIM, T, S>::charge() const
+{
+  return m_chargeDef.charge();
+}
+
+template<int DIM, class T, class S>
 const Amg::Vector3D&
 ParametersT<DIM, T, S>::position() const
 {
