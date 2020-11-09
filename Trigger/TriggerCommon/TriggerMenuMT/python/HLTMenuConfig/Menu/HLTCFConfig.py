@@ -393,15 +393,12 @@ def createDataFlow(chains, allDicts):
                 filterOutput= filterInput
             else:
                 filterOutput =[ CFNaming.filterOutName(filterName, inputName) for inputName in filterInput ]
-#            log.debug("Filter outputps: %s", filterOutput)
-
        
             (foundFilter, foundCFSeq) = findCFSequences(filterName, CFseqList[nstep])
             log.debug("Found %d CF sequences with filter name %s", foundFilter, filterName)        
              # add error if more than one
             if not foundFilter:
                 sequenceFilter = buildFilter(filterName, filterInput, chainStep.isEmpty)
-                #filter_input_indexes = [i for i in range(0,len(filterInput)) ]
                 CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sequenceFilter)
                 CFseq.connect(filterOutput)
                 CFseqList[nstep].append(CFseq)
@@ -522,15 +519,12 @@ def buildFilter(filter_name,  filter_input, empty):
             sfilter.addOutput(i)
     else:
         sfilter = RoRSequenceFilterNode(name=filter_name)
-        
         for i in filter_input:
             sfilter.addInput(i)
-        for i in  filter_input:
             sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
 
     log.debug("Added inputs to filter: %s", sfilter.getInputList())
     log.debug("Added outputs to filter: %s", sfilter.getOutputList())
-    
     log.debug("Filter Done: %s", sfilter.Alg.name())
 
     return (sfilter)
