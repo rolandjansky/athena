@@ -735,39 +735,39 @@ LVL1CTP::CTPEmulation::fillInputHistograms() {
          h6->Fill(cl->wstot());
          {
             auto & wp = m_reta.at(LOOSE).getWP(ieta);
-            if( reta >= wp.value or cl->et() >= wp.maxEt ) { hl1->Fill(reta); }
+            if( reta <= wp.value or cl->et() >= wp.maxEt ) { hl1->Fill(reta); }
          }
          {
             auto & wp = m_reta.at(MEDIUM).getWP(ieta);
-            if( reta >= wp.value or cl->et() >= wp.maxEt ) { hm1->Fill(reta); }
+            if( reta <= wp.value or cl->et() >= wp.maxEt ) { hm1->Fill(reta); }
          }
          {
             auto & wp = m_reta.at(TIGHT).getWP(ieta);
-            if( reta >= wp.value or cl->et() >= wp.maxEt ) { ht1->Fill(reta); }
+            if( reta <= wp.value or cl->et() >= wp.maxEt ) { ht1->Fill(reta); }
          }
          {
             auto & wp = m_rhad.at(LOOSE).getWP(ieta);
-            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { hl2->Fill(rhad); }
+            if( rhad <= wp.value or cl->et() >= wp.maxEt ) { hl2->Fill(rhad); }
          }
          {
             auto & wp = m_rhad.at(MEDIUM).getWP(ieta);
-            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { hm2->Fill(rhad); }
+            if( rhad <= wp.value or cl->et() >= wp.maxEt ) { hm2->Fill(rhad); }
          }
          {
             auto & wp = m_rhad.at(TIGHT).getWP(ieta);
-            if( rhad >= wp.value or cl->et() >= wp.maxEt ) { ht2->Fill(rhad); }
+            if( rhad <= wp.value or cl->et() >= wp.maxEt ) { ht2->Fill(rhad); }
          }
          {
             auto & wp = m_wstot.at(LOOSE).getWP(ieta);
-            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { hl3->Fill(cl->wstot()); }
+            if( cl->wstot() <= wp.value or cl->et() >= wp.maxEt ) { hl3->Fill(cl->wstot()); }
          }
          {
             auto & wp = m_wstot.at(MEDIUM).getWP(ieta);
-            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { hm3->Fill(cl->wstot()); }
+            if( cl->wstot() <= wp.value or cl->et() >= wp.maxEt ) { hm3->Fill(cl->wstot()); }
          }
          {
             auto & wp = m_wstot.at(TIGHT).getWP(ieta);
-            if( cl->wstot() >= wp.value or cl->et() >= wp.maxEt ) { ht3->Fill(cl->wstot()); }
+            if( cl->wstot() <= wp.value or cl->et() >= wp.maxEt ) { ht3->Fill(cl->wstot()); }
          }
       }
    }
@@ -1103,19 +1103,19 @@ LVL1CTP::CTPEmulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold
                unsigned int selection_wstot = ((isoMask >> BITMASK_OFFSET_WSTOT) & 0x3);
                if( selection_reta>0 ) {
                   auto & wp = m_reta.at(selection_reta).getWP(ieta);
-                  if( (cl->et() < wp.maxEt) && reta(*cl) < wp.value) {
+                  if( (cl->et() < wp.maxEt) && reta(*cl) > wp.value) {
                      clusterPasses = false;
                   }
                }
                if( clusterPasses && selection_rhad>0 ) {
                   auto & wp = m_rhad.at(selection_rhad).getWP(ieta);
-                  if( (cl->et() < wp.maxEt) && rhad(*cl) < wp.value) {
+                  if( (cl->et() < wp.maxEt) && rhad(*cl) > wp.value) {
                      clusterPasses = false;
                   }
                }
                if( clusterPasses && selection_wstot>0 ) {
                   auto & wp = m_wstot.at(selection_wstot).getWP(ieta);
-                  if( (cl->et() < wp.maxEt) && cl->wstot() < wp.value) {
+                  if( (cl->et() < wp.maxEt) && cl->wstot() > wp.value) {
                      clusterPasses = false;
                   }
                }
@@ -1199,7 +1199,7 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
             unsigned int selection_tauiso = ((isoMask >> BITMASK_OFFSET_TAUISO) & 0x3);
             if(tauPasses and selection_tauiso>0) {
                auto & wp = m_eTauIso.at(selection_tauiso).getWP(/*ieta=*/0);
-               if( (eT < wp.maxEt) && iso < wp.value) {
+               if( (eT < wp.maxEt) && iso > wp.value) {
                   tauPasses = false;
                }
             }
@@ -1221,7 +1221,7 @@ LVL1CTP::CTPEmulation::calculateTauMultiplicity( const TrigConf::TriggerThreshol
             unsigned int selection_tauiso = ((isoMask >> BITMASK_OFFSET_TAUISO) & 0x3);
             if(tauPasses and selection_tauiso>0) {
                auto & wp = m_jTauIso.at(selection_tauiso).getWP(/*ieta=*/0);
-               if( (eT < wp.maxEt) && iso < wp.value) {
+               if( (eT < wp.maxEt) && iso > wp.value) {
                   tauPasses = false;
                }
             }
