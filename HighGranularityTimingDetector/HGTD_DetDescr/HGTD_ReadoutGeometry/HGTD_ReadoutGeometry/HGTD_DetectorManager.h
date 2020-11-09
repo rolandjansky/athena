@@ -10,29 +10,95 @@
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoVDetectorManager.h"
 
-// class StoreGateSvc;
-// class Identifier;
-// class IdentifierHash;
-// class GeoAlignableTransform;
-// class GeoVFullPhysVol;
-// class GeoVPhysVol;
+#include "HGTD_ReadoutGeometry/HGTD_DetectorElement.h"
+#include "HGTD_ReadoutGeometry/HGTD_DetectorElementCollection.h"
+
+#include "HGTD_Identifier/HGTD_ID.h"
+
+// Message Stream Member
+#include "AthenaKernel/MsgStreamMember.h"
+
+using namespace InDetDD;
+
+class StoreGateSvc;
+
+/** @class HGTD_DetectorManager
+
+    The Detector manager has methods to retrieve the Identifier
+    helper and methods to retrieve the detector elements, as well
+    as the relevant physical volumes.
+
+    */
 
 class HGTD_DetectorManager : public GeoVDetectorManager {
 public:
-    HGTD_DetectorManager();
-    virtual ~HGTD_DetectorManager();
 
+    /** Constructor */
+    HGTD_DetectorManager(StoreGateSvc* detStore);
+
+    /** Destructor */
+    ~HGTD_DetectorManager();
+
+    /** Access to raw geometry: */
     virtual unsigned int getNumTreeTops()           const;
     virtual PVConstLink  getTreeTop(unsigned int i) const;
+
+    /** Add a Tree top: */
     virtual void addTreeTop (PVLink treeTop);
 
+    //
+    // Access Readout Elements
+    //
+
+    /** access to individual elements : via Identifier */
+    virtual HGTD_DetectorElement * getDetectorElement(const Identifier &id) const;
+
+    /** access to individual elements : via IdentifierHash */
+    virtual HGTD_DetectorElement * getDetectorElement(const IdentifierHash &idHash) const;
+
+    /** access to individual elements : via element identification */
+    HGTD_DetectorElement * getDetectorElement(int endcap,
+                                              int disk,
+                                              int side,
+                                              int quadrant,
+                                              int row,
+                                              int module) const;
+
+    /** access to whole collection via Iterators */
+    virtual const HGTD_DetectorElementCollection * getDetectorElementCollection() const;
+    virtual HGTD_DetectorElementCollection::const_iterator getDetectorElementBegin() const;
+    virtual HGTD_DetectorElementCollection::const_iterator getDetectorElementEnd() const;
+
+    /** Add elememts */
+    virtual void addDetectorElement(HGTD_DetectorElement * element);
+
+    /** Invalidate cache for all detector elements */
+    virtual void invalidateAll() const;
+
+    /** Update all caches */
+    virtual void updateAll() const;
+
+    /** Declaring the Message method for further use */
+    MsgStream& msg (MSG::Level lvl) const { return m_msg.get() << lvl; }
+
+    /** Declaring the Method providing Verbosity Level */
+    bool msgLvl (MSG::Level lvl) const { return m_msg.get().level() <= lvl; }
+
 private:
+
     /** Prevent copy and assignment */
     const HGTD_DetectorManager & operator=(const HGTD_DetectorManager &right);
     HGTD_DetectorManager(const HGTD_DetectorManager &right);
 
+    virtual const HGTD_ID  * getIdHelper() const;
+
     // Private member data
-    std::vector<PVLink> m_volume;
+    std::vector<PVLink>              m_volume;
+    HGTD_DetectorElementCollection   m_elementCollection;
+    const HGTD_ID*                   m_idHelper;
+
+    //Declaring private message stream member.
+    mutable Athena::MsgStreamMember  m_msg;
 
 };
 

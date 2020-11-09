@@ -7,6 +7,7 @@
 #include "HGTD_GeoModel/HGTD_DetectorFactory.h"
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 #include "InDetGeoModelUtils/InDetDDAthenaComps.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -28,6 +29,7 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
     m_alignable(false),
     m_manager(0),
     m_athenaComps(0),
+    m_commonItems(0),
     m_geoModelSvc("GeoModelSvc", name),
     m_rdbAccessSvc("RDBAccessSvc", name),
     m_geometryDBSvc("InDetGeometryDBSvc", name),
@@ -48,6 +50,7 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
 
 HGTD_DetectorTool::~HGTD_DetectorTool() {
     delete m_athenaComps;
+    delete m_commonItems;
 }
 
 StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
@@ -58,10 +61,12 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
     ATH_CHECK(m_geoModelSvc.retrieve());
     ATH_CHECK(m_rdbAccessSvc.retrieve());
     ATH_CHECK(m_geometryDBSvc.retrieve());
-    ATH_CHECK(m_geoModelSvc.retrieve());
 
     GeoModelExperiment *theExpt;
     ATH_CHECK(detStore->retrieve(theExpt, "ATLAS"));
+
+    const HGTD_ID *idHelper;
+    ATH_CHECK(detStore->retrieve(idHelper, "HGTD_ID"));
 
 //
 //    Get their interfaces to pass to the DetectorFactory
@@ -71,6 +76,8 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
     m_athenaComps->setGeoModelSvc(&*m_geoModelSvc);
     m_athenaComps->setRDBAccessSvc(&*m_rdbAccessSvc);
     m_athenaComps->setGeometryDBSvc(&*m_geometryDBSvc);
+
+    m_commonItems = new InDetDD::SiCommonItems(idHelper);
 
 //
 //   Get the version and configure things accordingly here
