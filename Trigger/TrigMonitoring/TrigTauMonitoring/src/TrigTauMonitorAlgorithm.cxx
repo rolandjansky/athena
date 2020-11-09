@@ -122,8 +122,10 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
 {
   ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillDistributions");
 
-  std::vector<const xAOD::TauJet*> tau_vec_1p;
-  std::vector<const xAOD::TauJet*> tau_vec_np;
+  std::vector<const xAOD::TauJet*> offline_tau_vec_1p;
+  std::vector<const xAOD::TauJet*> offline_tau_vec_mp;
+  std::vector<const xAOD::TauJet*> online_tau_vec_1p;
+  std::vector<const xAOD::TauJet*> online_tau_vec_mp;
 
   const TrigInfo info = getTrigInfo(trigger);
 
@@ -135,27 +137,24 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     pairObj.first->detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
     ATH_MSG_DEBUG("NTracks Offline: " << nTracks);
     if(nTracks==1){
-       tau_vec_1p.push_back(pairObj.first);
+       offline_tau_vec_1p.push_back(pairObj.first);
     }else if(nTracks>1){
-       tau_vec_np.push_back(pairObj.first);
+       offline_tau_vec_mp.push_back(pairObj.first);
     }
   }
     
 
   // Offline
   if(info.isRNN){
-    fillRNNInputVars( trigger, tau_vec_1p,"1P", false );
-    fillRNNInputVars( trigger, tau_vec_np,"MP", false );
-    fillRNNTrack( trigger, tau_vec_1p, false );
-    fillRNNTrack( trigger, tau_vec_np, false );
-    fillRNNCluster( trigger, tau_vec_1p, false );
-    fillRNNCluster( trigger, tau_vec_np, false );
-    fillbasicVars( trigger, tau_vec_1p, false);
-    fillbasicVars( trigger, tau_vec_np, false);
+    fillRNNInputVars( trigger, offline_tau_vec_1p,"1P", false );
+    fillRNNInputVars( trigger, offline_tau_vec_mp,"MP", false );
+    fillRNNTrack( trigger, offline_tau_vec_1p, false );
+    fillRNNTrack( trigger, offline_tau_vec_mp, false );
+    fillRNNCluster( trigger, offline_tau_vec_1p, false );
+    fillRNNCluster( trigger, offline_tau_vec_mp, false );
+    fillbasicVars( trigger, offline_tau_vec_1p, false);
+    fillbasicVars( trigger, offline_tau_vec_mp, false);
   }
-
-  tau_vec_1p.clear();
-  tau_vec_np.clear();
 
   auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigger,TrigDefs::includeFailedDecisions ,"HLT_TrigTauRecMerged_MVA" ); 
   for( auto &featLinkInfo : vec ){
@@ -166,24 +165,59 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     feat->detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
     ATH_MSG_DEBUG("NTracks Online: " << nTracks);
     if(nTracks==1){
-      tau_vec_1p.push_back(feat);
+      online_tau_vec_1p.push_back(feat);
     }else if(nTracks>1){
-      tau_vec_np.push_back(feat);
+      online_tau_vec_mp.push_back(feat);
     }
   }
 
   if(info.isRNN){ 
-    fillRNNInputVars( trigger, tau_vec_1p,"1P", true );
-    fillRNNInputVars( trigger, tau_vec_np,"MP", true );
-    fillRNNTrack( trigger, tau_vec_1p, true );
-    fillRNNTrack( trigger, tau_vec_np, true );
-    fillRNNCluster( trigger, tau_vec_1p, true );
-    fillRNNCluster( trigger, tau_vec_np, true );
-    fillbasicVars( trigger, tau_vec_1p, true);
-    fillbasicVars( trigger, tau_vec_np, true);
+    fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
+    fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
+    fillRNNTrack( trigger, online_tau_vec_1p, true );
+    fillRNNTrack( trigger, online_tau_vec_mp, true );
+    fillRNNCluster( trigger, online_tau_vec_1p, true );
+    fillRNNCluster( trigger, online_tau_vec_mp, true );
+    fillbasicVars( trigger, online_tau_vec_1p, true);
+    fillbasicVars( trigger, online_tau_vec_mp, true);
   }
+ 
+  if(info.isRNN){
+    
+    for(auto offline_tau : offline_tau_vec_1p){
+       fillEfficiencies(trigger, offline_tau, online_tau_vec_1p, "1p");
+     }
   
-  
+    for(auto offline_tau : offline_tau_vec_mp){
+       fillEfficiencies(trigger, offline_tau, online_tau_vec_mp, "MP");
+     }
+  }
+
+  offline_tau_vec_1p.clear();
+  offline_tau_vec_mp.clear();
+  online_tau_vec_1p.clear();
+  online_tau_vec_mp.clear();
+}
+
+void TrigTauMonitorAlgorithm::fillEfficiencies(const std::string trigger, const xAOD::TauJet* offline_tau, std::vector<const xAOD::TauJet*> online_tau_vec, std::string nProng) const
+{
+  ATH_MSG_DEBUG("Fill HLT efficiencies: " << trigger);
+
+  auto monGroup = getGroup(trigger+"_HLTEfficiency_"+nProng);
+
+  auto tauPt = Monitored::Scalar<float>(monGroup+"_tauPt");
+  auto tauEta = Monitored::Scalar<float>(monGroup+"_tauEta");
+
+  tauPt = offline_tau->pt()/1e3;
+  tauEta = offline_tau->eta();
+
+  auto HLT_match = Monitored::Scalar<bool>(monGroup+"_HLTpass",false);
+  HLT_match = HLTMatching(offline_tau, online_tau_vec, 0.2);
+
+  fill(monGroup, tauPt, tauEta, HLT_match);
+
+  ATH_MSG_DEBUG("After fill HLT efficiencies: " << trigger);
+
 }
 
 void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng, bool online) const
