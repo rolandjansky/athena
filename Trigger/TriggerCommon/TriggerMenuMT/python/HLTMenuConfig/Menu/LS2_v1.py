@@ -358,6 +358,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4', groups=BphysicsGroup),
         #ATR-20839
         ChainProp(name='HLT_2mu4_bDimu_L12MU4', groups=BphysicsGroup),
+        #ATR-21003
+        ChainProp(name='HLT_2mu6_bJpsimumul2io_L12MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu6_bJpsimumu_L12MU6',     groups=BphysicsGroup),
     ]
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
