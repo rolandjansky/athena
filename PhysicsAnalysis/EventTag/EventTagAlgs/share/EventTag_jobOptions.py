@@ -28,12 +28,9 @@ if EventTagFlags.doMuon():
     except Exception:
         print traceback.format_exc() 
         print "ERROR could not load MuonTagBuilder_jobOptions.py"
+
 if EventTagFlags.doTauJet():
-    try:
-        include( "EventTagAlgs/TauJetTagBuilder_jobOptions.py" )
-    except Exception:
-        print traceback.format_exc() 
-        print "ERROR could not load TauJetTagBuilder_jobOptions.py"
+    print("WARNING: TauJet no longer supported, get in touch with TauCP")
 
 if EventTagFlags.doParticleJet():
     try:
