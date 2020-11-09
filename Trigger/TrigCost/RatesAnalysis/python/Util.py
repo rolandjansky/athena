@@ -47,8 +47,18 @@ def toCSV(fileName, HLTTriggers):
       else:
         group_name="UNDEFINED"
 
-      if trig.name.startswith("HLT"):
-        rates_csv_writer.writerow([trig.name,trig.rateDenominator,group_name,trig.rate,trig.rateErr,trig.prescale,'ID',trig.activeRaw,trig.passRaw,trig.activeWeighted,float(trig.activeWeighted)/float(trig.rateDenominator),float(trig.passRaw)/float(trig.activeRaw),float(trig.passWeighted)/float(trig.activeWeighted),trig.passWeighted])
+      if float(trig.rateDenominator)==0:
+        print("float(trig.rateDenominator) is ZERO! This shouldn't happen")
+      if float(trig.activeRaw)==0:
+        passFrac_beforePS=0
+      else:
+        passFrac_beforePS=float(trig.passRaw)/float(trig.activeRaw)
+      if float(trig.activeWeighted)==0:
+        passFrac_afterPS=0
+      else:
+        passFrac_afterPS=float(trig.passWeighted)/float(trig.activeWeighted)
+
+      rates_csv_writer.writerow([trig.name,trig.rateDenominator,group_name,trig.rate,trig.rateErr,trig.prescale,'ID',trig.activeRaw,trig.passRaw,trig.activeWeighted,float(trig.activeWeighted)/float(trig.rateDenominator),passFrac_beforePS,passFrac_afterPS,trig.passWeighted])
     
     
 
