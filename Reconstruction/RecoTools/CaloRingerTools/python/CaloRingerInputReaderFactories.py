@@ -60,7 +60,6 @@ CaloRingerElectronsReaderTool = PublicToolFactory(CaloRingerToolsConf.Ringer__Ca
                                            )
 
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkBuildPhotonCaloRings
-from CaloRingerAlgs.CaloRingerAlgorithmBuilder import checkDoPhotonIdentification
 CaloRingerPhotonsReaderTool = PublicToolFactory(CaloRingerToolsConf.Ringer__CaloRingerPhotonsReader,
                                           name = "CaloRingerPhotonsReaderTool",
                                           inputKey = CaloRingerKeys.inputPhotonKey(),

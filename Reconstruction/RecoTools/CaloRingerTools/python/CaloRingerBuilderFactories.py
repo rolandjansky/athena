@@ -74,7 +74,7 @@ class AsymRings( object ):
     self.doPhiAxesDivision = doPhiAxesDivision
 
   def resizeNRingsAsymRings(self, obj):
-    if ((obj.doEtaAxesDivision == True) and (obj.doPhiAxesDivision == True)):
+    if ((obj.doEtaAxesDivision is True) and (obj.doPhiAxesDivision is True)):
       obj.NRings = [(rings-1)*4+1 for rings in obj.NRings]
     else:
       obj.NRings = [(rings-1)*2+1 for rings in obj.NRings]
