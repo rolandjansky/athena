@@ -25,14 +25,14 @@ def RoIBResultToxAODCfg(flags, seqName=''):
     outputList = []
     if alg.DoMuon:
         outputList += [
-            ("xAOD::MuonRoIContainer",  alg.xAODKeyMuon)
+            ("xAOD::MuonRoIContainer",  str(alg.xAODKeyMuon))
         ]
     if alg.DoCalo:
         outputList += [
-            ("xAOD::EmTauRoIContainer", alg.xAODKeyEmTau),
-            ("xAOD::EnergySumRoI",      alg.xAODKeyEsum),
-            ("xAOD::JetEtRoI",          alg.xAODKeyJetEt),
-            ("xAOD::JetRoIContainer",   alg.xAODKeyJet)
+            ("xAOD::EmTauRoIContainer", str(alg.xAODKeyEmTau)),
+            ("xAOD::EnergySumRoI",      str(alg.xAODKeyEsum)),
+            ("xAOD::JetEtRoI",          str(alg.xAODKeyJetEt)),
+            ("xAOD::JetRoIContainer",   str(alg.xAODKeyJet))
         ]
 
     return acc, outputList
