@@ -26,25 +26,27 @@ import PyJobTransforms.trfExceptions as trfExceptions
 ## @brief Detect if AthenaMP has been requested
 #  @param argdict Argument dictionary, used to access athenaopts for the job
 #  @return Integer with the number of processes, N.B. 0 means non-MP serial mode
-def detectAthenaMPProcs(argdict = {}):
+def detectAthenaMPProcs(argdict = {}, currentSubstep = ''):
     athenaMPProcs = 0
     
     # Try and detect if any AthenaMP has been enabled 
     try:
         if 'athenaopts' in argdict:
             for substep in argdict['athenaopts'].value:
-                procArg = [opt.replace("--nprocs=", "") for opt in argdict['athenaopts'].value[substep] if '--nprocs' in opt]
-                if len(procArg) == 0:
-                    athenaMPProcs = 0
-                elif len(procArg) == 1:
-                    if 'multiprocess' in argdict:
-                        raise ValueError("Detected conflicting methods to configure AthenaMP: --multiprocess and --nprocs=N (via athenaopts). Only one method must be used")
-                    athenaMPProcs = int(procArg[0])
-                    if athenaMPProcs < -1:
-                        raise ValueError("--nprocs was set to a value less than -1")
-                else:
-                    raise ValueError("--nprocs was set more than once in 'athenaopts'")
-                msg.info('AthenaMP detected from "nprocs" setting with {0} workers for substep {1}'.format(athenaMPProcs,substep))
+                if substep == 'all' or substep == currentSubstep:
+                    procArg = [opt.replace("--nprocs=", "") for opt in argdict['athenaopts'].value[substep] if '--nprocs' in opt]
+                    if len(procArg) == 0:
+                        athenaMPProcs = 0
+                    elif len(procArg) == 1:
+                        if 'multiprocess' in argdict:
+                            raise ValueError("Detected conflicting methods to configure AthenaMP: --multiprocess and --nprocs=N (via athenaopts). Only one method must be used")
+                        athenaMPProcs = int(procArg[0])
+                        if athenaMPProcs < -1:
+                            raise ValueError("--nprocs was set to a value less than -1")
+                    else:
+                        raise ValueError("--nprocs was set more than once in 'athenaopts'")
+                    if athenaMPProcs > 0:
+                        msg.info('AthenaMP detected from "nprocs" setting with {0} workers for substep {1}'.format(athenaMPProcs,substep))
         if (athenaMPProcs == 0 and
             'ATHENA_CORE_NUMBER' in os.environ and
             'multiprocess' in argdict):

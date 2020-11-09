@@ -969,14 +969,14 @@ class athenaExecutor(scriptExecutor):
                                                             'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
 
         # Try to detect AthenaMT mode, number of threads and number of concurrent events
-        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict)
+        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict,self.name)
 
         # Try to detect AthenaMP mode and number of workers
-        self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
+        self._athenaMP = detectAthenaMPProcs(self.conf.argdict,self.name)
 
         # Another constistency check: make sure we don't have a configuration like follows:
         # ... --multithreaded --athenaopts=--nprocs=N
-        if (self._athenaMT != 0 and self._athenaMP != 0):
+        if (self.name != 'BSRDOtoRAW' and self._athenaMT != 0 and self._athenaMP != 0):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
                                                             'transform configured to run Athena in both MT and MP modes. Only one parallel mode at a time must be used')
 
