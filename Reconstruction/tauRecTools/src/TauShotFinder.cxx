@@ -263,7 +263,7 @@ bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell
   // Next cell in phi direction 
   m_calo_id->get_neighbours(cell1Hash,LArNeighbours::nextInPhi,neigHashes);
   if (neigHashes.size() > 1) {
-    ATH_MSG_WARNING(cell1Hash << " has " << neigHashes.size()  <<  " neighbours in the next phi direction !"); 
+    ATH_MSG_DEBUG(cell1Hash << " has " << neigHashes.size()  <<  " neighbours in the next phi direction !"); 
   }
   if (std::find(neigHashes.begin(), neigHashes.end(), cell2Hash) != neigHashes.end()) {
     return true;
@@ -272,7 +272,7 @@ bool TauShotFinder::isPhiNeighbour(IdentifierHash cell1Hash, IdentifierHash cell
   // Previous cell in phi direction
   m_calo_id->get_neighbours(cell1Hash,LArNeighbours::prevInPhi,neigHashes);
   if (neigHashes.size() > 1) {
-    ATH_MSG_WARNING(cell1Hash << " has " << neigHashes.size()  <<  " neighbours in the previous phi direction !"); 
+    ATH_MSG_DEBUG(cell1Hash << " has " << neigHashes.size()  <<  " neighbours in the previous phi direction !"); 
   }
   if (std::find(neigHashes.begin(), neigHashes.end(), cell2Hash) != neigHashes.end()) {
     return true;
@@ -355,7 +355,7 @@ void TauShotFinder::addEtaNeighbours(const CaloCell& cell,
     this->addEtaNeighbours(*newCell, cellContainer, cells, depth, maxDepth, next);
   
     if (neigHashes.size() > 1) {
-      ATH_MSG_WARNING(cellHash << " has " << neigHashes.size()  <<  " neighbours in the eta direction !"); 
+      ATH_MSG_DEBUG(cellHash << " has " << neigHashes.size()  <<  " neighbours in the eta direction !"); 
       break; 
     }
   } 
