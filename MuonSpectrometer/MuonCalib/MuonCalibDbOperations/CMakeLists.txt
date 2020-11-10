@@ -25,7 +25,7 @@ atlas_add_component( MuonCalibDbOperations
                      LINK_LIBRARIES ${COOL_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps GaudiKernel MdtCalibUtils MuonCalibStandAloneBaseLib AthenaKernel StoreGateLib SGtests MdtCalibData MdtCalibRt MuonCalibIdentifier MuonCalibMath MuonReadoutGeometry MuonIdHelpersLib MuonCalibDbOperationsLib z )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/CalibDbCompareRT.py share/CalibDbCompareT0.py share/CalibDbDump.py share/CalibCoolCompareT0.py share/CalibCoolCompareRT.py share/CalibDbCool2Calib.py share/calibdata.py )
 

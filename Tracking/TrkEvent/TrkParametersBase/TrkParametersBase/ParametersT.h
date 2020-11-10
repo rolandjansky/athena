@@ -108,6 +108,9 @@ public:
   //** Destructor */
   virtual ~ParametersT() = default;
 
+  /** Returns the charge */
+  virtual double charge() const override final;
+
   /** Access method for the position */
   virtual const Amg::Vector3D& position() const override final;
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/EMBAccordionDetails.h"
@@ -299,7 +299,7 @@ const GeoStraightAccSection *EMBAccordionDetails::getAbsorberSections() const {
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     StoreGateSvc *detStore;
 
-    const DataHandle<GeoStraightAccSection> sa(NULL);
+    const GeoStraightAccSection* sa = nullptr;
 
     status = svcLocator->service ("DetectorStore",detStore);
     if (status != StatusCode::SUCCESS) throw std::runtime_error ("Cannot locate Storegate");
@@ -322,7 +322,7 @@ const GeoStraightAccSection *EMBAccordionDetails::getElectrodeSections() const {
     ISvcLocator* svcLocator = Gaudi::svcLocator(); 
     StoreGateSvc *detStore;
 
-    const DataHandle<GeoStraightAccSection> sa(NULL);
+    const GeoStraightAccSection* sa = nullptr;
 
     status = svcLocator->service ("DetectorStore",detStore);
     if (status != StatusCode::SUCCESS) throw std::runtime_error ("Cannot locate Storegate");

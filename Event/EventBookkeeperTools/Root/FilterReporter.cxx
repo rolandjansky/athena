@@ -27,6 +27,7 @@ FilterReporter (FilterReporterParams& val_params,
                 bool val_passedDefault)
   : m_params (val_params)
   , m_passed (val_passedDefault)
+  , m_eventContext (&Gaudi::Hive::currentContext())
 {
   if (!m_params.m_isInitialized)
   {
@@ -55,10 +56,6 @@ FilterReporter (const FilterReporterParams& val_params,
 FilterReporter ::
 ~FilterReporter () noexcept
 {
-#ifndef XAOD_STANDALONE
-  if (m_eventContext == nullptr)
-    m_eventContext = &Gaudi::Hive::currentContext();
-#endif
   m_params.m_setFilterPassed (m_passed, m_eventContext);
 
   if (m_passed)
@@ -68,14 +65,13 @@ FilterReporter ::
 #ifndef XAOD_STANDALONE
   if (m_passed && m_params.m_cutID != 0)
   {
-    double weight{1.0};
-
     SG::ReadHandle<xAOD::EventInfo> evtInfo (m_params.m_eventInfoKey, *m_eventContext);
     // Only try to access the mcEventWeight if we are running on Monte Carlo
     if (evtInfo.isValid() && evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-      weight = evtInfo->mcEventWeight();
+      m_params.m_cutFlowSvc->addEvent (m_params.m_cutID, evtInfo->mcEventWeights());
+    } else {
+      m_params.m_cutFlowSvc->addEvent (m_params.m_cutID, 1.0);
     }
-    m_params.m_cutFlowSvc->addEvent (m_params.m_cutID, weight);
   }
 #endif
 }

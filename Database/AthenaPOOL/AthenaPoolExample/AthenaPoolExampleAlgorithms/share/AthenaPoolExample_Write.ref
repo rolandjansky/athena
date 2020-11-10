@@ -1360,6 +1360,7 @@ Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize
+AllExecutedEvents    INFO accepted 20 out of 20 events for filter AllExecutedEvents (Number of processed events before any cut)
 WriteData            INFO in finalize()
 WriteTag             INFO in finalize()
 MagicWriteTag        INFO in finalize()

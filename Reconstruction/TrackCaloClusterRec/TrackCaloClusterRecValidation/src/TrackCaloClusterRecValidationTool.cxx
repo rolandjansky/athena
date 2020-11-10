@@ -1,8 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrackCaloClusterRecValidationTool.h"
 //
+#include "GaudiKernel/SystemOfUnits.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODJet/JetContainer.h"
 
@@ -22,8 +23,6 @@
 #include <cstdlib> // to getenv
 #include <vector>
 
-using CLHEP::GeV;
-
 ///Parametrized constructor
 TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::string& type, const std::string& name,
 								     const IInterface* parent) :
@@ -42,15 +41,15 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("TopoTrimmedJetReferenceName" , m_topoTrimmedJetReferenceName = "AntiKt10LCTopoTrimmedJets");
   declareProperty("maxTrkJetDR"                 , m_maxJetDR = 0.75);
   declareProperty("maxEta"                      , m_maxEta   = 2.0);
-  declareProperty("minPt"                       , m_minPt    = 200*GeV);
-  declareProperty("minMass"                     , m_minMass  =  50.*GeV);
-  declareProperty("maxMass"                     , m_maxMass  = 150.*GeV);
+  declareProperty("minPt"                       , m_minPt    = 200*Gaudi::Units::GeV);
+  declareProperty("minMass"                     , m_minMass  =  50.*Gaudi::Units::GeV);
+  declareProperty("maxMass"                     , m_maxMass  = 150.*Gaudi::Units::GeV);
   declareProperty("DirName"                     , m_dirName = "TCCValidation/");
   declareProperty("SubFolder"                   , m_folder);
   declareProperty("SaveTrackInfo"               , m_saveTrackInfo = false);
   declareProperty("SaveMatchingInfo"            , m_saveMatchingInfo = false);
   declareProperty("TrackCollectionName"         , m_trackParticleCollectionName = "InDetTrackParticles");
-  declareProperty("TrackPtMin"                  , m_trackPtMin = 20.*GeV);
+  declareProperty("TrackPtMin"                  , m_trackPtMin = 20.*Gaudi::Units::GeV);
   declareProperty("JetPtBins"                   , m_jetPtBins           );
   declareProperty("JetMassOverPtBins"           , m_jetMassOverPtBins   );
   declareProperty("TrackPtBins"                 , m_trackPtBins         );
@@ -60,7 +59,7 @@ TrackCaloClusterRecValidationTool::TrackCaloClusterRecValidationTool(const std::
   declareProperty("ClusterEtaMax"               , m_caloClusterEtaMax = 2.5);
   declareProperty("SaveTrackCaloClusterInfo"    , m_saveTCCInfo = false);
   declareProperty("TCCCombinedCollectionNames"  , m_TCCCombinedCollectionNames);
-  declareProperty("TCCptMin"                    , m_tccPtMin = 10.*GeV);
+  declareProperty("TCCptMin"                    , m_tccPtMin = 10.*Gaudi::Units::GeV);
   declareProperty("TCCetaMax"                   , m_tccEtaMax = 2.5);
   
   }

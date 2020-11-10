@@ -76,7 +76,8 @@ select=$2
 		egrep -a -v 'DEBUG Calling destructor'|\
 		egrep -a -v 'Service base class initialized successfully'|\
 		egrep -a -v 'DEBUG fillTagInfo:' |\
-		egrep -a -v 'DEBUG Try item:'
+		egrep -a -v 'DEBUG Try item:' |\
+		egrep -a -v 'DEBUG matched'
 
 	    else 
 #	    echo " post.sh> Now comparing output with reference"
@@ -132,7 +133,8 @@ select=$2
 		egrep -a -v 'bmagatlas' | 
 		egrep -a -v 'GeoModel' | 
 		egrep -a -v 'LArNumberHelper' |
-		egrep -a -v 'Service base class initialized successfully'
+		egrep -a -v 'Service base class initialized successfully' |
+		egrep -a -v 'DEBUG matched'
 	    fi
 
 	    diffStatus=$?

@@ -157,6 +157,15 @@ if not hasattr(ServiceMgr.IOVDbSvc, 'GlobalTag') or not ServiceMgr.IOVDbSvc.Glob
 
 #--------------------------------------------------------------
 
+# Set AutoFlush to 10 as per ATLASSIM-4274
+# These outputs are meant to be read sequentially
+from AthenaPoolCnvSvc import PoolAttributeHelper as pah
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "CollectionTree", 10 ) ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "POOLContainer", 10 ) ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "POOLContainerForm", 10 ) ]
+
+#--------------------------------------------------------------
+
 ## Post-include
 if hasattr(runArgs,"postInclude"):
     for fragment in runArgs.postInclude:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1CALOENERGYSCANRUNINFOCONTAINER_H
@@ -42,7 +42,7 @@ class L1CaloEnergyScanRunInfoContainer: public DataObject,
 #ifndef __REFLEX__
     // IL1CaloPersistenceCapable interface
     using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-    virtual void makeTransient(const std::map<std::string, AthenaAttributeList*> athenaAttributeListMap);
+    virtual void makeTransient(const std::map<std::string, AthenaAttributeList*>& athenaAttributeListMap);
 #endif
     
     unsigned int runNumber()   const    { return m_runNumber; }

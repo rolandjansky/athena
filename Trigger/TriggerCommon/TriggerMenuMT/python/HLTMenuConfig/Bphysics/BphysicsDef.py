@@ -54,6 +54,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
         stepDictionary = {
             'dimu' : [['getmuFast', 'getDimuComb'], ['getmuEFSA', 'getDimuEFCB']],
+            'bl2io': [['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getDimuEFCB']],
         }
         return stepDictionary
 
@@ -71,7 +72,8 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'bDimu'     : 'dimu',
             'bDimu2700' : 'dimu',
             'bPhi'      : 'dimu',
-            'bTau'      : 'dimu'
+            'bTau'      : 'dimu',
+            'bJpsimumul2io' : 'bl2io'
         }
 
         return topo_dict[the_topo]

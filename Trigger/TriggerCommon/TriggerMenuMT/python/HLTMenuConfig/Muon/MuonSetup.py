@@ -589,8 +589,6 @@ def muEFSARecoSequence( RoIs, name ):
 
   EFMuonViewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( "EFMuonViewDataVerifier_" + name )
   EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                        ( 'CaloCellContainer' , 'StoreGateSvc+AllCalo' ),
-                                        ( 'TrackCollection' , 'StoreGateSvc+Tracks' ),
                                         ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
   efAlgs.append( EFMuonViewDataVerifier )
 
@@ -686,13 +684,13 @@ def muEFCBRecoSequence( RoIs, name ):
   ViewVerifyMS.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
                               ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                               ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                              ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates'),
                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs ),
-                              ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' ),
-                              ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' ),
-                              ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                              ( 'TrackCollection' , 'StoreGateSvc+Tracks' ),
-                              ( 'CaloCellContainer' , 'StoreGateSvc+AllCalo' )]
+                              ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+  if "FS" in name:
+    ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
+  else:
+    ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates'),
+                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData' )]
 
   if MuonGeometryFlags.hasCSC():
     ViewVerifyMS.DataObjects += [( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' )]

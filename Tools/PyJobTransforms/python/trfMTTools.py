@@ -19,7 +19,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 ## @brief Detect if AthenaMT has been requested
 #  @param argdict Argument dictionary, used to access athenaopts for the job
 #  @return Two integers with the number of threads and number of concurrent events, N.B. 0 means non-MT serial mode
-def detectAthenaMTThreads(argdict = {}):
+def detectAthenaMTThreads(argdict = {}, currentSubstep = ''):
     athenaMTThreads = 0
     athenaConcurrentEvents = 0
 
@@ -27,27 +27,29 @@ def detectAthenaMTThreads(argdict = {}):
     try:
         if 'athenaopts' in argdict:
             for substep in argdict['athenaopts'].value:
-                threadArg = [opt.replace("--threads=", "") for opt in argdict['athenaopts'].value[substep] if '--threads' in opt]
-                if len(threadArg) == 0:
-                    athenaMTThreads = 0
-                elif len(threadArg) == 1:
-                    if 'multithreaded' in argdict:
-                        raise ValueError("Detected conflicting methods to configure AthenaMT: --multithreaded and --threads=N (via athenaopts). Only one method must be used")
-                    athenaMTThreads = int(threadArg[0])
-                    if athenaMTThreads < -1:
-                        raise ValueError("--threads was set to a value less than -1")
-                else:
-                    raise ValueError("--threads was set more than once in 'athenaopts'")
-                msg.info('AthenaMT detected from "threads" setting with {0} threads for substep {1}'.format(athenaMTThreads,substep))
+                if substep == 'all' or substep == currentSubstep:
+                    threadArg = [opt.replace("--threads=", "") for opt in argdict['athenaopts'].value[substep] if '--threads' in opt]
+                    if len(threadArg) == 0:
+                        athenaMTThreads = 0
+                    elif len(threadArg) == 1:
+                        if 'multithreaded' in argdict:
+                            raise ValueError("Detected conflicting methods to configure AthenaMT: --multithreaded and --threads=N (via athenaopts). Only one method must be used")
+                        athenaMTThreads = int(threadArg[0])
+                        if athenaMTThreads < -1:
+                            raise ValueError("--threads was set to a value less than -1")
+                    else:
+                        raise ValueError("--threads was set more than once in 'athenaopts'")
+                    if athenaMTThreads > 0:
+                        msg.info('AthenaMT detected from "threads" setting with {0} threads for substep {1}'.format(athenaMTThreads,substep))
 
-                concurrentEventsArg = [opt.replace("--concurrent-events=", "") for opt in argdict['athenaopts'].value[substep] if '--concurrent-events' in opt]
-                if len(concurrentEventsArg) == 1:
-                    athenaConcurrentEvents = int(concurrentEventsArg[0])
-                    if athenaConcurrentEvents < -1:
-                        raise ValueError("--concurrent-events was set to a value less than -1")
-                    msg.info('Custom concurrent event setting read from "concurrent-events" with {0} events for substep {1}'.format(athenaConcurrentEvents,substep))
-                else:
-                    athenaConcurrentEvents = athenaMTThreads
+                    concurrentEventsArg = [opt.replace("--concurrent-events=", "") for opt in argdict['athenaopts'].value[substep] if '--concurrent-events' in opt]
+                    if len(concurrentEventsArg) == 1:
+                        athenaConcurrentEvents = int(concurrentEventsArg[0])
+                        if athenaConcurrentEvents < -1:
+                            raise ValueError("--concurrent-events was set to a value less than -1")
+                        msg.info('Custom concurrent event setting read from "concurrent-events" with {0} events for substep {1}'.format(athenaConcurrentEvents,substep))
+                    else:
+                        athenaConcurrentEvents = athenaMTThreads
         if (athenaMTThreads == 0 and
             'ATHENA_CORE_NUMBER' in os.environ and
             'multithreaded' in argdict):

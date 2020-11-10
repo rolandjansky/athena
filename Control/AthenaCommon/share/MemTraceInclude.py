@@ -1,11 +1,8 @@
-import string
-import six
-
 from AthenaCommon.Include import Include
 class MemTraceInclude( Include ):
    def __init__( self, org ):
       Include.__init__( self, org._show )
-      for name, value in six.iteritems (org.__dict__):
+      for name, value in org.__dict__.items():
          setattr (self, name, value)
       import AthenaCommon.Logging as L
       self.msg = L.logging.getLogger('Athena')

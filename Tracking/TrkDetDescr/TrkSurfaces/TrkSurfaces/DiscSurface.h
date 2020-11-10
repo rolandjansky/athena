@@ -170,7 +170,7 @@ public:
   virtual const Amg::Vector3D& globalReferencePoint() const override final; 
 
   /**This method returns the bounds by reference*/
-  const SurfaceBounds& bounds() const override;
+  const SurfaceBounds& bounds() const override final;
 
   /**This method calls the inside method of the bounds*/
   virtual bool insideBounds(const Amg::Vector2D& locpos,

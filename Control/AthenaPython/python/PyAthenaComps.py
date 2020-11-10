@@ -385,7 +385,7 @@ class AthFilterAlgorithm(Alg):
 
     def sysInitialize(self):
         myName=self.name() if callable(self.name) else self.name 
-        self.cutID = self.cutFlowSvc().registerFilter(myName, self._filter_descr)
+        self.cutID = self.cutFlowSvc().registerFilter(myName, self._filter_descr, True)
         if not self.cutID:
             self.msg.error("could not register filter-cut with cutflowsvc")
             return StatusCode.Failure

@@ -39,7 +39,7 @@ namespace CP
     if (!m_cutFlowSvc.empty())
     {
       ANA_CHECK (m_cutFlowSvc.retrieve());
-      m_cutID = m_cutFlowSvc->registerFilter (m_cutFlowSvc.parentName(), m_filterDescription + " (nominal only)");
+      m_cutID = m_cutFlowSvc->registerFilter (m_cutFlowSvc.parentName(), m_filterDescription + " (nominal only)", false);
       if (m_cutID == 0)
       {
         ANA_MSG_ERROR ("problem registering myself with cutflow-svc");

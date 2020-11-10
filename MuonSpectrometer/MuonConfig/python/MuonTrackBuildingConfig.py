@@ -142,9 +142,9 @@ def MooTrackBuilderCfg(flags, name="MooTrackBuilderTemplate", **kwargs):
     hole_recovery_tool =  acc.getPrimary()
     result.addPublicTool(hole_recovery_tool)
     result.merge(acc)
-    kwargs.setdefault("HitRecoveryTool", hole_recovery_tool)    
+    kwargs.setdefault("HitRecoveryTool", hole_recovery_tool)
     kwargs.setdefault("ChamberHoleRecoveryTool", hole_recovery_tool) # FIXME? Remove duplicate from cxx?
-        
+
     acc  = MagneticFieldSvcCfg(flags) 
     result.merge(acc)
     
@@ -330,7 +330,9 @@ def MuonSegmentRegionRecoveryToolCfg(flags, name="MuonSegmentRegionRecoveryTool"
     acc = MuonTrackSummaryToolCfg(flags)
     kwargs.setdefault("TrackSummaryTool", acc.getPrimary())
     result.merge(acc)
-
+    if flags.Common.isOnline:
+        kwargs.setdefault("MdtCondKey", "")
+        
     segment_region_recovery_tool = Muon__MuonSegmentRegionRecoveryTool(name, **kwargs)
     result.setPrivateTools(segment_region_recovery_tool)
     return result
@@ -392,7 +394,9 @@ def MuonChamberHoleRecoveryToolCfg(flags, name="MuonChamberHoleRecoveryTool", **
         kwargs.setdefault("MMPrepDataContainer","")
     
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')    
-    
+    if flags.Common.isOnline:
+        kwargs.setdefault("MdtCondKey","")
+
     hole_rec_tool = Muon__MuonChamberHoleRecoveryTool(name, **kwargs)
     result.setPrivateTools(hole_rec_tool)
     return result

@@ -12,7 +12,7 @@ atlas_add_library( TrigCostMonitorMTLib
                    TrigCostMonitorMT/*.h
                    src/lib/AlgorithmIdentifier.cxx
                    PUBLIC_HEADERS TrigCostMonitorMT
-                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib xAODTrigger AthViews )
+                   LINK_LIBRARIES AthenaBaseComps GaudiKernel StoreGateLib TrigDataAccessMonitoringLib xAODTrigger AthViews )
 
 atlas_add_component( TrigCostMonitorMT
                      src/*.cxx

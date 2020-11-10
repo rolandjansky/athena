@@ -52,19 +52,19 @@ class ITrigMuonStandaloneTrackTool : virtual public IAlgTool {
   /** Run segment finding only */
   virtual HLT::ErrorCode getSegments(const IRoiDescriptor* muonRoI,
 				     TrigMuonEFMonVars& monvars,
-				     std::vector<TrigTimer*>& timers) = 0;
+				     std::vector<TrigTimer*>& timers, const EventContext& ctx) = 0;
 
   /** Run segment finding and spectrometer track building */
   virtual HLT::ErrorCode getSpectrometerTracks(const IRoiDescriptor* muonRoI,
 					       TrigMuonEFMonVars& monVars,
-					       std::vector<TrigTimer*>& timers) = 0;
+					       std::vector<TrigTimer*>& timers, const EventContext& ctx) = 0;
 
   /** Run segment finding, spectrometer track building and extrapolation */
   virtual HLT::ErrorCode getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
 					       MuonCandidateCollection& candidateCollection,
 					       TrackCollection& extrapolatedTracks,
 					       TrigMuonEFMonVars& monvars,
-					       std::vector<TrigTimer*>& timers) = 0;
+					       std::vector<TrigTimer*>& timers, const EventContext& ctx) = 0;
   
   /** return last created MuonPatternCombinationCollection. Object will be deleted by tool at the end of the event.
       NB: You can not attach this object to the TriggerElement */

@@ -45,8 +45,8 @@ private:
   // Properties and handles
   Gaudi::Property<std::string> m_schedulerName {
     this, "SchedulerName", "AvalancheSchedulerSvc", "Name of the scheduler"};
-  Gaudi::Property<unsigned int> m_samplingPeriodMillisec {
-    this, "SamplingPeriodMillisec", 5, "Target sampling period in milliseconds"};
+  Gaudi::Property<unsigned int> m_monIntervalMillisec {
+    this, "MonIntervalMillisec", 100, "Monitoring snapshot interval in milliseconds"};
   ToolHandle<GenericMonitoringTool> m_monTool {
     this, "MonTool", "", "Monitoring tool"};
 

@@ -522,7 +522,7 @@ class useActsPriVertexing(InDetFlagsJobProperty):
     """ use ACTS primary vertexing """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doSiSPSeededTrackFinder(InDetFlagsJobProperty):
     """ use track finding in silicon """
@@ -1204,6 +1204,13 @@ class nnCutLargeD0Threshold(InDetFlagsJobProperty):
   statusOn     = True
   allowedTypes = ['float']
   StoredValue  = -1.0
+
+class doTRTPIDNN(InDetFlagsJobProperty): 
+  """calculate NN-based TRT electron probability""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2783,7 +2790,8 @@ _list_InDetJobProperties = [Enabled,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
                             nnCutLargeD0Threshold,
-                            useMuForTRTErrorScaling
+                            useMuForTRTErrorScaling,
+                            doTRTPIDNN
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

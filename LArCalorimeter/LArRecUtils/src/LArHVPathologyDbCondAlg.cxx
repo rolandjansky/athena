@@ -53,6 +53,15 @@ StatusCode LArHVPathologyDbCondAlg::initialize()
   ATH_CHECK( detStore()->retrieve(m_laronline_id,"LArOnlineID") );
   ATH_CHECK(detStore()->retrieve(m_hvlineHelper,"LArHVLineID"));
 
+
+ m_klass = TClass::GetClass("LArHVPathologiesDb");
+ if(m_klass==nullptr){
+   ATH_MSG_ERROR ( "Can't find TClass LArHVPathologiesDb" );
+   return  StatusCode::FAILURE;
+ }
+ else
+   ATH_MSG_DEBUG ( "Got TClass LArHVPathologiesDb" );
+    
   return StatusCode::SUCCESS;
 }
 
@@ -122,16 +131,9 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
          return  StatusCode::FAILURE;
        }
         
-       TClass* klass = TClass::GetClass("LArHVPathologiesDb");
-       if(klass==NULL){
-         ATH_MSG_ERROR ( "Can't find TClass LArHVPathologiesDb" );
-         return  StatusCode::FAILURE;
-       }
-       else
-         ATH_MSG_DEBUG ( "Got TClass LArHVPathologiesDb" );
-    
+      
        TBufferFile buf(TBuffer::kRead, blob.size(), (void*)blob.startingAddress(), false);
-       LArHVPathologiesDb* hvpathdb = (LArHVPathologiesDb*)buf.ReadObjectAny(klass);
+       LArHVPathologiesDb* hvpathdb = (LArHVPathologiesDb*)buf.ReadObjectAny(m_klass);
 
        std::unique_ptr<LArHVPathology> hvpath=std::make_unique<LArHVPathology>(hvpathdb);
        const CaloDetDescrManager* calodetdescrmgr = nullptr;
@@ -157,6 +159,7 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
     
   }catch (coral::AttributeListException &e) {
     ATH_MSG_ERROR ( e.what() );
+    return StatusCode::FAILURE;
   }
   // should not come here, but syntactically
   return StatusCode::SUCCESS;

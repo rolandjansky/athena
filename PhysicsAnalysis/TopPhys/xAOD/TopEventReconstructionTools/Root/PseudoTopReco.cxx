@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 // definitions taken from the MAMbo code here: https://twiki.cern.ch/twiki/bin/view/Main/MAMbo
@@ -8,8 +8,10 @@
 #include "TopEventReconstructionTools/PseudoTopReco.h"
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
+#include "TopEvent/PseudoTopResultContainer.h"
 #include "TopConfiguration/TopConfig.h"
 #include "PathResolver/PathResolver.h"
+#include "xAODCore/AuxContainerBase.h"
 
 #include <algorithm>
 
@@ -59,7 +61,7 @@ namespace top {
     }
 
     // Create the partonHistory xAOD object
-    xAOD::PseudoTopResultAuxContainer* pseudoTopAuxCont = new xAOD::PseudoTopResultAuxContainer {};
+    xAOD::AuxContainerBase* pseudoTopAuxCont = new xAOD::AuxContainerBase {};
     xAOD::PseudoTopResultContainer* pseudoTop = new xAOD::PseudoTopResultContainer {};
     pseudoTop->setStore(pseudoTopAuxCont);
 
@@ -132,7 +134,7 @@ namespace top {
     }
 
     // Create the pseudoTopHistory xAOD object
-    xAOD::PseudoTopResultAuxContainer* pseudoTopAuxCont = new xAOD::PseudoTopResultAuxContainer {};
+    xAOD::AuxContainerBase* pseudoTopAuxCont = new xAOD::AuxContainerBase {};
     xAOD::PseudoTopResultContainer* pseudoTop = new xAOD::PseudoTopResultContainer {};
     pseudoTop->setStore(pseudoTopAuxCont);
 

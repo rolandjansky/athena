@@ -112,9 +112,9 @@ public:
    * implementation via updateParametersHelper
    */
   void updateParameters(const AmgVector(DIM) &, const AmgSymMatrix(DIM) &);
-  /** Returns the charge
-   * */
-  virtual double charge() const;
+ 
+  /** Returns the charge */
+  virtual double charge() const = 0;
 
   /** Access method for the position */
   virtual const Amg::Vector3D& position() const = 0;

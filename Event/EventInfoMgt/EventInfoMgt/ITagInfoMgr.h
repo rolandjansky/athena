@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOMGT_ITAGINFOMGR_H
@@ -12,8 +12,6 @@
  *  Store with current tag values. 
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: ITagInfoMgr.h,v 1.4 2009-04-29 07:47:39 schaffer Exp $
  */
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -24,12 +22,6 @@
 #include "AthenaKernel/IAddressProvider.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
-
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-
-class StoreGateSvc;
-class IGeoModelSvc;
-class TagInfo;
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -73,6 +65,11 @@ class TagInfo;
 class ITagInfoMgr : virtual public IInterface
 {
 public:
+    /// @name typedefs: (a copy from TagInfo, to avoid dependencies)
+    //@{
+    typedef     std::pair<std::string, std::string>  NameTagPair;
+    typedef     std::vector<NameTagPair>             NameTagPairVec;
+    //@}
 
     /// Retrieve interface ID
     static const InterfaceID& interfaceID();
@@ -91,6 +88,14 @@ public:
     /// callback from IOVSvc - only used as test of callback
     virtual StatusCode        checkTagInfo(IOVSVC_CALLBACK_ARGS) = 0;
 
+    /// Find tag by name, return by value
+    virtual std::string findTag(const std::string & name) const = 0;
+
+    /// Return a vector with all current input tags
+    virtual NameTagPairVec getInputTags() const = 0;
+
+    /// Dump the content of the current TagInfo to std::string for debug
+    virtual std::string dumpTagInfoToStr() const = 0;
 };
 
 

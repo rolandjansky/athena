@@ -24,6 +24,8 @@ public:
    double longWidth;	// for trapezoidal layers
    double idiv;
    double jdiv;
+   float y_translation;
+   float z_translation;
 	
    Rpc(Component* s);
    GeoVFullPhysVol* build();

@@ -415,7 +415,10 @@ class GenerateMenuMT(object, metaclass=Singleton):
                     log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
                     continue
             else:
-                log.error('Chain %s ignored - Signature not available', chainPartDict['chainName'])
+                log.error('Chain %s ignored - Signature "%s" not available', chainPartDict['chainName'], currentSig)
+                log.error('Available signature(s): %s', self.availableSignatures)
+                raise Exception('Stopping the execution. Please, correct the configuration.')
+
             log.debug("Chain %s chain configs: %s",chainPartDict['chainName'],chainPartConfig)
             listOfChainConfigs.append(chainPartConfig)
             tmp_lengthOfChainConfigs.append((chainPartConfig.nSteps,chainPartConfig.alignmentGroups))

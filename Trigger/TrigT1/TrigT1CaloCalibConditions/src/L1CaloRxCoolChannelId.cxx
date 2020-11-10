@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloRxCoolChannelId.h"
@@ -99,19 +99,6 @@ L1CaloRxCoolChannelId::setId(unsigned int crate,
   m_id = inputPair + inputConn*16 + module * 64 + crate*1024;
 }
 
-
-//==============================================================================
-// operator=
-//==============================================================================
-/*!
- *  Copy a L1CaloRxCoolChannelId.
- */
-L1CaloRxCoolChannelId&
-L1CaloRxCoolChannelId::operator=(const L1CaloRxCoolChannelId& id)
-{
-  if (this != &id) m_id = id.m_id;
-  return *this;
-}
 
 bool L1CaloRxCoolChannelId::operator<(const L1CaloRxCoolChannelId& id) const {
 	return m_id<id.m_id;

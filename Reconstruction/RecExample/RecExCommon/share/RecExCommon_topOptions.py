@@ -568,6 +568,23 @@ if rec.doTrigger:
             treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
             recAlgs.doTrigger=False
 
+#MT part
+## Outputs
+if TriggerFlags.doMT() and rec.readESD() and rec.doAOD():
+    # Don't run any trigger - only pass the HLT contents from ESD to AOD
+    # Add HLT output
+    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+    hltOutput = HLTTriggerResultGetter()
+    # Add Trigger menu metadata
+    if rec.doFileMetaData():
+        from RecExConfig.ObjKeyStore import objKeyStore
+        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                          "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+        objKeyStore.addManyTypesMetaData( metadataItems )
+    # Add L1 output (to be consistent with R2)
+    from TrigEDMConfig.TriggerEDM import getLvl1AODList
+    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
+
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
@@ -949,7 +966,7 @@ if rec.doFileMetaData():
         if 'xAOD::CutBookkeeperContainer_v1' in set(metadata_items.values()):
             logRecExCommon_topOptions.debug("Existing CutBookkeeperContainer found")
             hasBookkeepers = True
-    if hasBookkeepers or hasattr(runArgs, "reductionConf"): # TODO: no other way to detect we are running derivations
+    if hasBookkeepers or ('runArgs' in dir() and hasattr(runArgs, "reductionConf")): # TODO: no other way to detect we are running derivations
         # TODO: check all DAOD workflows
         from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
         logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
@@ -981,7 +998,11 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
-        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
+
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=seq, addMetaDataToAllOutputFiles=True )
+
         seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker

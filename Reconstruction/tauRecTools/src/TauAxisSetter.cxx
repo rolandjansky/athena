@@ -57,13 +57,6 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau) const {
     double dR = baryCenter.DeltaR(constituentP4);
     if (dR > m_clusterCone) continue;
 
-    ElementLink<xAOD::IParticleContainer> linkToCluster;
-    linkToCluster.toContainedElement(
-      *(static_cast<const xAOD::IParticleContainer*> (constituent->rawConstituent()->container())), 
-      constituent->rawConstituent()
-      );
-    pTau.addClusterLink(linkToCluster);
-
     tauDetectorAxis += constituentP4;
     ++nConstituents;
   }

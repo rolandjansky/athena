@@ -37,8 +37,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkGeometry/TrackingVolume.h" 
-#include "TrkGeometry/TrackingGeometry.h"
+
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 #include "MuonCondData/MdtCondDbData.h"

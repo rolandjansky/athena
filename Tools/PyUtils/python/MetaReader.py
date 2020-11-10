@@ -446,21 +446,24 @@ def _extract_fields(obj):
 
 def _convert_value(value, aux = None):
     cl=value.__class__
+
     if hasattr(cl, '__cpp_name__'):
-
         result = regex_cppname.match(cl.__cpp_name__)
-
         if result:
             cpp_type = result.group(1)
-            if cpp_type == 'vector':
+            if cpp_type == 'vector' or cpp_type == 'std::vector':
                 return [_convert_value(val) for val in value]
-
-            elif cpp_type == 'pair':
+            elif cpp_type == 'set' or cpp_type == 'std::set':
+                return {_convert_value(val) for val in value}
+            elif cpp_type == 'pair' or cpp_type == 'std::pair':
                 return _convert_value(value.first), _convert_value(value.second)
-
+            
             # elif cpp_type == 'long':
             #   return int(value)
-
+            
+            elif cpp_type == 'string' or cpp_type == 'std::string':
+                return str(value)
+            
             elif cl.__cpp_name__ == "_Bit_reference":
                 return bool(value)
 
@@ -477,13 +480,17 @@ def _convert_value(value, aux = None):
             elif cl.__cpp_name__ == 'DataVector<xAOD::TriggerMenu_v1>' :
                 return _extract_fields_triggermenu(interface=value, aux=aux)
 
-            elif (cl.__cpp_name__ == 'EventStreamInfo_p2' or
+            elif (cl.__cpp_name__ == 'EventStreamInfo_p1' or
+                  cl.__cpp_name__ == 'EventStreamInfo_p2' or
                   cl.__cpp_name__ == 'EventStreamInfo_p3'):
                 return _extract_fields_esi(value)
 
             elif (cl.__cpp_name__ == 'EventType_p1' or
                   cl.__cpp_name__ == 'EventType_p3'):
-                return _convert_event_type_bitmask(_extract_fields(value))
+                fields = _extract_fields(value)
+                fields = _convert_event_type_bitmask(fields)
+                fields = _convert_event_type_user_type(fields)
+                return fields
 
             elif regex_persistent_class.match(cl.__cpp_name__):
                 return _extract_fields(value)
@@ -569,7 +576,6 @@ def _extract_fields_iovpc(value):
 
     return result
 
-
 def _extract_fields_esi(value):
     result = {}
 
@@ -611,8 +617,8 @@ def _extract_fields_triggermenu(interface, aux):
             # We make the assumption that the first stored SMK is
             # representative of all events in the input collection.
             firstMenu = interface.at(0)
-            L1Items = [ item for item in firstMenu.itemNames() ]
-            HLTChains = [ chain for chain in firstMenu.chainNames() ]
+            L1Items   = [ _convert_value(item) for item in firstMenu.itemNames() ]
+            HLTChains = [ _convert_value(chain) for chain in firstMenu.chainNames() ]
     except Exception as err: # noqa: F841
         msg.warn('Problem reading xAOD::TriggerMenu:')
 
@@ -622,6 +628,12 @@ def _extract_fields_triggermenu(interface, aux):
 
     return result
 
+def _convert_event_type_user_type(value):
+    if 'user_type' in value:
+        items = value['user_type'].split('#')[3:]
+        for i in range(0, len(items), 2):
+            value[items[i]] = _convert_value(items[i+1])
+    return value
 
 def _convert_event_type_bitmask(value):
 
@@ -742,6 +754,10 @@ def promote_keys(meta_dict):
                     md['mc_event_number'] = et.get('mc_event_number', md['runNumbers'][0])
                     md['mc_channel_number'] = et.get('mc_channel_number', 0)
                     md['eventTypes'] = et['type']
+
+                    # For very old files
+                    md['GeoAtlas']       = et.get('GeoAtlas', 0) 
+                    md['IOVDbGlobalTag'] = et.get('IOVDbGlobalTag', 0)
 
                 if 'lumiBlockNumbers' in md[key]:
                     md['lumiBlockNumbers'] = md[key]['lumiBlockNumbers']

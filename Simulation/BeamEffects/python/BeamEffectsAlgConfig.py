@@ -133,6 +133,22 @@ def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
     return acc
 
 
+def BeamSpotFixerAlgCfg(ConfigFlags, **kwargs):
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc = BeamSpotCondAlgCfg(ConfigFlags)
+
+    kwargs.setdefault('InputKey', 'Input_EventInfo')
+
+    if ConfigFlags.Digitization.PileUpPremixing:
+        kwargs.setdefault('OutputKey', ConfigFlags.Overlay.BkgPrefix + 'EventInfo')
+    else:
+        kwargs.setdefault('OutputKey', 'EventInfo')
+
+    alg = CompFactory.Simulation.BeamSpotFixerAlg(name="BeamSpotFixerAlg", **kwargs)
+    acc.addEventAlgo(alg, sequenceName="AthAlgSeq", primary=True)
+    return acc
+
+
 if __name__ == "__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG

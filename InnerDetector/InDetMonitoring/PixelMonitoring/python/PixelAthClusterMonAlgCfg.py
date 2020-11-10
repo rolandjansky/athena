@@ -34,7 +34,7 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     if doLumiBlock:
         title = 'Modules Status (0=Active+Good 1=Active+Bad 2=Inactive)'
-        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lowStat', histname='Map_Of_Modules_Status_LB')
+        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='Map_Of_Modules_Status_LB')
 
     histoGroupName = 'BadModules_per_lumi'
     title          = 'Number of bad modules (bad+active) per event per LB'

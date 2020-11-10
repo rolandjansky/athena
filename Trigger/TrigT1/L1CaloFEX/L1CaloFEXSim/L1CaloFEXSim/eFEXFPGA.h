@@ -16,14 +16,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaKernel/CLASS_DEF.h"
 #include "L1CaloFEXToolInterfaces/IeFEXFPGA.h"
-#include "L1CaloFEXSim/eTower.h"
 #include "L1CaloFEXSim/eTowerContainer.h"
 #include "L1CaloFEXToolInterfaces/IeFEXtauAlgo.h"
 #include "L1CaloFEXToolInterfaces/IeFEXegAlgo.h"
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
-#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
+
 #include <vector>
 
 namespace LVL1 {
@@ -47,31 +44,32 @@ namespace LVL1 {
     virtual ~eFEXFPGA();
 
     virtual StatusCode init(int id, int efexid) override ;
-
     virtual StatusCode execute() override ;
-
     virtual void reset() override ;
-
-    virtual int ID() override {return m_id;}
+    virtual int getID() override {return m_id;}
 
     virtual void SetTowersAndCells_SG( int [][6] ) override ;
-
     virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) override ;
+
+    /**Form a tob word out of the potential candidate EM tob */
+    virtual uint32_t formEmTOB(int &, int &) override ;
+
+    virtual std::vector <uint32_t> getEmTOBs() override ;
+
 
     /** Internal data */
   private:
+    static bool etSort (uint32_t i,uint32_t j) { return (((i >> 0 ) & 0xfff)>((j >> 0 ) & 0xfff)); }
 
     int m_id;
     int m_efexid;
-
+    std::vector< uint32_t > m_tobwords;
     int m_eTowersIDs [10][6];
-    std::map<int,eTower> m_eTowersColl;
-
-    CaloCellContainer m_sCellsCollection;
 
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eFEXFPGA_eTowerContainerKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
 
     //SG::ReadHandleKey<eFEXOutputCollection> m_eFEXFPGA_eFEXOutputCollectionKey {this, "MyOutputs", "eFEXOutputCollection", "Input container for eFEXOutputCollection"};
+
 
     ToolHandle<IeFEXtauAlgo> m_eFEXtauAlgoTool {this, "eFEXtauAlgoTool", "LVL1::eFEXtauAlgo", "Tool that runs the eFEX tau algorithm"};
     ToolHandle<IeFEXegAlgo> m_eFEXegAlgoTool {this, "eFEXegAlgoTool", "LVL1::eFEXegAlgo", "Tool that runs the eFEX e/gamma algorithm"};

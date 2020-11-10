@@ -1,5 +1,5 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-/* Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
 /**
  * @file xAODEventFormatCnv/test/versions/AAuxContainer_v1.h
  * @author frank berghaus <fberghaus@anl.gov>
@@ -11,8 +11,8 @@
 
 
 #include "xAODCore/AuxContainerBase.h"
+#include "xAODCore/BaseInfo.h"
 #include "AthContainers/PackedContainer.h"
-#include "AthenaKernel/BaseInfo.h"
 #include <vector>
 
 

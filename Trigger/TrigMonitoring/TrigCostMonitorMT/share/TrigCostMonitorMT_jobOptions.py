@@ -9,7 +9,7 @@ Prefer the use of TrigCostMonitorMT.TrigCostMonitorMTConfig, if possible
 
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import theApp
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 from TrigCostMonitorMT.TrigCostMonitorMTConf import TrigCostMTAuditor, TrigCostMTSvc
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 

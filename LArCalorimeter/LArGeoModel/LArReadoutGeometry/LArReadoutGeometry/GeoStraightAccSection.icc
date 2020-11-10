@@ -1,20 +1,19 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/CachedUniquePtr.h"
 #include <stdexcept>
 class GeoStraightAccSection::Clockwork {
 
 public:
 
-  Clockwork():r1(NULL),r2(NULL){};
+  Clockwork():r1(NULL){};
 
   ~Clockwork() { 
   }
 
-  void buildFastCache();
   void buildSmallCache();
-  void fillFastCache();
 
 
   class Rep1 {
@@ -33,14 +32,19 @@ public:
 
   public:
 
-    GeoXF::Function *transfunction[14];
+    std::unique_ptr<GeoXF::Function> transfunction[14];
     double           halfLength[14];
   };
 
-  mutable Rep1 *r1;
-  mutable Rep2 *r2;
+  CxxUtils::CachedUniquePtrT<Rep1> r1;
+  std::unique_ptr<Rep2> r2;
+
+  const Rep1& getFastCache() const;
+  Rep1& getWritableFastCache();
+  Rep2& getWritableSmallCache();
 
 private:
+  void fillFastCache (Rep1& rep1) const;
   
   Clockwork( const Clockwork &); 
 
@@ -48,29 +52,59 @@ private:
 };
 
 
+inline
+const GeoStraightAccSection::Clockwork::Rep1&
+GeoStraightAccSection::Clockwork::getFastCache() const
+{
+  if (!r1) {
+    auto rep = std::make_unique<Rep1>();
+    fillFastCache (*rep);
+    r1.set (std::move (rep));
+  }
+  return *r1.get();
+}
+
+
+inline
+GeoStraightAccSection::Clockwork::Rep1&
+GeoStraightAccSection::Clockwork::getWritableFastCache()
+{
+  if (r2) throw std::runtime_error("Error in GeoStraightAccSection: Illegal Modification Sequence");
+  if (!r1) {
+    r1.store (std::make_unique<Rep1>());
+  }
+  return *r1.get();
+}
+
+
+inline
+GeoStraightAccSection::Clockwork::Rep2&
+GeoStraightAccSection::Clockwork::getWritableSmallCache()
+{
+  if (r1) throw std::runtime_error("Error in GeoStraightAccSection: Illegal Modification Sequence");
+  if (!r2) buildSmallCache();
+  return *r2;
+}
+
+
 inline const double & GeoStraightAccSection::XCent(int stackid, int cellid)   const
 {
-  if (!m_c->r1) m_c->fillFastCache();
-  return m_c->r1->xcent[stackid][cellid];
+  return m_c->getFastCache().xcent[stackid][cellid];
 }
 inline const double & GeoStraightAccSection::YCent(int stackid, int cellid)   const
 {
-  if (!m_c->r1) m_c->fillFastCache();
-  return m_c->r1->ycent[stackid][cellid];
+  return m_c->getFastCache().ycent[stackid][cellid];
 }
 inline const double & GeoStraightAccSection::Sinu(int stackid, int cellid)       const
 {
-  if (!m_c->r1) m_c->fillFastCache();
-  return m_c->r1->sinu[stackid][cellid];
+  return m_c->getFastCache().sinu[stackid][cellid];
 }
 inline const double & GeoStraightAccSection::Cosu(int stackid, int cellid)       const
 {
-  if (!m_c->r1) m_c->fillFastCache();
-  return m_c->r1->cosu[stackid][cellid];
+  return m_c->getFastCache().cosu[stackid][cellid];
 }
 inline const double & GeoStraightAccSection::HalfLength(int stackid, int cellid)   const
 {
-  if (!m_c->r1) m_c->fillFastCache();
-  return m_c->r1->halfLength[stackid][cellid];
+  return m_c->getFastCache().halfLength[stackid][cellid];
 }
 

@@ -50,8 +50,6 @@ class TauRecRunner ( TauRecRunConfigured ) :
         tools.append(taualgs.getTauCommonCalcVars())
         tools.append(taualgs.getTauSubstructure())
 
-        tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
-
         # PanTau:
         if tauFlags.doPanTau() :
             import PanTauAlgs.JobOptions_Main_PanTau as pantau
@@ -79,7 +77,6 @@ class TauRecRunner ( TauRecRunConfigured ) :
                                                          OutputVarname="RNNEleScore", MaxTracks=10, MaxClusters=6))
             tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
-            tools.append(taualgs.getTauEleOLRDecorator())              
             
             ################################
 

@@ -140,8 +140,6 @@ MmIdHelper           INFO The element hash max is 64
 MmIdHelper           INFO The detector element hash max is 128
 MmIdHelper           INFO Initializing MicroMegas hash indices for finding neighbors ... 
  AtlasDetectorID::initialize_from_dictionary - OK 
-SCTDetectorManager   INFO Using contructor with name specification, to create SCT_DetectorManager named SCT
-SCTDetectorManager   INFO 
 ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
 test1
 ClassIDSvc           INFO  getRegistryEntries: read 320 CLIDRegistry entries for module ALL

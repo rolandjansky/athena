@@ -7,12 +7,11 @@
 ## $Id: Debugging.py,v 1.1 2008-04-05 03:11:49 binet Exp $
 ###############################################################
 
-from __future__ import print_function
-import six
-
 __doc__ = """py-module to hold a few tools and utilities to help debugging
 configurables and/or Athena application.
 """
+
+import io
 
 class DbgStage:
     """Class to hold the stage at which the user asked to hook the debugger
@@ -43,10 +42,7 @@ def hookStrace(out=None):
     """
     import os
     if out is None: out = 'athena.strace.log.%i' % os.getpid()
-    if six.PY3:
-        import io
-        file = io.IOBase
-    if isinstance(out, file):
+    if isinstance(out, io.IOBase):
         out = out.name
     elif not isinstance(out,str):
         raise TypeError('argument 0 needs to be either a file or a filename')

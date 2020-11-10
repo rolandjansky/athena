@@ -34,7 +34,7 @@ public: // Non-static members
 
 friend class EventStreamInfoCnv_p1;
 
-private:
+public:
    unsigned int	m_numberOfEvents;	// Number of Events
    std::set<unsigned int> m_runNumbers;	// Run#
    std::set<unsigned int> m_lumiBlockNumbers;	// LumiBlock#

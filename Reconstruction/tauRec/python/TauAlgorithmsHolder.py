@@ -96,8 +96,6 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
                                     calibrationFile = "TES_MC16a_prelim.root",
-                                    doEnergyCorrection = correctEnergy,
-                                    doAxisCorrection = correctAxis,
                                     doPtResponse = True,
                                     Key_vertexInputContainer = _DefaultVertexContainer 
                                     )
@@ -669,6 +667,21 @@ def getTauTrackFinder(removeDuplicateTracks=True):
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
 
+
+# Associate the cluster in jet constituents to the tau candidate
+def getTauClusterFinder():
+    _name = sPrefix + 'TauClusterFinder'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from tauRecTools.tauRecToolsConf import TauClusterFinder
+    TauClusterFinder = TauClusterFinder(name = _name)
+
+    cached_instances[_name] = TauClusterFinder
+    return TauClusterFinder
+
+
 ########################################################################
 # MvaTESVariableDecorator
 def getMvaTESVariableDecorator():
@@ -982,15 +995,6 @@ def getTauDecayModeNNClassifier():
     cached_instances[_name] = TauDecayModeNNClassifier
     return TauDecayModeNNClassifier
 
-def getTauEleOLRDecorator():
-    _name = sPrefix + 'TauEleOLRDecorator'
-    from tauRecTools.tauRecToolsConf import TauEleOLRDecorator
-    myTauEleOLRDecorator = TauEleOLRDecorator(name=_name,
-                                              Key_electronInputContainer="Electrons",
-                                              EleOLRFile="eVetoAODfix.root")
-    cached_instances[_name] = myTauEleOLRDecorator
-    return myTauEleOLRDecorator
-
 def getTauVertexCorrection():
     from tauRec.tauRecFlags import tauFlags
     from tauRecTools.tauRecToolsConf import TauVertexCorrection
@@ -1019,13 +1023,9 @@ def getTauVertexCorrection():
 def getParticleCache():
     #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
     from RecExConfig.RecFlags import rec
-    if rec.doESD is True:
+    if rec.doESD():
         ParticleCache = "ParticleCaloExtension"
-    else : 
+    else: 
         ParticleCache = ""
     
     return ParticleCache
-
-
-
-

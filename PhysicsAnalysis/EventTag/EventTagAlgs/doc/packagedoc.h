@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,7 +23,6 @@ EventTagAlgs contains the following algs/files:
 - MuonTagBuilder ... builder for Muon
 - ParticleJetTagBuilder ... builder for ParticleJet
 - PhotonTagBuilder ... builder for Photon
-- TauJetTagBuilder ... builder for TauJet
 - EventTag_jobOptions.py ... contains all builder job options
 - It is possible to customize what goes in the TAG at runtime: look in EventTagFlags.py 
 

@@ -84,21 +84,21 @@ public:
   virtual BoundsType type() const override { return SurfaceBounds::Cone; }
 
   /**This method checks if a LocalPosition is inside z bounds and rphi value- interface method */
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1, double tol2) const override;
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk = true) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1, double tol2) const override final;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk = true) const override final;
 
   /**This method checks if a GlobalPosition is inside the Cylinder - not an interface method,
         assumes that GlobalPosition is in the right frame*/
-  virtual bool inside(const Amg::Vector3D& gp, double tol1 = 0., double tol2 = 0.) const;
-  virtual bool inside(const Amg::Vector3D& locpo, const BoundaryCheck& bchk) const;
+  virtual bool inside(const Amg::Vector3D& gp, double tol1 = 0., double tol2 = 0.) const final;
+  virtual bool inside(const Amg::Vector3D& locpo, const BoundaryCheck& bchk) const final;
 
   /** This method checks inside bounds in loc1
       - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /** This method checks inside bounds in loc1
       - loc1/loc2 correspond to the natural coordinates of the surface */
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
   virtual double minDistance(const Amg::Vector2D& pos) const override;

@@ -88,7 +88,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::fillHistograms( const EventContex
 StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventContext& ctx, 
                                                              std::string trigItem,
                                                              float etthr,
-                                                             std::string pidname,
+                                                             std::string pidName,
                                                              std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision* >> &pairObjs) const
 {
 
@@ -103,7 +103,7 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
   }
 
 
-  const std::string decor="is"+pidname;
+  const std::string decor="is"+pidName;
   for(const auto& eg : *offElectrons ){
 
       const TrigCompositeUtils::Decision *dec=nullptr; 
@@ -126,11 +126,11 @@ StatusCode TrigEgammaMonitorElectronAlgorithm::executeNavigation( const EventCon
       }
 
       if(m_forcePidSelection){///default is true
-        if(!ApplyElectronPid(eg,pidname)){
-	        ATH_MSG_DEBUG("Fails ElectronID "<< pidname);
+        if(!ApplyElectronPid(eg,pidName)){
+	        ATH_MSG_DEBUG("Fails ElectronID "<< pidName);
 	        continue;
 	      }
-	      ATH_MSG_DEBUG("Passes ElectronID "<< pidname);
+	      ATH_MSG_DEBUG("Passes ElectronID "<< pidName);
       }
 
       if (m_forceProbeIsolation) {///default is false
