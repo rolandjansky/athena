@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, parOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
-
+__log.setLevel(2)
 def __isCombo(alg):
     return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
 
@@ -50,7 +50,7 @@ def collectHypos( steps ):
 def __decisionsFromHypo( hypo ):
     """ return all chains served by this hypo and the key of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    __log.debug("Hypo type %s is combo %b", hypo.getName(), __isCombo(hypo))
+    __log.debug("Hypo type %s is combo %r", hypo.getName(), __isCombo(hypo))
     if __isCombo( hypo ):
         return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
     else: # regular hypos
@@ -228,7 +228,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
             allChains.update( hypoChains )
 
         dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(OrderedDict.fromkeys(stepDecisionKeys)))
-        __log.debug( "The step monitoring decisions in %s %s", dcTool.getName(), str(dcTool.Decisions))
+        __log.debug( "The step monitoring decisions in %s %s", dcTool.getName(), dcTool.Decisions)
         mon.CollectorTools += [ dcTool ]
 
 
@@ -468,7 +468,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decO
     if flags.Trigger.ExtraEDMList:
         __log.info( "Adding extra collections to EDM: %s", str(flags.Trigger.ExtraEDMList))
         addExtraCollectionsToEDMList(TriggerHLTListRun3, flags.Trigger.ExtraEDMList)
-        __log.info( "Number of EDM items after adding extra collections: %s", str(len(TriggerHLTListRun3)))
+        __log.info( "Number of EDM items after adding extra collections: %s", len(TriggerHLTListRun3))
 
 
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")
@@ -496,7 +496,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decO
             setattr(mergingTool, collType, attrName )
             producer = [ maker for maker in viewMakers if maker.Views == viewsColl ]
             if len(producer) == 0:
-                __log.warning("The producer of the %s not in the menu, it's outputs won't ever make it out of the HLT", str(coll))
+                __log.warning("The producer of the %s not in the menu, it's outputs won't ever make it out of the HLT", coll)
                 continue
             if len(producer) > 1:
                 for pr in producer[1:]:
@@ -524,7 +524,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decO
                     __log.info("GapFiller configuration found an aliased type '%s' for '%s'", alias, collType)
                     collType = alias
                 elif len(aliases) > 1:
-                    __log.error("GapFiller configuration found inconsistent '%s' (to many aliases?)", el[3:])
+                    __log.error("GapFiller configuration found inconsistent '%s' (too many aliases?)", el[3:])
 
             groupedByType[collType].append( collName )
 
@@ -532,7 +532,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decO
             propName = collType.split(":")[-1]
             if hasattr( tool, propName ):
                 setattr( tool, propName, collNameList )
-                __log.info("GapFiller will create EDM collection type '%s' for '%s'", collType, str(collNameList))
+                __log.info("GapFiller will create EDM collection type '%s' for '%s'", collType, collNameList)
             else:
                 __log.info("EDM collections of type %s are not going to be added to StoreGate, if not created by the HLT", collType )
 
@@ -603,7 +603,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
     __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )
     __log.info( "Of which, %d are the outputs of hypos", len( decObjHypoOut ) )
-    __log.info( str( decObj ) )
+    __log.info( decObj )
 
     # configure components need to normalise output before writing out
     viewMakers = collectViewMakers( HLTSteps )
