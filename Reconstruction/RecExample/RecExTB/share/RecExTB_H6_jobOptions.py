@@ -238,7 +238,6 @@ jobproperties.CaloCellFlags.doLArHVCorr = False
 jobproperties.CaloCellFlags.doLArSporadicMasking = False
 jobproperties.CaloCellFlags.doLArCellEmMisCalib = False
 jobproperties.CaloCellFlags.doPedestalCorr = False
-jobproperties.CaloCellFlags.doLArRecalibration = False
 jobproperties.CaloCellFlags.doLArBadFebMasking = False
 jobproperties.CaloCellFlags.doLArDeadOTXCorr = False
 
