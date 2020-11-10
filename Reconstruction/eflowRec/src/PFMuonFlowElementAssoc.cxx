@@ -70,11 +70,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
   // WriteDecorHandles for the charged/neutral Flow Elements and Muons
   // Links a Muon that has a track to a charged flow element if possible
   
-<<<<<<< HEAD
-  ATH_MSG_INFO("Started execute step");
-=======
   ATH_MSG_VERBOSE("Started execute step");
->>>>>>> 16dcd6681161618ad85fd66f5a7d2ceaf5635609
 
   // Get container for muons
   SG::WriteDecorHandle<xAOD::MuonContainer,std::vector<FlowElementLink_t> > muonChargedFEWriteDecorHandle (m_muonChargedFEWriteHandleKey,ctx);
@@ -147,11 +143,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       m_UseMuonTopoClusters (True= Case 1, False = Case 2)
   **/
   if(m_LinkNeutralFEClusters){
-<<<<<<< HEAD
-    ATH_MSG_INFO("Experimental: Cluster Linkers between neutral FEs and Muons are used");
-=======
     ATH_MSG_VERBOSE("Experimental: Cluster Linkers between neutral FEs and Muons are used");
->>>>>>> 16dcd6681161618ad85fd66f5a7d2ceaf5635609
     for (const xAOD::FlowElement* FE: *NeutralFEmuonWriteDecorHandle){
       int nMatchedFE=0;
       //get the index of the cluster corresponding to the Neutral FlowElements
@@ -204,11 +196,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 		FEMuonLinks.push_back(MuonLink_t(*muonReadHandle,muon->index()));
 		// index() is the unique index of the cFlowElement in the cFlowElementcontaine
 		muonNeutralFEVec.at(muon->index()).push_back(FlowElementLink_t(*NeutralFEReadHandle,FE->index()));
-<<<<<<< HEAD
-		ATH_MSG_INFO("Got a match between NFE and Muon");
-=======
 		ATH_MSG_VERBOSE("Got a match between NFE and Muon");
->>>>>>> 16dcd6681161618ad85fd66f5a7d2ceaf5635609
 		nMatchedFE++; // count number of matches between FE and muons
 	      } // check block of index matching	      
 	    } // end of loop over element links
@@ -259,13 +247,8 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 	      frac_muon_cluster_energy_matched=Muon_sum_matched_cellEnergy/tot_muon_cluster_energy;
 	    }
 	    if(frac_FE_cluster_energy_matched>0){ 
-<<<<<<< HEAD
-	      ATH_MSG_INFO("Fraction of FE cluster energy used in match: "<<frac_FE_cluster_energy_matched<<", ismatched? "<<isCellMatched<<"");
-	      ATH_MSG_INFO("Fraction of Muon cluster energy used in match: "<<frac_muon_cluster_energy_matched<<"");
-=======
 	      ATH_MSG_VERBOSE("Fraction of FE cluster energy used in match: "<<frac_FE_cluster_energy_matched<<", ismatched? "<<isCellMatched<<"");
 	      ATH_MSG_VERBOSE("Fraction of Muon cluster energy used in match: "<<frac_muon_cluster_energy_matched<<"");
->>>>>>> 16dcd6681161618ad85fd66f5a7d2ceaf5635609
 	    }
 
 	    if(isCellMatched){ // cell matched => Link the two objects.
