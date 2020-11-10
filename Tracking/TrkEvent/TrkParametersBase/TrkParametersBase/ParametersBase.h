@@ -117,10 +117,10 @@ public:
   virtual double charge() const = 0;
 
   /** Access method for the position */
-  virtual const Amg::Vector3D& position() const = 0;
+  virtual Amg::Vector3D position() const = 0;
 
   /** Access method for the momentum */
-  virtual const Amg::Vector3D& momentum() const = 0;
+  virtual Amg::Vector3D momentum() const = 0;
 
   //** equality operator */
   virtual bool operator==(const ParametersBase<DIM, T>&) const;
