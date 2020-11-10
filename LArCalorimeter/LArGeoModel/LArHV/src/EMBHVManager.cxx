@@ -126,6 +126,12 @@ EMBHVManager::EMBHVData::~EMBHVData()
 }
   
 
+bool EMBHVManager::EMBHVData::hvOn (const EMBHVElectrode& electrode, const int& iGap) const
+{
+  return voltage (electrode, iGap) > INVALID;
+}
+
+
 double EMBHVManager::EMBHVData::voltage (const EMBHVElectrode& electrode, const int& iGap) const
 {
   return m_payload->m_payloadArray[index(electrode)].voltage[iGap];
@@ -224,8 +230,8 @@ EMBHVManager::getData (idfunc_t idfunc,
   payload->m_payloadArray.reserve(2*8*16*2*32);
 
   for (int i=0;i<16384;i++) {
-    payload->m_payloadArray[i].voltage[0]=-99999.;
-    payload->m_payloadArray[i].voltage[1]=-99999.;
+    payload->m_payloadArray[i].voltage[0] = EMBHVData::INVALID;
+    payload->m_payloadArray[i].voltage[1] = EMBHVData::INVALID;
   }
     
   for (const CondAttrListCollection* atrlistcol : attrLists) {
@@ -302,7 +308,7 @@ EMBHVManager::getData (idfunc_t idfunc,
           unsigned int gapIndex=m_c->elecId->gap(elecHWID);
           if (sideIndex==0) gapIndex=1-gapIndex;
 
-          float voltage = -99999.;
+          float voltage = EMBHVData::INVALID;
           if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
           float current = 0.;
           if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();

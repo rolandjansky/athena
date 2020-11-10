@@ -39,11 +39,13 @@ class EMBHVManager
   class EMBHVData
   {
   public:
+    static constexpr double INVALID = -99999;
     class Payload;
     EMBHVData();
     EMBHVData (std::unique_ptr<Payload> payload);
     EMBHVData& operator= (EMBHVData&& other);
     ~EMBHVData();
+    bool hvOn (const EMBHVElectrode& electrode, const int& iGap) const;
     double voltage (const EMBHVElectrode& electrode, const int& iGap) const;
     double current (const EMBHVElectrode& electrode, const int& iGap) const;
     int  hvLineNo  (const EMBHVElectrode& electrode, const int& iGap) const;

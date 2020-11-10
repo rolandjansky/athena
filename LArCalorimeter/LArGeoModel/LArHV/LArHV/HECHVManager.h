@@ -39,11 +39,13 @@ class HECHVManager
   class HECHVData
   {
   public:
+    static constexpr double INVALID = -99999;
     class Payload;
     HECHVData();
     HECHVData (std::unique_ptr<Payload> payload);
     HECHVData& operator= (HECHVData&& other);
     ~HECHVData();
+    bool hvOn (const HECHVSubgap& subgap) const;
     double voltage (const HECHVSubgap& subgap) const;
     double current (const HECHVSubgap& subgap) const;
     int  hvLineNo  (const HECHVSubgap& subgap) const;

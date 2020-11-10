@@ -38,11 +38,13 @@ class FCALHVManager
   class FCALHVData
   {
   public:
+    static constexpr double INVALID = -99999;
     class Payload;
     FCALHVData();
     FCALHVData (std::unique_ptr<Payload> payload);
     FCALHVData& operator= (FCALHVData&& other);
     ~FCALHVData();
+    bool hvOn (const FCALHVLine& line) const;
     double voltage (const FCALHVLine& line) const;
     double current (const FCALHVLine& line) const;
     int  hvLineNo  (const FCALHVLine& line) const;

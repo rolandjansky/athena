@@ -121,6 +121,12 @@ HECHVManager::HECHVData::~HECHVData()
 }
   
 
+bool HECHVManager::HECHVData::hvOn (const HECHVSubgap& subgap) const
+{
+  return voltage (subgap) > INVALID;
+}
+
+
 double HECHVManager::HECHVData::voltage (const HECHVSubgap& subgap) const
 {
   return m_payload->m_payloadArray[index(subgap)].voltage;
@@ -209,7 +215,7 @@ HECHVManager::getData (idfunc_t idfunc,
   auto payload = std::make_unique<HECHVData::Payload>();
   payload->m_payloadArray.reserve(2*32*4*4);
   for (unsigned int i=0;i<1024;i++) {
-    payload->m_payloadArray[i].voltage=-99999.;
+    payload->m_payloadArray[i].voltage = HECHVData::INVALID;
   }
 
   for (const CondAttrListCollection* atrlistcol : attrLists) {
@@ -237,7 +243,7 @@ HECHVManager::getData (idfunc_t idfunc,
           continue;
         }
 
-        float voltage = -99999.;
+        float voltage = HECHVData::INVALID;
         if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
         float current = 0.;
         if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();

@@ -120,6 +120,13 @@ EMECPresamplerHVManager::EMECPresamplerHVData::~EMECPresamplerHVData()
 }
   
 
+bool EMECPresamplerHVManager::EMECPresamplerHVData::hvOn
+  (const EMECPresamplerHVModule& module, const int& iGap) const
+{
+  return voltage (module, iGap) > INVALID;
+}
+
+
 double EMECPresamplerHVManager::EMECPresamplerHVData::voltage
   (const EMECPresamplerHVModule& module, const int& /*iGap*/) const
 {
@@ -197,7 +204,7 @@ EMECPresamplerHVManager::getData (idfunc_t idfunc,
   auto payload = std::make_unique<EMECPresamplerHVData::Payload>();
   payload->m_payloadArray.reserve(2*64);
   for (unsigned int i=0;i<64;i++) {
-    payload->m_payloadArray[i].voltage=-99999.;
+    payload->m_payloadArray[i].voltage = EMECPresamplerHVData::INVALID;
   }
     
   for (const CondAttrListCollection* atrlistcol : attrLists) {
@@ -244,7 +251,7 @@ EMECPresamplerHVManager::getData (idfunc_t idfunc,
           unsigned int index = 64*sideIndex+2*phiIndex+gapIndex;
 
 	      
-          float voltage = -99999.;
+          float voltage = EMECPresamplerHVData::INVALID;
           if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
           float current = 0.;
           if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();

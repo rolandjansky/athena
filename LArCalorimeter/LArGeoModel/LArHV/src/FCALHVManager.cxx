@@ -117,6 +117,12 @@ FCALHVManager::FCALHVData::~FCALHVData()
 }
   
 
+bool FCALHVManager::FCALHVData::hvOn (const FCALHVLine& line) const
+{
+  return voltage (line) > INVALID;
+}
+
+
 double FCALHVManager::FCALHVData::voltage (const FCALHVLine& line) const
 {
   return m_payload->m_payloadArray[index(line)].voltage;
@@ -201,7 +207,7 @@ FCALHVManager::getData (idfunc_t idfunc,
   auto payload = std::make_unique<FCALHVData::Payload>();
   payload->m_payloadArray.reserve(2*16*3*4);
   for (unsigned int i=0;i<384;i++) {
-    payload->m_payloadArray[i].voltage=-99999.;
+    payload->m_payloadArray[i].voltage = FCALHVData::INVALID;
   }
 
   for (const CondAttrListCollection* atrlistcol : attrLists) {
@@ -224,7 +230,7 @@ FCALHVManager::getData (idfunc_t idfunc,
         int detector = m_c->elecId->detector(elecHWID);
         if (detector==5) {
 
-          float voltage = -99999.;
+          float voltage = FCALHVData::INVALID;;
           if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
           float current = 0.;
           if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();

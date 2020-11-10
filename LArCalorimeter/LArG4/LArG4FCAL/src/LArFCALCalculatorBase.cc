@@ -141,7 +141,7 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
           const FCALHVLine& line =tube->getHVLine();
 	  double voltage = m_hvdata.voltage (line);
 	  //double current = line->current();
-	  bool   hvOn    = voltage > -99999;
+	  bool   hvOn    = m_hvdata.hvOn (line);
 	  if (!hvOn) hdata[0].energy=0.0;
 	  hdata[0].energy *= pow((voltage)/2000.0,0.6);
 	  tubeFound=true;

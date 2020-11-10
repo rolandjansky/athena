@@ -1923,7 +1923,7 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
         for (unsigned int i=0;i<element->getNumSubgaps();i++) {
           if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
             std::ostringstream highVoltageStream;
-            highVoltageStream << i << " Status "  << (hvdata.voltage (element->getSubgap(i)) > -99999)
+            highVoltageStream << i << " Status "  << hvdata.hvOn (element->getSubgap(i))
                               << " voltage: " << hvdata.voltage (element->getSubgap(i))
                               << " current: " << hvdata.current (element->getSubgap(i))
                               <<  std::endl;
@@ -2012,8 +2012,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
 	  message(highVoltageStream.str().c_str());
 	  highVoltageStream <<  "Status: "  
-                            << (hvdata.voltage (module, 0) > -99999)    << ' '
-                            << (hvdata.voltage (module, 1) > -99999)    <<  '\n';
+                            << hvdata.hvOn (module, 0)    << ' '
+                            << hvdata.hvOn (module, 1)    <<  '\n';
 	  highVoltageStream <<  "Current: "  << hvdata.current(module, 0) << ' ' << hvdata.current (module, 1) <<  '\n';
 	  highVoltageStream <<  "Voltage: "  << hvdata.voltage (module, 0) << ' ' << hvdata.voltage (module, 1) <<  '\n';
 	  
@@ -2088,8 +2088,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
                 std::ostringstream highVoltageStream;
                 highVoltageStream << i << ' '
                                   << element->getElectrode(i).getElectrodeIndex() << ") status: "
-                                  << (hvdata.voltage(element->getElectrode(i),0) > -99999) << ' '
-                                  << (hvdata.voltage(element->getElectrode(i),1) > -99999) <<  std::endl;
+                                  << hvdata.hvOn(element->getElectrode(i),0) << ' '
+                                  << hvdata.hvOn(element->getElectrode(i),1) <<  std::endl;
                 message(highVoltageStream.str().c_str());
               }
               {
@@ -2205,8 +2205,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
 	  message(highVoltageStream.str().c_str());
 	  highVoltageStream <<  "Status: "  
-                            << (hvdata.voltage (module, 0) > -99999)  << ' '
-                            << (hvdata.voltage (module, 1) > -99999)  <<  '\n';
+                            << hvdata.hvOn (module, 0)  << ' '
+                            << hvdata.hvOn (module, 1)  <<  '\n';
 	  highVoltageStream <<  "Current: " 
                             << hvdata.current (module, 0) << ' '
                             << hvdata.current (module, 1) <<  '\n';
@@ -2271,8 +2271,8 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
             const EMBHVManager::EMBHVData hvdata = manager.getData();
             for (unsigned int i=0;i<element->getNumElectrodes();i++) {
               highVoltageStream << i << "Status: "   << element->getElectrode(i).getElectrodeIndex() << ' '
-                                << (hvdata.voltage (element->getElectrode(i), 0) > -99999) << ' '
-                                << (hvdata.voltage (element->getElectrode(i), 1) > -99999) <<  '\n';
+                                << hvdata.hvOn (element->getElectrode(i), 0) << ' '
+                                << hvdata.hvOn (element->getElectrode(i), 1) <<  '\n';
               highVoltageStream << i << "Current: " 
                                 << element->getElectrode(i).getElectrodeIndex() << ' '
                                 << hvdata.current (element->getElectrode(i), 0) << ' '

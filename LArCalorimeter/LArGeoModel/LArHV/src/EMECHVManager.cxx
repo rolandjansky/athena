@@ -131,6 +131,12 @@ EMECHVManager::EMECHVData::~EMECHVData()
 }
   
 
+bool EMECHVManager::EMECHVData::hvOn (const EMECHVElectrode& electrode, const int& iGap) const
+{
+  return voltage (electrode, iGap) > INVALID;
+}
+
+
 double EMECHVManager::EMECHVData::voltage (const EMECHVElectrode& electrode, const int& iGap) const
 {
   return m_payload->m_payloadArray[index(electrode)].voltage[iGap];
@@ -259,15 +265,15 @@ EMECHVManager::getData (idfunc_t idfunc,
   if (m_c->iWheel==EMECHVModule::OUTER)      {
     payload->m_payloadArray.reserve(2*7*8*4*24);
     for (unsigned int i=0;i<10752;i++) {
-      payload->m_payloadArray[i].voltage[0]=-99999.;
-      payload->m_payloadArray[i].voltage[1]=-99999.;
+      payload->m_payloadArray[i].voltage[0] = EMECHVData::INVALID;
+      payload->m_payloadArray[i].voltage[1] = EMECHVData::INVALID;
     }
   }
   else if (m_c->iWheel==EMECHVModule::INNER)  {
     payload->m_payloadArray.reserve(2*2*8*8*4);
     for (unsigned int i=0;i<1024;i++) {
-      payload->m_payloadArray[i].voltage[0]=-99999.;
-      payload->m_payloadArray[i].voltage[1]=-99999.;
+      payload->m_payloadArray[i].voltage[0] = EMECHVData::INVALID;
+      payload->m_payloadArray[i].voltage[1] = EMECHVData::INVALID;
     }
   }
     
@@ -345,7 +351,7 @@ EMECHVManager::getData (idfunc_t idfunc,
             }
             if (sideIndex==0) gapIndex=1-gapIndex;
 	      
-            float voltage = -99999.;
+            float voltage = EMECHVData::INVALID;;
             if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
             float current = 0.;
             if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();

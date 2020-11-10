@@ -130,6 +130,13 @@ EMBPresamplerHVManager::EMBPresamplerHVData::~EMBPresamplerHVData()
 }
   
 
+bool EMBPresamplerHVManager::EMBPresamplerHVData::hvOn
+  (const EMBPresamplerHVModule& module, const int& iGap) const
+{
+  return voltage (module, iGap) > INVALID;
+}
+
+
 double EMBPresamplerHVManager::EMBPresamplerHVData::voltage
   (const EMBPresamplerHVModule& module, const int& iGap) const
 {
@@ -220,8 +227,8 @@ EMBPresamplerHVManager::getData (idfunc_t idfunc,
   payload->m_payloadArray.reserve(2*4*32);
 
   for (int i=0;i<256;i++) {
-    payload->m_payloadArray[i].voltage[0]=-99999.;
-    payload->m_payloadArray[i].voltage[1]=-99999.;
+    payload->m_payloadArray[i].voltage[0] = EMBPresamplerHVData::INVALID;
+    payload->m_payloadArray[i].voltage[1] = EMBPresamplerHVData::INVALID;
   }
     
   for (const CondAttrListCollection* atrlistcol : attrLists) {
@@ -281,7 +288,7 @@ EMBPresamplerHVManager::getData (idfunc_t idfunc,
           if (sideIndex==0) gapIndex=1-gapIndex;
 
 
-          float voltage = -99999.;
+          float voltage = EMBPresamplerHVData::INVALID;
           if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
           float current = 0.;
           if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();

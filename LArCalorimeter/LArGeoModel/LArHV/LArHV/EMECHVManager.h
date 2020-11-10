@@ -41,11 +41,13 @@ class EMECHVManager
   class EMECHVData
   {
   public:
+    static constexpr double INVALID = -99999;
     class Payload;
     EMECHVData();
     EMECHVData (std::unique_ptr<Payload> payload);
     EMECHVData& operator= (EMECHVData&& other);
     ~EMECHVData();
+    bool hvOn (const EMECHVElectrode& electrode, const int& iGap) const;
     double voltage (const EMECHVElectrode& electrode, const int& iGap) const;
     double current (const EMECHVElectrode& electrode, const int& iGap) const;
     int  hvLineNo  (const EMECHVElectrode& electrode, const int& iGap) const;

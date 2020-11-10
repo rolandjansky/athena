@@ -40,11 +40,13 @@ class EMBPresamplerHVManager
   class EMBPresamplerHVData
   {
   public:
+    static constexpr double INVALID = -99999;
     class Payload;
     EMBPresamplerHVData();
     EMBPresamplerHVData (std::unique_ptr<Payload> payload);
     EMBPresamplerHVData& operator= (EMBPresamplerHVData&& other);
     ~EMBPresamplerHVData();
+    bool hvOn (const EMBPresamplerHVModule& module, const int& iGap) const;
     double voltage (const EMBPresamplerHVModule& module, const int& iGap) const;
     double current (const EMBPresamplerHVModule& module, const int& iGap) const;
     int  hvLineNo  (const EMBPresamplerHVModule& module, const int& iGap) const;
