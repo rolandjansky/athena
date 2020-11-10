@@ -124,6 +124,7 @@ public:
 
   
 private:
+  inline void setE(unsigned index, double E);
   virtual void resetPointers();
   virtual bool setPointers();
   void setNextEnergy(const uint16_t energy,const int16_t time, const int16_t quality, const uint32_t gain);
@@ -363,48 +364,36 @@ return ( (ch&0x7) << 4) | ( (ch&0x38) >>2 ) | ((ch&0x40)>>6);
 
 }
 
-inline void LArRodBlockPhysicsV5::setEx(double Ex){ 
+inline void LArRodBlockPhysicsV5::setE(unsigned index, double E){ 
 
-        int32_t copy=(int32_t)Ex;
+        union {
+          int32_t i;
+          uint16_t us[2];
+        } conv;
+        conv.i = static_cast<int32_t>(E);
         // Write as multiplication, not as left shift, since left-shifting
         // a negative number is undefined in C++.
         // Compiles to the same code on x86_64.
-        copy *= (1<<9);
-	uint16_t* to_push = (uint16_t*)&copy;
+        conv.i *= (1<<9);
         if ( m_TimeQualityBlock.size()>=6 ){
-                m_TimeQualityBlock[0]=to_push[0];
-                m_TimeQualityBlock[1]=to_push[1];
+                m_TimeQualityBlock[index]=conv.us[0];
+                m_TimeQualityBlock[index+1]=conv.us[1];
         }
+}
+
+
+inline void LArRodBlockPhysicsV5::setEx(double Ex){ 
+        setE (0, Ex);
 }
 
 
 inline void LArRodBlockPhysicsV5::setEy(double Ey){
-
-        int32_t copy=(int32_t)Ey;
-        // Write as multiplication, not as left shift, since left-shifting
-        // a negative number is undefined in C++.
-        // Compiles to the same code on x86_64.
-        copy *= (1<<9);
-	uint16_t* to_push = (uint16_t*)&copy;
-        if ( m_TimeQualityBlock.size()>=6 ){
-                m_TimeQualityBlock[2]=to_push[0];
-                m_TimeQualityBlock[3]=to_push[1];
-        }
+        setE (2, Ey);
 }
 
 
 inline void LArRodBlockPhysicsV5::setEz(double Ez){
-
-        int32_t copy=(int32_t)Ez;
-        // Write as multiplication, not as left shift, since left-shifting
-        // a negative number is undefined in C++.
-        // Compiles to the same code on x86_64.
-        copy *= (1<<9);
-	uint16_t* to_push = (uint16_t*)&copy;
-        if ( m_TimeQualityBlock.size()>=6 ){
-                m_TimeQualityBlock[4]=to_push[0];
-                m_TimeQualityBlock[5]=to_push[1];
-        }
+        setE (4, Ez);
 }
 
 

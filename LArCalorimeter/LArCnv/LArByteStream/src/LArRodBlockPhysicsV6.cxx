@@ -1018,18 +1018,13 @@ void  LArRodBlockPhysicsV6::concatinateFEBs()
  FEBMAPTYPE::const_iterator feb_it_b=m_mFebBlocks.begin();
  FEBMAPTYPE::const_iterator feb_it_e=m_mFebBlocks.end();
  FEBMAPTYPE::const_iterator feb_it;
- std::vector<uint32_t>::const_iterator data_it;
- std::vector<uint32_t>::const_iterator data_it_e;
- for (feb_it=feb_it_b;feb_it!=feb_it_e;feb_it++) {
+ for (feb_it=feb_it_b;feb_it!=feb_it_e;++feb_it) {
    if (feb_it!=feb_it_b) //Not first Feb
        m_pRODblock->resize( m_pRODblock->size()+m_MiddleHeaderSize);
 
    //Add feb data to rod data block
-   data_it=feb_it->second.begin();
-   data_it_e=feb_it->second.end();
-   m_pRODblock->reserve(m_pRODblock->size()+feb_it->second.size());
-   for (;data_it!=data_it_e;data_it++)
-     m_pRODblock->push_back(*data_it);
+   m_pRODblock->insert (m_pRODblock->end(),
+                        feb_it->second.begin(), feb_it->second.end());
  } //end for feb_it
 
   m_mFebBlocks.clear();
