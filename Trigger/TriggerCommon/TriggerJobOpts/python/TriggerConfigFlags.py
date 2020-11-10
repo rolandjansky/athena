@@ -281,9 +281,6 @@ def createTriggerFlags():
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags
     flags.addFlagsCategory( 'Trigger.InDetTracking', createTrigTrackingFlags )
 
-    from TriggerJobOpts.MenuConfigFlags import createMenuFlags
-    flags.join( createMenuFlags() )
-
     return flags
     # for reference, this flags are skipped as never used or never set in fact, or set identical to de default or used in a very old JO:
     # readLVL1Calo, readLVL1Muon, fakeLVL1, useCaloTTL
