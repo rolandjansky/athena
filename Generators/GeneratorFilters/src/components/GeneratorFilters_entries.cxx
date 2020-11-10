@@ -75,6 +75,7 @@
 #include "GeneratorFilters/TTbarLJetsVptFilter.h"
 #include "GeneratorFilters/ALPDecayPositionFilter.h"
 #include "GeneratorFilters/M4MuIntervalFilter.h"
+#include "GeneratorFilters/SameParticleHardScatteringFilter.h"
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -148,7 +149,7 @@ DECLARE_ALGORITHM_FACTORY(TTbarWithJpsimumuFilter)
 DECLARE_ALGORITHM_FACTORY(TTbarLJetsVptFilter)
 DECLARE_ALGORITHM_FACTORY(ALPDecayPositionFilter)
 DECLARE_ALGORITHM_FACTORY(M4MuIntervalFilter)
-
+DECLARE_ALGORITHM_FACTORY(SameParticleHardScatteringFilter)
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -222,6 +223,6 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(TTbarLJetsVptFilter)
     DECLARE_ALGORITHM(ALPDecayPositionFilter)
     DECLARE_ALGORITHM(M4MuIntervalFilter)
-
+    DECLARE_ALGORITHM(SameParticleHardScatteringFilter)
 }
 
