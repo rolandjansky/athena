@@ -35,8 +35,7 @@ def JetRecTestCfg(jetdefs,configFlags,args):
 
 def DefineJetCollections(configFlags):
 
-    from JetRecConfig.StandardSmallRJets import standardrecomods, clustermods, truthmods, standardghosts
-    from JetRecConfig.StandardSmallRJets import AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
+    from JetRecConfig.StandardSmallRJets import standardrecomods, clustermods, truthmods, standardghosts, AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
 
     ########################################################################
     # Example for defining a custom definition
