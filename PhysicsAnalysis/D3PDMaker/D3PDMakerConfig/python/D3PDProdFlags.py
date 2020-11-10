@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -126,23 +126,6 @@ OFragment.py"
      SubSteps = ['a2d', 'e2d']
 jobproperties.D3PDProdFlags.add_JobProperty (WriteLongLivedParticleD3PD)
 listAllKnownD3PD.append (prodFlags.WriteLongLivedParticleD3PD)
-
-
-class WriteTopBoostJSD3PD (JobProperty):
-     """Produce the BoostedTop D3PD."""
-     statusOn = True
-     allowedTypes = ['bool']
-     StoredValue = False
-     StreamName = 'StreamNTUP_TOPBOOST'
-     FileName = ''
-     isVirtual = False
-     DPDMakerScript = "BoostedTopD3PDMaker/TopBoostJSD3PD_prodJobOFragment.py"
-     TreeNames = ['physics']
-     SubSteps = ['a2d', 'e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteTopBoostJSD3PD)
-listAllKnownD3PD.append (prodFlags.WriteTopBoostJSD3PD)
-
-
 
 
 class WriteBackgroundD3PD (JobProperty):
