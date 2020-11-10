@@ -219,6 +219,9 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/tcpufit',xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
     metGroup.defineHistogram('tcpufit_sumEt_log',title='tcpufit sumEt log;log_{10}(sumEt/GeV);Events',
                              path='Shifter/tcpufit',xbins=sumet_bins_log,xmin=sumet_min_log,xmax=sumet_max_log)
+    metGroup.defineHistogram('tcpufit_sumEt;tcpufit_sumEt_etweight',title='tcpufit sumEt (etweighted);sumEt [GeV];E_{T} weighted events',
+                             weight='tcpufit_Et',
+                             path='Shifter/tcpufit',xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
     metGroup.defineHistogram('tcpufit_sumE',title='tcpufit sumE;sumE [GeV];Events',
                              path='Shifter/tcpufit',xbins=sume_bins,xmin=sume_min,xmax=sume_max)
     metGroup.defineHistogram('tcpufit_sumE_log',title='tcpufit sumE log;log_{10}(sumE/GeV);Events',
@@ -253,7 +256,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/mht',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('mht_Ey_log',title='mht Missing E_{y} log;sgn(E_{y}) log_{10}(E_{y}/GeV);Events',
                              path='Shifter/mht',xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
-    metGroup.defineHistogram('mht_Et', title='mht E_{T};E_{T} [GeV];Events',
+    metGroup.defineHistogram('mht_Et', title='mht Missing E_{T};E_{T} [GeV];Events',
                              path='Shifter/mht',xbins=et_bins,xmin=et_min,xmax=et_max)
     metGroup.defineHistogram('mht_Et_log',title='mht Missing E_{T} log;log_{10}(E_{T}/GeV);Events',
                              path='Shifter/mht',xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
@@ -273,6 +276,35 @@ def TrigMETMonConfig(inputFlags):
                              weight='mht_Et',
                              path='Shifter/mht',
                              xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
+    ## HLT tc_em
+    metGroup.defineHistogram('tc_em_Ex',title='tc_em Missing E_{x};E_{x} [GeV];Events',
+                             path='Shifter/tc_em',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('tc_em_Ex_log',title='tc_em Missing E_{x} log;sgn(E_{x}) log_{10}(E_{x}/GeV);Events',
+                             path='Shifter/tc_em',xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+    metGroup.defineHistogram('tc_em_Ey',title='tc_em Missing E_{y};E_{y} [GeV];Events',
+                             path='Shifter/tc_em',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
+    metGroup.defineHistogram('tc_em_Ey_log',title='tc_em Missing E_{y} log;sgn(E_{y}) log_{10}(E_{y}/GeV);Events',
+                             path='Shifter/tc_em',xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
+    metGroup.defineHistogram('tc_em_Et', title='tc_em Missing E_{T};E_{T} [GeV];Events',
+                             path='Shifter/tc_em',xbins=et_bins,xmin=et_min,xmax=et_max)
+    metGroup.defineHistogram('tc_em_Et_log',title='tc_em Missing E_{T} log;log_{10}(E_{T}/GeV);Events',
+                             path='Shifter/tc_em',xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
+    metGroup.defineHistogram('tc_em_sumEt',title='tc_em sumEt;sumEt [GeV];Events',
+                             path='Shifter/tc_em',xbins=sumet_bins,xmin=sumet_min,xmax=sumet_max)
+    metGroup.defineHistogram('tc_em_sumEt_log',title='tc_em sumEt log;log_{10}(sumEt/GeV);Events',
+                             path='Shifter/tc_em',xbins=sumet_bins_log,xmin=sumet_min_log,xmax=sumet_max_log)
+    metGroup.defineHistogram('tc_em_phi',title='tc_em #phi;#phi;Events',
+                             path='Shifter/tc_em',xbins=phi_bins,xmin=phi_min,xmax=phi_max)
+    metGroup.defineHistogram('tc_em_phi;tc_em_phi_etweight', title='tc_em #phi (etweighted);#phi;E_{T} weighted events',
+                             weight='tc_em_Et',
+                             path='Shifter/tc_em',xbins=phi_bins,xmin=phi_min,xmax=phi_max)
+    metGroup.defineHistogram('tc_em_eta,cell_phi;tc_em_eta_phi', type='TH2F', title='tc_em #eta - #phi;#eta;#phi',
+                             path='Shifter/tc_em',
+                             xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
+    metGroup.defineHistogram('tc_em_eta,tc_em_phi;tc_em_eta_phi_etweight', type='TH2F', title='tc_em #eta - #phi (etweighted);#eta;#phi',
+                             weight='tc_em_Et',
+                             path='Shifter/tc_em',
+                             xbins=eta_bins_2d,xmin=eta_min,xmax=eta_max,ybins=phi_bins_2d,ymin=phi_min,ymax=phi_max)
     ## HLT pfsum
     metGroup.defineHistogram('pfsum_Ex',title='pfsum Missing E_{x};E_{x} [GeV];Events',
                              path='Shifter/pfsum',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
@@ -282,7 +314,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/pfsum',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('pfsum_Ey_log',title='pfsum Missing E_{y} log;sgn(E_{y}) log_{10}(E_{y}/GeV);Events',
                              path='Shifter/pfsum',xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
-    metGroup.defineHistogram('pfsum_Et', title='pfsum E_{T};E_{T} [GeV];Events',
+    metGroup.defineHistogram('pfsum_Et', title='pfsum Missing E_{T};E_{T} [GeV];Events',
                              path='Shifter/pfsum',xbins=et_bins,xmin=et_min,xmax=et_max)
     metGroup.defineHistogram('pfsum_Et_log',title='pfsum Missing E_{T} log;log_{10}(E_{T}/GeV);Events',
                              path='Shifter/pfsum',xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
@@ -304,7 +336,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/pfopufit',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('pfopufit_Ey_log',title='pfopufit Missing E_{y} log;sgn(E_{y}) log_{10}(E_{y}/GeV);Events',
                              path='Shifter/pfopufit',xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
-    metGroup.defineHistogram('pfopufit_Et', title='pfopufit E_{T};E_{T} [GeV];Events',
+    metGroup.defineHistogram('pfopufit_Et', title='pfopufit Missing E_{T};E_{T} [GeV];Events',
                              path='Shifter/pfopufit',xbins=et_bins,xmin=et_min,xmax=et_max)
     metGroup.defineHistogram('pfopufit_Et_log',title='pfopufit Missing E_{T} log;log_{10}(E_{T}/GeV);Events',
                              path='Shifter/pfopufit',xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
@@ -326,7 +358,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/cvfpufit',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('cvfpufit_Ey_log',title='cvfpufit Missing E_{y} log;sgn(E_{y}) log_{10}(E_{y}/GeV);Events',
                              path='Shifter/cvfpufit',xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
-    metGroup.defineHistogram('cvfpufit_Et', title='cvfpufit E_{T};E_{T} [GeV];Events',
+    metGroup.defineHistogram('cvfpufit_Et', title='cvfpufit Missing E_{T};E_{T} [GeV];Events',
                              path='Shifter/cvfpufit',xbins=et_bins,xmin=et_min,xmax=et_max)
     metGroup.defineHistogram('cvfpufit_Et_log',title='cvfpufit Missing E_{T} log;log_{10}(E_{T}/GeV);Events',
                              path='Shifter/cvfpufit',xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
@@ -348,7 +380,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/mhtpufit_pf',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('mhtpufit_pf_Ey_log',title='mhtpufit_pf Missing E_{y} log;sgn(E_{y}) log_{10}(E_{y}/GeV);Events',
                              path='Shifter/mhtpufit_pf',xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
-    metGroup.defineHistogram('mhtpufit_pf_Et', title='mhtpufit_pf E_{T};E_{T} [GeV];Events',
+    metGroup.defineHistogram('mhtpufit_pf_Et', title='mhtpufit_pf Missing E_{T};E_{T} [GeV];Events',
                              path='Shifter/mhtpufit_pf',xbins=et_bins,xmin=et_min,xmax=et_max)
     metGroup.defineHistogram('mhtpufit_pf_Et_log',title='mhtpufit_pf Missing E_{T} log;log_{10}(E_{T}/GeV);Events',
                              path='Shifter/mhtpufit_pf',xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
@@ -370,7 +402,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Shifter/mhtpufit_em',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('mhtpufit_em_Ey_log',title='mhtpufit_em Missing E_{y} log;sgn(E_{y}) log_{10}(E_{y}/GeV);Events',
                              path='Shifter/mhtpufit_em',xbins=ec_bins_log,xmin=ec_min_log,xmax=ec_max_log)
-    metGroup.defineHistogram('mhtpufit_em_Et', title='mhtpufit_em E_{T};E_{T} [GeV];Events',
+    metGroup.defineHistogram('mhtpufit_em_Et', title='mhtpufit_em Missing E_{T};E_{T} [GeV];Events',
                              path='Shifter/mhtpufit_em',xbins=et_bins,xmin=et_min,xmax=et_max)
     metGroup.defineHistogram('mhtpufit_em_Et_log',title='mhtpufit_em Missing E_{T} log;log_{10}(E_{T}/GeV);Events',
                              path='Shifter/mhtpufit_em',xbins=et_bins_log,xmin=et_min_log,xmax=et_max_log)
@@ -388,7 +420,7 @@ def TrigMETMonConfig(inputFlags):
                              path='Expert/tc',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
     metGroup.defineHistogram('tc_Ey',title='tc Missing E_{y};E_{y} [GeV];Events',
                              path='Expert/tc',xbins=ec_bins,xmin=ec_min,xmax=ec_max)
-    metGroup.defineHistogram('tc_Et', title='tc E_{T};E_{T} [GeV];Events',
+    metGroup.defineHistogram('tc_Et', title='tc Missing E_{T};E_{T} [GeV];Events',
                              path='Expert/tc',xbins=et_bins,xmin=et_min,xmax=et_max)
     ## Chain specific
     metChain1Group.defineHistogram('cell_Ex',title='cell Missing E_{x};E_{x} [GeV];Events',
