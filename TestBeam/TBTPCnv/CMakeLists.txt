@@ -13,7 +13,7 @@ atlas_add_library( TBTPCnv
 atlas_add_dictionary( TBTPCnvDict
                       TBTPCnv/TBTPCnvDict.h
                       TBTPCnv/selection.xml
-                      LINK_LIBRARIES TBTPCnv )
+                      LINK_LIBRARIES TBEvent TBTPCnv )
 
 # Tests in the package:
 function( _add_test name )

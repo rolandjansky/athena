@@ -1,24 +1,20 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file MuonRecFlags.py Flags to steer Muon Standalone Reconstruction
 
 ## @namespace python::MuonRecFlags @copydoc MuonRecFlags.py
 
-from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer,jobproperties
-from AthenaCommon.Logging import logging
+from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from RecExConfig.RecFlags import rec
-from MuonRecExample.MuonRecUtils import logMuon,logMuonResil,RecConfigInfo,fillJobPropertyContainer,SummaryJobProperty
+from MuonRecExample.MuonRecUtils import logMuon,fillJobPropertyContainer,SummaryJobProperty
 
-from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
-
-from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
-
-import copy
+from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags  # noqa: F401
+from MuonCnvExample.MuonCalibFlags import mdtCalibFlags   # noqa: F401
 
 logMuon.info("Importing %s", __name__)
 
@@ -550,12 +546,12 @@ class MuonRec(JobPropertyContainer):
 
 
         # do sync per technology for selected flags
-        MDT_on = self.doMDTs()
-        RPC_on = self.doRPCs()
-        CSC_on = self.doCSCs()
-        TGC_on = self.doTGCs()
-        sTGC_on = self.dosTGCs()
-        Micromegas_on = self.doMicromegas()
+        MDT_on = self.doMDTs()                # noqa: F841
+        RPC_on = self.doRPCs()                # noqa: F841
+        CSC_on = self.doCSCs()                # noqa: F841
+        TGC_on = self.doTGCs()                # noqa: F841
+        sTGC_on = self.dosTGCs()              # noqa: F841
+        Micromegas_on = self.doMicromegas()   # noqa: F841
         techList = technologies.split(',')
         for f in flagsOn:
             for tech in techList:

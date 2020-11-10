@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #########################################################################################
 #
@@ -7,7 +7,6 @@
 #########################################################################################
 
 import sys
-from six import itervalues
 from AthenaCommon.Logging import logging
 log = logging.getLogger(__name__)
 
@@ -45,13 +44,17 @@ class TriggerConfigHLT(object):
         return cls.__allChainDicts
 
     @classmethod
+    def configs(cls):
+        return cls.__allChainConfigs
+
+    @classmethod
     def dictsList(cls):
 
-        return list(itervalues(cls.__allChainDicts))
+        return list(cls.__allChainDicts.values())
 
     @classmethod
     def configsList(cls):
-        return list(itervalues(cls.__allChainConfigs))
+        return list(cls.__allChainConfigs.values())
 
     @classmethod
     def getChainDictFromChainName(cls, chainName):

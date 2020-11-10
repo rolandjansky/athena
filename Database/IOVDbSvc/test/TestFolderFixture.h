@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  */
@@ -20,24 +20,24 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IIOVDbSvc.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
 
 #include <string>
 #include <stdexcept>
 
 struct TestFolderFixtureBase{
   ServiceHandle<IIOVDbSvc> iovdbsvc;
-  ServiceHandle<StoreGateSvc> detStore;
+  ServiceHandle<ITagInfoMgr> tagInfoMgr;
   const std::string fixtureFoldername;
   const std::string invalidFoldername;
   const std::string dbFileName;
-  TestFolderFixtureBase(const std::string & dbName):iovdbsvc("IOVDbSvc", "test"),detStore("DetectorStore",""),
+  TestFolderFixtureBase(const std::string & dbName):iovdbsvc("IOVDbSvc", "test"), tagInfoMgr("TagInfoMgr",""),
   fixtureFoldername("/key1"),invalidFoldername("nonsense"),dbFileName(dbName) {
     if (not iovdbsvc.retrieve().isSuccess()){
       throw (std::runtime_error("IOVDbSvc could not be retrieved in the TestFolderFixture"));
     }
-    if (not detStore.retrieve().isSuccess()){
-      throw (std::runtime_error("detStore could not be retrieved in the TestFolderFixture"));
+    if (not tagInfoMgr.retrieve().isSuccess()){
+      throw (std::runtime_error("tagInfoMgr could not be retrieved in the TestFolderFixture"));
     }
     unlink (dbFileName.c_str());
     cool::IDatabaseSvc& dbSvc=cool::DatabaseSvcFactory::databaseService();

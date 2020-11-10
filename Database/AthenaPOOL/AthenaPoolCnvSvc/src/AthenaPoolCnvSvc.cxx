@@ -51,15 +51,17 @@ StatusCode AthenaPoolCnvSvc::initialize() {
    if (!m_outputStreamingTool.empty()) {
       m_streamClientFiles = m_streamClientFilesProp.value();
       ATH_CHECK(m_outputStreamingTool.retrieve());
-   }
-   if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
-      // Retrieve AthenaSerializeSvc
-      ATH_CHECK(m_serializeSvc.retrieve());
-      if (!m_outputStreamingTool.empty() && m_makeStreamingToolClient.value() == -1) {
+      if (m_makeStreamingToolClient.value() == -1) {
          // Initialize AthenaRootSharedWriter
          ServiceHandle<IService> arswsvc("AthenaRootSharedWriterSvc", this->name());
          ATH_CHECK(arswsvc.retrieve());
       }
+      // Put PoolSvc into share mode to avoid duplicating catalog.
+      m_poolSvc->setShareMode(true);
+   }
+   if (!m_inputStreamingTool.empty() || !m_outputStreamingTool.empty()) {
+      // Retrieve AthenaSerializeSvc
+      ATH_CHECK(m_serializeSvc.retrieve());
    }
    // Register this service for 'I/O' events
    ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
@@ -312,7 +314,7 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
    }
 
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
-      outputConnection = outputConnection + "?pmerge=localhost:1095";
+      outputConnection = outputConnection + m_streamPortString.value();
    }
    unsigned int contextId = outputContextId(outputConnection);
    try {
@@ -605,7 +607,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& outputConnectionSpe
          doCommit = true;
          ATH_MSG_DEBUG("commitOutput sending data.");
       }
-      outputConnection = outputConnection + "?pmerge=localhost:1095";
+      outputConnection = outputConnection + m_streamPortString.value();
    }
    unsigned int contextId = outputContextId(outputConnection);
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {
@@ -681,7 +683,7 @@ StatusCode AthenaPoolCnvSvc::disconnectOutput(const std::string& outputConnectio
       ATH_MSG_DEBUG("disconnectOutput not SKIPPED for server: " << m_streamServer);
    }
    if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
-      outputConnection = outputConnection + "?pmerge=localhost:1095";
+      outputConnection = outputConnection + m_streamPortString.value();
    }
    unsigned int contextId = outputContextId(outputConnection);
    StatusCode sc = m_poolSvc->disconnect(contextId);
@@ -828,7 +830,7 @@ Token* AthenaPoolCnvSvc::registerForWrite(Placement* placement, const void* obj,
          }
       } else {
          if (!m_outputStreamingTool.empty() && m_outputStreamingTool[0]->isClient() && m_streamMetaDataOnly) {
-            placement->setFileName(placement->fileName() + "?pmerge=localhost:1095");
+            placement->setFileName(placement->fileName() + m_streamPortString.value());
          }
          if (m_persSvcPerOutput) {
             char text[32];

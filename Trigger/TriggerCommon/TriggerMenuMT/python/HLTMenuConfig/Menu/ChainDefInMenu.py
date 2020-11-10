@@ -18,7 +18,7 @@ ChainProp = namedtuple_with_defaults("ChainProp",
                                      ['name', 'l1SeedThresholds', 'stream', 'groups', 'mergingStrategy', 'mergingOrder', 'mergingOffset', 'topoStartFrom'],
                                      {'stream':['Main'],
                                       'l1SeedThresholds': [], 
-                                      'mergingStrategy':'parallel', 
+                                      'mergingStrategy':'auto', 
                                       'mergingOrder': [], 
                                       'mergingOffset': -1, 
                                       'topoStartFrom': False})

@@ -27,10 +27,6 @@ namespace Trk {
   /** @brief Class-algorithm for track collection merging and removalof potential duplicate tracks. */
   class TrackCollectionMerger : public AthAlgorithm
     {
-    
-      ///////////////////////////////////////////////////////////////////
-      /** @brief Public methods:                                       */
-      ///////////////////////////////////////////////////////////////////
       
     public:
       
@@ -43,13 +39,6 @@ namespace Trk {
       StatusCode initialize();
       StatusCode execute();
       StatusCode finalize();
-
-      ///////////////////////////////////////////////////////////////////
-      /** @brief Print internal tool parameters and status.            */
-      ///////////////////////////////////////////////////////////////////
-
-      MsgStream&    dump     (MsgStream&    out) const;
-      std::ostream& dump     (std::ostream& out) const;
 
     protected:
 
@@ -72,23 +61,18 @@ namespace Trk {
 
       /** @brief A routine that merges the track collections. */
       StatusCode    mergeTrack(const TrackCollection* trackCol,
-                               Trk::PRDtoTrackMap &prd_to_track_map,
+                               Trk::PRDtoTrackMap *pPrdToTrackMap,
                                TrackCollection* outputCol);
-
-      MsgStream&    dumptools(MsgStream&    out) const;
-      MsgStream&    dumpevent(MsgStream&    out) const;
 
     private:
       bool  m_createViewCollection;     //!< option to create a view collection and not deep-copy tracks
      
-      bool m_updateSharedHitsOnly; //!< do not create the track summary again, but only update shared hits
+      bool m_updateSharedHits; //!< do not create the track summary again, but only update shared hits
 
       bool  m_updateAdditionalInfo;     //!< do not create the track summary again, but only update necessary things
 
 
     };
     
-    MsgStream&    operator << (MsgStream&   ,const TrackCollectionMerger&);
-    std::ostream& operator << (std::ostream&,const TrackCollectionMerger&); 
 }
 #endif // TrackCollectionMerger_H

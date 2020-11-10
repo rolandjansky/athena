@@ -3,11 +3,9 @@
 */
 
 #include "egammaConditions/EMClusterEtaPosErrorsMatrix.h"
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 #include <cmath>
 #include <utility>
-
-using CLHEP::GeV;
 
 // Constructors
 EMClusterEtaPosErrorsMatrix::EMClusterEtaPosErrorsMatrix() : 
@@ -47,7 +45,7 @@ double EMClusterEtaPosErrorsMatrix::getError(double eta, double clusterEnergy) c
   // for protection, to not divide by 0;
   if (clusterEnergy < 1.0) clusterEnergy = 1.0;
   
-  const double clusterEnergyGeV = clusterEnergy*(1./GeV);  //GeV
+  const double clusterEnergyGeV = clusterEnergy*(1./Gaudi::Units::GeV);  //GeV
   
   const double a = params->at(0); // "a" from DB
   const double b = params->at(1); // "b" from DB

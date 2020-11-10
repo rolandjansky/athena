@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file FourMomUtils/python/Bindings.py
 # @author Sebastien Binet <binet@cern.ch>
@@ -12,7 +12,7 @@ def _installBindings():
     import cppyy
     cppyy.load_library('liblibFourMomUtilsDict')
 
-    x = cppyy.gbl.xAOD.Helpers._importHelper()
+    x = cppyy.gbl.xAOD.Helpers._importHelper()  # noqa: F841
 
     return
 

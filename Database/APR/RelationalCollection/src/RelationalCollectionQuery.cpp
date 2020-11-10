@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RelationalCollectionQuery.h"
@@ -261,9 +261,8 @@ pool::RelationalCollection::RelationalCollectionQuery::prepareQuery( )
    if( m_readPrimaryKey )   addPrimaryKeyToSelect();
    
    // Add names of links tables used for Token column conditions to query table list.
-   for( vector< string >::const_iterator iName = m_linksTableNames.begin();
-	 iName != m_linksTableNames.end(); iName++ )   {
-      m_query->addToTableList( *iName );
+   for (const std::string& name : m_linksTableNames) {
+      m_query->addToTableList( name );
    }
 
    // Add data table associated with collection fragment to query table list.
@@ -372,9 +371,8 @@ pool::RelationalCollection::RelationalCollectionQuery::addToTokenOutputList( con
                            "RelationalCollection" );
   }
 
-  if( m_selectedTokenColumnNames.find(columnName) == m_selectedTokenColumnNames.end() )  {
+  if (m_selectedTokenColumnNames.insert(columnName).second) {
      // cout << "Adding token column to query output list:" << columnName << endl;
-     m_selectedTokenColumnNames.insert( columnName );
      m_outputTokenList->extend( columnName );
      addToCollectionFragmentList( m_description.collectionFragmentName( columnName ) );
   }

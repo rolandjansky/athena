@@ -24,7 +24,7 @@ class TrigByteStreamInputSvc(_TrigByteStreamInputSvc):
                                      xbins=400, xmin=0, xmax=200)
         self.MonTool.defineHistogram('TIME_getNext;TIME_getNext_extRange', path='EXPERT', type='TH1F',
                                      title='Time of DataCollector::getNext() calls;Time [ms];Calls',
-                                     xbins=400, xmin=0, xmax=2000)
+                                     xbins=400, xmin=0, xmax=2000, opt='kCanRebin')
         self.MonTool.defineHistogram('getNext_LBN,getNext_noEvent;NoEventFraction', path='EXPERT', type='TProfile',
                                      title='Fraction of getNext calls returning NO_EVENT;Lumi Block;Event fraction',
                                      xbins=100, xmin=0, xmax=100, opt='kCanRebin')
@@ -38,7 +38,7 @@ class TrigByteStreamCnvSvc(_TrigByteStreamCnvSvc):
                                      xbins=400, xmin=0, xmax=2)
         self.MonTool.defineHistogram('TIME_eventDone;TIME_eventDone_extRange', path='EXPERT', type='TH1F',
                                      title='Time of DataCollector::eventDone() calls;Time [ms];Calls',
-                                     xbins=400, xmin=0, xmax=200)
+                                     xbins=400, xmin=0, xmax=200, opt='kCanRebin')
         self.MonTool.defineHistogram('StreamTags', path='EXPERT', type='TH1F',
                                      title='Stream Tags produced by HLT;;Events',
                                      xbins=1, xmin=0, xmax=1)

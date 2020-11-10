@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-import six
-
 # def get_flag_item(chainName, L1itemsChainParts, groups):
 #     PhysicsStream = 'Main'
 
@@ -53,14 +51,14 @@ def setupMenu(flags):
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_2e3_etcut_L12EM3', groups=MultiElectronGroup),
 # this chain does not work yet        
-        ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
+   #     ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup)
     ]
 
     flags.Trigger.menu.photon = [
        ChainProp(name='HLT_g10_etcut_L1EM7',  groups=SinglePhotonGroup),
-       ChainProp(name='HLT_g15_etcut_L1EM12', groups=SinglePhotonGroup),
+       ChainProp(name='HLT_g11_etcut_L1EM7', groups=SinglePhotonGroup),
     ]
 
     flags.Trigger.menu.jet = [
@@ -70,8 +68,8 @@ def setupMenu(flags):
     ]
 
     flags.Trigger.menu.combined = [
-        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=CombinedGroup),
-        ChainProp(name='HLT_e7_etcut_mu12_L1EM7_MU10', groups=CombinedGroup)
+        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', mergingStrategy='parallel', groups=CombinedGroup),
+        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', mergingStrategy='parallel', groups=CombinedGroup)
     ]
 
 if __name__ == "__main__":
@@ -109,7 +107,7 @@ if __name__ == "__main__":
     # print all hypo algs and their hypo tools for debugging
     from AthenaCommon.CFElements import flatAlgorithmSequences    
     fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )
-    for seq, algs in six.iteritems (fs):
+    for seq, algs in fs.items():
         for alg in algs:
             if 'HypoTools' in alg._properties:
                 log.verbose("%s %s", alg.name, [ t.getFullJobOptName() for t in alg.HypoTools ])

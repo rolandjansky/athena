@@ -72,15 +72,8 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
     # acc = MdtCalibrationDbSvcCfg(flags)
     # result.merge(acc)
     
-    acc = MdtCalibrationDbToolCfg(flags)
-    mdt_calibibration_db_tool = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("CalibrationDbTool", mdt_calibibration_db_tool)
-
-    acc = MdtCalibrationToolCfg(flags)
-    mdt_calibibration_tool = acc.getPrimary()
-    result.merge(acc)
-    kwargs.setdefault("CalibrationTool", mdt_calibibration_tool)
+    kwargs.setdefault("CalibrationDbTool", result.popToolsAndMerge( MdtCalibrationDbToolCfg(flags)))
+    kwargs.setdefault("CalibrationTool", result.popToolsAndMerge( MdtCalibrationToolCfg(flags)) )
 
     kwargs.setdefault("DoMagneticFieldCorrection", flags.Muon.Calib.correctMdtRtForBField)
     kwargs.setdefault("DoWireSag", flags.Muon.useWireSagCorrections)
@@ -107,8 +100,8 @@ def MdtDriftCircleOnTrackCreatorCfg(flags,name="MdtDriftCircleOnTrackCreator", *
 
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("doMDT", False)
-                 
-    result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(name, **kwargs),primary=True)
+
+    result.addPublicTool(Muon__MdtDriftCircleOnTrackCreator(name, WasConfigured=True, **kwargs),primary=True)
     return result
     
 def MuonClusterOnTrackCreatorCfg(flags,name="MuonClusterOnTrackCreator", **kwargs):

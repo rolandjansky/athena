@@ -1,12 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from GaudiKernel.GaudiHandles import *
-from GaudiKernel.Proxy.Configurable import *
-from AthenaCommon.Include  import Include, IncludeError, include
 from AthenaCommon.Logging  import logging
-from AthenaCommon.AppMgr   import ToolSvc
-from AthenaCommon          import CfgMgr
-
 from InDetVKalVxInJetTool.InDetVKalVxInJetToolConf import InDet__InDetVKalVxInJetTool
 
 # define the class
@@ -14,7 +8,6 @@ class InDetVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
 
     def __init__(self, name = 'InDetVKalVxInJetFinder'  ):        
 
-        from __main__ import ToolSvc
         mlog = logging.getLogger( 'InDetVKalVxInJetFinder::__init__ ' )
         mlog.info("entering")
         #----------------------
@@ -24,6 +17,7 @@ class InDetVKalVxInJetFinder( InDet__InDetVKalVxInJetTool ):
         SVertexFitterTool = Trk__TrkVKalVrtFitter(name="SVertexFitterTool",
                                                   Extrapolator="Trk::Extrapolator/AtlasExtrapolator"
                                                  )
+        from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += SVertexFitterTool
         #----------------------
         # Secondary vertex finder itself

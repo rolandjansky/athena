@@ -1,19 +1,17 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_MDTCOOLSTRSVC_H
 #define MUONCONDSVC_MDTCOOLSTRSVC_H
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "AthenaBaseComps/AthService.h"
 
 #include "MuonCondInterface/MdtICoolStrSvc.h"
 #include "GaudiKernel/Service.h"
-#include "StoreGate/StoreGate.h"
 namespace MuonCalib {
 class MdtCoolStrSvc : public AthService, virtual MdtICoolStrSvc
 {

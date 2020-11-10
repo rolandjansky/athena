@@ -277,6 +277,9 @@ class CaloClusterCorrSetup:
                             this_order = vorder
                         break
 
+            elif version[0] == '@' and not corrlist:
+                this_version = version #pragma: NO COVER
+
             if this_version == '@':
                 this_version = version
 
@@ -714,6 +717,8 @@ def makecorr (flags,
             tmp = tmp + "-" + version
         sgkey = "%s.%s" % (corrclass, tmp)
         fulltag = "%s.%s%s" % (corrclass, generation, tmp)
+        if flags.Input.isMC:
+            fulltag = fulltag[0:4] + 'Ofl' + fulltag[4:]
 
     # The cool folder name.
     if not flags.Input.isMC:

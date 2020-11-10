@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The python script contains functions which will set up default b-tagging configurations for a certain jet-collection.
 # Author: Wouter van den Wollenberg (wwollenb@nikhef.nl, wouter.van.den.wollenberg@cern.ch)
@@ -195,7 +195,7 @@ def SetupConditionAlgorithm(ConfInstance=None):
       if globalflags.DataSource()=='data':
           readkeycalibpath = readkeycalibpath.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
           connSchema = "GLOBAL"
-      Taggers = ['IP2D','IP3D','SV1','JetFitterNN','SoftMu', 'MV2c10', 'MV2c100', 'MV2c10mu', 'MV2c10rnn', 'MV2cl100','RNNIP', 'MultiSVbb1', 'MultiSVbb2', 'DL1', 'DL1mu', 'DL1rnn']
+      Taggers = ['IP2D','IP3D','SV1','SoftMu','JetFitterNN','MV2c10']
       #JetVertexCharge disable ATLASRECTS-4506
       histoskey = "JetTagCalibHistosKey"
       conddb.addFolder(connSchema, readkeycalibpath, className='CondAttrListCollection')
@@ -368,10 +368,6 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 #            addTool('IP2DSpcNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'IP3D' in TaggerList:
     ConfInstance.addTool('IP3DTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-  if 'RNNIP' in TaggerList:
-    ConfInstance.addTool('RNNIPTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel)
-  if 'RNNIPNeg' in TaggerList:
-    ConfInstance.addTool('RNNIPNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel)
 
 #          if BTaggingFlags.IP3DFlip:
 #            addTool('IP3DFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)

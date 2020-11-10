@@ -150,7 +150,8 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         // element->getIdHelper()->show(element->identify());
         //
   
-        ATH_MSG_ALWAYS(" center = " << element->center());
+        ATH_MSG_ALWAYS(" center (x,y,z) = " << element->center().x() << "," << element->center().y() << "," << element->center().z());
+	ATH_MSG_ALWAYS(" center (r,phi,z) = " << element->center().perp() << "," << element->center().phi() << "," <<element->center().z());
         ATH_MSG_ALWAYS(" sin(tilt), sin(stereo) = " <<  element->sinTilt() << " " 
                        << element->sinStereo());
         ATH_MSG_ALWAYS(" width, minWidth, maxWidth, length (mm) = " 
@@ -166,13 +167,16 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
                          << m_siConditionsTool->temperature(hashId) << " "
                          << m_siConditionsTool->biasVoltage(hashId) << " "
                          << m_siConditionsTool->depletionVoltage(hashId));
-        }
+        
 
-        ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
-            << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
-            << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
+	  ATH_MSG_ALWAYS(" Lorentz correction (mm), tanLorentzPhi = "
+			 << m_siLorentzAngleTool->getLorentzShift(hashId)/CLHEP::mm << " "
+			 << m_siLorentzAngleTool->getTanLorentzAngle(hashId));
+
+	}
 
         ATH_MSG_ALWAYS(" HashId, Id : " << hashId << "\t" << element->identify().getString());
+	
 
         // Make some consistency tests for the identifier.
         Identifier idTest;
@@ -207,6 +211,8 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
       } else {
         // ATH_MSG_ALWAYS("Missing element!!!!!!!!!!!");
       }
+      //add divider between elements for readability
+	ATH_MSG_ALWAYS("-----------------------------");
     }
   }
   // Testing numerology

@@ -1,4 +1,4 @@
-import commands
+import os
 
 
 if not 'SubDet' in dir():
@@ -17,7 +17,13 @@ if not 'OutputRootFileName' in dir():
    OutputRootFileName = BaseFileName+".root"
    
 if not 'OutputDir' in dir():
-      OutputDir  = commands.getoutput("pwd")
+   OutputDir = os.getcwd()
+
+if not 'SCDecodeAllContainers' in dir():
+   SCDecodeAllContainers=False
+
+if not 'SCProtectSourceId' in dir():
+   SCProtectSourceId=False
 
 if not 'FilePrefix' in dir():
    if (int(RunNumberList[0]))<99800 :
@@ -27,6 +33,16 @@ if not 'FilePrefix' in dir():
      
 if not 'InputDir' in dir():
    InputDir = "/castor/cern.ch/grid/atlas/DAQ/lar/ElecCalib/2014/"+RunNumberList[0]
+
+#if not 'FillSCDataBCID' in dir():
+#   FillSCDataBCID=-1
+if not 'FillLatomeSourceID' in dir():
+   FillLatomeSourceID=-1
+if not 'OverwriteEventNumber' in dir():
+   OverwriteEventNumber=False
+
+if not 'BSConverter_Add_BCID_LATOMEID' in dir():
+   BSConverter_Add_BCID_LATOMEID=False
    
 if not 'FullFileName' in dir():
    if not 'Trigger' in dir():
@@ -99,34 +115,56 @@ if SuperCells:
    LArCalibIdMappingSC()
 
 
-
 svcMgr.IOVDbSvc.GlobalTag=LArCalib_Flags.globalFlagDB
 svcMgr.IOVDbSvc.DBInstance=""
 
-from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
-
-if 'InputDBConnectionBadChannel' not in dir():
-   InputDBConnectionBadChannel = "<db>COOLONL_LAR/CONDBR2</db>"
+if 'BadChannelsFolder' not in dir():
    BadChannelsFolder="/LAR/BadChannels/BadChannels"
-   BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,"-RUN2-UPD1-00")
-   LArBadChannelAccess(dbString=BadChannelsFolder+InputDBConnectionBadChannel+"<tag>"+BadChannelsTagSpec+"</tag>")
-else:
-   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
-   #def DBConnectionFile(sqlitefile):  
-   #   return "sqlite://;schema="+sqlitefile+";dbname=CONDBR2"
-   #InputDBConnectionBadChannel = DBConnectionFile(InputDBConnectionBadChannel)
-   #BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,"")
-   LArBadChannelAccess(dbString=BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-
-
-if not SuperCells:
-   from LArBadChannelTool.LArBadFebAccess import LArBadFebAccess
+if 'MissingFEBsFolder' not in dir():
    MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
-   MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,"-RUN2-UPD1-01")
-   LArBadFebAccess(dbString=MissingFEBsFolder+InputDBConnectionBadChannel+"<tag>"+MissingFEBsTagSpec+"</tag>")
+
+if not 'ReadBadChannelFromCOOL' in dir():
+   ReadBadChannelFromCOOL = True   
+
+if ( ReadBadChannelFromCOOL ):      
+   if 'InputBadChannelSQLiteFile' in dir():
+      InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
+   else:
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLOFL_LAR/" + conddb.dbname
+
+if 'BadChannelsLArCalibFolderTag' in dir() :
+   BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
+   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",
+                    className="CondAttrListCollection")
+else :
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+
+
+if 'MissingFEBsLArCalibFolderTag' in dir() :
+   MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
+   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+else :
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
+
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>")
+
+
+
+   
 
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()  
+
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -139,20 +177,23 @@ if not 'FullFileName' in dir():
 else :   
    svcMgr.EventSelector.Input=FullFileName
    
-scvMgr.EventSelector.MaxBadEvents = 0
+svcMgr.EventSelector.MaxBadEvents = 0
+
 svcMgr.ByteStreamCnvSvc.InitCnvs += [ "EventInfo"]
 
 theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
+
+
 if not SuperCells:
    from LArByteStream.LArByteStreamConf import LArRodDecoder
    svcMgr.ToolSvc += LArRodDecoder()
-
    theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
    theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/HIGH"  ]
    theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/MEDIUM"]
    theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/LOW"   ]
    theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/FREE"   ]
 
+   # this will go outside SC loop
    include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")       
    topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
 
@@ -165,21 +206,46 @@ if not SuperCells:
    topSequence+=theLArBadEventCatcher    
 else:
    theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/SC"  ]
+   if SCDecodeAllContainers:
+      theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/SC_ADC_BAS"  ]
+      theByteStreamAddressProviderSvc.TypeNames += [ "LArRawSCContainer/SC_ET"  ]
+      theByteStreamAddressProviderSvc.TypeNames += [ "LArRawSCContainer/SC_ET_ID"  ]
+      theByteStreamAddressProviderSvc.TypeNames += [ "LArLATOMEHeaderContainer/SC_LATOME_HEADER"  ]
+   from LArByteStream.LArByteStreamConf import LArLATOMEDecoder 
+   theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
+   theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
+   theLArLATOMEDecoder.DumpFile = SC_DumpFile
+   theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
+   theLArLATOMEDecoder.SampleShift = SC_SampleShift
+   theLArLATOMEDecoder.ProtectSourceId = SCProtectSourceId
+   svcMgr.ToolSvc += theLArLATOMEDecoder
 
 from LArCalibTools.LArCalibToolsConf import *
 
 LArDigits2Ntuple=LArDigits2Ntuple("LArDigits2Ntuple")
-LArDigits2Ntuple.ContainerKey = Gain
+#LArDigits2Ntuple.ContainerKey = Gain
+contkeys = []
+contkeys.append(Gain)
+
+
+if SuperCells and SCDecodeAllContainers:
+   contkeys.append("SC_ADC_BAS")
+   contkeys.append("SC_ET")
+   contkeys.append("SC_ET_ID")
+   contkeys.append("SC_LATOME_HEADER")
+LArDigits2Ntuple.ContainerKeys = contkeys
 LArDigits2Ntuple.AddFEBTempInfo=False
 if 'FTlist' in dir():
    LArDigits2Ntuple.FTlist=FTlist
+
+LArDigits2Ntuple.isSC = SuperCells
+
+LArDigits2Ntuple.FillBCID = True
 if SuperCells:
-   #from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-   #topSequence+=xAODMaker__EventInfoCnvAlg()
-   LArDigits2Ntuple.isSC = True
    LArDigits2Ntuple.RealGeometry = True
-   LArDigits2Ntuple.OffId = True
-   LArDigits2Ntuple.FillBCID = True
+   LArDigits2Ntuple.OffId = True   
+   LArDigits2Ntuple.AddBadChannelInfo = False
+   LArDigits2Ntuple.OverwriteEventNumber = OverwriteEventNumber
 
 topSequence+= LArDigits2Ntuple
 
@@ -190,10 +256,12 @@ svcMgr += NTupleSvc()
 svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputDir + "/" +OutputRootFileName+"' OPT='NEW'" ]
 
 AthenaEventLoopMgr=Service("AthenaEventLoopMgr")
-AthenaEventLoopMgr.OutputLevel=ERROR
+AthenaEventLoopMgr.OutputLevel=WARNING
 
 theApp.EvtMax=EvtMax
 svcMgr.MessageSvc.OutputLevel=WARNING
+
+LArDigits2Ntuple.OutputLevel=WARNING
 
 #DetStore=Service("DetectorStore");
 #DetStore.dump=TRUE

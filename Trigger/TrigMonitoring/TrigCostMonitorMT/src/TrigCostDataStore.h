@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTMONITORMT_TRIGCOSTDATASTORE_H
@@ -51,6 +51,15 @@ class TrigCostDataStore {
    * @returns Success unless and out-of-range slot, then Failure
    */
   StatusCode insert(const AlgorithmIdentifier& ai, const PAYLOAD& payload);
+
+  /**
+   * @brief Inserts the entry in the vector payload into the map
+   * @param[in] ai The AlgorithmIdentifier to insert for (the key)
+   * @param[in] entry The entry to record
+   * @returns Success unless and class is not initialized, then Failure
+   */
+  template<typename ENTRY>
+  StatusCode push_back(const AlgorithmIdentifier& ai, const ENTRY& entry);
 
   /**
    * @brief Retrieve a payload from the map given an AlgorithmIdentifier

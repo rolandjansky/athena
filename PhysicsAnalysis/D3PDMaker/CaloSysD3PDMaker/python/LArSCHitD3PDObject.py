@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import CaloSysD3PDMaker
 import D3PDMakerCoreComps
@@ -9,20 +9,20 @@ from math import pi
 def _hookForLArSCHitD3PDObject_(c, *arg, **kw ):
 
     basFiller = getattr(c, c.name() + '_Basic', None)
-    print "getattr(c, c.name()) / Type= ", type(basFiller)
-    if "CaloEtaCut" in kw.keys():
+    print("getattr(c, c.name()) / Type= ", type(basFiller))
+    if "CaloEtaCut" in list(kw.keys()):
         basFiller.CaloEtaCut = kw["CaloEtaCut"]
-    if "CaloPhiCut" in kw.keys():
+    if "CaloPhiCut" in list(kw.keys()):
         basFiller.CaloPhiCut = kw["CaloPhiCut"]
-    if "CaloLayers" in kw.keys():
+    if "CaloLayers" in list(kw.keys()):
         basFiller.CaloLayers = kw["CaloLayers"]
-    if "CaloDetectors" in kw.keys():
+    if "CaloDetectors" in list(kw.keys()):
         basFiller.CaloDetectors = kw["CaloDetectors"]
 
-    print "%s - CaloEtaCut = " % (basFiller.name()), basFiller.CaloEtaCut
-    print "%s - CaloPhiCut = " % (basFiller.name()), basFiller.CaloPhiCut
-    print "%s - CaloLayersCut = " % (basFiller.name()), basFiller.CaloLayers
-    print "%s - CaloDetectors = " % (basFiller.name()), basFiller.CaloDetectors
+    print("%s - CaloEtaCut = " % (basFiller.name()), basFiller.CaloEtaCut)
+    print("%s - CaloPhiCut = " % (basFiller.name()), basFiller.CaloPhiCut)
+    print("%s - CaloLayersCut = " % (basFiller.name()), basFiller.CaloLayers)
+    print("%s - CaloDetectors = " % (basFiller.name()), basFiller.CaloDetectors)
 
     return 
 

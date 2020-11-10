@@ -1,29 +1,15 @@
-################################################################################
-# Package: LUCID_RawEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LUCID_RawEvent )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/AthContainers )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( LUCID_RawEvent
                    src/*.cxx
                    PUBLIC_HEADERS LUCID_RawEvent
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthContainers
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES AthContainers AthenaKernel )
 
 atlas_add_dictionary( LUCID_RawEventDict
                       LUCID_RawEvent/LUCID_RawEventDict.h
                       LUCID_RawEvent/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers LUCID_RawEvent )
-
+                      LINK_LIBRARIES LUCID_RawEvent )

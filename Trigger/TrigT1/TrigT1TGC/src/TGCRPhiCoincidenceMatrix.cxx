@@ -73,7 +73,6 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
     int ptOut = -99;
     int chargeOut = 2;
     int CoincidenceTypeOut=-1;
-    bool isgoodMFOut=false;
 
     if(m_sectorLogic->getRegion()==Endcap){
       subsector = 4*(2*m_SSCId+m_r-1)+m_phi[j];
@@ -90,7 +89,6 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
                             subsector,type,m_dR,m_dPhi[j]); // this function will be implemented. 
       ptOut = std::abs(pt);
       chargeOut = pt<0 ? 0:1;
-      //isgoodMFOut : will be set.
       
       CoincidenceTypeOut=(type==0);
     }
@@ -119,7 +117,6 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
       out->setRoI(subsector);
       out->setCharge(chargeOut);
       out->setCoincidenceType(CoincidenceTypeOut);
-      out->setGoodMFFlag(isgoodMFOut);
       j0 = j;
     }
   }

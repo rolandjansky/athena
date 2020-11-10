@@ -24,7 +24,7 @@ if __name__=="__main__":
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Input.isMC = True
     ConfigFlags.Input.ProjectName = "mc16_13TeV"
-    ConfigFlags.Input.RunNumber = [300000] # MC16c 2017 run number
+    ConfigFlags.Input.RunNumber = 300000 # MC16c 2017 run number
     ConfigFlags.addFlag("Input.InitialTimeStamp", 1500000000) # MC16c 2017 time stamp
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-18"
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2015-03-01-00"

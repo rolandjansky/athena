@@ -5,6 +5,7 @@
 #include "xAODMissingET/versions/MissingETAssociationMap_v1.h"
 
 #include "xAODTracking/TrackParticle.h"
+#include "xAODPFlow/FlowElement.h"
 #include "xAODJet/JetAttributes.h"
 
 #include "xAODBase/IParticleContainer.h"
@@ -222,6 +223,7 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
       else {continue;}
     case MissingETBase::UsageHandler::ParticleFlow:
       if((*iSig)->type()==xAOD::Type::ParticleFlow) {break;}
+      else if((*iSig)->type()==xAOD::Type::FlowElement && ((static_cast<const xAOD::FlowElement*>(*iSig))->signalType() & xAOD::FlowElement::PFlow)) {break;}
       else {continue;}
     case MissingETBase::UsageHandler::TruthParticle:
       if((*iSig)->type()==xAOD::Type::TruthParticle) {break;}
@@ -229,7 +231,7 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
     case MissingETBase::UsageHandler::AllCalo:
       if((*iSig)->type()!=xAOD::Type::TrackParticle) {break;}
       else {continue;}
-    default: continue;
+    default: {continue;}
     }
 
     size_t assocIndex = findIndexByJetConst(*iSig);

@@ -94,10 +94,8 @@ StatusCode TileRawChannelMaker::execute() {
   // create  RawChannel Containers for all sub-algs
   for (ToolHandle<TileRawChannelBuilder>& rawChannelBuilder : m_tileRawChannelBuilderList) {
     ATH_CHECK( rawChannelBuilder->createContainer() );
+    rawChannelBuilder->resetDrawer();
   }
-
-  //make sure that we clean memory about errors in a drawer
-  TileRawChannelBuilder::resetDrawer();
 
   // clean memory about overflows
   if (m_fitOverflow) {

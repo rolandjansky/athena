@@ -33,10 +33,10 @@ def main():
         "Trig"     : ["^HLT", "^LVL1", "^xTrig", "^Trig", "^CTP_Decision", "^TrigInDetTrackTruthMap", "^TrigNavigation", ".*TriggerTowers", "TileTTL1MBTS", "^TileL2Cnt", "RoIBResult"],
         "MET"      : ["^MET", "^METMAP", "JEMEtSums"],
         "EvtId"    : ["^ByteStreamEventInfo", "^EventInfo", "^McEventInfo", "^LumiBlockN", "^EventWeight", "^RunNumber", "^ConditionsRun", "^EventTime", "^BunchId", "^EventNumber"],
-        "tau"      : ["^Tau", "^CombinedStauTrackParticles", "^ExtrapolatedStauTrackParticles"],
+        "tau"      : ["^Tau", "^DiTauJets"],
         "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects"],
         "egamma"   : ["^GSF", "^ForwardElectron", "^egamma", "^Electron", "^Photon"],
-        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", "^Staus", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks"],
+        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", ".*Stau", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", "^sTGC", "^Micromegas", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks"],
         "BTag"     : ["^BTag"],
         "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
         "Jet"      : ["^CamKt", "^AntiKt", "^Jet"],
@@ -131,7 +131,7 @@ def printFileInfo( fileName, categoryStrings ):
 
     # Get all the branches of the file:
     branches = t.GetListOfBranches()
-    for i in xrange( branches.GetEntries() ):
+    for i in range( branches.GetEntries() ):
         # Get the branch:
         branch = branches.At( i )
         # A little security check:
@@ -280,11 +280,11 @@ def printFileInfo( fileName, categoryStrings ):
     print( "=" * 80 )
     print( "CSV for categories disk size/evt and fraction:" )
     # print out comment separated list in descending order
-    print ",".join(dsName[::-1])
+    print( ",".join(dsName[::-1]))
     b = ['{:<0.3f}'.format(i)  for i in ds[::-1]]
-    print ",".join(b)
+    print( ",".join(b))
     b = ['{:<0.3f}'.format(i)  for i in dsFrac[::-1]]
-    print ",".join(b)
+    print( ",".join(b))
     print( "=" * 80 )
     print( "" )
 

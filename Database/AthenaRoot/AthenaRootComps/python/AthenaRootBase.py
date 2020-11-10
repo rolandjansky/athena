@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file AthenaRootComps/python/AthenaRootBase.py
 # @purpose make the Athena framework write a set of ROOT files
@@ -11,7 +11,7 @@ def _loadBasicAthenaRoot():
 
      from AthenaCommon import CfgMgr
      ## make sure we have been -at least- minimally correctly configured
-     import AthenaCommon.AtlasUnixStandardJob
+     import AthenaCommon.AtlasUnixStandardJob  # noqa: F401
 
      from AthenaCommon.Logging import logging
      from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
@@ -21,8 +21,6 @@ def _loadBasicAthenaRoot():
 
      svcMgr += CfgMgr.Athena__RootSvc("AthenaRootSvc")
      svcMgr += CfgMgr.Athena__RootCnvSvc("AthenaRootCnvSvc")
-
-     from AthenaCommon.AppMgr import theApp
 
      if not hasattr (svcMgr, 'EventPersistencySvc'):
          svcMgr += CfgMgr.EvtPersistencySvc( "EventPersistencySvc" )

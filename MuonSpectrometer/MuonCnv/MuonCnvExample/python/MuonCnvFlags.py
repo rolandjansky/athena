@@ -1,15 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer,jobproperties
-from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.DetFlags import DetFlags
-from RecExConfig.RecFlags import rec as recFlags
-import re 
+import re
 logMuon = logging.getLogger(__name__)
 
 from MuonCnvExample.MuonCnvUtils import setJobPropertyDefault
@@ -37,6 +33,7 @@ class MuonCnv(JobPropertyContainer):
 #                else:
 #                    setDefault(self.MdtCablingMode, 'auto')
 
+        from AthenaCommon.GlobalFlags import globalflags
 
         # RPC
         if globalflags.InputFormat.is_bytestream() and globalflags.DataSource() == 'geant4':

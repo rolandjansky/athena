@@ -63,14 +63,18 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum( const VecAccumulator2DMap& ac
 ///
 /// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
 ///
-void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname, int lumiblock, float* values) const {
+void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname, int lumiblock, float* values, int nlayers) const {
   ATH_MSG_VERBOSE( "in fill1DProfLumiLayers()" );
 
   // Define the monitored variables
   auto lb = Monitored::Scalar<int>( prof1Dname + "_lb", lumiblock );
   auto val = Monitored::Scalar<float>( prof1Dname + "_val", 1.0);
 
-  for (int i = 0; i < PixLayers::COUNT; i++) {
+  int i_start = 0;
+  int i_end   = PixLayers::COUNT;
+  if (nlayers == PixLayers::NFEI3LAYERS) i_end = nlayers;
+  if (nlayers == PixLayers::COUNT - PixLayers::NFEI3LAYERS) i_start = PixLayers::NFEI3LAYERS;
+  for (int i = i_start; i < i_end; i++) {
     val = values[i];
     fill( pixLayersLabel[i], lb, val);
   }
@@ -124,7 +128,7 @@ void PixelAthMonitoringBase::fillFromArrays( const std::string& namePP0, Accumul
       // in the same plot 
       // the shift (b-1)*8 applies per disk counter b
       // (there are in total 8 sectors/disk)
-      auto pospp0x = Monitored::Scalar<int>( pospp0varx, (a-1)/6 + (b-1)*8 + 1);
+      auto pospp0x = Monitored::Scalar<int>( pospp0varx, a/6 + b*8);
       auto posx    = Monitored::Scalar<int>( posvarx, b);
       auto valp    = Monitored::Scalar<float>( valvarp, pixarrays.DA[a][b]);
       auto valm    = Monitored::Scalar<float>( valvarm, pixarrays.DA[a][b]*weightPix);
@@ -191,7 +195,7 @@ void PixelAthMonitoringBase::fillFromArrays( const std::string& namePP0, Accumul
       auto valp  = Monitored::Scalar<float>( valvarp, pixarrays.IBL[a][b]);
       auto valm  = Monitored::Scalar<float>( valvarm, pixarrays.IBL[a][b]*weightIBL);
       if (pixarrays.IBL[a][b]>-1) {
-	if (b>0.5*nbinb) {
+	if ( b > (0.5*nbinb-1) ) {
 	  fill("IBLA", pospp0x, valp);
 	} else {
 	  fill("IBLC", pospp0x, valp);

@@ -158,7 +158,7 @@ pool::TokenList::operator[]( unsigned int index ) const
 std::ostream&
 pool::TokenList::toOutputStream( std::ostream& os ) const
 {
-   for( size_t i = 0; i <= m_tokenVector.size(); ++i ) {
+   for( size_t i = 0; i < m_tokenVector.size(); ++i ) {
       os << "[" << m_tokenNames[i] << " (Token) : " << m_tokenVector[i]->toString()<< "]";
    }
 

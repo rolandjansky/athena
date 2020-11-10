@@ -32,7 +32,7 @@
 from __future__ import print_function
 
 class AlgScheduler:
-    def __init__(self,theSched=None):
+    def __init__(self,theSched=None,thePrec=None):
         """Setup Algorithm Scheduler"""
 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -50,8 +50,17 @@ class AlgScheduler:
         else :
             svcMgr += theSched
             self.SchedulerSvc = theSched
-            
+
+        if (thePrec is None) :
+            from GaudiHive.GaudiHiveConf import PrecedenceSvc
+            svcMgr += PrecedenceSvc()
+            self.PrecedenceSvc = svcMgr.PrecedenceSvc
+        else :
+            svcMgr += thePrec
+            self.PrecedenceSvc = thePrec
+
         self.SchedulerSvc.OutputLevel = INFO
+        self.PrecedenceSvc.OutputLevel = INFO
         self.SchedulerSvc.CheckDependencies = True
         self.SchedulerSvc.ThreadPoolSize = jps.ConcurrencyFlags.NumThreads()
 
@@ -75,6 +84,7 @@ class AlgScheduler:
 ## change the output level
     def OutputLevel(self,level) :
         self.SchedulerSvc.OutputLevel = level
+        self.PrecedenceSvc.OutputLevel = level
         
 #
 ## control checking of data deps at beginning of job for unmet input deps
@@ -131,6 +141,18 @@ class AlgScheduler:
             self.SchedulerSvc.VerboseSubSlots = enable
         else :
             self.log.warning(self.SchedulerSvc.getFullName() + " has no property \"VerboseSubSlots\"")
+
+#
+## set algorithm ranking rule
+    def setAlgRanking(self,rule="PCE"):
+        if ( 'Optimizer' in self.SchedulerSvc.properties() ):
+            self.SchedulerSvc.Optimizer = rule
+        else :
+            self.log.warning(self.SchedulerSvc.getFullName() + " has no property \"Optimizer\"")
+        if ( 'TaskPriorityRule' in self.PrecedenceSvc.properties() ):
+            self.PrecedenceSvc.TaskPriorityRule = rule
+        else :
+            self.log.warning(self.PrecedenceSvc.getFullName() + " has no property \"TaskPriorityRule\"")
 
 #
 ## explicitly set the thread pool size

@@ -88,7 +88,7 @@ class TestLogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
                         self.msg.error("Algorithm %s not found" , tokval)
                         return False
                     else:
-                        self.msg.debug("Found algorithm: %s -> %s" % (tokval, _alg))
+                        self.msg.debug("Found algorithm: %s -> %s", tokval, _alg)
            
 
                     exec('self.%s = _alg' % tokval)
@@ -123,7 +123,7 @@ class TestLogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
     def execute(self):
 
         for k,v in self.algdict.iteritems():
-            self.msg.debug("Alg %s : %s" % (k, v.filterPassed()))
+            self.msg.debug("Alg %s : %s", k, v.filterPassed())
             pass
 
         response = bool(eval(self.cmd))

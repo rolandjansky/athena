@@ -8,7 +8,7 @@ atlas_add_poolcnv_library( InDetSimEventAthenaPoolPoolCnv
    src/*.h src/*.cxx
    FILES InDetSimEvent/SiHitCollection.h
          InDetSimEvent/TRTUncompressedHitCollection.h
-   LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities AtlasSealCLHEP
+   LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities
                   GaudiKernel InDetSimEventTPCnv InDetSimEvent )
 
 # Install files from the package:

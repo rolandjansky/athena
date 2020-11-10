@@ -137,10 +137,12 @@ namespace MuonCombined {
       }
       ATH_MSG_DEBUG("Creation of Muon from InDetCandidates done");
     }
-    for( auto can : resolvedMuonCandidates )  {
-      ATH_MSG_DEBUG("New MuonCandidate");
-      create(*can,outputData);
-      ATH_MSG_DEBUG("Creation of Muon from MuonCandidates done");
+    if (!m_requireIDTracks){ //only build SA muons if ID tracks are not required
+      for( auto can : resolvedMuonCandidates )  {
+	ATH_MSG_DEBUG("New MuonCandidate");
+	create(*can,outputData);
+	ATH_MSG_DEBUG("Creation of Muon from MuonCandidates done");
+      }
     }
 
     // Add alignment effects on tracks to ME and CB tracks
@@ -320,13 +322,6 @@ namespace MuonCombined {
     // check if there is a cluster container, if yes collect the cells around the muon and fill
     // Etcore variables for muon
     if(m_useCaloCells) collectCells(*muon,outputData.clusterContainer,caloExtension.get());
-    if (m_requireIDTracks){
-      if (!muon->trackParticle(xAOD::Muon::TrackParticleType:: InnerDetectorTrackParticle)){
-	ATH_MSG_DEBUG("The muon does not have any associated ID track although it should have. Discard it");
-	outputData.muonContainer->pop_back();
-	return nullptr;
-      }
-    }
 
     return muon;
   }
@@ -1136,7 +1131,7 @@ namespace MuonCombined {
             continue;
           }
           alreadyIncluded.insert(trackHash(primaryTag->primaryTrack()));
-	  //create a copy for ambi processing to avoid const_cast
+	  //create a copy for ambi processing
 	  //all we care about in the end is getting the right candidates anyway
 	  //muonTracks takes ownership of the memory
           Trk::Track* tmpTrack=new Trk::Track(*primaryTag->primaryTrack());

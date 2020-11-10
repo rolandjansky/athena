@@ -62,16 +62,16 @@ class SensorSimPlanarTool : public SensorSimTool {
     Gaudi::Property<double> m_trappingTimeHoles
     {this, "trappingTimeHoles", 0.0, "Characteristic time till hole is trapped [ns]"};
 
-    Gaudi::Property<int> m_fluence
+    Gaudi::Property<double> m_fluence
     {this, "fluence", 0, "this is the fluence benchmark, 0-6. 0 is unirradiated, 1 is start of Run 2, 5 is end of 2018 and 6 is projected end of 2018"};
 
-    Gaudi::Property<int> m_fluenceB
+    Gaudi::Property<double> m_fluenceB
     {this, "fluenceB", -1, "fluence detector has recieved in neqcm2 at the B layer."};
 
-    Gaudi::Property<int> m_fluence1
+    Gaudi::Property<double> m_fluence1
     {this, "fluence1", -1, "fluence detector has recieved in neqcm2 at the layer 1."};
 
-    Gaudi::Property<int> m_fluence2
+    Gaudi::Property<double> m_fluence2
     {this, "fluence2", -1, "fluence detector has recieved in neqcm2 at the layer 2."};
 
     Gaudi::Property<double> m_voltage

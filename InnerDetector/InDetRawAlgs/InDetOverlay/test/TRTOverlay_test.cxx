@@ -76,11 +76,15 @@ namespace OverlayTesting {
 
     // dummy methods implementing in pure virtual interface methods (to make class non-abstract)
     /** Return the local occupancy for the sectors crossed by a given track */
-    virtual float LocalOccupancy( const Trk::Track& ) const { return 1.0; }; // not used - dummy implementation
-    virtual float LocalOccupancy(const double, const double) const { return 1.0; }; // not used - dummy implementation
+    using ITRT_LocalOccupancy::LocalOccupancy;
+    virtual float LocalOccupancy(const EventContext&, const Trk::Track& ) const { return 1.0; }; // not used - dummy implementation
+    virtual float LocalOccupancy(const EventContext&,const double, const double) const
+    { return 1.0; }; // not used - dummy implementation
 
     /** Return the global occupancy of the event*/
-    virtual std::vector<float> GlobalOccupancy( ) const { std::vector<float> dummyVect{}; return dummyVect; }; // not used - dummy implementation
+    using ITRT_LocalOccupancy::GlobalOccupancy;
+    virtual std::vector<float> GlobalOccupancy(const EventContext&) const
+    { std::vector<float> dummyVect{}; return dummyVect; }; // not used - dummy implementation
   };
 
   DECLARE_COMPONENT( MockTRT_LocalOccupancy )

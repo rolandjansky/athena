@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of TileROD_Encoder class 
@@ -22,13 +22,14 @@
 
 
 TileROD_Encoder::TileROD_Encoder(): 
+  AthMessaging (Athena::getMessageSvc(), "TileROD_Encoder"),
   m_tileHWID(0), 
   m_verbose(false), 
   m_type(0), 
   m_unitType(0),
   m_rChUnit(0),
-  m_msg("TileROD_Encoder"), 
-  m_maxChannels(TileCalibUtils::MAX_CHAN) {
+  m_maxChannels(TileCalibUtils::MAX_CHAN),
+  m_runPeriod(0){
 }
 
 
@@ -56,8 +57,9 @@ void TileROD_Encoder::setTileHWID(const TileHWID* tileHWID, bool verbose, unsign
   }
 }
 
-void TileROD_Encoder::setTileHWID(const TileHWID* tileHWID) {
+void TileROD_Encoder::setTileHWID(const TileHWID* tileHWID, int runPeriod) {
    m_tileHWID = tileHWID;
+   m_runPeriod = runPeriod;
 }
 
 void TileROD_Encoder::setTypeAndUnit(TileFragHash::TYPE type, TileRawChannelUnit::UNIT unit) {
@@ -764,23 +766,20 @@ void TileROD_Encoder::fillRODTileMuRcvObj(std::vector<uint32_t>& v) {
 
   // this is the subfragment type 0x42	
 
-  ATH_MSG_DEBUG( "TMDB encoding sub-fragment 0x42: loop over " << m_vTileMuRcvObj.size() << " objects" );
+  ATH_MSG_INFO( "TMDB encoding sub-fragment 0x42: loop over " << m_vTileMuRcvObj.size() << " objects" );
 
   // sub-fragment marker
   //
   v.push_back(0xff1234ff);
 
-  // sub-fragment size
+  // type & version
   //
   v.push_back(5);
   uint savepos = v.size()-1;
-
-  // type & version
-  //
   uint32_t verfrag      = 0x500;
   uint32_t type_version = (0x42 << 16) + verfrag;
   v.push_back(type_version);
-  
+
   // counters and temporary words
   //
   int wc = 0;
@@ -789,71 +788,141 @@ void TileROD_Encoder::fillRODTileMuRcvObj(std::vector<uint32_t>& v) {
   uint32_t result2      = 0x0;
   uint32_t result3      = 0x0;
 
-  for (const TileMuonReceiverObj* tmurcv : m_vTileMuRcvObj) {
+  switch (m_runPeriod) {
 
-    // results are hold in 3 16-bit words.
-    // 
-    //     32nd bit -> |        results2       || results1       | <- 1st bit
-    //                 |          0x0          ||        results3 |
-    // 
-    //     32nd bit -> | m-5 | m-4 | m-3 | m-2 || m-2 | m-1 | m-0 | 0x0 | <- 1st bit
-    //                 |          0x0          || 0x0 | m-7 | m-6 | m-5 |
-    //                 
-    // each 4 bit word is
-    //
-    //                 0      1      2     3    <-- in Obj
-    //              | d56h | d56l | d6h | d6l |
-    //                bit3   bit2  bit1  bit0
-    //   
+	  case 2:// RUN2
   
-    int modid = tmurcv->identify() & 0xff;  
+	     msg(MSG::INFO) << "Going trough RUN2 encoding procedure for TMDB data" << endmsg;
 
-    const std::vector<bool> & slin = tmurcv->GetDecision();
-    int imax = std::min((int)slin.size(),4);
-    uint32_t word4b = 0x0;
-    for (int i=0;i<imax;++i){
-      // slin   d56h d56l  d6h  d6l
-      // word4b bit3 bit2 bit1 bit0
-      if (slin[i]) word4b |= 1 << (3-i);
-    }
+             for (const TileMuonReceiverObj* tmurcv : m_vTileMuRcvObj) {
+
+                // VERSION RUN2: results are hold in 3 16-bit words. Two 32 bit words.
+                //
+                //     32nd bit -> |        results2       ||       results1        | <- 1st bit
+                //                 |          0x0          ||       results3        |
+                //
+		//     32nd bit -> | m-5 | m-4 | m-3 | m-2 || m-2 | m-1 | m-0 | 0x0 | <- 1st bit
+		//                 |          0x0          || 0x0 | m-7 | m-6 | m-5 |
+		//
+                // each 4 bit word is
+		//
+		//                 0      1      2     3    <-- in Obj
+		//              | d56h | d56l | d6h | d6l |
+		//                bit3   bit2  bit1  bit0
+		//
+
+                int modid = tmurcv->identify() & 0xff;
+
+                const std::vector<bool> & slin = tmurcv->GetDecision();
+                int imax = std::min((int)slin.size(),4);
+                uint32_t word4b = 0x0;
+                for (int i=0;i<imax;++i){
+                   if (slin[i]) word4b |= 1 << (3-i);
+                }
     
-    if (msgLvl(MSG::DEBUG)) {
-      std::stringstream ss;
-      for (const auto & val : slin) {
-          ss<<std::setw(2)<<val;
-      }
-      msg(MSG::DEBUG) << "Result for module: "<<modid<<" in TMDB board "<<modid%8<<MSG::hex<<": 0x"<<word4b<<MSG::dec<<" from "<<ss.str() << endmsg; 
-    }
+                if (msgLvl(MSG::INFO)) {
+                   std::stringstream ss;
+                   for (const auto & val : slin) {
+                      ss<<std::setw(2)<<val;
+                   }
+                   msg(MSG::INFO) << "Result for module: "<<modid<<" in TMDB board "<<modid%8<<MSG::hex<<": 0x"<<word4b<<MSG::dec<<" from "<<ss.str() << endmsg; 
+                }
     
-    switch (modid%8) {
-    case 0: result1 |= word4b << 4  ; break;
-    case 1: result1 |= word4b << 8  ; break;
-    case 2: result1 |= word4b << 12 ; result2 |= word4b; break;
-    case 3: result2 |= word4b << 4  ; break; 
-    case 4: result2 |= word4b << 8  ; break;
-    case 5: result2 |= word4b << 12 ; result3 |= word4b; break;
-    case 6: result3 |= word4b << 4  ; break;
-    case 7: result3 |= word4b << 8  ; break;
-    }
-    ++chc;
-  }
+		switch (modid%8) {
+                    case 0: result1 |= word4b << 4  ; break;
+                    case 1: result1 |= word4b << 8  ; break;
+                    case 2: result1 |= word4b << 12 ; result2 |= word4b; break;
+                    case 3: result2 |= word4b << 4  ; break;
+                    case 4: result2 |= word4b << 8  ; break;
+                    case 5: result2 |= word4b << 12 ; result3 |= word4b; break;
+                    case 6: result3 |= word4b << 4  ; break;
+                    case 7: result3 |= word4b << 8  ; break;
+                }
+                ++chc;
+             }
 
-  ATH_MSG_DEBUG( "Summary : "<<MSG::hex<<" Results 1: 0x"<<result1<<" Results 2: 0x"<<result2<<" Results 3: 0x"<<result3<< MSG::dec );
+             ATH_MSG_INFO( "Summary : "<<MSG::hex<<" Results 1: 0x"<<result1<<" Results 2: 0x"<<result2<<" Results 3: 0x"<<result3<< MSG::dec );
 
-  v.push_back( result1 | (result2 << 16) ); ++wc;// | 5 4 3 2 | 2 1 0 - |
-  v.push_back( result3 ); ++wc;                  // | - - - - | - 7 6 5 | '-' means free/not set/0x0
-  v.at(savepos)=3+wc;
+             v.push_back( result1 | (result2 << 16) ); ++wc;// | 5 4 3 2 | 2 1 0 - |
+             v.push_back( result3 ); ++wc;                  // | - - - - | - 7 6 5 | '-' means free/not set/0x0
+             v.at(savepos)=3+wc;
 
-  ATH_MSG_DEBUG( "Check version and counters: "<<MSG::hex<< verfrag <<MSG::dec<<" "<< chc <<" "<< wc <<" save in position: "<< savepos );
+	     break;
 
-  if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Check content of ROD fragment after including sub-fragment (0x42)... " << v.size() << endmsg;
-    for (size_t i=0; i<v.size(); ++i) {
-      msg(MSG::VERBOSE) << i << "\t" << v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endmsg;
-    }
-  }
-  
-  return;	
+          case 3:// RUN3
+
+             msg(MSG::INFO) << "Going trough RUN3 encoding procedure for TMDB data" << endmsg;
+
+             for (const TileMuonReceiverObj* tmurcv : m_vTileMuRcvObj) {
+                // VERSION RUN3: results are hold in two 32-bit word to cover a TMDB board holding 8 TileCal modules.
+                //
+		//               32nd bit -> |         results2 [16:31]            ||           results1 [0:15]           | <- 1st bit
+                //               32nd bit -> |            0x0 [16:31]              ||           results3 [0:15]           | <- 1st bit
+                //
+		//               32nd bit -> | 0x0 [12:15] | m-5 | m-4 | m-3 | m-2 || 0x0 [12:15] | m-3 | m-2 | m-1 | m-0 | <- 1st bit
+		//                           |          0x0 [16:31]                || 0x0 [12:15] | m-7 | m-6 | m-5 | m-4 |
+		//
+		//               For each module m-X there is a 3-bit word with the result for a threshold
+		//
+		//                    |  d5+d6  |  d6   |  d5  |
+		//                    |   bit2  |  bit1 | bit0 |
+		//
+
+                // counters and temporary words
+                //
+
+/*
+ *
+ * Comment on implementation...
+ * In Athena the  container size is kept to 4. It is fully used for run2 but for run3 the first position is left empty.
+ * The most significative bit is placed in first position [0] of a container so the position reverse while encoding.
+ *
+ * */
+
+		int modid = tmurcv->identify() & 0xff;
+		const std::vector<bool> & slin = tmurcv->GetDecision();
+		int imax  = std::min((int)slin.size(),4);
+                uint32_t word3b = 0x0;
+                for (int i=1;i<imax;++i) {
+                   // slin    d56  d6   d5
+                   // word3b bit2 bit1 bit0
+                   // bit 4 is always 0 since iteration starts at 1
+                   if (slin[i]) word3b |= 1 << (3-i);
+                }
+
+		switch (modid%8) {
+		    case 0: result1 |= word3b   ; break;
+                    case 1: result1 |= word3b << 3  ; break;
+                    case 2: result1 |= word3b << 6  ; result2 |= word3b      ; break;
+                    case 3: result1 |= word3b << 9  ; result2 |= word3b << 3 ; break;
+                    case 4: result2 |= word3b << 6  ; result3 |= word3b      ; break;
+                    case 5: result2 |= word3b << 9  ; result3 |= word3b << 3 ; break;
+                    case 6: result3 |= word3b << 6  ; break;
+                    case 7: result3 |= word3b << 9  ; break;
+                }
+                ++chc;
+             }
+
+             ATH_MSG_INFO( "Summary : "<<MSG::hex<<" Results 1: 0x"<<result1<<" Results 2: 0x"<<result2<<" Results 3: 0x"<<result3<< MSG::dec );
+
+             v.push_back( result1 | (result2 << 16) ); ++wc;
+             v.push_back( result3 ); ++wc;
+             v.at(savepos) = 3+wc;
+
+	     break;
+
+	  case 0://not defined
+	     ATH_MSG_INFO("Tile Muon Decision Board (TMDB) fragment versions are only available for RUN2 and RUN3");
+	     break;
+          }
+          if (msgLvl(MSG::INFO)){
+             msg(MSG::INFO) << "Check version and counters: "<<MSG::hex<<verfrag<<MSG::dec<<" "<<chc<<" "<<wc<<" save in position: "<<savepos<<endmsg;
+	     msg(MSG::INFO) << "Check content of ROD fragment after including sub-fragment (0x42)... " << v.size() << endmsg;
+	     for (size_t i=0; i<v.size(); ++i) {
+	         msg(MSG::INFO) << i << "\t" << v.at(i) << MSG::hex << " 0x" << v.at(i) << MSG::dec << endmsg;
+	     }
+	  }
+  return;
 }
 
 // == END of TMDB Encoders

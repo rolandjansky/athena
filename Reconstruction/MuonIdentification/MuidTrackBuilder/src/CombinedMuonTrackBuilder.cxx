@@ -48,10 +48,12 @@
 
 namespace Rec {
 
-
+CombinedMuonTrackBuilder::~CombinedMuonTrackBuilder(){}
 CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, const std::string& name,
-                                                   const IInterface* parent)
-    : AthAlgTool(type, name, parent),
+                                                   const IInterface* parent): 
+      AthAlgTool(type, name, parent),
+      m_alignUncertTool_theta("Muon::MuonAlignmentUncertTool/MuonAlignmentUncertToolTheta"),
+      m_alignUncertTool_phi("Muon::MuonAlignmentUncertTool/MuonAlignmentUncertToolPhi"),
       m_magFieldProperties(Trk::FullField),
       m_allowCleanerVeto(true),
       m_cleanCombined(true),
@@ -73,9 +75,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
       m_vertex2DSigmaZ(100. * Gaudi::Units::meter),
       m_vertex3DSigmaRPhi(6. * Gaudi::Units::mm),
       m_vertex3DSigmaZ(60. * Gaudi::Units::mm),
-      m_zECToroid(10. * Gaudi::Units::meter),
-      m_IDMS_xySigma(1. * Gaudi::Units::mm),
-      m_IDMS_rzSigma(1. * Gaudi::Units::mm),
+      m_zECToroid(10. * Gaudi::Units::meter),     
       m_indetSlimming(false),
       m_inputSlimming(false),
       m_calorimeterVolume(nullptr),
@@ -100,9 +100,8 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
       m_refineELossStandAloneTrackFit(true),
       m_addElossID(true),
       m_addIDMSerrors(true),
-      m_useRefitTrackError(true)
-{
-    m_messageHelper = new MessageHelper(*this);
+      m_useRefitTrackError(true) {
+    m_messageHelper = std::make_unique<MessageHelper>(*this);
 
     declareInterface<ICombinedMuonTrackBuilder>(this);
     declareProperty("AllowCleanerVeto", m_allowCleanerVeto);
@@ -126,8 +125,9 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
     declareProperty("Vertex3DSigmaRPhi", m_vertex3DSigmaRPhi);
     declareProperty("Vertex3DSigmaZ", m_vertex3DSigmaZ);
     declareProperty("zECToroid", m_zECToroid);
-    declareProperty("IDMS_xySigma", m_IDMS_xySigma);
-    declareProperty("IDMS_rzSigma", m_IDMS_rzSigma);
+    declareProperty("AlignmentUncertToolTheta"  , m_alignUncertTool_theta);
+    declareProperty("AlignmentUncertToolPhi"    , m_alignUncertTool_phi);
+    
 
     // deprecated
     declareProperty("IndetSlimming", m_indetSlimming);
@@ -292,30 +292,33 @@ CombinedMuonTrackBuilder::initialize()
     ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
 
     m_calorimeterVolume =
-        new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
-    m_indetVolume = new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
+        std::make_unique<Trk::Volume>(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
+    m_indetVolume = std::make_unique<Trk::Volume>(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
 
     // sigma of phi sector for pseudo-measurement constraint
     m_sigmaPhiSector = std::tan(0.125 * M_PI / std::sqrt(12.));
 
     // create beamAxis and vertexRegion for constrained (projective) track fits
     Amg::Vector3D origin(0., 0., 0.);
-    m_perigeeSurface = new Trk::PerigeeSurface(origin);
+    m_perigeeSurface = std::make_unique<Trk::PerigeeSurface>(origin);
 
     AmgSymMatrix(3) beamAxisCovariance;
     beamAxisCovariance.setZero();
     (beamAxisCovariance)(0, 0) = m_vertex2DSigmaRPhi * m_vertex2DSigmaRPhi;
     (beamAxisCovariance)(1, 1) = m_vertex2DSigmaRPhi * m_vertex2DSigmaRPhi;
     (beamAxisCovariance)(2, 2) = m_vertex2DSigmaZ * m_vertex2DSigmaZ;
-    m_beamAxis                 = new Trk::RecVertex(origin, beamAxisCovariance);
+    m_beamAxis                 = std::make_unique<Trk::RecVertex>(origin, beamAxisCovariance);
 
     AmgSymMatrix(3) vertexRegionCovariance;
     vertexRegionCovariance.setZero();
     (vertexRegionCovariance)(0, 0) = m_vertex3DSigmaRPhi * m_vertex3DSigmaRPhi;
     (vertexRegionCovariance)(1, 1) = m_vertex3DSigmaRPhi * m_vertex3DSigmaRPhi;
     (vertexRegionCovariance)(2, 2) = m_vertex3DSigmaZ * m_vertex3DSigmaZ;
-    m_vertex                       = new Trk::RecVertex(origin, vertexRegionCovariance);
-
+    m_vertex                       = std::make_unique<Trk::RecVertex>(origin, vertexRegionCovariance);
+    if (m_addIDMSerrors) {
+        ATH_CHECK(m_alignUncertTool_theta.retrieve());
+        ATH_CHECK(m_alignUncertTool_phi.retrieve());
+    }
 #ifndef NDEBUG
     ATH_MSG_DEBUG(" vertex region: ");
     m_vertex->dump(msg(MSG::DEBUG));
@@ -352,15 +355,7 @@ CombinedMuonTrackBuilder::finalize()
 
     // summarize WARNINGs
     m_messageHelper->printSummary();
-
-    delete m_beamAxis;
-    delete m_calorimeterVolume;
-    delete m_indetVolume;
-    delete m_messageHelper;
-    delete m_perigeeSurface;
-    delete m_vertex;
-
-    return AthAlgTool::finalize();
+    return StatusCode::SUCCESS;
 }
 
 
@@ -2750,9 +2745,7 @@ CombinedMuonTrackBuilder::optimizeErrors(Trk::Track* track) const
     return false;
 }
 
-Trk::Track*
-CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
-{
+Trk::Track* CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const {
     //
     // take track and correct the two scattering planes in the Calorimeter
     // to take into account m_IDMS_rzSigma and m_IDMS_xySigma
@@ -2764,168 +2757,97 @@ CombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) const
     }
 
     ATH_MSG_DEBUG(" CombinedMuonTrackBuilder addIDMSerrors to track ");
-    Amg::Vector3D positionMS(0, 0, 0);
-    Amg::Vector3D positionCaloFirst(0, 0, 0);
-    Amg::Vector3D positionCaloLast(0, 0, 0);
-
-    int    itsos          = 0;
-    int    itsosCaloFirst = -1;
-    int    itsosCaloLast  = -1;
-    double p              = -1.;
-
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator t = track->trackStateOnSurfaces()->begin();
-    for (; t != track->trackStateOnSurfaces()->end(); ++t) {
-        itsos++;
-
-        if ((**t).trackParameters()) {
-            if (p == -1.) {
-                p = (**t).trackParameters()->momentum().mag() / Gaudi::Units::GeV;
-            }
-
-            if (m_indetVolume->inside((**t).trackParameters()->position())) {
-                continue;
-            }
-
-            if ((**t).trackParameters()->position().mag() < 1000) {
-                continue;
-            }
-
-            if (m_calorimeterVolume->inside((**t).trackParameters()->position())) {
-                // first scattering plane in Calorimeter
-                if ((**t).type(Trk::TrackStateOnSurface::Scatterer) && (**t).materialEffectsOnTrack()) {
-                    double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();
-                    if (X0 < 10) {
-                        continue;
-                    }
-
-                    if (itsosCaloFirst != -1) {
-                        itsosCaloLast    = itsos;
-                        positionCaloLast = (**t).trackParameters()->position();
-                    }
-
-                    if (itsosCaloFirst == -1) {
-                        itsosCaloFirst    = itsos;
-                        positionCaloFirst = (**t).trackParameters()->position();
-                    }
-                }
-            }
-
-            if (!m_calorimeterVolume->inside((**t).trackParameters()->position())) {
-                if ((**t).measurementOnTrack()) {
-                    // inside muon system
-                    positionMS = (**t).trackParameters()->position();
-                    break;
-                }
-            }
-        }
-    }
-
-    // it can happen that no Calorimeter Scatterers are found.
-    ATH_MSG_DEBUG(" CombinedMuonTrackBuilder addIDMSerrors p muon GeV "
-                  << p << " First Calorimeter Scatterer radius " << positionCaloFirst.perp() << " z "
-                  << positionCaloFirst.z() << " Second Scatterer r " << positionCaloLast.perp() << " z "
-                  << positionCaloLast.z() << " First Muon hit r " << positionMS.perp() << " z " << positionMS.z());
-
-    if (itsosCaloFirst < 0 || itsosCaloLast < 0) {
+   
+    
+    /// Use pointer in the data vector to refer on the track
+    const Trk::TrackStateOnSurface* id_exit       = nullptr;
+    const Trk::TrackStateOnSurface* calo_entrance = nullptr;
+    const Trk::TrackStateOnSurface* calo_exit     = nullptr;
+    const Trk::TrackStateOnSurface* ms_entrance   = nullptr;
+   
+    m_alignUncertTool_theta->get_track_state_measures(track,
+                                                      id_exit,
+                                                      calo_entrance,
+                                                      calo_exit,
+                                                      ms_entrance);
+    /// it can happen that no Calorimeter Scatterers are found.
+    if (!calo_entrance || !calo_exit || !ms_entrance) {
         ATH_MSG_DEBUG(" addIDMSerrors keep original track ");
         return track;
     }
-
-    // If no Calorimeter no IDMS uncertainties have to be propagated
-    positionCaloFirst = positionCaloFirst - positionMS;
-    positionCaloLast  = positionCaloLast - positionMS;
-
-    double sigmaDeltaPhiIDMS2   = m_IDMS_xySigma / (positionCaloFirst.perp() + positionCaloLast.perp());
-    double sigmaDeltaThetaIDMS2 = m_IDMS_rzSigma / (positionCaloFirst.mag() + positionCaloLast.mag());
-
-    sigmaDeltaPhiIDMS2 *= sigmaDeltaPhiIDMS2;
-    sigmaDeltaThetaIDMS2 *= sigmaDeltaThetaIDMS2;
-
-    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
+   
+    std::unique_ptr<DataVector<const Trk::TrackStateOnSurface>> trackStateOnSurfaces = std::make_unique<DataVector<const Trk::TrackStateOnSurface>>();
     trackStateOnSurfaces->reserve(track->trackStateOnSurfaces()->size());
 
-    t     = track->trackStateOnSurfaces()->begin();
-    itsos = 0;
-    for (; t != track->trackStateOnSurfaces()->end(); ++t) {
-        itsos++;
-
-        if (itsos == itsosCaloFirst || itsos == itsosCaloLast) {
-            if ((**t).materialEffectsOnTrack()) {
-                double X0 = (**t).materialEffectsOnTrack()->thicknessInX0();
-
-                const Trk::MaterialEffectsOnTrack* meot =
-                    dynamic_cast<const Trk::MaterialEffectsOnTrack*>((**t).materialEffectsOnTrack());
-
-                if (meot) {
-                    const Trk::ScatteringAngles* scat = meot->scatteringAngles();
-
-                    if (scat) {
-                        double sigmaDeltaPhi =
-                            std::sqrt((scat->sigmaDeltaPhi()) * (scat->sigmaDeltaPhi()) + sigmaDeltaPhiIDMS2);
-
-                        double sigmaDeltaTheta =
-                            std::sqrt((scat->sigmaDeltaTheta()) * (scat->sigmaDeltaTheta()) + sigmaDeltaThetaIDMS2);
-
-                        const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
-
-                        const Trk::ScatteringAngles* scatNew =
-                            new Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
-
-                        const Trk::Surface& surfNew = (**t).trackParameters()->associatedSurface();
-
-                        std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
-                        meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
-                        meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
-
-                        const Trk::MaterialEffectsOnTrack* meotNew =
-                            new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
-
-                        const Trk::TrackParameters* parsNew = ((**t).trackParameters())->clone();
-
-                        std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
-                        typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
-
-                        const Trk::TrackStateOnSurface* newTSOS =
-                            new Trk::TrackStateOnSurface(nullptr, parsNew, nullptr, meotNew, typePatternScat);
-
-                        trackStateOnSurfaces->push_back(newTSOS);
-
-                        ATH_MSG_DEBUG(" old Calo scatterer had sigmaDeltaPhi mrad      "
-                                      << scat->sigmaDeltaPhi() * 1000 << " sigmaDeltaTheta mrad "
-                                      << scat->sigmaDeltaTheta() * 1000 << " X0 " << X0);
-
-                        ATH_MSG_DEBUG(" new Calo scatterer made with sigmaDeltaPhi mrad "
-                                      << sigmaDeltaPhi * 1000 << " sigmaDeltaTheta mrad " << sigmaDeltaTheta * 1000);
-
-                    } else {
-                        ATH_MSG_WARNING(" This should not happen: no Scattering Angles for scatterer ");
-                    }
-                } else {
-                    ATH_MSG_WARNING(" This should not happen: no MaterialEffectsOnTrack for scatterer ");
-                }
+    for (const Trk::TrackStateOnSurface* trk_srf : *track->trackStateOnSurfaces()) {        
+        if (calo_entrance == trk_srf || calo_entrance == trk_srf) {
+            if (!trk_srf->materialEffectsOnTrack()) {
+                ATH_MSG_DEBUG("No material effect on track");
+                continue;
+            }          
+            const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(trk_srf->materialEffectsOnTrack());
+            if (!meot){
+                ATH_MSG_WARNING(" This should not happen: no MaterialEffectsOnTrack for scatterer ");
+                continue;
             }
+            const Trk::ScatteringAngles* scat = meot->scatteringAngles();
+            if (!scat){
+                ATH_MSG_WARNING(" This should not happen: no Scattering Angles for scatterer ");
+                continue;
+            }
+                 
+            float sigmaDeltaPhi   = std::hypot( scat->sigmaDeltaPhi(), m_alignUncertTool_phi->get_uncertainty(track));
+            float sigmaDeltaTheta = std::hypot( scat->sigmaDeltaPhi(), m_alignUncertTool_theta->get_uncertainty(track));
+            float X0 = trk_srf->materialEffectsOnTrack()->thicknessInX0();
+            
+            // 
+
+
+            const Trk::EnergyLoss* energyLossNew = new Trk::EnergyLoss(0., 0., 0., 0.);
+            const Trk::ScatteringAngles* scatNew = new Trk::ScatteringAngles(0., 0., sigmaDeltaPhi, sigmaDeltaTheta);
+
+            const Trk::Surface& surfNew = trk_srf->trackParameters()->associatedSurface();
+
+            std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> meotPattern(0);
+            meotPattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
+            meotPattern.set(Trk::MaterialEffectsBase::ScatteringEffects);
+
+            const Trk::MaterialEffectsOnTrack* meotNew = new Trk::MaterialEffectsOnTrack(X0, scatNew, energyLossNew, surfNew, meotPattern);
+            const Trk::TrackParameters* parsNew = trk_srf->trackParameters()->clone();
+
+            std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePatternScat(0);
+            typePatternScat.set(Trk::TrackStateOnSurface::Scatterer);
+
+            const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface(nullptr, parsNew, nullptr, meotNew, typePatternScat);
+            trackStateOnSurfaces->push_back(newTSOS);
+
+            ATH_MSG_DEBUG(" old Calo scatterer had sigmaDeltaPhi mrad      "
+                                  << scat->sigmaDeltaPhi() * 1000 << " sigmaDeltaTheta mrad "
+                                  << scat->sigmaDeltaTheta() * 1000 << " X0 " << X0);
+
+            ATH_MSG_DEBUG(" new Calo scatterer made with sigmaDeltaPhi mrad "
+                                      << sigmaDeltaPhi * 1000 << " sigmaDeltaTheta mrad " << sigmaDeltaTheta * 1000);                          
+            
         } else {
             // skip AEOTs
-            if ((**t).alignmentEffectsOnTrack()) {
+            if (trk_srf->alignmentEffectsOnTrack()) {
                 ATH_MSG_DEBUG(" addIDMSerrors alignmentEffectsOnTrack()  found on track ");
-            }
-            const Trk::TrackStateOnSurface* TSOS = (**t).clone();
-            trackStateOnSurfaces->push_back(TSOS);
+                continue;
+            }           
+            trackStateOnSurfaces->push_back(trk_srf->clone());
         }
     }
-
     ATH_MSG_DEBUG(" trackStateOnSurfaces on input track " << track->trackStateOnSurfaces()->size()
                                                           << " trackStateOnSurfaces found "
                                                           << trackStateOnSurfaces->size());
 
-    Trk::Track* newTrack = new Trk::Track(track->info(), trackStateOnSurfaces, nullptr);
+    Trk::Track* newTrack = new Trk::Track(track->info(), trackStateOnSurfaces.release(), nullptr);
     if (newTrack) countAEOTs(newTrack, " add IDMS errors ");
     return newTrack;
 }
 
 
-void
-CombinedMuonTrackBuilder::appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>& trackStateOnSurfaces,
+void CombinedMuonTrackBuilder::appendSelectedTSOS(DataVector<const Trk::TrackStateOnSurface>& trackStateOnSurfaces,
                                              DataVector<const Trk::TrackStateOnSurface>::const_iterator begin,
                                              DataVector<const Trk::TrackStateOnSurface>::const_iterator end) const
 {
@@ -4858,6 +4780,7 @@ CombinedMuonTrackBuilder::checkTrack(std::string txt, Trk::Track* newTrack, Trk:
 
     return newTrackOK;
 }
-
-
+  void CombinedMuonTrackBuilder::cleanUp() const {
+    m_muonHoleRecovery->cleanUp();
+  }
 }  // namespace Rec

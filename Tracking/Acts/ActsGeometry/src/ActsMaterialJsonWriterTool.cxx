@@ -53,7 +53,6 @@ ActsMaterialJsonWriterTool::write(const Acts::JsonGeometryConverter::DetectorMat
 void
 ActsMaterialJsonWriterTool::write(const Acts::TrackingGeometry& tGeometry) const
 {
-
   // Evoke the converter
   Acts::JsonGeometryConverter jmConverter(m_cfg);
   auto jout = jmConverter.trackingGeometryToJson(tGeometry);

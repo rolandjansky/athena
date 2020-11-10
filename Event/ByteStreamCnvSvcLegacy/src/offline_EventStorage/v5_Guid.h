@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // This is a warapper class for uuid.
@@ -53,10 +53,9 @@ namespace offline_poolCopy_v5  {
         Data1 = g.Data1;
         Data2 = g.Data2;
         Data3 = g.Data3;
-        unsigned int       *p = (unsigned int*)&Data4[0]; 
-        const unsigned int *q = (const unsigned int*)&g.Data4[0];
-        *(p+1) = *(q+1);
-        *p     = *q;
+        for (size_t i = 0; i < 8; i++) {
+          Data4[i] = g.Data4[i];
+        }
       }
       return *this;
     }

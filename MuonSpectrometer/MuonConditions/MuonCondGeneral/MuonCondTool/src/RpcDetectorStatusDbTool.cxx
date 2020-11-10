@@ -252,13 +252,7 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
     //m_RPC_PanelMeanClusterSizeMap.insert(std::make_pair(chamberId,MeanClusterSizeMap));
     m_RPC_PanelMeanClusterSizeMap[chamberId]=MeanClusterSizeMap;
 
-    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelMeanClusterSizeMap " << m_RPC_PanelMeanClusterSizeMap.size() << "; in panel " <<  channum << " SMeanClusterSizeMap " << SMeanClusterSizeMap << " MeanClusterSizeMap " << MeanClusterSizeMap << endmsg;     
-    //std::cout<<"Here DBversion="<<DBversion<<std::endl;
-    //std::cout<<"info_panel size  = "<<info_panel.size()<<std::endl;
-    //for(unsigned int ii=0; ii<info_panel.size();ii++){       
-    //  char* ch_tmp1= const_cast<char*>(info_panel[ii].c_str());       
-    //  m_log << MSG::INFO << " info_panel " <<ii<<" "<< ch_tmp1 << endmsg;
-    //}
+    if( m_debug )  m_log << MSG::DEBUG << "Size of  RPC_PanelMeanClusterSizeMap " << m_RPC_PanelMeanClusterSizeMap.size() << "; in panel " <<  channum << " SMeanClusterSizeMap " << SMeanClusterSizeMap << " MeanClusterSizeMap " << MeanClusterSizeMap << endmsg;
     if( DBversion>2 ){
       char * SFracClusterSize1Map_a=const_cast<char*>(info_panel[19].c_str());
       char * SFracClusterSize1Map_b=const_cast<char*>(info_panel[20].c_str());

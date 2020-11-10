@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECELLCONT_H
@@ -32,7 +32,7 @@ class TileCellCont : public std::vector<TileCellCollection*>
   TileCellCont( ) ;
   
   /** Finds a collection */
-  const std::vector<TileCellCollection*>::const_iterator& find(const unsigned int& id) const ;
+  const std::vector<TileCellCollection*>::const_iterator find(const unsigned int& id) const ;
   unsigned int find_rod(const unsigned int& id) const ;
   
   /** destructor */
@@ -47,7 +47,9 @@ class TileCellCont : public std::vector<TileCellCollection*>
   const std::vector<int>& Rw2CellMap ( int section ) {
     return m_Rw2Cell[section];
   }
-  TileCellCollection* MBTS_collection( void ) const
+  const TileCellCollection* MBTS_collection( void ) const
+        { return m_MBTS; }
+  TileCellCollection* MBTS_collection( void )
         { return m_MBTS; }
   std::map<unsigned int, unsigned int>& MBTS_map ( void )
         { return m_mapMBTS; }
@@ -82,10 +84,8 @@ private:
         std::vector<int> m_Rw2Cell[4];
         // One needs to keep track of Rw2Pmt
         std::vector<int> m_Rw2Pmt[4];
-        // TileHid2RESrcID* m_conv;
-	mutable std::vector<TileCellCollection*>::const_iterator* m_it;
 	/** eventNumber of a given Collection */
-	mutable std::vector<unsigned int> m_eventNumber;
+        std::vector<unsigned int> m_eventNumber;
 	/** this event number */
 	unsigned int m_event;
 	// No Region Selector for MBTS

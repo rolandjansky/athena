@@ -120,8 +120,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
   }
   
   if (hdrCont->size()==0) {
-    ATH_MSG_ERROR( "Got empty LArFebHeaderContainer. Do nothing" );
-    return StatusCode::FAILURE;
+    ATH_MSG_WARNING( "Got empty LArFebHeaderContainer. Do nothing" );
   }
 
   if (!lArFebErrorSummary.isValid()) {

@@ -319,17 +319,17 @@ def test2 (flags_in):
                     DBInstance='OFLP200',
                     CacheAlign=3,
                     GlobalTag='OFLCOND-RUN12-SDR-31',
-                    Folders = ['/CALO/Ofl/CaloSwClusterCorrections/rfac<tag>CaloSwClusterCorrections.00-02-13-rfac-v5</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/etaoff<tag>CaloSwClusterCorrections.00-02-13-etaoff-v5</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/phioff<tag>CaloSwClusterCorrections.00-02-13-phioff-v5data</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/larupdate<tag>CaloSwClusterCorrections.00-02-13-larupdate</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/gap<tag>CaloSwClusterCorrections.00-02-13-gap-v6</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/calhits<tag>CaloSwClusterCorrections.00-02-13-calhits-v9</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/trcorr<tag>CaloSwClusterCorrections.00-02-13-trcorr-v5_1</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/deadOTXps<tag>CaloSwClusterCorrections.00-02-13-deadOTXps-v1</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/deadOTXback<tag>CaloSwClusterCorrections.00-02-13-deadOTXback-v1</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/phimod<tag>CaloSwClusterCorrections.00-02-13-phimod-v4</tag><db>COOLOFL_CALO/OFLP200</db>',
-                               '/CALO/Ofl/CaloSwClusterCorrections/etamod<tag>CaloSwClusterCorrections.00-02-13-etamod-v4</tag><db>COOLOFL_CALO/OFLP200</db>'])
+                    Folders = ['/CALO/Ofl/CaloSwClusterCorrections/rfac<tag>CaloOflSwClusterCorrections.00-02-12-rfac-v5</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/etaoff<tag>CaloOflSwClusterCorrections.00-02-12-etaoff-v5</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/phioff<tag>CaloOflSwClusterCorrections.00-02-12-phioff-v5data</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/larupdate<tag>CaloOflSwClusterCorrections.00-02-12-larupdate</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/gap<tag>CaloOflSwClusterCorrections.00-02-12-gap-v6</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/calhits<tag>CaloOflSwClusterCorrections.00-02-12-calhits-v9</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/trcorr<tag>CaloOflSwClusterCorrections.00-02-12-trcorr-v5_1</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/deadOTXps<tag>CaloOflSwClusterCorrections.00-02-12-deadOTXps-v1</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/deadOTXback<tag>CaloOflSwClusterCorrections.00-02-12-deadOTXback-v1</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/phimod<tag>CaloOflSwClusterCorrections.00-02-12-phimod-v4</tag><db>COOLOFL_CALO/OFLP200</db>',
+                               '/CALO/Ofl/CaloSwClusterCorrections/etamod<tag>CaloOflSwClusterCorrections.00-02-12-etamod-v4</tag><db>COOLOFL_CALO/OFLP200</db>'])
     exp.check (ca.getService ('IOVDbSvc'))
 
     ca.wasMerged()
@@ -392,7 +392,7 @@ def test3 (flags_in):
                     CacheAlign=3,
                     GlobalTag='CONDBR2-BLKPA-2017-05',
                     Folders=['/CALO/CaloSwClusterCorrections/larupdate<tag></tag><db>COOLONL_CALO/CONDBR2</db>',
-                             '/CALO/CaloSwClusterCorrections/calhits<tag>CaloSwClusterCorrections.00-02-13-calhits-v8</tag><db>COOLONL_CALO/CONDBR2</db>'])
+                             '/CALO/CaloSwClusterCorrections/calhits<tag>CaloSwClusterCorrections.00-02-12-calhits-v8</tag><db>COOLONL_CALO/CONDBR2</db>'])
 
     exp.check (ca.getService ('IOVDbSvc'))
 

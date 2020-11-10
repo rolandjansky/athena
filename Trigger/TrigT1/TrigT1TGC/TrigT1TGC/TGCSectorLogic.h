@@ -38,6 +38,7 @@ class  TGCHighPtChipOut;
 class  TGCTMDB;
 class  TGCNSW;
 class  TGCNSWCoincidenceMap;
+class  TGCGoodMF;
 
 //for Run3
 class TGCTrackSelectorOut;
@@ -78,6 +79,7 @@ public:
 		    const TGCTileMuCoincidenceMap* mapTM);
   void setNSWMap(std::shared_ptr<const TGCNSW> nsw,
 		 std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
+  void setGoodMFMap(std::shared_ptr<const TGCGoodMF> mapGoodMF);
   void showResult(TGCSLSelectorOut* out);
  
   TGCSectorLogic(TGCArguments*, TGCRegionType regionIn, int id);
@@ -118,6 +120,7 @@ private:
   int m_sideId, m_octantId;
   TGCRegionType m_region;
   int  m_NumberOfWireHighPtBoard;
+  bool m_useGoodMF{false};
 
   TGCSSCController m_SSCController;
   TGCRPhiCoincidenceMatrix m_matrix;
@@ -126,6 +129,7 @@ private:
   const TGCTMDB*            m_pTMDB;
   std::shared_ptr<const TGCNSW>             m_nsw;
   std::shared_ptr<const TGCNSWCoincidenceMap> m_mapNSW;
+  std::shared_ptr<const TGCGoodMF>          m_mapGoodMF;
 
   // for Run2
   TGCSLPreSelector m_preSelector; 
@@ -148,7 +152,7 @@ private:
   // for inner trigger
   const TGCInnerTrackletSlot* m_innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR];
   bool m_useEIFI;
-  bool m_useTileMu;
+  bool m_useTileMu{false};
   TGCArguments* m_tgcArgs;
 };
 

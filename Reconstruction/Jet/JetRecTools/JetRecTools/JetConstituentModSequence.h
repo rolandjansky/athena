@@ -20,11 +20,13 @@
 #include "AsgTools/ToolHandleArray.h"
 #include "xAODCore/ShallowCopy.h"
 
+#include "xAODBase/IParticleHelpers.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/TrackCaloClusterContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
@@ -73,7 +75,16 @@ protected:
 
   SG::WriteHandleKey<xAOD::PFOContainer> m_outAllPFOKey{this, "OutAllPFOKey", "", "WriteHandleKey for all modified PFlow Objects"};
 
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_inChargedFEKey{this, "InChargedFEKey", "", "ReadHandleKey for modified Charged FlowElements"};
+  SG::WriteHandleKey<xAOD::FlowElementContainer> m_outChargedFEKey{this, "OutChargedFEKey", "", "WriteHandleKey for modified Charged FlowElements"};
+
+  SG::ReadHandleKey<xAOD::FlowElementContainer> m_inNeutralFEKey{this, "InNeutralFEKey", "", "ReadHandleKey for modified Neutral FlowElements"};
+  SG::WriteHandleKey<xAOD::FlowElementContainer> m_outNeutralFEKey{this, "OutNeutralFEKey", "", "WriteHandleKey for modified Neutral FlowElements"};
+
+  SG::WriteHandleKey<xAOD::FlowElementContainer> m_outAllFEKey{this, "OutAllFEKey", "", "WriteHandleKey for all modified FlowElements"};
+
   StatusCode copyModRecordPFO() const;
+  StatusCode copyModRecordFE() const;
 
   /// helper function to cast, shallow copy and record a container.
 
@@ -108,12 +119,14 @@ JetConstituentModSequence::copyModRecord(const SG::ReadHandleKey<T>& inKey,
   std::pair< T*, xAOD::ShallowAuxContainer* > newconstit =
     xAOD::shallowCopyContainer(*inHandle);    
   newconstit.second->setShallowIO(m_saveAsShallow);
-  
+
   for (auto t : m_modifiers) {ATH_CHECK(t->process(newconstit.first));}
 
   auto handle = makeHandle(outKey);
   ATH_CHECK(handle.record(std::unique_ptr<T>(newconstit.first),
                           std::unique_ptr<xAOD::ShallowAuxContainer>(newconstit.second)));
+  
+  xAOD::setOriginalObjectLink(*inHandle, *handle);
   
   return StatusCode::SUCCESS;
 }

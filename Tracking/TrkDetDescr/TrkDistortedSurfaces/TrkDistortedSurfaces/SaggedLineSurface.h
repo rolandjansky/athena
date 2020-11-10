@@ -15,7 +15,7 @@
 #include "TrkDistortedSurfaces/DistortedSurface.h"
 #include "TrkDistortedSurfaces/LineSaggingDescriptor.h"
 #include "TrkSurfaces/StraightLineSurface.h"
-
+#include "CxxUtils/CachedValue.h"
 namespace Trk {
 
   class TrkDetElementBase;
@@ -71,10 +71,8 @@ namespace Trk {
 
 
    protected:
-
      LineSaggingDescriptor*                         m_saggingDescriptor; //!< the distortion descriptor
-     CxxUtils::CachedUniquePtrT<Amg::Vector3D>      m_lineDirection;     //!< nominal end position
- 
+     CxxUtils::CachedValue<Amg::Vector3D>           m_lineDirection;     //!< nominal end position 
   };
  
 /** provide the Surface interface */

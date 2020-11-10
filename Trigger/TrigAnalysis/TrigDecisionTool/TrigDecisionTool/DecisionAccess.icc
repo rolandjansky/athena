@@ -49,8 +49,7 @@ std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > Trig::DecisionAccess::fea
                                                                   const std::string& containerSGKey,
                                                                   const unsigned int featureCollectionMode,
                                                                   const std::string& navElementLinkKey) const {
-  // const TrigCompositeUtils::DecisionContainer* terminusNode = SG::get(m_HLTSummaryKeyIn/*, context*/);
-  return group->features<CONTAINER>(cgm()->store(), condition, containerSGKey, featureCollectionMode, navElementLinkKey);
+  return group->features<CONTAINER>(cgm()->store(), cgm()->getRun3NavigationKeyPtr(), condition, containerSGKey, featureCollectionMode, navElementLinkKey);
 }
 
 template<class CONTAINER>

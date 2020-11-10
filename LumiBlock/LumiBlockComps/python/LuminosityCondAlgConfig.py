@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # File: LumiBlockComps/python/LuminosityCondAlgConfig.py
 # Created: May 2019, sss, from existing LuminosityToolDefault.
@@ -30,8 +30,6 @@ def LuminosityCondAlgCfg (configFlags, useOnlineLumi=None, suffix=None):
     if configFlags.Input.isMC:
         log.info ("LuminosityCondAlgCfg called for MC!")
         kwargs = luminosityCondAlgMCCfg (configFlags, name, result)
-    elif configFlags.Beam.Type != 'collisions':
-        kwargs = luminosityCondAlgCosmicsCfg (configFlags, name, result)
     elif ((useOnlineLumi is None and configFlags.Common.useOnlineLumi)
           or (useOnlineLumi is not None and useOnlineLumi)):
         kwargs = luminosityCondAlgOnlineCfg (configFlags, name, result)
@@ -55,13 +53,6 @@ def LuminosityCondAlgCfg (configFlags, useOnlineLumi=None, suffix=None):
 
 
 def luminosityCondAlgMCCfg (configFlags, name, result):
-    return { 'LuminosityFolderInputKey' : '',
-             'OnlineLumiCalibrationInputKey' : '',
-             'BunchLumisInputKey' : '',
-             'BunchGroupInputKey' : '',
-             'FillParamsInputKey' : '' }
-             
-def luminosityCondAlgCosmicsCfg (configFlags, name, result):
     return { 'LuminosityFolderInputKey' : '',
              'OnlineLumiCalibrationInputKey' : '',
              'BunchLumisInputKey' : '',
@@ -101,6 +92,10 @@ def luminosityCondAlgRun2Cfg (configFlags, name, result):
     kwargs['BunchLumisInputKey'] = ''
     kwargs['BunchGroupInputKey'] = ''
     kwargs['FillParamsInputKey'] = ''
+
+    # if cosmics, suppress warnings.
+    if configFlags.Beam.Type == 'cosmics':
+        kwargs['ExpectInvalid'] = True
 
     return kwargs
 

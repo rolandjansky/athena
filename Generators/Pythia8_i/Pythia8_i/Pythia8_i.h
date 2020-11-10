@@ -1,5 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Author: James Monk
 */
 
 #ifndef GENERATOR_PYTHIA8_H
@@ -7,32 +8,31 @@
 
 #include "GeneratorModules/GenModule.h"
 
-#include "Pythia8/Pythia.h"
+// calls to fortran routines
+#include "CLHEP/Random/RandFlat.h"
+#include "AthenaKernel/IAtRndmGenSvc.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "Pythia8_i/UserHooksFactory.h"
+
 //#include "Pythia8/../Pythia8Plugins/HepMC2.h"
 #ifdef HEPMC3
 #include "Pythia8ToHepMC3.h"
 namespace HepMC {
-typedef HepMC3::Pythia8ToHepMC3	Pythia8ToHepMC;	
+typedef HepMC3::Pythia8ToHepMC3 Pythia8ToHepMC;
 }
 #else
 #include "Pythia8Plugins/HepMC2.h"
 #endif
 
-// calls to fortran routines
-#include "CLHEP/Random/RandFlat.h"
-#include "AthenaKernel/IAtRndmGenSvc.h"
-
 #include <stdexcept>
 
 
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
 /**
  *  Author: James Monk (jmonk@cern.ch)
 */
 
 class IAtRndmGenSvc;
+class IPythia8Custom;
 
 namespace Pythia8{
   class Sigma2Process;
@@ -80,6 +80,7 @@ public:
   virtual StatusCode genInitialize();
   virtual StatusCode callGenerator();
   virtual StatusCode fillEvt(HepMC::GenEvent *evt);
+//  virtual StatusCode fillWeights(HepMC::GenEvent *evt);
   virtual StatusCode genFinalize();
 
   double pythiaVersion()const;
@@ -99,7 +100,8 @@ protected:
 private:
 
   static std::string findValue(const std::string &command, const std::string &key);
-  
+  void addLHEToHepMC(HepMC::GenEvent *evt);
+
   int m_internal_event_number;
   
   double m_version;
@@ -108,8 +110,8 @@ private:
   std::vector<std::string> m_userParams;
   std::vector<std::string> m_userModes;
   
-  enum PDGID {PROTON=2212, ANTIPROTON=-2212, NEUTRON=2112, ANTINEUTRON=-2112, MUON=13, ANTIMUON=-13, ELECTRON=11, POSITRON=-11, INVALID=0};
-  
+  enum PDGID {PROTON=2212, ANTIPROTON=-2212, LEAD=1000822080, NEUTRON=2112, ANTINEUTRON=-2112, MUON=13, ANTIMUON=-13, ELECTRON=11, POSITRON=-11, INVALID=0};
+
   double m_collisionEnergy;
   bool m_useRndmGenSvc;
   customRndm *m_atlasRndmEngine; 
@@ -122,8 +124,11 @@ private:
 
   bool m_storeLHE;
   bool m_doCKKWLAcceptance;
+  bool m_doFxFxXS;
   double m_nAccepted;
   double m_nMerged;
+  double m_sigmaTotal;
+  double m_conversion;
   
   unsigned int m_maxFailures;
   unsigned int m_failureCount;
@@ -137,10 +142,9 @@ private:
   // ptr to possible user process
   Pythia8::Sigma2Process *m_procPtr;
   
-  std::string m_userHook;
-  
-  Pythia8::UserHooks *m_userHookPtr;
-  //std::vector<Pythia8::UserHooks*> m_userHooksPtrs;
+  std::vector<std::string> m_userHooks;
+
+  std::vector<UserHooksPtrType> m_userHooksPtrs;
   
   std::string m_userResonances;
   
@@ -151,11 +155,14 @@ private:
   std::string m_particleDataFile;
   std::string m_outputParticleDataFile;
   
+  double m_mergingWeight, m_enhanceWeight;
   std::vector<std::string> m_weightIDs;
   bool m_doLHE3Weights;
   std::vector<std::string> m_weightCommands;
   std::vector<std::string> m_showerWeightNames;
   
+  ToolHandle<IPythia8Custom>    m_athenaTool;
+
   static int s_allowedTunes(double version);
 
 };

@@ -195,17 +195,19 @@ for theKey in CaloClusterKeys: #Fixme .. Apply this only to TopoClusters?
      AuxListItem="xAOD::CaloClusterAuxContainer#"+theKey+"Aux"
      for moment in AODMoments:
          AuxListItem+="."+moment
-         pass
+     # for tau clusters
+     if theKey == "CaloCalTopoClusters":
+         AuxListItem += ".CellLink"
      if len(AODMoments)==0: AuxListItem+="." 
      CaloClusterItemList+=[AuxListItem]
 
 # write the link only for egClusterColl
 #CaloClusterItemList+=["CaloClusterCellLinkContainer#egClusterCollection_links"]
 
+# for tau clusters (CaloCalTopoClusters within 0.2 of the tau axis)
+CaloClusterItemList += ["CaloClusterCellLinkContainer#CaloCalTopoClusters_links"]
 
 CaloAODList+=CaloClusterItemList
-
-CaloAODList+=["CaloClusterContainer#Tau1P3PPi0ClusterContainer"]
 
 # E4' cells
 CaloAODList+=["TileCellContainer#E4prContainer"]
@@ -218,4 +220,3 @@ CaloAODList+=["TileMuContainer#TileMuObj"]
 
 # LAr noisy Feb/PA summary
 CaloAODList +=  ["LArNoisyROSummary#LArNoisyROSummary"]
-

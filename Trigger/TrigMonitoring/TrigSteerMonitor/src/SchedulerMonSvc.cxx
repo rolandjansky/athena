@@ -60,8 +60,9 @@ StatusCode SchedulerMonSvc::startMonitoring() {
     }
   }
 
-  // Get the number of threads
+  // Get the number of threads and slots
   int numThreads = std::stoi( SmartIF<IProperty>(m_scheduler)->getProperty("ThreadPoolSize").toString() );
+  int numSlots = std::stoi( serviceLocator()->service("EventDataSvc").as<IProperty>()->getProperty("NSlots").toString() );
 
   // Flag the monitoring as running (prevents going past this point twice)
   if (bool expected = false; not m_running.compare_exchange_strong(expected, true)) {
@@ -70,11 +71,11 @@ StatusCode SchedulerMonSvc::startMonitoring() {
   }
 
   // Construct the callback and pass it to the scheduler monitoring API
-  auto monCallback = [this, &numThreads](IScheduler::OccupancySnapshot snap) -> void {
+  auto monCallback = [this, &numThreads, &numSlots](IScheduler::OccupancySnapshot snap) -> void {
     auto monTime = Monitored::Timer("TIME_monCallback");
     // Calculate and update snap counters
     const ClockType::duration wallTime = snap.time - m_startTime;
-    const size_t thisSnapCounter = std::chrono::duration_cast<std::chrono::milliseconds>(wallTime).count() / m_samplingPeriodMillisec.value();
+    const size_t thisSnapCounter = std::chrono::duration_cast<std::chrono::milliseconds>(wallTime).count() / m_monIntervalMillisec.value();
     const size_t lastSnapCounter = m_lastSnapCounter.exchange(thisSnapCounter);
     const int periodsSinceLastSnap = thisSnapCounter - lastSnapCounter;
 
@@ -97,9 +98,11 @@ StatusCode SchedulerMonSvc::startMonitoring() {
     // Monitor alg state counts absolute numbers and ratios to N threads and N active states
     std::vector<Monitored::Scalar<int>> mon_stateCounts;
     std::vector<Monitored::Scalar<double>> mon_stateCountsOverThreads;
+    std::vector<Monitored::Scalar<double>> mon_stateCountsOverSlots;
     std::vector<Monitored::Scalar<double>> mon_stateCountsOverActive;
     mon_stateCounts.reserve(static_cast<size_t>(AlgState::MAXVALUE));
     mon_stateCountsOverThreads.reserve(static_cast<size_t>(AlgState::MAXVALUE));
+    mon_stateCountsOverSlots.reserve(static_cast<size_t>(AlgState::MAXVALUE));
     mon_stateCountsOverActive.reserve(static_cast<size_t>(AlgState::MAXVALUE));
     int activeCount = 0;
     for (size_t i : s_activeAlgStateNumbers) {
@@ -108,26 +111,34 @@ StatusCode SchedulerMonSvc::startMonitoring() {
     for (size_t i : s_algStateNumbers) {
       mon_stateCounts.emplace_back(s_algStateNames[i].data(), stateTotalCounts[i]);
       mon_stateCountsOverThreads.emplace_back(s_algStateNames[i].data()+"_Over_Threads"s, divAsDouble(stateTotalCounts[i], numThreads));
+      mon_stateCountsOverSlots.emplace_back(s_algStateNames[i].data()+"_Over_Slots"s, divAsDouble(stateTotalCounts[i], numSlots));
       double toActive = (activeCount > 0) ? divAsDouble(stateTotalCounts[i], activeCount) : 0;
       mon_stateCountsOverActive.emplace_back(s_algStateNames[i].data()+"_Over_Active"s, toActive);
     }
 
     // Monitor number of free slots
     auto mon_freeSlots = Monitored::Scalar("FreeSlots", m_scheduler->freeSlots());
+    auto mon_freeSlotsFrac = Monitored::Scalar("FreeSlotsFraction", divAsDouble(m_scheduler->freeSlots(), numSlots));
 
     // Reserve vector of references with size equal to the number of variables added into the vector in the loop below
     std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> allMonVars;
-    allMonVars.reserve(5 + mon_stateCounts.size() + mon_stateCountsOverThreads.size() + mon_stateCountsOverActive.size());
+    allMonVars.reserve(6 +
+                       mon_stateCounts.size() +
+                       mon_stateCountsOverThreads.size() +
+                       mon_stateCountsOverSlots.size() +
+                       mon_stateCountsOverActive.size());
     // Fill monitoring histograms once for each sampling period passed since the last fill
     // If multiple sampling periods passed, it means the scheduler state didn't change during that time
     for (size_t snapNumber=lastSnapCounter+1; snapNumber<=thisSnapCounter; ++snapNumber) {
       auto mon_snapNumber = Monitored::Scalar("SnapNumber", snapNumber);
-      auto mon_wallTimeSec = Monitored::Scalar("WallTimeSeconds", snapNumber*m_samplingPeriodMillisec.value()*1e-3);
+      auto mon_wallTimeSec = Monitored::Scalar("WallTimeSeconds", snapNumber*m_monIntervalMillisec.value()*1e-3);
       allMonVars.clear();
       allMonVars.insert(allMonVars.end(), mon_stateCounts.begin(), mon_stateCounts.end());
       allMonVars.insert(allMonVars.end(), mon_stateCountsOverThreads.begin(), mon_stateCountsOverThreads.end());
+      allMonVars.insert(allMonVars.end(), mon_stateCountsOverSlots.begin(), mon_stateCountsOverSlots.end());
       allMonVars.insert(allMonVars.end(), mon_stateCountsOverActive.begin(), mon_stateCountsOverActive.end());
-      allMonVars.insert(allMonVars.end(), {mon_stateNumber, mon_stateTotalCounts, mon_freeSlots, mon_snapNumber, mon_wallTimeSec});
+      allMonVars.insert(allMonVars.end(), {mon_stateNumber, mon_stateTotalCounts, mon_freeSlots, mon_freeSlotsFrac,
+                                           mon_snapNumber, mon_wallTimeSec});
       Monitored::Group(m_monTool, allMonVars);
     }
     monTime.stop();
@@ -136,7 +147,7 @@ StatusCode SchedulerMonSvc::startMonitoring() {
 
   // Start monitoring
   m_startTime = ClockType::now();
-  m_scheduler->recordOccupancy(m_samplingPeriodMillisec.value(), std::move(monCallback));
+  m_scheduler->recordOccupancy(m_monIntervalMillisec.value(), std::move(monCallback));
 
   ATH_MSG_INFO("Scheduler monitoring started");
 

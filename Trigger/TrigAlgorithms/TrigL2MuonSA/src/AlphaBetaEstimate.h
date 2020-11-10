@@ -35,13 +35,13 @@ class AlphaBetaEstimate: public AthAlgTool
   StatusCode setAlphaBeta(const LVL1::RecMuonRoI*       p_roi,
 			  TrigL2MuonSA::TgcFitResult&   tgcFitResult,
 			  TrigL2MuonSA::TrackPattern&   trackPattern,
-			  const TrigL2MuonSA::MuonRoad& muonRoad);
+			  const TrigL2MuonSA::MuonRoad& muonRoad) const;
 
  private:
 
   double computeRadius(double InnerSlope, double InnerR, double InnerZ,
 		       double MiddleSlope, double MiddleR, double MiddleZ,
-		       double sign);
+		       double sign) const;
 
   double computeRadius3Points(double InnerZ, double InnerR, double EEZ, double EER,double MiddleZ, double MiddleR ) const ;
   double calcDistance(double x1,double y1,double x2,double y2,double x3,double y3) const;

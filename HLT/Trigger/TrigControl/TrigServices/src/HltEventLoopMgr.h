@@ -245,6 +245,10 @@ private:
     this, "RewriteLVL1", false,
     "Encode L1 results to ByteStream and write to the output. Possible only with athenaHLT, not online."};
 
+  Gaudi::Property<bool> m_popAll{
+    this, "PopAllMode", true, "If true, pop all finished events from scheduler and process all results before filling "
+    "the slots again. If false, pop only one and refill the slot before popping another finished event."};
+
   Gaudi::Property<bool> m_monitorScheduler{
     this, "MonitorScheduler", false, "Enable SchedulerMonSvc to collect scheduler status data in online histograms"};
 

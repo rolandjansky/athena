@@ -1,15 +1,14 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import sys
-import time
-from PyCool import cool, coral
+from PyCool import cool
 
 from CoolRunQuery.utils.AtlRunQueryLookup import InitDetectorMaskDecoder
 
 def main( runNum=None, projectName='' ):
-    if runNum == None:
+    if runNum is None:
         print('ERROR no runNumber given')
         sys.exit(-1)
 
@@ -107,7 +106,7 @@ def main( runNum=None, projectName='' ):
 if __name__ == "__main__":
     try:
         runNumber = int( sys.argv[1] )
-    except:
+    except Exception:
         print("run number %s could not be converted to int"%(sys.argv[1]))
         sys.exit(-1)
         

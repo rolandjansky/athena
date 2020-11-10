@@ -15,6 +15,7 @@ TrigErrorMonTool::TrigErrorMonTool(const std::string& type, const std::string& n
 // =============================================================================
 StatusCode TrigErrorMonTool::initialize() {
   ATH_CHECK(m_monTool.retrieve(DisableTool{m_monTool.name().empty()}));
+  ATH_CHECK(m_algToChainTool.retrieve(DisableTool{m_algToChainTool.name().empty()}));
   ATH_CHECK(m_aess.retrieve());
   return StatusCode::SUCCESS;
 }
@@ -24,6 +25,7 @@ StatusCode TrigErrorMonTool::initialize() {
 // =============================================================================
 StatusCode TrigErrorMonTool::finalize() {
   ATH_CHECK(m_monTool.release());
+  ATH_CHECK(m_algToChainTool.release());
   ATH_CHECK(m_aess.release());
   return StatusCode::SUCCESS;
 }
@@ -41,6 +43,16 @@ std::unordered_map<std::string_view, StatusCode> TrigErrorMonTool::algExecErrors
       auto monErrorAlgName = Monitored::Scalar<std::string>("ErrorAlgName", key.str());
       auto monErrorCode = Monitored::Scalar<std::string>("ErrorCode", state.execStatus().message());
       auto mon = Monitored::Group(m_monTool, monErrorAlgName, monErrorCode);
+
+      if (m_algToChainTool.isEnabled()) {
+        std::set<std::string> chainNames = m_algToChainTool->getActiveChainsForAlg(key.str(), eventContext);
+        // Monitored::Collection requires operator[]
+        std::vector<std::string> chainNamesVec(chainNames.begin(), chainNames.end());
+
+        auto monErrorChainNames= Monitored::Collection<std::vector<std::string>>("ErrorChainName", chainNamesVec);
+        Monitored::Group(m_monTool, monErrorChainNames, monErrorCode);
+      }
+
     }
   }
   return algErrors;

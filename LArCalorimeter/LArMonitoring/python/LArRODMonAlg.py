@@ -264,7 +264,7 @@ if __name__=='__main__':
    cfg.printConfig()
 
    ConfigFlags.dump()
-   f=open("LArRODMon.pkl","w")
+   f=open("LArRODMon.pkl","wb")
    cfg.store(f)
    f.close()
 

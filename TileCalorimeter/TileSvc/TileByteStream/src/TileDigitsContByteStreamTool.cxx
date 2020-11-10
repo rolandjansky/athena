@@ -36,6 +36,7 @@ TileDigitsContByteStreamTool::TileDigitsContByteStreamTool( const std::string& t
   , m_tileHWID(0)
   , m_hid2re(0)
   , m_verbose(false)
+  , m_runPeriod(0)
 {
   declareInterface< TileDigitsContByteStreamTool >( this );
   declareProperty("DoFragType1", m_doFragType1 = false);
@@ -56,6 +57,8 @@ StatusCode TileDigitsContByteStreamTool::initialize() {
   ATH_CHECK( dec.retrieve() );
 
   m_hid2re = dec->getHid2reHLT();
+  TileCablingService *cabling = TileCablingService::getInstance();
+  m_runPeriod = cabling->runPeriod();
 
   return StatusCode::SUCCESS;
 }
@@ -85,7 +88,7 @@ StatusCode TileDigitsContByteStreamTool::convert(DIGITS* digitsContainer, FullEv
 
     if (isTMDB){  
        reid = m_hid2re->getRodTileMuRcvID(frag_id);
-       mapEncoder[reid].setTileHWID(m_tileHWID);
+       mapEncoder[reid].setTileHWID(m_tileHWID,m_runPeriod);
     } else {
        reid = m_hid2re->getRodID(frag_id);
        mapEncoder[reid].setTileHWID(m_tileHWID, m_verbose, 1);
@@ -102,22 +105,20 @@ StatusCode TileDigitsContByteStreamTool::convert(DIGITS* digitsContainer, FullEv
                   << " number of channels " << MSG::dec << n );
   }
 
-  TileROD_Encoder* theEncoder;
-
   // TileROD_Encoder has collected all the channels, now can fill the ROD block data.
 
-  for (std::pair<uint32_t, TileROD_Encoder> reidAndEncoder: mapEncoder) {
+  for (std::pair<const uint32_t, TileROD_Encoder>& reidAndEncoder: mapEncoder) {
 
     theROD = fea->getRodData(reidAndEncoder.first);
-    theEncoder = &(reidAndEncoder.second);
+    TileROD_Encoder& theEncoder = reidAndEncoder.second;
 
     // RODId is already defined so use it for the exception
 
     if ((reidAndEncoder.first & 0xf00)) {
-      theEncoder->fillRODTileMuRcvDigi(*theROD);
+      theEncoder.fillRODTileMuRcvDigi(*theROD);
     } else {
-      if (m_doFragType1) theEncoder->fillROD1(*theROD);
-      if (m_doFragType5) theEncoder->fillROD5D(*theROD);
+      if (m_doFragType1) theEncoder.fillROD1(*theROD);
+      if (m_doFragType5) theEncoder.fillROD5D(*theROD);
     }
     
     ATH_MSG_DEBUG( " Number words in ROD " << MSG::hex <<" 0x"<< reidAndEncoder.first << MSG::dec << " : " << theROD->size() );

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
 Trk::MaterialManipulation::MaterialManipulation(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name,pSvcLocator),
   m_inputLayerMaterialMapName("/GLOBAL/TrackingGeo/Input"),
-  m_inputLayerMaterialMap(0), 
+  m_inputLayerMaterialMap(nullptr), 
   m_outputLayerMaterialMapName("/GLOBAL/TrackingGeo/Output"),
   m_layerMaterialManipulator("")
 {
@@ -65,7 +65,7 @@ StatusCode Trk::MaterialManipulation::execute()
        // create the output material map
        outputLayerMaterialMap = new Trk::LayerMaterialMap();    
        // now create the new one and manipulate
-       for ( auto& lmIter : (*m_inputLayerMaterialMap) ){
+       for ( const auto & lmIter : (*m_inputLayerMaterialMap) ){
            // copy the layer material 
            ATH_MSG_VERBOSE("  -> Found map for layer with index " << lmIter.first);
            // use the virtual constructor

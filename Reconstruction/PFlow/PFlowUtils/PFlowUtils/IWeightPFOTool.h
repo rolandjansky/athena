@@ -10,6 +10,7 @@
 #include "AsgTools/IAsgTool.h"
 
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 #include "PFlowUtils/PFODefs.h"
 
 namespace CP {
@@ -23,6 +24,7 @@ namespace CP {
 
     /** given a PFO, extract weight */
     virtual StatusCode fillWeight( const xAOD::PFO& cpfo, float& weight ) const = 0;
+    virtual StatusCode fillWeight( const xAOD::FlowElement& cpfo, float& weight ) const = 0;
 
   };
 

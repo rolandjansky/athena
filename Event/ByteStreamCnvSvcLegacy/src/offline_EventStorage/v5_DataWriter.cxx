@@ -32,16 +32,16 @@ using EventStorage::SimpleFileName;
 
 // constructors
 DataWriter::
-DataWriter(const string writingPath,   
+DataWriter(const string& writingPath,   
 	   boost::shared_ptr<FileNameCallback> theFNCB,   
-	   const run_parameters_record rPar, 
-	   const std::string project,
-	   const std::string streamType,
-	   const std::string streamName,
-	   const std::string stream,
+	   const run_parameters_record& rPar, 
+	   const std::string& project,
+	   const std::string& streamType,
+	   const std::string& streamName,
+	   const std::string& stream,
 	   const unsigned int lumiBlockNumber,
-	   const std::string applicationName,
-	   const std::vector<std::string> fmdStrings,
+	   const std::string& applicationName,
+	   const std::vector<std::string>& fmdStrings,
 	   const CompressionType compression,
 	   const unsigned int compLevel) 
 {
@@ -50,10 +50,10 @@ DataWriter(const string writingPath,
 }
 
 DataWriter::
-DataWriter(const string writingPath,   
-	   const string fileNameCore,     
-	   const run_parameters_record rPar, 
-	   const freeMetaDataStrings fmdStrings, 
+DataWriter(const string& writingPath,   
+	   const string& fileNameCore,     
+	   const run_parameters_record& rPar, 
+	   const freeMetaDataStrings& fmdStrings, 
 	   const unsigned int startIndex,
 	   const CompressionType compression,
 	   const unsigned int compLevel)
@@ -95,16 +95,16 @@ DataWriter(const string writingPath,
 
 
 DataWriter::
-DataWriter(const string writingPath,   
-	   const string fileNameCore,     
-	   const run_parameters_record rPar, 
-	   const std::string project,
-	   const std::string streamType,
-	   const std::string streamName,
-	   const std::string stream,
+DataWriter(const string& writingPath,   
+	   const string& fileNameCore,     
+	   const run_parameters_record& rPar, 
+	   const std::string& project,
+	   const std::string& streamType,
+	   const std::string& streamName,
+	   const std::string& stream,
 	   const unsigned int lumiBlockNumber,
-	   const std::string applicationName,
-	   const std::vector<std::string> fmdStrings,
+	   const std::string& applicationName,
+	   const std::vector<std::string>& fmdStrings,
 	   const CompressionType compression,
 	   const unsigned int compLevel)
 {
@@ -128,16 +128,16 @@ DataWriter::~DataWriter()
 
 
 void DataWriter::
-initDW(const string writingPath,   
+initDW(const string& writingPath,   
        boost::shared_ptr<FileNameCallback> theFNCB,   
-       const run_parameters_record rPar, 
-       const std::string project,
-       const std::string streamType,
-       const std::string streamName,
-       const std::string stream,
+       const run_parameters_record& rPar, 
+       const std::string& project,
+       const std::string& streamType,
+       const std::string& streamName,
+       const std::string& stream,
        const unsigned int lumiBlockNumber,
-       const std::string applicationName,
-       const std::vector<std::string> fmdStrings,
+       const std::string& applicationName,
+       const std::vector<std::string>& fmdStrings,
        const CompressionType compression,
        const unsigned int compLevel)
 {

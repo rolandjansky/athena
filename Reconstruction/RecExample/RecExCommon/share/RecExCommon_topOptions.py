@@ -568,6 +568,23 @@ if rec.doTrigger:
             treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
             recAlgs.doTrigger=False
 
+#MT part
+## Outputs
+if TriggerFlags.doMT() and rec.readESD() and rec.doAOD():
+    # Don't run any trigger - only pass the HLT contents from ESD to AOD
+    # Add HLT output
+    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+    hltOutput = HLTTriggerResultGetter()
+    # Add Trigger menu metadata
+    if rec.doFileMetaData():
+        from RecExConfig.ObjKeyStore import objKeyStore
+        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                          "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+        objKeyStore.addManyTypesMetaData( metadataItems )
+    # Add L1 output (to be consistent with R2)
+    from TrigEDMConfig.TriggerEDM import getLvl1AODList
+    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
+
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
@@ -594,7 +611,7 @@ if globalflags.InputFormat.is_bytestream():
     pass
 
 ### write mu values into xAOD::EventInfo
-if rec.doESD() and rec.readRDO():
+if rec.readRDO():
     if globalflags.DataSource()=='geant4':
         include_muwriter = (globalflags.InputFormat.is_bytestream() or
                             hasattr( condSeq, "xAODMaker::EventInfoCnvAlg" ) or
@@ -603,12 +620,8 @@ if rec.doESD() and rec.readRDO():
         include_muwriter = not athenaCommonFlags.isOnline()
 
     if include_muwriter:
-        try:
-            include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
-        except Exception:
-            treatException("Could not load LumiBlockMuWriter_jobOptions.py")
-            pass
-        pass
+        from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+        LumiBlockMuWriterDefault()
 
 if rec.doMonitoring():
     try:
@@ -947,14 +960,22 @@ if rec.doFileMetaData():
 
     # Add the needed stuff for cut-flow bookkeeping.
     # Only the configurables that are not already present will be created
-    from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
-    logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
-    CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
-    if rec.readAOD() or rec.readESD():
-        #force CutFlowSvc execution (necessary for file merging)
-        theApp.CreateSvc+=['CutFlowSvc']
-        logRecExCommon_topOptions.debug("Added CutFlowSvc to theApp")
-        pass    
+    hasBookkeepers = False
+    if 'metadata_items' in metadata:
+        metadata_items = metadata['metadata_items']
+        if 'xAOD::CutBookkeeperContainer_v1' in set(metadata_items.values()):
+            logRecExCommon_topOptions.debug("Existing CutBookkeeperContainer found")
+            hasBookkeepers = True
+    if hasBookkeepers or ('runArgs' in dir() and hasattr(runArgs, "reductionConf")): # TODO: no other way to detect we are running derivations
+        # TODO: check all DAOD workflows
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
+        if rec.readAOD() or rec.readESD():
+            #force CutFlowSvc execution (necessary for file merging)
+            theApp.CreateSvc+=['CutFlowSvc']
+            logRecExCommon_topOptions.debug("Added CutFlowSvc to theApp")
+            pass    
 
     try:
         # ByteStreamMetadata
@@ -977,7 +998,11 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
-        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
+
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=seq, addMetaDataToAllOutputFiles=True )
+
         seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
@@ -1284,14 +1309,30 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if rec.readESD() or recAlgs.doTrackParticleCellAssociation():
                 addClusterToCaloCellAOD("InDetTrackParticlesAssociatedClusters")
 
-            if rec.readESD() and rec.doTau:
+            from tauRec.tauRecFlags import tauFlags
+            if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:                
                 from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
-                alg = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauInitialPi0Clusters',
-                                                StreamName = 'StreamAOD',
-                                                Clusters = 'TauInitialPi0Clusters',
-                                                Cells = 'TauCommonPi0Cells')
-                topSequence += alg
+                tauCellAlg1 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
+                                                        StreamName = 'StreamAOD',
+                                                        Clusters = 'TauPi0Clusters',
+                                                        Cells = 'AllCalo')
+                topSequence += tauCellAlg1
 
+                tauCellAlg2 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauShotClusters',
+                                                        StreamName = 'StreamAOD',
+                                                        Clusters = 'TauShotClusters',
+                                                        Cells = 'AllCalo')
+                topSequence += tauCellAlg2
+
+                from tauRec.tauRecConf import TauCellThinningAlg
+                tauCellAlg3 = TauCellThinningAlg('TauCellThinningAlg',
+                                                 StreamName = 'StreamAOD',
+                                                 Cells = 'AllCalo',
+                                                 CellLinks = 'CaloCalTopoClusters_links',
+                                                 Taus = "TauJets",
+                                                 UseSubtractedCluster = tauFlags.useSubtractedCluster())
+                topSequence += tauCellAlg3
+                
         except Exception:
             treatException("Could not make AOD cells" )
 
@@ -1483,13 +1524,9 @@ if rec.doWriteBS():
     #        StreamBS.ItemList +=["LArRawChannels#*"]
     StreamBSFileOutput.ItemList +=["2721#*"]
 
-    # GU LAr bytestream writing now using calonoisetool, make sure it is configured
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    theNoiseTool = CaloNoiseToolDefault()
-    ToolSvc += theNoiseTool
-
     from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
-    ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True)
+    ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True,
+                                                stream = StreamBSFileOutput)
 
     # Tile
     #        StreamBS.ItemList +=["TileRawChannelCnt#*"]

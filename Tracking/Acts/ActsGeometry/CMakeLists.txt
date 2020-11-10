@@ -1,37 +1,18 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ActsGeometry )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          PRIVATE
-                          Control/StoreGate
-                          DetectorDescription/Identifier
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
-                          Control/AthenaBaseComps
-                          AthenaKernel
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          DetectorDescription/GeoPrimitives
-                          Event/EventInfo
-                          GaudiKernel
-                          MagFieldElements MagFieldConditions
-                          Calorimeter/CaloDetDescr
-                          Tracking/Acts/ActsGeometryInterfaces
-                          Tracking/Acts/ActsInterop
-                          Tracking/TrkDetDescr/TrkGeometry)
-
 # External dependencies:
-find_package( CLHEP )
-find_package( Eigen )
+find_package( Acts COMPONENTS Core PluginJson )
 find_package( Boost )
-find_package( nlohmann_json )
-
-find_package( Acts COMPONENTS Core PluginJson)
+find_package( CLHEP )
+find_package( Geant4 )
+find_package( GeoModelCore )
+find_package( ROOT COMPONENTS Core Tree RIO )
+find_package( TBB )
 
 # Component(s) in the package:
-
 atlas_add_library( ActsGeometryLib
                    src/ActsAlignmentStore.cxx
                    src/ActsDetectorElement.cxx
@@ -40,16 +21,28 @@ atlas_add_library( ActsGeometryLib
                    src/ActsTrackingGeometrySvc.cxx
                    src/util/*.cxx
                    PUBLIC_HEADERS ActsGeometry
-                   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
-                   AthenaKernel
-                   ActsInteropLib
-                   ActsGeometryInterfacesLib
+                   INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TBB_LIBRARIES}
                    ActsCore
+                   ActsGeometryInterfacesLib
+                   ActsInteropLib
                    ActsPluginJson
-                   TrkGeometry
+                   AthenaBaseComps
+                   AthenaKernel
+                   CaloDetDescrLib
+                   EventInfo
+                   GaudiKernel
+                   GeoModelUtilities
+                   GeoPrimitives
+                   Identifier
+                   InDetIdentifier
+                   InDetReadoutGeometry
+                   MagFieldConditions
+                   PRIVATE_LINK_LIBRARIES
+                   StoreGateLib
                    TRT_ReadoutGeometry
-                   MagFieldElements MagFieldConditions)
+                   TrkGeometry
+                   TrkSurfaces )
 
 atlas_add_component( ActsGeometry
                      src/ActsExtrapolationAlg.cxx
@@ -58,7 +51,7 @@ atlas_add_component( ActsGeometry
                      src/ActsExtrapolationTool.cxx
                      src/ActsMaterialMapping.cxx
                      src/ActsSurfaceMappingTool.cxx
-                     #src/ActsVolumeMappingTool.cxx
+                     src/ActsVolumeMappingTool.cxx
                      src/ActsObjWriterTool.cxx
                      #src/ActsExCellWriterSvc.cxx
                      src/ActsMaterialStepConverterTool.cxx
@@ -70,18 +63,29 @@ atlas_add_component( ActsGeometry
                      src/ActsTrackingGeometryTool.cxx
                      src/ActsPropStepRootWriterSvc.cxx
                      src/ActsCaloTrackingVolumeBuilder.cxx
+                     src/ActsGeantFollower.cxx
+                     src/ActsGeantFollowerHelper.cxx
+                     src/ActsGeantFollowerTool.cxx
                      src/components/*.cxx
-                     PUBLIC_HEADERS ActsGeometry
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS} ${BOOST_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES}
-                     EventInfo
-                     CaloDetDescrLib
-                     ActsInteropLib
-                     ActsGeometryLib
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} ${ROOT_LIBRARIES}
                      ActsGeometryInterfacesLib
-                     ActsCore
-                     ActsPluginJson)
+                     ActsGeometryLib
+                     ActsInteropLib
+                     AthenaBaseComps
+                     AthenaKernel
+                     CaloDetDescrLib
+                     EventInfo
+                     G4AtlasInterfaces 
+                     G4AtlasToolsLib 
+                     GaudiKernel
+                     StoreGateLib
+                     TRT_ReadoutGeometry
+                     TrkGeometry
+                     TrkExInterfaces
+                     TrkParameters
+                     TrkSurfaces )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

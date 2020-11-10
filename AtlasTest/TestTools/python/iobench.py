@@ -105,7 +105,7 @@ class Bench(object):
 
         for i in range(self.nTimes):
             iStart = getResources()
-            out = fct( *args, **kwargs )
+            fct( *args, **kwargs )
             self.data.append( getResources() - iStart )
             pass
 
@@ -143,7 +143,6 @@ class Bench(object):
 ## ---- Athena specific part ----
 ##
 
-import os
 from configparser import ConfigParser
 class ChronoStatsOutputParser( ConfigParser ):
     """Subclass and specialize ConfigParser to make it case-sensitive
@@ -326,7 +325,6 @@ def doPostCheck( validationName, refFileName, chkFileName, chkFilter ):
 
 ###-----------------------------------------------------
 from AthenaCommon import ChapPy
-from tempfile import NamedTemporaryFile
 class AthBench(object):
 
     def __init__( self,
@@ -356,7 +354,7 @@ class AthBench(object):
         for i in range(self.nTimes):
             self.athena.logFile = open( "%s.%s" % (self.logFileName,i), "w" )
             iStart = getResources()
-            out = self.athena.run()
+            self.athena.run()
             self.data.append( getResources() - iStart )
             self.chronoStats.append( ChronoStatReport(self.ioStatsFileName) )
             pass

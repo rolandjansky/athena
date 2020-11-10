@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************************
@@ -122,7 +122,7 @@ struct IDAlignMonResiduals::TRTBarrelHistograms{
 	TH2F* aveResVsPhiEta[3][3]{};
 	TH2F* rmsResVsPhiEta[3][3]{};
 };
-
+/////////////////////////////////////////////////
 struct IDAlignMonResiduals::TRTEndcapHistograms{
 
 	/** Residual in TRT Endcap */
@@ -154,7 +154,8 @@ struct IDAlignMonResiduals::TRTEndcapHistograms{
 	TProfile* aveResVsTrackEta[2]{};
 
 	/** Residuals and pulls vs pT in the TRT Endcap */
-	TH2F* residualR_pt[2]{};
+        TH2F* residualR_pt[2]{};
+        TProfile* residualR_ptwheel[2][40]{};
 	TH2F* pullR_pt[2]{};
 	TH2F* pullR_notube_pt[2]{};
 
@@ -185,7 +186,7 @@ struct IDAlignMonResiduals::TRTEndcapHistograms{
 	TH2F* rmsResVsRadiusWheelNeg[2]{};
 };
 
-
+////////////////////////////////////////
 IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::string & name, const IInterface* parent )
  :ManagedMonitorToolBase( type, name, parent ),
   m_trtcaldbTool("TRT_CalDbTool",this),
@@ -205,54 +206,55 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_z_fix = 366.5; // IBL Stave fixing screw position [mm]
 	m_NLumiBlocksMon = 1;
 	m_minTRTResWindow      = -1.0;
-	m_maxTRTResWindow      = 1.0;
+	m_maxTRTResWindow      =  1.0;
 	m_minSiResMeanWindow   = -0.1;
-	m_maxSiResMeanWindow   = 0.1;
-	m_minSiResWidthWindow  = 0.0;
-	m_maxSiResWidthWindow  = 0.3;
-	m_minSiPullWidthWindow = 0.0;
-	m_maxSiPullWidthWindow = 2.0;
-	m_minSiResFillRange    = -0.5;
-	m_maxSiResFillRange    = 0.5;
-	m_maxPIXResXFillRange  = 0.;  // if 0, it will use the m_maxSiResFillRange value
-	m_minPIXResXFillRange  = 0.;  // if 0, it will use the m_minSiResFillRange value
-	m_maxPIXResYFillRange  = 0.;
-	m_minPIXResYFillRange  = 0.;
-	m_maxSCTResFillRange   = 0.;
-	m_minSCTResFillRange   = 0.;
+	m_maxSiResMeanWindow   =  0.1;
+	m_minSiResWidthWindow  =  0.0;
+	m_maxSiResWidthWindow  =  0.3;
+	m_minSiPullWidthWindow =  0.0;
+	m_maxSiPullWidthWindow =  2.0;
+	m_minSiResFillRange    = -0.08;
+	m_maxSiResFillRange    =  0.08;
+	m_maxPIXResXFillRange  =  0.;  // if 0, it will use the m_maxSiResFillRange value
+	m_minPIXResXFillRange  =  0.;  // if 0, it will use the m_minSiResFillRange value
+	m_maxPIXResYFillRange  =  0.4;
+	m_minPIXResYFillRange  = -0.4;
+	m_maxSCTResFillRange   =  0.;
+	m_minSCTResFillRange   =  0.;
 	m_ClusterSizeRange     = 10.;
-	m_IncidentThetaRange   = 2;
-	m_IncidentPhiRange     = 0.8;
-	m_RangeOfPullHistos    = 10.;
-	m_PtRange              = 20.;
-	m_nBinsMuRange         = 100.;
-	m_muRangeMin           = 0.;
-	m_muRangeMax           = 100;
-	m_nBinsPtRange         = 100;
-	m_mapSplit             = 1; // Create the residual maps splitting the modules in nxn pieces
+	m_IncidentThetaRange   =  2.;
+	m_IncidentPhiRange     =  0.8;
+	m_RangeOfPullHistos    =  6.;
+	m_PtRange              = 40.;
+	m_xHitErrorRange       = 0.08; 
+	m_yHitErrorRange       = 0.12;
+	m_nBinsMuRange         =100.;
+	m_muRangeMin           =  0.;
+	m_muRangeMax           =100.;
+	m_nBinsPtRange         =100;
+	m_mapSplit              = 1; // Create the residual maps splitting the modules in nxn pieces
 	m_do3DOverlapHistos     = false;
 	m_extendedPlots         = false;
 	m_doClusterSizeHistos   = false;
 	m_FinerBinningFactor    = 1;
 	m_LBGranularity         = 1;
 	m_LBRangeMin            = -0.5;
-	m_LBRangeMax            = 2599.5; // 1199.5
-	m_nBinsLB               = 52; // 24
+	m_LBRangeMax            = 2599.5; 
+	m_nBinsLB               = 52; 
 	m_gap_pix = 4;
 	m_gap_sct = 4;
 	m_mu = 0.;
 	m_nBinsMuRange         = 100.;
 	m_muRangeMin           = 0.;
-	m_muRangeMax           = 100;
-	m_nIBLHitsPerLB          = 0;
+	m_muRangeMax           =100;
+	m_nIBLHitsPerLB        = 0;
 	m_minIBLhits           = -1;
 	m_hasBeenCalledThisEvent=false;
 	m_doIBLLBPlots         = false;
 	m_useGausFit           = false;
-	m_maxPtEC              = 10.;
+	m_maxPtEC              = 20.;
 
 	InitializeHistograms();
-
 
 	declareProperty("CheckRate"                 , m_checkrate=1000);
 	declareProperty("triggerChainName"          , m_triggerChainName);
@@ -282,6 +284,8 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	declareProperty("RangeOfPullHistos"         , m_RangeOfPullHistos);
 	declareProperty("PtRange"                   , m_PtRange);
 	declareProperty("NBinsPtRange"              , m_nBinsPtRange);
+	declareProperty("xHitErrorRange"            , m_xHitErrorRange);
+	declareProperty("yHitErrorRange"            , m_yHitErrorRange);
 	declareProperty("NBinsLB"                   , m_nBinsLB);
 	declareProperty("FinerBinningFactor"        , m_FinerBinningFactor);
 	declareProperty("NSplitMap"                 , m_mapSplit);
@@ -517,8 +521,12 @@ void IDAlignMonResiduals::InitializeHistograms()
 
   m_hiterror_x_pix_b= 0;
   m_hiterror_x_pix_ec= 0;
+  m_hiterror_x_pix_eca= 0;
+  m_hiterror_x_pix_ecc= 0;
   m_hiterror_y_pix_b= 0;
   m_hiterror_y_pix_ec= 0;
+  m_hiterror_y_pix_eca= 0;
+  m_hiterror_y_pix_ecc= 0;
 
   m_hiterror_x_pix_b_WideRange= 0;
   m_hiterror_x_pix_ec_WideRange= 0;
@@ -633,7 +641,6 @@ StatusCode IDAlignMonResiduals::bookHistograms()
   }
 
   std::string outputDirName = "IDAlignMon/" + m_tracksName.key() + "_" + m_triggerChainName + "/Residuals";
-  //std::cout << " -- SALVA -- histos for track collection: " <<  m_tracksName.key() << "_" << m_triggerChainName << std::endl;
 
   MonGroup al_mon ( this, outputDirName, run );
 
@@ -1050,9 +1057,10 @@ void IDAlignMonResiduals::RegisterHisto(MonGroup& mon, TH2* histo) {
 
 StatusCode IDAlignMonResiduals::fillHistograms()
 {
-
+  
   const EventContext& ctx = Gaudi::Hive::currentContext();
   ++m_events;
+  ATH_MSG_DEBUG ("IDAlignMonResiduals::fillHistograms ** START ** call for m_events " << m_events << " for track collection: " <<   m_tracksName.key());
 
   m_hasBeenCalledThisEvent=false;
   m_mu=0.;
@@ -1070,8 +1078,9 @@ StatusCode IDAlignMonResiduals::fillHistograms()
     m_mu = lbAverageInteractionsPerCrossing();
     m_hasBeenCalledThisEvent=true;
   }
-  else
+  else {
     m_mu = -999;
+  }
 
   if (m_extendedPlots){
     m_mu_perEvent->Fill(m_mu);
@@ -1091,60 +1100,52 @@ StatusCode IDAlignMonResiduals::fillHistograms()
     }
   }
 
-  // Code is able to get a weight from an external file and appy it to all histograms
-  double hweight = 1.;
-  // NB the weight is a "per track" weight, so histograms such as BS info are never weighted
-
   SG::ReadHandle<TrackCollection> inputTracks{m_tracksName};
   if (not inputTracks.isValid()) {
-    ATH_MSG_ERROR(m_tracksName.key() << " could not be retrieved");
+    ATH_MSG_DEBUG ("IDAlignMonResiduals::fillHistograms() -- " << m_tracksName.key() << " could not be retrieved");
     return StatusCode::RECOVERABLE;
   }
   const DataVector<Trk::Track>* tracks = m_trackSelection->selectTracks(inputTracks);
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDAlignMonResiduals::fillHistograms() -- event: " << m_events
-					 << " with Track collection " << m_tracksName.key() << " has size =" << tracks->size()
-					 << endmsg;
+  ATH_MSG_DEBUG ("IDAlignMonResiduals::fillHistograms() -- event: " << m_events
+		 << " with Track collection " << m_tracksName.key()
+		 << " has size =" << tracks->size());
 
   int nTracks = 0;
   int nHitsEvent = 0;
 
-  //DataVector<Trk::Track>::const_iterator trackItr  = tracks->begin();
-  //DataVector<Trk::Track>::const_iterator trackItrE = tracks->end();
   for (DataVector<Trk::Track>::const_iterator trackItr  = tracks->begin(); trackItr != tracks->end(); ++trackItr) { //looping over tracks
-
     //need to get the Trk::Track object from which the TrackParticle object was created
     //this has the hit information
     const Trk::Track* track = *trackItr;
     if(track == NULL){
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No associated Trk::Track object found for track "<< nTracks << endmsg;
+      ATH_MSG_WARNING("** IDAlignMonResiduals::fillHistograms ** No associated Trk::Track object found for track "<< nTracks);
       continue;
     }
 
-    //debugging - check that all TSOS of track have track parameters defined (required to compute residuals/pulls)
-
-    if(msgLvl(MSG::DEBUG)){
-      if(trackRequiresRefit(track)){
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Not all TSOS contain track parameters - will be missing residuals/pulls " << endmsg;
-      }
-      else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "All TSOS contain track parameters - Good! " << endmsg;
+    //check that all TSOS of track have track parameters defined (required to compute residuals/pulls)
+    if (trackRequiresRefit(track)) {	
+      ATH_MSG_DEBUG ("** IDAlignMonResiduals::fillHistograms ** Not all TSOS contain track parameters - will be missing residuals/pulls ");
+    }
+    else {
+      ATH_MSG_DEBUG ("All TSOS of track " << nTracks << " contain track parameters - Good! ");
     }
 
     //trackStateOnSurfaces is a vector of Trk::TrackStateOnSurface objects which contain information
     //on track at each (inner)detector surface it crosses eg hit used to fit track
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "******************* Track = " << nTracks << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "******************* Track Pointer = " << track << endmsg;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found " << track->trackStateOnSurfaces()->size() << " TrkSurfaces " << endmsg;
+    ATH_MSG_DEBUG ("** IDAlignMonResiduals::fillHistograms() ** track: " << nTracks << "  has " << track->trackStateOnSurfaces()->size() << " TrkSurfaces");
 
+    // Code is able to get a weight from an external file and appy it to all histograms
+    double hweight = 1.;
+    // NB the weight is a "per track" weight, so histograms such as BS info are never weighted
     int nHits =  0;//counts number of tsos from which we can define residual/pull
     int nTSOS = -1;//counts all TSOS on the track
     float trkpt      = -999;
     float trkqoverp2 = -999;
     float trketa_w   = -999;
-
-    if(m_extendedPlots)
-      {
-	trkqoverp2 =  track->perigeeParameters()->parameters()[Trk::qOverP]*fabs(track->perigeeParameters()->parameters()[Trk::qOverP])*1000000.;
-      }
+    
+    if(m_extendedPlots) {
+      trkqoverp2 =  track->perigeeParameters()->parameters()[Trk::qOverP]*fabs(track->perigeeParameters()->parameters()[Trk::qOverP])*1000000.;
+    }
 
     trkpt    = (track->perigeeParameters()->charge())*(track->perigeeParameters()->pT())/1000.; // signed and in GeV?
     trketa_w =  track->perigeeParameters()->eta();
@@ -1154,23 +1155,25 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       int binNumber = m_etapTWeight->FindBin( trketa_w, trkpt );
       hweight       = m_etapTWeight->GetBinContent( binNumber );
     }
+    ATH_MSG_DEBUG ("** IDAlignMonResiduals::fillHistograms() ** track: " << nTracks << " pt: " <<  trkpt << "  eta: " << trketa_w << "   weight: " << hweight);
 
     //looping over the hits
     for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
 
       ++nTSOS;
-
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "***************** TSOS (hit) = " << nTSOS << endmsg;
-
-      if (tsos == NULL) continue;
+      if (tsos == NULL) {
+	ATH_MSG_DEBUG ("     TSOS (hit) = " << nTSOS << " is NULL ");
+	continue;
+      }	
+      ATH_MSG_DEBUG ("** IDAlignMonResiduals::fillHistograms() ** track: " << nTracks << "  dealing with TSOS (hit) = " << nTSOS);
 
       //skipping outliers
       if(!tsos->type(Trk::TrackStateOnSurface::Measurement)) {
-      	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Skipping TSOS " << nTSOS << " because it is an outlier (or the first TSOS on the track)" << endmsg;
-      continue;
+	ATH_MSG_DEBUG ("Skipping TSOS " << nTSOS << " because it is an outlier (or the first TSOS on the track)");
+	continue;
       }
       const Trk::MeasurementBase* mesh =tsos->measurementOnTrack();
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Defined hit MeasurementBase " << endmsg;
+      ATH_MSG_DEBUG ("Defined hit MeasurementBase for hit " << nTSOS);
 
       //Trk::RIO_OnTrack object contains information on the hit used to fit the track at this surface
       const Trk::RIO_OnTrack* hit = dynamic_cast <const Trk::RIO_OnTrack*>(mesh);
@@ -1258,42 +1261,43 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       if (m_idHelper->is_trt(hitId)) detType = 2;
       else if (m_idHelper->is_sct(hitId)) detType = 1;
       else  detType = 0;
-      if(detType==2){
-	//have identified a TRT hit
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit is from the TRT, finding residuals... " << endmsg;
+
+      // TRT hits: detType = 2
+      if(detType==2){ 
+	ATH_MSG_DEBUG("** IDAlignMonResiduals::fillHistograms() ** Hit is from the TRT, finding residuals... ");
 	bool isTubeHit = (mesh->localCovariance()(Trk::locX,Trk::locX) > 1.0) ? 1 : 0;
 	const Trk::TrackParameters* trackParameter = tsos->trackParameters();
 	float hitR = hit->localParameters()[Trk::driftRadius];
 	float trketa = tsos->trackParameters()->eta();
 	float pullR = -9.9;
-
+	
 	const Identifier& id = m_trtID->layer_id(hitId);
 	int barrel_ec      = m_trtID->barrel_ec(id);
 	int layer_or_wheel = m_trtID->layer_or_wheel(id);
 	int phi_module     = m_trtID->phi_module(id);
 	int straw_layer    = m_trtID->straw_layer(id);
-
+	
 	//finding residuals
 	if(!trackParameter){
 	  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No TrackParameters associated with TRT TrkSurface "<<nTSOS<< endmsg;
 	  continue;
 	}
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found Trk::TrackParameters" << endmsg;
-
+	ATH_MSG_DEBUG ("Found Trk::TrackParameters for hit " << nTSOS << " --> TRT hit (detType= "<< detType <<")");
+	
 	//getting unbiased track parameters by removing the hit from the track and refitting
 	const Trk::TrackParameters* trackParameterUnbiased = getUnbiasedTrackParameters(track,tsos);
-
+	
 	if(!trackParameterUnbiased){//updator can fail
 	  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Cannot define unbiased parameters for hit, skipping it." << endmsg;
 	  continue;
 	}
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found UnBiased TrackParameters" << endmsg;
-
+	
 	float perdictR = trackParameterUnbiased->parameters()[Trk::locR];
-
+	
 	//Theoretically there should be no difference in the pull, but in practice, there can be differences
 	bool isPullUnbiased = true;
-
+	
 	const Trk::MeasurementBase* mesh =tsos->measurementOnTrack(); //This has been defined in line 869. Should be safe to keep it without redefinition
 	//Not clear to me here. isPullUnbiased is set to true. Why inside the Function I am checking if it is true or not? Useless I would say.
 	const Trk::ResidualPull* residualPull = m_residualPullCalculator->residualPull(mesh,
@@ -1301,49 +1305,45 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 										       (isPullUnbiased) ?
 										       Trk::ResidualPull::Unbiased :
 										       Trk::ResidualPull::Biased);
+	
 	if (residualPull) {
 	  pullR = residualPull->pull()[Trk::locR];
 	}
 	else {
 	  if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " no covariance of the track parameters given, can not calc pull!" << endmsg;
 	}
-
+	
 	delete trackParameterUnbiased;
 	delete residualPull;
-
+	
 	float residualR = hitR - perdictR;
-	//float eventPhase = timeCor;  I think this is useless. I would prefer not to assign this and pass directly timeCor
-
+	
 	const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(tsos->measurementOnTrack());
-
-
-
-
+	
 	const InDet::TRT_DriftCircle *RawDriftCircle(NULL);
-
-	if (trtCircle!=NULL)
-	  {
-	    ATH_MSG_DEBUG("Getting RawDriftCircle");
-	    RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
-	  }
-	else
+	
+	if (trtCircle!=NULL) {
+	  ATH_MSG_DEBUG("Getting RawDriftCircle");
+	  RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
+	}
+	else {
 	  ATH_MSG_DEBUG("trtCircle is a NULL pointer");
-
+	}
+	
 	if ( trtCircle != NULL){
 	  bool isValid;
 	  float leadingEdge = -999;
-	  if (RawDriftCircle != NULL)
-	    {
-	      leadingEdge=RawDriftCircle->driftTime(isValid);
-	    }
-	  else
+	  if (RawDriftCircle != NULL) {
+	    leadingEdge=RawDriftCircle->driftTime(isValid);
+	  }
+	  else {
 	    ATH_MSG_DEBUG("RawDriftCircles are NULL pointer");
-
+	  }
+	  
 	  Identifier DCoTId = trtCircle->identify();
 	  float t0 = m_trtcaldbTool->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
-
-	  ATH_MSG_DEBUG("Filling TRT HISTOS");
-
+	  ATH_MSG_DEBUG("** fillHistograms() ** Filling TRT HISTOS for hit/tsos " << nTSOS);
+	  
 	  // Global positions
 	  float trkz0 = track->perigeeParameters()->parameters()[Trk::z0];
 	  float theta = track->perigeeParameters()->parameters()[Trk::theta];
@@ -1353,19 +1353,17 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  Amg::Vector3D  center(-9999.,-9999.,-9999);
 	  if (RawDriftCircle!=NULL)
 	    center = RawDriftCircle->detectorElement()->surface( id ).center() ;
-
+	  
 	  if( fabs(barrel_ec) == 1 && RawDriftCircle!=NULL){
 	    hitZ = sqrt(center.x()*center.x()+center.y()*center.y())*tan(M_PI/2. - theta) + trkz0;
-	    //std::cout << "z: " << hitZ << std::endl;
 	  }
 	  /* Estimates the global R position of a TRT EC hit using the global z position of the straw
 	     and the track theta */
 	  float hitGlobalR = -9999.; // -999. is a possible value :)
 	  if( fabs(barrel_ec) == 2 && RawDriftCircle!=NULL){
 	    hitGlobalR = (center.z() - trkz0) / tan(M_PI/2. - theta);
-	    //std::cout << "R: " << hitGlobalR << std::endl;
 	  }
-
+	  
 	  /** filling TRT histograms */
 	  fillTRTHistograms(barrel_ec
 			    ,layer_or_wheel
@@ -1384,12 +1382,12 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 			    ,trketa
 			    ,trkpt, hweight);
 	}
-      }//if detType ==2
-
+      }//if detType ==2 // TRT
+      
       //if (detType==0 || detType==1)
       else {//have identified pixel or SCT hit
-
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Hit is pixel or SCT, finding residuals... " << endmsg;
+	
+	ATH_MSG_DEBUG ("** fillHistograms() ** Hit is pixel or SCT, type: " << detType);
 	if(m_doHitQuality) {
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
 
@@ -1433,12 +1431,8 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    ClusSizeZ   = (int)cw.colRow()[1];
 	    ClusSize    = (int)clus->rdoList().size();
 	  }
-
-
-
 	}
 	else {//sct. Since detType == 0 or detType == 1 here
-
 	  const Identifier& id = m_sctID->wafer_id(hitId);
 	  barrelEC  = m_sctID->barrel_ec(id);
 	  layerDisk = m_sctID->layer_disk(id);
@@ -1447,26 +1441,26 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  sctSide   = m_sctID->side(id);
 	  const InDetDD::SiDetectorElement *siDet = dynamic_cast<const InDetDD::SiDetectorElement*>(hit->detectorElement());
 	  if (siDet){
-      isStereo = siDet->isStereo();
-      const InDet::SCT_Cluster *clus = dynamic_cast<const InDet::SCT_Cluster*>(hit->prepRawData());
-      if(clus){
-        const InDet::SiWidth cw = clus->width();
-        ClusSizePhi = (int)cw.colRow()[0];
-        ClusSize = (int)clus->rdoList().size();
-      }
-    }
+	    isStereo = siDet->isStereo();
+	    const InDet::SCT_Cluster *clus = dynamic_cast<const InDet::SCT_Cluster*>(hit->prepRawData());
+	    if(clus){
+	      const InDet::SiWidth cw = clus->width();
+	      ClusSizePhi = (int)cw.colRow()[0];
+	      ClusSize = (int)clus->rdoList().size();
+	    }
+	  }
 	}
 
 	//const Trk::TrackParameters* trackParameter = tsos->trackParameters();  // Already defined before in line 880. Should be safe here to take the one up since there are the continues.
-
+	
 	//finding residuals
 	if(trackParameter){//should always have TrackParameters since we now skip tracks with no MeasuredTrackParameters
-
+	  
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found Trk::TrackParameters " << trackParameter << endmsg;
-
+	  
 	  double unbiasedResXY[4] = {9999.0,9999.0,9999.0,9999.0};
 	  double biasedResXY[4] = {9999.0,9999.0,9999.0,9999.0};
-
+	  
 	  //finding unbiased single residuals
 	  StatusCode sc;
 	  sc = getSiResiduals(track,tsos,true,unbiasedResXY);
@@ -1480,7 +1474,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  residualY = (float)unbiasedResXY[1];
 	  pullX     = (float)unbiasedResXY[2];
 	  pullY     = (float)unbiasedResXY[3];
-
+	  
 	  //finding biased single residuals (for interest)
 	  sc = getSiResiduals(track,tsos,false,biasedResXY);
 	  if (sc.isFailure()) {
@@ -1500,17 +1494,17 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    hitErrorX = (float)sqrt(fabs(mesh->localCovariance()(Trk::loc1,Trk::loc1)));
 	    hitErrorY = (float)sqrt(fabs(mesh->localCovariance()(Trk::loc2,Trk::loc2)));
 	    //globR = (float)sqrt(mesh->globalPosition().x()*mesh->globalPosition().x()+mesh->globalPosition().y()*mesh->globalPosition().y());
-
+	    
 	    if (detType==1 && barrelEC!=0){  // Hit error calculation for the SCT Endcaps
 	      const InDetDD::SiDetectorElement *siDet = dynamic_cast<const InDetDD::SiDetectorElement*>(hit->detectorElement());
-
+	      
 	      // MeasurementBase --> virtual const Amg::Vector3D& globalPosition() const = 0;
-	       /// Angle of strip in local frame with respect to the etaAxis.
+	      /// Angle of strip in local frame with respect to the etaAxis.
 	      /// Zero for all elements except trapezoidal detectors (ie SCT forward modules).
 	      ////SiDetectorElement -->double sinStereoLocal(const Amg::Vector2D &localPos) const;
 	      /// See previous method
 	      ////SiDetectorElement -->double sinStereoLocal(const HepGeom::Point3D<double> &globalPos) const;
-
+	      
 	      if (siDet != NULL)
 		{
 		  double sinAlpha = siDet->sinStereoLocal(siDet->localPosition(mesh->globalPosition()));
@@ -1521,24 +1515,24 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 		  RotMat(0,1) = sinAlpha;
 		  RotMat(1,0) = -sinAlpha;
 		  RotMat(1,1) = cosAlpha;
-
+		  
 		  AmgSymMatrix(2) transformedROTCov = mesh->localCovariance().similarity(RotMat);
 		  hitErrorX = sqrt(transformedROTCov(0,0));
 		}
 	    }
 	  }
-
-
+	  
+	  
 	  //looking for an overlapping module in the X,Y direction
 	  //double counting is avoided by requiring that the overlap is at greater radius
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "looking for overlaps hits..." << endmsg;
 	  std::pair<const Trk::TrackStateOnSurface*,const Trk::TrackStateOnSurface*> overlap = findOverlapHit(track,hit);
 	  const Trk::TrackStateOnSurface* xOverlap = overlap.first;//will be NULL if no overlap found
 	  const Trk::TrackStateOnSurface* yOverlap = overlap.second;//will be NULL if no overlap found
-
+	  
 	  //find residuals for overlapping modules (if any) and calculate overlap residual
 	  if(xOverlap){//identified outer module overlapping in localX direction
-
+	    
 	    foundXOverlap = true;
 	    //float overlapXResX = 9999.0;
 	    //float overlapXResY = 9999.0;
@@ -1551,20 +1545,20 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      continue;
 	    } else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "unbiasedOverlapRes found ok" << endmsg;
 	    /*
-	    overlapXResX = (float)unbiasedOverlapRes[0];
-	    overlapXResY = (float)unbiasedOverlapRes[1];
-
-	    //finally computing the overlap residuals
-	    overlapXResidualX = overlapXResX - residualX;
-	    overlapXResidualY = overlapXResY - residualY;
+	      overlapXResX = (float)unbiasedOverlapRes[0];
+	      overlapXResY = (float)unbiasedOverlapRes[1];
+	      
+	      //finally computing the overlap residuals
+	      overlapXResidualX = overlapXResX - residualX;
+	      overlapXResidualY = overlapXResY - residualY;
 	    */
 	    overlapXResidualX = (float)unbiasedOverlapRes[0] - residualX;
 	    overlapXResidualY = (float)unbiasedOverlapRes[1] - residualY;
-
+	    
 	  }
-
+	  
 	  if(yOverlap){//identified outer module overlapping in localY direction
-
+	    
 	    foundYOverlap = true;
 	    //float overlapYResX = 9999.0;
 	    //float overlapYResY = 9999.0;
@@ -1576,30 +1570,29 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      //return StatusCode::SUCCESS;
 	      continue;
 	    } else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "unbiasedOverlapRes found ok" << endmsg;
-
+	    
 	    overlapYResidualX = (float)unbiasedOverlapRes[0] - residualX;
 	    overlapYResidualY = (float)unbiasedOverlapRes[1] - residualY;
 	  }
 	}
 	else if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackParameters associated with Si TrkSurface "<< nTSOS << " - Hit is probably an outlier" << endmsg;
       }
-
+      
       //--------------------------------------------
       //
       // Filling Residual Histograms for different subsystems
       //
       //--------------------------------------------
-
-
+      
+      
       if (detType==0) {//filling pixel histograms
 	m_si_residualx -> Fill(residualX, hweight);
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " This is a PIXEL hit " << hitId  << " - filling histograms" << endmsg;
-
+	
 	if(barrelEC==0){//filling pixel barrel histograms
-
-	  if (layerDisk==0)
-	    m_nIBLHitsPerLB++;
-
+	  
+	  if (layerDisk==0) m_nIBLHitsPerLB++;
+	  
 	  m_si_b_residualx -> Fill(residualX, hweight);
 	  int layerModEtaShift[4] = {10,30,48,65};       //HARDCODED!
 	  int layerModPhiShift[4] = {0,18,44,86};
@@ -1615,38 +1608,37 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  m_pix_b_residualsy[layerDisk]-> Fill(residualY, hweight);
 	  m_pix_b_pullsx[layerDisk]    -> Fill(pullX    , hweight);
 	  m_pix_b_pullsy[layerDisk]    -> Fill(pullY    , hweight);
-
-
+	  
+	  
 	  m_pix_b_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi, residualX, hweight);
 	  m_pix_b_yresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi, residualY, hweight);
-
+	  
 	  if (layerDisk == 0) {
 	    m_pix_b0_resXvsetaLumiBlock->Fill(float(m_lumiblock), modEta, residualX, hweight);
-
+	    
 	    if (modEta<=6 && modEta>=-6)
 	      m_pix_b0_resXvsetaLumiBlock_planars->Fill(float(m_lumiblock),modEta,residualX,hweight);
-
-	    if (m_doIBLLBPlots)
-	      {
-		m_pix_b0_resXvsetaLumiBlock_3d->Fill(float(m_lumiblock), modEta, residualX, hweight);
-		if (modEta<=6 && modEta>=-6) m_pix_b0_resXvsetaLumiBlock_planars->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==0) m_pix_b0_resXvsetaLumiBlock_stave0->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==1) m_pix_b0_resXvsetaLumiBlock_stave1->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==2) m_pix_b0_resXvsetaLumiBlock_stave2->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==3) m_pix_b0_resXvsetaLumiBlock_stave3->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==4) m_pix_b0_resXvsetaLumiBlock_stave4->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==5) m_pix_b0_resXvsetaLumiBlock_stave5->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==6) m_pix_b0_resXvsetaLumiBlock_stave6->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==7) m_pix_b0_resXvsetaLumiBlock_stave7->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==8) m_pix_b0_resXvsetaLumiBlock_stave8->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==9) m_pix_b0_resXvsetaLumiBlock_stave9->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==10) m_pix_b0_resXvsetaLumiBlock_stave10->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==11) m_pix_b0_resXvsetaLumiBlock_stave11->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==12) m_pix_b0_resXvsetaLumiBlock_stave12->Fill(float(m_lumiblock),modEta,residualX,hweight);
-		if (modPhi==13) m_pix_b0_resXvsetaLumiBlock_stave13->Fill(float(m_lumiblock),modEta,residualX,hweight);
-	      }
+	    
+	    if (m_doIBLLBPlots) {
+	      m_pix_b0_resXvsetaLumiBlock_3d->Fill(float(m_lumiblock), modEta, residualX, hweight);
+	      if (modEta<=6 && modEta>=-6) m_pix_b0_resXvsetaLumiBlock_planars->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==0) m_pix_b0_resXvsetaLumiBlock_stave0->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==1) m_pix_b0_resXvsetaLumiBlock_stave1->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==2) m_pix_b0_resXvsetaLumiBlock_stave2->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==3) m_pix_b0_resXvsetaLumiBlock_stave3->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==4) m_pix_b0_resXvsetaLumiBlock_stave4->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==5) m_pix_b0_resXvsetaLumiBlock_stave5->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==6) m_pix_b0_resXvsetaLumiBlock_stave6->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==7) m_pix_b0_resXvsetaLumiBlock_stave7->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==8) m_pix_b0_resXvsetaLumiBlock_stave8->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==9) m_pix_b0_resXvsetaLumiBlock_stave9->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==10) m_pix_b0_resXvsetaLumiBlock_stave10->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==11) m_pix_b0_resXvsetaLumiBlock_stave11->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==12) m_pix_b0_resXvsetaLumiBlock_stave12->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	      if (modPhi==13) m_pix_b0_resXvsetaLumiBlock_stave13->Fill(float(m_lumiblock),modEta,residualX,hweight);
+	    }
 	  }
-
+	  
 	  if (foundXOverlap) {
 	    m_pix_bec_Oxresx_mean -> Fill(layerDisk+1.1,overlapXResidualX, hweight);
 	    m_pix_bec_Oxresy_mean -> Fill(layerDisk+1.1,overlapXResidualY, hweight);
@@ -1668,7 +1660,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    }
 	  }//fYO
 	}
-
+	
 	else if(barrelEC==2){//three Pixel endcap disks from 0-2
 	  int ModPhiShift[3] = {0,55,110};
 	  m_si_eca_pullX-> Fill(layerDisk,pullX    , hweight);
@@ -1679,27 +1671,24 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  m_pix_eca_residualy     -> Fill(residualY, hweight);
 	  m_pix_eca_pullx         -> Fill(pullX    , hweight);
 	  m_pix_eca_pully         -> Fill(pullY    , hweight);
-
+	  
 	  float disk = layerDisk + 0.1;
 	  if(foundXOverlap) {
 	    m_pix_bec_Oxresx_mean -> Fill(disk+5.0,overlapXResidualX, hweight);
 	    m_pix_bec_Oxresy_mean -> Fill(disk+5.0,overlapXResidualY, hweight);
 	    m_pix_eca_Oxresxvsmodphi -> Fill(modPhi+ModPhiShift[layerDisk],overlapXResidualX, hweight);
 	  }
-
+	  
 	  if(foundYOverlap) {
 	    m_pix_bec_Oyresx_mean -> Fill(disk+5.0,overlapYResidualX, hweight);
 	    m_pix_bec_Oyresy_mean -> Fill(disk+5.0,overlapYResidualY, hweight);
 	    m_pix_eca_Oyresyvsmodphi -> Fill(modPhi+ModPhiShift[layerDisk],overlapYResidualY, hweight);
 	  }
-
+	  
 	  m_pix_eca_xresvsmodphi_2d -> Fill(modPhi+ModPhiShift[layerDisk],residualX, hweight);
 	  m_pix_eca_yresvsmodphi_2d -> Fill(modPhi+ModPhiShift[layerDisk],residualY, hweight);
 	  m_pix_eca_unbiased_xresvsmodphi_disks[layerDisk] -> Fill(modPhi,residualX, hweight);
 	  m_pix_eca_unbiased_yresvsmodphi_disks[layerDisk] -> Fill(modPhi,residualY, hweight);
-	  //m_pix_eca_unbiased_xresvsmodphi -> Fill(modPhi+ModPhiShift[layerDisk],residualX,hweight);
-	  //m_pix_eca_unbiased_yresvsmodphi -> Fill(modPhi+ModPhiShift[layerDisk],residualY,hweight);
-
 	}
 	else if(barrelEC==-2){
 	  int ModPhiShift[3] = {0,55,110};
@@ -1707,7 +1696,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  m_si_ecc_pullY-> Fill(layerDisk,pullY    , hweight);
 	  m_si_ecc_resX -> Fill(layerDisk,residualX, hweight);
 	  m_si_ecc_resY -> Fill(layerDisk,residualY, hweight);
-
+	  
 	  float disk = (float)layerDisk;
 	  disk =  -1.0*(disk + 0.1);
 	  m_pix_ecc_residualx     -> Fill(residualX, hweight);
@@ -1730,36 +1719,36 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  //m_pix_ecc_unbiased_yresvsmodphi -> Fill(modPhi+ModPhiShift[layerDisk],residualY,hweight);
 	  m_pix_ecc_unbiased_xresvsmodphi_disks[layerDisk] -> Fill(modPhi,residualX, hweight);
 	  m_pix_ecc_unbiased_yresvsmodphi_disks[layerDisk] -> Fill(modPhi,residualY, hweight);
-
+	  
 	}
-
+	
       }
       else if (detType==1) {//filling SCT histograms
 	m_si_residualx -> Fill(residualX, hweight);
 	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " This is an SCT hit " << hitId << " - filling histograms" << endmsg;
-
+	
 	if(barrelEC==0){//filling SCT barrel histograms
 	  m_si_b_residualx -> Fill(residualX, hweight);
 	  int ModPhiShift[4] = {0,37,82,135};
 	  int ModEtaShift[4] = {6,24,42,60};
 	  m_si_barrel_pullX->Fill(m_NPixLayers + 2*(layerDisk) + sctSide, pullX, hweight);
 	  //m_si_barrel_pullY->Fill(3 + 2*(layerDisk) + sctSide, pullY);//no SCT Y residuals yet
-
+	  
 	  m_si_barrel_resX->Fill(m_NPixLayers + 2*(layerDisk) + sctSide, residualX, hweight);
 	  //m_si_barrel_resY->Fill(3 + 2*(layerDisk) + sctSide, residualY);//no SCT Y residuals yet
-
+	  
 	  m_sct_b_residualx      -> Fill(residualX      , hweight);
 	  m_sct_b_biasedresidualx-> Fill(biasedResidualX, hweight);
-
+	  
 	  if(foundXOverlap) m_sct_bec_Oxresx_mean -> Fill(layerDisk+1.1,overlapXResidualX, hweight);
 	  if(foundYOverlap) m_sct_bec_Oyresx_mean -> Fill(layerDisk+1.1,overlapYResidualX, hweight);
-
+	  
 	  m_sct_b_residualsx[layerDisk]-> Fill(residualX, hweight);
 	  m_sct_b_pullsx[layerDisk]    -> Fill(pullX    , hweight);
-
+	  
 	  m_sct_b_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta,modPhi,residualX, hweight);
 
-
+	  
 	  if(foundXOverlap) {
 	    m_sct_b_xoverlapresidualsx[layerDisk]-> Fill(overlapXResidualX         , hweight);
 	    m_sct_b_Oxresxvsmodeta    -> Fill(modEta+ModEtaShift[layerDisk],overlapXResidualX, hweight);
@@ -1776,7 +1765,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  }
 	  // if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unexpected SCT layer number "<< layerDisk << endmsg;
 	}
-
+	
 	else if(barrelEC==2){//nine SCT endcap disks from 0-8
 	  //ASSUMPTION: the outer rings of the SCT endcap disks have the same number of modules. WARNING! hardcoded!
 	  int Nmods = 52;
@@ -1785,21 +1774,21 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  //m_si_eca_pullY->Fill(3 + 2*(layerDisk) + sctSide, pullY);//no SCT Y residuals yet
 	  m_si_eca_resX->Fill(3 + 2*(layerDisk) + sctSide, residualX, hweight);
 	  //m_si_eca_resY->Fill(3 + 2*(layerDisk) + sctSide, residualY);//no SCT Y residuals yet
-
+	  
 	  float disk = layerDisk + 0.1;
 	  m_sct_eca_residualx     -> Fill(residualX, hweight);
 	  m_sct_eca_pullx         -> Fill(pullX    , hweight);
-
+	  
 	  m_sct_eca_xresvsmodphi_2d -> Fill(modPhi+(layerDisk - 1)* (m_gap_sct + Nmods),residualX, hweight);
-
+	  
 	  if(foundXOverlap) {
 	    m_sct_bec_Oxresx_mean->Fill(disk+6.0,overlapXResidualX);
 	    m_sct_eca_Oxresxvsmodphi -> Fill(modPhi+ (layerDisk - 1)* (m_gap_sct + Nmods),overlapXResidualX,hweight);
 	    //                               modPhi+ ModPhiShift[layerDisk],overlapXResidualX    , hweight);
 	  }
-
+	  
 	}
-
+	
 
 	else if(barrelEC==-2){
 	  int Nmods = 52;
@@ -1807,12 +1796,12 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  //m_si_ecc_pullY->Fill(3 + 2*(layerDisk) + sctSide, pullY);//no SCT Y residuals yet
 	  m_si_ecc_resX->Fill(3 + 2*(layerDisk) + sctSide, residualX, hweight);
 	  //m_si_ecc_resY->Fill(3 + 2*(layerDisk) + sctSide, residualY);//no SCT Y residuals yet
-
+	  
 	  float disk = (float)layerDisk;
 	  disk =  -1.0*(disk + 0.1);
 	  m_sct_ecc_residualx     ->Fill(residualX, hweight);
 	  m_sct_ecc_pullx         ->Fill(pullX    , hweight);
-
+	  
 	  m_sct_ecc_xresvsmodphi_2d -> Fill(modPhi+(layerDisk - 1)* (m_gap_sct + Nmods)    ,residualX, hweight);
 	  if(foundXOverlap) {
 	    m_sct_bec_Oxresx_mean->Fill(disk,overlapXResidualX);
@@ -1833,16 +1822,16 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_pix_b_residualy_pt       -> Fill(trkpt, residualY, hweight);
 	    m_pix_b_pullx_pt           -> Fill(trkpt, pullX, hweight);
 	    m_pix_b_pully_pt           -> Fill(trkpt, pullY, hweight);
-	    m_pix_b_residualx_fine -> Fill(residualX      , hweight);
-	    m_pix_b_residualy_fine -> Fill(residualY      , hweight);
-	    m_pix_b_measured_localx-> Fill(mlocalX     , hweight);
-	    m_pix_b_measured_localy-> Fill(mlocalY     , hweight);
+	    m_pix_b_residualx_fine     -> Fill(residualX      , hweight);
+	    m_pix_b_residualy_fine     -> Fill(residualY      , hweight);
+	    m_pix_b_measured_localx    -> Fill(mlocalX     , hweight);
+	    m_pix_b_measured_localy    -> Fill(mlocalY     , hweight);
 	    m_pix_b_extrapolated_localx-> Fill(elocalX     , hweight);
 	    m_pix_b_extrapolated_localy-> Fill(elocalY     , hweight);
 	    if (layerDisk != 0) { // Pixel barrel layers
-	      m_hiterror_x_pix_b         -> Fill(hitErrorX   , hweight);
+	      m_hiterror_x_pix_b          -> Fill(hitErrorX   , hweight);
 	      m_hiterror_x_pix_b_WideRange-> Fill(hitErrorX   , hweight);
-	      m_hiterror_y_pix_b         -> Fill(hitErrorY   , hweight);
+	      m_hiterror_y_pix_b          -> Fill(hitErrorY   , hweight);
 	      m_hiterror_y_pix_b_WideRange-> Fill(hitErrorY   , hweight);
 	    }
 	    if (layerDisk == 0) { // IBL
@@ -1851,12 +1840,12 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      m_hiterror_x_ibl_b_WideRange      ->Fill(hitErrorX,hweight);
 	      m_hiterror_y_ibl_b_WideRange      ->Fill(hitErrorX,hweight);
 	    }
-
+	    
 	    if(mlocalY >  m_PixelBarrelYSize / 2.05 )	mlocalY =  m_PixelBarrelYSize/2.05;
 	    if(mlocalY < -m_PixelBarrelYSize / 2.05 )	mlocalY = -m_PixelBarrelYSize/2.05;
 	    if(mlocalX >  m_PixelBarrelXSize / 2.05 )	mlocalX =  m_PixelBarrelXSize/2.05;
 	    if(mlocalX < -m_PixelBarrelXSize / 2.05 )	mlocalX = -m_PixelBarrelXSize/2.05;
-
+	    
 	    m_pix_b_residualsx_incitheta[layerDisk] ->Fill(incidenceTheta,residualX,hweight);
 	    m_pix_b_residualsy_incitheta[layerDisk] ->Fill(incidenceTheta,residualY,hweight);
 	    m_pix_b_residualsx_inciphi[layerDisk] ->Fill(incidencePhi,residualX,hweight);
@@ -1877,7 +1866,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      m_pix_b_xoverlapresidualsx[layerDisk]-> Fill(overlapXResidualX          , hweight);
 	      m_pix_b_xoverlapresidualsy[layerDisk]-> Fill(overlapXResidualY          , hweight);
 	    }
-
+	    
 	    if(foundYOverlap) {
 	      m_pix_b_yoverlapresidualsx[layerDisk]-> Fill(overlapYResidualX          , hweight);
 	      m_pix_b_yoverlapresidualsy[layerDisk]-> Fill(overlapYResidualY          , hweight);
@@ -1885,7 +1874,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    // int modoffset = 6.5;       // default for old pixel layers
 	    m_PixelBarrelXSize = 16.44;  // mm
 	    m_PixelBarrelYSize = 60.2;   // mm
-
+	    
 	    if (layerDisk == 0) { // in case of IBL
 	      m_PixelBarrelXSize = 18.75; // Extracted from: arXiv:1209.1906v1, Figure 2
 	      m_PixelBarrelYSize = 41.32;
@@ -1895,12 +1884,12 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 		m_PixelBarrelYSize = 19.20 ;
 	      }
 	    }
-
+	    
 	    float xValueForHist = modEta +  mlocalY / m_PixelBarrelYSize;
 	    float yValueForHist = modPhi +  mlocalX / m_PixelBarrelXSize;
-
+	    
 	    if (false) {
-	      std::cout << " -- SALVA -- filling detailed pixel maps -- layer = " << layerDisk
+	      std::cout << " -- filling detailed pixel maps -- layer = " << layerDisk
 			<< "  eta: " << modEta
 			<< "  phi " << modPhi
 			<< "  local (" << mlocalX << " / " << m_PixelBarrelXSize
@@ -1916,11 +1905,11 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    //m_pix_b_biased_yresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX, residualY, hweight);
 	    m_pix_b_detailed_xresvsmodetaphi_3ds[layerDisk] -> Fill( xValueForHist, yValueForHist, residualX, hweight);
 	    m_pix_b_detailed_yresvsmodetaphi_3ds[layerDisk] -> Fill( xValueForHist, yValueForHist, residualY, hweight);
-
+	    
 	    // pixel B-layer halfshell phi identifier association
-		// Layer 0                  Layer 1                     Layer 2
-		// top: 1-10                0-19                        0-22 49-51
-		// bottom: 11-21 and 0      20-37                       23-48
+	    // Layer 0                  Layer 1                     Layer 2
+	    // top: 1-10                0-19                        0-22 49-51
+	    // bottom: 11-21 and 0      20-37                       23-48
 	    if (layerDisk != 2) // Necessary because the logic changes
 	      if(modPhi>phiIdentifier_min[layerDisk] && modPhi<phiIdentifier_max[layerDisk]) {
 		m_pix_b_top_residualsx[layerDisk] -> Fill(residualX, hweight);
@@ -1986,8 +1975,12 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_pix_eca_pullx_pt    -> Fill(trkpt, pullX    , hweight);
 	    m_pix_eca_pully_pt    -> Fill(trkpt, pullY    , hweight);
 
-	    m_hiterror_x_pix_ec   -> Fill(hitErrorX       , hweight); 	    m_hiterror_x_pix_ec_WideRange-> Fill(hitErrorX       , hweight);
-	    m_hiterror_y_pix_ec   -> Fill(hitErrorY       , hweight);       m_hiterror_y_pix_ec_WideRange-> Fill(hitErrorY       , hweight);
+	    m_hiterror_x_pix_ec   -> Fill(hitErrorX       , hweight); 	    
+	    m_hiterror_y_pix_ec   -> Fill(hitErrorY       , hweight);
+	    m_hiterror_x_pix_eca  -> Fill(hitErrorX       , hweight); 	    
+	    m_hiterror_y_pix_eca  -> Fill(hitErrorY       , hweight);       
+	    m_hiterror_x_pix_ec_WideRange-> Fill(hitErrorX       , hweight);
+	    m_hiterror_y_pix_ec_WideRange-> Fill(hitErrorY       , hweight);
 
 	    m_pix_eca_biased_residualsx[layerDisk]   -> Fill(biasedResidualX      , hweight);
 	    m_pix_eca_biased_residualsy[layerDisk]   -> Fill(biasedResidualY      , hweight);
@@ -2044,8 +2037,13 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    m_pix_ecc_residualy_pt-> Fill(trkpt, residualY, hweight);
 	    m_pix_ecc_pullx_pt    -> Fill(trkpt, pullX    , hweight);
 	    m_pix_ecc_pully_pt    -> Fill(trkpt, pullY    , hweight);
-	    m_hiterror_x_pix_ec   -> Fill(hitErrorX       , hweight);  m_hiterror_x_pix_ec_WideRange-> Fill(hitErrorX       , hweight);
-	    m_hiterror_y_pix_ec   -> Fill(hitErrorY       , hweight);  m_hiterror_y_pix_ec_WideRange-> Fill(hitErrorY       , hweight);
+
+	    m_hiterror_x_pix_ec   -> Fill(hitErrorX       , hweight);  
+	    m_hiterror_y_pix_ec   -> Fill(hitErrorY       , hweight);  
+	    m_hiterror_x_pix_ecc  -> Fill(hitErrorX       , hweight);  
+	    m_hiterror_y_pix_ecc  -> Fill(hitErrorY       , hweight);  
+	    m_hiterror_x_pix_ec_WideRange-> Fill(hitErrorX       , hweight);
+	    m_hiterror_y_pix_ec_WideRange-> Fill(hitErrorY       , hweight);
 
 	    m_pix_ecc_biased_residualsx[layerDisk]   -> Fill(biasedResidualX      , hweight);
 	    m_pix_ecc_biased_residualsy[layerDisk]   -> Fill(biasedResidualY      , hweight);
@@ -2161,15 +2159,11 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      + (modPhi+0.5)*m_SCTBarrelXSize;
 	    if(sctSide==0)
 	      {
-		// SALVA (13/May/2015) temporary fix.. used the biased histogram to store the unbiased residuals when modules divides in a Nsplit x Nsplit grid
-		// SALVA m_sct_b_s0_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX,biasedResidualX, hweight);
 		m_sct_b_s0_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX, residualX, hweight);
 		m_sct_b_s0_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi, residualX, hweight);
 	      }
 	    else
 	      {
-		// SALVA m_sct_b_s1_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX,biasedResidualX, hweight);
-		// SALVA (13/May/2015) temporary fix.. used the biased histogram to store the unbiased residuals when modules divides in a Nsplit x Nsplit grid
 		m_sct_b_s1_biased_xresvsmodetaphi_3ds[layerDisk]->Fill(ModCenterPosX+elocalY, ModCenterPosY+mlocalX, residualX, hweight);
 		m_sct_b_s1_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi, residualX, hweight);
 	      }
@@ -2283,16 +2277,15 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       ++nHitsEvent;
     }//end of loop on track surfaces
 
+    // filling of residuals completed
+    // update track number and go for next
     ++nTracks;
 
   } // end of loop on tracks
 
   if (m_changedlumiblock)
     {
-
-
-  //Making the fit for the IBL bowing. This has to be done at lowest time granularity possible: we will try to make it lumiBlock wise.
-
+      //Making the fit for the IBL bowing. This has to be done at lowest time granularity possible: we will try to make it lumiBlock wise.
 
       //If too less events I want to put those ones.
       float mag = -999., base = -999., mag_er=0.,base_er=0.;
@@ -2300,28 +2293,27 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
       int lumibin = m_lumiblock+1;
 
-      if ( m_nIBLHitsPerLB > m_minIBLhits )
-	{
-	  TH1D* projection_lumiblock = (TH1D*) m_pix_b0_resXvsetaLumiBlock->ProjectionY(("iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
-	  //if (projection_lumiblock->GetEntries() > min_entries)
-	  //{
-	  MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock);
-	  m_mag_vs_LB->SetBinContent(lumibin,mag);
-	  m_mag_vs_LB->SetBinError(lumibin,mag_er);
-	  m_base_vs_LB->SetBinContent(lumibin,base);
-	  m_base_vs_LB->SetBinError(lumibin,base_er);
-	  TH1F* projection_lumiblock_planars = (TH1F*) m_pix_b0_resXvsetaLumiBlock_planars->ProjectionY(("planars_iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
-	  MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock_planars);
-	  m_mag_vs_LB_planars->SetBinContent(lumibin,mag);
-	  m_mag_vs_LB_planars->SetBinError(lumibin,mag_er);
-	  m_base_vs_LB_planars->SetBinContent(lumibin,base);
-	  m_base_vs_LB_planars->SetBinError(lumibin,base_er);
-	  //}
-	  //else
-	  //  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Fit IBL Shape for LumiBlock : "<< m_lumiblock<<" disabled because of too few entries!  "<<projection_lumiblock->GetEntries() <<endmsg;
-
-	  delete projection_lumiblock;
-	}
+      if ( m_nIBLHitsPerLB > m_minIBLhits ) {
+	TH1D* projection_lumiblock = (TH1D*) m_pix_b0_resXvsetaLumiBlock->ProjectionY(("iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
+	//if (projection_lumiblock->GetEntries() > min_entries)
+	//{
+	MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock);
+	m_mag_vs_LB->SetBinContent(lumibin,mag);
+	m_mag_vs_LB->SetBinError(lumibin,mag_er);
+	m_base_vs_LB->SetBinContent(lumibin,base);
+	m_base_vs_LB->SetBinError(lumibin,base_er);
+	TH1F* projection_lumiblock_planars = (TH1F*) m_pix_b0_resXvsetaLumiBlock_planars->ProjectionY(("planars_iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
+	MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock_planars);
+	m_mag_vs_LB_planars->SetBinContent(lumibin,mag);
+	m_mag_vs_LB_planars->SetBinError(lumibin,mag_er);
+	m_base_vs_LB_planars->SetBinContent(lumibin,base);
+	m_base_vs_LB_planars->SetBinError(lumibin,base_er);
+	//}
+	//else
+	//  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Fit IBL Shape for LumiBlock : "<< m_lumiblock<<" disabled because of too few entries!  "<<projection_lumiblock->GetEntries() <<endmsg;
+	
+	delete projection_lumiblock;
+      }
       else
 	if(msgLvl(MSG::WARNING))
 	  msg(MSG::WARNING) << "Fit IBL Shape for LumiBlock : "<< m_lumiblock<<" disabled. Too Few hits"<<endmsg;
@@ -2806,6 +2798,7 @@ const Trk::TrackParameters* IDAlignMonResiduals::getUnbiasedTrackParameters(cons
 
 
   if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "original track parameters: " << *(tsos->trackParameters()) <<endmsg;
+  ATH_MSG_VERBOSE(" ** getUnbiasedTrackParameters ** original track parameters: " << *(tsos->trackParameters()));
 
 
   if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Trying to unbias track parameters." << endmsg;
@@ -3068,7 +3061,7 @@ bool IDAlignMonResiduals::trackRequiresRefit(const Trk::Track* track)
   int nHits = 0;
   int nHitsNoParams = 0;
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Testing track to see if requires refit..." << endmsg;
+  ATH_MSG_DEBUG ("** IDAlignMonResiduals::trackRequiresRefit ** Testing track to see if requires refit...");
 
   for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
 
@@ -3086,16 +3079,14 @@ bool IDAlignMonResiduals::trackRequiresRefit(const Trk::Track* track)
 
     const Trk::TrackParameters* trackParameter = tsos->trackParameters();
     if(trackParameter==NULL) ++nHitsNoParams; //if no TrackParameters for TSOS we cannot define residuals
-
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Total nhits on track (excluding outliers) = " << nHits << ", nhits without trackparameters = " << nHitsNoParams << endmsg;
+  if (nHitsNoParams>0) refitTrack = true;
 
-  if(nHitsNoParams>0) {
-    refitTrack = true;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Track Requires refit to get residuals!!!" << endmsg;
-  }
-
+  ATH_MSG_DEBUG ("** IDAlignMonResiduals::trackRequiresRefit ** does track requires a refit to access the residuals? " << refitTrack
+		 << " (hits on track: " << nHits
+		 << "  hits without params: " <<  nHitsNoParams << " ) ");
+  
   return refitTrack;
 }
 
@@ -3376,7 +3367,7 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
 						      maxPhiModulesPerLayer, -0.5, maxPhiModulesPerLayer-0.5,
 						      50*m_FinerBinningFactor, m_minPIXResXFillRange, m_maxPIXResXFillRange));  //I need a good idea for the x axis
       RegisterHisto(al_mon,m_pix_b_xresvsmodetaphi_3ds[iLayer]);
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " -- SALVA -- build pix 3d histos -- m_minPIXResXFillRange: " << m_minPIXResXFillRange << "       m_maxPIXResXFillRange: " << m_maxPIXResXFillRange << endmsg;
+
       m_pix_b_yresvsmodetaphi_3ds.push_back( new TH3F(("pix_b"+intToString(iLayer)+"_yresvsmodetaphi_3d").c_str(),("Y Residual Distbn vs Module Eta-Phi-ID Pixel Barrel "+intToString(iLayer)).c_str(),
 						      EtaModules, EtaModulesMin, EtaModulesMax,
 						      maxPhiModulesPerLayer,-0.5, maxPhiModulesPerLayer-0.5,
@@ -3655,8 +3646,7 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
 
   int phibinid = 0;
   for (int ibin=1; ibin <= m_pix_b_xresvsmodphi->GetNbinsX(); ibin++) {
-    // - SALVA -
-    // there is a free bin at the beginning and the end
+    // Please note that there is a free bin at the beginning and the end
     // IBL has 14 staves: starts at bin 2
     if (2 <= ibin && ibin <= 15) {
       phibinid++;
@@ -4041,26 +4031,30 @@ void IDAlignMonResiduals::MakePIXEndCapsHistograms(MonGroup& al_mon){
       RegisterHisto(al_mon,m_pix_ecc_biased_residualy);
 
       //finely binned residuals
-      m_pix_eca_residualx_fine = new TH1F("pix_eca_residualx_fine","UnBiased X Residual Pixel Endcap A;Residual [mm]",2000,-2.0,2.0);
+      m_pix_eca_residualx_fine = new TH1F("pix_eca_residualx_fine","UnBiased X Residual Pixel Endcap A;Residual [mm]",1000,-1.0,1.0);
       RegisterHisto(al_mon,m_pix_eca_residualx_fine);
-      m_pix_eca_residualy_fine = new TH1F("pix_eca_residualy_fine","UnBiased Y Residual Pixel Endcap A;Residual [mm]",2000,-2.0,2.0);
+      m_pix_eca_residualy_fine = new TH1F("pix_eca_residualy_fine","UnBiased Y Residual Pixel Endcap A;Residual [mm]",1000,-1.0,1.0);
       RegisterHisto(al_mon,m_pix_eca_residualy_fine);
-      m_pix_ecc_residualx_fine = new TH1F("pix_ecc_residualx_fine","UnBiased X Residual Pixel Endcap C;Residual [mm]",2000,-2.0,2.0);
+      m_pix_ecc_residualx_fine = new TH1F("pix_ecc_residualx_fine","UnBiased X Residual Pixel Endcap C;Residual [mm]",1000,-1.0,1.0);
       RegisterHisto(al_mon,m_pix_ecc_residualx_fine);
-      m_pix_ecc_residualy_fine = new TH1F("pix_ecc_residualy_fine","UnBiased Y Residual Pixel Endcap C;Residual [mm]",2000,-2.0,2.0);
+      m_pix_ecc_residualy_fine = new TH1F("pix_ecc_residualy_fine","UnBiased Y Residual Pixel Endcap C;Residual [mm]",1000,-1.0,1.0);
       RegisterHisto(al_mon,m_pix_ecc_residualy_fine);
 
-      //unbiased pt
-      m_pix_eca_residualx_pt = new TH2F("pix_eca_residualx_pt","X Residual Vs Pt Pixel EndCap A;Track pT (GeV);Res (mm)",m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
+      //unbiased vs pt
+      m_pix_eca_residualx_pt = new TH2F("pix_eca_residualx_pt","X Residual Vs P_{T}: Pixel EndCap A;Track p_{T} [GeV];Local x res [mm]",m_nBinsPtRange, -m_PtRange, m_PtRange,
+					100*m_FinerBinningFactor, m_minPIXResXFillRange, m_maxPIXResXFillRange); 
       RegisterHisto(al_mon,m_pix_eca_residualx_pt);
-      m_pix_eca_residualy_pt = new TH2F("pix_eca_residualy_pt","Y Residual Vs Pt Pixel EndCap A;Track pT (GeV);Res (mm)",m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
+      m_pix_eca_residualy_pt = new TH2F("pix_eca_residualy_pt","Y Residual Vs p_{T}: Pixel EndCap A;Track p_{T} [GeV];Local y res [mm]",m_nBinsPtRange, -m_PtRange,m_PtRange,
+					100*m_FinerBinningFactor, m_minPIXResYFillRange, m_maxPIXResYFillRange);
       RegisterHisto(al_mon,m_pix_eca_residualy_pt);
 
-
-      m_pix_ecc_residualx_pt = new TH2F("pix_ecc_residualx_pt","X Residual Vs Pt Pixel EndCap C;Track pT (GeV);Res (mm)",m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
+      m_pix_ecc_residualx_pt = new TH2F("pix_ecc_residualx_pt","X Residual Vs P_{T} Pixel EndCap C;Track p_{T} [GeV];Local x residual [mm]", m_nBinsPtRange, -m_PtRange, m_PtRange,
+					100*m_FinerBinningFactor, m_minPIXResXFillRange, m_maxPIXResXFillRange);
       RegisterHisto(al_mon,m_pix_ecc_residualx_pt);
-      m_pix_ecc_residualy_pt = new TH2F("pix_ecc_residualy_pt","Y Residual Vs Pt Pixel EndCap C;Track pT (GeV);Res (mm)",m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
+      m_pix_ecc_residualy_pt = new TH2F("pix_ecc_residualy_pt","Y Residual Vs p_{T} Pixel EndCap C;Track p_{T} [GeV];Local y residual [mm]", m_nBinsPtRange, -m_PtRange, m_PtRange,
+					100*m_FinerBinningFactor, m_minPIXResXFillRange, m_maxPIXResXFillRange);
       RegisterHisto(al_mon,m_pix_ecc_residualy_pt);
+      
       //biased pt
       m_pix_eca_biased_residualx_pt = new TH2F("pix_eca_biased_residualx_pt","Biased X Residual Vs Pt Pixel EndCap A;Track pT (GeV); Res (mm)",m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
       RegisterHisto(al_mon,m_pix_eca_biased_residualx_pt);
@@ -4070,6 +4064,7 @@ void IDAlignMonResiduals::MakePIXEndCapsHistograms(MonGroup& al_mon){
       RegisterHisto(al_mon,m_pix_ecc_biased_residualx_pt);
       m_pix_ecc_biased_residualy_pt = new TH2F("pix_ecc_biased_residualy_pt","Biased Y Residual Vs Pt Pixel EndCap A;Track pT (GeV); Res (mm)",m_nBinsPtRange,-m_PtRange,m_PtRange,100*m_FinerBinningFactor,m_minPIXResYFillRange,m_maxPIXResYFillRange);
       RegisterHisto(al_mon,m_pix_ecc_biased_residualy_pt);
+
       //pull vs pt
       m_pix_eca_pullx_pt = new TH2F("pix_eca_pullx_pt","X Pull Vs Pt Pixel EndCap A;Track pT (GeV);X Pull",m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos);
       RegisterHisto(al_mon,m_pix_eca_pullx_pt);
@@ -4080,18 +4075,26 @@ void IDAlignMonResiduals::MakePIXEndCapsHistograms(MonGroup& al_mon){
       m_pix_ecc_pully_pt = new TH2F("pix_ecc_pully_pt","Y Pull Vs Pt Pixel EndCap C;Track pT (GeV);Y Pull",m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos);
       RegisterHisto(al_mon,m_pix_ecc_pully_pt);
       // Hit Errors
-      m_hiterror_x_ibl_b = new TH1F("m_hiterror_x_ibl_b",   "Pixel Barrel X Hit Error;X Hit Error [mm];IBL Hits", 80, 0., 0.1);
+      m_hiterror_x_ibl_b = new TH1F("m_hiterror_x_ibl_b",    "Pixel Barrel X Hit Error;X Hit Error [mm];IBL Hits", 80, 0., m_xHitErrorRange);
       RegisterHisto(al_mon,m_hiterror_x_ibl_b);
-      m_hiterror_x_pix_b = new TH1F("m_hiterror_x_pix_b",   "Pixel Barrel X Hit Error;X Hit Error [mm];PIX Hits", 80, 0., 0.1);
+      m_hiterror_x_pix_b = new TH1F("m_hiterror_x_pix_b",    "Pixel Barrel X Hit Error;X Hit Error [mm];PIX Hits", 80, 0., m_xHitErrorRange);
       RegisterHisto(al_mon,m_hiterror_x_pix_b);
-      m_hiterror_x_pix_ec = new TH1F("m_hiterror_x_pix_ec", "Pixel Endcap X Hit Error;X Hit Error [mm];PIX Hits", 80, 0., 0.1);
+      m_hiterror_x_pix_ec = new TH1F("m_hiterror_x_pix_ec",  "Pixel Endcaps X Hit Error;X Hit Error [mm];PIX Hits", 80, 0., m_xHitErrorRange);
       RegisterHisto(al_mon,m_hiterror_x_pix_ec);
-      m_hiterror_y_ibl_b = new TH1F("m_hiterror_y_ibl_b",   "Pixel Barrel Y Hit Error;Y Hit Error [mm];IBL Hits", 80, 0., 0.2);
+      m_hiterror_x_pix_eca = new TH1F("m_hiterror_x_pix_eca", "Pixel Endcap A X Hit Error;X Hit Error [mm];PIX Hits", 80, 0., m_xHitErrorRange);
+      RegisterHisto(al_mon,m_hiterror_x_pix_eca);
+      m_hiterror_x_pix_ecc = new TH1F("m_hiterror_x_pix_ecc", "Pixel Endcap C X Hit Error;X Hit Error [mm];PIX Hits", 80, 0., m_xHitErrorRange);
+      RegisterHisto(al_mon,m_hiterror_x_pix_ecc);
+      m_hiterror_y_ibl_b = new TH1F("m_hiterror_y_ibl_b",    "Pixel Barrel Y Hit Error;Y Hit Error [mm];IBL Hits", 80, 0., m_yHitErrorRange);
       RegisterHisto(al_mon,m_hiterror_y_ibl_b);
-      m_hiterror_y_pix_b = new TH1F("m_hiterror_y_pix_b",   "Pixel Barrel Y Hit Error;Y Hit Error [mm];PIX Hits", 80, 0., 0.2);
+      m_hiterror_y_pix_b = new TH1F("m_hiterror_y_pix_b",    "Pixel Barrel Y Hit Error;Y Hit Error [mm];PIX Hits", 80, 0., m_yHitErrorRange);
       RegisterHisto(al_mon,m_hiterror_y_pix_b);
-      m_hiterror_y_pix_ec = new TH1F("m_hiterror_y_pix_ec", "Pixel Endcap Y Hit Error;Y Hit Error [mm];PIX Hits", 80, 0., 0.2);
+      m_hiterror_y_pix_ec = new TH1F("m_hiterror_y_pix_ec",  "Pixel Endcaps Y Hit Error;Y Hit Error [mm];PIX Hits", 80, 0., m_yHitErrorRange);
       RegisterHisto(al_mon,m_hiterror_y_pix_ec);
+      m_hiterror_y_pix_eca = new TH1F("m_hiterror_y_pix_eca", "Pixel Endcaps Y Hit Error;Y Hit Error [mm];PIX Hits", 80, 0., m_yHitErrorRange);
+      RegisterHisto(al_mon,m_hiterror_y_pix_eca);
+      m_hiterror_y_pix_ecc = new TH1F("m_hiterror_y_pix_ecc", "Pixel Endcaps Y Hit Error;Y Hit Error [mm];PIX Hits", 80, 0., m_yHitErrorRange);
+      RegisterHisto(al_mon,m_hiterror_y_pix_ecc);
       // hit errors in broad range
       m_hiterror_x_ibl_b_WideRange = new TH1F("m_hiterror_x_ibl_b_WideRange",   "Pixel Barrel X Hit Error;X Hit Error [mm];IBL Hits", 100, 0., 1.0);
       RegisterHisto(al_mon,m_hiterror_x_ibl_b_WideRange);
@@ -4308,10 +4311,10 @@ void IDAlignMonResiduals::MakeSCTBarrelHistograms(MonGroup& al_mon){
       RegisterHisto(al_mon,m_sct_b_pullx_pt);
 
       // Hit errors
-      m_hiterror_sct_b = new TH1F("m_hiterror_sct_b", "SCT Barrel Hit Error;Hit Error[mm];SCT Hits", 80, 0., 0.25);
+      m_hiterror_sct_b = new TH1F("m_hiterror_sct_b", "SCT Barrel Hit Error;Hit Error[mm];SCT Hits", 80, 0., m_xHitErrorRange);
       RegisterHisto(al_mon,m_hiterror_sct_b);
       // Hit errors wide range
-      m_hiterror_sct_b_WideRange = new TH1F("m_hiterror_sct_b_WideRange", "SCT Barrel Hit Error;Hit Error[mm];SCT Hits", 80, 0., 2.5);
+      m_hiterror_sct_b_WideRange = new TH1F("m_hiterror_sct_b_WideRange", "SCT Barrel Hit Error;Hit Error[mm];SCT Hits", 80, 0., 2.0);
       RegisterHisto(al_mon,m_hiterror_sct_b_WideRange);
     }
 
@@ -4801,10 +4804,19 @@ void IDAlignMonResiduals::MakeTRTEndcapHistograms(MonGroup& al_mon){
       m_trt_ec_hist->pullR_notube_pt[endcap] = MakeHist("trt_ec_pullRnotube_pt_"+endcapName[endcap],"UnBiased Pull vs pT for the TRT Barrel (no tube hits)"+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "Track p_{T} [GeV]","Pull");
       RegisterHisto(al_mon,m_trt_ec_hist->pullR_notube_pt[endcap]);
 
+      /** Residuals vs pt per wheel */
+      for (int iWheel=0; iWheel < 40; iWheel++) {
+	m_trt_ec_hist->residualR_ptwheel[endcap][iWheel] = MakeProfile("trt_"+endcapName[endcap]+"_resvspt_wheel_"+intToString(iWheel),
+								       "Residual vs p_{T} for TRT "+endcapName[endcap]+" "+intToString(iWheel),
+								       m_nBinsPtRange, -m_PtRange, m_PtRange,
+								       -1.0, 1.0, "Track p_{T} [GeV]","Residual [mm]");
+	RegisterHisto(al_mon,m_trt_ec_hist->residualR_ptwheel[endcap][iWheel]);
+      }
+      
       /** Residuals and pulls vs mu*/
       m_trt_ec_hist->residualR_mu[endcap] = MakeHist("trt_ec_residualR_mu_"+endcapName[endcap],"UnBiased Residual vs mu for the TRT Barrel "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,200,-1.0,1.0, "#mu ","Residual [mm]");
       RegisterHisto(al_mon,m_trt_ec_hist->residualR_mu[endcap]);
-
+      
       m_trt_ec_hist->pullR_mu[endcap] = MakeHist("trt_ec_pullR_mu_"+endcapName[endcap],"UnBiased Pull vs mu for the TRT Barrel "+endcapName[endcap],m_nBinsPtRange,-m_PtRange,m_PtRange,100,-m_RangeOfPullHistos,m_RangeOfPullHistos, "#mu","Pull");
       RegisterHisto(al_mon,m_trt_ec_hist->pullR_mu[endcap]);
     }
@@ -5079,17 +5091,16 @@ void IDAlignMonResiduals::fillTRTEndcapHistograms(int barrel_ec, int layer_or_wh
     m_trt_ec_hist->MeasuredR[endcap]   -> Fill(hitR     , hweight);
     m_trt_ec_hist->residualR[endcap][0]-> Fill(residualR, hweight);
     m_trt_ec_hist->pullR[endcap][0]    -> Fill(pullR    , hweight);
-    if (!isTubeHit)
-      {
-	m_trt_ec_hist->pullR_notube[endcap][0]-> Fill(pullR           , hweight);
-	m_trt_ec_hist->residualR_notube[endcap][0] -> Fill(residualR,hweight);
-      }
+    if (!isTubeHit) {
+      m_trt_ec_hist->pullR_notube[endcap][0]-> Fill(pullR           , hweight);
+      m_trt_ec_hist->residualR_notube[endcap][0] -> Fill(residualR,hweight);
+    }
     m_trt_ec_hist->aveResVsTrackEta[endcap] -> Fill(trketa,residualR, hweight);
 
     if(m_extendedPlots){
-      if (LE != -999)
-	m_trt_ec_hist->rt[endcap] -> Fill(LE - EP - t0,fabs(perdictR), hweight);
+      if (LE != -999) m_trt_ec_hist->rt[endcap] -> Fill(LE - EP - t0,fabs(perdictR), hweight);
       m_trt_ec_hist->residualR_pt[endcap]-> Fill(trkpt, residualR, hweight);
+      m_trt_ec_hist->residualR_ptwheel[endcap][layer_or_wheel]-> Fill(trkpt, residualR, hweight);
       m_trt_ec_hist->pullR_pt[endcap]    -> Fill(trkpt, pullR    , hweight);
       if (!isTubeHit) m_trt_ec_hist->pullR_notube_pt[endcap] -> Fill(trkpt,pullR, hweight);
 

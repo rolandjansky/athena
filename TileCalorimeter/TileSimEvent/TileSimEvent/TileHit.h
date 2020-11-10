@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //********************************************************************
@@ -102,7 +102,7 @@ public:
     operator std::string() const;
 
     /** @brief Print contents of one vector to output stream */
-    static void print_to_stream ( const std::vector<float> val,
+    static void print_to_stream ( const std::vector<float>& val,
                                   const std::string & label, 
                                   std::ostringstream & text);
 

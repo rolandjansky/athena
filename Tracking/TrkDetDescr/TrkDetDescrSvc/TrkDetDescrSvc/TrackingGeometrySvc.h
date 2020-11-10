@@ -21,7 +21,7 @@
 
 #ifdef TRKDETDESCR_MEMUSAGE   
 #include "TrkDetDescrUtils/MemoryLogger.h"
-#endif    
+#endif
 
 
 class StoreGateSvc;
@@ -76,8 +76,10 @@ namespace Trk {
       //!< Standard Destructor
       virtual ~TrackingGeometrySvc();
   
-    
+      void setTrackingGeometry(const Trk::TrackingGeometry *ptr);
+
     private:
+      void trackingGeometryNotSet() const;
       //!< cached pointers:
       ISvcLocator*                                m_pSvcLocator {nullptr};
       StoreGateSvc*                               m_pDetStore   {nullptr};
@@ -85,6 +87,7 @@ namespace Trk {
       ToolHandle<Trk::IGeometryBuilder>           m_trackingGeometryBuilder {this, "GeometryBuilder", ""};
       //!< the actual building tool
       mutable const Trk::TrackingGeometry*        m_trackingGeometry     {nullptr};
+
       //!< the cached TrackingGeometry
       Gaudi::Property<std::string>                m_trackingGeometryName {this, "TrackingGeometryName", "AtlasTrackingGeometry"};
       //!< the name of the TrackingGeometry
@@ -103,13 +106,13 @@ namespace Trk {
       Gaudi::Property<bool>                       m_rerunOnCallback {this, "RerunOnCallback", false};
       //!< enables the callback
       Gaudi::Property<bool>                       m_buildGeometryFromTagInfo {this, "BuildGeometryFromTagInfo", true};
-  
-          
+      Gaudi::Property<bool>                       m_useConditionsData {this, "UseExternalConditionsData", false};
   };
 }
 
 inline const Trk::TrackingGeometry* Trk::TrackingGeometrySvc::trackingGeometry() const
-  { return m_trackingGeometry; }
+{  if (!m_trackingGeometry) { trackingGeometryNotSet(); }
+   return m_trackingGeometry; }
 
 inline const std::string& Trk::TrackingGeometrySvc::trackingGeometryName() const
   { return m_trackingGeometryName; }

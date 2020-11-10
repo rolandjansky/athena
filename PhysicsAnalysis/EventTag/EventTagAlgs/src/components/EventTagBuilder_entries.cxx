@@ -5,7 +5,6 @@
 #include "../GlobalTriggerTagBuilder.h"
 #include "../MuonTagBuilder.h"
 #include "../PhotonTagBuilder.h"
-#include "../TauJetTagBuilder.h"
 #include "../MissingETTagBuilder.h"
 #include "../ParticleJetTagBuilder.h"
 
@@ -19,7 +18,6 @@ DECLARE_COMPONENT( GlobalEventTagBuilder )
 DECLARE_COMPONENT( GlobalTriggerTagBuilder )
 DECLARE_COMPONENT( MuonTagBuilder )
 DECLARE_COMPONENT( PhotonTagBuilder )
-DECLARE_COMPONENT( TauJetTagBuilder )
 DECLARE_COMPONENT( ParticleJetTagBuilder )
 DECLARE_COMPONENT( MissingETTagBuilder )
 

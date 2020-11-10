@@ -13,9 +13,8 @@
 
 // ASG
 #include <AsgMessaging/MessageCheck.h>
-#include <AsgTools/ToolHandle.h>
+#include <AsgTools/AnaToolHandle.h>
 #include <AsgTools/AsgMetadataTool.h>
-#include <AthAnalysisBaseComps/AthAnalysisHelper.h>
 
 ANA_MSG_HEADER(CutFlow)
 ANA_MSG_SOURCE(CutFlow, "Dump")
@@ -65,8 +64,9 @@ int main(int argc, char **argv)
   event.getEntries();
 
   // Retrieve the tool
-  ToolHandle<asg::AsgMetadataTool> tool("BookkeeperDumperTool/BookkeeperDumperTool");
-  ANA_CHECK(AAH::setProperty(tool, "StandaloneMode", true));
+  asg::AnaToolHandle<asg::AsgMetadataTool> tool("BookkeeperDumperTool/BookkeeperDumperTool");
+  ANA_CHECK(tool.setProperty("StandaloneMode", true));
+  ANA_CHECK(tool.setProperty("AllVariations", true));
   ANA_CHECK(tool.retrieve());
 
   // Trigger finalization of all services and tools created by the Gaudi Application

@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
-#Comment to avoid python compilation warnings until block below is re-added
-#from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
+from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def ITkStripGeometryCfg( flags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
@@ -12,7 +11,7 @@ def ITkStripGeometryCfg( flags ):
     acc.addService(GeometryDBSvc("ITkGeometryDBSvc"))
     StripDetectorTool=CompFactory.StripDetectorTool
     ITkStripDetectorTool = StripDetectorTool()
-    #ITkStripDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic
+    #ITkStripDetectorTool.useDynamicAlignFolders = flags.GeoModel.Align.Dynamic #Will we need to do dynamic alignment for ITk?
     ITkStripDetectorTool.Alignable = False # make this a flag? Set true as soon as decided on folder structure
     ITkStripDetectorTool.DetectorName = "ITkStrip"
     if flags.ITk.useLocalGeometry:
@@ -20,6 +19,24 @@ def ITkStripGeometryCfg( flags ):
       ITkStripDetectorTool.GmxFilename = flags.ITk.stripGeometryFilename 
     geoModelSvc.DetectorTools += [ ITkStripDetectorTool ]
     
+    #Alignment corrections and DetElements to conditions
+    if flags.Common.Project != "AthSimulation": # Protection for AthSimulation builds
+        if (not flags.Detector.SimulateITkStrip) or flags.Detector.OverlayITkStrip:
+            acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer")) #Just load a single static folder for the moment - to be revisted with ITk-specific folders
+            SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
+            ITkStripAlignCondAlg = SCT_AlignCondAlg(name = "ITkStripAlignCondAlg",
+                                                    UseDynamicAlignFolders = flags.GeoModel.Align.Dynamic,
+                                                    DetManagerName = "ITkStrip",
+                                                    WriteKey = "ITkStripAlignmentStore")
+            acc.addCondAlgo(ITkStripAlignCondAlg)
+            SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
+            ITkStripDetectorElementCondAlg = SCT_DetectorElementCondAlg(name = "ITkStripDetectorElementCondAlg",
+                                                                        ReadKey = "ITkStripAlignmentStore",
+                                                                        WriteKey = "ITkStripDetectorElementCollection",
+                                                                        DetManagerName = "ITkStrip")
+            acc.addCondAlgo(ITkStripDetectorElementCondAlg)
+
+
     """
     # All this stuff probably needs revisting - comment for now...
     if flags.GeoModel.Align.Dynamic:
@@ -31,14 +48,6 @@ def ITkStripGeometryCfg( flags ):
             acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align"))
-    if flags.Common.Project != "AthSimulation": # Protection for AthSimulation builds
-        if (not flags.Detector.SimulateSCT) or flags.Detector.OverlaySCT:
-            SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
-            sctAlignCondAlg = SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
-                                               UseDynamicAlignFolders = flags.GeoModel.Align.Dynamic)
-            acc.addCondAlgo(sctAlignCondAlg)
-            SCT_DetectorElementCondAlg=CompFactory.SCT_DetectorElementCondAlg
-            sctDetectorElementCondAlg = SCT_DetectorElementCondAlg(name = "SCT_DetectorElementCondAlg")
-            acc.addCondAlgo(sctDetectorElementCondAlg)
+
     """
     return acc

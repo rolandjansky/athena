@@ -54,7 +54,7 @@ std::set<std::string> TrigCompositeUtils::AlgToChainTool::getChainsForAlg(const 
             result.insert(m_sequencerToChainMap.at(sequencer).begin(), m_sequencerToChainMap.at(sequencer).end());
         }
     } catch ( const std::out_of_range & ex ) {
-        ATH_MSG_ERROR ( algorithmName << " is not part of the menu!" );
+        ATH_MSG_DEBUG ( algorithmName << " is not part of the menu!" );
     }
 
     return result;

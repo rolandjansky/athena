@@ -61,7 +61,7 @@ void test1 (Trk::SolenoidParametrization& sol, const AtlasFieldCacheCondObj &fie
   assert( Athena_test::isEqual (secondIntegral, -296.768) );
 }
 
-std::unique_ptr<MagField::AtlasFieldMap> getFieldMap(const std::string mapFile, double sol_current, double tor_current) {
+std::unique_ptr<MagField::AtlasFieldMap> getFieldMap(const std::string& mapFile, double sol_current, double tor_current) {
        // find the path to the map file
     std::string resolvedMapFile = PathResolver::find_file( mapFile.c_str(), "DATAPATH" );
     assert ( !resolvedMapFile.empty() );

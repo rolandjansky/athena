@@ -8,7 +8,7 @@ atlas_add_tpcnv_library( AFP_EventTPCnv
    AFP_EventTPCnv/*.h src/*.cxx
    PUBLIC_HEADERS AFP_EventTPCnv
    LINK_LIBRARIES AthenaPoolUtilities AthenaPoolCnvSvcLib AFP_DigiEv
-   AFP_LocRecoEv AFP_SimEv AFP_RawEv AthenaPoolCnvSvcLib
+   AFP_LocRecoEv AFP_SimEv AthenaPoolCnvSvcLib
    PRIVATE_LINK_LIBRARIES Identifier GaudiKernel )
 
 atlas_add_dictionary( AFP_EventTPCnvDict

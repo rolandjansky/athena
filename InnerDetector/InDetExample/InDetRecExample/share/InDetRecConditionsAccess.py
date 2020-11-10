@@ -59,34 +59,16 @@ if DetFlags.pixel_on():
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
         rodIDForSingleLink40=0
         if (globalflags.DataSource()=='geant4'):
-            # ITk:
-            if geoFlags.isSLHC():
-                IdMappingDat = "ITk_Atlas_IdMapping.dat"
-                if "BrlIncl4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-                elif "IBrlExt4.0ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-                elif "BrlExt4.0_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-                elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
-                    IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-            elif (geoFlags.isIBL() == False):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
-            else:
-                # Planar IBL
-                if (geoFlags.IBLLayout() == "planar"):
-                    if (geoFlags.isDBM() == True):
-                        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
-                    else:
-                        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
-                # Hybrid IBL plus DBM
-                elif (geoFlags.IBLLayout() == "3D"):
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
+            from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC, IdMapping
+            condSeq += PixelConfigCondAlg_MC()
+            IdMappingDat=IdMapping()
         
         elif (globalflags.DataSource=='data'):
             from RecExConfig.AutoConfiguration import GetRunNumber
             runNum = GetRunNumber()
-            if (runNum<222222):
+            if (runNum is None):
+                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+            elif (runNum<222222):
                 useCablingConditions = False
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
                 rodIDForSingleLink40=1300000
@@ -105,12 +87,23 @@ if DetFlags.pixel_on():
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
-        alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                 UseCablingConditions=useCablingConditions,
-                                 CablingMapFileName=IdMappingDat)
-        if athenaCommonFlags.isOnline():
-            alg.ReadDeadMapKey = ""
-        condSeq += alg
+            alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
+                                    UseCablingConditions=useCablingConditions,
+                                    CablingMapFileName=IdMappingDat)
+            if jobproperties.Beam.beamType() == 'cosmics':
+                alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
+                alg.EndcapTimeJitter=[25.0,25.0,25.0]
+                alg.DBMTimeJitter=[25.0,25.0,25.0]
+                alg.BarrelNumberOfBCID=[8,8,8,8]
+                alg.EndcapNumberOfBCID=[8,8,8]
+                alg.DBMNumberOfBCID=[8,8,8]
+                alg.BarrelTimeOffset=[100.0,100.0,100.0,100.0]
+                alg.EndcapTimeOffset=[100.0,100.0,100.0]
+                alg.DBMTimeOffset=[100.0,100.0,100.0]
+
+            if athenaCommonFlags.isOnline():
+                alg.ReadDeadMapKey = ""
+            condSeq += alg
 
     if useNewDeadmapFormat:
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
@@ -478,6 +471,12 @@ if DetFlags.haveRIO.TRT_on():
     if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
        conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/ToT/ToTValue", "/TRT/Calib/ToT/ToTValue",className='CondAttrListCollection')
 
+    if InDetFlags.doTRTPIDNN():
+        if not conddb.folderRequested( "/TRT/Calib/PID_NN"):
+            conddb.addFolderSplitOnline( "TRT", "/TRT/Onl/Calib/PID_NN", "/TRT/Calib/PID_NN",className='CondAttrListCollection')
+        # FIXME: force tag until the folder is included in global tag
+        conddb.addOverride("/TRT/Calib/PID_NN", "TRTCalibPID_NN_v1")
+        conddb.addOverride("/TRT/Onl/Calib/PID_NN", "TRTCalibPID_NN_v1")
 
     #
     # now do the services
@@ -529,6 +528,11 @@ if DetFlags.haveRIO.TRT_on():
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTHTCondAlg
     TRTHTCondAlg = TRTHTCondAlg(name = "TRTHTCondAlg")
 
+    # PID NN
+    if InDetFlags.doTRTPIDNN():
+        from TRT_ConditionsNN.TRT_ConditionsNNConf import TRTPIDNNCondAlg
+        TRTPIDNNCondAlg = TRTPIDNNCondAlg(name = "TRTPIDNNCondAlg")
+
     # dEdx probability algorithm
     from TRT_ConditionsAlgs.TRT_ConditionsAlgsConf import TRTToTCondAlg
     TRTToTCondAlg = TRTToTCondAlg(name = "TRTToTCondAlg")
@@ -549,6 +553,8 @@ if DetFlags.haveRIO.TRT_on():
     # Condition algorithms for Pid
     if not hasattr(condSeq, "TRTHTCondAlg"):
         condSeq += TRTHTCondAlg
+    if (InDetFlags.doTRTPIDNN() and not hasattr(condSeq, "TRTPIDNNCondAlg")):
+        condSeq += TRTPIDNNCondAlg
     if not hasattr(condSeq, "TRTToTCondAlg"):
         condSeq += TRTToTCondAlg
 

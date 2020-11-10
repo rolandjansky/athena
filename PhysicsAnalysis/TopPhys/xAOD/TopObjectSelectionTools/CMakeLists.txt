@@ -1,70 +1,23 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the name of this package:
+# Declare the name of this package.
 atlas_subdir( TopObjectSelectionTools )
 
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          xAODBase
-                          xAODPrimitives
-                          xAODEventInfo
-                          xAODEgamma
-                          xAODMuon
-                          xAODTau
-                          xAODTracking
-                          ElectronPhotonSelectorTools
-                          MuonSelectorTools
-                          TopEvent
-                          TopSystematicObjectMaker
-                          AssociationUtils
-                          TrigConfInterfaces
-                          TrigDecisionTool
-                          TriggerMatchingTool
-                          TrigTauMatching
-                          GoodRunsLists
-                          JetJvtEfficiency
-                          xAODBTaggingEfficiency
-                          JetSubStructureMomentTools
-                          JetSubStructureUtils
-                          JetReclustering )
+# External(s).
+find_package( Boost )
 
-# This package uses ROOT:
-find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-
-# Generate a CINT dictionary source file:
-atlas_add_root_dictionary( TopObjectSelectionTools _cintDictSource
-   ROOT_HEADERS TopObjectSelectionTools/RCJetMC15.h Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
-
-# Build a library that other components can link against:
-atlas_add_library( TopObjectSelectionTools Root/*.cxx Root/*.h Root/*.icc
-                   TopObjectSelectionTools/*.h TopObjectSelectionTools/*.icc TopObjectSelectionTools/*/*.h
-                   TopObjectSelectionTools/*/*.icc ${_cintDictSource} 
-                   PUBLIC_HEADERS TopObjectSelectionTools
-                   LINK_LIBRARIES xAODBase
-                                  xAODPrimitives
-                                  xAODEventInfo
-                                  xAODEgamma
-                                  xAODMuon
-                                  xAODTau
-                                  xAODTracking
-                                  ElectronPhotonSelectorToolsLib
-                                  MuonSelectorToolsLib
-                                  TopEvent
-                                  TopSystematicObjectMaker
-                                  AssociationUtilsLib
-                                  TrigConfInterfaces
-                                  TrigDecisionToolLib
-                                  TriggerMatchingToolLib
-                                  TrigTauMatchingLib
-                                  GoodRunsListsLib
-                                  JetJvtEfficiencyLib
-                                  xAODBTaggingEfficiencyLib
-                                  JetSubStructureMomentToolsLib
-                                  JetSubStructureUtils
-                                  JetReclusteringLib
-                                  ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
-
-# Install data files from the package:
-atlas_install_data( share/* )
-
+# Component(s) in the package.
+atlas_add_library( TopObjectSelectionTools
+   TopObjectSelectionTools/*.h Root/*.cxx
+   PUBLIC_HEADERS TopObjectSelectionTools
+   LINK_LIBRARIES AsgMessagingLib AsgTools xAODRootAccess xAODBase xAODCore
+   xAODEgamma xAODJet xAODMuon xAODPrimitives xAODTau xAODTracking xAODTruth
+   AsgAnalysisInterfaces FTagAnalysisInterfacesLib MuonAnalysisInterfacesLib
+   TriggerAnalysisInterfaces JetAnalysisInterfacesLib AssociationUtilsLib
+   TrigConfInterfaces TrigDecisionToolLib TriggerMatchingToolLib
+   TrigTauMatchingLib InDetTrackSelectionToolLib ElectronPhotonSelectorToolsLib
+   JetReclusteringLib TauAnalysisToolsLib TopEvent TopConfiguration
+   TopSystematicObjectMaker
+   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} xAODEventInfo xAODMissingET
+   PATInterfaces FourMomUtils TopParticleLevel TopDataPreparation )

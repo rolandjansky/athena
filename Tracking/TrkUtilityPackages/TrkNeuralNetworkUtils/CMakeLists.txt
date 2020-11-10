@@ -1,19 +1,11 @@
-################################################################################
-# Package: TrkNeuralNetworkUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkNeuralNetworkUtils )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          PRIVATE
-                          GaudiKernel )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( ROOT COMPONENTS Matrix Cint Core Tree MathCore Hist RIO pthread MathMore Minuit Minuit2 Physics HistPainter Rint )
+find_package( Boost )
+find_package( ROOT COMPONENTS Matrix Core Tree MathCore Hist )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( TrkNeuralNetworkUtilsLib
@@ -32,8 +24,7 @@ atlas_add_library( TrkNeuralNetworkUtilsLib
 
 atlas_add_component( TrkNeuralNetworkUtils
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps GaudiKernel TrkNeuralNetworkUtilsLib )
+                     LINK_LIBRARIES TrkNeuralNetworkUtilsLib )
 
 atlas_add_test( test_buffer
         SOURCES test/test_TargetBuffer_t.cxx  )

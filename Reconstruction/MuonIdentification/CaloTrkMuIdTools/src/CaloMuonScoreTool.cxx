@@ -34,9 +34,13 @@ StatusCode CaloMuonScoreTool::initialize() {
   
   ATH_CHECK( m_svc.retrieve() );
   ATH_CHECK(m_caloCellAssociationTool.retrieve());
+
+  std::string model_file_name = PathResolverFindCalibFile( m_modelFileName );
   
-  if (m_modelFileName.empty()) {
-    ATH_MSG_FATAL("Could not find an ONNX model file!");
+  if (m_modelFileName.empty() || model_file_name.empty() ) {
+    ATH_MSG_FATAL("Could not find the requested ONNX model file: " << m_modelFileName );
+    ATH_MSG_FATAL("Please make sure it exists in the ATLAS calibration area (https://atlas-groupdata.web.cern.ch/atlas-groupdata/), and provide a model file name relative to the root of the calibration area.");
+
     return StatusCode::FAILURE;
   }
 
@@ -45,8 +49,6 @@ StatusCode CaloMuonScoreTool::initialize() {
   Ort::AllocatorWithDefaultOptions allocator;  
   session_options.SetIntraOpNumThreads(1);
   session_options.SetGraphOptimizationLevel( ORT_ENABLE_BASIC );
-
-  const std::string model_file_name = PathResolverFindDataFile( m_modelFileName );
 
   m_session = std::make_unique< Ort::Session > (m_svc->env(), model_file_name.c_str(), session_options);
 

@@ -58,13 +58,14 @@ if __name__=='__main__':
    from LArMonitoring.LArMonConfigFlags import createLArMonConfigFlags
    createLArMonConfigFlags()
 
-   ConfigFlags.Input.Files = ["/eos/atlas/atlastier0/rucio/data20_calib/calibration_LArElec-Pedestal-32s-High-All/00374735/data20_calib.00374735.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data20_calib.00374735.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-3._0001.data"]
+   ConfigFlags.Input.Files = ["/eos/atlas/atlastier0/rucio/data20_calib/calibration_LArElec-Pedestal-32s-High-All/00384597/data20_calib.00384597.calibration_LArElec-Pedestal-32s-High-All.daq.RAW/data20_calib.00384597.calibration_LArElec-Pedestal-32s-High-All.daq.RAW._lb0000._SFO-2._0001.data"]
    ConfigFlags.Output.HISTFileName = 'LArCalibPedMonOutput.root'
    ConfigFlags.DQ.enableLumiAccess = False
+   ConfigFlags.Input.isMC = False
    ConfigFlags.DQ.useTrigger = False
    ConfigFlags.Beam.Type = 'collisions'
    ConfigFlags.DQ.DataType = 'collisions'
-   ConfigFlags.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
+   ConfigFlags.GeoModel.AtlasVersion = 'ATLAS-R2-2016-01-00-01'
    ConfigFlags.Detector.GeometryCSC=False
    ConfigFlags.Detector.GeometrysTGC=False
    ConfigFlags.Detector.GeometryMM=False
@@ -81,7 +82,7 @@ if __name__=='__main__':
    cfg.printConfig()
 
    ConfigFlags.dump()
-   f=open("LArCalibPedMon.pkl","w")
+   f=open("LArCalibPedMon.pkl","wb")
    cfg.store(f)
    f.close()
 

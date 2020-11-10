@@ -8,6 +8,8 @@
 #include "PathResolver/PathResolver.h"
 #endif
 
+#include "xAODBTagging/BTaggingUtilities.h"
+
 // root includes
 #include <TSystem.h>
 #include <TFile.h>
@@ -452,7 +454,8 @@ int BoostedXbbTag::result(const xAOD::Jet& jet, std::string algorithm_name, cons
 
     // MV2c10
     double mv2c10(FLT_MIN);
-    if(!trackJet->btagging()->MVx_discriminant("MV2c10", mv2c10)){
+    const xAOD::BTagging* btag = xAOD::BTaggingUtilities::getBTagging( *trackJet );
+    if(!btag->MVx_discriminant("MV2c10", mv2c10)){
       if(m_verbose) printf("<%s>: Could not retrieve the MV2c10 discriminant.\r\n", APP_NAME);
       return -9;
     }

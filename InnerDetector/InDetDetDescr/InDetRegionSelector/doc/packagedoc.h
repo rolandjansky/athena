@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -48,11 +48,7 @@ used at both the inner and outer radius.
 
 @section InDetRegionSelector_InDetRegionSelectorClassOverview Class Overview
 
-The package contains the two tools:
-
-  - SiRegionSelectorTable:  Pixel and SCT
-  - TRT_RegionSelectorTable:  For TRT.
-
+The package contains no tool:
 
 @section InDetRegionSelector_InDetRegionSelectorJobOptions Job Options
 

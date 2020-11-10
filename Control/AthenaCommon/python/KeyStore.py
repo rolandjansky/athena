@@ -3,9 +3,6 @@
 # @file: AthenaCommon/python/KeyStore.py
 # @author: Sebastien Binet (binet@cern.ch)
 
-from __future__ import print_function
-import six
-
 ### data
 __version__ = '$Revision: 1.11 $'
 __author__  = 'Sebastien Binet <binet@cern.ch>'
@@ -567,10 +564,7 @@ class CfgKeyStore( object ):
         try:
             from pprint import pprint
             from datetime import datetime
-            if six.PY2:
-                from cStringIO import StringIO
-            else:
-                from io import StringIO
+            from io import StringIO
             buf = StringIO()
             pprint( item.dict(), stream = buf )
             

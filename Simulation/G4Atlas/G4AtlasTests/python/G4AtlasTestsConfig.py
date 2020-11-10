@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr,Logging
-from AthenaCommon.AppMgr import ToolSvc
 
 def PixelHitsTestTool(name="PixelHitsTestTool", **kwargs):
     kwargs.setdefault("CollectionName", "PixelHits")

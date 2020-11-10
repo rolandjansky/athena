@@ -18,7 +18,6 @@
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
 
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthenaKernel/CLASS_DEF.h"
 

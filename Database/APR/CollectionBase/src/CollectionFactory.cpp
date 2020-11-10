@@ -466,7 +466,7 @@ pool::CollectionFactory::isUnique( const pool::FileCatalog::FileID& guid,
 
 
 void 
-pool::CollectionFactory::extract( const std::string physicalName,
+pool::CollectionFactory::extract( const std::string& physicalName,
                                   std::string& type,
                                   std::string& connection,
                                   std::string& name ) const

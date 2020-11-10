@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,10 +44,10 @@
 Trk::MaterialMapping::MaterialMapping(const std::string& name, ISvcLocator* pSvcLocator)
 : AthAlgorithm(name,pSvcLocator),
   m_trackingGeometrySvc("AtlasTrackingGeometrySvc",name),
-  m_trackingGeometry(0),
+  m_trackingGeometry(nullptr),
   m_checkForEmptyHits(true),
   m_mappingVolumeName("Atlas"),
-  m_mappingVolume(0),
+  m_mappingVolume(nullptr),
   m_inputMaterialStepCollection("MaterialStepRecords"),
   m_etaCutOff(6.0),
   m_etaSide(0),
@@ -58,7 +58,7 @@ Trk::MaterialMapping::MaterialMapping(const std::string& name, ISvcLocator* pSvc
   m_materialMapper(""),
   m_mapComposition(true),
   m_minCompositionFraction(0.005),
-  m_elementTable(0),
+  m_elementTable(nullptr),
   m_inputEventElementTable("ElementTable"),
   m_accumulatedMaterialXX0(0.),
   m_accumulatedRhoS(0.),
@@ -122,10 +122,10 @@ StatusCode Trk::MaterialMapping::initialize()
     if ( !m_layerMaterialRecordAnalyser.empty() && m_layerMaterialRecordAnalyser.retrieve().isFailure() )  
         ATH_MSG_WARNING("Could not retrieve LayerMaterialAnalyser");
         
-    if ( m_layerMaterialCreators.size() && m_layerMaterialCreators.retrieve().isFailure() )        
+    if ( !m_layerMaterialCreators.empty() && m_layerMaterialCreators.retrieve().isFailure() )        
         ATH_MSG_WARNING("Could not retrieve any LayerMaterialCreators");
 
-    if ( m_layerMaterialAnalysers.size() && m_layerMaterialAnalysers.retrieve().isFailure() )        
+    if ( !m_layerMaterialAnalysers.empty() && m_layerMaterialAnalysers.retrieve().isFailure() )        
         ATH_MSG_WARNING("Could not retrieve any LayerMaterialAnalysers");
 
     ATH_CHECK( m_inputMaterialStepCollection.initialize() );
@@ -157,7 +157,7 @@ StatusCode Trk::MaterialMapping::execute()
     SG::ReadHandle<Trk::ElementTable> eTableEvent(m_inputEventElementTable);	  
     
     (*m_elementTable) += (*eTableEvent);  // accummulate the table 
-    m_mapComposition = eTableEvent.isValid() ? true : false;
+    m_mapComposition = eTableEvent.isValid();
         
         
         // event parameters - associated asteps, and layers hit per event
@@ -166,7 +166,7 @@ StatusCode Trk::MaterialMapping::execute()
         m_accumulatedRhoS        = 0.;
         m_layersRecordedPerEvent.clear();
         // clearing the recorded layers per event
-        if (materialStepCollection.isValid() && materialStepCollection->size()){
+        if (materialStepCollection.isValid() && !materialStepCollection->empty()){
 
            // get the number of material steps 
            size_t materialSteps = materialStepCollection->size();
@@ -208,7 +208,7 @@ StatusCode Trk::MaterialMapping::execute()
                // for screen output
                size_t ilayer = 0;
                // find all the intersected material - remember the last parameters
-               const Trk::NeutralParameters* parameters = 0; 
+               const Trk::NeutralParameters* parameters = nullptr; 
                // loop over the collected information
                for (auto& es : ecc.extrapolationSteps){
                    // continue if we have parameters
@@ -233,7 +233,7 @@ StatusCode Trk::MaterialMapping::execute()
                 if (ecc.endParameters != parameters) delete ecc.endParameters;
                 
                 // we have no layers and Hits
-                if (!layersAndHits.size()){
+                if (layersAndHits.empty()){
                     ATH_MSG_VERBOSE("[!] No Layer was intersected - skipping.");
                     return StatusCode::SUCCESS;
                 }
@@ -390,7 +390,7 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
         ATH_MSG_INFO("--> found : "<< layers.size() << "confined Layers");
         // the iterator over the vector
         // loop over layers
-        for (auto& layer : layers) {
+        for (const auto & layer : layers) {
             // assign the material and output
             if (layer && (*layer).layerIndex().value() ) {
                 ATH_MSG_INFO("  > LayerIndex: "<< (*layer).layerIndex() );
@@ -415,7 +415,7 @@ void Trk::MaterialMapping::assignLayerMaterialProperties( const Trk::TrackingVol
         const std::vector<const Trk::TrackingVolume*>& volumes = confinedVolumes->arrayObjects();
         ATH_MSG_INFO("--> found : "<< volumes.size() << "confined TrackingVolumes");
         // loop over volumes
-        for (auto& volume : volumes) {
+        for (const auto & volume : volumes) {
             // assing the material and output
             if (volume)
                 assignLayerMaterialProperties(*volume, propSet); // call itself recursively
@@ -620,7 +620,7 @@ void Trk::MaterialMapping::insertLayerMaterialRecord(const Trk::Layer& lay){
  const Trk::BinnedLayerMaterial* layerBinnedMaterial
  = dynamic_cast<const Trk::BinnedLayerMaterial*>(layerMaterialProperties);
  // get the binned array
- const Trk::BinUtility* layerMaterialBinUtility = (layerBinnedMaterial) ? layerBinnedMaterial->binUtility() : 0;
+ const Trk::BinUtility* layerMaterialBinUtility = (layerBinnedMaterial) ? layerBinnedMaterial->binUtility() : nullptr;
  // now fill the layer material record
  if (layerMaterialBinUtility){
      // create a new Layer Material record in the map

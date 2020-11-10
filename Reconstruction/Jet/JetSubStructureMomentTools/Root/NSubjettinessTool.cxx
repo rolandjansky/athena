@@ -6,7 +6,10 @@
 #include "JetSubStructureUtils/Nsubjettiness.h"
 #include "CxxUtils/ubsan_suppress.h"
 
-NSubjettinessTool::NSubjettinessTool(std::string name) : 
+#include "fastjet/contrib/Nsubjettiness.hh"
+#include "fastjet/contrib/AxesDefinition.hh"
+
+NSubjettinessTool::NSubjettinessTool(std::string name) :
   JetSubStructureMomentToolsBase(name)
 {
   declareProperty("Alpha",      m_Alpha = 1.0);

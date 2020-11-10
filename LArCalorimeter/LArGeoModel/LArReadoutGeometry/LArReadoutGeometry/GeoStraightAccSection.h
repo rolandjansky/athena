@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_GEOSTRAIGHTACCSECTION_H
@@ -56,7 +56,7 @@ class GeoStraightAccSection {
  private:
 
   class Clockwork;
-  Clockwork *m_c;
+  std::unique_ptr<Clockwork> m_c;
 
   GeoStraightAccSection (const GeoStraightAccSection&);
   GeoStraightAccSection& operator= (const GeoStraightAccSection&);

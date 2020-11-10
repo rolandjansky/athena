@@ -4,7 +4,7 @@
 *  CommandLine.cpp
 *  Created by John F. Hubbard, on Sat Jul 29 2000, 19:01:05 PST
 *
-*  Copyright (c) 2000, ATD Azad Technology Development Corporation
+*  Copyright (c) 2000, 2020, ATD Azad Technology Development Corporation
 *
 *            The Reliable Software Outsource Resource
 *        You hire us, we do it for you, and we do it right.
@@ -232,7 +232,7 @@ pool::CommandLine::DumpDiagnostics() const
   cout << endl << "Parameter name" << "\t\t\tValue" << endl;
   cout << "-------------------------------------" << endl;
   for(ARGMAPTYPE::const_iterator it = mArgMap.begin();
-    it != mArgMap.end(); it++)
+    it != mArgMap.end(); ++it)
   {
     cout << it->first << ":\t\t\t\t" << it->second << endl;
   }

@@ -3,6 +3,8 @@
 # 
 
 def setupFilterMonitoring( filterAlg ):    
+    if not hasattr(filterAlg, "Input"):
+        return
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     

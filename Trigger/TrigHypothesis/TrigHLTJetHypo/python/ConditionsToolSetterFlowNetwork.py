@@ -24,6 +24,9 @@ def is_inner(node):
 class ConditionsToolSetterFlowNetwork(object):
 
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
+
+    from TrigHLTJetHypo.ConditionsToolSetterFastReduction import ConditionsToolSetterFastReduction
+    JetMoments = ConditionsToolSetterFastReduction.JetMoments
     
     def __init__(self, name):
 
@@ -39,13 +42,14 @@ class ConditionsToolSetterFlowNetwork(object):
             'djdphi': [CompFactory.TrigJetConditionConfig_dijet_dphi, 0],
             'djdeta': [CompFactory.TrigJetConditionConfig_dijet_deta, 0],
             'qjmass': [CompFactory.TrigJetConditionConfig_qjet_mass, 0],
-            'momwidth': [CompFactory.TrigJetConditionConfig_moment, 0],
             'smc': [CompFactory.TrigJetConditionConfig_smc, 0],
             'all': [CompFactory.TrigJetConditionConfig_acceptAll, 0],
             'compound': [CompFactory.TrigJetConditionConfig_compound, 0],
             'flownetwork': [CompFactory.TrigJetHypoToolConfig_flownetwork, 0],
             'helper': [CompFactory.TrigJetHypoToolHelperMT, 0],
             }
+        for var in self.JetMoments:
+            self.tool_factories['mom'+var] = [CompFactory.TrigJetConditionConfig_moment, 0]
 
         # map conaining parent child ids for the node
         self.treeMap = {0: 0}
@@ -134,7 +138,10 @@ class ConditionsToolSetterFlowNetwork(object):
                 # SPECIAL CASE: Moment tool needs the name of the
                 # moment as well as the min. max cuts:
                 if (k.startswith ('mom')):
-                    condition_tool.moment = k[len('mom'):]                    
+                    moment = k[len('mom'):]
+                    if moment in self.JetMoments:
+                        condition_tool.moment = self.JetMoments[moment]
+                    else: raise RuntimeError('%s not supported' % (moment))
                 # END SPECIAL CASE
 
                 condition_tools.append(condition_tool)

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -40,9 +40,11 @@
 
 #include "FileCatalog/IFileCatalog.h"
 
+#include "CxxUtils/checker_macros.h"
+
 void eventLoop(DataReader*, EventStorage::DataWriter*, unsigned&, const std::vector<uint32_t>*, uint32_t, bool, bool, bool, const std::vector<long long int>* = 0);
 
-int main (int argc, char *argv[]) {
+int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]) {
   using namespace eformat;
 
   //Interpret arguments
@@ -187,7 +189,7 @@ int main (int argc, char *argv[]) {
     try {
       if (!catalogFile.empty()) {
         ctlg->setWriteCatalog(*catalogFile.begin());
-        for (std::vector<std::string>::const_iterator iter = catalogFile.begin(); iter != catalogFile.end(); iter++) {
+        for (std::vector<std::string>::const_iterator iter = catalogFile.begin(); iter != catalogFile.end(); ++iter) {
           ctlg->addReadCatalog(*iter);
         }
       } else {
@@ -199,7 +201,7 @@ int main (int argc, char *argv[]) {
       return -1;
     }
     ctlg->start();
-    for (std::vector<std::string>::const_iterator collIter = collNames.begin(), typeIter = collTypes.begin(), collEnd = collNames.end(); collIter != collEnd; collIter++, typeIter++) {
+    for (std::vector<std::string>::const_iterator collIter = collNames.begin(), typeIter = collTypes.begin(), collEnd = collNames.end(); collIter != collEnd; ++collIter, ++typeIter) {
       try {
         // Open the collection and execute the query
         pool::ICollection* srcColl = collSvc->handle(*collIter, *typeIter, collConnect, true);
@@ -268,14 +270,14 @@ int main (int argc, char *argv[]) {
 
   std::sort(searchEvents.begin(),searchEvents.end());
   std::cout << "Events to copy: ";
-  for (std::vector<uint32_t>::const_iterator itEvt1=searchEvents.begin(), itEvt2=searchEvents.end(); itEvt1!=itEvt2; itEvt1++) {
+  for (std::vector<uint32_t>::const_iterator itEvt1=searchEvents.begin(), itEvt2=searchEvents.end(); itEvt1!=itEvt2; ++itEvt1) {
     std::cout << *itEvt1 << " ";
   }
   std::cout << std::endl;
 
   EventStorage::DataWriter* pDW=NULL;
   //start loop over files
-  for (std::vector<std::string>::const_iterator it = fileNames.begin(), it_e = fileNames.end(); it != it_e; it++) {
+  for (std::vector<std::string>::const_iterator it = fileNames.begin(), it_e = fileNames.end(); it != it_e; ++it) {
     const std::string& fName=*it;
     std::cout << "Checking file " << fName << std::endl;
     DataReader *pDR = pickDataReader(fName);
@@ -379,7 +381,7 @@ void eventLoop(DataReader* pDR, EventStorage::DataWriter* pDW, unsigned& nFound,
     if (pOffsetEvents != 0) {
       if (offIt == offEnd) break;
       ecode = pDR->getData(eventSize, &buf, *offIt);
-      offIt++;
+      ++offIt;
     } else {
       ecode = pDR->getData(eventSize,&buf);
     }

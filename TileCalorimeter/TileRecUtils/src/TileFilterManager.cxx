@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // **************************************************************************************
@@ -216,6 +216,8 @@ int TileFilterManager::fitDigits1(TileFilterResult &tResult, bool lDebug) {
     }
     //    if(debug) tResult.SnapShot(0);
     iFitIndex = getFitIndex(Npar, vcross);
+    // cppcheck-suppress negativeContainerIndex
+    // Npar is changed as a side-effect of calling addCross() above.
     std::vector<TileFitter>& vFitter = m_vNpFitter[Npar - 2];
     TileFitter& tileFitter = vFitter[iFitIndex];
     (void) tileFitter.fitAmp(tResult, false);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,30 +7,18 @@
  -----------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: TGC_IDDetDescrCnv.cxx,v 1.8 2004/06/04 03:59:16 ketevi Exp $
-//<version>	$Name:  $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "TGC_IDDetDescrCnv.h"
 
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGateSvc.h" 
+#include "AthenaKernel/StorableConversions.h"
 #include "IdDictDetDescr/IdDictManager.h"
 #include "MuonIdHelpers/TgcIdHelper.h"
 
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 //--------------------------------------------------------------------
 
@@ -138,7 +126,7 @@ TGC_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     } 
 
     // Pass a pointer to the container to the Persistency service by reference.
-    pObj = StoreGateSvc::asStorable(tgc_id);
+    pObj = SG::asStorable(tgc_id);
 
     return StatusCode::SUCCESS; 
 

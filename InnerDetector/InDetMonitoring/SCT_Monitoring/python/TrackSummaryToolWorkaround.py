@@ -89,7 +89,7 @@ def TrackSummaryToolWorkaround(flags):
                                                                      AssoTool        = InDetPrdAssociationTool,
                                                                      PixelToTPIDTool = '',
                                                                      TestBLayerTool  = '',
-                                                                     RunningTIDE_Ambi = True,
+                                                                     RunningTIDE_Ambi = flags.InDet.doTIDE_Ambi,
                                                                      DoSharedHits    = False,
                                                                      HoleSearch      = InDetHoleSearchTool,
                                                                      usePixel        = flags.Detector.GeometryPixel,
@@ -100,7 +100,6 @@ def TrackSummaryToolWorkaround(flags):
                                                   doSharedHits           = False,
                                                   doHolesInDet           = True,
                                                   TRT_ElectronPidTool    = '',
-                                                  TRT_ToT_dEdxTool       = '',
                                                   PixelToTPIDTool        = '')
     result.setPrivateTools(InDetTrackSummaryTool)
     ############################## WORKAROUND (END) ############################

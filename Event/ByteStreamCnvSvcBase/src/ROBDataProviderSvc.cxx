@@ -249,7 +249,7 @@ void ROBDataProviderSvc::setNextEvent(const RawEvent* re) {
 void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEvent* re ) {
   EventCache* cache = m_eventsCache.get( context );
   
-   cache->event = re;
+   cache->event=re;
    // clear the old map
    robmapClear( cache->robmap );
    // set the LVL1 id
@@ -269,7 +269,8 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
    // loop over all ROBs
    for (size_t irob = 0; irob < robcount; irob++) {
       // add to the map
-      const ROBF* rob = new ROBF(robF[irob]);
+      //const ROBF* rob = new ROBF(robF[irob]);
+      std::unique_ptr<const ROBF> rob=std::make_unique<const ROBF>(robF[irob]);
       uint32_t id =  rob->source_id();
       // mask off the module ID for L2 and EF result for Run 1 data
       if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) &&
@@ -287,8 +288,8 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
       if ((rob->rod_ndata() == 0) && (m_filterEmptyROB)) {
          ATH_MSG_DEBUG( " ---> Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
 	         << " removed for L1 Id = " << cache->currentLvl1ID);
-          delete rob;
-      } else if (filterRobWithStatus(rob)) {
+          rob.reset();
+      } else if (filterRobWithStatus(rob.get())) {
          if (rob->nstatus() > 0) {
             const uint32_t* it_status;
             rob->status(it_status);
@@ -298,17 +299,15 @@ void ROBDataProviderSvc::setNextEvent( const EventContext& context, const RawEve
 	            << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific() << MSG::dec
 	            << " removed for L1 Id = " << cache->currentLvl1ID);
          }
-         delete rob;
+         rob.reset();
       } else {
          ROBMAP::const_iterator it = cache->robmap.find(id);
          if (it != cache->robmap.end()) {
             ATH_MSG_WARNING(" ROBDataProviderSvc:: Duplicate ROBID 0x" << MSG::hex << id
 	            << " found. " << MSG::dec << " Overwriting the previous one ");
-            delete cache->robmap[id];
-            cache->robmap[id] = rob;
-         } else {
-            cache->robmap[id] = rob;
-         }
+         } 
+         cache->robmap[id]=std::move(rob);
+         
       }
    }
    ATH_MSG_DEBUG(" ---> setNextEvent offline for " << name() );
@@ -344,7 +343,7 @@ void ROBDataProviderSvc::getROBData(const EventContext& context, const std::vect
       }
       ROBMAP::iterator map_it = cache->robmap.find(id);
       if (map_it != cache->robmap.end()) {
-         v.push_back((*map_it).second);
+         v.push_back((*map_it).second.get());
       } else {
 	ATH_MSG_DEBUG("Failed to find ROB for id 0x" << MSG::hex << id << MSG::dec << ", Caller Name = " << callerName);
 #ifndef NDEBUG
@@ -363,8 +362,8 @@ void ROBDataProviderSvc::getROBData(const EventContext& context, const std::vect
 /** - clear ROB map
  */
 void ROBDataProviderSvc::robmapClear( ROBMAP& toclear) {
-  for (ROBMAP::const_iterator it = toclear.begin(), itE = toclear.end(); it != itE; ++it) {
-     delete it->second;
+   for (auto& it : toclear) {
+     it.second.reset();  
   }
   toclear.clear();
 }
@@ -401,7 +400,7 @@ uint32_t ROBDataProviderSvc::getEventStatus( const EventContext& context ) {
 void ROBDataProviderSvc::processCachedROBs(const EventContext& context, 
 					   const std::function< void(const ROBF* )>& fn ) const {
   for ( const auto&  el : m_eventsCache.get( context )->robmap ) {
-    fn( el.second );
+    fn( el.second.get() );
   }
 }
 
@@ -447,10 +446,3 @@ bool ROBDataProviderSvc::filterRobWithStatus(const ROBF* rob) {
    }
    return(false);
 }
-
-
-ROBDataProviderSvc::EventCache::~EventCache() {
-  delete event;
-  ROBDataProviderSvc::robmapClear( robmap );
-}
-

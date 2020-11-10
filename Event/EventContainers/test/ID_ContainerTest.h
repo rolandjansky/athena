@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // 
@@ -15,10 +15,10 @@ class ID_ContainerTest {
 public: 
   ID_ContainerTest(); 
 
-  virtual int initialize() ; 
+  virtual int initialize(EventContainers::Mode mode) ; 
   virtual int finalize()  ; 
 
-  virtual int execute(); 
+  virtual int execute(EventContainers::Mode mode); 
 
 private: 
   int m_ncollections; 

@@ -5,8 +5,6 @@ Configurations for classes in BeamEffects package
 """
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.Constants import *  # FATAL,ERROR etc.
-from AthenaCommon.SystemOfUnits import *
 
 #--------------------------------------------------------------------------------------------------
 ## LorentzVectorGenerators

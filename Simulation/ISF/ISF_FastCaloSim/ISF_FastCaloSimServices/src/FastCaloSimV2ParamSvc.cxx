@@ -21,7 +21,6 @@
 
 // StoreGate
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"

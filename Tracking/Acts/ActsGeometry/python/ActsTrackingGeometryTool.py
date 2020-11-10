@@ -12,8 +12,6 @@ from __future__ import print_function
 # import the DetFlags for the setting
 from AthenaCommon.DetFlags import DetFlags
 
-from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-
 # import the Extrapolator configurable
 from ActsGeometry.ActsGeometryConf import ActsTrackingGeometryTool
    
@@ -24,12 +22,6 @@ class ConfiguredActsTrackingGeometry( ActsTrackingGeometryTool ) :
     subDetectors = []
     if DetFlags.pixel_on():
       subDetectors += ["Pixel"]
-    if DetFlags.SCT_on():
-      subDetectors += ["SCT"]
-    if DetFlags.TRT_on():
-      subDetectors += ["TRT"]
-    if DetFlags.Calo_on():
-      subDetectors += ["Calo"]
         
     from ActsGeometry.ActsGeometryConf import ActsTrackingGeometrySvc
     actsTrackingGeometrySvc = ActsTrackingGeometrySvc(name = "ActsTrackingGeometrySvc",

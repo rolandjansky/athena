@@ -9,6 +9,7 @@ Dump content of the HLT result and HLT related details from the event header
 
 import argparse
 import eformat
+from TrigByteStreamTools import hltResultMT
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('dumpHLTContentInBS')
@@ -100,21 +101,25 @@ def stream_tags(event):
 
 
 def hlt_result(event, print_sizes=False):
-    hlt_robs = [rob for rob in event.children()
-                if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_HLT]
-    info_str = 'Found {:d} HLT ROBs'.format(len(hlt_robs))
-    for rob in hlt_robs:
+    num_hlt_robs = 0
+    info_str = ""
+    for rob in event.children():
+        if rob.source_id().subdetector_id() != eformat.helper.SubDetector.TDAQ_HLT:
+            continue
+        num_hlt_robs += 1
         info_str += '\n-- {:s} SourceID: {:s}, Size: {:d} bytes'.format(
             rob.__class__.__name__,
             rob.source_id().human(),
             rob.fragment_size_word()*4
         )
         if print_sizes:
-            from TrigByteStreamTools import hltResultMT
-            collections = hltResultMT.get_collections(rob.rod_data())
+            raw_data = tuple(rob.rod_data())
+            collections = hltResultMT.get_collections(raw_data)
             for coll in collections:
                 indent = '----' if not coll.is_xAOD_decoration() else '------'
                 info_str += '\n{:s} {:s}'.format(indent, str(coll))
+
+    info_str = 'Found {:d} HLT ROBs'.format(num_hlt_robs) + info_str
     return info_str
 
 
@@ -131,17 +136,17 @@ def size_summary(events):
     #   }
     # }
     for event in events:
-        from TrigByteStreamTools import hltResultMT
-        hlt_robs = [rob for rob in event.children()
-                    if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_HLT]
-        for rob in hlt_robs:
+        for rob in event.children():
+            if rob.source_id().subdetector_id() != eformat.helper.SubDetector.TDAQ_HLT:
+                continue
             module = rob.source_id().module_id()
             if module not in data.keys():
                 data[module] = {'total': 0}
             data[module]['total'] += rob.fragment_size_word()*4
             if 'collections' not in data[module].keys():
                 data[module]['collections'] = {}
-            for coll in hltResultMT.get_collections(rob.rod_data()):
+            raw_data = tuple(rob.rod_data())
+            for coll in hltResultMT.get_collections(raw_data):
                 coll_name = coll.name()
                 if coll_name in data[module]['collections'].keys():
                     data[module]['collections'][coll_name] += coll.size_bytes

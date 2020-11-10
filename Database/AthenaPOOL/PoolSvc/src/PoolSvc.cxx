@@ -65,30 +65,32 @@ StatusCode PoolSvc::initialize() {
       ATH_MSG_FATAL("Could not register myself with the IoComponentMgr !");
       return(StatusCode::FAILURE);
    }
-   // Register input file's names with the I/O manager
-   bool allGood = true;
-   for (auto& catalog : m_readCatalog.value()) {
-      if (catalog.substr(0, 16) == "xmlcatalog_file:") {
-         const std::string& fileName = catalog.substr(16);
-         if (!iomgr->io_register(this, IIoComponentMgr::IoMode::READ, fileName, fileName).isSuccess()) {
-            ATH_MSG_FATAL("could not register [" << catalog << "] for input !");
-            allGood = false;
-         } else {
-            ATH_MSG_INFO("io_register[" << this->name() << "](" << catalog << ") [ok]");
+   // Register input file's names with the I/O manager, unless in SharedWrite mode, set by AthenaPoolCnvSvc
+   if (!m_shareCat) {
+      bool allGood = true;
+      for (auto& catalog : m_readCatalog.value()) {
+         if (catalog.substr(0, 16) == "xmlcatalog_file:") {
+            const std::string& fileName = catalog.substr(16);
+            if (!iomgr->io_register(this, IIoComponentMgr::IoMode::READ, fileName, fileName).isSuccess()) {
+               ATH_MSG_FATAL("could not register [" << catalog << "] for input !");
+               allGood = false;
+            } else {
+               ATH_MSG_INFO("io_register[" << this->name() << "](" << catalog << ") [ok]");
+            }
          }
       }
-   }
-   if (m_writeCatalog.value().substr(0, 16) == "xmlcatalog_file:") {
-      const std::string& fileName = m_writeCatalog.value().substr(16);
-      if (!iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, fileName, fileName).isSuccess()) {
-         ATH_MSG_FATAL("could not register [" << m_writeCatalog.value() << "] for input !");
-         allGood = false;
-      } else {
-         ATH_MSG_INFO("io_register[" << this->name() << "](" << m_writeCatalog.value() << ") [ok]");
+      if (m_writeCatalog.value().substr(0, 16) == "xmlcatalog_file:") {
+         const std::string& fileName = m_writeCatalog.value().substr(16);
+         if (!iomgr->io_register(this, IIoComponentMgr::IoMode::WRITE, fileName, fileName).isSuccess()) {
+            ATH_MSG_FATAL("could not register [" << m_writeCatalog.value() << "] for input !");
+            allGood = false;
+         } else {
+            ATH_MSG_INFO("io_register[" << this->name() << "](" << m_writeCatalog.value() << ") [ok]");
+         }
       }
-   }
-   if (!allGood) {
-      return(StatusCode::FAILURE);
+      if (!allGood) {
+         return(StatusCode::FAILURE);
+      }
    }
    m_context = &coral::Context::instance();
    if (m_context == nullptr) {
@@ -146,29 +148,31 @@ StatusCode PoolSvc::io_reinit() {
       ATH_MSG_FATAL("IoComponentMgr does not know about myself !");
       return(StatusCode::FAILURE);
    }
-   std::vector<std::string> readcat = m_readCatalog.value();
-   for (std::size_t icat = 0, imax = readcat.size(); icat < imax; icat++) {
-      if (readcat[icat].substr(0, 16) == "xmlcatalog_file:") {
-         std::string fileName = readcat[icat].substr(16);
+   if (!m_shareCat) {
+      std::vector<std::string> readcat = m_readCatalog.value();
+      for (std::size_t icat = 0, imax = readcat.size(); icat < imax; icat++) {
+         if (readcat[icat].substr(0, 16) == "xmlcatalog_file:") {
+            std::string fileName = readcat[icat].substr(16);
+            if (iomgr->io_contains(this, fileName)) {
+               if (!iomgr->io_retrieve(this, fileName).isSuccess()) {
+                  ATH_MSG_FATAL("Could not retrieve new value for [" << fileName << "] !");
+                  return(StatusCode::FAILURE);
+               }
+               readcat[icat] = "xmlcatalog_file:" + fileName;
+            }
+         }
+      }
+      // all good... copy over.
+      m_readCatalog = readcat;
+      if (m_writeCatalog.value().substr(0, 16) == "xmlcatalog_file:") {
+         std::string fileName = m_writeCatalog.value().substr(16);
          if (iomgr->io_contains(this, fileName)) {
             if (!iomgr->io_retrieve(this, fileName).isSuccess()) {
                ATH_MSG_FATAL("Could not retrieve new value for [" << fileName << "] !");
                return(StatusCode::FAILURE);
             }
-            readcat[icat] = "xmlcatalog_file:" + fileName;
+            m_writeCatalog.setValue("xmlcatalog_file:" + fileName);
          }
-      }
-   }
-   // all good... copy over.
-   m_readCatalog = readcat;
-   if (m_writeCatalog.value().substr(0, 16) == "xmlcatalog_file:") {
-      std::string fileName = m_writeCatalog.value().substr(16);
-      if (iomgr->io_contains(this, fileName)) {
-         if (!iomgr->io_retrieve(this, fileName).isSuccess()) {
-            ATH_MSG_FATAL("Could not retrieve new value for [" << fileName << "] !");
-            return(StatusCode::FAILURE);
-         }
-         m_writeCatalog.setValue("xmlcatalog_file:" + fileName);
       }
    }
    return(setupPersistencySvc());
@@ -387,6 +391,10 @@ const coral::Context* PoolSvc::context() const {
 //__________________________________________________________________________
 void PoolSvc::loadComponent(const std::string& compName) const {
    m_context->loadComponent(compName);
+}
+//__________________________________________________________________________
+void PoolSvc::setShareMode(bool shareCat) {
+   m_shareCat = shareCat;
 }
 //__________________________________________________________________________
 const pool::IFileCatalog* PoolSvc::catalog() const {

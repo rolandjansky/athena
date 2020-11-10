@@ -268,6 +268,15 @@ if jobproperties.Beam.beamType.get_Value() == 'cosmics':
     else:
         svcMgr.EventSelector.FirstEvent = 0
 
+# Set AutoFlush to 10 as per ATLASSIM-4274
+# These outputs are meant to be read sequentially
+if athenaCommonFlags.PoolHitsOutput():
+    from AthenaPoolCnvSvc import PoolAttributeHelper as pah
+    Out = athenaCommonFlags.PoolHitsOutput()
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "CollectionTree", 10 ) ]
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "POOLContainer", 10 ) ]
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "POOLContainerForm", 10 ) ]
+
 ## Post-include
 if hasattr(runArgs, "postInclude"):
     for fragment in runArgs.postInclude:

@@ -1,13 +1,10 @@
-################################################################################
-# Package: InDetSVWithMuonTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetSVWithMuonTool )
 
 # External dependencies:
-find_package( Eigen )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core MathCore Hist )
 
 atlas_add_library(
     InDetSVWithMuonToolLib
@@ -17,15 +14,20 @@ atlas_add_library(
     PUBLIC_HEADERS
     InDetSVWithMuonTool
 
-    INCLUDE_DIRS
-    ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+    PRIVATE_INCLUDE_DIRS
+    ${ROOT_INCLUDE_DIRS}
 
     LINK_LIBRARIES
-    ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}
-    AthenaBaseComps GaudiKernel TrkVKalVrtFitterLib xAODTracking
+    AthenaBaseComps
+    GaudiKernel
+    TrkVertexFitterInterfaces
+    xAODTracking
 
     PRIVATE_LINK_LIBRARIES
-    AnalysisUtilsLib xAODBTagging
+    ${ROOT_LIBRARIES}
+    AnalysisUtilsLib
+    TrkVKalVrtFitterLib
+    xAODBTagging
     )
 
 
@@ -35,8 +37,8 @@ atlas_add_component(
     src/components/*.cxx
 
     LINK_LIBRARIES
-    GaudiKernel InDetSVWithMuonToolLib
+    InDetSVWithMuonToolLib
     )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

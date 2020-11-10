@@ -75,11 +75,6 @@ MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
   setStationName(stName);
 }
 
-
-MdtReadoutElement::~MdtReadoutElement()
-{
-}    
-
 bool MdtReadoutElement::getWireFirstLocalCoordAlongZ(int tubeLayer, double& coord) const
 {
   coord = -9999.;
@@ -513,8 +508,12 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 #ifdef NDEBUG
           MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
 #endif
-          log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for a MDT with cutouts "
-                 << endmsg << ": from tube-id and pitch, tube pos = " << xtube
+        const MdtIdHelper* idh = manager()->mdtIdHelper();
+        const Identifier id = identify();
+          log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for MDT with stationName="
+            << idh->stationName(id) << " ("<< idh->stationNameString(idh->stationName(id)) << "), stationEta="<< idh->stationEta(id) << ", stationPhi="<< idh->stationPhi(id)<< ", multilayer="
+            << idh->multilayer(id) << ", tubeLayer="<< idh->tubeLayer(id) << ", tube="<< idh->tube(id) 
+                 << ": from tube-id and pitch, tube pos = " << xtube
                  << ", " << ytube << ", " << ztube
                  << " but geoModel gives " << tubeTrans(0,3)
                  << ", " << tubeTrans(1,3) << ", " << tubeTrans(2,3)
@@ -534,22 +533,11 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 #endif
             if (std::abs(m_cutoutShift - tubeTrans(1,3)) > maxtol) // check only for tubes actually shifted 
             {
-#ifdef NDEBUG
-              MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
-#endif
-              log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local X (amdb) for a MDT with cutouts "
-                       << endmsg << ": from tube-id/pitch/cutout  tube pos = " << xtube
-                       << ", " << m_cutoutShift  << ", " << ztube
-                       << " but geoModel gives " << tubeTrans(0,3)
-                       << ", " << tubeTrans(1,3) << ", " << tubeTrans(2,3)
-                       << endmsg
-                       << " for tube " << tube << " tube layer " << tubelayer
-                       << " multilayer " << multilayer << endmsg
-                       << " There are " << nGrandchildren << " child volumes & "
-                       << m_ntubesperlayer*m_nlayers << " tubes expected."
-                       << " There should be " << m_nlayers << " layers and "
-                       << m_ntubesperlayer << " tubes per layer."
-                       <<endmsg;
+              const MdtIdHelper* idh = manager()->mdtIdHelper();
+              const Identifier id = identify();
+              throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::nodeform_localTubePos(%d,%d,%d) - mismatch between local from tube-id/pitch/cutout tube position (x,y,z=%.3f,%.3f,%.3f) and GeoModel (x,y,z=%.3f,%.3f,%.3f)\nfor MdtReadoutElement with stationName=%d (%s), stationEta=%d, stationPhi=%d, multilayer=%d, tubeLayer=%d, tube=%d\nThere are %d child volumes & %d tubes expected. There should be %d layers and %d tubes per layer.", 
+                                       __FILE__, __LINE__, multilayer, tubelayer, tube, xtube, m_cutoutShift, ztube, tubeTrans(0,3), tubeTrans(1,3), tubeTrans(2,3), idh->stationName(id), idh->stationNameString(idh->stationName(id)).c_str(),
+                                       idh->stationEta(id), idh->stationPhi(id), idh->multilayer(id), idh->tubeLayer(id), idh->tube(id), nGrandchildren, m_ntubesperlayer*m_nlayers, m_nlayers, m_ntubesperlayer));
             }
         }
         

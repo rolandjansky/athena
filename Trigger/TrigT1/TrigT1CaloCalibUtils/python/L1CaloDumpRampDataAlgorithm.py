@@ -5,7 +5,7 @@ from array import array
 import ROOT
 from PyKernel import PyKernel
 import scipy
-import sys,traceback
+import traceback
 
 # vscharf 20150519: This algorithm doesn't work with release 20.1.X-VAL due to
 # memory management issues between ROOT and python. Replaced by
@@ -35,7 +35,7 @@ class L1CaloDumpRampDataAlgorithm(PyAthena.Alg):
                                                      "/L1CaloRampMaker/L1CaloRampDataContainer")
             energyScanResults = PyKernel.retrieveDet(PyAthena.CondAttrListCollection,
                                                      "/TRIGGER/L1Calo/V1/Results/EnergyScanResults")
-        except:
+        except Exception:
             rampDataContainer = None
 
         if rampDataContainer is None:
@@ -92,7 +92,7 @@ class L1CaloDumpRampDataAlgorithm(PyAthena.Alg):
                 chi2 = attrList["Chi2"]
                 func.SetParameters(offset, slope)
 
-            except Exception as e:
+            except Exception:
                 self.msg.warning("Could not obtain fit data from database.")
 
                 func.SetParameters(0., 1.)

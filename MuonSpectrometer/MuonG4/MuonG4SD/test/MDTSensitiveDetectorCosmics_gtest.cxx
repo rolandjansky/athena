@@ -6,6 +6,8 @@
 
 #include "gtest/gtest.h"
 
+#include <vector>
+
 #include "TestTools/initGaudi.h"
 
 #include "G4HCofThisEvent.hh"
@@ -58,12 +60,12 @@ TEST_F ( MDTSensitiveDetectorCosmicstest, ProcessHits )
 {
   G4Step sp;
   G4TouchableHistory th; 
-  G4HCofThisEvent hce;  
+  G4HCofThisEvent hce;
 
   G4double totalenergydeposit = 3.0;
-  G4String physicalname = "physicalName";
+  std::vector<G4String> physicalname = {"World::World","Atlas::Atlas","MUONQ02::MUONQ02","Muon::MuonSys","BML2_station","ml[1]MDT03component","DriftTube8","SensitiveGas"};
   G4String logicalname = "logicalName";
-  G4int copyno = 1000;
+  std::vector<G4int> copynos = {0,0,0,0,302,8,109,16969};
   G4ThreeVector preStepPos = G4ThreeVector(0,0,1);
   G4ThreeVector postStepPos = G4ThreeVector(0,0,2);
   G4double globaltime0 = 0.5;
@@ -83,7 +85,7 @@ TEST_F ( MDTSensitiveDetectorCosmicstest, ProcessHits )
   G4String nop1 = "opticalphoton";
   G4String nop2 = "opticalphoton";
   G4String nop3 = "photon";
-  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copyno, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);
+  DerivedG4SensitiveDetectorTestSetting(sp, totalenergydeposit, physicalname, logicalname, copynos, preStepPos, postStepPos, globaltime0, kineticenergy0, velocity0, globaltime, kineticenergy, globaltime1, kineticenergy1, velocity1, steplength, charge, encoding, antiencoding, astring, atype, nop1, nop2, nop3);
 
 //the following lines aims to set a G4StepPoint object for sp as a PreStepPoint since the setting for that in the function DerivedG4SensitiveDetectorTestSetting is not complete
   G4StepPoint* stepPoint0 = new G4StepPoint();
@@ -97,18 +99,32 @@ TEST_F ( MDTSensitiveDetectorCosmicstest, ProcessHits )
   G4LogicalVolume* fLogical0 = new G4LogicalVolume(box0, material0, name0);
   G4MySensitiveDetector* SDetector = new G4MySensitiveDetector("SensitiveDetectorName");
   fLogical0->SetSensitiveDetector(SDetector);
-  G4String PhysicalName0 = physicalname;//para
+  G4String PhysicalName0 = physicalname[0];//para
   G4VPhysicalVolume* pPhysical0 = nullptr;
   G4MyPhysicalVolume* physicalVolume0 = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName0, fLogical0, pPhysical0);
-  G4int CopyNo0 = copyno;
+  G4int CopyNo0 = copynos[0];
   physicalVolume0->SetCopyNo(CopyNo0);//para
   G4int nReplica0 = 2;
   navigationHistory0->SetFirstEntry(physicalVolume0);
-  navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
-  navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
-  navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
-  navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
-  navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
+  if (physicalname.size()==1) {
+    // temporary workaround
+    navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
+    navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
+    navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
+    navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
+    navigationHistory0->NewLevel(physicalVolume0, kNormal, nReplica0);
+  }
+  else {
+    bool skip(true);
+    size_t idx(0);
+    for( const auto& name : physicalname) {
+      if (skip) { skip=false; ++idx; continue; }//skip first entry
+      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), name, fLogical0, pPhysical0);
+      parentPhysVol->SetCopyNo(copynos[idx]);
+      ++idx;
+      navigationHistory0->NewLevel(parentPhysVol, kNormal, nReplica0);
+    }
+  }
   G4TouchableHistory* touchableHistory0 = new G4TouchableHistory(*navigationHistory0);
   G4TouchableHandle touchableHandle0(touchableHistory0);
   stepPoint0->SetTouchableHandle(touchableHandle0);
@@ -133,18 +149,32 @@ TEST_F ( MDTSensitiveDetectorCosmicstest, ProcessHits )
   G4Material* material = man->FindOrBuildMaterial("G4_AIR");
   G4String name = "logicalName";
   G4LogicalVolume* fLogical = new G4LogicalVolume(box, material, name);
-  G4String PhysicalName = physicalname;//para
+  G4String PhysicalName = physicalname[0];//para
   G4VPhysicalVolume* pPhysical = nullptr;
   G4MyPhysicalVolume* physicalVolume = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), PhysicalName, fLogical, pPhysical);
-  G4int CopyNo = copyno;
+  G4int CopyNo = copynos[0];
   physicalVolume->SetCopyNo(CopyNo);//para
   G4int nReplica = 2;
   navigationHistory->SetFirstEntry(physicalVolume);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
-  navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+  if (physicalname.size()==1) {
+    // temporary workaround
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+    navigationHistory->NewLevel(physicalVolume, kNormal, nReplica);
+  }
+  else {
+    bool skip(true);
+    size_t idx(0);
+    for( const auto& name : physicalname) {
+      if (skip) { skip=false; ++idx; continue; }//skip first entry
+      G4MyPhysicalVolume* parentPhysVol = new G4MyPhysicalVolume(0, G4ThreeVector(0,0,0), name, fLogical0, pPhysical0);
+      parentPhysVol->SetCopyNo(copynos[idx]);
+      ++idx;
+      navigationHistory->NewLevel(parentPhysVol, kNormal, nReplica);
+    }
+  }
   G4TouchableHistory* touchableHistory = new G4TouchableHistory(*navigationHistory);
   G4TouchableHandle touchableHandle(touchableHistory);
   stepPoint->SetTouchableHandle(touchableHandle);
@@ -216,7 +246,7 @@ TEST_F ( MDTSensitiveDetectorCosmicstest, ProcessHits )
   HepMcParticleLink plink(barcode);
 
   MDTSimHitCollection* a = sd2.m_MDTHitColl.ptr();
-  ASSERT_EQ(a->begin()->MDTid(), -189440); //test if the MDTid value of the Hit generated by this member function is right, the same below
+  ASSERT_EQ(a->begin()->MDTid(), 16868488); //test if the MDTid value of the Hit generated by this member function is right, the same below
   ASSERT_EQ(a->begin()->globalTime(), 0.5);
   ASSERT_EQ(a->begin()->driftRadius(), 0);
   ASSERT_EQ(a->begin()->localPosition(), Amg::Vector3D(0,0,1));
@@ -231,7 +261,7 @@ TEST_F ( MDTSensitiveDetectorCosmicstest, ProcessHits )
 TEST_F ( MDTSensitiveDetectorCosmicstest, GetIdentifier )
 {
 //define a G4HCofThisEvent object 
-  G4HCofThisEvent hce; 
+  G4HCofThisEvent hce;
 
 //the following line aims to define a complete G4TouchableHistory object
   G4NavigationHistory* navigationHistory = new G4NavigationHistory();

@@ -259,40 +259,6 @@ namespace xAOD {
   void Jet_v1::setInputType(JetInput::Type t)  {inputAcc(*this)=t;}
 
 
-#if !defined(SIMULATIONBASE) and !defined(GENERATIONBASE)
-  static const SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
-     btagAcc1( "btagging" );
-  static const SG::AuxElement::Accessor< ElementLink< BTaggingContainer > >
-     btagAcc2( "btaggingLink" );
-
-  /// Access to btagging objects
-  const BTagging* Jet_v1::btagging() const {
-
-     if( btagAcc1.isAvailable( *this ) && btagAcc1( *this ).isValid() ) {
-        return *( btagAcc1( *this ) );
-     } else if( btagAcc2.isAvailable( *this ) && btagAcc2( *this ).isValid() ) {
-        return *( btagAcc2( *this ) );
-     }
-     return nullptr;
-  }
-
-  const ElementLink< BTaggingContainer >& Jet_v1::btaggingLink() const {
-
-     if( btagAcc1.isAvailable( *this ) ) {
-        return btagAcc1( *this );
-     }
-     return btagAcc2( *this );
-  }
-
-  /// Access to btagging objects
-  void Jet_v1::setBTaggingLink( const ElementLink< BTaggingContainer >& el ) {
-
-     // When we create a new object, we always set the link with the new name:
-     btagAcc2( *this ) = el;
-     return;
-  }
-#endif // not SIMULATIONBASE or GENERATIONBASE
-
 //   void Jet_v1::toPersistent() {
 //   No longer needed, as this is done by the POOL converter for the aux container
 

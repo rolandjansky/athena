@@ -211,7 +211,7 @@ namespace pool {
      * @param name Name of collection.
      * @param physicalName physical name of collection in catalog.
      */    
-    void extract( const std::string physicalName,
+    void extract( const std::string& physicalName,
                   std::string& type, 
                   std::string& connection,
                   std::string& name ) const;    

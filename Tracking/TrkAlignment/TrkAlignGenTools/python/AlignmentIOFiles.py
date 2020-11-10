@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 ## @file:   AlignmentIOFiles.py
@@ -7,7 +7,6 @@
 ## @author: Robert Harrington <roberth@bu.edu>
 ## @date:   10/19/2009
 
-from AthenaCommon.Logging import logging
 from TrkAlignGenTools.AlignmentFlags import AlignmentFlags as align
 
 ## AlignmentIOFiles provides methods for getting file names used 
@@ -21,7 +20,7 @@ class AlignmentIOFiles () :
 
     ## constructor
     def __init__(self):
-        mlog = logging.getLogger( 'AlignmentIOFiles::__init__' )
+        pass
 
     ## filename containing list of good events 
     #  (each line is run and event number)

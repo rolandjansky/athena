@@ -43,7 +43,7 @@ void TrigL2MuonSA::PtFromAlphaBeta::setMCFlag(BooleanProperty use_mcLUT,
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trackPattern,
-                                                TrigL2MuonSA::TgcFitResult& tgcFitResult)
+                                                TrigL2MuonSA::TgcFitResult& tgcFitResult) const
 {
 
   if (trackPattern.etaBin < -1) 

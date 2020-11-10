@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_FCALTILE_H
@@ -8,6 +8,8 @@
 #include "LArReadoutGeometry/FCAL_ChannelMap.h"
 #include "LArHV/FCALHVModule.h"
 #include "LArReadoutGeometry/FCALTubeConstLink.h"
+#include "CxxUtils/CachedPointer.h"
+#include "CxxUtils/CachedValue.h"
 
 class FCALModule;
 
@@ -112,12 +114,12 @@ class FCALTile
   /**
    * @brief	Cache of subgaps.
    */
-  mutable const FCALHVLine* m_line[4] = { nullptr };
+  CxxUtils::CachedPointer<const FCALHVLine> m_line[4];
 
   /**
    * @brief	Cache of tubes.
    */
-  mutable std::vector<FCALTubeConstLink> m_tube;
+  CxxUtils::CachedValue<std::vector<FCALTubeConstLink> > m_tube;
 
   
       

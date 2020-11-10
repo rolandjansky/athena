@@ -13,7 +13,6 @@
 //#include <strstream>
 //#include <cassert>
 
-#include "StoreGate/StoreGate.h"
 #include "MuonRDO/MdtCsm.h"
 #include "MuonRDO/MdtCsmContainer.h"
 

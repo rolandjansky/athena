@@ -90,7 +90,7 @@ void Trk::CompressedLayerMaterial::fillMaterial(const Trk::MaterialPropertiesVec
    // reassign
    m_fullMaterial.clear();
    m_fullMaterial.reserve(matVector.size());
-   for ( auto& matIter : matVector )
+   for ( const auto & matIter : matVector )
         m_fullMaterial.push_back( matIter ? matIter->clone() : nullptr);
 }
 
@@ -132,7 +132,7 @@ MsgStream& Trk::CompressedLayerMaterial::dump( MsgStream& sl) const
   sl << "   - Parse full update material    : " << std::endl;
   // -------------------------
   size_t imat1 = 0;      
-  for ( auto& matIter : m_fullMaterial ){
+  for ( const auto & matIter : m_fullMaterial ){
         if (matIter) sl << " Bin [" << imat1 << "] - " << matIter << std::endl;
         else  sl << " Bin [" << imat1 << "] -  empty "  << std::endl;
         ++imat1;
@@ -146,7 +146,7 @@ std::ostream& Trk::CompressedLayerMaterial::dump( std::ostream& sl) const
   sl << "   - Number of Material bins (1/2) : " << m_binUtility->max(0)+1  << " / " << m_binUtility->max(1)+1 << std::endl;
   sl << "   - Parse full update material    : " << std::endl;  // 
   size_t imat1 = 0;      
-  for ( auto& matIter : m_fullMaterial ){
+  for ( const auto & matIter : m_fullMaterial ){
         if (matIter) sl << " Bin [" << imat1 << "] - " << matIter << std::endl;
         else  sl << " Bin [" << imat1 << "] -  empty "  << std::endl;
         ++imat1;

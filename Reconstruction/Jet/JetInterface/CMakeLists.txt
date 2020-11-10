@@ -1,27 +1,17 @@
-# $Id: CMakeLists.txt 778355 2016-10-13 19:11:02Z krasznaa $
-################################################################################
-# Package: JetInterface
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetInterface )
 
-find_package( ROOT )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODBase )
+# External dependencies:
+find_package( FastJet )
 
 # Component(s) in the package:
 atlas_add_library( JetInterface
    JetInterface/*.h Root/*.cxx
    PUBLIC_HEADERS JetInterface
-   LINK_LIBRARIES AsgTools AsgDataHandlesLib xAODEventInfo xAODJet xAODTracking xAODBase )
+   INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
+   LINK_LIBRARIES ${FASTJET_LIBRARIES} AsgTools AsgDataHandlesLib xAODEventInfo xAODJet xAODTracking xAODBase )
 
 atlas_add_dictionary( JetInterfaceDict
    JetInterface/JetInterfaceDict.h

@@ -1,27 +1,7 @@
-# $Id: CMakeLists.txt 779569 2016-10-21 11:02:57Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( JetReclustering )
-
-# Dependency helper variable:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess
-      PhysicsAnalysis/D3PDTools/EventLoop PRIVATE Event/xAOD/xAODEventInfo
-      Reconstruction/Jet/JetSubStructureMomentTools )
-else()
-   set( extra_deps PRIVATE Control/xAODRootAccess Control/AthenaBaseComps
-      PhysicsAnalysis/POOLRootAccess GaudiKernel )
-endif()
-
-# The dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Reconstruction/Jet/JetInterface
-   Reconstruction/Jet/JetRec
-   ${extra_deps}
-   Event/xAODJet )
 
 # Libraries in the package:
 if( XAOD_STANDALONE )
@@ -58,7 +38,7 @@ if( NOT XAOD_STANDALONE )
    atlas_add_test( ut_JetReclusteringTool_test
       SOURCES test/ut_JetReclusteringTool_test.cxx
       LINK_LIBRARIES xAODRootAccess AsgTools JetInterface xAODJet
-      POOLRootAccess )
+      POOLRootAccessLib )
 endif()
 
 # Install files from the package:

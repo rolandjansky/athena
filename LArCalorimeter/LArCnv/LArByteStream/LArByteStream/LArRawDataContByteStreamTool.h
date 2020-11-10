@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -23,6 +23,8 @@
 #include "LArByteStream/LArRodDecoder.h"
 
 #include "CaloIdentifier/CaloGain.h"
+#include "CaloConditions/CaloNoise.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "LArRawEvent/LArFebHeaderContainer.h"
 // Map of ROBs need this
@@ -31,7 +33,6 @@
 class LArRawChannelContainer; 
 class LArDigitContainer;
 class IByteStreamEventAccess;
-class ICaloNoiseTool;
 
 /** 
  *@class LArRawDataContByteStreamTool
@@ -43,23 +44,24 @@ class ICaloNoiseTool;
       
 class LArRawDataContByteStreamTool: public AthAlgTool {
 public:
+  using FEA_t = FullEventAssembler<Hid2RESrcID>;
 
   /** Constructor
       Standard AlgTool constructor
   */
    LArRawDataContByteStreamTool( const std::string& type, const std::string& name,
-        const IInterface* parent ) ;
+                                 const IInterface* parent ) ;
 
   /** Destructor 
   */ 
-  ~LArRawDataContByteStreamTool() ;
+  virtual ~LArRawDataContByteStreamTool() ;
 
   /** AlgTool InterfaceID
   */
   static const InterfaceID& interfaceID( ) ;
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /** 
    * @brief Templated conversion class form Raw Event to a container
@@ -77,7 +79,7 @@ public:
    * are used to deal with the individual ROD fragments. 
   */
   template <class COLLECTION >
-  StatusCode convert(const RawEvent* re, COLLECTION* digit_cont, CaloGain::CaloGain gain);
+  StatusCode convert(const RawEvent* re, COLLECTION* digit_cont, CaloGain::CaloGain gain) const;
 
   /** 
    * @brief Fill channels from LArDigitContainer to a FullEvent
@@ -85,7 +87,8 @@ public:
    * @param fea Pointer to FullEventAssember (output)
    * @return Gaudi StatusCode 
    */
-  StatusCode WriteLArDigits(const LArDigitContainer* digit_cont, FullEventAssembler<Hid2RESrcID> *fea);
+  StatusCode WriteLArDigits(const LArDigitContainer* digit_cont,
+                            FEA_t& fea) const;
 
  /** 
   * @brief Fill channels from LArCalibDigitContainer to a FullEvent
@@ -93,7 +96,8 @@ public:
   * @param fea Pointer to FullEventAssember (output)
   * @return Gaudi StatusCode 
   */
-  StatusCode WriteLArCalibDigits(const LArCalibDigitContainer* digit_cont, FullEventAssembler<Hid2RESrcID> *fea);
+  StatusCode WriteLArCalibDigits(const LArCalibDigitContainer* digit_cont,
+                                 FEA_t& fea) const;
 
   /** 
    * @brief Fill channels from LArRawChannelContainer to a FullEvent
@@ -101,11 +105,14 @@ public:
    * @param fea Pointer to FullEventAssember (output)
    * @return Gaudi StatusCode 
    */
-  StatusCode WriteLArRawChannels(const LArRawChannelContainer* CannelCont, FullEventAssembler<Hid2RESrcID> *fea);
+  StatusCode WriteLArRawChannels(const LArRawChannelContainer* CannelCont,
+                                 FEA_t& fea) const;
  
 private: 
+  using RobIndex_t = std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> >;
+
   /** Prepare ROB index before conversion */
-  StatusCode prepareRobIndex (const RawEvent* event);
+  StatusCode prepareRobIndex (const RawEvent* event, RobIndex_t& robIndex) const;
  
   //StatusCode prepareWriting();
   /** 
@@ -114,7 +121,7 @@ private:
    * @return false if an incosistency is detected
    */
   template <class COLLECTION >
-    bool checkGainConsistency(const COLLECTION* coll);
+    bool checkGainConsistency(const COLLECTION* coll) const;
  
   Hid2RESrcID m_hid2re;       //!< Contains the mapping from channel to ROD
   LArRodDecoder *m_decoder;   //!< Pointer to RodDecoder class
@@ -141,23 +148,17 @@ private:
   */
   bool m_initializeForWriting;
   uint16_t m_subDetId;
-  ToolHandle<ICaloNoiseTool> m_noisetool;
   double m_nfebsigma;
-  // map with ROB group (LAr) to rob addresses
-  std::map<eformat::SubDetectorGroup, std::vector<const uint32_t*> > m_robIndex;
-  // last event processed
-  uint32_t m_lastEvent;
   // want to process digits together with RawChannel
   bool m_includeDigits;
   // Name of Digit container to retrieve
   std::string m_DigitContName;
-  
+
+  SG::ReadCondHandleKey<CaloNoise> m_caloNoiseKey
+  { this, "CaloNoiseKey", "totalNoise", "" };
 };
 
 
-#endif
 #include "LArByteStream/LArRawDataContByteStreamTool.icc" 
 
-
-
-
+#endif

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 #--------------------------------------------------------------
 # Job options file for Dumping LArHit to d3pd
 #--------------------------------------------------------------
@@ -13,8 +15,8 @@ from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-IBL-03-00-00"
 jobproperties.Global.ConditionsTag = "OFLCOND-SDR-BS14T-IBL-CORR-06-02"
 
-print "**** JOBPROPERTIES.GLOBAL"
-print jobproperties.Global
+print("**** JOBPROPERTIES.GLOBAL")
+print(jobproperties.Global)
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.Calo_setOn() 
 DetFlags.ID_setOff()
@@ -47,7 +49,7 @@ if larCondFlags.LArDBConnection.statusOn  :
   LArDB = ""
 larCondFlags.config_ElecCalibMC()
 if svcMgr.MessageSvc.OutputLevel <= DEBUG :
-  print larCondFlags
+  print(larCondFlags)
 from IOVDbSvc.CondDB import conddb
 larCondDBFolders = ["/LAR/ElecCalibMC/fSampl"]
 for i in larCondDBFolders :
@@ -121,7 +123,7 @@ alg += LArSCHitD3PDObject(0, prefix='hfcalsc_', sgKey="LArHitFCAL",
 
 # CaloDetectors=myDetectors)
 
-print " All Top Algorithms ", theApp.TopAlg
+print(" All Top Algorithms ", theApp.TopAlg)
 
         
 

@@ -32,8 +32,15 @@
 
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
-#include "TrkGeometry/MagneticFieldProperties.h"
-#include "TrkGeometry/TrackingGeometry.h"
+
+#include "TrkExInterfaces/IExtrapolator.h"
+
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
+
+#include "TrkFitterInterfaces/ITrackFitter.h"
+
+
 #include "TrkSurfaces/StraightLineSurface.h"
 
 #include "TrkEventPrimitives/ResidualPull.h"
@@ -1145,6 +1152,10 @@ const Trk::TrackParameters* MuonSegmentRegionRecoveryTool::reachableDetEl( const
   return exPars;
 }
 
+
+  void MuonSegmentRegionRecoveryTool::cleanUp() const {
+    m_trackSegmentMatchingTool->cleanUp();
+  }
 
 }
 

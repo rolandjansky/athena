@@ -6,7 +6,7 @@
 #define _TRIGMUONEF_TRIGMUONEFTRACKISOLATIONALGMT_H 1
 
 // Base class
-#include "AthenaBaseComps/AthAlgorithm.h" 
+#include "AthenaBaseComps/AthReentrantAlgorithm.h" 
 #include "StoreGate/ReadHandleKey.h" 
 #include "StoreGate/WriteHandleKey.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
@@ -21,7 +21,7 @@
 
 //#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-class TrigMuonEFTrackIsolationAlgMT : public AthAlgorithm
+class TrigMuonEFTrackIsolationAlgMT : public AthReentrantAlgorithm
 {
   public :
 
@@ -37,7 +37,7 @@ class TrigMuonEFTrackIsolationAlgMT : public AthAlgorithm
     StatusCode finalize();
   
     /** execute execute the combined muon FEX. */
-    StatusCode execute();
+    StatusCode execute(const EventContext& ctx) const;
 
 
   private :

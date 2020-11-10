@@ -34,29 +34,22 @@ eTowerBuilder::eTowerBuilder(const std::string& type,const std::string& name,con
   declareInterface<IeTowerBuilder>(this);
 }
 
-eTowerBuilder::~eTowerBuilder()
-{
-}
-
 
 void eTowerBuilder::init(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) 
 {
 
   execute(eTowerContainerRaw);
-  return;
 }
 
 
 void eTowerBuilder::reset() 
 {
-  return;
 }
 
 
 void eTowerBuilder::execute(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) 
 {
   BuildAllTowers(eTowerContainerRaw);
-  return;
 }
  
   // TOWER IDs FOR CLARITY
@@ -69,7 +62,7 @@ void eTowerBuilder::execute(std::unique_ptr<eTowerContainer> & eTowerContainerRa
   // Left Hadronic Endcap ID Tower = 11100000 + X --> These are just Layer 5 of Endcap Towers.  They will never be generated as standalone eTowers.
   // Right Haronic Endcap ID Tower = 22200000 + X --> These are just Layer 5 of Endcap Towers.  They will never be generated as standalone eTowers.
 
- void eTowerBuilder::BuildEMBeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) 
+ void eTowerBuilder::BuildEMBeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const
 {
   // Regions 0 only.  Region 1 is 'transition region'.
   for (int ieta = 0; ieta < 14; ++ieta) { // loop over 14 eta steps (ignoring last step as it is transition region)
@@ -79,10 +72,9 @@ void eTowerBuilder::execute(std::unique_ptr<eTowerContainer> & eTowerContainerRa
     }
   }
 
-  return;
 }
 
-void eTowerBuilder::BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) 
+void eTowerBuilder::BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const
 {
 
   int TRANS_MODIFIER = 14;
@@ -95,10 +87,9 @@ void eTowerBuilder::BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerC
     }
   }
 
-  return;
 }
 
-  void eTowerBuilder::BuildEMEeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) 
+  void eTowerBuilder::BuildEMEeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const
 {
   // Region 1
   int EME_MODIFIER = 15;
@@ -142,12 +133,11 @@ void eTowerBuilder::BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerC
     EME_MODIFIER++;
   }
 
-  return;
 
 }
 
 // REDUNDANT AND NOT USED==========================================================================================================
-  void eTowerBuilder::BuildHECeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) 
+  void eTowerBuilder::BuildHECeTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const
 {
 
   // Region 0
@@ -171,25 +161,21 @@ void eTowerBuilder::BuildTRANSeTowers(std::unique_ptr<eTowerContainer> & eTowerC
     HEC_MODIFIER++;
   }
 
-  return;
-
 }
 
-void eTowerBuilder::BuildSingleTower(std::unique_ptr<eTowerContainer> & eTowerContainerRaw,float eta, float phi, float keybase, int posneg) 
+void eTowerBuilder::BuildSingleTower(std::unique_ptr<eTowerContainer> & eTowerContainerRaw,float eta, float phi, float keybase, int posneg) const
 {
 
   eTowerContainerRaw->push_back(eta, phi, keybase, posneg);
 
-  return;
 
 }
 
-void eTowerBuilder::BuildAllTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) 
+void eTowerBuilder::BuildAllTowers(std::unique_ptr<eTowerContainer> & eTowerContainerRaw) const
 {
   BuildEMBeTowers(eTowerContainerRaw);
   BuildTRANSeTowers(eTowerContainerRaw);
   BuildEMEeTowers(eTowerContainerRaw);
-  return;
 
 }
 

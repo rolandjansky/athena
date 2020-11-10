@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "FastCaloSimHit/FastHitConv.h"
@@ -18,7 +18,7 @@
 #include "LArSimEvent/LArHit.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "TileConditions/TileInfo.h"
 #include "TileEvent/TileCellContainer.h"
 #include "TileSimEvent/TileHit.h"

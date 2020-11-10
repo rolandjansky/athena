@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,11 +7,8 @@
  -------------------------------------------------------
  ***************************************************************************/
 
-//<doc><file>	$Id: RpcReadoutSet.h,v 1.3 2009-03-03 00:27:38 dwright Exp $
-//<version>	$Name: not supported by cvs2svn $
-
-#ifndef MUONGEOMODEL_RPCREADOUTSET_H
-# define MUONGEOMODEL_RPCREADOUTSET_H
+#ifndef MUONREADOUTGEOMETRY_RPCREADOUTSET_H
+#define MUONREADOUTGEOMETRY_RPCREADOUTSET_H
 
 #include "MuonIdHelpers/RpcIdHelper.h"
 #include "Identifier/Identifier.h"
@@ -49,4 +46,4 @@ private:
 
 } // namespace MuonGM
 
-#endif // MUONGEOMODEL_RPCREADOUTSET_H
+#endif // MUONREADOUTGEOMETRY_RPCREADOUTSET_H

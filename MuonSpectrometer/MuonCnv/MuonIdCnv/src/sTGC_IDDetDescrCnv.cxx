@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -8,14 +8,13 @@
 ***************************************************************************/
 
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "sTGC_IDDetDescrCnv.h"
 
 #include "DetDescrCnvSvc/DetDescrConverter.h"
 #include "DetDescrCnvSvc/DetDescrAddress.h"
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h" 
+#include "StoreGate/StoreGateSvc.h" 
+#include "AthenaKernel/StorableConversions.h"
 #include "IdDictDetDescr/IdDictManager.h"
 #include "MuonIdHelpers/sTgcIdHelper.h"
 
@@ -121,7 +120,7 @@ StatusCode sTGC_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   } 
 
   // Pass a pointer to the container to the Persistency service by reference.
-  pObj = StoreGateSvc::asStorable(stgc_id);
+  pObj = SG::asStorable(stgc_id);
 
   return StatusCode::SUCCESS; 
 }   //end sTGC_IDDetDescrCnv::createObj

@@ -18,7 +18,8 @@ namespace InDet {
                                                    const Trk::IRIO_OnTrackCreator* rioTool,
                                                    const IInDetConditionsTool* pixCondTool,
                                                    const IInDetConditionsTool* sctCondTool,
-                                                   const Trk::MagneticFieldProperties* fieldProp)
+                                                   const Trk::MagneticFieldProperties* fieldProp,
+                                                   const Trk::IBoundaryCheckTool* boundaryCheckTool)
   {
     // Set SiTools and conditions
     //
@@ -27,7 +28,8 @@ namespace InDet {
                      rioTool);
     m_tools.setTools(pixCondTool,
                      sctCondTool);
-    m_tools.setTools(fieldProp);
+    m_tools.setTools(fieldProp);    
+    m_tools.setTools(boundaryCheckTool);
 
     // Set tool to trajectory
     //
@@ -163,6 +165,17 @@ namespace InDet {
 
   void SiCombinatorialTrackFinderData_xk::setPRDtoTrackMap(const Trk::PRDtoTrackMap* prd_to_track_map) {
     m_tools.setPRDtoTrackMap(prd_to_track_map);
+  }
+  bool SiCombinatorialTrackFinderData_xk::findPatternHoleSearchOutcome (Trk::Track* theTrack, InDet::PatternHoleSearchOutcome & outcome) const {
+    auto found = m_holeSearchOutcomes.find(theTrack);
+    if (found == m_holeSearchOutcomes.end()){
+      return false; 
+    }
+    outcome = found->second; 
+    return true; 
+  }
+  void SiCombinatorialTrackFinderData_xk::addPatternHoleSearchOutcome (Trk::Track* theTrack, const InDet::PatternHoleSearchOutcome & outcome){
+    m_holeSearchOutcomes.emplace(theTrack,outcome); 
   }
 
 } // end of name space

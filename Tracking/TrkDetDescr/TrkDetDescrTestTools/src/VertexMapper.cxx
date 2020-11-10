@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,7 +15,7 @@
 // constructor
 Trk::VertexMapper::VertexMapper(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
-  m_trackingGeometry(0),
+  m_trackingGeometry(nullptr),
   m_trackingGeometryName("AtlasTrackingGeometry")
 {
     declareInterface<IVertexMapper>(this);
@@ -73,14 +73,14 @@ Trk::MappedVertex Trk::VertexMapper::mapToLocal(const Amg::Vector3D& vertex) con
             const std::vector<const Trk::Layer*>& mLayerObjects = mLayerArray->arrayObjects();
             std::vector<const Trk::Layer*> mSensitiveLayers;
             // loop over for the extraction - and check if they have a sub surface array
-            for (auto& mLayer : mLayerObjects){
+            for (const auto & mLayer : mLayerObjects){
                 if (mLayer->surfaceArray()){
                     // remember this layer
                     mSensitiveLayers.push_back(mLayer);
                 }
             }
             // now find out the closest - if you have layers to test
-            if (mSensitiveLayers.size()){
+            if (!mSensitiveLayers.empty()){
                 // prepare the book keepint
                 double        mDistance    = 10e10;
                 const Layer*  mLayer       = nullptr;

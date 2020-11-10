@@ -10,7 +10,6 @@ from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
 
-
 flags.Detector.GeometryPixel = True
 flags.Detector.GeometrySCT   = True
 flags.Detector.GeometryTRT   = True
@@ -53,7 +52,8 @@ flags.needFlagsCategory('Trigger')
 setupMenuModule.setupMenu(flags)
 flags.Exec.MaxEvents=50
 flags.Input.isMC = False
-flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+flags.Common.isOnline=True
+flags.IOVDb.GlobalTag="CONDBR2-HLTP-2018-01"
 
 
 flags.Concurrency.NumThreads=1
@@ -61,6 +61,12 @@ flags.Concurrency.NumConcurrentEvents=1
 
 flags.InDet.useSctDCS=False
 flags.InDet.usePixelDCS=False
+
+# command line handling
+# options that are defined in: AthConfigFlags are handled here
+# they override values from above
+parser = flags.getArgumentParser()
+flags.fillFromArgs(parser=parser)
 
 flags.lock()
 
@@ -87,6 +93,10 @@ acc.merge( triggerRunCfg( flags, seqName = "AthMasterSeq", menu=generateHLTMenu 
 
 from RegionSelector.RegSelConfig import regSelCfg
 acc.merge( regSelCfg( flags ) )
+
+# The L1 presacles do not get created in the avoce menu setup
+from TrigConfigSvc.TrigConfigSvcCfg import createL1PrescalesFileFromMenu
+createL1PrescalesFileFromMenu(flags)
 
 
 acc.getEventAlgo( "TrigSignatureMoniMT" ).OutputLevel=DEBUG

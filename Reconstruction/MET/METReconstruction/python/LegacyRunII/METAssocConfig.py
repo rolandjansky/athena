@@ -15,11 +15,13 @@ defaultInputKey = {
    'LCJet'     :'AntiKt4LCTopoJets',
    'EMJet'     :'AntiKt4EMTopoJets',
    'PFlowJet'  :'AntiKt4EMPFlowJets',
+   'PFlowFEJet':'AntiKt4EMPFlowFEJets',
    'Muon'      :'Muons',
    'Soft'      :'',
    'Clusters'  :'CaloCalTopoClusters',
    'Tracks'    :'InDetTrackParticles',
    'PFlowObj'  :'CHSParticleFlowObjects',
+   'PFlowObjFE':'CHSFlowElements',
    'PrimVxColl':'PrimaryVertices',
    'Truth'     :'TruthEvents',
    }
@@ -47,7 +49,7 @@ def getAssociator(config,suffix,doPFlow=False,
     if doModClus:
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
         modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
-    from AthenaCommon.AppMgr import ToolSvc
+
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
         from ROOT import met
@@ -63,6 +65,8 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CfgMgr.met__METJetAssocTool('MET_EMJetAssocTool_'+suffix)
     if config.objType == 'PFlowJet':
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
+    if config.objType == 'PFlowFEJet':
+        tool = CfgMgr.met__METJetAssocTool('MET_PFlowFEJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
     if config.objType == 'Soft':
@@ -74,9 +78,14 @@ def getAssociator(config,suffix,doPFlow=False,
     if config.objType == 'Truth':
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
         tool.RecoJetKey = config.inputKey
+
+    from METReconstruction.METRecoFlags import metFlags
     if doPFlow:
         tool.PFlow = True
-        tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
+        if metFlags.UseFlowElements() :
+            tool.FlowElementCollection = modConstKey if modConstKey!="" else defaultInputKey["PFlowObjFE"]
+        else:
+            tool.PFlowColl = modConstKey if modConstKey!="" else defaultInputKey["PFlowObj"]
     else:
         tool.UseModifiedClus = doModClus
     # set input/output key names
@@ -107,7 +116,7 @@ def getAssociator(config,suffix,doPFlow=False,
 
 class METAssocConfig:
     def outputCollections(self):
-        if doTruth: return 'MET_Core_'+self.suffix
+        if self.doTruth: return 'MET_Core_'+self.suffix
         else: return 'MET_Core_'+self.suffix,'MET_Reference_'+self.suffix
     #
     def outputMap(self):
@@ -146,7 +155,11 @@ class METAssocConfig:
         modConstKey_tmp = modConstKey
         modClusColls_tmp = modClusColls
         if doPFlow:
-            if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects"
+            from METReconstruction.METRecoFlags import metFlags
+            if metFlags.UseFlowElements():
+                if modConstKey_tmp == "": modConstKey_tmp = "CHSFlowElements"
+            else:
+                if modConstKey_tmp == "": modConstKey_tmp = "CHSParticleFlowObjects"
         else:
             if modConstKey_tmp == "": modConstKey_tmp = "OriginCorr"
             if modClusColls_tmp == {}: modClusColls_tmp = {'LCOriginCorrClusters':'LCOriginTopoClusters',
@@ -160,7 +173,7 @@ class METAssocConfig:
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth
-        from AthenaCommon.AppMgr import ToolSvc
+
         if trksel:
             self.trkseltool = trksel
         else:

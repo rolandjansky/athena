@@ -7,14 +7,14 @@ import sys
 import time
 
 # Needed to correct ROOT behavior; see below
-CWD = os.getcwd() # noqa
+CWD = os.getcwd()
 # Importing gSystem may change the current directory to one of the
 # command-line arguments; chdir to original directory to have
 # predictable behavior
 from ROOT import gSystem
 
 # Import the ROOT library for reading han results
-gSystem.Load('libDataQualityUtils') # noqa
+gSystem.Load('libDataQualityUtils')
 from ROOT import dqutils
 
 os.chdir(CWD)

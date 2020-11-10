@@ -23,6 +23,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "StoreGate/WriteDecorHandleKey.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
+#include <atomic>
 /**
    The InDetV0FinderTool reads in the TrackParticle container from StoreGate,
    if useorigin = True only tracks not associated to a primary vertex are used.
@@ -93,7 +94,7 @@ namespace InDet
 
   static const InterfaceID IID_InDetV0FinderTool("InDetV0FinderTool", 1, 0);
 
-  class InDetV0FinderTool:  virtual public AthAlgTool
+  class InDetV0FinderTool:  public AthAlgTool
   {
   public:
     InDetV0FinderTool(const std::string& t, const std::string& n, const IInterface*  p);
@@ -108,9 +109,8 @@ namespace InDet
                              xAOD::VertexContainer*& laContainer, xAOD::VertexAuxContainer*& laAuxContainer,
                              xAOD::VertexContainer*& lbContainer, xAOD::VertexAuxContainer*& lbAuxContainer,
                              const xAOD::Vertex* vertex,
-			     // AthenaMT migration: passing the vertex collection name at run-time is not supported
-			     SG::ReadHandle<xAOD::VertexContainer> vertColl
-			     );
+			     const xAOD::VertexContainer* vertColl
+			     ) const;
 
   //protected:
   private:
@@ -165,30 +165,32 @@ namespace InDet
     double        m_vert_a0xy_cut;            //!< V0 |a0xy| wrt a vertex (<3.)
     double        m_vert_a0z_cut;             //!< V0 |a0z| wrt a vertex (<15.)
 
-    unsigned int  m_events_processed;
-    unsigned int  m_V0s_stored;
-    unsigned int  m_Kshort_stored;
-    unsigned int  m_Lambda_stored;
-    unsigned int  m_Lambdabar_stored;
-    unsigned int  m_Gamma_stored;
+    mutable std::atomic<unsigned int>  m_events_processed;
+    mutable std::atomic<unsigned int>  m_V0s_stored;
+    mutable std::atomic<unsigned int>  m_Kshort_stored;
+    mutable std::atomic<unsigned int>  m_Lambda_stored;
+    mutable std::atomic<unsigned int>  m_Lambdabar_stored;
+    mutable std::atomic<unsigned int>  m_Gamma_stored;
 
 
-    void SGError(std::string errService);
+    void SGError(std::string errService) const;
 
-    double invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double &m1, double &m2);
+    double invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double m1, double m2) const;
 
-    bool doFit(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D &startingPoint);
+    bool doFit(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D &startingPoint) const;
 
-    bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const xAOD::VertexContainer * vertColl);
-    bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const xAOD::Vertex * vertex);
-    bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D vertex);
+    bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const xAOD::VertexContainer * vertColl) const;
+    bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const xAOD::Vertex * vertex) const;
+    bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D vertex) const;
 
-    bool pointAtVertex(const xAOD::Vertex* v0, const xAOD::Vertex* PV);
-    bool pointAtVertexColl(xAOD::Vertex* v0, const xAOD::VertexContainer * vertColl);
+    bool pointAtVertex(const xAOD::Vertex* v0, const xAOD::Vertex* PV) const;
+    bool pointAtVertexColl(xAOD::Vertex* v0, const xAOD::VertexContainer * vertColl) const;
 
-    bool doMassFit(xAOD::Vertex* vxCandidate, int pdgID);
+    bool doMassFit(xAOD::Vertex* vxCandidate, int pdgID) const;
 
-    xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Amg::Vector3D vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
+    xAOD::Vertex* massFit(int pdgID, const std::vector<const xAOD::TrackParticle*> &pairV0, const Amg::Vector3D &vertex) const;
+
+    const Trk::TrkV0VertexFitter* m_concreteVertexFitter;
 
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexKey { this, "VertexContainer", "PrimaryVertices",
 	                                                   "primary vertex container" };

@@ -12,5 +12,5 @@ atlas_add_component( ISF_Geant4CommonTools
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps ISF_Event ISF_InterfacesLib G4AtlasToolsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

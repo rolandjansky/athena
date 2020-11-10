@@ -57,7 +57,7 @@ TrigConf::L1Connector::update()
                path += std::to_string(fpga);
             }
             path += ".clock";
-            path += std::to_string(clock);            
+            path += std::to_string(clock);
          }
          const auto & triggerlines = data().get_child(path);
          m_triggerLines[fpga][clock].reserve(triggerlines.size());
@@ -75,8 +75,22 @@ TrigConf::L1Connector::update()
 }
 
 
-TrigConf::L1Connector::ConnectorType
+std::string
 TrigConf::L1Connector::type() const 
+{
+   switch( m_type ) {
+   case ConnectorType::ELECTRICAL:
+      return "electrical";
+   case ConnectorType::OPTICAL:
+      return "optical";
+   case ConnectorType::CTPIN:
+      return "ctpin";
+   }
+   return "";
+}
+
+TrigConf::L1Connector::ConnectorType
+TrigConf::L1Connector::connectorType() const 
 {
    return m_type;
 }

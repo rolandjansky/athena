@@ -67,7 +67,7 @@ class PyRecord( PyAthena.Alg ):
         allGood = True
         particles = PyAthena.AthExParticles()
         ## fill-in particles:
-        for i in xrange(10):
+        for i in range(10):
             particles.push_back( PyAthena.AthExParticle(i,i,i,i) )
             
         if _record(particles, self.particles) != StatusCode.Success:
@@ -564,7 +564,7 @@ class ClusterExAlg(PyAthena.Alg):
         _clusE   = self.hsvc['/py/clusE'].Fill
         _clusEta = self.hsvc['/py/clusEta'].Fill
 
-        from ROOT import CaloClusterMoment
+        from ROOT import CaloClusterMoment  # noqa: F401
         from ROOT import Double as RDouble
         
         for i,cluster in enumerate(clusters):
@@ -596,7 +596,6 @@ class ClusterExAlg(PyAthena.Alg):
     def finalize(self):
         _info = self.msg.info
         _info('==> finalize')
-        import AthenaCommon.Constants
         clusE   = self.hsvc['/py/clusE']
         clusEta = self.hsvc['/py/clusEta']
 
@@ -666,7 +665,7 @@ class AresClusterExAlg(PyAthena.Alg):
         _clusE   = self.hsvc['/py/clusE'].Fill
         _clusEta = self.hsvc['/py/clusEta'].Fill
 
-        from ROOT import CaloClusterMoment
+        from ROOT import CaloClusterMoment  # noqa: F401
         from ROOT import Double as RDouble
         
         for i,cluster in enumerate(clusters):
@@ -698,7 +697,6 @@ class AresClusterExAlg(PyAthena.Alg):
     def finalize(self):
         _info = self.msg.info
         _info('==> finalize')
-        import AthenaCommon.Constants
         clusE   = self.hsvc['/py/clusE']
         clusEta = self.hsvc['/py/clusEta']
 

@@ -44,9 +44,10 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
+                                                    const bool                   insideOut,
                                                     const TrigL2MuonSA::TgcHits& tgcHits,
                                                     TrigL2MuonSA::MuonRoad&      muonRoad,
-                                                    TrigL2MuonSA::TgcFitResult&  tgcFitResult)
+                                                    TrigL2MuonSA::TgcFitResult&  tgcFitResult) const
 {
   const int N_STATION = 10;
   const int N_LAYER = 8;
@@ -72,12 +73,17 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner;
   int csc = xAOD::L2MuonParameters::Chamber::CSC;
   int bee = xAOD::L2MuonParameters::Chamber::BEE;
- 
+  
+  TrigL2MuonSA::TgcFit::PointArray tgcStripMidPoints;  // List of TGC strip middle station points.
+  TrigL2MuonSA::TgcFit::PointArray tgcWireMidPoints;   // List of TGC wire middle station points.
+  TrigL2MuonSA::TgcFit::PointArray tgcStripInnPoints;  // List of TGC strip inner station points.
+  TrigL2MuonSA::TgcFit::PointArray tgcWireInnPoints;   // List of TGC wire inner station points.
+
   if (tgcHits.size()>0) {
     // TGC data is properly read
  
     // Split digits to Strip/Wire points.
-    if( ! prepareTgcPoints(tgcHits) ) {
+    if( ! prepareTgcPoints(tgcHits, tgcStripInnPoints, tgcWireInnPoints, tgcStripMidPoints, tgcWireMidPoints) ) {
       ATH_MSG_ERROR("Preparation of Tgc points failed");
       return StatusCode::FAILURE;
     }
@@ -85,7 +91,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 
     // Fit lines to TGC middle station
     isMiddleFailure = false;
-    TgcFit::Status status = m_tgcFit->runTgcMiddle(m_tgcStripMidPoints, m_tgcWireMidPoints, tgcFitResult);
+    TgcFit::Status status = m_tgcFit->runTgcMiddle(tgcStripMidPoints, tgcWireMidPoints, tgcFitResult);
     if (status == TgcFit::FIT_NONE) {
       ATH_MSG_WARNING("Fit to TGC middle station points failed");
       isMiddleFailure = true;
@@ -95,7 +101,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     }
     
     // Fit lines to TGC inner station
-    status = m_tgcFit->runTgcInner(m_tgcStripInnPoints, m_tgcWireInnPoints, tgcFitResult);
+    status = m_tgcFit->runTgcInner(tgcStripInnPoints, tgcWireInnPoints, tgcFitResult);
     if (status == TgcFit::FIT_NONE) {
       ATH_MSG_DEBUG("Fit to TGC inner station points failed");
     } 
@@ -109,6 +115,8 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 		  << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3]);
     ATH_MSG_DEBUG("tgcFitResult.tgcMid2[0/1/2/3]=" << tgcFitResult.tgcMid2[0] << "/" << tgcFitResult.tgcMid2[1]
 		  << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3]);
+  } else {
+    ATH_MSG_DEBUG("Skip TGC Fit due to zero-tgcHits");
   }
    
   if (tgcHits.size()>0 && !isMiddleFailure){
@@ -256,6 +264,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     
   } else {
     // If no TGC hit are available, estimate the road from RoI
+    ATH_MSG_DEBUG("Because no TGC hits are available, estimate the road from RoI");
 
     roiEta = p_roi->eta();
     theta  = atan(exp(-fabs(roiEta)))*2.;
@@ -367,7 +376,30 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   
   muonRoad.MDT_sector_trigger = sector_trigger;
   muonRoad.MDT_sector_overlap = sector_overlap;
-  
+
+  if (insideOut) {
+    muonRoad.side      = (muonRoad.extFtfMiddleEta<0.)? 0 : 1;
+    muonRoad.phiMiddle =  muonRoad.extFtfMiddlePhi;
+    muonRoad.phiRoI    = p_roi->phi();
+    for (int i_sector=0; i_sector<N_SECTOR; i_sector++) {
+      ATH_MSG_DEBUG("Use aw_ftf and bw_ftf as aw and bw");
+      muonRoad.aw[endcap_inner][i_sector]  = muonRoad.aw_ftf[3][0];
+      muonRoad.bw[endcap_inner][i_sector]  = muonRoad.bw_ftf[3][0];
+      muonRoad.aw[endcap_middle][i_sector] = muonRoad.aw_ftf[4][0];
+      muonRoad.bw[endcap_middle][i_sector] = muonRoad.bw_ftf[4][0];
+      muonRoad.aw[endcap_outer][i_sector]  = muonRoad.aw_ftf[5][0];
+      muonRoad.bw[endcap_outer][i_sector]  = muonRoad.bw_ftf[5][0];
+      muonRoad.aw[endcap_extra][i_sector]  = muonRoad.aw_ftf[6][0];
+      muonRoad.bw[endcap_extra][i_sector]  = muonRoad.bw_ftf[6][0];
+      muonRoad.aw[csc][i_sector]           = muonRoad.aw_ftf[7][0];
+      muonRoad.bw[csc][i_sector]           = muonRoad.bw_ftf[7][0];
+      muonRoad.aw[bee][i_sector]           = muonRoad.aw_ftf[8][0];
+      muonRoad.bw[bee][i_sector]           = muonRoad.bw_ftf[8][0];
+      muonRoad.aw[barrel_inner][i_sector]  = muonRoad.aw_ftf[0][0];
+      muonRoad.bw[barrel_inner][i_sector]  = muonRoad.bw_ftf[0][0];
+    }
+  }
+
   //
   return StatusCode::SUCCESS;
 }
@@ -375,19 +407,18 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits& tgcHits)
+bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits& tgcHits,
+                                                    TrigL2MuonSA::TgcFit::PointArray& tgcStripInnPoints,
+                                                    TrigL2MuonSA::TgcFit::PointArray& tgcWireInnPoints,
+                                                    TrigL2MuonSA::TgcFit::PointArray& tgcStripMidPoints,
+                                                    TrigL2MuonSA::TgcFit::PointArray& tgcWireMidPoints) const
 {
    const double PHI_BOUNDARY = 0.2;
 
-   ATH_MSG_DEBUG(", m_tgcStripMidPoints.size()=" << m_tgcStripMidPoints.size() <<
-		 ", m_tgcStripInnPoints.size()=" << m_tgcStripInnPoints.size() <<
-		 ", m_tgcWireMidPoints.size()=" << m_tgcWireMidPoints.size() <<
-		 ", m_tgcWireInnPoints.size()=" << m_tgcWireInnPoints.size());
-   
-   m_tgcStripMidPoints.clear();
-   m_tgcStripInnPoints.clear();
-   m_tgcWireMidPoints.clear();
-   m_tgcWireInnPoints.clear();
+   tgcStripMidPoints.clear();
+   tgcStripInnPoints.clear();
+   tgcWireMidPoints.clear();
+   tgcWireInnPoints.clear();
 
    // loop over TGC digits.
    unsigned int iHit;
@@ -406,15 +437,20 @@ bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits&
          w *= hit.r * hit.r;
          double phi = hit.phi;
          if( phi < 0 && ( (M_PI+phi)<PHI_BOUNDARY) ) phi += M_PI*2;
-         if      ( hit.sta < 3 ) { m_tgcStripMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
-         else if ( hit.sta ==3 ) { m_tgcStripInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
+         if      ( hit.sta < 3 ) { tgcStripMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
+         else if ( hit.sta ==3 ) { tgcStripInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
       }
       else
       {
-         if      ( hit.sta < 3 ) { m_tgcWireMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, hit.r, w)); }
-         else if ( hit.sta ==3 ) { m_tgcWireInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, hit.r, w)); }
+         if      ( hit.sta < 3 ) { tgcWireMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, hit.r, w)); }
+         else if ( hit.sta ==3 ) { tgcWireInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, hit.r, w)); }
       }
    }
-
+   
+   ATH_MSG_DEBUG(", tgcStripMidPoints.size()=" << tgcStripMidPoints.size() <<
+		 ", tgcStripInnPoints.size()=" << tgcStripInnPoints.size() <<
+		 ", tgcWireMidPoints.size()=" << tgcWireMidPoints.size() <<
+		 ", tgcWireInnPoints.size()=" << tgcWireInnPoints.size());
+   
    return true;
 }

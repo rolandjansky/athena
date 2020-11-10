@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RootCollection.h"
@@ -79,7 +79,7 @@ namespace pool {
      }
 
 
-     void  RootCollection::delayedFileOpen( std::string method )
+     void  RootCollection::delayedFileOpen( const std::string& method )
      {
         if( m_open && !m_file && m_session && m_mode != ICollection::READ ) {
            m_file = TFile::Open(m_fileName.c_str(), poolOptToRootOpt[m_mode] );
@@ -434,7 +434,7 @@ namespace pool {
 
      
     string RootCollection::retrievePFN() const {
-      if(m_name.find("PFN:")!=0)
+      if (m_name.substr (0, 4) != "PFN:")
         throw pool::Exception( "In CREATE mode a PFN has to be provided",
         "RootCollection::open", 
         "RootCollection");
@@ -447,17 +447,19 @@ namespace pool {
       FileCatalog::FileID fid="";
       string fileType="";        
 
-      if(m_name.find("PFN:")==0){
+      if (m_name.substr (0, 4) == "PFN:") {
         string pfn = m_name.substr(4,string::npos);
         m_fileCatalog->start();
         m_fileCatalog->lookupFileByPFN(pfn,fid,fileType);
         m_fileCatalog->commit();
-      }else if(m_name.find("LFN:")==0){
+      }
+      else if (m_name.substr (0, 4) == "LFN:") {
         string lfn = m_name.substr(4,string::npos);
         m_fileCatalog->start();
         m_fileCatalog->lookupFileByLFN(lfn,fid);
         m_fileCatalog->commit();
-      }else if(m_name.find("FID:")==0){
+      }
+      else if (m_name.substr (0, 4) == "FID:") {
         fid = m_name.substr(4,string::npos);
       }else
         throw pool::Exception( "A FID, PFN or and LFN has to be provided",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,8 +7,8 @@
  -----------------------------------------
 ***************************************************************************/
 
-#ifndef MUONGEOMODEL_MUONSTRIPDESIGN_H
-#define MUONGEOMODEL_MUONSTRIPDESIGN_H
+#ifndef MUONREADOUTGEOMETRY_MUONSTRIPDESIGN_H
+#define MUONREADOUTGEOMETRY_MUONSTRIPDESIGN_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -69,4 +69,4 @@ namespace MuonGM {
   }
 
 }
-#endif // MUONGEOMODEL_MUONSQUARECLUSTERDETECTORDESCRIPTOR_H
+#endif // MUONREADOUTGEOMETRY_MUONSTRIPDESIGN_H

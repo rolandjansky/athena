@@ -33,8 +33,6 @@ namespace MuonCalib {
       return false;
     }
 
-    //    TrackRecord truth( const_cast<TrackRecord&>(ctruth) ); //Looks nasty, but TrackRecord.Get*() const is not defined=
-
     // copy values 
     m_kinEnergy[m_index] = truth.kinEnergy();
     m_gPosX[m_index] = truth.position().x();

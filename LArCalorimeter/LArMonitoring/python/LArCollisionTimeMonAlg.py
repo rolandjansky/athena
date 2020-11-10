@@ -269,8 +269,7 @@ if __name__=='__main__':
 
     # try collision time algo 
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
-    cfg.merge(LArCollisionTimeCfg(ConfigFlags))
-    cfg.getEventAlgo("LArCollisionTimeAlg").cutIteration=False
+    cfg.merge(LArCollisionTimeCfg(ConfigFlags, cutIteration=False))
     # add cluster collision time algo
     # cluster config is still missing
     #from LArClusterRec.LArClusterSwConfig import LArClusterSwConfig
@@ -291,7 +290,7 @@ if __name__=='__main__':
     cfg.merge(collmon) 
 
     ConfigFlags.dump()
-    f=open("CollTimeMonMaker.pkl","w")
+    f=open("CollTimeMonMaker.pkl","wb")
     cfg.store(f)
     f.close()
    

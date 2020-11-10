@@ -43,7 +43,8 @@ Trk::TrkAmbiguitySolver::execute(const EventContext& ctx) const
   ATH_MSG_VERBOSE ("TrkAmbiguitySolver::execute()");
   SG::ReadHandle<TracksScores> scoredTracksHandle(m_scoredTracksKey, ctx);
   if ( !scoredTracksHandle.isValid() )  ATH_MSG_ERROR("Could not read scoredTracks.");
-  m_trackInCount += scoredTracksHandle->size();
+  const int nInput = scoredTracksHandle->size();
+  m_trackInCount += nInput;
 
   std::unique_ptr<TrackCollection> resolvedTracks;
   resolvedTracks.reset(m_ambiTool->process(scoredTracksHandle.cptr())); //note: take ownership and delete
@@ -51,7 +52,7 @@ Trk::TrkAmbiguitySolver::execute(const EventContext& ctx) const
 
   SG::WriteHandle<TrackCollection> resolvedTracksHandle(m_resolvedTracksKey, ctx);
   ATH_CHECK(resolvedTracksHandle.record(std::move(resolvedTracks)));
-  ATH_MSG_VERBOSE ("Saved "<<resolvedTracksHandle->size()<<" tracks");
+  ATH_MSG_DEBUG ("Saved "<<resolvedTracksHandle->size()<<" tracks of " << nInput);
   return StatusCode::SUCCESS;
 }
 

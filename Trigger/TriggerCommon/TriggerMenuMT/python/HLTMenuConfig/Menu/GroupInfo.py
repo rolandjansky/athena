@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -36,5 +36,4 @@ def getAllAllowedGroups(menu):
     elif 'HI' in menu:
         return AllowedGroups+AllowedGroup_HI
     else:
-        log.error("No list of allowed groups for "+menu)
-    
+        log.error("No list of allowed groups for %s", menu)

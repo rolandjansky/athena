@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloEnergyScanRunInfoContainer.h"
@@ -68,7 +68,7 @@ DataObject* L1CaloEnergyScanRunInfoContainer::makePersistent() const {
     return (DataObject*) attrList;
 }
 
-void L1CaloEnergyScanRunInfoContainer::makeTransient(const std::map<std::string, AthenaAttributeList*> athenaAttributeListMap) {
+void L1CaloEnergyScanRunInfoContainer::makeTransient(const std::map<std::string, AthenaAttributeList*>& athenaAttributeListMap) {
 
     std::map<std::string, AthenaAttributeList*>::const_iterator
       it_map(athenaAttributeListMap.find(this->coolFolderKey(L1CaloEnergyScanRunInfoContainer::eEnergyScanRunInfo)));

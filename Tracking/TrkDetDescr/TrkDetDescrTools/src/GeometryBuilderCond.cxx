@@ -99,7 +99,7 @@ StatusCode Trk::GeometryBuilderCond::initialize()
     }
 
     // if no world dimensions are declared, take default ones
-    if (!m_worldDimension.size())
+    if (m_worldDimension.empty())
         m_worldDimension = std::vector<double>{0.*Gaudi::Units::meter, 10.*Gaudi::Units::meter, 15.*Gaudi::Units::meter};
 
     // if no world materials are declared, take default ones - set vacuum 
@@ -138,11 +138,11 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
                                                                        m_worldDimension[1],
                                                                        m_worldDimension[2]);
 
-        Trk::TrackingVolume* worldVolume = new Trk::TrackingVolume(0,
+        Trk::TrackingVolume* worldVolume = new Trk::TrackingVolume(nullptr,
                                                                    worldBounds,
                                                                    m_worldMaterial,
-                                                                   (const LayerArray*) 0,
-                                                                   (const TrackingVolumeArray*) 0,
+                                                                   (const LayerArray*) nullptr,
+                                                                   (const TrackingVolumeArray*) nullptr,
                                                                    "EmptyWorldVolume");
         //dummy infinite IOV range
         EventIDRange range;
@@ -171,11 +171,11 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
     std::pair<EventIDRange, const Trk::TrackingGeometry*> caloTrackingGeometry ;
 
     // the volumes to be given to higher level tracking geometry builders
-    const Trk::TrackingVolume* inDetVolume    = 0;
-    const Trk::TrackingVolume* caloVolume     = 0;
+    const Trk::TrackingVolume* inDetVolume    = nullptr;
+    const Trk::TrackingVolume* caloVolume     = nullptr;
 
     // mark the highest volume
-    const Trk::TrackingVolume* highestVolume  = 0;
+    const Trk::TrackingVolume* highestVolume  = nullptr;
 
 #ifdef TRKDETDESCR_MEMUSAGE       
     m_memoryLogger.refresh(getpid());
@@ -317,8 +317,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
                                atlasInnerNegativeSectorTransf,
                                innerCylinderSectorBounds,
                                m_worldMaterial,
-                               (const LayerArray*) 0,
-                               (const TrackingVolumeArray*) 0,
+                               (const LayerArray*) nullptr,
+                               (const TrackingVolumeArray*) nullptr,
                                "AtlasInnerNegativeSector");
 
         // the AtlasInnerPositiveSector
@@ -328,8 +328,8 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
                                atlasInnerPositiveSectorTransf,
                                innerCylinderSectorBounds->clone(),
                                m_worldMaterial,
-                               (const LayerArray*) 0,
-                               (const TrackingVolumeArray*) 0,
+                               (const LayerArray*) nullptr,
+                               (const TrackingVolumeArray*) nullptr,
                                "AtlasInnerPositiveSector");
 
         ATH_MSG_VERBOSE( "Inner Negative/Positive Sectors built successfully." );
@@ -339,27 +339,27 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
 
         ATH_MSG_VERBOSE( "Create the Atlas Inner Sector volumes. " );
         Trk::BinnedArray<Trk::TrackingVolume>* atlasInnerSectorVolumeArray = m_trackingVolumeArrayCreator ?
-                m_trackingVolumeArrayCreator->cylinderVolumesArrayInZ(atlasInnerSectorVolumes) : 0;
+                m_trackingVolumeArrayCreator->cylinderVolumesArrayInZ(atlasInnerSectorVolumes) : nullptr;
 
 
         // Atlas inner Sector bounds
         Trk::CylinderVolumeBounds* innerSectorBounds =
                 new Trk::CylinderVolumeBounds(0., innerVolumeOuterR, m_worldDimension[2]);
         // build the Tracking volumes
-        Trk::TrackingVolume* atlasInnerSector = new Trk::TrackingVolume(0,
+        Trk::TrackingVolume* atlasInnerSector = new Trk::TrackingVolume(nullptr,
                                                                         innerSectorBounds,
                                                                         m_worldMaterial,
-                                                                        0,atlasInnerSectorVolumeArray,
+                                                                        nullptr,atlasInnerSectorVolumeArray,
                                                                         "AtlasInnerSector");
 
         // Atlas outer Sector
         Trk::CylinderVolumeBounds* outerSectorBounds =
                 new Trk::CylinderVolumeBounds(innerVolumeOuterR, m_worldDimension[1], m_worldDimension[2]);
-        Trk::TrackingVolume* atlasOuterSector = new Trk::TrackingVolume(0,
+        Trk::TrackingVolume* atlasOuterSector = new Trk::TrackingVolume(nullptr,
                                                                         outerSectorBounds,
                                                                         m_worldMaterial,
-                                                                        (const LayerArray*) 0,
-                                                                        (const TrackingVolumeArray*) 0,
+                                                                        (const LayerArray*) nullptr,
+                                                                        (const TrackingVolumeArray*) nullptr,
                                                                         "AtlasOuterSector");
 
         ATH_MSG_VERBOSE( "Atlas Inner/Outer Sectors built successfully." );
@@ -368,16 +368,16 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Trk::GeometryBuilderCond::
         auto atlasVolumes =  std::vector<const Trk::TrackingVolume*>{atlasInnerSector, atlasOuterSector};
 
         Trk::BinnedArray<Trk::TrackingVolume>* atlasVolumeArray = m_trackingVolumeArrayCreator ?
-                m_trackingVolumeArrayCreator->cylinderVolumesArrayInR(atlasVolumes) : 0;
+                m_trackingVolumeArrayCreator->cylinderVolumesArrayInR(atlasVolumes) : nullptr;
 
         // create the Atlas volume bounds
         Trk::CylinderVolumeBounds* atlasBounds = new Trk::CylinderVolumeBounds(0., m_worldDimension[1], m_worldDimension[2]);
 
         // create the Atlas TrackingVolume
-        Trk::TrackingVolume* atlasVolume = new Trk::TrackingVolume(0,
+        Trk::TrackingVolume* atlasVolume = new Trk::TrackingVolume(nullptr,
                                                                    atlasBounds,
                                                                    m_worldMaterial,
-                                                                   0,atlasVolumeArray,
+                                                                   nullptr,atlasVolumeArray,
                                                                    "Atlas");
 
         ATH_MSG_VERBOSE( "Atlas Tracking World volume built successfully." );

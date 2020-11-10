@@ -56,7 +56,7 @@ int main ATLAS_NOT_THREAD_SAFE () {
   const EventContext& ctx1 = Gaudi::Hive::currentContext();
   log << "Current context: " << ctx1 << endmsg;
 
-  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("HLTNav_MyDecisionContainer");
+  SG::WriteHandleKey<DecisionContainer> decisionContainerKey("HLTNav_DC");
   SG::WriteHandleKey<xAOD::ElectronContainer> electronContainerKey("MyElectronContainer");
   SG::WriteHandleKey<xAOD::MuonContainer> muonContainerKey("MyMuonContainer");
 
@@ -134,22 +134,30 @@ int main ATLAS_NOT_THREAD_SAFE () {
   ElementLink<xAOD::ElectronContainer> rec_2__em0_link(*electronContainerPtr, electronContainerPtr->size() - 1, ctx1);
 
   ///
-  /// Muon RoI 0, single muon chains ID:HLT_mufast_chain, ID:2. Fails both chains at first Hypo
+  /// Muon RoI 0:
+  /// Single muon chains HLT_mufast_chain and HLT_mu_chain both fail at first Hypo
+  /// Combined muon+electron chain HLT_mu_em_chain. Fails at first hypo
   ///
-
   {
     addDecisionID(HLT_mufast_chain, MU0);
     addDecisionID(HLT_mu_chain, MU0);
+    addDecisionID(HLT_mu_em_chain, MU0);
 
     Decision* MU_F_1__MU0 = newDecisionIn(decisionContainerPtr, "MU_F_1__MU0");
     linkToPrevious(MU_F_1__MU0, MU0);
     addDecisionID(HLT_mufast_chain, MU_F_1__MU0);
     addDecisionID(HLT_mu_chain, MU_F_1__MU0);
 
+    Decision* MUEM_F_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__MU0");
+    linkToPrevious(MUEM_F_1__MU0, MU0);
+    addDecisionID(HLT_mu_em_chain, MUEM_F_1__MU0);
+
     Decision* MU_IM_1__MU0 = newDecisionIn(decisionContainerPtr, "MU_IM_1__MU0");
     linkToPrevious(MU_IM_1__MU0, MU_F_1__MU0);
+    linkToPrevious(MU_IM_1__MU0, MUEM_F_1__MU0);
     addDecisionID(HLT_mufast_chain, MU_IM_1__MU0);
     addDecisionID(HLT_mu_chain, MU_IM_1__MU0);
+    addDecisionID(HLT_mu_em_chain, MU_IM_1__MU0);
 
     Decision* MU_H_1__MU0 = newDecisionIn(decisionContainerPtr, "MU_H_1__MU0");
     linkToPrevious(MU_H_1__MU0, MU_IM_1__MU0);
@@ -157,219 +165,162 @@ int main ATLAS_NOT_THREAD_SAFE () {
     // Fails HLT_mufast_chain
     // Fails HLT_mu_chain
 
-  }
-
-  ///
-  /// Muon RoI 0, combined muon+electron chain ID:3. Fails first hypo
-  ///
-
-  {
-    addDecisionID(HLT_mu_em_chain, MU0);
-
-    Decision* MUEM_F_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__MU0");
-    linkToPrevious(MUEM_F_1__MU0, MU0);
-    addDecisionID(HLT_mu_em_chain, MUEM_F_1__MU0);
-
-    Decision* MUEM_IM_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_IM_1__MU0");
-    linkToPrevious(MUEM_IM_1__MU0, MUEM_F_1__MU0);
-    addDecisionID(HLT_mu_em_chain, MUEM_IM_1__MU0);
-
-    Decision* MUEM_H_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_H_1__MU0");
-    linkToPrevious(MUEM_H_1__MU0, MUEM_IM_1__MU0);
-    MUEM_H_1__MU0->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu0_link);
-    // Fails HLT_mu_em_chain
-
     Decision* MUEM_CH_1__MU0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__MU0");
-    linkToPrevious(MUEM_CH_1__MU0, MUEM_H_1__MU0);
+    linkToPrevious(MUEM_CH_1__MU0, MU_H_1__MU0);
     // Note: Combo hypo does not re-link to feature.
     // Fails HLT_mu_em_chain
-
   }
 
   ///
-  /// Muon RoI 1, single muon chain ID:HLT_mufast_chain passes event after first Hypo. Single muon chain ID:HLT_mu_chain passes event after second hypo
+  /// Muon RoI 1: 
+  /// Single muon chain HLT_mufast_chain passes event after first Hypo.
+  /// Single muon chain IHLT_mu_chain passes event after second hypo
+  /// Combined muon+electron chain HLT_mu_em_chain. Passes first and second hypo. Passes EM leg too.
   ///
-
   {
     addDecisionID(HLT_mufast_chain, MU1);
     addDecisionID(HLT_mu_chain, MU1);
+    addDecisionID(HLT_mu_em_chain, MU1);
 
     Decision* MU_F_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_F_1__MU1");
     linkToPrevious(MU_F_1__MU1, MU1);
     addDecisionID(HLT_mufast_chain, MU_F_1__MU1);
     addDecisionID(HLT_mu_chain, MU_F_1__MU1);
 
+    Decision* MUEM_F_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__MU1");
+    linkToPrevious(MUEM_F_1__MU1, MU1);
+    addDecisionID(HLT_mu_em_chain, MUEM_F_1__MU1);
+
     Decision* MU_IM_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_IM_1__MU1");
     linkToPrevious(MU_IM_1__MU1, MU_F_1__MU1);
+    linkToPrevious(MU_IM_1__MU1, MUEM_F_1__MU1);
     addDecisionID(HLT_mufast_chain, MU_IM_1__MU1);
     addDecisionID(HLT_mu_chain, MU_IM_1__MU1);
+    addDecisionID(HLT_mu_em_chain, MU_IM_1__MU1);
 
     Decision* MU_H_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_H_1__MU1");
     linkToPrevious(MU_H_1__MU1, MU_IM_1__MU1);
     MU_H_1__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu1_link);
     addDecisionID(HLT_mufast_chain, MU_H_1__MU1);
     addDecisionID(HLT_mu_chain, MU_H_1__MU1);
+    addDecisionID(HLT_mu_em_chain, MU_H_1__MU1);
     // HLT_mufast_chain passes the event
+    Decision* MU_ENDF_H_1__MU1 = newDecisionIn(decisionContainerPtr, "MU_ENDF_H_1__MU1");
+    addDecisionID(HLT_mufast_chain, MU_ENDF_H_1__MU1);
     addDecisionID(HLT_mufast_chain, END);
-    linkToPrevious(END, MU_H_1__MU1);
+    linkToPrevious(MU_ENDF_H_1__MU1, MU_H_1__MU1);
+    linkToPrevious(END, MU_ENDF_H_1__MU1);
 
-    /// !!!
-    /// !!!
-    /// !!! When finding the first feature for the HLT_mu_chain, the navigation is here given two entry points into the graph,
-    /// !!! the correct one (MU_H_2__MU1) and an incorrect one (MU_H_1__MU1) due to HLT_mufast_chain also passing this event
-    /// !!! at this earlier Step.
-    /// !!!
-    /// !!! The feature access is currently "dumb", it doesn't know what should be the final step for each chain. Hence here
-    /// !!! it will return both the Step1 muon and the Step2 muon when asked for the first feature down each leg for HLT_mu_chain,
-    /// !!! Rather than just the Step2 muon.
-    /// !!!
-    /// !!! This will be corrected later, once the Trigger Decision Tool has access to more menu reflection information.
-    /// !!!
-    /// !!!
+    Decision* MUEM_CH_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__MU1");
+    linkToPrevious(MUEM_CH_1__MU1, MU_H_1__MU1);
+    addDecisionID(HLT_mu_em_chain, MUEM_CH_1__MU1);
 
     Decision* MU_F_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_F_2__MU1");
     linkToPrevious(MU_F_2__MU1, MU_H_1__MU1);
     addDecisionID(HLT_mu_chain, MU_F_2__MU1);
 
+    Decision* MUEM_F_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_F_2__MU1");
+    linkToPrevious(MUEM_F_2__MU1, MUEM_CH_1__MU1);
+    addDecisionID(HLT_mu_em_chain, MUEM_F_2__MU1);
+
     Decision* MU_IM_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_IM_2__MU1");
     linkToPrevious(MU_IM_2__MU1, MU_F_2__MU1);
+    linkToPrevious(MU_IM_2__MU1, MUEM_F_2__MU1);
     addDecisionID(HLT_mu_chain, MU_IM_2__MU1);
+    addDecisionID(HLT_mu_em_chain, MU_IM_2__MU1);
 
     Decision* MU_H_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_H_2__MU1");
     linkToPrevious(MU_H_2__MU1, MU_IM_2__MU1);
     MU_H_2__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_2__mu1_link);
     addDecisionID(HLT_mu_chain, MU_H_2__MU1);
+    addDecisionID(HLT_mu_em_chain, MU_H_2__MU1);
     // HLT_mu_chain passes the event
+    Decision* MU_ENDF_H_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_ENDF_H_2__MU1");
+    addDecisionID(HLT_mu_chain, MU_ENDF_H_2__MU1);
     addDecisionID(HLT_mu_chain, END);
-    linkToPrevious(END, MU_H_2__MU1);
-  }
-
-  ///
-  /// Muon RoI 1, combined muon+electron chain ID:HLT_mu_em_chain. Passes first and second hypo. Passes EM leg (later)
-  ///
-
-  {
-    addDecisionID(HLT_mu_em_chain, MU1);
-
-    Decision* MUEM_F_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__MU1");
-    linkToPrevious(MUEM_F_1__MU1, MU1);
-    addDecisionID(HLT_mu_em_chain, MUEM_F_1__MU1);
-
-    Decision* MUEM_IM_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_IM_1__MU1");
-    linkToPrevious(MUEM_IM_1__MU1, MUEM_F_1__MU1);
-    addDecisionID(HLT_mu_em_chain, MUEM_IM_1__MU1);
-
-    Decision* MUEM_H_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_H_1__MU1");
-    linkToPrevious(MUEM_H_1__MU1, MUEM_IM_1__MU1);
-    MUEM_H_1__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_1__mu1_link);
-    addDecisionID(HLT_mu_em_chain, MUEM_H_1__MU1);
-
-    Decision* MUEM_CH_1__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__MU1");
-    linkToPrevious(MUEM_CH_1__MU1, MUEM_H_1__MU1);
-    addDecisionID(HLT_mu_em_chain, MUEM_CH_1__MU1);
-
-    Decision* MUEM_F_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_F_2__MU1");
-    linkToPrevious(MUEM_F_2__MU1, MUEM_CH_1__MU1);
-    addDecisionID(HLT_mu_em_chain, MUEM_F_2__MU1);
-
-    Decision* MUEM_IM_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_IM_2__MU1");
-    linkToPrevious(MUEM_IM_2__MU1, MUEM_F_2__MU1);
-    addDecisionID(HLT_mu_em_chain, MUEM_IM_2__MU1);
-
-    Decision* MUEM_H_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_H_2__MU1");
-    linkToPrevious(MUEM_H_2__MU1, MUEM_IM_2__MU1);
-    MUEM_H_2__MU1->setObjectLink<xAOD::MuonContainer>(featureString(), rec_2__mu1_link);
-    addDecisionID(HLT_mu_em_chain, MUEM_H_2__MU1);
+    linkToPrevious(MU_ENDF_H_2__MU1, MU_H_2__MU1);
+    linkToPrevious(END, MU_ENDF_H_2__MU1);
 
     Decision* MUEM_CH_2__MU1 = newDecisionIn(decisionContainerPtr, "MUEM_CH_2__MU1");
-    linkToPrevious(MUEM_CH_2__MU1, MUEM_H_2__MU1);
+    linkToPrevious(MUEM_CH_2__MU1, MU_H_2__MU1);
     addDecisionID(HLT_mu_em_chain, MUEM_CH_2__MU1);
     // HLT_mu_em_chain passes the event
+    Decision* MU_ENDF_CH_2__MU1 = newDecisionIn(decisionContainerPtr, "MU_ENDF_CH_2__MU1");
+    addDecisionID(HLT_mu_em_chain, MU_ENDF_CH_2__MU1);
     addDecisionID(HLT_mu_em_chain, END);
-    linkToPrevious(END, MUEM_CH_2__MU1);
-
+    linkToPrevious(MU_ENDF_CH_2__MU1, MUEM_CH_2__MU1);
+    linkToPrevious(END, MU_ENDF_CH_2__MU1);
   }
 
-  ///
-  /// EM RoI 0, single electron chain ID:4. Passes first and second hypo. Passes EM leg (later)
-  ///
 
+  ///
+  /// EM RoI 0:
+  /// Single electron chain HLT_em_chain. Passes first and second hypo. 
+  /// Combined muon+electron chain HLT_mu_em_chain. Passes first and second hypo. Passes muon leg too.
+  ///
   {
     addDecisionID(HLT_em_chain, EM0);
+    addDecisionID(HLT_mu_em_chain, EM0);
 
     Decision* EM_F_1__EM0 = newDecisionIn(decisionContainerPtr, "EM_F_1__EM0");
     linkToPrevious(EM_F_1__EM0, EM0);
     addDecisionID(HLT_em_chain, EM_F_1__EM0);
 
+    Decision* MUEM_F_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__EM0");
+    linkToPrevious(MUEM_F_1__EM0, EM0);
+    addDecisionID(HLT_mu_em_chain, MUEM_F_1__EM0);
+
     Decision* EM_IM_1__EM0 = newDecisionIn(decisionContainerPtr, "EM_IM_1__EM0");
     linkToPrevious(EM_IM_1__EM0, EM_F_1__EM0);
+    linkToPrevious(EM_IM_1__EM0, MUEM_F_1__EM0);
     addDecisionID(HLT_em_chain, EM_IM_1__EM0);
+    addDecisionID(HLT_mu_em_chain, EM_IM_1__EM0);
 
     Decision* EM_H_1__EM0 = newDecisionIn(decisionContainerPtr, "EM_H_1__EM0");
     linkToPrevious(EM_H_1__EM0, EM_IM_1__EM0);
     EM_H_1__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_1__em0_link);
     addDecisionID(HLT_em_chain, EM_H_1__EM0);
+    addDecisionID(HLT_mu_em_chain, EM_H_1__EM0);
+
+    Decision* MUEM_CH_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__EM0");
+    linkToPrevious(MUEM_CH_1__EM0, EM_H_1__EM0);
+    addDecisionID(HLT_mu_em_chain, MUEM_CH_1__EM0);
 
     Decision* EM_F_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_F_2__EM0");
     linkToPrevious(EM_F_2__EM0, EM_H_1__EM0);
     addDecisionID(HLT_em_chain, EM_F_2__EM0);
 
+    Decision* MUEM_F_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_F_2__EM0");
+    linkToPrevious(MUEM_F_2__EM0, MUEM_CH_1__EM0);
+    addDecisionID(HLT_mu_em_chain, MUEM_F_2__EM0);
+
     Decision* EM_IM_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_IM_2__EM0");
     linkToPrevious(EM_IM_2__EM0, EM_F_2__EM0);
+    linkToPrevious(EM_IM_2__EM0, MUEM_F_2__EM0);
     addDecisionID(HLT_em_chain, EM_IM_2__EM0);
+    addDecisionID(HLT_mu_em_chain, EM_IM_2__EM0);
 
     Decision* EM_H_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_H_2__EM0");
     linkToPrevious(EM_H_2__EM0, EM_IM_2__EM0);
     EM_H_2__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_2__em0_link);
     addDecisionID(HLT_em_chain, EM_H_2__EM0);
+    addDecisionID(HLT_mu_em_chain, EM_H_2__EM0);
     // HLT_em_chain passes the event
-    linkToPrevious(END, EM_H_2__EM0);
+    Decision* EM_ENDF_H_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_ENDF_H_2__EM0");
+    addDecisionID(HLT_em_chain, EM_ENDF_H_2__EM0);
     addDecisionID(HLT_em_chain, END);
-  }
-
-  ///
-  /// EM RoI 0, combined muon+electron chain ID:HLT_mu_em_chain. Passes first and second hypo. Passes MU leg (earlier)
-  ///
-
-  {
-    addDecisionID(HLT_mu_em_chain, EM0);
-
-    Decision* MUEM_F_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_F_1__EM0");
-    linkToPrevious(MUEM_F_1__EM0, EM0);
-    addDecisionID(HLT_mu_em_chain, MUEM_F_1__EM0);
-
-    Decision* MUEM_IM_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_IM_1__EM0");
-    linkToPrevious(MUEM_IM_1__EM0, MUEM_F_1__EM0);
-    addDecisionID(HLT_mu_em_chain, MUEM_IM_1__EM0);
-
-    Decision* MUEM_H_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_H_1__EM0");
-    linkToPrevious(MUEM_H_1__EM0, MUEM_IM_1__EM0);
-    MUEM_H_1__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_1__em0_link);
-    addDecisionID(HLT_mu_em_chain, MUEM_H_1__EM0);
-
-    Decision* MUEM_CH_1__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_1__EM0");
-    linkToPrevious(MUEM_CH_1__EM0, MUEM_H_1__EM0);
-    addDecisionID(HLT_mu_em_chain, MUEM_CH_1__EM0);
-
-    Decision* MUEM_F_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_F_2__EM0");
-    linkToPrevious(MUEM_F_2__EM0, MUEM_CH_1__EM0);
-    addDecisionID(HLT_mu_em_chain, MUEM_F_2__EM0);
-
-    Decision* MUEM_IM_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_IM_2__EM0");
-    linkToPrevious(MUEM_IM_2__EM0, MUEM_F_2__EM0);
-    addDecisionID(HLT_mu_em_chain, MUEM_IM_2__EM0);
-
-    Decision* MUEM_H_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_H_2__EM0");
-    linkToPrevious(MUEM_H_2__EM0, MUEM_IM_2__EM0);
-    MUEM_H_2__EM0->setObjectLink<xAOD::ElectronContainer>(featureString(), rec_2__em0_link);
-    addDecisionID(HLT_mu_em_chain, MUEM_H_2__EM0);
+    linkToPrevious(EM_ENDF_H_2__EM0, EM_H_2__EM0);
+    linkToPrevious(END, EM_ENDF_H_2__EM0);
 
     Decision* MUEM_CH_2__EM0 = newDecisionIn(decisionContainerPtr, "MUEM_CH_2__EM0");
-    linkToPrevious(MUEM_CH_2__EM0, MUEM_H_2__EM0);
+    linkToPrevious(MUEM_CH_2__EM0, EM_H_2__EM0);
     addDecisionID(HLT_mu_em_chain, MUEM_CH_2__EM0);
     // HLT_mu_em_chain passes the event
+    Decision* EM_ENDF_CH_2__EM0 = newDecisionIn(decisionContainerPtr, "EM_ENDF_CH_2__EM0");
+    addDecisionID(HLT_mu_em_chain, EM_ENDF_CH_2__EM0);
     addDecisionID(HLT_mu_em_chain, END);
-    linkToPrevious(END, MUEM_CH_2__EM0);
+    linkToPrevious(EM_ENDF_CH_2__EM0, MUEM_CH_2__EM0);
+    linkToPrevious(END, EM_ENDF_CH_2__EM0);
   }
 
   // Test the graph
@@ -380,11 +331,11 @@ int main ATLAS_NOT_THREAD_SAFE () {
   NavGraph graph_HLT_em_chain;
   NavGraph graph_HLT_all;
 
-  recursiveGetDecisions(END, graph_HLT_mufast_chain, HLT_mufast_chain, true);
-  recursiveGetDecisions(END, graph_HLT_mu_chain, HLT_mu_chain, true);
-  recursiveGetDecisions(END, graph_HLT_mu_em_chain, HLT_mu_em_chain, true);
-  recursiveGetDecisions(END, graph_HLT_em_chain, HLT_em_chain, true);
-  recursiveGetDecisions(END, graph_HLT_all, 0, true);
+  recursiveGetDecisions(END, graph_HLT_mufast_chain, {HLT_mufast_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_mu_chain, {HLT_mu_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_mu_em_chain, {HLT_mu_em_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_em_chain, {HLT_em_chain}, true);
+  recursiveGetDecisions(END, graph_HLT_all, {}, true);
 
 
   log << MSG::INFO << "HLT_mufast_chain" << endmsg;
@@ -424,26 +375,26 @@ int main ATLAS_NOT_THREAD_SAFE () {
 
   std::cout << " ---------- Now Include Failing Features " << std::endl;
 
-  std::vector<const Decision*> extraStart_HLT_mufast_chain = getRejectedDecisionNodes(pSG, HLT_mufast_chain);
-  std::vector<const Decision*> extraStart_HLT_mu_chain = getRejectedDecisionNodes(pSG, HLT_mu_chain);
-  std::vector<const Decision*> extraStart_HLT_mu_em_chain = getRejectedDecisionNodes(pSG, HLT_mu_em_chain);
-  std::vector<const Decision*> extraStart_HLT_em_chain = getRejectedDecisionNodes(pSG, HLT_em_chain);
-  std::vector<const Decision*> extraStart_HLT_all = getRejectedDecisionNodes(pSG, 0);
+  std::vector<const Decision*> extraStart_HLT_mufast_chain = getRejectedDecisionNodes(pSG, {HLT_mufast_chain});
+  std::vector<const Decision*> extraStart_HLT_mu_chain = getRejectedDecisionNodes(pSG, {HLT_mu_chain});
+  std::vector<const Decision*> extraStart_HLT_mu_em_chain = getRejectedDecisionNodes(pSG, {HLT_mu_em_chain});
+  std::vector<const Decision*> extraStart_HLT_em_chain = getRejectedDecisionNodes(pSG, {HLT_em_chain});
+  std::vector<const Decision*> extraStart_HLT_all = getRejectedDecisionNodes(pSG, {});
 
   for (const Decision* d : extraStart_HLT_mufast_chain) {
-    recursiveGetDecisions(d, graph_HLT_mufast_chain, HLT_mufast_chain, false);
+    recursiveGetDecisions(d, graph_HLT_mufast_chain, {HLT_mufast_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_mu_chain) {
-    recursiveGetDecisions(d, graph_HLT_mu_chain, HLT_mu_chain, false);
+    recursiveGetDecisions(d, graph_HLT_mu_chain, {HLT_mu_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_mu_em_chain) {
-    recursiveGetDecisions(d, graph_HLT_mu_em_chain, HLT_mu_em_chain, false);
+    recursiveGetDecisions(d, graph_HLT_mu_em_chain, {HLT_mu_em_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_em_chain) {
-    recursiveGetDecisions(d, graph_HLT_em_chain, HLT_em_chain, false);
+    recursiveGetDecisions(d, graph_HLT_em_chain, {HLT_em_chain}, false);
   }
   for (const Decision* d : extraStart_HLT_all) {
-    recursiveGetDecisions(d, graph_HLT_all, 0, false);
+    recursiveGetDecisions(d, graph_HLT_all, {}, false);
   }
 
   log << MSG::INFO << "HLT_mufast_chain" << endmsg;

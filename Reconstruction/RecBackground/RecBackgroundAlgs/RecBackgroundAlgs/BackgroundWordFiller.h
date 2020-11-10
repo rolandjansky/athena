@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Algorihtm to fill the background word that is stored in the EventInfo 
@@ -57,6 +57,11 @@ class BackgroundWordFiller : public AthAlgorithm
 
   /** ReadHandleKey for LArCollisionTime */
   SG::ReadHandleKey<LArCollisionTime> m_lArCollisionTimeKey{this,"LArCollisionTimeKey","LArCollisionTime","Key for LArCollisionTime"};
+
+  /** WriteDecorHandleKey: needed for scheduling downstream clients */
+  SG::WriteDecorHandleKey<xAOD::EventInfo> m_eventInfoDecorKey{this,"eventInfoDecorKey",
+                                                               "EventInfo.backgroundWord",
+                                                               "Decoration key for downstream clients"};
 
   Gaudi::Property<bool> m_isMC{this, "IsMC", false, "Sets whether we should expect MC objects"};
   

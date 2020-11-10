@@ -1,30 +1,7 @@
-###############################################################################
-# Package: SCT_ConditionsAlgorithms
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SCT_ConditionsAlgorithms )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/Identifier
-                          DetectorDescription/DetDescrCond/DetDescrConditions
-                          DetectorDescription/GeoModel/GeoModelUtilities
-			  DetectorDescription/GeoPrimitives
-                          GaudiKernel
-                          InnerDetector/InDetConditions/InDetConditionsSummaryService
-                          InnerDetector/InDetConditions/SCT_ConditionsData
-                          InnerDetector/InDetConditions/SCT_ConditionsTools
-                          InnerDetector/InDetDetDescr/SCT_Cabling
-                          PRIVATE
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-                          Tracking/TrkDetDescr/TrkGeometry )
 
 # External dependencies:
 find_package( Boost )
@@ -34,7 +11,7 @@ atlas_add_component( SCT_ConditionsAlgorithms
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib SGtests Identifier DetDescrConditions GeoModelUtilities GaudiKernel SCT_ConditionsData SCT_CablingLib AthenaPoolUtilities InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TrkGeometry SCT_ConditionsToolsLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} AthenaBaseComps StoreGateLib Identifier DetDescrConditions GeoModelUtilities GeoPrimitives GaudiKernel SCT_ConditionsData SCT_CablingLib AthenaPoolUtilities InDetConditionsSummaryService InDetIdentifier InDetReadoutGeometry SCT_ReadoutGeometry TrkGeometry TrkSurfaces SCT_ConditionsToolsLib )
 
 atlas_add_test( TestCalibChipRead
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testCalibChipRead.py
@@ -100,11 +77,27 @@ atlas_add_test( TestTdaqEnabled
                 SCRIPT athena.py --threads=5 SCT_ConditionsAlgorithms/testTdaqEnabled.py
                 PROPERTIES TIMEOUT 600
                 ENVIRONMENT THREADS=5 )
+
+atlas_add_test( TestCalibChipReadNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ReadCalibChipDataTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestCalibReadNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ReadCalibDataTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestConfigNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConfigurationConditionsTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestDCSConditionsNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_DCSConditionsTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestMonReadNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_MonitorConditionsTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestSummaryNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConditionsSummaryTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestTdaqEnabledNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_TdaqEnabledTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:

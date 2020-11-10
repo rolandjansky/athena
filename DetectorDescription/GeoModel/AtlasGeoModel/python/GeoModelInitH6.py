@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import theApp
@@ -35,4 +35,4 @@ elif (SimFlags.SimLayout.get_Value()=="tb_LArH6_2004"):
 
 
 # as long as not created anywhere else in GeoModel :
-from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
+from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv  # noqa: F401

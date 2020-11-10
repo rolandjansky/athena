@@ -7,8 +7,8 @@
  ----------------------------------------------------------------------
 ***************************************************************************/
 
-#ifndef MUONTRACKINGGEOMETRY_MUONCHANNELDESIGN_H
-#define MUONTRACKINGGEOMETRY_MUONCHANNELDESIGN_H
+#ifndef MUONREADOUTGEOMETRY_MUONCHANNELDESIGN_H
+#define MUONREADOUTGEOMETRY_MUONCHANNELDESIGN_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GaudiKernel/MsgStream.h"
@@ -457,4 +457,4 @@ namespace MuonGM {
   }
 
 }
-#endif // MUONTRACKINGGEOMETRY_MUONCHANNELDESIGN_H
+#endif // MUONREADOUTGEOMETRY_MUONCHANNELDESIGN_H

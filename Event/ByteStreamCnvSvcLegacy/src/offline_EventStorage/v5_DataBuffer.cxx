@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,6 +21,9 @@ public:
     m_buffer = new char[size];
     m_buffersize = size;
   }
+
+  implementation (const implementation&) = delete;
+  implementation& operator= (const implementation&) = delete;
  
   ~implementation()
   { delete[] m_buffer; }

@@ -100,9 +100,6 @@ class IExtrapolator;
                                         IVKalState& istate) const = 0;
       //.........................................................................................
 
-      virtual StatusCode VKalVrtFitFast(const std::vector<const Track*>& list,
-                                        Amg::Vector3D& Vertex,
-                                        IVKalState& istate) const = 0;
       virtual StatusCode VKalVrtFitFast(
         const std::vector<const xAOD::TrackParticle*>& list,
         Amg::Vector3D& Vertex,

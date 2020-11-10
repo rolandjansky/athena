@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -64,47 +64,37 @@ StatusCode TileCellMaskingTool::fillIncludedCellsMap() {
 
   int ros = 0, drw = 0, index = -1;
 
-  std::vector<std::string>::const_iterator it_dr = m_rejectedTileDrawer.begin();
-  std::vector<std::string>::const_iterator it_dr_e = m_rejectedTileDrawer.end();
-  for (; it_dr != it_dr_e; it_dr++) {
+  for (const std::string& dr : m_rejectedTileDrawer) {
     std::stringstream dris;
-    dris << (*it_dr);
+    dris << dr;
     dris >> ros >> drw;
     killer("drawer", ros, drw, index);
   }
 
-  std::vector<std::string>::const_iterator it_mb = m_rejectedTileMB.begin();
-  std::vector<std::string>::const_iterator it_mb_e = m_rejectedTileMB.end();
-  for (; it_mb != it_mb_e; it_mb++) {
+  for (const std::string& mb : m_rejectedTileMB) {
     std::stringstream dris;
-    dris << (*it_mb);
+    dris << mb;
     dris >> ros >> drw >> index;
     killer("mb", ros, drw, index);
   }
 
-  std::vector<std::string>::const_iterator it_dig = m_rejectedTileDigitizer.begin();
-  std::vector<std::string>::const_iterator it_dig_e = m_rejectedTileDigitizer.end();
-  for (; it_dig != it_dig_e; it_dig++) {
+  for (const std::string& dig : m_rejectedTileDigitizer) {
     std::stringstream dris;
-    dris << (*it_dig);
+    dris << dig;
     dris >> ros >> drw >> index;
     killer("dig", ros, drw, index);
   }
 
-  std::vector<std::string>::const_iterator it_dmu = m_rejectedTileDMU.begin();
-  std::vector<std::string>::const_iterator it_dmu_e = m_rejectedTileDMU.end();
-  for (; it_dmu != it_dmu_e; it_dmu++) {
+  for (const std::string& dmu : m_rejectedTileDMU) {
     std::stringstream dris;
-    dris << (*it_dmu);
+    dris << dmu;
     dris >> ros >> drw >> index;
     killer("dmu", ros, drw, index);
   }
 
-  std::vector<std::string>::const_iterator it = m_rejectedTileChannels.begin();
-  std::vector<std::string>::const_iterator it_e = m_rejectedTileChannels.end();
-  for (; it != it_e; it++) {
+  for (const std::string& chan : m_rejectedTileChannels) {
     std::stringstream dris;
-    dris << (*it);
+    dris << chan;
     dris >> ros >> drw >> index;
     killer("channel", ros, drw, index);
   }
@@ -114,7 +104,7 @@ StatusCode TileCellMaskingTool::fillIncludedCellsMap() {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void TileCellMaskingTool::killer(std::string component, int ros, int drw, int index) {
+void TileCellMaskingTool::killer(const std::string& component, int ros, int drw, int index) {
 
   int begin = 0, end = 0;
 

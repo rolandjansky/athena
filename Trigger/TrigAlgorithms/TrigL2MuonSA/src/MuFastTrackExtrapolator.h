@@ -25,11 +25,11 @@ namespace TrigL2MuonSA {
     void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator) {m_backExtrapolatorTool = backExtrapolator;};
 
     StatusCode extrapolateTrack(std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
-				double winPt);
+				double winPt) const;
     
     void setMuFastRes(std::vector<double>& vec, double p1,double p2, double p3,double p4,double p5,double p6);
 
-    double getMuFastRes(std::vector<double> vec, const double pt, const int add, const double eta, const double phi);
+    double getMuFastRes(std::vector<double> vec, const double pt, const int add, const double eta, const double phi) const;
 
   private:
     ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool {nullptr};

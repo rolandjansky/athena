@@ -8,6 +8,8 @@
 #include "MVAUtils/ForestXGBoost.h"
 
 #include "TTree.h"
+#include <cmath>
+
 #include <memory>
 #include <set>
 #include <sstream>
@@ -115,13 +117,13 @@ float BDT::GetClassification(const std::vector<float*>& pointers) const
 float BDT::GetGradBoostMVA(const std::vector<float>& values) const
 {
   const float sum = m_forest->GetRawResponse(values);  // ignores the offset
-  return 2. / (1 + exp(-2 * sum)) - 1;  //output shaping for gradient boosted decision tree (-1,1)
+  return 2. / (1 + std::exp(-2 * sum)) - 1;  //output shaping for gradient boosted decision tree (-1,1)
 }
 
 float BDT::GetGradBoostMVA(const std::vector<float*>& pointers) const
 {
   const float sum = m_forest->GetRawResponse(pointers);  // ignores the offset
-  return 2. / (1 + exp(-2 * sum)) - 1;  //output shaping for gradient boosted decision tree (-1,1)
+  return 2. / (1 + std::exp(-2 * sum)) - 1;  //output shaping for gradient boosted decision tree (-1,1)
 }
 
 

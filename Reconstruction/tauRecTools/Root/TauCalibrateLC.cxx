@@ -17,11 +17,7 @@
 TauCalibrateLC::TauCalibrateLC(const std::string& name) :
   TauRecToolBase(name) {
   declareProperty("calibrationFile", m_calibrationFile = "");
-  declareProperty("doEnergyCorrection", m_doEnergyCorr = false);
   declareProperty("doPtResponse", m_doPtResponse = false);
-  declareProperty("countOnlyPileupVertices", m_countOnlyPileupVertices = false);
-  declareProperty("doAxisCorrection", m_doAxisCorr = false);
-  declareProperty("usePantauAxis", m_usePantauAxis = false);
   declareProperty("isCaloOnly", m_isCaloOnly = false);
 }
 
@@ -95,7 +91,6 @@ StatusCode TauCalibrateLC::initialize() {
     m_calibFunc[i].resize(m_nEtaBins);
   }
 
-
   for (int i = 0; i < s_nProngBins; i++) {
     histo = dynamic_cast<TH1*>(file->Get(tmpSlopKey[i]));  // get pile-up slope histograms
     if (histo) {
@@ -138,122 +133,85 @@ StatusCode TauCalibrateLC::execute(xAOD::TauJet& pTau) const
   int prongBin = 1; //Mp
   if (pTau.nTracks() <= 1) prongBin = 0; //1p
 
-  // set tau energy scale 
-  if (m_doEnergyCorr) {
-
-    // get detector axis values
-    double absEta = std::abs( pTau.etaDetectorAxis() );
-    int etaBin = m_etaBinHist->GetXaxis()->FindBin(absEta) - 1;
+  // get detector axis values
+  double absEta = std::abs( pTau.etaDetectorAxis() );
+  int etaBin = m_etaBinHist->GetXaxis()->FindBin(absEta) - 1;
         
-    if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
+  if (etaBin>=m_nEtaBins) etaBin = m_nEtaBins-1; // correction from last bin should be applied on all taus outside stored eta range
 
-    int nVertex = 0;
+  int nVertex = 0;
     
-    // Obtain pileup
-    if (inTrigger())  { // online: retrieved from EventInfo 
-      SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
-      if (!eventInfoDecorHandle.isPresent()) {
-        ATH_MSG_WARNING ( "EventInfo decoration not available! Will set nVertex = " << m_averageNPV );
-        nVertex = m_averageNPV;
-      }
-      else {
-        nVertex = eventInfoDecorHandle(0);
-        ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << nVertex);
-      } 
-    }  
-    else { // offline: count the primary vertex container
-      SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
-      if (!vertexInHandle.isValid()) {
-        ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
-        return StatusCode::FAILURE;
-      }
-      const xAOD::VertexContainer * vxContainer = vertexInHandle.cptr();
-      for (const auto vertex : *vxContainer) {
-        if (m_countOnlyPileupVertices && vertex->vertexType() == xAOD::VxType::PileUp) {
-          ++nVertex;
-        }
-        else if (!m_countOnlyPileupVertices && vertex->nTrackParticles() >= m_minNTrackAtVertex) {
-          ++nVertex;
-        }
-      } 
-      ATH_MSG_DEBUG("calculated nVertex " << nVertex );           
+  // Obtain pileup
+  if (inTrigger())  { // online: retrieved from EventInfo 
+    SG::ReadDecorHandle<xAOD::EventInfo, float> eventInfoDecorHandle( m_aveIntPerXKey );
+    if (!eventInfoDecorHandle.isPresent()) {
+      ATH_MSG_WARNING ( "EventInfo decoration not available! Will set nVertex = " << m_averageNPV );
+      nVertex = m_averageNPV;
+    }
+    else {
+      nVertex = eventInfoDecorHandle(0);
+      ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << nVertex);
     } 
-    
-    double calibConst = 1.0;
-
-    double slopeNPV = m_slopeNPVHist[prongBin]->GetBinContent(etaBin + 1);
-    double offset = slopeNPV * (nVertex - m_averageNPV);
-
-    // energy response parameterized as a function of pileup-corrected E_LC
-    double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV; 
-    if(m_doPtResponse) energyLC = pTau.ptDetectorAxis() / GeV;
-
-    if (energyLC <= 0) {
-      ATH_MSG_DEBUG("tau energy at LC scale is " << energyLC << "--> set energy=0.001");           
-      pTau.setP4(0.001, pTau.eta(), pTau.phi(), pTau.m());
-      return StatusCode::SUCCESS;
+  }  
+  else { // offline: count the primary vertex container
+    SG::ReadHandle<xAOD::VertexContainer> vertexInHandle( m_vertexInputContainer );
+    if (!vertexInHandle.isValid()) {
+      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << vertexInHandle.key());
+      return StatusCode::FAILURE;
     }
-
-    if (energyLC - offset <= 0) {
-      ATH_MSG_DEBUG("after pile-up correction energy would be = " << energyLC - offset << " --> setting offset=0 now!");
-      offset = 0;
-    }
-      
-    // apply offset correction
-    double energyPileupCorr = energyLC - offset;
-      
-    if (energyPileupCorr > 0 and energyPileupCorr < 10000) // from 0 to 10 TeV
-      {
-	calibConst = m_calibFunc[prongBin][etaBin]->Eval(energyPileupCorr);
-	  
-	if (calibConst <= 0) {
-	  ATH_MSG_DEBUG("calibration constant = " << calibConst);
-	  ATH_MSG_DEBUG("prongBin             = " << prongBin);
-	  ATH_MSG_DEBUG("etaBin               = " << etaBin);
-	  ATH_MSG_DEBUG("energyPileupCorr     = " << energyPileupCorr);
-	  ATH_MSG_DEBUG("energyLC             = " << energyLC);
-	  calibConst = 1.0;
-	}
+    const xAOD::VertexContainer * vxContainer = vertexInHandle.cptr();
+    for (const auto vertex : *vxContainer) {
+      if (vertex->vertexType() == xAOD::VxType::PileUp) {
+	++nVertex;
       }
-      
-    double energyFinal = energyPileupCorr / calibConst;
-      
-    if (not m_doPtResponse) energyFinal /= std::cosh(pTau.eta()) ; 
-    pTau.setP4( energyFinal * GeV, pTau.eta(), pTau.phi(), pTau.m());
+    } 
+    ATH_MSG_DEBUG("calculated nVertex " << nVertex );           
+  } 
+    
+  double calibConst = 1.0;
 
-    ATH_MSG_DEBUG("Energy at LC scale = " << energyLC << " pile-up offset " << offset << " calib. const. = " << calibConst << " final energy = " << energyFinal);
+  double slopeNPV = m_slopeNPVHist[prongBin]->GetBinContent(etaBin + 1);
+  double offset = slopeNPV * (nVertex - m_averageNPV);
 
-    pTau.setP4(xAOD::TauJetParameters::TauEnergyScale, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());      
-    pTau.setDetail(xAOD::TauJetParameters::TESCalibConstant, static_cast<float>( calibConst ) );
-    pTau.setDetail(xAOD::TauJetParameters::TESOffset, static_cast<float>( offset * GeV ) );      
+  // energy response parameterized as a function of pileup-corrected E_LC
+  double energyLC = pTau.p4(xAOD::TauJetParameters::DetectorAxis).E() / GeV; 
+  if(m_doPtResponse) energyLC = pTau.ptDetectorAxis() / GeV;
 
+  if (energyLC <= 0) {
+    ATH_MSG_DEBUG("tau energy at LC scale is " << energyLC << "--> set energy=0.001");           
+    pTau.setP4(0.001, pTau.eta(), pTau.phi(), pTau.m());
+    return StatusCode::SUCCESS;
   }
-    
-  // final tau axis
-  if (m_doAxisCorr) {
 
-    // get tau intermediate axis values
-    double eta = pTau.etaIntermediateAxis();
-    double absEta = std::abs(eta);
-    double etaCorr = eta;
-    
-    double phi = pTau.phiIntermediateAxis();
-    double phiCorr = phi;
-
-    // TauCalibrateLC should then only be called after Pantau !!
-    if(m_usePantauAxis && std::abs(pTau.etaPanTauCellBased()) < 111) {      
-      etaCorr = pTau.etaPanTauCellBased();
-      phiCorr = pTau.phiPanTauCellBased();      
+  if (energyLC - offset <= 0) {
+    ATH_MSG_DEBUG("after pile-up correction energy would be = " << energyLC - offset << " --> setting offset=0 now!");
+    offset = 0;
+  }
+      
+  // apply offset correction
+  double energyPileupCorr = energyLC - offset;
+      
+  if (energyPileupCorr > 0 and energyPileupCorr < 10000) // from 0 to 10 TeV
+    {
+      calibConst = m_calibFunc[prongBin][etaBin]->Eval(energyPileupCorr);
+	  
+      if (calibConst <= 0) {
+	ATH_MSG_DEBUG("calibration constant = " << calibConst);
+	ATH_MSG_DEBUG("prongBin             = " << prongBin);
+	ATH_MSG_DEBUG("etaBin               = " << etaBin);
+	ATH_MSG_DEBUG("energyPileupCorr     = " << energyPileupCorr);
+	ATH_MSG_DEBUG("energyLC             = " << energyLC);
+	calibConst = 1.0;
+      }
     }
-    else if (absEta) {
-      etaCorr = (eta / absEta)*(absEta - m_etaCorrectionHist->GetBinContent(m_etaCorrectionHist->GetXaxis()->FindBin(absEta)));
-    }      
-
-    ATH_MSG_DEBUG("eta " << eta << "; corrected eta = " << etaCorr << " ; phi " << phi << "; corrected phi " << phiCorr );
-    pTau.setP4( pTau.e() / std::cosh( etaCorr ), etaCorr, phiCorr, pTau.m());
-    pTau.setP4(xAOD::TauJetParameters::TauEtaCalib, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
-  }
-
+      
+  double energyFinal = energyPileupCorr / calibConst;
+      
+  if (not m_doPtResponse) energyFinal /= std::cosh(pTau.eta()) ; 
+  pTau.setP4( energyFinal * GeV, pTau.eta(), pTau.phi(), pTau.m());
+  pTau.setP4(xAOD::TauJetParameters::TauEnergyScale, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
+  ATH_MSG_DEBUG("Energy at LC scale = " << energyLC << " pile-up offset " << offset << " calib. const. = " << calibConst << " final energy = " << energyFinal);
+     
   if (m_isCaloOnly == true && inTrigger()) {
     pTau.setP4(xAOD::TauJetParameters::TrigCaloOnly, pTau.pt(), pTau.eta(), pTau.phi(), pTau.m());
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,7 +34,9 @@
 #include "EventStorage/pickDataReader.h"
 #include <time.h>
 
-int main (int argc, char *argv[])
+#include "CxxUtils/checker_macros.h"
+
+int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
 {
   using namespace eformat;
 
@@ -104,7 +106,7 @@ int main (int argc, char *argv[])
   //start loop over files
   std::vector<std::string>::const_iterator it=fileNames.begin();
   std::vector<std::string>::const_iterator it_e=fileNames.end();
-  for (;!found && it!=it_e;it++) {
+  for (;!found && it!=it_e;++it) {
     const std::string& fName=*it;
     eventCounter=0;
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # Configure GeoModel tools to build minimal geometry fo reconstruction
@@ -19,4 +19,4 @@ if ( DetFlags.detdescr.Tile_on() ):
 # Build Muon dead materials using AGDD2Geo
 #
 
-from AtlasGeoModel import Agdd2Geo
+from AtlasGeoModel import Agdd2Geo  # noqa: F401

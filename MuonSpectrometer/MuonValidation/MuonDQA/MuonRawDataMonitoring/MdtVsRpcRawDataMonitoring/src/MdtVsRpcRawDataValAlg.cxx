@@ -12,7 +12,6 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGate.h"
 
 #include "MuonRDO/RpcFiredChannel.h"
 #include "MuonRDO/RpcCoinMatrix.h"
@@ -135,7 +134,6 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
   
   
     int nPrd = 0;
-    Identifier dig_id;
   
     std::string type="RPC";
 
@@ -199,8 +197,8 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 	      std::string hardware_name=convertChamberName(irpcstationName,irpcstationEta,irpcstationPhi,type) ;
   	  	  
 	      if (selectChambersRange(hardware_name, m_chamberName, 
-				      m_idHelperSvc->rpcIdHelper().stationEta(dig_id), m_StationEta,
-				      m_idHelperSvc->rpcIdHelper().stationPhi(dig_id), m_StationPhi, m_StationSize) && chambersCosmicSetup(hardware_name,m_cosmicStation)) {	 
+				      m_idHelperSvc->rpcIdHelper().stationEta(prd_id), m_StationEta,
+				      m_idHelperSvc->rpcIdHelper().stationPhi(prd_id), m_StationPhi, m_StationSize) && chambersCosmicSetup(hardware_name,m_cosmicStation)) {	 
 
 		//define layer
                 int imdt_multi_near = 0;

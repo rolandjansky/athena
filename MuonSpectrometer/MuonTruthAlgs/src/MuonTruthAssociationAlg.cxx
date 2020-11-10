@@ -72,7 +72,6 @@ StatusCode MuonTruthAssociationAlg::execute()
       tp = muon->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     } 
     else{
-      //tp = const_cast<xAOD::TrackParticle*>(muon->primaryTrackParticle());
       tp=muon->primaryTrackParticle();
     }
     

@@ -20,4 +20,4 @@ atlas_add_test( ut_xAOD_primitives_enums_test
    LINK_LIBRARIES xAODPrimitives )
 
 # Install files from the package.
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

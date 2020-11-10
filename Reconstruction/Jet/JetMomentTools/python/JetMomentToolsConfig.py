@@ -34,7 +34,7 @@ def getEMScaleMomTool(jetdef):
     if jetdef.inputdef.basetype==xAODType.CaloCluster:
         builtFromEMClusters = jetdef.inputdef.inputname in ["CaloCalTopoClusters","HLT_CaloTopoClustersFS"] and jetdef.inputdef.modifiers==["EM"]
         useUncalibConstits = not builtFromEMClusters
-    elif jetdef.inputdef.basetype==xAODType.ParticleFlow:
+    elif (jetdef.inputdef.basetype==xAODType.ParticleFlow or jetdef.inputdef.basetype==xAODType.FlowElement):
         useUncalibConstits = True
     else:
         raise ValueError("EM scale momentum not defined for input type {}".format(jetdef.inputdef.basetype))

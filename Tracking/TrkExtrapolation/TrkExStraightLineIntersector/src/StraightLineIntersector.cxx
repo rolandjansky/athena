@@ -78,7 +78,7 @@ StraightLineIntersector::intersectSurface(const Surface&	surface,
     if (perigee)	return approachPerigeeSurface(*perigee,trackIntersection,qOverP);
     
     ATH_MSG_WARNING( " unrecognized Surface" );
-    return 0;
+    return nullptr;
 }
                                     
 /**IIntersector interface method for specific Surface type : PerigeeSurface */

@@ -343,9 +343,9 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
         from IOVDbSvc.CondDB import conddb
 
       if (conddb.dbmc == "OFLP200" or (conddb.dbdata=="OFLP200" and globalflags.DataSource=='data')) :
-        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-SIM-RUN2-000-00")
+        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-SIM-RUN2-000-01")
       if ((conddb.dbmc == "CONDBR2" and globalflags.DataSource!='data') or conddb.dbdata == "CONDBR2") :
-        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-DATA-RUN2-000-00")
+        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-DATA-RUN2-000-01")
       ## End of temporary code
 
       log.debug("Setting up lwtnn system")
@@ -1003,9 +1003,8 @@ def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
 
     if 'TRT_ToT_dEdx_Tool' not in kwargs :
         kwargs = setDefaults( kwargs, TRT_ToT_dEdx_Tool = getInDetTRT_dEdxTool())
-
-    from AthenaCommon.GlobalFlags import globalflags
-    kwargs = setDefaults( kwargs, isData = (globalflags.DataSource == 'data'))
+    
+    kwargs = setDefaults( kwargs, CalculateNNPid = InDetFlags.doTRTPIDNN() )
 
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
     return InDet__TRT_ElectronPidToolRun2(name = the_name, **kwargs)
@@ -1088,7 +1087,6 @@ def getInDetTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
                          doSharedHits           = False,
                          doHolesInDet           = do_holes,
                          TRT_ElectronPidTool    = None,         # we don't want to use those tools during pattern
-                         TRT_ToT_dEdxTool       = None,         # dito
                          PixelToTPIDTool        = None)         # we don't want to use those tools during pattern
     from TrkTrackSummaryTool.TrkTrackSummaryToolConf import Trk__TrackSummaryTool
     return Trk__TrackSummaryTool(name = the_name, **kwargs)
@@ -1109,18 +1107,14 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
         kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits(**id_helper_args))
 
     if 'TRT_ElectronPidTool' not in kwargs :
-        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool())
-
-    if 'TRT_ToT_dEdxTool' not in kwargs :
-        kwargs = setDefaults( kwargs, TRT_ToT_dEdxTool       = getInDetTRT_dEdxTool())
+        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool(MinimumTrackPtForNNPid = 2000.)) # default is 2GeV
 
     if 'PixelToTPIDTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelToTPIDTool        = getInDetPixelToTPIDTool())
 
     from InDetRecExample.InDetJobProperties import InDetFlags
     kwargs = setDefaults(kwargs,
-                         doSharedHits           = InDetFlags.doSharedHits(),
-                         minTRThitsForTRTdEdx   = 1)    # default is 1
+                         doSharedHits           = InDetFlags.doSharedHits())
 
     return getInDetTrackSummaryTool( name, **kwargs)
 

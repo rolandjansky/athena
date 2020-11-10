@@ -30,13 +30,16 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'djdphihi': 'inf',
                 'qjmasslo': '0.0',
                 'qjmasshi': 'inf',
-                'momwidthlo': '-inf',
-                'momwidthhi': 'inf',
+                'momCutslo': '-inf',
+                'momCutshi': 'inf',
                 'smclo': '0',
                 'smchi': 'inf',                
                 'jvtlo': '0',
                 'jvthi': 'inf',
     }
+
+    if parameter.startswith('mom'):
+        parameter = 'momCuts'
 
     if parameter not in  defaults:
         print ('defaultParameters: unknown parameter, tryurning default ',
@@ -58,9 +61,11 @@ def scaleFactors(parameter):
         'djmass': 1000.,
         'djdphi': 0.1,
         'qjmass': 1000.,
-        'momwidth': 1.0,
+        'momCuts': 0.01,
         'jvt': 0.01,
     }
+    if parameter.startswith('mom'):
+        parameter = 'momCuts'
     return defaults[parameter]
         
 class Checker(object):
@@ -176,7 +181,6 @@ class ConditionsDictMaker(object):
 
 
     def makeDict(self, params):
-
         # conditions example: ['10et,0eta320', '20et']
         conditions = self.get_conditions(params)
 
@@ -251,8 +255,21 @@ class ConditionsDictMaker(object):
             
             result.append(cdict)
 
+
+        # Example: input condition string:
+        #
+        # 260et,320eta490
+        # 
+        # result:
+        #
+        # [
+        #  defaultdict(<class 'dict'>, {'et': {'min': '260000.0', 'max': 'inf'},
+        #                               'eta': {'min': '3.2', 'max': '4.9'}})
+        # ]
+
         msgs = ['ConditionsDict OK']
         error = False
+        print ('ConditionsDictMaker::makeDict(), result', result)
         return result, error, msgs
 
 

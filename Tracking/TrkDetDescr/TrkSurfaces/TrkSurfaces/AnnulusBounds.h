@@ -128,24 +128,24 @@ public:
     <br>
    where @f$  \kappa_{I} = - \kappa_{II} = 2 \frac{y_{H}}{x_{max} - x_{min}} @f$ <br>
    and   @f$  \delta_{I} = \delta_{II} = - \frac{1}{2}\kappa_{I}(x_{max} + x_{min}) @f$  */
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override final;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /** This method checks inside bounds in loc1
   - loc1/loc2 correspond to the natural coordinates of the surface
   - As loc1/loc2 are correlated the single check doesn't make sense :
      -> check is done on enclosing Rectangle ! */
 
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /** This method checks inside bounds in loc2
   - loc1/loc2 correspond to the natural coordinates of the surface
   - As loc1/loc2 are correlated the single check doesn't make sense :
      -> check is done on enclosing Rectangle !  */
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-  virtual double minDistance(const Amg::Vector2D& pos) const override;
+  virtual double minDistance(const Amg::Vector2D& pos) const override final;
 
   /** Output Method for MsgStream*/
   virtual MsgStream& dump(MsgStream& sl) const override;
@@ -203,65 +203,7 @@ private:
   std::vector<TDD_real_t> m_solution_R_max;
 };
 
-inline AnnulusBounds*
-AnnulusBounds::clone() const
-{
-  return new AnnulusBounds(*this);
-}
-
-inline double
-AnnulusBounds::minR() const
-{
-  return m_boundValues[AnnulusBounds::bv_minR];
-}
-
-inline double
-AnnulusBounds::maxR() const
-{
-  return m_boundValues[AnnulusBounds::bv_maxR];
-}
-
-inline double
-AnnulusBounds::R() const
-{
-  return m_boundValues[AnnulusBounds::bv_R];
-}
-
-inline double
-AnnulusBounds::phi() const
-{
-  return m_boundValues[AnnulusBounds::bv_phi];
-}
-
-inline double
-AnnulusBounds::phiS() const
-{
-  return m_boundValues[AnnulusBounds::bv_phiS];
-}
-
-inline double
-AnnulusBounds::r() const
-
-{
-  return AnnulusBounds::bv_maxR;
-} // MW to be fixed!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-inline bool
-AnnulusBounds::insideLoc1(const Amg::Vector2D& locpo, double tol1) const
-{
-  return (locpo[locX] > std::min(m_solution_L_min[0], m_solution_L_max[0]) - tol1 &&
-          locpo[locX] < std::max(m_solution_R_min[0], m_solution_R_max[0]) + tol1);
-}
-// MW Fix it
-
-inline bool
-AnnulusBounds::insideLoc2(const Amg::Vector2D& locpo, double tol2) const
-{
-  return (locpo[locY] > std::min(m_solution_L_min[1], m_solution_L_max[1]) - tol2 &&
-          locpo[locY] < std::max(m_solution_R_min[1], m_solution_R_max[1]) + tol2);
-}
-// MW Fix it
-
 } // end of namespace
 
+#include "TrkSurfaces/AnnulusBounds.icc"
 #endif // TRKSURFACES_ANNULUSBOUNDS_H

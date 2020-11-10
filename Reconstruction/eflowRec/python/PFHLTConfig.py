@@ -41,16 +41,17 @@ def CaloGeoAndNoiseCfg(inputFlags):
 
 #---------------------------------------------------------------------------------#
 # PFlow track selection
-def getHLTPFTrackSelector(inputFlags,tracksin,verticesin):
+def HLTPFTrackSelectorCfg(inputFlags,tracksin,verticesin):
 
-    from eflowRec.PFCfg import getPFTrackSelectorAlgorithm
-    PFTrackSelector = getPFTrackSelectorAlgorithm(inputFlags,"PFTrackSelector_HLT",False)
+    from eflowRec.PFCfg import PFTrackSelectorAlgCfg
+    result = PFTrackSelectorAlgCfg(inputFlags,"PFTrackSelector_HLT",False)
+    PFTrackSelector = result.getEventAlgo ("PFTrackSelector_HLT")
     PFTrackSelector.electronsName = ""
     PFTrackSelector.muonsName = ""
     PFTrackSelector.tracksName = tracksin
     PFTrackSelector.VertexContainer = verticesin
 
-    return PFTrackSelector
+    return result
 
 def getHLTPFMomentCalculatorTool(inputFlags):
 
@@ -98,16 +99,17 @@ def PFCfg(inputFlags):
     calogeocfg = CaloGeoAndNoiseCfg(inputFlags)
     result.merge(calogeocfg)
 
-    PFTrackSelector = getHLTPFTrackSelector(inputFlags,
-                                            inputFlags.eflowRec.TrackColl,
-                                            inputFlags.eflowRec.VertexColl)
+    selcfg = HLTPFTrackSelectorCfg(inputFlags,
+                                   inputFlags.eflowRec.TrackColl,
+                                   inputFlags.eflowRec.VertexColl)
+    PFTrackSelector = selcfg.getEventAlgo ("PFTrackSelector_HLT")
 
     # Add monitoring tool
     from eflowRec import PFOnlineMon
     monTool = PFOnlineMon.getMonTool_PFTrackSelector()
     PFTrackSelector.MonTool = monTool
 
-    result.addEventAlgo( PFTrackSelector )
+    result.merge( selcfg )
 
     #---------------------------------------------------------------------------------#
     # PFlowAlgorithm -- subtraction steps

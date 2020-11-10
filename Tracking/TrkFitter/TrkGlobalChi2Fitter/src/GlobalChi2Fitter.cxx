@@ -294,7 +294,7 @@ namespace Trk {
     bool muonisstraight = muontrack->info().trackProperties(TrackInfo::StraightTrack);
     bool measphi = false;
 
-    for (auto i : *(muontrack->measurementsOnTrack())) {
+    for (const auto *i : *(muontrack->measurementsOnTrack())) {
       const CompetingRIOsOnTrack *crot = dynamic_cast<const CompetingRIOsOnTrack *>(i);
       const RIO_OnTrack *rot = nullptr;
       
@@ -678,7 +678,7 @@ namespace Trk {
     std::vector<const TrackStateOnSurface *> tmp_matvec;
 
     if ((matvec != nullptr) && !matvec->empty()) {
-      tmp_matvec = std::move(*matvec);
+      tmp_matvec = *matvec;
       delete tmp_matvec.back();
       tmp_matvec.pop_back();
       
@@ -2256,7 +2256,7 @@ namespace Trk {
     ATH_MSG_DEBUG("--> entering GlobalChi2Fitter::fit(PRDS,TP,)");
     MeasurementSet rots;
 
-    for (auto prd : prds) {
+    for (const auto *prd : prds) {
       const Surface & prdsurf = (*prd).detectorElement()->surface((*prd).identify());
       const RIO_OnTrack *rot = nullptr;
       const PlaneSurface *plsurf = nullptr;
@@ -2433,7 +2433,7 @@ namespace Trk {
     MeasurementSet rots;
     const TrackParameters *hitparam = intrk.trackParameters()->back();
 
-    for (auto prd : prds) {
+    for (const auto *prd : prds) {
       const Surface & prdsurf = (*prd).detectorElement()->surface((*prd).identify());
 
       Amg::VectorX parameterVector = hitparam->parameters();
@@ -2494,7 +2494,7 @@ namespace Trk {
 
     bool need_to_correct = false;
 
-    for (auto itSet : rots_in) {
+    for (const auto *itSet : rots_in) {
       if (
         (itSet != nullptr) &&
         itSet->associatedSurface().associatedDetectorElementIdentifier().is_valid() &&
@@ -2508,7 +2508,7 @@ namespace Trk {
     if (need_to_correct) {
       MeasurementSet rots_new;
 
-      for (auto itSet : rots_in) {
+      for (const auto *itSet : rots_in) {
         if (itSet == nullptr) {
           ATH_MSG_WARNING( "There is an empty MeasurementBase object in the track! Skip this object.." );
           continue;
@@ -2544,7 +2544,7 @@ namespace Trk {
       rots = rots_in;
     }
 
-    for (auto itSet : rots) {
+    for (const auto *itSet : rots) {
       if (itSet == nullptr) {
         ATH_MSG_WARNING("There is an empty MeasurementBase object in the track! Skip this object..");
       } else {
@@ -4248,7 +4248,7 @@ namespace Trk {
         matvec_used=false;
 
         if (matvec && !matvec->empty()) {
-          for (auto & i : *matvec) {
+          for (const auto & i : *matvec) {
             const Trk::MaterialEffectsBase * meb = i->materialEffectsOnTrack();
             
             if (meb != nullptr) {
@@ -5209,6 +5209,20 @@ namespace Trk {
             }
           }
         }
+
+	// PHF cut at iteration 3 (to save CPU time)
+	int ntrtprechits = trajectory.numberOfTRTPrecHits();
+	int ntrttubehits = trajectory.numberOfTRTTubeHits();
+	float phf = 1.;
+	if (ntrtprechits+ntrttubehits) {
+	  phf = float(ntrtprechits)/float(ntrtprechits+ntrttubehits);
+	}
+	if (phf<m_minphfcut && it>=3) {
+	  if ((ntrtprechits+ntrttubehits)>=15) {
+	    return nullptr;
+	  }
+	}
+	ATH_MSG_DEBUG("Iter = " << it << " | nTRTStates = " << ntrthits << " | nTRTPrecHits = " << ntrtprechits << " | nTRTTubeHits = " << ntrttubehits << " | nOutliers = " << trajectory.numberOfOutliers());
         
         if (!trajectory.converged()) {
           cache.m_fittercode = updateFitParameters(trajectory, b, lu);
@@ -6272,6 +6286,8 @@ namespace Trk {
 
             double *errors = state->measurementErrors();
             double olderror = errors[0];
+
+	    trajectory.updateTRTHitCount(stateno, olderror);
             
             for (int i = 0; i < nfitpars; i++) {
               if (weightderiv(measno, i) == 0) {
@@ -6331,6 +6347,8 @@ namespace Trk {
                 double newres = newradius - state->trackParameters()->parameters()[Trk::driftRadius];
                 errors[0] = newerror;
                 state->setMeasurement(std::move(newrot));
+
+		trajectory.updateTRTHitCount(stateno, olderror);
 
                 for (int i = 0; i < nfitpars; i++) {
                   if (weightderiv(measno, i) == 0) {
@@ -7625,7 +7643,7 @@ namespace Trk {
      * but this is more performant compared to removing them properly.
      */
     if (
-      rv.size() > 0 && (
+      !rv.empty() && (
         &rv.front()->associatedSurface() == dst.surface() ||
         &rv.front()->associatedSurface() == &src.associatedSurface() ||
         trackParametersClose(*rv.front(), src, 0.001) ||
@@ -7659,7 +7677,7 @@ namespace Trk {
     const TrackParameters & prev,
     const GXFTrackState & ts,
     PropDirection propdir,
-    MagneticFieldProperties bf,
+    const MagneticFieldProperties& bf,
     bool calcderiv,
     bool holesearch
   ) const {
@@ -7702,7 +7720,7 @@ namespace Trk {
     const TrackParameters & prev,
     const GXFTrackState & ts,
     PropDirection propdir,
-    MagneticFieldProperties bf,
+    const MagneticFieldProperties& bf,
     bool calcderiv,
     bool holesearch
   ) const {
@@ -8292,7 +8310,7 @@ namespace Trk {
     const TrackParameters* prevpar,
     const Surface* surf,
     PropDirection propdir,
-    const MagneticFieldProperties fieldprop) const
+    const MagneticFieldProperties& fieldprop) const
   {
     ParamDefsAccessor paraccessor;
     double J[25] = {

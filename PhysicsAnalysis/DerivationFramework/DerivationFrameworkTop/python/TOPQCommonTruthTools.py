@@ -7,13 +7,14 @@
 #  TOPQXSequence += TOPQCommonTruthKernel
 #====================================================================
 
-from __future__ import print_function
-
 #================================
 # IMPORTS
 #================================
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkMCTruth.HFHadronsCommon import *
+from AthenaCommon import CfgMgr
+from AthenaCommon.AppMgr import ToolSvc
+
+from DerivationFrameworkMCTruth.HFHadronsCommon import DSIDList
+
 
 def setup(ToolSvc):
 
@@ -47,7 +48,6 @@ def setup(ToolSvc):
   #==============================================================================
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthCollectionMaker.cxx
   # PhysicsAnalysis/DerivationFramework/DerivationFrameworkMCTruth/trunk/src/TruthCollectionMakerTau.cxx
-  from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMaker
   from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthCollectionMakerTau
 
   #==========
@@ -174,7 +174,7 @@ TOPQCommonTruthKernel = CfgMgr.DerivationFramework__CommonAugmentation("TOPQComm
 #==============================================================================
 # Add SumOfWeights metadata for LHE3 multiweights: TOPQDERIV-21
 #==============================================================================
-import DerivationFrameworkCore.LHE3WeightMetadata
+import DerivationFrameworkCore.LHE3WeightMetadata  # noqa: F401
 
 #     #==============================================================================
 #     # HIGGS TEMPLATE XSECTION augmentation

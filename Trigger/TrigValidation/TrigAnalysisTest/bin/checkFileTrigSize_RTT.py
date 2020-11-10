@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #################################################################
 # a script to grab the trigger information from checkfile.py output
 # Fabrizio Salvatore - University of Sussex - May 2009
@@ -8,13 +8,10 @@
 # Edit - Oct 2018 - Catrin Bernius
 #################################################################
 
-import sys;
-import string;
-import os;
-import math;
-import re;
-from TrigEDMConfig.TriggerEDM import *
-
+import sys
+import os
+import re
+import TrigEDMConfig.TriggerEDM as edm
 
 
 # 'Counter' just contains the list of classes you want to include and the size
@@ -35,7 +32,7 @@ class checkFileTrigSize_RTT:
         try: 
             from Logger import Logger
             self.logger    = Logger()
-        except:
+        except Exception:
            print("can't import logger in test mode")
     
       
@@ -467,7 +464,7 @@ class checkFileTrigSize_RTT:
             ]
         tauCounter = Counter('tau',tauList)
 
-		
+
 # trigger lists
 
         triggerListBjet = [
@@ -1061,7 +1058,7 @@ class checkFileTrigSize_RTT:
         print("file:",self.checkFile)
         try:
             file = open(self.checkFile,'r')
-        except:
+        except Exception:
             parentFile = self.checkFile.replace(".checkFile","")
             print("WARNING: generating %s from %s", self.checkFile, parentFile)
             os.system("checkFile.py " + parentFile + " >"+self.checkFile+"0")
@@ -1070,7 +1067,6 @@ class checkFileTrigSize_RTT:
                 return self.error
 
         self.total = 0
-        notUsedList = [] #if an entry in the checkFile output is not included in a Counter
         doublesList = {} #if an entry in the checkFile output matches >=2 Counter items
     
         sumNU = 0 #sum of non used containers
@@ -1105,9 +1101,6 @@ class checkFileTrigSize_RTT:
             #the name of the class    
             name = splitline[9]
 
-            #number of events
-            nEvents = splitline[7]
-
             #size per events
             sizePerEvent = splitline[4]
 
@@ -1123,35 +1116,35 @@ class checkFileTrigSize_RTT:
             ## Add trigger algorithm to trigger list if it's found in TriggerEDM.py dictionary
             ## !! It should definately be found if it's a trigger algorithm !!
             ## Some exceptions for Steering info and RoIDescriptorStore
-            if getCategory(name) != 'NOTFOUND':
+            if edm.getCategory(name) != 'NOTFOUND':
                 
                 
                 
 
-                self.triggerAlgList.append([name, getCategory(name), float(sizePerEvent)])
+                self.triggerAlgList.append([name, edm.getCategory(name), float(sizePerEvent)])
                 
             ## IOVMetaDataContainer* are not in TriggerEDM.py dictionary -> Add manually to list
-            elif getCategory(name) == 'NOTFOUND' and name.count('IOVMetaDataContainer'):
+            elif edm.getCategory(name) == 'NOTFOUND' and name.count('IOVMetaDataContainer'):
                 self.triggerAlgList.append([name, 'Config', float(sizePerEvent)])
                 
-            elif getCategory(name) == 'NOTFOUND' and name in triggerListConfig:
+            elif edm.getCategory(name) == 'NOTFOUND' and name in triggerListConfig:
                 self.triggerAlgList.append([name, 'Config', float(sizePerEvent)])
 
-            elif getCategory(name) == 'NOTFOUND' and name in triggerListMuon:
+            elif edm.getCategory(name) == 'NOTFOUND' and name in triggerListMuon:
                 self.triggerAlgList.append([name, 'Muon', float(sizePerEvent)])
 
-            elif getCategory(name) == 'NOTFOUND' and name in triggerListSteer:
+            elif edm.getCategory(name) == 'NOTFOUND' and name in triggerListSteer:
                 self.triggerAlgList.append([name, 'Steer', float(sizePerEvent)])
 
-            elif getCategory(name)  == 'NOTFOUND' and name in triggerListConfigID:
+            elif edm.getCategory(name)  == 'NOTFOUND' and name in triggerListConfigID:
                 self.triggerAlgList.append([name, 'Tracking', float(sizePerEvent)])
-            elif getCategory(name)  == 'NOTFOUND' and name.startswith("HLTNav_"):
+            elif edm.getCategory(name)  == 'NOTFOUND' and name.startswith("HLTNav_"):
                 self.triggerAlgList.append([name, 'HLTNav', float(sizePerEvent)])
             ## Do some simple checks if algorithm is not found in dictionary (and isn't IOVMetaDataContainer*)
             ## Add these to triggerAlgsNotIncluded
             ## Can be used to debug the search algorithm of getCategory() in TriggerEDM.py
-            elif getCategory(name) == 'NOTFOUND' and TrigInName != -3:
-                triggerAlgListNotIncluded.append([name, getCategory(name), float(sizePerEvent)])
+            elif edm.getCategory(name) == 'NOTFOUND' and TrigInName != -3:
+                triggerAlgListNotIncluded.append([name, edm.getCategory(name), float(sizePerEvent)])
 
                     
             ## Otherwise, put in non-trigger algorithm list
@@ -1173,11 +1166,11 @@ class checkFileTrigSize_RTT:
                         counter.size += float(splitline[4])
                         isLineCounted = True
 
-            #append the notUsedList
             if not isLineCounted:
                 try:
                  sumNU += float(splitline[4])
-                except: pass
+                except Exception:
+                    pass
                 TrigInName = name.find("Trig") + name.find("HLT") + name.find("LVL1")
 
         sum = 0 #the sum of all counters (should be equal to 'total')
@@ -1230,7 +1223,6 @@ class checkFileTrigSize_RTT:
             print("=====================")
             print("Total Trigger Size".ljust(23), "%6.3f" % self.triggerAlgSize[ 'Total' ])
             fout.write("Total Trigger Size".ljust(23) + "%6.3f" % self.triggerAlgSize[ 'Total' ] + "\n")
-            tsize = sumNU+sum
             print("Total file size".ljust(23), self.totalAlgSize)
             fout.write("Total file size".ljust(23) + "%6.3f" % self.totalAlgSize + "\n")
             print("Total file size (list)".ljust(23), self.totalAlgSizeInLists)

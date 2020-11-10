@@ -5,16 +5,17 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging
+from ..CommonSequences.FullScanDefs import caloFSRoI
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 
 def HLTCaloCellMakerCfg( cellsname, cdaSvc ):
     result = ComponentAccumulator()
     verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVFSCaloJet',
-                                                    DataObjects = [('TrigRoiDescriptorCollection', 'StoreGateSvc+HLT_FSJETRoI'),
+                                                    DataObjects = [('TrigRoiDescriptorCollection', f"StoreGateSvc+{caloFSRoI}"),
                                                                   ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage') ])
     result.addEventAlgo( verifier )
     cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
-    cellmaker.RoIs = "HLT_FSJETRoI"
+    cellmaker.RoIs = caloFSRoI
     cellmaker.TrigDataAccessMT = cdaSvc
     cellmaker.CellsName = cellsname
 
@@ -83,7 +84,7 @@ def generateChains( flags, chainDict ):
     hypo = CompFactory.TrigJetHypoAlgMT("TrigJetHypoAlgMT_a4tcem_subjesIS")
     jetsfullname = HLT_AntiKt4EMTopo_subjesIS.fullname()
     hypo.Jets = jetsfullname
-    acc.addEventAlgo(hypo)
+    acc.addEventAlgo(hypo, sequenceName=stepView.getName() )
 
     jetSequence = CAMenuSequence( Sequence    = inEventReco.sequence(),
                                 Maker       = inEventReco.inputMaker(),

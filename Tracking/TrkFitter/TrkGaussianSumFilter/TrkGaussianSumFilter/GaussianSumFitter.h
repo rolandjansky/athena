@@ -141,7 +141,7 @@ private:
     Trk::SmoothedTrajectory& smoothedTrajectory) const;
 
   /** Forward GSF fit using PrepRawData */
-  std::unique_ptr<ForwardTrajectory> fitPRD(
+  ForwardTrajectory fitPRD(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
     const PrepRawDataSet&,
@@ -149,7 +149,7 @@ private:
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
   /** Forward GSF fit using MeasurementSet */
-  std::unique_ptr<ForwardTrajectory> fitMeasurements(
+  ForwardTrajectory fitMeasurements(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
     const MeasurementSet&,
@@ -160,7 +160,7 @@ private:
   bool stepForwardFit(
     const EventContext& ctx,
     IMultiStateExtrapolator::Cache&,
-    ForwardTrajectory*,
+    ForwardTrajectory&,
     const PrepRawData*,
     const MeasurementBase*,
     const Surface&,

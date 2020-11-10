@@ -246,8 +246,8 @@ StatusCode      PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD:
 
 
 void PanTau::PanTauProcessor::fillDefaultValuesToTau(xAOD::TauJet* tauJet) {
-    //default four momentum set to previous calibration state: TauEtaCalib
-    TLorentzVector defaultP4 = tauJet->p4(xAOD::TauJetParameters::TauEtaCalib);
+    //default four momentum set to previous calibration state: TauEnergyScale
+    TLorentzVector defaultP4 = tauJet->p4();
     tauJet->setP4(xAOD::TauJetParameters::PanTauCellBased, defaultP4.Pt(), defaultP4.Eta(), defaultP4.Phi(), defaultP4.M());
     
     //charged

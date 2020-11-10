@@ -112,8 +112,19 @@ StatusCode LArCaliWaves2Ntuple::stop()
     }
   }
 
-  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
-  const LArCalibLineMapping *clCont {*clHdl};
+  
+  //SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+  //const LArCalibLineMapping *clCont {*clHdl};
+  const LArCalibLineMapping *clCont=0;
+  if(m_isSC) {
+    ATH_MSG_DEBUG( "LArCaliWaves2Ntuple: using SC calib map" );
+    SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapSCKey};
+    clCont=*clHdl;
+  } else {
+    SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
+    clCont=*clHdl;
+  }
+  
   if(!clCont) {
      ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
      return StatusCode::FAILURE;

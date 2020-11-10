@@ -1,24 +1,10 @@
-################################################################################
-# Package: TrkTrackSlimmer
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkTrackSlimmer )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          Tracking/TrkEvent/TrkTrack
-                          PRIVATE
-                          Tracking/TrkTools/TrkToolInterfaces )
 
 # Component(s) in the package:
 atlas_add_component( TrkTrackSlimmer
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps GaudiKernel TrkTrack TrkToolInterfaces )
-
-# Install files from the package:
-atlas_install_headers( TrkTrackSlimmer )
-
+                     LINK_LIBRARIES AthContainers AthenaBaseComps GaudiKernel StoreGateLib TrkTrack TrkToolInterfaces )

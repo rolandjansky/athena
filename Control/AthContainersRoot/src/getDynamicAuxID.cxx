@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainersRoot/src/getDynamicAuxID.h
  * @author scott snyder <snyder@bnl.gov>
@@ -32,7 +30,16 @@ TClass* getClassIfDictionaryExists (const std::string& cname)
     return nullptr;
   }
 
-  if (gInterpreter->GetClassSharedLibs (cname.c_str())) {
+  // The idea of calling GetClassSharedLibs was to test if a class was
+  // listed in the rootmap file, so we could avoid autoparsing.
+  // This worked with older versions of root 6.
+  // But now root has started doing dynamic linking itself,
+  // and GetClassSharedLibs will itself trigger autoparsing.
+  // So currently, this test does more harm than good.
+  // Still need to see if we can find a reliable way of failing
+  // a TClass lookup rather than triggering autoparsing.
+  //if (gInterpreter->GetClassSharedLibs (cname.c_str()))
+  {
     TClass* cl = TClass::GetClass (cname.c_str());
     if (cl->HasDictionary())
       return cl;

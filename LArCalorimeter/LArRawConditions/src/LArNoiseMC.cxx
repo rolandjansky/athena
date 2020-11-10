@@ -1,9 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "LArRawConditions/LArNoiseMC.h"
-
-float LArNoiseMC::dummy=LArElecCalib::ERRORCODE;
 
 
 LArNoiseMC::LArNoiseMC()  : LArNoiseComplete()
@@ -23,6 +21,5 @@ const float& LArNoiseMC::noise(const HWIdentifier&, int) const
 { 
   std::cout << "LArNoiseMC is deprecated. Use LArNoiseSym" << std::endl;
   std::abort();
-  return dummy;
 }
 

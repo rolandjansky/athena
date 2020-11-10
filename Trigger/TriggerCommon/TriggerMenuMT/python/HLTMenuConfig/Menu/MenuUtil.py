@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.Logging import logging
@@ -8,7 +8,7 @@ def checkGroups(triggerPythonConfig):
     """ Make sure the groups used in Physics and MC menu exists
     """
     menu_name = TriggerFlags.triggerMenuSetup()
-    log.info( "Menu: " + menu_name)
+    log.info("Menu: %s", menu_name)
     
     from TriggerMenuMT.HLTMenuConfig.Menu.GroupInfo       import getAllAllowedGroups
     allgroup=getAllAllowedGroups(menu_name)
@@ -31,7 +31,7 @@ def checkTriggerGroupAssignment(triggerPythonConfig):
     which allows only primary, supporting and calibration triggers. 
     """
     menu_name = TriggerFlags.triggerMenuSetup()
-    log.info( "Menu: " + menu_name)
+    log.info("Menu: %s", menu_name)
     GroupItems = []
     CheckGroups=False
 
@@ -60,7 +60,7 @@ def checkStreamConsistency(triggerPythonConfig):
     Checks that all chains are assigned to existing streams
     """
     menu_name = TriggerFlags.triggerMenuSetup()
-    log.info( "Menu: " + menu_name)
+    log.info("Menu: %s", menu_name)
 
     from TriggerMenuMT.HLTMenuConfig.Menu.StreamInfo       import getAllStreams
 
@@ -75,14 +75,15 @@ def checkStreamConsistency(triggerPythonConfig):
         else:
             for stream in chain.stream_tag:
                 if stream[0] not in allStreams:
-                    log.error(' Chain: ' + chain.chain_name + ' has the wrong streamer ' + stream[0])
+                    log.error('Chain: %s has the wrong streamer %s', chain.chain_name, stream[0])
                 else:
                     ##check data scouting streaming name
                     if "DataScouting" in stream[0]:
                         rob_id= stream[0].split("_")[1]                        
                         if rob_id  in already_used_robs and stream[0] is not already_used_robs[rob_id]:
-                            log.error( "Duplicated ROB in stream " + stream[0] + 
-                                       "(ROB number " + str(stream[0].split("_")[1]) + " already used in stream " +  already_used_robs[stream[0].split("_")[1]] + ")")
+                            log.error("Duplicated ROB in stream %s (ROB number %s already used in stream %s)",
+                                      stream[0], stream[0].split("_")[1],
+                                      already_used_robs[stream[0].split("_")[1]])
                             already_used_robs[rob_id]=stream[0]
                         else:                 
                             already_used_robs[rob_id]=stream[0] 
@@ -94,8 +95,8 @@ def checkStreamConsistency(triggerPythonConfig):
         if "DataScouting" in stream:
             rob_id= stream.split("_")[1]                        
             if rob_id  in already_used_robs:
-                log.error( "Duplicated ROB in stream " + stream + 
-                           "(ROB number " + str(rob_id) + " already used in stream " +  already_used_robs[rob_id] + ")")
+                log.error("Duplicated ROB in stream %s (ROB number %s already used in stream %s)",
+                          stream, rob_id, already_used_robs[rob_id])
                 already_used_robs[rob_id]=stream
             else:
                 already_used_robs[rob_id]=stream

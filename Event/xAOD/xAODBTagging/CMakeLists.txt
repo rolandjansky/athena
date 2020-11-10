@@ -10,7 +10,7 @@ find_package( xAODUtilities )
 atlas_add_library( xAODBTagging
    xAODBTagging/*.h xAODBTagging/versions/*.h Root/*.cxx
    PUBLIC_HEADERS xAODBTagging
-   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODTracking
+   LINK_LIBRARIES AthContainers AthLinks xAODBase xAODCore xAODTracking xAODJet
    CxxUtils )
 
 atlas_add_xaod_smart_pointer_dicts(

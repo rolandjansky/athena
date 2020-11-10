@@ -1,5 +1,5 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-/* Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
 
 /**
  * @file xAODEventFormatCnv/test/versions/A_v1.h
@@ -11,7 +11,7 @@
 #define XAODEVENTFORMATCNV_TEST_A_V1_H
 
 #include "AthContainers/AuxElement.h"
-#include "AthenaKernel/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 
 
 namespace xAODMakerTest {

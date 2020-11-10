@@ -95,6 +95,7 @@ namespace HLT {
     const std::string&  getChainName()      const { return (m_configChain ? m_configChain->chain_name(): no_config); }    //!< return the Chain name (string)
     const std::string&  getLowerChainName() const { return (m_configChain ? m_configChain->lower_chain_name(): no_config); }    //!< return the Chain name (string)
     int  getEBAfterStep()                   const { return (m_configChain ? m_configChain->EB_after_step() : -1.); }    //!< get EB_after_step  
+    std::vector<size_t> getLegMultiplicities() const { return (m_configChain ? m_configChain->leg_multiplicities() : std::vector<size_t>()); }    //!< get per leg multiplicity (Run3 only)
     bool nextStepAfterEB()                  const { return ((getChainStep()+1) > getEBAfterStep()) && (getEBAfterStep()>0.); } //!< return whether next step requires EB (-1 means no EB called)
     bool isMerged()                         const { return (m_configChain ? (m_configChain->level()=="HLT") : false);}; //!<< return whether is a merged L2+EF chain 
 

@@ -13,6 +13,7 @@
 #include "TrigConfData/L1TopoAlgorithm.h"
 #include "TrigConfData/L1Threshold.h"
 #include "TrigConfData/L1ThrExtraInfo.h"
+#include "TrigConfData/L1CTP.h"
 
 #include <vector>
 #include <map>
@@ -140,6 +141,9 @@ namespace TrigConf {
       /** Name of connector from name of threshold or triggerline */
       const std::string & connectorNameFromThreshold(const std::string & thresholdName) const;
 
+      /** the CTP configuration */
+      const TrigConf::L1CTP & ctp() const { return m_ctp; }
+
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
 
@@ -171,11 +175,14 @@ namespace TrigConf {
       std::map<std::string, std::map<std::string, TrigConf::L1TopoAlgorithm*>> m_algorithmsByName{}; // map from category and algorithm name to algorithm 
       std::map<std::string, std::map<std::string, TrigConf::L1TopoAlgorithm*>> m_algorithmsByOutput{}; // map from category and output name to algorithm
 
+      TrigConf::L1CTP m_ctp;
+
    };
 
 }
 
 #ifndef TRIGCONF_STANDALONE
+#ifndef XAOD_STANDALONE
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::L1Menu , 26419484 , 1 )
@@ -183,6 +190,7 @@ CLASS_DEF( TrigConf::L1Menu , 26419484 , 1 )
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::L1Menu , 11747932 );
 
+#endif
 #endif
 
 #endif

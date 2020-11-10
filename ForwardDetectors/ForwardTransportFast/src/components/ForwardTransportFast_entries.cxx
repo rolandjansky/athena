@@ -1,4 +1,4 @@
-#include "ForwardTransportFast/ForwardTransportFast.h"
+#include "../ForwardTransportFast.h"
 
 DECLARE_COMPONENT( ForwardTransportFast )
 

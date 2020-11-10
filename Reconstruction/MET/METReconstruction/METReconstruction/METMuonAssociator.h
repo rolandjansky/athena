@@ -54,15 +54,19 @@ namespace met{
     
     StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const final;
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
-				   std::vector<const xAOD::IParticle*>& tclist,
-				   const met::METAssociator::ConstitHolder& constits) const final;
+                                   std::vector<const xAOD::IParticle*>& tclist,
+                                   const met::METAssociator::ConstitHolder& constits) const final;
     StatusCode extractPFO(const xAOD::IParticle* obj,
-			  std::vector<const xAOD::IParticle*>& pfolist,
-			  const met::METAssociator::ConstitHolder& constits,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+                          std::vector<const xAOD::IParticle*>& pfolist,
+                          const met::METAssociator::ConstitHolder& constits,
+                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+    StatusCode extractFE(const xAOD::IParticle* obj,
+                         std::vector<const xAOD::IParticle*>& felist,
+                         const met::METAssociator::ConstitHolder& constits,
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
     StatusCode extractTracks(const xAOD::IParticle* obj,
-			     std::vector<const xAOD::IParticle*>& constlist,
-			     const met::METAssociator::ConstitHolder& constits) const final;
+                             std::vector<const xAOD::IParticle*>& constlist,
+                             const met::METAssociator::ConstitHolder& constits) const final;
 
     private:
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of LArRodEncoder class
@@ -121,7 +121,7 @@ void LArRodEncoder::clear()
 
 // convert all LArRawChannels and LArDigits
 // in the current list to a vector of 32bit words
-void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, ICaloNoiseTool* calonoisetool, double nsigma)
+void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const CaloNoise& noise, double nsigma)
 {
  if (!m_BlStruct)
   {logstr << MSG::ERROR << "No LArRodBlockStructure defined! Can't encode fragment!" << endmsg; 
@@ -153,7 +153,6 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, ICaloNo
 	double Ez=0;
 	double SumE=0;
 	Identifier myofflineID;
-	const CaloDetDescrElement* caloDDE;
 
 	for (;chit!=chit_e;chit++) {
 	  if ( ((LArRawChannel*)(*chit))!=0 ){
@@ -168,9 +167,9 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, ICaloNo
 	  // you convert from hardwareID to offline channle ID hash (???)
 	  myofflineID = m_cablingSvc->cnvToIdentifier(theChannel->hardwareID()) ;
 	  //std::cout << "Got Offile id 0x" << std::hex << myofflineID.get_compact() << std::dec << std::endl;
-	  caloDDE = m_CaloDetDescrManager->get_element(myofflineID);
+          const CaloDetDescrElement* caloDDE = m_CaloDetDescrManager->get_element(myofflineID);
 	  // This is probably NOT what one wants. You want the cell gain!
-          double cellnoise = calonoisetool->totalNoiseRMS(caloDDE,theChannel->gain());
+          double cellnoise = noise.getNoise(myofflineID,theChannel->gain());
           if( e > (nsigma*cellnoise) && (quality != 65535 ) ){
 	    double aux=caloDDE->sinTh();
 	    double aux_z=tanh(caloDDE->eta());

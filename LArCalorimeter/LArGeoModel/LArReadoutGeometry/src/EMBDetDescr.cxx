@@ -1,20 +1,30 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/EMBDetDescr.h"
 #include "LArReadoutGeometry/EMBBasicReadoutNumbers.h"
 #include "LArReadoutGeometry/EMBDetectorManager.h"
 #include "GeoModelKernel/CellBinning.h"
+
+
+namespace {
+  
+
 struct Boundary {
   double min;
   double max;
   unsigned int nDiv;
   unsigned int firstDiv;
-} etaBoundariesBarrel [4][2] = {{{0.000, 1.525,  61,0},{0.000, 0.000,  0,0}},    // 
+};
+
+const Boundary
+etaBoundariesBarrel [4][2] = {{{0.000, 1.525,  61,0},{0.000, 0.000,  0,0}},    // 
 				{{0.003125, 1.400, 447,1},{1.400, 1.475,  3,0}},    // 
 				{{0.000, 1.400,  56,0},{1.400, 1.475,  1,0}},    // 
-				{{0.000, 1.350,  27,0},{0.000, 0.000,  0,0}}};   // 
+				{{0.000, 1.350,  27,0},{0.000, 0.000,  0,0}}};   //
+
+} // anonymous namespace
 
 
  

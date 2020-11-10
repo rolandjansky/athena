@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import CfgMgr, Logging
-from G4AtlasServices import G4AtlasServicesConfig
 
 def getVerboseSelectorTool(name="G4UA::VerboseSelectorTool", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
@@ -36,8 +35,6 @@ def getStepNtupleTool(name="G4UA::StepNtupleTool", **kwargs):
     return CfgMgr.G4UA__StepNtupleTool(name, **kwargs)
 
 def getVolumeDebuggerTool(name="G4UA::VolumeDebuggerTool", **kwargs):
-    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
-
     from G4AtlasApps.SimFlags import simFlags
     # example custom configuration
     if name in simFlags.UserActionConfig.get_Value().keys():

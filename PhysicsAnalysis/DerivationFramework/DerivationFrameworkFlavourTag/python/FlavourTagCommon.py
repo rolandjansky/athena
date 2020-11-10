@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 #********************************************************************
 
 # FlavourTagCommon.py
@@ -16,10 +14,10 @@ import AthenaCommon.Constants as Lvl
 from AthenaCommon import Logging
 ftaglog = Logging.logging.getLogger('FlavourTagCommon')
 
-
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 from BTagging.BTaggingFlags import BTaggingFlags
 from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon import CfgMgr
 
 DoneJetCollections=set([])
 
@@ -56,8 +54,6 @@ def DontReduceInfo(Rel20=True):
         augmentationTools = [TruthDecor]
     if globalflags.DataSource()=='data':
         augmentationTools = []
-
-    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 
     global DerivationFrameworkJob
     DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("MyDFTSOS_KERN",
@@ -220,8 +216,8 @@ def FlavorTagInit(DoReduceInfo = False,
     #doRetag      =True  ## perform retagging
     #adjust configurations
 
-    if DoRetag==False:
-        DoReduceInfo=True
+    #if DoRetag is False:
+    #    DoReduceInfo=True
 
 
     #if the user has defined a list of desired taggers use that one, otherwise use only the active taggers
@@ -282,7 +278,7 @@ def applyBTagging_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJo
       supportedJets = ['AntiKt4EMTopo_BTagging201810', 'AntiKt4EMPFlow_BTagging201810']
     else:
       supportedJets = ['AntiKt4EMTopo', 'AntiKt4EMPFlow']
-    if not jetalg in supportedJets:
+    if jetalg not in supportedJets:
         ftaglog.warning('B-tagging requested for unsupported jet collection {}!'.format(jetalg))
         return
     else:

@@ -506,6 +506,12 @@ class doHolesOnTrack(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class useHolesFromPattern(InDetFlagsJobProperty):
+    """ use holes from the pattern recognition """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class useZvertexTool(InDetFlagsJobProperty):
     """ start with Zvertex finding """
     statusOn     = True
@@ -516,7 +522,7 @@ class useActsPriVertexing(InDetFlagsJobProperty):
     """ use ACTS primary vertexing """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doSiSPSeededTrackFinder(InDetFlagsJobProperty):
     """ use track finding in silicon """
@@ -956,13 +962,13 @@ class pixelClusterSplitProb1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.6
+   StoredValue = 0.55
 
 class pixelClusterSplitProb2 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into three parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.2
+   StoredValue = 0.45
 
 class pixelClusterSplitProb1_run1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
@@ -1146,10 +1152,10 @@ class doNNToTCalibration(InDetFlagsJobProperty):
   StoredValue  = False
 
 class useNNTTrainedNetworks(InDetFlagsJobProperty):
-  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available."""
+  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available. True gives rel21 (Run 2) configuration."""
   statusOn     = True
   allowedTypes = ['bool']
-  StoredValue  = True
+  StoredValue  = False
 
 class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
   """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
@@ -1198,6 +1204,13 @@ class nnCutLargeD0Threshold(InDetFlagsJobProperty):
   statusOn     = True
   allowedTypes = ['float']
   StoredValue  = -1.0
+
+class doTRTPIDNN(InDetFlagsJobProperty): 
+  """calculate NN-based TRT electron probability""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2520,6 +2533,8 @@ class InDetJobProperties(JobPropertyContainer):
        print('* SCT PRD Formation is off')
     if not self.doTRT_PRDFormation():
        print('* TRT PRD Formation is off')
+    if self.useHolesFromPattern():
+       print('* Using holes and deads from pattern recognition')
 
     # -----------------------------------------
     print('*')
@@ -2661,6 +2676,7 @@ _list_InDetJobProperties = [Enabled,
                             propagatorType,
                             trackFitterType,
                             doHolesOnTrack,
+                            useHolesFromPattern,
                             useZvertexTool,
                             useActsPriVertexing,
                             doSiSPSeededTrackFinder,
@@ -2774,7 +2790,8 @@ _list_InDetJobProperties = [Enabled,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
                             nnCutLargeD0Threshold,
-                            useMuForTRTErrorScaling
+                            useMuForTRTErrorScaling,
+                            doTRTPIDNN
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

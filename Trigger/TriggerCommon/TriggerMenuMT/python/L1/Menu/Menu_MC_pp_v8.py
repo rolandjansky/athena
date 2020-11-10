@@ -141,7 +141,7 @@ def defineMenu():
        
         
         # multi jet
-        'L1_J45.0ETA20_3J15.0ETA25',
+        'L1_J45.0ETA23_3J15.0ETA25',
         'L1_J50_2J40.0ETA25_3J15.0ETA25',
         'L1_3J50', 'L1_4J15', 'L1_4J20',
         'L1_3J15.0ETA25_XE40',
@@ -193,7 +193,10 @@ def defineMenu():
         # RNDM
         'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
         'L1_RD1_EMPTY',
-        'L1_RD2_EMPTY', 
+        'L1_RD2_EMPTY',
+        'L1_RD2_FILLED',
+        'L1_RD3_EMPTY',
+        'L1_RD3_FILLED',
 
         #LUCID
 
@@ -476,7 +479,7 @@ def defineMenu():
         'L1_4J15' : 131,
         'L1_4J20' : 132,
         'L1_3J15.0ETA25_XE40' : 184,
-        'L1_J45.0ETA20_3J15.0ETA25' : 86,
+        'L1_J45.0ETA23_3J15.0ETA25' : 86,
         'L1_J50_2J40.0ETA25_3J15.0ETA25' : 87,
  
         'L1_6J15' : 135,
@@ -541,6 +544,9 @@ def defineMenu():
         'L1_RD0_EMPTY' : 202,
         'L1_RD1_EMPTY' : 204,
         'L1_RD2_FILLED' : 205,
+        'L1_RD2_EMPTY' : 206,
+        'L1_RD3_FILLED' : 207,
+        'L1_RD3_EMPTY' : 208,
         'L1_TGC_BURST' : 220,
         'L1_BCM_AC_CA_BGRP0' : 223,
         'L1_BCM_Wide_EMPTY' : 224,

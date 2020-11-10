@@ -5,13 +5,11 @@
 #ifndef JETTAGMONITORALGORITHM_H
 #define JETTAGMONITORALGORITHM_H
 
-//Generic
 #include "AthenaMonitoring/AthMonitorAlgorithm.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/ReadHandle.h"
 
-//Objects
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODMuon/MuonContainer.h"
@@ -22,7 +20,6 @@
 #include "TrkTrack/TrackCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-//Mix
 #include <string>
 #include <vector>
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -46,7 +43,7 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey;
   SG::ReadHandleKey<xAOD::ElectronContainer> m_electronContainerKey;
   
-  bool m_skipJetQuality; //true for HI/HI-p collisions, false for pp collisions
+  bool m_skipJetFilter; //true for HI/HI-p collisions, false for pp collisions
   std::string m_trackParticleName;
   std::string m_primaryVertexName;
   std::string m_jetName;
@@ -77,24 +74,20 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
   double m_MuonPtVarCone30Cut;
  
   std::string m_mv_algorithmName;
-  unsigned int m_mv_nBins;
-  double m_mv_rangeStart;
-  double m_mv_rangeStop;
-  double m_mv_cFrac;
+  double m_mv_cFraction;
+  double m_mv_bFraction;
   double m_mv_60_weight_cut;
   double m_mv_70_weight_cut;
   double m_mv_77_weight_cut;
   double m_mv_85_weight_cut;
 
-  //Additional methods
   enum Jet_t { goodJet, suspectJet, badJet };
   void fillGoodJetHistos(const xAOD::Jet *jet) const;
+  void fillLowLevelJetHistos(const xAOD::Jet *jet) const;
   void fillSuspectJetHistos(const xAOD::Jet *jet) const;
   void fillBadJetHistos(const xAOD::Jet *jet) const;
-  void fillDetailedHistograms(const xAOD::Jet *jet, Jet_t taggabilityLabel) const;
-  void fillTrackInJetHistograms(const xAOD::Jet *jet) const;
   void fillTTbarHistograms(const xAOD::Jet *jet) const;
-  bool passJetQualityCuts(const xAOD::Jet *jet) const;
+  bool passJetFilterCuts(const xAOD::Jet *jet) const;
   bool passKinematicCuts(const xAOD::Jet *jet) const;
   bool passJVTCuts(const xAOD::Jet *jet) const;
   bool passMuonOverlap(const xAOD::Jet *jet) const;
@@ -103,7 +96,6 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
 
   std::string m_ElectronTrigger_201X;
   std::string m_MuonTrigger_201X;
-  std::string m_JetTrigger_201X;
 
 };
 #endif

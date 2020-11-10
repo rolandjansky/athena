@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILERAWCHANNEL2BYTES2_H 
@@ -24,7 +24,7 @@
 #include <vector>
 
 // Gain encoding: one most significant bit
-const int GAIN_RANGE2 = 0x1;
+const unsigned int GAIN_RANGE2 = 0x1;
 const int GAIN_SHIFT2 = 31;
 const unsigned int GAIN_BIT2 = (GAIN_RANGE2 << GAIN_SHIFT2);
 

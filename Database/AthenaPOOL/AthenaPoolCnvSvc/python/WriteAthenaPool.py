@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file WriteAthenaPool_jobOptions.py
 ## @brief AthenaPool job options file for writing event objects.
@@ -29,7 +29,7 @@ def _configureWriteAthenaPool():
     msg.debug( "Configuring Athena for writing POOL files..." )
 
     # Load the basic services
-    import AthenaPoolCnvSvc.AthenaPool
+    import AthenaPoolCnvSvc.AthenaPool  # noqa: F401
 
     from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
     # Switch off splitting by setting default SplitLevel to 0
@@ -40,10 +40,8 @@ def _configureWriteAthenaPool():
     # Increase default BasketSize to 32K, ROOT default (but overwritten by POOL)
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '32000'" ]
 
-    # Turn off auto_flush for DataHeader container to avoid basket optimization
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'POOLContainer(DataHeader)'; BRANCH_BASKET_SIZE = '256000'" ]
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '1024000'" ]
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '99'" ]
+    # Set POOLContainerForm(DataHeaderForm) split level to 0
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '0'" ]
 
     svcMgr.AthenaPoolCnvSvc.TopLevelContainerName = ""
     svcMgr.AthenaPoolCnvSvc.SubLevelBranchName = "<type>/<key>"

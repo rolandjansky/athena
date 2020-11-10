@@ -6,7 +6,6 @@
 
 #include "AtlasHepMC/GenParticle.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "CSC_Digitization/CscDigitizationTool.h"

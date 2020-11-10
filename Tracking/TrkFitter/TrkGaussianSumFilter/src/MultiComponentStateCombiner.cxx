@@ -262,7 +262,7 @@ Trk::MultiComponentStateCombiner::combineWithWeight(
   const double secondWeight)
 {
   double firstWeight = mergeTo.second;
-  auto trackParameters = mergeTo.first.get();
+  auto *trackParameters = mergeTo.first.get();
   const AmgVector(5)& firstParameters = trackParameters->parameters();
   AmgVector(5) finalParameters(firstParameters);
   // Check to see if first track parameters are measured or not

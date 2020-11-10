@@ -52,8 +52,9 @@ EventSelectorByteStream::EventSelectorByteStream(
 
 /******************************************************************************/
 void EventSelectorByteStream::inputCollectionsHandler(Gaudi::Details::PropertyBase&) {
+  lock_t lock (m_mutex);
   if (this->FSMState() != Gaudi::StateMachine::OFFLINE) {
-    this->reinit().ignore();
+    this->reinit(lock).ignore();
   }
 }
 
@@ -158,12 +159,13 @@ StatusCode EventSelectorByteStream::initialize() {
    }
 
    // Must happen before trying to open a file
-   StatusCode risc = this->reinit();
+   lock_t lock (m_mutex);
+   StatusCode risc = this->reinit(lock);
 
    return risc;
 }
 //__________________________________________________________________________
-StatusCode EventSelectorByteStream::reinit() {
+StatusCode EventSelectorByteStream::reinit(lock_t& /*lock*/) {
    ATH_MSG_INFO("reinitialization...");
    // reset markers
    if (m_inputCollectionsProp.value().size()>0) {
@@ -180,10 +182,9 @@ StatusCode EventSelectorByteStream::reinit() {
    m_NumEvents = 0;
    bool retError = false;
    if (!m_helperTools.empty()) {
-      for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
-           last = m_helperTools.end(); iter != last; iter++) {
-         if (!(*iter)->postInitialize().isSuccess()) {
-            ATH_MSG_FATAL("Failed to postInitialize() " << (*iter)->name());
+      for (ToolHandle<IAthenaSelectorTool>& tool : m_helperTools) {
+         if (!tool->postInitialize().isSuccess()) {
+            ATH_MSG_FATAL("Failed to postInitialize() " << tool->name());
             retError = true;
          }
       }
@@ -198,6 +199,7 @@ StatusCode EventSelectorByteStream::reinit() {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::start() {
    ATH_MSG_DEBUG("Calling EventSelectorByteStream::start()");
+   lock_t lock (m_mutex);
    // If file based input then fire appropriate incidents
    if (m_filebased) {
       if (!m_firstFileFired) {
@@ -207,7 +209,7 @@ StatusCode EventSelectorByteStream::start() {
       }
 
       // try to open a file
-      if (this->openNewRun().isFailure()) { 
+      if (this->openNewRun(lock).isFailure()) { 
          ATH_MSG_FATAL("Unable to open any file in initialize"); 
          return(StatusCode::FAILURE);
       }
@@ -245,10 +247,9 @@ StatusCode EventSelectorByteStream::finalize() {
          ATH_MSG_WARNING("Failed to preFinalize() CounterTool");
       }
    }
-   for (std::vector<ToolHandle<IAthenaSelectorTool> >::iterator iter = m_helperTools.begin(),
-        last = m_helperTools.end(); iter != last; iter++) {
-      if (!(*iter)->preFinalize().isSuccess()) {
-         ATH_MSG_WARNING("Failed to preFinalize() " << (*iter)->name());
+   for (ToolHandle<IAthenaSelectorTool>& tool : m_helperTools) {
+      if (!tool->preFinalize().isSuccess()) {
+         ATH_MSG_WARNING("Failed to preFinalize() " << tool->name());
       }
    }
    delete m_beginIter; m_beginIter = 0;
@@ -272,14 +273,14 @@ StatusCode EventSelectorByteStream::finalize() {
    return(AthService::finalize());
 }
 
-void EventSelectorByteStream::nextFile() const {
+void EventSelectorByteStream::nextFile(lock_t& /*lock*/) const {
    FileIncident endInputFileIncident(name(), "EndInputFile", "BSF:" + *m_inputCollectionsIterator);
    m_incidentSvc->fireIncident(endInputFileIncident);
    ++m_inputCollectionsIterator;
    ++m_fileCount;
 }
 
-StatusCode EventSelectorByteStream::openNewRun() const {
+StatusCode EventSelectorByteStream::openNewRun(lock_t& lock) const {
    // Should be protected upstream, but this is further protection
    if (!m_filebased) {
       ATH_MSG_ERROR("cannot open new run for non-filebased inputs");
@@ -310,16 +311,16 @@ StatusCode EventSelectorByteStream::openNewRun() const {
    if (nev == 0) {
       ATH_MSG_WARNING("no events in file " << blockname << " try next");
       if (m_eventSource->ready()) m_eventSource->closeBlockIterator(true);
-      this->nextFile();
-      return openNewRun();
+      this->nextFile(lock);
+      return openNewRun(lock);
    // check if skipping all events in that file (minus events already skipped)
    } else if (m_skipEvents.value() - m_NumEvents > nev) {
       ATH_MSG_WARNING("skipping more events " << m_skipEvents.value() - m_NumEvents << "(" << nev <<") than in file " << *m_inputCollectionsIterator << ", try next");
       m_NumEvents += nev;
       m_numEvt[m_fileCount] = nev;
       if (m_eventSource->ready()) m_eventSource->closeBlockIterator(true);
-      this->nextFile();
-      return openNewRun();
+      this->nextFile(lock);
+      return openNewRun(lock);
    }
 
    ATH_MSG_DEBUG("Opened block/file " << blockname); 
@@ -335,7 +336,13 @@ StatusCode EventSelectorByteStream::createContext(IEvtSelector::Context*& it) co
 }
 
 StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
-   static int n_bad_events = 0;   // cross loop counter of bad events
+   lock_t lock (m_mutex);
+   return nextImpl (it, lock);
+}
+StatusCode EventSelectorByteStream::nextImpl(IEvtSelector::Context& it,
+                                             lock_t& lock) const
+{
+    static std::atomic<int> n_bad_events = 0;   // cross loop counter of bad events
    // Check if this is an athenaMP client process
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
       void* source = 0;
@@ -348,10 +355,9 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
       return(StatusCode::SUCCESS);
    }
    // Call all selector tool preNext before starting loop
-   for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
-                   last = m_helperTools.end(); iter != last; iter++) {
-      if (!(*iter)->preNext().isSuccess()) {
-         ATH_MSG_WARNING("Failed to preNext() " << (*iter)->name());
+   for (const ToolHandle<IAthenaSelectorTool>& tool : m_helperTools) {
+      if (!tool->preNext().isSuccess()) {
+         ATH_MSG_WARNING("Failed to preNext() " << tool->name());
       }
    }
    if (!m_counterTool.empty()) {
@@ -362,7 +368,7 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
    // Find an event to return
    for (;;) {
       bool badEvent{};
-      StatusCode sc = nextHandleFileTransition(it);
+      StatusCode sc = nextHandleFileTransitionImpl(it, lock);
       if (sc.isRecoverable()) {
          badEvent = true;
       } else if (sc.isFailure()) {
@@ -374,9 +380,9 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 
       // check bad event flag and handle as configured 
       if (badEvent) {
-         ++n_bad_events;
-         ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
-         bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
+         int nbad = ++n_bad_events;
+         ATH_MSG_INFO("Bad event encountered, current count at " << nbad);
+         bool toomany = (m_maxBadEvts >= 0 && nbad > m_maxBadEvts);
          if (toomany) {ATH_MSG_FATAL("too many bad events ");}
          if (!m_procBadEvent || toomany) {
             // End of file
@@ -396,15 +402,14 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
            (m_skipEventSequence.empty() || m_NumEvents != m_skipEventSequence.front()) ) {
          StatusCode status(StatusCode::SUCCESS);
          // Build event info attribute list
-         if (recordAttributeList().isFailure()) ATH_MSG_WARNING("Unable to build event info att list");
-         for (std::vector<ToolHandle<IAthenaSelectorTool> >::const_iterator iter = m_helperTools.begin(),
-		         last = m_helperTools.end(); iter != last; iter++) {
-            StatusCode toolStatus = (*iter)->postNext();
+         if (recordAttributeListImpl(lock).isFailure()) ATH_MSG_WARNING("Unable to build event info att list");
+         for (const ToolHandle<IAthenaSelectorTool>& tool : m_helperTools) {
+            StatusCode toolStatus = tool->postNext();
             if (toolStatus.isRecoverable()) {
-               ATH_MSG_INFO("Request skipping event from: " << (*iter)->name());
+               ATH_MSG_INFO("Request skipping event from: " << tool->name());
                status = StatusCode::RECOVERABLE;
             } else if (toolStatus.isFailure()) {
-               ATH_MSG_WARNING("Failed to postNext() " << (*iter)->name());
+               ATH_MSG_WARNING("Failed to postNext() " << tool->name());
                status = StatusCode::FAILURE;
             }
          }
@@ -428,10 +433,10 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
          catch (const ByteStreamExceptions::badFragmentData&) { 
             ATH_MSG_ERROR("badFragment data encountered");
 
-            ++n_bad_events;
-            ATH_MSG_INFO("Bad event encountered, current count at " << n_bad_events);
+            int nbad = ++n_bad_events;
+            ATH_MSG_INFO("Bad event encountered, current count at " << nbad);
 
-            bool toomany = (m_maxBadEvts >= 0 && n_bad_events > m_maxBadEvts);
+            bool toomany = (m_maxBadEvts >= 0 && nbad > m_maxBadEvts);
 	         if (toomany) {ATH_MSG_FATAL("too many bad events ");}
             if (!m_procBadEvent || toomany) {
                // End of file
@@ -465,13 +470,22 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) const {
+  lock_t lock (m_mutex);
+  return nextImpl (ctxt, jump, lock);
+}
+//________________________________________________________________________________
+StatusCode
+EventSelectorByteStream::nextImpl(IEvtSelector::Context& ctxt,
+                                  int jump,
+                                  lock_t& lock) const
+{
    if (jump > 0) {
       if ( m_NumEvents+jump != m_skipEvents.value()) {
          // Save initial event count
          unsigned int cntr = m_NumEvents;
          // In case NumEvents increments multiple times in a single next call
          while (m_NumEvents+1 <= cntr + jump) {
-            if (!next(ctxt).isSuccess()) {
+            if (!nextImpl(ctxt, lock).isSuccess()) {
                return(StatusCode::FAILURE);
             }
          }
@@ -488,13 +502,19 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::nextHandleFileTransition(IEvtSelector::Context& it) const
 {
+  lock_t lock (m_mutex);
+  return nextHandleFileTransitionImpl (it, lock);
+}
+StatusCode EventSelectorByteStream::nextHandleFileTransitionImpl(IEvtSelector::Context& it,
+                                                                 lock_t& lock) const
+{
    const RawEvent* pre{}; 
    bool badEvent{};
    // if event source not ready from init, try next file
    if (m_filebased && !m_eventSource->ready()) {
       // next file
-      this->nextFile();
-      if (this->openNewRun().isFailure()) {
+      this->nextFile(lock);
+      if (this->openNewRun(lock).isFailure()) {
          ATH_MSG_DEBUG("Event source found no more valid files left in input list");
          m_NumEvents = -1;
          return StatusCode::FAILURE; 
@@ -537,7 +557,13 @@ StatusCode EventSelectorByteStream::nextHandleFileTransition(IEvtSelector::Conte
 }
 
 //________________________________________________________________________________
-StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& /*ctxt*/) const {
+StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& ctxt) const
+{
+  lock_t lock (m_mutex);
+  return previousImpl (ctxt, lock);
+}
+StatusCode EventSelectorByteStream::previousImpl(IEvtSelector::Context& /*ctxt*/,
+                                                 lock_t& /*lock*/) const {
     ATH_MSG_DEBUG(" ... previous");
     const RawEvent* pre = 0; 
     bool badEvent(false);
@@ -593,9 +619,18 @@ StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& /*ctxt*/) co
 }
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& ctxt, int jump) const {
+  lock_t lock (m_mutex);
+  return previousImpl (ctxt, jump, lock);
+}
+//________________________________________________________________________________
+StatusCode
+EventSelectorByteStream::previousImpl(IEvtSelector::Context& ctxt,
+                                      int jump,
+                                      lock_t& lock) const
+{
    if (jump > 0) {
       for (int i = 0; i < jump; i++) {
-         if (!previous(ctxt).isSuccess()) {
+         if (!previousImpl(ctxt, lock).isSuccess()) {
             return(StatusCode::FAILURE);
          }
       }
@@ -624,13 +659,14 @@ StatusCode EventSelectorByteStream::resetCriteria(const std::string& /*criteria*
 
 //__________________________________________________________________________
 StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
+   lock_t lock (m_mutex);
    // Check that input is seekable
    if (!m_filebased) {
       ATH_MSG_ERROR("Input not seekable, choose different input svc");
       return StatusCode::FAILURE;
    }
    // find the file index with that event
-   long fileNum = findEvent(evtNum);
+   long fileNum = findEvent(evtNum, lock);
    if (fileNum == -1 && evtNum >= m_firstEvt[m_fileCount] && evtNum < m_NumEvents) {
       fileNum = m_fileCount;
    }
@@ -655,7 +691,7 @@ StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
       }
       int delta = evtNum - m_firstEvt[m_fileCount];
       if (delta > 0) {
-        if (next(*m_beginIter,delta).isFailure()) return StatusCode::FAILURE;
+        if (nextImpl(*m_beginIter,delta, lock).isFailure()) return StatusCode::FAILURE;
       }
       else return this->seek(it, evtNum);
    } 
@@ -666,16 +702,21 @@ StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
          // nothing to do
       } 
       else if ( delta > 0 ) { // forward
-         if ( this->next(*m_beginIter, delta).isFailure() ) return StatusCode::FAILURE;
+         if ( this->nextImpl(*m_beginIter, delta, lock).isFailure() ) return StatusCode::FAILURE;
       } 
       else if ( delta < 0 ) { // backward
-         if ( this->previous(*m_beginIter, -1*delta).isFailure() ) return(StatusCode::FAILURE);
+         if ( this->previousImpl(*m_beginIter, -1*delta, lock).isFailure() ) return(StatusCode::FAILURE);
       } 
    }
    return(StatusCode::SUCCESS);
 }
 
 StatusCode EventSelectorByteStream::recordAttributeList() const
+{
+  lock_t lock (m_mutex);
+  return recordAttributeListImpl (lock);
+}
+StatusCode EventSelectorByteStream::recordAttributeListImpl(lock_t& lock) const
 {
    std::string listName("EventInfoAtts");
 
@@ -696,7 +737,7 @@ StatusCode EventSelectorByteStream::recordAttributeList() const
    auto attrList = std::make_unique<AthenaAttributeList>(*spec);
 
    // fill the attr list
-   ATH_CHECK(fillAttributeList(attrList.get(), "", false));
+   ATH_CHECK(fillAttributeListImpl(attrList.get(), "", false, lock));
 
    // put result in event store
    if (eventStore()->record(std::move(attrList), listName).isFailure()) {
@@ -706,7 +747,13 @@ StatusCode EventSelectorByteStream::recordAttributeList() const
    return StatusCode::SUCCESS;
 }
 
-StatusCode EventSelectorByteStream::fillAttributeList(coral::AttributeList *attrList, const std::string &suffix, bool /* copySource */) const
+StatusCode EventSelectorByteStream::fillAttributeList(coral::AttributeList *attrList, const std::string &suffix, bool copySource) const
+{
+  lock_t lock (m_mutex);
+  return fillAttributeListImpl (attrList, suffix, copySource, lock);
+}
+StatusCode EventSelectorByteStream::fillAttributeListImpl(coral::AttributeList *attrList, const std::string &suffix, bool /* copySource */,
+                                                          lock_t& /*lock*/) const
 {
    attrList->extend("RunNumber"   + suffix, "unsigned int");
    attrList->extend("EventNumber" + suffix, "unsigned long long");
@@ -797,7 +844,7 @@ StatusCode EventSelectorByteStream::fillAttributeList(coral::AttributeList *attr
 }
 
 //__________________________________________________________________________
-int EventSelectorByteStream::findEvent(int evtNum) const {
+int EventSelectorByteStream::findEvent(int evtNum, lock_t& /*lock*/) const {
    // Loop over file event counts
    //ATH_MSG_INFO("try to find evnum = " << evtNum << " in " << m_numEvt.size() << " files");
    for (size_t i = 0; i < m_inputCollectionsProp.value().size(); i++) {
@@ -837,6 +884,7 @@ int EventSelectorByteStream::findEvent(int evtNum) const {
 //__________________________________________________________________________
 int EventSelectorByteStream::curEvent (const Context& /*it*/) const {
    // event counter in IEvtSelectorSeek interface
+   lock_t lock (m_mutex);
    return int(m_NumEvents);
 }
 
@@ -847,6 +895,7 @@ int EventSelectorByteStream::size (Context& /*it*/) const {
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::makeServer(int /*num*/) {
+   lock_t lock (m_mutex);
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
@@ -855,6 +904,7 @@ StatusCode EventSelectorByteStream::makeServer(int /*num*/) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::makeClient(int /*num*/) {
+   lock_t lock (m_mutex);
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
@@ -863,6 +913,7 @@ StatusCode EventSelectorByteStream::makeClient(int /*num*/) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::share(int evtNum) {
+   lock_t lock (m_mutex);
    if (m_eventStreamingTool.empty()) {
       return(StatusCode::FAILURE);
    }
@@ -879,6 +930,7 @@ StatusCode EventSelectorByteStream::share(int evtNum) {
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::readEvent(int maxevt) {
+   lock_t lock (m_mutex);
    if (m_eventStreamingTool.empty()) {
       ATH_MSG_ERROR("No AthenaSharedMemoryTool configured for readEvent()");
       return(StatusCode::FAILURE);
@@ -886,7 +938,7 @@ StatusCode EventSelectorByteStream::readEvent(int maxevt) {
    ATH_MSG_VERBOSE("Called read Event " << maxevt);
    for (int i = 0; i < maxevt || maxevt == -1; ++i) {
       const RawEvent* pre = 0;
-      if (this->next(*m_beginIter).isSuccess()) {
+      if (this->nextImpl(*m_beginIter, lock).isSuccess()) {
          pre = m_eventSource->currentEvent();
       } else {
          if (m_NumEvents == -1) {
@@ -962,6 +1014,7 @@ StatusCode EventSelectorByteStream::queryInterface(const InterfaceID& riid, void
 }
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::io_reinit() {
+   lock_t lock (m_mutex);
    ATH_MSG_INFO("I/O reinitialization...");
       ServiceHandle<IIoComponentMgr> iomgr("IoComponentMgr", name());
    if (!iomgr.retrieve().isSuccess()) {
@@ -1001,14 +1054,24 @@ StatusCode EventSelectorByteStream::io_reinit() {
    }
    // all good... copy over.
    m_beginFileFired = false;
+
+   // Set m_inputCollectionsProp.  But we _dont_ want to run the update
+   // handler --- that calls reinit(), which will deadlock since
+   // we're holding the lock.  Instead, we'll call reinit() ourselves.
+   auto old_cb = m_inputCollectionsProp.updateCallBack();
+   m_inputCollectionsProp.declareUpdateHandler(
+      [] (Gaudi::Details::PropertyBase&) {}
+   );
    m_inputCollectionsProp = inputCollections;
+   m_inputCollectionsProp.declareUpdateHandler (old_cb);;
    
-   return(this->reinit());
+   return(this->reinit(lock));
 }
 
 //__________________________________________________________________________
 void EventSelectorByteStream::syncEventCount(int count) const
 {
+   lock_t lock (m_mutex);
    m_NumEvents = count;
 }
 

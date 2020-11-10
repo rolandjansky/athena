@@ -28,15 +28,15 @@ namespace TrigL2MuonSA {
 		     const IInterface*  parent);
 
     StatusCode superPointFitter(const LVL1::RecMuonRoI* p_roi,
-				TrigL2MuonSA::TrackPattern& trackPattern);
+				TrigL2MuonSA::TrackPattern& trackPattern) const;
 
     StatusCode selectStgcHits(const LVL1::RecMuonRoI* p_roi,
-			      TrigL2MuonSA::StgcHits& stgcHits);
+			      TrigL2MuonSA::StgcHits& stgcHits) const;
 
     StatusCode selectMmHits(const LVL1::RecMuonRoI* p_roi,
-			    TrigL2MuonSA::MmHits& mmHits);
+			    TrigL2MuonSA::MmHits& mmHits) const;
 
-    StatusCode calcWeightedSumHit(TrigL2MuonSA::TrackPattern& trackPattern);
+    StatusCode calcWeightedSumHit(TrigL2MuonSA::TrackPattern& trackPattern) const;
 
   private :
 

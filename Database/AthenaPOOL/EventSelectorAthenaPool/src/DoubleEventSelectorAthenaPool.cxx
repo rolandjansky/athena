@@ -83,7 +83,9 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
     if (!m_counterTool.empty() && !m_counterTool->preNext().isSuccess()) {
         ATH_MSG_WARNING("Failed to preNext() CounterTool.");
     }
-    if (m_evtCount > m_skipEvents && (m_skipEventSequence.empty() || m_evtCount != m_skipEventSequence.front())) {
+    if( m_evtCount > m_skipEvents
+        && (m_skipEventRanges.empty() || m_evtCount < m_skipEventRanges.front().first))
+    {
       if (!recordAttributeList().isSuccess()) {
         ATH_MSG_ERROR("Failed to record AttributeList.");
         return(StatusCode::FAILURE);
@@ -113,8 +115,8 @@ StatusCode DoubleEventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) cons
         break;
       }
     } else {
-      if (!m_skipEventSequence.empty() && m_evtCount == m_skipEventSequence.front()) {
-        m_skipEventSequence.erase(m_skipEventSequence.begin());
+      while( !m_skipEventRanges.empty() && m_evtCount >= m_skipEventRanges.front().second ) {
+         m_skipEventRanges.erase(m_skipEventRanges.begin());
       }
       ATH_MSG_INFO("skipping event " << m_evtCount);
     }

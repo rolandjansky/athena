@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUONROAD_H
@@ -33,6 +33,8 @@ namespace TrigL2MuonSA {
       phiRoI     = 0;
       MDT_sector_trigger = 0;
       MDT_sector_overlap = 0;
+      extFtfMiddleEta = 0;
+      extFtfMiddlePhi = 0;
       for(int i=0; i<N_STATION; i++) {
 	scales[i] = 1;
 	for(int j=0; j<N_LAYER; j++) {	  
@@ -41,6 +43,12 @@ namespace TrigL2MuonSA {
 	for(int j=0; j<N_SECTOR; j++) {	  
 	  aw[i][j]   = 0;
 	  bw[i][j]   = 0;
+	  aw_ftf[i][j]  = 0;
+	  bw_ftf[i][j]  = 0;
+	  phi_ftf[i][j] = 0;
+	  eta_ftf[i][j] = 0;
+	  r_ftf[i][j]   = 0;
+	  z_ftf[i][j]   = 0;
 	  phi[i][j]  = 0;
 	}
       }
@@ -77,6 +85,17 @@ namespace TrigL2MuonSA {
     double scales[N_STATION];
     int    MDT_sector_trigger;
     int    MDT_sector_overlap;
+
+    // FTF varibles
+    double extFtfMiddleEta;
+    double extFtfMiddlePhi;
+    double aw_ftf[N_STATION][N_SECTOR];
+    double bw_ftf[N_STATION][N_SECTOR];
+    double phi_ftf[N_STATION][N_SECTOR];
+    double eta_ftf[N_STATION][N_SECTOR];
+    double r_ftf[N_STATION][N_SECTOR];
+    double z_ftf[N_STATION][N_SECTOR];
+    int ext_ftf_flag[N_STATION][N_SECTOR];
 
     std::vector<Identifier> stationList;
 

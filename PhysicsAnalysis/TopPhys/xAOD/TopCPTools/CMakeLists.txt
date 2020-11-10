@@ -1,7 +1,5 @@
-# Auto-generated on: 2017-03-08 14:47:34.346308
-
 # Declare the name of this package:
-atlas_subdir( TopCPTools None )
+atlas_subdir( TopCPTools )
 
 # This package depends on other packages:
 atlas_depends_on_subdirs( PUBLIC
@@ -10,6 +8,7 @@ atlas_depends_on_subdirs( PUBLIC
                           AthContainers
                           PATCore
                           PATInterfaces
+                          TrigBunchCrossingTool
                           TrigConfInterfaces
                           TrigConfxAOD
                           TrigDecisionTool
@@ -34,7 +33,6 @@ atlas_depends_on_subdirs( PUBLIC
                           JetInterface
                           JetMomentTools
                           JetSelectorTools
-                          JetResolution
                           METInterface
                           METUtilities
                           IsolationSelection
@@ -46,13 +44,18 @@ atlas_depends_on_subdirs( PUBLIC
                           AssociationUtils
                           JetJvtEfficiency
                           PMGTools
-                          InDetTrackSystematicsTools )
+			  InDetTrackSelectionTool
+                          InDetTrackSystematicsTools
+                          #BoostedJetTaggers 
+			  FTagAnalysisInterfaces 
+			  MuonAnalysisInterfaces 
+        #TriggerAnalysisInterfaces
+			  #TrigGlobalEfficiencyCorrection
+			  PMGAnalysisInterfaces
+			  JetAnalysisInterfaces)
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-
-# Custom definitions needed for this package:
-add_definitions( -g -std=c++14 )
 
 # Build a library that other components can link against:
 atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
@@ -64,6 +67,7 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   AthContainers                                  
 				  PATCoreLib			  
                                   PATInterfaces
+                                  TrigBunchCrossingTool
                                   TrigConfInterfaces
                                   TrigConfxAODLib
                                   TrigDecisionToolLib
@@ -88,7 +92,6 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   JetInterface
                                   JetMomentToolsLib
                                   JetSelectorToolsLib
-                                  JetResolutionLib
                                   METInterface
                                   METUtilitiesLib
                                   IsolationSelectionLib
@@ -100,10 +103,15 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   AssociationUtilsLib
                                   JetJvtEfficiencyLib
                                   PMGToolsLib
+				  InDetTrackSelectionToolLib
                                   InDetTrackSystematicsToolsLib
+                                  #BoostedJetTaggersLib
+				  FTagAnalysisInterfacesLib
+				  MuonAnalysisInterfacesLib
+				  #TriggerAnalysisInterfacesLib
+				  #TrigGlobalEfficiencyCorrectionLib
+				  PMGAnalysisInterfacesLib
+				  JetAnalysisInterfacesLib
                                   ${ROOT_LIBRARIES}
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
-
-# Install data files from the package:
-atlas_install_data( share/* )
 

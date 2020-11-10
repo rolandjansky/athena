@@ -38,16 +38,14 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     auto shallowCopy = xAOD::shallowCopyContainer (*taus);
     std::unique_ptr<xAOD::TauJetContainer> shallowTaus (shallowCopy.first);
-
-
-
     
     //In tauMonTool these values are chosen as Et cuts for different Histograms
     const int lowerEtThreshold = 15;
     const int higherEtThreshold = 75;
-
     auto tool = getGroup(m_kinGroupName);
+
     auto tauEta = Monitored::Scalar<float>("tauEta",0.0);
+
     auto tauPhi = Monitored::Scalar<float>("tauPhi",0.0);
     auto tauEt = Monitored::Scalar<float>("tauEt",0.0);
     auto tauEtEt15BDTLoose = Monitored::Scalar<float>("tauEtEt15BDTLoose",0.0);
@@ -66,6 +64,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 
     auto tauCharge = Monitored::Scalar<int>("tauCharge",0.0);
+    auto RNNJetScore = Monitored::Scalar<float>("RNNJetScore",0.0);
+
     auto NumTracks = Monitored::Scalar<int>("NumTracks",0.0);
     auto NumTracksEt15BDTLoose = Monitored::Scalar<int>("NumTracksEt15BDTLoose",0.0);
 
@@ -99,13 +99,10 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto jetSeedPhi = Monitored::Scalar<float>("jetSeedPhi",0.0);
     auto jetSeedPt = Monitored::Scalar<float>("jetSeedPt",0.0);
 
-    auto BDTEleScoreSigTrans = Monitored::Scalar<float>("BDTEleScoreSigTrans",0.0);
     auto BDTJetScore = Monitored::Scalar<float>("BDTJetScore",0.0);
     auto BDTJetScoreSigTrans = Monitored::Scalar<float>("BDTJetScoreSigTrans",0.0);
     auto JetBDTBkgMedium  = Monitored::Scalar<float>("JetBDTBkgMedium",0.0);
 
-    auto eleBDTMedium = Monitored::Scalar<float>("eleBDTMedium",0.0);
-    auto eleBDTTight = Monitored::Scalar<float>("eleBDTTight",0.0);
     auto muonVeto = Monitored::Scalar<float>("muonVeto",0.0);
 
 
@@ -212,13 +209,11 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         //identification
         BDTJetScore = tau->discriminant(xAOD::TauJetParameters::BDTJetScore);
         BDTJetScoreSigTrans = tau->discriminant(xAOD::TauJetParameters::BDTJetScoreSigTrans);
+        RNNJetScore =  tau->discriminant(xAOD::TauJetParameters::TauID::RNNJetScore);
 
         JetBDTBkgMedium = tau->isTau(xAOD::TauJetParameters::JetBDTBkgMedium);
 
-        BDTEleScoreSigTrans = tau->auxdata<float>("BDTEleScoreSigTrans"); 
 
-        eleBDTMedium =       tau->isTau(xAOD::TauJetParameters::EleBDTMedium);
-        eleBDTTight  =       tau->isTau(xAOD::TauJetParameters::EleBDTTight);
         muonVeto     =       tau->isTau(xAOD::TauJetParameters::MuonVeto);
         tauBDTLoose  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
         tauBDTMedium =       tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
@@ -272,10 +267,25 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
             if (m_kinGroupName != "tauMonKinGroupHighPt"&& m_kinGroupName!="tauMonKinGroupHighPtBDTLoose"){
 
                 if (
-                     (m_kinGroupName != "tauMonKinGroupTauTrig"  && m_kinGroupName != "tauMonKinGroupEleTrig" && m_kinGroupName != "tauMonKinGroupJetTrig") || 
-                     (m_kinGroupName == "tauMonKinGroupTauTrig" && !trigDecTool.empty() && trigDecTool->isPassed("HLT_tau[2-9][0-9]_.*")) ||
-                     (m_kinGroupName == "tauMonKinGroupEleTrig" && !trigDecTool.empty() && trigDecTool->isPassed("HLT_e[2-9][0-9]_.*")) ||
-                     (m_kinGroupName == "tauMonKinGroupJetTrig" && !trigDecTool.empty() && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*"))
+                     (
+                      m_kinGroupName != "tauMonKinGroupTauTrig1"  &&
+                      m_kinGroupName != "tauMonKinGroupTauTrig2"  &&
+                      m_kinGroupName != "tauMonKinGroupTauTrig3"  &&
+                      m_kinGroupName != "tauMonKinGroupTauTrig4"  &&
+                      m_kinGroupName != "tauMonKinGroupTauTrig5"  &&
+                      m_kinGroupName != "tauMonKinGroupTauTrig6"  &&
+                      m_kinGroupName != "tauMonKinGroupTauTrig7"  &&
+                      m_kinGroupName != "tauMonKinGroupEleTrig"  &&
+                      m_kinGroupName != "tauMonKinGroupJetTrig") || 
+                     (m_kinGroupName == "tauMonKinGroupTauTrig1" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25")) ||
+                     (m_kinGroupName == "tauMonKinGroupTauTrig2" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1DR-TAU20ITAU12I-J25")) ||
+                     (m_kinGroupName == "tauMonKinGroupTauTrig3" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25")) ||
+                     (m_kinGroupName == "tauMonKinGroupTauTrig4" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dR30_L1DR-TAU20ITAU12I-J25")) ||
+                     (m_kinGroupName == "tauMonKinGroupTauTrig5" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_03dR30_L1DR-TAU20ITAU12I-J25")) ||
+                     (m_kinGroupName == "tauMonKinGroupTauTrig6" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau160_medium1_tracktwoEF_L1TAU100")) ||
+                     (m_kinGroupName == "tauMonKinGroupTauTrig7" && trigDecTool !=0 && trigDecTool->isPassed("HLT_tau200_medium1_tracktwoEF_L1TAU100 (2184)")) ||
+                     (m_kinGroupName == "tauMonKinGroupEleTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_e[2-9][0-9]_.*")) ||
+                     (m_kinGroupName == "tauMonKinGroupJetTrig" && trigDecTool !=0 && trigDecTool->isPassed("HLT_j[2-9][0-9]_.*"))
                 ){
 
                     if(m_kinGroupName != "tauMonKinGroupGlobal" && tauEt > lowerEtThreshold && tauBDTLoose){
@@ -450,13 +460,10 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                     ,etEMAtEMScale
                     ,etHadAtEMScale
                     ,tauCharge
-                    ,BDTEleScoreSigTrans
                     ,BDTJetScore
                     ,BDTJetScoreSigTrans
                     ,JetBDTBkgMedium
-                    ,BDTEleScoreSigTrans
-                    ,eleBDTMedium
-                    ,eleBDTTight
+                    ,RNNJetScore
                     ,muonVeto
                     ,tauBDTLoose
                     ,tauBDTMedium

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Python function implementation of B-tagging configuration
 # Wouter van den Wollenberg (2013-2015)
@@ -42,7 +42,6 @@ from BTagging.BTaggingConfiguration_IP3DNegTag import *
 from BTagging.BTaggingConfiguration_IP3DTag import *
 from BTagging.BTaggingConfiguration_IP3DTrigTag import *
 from BTagging.BTaggingConfiguration_IP3DTrigHybridTag import *
-from BTagging.BTaggingConfiguration_RNNIPTag import *
 
 # Jet fitter taggers
 #from BTagging.BTaggingConfiguration_JetFitterCOMB import *
@@ -107,26 +106,17 @@ from BTagging.BTaggingConfiguration_MV2c100Tag import *
 from BTagging.BTaggingConfiguration_MV2c100FlipTag import *
 from BTagging.BTaggingConfiguration_MV2cl100Tag import *
 from BTagging.BTaggingConfiguration_MV2cl100FlipTag import *
-from BTagging.BTaggingConfiguration_MV2mTag import *
-from BTagging.BTaggingConfiguration_MV2mFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c10hpTag import *
 from BTagging.BTaggingConfiguration_MV2c10hpFlipTag import *
 
 #JetVertexCharge tool
 from BTagging.BTaggingConfiguration_JetVertexCharge import *
 
-#ExKtbb tool
-from BTagging.BTaggingConfiguration_ExKtbbTag import *
-
 # MultivariateTagManager
 from BTagging.BTaggingConfiguration_MultivariateTagManager import *
 from BTagging.BTaggingConfiguration_MultivariateTrigTagManager import *
 from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
 from BTagging.BTaggingConfiguration_MultiTrigHybridTagManager import *
-
-# DL1 tagger
-from BTagging.BTaggingConfiguration_DL1Tag import *
-from BTagging.BTaggingConfiguration_DL1FlipTag import *
 
 # TagNtupleDumper
 from BTagging.BTaggingConfiguration_TagNtupleDumper import *
@@ -1475,9 +1465,11 @@ class Configuration:
       #options.setdefault('BTagLabelingTool', None)
       #options.setdefault('vxPrimaryCollectionName',BTaggingFlags.PrimaryVertexCollectionName)
       #options.setdefault('OutputLevel', BTaggingFlags.OutputLevel)
-      btagtool = toolMainBTaggingTool('btag', **options)
       if self._name == "Trig":
+          btagtool = toolMainBTaggingTool('btag_Trig', **options)
           ToolSvc += btagtool
+      else:
+          btagtool = toolMainBTaggingTool('btag', **options)
       if BTaggingFlags.OutputLevel < 3:
           print (self.BTagTag()+' - DEBUG - Setting up BTagTool for jet collection: '+jetcol)
       if self._BTaggingConfig_JetCollections.get(jetcol, None) is None:

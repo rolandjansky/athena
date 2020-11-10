@@ -17,17 +17,10 @@
 #include "RDBVersionAccessor.h"
 #include "RDBQuery.h"
 
-#include "RelationalAccess/RelationalServiceException.h"
-#include "RelationalAccess/SchemaException.h"
-#include "RelationalAccess/SessionException.h"
-#include "RelationalAccess/IRelationalService.h"
-#include "RelationalAccess/IRelationalDomain.h"
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/SchemaException.h"
 #include "RelationalAccess/ConnectionService.h"
-#include "RelationalAccess/IConnectionService.h"
-#include "RelationalAccess/AccessMode.h"
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/ITable.h"
 #include "RelationalAccess/ISchema.h"
@@ -36,14 +29,11 @@
 #include "CxxUtils/checker_macros.h"
 
 #include "CoralBase/Exception.h"
-#include "RelationalAccess/AuthenticationServiceException.h"
-
-#include "GaudiKernel/ServiceHandle.h"
 
 #include <thread>
 
-RDBAccessSvc::RDBAccessSvc(const std::string& name, ISvcLocator* svc):
-  AthService(name,svc)
+RDBAccessSvc::RDBAccessSvc(const std::string& name, ISvcLocator* svc)
+  : AthService(name,svc)
 {
 }
 
@@ -53,6 +43,7 @@ RDBAccessSvc::~RDBAccessSvc()
 
 bool RDBAccessSvc::connect(const std::string& connName)
 {
+  std::lock_guard<std::mutex> guard(m_sessionMutex);
   // Check if it is the first attempt to open a connection connName
   if(m_sessions.find(connName)==m_sessions.end()) {
     ATH_MSG_DEBUG(" Trying to open the connection " << connName << " for the first time");
@@ -62,7 +53,7 @@ bool RDBAccessSvc::connect(const std::string& connName)
     // 3. Recordset by connection
     m_sessions[connName] = 0;
     m_openConnections[connName] = 0;
-    m_recordsetptrs[connName] = new RecordsetPtrMap();
+    m_recordsetptrs.emplace(connName,RecordsetPtrMap());
   }
 
   // Use existing Connection Proxy if available
@@ -76,6 +67,7 @@ bool RDBAccessSvc::connect(const std::string& connName)
   coral::ISessionProxy *proxy = 0;
   try {
     proxy = conSvcH.connect(connName,coral::ReadOnly);
+    proxy->transaction().start(true);
     ATH_MSG_DEBUG("Proxy for connection "  << connName << " obtained");
   }
   catch(std::exception& e) {
@@ -91,28 +83,27 @@ bool RDBAccessSvc::connect(const std::string& connName)
 
 bool RDBAccessSvc::disconnect(const std::string& connName)
 {
-  if(m_openConnections.find(connName)==m_openConnections.end()) {
+  auto connection = m_openConnections.find(connName);
+  if(connection==m_openConnections.end()) {
     ATH_MSG_ERROR("Wrong name for the connection: " << connName);
     return false;
   }
 
-  if(m_openConnections[connName]>0) {
-    m_openConnections[connName]--;
+  std::lock_guard<std::mutex> guard(m_sessionMutex); 
+  if(connection->second>0) {
+    connection->second--;
     
-    ATH_MSG_DEBUG("Connection " << connName << " Sessions = " << m_openConnections[connName]);
+    ATH_MSG_DEBUG("Connection " << connName << " Sessions = " << connection->second);
 
-    if(m_openConnections[connName]==0) {
-      if(m_sessions.find(connName)!=m_sessions.end()) {
-	delete m_sessions[connName];
-	m_sessions[connName] = 0;
+    if(connection->second==0) {
+      auto session = m_sessions.find(connName);
+      if(session!=m_sessions.end()) {
+	session->second->transaction().commit();
+	delete session->second;
+	session->second = nullptr;
       }
       
       ATH_MSG_DEBUG(connName << " Disconnected!");
-
-      // clean up all shared recordsets for this connection
-      if(m_recordsetptrs.find(connName)!=m_recordsetptrs.end()) {
-	m_recordsetptrs[connName]->clear();
-      }
     }
   }
   return true;
@@ -123,8 +114,10 @@ bool RDBAccessSvc::shutdown(const std::string& connName)
   if(connName=="*Everything*") {
     for(const auto& ii : m_openConnections) {
       if(ii.second != 0) {
-	ATH_MSG_WARNING("Close everything: Connection: " << ii.first << " with reference count = " << ii.second << " will be closed.");
-	return shutdown_connection(ii.first);
+	ATH_MSG_INFO("Close everything: Connection: " << ii.first << " with reference count = " << ii.second << " will be closed.");
+	if(!shutdown_connection(ii.first)) {
+	  return false;
+	}
       }
     }
     return true;
@@ -135,33 +128,31 @@ bool RDBAccessSvc::shutdown(const std::string& connName)
 
 bool RDBAccessSvc::shutdown_connection(const std::string& connName)
 {
-  if(m_openConnections.find(connName)==m_openConnections.end()) {
+  auto connection = m_openConnections.find(connName);
+  if(connection==m_openConnections.end()) {
     ATH_MSG_ERROR("Wrong name for the connection: " << connName);
     return false;
   }
-
-  m_openConnections[connName]=0;
+  std::lock_guard<std::mutex> guard(m_sessionMutex);
+  connection->second = 0;
   
-  ATH_MSG_DEBUG("Connection " << connName << " Sessions = " << m_openConnections[connName]);
-  if(m_sessions.find(connName)!=m_sessions.end()) {
-    delete m_sessions[connName];
-    m_sessions[connName] = 0;
+  auto session = m_sessions.find(connName);
+  if(session!=m_sessions.end() 
+     && session->second) {
+    session->second->transaction().commit();
+    delete session->second;
+    session->second = nullptr;
   }
   
   ATH_MSG_DEBUG(connName << " Disconnected!");
 
-  // clean up all shared recordsets for this connection
-  if(m_recordsetptrs.find(connName)!=m_recordsetptrs.end()) {
-    m_recordsetptrs[connName]->clear();
-  }
-
   return true;
 }
 
-IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
-						const std::string& tag,
-						const std::string& tag2node,
-						const std::string& connName)
+IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node
+						, const std::string& tag
+						, const std::string& tag2node
+						, const std::string& connName)
 {
   std::string key = node + "::" + tag;
   if(tag2node!="")
@@ -169,15 +160,15 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
 
   ATH_MSG_DEBUG("Getting RecordsetPtr with key " << key);
 
-  std::lock_guard<std::mutex> guard(m_mutex);
+  std::lock_guard<std::mutex> guard(m_recordsetMutex);
   if(!connect(connName)) {
     ATH_MSG_ERROR("Unable to open connection " << connName << ". Returning empty recordset");
     return IRDBRecordset_ptr(new RDBRecordset(this));
   }
 
-  RecordsetPtrMap* recordsets = m_recordsetptrs[connName];
-  RecordsetPtrMap::const_iterator it = recordsets->find(key);
-  if(it != recordsets->end()) {
+  RecordsetPtrMap& recordsets = m_recordsetptrs[connName];
+  RecordsetPtrMap::const_iterator it = recordsets.find(key);
+  if(it != recordsets.end()) {
     ATH_MSG_DEBUG("Reusing existing recordset");
     disconnect(connName);
     return it->second;
@@ -188,9 +179,6 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
   coral::ISessionProxy* session = m_sessions[connName];
 
   try {
-    // Start new readonly transaction
-    session->transaction().start(true);
-
     // Check lookup table first
     std::string lookupMapKey = tag + "::" + connName;
     GlobalTagLookupMap::const_iterator lookupmap = m_globalTagLookup.find(lookupMapKey);
@@ -209,9 +197,6 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
       versionAccessor.getChildTagData();
       recConcrete->getData(session,versionAccessor.getNodeName(),versionAccessor.getTagName(),versionAccessor.getTagID());
     }
-	
-    // Finish the transaction
-    session->transaction().commit();
   }
   catch(coral::SchemaException& se) {
     ATH_MSG_ERROR("Schema Exception : " << se.what());
@@ -223,18 +208,18 @@ IRDBRecordset_ptr RDBAccessSvc::getRecordsetPtr(const std::string& node,
     ATH_MSG_ERROR("Exception caught(...)");
   }
 
-  (*recordsets)[key] = rec;
+  recordsets.emplace(key,rec);
   disconnect(connName);
   return rec;
 }
 
-std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node,
-						  const std::string& tag,
-						  const std::string& tag2node,
-						  const std::string& connName)
+std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node
+						  , const std::string& tag
+						  , const std::string& tag2node
+						  , const std::string& connName)
 {
   ATH_MSG_DEBUG("getQuery (" << node << "," << tag << "," << tag2node << "," << connName << ")");
-  std::lock_guard<std::mutex> guard(m_mutex);
+  std::lock_guard<std::mutex> guard(m_recordsetMutex);
 
   std::unique_ptr<IRDBQuery> query;
 
@@ -257,22 +242,16 @@ std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node,
       }
     }
     else {
-      // Start new readonly transaction
-      session->transaction().start(true);
-
       RDBVersionAccessor versionAccessor{node,(tag2node.empty()?node:tag2node),tag,session,msg()};
       versionAccessor.getChildTagData();
       childTagId = versionAccessor.getTagID();
-      
-      // Finish the transaction
-      session->transaction().commit();
     }
 
     if(childTagId.empty()) {
       ATH_MSG_WARNING("Could not get the tag for " << node << " node. Returning 0 pointer to IRDBQuery");
     }
     else {
-      query = std::unique_ptr<IRDBQuery>(new RDBQuery(this,session,node,childTagId,connName));
+      query = std::unique_ptr<IRDBQuery>(new RDBQuery(this,node,childTagId,connName));
     }
   }
   catch(coral::SchemaException& se) {
@@ -289,10 +268,10 @@ std::unique_ptr<IRDBQuery> RDBAccessSvc::getQuery(const std::string& node,
   return query;
 }
 
-std::string RDBAccessSvc::getChildTag(const std::string& childNode,
-				      const std::string& parentTag,
-				      const std::string& parentNode,
-				      const std::string& connName)
+std::string RDBAccessSvc::getChildTag(const std::string& childNode
+				      , const std::string& parentTag
+				      , const std::string& parentNode
+				      , const std::string& connName)
 {
   return getChildTag(childNode
 		     , parentTag
@@ -301,14 +280,14 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
 		     , false);
 }
 
-std::string RDBAccessSvc::getChildTag(const std::string& childNode,
-				      const std::string& parentTag,
-				      const std::string& parentNode,
-				      const std::string& connName,
-				      bool force)
+std::string RDBAccessSvc::getChildTag(const std::string& childNode
+				      , const std::string& parentTag
+				      , const std::string& parentNode
+				      , const std::string& connName
+				      , bool force)
 {
   ATH_MSG_DEBUG("getChildTag for " << childNode << " " << parentTag << " " << parentNode);
-  std::lock_guard<std::mutex> guard(m_mutex);
+  std::lock_guard<std::mutex> guard(m_recordsetMutex);
 
   // Check lookup table first
   std::string lookupMapKey = parentTag + "::" + connName;
@@ -333,15 +312,9 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
   std::string childTag("");
   try {
     // We don't have lookup table for given parent tag. Go into slow mode through Version Accessor
-    // Start new readonly transaction
     coral::ISessionProxy* session = m_sessions[connName];
-    session->transaction().start(true);
-
     RDBVersionAccessor versionAccessor(childNode,parentNode,parentTag,session,msg());
     versionAccessor.getChildTagData();
-	      
-    // Finish the transaction
-    session->transaction().commit(); 
 
     childTag = versionAccessor.getTagName();
   }
@@ -360,12 +333,12 @@ std::string RDBAccessSvc::getChildTag(const std::string& childNode,
   return childTag;
 }
 
-void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails,
-                                 const std::string& tag,
-                                 const std::string& connName)
+void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails
+                                 , const std::string& tag
+                                 , const std::string& connName)
 {
   ATH_MSG_DEBUG("getTagDetails for tag: " << tag);
-  std::lock_guard<std::mutex> guard(m_mutex);
+  std::lock_guard<std::mutex> guard(m_recordsetMutex);
 
   if(!connect(connName)) {
     ATH_MSG_ERROR("Failed to open connection " << connName);
@@ -373,9 +346,6 @@ void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails,
 
   coral::ISessionProxy* session = m_sessions[connName];
   try {
-    // Start new readonly transaction
-    session->transaction().start(true);
-	
     coral::ITable& tableTag2Node = session->nominalSchema().tableHandle("HVS_TAG2NODE");
     coral::IQuery *queryTag2Node = tableTag2Node.newQuery();
     queryTag2Node->addToOutputList("LOCKED");
@@ -426,10 +396,6 @@ void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails,
 	delete lookup;
       }
     }
-    // Finish the transaction
-    if(session->transaction().isActive()) {
-      session->transaction().commit();
-    }
   }
   catch(coral::SchemaException& se) {
     ATH_MSG_INFO("Schema Exception : " << se.what());
@@ -444,8 +410,8 @@ void RDBAccessSvc::getTagDetails(RDBTagDetails& tagDetails,
   disconnect(connName);
 }
 
-void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
-				   const std::string& connName)
+void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list
+				   , const std::string& connName)
 {
   list.clear();
   if(!connect(connName)) {
@@ -455,9 +421,6 @@ void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
 
   coral::ISessionProxy* session = m_sessions[connName];
   try {
-    // Start new readonly transaction
-    session->transaction().start(true);
-
     coral::ITable& tableNode = session->nominalSchema().tableHandle("HVS_NODE");
     coral::IQuery *queryNode = tableNode.newQuery();
     queryNode->addToOutputList("NODE_NAME");
@@ -472,11 +435,6 @@ void RDBAccessSvc::getAllLeafNodes(std::vector<std::string>& list,
     }
     
     delete queryNode;
-
-    // Finish the transaction
-    if(session->transaction().isActive()) {
-      session->transaction().commit();
-    }
   }
   catch(coral::SchemaException& se) {
     ATH_MSG_INFO("Schema Exception : " << se.what());
@@ -536,6 +494,12 @@ std::vector<std::string> RDBAccessSvc::getLockedSupportedTags(const std::string&
   return taglist;
 }
 
+coral::ISessionProxy* RDBAccessSvc::getSession(const std::string& connName)
+{
+  auto sessionIt = m_sessions.find(connName);
+  return sessionIt == m_sessions.end() ? nullptr : sessionIt->second;
+}
+
 StatusCode RDBAccessSvc::initialize()
 {
   return StatusCode::SUCCESS;
@@ -543,12 +507,6 @@ StatusCode RDBAccessSvc::initialize()
 
 StatusCode RDBAccessSvc::finalize()
 {
-  // Clean up all remaining recordsets
-  RecordsetPtrsByConn::iterator first_ptr_map = m_recordsetptrs.begin();
-  RecordsetPtrsByConn::iterator last_ptr_map = m_recordsetptrs.end();
-  for(;first_ptr_map!=last_ptr_map;++first_ptr_map) {
-    delete first_ptr_map->second;
-  }
   m_recordsetptrs.clear();
 
   // Clear global tag lookup table

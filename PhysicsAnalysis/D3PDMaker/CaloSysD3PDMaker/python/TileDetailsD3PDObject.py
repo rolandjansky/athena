@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id: TileDetailsD3PDObject.py 522639 2012-10-22 09:41:42Z ssnyder $
 
@@ -21,10 +21,10 @@ def makeTileD3PDObject (name, prefix, object_name='TileDetailsD3PDObject', gette
     if label == None: label = prefix
 
     
-    print " makeTileD3PDObject: name = ", name
-    print " makeTileD3PDObject: prefix = ", prefix
-    print " makeTileD3PDObject: object_name = ", object_name
-    print " makeTileD3PDObject: sgkey = ", sgkey
+    print(" makeTileD3PDObject: name = ", name)
+    print(" makeTileD3PDObject: prefix = ", prefix)
+    print(" makeTileD3PDObject: object_name = ", object_name)
+    print(" makeTileD3PDObject: sgkey = ", sgkey)
 
     if not getter:
         getter = D3PDMakerCoreComps.SGDataVectorGetterTool \
@@ -52,7 +52,7 @@ def hookForTileCellFilterAlg(c, prefix, *args, **kw) :
     if BaseSGKey == None or BaseSGKey=='holder' : BaseSGKey='AllCalo'
     sgkey = prefix
 
-    print " in makeTileD3PDObject, sgkey, cellSigmaCut = ",  sgkey, cellSigmaCut
+    print(" in makeTileD3PDObject, sgkey, cellSigmaCut = ",  sgkey, cellSigmaCut)
 
     filter = makeTileCellFilterAlg(OutputCellsName=sgkey, 
                                    CellSigmaCut=cellSigmaCut, 

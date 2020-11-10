@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 import os
 
 def readReleaseList():
@@ -12,7 +10,7 @@ def readReleaseList():
     for line in f:
         try:
             release_list.append(line.split()[0])
-        except:
+        except Exception:
             pass
     return release_list
 
@@ -107,7 +105,7 @@ def writeManyFiles(release_list):
     for idx,ref in enumerate(release_list):
         try:
             val = release_list[idx+1]
-        except:
+        except Exception:
             return 0
         #print (rel, val)
         execute_all_steps(ref,val)

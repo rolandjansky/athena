@@ -55,6 +55,10 @@ StatusCode MdtCalibrationDbTool::initialize() {
   ATH_CHECK(m_readKeyRt.initialize());
   ATH_CHECK(m_readKeyTube.initialize());
   ATH_CHECK(m_readKeyCor.initialize (m_createSlewingFunction || m_createWireSagFunction || m_create_b_field_function));
+  
+  if (!m_wasConfigured){
+    ATH_MSG_WARNING( "This tool is too complicated to rely on defaults. Potential configuration issue." );
+  }
 
   return StatusCode::SUCCESS;
 }  //end MdtCalibrationDbTool::initialize

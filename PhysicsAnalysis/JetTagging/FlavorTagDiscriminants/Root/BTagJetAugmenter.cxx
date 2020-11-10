@@ -8,6 +8,7 @@
 #include <cstddef>
 
 #include "xAODJet/Jet.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 #include "TVector3.h"
 
@@ -206,7 +207,7 @@ void BTagJetAugmenter::augmentIpRatios(const xAOD::BTagging& btag) {
 void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
                                       const xAOD::Jet &uncalib) {
 
-  const xAOD::BTagging* btag_ptr = target.btagging();
+  const xAOD::BTagging* btag_ptr = xAOD::BTaggingUtilities::getBTagging( target );
   if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
   const xAOD::BTagging& btag = *btag_ptr;
 
@@ -217,7 +218,7 @@ void BTagJetAugmenter::augmentBtagJes(const xAOD::Jet &target,
 }
 
 void BTagJetAugmenter::augment(const xAOD::Jet &jet) {
-  const xAOD::BTagging* btag_ptr = jet.btagging();
+  const xAOD::BTagging *btag_ptr = xAOD::BTaggingUtilities::getBTagging( jet );
   if (!btag_ptr) throw std::runtime_error("No b-tagging object found!");
   const xAOD::BTagging& btag = *btag_ptr;
 

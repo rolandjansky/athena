@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Class to obtain the chain configuration dictionary from the short or long name
@@ -37,7 +37,8 @@ def getOverallL1item(chainName):
         return ''
     if l1seed == 'L1_test': #Multiseeded chains are build like this
         return 'L1_EM24VHI,L1_MU20'
-    if l1seed == 'L1_Bkg' or l1seed == 'L1_Standby' or l1seed == 'L1_Calo' or l1seed == 'L1_Calo_EMPTY':
+    if l1seed in ['L1_Bkg', 'L1_Standby', 'L1_Calo', 'L1_Calo_EMPTY', 'L1_PhysicsHigh_noPS', 'L1_PhysicsVeryHigh_noPS',
+        'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS'] :
         # For these item seed specifications we need to derive the precise list of item names from the L1Menu.
         # During the transition period to the new menu format it is important to pick the correct kind based
         # on the temporary TriggerFlag readLVL1FromJSON.
@@ -147,6 +148,7 @@ def getChainMultFromDict(chainDict):
     Look for all multiplicities stored in chains
     """
     allMultis = []
+   
     for cpart in chainDict['chainParts']:
         if cpart['multiplicity'] != '':
             allMultis.append( int(cpart['multiplicity']))
@@ -222,13 +224,14 @@ def analyseChainName(chainName, L1thresholds, L1item):
     from .SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
         AllowedCalibChainIdentifiers, AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
     
-    from .MenuAlignmentTools import getAlignmentGroupFromPattern
+    from .MenuAlignmentTools import get_alignment_group_from_pattern as getAlignmentGroupFromPattern
     
     def buildDict(signature, sigToken ):
         groupdict = {'signature': signature, 'threshold': '', 'multiplicity': '',
                      'trigType': sigToken, 'extra': ''}
         mdicts.append( groupdict )
 
+       
     log.debug("chain parts: %s", cparts)
     for cpart in cparts:
 
@@ -251,13 +254,13 @@ def analyseChainName(chainName, L1thresholds, L1item):
                 if theMultiChainIndex not in multichainindex:
                     multichainindex.append(theMultiChainIndex)
 
-            log.debug("HLTChainName: %s", hltChainName)
-            log.debug("HLTChainNameShort: %s", hltChainNameShort)
-            log.debug("cpart: %s", cpart)
-            log.debug("groupdict: %s", groupdict)
-            log.debug("multichainindex: %s", multichainindex)
+                    log.debug("HLTChainName: %s", hltChainName)
+                    log.debug("HLTChainNameShort: %s", hltChainNameShort)
+                    log.debug("cpart: %s", cpart)
+                    log.debug("groupdict: %s", groupdict)
+                    log.debug("multichainindex: %s", multichainindex)
 
-            sName = getSignatureNameFromToken(cpart)
+                sName = getSignatureNameFromToken(cpart)
             
             groupdict['signature'] = sName
             groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
@@ -278,7 +281,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
                                   (['eb'], 'EnhancedBias', 'eb')]:
                 if cpart in chainCategory[0]:
-                    log.debug('Doing chain type {}'.format(chainCategory[1]))
+                    log.debug('Doing chain type %s', chainCategory[1])
                     multichainindex.append(hltChainNameShort.index(cpart))
                     buildDict(chainCategory[1], chainCategory[2])
 
@@ -500,7 +503,7 @@ def dictFromChainName(chainInfo):
         mergingOffset   = chainInfo.mergingOffset
         mergingOrder    = chainInfo.mergingOrder
         topoStartFrom   = chainInfo.topoStartFrom
-
+        
     else:
         assert True, "Format of chainInfo passed to genChainDict not known"
 

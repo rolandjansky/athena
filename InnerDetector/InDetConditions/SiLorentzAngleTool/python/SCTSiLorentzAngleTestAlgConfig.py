@@ -4,10 +4,12 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 
 def SCTSiLorentzAngleTestAlgCfg(flags, name="SCTSiLorentzAngleTestAlg", **kwargs):
     """Return a configured SCTSiLorentzAngleTestAlg"""
     acc = ComponentAccumulator()
+    acc.merge(GeoModelCfg(flags)) # For SCT_ID used in SCTSiLorentzAngleTestAlg
     from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
     kwargs.setdefault("SCTLorentzAngleTool", acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags)))
     acc.addEventAlgo(CompFactory.SCTSiLorentzAngleTestAlg(**kwargs))
@@ -40,4 +42,3 @@ if __name__=="__main__":
     cfg.merge(SCTSiLorentzAngleTestAlgCfg(ConfigFlags))
 
     cfg.run(maxEvents=20)
-                                                                                                                                

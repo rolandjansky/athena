@@ -102,20 +102,14 @@ CpByteStreamV2Tool::~CpByteStreamV2Tool()
 
 StatusCode CpByteStreamV2Tool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                   << PACKAGE_VERSION << endmsg;
+    ATH_MSG_INFO ("Initializing " << name() << " - package version "
+                  << PACKAGE_VERSION);
 
     CHECK(m_cpmMaps.retrieve());
     CHECK(m_errorTool.retrieve());
     CHECK(m_robDataProvider.retrieve());
+    ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
     
-    return StatusCode::SUCCESS;
-}
-
-// Finalize
-
-StatusCode CpByteStreamV2Tool::finalize()
-{
     return StatusCode::SUCCESS;
 }
 
@@ -187,27 +181,27 @@ StatusCode CpByteStreamV2Tool::convert(
 
 // Conversion of CP container to bytestream
 
-StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
-                                       RawEventWrite *const re) const
+StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp) const
 {
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
 
-    // Clear the event assembler
-    FullEventAssembler<L1CaloSrcIdMap> fea;
-    fea.clear();
+    // Get the event assembler
+    FullEventAssembler<L1CaloSrcIdMap>* fea = nullptr;
+    ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                          "CpByteStreamV2") );
     const uint16_t minorVersion = m_srcIdMap.minorVersion();
-    fea.setRodMinorVersion(minorVersion);
+    fea->setRodMinorVersion(minorVersion);
 
     // Pointer to ROD data vector
 
     FullEventAssembler<L1CaloSrcIdMap>::RODDATA *theROD = 0;
 
-    // Set up the container maps
-
     LVL1::TriggerTowerKey towerKey;
 
-   // CPM tower map
+    // Set up the container maps
+
+    // CPM tower map
     ConstCpmTowerMap  ttMap;
     setupCpmTowerMap(cp->towers(), ttMap, towerKey);
 
@@ -279,7 +273,7 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
                 userHeader.setCpm(trigCpmNew);
                 const uint32_t rodIdCpm = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
                                           m_subDetector);
-                theROD = fea.getRodData(rodIdCpm);
+                theROD = fea->getRodData(rodIdCpm);
                 theROD->push_back(userHeader.header());
             }
             if (debug) msg() << "Module " << module << endmsg;
@@ -482,10 +476,6 @@ StatusCode CpByteStreamV2Tool::convert(const LVL1::CPBSCollectionV2 *const cp,
         }
     }
 
-    // Fill the raw event
-
-    fea.fill(re, msg());
-
     return StatusCode::SUCCESS;
 }
 
@@ -531,7 +521,7 @@ StatusCode CpByteStreamV2Tool::convertBs(
 {
     LocalData ld;
 
-    const std::string flag("Overlap");
+    const static std::string flag("Overlap");
     const std::string::size_type pos = sgKey.find(flag);
     ld.coreOverlap =
         (pos == std::string::npos || pos != sgKey.length() - flag.length()) ? 0 : 1;

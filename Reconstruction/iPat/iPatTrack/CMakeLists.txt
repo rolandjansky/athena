@@ -1,23 +1,7 @@
-################################################################################
-# Package: iPatTrack
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( iPatTrack )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          Reconstruction/iPat/iPatTrackParameters
-                          Tracking/TrkEvent/TrkParameters
-                          PRIVATE
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkMaterialOnTrack
-                          Tracking/TrkEvent/TrkMeasurementBase
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkExtrapolation/TrkExUtils )
 
 # Component(s) in the package:
 atlas_add_library( iPatTrack

@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef PLOTMANAGER_H_
 #define PLOTMANAGER_H_
@@ -17,14 +17,13 @@ namespace EL {
 }
 
 namespace top {
-
 /**
  * @brief A map that lets you create a bunch of histograms and get hold of them
  * via a string name.  It takes care of writing them to the outputfile too - if
  * you have one.
  */
-class PlotManager {
-public:
+  class PlotManager {
+  public:
     /**
      * @brief A name for the selection.  Plots will be stored in a folder
      * with this name in the output file.  e.g. ejets, mujets etc.
@@ -34,11 +33,11 @@ public:
      * of a folder because... well... ROOT!
      */
     explicit PlotManager(const std::string& name, TFile* outputFile = nullptr, EL::Worker* wk = nullptr);
-    
-    PlotManager(const std::string& sample,const std::string& channel,const std::string& syst,TFile* outputFile);
+
+    PlotManager(const std::string& sample, const std::string& channel, const std::string& syst, TFile* outputFile);
 
     /**
-     * @brief Add a histogram to the output file.
+     * @brief Add a 1D histogram to the output file.
      *
      * @param hname A unique name, notice that we automatically add the name
      * of the analysis on to this with an underscore.
@@ -50,6 +49,17 @@ public:
     void addHist(const std::string& hname, const std::string& title, int bins, double start, double end) const;
 
     /**
+     * @brief Add a 1D histogram with variable bin size to the output file.
+     *
+     * @param hname A unique name, notice that we automatically add the name
+     * of the analysis on to this with an underscore.
+     * @param title The histogram title, as root expects.
+     * @param bins The number of bins, passed directly to root.
+     * @param binArray The array with bin edges
+     */
+    void addHist(const std::string& hname, const std::string& title, int bins, double* binArray) const;
+
+    /**
      * @brief Add a 2D histogram to the output file.
      *
      * @param hname A unique name, notice that we automatically add the name
@@ -58,13 +68,44 @@ public:
      * @param xbins The number of x-bins, passed directly to root.
      * @param xstart The starting x-value, passed directly to root.
      * @param xend The ending x-value, passed directly to root.
-     * @param xbins The number of y-bins, passed directly to root.
-     * @param xstart The starting y-value, passed directly to root.
-     * @param xend The ending y-value, passed directly to root.
+     * @param ybins The number of y-bins, passed directly to root.
+     * @param ystart The starting y-value, passed directly to root.
+     * @param yend The ending y-value, passed directly to root.
      */
     void addHist(const std::string& hname, const std::string& title,
-		 int xbins, double xstart, double xend,
-		 int ybins, double ystart, double yend) const;
+                 int xbins, double xstart, double xend,
+                 int ybins, double ystart, double yend) const;
+
+    /**
+     * @brief Add a 2D histogram with variable bin size to the output file.
+     *
+     * @param hname A unique name, notice that we automatically add the name
+     * of the analysis on to this with an underscore.
+     * @param title The histogram title, as root expects.
+     * @param xbins The number of x-bins, passed directly to root.
+     * @param xbinArray The array with x-bin edges, passed directly to root.
+     * @param ybins The number of y-bins, passed directly to root.
+     * @param ybinArray The array with y-bin edges, passed directly to root.
+     */
+    void addHist(const std::string& hname, const std::string& title,
+                 int xbins, double* xbinArray,
+                 int ybins, double* ybinArray) const;
+
+    /**
+     * @brief Add a 2D histogram with variable bin size to the output file.
+     *
+     * @param hname A unique name, notice that we automatically add the name
+     * of the analysis on to this with an underscore.
+     * @param title The histogram title, as root expects.
+     * @param xbins The number of x-bins, passed directly to root.
+     * @param xbinArray The array with x-bin edges, passed directly to root.
+     * @param ybins The number of y-bins, passed directly to root.
+     * @param ystart The starting y-value, passed directly to root.
+     * @param yend The ending y-value, passed directly to root.
+     */
+    void addHist(const std::string& hname, const std::string& title,
+                 int xbins, double* xbinArray,
+                 int ybins, double ystart, double yend) const;
 
     /**
      * @brief Recover an existing histogram, to fill it for example.
@@ -82,8 +123,17 @@ public:
      * on each histogram.  I'm assuming you have an open file already.
      */
     void scaleHistograms(double sf = 1.) const;
+  private:
+    /**
+     * @brief Helper method to check for duplicates when adding histogram.
+     * 
+     * If duplicate histogram exists with same name as hname, print
+     * error message and throw std::runtime_error
+     *
+     * @param hname Name of the histogram to check against duplicates.
+     */
+    void checkDuplicate(const std::string& hname) const;
 
-private:
     EL::Worker* m_wk;
 
     ///Name of the folder to store the plots in, in the output file.
@@ -93,8 +143,7 @@ private:
     mutable std::unordered_map<std::string, TH1*> m_histograms;
 
     mutable TDirectory* m_plotDir;
-};
-
+  };
 }
 
 #endif

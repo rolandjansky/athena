@@ -36,8 +36,7 @@ CaloNoiseCondAlg(noisetype="electronicNoise")
 
 # configure cell weight calibration
 if jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
-    from CaloClusterCorrection.CaloClusterCorrectionConf import H1WeightToolCSC12Generic
-    from CaloClusterCorrection.StandardCellWeightCalib   import H1Calibration, getCellWeightTool
+    from CaloClusterCorrection.StandardCellWeightCalib   import getCellWeightTool
     CellWeights = CaloClusterCellWeightCalib("CellWeights")
     # -- configure weight tool
     finder = jobproperties.CaloTopoClusterFlags.cellWeightRefFinder.get_Value()

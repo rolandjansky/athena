@@ -4,16 +4,14 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
    import traceback
    from AthenaCommon.Logging import logging 
    mlog = logging.getLogger( 'CaloCellPedestalCorrDefault' )
-   from AthenaCommon.AppMgr import ToolSvc
    from AthenaCommon.GlobalFlags import globalflags
 
    try:
-        from CaloCellCorrection.CaloCellCorrectionConf import CaloCellPedestalCorr
-        theCaloCellPedestalCorr =  CaloCellPedestalCorr("CaloCellPedestalCorr")
-   except:
-       mlog.error("could not get handle to CaloCellPedestalCorr Quit")
-       traceback.print_exc()
-   #ToolSvc += theCaloCellPedestalCorr
+      from CaloCellCorrection.CaloCellCorrectionConf import CaloCellPedestalCorr
+      theCaloCellPedestalCorr =  CaloCellPedestalCorr("CaloCellPedestalCorr")
+   except Exception:
+      mlog.error("could not get handle to CaloCellPedestalCorr Quit")
+      traceback.print_exc()
 
    if globalflags.DataSource()=='data' :
        from IOVDbSvc.CondDB import conddb
@@ -32,7 +30,7 @@ def CaloCellPedestalCorrDefault(name='CaloCellPedestalCorr'):
    from CaloRec.CaloCellFlags import jobproperties
    if globalflags.DataSource()=='data' and (not jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr()) and (not athenaCommonFlags.isOnline()):
       lumiFolder = '/TRIGGER/LUMI/LBLESTONL'
-      conddb.addFolder('TRIGGER_ONL',lumiFolder,className="CondAttrListCollection");
+      conddb.addFolder('TRIGGER_ONL',lumiFolder,className="CondAttrListCollection")
       theCaloCellPedestalCorr.Luminosity = -1
       theCaloCellPedestalCorr.LumiFolderName = lumiFolder
 

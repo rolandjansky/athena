@@ -9,9 +9,13 @@
 // errors can coexist per hashID so we need to reserve separate bit for them
 namespace PixelByteStreamErrors {
 
-  //!< Possible errors in pixel data decoding, exactl clone of definition in: PixelConditionsTools/IPixelByteStreamErrorsTool.h, the later will be removed
+  //!< Possible errors in pixel data decoding
   enum PixelErrorsEnum {TimeOut=0, firstErrType=TimeOut, BCID, LVL1ID, Preamble, Trailer,
-			Flagged, DisableFE, BadFE, ROD, Decoding, Invalid, LinkMaskedByPPC, Limit, TruncatedROB, MaskedROB, lastErrType=MaskedROB, ErrorsNumber=lastErrType+1 };
+			Flagged, BadFE, Decoding, Invalid, LinkMaskedByPPC, Limit, TruncatedROB, MaskedROB, 
+      MCCUndefined, MCCLVL1IDEoECheck, MCCBCIDEoECheck, MCCLVL1IDCheck, MCCEoEOverflow, MCCHitOverflow,
+      FEWarning, FEHitParity, FERegisterParity, FEHammingCode, FEEoCOverflow,
+      RODTrailerBitError,RODHeaderLimit,RODDataOVerflow,
+      lastErrType=RODDataOVerflow, ErrorsNumber=lastErrType+1 };
 
   //!< @brief for cases when error doe snot need to be accumulated
   inline IDCInDetBSErrContainer::ErrorCode makeError( PixelErrorsEnum errType ) { return IDCInDetBSErrContainer::ErrorCode{1} << errType; }

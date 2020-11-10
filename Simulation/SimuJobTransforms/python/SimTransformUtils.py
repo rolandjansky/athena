@@ -1,13 +1,11 @@
 from __future__ import division
 from builtins import range
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Module with Digitization transform options and substep
 
 import logging
 msg = logging.getLogger(__name__)
-
-import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from PyJobTransforms.trfExe import athenaExecutor
 
@@ -22,7 +20,6 @@ def pileUpCalc(nSignalEvts, refreshRate, nSubEvtPerBunch,nBunches):
 import math
 def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossings, logger):
     uberList = []
-    refreshrate = 1.0
 
     nSignalEvts = 1000
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -38,8 +35,8 @@ def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossi
                 metadata = metadata[inFile]  # promote all keys one level up
                 nSignalEvts += int(metadata['nentries'])
                 print('{} -> __Test__001__:\n{}'.format(__file__, nSignalEvts))
-            except:
-                logger.warning("Unable to open file [%s]"%inFile)
+            except Exception as err:
+                logger.warning("Unable to open file [%s]", inFile)
                 logger.warning('caught:\n%s',err)
                 import traceback
                 traceback.print_exc()
@@ -53,7 +50,7 @@ def makeBkgInputCol(initialList, nBkgEvtsPerCrossing, correctForEmptyBunchCrossi
         nBkgEventsPerFile = int(metadata['nentries'])
         print('{} -> __Test__001__:\n{}'.format(__file__, nBkgEventsPerFile))
         logger.info('Number of background events per file (read from file) = %s.', nBkgEventsPerFile )
-    except:
+    except Exception:
         import traceback
         traceback.print_exc()
         logger.warning('Failed to count the number of background events in %s. Assuming 5000 - if this is an overestimate the job may die.', initialList[0])
@@ -131,6 +128,7 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
                            outData=['HITS','NULL'] )
     executorSet.add(TRExe)
     SimExe = athenaExecutor(name = 'EVNTtoHITS', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py',
+                            skeletonCA = 'SimuJobTransforms.ISF_Skeleton',
                                    substep = 'sim', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData=['NULL','EVNT'],
                                    outData=['EVNT_TR','HITS','NULL'] )
@@ -202,12 +200,12 @@ def appendAtlasG4Substep(trf):
     trf.appendToExecutorSet(executor)
 
 def appendConfigurableSimTRInSubstep(trf, confName = 'AtlasG4TfTRIn',
-                                 extraSkeleton = [], confSubstep = 'simTRIn',
-                                 confInData=['EVNT_TR'],
-                                 confOutData=['HITS','NULL'],
-                                 confExtraRunargs=None, confRuntimeRunargs=None ):
+                                     extraSkeleton = [], confSubstep = 'simTRIn',
+                                     confInData=['EVNT_TR'],
+                                     confOutData=['HITS','NULL'],
+                                     confExtraRunargs=None, confRuntimeRunargs=None ):
     executor = set()
-    addConfigurableSimSubstep(executor, confName, extraSkeleton, confSubStep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs )
+    addConfigurableSimSubstep(executor, confName, extraSkeleton, confSubstep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs )
     trf.appendToExecutorSet(executor)
 
 def appendConfigurableSimSubstep(trf, confName = 'AtlasG4Tf',
@@ -216,7 +214,7 @@ def appendConfigurableSimSubstep(trf, confName = 'AtlasG4Tf',
                                  confOutData=['EVNT_TR','HITS','NULL'],
                                  confExtraRunargs=None, confRuntimeRunargs=None ):
     executor = set()
-    addConfigurableSimSubstep(executor, confName, extraSkeleton, confSubStep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs )
+    addConfigurableSimSubstep(executor, confName, extraSkeleton, confSubstep, confInData, confOutData, confExtraRunargs, confRuntimeRunargs )
     trf.appendToExecutorSet(executor)
 
 def appendHITSMergeSubstep(trf):

@@ -31,6 +31,7 @@
 #include "TrigT1TGC/TGCSectorLogic.h"
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCNSW.h"
+#include "TrigT1TGC/TGCGoodMF.h"
 
 namespace LVL1TGCTrigger {
 
@@ -94,6 +95,7 @@ private:
 		  const TGCEIFICoincidenceMap* mapI=0);
   void setTileMuMap(const TGCTileMuCoincidenceMap* map);
   void setNSWMap(std::shared_ptr<const TGCNSWCoincidenceMap> mapNSW);
+  void setGoodMFMap(std::shared_ptr<const TGCGoodMF> mapGoodMF);
   void connectPPToSB(const TGCConnectionPPToSB* connection);
   void connectSBToHPB(const TGCConnectionSBToHPB* connection);
   void connectHPBToSL(const TGCConnectionHPBToSL* connection);

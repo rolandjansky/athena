@@ -33,8 +33,7 @@ namespace LVL1BS {
 JepRoiByteStreamCnv::JepRoiByteStreamCnv( ISvcLocator* svcloc )
     : Converter( storageType(), classID(), svcloc ),
       m_name("JepRoiByteStreamCnv"),
-      m_tool("LVL1BS::JepRoiByteStreamTool/JepRoiByteStreamTool"),
-      m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name)
+      m_tool("LVL1BS::JepRoiByteStreamTool/JepRoiByteStreamTool")
 {
 }
 
@@ -60,7 +59,6 @@ long JepRoiByteStreamCnv::storageType()
 StatusCode JepRoiByteStreamCnv::initialize()
 {
   ATH_CHECK( Converter::initialize() );
-  ATH_CHECK( m_ByteStreamEventAccess.retrieve() );
   ATH_CHECK( m_tool.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -71,8 +69,6 @@ StatusCode JepRoiByteStreamCnv::initialize()
 StatusCode JepRoiByteStreamCnv::createRep( DataObject* pObj,
                                         IOpaqueAddress*& pAddr )
 {
-  RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
-
   LVL1::JEPRoIBSCollection* jep = 0;
   if( !SG::fromStorable( pObj, jep ) ) {
     REPORT_ERROR (StatusCode::FAILURE) << " Cannot cast to JEPRoIBSCollection";
@@ -81,12 +77,10 @@ StatusCode JepRoiByteStreamCnv::createRep( DataObject* pObj,
 
   const std::string nm = pObj->registry()->name();
 
-  ByteStreamAddress* addr = new ByteStreamAddress( classID(), nm, "" );
-
-  pAddr = addr;
+  pAddr = new ByteStreamAddress( classID(), nm, "" );
 
   // Convert to ByteStream
-  return m_tool->convert( jep, re );
+  return m_tool->convert( jep );
 }
 
 } // end namespace

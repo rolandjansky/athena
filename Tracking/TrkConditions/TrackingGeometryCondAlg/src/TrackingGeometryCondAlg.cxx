@@ -6,13 +6,14 @@
 // Trk includes
 #include "TrkGeometry/TrackingGeometry.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "TrkDetDescrSvc/TrackingGeometrySvc.h"
 
 #include "TrackingGeometryCondAlg/TrackingGeometryCondAlg.h"
-
+#include "TrkDetDescrSvc/TrackingGeometryMirror.h"
 
 Trk::TrackingGeometryCondAlg::TrackingGeometryCondAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator),
-    m_geometryProcessors(this) 
+    m_geometryProcessors(this)
 {
   declareProperty("GeometryProcessors", m_geometryProcessors);
 }
@@ -32,6 +33,9 @@ StatusCode Trk::TrackingGeometryCondAlg::initialize()
   if (m_geometryProcessors.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_geometryProcessors );
     return StatusCode::FAILURE;
+  }
+  if (!m_trackingGeometrySvc.name().empty()) {
+     ATH_CHECK( m_trackingGeometrySvc.retrieve() );
   }
 
   return StatusCode::SUCCESS;
@@ -66,5 +70,18 @@ StatusCode Trk::TrackingGeometryCondAlg::execute(const EventContext& ctx) const{
       }
   }
   ATH_CHECK(writeHandle.record(trackingGeometryPair.first,trackingGeometry));
+  if (msgLvl(MSG::VERBOSE)) {
+     Trk::TrackingGeometryMirror dumper(trackingGeometry);
+     dumper.dump(msg(MSG::VERBOSE), name() + " TrackingGeometry dump " );
+  }
+  if (!m_trackingGeometrySvc.name().empty()) {
+     Trk::TrackingGeometrySvc *the_service = dynamic_cast<Trk::TrackingGeometrySvc *>(&(*m_trackingGeometrySvc));
+     if (!the_service) {
+        ATH_MSG_FATAL("Expected a special TrackingGeometrySvc implementation derived from Trk::TrackingGeometrySvc but got " << typeid(the_service).name() );
+     }
+     ATH_MSG_DEBUG("Set TrackingGeometry " << static_cast<const void *>(trackingGeometry) << " in svc " << m_trackingGeometrySvc.name() );
+     the_service->setTrackingGeometry(trackingGeometry);
+  }
+
   return StatusCode::SUCCESS;
 }

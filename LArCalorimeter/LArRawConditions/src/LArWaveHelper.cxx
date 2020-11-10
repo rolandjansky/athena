@@ -273,7 +273,7 @@ LArWave LArWaveHelper::derive_smooth(const LArWave& theWave) const
    * 7 points first derivative 
    * using Savitsky-Golay smoothing filtering (m = polynomial order)
    * ================================================================ */      
-  static double c[3][4][7] = 
+  static const double c[3][4][7] = 
     { { { -0.107, -0.071, -0.036,  0.000,  0.036,  0.071,  0.107 } ,  
 	{  0.012, -0.071, -0.107, -0.095, -0.036,  0.071,  0.226 } ,  
 	{  0.131, -0.071, -0.179, -0.190, -0.107,  0.071,  0.345 } ,   
@@ -598,8 +598,10 @@ std::vector<double> LArWaveHelper::polyfit(const std::vector<double>& X,
 					   unsigned Ndeg) const
 {
     // to be implemented - return to avoid compiler warning RDS
-    static std::vector<double> dummy;
-    if(Ndeg > 2 || (Y.size() == 0) || (X.size() != Y.size())) return (dummy);
+    std::vector<double> dummy;
+    if(Ndeg > 2 || (Y.size() == 0) || (X.size() != Y.size())) {
+      return dummy;
+    }
     switch (Ndeg) {
        case 0: { dummy.resize(1);
                  double sum = 0.;

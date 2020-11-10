@@ -45,7 +45,7 @@ ActsSurfaceMappingTool::initialize()
 
   /// The material mapper
   Acts::SurfaceMaterialMapper::Config smmConfig;
-  smmConfig.mapperDebugOutput = true;
+  smmConfig.mapperDebugOutput = false;
   m_mapper = std::make_shared<Acts::SurfaceMaterialMapper>(
       smmConfig,
       std::move(propagator),

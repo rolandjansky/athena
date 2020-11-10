@@ -261,7 +261,7 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
       if ( isGoodHit(ctx,(*itr), useHitsHT, length)) {
 	      double ToT_correct = correctToT_corrRZ(ctx,*itr, length);
 	      if (m_correctionType == kHitBased){
-	        correctionFactor = hitOccupancyCorrection(*itr);
+	        correctionFactor = hitOccupancyCorrection(ctx,*itr);
 	        ToT_correct*=correctionFactor;
 	      }
         vecToT.push_back(ToT_correct);
@@ -307,7 +307,7 @@ TRT_ToT_dEdx::dEdx(const EventContext& ctx,
         gasType=gasTypeInStraw(ctx,*itr);
 	      double ToT_correct = correctToT_corrRZ(ctx,*itr, length);
 	      if (m_correctionType == kHitBased) {
-          correctionFactor = hitOccupancyCorrection(*itr);
+          correctionFactor = hitOccupancyCorrection(ctx,*itr);
         }
 	      ToT_correct*=correctionFactor;
         if(gasType==kXenon) {
@@ -1105,9 +1105,11 @@ TRT_ToT_dEdx::fitFuncBarrel_corrRZL(const EventContext& ctx,
   return result;
 }
 
-double TRT_ToT_dEdx::hitOccupancyCorrection(const Trk::TrackStateOnSurface *itr) const
+double
+TRT_ToT_dEdx::hitOccupancyCorrection(const EventContext& ctx,
+                                     const Trk::TrackStateOnSurface* itr) const
 {
-  SG::ReadCondHandle<TRTDedxcorrection> readHandle{m_ReadKey};
+  SG::ReadCondHandle<TRTDedxcorrection> readHandle(m_ReadKey,ctx);
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
 
   const Trk::MeasurementBase* trkM = itr->measurementOnTrack();
@@ -1213,7 +1215,10 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
     corr=dEdxCorrection->trackOccPar0NoHt[index]+dEdxCorrection->trackOccPar1NoHt[index]*trackOcc+dEdxCorrection->trackOccPar2NoHt[index]*pow(trackOcc,2);
   }
 
-  return corr;
+  if (corr != 0) {
+    return 1./corr;
+  }
+  return 0.;
 }
 
 double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface* trackState, const TRT_ID* identifier) {
@@ -1249,6 +1254,11 @@ double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface*
   int HitPart = std::abs(identifier->barrel_ec(DCId));
   const InDetDD::TRT_BaseElement* element = driftcircle->detectorElement();
   double strawphi = element->center(DCId).phi();
+
+  // check if track is an outlier
+  if (Trt_Rtrack >= 2.0) {
+    return 0.;
+  }
 
   double length=0;
   if (HitPart == 1) { //Barrel

@@ -80,6 +80,7 @@ namespace TrigConf {
 }
 
 #ifndef TRIGCONF_STANDALONE
+#ifndef XAOD_STANDALONE
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( TrigConf::HLTMenu , 24176960 , 1 )
@@ -87,6 +88,7 @@ CLASS_DEF( TrigConf::HLTMenu , 24176960 , 1 )
 #include "AthenaKernel/CondCont.h"
 CONDCONT_DEF( TrigConf::HLTMenu , 155284098 );
 
+#endif
 #endif
 
 #endif

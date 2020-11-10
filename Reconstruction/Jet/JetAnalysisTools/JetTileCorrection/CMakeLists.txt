@@ -1,31 +1,7 @@
-# $Id: CMakeLists.txt 782136 2016-11-03 14:26:48Z krasznaa $
-################################################################################
-# Package: JetTileCorrection
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetTileCorrection )
-
-# Extra dependencies, based on the environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps Control/AthAnalysisBaseComps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Reconstruction/Jet/JetCPInterfaces
-   Event/xAOD/xAODJet
-   PRIVATE
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   Tools/PathResolver
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODCore
-   ${extra_deps} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist RIO )

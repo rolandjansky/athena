@@ -3,7 +3,6 @@
 #
 # read alignment constants from DB to update MuonGeoModel
 #
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.GlobalFlags import globalflags
 
 from AthenaCommon.AlgSequence import AthSequencer
@@ -28,7 +27,6 @@ muonAlignFlags.setDefaults()
 ###############################################################
 
 
-import re
 logMuon.info("Reading alignment constants from DB")
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/BARREL','/MUONALIGN/MDT/BARREL',className='CondAttrListCollection')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUONALIGN/MDT/ENDCAP/SIDEA',className='CondAttrListCollection')

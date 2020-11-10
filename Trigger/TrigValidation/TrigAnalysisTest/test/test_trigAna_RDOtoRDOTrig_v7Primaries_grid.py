@@ -1,8 +1,10 @@
 #!/usr/bin/env python
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
 # art-description: Test of the RDOtoRDOTrigger transform with serial athena (legacy trigger)
 # art-type: grid
 # art-include: master/Athena
+# art-memory: 5000
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -22,11 +24,6 @@
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
-import os
-
-# To run single-process transform on MCORE sites
-if 'ATHENA_NPROC_NUM' in os.environ:
-    del os.environ['ATHENA_NPROC_NUM']
 
 preExec = ';'.join([
   'from TriggerJobOpts.TriggerFlags import TriggerFlags',
@@ -37,7 +34,7 @@ preExec = ';'.join([
 ex = ExecStep.ExecStep()
 ex.type = 'Reco_tf'
 ex.input = 'ttbar'
-ex.max_events = 500
+ex.max_events = 400
 ex.args = '--outputRDO_TRIGFile=RDO_TRIG.pool.root'
 ex.args += ' --preExec="all:{:s};"'.format(preExec)
 

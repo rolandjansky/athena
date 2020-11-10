@@ -22,7 +22,7 @@ void vkvfast_(double *p1, double *p2, double *dbmag, double *out)
     vkvFastV(p1, p2, nullptr, (*dbmag), out);   }
 
 
-void vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
+double vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
 {
     extern void vkPerigeeToP( const double*, double*, double );
     double d__1;
@@ -107,9 +107,10 @@ void vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
 	out[1] = (cross_ref(1, 1) + cross_ref(1, 2)) / 2.;
 	out[2] = (cross_ref(2, 1) + cross_ref(2, 2)) / 2.;
 	out[3] = (z1 + z2) / 2.;
-	return;
+	return std::abs(z1 - z2);
     }
 /* ---------------------------------------------------------- */
+    double bestZdiff=0.;
     diff = dc - (ar1 + ar2);
     if (diff < 0.) {
 /*  2 distinct points, A1 & A2. */
@@ -154,10 +155,12 @@ void vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
 	    out[1] = cross_ref(1, 1);
 	    out[2] = cross_ref(2, 1);
 	    out[3] = cross_ref(3, 1);
+	    bestZdiff=dz1;
 	} else {
 	    out[1] = cross_ref(1, 2);
 	    out[2] = cross_ref(2, 2);
 	    out[3] = cross_ref(3, 2);
+	    bestZdiff=dz2;
 	}
     } else {
 	cross_ref(1, 1) = (ar1 * cent2[0] + ar2 * cent1[0]) / (ar1 + ar2);
@@ -172,8 +175,9 @@ void vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
 	angle = vkvang_(cross, cent2, &d__1, &xd2, &yd2);
 	z2 = pz2 * r2 * angle / pt2 + a02[2];
 	out[3] = (z1 + z2) / 2.;
-	//diffz = fabs(z1 - z2);
+	bestZdiff = std::abs(z1 - z2);
     }
+    return bestZdiff;
 } 
 #undef cross_ref
 

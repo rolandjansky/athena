@@ -13,11 +13,18 @@ TriggerJetMods.ConstitFourMom_copy
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration")
 
+def interpretJetCalibDefault(recoDict):
+    if recoDict['dataType'].endswith('tc'):
+        return 'subresjesgscIS' if recoDict['trkopt'] == 'ftf' else 'subjesIS'
+    elif recoDict['dataType'].endswith('pf'):
+      return 'subresjesgscIS'
+
+recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','trkpresel']
+
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
     # interpret the reco configuration only
     # eventually should just be a subdict in the chainDict
-    recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','cleaning']
     recoDict = {}
     for p in chainParts:
         for k in recoKeys:
@@ -26,12 +33,49 @@ def extractRecoDict(chainParts):
                 # found the key, check for consistency with other chain parts of this chain
                 if k in recoDict.keys():
                     if p[k] != recoDict[k]:
-                        log.error('Inconsistent reco setting for' + k)
-                        exit(1)
+                        raise RuntimeError('Inconsistent reco setting for %s' % k)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
 
+    # set proper jetCalib key in default case
+    if recoDict['jetCalib'] == "default":
+        recoDict['jetCalib'] = interpretJetCalibDefault(recoDict)
+
     return recoDict
+
+# Translate the reco dict to a string for suffixing etc
+def jetRecoDictToString(jetRecoDict):
+    strtemp = "{recoAlg}_{dataType}_{calib}_{jetCalib}"
+    if jetRecoDict["trkopt"] != "notrk":
+        strtemp += "_{trkopt}_{trkpresel}"
+    return strtemp.format(**jetRecoDict)
+
+# Inverse of the above, essentially only for CF tests
+def jetRecoDictFromString(jet_def_string):
+
+    # Translate the definition string into an approximation
+    # of the "recoParts" in the jet chainParts.
+    jetRecoDict = {}
+    # Insert values from string
+    # Python names are more descriptive. May want to sync
+    # these names with the SignatureDict, needs coordination with
+    # menu group when they start to implement this
+    trkopt = "notrk"
+    trkpresel = "nopresel"
+    if "_ftf" in jet_def_string:
+        jetalg, inputtype, clusterscale, jetcalib, trkopt = jet_def_string.split('_')
+    else:
+        jetalg, inputtype, clusterscale, jetcalib = jet_def_string.split('_')
+
+    jetRecoDict = {
+        "recoAlg":   jetalg,
+        "dataType":  inputtype,
+        "calib":     clusterscale,
+        "jetCalib":  jetcalib,
+        "trkopt" :   trkopt,
+        "trkpresel": trkpresel
+    }
+    return jetRecoDict
 
 # Define the jet constituents to be interpreted by JetRecConfig
 # When actually specifying the reco, clustersKey should be
@@ -129,7 +173,7 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
     groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
     groomDef = {
         "sd":JetSoftDrop(ungroomedDef,zcut=0.1,beta=1.0),
-        "t" :JetTrimming(ungroomedDef,smallR=0.2,ptfrac=0.05),
+        "t" :JetTrimming(ungroomedDef,smallR=0.2,ptfrac=0.04),
     }[groomAlg]
     return groomDef
 
@@ -188,8 +232,10 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
                 calibContext = "TrigSoftDrop"
                 calibSeq = "EtaJES_JMS"
             else:
-                calibContext = "TrigLS2"
-                calibSeq = "JetArea_Residual_EtaJES_GSC"
+                calibContext,calibSeq = {
+                  ("a4","subjesgscIS"): ("TrigLS2","JetArea_EtaJES_GSC"),             # w/o pu residual  + calo+trk GSC
+                  ("a4","subresjesgscIS"): ("TrigLS2","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
+                  }[(jetRecoDict["recoAlg"],jetRecoDict["jetCalib"])]
             pvname = "HLT_IDVertex_FS"
 
         if jetRecoDict["jetCalib"].endswith("IS") and (dataSource=="data"):

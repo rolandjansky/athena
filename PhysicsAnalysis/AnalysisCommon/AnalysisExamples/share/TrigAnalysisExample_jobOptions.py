@@ -53,7 +53,7 @@ ServiceMgr.MessageSvc.OutputLevel = WARNING
 # Number of Events to process
 theApp.EvtMax = 10
 
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr.AuditorSvc.Auditors  += [ "ChronoAuditor"]
 
 AthenaPoolCnvSvc = Service("AthenaPoolCnvSvc")

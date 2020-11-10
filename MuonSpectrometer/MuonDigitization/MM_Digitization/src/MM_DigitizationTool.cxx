@@ -223,9 +223,6 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_ElectronicsResponseSimulation->setElectronicsThreshold(m_electronicsThreshold);
 	m_ElectronicsResponseSimulation->setStripdeadtime(m_stripdeadtime);
 	m_ElectronicsResponseSimulation->setARTdeadtime(m_ARTdeadtime);
-	m_ElectronicsResponseSimulation->setStripResponseQThreshold(     m_StripsResponseSimulation->getQThreshold()    );
-	m_ElectronicsResponseSimulation->setStripResponseDriftVelocity(  m_StripsResponseSimulation->getDriftVelocity() );
-	m_ElectronicsResponseSimulation->setStripResponseDriftGapWidth(  m_StripsResponseSimulation->getDriftGapWidth() );
 	m_ElectronicsResponseSimulation->setNeighborLogic(m_vmmNeighborLogic);
 
 	m_ElectronicsResponseSimulation->initialize();

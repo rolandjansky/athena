@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_JEPROIBYTESTREAMV1TOOL_H
@@ -11,8 +11,10 @@
 #include <string>
 #include <vector>
 
+#include "L1CaloSrcIdMap.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 #include "ByteStreamData/RawEvent.h"
 #include "AthContainers/DataVector.h"
 #include "eformat/SourceIdentifier.h"
@@ -58,24 +60,25 @@ class JepRoiByteStreamV1Tool : public AthAlgTool {
    /// AlgTool InterfaceID
    static const InterfaceID& interfaceID();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
    /// Convert ROB fragments to JEM RoIs
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                      DataVector<LVL1::JEMRoI>* jeCollection);
+                      DataVector<LVL1::JEMRoI>* jeCollection) const;
    /// Convert ROB fragments to CMM RoIs
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                      LVL1::CMMRoI* cmCollection);
+                      LVL1::CMMRoI* cmCollection) const;
 
    /// Convert JEP RoI Container to bytestream
-   StatusCode convert(const LVL1::JEPRoIBSCollectionV1* jep, RawEventWrite* re);
+   StatusCode convert(const LVL1::JEPRoIBSCollectionV1* jep) const;
 
    /// Return reference to vector with all possible Source Identifiers
-   const std::vector<uint32_t>& sourceIDs(const std::string& sgKey);
+   const std::vector<uint32_t>& sourceIDs(const std::string& sgKey) const;
 
  private:
-   enum CollectionType { JEM_ROI, CMM_ROI };
+   ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+   { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
 
    typedef DataVector<LVL1::JEMRoI>                      JemRoiCollection;
    typedef DataVector<LVL1::CMMJetHits>                  CmmHitsCollection;
@@ -89,68 +92,57 @@ class JepRoiByteStreamV1Tool : public AthAlgTool {
 
    /// Convert bytestream to given container type
    StatusCode convertBs(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                        CollectionType collection);
+                        DataVector<LVL1::JEMRoI>* jeCollection,
+                        LVL1::CMMRoI* cmCollection) const;
 
-   /// Error collection tool
+   /// Property: Error collection tool
    ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
 
    /// Find CMM hits for given crate, data ID
-   const LVL1::CMMJetHits* findCmmHits(int crate, int dataID);
+   const LVL1::CMMJetHits* findCmmHits(int crate, int dataID,
+                                       const CmmHitsMap& cmmHitsMap) const;
    /// Find CMM energy sums for given crate, data ID
-   const LVL1::CMMEtSums*  findCmmSums(int crate, int dataID);
+   const LVL1::CMMEtSums*  findCmmSums(int crate, int dataID,
+                                       const CmmSumsMap& cmmEtMap) const;
+
+   std::vector<uint32_t> makeSourceIDs (bool roiDaq) const;
 
    /// Set up JEM RoIs map
-   void setupJemRoiMap(const JemRoiCollection* jeCollection);
+   void setupJemRoiMap(const JemRoiCollection* jeCollection,
+                       JemRoiMap& roiMap) const;
    /// Set up CMM hits map
-   void setupCmmHitsMap(const CmmHitsCollection* hitCollection);
+   void setupCmmHitsMap(const CmmHitsCollection* hitCollection,
+                        CmmHitsMap& cmmHitsMap) const;
    /// Set up CMM energy sums map
-   void setupCmmEtMap(const CmmSumsCollection* enCollection);
+   void setupCmmEtMap(const CmmSumsCollection* enCollection,
+                      CmmSumsMap& cmmEtMap) const;
 
-   /// Hardware crate number offset
+   /// Property: Hardware crate number offset
    int m_crateOffsetHw;
-   /// Software crate number offset
+   /// Property: Software crate number offset
    int m_crateOffsetSw;
-   /// Sub_block header version
+   /// Property: Sub_block header version
    int m_version;
-   /// Data compression format
+   /// Property: Data compression format
    int m_dataFormat;
    /// Number of crates
-   int m_crates;
+   const int m_crates;
    /// Number of JEM modules per crate
-   int m_modules;
-   /// Number of slinks per crate when writing out bytestream
+   const int m_modules;
+   /// Property: Number of slinks per crate when writing out bytestream
    int m_slinks;
-   /// Minimum crate number when writing out bytestream
+   /// Property: Minimum crate number when writing out bytestream
    int m_crateMin;
-   /// Maximum crate number when writing out bytestream
+   /// Property: Maximum crate number when writing out bytestream
    int m_crateMax;
-   /// ROB source IDs
-   std::vector<uint32_t> m_sourceIDs;
-   /// ROB source IDs for RoIB
-   std::vector<uint32_t> m_sourceIDsRoIB;
+   /// Property: ROB source IDs
+   std::vector<uint32_t> m_sourceIDsProp;
+   /// Property: ROB source IDs for RoIB
+   std::vector<uint32_t> m_sourceIDsRoIBProp;
    /// Sub-detector type
-   eformat::SubDetector m_subDetector;
+   const eformat::SubDetector m_subDetector;
    /// Source ID converter
-   L1CaloSrcIdMap* m_srcIdMap;
-   /// Sub-block for neutral format
-   JemRoiSubBlockV1*  m_subBlock;
-   /// Current JEM RoI collection
-   JemRoiCollection* m_jeCollection;
-   /// Current CMM RoI collection
-   LVL1::CMMRoI*     m_cmCollection;
-   /// JEM RoI map
-   JemRoiMap  m_roiMap;
-   /// CMM hits map
-   CmmHitsMap m_cmmHitsMap;
-   /// CMM energy sums map
-   CmmSumsMap m_cmmEtMap;
-   /// ROD Status words
-   std::vector<uint32_t>* m_rodStatus;
-   /// ROD status map
-   std::map<uint32_t, std::vector<uint32_t>* > m_rodStatusMap;
-   /// Event assembler
-   FullEventAssembler<L1CaloSrcIdMap>* m_fea;
-
+   const L1CaloSrcIdMap m_srcIdMap;
 };
 
 } // end namespace

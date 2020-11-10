@@ -16,6 +16,8 @@ class GeoPixelLadder : public GeoVPixelFactory {
                  PixelGeometryManager* mgr,
                  GeoPixelSiCrystal& theSensor,
 		 GeoPixelStaveSupport * staveSupport);
+  GeoPixelLadder (const GeoPixelLadder&) = delete;
+  GeoPixelLadder& operator= (const GeoPixelLadder&) = delete;
 	virtual ~GeoPixelLadder();
   virtual GeoVPhysVol* Build() override;
   double thickness() const {return m_thickness;}

@@ -1,23 +1,7 @@
-################################################################################
-# Package: iPatGeometry
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( iPatGeometry )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          DetectorDescription/GeoPrimitives
-                          DetectorDescription/Identifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-			  InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          PRIVATE
-                          Event/EventPrimitives
-                          GaudiKernel )
-
-# External dependencies:
-find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_library( iPatGeometry
@@ -31,7 +15,5 @@ atlas_add_library( iPatGeometry
                    src/SiliconRing.cxx
                    src/SiliconTrapezoid.cxx
                    PUBLIC_HEADERS iPatGeometry
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives Identifier InDetReadoutGeometry SCT_ReadoutGeometry TrkSurfaces
-                   PRIVATE_LINK_LIBRARIES EventPrimitives GaudiKernel )
-
+                   LINK_LIBRARIES GeoPrimitives Identifier InDetReadoutGeometry TrkSurfaces
+                   PRIVATE_LINK_LIBRARIES EventPrimitives GaudiKernel SCT_ReadoutGeometry )

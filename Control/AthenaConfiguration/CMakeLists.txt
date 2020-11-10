@@ -1,12 +1,7 @@
-################################################################################
-# Package: AthenaConfiguration
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaConfiguration )
-
-# External dependencies:
-find_package( six )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/iconfTool 
@@ -17,9 +12,6 @@ atlas_add_test( ComponentAccumulatorTest
    SCRIPT python -m unittest -v AthenaConfiguration.ComponentAccumulatorTest
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( UnifyPropertiesTest
-   SCRIPT python -m unittest -v AthenaConfiguration.UnifyProperties
-   POST_EXEC_SCRIPT nopost.sh )
 
 atlas_add_test( AthConfigFlagsTest
    SCRIPT python -m unittest AthenaConfiguration.AthConfigFlags

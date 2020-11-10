@@ -23,15 +23,8 @@ StatusCode PrimaryVertexRefitter::initialize() {
 
   CHECK( m_trackToVertexIPEstimator.retrieve() );
 
-  ATH_MSG_INFO("Initialize successful");
+  ATH_MSG_DEBUG("Initialize successful");
   
-  return StatusCode::SUCCESS;
-
-}
-
-StatusCode PrimaryVertexRefitter::finalize() {
-
-  ATH_MSG_INFO("Finalize successful");
   return StatusCode::SUCCESS;
 
 }

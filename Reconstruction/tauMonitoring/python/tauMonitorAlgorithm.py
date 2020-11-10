@@ -35,7 +35,15 @@ def tauMonitoringConfig(inputFlags):
     tauMonAlgCR = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgCR')
     tauMonAlgEC = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEC')
     tauMonAlgGlobal = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgGlobal')
-    tauMonAlgTauTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig')
+    tauMonAlgTauTrig1 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig1')
+    tauMonAlgTauTrig2 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig2')
+    tauMonAlgTauTrig3 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig3')
+    tauMonAlgTauTrig4 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig4')
+    tauMonAlgTauTrig5 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig5')
+    tauMonAlgTauTrig6 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig6')
+    tauMonAlgTauTrig7 = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgTauTrig7')
+
+
     tauMonAlgEleTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgEleTrig')
     tauMonAlgJetTrig = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgJetTrig')
     tauMonAlgHighPt = cfgHelper.addAlgorithm( tauMonitorAlgorithm, name='tauMonAlgHighPt')
@@ -59,8 +67,21 @@ def tauMonitoringConfig(inputFlags):
     tauMonAlgEC.etaMax = 3.5
     tauMonAlgGlobal.etaMin = -100
     tauMonAlgGlobal.etaMax = 100
-    tauMonAlgTauTrig.etaMin = -100
-    tauMonAlgTauTrig.etaMax = 100
+    tauMonAlgTauTrig1.etaMin = -100
+    tauMonAlgTauTrig1.etaMax = 100
+    tauMonAlgTauTrig2.etaMin = -100
+    tauMonAlgTauTrig2.etaMax = 100
+    tauMonAlgTauTrig3.etaMin = -100
+    tauMonAlgTauTrig3.etaMax = 100
+    tauMonAlgTauTrig4.etaMin = -100
+    tauMonAlgTauTrig4.etaMax = 100
+    tauMonAlgTauTrig5.etaMin = -100
+    tauMonAlgTauTrig5.etaMax = 100
+    tauMonAlgTauTrig6.etaMin = -100
+    tauMonAlgTauTrig6.etaMax = 100
+    tauMonAlgTauTrig7.etaMin = -100
+    tauMonAlgTauTrig7.etaMax = 100
+
     tauMonAlgEleTrig.etaMin = -100
     tauMonAlgEleTrig.etaMax = 100
     tauMonAlgJetTrig.etaMin = -100
@@ -74,7 +95,14 @@ def tauMonitoringConfig(inputFlags):
     tauMonAlgCR.kinGroupName = 'tauMonKinGroupCR'
     tauMonAlgEC.kinGroupName = 'tauMonKinGroupEC'
     tauMonAlgGlobal.kinGroupName = 'tauMonKinGroupGlobal'
-    tauMonAlgTauTrig.kinGroupName = 'tauMonKinGroupTauTrig'
+    tauMonAlgTauTrig1.kinGroupName = 'tauMonKinGroupTauTrig1'
+    tauMonAlgTauTrig2.kinGroupName = 'tauMonKinGroupTauTrig2'
+    tauMonAlgTauTrig3.kinGroupName = 'tauMonKinGroupTauTrig3'
+    tauMonAlgTauTrig4.kinGroupName = 'tauMonKinGroupTauTrig4'
+    tauMonAlgTauTrig5.kinGroupName = 'tauMonKinGroupTauTrig5'
+    tauMonAlgTauTrig6.kinGroupName = 'tauMonKinGroupTauTrig6'
+    tauMonAlgTauTrig7.kinGroupName = 'tauMonKinGroupTauTrig7'
+
     tauMonAlgEleTrig.kinGroupName = 'tauMonKinGroupEleTrig'
     tauMonAlgJetTrig.kinGroupName = 'tauMonKinGroupJetTrig'
     tauMonAlgHighPt.kinGroupName = 'tauMonKinGroupHighPt'
@@ -90,7 +118,15 @@ def tauMonitoringConfig(inputFlags):
     myKinGroupCR = cfgHelper.addGroup(alg=tauMonAlgCR, name='tauMonKinGroupCR', topPath='Tau/TauCR/' )
     myKinGroupEC = cfgHelper.addGroup(alg=tauMonAlgEC, name='tauMonKinGroupEC', topPath='Tau/TauE/' )
     myKinGroupGlobal = cfgHelper.addGroup(alg=tauMonAlgGlobal, name='tauMonKinGroupGlobal', topPath='Tau/' )
-    myKinGroupTauTrig = cfgHelper.addGroup(alg=tauMonAlgTauTrig, name='tauMonKinGroupTauTrig', topPath='Tau/Trigger/TauTrig' )
+    myKinGroupTauTrig1 = cfgHelper.addGroup(alg=tauMonAlgTauTrig1, name='tauMonKinGroupTauTrig1', topPath='Tau/Trigger/TauTrig1' )
+    myKinGroupTauTrig2 = cfgHelper.addGroup(alg=tauMonAlgTauTrig2, name='tauMonKinGroupTauTrig2', topPath='Tau/Trigger/TauTrig2' )
+    myKinGroupTauTrig3 = cfgHelper.addGroup(alg=tauMonAlgTauTrig3, name='tauMonKinGroupTauTrig3', topPath='Tau/Trigger/TauTrig3' )
+    myKinGroupTauTrig4 = cfgHelper.addGroup(alg=tauMonAlgTauTrig4, name='tauMonKinGroupTauTrig4', topPath='Tau/Trigger/TauTrig4' )
+    myKinGroupTauTrig5 = cfgHelper.addGroup(alg=tauMonAlgTauTrig5, name='tauMonKinGroupTauTrig5', topPath='Tau/Trigger/TauTrig5' )
+    myKinGroupTauTrig6 = cfgHelper.addGroup(alg=tauMonAlgTauTrig6, name='tauMonKinGroupTauTrig6', topPath='Tau/Trigger/TauTrig6' )
+    myKinGroupTauTrig7 = cfgHelper.addGroup(alg=tauMonAlgTauTrig7, name='tauMonKinGroupTauTrig7', topPath='Tau/Trigger/TauTrig7' )
+
+
     myKinGroupEleTrig = cfgHelper.addGroup(alg=tauMonAlgEleTrig, name='tauMonKinGroupEleTrig', topPath='Tau/Trigger/EleTrig' )
     myKinGroupJetTrig = cfgHelper.addGroup(alg=tauMonAlgJetTrig, name='tauMonKinGroupJetTrig', topPath='Tau/Trigger/JetTrig' )
 
@@ -107,7 +143,14 @@ def tauMonitoringConfig(inputFlags):
             'HighPtBDTLoose': "",
             'EleTrig': "emTriggered_",
             'JetTrig': "jetTriggered_",
-            'TauTrig': "tauTriggered_",
+            'TauTrig1': "tauTriggered1_",
+            'TauTrig2': "tauTriggered2_",
+            'TauTrig3': "tauTriggered3_",
+            'TauTrig4': "tauTriggered4_",
+            'TauTrig5': "tauTriggered5_",
+            'TauTrig6': "tauTriggered6_",
+            'TauTrig7': "tauTriggered7_",
+
             }
 
     def namer(variables,histogramName, folder, algorithm):
@@ -134,7 +177,13 @@ def tauMonitoringConfig(inputFlags):
                  (myKinGroupHighPtBDTLoose,'HighPtBDTLoose'),
                  (myKinGroupEleTrig,'EleTrig'),
                  (myKinGroupJetTrig,'JetTrig'),
-                 (myKinGroupTauTrig, 'TauTrig')]:
+                 (myKinGroupTauTrig1, 'TauTrig1'),
+                 (myKinGroupTauTrig2, 'TauTrig2'),
+                 (myKinGroupTauTrig3, 'TauTrig3'),
+                 (myKinGroupTauTrig4, 'TauTrig4'),
+                 (myKinGroupTauTrig5, 'TauTrig5'),
+                 (myKinGroupTauTrig6, 'TauTrig6'),
+                 (myKinGroupTauTrig7, 'TauTrig7')]:
 
         (igroup, postfix) = itup
 
@@ -143,7 +192,7 @@ def tauMonitoringConfig(inputFlags):
 
         folder = ""
 
-        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix == "Global" or postfix=="TauTrig" or postfix=="EleTrig" or postfix =="JetTrig"):
+        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix == "Global" or postfix.startswith('TauTrig') or postfix=="EleTrig" or postfix =="JetTrig"):
 
             igroup.defineHistogram(namer('nTauCandidates', 'nTauCandidates',"",postfix), title='Number of tau candidates;Number of Taus per Event', 
                                    xbins=30, xmin=-0.5, xmax=30.5,path=folder)
@@ -151,10 +200,18 @@ def tauMonitoringConfig(inputFlags):
 
             igroup.defineHistogram(namer('tauCharge','tauCharge','',postfix), title='Charge of tau candidates;Charge;Number of Candidates',
                                    xbins=11, xmin=-5.5, xmax=5.5,path=folder)
-            
+
+
+            igroup.defineHistogram(namer('RNNJetScore','RNNJetScore','',postfix), title='RNN Jet Score',
+                                   xbins=100, xmin=0, xmax=1,path=folder)
+
 
             igroup.defineHistogram(namer('tauEt','tauEt','',postfix), title='Et of tau candidates;Transverse Energy (GeV);Number of Candidates',
                                    xbins=60, xmin=0., xmax=300.,path=folder)
+
+            igroup.defineHistogram(namer('tauEtaEXP','tauEtaEXP','',postfix), title='Eta of tau candidates;Eta;Number of Candidates',
+                                   xbins=51, xmin=-2.55, xmax=2.55,path=folder)
+
 
             
             igroup.defineHistogram(namer('tauEta','tauEta','',postfix), title='Eta of tau candidates;Eta;Number of Candidates',
@@ -173,7 +230,7 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('LB,tauPhi','tauPhiVsLB','',postfix), type='TH2F', title='Tau Phi vs Lumiblock;Lumiblock;Phi', 
                                    xbins=1200,xmin=0,xmax=1200,ybins=80,ymin=PHIMIN,ymax=PHIMAX,path=folder)
 
-        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig"):
+        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix.startswith('TauTrig')):
 
             igroup.defineHistogram(namer('tauPhiBDTLoose','phi','Identification_BDTLoose',postfix), title='Phi of tau candidates ( BDTLoose) ;Phi;Number of Candidates',
                 xbins=65, xmin=PHIMIN-0.098174/2., xmax=PHIMAX+0.098174/2., path=folder+"Identification/BDTLoose" )
@@ -261,18 +318,10 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('JetBDTBkgMedium','JetBDTBkgMedium','Identification',postfix), title='Loose EleBDT',path=folder+"Identification",
             xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
-            igroup.defineHistogram(namer('BDTEleScoreSigTrans','BDTEleScoreSigTrans','Identification',postfix), title=' Flattened Signal Transformed BDT  for Ele Rejection;Boosted Decision Tree Score',path=folder+"Identification",
-            xbins=24, xmin=-0.1, xmax=1.1 )
 
             igroup.defineHistogram(namer('BDTJetScoreSigTrans','BDTJetScoreSigTrans','Identification',postfix), title='Flattened signal Transformed BDT Score for Jet Rejection;Boosted Decision Tree Score',path=folder+"Identification",
             xbins=48, xmin=0, xmax=1.1 )
 
-
-            igroup.defineHistogram(namer('eleBDTMedium','eleBDTMedium','Identification',postfix), title='Medium EleBDT',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
-
-            igroup.defineHistogram(namer('eleBDTTight','eleBDTTight','Identification',postfix), title='Tight EleBDT',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
             igroup.defineHistogram(namer('muonVeto','muonVeto','Identification',postfix), title='Muon Veto',path=folder+"Identification",
             xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"] )
@@ -335,7 +384,7 @@ def tauMonitoringConfig(inputFlags):
 
 
         
-        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix=="TauTrig" or postfix=="Global"):
+        if(postfix =="BA" or postfix =="CR" or postfix=="EC" or postfix.startswith('TauTrig') or postfix=="Global"):
             #Calo Histograms
             igroup.defineHistogram(namer('EMRadius','EMRadius','Calo',postfix), title='Uncalibrated EM Radius;EM Radius;Number Of Candidates',path=folder+"Calo",
             xbins=50, xmin=0., xmax=1.2 )
@@ -440,7 +489,7 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('z0','z0','Track',postfix), title='Track z0;Longitudinal Impact Parameter (mm)',path=folder+"Track",
             xbins=50, xmin=-35.0, xmax=35.0 )
 
-        if postfix == 'Global' or postfix == "TauTrig" or postfix == "EleTrig" or postfix=="JetTrig":
+        if postfix == 'Global' or postfix.startswith('TauTrig') or postfix == "EleTrig" or postfix=="JetTrig":
             igroup.defineHistogram(namer('LB','nTauPerLB','',postfix), title='Total number of tau candidates per LB);Luminosity Block);Number of Candidates', 
                     xbins=1000, xmin=0., xmax=1000. ,path=folder)
 
@@ -537,7 +586,13 @@ if __name__=='__main__':
     exampleMonitorAcc.getEventAlgo('tauMonAlgCR').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgEC').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgGlobal').OutputLevel = 2 # DEBUG
-    exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig1').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig2').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig3').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig4').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig5').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig6').OutputLevel = 2 # DEBUG
+    exampleMonitorAcc.getEventAlgo('tauMonAlgTauTrig7').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgEleTrig').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgJetTrig').OutputLevel = 2 # DEBUG
     exampleMonitorAcc.getEventAlgo('tauMonAlgHighPt').OutputLevel = 2 # DEBUG

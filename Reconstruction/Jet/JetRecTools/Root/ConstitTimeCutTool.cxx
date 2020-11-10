@@ -6,7 +6,9 @@
 #include "JetRecTools/ConstitTimeCutTool.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/FlowElementContainer.h"
 #include "xAODPFlow/PFODefs.h"
+#include "PFlowUtils/FEHelpers.h"
 
 using namespace std;
 
@@ -30,9 +32,9 @@ StatusCode ConstitTimeCutTool::initialize() {
     }
 
   } else {
-    if(m_inputType!=xAOD::Type::CaloCluster) {
+    if(m_inputType!=xAOD::Type::CaloCluster && m_inputType!= xAOD::Type::FlowElement) {
       ATH_MSG_ERROR("Incompatible configuration: ConstitTimeCutTool is not specialised for inputs of type "
-		    << m_inputType);
+                    << m_inputType);
       return StatusCode::FAILURE;
     }
   }
@@ -59,21 +61,41 @@ StatusCode ConstitTimeCutTool::process_impl(xAOD::IParticleContainer* cont) cons
     {
       xAOD::PFOContainer* pfos = static_cast<xAOD::PFOContainer*> (cont);
       for(xAOD::PFO* pfo : *pfos) {
-	if(fabs(pfo->charge())<FLT_MIN || m_applyToChargedPFO) { // only apply to neutrals if m_applyToChargedPFO is false. If m_applyToChargedPFO is true then apply to all POs.
-	  float time(0.);
-	  float quality(0.);
-	  float lambda_center(0.);
-	  // Only apply cut if retrieval succeeded, else warn
-	  if(pfo->attribute(xAOD::PFODetails::eflowRec_TIMING,time) &&
+        if(fabs(pfo->charge())<FLT_MIN || m_applyToChargedPFO) { // only apply to neutrals if m_applyToChargedPFO is false. If m_applyToChargedPFO is true then apply to all POs.
+          float time(0.);
+          float quality(0.);
+          float lambda_center(0.);
+          // Only apply cut if retrieval succeeded, else warn
+          if(pfo->attribute(xAOD::PFODetails::eflowRec_TIMING,time) &&
              pfo->attribute(xAOD::PFODetails::eflowRec_AVG_LAR_Q,quality) &&
              pfo->attribute(xAOD::PFODetails::eflowRec_CENTER_LAMBDA,lambda_center)
             ) {
             //quality is on [0,2^16-1] scale
-	    ATH_CHECK( applyTimingCut(pfo, time, quality/65535, lambda_center) );
-	  } else {
-	    ATH_MSG_WARNING("Failed to retrieve the PFO informations necessary for timing cut at PFO #" << pfo->index());
-	  }
-	}
+            ATH_CHECK( applyTimingCut(pfo, time, quality/65535, lambda_center) );
+          } else {
+            ATH_MSG_WARNING("Failed to retrieve the PFO informations necessary for timing cut at PFO #" << pfo->index());
+          }
+        }
+      }
+    }
+    break;
+  case xAOD::Type::FlowElement:
+    {
+      xAOD::FlowElementContainer* fes = static_cast<xAOD::FlowElementContainer*>(cont);
+      if(!fes->empty() && !(fes->front()->signalType() & xAOD::FlowElement::PFlow)){
+        ATH_MSG_ERROR("ConstitTimeCutTool received FlowElements that aren't PFOs, this isn't supported!");
+        return StatusCode::FAILURE;
+      }
+      for(xAOD::FlowElement* fe : *fes){
+        if(!fe->isCharged() || m_applyToChargedPFO){
+          const static SG::AuxElement::ConstAccessor<float> acc_timing("TIMING");
+          const static SG::AuxElement::ConstAccessor<float> acc_larq("AVG_LAR_Q");
+          const static SG::AuxElement::ConstAccessor<float> acc_clambda("CENTER_LAMBDA");
+          float time = acc_timing(*fe);
+          float quality = acc_larq(*fe);
+          float lambda_center = acc_clambda(*fe);
+          ATH_CHECK( applyTimingCut(fe, time, quality/65535, lambda_center) );
+        }
       }
     }
     break;
@@ -82,10 +104,8 @@ StatusCode ConstitTimeCutTool::process_impl(xAOD::IParticleContainer* cont) cons
     ATH_MSG_ERROR("No specialisation for object type " << m_inputType);
     return StatusCode::FAILURE;
   }
-
   return StatusCode::SUCCESS;
 }
-
 
 StatusCode ConstitTimeCutTool::applyTimingCut(xAOD::IParticle* part, const float& time, const float& quality, const float& lambda_center) const {
   if(abs( part->eta() ) < m_etaMax){

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TileDddbManager_H
@@ -40,8 +40,11 @@ class TileDddbManager
   };
 
   TileDddbManager(IRDBAccessSvc* access,
-		  std::string    version_tag,
-		  std::string    version_node);
+		  const std::string&    version_tag,
+		  const std::string&    version_node);
+
+  TileDddbManager (const TileDddbManager&) = delete;
+  TileDddbManager& operator= (const TileDddbManager&) = delete;
 
   virtual ~TileDddbManager() {}
     

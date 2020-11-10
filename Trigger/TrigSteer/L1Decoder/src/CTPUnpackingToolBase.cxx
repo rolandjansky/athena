@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "CTPUnpackingToolBase.h"
+#include "L1Decoder/CTPUnpackingToolBase.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 
 
@@ -22,4 +22,14 @@ StatusCode CTPUnpackingToolBase::initialize()
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
   
   return StatusCode::SUCCESS;
+}
+
+StatusCode CTPUnpackingToolBase::passBeforePrescaleSelection(const ROIB::RoIBResult* /*roib*/, const std::vector<std::string>& /*l1ItemNames*/, bool& /*pass*/) const {
+  ATH_MSG_ERROR("Base class should not call this function");
+  return StatusCode::FAILURE;
+}
+
+StatusCode CTPUnpackingToolBase::decode(const ROIB::RoIBResult& /*roib*/, HLT::IDVec& /*enabledChains*/) const {
+  ATH_MSG_ERROR("Base class should not call this function");
+  return StatusCode::FAILURE;
 }

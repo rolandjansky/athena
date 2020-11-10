@@ -157,7 +157,7 @@ TileHit::operator std::string() const
     return text.str();
 }
 
-void TileHit::print_to_stream ( const std::vector<float> val,
+void TileHit::print_to_stream ( const std::vector<float>& val,
                                 const std::string & label,
                                 std::ostringstream & text)
 {

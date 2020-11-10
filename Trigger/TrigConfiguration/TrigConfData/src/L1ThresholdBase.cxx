@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 
 #include "TrigConfData/L1ThresholdBase.h"
@@ -51,8 +52,14 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "eTAU" )
       return std::make_shared<L1Threshold_eTAU>( name, type, extraInfo, data );
 
+   if( type == "jJ" )
+      return std::make_shared<L1Threshold_jJ>( name, type, extraInfo, data );
+
    if( type == "MU" )
       return std::make_shared<L1Threshold_MU>( name, type, extraInfo, data );
+
+   if( type == "ZB" )
+      return std::make_shared<L1Threshold_ZB>( name, type, extraInfo, data );
 
    static const std::string NIMtypes[] = { "BCM", "BCMCMB", "LUCID", "ZDC", "BPTX", "CALREQ", "MBTS", "MBTSSI", "NIM" };
    bool isNIMtype = std::find(std::begin(NIMtypes), std::end(NIMtypes), type) !=
@@ -64,7 +71,14 @@ TrigConf::L1Threshold::createThreshold( const std::string & name, const std::str
    if( type == "internal" )
       return std::make_shared<L1Threshold_internal>( name, type, extraInfo, data );
 
-   static const std::string noSpecialImp[] = { "JET", "XS", "jJ", "gXE", "jXE", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ZB", "ALFA" };
+   static const std::string caloBaseImp[] = { "gXE", "jXE" };
+   bool useCaloBaseClass = std::find(std::begin(caloBaseImp), std::end(caloBaseImp),type) !=
+     std::end(caloBaseImp);
+
+   if( useCaloBaseClass )
+      return std::make_shared<L1Threshold_Calo>( name, type, extraInfo, data );
+
+   static const std::string noSpecialImp[] = { "JET", "XS", "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO", "ALFA" };
    bool useBaseClass = std::find(std::begin(noSpecialImp), std::end(noSpecialImp),type) !=
      std::end(noSpecialImp);
 
@@ -121,9 +135,9 @@ TrigConf::L1ThrExtraInfoBase::load()
    if(! isInitialized() || empty() )
       return;
 
-   if( m_name == "internal" ) { // internal trigger have no extra info
-      return;
-   }
+   // if( m_name == "internal" ) { // internal trigger have no extra info
+   //    return;
+   // }
    for( auto & content : data() ) {
       if( content.first == "type" ||
           content.first == "thresholds" ) {
@@ -157,6 +171,12 @@ TrigConf::L1ThrExtraInfoBase::hasExtraInfo(const std::string & key) const
    return m_extraInfo.count(key)>0;
 }
 
+std::optional<std::reference_wrapper<const TrigConf::DataStructure>>
+TrigConf::L1ThrExtraInfoBase::getExtraInfo( const std::string & key) const
+{
+   bool hasKey = m_extraInfo.count(key)>0;
+   return hasKey ? std::optional<std::reference_wrapper<const TrigConf::DataStructure>>{m_extraInfo.at(key)} : std::nullopt;
+}
 
 
 
@@ -210,6 +230,14 @@ TrigConf::L1Threshold_Calo::load()
          m_etaDepThrValue.addRangeValue(value, etamin, etamax, priority, /*symmetric=*/ false);
       }
    }
+   if( const auto & ranges = data().get_child_optional("ranges") ) {
+      m_etaDepThrValue.setOutsideRangeValue(getAttribute("maxValue", true, std::numeric_limits<unsigned int>::max()));
+      for( auto & x : ranges.get() ) {
+         auto etamin = x.second.get_child("etamin").get_value<unsigned int>();
+         auto etamax = x.second.get_child("etamax").get_value<unsigned int>();
+         m_etaDepThrValue.addRangeValue(m_thrValue, etamin, etamax, /*priority=*/ 1, /*symmetric=*/ false);
+      }
+   }
 }
 
 /*
@@ -257,9 +285,6 @@ TrigConf::L1Threshold_Calo::thrValuesCounts() const {
    return thrValuesCounts;
 }
 
-
-
-
 TrigConf::IsolationLegacy::IsolationLegacy( const boost::property_tree::ptree & pt ) {
    m_isDefined = true;
    m_isobit = pt.get_child("isobit").get_value<int>();
@@ -280,16 +305,30 @@ TrigConf::operator<<(std::ostream & os, const TrigConf::IsolationLegacy & iso) {
    return os;
 }
 
-TrigConf::Isolation::Isolation( const boost::property_tree::ptree & pt ) {
-   m_isDefined = true;
-   m_reta = pt.get_child("reta").get_value<int>();
-   m_wstot = pt.get_child("wstot").get_value<int>();
-   m_had = pt.get_child("had").get_value<int>();
+std::string
+TrigConf::Selection::wpToString(TrigConf::Selection::WP wp)
+{
+   if (wp == Selection::WP::NONE)
+      return "None";
+   if (wp == Selection::WP::LOOSE)
+      return "Loose";
+   if (wp == Selection::WP::MEDIUM)
+      return "Medium";
+   if (wp == Selection::WP::TIGHT)
+      return "Tight";
+   throw std::runtime_error("Unknown working point " + std::to_string(int(wp)));
 }
 
-std::ostream &
-TrigConf::operator<<(std::ostream & os, const TrigConf::Isolation & iso) {
-   os << "reta=" << iso.reta() << ", wstot=" << iso.wstot() << ", had=" << iso.had();
-   return os;
+TrigConf::Selection::WP
+TrigConf::Selection::stringToWP(const std::string & wpStr)
+{
+   if (wpStr == "None")
+      return Selection::WP::NONE;
+   if (wpStr == "Loose")
+      return Selection::WP::LOOSE;
+   if (wpStr == "Medium")
+      return Selection::WP::MEDIUM;
+   if (wpStr == "Tight")
+      return Selection::WP::TIGHT;
+   throw std::runtime_error("Unknown working point name " + wpStr);
 }
-

@@ -2,21 +2,16 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-#from ROOT import gRandom,TCanvas,TH1F,TH2F
 import ROOT
 import sys
 import time
 import os
-#from ctypes import *
-import struct 
-from array import *
+import struct
 
 from PyCool import cool
 from optparse import OptionParser
 
-from PlotCalibrationGains import *
+from PlotCalibrationGains import L1CaloMap, L1CaloGeometryConvertor
 
 
 def isEmPresampler(layerName):
@@ -41,8 +36,8 @@ def isEmFront(layerName,isOverlap):
         isAccepted = True
     else:
       if layerName == 1 or layerName == 5:
-        isAccepted = True	
-	    
+        isAccepted = True
+
     return isAccepted
 
 def isEmMiddle(layerName,isOverlap):
@@ -55,8 +50,8 @@ def isEmMiddle(layerName,isOverlap):
         isAccepted = True
     else:
       if layerName == 2 or layerName == 6 or layerName == 21:
-        isAccepted = True	
-	    
+        isAccepted = True
+
     return isAccepted
 
 
@@ -70,8 +65,8 @@ def isEmBack(layerName,isOverlap):
        isAccepted = True
    else:
      if layerName == 3 or layerName == 7:
-       isAccepted = True	
-	    
+       isAccepted = True
+
    return isAccepted
 
 
@@ -81,8 +76,8 @@ def isEmOverlapBack(layerName,isOverlap):
    isAccepted = False
     
    if isOverlap and layerName == 6:
-     isAccepted = True	
-	    
+     isAccepted = True
+
    return isAccepted
 
 
@@ -91,8 +86,8 @@ def isHadFirstLayer(layerName,TT_part):
 #  layer number 8 in HEC, low eta part of 22 (FCAL2)
    isAccepted = False
    if layerName == 8 or (layerName == 22 and TT_part ==  'EmecFcalLowEta'):
-     isAccepted = True	
-	    
+     isAccepted = True
+
    return isAccepted
 
 def isHadSecondLayer(layerName,TT_part):
@@ -100,8 +95,8 @@ def isHadSecondLayer(layerName,TT_part):
 #  layer number 9 in HEC, high eta part of 22 (FCAL2)
    isAccepted = False
    if layerName == 9 or (layerName == 22 and TT_part ==  'EmbFcalHighEta'):
-     isAccepted = True	
-	    
+     isAccepted = True
+
    return isAccepted
 
 def isHadThirdLayer(layerName,TT_part):
@@ -109,8 +104,8 @@ def isHadThirdLayer(layerName,TT_part):
 #  layer number 10 in HEC, low eta part of 23 (FCAL3)
    isAccepted = False
    if layerName == 10 or (layerName == 23 and TT_part ==  'EmecFcalLowEta'):
-     isAccepted = True	
-	    
+     isAccepted = True
+
    return isAccepted
 
 def isHadFourthLayer(layerName,TT_part):
@@ -118,8 +113,8 @@ def isHadFourthLayer(layerName,TT_part):
 #  layer number 11 in HEC, high eta part of 23 (FCAL3)
    isAccepted = False
    if layerName == 11 or (layerName == 23 and TT_part ==  'EmbFcalHighEta'):
-     isAccepted = True	
-	    
+     isAccepted = True
+
    return isAccepted
 
 class L1CaloHVReader:
@@ -170,8 +165,7 @@ class L1CaloHVReader:
 
       folder_name = '/TRIGGER/L1Calo/V1/Results/HVCorrections'
       folder=db.getFolder(folder_name)
-      ch = folder.listChannels()
-       
+
       startUtime = int(time.time())
       endUtime = int(time.time())
       startValKey = startUtime * self.UNIX2COOL
@@ -200,8 +194,8 @@ class L1CaloHVReader:
          self.AffectedCells3[CoolId]  = struct.unpack('B',payload['AffectedCells3'])[0]
          self.AffectedCells4[CoolId]  = struct.unpack('B',payload['AffectedCells4'])[0]
             
-#	 print ( " CoolId", CoolId ,"AffectedCells",  struct.unpack('B',self.AffectedCells1[CoolId])[0])
-	    
+#        print ( " CoolId", CoolId ,"AffectedCells",  struct.unpack('B',self.AffectedCells1[CoolId])[0])
+
       
       # close database
       db.closeDatabase()
@@ -220,8 +214,7 @@ class L1CaloHVReader:
 
       folder_name = '/TRIGGER/L1Calo/V1/Results/RxLayers'
       folder=db.getFolder(folder_name)
-      ch = folder.listChannels()
-       
+
       startUtime = int(time.time())
       endUtime = int(time.time())
       startValKey = startUtime * self.UNIX2COOL

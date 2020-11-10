@@ -18,7 +18,8 @@ if __name__=='__main__':
   parser.add_argument('--vetoStartOfTrain', default=0, type=int, help='Number of BCIDs at the start of the train to veto, implies doRatesVsPositionInTrain')
   #
   parser.add_argument('--outputHist', default='RatesHistograms.root', type=str, help='Histogram output ROOT file')
-  parser.add_argument('--inputPrescalesXML', default='', type=str, help='XML of prescales to simulate applying when computing rates')
+  parser.add_argument('--inputPrescalesHLTJSON', default='', type=str, help='JSON of HLT prescales to simulate applying when computing rates')
+  parser.add_argument('--inputPrescalesL1JSON', default='', type=str, help='JSON of L1 prescales to simulate applying when computing rates')
   #
   parser.add_argument('--targetLuminosity', default=2e34, type=float)
   #
@@ -104,7 +105,7 @@ if __name__=='__main__':
   cfg.addPublicTool(ebw)
 
   rates = CompFactory.FullMenu()
-  rates.PrescaleXML = args.inputPrescalesXML
+  #rates.PrescalesJSON = args.inputPrescalesJSON
   rates.DoTriggerGroups = args.disableTriggerGroups
   rates.DoGlobalGroups = args.disableGlobalGroups
   rates.DoExpressRates = args.disableExpressGroup
@@ -117,6 +118,38 @@ if __name__=='__main__':
   rates.EnhancedBiasRatesTool = ebw
   rates.TrigDecisionTool = tdt
   rates.TrigConfigSvc = cfgsvc
+
+  """Return all of the HLT items, and their lower chains
+  in a JSON menu
+  """
+  import json
+  from collections import OrderedDict as odict
+
+  prescales = {}
+  #ESprescalesHLT = {} #TVS: to be done
+  
+  inputFilePSL1JSON=args.inputPrescalesL1JSON
+  inputFilePSHLTJSON=args.inputPrescalesHLTJSON
+
+  if (inputFilePSL1JSON!="" and inputFilePSHLTJSON!=""):
+    with open(inputFilePSL1JSON,'r') as fh:
+      l1ps_json_file = json.load(fh, object_pairs_hook = odict)
+
+    with open(inputFilePSHLTJSON,'r') as fh:
+      hltps_json_file = json.load(fh, object_pairs_hook = odict)
+    
+    for chain_name, ch in l1ps_json_file['cutValues'].items():
+      prescaleL1_input = ch['info'].split()[1]
+      prescales[chain_name] = float(prescaleL1_input)
+    
+    for chain_name, ch in hltps_json_file['prescales'].items():
+      prescaleHLT_input = ch['prescale']
+      prescales[chain_name] = float(prescaleHLT_input)
+
+    
+  rates.PrescalesJSON = prescales
+    
+
   cfg.addEventAlgo(rates)
 
   # Setup for accessing bunchgroup data from the DB

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-
-# art-description: Test of transform HITS->RDO->RDO_TRIG with serial athena
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#
+# art-description: Test of transform HITS->RDO->RDO_TRIG with serial athena (legacy trigger)
 # art-type: build
 # art-include: master/Athena
 # Skipping art-output which has no effect for build tests.

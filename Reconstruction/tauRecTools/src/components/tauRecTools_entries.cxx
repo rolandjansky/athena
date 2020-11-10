@@ -3,6 +3,7 @@
 #include "../TauAxisSetter.h"
 #include "../TauCellVariables.h"
 #include "../TauTrackFinder.h"
+#include "../TauClusterFinder.h"
 #include "../TauVertexFinder.h"
 #include "../TauElectronVetoVariables.h"
 #include "../TauShotFinder.h"
@@ -24,7 +25,6 @@
 #include "tauRecTools/TauPi0Selector.h"
 #include "tauRecTools/TauWPDecorator.h"
 #include "tauRecTools/TauJetBDTEvaluator.h"
-#include "tauRecTools/TauEleOLRDecorator.h"
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauDecayModeNNClassifier.h"
@@ -35,6 +35,7 @@ DECLARE_COMPONENT( JetSeedBuilder )
 DECLARE_COMPONENT( TauAxisSetter )
 DECLARE_COMPONENT( TauCellVariables )
 DECLARE_COMPONENT( TauTrackFinder )
+DECLARE_COMPONENT( TauClusterFinder )
 DECLARE_COMPONENT( TauVertexFinder )
 DECLARE_COMPONENT( TauElectronVetoVariables )
 DECLARE_COMPONENT( TauShotFinder )
@@ -58,7 +59,6 @@ DECLARE_COMPONENT( TauPi0ScoreCalculator )
 DECLARE_COMPONENT( TauPi0Selector )
 DECLARE_COMPONENT( TauWPDecorator )
 DECLARE_COMPONENT( TauJetBDTEvaluator )
-DECLARE_COMPONENT( TauEleOLRDecorator )
 DECLARE_COMPONENT( TauIDVarCalculator )
 DECLARE_COMPONENT( TauJetRNNEvaluator )
 DECLARE_COMPONENT( TauDecayModeNNClassifier )

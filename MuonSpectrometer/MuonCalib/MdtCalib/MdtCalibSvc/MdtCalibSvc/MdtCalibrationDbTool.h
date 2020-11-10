@@ -99,7 +99,8 @@ private:
   SG::ReadCondHandleKey<MdtRtRelationCollection> m_readKeyRt{this,"MdtRtRelationCollection","MdtRtRelationCollection","MDT RT relations"};
   SG::ReadCondHandleKey<MdtTubeCalibContainerCollection> m_readKeyTube{this,"MdtTubeCalibContainerCollection","MdtTubeCalibContainerCollection","MDT tube calib"};
   SG::ReadCondHandleKey<MdtCorFuncSetCollection> m_readKeyCor{this,"MdtCorFuncSetCollection","MdtCorFuncSetCollection","MDT cor Funcs"};
-
+  
+  Gaudi::Property<bool>               m_wasConfigured {this,"WasConfigured",false,"This tool is too complicated to rely on defaults. Will fail if not configured."};
 };
 
 #endif // MDTCALIBSVC_MDTCALIBRATIONDBTOOL_H

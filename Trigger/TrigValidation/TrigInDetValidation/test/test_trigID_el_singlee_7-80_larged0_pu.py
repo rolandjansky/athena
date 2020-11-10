@@ -5,7 +5,7 @@
 # art-include: master/Athena
 # art-input: mc15_13TeV.159053.ParticleGenerator_e_Et7to80_vertxy20.recon.RDO.e3603_s2726_r7772
 # art-input-nfiles: 10
-# art-athena-mt: 4
+# art-athena-mt: 8
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
 # art-output: *.txt
@@ -56,8 +56,8 @@ for opt,arg in opts:
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['electron']
 rdo2aod.max_events = 20000 
-rdo2aod.threads = 1 # TODO: change to 4
-rdo2aod.concurrent_events = 1 # TODO: change to 4
+rdo2aod.threads = 8
+rdo2aod.concurrent_events = 8
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 if local:
@@ -80,6 +80,9 @@ if ((not exclude) or postproc ):
     rdict = TrigInDetdictStep()
     rdict.args='TIDAdata-run3.dat -f data-hists.root -p 11 -b Test_bin.dat '
     test.check_steps.append(rdict)
+    rdict2 = TrigInDetdictStep('TrigInDetDict2')
+    rdict2.args='TIDAdata-run3-offline.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
+    test.check_steps.append(rdict2)
 
  
 # Now the comparitor steps

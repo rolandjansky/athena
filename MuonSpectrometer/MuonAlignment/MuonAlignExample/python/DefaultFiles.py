@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 
-import os
 import glob
 import sys
 from socket import gethostname
@@ -57,7 +56,6 @@ class Files:
                 sshCmd="ssh "+scpHost+" ls "+inputPath
                 process = subprocess.Popen(sshCmd, shell=True, stdout=subprocess.PIPE)
                 output = process.communicate()
-                status=process.poll()
 
                 outputstring = output[0]
                 if outputstring == '':
@@ -173,7 +171,7 @@ class Files:
         filepy += ".py"
         
         filesOut = open(filepy,"w")        
-        filesOut.write("inputFile = "+filestring+"\n");
+        filesOut.write("inputFile = "+filestring+"\n")
         filesOut.close()
 
         return filepy
@@ -282,15 +280,6 @@ class DefaultFiles (Files):
             #nfiles = 2
             datasetdef = 'data10_7TeV.*.physics_MuonswBeam.merge.DESD_SGLMU.r1299*p165*_00'
 
-        #elif name=="periodD":
-        #    inputFilePath = ["/data/periodD/data10_7TeV.00165956.physics_Muons.merge.TAG.r1647_p306_p307_tid185039_00/"]
-        #    scpHost       = 'terrier10'
-        #    geometry      = ''
-        #    fileType      = 'TAG'
-        #    nfiles        = 10
-        #    datasetdef    = 'data10_7TeV.periodD.physics_MuonswBeam.*.ESD.repro*'
-        #    inputTagDef   = 'data10_7TeV.periodD.physics_MuonswBeam.*.TAG.repro*'
-
         elif name=="periodD":
             inputFilePath = ["/castor/cern.ch/grid/atlas/tzero/prod1/perm/data10_7TeV/physics_Muons/0165956/data10_7TeV.00165956.physics_Muons.merge.TAG.f294_m614_m613/"]
             scpHost       = ''
@@ -298,7 +287,6 @@ class DefaultFiles (Files):
             fileType      = 'TAG'
             nfiles        = 10
             datasetdef    = 'data10_7TeV.periodD.physics_MuonswBeam.*.ESD.repro*'
-            inputTagDef   = 'data10_7TeV.periodD.physics_MuonswBeam.*.TAG.repro*'
 
         elif name=="107206.singlepart_mu5.recon.ESD.e488_s634_s633_r870":
             inputFilePath = ["/tmp/roberth/mc09_valid.107206.singlepart_mu5.recon.ESD.e488_s634_s633_r870_tid099863"]

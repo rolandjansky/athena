@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //*****************************************************************************
@@ -450,7 +450,8 @@ void TileL2Builder::MTagLB(int partition
             if (eta[i] == 3 && k2 == 7) pattern = 8;  // D3, BC8, A8
 
             // Words with encoded muon information for one superdrawer
-            extraWord.push_back( (quality << 31) | (drawer << 30) | (pattern << 25) | ((int) (2 * E_D[eta[i]])));
+            unsigned int uquality = quality;
+            extraWord.push_back( (uquality << 31) | (drawer << 30) | (pattern << 25) | ((int) (2 * E_D[eta[i]])));
             extraWord.push_back((((int) (2 * E_BC[k2])) << 16) | ((int) (2 * E_A[k2])));
 
             NMuons++;
@@ -641,7 +642,8 @@ void TileL2Builder::MTagEB(int partition
               if (eta[i] == 1 && k2 == 4 && k1 == 3) pattern = 16;  // D6, B15, A15
 
               // Words with encoded muon information for one superdrawer
-              extraWord.push_back( (quality << 31)
+              unsigned int uquality = quality;
+              extraWord.push_back( (uquality << 31)
                                    | (drawer << 30)
                                    | (pattern << 25)
                                    | ((int) (2 * E_D[eta[i]])));

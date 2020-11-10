@@ -1,37 +1,23 @@
-################################################################################
-# Package: TrkParameters
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkParameters )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkParametersBase )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
-#Component(s) in the package:
+# Component(s) in the package:
 atlas_add_library( TrkParameters
                    src/*.cxx
                    PUBLIC_HEADERS TrkParameters
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES TrkSurfaces TrkParametersBase
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES TrkSurfaces TrkParametersBase )
 
 atlas_add_dictionary( TrkParametersDict
                       TrkParameters/TrkParametersDict.h
                       TrkParameters/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} TrkSurfaces TrkParametersBase TrkParameters )
+                      LINK_LIBRARIES TrkParameters )
 
-
-#Executables for tests
+# Tests:
 atlas_add_executable( TrkParameters_testConstExprMethods
-	              test/testConstExpr.cxx 
-		      LINK_LIBRARIES TrkParameters)
-#Executables for tests
+	                  test/testConstExpr.cxx
+		              LINK_LIBRARIES TrkParameters)
+
 atlas_add_test( ut_TrkParameters_testConstExprMethods
-	        SCRIPT TrkParameters_testConstExprMethods)
+                SCRIPT TrkParameters_testConstExprMethods)

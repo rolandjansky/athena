@@ -82,7 +82,8 @@ namespace xAODMaker {
      tp.setDefiningParametersCovMatrixOffDiagVec( compressOffDiag( offDiagVec, m_offDiagCovMatrixBits ) );
      int offDiagComprBits = m_offDiagCovMatrixBits;
 
-     while( ( tp.definingParametersCovMatrix().determinant() <= 0.0 ) &&
+     // Need to check determinant of the matrix + its inverse to prevent any precision issue in inverse computation
+     while( ( tp.definingParametersCovMatrix().determinant() <= 0.0 || tp.definingParametersCovMatrix().inverse().determinant() <= 0.0 ) &&
 	    ( ++offDiagComprBits <= m_diagCovMatrixBits ) ) {
        tp.setDefiningParametersCovMatrixOffDiagVec( compressOffDiag( offDiagVec, offDiagComprBits ) );
      }

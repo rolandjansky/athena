@@ -78,6 +78,10 @@ public: // Non-static members
    /// @param compName [IN] string name of the component to be loaded.
    void loadComponent(const std::string& compName) const;
 
+   /// @return void
+   /// @param shareCat [IN] bool to share the file catalog.
+   void setShareMode(bool shareCat);
+
    /// @return the file catalog.
    const pool::IFileCatalog* catalog() const;
 
@@ -185,6 +189,7 @@ private: // data
    typedef std::recursive_mutex CallMutex;
    mutable CallMutex                                 m_pool_mut ATLAS_THREAD_SAFE;
    coral::Context*                                   m_context{nullptr};
+   bool                                              m_shareCat{false};
    pool::IFileCatalog*                               m_catalog{nullptr};
    std::vector<pool::IPersistencySvc*>               m_persistencySvcVec;
    mutable std::vector<CallMutex*>                   m_pers_mut ATLAS_THREAD_SAFE;

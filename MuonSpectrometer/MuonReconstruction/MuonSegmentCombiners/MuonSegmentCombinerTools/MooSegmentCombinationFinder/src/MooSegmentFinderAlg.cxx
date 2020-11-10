@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MooSegmentFinderAlg.h"
@@ -10,7 +10,7 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
 MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator),
+    : AthReentrantAlgorithm(name, pSvcLocator),
       m_keyTgc("TGC_Measurements"),
       m_keyTgcPriorBC("TGC_MeasurementsPriorBC"),
       m_keyTgcNextBC("TGC_MeasurementsNextBC"),
@@ -70,23 +70,23 @@ MooSegmentFinderAlg::initialize()
 }
 
 StatusCode
-MooSegmentFinderAlg::execute()
+MooSegmentFinderAlg::execute(const EventContext& ctx) const
 {
 
     std::vector<const Muon::MdtPrepDataCollection*> mdtCols;
     std::vector<const Muon::CscPrepDataCollection*> cscCols;
     std::vector<const Muon::TgcPrepDataCollection*> tgcCols;
     std::vector<const Muon::RpcPrepDataCollection*> rpcCols;
-    if (m_useMdt) retrieveCollections(mdtCols, m_keyMdt);
-    if (m_useCsc) retrieveCollections(cscCols, m_keyCsc);
-    if (m_useTgc) retrieveCollections(tgcCols, m_keyTgc);
-    if (m_useTgcPriorBC) retrieveCollections(tgcCols, m_keyTgcPriorBC);
-    if (m_useTgcNextBC) retrieveCollections(tgcCols, m_keyTgcNextBC);
-    if (m_useRpc) retrieveCollections(rpcCols, m_keyRpc);
+    if (m_useMdt) retrieveCollections(mdtCols, m_keyMdt, ctx);
+    if (m_useCsc) retrieveCollections(cscCols, m_keyCsc, ctx);
+    if (m_useTgc) retrieveCollections(tgcCols, m_keyTgc, ctx);
+    if (m_useTgcPriorBC) retrieveCollections(tgcCols, m_keyTgcPriorBC, ctx);
+    if (m_useTgcNextBC) retrieveCollections(tgcCols, m_keyTgcNextBC, ctx);
+    if (m_useRpc) retrieveCollections(rpcCols, m_keyRpc, ctx);
 
     Muon::IMooSegmentCombinationFinder::Output output;
 
-    SG::WriteHandle<Trk::SegmentCollection> segHandle(m_segmentLocation);
+    SG::WriteHandle<Trk::SegmentCollection> segHandle(m_segmentLocation, ctx);
 
     if (segHandle.record(std::make_unique<Trk::SegmentCollection>()).isSuccess()) {
         ATH_MSG_VERBOSE("stored MuonSegmentCollection at " << m_segmentLocation.key());
@@ -95,9 +95,9 @@ MooSegmentFinderAlg::execute()
     }
     output.segmentCollection = segHandle.ptr();
 
-    SG::WriteHandle<MuonPatternCombinationCollection> patHandle(m_patternCombiLocation);
+    SG::WriteHandle<MuonPatternCombinationCollection> patHandle(m_patternCombiLocation, ctx);
 
-    m_segmentFinder->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output);
+    m_segmentFinder->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output, ctx);
 
     if (output.patternCombinations) {
         if (patHandle.record(std::unique_ptr<MuonPatternCombinationCollection>(output.patternCombinations)).isSuccess())
@@ -117,7 +117,7 @@ MooSegmentFinderAlg::execute()
 
     // write hough data to SG
     if (output.houghDataPerSectorVec) {
-        SG::WriteHandle<Muon::HoughDataPerSectorVec> handle{m_houghDataPerSectorVecKey};
+      SG::WriteHandle<Muon::HoughDataPerSectorVec> handle{m_houghDataPerSectorVecKey, ctx};
         ATH_CHECK(handle.record(std::move(output.houghDataPerSectorVec)));
     } else {
         ATH_MSG_VERBOSE("HoughDataPerSectorVec was empty, key: " << m_houghDataPerSectorVecKey.key());
@@ -128,12 +128,12 @@ MooSegmentFinderAlg::execute()
         const PRD_MultiTruthCollection* tgcTruthColl = 0;
         const PRD_MultiTruthCollection* rpcTruthColl = 0;
         if (m_doClusterTruth) {
-            SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth);
-            SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth);
+	  SG::ReadHandle<PRD_MultiTruthCollection> tgcTruth(m_tgcTruth, ctx);
+	  SG::ReadHandle<PRD_MultiTruthCollection> rpcTruth(m_rpcTruth, ctx);
             tgcTruthColl = tgcTruth.cptr();
             rpcTruthColl = rpcTruth.cptr();
         }
-        SG::ReadHandle<Muon::MdtPrepDataContainer> mdth(m_keyMdt);
+        SG::ReadHandle<Muon::MdtPrepDataContainer> mdth(m_keyMdt, ctx);
         m_clusterSegMaker->getClusterSegments(mdth.cptr(), m_doTGCClust ? &tgcCols : 0, m_doRPCClust ? &rpcCols : 0,
                                               tgcTruthColl, rpcTruthColl, segHandle.ptr());
     }

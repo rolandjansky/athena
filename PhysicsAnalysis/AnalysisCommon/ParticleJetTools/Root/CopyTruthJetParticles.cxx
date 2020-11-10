@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ParticleJetTools/CopyTruthJetParticles.h"
@@ -20,6 +20,9 @@
 #include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 #endif
 
+// For std::find in comesFrom()
+#include <algorithm>
+
 using namespace std;
 using namespace MCTruthPartClassifier;
 
@@ -31,10 +34,12 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   , m_photonCone(0.1)
   , m_classif("",this)
 {
+  declareProperty("IncludeBSMNonInteracting",  m_includeBSMNonInt=false, "Include noninteracting BSM particles (excluding neutrinos) in the output collection");
   declareProperty("IncludeNeutrinos",  m_includeNu=false, "Include neutrinos in the output collection");
   declareProperty("IncludeMuons",      m_includeMu=false, "Include muons in the output collection");
   declareProperty("IncludePromptLeptons",  m_includePromptLeptons=true,  "Include leptons from prompt decays (i.e. not from hadron decays) in the output collection");
-  //  declareProperty("IncludeTauLeptons", m_includeTau=true, "Include leptons from tau decays in the output collection");
+  declareProperty("IncludePromptPhotons",  m_includePromptPhotons=true,  "Include photons from Higgs and other decays that produce isolated photons");
+  declareProperty("ChargedParticlesOnly", m_chargedOnly=false, "Include only charged particles in the output collection");
 
   // -- added for dark jet clustering -- //
   declareProperty("IncludeSMParts", m_includeSM=true, "Include SM particles in the output collection");
@@ -48,6 +53,10 @@ CopyTruthJetParticles::CopyTruthJetParticles(const std::string& name)
   declareProperty("MCTruthClassifier", m_classif);
 
   declareProperty("FSRPhotonCone", m_photonCone);
+
+  declareProperty("VetoPDG_IDs", m_vetoPDG_IDs, "List of PDG IDs (python list) to veto.  Will ignore these and all children of these.");
+
+  declareProperty("DressingDecorationName", m_dressingName="", "Name of the dressed photon decoration (if one should be used)");
 }
 
 StatusCode CopyTruthJetParticles::initialize() {
@@ -55,6 +64,13 @@ StatusCode CopyTruthJetParticles::initialize() {
 
   ATH_CHECK(m_truthEventKey.initialize());
   ATH_CHECK(m_outTruthPartKey.initialize());
+
+  // Ensure consistency in the photon dressing treatment
+  if (m_photonCone>0 && !m_dressingName.empty()){
+    ATH_MSG_ERROR("Requested both dR and decoration based photon dressing. This is unphysical; please choose one.");
+    return StatusCode::FAILURE;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -76,22 +92,22 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   // ----------------------------------- //
   
   // Easy classifiers by PDG ID
-  if (!m_includeNu && MC::isNonInteracting(pdgid)) return false;
+  if(MCUtils::PID::isNeutrino(pdgid)) {
+    if (!m_includeNu) return false;
+  } else {
+    if (!m_includeBSMNonInt && MC::isNonInteracting(pdgid)) return false;
+  }
   if (!m_includeMu && abs(pdgid)==13) return false;
 
-  // Cannot use the truth helper functions; they're written for HepMC
-  // Last two switches only apply if the thing is a lepton and not a tau
-  if (MC::PID::isLepton(pdgid) && abs(pdgid)!=15 && tp->hasProdVtx()){
-    bool isPromptLepton = isPrompt( tp, originMap );
-    if(isPromptLepton && (abs(pdgid)==11 || abs(pdgid)==13)) promptLeptons.push_back(tp);
-    if (!m_includePromptLeptons && isPromptLepton) {
-      ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt() << " origin " << getPartOrigin( tp, originMap ));
-      return false;
-    }
-    // if (!m_includeTau && fromTau( tp, originMap )) {
-    //   ATH_MSG_VERBOSE("Veto lepton (" << pdgid << ") from tau");
-    //   return false;
-    // }
+  // Already built a list of prompt leptons, just use it here
+  if (!m_includePromptLeptons && std::find(promptLeptons.begin(),promptLeptons.end(),tp)!=promptLeptons.end()){
+    ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt() << " origin " << getPartOrigin( tp, originMap ));
+    return false;
+  }
+
+  // Extra catch.  If we aren't supposed to include prompt leptons, we aren't supposed to include prompt neutrinos
+  if (!m_includePromptLeptons && MCUtils::PID::isNeutrino(pdgid) && isPrompt(tp,originMap)){
+    return false;
   }
 
   // -- added for dark jet clustering -- //
@@ -110,24 +126,48 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
     // Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
     if(m_photonCone>0) {
       for(const auto& lep : promptLeptons) {
-  	double deltaR = tp->p4().DeltaR(lep->p4());
-  	// if photon within deltaR of lepton, remove along with lepton
-  	if( deltaR < m_photonCone ) {
-  	  ATH_MSG_VERBOSE("Veto photon with pt " << tp->pt() << " with dR=" << deltaR
-		       << " near to a " << lep->pdgId() << " with pt " << lep->pt());
-  	  return false;
-  	}
+          double deltaR = tp->p4().DeltaR(lep->p4());
+          // if photon within deltaR of lepton, remove along with lepton
+          if( deltaR < m_photonCone ) {
+            ATH_MSG_VERBOSE("Veto photon with pt " << tp->pt() << " with dR=" << deltaR
+                       << " near to a " << lep->pdgId() << " with pt " << lep->pt());
+            return false;
+          }
       }
     }
   }
 
+  // Exclude prompt photons, particularly those from Higgs decays to start
+  if (!m_includePromptPhotons && MC::PID::isPhoton(pdgid) && tp->hasProdVtx()){
+    ParticleOrigin orig = getPartOrigin(tp, originMap);
+    if (orig==Higgs || orig==HiggsMSSM) return false;
+  }
+
+  // If we want to remove photons via the dressing decoration
+  if (!m_dressingName.empty()){
+    // Accessor for the dressing decoration above
+    const static SG::AuxElement::Accessor<char> dressAcc(m_dressingName);
+    if (pdgid==22 && dressAcc(*tp)) return false;
+  } // End of removal via dressing decoration
+
+  // Pseudo-rapidity cut
   if(fabs(tp->eta())>m_maxAbsEta) return false;
+
+  // Vetoes of specific origins.  Not fast, but if no particles are specified should not execute
+  if (m_vetoPDG_IDs.size()>0){
+    std::vector<int> used_vertices;
+    for (int anID : m_vetoPDG_IDs){
+      used_vertices.clear();
+      if (comesFrom(tp,anID,used_vertices)) return false;
+    }
+  }
+
   // Made it! 
   return true;
 }
 
 bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
-				      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
+                                      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
 {
   ParticleOrigin orig = getPartOrigin(tp, originMap);
   switch(orig) {
@@ -156,17 +196,8 @@ bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
   return true;
 }
 
-// bool CopyTruthJetParticles::fromTau( const xAOD::TruthParticle* tp,
-// 				     std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
-// {
-//   ParticleOrigin orig = getPartOrigin(tp, originMap);
-//   if(orig==TauLep) return true;
-//   return false;
-// }
-
-
 MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const xAOD::TruthParticle* tp,
-									   std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const
+                                                                           std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const
 {
   if(originMap.find(tp)==originMap.end()) {
     std::pair<ParticleType, ParticleOrigin> classification = m_classif->particleTruthClassifier( tp );
@@ -177,7 +208,7 @@ MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const
 
 int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() const{ 
 
-    ATH_MSG_DEBUG(" in call once barcode offset is"<<m_barcodeOffset);
+  ATH_MSG_DEBUG(" in call once barcode offset is"<<m_barcodeOffset);
 
   // if  m_barcodeFromMetadata  is  set to  zero,  no search for barcode offset is performed in metadata 
   if(m_barcodeFromMetadata  == 0 )  ATH_MSG_INFO( "No barcode offset is searched for in metadata, its value is set to:  "<<m_barcodeOffset);
@@ -205,12 +236,25 @@ int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() const{
       m_barcodeOffset = barcodeOffset_tmp;
       ATH_MSG_INFO(" Barcode offset retrieved from metadata. Its value is :  "<< m_barcodeOffset);
     } else {    
-      ATH_MSG_WARNING( "Could not retrieve barcode offset from metadata under the name SimBarcodeOffset from /Simulation/Parameters, so barcode is set to "<<m_barcodeOffset);
-      return 1;
+
+      if(m_barcodeFromMetadata==1) {
+        // Required that it come from metadata -- fail if this didn't work
+        ATH_MSG_ERROR("Can not retrieve metadata info  /Simulation/Parameters SimBarcodeOffset");
+        throw runtime_error("Tried to retrieve metadata info and failed, and was not supposed to fail");
+      }
+      // m_barcodeFromMetadata == 2
+      // Requested it from the metadata, with a fall-back
+      ATH_MSG_DEBUG("NOT Retrieved from metadata, use default "<<m_barcodeOffset);
     }
 #else // standalone :
-    ATH_MSG_WARNING(" Can't automatically retrieve the truth barcode offset outside Athena. Please set the CopyTruthJetParticles::BarCodeOffset for this specific sample");
-    return 1;
+    if (m_barcodeFromMetadata==1) {
+      // Required it from the metadata -- fail if not in athena
+      ATH_MSG_ERROR("Can't retrieve automatically the truth barcode offset outside Athena. Please set the CopyTruthJetParticles::BarCodeOffset for this specific sample");
+      throw runtime_error("Tried to retrieve metadata info and failed, and was not supposed to fail");
+    } else {
+      // Requested it from the metadata -- fall back is the only option
+      ATH_MSG_WARNING("Can't retrieve automatically the truth barcode offset outside Athena.  Falling back to offset property: " << m_barcodeOffset);
+    }
 #endif
   }  
   return 0;
@@ -238,6 +282,7 @@ int CopyTruthJetParticles::execute() const {
 
   //  std::call_once(metaDataFlag,&CopyTruthJetParticles::basicMetaDataCheck,this,barcodeOffset);
   // this call happens only once and it modifies m_barcodeOffset
+  // Note that catching the return value of this is rather complicated, so it throws rather than returning errors
   std::call_once(metaDataFlag,&CopyTruthJetParticles::setBarCodeFromMetaDataCheck, this);
 
   std::vector<const xAOD::TruthParticle*> promptLeptons;
@@ -263,6 +308,23 @@ int CopyTruthJetParticles::execute() const {
     ATH_MSG_ERROR("Null pointer received for first truth event!");
     return 1;
   }
+
+  for (unsigned int ip = 0; ip < hsevt->nTruthParticles(); ++ip) {
+    const xAOD::TruthParticle* tp = hsevt->truthParticle(ip);
+    if(tp == NULL) continue;
+    if (tp->pt() < m_ptmin)
+        continue;
+    // Cannot use the truth helper functions; they're written for HepMC
+    // Last two switches only apply if the thing is a lepton and not a tau
+    int pdgid = tp->pdgId();
+    if ((abs(pdgid)==11 || abs(pdgid)==13) && tp->hasProdVtx()){
+      // If this is a prompt, generator stable lepton, then we can use it
+      if(tp->status()==1 && tp->barcode()<m_barcodeOffset && isPrompt(tp,originMap)){
+        promptLeptons.push_back(tp);
+      }
+    }
+  }
+
   for (size_t itp(0); itp<hsevt->nTruthParticles(); ++itp) {
     const xAOD::TruthParticle* tp = hsevt->truthParticle(itp);
     if(tp == NULL) continue;
@@ -291,5 +353,28 @@ int CopyTruthJetParticles::execute() const {
   }
 
   return 0;
+}
+
+
+bool CopyTruthJetParticles::comesFrom( const xAOD::TruthParticle* tp, const int pdgID, std::vector<int>& used_vertices ) const {
+  // If it's not a particle, then it doesn't come from something...
+  if (!tp) return false;
+  // If it doesn't have a production vertex or has no parents, it doesn't come from much of anything
+  if (!tp->prodVtx() || tp->nParents()==0) return false;
+  // If we have seen it before, then skip this production vertex
+  if (std::find(used_vertices.begin(),used_vertices.end(), tp->prodVtx()->barcode())!=used_vertices.end()) return false;
+  // Add the production vertex to our used list
+  used_vertices.push_back( tp->prodVtx()->barcode() );
+  // Loop over the parents
+  for (size_t par=0;par<tp->nParents();++par){
+    // Check for null pointers in case of skimming
+    if (!tp->parent(par)) continue;
+    // Check for a match
+    if (tp->parent(par)->absPdgId()==pdgID) return true;
+    // Recurse on this parent
+    if (comesFrom(tp->parent(par), pdgID, used_vertices)) return true;
+  }
+  // No hits -- all done with the checks!
+  return false;
 }
 

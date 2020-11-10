@@ -18,7 +18,9 @@
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkEventPrimitives/PropDirection.h"
+#include "TrkSurfaces/Surface.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
+#include "CxxUtils/CachedValue.h"
 
 class MsgStream;
 
@@ -31,7 +33,7 @@ namespace Trk {
   class PerigeeSurface     ;
   class ConeSurface        ;
 
-  class PatternTrackParameters
+  class PatternTrackParameters : public ParametersBase<5, Trk::Charged>
     {
       ///////////////////////////////////////////////////////////////////
       // Public methods:
@@ -48,24 +50,24 @@ namespace Trk {
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      const double*    par               ()     const {return  &m_parameters[0];}
-      const double*    cov               ()     const {return  &m_covariance[0];}
-      const Surface*   associatedSurface ()     const {return   m_surface      ;}
-      const bool&      iscovariance      ()     const {return   m_iscovariance ;}
-      Amg::Vector2D    localPosition     ()     const;
-      Amg::Vector3D    momentum          ()     const; 
-      Amg::Vector3D    position          ()     const; 
-      AmgVector(5)     parameters        ()     const;
-      AmgSymMatrix(5)  covariance        ()     const;
-      double           charge            ()     const;	
+      const Surface&   associatedSurface ()     const {return   *m_surface;}
+      bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
       double           sinPhi            ()     const;
       double           cosPhi            ()     const;
       double           sinTheta          ()     const;
       double           cosTheta          ()     const;
       double           cotTheta          ()     const;
-      double           pT                ()     const;
-      double           eta               ()     const;   
       void             changeDirection   ()          ;
+
+      virtual const Amg::Vector3D& position() const override final;
+      virtual const Amg::Vector3D& momentum() const override final;
+      virtual double charge() const override final;
+      virtual bool hasSurface() const override final;
+      virtual Amg::RotationMatrix3D measurementFrame() const override final;
+      virtual PatternTrackParameters * clone() const override final;
+      virtual ParametersType type() const override final;
+      virtual int surfaceType() const override final;
+      virtual void updateParametersHelper(const AmgVector(5) &) override final;
 
       ///////////////////////////////////////////////////////////////////
       // Methods set
@@ -74,6 +76,7 @@ namespace Trk {
       void setParameters              (const Surface*,const double*              );
       void setCovariance              (                             const double*);
       void setParametersWithCovariance(const Surface*,const double*,const double*);
+      void setParametersWithCovariance(const Surface*,const double*,const AmgSymMatrix(5)&);
 
       ///////////////////////////////////////////////////////////////////
       // Convertors
@@ -101,8 +104,7 @@ namespace Trk {
       // Covariance matrix production using jacobian CovNEW = J*CovOLD*Jt
       ///////////////////////////////////////////////////////////////////
       
-      void newCovarianceMatrix
-	(PatternTrackParameters&,double*);
+      static AmgSymMatrix(5) newCovarianceMatrix(const AmgSymMatrix(5) &, const double *);
 
       ///////////////////////////////////////////////////////////////////
       // Print
@@ -117,10 +119,10 @@ namespace Trk {
       // Protected data
       ///////////////////////////////////////////////////////////////////
 
-      const  Surface* m_surface       ;
-      double          m_parameters[ 5];
-      double          m_covariance[15];
-      bool            m_iscovariance  ;
+      SurfaceUniquePtrT<const Surface> m_surface;
+      CxxUtils::CachedValue<Amg::Vector3D> m_pposition;
+      CxxUtils::CachedValue<Amg::Vector3D> m_pmomentum;
+      CxxUtils::CachedValue<Trk::Charged> m_pchargeDef;
 
       ///////////////////////////////////////////////////////////////////
       // Comments
@@ -130,13 +132,7 @@ namespace Trk {
       // m_parameters[ 2] - Azimuthal angle
       // m_parameters[ 3] - Polar     angle
       // m_parameters[ 4] - charge/Momentum
-      // m_covariance is  elements of the lower triangle of covariance matrix
-      //   0    
-      //   1  2
-      //   3  4  5
-      //   6  7  8  9
-      //  10 11 12 13 14
-      // m_iscovariance is true if m_covariance contains correct information
+      // m_covariance is the covariance matrix
       ///////////////////////////////////////////////////////////////////
 
 
@@ -150,6 +146,10 @@ namespace Trk {
       Amg::Vector3D localToGlobal(const CylinderSurface    *) const;
       Amg::Vector3D localToGlobal(const PerigeeSurface     *) const;
       Amg::Vector3D localToGlobal(const ConeSurface        *) const;
+
+      void updatePositionCache(void) const;
+      void updateMomentumCache(void) const;
+      void updateChargeCache(void) const;
     };
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -164,16 +164,14 @@ namespace Trk {
   /////////////////////////////////////////////////////////////////////////////////
 
 
-  inline PatternTrackParameters::PatternTrackParameters()
+  inline PatternTrackParameters::PatternTrackParameters():
+    ParametersBase<5, Trk::Charged>()
     {
-      m_surface      =     nullptr;
-      m_iscovariance =     false;
-      std::fill (std::begin(m_parameters), std::end(m_parameters), 0);
-      std::fill (std::begin(m_covariance), std::end(m_covariance), 0);
+      m_parameters.setZero();
     }
 
   inline PatternTrackParameters::PatternTrackParameters(const PatternTrackParameters& P):
-    m_surface(P.m_surface),m_parameters{},m_covariance{},m_iscovariance(P.m_iscovariance)
+    PatternTrackParameters()
     {
       *this = P;
     }
@@ -182,29 +180,26 @@ namespace Trk {
     (const PatternTrackParameters& P) 
     {
       if (&P != this){
-				m_surface        = P.m_surface       ;
-				m_parameters[ 0] = P.m_parameters[ 0];
-				m_parameters[ 1] = P.m_parameters[ 1];
-				m_parameters[ 2] = P.m_parameters[ 2];
-				m_parameters[ 3] = P.m_parameters[ 3];
-				m_parameters[ 4] = P.m_parameters[ 4];
-				m_covariance[ 0] = P.m_covariance[ 0];
-				m_covariance[ 1] = P.m_covariance[ 1];
-				m_covariance[ 2] = P.m_covariance[ 2];
-				m_covariance[ 3] = P.m_covariance[ 3];
-				m_covariance[ 4] = P.m_covariance[ 4];
-				m_covariance[ 5] = P.m_covariance[ 5];
-				m_covariance[ 6] = P.m_covariance[ 6];
-				m_covariance[ 7] = P.m_covariance[ 7];
-				m_covariance[ 8] = P.m_covariance[ 8];
-				m_covariance[ 9] = P.m_covariance[ 9];
-				m_covariance[10] = P.m_covariance[10];
-				m_covariance[11] = P.m_covariance[11];
-				m_covariance[12] = P.m_covariance[12];
-				m_covariance[13] = P.m_covariance[13];
-				m_covariance[14] = P.m_covariance[14];
-				m_iscovariance   = P.m_iscovariance  ;
+        if (P.m_surface != nullptr) {
+          m_surface.reset(P.m_surface->isFree() ? P.m_surface->clone() : P.m_surface.get());
+        } else {
+          m_surface.reset(nullptr);
+        }
+
+        m_parameters     = P.m_parameters    ;
+
+        if (P.m_covariance != nullptr) {
+          if (m_covariance == nullptr) {
+            m_covariance = std::make_unique<AmgSymMatrix(5)>(*P.m_covariance);
+          } else {
+            *m_covariance = *P.m_covariance;
+          }
+        }
+
+        m_pposition = P.m_pposition;
+        m_pmomentum = P.m_pmomentum;
       }
+
       return (*this);
     }
 
@@ -217,13 +212,16 @@ namespace Trk {
   inline void PatternTrackParameters::setParameters
     (const Surface* s,const double* p)
     {
-      m_surface        =     s;  
+      m_surface.reset(s->isFree() ? s->clone() : s);
       m_parameters[ 0] = p[ 0];
       m_parameters[ 1] = p[ 1];
       m_parameters[ 2] = p[ 2];
       m_parameters[ 3] = p[ 3];
       m_parameters[ 4] = p[ 4];
-      m_iscovariance   = false;
+      m_covariance.reset(nullptr);
+      m_pposition.reset();
+      m_pmomentum.reset();
+      m_pchargeDef.reset();
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -233,22 +231,25 @@ namespace Trk {
   inline void PatternTrackParameters::setCovariance
     (const double* c)
     {
-      m_covariance[ 0] = c[ 0];
-      m_covariance[ 1] = c[ 1];
-      m_covariance[ 2] = c[ 2];
-      m_covariance[ 3] = c[ 3];
-      m_covariance[ 4] = c[ 4];
-      m_covariance[ 5] = c[ 5];
-      m_covariance[ 6] = c[ 6];
-      m_covariance[ 7] = c[ 7];
-      m_covariance[ 8] = c[ 8];
-      m_covariance[ 9] = c[ 9];
-      m_covariance[10] = c[10];
-      m_covariance[11] = c[11];
-      m_covariance[12] = c[12];
-      m_covariance[13] = c[13];
-      m_covariance[14] = c[14];
-      m_iscovariance  = true;
+      if (m_covariance == nullptr) {
+        m_covariance = std::make_unique<AmgSymMatrix(5)>();
+      }
+
+      m_covariance->fillSymmetric(0, 0, c[ 0]);
+      m_covariance->fillSymmetric(0, 1, c[ 1]);
+      m_covariance->fillSymmetric(1, 1, c[ 2]);
+      m_covariance->fillSymmetric(0, 2, c[ 3]);
+      m_covariance->fillSymmetric(1, 2, c[ 4]);
+      m_covariance->fillSymmetric(2, 2, c[ 5]);
+      m_covariance->fillSymmetric(0, 3, c[ 6]);
+      m_covariance->fillSymmetric(1, 3, c[ 7]);
+      m_covariance->fillSymmetric(2, 3, c[ 8]);
+      m_covariance->fillSymmetric(3, 3, c[ 9]);
+      m_covariance->fillSymmetric(0, 4, c[10]);
+      m_covariance->fillSymmetric(1, 4, c[11]);
+      m_covariance->fillSymmetric(2, 4, c[12]);
+      m_covariance->fillSymmetric(3, 4, c[13]);
+      m_covariance->fillSymmetric(4, 4, c[14]);
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -258,8 +259,29 @@ namespace Trk {
   inline void PatternTrackParameters::setParametersWithCovariance
     (const Surface* s,const double* p,const double* c)
     {
-      setParameters(s,p);
+      m_surface.reset(s->isFree() ? s->clone() : s);
+      m_parameters[ 0] = p[ 0];
+      m_parameters[ 1] = p[ 1];
+      m_parameters[ 2] = p[ 2];
+      m_parameters[ 3] = p[ 3];
+      m_parameters[ 4] = p[ 4];
+      m_pposition.reset();
+      m_pmomentum.reset();
+      m_pchargeDef.reset();
       setCovariance(c  );
+    }
+
+  inline void PatternTrackParameters::setParametersWithCovariance
+    (const Surface* s,const double* p,const AmgSymMatrix(5)& c)
+    {
+      double C[15] = {
+        c(0, 0),
+        c(1, 0), c(1, 1),
+        c(2, 0), c(2, 1), c(2, 2),
+        c(3, 0), c(3, 1), c(3, 2), c(3, 3),
+        c(4, 0), c(4, 1), c(4, 2), c(4, 3), c(4, 4)
+      };
+      setParametersWithCovariance(s, p, C);
     }
   
   ///////////////////////////////////////////////////////////////////
@@ -268,13 +290,26 @@ namespace Trk {
 
   inline void PatternTrackParameters::diagonalization(double D)
     {
-      double* c = &m_covariance[0];
+      if (m_covariance == nullptr) {
+        return;
+      }
 
-      c[ 0]*=D ;
-      c[ 1] =0.;  c[ 2]*=D ;
-      c[ 3] =0.;  c[ 4] =0.; c[ 5]*=D ;
-      c[ 6] =0.;  c[ 7] =0.; c[ 8] =0.; c[ 9]*=D ;
-      c[10] =0.;  c[11] =0.; c[12] =0.; c[13] =0.; c[14]*=D;
+      m_covariance->fillSymmetric(0, 1, 0);
+      m_covariance->fillSymmetric(0, 2, 0);
+      m_covariance->fillSymmetric(1, 2, 0);
+      m_covariance->fillSymmetric(0, 3, 0);
+      m_covariance->fillSymmetric(1, 3, 0);
+      m_covariance->fillSymmetric(2, 3, 0);
+      m_covariance->fillSymmetric(0, 4, 0);
+      m_covariance->fillSymmetric(1, 4, 0);
+      m_covariance->fillSymmetric(2, 4, 0);
+      m_covariance->fillSymmetric(3, 4, 0);
+
+      (*m_covariance)(0, 0) *= D;
+      (*m_covariance)(1, 1) *= D;
+      (*m_covariance)(2, 2) *= D;
+      (*m_covariance)(3, 3) *= D;
+      (*m_covariance)(4, 4) *= D;
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -284,9 +319,11 @@ namespace Trk {
   inline void PatternTrackParameters::addNoise
     (const NoiseOnSurface& N,PropDirection D) 
     {
-      m_covariance[ 5]+=N.covarianceAzim();
-      m_covariance[ 9]+=N.covariancePola();
-      m_covariance[14]+=N.covarianceIMom();
+      if (m_covariance != nullptr) {
+        (*m_covariance)(2, 2)+=N.covarianceAzim();
+        (*m_covariance)(3, 3)+=N.covariancePola();
+        (*m_covariance)(4, 4)+=N.covarianceIMom();
+      }
 
       if( D > 0 ) {
 	N.correctionIMom() > 1. ? 
@@ -296,6 +333,10 @@ namespace Trk {
 	N.correctionIMom() > 1. ? 
 	  m_parameters[ 4]/=N.correctionIMom() : m_parameters[ 4]*=N.correctionIMom();
       }
+
+      m_pposition.reset();
+      m_pmomentum.reset();
+      m_pchargeDef.reset();
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -305,9 +346,11 @@ namespace Trk {
   inline void PatternTrackParameters::removeNoise
     (const NoiseOnSurface& N,PropDirection D) 
     {
-      m_covariance[ 5]-=N.covarianceAzim();
-      m_covariance[ 9]-=N.covariancePola();
-      m_covariance[14]-=N.covarianceIMom();
+      if (m_covariance != nullptr) {
+        (*m_covariance)(2, 2)-=N.covarianceAzim();
+        (*m_covariance)(3, 3)-=N.covariancePola();
+        (*m_covariance)(4, 4)-=N.covarianceIMom();
+      }
 
       if( D > 0 ) {
 	N.correctionIMom() > 1. ? 
@@ -317,22 +360,22 @@ namespace Trk {
 	N.correctionIMom() > 1. ? 
 	  m_parameters[ 4]*=N.correctionIMom() : m_parameters[ 4]/=N.correctionIMom();
       }
+
+      m_pposition.reset();
+      m_pmomentum.reset();
+      m_pchargeDef.reset();
     }
 
   ///////////////////////////////////////////////////////////////////
   // Different  track parameters
   ///////////////////////////////////////////////////////////////////
 
-  inline Amg::Vector2D PatternTrackParameters::localPosition () const
-    {
-      Amg::Vector2D lp(m_parameters[0],m_parameters[1]);  
-      return lp;
-    }
-
   inline double         PatternTrackParameters::charge        () const
     {
-      if(m_parameters[4] > 0.) { return 1.; } return -1.;
-
+      if (!m_pchargeDef.isValid()) {
+        updateChargeCache();
+      }
+      return m_pchargeDef.ptr()->charge();
     }	
 
   inline double         PatternTrackParameters::sinPhi        () const
@@ -360,56 +403,13 @@ namespace Trk {
       return (1./tan(m_parameters[3]));
     }
 
-  inline double         PatternTrackParameters::pT            () const
+  inline const Amg::Vector3D& PatternTrackParameters::momentum      () const
     {
-      if(m_parameters[4]!=0.) { return fabs(sin(m_parameters[3])/m_parameters[4]);
-}
-      return 10e9;
+      if (!m_pmomentum.isValid()) {
+        updateMomentumCache();
+      }
+      return *m_pmomentum.ptr();
     }
-
-  inline double         PatternTrackParameters::eta           () const
-    {
-      return -log(tan(.5*m_parameters[3]));
-    }   
-  
-  inline AmgVector(5) PatternTrackParameters::parameters    () const
-    {
-      AmgVector(5) p;
-
-      p[0] = m_parameters[0];
-      p[1] = m_parameters[1];
-      p[2] = m_parameters[2];
-      p[3] = m_parameters[3];
-      p[4] = m_parameters[4];
-      return p;
-    }          
-  
-  inline Amg::Vector3D PatternTrackParameters::momentum      () const
-    {
-      double p   = m_parameters[4]!=0. ?  1./fabs(m_parameters[4]) :  10e9;
-
-      double Sf;
-      double Cf; sincos(m_parameters[2],&Sf,&Cf);
-      double Se;
-      double Ce; sincos(m_parameters[3],&Se,&Ce);
-      double psn = p*Se;
-      Amg::Vector3D GM(psn*Cf,psn*Sf,p*Ce);
-      return GM;
-    } 
-
-  inline AmgSymMatrix(5) PatternTrackParameters::covariance  () const
-    {
-      AmgSymMatrix(5) C;
-      const double* c = &m_covariance[0];
-      C<<
-	c[ 0],c[ 1],c[ 3],c[ 6],c[10],
-	c[ 1],c[ 2],c[ 4],c[ 7],c[11],
-	c[ 3],c[ 4],c[ 5],c[ 8],c[12],
-	c[ 6],c[ 7],c[ 8],c[ 9],c[13],
-	c[10],c[11],c[12],c[13],c[14];
-      return C;
-    }
-
 } // end of name space
 
 #endif // PatternTrackParameters

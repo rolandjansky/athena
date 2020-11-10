@@ -11,7 +11,7 @@ atlas_subdir( MdtVsRpcRawDataMonitoring )
 atlas_add_component( MdtVsRpcRawDataMonitoring
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaMonitoringLib StoreGateLib SGtests GaudiKernel RPCcablingInterfaceLib MuonReadoutGeometry MuonIdHelpersLib MuonDQAUtilsLib Identifier MuonRDO MuonPrepRawData )
+                     LINK_LIBRARIES AthenaMonitoringLib StoreGateLib GaudiKernel MuonReadoutGeometry MuonIdHelpersLib MuonDQAUtilsLib MuonRDO MuonPrepRawData )
 
 # Install files from the package:
 atlas_install_headers( MdtVsRpcRawDataMonitoring )

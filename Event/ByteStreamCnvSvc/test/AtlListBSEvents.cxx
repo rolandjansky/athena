@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -35,7 +35,9 @@
 #include "EventStorage/pickDataReader.h"
 #include <time.h>
 
-int main (int argc, char *argv[])
+#include "CxxUtils/checker_macros.h"
+
+int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[])
 {
   using namespace eformat;
 
@@ -63,7 +65,7 @@ int main (int argc, char *argv[])
   std::map<SubDetectorGroup,unsigned> totalSizePerSubdet;
   std::map<SubDetectorGroup,unsigned>::iterator sizeit;
   
-  for(sizeit=totalSizePerSubdet.begin();sizeit!=totalSizePerSubdet.end();sizeit++)
+  for(sizeit=totalSizePerSubdet.begin();sizeit!=totalSizePerSubdet.end();++sizeit)
     sizeit->second=0;
 
   unsigned totalSize=0;
@@ -109,11 +111,7 @@ int main (int argc, char *argv[])
   }
 
   //start loop over files
-  std::vector<std::string>::const_iterator it=fileNames.begin();
-  std::vector<std::string>::const_iterator it_e=fileNames.end();
-  for (;eventCounter<=maxEvents && it!=it_e;it++) {
-    const std::string& fName=*it;
-
+  for (const std::string& fName : fileNames) {
     std::cout << "Checking file " << fName << std::endl;
     DataReader *pDR = pickDataReader(fName);
 
@@ -248,7 +246,7 @@ int main (int argc, char *argv[])
     std::vector<std::pair<SubDetectorGroup,std::string> >::const_iterator nit=namesPerSubdet.begin();
     std::vector<std::pair<SubDetectorGroup,std::string> >::const_iterator nit_e=namesPerSubdet.end();
     unsigned sum=0;
-    for(;nit!=nit_e;nit++) {
+    for(;nit!=nit_e;++nit) {
       const SubDetectorGroup sd=nit->first;
       const std::string& name=nit->second;
       

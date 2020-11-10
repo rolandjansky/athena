@@ -149,17 +149,53 @@ def PrepareStandAloneBTagCfg(inputFlags):
 
     return result
 
+def BTagRecoSplitCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):  
+
+    result=ComponentAccumulator()
+
+    # Can only configure b-tagging for collisions; not cosmics, etc.
+    if inputFlags.Beam.Type != 'collisions':
+        return result
+
+    taggerList = inputFlags.BTagging.run2TaggersList
+    result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
+
+    secVertexingAndAssociators = {'JetFitter':'BTagTrackToJetAssociator','SV1':'BTagTrackToJetAssociator'}
+    result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = JetCollection[0], TaggerList = taggerList, SecVertexingAndAssociators = secVertexingAndAssociators, **kwargs))
+
+    from AthenaCommon.ConcurrencyFlags import jobproperties
+    if jobproperties.ConcurrencyFlags.NumThreads() == 0 :
+        for el in result._allSequences:
+            el.name = "TopAlg"
+
+    return result
+
+def BTagRecoCfg(inputFlags, JetCollection = ['AntiKt4EMTopo'], **kwargs):  
+
+    result=ComponentAccumulator()
+
+    taggerList = inputFlags.BTagging.run2TaggersList
+    result.merge(JetTagCalibCfg(inputFlags, TaggerList = taggerList, **kwargs))
+
+    result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = JetCollection[0], PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerList, **kwargs))
+
+    from AthenaCommon.ConcurrencyFlags import jobproperties
+    if jobproperties.ConcurrencyFlags.NumThreads() == 0 :
+        for el in result._allSequences:
+            el.name = "TopAlg"
+
+    return result
+
 def BTagCfg(inputFlags, JetCollection = [], **kwargs):
 
     #This is monolithic for now. 
     #Once a first complete example runs, this will be split into small modular chunks.
-    #Some such items may be best placed elsewehere (e.g. put magnetic field setup in magnetic field git folder etc)
     result=ComponentAccumulator()
+
     timestamp = kwargs.get('TimeStamp', None)
     if timestamp: del kwargs['TimeStamp']
     splitAlg = kwargs.get('SplitAlg', None)
-    del kwargs['SplitAlg']
-
+    if splitAlg: del kwargs['SplitAlg']
 
     TrainedTaggers = inputFlags.BTagging.run2TaggersList + ['MultiSVbb1','MultiSVbb2']
     result.merge(JetTagCalibCfg(inputFlags, TaggerList = TrainedTaggers, **kwargs))
@@ -203,6 +239,8 @@ def BTagCfg(inputFlags, JetCollection = [], **kwargs):
 
             result.merge(JetBTaggerSplitAlgsCfg(inputFlags, JetCollection = jet, TaggerList = taggerList, SecVertexingAndAssociators = secVertexingAndAssociators, **kwargs))
         else:
+            if kwargs.get('Release', None):
+              del kwargs['Release']
             result.merge(JetBTaggerAlgCfg(inputFlags, JetCollection = jet, PrimaryVertexCollectionName="PrimaryVertices", TaggerList = taggerList, **kwargs))
 
     return result
@@ -225,21 +263,24 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
         'BTagging/201903/dl1r/antikt4empflow/network.json',
         'BTagging/201903/dl1/antikt4empflow/network.json',
         #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
+        ],
+        'AntiKt4EMTopo': [
+        #'BTagging/201903/smt/antikt4empflow/network.json',
+        'BTagging/201903/rnnip/antikt4empflow/network.json',
+        'BTagging/201903/dl1r/antikt4empflow/network.json',
+        'BTagging/201903/dl1/antikt4empflow/network.json',
+        #'BTagging/201903/dl1rmu/antikt4empflow/network.json',
         ]
     }
-
-    if jet in postTagDL2JetToTrainingMap:
-        #Remove DL1 and RNNIP from taggers list, those taggers are run with HighLevelBTagAlg
-        TaggerList.remove('RNNIP')
-        TaggerList.remove('DL1')
 
     #Track Association
     TrackToJetAssociators = list(set(SecVertexingAndAssociators.values()))
 
     for assoc in TrackToJetAssociators:
         result.merge(JetParticleAssociationAlgCfg(inputFlags, jet, "InDetTrackParticles", assoc, **kwargs))
-        
-    del kwargs['Release']
+
+    if kwargs.get('Release', None):
+        del kwargs['Release']
 
     #Sec vertex finding
     for k, v in SecVertexingAndAssociators.items():
@@ -265,6 +306,7 @@ def JetBTaggerSplitAlgsCfg(inputFlags, JetCollection="", TaggerList=[], SecVerte
             #HighLevel taggers can not be run with time stamped containers
             if ts == "":
                 result.merge(RunHighLevelTaggersCfg(inputFlags, jet, 'BTagTrackToJetAssociator', postTagDL2JetToTrainingMap[jet], ts))
+
 
     return result
 
@@ -344,7 +386,6 @@ if __name__=="__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags as cfgFlags
 
-    cfgFlags.Input.isMC=True
     cfgFlags.Input.Files= args.filesIn.split(",")
     #cfgFlags.Input.isMC=False
     #cfgFlags.Input.Files=["/atlas/guirriec/git-athena/q431_2019-03-02T2147/myESD_2019.pool.root"]
@@ -378,7 +419,8 @@ if __name__=="__main__":
         if args.release == "21.2":
             kwargs["TimeStamp"] = ['201810','201903']
             kwargs['Release'] = '21'
-        kwargs["SplitAlg"] = args.splitAlg
+        if args.splitAlg:
+            kwargs["SplitAlg"] = args.splitAlg
 
         acc.merge(BTagCfg(cfgFlags, JetCollection = JetCollection, **kwargs))
 

@@ -23,7 +23,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "AthenaKernel/ExtendedEventContext.h"
 #include "CxxUtils/checker_macros.h"
-#include "StoreGate/StoreGate.h"
+#include "StoreGate/StoreGateSvc.h"
 #include <cassert>
 #include <iostream>
 

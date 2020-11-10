@@ -11,9 +11,6 @@
 # addClusterToCaloCellAOD("MuonClusterCollection")
 
 def addClusterToCaloCellAOD(clustersInputName):
-    from AthenaCommon.Logging import logging
-    mlog = logging.getLogger( 'addClusterToCaloCellAOD' )
-
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
@@ -29,9 +26,9 @@ def addClusterToCaloCellAOD(clustersInputName):
     # Include all TileGap3 cells.
     from CaloRec.CaloRecConf import CaloThinCellsBySamplingAlg
     salg = CaloThinCellsBySamplingAlg ('CaloThinCellsBySamplingAlg_TileGap3',
-                                      StreamName = 'StreamAOD',
-                                     SamplingCellsName = ['TileGap3'],
-                                     Cells = 'AllCalo')
+                                       StreamName = 'StreamAOD',
+                                       SamplingCellsName = ['TileGap3'],
+                                       Cells = 'AllCalo')
     if salg not in topSequence:
         topSequence += salg
 

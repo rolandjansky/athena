@@ -1,34 +1,10 @@
-################################################################################
-# Package: iPatTrackFinder
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( iPatTrackFinder )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/StoreGate
-                          Control/AthenaBaseComps
-                          DetectorDescription/Identifier
-                          Event/EventPrimitives
-                          GaudiKernel
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          Reconstruction/iPat/iPatInterfaces
-                          Reconstruction/iPat/iPatTrack
-                          Event/EventContainers
-                          InnerDetector/InDetConditions/BeamSpotConditionsData
-                          MagneticField/MagFieldElements
-                          MagneticField/MagFieldConditions
-                          PRIVATE
-                          InnerDetector/InDetConditions/InDetBeamSpotService
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          Reconstruction/iPat/iPatGeometry
-                          Reconstruction/iPat/iPatTrackParameters
-                          Reconstruction/iPat/iPatUtility
-                          Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkEvent/TrkSpacePoint
-                          Tracking/TrkEvent/VxVertex )
+# External dependencies:
+find_package( ROOT COMPONENTS Core )
 
 # Component(s) in the package:
 atlas_add_component( iPatTrackFinder
@@ -44,8 +20,5 @@ atlas_add_component( iPatTrackFinder
                      src/TrackFinder.cxx
                      src/TrackManager.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps Identifier EventPrimitives GaudiKernel InDetPrepRawData iPatInterfaces iPatTrack InDetReadoutGeometry PixelReadoutGeometry MagFieldElements MagFieldConditions iPatGeometry iPatTrackParameters iPatUtility TrkPrepRawData TrkSpacePoint VxVertex EventContainers StoreGateLib BeamSpotConditionsData )
-
-# Install files from the package:
-atlas_install_headers( iPatTrackFinder )
-
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps Identifier EventPrimitives GaudiKernel InDetPrepRawData iPatInterfaces iPatTrack InDetReadoutGeometry PixelReadoutGeometry MagFieldConditions iPatGeometry iPatTrackParameters iPatUtility TrkPrepRawData TrkSpacePoint VxVertex StoreGateLib BeamSpotConditionsData )

@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, muEFSASequence, muIsoSequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 # this must be moved to the HypoTool file:
@@ -38,11 +38,11 @@ def muCombSequenceCfg(flags):
 def muCombOvlpRmSequenceCfg(flags):
     return muCombOvlpRmSequence()
 
+def mul2IOOvlpRmSequenceCfg(flags):
+    return mul2IOOvlpRmSequence()
+
 def muEFSASequenceCfg(flags):
     return muEFSASequence()
-
-def muIsoSequenceCfg(flags):
-    return muIsoSequence()
 
 def muEFCBSequenceCfg(flags):
     return muEFCBSequence()
@@ -105,10 +105,8 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = {
             "":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB']],
-            "fast":[['getmuFast']],
-            "Comb":[['getmuFast', 'getmuComb']],
+            "l2io":[['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getmuEFCB']],
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
-            "ivar":[['getmuFast', 'getmuComb', 'getmuIso']],
             "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
             "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFSA']],
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
@@ -123,7 +121,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
     # --------------------
     def getmuFast(self):
         doOvlpRm = False
-        if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName:
+        if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName or "l2io" in self.chainName:
            doOvlpRm = False
         elif self.mult>1:
            doOvlpRm = True
@@ -155,13 +153,13 @@ class MuonChainConfiguration(ChainConfigurationBase):
            return self.getStep(2, 'muComb', [muCombSequenceCfg] )
 
     # --------------------
+    def getmuCombIO(self):
+        return self.getStep(2, 'muCombIO', [mul2IOOvlpRmSequenceCfg] )
+
+    # --------------------
     def getmuEFSA(self):
         return self.getStep(3,'muEFSA',[ muEFSASequenceCfg])
 
-
-    # --------------------
-    def getmuIso(self):
-        return self.getStep(3,'muIso', [muIsoSequenceCfg])
 
     # --------------------
     def getmuEFCB(self):

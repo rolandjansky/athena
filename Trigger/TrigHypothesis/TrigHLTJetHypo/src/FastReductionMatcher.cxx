@@ -12,7 +12,7 @@
 
 
 
-FastReductionMatcher::FastReductionMatcher(ConditionsMT conditions,
+FastReductionMatcher::FastReductionMatcher(ConditionPtrs conditions,
 					   const Tree& tree,
 					   const std::vector<std::vector<int>>& sharedNodes):
   m_conditions(std::move(conditions)),
@@ -47,7 +47,7 @@ FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
                       m_conditions,
                       m_tree,
                       m_sharedNodes,
-		      jetCollector,
+                      jetCollector,
                       collector);
 
   return std::make_optional<bool>(reducer.pass());

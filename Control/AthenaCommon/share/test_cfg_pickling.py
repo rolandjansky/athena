@@ -1,13 +1,8 @@
 #! /usr/bin/env python
-from __future__ import with_statement
 import sys
 import os
 
-from future import standard_library
-standard_library.install_aliases()
 import subprocess
-
-import six
 
 def _make_jobo(job):
     import tempfile
@@ -46,7 +41,7 @@ def _run_jobo(job, msg, logfile_name=None):
     out = []
     cmd = [sh, app, jobo.name]
     import subprocess as sub
-    encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+    encargs = {'encoding' : 'utf-8'}
     app_handle = sub.Popen (args=[sh, app, jobo.name],
                             stdout=logfile,
                             stderr=logfile,

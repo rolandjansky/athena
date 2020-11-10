@@ -42,13 +42,12 @@ class CaloCellList
 public:
   typedef std::vector<const CaloCell*> vector_type;
   typedef vector_type::const_iterator list_iterator;
-
   //   CaloCellList();
   CaloCellList(const CaloCellContainer* cell_container);
   CaloCellList(const CaloCellContainer* cell_container, const CaloCell_ID::SUBCALO caloNum);
   CaloCellList(const CaloCellContainer* cell_container, const std::vector<CaloCell_ID::SUBCALO>& caloNums);
 
-  ~CaloCellList();
+  ~CaloCellList() = default;
 
   // deta/dphi are the half-widths of the window.
   // That is, we select cells within eta-deta .. eta+deta and similarly for

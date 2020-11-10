@@ -12,6 +12,7 @@
 #define SiTrackMakerEventData_xk_H
 
 #include "SiSPSeededTrackFinderData/SeedToTrackConversionData.h"
+#include "SiSPSeededTrackFinderData/SiDetElementRoadMakerData_xk.h"
 #include "SiSPSeededTrackFinderData/SiCombinatorialTrackFinderData_xk.h"
 
 #include <array>
@@ -64,6 +65,7 @@ namespace InDet {
 
     SeedToTrackConversionData& conversionData();
     SiCombinatorialTrackFinderData_xk& combinatorialData();
+    SiDetElementRoadMakerData_xk& roadMakerData();
 
   protected:
     virtual void dummy() = 0; //!< make sure this cannot be instantiated (for testing)
@@ -114,6 +116,7 @@ namespace InDet {
 
     /// SeedToTrackConversionData to hold the event dependent data of SeedToTrackConversionTool.
     SeedToTrackConversionData m_conversionData;
+    SiDetElementRoadMakerData_xk m_roadMakerData;
 
     class ExtendedSiCombinatorialTrackFinderData_xk : public SiCombinatorialTrackFinderData_xk {
     public:

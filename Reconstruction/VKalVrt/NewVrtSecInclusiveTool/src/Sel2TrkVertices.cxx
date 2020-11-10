@@ -57,7 +57,7 @@ namespace Rec{
 	 signifR = impact[0]/ sqrt(impactError[0]);
 	 signifZ = impact[1]/ sqrt(impactError[2]);
   	 trackSignif[i] = sqrt( signifR*signifR + signifZ*signifZ);
-	 dRdZratio[i] = fabs(signifR/signifZ);
+	 dRdZratio[i] = std::abs(signifR/signifZ);
          if(m_fillHist){
 	    m_hb_impactR->Fill( signifR, m_w_1); 
             m_hb_impactZ->Fill( signifZ, m_w_1); 
@@ -66,7 +66,9 @@ namespace Rec{
 	    if(trackSignif[i]>2.) m_hb_pileupRat->Fill(dRdZratio[i],1.);
             if( i<DevTuple::maxNTrk && m_curTup){
 	       m_curTup->pttrk[i]=selectedTracks[i]->pt();
+	       m_curTup->d0trk[i]=selectedTracks[i]->d0();
 	       m_curTup->Sig3D[i]=trackSignif[i];
+	       m_curTup->idHF[i] =getIdHF(selectedTracks[i]);
 	    }
 	 }
       }
@@ -82,20 +84,31 @@ namespace Rec{
              if(trackSignif[j]<m_trkSigCut || dRdZratio[j]<m_dRdZRatioCut )continue;
              PSum2T=selectedTracks[i]->p4()+selectedTracks[j]->p4();
              if(PSum2T.M()>m_Vrt2TrMassLimit)continue;
+             if( std::abs(selectedTracks[i]->eta()-selectedTracks[j]->eta())==0 &&
+                 std::abs(selectedTracks[i]->phi()-selectedTracks[j]->phi())==0 &&
+                 std::abs(selectedTracks[i]->pt() -selectedTracks[j]->pt())==0 ) continue; //remove duplicated tracks
              
              std::unique_ptr<Trk::IVKalState> state = m_fitSvc->makeState();
              m_fitSvc->setMassInputParticles( inpMass, *state );     // Use pion masses for fit
              tracksForFit[0]=selectedTracks[i];
              tracksForFit[1]=selectedTracks[j];
-             sc=m_fitSvc->VKalVrtFitFast(tracksForFit,tmpVrt.fitVertex,*state);            /* Fast crude estimation*/
+	     double minDZ=0.;
+             sc=m_fitSvc->VKalVrtFitFast(tracksForFit,tmpVrt.fitVertex,minDZ,*state);            /* Fast crude estimation*/
 
              if( sc.isFailure()  ) {   /* No initial estimation */ 
                 iniVrt=PrimVrt.position();
- 	     } else {
-                double PMomVrtDir = ProjSV_PV(tmpVrt.fitVertex,PrimVrt,PSum2T);
-                if( PMomVrtDir>0. ) iniVrt=tmpVrt.fitVertex;                /* Good initial estimation */ 
-                else                iniVrt=PrimVrt.position();
+	     } else {
+                double cosMomVrtDir = ProjSV_PV(tmpVrt.fitVertex,PrimVrt,PSum2T);
+                double dx =  PrimVrt.x()- tmpVrt.fitVertex.x();
+                double dy =  PrimVrt.y()- tmpVrt.fitVertex.y();
+                double dz =  PrimVrt.z()- tmpVrt.fitVertex.z();
+                if( cosMomVrtDir>0. ) iniVrt=tmpVrt.fitVertex;                /* Good initial estimation */ 
+                else {
+		   if(dx*dx+dy*dy+dz*dz>(m_fastZSVCut*m_fastZSVCut)) continue;  // Far from PV and back wrt summary Mom. Remove.
+		   iniVrt=PrimVrt.position();
+                }
              }
+             if(minDZ>m_fastZSVCut) continue; // Drop SV candidates with big Z track-track distance. They will get big Chi2 in full fit.
              m_fitSvc->setApproximateVertex(iniVrt.x(), iniVrt.y(), iniVrt.z(),*state);
              sc=m_fitSvc->VKalVrtFit(tracksForFit, neutralPartDummy, tmpVrt.fitVertex, tmpVrt.momentum, Charge,
                                   tmpVrt.errorMatrix, tmpVrt.chi2PerTrk, tmpVrt.trkAtVrt, tmpVrt.chi2, *state, true );
@@ -114,13 +127,13 @@ namespace Rec{
                m_hb_cosSVMom->Fill(cosSVPV,1.);
                m_hb_etaSV->Fill(SVPV.Eta(),1.);
              }
-	     if(cosSVPV<0.8)continue;
+	     if(cosSVPV<0.6)continue;
 	     if(tmpVrt.momentum.Pt()<1000.)continue;
 	     float vrtR=tmpVrt.fitVertex.perp();
 //Check close material layer
              double dstMatSignif=1.e4;
 	     if(m_removeTrkMatSignif>0. && vrtR>20.){
-		if(vrtR<30.){ dstMatSignif=fabs(vrtR-m_beampipeR)/VrtRadiusError(tmpVrt.fitVertex,tmpVrt.errorMatrix );} //beampipe
+		if(vrtR<30.){ dstMatSignif=std::abs(vrtR-m_beampipeR)/VrtRadiusError(tmpVrt.fitVertex,tmpVrt.errorMatrix );} //beampipe
 		else        { dstMatSignif=distToMatLayerSignificance(tmpVrt);}     //Material in Pixel volume
 		if(dstMatSignif<m_removeTrkMatSignif)continue;
 	     }
@@ -132,7 +145,7 @@ namespace Rec{
              float ihitR  = selectedTracks[i]->radiusOfFirstHit();
 	     float jhitR  = selectedTracks[j]->radiusOfFirstHit();
              if(m_useVertexCleaning){
-               if(fabs(ihitR-jhitR)>15.) continue;
+               if(std::abs(ihitR-jhitR)>15.) continue;
                if( std::min(ihitR,jhitR)-vrtR > 36.) continue; // Too big dR between vertex and hit in pixel
 							       // Should be another layer in between 
                if( std::max(ihitR,jhitR)-vrtR <-10.) continue; // Vertex is behind hit in pixel 
@@ -152,10 +165,10 @@ namespace Rec{
                 VrtVrtDist(PrimVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Sig3D);
                 Dist2D=VrtVrtDist2D(PrimVrt, tmpVrt.fitVertex, tmpVrt.errorMatrix, Sig2D);
                 m_hb_signif3D->Fill(Sig3D,1.);
-                m_curTup->VrtTrkHF [m_curTup->n2Vrt] = getIdHF(tracksForFit[0])+ getIdHF(tracksForFit[1]);       
-                m_curTup->VrtTrkI  [m_curTup->n2Vrt] = getG4Inter(tracksForFit[0])+ getG4Inter(tracksForFit[1]);       
+                m_curTup->VrtTrkHF [m_curTup->n2Vrt] = getIdHF(tracksForFit[0])+ getIdHF(tracksForFit[1]);
+                m_curTup->VrtTrkI  [m_curTup->n2Vrt] = getG4Inter(tracksForFit[0])+ getG4Inter(tracksForFit[1]);
                 m_curTup->VrtCh    [m_curTup->n2Vrt] = Charge;
-                m_curTup->VrtProb  [m_curTup->n2Vrt] = Prob2v;          
+                m_curTup->VrtProb  [m_curTup->n2Vrt] = Prob2v;
                 m_curTup->VrtSig3D [m_curTup->n2Vrt] = Sig3D;
                 m_curTup->VrtSig2D [m_curTup->n2Vrt] = Sig2D;
                 m_curTup->VrtDist2D[m_curTup->n2Vrt] = vrtR<20. ? Dist2D : vrtR;
@@ -174,6 +187,7 @@ namespace Rec{
                 m_curTup->VrtHR2   [m_curTup->n2Vrt] = jhitR;
                 m_curTup->VrtDisk  [m_curTup->n2Vrt] = idisk1+10*idisk2+20*idisk3+30*jdisk1+40*jdisk2+50*jdisk3;
                 m_curTup->VSigMat  [m_curTup->n2Vrt] = dstMatSignif;
+                //m_curTup->VSigMat  [m_curTup->n2Vrt] = bestDZ;
                 if(m_curTup->n2Vrt<DevTuple::maxNVrt-1)m_curTup->n2Vrt++;
              }
 //-------------------BDT based rejection
@@ -188,7 +202,7 @@ namespace Rec{
 	     VARS[4]=log(std::max(std::min(trackSignif[i],trackSignif[j]),m_trkSigCut));
 	     VARS[5]=log(std::max(trackSignif[i],trackSignif[j]));
 	     VARS[6]=tmpVrt.momentum.M();
-	     VARS[7]=sqrt(fabs(1.-cosSVPV*cosSVPV));
+	     VARS[7]=sqrt(std::abs(1.-cosSVPV*cosSVPV));
 	     VARS[8]=SVPV.Eta();
 	     VARS[9]=std::max(ihitR,jhitR);
              float wgtSelect=m_SV2T_BDT->GetGradBoostMVA(VARS);

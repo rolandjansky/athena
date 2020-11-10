@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,7 +44,7 @@ public:
     bool contains3D();
     bool containsDBM();
 
-    std::string setStringParameters(const std::string param,std::string paramName) {
+    std::string setStringParameters(const std::string& param,const std::string& paramName) {
         if (m_IBLpresent) {
 	      if (m_disableAllClusterSplitting && paramName=="clusterSplitter") return "";
         }

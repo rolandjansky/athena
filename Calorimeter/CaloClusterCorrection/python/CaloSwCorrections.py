@@ -273,7 +273,9 @@ class CaloSwCorrectionsSetup (CaloClusterCorrSetup):
     name = "EM sliding-window"
     version_override_flag_name = 'caloSwWhichCorrection'
     correction_generation_flag_name = 'caloSwGeneration'
-    correction_generation_default = "00-02-13"
+    # There was a -13, but it apparently didn't get written to DBs.
+    # Next should be -14.
+    correction_generation_default = "00-02-12"
 
     ##########################################################################
     # This is the list of all known correction versions.

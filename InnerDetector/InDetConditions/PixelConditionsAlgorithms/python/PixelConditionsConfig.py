@@ -9,7 +9,6 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelConfigCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/PixMapOverlay", "PIXEL_OFL", className="CondAttrListCollection"))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixMapOverlay",
                                         "/PIXEL/PixMapOverlay", "CondAttrListCollection"))
     runNum = flags.Input.RunNumber[0]
@@ -260,7 +259,7 @@ def PixelAlignCondAlgCfg(flags, name="PixelAlignCondAlg", **kwargs):
 
     acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/IBLDist","/Indet/IBLDist",className="CondAttrListCollection"))
 
-    kwargs.setdefault("UseDynamicAlignFolders", False)
+    kwargs.setdefault("UseDynamicAlignFolders", flags.GeoModel.Align.Dynamic)
     kwargs.setdefault("ReadKeyStatic", "/Indet/Align")
     kwargs.setdefault("ReadKeyDynamicL1", "/Indet/AlignL1/ID")
     kwargs.setdefault("ReadKeyDynamicL2", "/Indet/AlignL2/PIX")
@@ -274,6 +273,9 @@ def PixelAlignCondAlgCfg(flags, name="PixelAlignCondAlg", **kwargs):
 def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelCablingCondAlg"""
     acc = ComponentAccumulator()
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelReadoutSpeedAlgCfg(flags))
+
     if not flags.Input.isMC and not flags.Overlay.DataOverlay:
         acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
         kwargs.setdefault("ReadKey", "/PIXEL/CablingMap")
@@ -339,7 +341,8 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
 def PixelChargeCalibCondAlgCfg(flags, name="PixelChargeCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelChargeCalibCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")
@@ -350,7 +353,8 @@ def PixelChargeCalibCondAlgCfg(flags, name="PixelChargeCalibCondAlg", **kwargs):
 def PixelChargeLUTCalibCondAlgCfg(flags, name="PixelChargeLUTCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelChargeLUTCalibCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
+    acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/ChargeCalibration")
@@ -361,10 +365,14 @@ def PixelChargeLUTCalibCondAlgCfg(flags, name="PixelChargeLUTCalibCondAlg", **kw
 def PixelDCSCondHVAlgCfg(flags, name="PixelDCSCondHVAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondHVAlg"""
     acc = ComponentAccumulator()
+    acc.merge(PixelConfigCondAlgCfg(flags))
     if flags.Common.isOnline:
-        acc.merge(addFolders(flags, "/PIXEL/HLT/DCS/HV", "PIXEL_ONL", className="CondAttrListCollection"))
+        kwargs.update( ReadKey="/PIXEL/HLT/DCS/HV")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
     else:
-        acc.merge(addFolders(flags, "/PIXEL/DCS/HV", "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.update( ReadKey="/PIXEL/DCS/HV")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "DCS_OFL", className="CondAttrListCollection"))
+
     kwargs.setdefault("WriteKey", "PixelDCSHVCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondHVAlg(name, **kwargs))
     return acc
@@ -396,12 +404,14 @@ def PixelDCSCondStatusAlgCfg(flags, name="PixelDCSCondStatusAlg", **kwargs):
 def PixelDCSCondTempAlgCfg(flags, name="PixelDCSCondTempAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDCSCondTempAlg"""
     acc = ComponentAccumulator()
+    acc.merge(PixelConfigCondAlgCfg(flags))
     if flags.Common.isOnline:
-        acc.merge(addFolders(flags, "/PIXEL/HLT/DCS/TEMPERATURE", "PIXEL_ONL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKey", "/PIXEL/HLT/DCS/TEMPERATURE")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
     else:
-        acc.merge(addFolders(flags, "/PIXEL/DCS/TEMPERATURE", "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKey", "/PIXEL/DCS/TEMPERATURE")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "DCS_OFL", className="CondAttrListCollection"))
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKey", "/PIXEL/DCS/TEMPERATURE")
     kwargs.setdefault("WriteKey", "PixelDCSTempCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondTempAlg(name, **kwargs))
     return acc
@@ -419,6 +429,7 @@ def PixelDCSCondTempAlgCfg(flags, name="PixelDCSCondTempAlg", **kwargs):
 def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDetectorElementCondAlg"""
     acc = ComponentAccumulator()
+    acc.merge(PixelAlignCondAlgCfg(flags))
     kwargs.setdefault("PixelAlignmentStore", "PixelAlignmentStore")
     kwargs.setdefault("WriteKey", "PixelDetectorElementCollection")
     acc.addCondAlgo(CompFactory.PixelDetectorElementCondAlg(name, **kwargs))
@@ -427,6 +438,7 @@ def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **
 def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDistortionAlg"""
     acc = ComponentAccumulator()
+    acc.merge(PixelConfigCondAlgCfg(flags))
     acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/PixelDist","/Indet/PixelDist",className="DetCondCFloat"))
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/Indet/PixelDist")
@@ -437,6 +449,7 @@ def PixelDistortionAlgCfg(flags, name="PixelDistortionAlg", **kwargs):
 def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelHitDiscCnfgAlg"""
     acc = ComponentAccumulator()
+    acc.merge(PixelConfigCondAlgCfg(flags))
     # not for Run-1 data/MC
     if flags.GeoModel.IBLLayout in ("noIBL", "UNDEFINED"):
         return acc
@@ -453,8 +466,8 @@ def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
 def PixelOfflineCalibCondAlgCfg(flags, name="PixelOfflineCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/PixReco", "PIXEL_OFL", className="DetCondCFloat"))
-    kwargs.setdefault("InputSource",2)
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat"))
+    kwargs.setdefault("InputSource", 1 if flags.Common.isOnline else 2)
     kwargs.setdefault("PixelClusterErrorDataFile", "PixelClusterErrorData.txt")
     kwargs.setdefault("PixelClusterOnTrackErrorDataFile", "PixelClusterOnTrackErrorData.txt")
     kwargs.setdefault("PixelChargeInterpolationDataFile", "PixelChargeInterpolationData.txt")

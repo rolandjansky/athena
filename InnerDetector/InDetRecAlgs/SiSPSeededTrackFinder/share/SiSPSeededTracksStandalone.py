@@ -72,7 +72,7 @@ if numThreads > 0:
 #--------------------------------------------------------------
 # use auditors
 #--------------------------------------------------------------
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
@@ -683,6 +683,7 @@ InDetRotCreator = Trk__RIO_OnTrackCreator(name             = "InDetRotCreator",
                                           Mode             = "indet")
 ToolSvc += InDetRotCreator
 
+from InDetRecExample import TrackingCommon as TrackingCommon
 # Set up SiCombinatorialTrackFinder_xk (private)
 # Taken from InDetRecExample/share/InDetRecLoadTools.py
 from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
@@ -690,6 +691,7 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              PropagatorTool        = InDetPatternPropagator,
                                                              UpdatorTool           = InDetPatternUpdator,
                                                              RIOonTrackTool        = InDetRotCreator,
+                                                             BoundaryCheckTool     = TrackingCommon.getInDetBoundaryCheckTool(),
                                                              SctSummaryTool        = SCT_ConditionsSummaryTool,
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
@@ -738,7 +740,6 @@ if not doBeamSpot:
 
 # Set up SiSPSeededTrackFinder (alg)
 # InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
-from InDetRecExample import TrackingCommon as TrackingCommon
 from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDetSiSpTrackFinder"+NewTrackingCuts.extension(),
                                                           TrackTool      = InDetSiTrackMaker,

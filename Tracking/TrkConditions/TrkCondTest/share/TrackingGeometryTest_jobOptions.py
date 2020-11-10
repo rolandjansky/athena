@@ -62,6 +62,8 @@ TrkDetFlags.TRT_BuildingOutputLevel      = VERBOSE
 TrkDetFlags.InDetBuildingOutputLevel     = VERBOSE
 TrkDetFlags.ConfigurationOutputLevel     = VERBOSE
 
+from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+
 
 # load the tracking geometry cond alg
 from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
@@ -70,8 +72,16 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 condSeq+= TrkGeoCondAlg
 
+
+# ----------------------
+from TrkDetDescrTestTools.TrkDetDescrTestToolsConf import Trk__GeometryAsciiDumper
+GeometryAsciiDumper = Trk__GeometryAsciiDumper(name= 'GeometryAsciiDumper')
+ToolSvc += GeometryAsciiDumper
+GeometryProcessors = [ GeometryAsciiDumper ]
+
 from TrkCondTest.TrackingGeometryCondAlgTestConf import Trk__TrackingGeometryCondAlgTest
 TrkGeomCondAlgTest = Trk__TrackingGeometryCondAlgTest(name = "TrkGeomTest")
+TrkGeomCondAlgTest.GeometryProcessors = GeometryProcessors
 job += TrkGeomCondAlgTest
 
 #--------------------------------------------------------------
@@ -88,7 +98,8 @@ job += TrkGeomCondAlgTest
 # Event related parameters
 #--------------------------------------------------------------
 
-theApp.EvtMax = 22
+
+theApp.EvtMax = 2
 
 from AthenaCommon.AppMgr import ServiceMgr
 # output level

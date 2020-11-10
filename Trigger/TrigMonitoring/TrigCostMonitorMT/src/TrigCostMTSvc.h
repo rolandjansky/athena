@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGCOSTMONITORMT_TRIGCOSTMTSVC_H
@@ -8,6 +8,7 @@
 #include <atomic>
 #include <shared_mutex>
 #include <thread>
+#include <vector>
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -76,15 +77,23 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   /**
    * @brief Implementation of ITrigCostMTSvc::endEvent.
    * @param[in] context The event context
-   * @param[out] outputHandle Write handle to fill with execution summary if the event was monitored
+   * @param[out] costOutputHandle Write handle to fill with execution summary if the event was monitored
+   * @param[out] rosOutputHandle Write handle to fill with ROS requests summary if the event was monitored
    */
-  virtual StatusCode endEvent(const EventContext& context, SG::WriteHandle<xAOD::TrigCompositeContainer>& outputHandle) override; 
+  virtual StatusCode endEvent(const EventContext& context, SG::WriteHandle<xAOD::TrigCompositeContainer>& costOutputHandle, SG::WriteHandle<xAOD::TrigCompositeContainer>& rosOutputHandle) override; 
 
   /**
    * @return If the current context is flagged as being monitored. 
    * @param[in] context The event context
    */
-  virtual bool isMonitoredEvent(const EventContext& context) const override;
+  virtual bool isMonitoredEvent(const EventContext& context, const bool includeMultiSlot = true) const override;
+
+  /**
+   * @brief Implementation of ITrigCostMTSvc::monitorROS.
+   * @param[in] context The event context
+   * @param[in] payload ROB data to be associated with ROS
+   */
+  virtual StatusCode monitorROS(const EventContext& context, robmonitor::ROBDataStruct payload) override;
 
   private: 
 
@@ -127,11 +136,13 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   std::mutex m_globalMutex; //!< Used to protect all-slot modifications.
   TrigCostDataStore<AlgorithmPayload> m_algStartInfo; //!< Thread-safe store of algorithm start payload.
   TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.
+  TrigCostDataStore<std::vector<robmonitor::ROBDataStruct>> m_rosData; //!< Thread-safe store of ROS data
 
   tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare> m_threadToAlgMap; //!< Keeps track of what is running right now in each thread.
 
   std::unordered_map<uint32_t, uint32_t> m_threadToCounterMap; //!< Map thread's hash ID to a counting numeral
   size_t m_threadCounter; //!< Count how many unique thread ID we have seen 
+
 
   Gaudi::Property<bool>        m_monitorAllEvents{this, "MonitorAllEvents", false, "Monitor every HLT event, e.g. for offline validation."};
   Gaudi::Property<bool>        m_enableMultiSlot{this, "EnableMultiSlot", true, "Monitored events in the MasterSlot collect data from events running in other slots."};

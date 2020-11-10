@@ -7,14 +7,7 @@ namespace Trk {
 inline Surface::SurfaceType
 StraightLineSurface::type() const
 {
-  return Surface::Line;
-}
-
-/** Return the surface type static constexpr */
-inline constexpr Surface::SurfaceType
-StraightLineSurface::staticType()
-{
-  return Surface::Line;
+  return StraightLineSurface::staticType;
 }
 
 /** Use the Surface as a ParametersBase constructor, from local parameters -
@@ -137,11 +130,10 @@ StraightLineSurface::insideBoundsCheck(const Amg::Vector2D& locpos,
 inline const Amg::Vector3D&
 StraightLineSurface::lineDirection() const
 {
-  if (!m_lineDirection) {
-    m_lineDirection.set(
-      std::make_unique<Amg::Vector3D>(transform().rotation().col(2)));
+  if (!m_lineDirection.isValid()) {
+    m_lineDirection.set(transform().rotation().col(2));
   }
-  return (*m_lineDirection);
+  return *(m_lineDirection.ptr());
 }
 
 /** the pathCorrection for derived classes with thickness */

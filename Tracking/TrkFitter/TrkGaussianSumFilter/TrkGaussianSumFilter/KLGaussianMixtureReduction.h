@@ -74,16 +74,13 @@
 #define KLGaussianMixReductionUtils_H
 
 #include "CxxUtils/features.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
+#include <array>
+#include <vector>
 #include <cstdint>
 #include <utility>
-#include <vector>
 
 namespace GSFUtils {
-
-/**
- * @brief Alignment used  for SIMD
- */
-constexpr size_t alignment = 32;
 
 /**
  * @brief struct representing 1D component
@@ -98,21 +95,38 @@ struct Component1D
 };
 
 /**
+ * @brief struct representing an array of 1D component.
+ * with the maximum size we can have after convolution
+ * with material effects.
+ */
+struct Component1DArray
+{
+  alignas(GSFConstants::alignment)
+    std::array<Component1D,
+               GSFConstants::maxComponentsAfterConvolution> components{};
+  int32_t numComponents = 0;
+};
+
+/* typedef tracking which component has been merged
+ */
+
+using IsMergedArray = std::array<bool,GSFConstants::maxComponentsAfterConvolution>; 
+
+/**
  * @brief Merge the componentsIn and return
- * which componets got merged
+ * which componets got merged in each step
+ * the first element of the pair is the merged to
+ * the secone element is the merged from
  *
  * inputSize is expected to be >0, <128
  * and reducedSize < inputsize. Invalid input
  * will cause a runtime exception
  *
  * Furthemore, the input component array is assumed to be
- * GSFUtils::alignment aligned.
- * Can be created via the AlignedDynArray.
+ * GSFConstants::alignment aligned.
  */
-std::vector<std::pair<int16_t, int16_t>>
-findMerges(Component1D* componentsIn,
-           const int16_t inputSize,
-           const int16_t reducedSize);
+std::vector<std::pair<int8_t, int8_t>>
+findMerges(Component1DArray& componentsIn, const int8_t reducedSize);
 
 /**
  * @brief For finding the index of the minumum pairwise distance
@@ -120,10 +134,14 @@ findMerges(Component1D* componentsIn,
  */
 #if HAVE_FUNCTION_MULTIVERSIONING
 #if defined(__x86_64__)
-__attribute__((target("avx2"))) int32_t
+__attribute__((target("avx2")))
+
+int32_t
 findMinimumIndex(const float* distancesIn, const int32_t n);
 
-__attribute__((target("sse4.1"))) int32_t
+__attribute__((target("sse4.1")))
+
+int32_t
 findMinimumIndex(const float* distancesIn, const int32_t n);
 #endif // x86_64 specific targets
 

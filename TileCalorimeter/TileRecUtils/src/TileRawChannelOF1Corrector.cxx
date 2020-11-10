@@ -79,7 +79,7 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 StatusCode
 TileRawChannelOF1Corrector::process (TileMutableRawChannelContainer& rchCont) const
 {
-  ATH_MSG_DEBUG("in process()");
+  ATH_MSG_DEBUG("in TileRawChannelOF1Corrector::process()");
 
   TileFragHash::TYPE rawChannelType = rchCont.get_type();
   uint32_t bsFlags = rchCont.get_bsflags();

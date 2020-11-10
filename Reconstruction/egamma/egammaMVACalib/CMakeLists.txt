@@ -1,34 +1,15 @@
-################################################################################
-# Package: egammaMVACalib
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( egammaMVACalib )
 
 # Extra dependencies for Athena capable builds:
-set( extra_dep )
 set( extra_libs )
 if( XAOD_STANDALONE )
-   set( extra_dep Control/xAODRootAccess)
+   set( extra_libs xAODRootAccess)
 else()
-   set( extra_dep 
-	GaudiKernel 
-	Reconstruction/egamma/egammaInterfaces)
-   set( extra_libs egammaInterfacesLib )
+   set( extra_libs GaudiKernel egammaInterfacesLib )
 endif()
-
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODTracking
-   PRIVATE
-   Reconstruction/MVAUtils
-   Tools/PathResolver
-   ${extra_dep} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Tree Core Hist)
@@ -38,14 +19,14 @@ atlas_add_library( egammaMVACalibLib
    egammaMVACalib/*.h Root/*.cxx
    PUBLIC_HEADERS egammaMVACalib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma xAODTracking ${extra_libs} )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib xAODCaloEvent xAODEgamma ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
 atlas_add_component( egammaMVACalib
 	src/*.cxx src/components/*.cxx
 	INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-	LINK_LIBRARIES ${ROOT_LIBRARIES} egammaMVACalibLib PathResolver MVAUtils GaudiKernel)
+	LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel MVAUtils PathResolver egammaInterfacesLib egammaMVACalibLib xAODCaloEvent xAODEgamma xAODTracking )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

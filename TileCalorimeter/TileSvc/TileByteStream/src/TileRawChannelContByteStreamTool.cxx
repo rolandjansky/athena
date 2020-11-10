@@ -148,21 +148,19 @@ StatusCode TileRawChannelContByteStreamTool::convert(CONTAINER* rawChannelContai
                   << " number of channels " << MSG::dec << n );
   }
 
-  TileROD_Encoder* theEncoder;
-
   // TileROD_Encoder has collected all the channels, now can fill the
   // ROD block data.
 
-  for (std::pair<uint32_t, TileROD_Encoder> reidAndEncoder: mapEncoder) {
+  for (std::pair<const uint32_t, TileROD_Encoder>& reidAndEncoder: mapEncoder) {
 
     theROD = fea->getRodData(reidAndEncoder.first);
-    theEncoder = &(reidAndEncoder.second);
+    TileROD_Encoder& theEncoder = reidAndEncoder.second;
 
     if ((reidAndEncoder.first & 0xf00)) {
-       theEncoder->fillRODTileMuRcvRawChannel(*theROD);
+       theEncoder.fillRODTileMuRcvRawChannel(*theROD);
     } else {
-      if (m_doFragType4) theEncoder->fillROD4(*theROD);
-      if (m_doFragType5) theEncoder->fillROD5(*theROD);
+      if (m_doFragType4) theEncoder.fillROD4(*theROD);
+      if (m_doFragType5) theEncoder.fillROD5(*theROD);
     }
     ATH_MSG_DEBUG( " Number of TileRawChannel words in ROD " << MSG::hex << " 0x" << reidAndEncoder.first << MSG::dec << " : " << theROD->size() );
   }

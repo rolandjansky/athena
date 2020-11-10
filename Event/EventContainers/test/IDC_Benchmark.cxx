@@ -9,7 +9,7 @@ using namespace EventContainers;
 
 
 template<typename T>
-void timedelete(std::string name, T* ptr){
+void timedelete(const std::string& name, T* ptr){
    auto start1 = std::chrono::steady_clock::now();
    delete ptr;
    auto end1 = std::chrono::steady_clock::now();
@@ -17,7 +17,7 @@ void timedelete(std::string name, T* ptr){
    std::cout << name  << " delete time " << time.count() << std::endl;
 }
 
-void timebackwardsfill(std::string name, IdentifiableContainerMT<long unsigned int> *ptr){
+void timebackwardsfill(const std::string& name, IdentifiableContainerMT<long unsigned int> *ptr){
    auto start1 = std::chrono::steady_clock::now();
    for(size_t i =50000-2;i>=3;i-=3){
       ptr->addCollection(new long unsigned int(i) ,i).ignore();
@@ -28,7 +28,7 @@ void timebackwardsfill(std::string name, IdentifiableContainerMT<long unsigned i
 }
 
 
-void accessTime(std::string name, IdentifiableContainerMT<long unsigned int>& container){
+void accessTime(const std::string& name, IdentifiableContainerMT<long unsigned int>& container){
 
    auto startwait  = std::chrono::steady_clock::now();
    container.prepareItr();

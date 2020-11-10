@@ -7,7 +7,7 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/TriggerItem.h"
-#include "CTPUnpackingTool.h"
+#include "L1Decoder/CTPUnpackingTool.h"
 
 using namespace HLT;
 
@@ -35,22 +35,21 @@ StatusCode CTPUnpackingTool::initialize()
 StatusCode CTPUnpackingTool::start() {
   // TODO switch to the L1 menu once available
   ATH_MSG_INFO( "Updating CTP bits decoding configuration");
-  // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
-  std::map<std::string, size_t> toCTPID;
 
+  // iterate over all items and obtain the CPT ID for each item. Then, package that in the map: name -> CTP ID
   ATH_MSG_INFO( "start(): use new L1 trigger menu" );
   auto l1menu = SG::makeHandle( m_L1MenuKey );
   if( l1menu.isValid() ) {
     for ( const TrigConf::L1Item & item:   *l1menu ) {
-      toCTPID[item.name()] = item.ctpId();
+      m_itemNametoCTPIDMap[item.name()] = item.ctpId();
     }
   } else {
     ATH_MSG_ERROR( "TrigConf::L1Menu does not exist" );
   }
   m_ctpToChain.clear();
   auto addIfItemExists = [&]( const std::string& itemName, HLT::Identifier id, bool warningOnly = false ) -> StatusCode {
-    if ( toCTPID.find( itemName ) != toCTPID.end() ) {
-      m_ctpToChain[ toCTPID[itemName] ].push_back( id );
+    if ( m_itemNametoCTPIDMap.find( itemName ) != m_itemNametoCTPIDMap.end() ) {
+      m_ctpToChain[ m_itemNametoCTPIDMap[itemName] ].push_back( id );
       return StatusCode::SUCCESS;
     }
     if( warningOnly ) {
@@ -132,5 +131,32 @@ StatusCode CTPUnpackingTool::decode( const ROIB::RoIBResult& roib,  HLT::IDVec& 
     ATH_MSG_ERROR( "All CTP bits were disabled, this event shoudl not have shown here" );
     return StatusCode::FAILURE;
   }
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode CTPUnpackingTool::passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const{
+
+  pass = false;
+
+  const auto ctpbits = roib->cTPResult().TBP();
+
+  for (const std::string& l1name : l1ItemNames) {
+    try {
+      // Retrieve before prescale decision
+      const size_t ctpid = m_itemNametoCTPIDMap.at(l1name);
+      const size_t bitCounter = ctpid % 32;
+      const size_t wordCounter = ctpid / 32;
+
+      const bool decision = (ctpbits[wordCounter].roIWord() & ((uint32_t)1 << bitCounter)) > 0;
+
+      pass = pass | decision;
+    }
+    catch (const std::exception& e) {
+      ATH_MSG_ERROR ( l1name << " is not part of L1Menu!" );
+      return StatusCode::FAILURE;
+    }
+  }
+
   return StatusCode::SUCCESS;
 }

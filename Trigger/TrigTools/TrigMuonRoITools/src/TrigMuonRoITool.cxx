@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonRoITool.h"
@@ -41,7 +41,7 @@ StatusCode TrigMuonRoITool::initialize()
 
 
 /// helper to decode MuCTPi information
-std::unique_ptr<TrigMuonRoITool::MuonRois> TrigMuonRoITool::decodeMuCTPi() {
+std::unique_ptr<TrigMuonRoITool::MuonRois> TrigMuonRoITool::decodeMuCTPi(const EventContext& ctx) const {
 
   // save input stream flags
   char log_fill_char_save = (msg().stream()).fill();
@@ -137,7 +137,7 @@ std::unique_ptr<TrigMuonRoITool::MuonRois> TrigMuonRoITool::decodeMuCTPi() {
   // Retrieve the MuCTPi RDO via data handle
   //////////////////////////////////////////////
   else{
-    SG::ReadHandle<MuCTPI_RDO> rdoHandle(m_muCTPIKey);
+    SG::ReadHandle<MuCTPI_RDO> rdoHandle(m_muCTPIKey, ctx);
     if(rdoHandle.isValid()){
 	daqmuCTPIResult = rdoHandle.cptr();
       }
@@ -209,13 +209,13 @@ std::unique_ptr<TrigMuonRoITool::MuonRois> TrigMuonRoITool::decodeMuCTPi() {
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-uint32_t TrigMuonRoITool::mirodToRoIBDataWord( uint32_t data_word ) {
+uint32_t TrigMuonRoITool::mirodToRoIBDataWord( uint32_t data_word ) const {
   return ( ( ( data_word & 0x8000000 ) >> 4 ) | ( ( data_word & 0x3fe0000 ) >> 3 ) |
 	   ( data_word & 0x3fff ) );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigMuonRoITool::dumpRoIBDataWord( uint32_t data_word ) {
+void TrigMuonRoITool::dumpRoIBDataWord( uint32_t data_word ) const {
 
   ROIB::MuCTPIRoI roI(data_word);
 

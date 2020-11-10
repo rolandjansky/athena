@@ -319,9 +319,9 @@ namespace Rec{
            if( (*WrkVrtSet)[jv].selTrk.size()< 2) continue;   /* Bad vertices */
            if(!(*WrkVrtSet)[jv].Good )            continue;   /* Bad vertices */
            //if(!nTrkCommon(WrkVrtSet, V1, V2))     continue;   /* No common tracks*/
-           double tmp= fabs((*WrkVrtSet)[iv].vertex.x()-(*WrkVrtSet)[jv].vertex.x())
-                      +fabs((*WrkVrtSet)[iv].vertex.y()-(*WrkVrtSet)[jv].vertex.y())
-                      +fabs((*WrkVrtSet)[iv].vertex.z()-(*WrkVrtSet)[jv].vertex.z());
+           double tmp= std::abs((*WrkVrtSet)[iv].vertex.x()-(*WrkVrtSet)[jv].vertex.x())
+                      +std::abs((*WrkVrtSet)[iv].vertex.y()-(*WrkVrtSet)[jv].vertex.y())
+                      +std::abs((*WrkVrtSet)[iv].vertex.z()-(*WrkVrtSet)[jv].vertex.z());
            if(tmp>20.) continue;
            double tmpDst = VrtVrtDist((*WrkVrtSet)[iv].vertex,(*WrkVrtSet)[iv].vertexCov,
                                       (*WrkVrtSet)[jv].vertex,(*WrkVrtSet)[jv].vertexCov);

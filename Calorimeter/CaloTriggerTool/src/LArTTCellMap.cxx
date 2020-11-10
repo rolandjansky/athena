@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTriggerTool/LArTTCellMap.h"
@@ -215,7 +215,7 @@ LArTTCellMap::createCellIDvec(const Identifier & sid) const
    (*m_msg) <<MSG::VERBOSE<<" vector of offline cell ID not found, TT id = " <<sid.get_compact()<< endmsg;
  }
 
- static std::vector<Identifier> v;
+ static const std::vector<Identifier> v;
  return  v ;
 
 }

@@ -12,5 +12,5 @@ atlas_add_component( MCTruthSimAlgs
                      LINK_LIBRARIES CaloSimEvent AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests xAODJet GaudiKernel GeneratorObjects TruthUtils MuonSimEvent RecEvent EventInfo TrackRecordLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 

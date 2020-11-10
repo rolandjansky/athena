@@ -157,15 +157,15 @@ globalflags.DataSource = 'geant4'
 if hasattr(runArgs,"maxEvents"): athenaCommonFlags.EvtMax.set_Value_and_Lock( runArgs.maxEvents )
 if hasattr(runArgs,"skipEvents"): athenaCommonFlags.SkipEvents.set_Value_and_Lock( runArgs.skipEvents )
 
-print '################################################'
-print runArgs.triggerConfig
+print ('################################################')
+print (runArgs.triggerConfig)
 
-print '########### DetFlags before ###############'
+print ('########### DetFlags before ###############')
 DetFlags.Print()
 DetFlags.detdescr.all_setOn()
 DetFlags.all_setOn()
 include ("RecExCond/AllDet_detDescr.py")
-print '########### DetFlags after ###############'
+print ('########### DetFlags after ###############')
 DetFlags.Print()
 include.block("RecExCond/RecExCommon_flags.py")
 TriggerFlags.doID=True
@@ -192,8 +192,6 @@ include( "InDetRecExample/InDetRecCabling.py" )
 DetFlags.detdescr.Calo_setOn()
 from LArConditionsCommon.LArCondFlags import larCondFlags
 larCondFlags.LoadElecCalib.set_Value_and_Lock(False)
-from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
-svcMgr.ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True)
 
 from MuonCnvExample.MuonCnvFlags import muonCnvFlags
 muonCnvFlags.RpcCablingMode.set_Value_and_Lock( "new" )
@@ -205,8 +203,8 @@ TriggerFlags.triggerConfig.set_Value_and_Lock( runArgs.triggerConfig )
 from TriggerJobOpts.TriggerGetter import TriggerGetter
 triggerGetter = TriggerGetter()
 
-#print 'Print topSequence ',topSequence
-#print 'topSequence type ',type(topSequence)
+#print ('Print topSequence ',topSequence)
+#print ('topSequence type ',type(topSequence))
 
 # Enable Aditors (i.e. AlgContextAuditor to get algorithm stack in CoreDumpSvc)
 theApp.AuditAlgorithms = True
@@ -436,6 +434,11 @@ StreamBSFileOutput.ItemList   += [ "CTP_RDO#CTP_RDO" ]
 StreamBSFileOutput.ItemList   += [ "MuCTPI_RDO#MUCTPI_RDO+" ]
 
 
+from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
+svcMgr.ToolSvc+=LArRawDataContByteStreamToolConfig(InitializeForWriting=True,
+                                                   stream = StreamBSFileOutput)
+
+
 #-------------------------------------------------------------------------------
 
 ###################
@@ -448,30 +451,30 @@ svcMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc = True
 svcMgr.TGCcablingServerSvc.forcedUse = True
 
 for i in topSequence.getChildren():
-   #print "child type ",i.getName(), '\n'
+   #print ("child type ",i.getName(), '\n')
    if "TrigSteer_L2" in i.getName():
       for j in i.getAllChildren():
-        #print "TrigSteer_L2 child ", j.getName(), "\n"
+        #print ("TrigSteer_L2 child ", j.getName(), "\n")
         if "muFast" in j.getType():
-           #print "muFast algo ",j.getName(), " ",j.getFullName(), "\n"
+           #print ("muFast algo ",j.getName(), " ",j.getFullName(), "\n")
            j.DomuFastESD = False
            j.DetMaskCheck = False
 
 theApp.EvtMax = runArgs.maxEvents
 
-print '######################## Storegate dump ########################'
+print ('######################## Storegate dump ########################')
 svcMgr.StoreGateSvc.Dump = True
-print '######################## End of Storegate dump ########################'
+print ('######################## End of Storegate dump ########################')
 
-print svcMgr
+print (svcMgr)
 
 svcMgr.EventSelector.Input = athenaCommonFlags.BSRDOInput()
 
 #svcMgr.ByteStreamCnvSvc.OutputLevel = DEBUG
 
-#print "Joerg All Services:"
+#print ("Joerg All Services:")
 #for svc in svcMgr.getChildren():
-#    print "       ",svc
+#    print ("       ",svc)
 #    if "CnvSvc" in svc.name():
 #        svc.OutputLevel = VERBOSE
 #    if "InputSvc" in svc.name():
@@ -492,11 +495,11 @@ topSequence = AlgSequence()
 topSequence.TriggerTowerMaker.CellType = 2
 topSequence.TriggerTowerMaker.TriggerTowerLocation = "TriggerTowers2"
 
-#print "Joerg Algorithms"
+#print ("Joerg Algorithms")
 import AthenaCommon.Configurable as Configurable
 Configurable.log.setLevel( INFO )
-#print topSequence.getChildren()
-#print topSequence
+#print (topSequence.getChildren())
+#print (topSequence)
 
 svcMgr.ToolSvc.TrigDataAccess.OutputLevel = DEBUG
 svcMgr.ToolSvc.TrigDataAccess.TileROD_Decoder.VerboseOutput = True
@@ -505,24 +508,24 @@ ToolSvc += TileROD_Decoder()
 ToolSvc.TileROD_Decoder.VerboseOutput = True
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-#print svcMgr
-#print "all services"
+#print (svcMgr)
+#print ("all services")
 #for i in svcMgr.getAllChildren():
-#   print i," ", i.getName()," ",i.getType(),"\n"
+#   print (i," ", i.getName()," ",i.getType(),"\n")
 #   if "RPCcablingServerSvc" in i.getType():
-#      print "RPCcablingServerSvc properties ", i.getProperties()
+#      print ("RPCcablingServerSvc properties ", i.getProperties())
 #   if "MuonRPC_CablingSvc" in i.getType():
-#      print "MuonRPC_CablingSvc properties ", i.getProperties()
+#      print ("MuonRPC_CablingSvc properties ", i.getProperties())
 #   if "ToolSvc" in i.getName():
 #       for j in i.getAllChildren():
-#          print "tool service ",j.getName(),"\n"
+#          print ("tool service ",j.getName(),"\n")
 #          if "RPCCablingDbTool" in j.getName():
-#             print "RPCCablingDbTool options ",j.getProperties()
+#             print ("RPCCablingDbTool options ",j.getProperties())
 #          if "TrigDataAccess" in j.getName():
-#             print "TrigDataAccess options ",j.getProperties()
+#             print ("TrigDataAccess options ",j.getProperties())
 #          if "LArRawDataContByteStreamTool" in j.getName():
 #             j.OutputLevel = DEBUG
-#             print "LArRawDataContByteStreamTool options ",j.getProperties()
+#             print ("LArRawDataContByteStreamTool options ",j.getProperties())
 
 
 
@@ -570,7 +573,7 @@ ServiceMgr += atlux
 
 for i in svcMgr.getAllChildren():
    if "AtRanluxGenSvc" in i.getType():
-      print "Setting AtRanluxGenSvc","\n"
+      print ("Setting AtRanluxGenSvc","\n")
       i.Seeds = ['TriggerTowerMaker_Pedestal 8594832 5736213', 'TriggerTowerMaker_Digitization 8631309 4492432', 'CTPSimulation 1979283043 1924452189', 'ToolSvc.HLT::RandomScaler 1857585203 1857585203', 'TrigSteer_L2.OPIScaler 1857585203 1857585203', 'TrigSteer_L2.TrigCostExecL2.TrigCostScaler 1857585203 1857585203', 'TrigSteer_L2.TrigCostAthenaL2.TrigCostScaler 1857585203 1857585203', 'TrigSteer_EF.OPIScaler 1857585203 1857585203', 'TrigSteer_EF.TrigCostExecEF.TrigCostScaler 1857585203 1857585203', 'TrigSteer_EF.TrigCostAthenaEF.TrigCostScaler 1857585203 1857585203']
 
 setModifiers = []

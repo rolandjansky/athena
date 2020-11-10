@@ -23,9 +23,8 @@ namespace {
 
 using BH = Trk::GsfBetheHeitlerEffects;
 
-template<class T>
-bool
-inRange(const T& var, const T& lo, const T& hi)
+inline bool
+inRange(int var, int lo, int hi)
 {
   return ((var <= hi) and (var >= lo));
 }
@@ -113,10 +112,11 @@ correctedFirstVariance(const double pathlengthInX0,
 
 BH::MixtureParameters
 getTranformedMixtureParameters(
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
     polynomialWeights,
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>& polynomialMeans,
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialMeans,
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
     polynomialVariances,
   const double pathlengthInX0,
   const int numberOfComponents)
@@ -136,10 +136,11 @@ getTranformedMixtureParameters(
 
 BH::MixtureParameters
 getMixtureParameters(
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
     polynomialWeights,
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>& polynomialMeans,
-  const std::array<BH::Polynomial, BH::maxNumberofComponents>&
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
+    polynomialMeans,
+  const std::array<BH::Polynomial, GSFConstants::maxNumberofBHComponents>&
     polynomialVariances,
   const double pathlengthInX0,
   const int numberOfComponents)
@@ -156,6 +157,21 @@ getMixtureParameters(
   }
   return mixture;
 }
+
+Trk::GsfBetheHeitlerEffects::Polynomial
+readPolynomial(std::ifstream& fin)
+{
+  Trk::GsfBetheHeitlerEffects::Polynomial poly{};
+  for (size_t i = 0; i < GSFConstants::polynomialCoefficients; ++i) {
+    if (!fin) {
+      throw std::runtime_error(
+        "Reached end of stream but still expecting data.");
+    }
+    fin >> poly.coefficients[i];
+  }
+  return poly;
+}
+
 
 } // end of Anonymous namespace for Helper methods
 
@@ -236,18 +252,20 @@ Trk::GsfBetheHeitlerEffects::readParameters()
   fin >> orderPolynomial;
   fin >> m_transformationCode;
   //
-  if (not inRange(m_numberOfComponents, 0, maxNumberofComponents)) {
+  if (not inRange(
+        m_numberOfComponents, 0, GSFConstants::maxNumberofBHComponents)) {
     ATH_MSG_ERROR("numberOfComponents Parameter out of range 0- "
-                  << maxNumberofComponents << " : " << m_numberOfComponents);
+                  << GSFConstants::maxNumberofBHComponents << " : "
+                  << m_numberOfComponents);
     return false;
   }
-  if (not inRange(orderPolynomial, 0, maxOrderPolynomial)) {
-    ATH_MSG_ERROR("orderPolynomial Parameter out of range 0- "
-                  << maxOrderPolynomial << " : " << orderPolynomial);
+  if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
+    ATH_MSG_ERROR("orderPolynomial  order !=  "
+                  << (GSFConstants::polynomialCoefficients - 1));
     return false;
   }
-  if (not inRange(m_transformationCode, 0, 10)) {
-    ATH_MSG_ERROR("transformationCode Parameter out of range 0-10: "
+  if (not inRange(m_transformationCode, 0, 1)) {
+    ATH_MSG_ERROR("transformationCode Parameter out of range 0-1: "
                   << m_transformationCode);
     return false;
   }
@@ -256,12 +274,12 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     return false;
   }
 
+  // Fill the polynomials
   int componentIndex = 0;
   for (; componentIndex < m_numberOfComponents; ++componentIndex) {
-    m_polynomialWeights[componentIndex] = readPolynomial(fin, orderPolynomial);
-    m_polynomialMeans[componentIndex] = readPolynomial(fin, orderPolynomial);
-    m_polynomialVariances[componentIndex] =
-      readPolynomial(fin, orderPolynomial);
+    m_polynomialWeights[componentIndex] = readPolynomial(fin);
+    m_polynomialMeans[componentIndex] = readPolynomial(fin);
+    m_polynomialVariances[componentIndex] = readPolynomial(fin);
   }
 
   // Read the high X0 polynomial
@@ -276,7 +294,6 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     }
 
     const char* filename = resolvedFileName.c_str();
-
     std::ifstream fin(filename);
 
     if (fin.bad()) {
@@ -288,9 +305,11 @@ Trk::GsfBetheHeitlerEffects::readParameters()
     fin >> orderPolynomial;
     fin >> m_transformationCodeHighX0;
     //
-    if (not inRange(m_numberOfComponentsHighX0, 0, maxNumberofComponents)) {
+    if (not inRange(m_numberOfComponentsHighX0,
+                    0,
+                    GSFConstants::maxNumberofBHComponents)) {
       ATH_MSG_ERROR("numberOfComponentsHighX0 Parameter out of range 0- "
-                    << maxNumberofComponents << " : "
+                    << GSFConstants::maxNumberofBHComponents << " : "
                     << m_numberOfComponentsHighX0);
       return false;
     }
@@ -298,14 +317,13 @@ Trk::GsfBetheHeitlerEffects::readParameters()
       ATH_MSG_ERROR(" numberOfComponentsHighX0 != numberOfComponents");
       return false;
     }
-
-    if (not inRange(orderPolynomial, 0, maxOrderPolynomial)) {
-      ATH_MSG_ERROR("orderPolynomial Parameter out of range 0- "
-                    << maxOrderPolynomial << " : " << orderPolynomial);
+    if (orderPolynomial != (GSFConstants::polynomialCoefficients - 1)) {
+      ATH_MSG_ERROR("orderPolynomial  order !=  "
+                    << (GSFConstants::polynomialCoefficients - 1));
       return false;
     }
-    if (not inRange(m_transformationCodeHighX0, 0, 10)) {
-      ATH_MSG_ERROR("transformationCode Parameter out of range 0-10: "
+    if (not inRange(m_transformationCodeHighX0, 0, 1)) {
+      ATH_MSG_ERROR("transformationCode Parameter out of range 0-1: "
                     << m_transformationCodeHighX0);
       return false;
     }
@@ -314,32 +332,15 @@ Trk::GsfBetheHeitlerEffects::readParameters()
       return false;
     }
 
+    // Fill the polynomials
     int componentIndex = 0;
     for (; componentIndex < m_numberOfComponentsHighX0; ++componentIndex) {
-      m_polynomialWeightsHighX0[componentIndex] =
-        readPolynomial(fin, orderPolynomial);
-      m_polynomialMeansHighX0[componentIndex] =
-        readPolynomial(fin, orderPolynomial);
-      m_polynomialVariancesHighX0[componentIndex] =
-        readPolynomial(fin, orderPolynomial);
+      m_polynomialWeightsHighX0[componentIndex] = readPolynomial(fin);
+      m_polynomialMeansHighX0[componentIndex] = readPolynomial(fin);
+      m_polynomialVariancesHighX0[componentIndex] = readPolynomial(fin);
     }
   }
   return true;
-}
-
-Trk::GsfBetheHeitlerEffects::Polynomial
-Trk::GsfBetheHeitlerEffects::readPolynomial(std::ifstream& fin, const int order)
-{
-  std::vector<double> coefficients(order + 1);
-  int orderIndex = 0;
-  for (; orderIndex < (order + 1); ++orderIndex) {
-    if (!fin) {
-      throw std::runtime_error(
-        "Reached end of stream but still expecting data.");
-    }
-    fin >> coefficients[orderIndex];
-  }
-  return Polynomial(coefficients);
 }
 
 void
@@ -351,8 +352,7 @@ Trk::GsfBetheHeitlerEffects::compute(
   Trk::PropDirection direction,
   Trk::ParticleHypothesis) const
 {
-  // Clear cache
-  cache.reset();
+  cache.numElements = 0;
 
   const Trk::TrackParameters* trackParameters = componentParameters.first.get();
   const Amg::Vector3D& globalMomentum = trackParameters->momentum();
@@ -362,9 +362,8 @@ Trk::GsfBetheHeitlerEffects::compute(
   double pathlengthInX0 = pathLength / radiationLength;
 
   if (pathlengthInX0 < m_singleGaussianRange) {
-    cache.weights.push_back(1.);
-    cache.deltaPs.push_back(0.);
-    cache.deltaQOvePCov.push_back(0.);
+    cache.elements[0] = { 1., 0., 0. };
+    cache.numElements = 1;
     return;
   }
 
@@ -373,8 +372,9 @@ Trk::GsfBetheHeitlerEffects::compute(
   if (pathlengthInX0 < m_lowerRange) {
     const double meanZ = std::exp(-1. * pathlengthInX0);
     const double sign = (direction == Trk::oppositeMomentum) ? 1. : -1.;
-    const double varZ = std::exp(-1. * pathlengthInX0 * std::log(3.) / std::log(2.)) -
-                        std::exp(-2. * pathlengthInX0);
+    const double varZ =
+      std::exp(-1. * pathlengthInX0 * std::log(3.) / std::log(2.)) -
+      std::exp(-2. * pathlengthInX0);
     double deltaP(0.);
     double varQoverP(0.);
     if (direction == Trk::alongMomentum) {
@@ -384,9 +384,8 @@ Trk::GsfBetheHeitlerEffects::compute(
       deltaP = sign * momentum * (1. / meanZ - 1.);
       varQoverP = varZ / (momentum * momentum);
     }
-    cache.deltaPs.push_back(deltaP);
-    cache.weights.push_back(1.);
-    cache.deltaQOvePCov.push_back(varQoverP);
+    cache.elements[0] = { 1., deltaP, varQoverP };
+    cache.numElements = 1;
     return;
   }
 
@@ -461,29 +460,29 @@ Trk::GsfBetheHeitlerEffects::compute(
     if (mixture[componentIndex].mean < m_componentMeanCut) {
       continue;
     }
+    double weight = mixture[componentIndex].weight;
     if (componentIndex == componentWithHighestMean) {
-      cache.weights.push_back(mixture[componentIndex].weight +
-                              weightToBeRemoved);
-    } else {
-      cache.weights.push_back(mixture[componentIndex].weight);
+      weight += weightToBeRemoved;
     }
-
     double deltaP(0.);
     if (direction == alongMomentum) {
       // For forward propagation
       deltaP = momentum * (mixture[componentIndex].mean - 1.);
-      cache.deltaPs.push_back(deltaP);
       const double f = 1. / (momentum * mixture[componentIndex].mean);
       varianceInverseMomentum = f * f * mixture[componentIndex].variance;
     } // end forward propagation if clause
     else {
       // For backwards propagation
       deltaP = momentum * (1. / mixture[componentIndex].mean - 1.);
-      cache.deltaPs.push_back(deltaP);
       varianceInverseMomentum =
         mixture[componentIndex].variance / (momentum * momentum);
     } // end backwards propagation if clause
-    cache.deltaQOvePCov.push_back(varianceInverseMomentum);
+
+    //set in the cache and increase the elements
+    cache.elements[cache.numElements] = { weight,
+                                          deltaP,
+                                          varianceInverseMomentum };
+    ++cache.numElements;
   } // end for loop over all components
 }
 

@@ -77,7 +77,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
                                     const std::vector<const CscPrepDataCollection*>& cscCols,  
                                     const std::vector<const TgcPrepDataCollection*>& tgcCols,  
                                     const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-                                    const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
+                                    const MuonSegmentCombinationCollection* cscSegmentCombis, const EventContext& ctx) const {
 
     /** map between mdt chamber identifiers and corresponding rpc hits (hit_no_begin and hit_no_end)*/
   std::map<int,std::vector<std::pair<int, int> > > rpcmdtstationmap;
@@ -93,7 +93,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     // analyse data
     std::unique_ptr<MuonPatternCombinationCollection> patCombiCol;
     if( hitcontainer ) {
-      patCombiCol.reset(analyse( *hitcontainer, phietahitassociation.get()));
+      patCombiCol.reset(analyse( *hitcontainer, phietahitassociation.get(), ctx));
     }else{
       ATH_MSG_INFO (" No hit container created! ");
     }
@@ -142,7 +142,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     return StatusCode::SUCCESS;
   }
 
-  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer, const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation ) const {
+  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer, const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation, const EventContext& ctx ) const {
     
     ATH_MSG_DEBUG ("size of event: " << hitcontainer.size());
 
@@ -182,9 +182,9 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       combinedpatterns =  new MuonPrdPatternCollection();
     }
 
-    record( phipatterns, m_CosmicPhiPatternsKey );
-    record( etapatterns, m_CosmicEtaPatternsKey );
-    record( combinedpatterns, m_COMBINED_PATTERNSKey );
+    record( phipatterns, m_CosmicPhiPatternsKey, ctx );
+    record( etapatterns, m_CosmicEtaPatternsKey, ctx );
+    record( combinedpatterns, m_COMBINED_PATTERNSKey, ctx );
     
     /** empty and clear the houghpattern vectors */
     m_muonHoughPatternTool->reset(houghpattern);
@@ -386,7 +386,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
   
   } // getAllHits
 
-  void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, const  SG::WriteHandleKey<MuonPrdPatternCollection> &key ) const {
+  void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, const  SG::WriteHandleKey<MuonPrdPatternCollection> &key, const EventContext &ctx ) const {
     
     if( !patCol ) {
       ATH_MSG_WARNING ("Zero pointer, could not save patterns!!! ");
@@ -401,7 +401,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       delete patCol;
     }
     else {
-      SG::WriteHandle<MuonPrdPatternCollection> handle(key);
+      SG::WriteHandle<MuonPrdPatternCollection> handle(key, ctx);
       StatusCode sc = handle.record(std::unique_ptr<MuonPrdPatternCollection>(const_cast<MuonPrdPatternCollection*> (patCol)));
       if ( sc.isFailure() ){
 	ATH_MSG_WARNING ("Could not save patterns at " << key.key());
@@ -1362,11 +1362,9 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     int stationNameMDT1 = m_idHelperSvc->mdtIdHelper().stationNameIndex(station1);
     int stationNameMDT2 = m_idHelperSvc->mdtIdHelper().stationNameIndex(station2);
 
-    int stationcode = stationCode(tgcid);
-
     // store station Inner and Middle codes
  	  	 
-    stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta1MDT);
+    int stationcode = stationCode(stationNameMDT1,idphi1MDT,ideta1MDT);
     addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);
     stationcode = stationCode(stationNameMDT2,idphi1MDT,ideta1MDT);
     addToStationMap(tgcmdtstationmap,it,stationcode,hit_begin,hit_end);

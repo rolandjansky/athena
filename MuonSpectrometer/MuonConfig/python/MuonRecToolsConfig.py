@@ -15,7 +15,7 @@ def MuonEDMPrinterTool(flags, name="MuonEDMPrinterTool", **kwargs):
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
     Muon__MuonTrackToSegmentTool=CompFactory.Muon.MuonTrackToSegmentTool
     #MDT conditions information not available online
-    if(flags.Common.isOnline):
+    if flags.Common.isOnline:
         kwargs.setdefault("MdtCondKey","")
     
     result = MuonStationIntersectSvcCfg(flags)
@@ -37,10 +37,11 @@ def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
 
 def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
     Muon__MuonSeededSegmentFinder=CompFactory.Muon.MuonSeededSegmentFinder
-    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MdtMathSegmentFinder # FIXME - should really shift this to RecTools then.
+    from MuonConfig.MuonSegmentFindingConfig import DCMathSegmentMakerCfg, MdtMathSegmentFinderCfg # FIXME - should really shift this to RecTools then.
+    from MuonConfig.MuonRIO_OnTrackCreatorConfig import MdtDriftCircleOnTrackCreatorCfg
     result = ComponentAccumulator()
     
-    mdt_segment_finder = MdtMathSegmentFinder(flags, name="MCTBMdtMathSegmentFinder", UseChamberTheta = False, AssociationRoadWidth = 1.5)
+    mdt_segment_finder = result.popToolsAndMerge( MdtMathSegmentFinderCfg(flags, name="MCTBMdtMathSegmentFinder", UseChamberTheta = False, AssociationRoadWidth = 1.5) )
     result.addPublicTool(mdt_segment_finder)
     
     if "SegmentMaker" not in kwargs or "SegmentMakerNoHoles" not in kwargs:
@@ -62,6 +63,9 @@ def MuonSeededSegmentFinderCfg(flags,name="MuonSeededSegmentFinder", **kwargs):
         kwargs.setdefault("MMPrepDataContainer","")
     
     kwargs.setdefault("Printer", MuonEDMPrinterTool(flags) )
+    acc = MdtDriftCircleOnTrackCreatorCfg(flags)
+    kwargs.setdefault("MdtRotCreator", acc.getPrimary())
+    result.merge(acc)
 
     kwargs.setdefault('TgcPrepDataContainer', 'TGC_MeasurementsAllBCs' if not flags.Muon.useTGCPriorNextBC and not flags.Muon.useTGCPriorNextBC else 'TGC_Measurements')
     

@@ -320,7 +320,6 @@ StatusCode HLTTauMonTool::fill() {
   //   }
 
   //Pileup
-  //m_mu_offline = Pileup();
   if(m_lumiBlockMuTool){
     float avg_mu = (float)m_lumiBlockMuTool->averageInteractionsPerCrossing();
     m_mu_offline = avg_mu;
@@ -1960,18 +1959,18 @@ StatusCode HLTTauMonTool::fillEFTauVsTruth(const xAOD::TauJet *aEFTau, const std
       return StatusCode::FAILURE;
     }
   
-  float mu(Pileup());
+  float mu(m_mu_offline);
   float truthPt(-1.),truthPhi(-999.),truthEta(-999.);
   float tmpdR(0.2);
   //Truth Tau matching to EF(HLT Tau)
   for(unsigned int truth=0; truth<m_true_taus.size();truth++){
-  float dR = (float)m_true_taus.at(truth).DeltaR(aEFTau->p4());
-  if(dR < tmpdR){
-        tmpdR = dR;
-              truthPt = (float)m_true_taus.at(truth).Pt();
-              truthEta = (float)m_true_taus.at(truth).Eta();
-              truthPhi = (float)m_true_taus.at(truth).Phi();
-  }
+    float dR = (float)m_true_taus.at(truth).DeltaR(aEFTau->p4());
+    if(dR < tmpdR){
+       tmpdR = dR;
+       truthPt = (float)m_true_taus.at(truth).Pt();
+       truthEta = (float)m_true_taus.at(truth).Eta();
+       truthPhi = (float)m_true_taus.at(truth).Phi();
+     }
   }
 
   std::string trigItemShort=trigItem;
@@ -2089,7 +2088,7 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
       return StatusCode::SUCCESS;
     }
   //Pileup
-  mu = Pileup();
+  mu = m_mu_offline;
 
   std::string trigItemShort=trigItem;
   if(trigItem.find("tau25")!=string::npos && trigItem.find("L1TAU")!=string::npos){
@@ -2816,7 +2815,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     taus_here = m_taus_BDT;
   }
 
-  float mu(Pileup());
+  float mu(m_mu_offline);
   int nvtx(PrimaryVertices());
 
   // build vector of taus in denominator:
@@ -3459,7 +3458,7 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
 
   for(unsigned int truth=0;truth<m_true_taus.size();truth++){
 
-          TruthTauTLV = m_true_taus.at(truth);
+    TruthTauTLV = m_true_taus.at(truth);
     pt = (float)TruthTauTLV.Pt();
     eta = (float)TruthTauTLV.Eta();   
     phi = (float)TruthTauTLV.Phi();
@@ -3468,19 +3467,19 @@ StatusCode HLTTauMonTool::TruthTauEfficiency(const std::string & trigItem, const
     truth_matched_to_L1.push_back(false);
     truth_matched_to_hlt.push_back(false);
     truth_matched_to_reco.push_back(false);
-          truthReco_matched_to_L1.push_back(false);
-          truthReco_matched_to_hlt.push_back(false);
+    truthReco_matched_to_L1.push_back(false);
+    truthReco_matched_to_hlt.push_back(false);
 
     //Primary Vertices
-          nvtx = PrimaryVertices();
-          //Pile up
-          mu = Pileup();
+    nvtx = PrimaryVertices();
+    //Pile up
+    mu = m_mu_offline;
     
     // get list of truth-matched reco taus
-          for(unsigned int t=0;t<taus_here.size();t++){
-            float dR = (float)taus_here.at(t)->p4().DeltaR(TruthTauTLV);
-              if(dR <= 0.2) truth_matched_to_reco.back()=true;
-            }
+    for(unsigned int t=0;t<taus_here.size();t++){
+        float dR = (float)taus_here.at(t)->p4().DeltaR(TruthTauTLV);
+        if(dR <= 0.2) truth_matched_to_reco.back()=true;
+    }
     
     // matching with HLT
     bool HLTTaumatched = HLTTauMatching(trigItem, TruthTauTLV, 0.2);
@@ -3727,7 +3726,7 @@ bool HLTTauMonTool::HLTTauMatching(const std::string & trigItem, const TLorentzV
     } else { // TrigComposite
 
       const std::vector< TrigCompositeUtils::LinkInfo<xAOD::TauJetContainer> > features = 
-        getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, TrigDefs::includeFailedDecisions, "TrigTauRecMerged" );
+        getTDT()->features<xAOD::TauJetContainer>( trig_item_EF, TrigDefs::includeFailedDecisions, ".*TrigTauRecMerged_.*" );
 
       for(const auto& tauJetLinkInfo : features){
         if (!tauJetLinkInfo.isValid()) {
@@ -3850,10 +3849,6 @@ int HLTTauMonTool::PrimaryVertices(){
    }
 
   return nGoodVtx;
-}
-
-float HLTTauMonTool::Pileup(){
-  return lbAverageInteractionsPerCrossing();
 }
 
 

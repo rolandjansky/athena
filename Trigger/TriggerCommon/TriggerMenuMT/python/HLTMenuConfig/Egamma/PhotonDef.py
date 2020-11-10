@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -53,7 +53,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
@@ -76,12 +76,12 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         }
         
         ## This needs to be configured by the Egamma Developer!!
-        log.debug('photon chain part = ' + str(self.chainPart))
+        log.debug('photon chain part = %s', self.chainPart)
         key = self.chainPart['extra'] + self.chainPart['IDinfo'] + self.chainPart['isoInfo']
         for addInfo in self.chainPart['addInfo']:
             key+=addInfo
             
-        log.debug('photon key = ' + key)
+        log.debug('photon key = %s', key)
         if key in stepDictionary:
             steps=stepDictionary[key]
         else:
@@ -90,7 +90,7 @@ class PhotonChainConfiguration(ChainConfigurationBase):
         chainSteps = []
 
         for step in steps:
-            log.debug('Adding photon trigger step ' + str(step))
+            log.debug('Adding photon trigger step %s', step)
             chainstep = getattr(self, step)()
             chainSteps+=[chainstep]
     

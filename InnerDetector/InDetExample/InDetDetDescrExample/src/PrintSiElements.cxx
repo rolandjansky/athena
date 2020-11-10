@@ -32,7 +32,8 @@ namespace{
 PrintSiElements::PrintSiElements(const std::string& name, ISvcLocator* pSvcLocator) 
   : AthAlgorithm(name, pSvcLocator), 
     m_firstEvent(true),
-    m_geoModelSvc("GeoModelSvc",name)
+    m_geoModelSvc("GeoModelSvc",name),
+    m_detManagerNames{"Pixel","SCT"}
 {  
   // Get parameter values from jobOptions file
   declareProperty("ModulesOnly", m_modulesOnly = true, "Print transforms of modules");
@@ -42,6 +43,7 @@ PrintSiElements::PrintSiElements(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("FullRotationMatrix", m_fullRotationMatrix = false, "If true prints the 9 elements of the rotation matrix");
   declareProperty("OutputFile", m_outputFileName = "geometry.dat", "Output file name");
   declareProperty("GeoModelSvc", m_geoModelSvc);
+  declareProperty("DetectorManagerNames", m_detManagerNames);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -65,6 +67,7 @@ StatusCode PrintSiElements::initialize(){
   // ReadCondHandleKey
   ATH_CHECK(m_pixelDetEleCollKey.initialize());
   ATH_CHECK(m_SCTDetEleCollKey.initialize());
+  ATH_CHECK(m_ITkStripDetEleCollKey.initialize());
   return StatusCode::SUCCESS;
 }
 
@@ -76,15 +79,23 @@ PrintSiElements::printElements(const std::string & managerName){
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> pixelDetEleHandle(m_pixelDetEleCollKey);
     elements = *pixelDetEleHandle;
     if (not pixelDetEleHandle.isValid() or elements==nullptr) {
-      ATH_MSG_FATAL(m_pixelDetEleCollKey.fullKey() << " is not available.");
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING(m_pixelDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::RECOVERABLE;
     }
   } else if (managerName=="SCT") {
     SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> sctDetEleHandle(m_SCTDetEleCollKey);
     elements = *sctDetEleHandle;
     if (not sctDetEleHandle.isValid() or elements==nullptr) {
-      ATH_MSG_FATAL(m_SCTDetEleCollKey.fullKey() << " is not available.");
-      return StatusCode::FAILURE;
+      ATH_MSG_WARNING(m_SCTDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::RECOVERABLE;
+    }
+  }
+  else if (managerName=="ITkStrip") {
+    SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> stripDetEleHandle(m_ITkStripDetEleCollKey);
+    elements = *stripDetEleHandle;
+    if (not stripDetEleHandle.isValid() or elements==nullptr) {
+      ATH_MSG_WARNING(m_ITkStripDetEleCollKey.fullKey() << " is not available.");
+      return StatusCode::RECOVERABLE;
     }
   }
   if (elements==nullptr) {
@@ -163,8 +174,9 @@ PrintSiElements::printElements(const std::string & managerName){
 StatusCode PrintSiElements::execute() {
   if (m_firstEvent) {
     m_firstEvent = false;
-    printElements("Pixel").ignore();
-    printElements("SCT").ignore();
+    for(std::string detManagerName : m_detManagerNames){
+      printElements(detManagerName).ignore();
+    }
   }
   return StatusCode::SUCCESS;
 }

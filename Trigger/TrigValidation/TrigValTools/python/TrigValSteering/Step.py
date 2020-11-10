@@ -167,7 +167,7 @@ class Step(object):
         elif self.output_stream == self.OutputStream.FILE_AND_STDOUT:
             cmd += ' 2>&1 | tee {}; exit ${{PIPESTATUS[0]}}'.format(self.get_log_file_name())
         elif self.output_stream == self.OutputStream.STDOUT_ONLY:
-            cmd += ' 2>&1'.format(self.name)
+            cmd += ' 2>&1'
 
         self.log.info('Running %s step using command:\n%s', self.name, cmd)
         if dry_run:

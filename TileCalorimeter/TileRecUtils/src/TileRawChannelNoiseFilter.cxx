@@ -80,7 +80,7 @@ StatusCode
 TileRawChannelNoiseFilter::process (TileMutableRawChannelContainer& rchCont) const
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  ATH_MSG_DEBUG("in process()");
+  ATH_MSG_DEBUG("in TileRawChannelNoiseFilter::process()");
 
   TileRawChannelUnit::UNIT rChUnit = rchCont.get_unit();
   std::string units[8] = { "ADC counts", "pC", "CspC", "MeV",

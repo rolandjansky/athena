@@ -1,34 +1,16 @@
-################################################################################
-# Package: TileSimEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TileSimEvent )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          DetectorDescription/Identifier
-                          Simulation/HitManagement
-                          
-                          PRIVATE
-                          Calorimeter/CaloIdentifier
-                          TileCalorimeter/TileConditions )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( TileSimEvent
                    src/*.cxx
                    PUBLIC_HEADERS TileSimEvent
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaKernel Identifier HitManagement TileConditionsLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier )
+                   LINK_LIBRARIES AthenaKernel Identifier HitManagement
+                   PRIVATE_LINK_LIBRARIES CaloIdentifier TileConditionsLib )
 
 atlas_add_dictionary( TileSimEventDict
                       TileSimEvent/TileSimEventDict.h
                       TileSimEvent/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel Identifier HitManagement CaloIdentifier TileConditionsLib TileSimEvent )
-
+                      LINK_LIBRARIES TileSimEvent )

@@ -80,6 +80,7 @@ namespace TrigConf {
       unsigned int                        chain_hash_id         () const { return m_chain_hash_id; }
       unsigned int                        lower_chain_hash_id   () const { return m_lower_chain_hash_id; }
       int                                 EB_after_step         () const { return m_EB_after_step; }
+      const std::vector<size_t>           leg_multiplicities    () const { return m_leg_multiplicities; }
       bool                                hasMultipleLowerChains() const;
       const std::vector<int>&             lower_chain_counters  () const;
       std::vector<unsigned int>           lower_chain_hash_ids  () const;
@@ -100,6 +101,7 @@ namespace TrigConf {
       HLTChain& set_triggerTypeList      ( const std::vector<HLTTriggerType*>& trigList) { m_HLTTriggerTypeList = trigList; return *this; }
       HLTChain& set_groupList            ( const std::set<std::string>& groups) { m_groups = groups; return *this; }
       HLTChain& set_EB_after_step        ( int EB_after_step ) { m_EB_after_step = EB_after_step; return *this; }
+      HLTChain& set_leg_multiplicities   ( const std::vector<size_t>& mult ) { m_leg_multiplicities = mult; return *this; }
 
 
       // signatures
@@ -175,6 +177,7 @@ namespace TrigConf {
       std::vector<int>  m_lower_chain_counters;//!< counters of the lower trigger items if more than 1
       unsigned int      m_lower_chain_hash_id; //!< hash value from m_lower_chain_name, this is used to match to a chain from the previous trigger level
       int               m_EB_after_step;       //!< EB_after_step flag 
+      std::vector<size_t> m_leg_multiplicities;//!< Number of objects required per leg. NOTE: Run3 only quantity
       HLTPrescale       m_prescales;
 
       std::vector<HLTSignature*>                         m_HLTSignatureList;

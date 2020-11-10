@@ -7,8 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.Logging import logging
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-from SCT_ConditionsTools.SCT_DCSConditionsConfig import SCT_DCSConditionsCfg
-from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsToolCfg, SCT_SiliconConditionsCfg
+from SCT_ConditionsTools.SCT_SiliconConditionsConfig import SCT_SiliconConditionsCfg
 from SCT_ConditionsTools.SCT_ReadCalibChipDataConfig import SCT_ReadCalibChipDataCfg
 from SiPropertiesTool.SCT_SiPropertiesConfig import SCT_SiPropertiesCfg
 from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
@@ -166,14 +165,9 @@ def SCT_SurfaceChargesGeneratorCfg(flags, name="SCT_SurfaceChargesGenerator", **
     SCT_SurfaceChargesGenerator, SCT_RadDamageSummaryTool = CompFactory.getComps("SCT_SurfaceChargesGenerator", "SCT_RadDamageSummaryTool",)
     tool = SCT_SurfaceChargesGenerator(name, **kwargs)
     tool.RadDamageSummaryTool = SCT_RadDamageSummaryTool()
-    DCSCondTool = acc.popToolsAndMerge(SCT_DCSConditionsCfg(flags))
-    SiliCondTool = SCT_SiliconConditionsToolCfg(flags)
-    SiliCondAcc = SCT_SiliconConditionsCfg(flags, DCSConditionsTool=DCSCondTool)
-    SiliPropsAcc = SCT_SiPropertiesCfg(flags, SiConditionsTool=SiliCondTool)
-    acc.merge(SiliCondAcc)
-    tool.SiConditionsTool = SiliCondTool
-    tool.SiPropertiesTool = acc.popToolsAndMerge(SiliPropsAcc)
-    tool.LorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags))
+    tool.SiConditionsTool = acc.popToolsAndMerge(SCT_SiliconConditionsCfg(flags))
+    tool.SiPropertiesTool = acc.popToolsAndMerge(SCT_SiPropertiesCfg(flags, SiConditionsTool=tool.SiConditionsTool))
+    tool.LorentzAngleTool = acc.popToolsAndMerge(SCT_LorentzAngleCfg(flags, SiConditionsTool=tool.SiConditionsTool))
     acc.setPrivateTools(tool)
     return acc
 

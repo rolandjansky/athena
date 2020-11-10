@@ -72,6 +72,22 @@
 #define RPCON true
 #define useAssemblies false
 
+namespace {
+    // const maps holding the y/z translation for BIS RPCs (since they cannot be parsed by amdb)
+    const static std::map<std::string, float> rpcYTrans = {
+      std::make_pair<std::string, float>("RPC26",-9.1),//big RPC7
+      std::make_pair<std::string, float>("RPC27",-9.1),//small RPC7
+      std::make_pair<std::string, float>("RPC28",-27.7),//big RPC8
+      std::make_pair<std::string, float>("RPC29",-8.8),//small RPC8
+    };
+    const static std::map<std::string, float> rpcZTrans = {
+      std::make_pair<std::string, float>("RPC26",3.22),//big RPC7
+      std::make_pair<std::string, float>("RPC27",3.06),//small RPC7
+      std::make_pair<std::string, float>("RPC28",3.11),//big RPC8
+      std::make_pair<std::string, float>("RPC29",3.11),//small RPC8
+    };
+}
+
 namespace MuonGM {
 
 //cutouts for BMS at eta=+-1 and phi=4 (RPC/DED/MDT) ok //16 tubes shorter + entire RPC and DED (of dbz1) narrower
@@ -339,8 +355,6 @@ GeoVPhysVol* MuonChamber::build(
             Cutout* cut = m_station->GetCutout(ii);
             // if this is a BOG in layout Q, set the CP param:
             //   (both cuts have same length so ok to reset it)
-            // std::cout<<"Loop over m_station cutouts "<<ii<<std::endl;
-            // lengthShiftCP = cut->lengthY;
             // also do here some tweaking to prevent undershoot
             //  of the cutouts wrt mother volume:
             if ( fabs(cut->dx-600.7)<0.1 ) {
@@ -355,17 +369,12 @@ GeoVPhysVol* MuonChamber::build(
             }
             if (fabs(cut->lengthY-180.2)<0.001) {
               cut->lengthY = cut->lengthY+(0.010)*Gaudi::Units::mm;
-              //imt	    std::cout<<"Redefining "<<stName<<" cut lengthY to "
-              //imt		     <<cut->lengthY
-              //imt		     <<std::endl;
             }
             if (fabs(cut->dy-1019.8)<0.001) {
               cut->dy = 1216.4185-cut->lengthY;
             }
             // create the cutout with the full thickness of the STATION
             cut->setThickness(totthick*1.01);// extra to be sure
-            // std::cout << "cutout subtype/icut/ijob = " << cut->subtype << "/" << cut->icut
-            //           << "/" << cut->ijob << std::endl;
             if ((cut->subtype ==
                  mysql->allocPosFindSubtype(statType, fi, zi)) &&
                 (cut->icut == mysql->allocPosFindCutout(statType, fi, zi)) &&
@@ -680,7 +689,7 @@ GeoVPhysVol* MuonChamber::build(
           }
 
           if (verbose) {
-            log << MSG::VERBOSE << " Rpc or ded coutout redefined as follows \n" << *cutRpcType << endmsg;
+            log << MSG::VERBOSE << " Rpc or ded cutout redefined as follows \n" << *cutRpcType << endmsg;
           }
           vcutdef.push_back(cutRpcType);
           vcutdef_todel.push_back(cutRpcType);
@@ -987,6 +996,12 @@ GeoVPhysVol* MuonChamber::build(
       if (fpv == 0) {
         Rpc* r = new Rpc(c);
         r->setLogVolName(stName+techname);
+        if (stName.find("BI")!=std::string::npos) {
+          std::map<std::string,float>::const_iterator yItr = rpcYTrans.find(techname);
+          if (yItr != rpcYTrans.end()) r->y_translation=yItr->second;
+          std::map<std::string,float>::const_iterator zItr = rpcZTrans.find(techname);
+          if (zItr != rpcZTrans.end()) r->z_translation=zItr->second;
+        }
 
         if ((manager->IncludeCutoutsFlag() && rpcCutoutFlag) ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3) == "BOG")) {
@@ -1395,18 +1410,16 @@ GeoVPhysVol* MuonChamber::build(
       if (nRpc > 1 && nDoubletR == 2 && ypos>0.) doubletR=2;
       ndbz[doubletR-1]++;
 
-      float zdivision=100.;// point between doubletZ=1 and 2;
-
-      // the BIS RPCs are 3-gap RPCs mounted inside of the BIS sMDTs, 
-      // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
+      // the BI RPCs are 3-gap RPCs mounted inside of the BI (s)MDTs
       if (stname.find("BI")!=std::string::npos) {
-        if (std::abs(stationPhi)>=7 && rp->posz>100) doubletZ=2;
-        else doubletZ = ndbz[doubletR-1];
+        // for BIS78, there is a second RPC doubletZ at amdb-y (MuonGeoModel-z)=144mm inside the station
+        if (stname.find("BIS")!=std::string::npos && std::abs(stationEta)>=7 && rp->posz>100) doubletZ=2;
+        else doubletZ=ndbz[doubletR-1];
       } else {
         if (zi <= 0 && !is_mirrored) {
-          if (zpos < -zdivision*Gaudi::Units::mm) doubletZ=2;
+          if (zpos < -100*Gaudi::Units::mm) doubletZ=2;
         } else {
-          if (zpos > zdivision*Gaudi::Units::mm) doubletZ=2;
+          if (zpos > 100*Gaudi::Units::mm) doubletZ=2;
         }
       }
 
@@ -1442,7 +1455,6 @@ GeoVPhysVol* MuonChamber::build(
       int measuresPhi = 0;
       int strip       = 1;
 
-      //int tag = rp->index + doubletR*100 + dbphi*1000;
       int geoid = 0;
       std::string stag;
       int tag = doubletZ + doubletR*100 + dbphi*1000;
@@ -1487,7 +1499,7 @@ GeoVPhysVol* MuonChamber::build(
             << "///" << gasGap << "/" << measuresPhi << "/" << strip << endmsg << " Copy number "
             << geoid << " tagName= " << stag << endmsg;
       }
-      if (stName.find("BIS")==0) det->setNumberOfLayers(3); // all BIS RPCs always have 3 gas gaps
+      if (stName.find("BI")!=std::string::npos) det->setNumberOfLayers(3); // all BI RPCs always have 3 gas gaps
       det->setParentStationPV(PVConstLink(ptrd));
       det->setParentMuonStation(mstat);
 
@@ -1501,6 +1513,12 @@ GeoVPhysVol* MuonChamber::build(
 
       det->setIdentifier(id);
       det->setLastInitField(nfields);
+      if (stName.find("BI")!=std::string::npos) {
+          std::map<std::string,float>::const_iterator yItr = rpcYTrans.find(techname);
+          if (yItr != rpcYTrans.end()) det->setYTranslation(yItr->second);
+          std::map<std::string,float>::const_iterator zItr = rpcZTrans.find(techname);
+          if (zItr != rpcZTrans.end()) det->setZTranslation(zItr->second);
+      }
 
       det->fillCache(); // fill temporary cache (global position on known yet)
       det->initDesign(); ///  init design : design uses  global (converting back to local) positions
@@ -1688,9 +1706,6 @@ void MuonChamber::setRpcReadoutGeom(RpcReadoutElement* re, const RpcComponent* c
                                     MuonDetectorManager* manager)
 {
   MsgStream log(m_msgSvc, "MuGM:MuonChamber:setRpcReadoutGeom");
-  //  std::cout<<"In MuonChamber::setRpcReadoutGeom for Station "
-  //           <<re->getStationName()<<" at eta / phi "<<re->getStationEta()<<"/"
-  //           <<re->getStationPhi()<<" componnet name is "<<cc->name<< std::endl;
   re->m_Ssize = cc->dx1;
   re->m_LongSsize = cc->dx2;
   re->m_Rsize = cc->GetThickness();

@@ -56,6 +56,8 @@ class TrigTrackPreSelHypoTool : public extends<AthAlgTool, ITrigTrackPreSelHypoT
 
   Gaudi::Property<double>  m_highpt_threshold{ this, "highpt_threshold", 200000., "" };
 
+  Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" };
+
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Monitoring tool" };
 
 };

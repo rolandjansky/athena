@@ -120,6 +120,8 @@ class GeoPixelDisk : public GeoVPixelFactory {
  public:
   GeoPixelDisk(InDetDD::PixelDetectorManager* ddmgr,
                PixelGeometryManager* mgr);
+  GeoPixelDisk (const GeoPixelDisk&) = delete;
+  GeoPixelDisk& operator= (const GeoPixelDisk&) = delete;
   virtual ~GeoPixelDisk();
   virtual GeoVPhysVol* Build() override;
   double Thickness();
@@ -161,6 +163,8 @@ class GeoPixelECCable : public GeoVPixelFactory {
  public:
   GeoPixelECCable(InDetDD::PixelDetectorManager* ddmgr,
                   PixelGeometryManager* mgr);
+  GeoPixelECCable (const GeoPixelECCable&) = delete;
+  GeoPixelECCable& operator= (const GeoPixelECCable&) = delete;
   virtual GeoVPhysVol* Build() override;
   virtual ~GeoPixelECCable();
  private:
@@ -215,6 +219,8 @@ class GeoPixelLadder : public GeoVPixelFactory {
   GeoPixelLadder(InDetDD::PixelDetectorManager* ddmgr,
                  PixelGeometryManager* mgr,
                  GeoPixelSiCrystal& theSensor);
+  GeoPixelLadder (const GeoPixelLadder&) = delete;
+  GeoPixelLadder& operator= (const GeoPixelLadder&) = delete;
   virtual ~GeoPixelLadder();
   virtual GeoVPhysVol* Build() override;
   double Thickness();
@@ -260,6 +266,8 @@ class GeoPixelModule : public GeoVPixelFactory {
   GeoPixelModule(InDetDD::PixelDetectorManager* ddmgr,
                  PixelGeometryManager* mgr,
                  GeoPixelSiCrystal &theSensor);
+  GeoPixelModule (const GeoPixelModule&) = delete;
+  GeoPixelModule& operator= (const GeoPixelModule&) = delete;
   virtual ~GeoPixelModule();
   virtual GeoVPhysVol* Build() override;
   double Thickness();

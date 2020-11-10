@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RELATIONALCOLLECTION_RELATIONALCOLLECTION_H
@@ -268,7 +268,7 @@ namespace pool {
        * @param isUnique Flag to indicates whether combination of indexed column values must be unique.
        */
       void createIndex( const std::string& indexName,
-                        const std::vector< std::string > columnNames,
+                        const std::vector< std::string >& columnNames,
                         bool isUnique );
 
       /**

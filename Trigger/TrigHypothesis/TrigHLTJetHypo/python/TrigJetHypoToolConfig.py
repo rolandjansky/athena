@@ -82,6 +82,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     A Helper Tool returned by this function may be the root of a Helper
     Tool tree structure."""
 
+    
     log.debug('trigJetHypoToolFromDictc chainDict %s', str(chain_dict))
 
     try:
@@ -100,7 +101,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     chain_name = chain_dict['chainName']
 
     toolSetter = None
-    if 'HT' in chain_name:
+    if 'agg' in chain_name:
         toolSetter=ConditionsToolSetterHT(chain_name)
     else:
         toolSetter=ConditionsToolSetterFastReduction(chain_name)
@@ -175,24 +176,8 @@ class TestDebugFlagIsFalse(unittest.TestCase):
         self.assertFalse(tool.visit_debug)
 
 
-def _tests():
-
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-
-    chainNameDecoder = DictFromChainName.DictFromChainName()
-
-    chain_names = (
-        'j80_0eta240_2j60_320eta490_L1J20',
-        'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
-    )
-    for cn in chain_names:
-        chain_dict = chainNameDecoder.getChainDict(cn)
-
-        trigJetHypoToolFromDict(chain_dict)
-
 
 if __name__ == '__main__':
     unittest.main()
 
-    # run _tests outide untit tests so as to see stdout
-    # _tests()
+    # other local tests have been moved to testChainDictMaker.py

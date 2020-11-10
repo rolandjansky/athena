@@ -43,6 +43,7 @@
 //Si Tools
 //
 #include "TRT_SeededTrackFinderTool/SiNoise_bt.h"
+#include "SiSPSeededTrackFinderData/SiDetElementRoadMakerData_xk.h"
 
 //Combinatorial Track Finder Tool
 //
@@ -142,6 +143,7 @@ namespace InDet{
           const std::vector<double>&                                caloE()  const { return m_caloE; }
           InDet::SiNoise_bt&                                        noise()        { return m_noise; }
           const InDet::SiNoise_bt&                                  noise()  const { return m_noise; }
+          InDet::SiDetElementRoadMakerData_xk& roadMakerData() {return m_roadMakerData; }
        protected:
           SiCombinatorialTrackFinderData_xk                              *m_combinaatorialData;
           std::unique_ptr<InDet::ITRT_SeededSpacePointFinder::IEventData> m_spacePointFinderEventData;
@@ -151,6 +153,7 @@ namespace InDet{
 
           /** Needed for adding material related noise   */
           InDet::SiNoise_bt                    m_noise        ;
+          InDet::SiDetElementRoadMakerData_xk  m_roadMakerData; 
        };
 
       ///////////////////////////////////////////////////////////////////

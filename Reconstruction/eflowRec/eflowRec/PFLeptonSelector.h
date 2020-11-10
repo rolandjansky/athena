@@ -68,8 +68,16 @@ private:
 
   Gaudi::Property<std::string> m_electronID{this,"electronID","LHMedium","Select electron ID"};
 
+  /** Toggle to determine whether we select any electrons or not - if selected then tracks matched to those electrons
+  * in PFTrackSelector are not used in particle flow. If not selected then an empty electron container is created,
+  * and hence PFTrackSelector won't find any electrons to match its selected tracks to.
+  */
   Gaudi::Property<bool> m_selectElectrons{this,"selectElectrons",true,"Toggle usage of electron ID"};
 
-  
+  /** Toggle to determine whether we select any muons or not - if selected then tracks matched to those muons
+  * in PFTrackSelector are not used in particle flow. If not selected then an empty muon container is created,
+  * and hence PFTrackSelector won't find any muons to match its selected tracks to.
+  */
+  Gaudi::Property<bool> m_selectMuons{this,"selectMuons",true,"Toggle usage of muon ID"};
 };
 #endif

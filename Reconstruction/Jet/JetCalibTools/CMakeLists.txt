@@ -1,34 +1,7 @@
-################################################################################
-# Package: JetCalibTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetCalibTools )
-
-# Extra dependencies, based on the environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgDataHandles
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODEventShape
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODTracking
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   Reconstruction/Jet/JetInterface
-   PRIVATE
-   Event/xAOD/xAODMuon
-   Tools/PathResolver
-   PhysicsAnalysis/POOLRootAccess
-   ${extra_deps} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Graf Gpad )

@@ -61,7 +61,8 @@ Trig::CacheGlobalMemory::CacheGlobalMemory() :
   m_oldDecisionKeyPtr(nullptr),
   m_oldEventInfoKeyPtr(nullptr),
 #endif
-  m_navigationKeyPtr(nullptr),
+  m_run2NavigationKeyPtr(nullptr),
+  m_run3NavigationKeyPtr(nullptr),
   m_bgCode(0)
 {}
 
@@ -378,7 +379,7 @@ bool Trig::CacheGlobalMemory::assert_decision() {
     // over DecisionUnpackerAthena
     if ( contains_xAOD_decision ){
       ATH_MSG_INFO("SG contains xAOD decision, use DecisionUnpackerStandalone");
-      setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_navigationKeyPtr));
+      setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_run2NavigationKeyPtr));
     }
     else if( is_l1result_configured ){
       ATH_MSG_INFO("SG contains AOD decision, use DecisionUnpackerAthena");
@@ -391,7 +392,7 @@ bool Trig::CacheGlobalMemory::assert_decision() {
 #else
     if ( contains_xAOD_decision ){
       ATH_MSG_INFO("SG contains xAOD decision, use DecisionUnpackerStandalone");
-      setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_navigationKeyPtr));
+      setUnpacker(new DecisionUnpackerStandalone(m_decisionKeyPtr, m_run2NavigationKeyPtr));
     }
 #endif
     

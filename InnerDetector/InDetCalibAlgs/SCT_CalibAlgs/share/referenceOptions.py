@@ -43,7 +43,7 @@ from AthenaCommon.AppMgr import theApp
 #--------------------------------------------------------------
 # AuditorSvc
 #--------------------------------------------------------------
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 #--- write out a summary of the time spent

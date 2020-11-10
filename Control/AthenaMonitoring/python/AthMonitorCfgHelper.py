@@ -135,8 +135,8 @@ class AthMonitorCfgHelper(object):
         pathToSet = self.inputFlags.DQ.FileKey+('/%s' % topPath if topPath else '')
         array.broadcast('HistPath',pathToSet)
         array.broadcast('UseCache',True)
-        # in the future, autodetect if we are online or not
-        array.broadcast('convention','OFFLINE')
+        convention = 'ONLINE' if self.inputFlags.Common.isOnline else 'OFFLINE'
+        array.broadcast('convention', convention)
         array.broadcast('defaultDuration',defaultDuration)
         alg.GMTools += array.toolList()
         return array
@@ -146,7 +146,7 @@ class AthMonitorCfgHelper(object):
         Finalize the creation of the set of monitoring algorithms.
 
         Returns:
-        (resobj, monSeq) -- a tuple with a ComponentAccumulator and an AthSequencer
+        resobj -- a ComponentAccumulator 
         '''
         self.resobj.addSequence(self.monSeq)
         return self.resobj

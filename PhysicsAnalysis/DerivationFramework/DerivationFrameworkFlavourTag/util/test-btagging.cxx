@@ -2,6 +2,8 @@
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingUtilities.h"
 
 #include "TFile.h"
 #include "TTree.h"
@@ -49,7 +51,7 @@ int main (int argc, char *argv[]) {
     const xAOD::JetContainer *jets = nullptr;
     RETURN_CHECK( APP_NAME, event.retrieve(jets, jets_name) );
     for (const xAOD::Jet *const jet : *jets) {
-      const xAOD::BTagging* btag = jet->btagging();
+      const xAOD::BTagging *btag = xAOD::BTaggingUtilities::getBTagging( *jet );
       if (!btag) {
         nbad++;
       } else {

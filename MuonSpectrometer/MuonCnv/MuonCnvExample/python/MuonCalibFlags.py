@@ -4,9 +4,8 @@ from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing module %s",__name__)
 
 from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer,jobproperties
-from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.BeamFlags import jobproperties
-beamFlags = jobproperties.Beam
+import AthenaCommon.BeamFlags
+beamFlags = AthenaCommon.BeamFlags.jobproperties.Beam
 
 from MuonCnvExample.MuonCnvUtils import setJobPropertyDefault
 logMuon = logging.getLogger(__name__)
@@ -19,7 +18,8 @@ def setDefault(prop,value):
 ################################################################################
 class MdtCalib(JobPropertyContainer):
     def setDefaults(self):
-        global globalflags,beamFlags
+        global beamFlags
+        from AthenaCommon.GlobalFlags import globalflags
         if globalflags.DataSource == 'data' and beamFlags.beamType == 'collisions':
             setDefault(self.correctMdtRtForBField,True)
         else:
@@ -240,7 +240,7 @@ class MuonCalib(JobPropertyContainer):
                     if oldValue:
                         self.Mode = newflag
                         # print a deprecated warning
-                        log.warning( '%s flag is deprecated. Use muonCalibFlags.Mode = %r instead (%s)',
+                        logMuon.warning( '%s flag is deprecated. Use muonCalibFlags.Mode = %r instead (%s)',
                                      oldflag, newflag,
                                      'from ' + __name__ + ' import muonCalibFlags' )
 

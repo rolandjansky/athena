@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACKSUMMARYTOOL_H
@@ -7,39 +7,34 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/EventContext.h"
-#include "TrkParameters/TrackParameters.h"
-#include "TrkTrack/Track.h"
-#include "TrkTrackSummary/TrackSummary.h"
+#include "TrkTrack/Track.h" //used in the included icc file
+#include "TrkTrackSummary/TrackSummary.h" //used in the included icc file
 
-#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h"
-#include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h"
-#include "TrkToolInterfaces/IPixelToTPIDTool.h"
-#include "TrkToolInterfaces/ITRT_ElectronPidTool.h"
+#include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h" //template parameter to tool handle
+#include "TrkToolInterfaces/IExtendedTrackSummaryHelperTool.h" //template parameter to tool handle
+#include "TrkToolInterfaces/IPixelToTPIDTool.h" //template parameter to tool handle
+#include "TrkToolInterfaces/ITRT_ElectronPidTool.h" //template parameter to tool handle
 
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include <vector>
+#include <memory> //unique_ptr
+#include <bitset>
 
+
+class EventContext;
 class AtlasDetectorID;
 class Identifier;
-class ITRT_ToT_dEdx;
 
 namespace Trk {
-class ITRT_ElectronPidTool;
-class ITrackHoleSearchTool;
-class IPixelToTPIDTool;
 
 /** @enum flag the methods for the probability calculation */
-
-enum TRT_ElectronPidProbability
-{
+enum TRT_ElectronPidProbability{
   Combined = 0,
   HighThreshold = 1,
   TimeOverThreshold = 2,
   Bremsstrahlung = 3
 };
 
-class IExtendedTrackSummaryHelperTool;
 class RIO_OnTrack;
 class TrackStateOnSurface;
 class MeasurementBase;
@@ -56,7 +51,7 @@ public:
   /** Compute track summary and replace the summary in given track.
    * @param track the track whose track summary is replaced with a newly
    * computed one
-   * @param prd_to_track_map a PRD to track association map to compute shared
+   * @param pPrdToTrackMap a PRD to track association map to compute shared
    * hits or a nullptr
    * @param suppress_hole_search do not perform the hole search independent of
    * the settings of the ID and muon hole search properties. Will recompute the
@@ -68,7 +63,7 @@ public:
    */
   virtual void computeAndReplaceTrackSummary(
     Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map,
+    const Trk::PRDtoTrackMap* pPrdToTrackMap,
     bool suppress_hole_search = false) const override;
 
   /** Same behavious as
@@ -100,7 +95,7 @@ public:
    */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
     const Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const override;
+    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override;
   
   /* Start from a copy of the existing input track summary if there,
    * otherwise start from a new one. Fill it and return it.
@@ -109,7 +104,7 @@ public:
    */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
     const Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const override;
+    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override;
 
   /** method which can be used to update the summary of a track
    * it, without doing shared hit/ or hole search. 
@@ -124,35 +119,29 @@ public:
    */
   virtual void updateTrackSummary(
     Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map,
+    const Trk::PRDtoTrackMap* pPrdToTrackMap,
     bool suppress_hole_search = false) const override;
 
   /** method to update the shared hit content only, this is optimised for track
    * collection merging. */
   virtual void updateSharedHitCount(
     Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const override;
+    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override;
 
-  /** method to update additional information (PID,shared hits, dEdX), this is
-   * optimised for track collection merging.
-   */
-  virtual void updateAdditionalInfo(
-    Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const override;
 
   /** Update the shared hit count of the given track summary.
    * @param summary the summary to be updated i.e. a copy of the track summary
    * of the given track.
    * @param track the track which corresponds to the given track summary and is
    * used to compute the numbers of shared hits.
-   * @param prd_to_track_map an optional PRD-to-track map which is used to
+   * @param pPrdToTrackMap an optional PRD-to-track map which is used to
    * compute the shared hits otherwise the association tool will be used. The
    * method will update the shared information in the given summary. The track
    * will not be modified i.e. the shared hit count of the summary owned by the
    * track will not be updated.
    */
   virtual void updateSharedHitCount(const Track& track,
-                                    const Trk::PRDtoTrackMap* prd_to_track_map,
+                                    const Trk::PRDtoTrackMap* pPrdToTrackMap,
                                     TrackSummary& summary) const override;
 
   /** method to update the shared hit content only, this is optimised for track
@@ -173,7 +162,6 @@ public:
    * summary is owned by the track.
    */
   virtual void updateAdditionalInfo(const Track& track,
-                                    const Trk::PRDtoTrackMap* prd_to_track_map,
                                     TrackSummary& summary) const override;
 
   /** method to update additional information (PID,shared hits, dEdX), this is
@@ -187,7 +175,7 @@ private:
    * Fill the summary info for a Track*/
   void fillSummary(Trk::TrackSummary& ts,
                    const Trk::Track& track,
-                   const Trk::PRDtoTrackMap *prd_to_track_map,
+                   const Trk::PRDtoTrackMap *pPrdToTrackMap,
                    bool doHolesInDet,
                    bool doHolesMuon) const;
 
@@ -196,11 +184,10 @@ private:
    * If not there create a new one with the required info.
    */
   void UpdateSummary(Track& track,
-                     const Trk::PRDtoTrackMap* prd_to_track_map,
+                     const Trk::PRDtoTrackMap* pPrdToTrackMap,
                      bool suppress_hole_search) const;
   
   void updateAdditionalInfo(const Track& track,
-                            const Trk::PRDtoTrackMap* prd_to_track_map,
                             TrackSummary& summary,
                             bool initialise_to_zero) const;
 
@@ -209,11 +196,11 @@ private:
   track. Because it is taken from the track the ownership stays with the track
   */
   void updateTrack(Track& track,
-                   const Trk::PRDtoTrackMap* prd_to_track_map) const;
+                   const Trk::PRDtoTrackMap* pPrdToTrackMap) const;
 
   std::unique_ptr<Trk::TrackSummary> createSummary(
     const Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map,
+    const Trk::PRDtoTrackMap* pPrdToTrackMap,
     bool doHolesInDet,
     bool doHolesMuon) const;
 
@@ -226,12 +213,7 @@ private:
   ToolHandle<IExtendedTrackSummaryHelperTool>
     m_idTool{ this, "InDetSummaryHelperTool", "", "" };
   /**tool to calculate electron probabilities*/
-  ToolHandle<ITRT_ElectronPidTool> m_eProbabilityTool{ this,
-                                                       "TRT_ElectronPidTool",
-                                                       "",
-                                                       "" };
-  /** tool to calculate the TRT_ToT_dEdx.*/
-  ToolHandle<ITRT_ToT_dEdx> m_trt_dEdxTool{ this, "TRT_ToT_dEdxTool", "", "" };
+  ToolHandle<ITRT_ElectronPidTool> m_eProbabilityTool{ this,"TRT_ElectronPidTool","","" };
   /**tool to calculate dE/dx using pixel clusters*/
   ToolHandle<IPixelToTPIDTool> m_dedxtool{ this, "PixelToTPIDTool", "", "" };
   /**tool to decipher muon RoTs*/
@@ -261,13 +243,6 @@ private:
   /** switch to deactivate Pixel info init */
   Gaudi::Property<bool> m_pixelExists{ this, "PixelExists", true, "" };
 
-  /** Only compute TRT dE/dx if there are at least this number of TRT hits or
-   * outliers.*/
-  Gaudi::Property<int> m_minTRThitsForTRTdEdx{ this,
-                                               "minTRThitsForTRTdEdx",
-                                               1,
-                                               "" };
-
   Gaudi::Property<bool> m_alwaysRecomputeHoles {
     this, "AlwaysRecomputeHoles", false, ""
   };
@@ -279,7 +254,7 @@ private:
      information Fills 'information', 'eProbability', and 'hitPattern'*/
   void processTrackStates(const EventContext& ctx,
                           const Track& track,
-                          const Trk::PRDtoTrackMap* prd_to_track_map,
+                          const Trk::PRDtoTrackMap* pPrdToTrackMap,
                           const DataVector<const TrackStateOnSurface>* tsos,
                           std::vector<int>& information,
                           std::bitset<numberOfDetectorTypes>& hitPattern,
@@ -288,7 +263,7 @@ private:
 
   void processMeasurement(const EventContext& ctx,
                           const Track& track,
-                          const Trk::PRDtoTrackMap* prd_to_track_map,
+                          const Trk::PRDtoTrackMap* pPrdToTrackMap,
                           const Trk::MeasurementBase* meas,
                           const Trk::TrackStateOnSurface* tsos,
                           std::vector<int>& information,

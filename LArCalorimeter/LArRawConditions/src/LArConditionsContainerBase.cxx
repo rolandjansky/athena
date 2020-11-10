@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -26,6 +26,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include <atomic>
 
 LArConditionsContainerBase::LArConditionsContainerBase( )
 	:
@@ -570,7 +571,7 @@ LArConditionsContainerBase::applyCorrectionsAtInit(bool setFlag, bool flag)
     // return current value
 
     // Default value is true
-    static bool applyCorrs = true;
+    static std::atomic<bool> applyCorrs = true;
     
     if (setFlag) applyCorrs = flag;
     

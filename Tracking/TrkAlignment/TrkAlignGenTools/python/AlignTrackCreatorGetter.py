@@ -35,9 +35,7 @@ class AlignTrackCreatorGetter ( Configured ) :
 
     # options for good event list
     if align.writeEventList() : 
-        from TrkAlignGenTools.AlignmentIOFiles import AlignmentIOFiles
-        alignIO = AlignmentIOFiles()
-        alignTrackCreator.EventList = "goodEvts.txt" 
+        alignTrackCreator.EventList = "goodEvts.txt"
         alignTrackCreator.WriteEventList = True
 
     self._AlignTrackCreatorHandle = alignTrackCreator

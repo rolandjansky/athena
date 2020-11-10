@@ -21,6 +21,11 @@
 #include "TriggerEDMDeserialiserAlg.h"
 #include "TriggerEDMCLIDs.h"
 
+#include "TFile.h"
+#include "TStreamerInfo.h"
+#include "PathResolver/PathResolver.h"
+
+
 class TriggerEDMDeserialiserAlg::WritableAuxStore : public SG::AuxStoreInternal {
 public:
   WritableAuxStore() {}
@@ -74,6 +79,7 @@ StatusCode TriggerEDMDeserialiserAlg::initialize() {
   ATH_CHECK( m_clidSvc.retrieve() );
   ATH_CHECK( m_serializerSvc.retrieve() );
   ATH_CHECK( m_tpTool.retrieve() );
+  add_bs_streamerinfos();
   return StatusCode::SUCCESS;
 }
 
@@ -289,4 +295,26 @@ void TriggerEDMDeserialiserAlg::toBuffer( TriggerEDMDeserialiserAlg::PayloadIter
   PayloadIterator dataStart =  start + NameOffset + nameLength(start) + 1 /*skip size*/;
   // we rely on continuous memory layout of std::vector ...
   std::memcpy( buffer, &(*dataStart), dataSize( start ) );
+}
+
+void TriggerEDMDeserialiserAlg::add_bs_streamerinfos(){
+  std::string extStreamerInfos = "bs-streamerinfos.root";
+  std::string extFilePath = PathResolver::find_file(extStreamerInfos, "DATAPATH");
+  ATH_MSG_DEBUG( "Using " << extFilePath );
+  TFile extFile(extFilePath.c_str());
+  m_streamerInfoList = std::unique_ptr<TList>(extFile.GetStreamerInfoList());
+  for(const auto&& infObj: *m_streamerInfoList) {
+    TString t_name=infObj->GetName();
+    if (t_name.BeginsWith("listOfRules")){
+      ATH_MSG_WARNING( "Could not re-load  class " << t_name );
+      continue;
+    }
+
+    TStreamerInfo* inf = dynamic_cast<TStreamerInfo*>(infObj);
+    inf->BuildCheck();
+    TClass *cl = inf->GetClass();
+    if (cl)
+      ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
+		     << " checksum: " << std::hex << inf->GetCheckSum()  );
+  }
 }

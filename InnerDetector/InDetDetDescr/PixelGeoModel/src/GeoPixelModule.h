@@ -15,6 +15,8 @@ class GeoPixelModule : public GeoVPixelFactory {
   GeoPixelModule(InDetDD::PixelDetectorManager* ddmgr,
                  PixelGeometryManager* mgr,
                  GeoPixelSiCrystal &theSensor);
+  GeoPixelModule (const GeoPixelModule&) = delete;
+  GeoPixelModule& operator= (const GeoPixelModule&) = delete;
   virtual ~GeoPixelModule();
   virtual GeoVPhysVol* Build() override;
   double Thickness();

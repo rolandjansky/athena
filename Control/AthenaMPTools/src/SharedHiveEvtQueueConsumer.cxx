@@ -738,7 +738,7 @@ SharedHiveEvtQueueConsumer::initHive() {
       return StatusCode::FAILURE;
     }
 
-    m_schedulerSvc = serviceLocator()->service("ForwardSchedulerSvc");
+    m_schedulerSvc = serviceLocator()->service("AvalancheSchedulerSvc");
 
   // m_whiteboard = serviceLocator()->service(m_whiteboardName);
   // if( !m_whiteboard.isValid() )  {

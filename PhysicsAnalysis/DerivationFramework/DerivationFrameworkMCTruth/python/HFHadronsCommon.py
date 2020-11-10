@@ -3,7 +3,10 @@
 #############################################
 # Heavy flavour from tt tools
 #############################################
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from AthenaCommon import CfgMgr
+from AthenaCommon.AppMgr import ToolSvc
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+
 DSIDList=[
   410000,
   410001,

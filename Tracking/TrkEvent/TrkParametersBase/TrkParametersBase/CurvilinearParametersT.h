@@ -96,6 +96,15 @@ public:
 
   void setcIdentifier(unsigned int cIdentifier);
 
+  /** Returns the charge */
+  virtual double charge() const override final;
+
+  /** Access method for the position */
+  virtual const Amg::Vector3D& position() const override final;
+
+  /** Access method for the momentum */
+  virtual const Amg::Vector3D& momentum() const override final;
+
   /** Test to see if there's a surface there. */
   virtual bool hasSurface() const override final;
 
@@ -135,9 +144,9 @@ protected:
    */
   using ParametersBase<DIM, T>::m_parameters;
   using ParametersBase<DIM, T>::m_covariance;
-  using ParametersBase<DIM, T>::m_position;
-  using ParametersBase<DIM, T>::m_momentum;
   using ParametersBase<DIM, T>::m_chargeDef;
+  Amg::Vector3D m_position;             //!< point on track
+  Amg::Vector3D m_momentum;             //!< momentum at this point on track
   SurfaceUniquePtrT<const S> m_surface; //!< surface template
   /** the curvilinear parameters identifier */
   unsigned int m_cIdentifier = 0;

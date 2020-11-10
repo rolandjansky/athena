@@ -30,7 +30,7 @@ svcMgr += PerfMonSvc(
 include( "InDetRecExample/WriteInDetBS_jobOptions.py")
 ###############################################################
 
-from GaudiSvc.GaudiSvcConf import MessageSvc
+from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
 svcMgr += MessageSvc( defaultLimit = 4000000 )
 svcMgr.MessageSvc.OutputLevel  = ERROR
 

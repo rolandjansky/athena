@@ -10,9 +10,9 @@
  */
 inline void
 BFieldCond::addBiotSavart(double scaleFactor,
-                          const double* xyz,
-                          double* B_in,
-                          double* deriv) const
+                          const double* ATH_RESTRICT xyz,
+                          double* ATH_RESTRICT B_in,
+                          double* ATH_RESTRICT deriv) const
 {
   static const double mu04pi = 1.0e-7;    // mu_0/4pi
   static const double minvsq = 10. * 10.; // (1 cm)^2

@@ -101,6 +101,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
       const char* TOKENS = { " \t\n" };
       // read Matrix
       int dima = 48;
+      char* saveptr = nullptr;
       for (int line = 0; line < dima; line++) {
         if (fgets(buff, sizeof(buff), alpha_file) != NULL) {
           ATH_MSG_DEBUG( "line " << line << " is " << buff );
@@ -110,9 +111,9 @@ StatusCode TileRawCorrelatedNoise::initialize() {
             // read value
             int error = 0;
             if (column == 0) {
-              if ((word = strtok(buff, TOKENS)) == NULL) error = 1;
+              if ((word = strtok_r(buff, TOKENS, &saveptr)) == NULL) error = 1;
             } else {
-              if ((word = strtok(NULL, TOKENS)) == NULL) error = 1;
+              if ((word = strtok_r(NULL, TOKENS, &saveptr)) == NULL) error = 1;
             }
 
             double pippo;
@@ -181,6 +182,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
         const char* TOKENS = { " \t\n" };
         // read Vector
         int dima = 48;
+        char* saveptr = nullptr;
         for (int line = 0; line < dima; line++) {
           if (fgets(buff, sizeof(buff), mean_file) != NULL) {
             ATH_MSG_DEBUG( "line " << line << " is " << buff );
@@ -190,9 +192,9 @@ StatusCode TileRawCorrelatedNoise::initialize() {
               // read value
               int error = 0;
               if (Sample == 0) {
-                if ((word = strtok(buff, TOKENS)) == NULL) error = 1;
+                if ((word = strtok_r(buff, TOKENS, &saveptr)) == NULL) error = 1;
               } else {
-                if ((word = strtok(NULL, TOKENS)) == NULL) error = 1;
+                if ((word = strtok_r(NULL, TOKENS, &saveptr)) == NULL) error = 1;
               }
               double pippo;
               if (error)
@@ -271,7 +273,8 @@ StatusCode TileRawCorrelatedNoise::initialize() {
           if (*buff == '!' || *buff == '*') continue;
           // read value
           double pippo;
-          if ((word = strtok(buff, TOKENS)) == NULL) pippo = 0;
+          char* saveptr = nullptr;
+          if ((word = strtok_r(buff, TOKENS, &saveptr)) == NULL) pippo = 0;
           else pippo = atof(word);
           // read value
           ATH_MSG_VERBOSE ( "elem is " << pippo );

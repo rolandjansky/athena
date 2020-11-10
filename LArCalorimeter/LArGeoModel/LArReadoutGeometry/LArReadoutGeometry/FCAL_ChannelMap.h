@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -149,14 +149,21 @@ public:
     
 
 private:
+    float x1(int isam, 
+             int eta, 
+             int phi) const;
+    float y1(int isam, 
+             int eta, 
+             int phi) const;
+
     /** Geometrical parameters here, in CLHEP::cm please to be compatible with G3 */
     static const double m_tubeSpacing[];
     double 		m_tubeDx[3];
     double 		m_tubeDy[3];
     double 		m_tileDx[3];
     double 		m_tileDy[3];
-    mutable bool	m_invert_x;   // Some geometry need x inverted
-    mutable bool	m_invert_xy;  // Some geometry need xy crossed 
+    bool		m_invert_x;   // Some geometry need x inverted
+    bool		m_invert_xy;  // Some geometry need xy crossed 
     
     tileMap_t   	                        m_tileMap[3];
     void                                        create_tileMap( int isam );

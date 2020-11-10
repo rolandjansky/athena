@@ -35,7 +35,7 @@ namespace MuonGM {
       m_netastrippanels(-1), m_nphistripsperpanel(-1), m_netastripsperpanel(-1),
       m_phistripwidth(-9999.), m_etastripwidth(-9999.), m_phistrippitch(-9999.),
       m_etastrippitch(-9999.), m_phistriplength(-9999.), m_etastriplength(-9999.),
-      m_phipaneldead(-9999.), m_etapaneldead(-9999.), m_exthonthick(-9999.), m_set(nullptr)
+      m_phipaneldead(-9999.), m_etapaneldead(-9999.), m_exthonthick(-9999.), m_set(nullptr), m_y_translation(0), m_z_translation(0)
   {
     std::string gVersion = manager()->geometryVersion();
 
@@ -291,7 +291,7 @@ namespace MuonGM {
     const GenericRPCCache* r = manager()->getGenericRpcDescriptor();
     double xgg=0;
     if (m_nlayers==3) { // the BIS RPCs are the only ones with 3 gas gaps, they don't have an inner support structure
-      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness;
+      xgg = -rpc3GapLayerThickness + (gasGap-1)*rpc3GapLayerThickness - 0.74; // the values from MuonGeoModel have an offset of 0.74, TO BE INVESTIGATED
     } else {
       xgg = -m_Rsize/2. + m_exthonthick + r->stripPanelThickness + r->GasGapThickness/2.;
       if (gasGap == 1) return xgg;
@@ -489,51 +489,33 @@ namespace MuonGM {
       }
 
 
-    double ggwidth = m_Ssize;
-    double gglength = m_Zsize;
-    int lggPhi = ldoubletPhi;
-    int lggZ   = ldoubletZ;
-    if (m_nphigasgaps == 1)
-      {
-        lggPhi = 1;
-      }
-    else
-      {
-        ggwidth = ggwidth/2.;
-      }
-    
-    if (m_netagasgaps == 1)
-      {
-        lggZ = 1;
-      }
-    else 
-      {
-        gglength= gglength/2.;
-      }
-    double local_s, local_z;
-    if (m_nphigasgaps == 1) local_s = 0.;
-    else local_s = -m_Ssize/4. + (lggPhi-1)*ggwidth;
-    if (m_netagasgaps == 1) local_z = 0.;
-    else local_z = -m_Zsize/4. + (lggZ  -1)*gglength;
-
+    double ggwidth = (m_nphigasgaps!=0) ? m_Ssize/m_nphigasgaps : m_Ssize;
+    double gglength = (m_netagasgaps!=0) ? m_Zsize/m_netagasgaps : m_Zsize;
+    int lggPhi = (m_nphigasgaps == 1) ? 1 : ldoubletPhi;
+    int lggZ   = (m_netagasgaps == 1) ? 1 : ldoubletZ;
+    double local_s=0;
+    double local_z=0;
+    if (m_nphigasgaps != 1) local_s = -m_Ssize/4. + (lggPhi-1)*ggwidth;
+    if (m_netagasgaps != 1) local_z = -m_Zsize/4. + (lggZ  -1)*gglength;
+    if (m_nlayers==3) { // take the numbers set in MuonChamber.cxx for BI RPCs
+      local_s=m_y_translation;
+      local_z=m_z_translation;
+    }
     Amg::Vector3D localPold(localGasGapDepth(lgg), local_s, local_z);
     Amg::Vector3D localP1 = localPold;
-    if (manager()->MinimalGeoFlag() == 0)
-      {
+    if (manager()->MinimalGeoFlag() == 0) {
        localP1 = m_Xlg[lgg-1][lggPhi-1].translation();
         if (std::abs(localP1.x()-localPold.x())>0.01 || std::abs(localP1.y()-localPold.y())>0.01 || std::abs(localP1.z()-localPold.z())>0.01 ) {
             const RpcIdHelper* idh = manager()->rpcIdHelper();
-#ifdef NDEBUG
-            MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
-#endif
-            log << MSG::WARNING
-            <<"LocalGasGapPos computed here doesn't match the one retrieved from the GeoPhysVol for rpc RE "
-            <<idh->show_to_string(identify())<<" and dbZ/dbPhi/gg "<<doubletZ<<"/"<<doubletPhi<<"/"<<gasgap<<endmsg;
-            log << MSG::WARNING<<" Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endmsg;
+            const Identifier id = identify();
+            throw std::runtime_error(Form("File: %s, Line: %d\nRpcReadoutElement::localGasGapPos(%d,%d,%d) - position computed here (x,y,z=%.3f,%.3f,%.3f) does not match the one retrieved from the GeoPhysVol (x,y,z=%.3f,%.3f,%.3f)\nfor RpcReadoutElement with stationName=%d (%s), stationEta=%d, stationPhi=%d, doubletZ=%d, doubletR=%d, doubletPhi=%d, gasGap=%d", 
+                                          __FILE__, __LINE__, doubletZ, doubletPhi, gasgap, localPold.x(), localPold.y(), localPold.z(), localP1.x(), localP1.y(), localP1.z(), idh->stationName(id), idh->stationNameString(idh->stationName(id)).c_str(),
+                                          idh->stationEta(id), idh->stationPhi(id), idh->doubletZ(id), idh->doubletR(id), idh->doubletPhi(id), idh->gasGap(id)));
 	  } else {
 #ifndef NDEBUG
+    MsgStream log(Athena::getMessageSvc(),"RpcReadoutElement");
     if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE
-            <<"LocalGasGapPos computed here matches the one retrieved from the GeoPhysVol for rpc RE "
+            <<"localGasGapPos("<<doubletZ<<","<<doubletPhi<<","<<gasgap<<") - LocalGasGapPos computed here matches the one retrieved from the GeoPhysVol for rpc RE "
             <<manager()->rpcIdHelper()->show_to_string(identify())<<" and dbZ/dbPhi/gg "<<doubletZ<<"/"<<doubletPhi<<"/"<<gasgap<<endmsg;
             log << MSG::VERBOSE<<"Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endmsg;
 #endif

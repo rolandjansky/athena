@@ -24,6 +24,7 @@
 #include "ActsGeometryInterfaces/IActsMaterialTrackWriterSvc.h"
 #include "ActsGeometryInterfaces/IActsTrackingGeometryTool.h"
 #include "ActsGeometryInterfaces/IActsSurfaceMappingTool.h"
+#include "ActsGeometryInterfaces/IActsVolumeMappingTool.h"
 
 // STL
 #include <fstream>
@@ -42,62 +43,97 @@ ActsMaterialMapping::ActsMaterialMapping(const std::string &name,
     : AthReentrantAlgorithm(name, pSvcLocator),
       m_materialTrackWriterSvc("ActsMaterialTrackWriterSvc", name),
       m_inputMaterialStepCollection("MaterialStepRecords"),
-      m_mappingState(m_gctx,m_mctx)
+      m_mappingState(m_gctx,m_mctx),
+      m_mappingStateVol(m_gctx,m_mctx)
 {}
 
 StatusCode ActsMaterialMapping::initialize() {
-
   ATH_MSG_DEBUG(name() << "::" << __FUNCTION__);
+
+  if(!m_mapSurfaces && !m_mapVolumes){
+    ATH_MSG_ERROR("No element to map onto defined.");
+    return StatusCode::FAILURE;
+  }
 
   ATH_CHECK(m_materialStepConverterTool.retrieve() );
   ATH_CHECK(m_materialTrackWriterSvc.retrieve() );
-  ATH_CHECK(m_surfaceMappingTool.retrieve() );
+  if(m_mapSurfaces){
+    ATH_CHECK(m_surfaceMappingTool.retrieve() );
+    m_mappingState = m_surfaceMappingTool->mappingState();
+  }
+  if(m_mapVolumes){
+    ATH_CHECK(m_volumeMappingTool.retrieve() );
+    m_mappingStateVol = m_volumeMappingTool->mappingState();
+  }
   ATH_CHECK(m_materialJsonWriterTool.retrieve() );
-
   ATH_CHECK( m_inputMaterialStepCollection.initialize() );
-
-  m_mappingState = m_surfaceMappingTool->mappingState();
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode ActsMaterialMapping::execute(const EventContext &ctx) const {
-
   ATH_MSG_VERBOSE(name() << "::" << __FUNCTION__);
 
-  m_surfaceMappingTool->trackingGeometryTool()->getGeometryContext(ctx);
-
   Acts::RecordedMaterialTrack mTrack;
-
   SG::ReadHandle<Trk::MaterialStepCollection> materialStepCollection(m_inputMaterialStepCollection, ctx);
-
   mTrack = m_materialStepConverterTool->convertToMaterialTrack(*materialStepCollection);
 
+  if(m_mapSurfaces){
+    auto mappingState
+         = const_cast<Acts::SurfaceMaterialMapper::State *>(&m_mappingState);
+    m_surfaceMappingTool->mapper()->mapMaterialTrack(*mappingState, mTrack);
+  }
+  if(m_mapVolumes){
+    auto mappingStateVol
+         = const_cast<Acts::VolumeMaterialMapper::State *>(&m_mappingStateVol);
+    m_volumeMappingTool->mapper()->mapMaterialTrack(*mappingStateVol, mTrack);
+  }
   m_materialTrackWriterSvc->write(mTrack);
-
-  auto mappingState
-        = const_cast<Acts::SurfaceMaterialMapper::State*>(&m_mappingState);
-
-
-  m_surfaceMappingTool->mapper()->mapMaterialTrack(*mappingState, mTrack);
-
   ATH_MSG_VERBOSE(name() << " execute done");
-
   return StatusCode::SUCCESS;
 }
 
 StatusCode ActsMaterialMapping::finalize() {
 
-  // Finalize all the maps using the cached state
-  m_surfaceMappingTool->mapper()->finalizeMaps(m_mappingState);
-
   Acts::DetectorMaterialMaps detectorMaterial;
 
-  // Loop over the state, and collect the maps for surfaces
-  for (auto& [key, value] : m_mappingState.surfaceMaterial) {
-    detectorMaterial.first.insert({key, std::move(value)});
+  // Finalize all the maps using the cached state
+  if(m_mapSurfaces && m_mapVolumes){
+    m_surfaceMappingTool->mapper()->finalizeMaps(m_mappingState);
+    m_volumeMappingTool->mapper()->finalizeMaps(m_mappingStateVol);
+    // Loop over the state, and collect the maps for surfaces
+    for (auto& [key, value] : m_mappingState.surfaceMaterial) {
+      detectorMaterial.first.insert({key, std::move(value)});
+    }
+    // Loop over the state, and collect the maps for volumes
+    for (auto& [key, value] : m_mappingStateVol.volumeMaterial) {
+      detectorMaterial.second.insert({key, std::move(value)});
+    }
   }
-
+  else{
+    if(m_mapSurfaces){
+      m_surfaceMappingTool->mapper()->finalizeMaps(m_mappingState);
+      // Loop over the state, and collect the maps for surfaces
+      for (auto& [key, value] : m_mappingState.surfaceMaterial) {
+        detectorMaterial.first.insert({key, std::move(value)});
+      }
+      // Loop over the state, and collect the maps for volumes
+      for (auto& [key, value] : m_mappingState.volumeMaterial) {
+        detectorMaterial.second.insert({key, std::move(value)});
+      }
+    }
+    if(m_mapVolumes){
+      m_volumeMappingTool->mapper()->finalizeMaps(m_mappingStateVol);
+      // Loop over the state, and collect the maps for surfaces
+      for (auto& [key, value] : m_mappingStateVol.surfaceMaterial) {
+        detectorMaterial.first.insert({key, std::move(value)});
+      }
+      // Loop over the state, and collect the maps for volumes
+      for (auto& [key, value] : m_mappingStateVol.volumeMaterial) {
+        detectorMaterial.second.insert({key, std::move(value)});
+      }
+    }
+  }
+  
   m_materialJsonWriterTool->write(detectorMaterial);
 
   return StatusCode::SUCCESS;

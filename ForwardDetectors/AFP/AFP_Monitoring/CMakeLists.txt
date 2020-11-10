@@ -10,7 +10,7 @@ find_package( ROOT COMPONENTS Hist )
 atlas_add_component( AFP_Monitoring
    src/*.cxx
    src/components/*.cxx
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AFP_RawEv AthenaBaseComps AthenaMonitoringLib GaudiKernel LWHists LumiBlockCompsLib xAODEventInfo xAODForward )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AFP_RawEv AthenaBaseComps AthenaMonitoringLib GaudiKernel LWHists LumiBlockCompsLib StoreGateLib xAODEventInfo xAODForward )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

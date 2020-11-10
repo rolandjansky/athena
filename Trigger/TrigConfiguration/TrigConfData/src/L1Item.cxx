@@ -10,7 +10,7 @@ TrigConf::L1Item::L1Item()
 TrigConf::L1Item::L1Item(const boost::property_tree::ptree & data) 
    : DataStructure(data)
 {
-   update();
+   load();
 }
 
 TrigConf::L1Item::~L1Item()
@@ -22,7 +22,7 @@ TrigConf::L1Item::className() const {
 }
 
 void
-TrigConf::L1Item::update()
+TrigConf::L1Item::load()
 {
    if(! isInitialized() || empty() ) {
       return;
@@ -72,6 +72,12 @@ const std::string &
 TrigConf::L1Item::triggerType() const
 {
    return getAttribute("triggerType");
+}
+
+std::optional<bool>
+TrigConf::L1Item::legacy() const
+{
+   return hasAttribute("legacy") ? std::optional<bool>{getAttribute<bool>("legacy")} : std::nullopt;
 }
 
 unsigned char

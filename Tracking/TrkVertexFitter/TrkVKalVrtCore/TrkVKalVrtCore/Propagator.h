@@ -54,7 +54,7 @@ class IVKalState;
   class vkalPropagator {
   public:
      vkalPropagator();
-    ~vkalPropagator();
+    ~vkalPropagator() = default;
 
 
      void Propagate(long int TrkID, long int Charge, 

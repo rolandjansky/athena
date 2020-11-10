@@ -134,6 +134,7 @@ StatusCode HltEventLoopMgr::initialize()
   ATH_MSG_INFO(" ---> forceRunNumber            = " << m_forceRunNumber.value());
   ATH_MSG_INFO(" ---> forceStartOfRunTime       = " << m_forceSOR_ns.value());
   ATH_MSG_INFO(" ---> RewriteLVL1               = " << m_rewriteLVL1.value());
+  ATH_MSG_INFO(" ---> PopAllMode                = " << m_popAll.value());
   ATH_MSG_INFO(" ---> EventContextWHKey         = " << m_eventContextWHKey.key());
   ATH_MSG_INFO(" ---> EventInfoRHKey            = " << m_eventInfoRHKey.key());
 
@@ -1212,10 +1213,12 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
     return DrainSchedulerStatusCode::SCHEDULER_EMPTY;
   }
 
-  // Try to pop other events
-  while (m_schedulerSvc->tryPopFinishedEvent(finishedEvtContext).isSuccess()) {
-    ATH_MSG_DEBUG("Scheduler returned a finished event: " << finishedEvtContext);
-    finishedEvtContexts.push_back(finishedEvtContext);
+  if (m_popAll) {
+    // Try to pop other events
+    while (m_schedulerSvc->tryPopFinishedEvent(finishedEvtContext).isSuccess()) {
+      ATH_MSG_DEBUG("Scheduler returned a finished event: " << finishedEvtContext);
+      finishedEvtContexts.push_back(finishedEvtContext);
+    }
   }
 
   //----------------------------------------------------------------------------
@@ -1389,7 +1392,9 @@ HltEventLoopMgr::DrainSchedulerStatusCode HltEventLoopMgr::drainScheduler()
 StatusCode HltEventLoopMgr::clearWBSlot(size_t evtSlot) const
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
+  auto monTime = Monitored::Timer<std::chrono::duration<float, std::milli>>("TIME_clearStore");
   StatusCode sc = m_whiteboard->clearStore(evtSlot);
+  Monitored::Group(m_monTool, monTime);
   if( !sc.isSuccess() )  {
     ATH_MSG_WARNING("Clear of event data store failed");
   }

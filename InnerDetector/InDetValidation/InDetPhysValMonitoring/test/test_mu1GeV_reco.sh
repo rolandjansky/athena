@@ -6,9 +6,9 @@
 # art-cores: 4
 # art-memory: 4096
 # art-include: master/Athena
-# art-output: *.root
+# art-output: physval*.root
 # art-output: *.xml 
-# art-output: art_core_*
+# art-output: art_core_0
 # art-output: dcube*
 
 set -x
@@ -85,11 +85,11 @@ case $ArtProcess in
       InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
       InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
       InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True); \
-      rec.doDumpProperties=True; rec.doCalo=False; rec.doEgamma=False; \
-      rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=False; \
-      rec.doLArg=False; rec.doLucid=False; rec.doMuon=False; rec.doMuonCombined=False; \
-      rec.doSemiDetailedPerfMon=True; rec.doTau=False; rec.doTile=False;\
-      from ParticleBuilderOptions.AODFlags import AODFlags;\
+      rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
+      rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
+      rec.doLArg=True; rec.doLucid=True; rec.doMuon=True; rec.doMuonCombined=True; \
+      rec.doSemiDetailedPerfMon=True; rec.doTau=True; rec.doTile=True; \
+      from ParticleBuilderOptions.AODFlags import AODFlags; \
       AODFlags.ThinGeantTruth.set_Value_and_Lock(False);  \
       AODFlags.ThinNegativeEnergyCaloClusters.set_Value_and_Lock(False); \
       AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False);\

@@ -15,6 +15,7 @@
 #include "TrkDetDescrInterfaces/IGeometryBuilderCond.h"
 #include "TrkDetDescrInterfaces/IGeometryProcessor.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -40,6 +41,7 @@ private:
   ServiceHandle<ICondSvc> m_condSvc{this, "CondSvc", "CondSvc"};
   ToolHandle<Trk::IGeometryBuilderCond>           m_trackingGeometryBuilder {this, "GeometryBuilder", ""};
   ToolHandleArray<Trk::IGeometryProcessor>    m_geometryProcessors ;
+  ServiceHandle<ITrackingGeometrySvc>         m_trackingGeometrySvc {this,"TrackingGeometrySvc",""};
 };
 }
 #endif //TRACKINGGEOMETRYCONDALG_H

@@ -8,6 +8,7 @@
 // ATLAS things
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "StoreGate/ReadDecorHandle.h"

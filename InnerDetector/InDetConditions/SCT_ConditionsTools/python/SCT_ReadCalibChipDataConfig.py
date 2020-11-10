@@ -4,14 +4,11 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 SCT_ReadCalibChipDataTool=CompFactory.SCT_ReadCalibChipDataTool
 SCT_ReadCalibChipNoiseCondAlg=CompFactory.SCT_ReadCalibChipNoiseCondAlg
 SCT_ReadCalibChipGainCondAlg=CompFactory.SCT_ReadCalibChipGainCondAlg
-
-def SCT_ReadCalibChipDataToolCfg(flags, name="InDetSCT_ReadCalibChipDataTool", **kwargs):
-    """Return a ReadCalibChipDataTool configured for SCT"""
-    return SCT_ReadCalibChipDataTool(name, **kwargs)
 
 def SCT_ReadCalibChipDataCfg(flags, name="SCT_ReadCalibChip", **kwargs):
     """Return configured ComponentAccumulator with SCT_ReadCalibChipDataCfg tool
@@ -19,7 +16,8 @@ def SCT_ReadCalibChipDataCfg(flags, name="SCT_ReadCalibChip", **kwargs):
     Accepts optional noiseFolder and gainFolder keyword arguments
     """
     acc = ComponentAccumulator()
-    # folders
+
+    # Folders
     noiseFolder = kwargs.get("noiseFolder", "/SCT/DAQ/Calibration/ChipNoise")
     gainFolder = kwargs.get("gainFolder", "/SCT/DAQ/Calibration/ChipGain")
     if flags.Overlay.DataOverlay:
@@ -37,10 +35,13 @@ def SCT_ReadCalibChipDataCfg(flags, name="SCT_ReadCalibChip", **kwargs):
                                     forceDb=forceDb, tag=gainTag))
 
     # Algorithms
+    acc.merge(GeoModelCfg(flags)) # For SCT_ID used in SCT_ReadCalibChipNoiseCondAlg, SCT_ReadCalibChipGainCondAlg, SCT_ReadCalibChipDataTool
     noiseAlg = SCT_ReadCalibChipNoiseCondAlg(name=name + "NoiseCondAlg", ReadKey=noiseFolder)
     acc.addCondAlgo(noiseAlg)
     gainAlg = SCT_ReadCalibChipGainCondAlg(name=name + "GainCondAlg", ReadKey=gainFolder)
     acc.addCondAlgo(gainAlg)
-    tool = kwargs.get("ReadCalibChipDataTool", SCT_ReadCalibChipDataToolCfg(flags))
-    acc.setPrivateTools(tool)
+
+    # Tool
+    acc.setPrivateTools(SCT_ReadCalibChipDataTool(name="InDetSCT_ReadCalibChipDataTool"))
+
     return acc
