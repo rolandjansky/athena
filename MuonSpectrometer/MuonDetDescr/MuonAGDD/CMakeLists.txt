@@ -6,14 +6,12 @@
 atlas_subdir( MuonAGDD )
 
 # Possible extra dependencies:
-set( extra_dep )
 set( extra_lib )
 if( NOT SIMULATIONBASE )
-   # the dependency on AmdcAth is only for dumping the XML!
-   # in principle AGDD is independent from AMDB and all
-   # information could be accessed via AGDD itself, however,
-   # this complicates the job configuration for the moment
-   set( extra_dep MuonSpectrometer/Amdcsimrec/AmdcAth )
+   # the dependency on AmdcAth is only for dumping the passive material XML 
+   # located inside old AMDB files (using AmdcsimrecAthenaSvc in the MuonAGDDTool)
+   # in principle, AGDD is independent from AMDB and all information can be accessed 
+   # via AGDD itself (as it is done in recent muon layouts)
    set( extra_lib AmdcAthLib )
 endif()
 
