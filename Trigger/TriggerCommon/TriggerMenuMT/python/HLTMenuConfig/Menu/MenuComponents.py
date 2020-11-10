@@ -8,6 +8,7 @@ from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 RoRSeqFilter=CompFactory.RoRSeqFilter
+PassFilter = CompFactory.PassFilter
 
 class Node(object):
     """base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
@@ -78,7 +79,7 @@ class AlgNode(Node):
             if self.outputProp != '':
                 self.setPar(self.outputProp,name)
             else:
-                log.error("no OutputProp set")
+                log.debug("no outputProp set for output of %s", self.Alg.getName())
         Node.addOutput(self, name)
 
 
@@ -101,8 +102,9 @@ class AlgNode(Node):
             if self.inputProp != '':
                 self.setPar(self.inputProp,name)
             else:
-                log.error("no InputProp set")
+                log.debug("no InputProp set for input of %s", self.Alg.getName())
         Node.addInput(self, name)
+        return len(self.readInputList())
 
 
     def readInputList(self):
@@ -130,6 +132,8 @@ def algColor(alg):
         return "cyan3"
     if isFilterAlg(alg):
         return "chartreuse3"
+    if isPassFilterAlg(alg):
+        return "darkgreen"
     return "cadetblue1"
 
 
@@ -211,11 +215,14 @@ class SequenceFilterNode(AlgNode):
     def __init__(self, Alg, inputProp, outputProp):
         AlgNode.__init__(self,  Alg, inputProp, outputProp)
 
-    def addChain(self, name):
-        return self.setPar("Chains", name)
+    def addChain(self, name, input_name):
+        return
 
     def getChains(self):
-        return self.getPar("Chains")
+        return []
+
+    def getChainsPerInput(self):
+        return [[]]
 
     def __repr__(self):
         return "SequenceFilter::%s  [%s] -> [%s], chains=%s"%(compName(self.Alg),' '.join(map(str, self.getInputList())),' '.join(map(str, self.getOutputList())), self.getChains())
@@ -226,6 +233,31 @@ class RoRSequenceFilterNode(SequenceFilterNode):
         Alg= RoRSeqFilter(name)
         SequenceFilterNode.__init__(self,  Alg, 'Input', 'Output')
 
+    def addChain(self, name, input_name):
+        input_index = self.readInputList().index(input_name)
+        chains_in_input = self.getPar("ChainsPerInput")
+        if len(chains_in_input) == input_index:
+            chains_in_input.append([name])
+        elif len(chains_in_input) > input_index:
+            chains_in_input[input_index].append(name)
+        else:
+            log.error("Error: why requiring input %i when size is %i ?" , input_index , len(chains_in_input))
+            raise RuntimeError("Error: why requiring input %i when size is %i " , input_index , len(chains_in_input))
+            
+        self.Alg.ChainsPerInput= chains_in_input
+        return self.setPar("Chains", name) # still neded?
+        
+    def getChains(self):
+        return self.getPar("Chains")
+
+    def getChainsPerInput(self):
+        return self.getPar("ChainsPerInput")
+
+class PassFilterNode(SequenceFilterNode):
+    """ PassFilter is a Filter node without inputs/outputs, so OutputProp=InputProp=empty"""
+    def __init__(self, name):
+        Alg= PassFilter(name)
+        SequenceFilterNode.__init__(self,  Alg, '', '')
 
 
 class InputMakerNode(AlgNode):
@@ -303,6 +335,9 @@ def isInputMakerBase(alg):
 
 def isFilterAlg(alg):
     return isinstance(alg, RoRSeqFilter)
+
+def isPassFilterAlg(alg):
+    return isinstance(alg, PassFilter)
 
 def isComboHypoAlg(alg):
     return  ('MultiplicitiesMap'  in alg.__class__.__dict__)
@@ -677,7 +712,7 @@ class CFSequence(object):
         """ Set the output decision of this CFSequence as the hypo outputdecision; In case of combo, takes the Combo outputs"""
         self.decisions=[]
         # empty steps:
-        if not len(self.step.sequences):
+        if self.step.isEmpty:
             self.decisions.extend(self.filter.getOutputList())
         else:
             if self.step.isCombo:

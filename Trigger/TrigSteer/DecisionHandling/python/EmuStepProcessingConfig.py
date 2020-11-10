@@ -325,8 +325,8 @@ def generateChainsManually():
             # FSNOSEED not implemented in emulation
             #  L1Thresholds=["MU6", "MU6"],
             makeChain(name='HLT_TestChain10_muEmpty1_TestChain6_muEmpty1_L12MU6', L1Thresholds=["MU6", "MU6"],  ChainSteps=[
-                makeChainStep("Step1_2muAs_empty", multiplicity=[]),
-                makeChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
+                 makeChainStep("Step1_2muAs_empty", multiplicity=[]),
+                 makeChainStep("Step2_2muAs",   [mu21, mu21], multiplicity=[1,1]) ])
         
                                                                               
             ]
