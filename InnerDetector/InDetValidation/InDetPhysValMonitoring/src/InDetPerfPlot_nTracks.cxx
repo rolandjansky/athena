@@ -29,6 +29,9 @@ InDetPerfPlot_nTracks::initializePlots() {
   hd = retrieveDefinition("num_truthmatch_match");
   m_counters[MATCHEDRECO] =
     Book1D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, prependDirectory);
+
+  book(m_ntracks_vs_mu,"ntracks_vs_mu");
+  book(m_ntracks_vs_nvertices,"ntracks_vs_nvertices");
 }
 
 void
@@ -36,4 +39,11 @@ InDetPerfPlot_nTracks::fill(const unsigned int freq, const CounterCategory count
   if (counter < N_COUNTERS) {
     fillHisto((m_counters[counter]), freq);
   }
+}
+
+void InDetPerfPlot_nTracks::fill(const unsigned int ntracks, const unsigned int muu, const unsigned int nvertices) {
+
+  fillHisto(m_ntracks_vs_mu, muu, ntracks);
+  fillHisto(m_ntracks_vs_nvertices, nvertices, ntracks);
+
 }

@@ -23,9 +23,12 @@ public:
     ALLRECO, SELECTEDRECO, ALLTRUTH, SELECTEDTRUTH, ALLASSOCIATEDTRUTH, MATCHEDRECO, N_COUNTERS
   };
   void fill(const unsigned int freq, const CounterCategory counter);
+  void fill(const unsigned int ntracks, const unsigned int mu, const unsigned int nvertices);
+
 private:
   TH1* m_counters[N_COUNTERS];
-
+  TH2* m_ntracks_vs_mu;
+  TH2* m_ntracks_vs_nvertices;
   void initializePlots();
 };
 

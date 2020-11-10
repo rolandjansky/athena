@@ -33,6 +33,9 @@
 <!-- dR plots for tracks in jets -->
 <!ENTITY DRMAX "0.4">
 <!ENTITY SMALLDRMAX "0.1">
+<!-- Number of tracks vs MU -->
+<!ENTITY EXPMU "100">
+<!ENTITY EXPTRK "2000">
 <!-- histogram definitions common to Run2 and ITk -->
 <!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
 ]>
