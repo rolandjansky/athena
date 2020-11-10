@@ -73,6 +73,12 @@ StatusCode JetVertexTaggerTool::initialize() {
 StatusCode JetVertexTaggerTool::decorate(const xAOD::JetContainer& jetCont) const {
 
   const xAOD::Vertex* HSvertex = findHSVertex();
+  // findHSVertex will provide an error message if this comes back null
+  if(HSvertex == nullptr) return StatusCode::FAILURE;
+
+  // Grab vertices for index bookkeeping
+  SG::ReadHandle<xAOD::VertexContainer> vertexHandle = SG::makeHandle (m_vertexContainer_key);
+  const xAOD::VertexContainer* vertices = vertexHandle.cptr();
 
   SG::ReadDecorHandle<xAOD::JetContainer, float> jvfCorrHandle(m_jvfCorrKey);
   SG::ReadDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtTrkHandle(m_sumPtTrkKey);
@@ -127,7 +133,12 @@ float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet) const {
     ATH_MSG_ERROR("No hard scatter vertex found. Returning JVT=-1");
     return -1.;
   }
-  const float rptnew = sumpttrk[HSvertex->index()]/jet.pt();
+
+  // Grab vertices for index bookkeeping
+  SG::ReadHandle<xAOD::VertexContainer> vertexHandle = SG::makeHandle (m_vertexContainer_key);
+  const xAOD::VertexContainer* vertices = vertexHandle.cptr();
+
+  const float rptnew = sumpttrk[HSvertex->index() - (*vertices)[0]->index()]/jet.pt();
 
   return evaluateJvt(rptnew, jvfcorr);
 }
