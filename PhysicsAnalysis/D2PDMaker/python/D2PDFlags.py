@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        D2PDFlags
@@ -9,7 +9,6 @@
 ## Description: Here, all neccessary job flags for the D2PDMaker
 ##              are defined.
 ##
-## $Id: D2PDFlags.py,v 1.2 2009/04/16 08:39:22 kkoeneke Exp $
 ##=============================================================================
 
 __doc__ = """Here, all neccessary job flags for the D2PDMaker are defined."""
@@ -265,21 +264,6 @@ class WriteDAOD_JPSIHSG2Stream(JobProperty):
     pass
 jobproperties.D2PDFlags.add_JobProperty(WriteDAOD_JPSIHSG2Stream)
 listAODtoD2PD.append(WriteDAOD_JPSIHSG2Stream.StreamName)
-
-class WriteDAOD_HSG1Stream(JobProperty):
-    """Produce DAOD_HSG1"""
-    statusOn           = True
-    allowedTypes       = ['bool']
-    StoredValue        = False
-    StreamName         = "DAOD_HSG1"
-    FileName           = ""
-    DPDMakerScript     = "HSG1DPDUtils/DAOD_HSG1.py"
-    ApplyThinning      = True
-    ApplySlimming      = True
-    CreateControlPlots = False
-    pass
-jobproperties.D2PDFlags.add_JobProperty(WriteDAOD_HSG1Stream)
-listAODtoD2PD.append(WriteDAOD_HSG1Stream.StreamName)
 
 class WriteDAOD_HWWStream(JobProperty):
     """Produce DAOD_HWW"""
