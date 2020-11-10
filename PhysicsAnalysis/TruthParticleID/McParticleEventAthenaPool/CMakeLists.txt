@@ -1,23 +1,10 @@
-################################################################################
-# Package: McParticleEventAthenaPool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( McParticleEventAthenaPool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          GaudiKernel
-                          PRIVATE
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          PhysicsAnalysis/TruthParticleID/McParticleEvent
-                          PhysicsAnalysis/TruthParticleID/McParticleEventTPCnv
-                          PhysicsAnalysis/TruthParticleID/McParticleKernel )
 
 # Component(s) in the package:
 atlas_add_poolcnv_library( McParticleEventAthenaPoolPoolCnv
                            src/*.cxx
                            FILES McParticleEvent/TruthParticleContainer.h McParticleEvent/TruthEtIsolationsContainer.h
-                           LINK_LIBRARIES AthenaPoolUtilities GaudiKernel StoreGateLib SGtests AthenaPoolCnvSvcLib McParticleEvent McParticleEventTPCnv McParticleKernel )
+                           LINK_LIBRARIES GaudiKernel StoreGateLib AthenaPoolCnvSvcLib McParticleEvent McParticleEventTPCnv McParticleKernel )
