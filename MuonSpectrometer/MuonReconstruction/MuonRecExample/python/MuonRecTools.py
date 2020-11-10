@@ -493,3 +493,8 @@ def MuonLayerSegmentFinderTool(name='MuonLayerSegmentFinderTool',extraFlags=None
     kwargs.setdefault("MuonClusterSegmentFinder",getPublicTool("MuonClusterSegmentFinder"))
 
     return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
+
+def ExtraTreeTrackFillerTool(name="ExtraTreeTrackFillerTool",extraFlags=None,**kwargs):
+    kwargs.setdefault("PullCalculator", getPublicTool("ResidualPullCalculator"))
+    return CfgMgr.MuonCalib__ExtraTreeTrackFillerTool(name,**kwargs)
+
