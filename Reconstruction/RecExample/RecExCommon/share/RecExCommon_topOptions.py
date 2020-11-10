@@ -570,6 +570,7 @@ if rec.doTrigger:
 
 #MT part
 ## Outputs
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 if TriggerFlags.doMT() and rec.readESD() and rec.doAOD():
     # Don't run any trigger - only pass the HLT contents from ESD to AOD
     # Add HLT output
