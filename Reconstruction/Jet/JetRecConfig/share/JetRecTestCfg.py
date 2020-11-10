@@ -50,7 +50,6 @@ def DefineJetCollections(configFlags):
 
     ########################################################################
     # We can also clone and modify an standard definition
-    from copy import deepcopy
     from JetRecConfig.StandardJetConstits import jetconstitdic
     AntiKt4EMPFlowCSSK = AntiKt4EMPFlow.clone(prefix="New")
     AntiKt4EMPFlowCSSK.inputdef    = jetconstitdic["EMPFlowCSSK"]
