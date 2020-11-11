@@ -193,7 +193,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check first dimension boundaries, always applicable
-    const float valX = checkBoundariesByBin(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
+    const double valX = checkBoundariesByBin(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
     if (m_nDim == 1)
     {
         switch (m_interpolate)
@@ -239,7 +239,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check third dimension boundaries, if applicable
-    const float valZ = checkBoundariesByBin(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
+    const double valZ = checkBoundariesByBin(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
     
     switch (m_interpolate)
     {
