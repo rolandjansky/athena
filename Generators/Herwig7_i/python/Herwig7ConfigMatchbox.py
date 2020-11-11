@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## \file Herwig7ConfigMatchbox.py
 ## \brief Configuration class for Matchbox runs with %Herwig7
@@ -214,7 +214,7 @@ class Hw7ConfigMatchbox(hw7Config.Hw7Config):
   def __init__(self, genSeq, runArgs, run_name="Herwig", beams="pp"):
 
     beams = beams.upper()
-    if not beams in ["EE", "EP", "PP"]:
+    if beams not in ["EE", "EP", "PP"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'beams' must be one of the following ['EE', 'EP', 'PP']!"))
 
     ## provide variables initialized by the parent class
@@ -233,7 +233,7 @@ class Hw7ConfigMatchbox(hw7Config.Hw7Config):
     # try to locate the GoSam installation
     try:
       GoSam_path = os.environ['GOSAM_PATH']
-    except:
+    except KeyError:
       # \todo Get rid of this and just use the environment variable `GOSAMPATH`
       GoSam_path = '/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/gosam/2.0.4/x86_64-slc6-gcc62-opt'
       os.environ["LD_LIBRARY_PATH"]="/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/gosam/2.0.4/x86_64-slc6-gcc62-opt/lib:"+os.environ["LD_LIBRARY_PATH"]
@@ -243,7 +243,7 @@ class Hw7ConfigMatchbox(hw7Config.Hw7Config):
 
     try:
       OpenLoops_path= os.environ['OPENLOOPS_PATH']
-    except:
+    except KeyError:
       OpenLoops_path = '/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt'
       os.environ["LD_LIBRARY_PATH"]="/cvmfs/sft.cern.ch/lcg/releases/LCG_88/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/lib:"+os.environ["LD_LIBRARY_PATH"]
       athMsgLog.warn(hw7Utils.ansi_format_warning("Falling back to hard-coded OPENLOOPS installation location at '{}' - please ensure that the OPENLOOPS_PATH environment variable is correctly set".format(OpenLoops_path)))
@@ -397,7 +397,7 @@ saverun {} /Herwig/Generators/EventGenerator
 
     bin_samplers = ["CellGridSampler", "MonacoSampler", "FlatBinSampler"]
 
-    if not bin_sampler in bin_samplers:
+    if bin_sampler not in bin_samplers:
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'bin_sampler' must be one of {}!".format(bin_samplers)))
 
     self.commands += """

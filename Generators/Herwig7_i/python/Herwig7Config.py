@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## \file Herwig7Config.py
 ## \brief Python convenience snippets providing re-usable bits of settings for use in the jobOptions
@@ -187,7 +187,7 @@ set /Herwig/Decays/PScalar4f:GenerateIntermediates 0
   ## \param[in] value Value of the strong coupling at the given scale
   def me_alphas_commands(self, order="NLO", scale=91.1876, value=0.118):
 
-    if not order in ["LO", "NLO"]:
+    if order not in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'order' must either be 'LO' or 'NLO'!"))
 
     self.commands += """
@@ -207,7 +207,7 @@ set /Herwig/Model:QCD/RunningAlphaS /Herwig/Couplings/{0}AlphaS
   ## \param[in] max_flav number of massless quark flavours
   def me_pdf_commands(self, order="NLO", name="MMHT2014nlo68cl", member=0, max_flav=5):
 
-    if not order in ["LO", "NLO"]:
+    if order not in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'order' must either be 'LO' or 'NLO'!"))
 
     self.me_pdf_name = name
@@ -233,7 +233,7 @@ set /Herwig/Partons/PPExtractor:SecondPDF /Herwig/Partons/Hard{0}PDF
   ## \param[in] max_flav number of massless quark flavours
   def shower_pdf_commands(self, order="LO", name="MMHT2014lo68cl", member=0, max_flav=5):
 
-    if not order in ["LO", "NLO"]:
+    if order not in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'order' must either be 'LO' or 'NLO'!"))
 
     ## set parton shower PDF name in the Herwig7 C++ class
@@ -298,7 +298,7 @@ set /Herwig/Partons/RemnantPDF:MaxFlav {}
 ## Tune Settings
 ## -------------
 """
-
+    self.commands += cmds
     self.ps_tune_commands(tune_name = ps_tune_name)
     self.ue_tune_commands(tune_name = ue_tune_name)
 
@@ -374,7 +374,7 @@ set /Herwig/Partons/RemnantPDF:MaxFlav {}
       pathNow = path + "/InstallArea/" + cmt_dir + "/share/"
       try:
         fileList = os.listdir(pathNow)
-      except:
+      except Exception:
         fileList = []
       if "HerwigDefaults.rpo" in fileList:
         simSharePath = pathNow
