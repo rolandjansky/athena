@@ -28,7 +28,7 @@ m_timeStep(0.1)
 
 void VMM_Shaper::initialize() {
     // hardcoded vmm shaper values are provided by G. Iakovidis
-    m_a = (m_peakTime*(10^-9))/1.5;
+    m_a = (m_peakTime*(1e-9))/1.5;
     m_pole0 = 1.263/m_a;
     m_re_pole1 = 1.149/m_a;
     m_im_pole1 = -0.786/m_a;
@@ -43,9 +43,9 @@ void VMM_Shaper::initialize() {
     // preCalculate factor to avoid recalculating for each electron
     m_preCalculationVMMShaper = chargeScaleFactor*m_peakTimeChargeScaling*std::pow(m_a, 3)*m_pole0*m_pole1_square;
 
-    m_pole0_ns = m_pole0*(10^-9);
-    m_re_pole1_ns = m_re_pole1*(10^-9);
-    m_im_pole1_ns = m_im_pole1*(10^-9);
+    m_pole0_ns = m_pole0*(1e-9);
+    m_re_pole1_ns = m_re_pole1*(1e-9);
+    m_im_pole1_ns = m_im_pole1*(1e-9);
 }
 
 double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time) const{
