@@ -17,3 +17,7 @@ atlas_add_library( LwtnnUtils
   INCLUDE_DIRS ${LWTNN_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
   LINK_LIBRARIES ${LWTNN_LIBRARIES} ${EIGEN_LIBRARIES} )
 
+atlas_add_executable(
+  test_lwtnn_fastgraph
+  utils/test_lwtnn_fastgraph.cxx
+  LINK_LIBRARIES LwtnnUtils )
