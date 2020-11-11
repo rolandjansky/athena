@@ -52,7 +52,8 @@ ITkPixelDetectorTool::ITkPixelDetectorTool(const std::string &type,
 }
 
 ITkPixelDetectorTool::~ITkPixelDetectorTool() {
-  //    delete m_athenaComps;
+    delete m_athenaComps;
+    delete m_commonItems;
 }
 
 StatusCode ITkPixelDetectorTool::create() {

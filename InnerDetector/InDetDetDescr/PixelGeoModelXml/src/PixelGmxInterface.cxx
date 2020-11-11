@@ -37,7 +37,6 @@ PixelGmxInterface::PixelGmxInterface(InDetDD::PixelDetectorManager *detectorMana
 }
 
 PixelGmxInterface::~PixelGmxInterface() {
-  delete m_commonItems;
 }
 
 int PixelGmxInterface::moduleId(map<string, int> &index){
