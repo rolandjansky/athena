@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "VP1CaloReadoutSystems/VP1CaloReadoutSystem.h"
@@ -774,6 +774,7 @@ void VP1CaloReadoutSystem::createHV() {
 
 
   const EMBHVManager&  embHVManager  = larHVManager->getEMBHVManager();
+  const EMBHVManager::EMBHVData hvdata_EMB = embHVManager.getData();
   for (unsigned int e=embHVManager.beginSideIndex();e!=embHVManager.endSideIndex();e++) {
     for (unsigned int s=embHVManager.beginSectorIndex();s!=embHVManager.endSectorIndex();s++) {
       for (unsigned int y=embHVManager.beginEtaIndex();y!=embHVManager.endEtaIndex();y++) {
@@ -807,8 +808,8 @@ void VP1CaloReadoutSystem::createHV() {
 	  for (unsigned int i=0;i<embMod.getNumElectrodes();i++) {
 	    const EMBHVElectrode& electrode = embMod.getElectrode(i);
 
-	    double voltage0 = electrode.voltage(0);
-	    double voltage1 = electrode.voltage(1);
+	    double voltage0 = hvdata_EMB.voltage (electrode, 0);
+	    double voltage1 = hvdata_EMB.voltage (electrode, 1);
 	    double nominalVoltage = m_clockwork->ui.embNominalSpinBox->value();
 	    bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
 	    bool missing        = voltage0 == -99999 || voltage1 == -99999;
@@ -840,6 +841,7 @@ void VP1CaloReadoutSystem::createHV() {
   }
 
   const EMBPresamplerHVManager&  embPreHVManager  = larHVManager->getEMBPresamplerHVManager();
+  const EMBPresamplerHVManager::EMBPresamplerHVData hvdata_EMBPS = embPreHVManager.getData();
   for (unsigned int e=embPreHVManager.beginSideIndex();e!=embPreHVManager.endSideIndex();e++) {
     for (unsigned int y=embPreHVManager.beginEtaIndex();y!=embPreHVManager.endEtaIndex();y++) {
       for (unsigned int p=embPreHVManager.beginPhiIndex();p!=embPreHVManager.endPhiIndex();p++) {
@@ -865,8 +867,8 @@ void VP1CaloReadoutSystem::createHV() {
 	  ls->vertexProperty=vtxProperty;
 	  m_clockwork->embPreModsSeparator->addChild(ls);
 	  
-	  double voltage0 = embMod.voltage(0);
-	  double voltage1 = embMod.voltage(1);
+	  double voltage0 = hvdata_EMBPS.voltage (embMod, 0);
+	  double voltage1 = hvdata_EMBPS.voltage (embMod, 1);
 	  double nominalVoltage = m_clockwork->ui.embPresamplerNominalSpinBox->value();
 	  bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
 	  bool missing        = voltage0 == -99999 || voltage1 == -99999;
@@ -905,6 +907,7 @@ void VP1CaloReadoutSystem::createHV() {
     QSpinBox **spinBoxes = iotype==EMECHVModule::OUTER ? emecSpinBoxOuter : emecSpinBoxInner;
 
     const EMECHVManager&  emecHVManager  = larHVManager->getEMECHVManager(iotype);
+    const EMECHVManager::EMECHVData hvdata_EMEC = emecHVManager.getData();
     for (unsigned int e=emecHVManager.beginSideIndex();e!=emecHVManager.endSideIndex();e++) {
       double z =  e==0 ? -3740:3740;
       for (unsigned int s=emecHVManager.beginSectorIndex();s!=emecHVManager.endSectorIndex();s++) {
@@ -936,8 +939,8 @@ void VP1CaloReadoutSystem::createHV() {
 
 	    for (unsigned int i=0;i<emecMod.getNumElectrodes();i++) {
 	      const EMECHVElectrode& electrode = emecMod.getElectrode(i);
-	      double voltage0 = electrode.voltage(0);
-	      double voltage1 = electrode.voltage(1);
+	      double voltage0 = hvdata_EMEC.voltage (electrode, 0);
+	      double voltage1 = hvdata_EMEC.voltage (electrode, 1);
 	      double nominalVoltage = spinBoxes[y]->value();
 	      bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
 	      bool missing        = voltage0 == -99999 || voltage1 == -99999;
@@ -975,6 +978,7 @@ void VP1CaloReadoutSystem::createHV() {
   }
 
   const EMECPresamplerHVManager&  emecPreHVManager  = larHVManager->getEMECPresamplerHVManager();
+  const EMECPresamplerHVManager::EMECPresamplerHVData hvdata_EMECPS = emecPreHVManager.getData();
   for (unsigned int e=emecPreHVManager.beginSideIndex();e!=emecPreHVManager.endSideIndex();e++) {
     double z =  e==0 ? -3650:3650;
     for (unsigned int p=emecPreHVManager.beginPhiIndex();p!=emecPreHVManager.endPhiIndex();p++) {
@@ -1002,8 +1006,8 @@ void VP1CaloReadoutSystem::createHV() {
       ls->vertexProperty=vtxProperty;
       m_clockwork->emecPreModsSeparator->addChild(ls);
       
-      double voltage0 = emecMod.voltage(0);
-      double voltage1 = emecMod.voltage(1);
+      double voltage0 = hvdata_EMECPS.voltage (emecMod, 0);
+      double voltage1 = hvdata_EMECPS.voltage (emecMod, 1);
       double nominalVoltage = m_clockwork->ui.emecPresamplerNominalSpinBox->value();
       bool outOfTolerance = (fabs(voltage0-nominalVoltage) > double (tolerance))  || (fabs(voltage1-nominalVoltage) > double (tolerance))  ;
       bool missing        = voltage0 == -99999 || voltage1 == -99999;
@@ -1025,13 +1029,14 @@ void VP1CaloReadoutSystem::createHV() {
 
   const HECDetectorManager *hecManager = VP1DetInfo::hecDetMgr();
   const HECHVManager&  hecHVManager  = larHVManager->getHECHVManager();
+  const HECHVManager::HECHVData hvdata_HEC = hecHVManager.getData();
   for (unsigned int e=hecHVManager.beginSideIndex();e!=hecHVManager.endSideIndex();e++) {
     for (unsigned int s=hecHVManager.beginSamplingIndex();s!=hecHVManager.endSamplingIndex();s++) {
       for (unsigned int p=hecHVManager.beginPhiIndex();p!=hecHVManager.endPhiIndex();p++) {
 	const HECHVModule& hecMod=hecHVManager.getHVModule(e,p,s);
 	for (unsigned int i=0;i<hecMod.getNumSubgaps();i++) {
 	  const HECHVSubgap& subgap = hecMod.getSubgap(i);
-	  double voltage = subgap.voltage();
+	  double voltage = hvdata_HEC.voltage (subgap);
 	  double nominalVoltage = m_clockwork->ui.hecNominalSpinBox->value();
 	  bool outOfTolerance = fabs(voltage-nominalVoltage) > double (tolerance);
 	  bool missing        = voltage == -99999;
@@ -1085,13 +1090,14 @@ void VP1CaloReadoutSystem::createHV() {
   }
 
   const FCALHVManager& fcalHVManager = larHVManager->getFCALHVManager();
+  const FCALHVManager::FCALHVData hvdata_FCAL = fcalHVManager.getData();
   for (unsigned int e=fcalHVManager.beginSideIndex();e!=fcalHVManager.endSideIndex();e++) {
     for (unsigned int s=fcalHVManager.beginSamplingIndex();s!=fcalHVManager.endSamplingIndex();s++) {
       for (unsigned int x=fcalHVManager.beginSectorIndex(s);x!=fcalHVManager.endSectorIndex(s);x++) {
 	const FCALHVModule& fcalMod=fcalHVManager.getHVModule(e,x,s);
 	for (unsigned int l=0;l<fcalMod.getNumHVLines();l++) {
 	  const FCALHVLine& fcalLine=fcalMod.getHVLine(l);
-	  double voltage = fcalLine.voltage();
+	  double voltage = hvdata_FCAL.voltage (fcalLine);
 	    
 	  //
 	  // Determine whether this is in bounds, or not..
@@ -1680,9 +1686,20 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
     std::map < SoNode *, const EMBHVElectrode*>::const_iterator p = m_clockwork->EMBHVMap.find(mySelectedNode);
     if (p!=m_clockwork->EMBHVMap.end()) {
 
-      const EMBHVElectrode* electrode  = (*p).second;
+      const EMBHVElectrode& electrode  = *p->second;
+      const EMBHVModule& module = electrode.getModule();
+      const EMBHVManager& manager = module.getManager();
+      const EMBHVManager::EMBHVData hvdata = manager.getData();
       std::ostringstream outstream;
-      outstream << "Side: " << electrode->getModule().getSideIndex() <<" Eta: " << electrode->getModule().getEtaIndex() << " Phi: " << electrode->getModule().getPhiIndex() << " Sector: " << electrode->getModule().getSectorIndex() << " Electrode " << electrode->getElectrodeIndex() << " Voltages: " << electrode->voltage(0) << "/" << electrode->voltage(1) << "; currents: " << electrode->current(0) << "/" << electrode->current(1);
+      outstream << "Side: " << module.getSideIndex()
+                <<" Eta: " << module.getEtaIndex()
+                << " Phi: " << module.getPhiIndex()
+                << " Sector: " << module.getSectorIndex()
+                << " Electrode " << electrode.getElectrodeIndex()
+                << " Voltages: " << hvdata.voltage (electrode, 0)
+                << "/" << hvdata.voltage (electrode, 1)
+                << "; currents: " << hvdata.current (electrode, 0)
+                << "/" << hvdata.current (electrode, 1);
       message (outstream.str().c_str());
     }
   }
@@ -1691,9 +1708,21 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
     std::map < SoNode *, const EMECHVElectrode*>::const_iterator p = m_clockwork->EMECHVMap.find(mySelectedNode);
     if (p!=m_clockwork->EMECHVMap.end()) {
 
-      const EMECHVElectrode* electrode  = (*p).second;
+      const EMECHVElectrode& electrode = *p->second;
+      const EMECHVModule& module = electrode.getModule();
+      const EMECHVManager& manager = module.getManager();
+      const EMECHVManager::EMECHVData hvdata = manager.getData();
       std::ostringstream outstream;
-      outstream << "Side: " << electrode->getModule().getSideIndex() << " Wheel: " << electrode->getModule().getWheelIndex() << " Eta: " << electrode->getModule().getEtaIndex() << " Phi: " << electrode->getModule().getPhiIndex() << " Sector: " << electrode->getModule().getSectorIndex() << " Electrode: " << electrode->getElectrodeIndex() << "Voltages: " << electrode->voltage(0) << "/" << electrode->voltage(1) << "; currents: " << electrode->current(0) << "/" << electrode->current(1);
+      outstream << "Side: " << module.getSideIndex()
+                << " Wheel: " << module.getWheelIndex()
+                << " Eta: " << module.getEtaIndex()
+                << " Phi: " << module.getPhiIndex()
+                << " Sector: " << module.getSectorIndex()
+                << " Electrode: " << electrode.getElectrodeIndex()
+                << "Voltages: " << hvdata.voltage (electrode, 0)
+                << "/" << hvdata.voltage (electrode, 1)
+                << "; currents: " << hvdata.current (electrode, 0)
+                << "/" << hvdata.current (electrode, 1);
       message (outstream.str().c_str());
     }
   }
@@ -1703,9 +1732,17 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
     std::map < SoNode *, const HECHVSubgap*>::const_iterator p = m_clockwork->HECHVMap.find(mySelectedNode);
     if (p!=m_clockwork->HECHVMap.end()) {
 
-      const HECHVSubgap* subgap  = (*p).second;
+      const HECHVSubgap& subgap = *p->second;
+      const HECHVModule& module = subgap.getModule();
+      const HECHVManager& manager = module.getManager();
+      const HECHVManager::HECHVData hvdata = manager.getData();
       std::ostringstream outstream;
-      outstream << "Side: " << subgap->getModule().getSideIndex() << " Phi: " << subgap->getModule().getPhiIndex() << " Sampling: " << subgap->getModule().getSamplingIndex() << " Subgap: " << subgap->getSubgapIndex() << "Voltage: " << subgap->voltage() << "; current: " << subgap->current();
+      outstream << "Side: " << module.getSideIndex()
+                << " Phi: " << module.getPhiIndex()
+                << " Sampling: " << module.getSamplingIndex()
+                << " Subgap: " << subgap.getSubgapIndex()
+                << "Voltage: " << hvdata.voltage (subgap)
+                << "; current: " << hvdata.current (subgap);
       message (outstream.str().c_str());
     }
   }
@@ -1714,9 +1751,17 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
     std::map < SoNode *, const FCALHVLine*>::const_iterator p = m_clockwork->FCALHVMap.find(mySelectedNode);
     if (p!=m_clockwork->FCALHVMap.end()) {
 
-      const FCALHVLine* line  = (*p).second;
+      const FCALHVLine& line = *p->second;
+      const FCALHVModule& module = line.getModule();
+      const FCALHVManager& manager = module.getManager();
+      const FCALHVManager::FCALHVData hvdata = manager.getData();
       std::ostringstream outstream;
-      outstream << "Side: " << line->getModule().getSideIndex() << " Sector: " << line->getModule().getSectorIndex() << " Sampling: " << line->getModule().getSamplingIndex() << " Line: " << line->getLineIndex() << "Voltage: " << line->voltage() << "; current: " << line->current();
+      outstream << "Side: " << module.getSideIndex()
+                << " Sector: " << module.getSectorIndex()
+                << " Sampling: " << module.getSamplingIndex()
+                << " Line: " << line.getLineIndex()
+                << "Voltage: " << hvdata.voltage (line)
+                << "; current: " << hvdata.current (line);
       message (outstream.str().c_str());
     }
   }
@@ -1734,11 +1779,25 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	std::ostringstream highVoltageStream;
 	highVoltageStream << "There are " << element->getNumHVLines() << " high voltage lines. Status: " << std::endl;
 	message(highVoltageStream.str().c_str());
+
+        const FCALHVLine* line = nullptr;
 	for (unsigned int i=0;i<element->getNumHVLines();i++) {
-	  std::ostringstream highVoltageStream;
-	  if (element->getHVLine(i)) highVoltageStream << i << ' ' << element->getHVLine(i)->voltage() << std::endl;
-	  message(highVoltageStream.str().c_str());
-	}
+          line = element->getHVLine(i);
+          if (line) break;
+        }
+
+        if (line) {
+          const FCALHVModule& module = line->getModule();
+          const FCALHVManager& manager = module.getManager();
+          const FCALHVManager::FCALHVData hvdata = manager.getData();
+          for (unsigned int i=0;i<element->getNumHVLines();i++) {
+            std::ostringstream highVoltageStream;
+            if (element->getHVLine(i)) {
+              highVoltageStream << i << ' ' << hvdata.voltage (*element->getHVLine(i)) << std::endl;
+            }
+            message(highVoltageStream.str().c_str());
+          }
+        }
       }
 
 
@@ -1857,70 +1916,78 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	message (highVoltageStream.str().c_str());
       }
       std::set<const HECHVModule*> modSet;
-      for (unsigned int i=0;i<element->getNumSubgaps();i++) {
-	if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
-	  std::ostringstream highVoltageStream;
-	  highVoltageStream << i << " Status "  << element->getSubgap(i).hvOn() << " voltage: " << element->getSubgap(i).voltage() << " current: " << element->getSubgap(i).current() <<  std::endl;
-	  message(highVoltageStream.str().c_str());
-	}
-	//
-	// Now let's show the module, and where she is:
-	//
-	const HECHVModule& module = element->getSubgap(i).getModule();
+      if (element->getNumSubgaps() > 0) {
+        const HECHVModule& module0 = element->getSubgap(0).getModule();
+        const HECHVManager& manager = module0.getManager();
+        const HECHVManager::HECHVData hvdata = manager.getData();
+        for (unsigned int i=0;i<element->getNumSubgaps();i++) {
+          if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
+            std::ostringstream highVoltageStream;
+            highVoltageStream << i << " Status "  << hvdata.hvOn (element->getSubgap(i))
+                              << " voltage: " << hvdata.voltage (element->getSubgap(i))
+                              << " current: " << hvdata.current (element->getSubgap(i))
+                              <<  std::endl;
+            message(highVoltageStream.str().c_str());
+          }
+          //
+          // Now let's show the module, and where she is:
+          //
+          const HECHVModule& module = element->getSubgap(i).getModule();
 
-	if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
+          if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
 
-	SoSeparator * sep = new SoSeparator();
+          SoSeparator * sep = new SoSeparator();
 
-	SoMaterial *white = new SoMaterial();
-	white->diffuseColor.setValue(1.00,1.00, 1.00);
+          SoMaterial *white = new SoMaterial();
+          white->diffuseColor.setValue(1.00,1.00, 1.00);
 
-	SoDrawStyle *drawStyle = new SoDrawStyle();
-	drawStyle->lineWidth=3;
-	drawStyle->pointSize=3;
+          SoDrawStyle *drawStyle = new SoDrawStyle();
+          drawStyle->lineWidth=3;
+          drawStyle->pointSize=3;
 
-	SoLightModel *lm = new SoLightModel();
-	lm->model=SoLightModel::BASE_COLOR;
-
-
-	// we comment out to avoid compilation warnings, because they're not used, apparently
-//	HECCell::CELLPOS pos=HECCell::FRONT;
-//	if (m_clockwork->pos==BACK) pos=HECCell::BACK;
-//	if (m_clockwork->pos==CENTER) pos=HECCell::CENTER;
-
-
-	const HECDetectorManager *hecManager = VP1DetInfo::hecDetMgr();
-	const HECDetectorRegion  *region = hecManager->getDetectorRegion(element->getEndcapIndex(),element->getSamplingIndex(),element->getRegionIndex());
-	const HepGeom::Transform3D &XF= Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
-	double z = (XF*HepGeom::Point3D<double>(0,0,element->getZLocal(HECCell::FRONT))).z();
-
-	double phiMin = module.getPhiMin();
-	double phiMax = module.getPhiMax();
+          SoLightModel *lm = new SoLightModel();
+          lm->model=SoLightModel::BASE_COLOR;
 
 
-	double rMax=2130;
-	double rMin=element->getSamplingIndex()==0 ? 371 : 474;
-
-	sep->addChild(white);
-	sep->addChild(drawStyle);
-	sep->addChild(lm);
-	if (modSet.find(&module)==modSet.end()) {
-	  modSet.insert(&module);
-	  int cc=0;
-	  SoVertexProperty *vtxProperty = new SoVertexProperty();
-	  vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
-	  vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMax),rMin*sin(phiMax)  ,z));
-	  vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(phiMax),rMax*sin(phiMax)  ,z));
-	  vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(phiMin),rMax*sin(phiMin)  ,z));
-	  vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
+          // we comment out to avoid compilation warnings, because they're not used, apparently
+          //	HECCell::CELLPOS pos=HECCell::FRONT;
+          //	if (m_clockwork->pos==BACK) pos=HECCell::BACK;
+          //	if (m_clockwork->pos==CENTER) pos=HECCell::CENTER;
 
 
-	  SoLineSet *ls = new SoLineSet();
-	  ls->numVertices=5;
-	  ls->vertexProperty=vtxProperty;
-	  sep->addChild(ls);
-	}
-	m_clockwork->volatileSeparator->addChild(sep);
+          const HECDetectorManager *hecManager = VP1DetInfo::hecDetMgr();
+          const HECDetectorRegion  *region = hecManager->getDetectorRegion(element->getEndcapIndex(),element->getSamplingIndex(),element->getRegionIndex());
+          const HepGeom::Transform3D &XF= Amg::EigenTransformToCLHEP(region->getAbsoluteTransform());
+          double z = (XF*HepGeom::Point3D<double>(0,0,element->getZLocal(HECCell::FRONT))).z();
+
+          double phiMin = module.getPhiMin();
+          double phiMax = module.getPhiMax();
+
+
+          double rMax=2130;
+          double rMin=element->getSamplingIndex()==0 ? 371 : 474;
+
+          sep->addChild(white);
+          sep->addChild(drawStyle);
+          sep->addChild(lm);
+          if (modSet.find(&module)==modSet.end()) {
+            modSet.insert(&module);
+            int cc=0;
+            SoVertexProperty *vtxProperty = new SoVertexProperty();
+            vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
+            vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMax),rMin*sin(phiMax)  ,z));
+            vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(phiMax),rMax*sin(phiMax)  ,z));
+            vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(phiMin),rMax*sin(phiMin)  ,z));
+            vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
+
+
+            SoLineSet *ls = new SoLineSet();
+            ls->numVertices=5;
+            ls->vertexProperty=vtxProperty;
+            sep->addChild(ls);
+          }
+          m_clockwork->volatileSeparator->addChild(sep);
+        }
       }
     }
   }
@@ -1939,12 +2006,16 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 
 	 if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	  const EMECPresamplerHVModule& module = element->getPresamplerHVModule();
+          const EMECPresamplerHVManager& manager = module.getManager();
+          const EMECPresamplerHVManager::EMECPresamplerHVData hvdata = manager.getData();
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
 	  message(highVoltageStream.str().c_str());
-	  highVoltageStream <<  "Status: "   << module.hvOn(0)    << ' ' << module.hvOn(1)    <<  '\n';
-	  highVoltageStream <<  "Current: "  << module.current(0) << ' ' << module.current(1) <<  '\n';
-	  highVoltageStream <<  "Voltage: "  << module.voltage(0) << ' ' << module.voltage(1) <<  '\n';
+	  highVoltageStream <<  "Status: "  
+                            << hvdata.hvOn (module, 0)    << ' '
+                            << hvdata.hvOn (module, 1)    <<  '\n';
+	  highVoltageStream <<  "Current: "  << hvdata.current(module, 0) << ' ' << hvdata.current (module, 1) <<  '\n';
+	  highVoltageStream <<  "Voltage: "  << hvdata.voltage (module, 0) << ' ' << hvdata.voltage (module, 1) <<  '\n';
 	  
 	  message(highVoltageStream.str().c_str());
 	  
@@ -2006,93 +2077,107 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  message(highVoltageStream.str().c_str());
 	}
 	std::set<const EMECHVModule*> modSet;
-	for (unsigned int i=0;i<element->getNumElectrodes();i++) {
-	  if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
-	    {
-	      std::ostringstream highVoltageStream;
-	      highVoltageStream << i << ' ' << element->getElectrode(i).getElectrodeIndex() << ") status: " << element->getElectrode(i).hvOn(0) << ' ' << element->getElectrode(i).hvOn(1) <<  std::endl;
-	      message(highVoltageStream.str().c_str());
-	    }
-	    {
-	      std::ostringstream highVoltageStream;
-	      highVoltageStream << i << '(' << element->getElectrode(i).getElectrodeIndex() << ") voltage: "  << element->getElectrode(i).voltage(0) << ' ' << element->getElectrode(i).voltage(1) <<  std::endl;
-	      message(highVoltageStream.str().c_str());
-	    }
-	    {
-	      std::ostringstream highVoltageStream;
-	      highVoltageStream << i << '(' << element->getElectrode(i).getElectrodeIndex() << ") currents: " << element->getElectrode(i).current(0) << ' ' << element->getElectrode(i).current(1) <<  std::endl;
-	      message(highVoltageStream.str().c_str());
-	    }
-	  }
-	  //
-	  // Now let's show the module, and where she is:
-	  //
-	  const EMECHVModule& module = element->getElectrode(i).getModule();
+        if (element->getNumElectrodes() > 0) {
+          for (unsigned int i=0;i<element->getNumElectrodes();i++) {
+            const EMECHVElectrode& electrode = element->getElectrode(0);
+            const EMECHVModule& module0 = electrode.getModule();
+            const EMECHVManager& manager = module0.getManager();
+            const EMECHVManager::EMECHVData hvdata = manager.getData();
+            if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
+              {
+                std::ostringstream highVoltageStream;
+                highVoltageStream << i << ' '
+                                  << element->getElectrode(i).getElectrodeIndex() << ") status: "
+                                  << hvdata.hvOn(element->getElectrode(i),0) << ' '
+                                  << hvdata.hvOn(element->getElectrode(i),1) <<  std::endl;
+                message(highVoltageStream.str().c_str());
+              }
+              {
+                std::ostringstream highVoltageStream;
+                highVoltageStream << i << '('
+                                  << element->getElectrode(i).getElectrodeIndex() << ") voltage: " 
+                                  << hvdata.voltage(element->getElectrode(i),0) << ' '
+                                  << hvdata.voltage(element->getElectrode(i),1) <<  std::endl;
+                message(highVoltageStream.str().c_str());
+              }
+              {
+                std::ostringstream highVoltageStream;
+                highVoltageStream << i << '(' << element->getElectrode(i).getElectrodeIndex() << ") currents: "
+                                  << hvdata.current(element->getElectrode(i),0) << ' '
+                                  << hvdata.current(element->getElectrode(i),1) <<  std::endl;
+                message(highVoltageStream.str().c_str());
+              }
+            }
+            //
+            // Now let's show the module, and where she is:
+            //
+            const EMECHVModule& module = element->getElectrode(i).getModule();
 	  
-	  if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
+            if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
 	  
-	  SoSeparator * sep = new SoSeparator();
+            SoSeparator * sep = new SoSeparator();
 	  
-	  SoMaterial *white = new SoMaterial();
-	  white->diffuseColor.setValue(1.00,1.00, 1.00);
+            SoMaterial *white = new SoMaterial();
+            white->diffuseColor.setValue(1.00,1.00, 1.00);
 	  
-	  SoDrawStyle *drawStyle = new SoDrawStyle();
-	  drawStyle->lineWidth=3;
-	  drawStyle->pointSize=3;
+            SoDrawStyle *drawStyle = new SoDrawStyle();
+            drawStyle->lineWidth=3;
+            drawStyle->pointSize=3;
 	  
-	  SoLightModel *lm = new SoLightModel();
-	  lm->model=SoLightModel::BASE_COLOR;
-	  
-	  
-	  EMECCell::CELLPOS pos=EMECCell::FRONT;
-	  if (m_clockwork->pos==BACK) pos=EMECCell::BACK;
-	  if (m_clockwork->pos==CENTER) pos=EMECCell::CENTER;
+            SoLightModel *lm = new SoLightModel();
+            lm->model=SoLightModel::BASE_COLOR;
 	  
 	  
-	  double z      = (element->getZLocal(pos)+
-			   element->getDescriptor()->getManager()->getFocalToRef() +
-			   element->getDescriptor()->getManager()->getRefToActive())* (element->getEndcapIndex()==0 ? -1:1);
-	  double phiMin = module.getPhiMin();
-	  double phiMax = module.getPhiMax();
-	  double etaMin = module.getEtaMin();
-	  double etaMax = module.getEtaMax();
+            EMECCell::CELLPOS pos=EMECCell::FRONT;
+            if (m_clockwork->pos==BACK) pos=EMECCell::BACK;
+            if (m_clockwork->pos==CENTER) pos=EMECCell::CENTER;
 	  
 	  
-	  double rMax=fabs(z/sinh(etaMin));
-	  double rMin=fabs(z/sinh(etaMax));
+            double z      = (element->getZLocal(pos)+
+                             element->getDescriptor()->getManager()->getFocalToRef() +
+                             element->getDescriptor()->getManager()->getRefToActive())* (element->getEndcapIndex()==0 ? -1:1);
+            double phiMin = module.getPhiMin();
+            double phiMax = module.getPhiMax();
+            double etaMin = module.getEtaMin();
+            double etaMax = module.getEtaMax();
 	  
-	  sep->addChild(white);
-	  sep->addChild(drawStyle);
-	  sep->addChild(lm);
-	  if (modSet.find(&module)==modSet.end()) {
-	    modSet.insert(&module);
-	    int cc=0;
-	    SoVertexProperty *vtxProperty = new SoVertexProperty();
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMax),rMin*sin(phiMax)  ,z));
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(phiMax),rMax*sin(phiMax)  ,z));
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(phiMin),rMax*sin(phiMin)  ,z));
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
+	  
+            double rMax=fabs(z/sinh(etaMin));
+            double rMin=fabs(z/sinh(etaMax));
+	  
+            sep->addChild(white);
+            sep->addChild(drawStyle);
+            sep->addChild(lm);
+            if (modSet.find(&module)==modSet.end()) {
+              modSet.insert(&module);
+              int cc=0;
+              SoVertexProperty *vtxProperty = new SoVertexProperty();
+              vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
+              vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMax),rMin*sin(phiMax)  ,z));
+              vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(phiMax),rMax*sin(phiMax)  ,z));
+              vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(phiMin),rMax*sin(phiMin)  ,z));
+              vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(phiMin),rMin*sin(phiMin)  ,z));
 	    
 	    
-	    SoLineSet *ls = new SoLineSet();
-	    ls->numVertices=5;
-	    ls->vertexProperty=vtxProperty;
-	    sep->addChild(ls);
-	  }
-	  {
+              SoLineSet *ls = new SoLineSet();
+              ls->numVertices=5;
+              ls->vertexProperty=vtxProperty;
+              sep->addChild(ls);
+            }
+            {
 	    
-	    int cc=0;
-	    SoVertexProperty *vtxProperty = new SoVertexProperty();
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(element->getElectrode(i).getPhi()),rMin*sin(element->getElectrode(i).getPhi())  ,z));
-	    vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(element->getElectrode(i).getPhi()),rMax*sin(element->getElectrode(i).getPhi())  ,z));
-	    SoLineSet *ls = new SoLineSet();
-	    ls->numVertices=2;
-	    ls->vertexProperty=vtxProperty;
-	    sep->addChild(ls);
-	  }
+              int cc=0;
+              SoVertexProperty *vtxProperty = new SoVertexProperty();
+              vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMin*cos(element->getElectrode(i).getPhi()),rMin*sin(element->getElectrode(i).getPhi())  ,z));
+              vtxProperty->vertex.set1Value(cc++,  SbVec3f(rMax*cos(element->getElectrode(i).getPhi()),rMax*sin(element->getElectrode(i).getPhi())  ,z));
+              SoLineSet *ls = new SoLineSet();
+              ls->numVertices=2;
+              ls->vertexProperty=vtxProperty;
+              sep->addChild(ls);
+            }
 	  
-	  m_clockwork->volatileSeparator->addChild(sep);
+            m_clockwork->volatileSeparator->addChild(sep);
+          }
 	}
       }
     }
@@ -2113,13 +2198,21 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
       if (m_clockwork->ui.highVoltageCheckBox->isChecked()) {
 	if (element->getSamplingIndex()==0) {
 	  const EMBPresamplerHVModule& module = element->getPresamplerHVModule();
+          const EMBPresamplerHVManager& manager = module.getManager();
+          const EMBPresamplerHVManager::EMBPresamplerHVData hvdata = manager.getData();
 	  
 	  std::ostringstream highVoltageStream;
 	  highVoltageStream << "Presampler cell. HV Status: " << '\n';
 	  message(highVoltageStream.str().c_str());
-	  highVoltageStream <<  "Status: "   << module.hvOn(0)    << ' ' << module.hvOn(1)    <<  '\n';
-	  highVoltageStream <<  "Current: "  << module.current(0) << ' ' << module.current(1) <<  '\n';
-	  highVoltageStream <<  "Voltage: "  << module.voltage(0) << ' ' << module.voltage(1) <<  '\n';
+	  highVoltageStream <<  "Status: "  
+                            << hvdata.hvOn (module, 0)  << ' '
+                            << hvdata.hvOn (module, 1)  <<  '\n';
+	  highVoltageStream <<  "Current: " 
+                            << hvdata.current (module, 0) << ' '
+                            << hvdata.current (module, 1) <<  '\n';
+	  highVoltageStream <<  "Voltage: " 
+                            << hvdata.voltage (module, 0) << ' '
+                            << hvdata.voltage (module, 1) <<  '\n';
 	  
 	  message(highVoltageStream.str().c_str());
 	  
@@ -2172,80 +2265,92 @@ void VP1CaloReadoutSystem::userPickedNode(SoNode* mySelectedNode, SoPath */*pick
 	  highVoltageStream << "There are " << element->getNumElectrodes() << " electrodes. Status: " << '\n';
 	  message(highVoltageStream.str().c_str());
 	  std::set<const EMBHVModule*> modSet;
-	  for (unsigned int i=0;i<element->getNumElectrodes();i++) {
-	    highVoltageStream << i << "Status: "   << element->getElectrode(i).getElectrodeIndex() << ' ' << element->getElectrode(i).hvOn(0) << ' ' << element->getElectrode(i).hvOn(1) <<  '\n';
-	    highVoltageStream << i << "Current: "  << element->getElectrode(i).getElectrodeIndex() << ' ' << element->getElectrode(i).current(0) << ' ' << element->getElectrode(i).current(1) <<  '\n';
-	    highVoltageStream << i << "Voltage: "  << element->getElectrode(i).getElectrodeIndex() << ' ' << element->getElectrode(i).voltage(0) << ' ' << element->getElectrode(i).voltage(1) <<  '\n';
-	    message(highVoltageStream.str().c_str());
-	    //
-	    // Now let's show the module, and where she is:
-	    //
-	    const EMBHVModule& module = element->getElectrode(i).getModule();
+          if (element->getNumElectrodes() > 0) {
+            const EMBHVModule& module0 = element->getElectrode(0).getModule();
+            const EMBHVManager& manager = module0.getManager();
+            const EMBHVManager::EMBHVData hvdata = manager.getData();
+            for (unsigned int i=0;i<element->getNumElectrodes();i++) {
+              highVoltageStream << i << "Status: "   << element->getElectrode(i).getElectrodeIndex() << ' '
+                                << hvdata.hvOn (element->getElectrode(i), 0) << ' '
+                                << hvdata.hvOn (element->getElectrode(i), 1) <<  '\n';
+              highVoltageStream << i << "Current: " 
+                                << element->getElectrode(i).getElectrodeIndex() << ' '
+                                << hvdata.current (element->getElectrode(i), 0) << ' '
+                                << hvdata.current (element->getElectrode(i), 1) <<  '\n';
+              highVoltageStream << i << "Voltage: "  << element->getElectrode(i).getElectrodeIndex() << ' '
+                                << hvdata.voltage (element->getElectrode(i), 0) << ' '
+                                << hvdata.voltage (element->getElectrode(i), 1) <<  '\n';
+              message(highVoltageStream.str().c_str());
+              //
+              // Now let's show the module, and where she is:
+              //
+              const EMBHVModule& module = element->getElectrode(i).getModule();
 	    
-	    if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
+              if (!m_clockwork->ui.highVoltageCheckBox->isChecked()) continue;
 	    
-	    SoSeparator * sep = new SoSeparator();
+              SoSeparator * sep = new SoSeparator();
 	    
-	    SoMaterial *white = new SoMaterial();
-	    white->diffuseColor.setValue(1.00,1.00, 1.00);
+              SoMaterial *white = new SoMaterial();
+              white->diffuseColor.setValue(1.00,1.00, 1.00);
 	    
-	    SoDrawStyle *drawStyle = new SoDrawStyle();
-	    drawStyle->lineWidth=3;
-	    drawStyle->pointSize=3;
+              SoDrawStyle *drawStyle = new SoDrawStyle();
+              drawStyle->lineWidth=3;
+              drawStyle->pointSize=3;
 	    
-	    SoLightModel *lm = new SoLightModel();
-	    lm->model=SoLightModel::BASE_COLOR;
-	    
-	    
-	    EMBCell::CELLPOS pos=EMBCell::FRONT;
-	    if (m_clockwork->pos==BACK) pos=EMBCell::BACK;
-	    if (m_clockwork->pos==CENTER) pos=EMBCell::CENTER;
+              SoLightModel *lm = new SoLightModel();
+              lm->model=SoLightModel::BASE_COLOR;
 	    
 	    
-	    double r      = element->getRLocal(pos);
-	    double phiMin = module.getPhiMin();
-	    double phiMax = module.getPhiMax();
-	    double etaMin = module.getEtaMin();
-	    double etaMax = module.getEtaMax();
-	    sep->addChild(white);
-	    sep->addChild(drawStyle);
-	    sep->addChild(lm);
+              EMBCell::CELLPOS pos=EMBCell::FRONT;
+              if (m_clockwork->pos==BACK) pos=EMBCell::BACK;
+              if (m_clockwork->pos==CENTER) pos=EMBCell::CENTER;
 	    
-	    if (modSet.find(&module)==modSet.end()) {
-	      modSet.insert(&module);
+	    
+              double r      = element->getRLocal(pos);
+              double phiMin = module.getPhiMin();
+              double phiMax = module.getPhiMax();
+              double etaMin = module.getEtaMin();
+              double etaMax = module.getEtaMax();
+              sep->addChild(white);
+              sep->addChild(drawStyle);
+              sep->addChild(lm);
+	    
+              if (modSet.find(&module)==modSet.end()) {
+                modSet.insert(&module);
 	      
 	      
 	      
-	      int cc=0;
-	      SoVertexProperty *vtxProperty = new SoVertexProperty();
-	      vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMin),r*sin(phiMin)  ,r*sinh(etaMin)));
-	      vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMax),r*sin(phiMax)  ,r*sinh(etaMin)));
-	      vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMax),r*sin(phiMax)  ,r*sinh(etaMax)));
-	      vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMin),r*sin(phiMin)  ,r*sinh(etaMax)));
-	      vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMin),r*sin(phiMin)  ,r*sinh(etaMin)));
+                int cc=0;
+                SoVertexProperty *vtxProperty = new SoVertexProperty();
+                vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMin),r*sin(phiMin)  ,r*sinh(etaMin)));
+                vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMax),r*sin(phiMax)  ,r*sinh(etaMin)));
+                vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMax),r*sin(phiMax)  ,r*sinh(etaMax)));
+                vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMin),r*sin(phiMin)  ,r*sinh(etaMax)));
+                vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(phiMin),r*sin(phiMin)  ,r*sinh(etaMin)));
 	      
-	      SoLineSet *ls = new SoLineSet();
-	      ls->numVertices=5;
-	      ls->vertexProperty=vtxProperty;
-	      sep->addChild(ls);
+                SoLineSet *ls = new SoLineSet();
+                ls->numVertices=5;
+                ls->vertexProperty=vtxProperty;
+                sep->addChild(ls);
 	      
-	    }
-	    {
-	      int cc=0;
-	      SoVertexProperty *vtxProperty = new SoVertexProperty();
-	      vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(element->getElectrode(i).getPhi()),r*sin(element->getElectrode(i).getPhi())  ,r*sinh(etaMin)));
-	      vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(element->getElectrode(i).getPhi()),r*sin(element->getElectrode(i).getPhi())  ,r*sinh(etaMax)));
+              }
+              {
+                int cc=0;
+                SoVertexProperty *vtxProperty = new SoVertexProperty();
+                vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(element->getElectrode(i).getPhi()),r*sin(element->getElectrode(i).getPhi())  ,r*sinh(etaMin)));
+                vtxProperty->vertex.set1Value(cc++,  SbVec3f(r*cos(element->getElectrode(i).getPhi()),r*sin(element->getElectrode(i).getPhi())  ,r*sinh(etaMax)));
 	      
-	      SoLineSet *ls = new SoLineSet();
-	      ls->numVertices=2;
-	      ls->vertexProperty=vtxProperty;
+                SoLineSet *ls = new SoLineSet();
+                ls->numVertices=2;
+                ls->vertexProperty=vtxProperty;
 	      
-	      sep->addChild(ls);
-	    }
+                sep->addChild(ls);
+              }
 	    
-	    m_clockwork->volatileSeparator->addChild(sep);
-	  }
-	}
+              m_clockwork->volatileSeparator->addChild(sep);
+            }
+          }
+        }
       }
     }
   }

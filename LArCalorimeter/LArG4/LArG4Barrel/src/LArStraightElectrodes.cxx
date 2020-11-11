@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArStraightElectrodes.h"
@@ -34,7 +34,6 @@ LArStraightElectrodes::LArStraightElectrodes(std::string strDetector)
       s_theElectrodes=new PhysicalVolumeAccessor(strDetector+"::LAr::EMB::STAC",
                                                  strDetector+"::LAr::EMB::Electrode::Straight");
   }
-  //        std::cout << "*** List of StraightElectrodes " << s_theElectrodes << std::endl;
   m_filled=false;
   for (int stackid=0; stackid<14; stackid++) {
     for (int cellid=0; cellid<1024; cellid++) {
@@ -44,14 +43,6 @@ LArStraightElectrodes::LArStraightElectrodes(std::string strDetector)
       m_cosu[cellid][stackid] = cos(slant);
       m_sinu[cellid][stackid] = sin(slant);
       m_halflength[cellid][stackid] = HalfLength(stackid,cellid);
-      //           std::cout << "cell,stack,x,y,slant,HalfL "
-      //                      << cellid << " "
-      //                      << stackid << " "
-      //                      << m_xcent[cellid][stackid] << " "
-      //                      << m_ycent[cellid][stackid] << " "
-      //                      << slant << " "
-      //                      << m_halflength[cellid][stackid]
-      //                      <<std::endl;
     }
   }
   m_filled=true;

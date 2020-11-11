@@ -23,18 +23,9 @@ class HECHVSubgap
   // Returns the index of this electrode.
   unsigned int getSubgapIndex() const;
 
-  bool hvOn() const;
-  double voltage() const;
-  double current() const;
-
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
-  int hvLineNo(const LArHVIdMapping* hvIdMapping=nullptr) const;
-#else
-  int hvLineNo() const;
+  int hvLineNo(const LArHVIdMapping* hvIdMapping) const;
 #endif
-
-  // Voltage and current at the same time:
-  void voltage_current(double& v, double& i) const;
 
  private:
   HECHVSubgap(const HECHVSubgap& right);
