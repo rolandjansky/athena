@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Pythonized version of AlpGen steering executables 
 #    written by Zach Marshall <zach.marshall@cern.ch>
 #  Attempts to remove path-dependence of AlpGen so that
 #    it can be used safely in the production system.
 
-import os,sys,subprocess,shutil,time,glob
+import os,subprocess,shutil,glob
 from AthenaCommon import Logging
 
 def SimpleRun( proc_name='wjet' , events=10000 , nwarm = [4,1000000] , energy=3500. , jets=[2,0] , seed = 1234 , special1 = None , special2 = None , special3 = None, inputgridfile = None, configOnly=False):
@@ -30,8 +30,8 @@ def SimpleRun( proc_name='wjet' , events=10000 , nwarm = [4,1000000] , energy=35
 
     app_path = alpgenpath+'/'+proc_name+'work/'+proc_name+'gen'
     if not os.access(app_path,os.R_OK):
-        log.error('AlpGen module for process'+str(proc_name)+'not found at expected location:')
-        log.error('   '+str(app_path))
+        log.error('AlpGen module for process %s not found at expected location:', proc_name)
+        log.error('   %s', app_path)
         return error
     
     SkipWarmUp = False
@@ -41,7 +41,7 @@ def SimpleRun( proc_name='wjet' , events=10000 , nwarm = [4,1000000] , energy=35
         gridname = value
         if len(value) <1 : 
             log.fatal('Grid file is not correct, please provide a grid file.')
-            raise RunTimeError('Corrupted grid file.')
+            raise RuntimeError('Corrupted grid file.')
 
         gridfile = glob.glob(gridname+".grid")
 
@@ -55,7 +55,7 @@ def SimpleRun( proc_name='wjet' , events=10000 , nwarm = [4,1000000] , energy=35
 """
     
     if SkipWarmUp:
-        log.info('Grid File provided: '+gridfile[0]+' ... Skipping Warm-Up!')
+        log.info('Grid File provided: %s ... Skipping Warm-Up!', gridfile[0])
         nwarm[1]=0
         nwarm[0]=0
         tmp_card = """alpout          ! label for files
@@ -70,7 +70,7 @@ def SimpleRun( proc_name='wjet' , events=10000 , nwarm = [4,1000000] , energy=35
     tmp_card += '%i          ! Nevents generated after warm-up \n'%(events)
     tmp_card += 'njets %i \n'%(int(jets[0]))
     tmp_card += 'ebeam %f         ! E beam\n'%(float(energy))
-    if not 'ndns' in special1: tmp_card += 'ndns 9               ! PDF CTEQ6L1 \n'
+    if 'ndns' not in special1: tmp_card += 'ndns 9               ! PDF CTEQ6L1 \n'
     else:
         log.info('Spotted ndns setting in your special input - will not use the default CTEQ6L1 PDF.')
 
@@ -98,7 +98,7 @@ cluopt 1             ! kt scale option. 1:kt propto pt, 2:kt propto mt
 """
 
     if seed>100000:
-        log.warning('Using seed '+str(seed)+'>100000 - not recommended by the Alpgen authors.')
+        log.warning('Using seed %s>100000 - not recommended by the Alpgen authors.', seed)
 
     tmp_card += 'iseed1 %i       ! first  random seed for weighting process \n'%(int(seed))
     tmp_card += 'iseed2 %i       ! second random seed for weighting process \n'%((int(seed)+123))
@@ -125,7 +125,7 @@ cluopt 1             ! kt scale option. 1:kt propto pt, 2:kt propto mt
     else:
         log.info('Would now run mode 1 generation')
         shutil.copy('input_card.'+str(pid),'input_card.mode_1.dat')
-        log.info(app_path+' < input_card.mode_1.dat')
+        log.info('%s < input_card.mode_1.dat', app_path)
 
     alp_card = open( 'input_card.'+str(pid) , 'w' )
     alp_card.write('2               ! imode\n')
@@ -140,7 +140,7 @@ cluopt 1             ! kt scale option. 1:kt propto pt, 2:kt propto mt
     else:
         log.info('Would now run mode 2 generation')
         shutil.copy('input_card.'+str(pid),'input_card.mode_2.dat')
-        log.info(app_path+' < input_card.mode_2.dat')
+        log.info('%s < input_card.mode_2.dat', app_path)
         # don't need to do anything else, so return
         return
 
