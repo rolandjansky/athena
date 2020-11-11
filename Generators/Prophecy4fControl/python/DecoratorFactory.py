@@ -1,6 +1,6 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from decorators import *
+from decorators import DecoratorFromDefault, DecoratorFromPowheg
 
 def decorate( prophecy_controller, decorator, **kwargs ) :
   ## Initialise correct decorator for Prophecy configurable
