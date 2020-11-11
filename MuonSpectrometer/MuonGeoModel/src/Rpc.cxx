@@ -30,8 +30,8 @@
 #define skip_rpc false
 
 namespace {
-    // make a const array holding all amdb RPC names corresponding to BIS RPCs
-    const static std::array<std::string, 7> bisRpcs = {"RPC26", "RPC27", "RPC28", "RPC29", "RPC30", "RPC31", "RPC32"};
+    // make a const array holding all amdb RPC names corresponding to BI RPCs
+    const static std::array<std::string, 7> biRpcs = {"RPC26", "RPC27", "RPC28", "RPC29", "RPC30", "RPC31", "RPC32"};
     static constexpr double const& rpc3GapLayerThickness = 11.8; // gas vol. + ( bakelite + graphite + PET )x2
     static constexpr double const& rpc3GapMaxThickness = 36.0; // min 35.4 (11.8x3) - max 40.0 mm (tolerance from design)
 }
@@ -50,9 +50,11 @@ Rpc::Rpc(Component* ss): DetectorElement(ss->name)
    m_component = s;
    idiv = s->ndivy;
    jdiv = s->ndivz;
+   y_translation = 0;
+   z_translation = 0;
    m_nlayers = 2;
-   // the BIS RPCs are the only ones with 3 gas gaps
-   if (std::find(std::begin(bisRpcs), std::end(bisRpcs), ss->name) != std::end(bisRpcs)) m_nlayers = 3;
+   // the BI RPCs are the only ones with 3 gas gaps
+   if (std::find(std::begin(biRpcs), std::end(biRpcs), ss->name) != std::end(biRpcs)) m_nlayers = 3;
 }
 
 
