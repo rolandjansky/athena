@@ -45,7 +45,7 @@ namespace Trk {
 */
 
 template<int DIM, class T, class S>
-class CurvilinearParametersT : public ParametersBase<DIM, T>
+class CurvilinearParametersT final : public ParametersBase<DIM, T>
 {
 public:
   /** default constructor only for POOL */

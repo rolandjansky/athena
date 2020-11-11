@@ -82,7 +82,7 @@ public:
   /** -------------------------- interface from AlignableSurface ------------------ */
 
   /** Get the Surface representation */
-  const PlaneSurface& surfaceRepresentation() const;
+  virtual const PlaneSurface& surfaceRepresentation() const override;
 
   /** Get the nominal surface */
   const PlaneSurface& nominalSurface() const;

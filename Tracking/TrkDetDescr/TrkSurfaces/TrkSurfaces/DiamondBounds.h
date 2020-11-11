@@ -33,7 +33,7 @@ namespace Trk {
  @author Andreas.Salzburger@cern.ch, Sarka.Todorova@cern.ch
  */
 
-class DiamondBounds : public SurfaceBounds
+class DiamondBounds final: public SurfaceBounds
 {
 
 public:

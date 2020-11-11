@@ -80,7 +80,7 @@ public:
   virtual bool operator==(const Surface& sf) const override;
 
   /**Implicit constructor*/
-  virtual StraightLineSurface* clone() const override;
+  virtual StraightLineSurface* clone() const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */

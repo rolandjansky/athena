@@ -47,7 +47,7 @@ class MaterialEffectsEngine;
    @author Christos Anastopoulos (Athena MT modifications)
 */
 template<int DIM, class T, class S>
-class ParametersT : public ParametersBase<DIM, T>
+class ParametersT final: public ParametersBase<DIM, T>
 {
 public:
   static_assert(
