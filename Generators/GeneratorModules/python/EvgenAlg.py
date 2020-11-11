@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaPython import PyAthena
 from AthenaPython.PyAthena import StatusCode
@@ -27,8 +27,8 @@ class EvgenAlg(PyAthena.Alg):
 
 
     def initialize(self):
-        import McParticleEvent.Pythonizations
-        self.msg.debug("Initializing [%s]"% self.getName())
+        import McParticleEvent.Pythonizations  # noqa: F401
+        self.msg.debug("Initializing [%s]", self.getName())
 
         return self.genInitialize()
 
@@ -36,21 +36,21 @@ class EvgenAlg(PyAthena.Alg):
     def execute(self):
         from AthenaPython.PyAthena import McEventCollection, HepMC
 
-        self.msg.debug("Executing [%s]"% self.getName())
+        self.msg.debug("Executing [%s]", self.getName())
 
         ## Retrieve MC event collection or create a new one
         mcevts = None
         if self.evtStore.contains(McEventCollection, self.McEventKey):
-            self.msg.debug(self.McEventKey + " found before alg execution!")
+            self.msg.debug("%s found before alg execution!", self.McEventKey)
             mcevts = self.evtStore[self.McEventKey]
         else:
-            self.msg.debug("Creating " + self.McEventKey + " before alg execution!")
+            self.msg.debug("Creating %s before alg execution!", self.McEventKey)
             mcevts = McEventCollection()
             self.evtStore.record(mcevts, self.McEventKey, True, False)
         ROOT.SetOwnership(mcevts, False)
 
         if self.evtStore.contains(McEventCollection, self.McEventKey):
-            self.msg.debug(self.McEventKey + " found after alg execution!")
+            self.msg.debug("%s found after alg execution!", self.McEventKey)
 
         ## Get the first event from the MCEC, or make a new one
         evt = None
