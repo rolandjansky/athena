@@ -23,4 +23,3 @@ def l2CaloHypoCfg( flags, name='UNSPECIFIED', CaloClusters='UNSPECIFIED' ):
     l2CaloHypo                     = CompFactory.TrigEgammaFastCaloHypoAlgMT( name )
     l2CaloHypo.CaloClusters        = CaloClusters
     return l2CaloHypo
-
