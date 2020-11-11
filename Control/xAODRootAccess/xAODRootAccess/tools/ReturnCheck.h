@@ -11,14 +11,14 @@
 #include <TError.h>
 
 // Local include(s):
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "xAODRootAccess/tools/Message.h"
 
 /// Helper macro for checking return codes in a compact form in the code
 ///
 /// This is pretty much a rip-off of the (ATH_)CHECK macros of the offline
-/// code. It is used in the package in functions that return a TReturnCode,
-/// and themselves call functions returning TReturnCode.
+/// code. It is used in the package in functions that return a StatusCode,
+/// and themselves call functions returning StatusCode.
 ///
 /// @param CONTEXT A context string to print an error message on failure
 /// @param EXP The expression to execute in a checked manner

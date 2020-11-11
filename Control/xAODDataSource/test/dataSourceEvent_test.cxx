@@ -9,6 +9,7 @@
 // xAOD include(s).
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/tools/Message.h"
+#include "AsgMessaging/MessageCheck.h"
 
 // ROOT include(s).
 #include <TFile.h>
@@ -20,8 +21,11 @@
 
 int main() {
 
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+
    // Set up the runtime environment.
-   CHECK( xAOD::Init() );
+   ANA_CHECK( xAOD::Init() );
 
    // Open the input file.
    std::unique_ptr< TFile > ifile( TFile::Open( "${ASG_TEST_FILE_DATA}",
@@ -34,7 +38,7 @@ int main() {
 
    // Set up the event object.
    xAOD::RDataSourceEvent event;
-   CHECK( event.readFrom( ifile.get() ) );
+   ANA_CHECK( event.readFrom( ifile.get() ) );
    if( event.getEntry( 0 ) < 0 ) {
       Error( "dataSourceEvent_test",
              XAOD_MESSAGE( "Couldn't load the first event of the input "

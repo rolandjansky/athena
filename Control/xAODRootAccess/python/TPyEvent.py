@@ -85,8 +85,8 @@ class TPyEvent( ROOT.xAOD.TPyEvent ):
     # @param key The key (branch name) for the object
     # @param basketSize The (optional) size of the basket for the output branch
     # @param splitLevel The (optional) split level for the output branch
-    # @returns <code>xAOD::TReturnCode::kSuccess</code> if all was successful,
-    #          or <code>xAOD::TReturnCode::kFailure</code> if not
+    # @returns <code>StatusCode::SUCCESS</code> if all was successful,
+    #          or <code>StatusCode::FAILURE</code> if not
     #
     def record( self, obj, key, basketSize = 32000, splitLevel = 0 ):
         # Determine the class name:

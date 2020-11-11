@@ -190,17 +190,6 @@ namespace xAODPrivate {
 
 namespace xAOD {
 
-#ifdef XAOD_STANDALONE
-   /// Helper typedef when building the code standalone
-   typedef TReturnCode StatusCode;
-   /// Helper variable for returning a successful status code
-   static const TReturnCode::EReturnCode STATUSCODE_SUCCESS =
-      TReturnCode::kSuccess;
-#else
-   /// Helper variable for returning a successful status code
-   static const StatusCode STATUSCODE_SUCCESS = StatusCode::SUCCESS;
-#endif // XAOD_STANDALONE
-
    SG::DataProxy* TEvent::proxy( const void* const pTransient ) const {
 
       // Look up the name of this object
@@ -383,7 +372,7 @@ namespace xAOD {
                                          std::move( bi ) ) );
 
       // Return gracefully:
-      return STATUSCODE_SUCCESS;
+      return StatusCode::SUCCESS;
    }
 
    std::vector< const SG::DataProxy* > TEvent::proxies() const {
@@ -444,7 +433,7 @@ namespace xAOD {
    StatusCode TEvent::queryInterface( const InterfaceID&, void** ) {
 
       // Return without doing anything:
-      return STATUSCODE_SUCCESS;
+      return StatusCode::SUCCESS;
    }
 
 } // namespace xAOD

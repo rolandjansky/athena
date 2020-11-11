@@ -50,7 +50,7 @@
       const bool result = EXP;                                               \
       if( ! result ) {                                                       \
          ::Error( CONTEXT, XAOD_MESSAGE( "Failed to evaluate: %s" ), #EXP ); \
-         return xAOD::TReturnCode::kFailure;                                 \
+         return StatusCode::FAILURE;                                 \
       }                                                                      \
    } while( 0 )
 
@@ -60,9 +60,9 @@
 /// @param smks    The super master keys to put into the file
 /// @param l1psks  The LVL1 prescale keys to put into the file
 /// @param hltpsks The HLT prescale keys to put into the file
-/// @returns The usual <code>xAOD::TReturnCode</code> types
+/// @returns The usual <code>StatusCode</code> types
 ///
-xAOD::TReturnCode writeTestFile( const std::string& fname,
+StatusCode writeTestFile( const std::string& fname,
                                  const std::vector< uint32_t >& smks,
                                  const std::vector< uint32_t >& l1psks,
                                  const std::vector< uint32_t >& hltpsks ) {
@@ -79,7 +79,7 @@ xAOD::TReturnCode writeTestFile( const std::string& fname,
    if( ! ofile.get() ) {
       ::Error( "writeTestFile", XAOD_MESSAGE( "Couldn't open output file: %s" ),
                fname.c_str() );
-      return xAOD::TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
    RETURN_CHECK( "writeTestFile", event.writeTo( ofile.get() ) );
 
@@ -97,7 +97,7 @@ xAOD::TReturnCode writeTestFile( const std::string& fname,
             ::Error( "writeTestFile",
                      XAOD_MESSAGE( "Write error for i = %i, j = %i" ),
                      i, j );
-            return xAOD::TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       }
    }
@@ -126,7 +126,7 @@ xAOD::TReturnCode writeTestFile( const std::string& fname,
    RETURN_CHECK( "writeTestFile", event.finishWritingTo( ofile.get() ) );
 
    // Return gracefully:
-   return xAOD::TReturnCode::kSuccess;
+   return StatusCode::SUCCESS;
 }
 
 /// Type for a trigger key object that can be used in the checks
@@ -141,9 +141,9 @@ TrigKey_t makeKey( uint32_t smk, uint32_t l1psk, uint32_t hltpsk ) {
 /// Function used to check the content of the merged file
 ///
 /// @param fname The name of the file to test
-/// @returns The usual <code>xAOD::TReturnCode</code> types
+/// @returns The usual <code>StatusCode</code> types
 ///
-xAOD::TReturnCode checkMergedFile( const std::string& fname ) {
+StatusCode checkMergedFile( const std::string& fname ) {
 
    // Set up the reading of the file:
    xAOD::TEvent event;
@@ -151,7 +151,7 @@ xAOD::TReturnCode checkMergedFile( const std::string& fname ) {
    if( ! ifile.get() ) {
       ::Error( "checkMergedFile", XAOD_MESSAGE( "Couldn't open file: %s" ),
                fname.c_str() );
-      return xAOD::TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
    RETURN_CHECK( "checkMergedFile", event.readFrom( ifile.get() ) );
 
@@ -172,7 +172,7 @@ xAOD::TReturnCode checkMergedFile( const std::string& fname ) {
    R_ASSERT( "checkMergedFile", reference == inFile );
 
    // Return gracefully:
-   return xAOD::TReturnCode::kSuccess;
+   return StatusCode::SUCCESS;
 }
 
 int main() {

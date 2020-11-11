@@ -81,8 +81,8 @@ class TPyStore( ROOT.xAOD.TPyStore ):
     #
     # @param obj The object to be recorded into the output file
     # @param key The key (branch name) for the object
-    # @returns <code>xAOD::TReturnCode::kSuccess</code> if all was successful,
-    #          or <code>xAOD::TReturnCode::kFailure</code> if not
+    # @returns <code>StatusCode::SUCCESS</code> if all was successful,
+    #          or <code>StatusCode::FAILURE</code> if not
     #
     def record( self, obj, key ):
         # Determine the class name:

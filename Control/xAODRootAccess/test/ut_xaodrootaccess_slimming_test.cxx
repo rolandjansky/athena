@@ -17,6 +17,7 @@
 #include "AthContainers/DataVector.h"
 
 // Local include(s):
+#include "AsgMessaging/MessageCheck.h"
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
@@ -33,11 +34,14 @@
 
 int main() {
 
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+
    // Get the name of the application:
    const char* APP_NAME = "ut_xaodrootaccess_slimming_test";
 
    // Initialise the environment:
-   RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
+   ANA_CHECK( xAOD::Init( APP_NAME ) );
 
    // Create the first tested object(s):
    xAOD::TEvent event1( xAOD::TEvent::kBranchAccess );
@@ -54,7 +58,7 @@ int main() {
                FNAME );
       return 1;
    }
-   RETURN_CHECK( APP_NAME, event1.readFrom( ifile.get() ) );
+   ANA_CHECK( event1.readFrom( ifile.get() ) );
 
    // Open a dummy output file, used in the slimming test:
    static const char* OFNAME = "dummy1.root";
@@ -64,7 +68,7 @@ int main() {
                OFNAME );
       return 1;
    }
-   RETURN_CHECK( APP_NAME, event1.writeTo( ofile1.get() ) );
+   ANA_CHECK( event1.writeTo( ofile1.get() ) );
 
    // Read in the first event:
    if( event1.getEntry( 0 ) < 0 ) {
@@ -74,8 +78,8 @@ int main() {
    }
 
    // Copy over the containers:
-   RETURN_CHECK( APP_NAME, event1.copy( "Electrons" ) );
-   RETURN_CHECK( APP_NAME, event1.copy( "Muons" ) );
+   ANA_CHECK( event1.copy( "Electrons" ) );
+   ANA_CHECK( event1.copy( "Muons" ) );
 
    // Write out this first event:
    if( event1.fill() <= 0 ) {
@@ -84,7 +88,7 @@ int main() {
    }
 
    // Close the output file:
-   RETURN_CHECK( APP_NAME, event1.finishWritingTo( ofile1.get() ) );
+   ANA_CHECK( event1.finishWritingTo( ofile1.get() ) );
    ofile1->Close();
 
    // Now check that it has exactly the branches that it should:
@@ -143,7 +147,7 @@ int main() {
               OFNAME );
       return 1;
    }
-   RETURN_CHECK( APP_NAME, event2.writeTo( ofile2.get() ) );
+   ANA_CHECK( event2.writeTo( ofile2.get() ) );
 
    // Create a generic container in the output. Notice that we only record the
    // auxiliary store, and not the DV. That's mainly because we don't have a
@@ -172,7 +176,7 @@ int main() {
    SIMPLE_ASSERT( el->auxdataConst< unsigned char >( "dummy2" ) == 6 );
 
    // Close the output file:
-   RETURN_CHECK( APP_NAME, event2.finishWritingTo( ofile2.get() ) );
+   ANA_CHECK( event2.finishWritingTo( ofile2.get() ) );
    ofile2->Close();
 
    // Check the contents of the produced file:

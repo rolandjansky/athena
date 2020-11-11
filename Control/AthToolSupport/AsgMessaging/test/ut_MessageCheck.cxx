@@ -49,10 +49,9 @@ void checkType (const T2& scSuccess, const T2& scFailure1, const T2& scFailure2,
 int main ()
 {
   StatusCode::enableFailure ();
-  xAOD::TReturnCode::enableFailure ();
 
   // checkType<StatusCode> (StatusCode::SUCCESS, StatusCode::FAILURE, StatusCode::FAILURE, [] (const StatusCode& sc) -> bool {return sc.isSuccess();});
-  // checkType<xAOD::TReturnCode> (xAOD::TReturnCode::kSuccess, xAOD::TReturnCode::kFailure, xAOD::TReturnCode::kRecoverable, [] (const xAOD::TReturnCode& sc) -> bool {return sc.isSuccess();});
+  // checkType<StatusCode> (StatusCode::SUCCESS, StatusCode::FAILURE, StatusCode::RECOVERABLE, [] (const StatusCode& sc) -> bool {return sc.isSuccess();});
   checkType<bool> (true, false, false, [] (const bool& sc) -> bool {return sc;});
 
   return 0;

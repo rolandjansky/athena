@@ -771,8 +771,8 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       // Save to StoreGate / TStore
       std::string outputSGKeyNominalAux = sgKeyNominal + "Aux.";
 
-      xAOD::TReturnCode save = evtStore()->tds()->record(systEventCont, sgKeyNominal);
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record(systEventAuxCont, outputSGKeyNominalAux);
+      StatusCode save = evtStore()->tds()->record(systEventCont, sgKeyNominal);
+      StatusCode saveAux = evtStore()->tds()->record(systEventAuxCont, outputSGKeyNominalAux);
       if (!save || !saveAux) {
         return StatusCode::FAILURE;
       }
@@ -790,8 +790,8 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       // Save to StoreGate / TStore
       std::string outputSGKeyAux = sgKey + "Aux.";
 
-      xAOD::TReturnCode save = evtStore()->tds()->record(systEventCont, sgKey);
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record(systEventAuxCont, outputSGKeyAux);
+      StatusCode save = evtStore()->tds()->record(systEventCont, sgKey);
+      StatusCode saveAux = evtStore()->tds()->record(systEventAuxCont, outputSGKeyAux);
       if (!save || !saveAux) {
         return StatusCode::FAILURE;
       }

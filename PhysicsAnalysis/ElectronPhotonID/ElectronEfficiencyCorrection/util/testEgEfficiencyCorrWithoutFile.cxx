@@ -24,7 +24,7 @@
 #include <boost/program_options.hpp>
 
 int main( int argc, char* argv[] ) {
-    xAOD::TReturnCode::enableFailure();
+    StatusCode::enableFailure();
     MSGHELPERS::getMsgStream().msg().setLevel(MSG::INFO); 
     /*
      * Parse the input from the command line

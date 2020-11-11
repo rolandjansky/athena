@@ -46,7 +46,7 @@ struct MoveTest
 bool wasMoved (const MoveTest& x) { return x.m_v.empty(); }
 
 
-int test1()
+StatusCode test1()
 {
   std::cout << "test1\n";
 
@@ -157,12 +157,12 @@ int test1()
     assert (wasMoved (m1_2[i]));
   }
 
-  return 0;
+  return StatusCode::SUCCESS;
 }
 
 
 int main()
 {
-  test1();
+  test1().ignore();
   return 0;
 }
