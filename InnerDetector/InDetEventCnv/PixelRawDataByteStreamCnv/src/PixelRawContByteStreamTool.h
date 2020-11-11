@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,6 +29,7 @@
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" // needed, template class
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 
 #include "PixelByteStreamModuleMask.h"
 #include "PixelCabling/IPixelCablingSvc.h"
@@ -51,32 +52,32 @@ class PixelRawContByteStreamTool: public AthAlgTool {
     // AlgTool InterfaceID
     static const InterfaceID& interfaceID();
 
-    virtual StatusCode initialize();
-    virtual StatusCode finalize();
-    StatusCode convert(PixelRDO_Container* cont,RawEventWrite* re); 
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
+    StatusCode convert(PixelRDO_Container* cont) const;
 
-    void fillROD(std::vector<uint32_t>& v32rod, std::vector<const PixelRDORawData*> RDOs, int BCs_per_LVL1ID);
+    void fillROD(std::vector<uint32_t>& v32rod, std::vector<const PixelRDORawData*> RDOs, int BCs_per_LVL1ID) const;
 
-    void packIBLcondensed(std::vector <uint32_t > & v32rod, std::vector <uint32_t > & vRows, std::vector <uint32_t > & vCols, std::vector<int> & vTots);
+    void packIBLcondensed(std::vector <uint32_t > & v32rod, std::vector <uint32_t > & vRows, std::vector <uint32_t > & vCols, std::vector<int> & vTots) const;
     void packIBLCondensed(std::vector <uint32_t > & v32rod, const std::vector<const PixelRDORawData*> &rdos_sameIBL_offlineId);
-    uint32_t packLinkHeader(uint32_t module, uint32_t bcid, uint32_t lvl1id, uint32_t lvl1idskip, uint32_t errors);
-    uint32_t packLinkHeader_IBL(uint32_t module, uint32_t bcid, uint32_t lvl1id, uint32_t feFlag);
-    uint32_t packRawDataWord(uint32_t FE, uint32_t row, uint32_t column, uint32_t ToT);
-    uint32_t packRawDataWord_IBL(uint32_t row, uint32_t column, int ToT, uint32_t nLink);
-    uint32_t packLinkTrailer(uint32_t errors); // for Pixel
-    uint32_t packLinkTrailer_IBL(uint32_t FEonSLink, bool timeOutErrorBit, bool condensedModeBit, bool linkMasked); // for IBL
+    uint32_t packLinkHeader(uint32_t module, uint32_t bcid, uint32_t lvl1id, uint32_t lvl1idskip, uint32_t errors) const;
+    uint32_t packLinkHeader_IBL(uint32_t module, uint32_t bcid, uint32_t lvl1id, uint32_t feFlag) const;
+    uint32_t packRawDataWord(uint32_t FE, uint32_t row, uint32_t column, uint32_t ToT) const;
+    uint32_t packRawDataWord_IBL(uint32_t row, uint32_t column, int ToT, uint32_t nLink) const;
+    uint32_t packLinkTrailer(uint32_t errors) const; // for Pixel
+    uint32_t packLinkTrailer_IBL(uint32_t FEonSLink, bool timeOutErrorBit, bool condensedModeBit, bool linkMasked) const; // for IBL
 
   private:
+    ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+    { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+
     ServiceHandle<IPixelCablingSvc> m_pixelCabling;
     const PixelID* m_PixelID;
 
     const InDetDD::PixelDetectorManager* m_pixelManager;
 
-    FullEventAssembler<SrcIdMap> m_fea; 
     unsigned short m_RodBlockVersion;
     int m_BCs_per_LVL1ID;
-
-    MsgStream m_log;
 
     SG::ReadCondHandleKey<PixelCablingCondData> m_condCablingKey
     {this, "PixelCablingCondData", "PixelCablingCondData", "Pixel cabling key"};
