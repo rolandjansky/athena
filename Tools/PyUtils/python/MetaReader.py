@@ -199,9 +199,9 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
                         persistent_instances[name] = ROOT.IOVMetaDataContainer_p1()
                     elif regexXAODEventFormat.match(class_name):
                         persistent_instances[name] = ROOT.xAOD.EventFormat_v1()
-                    elif regexXAODTriggerMenu.match(class_name):
+                    elif regexXAODTriggerMenu.match(class_name) and _check_project() not in ['AthGeneration']:
                         persistent_instances[name] = ROOT.xAOD.TriggerMenuContainer_v1()
-                    elif regexXAODTriggerMenuAux.match(class_name):
+                    elif regexXAODTriggerMenuAux.match(class_name) and _check_project() not in ['AthGeneration']:
                         persistent_instances[name] = ROOT.xAOD.TriggerMenuAuxContainer_v1()
 
                     if name in persistent_instances:
@@ -379,6 +379,15 @@ def read_metadata(filenames, file_type = None, mode = 'lite', promote = None, me
             return None
 
     return meta_dict
+
+
+def _check_project():
+    import os
+    if 'AthSimulation_DIR' in os.environ:
+        return 'AthSimulation'
+    if 'AthGeneration_DIR' in os.environ:
+        return 'AthGeneration'
+    return 'Athena'
 
 
 def _get_pfn(filename):
