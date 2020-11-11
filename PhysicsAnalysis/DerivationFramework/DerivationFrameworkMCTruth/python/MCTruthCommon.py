@@ -59,6 +59,8 @@ def simplePJGetter(Label, InputContainer):
 
 # Helper for adding truth jet collections
 def addTruthJets(kernel=None, decorationDressing=None):
+    if not dfInputIsEVNT:
+        return
     # Ensure that we are adding it to something, and that we haven't run it already
     if kernel is None:
         from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
@@ -74,33 +76,34 @@ def addTruthJets(kernel=None, decorationDressing=None):
 
         # Set up the copy truth jet particle algorithms
         from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
-        ToolSvc += CopyTruthJetParticles("truthpartcopy",
+        ToolSvc += CopyTruthJetParticles("TruthPartCopy",
                                          OutputName="JetInputTruthParticles",
                                          MCTruthClassifier=ToolSvc.DFCommonTruthClassifier,BarCodeFromMetadata=barCodeFromMetadata)
-        ToolSvc += CopyTruthJetParticles("truthpartcopywz",
+        ToolSvc += CopyTruthJetParticles("TruthPartCopyWZ",
                                          OutputName="JetInputTruthParticlesNoWZ",
                                          MCTruthClassifier=ToolSvc.DFCommonTruthClassifier,BarCodeFromMetadata=barCodeFromMetadata,
                                          IncludePromptLeptons=False)
-        ToolSvc += CopyTruthJetParticles("truthpartcopydressedwz",
+        ToolSvc += CopyTruthJetParticles("TruthPartCopyDressedWZ",
                                          OutputName="JetInputTruthParticlesDressedWZ",
                                          MCTruthClassifier=ToolSvc.DFCommonTruthClassifier,
                                          IncludePromptLeptons=False,IncludePromptPhotons=False,
                                          IncludeMuons=True,IncludeNeutrinos=True,BarCodeFromMetadata=barCodeFromMetadata,
                                          FSRPhotonCone=-1., DressingDecorationName=decorationDressing)
-        ToolSvc += CopyTruthJetParticles("truthpartcopycharged", OutputName="JetInputTruthParticlesCharged",
+        ToolSvc += CopyTruthJetParticles("TruthPartCopyCharged", OutputName="JetInputTruthParticlesCharged",
                                          MCTruthClassifier=ToolSvc.DFCommonTruthClassifier,
                                          ChargedParticlesOnly=True,
                                          BarCodeFromMetadata=barCodeFromMetadata)
         from JetRec import JetRecConf
         kernel += JetRecConf.JetAlgorithm("MCTruthCommonJetTruthCopyAlg",
-                                          Tools=[ToolSvc.truthpartcopy,ToolSvc.truthpartcopywz,ToolSvc.truthpartcopydressedwz,ToolSvc.truthpartcopycharged])
+                                          Tools=[ToolSvc.TruthPartCopy,ToolSvc.TruthPartCopyWZ,
+                                                 ToolSvc.TruthPartCopyDressedWZ,ToolSvc.TruthPartCopyCharged])
 
         # Set up pseudo-jet getters
         from JetRec import JetRecConf
-        kernel += simplePJGetter( Label = "Truth", InputContainer = ToolSvc.truthpartcopy.OutputName )
-        kernel += simplePJGetter( Label = "TruthWZ", InputContainer = ToolSvc.truthpartcopywz.OutputName )
-        kernel += simplePJGetter( Label = "TruthDressedWZ", InputContainer = ToolSvc.truthpartcopydressedwz.OutputName )
-        kernel += simplePJGetter( Label = "TruthCharged", InputContainer = ToolSvc.truthpartcopycharged.OutputName )
+        kernel += simplePJGetter( Label = "Truth", InputContainer = ToolSvc.TruthPartCopy.OutputName )
+        kernel += simplePJGetter( Label = "TruthWZ", InputContainer = ToolSvc.TruthPartCopyWZ.OutputName )
+        kernel += simplePJGetter( Label = "TruthDressedWZ", InputContainer = ToolSvc.TruthPartCopyDressedWZ.OutputName )
+        kernel += simplePJGetter( Label = "TruthCharged", InputContainer = ToolSvc.TruthPartCopyCharged.OutputName )
 
         # Set up the jet builder (no area moments)
         from AthenaCommon import CfgMgr
@@ -204,11 +207,15 @@ def addTruthJets(kernel=None, decorationDressing=None):
                                                                             GhostArea = 0.01,
                                                                             PtMin = threshold
                                                                             )
+            from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
+            DFCommon_EnCorr = EnergyCorrelatorTool("DFCommon_EnCorr", Beta = 1.0)
+            from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessTool
+            DFCommon_NSubjettiness = NSubjettinessTool("DFCommon_NSubjettiness",Alpha = 1.0)
             AntiKt10TruthSoftDropBeta100Zcut10JetsRec = CfgMgr.JetRecTool("AntiKt10TruthSoftDropBeta100Zcut10JetsRec",
                                                                           JetGroomer = groomer,
                                                                           InputPseudoJets = [kernel.TruthGet.OutputContainer],
                                                                           OutputContainer = "AntiKt10TruthSoftDropBeta100Zcut10Jets",
-                                                                          JetModifiers = [ToolSvc.partontruthlabel],
+                                                                          JetModifiers = [ToolSvc.partontruthlabel,DFCommon_EnCorr,DFCommon_NSubjettiness],
                                                                           JetFinder = AntiKt10TruthSoftDropBeta100Zcut10JetsFinder)
             kernel += CfgMgr.JetAlgorithm("AntiKt10TruthSoftDropBeta100Zcut10JetsAlg",Tools=[AntiKt10TruthSoftDropBeta100Zcut10JetsRec])
 
@@ -282,20 +289,15 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
     augmentationToolsList = [ dfTruth.DFCommonTruthTauDressingTool ]
 
     #Save the post-shower HT and MET filter values that will make combining filtered samples easier (adds to the EventInfo)
-    #from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
+    if dfInputIsEVNT:
+        from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
-    # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-    #from DerivationFrameworkMCTruth.TruthDerivationTools import DFCommonTruthQGLabelTool
-    #augmentationToolsList += [ DFCommonTruthGenFilter,
-    #                          DFCommonTruthQGLabelTool]
-    augmentationToolsList = []
-    #if decorationDressing is not None:
-    #    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
-    #    DFCommonTruthDressedWZQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthDressedWZQGLabelTool",
-    #                                                              JetCollection = "AntiKt4TruthDressedWZJets")
-    #    from AthenaCommon.AppMgr import ToolSvc
-    #    ToolSvc += DFCommonTruthDressedWZQGLabelTool
-    #    augmentationToolsList += [ DFCommonTruthDressedWZQGLabelTool ]
+        # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
+        from DerivationFrameworkMCTruth.TruthDerivationTools import DFCommonTruthDressedWZQGLabelTool
+        augmentationToolsList += [ DFCommonTruthGenFilter ]
+                                   #DFCommonTruthDressedWZQGLabelTool] - missing decoration from FTAG
+    else:
+        augmentationToolsList = []
     # SUSY signal decorations
     from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
     if IsSUSYSignal():
@@ -323,7 +325,7 @@ def addStandardTruthContents(kernel=None,
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc.DFCommonTruthTauDressingTool.decorationName=decorationDressing
     # Jets and MET
-    #addTruthJets(kernel, decorationDressing)
+    addTruthJets(kernel, decorationDressing)
     addTruthMET(kernel)
     # Tools that must come after jets
     schedulePostJetMCTruthAugmentations(kernel, decorationDressing)
@@ -331,7 +333,8 @@ def addStandardTruthContents(kernel=None,
     addTruthCollectionNavigationDecorations(kernel, ["TruthElectrons", "TruthMuons", "TruthPhotons", "TruthTaus", "TruthNeutrinos", "TruthBSM", "TruthBottom", "TruthTop", "TruthBoson"], prefix=prefix)
     # Some more additions for standard TRUTH3
     addBosonsAndDownstreamParticles(kernel)
-    #addLargeRJetD2(kernel)
+    if dfInputIsEVNT:
+        addLargeRJetD2(kernel)
     # Special collection for BSM particles
     addBSMAndDownstreamParticles(kernel)
     # Special collection for Born leptons
@@ -339,7 +342,8 @@ def addStandardTruthContents(kernel=None,
     # Special collection for hard scatter (matrix element) - save TWO extra generations of particles
     addHardScatterCollection(kernel,2)
     # Energy density for isolation corrections
-    #addTruthEnergyDensity(kernel)
+    if dfInputIsEVNT:
+        addTruthEnergyDensity(kernel)
 
 
 def addParentAndDownstreamParticles(kernel=None,
@@ -580,6 +584,8 @@ def addTruthEnergyDensity(kernel=None):
                                                             AbsRapidityMax      = 1.5,
                                                             OutputContainer     = "TruthIsoCentralEventShape",
                                                            )
+        # Note the helper function mangles the naming in a specific way that is not sufficiently general
+        DFCommonTruthCentralEDTool.InputContainer = kernel.TruthGet.OutputContainer
         ToolSvc += DFCommonTruthCentralEDTool
         kernel += EventDensityAthAlg("DFCommonTruthCentralEDAlg", EventDensityTool = DFCommonTruthCentralEDTool )
     if not hasattr(ToolSvc,'EDTruthForwardTool'):
@@ -590,6 +596,8 @@ def addTruthEnergyDensity(kernel=None):
                                                             AbsRapidityMax      = 3.0,
                                                             OutputContainer     = "TruthIsoForwardEventShape",
                                                            )
+        # Note the helper function mangles the naming in a specific way that is not sufficiently general
+        DFCommonTruthForwardEDTool.InputContainer = kernel.TruthGet.OutputContainer
         ToolSvc += DFCommonTruthForwardEDTool
         kernel += EventDensityAthAlg("DFCommonTruthForwardEDAlg", EventDensityTool = DFCommonTruthForwardEDTool )
 

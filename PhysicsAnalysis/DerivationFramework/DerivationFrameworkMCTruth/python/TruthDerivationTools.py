@@ -198,6 +198,6 @@ DFCommonTruthPhotonIsolationTool3 = DerivationFramework__TruthIsolationTool(name
 ToolSvc += DFCommonTruthPhotonIsolationTool3
 # Quark/gluon decoration for jets
 from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthQGDecorationTool
-DFCommonTruthQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthQGLabelTool",
-                                                                  JetCollection = "AntiKt4TruthDressedWZJets")
-ToolSvc += DFCommonTruthQGLabelTool
+DFCommonTruthDressedWZQGLabelTool = DerivationFramework__TruthQGDecorationTool(name="DFCommonTruthDressedWZQGLabelTool",
+                                                                              JetCollection = "AntiKt4TruthDressedWZJets")
+ToolSvc += DFCommonTruthDressedWZQGLabelTool
