@@ -5,6 +5,7 @@
  *   */
 
 #include "LWTNNCondAlg.h"
+#include "LwtnnUtils/InputOrder.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -53,7 +54,7 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode LWTNNCondAlg::configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, 
+  StatusCode LWTNNCondAlg::configureLwtnn(std::unique_ptr<lwt::atlas::FastGraph> & thisNN, 
                                         const std::string& thisJson) {
 
     // Read DNN weights from input json config
@@ -66,9 +67,15 @@ namespace InDet {
       return StatusCode::FAILURE;
     }
 
+    // pass the input order for the FastGraph
+    lwt::atlas::InputOrder order;
+    order.scalar.push_back( std::make_pair("NNinputs", m_variableOrder) );
+    // sequence not needed for NN (more for RNN, but set anyway)
+    order.sequence.push_back( std::make_pair("NNinputs", m_variableOrder) );
+
     // Build the network
     try {
-      thisNN.reset(new lwt::LightweightGraph(config, "merge_1"));
+      thisNN.reset(new lwt::atlas::FastGraph(config, order, "merge_1"));
     } catch (lwt::NNConfigurationException& exc) {
       ATH_MSG_ERROR("NN configuration problem: " << exc.what());
       return StatusCode::FAILURE;
@@ -128,7 +135,7 @@ namespace InDet {
 
     // First, extract configuration for the number network.
     pt::ptree subtreeNumberNetwork = parentTree.get_child("NumberNetwork");
-    writeCdo->insert(std::make_pair(0,std::unique_ptr<lwt::LightweightGraph>(nullptr)));
+    writeCdo->insert(std::make_pair(0,std::unique_ptr<lwt::atlas::FastGraph>(nullptr)));
     // If this json is empty, just fill a null pointer.
     if(subtreeNumberNetwork.empty()) {
       ATH_MSG_INFO("Not using lwtnn for number network.");
@@ -153,7 +160,7 @@ namespace InDet {
       std::string posNetworkConfig = configStream.str();
       
       // Put a lwt network into the map
-      writeCdo->insert(std::make_pair(i,std::unique_ptr<lwt::LightweightGraph>(nullptr)));
+      writeCdo->insert(std::make_pair(i,std::unique_ptr<lwt::atlas::FastGraph>(nullptr)));
 
       // Now do empty check: if any one of these is empty we won't use lwtnn
       if(subtreePosNetwork.empty()) {
