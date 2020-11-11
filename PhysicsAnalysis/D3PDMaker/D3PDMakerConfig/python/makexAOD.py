@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -57,7 +57,7 @@ def convert_trackparticles (seq, xaod_key, key, truth_key,
            AddTruthLink = have_truth)
     seq += alg
 
-    if trackmap_key != None:
+    if trackmap_key is not None:
         from xAODEgammaCnv.xAODEgammaCnvConf import xAODMaker__GSFTrackParticleMapCnvAlg
         alg = xAODMaker__GSFTrackParticleMapCnvAlg\
               (xaod_key + 'ParticleMapCnv',
@@ -294,16 +294,16 @@ def makexAOD (seq, xaod_type, xaod_key, key=None, **kw):
     if testfn (xaod_type, xaod_key):
         return
 
-    if key == None:
+    if key is None:
         key = xaod_key
 
     tinfo_list = types[xaod_type]
-    if type(tinfo_list) != type([]):
+    if isinstance(tinfo_list, list):
         tinfo_list = [tinfo_list]
 
     for tinfo in tinfo_list:
         if cfgKeyStore.isInInput (tinfo[0], key):
-            if seq == None:
+            if seq is None:
                 seq = AlgSequence()
 
             tinfo[1] (seq, xaod_key, key, **kw)

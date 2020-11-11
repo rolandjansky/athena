@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file D3PDMakerConfig/python/egammaD3PD.py
 # @author scott snyder <snyder@bnl.gov>
@@ -9,7 +8,6 @@
 #
 
 from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
-from D3PDMakerCoreComps.resolveSGKey          import testSGKey
 from EventCommonD3PDMaker.EventInfoD3PDObject import EventInfoD3PDObject
 from egammaD3PDMaker.ElectronD3PDObject       import ElectronD3PDObject
 from egammaD3PDMaker.PhotonD3PDObject         import PhotonD3PDObject

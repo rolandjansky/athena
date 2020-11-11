@@ -97,37 +97,6 @@ jobproperties.D3PDProdFlags.add_JobProperty (WriteMuonD3PD)
 listAllKnownD3PD.append (prodFlags.WriteMuonD3PD)
 
 
-class WritePhysicsD3PD (JobProperty):
-    """Produce the physics D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_PHYSICS'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "D3PDMakerConfig/PhysicsD3PD_prodJobOFragment.py"
-    TreeNames = ['physics', 'physicsTrigDec']
-    SubSteps = ['a2d', 'e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WritePhysicsD3PD)
-listAllKnownD3PD.append (prodFlags.WritePhysicsD3PD)
-
-
-class WriteLongLivedParticleD3PD (JobProperty):
-     """Produce the Long Lived Particle D3PD."""
-     statusOn = True
-     allowedTypes = ['bool']
-     StoredValue = False
-     StreamName = 'StreamNTUP_SUSYLLP'
-     FileName = ''
-     isVirtual = False
-     DPDMakerScript = "LongLivedParticleD3PDMaker/LongLivedParticleD3PD_prodJob\
-OFragment.py"
-     TreeNames = ['llp']
-     SubSteps = ['a2d', 'e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteLongLivedParticleD3PD)
-listAllKnownD3PD.append (prodFlags.WriteLongLivedParticleD3PD)
-
-
 class WriteBackgroundD3PD (JobProperty):
     """Produce the Background D3PD."""
     statusOn = True
@@ -161,20 +130,6 @@ class WriteTriggerD3PD (JobProperty):
 jobproperties.D3PDProdFlags.add_JobProperty (WriteTriggerD3PD)
 listAllKnownD3PD.append (prodFlags.WriteTriggerD3PD)
 
-
-class WriteTrigMuonD3PD (JobProperty):
-    """Produce the TrigMuon D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_TRIGMU'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "TrigMuonD3PDMaker/TrigMuonD3PD_prodJobOFragment.py"
-    TreeNames = ['trigger']
-    SubSteps = ['e2d', 'a2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteTrigMuonD3PD)
-listAllKnownD3PD.append (prodFlags.WriteTrigMuonD3PD)
 
 
 #
