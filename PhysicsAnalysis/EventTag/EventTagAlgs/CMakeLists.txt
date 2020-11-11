@@ -16,8 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODEventInfo
                           PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
                           PhysicsAnalysis/EventTag/EventTagUtils
-                          PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools
-                          PhysicsAnalysis/MuonID/MuonTagTools )
+                          PhysicsAnalysis/JetMissingEtID/JetMissingEtTagTools )
 
 # External dependencies:
 find_package( CLHEP )
@@ -28,14 +27,13 @@ atlas_add_component( EventTagAlgs
                      src/GlobalEventTagBuilder.cxx
                      src/GlobalTriggerTagBuilder.cxx
                      src/MissingETTagBuilder.cxx
-                     src/MuonTagBuilder.cxx
                      src/ParticleJetTagBuilder.cxx
                      src/RawInfoSummaryTagBuilder.cxx
                      src/TagBuilderBase.cxx
                      src/EventSplitter.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GaudiKernel TagEvent StoreGateLib SGtests xAODEventInfo AnalysisTriggerEvent EventTagUtilsLib JetMissingEtTagToolsLib MuonTagToolsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaPoolUtilities GaudiKernel TagEvent StoreGateLib SGtests xAODEventInfo AnalysisTriggerEvent EventTagUtilsLib JetMissingEtTagToolsLib )
 
 # Install files from the package:
 atlas_install_headers( EventTagAlgs )
