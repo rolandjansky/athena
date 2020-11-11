@@ -12,6 +12,6 @@ atlas_add_library( TopSystematicObjectMaker
    IsolationSelectionLib IsolationCorrectionsLib JetCalibToolsLib
    JetCPInterfaces JetInterface METInterface xAODEgamma xAODJet xAODTracking
    TopJetSubstructure MuonMomentumCorrectionsLib TauAnalysisToolsLib
-   PRIVATE_LINK_LIBRARIES AthContainers xAODBase xAODCore xAODEventInfo
+   PRIVATE_LINK_LIBRARIES AthContainers xAODBTagging xAODBase xAODCore xAODEventInfo
    xAODMissingET xAODMuon xAODTau TopConfiguration TopEvent
    InDetTrackSystematicsToolsLib METUtilitiesLib )
