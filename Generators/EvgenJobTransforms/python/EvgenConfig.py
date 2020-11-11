@@ -51,9 +51,9 @@ notuneGenerators = ["ParticleGenerator", "ParticleGun", "CosmicGenerator", "Beam
 
 def gen_require_steering(gennames):
     "Return a boolean of whether this set of generators requires the steering command line flag"
-    if not "EvtGen" in gennames: return False
-    if any(("Pythia" in gen and not "Pythia8" in gen) for gen in gennames): return True
-    if any(("Herwig" in gen and not "Herwigpp" in gen and not "Herwig7" in gen) for gen in gennames): return True
+    if "EvtGen" not in gennames: return False
+    if any(("Pythia" in gen and "Pythia8" not in gen) for gen in gennames): return True
+    if any(("Herwig" in gen and "Herwigpp" not in gen and "Herwig7" not in gen) for gen in gennames): return True
     return False
 
 def gen_known(genname):
@@ -103,7 +103,7 @@ def gen_sortkey(genname):
     return (genstage, isjimmy, genname)
 
 
-from PyJobTransformsCore.TransformConfig import *
+from PyJobTransformsCore.TransformConfig import TransformConfig, String, ListOfStrings, Boolean, Integer, AllowedExpression, TransformConfigError
 class EvgenConfig(TransformConfig):
     __slots__ = ()
     generators = ListOfStrings("List of used generators", allowedValues=knownGenerators)
