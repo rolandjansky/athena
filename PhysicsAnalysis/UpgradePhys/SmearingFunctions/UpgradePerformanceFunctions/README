@@ -1,0 +1,9 @@
+This package can be used to mimic the expected performance of the 
+upgraded ATLAS detectors in the HL-LHC era.  Analytic functions
+describe the expected detector response.  They should be applied to
+truth-level particles and events.
+
+More details on the use of specific classes, methods, and utility 
+codes can be found on the following TWiki: 
+https://twiki.cern.ch/twiki/bin/view/AtlasProtected/UpgradePerformanceFunctions
+
