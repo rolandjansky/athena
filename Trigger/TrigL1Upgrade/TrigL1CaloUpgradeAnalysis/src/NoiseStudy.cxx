@@ -36,6 +36,8 @@ NoiseStudy::NoiseStudy( const std::string& name, ISvcLocator* pSvcLocator ) : At
 	declareProperty("LumiBCIDTool",m_caloLumiBCIDTool,"Tool for BCID pileup offset average correction");
 	declareProperty("CompensateForNoise", m_compNoise=true,"Compensate for the noise with low noise");
 	declareProperty("addBCID", m_addBCID=true,"Compensate for the BCID");
+	declareProperty("InputSCellName", m_inputSCellName = "SimpleSCellBCID" );
+	declareProperty("InputBaseSCellName", m_inputBaseSCellName = "SCell" );
 }
 
 NoiseStudy::~NoiseStudy(){}
@@ -51,7 +53,7 @@ StatusCode NoiseStudy::initialize(){
 	m_inconeEtaPhi = new TH2F("HinconeEtaPhi","HinconeEtaPhi",100,-5,5,64,-M_PI,M_PI);
 	m_outconePt = new TH1F("HoutconePt","HoutconePt",100,0,100);
 	m_outconeEtaPhi = new TH2F("HoutconeEtaPhi","HoutconeEtaPhi",100,-5,5,64,-M_PI,M_PI);
-	m_ntuple = new TNtuple("Hcompare","Hcompare","ev:ID:bcid:bcidNor:ncells:ngains:en1:en2:en3:eta:phi:incone:samp:t1:t2");
+	m_ntuple = new TNtuple("Hcompare","Hcompare","ev:ID:bcidNor:en1:en2:en3:eta:phi:incone:samp:t1:t3:prov1:prov3");
 	m_noisetuple = new TNtuple("Hnoise","Hnoise","ID:n1:n2:n3:pu:t1:t2:t3:eta:phi:ncells:ngains:samp");
 
 	// for cell <-> SCell comparison
@@ -133,11 +135,11 @@ StatusCode NoiseStudy::execute(){
         const CaloCellContainer* scells;
         const CaloCellContainer* scellsimple;
         const CaloCellContainer* allcalo(NULL);
-	if ( evtStore()->retrieve(scells,"SCell").isFailure() ){
+	if ( evtStore()->retrieve(scells,m_inputBaseSCellName).isFailure() ){
 		ATH_MSG_WARNING ("did not find cell container" );
 		return StatusCode::SUCCESS;
 	}
-	if ( evtStore()->retrieve(scellsimple,"SimpleSCell").isFailure() ){
+	if ( evtStore()->retrieve(scellsimple,m_inputSCellName).isFailure() ){
 		ATH_MSG_WARNING("did not find cell container");
 		return StatusCode::SUCCESS;
 	}
@@ -260,9 +262,11 @@ StatusCode NoiseStudy::execute(){
 		if ( foundOne ) energy = foundOne->energy();
 		float time=0.0;
 		if ( foundOne ) time = foundOne->time();
+		float prov=0.0;
+		if ( foundOne ) prov = foundOne->provenance();
 		for (size_t i=0;i<lenresimplescells;i++){
 			if ( ii != m_resimplescellsID[i] ) continue;
-			m_ntuple->Fill(evt->eventNumber(), ii, (float)bunch_crossing, (float)bunch_crossingNor, m_ncells[i], m_ngains[i], scell->energy(), m_resimplescells[i]->energy(), energy, m_resimplescells[i]->eta(), m_resimplescells[i]->phi(), (int)inconeFinal, m_resimplescells[i]->caloDDE()->getSampling(), scell->time(), time );
+			m_ntuple->Fill(evt->eventNumber(),i,(float)bunch_crossingNor, scell->energy(), m_resimplescells[i]->energy(), energy, m_resimplescells[i]->eta(), m_resimplescells[i]->phi(), (int)inconeFinal, m_resimplescells[i]->caloDDE()->getSampling(), scell->time(), time, scell->provenance(), prov );
 
 			break;
 		   
