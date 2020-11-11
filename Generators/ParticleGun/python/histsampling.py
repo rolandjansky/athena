@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools for histogram sampling, in particular inverse transform sampling which is
@@ -19,9 +19,9 @@ def load_hist(*args):
     if len(args) == 1 and issubclass(type(args[0]), ROOT.TH1):
         h = args[0].Clone()
     elif len(args) == 2:
-        if type(args[0]) is type(args[1]) is str:
+        if isinstance(args[0], str) and isinstance(args[1], str):
             f = ROOT.TFile.Open(args[0])
-            htmp = f.Get(args[1])
+            htmp = f.Get(args[1])   # noqa: F841
             h = f.Get(args[1]).Clone()
             #f.Close()
         elif type(args[0]) is ROOT.TFile and type(args[1]) is str:
@@ -42,14 +42,14 @@ def get_sampling_vars(h):
     globalbins = [] # because they aren't easily predicted, nor contiguous
     cheights = [0] # cumulative "histogram" from which to uniformly sample
     if issubclass(type(h), ROOT.TH1):
-        for ix in xrange(1, h.GetNbinsX()+1):
+        for ix in range(1, h.GetNbinsX()+1):
             iglobal = h.GetBin(ix)
             globalbins.append(iglobal)
             globalbin_to_axisbin[iglobal] = (ix,)
             cheights.append(cheights[-1] + h.GetBinContent(iglobal))
     elif issubclass(type(h), ROOT.TH2):
-        for ix in xrange(1, h.GetNbinsX()+1):
-            for iy in xrange(1, h.GetNbinsY()+1):
+        for ix in range(1, h.GetNbinsX()+1):
+            for iy in range(1, h.GetNbinsY()+1):
                 iglobal = h.GetBin(ix, iy)
                 globalbins.append(iglobal)
                 globalbin_to_axisbin[iglobal] = (ix, iy)
@@ -66,7 +66,6 @@ def get_random_bin(globalbins, cheights):
     """
     assert len(cheights) == len(globalbins)+1
     randomheight = random.uniform(0, cheights[-1])
-    randombin = None
     for i, iglobal in enumerate(globalbins):
         if randomheight >= cheights[i] and randomheight < cheights[i+1]:
             return iglobal
