@@ -181,16 +181,11 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
     fillbasicVars( trigger, online_tau_vec_1p, true);
     fillbasicVars( trigger, online_tau_vec_mp, true);
   }
- 
+
+   
   if(info.isRNN){
-    
-    for(auto offline_tau : offline_tau_vec_1p){
-       fillEfficiencies(trigger, offline_tau, online_tau_vec_1p, "1p");
-     }
-  
-    for(auto offline_tau : offline_tau_vec_mp){
-       fillEfficiencies(trigger, offline_tau, online_tau_vec_mp, "MP");
-     }
+    fillEfficiencies(trigger, offline_tau_vec_1p, online_tau_vec_1p, "1P");
+    fillEfficiencies(trigger, offline_tau_vec_mp, online_tau_vec_mp, "MP");
   }
 
   offline_tau_vec_1p.clear();
@@ -199,22 +194,28 @@ void TrigTauMonitorAlgorithm::fillDistributions(std::vector< std::pair< const xA
   online_tau_vec_mp.clear();
 }
 
-void TrigTauMonitorAlgorithm::fillEfficiencies(const std::string trigger, const xAOD::TauJet* offline_tau, std::vector<const xAOD::TauJet*> online_tau_vec, std::string nProng) const
+void TrigTauMonitorAlgorithm::fillEfficiencies(const std::string trigger, std::vector<const xAOD::TauJet*> offline_tau_vec, std::vector<const xAOD::TauJet*> online_tau_vec, std::string nProng) const
 {
   ATH_MSG_DEBUG("Fill HLT efficiencies: " << trigger);
 
-  auto monGroup = getGroup(trigger+"_HLTEfficiency_"+nProng);
+  std::string monGroupName = trigger+"_HLT_Efficiency_"+nProng;
 
-  auto tauPt = Monitored::Scalar<float>(monGroup+"_tauPt");
-  auto tauEta = Monitored::Scalar<float>(monGroup+"_tauEta");
+  auto monGroup = getGroup(monGroupName);
 
-  tauPt = offline_tau->pt()/1e3;
-  tauEta = offline_tau->eta();
+  auto tauPt = Monitored::Scalar<float>(monGroupName+"_tauPt",0.0);
+  auto tauEta = Monitored::Scalar<float>(monGroupName+"_tauEta",0.0);
+  auto tauPhi = Monitored::Scalar<float>(monGroupName+"_tauPhi",0.0);
+  auto HLT_match = Monitored::Scalar<bool>(monGroupName+"_HLTpass",false);
 
-  auto HLT_match = Monitored::Scalar<bool>(monGroup+"_HLTpass",false);
-  HLT_match = HLTMatching(offline_tau, online_tau_vec, 0.2);
+  for(auto offline_tau : offline_tau_vec){
 
-  fill(monGroup, tauPt, tauEta, HLT_match);
+       tauPt = offline_tau->pt()/1e3;
+       tauEta = offline_tau->eta();
+       tauPhi = offline_tau->phi();
+       HLT_match = HLTMatching(offline_tau, online_tau_vec, 0.2);
+
+       fill(monGroup, tauPt, tauEta, tauPhi, HLT_match);
+  }
 
   ATH_MSG_DEBUG("After fill HLT efficiencies: " << trigger);
 
@@ -354,6 +355,8 @@ void TrigTauMonitorAlgorithm::fillRNNTrack(const std::string trigger, std::vecto
 
       fill(monGroup,track_pt_log,track_dEta,track_dPhi,track_z0sinThetaTJVA_abs_log,track_d0_abs_log,track_nIBLHitsAndExp,track_nPixelHitsPlusDeadSensors,track_nSCTHitsPlusDeadSensors);
     }
+
+  ATH_MSG_DEBUG("After fill  RNN input Track: " << trigger);
   
 }
 
@@ -434,6 +437,7 @@ void TrigTauMonitorAlgorithm::fillRNNCluster(const std::string trigger, std::vec
       fill(monGroup,cluster_pt_jetseed_log,cluster_et_log,cluster_dEta,cluster_dPhi,cluster_log_SECOND_R,cluster_SECOND_LAMBDA,cluster_CENTER_LAMBDA);
     }
 
+  ATH_MSG_DEBUG("After fill  RNN input Cluster: " << trigger);
 }
 
 void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,bool online) const
@@ -458,6 +462,8 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
       return EFWidenTrack; }); 
 
   fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack);
+
+  ATH_MSG_DEBUG("After fill Basic variables: " << trigger);
 
 }
 
