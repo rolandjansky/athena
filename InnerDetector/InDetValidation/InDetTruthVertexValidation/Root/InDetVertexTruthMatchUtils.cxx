@@ -16,26 +16,19 @@ bool isHardScatterEvent( const ElementLink<xAOD::TruthEventBaseContainer> evlink
 
 }
 
-//find highest weight match to the hard scatter interaction
-//in the case of splitting user can take care to check this is really "best"
-// --> example:
-// vertex 0 is 90% hard scatter with many tracks, and 10% another vertex
-// vertex 1 is 100% hard scatter with few tracks.
-// this algorithm will pick vertex 1, but user may want to use vertex 0 (accessible from splitting link decoration)
+//find vertex with largest amount of hard-scatter tracks
 const xAOD::Vertex * bestHardScatterMatch( const xAOD::VertexContainer & vxContainer ) {
   //accessors for decorations
-  xAOD::Vertex::Decorator<std::vector<VertexTruthMatchInfo> > matchInfoDecor("TruthEventMatchingInfos");
+  xAOD::Vertex::Decorator<int> nHSTrkDecor("nHSTrk");
 
   std::vector<std::pair<const xAOD::Vertex*, size_t> > allMatches = hardScatterMatches( vxContainer );
 
-  //look for the highest weight
-  float bestw = 0.;
+  int bestNHSTrk = 0;
   const xAOD::Vertex * best = nullptr;
   for ( auto it : allMatches ) {
-    std::vector<VertexTruthMatchInfo> & info = matchInfoDecor( *(it.first) );
-    //go to the index of the HS match in the info vector, and check the weight
-    if ( std::get<1>(info[ it.second ]) > bestw ) {
-      bestw = std::get<1>(info[ it.second ]);
+    int nHSTrk = nHSTrkDecor( *(it.first) );
+    if( nHSTrk > bestNHSTrk ){
+      bestNHSTrk = nHSTrk;
       best = it.first;
     }
   }
