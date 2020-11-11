@@ -1,10 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-import os
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __all__ = []
 
-from PyJobTransformsCore.TransformConfig import *
+from PyJobTransformsCore.TransformConfig import TransformConfig
 
 
 class Pythia6TrfConfig(TransformConfig):
