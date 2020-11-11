@@ -182,27 +182,11 @@ listAllKnownD3PD.append (prodFlags.WriteTrigMuonD3PD)
 #######################################################
 
 
-# Top D3PDs
-_importFlagsFromModule ('TopInputsD3PDMaker.TopInputsD3PDProdFlags', True)
-
-# Standard Model D3PDs
-_importFlagsFromModule ('PhysicsD3PDMaker.PhysicsD3PDProdFlags')
-
 # Jet tag D3PDs
 _importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
-
-# SUSY D3PDs
-_importFlagsFromModule ('SUSYD3PDMaker.SUSYD3PDProdFlags', True)
 
 # Tracking D3PDs.
 _importFlagsFromModule ('InDetD3PDMaker.VertexD3PDAnalysisProdFlags', True)
 
 # egamma D3PDs.
 _importFlagsFromModule ('egammaD3PDMaker.egammaD3PDProdFlags')
-
-# Heavy ion D3PDs.
-_importFlagsFromModule ('HeavyIonD3PDMaker.HeavyIonD3PDProdFlags', True)
-
-# Trigger D3PDs.
-#_importFlagsFromModule ('TrigBJetD3PDMaker.TrigBJetD3PDProdFlags')
-
