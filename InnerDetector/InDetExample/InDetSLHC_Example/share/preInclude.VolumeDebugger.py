@@ -3,9 +3,9 @@ target_volume = "IDET::IDET"
 import os
 if 'TARGETVOLUME' in os.environ:
     target_volume = os.environ['TARGETVOLUME']
-    print("Running overlap check in "+target_volume)
+    print("VolumeDebugger: Running overlap check in "+target_volume)
 else:
-    print("Running overlap check in default volume ("+target_volume+")")
+    print("VolumeDebugger: Running overlap check in default volume ("+target_volume+")")
 
 
 from AthenaCommon.CfgGetter import getPublicTool
