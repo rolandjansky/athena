@@ -1,41 +1,36 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Declare the name of this package:
 atlas_subdir( TopExamples )
 
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          AsgTools
-                          xAODCore
-                          xAODRootAccess
-                          TopCPTools
-                          TopCorrections
-                          TopAnalysis
-                          TopEvent
-                          TopEventSelectionTools
-                          TopEventReconstructionTools
-                          TopConfiguration
-                          PathResolver )
-
-# This package uses ROOT:
-find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO Math MathMore MathCore Graf Physics )
+find_package( ROOT REQUIRED COMPONENTS Core Hist RIO Tree )
 
 # Build a library that other components can link against:
 atlas_add_library( TopExamples Root/*.cxx Root/*.h Root/*.icc
                    TopExamples/*.h TopExamples/*.icc TopExamples/*/*.h
                    TopExamples/*/*.icc 
                    PUBLIC_HEADERS TopExamples
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AsgTools
-                                  xAODCore
-                                  xAODRootAccess
+                                  TopAnalysis
                                   TopCPTools
                                   TopCorrections
-                                  TopAnalysis
                                   TopEvent
-                                  TopEventSelectionTools
                                   TopEventReconstructionTools
-                                  TopConfiguration
-                                  PathResolver
-                                  ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
+                                  TopEventSelectionTools
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES}
+                                          PathResolver
+                                          TopConfiguration
+                                          TopDataPreparation
+                                          xAODBTagging
+                                          xAODEgamma
+                                          xAODEventInfo
+                                          xAODJet
+                                          xAODMissingET
+                                          xAODMuon
+                                          xAODRootAccess
+                                          xAODTau
+                                          xAODTruth )
 
 # Install the Python modules of the package:
 atlas_install_python_modules( python/*.py )
@@ -46,52 +41,37 @@ atlas_install_data( share/* )
 # Build the executables of the package:
 atlas_add_executable( mini-to-flat
                       util/mini-to-flat.cxx
-                      LINK_LIBRARIES AsgTools
-                                     xAODCore
-                                     xAODRootAccess
-                                     TopCPTools
-                                     TopCorrections
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES}
                                      TopAnalysis
-                                     TopEvent
-                                     TopEventSelectionTools
-                                     TopEventReconstructionTools
                                      TopConfiguration
-                                     PathResolver
-                                     ${ROOT_LIBRARIES}
-                                     TopExamples )
+                                     TopEvent
+                                     TopExamples
+                                     xAODCore
+                                     xAODRootAccess )
+
 atlas_add_executable( mini-xaod
                       util/mini-xaod.cxx
-                      LINK_LIBRARIES AsgTools
-                                     xAODCore
-                                     xAODRootAccess
-                                     TopCPTools
-                                     TopCorrections
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES}
                                      TopAnalysis
                                      TopEvent
-                                     TopEventSelectionTools
-                                     TopEventReconstructionTools
-                                     TopConfiguration
-                                     PathResolver
-                                     ${ROOT_LIBRARIES}
-                                     TopExamples )
+                                     TopExamples
+                                     xAODCore
+                                     xAODRootAccess )
+
 atlas_add_executable( mini-to-plots
                       util/mini-to-plots.cxx
-                      LINK_LIBRARIES AsgTools
-                                     xAODCore
-                                     xAODRootAccess
-                                     TopCPTools
-                                     TopCorrections
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES}
                                      TopAnalysis
                                      TopEvent
-                                     TopEventSelectionTools
-                                     TopEventReconstructionTools
-                                     TopConfiguration
-                                     PathResolver
-                                     ${ROOT_LIBRARIES}
-                                     TopExamples )
+                                     TopExamples
+                                     xAODRootAccess )
+
 atlas_add_executable( combineATOutputs
                       util/combineATOutputs.cxx
-                      LINK_LIBRARIES ${ROOT_LIBRARIES}
-                                     TopExamples )
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_install_scripts( scripts/* )

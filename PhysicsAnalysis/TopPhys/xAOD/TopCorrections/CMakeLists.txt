@@ -1,28 +1,11 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Declare the name of this package:
 atlas_subdir( TopCorrections )
 
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          xAODEgamma
-                          xAODMuon
-                          TopEvent
-                          PileupReweighting
-                          ElectronEfficiencyCorrection
-                          TauAnalysisTools
-                          JetJvtEfficiency
-                          PhotonEfficiencyCorrection
-                          PMGTools
-			  PATInterfaces 
-			  FTagAnalysisInterfaces 
-			  MuonAnalysisInterfaces 
-			  TriggerAnalysisInterfaces
-			  PMGAnalysisInterfaces
-			  EgammaAnalysisInterfaces)
-
-# This package uses LHAPDF:
+# External dependencies:
 find_package( Lhapdf )
-# This package uses ROOT:
-find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
+find_package( ROOT REQUIRED COMPONENTS Core )
 
 # Add a ROOT dictionary
 atlas_add_root_dictionary( TopCorrections _cintDictSource
@@ -34,25 +17,35 @@ atlas_add_library( TopCorrections Root/*.cxx Root/*.h Root/*.icc
                    TopCorrections/*.h TopCorrections/*.icc TopCorrections/*/*.h
                    TopCorrections/*/*.icc ${_cintDictSource} 
                    PUBLIC_HEADERS TopCorrections
-                   LINK_LIBRARIES xAODEgamma
-                                  xAODMuon
-                                  TopEvent
-                                  PileupReweightingLib
+                   INCLUDE_DIRS ${LHAPDF_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${LHAPDF_LIBRARIES}
+                                  AsgAnalysisInterfaces
+                                  AsgMessagingLib
+                                  AsgTools
+                                  AthContainers
+                                  EgammaAnalysisInterfacesLib
                                   ElectronEfficiencyCorrectionLib
-                                  TauAnalysisToolsLib
-                                  JetJvtEfficiencyLib
-                                  PhotonEfficiencyCorrectionLib
+                                  FTagAnalysisInterfacesLib
+                                  JetAnalysisInterfacesLib
+                                  MuonAnalysisInterfacesLib
+                                  PATInterfaces
+                                  PMGAnalysisInterfacesLib
                                   PMGToolsLib
-				  PATInterfaces
-				  FTagAnalysisInterfacesLib
-				  MuonAnalysisInterfacesLib
-				  #TriggerAnalysisInterfacesLib
-				  PMGAnalysisInterfacesLib
-				  EgammaAnalysisInterfacesLib
-				  ${LHAPDF_LIBRARIES}
-                                  ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
-		                ${LHAPDF_INCLUDE_DIRS})
+                                  TauAnalysisToolsLib
+                                  TopConfiguration
+                                  TopEvent
+                                  TriggerAnalysisInterfaces
+                                  xAODEgamma
+                                  xAODMuon
+                                  xAODTau
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES}
+                                          CalibrationDataInterfaceLib
+                                          PathResolver
+                                          xAODEventInfo
+                                          xAODJet
+                                          xAODRootAccess
+                                          xAODTruth )
 
 # Install data files from the package:
 atlas_install_data( share/* )
