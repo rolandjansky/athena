@@ -467,7 +467,7 @@ def triggerMergeViewsAndAddMissingEDMCfg( flags, edmSet, hypos, viewMakers, decO
     if flags.Trigger.ExtraEDMList:
         __log.info( "Adding extra collections to EDM: %s", str(flags.Trigger.ExtraEDMList))
         addExtraCollectionsToEDMList(TriggerHLTListRun3, flags.Trigger.ExtraEDMList)
-        __log.info( "Number of EDM items after adding extra collections: %s", len(TriggerHLTListRun3))
+        __log.info( "Number of EDM items after adding extra collections: %d", len(TriggerHLTListRun3))
 
 
     alg = HLTEDMCreatorAlg("EDMCreatorAlg")
