@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/UncertaintyComponent.h"
@@ -33,8 +33,9 @@ UncertaintyComponent::UncertaintyComponent(const std::string& name)
     , m_uncHistName("")
     , m_validHistName("")
     , m_scaleVar(CompScaleVar::UNKNOWN)
+    , m_topology(JetTopology::UNKNOWN)
     , m_energyScale(1)
-    , m_interpolate(true)
+    , m_interpolate(Interpolate::UNKNOWN)
     , m_splitNumber(0)
     , m_uncHist(NULL)
     , m_validHist(NULL)
@@ -48,6 +49,7 @@ UncertaintyComponent::UncertaintyComponent(const ComponentHelper& component, con
     , m_uncHistName(component.uncNames.size()!=0?component.uncNames.at(0):"NONE")
     , m_validHistName(component.validName)
     , m_scaleVar(component.scaleVar)
+    , m_topology(component.topology)
     , m_energyScale(component.energyScale)
     , m_interpolate(component.interpolate)
     , m_splitNumber(component.splitNum)
@@ -69,6 +71,7 @@ UncertaintyComponent::UncertaintyComponent(const UncertaintyComponent& toCopy)
     , m_uncHistName(toCopy.m_uncHistName)
     , m_validHistName(toCopy.m_validHistName)
     , m_scaleVar(toCopy.m_scaleVar)
+    , m_topology(toCopy.m_topology)
     , m_energyScale(toCopy.m_energyScale)
     , m_interpolate(toCopy.m_interpolate)
     , m_splitNumber(toCopy.m_splitNumber)
@@ -107,7 +110,7 @@ StatusCode UncertaintyComponent::initialize(TFile* histFile)
     }
     if (m_validHistName != "")
     {
-        m_validHist = new UncertaintyHistogram(m_validHistName,false);
+        m_validHist = new UncertaintyHistogram(m_validHistName,Interpolate::None);
         if (!m_validHist)
         {
             ATH_MSG_ERROR("Failed to create validity histogram of name \"" << getValidName().Data() << "\" for component: " << getName().Data());
@@ -304,13 +307,37 @@ bool UncertaintyComponent::getValidBool(const double validity) const
     return false;
 }
 
+double UncertaintyComponent::getAbsMass(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
+{
+    bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    
+    if (isSimpleCase)
+        return jet.m();
+    
+    // Check if the specified scale is available and return it if so
+    if (scale.isAvailable(jet))
+        return scale(jet).M();
+    // Fall-back on the TA moment as a float if applicable (TODO: temporary until JetCalibTools updated)
+    if (massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
+        return scaleTAMoment(jet);
+    // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
+    if (massDef == CompMassDef::CaloMass)
+        return jet.m();
+
+    // Specified scale is not available, error
+    ATH_MSG_ERROR("Failed to retrieve the " << CompMassDef::enumToString(massDef).Data() << " mass from the jet");
+    return JESUNC_ERROR_CODE;
+}
+
 double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
 {
-    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
-
-    // UNKNOWN is just use the assigned scale
-    if (massDef == CompMassDef::UNKNOWN)
+    bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    
+    if (isSimpleCase)
         return jet.m()/jet.pt();
     
     // Check if the specified scale is available and return it if so
@@ -322,6 +349,31 @@ double UncertaintyComponent::getMassOverPt(const xAOD::Jet& jet, const CompMassD
     // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
     if (massDef == CompMassDef::CaloMass)
         return jet.m()/jet.pt();
+
+    // Specified scale is not available, error
+    ATH_MSG_ERROR("Failed to retrieve the " << CompMassDef::enumToString(massDef).Data() << " mass from the jet");
+    return JESUNC_ERROR_CODE;
+
+}
+
+double UncertaintyComponent::getMassOverE(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const
+{
+    bool isSimpleCase = (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    
+    if (isSimpleCase)
+        return jet.m()/jet.e();
+
+    // Check if the specified scale is available and return it if so
+    if (scale.isAvailable(jet))
+        return scale(jet).M()/scale(jet).E();
+    // Fall-back on the TA moment as a float if applicable (TODO: temporary until JetCalibTools updated)
+    if (massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
+        return scaleTAMoment(jet)/jet.e();
+    // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
+    if (massDef == CompMassDef::CaloMass)
+        return jet.m()/jet.e();
 
     // Specified scale is not available, error
     ATH_MSG_ERROR("Failed to retrieve the " << CompMassDef::enumToString(massDef).Data() << " mass from the jet");

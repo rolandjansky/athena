@@ -23,7 +23,6 @@ class ValidityHistogram : public UncertaintyHistogram
         ValidityHistogram(const TString& histName, const CompParametrization::TypeEnum parametrization, const float energyScale, const CompMassDef::TypeEnum massDef);
         ValidityHistogram(const char* histName, const CompParametrization::TypeEnum parametrization, const float energyScale, const CompMassDef::TypeEnum massDef);
         ValidityHistogram(const ValidityHistogram& toCopy);
-        ValidityHistogram & operator=(const ValidityHistogram &) = delete;
         virtual ~ValidityHistogram();
         virtual StatusCode initialize(TFile* histFile);
 

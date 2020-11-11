@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_CONFIGHELPER_H
 #define JETUNCERTAINTIES_CONFIGHELPER_H
 
 #include "JetUncertainties/UncertaintyEnum.h"
+#include "ParticleJetTools/LargeRJetLabelEnum.h"
 
 #include "AsgMessaging/AsgMessaging.h"
 #include "AsgMessaging/StatusCode.h"
@@ -32,30 +33,44 @@ class ComponentHelper
         TString param;
         TString massDefStr;
         TString scale;
+        TString topologyStr;
         TString interpolStr;
         TString special;
         TString uncNameList;
         TString validName;
         TString subCompList;
-        int     splitNum{};
-        int     groupNum{};
+        int     splitNum;
+        int     groupNum;
         TString combMassStr;
         TString caloMassTerm;
         TString TAMassTerm;
         TString caloMassDef;
         TString TAMassDef;
+        TString truthLabelStr;
+        TString LargeRJetTruthLabelName;
+        TString LargeRJetTruthLabelStr;
+        TString LargeRJetTruthLabelsForSFstr;
+        TString RegionForSFstr;
+        TString ResultName;
 
         // Derived values to parse from the raw values
-        CompParametrization::TypeEnum parametrization{};
-        CompMassDef::TypeEnum massDef{};
-        CompScaleVar::TypeEnum scaleVar{};
-        bool isSpecial{};
-        PileupComp::TypeEnum pileupType{};
-        FlavourComp::TypeEnum flavourType{};
-        CombMassComp::TypeEnum combMassType{};
-        bool interpolate{};
+        CompParametrization::TypeEnum parametrization;
+        CompMassDef::TypeEnum massDef;
+        CompScaleVar::TypeEnum scaleVar;
+        JetTopology::TypeEnum topology;
+        bool isSpecial;
+        PileupComp::TypeEnum pileupType;
+        FlavourComp::TypeEnum flavourType;
+        CombMassComp::TypeEnum combMassType;
+        Interpolate::TypeEnum interpolate;
         std::vector<TString> uncNames;
         std::vector<TString> subComps;
+        std::vector<int> truthLabels;
+        std::vector<TString> LargeRJetTruthLabelStrs;
+        std::vector<LargeRJetTruthLabel::TypeEnum> LargeRJetTruthLabels;
+        std::vector<TString> LargeRJetTruthLabelsForSFstrs;
+        std::vector<CompFlavorLabelVar::TypeEnum> LargeRJetTruthLabelsForSF;
+        CompTaggerRegionVar::TypeEnum RegionForSF;
 };
 
 class GroupHelper
@@ -71,13 +86,13 @@ class GroupHelper
         TString cat;
         TString corr;
         TString isRed;
-        int     groupNum{};
-        int     subgroupNum{};
+        int     groupNum;
+        int     subgroupNum;
 
         // Derived values to parse from the raw values
-        CompCategory::TypeEnum category{};
-        CompCorrelation::TypeEnum correlation{};
-        bool reducible{};
+        CompCategory::TypeEnum category;
+        CompCorrelation::TypeEnum correlation;
+        bool reducible;
 };
 
 class ConfigHelper : asg::AsgMessaging

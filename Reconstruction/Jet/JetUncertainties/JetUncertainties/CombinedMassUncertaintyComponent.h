@@ -20,14 +20,13 @@ class CombinedMassUncertaintyComponent : public UncertaintyComponent
         CombinedMassUncertaintyComponent(const ComponentHelper& component);
         CombinedMassUncertaintyComponent(const CombinedMassUncertaintyComponent& toCopy);
         virtual CombinedMassUncertaintyComponent* clone() const;
-        CombinedMassUncertaintyComponent & operator=(const CombinedMassUncertaintyComponent &) = delete;
         virtual ~CombinedMassUncertaintyComponent();
-        //
         virtual StatusCode setCaloTerm(UncertaintyGroup* caloComp);
         virtual StatusCode setTATerm(  UncertaintyGroup* TAComp);
         virtual StatusCode setCaloWeights(const UncertaintyHistogram* caloWeights);
         virtual StatusCode setTAWeights(  const UncertaintyHistogram* TAWeights);
         virtual StatusCode setCombWeightMassDefs(const CompMassDef::TypeEnum caloMassDef, const CompMassDef::TypeEnum TAMassDef);
+        virtual StatusCode setCombWeightParam(const CompParametrization::TypeEnum param);
         virtual StatusCode initialize(TFile* histFile);
 
         // Extra information retrieval methods
@@ -43,6 +42,7 @@ class CombinedMassUncertaintyComponent : public UncertaintyComponent
 
         // Method overrides
         virtual bool   isAlwaysZero() const;
+
     protected:
         // Uncertainty/validity retrieval helper methods
         virtual bool getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo)    const;
@@ -65,8 +65,11 @@ class CombinedMassUncertaintyComponent : public UncertaintyComponent
         // The two possible scale helpers
         JetFourMomAccessor m_caloMassScale_weights;
         JetFourMomAccessor m_TAMassScale_weights;
+        // The weight parametrization
+        CompParametrization::TypeEnum m_weightParam;
 
         // Helper functions
+        double readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param, const double massShiftFactor) const;
         virtual double getWeightFactorCalo(const xAOD::Jet& jet, const double shiftFactor) const;
         virtual double getWeightFactorTA(  const xAOD::Jet& jet, const double shiftFactor) const;
         StatusCode calculateCombinedMass(const xAOD::Jet& jet, const double shiftFactorCalo, const double shiftFactorTA, double& combMass) const;
