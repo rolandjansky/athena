@@ -69,7 +69,6 @@
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
 + PhysicsAnalysis/AnalysisCommon/TruthClassification
 + PhysicsAnalysis/D3PDTools/.*
-- PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
