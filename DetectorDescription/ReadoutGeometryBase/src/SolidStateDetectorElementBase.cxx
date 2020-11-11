@@ -55,26 +55,6 @@ using Trk::distDepth;
     return *m_surface;
   }
 
-  const std::vector<const Trk::Surface*>&
-  SolidStateDetectorElementBase::surfaces() const
-  {
-    if (!m_surfacesValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_surfacesValid) {
-        // get this surface
-        m_surfaces.push_back(&surface());
-        // get the other side surface
-        if (otherSide()) {
-          m_surfaces.push_back(&(otherSide()->surface()));
-        }
-      }
-      m_surfacesValid.store(true);
-    }
-
-    // return the surfaces
-    return m_surfaces;
-  }
-
   const GeoTrf::Transform3D&
   SolidStateDetectorElementBase::transformHit() const
   {

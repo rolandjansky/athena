@@ -50,9 +50,8 @@ namespace InDetDD {
    *  
    * @class SolidStateDetectorElementBase
    *
-   * Class to hold geometrical description of a silicon detector element. 
-   * A detector element is a module in the pixels and one side of a module in the SCT.
-   * This class is shared between the Pixel and SCT detector since there is a lot of commonality.
+   * Class to hold geometrical description of a solid state detector element. 
+   * This base class is shared between the InnerDetetector/ITk/HGTD since there is a lot of commonality.
    * 
    * @par Coordinate Frames.
    *
@@ -199,37 +198,6 @@ namespace InDetDD {
     //@}
 
     /**
-     * @name Navigation setters
-     * Non-const methods.
-     * These are inline methods and set neighbours.
-     */
-    //@{
-    void setNextInEta(const SolidStateDetectorElementBase* element);
-    void setPrevInEta(const SolidStateDetectorElementBase* element);
-    void setNextInPhi(const SolidStateDetectorElementBase* element);
-    void setPrevInPhi(const SolidStateDetectorElementBase* element);
-    /**
-     * For SCT only
-     */
-    void setOtherSide(const SolidStateDetectorElementBase* element);
-    //@}
-
-    /**
-     * @name Navigation
-     * Inline methods to access neighbours.
-     */
-    //@{
-    const SolidStateDetectorElementBase* nextInEta() const;
-    const SolidStateDetectorElementBase* prevInEta() const;
-    const SolidStateDetectorElementBase* nextInPhi() const;
-    const SolidStateDetectorElementBase* prevInPhi() const;
-    /**
-     * Useful for SCT only
-     */
-    const SolidStateDetectorElementBase* otherSide() const;
-    //@}
-
-    /**
      * @name Common items
      * Inline method
      */
@@ -246,11 +214,13 @@ namespace InDetDD {
     /**
      * identifier of this detector element (inline)
      */
+    //do these need to be virtual? - they are in 21.9 but I don't see why
     Identifier identify() const;
     
     /**
      * identifier hash (inline)
      */
+    //do these need to be virtual? - as above
     IdentifierHash identifyHash() const;
     
     /**
@@ -283,13 +253,6 @@ namespace InDetDD {
      * TrkDetElementBase interface (inline)
      */
     virtual const Trk::Surface& surface(const Identifier&) const;
-    
-    /**
-     * Returns the full list of surfaces associated to this detector element
-     */
-    virtual const std::vector<const Trk::Surface*>& surfaces() const;
-    //@}
-
     /**
      * @name Transformation
      */
@@ -320,59 +283,6 @@ namespace InDetDD {
      * Transform to go from local reconstruction frame to local hit frame.
      */
     const HepGeom::Transform3D recoToHitTransform() const;
-    //@}
-
-    /**
-     * @name Module Frame
-     *
-     * Methods to help work with the module frame.
-     * This is mainly of of use in the SCT where the module frame can
-     * in general be different from the element frame. It is actully
-     * defined as the frame of one of the sides (currently the axial
-     * side), but using these methods one does not need to make any
-     * assumptions about what the actual frame is.  In the following
-     * methods the local element frame is the local reconstruction
-     * frame of this element.
-     */
-    //@{
-    /**
-     * Module to global frame transform.
-     * Includes misalignment. The module frame is defined to be the
-     * local reconstruction frame of the axial layer in the SCT. For
-     * the pixel it is the same as the element.
-     */
-    //Not for base
-    //const Amg::Transform3D& moduleTransform() const;
-
-    /**
-     * Default module to global frame transform, ie with no misalignment.
-     * The module frame is defined to be the
-     * local reconstruction frame of the axial layer in the SCT. For
-     * the pixel it is the same as the element.
-     */
-    //Not for base
-    //Amg::Transform3D defModuleTransform() const;
-
-    /**
-     * Take a transform of the local element frame and return its equivalent in the module frame.
-     */
-    //No for base
-    //Amg::Transform3D localToModuleFrame(const Amg::Transform3D& localTransform) const;
-
-    /**
-     * Transformation from local element to module frame.  This can be
-     * used to take a local position in the element frame and transform
-     * it to a position in the module frame. If one is already in the
-     * module frame it will return the Identity transform.
-     */
-    //Not for base
-    //Amg::Transform3D localToModuleTransform() const;
-
-    /**
-     * Check if the element and module frame are the same.
-     */
-    //Not for base
-    //bool isModuleFrame() const;
     //@}
 
     /**
@@ -479,57 +389,6 @@ namespace InDetDD {
     
     //@}
 
-    /**
-     * @name Angle
-     */
-    //@{
-    /**
-     * Compute sin(tilt angle) at a given position:
-     * at center
-     */
-    //Not for base?
-    //double sinTilt() const;
-    /**
-     * at given local position
-     */
-    //Not for base?
-    //double sinTilt(const Amg::Vector2D& localPos) const;
-    /**
-     * at given global position
-     */
-    //Not for base?
-    //double sinTilt(const HepGeom::Point3D<double>& globalPosition) const;
-    
-    /**
-     * Compute sin(stereo angle) at a given position: at center
-     */
-    //not for base class?
-    //double sinStereo() const;
-    /**
-     * at given local position
-     */
-    //double sinStereo(const Amg::Vector2D& localPos) const;
-    /**
-     * at given global position
-     */
-    //double sinStereo(const HepGeom::Point3D<double>& globalPosition) const;
-    
-    /**
-     * Angle of strip in local frame with respect to the etaAxis. 
-     * Zero for all elements except trapezoidal detectors (ie SCT forward modules).
-     */
-    //double sinStereoLocal(const Amg::Vector2D& localPos) const;
-    /**
-     * See previous method
-     */
-    //double sinStereoLocal(const HepGeom::Point3D<double>& globalPos) const;
-    
-    /**
-     * Check if it is the stereo side (useful for SCT)
-     */
-    //bool isStereo() const;
-    
-    //@}
 
     /**
      * @name Element Extent
@@ -564,7 +423,8 @@ namespace InDetDD {
     /**
      * access to the local description (inline):
      */
-    const DetectorDesign& design() const;
+    
+    virtual const DetectorDesign& design() const;
     
     virtual const Trk::SurfaceBounds& bounds() const;
     /**
@@ -607,10 +467,6 @@ namespace InDetDD {
      */
     double etaPitch() const;
     double phiPitch() const;
-    /**
-     * Useful for SCT Forward.
-     */
-    double phiPitch(const Amg::Vector2D& localPosition) const;
 
     /**
      * carrier type for readout. ie holes for SCT and electrons for pixels. inline
@@ -634,12 +490,6 @@ namespace InDetDD {
      * @name Intersection Tests
      */
     //@{
-    /**
-     * Test if near bond gap within tolerances
-     */
-    //Not for base class
-    //bool nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const;
-    //bool nearBondGap(const HepGeom::Point3D<double>& globalPosition, double etaTol) const;
     
     /**
      * Test that it is in the active region
@@ -701,30 +551,6 @@ namespace InDetDD {
      */
     SiCellId connectedCell(const SiCellId cellId, int number) const;
     
-    /**
-     * If cell is ganged return the id of the other cell which shares the readout
-     * for this cell, otherwise return an invalid id.
-     * This is a more convenient (and slightly faster) alternative than 
-     * using the above two methods.
-     * Only relevant for pixel. For SCT always returns an invalid ID. (inline)
-     */
-    //Not for base
-    //SiCellId gangedCell(const SiCellId& cellId) const;
-    
-    //@}
-    
-    /**
-     * @name Miscellaneous
-     */
-    //@{
-    /**
-     * Special method for SCT to retrieve the two ends of a "strip"
-     * Returned coordinates are in global frame.
-     */
-    //Not wanted in base class?
-    //std::pair<Amg::Vector3D,Amg::Vector3D> endsOfStrip(const Amg::Vector2D& position) const;
-    //@}
-    
   private:
     /**
      * @name Private Methods
@@ -740,13 +566,7 @@ namespace InDetDD {
     /**
      * Recalculate cached values.
      */
-    void updateCache() const;
-   
-    /**
-     * Determine m_isStereo variable and m_stereoCacheValid variable.
-     */
-    //Not for base?
-    //void determineStereo() const;
+    virtual void updateCache() const;
     
     /**
      * Calculate extent in r,z and phi. The values are cached and there
@@ -776,16 +596,6 @@ namespace InDetDD {
      * Private recoToHitTransform Implementation method with no lock
      */
     const HepGeom::Transform3D recoToHitTransformImpl() const;
- 
-    /**
-     * Private implementation method with no lock at center
-     */
-    //Not for base class
-    //double sinStereoImpl() const;
-    /**
-     * Private implementation method with no lock at given global position
-     */
-    //double sinStereoImpl(const HepGeom::Point3D<double>& globalPosition) const;
  
     /**
      * Declaring the Message method for further use (inline)
@@ -820,17 +630,6 @@ namespace InDetDD {
     mutable std::atomic_bool m_firstTimeBase{true};
     mutable std::atomic_bool m_firstTime{true};
     
-    /**
-     * Since m_isStereo depends on m_otherSide->sinStereo(), a dedicated validity variable is needed.
-     */
-    //Not for base class?
-    //    mutable std::atomic_bool m_stereoCacheValid{false};
-    /**
-     * Since m_surfaces depends on m_otherSide->surface(), a dedicated validity variable is needed.
-     */
-    mutable std::atomic_bool m_surfacesValid{false};
-    //@}
-
     /**
      * @name Mutex guard to update mutable variables in const methods
      */
@@ -873,21 +672,6 @@ namespace InDetDD {
      * hash id of this detector element
      */
     IdentifierHash m_idHash{};
-
-    //not for base class?
-    //bool m_isPixel{false};
-    //bool m_isDBM{false};
-    //@}
-
-    /**
-     * @name Variables set by individual setter methods
-     */
-    //@{
-    const SolidStateDetectorElementBase* m_nextInEta{nullptr}; // set by setNextInEta
-    const SolidStateDetectorElementBase* m_prevInEta{nullptr}; // set by setPrevInEta
-    const SolidStateDetectorElementBase* m_nextInPhi{nullptr}; // set by setNextInPhi
-    const SolidStateDetectorElementBase* m_prevInPhi{nullptr}; // set by setPrevInPhi
-    const SolidStateDetectorElementBase* m_otherSide{nullptr}; // set by setOtherSide
     //@}
 
     /**

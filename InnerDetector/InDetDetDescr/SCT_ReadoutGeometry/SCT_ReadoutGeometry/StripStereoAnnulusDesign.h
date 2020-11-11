@@ -63,7 +63,7 @@ public:
 
     ~StripStereoAnnulusDesign() = default;
 
-    HepGeom::Point3D<double> sensorCenter() const;
+    Amg::Vector3D sensorCenter() const;
 
     // Copy constructor and assignment:
     StripStereoAnnulusDesign(const StripStereoAnnulusDesign &design);
@@ -170,7 +170,7 @@ public:
     virtual DetectorShape shape() const;
 
    // Transform from SiHit to GeoModel frame
-   const HepGeom::Transform3D SiHitToGeoModel() const;
+   const Amg::Transform3D SiHitToGeoModel() const;
 
    double sinStripAngleReco(double phiCoord, double etaCoord) const;
 

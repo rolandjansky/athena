@@ -21,56 +21,6 @@ namespace InDetDD {
   {
     updateCache();
   }
-
-  inline void SolidStateDetectorElementBase::setNextInEta(const SolidStateDetectorElementBase* element)
-  {
-    m_nextInEta = element;
-  }
-
-  inline void SolidStateDetectorElementBase::setPrevInEta(const SolidStateDetectorElementBase* element)
-  {
-    m_prevInEta = element;
-  }
-
-  inline void SolidStateDetectorElementBase::setNextInPhi(const SolidStateDetectorElementBase* element)
-  {
-    m_nextInPhi = element;
-  }
-
-  inline void SolidStateDetectorElementBase::setPrevInPhi(const SolidStateDetectorElementBase* element)
-  {
-    m_prevInPhi = element;
-  }
-
-  inline void SolidStateDetectorElementBase::setOtherSide(const SolidStateDetectorElementBase* element) // For SCT only
-  {
-    m_otherSide = element;
-  }
-
-  inline const SolidStateDetectorElementBase * SolidStateDetectorElementBase::nextInEta() const
-  {
-    return m_nextInEta;
-  }
-    
-  inline const SolidStateDetectorElementBase * SolidStateDetectorElementBase::prevInEta() const
-  {
-    return m_prevInEta;
-  }
-    
-  inline const SolidStateDetectorElementBase * SolidStateDetectorElementBase::nextInPhi() const
-  {
-    return m_nextInPhi;
-  }
-    
-  inline const SolidStateDetectorElementBase * SolidStateDetectorElementBase::prevInPhi() const
-  {
-    return m_prevInPhi;
-  }
-    
-  inline const SolidStateDetectorElementBase * SolidStateDetectorElementBase::otherSide() const
-  {
-    return m_otherSide;
-  }
     
   inline const SiCommonItems* SolidStateDetectorElementBase::getCommonItems() const
   {
@@ -307,11 +257,6 @@ namespace InDetDD {
   inline double SolidStateDetectorElementBase::phiPitch() const
   {
     return m_design->phiPitch();
-  }
-    
-  inline double SolidStateDetectorElementBase::phiPitch(const Amg::Vector2D& localPosition) const
-  {
-    return m_design->phiPitch(localPosition);
   }
     
   inline InDetDD::CarrierType SolidStateDetectorElementBase::carrierType() const

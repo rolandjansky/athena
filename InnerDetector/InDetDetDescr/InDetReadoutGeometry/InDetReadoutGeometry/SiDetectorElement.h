@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -12,19 +12,19 @@
 /**
  * Base class.
  */
-#include "TrkDetElementBase/TrkDetElementBase.h"
+#include "ReadoutGeometryBase/SolidStateDetectorElementBase.h"
 
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiIntersect.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiIntersect.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include "CLHEP/Geometry/Point3D.h"
@@ -137,7 +137,7 @@ namespace InDetDD {
    */
  
 
-  class SiDetectorElement : public Trk::TrkDetElementBase {
+  class SiDetectorElement : public InDetDD::SolidStateDetectorElementBase {
 
   public:
     

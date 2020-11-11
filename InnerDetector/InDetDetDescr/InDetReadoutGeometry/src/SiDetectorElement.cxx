@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -39,17 +39,7 @@ namespace InDetDD {
                                        const GeoVFullPhysVol* geophysvol,
                                        const SiCommonItems* commonItems,
                                        const GeoAlignmentStore* geoAlignStore) :
-    TrkDetElementBase(geophysvol),
-    m_id(id),
-    m_design(design),
-    m_commonItems(commonItems),
-    m_surface(),
-    m_geoAlignStore(geoAlignStore)
-  {
-    m_hitEta = m_design->etaAxis();
-    m_hitPhi = m_design->phiAxis();
-    m_hitDepth = m_design->depthAxis();
-
+    SolidStateDetectorElementBase(id,design,geophysvol,commonItems,geoAlignStore) {
     commonConstructor();
   }
 
