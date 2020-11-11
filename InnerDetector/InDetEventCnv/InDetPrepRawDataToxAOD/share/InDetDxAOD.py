@@ -5,6 +5,8 @@
 #################
 ## Load common flags
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
+from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from InDetRecExample.InDetJobProperties import InDetFlags
 from DerivationFrameworkInDet.InDetCommon import *
 
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
