@@ -212,7 +212,7 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check second dimension boundaries, if applicable
-    const float valY = checkBoundariesByBin(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
+    const double valY = checkBoundariesByBin(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
     if (m_nDim == 2)
     {
         // We need a 2D histogram for the projection calls
