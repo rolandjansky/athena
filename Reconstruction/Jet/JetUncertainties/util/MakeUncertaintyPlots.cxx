@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/JetUncertaintiesTool.h"
@@ -71,14 +71,14 @@ void applyPublicFormat(TGraph& graph)
         graph.SetLineColor(kBlue);
         graph.SetLineStyle(2);
         if (!name.CompareTo("Flav. composition"))
-            graph.SetName(Form("%s, %s",name.Data(),optHelper.IsDijetComposition()?"inclusive jets":"unknown composition"));
+            graph.SetName(Form("%s, %s",name.Data(),optHelper.GetCompositionName().Data()));
     }
     else if (name.Contains("Flav. response"))
     {
         graph.SetLineColor(kGreen+1);
         graph.SetLineStyle(3);
         if (!name.CompareTo("Flav. response"))
-            graph.SetName(Form("%s, %s",name.Data(),optHelper.IsDijetComposition()?"inclusive jets":"unknown composition"));
+            graph.SetName(Form("%s, %s",name.Data(),optHelper.GetCompositionName().Data()));
     }
     else if (name.Contains("Pileup") || name.Contains("Pile-up"))
     {
@@ -169,7 +169,12 @@ void DrawFillLabel(TString txt, double x, double y, TH1 *h, bool logX = optHelpe
   if (logX) {
     userxlow = exp(log(xlow) + fracxaxislow*(log(xhigh) - log(xlow)));
     userxhigh = exp(log(xlow) + fracxaxishigh*(log(xhigh) - log(xlow)));
-    if (optHelper.IsLargeR())
+    if (optHelper.fillShift().first != 0 || optHelper.fillShift().second != 0)
+    {
+        userxlow -= optHelper.fillShift().first;
+        userxhigh -= optHelper.fillShift().second;
+    }
+    else if (optHelper.IsLargeR())
     {
         userxlow -= 15;
         userxhigh -= 15;
@@ -177,6 +182,11 @@ void DrawFillLabel(TString txt, double x, double y, TH1 *h, bool logX = optHelpe
   } else {
     userxlow = xlow + fracxaxislow*(xhigh - xlow);
     userxhigh = xlow + fracxaxishigh*(xhigh - xlow);
+    if (optHelper.fillShift().first != 0 || optHelper.fillShift().second != 0)
+    {
+        userxlow -= optHelper.fillShift().first;
+        userxhigh -= optHelper.fillShift().second;
+    }
     if (optHelper.IsTLA())
     {
         userxlow -= 15;
@@ -261,7 +271,7 @@ void DrawAtlasLabel(const TString& label = optHelper.GetATLASLabel(), const bool
             else if (!label.CompareTo("Preliminary"))
                 xPos = 0.67;
             else if (label == "")
-                xPos = 0.75;
+                xPos = 0.8;
             else
                 xPos = 0.7;
         }
@@ -292,6 +302,16 @@ std::vector<TString> GetJetDesc(const TString& jetAlgoIn)
         calib = "LCW+JES";
         jetAlgo.ReplaceAll("LCTopo","");
         jetAlgo.ReplaceAll("TopoLC","");
+    }
+    else if (jetAlgo.Contains("EMPFlow"))
+    {
+        calib = "PFlow+JES";
+        jetAlgo.ReplaceAll("EMPFlow","");
+    }
+    else if (jetAlgo.Contains("TrackCaloCluster"))
+    {
+        calib = "TCC+JES";
+        jetAlgo.ReplaceAll("TrackCaloCluster","");
     }
     if (calib == "")
     {
@@ -429,7 +449,7 @@ TString GetLargeJetDesc(const TString& jetAlgoIn)
             return "";
         }
 
-        jetSubPart = Form("Trimmed (f_{cut} = %.2f, #font[52]{R}_{sub} = %.1f)%s",float(jet::utils::getTypeObjFromString<int>(pTfrac))/100.,float(jet::utils::getTypeObjFromString<int>(smallR))/100.,optHelper.IsPublicFormat() ? ", #it{p}_{T}^{jet} > 150 GeV" : "");
+        jetSubPart = Form("Trimmed (#it{f}_{cut} = %.2f, #font[52]{R}_{sub} = %.1f)%s",float(jet::utils::getTypeObjFromString<int>(pTfrac))/100.,float(jet::utils::getTypeObjFromString<int>(smallR))/100.,optHelper.IsPublicFormat() ? ", #it{p}_{T}^{jet} > 150 GeV" : "");
     }
 
     if (jetSubPart == "")
@@ -447,9 +467,14 @@ void DrawJetLabel(const JetUncertaintiesTool* provider, const double yPos)
     {
         DrawText(GetLargeJetDesc(provider->getJetDef().c_str()),kBlack,yPos);
     }
+    else if (TString(provider->getJetDef().c_str()).Contains("Trimmed"))
+    {
+        DrawText(GetLargeJetDesc(provider->getJetDef().c_str()),kBlack,yPos-0.035);
+    }
     else
         //DrawText(GetJetDesc(provider->getJetDef().c_str())+" + #it{in situ} correction",kBlack,yPos);
-        DrawText(GetJetDesc(provider->getJetDef().c_str()).at(0)+" "+GetJetDesc(provider->getJetDef().c_str()).at(1)+", "+GetJetDesc(provider->getJetDef().c_str()).at(2)+" + #it{in situ} correction",kBlack,yPos);
+        //DrawText(GetJetDesc(provider->getJetDef().c_str()).at(0)+" "+GetJetDesc(provider->getJetDef().c_str()).at(1)+", "+GetJetDesc(provider->getJetDef().c_str()).at(2)+" + #it{in situ}",kBlack,yPos);
+        DrawText(GetJetDesc(provider->getJetDef().c_str()).at(0)+" "+GetJetDesc(provider->getJetDef().c_str()).at(1)+", "+GetJetDesc(provider->getJetDef().c_str()).at(2),kBlack,yPos);
 }
 
 TString getTagType(const JetUncertaintiesTool* provider)
@@ -500,9 +525,24 @@ void DrawYearLabel(const JetUncertaintiesTool* provider, const double yPos)
         type = "Data 2015";
         sqrtS = "13 TeV";
     }
-    else if (release.BeginsWith("2016_Moriond"))
+    else if (release.BeginsWith("2016_Moriond") || release.BeginsWith("rel21_Moriond2018"))
     {
         type = "Data 2016";
+        sqrtS = "13 TeV";
+    }
+    else if (release.BeginsWith("rel21_Summer2018")|| release.BeginsWith("rel21_Fall2018"))
+    {
+        type = "Data 2015-2017";
+        sqrtS = "13 TeV";
+    }
+    else if (release.BeginsWith("rel21_Moriond2018"))
+    {
+        type = "Data 2015+2016";
+        sqrtS = "13 TeV";
+    }
+    else if (release.BeginsWith("rel21_Spring2019") || release.BeginsWith("rel21_Summer2019") || release.BeginsWith("rel21_Fall2020"))
+    {
+        type = "Data 2015-2017";
         sqrtS = "13 TeV";
     }
     if (type == "" || sqrtS == "")
@@ -574,12 +614,13 @@ double GetPunchthroughProb(const JetUncertaintiesTool* provider, const xAOD::Jet
         std::istringstream ss(release.Data());
         std::string token;
         std::getline(ss, token, '_');
-        int year = std::stoi(token);
+        std::cout << "Year: " << token << std::endl;
+        int year = token == "rel21" ? 2017 : std::stoi(token);
         if (year > 2012) {
-          filename = optHelper.GetInputsDir()+"PTprob.root";
+          filename = optHelper.GetInputsDir()+"/PTprob.root";
           histName = "h_PT_pT_EMJES4_norm";
         } else {
-          filename = optHelper.GetInputsDir()+"PTprob_2012.root";
+          filename = optHelper.GetInputsDir()+"/PTprob_2012.root";
 
           if (jetType == "AntiKt4LCTopo")
               histName = "h_PT_pT_LCJES4_norm";
@@ -642,7 +683,7 @@ void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInf
         sigmaMu = 1.9;
         sigmaNPV = 2.9;
     }
-    else if (release.BeginsWith("2016_"))
+    else if (release.BeginsWith("2016_") || release.BeginsWith("rel21_Moriond2018") || release.BeginsWith("rel21_Summer2018") || release.BeginsWith("rel21_Fall2018") || release.BeginsWith("rel21_Spring2019") || release.BeginsWith("rel21_Summer2019") || release.BeginsWith("rel21_Fall2020") )
     {
         // Kate, Nov 2016 
         // via Eric Corrigan's pileup studies
@@ -661,9 +702,9 @@ void setPileupShiftsForYear(const JetUncertaintiesTool* provider, xAOD::EventInf
     NPV(*eInfo) = (jet?provider->getRefNPV(*jet):provider->getRefNPV())+sigmaNPV;
 }
 
-double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const std::vector<size_t>& compIndices,const xAOD::Jet& jet,const xAOD::EventInfo& eInfo,const size_t PTindex)
+double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const std::vector<int>& compIndices,const xAOD::Jet& jet,const xAOD::EventInfo& eInfo,const int PTindex)
 {
-    if (compIndices.size() == 0)
+    if (compIndices.size() == 0 && !optHelper.IgnoreNoMatch())
         printf("WARNING: empty vector passed to getQuadratureSumUncertainty\n");
     //for (size_t iComp = 0; iComp < compIndices.size(); ++iComp)
     //    printf("Component %zu/%zu (%zu)\n",iComp,compIndices.size(),compIndices.at(iComp));
@@ -676,32 +717,55 @@ double getQuadratureSumUncertainty(const JetUncertaintiesTool* provider, const s
         else
             unc = provider->getNormalizedTAMassWeight(jet)/10.;
     }
+    else if (compIndices.size() == 1 && (compIndices.at(0) == 6666 || compIndices.at(0) == 7777)) // SPECIAL: nominal MC or data resolution
+    {
+        std::vector<jet::CompScaleVar::TypeEnum> scaleVars = optHelper.GetScaleVars();
+        if (scaleVars.size() != 1)
+            printf("WARNING: cannot parse multiple scale variable resolutions at once, using index 0");
+
+        jet::JetTopology::TypeEnum topology = optHelper.GetTopology();
+
+        if (compIndices.at(0) == 6666)
+            unc = provider->getNominalResolutionMC(jet,scaleVars.at(0),topology);
+        else
+            unc = provider->getNominalResolutionData(jet,scaleVars.at(0),topology);
+    }
     else if (compIndices.size() == 1 && !optHelper.AbsValue())
     {
-        const double factor = compIndices.at(0) != PTindex ? 1 : GetPunchthroughProb(provider,jet);
+        const double factor = abs(compIndices.at(0)) != PTindex ? 1 : GetPunchthroughProb(provider,jet);
+        const double inverted = compIndices.at(0) < 0 ? -1 : 1;
         double localUnc = 0;
         for (size_t iScaleVar = 0; iScaleVar < optHelper.GetScaleVars().size(); ++iScaleVar)
-            if (provider->getValidUncertainty(compIndices.at(0),localUnc,jet,eInfo,optHelper.GetScaleVars().at(iScaleVar)))
-                unc = factor*localUnc;
+            if (provider->getValidUncertainty(abs(compIndices.at(0)),localUnc,jet,eInfo,optHelper.GetScaleVars().at(iScaleVar)))
+                unc = factor*localUnc*inverted;
     }
     else
     {
         for (size_t iComp = 0; iComp < compIndices.size(); ++iComp)
         {
             if (compIndices.at(iComp) == 8888 || compIndices.at(iComp) == 9999) continue;
+            if (compIndices.at(iComp) == 6666 || compIndices.at(iComp) == 7777) continue;
 
             const double factor = compIndices.at(iComp) != PTindex ? 1 : GetPunchthroughProb(provider,jet);
             double localUnc = 0;
             for (size_t iScaleVar = 0; iScaleVar < optHelper.GetScaleVars().size(); ++iScaleVar)
-                    if (provider->getValidUncertainty(compIndices.at(iComp),localUnc,jet,eInfo,optHelper.GetScaleVars().at(iScaleVar)))
-                        unc += factor*factor*localUnc*localUnc;
+            {
+                const double inverted = compIndices.at(iComp) < 0 ? -1 : 1;
+                if (provider->getValidUncertainty(abs(compIndices.at(iComp)),localUnc,jet,eInfo,optHelper.GetScaleVars().at(iScaleVar)))
+                    unc += factor*factor*localUnc*localUnc*inverted;
+            }
         }
-        unc = sqrt(unc);
+        if (unc > 0)
+            unc = sqrt(unc);
+        else if (optHelper.AbsValue())
+            unc = sqrt(-unc);
+        else
+            unc = -sqrt(-unc);
     }
     return unc;
 }
 
-std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* provider,const TString& compName)
+std::vector<int> getComponentIndicesFromName(const JetUncertaintiesTool* provider,const TString& compName)
 {
     // Map of name to index won't work as we need to worry about wildcard component names
     // So build a vector
@@ -714,7 +778,7 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
 
     // Now parse component name to index/indices
     const std::vector<TString> subComponents = jet::utils::vectorize<TString>(compName,",");
-    std::vector<size_t> indices;
+    std::vector<int> indices;
     for (size_t iSubComp = 0; iSubComp < subComponents.size(); ++iSubComp)
     {
         // Check for wildcards
@@ -724,7 +788,10 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
         const bool ALLCOMP    = !subComponents.at(iSubComp).CompareTo("total",TString::kIgnoreCase) || !subComponents.at(iSubComp).CompareTo("#");
         const bool CALOWEIGHT = !subComponents.at(iSubComp).CompareTo("caloweight",TString::kIgnoreCase);
         const bool TAWEIGHT   = !subComponents.at(iSubComp).CompareTo("taweight",TString::kIgnoreCase);
-        const TString toFind  = midWild ? subComponents.at(iSubComp) : TString(subComponents.at(iSubComp)).ReplaceAll("#","");
+        const bool NOMRESMC   = !subComponents.at(iSubComp).CompareTo("nominalresmc",TString::kIgnoreCase);
+        const bool NOMRESDATA = !subComponents.at(iSubComp).CompareTo("nominalresdata",TString::kIgnoreCase);
+        const bool inverted   = subComponents.at(iSubComp).BeginsWith("INV__");
+        const TString toFind  = midWild ? subComponents.at(iSubComp) : TString(subComponents.at(iSubComp)).ReplaceAll("#","").ReplaceAll("INV__","");
 
         // Treat the more difficult mid-wild case
         std::vector<TString> tokensToFind;
@@ -761,21 +828,36 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
                 indices.push_back(9999);
                 break;
             }
+            else if (NOMRESMC)
+            {
+                foundIndex = true;
+                indices.push_back(6666);
+                break;
+            }
+            else if (NOMRESDATA)
+            {
+                foundIndex = true;
+                indices.push_back(7777);
+                break;
+            }
             else if (midWild)
             {
+                // There is a wildcard in the middle of the name
                 // Check if the string starts with the first token and ends with the last token
                 // We already ensured there are only two tokens
                 if ( ( provNames.at(iProvComp).BeginsWith(tokensToFind.at(0),TString::kIgnoreCase) || (namePrefix != "" && provNames.at(iProvComp).BeginsWith(namePrefix+tokensToFind.at(0),TString::kIgnoreCase)) ) && provNames.at(iProvComp).EndsWith(tokensToFind.at(1),TString::kIgnoreCase))
                 {
+                    // The wildcard may cover many components, so keep looping to make sure we find them all
                     foundIndex = true;
                     indices.push_back(iProvComp);
-                    break;
                 }
             }
             else if (!beginWild && !endWild)
             {
+                // Direct name equalitty (no wildcards)
                 if (!provNames.at(iProvComp).CompareTo(toFind,TString::kIgnoreCase) || ( namePrefix != "" && !provNames.at(iProvComp).CompareTo(namePrefix+toFind,TString::kIgnoreCase) ) )
                 {
+                    // There can only be one component with a given name, so break out if we find it
                     foundIndex = true;
                     indices.push_back(iProvComp);
                     break;
@@ -783,24 +865,31 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
             }
             else if (beginWild && !endWild)
             {
+                // The start of the name is a wildcard
                 if (provNames.at(iProvComp).EndsWith(toFind,TString::kIgnoreCase))
                 {
+                    // The wildcard may cover many components, so keep looping to make sure we find them all
                     foundIndex = true;
                     indices.push_back(iProvComp);
                 }
             }
             else if (!beginWild && endWild)
             {
+                // The end of the name is a wildcard
                 if (provNames.at(iProvComp).BeginsWith(toFind,TString::kIgnoreCase) || ( namePrefix != "" && provNames.at(iProvComp).BeginsWith(namePrefix+toFind,TString::kIgnoreCase) ) )
                 {
+                    // The wildcard may cover many components, so keep looping to make sure we find them all
                     foundIndex = true;
                     indices.push_back(iProvComp);
                 }
             }
             else
             {
+                // There are wildcards at the start and end of the name
+                // Look for the desired substring within the name
                 if (provNames.at(iProvComp).Contains(toFind,TString::kIgnoreCase))
                 {
+                    // The wildcards may cover many components, so keep looping to make sure we find them all
                     foundIndex = true;
                     indices.push_back(iProvComp);
                 }
@@ -808,9 +897,11 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
         }
         if (!foundIndex)
             printf("WARNING: Failed to find match for sub/component: %s\n",toFind.Data());
+        else if (inverted)
+            indices.back() *= -1;
     }
 
-    if (!indices.size())
+    if (!indices.size() && !optHelper.IgnoreNoMatch())
     {
         printf("Failed to find any indices for component: %s\n",compName.Data());
         exit(-1);
@@ -819,9 +910,9 @@ std::vector<size_t> getComponentIndicesFromName(const JetUncertaintiesTool* prov
     return indices;
 }
 
-std::vector< std::vector<size_t> > getComponentIndicesFromNames(const JetUncertaintiesTool* provider,const std::vector<TString>& compNames)
+std::vector< std::vector<int> > getComponentIndicesFromNames(const JetUncertaintiesTool* provider,const std::vector<TString>& compNames)
 {
-    std::vector< std::vector<size_t> > indices;
+    std::vector< std::vector<int> > indices;
     
     // Now parse all of the names to provider indices
     for (size_t iComp = 0; iComp < compNames.size(); ++iComp)
@@ -832,10 +923,12 @@ std::vector< std::vector<size_t> > getComponentIndicesFromNames(const JetUncerta
         {
             printf("Parsed component named: %s\n",compNames.at(iComp).Data());
             for (size_t iIndex = 0; iIndex < indices.at(iComp).size(); ++iIndex)
-                if (indices.at(iComp).at(iIndex) < provider->getNumComponents())
-                    printf("\t %zu: %s\n",indices.at(iComp).at(iIndex),provider->getComponentName(indices.at(iComp).at(iIndex)).c_str());
+                if (indices.at(iComp).at(iIndex) >= 0 && indices.at(iComp).at(iIndex) < static_cast<int>(provider->getNumComponents()))
+                    printf("\t %d: %s\n",indices.at(iComp).at(iIndex),provider->getComponentName(indices.at(iComp).at(iIndex)).c_str());
+                else if (indices.at(iComp).at(iIndex) < 0)
+                    printf("\t %d: INVERTED %s\n",indices.at(iComp).at(iIndex)*-1,provider->getComponentName(indices.at(iComp).at(iIndex)*-1).c_str());
                 else
-                    printf("\t %zu: SPECIAL\n",indices.at(iComp).at(iIndex));
+                    printf("\t %d: SPECIAL\n",indices.at(iComp).at(iIndex));
         }
 
     return indices;
@@ -843,11 +936,12 @@ std::vector< std::vector<size_t> > getComponentIndicesFromNames(const JetUncerta
 
 
 
-void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vector<JetUncertaintiesTool*>& providers,const std::vector< std::vector< std::vector<size_t> > >& compSetIndices,const std::vector< std::vector<TString> >& labelNames,TH1D* frame,const double fixedValue,const std::vector<double>& scanBins,const bool fixedIsEta, const float mOverPt, const bool doComparison, const bool doCompareOnly)
+void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vector<JetUncertaintiesTool*>& providers,const std::vector< std::vector< std::vector<int> > >& compSetIndices,const std::vector< std::vector<TString> >& labelNames,TH1D* frame,const double fixedValue,const std::vector<double>& scanBins,const bool fixedIsEta, const float mOverPt, const bool doComparison, const bool doCompareOnly, const bool mOverPtIsMass)
 {
     static SG::AuxElement::Accessor<int> Nsegments("GhostMuonSegmentCount");
     static SG::AuxElement::Accessor<char> IsBjet("IsBjet");
     static SG::AuxElement::Accessor<float> minDR("MinDR");
+    static SG::AuxElement::Accessor<int> NJets("Njet");
 
     // Combined mass helpers
     static jet::JetFourMomAccessor scaleCalo(jet::CompMassDef::getJetScaleString(jet::CompMassDef::CaloMass).Data());
@@ -884,6 +978,7 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     eInfos->setStore(new xAOD::EventInfoAuxContainer());
     eInfos->push_back(new xAOD::EventInfo());
     xAOD::EventInfo* eInfo = eInfos->at(0);
+    if (optHelper.GetNjetFlavour() != -1) NJets(*eInfo) = optHelper.GetNjetFlavour();
 
     size_t indexHelper = 0;
 
@@ -902,6 +997,32 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
             jet->setJetP4(xAOD::JetFourMom_t(100.e3,0.,0.,0.));
             setPileupShiftsForYear(provider,eInfo,jet);
         }
+
+        // Fix the jet flavour if relevant
+        if (optHelper.FixedTruthLabel())
+        {
+            jet->setAttribute("PartonTruthLabelID",optHelper.FixedTruthLabel());
+            std::cout << "Fixed PartonTruthLabelID to " << optHelper.FixedTruthLabel() << std::endl;
+        }
+
+        // Fix the large-R jet truth label if relevant
+        if (optHelper.FixedLargeRJetTruthLabel() != LargeRJetTruthLabel::UNKNOWN)
+        {
+            jet->setAttribute("LargeRJetTruthLabel",LargeRJetTruthLabel::enumToInt(optHelper.FixedLargeRJetTruthLabel()));
+            std::cout << "Fixed LargeRJetTruthLabel" << std::endl;
+        }
+        // Fix the Large-R jet tag accept if relevant
+        // TODO: enable when available
+        // if (optHelper.FixedLargeRJetTagAccept() != TagResult::UNKNOWN)
+        // {
+        //     if (optHelper.FixedLargeRJetTagResultName() == "")
+        //     {
+        //         std::cout << "Unable to determine largeR jet tag result name, exiting for safety" << std::endl;
+        //         exit(1);
+        //     }
+        //     jet->setAttribute(optHelper.FixedLargeRJetTagResultName().Data(),optHelper.FixedLargeRJetTagAccept());
+        //     std::cout << "Fixed tag result to " << optHelper.FixedLargeRJetTagAccept() << " for name " << optHelper.FixedLargeRJetTagResultName().Data() << std::endl;
+        // }
         
         // One totalHist per provider
         totalHists.push_back(new TH1D(Form("Total_%zu_hist",iProv),"",scanBins.size()-1,&scanBins[0]));
@@ -918,10 +1039,10 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
         totalGraph->SetLineColor(kBlack);
 
         // One list of all indices per provider
-        const std::vector<size_t> allIndices = getComponentIndicesFromName(provider,"total");
+        const std::vector<int> allIndices = getComponentIndicesFromName(provider,"total");
 
         // Find the punch-through index, if applicable
-        size_t PTindex = allIndices.size();
+        int PTindex = static_cast<int>(allIndices.size());
         for (size_t iComp = 0; iComp < provider->getNumComponents(); ++iComp)
             if (TString(provider->getComponentName(iComp).c_str()).Contains("PunchThrough",TString::kIgnoreCase))
             {
@@ -956,7 +1077,7 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
             // Build the jet to work with
             const double pt   = (fixedIsEta ? binValue : fixedValue)*1.e3;
             const double eta  = (fixedIsEta ? fixedValue : binValue);
-            const double mass = mOverPt*pt;
+            const double mass = mOverPtIsMass ? mOverPt*1.e3 : mOverPt*pt;
             jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,mass));
 
             // Combined mass helpers
@@ -974,6 +1095,14 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
             if (optHelper.DoCompare() && TString(provider->getRelease().c_str()).Contains("2015_Prerec_"))
                 if (pt > 1.5e6) isZero = true;
 
+
+            // Fix the TagScaleFactor to start at 1 to start with for scale factor uncertainties
+            std::vector<jet::CompScaleVar::TypeEnum> scaleVars = optHelper.GetScaleVars();
+            if (optHelper.TagScaleFactorName() != "")
+            {
+                jet->setAttribute(optHelper.TagScaleFactorName().Data(),1.0);
+                //std::cout << "Set " << optHelper.TagScaleFactorName().Data() << " to 1.0" << std::endl;
+            }
 
             // Fill components
             for (size_t iComp = 0; iComp < compSetIndices.at(iProv).size(); ++iComp)
@@ -1002,12 +1131,17 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
             // Build the jet to work with
             const double pt   = (fixedIsEta ? binValue : fixedValue)*1.e3;
             const double eta  = (fixedIsEta ? fixedValue : binValue);
-            const double mass = mOverPt*pt;
+            const double mass = mOverPtIsMass ? mOverPt*1.e3 : mOverPt*pt;
             jet->setJetP4(xAOD::JetFourMom_t(pt,eta,0,mass));
 
             // Combined mass helpers
-            scaleCalo(*jet) = xAOD::JetFourMom_t(pt,eta,0,mass);
-            scaleTA(*jet)   = xAOD::JetFourMom_t(pt,eta,0,mass);
+            scaleCalo.setAttribute(*jet,  xAOD::JetFourMom_t(pt,eta,0,mass));
+            scaleTA.setAttribute(*jet,  xAOD::JetFourMom_t(pt,eta,0,mass));
+            scaleCombQCD.setAttribute(*jet,  xAOD::JetFourMom_t(pt,eta,0,mass));
+            scaleCombWZ.setAttribute(*jet,  xAOD::JetFourMom_t(pt,eta,0,mass));
+            scaleCombHbb.setAttribute(*jet,  xAOD::JetFourMom_t(pt,eta,0,mass));
+            scaleCombTop.setAttribute(*jet,  xAOD::JetFourMom_t(pt,eta,0,mass));
+            scaleTAMoment(*jet) =  mass ;
             
             // Kinematic cut when comparing large-R pre-recs
             bool isZero = false;
@@ -1155,13 +1289,21 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
       const TString thisconfname = providers.at(i)->getConfigFile().c_str();
       if (!(thisconfname.Contains("_2012/"))) sign = false;
     }
+    bool sameRelease = true;
+    const TString release0 = providers.at(0)->getRelease();
+    for (size_t i=1; i<providers.size(); ++i)
+        if (providers.at(i)->getRelease() != release0)
+            sameRelease = false;
     if (optHelper.IsLargeR())
     {
        DrawJetLabel(providers.at(0),0.83);
-       if (providers.size() == 1 || (providers.size()==2 && doComparison) || sign)
+       if (providers.size() == 1 || (providers.size()==2 && doComparison) || sign || sameRelease)
             DrawYearLabel(providers.at(0),0.92);
         //DrawText(Form("|#eta| = %.1f, M/#it{p}_{T}^{jet} = %.2f%s",fixedValue,mOverPt,optHelper.SpecifyTagger()?Form(", %s tagged",getTagType(providers.at(0)).Data()):""),kBlack,0.75);
-        DrawText(Form("|#eta_{jet}| < 2, m_{jet}/#it{p}_{T}^{jet} = %.2f%s",mOverPt,optHelper.SpecifyTagger()?Form(", %s tagged",getTagType(providers.at(0)).Data()):""),kBlack,0.73);
+        if (mOverPtIsMass)
+            DrawText(Form("|#eta_{jet}| < 2, m = %.0f GeV%s",mOverPt,optHelper.SpecifyTagger()?Form(", %s tagged",getTagType(providers.at(0)).Data()):""),kBlack,0.73);
+        else
+            DrawText(Form("|#eta_{jet}| < 2, m_{jet}/#it{p}_{T}^{jet} = %.2f%s",mOverPt,optHelper.SpecifyTagger()?Form(", %s tagged",getTagType(providers.at(0)).Data()):""),kBlack,0.73);
     }
     else
     {
@@ -1173,15 +1315,25 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
         
         
         DrawJetLabel(providers.at(0),0.855);//0.905);
-        if (providers.size() == 1 || (providers.size()==2 && doComparison) || sign)
+        if (providers.size() == 1 || (providers.size()==2 && doComparison) || sign || sameRelease)
             DrawYearLabel(providers.at(0),0.910);//0.860);
-        DrawText(fixedIsEta?Form("#eta = %.1f",fixedValue):Form("#it{p}_{T}^{jet} = %.0f GeV",fixedValue),kBlack,0.81);
-        DrawScenarioLabel(providers.at(0),0.77); // 0.77
+        if (mOverPtIsMass)
+            DrawText(fixedIsEta?Form("#eta = %.1f, m = %.0f GeV",fixedValue,mOverPt):Form("#it{p}_{T}^{jet} = %.0f GeV",fixedValue),kBlack,TString(providers.at(0)->getJetDef().c_str()).Contains("Trimmed") ? 0.74 : 0.805);
+        else if (optHelper.GetFixedMoverPtVals().size() > 1)
+            DrawText(fixedIsEta?Form("#eta = %.1f, m/p_{T} = %.2f",fixedValue,mOverPt):Form("#it{p}_{T}^{jet} = %.0f GeV",fixedValue),kBlack,TString(providers.at(0)->getJetDef().c_str()).Contains("Trimmed") ? 0.74 : 0.805);
+        else
+            DrawText(fixedIsEta?Form("#eta = %.1f",fixedValue):Form("#it{p}_{T}^{jet} = %.0f GeV",fixedValue),kBlack,TString(providers.at(0)->getJetDef().c_str()).Contains("Trimmed") ? 0.74 : 0.805);
+        DrawScenarioLabel(providers.at(0),0.76); // 0.77
 
     }
 
     // Add legend
-    double legx=0.41, legy=!optHelper.IsLargeR()?0.78:0.68, dy = 0.045; //dy=0.070;
+    double legx=0.41, legy=0.78, dy = 0.045; //dy=0.070;
+    if (optHelper.IsLargeR())
+        legy = 0.68;
+    else if (TString(providers.at(0)->getJetDef().c_str()).Contains("Trimmed"))
+        legy = 0.73;
+
     if (doCompareOnly) {
        for (size_t i=0; i < totalGraphs.size(); i++) {
           const TString title = labelNames.at(i).at(0);
@@ -1214,20 +1366,42 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
                 legy -= 0.35*dy;
             }
             else if (optHelper.IsLargeR() && !optHelper.IsPublicFormat())
-                DrawLineLabel(label,legx-0.10+0.3*(iComp%2),legy-=(dy*((iComp+1)%2)),compGraph);
+                DrawLineLabel(label,legx-0.125+0.3*(iComp%2),legy-=(dy*((iComp+1)%2)),compGraph);
             else if (optHelper.IsLargeR())
                 DrawLineLabel(label,legx,legy-=(dy+0.005),compGraph);
+            else if (optHelper.TwoColumnLegend())
+                DrawLineLabel(label,legx-0.125+0.3*(iComp%2),legy-=(dy*((iComp+1)%2)),compGraph);
             else
                 DrawLineLabel(label,legx,legy-=dy,compGraph);
         }
    
     // Write the plot
     frame->Draw("axis same");
-    if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
-        canvas->Print(outFile);
+    
+    // Ensure we don't have debugging enabled
+    if (optHelper.GetDumpFile() == "")
+    {
+        if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
+            canvas->Print(outFile);
+        else
+            canvas->Print(TString(outFile).ReplaceAll(outFile.EndsWith(".eps")?".eps":".png",Form("/fig_%s_%s.%s",fixedIsEta?"eta":"pt",fixedIsEta?Form("%.1f",fixedValue):Form("%.0f",fixedValue),outFile.EndsWith(".eps")?"eps":"png")));
+    }
     else
-        canvas->Print(TString(outFile).ReplaceAll(outFile.EndsWith(".eps")?".eps":".png",Form("/fig_%s_%s.%s",fixedIsEta?"eta":"pt",fixedIsEta?Form("%.1f",fixedValue):Form("%.0f",fixedValue),outFile.EndsWith(".eps")?"eps":"png")));
-
+    {
+        // Debug mode, just write out the graphs
+        printf("Preparing to dump to file: %s\n",optHelper.GetDumpFile().Data());
+        TFile* dumpFile = TFile::Open(optHelper.GetDumpFile(),"NEW");
+        dumpFile->cd();
+        for (size_t iSet = 0; iSet < compGraphs.size(); ++iSet)
+        {
+            for (size_t iComp = 0 ; iComp < compGraphs.at(iSet).size(); ++iComp)
+            {
+                compGraphs.at(iSet).at(iComp)->Write();
+            }
+        }
+        dumpFile->Close();
+    }
+    
     // Free graphs/hists
     for (size_t iProv = 0; iProv < providers.size(); ++iProv)
     {
@@ -1250,6 +1424,7 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     const std::vector<double> ptValuesForEtaScan = optHelper.GetFixedPtVals();
     const std::vector<double> etaValuesForPtScan = optHelper.GetFixedEtaVals();
     const std::vector<double> mOverPtValuesForPtScan = optHelper.GetFixedMoverPtVals();
+    const std::vector<double> massValuesForPtScan = optHelper.GetFixedMassVals();
 
     // Scan ranges: all recently moved to 10x the bins
     const std::vector<double> etaScanValues = optHelper.GetEtaBins();
@@ -1258,25 +1433,73 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     // Create the frames
     TH1D* frameEtaScan = new TH1D("frameEtaScan","",etaScanValues.size()-1,&etaScanValues[0]);
     TH1D* framePtScan  = new TH1D("framePtScan","",ptScanValues.size()-1,&ptScanValues[0]);
-    const TString yAxisLabel = optHelper.IsJER()?"Uncertainty on #sigma(#it{p}_{T})/#it{p}_{T}"
-                                : Form("Fractional J%sS uncertainty",
-                                      optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::FourVec  ? "E"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Pt       ? "Pt"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Mass     ? Form("M_{%s}",optHelper.getMassType().Data())
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D12      ? "D_{12}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D23      ? "D_{23}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Tau21WTA ? "#tau_{21}^{wta}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Tau32WTA ? "#tau_{32}^{wta}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::D2Beta1  ? "D_{2}"
-                                    : optHelper.GetScaleVars().size()==1 && optHelper.GetScaleVars().at(0)==jet::CompScaleVar::Qw       ? "Qw"
-                                    : "?"
-                                );
+
+    TString yAxisVar = "";
+    if (optHelper.GetScaleVars().size() == 1)
+    {
+        switch (optHelper.GetScaleVars().at(0))
+        {
+            case jet::CompScaleVar::FourVec:
+                yAxisVar = "E";
+                break;
+            case jet::CompScaleVar::FourVecRes:
+            case jet::CompScaleVar::FourVecResAbs:
+                yAxisVar = "#it{p}_{T}"; // JER is evaluated on pT
+                break;
+            case jet::CompScaleVar::Pt:
+            case jet::CompScaleVar::PtRes:
+            case jet::CompScaleVar::PtResAbs:
+                yAxisVar = "#it{p}_{T}";
+                break;
+            case jet::CompScaleVar::Mass:
+            case jet::CompScaleVar::MassRes:
+            case jet::CompScaleVar::MassResAbs:
+                yAxisVar = "M";
+                break;
+            case jet::CompScaleVar::D12:
+                yAxisVar = "D_{12}";
+                break;
+            case jet::CompScaleVar::D23:
+                yAxisVar = "D_{23}";
+                break;
+            case jet::CompScaleVar::Tau21:
+                yAxisVar = "#tau_{21}";
+                break;
+            case jet::CompScaleVar::Tau21WTA:
+                yAxisVar = "#tau_{21}^{wta}";
+                break;
+            case jet::CompScaleVar::Tau32:
+                yAxisVar = "#tau_{32}";
+                break;
+            case jet::CompScaleVar::Tau32WTA:
+                yAxisVar = "#tau_{32}^{wta}";
+                break;
+            case jet::CompScaleVar::D2Beta1:
+                yAxisVar = "D_{2}";
+                break;
+            case jet::CompScaleVar::C2Beta1:
+                yAxisVar = "C_{2}";
+                break;
+            case jet::CompScaleVar::Qw:
+                yAxisVar = "Qw";
+                break;
+            default:
+                yAxisVar = "?";
+        }
+    }
+
+    const TString yAxisLabel =  optHelper.GetScaleVars().size() != 1 ? "Unknown" :
+                                    jet::CompScaleVar::isScaleType(optHelper.GetScaleVars().at(0)) ?
+                                        Form("Fractional J%sS uncertainty",yAxisVar.Data())
+                                  : jet::CompScaleVar::isResolutionType(optHelper.GetScaleVars().at(0)) ?
+                                        Form("Uncertainty on #sigma(%s)/%s",yAxisVar.Data(),yAxisVar.Data())
+                                  : "Unknown scale type";
     frameEtaScan->GetXaxis()->SetTitleOffset(1.4);
-    frameEtaScan->GetYaxis()->SetTitleOffset(!optHelper.IsJER()?1.25:1.1);
+    frameEtaScan->GetYaxis()->SetTitleOffset(optHelper.GetScaleVars().size() == 1 && jet::CompScaleVar::isScaleType(optHelper.GetScaleVars().at(0))?1.25:1.125);
     frameEtaScan->GetXaxis()->SetTitle("#eta");
     frameEtaScan->GetYaxis()->SetTitle(yAxisLabel.Data());
     framePtScan->GetXaxis()->SetTitleOffset(1.4);
-    framePtScan->GetYaxis()->SetTitleOffset(!optHelper.IsJER()?1.25:1.1);
+    framePtScan->GetYaxis()->SetTitleOffset(optHelper.GetScaleVars().size() == 1 && jet::CompScaleVar::isScaleType(optHelper.GetScaleVars().at(0))?1.25:1.125);
     framePtScan->GetXaxis()->SetTitle("#it{p}_{T}^{jet} [GeV]");
     framePtScan->GetYaxis()->SetTitle(yAxisLabel.Data());
     framePtScan->GetXaxis()->SetMoreLogLabels();
@@ -1289,7 +1512,7 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
 
 
     // Convert components to indices
-    std::vector< std::vector< std::vector<size_t> > > compSetIndices;
+    std::vector< std::vector< std::vector<int> > > compSetIndices;
     for (size_t iProv = 0; iProv < providers.size(); ++iProv)
         compSetIndices.push_back(getComponentIndicesFromNames(providers.at(iProv),compSetComponents.at(iProv)));
 
@@ -1297,14 +1520,32 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     if (!optHelper.IsLargeR())
     {
         for (size_t iFixed = 0; iFixed < etaValuesForPtScan.size(); ++iFixed)
-            MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,framePtScan,etaValuesForPtScan.at(iFixed),ptScanValues,true,mOverPtValuesForPtScan.at(0),doComparison, doCompareOnly);
+            MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,framePtScan,etaValuesForPtScan.at(iFixed),ptScanValues,true,mOverPtValuesForPtScan.at(0),doComparison, doCompareOnly,false);
         for (size_t iFixed = 0; iFixed < ptValuesForEtaScan.size(); ++iFixed)
-            MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,frameEtaScan,ptValuesForEtaScan.at(iFixed),etaScanValues,false,mOverPtValuesForPtScan.at(0),doComparison, doCompareOnly);
+            MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,frameEtaScan,ptValuesForEtaScan.at(iFixed),etaScanValues,false,mOverPtValuesForPtScan.at(0),doComparison, doCompareOnly,false);
+        if (massValuesForPtScan.size())
+        {
+            for (size_t iFixed = 0; iFixed < massValuesForPtScan.size(); ++iFixed)
+                MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,framePtScan,etaValuesForPtScan.size() ? etaValuesForPtScan.at(0) : 0,ptScanValues,true,massValuesForPtScan.at(iFixed),doComparison,doCompareOnly,true);
+        }
+        if (mOverPtValuesForPtScan.size() > 1)
+        {
+            for (size_t iFixed = 0; iFixed < mOverPtValuesForPtScan.size(); ++iFixed)
+                MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,framePtScan,etaValuesForPtScan.size() ? etaValuesForPtScan.at(0) : 0,ptScanValues,true,mOverPtValuesForPtScan.at(iFixed),doComparison,doCompareOnly,false);
+        }
     }
     else
     {
-        for (size_t iFixed = 0; iFixed < mOverPtValuesForPtScan.size(); ++iFixed)
-            MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,framePtScan,etaValuesForPtScan.at(0),ptScanValues,true,mOverPtValuesForPtScan.at(iFixed),doComparison, doCompareOnly);
+        if (massValuesForPtScan.size())
+        {
+            for (size_t iFixed = 0; iFixed < massValuesForPtScan.size(); ++iFixed)
+                MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,framePtScan,etaValuesForPtScan.at(0),ptScanValues,true,massValuesForPtScan.at(iFixed),doComparison,doCompareOnly,true);
+        }
+        else
+        {
+            for (size_t iFixed = 0; iFixed < mOverPtValuesForPtScan.size(); ++iFixed)
+                MakeUncertaintyPlots(outFile,canvas,providers,compSetIndices,labelNames,framePtScan,etaValuesForPtScan.at(0),ptScanValues,true,mOverPtValuesForPtScan.at(iFixed),doComparison, doCompareOnly,false);
+        }
     }
 
 
@@ -1312,18 +1553,6 @@ void MakeUncertaintyPlots(const TString& outFile,TCanvas* canvas,const std::vect
     delete frameEtaScan;
 }
 
-// Add your root files here if you are doing additional studies
-TString getCompFile() {
-
-  TString tmpFile; // const
-  if (optHelper.IsDijetComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/DijetFlavourComp_Run2.root";
-  else if (optHelper.IsGinosComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/random_stuff/GinoComposition.root";
-  else if (optHelper.IsReginasComposition()) tmpFile = optHelper.GetInputsDir()+"/../random_stuff/TTBarFlavourComp.root";
-  else tmpFile = "";
-
-  return tmpFile;
-
-}
 
 int main (int argc, char* argv[])
 {
@@ -1360,6 +1589,7 @@ int main (int argc, char* argv[])
     StatusCode::enableFailure();
   
     bool doComparison = false;
+    bool compareJetDefs = false;
     TString compareMCType = "";
     TString totalLabel = "";
     TString otherJetDef = "";
@@ -1379,7 +1609,11 @@ int main (int argc, char* argv[])
       mcTypes.push_back(compareMCType);
       compSets.push_back("");
       labelSets.push_back(totalLabel);
-      if (comparisons.size()>3) jetDefs.push_back(comparisons.at(3));
+      if (comparisons.size()>3)
+      {
+        compareJetDefs = true;
+        jetDefs.push_back(comparisons.at(3));
+      }
     }
 
     bool doCompareOnly = optHelper.CompareOnly();
@@ -1461,16 +1695,20 @@ int main (int argc, char* argv[])
     canvas->SetFrameBorderMode(0);
     canvas->cd();
 
-    // If this is not an eps, start the output
-    if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
-        canvas->Print(outFile+"[");
-    // Otherwise, make a folder for the eps files
-    else
-        system(Form("mkdir -p %s",TString(outFile).ReplaceAll(outFile.EndsWith(".eps")?".eps":".png","").Data()));
-
+    // Ensure we don't have debugging enabled
+    if (optHelper.GetDumpFile() == "")
+    {
+        // If this is not an eps, start the output
+        if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
+            canvas->Print(outFile+"[");
+        // Otherwise, make a folder for the eps files
+        else
+            system(Form("mkdir -p %s",TString(outFile).ReplaceAll(outFile.EndsWith(".eps")?".eps":".png","").Data()));
+    
+    }
 
     // Run once per jet type
-    if (!(jetDefs.size() == configs.size() && jetDefs.size() != 1) || (doComparison && jetDefs.size() != 1))
+    if (!(jetDefs.size() == configs.size() && jetDefs.size() != 1) || (doComparison && jetDefs.size() != 1 && !compareJetDefs))
     {
         std::cout << "Going to process for multiple jet types!" << std::endl;
     
@@ -1502,15 +1740,40 @@ int main (int argc, char* argv[])
                     printf("Failed to set ConfigFile to %s\n",configs.at(iConfig).Data());
                     exit(6);
                 }
+                if (providers.back()->setProperty("IsData",optHelper.GetIsData()).isFailure())
+                {
+                    printf("Failed to set IsData to %s\n",optHelper.GetIsData() ? "true" : "false");
+                    exit(7);
+                }
 
                 // Check if we want to change topology from unknown to dijet
-                const TString analysisFile = getCompFile();
+                const TString analysisFile = optHelper.GetCompositionPath();
           
                 if (analysisFile) {
                   
                     if (providers.back()->setProperty("AnalysisFile",analysisFile.Data()).isFailure())
                     {
                         printf("Failed to set AnalysisFile to %s\n",analysisFile.Data());
+                        exit(7);
+                    }
+                }
+
+                // Check if we want to set the CalibArea
+                if (optHelper.GetCalibArea() != "")
+                {
+                    if (providers.back()->setProperty("CalibArea",optHelper.GetCalibArea().Data()).isFailure())
+                    {
+                        printf("Failed to set CalibArea to %s\n",optHelper.GetCalibArea().Data());
+                        exit(7);
+                    }
+                }
+
+                // Check if we want to set the Path
+                if (optHelper.GetPath() != "")
+                {
+                    if (providers.back()->setProperty("Path",optHelper.GetPath().Data()).isFailure())
+                    {
+                        printf("Failed to set Path to %s\n",optHelper.GetPath().Data());
                         exit(7);
                     }
                 }
@@ -1554,7 +1817,7 @@ int main (int argc, char* argv[])
             const TString jetDef = jetDefs.at(iJetDef);
             const TString config = configs.at(iJetDef);
             
-            //Make a new provier
+            //Make a new provider
             providers.push_back(new JetUncertaintiesTool(Form("%s_%zu",jetDef.Data(),iJetDef)));
 
             //Set properties
@@ -1573,15 +1836,41 @@ int main (int argc, char* argv[])
                 printf("Failed to set ConfigFile to %s\n",configs.at(iJetDef).Data());
                 exit(6);
             }
+            if (providers.back()->setProperty("IsData",optHelper.GetIsData()).isFailure())
+            {
+                printf("Failed to set IsData to %s\n",optHelper.GetIsData() ? "true" : "false");
+                exit(7);
+            }
 
             // Check if we want to change topology from unknown to dijet
-            const TString analysisFile = getCompFile();
+            const TString analysisFile = optHelper.GetCompositionPath();
           
             if (analysisFile) {
                   
                 if (providers.back()->setProperty("AnalysisFile",analysisFile.Data()).isFailure())
                 {
                     printf("Failed to set AnalysisFile to %s\n",analysisFile.Data());
+                    exit(7);
+                }
+            }
+            
+            
+            // Check if we want to set the CalibArea
+            if (optHelper.GetCalibArea() != "")
+            {
+                if (providers.back()->setProperty("CalibArea",optHelper.GetCalibArea().Data()).isFailure())
+                {
+                    printf("Failed to set CalibArea to %s\n",optHelper.GetCalibArea().Data());
+                    exit(7);
+                }
+            }
+
+            // Check if we want to set the Path
+            if (optHelper.GetPath() != "")
+            {
+                if (providers.back()->setProperty("Path",optHelper.GetPath().Data()).isFailure())
+                {
+                    printf("Failed to set Path to %s\n",optHelper.GetPath().Data());
                     exit(7);
                 }
             }
@@ -1614,9 +1903,13 @@ int main (int argc, char* argv[])
         providers.clear();
     }
 
-    // If this is not an eps, end the output
-    if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
-        canvas->Print(outFile+"]");
+    // Ensure we don't have debugging enabled
+    if (optHelper.GetDumpFile() == "")
+    {
+        // If this is not an eps, end the output
+        if (!outFile.EndsWith(".eps") && !outFile.EndsWith(".png"))
+            canvas->Print(outFile+"]");
+    }
 
     return 0;
 }

@@ -12,6 +12,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include <tuple>
+
+#include "TRandom3.h"
 
 namespace jet
 {
@@ -23,11 +26,11 @@ namespace jet
     class ConfigHelper;
     class GroupHelper;
     class ComponentHelper;
+    class ResolutionHelper;
 }
 
 class TFile;
 class TH2D;
-class TRandom3;
 
 namespace xAOD
 {
@@ -35,7 +38,7 @@ namespace xAOD
 }
 
 class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
-                                virtual public asg::AsgTool
+                                public asg::AsgTool
 {
     ASG_TOOL_CLASS(JetUncertaintiesTool,ICPJetUncertaintiesTool)
 
@@ -43,7 +46,6 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         // Constructor/destructor
         JetUncertaintiesTool(const std::string& name = "JetUncertaintiesTool");
         JetUncertaintiesTool(const JetUncertaintiesTool& toCopy);
-        JetUncertaintiesTool & operator=(const JetUncertaintiesTool&) =delete;
         virtual ~JetUncertaintiesTool();
 
         // Pre-initialization methods
@@ -59,14 +61,16 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
         
         // Tool information retrieval methods
-        virtual std::string getName()         const { return m_name;         }
-        virtual std::string getRelease()      const { return m_release;      }
-        virtual std::string getJetDef()       const { return m_jetDef;       }
-        virtual std::string getMCType()       const { return m_mcType;       }
-        virtual std::string getConfigFile()   const { return m_configFile;   }
-        virtual std::string getPath()         const { return m_path;         }
-        virtual std::string getAnalysisFile() const { return m_analysisFile; }
-        virtual float       getSqrtS()        const;
+        virtual std::string getName()           const { return m_name;         }
+        virtual std::string getRelease()        const { return m_release;      }
+        virtual std::string getJetDef()         const { return m_jetDef;       }
+        virtual std::string getMCType()         const { return m_mcType;       }
+        virtual std::string getConfigFile()     const { return m_configFile;   }
+        virtual std::string getPath()           const { return m_path;         }
+        virtual std::string getAnalysisFile()   const { return m_analysisFile; }
+        virtual std::string getAnalysisHistPattern() const { return m_analysisHistPattern; }
+        virtual std::string getDefaultAnaFile() const { return m_defAnaFile;   }
+        virtual float       getSqrtS()          const;
 
         // Tool information retrieval methods that require input
         virtual float getRefMu()  const;
@@ -94,8 +98,12 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual bool        getComponentScalesTau21WTA(const size_t index) const;
         virtual bool        getComponentScalesTau32WTA(const size_t index) const;
         virtual bool        getComponentScalesD2Beta1(const size_t index)  const;
+        virtual bool        getComponentScalesC2Beta1(const size_t index)  const;
         virtual bool        getComponentScalesQw(const size_t index)       const;
+        virtual bool        getComponentScalesTagScaleFactor(const size_t index)  const;
         virtual bool        getComponentScalesMultiple(const size_t index) const;
+        virtual std::set<jet::CompScaleVar::TypeEnum> getComponentScaleVars(const size_t index) const;
+        virtual jet::JetTopology::TypeEnum            getComponentTopology( const size_t index) const;
         // Retrieve multi-component information
         virtual std::vector<std::string> getComponentCategories() const;
         virtual std::vector<size_t>      getComponentsInCategory(const std::string& category) const;
@@ -120,6 +128,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
         virtual double getNormalizedCaloMassWeight(const xAOD::Jet& jet) const;
         virtual double getNormalizedTAMassWeight(  const xAOD::Jet& jet) const;
+
+        virtual double getNominalResolutionMC(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology = jet::JetTopology::UNKNOWN) const;
+        virtual double getNominalResolutionData(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology = jet::JetTopology::UNKNOWN) const;
 
         // Inherited methods from CP::IJetUncertaintiesTool to implement
         // Apply a systematic variation or get a new copy
@@ -172,11 +183,18 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         std::string m_jetDef;
         std::string m_mcType;
         std::string m_configFile;
+        std::string m_calibArea;
         std::string m_path;
         std::string m_analysisFile;
+        std::string m_analysisHistPattern;
         std::vector<std::string> m_systFilters;
+        std::string m_name_TagScaleFactor;
+        std::string m_name_EffSF;
+        std::string m_name_Efficiency;
+        // bool m_flavourJetByJet;
 
         // Information to read in and store from the config file
+        std::string m_defAnaFile;
         float m_refNPV;
         float m_refMu;
         jet::UncertaintyHistogram* m_refNPVHist;
@@ -199,10 +217,13 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         jet::UncertaintyHistogram* m_TAMassWeight;
         jet::CompMassDef::TypeEnum m_combMassWeightCaloMassDef;
         jet::CompMassDef::TypeEnum m_combMassWeightTAMassDef;
+        jet::CompParametrization::TypeEnum m_combMassParam;
  
         // Smearing information
         long long int m_userSeed;
-        TRandom3* m_rand; // pointer so it can be changed in a const function (volatile wasn't working)
+        mutable TRandom3 m_rand; // mutable as this we want to call in a const function (everything else is fixed, the random generator is modifiable)
+        bool m_isData;
+        jet::ResolutionHelper* m_resHelper;
 
         // Default prefix for each component name
         const std::string m_namePrefix;
@@ -216,7 +237,10 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         jet::UncertaintyComponent* buildUncertaintyComponent(const jet::ComponentHelper& component) const;
         const xAOD::EventInfo* getDefaultEventInfo() const;
         StatusCode checkIndexInput(const size_t index) const;
-        float getMassSmearingFactor(xAOD::Jet& jet, const double shift) const;
+        double getSmearingFactor(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const double variation) const;
+        double getNominalResolution(const xAOD::Jet& jet, const jet::CompScaleVar::TypeEnum smearType, const jet::JetTopology::TypeEnum topology, const bool readMC) const;
+        double readHistoFromParam(const xAOD::Jet& jet, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param, const jet::CompMassDef::TypeEnum massDef) const;
+        double readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const jet::UncertaintyHistogram& histo, const jet::CompParametrization::TypeEnum param) const;
 
         // Helper methods for setting shifted moments
         StatusCode updateSplittingScale12(xAOD::Jet& jet, const double shift) const;
@@ -226,14 +250,21 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         StatusCode updateTau21WTA(xAOD::Jet& jet, const double shift) const;
         StatusCode updateTau32WTA(xAOD::Jet& jet, const double shift) const;
         StatusCode updateD2Beta1(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateC2Beta1(xAOD::Jet& jet, const double shift) const;
         StatusCode updateQw(xAOD::Jet& jet, const double shift) const;
+        StatusCode updateTagScaleFactor(xAOD::Jet& jet, const double shift) const;
 
 
         // Helper methods for CP::ISystematicsTool functions
         bool checkIfRecommendedSystematic(const jet::UncertaintyGroup& systematic) const;
         virtual CP::SystematicCode addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended);
         virtual CP::SystematicCode getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet);
-        virtual CP::SystematicCode getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet);
+        virtual CP::SystematicCode getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet);	
+
+        // accessor to taggign efficiency SF
+        SG::AuxElement::Accessor<float> m_accTagScaleFactor;
+        SG::AuxElement::Accessor<float> m_accEffSF;
+        SG::AuxElement::Accessor<float> m_accEfficiency;
 };
     
 

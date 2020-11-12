@@ -409,23 +409,42 @@ class CorrMat4D:
     # 4D histogram plotting helpers
 
 def DrawLabels(hist,jetDefString,scenarioString,drawATLASLabel,labelName):
-    if drawATLASLabel:
-      AtlasStyleMacro.ATLASLabel(0.10,0.845,labelName)
-    jetDefLabel = ""
+    if scenarioString != "":
+        if drawATLASLabel:
+          AtlasStyleMacro.ATLASLabel(0.10,0.845,labelName)
+        jetDefLabel = ""
 
-    if jetDefString.startswith("AntiKt4"):
-      jetDefLabel += "anti-k_{t} #it{R} = 0.4, "
-    elif jetDefString.startswith("AntiKt6"):
-      jetDefLabel += "anti-k_{t} #it{R} = 0.6, "
-    
-    if jetDefString.endswith("LCTopo") or jetDefString.endswith("TopoLC"):
-      jetDefLabel += "LCW+JES"
-    elif jetDefString.endswith("EMTopo") or jetDefString.endswith("TopoEM"):
-      jetDefLabel += "EM+JES"
-    
-    scenarioString = "{0}".format(scenarioString)
-    doDrawText(0.10,0.900,jetDefLabel+" 2016")
-    doDrawText(0.10,0.955,scenarioString)
+        if jetDefString.startswith("AntiKt4"):
+          jetDefLabel += "anti-k_{t} #it{R} = 0.4, "
+        elif jetDefString.startswith("AntiKt6"):
+          jetDefLabel += "anti-k_{t} #it{R} = 0.6, "
+        
+        if jetDefString.endswith("LCTopo") or jetDefString.endswith("TopoLC"):
+          jetDefLabel += "LCW+JES"
+        elif jetDefString.endswith("EMTopo") or jetDefString.endswith("TopoEM"):
+          jetDefLabel += "EM+JES"
+        
+        scenarioString = "{0}".format(scenarioString)
+        doDrawText(0.10,0.900,jetDefLabel+" 2016")
+        doDrawText(0.10,0.955,scenarioString)
+    else:
+        if drawATLASLabel:
+          AtlasStyleMacro.ATLASLabel(0.09,0.955,labelName)
+        jetDefLabel = ""
+
+        if jetDefString.startswith("AntiKt4"):
+          jetDefLabel += "anti-#it{k}_{t} #it{R} = 0.4, "
+        elif jetDefString.startswith("AntiKt6"):
+          jetDefLabel += "anti-#it{k}_{t} #it{R} = 0.6, "
+        
+        if jetDefString.endswith("LCTopo") or jetDefString.endswith("TopoLC"):
+          jetDefLabel += "LCW+JES + #it{in situ}"
+        elif jetDefString.endswith("EMTopo") or jetDefString.endswith("TopoEM"):
+          jetDefLabel += "EM+JES + #it{in situ}"
+        
+        scenarioString = "{0}".format(scenarioString)
+        doDrawText(0.50,0.955,jetDefLabel)
+        doDrawText(0.09,0.900,"Data 2015, #sqrt{s} = 13 TeV")
 
 def DrawLabelsGuessScenario(histo):
     jetDefString = histo.jetDef
@@ -470,7 +489,12 @@ def DrawLabelsGuessScenario(histo):
       else:
           scenarioNum = "Correlation difference, full - %s"%(scenarioLabel)
     
-    DrawLabels(histo.hist4D,jetDefString,scenarioLabel,histo.DrawATLASLabel,histo.ATLASLabelName)
+    DrawLabels(histo.hist4D,jetDefString,"",histo.DrawATLASLabel,histo.ATLASLabelName)
+    #DrawLabels(histo.hist4D,jetDefString,scenarioLabel,histo.DrawATLASLabel,histo.ATLASLabelName)
+
+    sanitizedLabel= "Uncovered correlation loss" if "Metric 2" in scenarioLabel else (scenarioLabel if "Metric" not in scenarioLabel else re.sub("\)","",re.sub(".*\(","",scenarioLabel)))
+    histo.hist4D.GetZaxis().SetTitle(sanitizedLabel)
+    histo.hist4D.GetZaxis().SetTitleOffset(1.8)
 
 def saveHists4D(canvas,plotFileName,hist,oneSidedAxis,fixedX,fixedY,fixedStr,scenarioLabel="",drawATLASLabel=True,additionalString = ""):
 

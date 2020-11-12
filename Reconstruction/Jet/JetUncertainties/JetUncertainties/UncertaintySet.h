@@ -44,6 +44,9 @@ class UncertaintySet : virtual public asg::AsgMessaging
         virtual std::vector< std::pair<CompScaleVar::TypeEnum,bool> > getValiditySet(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
         virtual std::vector< std::pair<CompScaleVar::TypeEnum,double> > getUncertaintySet(const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
         virtual std::vector< std::pair<CompScaleVar::TypeEnum,bool> > getValidUncertaintySet(std::vector< std::pair<CompScaleVar::TypeEnum,double> >& unc, const xAOD::Jet& jet, const xAOD::EventInfo& eInfo) const;
+        
+        // Specialty methods
+        JetTopology::TypeEnum getTopology(const CompScaleVar::TypeEnum scaleVar = CompScaleVar::UNKNOWN) const;
 
     private:
         // Private members

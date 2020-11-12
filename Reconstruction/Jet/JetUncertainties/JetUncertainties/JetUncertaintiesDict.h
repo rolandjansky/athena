@@ -10,5 +10,6 @@
 #endif // __GCCXML__
 
 #include "JetUncertainties/JetUncertaintiesTool.h"
+#include "JetUncertainties/FFJetSmearingTool.h"
 
 #endif
