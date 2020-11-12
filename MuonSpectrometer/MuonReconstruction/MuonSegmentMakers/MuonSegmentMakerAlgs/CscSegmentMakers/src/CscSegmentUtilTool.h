@@ -51,7 +51,7 @@ public:
   getMuonSegments(Identifier eta_id, Identifier phi_id,
                   ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                   ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                  const Amg::Vector3D& lpos000 ) const;
+                  const Amg::Vector3D& lpos000, const EventContext& ctx ) const;
 
   ////////////////////////////////////////    
   // calls get2dMuonSegmentCombination and get4dMuonSegmentCombination with 2d segments!!
@@ -59,10 +59,10 @@ public:
   get4dMuonSegmentCombination(Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000) const;
+                              const Amg::Vector3D& lpos000, const EventContext& ctx) const;
 
   Muon::MuonSegmentCombination*
-  get4dMuonSegmentCombination(const Muon::MuonSegmentCombination* Muon2dSegComb) const;  
+    get4dMuonSegmentCombination(const Muon::MuonSegmentCombination* Muon2dSegComb, const EventContext& ctx) const;  
 
   //get2dMuonSegmentCombination : get2dSegments does
   //  -> (1) find_2dsegments (2) find_2dseg3hit (3) add_2dsegments
@@ -70,7 +70,7 @@ public:
   get2dMuonSegmentCombination(Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000, int etaStat=0, int phiStat=0 ) const;
+                              const Amg::Vector3D& lpos000, const EventContext& ctx, int etaStat=0, int phiStat=0 ) const;
 
   
   // Return the counts of spoiled and unspoiled measurements from a list
@@ -123,7 +123,7 @@ private:
       "Key of input MuonDetectorManager condition data"};    
 
   // Convert a local 2D segment to MuonSegment
-  Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay) const;
+  Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay, const EventContext& ctx) const;
 
   // Fit a list of RIO's to form a 2D segment.
   // The fit is relative to the passsed surface. called by fit_rio_residual
@@ -137,7 +137,7 @@ private:
   // rslu is cluster for which residual is calculated
   // res, dres = residual and error in residual  // looks obsolete
   void fit_residual(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, unsigned int irclu,
-                    double& res, double& dres) const;
+                    double& res, double& dres, const EventContext& ctx) const;
   
 
   // Find segments in a chamber.
@@ -145,19 +145,19 @@ private:
   void find_2dsegments(bool measphi, int station,  int eta, int phi,
                        const ICscSegmentFinder::ChamberTrkClusters& clus, const Amg::Vector3D& lpos000, 
                        ICscSegmentFinder::Segments& segs,
-                       double localPos, double localSlope) const;
+                       double localPos, double localSlope, const EventContext& ctx) const;
   
   // Find 3 hit segments in a chamber.
   void find_2dseg3hit(bool measphi, int station,  int eta, int phi,
                       const ICscSegmentFinder::ChamberTrkClusters& clus, const Amg::Vector3D& lpos000, 
                       ICscSegmentFinder::Segments& segs, ICscSegmentFinder::Segments& segs4hit,
-                      double localPos, double localSlope) const;
+                      double localPos, double localSlope, const EventContext& ctx) const;
 
     // Find 2 hit segments in a chamber.
   void find_2dseg2hit(bool measphi, int station,  int eta, int phi, int layStat,
                       const ICscSegmentFinder::ChamberTrkClusters& clus, const Amg::Vector3D& lpos000,
                       ICscSegmentFinder::Segments& segs, 
-                      double localPos, double localSlope) const;
+                      double localPos, double localSlope, const EventContext& ctx) const;
 
   /** Adds 3-hit segments to 4-hit segments **/
   void add_2dsegments(ICscSegmentFinder::Segments &segs4, ICscSegmentFinder::Segments &segs3) const;
@@ -172,7 +172,7 @@ private:
                       ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                       ICscSegmentFinder::ChamberTrkClusters& phi_clus,
                       ICscSegmentFinder::Segments& etasegs, ICscSegmentFinder::Segments& phisegs,
-                      const Amg::Vector3D& lpos000, int etaStat=0, int phiStat=0 ) const;
+                      const Amg::Vector3D& lpos000, const EventContext& ctx, int etaStat=0, int phiStat=0 ) const;
 
   Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg, bool use2LaySegsEta, bool use2LaySegsPhi) const;
 
@@ -181,7 +181,7 @@ private:
      returns 'n' th cluster ( n = 0-3 )
      Finding is proceeded only for N_unspoiled_clusters >=3
      otherwise it returns -1 meaning N_unspoiled_clusters <= 2 */
-  int find_outlier_cluster(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, double& returned_chsq) const;
+  int find_outlier_cluster(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, double& returned_chsq, const EventContext& ctx) const;
 
   /***** Fit a 2D segment. *****/
   /* clus = input list of clusters
@@ -194,7 +194,7 @@ private:
   // time/dtime is added in Feb 17, 2011
   void fit_segment(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, double& s0, double& s1,
                    double& d0, double& d1, double& d01, double& chsq,
-                   double& time, double& dtime, double& zshift,
+                   double& time, double& dtime, double& zshift, const EventContext& ctx,
                    int outlierLayer=-1) const;
 
 
@@ -203,14 +203,14 @@ private:
   void fit_detailCalcPart1(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, double& s0, double& s1,
                            double& d0, double& d1, double& d01, double& chsq, bool& measphi,
                            double& time, double& dtime, double& zshift,
-                           bool IsSlopeGive, int outlierHitLayer) const;
+                           bool IsSlopeGive, int outlierHitLayer, const EventContext& ctx) const;
   void fit_detailCalcPart2(double q0, double q1, double q2, double q01, double q11, double q02,
                            double& s0, double& s1, double& d0, double& d1, double& d01, double& chsq) const;
   
-  double getDefaultError ( Identifier id, bool measphi, const Muon::CscPrepData *prd ) const;
+  double getDefaultError ( Identifier id, bool measphi, const Muon::CscPrepData *prd, const EventContext& ctx ) const;
 
 
-  void getRios(const ICscSegmentFinder::Segment& seg, ICscSegmentFinder::MbaseList* prios, bool measphi) const;
+  void getRios(const ICscSegmentFinder::Segment& seg, ICscSegmentFinder::MbaseList* prios, bool measphi, const EventContext& ctx) const;
   // if hit is in outlier, error is estimated in width/sqrt(12)
   // For future, error estimate should be from CscClusterUtilTool.
 
@@ -228,8 +228,8 @@ private:
   // Likelihood function = psig/(psig +pbkg)
   double qratio_like(const double pdf_sig, const double pdf_bkg) const;
 
-  bool isGood(const uint32_t stripHashId) const;
-  int stripStatusBit(const uint32_t stripHashId) const;
+  bool isGood(const uint32_t stripHashId, const EventContext& ctx) const;
+  int stripStatusBit(const uint32_t stripHashId, const EventContext& ctx) const;
 
 };
 

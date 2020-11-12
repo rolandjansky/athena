@@ -31,11 +31,11 @@ public:
 
   StatusCode initialize();
 
-  std::unique_ptr<MuonSegmentCombinationCollection> find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const;
-  std::unique_ptr<MuonSegmentCombinationCollection> find( const MuonSegmentCombinationCollection& ) const;
+  std::unique_ptr<MuonSegmentCombinationCollection> find( const std::vector<const Muon::CscPrepDataCollection*>& pcols, const EventContext& ctx) const;
+  std::unique_ptr<MuonSegmentCombinationCollection> find( const MuonSegmentCombinationCollection&, const EventContext& ctx ) const;
 
 private:
-  Muon::MuonSegmentCombination* findSegmentCombination( const Muon::CscPrepDataCollection& pcol ) const;
+  Muon::MuonSegmentCombination* findSegmentCombination( const Muon::CscPrepDataCollection& pcol, const EventContext& ctx ) const;
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 

@@ -163,11 +163,11 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
             ATH_MSG_DEBUG("Retrieved CscPrepDataContainer " << cscCols.size());
             // reconstruct segments in the CSC eta and phi plane
             std::unique_ptr<MuonSegmentCombinationCollection> csc2dSegmentCombinations =
-                m_csc2dSegmentFinder->find(cscCols);
+	      m_csc2dSegmentFinder->find(cscCols, ctx);
             // combine CSC segments in eta and phi plane if any were found
             if (csc2dSegmentCombinations) {
                 std::unique_ptr<MuonSegmentCombinationCollection> csc4dSegmentCombinations =
-                    m_csc4dSegmentFinder->find(*csc2dSegmentCombinations);
+		  m_csc4dSegmentFinder->find(*csc2dSegmentCombinations, ctx);
                 if (csc4dSegmentCombinations) {
 
                     // now copy the segments into the collection, not optimal as unneeded copy

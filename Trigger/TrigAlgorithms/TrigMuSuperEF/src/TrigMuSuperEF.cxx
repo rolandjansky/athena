@@ -1069,7 +1069,7 @@ HLT::ErrorCode TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputT
       m_muGirlTrkSegColl=new Trk::SegmentCollection();
       addElement(m_segsCache,m_muGirlTrkSegColl);
 
-      m_muGirlTool->extend(inDetCandidates,mugirlTagMap,m_combTrkTrackColl,m_extrTrkTrackColl,m_muGirlTrkSegColl);
+      m_muGirlTool->extend(inDetCandidates,mugirlTagMap,m_combTrkTrackColl,m_extrTrkTrackColl,m_muGirlTrkSegColl, ctx);
 
       ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
 
@@ -1939,7 +1939,7 @@ HLT::ErrorCode TrigMuSuperEF::rebuildCache(const IRoiDescriptor* muonRoI, HLT::T
     m_muGirlTrkSegColl=new Trk::SegmentCollection();
     addElement(m_segsCache,m_muGirlTrkSegColl);
 
-    m_muGirlTool->extend(*inDetCandidates,mugirlTagMap,m_combTrkTrackColl,m_extrTrkTrackColl,m_muGirlTrkSegColl);
+    m_muGirlTool->extend(*inDetCandidates,mugirlTagMap,m_combTrkTrackColl,m_extrTrkTrackColl,m_muGirlTrkSegColl, ctx);
     ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
 
     if(m_doOutsideIn) {
@@ -1991,7 +1991,8 @@ void TrigMuSuperEF::runMuGirl(const ElementLinkVector<xAOD::TrackParticleContain
   ++m_counter_TrigMuGirl.total;
   MuonCombined::InDetCandidateToTagMap* mugirlTagMap=new MuonCombined::InDetCandidateToTagMap();
   m_tagMaps.push_back(mugirlTagMap);
-  m_muGirlTool->extend(*inDetCandidates,mugirlTagMap, m_combTrkTrackColl, m_extrTrkTrackColl, m_muGirlTrkSegColl);
+  const EventContext& ctx = getContext();
+  m_muGirlTool->extend(*inDetCandidates,mugirlTagMap, m_combTrkTrackColl, m_extrTrkTrackColl, m_muGirlTrkSegColl, ctx);
   ++m_counter_TrigMuGirl.pass;//@todo fix this counter
 }
 
