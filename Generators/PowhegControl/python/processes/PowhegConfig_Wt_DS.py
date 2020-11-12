@@ -5,9 +5,7 @@
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
-#! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from .. import ATLASCommonParameters
 
 ## Default Powheg configuration for Wt_DS generation
 #

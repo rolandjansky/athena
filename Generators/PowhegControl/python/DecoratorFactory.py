@@ -5,7 +5,8 @@
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
-#! /usr/bin/env python
+# flake8: noqa (too many * imports)
+
 from .decorators import *
 
 def decorate( powheg_controller, decorator, **kwargs ) :

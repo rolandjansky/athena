@@ -1,8 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaPython import PyAthena
 import ROOT, math, random
-from ParticleGun.histsampling import TH1, TH2
+from ParticleGun.histsampling import TH1
 
 ## For convenience
 PI = math.pi
@@ -487,7 +486,7 @@ class EEtaMPhiSampler(MomSampler):
         => theta = 2 atan( exp(-eta) )
         """
         eta = self.eta()
-        theta = 2 * math.atan(math.exp(-eta));
+        theta = 2 * math.atan(math.exp(-eta))
         e = self.energy()
         m = self.mass()
         p = math.sqrt( e**2 - m**2 )
@@ -505,7 +504,7 @@ class ERapMPhiSampler(MomSampler):
 
     # TODO: ensure that E >= m!
 
-    def __init__(self, energy, eta, mass=0.0, phi=[0, TWOPI]):
+    def __init__(self, energy, rap, mass=0.0, phi=[0, TWOPI]):
         self.energy = energy
         self.rap = rap
         self.mass = mass
@@ -559,8 +558,8 @@ class ERapMPhiSampler(MomSampler):
         m = self.mass()
         pt = math.sqrt( sqrt_pt2_m2**2 - m**2 )
         phi = self.phi()
-        px = pt * math.cos(phi);
-        py = pt * math.sin(phi);
+        px = pt * math.cos(phi)
+        py = pt * math.sin(phi)
         v4 = ROOT.TLorentzVector(px, py, pz, e)
         return v4
 
@@ -674,7 +673,7 @@ class PtEtaMPhiSampler(MomSampler):
         => theta = 2 atan( exp(-eta) )
         """
         eta = self.eta()
-        theta = 2 * math.atan(math.exp(-eta));
+        theta = 2 * math.atan(math.exp(-eta))
         pt = self.pt()
         p = pt / math.sin(theta)
         phi = self.phi()
@@ -746,8 +745,8 @@ class PtRapMPhiSampler(MomSampler):
         e = sqrt_pt2_m2 * math.cosh(y)
         pz = sqrt_pt2_m2 * math.sinh(y)
         phi = self.phi()
-        px = pt * math.cos(phi);
-        py = pt * math.sin(phi);
+        px = pt * math.cos(phi)
+        py = pt * math.sin(phi)
         v4 = ROOT.TLorentzVector(px, py, pz, e)
         return v4
 

@@ -1,10 +1,9 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## \file Herwig7ConfigGeneric.py
 ## \brief Python class for reproducing standalone runs inside of athena
 
 import Herwig7Control as hw7Control
-import Herwig7Utils as hw7Utils
 
 ## Configuration base class for %Herwig7
 class Hw7ConfigGeneric(object):

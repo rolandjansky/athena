@@ -5,8 +5,6 @@
 ## \author Daniel Rauch (daniel.rauch@desy.de)
 ##
 
-from __future__ import print_function
-
 ## Choose symmetric collider energy
 def energy_cmds(sqrts):
     "Set sqrts(s) in GeV"
@@ -316,7 +314,7 @@ set /Herwig/EventHandlers/LHEReader:Cuts /Herwig/Cuts/NoCuts
 ##
 def mg5amc_cmds():
     return """
-## commands specific to showering of events produced with MG5_aMC\@NLO
+## commands specific to showering of events produced with MG5_aMC\\@NLO
 set /Herwig/Shower/KinematicsReconstructor:ReconstructionOption General
 set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBoost
 set /Herwig/Shower/KinematicsReconstructor:InitialStateReconOption Rapidity
@@ -405,24 +403,24 @@ set /Herwig/Model:EW/Sin2ThetaW 0.23113
 
 
 def get_dpdf_path():
-	import os
-	cmt_path = os.environ.get("CMTPATH")
-	cmt_dir = os.environ.get("CMTCONFIG")
-	
-	cmtPaths = cmt_path.split(':')
-	
-	for path in cmtPaths:
-		pathNow = path + "/InstallArea/" + cmt_dir + "/share/"
-		try:
-			fileList = os.listdir(pathNow)
-		except:
-			fileList = []
-		if "HerwigDefaults.rpo" in fileList:
-			simSharePath = pathNow
+        import os
+        cmt_path = os.environ.get("CMTPATH")
+        cmt_dir = os.environ.get("CMTCONFIG")
 
-	dpdf_path = os.path.dirname(os.path.normpath(os.path.join(simSharePath, os.readlink(simSharePath + 'HerwigDefaults.rpo')))) + "/PDF/diffraction/"
-	
-	return dpdf_path
+        cmtPaths = cmt_path.split(':')
+
+        for path in cmtPaths:
+                pathNow = path + "/InstallArea/" + cmt_dir + "/share/"
+                try:
+                        fileList = os.listdir(pathNow)
+                except Exception:
+                        fileList = []
+                if "HerwigDefaults.rpo" in fileList:
+                        simSharePath = pathNow
+
+        dpdf_path = os.path.dirname(os.path.normpath(os.path.join(simSharePath, os.readlink(simSharePath + 'HerwigDefaults.rpo')))) + "/PDF/diffraction/"
+
+        return dpdf_path
 
 ## Set pomeron structure function
 def pdf_pomeron_cmds(flux, pdf):
