@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
-from CoolRunQuery.utils.AtlRunQueryIOV   import IOVTime, IOVRange
+import sys
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
-from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, runsOnServer, GetRanges, SmartRangeCalulator
+from CoolRunQuery.utils.AtlRunQueryUtils import GetRanges
 
-from .AtlRunQuerySelectorBase import Selector, Condition, RunLBBasedCondition, TimeBasedCondition, DataKey
+from .AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, TimeBasedCondition
 
 class LHCSelector(Selector):
     def __init__(self, name, lhc=[], addArg=''):
@@ -33,8 +33,10 @@ class LHCCondition(TimeBasedCondition):
         ck = [(1,'lhc:fillnumber',  'FillNumber'),
               (1,'lhc:stablebeams', 'StableBeams'),
               (1,'lhc:beamenergy',  'BeamEnergyGeV')]
-        if   addArg == 'all': ck += [(1,'lhc:beammode',    'BeamMode')]
-        elif addArg == 'min': ck = [(1,'lhc:stablebeams', 'StableBeams')]
+        if addArg == 'all':
+            ck += [(1,'lhc:beammode',    'BeamMode')]
+        elif addArg == 'min':
+            ck = [(1,'lhc:stablebeams', 'StableBeams')]
         super(LHCCondition,self).__init__(name=name,
                                           dbfolderkey='COOLOFL_DCS::/LHC/DCS/FILLSTATE',
                                           channelKeys = ck)
@@ -47,14 +49,14 @@ class LHCCondition(TimeBasedCondition):
             if len(lhcargs) == 2:
                 key = 'lhc:' + lhcargs[0].strip().lower()
                 # does it exist?
-                if not key in self.ResultKey():
+                if key not in self.ResultKey():
                     print ('ERROR: unknown LHC variable "%s"' % key)
                     sys.exit(1)                
 
                 cond = lhcargs[1].strip()
                 if cond:
                     try:
-                        isnum = float(cond[0])
+                        float(cond[0])
                         self.lhc[key] = GetRanges( cond )
                     except ValueError:
                         self.lhc[key] = [[cond]]
@@ -67,37 +69,44 @@ class LHCCondition(TimeBasedCondition):
 
     def setShowOutput(self, addArg ):
         ck = ['lhc:fillnumber', 'lhc:stablebeams', 'lhc:beamenergy']
-        if   addArg == 'all': ck += ['lhc:beammode']
-        elif addArg == 'min': ck = ['lhc:stablebeams']
+        if addArg == 'all':
+            ck += ['lhc:beammode']
+        elif addArg == 'min':
+            ck = ['lhc:stablebeams']
         super(LHCCondition,self).setShowOutput()
                     
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if LHC fill state information %s" % self.lhc
-        else: return "Retrieving LHC fill state information"
+        if self.applySelection:
+            return "SELOUT Checking if LHC fill state information %s" % self.lhc
+        else:
+            return "Retrieving LHC fill state information"
 
     def passes(self, value, k):
-        if not k in self.lhc:  return True
-        if 'n.a.' in value:    return True
+        if k not in self.lhc:
+            return True
+        if 'n.a.' in value:
+            return True
         try:
             v = float(value)
             # special treatment for E-beam = 7864 --> value for ASYNC
-            if v >= 7864: return False
+            if v >= 7864:
+                return False
             
             # iterate over conditions
             for cr in self.lhc[k]:
-                if v >= cr[0] and v <= cr[1]: return True            
+                if v >= cr[0] and v <= cr[1]:
+                    return True            
         except ValueError:
             # value is a string
             # note that it still can happen that the reference of the string is a number. For example, the
             # beam energy can be returned as "ASYNC", when the two beams were in asynchronous mode. Need
             # to cover such a case.
             try:
-                cmin = float(self.lhc[k][0][0])
+                float(self.lhc[k][0][0])
                 return False # comparing number to string -> don't pass
             except ValueError:
-                if value ==  self.lhc[k][0][0]:  return True
-                pass
-            pass
+                if value == self.lhc[k][0][0]:
+                    return True
         return False
     
 class OLCFillParamsCondition(TimeBasedCondition):
@@ -111,24 +120,28 @@ class OLCFillParamsCondition(TimeBasedCondition):
         self.onl = {}
 
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if online lumi is %s" % self.olc
-        else: return "Retrieving online lumi information /TDAQ/OLC/LHC/FILLPARAMS"
+        if self.applySelection:
+            return "SELOUT Checking if online lumi is %s" % self.olc
+        else:
+            return "Retrieving online lumi information /TDAQ/OLC/LHC/FILLPARAMS"
 
     def passes(self,values,k):
-        if not k in self.onl:      return True
-        if 'n.a.' in values:       return True
-        if values ==  self.onl[k]: return True
+        if k not in self.onl:
+            return True
+        if 'n.a.' in values:
+            return True
+        if values ==  self.onl[k]:
+            return True
         return False
     
     def runAfterQuery(self,runlist):
-
-        import cPickle
 
         for k in self.ResultKey():
             with timer("olc afterquery blocks prepare for: %s" % k):
                 for run in runlist:
                     run.stats[k] = {}
-                    if not k in run.data: continue
+                    if k not in run.data:
+                        continue
                     blocks = []
                     for entry in run.data[k]:
                         v = entry.value
@@ -148,28 +161,29 @@ class OLCFillParamsCondition(TimeBasedCondition):
             from CoolRunQuery.utils.AtlRunQueryUtils import unpackRun1BCIDMask, unpackRun2BCIDMask
             for run in runlist:
 
-                if run.runNr < 151260: continue # OLC information was not in COOL before this run
+                if run.runNr < 151260:
+                    continue # OLC information was not in COOL before this run
 
                 # these contain the number of bunches for each IOV [(nb,lbstart,lbend)(...)...]
                 xb1 = run.stats['olc:beam1bunches']['blocks']
                 xb2 = run.stats['olc:beam2bunches']['blocks']
                 xbc = run.stats['olc:collbunches']['blocks']
-                #print ("JOERG XB1 ",xb1)
-                #print ("JOERG XB2 ",xb2)
-                #print ("JOERG XBC ",xbc)
                 
                 # loop over BCID mask
                 bcidmask = run.stats['olc:bcidmask']['blocks']
-                for i in xrange(len(bcidmask)):
+                for i in range(len(bcidmask)):
                     (bcidblob,lbstart,lbend) = bcidmask[i]
                     
                     # number of bunches
                     for nb1, b, e in xb1:
-                        if lbstart>=b and lbstart<e: break
+                        if lbstart>=b and lbstart<e:
+                            break
                     for nb2, b, e in xb2:
-                        if lbstart>=b and lbstart<e: break
+                        if lbstart>=b and lbstart<e:
+                            break
                     for nbc, b, e in xbc:
-                        if lbstart>=b and lbstart<e: break
+                        if lbstart>=b and lbstart<e:
+                            break
 
 
                     bcidBlobLength = len(bcidblob)
@@ -202,13 +216,18 @@ class OLCLBDataCondition(TimeBasedCondition):
         self.onl = {}
 
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if online lumi is %s" % self.olc
-        else: return "Retrieving online lumi information /TDAQ/OLC/LHC/LBDATA"
+        if self.applySelection:
+            return "SELOUT Checking if online lumi is %s" % self.olc
+        else:
+            return "Retrieving online lumi information /TDAQ/OLC/LHC/LBDATA"
 
     def passes(self,values,k):
-        if not k in self.onl:      return True
-        if 'n.a.' in values:       return True
-        if values ==  self.onl[k]: return True
+        if k not in self.onl:
+            return True
+        if 'n.a.' in values:
+            return True
+        if values == self.onl[k]:
+            return True
         return False
     
     def runAfterQuery(self,runlist):
@@ -279,29 +298,37 @@ class OLCLumiCondition(RunLBBasedCondition):
         self.olc = {}
                     
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if online lumi is %s" % self.condition
-        else: return "Retrieving online lumi information /TRIGGER/LUMI/LBLESTONL"
+        if self.applySelection:
+            return "SELOUT Checking if online lumi is %s" % self.condition
+        else:
+            return "Retrieving online lumi information /TRIGGER/LUMI/LBLESTONL"
 
     def passes(self,values,k):
         return True
-        if not k in self.olc:      return True
-        if 'n.a.' in values:       return True
+        if k not in self.olc:
+            return True
+        if 'n.a.' in values:
+            return True
 
-        if values ==  self.olc[k]: return True
+        if values == self.olc[k]:
+            return True
         return False
 
     def runAfterQuery(self, runlist):
 
         # correct "old" runs for uncalibrated luminosity
-        k   = self.ResultKey()[0]  # lumi
+        k = self.ResultKey()[0]  # lumi
         kst = 'lhc:stablebeams'
         for ir,run in enumerate(runlist):
             for entry in run.data[k]:
-                if entry.startlb == 0: continue
+                if entry.startlb == 0:
+                    continue
                 if entry.value != 'n.a.':
-                    if run.runNr <= 158632: entry.value *= 1.13
+                    if run.runNr <= 158632:
+                        entry.value *= 1.13
 
-        if not self.condition: return
+        if not self.condition:
+            return
         
         # compute integrated luminosity
         # given is the delivered luminosity in units of 10^30 cm-2 = 1 ub-1
@@ -344,7 +371,8 @@ class OLCLumiCondition(RunLBBasedCondition):
             ic += 1
     
     def prettyValue(self, value, key):
-        if value=='n.a.': return value
+        if value=='n.a.':
+            return value
         return float(value) # unit is ub-1 s-1
     
 class OLCLumiSelector(Selector):
@@ -372,7 +400,8 @@ class LuminositySelector(RunLBBasedCondition):
         channel, condtag = self.__interpretTag(tag)
 
         self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LBLESTOFL'
-        if condtag: self._dbfolderkey += "#" + condtag
+        if condtag:
+            self._dbfolderkey += "#" + condtag
 
         self._channelKeys = [(channel,'ofllumi:%i:%s' % (channel,condtag), 'LBAvInstLumi')]
 
@@ -391,7 +420,8 @@ class LuminositySelector(RunLBBasedCondition):
             self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/OflPrefLumi'
         else:
             self._dbfolderkey='COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LBLESTOFL'
-        if condtag: self._dbfolderkey += "#" + condtag
+        if condtag:
+            self._dbfolderkey += "#" + condtag
         self._channelKeys = [(channel,'ofllumi:%i:%s' % (channel,condtag), 'LBAvInstLumi')]
 
     def initialize(self):
@@ -423,29 +453,33 @@ class LuminositySelector(RunLBBasedCondition):
                 condtag = updLumiTag
             except ImportError as ex:
                 print ("WARNING: ImportError, can not read conditions tag (likely an afs permission issue): ",ex)
-                condtag = "OflPrefLumi-RUN2-UPD4-04"
-
+                condtag = "OflPrefLumi-RUN2-UPD4-10"
             print (condtag)
-
         else:
             condtag = "OflLumi-UPD2-006"
             
-        l = tag.split()
-        if len(l) == 1:
+        tt = tag.split()
+        if len(tt) == 1:
             # format: "luminosity <channel_number>" OR "luminosity <COOL tag>"
-            try: channel = int(l[0])
-            except ValueError: condtag = l[0]
-        elif len(l) == 2: 
+            try:
+                channel = int(tt[0])
+            except ValueError:
+                condtag = tt[0]
+        elif len(tt) == 2: 
             # format: "luminosity <channel_number> <COOL tag>"
-            try: channel = int(l[0])
-            except ValueError: channel = 0
-            condtag = l[1]
+            try:
+                channel = int(tt[0])
+            except ValueError:
+                channel = 0
+            condtag = tt[1]
         return channel, condtag
 
             
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if number of events matches %r" % self.cutRange
-        else:                   return "Retrieving lumi numbers"
+        if self.applySelection:
+            return "SELOUT Checking if number of events matches %r" % self.cutRange
+        else:
+            return "Retrieving lumi numbers"
 
     def passes(self,values,key):
         try:
@@ -500,11 +534,14 @@ class BeamspotSelector(RunLBBasedCondition):
                                                   (0,'bs:Tilt-Y',('tiltY','tiltYErr'))
                                                   ])
 
-        if bs: self.cutRange = GetRanges(bs)
+        if bs:
+            self.cutRange = GetRanges(bs)
 
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if %s beamspot information matches %s" % ("offline" if self.isOffline else "online", self.bs)
-        else:                   return "Retrieving %s beamspot information" % ("offline" if self.isOffline else "online",)
+        if self.applySelection:
+            return "SELOUT Checking if %s beamspot information matches %s" % ("offline" if self.isOffline else "online", self.bs)
+        else:
+            return "Retrieving %s beamspot information" % ("offline" if self.isOffline else "online",)
 
     def prettyValue(self, value, key):
         if type(value)==tuple:

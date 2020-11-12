@@ -3,13 +3,11 @@
 
 from __future__ import print_function
 import re,sys
+from time import gmtime
 
-from CoolRunQuery.AtlRunQueryRun   import Run
-from CoolRunQuery.utils.AtlRunQueryIOV   import IOVTime, IOVRange
-from CoolRunQuery.utils.AtlRunQueryTimer import timer
-from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, runsOnServer, GetRanges, SmartRangeCalulator
-
-from .AtlRunQuerySelectorBase import Selector, Condition, RunLBBasedCondition, TimeBasedCondition, DataKey
+from CoolRunQuery.AtlRunQueryRun import Run
+from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, GetRanges
+from .AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, TimeBasedCondition, DataKey
 
 
 class FilenameSelector(RunLBBasedCondition):
@@ -23,12 +21,15 @@ class FilenameSelector(RunLBBasedCondition):
                                               channelKeys = [(0, 'Project tag','FilenameTag' if Selector.condDB() == "COMP200" else 'T0ProjectTag')])
 
     def __str__(self):
-        if self.applySelection: return 'SELOUT Checking if the filename tag matches "%s"' % self.filenametag
-        else: return "Retrieving filenametag"
+        if self.applySelection:
+            return 'SELOUT Checking if the filename tag matches "%s"' % self.filenametag
+        else:
+            return "Retrieving filenametag"
 
     def passes(self,value,key):
         for p in self.fntpatterns:
-            if p.match(value): return True
+            if p.match(value):
+                return True
         return False
 
 class PartitionSelector(RunLBBasedCondition):
@@ -39,8 +40,10 @@ class PartitionSelector(RunLBBasedCondition):
                                                channelKeys = [(0,'Partition','PartitionName')])
 
     def __str__(self):
-        if self.applySelection: return 'SELOUT Checking if partition name matches "%s"' % self.partition
-        else: return "Retrieving partition name"
+        if self.applySelection:
+            return 'SELOUT Checking if partition name matches "%s"' % self.partition
+        else:
+            return "Retrieving partition name"
 
     def passes(self,value,key):
         if value=='n.a.':
@@ -56,8 +59,10 @@ class ReadyForPhysicsSelector(RunLBBasedCondition):
                                                      channelKeys = [(0,'Ready for physics','ReadyForPhysics')])
 
     def __str__(self):
-        if self.applySelection: return 'SELOUT Checking if ReadyForPhysics flag matches "%s"' % self.readyforphysics
-        else: return "Retrieving ReadyForPhysics flag"
+        if self.applySelection:
+            return 'SELOUT Checking if ReadyForPhysics flag matches "%s"' % self.readyforphysics
+        else:
+            return "Retrieving ReadyForPhysics flag"
 
     def passes(self,value,key):
         if value=='n.a.':
@@ -80,24 +85,31 @@ class DurationSelector(Selector):
             rmlist = [r for r in runlist if (r.eor-r.sor)/1E9<self.duration]
         else:
             rmlist = [r for r in runlist if (r.eor-r.sor)/1E9>self.duration]
-        for r in rmlist: runlist.remove(r)
-        if self.applySelection: print (" ==> %i runs selected" % len(runlist))
+        for r in rmlist:
+            runlist.remove(r)
+        if self.applySelection:
+            print (" ==> %i runs selected" % len(runlist))
         return runlist
 
 
 class DetectorSelector(RunLBBasedCondition):
     def __init__(self, name, dmin=None, dmout=None):
         self.bm = self.bp = self.bmany = 0
-        if not dmin: dmin = []
-        if not dmout: dmout = []
+        if not dmin:
+            dmin = []
+        if not dmout:
+            dmout = []
         for m in dmin+dmout:
-            if 'A' in m: continue
+            if 'A' in m:
+                continue
             self.bm |= int(m)
         for m in dmin:
-            if 'A' in m: continue
+            if 'A' in m:
+                continue
             self.bp |= int(m)
         for m in dmin:
-            if not 'A' in m: continue
+            if 'A' not in m:
+                continue
             self.bmany |= int(m.rstrip('A'))
 
         dbfolder = ""
@@ -122,17 +134,20 @@ class DetectorSelector(RunLBBasedCondition):
                 return "SELOUT Checking if [detector mask & %i] is greater 0" % self.bmany
             else:
                 return "SELOUT Checking if [detector mask & %i] matches %i" % (self.bm,self.bp)
-        else: return "Retrieving detector mask"
+        else:
+            return "Retrieving detector mask"
 
     def passes(self,values,key):
         try:
-            val = int(values)
+            val = int(values,16)
         except ValueError:
             self.selDataMissing = True
             return True
         retval = True
-        if self.bm!=0:    retval &= ((val & self.bm) == self.bp)
-        if self.bmany!=0: retval &= ((val & self.bmany) != 0)
+        if self.bm!=0:
+            retval &= ((val & self.bm) == self.bp)
+        if self.bmany!=0:
+            retval &= ((val & self.bmany) != 0)
         return retval
 
     def prettyValue(self, value, key):
@@ -154,10 +169,13 @@ class BFieldCondition(TimeBasedCondition):
             self.cutRange = GetRanges(condition)
     def __str__(self):
         if self.applySelection:
-            if self.cutRange[0][1] > 1000000: txt = '[%.0f,+inf]' % (self.cutRange[0][0])
-            else:                             txt = '[%.0f,%0.f]' % (self.cutRange[0][0],self.cutRange[0][1])
+            if self.cutRange[0][1] > 1000000:
+                txt = '[%.0f,+inf]' % (self.cutRange[0][0])
+            else:
+                txt = '[%.0f,%0.f]' % (self.cutRange[0][0],self.cutRange[0][1])
             return "SELOUT Checking if the %s is within %s" % (', '.join(self.ResultKey()), txt)
-        else: return "Retrieving magnet currents %s" % self.ResultKey()
+        else:
+            return "Retrieving magnet currents %s" % self.ResultKey()
 
     def passes(self,values,key):
         try:
@@ -166,11 +184,13 @@ class BFieldCondition(TimeBasedCondition):
             self.selDataMissing = True
             return True            
         for cr in self.cutRange:
-            if val>=cr[0] and val<=cr[1]: return True
+            if val>=cr[0] and val<=cr[1]:
+                return True
         return False
     
     def prettyValue(self, value, key):
-        if value=='n.a.': return value
+        if value=='n.a.':
+            return value
         return round(float(value),2)
 
 
@@ -181,13 +201,17 @@ class BFieldSelector(Selector):
         if bf:
             if 'solenoidon' in bf or 'solenoidoff' in bf:
                 tmp = []
-                if   'solenoidon'  in bf: tmp += ['7700+']
-                elif 'solenoidoff' in bf: tmp += ['10-']
+                if   'solenoidon' in bf:
+                    tmp += ['7700+']
+                elif 'solenoidoff' in bf:
+                    tmp += ['10-']
                 self.conditions += [ BFieldCondition('csolcur', ','.join(tmp), channel = 1, resDictKey = 'SolCurrent') ]
             if 'toroidon' in bf or 'toroidoff' in bf:
                 tmp = []
-                if   'toroidon'  in bf: tmp += ['20000+']
-                elif 'toroidoff' in bf: tmp += ['10-']
+                if   'toroidon'  in bf:
+                    tmp += ['20000+']
+                elif 'toroidoff' in bf:
+                    tmp += ['10-']
                 self.conditions += [ BFieldCondition('ctorcur', ','.join(tmp), channel = 3, resDictKey = 'TorCurrent') ]
         else:
             self.conditions += [ BFieldCondition('csolcur', channel = 1, resDictKey = 'SolCurrent') ]
@@ -209,8 +233,10 @@ class BFieldSelector(Selector):
     def addShowSelector(self):
         sol = tor = None
         for s in self.conditions:
-            if s.name == 'csolcur': sol = s
-            if s.name == 'ctorcur': tor = s
+            if s.name == 'csolcur':
+                sol = s
+            if s.name == 'ctorcur':
+                tor = s
         if not sol:
             sol = BFieldCondition('csolcur', channel = 1, resDictKey = 'SolCurrent')
             sol.applySelection = False
@@ -234,10 +260,14 @@ class BPMSelector(Selector):
         self.selpattern = []
         super(BPMSelector,self).__init__(name)
 
-    def __str__(self): return "Retrieving Beam Position Monitor values from PVSS archive"
-    def passes(self,values,key): return True
-    def setShowOutput(self): pass
-    def select(self, runlist): return runlist
+    def __str__(self):
+        return "Retrieving Beam Position Monitor values from PVSS archive"
+    def passes(self,values,key):
+        return True
+    def setShowOutput(self):
+        pass
+    def select(self, runlist):
+        return runlist
     
     def runAfterQuery(self,runlist):
         # do show selection here
@@ -245,8 +275,6 @@ class BPMSelector(Selector):
         pvssdb = coolDbConn.GetPVSSDBConnection()
         cursor = pvssdb.cursor()
         cursor.arraysize = 1000
-
-        pvssretdico = {}
         for r in runlist:
             t = gmtime(r.sor/1.E9)
             sor = "%02i-%02i-%4i %02i:%02i:%02i" % (t[2], t[1], t[0], t[3], t[4], t[5])
@@ -268,10 +296,14 @@ class DatasetsSelector(Selector):
         self.showCAFLinks = False
         super(DatasetsSelector,self).__init__(name)
 
-    def __str__(self): return "Retrieving datasets from Tier-0 DB"
-    def passes(self,values,key): return True
-    def setShowOutput(self): pass
-    def select(self, runlist): return runlist
+    def __str__(self):
+        return "Retrieving datasets from Tier-0 DB"
+    def passes(self,values,key):
+        return True
+    def setShowOutput(self):
+        pass
+    def select(self, runlist):
+        return runlist
     def addShowDatasetPattern(self, pattern = ''):
         # format: '*NTUP*,*dESD*,... [caf]'
         if pattern.lower() == 'caf':
@@ -301,13 +333,13 @@ class DatasetsSelector(Selector):
         tier0retdico     = GetTier0_allDatasets( tier0connection.cursor(), runnrlist, self.selpattern )
 
         for run in runlist: # go through old runlist and see
-            if tier0retdico.has_key( run.runNr ):
+            if run.runNr in tier0retdico:
                 run.addResult('Datasets', tier0retdico[run.runNr])
             else:
                 run.addResult('Datasets', {})
 
         Run.AddToShowOrder(DataKey('Datasets'))
-        Run.showCAFLinks  = self.showCAFLinks
+        Run.showCAFLinks = self.showCAFLinks
 
 
 
@@ -327,7 +359,7 @@ class LArcondSelector(RunLBBasedCondition):
                 if len(larcondargs) == 2:
                     key = 'lar:' + larcondargs[0].strip().lower()
                     # does it exist?
-                    if not key in self.ResultKey():
+                    if key not in self.ResultKey():
                         print ('ERROR: unknown larcond variable "%s"' % key)
                         sys.exit(1)                
                     self.larcond[key] = larcondargs[1].strip()
@@ -337,12 +369,16 @@ class LArcondSelector(RunLBBasedCondition):
                     
                     
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if LAr condition matches %s" % self.larcond
-        else: return "Retrieving LAr run conditions"
+        if self.applySelection:
+            return "SELOUT Checking if LAr condition matches %s" % self.larcond
+        else:
+            return "Retrieving LAr run conditions"
 
     def passes(self,values,key):
-        if self.larcond.has_key(key.lower().strip()):
-            if values.strip() ==  self.larcond[key.lower().strip()]: return True
-            else:                                                    return False
+        if key.lower().strip() in self.larcond:
+            if values.strip() == self.larcond[key.lower().strip()]:
+                return True
+            else:
+                return False
         return True
 

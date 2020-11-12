@@ -19,7 +19,7 @@ import datetime, sys, os
 from array import array
 from CoolRunQuery.utils.AtlRunQueryUtils  import importroot
 importroot() # needed before any root import to switch to batch mode
-from ROOT import TFile, TTree, gDirectory, TCanvas, gPad, TGraph, TColor, TStyle, TGaxis, gROOT, gStyle, TText, TH1F, TLegend, TDatime, TF1
+from ROOT import TFile, TTree, TCanvas, gPad, TGraph, TColor, TStyle, TGaxis, gROOT, gStyle, TText, TH1F, TLegend, TF1
 
 # ---------------------------------------------------------------------------------------------------
 # Creation of ROOT output file
@@ -30,17 +30,14 @@ def SetStyle( whiteCanvas = False ):
 
     # colors
     c_Canvas = TColor.GetColor( "#f0f0f0" ) # TColor.GetColor( "#e9e6da" )
-    if whiteCanvas: c_Canvas = TColor.GetColor( 10 )
+    if whiteCanvas:
+        c_Canvas = TColor.GetColor( 10 )
     c_FrameFill      = 10 
     c_TitleBox       = TColor.GetColor( "#dae1e6" )
-    c_SignalLine     = TColor.GetColor( "#0000ee" )
-    c_SignalFill     = TColor.GetColor( "#7d99d1" )
-    c_BackgroundLine = TColor.GetColor( "#ff0000" )
-    c_BackgroundFill = TColor.GetColor( "#ff0000" )
 
     myStyle = TStyle( gROOT.GetStyle("Plain") )
     myStyle.SetName("myStyle")
-    			
+
     myStyle.SetLineStyleString( 5, "[52 12]" )
     myStyle.SetLineStyleString( 6, "[22 12]" )
     myStyle.SetLineStyleString( 7, "[22 10 7 10]" )
@@ -105,7 +102,7 @@ def SaveGraphsToFile( filename, varnames, xvecs, yvecs, addparamName = None, add
         g.Write()
 
     # save additional parameter
-    if addparamName != None:
+    if addparamName is not None:
         addparam = TF1( addparamName, "[0]", 0, 1 )
         addparam.SetParameter( 0, addparamVal )
         addparam.Write()
@@ -117,13 +114,13 @@ def MakePlots( tree, datapath ):
     # batch mode -> no windows
 
     gROOT.SetBatch( 1 )
-    if tree == None:
+    if tree is None:
         print ('ERROR: input tree is None')
         return
 
     # style --------------------------------------------
-    steelBlue  = TColor.GetColor( "#4863A0" )
-    slateBlue  = TColor.GetColor( "#574EC7" )
+    #steelBlue  = TColor.GetColor( "#4863A0" )
+    #slateBlue  = TColor.GetColor( "#574EC7" )
     dogerBlue  = TColor.GetColor( "#1569C7" )
     dogerBlue3 = TColor.GetColor( "#1569C7" )
     graphCol  = dogerBlue
@@ -143,13 +140,15 @@ def MakePlots( tree, datapath ):
     varlist = []
     
     for leaf in leafList:
-        if leaf != None:
+        if leaf is not None:
             # check type, only values are plotted
             typename = leaf.GetTypeName().lower()
             valid = False
             for vt in validtypes:
-                if vt in typename: valid = True
-            if valid: varlist.append( leaf.GetName() )
+                if vt in typename:
+                    valid = True
+            if valid:
+                varlist.append( leaf.GetName() )
 
     # plot
     TGaxis.SetMaxDigits(6)
@@ -159,12 +158,13 @@ def MakePlots( tree, datapath ):
     hnames = []
     for ref in reflist:
         # sanity check
-        if not ref in varlist:
+        if ref not in varlist:
             print ('Big troubles in "MakePlots" --> reference variable "%s" not in TTree' % ref)
             sys.exit(1)
 
         for var in varlist:
-            if var == ref: continue
+            if var == ref:
+                continue
 
             vreg = var.replace('-','_')
             rreg = ref.replace('-','_')
@@ -210,7 +210,8 @@ def MakePlots( tree, datapath ):
 def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '' ):
 
     # sanity check
-    if not xvec or len(yvec)==0 or not yvec[0]: return "None"
+    if not xvec or len(yvec)==0 or not yvec[0]:
+        return "None"
 
     ylegend = ['Intensity Beam-1', 'Intensity Beam-2', 'Beam energy', 'Online inst. luminosity' ]
 
@@ -244,8 +245,8 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
     # first draw histogram        
     ymax = max(hg[0].GetMaximum(),hg[1].GetMaximum())
     y2 = ymax*1.3
-    if y2 <= 0: y2 = 1
-    y1 = 0
+    if y2 <= 0:
+        y2 = 1
     h.SetMinimum(0)
     h.SetMaximum(y2) 
     h.Draw("0")
@@ -255,7 +256,8 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
     ebcol = TColor.GetColor( "#306754" )
     heb = hg[2]
     heb.Scale( 1./1000.0 ) # in TeV
-    if heb.GetMaximum()==0:  heb.SetMaximum(1)
+    if heb.GetMaximum()==0:
+        heb.SetMaximum(1)
     ebmax = heb.GetMaximum()*1.3
 
     # one more sanity check
@@ -272,7 +274,8 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
 
     if xvecStb:
         for i in range(len(xvec)):
-            if xvec[i] in xvecStb: h.SetBinContent( xvec[i], yvec[2][i]*scale/1000.0 ) # draw for beam energy (in TeV)
+            if xvec[i] in xvecStb:
+                h.SetBinContent( xvec[i], yvec[2][i]*scale/1000.0 ) # draw for beam energy (in TeV)
         h.SetFillColor( TColor.GetColor( "#63bD58" ) )
         h.SetFillStyle( 3007 )
         h.SetLineColor( TColor.GetColor( "#C3FDB8" ) )
@@ -287,8 +290,8 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
     colorList = [TColor.GetColor( "#255EC7" ), TColor.GetColor( "#E42217" ), TColor.GetColor( "#2212EE" ), TColor.GetColor( "#22EE33" )]
 
     for ig in range(2):
-        col = 1
-        if ig < len(colorList): hg[ig].SetLineColor( colorList[ig] )
+        if ig < len(colorList):
+            hg[ig].SetLineColor( colorList[ig] )
         hg[ig].SetLineWidth( 2 )
         hg[ig].Draw("same")
 
@@ -316,14 +319,16 @@ def makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, runNr, datapath, printText = '
     for ig,hgg in enumerate(hg):
         if ylegend[ig]:
             opt = "l"
-            if ig == 2: opt = "FL"
+            if ig == 2:
+                opt = "FL"
             legend.AddEntry( hgg, ylegend[ig], opt )
             drawLegend = True
         
     if xvecStb:
         legend.AddEntry( h,  "LBs with stable beams","F" )
         drawLegend = True
-    if drawLegend: legend.Draw("same")
+    if drawLegend:
+        legend.Draw("same")
 
     # redraw axis
     h.Draw( "sameaxis" )
@@ -352,7 +357,8 @@ def makeTimePlotList( xvec, xveclb, yvec, toffset, dt, ymin, ymax,
                       xtit, ytit, ylegend, name, title, datapath, printText = '' ):
 
     # sanity check
-    if not xvec or len(yvec)==0 or not yvec[0]: return "None"
+    if not xvec or len(yvec)==0 or not yvec[0]:
+        return "None"
 
     SetStyle()
 
@@ -392,7 +398,7 @@ def makeTimePlotList( xvec, xveclb, yvec, toffset, dt, ymin, ymax,
     # toffset += 7*3600 # BUG in ROOT ???
     # =================================
 
-    frame.GetXaxis().SetTimeOffset(long(toffset), "gmt") # assumes time given was local
+    frame.GetXaxis().SetTimeOffset(toffset, "gmt") # assumes time given was local
 
     frame.GetXaxis().SetTitle( xtit )
     frame.GetXaxis().SetTitleOffset( 1.3 )
@@ -465,7 +471,8 @@ def makeTimePlotList( xvec, xveclb, yvec, toffset, dt, ymin, ymax,
             h.SetLineWidth( 2 )
             legend.AddEntry( h, ylegend[ig], "l" )
             drawLegend = True        
-    if drawLegend: legend.Draw("same")
+    if drawLegend:
+        legend.Draw("same")
 
     # redraw axis
     frame.Draw( "sameaxis" )
@@ -480,7 +487,8 @@ def makeTimePlotList( xvec, xveclb, yvec, toffset, dt, ymin, ymax,
 def makeLBPlotList( xvec, xvecStb, yvec, xtitle, ytitle, ylegend, histname, histtitle, datapath, printText = '', ymin = None , ymax = None ): 
 
     # sanity check
-    if not xvec or len(yvec)==0 or not yvec[0]: return "None"
+    if not xvec or len(yvec)==0 or not yvec[0]:
+        return "None"
 
     SetStyle()    
     c = TCanvas( histname, histtitle, 0, 0, 530, 400 )
@@ -508,11 +516,13 @@ def makeLBPlotList( xvec, xvecStb, yvec, xtitle, ytitle, ylegend, histname, hist
                 val,valerr = y[i],0
             hg[iy].SetBinContent( xvec[i], val )
             hg[iy].SetBinError( xvec[i], valerr )
-        if xvec[i] in xvecStb: h.SetBinContent( xvec[i], yvec[0][i] )
+        if xvec[i] in xvecStb:
+            h.SetBinContent( xvec[i], yvec[0][i] )
 
     if not ymax:
         ymax = max([h.GetMaximum() for h in hg])
-        if ymax <= 0: ymax = 1
+        if ymax <= 0:
+            ymax = 1
         ymax *= 1.2
 
     if not ymin:
@@ -533,7 +543,8 @@ def makeLBPlotList( xvec, xvecStb, yvec, xtitle, ytitle, ylegend, histname, hist
     colorList = [TColor.GetColor( "#255EC7" ), TColor.GetColor( "#E42217" ), TColor.GetColor( "#2212EE" ), TColor.GetColor( "#22EE33" )]
 
     for ig,hgg in enumerate(hg):
-        if ig < len(colorList): hgg.SetLineColor( colorList[ig] )
+        if ig < len(colorList):
+            hgg.SetLineColor( colorList[ig] )
         hgg.SetLineWidth( 2 )
         hgg.Draw("e2same")
 
@@ -570,7 +581,8 @@ def makeLBPlotList( xvec, xvecStb, yvec, xtitle, ytitle, ylegend, histname, hist
     if xvecStb:
         legend.AddEntry( h,  "LBs with stable beams","F" )
         drawLegend = True
-    if drawLegend: legend.Draw("same")
+    if drawLegend:
+        legend.Draw("same")
 
     # redraw axis
     h.Draw( "sameaxis" )
@@ -594,11 +606,10 @@ def makeBSPlots( xvec, yvec, xtitle, ytitle, histname, histtitle, datapath, ymin
     c = TCanvas( histname, histtitle, 0, 0, 530, 400 )
     c.GetPad(0).SetTopMargin(0.13)
     c.GetPad(0).SetGrid()
-    xlower = 1
-    xupper = sum(xvec)
 
     bounds = [1]
-    for nlb in xvec: bounds += [bounds[-1]+nlb]
+    for nlb in xvec:
+        bounds += [bounds[-1]+nlb]
 
     from array import array
     h = TH1F( histname + 'g', histtitle, len(bounds)-1, array('f',bounds) )
@@ -658,8 +669,10 @@ def InttypeTrf( tree, var, vlist, value, kcoord ):
         tree.Branch( vreg, vlist[-1], "%s/I" % vreg )
         return
     # fill tree
-    try:    vlist[kcoord][0] = int(value)
-    except: vlist[kcoord][0] = -1
+    try:
+        vlist[kcoord][0] = int(value)
+    except ValueError:
+        vlist[kcoord][0] = -1
         
 def FloattypeTrf( tree, var, vlist, value, kcoord ):
     # initialisation
@@ -669,8 +682,10 @@ def FloattypeTrf( tree, var, vlist, value, kcoord ):
         tree.Branch( vreg, vlist[-1], "%s/F" % vreg )
         return
     # fill tree
-    try:     vlist[kcoord][0] = float(value)
-    except:  vlist[kcoord][0] = -1
+    try:
+        vlist[kcoord][0] = float(value)
+    except ValueError:
+        vlist[kcoord][0] = -1
 
 def StringtypeTrf( tree, var, vlist, value, kcoord ):
     # initialisation
@@ -682,7 +697,7 @@ def StringtypeTrf( tree, var, vlist, value, kcoord ):
     try:
         vlist[kcoord] = array( 'c', value + '\0' ) 
         tree.SetBranchAddress( var, vlist[kcoord] )
-    except:                    
+    except ValueError:                    
         vlist[kcoord] = array( 'c', 'unknown\0' ) 
         tree.SetBranchAddress( var, vlist[kcoord] )
 
@@ -706,7 +721,7 @@ def DurationtypeTrf( tree, var, vlist, value, kcoord ):
                 
             value = str( ( (int(d.replace('d','').strip())*24 + int(h.replace('h','').strip()))*60 + 
                            int(m.replace('m','').strip()) )*60 + int(s.replace('s','').strip()) )
-        except:
+        except ValueError:
             print (value)
             sys.exit(1)
             value = 0
@@ -730,7 +745,8 @@ def MakeHtml( hnames, fnames, uselarge = False, iconwidth = 70, nbreakline = 10 
         s += """')"""
         s += """ "><img vspace=0 src="%s" title="Plot showing query result for %s" width="%i"></a><br><font size="-2">%s</font></td>""" % (f,h,iconwidth,h)
         s += """<td>&nbsp;</td>"""
-        if (i+1)%nbreakline == 0: s += '</tr><tr>'
+        if (i+1)%nbreakline == 0:
+            s += '</tr><tr>'
 
     s += '</tr></table>'
     return s
@@ -757,13 +773,12 @@ def GetActions():
 def CreateRootFile( dic ):
 
     from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey
-
     from CoolRunQuery.AtlRunQueryQueryConfig import QC
     datapath = QC.datapath
 
     actions = GetActions()
 
-    if not 'data' in os.listdir('.'):
+    if 'data' not in os.listdir('.'):
         os.mkdir('data')
 
     f = open( '%s/dummyroot.txt' % datapath, 'w' )
@@ -775,7 +790,6 @@ def CreateRootFile( dic ):
     varlist  = []
 
     # create branches
-    r_1 = -1
     keylist = []
     for data_key in dic:
 
@@ -786,11 +800,14 @@ def CreateRootFile( dic ):
         var = data_key.ResultKey.replace('#',' ').strip().replace(' ','_').replace('STR:','').replace('-','_').replace(':','_')
 
         k = data_key.ResultKey.lower()
-        if data_key.Type==DataKey.STREAM:        k = 'stream'
-        elif 'olc_' == data_key.ResultKey[0:4]:  k = 'lumi'
+        if data_key.Type==DataKey.STREAM:
+            k = 'stream'
+        elif 'olc_' == data_key.ResultKey[0:4]:
+            k = 'lumi'
 
         # is key included in 'actions' dictionary ?
-        if not k in actions: k = 'other'
+        if k not in actions:
+            k = 'other'
 
         useit, function = actions[k]
         if useit:
@@ -890,7 +907,8 @@ def makeRatePlot( v, lbduration, plottriggers, averrate, xtit, ytit, name, title
             ymax = max(ymax,_apr)
 
 
-    if ymax <= 0: ymax = 1
+    if ymax <= 0:
+        ymax = 1
     
     # first draw histogram        
     y2 = ymax*1.2
@@ -929,7 +947,8 @@ def makeRatePlot( v, lbduration, plottriggers, averrate, xtit, ytit, name, title
     legend.SetTextColor( 1 )
     # fill legend - highest average rate first
     for trname,avtrrate in averrate:
-        if not trname in hTAV: continue
+        if trname not in hTAV:
+            continue
         legend.AddEntry( hTAV[trname], trname, "l" )
     legend.Draw("same")
 
@@ -957,9 +976,10 @@ if __name__=='__main__':
     import pickle
     datapath = '/afs/cern.ch/user/s/stelzer/runsummary/data'
     pf = open( '%s/rates.pickle' % datapath, 'r' )
-    try: store = pickle.load(pf)
-    except:
-        print ('ERROR: could not load rates')
+    try:
+        store = pickle.load(pf)
+    except pickle.UnpicklingError as err:
+        print ('ERROR: could not load rates (%s)' % err)
         sys.exit(1)
     pf.close()
 
