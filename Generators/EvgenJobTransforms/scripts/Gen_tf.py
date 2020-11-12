@@ -144,9 +144,9 @@ class EvgenExecutor(athenaExecutor):
         confFile=None
         if len(configFiles) == 1:
             confFile =  os.path.join(FIRST_DIR, configFiles[0])
-            expand_if_archive(confFile)
+#            expand_if_archive(confFile)
 #            os.system("cp %s ." % confFile)
-            print "Configuration input found ", confFile
+#            print "Configuration input found ", confFile
         elif len(configFiles) >1:
             msg.info("more then one gridpack ! ")
             if "--ecmEnergy" in str(sys.argv[1:]):
@@ -165,11 +165,15 @@ class EvgenExecutor(athenaExecutor):
                msg.error("No *GRID* config files, for requested energy = '%s'  please check = '%s'" %(energy,dsidparam))
             
 #            msg.error("Too many *GRID* config files, please check = '%s'" % dsidparam) 
-        
+        expand_if_archive(confFile)
+#       os.system("cp %s ." % confFile)
+        print "Configuration input found ", confFile
+
         #Expand if a tarball is found in local directory
         loc_files = os.listdir(os.getcwd())
-        for loc_file in loc_files: 
-            expand_if_archive(loc_file)
+        for loc_file in loc_files:
+            if "GRID" not in loc_file:  
+               expand_if_archive(loc_file)
             
             
         ## Expand tarball input event and generator conf files, if provided
