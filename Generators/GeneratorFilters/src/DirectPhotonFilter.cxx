@@ -52,7 +52,7 @@ StatusCode DirectPhotonFilter::filterInitialize() {
 }
 
 bool DirectPhotonFilterCmpByPt(HepMC::GenParticle* p1, HepMC::GenParticle* p2) {
-  return (p1->momentum().perp()<p2->momentum().perp());
+  return (p1->momentum().perp()>p2->momentum().perp());
 }
 
 StatusCode DirectPhotonFilter::filterEvent() {
