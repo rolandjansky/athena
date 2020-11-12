@@ -1,6 +1,4 @@
-################################################################################
-# Package: LArDigitization
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( LArDigitization )
@@ -15,17 +13,18 @@ atlas_add_library( LArDigitizationLib
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES CaloIdentifier AthenaBaseComps
-                   AthenaKernel Identifier xAODEventInfo GaudiKernel
-                   LArIdentifier LArRawEvent LArSimEvent
+                   AthenaKernel xAODEventInfo GaudiKernel
+                   LArElecCalib LArRawEvent LArSimEvent
                    LArRecConditions LArRawConditions CaloDetDescrLib
-                   PileUpToolsLib StoreGateLib SGtests LArCablingLib EventInfoUtils
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib GeneratorObjects )
+                   PileUpToolsLib StoreGateLib LArCablingLib
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AtlasHepMCLib EventInfoUtils
+                   GeneratorObjects Identifier LArIdentifier )
+
 
 atlas_add_component( LArDigitization
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      LINK_LIBRARIES LArDigitizationLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
