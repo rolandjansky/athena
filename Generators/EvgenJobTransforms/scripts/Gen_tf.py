@@ -69,6 +69,7 @@ class EvgenExecutor(athenaExecutor):
             cwdir = os.getcwd()
             cwd_ful = os.path.join(cwdir, dsidparam)
             if (os.path.isdir(cwd_ful)):
+               os.environ["JOBOPTSEARCHPATH"] = cwdir+":"+os.environ["JOBOPTSEARCHPATH"]
                os.environ["JOBOPTSEARCHPATH"] = cwd_ful+":"+os.environ["JOBOPTSEARCHPATH"]
                os.environ["DATAPATH"] = cwd_ful+":"+os.environ["DATAPATH"]
             else:               
@@ -137,16 +138,34 @@ class EvgenExecutor(athenaExecutor):
 
         # copy config files to cwd
         FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-#        print "The configuration is taken from dir = ", FIRST_DIR
+        print "The configuration is taken from dir = ", FIRST_DIR
         configFiles = [f for f in os.listdir(FIRST_DIR) if ( "GRID" in f)]
+        msg.info("Found " + str(len(configFiles)) + "configuration files")
+        confFile=None
         if len(configFiles) == 1:
             confFile =  os.path.join(FIRST_DIR, configFiles[0])
             expand_if_archive(confFile)
 #            os.system("cp %s ." % confFile)
             print "Configuration input found ", confFile
         elif len(configFiles) >1:
-            msg.error("Too many *GRID* config files, please check = '%s'" % dsidparam) 
-
+            msg.info("more then one gridpack ! ")
+            if "--ecmEnergy" in str(sys.argv[1:]):
+               ener=str(sys.argv[1:]).split("ecmEnergy",1)[1]
+               energy=str(ener)[:4].strip(" =0\']")
+               print("Should be used gridpack for energy "+energy)
+            else:
+               energy="13"
+            for x in configFiles:
+                gridS="mc_"+energy+"TeV"
+                print("Gridpack should start from "+gridS) 
+                if x.startswith(gridS):
+                   confFile = os.path.join(FIRST_DIR, x)
+                   msg.info("using gridpack = "+confFile)
+            if confFile is None:
+               msg.error("No *GRID* config files, for requested energy = '%s'  please check = '%s'" %(energy,dsidparam))
+            
+#            msg.error("Too many *GRID* config files, please check = '%s'" % dsidparam) 
+        
         #Expand if a tarball is found in local directory
         loc_files = os.listdir(os.getcwd())
         for loc_file in loc_files: 
