@@ -74,8 +74,8 @@ public:
   virtual QStringList clicked() const = 0;
 
   virtual Amg::Vector3D momentum() const { return Amg::Vector3D(0,0,0); }
-  virtual const Amg::Vector3D * startPoint() const;//!< returns 0 if can't find start point.
-  virtual const Amg::Vector3D * endPoint() const;//!< returns 0 if can't find start point.
+  virtual std::optional<Amg::Vector3D> startPoint() const;//!< returns 0 if can't find start point.
+  virtual std::optional<Amg::Vector3D> endPoint() const;//!< returns 0 if can't find start point.
   virtual int pdgCode() const { return 0; }//!< 0 means unknown
 
   //Default implementation of the following two methods will based on
