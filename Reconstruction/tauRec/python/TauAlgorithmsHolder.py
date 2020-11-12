@@ -74,12 +74,19 @@ def getTauAxis():
     if _name in cached_instances:
         return cached_instances[_name]
     
+    from JetRec.JetRecFlags import jetFlags
+    
+    doJetVertexCorrection = False
+    if tauFlags.isStandalone:
+        doJetVertexCorrection = True
+    if jetFlags.useVertices() and jetFlags.useTracks():
+        doJetVertexCorrection = True
+    
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
                                     VertexCorrection = True,
-                                    TauVertexCorrection = getTauVertexCorrection(),
-                                    UseSubtractedCluster = tauFlags.useSubtractedCluster() )
+                                    JetVertexCorrection = doJetVertexCorrection)
                                     
     cached_instances[_name] = TauAxisSetter                
     return TauAxisSetter
