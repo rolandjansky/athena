@@ -46,7 +46,7 @@ namespace top {
     MissingETObjectCollectionMaker& operator = (const MissingETObjectCollectionMaker& rhs) = delete;
 
     StatusCode initialize();
-    StatusCode recalculateMET(bool);
+    StatusCode recalculateMET(const bool executeNominal);
 
     // return specific Systematic
     inline virtual const std::list<CP::SystematicSet>& specifiedSystematics() const {return m_specifiedSystematics;}
@@ -59,7 +59,7 @@ namespace top {
   private:
     StatusCode recalculateEventMET(const xAOD::SystematicEvent* event,
                                    const xAOD::MissingETContainer* met_core,
-                                   bool forceUseLooseObjects=false,
+                                   const bool forceUseLooseObjects=false,
                                    const std::string& outputContainerSuffix="");
 
     std::shared_ptr<top::TopConfig> m_config;

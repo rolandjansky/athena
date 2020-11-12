@@ -71,7 +71,7 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MissingETObjectCollectionMaker::recalculateMET(bool executeNominal) {
+  StatusCode MissingETObjectCollectionMaker::recalculateMET(const bool executeNominal) {
     // met core contains the soft terms we need to add to our met calculation
     const xAOD::MissingETContainer* xaod_met_core(nullptr);
 
@@ -123,7 +123,7 @@ namespace top {
 
   StatusCode MissingETObjectCollectionMaker::recalculateEventMET(const xAOD::SystematicEvent* event,
                                                                  const xAOD::MissingETContainer* xaod_met_core,
-                                                                 bool forceUseLooseObjects,
+                                                                 const bool forceUseLooseObjects,
                                                                  const std::string& outputContainerSuffix) {
     // decoration for objects that pass pre OR selection
     std::string passPreORSelection = "passPreORSelection";
@@ -241,7 +241,7 @@ namespace top {
 
       // Muon-jet ghost association
       // performed after muon handing to METUtility, but before jets
-      if (xaod_mu) {
+      if (xaod_mu && xaod_jet) {
         met::addGhostMuonsToJets(*xaod_mu, *xaod_jet);
       }
     } else {
@@ -290,19 +290,18 @@ namespace top {
       }
     }
 
-
-
     // This will sum up all the contributions we've made so far e.g.
     // Total MET = RefEle + RefPhoton + RefTau + RefMuon + RefJet + PVSoftTrk (Track Soft Term)
-
-    top::check(met::buildMETSum("FinalTrk", new_met_container, MissingETBase::Source::Track),
+    top::check(met::buildMETSum("FinalTrk",
+                                new_met_container,
+                                MissingETBase::Source::Track),
                "Failed to rebuild Final Track MET");
 
     /************************************************************
        // We are only going to build a single MET Sum now for clarity. The final argument is the soft term we
        // want to use. The recommended one is the track soft term (TST) as above.
 
-       top::check( m_met_maker->buildMETSum("FinalClus", new_met_container, MissingETBase::Source::EMTopo),
+       top::check(mer::buildMETSum("FinalClus", new_met_container, MissingETBase::Source::EMTopo),
               "Failed to rebuild Final Cluster MET");
     ************************************************************/
 
@@ -351,7 +350,7 @@ namespace top {
             if (specifiedSystematics.size() > 0) {
               for (auto i : specifiedSystematics) {
                 TreeFilter filter(i);
-		if (!filter.filterTree(s.name())) {
+                if (!filter.filterTree(s.name())) {
                   m_specifiedSystematics.push_back(s);
                 }
               }
