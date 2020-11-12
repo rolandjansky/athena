@@ -39,7 +39,7 @@ namespace {
 // Use a vector so any number of truth event collections can be used at once -- but the pointers need to be valid
 void createTruthMap(std::vector<const xAOD::TruthEventBaseContainer *> truthEventContainers ) {
 
-  xAOD::TruthParticle::Decorator<ElementLink<xAOD::TruthEventBaseContainer> > backLinkDecor("TruthEventLink");
+  static const xAOD::TruthParticle::Decorator<ElementLink<xAOD::TruthEventBaseContainer> > backLinkDecor("TruthEventLink");
 
   for ( auto cit : truthEventContainers ) {
 
@@ -72,8 +72,8 @@ void createTrackTruthMap(std::vector<const xAOD::TruthEventBaseContainer *> trut
 
   xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > trk_truthPartAcc("truthParticleLink");
   xAOD::TrackParticle::ConstAccessor<float> trk_truthProbAcc("truthMatchProbability");
-  xAOD::TruthParticle::Decorator<ElementLink<xAOD::TruthEventBaseContainer> > backLinkDecor("TruthEventLink");
-  xAOD::TrackParticle::Decorator<ElementLink<xAOD::TruthEventBaseContainer> > trackLinkDecor("TrackEventLink");
+  static const xAOD::TruthParticle::Decorator<ElementLink<xAOD::TruthEventBaseContainer> > backLinkDecor("TruthEventLink");
+  static const xAOD::TrackParticle::Decorator<ElementLink<xAOD::TruthEventBaseContainer> > trackLinkDecor("TrackEventLink");
 
   int nGood = 0;
   int nMatch = 0;
@@ -178,14 +178,14 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
   createTrackTruthMap( truthContainers, *tkContainer, m_trkMatchProb );
 
   // Accessor for the links we just created
-  xAOD::TruthParticle::Decorator<ElementLink<xAOD::TruthEventBaseContainer> > backLinkDecor("TruthEventLink");
+  xAOD::TruthParticle::ConstAccessor<ElementLink<xAOD::TruthEventBaseContainer> > backLinkDecor("TruthEventLink");
 
   //setup decorators for truth matching info
-  xAOD::Vertex::Decorator<std::vector<VertexTruthMatchInfo> > matchInfoDecor("TruthEventMatchingInfos");
-  xAOD::Vertex::Decorator<std::vector<VertexTruthMatchInfo> > rawMatchInfoDecor("TruthEventRawMatchingInfos");
-  xAOD::Vertex::Decorator<VertexMatchType> matchTypeDecor("VertexMatchType");
-  xAOD::Vertex::Decorator<std::vector<ElementLink<xAOD::VertexContainer> > > splitPartnerDecor("SplitPartners");
-  xAOD::Vertex::Decorator<int> nHSTrkDecor("nHSTrk");
+  static const xAOD::Vertex::Decorator<std::vector<VertexTruthMatchInfo> > matchInfoDecor("TruthEventMatchingInfos");
+  static const xAOD::Vertex::Decorator<std::vector<VertexTruthMatchInfo> > rawMatchInfoDecor("TruthEventRawMatchingInfos");
+  static const xAOD::Vertex::Decorator<VertexMatchType> matchTypeDecor("VertexMatchType");
+  static const xAOD::Vertex::Decorator<std::vector<ElementLink<xAOD::VertexContainer> > > splitPartnerDecor("SplitPartners");
+  static const xAOD::Vertex::Decorator<int> nHSTrkDecor("nHSTrk");
 
   //setup accessors
   // can switch to built in method in xAOD::Vertex once don't have to deal with changing names anymore
@@ -195,8 +195,8 @@ StatusCode InDetVertexTruthMatchTool::matchVertices( const xAOD::VertexContainer
   xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > trk_truthPartAcc("truthParticleLink");
   xAOD::TrackParticle::ConstAccessor<float> trk_truthProbAcc("truthMatchProbability");
 
-  xAOD::TrackParticle::Decorator<ElementLink<xAOD::VertexContainer> > trk_recoVtx("RecoVertex");
-  xAOD::TrackParticle::Decorator<float> trk_wtVtx("WeightVertex");
+  static const xAOD::TrackParticle::Decorator<ElementLink<xAOD::VertexContainer> > trk_recoVtx("RecoVertex");
+  static const xAOD::TrackParticle::Decorator<float> trk_wtVtx("WeightVertex");
 
   //some variables to store
   size_t ntracks;

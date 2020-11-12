@@ -19,7 +19,7 @@ bool isHardScatterEvent( const ElementLink<xAOD::TruthEventBaseContainer> evlink
 //find vertex with largest amount of hard-scatter tracks
 const xAOD::Vertex * bestHardScatterMatch( const xAOD::VertexContainer & vxContainer ) {
   //accessors for decorations
-  xAOD::Vertex::Decorator<int> nHSTrkDecor("nHSTrk");
+  xAOD::Vertex::ConstAccessor<int> nHSTrkDecor("nHSTrk");
 
   std::vector<std::pair<const xAOD::Vertex*, size_t> > allMatches = hardScatterMatches( vxContainer );
 
@@ -40,7 +40,7 @@ const xAOD::Vertex * bestHardScatterMatch( const xAOD::VertexContainer & vxConta
 //Find all hard scatter matches
 const std::vector<std::pair<const xAOD::Vertex*, size_t> > hardScatterMatches( const xAOD::VertexContainer & vxContainer ) {
   //accessors for decorations
-  xAOD::Vertex::Decorator<std::vector<VertexTruthMatchInfo> > matchInfoDecor("TruthEventMatchingInfos");
+  xAOD::Vertex::ConstAccessor<std::vector<VertexTruthMatchInfo> > matchInfoDecor("TruthEventMatchingInfos");
 
   //return vector
   std::vector<std::pair<const xAOD::Vertex*, size_t> > result;
