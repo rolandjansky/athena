@@ -64,7 +64,7 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     logging.info("Finished clean "+s)
     pass
 
-def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
+def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False,voldebug=False):
 
     if "maxEvents" not in extraArg:
         extraArg += " --maxEvents=10 "
@@ -72,9 +72,13 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False):
     s=stest
     trfcmd="echo \"NO VALID CONFIGURATION SELECTED!\""
 
+
     if s == 'sim_updated':
-       geotag = "ATLAS-P2-ITK-22-00-00_VALIDATION"  
-       trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,G4UserActions/LengthIntegrator_options.py' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False;ServiceMgr.DetDescrCnvSvc.OutputLevel=VERBOSE; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True' --inputEVNTFile "+input_file+" --outputHITSFile myHITS.pool.root --imf False  "
+       extra_pre = ""
+       geotag = "ATLAS-P2-ITK-22-00-00_VALIDATION"
+       if voldebug:
+           extra_pre = ",InDetSLHC_Example/preInclude.VolumeDebugger.py"
+       trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,G4UserActions/LengthIntegrator_options.py"+extra_pre+"' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False;ServiceMgr.DetDescrCnvSvc.OutputLevel=VERBOSE; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True' --inputEVNTFile "+input_file+" --outputHITSFile myHITS.pool.root --imf False  "
 
        logging.info("Running patched "+s)
        logging.info("\"Sim_tf.py --AMIConfig "+s+" ("+geotag+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
@@ -596,6 +600,13 @@ def main():
                       default="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/ttbar_muplusjets-pythia6-7000.evgen.pool.root",
                       help="Input file for simulation tests")
 
+    
+    parser.add_option("-V",
+                      "--volume-checks",
+                      action="store_true",
+                      dest="volcheck_flag",
+                      default=False,
+                      help="Run VolumeDebugger to check for overlaps etc")
 
     (options,args)=parser.parse_args()
 
@@ -613,6 +624,7 @@ def main():
     NoCheck         = options.nocheck_flag
     RunUpdated      = options.updatedtest_flag
     RunOld          = options.oldtest_flag
+    RunVolumeCheck  = options.volcheck_flag
 
 #        tct_ESD = "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/tct/"+latest_nightly+"/"+release+"/"+platform+"/offline/Tier0ChainTests/"+q+"/myESD.pool.root"          
 
@@ -635,6 +647,15 @@ def main():
         logging.info("")
         RunPatchedOnly = True
         NoCheck = True
+
+    if RunVolumeCheck:
+        logging.info("")
+        logging.info("You are running with the Volume Debugger, this is slow!")
+        logging.info("This mode therefore only runs the patched simulation for local geomtries")
+        logging.info("")
+        RunUpdated = True
+        RunSim = True
+        
 
 ########### Does the clean run head directory exist?
     if str(CleanRunHeadDir) == "/tmp/":
@@ -760,7 +781,7 @@ def main():
                 q=str(qtest)
                 def mypatchedqtest():
                     if "s" in q:
-                     RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode)
+                     RunPatchedSTest(q,sim_input_file,mypwd,cleanSetup,extraArg, nosetup=ciMode,voldebug=RunVolumeCheck)
                     else:
                      RunPatchedQTest(q,mypwd,mysetup,extraArg,nosetup=ciMode)
                 mythreads[q+"_patched"] = threading.Thread(target=mypatchedqtest)
