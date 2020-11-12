@@ -16,7 +16,7 @@ atlas_add_library( TopObjectSelectionTools
    TriggerAnalysisInterfaces JetAnalysisInterfacesLib AssociationUtilsLib
    TrigConfInterfaces TrigDecisionToolLib TriggerMatchingToolLib
    TrigTauMatchingLib InDetTrackSelectionToolLib ElectronPhotonSelectorToolsLib
-   JetReclusteringLib TauAnalysisToolsLib TopEvent TopConfiguration
+   TauAnalysisToolsLib TopEvent TopConfiguration
    TopSystematicObjectMaker
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} xAODEventInfo xAODMissingET
