@@ -26,8 +26,18 @@ def fillGeneratorsMap( sigMap, signature ):
     sigMap[signature] = gen.generateChains
     log.info( 'Imported generator for %s', signature )
 
+def obtainChainsOfMenu(flags):
+    import importlib
+    setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup+"_newJO"
+    setupMenuModule = importlib.import_module( setupMenuPath )
+    assert setupMenuModule is not None, "Could not import module {}".format(setupMenuPath)
+    assert setupMenuModule.setupMenu is not None, "Could not import setupMenu from {}".format(setupMenuPath)
+    return setupMenuModule.setupMenu(flags)
 
-def generateMenu( flags ):
+
+
+
+def generateMenu(flags):
     """
     Using flags generate appropriate Control Flow Graph wiht all HLT algorithms
     """
@@ -42,22 +52,18 @@ def generateMenu( flags ):
 
     menuAcc = ComponentAccumulator()
     mainSequenceName = 'HLTAllSteps'
-    menuAcc.addSequence( seqAND(mainSequenceName) )
+    menuAcc.addSequence(seqAND(mainSequenceName))
 
+    chainsInMenu = obtainChainsOfMenu(flags)
 
-    for name, cfgFlag in list(flags._flagdict.items()):
-        if 'Trigger.menu.' not in name:
-            continue
-        value = flags._get(name)
-        if len(value) == 0:
+    for signatureName, chains  in chainsInMenu.items():
+        if len(chains) == 0:
             continue
 
-        signatureName = name.split('.')[-1]
         signatures = []
-
         # fill the map[signature, generating function]
         if signatureName== 'combined':
-            for chain in cfgFlag.get():
+            for chain in chains:
                 signatures += dictFromChainName(chain)['signatures']
         else:
             signatures = [signatureName]
@@ -66,7 +72,7 @@ def generateMenu( flags ):
             fillGeneratorsMap( signatureToGenerator, sig.lower() )
 
         # call generating function and pass to CF builder
-        for chain in cfgFlag.get():
+        for chain in chains:
             # TODO topo threshold
             mainChainDict = dictFromChainName( chain )
             
