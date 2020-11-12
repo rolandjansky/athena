@@ -13,7 +13,6 @@ from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 hit2rdo = ExecStep.ExecStep('HITtoRDO')
 hit2rdo.type = 'Reco_tf'
 hit2rdo.input = 'ttbar_HITS'
-hit2rdo.threads = 1
 hit2rdo.args = '--outputRDOFile=RDO.pool.root'
 
 pu_low = Input.get_input('pileup_low')
