@@ -35,6 +35,8 @@ atlas_add_component( Sherpa_i
 
 # Install file(s) from the package.
 atlas_install_joboptions( share/common/*.py )
+atlas_install_python_modules( python/sherpaTarCreator)
+atlas_install_scripts( python/*.py )
 
 # Set (a) Sherpa specific environment variable(s).
 set( SherpaEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
