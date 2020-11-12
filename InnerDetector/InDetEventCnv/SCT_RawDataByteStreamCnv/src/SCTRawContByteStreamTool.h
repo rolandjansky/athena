@@ -11,10 +11,11 @@
 #include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h"
 
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
-#include <mutex>
 
 class ISCT_RodEncoder;
 class ISCT_CablingTool;
@@ -56,13 +57,12 @@ class SCTRawContByteStreamTool : public extends<AthAlgTool, ISCTRawContByteStrea
    * using RodEncoder to fill data for each ROD in turn.
    *
    * @param sctRDOCont SCT RDO Container of Raw Data Collections.
-   * @param rawEvtWrite Data type for writing raw event.
-   * @param log Object used to transmit messages and log errors.
    * */
-  virtual StatusCode convert(const SCT_RDO_Container* sctRDOCont, 
-                             RawEventWrite* rawEvtWrite, MsgStream& log) const override;
+  virtual StatusCode convert(const SCT_RDO_Container* sctRDOCont) const override;
   
- private: 
+ private:
+  ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+  { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
 
   /** Algorithm Tool to decode ROB bytestream data into RDO. */ 
   ToolHandle<ISCT_RodEncoder> m_encoder{this, "Encoder", "SCT_RodEncoder", "SCT ROD Encoder for RDO to BS conversion"};
@@ -75,12 +75,6 @@ class SCTRawContByteStreamTool : public extends<AthAlgTool, ISCTRawContByteStrea
   const SCT_ID* m_sctIDHelper{nullptr};
 
   UnsignedShortProperty m_rodBlockVersion{this, "RodBlockVersion", 0};
-
-  /** Conversion between Lower level Source ID to higher level source ID, used to assemble
-      fragments from ROD fragments to assemble full ATLAS raw events. */ 
-  mutable FullEventAssembler<SrcIdMap> m_fullEventAssembler ATLAS_THREAD_SAFE;
-
-  mutable std::mutex m_mutex{};
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMTOOL_H

@@ -10,7 +10,7 @@ atlas_add_library( SCT_RawDataByteStreamCnvLib
                    SCT_RawDataByteStreamCnv/*.h
                    INTERFACE
                    PUBLIC_HEADERS SCT_RawDataByteStreamCnv
-                   LINK_LIBRARIES GaudiKernel InDetRawData ByteStreamCnvSvcBaseLib ByteStreamData InDetByteStreamErrors )
+                   LINK_LIBRARIES GaudiKernel InDetRawData ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib ByteStreamData InDetByteStreamErrors )
 
 # Component(s) in the package:
 atlas_add_component( SCT_RawDataByteStreamCnv
