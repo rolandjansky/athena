@@ -56,6 +56,7 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
 
   ATH_MSG_VERBOSE("Initialization completed successfully");   
 
+
   return StatusCode::SUCCESS; 
 } 
 
@@ -113,7 +114,16 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       const xAOD::TrackParticle* muon_trk=muon->trackParticle(xAOD::Muon::TrackParticleType::InnerDetectorTrackParticle);      
       if(muon_trk==nullptr) // not all muons have a track. catch the nullptrs in this case and skip
 	continue;
-      
+      // skip muon matching if the following cases occur
+      int MuonType=muon->muonType();
+      int MuonAuthor=muon->author();
+      if(MuonType==4) {// if muon is a forward muon, skip. Basically the tracks associated to this are the wrong type (InDetForwardTrackParticle instead of InDetTrackParticle), so the indices used would be wrong/generate spurious matches
+	ATH_MSG_DEBUG("Muon is identified as a forward muon, skipping");
+	continue;}
+      if(MuonAuthor==2){ // remove muons primarily authored by STACO algorithm.
+	ATH_MSG_DEBUG("Muon is authored by STACO algorithm, skip");
+	continue;
+      }
       size_t MuonTrkIndex=muon_trk->index();
       if(MuonTrkIndex==FETrackIndex){
 	// Add Muon element link to a vector
@@ -186,6 +196,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 		ATH_MSG_WARNING("Muon Calo cluster's TopoCluster link not found, skip");
 		continue;
 	      }
+
 	      const xAOD::CaloCluster* MuonTopoCluster=*TopoClusterLink; // de-ref the link to get the topo-cluster
 	      size_t MuonTopoCluster_index=MuonTopoCluster->index();
 	      if(MuonTopoCluster_index==FEclusterindex){
@@ -288,6 +299,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       // For debug of the muon clusters used, add also: dR between caloclusters and number of caloclusters associated to each muon.
       //retrieve element link again to cluster
       const ElementLink<xAOD::CaloClusterContainer> ClusterContLink=muon->clusterLink();
+
       if(!ClusterContLink.isValid()){
 	ATH_MSG_DEBUG("Muon cluster link is invalid, skip");
 	continue;
@@ -303,6 +315,7 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
     }
   }// end of experimental block
   ATH_MSG_VERBOSE("Execute completed successfully");   
+
   
   return StatusCode::SUCCESS;
 }
