@@ -27,10 +27,13 @@ def main():
     parser.add_argument('-e', '--nEvts', type=int, dest='nEvts', default="100", help='number of events which get generated in the test run')
     parser.add_argument('-t', '--tarballVersion', type=str, dest='tarballVersion', default="1", help='version of tarball on grid')
     parser.add_argument('-p', '--local-sherpa', dest='sherpaInstallPath', default=None, help="Path to custom-built local Sherpa installation. If None, use cvmfs version.")
+    parser.add_argument('--OLprecompiled', dest='OLprecompiled', default=True, action='store_false', help="Use precompiled OpenLoops libraries from cvmfs if available.")
+    parser.add_argument('--OLbranch', dest='OLbranch', type=str, default="OpenLoops-2.1.1", help="OpenLoops branch to use from https://gitlab.com/openloops/OpenLoops (e.g. OpenLoops-2.1.1 or public_beta)")
+    parser.add_argument('--OLprocessrepos', dest='OLprocessrepos', type=str, default="ATLAS,public_beta,public", help="OpenLoops process repositories to use with ./openloops libinstall")
     parser.add_argument('-d', '--dryRun', action='store_true', default=False, dest='dryRun', help="Do not actually submit jobs to cluster but just print them.")
     options = parser.parse_args()
 
-    options.athenaVersion = os.environ['AtlasVersion']
+    options.athenaVersion = os.environ['AtlasVersion']+",AthGeneration"
     
     import importlib
     options.batchSystemModule = importlib.import_module("sherpaTarCreator."+options.batchSystem)

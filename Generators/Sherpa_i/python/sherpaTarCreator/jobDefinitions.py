@@ -10,10 +10,11 @@ def mkGetOpenLoopsJob(options):
         return None
 
     # check availability of OL libs in /cvmfs and warn user
-    cvmfsInstalledOpenLoopsLibs = glob.glob("/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/proclib/*.so")
-    if not any(not any(x in fil for fil in cvmfsInstalledOpenLoopsLibs) for x in options.Sherpa_i.OpenLoopsLibs):
-        print("You requested the inclusion of OpenLoops libs in the tarball (genSeq.Sherpa_i.OpenLoopsLibs), but all of them are available centrally in /cvmfs. Will continue without including them in the tarball, and you can remove the genSeq.Sherpa_i.OpenLoopsLibs line from your JO.")
-        return None
+    if options.OLprecompiled:
+        cvmfsInstalledOpenLoopsLibs = glob.glob("/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/proclib/*.so")
+        if not any(not any(x in fil for fil in cvmfsInstalledOpenLoopsLibs) for x in options.Sherpa_i.OpenLoopsLibs):
+            print("You requested the inclusion of OpenLoops libs in the tarball (genSeq.Sherpa_i.OpenLoopsLibs), but all of them are available centrally in /cvmfs. Will continue without including them in the tarball, and you can remove the genSeq.Sherpa_i.OpenLoopsLibs line from your JO.")
+            return None
 
     # alternatively check wether all needed openLoops libaries are installed
     installedOpenLoopsLibs = glob.glob("Process/OpenLoops/proclib/*.so")
@@ -25,27 +26,22 @@ def mkGetOpenLoopsJob(options):
     if os.path.exists("Process/OpenLoops"):
         rmtree("Process/OpenLoops")
 
-    OLVERSION="2.0.0"
     job = options.batchSystemModule.batchJob("0.getOpenLoops", hours=2, nCores=options.ncoresScons, memMB=1, basedir=options.basedir)
     
     job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion+",64"]
     job.cmds += ["set -e"]
-    job.cmds += ["OLNAME=OpenLoops-"+OLVERSION]
 
-    job.cmds += ["wget http://www.hepforge.org/archive/openloops/${OLNAME}.tar.gz"]
-    job.cmds += ["tar xzf ${OLNAME}.tar.gz"]
+    job.cmds += ["git clone -b "+options.OLbranch+" https://gitlab.com/openloops/OpenLoops.git"]
 
-    job.cmds += ["cd ${OLNAME}"]
+    job.cmds += ["cd OpenLoops"]
     job.cmds += ["./scons num_jobs="+str(options.ncoresScons)]
-    job.cmds += ["./openloops libinstall num_jobs="+str(options.ncoresScons)+" "+' '.join(options.Sherpa_i.OpenLoopsLibs)]
+    job.cmds += ["./openloops libinstall process_repositories="+options.OLprocessrepos+" num_jobs="+str(options.ncoresScons)+" "+' '.join(options.Sherpa_i.OpenLoopsLibs)]
     job.cmds += ["cd .."]
 
-    job.cmds += ["rm -rf ${OLNAME}.tar.gz"]
-        
     job.cmds += ["rm -rf Process/OpenLoops"]
     job.cmds += ["mkdir -p Process/OpenLoops"]
-    job.cmds += ["mv ${OLNAME}/proclib ${OLNAME}/lib Process/OpenLoops/"]
-    job.cmds += ["rm -rf ${OLNAME}"]
+    job.cmds += ["mv OpenLoops/proclib OpenLoops/lib Process/OpenLoops/"]
+    job.cmds += ["rm -rf OpenLoops"]
 
     job.write()
     job.submit(dryRun=options.dryRun)
