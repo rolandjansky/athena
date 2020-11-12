@@ -84,6 +84,7 @@ void TrigL2MuonSA::RpcDataPreparator::setMultiMuonTrigger( const bool multiMuonT
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
                                                         unsigned int roiWord,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
+                                                        TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
                                                         ToolHandle<RpcPatFinder>*   rpcPatFinder)
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
@@ -293,10 +294,10 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
        if (m_use_RoIBasedDataAccess) {
          if ( deta<deta_thr && dphi<dphi_thr)
-           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz, rpcLayerHits);
        } else {
          if ( deta<0.15 && dphi<0.1)
-           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz, rpcLayerHits);
        }
      }
    }

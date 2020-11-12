@@ -184,16 +184,20 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());  
   
   StatusCode sc = StatusCode::SUCCESS;
+
+  //Storing rpc hits by each layers and eta/phi strip for creating road
+  //RpcLayerHits class is defined in RpcPatFinder.h
+  TrigL2MuonSA::RpcLayerHits rpcLayerHits;
+  rpcLayerHits.clear();
   
   if(m_use_rpc && !insideOut) {
-
-    m_rpcPatFinder->clear();
 
     m_rpcDataPreparator->setMultiMuonTrigger(m_doMultiMuon);
     unsigned int roiWord = p_roi->roiWord();
     sc = m_rpcDataPreparator->prepareData(p_roids,
 					  roiWord,
                                           rpcHits,
+                                          rpcLayerHits,
                                           &m_rpcPatFinder);
 
     // check if the RoI is fake and se the flag
@@ -223,6 +227,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
                                     insideOut,
                                     muonRoad,
                                     rpcHits,
+                                    rpcLayerHits,
                                     &m_rpcPatFinder,
                                     rpcFitResult,
                                     roiEtaMinLow,
