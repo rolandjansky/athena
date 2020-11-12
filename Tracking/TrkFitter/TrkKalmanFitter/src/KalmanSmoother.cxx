@@ -6,8 +6,6 @@
 // KalmanSmoother.cxx
 //   Source file for class KalmanSmoother
 ///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 // Markus.Elsing@cern.ch
 ///////////////////////////////////////////////////////////////////
 
@@ -33,6 +31,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <cmath>
 
 // InterfaceID
 // const InterfaceID& Trk::KalmanSmoother::interfaceID() {
@@ -272,7 +271,6 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
   }
   lastPredictedState->backwardStateChiSquared(trackQualityIncrement->chiSquared());
   addChi2IncrementAndDelete(trackQualityIncrement,chi2Increment,ndofIncrement);
-  //    Trk::Surface& testSf = fittableMeasurement->associatedSurface();
 
 
   ////////////////////////////////////////////////////////////////////////////////////
@@ -289,10 +287,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
 
       if (msgLvl(MSG::DEBUG)) {
         printGlobalParams(previousStatePosOnTraj, " start", updatedPar.get() );
-        // ATH_MSG_VERBOSE << "    Now trying to hit surface " << fittableMeasurement->associatedSurface() << endmsg;
         BoundaryCheck trackWithinSurface = true;
-        //        if ( ! testSf.isOnSurface( updatedPar->position(), trackWithinSurface) )
-        //  ATH_MSG_VERBOSE << "    previous updated parameters are outside surface bounds!" << endmsg;
         if ( ! fittableMeasurement->associatedSurface().isOnSurface( rit->forwardTrackParameters()->position(),
                                                                      trackWithinSurface) ) {
           ATH_MSG_VERBOSE ("    for information: forward-filtered pars are outside surface bounds!");
@@ -392,7 +387,8 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       if (rit == lastSmoothableState) { // at the last don't do state combination.
         ATH_MSG_VERBOSE ("Identified state" << (rit->positionOnTrajectory()>9? " " : " 0")<<
                          rit->positionOnTrajectory() << " as last fittable state.");
-        smooPar = std::move( updatedPar );
+        //clone here, as updatedPar is used on next iteration and would be invalid if moved                 
+        smooPar.reset( updatedPar->clone() );
       } else {
         if (m_doSmoothing) {
           forwardTPar = rit->forwardTrackParameters();
@@ -564,7 +560,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
       ATH_MSG_VERBOSE ("mass=" << mass << ", qOverP_ref="<< std::scientific << rit->referenceParameters()->parameters()[Trk::qOverP]
                 << ", qOverP_diff=" << (predDiffPar)(Trk::qOverP)
                 << ", sigmaDeltaE=" << rit->materialEffects()->sigmaDeltaE()
-                << ", sigmaDeltaQoverP=" << sqrt(sigmaDeltaQoverPsquared) << std::fixed);//std::defaultfloat);
+                << ", sigmaDeltaQoverP=" << std::sqrt(sigmaDeltaQoverPsquared) << std::fixed);//std::defaultfloat);
       ATH_MSG_VERBOSE ("Added material effects.");
     }
     /* possibly check quality of backward "extrapolation", if not good return a
@@ -596,7 +592,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fitWithReference(Trk::Trajectory&    
         return FitterStatusCode::UpdateFailure;
       }
       const float updatedQoverP = (rit->referenceParameters()->parameters()[Trk::qOverP]) + (updatedDifference->first[Trk::qOverP]);
-      if (fabs(updatedQoverP) > 0.1) {
+      if (std::abs(updatedQoverP) > 0.1) {
             delete trackQualityIncrement;
             if (msgLvl(MSG::INFO)) monitorTrackFits( UpdateFailure, rit->referenceParameters()->eta() );
             ATH_MSG_INFO("could not update Track Parameters, momentum too low: qoverp=" << updatedQoverP);
@@ -692,7 +688,7 @@ AmgSymMatrix(5)* Trk::KalmanSmoother::initialiseSmoother(const AmgSymMatrix(5)& 
   AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(); // a 5x5 0-matrix
   cov->setZero();
   for (int i=0; i<5; ++i) {
-    isConstraint[i] = (m_option_relErrorLimit* sqrt(err(i,i)) < m_initialErrors[i]);
+    isConstraint[i] = (m_option_relErrorLimit* std::sqrt(err(i,i)) < m_initialErrors[i]);
     (*cov)(i,i) = isConstraint[i] ? err(i,i)*m_initialCovSeedFactor : m_initialErrors[i]*m_initialErrors[i];
   }
   if (msgLvl(MSG::DEBUG)) {
@@ -726,7 +722,7 @@ bool Trk::KalmanSmoother::straightTrackModel(const Trk::TrackParameters& TP) con
     + (*TP.covariance())(4,1)
     + (*TP.covariance())(4,2)
     + (*TP.covariance())(4,3);
-  bool straightTrackModel = (fabs(momentumCorrelnTest) < 1.0E-100);
+  bool straightTrackModel = (std::abs(momentumCorrelnTest) < 1.0E-100);
   if (straightTrackModel) {
     ATH_MSG_DEBUG ("Straight track model identified => reduce track's ndof to 4");
     if (msgLvl(MSG::INFO)) monitorTrackFits( StraightTrackModelUsed, TP.eta() );
@@ -767,14 +763,13 @@ void Trk::KalmanSmoother::printGlobalParams(int istate, const std::string& ptype
         << std::setw(8) << std::setprecision(0) << param->momentum()[2]
         << std::setprecision(6) << endmsg;
   if (mefot)
-    //    ATH_MSG_VERBOSE << "Mefot found with " << *mefot << endmsg;
     msg(MSG::VERBOSE) << "-S- DNA kicked in at t/X0 of " <<mefot->thicknessInX0()
           << " with noise "  << mefot->addSigmaQoverP() << endmsg;
 }
 
 void Trk::KalmanSmoother::monitorTrackFits(FitStatusCodes code, const double& eta) const {
     ((m_fitStatistics[code])[iAll])++;
-    if (fabs(eta) < 0.80 ) ((m_fitStatistics[code])[iBarrel])++;
-    else if (fabs(eta) < 1.60) ((m_fitStatistics[code])[iTransi])++;
-    else if (fabs(eta) < 2.50) ((m_fitStatistics[code])[iEndcap])++;
+    if (std::abs(eta) < 0.80 ) ((m_fitStatistics[code])[iBarrel])++;
+    else if (std::abs(eta) < 1.60) ((m_fitStatistics[code])[iTransi])++;
+    else if (std::abs(eta) < 2.50) ((m_fitStatistics[code])[iEndcap])++;
 }
