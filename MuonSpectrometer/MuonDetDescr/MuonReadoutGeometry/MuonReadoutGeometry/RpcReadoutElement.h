@@ -235,6 +235,8 @@ namespace MuonGM {
     double distanceToPhiReadout(const Amg::Vector3D& x, const Identifier& id) const;
     double distanceToEtaReadout(const Amg::Vector3D& x, const Identifier& id) const;
 
+    void setYTranslation(const float y);
+    void setZTranslation(const float z);
 
   private:
     
@@ -265,7 +267,8 @@ namespace MuonGM {
     double m_first_phistrip_s[maxphipanels];
     double m_first_etastrip_z[maxetapanels];
     double m_etastrip_s[maxphipanels];
-    double m_phistrip_z[maxetapanels];    
+    double m_phistrip_z[maxetapanels];
+
     Amg::Transform3D m_Xlg[3][2];
 
     const Amg::Transform3D localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const;
@@ -274,6 +277,9 @@ namespace MuonGM {
     std::vector<MuonStripDesign> m_phiDesigns;
     std::vector<MuonStripDesign> m_etaDesigns;
     std::unique_ptr<RpcReadoutSet> m_set;
+
+    float m_y_translation;
+    float m_z_translation;
     
   };
   
@@ -413,7 +419,12 @@ namespace MuonGM {
     pos[0] = phiPos.x();
     pos[1] = etaPos.x();
   }
-
+  inline void RpcReadoutElement::setYTranslation(const float y) {
+    m_y_translation=y;
+  }
+  inline void RpcReadoutElement::setZTranslation(const float z) {
+    m_z_translation=z;
+  }
 
 } // namespace MuonGM
 

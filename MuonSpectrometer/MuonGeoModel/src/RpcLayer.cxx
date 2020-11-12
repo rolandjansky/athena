@@ -60,10 +60,10 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
     MYSQL* mysql = MYSQL::GetPointer(); 
     RPC* r = (RPC*)mysql->GetTechnology(name);
 
-    if (m->nGasGaps()==3 && r->NstripPanels_in_s!=1) throw std::runtime_error(Form("File: %s, Line: %d\nRpcLayer::build() - NstripPanels_in_s = %d for BIS RPC, not possible", __FILE__, __LINE__, r->NstripPanels_in_s));
+    if (m->nGasGaps()==3 && r->NstripPanels_in_s!=1) throw std::runtime_error(Form("File: %s, Line: %d\nRpcLayer::build() - NstripPanels_in_s = %d for BI RPC, not possible", __FILE__, __LINE__, r->NstripPanels_in_s));
 
     double thickness = r->rpcLayerThickness - tol;
-    if (m->nGasGaps()==3) thickness = rpc3GapLayerThickness - tol; // for BIS RPCs
+    if (m->nGasGaps()==3) thickness = rpc3GapLayerThickness - tol; // for BI RPCs
     double length = m->length;
     double width  = m->width;
 
@@ -82,7 +82,7 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
     // phi strip panel(s)
     double strpanThickness = r->stripPanelThickness - tol;
     double strpanCopperThickness = r->stripPanelCopperSkinThickness;
-    if (m->nGasGaps()==3) { // for BIS RPCs
+    if (m->nGasGaps()==3) { // for BI RPCs
       strpanThickness = rpc3GapStrPanThickness - tol;
       strpanCopperThickness = rpc3GapStrPanCopThickness;
     }
@@ -106,10 +106,10 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
     GeoLogVol* lcustrpan = new GeoLogVol("RPC_StripPanelCuSkin", scustrpan,
                                          matManager->getMaterial("std::Copper"));        
     auto stripMaterial = matManager->getMaterial("muo::RpcFoam");
-    if (m->nGasGaps()==3) { // for BIS RPCs
+    if (m->nGasGaps()==3) { // for BI RPCs
       stripMaterial = matManager->getMaterial("muo::Forex");
     }
-    GeoLogVol* lfoamstrpan = new GeoLogVol("RPC_StripPanelFoam", sfoamstrpan,  // "foam" in variable name is legacy, it is Forex for BIS
+    GeoLogVol* lfoamstrpan = new GeoLogVol("RPC_StripPanelFoam", sfoamstrpan,  // "foam" in variable name is legacy, it is Forex for BI
                                            stripMaterial);
 
     newpos += strpanThickness/2. + tol/2.;
@@ -156,7 +156,7 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
     double bakelThickness = r->bakeliteThickness;
     double gThickness = r->gasThickness;
     double totAirThickness = r->totalAirThickness;
-    if (m->nGasGaps()==3) { // for BIS RPCs
+    if (m->nGasGaps()==3) { // for BI RPCs
       bakelThickness = rpc3GapBakelThickness;
       gThickness = rpc3GapGThickness;
       totAirThickness = rpc3GapTotAirThickness;
@@ -171,29 +171,19 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
         double gasLength   = ggLength - 2.*r->bakeliteframesize;
         double gasWidth    = ggWidth- 2.*r->bakeliteframesize;
 
-        double y_translation;
-        double z_translation;
-        if (m->nGasGaps()==3) { // for BIS RPCs
+        if (m->nGasGaps()==3) { // for BI RPCs
           if (name == "RPC26" ) { //big RPC7
             gasLength   = ggLength - 93.25; // ggLength - deadframesizeEta
             gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-            y_translation = -9.1;
-            z_translation = 3.22;
           } else if (name == "RPC27" ){//small RPC7
             gasLength   = ggLength - 93.12; // ggLength - deadframesizeEta
             gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-            y_translation = -9.1;
-            z_translation = 3.06;
           } else if (name == "RPC28"){//big RPC8
             gasLength   = ggLength - 93.04; // ggLength - deadframesizeEta
             gasWidth    = ggWidth - 109.52; // ggWidth - deadframesizePhi
-            y_translation = -27.7;
-            z_translation = 3.11;
           } else if (name == "RPC29"){//small RPC8
             gasLength   = ggLength - 93.04; // ggLength - deadframesizeEta
             gasWidth    = ggWidth - 109.2; // ggWidth - deadframesizePhi
-            y_translation = -8.8;
-            z_translation = 3.11;
           }
         }
 
@@ -243,9 +233,9 @@ RpcLayer::build(int cutoutson, std::vector<Cutout*> vcutdef)
         else if (r->NGasGaps_in_s == 1)
         {
             prpcl->add(tx);
-            if (m->nGasGaps()==3) { // for BIS RPCs
-              GeoTransform* ty = new GeoTransform(HepGeom::TranslateY3D(y_translation));
-              GeoTransform* tz = new GeoTransform(HepGeom::TranslateZ3D(z_translation));
+            if (m->nGasGaps()==3) { // for BI RPCs
+              GeoTransform* ty = new GeoTransform(HepGeom::TranslateY3D(m->y_translation));
+              GeoTransform* tz = new GeoTransform(HepGeom::TranslateZ3D(m->z_translation));
               prpcl->add(ty);
               prpcl->add(tz);
             }
