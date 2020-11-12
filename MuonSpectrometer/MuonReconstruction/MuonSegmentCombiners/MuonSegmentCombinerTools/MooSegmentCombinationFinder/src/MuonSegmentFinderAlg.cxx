@@ -110,7 +110,7 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
             for (auto p : *rpcPrdCont) {
                 if (!p->empty()) rpcCols.push_back(p);
             }
-            createSegmentsWithMDTs(*patt, handle.ptr(), rpcCols, tgcCols);
+            createSegmentsWithMDTs(*patt, handle.ptr(), rpcCols, tgcCols, ctx);
             createSegmentsFromClusters(*patt, handle.ptr());
         }  // end loop on pattern combinations
 
@@ -260,7 +260,7 @@ MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombinat
 void
 MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
                                              const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                             const std::vector<const Muon::TgcPrepDataCollection*> tgcCols) const
+                                             const std::vector<const Muon::TgcPrepDataCollection*> tgcCols, const EventContext& ctx) const
 {
 
     if (m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc()) {
@@ -308,7 +308,7 @@ MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination*
             bool hasPhiMeasurements = m_patternCalibration->checkForPhiMeasurements(pattern);
             // calibrate the hits
             Muon::IMuonPatternCalibration::ROTsPerRegion hitsPerRegion;
-            m_patternCalibration->calibrate(pattern, hitsPerRegion);
+            m_patternCalibration->calibrate(pattern, hitsPerRegion, ctx);
 
             Muon::IMuonPatternCalibration::ROTsPerRegion::iterator rotit = hitsPerRegion.begin();
             for (; rotit != hitsPerRegion.end(); ++rotit) {
