@@ -216,14 +216,32 @@ class AtlRunQueryOptions:
                                 action = "store_true",
                                 dest = "utc",
                                 help = "Use utc for everything, default is local time (CET/CEST)" )
-
-
+        
+        self.parser.add_option( "--dqsumgrl",
+                                action = "store",
+                                dest = "dqsumgrl",
+                                #default = "PHYS_StandardGRL_All_Good_25ns",
+                                help = "Define tolerable/intolerable defects for DQ summary relative to GRL or other virtual defect, default is PHYS_StandardGRL_All_Good_25ns")
+        
+        self.parser.add_option( "--defecttag",
+                                action = "store",
+                                dest = "defecttag",
+                                #default = "HEAD",
+                                help = 'Define defect tag for defect database used for DQ summary relative to GRL or other virtual defect, default is "HEAD"')
+        
+        self.parser.add_option( "--logictag",
+                                action = "store",
+                                dest = "logictag",
+                                #default = "HEAD",
+                                help = 'Define logic tag for defect database used for DQ summary relative to GRL or other virtual defect, default is "HEAD"')
+    
     def splitCmdline(self,argstring):
         arg = argstring.split()
-        m = zip([x for x in xrange(len(arg)) if arg[x][0]=='"'],[x for x in xrange(len(arg)) if arg[x][-1]=='"'])
+        m = zip([x for x in range(len(arg)) if arg[x][0]=='"'],[x for x in range(len(arg)) if arg[x][-1]=='"'])
         m.reverse()
         for p in m:
-            if p[0]==p[1]: arg[p[0]] = arg[p[0]].strip('"')
+            if p[0]==p[1]:
+                arg[p[0]] = arg[p[0]].strip('"')
             elif p[1]-p[0] == 2:
                 arg[p[0]:p[1]+1]=[("%s %s %s" % (arg[p[0]],arg[p[0]+1],arg[p[1]])).strip('"')]
             else:

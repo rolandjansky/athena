@@ -13,6 +13,7 @@
 from __future__ import division, print_function
 
 import sys, time
+from functools import reduce
 import xml.etree.cElementTree as et
 import xmlrpclib
 from PyCool import cool
@@ -118,7 +119,8 @@ def lumi(run, lbr):
 def GetDQEfficiency( rundict ):
 
     runset = set()
-    for runnum in rundict.keys(): runset.add(runnum)
+    for runnum in rundict.keys():
+        runset.add(runnum)
 
     s = xmlrpclib.ServerProxy(SERVER)
     flaginfo = s.get_dqmf_summary_flags_lb({'run_list': list(runset)}, FLAGS_WE_CARE_ABOUT, 'SHIFTOFL')
@@ -182,7 +184,6 @@ def MakeDQeffHtml( dic, dicsum, datapath ):
     
     # run and time ranges
     runs   = dic[DataKey('Run')]
-    nruns  = len(runs)
     times  = dic[DataKey('Start and endtime')]
 
     starttime = float(times[-1].partition(',')[0])
@@ -212,7 +213,6 @@ if __name__ == '__main__':
     for lbc in p.getiterator('LumiBlockCollection'):
         runnum = int(lbc.find('Run').text)
         #print ('Run', runnum)
-        runset.add(runnum)
         rundict[runnum] = []
         for lbr in lbc.findall('LBRange'):
             rundict[runnum].append([int(lbr.get('Start')),

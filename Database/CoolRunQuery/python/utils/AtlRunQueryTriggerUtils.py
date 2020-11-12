@@ -20,12 +20,12 @@ __cursor_schema = [ (None ,"") , (None , "") ] # run 1 and run 2 cursor
 
 # returns True if run is RUN 2 (2015-2018)
 def isTriggerRun2(run_number = None , smk = None , isRun2 = None ):
-    if run_number==None and smk==None and isRun2==None:
+    if run_number is None and smk is None and isRun2 is None:
         raise RuntimeError("Cannot determine if trigger db is run 1 or 2")
 
-    if smk != None :
+    if smk is not None :
         return smk >= 2000
-    elif run_number != None :
+    elif run_number is not None :
         return run_number > 249000
     else:
         return isRun2
@@ -81,7 +81,7 @@ def _getFileLocalOrPath(filename, pathenv):
     """
     log = logging.getLogger( "TrigConfigSvcUtils.py" )
     if os.path.exists(filename):
-        log.info( "Using local file %s" % filename)
+        log.info( "Using local file %s", filename)
         return filename
 
     pathlist = os.getenv(pathenv,'').split(os.pathsep)
@@ -99,31 +99,31 @@ def _getConnectionServicesForAlias(alias):
     connectionServices = None # list of services
 
     dblookupfilename = _getFileLocalOrPath('dblookup.xml','CORAL_DBLOOKUP_PATH')
-    if dblookupfilename == None: return None
+    if dblookupfilename is None:
+        return None
 
     doc = minidom.parse(dblookupfilename)
     for ls in doc.getElementsByTagName('logicalservice'):
-        if ls.attributes['name'].value != alias: continue
+        if ls.attributes['name'].value != alias:
+            continue
         connectionServices = [str(s.attributes['name'].value) for s in ls.getElementsByTagName('service')]
     doc.unlink()
 
-    log.info( "For alias '%s' found list of connections %r" % (alias,connectionServices) )
-    if connectionServices == None:
+    log.info( "For alias '%s' found list of connections %r", (alias,connectionServices) )
+    if connectionServices is None:
         log.fatal("Trigger connection alias '%s' is not defined in %s" % (alias,dblookupfilename))
     return connectionServices
 
 
 def _readAuthentication():
     """ read authentication.xml, first from local directory, then from all paths specified in CORAL_AUTH_PATH
-
     returns dictionary d with d[connection] -> (user,pw)
     """
 
-    log = logging.getLogger( "TrigConfigSvcUtils.py" )
     authDict = {}
-
     dbauthfilename = _getFileLocalOrPath('authentication.xml','CORAL_AUTH_PATH')
-    if dbauthfilename == None: return authDict
+    if dbauthfilename is None:
+        return authDict
 
     doc = minidom.parse(dbauthfilename)        
     for cn in doc.getElementsByTagName('connection'):
@@ -131,9 +131,11 @@ def _readAuthentication():
         pw = ""
         svc = cn.attributes['name'].value
         for p in cn.getElementsByTagName('parameter'):
-            if p.attributes['name'].value == 'user': user = p.attributes['value'].value
-            if p.attributes['name'].value == 'password': pw = p.attributes['value'].value
-        authDict[cn.attributes['name'].value] = (user,pw)
+            if p.attributes['name'].value == 'user':
+                user = p.attributes['value'].value
+            elif p.attributes['name'].value == 'password':
+                pw = p.attributes['value'].value
+        authDict[svc] = (user,pw)
     doc.unlink()
     return authDict
 
@@ -160,7 +162,8 @@ def _getConnectionParameters(connection):
             #print ((techno, server, schema, user, passwd))
         else:
             global authDict
-            if not authDict: authDict = _readAuthentication()
+            if not authDict:
+                authDict = _readAuthentication()
             pattern = "oracle://(.*)/(.*)"
             m = re.match(pattern,connection)
             if not m:
@@ -187,7 +190,7 @@ def _getConnectionParameters(connection):
         connectionParameters["passwd"] = passwd
 
     elif connection.startswith("frontier://"):
-        pattern = "frontier://ATLF/\(\)/(.*)"
+        pattern = r"frontier://ATLF/\(\)/(.*)"
         m = re.match(pattern,connection)
         if not m:
             log.fatal("connection string '%s' doesn't match the pattern '%s'?" % (connection,pattern) )
@@ -200,12 +203,11 @@ def _getConnectionParameters(connection):
 def interpretConnection(connection, debug=False, resolveAlias=True):
     # connection needs to be of the following format (this is also the order of checking)
     # <ALIAS>                              -- any string without a colon ':' will be checked for in the dblookup.xml file
-    # type:<detail>                        -- no dblookup will be used, type has to be oracle, mysql, or sqlite_file
     # sqlite_file:filename.db              -- an sqlite file, no authentication needed, will be opened in read-only mode
     # oracle://ATLR/ATLAS_CONF_TRIGGER_V2  -- a service description without user and password, requires lookup in authentication.xml
     # oracle://ATLR/ATLAS_CONF_TRIGGER_V2;username=ATLAS_CONF_TRIGGER_V2_R;password=<...>  -- a service description with user and password
 
-    log.info("Specified connection string '%s'" % connection)
+    log.info("Specified connection string '%s'", connection)
 
     # not needed any longer
     # connection = connection.lstrip("dblookup://")
@@ -222,16 +224,14 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
         connectionParameters = _getConnectionParameters( connection )
         return connectionParameters
 
-
     # connection is a DB alias
     connectionParameters["alias"] = connection
     if not resolveAlias:
         return connectionParameters
 
     connectionServices = _getConnectionServicesForAlias( connection ) # alias resolution via dblookup
-    if connectionServices == None:
+    if connectionServices is None:
         return connectionParameters
-
 
     # If TriggerFlags.triggerUseFrontier=true then we remove sqlite files
     if os.getenv('TRIGGER_USE_FRONTIER',False):
@@ -239,16 +239,15 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
         if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
             log.fatal("Inconsistent setup: environment variable ATLAS_TRIGGERDB_FORCESQLITE is defined and use of Frontier is requested" )
 
-
     # SQLite
     sqliteconnections = [conn for conn in connectionServices if conn.startswith("sqlite_file")]
     if len(sqliteconnections)>0:
         for conn in sqliteconnections:
             connectionParameters = _getConnectionParameters( conn )
-            if connectionParameters["filename"] != None:
+            if connectionParameters["filename"] is not None:
                 break # stop at the first sqlite file that exists
-        if connectionParameters["filename"] != None:
-            log.info("Using sqlite connection %s" % connectionParameters)
+        if connectionParameters["filename"] is not None:
+            log.info("Using sqlite connection %s", connectionParameters)
             return connectionParameters
         else:
             if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
@@ -257,46 +256,48 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
         if 'ATLAS_TRIGGERDB_FORCESQLITE' in os.environ:
             log.fatal("environment ATLAS_TRIGGERDB_FORCESQLITE is defined but no sqlite connection defined in dblookup.xml" )
 
-    # replicaList
     from CoolConvUtilities.AtlCoolLib import replicaList
     serverlist=['ATLAS_CONFIG' if s=='ATLAS_COOLPROD' else s for s in replicaList()]  # replicaList is for COOL, I need ATLAS_CONFIG instead of ATLAS_COOLPROD
-    log.info("Trying these servers in order %r" % serverlist)
+    log.info("Trying these servers in order %r", serverlist)
     for server in serverlist:
-        log.info("Trying server %s" % server)
+        log.info("Trying server %s", server)
 
         if server=='ATLF':
-            if not os.getenv('TRIGGER_USE_FRONTIER',False): continue
+            if not os.getenv('TRIGGER_USE_FRONTIER',False):
+                continue
             frontierconnections = [conn for conn in connectionServices if conn.startswith("frontier")]
             if len(frontierconnections) == 0:
-                log.debug("FroNTier connection not defined for alias %s in dblookup" % connection )
+                log.debug("FroNTier connection not defined for alias %s in dblookup", connection )
                 continue
-            log.info("Environment FRONTIER_SERVER: %s" % os.getenv('FRONTIER_SERVER','not defined'))
+            log.info("Environment FRONTIER_SERVER: %s", os.getenv('FRONTIER_SERVER','not defined'))
             frontierServer = os.getenv('FRONTIER_SERVER',None)
             if not frontierServer:
                 log.debug("No environment variable FRONTIER_SERVER" )
                 continue
             connectionParameters = _getConnectionParameters( frontierconnections[0] )
             connectionParameters['url'] = frontierServer
-            log.info("Using frontier connection %s" % frontierconnections[0])
+            log.info("Using frontier connection %s", frontierconnections[0])
             #connstr='frontier://ATLF/%s;schema=%s;dbname=TRIGCONF' % (connectionParameters['url'],connectionParameters["schema"])
             break
-        elif server=='atlas_dd': continue
+        elif server=='atlas_dd':
+            continue
         else:
             oracleconnections = [conn for conn in connectionServices if conn.startswith("oracle://%s/" % server)]
             if len(oracleconnections) == 0:
-                log.debug("Oracle connection not defined for server %s in dblookup" % server )
+                log.debug("Oracle connection not defined for server %s in dblookup", server )
                 continue
             connectionParameters = _getConnectionParameters( oracleconnections[0] )
-            log.info("Using oracle connection %s" % oracleconnections[0])
-            #connstr='oracle://%s;schema=ATLAS_%s;dbname=TRIGCONF' % (connectionParameters["server"],connectionParameters["schema"])
+            log.info("Using oracle connection %s", oracleconnections[0])
             break
 
     return connectionParameters
 
 
 def _get_sqlite_cursor (filename):
-    try: import sqlite3
-    except ImportError: raise RuntimeError ("ERROR: Can't import sqlite3?")
+    try:
+        import sqlite3
+    except ImportError:
+        raise RuntimeError ("ERROR: Can't import sqlite3?")
     os.lstat(filename)
     connection = sqlite3.connect(filename)
     return connection.cursor()
@@ -305,8 +306,10 @@ def _get_oracle_cursor (tns, user, passwd=""):
     if passwd=="":
         from getpass import getpass
         passwd = getpass("[Oracle] database password for %s@%s: " % (user, tns))
-    try: from cx_Oracle import connect
-    except ImportError: raise RuntimeError ("ERROR: Can't import cx_Oracle?")
+    try:
+        from cx_Oracle import connect
+    except ImportError:
+        raise RuntimeError ("ERROR: Can't import cx_Oracle?")
     connection = connect (user, passwd, tns, threaded=True)
     return connection.cursor()
 
@@ -315,8 +318,10 @@ def _get_mysql_cursor (host, db, user, passwd=""):
     if passwd=="":
         from getpass import getpass
         passwd = getpass("[MySQL] `%s' database password for %s@%s: " % (db, user, host))
-    try: from MySQLdb import connect
-    except ImportError: raise RuntimeError ("ERROR: Can't import MySQLdb?")
+    try:
+        from MySQLdb import connect
+    except ImportError:
+        raise RuntimeError ("ERROR: Can't import MySQLdb")
     connection = connect(host=host, user=user, passwd=passwd, db=db, connect_timeout=10)
     return connection.cursor()
 
@@ -367,7 +372,8 @@ def getUsedTables(output, condition, schemaname, tables):
         usedtables.add(o.split('.')[0])
     for c in condition:
         for p in c.split():
-            if '.' in p and not '\'' in p: usedtables.add(p.split('.')[0])
+            if '.' in p and '\'' not in p:
+                usedtables.add(p.split('.')[0])
     return ["%s%s %s" % (schemaname,tables[t],t) for t in usedtables]
 
 
@@ -385,9 +391,10 @@ def executeQuery(cursor, output, condition, schemaname, tables, bindvars=()):
 
 
 def getL1PskNames(psk, run_number = None , smk = None , isRun2 = None ):
-
-    if type(psk) == set: psk = list(psk)
-    if type(psk) != list: psk = [psk]
+    if type(psk) == set:
+        psk = list(psk)
+    if type(psk) != list:
+        psk = [psk]
 
     keyslist = ','.join([str(k) for k in psk if k])
 
@@ -408,8 +415,10 @@ def getL1PskNames(psk, run_number = None , smk = None , isRun2 = None ):
 def getHLTPskNames(psk, run_number = None , smk = None , isRun2 = None ):
     cursor,schema = getTriggerDBCursor(run_number = run_number, smk = smk, isRun2 = isRun2 )
 
-    if type(psk) == set: psk = list(psk)
-    if type(psk) != list: psk = [psk]
+    if type(psk) == set:
+        psk = list(psk)
+    if type(psk) != list:
+        psk = [psk]
 
     if len(psk)==0:
         return {}
@@ -435,8 +444,10 @@ def getSmkNames( allSMK ):
     returns a map from SMK to (name,version,comment)
     """
 
-    if type( allSMK ) == set: allSMK = list( allSMK )
-    if type( allSMK ) != list: allSMK = [ allSMK ]
+    if type( allSMK ) == set:
+        allSMK = list( allSMK )
+    if type( allSMK ) != list:
+        allSMK = [ allSMK ]
 
     if len( allSMK )==0:
         return {}
@@ -542,7 +553,7 @@ def getL1Prescales(l1prescalekey, run_number):
     maxNumberItems = 512 if isTriggerRun2( run_number = run_number ) else 256
 
     tables = { 'L' : 'L1_PRESCALE_SET' }
-    output = ['L.L1PS_VAL%i' % i for i in xrange( 1, maxNumberItems + 1)]
+    output = ['L.L1PS_VAL%i' % i for i in range( 1, maxNumberItems + 1)]
     condition = [ "L.L1PS_ID = :psk" ]
     bindvars = { "psk": l1prescalekey }
 
@@ -567,12 +578,14 @@ def getHLTPrescales(hltprescalekey, run_number):
     condition = [ "P.HPR_PRESCALE_SET_ID = :psk", "P.HPR_L2_OR_EF not like 'express'" ]
     bindvars = { "psk": hltprescalekey }
 
-    cursor,schema = getTriggerDBCursor(smk)
+    cursor,schema = getTriggerDBCursor(isRun2 = True)
     res = executeQuery(cursor, output, condition, schema, tables, bindvars)
 
     for r in res:
-        if r[0]=='L2':   l2ps[r[1]] = ( float(r[2]), float(r[3]) )
-        elif (r[0]=='EF' or r[0]=='HLT' or r[0]=='HL'): efps[r[1]] = ( float(r[2]), float(r[3]) )
+        if r[0]=='L2':
+            l2ps[r[1]] = ( float(r[2]), float(r[3]) )
+        elif (r[0]=='EF' or r[0]=='HLT' or r[0]=='HL'):
+            efps[r[1]] = ( float(r[2]), float(r[3]) )
 
     return l2ps, efps
 

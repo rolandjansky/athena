@@ -81,17 +81,18 @@ class ARQ_AMI:
 
     @classmethod
     def amiclient(cls):
-        if cls._amiclient == None:
+        if cls._amiclient is None:
             from os import getenv
             from utils.AtlRunQueryUtils import runsOnServer
             if runsOnServer():
                 home = "/data/atrqadm/data/"
             else:
                 home = getenv('HOME')
-                if not home: home = '~'
+                if not home:
+                    home = '~'
             conffilename = home + "/private/AMIConf.txt"
             cls._amiclient = cls.getAmiClient(conffilename)
-            if cls._amiclient==None:
+            if cls._amiclient is None:
                 print ("ERROR: voms-proxy authentication not valid and no AMI configuration file",conffilename,"supplied. No access to AMI!")
                 cls._amiclient="No AMI"
         return cls._amiclient
@@ -99,8 +100,7 @@ class ARQ_AMI:
     @classmethod
     def OpenAMIConnection(cls):
         try:
-            from pyAMI.pyAMI import AMI,pyAMIEndPoint
-            #pyAMIEndPoint.setType("replica")
+            from pyAMI.pyAMI import AMI
             amiclient = AMI()
             amiclient.readConfig("./AMIConf.txt")
             return amiclient
@@ -114,7 +114,7 @@ class ARQ_AMI:
         try:
             result = cls.amiclient().execute(cmdList)
             return result.getDict()
-        except Exception:
+        except Exception as ex:
             print ("AMI exception '",type(ex),"' occured")
             import traceback
             traceback.print_exc()
@@ -123,16 +123,18 @@ class ARQ_AMI:
 
     @classmethod
     def get_periods_for_run(cls, run):
-        try:    run = int(run)
-        except: return []
-        if not run in cls.store:
+        try:
+            run = int(run)
+        except ValueError:
+            return []
+        if run not in cls.store:
             try:
                 print ('GetDataPeriodsForRun', '-runNumber=%i' % run)
                 #result = cls.amiclient().execute(['GetDataPeriodsForRun', '-runNumber=%i' % run])
                 result = cls.amiexec(['GetDataPeriodsForRun', '-runNumber=%i' % run])
                 #cls.store[run] = sorted([ (int(e['periodLevel']),e['period'],e['project']) for e in result.getDict()['Element_Info'].values() ])
                 cls.store[run] = sorted([ (int(e['periodLevel']),e['period'],e['project']) for e in result['Element_Info'].values() ])
-            except:
+            except Exception:
                 print ("Exception")
                 cls.store[run] = []
         return [x[1] for x in cls.store[run]]
@@ -159,19 +161,23 @@ class ARQ_AMI:
 
     @classmethod
     def get_all_periods(cls):
-        if cls.all_periods != None: return cls.all_periods
+        if cls.all_periods is not None:
+            return cls.all_periods
         cls.all_periods = []
-        p = re.compile("(?P<period>(?P<periodletter>[A-Za-z]+)(?P<periodnumber>\d+)?)$")
+        p = re.compile(r"(?P<period>(?P<periodletter>[A-Za-z]+)(?P<periodnumber>\d+)?)$")
         try:
             result = cls.get_periods(0, 0)
             for period, projectName in result:
                 m = p.match(period)
-                if not m: continue
+                if not m:
+                    continue
                 year = int(projectName[4:6])
                 period_letter = m.group('periodletter')
                 period_number = int(m.group('periodnumber')) if m.group('periodnumber') else 0
-                if len(period_letter)!=1: pc = 0
-                else: pc = 10000*year + 100*(ord(period_letter.upper())-65) + period_number
+                if len(period_letter)!=1:
+                    pc = 0
+                else:
+                    pc = 10000*year + 100*(ord(period_letter.upper())-65) + period_number
                 cls.all_periods += [ ((year, period, pc), projectName+".period" + period) ]
             cls.all_periods.sort()
         except Exception:
@@ -193,7 +199,8 @@ class ARQ_AMI:
             #r = sorted([ int(e['runNumber']) for e in result.getDict()['Element_Info'].values() ])
             r = sorted([ int(e['runNumber']) for e in result['Element_Info'].values() ])
             return r
-        except: pass
+        except (ValueError, KeyError):
+            pass
 
 
 
@@ -209,20 +216,20 @@ if __name__ == "__main__":
         print ("5 - test AMI authentication")
         print ("\n0 - exit\n")
 
-        choice = raw_input("  enter your choice: ")
+        choice = input("  enter your choice: ")
         choice = int(choice) if choice.isdigit() else 0
         if choice==1:
-            run = int(raw_input("  run number: "))
+            run = int(input("  run number: "))
             print (ARQ_AMI.get_periods_for_run( [run] ))
         elif choice==2:
-            period = raw_input("  period           : ")
-            year   = raw_input("  year <RET> = all : ")
+            period = input("  period           : ")
+            year   = input("  year <RET> = all : ")
             year   = int(year) if year.isdigit() else 0
             print (', '.join([str(x) for x in ARQ_AMI.get_runs(period, year)]))
         elif choice==3:
-            year   = raw_input("  year <RET> = all           : ")
+            year   = input("  year <RET> = all           : ")
             year   = int(year) if year.isdigit() else 0
-            period = raw_input("  period [1|2|3] <RET> = all : ")
+            period = input("  period [1|2|3] <RET> = all : ")
             period = int(period) if period.isdigit() else 0
             print (ARQ_AMI.get_periods(year, period))
         elif choice==4:
