@@ -15,36 +15,57 @@ def PoolWriteCfg(flags, **kwargs):
     PoolAttributes = []
     # Switch off splitting by setting default SplitLevel to 0
     PoolAttributes += ["DEFAULT_SPLITLEVEL ='0'"]
+
     # Set as default the member-wise streaming, ROOT default
     PoolAttributes += ["STREAM_MEMBER_WISE = '1'"]
 
     # Increase default BasketSize to 32K, ROOT default (but overwritten by POOL)
     PoolAttributes += ["DEFAULT_BUFFERSIZE = '32000'"]
 
-    # Turn off auto_flush for DataHeader container to avoid basket optimization
-    PoolAttributes += ["ContainerName = 'POOLContainer(DataHeader)'; BRANCH_BASKET_SIZE = '256000'"]
-    PoolAttributes += ["ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '1024000'"]
-    PoolAttributes += ["ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '99'"]
-    
-    # based on RecoUtils.py#0145
+    # Set POOLContainerForm(DataHeaderForm) split level to 0
+    PoolAttributes += ["ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '0'"]
+
+    # Kept in sync with RecoUtils.py
+    from AthenaPoolCnvSvc import PoolAttributeHelper as pah
+
+    if flags.Output.HITSFileName:
+        # Use LZMA w/ Level 1
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.HITSFileName, 2 ) ]
+        PoolAttributes += [ pah.setFileCompLvl( flags.Output.HITSFileName, 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 1 events
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.HITSFileName, "CollectionTree", 1 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.HITSFileName, "POOLContainer", 1 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.HITSFileName, "POOLContainerForm", 1 ) ]
+
     if flags.Output.RDOFileName:
-        PoolAttributes += ["DatabaseName = '" + flags.Output.RDOFileName + "'; COMPRESSION_ALGORITHM = '2'"]
-        PoolAttributes += ["DatabaseName = '" + flags.Output.RDOFileName + "'; COMPRESSION_LEVEL = '1'"]
-        PoolAttributes += ["DatabaseName = '" + flags.Output.RDOFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'"]
+        # Use LZMA w/ Level 1
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.RDOFileName, 2 ) ]
+        PoolAttributes += [ pah.setFileCompLvl( flags.Output.RDOFileName, 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 1 events
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "CollectionTree", 1 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainer", 1 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.RDOFileName, "POOLContainerForm", 1 ) ]
 
     if flags.Output.ESDFileName:
-        PoolAttributes += ["DatabaseName = '" + flags.Output.ESDFileName + "'; COMPRESSION_ALGORITHM = '2'"]
-        PoolAttributes += ["DatabaseName = '" + flags.Output.ESDFileName + "'; COMPRESSION_LEVEL = '1'"]
-        # Optimize Basket Sizes to store data for 10 entries/events
-        PoolAttributes += ["DatabaseName = '" + flags.Output.ESDFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '10'"]
+        # Use LZMA w/ Level 1
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.ESDFileName, 2 ) ]
+        PoolAttributes += [ pah.setFileCompLvl( flags.Output.ESDFileName, 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 10 events
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.ESDFileName, "CollectionTree", 10 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.ESDFileName, "POOLContainer", 10 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.ESDFileName, "POOLContainerForm", 10 ) ]
 
     if flags.Output.AODFileName:
-        PoolAttributes += ["DatabaseName = '" + flags.Output.AODFileName + "'; COMPRESSION_ALGORITHM = '2'"]
-        PoolAttributes += ["DatabaseName = '" + flags.Output.AODFileName + "'; COMPRESSION_LEVEL = '1'"]
-        # Optimize Basket Sizes to store data for 100 entries/events
-        PoolAttributes += ["DatabaseName = '" + flags.Output.AODFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100'"]
-        
+        # Use LZMA w/ Level 1
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, 2 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( flags.Output.AODFileName, 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 100 events
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "CollectionTree", 100 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainer", 100 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainerForm", 100 ) ]
+
     kwargs.setdefault("PoolAttributes", PoolAttributes)
 
     acc.addService(AthenaPoolCnvSvc(**kwargs))
+
     return acc
