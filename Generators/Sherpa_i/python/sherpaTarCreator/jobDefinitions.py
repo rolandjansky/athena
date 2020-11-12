@@ -10,7 +10,7 @@ def mkGetOpenLoopsJob(options):
         return None
 
     # check availability of OL libs in /cvmfs and warn user
-    if options.OLprecompiled:
+    if not options.OLskipcvmfs:
         cvmfsInstalledOpenLoopsLibs = glob.glob("/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/proclib/*.so")
         if not any(not any(x in fil for fil in cvmfsInstalledOpenLoopsLibs) for x in options.Sherpa_i.OpenLoopsLibs):
             print("You requested the inclusion of OpenLoops libs in the tarball (genSeq.Sherpa_i.OpenLoopsLibs), but all of them are available centrally in /cvmfs. Will continue without including them in the tarball, and you can remove the genSeq.Sherpa_i.OpenLoopsLibs line from your JO.")
