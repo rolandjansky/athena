@@ -187,7 +187,7 @@ if muonRecFlags.useAlignmentCorrections():
 #--------------------------------------------------------------------------
 if muonRecFlags.doCalibNtuple():
     from MuonRecExample import MuonAlignConfig
-    from MuonCnvExample import setupMuonCalibNtuple
+    from MuonCnvExample.MuonCalibConfig import setupMuonCalibNtuple
     setupMuonCalibNtuple()
 elif muonRecFlags.doCalib():
     from MuonRecExample import MuonAlignConfig
