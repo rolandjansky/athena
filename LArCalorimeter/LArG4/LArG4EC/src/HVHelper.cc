@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/LArHVManager.h"
@@ -211,6 +211,7 @@ void HVHelper::GetMapFromDB(void)
     const EMECHVManager& hvManager = manager->getEMECHVManager(
       isInner? EMECHVModule::INNER: EMECHVModule::OUTER
     );
+    const EMECHVManager::EMECHVData hvdata = hvManager.getData();
     ATH_MSG_INFO("got LAr HV Manager for "
                  << (isInner? "inner": "outer") << " wheel");
     const EMECHVDescriptor& dsc = hvManager.getDescriptor();
@@ -244,7 +245,7 @@ void HVHelper::GetMapFromDB(void)
                 if(jElec >= nFans) jElec -= nFans;
               }
               for(unsigned int iGap = 0; iGap < 2; ++ iGap){
-                double hv = electrode.voltage(iGap);
+                double hv = hvdata.voltage (electrode, iGap);
                 ATH_MSG_DEBUG("Side, Eta, Elec, Gap, hv "
                               << jSide << " " << jEta << " "
                               << jElec << " " << iGap << " "

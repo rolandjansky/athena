@@ -4,7 +4,7 @@
  # to visualize: dot -T pdf Step1.dot > Step1.pdf
  
 from AthenaCommon.AlgSequence import AthSequencer
-from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import algColor
+from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import algColor, isPassFilterAlg
 import itertools
 from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
 
@@ -204,13 +204,15 @@ def findConnections(alg_list):
 
     alg_set = set(alg_list) # make them unique
     for nodeA, nodeB in itertools.permutations(alg_set, 2):
+        if isPassFilterAlg(nodeA.Alg) or isPassFilterAlg(nodeB.Alg):
+            continue
         ins=nodeB.getInputList()
-        outs=nodeA.getOutputList()
+        outs=nodeA.getOutputList()       
         dataIntersection = list(set(outs) & set(ins))
         if len(dataIntersection) > 0:
             for line in dataIntersection:
                 lineconnect+=addConnection(compName(nodeA.Alg), compName(nodeB.Alg), line)
-#                print ("Data connections between ", compName(nodeA.Alg)," and ",compName(nodeB.Alg) ,": ", line)
+                #print ("Data connections between ", compName(nodeA.Alg)," and ",compName(nodeB.Alg) ,": ", line)
 
     return lineconnect
 

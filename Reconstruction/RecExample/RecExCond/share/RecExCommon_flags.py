@@ -465,14 +465,16 @@ else:
           jobproperties.set_JobProperties(data)
        else:   
           i_value=RecExCommonFlags.get(i)
-          jpvalue = getattr(jobproperties.AthenaCommonFlags, i)()
-          if i!="PoolRDOInput":
-            if i_value!=jpvalue:
-               logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
-          else:   
-            if i_value!=jpvalue:
-               logRecExCommon_flags.info ('Modified value for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
-
+          if getattr(jobproperties.AthenaCommonFlags, i).statusOn:
+              jpvalue = getattr(jobproperties.AthenaCommonFlags, i)()
+              if i!="PoolRDOInput":
+                if i_value!=jpvalue:
+                   logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
+              else:
+                if i_value!=jpvalue:
+                   logRecExCommon_flags.info ('Modified value for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
+          else:
+              logRecExCommon_flags.info('Modified value for flag %s new flag: unset, old flag %s',i,i_value)
 
 # some special migration (temporary)
 if rec.doFloatingPointException() and not athenaCommonFlags.isOnline():

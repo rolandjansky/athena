@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_GEANT4TOOLS_TRANSPORTTOOL_H
@@ -7,7 +7,10 @@
 
 // STL headers
 #include <string>
-#include <unordered_map>
+#include <thread>
+
+// TBB
+#include "tbb/concurrent_unordered_map.h"
 
 // Gaudi headers
 #include "GaudiKernel/ToolHandle.h"
@@ -110,17 +113,11 @@ namespace iGeant4
     G4Timer* m_eventTimer{nullptr};
 
     // user actions that can return secondaries
-    std::vector< G4UA::iGeant4::TrackProcessorUserActionBase* > m_secondaryActions;
+    // Must be indexed by thread ID, and accessible from multiple threads
+    using passbackAction_t = G4UA::iGeant4::TrackProcessorUserActionBase;
+    using passbackActionMap_t = tbb::concurrent_unordered_map< std::thread::id, std::vector< passbackAction_t* >, std::hash<std::thread::id> >;
+    mutable passbackActionMap_t m_secondaryActions ATLAS_THREAD_SAFE;
 
-    // store secondary particles that have been pushed back
-    struct Slot
-    {
-      std::unordered_map< ISF::ISFParticle const*, ISF::ISFParticleContainer > m_secondariesMap;
-      typedef std::mutex mutex_t;
-      typedef std::lock_guard<mutex_t> lock_t;
-      mutex_t m_mutex;
-    };
-    mutable SG::SlotSpecificObj<Slot> m_slots ATLAS_THREAD_SAFE;
     Gaudi::Property<std::string> m_mcEventCollectionName{this, "McEventCollection", "TruthEvent", ""};
     /// Helper Tool to provide G4RunManager
     // PublicToolHandle<ISF::IG4RunManagerHelper>  m_g4RunManagerHelper{this, "G4RunManagerHelper", "iGeant4::G4RunManagerHelper/G4RunManagerHelper", ""};

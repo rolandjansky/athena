@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MapEta.h"
@@ -70,7 +70,6 @@ void MapEta::Initialize(int isampling)
     {
       in>>m_nx>>m_xmin>>m_xmax>>m_ny>>m_ymin>>m_ymax;
       if(m_nx>0 && m_ny>0 && m_nx<10000 && m_ny<10000){//coverity issue. This is a tainted variable protection, 10000 can be changed if required.
-        //std::cout<<"nx"<<";"<<"ny="<<m_nx<<";"<<m_ny<<std::endl;
         m_deltax=(m_xmax-m_xmin)/((float) m_nx);
         m_deltay=(m_ymax-m_ymin)/((float) m_ny);
         // what is written as xmax in the map is x of last point + delta x

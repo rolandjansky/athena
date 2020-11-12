@@ -1,22 +1,10 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Declare the name of this package:
 atlas_subdir( TopJetSubstructure )
 
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          xAODPrimitives
-                          xAODBase
-                          GeoPrimitives
-                          xAODCaloEvent
-                          xAODJet
-                          xAODBTagging
-                          EventPrimitives
-                          xAODTracking
-                          CaloGeoHelpers
-                          xAODEgamma)
-
-
 # This package uses ROOT:
-find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
+find_package( ROOT REQUIRED COMPONENTS Core Physics )
 
 # This package uses FastJet:
 find_package( FastJet )
@@ -27,20 +15,11 @@ atlas_add_library( TopJetSubstructure Root/*.cxx Root/*.h Root/*.icc
                    TopJetSubstructure/*.h TopJetSubstructure/*.icc TopJetSubstructure/*/*.h
                    TopJetSubstructure/*/*.icc 
                    PUBLIC_HEADERS TopJetSubstructure
-                   LINK_LIBRARIES xAODPrimitives
-                                  xAODBase
-                                  GeoPrimitives
-                                  xAODCaloEvent
-                                  xAODJet
-                                  xAODBTagging
-                                  EventPrimitives
-                                  xAODTracking
-                                  CaloGeoHelpers
-                                  xAODEgamma
+                   INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS}
+                                ${FASTJETCONTRIB_INCLUDE_DIRS}
+                                ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${FASTJET_LIBRARIES}
+                                  ${FASTJETCONTRIB_LIBRARIES}
                                   ${ROOT_LIBRARIES}
-				  ${FASTJET_LIBRARIES} 
-				  ${FASTJETCONTRIB_LIBRARIES}	                                  
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		                ${FASTJET_INCLUDE_DIRS} 
-				${FASTJETCONTRIB_INCLUDE_DIRS})                                
-
+                                  xAODEgamma
+                                  xAODJet )

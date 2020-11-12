@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ImplicitCollection.h"
@@ -24,8 +24,8 @@ namespace pool {
 
    ImplicitCollection::
    ImplicitCollection( ISession* session,
-                       std::string connection,
-                       std::string name,
+                       const std::string& connection,
+                       const std::string& name,
                        ICollection::OpenMode mode )
          :
          m_container( 0 ),

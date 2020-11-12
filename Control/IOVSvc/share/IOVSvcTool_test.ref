@@ -63,7 +63,6 @@ IncidentSvc         DEBUG Adding [BeginEvent] listener 'ConditionStore' with pri
 IncidentSvc         DEBUG Adding [BeginEvent] listener 'ToolSvc.IOVSvcTool' with priority 100
 IncidentSvc         DEBUG Adding [BeginRun] listener 'ToolSvc.IOVSvcTool' with priority 100
 ToolSvc.IOVSvcTool   INFO IOVRanges will be checked at every Event
-IncidentSvc         DEBUG Adding [ReloadProxies] listener 'ToolSvc.IOVSvcTool' with priority 100
 ToolSvc.IOVSvcTool  DEBUG Tool initialized
 ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
 ToolSvc.IOVSvcTool  DEBUG registering proxy [Dooo:6666/old] at 0x2309460

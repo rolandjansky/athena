@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,8 +22,7 @@
 ////////////////////////
 PixelRawContByteStreamTool::PixelRawContByteStreamTool(const std::string& type,const std::string& name,const IInterface* parent) : 
   AthAlgTool(type,name,parent), 
-  m_pixelCabling("PixelCablingSvc", name),
-  m_log(msgSvc(), "PixelRawContByteStreamTool")
+  m_pixelCabling("PixelCablingSvc", name)
 {
   declareInterface<PixelRawContByteStreamTool>(this);
   declareProperty("RodBlockVersion",m_RodBlockVersion=0); 
@@ -49,6 +48,8 @@ StatusCode PixelRawContByteStreamTool::initialize() {
 
   ATH_CHECK(m_condCablingKey.initialize());
   ATH_CHECK(m_condHitDiscCnfgKey.initialize());
+
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
    
   return StatusCode::SUCCESS;
 }
@@ -63,12 +64,14 @@ StatusCode PixelRawContByteStreamTool::finalize() {
 ////////////////////////
 // convert - 
 ////////////////////////
-StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont,RawEventWrite* re) {
-  m_fea.clear(); 
+StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont) const {
+  FullEventAssembler<SrcIdMap>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "PixelRawCont") );
   FullEventAssembler<SrcIdMap>::RODDATA* theROD;
 
   // set ROD Minor version
-  m_fea.setRodMinorVersion(m_RodBlockVersion);
+  fea->setRodMinorVersion(m_RodBlockVersion);
   ATH_MSG_DEBUG("Setting ROD Minor Version Number to: " << m_RodBlockVersion);
 
   //loop over the Pixel modules
@@ -96,7 +99,7 @@ StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont,RawEvent
       std::vector<const PixelRDORawData*> RDOs;
       for(; it_b!=it_e; ++it_b){ RDOs.push_back((*it_b)); }
 
-      theROD = m_fea.getRodData(rodId); 
+      theROD = fea->getRodData(rodId); 
       fillROD( *theROD, RDOs, m_BCs_per_LVL1ID);  
 
     }
@@ -104,7 +107,6 @@ StatusCode PixelRawContByteStreamTool::convert(PixelRDO_Container* cont,RawEvent
       ATH_MSG_WARNING("IDC contains NULLpointer to collection, skipping collection");
     }
   }
-  m_fea.fill(re,m_log); 
   return StatusCode::SUCCESS; 
 }
 
@@ -118,7 +120,7 @@ const InterfaceID& PixelRawContByteStreamTool::interfaceID() {
 ////////////////////////
 //  fillROD() - convert Pixel RDO to a vector of 32bit words
 ////////////////////////
-void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vector<const PixelRDORawData*> RDOs, int BCs_per_LVL1ID) {
+void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vector<const PixelRDORawData*> RDOs, int BCs_per_LVL1ID) const {
   ATH_MSG_DEBUG("#####################################################################################");
   ATH_MSG_DEBUG("Entering PixelRodEncoder");
 
@@ -614,7 +616,7 @@ void PixelRawContByteStreamTool::fillROD(std::vector<uint32_t>& v32rod, std::vec
 // encode module Header for Pixels 
 // Pixel Header: 001PtlbxxnnnnnnnMMMMLLLLBBBBBBBB,
 ////////////////////////
-uint32_t PixelRawContByteStreamTool::packLinkHeader(uint32_t module, uint32_t bcid, uint32_t lvl1id, uint32_t lvl1idskip, uint32_t errors) {
+uint32_t PixelRawContByteStreamTool::packLinkHeader(uint32_t module, uint32_t bcid, uint32_t lvl1id, uint32_t lvl1idskip, uint32_t errors) const {
   lvl1idskip = 0;   // FIXME LVL1IDskip hardcoded as 0
   uint32_t result = 0;
   result = PRB_LINKHEADER | ((bcid & PRB_BCIDmask) << PRB_BCIDskip) | ((lvl1id & PRB_L1IDmask) << PRB_L1IDskip) | ((lvl1idskip & PRB_L1IDSKIPmask) << PRB_L1IDSKIPskip) | ((module & PRB_MODULEmask) << PRB_MODULEskip) | ((errors & PRB_HEADERERRORSmask) << PRB_HEADERERRORSskip);
@@ -630,7 +632,7 @@ uint32_t PixelRawContByteStreamTool::packLinkHeader(uint32_t module, uint32_t bc
 // encode module Header for IBL
 // IBL Header:   001nnnnnFLLLLLLLLLLLLLBBBBBBBBBB
 ////////////////////////
-uint32_t PixelRawContByteStreamTool::packLinkHeader_IBL(uint32_t module, uint32_t bcid, uint32_t lvl1id, uint32_t feFlag) {
+uint32_t PixelRawContByteStreamTool::packLinkHeader_IBL(uint32_t module, uint32_t bcid, uint32_t lvl1id, uint32_t feFlag) const {
   uint32_t result = 0;
   result = PRB_LINKHEADER | ((bcid & PRB_BCIDmask_IBL) << PRB_BCIDskip_IBL) | ((lvl1id & PRB_L1IDmask_IBL) << PRB_L1IDskip_IBL) | ((module & PRB_MODULEmask_IBL) << PRB_MODULEskip_IBL) | ((feFlag & PRB_FeI4BFLAGmask_IBL) << PRB_FeI4BFLAGskip_IBL); 
 #ifdef PIXEL_DEBUG
@@ -647,7 +649,7 @@ uint32_t PixelRawContByteStreamTool::packLinkHeader_IBL(uint32_t module, uint32_
 ////////////////////////
 // encode IBL non-condensed hit word: 0-8: row,9-15: column, 16-23:TOT, 24-28: nLink   ----> 100xxnnnTTTTTTTTCCCCCCCRRRRRRRRR
 ////////////////////////
-uint32_t PixelRawContByteStreamTool::packRawDataWord_IBL(uint32_t row, uint32_t column, int ToT, uint32_t nLink) {
+uint32_t PixelRawContByteStreamTool::packRawDataWord_IBL(uint32_t row, uint32_t column, int ToT, uint32_t nLink) const {
   uint32_t result = 0;
   result = PRB_DATAWORD | ((row & PRB_ROWmask_IBL) << PRB_ROWskip_IBL) | ((column & PRB_COLUMNmask_IBL) << PRB_COLUMNskip_IBL) | ((ToT & PRB_TOTmask) << PRB_TOTskip) | ((nLink & PRB_LINKNUMHITmask_IBL) << PRB_LINKNUMHITskip_IBL);
 #ifdef PIXEL_DEBUG
@@ -663,7 +665,7 @@ uint32_t PixelRawContByteStreamTool::packRawDataWord_IBL(uint32_t row, uint32_t 
 ////////////////////////
 // encode PIXEL hit word: bits 0-7:row,8-12:column,16-23:TOT,24-27:FE ----> 100xFFFFTTTTTTTTxxxCCCCCRRRRRRRR
 ////////////////////////
-uint32_t PixelRawContByteStreamTool::packRawDataWord(uint32_t FE, uint32_t row, uint32_t column, uint32_t ToT) {
+uint32_t PixelRawContByteStreamTool::packRawDataWord(uint32_t FE, uint32_t row, uint32_t column, uint32_t ToT) const {
 
   uint32_t result = 0;
   result = PRB_DATAWORD | ((row & PRB_ROWmask) << PRB_ROWskip) | ((column & PRB_COLUMNmask) << PRB_COLUMNskip) | ((ToT & PRB_TOTmask) << PRB_TOTskip) | ((FE & PRB_FEmask) << PRB_FEskip); 
@@ -678,7 +680,7 @@ uint32_t PixelRawContByteStreamTool::packRawDataWord(uint32_t FE, uint32_t row, 
 ////////////////////////
 // encode PIXEL module trailer (bits 26-28:trailer errors)
 ////////////////////////
-uint32_t PixelRawContByteStreamTool::packLinkTrailer(uint32_t errors) {
+uint32_t PixelRawContByteStreamTool::packLinkTrailer(uint32_t errors) const {
   uint32_t result = PRB_LINKTRAILER | ((errors & PRB_TRAILERERRORSmask) << PRB_TRAILERERRORSskip);
 #ifdef PLOTS
   std::cout << "[PlotA]:0x " << std::hex << result << std::dec << std::endl;
@@ -691,7 +693,7 @@ uint32_t PixelRawContByteStreamTool::packLinkTrailer(uint32_t errors) {
 ////////////////////////
 // encode IBL module trailer (bits 26-28:trailer errors)
 ////////////////////////
-uint32_t PixelRawContByteStreamTool::packLinkTrailer_IBL(uint32_t linknum, bool timeOutErrorBit, bool condensedModeBit, bool linkMasked) {
+uint32_t PixelRawContByteStreamTool::packLinkTrailer_IBL(uint32_t linknum, bool timeOutErrorBit, bool condensedModeBit, bool linkMasked) const {
   //  return PRB_LINKTRAILER |((timeOutErrorBit & PRB_TIMEOUTERRORmask_IBL) << PRB_TIMEOUTERRORskip_IBL) | ((condensedModeBit & PRB_CONDENSEDMODEmask_IBL) << PRB_CONDENSEDMODEskip_IBL) | ((linkMasked & PRB_LINKMASKEDmask_IBL) << PRB_LINKMASKEDskip_IBL)  | ((linknum & PRB_LINKNUMTRAILERmask_IBL) << PRB_LINKNUMTRAILERskip_IBL);
   uint32_t result;
   result = PRB_LINKTRAILER | (timeOutErrorBit  << PRB_TIMEOUTERRORskip_IBL) | (condensedModeBit << PRB_CONDENSEDMODEskip_IBL) | (linkMasked  << PRB_LINKMASKEDskip_IBL)  | ((linknum & PRB_LINKNUMTRAILERmask_IBL) << PRB_LINKNUMTRAILERskip_IBL);
@@ -715,7 +717,7 @@ uint32_t PixelRawContByteStreamTool::packLinkTrailer_IBL(uint32_t linknum, bool 
 //     4th word:   111 TTTTTTTTCCCCCCCRRRRRRRRRTTTTT
 ////////////////////////
 
-void PixelRawContByteStreamTool::packIBLcondensed(std::vector <uint32_t> & v32rod, std::vector <uint32_t> & vRows, std::vector <uint32_t> & vCols, std::vector<int> & vTots) {
+void PixelRawContByteStreamTool::packIBLcondensed(std::vector <uint32_t> & v32rod, std::vector <uint32_t> & vRows, std::vector <uint32_t> & vCols, std::vector<int> & vTots) const {
   unsigned int condWord[nCondensedWords];
   condWord[0] = PRB_FIRSTHITCONDENSEDWORD | vRows[0] | (vCols[0] << skipRow) | (vTots[0] << (skipRow + skipCol) | ((vRows[1] & mask5) << (skipRow + skipCol + skipTOT)));
 

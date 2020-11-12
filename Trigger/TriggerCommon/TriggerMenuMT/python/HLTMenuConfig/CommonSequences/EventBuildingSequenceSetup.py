@@ -7,7 +7,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
+from DecisionHandling import DecisionHandlingConf
 from libpyeformat_helper import SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
@@ -28,7 +28,7 @@ def addEventBuildingSequence(chain, eventBuildType, chainDict):
     def pebInfoWriterToolGenerator(chainDict):
         return pebInfoWriterTool(chainDict['chainName'], eventBuildType)
 
-    inputMaker = pebInputMaker(eventBuildType)
+    inputMaker = pebInputMaker(chain, eventBuildType)
     seq = MenuSequence(
         Sequence    = pebSequence(eventBuildType, inputMaker),
         Maker       = inputMaker,
@@ -114,10 +114,15 @@ def pebInfoWriterTool(name, eventBuildType):
     return tool
 
 
-def pebInputMaker(eventBuildType):
-    maker = InputMakerForRoI("IMpeb_"+eventBuildType)
-    maker.RoITool = ViewCreatorInitialROITool()
+def pebInputMaker(chain, eventBuildType):
+    maker = DecisionHandlingConf.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
+    if len(chain.steps) == 0:
+        # Streamers: use initial RoI
+        maker.RoITool = DecisionHandlingConf.ViewCreatorInitialROITool()
+    else:
+        # Other chains: use previous RoI
+        maker.RoITool = DecisionHandlingConf.ViewCreatorPreviousROITool()
     return maker
 
 

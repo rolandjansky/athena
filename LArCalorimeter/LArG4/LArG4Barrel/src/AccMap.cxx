@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AccMap.h"
@@ -43,7 +43,6 @@ AccMap::AccMap()
       //fileLocation=larLocation+"/calo_data/"+filename;
       fileLocation=larLocation+"/"+filename;
 #endif
-      //       std::cout << " try to open map " << fileLocation << std::endl;
       CurrMap* cm = new CurrMap(fileLocation,xnorm);
       int code=10*ifold+iregion;
       m_theMap[code]=cm;
@@ -66,7 +65,6 @@ AccMap::AccMap()
       //fileLocation=larLocation+"/calo_data/"+filename;
       fileLocation=larLocation+"/"+filename;
 #endif
-      //       std::cout << " try to open map " << fileLocation << std::endl;
       CurrMap* cm = new CurrMap(fileLocation,xnorm);
       int code=10*(20+istr)+iregion;
       m_theMap[code]=cm;
@@ -98,7 +96,6 @@ CurrMap* AccMap::GetMap(int ifold, int region, int sampling, int eta) const
 CurrMap* AccMap::GetMap(int ifold, int ielecregion) const
 {
   const int code=10*ifold+ielecregion;
-  // std::cout << " code is " << code << std::endl;
   const auto mapIter = m_theMap.find(code);
   if (mapIter != m_theMap.end())
     return mapIter->second;

@@ -58,12 +58,18 @@ class PrescalingTool : public extends<AthAlgTool, IPrescalingTool> {
  private: 
 
    // input data
-   SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_hltPrescaleSetInputKey{ this, "HLTPrescales", "HLTPrescales", "HLT prescales set"};
-   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{ this, "EventInfo", "EventInfo", "Event Info Object Key"};
+   SG::ReadCondHandleKey<TrigConf::HLTPrescalesSet> m_hltPrescaleSetInputKey{
+    this, "HLTPrescales", "HLTPrescales", "HLT prescales set"};
+
+   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey{
+    this, "EventInfo", "EventInfo", "Event Info Object Key"};
 
    // properties
-   Gaudi::Property<bool> m_keepUnknownChains{ this, "KeepUnknownChains", true, "If True then chains for which prescaling information is not set are kept" };
-   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
+   Gaudi::Property<bool> m_keepUnknownChains{
+    this, "KeepUnknownChains", true,
+    "If True then chains for which prescaling information is not set are kept" };
+
+   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
 
    // random engine for calculating prescales
    ATHRNG::RNGWrapper m_RNGEngines;

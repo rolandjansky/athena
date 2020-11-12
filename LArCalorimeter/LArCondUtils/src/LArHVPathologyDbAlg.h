@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCONDUTILS_LARHVPATHOLOGYDBALG_H
 #define LARCONDUTILS_LARHVPATHOLOGYDBALG_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "LArRecConditions/LArHVIdMapping.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class IIOVRegistrationSvc;
@@ -31,11 +33,13 @@ class LArHVPathologyDbAlg : public AthAlgorithm
   StatusCode stop();
 
  private:
-  StatusCode createCondObjects();
-  StatusCode printCondObjects();
+  StatusCode createCondObjects (const EventContext& ctx);
+  StatusCode printCondObjects (const EventContext& ctx);
   StatusCode registerCondObjects();
-  std::vector<unsigned int> getElectInd(const Identifier& id, unsigned int module, unsigned int line);
-  int getHVline(const Identifier& id, short unsigned int ElectInd);
+  std::vector<unsigned int> getElectInd(const LArHVIdMapping& hvIdMapping,
+                                        const Identifier& id, unsigned int module, unsigned int line);
+  int getHVline(const LArHVIdMapping& hvIdMapping,
+                const Identifier& id, short unsigned int ElectInd);
  
   BooleanProperty           m_writeCondObjs;
   StringProperty            m_inpFile;
@@ -57,6 +61,8 @@ class LArHVPathologyDbAlg : public AthAlgorithm
   const LArFCAL_ID*       m_larfcal_id;
   const LArOnlineID*      m_laronline_id;
 
+  SG::ReadCondHandleKey<LArHVIdMapping> m_hvCablingKey
+    {this, "LArHVIdMapping", "LArHVIdMap", "SG key for HV ID mapping"};
 };
 
 #endif

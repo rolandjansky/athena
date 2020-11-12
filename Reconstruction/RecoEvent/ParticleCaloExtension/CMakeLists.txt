@@ -1,21 +1,10 @@
-################################################################################
-# Package: ParticleCaloExtension
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ParticleCaloExtension )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloEvent
-                          Control/AthContainers
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODCore 
-			  Tracking/TrkEvent/TrkCaloExtension)
 
 # Component(s) in the package:
 atlas_add_library( ParticleCaloExtension
                    src/*.cxx
                    PUBLIC_HEADERS ParticleCaloExtension
-		   LINK_LIBRARIES CaloEvent AthContainers xAODCaloEvent xAODCore TrkCaloExtension )
-
+                   LINK_LIBRARIES CaloEvent AthContainers xAODCaloEvent xAODCore TrkCaloExtension )

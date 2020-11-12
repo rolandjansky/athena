@@ -20,4 +20,4 @@ atlas_add_library( TopObjectSelectionTools
    TopSystematicObjectMaker
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} xAODEventInfo xAODMissingET
-   PATInterfaces FourMomUtils TopParticleLevel TopDataPreparation )
+   AthContainers PATInterfaces FourMomUtils TopParticleLevel TopDataPreparation )

@@ -34,13 +34,31 @@ namespace Overlay
       throw std::runtime_error("mergeChannelData<MmDigit>() called by a wrong parent algorithm? Must be MM_Overlay.");
     }
 
+    // This is a needed temporary hack for which I dont fully understand the source. Alexandre Laurier 2020-10-06
+    // For some reason, sometimes the "main digit"'s size is empty.
+    // In these cases, dataContainer is larger than mcContainer which goes against the basic overlay assumption
+    // These happen in cases where we create very busy signal events.
+    // A MicroMega digit is a vector of strips, so an empty digit makes no sense.
+    bool skipOverlay = false;
+    if (signalDigit.stripResponseTime().size() == 0) {
+      signalDigit = bkgDigit;
+      skipOverlay = true;
+    }
+
     float sig_time = signalDigit.stripResponseTime()[0]; 
     float bkg_time = bkgDigit.stripResponseTime()[0]; 
+
+    if (skipOverlay) { // do nothing since 1 digit was empty. Keep the original
+      algorithm->msg(MSG::WARNING)
+        << "Skipping overlay of empty MM digit!"
+        << endmsg;
+    }
+
     // As of now, we need to decide how to overlay MM digits
     // NEEDS TO BE ADDRESSED
     // For this preliminary version of July 2019, use only the data from the 1st digit in vector. 
     /** signal masks the background */
-    if ( abs(sig_time - bkg_time) > parent->timeIntegrationWindow() && sig_time < bkg_time ) {
+    else if ( abs(sig_time - bkg_time) > parent->timeIntegrationWindow() && sig_time < bkg_time ) {
       // do nothing - keep baseDigit.
     }
     /** Background hit masks the signal hit */

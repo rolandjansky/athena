@@ -9,6 +9,9 @@ find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS RIO Hist Tree Core MathCore ROOTTPython
    cppyy${Python_VERSION_MAJOR}_${Python_VERSION_MINOR} )
 
+set( ROOT_LIBRARIES_PYROOT ${ROOT_LIBRARIES} )
+find_package( ROOT COMPONENTS RIO Hist Tree Core MathCore )
+
 # Component(s) in the package:
 atlas_generate_reflex_dictionary( dict_cpp RootUtils
    HEADER ${CMAKE_CURRENT_SOURCE_DIR}/RootUtils/RootUtilsDict.h
@@ -28,7 +31,7 @@ atlas_add_library( RootUtilsPyROOT
    PUBLIC_HEADERS RootUtils
    INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Python_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
+   LINK_LIBRARIES ${Python_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES_PYROOT}
    CxxUtils )
 
 atlas_add_dictionary( RootUtilsPyROOTDict

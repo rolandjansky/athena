@@ -74,6 +74,8 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             GSFBuildTRT_ElectronPidTool = (
                 TrackingCommon.getInDetTRT_ElectronPidTool(
                     name="GSFBuildTRT_ElectronPidTool",
+                    CalculateNNPid=True,
+                    MinimumTrackPtForNNPid=0.,
                     private=True))
 
         #

@@ -52,7 +52,7 @@ sTgcDigitMaker::sTgcDigitMaker(sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonD
   m_GausMean                = 2.27;  //mm; VMM response from Oct/Nov 2013 test beam
   m_GausSigma               = 0.1885;//mm; VMM response from Oct/Nov 2013 test beam
   m_IntegralTimeOfElectr    = 20.00; // ns
-  m_CrossTalk               = 0.03; 
+  m_CrossTalk               = 0.00; // Turn off cross-talk. Old guesstimate was 0.03: Alexandre Laurier 2020-10-11 
   m_StripResolution         = 0.07; // Angular strip resolution parameter
   m_ChargeSpreadFactor      = 0.;
   m_channelTypes            = 3; // 1 -> strips, 2 -> strips+pad, 3 -> strips/wires/pads

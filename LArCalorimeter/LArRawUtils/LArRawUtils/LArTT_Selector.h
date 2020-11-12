@@ -1,15 +1,17 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWUTILS_LARTT_SELECTOR_H
 #define LARRAWUTILS_LARTT_SELECTOR_H
 
 #include "Identifier/Identifier.h" 
-#include "Identifier/IdentifierHash.h" 
+#include "Identifier/IdentifierHash.h"
+#include "CxxUtils/checker_macros.h"
 
 class LArRoI_Map; 
 
+// Not thread-safe due to the use of LArRoI_Map.
 template <class CONTAINER >
 class LArTT_Selector
 {
@@ -95,7 +97,8 @@ class LArTT_Selector
 
    // set RoI according TT, + a sam number. 
 //   void setRoIs( const VEC_TT_ID& ids,  int sam ) ; 
-   void setRoIs( const VEC_TT_ID& ids ) ; 
+   // Not thread-safe due to the use of LArRoI_Map.
+   void setRoIs ATLAS_NOT_THREAD_SAFE ( const VEC_TT_ID& ids ) ; 
 
    // set RoI according to combined TT_Sampling ID (unsigned int).    
 //   void setRoIs( const VEC_TT_SAM_ID& ids ) ; 

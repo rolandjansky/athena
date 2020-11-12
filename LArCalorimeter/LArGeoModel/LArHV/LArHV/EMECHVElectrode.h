@@ -25,23 +25,9 @@ class EMECHVElectrode
 
   double getPhi() const;
 
-  // HV Status
-  bool hvOn(int iGap) const;
-    
-  // Voltage
-  double voltage(int iGap) const;
-  
-  // Current
-  double current(int iGap) const;
-  
-  // Voltage and current at the same time
-  void voltage_current(int iGap, double& v, double& i) const;
-
   // HVLine no
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
-  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
-#else
-  int hvLineNo(int iGap) const;
+  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const;
 #endif
 
  private:

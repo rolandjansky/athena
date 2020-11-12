@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecUtils/LArShapePeakRecoTool.h"
@@ -52,8 +52,6 @@ std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples
 
   delay_max = distance(wave.begin(),wave_max);
 
-  //  std::cout << "wave[0] = " << wave[0] << std::endl;
-  
   // parabola approximation of shape maximum
   d = (int) delay_max;
   GetShapeParMax(delay_max,shape_max,delay_max-1,wave[d-1],
@@ -96,14 +94,9 @@ std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples
     s2 = sample_2ndmax + 1;
   }
 
-  //  std::cout << "sample_max = " << sample_max << ", sample_2ndmax = " << sample_2ndmax << ", s1 = " << s1 << ", s2 = " << s2 << std::endl;
-
   // Get delay Limits
   d1 = 0;
   d2 = nbin-1-(s2-s1)*24;
-
-  //  std::cout << "d2 = " << d2 << ", s1 = " << s1 << ", s2 = " << s2 << std::endl;
-  //  std::cout << "sample max = " << sample_max << std::endl;
 
   // Loop on all delays to find the best chi2
   // i.e. minimise 
@@ -141,9 +134,6 @@ std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples
   if(delay_best<=-999) { return solution; }
 
   float adc_reco = lambda*shape_max;
-
-  //  std::cout << "shape max = " << shape_max << ", adc max = " << adc_max << ", lambda = " << lambda << std::endl;
-  //  std::cout << "delay best = " << delay_best << std::endl;
 
   float time_reco = delay_best;
   if(delay_best<adc_max) time_reco = delay_best;

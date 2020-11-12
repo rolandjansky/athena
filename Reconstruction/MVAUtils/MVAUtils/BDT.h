@@ -106,33 +106,7 @@ namespace MVAUtils
     std::unique_ptr<IForest> m_forest;  //!< the implementation of the forest, doing the hard work
     std::vector<float*> m_pointers; //!< where vars to cut on can be set (but can also be passed)
   };
-
-
-  inline float BDT::GetResponse() const {
-    return (!m_pointers.empty() ? GetResponse(m_pointers) : -9999.);
-  }
-
-  inline float BDT::GetClassification() const {
-    return (!m_pointers.empty() ? GetClassification(m_pointers) : -9999.);
-  }
-
-  inline std::vector<float> BDT::GetMultiResponse(unsigned int numClasses) const {
-    return (!m_pointers.empty() ? GetMultiResponse(m_pointers, numClasses) : std::vector<float>());
-  }
-
-  inline std::vector<float> BDT::GetValues() const {
-    std::vector<float> result;
-    for (float* ptr : m_pointers)
-    {
-      assert (ptr);
-      result.push_back(*ptr);
-    }
-    return result;
-  }
-
-  inline const std::vector<float*>& BDT::GetPointers() const { return m_pointers; }
-  inline void BDT::SetPointers(const std::vector<float*>& pointers) { m_pointers = pointers; }
-
 }
 
+#include "MVAUtils/BDT.icc"
 #endif

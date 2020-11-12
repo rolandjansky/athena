@@ -34,7 +34,34 @@
 #include "CoolKernel/types.h"
 #include "CoolKernel/Record.h"
 #include "CoralBase/AttributeListSpecification.h"
-#include "CaloCondPhysAlgs/LArHVMapTool.h"
+
+#include "CxxUtils/checker_macros.h"
+
+
+struct ATLAS_NOT_THREAD_SAFE CaloCellCalcEnergyCorr::HVData
+{
+  HVData (const LArHVManager& manager);
+  EMBHVManager::EMBHVData m_hvdata_EMB;
+  EMBPresamplerHVManager::EMBPresamplerHVData m_hvdata_EMBPS;
+  EMECHVManager::EMECHVData m_hvdata_EMEC_IN;
+  EMECHVManager::EMECHVData m_hvdata_EMEC_OUT;
+  EMECPresamplerHVManager::EMECPresamplerHVData m_hvdata_EMECPS;
+  HECHVManager::HECHVData m_hvdata_HEC;
+  FCALHVManager::FCALHVData m_hvdata_FCAL;
+};
+
+
+CaloCellCalcEnergyCorr::HVData::HVData (const LArHVManager& manager)
+  : m_hvdata_EMB (manager.getEMBHVManager().getData()),
+    m_hvdata_EMBPS (manager.getEMBPresamplerHVManager().getData()),
+    m_hvdata_EMEC_IN (manager.getEMECHVManager(EMECHVModule::IOType::INNER).getData()),
+    m_hvdata_EMEC_OUT (manager.getEMECHVManager(EMECHVModule::IOType::OUTER).getData()),
+    m_hvdata_EMECPS (manager.getEMECPresamplerHVManager().getData()),
+    m_hvdata_HEC (manager.getHECHVManager().getData()),
+    m_hvdata_FCAL (manager.getFCALHVManager().getData())
+{
+}
+
 
 CaloCellCalcEnergyCorr::CaloCellCalcEnergyCorr( const std::string& name, 
 						ISvcLocator* pSvcLocator ) : 
@@ -95,7 +122,7 @@ StatusCode CaloCellCalcEnergyCorr::execute()
   return StatusCode::SUCCESS;
 }
 
-StatusCode CaloCellCalcEnergyCorr::stop()
+StatusCode CaloCellCalcEnergyCorr::stop ATLAS_NOT_THREAD_SAFE ()
 {  
 
   const CaloCell_ID*    calocell_id;	
@@ -145,6 +172,10 @@ StatusCode CaloCellCalcEnergyCorr::stop()
 
   CHECK(detStore()->record(attrList,m_folder));
 
+  const LArHVManager* manager = nullptr;
+  CHECK( detStore()->retrieve (manager) );
+  HVData hvdata (*manager);
+
   std::vector<float> setVec(1,1);
   unsigned nSet=0;
   unsigned nSetHV=0;
@@ -159,8 +190,7 @@ StatusCode CaloCellCalcEnergyCorr::stop()
         // check if we have also HVLine for this cell
         if(!m_hvlines.empty() && m_hvlines[0]>0) {
            Identifier offId=calocell_id->cell_id(h);
-           std::vector<int> hvlineId = GetHVLines(offId);
-           //std::cout<<offId.getString()<<" : ";
+           std::vector<int> hvlineId = GetHVLines(hvdata, offId);
            int nfound=0;
            float hvval=-1;
            std::vector<int>::const_iterator poshv;
@@ -176,7 +206,6 @@ StatusCode CaloCellCalcEnergyCorr::stop()
            }
         }
     }
-    //std::cout << h << " " << value << std::endl;
     setVec[0]=value;
     flt->setData(h,0,setVec);
   }//end loop over hash
@@ -188,7 +217,8 @@ StatusCode CaloCellCalcEnergyCorr::stop()
 }
 
 
-std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
+std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const HVData& hvdata,
+                                                    const Identifier& id) {
   std::set<int> hv;
 
   // LAr EMB
@@ -200,7 +230,7 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
       unsigned int nelec = cell->getNumElectrodes();
       for (unsigned int i=0;i<nelec;i++) {
         const EMBHVElectrode& electrode = cell->getElectrode(i);
-        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode.hvLineNo(igap));
+        for (unsigned int igap=0;igap<2;igap++) hv.insert(hvdata.m_hvdata_EMB.hvLineNo (electrode, igap));
       }
     } else { // LAr EMEC
       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
@@ -209,7 +239,13 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
       unsigned int nelec = cell->getNumElectrodes();
       for (unsigned int i=0;i<nelec;i++) {
         const EMECHVElectrode& electrode = cell->getElectrode(i);
-        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode.hvLineNo(igap));
+        const EMECHVManager::EMECHVData& hvdata_EMEC =
+          electrode.getModule().getWheelIndex() == EMECHVModule::INNER ?
+            hvdata.m_hvdata_EMEC_IN :
+            hvdata.m_hvdata_EMEC_OUT ;
+        for (unsigned int igap=0;igap<2;igap++) {
+          hv.insert(hvdata_EMEC.hvLineNo (electrode, igap));
+        }
       }
     }
   } else if (m_larhec_id->is_lar_hec(id)) { // LAr HEC
@@ -219,7 +255,7 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
     unsigned int nsubgaps = cell->getNumSubgaps();
     for (unsigned int igap=0;igap<nsubgaps;igap++) {
       const HECHVSubgap& subgap = cell->getSubgap(igap);
-      hv.insert(subgap.hvLineNo());
+      hv.insert(hvdata.m_hvdata_HEC.hvLineNo (subgap));
     }
   } else if (m_larfcal_id->is_lar_fcal(id)) { // LAr FCAL
     const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
@@ -228,7 +264,7 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
     unsigned int nlines = tile->getNumHVLines();
     for (unsigned int i=0;i<nlines;i++) {
       const FCALHVLine* line = tile->getHVLine(i);
-      if(line) hv.insert(line->hvLineNo());
+      if(line) hv.insert(hvdata.m_hvdata_FCAL.hvLineNo (*line));
     }
   } else if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)==0) { // Presamplers
     if (abs(m_larem_id->barrel_ec(id))==1) {
@@ -236,13 +272,13 @@ std::vector<int> CaloCellCalcEnergyCorr::GetHVLines(const Identifier& id) {
       if (!embElement) std::abort();
       const EMBCellConstLink cell = embElement->getEMBCell();
       const EMBPresamplerHVModule& hvmodule = cell->getPresamplerHVModule();
-      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule.hvLineNo(igap));
+      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvdata.m_hvdata_EMBPS.hvLineNo (hvmodule, igap));
     } else {
       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (!emecElement) std::abort();
       const EMECCellConstLink cell = emecElement->getEMECCell();
       const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
-      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule.hvLineNo(igap));
+      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvdata.m_hvdata_EMECPS.hvLineNo (hvmodule, igap));
     }
   }
 

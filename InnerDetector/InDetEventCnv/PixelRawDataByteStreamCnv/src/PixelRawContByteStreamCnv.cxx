@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,6 +21,7 @@
 #include "PixelRawContByteStreamTool.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "InDetRawData/PixelRDORawData.h"
+#include "AthenaKernel/StorableConversions.h"
 
 //#define PIXEL_DEBUG
 
@@ -29,11 +30,9 @@
 // constructor
 ////////////////////////
 PixelRawContByteStreamCnv::PixelRawContByteStreamCnv(ISvcLocator* svcloc) : 
-  Converter(storageType(), classID(),svcloc),
+  AthConstConverter(storageType(), classID(),svcloc, "PixelRawContByteStreamCnv"),
   m_PixelRawContBSTool(nullptr),
-  m_ByteStreamEventAccess(nullptr),
-  m_StoreGate(nullptr),
-  m_log(msgSvc(), "PixelRawContByteStreamCnv")
+  m_ByteStreamEventAccess("ByteStreamCnvSvc", "PixelRawContByteStreamCnv")
 {}
 
 ////////////////////////
@@ -41,39 +40,16 @@ PixelRawContByteStreamCnv::PixelRawContByteStreamCnv(ISvcLocator* svcloc) :
 ////////////////////////
 StatusCode PixelRawContByteStreamCnv::initialize() {
 
-  StatusCode sc = Converter::initialize(); 
-  if(StatusCode::SUCCESS!=sc) { 
-    return sc; 
-  } 
+  ATH_CHECK( AthConstConverter::initialize() );
 
-  // Check ByteStreamCnvSvc
-  if (StatusCode::SUCCESS != service("ByteStreamCnvSvc", m_ByteStreamEventAccess) || !m_ByteStreamEventAccess) {
-    m_log << MSG::ERROR << "Can't get ByteStreamEventAccess interface" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  m_log << MSG::INFO << "ByteStreamCnvSvc retrieved" << endmsg;
+  ATH_CHECK( m_ByteStreamEventAccess.retrieve() );
+  ATH_MSG_INFO( "ByteStreamCnvSvc retrieved" );
 
-  // retrieve Tool
-  IToolSvc* toolSvc;
-  if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)) {
-    m_log << MSG::ERROR << "Can't get ToolSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ServiceHandle<IToolSvc> toolSvc ("ToolSvc", name());
+  ATH_CHECK( toolSvc.retrieve() );
 
-  std::string toolType;
-
-  toolType = "PixelRawContByteStreamTool"; 
-  if(StatusCode::SUCCESS != toolSvc->retrieveTool(toolType,m_PixelRawContBSTool)) {
-    m_log << MSG::ERROR << "Can't get PixelRawContByteStreamTool Tool" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  // Get an Identifier helper object
-  sc = service("DetectorStore",m_StoreGate);
-  if (sc.isFailure()) {
-    m_log << MSG::FATAL << "Detector service not found" << endmsg;
-    return StatusCode::FAILURE;
-  } 
+  const std::string toolType = "PixelRawContByteStreamTool"; 
+  ATH_CHECK( toolSvc->retrieveTool(toolType,m_PixelRawContBSTool) );
 
   return StatusCode::SUCCESS;
 }
@@ -95,28 +71,20 @@ long PixelRawContByteStreamCnv::storageType()
 ////////////////////////
 // createRep() - convert Pixel_RDO in the container into ByteStream
 ////////////////////////
-StatusCode PixelRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
+StatusCode PixelRawContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const {
 
-  //  StatusCode sc = StatusCode::SUCCESS; 
-  RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent(); 
   PixelRDO_Container* cont=0; 
-  StoreGateSvc::fromStorable(pObj,cont); 
+  SG::fromStorable(pObj,cont); 
 
   if(!cont) {
-    m_log << MSG::ERROR << "Can not cast to PixelRDO_Container" << endmsg; 
-    return StatusCode::FAILURE;    
+    ATH_MSG_ERROR( "Can not cast to PixelRDO_Container" );
+    return StatusCode::FAILURE;
   } 
 
   std::string nm = pObj->registry()->name(); 
-  ByteStreamAddress* addr = new ByteStreamAddress(classID(),nm,""); 
-  pAddr = addr; 
-  //  return m_PixelRawContBSTool->convert(cont,re,m_log); 
+  pAddr = new ByteStreamAddress(classID(),nm,""); 
 
-  StatusCode sc = m_PixelRawContBSTool->convert(cont, re) ;
-  if(sc.isFailure()){
-    m_log << MSG::ERROR<< " Could not convert rdo with m_PixelRawContBSTool " << endmsg ;
-    return StatusCode::FAILURE ;
-  }
+  ATH_CHECK( m_PixelRawContBSTool->convert(cont) );
 
   return StatusCode::SUCCESS ;
 }

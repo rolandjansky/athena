@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhysicalVolumeAccessor.h"
@@ -16,8 +16,6 @@ G4LogicalVolume* PhysicalVolumeAccessor::GetLV(std::string name)
       if (name==lname)
         return (lvs->operator[](i));
     }
-  // std::cout<<"PhysicalVolumeAccessor::GetLV Warning!!! Volume "<<name
-  //               <<" not found!!! returning nullptr"<<std::endl;
   return nullptr;
 }
 
@@ -48,8 +46,6 @@ const G4VPhysicalVolume* PhysicalVolumeAccessor::GetPhysicalVolume(int icopy) co
     return physVolIter->second;
   else
     {
-      //              std::cout<<"Physical Volume copy "<<icopy<<" not found in"
-      //                       <<m_theLogicalVolume->GetName()<<"!!! return nullptr"<<std::endl;
       return nullptr;
     }
 }

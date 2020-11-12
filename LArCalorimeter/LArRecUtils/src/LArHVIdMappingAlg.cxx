@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVIdMappingAlg.h"
@@ -200,8 +200,6 @@ void LArHVIdMappingAlg::fillHVMap(std::map<HWIdentifier,HWIdentifier> & elmap, s
       electrodeIdvec.clear();
       HWIdentifier hvlineId = hvlineHelper->HVLineId(hvpartition,hvcanline,hvcannode,hvline);
 
-      //std::cout <<  "  module, line  " << hvcannode << " " << hvline << "  ---- > hvLineId " << hvlineId << std::endl;
-
       if( max > min ){
         if (min < 0) min = 0;
         if (max < 0) max = 0;
@@ -222,12 +220,6 @@ void LArHVIdMappingAlg::fillHVMap(std::map<HWIdentifier,HWIdentifier> & elmap, s
 	  //ATH_MSG_DEBUG("[fillHVMap] push_back in electrodeId vector..." );
 
          // Check if electrode is already in map ?
-         // std::map<HWIdentifier,HWIdentifier>::iterator testIt = elmap.find(electrodeId);
-         // if (testIt != elmap.end()) {
-         //    std::cout << " ----- Electrode Id " << side << " " << mod << " " << hvphi << " " << hveta << " " << hvgap << " " << ielec <<
-         //     "   read for HvLine " << hvcannode << " " << hvline << " " << hvlineId << "    already exist for " << (testIt)->second  << std::endl;
-         //  }
-
 	  elmap.insert(std::pair<HWIdentifier,HWIdentifier>(electrodeId,hvlineId));
 	}
       }
@@ -237,12 +229,6 @@ void LArHVIdMappingAlg::fillHVMap(std::map<HWIdentifier,HWIdentifier> & elmap, s
 	electrodeIdvec.push_back(electrodeId);
 
          // Check if electrode is already in map ?
-         // std::map<HWIdentifier,HWIdentifier>::iterator testIt = elmap.find(electrodeId);
-         // if (testIt != elmap.end()) {
-         //    std::cout << " ----- Electrode Id " << side << " " << mod << " " << hvphi << " " << hveta << " " << hvgap << " " << min <<
-         //     "   read for HvLine " << hvcannode << " " << hvline << " " << hvlineId << "    already exist for " << (testIt)->second  << std::endl;
-         // }
-
         elmap.insert(std::pair<HWIdentifier,HWIdentifier>(electrodeId,hvlineId));
       }
 

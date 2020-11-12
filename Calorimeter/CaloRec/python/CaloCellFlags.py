@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: CaloCellFlags.py
 # @purpose: a container of flags for CaloCell making configuring
@@ -72,13 +72,6 @@ class doMinBiasAverage(JobProperty):
    statusOn     = True
    allowedTypes = ['bool']
    StoredValue  = False
-
-class doLArRecalibration(JobProperty):
-   """ Flag to activate cell recalibration, undoing online energy computation and applying new calibration
-   """
-   statusOn = True
-   allowedTypes = ['bool']
-   StoredValue = False
 
 class doLArNoiseMasking(JobProperty):
    """ Flag to activate masking of high noise / dead  cell for all events
@@ -183,7 +176,6 @@ list_jobproperties = [
     doLArHVCorr,
     doPedestalCorr,
     doMinBiasAverage,
-    doLArRecalibration,
     doLArNoiseMasking,
     doLArSporadicMasking,
     doLArBadFebMasking,

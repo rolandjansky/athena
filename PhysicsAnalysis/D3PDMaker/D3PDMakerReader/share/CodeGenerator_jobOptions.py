@@ -1,4 +1,3 @@
-# $Id: CodeGenerator_jobOptions.py 348546 2011-03-01 15:09:56Z krasznaa $
 
 #
 # Define an input file. To know which variables the D3PDObject-s would've
@@ -52,9 +51,6 @@ d3pdalg = D3PDMakerReader.MultiReaderAlg( "ReaderAlg", Directory = "../test",
 
 from EventCommonD3PDMaker.EventInfoD3PDObject import EventInfoD3PDObject
 d3pdalg += EventInfoD3PDObject( 10 )
-
-from TrigMuonD3PDMaker.TrigMuonD3PD import TrigMuonD3PDObjects
-TrigMuonD3PDObjects( d3pdalg, addNaviInfo = False )
 
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 D3PDMakerFlags.DoTrigger = False

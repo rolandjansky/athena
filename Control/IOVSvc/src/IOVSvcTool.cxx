@@ -216,9 +216,6 @@ IOVSvcTool::initialize() {
     msg() << "IOV Data will be preloaded at the same interval" << endmsg;
   }
     
-  // For hybrid MP/MT
-  p_incSvc->addListener( this, "ReloadProxies", pri, true);
-
   ATH_MSG_DEBUG("Tool initialized");
 
   return StatusCode::SUCCESS;
@@ -236,11 +233,6 @@ IOVSvcTool::handle(const Incident &inc) {
 
   bool first = m_first;
 
-  // hybrid MP/MT: need to reload everything after workers fork
-  if (inc.type() == "ReloadProxies") {
-    m_resetAllCallbacks = true;
-  }
-  
   // Don't bother doing anything if we're handled the first run, and
   // preLoadData has been set, or if we only want to check once at the
   // beginning of the job

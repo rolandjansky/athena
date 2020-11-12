@@ -12,6 +12,7 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   , m_hlt_cell_met_key("HLT_MET_cell")
   , m_hlt_mht_met_key("HLT_MET_mht")
   , m_hlt_tc_met_key("HLT_MET_tc")
+  , m_hlt_tc_em_met_key("HLT_MET_tc_em")
   , m_hlt_tcpufit_met_key("HLT_MET_tcpufit")
   , m_hlt_trkmht_met_key("HLT_MET_trkmht")
   , m_hlt_pfsum_met_key("HLT_MET_pfsum")
@@ -26,6 +27,7 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   declareProperty("hlt_cell_key", m_hlt_cell_met_key);
   declareProperty("hlt_mht_key", m_hlt_mht_met_key);
   declareProperty("hlt_tc_key", m_hlt_tc_met_key);
+  declareProperty("hlt_tc_em_key", m_hlt_tc_em_met_key);
   declareProperty("hlt_tcpufit_key", m_hlt_tcpufit_met_key);
   declareProperty("hlt_trkmht_key", m_hlt_trkmht_met_key);
   declareProperty("hlt_pfsum_key", m_hlt_pfsum_met_key);
@@ -49,6 +51,7 @@ StatusCode TrigMETMonitorAlgorithm::initialize() {
     ATH_CHECK( m_hlt_cell_met_key.initialize() );
     ATH_CHECK( m_hlt_mht_met_key.initialize() );
     ATH_CHECK( m_hlt_tc_met_key.initialize() );
+    ATH_CHECK( m_hlt_tc_em_met_key.initialize() );
     ATH_CHECK( m_hlt_tcpufit_met_key.initialize() );
     ATH_CHECK( m_hlt_trkmht_met_key.initialize() );
     ATH_CHECK( m_hlt_pfsum_met_key.initialize() );
@@ -89,7 +92,12 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tc_met_cont(m_hlt_tc_met_key, ctx);
     if (! hlt_tc_met_cont.isValid() || hlt_tc_met_cont->size()==0 ) {
-	ATH_MSG_DEBUG("Container "<< m_hlt_tc_met_key << " does not exist or is empty");
+        ATH_MSG_DEBUG("Container "<< m_hlt_tc_met_key << " does not exist or is empty");
+    }
+
+    SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tc_em_met_cont(m_hlt_tc_em_met_key, ctx);
+    if (! hlt_tc_em_met_cont.isValid() || hlt_tc_em_met_cont->size()==0 ) {
+	ATH_MSG_DEBUG("Container "<< m_hlt_tc_em_met_key << " does not exist or is empty");
     }
 
     SG::ReadHandle<xAOD::TrigMissingETContainer> hlt_tcpufit_met_cont(m_hlt_tcpufit_met_key, ctx);
@@ -162,6 +170,16 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto mht_sumEt_log = Monitored::Scalar<float>("mht_sumEt_log",0.0);
     auto mht_eta = Monitored::Scalar<float>("mht_eta",0.0);
     auto mht_phi = Monitored::Scalar<float>("mht_phi",0.0);
+    auto tc_em_Ex = Monitored::Scalar<float>("tc_em_Ex",0.0);
+    auto tc_em_Ey = Monitored::Scalar<float>("tc_em_Ey",0.0);
+    auto tc_em_Et = Monitored::Scalar<float>("tc_em_Et",0.0);
+    auto tc_em_sumEt = Monitored::Scalar<float>("tc_em_sumEt",0.0);
+    auto tc_em_Ex_log = Monitored::Scalar<float>("tc_em_Ex_log",0.0);
+    auto tc_em_Ey_log = Monitored::Scalar<float>("tc_em_Ey_log",0.0);
+    auto tc_em_Et_log = Monitored::Scalar<float>("tc_em_Et_log",0.0);
+    auto tc_em_sumEt_log = Monitored::Scalar<float>("tc_em_sumEt_log",0.0);
+    auto tc_em_eta = Monitored::Scalar<float>("tc_em_eta",0.0);
+    auto tc_em_phi = Monitored::Scalar<float>("tc_em_phi",0.0);
     auto tc_Ex = Monitored::Scalar<float>("tc_Ex",0.0);
     auto tc_Ey = Monitored::Scalar<float>("tc_Ey",0.0);
     auto tc_Et = Monitored::Scalar<float>("tc_Et",0.0);
@@ -296,6 +314,25 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
       mht_phi = v.Phi();
     }
     ATH_MSG_DEBUG("mht_Et = " << mht_Et);
+
+    // access HLT tc_em MET values
+    if ( hlt_tc_em_met_cont.isValid() && hlt_tc_em_met_cont->size() > 0 ) {
+      hlt_met = hlt_tc_em_met_cont->at(0);
+      tc_em_Ex = (hlt_met->ex())/1000.;
+      tc_em_Ey = (hlt_met->ey())/1000.;
+      float tc_em_Ez = (hlt_met->ez())/1000.;
+      tc_em_Et = std::sqrt(tc_em_Ex*tc_em_Ex + tc_em_Ey*tc_em_Ey);
+      tc_em_sumEt = (hlt_met->sumEt())/1000.;
+      tc_em_Ex_log = signed_log(tc_em_Ex, epsilon);
+      tc_em_Ey_log = signed_log(tc_em_Ey, epsilon);
+      tc_em_Et_log = signed_log(tc_em_Et, epsilon);
+      tc_em_sumEt_log = signed_log(tc_em_sumEt, epsilon);
+
+      TVector3 v(tc_em_Ex, tc_em_Ey, tc_em_Ez);
+      tc_em_eta = v.Eta();
+      tc_em_phi = v.Phi();
+    }
+    ATH_MSG_DEBUG("tc_em_Et = " << tc_em_Et);
 
     // access HLT tclcw MET values
     if ( hlt_tc_met_cont.isValid() && hlt_tc_met_cont->size() > 0 ) {
@@ -445,18 +482,6 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     ATH_MSG_DEBUG("pass " << m_HLTChain2 << " = " << pass_HLT2);
 
 
-    // check active triggers
-    // This does not work for now
-    /*
-    auto chaingroup = m_trigDecTool->getChainGroup("HLT_xe.*");
-    for(auto &trig : chainGroup->getListOfTriggers()) {
-      auto cg = m_trigDecTool->getChainGroup(trig);
-      std::string thisTrig = trig;
-      ATH_MSG_DEBUG (thisTrig << " chain prescale = " << cg->getPrescale());
-    }
-     */
-
-
     // Fill. First argument is the tool (GMT) name as defined in the py file, 
     // all others are the variables to be saved.
     //fill("TrigMETMonitor",L1_Ex,L1_Ey,L1_Et,pass_HLT1);
@@ -472,6 +497,9 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
          mht_Ex,mht_Ey,mht_Et,mht_sumEt,
          mht_Ex_log,mht_Ey_log,mht_Et_log,mht_sumEt_log,
          mht_eta,mht_phi,
+         tc_em_Ex,tc_em_Ey,tc_em_Et,tc_em_sumEt,
+         tc_em_Ex_log,tc_em_Ey_log,tc_em_Et_log,tc_em_sumEt_log,
+         tc_em_eta,tc_em_phi,
          tc_Ex,tc_Ey,tc_Et,
          trkmht_Ex,trkmht_Ey,trkmht_Et,trkmht_sumEt,
          trkmht_Ex_log,trkmht_Ey_log,trkmht_Et_log,trkmht_sumEt_log,
