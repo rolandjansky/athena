@@ -35,61 +35,29 @@ def JetRecTestCfg(jetdefs,configFlags,args):
 
 def DefineJetCollections(configFlags):
 
-    ########################################################################
-    # First a demonstration of just building jets using standard definitions
-    from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
-
-
-    # ************************
-    # TEMPORARY : comment out jet def modifications
-    
-    # # This updates the original jet definitions, so might be a little risky
-    # # in derivation code. Safer would be to always deepcopy into a local variable.
-    # #AntiKt4EMTopo.ptminfilter = 15e3
-    # AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + clustermods + truthmods
-
-    # AntiKt4EMPFlow.ptminfilter = 10e3
-    # AntiKt4EMPFlow.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + truthmods
-    # AntiKt4EMPFlow.ghostdefs = standardghosts
-    # #AntiKt4EMPFlow.modifiers = ["Calib:AnalysisLatest:mc"]
-
-    # AntiKt4Truth.ptminfilter = 2e3
-    # AntiKt4Truth.extrainputs = ["EventDensity"]
-
-    # AntiKt4TruthWZ.ptminfilter = 2e3
-    # AntiKt4TruthWZ.extrainputs = ["EventDensity"]
+    from JetRecConfig.StandardSmallRJets import standardrecomods, clustermods, truthmods, standardghosts, AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
 
     ########################################################################
-    # ************************
-    # TEMPORARY : comment out custom CSSK definitions
-    # # Now we define our own definitions
-    # from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
-    # EMTopoCSSK = JetConstit(xAODType.CaloCluster, ["EM","Origin","CS","SK"])
-    # AntiKt4EMTopoCSSK = JetDefinition("AntiKt",0.4,EMTopoCSSK,ptmin=2e3,ptminfilter=2e3)
-    # AntiKt4EMTopoCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + clustermods + truthmods
-    # AntiKt4EMTopoCSSK.ghostdefs = standardghosts
-    # AntiKt4EMTopoCSSK.extrainputs = ["EventDensity"]
+    # Example for defining a custom definition
+    from JetRecConfig.JetDefinition import JetConstitSeq, JetDefinition, xAODType
+    EMTopoCSSK = JetConstitSeq("EMTopoOriginCSSK", xAODType.CaloCluster, ["EM","Origin","CS","SK"], "CaloCalTopoClusters", "EMOriginTopoCSSK", label="EMTopoOriginCSSK")
+    AntiKt4EMTopoCSSK = JetDefinition("AntiKt",0.4,EMTopoCSSK,ptmin=2e3,ptminfilter=2e3,prefix="New")
+    AntiKt4EMTopoCSSK.modifiers   = ["ConstitFourMom"]
+    AntiKt4EMTopoCSSK.modifiers  += standardrecomods + clustermods + truthmods
+    AntiKt4EMTopoCSSK.ghostdefs   = standardghosts
+    AntiKt4EMTopoCSSK.extrainputs = ["EventDensity"]
 
-    # ########################################################################
-    # # We can also copy and modify the standard ones
-    # from copy import deepcopy
-    # from JetRecConfig.StandardJetDefs import CHSPFlow
-
-    # CSSKPFlow = deepcopy(CHSPFlow)
-    # CSSKPFlow.modifiers = ["CS","SK"]
-    # AntiKt4EMPFlowCSSK = deepcopy(AntiKt4EMPFlow)
-    # AntiKt4EMPFlowCSSK.inputdef = CSSKPFlow
-    # AntiKt4EMPFlowCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + truthmods
-    # AntiKt4EMPFlowCSSK.ptmin = 2e3
-    # AntiKt4EMPFlowCSSK.ptminfilter = 2e3
-    # AntiKt4EMPFlowCSSK.ghostdefs = standardghosts
-    # AntiKt4EMPFlowCSSK.extrainputs = ["EventDensity"]
+    ########################################################################
+    # We can also clone and modify an standard definition
+    from JetRecConfig.StandardJetConstits import jetconstitdic
+    AntiKt4EMPFlowCSSK = AntiKt4EMPFlow.clone(prefix="New")
+    AntiKt4EMPFlowCSSK.inputdef    = jetconstitdic["EMPFlowCSSK"]
+    AntiKt4EMPFlowCSSK.modifiers   = ["ConstitFourMom"]
+    AntiKt4EMPFlowCSSK.extrainputs = ["EventDensity"]
 
     jetdefs = [
-        AntiKt4EMTopo.clone(prefix="New"),
-        AntiKt4EMPFlow.clone(prefix="New"),
-        # AntiKt4EMTopoCSSK,
-        # AntiKt4EMPFlowCSSK,
+        AntiKt4EMTopoCSSK,
+        AntiKt4EMPFlowCSSK,
     ]
     if configFlags.Input.isMC:
         jetdefs += [AntiKt4Truth,
