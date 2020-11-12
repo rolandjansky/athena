@@ -118,7 +118,7 @@ std::unique_ptr<std::vector<std::unique_ptr<MuonSegment> > > CscSegmentUtilTool:
 getMuonSegments(Identifier eta_id, Identifier phi_id,
                 ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                 ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                const Amg::Vector3D& lpos000 ) const {
+                const Amg::Vector3D& lpos000, const EventContext& ctx ) const {
 
   if (! enoughHitLayers(eta_clus, phi_clus) ) {
     ATH_MSG_DEBUG (" Could not find at least two individual layer hits! ");
@@ -130,10 +130,10 @@ getMuonSegments(Identifier eta_id, Identifier phi_id,
     ATH_MSG_DEBUG ( "getMuonSegments2: No of clusters in layer " << i << " " << eta_clus[i].size() << " " << phi_clus[i].size() );
 
   ATH_MSG_DEBUG ("getMuonSegments called get2dMuonSegmentCombination");
-  std::unique_ptr<MuonSegmentCombination> Muon2dSegComb(get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000));
+  std::unique_ptr<MuonSegmentCombination> Muon2dSegComb(get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000, ctx));
   
   ATH_MSG_DEBUG ("getMuonSegments called get4dMuonSegmentCombination");
-  std::unique_ptr<MuonSegmentCombination> Muon4dSegComb(get4dMuonSegmentCombination(Muon2dSegComb.get()));
+  std::unique_ptr<MuonSegmentCombination> Muon4dSegComb(get4dMuonSegmentCombination(Muon2dSegComb.get(), ctx));
 
   std::unique_ptr<std::vector<std::unique_ptr<MuonSegment> > > segments_clone (new std::vector<std::unique_ptr<MuonSegment> >);
 
@@ -158,7 +158,7 @@ MuonSegmentCombination* CscSegmentUtilTool::
 get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000, int etaStat, int phiStat ) const {
+                              const Amg::Vector3D& lpos000, const EventContext& ctx, int etaStat, int phiStat) const {
 
   int nGoodEta=0,nGoodPhi=0;
   for (int i=0; i<4; ++i){
@@ -180,10 +180,10 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
   ICscSegmentFinder::Segments phi_segs;
 
   // get2dSegments does : find_2dsegments -> find_2dseg3hit -> add_2dsegments
-  get2dSegments(eta_id, phi_id, eta_clus, phi_clus, eta_segs, phi_segs, lpos000, etaStat, phiStat);
+  get2dSegments(eta_id, phi_id, eta_clus, phi_clus, eta_segs, phi_segs, lpos000, ctx, etaStat, phiStat);
   std::unique_ptr<MuonSegmentCombination::SegmentVec> psegs (new MuonSegmentCombination::SegmentVec);
   for ( ICscSegmentFinder::Segments::const_iterator iseg=eta_segs.begin(); iseg!=eta_segs.end(); ++iseg ) {
-    std::unique_ptr<MuonSegment> pseg(build_segment(*iseg, false, eta_id, nGoodEta==2)); // build_segment does getRios
+    std::unique_ptr<MuonSegment> pseg(build_segment(*iseg, false, eta_id, nGoodEta==2, ctx)); // build_segment does getRios
     if (pseg) {
       ATH_MSG_DEBUG( " =============================> get2dMuonSegmentCombination::  MuonSegment time (eta) from build_segment is " << pseg->time() );
       psegs->push_back(std::move(pseg));
@@ -195,7 +195,7 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
   // Insert phi-segments.
   std::unique_ptr<MuonSegmentCombination::SegmentVec> phisegs(new MuonSegmentCombination::SegmentVec);
   for ( ICscSegmentFinder::Segments::const_iterator iseg=phi_segs.begin(); iseg!=phi_segs.end(); ++iseg ) {
-    std::unique_ptr<MuonSegment> pseg(build_segment(*iseg, true, phi_id, nGoodPhi==2));
+    std::unique_ptr<MuonSegment> pseg(build_segment(*iseg, true, phi_id, nGoodPhi==2, ctx));
     if (pseg) {
       ATH_MSG_DEBUG( " get2dMuonSegmentCombination::  MuonSegment time (phi) from build_segment is " << pseg->time() );
       phisegs->push_back(std::move(pseg));
@@ -217,18 +217,18 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
 // local z = -38.51  -12.82  12.87  38.56
 void CscSegmentUtilTool::fit_segment(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, double& s0, double& s1,
             double& d0, double& d1, double& d01, double& chsq, double& time, double& dtime,
-            double& zshift, int outlierHitLayer) const {
+            double& zshift, const EventContext& ctx, int outlierHitLayer) const {
 
   ATH_MSG_DEBUG ( " fit_segment called " );
 
 
   bool measphi = false;
   fit_detailCalcPart1(clus, lpos000, s0, s1, d0, d1, d01, chsq, measphi, time,  dtime, zshift,
-                      false, outlierHitLayer); // IsSlopeGiven should be false
+                      false, outlierHitLayer, ctx); // IsSlopeGiven should be false
 
   if (measphi) return; //No need to do the second try
   fit_detailCalcPart1(clus, lpos000, s0, s1, d0, d1, d01, chsq, measphi, time, dtime, zshift,
-                      true,  outlierHitLayer); // IsSlopeGiven should be true
+                      true,  outlierHitLayer, ctx); // IsSlopeGiven should be true
 
   return;
 }
@@ -241,7 +241,7 @@ void CscSegmentUtilTool::
 fit_detailCalcPart1(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, double& s0, double& s1,
                     double& d0, double& d1, double& d01, double& chsq, bool& measphi,
                     double& time, double& dtime, double& zshift,
-                    bool IsSlopeGiven, int outlierHitLayer) const {
+                    bool IsSlopeGiven, int outlierHitLayer, const EventContext& ctx) const {
 
 //  if (IsSlopeGiven)
 // measure zshift 
@@ -338,7 +338,7 @@ fit_detailCalcPart1(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vecto
       if ( IsSlopeGiven )
         d = m_rotCreator->GetICscClusterFitter()->getCorrectedError(prd, s1);
       if ( outlierHitLayer == ( iclu - clus.begin() ) ) 
-        d = getDefaultError(id, measphi, prd);
+        d = getDefaultError(id, measphi, prd, ctx);
     }
     d *= m_cluster_error_scaler; // This is for error scaler for cosmic!!!
     ATH_MSG_VERBOSE ( " +++fit_segment() x/y/d = " << x << " " << y << " " << d );
@@ -411,7 +411,7 @@ fit_detailCalcPart1(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vecto
 //******************************************************************************
 // 
 int CscSegmentUtilTool::
-find_outlier_cluster(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, double& returned_chsq) const {
+find_outlier_cluster(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, double& returned_chsq, const EventContext& ctx) const {
   int nunspoil = 0;
  
   double chsq_reference =10000;
@@ -430,7 +430,7 @@ find_outlier_cluster(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vect
     ATH_MSG_VERBOSE ( " find_outlier_cluster drop ire " << ire << "  fitclus size " <<  fitclus.size() );
     
     double s0, s1, d0, d1, d01, chsq, time, dtime, zshift;
-    fit_segment(fitclus, lpos000, s0, s1, d0, d1, d01, chsq, time, dtime, zshift);
+    fit_segment(fitclus, lpos000, s0, s1, d0, d1, d01, chsq, time, dtime, zshift, ctx);
     if (chsq < chsq_reference && isunspoiled) { // require outlier should be precision measurement
       chsq_reference =chsq;
       remclu_ind =ire;
@@ -458,7 +458,7 @@ find_outlier_cluster(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vect
     ATH_MSG_VERBOSE ( " final fit outlier_cluster drop cluster index " << remclu_ind << " fitclus.size " <<  fitclus.size() );
     
     double s0, s1, d0, d1, d01, chsq, time, dtime, zshift;
-    fit_segment(fitclus, lpos000, s0, s1, d0, d1, d01, chsq, time, dtime, zshift, remclu_ind);
+    fit_segment(fitclus, lpos000, s0, s1, d0, d1, d01, chsq, time, dtime, zshift, ctx, remclu_ind);
     returned_chsq = chsq;
   }
   
@@ -476,7 +476,7 @@ find_outlier_cluster(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vect
 
 void CscSegmentUtilTool::
 fit_residual(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lpos000, unsigned int irclu,
-             double& res, double& dres) const {
+             double& res, double& dres, const EventContext& ctx) const {
   ATH_MSG_DEBUG ( "CscSegmentUtilTool::fit_residual called " );
 
   ICscSegmentFinder::TrkClusters fitclus;
@@ -485,7 +485,7 @@ fit_residual(const ICscSegmentFinder::TrkClusters& clus, const Amg::Vector3D& lp
   }
   // Fit cluster.
   double s0, s1, d0, d1, d01, chsq, time, dtime, zshift;
-  fit_segment(fitclus, lpos000, s0, s1, d0, d1, d01, chsq, time, dtime, zshift);
+  fit_segment(fitclus, lpos000, s0, s1, d0, d1, d01, chsq, time, dtime, zshift, ctx);
 
   // Extract excluded cluster paramters.
   const CscClusterOnTrack *cot = clus[irclu].cl;
@@ -808,12 +808,12 @@ spoiled_count(const ICscSegmentFinder::RioList& rios, int& nspoil, int& nunspoil
 // Use 0+/-1000 for the missing position and pi/2+/-1 for the missing direction.
 
 MuonSegment* CscSegmentUtilTool::
-build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay) const {
+build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay, const EventContext& ctx) const {
   // chid from any last cluster in given chamber
 
   ATH_MSG_DEBUG ( "Building csc segment." );
 
-  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
   const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
   if(MuonDetMgr==nullptr){
     ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
@@ -879,7 +879,7 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
 
   // Build list of RIO on track objects.
   ICscSegmentFinder::MbaseList* prios = new ICscSegmentFinder::MbaseList;
-  getRios(seg, prios, measphi);  // if hit is in outlier, error is estimated in width/sqrt(12) 
+  getRios(seg, prios, measphi, ctx);  // if hit is in outlier, error is estimated in width/sqrt(12) 
 
   // Fit quality.
   int ndof = int(prios->size()) - 2;
@@ -981,7 +981,7 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
     ICscSegmentFinder::Segment seg_new; // Reconstruct segment in 2nd try with re-calibrated cluster position error
     seg_new.outlierid = seg.outlierid;
 
-    fit_segment(fitclus, lpos000, seg_new.s0, seg_new.s1, seg_new.d0, seg_new.d1, seg_new.d01, seg_new.chsq, seg_new.time, seg_new.dtime, seg_new.zshift, seg.outlierid);
+    fit_segment(fitclus, lpos000, seg_new.s0, seg_new.s1, seg_new.d0, seg_new.d1, seg_new.d01, seg_new.chsq, seg_new.time, seg_new.dtime, seg_new.zshift, ctx, seg.outlierid);
     ATH_MSG_DEBUG("build_segments:: " << seg_new.time << " " << seg_new.dtime << " fitclus size " << fitclus.size() );
     
     if (seg.outlierid >= 0) 
@@ -1089,7 +1089,7 @@ void CscSegmentUtilTool::
 find_2dsegments(bool measphi, int station,  int eta, int phi, 
                 const ICscSegmentFinder::ChamberTrkClusters& chclus, const Amg::Vector3D& lpos000, 
                 ICscSegmentFinder::Segments& segs,
-                double lpos, double lslope) const {
+                double lpos, double lslope, const EventContext& ctx) const {
 
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG ( "find_2dsegments called!!  ID: " << measphi_name(measphi) << " " << std::showpos << eta << " " << station_name(station) << " " << phi << "   " );
@@ -1124,7 +1124,7 @@ find_2dsegments(bool measphi, int station,  int eta, int phi,
 
           seg.s0 = lpos;
           seg.s1 = lslope;
-          fit_segment(fitclus, lpos000, seg.s0, seg.s1, seg.d0, seg.d1, seg.d01, seg.chsq, seg.time, seg.dtime, seg.zshift);
+          fit_segment(fitclus, lpos000, seg.s0, seg.s1, seg.d0, seg.d1, seg.d01, seg.chsq, seg.time, seg.dtime, seg.zshift, ctx);
           seg.clus[0] = *icl1;
           seg.clus[1] = *icl2;
           seg.clus[2] = *icl3;
@@ -1154,7 +1154,7 @@ find_2dsegments(bool measphi, int station,  int eta, int phi,
           if(!keep) {
           // chi2 after outlier removal on 4 hit segments.
             double outlierRemoved_chsq;
-            int ioutlierid = find_outlier_cluster(seg.clus, lpos000, outlierRemoved_chsq);
+            int ioutlierid = find_outlier_cluster(seg.clus, lpos000, outlierRemoved_chsq, ctx);
             if(ioutlierid>0&&outlierRemoved_chsq<m_max_chisquare_tight) {
               keep = true;
               seg.chsq = outlierRemoved_chsq; 
@@ -1440,7 +1440,7 @@ find_2dseg3hit(bool measphi, int station,  int eta, int phi,
                const ICscSegmentFinder::ChamberTrkClusters& chclus, const Amg::Vector3D& lpos000, 
                ICscSegmentFinder::Segments& segs,
                ICscSegmentFinder::Segments& segs4hit,
-               double lpos, double lslope) const {
+               double lpos, double lslope, const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("find_2dseg3hit called");
 
@@ -1492,7 +1492,7 @@ find_2dseg3hit(bool measphi, int station,  int eta, int phi,
 	  // Calculate chi2 for this segment.
           seg.s0 = lpos;
           seg.s1 = lslope;
-          fit_segment(fitclus, lpos000, seg.s0, seg.s1, seg.d0, seg.d1, seg.d01, seg.chsq, seg.time, seg.dtime, seg.zshift);
+          fit_segment(fitclus, lpos000, seg.s0, seg.s1, seg.d0, seg.d1, seg.d01, seg.chsq, seg.time, seg.dtime, seg.zshift, ctx);
 
 	  // Count number of unspoiled clusters
           int nunspoil=0;
@@ -1522,7 +1522,7 @@ find_2dseg3hit(bool measphi, int station,  int eta, int phi,
           if(!keep) {
           // chi2 after outlier removal on 3 hit segments.
             double outlierRemoved_chsq;
-            int ioutlierid = find_outlier_cluster(fitclus, lpos000, outlierRemoved_chsq);
+            int ioutlierid = find_outlier_cluster(fitclus, lpos000, outlierRemoved_chsq, ctx);
             if(ioutlierid>-1&&outlierRemoved_chsq<m_max_chisquare_tight) {
               keep = true;
               seg.chsq = outlierRemoved_chsq; 
@@ -1551,7 +1551,7 @@ void CscSegmentUtilTool::
 find_2dseg2hit(bool measphi, int station,  int eta, int phi, int layStat,
                const ICscSegmentFinder::ChamberTrkClusters& chclus, const Amg::Vector3D& lpos000, 
                ICscSegmentFinder::Segments& segs,
-               double lpos, double lslope) const {
+               double lpos, double lslope, const EventContext& ctx) const {
 
   ATH_MSG_DEBUG("find_2dseg2hit called");
   // List of possible combinations for three hits.
@@ -1600,7 +1600,7 @@ find_2dseg2hit(bool measphi, int station,  int eta, int phi, int layStat,
           ICscSegmentFinder::Segment seg;
           seg.s0 = lpos;
           seg.s1 = lslope;
-          fit_segment(fitclus, lpos000, seg.s0, seg.s1, seg.d0, seg.d1, seg.d01, seg.chsq, seg.time, seg.dtime, seg.zshift);
+          fit_segment(fitclus, lpos000, seg.s0, seg.s1, seg.d0, seg.d1, seg.d01, seg.chsq, seg.time, seg.dtime, seg.zshift, ctx);
        
 	  // Count number of unspoiled clusters
           int nunspoil=0;
@@ -1692,7 +1692,7 @@ fit_detailCalcPart2(double q0, double q1, double q2, double q01, double q11, dou
 
 
 MuonSegmentCombination* CscSegmentUtilTool::
-get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
+get4dMuonSegmentCombination( const MuonSegmentCombination* insegs, const EventContext& ctx ) const {
 
   ATH_MSG_DEBUG("get4dMuonSegmentCombination called");
   const ICscSegmentFinder::SegmentVec& rsegs = *insegs->stationSegments(0);
@@ -1708,7 +1708,7 @@ get4dMuonSegmentCombination( const MuonSegmentCombination* insegs ) const {
     return pcol;
   }
 
-  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo);
+  SG::ReadHandle<xAOD::EventInfo> eventInfo(m_eventInfo, ctx);
 
   std::unique_ptr<ICscSegmentFinder::SegmentVec> pnewsegs(new ICscSegmentFinder::SegmentVec);
   if(insegs->useStripsInSegment(1) && insegs->useStripsInSegment(0)){
@@ -1802,15 +1802,15 @@ MuonSegmentCombination* CscSegmentUtilTool::
 get4dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000 ) const {
+                              const Amg::Vector3D& lpos000, const EventContext& ctx ) const {
   
   ATH_MSG_DEBUG (" get4dMuonSegmentCombination called ");
   
   MuonSegmentCombination* Muon2dSegComb
-    = get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus,lpos000 );
+    = get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus,lpos000, ctx );
   
   MuonSegmentCombination* Muon4dSegComb
-    = get4dMuonSegmentCombination(Muon2dSegComb);
+    = get4dMuonSegmentCombination(Muon2dSegComb, ctx);
 
   delete Muon2dSegComb;
 
@@ -2097,7 +2097,7 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
                 ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                 ICscSegmentFinder::ChamberTrkClusters& phi_clus,
                 ICscSegmentFinder::Segments& eta_segs, ICscSegmentFinder::Segments& phi_segs,
-                const Amg::Vector3D& lpos000, int etaStat, int phiStat ) const {
+                const Amg::Vector3D& lpos000, const EventContext& ctx, int etaStat, int phiStat ) const {
   
   if( !eta_id.is_valid() && !phi_id.is_valid() ){
     ATH_MSG_WARNING("in get2dSegments: got two invalid identifiers" );
@@ -2125,12 +2125,12 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
   double slope_phi = -999;
   
   // Find 2D segments.
-  find_2dsegments(false, col_station, col_eta, col_phisec, eta_clus, lpos000, eta_segs, pos_eta, slope_eta);
-  find_2dsegments(true,  col_station, col_eta, col_phisec, phi_clus, lpos000, phi_segs, pos_phi, slope_phi);
+  find_2dsegments(false, col_station, col_eta, col_phisec, eta_clus, lpos000, eta_segs, pos_eta, slope_eta, ctx);
+  find_2dsegments(true,  col_station, col_eta, col_phisec, phi_clus, lpos000, phi_segs, pos_phi, slope_phi, ctx);
     
   // Find 3-hit 2D segments.
-  find_2dseg3hit(false, col_station, col_eta, col_phisec, eta_clus, lpos000, eta_segs3hit, eta_segs, pos_eta, slope_eta);
-  find_2dseg3hit(true,  col_station, col_eta, col_phisec, phi_clus, lpos000, phi_segs3hit, phi_segs, pos_phi, slope_phi);
+  find_2dseg3hit(false, col_station, col_eta, col_phisec, eta_clus, lpos000, eta_segs3hit, eta_segs, pos_eta, slope_eta, ctx);
+  find_2dseg3hit(true,  col_station, col_eta, col_phisec, phi_clus, lpos000, phi_segs3hit, phi_segs, pos_phi, slope_phi, ctx);
 
   // Add 3-hit segments to 4-hit segments.
   add_2dsegments(eta_segs, eta_segs3hit);
@@ -2146,7 +2146,7 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
     ICscSegmentFinder::Segments eta_segs2hit;
 
     ATH_MSG_VERBOSE ( " start find_2dseg2hit eta ");
-    find_2dseg2hit(false, col_station, col_eta, col_phisec, etaStat, eta_clus, lpos000, eta_segs2hit, pos_eta, slope_eta);
+    find_2dseg2hit(false, col_station, col_eta, col_phisec, etaStat, eta_clus, lpos000, eta_segs2hit, pos_eta, slope_eta, ctx);
 	  
     // store 2-hit segments
     ATH_MSG_VERBOSE ( " store 2hit eta segments");
@@ -2156,7 +2156,7 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
     // Find 2-hit 2D segments for eta.
     ICscSegmentFinder::Segments phi_segs2hit;
     ATH_MSG_VERBOSE ( " start find_2dseg2hit phi ");
-    find_2dseg2hit(true,  col_station, col_eta, col_phisec, phiStat, phi_clus, lpos000, phi_segs2hit, pos_phi, slope_phi);
+    find_2dseg2hit(true,  col_station, col_eta, col_phisec, phiStat, phi_clus, lpos000, phi_segs2hit, pos_phi, slope_phi, ctx);
     ATH_MSG_VERBOSE ( " store 2hit phi segments");
     add_2dseg2hits(phi_segs, phi_segs2hit, phiStat);
   }
@@ -2200,7 +2200,7 @@ unique_hits(ICscSegmentFinder::TrkClusters& fitclus, ICscSegmentFinder::Segments
 /////////////////////////////////////
 // if hit is in outlier, error is estimated in width/sqrt(12)
 void CscSegmentUtilTool::getRios(const ICscSegmentFinder::Segment& seg,
-                                 ICscSegmentFinder::MbaseList* prios, bool measphi) const { 
+                                 ICscSegmentFinder::MbaseList* prios, bool measphi, const EventContext& ctx) const { 
   // Getting CscPrepData
   for ( int iclu=0; iclu<seg.nclus; ++iclu ) {
     const CscClusterOnTrack* pclu = seg.clus[iclu].cl;
@@ -2212,7 +2212,7 @@ void CscSegmentUtilTool::getRios(const ICscSegmentFinder::Segment& seg,
 
 	// get prep raw data.
         const CscPrepData *prd = pclu->prepRawData();
-        double err = getDefaultError(id, measphi, prd);
+        double err = getDefaultError(id, measphi, prd, ctx);
 
 	Amg::MatrixX cov(1,1);
         cov(0,0) = err*err;
@@ -2236,10 +2236,10 @@ void CscSegmentUtilTool::getRios(const ICscSegmentFinder::Segment& seg,
 
 ///////////////////////////////
 double CscSegmentUtilTool::
-getDefaultError (Identifier id, bool measphi, const CscPrepData *prd ) const {
+getDefaultError (Identifier id, bool measphi, const CscPrepData *prd, const EventContext& ctx ) const {
   const std::vector<Identifier>& strip_ids = prd->rdoList();
   unsigned int nstrip = strip_ids.size();
-  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey, ctx};
   const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
   if(MuonDetMgr==nullptr){
     ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
@@ -2379,15 +2379,15 @@ double CscSegmentUtilTool::qratio_like(const double pdf_sig, const double pdf_bk
   return like;
 }
 
-bool CscSegmentUtilTool::isGood(const uint32_t stripHashId) const {
-  unsigned int status = stripStatusBit(stripHashId);
+bool CscSegmentUtilTool::isGood(const uint32_t stripHashId, const EventContext& ctx) const {
+  unsigned int status = stripStatusBit(stripHashId, ctx);
   bool is_good = !( (status & 0x1) || ((status >> 1) & 0x1) ); // test for hot/dead channel                                                                                  
   return is_good;
 }
 
-int CscSegmentUtilTool::stripStatusBit (const uint32_t stripHashId ) const {
+int CscSegmentUtilTool::stripStatusBit (const uint32_t stripHashId, const EventContext& ctx ) const {
 
-  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey};
+  SG::ReadCondHandle<CscCondDbData> readHandle{m_readKey, ctx};
   const CscCondDbData* readCdo{*readHandle};
 
   int status = 0;

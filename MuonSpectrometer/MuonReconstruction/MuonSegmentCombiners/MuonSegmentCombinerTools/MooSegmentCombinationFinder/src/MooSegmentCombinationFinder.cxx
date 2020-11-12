@@ -127,12 +127,12 @@ Muon::MooSegmentCombinationFinder::findSegments(const std::vector<const MdtPrepD
     std::unique_ptr<MuonSegmentCombinationCollection> csc4dSegmentCombinations(new MuonSegmentCombinationCollection);
     if (m_doCscSegments) {
         // reconstruct segments in the CSC eta and phi plane
-        csc2dSegmentCombinations = m_csc2dSegmentFinder->find(cscCols);
+      csc2dSegmentCombinations = m_csc2dSegmentFinder->find(cscCols, ctx);
         printSummary("CSC 2D segment finding", csc2dSegmentCombinations.get());
 
         // combine CSC segments in eta and phi plane if any were found
         if (csc2dSegmentCombinations) {
-            csc4dSegmentCombinations = m_csc4dSegmentFinder->find(*csc2dSegmentCombinations);
+	  csc4dSegmentCombinations = m_csc4dSegmentFinder->find(*csc2dSegmentCombinations, ctx);
             printSummary("CSC 4D segment finding", csc4dSegmentCombinations.get());
         }
 

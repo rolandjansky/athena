@@ -26,7 +26,7 @@ namespace Muon {
 
     /** @brief Find segments for a given MuonSystemExtension::Intersection */
     virtual void find( const MuonSystemExtension::Intersection& intersection, std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments, 
-		       MuonLayerPrepRawData& layerPrepRawData) const = 0;
+		       MuonLayerPrepRawData& layerPrepRawData, const EventContext& ctx) const = 0;
 
   };
  

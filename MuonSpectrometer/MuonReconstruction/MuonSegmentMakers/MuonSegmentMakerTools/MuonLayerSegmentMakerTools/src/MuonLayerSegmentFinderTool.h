@@ -41,17 +41,17 @@ class MuonLayerSegmentFinderTool : virtual public IMuonLayerSegmentFinderTool, p
     /**IMuonLayerSegmentFinderTool interface: find */
     void find(const MuonSystemExtension::Intersection&                intersection,
               std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments,
-              MuonLayerPrepRawData&                                   layerPrepRawData) const;
+              MuonLayerPrepRawData&                                   layerPrepRawData, const EventContext& ctx) const;
 
   private:
     /** find segments from PRD clusters */
     void findClusterSegments(const MuonSystemExtension::Intersection&                intersection,
                              const MuonLayerPrepRawData&                             layerPrepRawData,
-                             std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const;
+                             std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments, const EventContext& ctx) const;
 
     /** find csc segments */
     void findCscSegments(const MuonLayerPrepRawData&                             layerPrepRawData,
-                         std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const;
+                         std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments, const EventContext& ctx) const;
 
     /** find mdt segments from hits in the layer */
     void findMdtSegments(const MuonSystemExtension::Intersection&                intersection,
