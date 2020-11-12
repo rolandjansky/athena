@@ -270,6 +270,9 @@ include(jofile)
 ## Announce start of JO checking
 evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION *****************")
 
+if hasattr(runArgs,'inputGeneratorFile') and int(evgenConfig.inputFilesPerJob) == 0 : 
+   evgenConfig.inputFilesPerJob = 1 
+
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
@@ -483,6 +486,13 @@ dsid = os.path.basename(runArgs.jobConfig[0])
 if not dsid.isdigit():
     dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
+
+#correction of run number only in afterburn mode
+#if postSeq.CountHepMC.CorrectRunNumber:
+#    postSeq.CountHepMC.NewRunNumber = int(dsid)
+#    evgenLog.info("new run number set to "+ dsid)
+    
+
 #runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
 
