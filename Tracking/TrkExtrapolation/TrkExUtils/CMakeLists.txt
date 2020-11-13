@@ -9,4 +9,4 @@ atlas_add_library( TrkExUtils
                    PUBLIC_HEADERS TrkExUtils
                    LINK_LIBRARIES GeoPrimitives EventPrimitives GaudiKernel TrkDetDescrUtils TrkGeometry
 		           TrkSurfaces TrkEventPrimitives TrkMaterialOnTrack TrkNeutralParameters TrkParameters CxxUtils
-                   PRIVATE_LINK_LIBRARIES TrkPatternParameters )
+                   TrkPatternParameters )
