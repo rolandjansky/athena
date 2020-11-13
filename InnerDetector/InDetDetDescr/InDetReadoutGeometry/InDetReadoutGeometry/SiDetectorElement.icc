@@ -77,21 +77,6 @@ namespace InDetDD {
     return m_commonItems;
   }
 
-  inline Identifier SiDetectorElement::identify() const
-  {
-    return m_id;
-  }
-
-  inline IdentifierHash SiDetectorElement::identifyHash() const
-  {
-    return m_idHash;
-  }
-
-  inline const AtlasDetectorID* SiDetectorElement::getIdHelper() const
-  {
-    return m_commonItems->getIdHelper();
-  }
-
   inline bool SiDetectorElement::isEndcap() const
   {
     return (!isBarrel() && !isDBM());

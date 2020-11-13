@@ -14,7 +14,7 @@
 
 #include "PixelReadoutGeometry/PixelDiodeMap.h"
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 
 #include <cmath>
 #include <algorithm>

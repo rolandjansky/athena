@@ -17,7 +17,7 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 

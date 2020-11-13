@@ -3,7 +3,7 @@
 */
 
 #include "PixelReadoutGeometry/PixelDiodeMatrix.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include <cassert>

@@ -13,7 +13,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiIntersect.h"
+#include "ReadoutGeometryBase/SiIntersect.h"
 
 namespace InDetDD {
 // Constructor with parameters:

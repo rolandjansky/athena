@@ -53,6 +53,7 @@ namespace InDetDD {
    * Class to hold geometrical description of a silicon detector element. 
    * A detector element is a module in the pixels and one side of a module in the SCT.
    * This class is shared between the Pixel and SCT detector since there is a lot of commonality.
+   * It inherits frm ReadoutGeometryBase/SolidStateDetectorElement, which is also used for HGTD
    * 
    * @par Coordinate Frames.
    *
@@ -190,12 +191,12 @@ namespace InDetDD {
      * Signal that cached values are no longer valid.
      * Invalidate general cache (inline)
      */
-    void invalidate();
+    virtual void invalidate();
 
     /**
      * Set/calculate cache values (inline)
      */
-    void setCache();
+    virtual void setCache();
     //@}
 
     /**
@@ -242,21 +243,6 @@ namespace InDetDD {
      * Methods to identify the element and identifier manipulation.
      */ 
     //@{
-    
-    /**
-     * identifier of this detector element (inline)
-     */
-    Identifier identify() const;
-    
-    /**
-     * identifier hash (inline)
-     */
-    IdentifierHash identifyHash() const;
-    
-    /**
-     * Returns the id helper (inline)
-     */
-    const AtlasDetectorID* getIdHelper() const;
     
     bool isPixel() const;
     bool isSCT() const;
