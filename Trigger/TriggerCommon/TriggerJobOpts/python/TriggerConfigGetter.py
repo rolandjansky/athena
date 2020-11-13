@@ -172,7 +172,12 @@ class TriggerConfigGetter(Configured):
         self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
         self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
         self.isRun1Data     = False 
-        self.hasxAODMeta    = ("metadata_items" in metadata and any(('TriggerMenu' or 'MenuJSON' in key) for key in metadata["metadata_items"].keys()))
+        self.hasxAODMeta    = ( 
+          ("metadata_items" in metadata)
+          and 
+          any((('TriggerMenu' or 'MenuJSON') in key) for key in metadata["metadata_items"].keys())
+        )
+
         if globalflags.DataSource()=='data':
             from RecExConfig.AutoConfiguration  import GetRunNumber
             runNumber = GetRunNumber()
@@ -318,7 +323,8 @@ class TriggerConfigGetter(Configured):
         
         if not self.hasxAODMeta:
             self.setupxAODWriting()
-
+        else:
+            log.info("Input file already has xAOD trigger metadata. Will not re-create it.")
 
         # all went fine we are configured
         return True
