@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys,os
-from CoolRunQuery.AtlRunQueryLookup import InitDetectorMaskDecoder, DQChannels
+from CoolRunQuery.utils.AtlRunQueryLookup import InitDetectorMaskDecoder, DQChannels
 from ROOT import TFile, TGraph, TH1I
 
 def execute( fname ):
