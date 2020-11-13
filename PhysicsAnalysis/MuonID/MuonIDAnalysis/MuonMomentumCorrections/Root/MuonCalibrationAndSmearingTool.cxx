@@ -676,13 +676,13 @@ namespace CP {
 
       CorrectionCode idOK=applySagittaBiasCorrection(MCAST::SagittaCorType::ID, mu,0,false, isMC, muonInfo);
       TLorentzVector lvIDCorr; lvIDCorr.SetPtEtaPhiM(muonInfo.ptid,muonInfo.eta,muonInfo.phi,mu.m()/1e3);
-
       if(idOK == CorrectionCode::Ok && tmpPtID!=0 ) tmpDeltaID = ( -tmpPtID +lvIDCorr.Pt() )/ tmpPtID  ;
       else tmpDeltaID=0;
       ATH_MSG_VERBOSE( "Shift ID "<<tmpDeltaID );
       // Now modify the ID covariance matrix
       AmgVector(5) parsID = ID_track->definingParameters();
       parsID[4]=1.0 / (lvIDCorr.P()*1e3); 
+      double stored_ptid = muonInfo.ptid;
 
 
       CorrectionCode meOK=applySagittaBiasCorrection(MCAST::SagittaCorType::ME, mu,0, false, isMC, muonInfo);
@@ -693,7 +693,7 @@ namespace CP {
       // Now modify the ME covariance matrix 
       AmgVector(5) parsMS = ME_track->definingParameters();
       parsMS[4]=1.0 / (lvMECorr.P()*1e3);
-
+      double stored_ptms = muonInfo.ptms;
 
 
       //double CBsagitta3 = (1/(IDqOverPE*deltaID) * sagittaID
@@ -768,6 +768,9 @@ namespace CP {
       double statCombPt    = std::sin(parsCB[3])/std::abs(parsCB[4]) * MeVtoGeV;
       muonInfo.ptcb =  muonInfo.ptcb * (1  +  (statCombPt-statCombPtNom)/statCombPtNom ) ;
       ATH_MSG_VERBOSE(" Poor man's combination "<<simpleCombPt<<" Stat comb "<<statCombPt<<" Stat comb nom "<<" statCombPtNom "<<statCombPtNom ); 
+
+      muonInfo.ptid = stored_ptid;
+      muonInfo.ptms = stored_ptms;
 
     }
 
@@ -901,6 +904,7 @@ namespace CP {
         return CP::CorrectionCode::Error;
       }
       else {
+        ATH_MSG_VERBOSE("Can you tell me the ID/ME pts now? " << muonInfo.ptid << "/" << muonInfo.ptms);
         ptWeight =  muonInfo.ptcb;
         muonInfo.ptcb=origPt;
       }
