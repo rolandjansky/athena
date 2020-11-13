@@ -35,7 +35,7 @@ namespace Trk {
 
  @author sarka.todorova@cern.ch */
 
-class TriangleBounds : public SurfaceBounds
+class TriangleBounds final : public SurfaceBounds
 {
 
 public:
