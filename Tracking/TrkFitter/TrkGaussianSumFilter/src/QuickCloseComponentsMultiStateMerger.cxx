@@ -43,13 +43,14 @@ mergeFullDistArray(Trk::MultiComponentStateAssembler::Cache& cache,
   }
 
   // Gather the merges
-  const std::vector<std::pair<int8_t, int8_t>> merges =
+  const GSFUtils::MergeArray KL =
     findMerges(componentsArray, maximumNumberOfComponents);
 
   // Do the full 5D calculations of the merge
-  for (const auto& mergePair : merges) {
-    const int8_t mini = mergePair.first;
-    const int8_t minj = mergePair.second;
+  const int32_t numMerges = KL.numMerges;
+  for (int32_t i = 0; i < numMerges; ++i) {
+    const int8_t mini = KL.merges[i].To;
+    const int8_t minj = KL.merges[i].From;
     Trk::MultiComponentStateCombiner::combineWithWeight(statesToMerge[mini],
                                                         statesToMerge[minj]);
     statesToMerge[minj].first.reset();
