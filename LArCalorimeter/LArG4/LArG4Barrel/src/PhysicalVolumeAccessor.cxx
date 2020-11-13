@@ -7,7 +7,7 @@
 #include <string>
 #include <assert.h>
 
-G4LogicalVolume* PhysicalVolumeAccessor::GetLV(std::string name)
+G4LogicalVolume* PhysicalVolumeAccessor::GetLV(const std::string& name)
 {
   G4LogicalVolumeStore *lvs=G4LogicalVolumeStore::GetInstance();
   for (unsigned int i=0;i<lvs->size();i++)
@@ -19,13 +19,13 @@ G4LogicalVolume* PhysicalVolumeAccessor::GetLV(std::string name)
   return nullptr;
 }
 
-PhysicalVolumeAccessor::PhysicalVolumeAccessor(std::string name)
+PhysicalVolumeAccessor::PhysicalVolumeAccessor(const std::string& name)
 {
   m_theLogicalVolume=GetLV(name);
 }
 
-PhysicalVolumeAccessor::PhysicalVolumeAccessor(std::string name,
-                                               std::string PVname)
+PhysicalVolumeAccessor::PhysicalVolumeAccessor(const std::string& name,
+                                               const std::string& PVname)
 {
   m_theLogicalVolume=GetLV(name);
   assert (m_theLogicalVolume!=nullptr);
@@ -50,7 +50,7 @@ const G4VPhysicalVolume* PhysicalVolumeAccessor::GetPhysicalVolume(int icopy) co
     }
 }
 
-void PhysicalVolumeAccessor::SetPhysicalVolumeList(std::string name)
+void PhysicalVolumeAccessor::SetPhysicalVolumeList(const std::string& name)
 {
   // assert (m_thePhysicalVolumes.size()==0);
   for (int i=0;i<m_theLogicalVolume->GetNoDaughters();i++)

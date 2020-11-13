@@ -15,15 +15,15 @@
 #include <fstream>
 
 MapEta::MapEta(int isampling)
+  : m_directory ("/afs/cern.ch/atlas/offline/data/lar/calo_data"),
+    m_init (0),
+    m_nx (0),
+    m_ny (0),
+    m_resp (0),
+    m_xt0 (0),
+    m_xt1 (0),
+    m_xt2 (0)
 {
-  m_directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
-  m_nx=0;
-  m_ny=0;
-  m_init=0;
-  m_resp=0;
-  m_xt0=0;
-  m_xt1=0;
-  m_xt2=0;
   Initialize(isampling);
 }
 
@@ -36,7 +36,7 @@ MapEta::~MapEta()
 }
 
 
-void MapEta::SetDirectory(std::string dir)
+void MapEta::SetDirectory(const std::string& dir)
 {
   m_directory=dir;
 }
