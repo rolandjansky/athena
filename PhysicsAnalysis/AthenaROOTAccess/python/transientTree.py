@@ -7,8 +7,6 @@
 # @brief Set up the transient tree for AthenaROOTAccess.
 #
 
-from __future__ import print_function
-
 """The entry point here is the makeTree function.  Given a (persistent)
 Root tree containing Atlas Pool-format data, this will return a new
 (transient) tree.  This tree can be accessed like any other, and will
@@ -23,18 +21,14 @@ AthenaROOTAccess.
 
 from builtins import zip
 from builtins import object
+import os
 import re
 import ROOT
 import cppyy
 import string
 from AthenaROOTAccess.persTypeToTransType import persTypeToTransType
 from AthenaROOTAccess.gaudiSvcExists import gaudiSvcExists
-from RootUtils import PyROOTFixes
-
-import ROOT
-import glob
-import sys
-import os
+from RootUtils import PyROOTFixes  # noqa: F401
 
 
 from PyUtils.Helpers import ROOT6Setup
@@ -50,7 +44,6 @@ cppyy.load_library('liblibAtlasSTLAddReflexDict')
 # Otherwise, we can get crashes from TTree::Scan.
 
 # Prevent AthenaBarCodeImpl from trying to create JobIDSvc.
-import os
 import uuid
 os.environ['_ATHENABARCODEIMPL_JOBUUID'] = uuid.uuid1().hex
 
@@ -89,7 +82,7 @@ def _fix_vec_proxy (clname):
     cl = ROOT.gROOT.GetClass(clname)
     if not cl: return None
     vecname = _get_vec_base (cl)
-    if vecname == None or vecname == clname:
+    if vecname is None or vecname == clname:
        return
     clv = ROOT.gROOT.GetClass(vecname)
     if not clv: return None
@@ -224,7 +217,7 @@ def _book_trans_tree (pers_tree, name_in = None):
     # Get a unique name.
     # The root name defaults to the persistent tree name,
     # if it wasn't supplied.
-    if name_in == None:
+    if name_in is None:
         name_in = pers_tree.GetName() + '_trans'
     name = name_in
     iname = 0
@@ -424,10 +417,10 @@ def _collect_links (trans_tree, pers_tree):
     links = file.Get ('##Links')
     tokens = _get_links (links)
 
-    i = 2;
+    i = 2
     for token in tokens:
         trans_tree.addLink (token, i)
-        i += 1;
+        i += 1
 
     return
 #
@@ -690,7 +683,7 @@ The DataHeader tree and branch names may optionally be overridden."""
         # Handle changes in AthenaPoolCnvSvc-00-22-23.
         dh_tree = file.Get ('POOLContainer')
     dh_tree.GetEntry(entry)
-    if dhBranchName != None:
+    if dhBranchName is not None:
         dh = getattr( dh_tree, dhBranchName )
     else:
         dh = None
@@ -781,9 +774,9 @@ will cause crashes if dereferenced.
         if cnt == "":
             oid = _getTokenField (s, 'OID')
             offset = oid[0:oid.find ('-')]
-            red = trans_tree.getRedirect(_getTokenField(s, 'DB'), "##Links");
+            red = trans_tree.getRedirect(_getTokenField(s, 'DB'), "##Links")
             cnt = trans_tree.getLink( int(offset, 16) + red )
-            tokenStr = s.replace("[CNT=]", "[CNT=" + cnt + "]");
+            tokenStr = s.replace("[CNT=]", "[CNT=" + cnt + "]")
             elem.setToken(tokenStr)
 
     # First scan to find aux store names.
@@ -795,7 +788,7 @@ will cause crashes if dereferenced.
                 aux_stores[key] = key
                 continue
             pers_type = _getFromToken (pers_type_re, elem.token())
-            if pers_type == None:
+            if pers_type is None:
                 br = pers_tree.GetBranch (elem.key())
                 if br:
                     pers_type = br.GetClassName()
@@ -814,7 +807,7 @@ will cause crashes if dereferenced.
         if pers_type in ['DataHeader',
                          'basic_DataHeader',
                          'basic_DataHeaderForm']: continue
-        if pers_type != None:
+        if pers_type is not None:
             _handle_aux_tree (elem,
                               handleTFile,
                               trans_tree,
@@ -824,12 +817,12 @@ will cause crashes if dereferenced.
 
         # Handle other elements.
         pers_type = _getFromToken (pers_type_re, elem.token())
-        if pers_type == None:
+        if pers_type is None:
             # Try to get the type directly from the branch.
             br = pers_tree.GetBranch (elem.key())
             if br:
                 pers_type = br.GetClassName()
-        if pers_type != None:
+        if pers_type is not None:
             _handle_elem (elem,
                           handleTFile,
                           trans_tree,
@@ -843,7 +836,7 @@ will cause crashes if dereferenced.
 
     # Need to do this after classes are loaded.
     ROOT.DataModelAthenaPool.DataVectorConvert.initialize()
-    logger = ROOT.RootUtils.PyLogger (None, _errfunc)
+    #logger = ROOT.RootUtils.PyLogger (None, _errfunc)
     #ROOT.DataModelAthenaPool.DataProxyStorageConvert.initialize(logger)
 
     # Make this tree current.

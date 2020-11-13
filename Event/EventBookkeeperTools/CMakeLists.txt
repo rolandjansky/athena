@@ -1,6 +1,4 @@
-################################################################################
-# Package: EventBookkeeperTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EventBookkeeperTools )
@@ -11,7 +9,7 @@ if( XAOD_STANDALONE )
 # ... for AthAnalysisBase (Athena calls this POOLRootAccess)
 else()
    set( extra_libs GaudiKernel AthenaKernel AthenaPoolUtilities EventInfo IOVDbDataModel StoreGateLib )
-   set( xaod_access_lib POOLRootAccessLib )
+   set( xaod_access_lib xAODRootAccess POOLRootAccessLib )
 endif()
 
 if( NOT GENERATIONBASE )
