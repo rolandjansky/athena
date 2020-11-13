@@ -231,16 +231,17 @@ IOVSvcTool::handle(const Incident &inc) {
   
   std::string objname;
 
-  bool first = m_first;
+  const bool first = m_first;
+  if (m_first) m_first = false;
 
   // Don't bother doing anything if we're handled the first run, and
   // preLoadData has been set, or if we only want to check once at the
   // beginning of the job
-  if (!m_first && m_preLoadData && m_checkOnce) {
+  if (!first && m_preLoadData && m_checkOnce) {
     return;
   }
 
-  if (m_first) {
+  if (first) {
     for (auto e : m_ignoredProxyNames) {
       DataProxy* proxy = p_cndSvc->proxy(e.first,e.second);
 
@@ -309,8 +310,7 @@ IOVSvcTool::handle(const Incident &inc) {
       }
     }
     
-    if (m_first) {
-      m_first = false;
+    if (first) {
 
       std::set< const TransientAddress*, SortTADptr >::const_iterator titr;
       for (titr = m_preLoad.begin(); titr != m_preLoad.end(); ++titr) {
@@ -398,7 +398,7 @@ IOVSvcTool::handle(const Incident &inc) {
     }
 
     // If MT, must not call any callback functions after first event
-    if (!m_first && proxiesToReset.size() > 0 &&
+    if (!first && proxiesToReset.size() > 0 &&
         ( (Gaudi::Concurrency::ConcurrencyFlags::numThreads() +
            Gaudi::Concurrency::ConcurrencyFlags::numConcurrentEvents()) > 0 ) ) {
       ATH_MSG_FATAL("Cannot update Conditions via callback functions in MT after the first event");
