@@ -1,6 +1,4 @@
-################################################################################
-# Package: IsolationCorrections
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IsolationCorrections )
@@ -19,14 +17,15 @@ atlas_add_library( IsolationCorrectionsLib
    IsolationCorrections/*.h Root/*.cxx
    PUBLIC_HEADERS IsolationCorrections
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODEventInfo
-   xAODPrimitives xAODTracking PATInterfaces PATCoreLib
-   PRIVATE_LINK_LIBRARIES PathResolver xAODMetaData ${extra_libs} )
+   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools xAODEgamma xAODEventInfo
+   xAODPrimitives xAODTracking PATInterfaces PATCoreAcceptLib
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver xAODMetaData ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationCorrections
       src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel AthenaBaseComps AthAnalysisBaseCompsLib IsolationCorrectionsLib )
+      LINK_LIBRARIES IsolationCorrectionsLib )
 endif()
 
 atlas_add_dictionary( IsolationCorrectionsDict

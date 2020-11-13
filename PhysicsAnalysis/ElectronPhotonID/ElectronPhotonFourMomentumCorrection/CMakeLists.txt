@@ -1,43 +1,13 @@
-###################################################################################
-# Package: ElectronPhotonFourMomentumCorrection
-###################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ElectronPhotonFourMomentumCorrection )
 
 # Environment specific extra dependencies:
-set( extra_dep )
 set( extra_libs )
-if( XAOD_STANDALONE )
-   set( extra_dep Control/xAODRootAccess )
-else()
-   set( extra_dep Control/AthenaBaseComps
-      Control/AthAnalysisBaseComps
-      GaudiKernel )
+if( NOT XAOD_STANDALONE )
    set( extra_libs AthAnalysisBaseCompsLib )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/AnalysisCommon/PATCore
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
-   PRIVATE
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODMetaData
-   Reconstruction/egamma/egammaLayerRecalibTool
-   Reconstruction/egamma/egammaUtils
-   PhysicsAnalysis/ElectronPhotonID/egammaMVACalibAnalysis
-   Event/xAOD/xAODTruth
-   Tools/PathResolver
-   ${extra_dep} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -48,18 +18,20 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    ElectronPhotonFourMomentumCorrection/*.h Root/*.cxx
    PUBLIC_HEADERS ElectronPhotonFourMomentumCorrection
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
-   xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreLib egammaUtils
-   egammaMVACalibAnalysisLib xAODTruth ${extra_libs}
-   PRIVATE_LINK_LIBRARIES xAODTracking xAODMetaData egammaLayerRecalibTool
-   PathResolver )
+   PRIVATE_INCUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgMessagingLib xAODCaloEvent xAODEgamma
+   xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreAcceptLib
+   xAODRootAccess xAODTracking
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} AthLinks xAODMetaData egammaLayerRecalibTool
+   egammaMVACalibAnalysisLib egammaUtils PathResolver ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonFourMomentumCorrection
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AsgTools xAODCaloEvent xAODEgamma xAODEventInfo
-      PATInterfaces AthenaBaseComps xAODBase xAODCore GaudiKernel
-      ElectronPhotonFourMomentumCorrectionLib )
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools AthenaBaseComps
+      EgammaAnalysisInterfacesLib ElectronPhotonFourMomentumCorrectionLib GaudiKernel
+      PATInterfaces xAODBase xAODCaloEvent xAODCore xAODEgamma xAODEventInfo xAODTruth )
 endif()
 
 atlas_add_dictionary( ElectronPhotonFourMomentumCorrectionDict
@@ -89,9 +61,8 @@ if( XAOD_STANDALONE )
    atlas_add_executable( ElectronPhotonFourMomentumCorrection_testEgammaCalibTool
       util/testEgammaCalibTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
-      xAODCaloEvent xAODCore PATInterfaces
-      ElectronPhotonFourMomentumCorrectionLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo xAODEgamma
+      xAODCaloEvent xAODCore PATInterfaces ElectronPhotonFourMomentumCorrectionLib )
 endif()
 
 # Test(s) in the package:
