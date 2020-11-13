@@ -3,6 +3,7 @@
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from GeneratorModules.EvgenAlg import EvgenAlg
 from ParticleGun.samplers import ParticleSampler
+from ParticleGun.samplers import *   # noqa: F401, F403 (import into our namespace)
 from AthenaPython.PyAthena import StatusCode
 import ROOT
 import random
