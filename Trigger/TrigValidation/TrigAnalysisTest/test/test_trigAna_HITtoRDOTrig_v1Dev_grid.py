@@ -27,8 +27,6 @@ hit2rdo = ExecStep.ExecStep('HITtoRDO')
 hit2rdo.type = 'Reco_tf'
 hit2rdo.input = 'ttbar_HITS'
 hit2rdo.max_events = 800
-hit2rdo.threads = 4
-hit2rdo.concurrent_events = 4
 hit2rdo.args = '--outputRDOFile=RDO.pool.root'
 
 pu_low = Input.get_input('pileup_low')
