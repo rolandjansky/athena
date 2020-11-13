@@ -84,14 +84,14 @@ StatusCode TestMCASTTool::execute() {
   ATH_CHECK( evtStore()->record(mymuonsaux,"CalibMuonsAux.") );
   mymuons->setStore(mymuonsaux);
 
-  m_Combined->Reset();
-  m_InnerDet->Reset();
-  m_MSExtr->Reset();
-  m_MSOnlyExtr->Reset();
-
   ATH_MSG_DEBUG( "Calibrating muon" ); 
 
   for(; mu_itr != mu_end; ++mu_itr) {
+
+    m_Combined->Reset();
+    m_InnerDet->Reset();
+    m_MSExtr->Reset();
+    m_MSOnlyExtr->Reset();
 
     //---\\---// Simple preselection
     if((*mu_itr)->muonType() != xAOD::Muon::Combined) continue;  
