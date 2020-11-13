@@ -109,6 +109,10 @@ def print_event_diff(inp_data, ref_data, key):
 
 
 def print_step_diff(inp_data, ref_data, key):
+    if key not in inp_data:
+        inp_data[key] = dict()
+    if key not in ref_data:
+        ref_data[key] = dict()
     if inp_data[key] != ref_data[key]:
         logging.info('    %s:', key)
         for step in range(max(len(inp_data[key]), len(ref_data[key]))):
