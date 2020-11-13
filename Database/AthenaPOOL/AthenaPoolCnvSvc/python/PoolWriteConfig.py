@@ -57,12 +57,12 @@ def PoolWriteCfg(flags, **kwargs):
 
     if flags.Output.AODFileName:
         # Use LZMA w/ Level 1
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, 2 ) ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( flags.Output.AODFileName, 1 ) ]
+        PoolAttributes += [ pah.setFileCompAlg( flags.Output.AODFileName, 2 ) ]
+        PoolAttributes += [ pah.setFileCompLvl( flags.Output.AODFileName, 1 ) ]
         # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 100 events
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "CollectionTree", 100 ) ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainer", 100 ) ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainerForm", 100 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "CollectionTree", 100 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainer", 100 ) ]
+        PoolAttributes += [ pah.setTreeAutoFlush( flags.Output.AODFileName, "POOLContainerForm", 100 ) ]
 
     kwargs.setdefault("PoolAttributes", PoolAttributes)
 
