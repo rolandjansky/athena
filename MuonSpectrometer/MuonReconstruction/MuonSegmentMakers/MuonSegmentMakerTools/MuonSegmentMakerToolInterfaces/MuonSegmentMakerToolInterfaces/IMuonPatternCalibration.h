@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSEGMENTMAKETOOLINTERFACES_MUON_IMUONPATTERNCALIBRATION_H
@@ -46,7 +46,7 @@ namespace Muon {
     /** access to tool interface */
     static const InterfaceID& interfaceID();
 
-    virtual void calibrate(const MuonPatternCombination& pat, ROTsPerRegion& hitsPerRegion) const = 0;
+    virtual void calibrate(const MuonPatternCombination& pat, ROTsPerRegion& hitsPerRegion, const EventContext& ctx) const = 0;
     virtual int  getRegionId( const Identifier& id ) const = 0;
     virtual void clearRotsPerRegion( ROTsPerRegion& hitsPerRegion ) const = 0;
     virtual bool checkForPhiMeasurements( const MuonPatternCombination& pat ) const = 0;

@@ -163,7 +163,7 @@ class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
 
     void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segs,
                                 const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                const std::vector<const Muon::TgcPrepDataCollection*> tgcCols) const;
+                                const std::vector<const Muon::TgcPrepDataCollection*> tgcCols, const EventContext& ctx) const;
     void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const;
 
     bool m_printSummary;
