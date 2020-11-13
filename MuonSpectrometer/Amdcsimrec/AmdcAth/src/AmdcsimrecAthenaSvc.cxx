@@ -238,8 +238,6 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
     m_IsInitialized = false ;
     m_IsUsable      = false ;
 
-    ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
-
     ATH_CHECK(initializeFromGeomodel());
     ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
     
@@ -344,40 +342,6 @@ StatusCode AmdcsimrecAthenaSvc::initializeAscii()
 
   return StatusCode::SUCCESS;
 
-}
-
-StatusCode AmdcsimrecAthenaSvc::regFcninitializeFromGeomodel() 
-{
-
-  ATH_MSG_DEBUG("----> regFcninitializeFromGeomodel is called" ) ; 
-
-  ATH_CHECK(p_detStore->regFcn(
-                          &IGeoModelSvc::align, &*p_IGeoModelSvc,
-                          &AmdcsimrecAthenaSvc::initializeFromGeomodelCallback, this
-                         ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::initializeFromGeomodelCallback from IGeoModelSvc::align" ) ;
-
-  ATH_CHECK(p_detStore->regFcn(
-               &AmdcsimrecAthenaSvc::initializeFromGeomodelCallback, this,
-               &AmdcsimrecAthenaSvc::UpdatedSvc, this
-              ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::initializeFromGeomodelCallback" ) ;
-
-  return StatusCode::SUCCESS;
-  
-}
-
-StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodelCallback(IOVSVC_CALLBACK_ARGS) 
-{
-
-  ATH_MSG_DEBUG("----> initializeFromGeomodelCallback is called" ) ; 
-  
-  ATH_CHECK(initializeFromGeomodel());
-  ATH_MSG_DEBUG( "Done: initializeFromGeomodel" ) ;
-
-  m_IsUsable      = true ;
-
-  return StatusCode::SUCCESS;
 }
 
 StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodel()
@@ -873,44 +837,6 @@ StatusCode AmdcsimrecAthenaSvc::SetAliStoreInternal()
 
   return StatusCode::SUCCESS;
 
-}
-StatusCode AmdcsimrecAthenaSvc::regFcninitializeFromGeomodelSetAmdcABlineFromCool()
-{
-
-  ATH_MSG_DEBUG("----> regFcninitializeFromGeomodelSetAmdcABlineFromCool is called" ) ; 
-
-  ATH_CHECK(p_detStore->retrieve(p_MuonDetectorManager));
-  ATH_MSG_DEBUG( "Done:p_MuonDetectorManager found " ) ;
- 
-  ATH_CHECK(p_detStore->regFcn(
-                          &IGeoModelSvc::align, &*p_IGeoModelSvc,
-                          &AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback, this
-                         ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback from IGeoModelSvc::align" ) ;
-
-  ATH_CHECK(p_detStore->regFcn(
-               &AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback, this,
-               &AmdcsimrecAthenaSvc::UpdatedSvc, this
-              ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback" ) ;
-
-  return StatusCode::SUCCESS;
-  
-}
-StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback(IOVSVC_CALLBACK_ARGS)
-{
-
-  ATH_MSG_DEBUG( "----> initializeFromGeomodelSetAmdcABlineFromCoolCallback is called " ) ;
-
-  ATH_CHECK(initializeFromGeomodel());
-  ATH_MSG_DEBUG( "Done: initializeFromGeomodel" ) ;
-  ATH_CHECK(SetAmdcABlineFromCool());
-  ATH_MSG_DEBUG( "Done: SetAmdcABlineFromCool" ) ;
-
-  m_IsUsable      = true ;
-
-  return StatusCode::SUCCESS;
-  
 }
 
 StatusCode AmdcsimrecAthenaSvc::regFcnSetAmdcABlineFromCool()
