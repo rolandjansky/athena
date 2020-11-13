@@ -349,18 +349,26 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
   ATH_CHECK(m_rosData.getIterators(context, msg(), beginRob, endRob));
   
   for (ROBConstIt it = beginRob; it != endRob; ++it) {
-    // TrigComposite for ROS caching
-    xAOD::TrigComposite* tcr = new xAOD::TrigComposite();
-    rosOutputHandle->push_back( tcr ); 
-
     size_t aiHash = it->first.m_hash;
+
     if (aiToHandleIndex.count(aiHash) == 0) {
-      ATH_MSG_WARNING("Algorithm with hash " << TrigConf::HLTUtils::hash2string( aiHash, "ALG") << " not found!");
+      ATH_MSG_WARNING("Algorithm with hash " << aiHash << " not found!");
     }
 
-    bool result = true;
-    result &= tcr->setDetail("alg_idx", aiToHandleIndex[aiHash]);
-    if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost ROS TC");
+    // Save ROB data via TrigComposite
+    for (const robmonitor::ROBDataStruct& robData : it->second) {
+      xAOD::TrigComposite* tc = new xAOD::TrigComposite();
+      rosOutputHandle->push_back(tc); 
+
+      bool result = true;
+      result &= tc->setDetail("alg_idx", aiToHandleIndex[aiHash]);
+      result &= tc->setDetail("rob_id", robData.rob_id);
+      result &= tc->setDetail("rob_size", robData.rob_size);
+      result &= tc->setDetail<unsigned>("rob_history", robData.rob_history);
+      result &= tc->setDetail("rob_status_words", robData.rob_status_words);
+
+      if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost ROS TC");
+    }
   }
 
   if (msg().level() <= MSG::VERBOSE) {
@@ -377,6 +385,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       ATH_MSG_VERBOSE("  Stop Time:" << tc->getDetail<uint64_t>("stop") << " mu s");
     }
   }
+
   
   return StatusCode::SUCCESS;
 }
