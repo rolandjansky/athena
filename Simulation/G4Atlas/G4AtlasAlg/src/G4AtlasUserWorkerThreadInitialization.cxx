@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Hide multi-threading classes from builds without G4MT
@@ -14,7 +14,6 @@ CreateWorkerRunManager() const
 {
   // TODO: maybe better to just use the pseudo-singleton mechanism
   auto* workerRunManager = G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
-  workerRunManager->SetUserActionSvc(m_userActionSvcName);
   workerRunManager->SetDetGeoSvc(m_detGeoSvcName);
   workerRunManager->SetSDMasterTool(m_senDetToolName);
   workerRunManager->SetFastSimMasterTool(m_fastSimToolName);

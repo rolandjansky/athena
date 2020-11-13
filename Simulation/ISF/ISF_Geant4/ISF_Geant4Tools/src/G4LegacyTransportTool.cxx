@@ -7,6 +7,7 @@
 
 //package includes
 #include "G4AtlasAlg/G4AtlasRunManager.h"
+#include "G4AtlasAlg/G4AtlasActionInitialization.h"
 #include "ISFFluxRecorder.h"
 
 #include "AthenaKernel/RNGWrapper.h"
@@ -118,11 +119,13 @@ void iGeant4::G4LegacyTransportTool::initializeOnce()
 
   m_pRunMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
   m_pRunMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
-  m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
   m_pRunMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
   m_pRunMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
   m_pRunMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
   m_pRunMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
+  std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
+    std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
+  m_pRunMgr->SetUserInitialization(actionInitialization.release());
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
