@@ -674,9 +674,18 @@ def getTauClusterFinder():
 
     if _name in cached_instances:
         return cached_instances[_name]
+  
+    from JetRec.JetRecFlags import jetFlags
+
+    doJetVertexCorrection = False
+    if tauFlags.isStandalone:
+        doJetVertexCorrection = True
+    if jetFlags.useVertices() and jetFlags.useTracks():
+        doJetVertexCorrection = True
 
     from tauRecTools.tauRecToolsConf import TauClusterFinder
-    TauClusterFinder = TauClusterFinder(name = _name)
+    TauClusterFinder = TauClusterFinder(name = _name,
+                                        JetVertexCorrection = doJetVertexCorrection)
 
     cached_instances[_name] = TauClusterFinder
     return TauClusterFinder

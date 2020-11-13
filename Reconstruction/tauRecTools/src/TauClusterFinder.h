@@ -35,8 +35,12 @@ class TauClusterFinder : public TauRecToolBase {
     virtual StatusCode execute(xAOD::TauJet& tau) const override;
 
   private:
-
+    
     std::vector<const xAOD::CaloCluster*> getClusterList(const xAOD::Jet& jet) const;
+    
+    Gaudi::Property<bool> m_skipNegativeEnergy {this, "SkipNegativeEnergy", true, "whether to skip negative energy clusters"};
+
+    Gaudi::Property<bool> m_doJetVertexCorrection {this, "JetVertexCorrection", true, "switch of jet vertex correction"};
 };
 
 #endif
