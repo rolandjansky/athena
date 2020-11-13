@@ -2425,7 +2425,7 @@ bool HLTTauMonTool::Match_Offline_L1(const xAOD::TauJet *aOfflineTau, const std:
     
   std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator CI = vec_L1roi_EFall.begin();
     
-  for (; CI!=vec_L1roi_EFall.end();++CI){
+  for (; CI!=vec_L1roi_EFall.end(); ++CI){
     if(!(CI->cptr())) continue;
     const xAOD::EmTauRoI *aEmTau_ROI = findLVL1_ROI(CI->cptr());
     if(!aEmTau_ROI) continue;
@@ -2440,7 +2440,32 @@ bool HLTTauMonTool::Match_Offline_L1(const xAOD::TauJet *aOfflineTau, const std:
     
 }
 
+bool HLTTauMonTool::Match_Offline_L1(const TLorentzVector & aOfflineTau, const std::string & trigItem){
 
+  bool matchedL1=false;
+  float tmpR = 5.0;
+
+  const std::vector<Trig::Feature<TrigRoiDescriptor> > vec_L1roi_EFall = (getTDT()->features("HLT_"+trigItem,TrigDefs::alsoDeactivateTEs)).get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
+
+  std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator CI = vec_L1roi_EFall.begin();
+
+  for (; CI!=vec_L1roi_EFall.end(); ++CI){
+    if(!(CI->cptr())) continue;
+    const xAOD::EmTauRoI *aEmTau_ROI = findLVL1_ROI(CI->cptr());
+    if(!aEmTau_ROI) continue;
+    float dR = deltaR(aEmTau_ROI->eta(),aOfflineTau.Eta(),aEmTau_ROI->phi(),aOfflineTau.Phi());
+    if ( dR < tmpR ) {
+      tmpR = dR;
+    }
+  }
+
+
+  if (tmpR <0.2) matchedL1=true;
+  return matchedL1;
+
+}
+
+ 
 bool HLTTauMonTool::Match_Offline_EF(const xAOD::TauJet *aOfflineTau, const std::string & trigItem){
     
   bool matchedEF=false;
@@ -2632,6 +2657,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 	tlv_TauDenom.push_back(m_taus_here.at(t)->p4());
 	ntrk_TauDenom.push_back(m_taus_here.at(t)->nTracks());
 	good_TauDenom.push_back(true);
+	
       }
       if(!addToDenom){
 	tlv_tmp.push_back(m_taus_here.at(t)->p4());
@@ -2654,7 +2680,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
   if(TauDenom.find("Presel")!=std::string::npos){
     bool addToDenom(false);
     if( (TauDenom.find("Truth")==std::string::npos || !m_truth) && TauDenom.find("Reco")==std::string::npos) addToDenom = true;
-		
+    	
     const xAOD::TauJetContainer * hlt_cont = 0;
     if( !evtStore()->retrieve(hlt_cont, "HLT_xAOD__TauJetContainer_TrigTauRecPreselection").isSuccess() ){
       ATH_MSG_WARNING("Failed to retrieve  HLT_xAOD__TauJetContainer_TrigTauRecPreselection container. Exiting.");
@@ -2674,9 +2700,9 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
       nWideTrack_TAU = (*hltItr)->nWideTracks();
 #else
       (*hltItr)->detail(xAOD::TauJetParameters::nIsolatedTracks, nWideTrack_TAU);
-#endif 
+#endif
       if( !L1TauMatching(trigItem, hltTLV, 0.3) ) continue;
-      if(ntrack_TAU>3) continue;		
+      if(ntrack_TAU>3) continue;
       if(trigItem.find("perf")==std::string::npos) if(ntrack_TAU==0 || nWideTrack_TAU>1) continue;
       if(trigItem.find("25")!=std::string::npos) if(hltTLV.Pt()<25000.) continue;
       if(trigItem.find("35")!=std::string::npos) if(hltTLV.Pt()<35000.) continue;
@@ -2687,7 +2713,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 	tlv_TauDenom.push_back(hltTLV);
 	ntrk_TauDenom.push_back(ntrack_TAU);
 	good_TauDenom.push_back(true);
-      }
+	}
       if(!addToDenom){
 	tlv_tmp.push_back(hltTLV);
       }
@@ -2782,7 +2808,7 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		}
 	  
     int L1matched(0);
-    if(L1TauMatching(trigItem, tlv_TauDenom.at(i), 0.3)) L1matched=1;
+    if(Match_Offline_L1(tlv_TauDenom.at(i), trigItem)) L1matched=1;
     //                        hist("hRecoL1PtNum")->Fill(pt/GeV);
     //                        if(ntracks == 1) {hist("hRecoL1Pt1PNum")->Fill(pt/GeV);profile("TProfRecoL1Pt1PEfficiency")->Fill(pt/GeV,1);}
     //                        if(ntracks > 1) {hist("hRecoL1Pt3PNum")->Fill(pt/GeV);profile("TProfRecoL1Pt3PEfficiency")->Fill(pt/GeV,1);}
@@ -2804,8 +2830,8 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
     profile("TProfRecoL1NVtxEfficiency")->Fill(nvtx,L1matched);
     profile("TProfRecoL1MuEfficiency")->Fill(mu,L1matched);
     profile("TProfRecoL1LBEfficiency")->Fill(LB,L1matched);
- 
-		if (noBiasVeto) {
+
+        	if (noBiasVeto) {
 		  if(ntracks == 1) profile("TProfRecoL1Pt1PEfficiency_Unbiased")->Fill(pt/GeV,L1matched);
 		  if(ntracks > 1) profile("TProfRecoL1Pt3PEfficiency_Unbiased")->Fill(pt/GeV,L1matched);
 		  if(ntracks == 1) profile("TProfRecoL1HighPt1PEfficiency_Unbiased")->Fill(pt/GeV,L1matched);

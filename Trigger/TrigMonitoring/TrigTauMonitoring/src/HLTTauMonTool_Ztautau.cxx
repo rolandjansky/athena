@@ -76,7 +76,6 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
   TLorentzVector MET_TLV (0.,0.,0.,0.);
 
   double tauPt_dum  = -1.  , muPt_dum    = -1.;
-  float  Tau_charge = -99.0, Muon_charge = -99.0;
   bool   lead_tau   = false, single_mu   = false;
   int  Tau_NTrack = -99;
   
@@ -119,14 +118,12 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
 	{
 	  single_mu = false;
 	  Muon_TLV.Clear();
-	  Muon_charge = -99;
 	  break;
 	}
       if(muPt_dum < pt_mu)
 	{
 	  muPt_dum = pt_mu;
 	  Muon_TLV.SetPtEtaPhiM(pt_mu, eta_mu, MuonTLV.Phi(), MuonTLV.M());
-	  Muon_charge = (*muonItr)->charge();
 	  single_mu = true;
 	}
     } // end of Muon Container loop
@@ -166,7 +163,6 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency(const std::string & goodTauRefTy
       {
 	tauPt_dum = pt_Tau;
 	Tau_TLV.SetPtEtaPhiM(pt_Tau,eta_Tau,TauTLV.Phi(),TauTLV.M());
-	Tau_charge = charge_Tau;
 	Tau_NTrack = ntrack_Tau;
 	lead_tau = true;
       }
