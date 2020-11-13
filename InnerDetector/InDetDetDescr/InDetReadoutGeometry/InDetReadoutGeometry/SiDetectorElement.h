@@ -380,6 +380,13 @@ namespace InDetDD {
     //@}
 
     /**
+     * @name Element Extent
+     *  Methods to get extent of element in r,phi and z.  
+     */
+    double get_rz() const;
+    //@}
+
+    /**
      * @name Orientation
      */
     //{@

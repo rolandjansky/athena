@@ -584,17 +584,23 @@ namespace InDetDD {
     if (phiMax < -M_PI) phiMax += 2. * M_PI;
     if (phiMax >  M_PI) phiMax -= 2. * M_PI;
 
+    rz = get_rz();
+
+    }
+
+
+  double SiDetectorElement::get_rz() const
+  {
     // Calculate rz = r (barrel) or z (endcap)
     // Use center of sensor ((0,0,0) in local coordinates) for determining this.
     //  HepGeom::Point3D<double> globalCenter = globalPosition(HepGeom::Point3D<double>(0,0,0));
     if (isBarrel()) {
-      rz = center().perp(); // r
+      return center().perp(); // r
     } else {
-      rz = center().z();  // z
+      return center().z();  // z
     }
-
   }
-
+  
   const Trk::SurfaceBounds&
   SiDetectorElement::bounds() const
   {
@@ -1164,5 +1170,7 @@ namespace InDetDD {
     }
     return sinStereo;
   }
+
+
 
 } // namespace InDetDD
