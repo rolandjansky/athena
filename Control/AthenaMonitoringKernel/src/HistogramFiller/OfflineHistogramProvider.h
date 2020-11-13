@@ -75,8 +75,8 @@ namespace Monitored {
       if ( period == HistogramDef::RunPeriod::Run ) {
         lbString = "";
       } else if ( period == HistogramDef::RunPeriod::LowStat ) {
-        const unsigned lbBase = lumiBlock-(lumiBlock%20);
-        lbString = "/lowStat_LB"+std::to_string(lbBase+1)+"-"+std::to_string(lbBase+20);
+        const unsigned lbBase = lumiBlock-((lumiBlock-1)%20);
+        lbString = "/lowStat_LB"+std::to_string(lbBase)+"-"+std::to_string(lbBase+19);
       } else {
         lbString = "/lb_"+std::to_string(lumiBlock);
       }
