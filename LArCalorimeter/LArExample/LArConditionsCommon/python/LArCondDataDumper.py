@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------------------------
 # class LArCondDataDumper
@@ -7,8 +7,7 @@
 #  
 #----------------------------------------------------------------
 # python for LArConditionsContainer
-from __future__ import print_function
-from LArRawConditions.LArConditionsContainer import *
+from LArRawConditions.LArConditionsContainer import LArConditionsContainer
 # pyKernel access
 from PyKernel import PyKernel
 
@@ -144,8 +143,8 @@ class LArCondDataDumper(object) :
 
       # Add on extra iterators for the python class
       try:
-        TheCont = LArConditionsContainer(typ.__name__)
-      except:
+        _ = LArConditionsContainer(typ.__name__)
+      except Exception:
         print("Cannot get ",typ.__name__," Container")
 
       try :
@@ -189,7 +188,7 @@ class LArCondDataDumper(object) :
           keys.sort() 
           print(" Feedthroughs ",keys )
 
-      except:
+      except Exception:
         print(" accessing ",key," failed ")
         typ, value, traceBack = sys.exc_info()
         #_logger.error("resetDefinedJobs : %s %s" % (typ,value))
@@ -216,7 +215,7 @@ class LArCondDataDumper(object) :
         # ignore them for the moment. It may be that there are two
         # methods, one providing access to individual values, and
         # another giving a whole vector of values.
-        except:
+        except Exception:
           pass
         if operator.isNumberType(obj):
           print("obj type = ",objType.__name__)
@@ -247,6 +246,6 @@ class LArCondDataDumper(object) :
           if attrName.find("m_") == 0 or attrName.find("get") == 0:
             try:
               attr = getattr(obj, attrName)
-            except:
+            except Exception:
               print("Could not get attr", attrName)
             self.getDataMembers(attr, attrName, newTab)

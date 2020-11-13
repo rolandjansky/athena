@@ -1,8 +1,4 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
-
-import six
-
 
 class LArExtendedSubDetGrouping:
     def __init__(self):
@@ -77,7 +73,7 @@ class LArExtendedSubDetGrouping:
 
         #Lookup-dict indexed by channel (partition is the payload)
         self._revLookup=dict()
-        for (p, chs) in six.iteritems (self._partitions):
+        for (p, chs) in self._partitions.items():
             for c in chs:
                 self._revLookup[c]=p
 
@@ -132,7 +128,6 @@ class LArExtendedSubDetGrouping:
             return retVal
         retVal=str(chans[0])
         c1=chans[0]
-        sep=','
         series=False
         for c2 in chans[1:]:
             if c1 == c2:
@@ -154,7 +149,6 @@ class LArExtendedSubDetGrouping:
 
 
     def getChannelSelection(self,partitions,gains):
-        chans=list()
         return self.makeRange(self.getChannelList(partitions,gains))
 
     def getChannelSelectionAllGains(self,partitions):
@@ -187,7 +181,7 @@ class LArExtendedSubDetGrouping:
     def channelsPerPartition(self,chans,show=True):
         class counterElem:
             def __init__(self,l,n):
-                self.size=l;
+                self.size=l
                 self.name=n
                 self.counts=[0,0,0]
             def inc(self,g):
@@ -212,12 +206,12 @@ class LArExtendedSubDetGrouping:
                     print( "   ")
             
         partCounter=dict()
-        for (p, chs) in six.iteritems (self._partitions):
+        for (p, chs) in self._partitions.items():
             partCounter[p]=counterElem(len(chs),p)
         
         for c in chans:
             (gain,cs)=self.getGain(c)
-            if cs == None:
+            if cs is None:
                 print( "ERROR: Unkown channel",c )
             else:    
                 if (c<39):

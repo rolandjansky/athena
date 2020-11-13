@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from CoolConvUtilities.AtlCoolLib import indirectOpen
 
 class LArRunInfo:
@@ -64,12 +63,11 @@ def getLArFormatForRun(run,readOracle=True,quiet=False,connstring=None):
         from IOVDbSvc.CondDB import conddb
         connstring = "COOLONL_LAR/"+conddb.dbdata
     
-    mlog_LRF.info("Connecting to database " + connstring)
+    mlog_LRF.info("Connecting to database %s", connstring)
     print ("run=",run)
     runDB=indirectOpen(connstring,oracle=readOracle)
     if (runDB is None):
         mlog_LRF.error("Cannot connect to database %s",connstring)
-        del mlog_LRF
         raise RuntimeError("getLArFormatForRun ERROR: Cannot connect to database %s",connstring)
     format=None
     nSamples=None
@@ -88,14 +86,12 @@ def getLArFormatForRun(run,readOracle=True,quiet=False,connstring=None):
         runType=payload['runType']
         latency=ord(payload['l1aLatency'])
         firstSample=ord(payload['firstSample'])
-    except Exception as e:
-        mlog_LRF.warning("No information in /LAR/Configuration/RunLog for run %i" % run)
+    except Exception:
+        mlog_LRF.warning("No information in /LAR/Configuration/RunLog for run %i", run)
         #mlog_LRF.warning(e)
-        del mlog_LRF
         return None
     runDB.closeDatabase()
-    mlog_LRF.info("Found info for run %d" % run)
-    del mlog_LRF
+    mlog_LRF.info("Found info for run %d", run)
     return  LArRunInfo(nSamples,gainType,latency,firstSample,format,runType)
 
 # command line driver for convenience
