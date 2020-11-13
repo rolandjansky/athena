@@ -5,6 +5,18 @@
 JetDefinition: A module for classes encoding definitions of jets and 
 related objects for configuring jet reconstruction                   
 
+Various classes encode definitions of different types of components used in Jet Reco.
+They are : 
+
+ - JetInputDef : describes how to build a source container, typically external to the jet domain. This includes input to jet finding  (ex: CaloCluster, Track) but also other sources like EventDensity...
+
+ - JetConstitSource : describes specifically a input constituents source (an input to a PseudoJetAlgorithm), thus referring to a JetInputDef. 
+ - JetConstitSeq : a subclass of JetConstitSource, describing how the constituents are modified by a JetConstituentModSequence (ex: PU or Origin correction).
+ - JetConstitModifier : describes a constituent modifier tool to be used in a JetConstituentModSequence
+
+ - JetDefinition : describes a full jet reco sequence. Uses a JetConstitSource and a list of JetModifier
+ - JetModifier : describes a JetModifier c++ tool. 
+
 Author: TJ Khoo, P-A Delsart                                         
                                                                      
 """
@@ -17,10 +29,11 @@ jetlog = Logging.logging.getLogger('JetDefinition')
 from xAODBase.xAODType import xAODType
 from .Utilities import make_lproperty, onlyAttributesAreProperties, clonable, make_alias
 
-# Code from JetRecUtils
-# define the convention that we write R truncating the decimal point
-# if R>=1, then we write R*10
 def formatRvalue(parameter):
+    """Define the convention that we write R truncating the decimal point
+    if R>=1, then we write R*10.
+    (Code from JetRecUtils )
+    """
     # impose precision limits where there could be ambiguity
     if int(10*parameter)>=1 and int(100*parameter % 10):
         #jetlog.warning('Radius parameter {0} exceeds allowable precision of 0.1'.format(parameter))
@@ -53,9 +66,8 @@ class JetDefinition(object):
                  radius,              # The jet radius specifier (clustering cutoff)
                  inputdef,            # The input JetConstit
                  ptmin=5e3*MeV,       # The pt cutoff for fastjet in MeV
-                 ptminfilter=5e3*MeV, # The minimum pt to retain xAOD jets after calibration in MeV
-                 ghostdefs=[],        # The list of JetGhosts to ghost-associate
-                 modifiers=[],        # The list of JetModifiers to execute after jet finding
+                 ghostdefs=[],        # The list of alias to JetGhosts to ghost-associate
+                 modifiers=[],        # The list of alias to JetModifiers to execute after jet finding
                  extrainputs=[],      # The list of additional input types needed for jet finding
                  standardRecoMode = False, # 
                  prefix = "",         # allows to tune the full JetContainer name
@@ -78,9 +90,6 @@ class JetDefinition(object):
         self._defineName()
         
         self.ptmin = ptmin # The pt down to which FastJet is run
-        self.ptminfilter = ptminfilter # The pt above which xAOD::Jets are kept, may include calibration
-        if ptmin<1000.*MeV or ptminfilter<1000.*MeV:
-            jetlog.warning("Very low filter threshold set: ptmin {0:.0f} MeV, ptminfilter {1:.0f} MeV. Are you sure?")
 
         self.ghostdefs = ghostdefs     # Objects to ghost-associate
         self.modifiers = modifiers     # Tools to modify the jet
@@ -100,7 +109,7 @@ class JetDefinition(object):
 
             
     def __hash__(self):
-        return hash((self.__radius,self.__inputdef,self.ptmin,self.ptminfilter,str(self.ghostdefs),str(self.modifiers),str(self.extrainputs)))
+        return hash((self.__radius,self.__inputdef,self.ptmin,str(self.ghostdefs),str(self.modifiers),str(self.extrainputs)))
 
     def __eq__(self,rhs):
         return self.__hash__() == rhs.__hash__()
@@ -198,14 +207,15 @@ class JetDefinition(object):
 @clonable
 @onlyAttributesAreProperties
 class JetModifier(object):
-    """Helper to instantiate a generic jet modifier
+    """Helper to define the config of a IJetModifier tool.
     Tools that typically have more complex properties set should have
     their own dedicated helper 'createfn' functions defined"""
 
     def __init__(self,tooltype,toolname,
                  createfn=None,
                  filterfn=_condAlwaysPass,                 
-                 prereqs=[],modspec=None,passJetDef=False,
+                 prereqs=[],modspec=None,
+                 **properties
                  ):
         # For the easy cases where no helper function is needed.
         # They will be ignored in the case of a helper,
@@ -214,11 +224,10 @@ class JetModifier(object):
         self.tooltype = tooltype
         self.toolname = toolname
 
-        # The helper function may take up to 2 parameters:
+        # The helper function may take 2 parameters:
         # a "modifier specification" string and the jet
-        # definition, which will be passed in based
-        # on the values of modspec and passJetDef.
-        #
+        # definition
+
         # The helper function always returns the desired
         # modifier, and a ComponentAccumulator instance, 
         # in case additional supporting tools/services
@@ -228,7 +237,6 @@ class JetModifier(object):
         else:
             self.createfn = createfn
         self.modspec = modspec
-        self.passJetDef = passJetDef
 
         # Prereqs is normally a list.
         # However, in special cases, the prereqs may
@@ -241,6 +249,9 @@ class JetModifier(object):
         #  The function must return a tuple : (bool, "reason of failure")
         self.filterfn = filterfn 
 
+        # These will be set as the Gaudi properties of the C++ tool
+        self.properties = properties
+        
         self._instanceMap = {}
         #self._locked = lock
                 
@@ -255,16 +266,16 @@ class JetModifier(object):
     @make_lproperty
     def modspec(self):pass
     @make_lproperty
-    def passJetDef(self):pass
-    @make_lproperty
     def prereqs(self):pass
     @make_lproperty
     def filterfn(self):pass
+    @make_lproperty
+    def properties(self):pass
 
     
     
     def __hash__(self):
-        return hash((self.toolname,self.tooltype,self.createfn.__name__,self.modspec,self.passJetDef,str(self.prereqs)))
+        return hash((self.toolname,self.tooltype,self.createfn.__name__,self.modspec,str(self.prereqs)))
 
     def __eq__(self,rhs):
         return self.__hash__() == rhs.__hash__()
@@ -278,9 +289,15 @@ class JetModifier(object):
     # Need to override __repr__ for printing in lists etc
     __repr__ = __str__
 
-    def getGenericModifier(self,**kwargs):
+    def getGenericModifier(self,jetdef, modspec):
+        """returns a real tool instance accoding to this definition : simply instantiating from
+        class self.tooltype and with name self.toolname ( actually : self.toolname.format(modspec) )
+        Since this function will be called as a callback from JetRecConfig as 'func(jetdef, modspec)', it must accept
+        the jetdef argument, even if unused in this case.
+        """
         from AthenaConfiguration.ComponentFactory import CompFactory
-        tool = CompFactory.getComp(self.tooltype)(self.toolname)
+        name = self.toolname.format(modspec=modspec)
+        tool = CompFactory.getComp(self.tooltype)(name)
         return tool
 
 
@@ -310,7 +327,7 @@ class JetInputDef(object):
      - filterfn : a function taking a CondFlags as argument and deciding if this JetModifier is compatible
                   with the conditions (same as JetModifier.filterfn )
                   The function must return a tuple : (bool, "reason of failure")
-     - prereqs : a list of prerequisites for this input definition.
+     - prereqs : a list of prerequisites (str) for this input definition.
     """
     def __init__(self, name, objtype, algoBuilder=None, specs=None, filterfn= _condAlwaysPass, prereqs=[]):
         self.name = name
@@ -374,8 +391,73 @@ class JetConstitModifier(object):
     def tooltype(self): pass
     @make_lproperty
     def properties(self): pass
-    
 
+
+
+
+from enum import IntEnum, auto
+class JetInputType(IntEnum):
+    """We reproduce the Enum from in xAODJet/​JetContainerInfo.h, xAOD::JetInput : loading the C++ library
+    can slow down a lot the configuration. 
+    Note : this is different from the xAODType which describes *only* c++ types whereas JetInputType describes
+    categories of inputs to jets.
+    """
+    LCTopo=0
+    EMTopo=auto()
+    TopoTower=auto()
+    Tower=auto()
+    Truth=auto()  
+    TruthWZ=auto()
+    Track=auto()
+    PFlow=auto()      
+    LCPFlow=auto()      # LC PFlow
+    EMPFlow=auto()      # EM Pflow at EM scale
+    EMCPFlow=auto()     # EM Pflow calibrated to LC scale
+    Jet=auto()
+    LCTopoOrigin=auto()
+    EMTopoOrigin=auto()
+    TrackCaloCluster=auto()
+    TruthDressedWZ=auto() # Truth jets without prompt e/mu (or dressed photons) or prompt gammas
+    EMTopoOriginSK=auto()
+    EMTopoOriginCS=auto()
+    EMTopoOriginVor=auto()
+    EMTopoOriginCSSK=auto()
+    EMTopoOriginVorSK=auto()
+    LCTopoOriginSK=auto()
+    LCTopoOriginCS=auto()
+    LCTopoOriginVor=auto()
+    LCTopoOriginCSSK=auto()
+    LCTopoOriginVorSK=auto()
+    EMPFlowSK=auto()
+    EMPFlowCS=auto()
+    EMPFlowVor=auto()
+    EMPFlowCSSK=auto()
+    EMPFlowVorSK=auto()
+    TruthCharged=auto() # Truth jets with only charged particles
+    EMTopoOriginTime=auto()
+    EMTopoOriginSKTime=auto()
+    EMTopoOriginCSSKTime=auto()
+    EMTopoOriginVorSKTime=auto()
+    EMPFlowTime=auto()
+    EMPFlowSKTime=auto()
+    EMPFlowCSSKTime=auto()
+    EMPFlowVorSKTime=auto()
+    HI=auto()
+    HIClusters=auto()
+    Other = 100
+    EMPFlowFE = 200 # Temporary, until xAOD::PFO is phased out and replaced with xAOD::FlowElement
+    Uncategorized= 1000
+
+    def fromxAODType(xt):
+        """Returns a default JetInputType for a given xAODType """
+        _xaodTojetinputMap = {
+            xAODType.CaloCluster   : JetInputType.LCTopo,
+            xAODType.ParticleFlow  : JetInputType.EMPFlow,
+            xAODType.TrackParticle : JetInputType.Track,
+            xAODType.TruthParticle : JetInputType.Truth,    
+        }
+        return _xaodTojetinputMap.get(xt, JetInputType.Other) 
+        
 @clonable
 @onlyAttributesAreProperties
 class JetConstitSource(object):
@@ -390,9 +472,11 @@ class JetConstitSource(object):
                  containername,   # The key of the source container in the event store. 
                  prereqs = [],    # will contain references to JetInputDef 
                  label = None,    # used to describe a category for these constits. if None, will default to name
+                 jetinputtype=None, # The JetInputType category. Can be passed as a string.
+                                    #  if None, set according to objtype. 
                  filterfn=_condAlwaysPass,                 
                  lock = False,    # lock all properties of this instance
-    ):    
+                 ):    
 
         self.name = name 
         self.containername = containername
@@ -403,6 +487,10 @@ class JetConstitSource(object):
         self.basetype = objtype
         self.filterfn = filterfn 
 
+        jetinputtype = jetinputtype or JetInputType.fromxAODType( objtype )
+        if isinstance(jetinputtype, str): jetinputtype = JetInputType[jetinputtype]
+        self.jetinputtype = jetinputtype
+        
         self._locked = lock
 
     @make_lproperty
@@ -417,6 +505,9 @@ class JetConstitSource(object):
     @make_lproperty
     def filterfn(self):pass
 
+    @make_lproperty
+    def jetinputtype(self): pass
+    
     # make an alias on containername so JetConstitSource and JetConstitSeq share an interface
     inputname = make_alias("containername")
 
@@ -434,12 +525,13 @@ class JetConstitSeq(JetConstitSource):
                  inputname=None,    # input collection which will be transformed into the source constituents
                  outputname=None,  #  output collection, will be set to self.containername
                  prereqs = [],     # will contain references to JetInputDef 
-                 label = None, 
+                 label = None,
+                 jetinputtype=None,
                  filterfn=_condAlwaysPass,                 
                  lock = False,    # lock all properties of this instance
     ):    
         
-        JetConstitSource.__init__(self,name, objtype, outputname, prereqs=prereqs, filterfn=filterfn,label=label,lock=False, finalinit=False, )
+        JetConstitSource.__init__(self,name, objtype, outputname, prereqs=prereqs, jetinputtype=jetinputtype, filterfn=filterfn,label=label,lock=False, finalinit=False, )
         self.inputname  = inputname or name
         self.modifiers = modifiers
 
