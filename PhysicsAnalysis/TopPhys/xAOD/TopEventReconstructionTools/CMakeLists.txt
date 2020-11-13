@@ -27,7 +27,7 @@ atlas_add_root_dictionary( TopEventReconstructionTools _cintDictSource
 # Build a library that other components can link against:
 atlas_add_library( TopEventReconstructionTools Root/*.cxx Root/*.h Root/*.icc
                    TopEventReconstructionTools/*.h TopEventReconstructionTools/*.icc TopEventReconstructionTools/*/*.h
-                   TopEventReconstructionTools/*/*.icc ${_cintDictSource} 
+                   TopEventReconstructionTools/*/*.icc ${_cintDictSource}
                    PUBLIC_HEADERS TopEventReconstructionTools
                    LINK_LIBRARIES xAODCore
                                   AthContainers
@@ -41,18 +41,3 @@ atlas_add_library( TopEventReconstructionTools Root/*.cxx Root/*.h Root/*.icc
 
 # Install data files from the package:
 atlas_install_data( share/* )
-
-# Build the executables of the package:
-atlas_add_executable( topreco_test_mt2
-                      util/topreco_test_mt2.cxx
-                      LINK_LIBRARIES xAODCore
-                                     AthContainers
-                                     AsgTools
-                                     TopEvent
-                                     TopEventSelectionTools
-                                     TopAnalysis
-                                     ${KLFITTER_LIBRARIES}
-                                     ${ROOT_LIBRARIES}
-                                     TopEventReconstructionTools
-                      INCLUDE_DIRS ${KLFITTER_INCLUDE_DIRS} )
-
