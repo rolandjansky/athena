@@ -216,37 +216,35 @@ namespace GSFUtils {
  * Merge the componentsIn and return
  * which componets got merged.
  */
-std::vector<std::pair<int8_t, int8_t>>
+MergeArray
 findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
 {
-  Component1D* components = static_cast<Component1D*>(__builtin_assume_aligned(
-    componentsIn.components.data(), GSFConstants::alignment));
   const int32_t n = componentsIn.numComponents;
-
   // Sanity check. Function  throw on invalid inputs
   if (n < 0 || n > GSFConstants::maxComponentsAfterConvolution ||
       reducedSize > n) {
     throw std::runtime_error("findMerges :Invalid InputSize or reducedSize");
   }
-  // We need just one for the full duration of a job
-  // so static and const
+
+  Component1D* components = static_cast<Component1D*>(__builtin_assume_aligned(
+    componentsIn.components.data(), GSFConstants::alignment));
+
+  // We need just one for the full duration of a job so static const
   const static std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 
   //Based on the inputSize n allocate enough space for the pairwise distances
-  const int32_t nn = n * (n - 1) / 2;
   // We work with a  multiple of 8*floats (32 bytes).
+  const int32_t nn = n * (n - 1) / 2;
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
   AlignedDynArray<float, GSFConstants::alignment> distances(
     nn2, std::numeric_limits<float>::max());
-
-  // vector to be returned
-  std::vector<std::pair<int8_t, int8_t>> merges;
-  merges.reserve(n - reducedSize);
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
   //keep track of where we are
   int32_t numberOfComponentsLeft = n;
   IsMergedArray ismerged={};
+  //Result to  returned
+  MergeArray result{};
   // merge loop
   while (numberOfComponentsLeft > reducedSize) {
     // see if we have the next already
@@ -264,10 +262,11 @@ findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
     // re-calculate distances wrt the new component at mini
     recalculateDistances(components, distances.buffer(), ismerged, mini, n);
    // keep track and decrement
-    merges.emplace_back(mini, minj);
+    result.merges[result.numMerges]={mini, minj};
+    ++result.numMerges;
     --numberOfComponentsLeft;
   } // end of merge while
-  return merges;
+  return result;
 }
 
 /**

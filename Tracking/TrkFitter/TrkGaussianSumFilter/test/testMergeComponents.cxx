@@ -98,11 +98,11 @@ main()
     componentsArray.components[i].invCov = input[i].invCov;
     componentsArray.components[i].weight = input[i].weight;
   }
-  std::vector<std::pair<int8_t, int8_t>> mergeOrder =
-    findMerges(componentsArray, 12);
-  for (const auto& i : mergeOrder) {
-    std::cout << "[" << static_cast<int>(i.first) << ", "
-              << static_cast<int>(i.second) << "]" << '\n';
+  const GSFUtils::MergeArray order = findMerges(componentsArray, 12);
+  const int32_t numMerges = order.numMerges;
+  for (int32_t i = 0; i < numMerges; ++i) {
+    std::cout << "[" << static_cast<int>(order.merges[i].To) << ", "
+              << static_cast<int>(order.merges[i].From) << "]" << '\n';
   }
   return 0;
 }
