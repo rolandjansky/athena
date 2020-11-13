@@ -298,7 +298,7 @@ def makexAOD (seq, xaod_type, xaod_key, key=None, **kw):
         key = xaod_key
 
     tinfo_list = types[xaod_type]
-    if isinstance(tinfo_list, list):
+    if not isinstance(tinfo_list, list):
         tinfo_list = [tinfo_list]
 
     for tinfo in tinfo_list:
