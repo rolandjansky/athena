@@ -187,6 +187,6 @@ def getCalibSpecsFromString(modspec):
     return calibcontext, data_type, calibseq, rhoname, pvname, gscdepth
 
 # This method instantiates the JetCalibTool given the input mod specification
-def getJetCalibToolFromString(modspec,jetdef):
+def getJetCalibToolFromString(jetdef, modspec):
     calibcontext, data_type, calibseq, rhoname, pvname, gscdepth = getCalibSpecsFromString(modspec)
     return getJetCalibTool(jetdef.basename,calibcontext,data_type,calibseq,rhoname,pvname,gscdepth)
