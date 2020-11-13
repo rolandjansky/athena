@@ -172,8 +172,6 @@
 #include "../L1CaloErrorByteStreamTool.h"
 
 // #include "../PpmByteStreamSubsetTool.h"
-#include "../TriggerTowerSelectionTool.h"
-#include "../TrigT1CaloDataAccess.h"
 #include "../TrigT1CaloDataAccessV2.h"
 
 
@@ -334,6 +332,4 @@ DECLARE_COMPONENT( LVL1BS::RodHeaderByteStreamTool )
 DECLARE_COMPONENT( LVL1BS::L1CaloErrorByteStreamTool )
 
 
-DECLARE_COMPONENT( LVL1BS::TriggerTowerSelectionTool )
-DECLARE_COMPONENT( LVL1BS::TrigT1CaloDataAccess )
 DECLARE_COMPONENT( LVL1BS::TrigT1CaloDataAccessV2 )
