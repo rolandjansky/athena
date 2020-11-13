@@ -4,7 +4,7 @@ if not hasattr(ServiceMgr, 'THistSvc'):
     from GaudiSvc.GaudiSvcConf import THistSvc
     ServiceMgr += THistSvc()
 ServiceMgr.THistSvc.Output  = ["stepHisto DATAFILE='StepHistograms.root' OPT='RECREATE'"];
-print ServiceMgr.THistSvc
+print(ServiceMgr.THistSvc)
 
 ## User Actions
 from G4AtlasApps.SimFlags import simFlags
