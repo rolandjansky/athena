@@ -101,7 +101,7 @@ def getTauAxis():
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
                                     VertexCorrection = doVertexCorrection,
-                                    TauVertexCorrection = getTauVertexCorrection()
+                                    JetVertexCorrection = False
                                   )
     # No Axis correction at trigger level
                                     
