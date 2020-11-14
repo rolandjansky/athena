@@ -13,6 +13,9 @@
 #include <TClass.h>
 #include <TROOT.h>
 #include <TVirtualCollectionProxy.h>
+#include <TBranchElement.h>
+#include <TStreamerInfo.h>
+#include <TStreamerElement.h>
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
@@ -1467,6 +1470,19 @@ namespace xAOD {
          ::Warning( "xAOD::TAuxStore::setupAuxBranch",
                     "Couldn't get the type of branch \"%s\"",
                     br->GetName() );
+      }
+
+      // Check for schema evolution:
+      // If a branch has automatic schema evolution from one class to another,
+      // then what we get from GetExpectedType will be the on-disk class.
+      // What we have in memory is given by GetCurrentClass.
+      if (expectedClass) {
+        if (TBranchElement* bre = dynamic_cast<TBranchElement*> (br)) {
+          TClass* newClass = bre->GetCurrentClass();
+          if (newClass && newClass != expectedClass) {
+            expectedClass = newClass;
+          }
+        }
       }
 
       // If this is a primitive variable, and we're still not sure whether this
