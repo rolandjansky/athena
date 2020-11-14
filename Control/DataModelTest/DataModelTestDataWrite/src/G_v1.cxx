@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file DataModelTestDataWrite/src/G_v1.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,7 +16,9 @@
 namespace DMTest {
 
 
-AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (G_v1, int,    anInt,  setAnInt)
+AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (G_v1, int,    anInt,   setAnInt)
+AUXSTORE_PRIMITIVE_SETTER_AND_GETTER (G_v1, double, gFloat,  setgFloat)
+AUXSTORE_OBJECT_SETTER_AND_GETTER (G_v1, std::vector<double>, gvFloat,  setgvFloat)
 
 
 } // namespace DMTest
