@@ -107,65 +107,6 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='FTAG6TriggerMatchingToolTa
         trigger_list = trigger_names_tau, add_to_df_job=True, DRThreshold=0.2)
 
 
-
-#====================================================================
-# INNER DETECTOR TRACK THINNING
-#====================================================================
-# See recommedations here:
-# https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/DaodRecommendations
-
-# Inner detector group recommendations for indet tracks in analysis
-FTAG6_thinning_expression = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm && InDetTrackParticles.pt > 10*GeV"
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
-FTAG6TrackParticleThinningTool = DerivationFramework__TrackParticleThinning(name                    = "FTAG6TrackParticleThinningTool",
-                                                                           StreamName              = FTAG6Stream.Name,
-                                                                           SelectionString         = FTAG6_thinning_expression,
-                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
-
-ToolSvc += FTAG6TrackParticleThinningTool
-thinningTools.append(FTAG6TrackParticleThinningTool)
-
-# Include inner detector tracks associated with muons
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
-FTAG6MuonTPThinningTool = DerivationFramework__MuonTrackParticleThinning(name                    = "FTAG6MuonTPThinningTool",
-                                                                        StreamName              = FTAG6Stream.Name,
-                                                                        MuonKey                 = "Muons",
-                                                                        InDetTrackParticlesKey  = "InDetTrackParticles")
-
-ToolSvc += FTAG6MuonTPThinningTool
-thinningTools.append(FTAG6MuonTPThinningTool)
-
-# TauJets thinning
-tau_thinning_expression = "(TauJets.ptFinalCalib >= 13.*GeV) && (TauJets.nTracks>=1) && (TauJets.nTracks<=3) && (TauJets.RNNJetScoreSigTrans>0.01)"
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-FTAG6TauJetsThinningTool = DerivationFramework__GenericObjectThinning(name            = "FTAG6TauJetsThinningTool",
-                                                                     StreamName      = FTAG6Stream.Name,
-                                                                     ContainerName   = "TauJets",
-                                                                     SelectionString = tau_thinning_expression)
-ToolSvc += FTAG6TauJetsThinningTool
-thinningTools.append(FTAG6TauJetsThinningTool)
-
-# Only keep tau tracks (and associated ID tracks) classified as charged tracks
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TauTrackParticleThinning
-FTAG6TauTPThinningTool = DerivationFramework__TauTrackParticleThinning(name                   = "FTAG6TauTPThinningTool",
-                                                                      StreamName             = FTAG6Stream.Name,
-                                                                      TauKey                 = "TauJets",
-                                                                      InDetTrackParticlesKey = "InDetTrackParticles",
-                                                                      SelectionString        = tau_thinning_expression,
-                                                                      DoTauTracksThinning    = True,
-                                                                      TauTracksKey           = "TauTracks")
-ToolSvc += FTAG6TauTPThinningTool
-thinningTools.append(FTAG6TauTPThinningTool)
-
-# ID tracks associated with high-pt di-tau
-from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__DiTauTrackParticleThinning
-FTAG6DiTauTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "FTAG6DiTauTPThinningTool",
-                                                                          StreamName              = FTAG6Stream.Name,
-                                                                          DiTauKey                = "DiTauJets",
-                                                                          InDetTrackParticlesKey  = "InDetTrackParticles")
-ToolSvc += FTAG6DiTauTPThinningTool
-thinningTools.append(FTAG6DiTauTPThinningTool)
-
 #====================================================================
 # JET/MET
 #====================================================================
@@ -208,30 +149,6 @@ if DerivationFrameworkIsMonteCarlo:
 # Ideally, this should come at the end of the job
 DerivationFrameworkJob += SeqFTAG6
 
-#====================================================================
-# Tau
-#====================================================================
-# Add low-pt di-tau reconstruction
-from DerivationFrameworkTau.TauCommon import addDiTauLowPt
-addDiTauLowPt(Seq=SeqFTAG6)
-
-# Low-pt di-tau thinning
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__GenericObjectThinning
-FTAG6DiTauLowPtThinningTool = DerivationFramework__GenericObjectThinning(name            = "FTAG6DiTauLowPtThinningTool",
-                                                                        StreamName      = FTAG6Stream.Name,
-                                                                        ContainerName   = "DiTauJetsLowPt",
-                                                                        SelectionString = "DiTauJetsLowPt.nSubjets > 1")
-ToolSvc += FTAG6DiTauLowPtThinningTool
-thinningTools.append(FTAG6DiTauLowPtThinningTool)
-
-# ID tracks associated with low-pt ditau
-FTAG6DiTauLowPtTPThinningTool = DerivationFramework__DiTauTrackParticleThinning(name                    = "FTAG6DiTauLowPtTPThinningTool",
-                                                                               StreamName              = FTAG6Stream.Name,
-                                                                               DiTauKey                = "DiTauJetsLowPt",
-                                                                               InDetTrackParticlesKey  = "InDetTrackParticles",
-                                                                               SelectionString         = "DiTauJetsLowPt.nSubjets > 1")
-ToolSvc += FTAG6DiTauLowPtTPThinningTool
-thinningTools.append(FTAG6DiTauLowPtTPThinningTool)
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
@@ -250,15 +167,6 @@ from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollec
 
 FtagJetCollection('AntiKt4EMPFlowJets',SeqFTAG6)
 
-
-#====================================================================
-# TC-LVT Vertices
-#====================================================================
-
-# from SoftBVrtClusterTool.SoftBVrtConfig import addSoftBVrt
-# addSoftBVrt(SeqFTAG6,'Loose')
-# addSoftBVrt(SeqFTAG6,'Medium')
-# addSoftBVrt(SeqFTAG6,'Tight')
 
 #====================================================================
 # CONTENTS
@@ -297,13 +205,13 @@ FTAG6SlimmingHelper.StaticContent = StaticContent
 
 # Trigger content
 FTAG6SlimmingHelper.IncludeTriggerNavigation = False
-FTAG6SlimmingHelper.IncludeJetTriggerContent = False
+FTAG6SlimmingHelper.IncludeJetTriggerContent = True
 FTAG6SlimmingHelper.IncludeMuonTriggerContent = False
 FTAG6SlimmingHelper.IncludeEGammaTriggerContent = False
 FTAG6SlimmingHelper.IncludeJetTauEtMissTriggerContent = False
 FTAG6SlimmingHelper.IncludeTauTriggerContent = False
 FTAG6SlimmingHelper.IncludeEtMissTriggerContent = False
-FTAG6SlimmingHelper.IncludeBJetTriggerContent = False
+FTAG6SlimmingHelper.IncludeBJetTriggerContent = True
 FTAG6SlimmingHelper.IncludeBPhysTriggerContent = False
 FTAG6SlimmingHelper.IncludeMinBiasTriggerContent = False
 
@@ -346,8 +254,6 @@ FTAG6SlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.
                                       "Muons.TruthLink",
                                       "Photons.TruthLink",
                                       "AntiKt2PV0TrackJets.pt.eta.phi.m",
-                                      "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID",
-                                      "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt",
                                       "TruthPrimaryVertices.t.x.y.z"]
 
 # Add trigger matching
