@@ -198,6 +198,18 @@ addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYS,algname="QGTaggerToolPF
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYS, algname='PHYSJetForwardPFlowJvtToolAlg')
 
 #====================================================================
+# PromptLeptonVeto
+#====================================================================
+import LeptonTaggers.LeptonTaggersConfig as PLVConfig
+
+# simple call to replaceAODReducedJets(["AntiKt4PV0TrackJets"], SeqPHYS, "PHYS")
+PLVConfig.ConfigureAntiKt4PV0TrackJets(SeqPHYS, "PHYS")
+
+# add decoration
+SeqPHYS += PLVConfig.GetDecoratePromptLeptonAlgs(addSpectators=False)
+
+
+#====================================================================
 # Add our sequence to the top sequence
 #====================================================================
 # Ideally, this should come at the end of the job, but the tau additions
@@ -364,6 +376,10 @@ PHYSSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jets.T
                                       "AntiKt4EMTopoJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID",
                                       "AntiKt4EMPFlowJets.DFCommonJets_QGTagger_truthjet_nCharged.DFCommonJets_QGTagger_truthjet_pt.DFCommonJets_QGTagger_truthjet_eta.DFCommonJets_QGTagger_NTracks.DFCommonJets_QGTagger_TracksWidth.DFCommonJets_QGTagger_TracksC1.PartonTruthLabelID.DFCommonJets_fJvt",
                                       "TruthPrimaryVertices.t.x.y.z"]
+
+# Saves the BDT output scores for the PLV algorithms.
+# Can specify just electrons or just muons by adding 'name="Electrons"' or 'name="Muons"' as the argument.
+PHYSSlimmingHelper.ExtraVariables += PLVConfig.GetExtraPromptVariablesForDxAOD(addSpectators=False, onlyBDT=True)
 
 # Add trigger matching
 trigmatching_helper_notau.add_to_slimming(PHYSSlimmingHelper)
