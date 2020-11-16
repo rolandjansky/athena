@@ -38,12 +38,8 @@ TRTMonitoringRun3RAW_Alg::TRTMonitoringRun3RAW_Alg( const std::string& name, ISv
 ,m_idHelper(0)
 ,m_pTRTHelper(0)
 ,m_mgr(0)
-,m_minTRThits(10)
-,m_minP(0)
 ,m_sumTool("TRT_StrawStatusSummaryTool", this)
 ,m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc", name)
-,m_isCosmics(false)
-,m_EventBurstCut(-1)
 {
     declareProperty("InDetTRTStrawStatusSummaryTool", m_sumTool);
     declareProperty("doStraws",                       m_doStraws         = true);
