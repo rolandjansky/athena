@@ -7,6 +7,7 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 #include "xAODTracking/Vertex.h" 
 
 namespace PFO {
@@ -15,9 +16,10 @@ namespace PFO {
 
   public:
 
-    PFOPVMatchedPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
+    PFOPVMatchedPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName);
 
     void fill(const xAOD::PFO& PFO, const xAOD::Vertex& theVertex);
+    void fill(const xAOD::FlowElement& FE, const xAOD::Vertex& theVertex);
 
   private:
     TH1* m_PFO_pt;
@@ -31,9 +33,20 @@ namespace PFO {
     TH1* m_PFO_pt_etaBinB;
     TH1* m_PFO_pt_etaBinC;
     
+    TH1* m_FE_pt;
+    TH1* m_FE_eta;
+    TH1* m_FE_phi;
+    TH1* m_FE_m;
+    TH1* m_FE_charge;
+    
+    /** Pt Histogram binned in eta */
+    TH1* m_FE_pt_etaBinA;
+    TH1* m_FE_pt_etaBinB;
+    TH1* m_FE_pt_etaBinC;
+    
     void initializePlots();
     std::string m_sPFOContainerName;
-
+    std::string m_sFEContainerName;
   };
 
 }

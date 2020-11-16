@@ -56,7 +56,6 @@ StatusCode PFMuonFlowElementAssoc::initialize() {
 
   ATH_MSG_VERBOSE("Initialization completed successfully");   
 
-
   return StatusCode::SUCCESS; 
 } 
 
@@ -196,7 +195,6 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
 		ATH_MSG_WARNING("Muon Calo cluster's TopoCluster link not found, skip");
 		continue;
 	      }
-
 	      const xAOD::CaloCluster* MuonTopoCluster=*TopoClusterLink; // de-ref the link to get the topo-cluster
 	      size_t MuonTopoCluster_index=MuonTopoCluster->index();
 	      if(MuonTopoCluster_index==FEclusterindex){
@@ -299,7 +297,6 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
       // For debug of the muon clusters used, add also: dR between caloclusters and number of caloclusters associated to each muon.
       //retrieve element link again to cluster
       const ElementLink<xAOD::CaloClusterContainer> ClusterContLink=muon->clusterLink();
-
       if(!ClusterContLink.isValid()){
 	ATH_MSG_DEBUG("Muon cluster link is invalid, skip");
 	continue;
@@ -315,7 +312,6 @@ StatusCode PFMuonFlowElementAssoc::execute(const EventContext & ctx) const
     }
   }// end of experimental block
   ATH_MSG_VERBOSE("Execute completed successfully");   
-
   
   return StatusCode::SUCCESS;
 }
