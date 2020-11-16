@@ -213,8 +213,8 @@ def tauCaloMVASequence(ConfigFlags):
     return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)
 
 def preSelSequence( RoIs, name):
-    
-    tauPreSelSequence = seqAND(name)
+
+    tauPreSelSequence = parOR(name)
 
     signatureName, signatureNameID = _getTauSignatureShort( name )
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -247,7 +247,7 @@ def preSelSequence( RoIs, name):
 
 def tauIdSequence( RoIs, name):
 
-    tauIdSequence = seqAND(name)
+    tauIdSequence = parOR(name)
 
     signatureName, signatureNameID = _getTauSignatureShort( name )
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -288,8 +288,6 @@ def tauIdSequence( RoIs, name):
 
 def precTrackSequence( RoIs , name):
 
-    precTrackSequence = seqAND(name)
-
     signatureName, signatureNameID = _getTauSignatureShort( name )
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( signatureNameID )
@@ -322,8 +320,6 @@ def precTrackSequence( RoIs , name):
       topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
       ViewVerifyTrk.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
-    precTrackSequence+= ViewVerifyTrk
-
     #Precision Tracking
     PTAlgs = [] #List of precision tracking algs 
     PTTracks = [] #List of TrackCollectionKeys
@@ -333,18 +329,16 @@ def precTrackSequence( RoIs , name):
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
     #Pass verifier as an argument and it will automatically append necessary DataObjects@NOTE: Don't provide any verifier if loaded in the same view as FTF
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois = RoIs )
-    PTSeq = parOR("precisionTrackingIn"+signatureName, PTAlgs  )
+    precTrackSequence = parOR(name, [ViewVerifyTrk] + PTAlgs  )
 
     #Get last tracks from the list as input for other alg       
-    precTrackSequence += PTSeq
-
     sequenceOut = PTTrackParticles[-1]
 
     return precTrackSequence, sequenceOut
 
 def tauFTFSequence( RoIs, name ):
 
-    tauFTFSequence = seqAND(name)
+    tauFTFSequence = parOR(name)
 
     signatureName, signatureNameID = _getTauSignatureShort( name )
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig

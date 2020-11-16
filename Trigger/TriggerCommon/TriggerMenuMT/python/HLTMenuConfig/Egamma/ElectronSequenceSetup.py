@@ -6,10 +6,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-# ATR-20453
-# Until such time as FS and RoI collections do not interfere, a hacky fix
-#from AthenaCommon.CFElements import parOR, seqAND
-from AthenaCommon.CFElements import seqAND
+from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
@@ -51,10 +48,7 @@ def fastElectronSequence(ConfigFlags):
     l2ElectronViewsMaker.RequireParentView = True
 
     theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
-    # ATR-20453
-    # Until such time as FS and RoI collections do not interfere, a hacky fix
-    #electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
-    electronInViewAlgs = seqAND("electronInViewAlgs", viewAlgs + [ theElectronFex ])
+    electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
     electronAthSequence = seqAND("electronAthSequence", [l2ElectronViewsMaker, electronInViewAlgs ] )
