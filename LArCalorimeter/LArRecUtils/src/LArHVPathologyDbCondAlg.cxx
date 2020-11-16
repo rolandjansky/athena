@@ -25,6 +25,7 @@
 
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "LArReadoutGeometry/EMBCell.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "TBufferFile.h"
 #include "TClass.h"
@@ -132,7 +133,8 @@ StatusCode LArHVPathologyDbCondAlg::execute(const EventContext& ctx) const {
        }
         
       
-       TBufferFile buf(TBuffer::kRead, blob.size(), (void*)blob.startingAddress(), false);
+       void* blob_data ATLAS_THREAD_SAFE = const_cast<void*> (blob.startingAddress());
+       TBufferFile buf(TBuffer::kRead, blob.size(), blob_data, false);
        LArHVPathologiesDb* hvpathdb = (LArHVPathologiesDb*)buf.ReadObjectAny(m_klass);
 
        std::unique_ptr<LArHVPathology> hvpath=std::make_unique<LArHVPathology>(hvpathdb);

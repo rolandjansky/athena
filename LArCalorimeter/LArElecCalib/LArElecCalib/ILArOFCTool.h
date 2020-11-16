@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILAROFCTOOL_H
@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "LArElecCalib/LArVectorProxy.h"
+#include "CxxUtils/checker_macros.h"
 
 class Identifier;
 class HWIdentifier;
@@ -16,7 +17,7 @@ class HWIdentifier;
 
 static const InterfaceID IID_ILArOFCTool("ILArOFCTool", 1 , 0);
 
-class ILArOFCTool: virtual public IAlgTool {
+class ATLAS_NOT_THREAD_SAFE ILArOFCTool: virtual public IAlgTool {
   /**
    * AlgoTool to compute OFC on fly
    *
@@ -28,16 +29,20 @@ class ILArOFCTool: virtual public IAlgTool {
 
   virtual ~ILArOFCTool() {};
 
-  virtual OFCRef_t OFC_a(const HWIdentifier& id, 
+  virtual OFCRef_t OFC_a ATLAS_NOT_THREAD_SAFE
+                        (const HWIdentifier& id, 
                          int gain,
                          float Nminbias=-1) const = 0;
-  virtual OFCRef_t OFC_b(const HWIdentifier& id, 
+  virtual OFCRef_t OFC_b ATLAS_NOT_THREAD_SAFE
+                        (const HWIdentifier& id, 
                          int gain,
                          float Nminbias=-1) const = 0;
-  virtual OFCRef_t OFC_a(const Identifier& id, 
+  virtual OFCRef_t OFC_a ATLAS_NOT_THREAD_SAFE
+                        (const Identifier& id, 
                          int gain,
                          float Nminbias=-1) const = 0;
-  virtual OFCRef_t OFC_b(const Identifier& id, 
+  virtual OFCRef_t OFC_b ATLAS_NOT_THREAD_SAFE
+                        (const Identifier& id, 
                          int gain,
                          float Nminbias=-1) const = 0;
 

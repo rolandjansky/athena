@@ -106,8 +106,7 @@ std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<short>& samp
 
 std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<float>& samples, int layer, float pedestal) const 
 {//const float dt=25.0;//ns
-  static std::vector<float> solution; 
-  solution.clear();
+  std::vector<float> solution; 
 
   const std::vector<float>::const_iterator it_max=max_element(samples.begin(),samples.end());
   if (it_max==samples.end()) {
