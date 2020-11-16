@@ -19,17 +19,11 @@
  ********************************************************/
 
 
- #include "GaudiKernel/ToolHandle.h"
- #include "GaudiKernel/ServiceHandle.h"
- #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
- #include <vector>
- #include <string>
- #include <regex>
-
- #include <TString.h>
- #include "AthenaKernel/IOVSvcDefs.h"
-
+#include "AthenaKernel/IOVSvcDefs.h"
 
 //this is a typedef: no forward decl possible
 #include "TrkParameters/TrackParameters.h"
@@ -43,12 +37,18 @@
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
+#include <RtypesCore.h> //Double_t
 #include <Eigen/Dense>
+#include <vector>
+#include <array>
+#include <string>
+#include <string_view>
+#include <regex>
 
 
- class TTrainedNetwork;
- class TH1;
- class ICoolHistSvc;
+class TTrainedNetwork;
+class TH1;
+class ICoolHistSvc;
 
 namespace lwt {
   class NanReplacer;    
@@ -60,8 +60,7 @@ namespace Trk {
   class Surface;
 }
 
-namespace InDetDD
-{
+namespace InDetDD{
   class SiLocalPosition;
 }
 
@@ -69,8 +68,7 @@ namespace InDet {
 
   class PixelCluster;
 
-  struct NNinput
-  {
+  struct NNinput{
     operator bool() const {
       return !matrixOfToT.empty();
     }
@@ -212,23 +210,31 @@ namespace InDet {
                         kErrorXNN,
                         kErrorYNN,
                         kNNetworkTypes};
-    static const char* const s_nnTypeNames[kNNetworkTypes];
-    std::vector<unsigned int> m_nParticleGroup{0U,1U,1U,1U}; // unsigned int
-    std::vector<std::regex>   m_nnNames{
-      std::regex("^NumberParticles(|/|_.*)$"),
-      std::regex("^ImpactPoints([0-9])P(|/|_.*)$"),
-      std::regex("^ImpactPointErrorsX([0-9])(|/|_.*)$"),
-      std::regex("^ImpactPointErrorsY([0-9])(|/|_.*)$"),
-    };
+    static constexpr std::array<std::string_view, kNNetworkTypes> s_nnTypeNames{
+      "NumberParticlesNN",
+      "PositionNN",
+      "ErrorXNN",
+      "ErrorYNN" };
+    static constexpr std::array<unsigned int, kNNetworkTypes> m_nParticleGroup{0U,1U,1U,1U}; // unsigned int
+    static const std::array<std::regex, kNNetworkTypes>   m_nnNames;
 
-    unsigned int                             m_nParticleNNId;
-    std::vector< std::vector<unsigned int> > m_NNId;
+    unsigned int                             m_nParticleNNId{};
+    std::vector< std::vector<unsigned int> > m_NNId{};
+    
 
     // Function to be called to assemble the inputs
     std::vector<double> (InDet::NnClusterizationFactory:: *m_assembleInput)(NNinput& input) const {&NnClusterizationFactory::assembleInputRunII};
-
+    
+    //Calculate flat vector dimension, according to input
+    size_t calculateVectorDimension(const bool useTrackInfo) const;
+    
     // Function to be called to compute the output
-    std::vector<Double_t> (::TTrainedNetwork:: *m_calculateOutput)(const std::vector<Double_t> &input) const {&TTrainedNetwork::calculateNormalized};
+    using ReturnType = std::vector<Double_t>;
+    using InputType = std::vector<Double_t>;
+    //the following declares a member variable m_calculateOutput which is a function pointer
+    //to a member function of the TTrainedNetwork. Note to anyone brave enough to update this to C++17using std::function:
+    //TTrainedNetwork::calculateNormalized is overloaded so template resolution does not work trivially.
+    ReturnType (::TTrainedNetwork:: *m_calculateOutput)(const InputType &input) const {&TTrainedNetwork::calculateNormalized};
 
     ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool
        {this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
@@ -252,7 +258,7 @@ namespace InDet {
 
     //  this is written into the JSON config "node_index"
     //  this can be found from the LWTNN GraphConfig object used to initalize the collection objects
-    //     opiton size_t index = graph_config.outputs.at("output_node_name").node_index
+    //     option size_t index = graph_config.outputs.at("output_node_name").node_index
     //   
     Gaudi::Property< std::size_t > m_outputNodesPos1
     {this, "OutputNodePos1", 7,
@@ -293,10 +299,10 @@ namespace InDet {
     Gaudi::Property<bool> m_useRecenteringNNWithTracks
        {this, "useRecenteringNNWithTracks",false,"Recenter x position when evaluating NN with track input."};
 
-    Gaudi::Property<int> m_sizeX
+    Gaudi::Property<unsigned int> m_sizeX
        {this, "sizeX",7,"Size of pixel matrix along X"};
 
-    Gaudi::Property<int> m_sizeY
+    Gaudi::Property<unsigned int> m_sizeY
        {this, "sizeY",7,"Size of pixel matrix along Y"};
 
    };
