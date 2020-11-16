@@ -25,7 +25,11 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("CheckSimHits", True)
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
-    kwargs.setdefault("OutputSDOName", "MM_SDO")
+    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "MM_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "MM_SDO")
     kwargs.setdefault("SmearingTool","MMCalibSmearingTool")
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
