@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file CaloD3PDMaker/python/CollisionDecisionD3PDObject.py
 # @author scott snyder <snyder@bnl.gov>
@@ -9,7 +8,6 @@
 #
 
 
-import CaloD3PDMaker
 import EventCommonD3PDMaker
 from CaloD3PDMaker.CollisionDecisionGetter import CollisionDecisionGetter
 from D3PDMakerConfig.D3PDMakerFlags        import D3PDMakerFlags
