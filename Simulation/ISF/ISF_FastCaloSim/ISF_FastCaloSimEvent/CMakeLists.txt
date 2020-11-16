@@ -83,6 +83,7 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h
+                           ISF_FastCaloSimEvent/TFCSHistoLateralCovarianceFluctuations.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h
                            ISF_FastCaloSimEvent/TFCSHitCellMapping.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h
@@ -91,7 +92,8 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSEnergyRenormalization.h
                            ISF_FastCaloSimEvent/TFCSExtrapolationState.h 
                            ISF_FastCaloSimEvent/TFCSSimulationState.h 
-                           ISF_FastCaloSimEvent/TFCSTruthState.h 
+                           ISF_FastCaloSimEvent/TFCSTruthState.h
+                           ISF_FastCaloSimEvent/TFCSVoxelHistoLateralCovarianceFluctuations.h 
                            ISF_FastCaloSimEvent/LinkDef.h 
 			   EXTERNAL_PACKAGES HepPDT)
 
