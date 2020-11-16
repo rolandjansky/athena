@@ -2,20 +2,19 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/*********************************************************************************
-                        MultiComponentState.h  -  description
-                        -------------------------------------
-begin                : Friday 31st December 2004
-author               : atkinson, amorley,anastopoulos
-email                : Anthony.Morley@cern.ch
-decription           : Basic definitions for a track state described by more
-                       than one set of Track Parameters. The resulting state is
-                       a mixture of components.
-                       Each component is described by a ComponentParameters object
-                       which is of the type std::pair< std::unique_ptr<TrackParameters>, double>
-                       The double describes the weighting of the component -
-                       or its relative importance in the mixture.
-*********************************************************************************/
+/**
+ * @file MultiComponentState.h
+ * @date   Friday 31st December 2004
+ * @author atkinson, Anthony Morley, Christos Anastopoulos
+ * @brief   Basic definitions for a track state described by more
+ * than one set of Track Parameters. The resulting state is
+ * a mixture of components.
+ * Each component is described by a ComponentParameters
+ * object which is of the type std::pair<
+ * std::unique_ptr<TrackParameters>, double>.
+ * The double describes the weighting of
+ * the component - or its relative importance in the mixture.
+ */
 
 #ifndef TrkMultiComponentState
 #define TrkMultiComponentState
@@ -32,7 +31,7 @@ typedef std::vector<ComponentParameters> MultiComponentState;
 
 namespace MultiComponentStateHelpers {
 
-/** create a unique_ptr from input, moves (does not clone) the TrackParameters
+/** Create a unique_ptr from input, moves the TrackParameters
  */
 std::unique_ptr<MultiComponentState>
 toPtr(MultiComponentState&& in);
@@ -41,17 +40,19 @@ toPtr(MultiComponentState&& in);
 std::unique_ptr<MultiComponentState>
 clone(const MultiComponentState& in);
 
-/** Clone TrackParameters with covariance matricies scaled by a factor */
-std::unique_ptr<MultiComponentState>
-cloneWithScaledError(const MultiComponentState& in, double);
-
-/** Clone TrackParameters with covariance matrix components scaled by individual factors
-    This will only work if there are 5 track parameters in each componant
+/** Create a unique_ptr from input with covariance matrix components scaled by individual
+   factors.
 */
 std::unique_ptr<MultiComponentState>
-cloneWithScaledError(const MultiComponentState&, double, double, double, double, double);
+toPtrWithScaledError(MultiComponentState&& in,
+                     double errorScaleLocX,
+                     double errorScaleLocY,
+                     double errorScalePhi,
+                     double errorScaleTheta,
+                     double errorScaleQoverP);
 
-/** Check to see if all components in the state have measured track parameters */
+/** Check to see if all components in the state have measured track parameters
+ */
 bool
 isMeasured(const MultiComponentState& in);
 
