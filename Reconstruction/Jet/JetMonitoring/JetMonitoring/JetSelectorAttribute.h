@@ -33,7 +33,7 @@ class JetSelectorAttribute : public asg::AsgTool , virtual public IJetSelector
    std::vector<float> m_min;
    std::vector<float> m_max;
 
-   std::vector<ToolHandle<IJetHistoVarTool>> m_var;
+   ToolHandleArray<IJetHistoVarTool> m_var;
 
 };
 

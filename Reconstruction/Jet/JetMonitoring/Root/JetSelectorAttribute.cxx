@@ -9,9 +9,11 @@
 
 JetSelectorAttribute::JetSelectorAttribute(const std::string &t) 
   : asg::AsgTool(t)
-  , m_min(-std::numeric_limits<float>::max())
-  , m_max(std::numeric_limits<float>::max())
-  , m_var(0)
+  //, m_min(-std::numeric_limits<float>::max())
+  //, m_max(std::numeric_limits<float>::max())
+  , m_min(-999999.)
+  , m_max(999999.)
+  , m_var(this)
 {
   declareProperty("CutMin", m_min );
   declareProperty("CutMax", m_max );
