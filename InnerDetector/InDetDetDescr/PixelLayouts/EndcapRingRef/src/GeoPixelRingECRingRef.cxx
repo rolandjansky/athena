@@ -58,6 +58,7 @@ GeoPixelRingECRingRef::GeoPixelRingECRingRef(int iLayer, int iRing, double ringR
     m_diskId(diskId),
     m_front_back(back_front),
     m_inclination(inclination),
+    m_thickSafety(0.),
     m_readoutRegion("EC"),
     m_readoutLayer(iLayer),
     m_readoutEta(iRing),
@@ -97,20 +98,21 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
 
   // Compute module radial min max size
   double rmin = m_radius;
-  double rmax = ComputeRMax(rmin, 0.01, ringModule->Length(), ringModule->Width(), m_inclination);
+  double rmax = ComputeRMax(rmin, ringModule->Length(), ringModule->Width(), m_inclination);  // takes into account upper edges
   // ... module thicknesses
   double thickHyb = ringModule->ThicknessN();
   double thickChip = ringModule->ThicknessP();
+  m_thickSafety = (m_inclination!=0)?  ringModule->Thickness() : std::max(thickHyb,thickChip) ;
 
   m_halfLength = ringModule->Thickness()/2.;
 
   double edge = buildDeadEdges ? fabs(  ringModule->Length()-ringModule->getModuleChipLength() ) : 0.;
-  m_ringRMin = rmin- 0.5*edge*cos(m_inclination)- 0.001;
-  m_ringRMax = rmax+0.5*edge*cos(m_inclination)+0.001;
+  m_ringRMin = rmin- 0.5*edge*cos(m_inclination) - m_thickSafety*fabs(sin(m_inclination)) - 0.001;
+  m_ringRMax = rmax+0.5*edge*cos(m_inclination)+m_thickSafety*fabs(sin(m_inclination))+0.001;
 
   // asymmetric span calculated w.r.t. the upper edge of sensor active area (xml input)  
-  m_ringZMin = -std::max(thickHyb,thickChip) - 0.001 - 0.5*edge*sin(m_inclination);
-  m_ringZMax = std::max(thickHyb,thickChip) + 0.001 + (ringModule->getModuleSensorLength()-0.5*edge)*sin(m_inclination);
+  m_ringZMin = -m_thickSafety*cos(m_inclination) - 0.5*edge*sin(m_inclination) - 0.001;
+  m_ringZMax = m_thickSafety*cos(m_inclination) + (ringModule->getModuleSensorLength()-0.5*edge)*sin(m_inclination) + 0.001;
 
  // This is the radius of the center of the active sensor 
   double moduleRadius = m_radius + 0.5*cos(m_inclination)*activeSensorLength;
@@ -165,7 +167,7 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
   // build ring envelope if needed
   GeoFullPhysVol* ringPhys = envelope;
 
-  double dr = 0.5*fabs(m_rOffset);
+  double dr = 0.5*fabs(m_rOffset) ;
   
   if (!ringPhys) {
     const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
@@ -178,13 +180,11 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
       double thick = ringModule->Thickness()+fabs(zshift);
       double Sphi  = 0.;
       double Dphi  = 2*acos(-1.);
-      double tol = 0.5;
       GeoPcon* pcone = new GeoPcon(Sphi,Dphi);
-      double h1 = (m_ringRMax-m_ringRMin)*tan(m_inclination);
-      pcone->addPlane(-thick-tol,m_ringRMax-dr, m_ringRMax+dr);
-      pcone->addPlane(+thick+tol,m_ringRMax-2*(thick+tol)/tan(m_inclination)-dr,m_ringRMax+dr);
-      pcone->addPlane(-thick-tol+h1,m_ringRMin-dr,m_ringRMin+2*(thick+tol)/tan(m_inclination)+dr);
-      pcone->addPlane(thick+tol+h1,m_ringRMin-dr,m_ringRMin+dr);
+      pcone->addPlane(m_ringZMin-fabs(zshift),m_ringRMin-dr+(m_ringZMax-m_ringZMin-2*(thick-fabs(zshift))-m_thickSafety)/tan(m_inclination), m_ringRMax+dr);
+      pcone->addPlane(m_ringZMin-fabs(zshift)+2*thick+m_thickSafety, m_ringRMin-dr+(m_ringZMax-m_ringZMin-4*thick+2*fabs(zshift)-2*m_thickSafety)/tan(m_inclination),m_ringRMax+dr);
+      pcone->addPlane(m_ringZMax+fabs(zshift)-2*thick-m_thickSafety, m_ringRMin-dr, m_ringRMax+dr-(m_ringZMax-m_ringZMin-4*thick+2*fabs(zshift)-2*m_thickSafety)/tan(m_inclination));
+      pcone->addPlane(m_ringZMax+fabs(zshift), m_ringRMin-dr, m_ringRMax+dr-(m_ringZMax-m_ringZMin-2*(thick-fabs(zshift))-m_thickSafety)/tan(m_inclination));
       _ringLog = new GeoLogVol(logStr.str(),pcone,air);
     } else {   
       const GeoTube* ringTube = new GeoTube(m_ringRMin-dr,m_ringRMax+dr,halflength);
@@ -483,12 +483,12 @@ std::pair<GeoFullPhysVol*,GeoFullPhysVol*> GeoPixelRingECRingRef::BuildSplit(con
   return halfRingsAwayTwdBS;
 }
 
-double GeoPixelRingECRingRef::ComputeRMax(double rMin, double safety, double moduleLength, double moduleWidth, double inclination) 
+double GeoPixelRingECRingRef::ComputeRMax(double rMin, double moduleLength, double moduleWidth, double inclination) 
 {
   double xCorner = moduleWidth*.5;
   double yCorner = rMin + moduleLength*cos(inclination);
   
   double ringRmax = sqrt(xCorner*xCorner+yCorner*yCorner);
-  return ringRmax + std::abs(safety);
+  return ringRmax;
 
 }

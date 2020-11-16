@@ -214,7 +214,18 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     zLayerMax = std::max(zLayerMax,z[1]);
   }
 
+  std::vector<double> rShell = ringHelper.getLayerShellRadius(m_layer);
+  if (rShell.size()) {
+    rLayerMin = std::min(rLayerMin,rShell[0]);
+    rLayerMax = std::max(rLayerMax,rShell[1]);
+ }
 
+  std::vector<double> zShell = ringHelper.getLayerShellZBounds(m_layer);
+  if (zShell.size()) { 
+    zLayerMin = std::min(zLayerMin,zShell[0]);
+    zLayerMax = std::max(zLayerMax,zShell[1]);
+  }
+ 
   for(int iRing=0; iRing<nrings; iRing++){
     nbSvcSupport = ringHelper.getNbSupport(m_layer,iRing);
     for(int iSvc=0; iSvc<nbSvcSupport; iSvc++){
