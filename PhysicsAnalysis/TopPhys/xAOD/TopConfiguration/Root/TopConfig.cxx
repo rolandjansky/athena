@@ -17,6 +17,7 @@
 #include "TopConfiguration/Tokenize.h"
 
 #include "TopConfiguration/MsgCategory.h"
+
 using namespace TopConfiguration;
 
 namespace top {
@@ -70,6 +71,8 @@ namespace top {
     m_isMC(false),
     // Is AFII
     m_isAFII(false),
+    // Is Data Overlay
+    m_isDataOverlay(false),
     // Generators
     m_generators("SetMe"),
     // AMITag
@@ -959,6 +962,8 @@ namespace top {
           ATH_MSG_WARNING("An error was encountered handling AodMetaData : " << aodMetaDataError.what());
           ATH_MSG_WARNING("We will attempt to read the IsAFII flag from your config.");
           this->ReadIsAFII(settings);
+          ATH_MSG_WARNING("We will attempt to read the IsDataOverlay flag from your config.");
+          this->ReadIsDataOverlay(settings);
           ATH_MSG_WARNING("Unfortunately, we can not read MC generators and AMITag without valid MetaData.");
           this->setGenerators("unknown");
           this->setAMITag("unknown");
@@ -1757,6 +1762,10 @@ namespace top {
 
     // TRUTH derivations do not contain pile-up weights
     if (m_isTruthDxAOD) m_pileup_reweighting.apply = false;
+
+
+    //Switch off PRW for MC samples with data overlay
+    if(m_isDataOverlay) m_pileup_reweighting.apply = false;
 
     /************************************************************
     *
@@ -3462,6 +3471,7 @@ namespace top {
 
     out->m_isMC = m_isMC;
     out->m_isAFII = m_isAFII;
+    out->m_isDataOverlay = m_isDataOverlay;
     out->m_applyElectronInJetSubtraction = m_applyElectronInJetSubtraction;
     out->m_doOverlapRemovalOnLooseLeptonDef = m_doOverlapRemovalOnLooseLeptonDef;
     out->m_doKLFitter = m_doKLFitter;
@@ -3616,6 +3626,7 @@ namespace top {
     m_makeAllCPTools = false;
     m_isMC = settings->m_isMC;
     m_isAFII = settings->m_isAFII;
+    m_isDataOverlay = settings->m_isDataOverlay;
     m_applyElectronInJetSubtraction = settings->m_applyElectronInJetSubtraction;
     m_doOverlapRemovalOnLooseLeptonDef = settings->m_doOverlapRemovalOnLooseLeptonDef;
     m_doKLFitter = settings->m_doKLFitter;
@@ -3791,6 +3802,14 @@ namespace top {
     else if (settings->value("IsAFII") != " ") throw std::runtime_error(
               "TopConfig: option IsAFII must be either True or False");
     else if (this->isMC()) throw std::runtime_error("TopConfig: option IsAFII not set");
+  }
+
+  // Set up isDataOverlay
+  void TopConfig::ReadIsDataOverlay(top::ConfigurationSettings* const& settings) {
+    if (settings->value("IsDataOverlay") == "True") this->setIsDataOverlay(true);
+    else if (settings->value("IsDataOverlay") == "False") this->setIsDataOverlay(false);
+    else if (settings->value("IsDataOverlay") != " ") throw std::runtime_error(
+              "TopConfig: option IsDataOverlay must be either True or False");
   }
 
   // Function to set the release series (this method may change so refactor)
