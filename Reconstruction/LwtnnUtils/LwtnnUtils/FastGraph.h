@@ -23,7 +23,7 @@ namespace lwt::atlas {
 
   class FastInputPreprocessor;
   class FastInputVectorPreprocessor;
-  class InputOrder;
+  struct InputOrder;
 
   struct SourceIndices
   {
