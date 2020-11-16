@@ -13,30 +13,18 @@
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 
 
-namespace {
-
-template <class ATA_SURFACE>
-class SurfaceGetCovariance : public ATA_SURFACE
-{
-public:
-  AmgSymMatrix(ATA_SURFACE::dim)* getCovariance() { return this->m_covariance.get(); }
-};
-
-}
-
-
 template< class SURFACE_CNV, class ATA_SURFACE >
 void
 MeasuredNeutralAtaSurfaceCnv_p1< SURFACE_CNV, ATA_SURFACE >::
 persToTrans( const Trk::MeasuredAtaSurface_p1 *persObj, ATA_SURFACE *transObj, MsgStream &log )
 {
    m_surfaceCnv.persToTrans( persObj, transObj, log );
-   
+
    Trk::ErrorMatrix dummy;
    this->fillTransFromPStore( &m_errorMxCnv, persObj->m_errorMatrix, &dummy, log );
-   AmgSymMatrix(ATA_SURFACE::dim)* cov = static_cast<SurfaceGetCovariance<ATA_SURFACE>*>(transObj)->getCovariance();
+   AmgSymMatrix(ATA_SURFACE::dim)* cov = transObj->covariance();
    EigenHelpers::vectorToEigenMatrix(dummy.values, *cov, "MeasuredNeutralAtaSurfaceCnv_p1");
-   
+
 }
 
 
