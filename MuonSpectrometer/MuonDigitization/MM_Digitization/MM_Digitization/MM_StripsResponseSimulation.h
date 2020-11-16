@@ -65,7 +65,7 @@ public :
   virtual ~MM_StripsResponseSimulation();
   MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput);
 
-  void initialize ();
+  void initialize (unsigned long int seed);
   void writeHistos();
   void initHistos ();
   void clearValues ();

@@ -170,6 +170,9 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in digitization"};
 
+		// Temporary until moving away from TRandom
+		Gaudi::Property<unsigned long int> m_randomSeed{this, "RandomSeed", 42, ""};
+
 		TFile *m_file{};
 		TTree *m_ntuple{};
 
