@@ -216,12 +216,27 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::getNextEvent() {
+StatusCode sTgcDigitizationTool::getNextEvent(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::getNextEvent()" );
 
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type TimedHitCollList;
+
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<sTGCSimHitCollection> hitCollection(m_hitsContainerKey, ctx);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get sTGCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcsTGC = std::make_unique<TimedHitCollection<sTGCSimHit>>(1);
+    m_thpcsTGC->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("sTGCSimHitCollection found with " << hitCollection->size() << " hits");
+    return StatusCode::SUCCESS;
+  }
  
   //this is a list<info<time_t, DataLink<sTGCSimHitCollection> > >
   TimedHitCollList hitCollList;
@@ -288,7 +303,7 @@ StatusCode sTgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
   //merging of the hit collection in getNextEvent method      
   if (m_thpcsTGC == nullptr) {
-    status = getNextEvent();
+    status = getNextEvent(ctx);
     if (StatusCode::FAILURE == status) {
       ATH_MSG_INFO ( "There are no sTGC hits in this event" );
       return status;

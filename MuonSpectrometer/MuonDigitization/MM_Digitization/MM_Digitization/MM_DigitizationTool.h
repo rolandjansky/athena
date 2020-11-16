@@ -113,7 +113,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 	private:
 		/** Record MmDigitContainer and MuonSimDataCollection */
-		StatusCode getNextEvent();
+		StatusCode getNextEvent(const EventContext& ctx);
 		StatusCode doDigitization(const EventContext& ctx);
 
 		bool  checkMMSimHit(const MMSimHit& /* hit */ ) const;

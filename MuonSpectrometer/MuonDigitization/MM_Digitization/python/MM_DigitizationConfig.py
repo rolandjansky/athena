@@ -53,6 +53,7 @@ def MM_Response_DigitTool(name="MM_Response_DigitTool",**kwargs):
 def MM_OverlayDigitizationTool(name="MM_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
         kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "MM_DIGITS")
         if not overlayFlags.isDataOverlay():
             kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "MM_SDO")
