@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -48,9 +48,7 @@ StatusCode BCM_RodDecoder::initialize()
   ATH_MSG_VERBOSE( "in BCM_RodDecoder::initialize" );
 #endif
 
-  StatusCode sc;
-  sc = AthAlgTool::initialize(); 
-  if (sc.isFailure()) return sc;
+  ATH_CHECK( AthAlgTool::initialize() );
 
   m_fragment_number = 0;
   m_LVL1A_number = 0;
@@ -78,7 +76,7 @@ StatusCode BCM_RodDecoder::finalize()
 ////////////////////////
 // fillCollection() - 
 ////////////////////////
-StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Container* rdoCont, std::vector<unsigned int>* /*vecHash*/)
+StatusCode BCM_RodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, BCM_RDO_Container* rdoCont, std::vector<unsigned int>* /*vecHash*/) const
 {
 #ifdef BCM_DEBUG
   ATH_MSG_INFO( "in BCM_RodDecoder::fillCollection" );
@@ -267,7 +265,8 @@ StatusCode BCM_RodDecoder::fillCollection(const ROBFragment *robFrag, BCM_RDO_Co
 ////////////////////////
 // getChannelID() - convert ROD source ID, dataword position combination into ChannelID number 
 ////////////////////////
-unsigned int BCM_RodDecoder::getChannelID(int ROD_source_ID, unsigned int dataword_position) {
+unsigned int BCM_RodDecoder::getChannelID(int ROD_source_ID, unsigned int dataword_position) const
+{
   switch(ROD_source_ID) {
     // Run-1 Fragment 
   case 0x0081000A:  
@@ -366,7 +365,8 @@ unsigned int BCM_RodDecoder::getChannelID(int ROD_source_ID, unsigned int datawo
 // getCollection() - return collection corresponding to a particular channel 
 //                   if it exists in container, or create it if it doesn't
 ////////////////////////
-BCM_RDO_Collection* BCM_RodDecoder::getCollection(unsigned int chan, BCM_RDO_Container* cont) {
+BCM_RDO_Collection* BCM_RodDecoder::getCollection(unsigned int chan, BCM_RDO_Container* cont) const
+{
   BCM_RDO_Collection* coll;
   BCM_RDO_Container::iterator cont_it;
   bool collExists = false;

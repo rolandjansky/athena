@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,7 +16,6 @@
 #include "BCM_RawDataByteStreamCnv/BCM_RawContByteStreamTool.h"
 
 #include "InDetBCM_RawData/InDetBCM_RawDataCLASS_DEF.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "BCM_RawDataByteStreamCnv/BCM_RodEncoder.h"
 
@@ -42,32 +41,31 @@ BCM_RawContByteStreamTool::~BCM_RawContByteStreamTool() {
 // initialize
 ////////////////////////
 StatusCode BCM_RawContByteStreamTool::initialize() {
-  StatusCode sc = AthAlgTool::initialize();
-
-  m_log = new MsgStream(msgSvc(), name());
- 
-  return sc;
+  ATH_CHECK( AthAlgTool::initialize() );
+  return StatusCode::SUCCESS;
 }
 
 ////////////////////////
 // finalize
 ////////////////////////
 StatusCode BCM_RawContByteStreamTool::finalize() {
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
+  ATH_CHECK( AthAlgTool::finalize() );
+  return StatusCode::SUCCESS;
 }
 
 ////////////////////////
 // convert
 ////////////////////////
-StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont, RawEventWrite* re) {
-
-  m_fea.clear(); 
+StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont) const
+{
+  FullEventAssembler<SrcIdMap>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "BCMRawCont") );
   FullEventAssembler<SrcIdMap>::RODDATA* theROD;
 
   // set ROD Minor version
-  m_fea.setRodMinorVersion(m_RodBlockVersion);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting ROD Minor Version Number to: " << m_RodBlockVersion << endmsg;
+  fea->setRodMinorVersion(m_RodBlockVersion);
+  ATH_MSG_DEBUG( "Setting ROD Minor Version Number to: " << m_RodBlockVersion );
 
   // a map for ROD ID onto Encoder
   std::map<uint32_t, BCM_RodEncoder> mapEncoder; 
@@ -75,7 +73,7 @@ StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont, RawEventW
   // loop over the BCM RDO collections
   BCM_RDO_Container::const_iterator it_coll = cont->begin(); 
   BCM_RDO_Container::const_iterator it_coll_end = cont->end();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Found " << cont->size() << " BCM RDO collections" << endmsg;
+  ATH_MSG_DEBUG( "Found " << cont->size() << " BCM RDO collections" );
 
   for( ; it_coll!=it_coll_end; ++it_coll) {
     const BCM_RDO_Collection* coll = (*it_coll);
@@ -85,7 +83,7 @@ StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont, RawEventW
       unsigned int offlineId = coll->getChannel();
       uint32_t rodId = getSourceID(offlineId);
       if ( offlineId >= 16 ) {
-	if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Didn't find RODID for OfflineID: " << offlineId << endmsg;
+	ATH_MSG_ERROR( "Didn't find RODID for OfflineID: " << offlineId );
       }
 
       mapEncoder[rodId].setRodMinorVersion(m_RodBlockVersion);
@@ -100,17 +98,16 @@ StatusCode BCM_RawContByteStreamTool::convert(BCM_RDO_Container* cont, RawEventW
       }
     }
     else
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Container contains NULLpointer to collection, skipping collection" << endmsg;
+      ATH_MSG_WARNING( "Container contains NULLpointer to collection, skipping collection" );
   }
 
   // Fill the ROD Data into Full Event loop over Encoder map and fill all ROD Data Blocks
   std::map<uint32_t,BCM_RodEncoder>::iterator it_map     = mapEncoder.begin();
   std::map<uint32_t,BCM_RodEncoder>::iterator it_map_end = mapEncoder.end();
   for (; it_map != it_map_end; ++it_map) { 
-    theROD = m_fea.getRodData((*it_map).first);
+    theROD = fea->getRodData((*it_map).first);
     ((*it_map).second).fillROD(*theROD, m_BCs_per_LVL1ID);
   }
-  m_fea.fill(re, *m_log); 
   return StatusCode::SUCCESS; 
 }
 
@@ -122,7 +119,8 @@ const InterfaceID& BCM_RawContByteStreamTool::interfaceID() {
 ////////////////////////
 // getSourceID - convert channelID into ROD source ID
 ////////////////////////
-unsigned int BCM_RawContByteStreamTool::getSourceID(int ChannelID) {
+unsigned int BCM_RawContByteStreamTool::getSourceID(int ChannelID) const
+{
   // CHANGED TO NEW SOURCE ID 0x0081000A -> 0x0081004A and 0x0081000C ->  0x0081004C 
   switch(ChannelID) {
   case 0:

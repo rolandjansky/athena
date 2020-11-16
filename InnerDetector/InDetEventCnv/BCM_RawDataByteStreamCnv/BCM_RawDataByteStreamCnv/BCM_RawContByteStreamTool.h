@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -21,6 +21,7 @@
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 #include "ByteStreamCnvSvcBase/SrcIdMap.h" 
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 
 class BCM_RDO_Container;
 class MsgStream;
@@ -38,16 +39,15 @@ public:
   // AlgTool InterfaceID
   static const InterfaceID& interfaceID();
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  StatusCode convert(BCM_RDO_Container* cont, RawEventWrite* re); 
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
+  StatusCode convert(BCM_RDO_Container* cont) const;
   
 private:
+  ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+  { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+  unsigned int getSourceID(int ChannelID) const;
 
-  MsgStream *m_log;
-  unsigned int getSourceID(int ChannelID);
-
-  FullEventAssembler<SrcIdMap> m_fea; 
   unsigned short m_RodBlockVersion;
   int m_BCs_per_LVL1ID;
 };
