@@ -76,8 +76,14 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False,voldebug
     if s == 'sim_updated':
        extra_pre = ""
        geotag = "ATLAS-P2-ITK-22-00-00_VALIDATION"
+
        if voldebug:
            extra_pre = ",InDetSLHC_Example/preInclude.VolumeDebugger.py"
+           if 'TARGETVOLUME' in os.environ:
+               logging.info("Volume Debugger: Running over "+os.environ['TARGETVOLUME'])
+           else:
+               logging.info("Volume Debugger: Using default volume (Set TARGETVOLUME environment variable to change this)")
+
        trfcmd = " Sim_tf.py --randomSeed 873254 --geometryVersion "+geotag+" --conditionsTag OFLCOND-MC15c-SDR-14-03 --truthStrategy   MC15aPlus --DataRunNumber 242000 --preInclude  all:'InDetSLHC_Example/preInclude.SiliconOnly.py,InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py,G4UserActions/LengthIntegrator_options.py"+extra_pre+"' --preExec all:'from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags;SLHC_Flags.UseLocalGeometry.set_Value_and_Lock(True)' --postInclude all:'PyJobTransforms/UseFrontier.py,InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SiHitAnalysis.py' --postExec EVNTtoHITS:'ServiceMgr.DetDescrCnvSvc.DoInitNeighbours=False;ServiceMgr.DetDescrCnvSvc.OutputLevel=VERBOSE; from AthenaCommon import CfgGetter; CfgGetter.getService(\"ISF_MC15aPlusTruthService\").BeamPipeTruthStrategies+=[\"ISF_MCTruthStrategyGroupIDHadInt_MC15\"];ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True' --inputEVNTFile "+input_file+" --outputHITSFile myHITS.pool.root --imf False  "
 
        logging.info("Running patched "+s)
@@ -654,6 +660,8 @@ def main():
         logging.info("This mode therefore only runs the patched simulation for local geomtries")
         logging.info("")
         RunUpdated = True
+        RunPatchedOnly = True
+        NoCheck = True
         RunSim = True
         
 
