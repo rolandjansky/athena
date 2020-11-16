@@ -285,8 +285,8 @@ bool psc::Psc::configure(const ptree& config)
 
     // Do the basic python setup if postcommand or logLevel was changed
     if ( needPython ) {
-      // Normally this is TrigPSC/TrigPSCPythonDbSetup
-      std::string pyBasicFile = m_config->getOption("PYTHONSETUPFILE") ;
+      // only used in athenaHLT, but not in partition running
+      std::string pyBasicFile = m_config->getOption("PYTHONSETUPFILE", /*quiet*/true) ;
       if ( pyBasicFile != "" ) {
         if ( !psc::Utils::pyInclude(pyBasicFile) ) {
           ERS_PSC_ERROR("Basic Python configuration failed.");
