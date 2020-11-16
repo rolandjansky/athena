@@ -7,4 +7,4 @@ atlas_subdir( PFOHistUtils )
 atlas_add_library( PFOHistUtils
                    src/*.cxx
                    PUBLIC_HEADERS PFOHistUtils
-                   LINK_LIBRARIES xAODCaloEvent xAODPFlow xAODTracking TrkValHistUtils )
+                   LINK_LIBRARIES xAODCaloEvent xAODPFlow xAODMuon xAODEgamma xAODTau xAODTracking TrkValHistUtils)
