@@ -215,6 +215,7 @@ int main(int argc, char** argv) {
     }
 
     topConfig->setIsMC(isMC);
+    topConfig->setIsDataOverlay(isOverlay);
 
     const bool isPrimaryxAOD = top::isFilePrimaryxAOD(testFile.get());
     topConfig->setIsPrimaryxAOD(isPrimaryxAOD);

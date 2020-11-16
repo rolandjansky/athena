@@ -238,9 +238,13 @@ namespace top {
         std::unique_ptr<ITauEffCorrTool> tauEffCorrTool
           = std::make_unique<TauAnalysisTools::TauEfficiencyCorrectionsTool>(tauEffCorrName);
         if (m_config->isMC()) {
-          top::check(m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool");
-          top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
+
+
+	  if(!m_config->isDataOverlay()){
+              top::check(m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool");
+              top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
                      "Failed to set PileupReweightingTool for " + tauEffCorrName);
+          }
 
           top::check(asg::setProperty(tauEffCorrTool, "UseTauSubstructure", m_config->tauSubstructureSF()),
                      "Failed to set UseTauSubstructure for " + tauEffCorrName);
@@ -307,9 +311,13 @@ namespace top {
         std::unique_ptr<ITauEffCorrTool> tauEffCorrTool
           = std::make_unique<TauAnalysisTools::TauEfficiencyCorrectionsTool>(tauEffCorrNameLoose);
         if (m_config->isMC()) {
-          top::check(m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool");
-          top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
-                     "Failed to set PileupReweightingTool for " + tauEffCorrNameLoose);
+
+	  if(!m_config->isDataOverlay()){
+             top::check(m_pileupReweightingTool.retrieve(), "Failed to retireve pileup reweighting tool");
+             top::check(asg::setProperty(tauEffCorrTool, "PileupReweightingTool", m_pileupReweightingTool),
+                       "Failed to set PileupReweightingTool for " + tauEffCorrNameLoose);
+	  }
+
           top::check(asg::setProperty(tauEffCorrTool, "UseTauSubstructure", m_config->tauSubstructureSFLoose()),
                      "Failed to set UseTauSubstructure for " + tauEffCorrNameLoose);
 

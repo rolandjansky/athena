@@ -3721,6 +3721,13 @@ namespace top {
 
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
 
+
+    if(m_config->isDataOverlay()){
+        eventInfo->auxdecor<unsigned int>("RandomRunNumber") = eventInfo->runNumber();
+        eventInfo->auxdecor<unsigned int>("RandomLumiBlockNumber") = eventInfo->lumiBlock();
+        eventInfo->auxdecor<float>("PileupWeight") = 1.;
+    }
+
     m_weight_mc = eventInfo->auxdataConst<float>("AnalysisTop_eventWeight");
     m_eventNumber = eventInfo->eventNumber();
     m_runNumber = eventInfo->runNumber();

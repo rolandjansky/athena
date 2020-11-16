@@ -8,6 +8,7 @@ namespace top {
   TopPersistentSettings::TopPersistentSettings() :
     m_isMC(false),
     m_isAFII(false),
+    m_isDataOverlay(false),
     m_applyElectronInJetSubtraction(false),
     m_doOverlapRemovalOnLooseLeptonDef(false),
     m_doKLFitter(false),

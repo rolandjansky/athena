@@ -390,6 +390,7 @@ namespace top {
                       "0");
     registerParameter("PerfStats", " I/O Performance printouts. None, Summary or Full", "None");
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
+    registerParameter("IsDataOverlay", "Define if you are running over a data overlay MC sample: True or False", " ");
     registerParameter("FilterBranches",
                       "Comma separated list of names of the branches that will be removed from the output", " ");
     registerParameter("FilterPartonLevelBranches",
