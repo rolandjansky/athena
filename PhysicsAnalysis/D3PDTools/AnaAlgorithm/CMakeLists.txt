@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( AnaAlgorithm )
@@ -5,31 +6,14 @@ atlas_subdir( AnaAlgorithm )
 # Find the needed external(s):
 find_package( ROOT COMPONENTS Core Hist )
 
-# The package's dependencies:
-if( XAOD_STANDALONE )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      PhysicsAnalysis/D3PDTools/RootCoreUtils
-      Control/AthToolSupport/AsgTools )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthenaBaseComps
-      Control/AthToolSupport/AsgTools
-      Control/StoreGate
-      GaudiKernel
-      PRIVATE
-      PhysicsAnalysis/D3PDTools/RootCoreUtils )
-endif()
-
 # The main library of the package:
 if( XAOD_STANDALONE )
    atlas_add_library( AnaAlgorithmLib
       AnaAlgorithm/*.h AnaAlgorithm/*.icc Root/*.cxx
       PUBLIC_HEADERS AnaAlgorithm
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES AsgTools RootCoreUtils
-      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+      LINK_LIBRARIES AsgMessagingLib AsgTools
+      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils )
 else()
    atlas_add_library( AnaAlgorithmLib
       AnaAlgorithm/Global.h Root/Global.cxx
@@ -38,7 +22,7 @@ else()
       AnaAlgorithm/MessageCheck.h Root/MessageCheck.cxx
       PUBLIC_HEADERS AnaAlgorithm
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES GaudiKernel AthenaBaseComps AsgTools StoreGateLib
+      LINK_LIBRARIES AsgMessagingLib GaudiKernel AthenaBaseComps AsgTools StoreGateLib
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils )
 endif()
 

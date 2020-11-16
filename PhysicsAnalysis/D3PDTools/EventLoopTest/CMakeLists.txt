@@ -5,7 +5,6 @@ atlas_subdir( EventLoopTest )
 
 # External(s) needed for the build:
 find_package( GTest )
-find_package( GMock )
 find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
 
 # Component(s) in the package:
@@ -20,10 +19,10 @@ atlas_add_library( EventLoopTestLib
    EventLoopTest/*.h EventLoopTest/*.ihh Root/*.cxx ${EventLoopTestDictSource}
    PUBLIC_HEADERS EventLoopTest
    DEFINITIONS USE_CMAKE
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GMOCK_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GMOCK_LIBRARIES} RootCoreUtils
-   SampleHandler AnaAlgorithmLib EventLoop EventLoopGrid AsgTestingLib xAODEventInfo
-   PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess xAODEventInfo xAODMetaData )
+   INCLUDE_DIRS ${GTEST_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${GTEST_LIBRARIES} AnaAlgorithmLib AsgMessagingLib AsgTools EventLoop RootCoreUtils SampleHandler
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo xAODMetaData )
 
 atlas_add_dictionary( EventLoopTestDict
    EventLoopTest/EventLoopTestDict.h
