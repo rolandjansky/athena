@@ -42,7 +42,7 @@ namespace top {
     top::check(m_met_maker.retrieve(), "Failed to retrieve met maker tool");
     top::check(m_met_systematics.retrieve(), "Failed to retrieve met systematic tool");
 
-    std::string jet_collection = m_config->sgKeyJetsType();
+    std::string jet_collection = m_config->sgKeyJets();
     jet_collection.erase(jet_collection.length() - 4); //erase "Jets" from jet collection name
 
     m_MET_core = "MET_Core_" + jet_collection;
@@ -127,7 +127,7 @@ namespace top {
                                                                  const std::string& outputContainerSuffix) {
     // decoration for objects that pass pre OR selection
     std::string passPreORSelection = "passPreORSelection";
-    const std::string jet_collection = m_config->sgKeyJetsType();
+    const std::string jet_collection = m_config->sgKeyJets();
 
     const bool is_loose_event = (event->isLooseEvent() == 1 ? true : false);
 

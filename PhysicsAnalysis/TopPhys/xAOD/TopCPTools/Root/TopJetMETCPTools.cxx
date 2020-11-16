@@ -117,7 +117,7 @@ namespace top {
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ApplyJetCalibrationR21
 
     // Get jet calibration name and erase "Jets" from the end
-    std::string caloJets_type = m_config->sgKeyJetsType();
+    const std::string caloJets_type = m_config->sgKeyJets();
     std::string jetCalibrationName;
     if (caloJets_type == "AntiKt4EMTopoNoElJets") {
       jetCalibrationName = "AntiKt4EMTopoJets";
