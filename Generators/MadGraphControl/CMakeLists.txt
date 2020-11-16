@@ -7,6 +7,7 @@ atlas_subdir( MadGraphControl )
 
 # External dependencies:
 find_package( MadGraph )
+find_package( Boost )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
