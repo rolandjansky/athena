@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id$
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import CaloSysD3PDMaker
 import D3PDMakerCoreComps
@@ -12,8 +10,8 @@ LArRawChannelSGKey='LArRawChannels'
 def makeLArRawChannelD3PDObject (name, prefix, object_name='LArRawChannelD3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = LArRawChannelSGKey
-    if label == None: label = prefix
+    if sgkey is None: sgkey = LArRawChannelSGKey
+    if label is None: label = prefix
 
     if not getter:
         getter = CaloSysD3PDMaker.LArRawChannelContainerGetterTool(name + '_Getter',
@@ -21,7 +19,6 @@ def makeLArRawChannelD3PDObject (name, prefix, object_name='LArRawChannelD3PDObj
                   SGKey = LArRawChannelSGKey)
 
     # create the selected cells
-    from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
     return D3PDMakerCoreComps.VectorFillerTool (name,
                                                 Prefix = prefix,
                                                 Getter = getter,
