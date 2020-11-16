@@ -186,38 +186,34 @@ bool psc::Psc::configure(const ptree& config)
       }
 
       // init the sys.argv...
-#if PY_MAJOR_VERSION < 3
-      PySys_SetArgv(System::argc(),System::argv());
-#else
-  auto wargsinit = 
-    []() { std::vector<std::wstring> wargs;
-           int argc = System::argc();
-           char** argv = System::argv();
-           wargs.reserve (argc);
-           using convert_t = std::codecvt_utf8<wchar_t>;
-           std::wstring_convert<convert_t, wchar_t> strconverter;
-           for (int i=0; i < argc; ++i) {
-             wargs.push_back (strconverter.from_bytes (argv[i]));
-           }
-           return wargs;
-  };
-  static const std::vector<std::wstring> wargs = wargsinit();
-
-  auto wargvinit =
-    [](const std::vector<std::wstring>& wargs)
-      { std::vector<const wchar_t*> wargv;
+      auto wargsinit =
+        []() { std::vector<std::wstring> wargs;
         int argc = System::argc();
+        char** argv = System::argv();
+        wargs.reserve (argc);
+        using convert_t = std::codecvt_utf8<wchar_t>;
+        std::wstring_convert<convert_t, wchar_t> strconverter;
         for (int i=0; i < argc; ++i) {
-          wargv.push_back (wargs[i].data());
+          wargs.push_back (strconverter.from_bytes (argv[i]));
         }
-        return wargv;
-  };
-  static const std::vector<const wchar_t*> wargv = wargvinit (wargs);
+        return wargs;
+        };
+      static const std::vector<std::wstring> wargs = wargsinit();
 
-  // Bleh --- python takes non-const argv pointers.
-  wchar_t** wargv_nc ATLAS_THREAD_SAFE = const_cast<wchar_t**> (wargv.data());
-  PySys_SetArgv(System::argc(), wargv_nc);
-#endif
+      auto wargvinit =
+        [](const std::vector<std::wstring>& wargs)
+        { std::vector<const wchar_t*> wargv;
+          int argc = System::argc();
+          for (int i=0; i < argc; ++i) {
+            wargv.push_back (wargs[i].data());
+          }
+          return wargv;
+        };
+      static const std::vector<const wchar_t*> wargv = wargvinit (wargs);
+
+      // Bleh --- python takes non-const argv pointers.
+      wchar_t** wargv_nc ATLAS_THREAD_SAFE = const_cast<wchar_t**> (wargv.data());
+      PySys_SetArgv(System::argc(), wargv_nc);
     }
     else {
       ERS_DEBUG(1,"Python interpreter already initialized");
@@ -231,11 +227,7 @@ bool psc::Psc::configure(const ptree& config)
       if ( optmap ) {
         std::map<std::string,std::string>::const_iterator iter;
         for (iter=m_config->optmap.begin(); iter!=m_config->optmap.end(); ++iter) {
-#if PY_MAJOR_VERSION < 3
-          PyObject* v = PyString_FromString(iter->second.c_str());
-#else
           PyObject* v = PyUnicode_FromString(iter->second.c_str());
-#endif
           std::vector<char> writable(iter->first.size() + 1);
           std::copy(iter->first.begin(), iter->first.end(), writable.begin());
           PyMapping_SetItemString(optmap, &writable[0], v);
@@ -674,11 +666,7 @@ bool psc::Psc::prepareWorker (const boost::property_tree::ptree& args)
 
   if ( Py_IsInitialized() ) {
     ERS_DEBUG(1, "Post-fork initialization of Python interpreter");
-#if PY_VERSION_HEX >= 0x03070000
     PyOS_AfterFork_Child();
-#else
-    PyOS_AfterFork();
-#endif
 
     /* Release the Python GIL (which we inherited from the mother)
        to avoid dead-locking on the first call to Python. Only relevant
