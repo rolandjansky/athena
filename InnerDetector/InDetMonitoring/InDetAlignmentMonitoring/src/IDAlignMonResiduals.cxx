@@ -2295,7 +2295,6 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       if ( m_nIBLHitsPerLB > m_minIBLhits ) {
 	TH1D* projection_lumiblock = (TH1D*) m_pix_b0_resXvsetaLumiBlock->ProjectionY(("iblBowingProjection_lumiblock_"+intToString(lumibin-1)).c_str(),lumibin,lumibin);
 	if (projection_lumiblock->GetEntries() >= thisMinEntries) {
-	  std::cout << " -- SALVA -- calling MakeStaveShapeFit :: (projection_lumiblock->GetEntries(): " << projection_lumiblock->GetEntries() << std::endl;
 	  MakeStaveShapeFit(mag,mag_er,base,base_er,projection_lumiblock);
 	  m_mag_vs_LB->SetBinContent(lumibin,mag);
 	  m_mag_vs_LB->SetBinError(lumibin,mag_er);
