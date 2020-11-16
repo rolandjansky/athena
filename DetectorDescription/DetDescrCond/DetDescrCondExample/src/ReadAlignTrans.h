@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DETDESCRCONDEXAMPLE_READALIGNTRANS_H
@@ -15,8 +15,6 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
-class IGeoModelTool;
-class IGeoModelSvc;
 namespace InDetDD {
   class SiDetectorManager;
 }
@@ -30,12 +28,10 @@ class ReadAlignTrans: public AthAlgorithm
   StatusCode execute(void);
   StatusCode finalize(void);
 
-  StatusCode testCallBack( IOVSVC_CALLBACK_ARGS );
   StatusCode readSiPositions(std::vector<Identifier>&, 
 			     std::vector<Amg::Vector3D >&);
 
  private:
-  IGeoModelSvc* p_geomodelsvc;
   const InDetDD::SiDetectorManager* m_sidetman[2];
   std::vector<Identifier> m_identcache;
   std::vector<Amg::Vector3D> m_poscache;

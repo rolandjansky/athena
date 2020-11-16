@@ -12,10 +12,10 @@
 // - BeginRun incident
 
 
+#include "ReadTopTrans.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "DetDescrConditions/DetCondKeyTrans.h"
-#include "DetDescrCondExample/ReadTopTrans.h"
 
 ReadTopTrans::ReadTopTrans(const std::string& name, 
   ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator) {}

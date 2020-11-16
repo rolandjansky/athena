@@ -14,7 +14,7 @@ atlas_add_component( DetDescrCondExample
                      src/CoolHistExample.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities DetDescrCondToolsLib DetDescrConditions GaudiKernel GeoModelInterfaces GeoPrimitives Identifier InDetReadoutGeometry )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel AthenaPoolUtilities DetDescrCondToolsLib DetDescrConditions GaudiKernel GeoPrimitives Identifier InDetReadoutGeometry )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
