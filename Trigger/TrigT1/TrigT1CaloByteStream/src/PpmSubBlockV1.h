@@ -24,6 +24,7 @@ class PpmSubBlockV1 : public L1CaloSubBlock {
    ~PpmSubBlockV1();
 
    /// Clear all data
+   // cppcheck-suppress duplInheritedMember
    void clear();
 
    /// Store PPM header
