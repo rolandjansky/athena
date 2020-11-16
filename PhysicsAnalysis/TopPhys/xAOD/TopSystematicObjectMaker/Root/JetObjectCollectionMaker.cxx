@@ -470,13 +470,13 @@ namespace top {
     if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None")) {
       static bool checked_track_MET = false;
       if (!checked_track_MET) {
-	if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
-	  m_do_fjvt = true;
-	} else {
-	  ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
-	  return StatusCode::FAILURE; 
-	}
-	checked_track_MET = true;
+        if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
+          m_do_fjvt = true;
+        } else {
+          ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
+          return StatusCode::FAILURE; 
+        }
+        checked_track_MET = true;
       }
     }
     if (m_do_fjvt) {
@@ -490,13 +490,12 @@ namespace top {
       // NOTE, if we use one of the b-tagging re-trained collections, we need to load
       // the original uncalibrated jet container to which the b-tagging shallow-copy is pointing to
       const xAOD::JetContainer* xaod_original(nullptr);
-      // for small-R jet collections, set links to uncalibrated *original* jets (not BTagging shallow-copy)
-      if (m_config->sgKeyJets() != m_config->sgKeyJetsType()) {
-        top::check(evtStore()->retrieve(xaod_original,
-                                        m_config->sgKeyJetsType()),
-                   "Failed to retrieve uncalibrated Jets for METMaker!");
-      } else {
-        xaod_original = xaod;
+      top::check(evtStore()->retrieve(xaod_original,
+                                      m_config->sgKeyJets()),
+                 "Failed to retrieve uncalibrated Jets for METMaker!");
+      if (!xaod_original || !shallow_xaod_copy.first) {
+        ATH_MSG_ERROR("Cannot retrieve the original jet collection!");
+        return StatusCode::FAILURE;
       }
       bool setLinks = xAOD::setOriginalObjectLink(*xaod_original, *shallow_xaod_copy.first);
       if (!setLinks) ATH_MSG_ERROR(" Cannot set original object links for jets, MET recalculation may struggle");

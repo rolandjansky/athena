@@ -156,10 +156,8 @@ namespace top {
     m_sgKeySoftMuons("SetMe"),
     m_sgKeyTaus("SetMe"),
     m_sgKeyJets("SetMe"),
-    m_sgKeyJetsType("SetMe"),
     m_sgKeyLargeRJets("SetMe"),
     m_sgKeyTrackJets("SetMe"),
-    m_sgKeyTrackJetsType("SetMe"),
     m_sgKeyMissingEt("MET"),
     m_sgKeyMissingEtLoose("LooseMET"),
 
@@ -749,62 +747,6 @@ namespace top {
     this->sgKeyTracks(settings->value("TrackCollectionName"));
     this->jetSubstructureName(settings->value("LargeJetSubstructure"));
     this->decoKeyJetGhostTrack(settings->value("JetGhostTrackDecoName"));
-
-    // check that jets use tagged collection name for new derivations
-    // this is due to b-tagging breaking changes in derivations
-    if (m_aodMetaData->valid()) {
-      try {
-        std::string deriv_rel_name = m_aodMetaData->get("/TagInfo", "AtlasRelease_AODtoDAOD");
-	ATH_MSG_INFO("Checking jet collection name compatibility, reading (MetaData->TagInfo): " << deriv_rel_name);
-        size_t pos = deriv_rel_name.find('-');
-        if (pos != std::string::npos) {
-          deriv_rel_name = deriv_rel_name.substr(pos + 1);
-	  int deriv_rel;
-	  std::sscanf(deriv_rel_name.c_str(), "21.2.%d", &deriv_rel);
-          // check for derivation version due to format breakage with calo jet b-tagging
-          if (deriv_rel >= 72) { // 21.2.72.0: release where we need tagged jet collection
-            if (this->sgKeyJets() == this->sgKeyJetsType()) { // jet collection is NOT tagged
-              throw std::runtime_error(
-				       "TopConfig: You are using derivation with release 21.2.72.0 or newer and did not specify tagged small-R jet collection, e.g. \"AntiKt4EMPFlowJets_BTagging201903\". This is necessary for b-tagging to work!");
-            }
-          } else { // release does NOT have tagged jet collection
-            if (this->sgKeyJets() != this->sgKeyJetsType()) { // jet collection is NOT tagged
-              throw std::runtime_error(
-                      "TopConfig: You are using derivation with release older than 21.2.72.0 so you cannot use tagged jet containers as you specified: \"" + this->sgKeyJets() + "\". Use \"" + this->sgKeyJetsType() +
-                      "\" instead.");
-            }
-          }
-          // check for derivation version due to format breakage with track jet b-tagging
-          if (this->useTrackJets()) {
-            if (deriv_rel >= 87) { // 21.2.87.0: release where we need tagged track jet collection
-              if (this->sgKeyTrackJets() == this->sgKeyTrackJetsType()) { // jet collection is NOT tagged
-                throw std::runtime_error(
-                        "TopConfig: You are using derivation with release 21.2.87.0 or newer and did not specify tagged track jet collection, e.g. \"AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903\". This is necessary for b-tagging to work!");
-              }
-            } else { // release does NOT have tagged jet collection
-              if (this->sgKeyTrackJets() != this->sgKeyTrackJetsType()) { // jet collection is NOT tagged
-                throw std::runtime_error(
-                        "TopConfig: You are using derivation with release older than 21.2.87.0 so you cannot use tagged track jet containers as you specified: \"" + this->sgKeyTrackJets() + "\". Use \"" + this->sgKeyTrackJetsType() +
-                        "\" instead.");
-              }
-            }
-          }
-	  // check derivation version due to fJVT info needed at derivation level for PFlow
-	  if (this->useParticleFlowJets() && (settings->retrieve("ForwardJVTinMETCalculation") || settings->value("ForwardJVTWP") != "None")){ //fJVT requested for PFlow
-	    if (deriv_rel < 97) { //21.2.97.0
-	      throw std::runtime_error(
-			"TopConfig: You are using derivation with release 21.2.96.0 or older and requested fJVT for particle-flow jets. The necessary information for PFlow fjvt is only present from release 21.2.97.0 and newer, you will need to switch to newer derivations or turn off fJVT (ForwardJVTWP = \"None\" && ForwardJVTinMETCalculation = \"False\")");
-	    }
-	  }
-        } else {
-          ATH_MSG_WARNING("Could not parse derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging, or that a new enough derivation is used for PFlow fJVT. You are on your own.");
-        }
-        // try to parse the derivation release, we need the release number
-      } catch (std::logic_error& e) {
-        ATH_MSG_WARNING(e.what());
-        ATH_MSG_WARNING("Could not obtain derivation release from the file metadata. We cannot check that correct jet and/or track jet collection is used for b-tagging, or that a new enough derivation is used for PFlow fJVT. You are on your own.");
-      }
-    }
 
     // ROOTCORE/Analysis release series
     this->setReleaseSeries();
@@ -1965,16 +1907,10 @@ namespace top {
       m_useJets = false;
       if (s != "None") m_useJets = true;
 
-      size_t delim_pos = s.find('_');
-      // for b-tagging shallow copies, e,g.
-      // AntiKt4EMPFlowJets_BTagging20181003
-      // we want to have quick access  to base collection name
-      m_sgKeyJetsType = s.substr(0, delim_pos);
+      m_sgKeyJets = s;
 
       // If anti-kt4 pflow jets then...
-      if (m_sgKeyJetsType == "AntiKt4EMPFlowJets") m_useParticleFlowJets = true;
-
-      m_sgKeyJets = s;
+      if (m_sgKeyJets == "AntiKt4EMPFlowJets") m_useParticleFlowJets = true;
     }
   }
 
@@ -1991,12 +1927,6 @@ namespace top {
     if (!m_configFixed) {
       m_useTrackJets = false;
       if (s != "None") m_useTrackJets = true;
-
-      size_t delim_pos = s.find('_');
-      // for time-stamped track jet collections due to b-tagging
-      // AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903
-      // we want to have quick access  to base collection name
-      m_sgKeyTrackJetsType = s.substr(0, delim_pos);
 
       m_sgKeyTrackJets = s;
     }

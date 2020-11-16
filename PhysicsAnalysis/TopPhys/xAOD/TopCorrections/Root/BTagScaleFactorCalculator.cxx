@@ -37,10 +37,7 @@ namespace top {
       m_btagSelTools[WP] = "BTaggingSelectionTool_" + WP + "_" + m_config->sgKeyJets();
       top::check(m_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool");
       if (std::find(m_config->bTagWP_calibrated().begin(),
-                    m_config->bTagWP_calibrated().end(), WP) != m_config->bTagWP_calibrated().end()) {// need
-                                                                                                      // scale-factors
-                                                                                                      // only for
-                                                                                                      // calibrated WPs
+                    m_config->bTagWP_calibrated().end(), WP) != m_config->bTagWP_calibrated().end()) {// need scale-factors only for calibrated WPs
         m_btagEffTools[WP] = "BTaggingEfficiencyTool_" + WP + "_" + m_config->sgKeyJets();
         top::check(m_btagEffTools[WP].retrieve(), "Failed to retrieve b-tagging Efficiency tool");
         m_systs[WP] = m_btagEffTools[WP]->affectingSystematics();
@@ -54,12 +51,7 @@ namespace top {
       m_trkjet_btagSelTools[WP] = "BTaggingSelectionTool_" + WP + "_" + m_config->sgKeyTrackJets();
       top::check(m_trkjet_btagSelTools[WP].retrieve(), "Failed to retrieve b-tagging Selection tool");
       if (std::find(m_config->bTagWP_calibrated_trkJet().begin(),
-                    m_config->bTagWP_calibrated_trkJet().end(), WP) != m_config->bTagWP_calibrated_trkJet().end()) {// need
-                                                                                                                    // scale-factors
-                                                                                                                    // only
-                                                                                                                    // for
-                                                                                                                    // calibrated
-                                                                                                                    // WPs
+                    m_config->bTagWP_calibrated_trkJet().end(), WP) != m_config->bTagWP_calibrated_trkJet().end()) {// need scale-factors only for calibrated WPs
         m_trkjet_btagEffTools[WP] = "BTaggingEfficiencyTool_" + WP + "_" + m_config->sgKeyTrackJets();
         top::check(m_trkjet_btagEffTools[WP].retrieve(), "Failed to retrieve b-tagging Efficiency tool");
         m_trkjet_systs[WP] = m_trkjet_btagEffTools[WP]->affectingSystematics();
