@@ -6,6 +6,29 @@ class ThresholdDef:
 
     alreadyExecuted = False
 
+    eEMVar = {
+        1 : {
+            "eta_bin_boundaries": [0, 0.7, 0.8, 1.1, 1.3, 1.4, 1.5, 1.7, 2.5], # 8 bins => 9 boundaries
+            "shift": [ 2, 1, 0, 0,  -1, -3, -1, 1]
+        }
+    }
+
+    @staticmethod
+    def addVaryingThrValues(thr, pt, shift_set):
+        eta_bin_boundaries = ThresholdDef.eEMVar[shift_set]["eta_bin_boundaries"]
+        shift = ThresholdDef.eEMVar[shift_set]["shift"]
+        thr.addThrValue(pt+shift[0], priority=1)
+        for idx,sh in reversed(list(enumerate(shift))):
+            eta_min = int(10 * eta_bin_boundaries[idx])
+            eta_max = int(10 * eta_bin_boundaries[idx+1])
+            thr.addThrValue( pt + sh, -eta_max, -eta_min, priority=2)
+        for idx,sh in enumerate(shift):
+            eta_min = int(10 * eta_bin_boundaries[idx])
+            eta_max = int(10 * eta_bin_boundaries[idx+1])
+            thr.addThrValue( pt + sh, eta_min, eta_max, priority=2)
+        return thr
+
+
     @staticmethod
     def registerThresholds(tc, menuName):
 
@@ -114,16 +137,17 @@ class ThresholdDef:
             .addThrValue(19, -17, -16, priority=2).addThrValue(19, 16, 17, priority=2)\
             .addThrValue(21, -25, -18, priority=2).addThrValue(21, 18, 25, priority=2)
 
-        EMThreshold( 'eEM22VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
-            .addThrValue(24, priority=1)\
-            .addThrValue(24, -7, 7, priority=2)\
-            .addThrValue(23, -8, -8, priority=2).addThrValue(23, 8, 8, priority=2)\
-            .addThrValue(22, -11, -9, priority=2).addThrValue(22, 9, 11, priority=2)\
-            .addThrValue(21, -13, -12, priority=2).addThrValue(21, 12, 13, priority=2)\
-            .addThrValue(20, -14, -14, priority=2).addThrValue(20, 14, 14, priority=2)\
-            .addThrValue(19, -15, -15, priority=2).addThrValue(19, 15, 15, priority=2)\
-            .addThrValue(21, -17, -16, priority=2).addThrValue(21, 16, 17, priority=2)\
-            .addThrValue(23, -25, -18, priority=2).addThrValue(23, 18, 25, priority=2)
+        ThresholdDef.addVaryingThrValues(EMThreshold('eEM22VHI', 'eEM').setIsolation(reta="Loose", wstot="Medium"), pt=22, shift_set=1)
+        # EMThreshold( 'eEM22VHI', 'eEM').setIsolation( reta = "Loose", wstot = "Medium" )\
+        #     .addThrValue(24, priority=1)\
+        #     .addThrValue(24, -7, 7, priority=2)\
+        #     .addThrValue(23, -8, -8, priority=2).addThrValue(23, 8, 8, priority=2)\
+        #     .addThrValue(22, -11, -9, priority=2).addThrValue(22, 9, 11, priority=2)\
+        #     .addThrValue(21, -13, -12, priority=2).addThrValue(21, 12, 13, priority=2)\
+        #     .addThrValue(20, -14, -14, priority=2).addThrValue(20, 14, 14, priority=2)\
+        #     .addThrValue(19, -15, -15, priority=2).addThrValue(19, 15, 15, priority=2)\
+        #     .addThrValue(21, -17, -16, priority=2).addThrValue(21, 16, 17, priority=2)\
+        #     .addThrValue(23, -25, -18, priority=2).addThrValue(23, 18, 25, priority=2)
         
 
 
