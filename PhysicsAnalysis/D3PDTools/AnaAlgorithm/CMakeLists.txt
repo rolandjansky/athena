@@ -41,7 +41,7 @@ endif()
 
 # Install files from the package:
 if( XAOD_STANDALONE )
-   atlas_install_python_modules( python/*.py )
+   atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
    atlas_add_test( AnaAlgorithmConfigUnitTests
       SCRIPT python -m unittest AnaAlgorithm.AnaAlgorithmConfig )
    atlas_add_test( AnaAlgSequenceUnitTests
@@ -50,5 +50,6 @@ if( XAOD_STANDALONE )
       SCRIPT python -m unittest AnaAlgorithm.AlgSequence )
 else()
    atlas_install_python_modules( python/__init__.py python/DualUseConfig.py
-      python/AlgSequence.py python/AnaAlgSequence.py python/AnaAlgorithmMeta.py python/Logging.py )
+      python/AlgSequence.py python/AnaAlgSequence.py python/AnaAlgorithmMeta.py python/Logging.py
+      POST_BUILD_CMD ${ATLAS_FLAKE8} )
 endif()
