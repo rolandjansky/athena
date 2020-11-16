@@ -28,7 +28,7 @@ def mkGetOpenLoopsJob(options):
 
     job = options.batchSystemModule.batchJob("0.getOpenLoops", hours=2, nCores=options.ncoresScons, memMB=1, basedir=options.jobOptionDir[0])
     
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+os.environ['AtlasVersion']+",AthGeneration,64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
     job.cmds += ["git clone -b "+options.OLbranch+" https://gitlab.com/openloops/OpenLoops.git"]
@@ -60,7 +60,7 @@ def mkCreateLibsJob(options, prevJob):
     if prevJob:
         job.dependsOnOk.append(prevJob.id)
     
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+os.environ['AtlasVersion']+",AthGeneration,64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
     job.cmds += ["rm -rf Process/Amegic.db Process/Comix.db Process/Sherpa.db Process/Amegic"]
@@ -111,7 +111,7 @@ def mkMakelibsJob(options, prevJob):
 
     job.cmds += ["if ! test -f makelibs; then echo INFO: No makelibs file found; exit 0; fi"]
 
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+os.environ['AtlasVersion']+",AthGeneration,64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
 
     ## install scons to make it available for makelibs
     job.cmds += ["mkdir fake-home"]
@@ -154,7 +154,7 @@ def mkIntegrateJob(options, ecm, prevJob):
     if prevJob:
         job.dependsOnOk.append(prevJob.id)
 
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+os.environ['AtlasVersion']+",AthGeneration,64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
     #write rundata into Run.dat file for integration
@@ -226,7 +226,7 @@ def mkEvntGenTestJob(options, ecm, jodir, prevJob):
     if prevJob:
         job.dependsOnOk.append(prevJob.id)
 
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+os.environ['AtlasVersion']+",AthGeneration,64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
     job.cmds += ["rm -rf 5.EvntGenTest"]

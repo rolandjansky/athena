@@ -26,11 +26,15 @@ genSeq.Sherpa_i.ExtraFiles = [ "libSherpaFastjetMAXHTPTV.so" ]
 ```
 
 # Starting the input tarball creation
-* Put the mc.*.py JO into an empty working directory
+* Create the `mc.*.py` JO in a fresh working directory:
+```
+$ ls myExampleSetup/
+mc.Sh_Example.py
+```
 * Optional: Copy or link additional needed files into the working directory, like "libSherpaFastjetMAXHTPTV.so" (these files have to be listed in "genSeq.Sherpa_i.ExtraFiles" in the JO in order to end up in the tarball)
 * `asetup 21.6.xy,AthGeneration,slc6`
-* Start sherpaTarCreator in dry-run mode if you want to check what it would write out and submit to the cluster: `sherpaTarCreator.py -d mc.*.py`
-* Start sherpaTarCreator and submit jobs to the cluster: `sherpaTarCreator.py mc.*.py`
+* Start sherpaTarCreator in dry-run mode if you want to check what it would write out and submit to the cluster: `sherpaTarCreator.py myExampleSetup -d`
+* Start sherpaTarCreator and submit jobs to the cluster: `sherpaTarCreator.py myExampleSetup`
 
 # Monitoring the progress
 
@@ -83,8 +87,7 @@ always:
       * Results.db
       * "Process/" folder
       * logfile "integrate.log" from the integration
-* job: _100Evts_
+* job: _evgen_
    * uses tarball and JO to generate 100 test-events in fresh directory
-   * checks the log-file from 100Evts and extracts the number of events such that the event-generation of these events would not exceed 12 hours (evgenConfig.minevents)
-   * provides logfile and logParser output
-   * writes "evgeninputfiles.csv"
+   * checks the log-file and extracts the number of events such that the event-generation of these events would not exceed 12 hours (evgenConfig.nEventsPerJob)
+   * provides logfile

@@ -27,6 +27,7 @@ def main():
     parser.add_argument('-e', '--nEvts', type=int, dest='nEvts', default="100", help='number of events which get generated in the test run')
     parser.add_argument('-t', '--tarballVersion', type=str, dest='tarballVersion', default="1", help='version of tarball on grid')
     parser.add_argument('-p', '--local-sherpa', dest='sherpaInstallPath', default=None, help="Path to custom-built local Sherpa installation. If None, use cvmfs version.")
+    parser.add_argument('-v', '--athenaVersion', type=str, dest='athenaVersion', default=None, help='Overwrite Athena version to be used.')
     parser.add_argument('--OLskipcvmfs', dest='OLskipcvmfs', default=False, action='store_true', help="Skip precompiled OpenLoops libraries from cvmfs.")
     parser.add_argument('--OLbranch', dest='OLbranch', type=str, default="OpenLoops-2.1.1", help="OpenLoops branch to use from https://gitlab.com/openloops/OpenLoops (e.g. OpenLoops-2.1.1 or public_beta)")
     parser.add_argument('--OLprocessrepos', dest='OLprocessrepos', type=str, default="ATLAS,public_beta,public", help="OpenLoops process repositories to use with ./openloops libinstall")
@@ -39,6 +40,15 @@ def main():
     for i in range(len(options.jobOptionDir)):
         options.jobOptionDir[i] = os.path.abspath(options.jobOptionDir[i])
     os.chdir(options.jobOptionDir[0])
+
+    if not options.athenaVersion:
+        if "stable" in os.environ['AtlasReleaseType']:
+            options.athenaVersion = os.environ['AtlasVersion']+","+os.environ['AtlasProject']
+        elif "nightly" in os.environ['AtlasReleaseType']:
+            options.athenaVersion = os.environ['AtlasBuildBranch']+","+os.environ['AtlasProject']+",r"+os.environ['AtlasBuildStamp']
+        else:
+            print ("ERROR: Did not find Athena environment. Did you run asetup?")
+            sys.exit(1)
 
     # Load information from JO file
     from . import readjo

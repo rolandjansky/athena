@@ -7,15 +7,19 @@ def include(filename):
     #needed for the inclusion of additional files in the joboptions
     if "Filter" in filename:
       return None
-    fullpath = "/cvmfs/atlas.cern.ch/repo/sw/software/21.6/AthGeneration/%s/InstallArea/x86_64-slc6-gcc62-opt/jobOptions/%s" % (os.environ['AtlasVersion'], filename)
     if os.path.exists(filename):
         exec(compile(open(filename, "rb").read(), filename, 'exec'), globals())
-    elif os.path.exists(fullpath):
-        exec(compile(open(fullpath, "rb").read(), fullpath, 'exec'), globals())
     else:
-        print ("Did not find "+fullpath)
-        print ("ERROR: file not found. Possibly no cvmfs access.")
-        sys.exit(10)
+        found = False
+        for jopath in os.environ['JOBOPTSEARCHPATH'].split(":"):
+            fullpath = jopath+"/"+filename
+            if os.path.exists(fullpath):
+                found = True
+                exec(compile(open(fullpath, "rb").read(), fullpath, 'exec'), globals())
+        if not found:
+            print ("Did not find "+fullpath)
+            print ("ERROR: file not found. Possibly no cvmfs access.")
+            sys.exit(10)
 
 #general functions
 class dotdict(dict):
