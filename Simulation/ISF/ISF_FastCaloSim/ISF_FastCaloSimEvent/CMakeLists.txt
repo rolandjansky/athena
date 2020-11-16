@@ -83,7 +83,6 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h
-                           ISF_FastCaloSimEvent/TFCSHistoLateralCovarianceFluctuations.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h
                            ISF_FastCaloSimEvent/TFCSHitCellMapping.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h
