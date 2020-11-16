@@ -1,7 +1,6 @@
 #!/bin/sh
 # art-description: ART test job HITS to AOD
 # art-type: grid
-# art-input: mc16_13TeV.410470.PhPy8EG_A14_ttbar_hdamp258p75_nonallhad.simul.HITS.e6337_s3126
 # art-include: master/Athena
 # art-output: *.root
 
@@ -22,7 +21,7 @@ echo "Output Validation file : ${ART_Validation}"
 echo "Submitting Reconstruction ..."
 
 Reco_tf.py \
-    --maxEvents ${Nevents} \
+    --maxEvents -1 \
     --inputHITSFile=${HITSFile} \
     --outputAODFile=${ART_AOD} \
     --outputNTUP_PHYSVALFile ${ART_Validation} \
