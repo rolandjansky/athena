@@ -122,6 +122,14 @@ namespace top {
       }
     }
 
+    // DataOverlay?
+    inline bool isDataOverlay() const {return m_isDataOverlay;}
+    inline void setIsDataOverlay(const bool value) {
+      if (!m_configFixed) {
+        m_isDataOverlay = value;
+      }
+    }
+
     // List of branches to be removed
     inline std::vector<std::string> filterBranches() const {return m_filterBranches;}
     inline void setFilterBranches(const std::vector<std::string>& value) {
@@ -2051,6 +2059,7 @@ namespace top {
 
     bool m_isMC;
     bool m_isAFII;
+    bool m_isDataOverlay;
     std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches;
     std::string m_generators;
     std::string m_AMITag;
@@ -2729,6 +2738,9 @@ namespace top {
 
     // Private function only to simplify the setting of AFII values
     void ReadIsAFII(top::ConfigurationSettings* const& settings);
+    
+    // Private function only to simplify the setting of DataOverlay values
+    void ReadIsDataOverlay(top::ConfigurationSettings* const& settings);
 
     // Int holding the release series value
     int m_release_series;
