@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Minimal athena options to execute the CutFlowSvc with algorithms
@@ -12,16 +12,17 @@
 #==============================================================
 
 # debug logging
+from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Logging import logging
 logging.getLogger('CreateCutFlowSvc').setLevel(DEBUG)
 
 # basic job configuration
-import AthenaCommon.AtlasUnixStandardJob
+import AthenaCommon.AtlasUnixStandardJob  # noqa: F401
 
 # setup the input
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if 'inputFiles' in dir():
-    athenaCommonFlags.FilesInput = inputFiles.split(',')
+    athenaCommonFlags.FilesInput = inputFiles.split(',')  # noqa: F821
     del inputFiles
 else:
     athenaCommonFlags.FilesInput = [
@@ -39,7 +40,7 @@ from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from AthenaCommon.AppMgr import theApp
 
 # load POOL support
-import AthenaPoolCnvSvc.ReadAthenaPool
+import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401
 
 # setup some configuration
 from RecExConfig.RecFlags import rec
