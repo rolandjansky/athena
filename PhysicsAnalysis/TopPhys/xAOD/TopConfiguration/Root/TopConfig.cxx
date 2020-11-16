@@ -1241,7 +1241,6 @@ namespace top {
     }
     bool muonUse2stationHighPt = true;
     settings->retrieve("MuonUse2stationHighPt", muonUse2stationHighPt);
-    if (settings->value("MuonQuality") != "HighPt") muonUse2stationHighPt = false;
     this->muonUse2stationMuonsHighPt(muonUse2stationHighPt);
     bool muonUseMVALowPt = false;
     settings->retrieve("MuonUseMVALowPt", muonUseMVALowPt);
