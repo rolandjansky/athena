@@ -1,22 +1,25 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys, os
+import sys, os, glob
 
 
 def include(filename):
-    global athenaVersion
     #needed for the inclusion of additional files in the joboptions
     if "Filter" in filename:
       return None
-    fullpath = "/cvmfs/atlas.cern.ch/repo/sw/software/21.6/AthGeneration/%s/InstallArea/x86_64-slc6-gcc62-opt/jobOptions/%s" % (athenaVersion.split(",")[0], filename)
     if os.path.exists(filename):
         exec(compile(open(filename, "rb").read(), filename, 'exec'), globals())
-    elif os.path.exists(fullpath):
-        exec(compile(open(fullpath, "rb").read(), fullpath, 'exec'), globals())
     else:
-        print ("Did not find "+fullpath)
-        print ("ERROR: file not found. Possibly no cvmfs access.")
-        sys.exit(10)
+        found = False
+        for jopath in os.environ['JOBOPTSEARCHPATH'].split(":"):
+            fullpath = jopath+"/"+filename
+            if os.path.exists(fullpath):
+                found = True
+                exec(compile(open(fullpath, "rb").read(), fullpath, 'exec'), globals())
+        if not found:
+            print ("Did not find "+fullpath)
+            print ("ERROR: file not found. Possibly no cvmfs access.")
+            sys.exit(10)
 
 #general functions
 class dotdict(dict):
@@ -28,9 +31,11 @@ class dotdict(dict):
         return self
 
 def readJO(options):
-    global athenaVersion
-    athenaVersion = options.athenaVersion
-    filename = options.optionfile[0]
+    mainJOfile = glob.glob("mc.*.py")
+    if len(mainJOfile)!=1:
+        print ("ERROR: found 0 or multiple mc.*.py files in main jobOptionDir")
+        sys.exit(2)
+    options.mainJOfile = mainJOfile[0]
 
     #load job option file and additional option file with execfile
     #important output variables
@@ -83,7 +88,7 @@ def readJO(options):
     sys.modules["GeneratorFilters.GeneratorFiltersConf"] = dummy
     sys.modules["GeneratorFilters"] = dummy
 
-    exec(compile(open(filename, "rb").read(), filename, 'exec'), globals())
+    exec(compile(open(options.mainJOfile, "rb").read(), options.mainJOfile, 'exec'), globals())
 
     if genSeq.Sherpa_i.RunCard == "":
         print ("ERROR: no runCard found in the JO-File")

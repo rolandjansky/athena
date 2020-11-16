@@ -26,9 +26,9 @@ def mkGetOpenLoopsJob(options):
     if os.path.exists("Process/OpenLoops"):
         rmtree("Process/OpenLoops")
 
-    job = options.batchSystemModule.batchJob("0.getOpenLoops", hours=2, nCores=options.ncoresScons, memMB=1, basedir=options.basedir)
+    job = options.batchSystemModule.batchJob("0.getOpenLoops", hours=2, nCores=options.ncoresScons, memMB=1, basedir=options.jobOptionDir[0])
     
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion+",64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
     job.cmds += ["git clone -b "+options.OLbranch+" https://gitlab.com/openloops/OpenLoops.git"]
@@ -55,21 +55,19 @@ def mkCreateLibsJob(options, prevJob):
     if len(glob.glob("Process/*.db"))>0:
         return None
 
-    job = options.batchSystemModule.batchJob("1.createLibs", hours=48, nCores=1, memMB=options.createLibsRAM, basedir=options.basedir)
+    job = options.batchSystemModule.batchJob("1.createLibs", hours=48, nCores=1, memMB=options.createLibsRAM, basedir=options.jobOptionDir[0])
     
     if prevJob:
         job.dependsOnOk.append(prevJob.id)
     
-    jobConfig = options.optionfile[0]
-
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion+",64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
     job.cmds += ["rm -rf Process/Amegic.db Process/Comix.db Process/Sherpa.db Process/Amegic"]
     job.cmds += ["echo 'genSeq.Sherpa_i.Parameters += [ \"INIT_ONLY=1\", \"EVENTS=0\", \"FRAGMENTATION=Off\", \"MI_HANDLER=None\", \"LOG_FILE=\"]\n' > events.py"]
     job.cmds += ["outputEVNTFile=$(mktemp -u /tmp/XXXXXXXX.pool.root)"]
     job.cmds += ["returncode=0"]
-    job.cmds += ["Gen_tf.py --ecmEnergy="+str(options.ecm[0]*1000.)+" --maxEvents=1 --firstEvent=1 --randomSeed=10 --jobConfig="+options.basedir+" --postInclude=events.py --outputEVNTFile=${outputEVNTFile} || returncode=$?"]
+    job.cmds += ["Gen_tf.py --ecmEnergy="+str(options.ecm[0]*1000.)+" --maxEvents=1 --firstEvent=1 --randomSeed=10 --jobConfig="+options.jobOptionDir[0]+" --postInclude=events.py --outputEVNTFile=${outputEVNTFile} || returncode=$?"]
     job.cmds += ["echo Pasting log.generate ==============="]
     job.cmds += ["cat log.generate"]
     job.cmds += ["echo Gen_tf exited with return code $returncode"]
@@ -106,17 +104,14 @@ def mkMakelibsJob(options, prevJob):
     if os.path.exists("Process/Amegic/lib"):
         return None
 
-    job = options.batchSystemModule.batchJob("2.makelibs", hours=48, nCores=options.ncoresMakelibs, memMB=1, basedir=options.basedir)
+    job = options.batchSystemModule.batchJob("2.makelibs", hours=48, nCores=options.ncoresMakelibs, memMB=1, basedir=options.jobOptionDir[0])
     
     if prevJob:
         job.dependsOnOk.append(prevJob.id)
 
-    jobConfig = options.optionfile[0]
-    runNumber = jobConfig.split(".")[1]
-
     job.cmds += ["if ! test -f makelibs; then echo INFO: No makelibs file found; exit 0; fi"]
 
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion+",64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
 
     ## install scons to make it available for makelibs
     job.cmds += ["mkdir fake-home"]
@@ -154,12 +149,12 @@ def mkIntegrateJob(options, ecm, prevJob):
 
     if options.RAM > 100:
         options.Sherpa_i.MemoryMB = options.RAM
-    job = options.batchSystemModule.batchJob("3.integrate", hours=targetHours, nCores=targetCores, memMB=options.Sherpa_i.MemoryMB, basedir=options.basedir+"/"+ecmfolder)
+    job = options.batchSystemModule.batchJob("3.integrate", hours=targetHours, nCores=targetCores, memMB=options.Sherpa_i.MemoryMB, basedir=options.jobOptionDir[0]+"/"+ecmfolder)
 
     if prevJob:
         job.dependsOnOk.append(prevJob.id)
 
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion+",64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
     #write rundata into Run.dat file for integration
@@ -187,7 +182,7 @@ def mkIntegrateJob(options, ecm, prevJob):
 
     job.cmds += ["mpirun -n {0} ".format(str(targetCores))+options.sherpaInstallPath+"/bin/Sherpa EVENTS=0 FRAGMENTATION=Off MI_HANDLER=None BEAM_ENERGY_1="+str(ecm/2.*1000)+" BEAM_ENERGY_2="+str(ecm/2.*1000)]
 
-    job.write(extraDirs=[options.basedir])
+    job.write(extraDirs=[options.jobOptionDir[0]])
     job.submit(dryRun=options.dryRun)
     return job
 
@@ -197,53 +192,49 @@ def mkTarballmakerJob(options, ecm, prevJob):
     if not ("makeTarball" in options.performOnly or "all" in options.performOnly):
         return None
 
-    physicsShort = options.optionfile[0].split(".")[1]
+    physicsShort = options.mainJOfile.split(".")[1]
     ecmstring = ('{0:g}'.format(ecm)).replace(".","p")+"TeV"
     ecmfolder = "ecm"+ecmstring
     tarballname = "mc_"+ecmstring+"."+physicsShort+".GRID.tar.gz"
 
-    job = options.batchSystemModule.batchJob("4.makeTarball", hours=1, nCores=1, memMB=1, basedir=options.basedir+"/"+ecmfolder)
+    job = options.batchSystemModule.batchJob("4.makeTarball", hours=1, nCores=1, memMB=1, basedir=options.jobOptionDir[0]+"/"+ecmfolder)
     job.cmds += ["set -e"]
 
     if prevJob:
         job.dependsOnOk.append(prevJob.id)
 
-    job.cmds += ["tar czhf "+options.basedir+"/"+tarballname+" $(ls -d Results.db Process 3.integrate.log 2>/dev/null) "+" ".join(options.Sherpa_i.ExtraFiles)]
+    job.cmds += ["tar czhf "+options.jobOptionDir[0]+"/"+tarballname+" $(ls -d Results.db Process 3.integrate.log 2>/dev/null) "+" ".join(options.Sherpa_i.ExtraFiles)]
+    for jodir in options.jobOptionDir[1:]:
+        job.cmds += ["ln -s "+options.jobOptionDir[0]+"/"+tarballname+" "+jodir]
 
-    job.write(useSingularity=False, extraDirs=[options.basedir])
+    job.write(useSingularity=False, extraDirs=options.jobOptionDir)
     job.submit(dryRun=options.dryRun)
     return job
 
 
 
 
-def mkEvntGenTestJob(options, ecm, ii, prevJob):
+def mkEvntGenTestJob(options, ecm, jodir, prevJob):
     if not ("evgen" in options.performOnly or "all" in options.performOnly):
         return None
 
-    physicsShort = options.optionfile[0].split(".")[1]
     ecmstring = ('{0:g}'.format(ecm)).replace(".","p")+"TeV"
     ecmfolder = "ecm"+ecmstring
-    tarballname = "mc_"+ecmstring+"."+physicsShort+".GRID.tar.gz"
 
-    jobConfig = options.optionfile[ii]
-
-    job = options.batchSystemModule.batchJob("5.EvntGenTest_"+str(ii), hours=24, nCores=1, memMB=1, basedir=options.basedir+"/"+ecmfolder)
+    job = options.batchSystemModule.batchJob("5.EvntGenTest", hours=24, nCores=1, memMB=1, basedir=jodir+"/"+ecmfolder)
 
     if prevJob:
         job.dependsOnOk.append(prevJob.id)
 
-    testfolder = job.name
-
-    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion+",64"]
+    job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
     job.cmds += ["set -e"]
 
-    job.cmds += ["rm -rf "+testfolder]
-    job.cmds += ["mkdir "+testfolder]
-    job.cmds += ["cd "+testfolder]
+    job.cmds += ["rm -rf 5.EvntGenTest"]
+    job.cmds += ["mkdir 5.EvntGenTest"]
+    job.cmds += ["cd 5.EvntGenTest"]
     job.cmds += ["echo 'genSeq.Sherpa_i.Parameters += [ \"LOG_FILE=\" ]' > events.py"]
     job.cmds += ["outputEVNTFile=$(mktemp -u /tmp/XXXXXXXX.pool.root)"]
-    job.cmds += ["Gen_tf.py --ecmEnergy="+str(ecm*1000.)+" --maxEvents=1 --firstEvent=1 --randomSeed=10 --jobConfig="+options.basedir+" --postInclude=events.py --outputEVNTFile=${outputEVNTFile} --maxEvents="+str(options.nEvts)]
+    job.cmds += ["Gen_tf.py --ecmEnergy="+str(ecm*1000.)+" --maxEvents=1 --firstEvent=1 --randomSeed=10 --jobConfig="+jodir+" --postInclude=events.py --outputEVNTFile=${outputEVNTFile} --maxEvents="+str(options.nEvts)]
     job.cmds += ["cat log.generate"]
 
     ## set min events
@@ -253,18 +244,18 @@ def mkEvntGenTestJob(options, ecm, ii, prevJob):
     job.cmds += ["finalEventsPerJob=0"]
     job.cmds += ["for i in 1 2 5 10 20 50 100 200 500 1000 2000 5000 10000; do if test $nPer12h -gt $i; then finalEventsPerJob=$i; fi; done"]
     job.cmds += ["echo \"Possible number of events per 12h: ${nPer12h} -> ${finalEventsPerJob} \""]
-    job.cmds += ["if grep -q evgenConfig.nEventsPerJob ../../"+jobConfig+"; then"]
-    job.cmds += ["  sed -e \"s/evgenConfig.nEventsPerJob.*=.*\([0-9]*\)/evgenConfig.nEventsPerJob = ${finalEventsPerJob}/g\" -i ../../"+jobConfig]
+    job.cmds += ["if grep -q evgenConfig.nEventsPerJob "+jodir+"/mc.*.py; then"]
+    job.cmds += ["  sed -e \"s/evgenConfig.nEventsPerJob.*=.*\([0-9]*\)/evgenConfig.nEventsPerJob = ${finalEventsPerJob}/g\" -i "+jodir+"/mc.*.py"]
     job.cmds += ["else"]
-    job.cmds += ["  echo \"evgenConfig.nEventsPerJob = ${finalEventsPerJob}\" >> ../../"+jobConfig]
+    job.cmds += ["  echo \"evgenConfig.nEventsPerJob = ${finalEventsPerJob}\" >> "+jodir+"/mc.*.py"]
     job.cmds += ["fi"]
 
     # cp log.generate to DSID dir such that commit script can run on it
     job.cmds += ["cp log.generate ../../"]
 
     job.cmds += ["cd .."]
-    job.cmds += ["rm -rf "+testfolder]
+    job.cmds += ["rm -rf 5.EvntGenTest"]
 
-    job.write(extraDirs=[options.basedir])
+    job.write(extraDirs=[jodir])
     job.submit(dryRun=options.dryRun)
     return job

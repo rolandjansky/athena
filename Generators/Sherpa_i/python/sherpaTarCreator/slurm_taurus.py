@@ -41,10 +41,10 @@ class batchJob(batchJobBase):
         cmd += " -J "+jobname+" "+self.basedir+"/"+self.name+".sh >> qsub.log \n"
 
         if dryRun:
-            print (cmd+"\n")
+            print (cmd)
             self.id = "-1"
         else:
-            print(cmd+"\n")
+            print(cmd)
             p = subprocess.Popen(cmd,shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
             retcode = p.communicate()
             if len(retcode[0]):
@@ -60,7 +60,7 @@ class batchJob(batchJobBase):
 
             self.id = getJobIDfromlastJob()
 
-        print("Submitted "+str(self.id)+" ("+self.name+")")
+        print("Submitted "+str(self.id)+" ("+self.name+")\n\n")
 
 def finalizeJobs(dryRun):
     return True
