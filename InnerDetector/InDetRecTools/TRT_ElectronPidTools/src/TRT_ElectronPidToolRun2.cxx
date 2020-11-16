@@ -256,7 +256,16 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     if (!measurement) continue;
 
     // Get drift circle (ensures that hit is from TRT):
-    const InDet::TRT_DriftCircleOnTrack* driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(measurement);
+    // use the type methods to avoid dynamic_cast in a loop
+    const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+    if (measurement->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+      const Trk::RIO_OnTrack* tmpRio =
+        static_cast<const Trk::RIO_OnTrack*>(measurement);
+      if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+        driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+      }
+    }
+
     if (!driftcircle) continue;
 
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
@@ -467,7 +476,7 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   // Calculate RNN PID score
   std::map<std::string, std::map<std::string, double>> scalarInputs_NN = PIDNN->getScalarInputs();
   std::map<std::string, std::map<std::string, std::vector<double>>> vectorInputs_NN = PIDNN->getVectorInputs();
-  
+
   // Calculate the hit fraction
   double fAr = static_cast<double>(nArhits) / nTRThits;
   double fHTMB = static_cast<double>(nTRThitsHTMB) / nTRThits;
