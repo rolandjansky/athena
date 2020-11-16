@@ -235,13 +235,9 @@ class SlimmingHelper:
                                         entry = "xAOD::JetAuxContainer#"+item+"."
                                 elif (theDictionary[item]=='xAOD::ShallowAuxContainer'):
                                         entry = "xAOD::ShallowAuxContainer#"+item+"."
-                                elif ("AuxInfo" in theDictionary[item]):
-                                        entry = "xAOD::AuxInfoBase#"+item+"."
                                 elif (theDictionary[item]=='xAOD::MissingETAuxAssociationMap'):
                                         entry = "xAOD::MissingETAuxAssociationMap#"+item+"."
-                                elif (theDictionary[item]=='xAOD::EventInfo'):
-                                        entry = "xAOD::AuxInfoBase!#"+item+"."
-                                elif (theDictionary[item]=='xAOD::EventShape'):
+                                elif ("AuxInfo" in theDictionary[item]):
                                         entry = "xAOD::AuxInfoBase!#"+item+"."
                                 # Next two lines - remaining containers
                                 # that still need to be expanded with AuxStoreWrapper
