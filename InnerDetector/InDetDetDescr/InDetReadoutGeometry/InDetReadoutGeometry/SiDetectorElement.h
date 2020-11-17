@@ -13,38 +13,9 @@
  * Base class.
  */
 #include "ReadoutGeometryBase/SolidStateDetectorElementBase.h"
-
-#include "GeoModelKernel/GeoDefinitions.h"
-#include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "GeoPrimitives/GeoPrimitives.h"
-#include "Identifier/Identifier.h"
-#include "Identifier/IdentifierHash.h"
-#include "ReadoutGeometryBase/InDetDD_Defs.h"
-#include "ReadoutGeometryBase/SiCellId.h"
-#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "ReadoutGeometryBase/SiIntersect.h"
-#include "ReadoutGeometryBase/SiLocalPosition.h"
-#include "TrkEventPrimitives/ParamDefs.h"
-
-#include "CLHEP/Geometry/Point3D.h"
-
-#include <atomic>
-#include <limits>
-#include <memory>
-#include <mutex>
-
-class AtlasDetectorID;
-class GeoAlignmentStore;
-class GeoVFullPhysVol;
-
-namespace Trk {
-  class SurfaceBounds;
-}
 
 namespace InDetDD {
-
-  class SiReadoutCellId;
 
   /**
    *  
@@ -228,14 +199,6 @@ namespace InDetDD {
      * Useful for SCT only
      */
     const SiDetectorElement* otherSide() const;
-    //@}
-
-    /**
-     * @name Common items
-     * Inline method
-     */
-    //@{
-    const SiCommonItems* getCommonItems() const;
     //@}
 
     /**
@@ -824,12 +787,6 @@ namespace InDetDD {
      */
     //@{
 
-    /**
-     * local description of this detector element
-     */
-    const SiDetectorDesign* m_design{nullptr};
-
-    const SiCommonItems* m_commonItems{nullptr};
     std::unique_ptr<Trk::Surface> m_surface;
     const GeoAlignmentStore* m_geoAlignStore{};
 

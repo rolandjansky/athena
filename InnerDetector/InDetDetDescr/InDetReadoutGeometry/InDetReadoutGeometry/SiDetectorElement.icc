@@ -71,11 +71,6 @@ namespace InDetDD {
   {
     return m_otherSide;
   }
-    
-  inline const SiCommonItems* SiDetectorElement::getCommonItems() const
-  {
-    return m_commonItems;
-  }
 
   inline bool SiDetectorElement::isEndcap() const
   {
@@ -256,7 +251,8 @@ namespace InDetDD {
     
   inline const SiDetectorDesign& SiDetectorElement::design() const
   {
-    return *m_design;
+  //Adopting and adapting 21.9 strategy - is there a better way to avoid dynamic_cast?
+    return dynamic_cast<const SiDetectorDesign&>(*m_design);
   }
     
   inline const Trk::SurfaceBounds& SiDetectorElement::bounds(const Identifier&) const
@@ -333,7 +329,8 @@ namespace InDetDD {
     
   inline SiCellId SiDetectorElement::gangedCell(const SiCellId& cellId) const
   {
-    return m_design->gangedCell(cellId);
+  //again, 21.9 logic... doesn't seem optimal?
+    return dynamic_cast<const SiDetectorDesign *>(m_design)->gangedCell(cellId);
   }
     
   inline MsgStream& SiDetectorElement::msg(MSG::Level lvl) const

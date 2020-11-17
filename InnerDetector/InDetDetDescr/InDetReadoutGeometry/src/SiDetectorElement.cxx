@@ -610,13 +610,14 @@ namespace InDetDD {
   bool
   SiDetectorElement::nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const
   {
-    return m_design->nearBondGap(localPosition, etaTol);
+    //again, can we avoid casting here?
+    return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition, etaTol);
   }
 
   bool
   SiDetectorElement::nearBondGap(const HepGeom::Point3D<double>& globalPosition, double etaTol) const
   {
-    return m_design->nearBondGap(localPosition(globalPosition), etaTol);
+    return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition(globalPosition), etaTol);
   }
 
   SiIntersect
@@ -676,8 +677,9 @@ namespace InDetDD {
   std::pair<Amg::Vector3D,Amg::Vector3D>
   SiDetectorElement::endsOfStrip(const Amg::Vector2D& position) const
   {
+    //again with the casting...
     const std::pair<Amg::Vector2D,Amg::Vector2D> localEnds=
-      m_design->endsOfStrip(position);
+      static_cast<const SiDetectorDesign *>(m_design)->endsOfStrip(position);
     return std::pair<Amg::Vector3D,Amg::Vector3D >(globalPosition(localEnds.first),
                                                    globalPosition(localEnds.second));
   }
