@@ -72,6 +72,8 @@ atlas_add_component( ActsGeometry
                      ActsGeometryInterfacesLib
                      ActsGeometryLib
                      ActsInteropLib
+                     EventPrimitives
+                     GeoPrimitives
                      AthenaBaseComps
                      AthenaKernel
                      CaloDetDescrLib

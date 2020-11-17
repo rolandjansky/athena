@@ -11,20 +11,24 @@
 #ifndef TRT_BaseElement_h
 #define TRT_BaseElement_h 1
 
+
+//include the Amg packages they include the Eigen plug-ins
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
+#include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/StraightLineSurface.h"
+
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "InDetReadoutGeometry/SurfaceCache.h"
-#include "TrkSurfaces/StraightLineSurface.h"
-#include "TrkSurfaces/Surface.h"
-
-#include "CxxUtils/CachedUniquePtr.h"
-#include "CxxUtils/checker_macros.h"
-
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/Identifier.h"
 
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "CLHEP/Geometry/Transform3D.h"
 #include "CLHEP/Geometry/Point3D.h"
+
+#include "CxxUtils/CachedUniquePtr.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <atomic>
 #include <mutex>

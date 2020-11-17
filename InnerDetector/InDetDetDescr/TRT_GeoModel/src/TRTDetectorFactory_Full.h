@@ -14,11 +14,11 @@
 
 #ifndef TRTDetectorFactory_Full_h
 #define TRTDetectorFactory_Full_h 1
+#include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetGeoModelUtils/InDetDetectorFactoryBase.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummaryTool.h" //for Argon
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "CxxUtils/checker_macros.h"
 
