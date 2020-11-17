@@ -65,7 +65,7 @@ public:
   // unimplemented interfaces
   
   /// Asynchronously setup conditions
-  virtual ConditionSlotFuture* startConditionSetup(const EventContext&) {
+  virtual ConditionSlotFuture* startConditionSetup(const EventContext&) override {
     return nullptr;
   }
 
