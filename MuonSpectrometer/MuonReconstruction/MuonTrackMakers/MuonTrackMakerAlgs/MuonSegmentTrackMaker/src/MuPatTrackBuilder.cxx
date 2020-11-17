@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatTrackBuilder.h"
@@ -39,11 +39,11 @@ StatusCode MuPatTrackBuilder::initialize()
   return StatusCode::SUCCESS; 
 }
 
-StatusCode MuPatTrackBuilder::execute()
+StatusCode MuPatTrackBuilder::execute(const EventContext& ctx) const
 {
   typedef std::vector<const Muon::MuonSegment*> MuonSegmentCollection;
 
-  SG::ReadHandle<Trk::SegmentCollection> segmentColl (m_segmentKey);
+  SG::ReadHandle<Trk::SegmentCollection> segmentColl (m_segmentKey, ctx);
   if (!segmentColl.isValid() ) {
     msg(MSG::WARNING) << "Could not find MuonSegmentCollection at " << segmentColl.name() <<endmsg;
     return StatusCode::RECOVERABLE;
@@ -72,7 +72,7 @@ StatusCode MuPatTrackBuilder::execute()
   TrackCollection * newtracks = m_trackMaker->find(msc);
   if (!newtracks) newtracks = new TrackCollection();
 
-  SG::WriteHandle<TrackCollection> spectroTracks(m_spectroTrackKey); 	  
+  SG::WriteHandle<TrackCollection> spectroTracks(m_spectroTrackKey, ctx); 	  
   if (spectroTracks.record(std::unique_ptr<TrackCollection>(newtracks)).isFailure()){    
       ATH_MSG_WARNING( "New Track Container " << spectroTracks.name() << " could not be recorded in StoreGate !");
       return StatusCode::RECOVERABLE;
