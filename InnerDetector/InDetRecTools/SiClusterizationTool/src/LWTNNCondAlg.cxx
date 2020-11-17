@@ -138,7 +138,8 @@ namespace InDet {
     writeCdo->insert(std::make_pair(0,std::unique_ptr<lwt::atlas::FastGraph>(nullptr)));
     // If this json is empty, just fill a null pointer.
     if(subtreeNumberNetwork.empty()) {
-      ATH_MSG_INFO("Not using lwtnn for number network.");
+      ATH_MSG_ERROR("You are trying to use lwtnn for the number network but have an empty configuration file; this should never happen!");
+      return StatusCode::FAILURE;
     }
     // Otherwise, set up lwtnn.
     else {      
@@ -164,7 +165,8 @@ namespace InDet {
 
       // Now do empty check: if any one of these is empty we won't use lwtnn
       if(subtreePosNetwork.empty()) {
-        ATH_MSG_INFO("Not using lwtnn for position networks.");
+        ATH_MSG_ERROR("You are trying to use lwtnn for the position networks but have an empty configuration file; this should never happen!");
+        return StatusCode::FAILURE;
       } else {
         // Otherwise, set up lwtnn
         ATH_MSG_INFO("Setting up lwtnn for n = " << i << " position network...");
