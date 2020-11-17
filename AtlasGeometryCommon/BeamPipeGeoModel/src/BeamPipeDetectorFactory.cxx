@@ -66,6 +66,11 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
   m_centralRegionZMax = 1500 * Gaudi::Units::mm; // For backward compatibility in DB.
   if (bpipeGeneral->size() != 0) m_centralRegionZMax = (*bpipeGeneral)[0]->getDouble("CENTRALZMAX") * Gaudi::Units::mm;
 
+  const GeoMaterial* ether = m_materialManager->getMaterial("special::Ether");
+  GeoTube* dummytube= new GeoTube(0., 4711., 4711.);
+  GeoLogVol* dummyBeamPipe = new GeoLogVol("BeamPipe",dummytube,ether);
+  GeoPhysVol* theBeamPipe = new GeoPhysVol(dummyBeamPipe);
+
   EnvelopeShapes envelopes;
 
   if (bpipeEnvelope->size() != 0) {
@@ -103,26 +108,48 @@ void BeamPipeDetectorFactory::create(GeoPhysVol *world)
     beamz = (*bpipePosition)[0]->getDouble("POSZ") * Gaudi::Units::mm;
   }
 
-  // Only shift the central section
+  if (m_mode=="AssemblyBeamPipe"){
+    // Only shift the central section
+    // Central
+    theBeamPipe->add(tag);
+    theBeamPipe->add(new GeoTransform(GeoTrf::Translate3D(beamx,beamy,beamz)));
+    theBeamPipe->add(pvMotherCentral);
 
-  // Central
-  world->add(tag);
-  world->add(new GeoTransform(GeoTrf::Translate3D(beamx,beamy,beamz)));
-  world->add(pvMotherCentral);
-  m_detectorManager->addTreeTop(pvMotherCentral);                                                                  //
+    // FwdPlus
+    theBeamPipe->add(tag);
+    theBeamPipe->add(pvMotherFwdPlus);
 
-  // FwdPlus
-  world->add(tag);
-  world->add(pvMotherFwdPlus);
-  m_detectorManager->addTreeTop(pvMotherFwdPlus);
+    // FwdMinus
+    theBeamPipe->add(tag);
+    theBeamPipe->add(new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::degree)));
+    theBeamPipe->add(pvMotherFwdMinus);
 
-  // FwdMinus
-  world->add(tag);
-  world->add(new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::degree)));
-  world->add(pvMotherFwdMinus);
-  m_detectorManager->addTreeTop(pvMotherFwdMinus);
+    const GeoShape *shape = envelopes.bpShape;
+    GeoLogVol* lvMother = new GeoLogVol("BeamPipe",shape,air);
+    GeoPhysVol* pvMother = new GeoPhysVol(lvMother);
+    pvMother->add(tag);
+    pvMother->add(theBeamPipe);
 
-
+    world->add(tag);
+    world->add(pvMother);
+    m_detectorManager->addTreeTop(pvMother);
+  }
+  else{
+    // Default beam pipe, union of central and forward beampipes rather than assembly volume
+    // Central
+    world->add(tag);
+    world->add(new GeoTransform(GeoTrf::Translate3D(beamx,beamy,beamz)));
+    world->add(pvMotherCentral);
+    m_detectorManager->addTreeTop(pvMotherCentral);                                                                  //
+    // FwdPlus
+    world->add(tag);
+    world->add(pvMotherFwdPlus);
+    m_detectorManager->addTreeTop(pvMotherFwdPlus);
+    // FwdMinus
+    world->add(new GeoTransform(GeoTrf::RotateY3D(180*Gaudi::Units::degree)));
+    world->add(pvMotherFwdMinus);
+    m_detectorManager->addTreeTop(pvMotherFwdMinus);
+  }
 }
 
 void BeamPipeDetectorFactory::addSections(GeoPhysVol* parent, int region)
@@ -283,10 +310,11 @@ const BeamPipeDetectorManager * BeamPipeDetectorFactory::getDetectorManager() co
   return m_detectorManager;
 }
 
-void BeamPipeDetectorFactory::setTagNode(std::string tag, std::string node)
+void BeamPipeDetectorFactory::setTagNode(std::string tag, std::string node, std::string mode)
 {
   m_versionTag = tag;
   m_versionNode = node;
+  m_mode = mode;
 }
 
 
@@ -356,6 +384,24 @@ BeamPipeDetectorFactory::makeEnvelope(IRDBRecordset_ptr bpipeEnvelope)
       pcone->addPlane(z,0,r);
     }
     envelopes.fwdShape = pcone;
+  }
+
+  //central+fwd
+  {
+    GeoPcon* Pcone = new GeoPcon(0, 360*Gaudi::Units::deg);
+    for (int i=fwdEntry.size()-1; i>=0; i--) {
+      double z = fwdEntry[i].z();
+      double r = fwdEntry[i].r();
+      Pcone->addPlane(-z,0,r);
+    }
+    Pcone->addPlane(-m_centralRegionZMax,0,rFwd);
+    Pcone->addPlane(m_centralRegionZMax,0,rFwd);
+    for (unsigned int i=0; i<fwdEntry.size(); i++) {
+      double z = fwdEntry[i].z();
+      double r = fwdEntry[i].r();
+      Pcone->addPlane(z,0,r);
+    }
+    envelopes.bpShape = Pcone;
   }
 
   return envelopes;
