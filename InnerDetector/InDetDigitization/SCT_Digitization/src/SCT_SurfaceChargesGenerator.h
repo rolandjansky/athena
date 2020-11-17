@@ -120,7 +120,7 @@ class SCT_SurfaceChargesGenerator : public extends<AthAlgTool, ISCT_SurfaceCharg
   FloatProperty m_tsubtract{this, "SubtractTime", -999., "subtract drift time from mid gap"};
 
   BooleanProperty m_doDistortions{this, "doDistortions", false, "Simulation of module distortions"};
-  BooleanProperty m_useSiCondDB{this, "UseSiCondDB", false, "Usage of SiConditions DB values can be disabled to use setable ones"};
+  BooleanProperty m_useSiCondDB{this, "UseSiCondDB", true, "Usage of SiConditions DB values can be disabled to use setable ones"};
   FloatProperty m_vdepl{this, "DepletionVoltage", 70., "depletion voltage, default 70V"};
   FloatProperty m_vbias{this, "BiasVoltage", 150., "bias voltage, default 150V"};
   BooleanProperty m_doTrapping{this, "doTrapping", false, "Flag to set Charge Trapping"};
