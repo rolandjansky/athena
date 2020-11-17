@@ -192,6 +192,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
 
 
     unsigned int errorcode = 0;
+    unsigned int fe_errorcode = 0; //to keep MCC/FE individual per FE for pixel
     // m_errors->reset(); // reset the collection of errors
 
     StatusCode sc = StatusCode::SUCCESS;
@@ -334,7 +335,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
             }
 
             errorcode = 0; // reset errorcode
-
+	    fe_errorcode = 0;
             // Keep track of IDs for previous fragment before decoding the new values
             prevLVL1ID = mLVL1ID;
             prevBCID = mBCID;
@@ -451,6 +452,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 if (headererror != 0) { // only treatment for header errors now, FIXME
                     sc = StatusCode::RECOVERABLE;
                     errorcode = errorcode | (headererror << 20); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
+		    fe_errorcode = fe_errorcode | (headererror << 20);
                     if (headererror & (1 << 3))
                         m_errors->addPreambleError();
                     if (headererror & (1 << 2))
@@ -989,6 +991,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 if (trailererror != 0) {
                     sc = StatusCode ::RECOVERABLE;
                     errorcode = errorcode | trailererror; //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
+		    fe_errorcode = fe_errorcode | trailererror;
                     //for now just sum all trailer errors
                     if (trailererror & (1 << 3))
                         m_errors->addTrailerError();
@@ -1067,6 +1070,8 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                 FEFlags = FEFlags & 0xF3; // mask out the parity bits, they don't work
                 if ((MCCFlags | FEFlags) != 0) {
                     sc = StatusCode::RECOVERABLE;
+		    fe_errorcode = fe_errorcode & 0xfff0000f; // clean-up MCC and FE bits before writing them
+		    fe_errorcode = fe_errorcode | (MCCFlags << 12) | (FEFlags << 4);
                     errorcode = errorcode | (MCCFlags << 12) | (FEFlags << 4); //encode error as HHHHMMMMMMMMFFFFFFFFTTTT for header, flagword, trailer errors
                     //for now just sum all flagged errors
                     if (MCCFlags & (1 << 7))
@@ -1101,7 +1106,7 @@ StatusCode PixelRodDecoder::fillCollection( const ROBFragment *robFrag, PixelRDO
                         m_errors->addFlaggedError();
                     if (FEFlags & (1 << 0))
                         m_errors->addFlaggedError();
-                    m_errors->setFeErrorCode(offlineIdHash, fe_number, errorcode);
+                    m_errors->setFeErrorCode(offlineIdHash, fe_number, fe_errorcode);
 
                 } else {
                     m_errors->addDisabledFEError();
