@@ -1,59 +1,25 @@
-# $Id: CMakeLists.txt 777113 2016-10-07 13:40:26Z krasznaa $
-################################################################################
-# Package: IsolationSelection
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IsolationSelection )
 
-# Extra dependencies based on the environment:
-set( extra_dep )
-if( XAOD_STANDALONE )
-   set( extra_dep Control/xAODRootAccess )
-else()
-   set( extra_dep GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-  PUBLIC
-  Control/AthContainers
-  Control/AthToolSupport/AsgTools
-  Event/xAOD/xAODBase
-  Event/xAOD/xAODEgamma
-  Event/xAOD/xAODMuon
-  Event/xAOD/xAODPrimitives
-  PhysicsAnalysis/AnalysisCommon/PATCore
-  PhysicsAnalysis/AnalysisCommon/PATInterfaces
-  InnerDetector/InDetRecTools/InDetTrackSelectionTool
-  PRIVATE
-  Event/FourMomUtils
-  Control/AthenaBaseComps
-  Tools/PathResolver
-  ${extra_dep} )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Hist Tree )
-
-set(extra_libs)
-if ( NOT XAOD_STANDALONE)
-  set(extra_libs TrkExUtils)
-endif()
 
 # Libraries in the package:
 atlas_add_library( IsolationSelectionLib
   IsolationSelection/*.h Root/*.cxx
   PUBLIC_HEADERS IsolationSelection
-  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon ${extra_libs}
-  xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionToolLib
-  PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} FourMomUtils PathResolver )
+  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools xAODBase xAODEgamma xAODMuon
+  xAODPrimitives xAODTracking PATCoreLib PATInterfaces
+  PRIVATE_LINK_LIBRARIES InDetTrackSelectionToolLib FourMomUtils PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationSelection
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AsgTools AthenaBaseComps xAODEgamma xAODMuon GaudiKernel
-      IsolationSelectionLib )
+      LINK_LIBRARIES AsgTools AthenaBaseComps xAODBase xAODCore xAODEgamma xAODMuon
+      GaudiKernel IsolationSelectionLib )
 endif()
 
 atlas_add_dictionary( IsolationSelectionDict
@@ -66,13 +32,13 @@ if( XAOD_STANDALONE )
    atlas_add_executable( testIsolationCloseByCorrectionTool
       util/testIsolationCloseByCorrectionTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
-      xAODMuon xAODCore IsolationSelectionLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODBase xAODRootAccess xAODEventInfo
+      xAODEgamma xAODMuon xAODCore IsolationSelectionLib )
 
    atlas_add_executable( testIsolationSelectionTool
       util/testIsolationSelectionTool.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEgamma xAODMuon
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma xAODMuon
       xAODPrimitives IsolationSelectionLib )
 endif()
 
