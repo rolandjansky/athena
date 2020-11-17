@@ -32,7 +32,7 @@ class BeamPipeDetectorFactory final : public GeoVDetectorFactory
   virtual const BeamPipeDetectorManager * getDetectorManager() const override;
   
   // Set version Tag and Node
-  void setTagNode(std::string tag, std::string node);
+  void setTagNode(std::string tag, std::string node, std::string mode);
 
   void addSections(GeoPhysVol* parent, int region);
 
@@ -52,9 +52,10 @@ class BeamPipeDetectorFactory final : public GeoVDetectorFactory
 
   class EnvelopeShapes {
   public:
-    EnvelopeShapes() : centralShape(0), fwdShape(0) {} 
+    EnvelopeShapes() : centralShape(0), fwdShape(0), bpShape(0) {} 
     GeoShape * centralShape;
     GeoShape * fwdShape;
+    GeoShape * bpShape;
   };
 
 
@@ -75,6 +76,7 @@ class BeamPipeDetectorFactory final : public GeoVDetectorFactory
   IRDBAccessSvc            * m_access;
   std::string              m_versionTag;
   std::string              m_versionNode;
+  std::string              m_mode;
 
   double m_centralRegionZMax;
 };

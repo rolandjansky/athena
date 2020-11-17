@@ -22,8 +22,10 @@ BeamPipeDetectorTool::BeamPipeDetectorTool( const std::string& type,
 					    const std::string& name, 
 					    const IInterface* parent ): 
   GeoModelTool(type,name,parent),
-  m_manager(0)
+  m_manager(0),
+  m_mode("BeamPipe")
 {
+    declareProperty("BeamPipeMode",            m_mode); //m_mode="BeamPipe" by default, setting m_mode="AssemblyBeamPipe" will trigger optimised implementation using assembly volume
 }
 
 BeamPipeDetectorTool::~BeamPipeDetectorTool()
@@ -75,14 +77,13 @@ StatusCode BeamPipeDetectorTool::create()
     beampipeVersionTag = raccess->getChildTag("BeamPipe", atlasVersion,versionNode);
     log << MSG::DEBUG << "Beampipe Version: " << beampipeVersionTag << endmsg;
 
-
     if (beampipeVersionTag.empty()) { 
       log << MSG::INFO << "No BeamPipe Version. Beam pipe will not be built." << endmsg;
       
     } else {
       
       BeamPipeDetectorFactory theBeamPipeFactory(detStore().operator->(),raccess);
-      theBeamPipeFactory.setTagNode(atlasVersion,versionNode);
+      theBeamPipeFactory.setTagNode(atlasVersion,versionNode,m_mode);
       theBeamPipeFactory.create(world);
 
       m_manager = theBeamPipeFactory.getDetectorManager();
