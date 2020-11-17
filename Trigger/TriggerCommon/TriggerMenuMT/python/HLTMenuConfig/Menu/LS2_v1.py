@@ -446,9 +446,10 @@ def setupMenu():
 
     TriggerFlags.UnconventionalTrackingSlice.signatures = TriggerFlags.UnconventionalTrackingSlice.signatures() + [
         ChainProp(name='HLT_unconvtrk120_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
-        ChainProp(name='HLT_unconvtrk120_isohpttrack_icummedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
+        ChainProp(name='HLT_unconvtrk120_isohpttrack_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk80_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_icummedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
     ]
 
