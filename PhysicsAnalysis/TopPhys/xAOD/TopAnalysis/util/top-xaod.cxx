@@ -690,22 +690,24 @@ int main(int argc, char** argv) {
         pileupWeight = topScaleFactors->pileupWeight();
       }
 
-      // perform any operation common to both reco and truth level
-      // currently we load the MC generator weights inside, if requested
-      eventSaver->execute();
-
-      ///-- Truth events --///
       if (topConfig->isMC()) {
-        // Save, if requested, MC truth block, PDFInfo, TopPartons
-        // This will be saved for every event
-
+        // if requested, pre-calculate TopPartons and PDF info
         // Run topPartonHistory
         if (topConfig->doTopPartonHistory()) top::check(topPartonHistory->execute(), "Failed to execute topPartonHistory");
 
         // calculate PDF weights
         if (topConfig->doLHAPDF()) top::check(PDF_SF->execute(),
                                               "Failed to execute PDF SF");
+      }
 
+      // perform any operation common to both reco and truth level
+      // currently we load the MC generator weights and PDFs if requested
+      eventSaver->execute();
+
+      ///-- Truth events --///
+      if (topConfig->isMC()) {
+
+        // Save, if requested, MC truth block, PDFInfo, TopPartons
         eventSaver->saveTruthEvent();
         if(topConfig->doTopPartonLevel()) ++eventSavedTruth;
 
