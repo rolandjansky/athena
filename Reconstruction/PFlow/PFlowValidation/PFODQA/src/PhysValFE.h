@@ -7,12 +7,18 @@
 
 #include "PFOChargedValidationPlots.h"
 #include "PFONeutralValidationPlots.h"
+#include "LeptonNFEValidationPlots.h"
+#include "LeptonCFEValidationPlots.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include <string>
 #include "xAODTracking/VertexContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/FlowElementContainer.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODEgamma/PhotonContainer.h"
+#include "xAODTau/TauJetContainer.h"
 
 class PhysValFE : public ManagedMonitorToolBase {
 
@@ -42,11 +48,28 @@ public:
   /** ReadHandleKey to retrieve xAOD::PFOContainer */
   SG::ReadHandleKey<xAOD::PFOContainer> m_PFOContainerHandleKey{this,"PFOContainerName","JetETMissChargedParticleFlowObjects","ReadHandleKey for the PFO container"};
 
+  /** ReadHandleKey to retrieve MuonContainer */
+  SG::ReadHandleKey<xAOD::MuonContainer> m_MuonContainerHandleKey{this,"MuonContainerName","Muons","ReadHandleKey for the muon container"};
+
+  /** ReadHandleKey to retrieve ElectronContainer */
+  SG::ReadHandleKey<xAOD::ElectronContainer> m_ElectronContainerHandleKey{this,"ElectronContainerName","Electrons","ReadHandleKey for the electron container"};
+
+  /** ReadHandleKey to retrieve PhotonContainer */
+  SG::ReadHandleKey<xAOD::PhotonContainer> m_PhotonContainerHandleKey{this,"PhotonContainerName","Photons","ReadHandleKey for the photon container"};
+
+  /** ReadHandleKey to retrieve TauJetContainer */
+  SG::ReadHandleKey<xAOD::TauJetContainer> m_TauJetContainerHandleKey{this,"TauJetContainerName","TauJets","ReadHandleKey for the taujet container"};
+
+
   /** Pointer to class that deals with histograms for charged FE */
   std::unique_ptr<PFOChargedValidationPlots> m_FEChargedValidationPlots;
 
   /** Pointer to class that deals with histograms for neutral FE */
   std::unique_ptr<PFONeutralValidationPlots> m_FENeutralValidationPlots;
+
+  /** Pointer to class that deals with histograms for lepton links */
+  std::unique_ptr<LeptonCFEValidationPlots> m_LeptonLinkerPlots_CFE;
+  std::unique_ptr<LeptonNFEValidationPlots> m_LeptonLinkerPlots_NFE;
   
   /** Select whether to use neutral or charged FE */
   bool m_useNeutralFE;
