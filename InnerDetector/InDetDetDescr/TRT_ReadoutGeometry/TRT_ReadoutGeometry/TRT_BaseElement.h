@@ -12,6 +12,9 @@
 #define TRT_BaseElement_h 1
 
 #include "TrkDetElementBase/TrkDetElementBase.h"
+#include "InDetReadoutGeometry/SurfaceCache.h"
+#include "TrkSurfaces/StraightLineSurface.h"
+#include "TrkSurfaces/Surface.h"
 
 #include "CxxUtils/CachedUniquePtr.h"
 #include "CxxUtils/checker_macros.h"
@@ -27,10 +30,6 @@
 #include <mutex>
 #include <vector>
 
-namespace Trk {
-  class Surface;
-  class StraightLineSurface;
-}
 
 
 class TRT_ID;
@@ -185,10 +184,10 @@ namespace InDetDD {
     // ---- CLHEP methods ---- to be checked if needed ---------------------------------------------  (end)
    
     /** Invalidate cache */
-    void invalidate() const;
+    void invalidate();
 
     /** Update all caches */
-    void updateAllCaches() const;
+    void updateAllCaches();
 
     /** Return the TRT_Conditions object associated to this Detector element */
     const TRT_Conditions* conditions() const;
@@ -211,7 +210,7 @@ namespace InDetDD {
     void createSurfaceCache(Identifier id) const;
     
     /** invalidate action on the cache */
-    virtual void invalidateOther()     const {};
+    virtual void invalidateOther() const {};
 
   private:
     
@@ -220,7 +219,7 @@ namespace InDetDD {
     const TRT_BaseElement& operator=(const TRT_BaseElement&right);
 
     /** Helper method for cache dealing */
-    void deleteCache() const;
+    void deleteCache();
 
     void createStrawSurfaces() const;
     void createStrawSurfacesCache() const;
@@ -231,17 +230,20 @@ namespace InDetDD {
     IdentifierHash                                      m_idHash;
     const TRT_ID*                                       m_idHelper;
     const TRT_Conditions*                               m_conditions;
-    
-    // Amg cache for the straw surfaces 
-    mutable std::atomic<std::vector<Trk::StraightLineSurface*>*> m_strawSurfaces{};
-    mutable std::atomic<std::vector<SurfaceCache*>*> m_strawSurfacesCache{};
-    
+
+    // Amg cache for the straw surfaces
+    CxxUtils::CachedUniquePtrT<
+      std::vector<std::unique_ptr<Trk::StraightLineSurface>>>
+      m_strawSurfaces{};
+
+    CxxUtils::CachedUniquePtrT<std::vector<std::unique_ptr<SurfaceCache>>>
+      m_strawSurfacesCache{};
+
     //!< helper element surface for the cache   
     CxxUtils::CachedUniquePtr<SurfaceCache> m_surfaceCache;
-
     CxxUtils::CachedUniquePtr<Trk::Surface> m_surface;
+    
     mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
-
     mutable std::mutex m_mutex;
 
     const GeoAlignmentStore* m_geoAlignStore{};
