@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCDatabase.h"
@@ -13,8 +13,8 @@ TGCDatabase::TGCDatabase (DatabaseType vtype)
 }
 
 TGCDatabase::TGCDatabase (DatabaseType vtype,
-			  std::string  vfilename, 
-			  std::string  vblockname)
+			  const std::string&  vfilename, 
+			  const std::string&  vblockname)
   : m_filename(vfilename),
     m_blockname(vblockname),
     m_type(vtype)

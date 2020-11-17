@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TGCcabling/TGCModuleMap.h"
@@ -50,10 +50,8 @@ int TGCModuleMap::size (void) {
 }
 
 void TGCModuleMap::clear (void) {
-  std::map<int,TGCModuleId*>::iterator iter;
-  std::map<int,TGCModuleId*>::iterator iter_e = m_moduleMap.end();
-  for(iter=m_moduleMap.begin();iter!=iter_e;iter++){
-    delete (iter->second);
+  for (auto& p : m_moduleMap) {
+    delete p.second;
   }
   m_moduleMap.clear();
   return;
