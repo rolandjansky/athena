@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetKinematicHistos.h"
@@ -107,7 +107,7 @@ int JetKinematicHistos::fillHistosFromContainer(const xAOD::JetContainer & cont)
 
 int JetKinematicHistos::fillHistosFromJet(const xAOD::Jet &j){
 
-  if(j.isAvailable<float>((m_jetScale)+"_pt")){
+  {
     // m_jetScale is a property of the base tool
     const xAOD::JetFourMom_t p4 = j.jetP4( (xAOD::JetScale) m_jetScale);
     m_pt->Fill( p4.Pt()*toGeV );
