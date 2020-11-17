@@ -36,17 +36,17 @@ class TGCModuleSLB;
 class TGCCabling : public TGCCablingBase
 {
  private: //hide default constructor, copy constructor and assignment
-  TGCCabling (void);
-  TGCCabling (const TGCCabling&);
-  TGCCabling& operator= (const TGCCabling&);
+  TGCCabling () = delete;
+  TGCCabling (const TGCCabling&) = delete;
+  TGCCabling& operator= (const TGCCabling&) = delete;
 
 
  public:
   // Constructor & Destructor
-  TGCCabling(std::string filenameASDToPP,
-	     std::string filenameInPP,
-	     std::string filenamePPToSL,
-	     std::string filenameSLBToROD);
+  TGCCabling(const std::string& filenameASDToPP,
+	     const std::string& filenameInPP,
+	     const std::string& filenamePPToSL,
+	     const std::string& filenameSLBToROD);
 
   virtual ~TGCCabling(void);
 

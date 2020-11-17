@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CABLING_TGCDATABASESLBTOROD_HH
@@ -14,7 +14,8 @@ class TGCDatabaseSLBToROD : public TGCDatabase
 {
 public:
   // Constructor & Destructor
-  TGCDatabaseSLBToROD(std::string filename, std::string blockname);
+  TGCDatabaseSLBToROD(const std::string& filename,
+                      const std::string& blockname);
 
   TGCDatabaseSLBToROD(const TGCDatabaseSLBToROD& );
 

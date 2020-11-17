@@ -25,47 +25,10 @@
 namespace MuonTGC_Cabling {
 
 // Constructor & Destructor
-TGCCabling::TGCCabling (void)
-  : TGCCablingBase(),
-    m_cableInASD(0),
-    m_cableASDToPP(0),
-    m_cableInPP(0),
-    m_cablePPToSLB(0),
-    m_cableInSLB(0),
-    m_cableSLBToHPB(0),
-    m_cableHPBToSL(0),
-    m_cableSLBToSSW(0),
-    m_cableSSWToROD(0)
-{
-  // do nothing
-}
-
-TGCCabling::TGCCabling (const TGCCabling&)
-  : TGCCablingBase(),
-    m_cableInASD(0),
-    m_cableASDToPP(0),
-    m_cableInPP(0),
-    m_cablePPToSLB(0),
-    m_cableInSLB(0),
-    m_cableSLBToHPB(0),
-    m_cableHPBToSL(0),
-    m_cableSLBToSSW(0),
-    m_cableSSWToROD(0)
-{
-  // do nothing
-}
- 
-TGCCabling& TGCCabling::operator= (const TGCCabling&)
-{
-  // do nothing
-  return *this;
-}
-
-
-TGCCabling::TGCCabling(std::string filenameASDToPP,
-		       std::string filenameInPP,
-		       std::string filenamePPToSL,
-		       std::string filenameSLBToROD)
+TGCCabling::TGCCabling(const std::string& filenameASDToPP,
+		       const std::string& filenameInPP,
+		       const std::string& filenamePPToSL,
+		       const std::string& filenameSLBToROD)
   : TGCCablingBase()
 {
   m_cableInASD    = new TGCCableInASD(filenameASDToPP);
@@ -91,9 +54,9 @@ TGCCabling::~TGCCabling(void)
   delete m_cableSLBToSSW;
   delete m_cableSSWToROD;
 
-  std::map<int, TGCModuleId*>::iterator it   = m_slbModuleIdMap.begin(); 
-  std::map<int, TGCModuleId*>::iterator it_e = m_slbModuleIdMap.end(); 
-  for(; it!=it_e; it++) delete ((*it).second); 
+  for (auto& p : m_slbModuleIdMap) {
+    delete p.second;
+  }
 }
 
 
