@@ -147,6 +147,7 @@ int main( int argc, char* argv[] ) {
    for (int wp = 0; wp < Nwp; wp++)
      selectedMuonsNotBad[wp] = 0;
 
+
    //Obtain summary information also split by muon type
    const int Ntype = 5;
 
@@ -166,7 +167,6 @@ int main( int argc, char* argv[] ) {
      else
        typeNames[type] = "unknown";
    }
-
 
    //Muon counters for each type
    int allMuonsType[Ntype];
@@ -234,6 +234,7 @@ int main( int argc, char* argv[] ) {
 
 
    //Truth classifier
+   bool isMC = false;
    MCTruthClassifier truthClassifier("truthClassifier");
    CHECK( truthClassifier.initialize() );
 
@@ -298,6 +299,7 @@ int main( int argc, char* argv[] ) {
 
 
 	//Check truth origin
+	isMC = ei->eventType(xAOD::EventInfo::IS_SIMULATION);
 	std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin> truthClassification = truthClassifier.particleTruthClassifier(*mu_itr);
 
 	int truthType;
@@ -324,7 +326,8 @@ int main( int argc, char* argv[] ) {
 	my_quality = selectorTools[0]->getQuality(**mu_itr);	
 
 	//Print some general information about the muon
-	Info( APP_NAME, "Muon truthType:       %d (%s)", truthClassification.first, truthTypeNames[truthType].c_str());
+	if (isMC)
+	  Info( APP_NAME, "Muon truthType:       %d (%s)", truthClassification.first, truthTypeNames[truthType].c_str());
 	Info( APP_NAME, "Muon pT [GeV]:        %g ", std::abs((*mu_itr)->pt())/1000.);
 	Info( APP_NAME, "Muon eta, phi:        %g, %g ", (*mu_itr)->eta(),(*mu_itr)->phi());
 	Info( APP_NAME, "Muon muonType:        %d (%s)", (*mu_itr)->muonType(), typeNames[(*mu_itr)->muonType()].c_str());
@@ -524,38 +527,39 @@ int main( int argc, char* argv[] ) {
 
 
    //Make table of selected muons by truth type and working point
-   Info(APP_NAME, "Selected muons by truth classification and working point (numbers in parenthesis include bad muon veto):");
-   Info(APP_NAME, "---------------------------------------------------------------------------------------");
-   for (int l = 0; l < Nwp+2; l++) {
+   if (isMC) {
+     Info(APP_NAME, "Selected muons by truth classification and working point (numbers in parenthesis include bad muon veto):");
+     Info(APP_NAME, "---------------------------------------------------------------------------------------");
+     for (int l = 0; l < Nwp+2; l++) {
 
-     std::string line = "";
-     if (l == 0) { //line with truth classification labels
-       line += "              ";
-       for (int truthType = 0; truthType < NtruthType; truthType++)
-	 line += truthTypeNames[truthType] + "        ";
-     }
-     else if (l == 1) { //line for all muons inclusive
-       line += "All muons:      ";
-       for (int truthType = 0; truthType < NtruthType; truthType++) {
-	 std::stringstream ss;
-	 ss << std::left << std::setw(16) << std::to_string(allMuonsTruthType[truthType]);
-	 line += ss.str();
+       std::string line = "";
+       if (l == 0) { //line with truth classification labels
+	 line += "              ";
+	 for (int truthType = 0; truthType < NtruthType; truthType++)
+	   line += truthTypeNames[truthType] + "        ";
        }
-     }
-     else { //lines for each of the working points
-       int wp = l - 2;
-       line += WPnames[wp] + ":" + padding[wp] + "     ";
-       for (int truthType = 0; truthType < NtruthType; truthType++) {
-	 std::stringstream ss;
-	 ss << std::left << std::setw(16) << (std::to_string(selectedMuonsTruthType[truthType][wp]) + " (" + std::to_string(selectedMuonsTruthTypeNotBad[truthType][wp]) + ")");
-	 line += ss.str();
+       else if (l == 1) { //line for all muons inclusive
+	 line += "All muons:      ";
+	 for (int truthType = 0; truthType < NtruthType; truthType++) {
+	   std::stringstream ss;
+	   ss << std::left << std::setw(16) << std::to_string(allMuonsTruthType[truthType]);
+	   line += ss.str();
+	 }
        }
-     }
+       else { //lines for each of the working points
+	 int wp = l - 2;
+	 line += WPnames[wp] + ":" + padding[wp] + "     ";
+	 for (int truthType = 0; truthType < NtruthType; truthType++) {
+	   std::stringstream ss;
+	   ss << std::left << std::setw(16) << (std::to_string(selectedMuonsTruthType[truthType][wp]) + " (" + std::to_string(selectedMuonsTruthTypeNotBad[truthType][wp]) + ")");
+	   line += ss.str();
+	 }
+       }
 
-     Info(APP_NAME, "%s", line.c_str());
+       Info(APP_NAME, "%s", line.c_str());
+     }
+     Info(APP_NAME, "---------------------------------------------------------------------------------------");
    }
-   Info(APP_NAME, "---------------------------------------------------------------------------------------");
-
 
    // Needed for Smart Slimming
    xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
