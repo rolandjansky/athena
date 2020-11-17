@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: MakerAlg.py 711762 2015-11-30 21:06:11Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/MakerAlg.py
 # @author scott snyder <snyder@bnl.gov>
@@ -140,7 +139,7 @@ class MakerAlg (D3PDMakerCoreCompsConf.D3PD__MakerAlg):
         """MakerAlg constructor.  See the class documentation for a full description.
 """
 
-        if streamNameRoot == None:
+        if streamNameRoot is None:
             streamNameRoot = 'D3PD'
 
         # Work around initialization order issue.
@@ -149,15 +148,15 @@ class MakerAlg (D3PDMakerCoreCompsConf.D3PD__MakerAlg):
                           index = 0)
 
         # If the tuple path wasn't supplied, build it from the other args.
-        if TuplePath == None:
+        if TuplePath is None:
             # tuple name defaults to the algorithm name.
-            if tuplename == None:
+            if tuplename is None:
                 tuplename = name
 
-            if stream == None:
+            if stream is None:
                 # If no stream was given, infer it from the file.
                 # This creates the stream if needed.
-                if file == None:
+                if file is None:
                     raise TypeError ("Neither stream nor file specified "
                                      "for tuple %s" % tuplename)
                 stream = _stream_from_file (file, seq, tuplename,
@@ -231,7 +230,7 @@ class MakerAlg (D3PDMakerCoreCompsConf.D3PD__MakerAlg):
 
         # FIXME: should make sure name is unique within alg.
         nchild = len (self)
-        if type(configs) != type([]):
+        if not isinstance(configs, list):
             configs = [configs]
         self.Tools += configs
         super(MakerAlg, self).__iadd__ (configs)

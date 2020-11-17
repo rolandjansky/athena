@@ -15,5 +15,4 @@ atlas_add_component( D3PDMakerCoreComps
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaBaseComps AthenaKernel AthenaPoolCnvSvcLib D3PDMakerInterfaces D3PDMakerUtils GaudiKernel ParticleEvent RootUtils SGTools )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

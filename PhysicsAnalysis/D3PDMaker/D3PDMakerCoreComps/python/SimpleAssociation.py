@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: SimpleAssociation.py 542123 2013-03-23 02:41:01Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/SimpleAssociation.py
 # @author scott snyder <snyder@bnl.gov>
@@ -62,7 +61,7 @@ def SimpleAssociation (parent,
     If we add `matched="hastrack"', then this will add a boolean
     variable `el_hastrack', which is true if the association succeeded.
 """
-    if blockname == None:
+    if blockname is None:
         blockname = assoctool.__name__
 
     def maker (name, prefix, object_name, **kw2):
