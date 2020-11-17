@@ -1,64 +1,73 @@
-#!/usr/bin/env python2.7
-# -*- coding: utf-8 -*-
-
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import pickle
 import logging
+from typing import Dict, List, Set, Tuple, cast
 
-from AthenaConfiguration.iconfTool.models.structure import ComponentsStructure
+from models.element import Element, GroupingElement
+from models.structure import ComponentsStructure
 
-logger = logging.getLogger('iconfTool.' + __name__)
+logger = logging.getLogger(__name__)
 
 
-class ComponentsFileLoader(object):
-    def __init__(self, file_path, no_replace, checked_elements=set()):
-        self.file_path = file_path
-        self.no_replace = no_replace
-        self.checked_elements = checked_elements
+class ComponentsFileLoader:
+    def __init__(self, file_path: str, checked_elements=set()) -> None:
+        self.file_path: str = file_path
+        self.checked_elements: Set[str] = checked_elements
 
-    def _load_file_data(self):
-        f = open(self.file_path, 'rb')
-        st = pickle.load(f)
-        f.close()
-        return dict(st)
+    def _load_file_data(self) -> Dict:
+        logger.info(f"Loading {self.file_path}")
+        with open(self.file_path, "rb") as f:
+            return dict(pickle.load(f))
 
-    def load_structure(self):
+    def load_structure(self) -> ComponentsStructure:
         data = self._load_file_data()
-        structure = ComponentsStructure(data, self.no_replace,
-                                        self.checked_elements)
+        structure = ComponentsStructure(data, self.checked_elements)
         structure.generate()
         return structure
 
-    def get_data(self):
+    def get_data(self) -> ComponentsStructure:
         return self.load_structure()
 
 
-class ComponentsDiffFileLoader(object):
-    def __init__(self, file_path, diff_file_path, no_replace,
-                 checked_elements):
-        self.main_loader = ComponentsFileLoader(file_path, no_replace,
-                                                checked_elements)
-        self.diff_loader = ComponentsFileLoader(diff_file_path, no_replace,
-                                                checked_elements)
+class ComponentsDiffFileLoader:
+    def __init__(
+        self,
+        file_path: str,
+        diff_file_path: str,
+        checked_elements: Set[str],
+    ) -> None:
+        self.main_loader: ComponentsFileLoader = ComponentsFileLoader(
+            file_path, checked_elements
+        )
+        self.diff_loader: ComponentsFileLoader = ComponentsFileLoader(
+            diff_file_path, checked_elements
+        )
 
-    def get_data(self):
+    def get_data(self) -> Tuple[ComponentsStructure, ComponentsStructure]:
         structure = self.main_loader.load_structure()
         diff_structure = self.diff_loader.load_structure()
         self.mark_differences(structure.get_list(), diff_structure.get_list())
         return structure, diff_structure
 
-    def equal(self, first, second):
-        return first.get_name() == second.get_name() \
-            and first.x_pos == second.x_pos and first.type == second.type
+    def equal(self, first: Element, second: Element) -> bool:
+        return (
+            first.get_name() == second.get_name()
+            and first.x_pos == second.x_pos
+            and type(first) == type(second)
+        )
 
-    def mark_differences(self, structure, diff_structure):
+    def mark_differences(
+        self, structure: List[Element], diff_structure: List[Element]
+    ) -> None:
         i, j = 0, 0
         while i < len(structure) and j < len(diff_structure):
             if self.equal(structure[i], diff_structure[j]):
-                if structure[i].type == 'GROUP':
-                    self.mark_differences(structure[i].children,
-                                          diff_structure[j].children)
+                if isinstance(structure[i], GroupingElement):
+                    self.mark_differences(
+                        cast(GroupingElement, structure[i]).children,
+                        cast(GroupingElement, diff_structure[j]).children,
+                    )
                 i += 1
                 j += 1
                 continue
