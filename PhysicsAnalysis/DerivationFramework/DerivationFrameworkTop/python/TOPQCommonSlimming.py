@@ -19,7 +19,9 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addOriginCorrectedClu
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkEGamma.PhotonsCPDetailedContent import *
 
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+#import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+#JetTagNonPromptLepton package is moved to LeptonTaggers package
+import LeptonTaggers.LeptonTaggersConfig as JetTagConfig
 import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 def setup(TOPQname, stream):
@@ -118,7 +120,7 @@ def setup(TOPQname, stream):
     TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_TauTracks
     # additional variables for tracks in jets
     #TOPQSlimmingHelper.ExtraVariables += TOPQExtraVariables_AntiKt2PV0TrackJets
-    TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
+    TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD(onlyBDT=False)
     TOPQSlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
     TOPQSlimmingHelper.ExtraVariables += LepTagConfig.GetExtraImprovedPromptVariablesForDxAOD()
     # additional variables for clusters
