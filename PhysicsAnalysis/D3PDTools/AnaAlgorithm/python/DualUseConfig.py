@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def createAlgorithm( typeName, instanceName ):
     """Create an algorithm configurable
@@ -121,7 +121,7 @@ def addPrivateTool( alg, toolName, typeName ):
         # Finally, set up the tool handle property:
         setattr( component, toolNames[ -1 ], toolClass( toolNames[ -1 ] ) )
 
-    except ( ImportError, AttributeError ) as e:
+    except ( ImportError, AttributeError ):
 
         # If that failed, then we should be in an EventLoop environment. So
         # let's rely on the standalone specific formalism for setting up the

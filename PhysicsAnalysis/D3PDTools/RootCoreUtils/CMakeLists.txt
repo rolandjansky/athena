@@ -1,7 +1,4 @@
-# $Id: CMakeLists.txt 739245 2016-04-11 08:05:59Z krasznaa $
-################################################################################
-# Package: RootCoreUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( RootCoreUtils )

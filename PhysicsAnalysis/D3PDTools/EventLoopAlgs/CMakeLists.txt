@@ -1,20 +1,7 @@
-# $Id: CMakeLists.txt 777930 2016-10-11 22:30:28Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Set the name of the package:
 atlas_subdir( EventLoopAlgs )
-
-# Set up the dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-   PhysicsAnalysis/D3PDTools/EventLoop
-   PhysicsAnalysis/D3PDTools/MultiDraw
-   PhysicsAnalysis/D3PDTools/SampleHandler
-   PRIVATE
-   Control/AthContainers
-   Control/AthToolSupport/AsgTools
-   Control/AthToolSupport/AsgTesting
-   Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 # External(s):
 find_package( ROOT COMPONENTS Core Tree RIO Hist )
@@ -30,19 +17,20 @@ atlas_add_root_dictionary( EventLoopAlgs EventLoopAlgsDictSource
 atlas_add_library( EventLoopAlgs
    EventLoopAlgs/*.h Root/*.cxx ${EventLoopAlgsDictSource}
    PUBLIC_HEADERS EventLoopAlgs
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop MultiDraw SampleHandler
-   PRIVATE_LINK_LIBRARIES xAODEventInfo )
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES EventLoop MultiDraw RootCoreUtils SampleHandler
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib xAODEventInfo xAODRootAccess )
 
 # Test(s) in the package:
 atlas_add_test( gt_DuplicateChecker
    SOURCES test/gt_DuplicateChecker.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AsgTools RootCoreUtils AsgTestingLib
-   SampleHandler EventLoop xAODEventInfo xAODRootAccess EventLoopAlgs )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTestingLib AthContainers
+   EventLoop EventLoopAlgs RootCoreUtils SampleHandler xAODEventInfo xAODRootAccess )
 set_tests_properties (EventLoopAlgs_gt_DuplicateChecker_ctest PROPERTIES LABELS "EventLoopAlgs;EventLoop;SampleHandler" )
 
 atlas_add_test( ut_alg_skim
    SOURCES test/ut_alg_skim.cxx
-   LINK_LIBRARIES EventLoop RootCoreUtils SampleHandler EventLoopAlgs )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop EventLoopAlgs RootCoreUtils SampleHandler )
 set_tests_properties (EventLoopAlgs_ut_alg_skim_ctest PROPERTIES LABELS "EventLoopAlgs;EventLoop;SampleHandler" )

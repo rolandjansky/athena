@@ -3,7 +3,6 @@
 # System import(s):
 import copy
 import unittest
-import re
 
 # ATLAS import(s):
 from AnaAlgorithm.AlgSequence import AlgSequence
@@ -116,7 +115,7 @@ class AnaAlgSequence( AlgSequence ):
                 setattr (obj, var, func (metaConfig))
                 pass
             for name, value in meta.metaConfig.items() :
-                if not name in metaConfig :
+                if name not in metaConfig :
                     raise RuntimeError ("metaConfig value " + name + " for algorithm " + alg.name() + " not registered, did you forget to call addMetaConfigDefault?")
                 metaConfig[name] += value[:]
                 pass
@@ -143,7 +142,6 @@ class AnaAlgSequence( AlgSequence ):
             affectingSystematics = { "default" : affectingSystematics }
             pass
         tmpIndex = {}
-        systematicsUsed = False
         for alg, meta in zip( self, self._algorithmMeta ):
 
             # If there is no input defined for the algorithm (because it may
@@ -153,10 +151,10 @@ class AnaAlgSequence( AlgSequence ):
 
             # Set the input name(s):
             for inputLabel, inputPropName in meta.inputPropName.items():
-                if not inputLabel in currentInputs.keys():
+                if inputLabel not in currentInputs:
                     continue
                 setattr( alg, inputPropName, currentInputs[ inputLabel ] )
-                if inputLabel not in affectingSystematics.keys():
+                if inputLabel not in affectingSystematics:
                     affectingSystematics[ inputLabel ] = '(^$)'
                     pass
                 setattr( alg, inputPropName + 'Regex',
@@ -175,10 +173,10 @@ class AnaAlgSequence( AlgSequence ):
 
                 # Loop over the outputs of the algorithm.
                 for outputLabel, outputPropName in meta.outputPropName.items():
-                    if outputLabel not in tmpIndex.keys():
+                    if outputLabel not in tmpIndex:
                         tmpIndex[ outputLabel ] = 1
                         pass
-                    if outputLabel in outputNameDict.keys():
+                    if outputLabel in outputNameDict:
                         currentInputs[ outputLabel ] = \
                           '%s_tmp%i' % ( outputNameDict[ outputLabel ],
                                          tmpIndex[ outputLabel ] )
@@ -193,17 +191,17 @@ class AnaAlgSequence( AlgSequence ):
 
                     # Make sure that this (possibly intermediate) label is known
                     # in the regex dictionary.
-                    if outputLabel not in affectingSystematics.keys():
+                    if outputLabel not in affectingSystematics:
                         affectingSystematics[ outputLabel ] = '(^$)'
                         pass
 
                     # Assume that the variation on *all* of the inputs affect
                     # all of the outputs.
-                    for label in meta.inputPropName.keys():
+                    for label in meta.inputPropName:
                         # Don't do a self-check.
                         if label == outputLabel:
                             continue
-                        if label in currentAffectingSystematics.keys():
+                        if label in currentAffectingSystematics:
                             # If it starts with '(^$)' (it should), then remove
                             # that for the following operations.
                             pattern = currentAffectingSystematics[ label ]
@@ -222,7 +220,7 @@ class AnaAlgSequence( AlgSequence ):
 
                     # And of course variations applied by this algorithm itself
                     # do affect all outputs.
-                    if meta.affectingSystematics and outputLabel in meta.affectingSystematics.keys():
+                    if meta.affectingSystematics and outputLabel in meta.affectingSystematics:
                         affectingSystematics[ outputLabel ] += \
                           '|%s' % meta.affectingSystematics[ outputLabel ]
                         pass
@@ -233,7 +231,6 @@ class AnaAlgSequence( AlgSequence ):
             # Set up the systematic behaviour of the algorithm:
             if meta.affectingSystematics:
                 alg.systematicsRegex = '|'.join( meta.affectingSystematics.values() )
-                systematicsUsed = True
                 pass
 
             pass
@@ -251,7 +248,7 @@ class AnaAlgSequence( AlgSequence ):
             # Remembering which "final" output still needs to be set.
             if meta.outputPropName:
                 for outputLabel, outputKey in meta.outputPropName.items():
-                    if outputLabel in currentOutputs.keys():
+                    if outputLabel in currentOutputs:
                         setattr( alg, outputKey, currentOutputs[ outputLabel ] )
                         del currentOutputs[ outputLabel ]
                         pass
@@ -261,7 +258,7 @@ class AnaAlgSequence( AlgSequence ):
             # Set up the input name(s) of the algorithm correctly, in case this
             # is needed...
             for inputLabel, inputKey in meta.inputPropName.items():
-                if inputLabel in currentOutputs.keys():
+                if inputLabel in currentOutputs:
                     setattr( alg, inputKey, currentOutputs[ inputLabel ] )
                     pass
                 pass
@@ -344,7 +341,7 @@ class AnaAlgSequence( AlgSequence ):
 
         try:
             # Try to access the ToolSvc, to see whethet we're in Athena mode:
-            from AthenaCommon.AppMgr import ToolSvc
+            from AthenaCommon.AppMgr import ToolSvc  # noqa: F401
         except ImportError:
 
             # We're not, so let's remember this as a "normal" algorithm:
@@ -392,7 +389,7 @@ class AnaAlgSequence( AlgSequence ):
           stageName -- name of the processing stage to remove
         """
 
-        if not stageName in self.allowedStageNames() :
+        if stageName not in self.allowedStageNames() :
             raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + ', '.join(self.allowedStageNames()))
 
         # safety check that we actually know the stages of all
@@ -443,7 +440,7 @@ class AnaAlgSequence( AlgSequence ):
     def getMetaConfig (self, name) :
         """get the value for the given meta-configuration entry"""
 
-        if not name in self._metaConfigDefault :
+        if name not in self._metaConfigDefault :
             raise RuntimeError ("metaConfig value " + name + " not registered, did you forget to call addMetaConfigDefault?")
         result = self._metaConfigDefault[name][:]
         for meta in self._algorithmMeta :
