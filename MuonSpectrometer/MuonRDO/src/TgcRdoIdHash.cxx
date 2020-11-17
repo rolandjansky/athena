@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRDO/TgcRdoIdHash.h" 
@@ -14,29 +14,7 @@ TgcRdoIdHash::TgcRdoIdHash()
 {
   m_size=0;
 
-  static bool isAtlas = true;
-  static bool isFirstTime = true;
-  if(isFirstTime) {
-    ISvcLocator* svcLoc = Gaudi::svcLocator();
-    if(!svcLoc) return;
-
-    const ITGCcablingServerSvc* tgcCabGet = 0;
-    StatusCode sc = svcLoc->service("TGCcablingServerSvc", tgcCabGet, true);
-    if(!sc.isSuccess() || !tgcCabGet ) {
-      IMessageSvc* msgSvc =0 ;
-      if(!(svcLoc->service("MessageSvc", msgSvc).isSuccess()) || !msgSvc) return;
-
-      MsgStream log(msgSvc, "TgcRdoIdHash::TgcRdoIdHash");
-      log << MSG::ERROR << "Could not get TGCcablingServerSvc! "
-          << (!sc.isSuccess() ? "service(\"TGCcablingServerSvc\", tgcCabGet, true) is failed" : "")
-          << (!tgcCabGet ? "TGCcablingServerSvc pointer is NULL" : "")
-          << endmsg;
-      return;
-    }
-    
-    isAtlas = tgcCabGet->isAtlas();
-    isFirstTime = false;
-  }
+  static const bool isAtlas = getIsAtlas();
   
   if(isAtlas){
   
@@ -81,6 +59,20 @@ TgcRdoIdHash::TgcRdoIdHash()
       }
   }
     
+}
+
+
+bool TgcRdoIdHash::getIsAtlas() const
+{
+  const char* name = "TgcRdoIdHash::TgcRdoIdHash";
+  ServiceHandle<ITGCcablingServerSvc> tgcCabGet ("TGCcablingServerSvc", name);
+  if (tgcCabGet.retrieve().isFailure()) {
+    REPORT_ERROR_WITH_CONTEXT (StatusCode::FAILURE, name)
+      << "Could not get TGCcablingServerSvc! ";
+    return false;
+  }
+    
+  return tgcCabGet->isAtlas();
 }
 
 

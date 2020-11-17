@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRDO/TgcRdo.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/IMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
+#include "AthenaKernel/errorcheck.h"
 
 // Default constructor
 TgcRdo::TgcRdo() : DataVector<TgcRawData>()
@@ -50,34 +48,31 @@ uint16_t TgcRdo::identifyRawData(const TgcRawData &rawData)
     return calculateOnlineId(rawData.subDetectorId(), rawData.rodId());
 }
 
+// Returns offset, MAX_N_ROD
+std::pair<int, int> TgcRdo::initOnlineId()
+{
+  const char* name = "TgcRdo::calculateOnlineId";
+  ServiceHandle<ITGCcablingServerSvc> tgcCabGet ("TGCcablingServerSvc", name);
+  if (tgcCabGet.retrieve().isFailure()) {
+    REPORT_ERROR_WITH_CONTEXT (StatusCode::FAILURE, name)
+      << "Could not get TGCcablingServerSvc! " ;
+    return std::make_pair (-1, -1);
+  }
+
+  bool isAtlas = tgcCabGet->isAtlas();
+  int offset = isAtlas ? -1 : 0;
+  int MAX_N_ROD = isAtlas ? 12 : 8;
+  return std::make_pair (offset, MAX_N_ROD);
+}
+
 // online ID calculator
 uint16_t TgcRdo::calculateOnlineId (uint16_t subDetectorId, uint16_t rodId)
-{  
-  static bool isFirstTime = true; 
-  static int offset = -1;
-  static int MAX_N_ROD = -1;
-  if(isFirstTime) {
-    ISvcLocator* svcLoc = Gaudi::svcLocator();
-    if(!svcLoc) return 9999;
-
-    const ITGCcablingServerSvc* tgcCabGet = 0; 
-    StatusCode sc = svcLoc->service("TGCcablingServerSvc", tgcCabGet, true);
-    if(!sc.isSuccess() || !tgcCabGet ) {
-      IMessageSvc* msgSvc =0 ;
-      if(!(svcLoc->service("MessageSvc", msgSvc).isSuccess()) || !msgSvc) return 9999;
-      
-      MsgStream log(msgSvc, "TgcRdo::calculateOnlineId");
-      log << MSG::ERROR << "Could not get TGCcablingServerSvc! " 
-	  << (!sc.isSuccess() ? "service(\"TGCcablingServerSvc\", tgcCabGet, true) is failed" : "") 
-	  << (!tgcCabGet ? "TGCcablingServerSvc pointer is NULL" : "") 
-	  << endmsg;
-      return 9999;
-    }
-
-    bool isAtlas = tgcCabGet->isAtlas();
-    offset = isAtlas ? -1 : 0;
-    MAX_N_ROD = isAtlas ? 12 : 8;
-    isFirstTime = false;
+{
+  static const std::pair<int, int> offset_max = initOnlineId();
+  int offset = offset_max.first;
+  int MAX_N_ROD = offset_max.second;
+  if (MAX_N_ROD < 0) {
+    return 9999;
   }
 
   // A-side or C-side ?

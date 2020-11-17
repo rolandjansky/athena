@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDO_TGCRDO_H
@@ -221,6 +221,9 @@ public:
     static uint16_t calculateOnlineId (uint16_t subDetectorId, uint16_t rodId);
 
 private:
+    // Returns offset, MAX_N_ROD
+    static std::pair<int, int> initOnlineId();
+
     uint16_t m_version; // starting August 2006 version = 300. Before that, version = 0
 
     /** ID of this instance*/
