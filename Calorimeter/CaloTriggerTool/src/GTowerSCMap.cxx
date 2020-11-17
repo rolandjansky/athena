@@ -143,7 +143,7 @@ void GTowerSCMap::set( const LArTTCell& m )
 Identifier GTowerSCMap::whichTTID(const int &sHash) const
 {
   
-        if(sHash<m_cell2ttIdVec.size()){
+        if(sHash<int(m_cell2ttIdVec.size())){
 
           return m_cell2ttIdVec.at(sHash);
         }
@@ -161,7 +161,7 @@ const std::vector<Identifier>&
 GTowerSCMap::createCellIDvec(const int & gHash) const
 {
     
-        if(gHash<m_tt2cellIdVec.size()){
+	if(gHash<int(m_tt2cellIdVec.size())){
           return m_tt2cellIdVec.at(gHash);            
 	}
 
