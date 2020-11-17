@@ -763,7 +763,7 @@ double JetTagMonitorAlgorithm::getMVweight(const xAOD::Jet *jet) const {
     bTaggingObject->pc(m_mv_algorithmName,mv_pc);
     bTaggingObject->pb(m_mv_algorithmName,mv_pb);
     //DL1* formula (standard)
-    if ( mv_pb != 0 && (mv_pu != 0 || mv_pc || 0)) {
+    if ( mv_pb != 0 && (mv_pu != 0 || mv_pc != 0)) {
       mv = log( mv_pb / ( mv_pu * ( 1 - m_mv_cFraction ) + mv_pc * m_mv_cFraction ) );
     }
     //DL1*c formula (for DL1c)
