@@ -825,11 +825,6 @@ namespace InDetDD {
     //@{
 
     /**
-     * identifier of this detector element
-     */
-    Identifier m_id{};
-
-    /**
      * local description of this detector element
      */
     const SiDetectorDesign* m_design{nullptr};
@@ -850,10 +845,6 @@ namespace InDetDD {
      * @name Variables set by commonConstructor
      */
     //@{
-    /**
-     * hash id of this detector element
-     */
-    IdentifierHash m_idHash{};
 
     bool m_isPixel{false};
     bool m_isDBM{false};
