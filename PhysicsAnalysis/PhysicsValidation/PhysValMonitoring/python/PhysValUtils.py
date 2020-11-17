@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Defining a python module with helpers for Physics Validation
 
 from AthenaCommon.Logging import logging
@@ -38,7 +39,7 @@ def addPhysValAODContent(algseq,doJets,doTopoCluster):
                              Timer=0 # No timing information
                              )
 
-        from JetRec.JetRecConf import JetAlgorithm
+        from JetRec.JetRecConf import JetAlgorithm  # noqa: F401
         algseq += CfgMgr.JetAlgorithm("jetalgPhysVal",Tools=[jtm.jetrun_PhysVal])
 
     logger.info( '******************              Done              *****************' )

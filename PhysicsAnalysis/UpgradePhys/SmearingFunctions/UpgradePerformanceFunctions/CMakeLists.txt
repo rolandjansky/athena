@@ -1,11 +1,7 @@
-# Auto-generated on: 2017-03-09 14:53:36.740759
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the name of this package:
-atlas_subdir( UpgradePerformanceFunctions None )
-
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          PathResolver )
+atlas_subdir( UpgradePerformanceFunctions )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf Physics )
@@ -30,11 +26,9 @@ atlas_install_data( share/* )
 # Build the executables of the package:
 atlas_add_executable( plotPerformanceFunctions
                       util/plotPerformanceFunctions.cxx
-                      LINK_LIBRARIES PathResolver
-                                     ${ROOT_LIBRARIES}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES}
                                      UpgradePerformanceFunctions )
 atlas_add_executable( testPerformanceFunctions
                       util/testPerformanceFunctions.cxx
-                      LINK_LIBRARIES PathResolver
-                                     ${ROOT_LIBRARIES}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES}
                                      UpgradePerformanceFunctions )
