@@ -37,7 +37,7 @@ public:
 
   virtual StatusCode initialize() override ;
 
-  virtual StatusCode fillTCC(xAOD::FlowElementContainer* container, const TrackCaloClusterInfo & tccInfo ) const =0;
+  virtual StatusCode fillTCC(xAOD::FlowElementContainer* container, const TrackCaloClusterInfo & tccInfo ) const override =0;
     
 protected:    
 
