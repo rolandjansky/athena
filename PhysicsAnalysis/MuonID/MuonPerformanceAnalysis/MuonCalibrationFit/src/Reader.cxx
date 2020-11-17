@@ -108,8 +108,6 @@ Bool_t Reader::Process( Long64_t entry ) {
   Neg.SetPtEtaPhiM( Neg_ID_Pt, Neg_Eta, Neg_Phi, MuonMass );
   Pair = Pos + Neg;
   Float_t TempPairMass = Pair.M();
-  Float_t TempPairPt = Pair.Pt();
-  Float_t TempPairY = Pair.Rapidity();
   Float_t Pos_Pt = Pos_ME_Pt; 
   Float_t Neg_Pt = Neg_ME_Pt; 
   if( m_detector ) {
@@ -246,36 +244,36 @@ Bool_t Reader::Process( Long64_t entry ) {
   else {
     if( both_corrected && m_PreviousCorrectionsForAll /*&& ( m_RegInfoForPos == m_RegInfoForNeg )*/ ) {
       if( isPosMuInROF && isNegMuInROF ) {
-        Add( m_BothInfo, Tools::Info( Correct( MainPosPt, m_random->Gaus( 0, 1 ), Pos_Add, m_RegInfoForPos ), AdjointPosPt, Pos_Eta, Pos_Phi, Correct( MainNegPt, m_random->Gaus( 0, 1 ), Neg_Add, m_RegInfoForNeg ), AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, /*TempPairPt, TempPairY*/Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
+        Add( m_BothInfo, Tools::Info( Correct( MainPosPt, m_random->Gaus( 0, 1 ), Pos_Add, m_RegInfoForPos ), AdjointPosPt, Pos_Eta, Pos_Phi, Correct( MainNegPt, m_random->Gaus( 0, 1 ), Neg_Add, m_RegInfoForNeg ), AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
         // std::cout << "mc 1" << std::endl;
       }
       else if( isPosMuInROF ) { 
-        Add( m_SingleInfo, Tools::Info( Correct( MainPosPt, m_random->Gaus( 0, 1 ), Pos_Add, m_RegInfoForPos ), AdjointPosPt, Pos_Eta, Pos_Phi, Correct( MainNegPt, m_random->Gaus( 0, 1 ), Neg_Add, m_RegInfoForNeg ), AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, /*TempPairPt, TempPairY*/Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
+        Add( m_SingleInfo, Tools::Info( Correct( MainPosPt, m_random->Gaus( 0, 1 ), Pos_Add, m_RegInfoForPos ), AdjointPosPt, Pos_Eta, Pos_Phi, Correct( MainNegPt, m_random->Gaus( 0, 1 ), Neg_Add, m_RegInfoForNeg ), AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
         // std::cout << "mc 2" << std::endl;
       }
       else if( isNegMuInROF ) {
-        Add( m_SingleInfo, Tools::Info( Correct( MainNegPt, m_random->Gaus( 0, 1 ), Neg_Add, m_RegInfoForNeg ), AdjointNegPt, Neg_Eta, Neg_Phi, Correct( MainPosPt, m_random->Gaus( 0, 1 ), Pos_Add, m_RegInfoForPos ), AdjointPosPt, Pos_Eta, Pos_Phi, EventWeight * GetWeight( TempPairMass, /*TempPairPt, TempPairY*/Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
+        Add( m_SingleInfo, Tools::Info( Correct( MainNegPt, m_random->Gaus( 0, 1 ), Neg_Add, m_RegInfoForNeg ), AdjointNegPt, Neg_Eta, Neg_Phi, Correct( MainPosPt, m_random->Gaus( 0, 1 ), Pos_Add, m_RegInfoForPos ), AdjointPosPt, Pos_Eta, Pos_Phi, EventWeight * GetWeight( TempPairMass, Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
         // std::cout << "mc 3" << std::endl;
       }
     }
     else if( use_only_both ) {
       if( isPosMuInROF && isNegMuInROF ) { 
-        Add( m_BothInfo, Tools::Info( MainPosPt, AdjointPosPt, Pos_Eta, Pos_Phi, MainNegPt, AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, /*TempPairPt, TempPairY*/Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
+        Add( m_BothInfo, Tools::Info( MainPosPt, AdjointPosPt, Pos_Eta, Pos_Phi, MainNegPt, AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
         // std::cout << "mc 4" << std::endl;
       }
     }
     else if( isPosMuInROF && isNegMuInROF ) { 
-      Add( m_BothInfo, Tools::Info( MainPosPt, AdjointPosPt, Pos_Eta, Pos_Phi, MainNegPt, AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, /*TempPairPt, TempPairY*/Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
+      Add( m_BothInfo, Tools::Info( MainPosPt, AdjointPosPt, Pos_Eta, Pos_Phi, MainNegPt, AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
       // std::cout << "mc 5" << std::endl;
     }
     else if( isPosMuInROF && isNegInCorrectedROF ) {
       // std::cout << "Nature(1) ---> " << MainPosPt << " " << MainNegPt << std::endl;
-      Add( m_SingleInfo, Tools::Info( MainPosPt, AdjointPosPt, Pos_Eta, Pos_Phi, Correct( MainNegPt, m_random->Gaus( 0, 1 ), Neg_Add, m_RegInfoForNeg ), AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, /*TempPairPt, TempPairY*/Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
+      Add( m_SingleInfo, Tools::Info( MainPosPt, AdjointPosPt, Pos_Eta, Pos_Phi, Correct( MainNegPt, m_random->Gaus( 0, 1 ), Neg_Add, m_RegInfoForNeg ), AdjointNegPt, Neg_Eta, Neg_Phi, EventWeight * GetWeight( TempPairMass, Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
       // std::cout << "mc 6" << std::endl;
     }
     else if( isNegMuInROF && isPosInCorrectedROF ) {
       // std::cout << "Nature(2) ---> " << MainPosPt << " " << MainNegPt << std::endl;
-      Add( m_SingleInfo, Tools::Info( MainNegPt, AdjointNegPt, Neg_Eta, Neg_Phi, Correct( MainPosPt, m_random->Gaus( 0, 1 ), Pos_Add, m_RegInfoForPos ), AdjointPosPt, Pos_Eta, Pos_Phi, EventWeight * GetWeight( TempPairMass, /*TempPairPt, TempPairY*/Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
+      Add( m_SingleInfo, Tools::Info( MainNegPt, AdjointNegPt, Neg_Eta, Neg_Phi, Correct( MainPosPt, m_random->Gaus( 0, 1 ), Pos_Add, m_RegInfoForPos ), AdjointPosPt, Pos_Eta, Pos_Phi, EventWeight * GetWeight( TempPairMass, Pos_Eta, Neg_Eta ), EvtNumber, ( Pos_Charge * Neg_Charge < 0 ) ) ); 
       // std::cout << "mc 7" << std::endl;
     }
   }

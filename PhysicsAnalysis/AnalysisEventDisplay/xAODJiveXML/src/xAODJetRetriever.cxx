@@ -180,8 +180,6 @@ namespace JiveXML {
       std::vector<float> clusterKey;
       std::vector<int> tempTrackKey;
       std::vector<std::string> tempTrackContKey;
-      int ghosttrackssize=0;
-      int cellsize=0;
 
       for( size_t j = 0; j < ( *jetItr )->numConstituents(); ++j ) {
         const xAOD::CaloCluster* cluster =
@@ -224,7 +222,6 @@ namespace JiveXML {
 	  trackLinkCount.push_back(DataType(0.));
         }
         else {
-          ghosttrackssize= ghosttracks.size();
           for (size_t i=0; i< ghosttracks.size(); i++) {
 
             //can access the base track class, should be able to get tracker hits?
