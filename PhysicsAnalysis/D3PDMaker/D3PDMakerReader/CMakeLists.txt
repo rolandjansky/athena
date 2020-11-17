@@ -34,6 +34,6 @@ atlas_add_executable( d3pdReadersFromFile
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaKernel D3PDMakerUtils GaudiKernel D3PDMakerReaderLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( share/d3pdReaderLibraryMaker.py share/d3pdReaderRootCoreMaker.py share/d3pdReaderSFrameMaker.py )
 

@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ReaderAlg.py 348546 2011-03-01 15:09:56Z krasznaa $
-
-from D3PDMakerCoreComps.D3PDObject import D3PDObject
 import D3PDMakerCoreComps
 
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
@@ -34,7 +31,7 @@ class ReaderAlg( D3PD__ReaderAlg ):
                       index = 0 )
 
         # tuple name defaults to the algorithm name.
-        if tuplename == None:
+        if tuplename is None:
             tuplename = name
 
         # Create the algorithm Configurable.
@@ -90,8 +87,7 @@ class ReaderAlg( D3PD__ReaderAlg ):
         """Add a new IObjFillerTool to a tree."""
 
         # FIXME: should make sure name is unique within alg.
-        nchild = len( self )
-        if type( configs ) != type( [] ):
+        if not isinstance( configs, list ):
             self.Prefix = configs.Prefix
             configs = [ configs ]
         else:
