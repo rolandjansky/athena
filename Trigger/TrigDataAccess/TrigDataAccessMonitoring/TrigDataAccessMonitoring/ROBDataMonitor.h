@@ -48,6 +48,14 @@ namespace robmonitor {
      */                                   
     ROBDataStruct(const uint32_t);
 
+    ROBDataStruct(const ROBDataStruct&) = default;
+
+    ROBDataStruct(ROBDataStruct&&) noexcept = default;
+
+    ROBDataStruct& operator=(const ROBDataStruct&) = default;
+
+    ROBDataStruct& operator=(ROBDataStruct&&) noexcept = default;
+
     // data variables
     uint32_t rob_id;                           // rob source id
     uint32_t rob_size;                         // size of rob in words

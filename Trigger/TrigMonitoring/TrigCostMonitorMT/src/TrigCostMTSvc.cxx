@@ -187,7 +187,7 @@ StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor
 
   // Record data in TrigCostDataStore
   ATH_MSG_DEBUG( "Adding " << payload.rob_id << " to " << theAlg.m_hash );
-  ATH_CHECK( m_rosData.push_back(theAlg, payload) );
+  ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload)) );
 
   return StatusCode::SUCCESS;
 }

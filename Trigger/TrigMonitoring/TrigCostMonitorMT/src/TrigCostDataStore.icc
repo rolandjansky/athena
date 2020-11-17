@@ -34,7 +34,7 @@ StatusCode TrigCostDataStore<PAYLOAD>::insert(const AlgorithmIdentifier& ai, con
 
 template<typename PAYLOAD>
 template<typename ENTRY>
-StatusCode TrigCostDataStore<PAYLOAD>::push_back(const AlgorithmIdentifier& ai, const ENTRY& entry) {
+StatusCode TrigCostDataStore<PAYLOAD>::push_back(const AlgorithmIdentifier& ai, ENTRY&& entry) {
   MsgStream& msg = *(ai.m_msg);
   ATH_CHECK( checkSlot(ai.m_slotToSaveInto, msg) );
   tbb::concurrent_hash_map<AlgorithmIdentifier, std::vector<ENTRY>, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( ai.m_slotToSaveInto );
@@ -44,7 +44,7 @@ StatusCode TrigCostDataStore<PAYLOAD>::push_back(const AlgorithmIdentifier& ai, 
   // and duplicate will not be added. Otherwise new payload will be created
   // Also obtains write lock on the key value 'name' until 'acc' goes out of scope
   mapReference.insert(acc, ai);
-  acc->second.push_back(entry);
+  acc->second.push_back(std::move(entry));
 
   return StatusCode::SUCCESS;
 }
