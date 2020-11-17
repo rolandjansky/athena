@@ -5,8 +5,8 @@ from AthenaCommon.AlgSequence import AlgSequence
 algSequence = AlgSequence()
 
 # Set up the job.
-from AthExOnnxRuntime.AthExOnnxRuntimeConf import AthONNX__ONNXRuntimeSvc, \
-                                                  AthONNX__CxxApiAlgorithm
+from AthExOnnxRuntime.AthExOnnxRuntimeConf import AthONNX__CxxApiAlgorithm
+from AthOnnxruntimeService.AthOnnxruntimeServiceConf import AthONNX__ONNXRuntimeSvc
 
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr += AthONNX__ONNXRuntimeSvc( OutputLevel = DEBUG )

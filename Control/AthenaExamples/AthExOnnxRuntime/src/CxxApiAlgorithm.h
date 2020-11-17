@@ -4,7 +4,7 @@
 #define ATHEXONNXRUNTIME_CXXAPIALGORITHM_H
 
 // Local include(s).
-#include "AthExOnnxRuntime/IONNXRuntimeSvc.h"
+#include "AthOnnxruntimeService/IONNXRuntimeSvc.h"
 
 // Framework include(s).
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
