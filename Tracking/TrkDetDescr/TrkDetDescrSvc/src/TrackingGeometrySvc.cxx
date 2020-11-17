@@ -45,6 +45,9 @@ Trk::TrackingGeometrySvc::~TrackingGeometrySvc()
 /** Initialize Service */
 StatusCode Trk::TrackingGeometrySvc::initialize()
 {
+  m_autoRetrieveTools = false;
+  m_checkToolDeps = false;
+  
   // get the DetectorStore
   ATH_CHECK( service("DetectorStore", m_pDetStore ) );
 
