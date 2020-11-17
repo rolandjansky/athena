@@ -21,4 +21,4 @@ for k, v in list(CaloSysD3PDMakerConf.__dict__.items()):
     if k.startswith ('D3PD__'):
         globals()[k[6:]] = v
 
-from .ClusterMomentFillerTool import ClusterMomentFillerTool
+from .ClusterMomentFillerTool import ClusterMomentFillerTool  # noqa: F401
