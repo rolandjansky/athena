@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -16,8 +16,7 @@
 #ifndef SIDIGITIZATION_SISURFACECHARGE_H
 #define SIDIGITIZATION_SISURFACECHARGE_H
 
-//#include "SiTrackerDetDescr/SiLocalPosition.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetSimEvent/SiCharge.h"
 
 

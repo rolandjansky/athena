@@ -15,5 +15,5 @@ atlas_add_library( ISF_FatrasDetDescrInterfaces
                    INTERFACE
                    PUBLIC_HEADERS ISF_FatrasDetDescrInterfaces
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives EventPrimitives GaudiKernel InDetReadoutGeometry )
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives EventPrimitives GaudiKernel InDetReadoutGeometry ReadoutGeometryBase )
 
