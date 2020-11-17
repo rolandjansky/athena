@@ -38,16 +38,17 @@ class RpcRoadDefiner: public AthAlgTool
   virtual StatusCode initialize() override;
   
  public:
-  StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
-			const bool                   insideOut,
-			TrigL2MuonSA::MuonRoad&      muonRoad,
-			TrigL2MuonSA::RpcHits&       rpcHits,
-			ToolHandle<RpcPatFinder>*    rpcPatFinder,
-			TrigL2MuonSA::RpcFitResult&  rpcFitResult,
-			double                       roiEtaMinLow,
-			double                       roiEtaMaxLow,
-			double                       roiEtaMinHigh,
-			double                       roiEtaMaxHigh) const;
+  StatusCode defineRoad(const LVL1::RecMuonRoI*             p_roi,
+			const bool                          insideOut,
+			TrigL2MuonSA::MuonRoad&             muonRoad,
+			TrigL2MuonSA::RpcHits&              rpcHits,
+                        const TrigL2MuonSA::RpcLayerHits&   rpcLayerHits,
+			ToolHandle<RpcPatFinder>*           rpcPatFinder,
+			TrigL2MuonSA::RpcFitResult&         rpcFitResult,
+			double                              roiEtaMinLow,
+			double                              roiEtaMaxLow,
+			double                              roiEtaMinHigh,
+			double                              roiEtaMaxHigh) const;
 
   void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector){ m_regionSelector = regionSelector; };
   void setRoadWidthForFailure(double rWidth_RPC_Failed){ m_rWidth_RPC_Failed = rWidth_RPC_Failed; };

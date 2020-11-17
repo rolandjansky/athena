@@ -47,7 +47,7 @@ namespace
 StatusCode
 ActsAdaptiveMultiPriVtxFinderTool::initialize()
 {
-	using namespace std::literals::string_literals;
+    using namespace std::literals::string_literals;
 
     ATH_CHECK(m_beamSpotKey.initialize());
     ATH_CHECK(m_trkFilter.retrieve());
@@ -66,7 +66,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     auto stepper = Acts::EigenStepper<BField_t>(std::move(bField));
     auto propagator = std::make_shared<Propagator>(std::move(stepper), 
       std::move(navigator));
-  	// IP Estimator
+    // IP Estimator
     using IPEstimator = Acts::ImpactPointEstimator<TrackWrapper, Propagator>;
     IPEstimator::Config ipEstCfg(bField, propagator);
     ipEstCfg.maxIterations = m_ipEstMaxIterations;
@@ -92,7 +92,7 @@ ActsAdaptiveMultiPriVtxFinderTool::initialize()
     fitterCfg.doSmoothing = m_fitterDoSmoothing;
     VertexFitter fitter(fitterCfg, extractParameters);
 
-  	// Linearizer for Acts::BoundParameters type test
+    // Linearizer for Acts::BoundParameters type test
     TrackLinearizer::Config ltConfig(bField, propagator);
     TrackLinearizer linearizer(ltConfig);
 
@@ -322,15 +322,15 @@ ActsAdaptiveMultiPriVtxFinderTool::findVertex(const EventContext& ctx, std::vect
         }
 
         Trk::Perigee* fittedPerigee = actsBoundToTrkPerigee(trk.fittedParams, beamSpotPos);
-        Trk::Perigee* originalPerigee = actsBoundToTrkPerigee((trk.originalParams)->parameters(), beamSpotPos);
-
-        Trk::VxTrackAtVertex trkAtVtx(trk.chi2Track, fittedPerigee, originalPerigee);
+        Trk::VxTrackAtVertex trkAtVtx((trk.originalParams)->trackLink()->clone());
+        trkAtVtx.setPerigeeAtVertex(fittedPerigee);
+        trkAtVtx.setTrackQuality(Trk::FitQuality(trk.chi2Track, trk.ndf));
         trkAtVtx.setVtxCompatibility(trk.vertexCompatibility);
         trkAtVtx.setWeight(trk.trackWeight);
         trkAtVtxVec->push_back(trkAtVtx);
 
-        Trk::LinkToXAODTrackParticle* linkToXAODTP =
-        dynamic_cast<Trk::LinkToXAODTrackParticle*>((trk.originalParams)->trackLink()->clone());
+        const Trk::LinkToXAODTrackParticle* linkToXAODTP =
+        dynamic_cast<const Trk::LinkToXAODTrackParticle*>((trk.originalParams)->trackLink());
         if (linkToXAODTP) {
           xAODVtx->addTrackAtVertex(*linkToXAODTP, trk.trackWeight);
         }

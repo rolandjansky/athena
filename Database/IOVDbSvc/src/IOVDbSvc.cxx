@@ -855,7 +855,11 @@ StatusCode IOVDbSvc::setupFolders() {
   for (const auto & thisFolder : m_par_folders.value()) {
     ATH_MSG_DEBUG( "Setup folder " << thisFolder );
     IOVDbParser folderdata(thisFolder,msg());
-    if (!folderdata.isValid()) return StatusCode::FAILURE;
+    if (!folderdata.isValid()) {
+      ATH_MSG_FATAL("setupFolders: Folder setup string is invalid: " <<thisFolder);
+      return StatusCode::FAILURE;
+    }
+    
     allFolderdata.push_back(folderdata);
   }
 
@@ -867,6 +871,10 @@ StatusCode IOVDbSvc::setupFolders() {
 
   for (const auto & thisOverrideTag : m_par_overrideTags) {
     IOVDbParser keys(thisOverrideTag,msg());
+    if (not keys.isValid()){
+      ATH_MSG_ERROR("An override tag was invalid: " << thisOverrideTag);
+      return StatusCode::FAILURE;
+    }
     std::string prefix;
     if (!keys.getKey("prefix","",prefix)) { // || !keys.getKey("tag","",tag)) {
       ATH_MSG_ERROR( "Problem in overrideTag specification " <<thisOverrideTag );

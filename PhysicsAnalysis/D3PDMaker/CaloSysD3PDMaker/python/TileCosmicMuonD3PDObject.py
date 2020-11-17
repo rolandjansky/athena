@@ -3,15 +3,13 @@
 import CaloSysD3PDMaker
 import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
-from CaloD3PDMaker.makeTileCellFilterAlg import makeTileCellFilterAlg
-from CaloIdentifier import SUBCALO
 from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
 
 def makeTileCosmicMuonD3PDObject (name, prefix, object_name='TileCosmicMuonD3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = 'TileCosmicMuonHT'
-    if label == None: label = prefix
+    if sgkey is None: sgkey = 'TileCosmicMuonHT'
+    if label is None: label = prefix
 
     
     print(" makeTileCosmicMuonD3PDObject: name = ", name)

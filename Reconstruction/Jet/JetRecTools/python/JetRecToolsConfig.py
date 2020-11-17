@@ -29,13 +29,13 @@ trackcollectionmap = {
     }
 }
 
-def getTrackSelTool(trkopt="",doWriteTracks=False):
+def getTrackSelTool(trkopt="",doWriteTracks=False, cutLevel="Loose", minPt=500):
 
     # Track selector needs its own hierarchical config getter in JetRecTools?
     idtrackselloose = CompFactory.getComp("InDet::InDetTrackSelectionTool")(
         "idtrackselloose",
-        CutLevel         = "Loose",
-        minPt            = 500,
+        CutLevel         = cutLevel,
+        minPt            = minPt,
         UseTrkTrackTools = False,
         Extrapolator     = "",
         TrackSummaryTool = ""

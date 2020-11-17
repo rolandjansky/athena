@@ -5,11 +5,11 @@ from __future__ import print_function
 from time import time
 import sys
 
-from CoolRunQuery.utils.AtlRunQueryIOV   import IOVTime, IOVRange
+from CoolRunQuery.utils.AtlRunQueryIOV   import IOVRange
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
-from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, runsOnServer, GetRanges, SmartRangeCalulator
+from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, GetRanges
 
-from .AtlRunQuerySelectorBase import Selector, Condition, RunLBBasedCondition, TimeBasedCondition, DataKey
+from .AtlRunQuerySelectorBase import RunLBBasedCondition
 
 class EventSelector(RunLBBasedCondition):
     def __init__(self, name, events=None):
@@ -17,13 +17,16 @@ class EventSelector(RunLBBasedCondition):
         super(EventSelector,self).__init__(name=name,
                                            dbfolderkey='oracle::SFO-based',
                                            channelKeys = [(0,'#Events','EFEvents')])
-        if events: self.cutRange = GetRanges(events)        
+        if events:
+            self.cutRange = GetRanges(events)        
         
 
 
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if number of events matches %s" % self.events
-        else: return "Retrieving event numbers"
+        if self.applySelection:
+            return "SELOUT Checking if number of events matches %s" % self.events
+        else:
+            return "Retrieving event numbers"
 
     def select(self, runlist):
 
@@ -48,7 +51,7 @@ class EventSelector(RunLBBasedCondition):
             iov = IOVRange(runStart=run.runNr, lbStart=1, runEnd=run.runNr+1, lbEnd=0)
 
             for k in self.ResultKey():
-                if not run.runNr in events:
+                if run.runNr not in events:
                     # the OVERLAP_EVENTS information is not yet available in the SFO (before Nov 15, 2009)
                     # use the inclusive number instead
                     run.addResult(k, "n.a.", iov, reject=False)
@@ -71,8 +74,10 @@ class EventSelector(RunLBBasedCondition):
         runlist = [r for r in runlist if r.runNr in newrunlist]
         
         duration = time() - start
-        if self.applySelection: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
-        else:                   print (" ==> Done (%g sec)" % duration)
+        if self.applySelection:
+            print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:
+            print (" ==> Done (%g sec)" % duration)
         return runlist
 
     def passes(self,values,key):
@@ -96,11 +101,14 @@ class AllEventsSelector(RunLBBasedCondition):
                                                channelKeys = [(0,'#Events (incl. calib.)','EFEvents'),
                                                               (0,'#Events (streamed)','RecordedEvents'),
                                                               (0,'#L2A','L2Events')])
-        if events: self.cutRange = GetRanges(events)        
+        if events:
+            self.cutRange = GetRanges(events)        
 
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if number of events matches %s" % self.events
-        else:                   return "Retrieving event numbers"
+        if self.applySelection:
+            return "SELOUT Checking if number of events matches %s" % self.events
+        else:
+            return "Retrieving event numbers"
 
     def passes(self,values,key):
         try:
@@ -125,8 +133,10 @@ class L1EventsSelector(RunLBBasedCondition):
         super(L1EventsSelector,self).setShowOutput()
         
     def __str__(self):
-        if self.applySelection: return "SELOUT Checking if number of L1A events matches %s" % self.events
-        else:                   return "Retrieving L1A numbers"
+        if self.applySelection:
+            return "SELOUT Checking if number of L1A events matches %s" % self.events
+        else:
+            return "Retrieving L1A numbers"
 
     def passes(self,values,key):
         return True

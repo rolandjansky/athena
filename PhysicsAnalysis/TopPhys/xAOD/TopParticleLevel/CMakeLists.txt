@@ -1,28 +1,7 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Declare the name of this package:
 atlas_subdir( TopParticleLevel )
-
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          xAODBase
-                          xAODTruth
-                          xAODJet
-                          xAODMissingET
-                          xAODCore
-                          xAODRootAccess
-                          FourMomUtils
-                          TopEvent
-                          TopConfiguration
-                          TopDataPreparation
-                          TruthUtils
-                          MCTruthClassifier
-                          JetReclustering
-                          JetSubStructureUtils
-                          AsgTools
-
-			  )
-
-# This package uses ROOT:
-find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
 
 # Need fast jet for the RC jet substructure code
 find_package( FastJet COMPONENTS fastjetplugins fastjettools )
@@ -33,24 +12,25 @@ atlas_add_library( TopParticleLevel Root/*.cxx Root/*.h Root/*.icc
                    TopParticleLevel/*.h TopParticleLevel/*.icc TopParticleLevel/*/*.h
                    TopParticleLevel/*/*.icc 
                    PUBLIC_HEADERS TopParticleLevel
-                   LINK_LIBRARIES 
+                   PRIVATE_INCLUDE_DIRS ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
+                   LINK_LIBRARIES AsgMessagingLib
+                                  AsgTools
+                                  JetReclusteringLib
+                                  MCTruthClassifierLib
+                                  TopDataPreparation
+                                  TopEvent
                                   xAODBase
-                                  xAODTruth
+                                  xAODCore
+                                  xAODEventInfo
                                   xAODJet
                                   xAODMissingET
-                                  xAODCore
+                                  xAODMuon
                                   xAODRootAccess
-                                  FourMomUtils
-                                  TopEvent
-                                  TopConfiguration
-                                  TopDataPreparation
-                                  MCTruthClassifierLib
-                                  TruthUtils
-                                  JetReclusteringLib
-                                  JetSubStructureUtils
-                                  AsgTools
-                                  ${ROOT_LIBRARIES}		  
-                                  ${FASTJET_LIBRARIES}
-                                  ${FASTJETCONTRIB_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
-
+                                  xAODTruth
+                   PRIVATE_LINK_LIBRARIES ${FASTJET_LIBRARIES}
+                                          ${FASTJETCONTRIB_LIBRARIES}
+                                          AthContainers
+                                          FourMomUtils
+                                          JetSubStructureUtils
+                                          TopConfiguration
+                                          TruthUtils )

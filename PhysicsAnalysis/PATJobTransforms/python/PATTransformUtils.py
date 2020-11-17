@@ -1,9 +1,8 @@
-from builtins import zip
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @brief Module with PAT transform options and substeps
 
-import logging
+from builtins import zip
 
 # Get the base logger for the transforms and extend it for us
 from PyJobTransforms.trfLogger import msg

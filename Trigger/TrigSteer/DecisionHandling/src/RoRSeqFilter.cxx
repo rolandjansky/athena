@@ -27,7 +27,6 @@ StatusCode RoRSeqFilter::initialize()
   CHECK( not m_inputKeys.empty() );
   CHECK( not m_outputKeys.empty() );
 
-
   CHECK( m_inputKeys.initialize() );
   CHECK( m_outputKeys.initialize() );
 
@@ -87,6 +86,7 @@ StatusCode RoRSeqFilter::initialize()
   
   for ( const std::string& el: m_chainsProperty ) 
     m_chains.insert( HLT::Identifier( el ).numeric() );
+    
 
   m_chainsPerInput.resize( m_chainsPerInputProperty.size() );
   for ( size_t i = 0; i < m_chainsPerInputProperty.size(); ++i ) {

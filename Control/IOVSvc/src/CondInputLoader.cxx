@@ -24,6 +24,7 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "AthenaKernel/BaseInfo.h"
+#include "ICondSvcSetupDone.h"
 
 #include "TClass.h"
 
@@ -264,6 +265,12 @@ CondInputLoader::start()
                   << "Aborting");
     return StatusCode::FAILURE;
   }
+
+  // Let the conditions service know that we've finished creating
+  // conditions containers.
+  ServiceHandle<ICondSvcSetupDone> condSvcDone ("CondSvc", name());
+  ATH_CHECK( condSvcDone.retrieve() );
+  ATH_CHECK( condSvcDone->setupDone() );
 
   return StatusCode::SUCCESS;
 

@@ -1,9 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import D3PDMakerCoreComps
-from D3PDMakerCoreComps.D3PDObject import D3PDObject
-from   D3PDMakerCoreComps.D3PDObject import (make_SG_D3PDObject, make_SGDataVector_D3PDObject)
-from math import pi
+from D3PDMakerCoreComps.D3PDObject import D3PDObject, make_SG_D3PDObject
 
 import CaloSysD3PDMaker
 
@@ -41,18 +39,17 @@ def _makeSC_obj_(name, prefix, object_name,
                        sgKey=None,
                        typeName=None,
                        ):
+    from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
     if not typeName:
         typeName = "CaloCellContainer"
     if not sgKey:
         sgKey="AllCalo"
     if not getter:
-        from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
         getter = D3PDMakerCoreComps.SGObjGetterTool(
             name + '_Getter',
             TypeName = typeName,
             SGKey = sgKey)
 
-    from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
     return D3PDMakerCoreComps.ObjFillerTool( name,
                                              Prefix = prefix,
                                              Getter = getter,

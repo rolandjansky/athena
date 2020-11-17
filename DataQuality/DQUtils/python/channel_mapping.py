@@ -4,7 +4,7 @@ import six
 
 
 try:
-    from CoolRunQuery.AtlRunQueryLookup import DQChannelDict
+    from CoolRunQuery.utils.AtlRunQueryLookup import DQChannelDict
 except ImportError:
     from warnings import warn
     import traceback

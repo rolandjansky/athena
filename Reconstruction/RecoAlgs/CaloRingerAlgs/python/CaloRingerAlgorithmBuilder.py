@@ -4,23 +4,18 @@ import traceback
 from . import CaloRingerAlgsConf
 # We use egammaRec.Factories as a helper to instantiate CaloRingerAlgorithm
 # handle
-from GaudiKernel.GaudiHandles import PublicToolHandle, PublicToolHandleArray, GaudiHandle, GaudiHandleArray
+from GaudiKernel.GaudiHandles import PublicToolHandleArray, GaudiHandle, GaudiHandleArray
 from egammaRec.Factories import AlgFactory, FcnWrapper
 from AthenaCommon.Resilience import treatException
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
-from AthenaCommon.Include import include
 from AthenaCommon import CfgMgr
 
 from RecExConfig.RecFlags import rec
 from egammaRec.egammaRecFlags import jobproperties
-from CaloRingerAlgs.CaloRingerKeys import *
-from egammaRec import egammaKeys
+from CaloRingerAlgs import CaloRingerKeys as ringer
 
-from CaloRingerTools.CaloRingerToolsConf import Ringer__CaloRingsBuilder, \
-    Ringer__CaloAsymRingsBuilder, \
-    Ringer__CaloRingerElectronsReader, \
-    Ringer__CaloRingerPhotonsReader
+from CaloRingerTools.CaloRingerToolsConf import Ringer__CaloRingsBuilder, Ringer__CaloAsymRingsBuilder # noqa: F401
 
 mlog = logging.getLogger( 'CaloRingerAlgorithmBuilder.py' )
 mlog.info("Entering")
@@ -54,7 +49,7 @@ def checkBuildElectronCaloRings():
       mlog.info("Turning off ringer algorithm electron reconstruction since not doing ESD.")
       caloRingerFlags.buildElectronCaloRings = False
       return False
-    if not inputAvailable(inputElectronType(), inputElectronKey()):
+    if not inputAvailable(ringer.inputElectronType(), ringer.inputElectronKey()):
       if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
         mlog.warning(("Requested to build ElectronCaloRings but egamma"
           " calo seeded is off. Deactivating ElectronCaloRings and electron selection.")
@@ -83,10 +78,10 @@ def checkDoElectronIdentification():
   asked to run electron identification."""
   if caloRingerFlags.doElectronIdentification():
     if not caloRingerFlags.buildElectronCaloRings():
-      if not ( inputAvailable(outputCaloRingsType(), outputElectronCaloRingsKey())       or \
-               inputAvailable(outputCaloRingsType(), outputElectronCaloAsymRingsKey()) ) or \
-         not ( inputAvailable(outputRingSetType(),   outputElectronRingSetsKey())        or \
-               inputAvailable(outputRingSetType(),   outputElectronAsymRingSetsKey()) ):
+      if not ( inputAvailable(ringer.outputCaloRingsType(), ringer.outputElectronCaloRingsKey())       or \
+               inputAvailable(ringer.outputCaloRingsType(), ringer.outputElectronCaloAsymRingsKey()) ) or \
+         not ( inputAvailable(ringer.outputRingSetType(),   ringer.outputElectronRingSetsKey())        or \
+               inputAvailable(ringer.outputRingSetType(),   ringer.outputElectronAsymRingSetsKey()) ):
 
         mlog.warning(("Requested to do Electron identification using "
           "Ringer discrimination, but one or more of the Ringer needed "
@@ -117,7 +112,7 @@ def checkBuildPhotonCaloRings():
       mlog.info("Turning off ringer algorithm photon reconstruction since not doing ESD.")
       caloRingerFlags.buildPhotonCaloRings = False
       return False
-    if not inputAvailable(inputPhotonType(), inputPhotonKey()):
+    if not inputAvailable(ringer.inputPhotonType(), ringer.inputPhotonKey()):
 
       # Deadtivate photon calo rings if egamma calo seeded is off:
       if not jobproperties.egammaRecFlags.doEgammaCaloSeeded():
@@ -148,10 +143,10 @@ def checkDoPhotonIdentification():
   asked to run electron identification."""
   if caloRingerFlags.doPhotonIdentification():
     if not caloRingerFlags.buildPhotonCaloRings():
-      if not ( inputAvailable(outputCaloRingsType(), outputPhotonCaloRingsKey())       or \
-               inputAvailable(outputCaloRingsType(), outputPhotonCaloAsymRingsKey()) ) or \
-         not ( inputAvailable(outputRingSetType(),   outputPhotonRingSetsKey())        or \
-               inputAvailable(outputRingSetType(),   outputPhotonAsymRingSetsKey()) ):
+      if not ( inputAvailable(ringer.outputCaloRingsType(), ringer.outputPhotonCaloRingsKey())       or \
+               inputAvailable(ringer.outputCaloRingsType(), ringer.outputPhotonCaloAsymRingsKey()) ) or \
+         not ( inputAvailable(ringer.outputRingSetType(),   ringer.outputPhotonRingSetsKey())        or \
+               inputAvailable(ringer.outputRingSetType(),   ringer.outputPhotonAsymRingSetsKey()) ):
 
         mlog.warning(("Requested to do Photon identification using "
           "Ringer discrimination, but one or more of the Ringer needed "
@@ -309,9 +304,8 @@ def getSelectors(inputReaders):
 
 def postponeEgammaLock(ringerAlg):
   "Postpone egamma locker tool to execute after the last tool on toolList"
-  from AthenaCommon.AlgSequence import AlgSequence, dumpSequence
+  from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
-  from egammaRec.egammaLocker import egammaLocker
   # Make sure we add it before streams:
   foundRingerAlg = False
   foundEgammaLocker = False
@@ -423,9 +417,9 @@ class CaloRingerAlgorithmBuilder ( Configured ):
           "without readers."))
 
       if caloRingerFlags.buildCaloRingsOn():
-        self._eventOutputs = { outputCaloRingsType() : \
+        self._eventOutputs = { ringer.outputCaloRingsType() : \
     getCaloRingerOutputs(self._caloRingerAlg.inputReaderTools,addRingSetsContainers=False), \
-                               outputRingSetType() : \
+                               ringer.outputRingSetType() : \
     getCaloRingerOutputs(self._caloRingerAlg.inputReaderTools,addCaloRingsContainers=False) \
                              }
         self._output.update(self._eventOutputs)
@@ -435,15 +429,15 @@ class CaloRingerAlgorithmBuilder ( Configured ):
 
       if not self.ignoreExistingDataObject()                                                     \
          and ( (  caloRingerFlags.buildElectronCaloRings()                                   and \
-            ( inputAvailable(outputCaloRingsType(), outputElectronCaloRingsKey())            or  \
-                   inputAvailable(outputCaloRingsType(), outputElectronCaloAsymRingsKey()) ) or  \
-            ( inputAvailable(outputRingSetType(),   outputElectronRingSetsKey())             or  \
-                   inputAvailable(outputRingSetType(), outputElectronAsymRingSetsKey()) ) )      \
+            ( inputAvailable(ringer.outputCaloRingsType(), ringer.outputElectronCaloRingsKey())            or  \
+                   inputAvailable(ringer.outputCaloRingsType(), ringer.outputElectronCaloAsymRingsKey()) ) or  \
+            ( inputAvailable(ringer.outputRingSetType(), ringer.outputElectronRingSetsKey())             or  \
+                   inputAvailable(ringer.outputRingSetType(), ringer.outputElectronAsymRingSetsKey()) ) )      \
          or  ( caloRingerFlags.buildPhotonCaloRings()                                        and \
-            ( inputAvailable(outputCaloRingsType(), outputPhotonCaloRingsKey())              or  \
-                   inputAvailable(outputCaloRingsType(), outputPhotonCaloAsymRingsKey()) )   or  \
-            ( inputAvailable(outputRingSetType(),   outputPhotonRingSetsKey())               or  \
-                   inputAvailable(outputRingSetType(), outputPhotonAsymRingSetsKey()) ) ) ):
+            ( inputAvailable(ringer.outputCaloRingsType(), ringer.outputPhotonCaloRingsKey())              or  \
+                   inputAvailable(ringer.outputCaloRingsType(), ringer.outputPhotonCaloAsymRingsKey()) )   or  \
+            ( inputAvailable(ringer.outputRingSetType(), ringer.outputPhotonRingSetsKey())               or  \
+                   inputAvailable(ringer.outputRingSetType(), ringer.outputPhotonAsymRingSetsKey()) ) ) ):
         raise RuntimeError(("Already existing input will be overwriten and not set Ringer flag "
             "ignoreExistingDataObject."))
 

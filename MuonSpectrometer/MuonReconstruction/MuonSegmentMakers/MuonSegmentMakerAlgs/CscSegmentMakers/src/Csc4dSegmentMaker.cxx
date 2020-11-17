@@ -94,7 +94,7 @@ Csc4dSegmentMaker::initialize()
 //******************************************************************************
 
 std::unique_ptr<MuonSegmentCombinationCollection>
-Csc4dSegmentMaker::find(const MuonSegmentCombinationCollection& segcols) const
+Csc4dSegmentMaker::find(const MuonSegmentCombinationCollection& segcols, const EventContext& ctx) const
 {
 
     // Set dump flag.
@@ -119,7 +119,7 @@ Csc4dSegmentMaker::find(const MuonSegmentCombinationCollection& segcols) const
 
         ATH_MSG_DEBUG("Csc4dSegmentMaker called get4dMuonSegmentCombination");
 
-        MuonSegmentCombination* pcol = m_segmentTool->get4dMuonSegmentCombination(&insegs);
+        MuonSegmentCombination* pcol = m_segmentTool->get4dMuonSegmentCombination(&insegs, ctx);
         if (pcol) {
             pcols->push_back(pcol);
             ATH_MSG_DEBUG("Found 4d CSC segment " << std::endl << m_printer->print(*pcol));
@@ -143,7 +143,7 @@ Csc4dSegmentMaker::finalize()
 
 // dummy ICscSegmentFinder interface
 std::unique_ptr<MuonSegmentCombinationCollection>
-Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>&) const
+Csc4dSegmentMaker::find(const std::vector<const Muon::CscPrepDataCollection*>&, const EventContext&) const
 {
     return 0;
 }

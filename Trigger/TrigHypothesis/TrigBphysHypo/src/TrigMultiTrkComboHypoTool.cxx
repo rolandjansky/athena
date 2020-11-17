@@ -17,6 +17,10 @@
 #include <cmath>
 
 
+using TrigCompositeUtils::Decision;
+using TrigCompositeUtils::DecisionIDContainer;
+
+
 TrigMultiTrkComboHypoTool::TrigMultiTrkComboHypoTool(const std::string& type, const std::string& name, const IInterface* parent)
     : ComboHypoToolBase(type, name, parent) {}
 

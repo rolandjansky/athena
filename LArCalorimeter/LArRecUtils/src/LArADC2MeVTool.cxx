@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArADC2MeVTool.h"
@@ -396,13 +396,6 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
       for(unsigned int igain=0;igain<ngains;igain++) 
 	if ( m_isSC ) m_ADC2MeV_vec[idhash] = std::vector<float>(0);
 	else m_ADC2MeV->setPdata(id,std::vector<float>(0),igain);
-   //   
-//        std::vector<float>  vADC2MeV;
-//        vADC2MeV.push_back(0);
-//        //std::cout << "setting disconnected Feb id "<< feb.get_compact() <<" channel " << chan << std::endl;
-//        m_ADC2MeV->setPdata(id,vADC2MeV,igain);
-//     }
-    
   }//End loop over channels
 
   ATH_MSG_INFO("Ntotal = " << count);
@@ -424,8 +417,9 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
 
 
 // *** retrieve ADC2MEV for a given cell ***
-const std::vector<float>& LArADC2MeVTool::ADC2MEV(const HWIdentifier& CellID, 
-						  int gain ) const
+const std::vector<float>& LArADC2MeVTool::ADC2MEV ATLAS_NOT_THREAD_SAFE
+  (const HWIdentifier& CellID, 
+   int gain ) const
 {
   HWIdentifier id;
   if (m_MCSym) 
@@ -446,8 +440,9 @@ const std::vector<float>& LArADC2MeVTool::ADC2MEV(const HWIdentifier& CellID,
 }
 
 // *** retrieve ADC2MEV for a given cell ***
-const std::vector<float>& LArADC2MeVTool::ADC2MEV(const Identifier& CellID, 
-						  int gain) const
+const std::vector<float>& LArADC2MeVTool::ADC2MEV ATLAS_NOT_THREAD_SAFE
+  (const Identifier& CellID, 
+   int gain) const
 {
   HWIdentifier id;
   if (m_MCSym)

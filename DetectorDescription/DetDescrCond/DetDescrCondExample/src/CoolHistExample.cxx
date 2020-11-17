@@ -7,12 +7,12 @@
 // Richard Hawkings, started 09/2/07
 //
 
+#include "CoolHistExample.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
 #include "TH1.h"
 #include "TDirectory.h"
-#include "DetDescrCondExample/CoolHistExample.h"
 
 CoolHistExample::CoolHistExample(const std::string& name, 
   ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),

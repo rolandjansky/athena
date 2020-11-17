@@ -201,14 +201,14 @@ ParametersT<DIM, T, S>::charge() const
 }
 
 template<int DIM, class T, class S>
-const Amg::Vector3D&
+Amg::Vector3D
 ParametersT<DIM, T, S>::position() const
 {
   return m_position;
 }
 
 template<int DIM, class T, class S>
-const Amg::Vector3D&
+Amg::Vector3D
 ParametersT<DIM, T, S>::momentum() const
 {
   return m_momentum;

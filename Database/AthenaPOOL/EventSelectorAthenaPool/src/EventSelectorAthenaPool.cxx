@@ -104,7 +104,7 @@ StatusCode EventSelectorAthenaPool::initialize() {
    }
    boost::char_separator<char> sep_coma(","), sep_hyph("-");
    boost::tokenizer  ranges(m_skipEventRangesProp.value(), sep_coma);
-   for( const std::string r: ranges ) {
+   for( const std::string& r: ranges ) {
       boost::tokenizer  fromto(r, sep_hyph);
       auto from_iter = fromto.begin();
       std::stringstream strstr1( *from_iter );

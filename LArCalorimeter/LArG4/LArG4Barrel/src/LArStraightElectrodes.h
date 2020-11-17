@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_LArStraightElectrodes_H
@@ -20,7 +20,7 @@ private:
   static LArStraightElectrodes* s_instance;
   int m_parity;
 public:
-  static LArStraightElectrodes* GetInstance(std::string strDetector="") ;
+  static LArStraightElectrodes* GetInstance(const std::string& strDetector="") ;
   double XCentEle(int stackid, int cellid) const;
   double YCentEle(int stackid, int cellid) const;
   double SlantEle(int stackid, int cellid) const;

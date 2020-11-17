@@ -17,8 +17,8 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 from EventBookkeeperTools.EventBookkeeperToolsConfig import CutFlowSvcCfg, CutFlowOutputList
 
 # Argument parsing
-parser = ArgumentParser(prog='dump-cbk')
-parser.add_argument('input', metavar='input', type=str, nargs='?',
+parser = ArgumentParser(prog='test_CutFlowSvc')
+parser.add_argument('input', type=str, nargs='?',
                     help='Specify the input file')
 args = parser.parse_args()
 
@@ -44,6 +44,11 @@ ConfigFlags.lock()
 # Setup service
 acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
+
+if 'EventInfo' not in ConfigFlags.Input.Collections:
+  from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+  acc.merge(EventInfoCnvAlgCfg(ConfigFlags, disableBeamSpot=True))
+
 acc.merge(CutFlowSvcCfg(ConfigFlags))
 acc.addEventAlgo(CompFactory.TestFilterReentrantAlg("TestReentrant1", FilterKey="TestReentrant1", Modulo=2))
 acc.addEventAlgo(CompFactory.TestFilterReentrantAlg("TestReentrant2", FilterKey="TestReentrant2", Modulo=4))

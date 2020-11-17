@@ -22,7 +22,7 @@ atlas_add_library( JetTagToolsLib
     src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
     src/MultiSVTag.cxx src/SoftMuonTag.cxx
     src/MultivariateTagManager.cxx
-    src/DL1Tag.cxx src/TagNtupleDumper.cxx src/RNNIPTag.cxx
+    src/TagNtupleDumper.cxx
 
     PUBLIC_HEADERS JetTagTools
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}

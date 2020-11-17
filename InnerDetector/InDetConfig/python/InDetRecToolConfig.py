@@ -6,21 +6,67 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
-def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **kwargs):
+def InDetPrdAssociationToolCfg(name='InDetPrdAssociationTool',**kwargs) :
+  acc = ComponentAccumulator()
+  '''
+  Provide an instance for all clients in which the tool is only set in c++
+  '''
+  the_name = makeName( name, kwargs)
+
+  kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'PixelClusterAmbiguitiesMap') # InDetKeys.GangedPixelMap
+  kwargs.setdefault("addTRToutliers", True)
+
+  InDetPRD_AssociationToolGangedPixels = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(the_name, **kwargs)
+  acc.setPrivateTools(InDetPRD_AssociationToolGangedPixels)
+  return acc
+
+def InDetPrdAssociationTool_setupCfg(name='InDetPrdAssociationTool_setup',**kwargs) :
+  '''
+  Provide an instance for all clients which set the tool explicitely
+  '''
+  kwargs.setdefault("SetupCorrect", True)
+  return InDetPrdAssociationToolCfg(name, **kwargs)
+
+def InDetTrigPrdAssociationToolCfg(name='InDetTrigPrdAssociationTool_setup',**kwargs) :
+  kwargs.setdefault("PixelClusterAmbiguitiesMapName", "TrigPixelClusterAmbiguitiesMap")
+  kwargs.setdefault("addTRToutliers", False)
+
+  return InDetPrdAssociationToolCfg(name, **kwargs)
+
+def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
   result = ComponentAccumulator()
-  
+
+  the_name = makeName( name, kwargs)
+  isHLT=kwargs.pop("isHLT",False)
+
+  if 'AssoTool' not in kwargs :
+    if not isHLT:
+      InDetPrdAssociationTool_setup = result.popToolsAndMerge(InDetPrdAssociationTool_setupCfg())
+      result.addPublicTool(InDetPrdAssociationTool_setup)
+      kwargs.setdefault("AssoTool", InDetPrdAssociationTool_setup)
+    else:
+      InDetTrigPrdAssociationTool = result.popToolsAndMerge(InDetTrigPrdAssociationToolCfg())
+      result.addPublicTool(InDetTrigPrdAssociationTool)
+      kwargs.setdefault("AssoTool", InDetTrigPrdAssociationTool)
+
   if "HoleSearch" not in kwargs:
     acc = InDetTrackHoleSearchToolCfg(flags)
     # FIXME: assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
     kwargs.setdefault("HoleSearch", acc.getPrimary())
     result.merge(acc)
 
-  from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
-  tmpAcc = TRT_StrawStatusSummaryToolCfg(flags)
-  kwargs.setdefault("TRTStrawSummarySvc", tmpAcc.getPrimary()) 
-  result.merge(tmpAcc)
+  if not flags.Detector.RecoTRT:
+    kwargs.setdefault("TRTStrawSummarySvc", "")
 
-  result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
+  kwargs.setdefault("PixelToTPIDTool", None)
+  kwargs.setdefault("TestBLayerTool", None)
+  kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi)
+  kwargs.setdefault("DoSharedHits", False)
+  kwargs.setdefault("usePixel", flags.Detector.RecoPixel)
+  kwargs.setdefault("useSCT", flags.Detector.RecoSCT)
+  kwargs.setdefault("useTRT", flags.Detector.RecoTRT)
+
+  result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs), primary=True)
   return result
 
 def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):

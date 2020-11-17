@@ -198,7 +198,7 @@ namespace Trk {
     return nmeas;
   }
 
-  const Amg::Vector3D & GXFTrackState::position() {
+  Amg::Vector3D GXFTrackState::position() {
     if (m_trackpar != nullptr) {
       return m_trackpar->position();
     } if (m_measurement != nullptr) {

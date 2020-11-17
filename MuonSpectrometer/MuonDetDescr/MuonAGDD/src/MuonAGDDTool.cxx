@@ -62,8 +62,9 @@ StatusCode MuonAGDDTool::construct()
 	{
 		ATH_MSG_INFO(" Reading AGDD2GeoSwitches flags ");
 		m_structuresFromFlags=theHelper.ReadAGDDFlags();
-		for (unsigned int i=0;i<m_structuresFromFlags.size();i++)
-			ATH_MSG_INFO(" ----> "<<m_structuresFromFlags[i]);
+		for (const auto &structure: m_structuresFromFlags) {
+			ATH_MSG_INFO(" ----> "<<structure);
+		}
 	}
 	
 	// reading from a local AGDD xml file
@@ -98,9 +99,9 @@ StatusCode MuonAGDDTool::construct()
         }
     } else {
     // when reading the AGDD xml blob, only build the volumes specified via the AGDD2GeoSwitches
-        for (unsigned int i =0;i<m_structuresFromFlags.size();i++) {
-            if (!m_buildNSW && m_structuresFromFlags[i]=="NewSmallWheel") continue;
-            m_controller->GetBuilder()->BuildFromVolume(m_structuresFromFlags[i]);
+	    for (const auto &structure: m_structuresFromFlags) {
+            if (!m_buildNSW && structure=="NewSmallWheel") continue;
+            m_controller->GetBuilder()->BuildFromVolume(structure);
         }
     }
 

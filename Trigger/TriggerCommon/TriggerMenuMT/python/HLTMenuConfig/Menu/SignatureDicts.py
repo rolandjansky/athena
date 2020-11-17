@@ -842,7 +842,7 @@ UnconventionalTrackingChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['unconvtrk'],
     'threshold'      : '',
-    'isoInfo'        : ['icummedium','imedium','iloose'],
+    'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
     'extra'          : ["isohpttrack"],
     'addInfo'        : [],
     'sigFolder'     : 'UnconventionalTracking',

@@ -23,7 +23,7 @@ namespace lwt::atlas {
 
   class FastInputPreprocessor;
   class FastInputVectorPreprocessor;
-  class InputOrder;
+  struct InputOrder;
 
   struct SourceIndices
   {
@@ -53,13 +53,15 @@ namespace lwt::atlas {
     // The simpler "compute" function
     Eigen::VectorXd compute(const NodeVec&, const SeqNodeVec& = {}) const;
 
+    // the other "compute" which allows you to select an arbitrary output
+    Eigen::VectorXd compute(const NodeVec&, const SeqNodeVec&, size_t) const;
+
   private:
     typedef FastInputPreprocessor IP;
     typedef FastInputVectorPreprocessor IVP;
     typedef std::vector<IP*> Preprocs;
     typedef std::vector<IVP*> VecPreprocs;
 
-    Eigen::VectorXd compute(const NodeVec&, const SeqNodeVec&, size_t) const;
     Graph* m_graph;
     Preprocs m_preprocs;
     VecPreprocs m_vec_preprocs;

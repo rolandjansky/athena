@@ -20,11 +20,11 @@ int main() {
   u.rob_history = robmonitor::UNCLASSIFIED;
   u.rob_size = 10000; 
   ROBDataStruct c(0x760000);
-  c.rob_history = robmonitor::CACHED;
+  c.rob_history = robmonitor::HLT_CACHED;
   c.rob_status_words.push_back(0);
   c.rob_size = 25000; 
   ROBDataStruct c1(0x760001);
-  c1.rob_history = robmonitor::CACHED;
+  c1.rob_history = robmonitor::HLT_CACHED;
   c1.rob_status_words.push_back(0x08);
   c1.rob_status_words.push_back(0x02);
   c1.rob_status_words.push_back(0x04);

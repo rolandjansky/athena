@@ -18,8 +18,6 @@ onlytypes = []
 onlykeys = []
 
 import ROOT
-import sys
-import math
 from AthenaROOTAccess.persTypeToTransType import persTypeToTransType
 from AthenaROOTAccess.transBranchRemap    import transBranchRemap
 from PyDumper import Dumpers
@@ -323,7 +321,7 @@ class Evdump(object):
             else:
                 perstype = cnt[i3+1:i4]
         dhe = DHE(tree, perstype, key)
-        if perstype == None:
+        if perstype is None:
             find_type (dhe)
         if dhe.transtype != 'DataHeader':
             l = self.types.setdefault (dhe.transtype, [])

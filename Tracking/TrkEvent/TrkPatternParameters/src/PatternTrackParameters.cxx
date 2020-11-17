@@ -138,7 +138,7 @@ AmgSymMatrix(5) Trk::PatternTrackParameters::newCovarianceMatrix
 // Global position of simple track parameters
 ///////////////////////////////////////////////////////////////////
 
-const Amg::Vector3D& Trk::PatternTrackParameters::position() const
+Amg::Vector3D Trk::PatternTrackParameters::position() const
 {
   if (!m_pposition.isValid()) {
     updatePositionCache();

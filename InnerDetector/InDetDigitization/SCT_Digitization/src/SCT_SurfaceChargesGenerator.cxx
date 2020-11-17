@@ -465,9 +465,9 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
         const double stripPitch{0.080}; // mm
         double dstrip{y1 / stripPitch}; // mm
         if (dstrip > 0.) {
-          dstrip -= static_cast<double>(static_cast<int>(dstrip));
+          dstrip = dstrip - std::trunc(dstrip);
         } else {
-          dstrip -= static_cast<double>(static_cast<int>(dstrip)) + 1;
+          dstrip = dstrip - std::trunc(dstrip) + 1;
         }
 
         // now y will be x and z will be y ....just to make sure to confuse everebody

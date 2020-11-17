@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = "Algorithm to lock CaloRinger containers (based on egammaLocker by Bruno Lenzi)"
 __author__ = "Werner Freund <wsfreund@cern.ch>"
@@ -68,7 +68,7 @@ class CaloRingerLocker( PyAthena.Alg ):
     "Loop over event dict items and yield (key, type) for those that pass filterKey"
     for cType, cKeys in self.CaloRingerDict.items():
       for cKey in cKeys:
-        if not self.filterKey(cKey) or not cKey in self.storeGateSvc.keys():
+        if not self.filterKey(cKey) or cKey not in self.storeGateSvc.keys():
           continue
         yield cKey, cType
 
@@ -76,7 +76,7 @@ class CaloRingerLocker( PyAthena.Alg ):
     "Loop over event dict items and yield (key, type) for those that pass filterKey"
     for cType, cKeys in self.CaloRingerMetaDict.items():
       for cKey in cKeys:
-        if not self.filterKey(cKey) or not cKey in self.metaDataStore.keys():
+        if not self.filterKey(cKey) or cKey not in self.metaDataStore.keys():
           continue
         yield cKey, cType
 
@@ -98,9 +98,9 @@ class CaloRingerLocker( PyAthena.Alg ):
       self.msg.debug( 'Keys are: %r', self.keys)
 
     for cKey, cType in self.keys.items():
-      self.msg.debug('Locking container %s of type %s' % (cKey, cType))
+      self.msg.debug('Locking container %s of type %s', cKey, cType)
       if self.storeGateSvc.setConst( self.storeGateSvc[cKey] ).isFailure():
-        self.msg.error('Problem locking container %s of type %s' % (cKey, cType))
+        self.msg.error('Problem locking container %s of type %s', cKey, cType)
         # Flag that a failure happened, but keep looping to try to lock other
         # containers
         sc = StatusCode.Failure
@@ -118,9 +118,9 @@ class CaloRingerLocker( PyAthena.Alg ):
     metaKeys = dict( self.getMetadataKeys() )
 
     for cKey, cType in metaKeys.items():
-      self.msg.debug('Locking Metadata container %s of type %s' % (cKey, cType))
+      self.msg.debug('Locking Metadata container %s of type %s', cKey, cType)
       if self.metaDataStore.setConst( self.metaDataStore[cKey] ).isFailure():
-        self.msg.error('Problem locking Metadata container %s of type %s' % (cKey, cType))
+        self.msg.error('Problem locking Metadata container %s of type %s', cKey, cType)
         # Flag that a failure happened, but keep looping to try to lock other
         # containers
         sc = StatusCode.Failure

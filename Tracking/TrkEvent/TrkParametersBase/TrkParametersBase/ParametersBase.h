@@ -77,12 +77,15 @@ public:
   /** virtual Destructor */
   virtual ~ParametersBase() = default;
 
-  /** Access method for the parameters */
+  /** Access methods for the parameters */
   const AmgVector(DIM) & parameters() const;
+  AmgVector(DIM) & parameters();
 
   /** Access method for the covariance matrix - returns nullptr if no covariance
    * matrix is given */
   const AmgSymMatrix(DIM) * covariance() const;
+  AmgSymMatrix(DIM)* covariance();
+
 
   /** Access method for transverse momentum */
   double pT() const;
@@ -117,10 +120,10 @@ public:
   virtual double charge() const = 0;
 
   /** Access method for the position */
-  virtual const Amg::Vector3D& position() const = 0;
+  virtual Amg::Vector3D position() const = 0;
 
   /** Access method for the momentum */
-  virtual const Amg::Vector3D& momentum() const = 0;
+  virtual Amg::Vector3D momentum() const = 0;
 
   //** equality operator */
   virtual bool operator==(const ParametersBase<DIM, T>&) const;

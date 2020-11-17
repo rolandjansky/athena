@@ -17,7 +17,7 @@ from .StackedDict import StackedDict
 
 def _make_name (name, prefix, name_prefix, parent_prefix, default_prefix):
     """Helper to form the name for object filler tools."""
-    if name == None:
+    if name is None:
         pref = prefix + name_prefix
         if len (pref) == 0: pref = default_prefix
         if len (pref) == 0:
@@ -216,7 +216,7 @@ class D3PDObject:
     this is a dictionary of the arguments passed to the D3PDObject
     (the same arguments that are passed to hook functions).
 """
-        if prefix != None:
+        if prefix is not None:
             kw = kw.copy()
             kw['Prefix'] = prefix
 
@@ -279,11 +279,11 @@ class D3PDObject:
         if n in self._all_blocknames:
             if warnonly:
                 log = logging.getLogger ('D3PDObject')
-                log.warn ('Duplicate block name: %s (%s %s %s)' %
-                          (n,
+                log.warn ('Duplicate block name: %s (%s %s %s)',
+                           n,
                            self._default_prefix,
                            self._default_name,
-                           self._default_object_name))
+                           self._default_object_name)
             else:
                 raise ValueError ('Duplicate block name: %s (%s %s %s)' %
                                   (n,
@@ -354,15 +354,15 @@ class D3PDObject:
 """
 
         # Prefix defaults to that given to the constructor.
-        if prefix == None:
+        if prefix is None:
             prefix = self._default_prefix
 
         # Object name defaults to that given in the constructor
-        if object_name == None:
+        if object_name is None:
             object_name = self._default_object_name
 
         # The tool name.
-        if name == None:
+        if name is None:
             name = self._default_name
         name = _make_name (name, prefix, name_prefix, parent_prefix,
                            self._default_prefix)
@@ -407,7 +407,7 @@ class D3PDObject:
             if (len(exc.args) > 0 and
                 exc.args[0].find ("unexpected keyword argument 'object_name'") >= 0):
                 log = logging.getLogger ('D3PDObject')
-                log.warn ("Maker function missing `object_name' formal arg: %s" % self._maker)
+                log.warn ("Maker function missing `object_name' formal arg: %s", self._maker)
                 c = self._maker (name=name, prefix=prefix, *args, **kw2)
                 reset_props (c)
                 c = self._maker (name=name, prefix=prefix, *args, **kw2)
@@ -417,7 +417,7 @@ class D3PDObject:
         # Construct arguments to pass to hooks.
         # Use a StackedDict: that allows any additions that a LOD function
         # makes to hookargs to be visible in the rest of the D3PDObject.
-        if parent_hookargs == None:
+        if parent_hookargs is None:
             parent_hookargs = {}
         local_hookargs = {}
         hookargs = StackedDict (local_hookargs, kw,
@@ -514,7 +514,7 @@ Should be run by the D3PD maker algorithm; not for general use.
             # calling the LOD function, as that should have the final
             # say about any changes in the argument list.
             for k, v in args.items():
-                if type(v) == type([]):
+                if isinstance(v, list):
                     args[k] = v[:]
                 if isinstance(v, DeferArg):
                     args[k] = v(hookargs)
@@ -580,11 +580,11 @@ Should be run by the D3PD maker algorithm; not for general use.
               default_name = None,
               **kw_in):
         """Return a copy of this D3PD object, possibly changing parameters."""
-        if default_prefix==None:
+        if default_prefix is None:
             default_prefix = self._default_prefix
-        if default_object_name==None:
+        if default_object_name is None:
             default_object_name = self._default_object_name
-        if default_name==None:
+        if default_name is None:
             default_name = self._default_name
         kw = self._hookArgs.copy()
         kw.update (kw_in)
@@ -688,7 +688,7 @@ input source is a single object from StoreGate.
                   allowMissing = default_allowMissing,
                   typeName = default_typeName,
                   getterClass = default_getterClass):
-        if sgkey == None: sgkey = default_sgkey
+        if sgkey is None: sgkey = default_sgkey
         if not getter:
             getter = getterClass (name + '_Getter',
                                   TypeName = typeName,
@@ -702,7 +702,7 @@ input source is a single object from StoreGate.
                                                  SaveMetadata = \
                                                  D3PDMakerFlags.SaveObjectMetadata())
 
-    if default_object_name == None:
+    if default_object_name is None:
         default_object_name = default_typeName
         default_object_name = default_object_name.split('::')[-1]
 
@@ -778,15 +778,15 @@ input source is a DataVector container from StoreGate.
                   typeName = default_typeName,
                   getterClass = default_getterClass,
                   **kw):
-        if sgkey == None: sgkey = default_sgkey
-        if label == None: label = prefix
+        if sgkey is None: sgkey = default_sgkey
+        if label is None: label = prefix
         if not getter:
             getter = getterClass (name + '_Getter',
                                   TypeName = typeName,
                                   SGKey = sgkey,
                                   Label = label)
         if getterFilter:
-            if type(getterFilter) == type(''):
+            if isinstance(getterFilter, str):
                 selgetter = D3PDMakerCoreComps.SGObjGetterTool \
                             (name + '_SelectionGetter',
                              TypeName = 'SelectedParticles',
@@ -810,7 +810,7 @@ input source is a DataVector container from StoreGate.
                                                     D3PDMakerFlags.SaveObjectMetadata(),
                                                     **defs)
 
-    if default_object_name == None:
+    if default_object_name is None:
         default_object_name = default_typeName
         if default_object_name.endswith ('Collection'):
             default_object_name = default_object_name[:-10]

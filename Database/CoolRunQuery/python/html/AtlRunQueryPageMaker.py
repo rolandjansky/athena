@@ -11,20 +11,20 @@ class PageMaker:
         
         (top, bottom) = cls.getBlankPage(removeExamples=removeExamples)
         # put in the original query
-        if origQuery != None:
+        if origQuery is not None:
             top = top.replace('name="q"','name="q" value="%s"' % origQuery)
 
         # extra replacements
-        if extraReplace != None:
+        if extraReplace is not None:
             for pat,repl in extraReplace:
                 p = re.compile(pat,re.S)
                 top = p.sub(repl, top)
                 bottom = p.sub(repl, bottom)
         
         fh = open("%s/index.html" % QC.datapath, "w")
-        print >> fh, top
-        print >> fh, body.encode("utf-8")
-        print >> fh, bottom
+        print (top, file = fh)
+        print (body.encode("utf-8"), file = fh)
+        print (bottom, file = fh)
         fh.close()
 
         cls._copySomeFilesToCache()

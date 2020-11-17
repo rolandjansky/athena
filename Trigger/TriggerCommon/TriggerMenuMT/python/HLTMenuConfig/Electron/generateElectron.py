@@ -10,9 +10,6 @@ from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
 
-# TODO remove once full tracking is in place
-def fakeHypoAlgCfg(flags, name="FakeHypoForElectron"):    
-    return CompFactory.getComp("HLTTest::TestHypoAlg")( name, Input="" )
 
 
 def generateChains( flags,  chainDict ):
@@ -81,19 +78,16 @@ def generateChains( flags,  chainDict ):
     accTrk.merge(fastInDetReco, sequenceName=stepReco.getName())
 
 
-    # TODO remove once full tracking is in place
-    fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForElectron')
+    fastElectronHypoAlg = CompFactory.TrigEgammaFastElectronHypoAlgMT()
+    fastElectronHypoAlg.Electrons = "HLT_FastElectrons"
+    fastElectronHypoAlg.RunInView = True
+    accTrk.addEventAlgo(fastElectronHypoAlg, sequenceName=stepView.getName())
 
-
-    def makeFakeHypoTool(chainDict, cfg = None):
-        return CompFactory.getComp("HLTTest::TestHypoTool")(chainDict['chainName'])
-
-    accTrk.addEventAlgo(fakeHypoAlg, sequenceName=stepView.getName())
-
+    from TrigEgammaHypo.TrigEgammaFastElectronHypoTool import TrigEgammaFastElectronHypoToolFromDict
     fastInDetSequence = CAMenuSequence(Sequence    = fastInDetReco.sequence(),
                                        Maker       = fastInDetReco.inputMaker(),
-                                       Hypo        = fakeHypoAlg,
-                                       HypoToolGen = makeFakeHypoTool,
+                                       Hypo        = fastElectronHypoAlg,
+                                       HypoToolGen = TrigEgammaFastElectronHypoToolFromDict,
                                        CA = accTrk)
 
     fastInDetStep = ChainStep( name=secondStepName, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))

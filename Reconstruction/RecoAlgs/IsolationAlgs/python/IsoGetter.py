@@ -3,7 +3,6 @@
 from __future__ import print_function
 
 from AthenaCommon.Constants import INFO
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.Logging import logging
 from RecExConfig.RecFlags import rec
 
@@ -281,13 +280,13 @@ isoBuilder = AlgFactory(IsolationBuilder,
                         FeIsoTypes            = [] if not rec.doEgamma() else IsoTypesFe,
                         FeCorTypes            = IsoCorFe,
                         FeCorTypesExtra       = IsoCorFeExtra,
-			ElIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
+                        ElIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
                         ElCorTypes            = IsoCorEg,
                         ElCorTypesExtra       = IsoCorEgExtra,
-			PhIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
+                        PhIsoTypes            = [] if not rec.doEgamma() else IsoTypes,
                         PhCorTypes            = IsoCorEg,
                         PhCorTypesExtra       = IsoCorEgExtra,
-			MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [],
+                        MuIsoTypes            = IsoTypes if rec.doMuon() and muonRecFlags.doMuonIso() else [],
                         MuCorTypes            = IsoCorMu,
                         MuCorTypesExtra       = IsoCorMuExtra
                         )

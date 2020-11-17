@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArHECWheelCalculator.hh
@@ -8,11 +8,13 @@
 
 // Jan-2008: (M.Fincke)  To be used for new Module-Geometry
 
-#ifndef __LArG4HECWheelCalculator_H__
-#define __LArG4HECWheelCalculator_H__
+#ifndef LARG4HEC_LARHECWHEELCALCULATOR_H
+#define LARG4HEC_LARHECWHEELCALCULATOR_H
 
 #include "LArG4Code/LArG4Identifier.h"
 #include "LArG4Code/LArCalculatorSvcImp.h"
+#include "LArHV/HECHVManager.h"
+#include "CxxUtils/checker_macros.h"
 #include <stdexcept>
 
 // Forward declarations.
@@ -33,7 +35,7 @@ class LArHECWheelCalculator : virtual public LArCalculatorSvcImp {
 public:
 
   LArHECWheelCalculator(const std::string& name, ISvcLocator * pSvcLocator);
-  virtual StatusCode initialize() override final;
+  virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () override final;
   virtual StatusCode finalize() override final;
   ~LArHECWheelCalculator();
   /////////////////////////////////////////////
@@ -56,6 +58,8 @@ private:
 
   LArG4BirksLaw *m_birksLaw;
   bool     m_doHV;
+
+  HECHVManager::HECHVData m_hvdata;
 
   LArHECWheelCalculator (const LArHECWheelCalculator&);
   LArHECWheelCalculator& operator= (const LArHECWheelCalculator&);

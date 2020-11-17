@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from HepMCAnalysis_i.HepMCAnalysis_iConf import HepMCAnalysis
 
 class HepMCAnalysis_i(HepMCAnalysis):
-    
+
     def __init__(self, name = "HepMCAnalysis_i", file = None):
         super( HepMCAnalysis_i, self ).__init__( name )
-       
+
         self.OutputFile = "hepmcanalysis.root"
 
         from AthenaCommon.Logging import logging
@@ -16,7 +16,7 @@ class HepMCAnalysis_i(HepMCAnalysis):
         # set defaults
         if file:
             self.OutputFile = file
-            log.info("changing output file name to %s" % self.OutputFile)
+            log.info("changing output file name to %s", self.OutputFile)
 
         # create THistSvc if not yet done
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -30,7 +30,7 @@ class HepMCAnalysis_i(HepMCAnalysis):
 
         # defining stream and output file
         log.info("here0")
-        log.info("Output file: %s" % self.OutputFile)
+        log.info("Output file: %s", self.OutputFile)
 
         myHistSvc.Output += [ ("hepmcanalysis DATAFILE='%s' OPT='RECREATE'" % self.OutputFile)] ####if this line is commented in the segmentation fault appears!!!!!
         myHistSvc.OutputLevel = 1

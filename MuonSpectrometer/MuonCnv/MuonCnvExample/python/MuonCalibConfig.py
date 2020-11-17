@@ -219,15 +219,11 @@ def MdtCalibrationDbTool(name="MdtCalibrationDbTool", **kwargs):
 # return a list of dictionaires containing the calib config info (keys etc)
 def getCalibConfigs():
     from MuonRecExample.MuonRecFlags import muonRecFlags
-    from RecExConfig import RecFlags as rec
-    from MuonRecExample import ConfiguredMuonRec as muonRec
+    from RecExConfig.RecFlags import rec
+    from MuonRecExample.MuonRec import muonRec
     configs = []
     if muonRecFlags.calibMuonStandalone and (muonRecFlags.doStandalone or rec.readESD):
-#        try:
-            configs.append( muonRec.getConfig("MuonStandalone").getCalibConfig() )
-#        except KeyError:
-#            logMuon.warning("Could not get calibration config for MuonStandAlone - not adding MuonStandAlone info to calibration")
-#            muonRecFlags.calibMuonStandalone = False
+        configs.append(muonRec.getConfig("MuonStandalone").getCalibConfig())
     else:
         muonRecFlags.calibMuonStandalone = False
 
@@ -274,7 +270,7 @@ def getMuonSegmentToCalibSegment():
 def getMuonCalibAlg(eventTag):
     from AthenaCommon.AppMgr import topSequence
     from MuonRecExample.MuonRecFlags import muonRecFlags
-    from RecExConfig import RecFlags as rec
+    from RecExConfig.RecFlags import rec
     try:
         return topSequence.MuonCalibAlg
     except AttributeError:
@@ -302,7 +298,7 @@ def getMuonCalibAlg(eventTag):
 def setupMuonCalibNtuple():
     from MuonRecExample.MuonRecFlags import muonRecFlags
     from AthenaCommon.DetFlags import DetFlags
-    from RecExConfig import RecFlags as rec
+    from RecExConfig.RecFlags import rec
     from AthenaCommon.AppMgr import topSequence
     from AthenaCommon.AppMgr import ToolSvc
     if not rec.doMuon() or not DetFlags.Muon_on():
@@ -350,17 +346,9 @@ def setupMuonCalibNtuple():
           MuonCalibExtraTreeAlg.SegmentOnTrackSelector= segmentOnTrackSelector
         if not rec.doMuonCombined():
            tool_nr=0
-           from AthenaCommon.CfgGetter import getPublicTool
-           from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__ExtraTreeTrackFillerTool
-           resPullCalc=getPublicTool("ResidualPullCalculator")
+           from AthenaCommon.CfgGetter import getPrivateToolClone
            for config in configs:
-             trackDumpTool = MuonCalib__ExtraTreeTrackFillerTool("ExtraTreeTrackFillerTool" + str(tool_nr))
-             trackDumpTool.TrackCollectionKey = config['tracksKey']
-             trackDumpTool.SegmentAuthors = [config['segmentAuthor']]
-             trackDumpTool.TrackAuthor = config['trackAuthor']
-             trackDumpTool.PullCalculator = resPullCalc
-             ToolSvc+=trackDumpTool
-             MuonCalibExtraTreeAlg.TrackFillerTools.append(trackDumpTool)
+             MuonCalibExtraTreeAlg.TrackFillerTools.append(getPrivateToolClone("ExtraTreeTrackFillerTool"+str(tool_nr), "ExtraTreeTrackFillerTool", TrackCollectionKey=config['tracksKey'], SegmentAuthors=[config['segmentAuthor']], TrackAuthor=config['trackAuthor']))
              tool_nr+=1
         # configure needed tools
 
@@ -389,7 +377,7 @@ def setupMuonCalibNtuple():
 
 
 def setupMuonCalib():
-    from RecExConfig import RecFlags as rec
+    from RecExConfig.RecFlags import rec
     from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.DetFlags import DetFlags
     if not rec.doMuon() or not DetFlags.Muon_on():
@@ -404,7 +392,7 @@ def setupMuonCalib():
     #
     # MuonSegmentToCalibSegment
     #
-    from MuonRecExample import ConfiguredMuonRec as muonRec
+    from MuonRecExample.MuonRec import muonRec
     muonRec.allConfigs()[0].getCalibConfig() #muonRec.getConfig(muonCalibFlags.EventTag()).getCalibConfig()
     getMuonSegmentToCalibSegment()
     #

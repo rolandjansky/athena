@@ -88,11 +88,11 @@ MuonCombinedInDetExtensionAlg::execute(const EventContext& ctx) const
         SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPRDContainer(m_TGC_ContainerName, ctx);
         prdData.tgcPrds = tgcPRDContainer.cptr();
         for (auto& tool : m_muonCombinedInDetExtensionTools) {
-            tool->extendWithPRDs(*indetCandidateCollection, tagMap.ptr(), prdData, combTracks, meTracks, segments);
+	  tool->extendWithPRDs(*indetCandidateCollection, tagMap.ptr(), prdData, combTracks, meTracks, segments, ctx);
         }
     } else {
         for (auto& tool : m_muonCombinedInDetExtensionTools) {
-            tool->extend(*indetCandidateCollection, tagMap.ptr(), combTracks, meTracks, segments);
+	  tool->extend(*indetCandidateCollection, tagMap.ptr(), combTracks, meTracks, segments, ctx);
         }
     }
 

@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file EventCommonD3PDMaker/python/DRAssociation.py
 # @author scott snyder <snyder@bnl.gov>
@@ -67,7 +66,7 @@ def DRAssociation (parent,
     call then adds the jet kinematic variables: `el_jet_pt', etc.
     Additional blocks can be added if desired.
 """
-    if blockname == None:
+    if blockname is None:
         blockname = prefix + 'DRAssoc'
 
     def maker (name, prefix, object_name,

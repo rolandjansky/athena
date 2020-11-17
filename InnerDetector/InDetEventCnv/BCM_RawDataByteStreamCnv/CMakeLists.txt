@@ -11,4 +11,4 @@ atlas_add_component( BCM_RawDataByteStreamCnv
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils ByteStreamCnvSvcBaseLib ByteStreamData GaudiKernel InDetBCM_RawData StoreGateLib )
+                     LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib ByteStreamData GaudiKernel InDetBCM_RawData StoreGateLib )

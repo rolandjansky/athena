@@ -32,6 +32,7 @@
 #include "GaudiKernel/ICondSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "StoreGate/ReadCondHandleKey.h"
+#include "CxxUtils/CachedUniquePtr.h"
 
 #include "CoralBase/Attribute.h"
 
@@ -51,20 +52,13 @@
  */
 #include <atomic>
 #include <map>
-#include <mutex>
 #include <vector>
 
 // the tool to decode a ROB frament
 
-class TRT_RodDecoder : virtual public ITRT_RodDecoder, 
-                       public AthAlgTool
+class TRT_RodDecoder : public extends<AthAlgTool, ITRT_RodDecoder>
 {
-
 public: 
-
-  //! AlgTool InterfaceID
-  static const InterfaceID& interfaceID( ) ;
-
   //! constructor
   TRT_RodDecoder(const std::string& type, const std::string& name,
                  const IInterface* parent ) ;
@@ -79,7 +73,7 @@ public:
   virtual StatusCode fillCollection ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				      TRT_RDO_Container* rdoIdc,
 				      TRT_BSErrContainer* bserr,
-				      const std::vector<IdentifierHash>* vecHash = 0) override;
+				      const std::vector<IdentifierHash>* vecHash = 0) const override;
 
 
  private:
@@ -104,7 +98,6 @@ public:
    bool m_loadCompressTableDB;
    std::vector<int> m_LoadCompressTableVersions;
    const int m_maxCompressionVersion;
-   bool m_compressTableLoaded[256];
    int m_forceRodVersion;
 
    const TRT_ID*               m_trt_id;   
@@ -132,11 +125,9 @@ public:
      int m_Nsymbols;
    } t_CompressTable;
 
-   //   t_CompressTable m_CTable;
-   //   t_CompressTable *m_CompressionTables[16];
-   std::map<const int, t_CompressTable *>m_CompressionTables;
+   std::vector<CxxUtils::CachedUniquePtr<t_CompressTable> > m_CompressionTables;
 
-   uint32_t m_Nrdos;              // Number of RDOs created
+   mutable std::atomic<uint32_t> m_Nrdos;              // Number of RDOs created
 
    mutable std::atomic<int> m_err_count_fillCollection{0};
    mutable std::atomic<int> m_err_count_int_fillMinimalCompress{0};
@@ -144,39 +135,28 @@ public:
 
    // This replaces the IOVCALLBACK
    SG::ReadCondHandleKey<CondAttrListCollection> m_CompressKey{this,"keyName","/TRT/Onl/ROD/Compress","in-key"};
-   mutable std::mutex m_cacheMutex;
-   StatusCode update();
+   StatusCode update() const;
 
    //! private methods
 private:
 
    StatusCode int_fillExpanded ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				TRT_RDO_Container* rodIdc,
-				const std::vector<IdentifierHash>* vecHash = 0);
+				const std::vector<IdentifierHash>* vecHash = 0) const;
 
    StatusCode int_fillMinimalCompress ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				       TRT_RDO_Container* rdoIdo,
-				       const std::vector<IdentifierHash>* vecHash = 0);
+				       const std::vector<IdentifierHash>* vecHash = 0) const;
 
    StatusCode int_fillFullCompress ( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag,
 				     TRT_RDO_Container* rdoIdo,
-				     t_CompressTable* Ctable,
-				     const std::vector<IdentifierHash>* vecHash = 0);
+				     const t_CompressTable& Ctable,
+				     const std::vector<IdentifierHash>* vecHash = 0) const;
 
    StatusCode ReadCompressTableFile( std::string TableFilename );
    StatusCode ReadCompressTableDB( std::string Tag );
 
-   // Struct for event cache
-   struct CacheEntry {
-     EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
-     uint32_t Last_print_L1ID = 0xffffffff;
-     uint32_t Last_print_BCID = 0xffffffff;
-     void reset() {
-       Last_print_L1ID = 0xffffffff;
-       Last_print_BCID = 0xffffffff;
-     }
-   };
-   mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_cacheMutex
+   mutable SG::SlotSpecificObj<std::atomic<EventContext::ContextEvt_t> > m_lastPrint ATLAS_THREAD_SAFE;
 
 };
 

@@ -1,6 +1,4 @@
-################################################################################
-# Package: EventBookkeeperTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( EventBookkeeperTools )
@@ -11,7 +9,7 @@ if( XAOD_STANDALONE )
 # ... for AthAnalysisBase (Athena calls this POOLRootAccess)
 else()
    set( extra_libs GaudiKernel AthenaKernel AthenaPoolUtilities EventInfo IOVDbDataModel StoreGateLib )
-   set( xaod_access_lib POOLRootAccessLib )
+   set( xaod_access_lib xAODRootAccess POOLRootAccessLib )
 endif()
 
 if( NOT GENERATIONBASE )
@@ -69,6 +67,16 @@ if( NOT XAOD_STANDALONE )
 
    atlas_add_test( CutFlowSvcOutput
                    SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py
+                   PROPERTIES TIMEOUT 300
+                   POST_EXEC_SCRIPT nopost.sh )
+
+   atlas_add_test( CutFlowSvcOutputMT
+                   SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py --threads=2
+                   PROPERTIES TIMEOUT 300
+                   POST_EXEC_SCRIPT nopost.sh )
+
+   atlas_add_test( CutFlowSvcOutputMP
+                   SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py --nprocs=2
                    PROPERTIES TIMEOUT 300
                    POST_EXEC_SCRIPT nopost.sh )
 endif()

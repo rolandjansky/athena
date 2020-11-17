@@ -72,23 +72,13 @@ StatusCode JetVertexTaggerTool::initialize() {
 
 StatusCode JetVertexTaggerTool::decorate(const xAOD::JetContainer& jetCont) const {
 
-  // Get input vertex collection
-  auto vertexContainer = SG::makeHandle (m_vertexContainer_key);
-  if (!vertexContainer.isValid()){
-    ATH_MSG_ERROR("Invalid VertexContainer datahandle: " << m_vertexContainer_key.key());
-    return StatusCode::FAILURE;
-  }
+  const xAOD::Vertex* HSvertex = findHSVertex();
+  // findHSVertex will provide an error message if this comes back null
+  if(HSvertex == nullptr) return StatusCode::FAILURE;
 
-  auto vertices = vertexContainer.cptr();
-
-  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " << m_vertexContainer_key.key());
-
-  if (vertices->size() == 0 ) {
-    ATH_MSG_WARNING("There are no vertices in the container. Exiting");
-    return StatusCode::SUCCESS;
-  }
-
-  const xAOD::Vertex* HSvertex = findHSVertex(vertices);
+  // Grab vertices for index bookkeeping
+  SG::ReadHandle<xAOD::VertexContainer> vertexHandle = SG::makeHandle (m_vertexContainer_key);
+  const xAOD::VertexContainer* vertices = vertexHandle.cptr();
 
   SG::ReadDecorHandle<xAOD::JetContainer, float> jvfCorrHandle(m_jvfCorrKey);
   SG::ReadDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtTrkHandle(m_sumPtTrkKey);
@@ -130,29 +120,47 @@ float JetVertexTaggerTool::evaluateJvt(float rpt, float jvfcorr) const {
 
 //**********************************************************************
 
-float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet, std::string scale) const {
+float JetVertexTaggerTool::updateJvt(const xAOD::Jet& jet) const {
 
   SG::ReadDecorHandle<xAOD::JetContainer, float> jvfCorrHandle(m_jvfCorrKey);
-  // Chop off the leading jet container name and dot since we're using a ConstAccessor rather than a DecorHandle
-  std::string rptDecName = m_rptKey.key();
-  size_t dotPos = rptDecName.find(".");
-  rptDecName = rptDecName.substr(dotPos+1, std::string::npos);
-  // Access Rpt directly, the scheduler doesn't need to care about this one.
-  SG::AuxElement::ConstAccessor<float> rptAcc(rptDecName);
+  SG::ReadDecorHandle<xAOD::JetContainer, std::vector<float> > sumPtTrkHandle(m_sumPtTrkKey);
 
-  JetFourMom_t p4old = jet.jetP4(scale);
-  float ptold = p4old.pt();
-  float ptnew = jet.pt();
   float jvfcorr = jvfCorrHandle(jet);
-  float rptold = rptAcc(jet);
-  float rptnew = rptold*ptold/ptnew;
+  std::vector<float> sumpttrk = sumPtTrkHandle(jet);
+
+  const xAOD::Vertex* HSvertex = findHSVertex();
+  if(!HSvertex) {
+    ATH_MSG_ERROR("No hard scatter vertex found. Returning JVT=-1");
+    return -1.;
+  }
+
+  // Grab vertices for index bookkeeping
+  SG::ReadHandle<xAOD::VertexContainer> vertexHandle = SG::makeHandle (m_vertexContainer_key);
+  const xAOD::VertexContainer* vertices = vertexHandle.cptr();
+
+  const float rptnew = sumpttrk[HSvertex->index() - (*vertices)[0]->index()]/jet.pt();
+
   return evaluateJvt(rptnew, jvfcorr);
 }
 
 //**********************************************************************
 
-const xAOD::Vertex* JetVertexTaggerTool::findHSVertex(const xAOD::VertexContainer*& vertices) const
+const xAOD::Vertex* JetVertexTaggerTool::findHSVertex() const
 {
+  // Get input vertex collection
+  SG::ReadHandle<xAOD::VertexContainer> vertexHandle = SG::makeHandle (m_vertexContainer_key);
+  if (!vertexHandle.isValid()){
+    ATH_MSG_ERROR("Invalid VertexContainer datahandle: " << m_vertexContainer_key.key());
+    return nullptr;
+  }
+  const xAOD::VertexContainer* vertices = vertexHandle.cptr();
+  ATH_MSG_DEBUG("Successfully retrieved VertexContainer: " << m_vertexContainer_key.key());
+
+  if (vertices->size() == 0 ) {
+    ATH_MSG_WARNING("There are no vertices in the container. Exiting");
+    return nullptr;
+  }
+
   for ( size_t iVertex = 0; iVertex < vertices->size(); ++iVertex ) {
     if(vertices->at(iVertex)->vertexType() == xAOD::VxType::PriVtx) {
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_LArCoudeAbsorbers_H
@@ -17,7 +17,7 @@ private:
   bool m_filled;
   static LArCoudeAbsorbers* s_instance;
 public:
-  static LArCoudeAbsorbers* GetInstance(std::string strDetector="") ;
+  static LArCoudeAbsorbers* GetInstance(const std::string& strDetector="") ;
   double XCentCoude(int stackid, int cellid) const;
   double YCentCoude(int stackid, int cellid) const;
   double PhiRot(int stackid, int cellid) const;

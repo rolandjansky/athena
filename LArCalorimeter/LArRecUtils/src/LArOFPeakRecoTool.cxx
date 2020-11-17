@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecUtils/LArOFPeakRecoTool.h"
@@ -121,7 +121,6 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
   //Computation is done as double
   double At=0;
   double A=0;
-  //std::cout << "***** ChannelID=" << (int)chID << " ; Gain=" << (int)gain << " ; Delay=" << delay << " nIter=" << nIter  << std::endl ;
 
   //Tying to avoid doing all checks for every event/channel/iteation step by assuming that
   //the number of OFC samples is the same for all delays of a certain cell/gain. 
@@ -175,13 +174,10 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
     delayIdx=(unsigned)floor(0.5+delay/timeBinWidth);
   }
 
-  //std::cout << "Timebinwidth=" << timeBinWidth << " nOFCPhase=" << nOFCPhase << std::endl; 
-  //std::cout << "Delay= " << delay << " Index=" << delayIdx << std::endl;
   //Get first set of OFC's
   ILArOFC::OFCRef_t this_OFC_a = dd_ofc->OFC_a(chID,(int)usedGain,delayIdx);
   ILArOFC::OFCRef_t this_OFC_b = dd_ofc->OFC_b(chID,(int)usedGain,delayIdx);
   const unsigned ofcSize=this_OFC_a.size(); //Assumed to be the same of all delay-indices
-  //std::cout << " got OFC " << this_OFC_a.size() << " " << this_OFC_b.size() << std::endl;
 
   //some sanity check on the OFCs
   if ( ofcSize == 0 || this_OFC_b.size() == 0 ) {
@@ -207,17 +203,6 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
   if(kMax<peak_low)  kMax=peak_low; 
   if(kMax>peak_high) kMax=peak_high; 
 
-  /*
-  std::cout << "Samples: ";
-  for ( unsigned k=0;k<samples.size();k++) 
-    std::cout << " " << samples[k];
-  std::cout << std::endl;
-  std::cout << "OFC_a: ";
-  for ( unsigned k=0;k<this_OFC_a.size();k++) 
-    std::cout << " " << this_OFC_a.at(k);
-  std::cout << std::endl;
-  */
-
   float amplitude_save=0.;
   float tau_save= 99999.;
   unsigned int kMax_save=0;
@@ -227,7 +212,6 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
   unsigned int mynIter = nIter;
 
   do {
-    //std::cout << "*** Start iteration step: "<< kIter << " kmax=" <<kMax << " delay=" << delay << std::endl;
     
     // Uncomment the following if you suspect that the ofc are corrupt for some phases:
     /*  
@@ -264,7 +248,6 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
     }
     result.m_amplitude=A; 
     result.m_tau = At / A ;
-    //std::cout << "Iteration step: " <<  kIter << " Delay=" << delay << " A = " << A << " tau=" << result.m_tau << std::endl;
 
     //First iteration done, break loop if possible.... 
     if (mynIter<=1) {
@@ -281,13 +264,11 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
     // if we are within +-0.5*Dt of time bin, we have converged for sure
     if (fabs(result.m_tau) <= (0.5*timeBinWidth)) { 
       result.m_converged=true;
-     // std::cout << "Converged." << std::endl;
       delay = delayIdx*timeBinWidth;
       break;
     }
 
     if (kIter>=mynIter) { //Max. number of iterations reached
-      //std::cout << "Did not converge after " << nIter << " iterations." << std::endl;
       delay = delayIdx*timeBinWidth;
       if (result.m_converged) {
         if (fabs(tau_save) < fabs(result.m_tau)) {
@@ -314,7 +295,6 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
        delayIdx_save  = delayIdx;
     }
 
-    //std::cout << "not yet converged" << std::endl ;
     delay = delay - result.m_tau;  // moved this line up so first iteration delay results treated like subsequent
 
     if(delay<(-0.5*timeBinWidth)) { 
@@ -323,9 +303,7 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
 	delay=delay+m_samplingPeriod;
 	if( delay < 0 ) delay = 0;
         if (delay > timeMax ) delay = timeMax-epsilon;
-	//std::cout  << " delay too small, shift sample, set delay to " << delay << std::endl ;
       } else { // don't shift sample
-	//std::cout << " delay too small, set delay to 0 "<< std::endl ;
 	delay = 0 ; 
       }	
     }//else if delay<0
@@ -336,10 +314,8 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
 	  delay=delay-m_samplingPeriod;
           if (delay < 0 ) delay=0.;
 	  if( delay > timeMax ) delay = timeMax-epsilon;
-	  //std::cout << " delay too large , shift sample "<< std::endl ;
 	} else { 
 	  // don't shift sample
-	  //std::cout << " delay too large set delay to max "<< std::endl ;
 	  delay = timeMax-epsilon;
 	}	
       }//end if delay>nOFCPhase
@@ -347,7 +323,6 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
     kIter++;
     delayIdx=(unsigned)floor(0.5+delay/timeBinWidth);
     if (delayIdx>=nOFCPhase) delayIdx = nOFCPhase-1;
-    //std::cout << " new kMax, delay,delayIdx " << kMax << " " << delay << " " << delayIdx << std::endl;
     //Get next set of OFC's
     this_OFC_a = dd_ofc->OFC_a(chID,(int)usedGain,delayIdx);
     this_OFC_b = dd_ofc->OFC_b(chID,(int)usedGain,delayIdx);
@@ -357,7 +332,6 @@ LArOFIterResults LArOFPeakRecoTool::peak(const std::vector<float>& samples, // r
   // go back to overal time
   delay = delay + timeOffset;  // sign to check
 
-  //std::cout << "Done! A= " << result.m_amplitude << " ; tau= " << result.m_tau << " kIter=" << kIter << " nIter=" << nIter << std::endl;
   // get shape
   if (m_useShape){
     const ILArShape* dd_shape=nullptr;

@@ -1,28 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBSVC_MDTCALIBRATIONDBTOOL_H
 #define MDTCALIBSVC_MDTCALIBRATIONDBTOOL_H
 
-#include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/IInterface.h"
-#include "GaudiKernel/ToolHandle.h"  // for configurables
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
-
-#include "GaudiKernel/AlgTool.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-
 #include "StoreGate/ReadCondHandleKey.h"
+#include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include <string>
 
 class MdtCalibrationRegionSvc;
-class MdtIdHelper;
-class Identifier;
-class IdentifierHash;
 
 namespace MuonCalib{
   class IMdtCalibDBTool;
@@ -39,7 +33,7 @@ public:
   MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent);
 
   /** destructor */
-  virtual ~MdtCalibrationDbTool();
+  virtual ~MdtCalibrationDbTool()=default;
   /** IInterface implementation */
   static const InterfaceID &interfaceID() {
     static InterfaceID s_iID("MdtCalibrationDbTool", 1, 0);
@@ -79,9 +73,7 @@ public:
 private:
   /** handle to region service */
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;
-    
-  /** Id Helper used to retrieve hashes from IDs */ 
-  const MdtIdHelper *m_mdtIdHelper;
+  ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
   /** create the correction functions */
   void initialize_B_correction(MuonCalib::MdtCorFuncSet *funcSet,
@@ -95,6 +87,8 @@ private:
 
   bool m_getTubeConstants; //<! flag to switch off loading of tube constants
   bool m_getCorrections;   //<! flag to switch off loading of correction function constants
+
+  bool m_hasBISsMDT;
 
   SG::ReadCondHandleKey<MdtRtRelationCollection> m_readKeyRt{this,"MdtRtRelationCollection","MdtRtRelationCollection","MDT RT relations"};
   SG::ReadCondHandleKey<MdtTubeCalibContainerCollection> m_readKeyTube{this,"MdtTubeCalibContainerCollection","MdtTubeCalibContainerCollection","MDT tube calib"};

@@ -7,9 +7,8 @@
 
 #include <string>
 
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Converter.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -35,27 +34,23 @@ class CpByteStreamV2Tool;
  *  @author Peter Faulkner
  */
 
-class CpReadByteStreamV1V2Cnv: public Converter {
+class CpReadByteStreamV1V2Cnv: public AthConstConverter {
 
 public:
   CpReadByteStreamV1V2Cnv(ISvcLocator* svcloc);
 
-  ~CpReadByteStreamV1V2Cnv();
+  virtual ~CpReadByteStreamV1V2Cnv();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Create CPM Towers from ByteStream
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+  virtual StatusCode createObjConst (IOpaqueAddress* pAddr, DataObject*& pObj) const override;
 
   //  Storage type and class ID
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override { return i_repSvcType(); }
   static  long storageType();
   static const CLID& classID();
 
 private:
-
-  /// Converter name
-  std::string m_name;
-
   /// Tool that does the actual work pre-LS1
   ToolHandle<LVL1BS::CpByteStreamV1Tool> m_tool1;
   /// Tool that does the actual work post-LS1
@@ -63,9 +58,6 @@ private:
 
   /// Service for reading bytestream
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
-
-  /// Message log
-  bool m_debug;
 };
 
 } // end namespace

@@ -49,9 +49,9 @@ class Csc4dSegmentMaker : virtual public ICscSegmentFinder, public AthAlgTool {
     // Finalization.
     StatusCode finalize();
 
-    std::unique_ptr<MuonSegmentCombinationCollection> find(const MuonSegmentCombinationCollection&) const;
+    std::unique_ptr<MuonSegmentCombinationCollection> find(const MuonSegmentCombinationCollection&, const EventContext& ctx) const;
     std::unique_ptr<MuonSegmentCombinationCollection> find(
-        const std::vector<const Muon::CscPrepDataCollection*>& pcols) const;  // not used here
+        const std::vector<const Muon::CscPrepDataCollection*>& pcols, const EventContext& ctx) const;  // not used here
 
   private:  // data
     // Properties.

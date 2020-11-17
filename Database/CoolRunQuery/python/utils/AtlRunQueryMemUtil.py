@@ -16,7 +16,7 @@ def _VmB(VmKey):
         t = open(_proc_status)
         v = t.read()
         t.close()
-    except:
+    except (OSError,ValueError):
         return 0.0  # non-Linux?
      # get VmKey line e.g. 'VmRSS:  9999  kB\n ...'
     i = v.index(VmKey)

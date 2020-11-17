@@ -78,10 +78,10 @@ _stdInputList = [
 
 
 _truthFlavours = ["BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
-               "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
-               "TausFinal",
-               "WBosons", "ZBosons", "HBosons", "TQuarksFinal",
-               "Partons",]
+                  "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
+                  "TausFinal",
+                  "WBosons", "ZBosons", "HBosons", "TQuarksFinal",
+                  "Partons",]
 for label in  _truthFlavours:    
     # re-use the main truth input definition : 
     _stdInputList.append( JetInputDef("TruthLabel"+label, xAODType.TruthParticle,
@@ -150,7 +150,7 @@ for ji in _stdModList:
 ## List of standard constituent sequences
 ##  This sequences uses the above constit modifiers     
 _stdSeqList = [
-    # Format is :
+    # Format is typically :
     # JetConstitSeq( name , input_cont_type, list_of_modifiers, inputcontainer, outputcontainer )
     # or
     # JetConstitSource( name, input_cont_type, containername)
@@ -158,9 +158,12 @@ _stdSeqList = [
 
     # *****************************
     # Cluster constituents 
-    JetConstitSeq("EMTopoOrigin", xAODType.CaloCluster, ["EM","Origin"], "CaloCalTopoClusters", "EMOriginTopoClusters"),
-    JetConstitSeq("LCTopoOrigin",xAODType.CaloCluster, ["LC","Origin"],"CaloCalTopoClusters", "LCOriginTopoClusters"),
-    JetConstitSeq("LCTopoCSSK",  xAODType.CaloCluster, ["LC","Origin","CS","SK"],"CaloCalTopoClusters", "LCOriginTopoCSSK"),
+    JetConstitSeq("EMTopoOrigin", xAODType.CaloCluster, ["EM","Origin"],
+                  "CaloCalTopoClusters", "EMOriginTopoClusters", jetinputtype="EMTopo"),
+    JetConstitSeq("LCTopoOrigin",xAODType.CaloCluster, ["LC","Origin"],
+                  "CaloCalTopoClusters", "LCOriginTopoClusters", jetinputtype="LCTopo"),
+    JetConstitSeq("LCTopoCSSK",  xAODType.CaloCluster, ["LC","Origin","CS","SK"],
+                  "CaloCalTopoClusters", "LCOriginTopoCSSK", jetinputtype="LCTopo"),
     
 
 
@@ -172,7 +175,8 @@ _stdSeqList = [
     JetConstitSeq("EMPFlow", xAODType.ParticleFlow,["CorrectPFO", "CHS"] , 'JetETMissParticleFlowObjects', 'CHSParticleFlowObjects'),
 
     # Particle Flow Objects with Constituent Subtraction + SoftKiller
-    JetConstitSeq("EMPFlowCSSK", xAODType.ParticleFlow,["CorrectPFO",  "CS","SK", "CHS"] , 'JetETMissParticleFlowObjects', 'CSSKParticleFlowObjects'),
+    JetConstitSeq("EMPFlowCSSK", xAODType.ParticleFlow,["CorrectPFO",  "CS","SK", "CHS"] ,
+                  'JetETMissParticleFlowObjects', 'CSSKParticleFlowObjects', jetinputtype="EMPFlow"),
 
 
     # *****************************
@@ -192,7 +196,7 @@ _stdSeqList = [
     # Truth particles (see JetInputDef declarations above for more details)
     JetConstitSource("Truth", xAODType.TruthParticle, "JetInputTruthParticles" ),
     
-    JetConstitSource("TruthWZ", xAODType.TruthParticle, "JetInputTruthParticlesNoWZ" ),
+    JetConstitSource("TruthWZ", xAODType.TruthParticle, "JetInputTruthParticlesNoWZ", jetinputtype="TruthWZ"),
 ]
 
 for label in  _truthFlavours:    

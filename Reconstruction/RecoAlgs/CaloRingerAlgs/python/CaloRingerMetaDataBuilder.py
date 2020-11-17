@@ -4,11 +4,10 @@ import traceback
 from . import CaloRingerAlgsConf
 from AthenaCommon.Resilience import treatException
 from RecExConfig.Configured import Configured
-from CaloRingerAlgs.CaloRingerKeys import *
+from CaloRingerAlgs import CaloRingerKeys as ringer
 from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
 from CaloRingerAlgs.CaloRingerAlgorithmBuilder import removeFromTopSequence
-from egammaRec.Factories import AlgFactory, FcnWrapper
-
+from egammaRec.Factories import AlgFactory
 
 
 from AthenaCommon.Logging import logging
@@ -82,17 +81,17 @@ class CaloRingerMetaDataBuilder ( Configured ):
     if crBuilder.usable():
       builderNames = [tool.getName() for tool in crBuilder.getCaloRingerBuilderHandles()]
       if any(['Electron' in builderName for builderName in builderNames]):
-        outputList.append(outputElectronRingSetsConfKey())
-        electronMetaAvailable = metaDataInputAvailable(outputRingSetConfType(), outputElectronRingSetsConfKey())
+        outputList.append(ringer.outputElectronRingSetsConfKey())
+        electronMetaAvailable = metaDataInputAvailable(ringer.outputRingSetConfType(), ringer.outputElectronRingSetsConfKey())
         if electronMetaAvailable:
           self._overwriting = True
       if any(['Photon' in builderName for builderName in builderNames]):
-        outputList.append(outputPhotonRingSetsConfKey())
-        photonMetaAvailable = metaDataInputAvailable(outputRingSetConfType(), outputPhotonRingSetsConfKey())
+        outputList.append(ringer.outputPhotonRingSetsConfKey())
+        photonMetaAvailable = metaDataInputAvailable(ringer.outputRingSetConfType(), ringer.outputPhotonRingSetsConfKey())
         if photonMetaAvailable:
          self. _overwriting = True
     metaBuilder.RingSetConfContainerNames = outputList
-    self._outputMetaData = {outputRingSetConfType() : outputList }
+    self._outputMetaData = {ringer.outputRingSetConfType() : outputList }
     self._output.update(self._outputMetaData)
 
 

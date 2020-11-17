@@ -50,7 +50,8 @@ namespace Trk {
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      const Surface&   associatedSurface ()     const {return   *m_surface;}
+      virtual
+      const Surface&   associatedSurface ()     const override {return   *m_surface;}
       bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
       double           sinPhi            ()     const;
       double           cosPhi            ()     const;
@@ -59,8 +60,8 @@ namespace Trk {
       double           cotTheta          ()     const;
       void             changeDirection   ()          ;
 
-      virtual const Amg::Vector3D& position() const override final;
-      virtual const Amg::Vector3D& momentum() const override final;
+      virtual Amg::Vector3D position() const override final;
+      virtual Amg::Vector3D momentum() const override final;
       virtual double charge() const override final;
       virtual bool hasSurface() const override final;
       virtual Amg::RotationMatrix3D measurementFrame() const override final;
@@ -110,8 +111,8 @@ namespace Trk {
       // Print
       ///////////////////////////////////////////////////////////////////
 
-      std::ostream& dump(std::ostream&) const;
-      MsgStream&    dump(MsgStream&   ) const;	
+      virtual std::ostream& dump(std::ostream&) const override;
+      virtual MsgStream&    dump(MsgStream&   ) const override;
 
     protected:
       
@@ -403,7 +404,7 @@ namespace Trk {
       return (1./tan(m_parameters[3]));
     }
 
-  inline const Amg::Vector3D& PatternTrackParameters::momentum      () const
+  inline Amg::Vector3D PatternTrackParameters::momentum      () const
     {
       if (!m_pmomentum.isValid()) {
         updateMomentumCache();

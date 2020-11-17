@@ -39,7 +39,7 @@ namespace Trk {
  @author Marcin.Wolter@cern.ch
  */
 
-class EllipseBounds : public SurfaceBounds
+class EllipseBounds final: public SurfaceBounds
 {
 public:
   /** @enum for readibility */

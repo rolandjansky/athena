@@ -211,8 +211,8 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doPixelClusterSplitting.set_Value(False) # does not work online
 
 ## new ID alignment 26 May 2017
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
-GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
 # ----------------------------------------------- Online flag
 athenaCommonFlags.EvtMax.set_Value_and_Lock(evtMax)

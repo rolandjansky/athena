@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCaloDataAccessSvc.h"
@@ -454,8 +454,7 @@ unsigned int TrigCaloDataAccessSvc::convertROBs( const std::vector<const OFFLINE
 	  reset_LArCol ( coll );
 	} else { // End of if small size
 	  //TB the converter has state
-	  m_larDecoder->setRobFrag( rob );
-	  m_larDecoder->fillCollectionHLT( roddata, roddatasize, *coll );
+	  m_larDecoder->fillCollectionHLT( *rob, roddata, roddatasize, *coll );
 
 	  // Accumulates inferior byte from ROD Decoder
 	  // TB the converter has state

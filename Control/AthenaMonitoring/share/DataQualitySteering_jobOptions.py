@@ -331,7 +331,8 @@ if DQMonFlags.doMonitoring():
       elif globalflags.InputFormat() == 'pool':
          ConfigFlags.Input.Files=svcMgr.EventSelector.InputCollections
 
-      ConfigFlags.GeoModel.Align.Dynamic=InDetFlags.useDynamicAlignFolders()
+      from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+      ConfigFlags.GeoModel.Align.Dynamic=InDetGeometryFlags.useDynamicAlignFolders()
       ConfigFlags.Detector.GeometryPixel=DetFlags.pixel_on()
       ConfigFlags.Detector.GeometrySCT=DetFlags.SCT_on()
       ConfigFlags.Detector.GeometryTRT=DetFlags.TRT_on()

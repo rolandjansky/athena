@@ -3,9 +3,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
-from time import sleep
 import pickle
 import os
+import sys
 
 DEBUG=False
 
@@ -48,8 +48,8 @@ class Cache(object):
         pf = open( pfname, 'w' )
         try:
             pickle.dump(value, pf)
-        except:
-            print ('ERROR: could not write to cache: ' + pfname)
+        except pickle.PicklingError as err:
+            print ('ERROR: could not write to cache: %s (%s)' % (pfname, err))
             sys.exit(1)
         pf.close()
         
@@ -62,14 +62,14 @@ class Cache(object):
         pfname = self.__name_pickle_cache(key)
         try:
             pf = open( pfname, 'r' )
-        except:
+        except OSError:
             if DEBUG:
                 print ('DEBUG: could not read from cache: ' + pfname)
             return False
         try:
             self._cache[key] = pickle.load(pf)
-        except:
-            print ("ERROR: could not unpickle '%s'" % pfname)
+        except pickle.UnpicklingError as err:
+            print ("ERROR: could not unpickle %s (%s)" % (pfname, err))
             sys.exit(1)
         pf.close()
         return True

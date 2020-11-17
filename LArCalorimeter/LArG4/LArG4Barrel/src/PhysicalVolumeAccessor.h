@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PhysicalVolumeAccessor_H
@@ -17,14 +17,14 @@ typedef std::map<int,G4VPhysicalVolume *, std::less<int> > PVMap;
 
 class PhysicalVolumeAccessor {
 public:
-  PhysicalVolumeAccessor(std::string);
-  PhysicalVolumeAccessor(std::string,const std::string);
+  PhysicalVolumeAccessor(const std::string&);
+  PhysicalVolumeAccessor(const std::string&,const std::string&);
   const G4VPhysicalVolume* GetPhysicalVolume(int) const;
-  void SetPhysicalVolumeList(std::string);
+  void SetPhysicalVolumeList(const std::string&);
 private:
   G4LogicalVolume* m_theLogicalVolume;
   PVMap m_thePhysicalVolumes;
-  G4LogicalVolume *GetLV(std::string);
+  G4LogicalVolume *GetLV(const std::string&);
 };
 
 

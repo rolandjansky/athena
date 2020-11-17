@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -126,11 +126,8 @@ bool LArFCalTowerStore::buildLookUp(const CaloCell_ID& cellIdHelper,
 
   for( size_t cellIndex = m_indxOffset;  cellIndex <= m_indxBound; cellIndex++){
 	  
-      //size_t anIndex = this->getLookupIndex(cellIndex);
-	
-	  //std::cout<<"cell:"<<anIndex<<std::endl;
       
-	  // get cell geometry
+      // get cell geometry
       const CaloDetDescrElement* theElement = theManager.get_element(cellIndex);
       if (!theElement) {
         msg << MSG::ERROR<< "Can't find element for index " << cellIndex

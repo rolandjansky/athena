@@ -61,6 +61,7 @@ class RoRSeqFilter
  **/
   virtual StatusCode  execute(const EventContext& ctx) const override;
 
+
  private:
   RoRSeqFilter();
   SG::ReadHandleKeyArray<TrigCompositeUtils::DecisionContainer>  m_inputKeys{ this, "Input", {}, "Inputs to the filter" };
@@ -68,10 +69,10 @@ class RoRSeqFilter
 
   Gaudi::Property<std::vector<std::string> > m_chainsProperty{ this, "Chains", {}, "Chains of which this filter is concerned" };
   std::set<HLT::Identifier> m_chains;
-
+  
   Gaudi::Property<std::vector <std::vector<std::string>> > m_chainsPerInputProperty{ this, "ChainsPerInput", {}, "Chains of which this filter is concerned" };
   std::vector<std::set<HLT::Identifier>> m_chainsPerInput;
-
+  
   /**
    * It can be used to define a custom routing from input to output collections
    * Example: [[0,1,3], [2]] means that inputs 0, 1, and 3 are directed to output 0, and input under the index 2  to aoutput 1

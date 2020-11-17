@@ -51,11 +51,11 @@ MuonPatternCalibration::initialize()
 
 void
 MuonPatternCalibration::calibrate(const MuonPatternCombination&           pattern,
-                                  IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion) const
+                                  IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion, const EventContext& ctx) const
 {
     Muon::MuonPatternCalibration::RegionMap regionMap;
     bool                                    hasPhiMeasurements = checkForPhiMeasurements(pattern);
-    createRegionMap(pattern, regionMap, hasPhiMeasurements);
+    createRegionMap(pattern, regionMap, hasPhiMeasurements, ctx);
     // calibrate hits
     calibrateRegionMap(regionMap, hitsPerRegion);
     return;
@@ -109,14 +109,14 @@ MuonPatternCalibration::checkForPhiMeasurements(const MuonPatternCombination& pa
 
 void
 MuonPatternCalibration::createRegionMap(const MuonPatternCombination& pat, RegionMap& regionMap,
-                                        bool hasPhiMeasurements) const
+                                        bool hasPhiMeasurements, const EventContext& ctx) const
 {
     if (hasPhiMeasurements)
         ATH_MSG_DEBUG("pattern has phi measurements using extrapolation to determine second coordinate");
     else
         ATH_MSG_DEBUG("No phi measurements using center tubes");
 
-    retrieveTriggerHitContainers();
+    retrieveTriggerHitContainers(ctx);
 
 
     std::vector<MuonPatternChamberIntersect>::const_iterator it = pat.chamberData().begin();
@@ -583,18 +583,18 @@ MuonPatternCalibration::calibrateRegionMap(const RegionMap&                     
 }
 
 void
-MuonPatternCalibration::retrieveTriggerHitContainers() const
+MuonPatternCalibration::retrieveTriggerHitContainers(const EventContext& ctx) const
 {
 
     m_rpcPrdContainer = 0;
-    SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_keyRpc);
+    SG::ReadHandle<Muon::RpcPrepDataContainer> RpcCont(m_keyRpc, ctx);
     if (!RpcCont.isValid()) {
         ATH_MSG_DEBUG(" Failed to retrieve RpcPrepDataContainer, will not recover rpc trigger hits ");
     } else
         m_rpcPrdContainer = RpcCont.cptr();
 
     m_tgcPrdContainer = 0;
-    SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_keyTgc);
+    SG::ReadHandle<Muon::TgcPrepDataContainer> TgcCont(m_keyTgc, ctx);
     if (!TgcCont.isValid()) {
         ATH_MSG_DEBUG(" Failed to retrieve TgcPrepDataContainer, will not recover tgc trigger hits ");
     } else

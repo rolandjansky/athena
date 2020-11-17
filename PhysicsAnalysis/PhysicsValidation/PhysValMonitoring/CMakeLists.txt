@@ -1,27 +1,7 @@
-################################################################################
-# Package: PhysValMonitoring
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PhysValMonitoring )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaMonitoring
-                          Event/xAOD/xAODBTagging
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODJet
-                          Event/xAOD/xAODMissingET
-                          Event/xAOD/xAODMuon
-                          Event/xAOD/xAODTau
-                          Event/xAOD/xAODTracking
-                          Reconstruction/RecEvent
-                          Tracking/TrkValidation/TrkValHistUtils )
 
 # External dependencies:
 find_package( CLHEP )
@@ -36,5 +16,4 @@ atlas_add_component( PhysValMonitoring
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

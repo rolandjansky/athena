@@ -39,10 +39,11 @@ class ExtraTreeTrackFillerTool: virtual public IExtraTreeFillerTool, public AthA
 
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-  std::string m_trackCollectionKey;
-  std::vector<int> m_segment_authors;
+  Gaudi::Property<std::string> m_trackCollectionKey{this,"TrackCollectionKey","MuonSpectrometerTracks"};
+  Gaudi::Property<std::vector<int>> m_segment_authors{this,"SegmentAuthors",{5}};
+  Gaudi::Property<int> m_author{this,"TrackAuthor",0};
+
   std::set<int> m_segment_authors_set;
-  int m_author;
 
 //retrieve all tools
   StatusCode retrieveTools();

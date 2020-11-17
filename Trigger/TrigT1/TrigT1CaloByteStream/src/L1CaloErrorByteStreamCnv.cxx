@@ -24,10 +24,8 @@
 namespace LVL1BS {
 
 L1CaloErrorByteStreamCnv::L1CaloErrorByteStreamCnv( ISvcLocator* svcloc )
-    : Converter( storageType(), classID(), svcloc ),
-      m_name("L1CaloErrorByteStreamCnv"),
-      m_tool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
-      m_debug(false)
+    : AthConstConverter( storageType(), classID(), svcloc, "L1CaloErrorByteStreamCnv" ),
+      m_tool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool")
 {
 }
 
@@ -52,8 +50,6 @@ long L1CaloErrorByteStreamCnv::storageType()
 
 StatusCode L1CaloErrorByteStreamCnv::initialize()
 {
-  m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-
   ATH_CHECK( Converter::initialize() );
   ATH_CHECK( m_tool.retrieve() );
 
@@ -62,21 +58,19 @@ StatusCode L1CaloErrorByteStreamCnv::initialize()
 
 // createObj should create the RDO from bytestream.
 
-StatusCode L1CaloErrorByteStreamCnv::createObj( IOpaqueAddress* pAddr,
-                                                DataObject*& pObj )
+StatusCode L1CaloErrorByteStreamCnv::createObjConst ( IOpaqueAddress* pAddr,
+                                                      DataObject*& pObj ) const
 {
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    REPORT_ERROR (StatusCode::FAILURE) << " Can not cast to ByteStreamAddress ";
+    ATH_MSG_ERROR( " Can not cast to ByteStreamAddress " );
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
 
-  if (m_debug) {
-    REPORT_MESSAGE (MSG::DEBUG) << " Creating Objects " << nm;
-  }
+  ATH_MSG_DEBUG( " Creating Objects " << nm );
 
   auto errCollection = std::make_unique<std::vector<unsigned int> >();
 

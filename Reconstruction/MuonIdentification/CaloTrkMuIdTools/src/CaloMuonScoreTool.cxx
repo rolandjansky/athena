@@ -157,8 +157,16 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   // create input vectors from calo cell association
   std::vector<float> eta, phi, energy;
   std::vector<int> sampling;
-  fillInputVectors(association, eta, phi, energy, sampling);
 
+  fillInputVectors(association, eta, phi, energy, sampling);
+  
+  // if any of the vectors are empty, return. 
+  // They are filled in the same loop in `fillInputVectors`, so it is enough to check one
+  if (eta.empty()){
+    ATH_MSG_VERBOSE("Input vectors for CaloMuonScore are empty");
+    return -1.;
+  }
+    
   // create tensor from vectors
   std::vector<float> inputTensor = getInputTensor(eta, phi, energy, sampling);
 

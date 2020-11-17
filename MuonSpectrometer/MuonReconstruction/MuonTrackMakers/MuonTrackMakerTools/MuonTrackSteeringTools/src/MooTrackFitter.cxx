@@ -665,7 +665,8 @@ namespace Muon {
         const Trk::TrackParameters* exPars1 = m_propagator->propagate(segPars1,fitterData.measurements.front()->associatedSurface(),
                                                                       Trk::anyDirection,false,m_magFieldProperties);
         if( exPars1 ){
-          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),&exPars1->position(),0,10.,garbage);
+          Amg::Vector3D position = exPars1->position();
+          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),&position,0,10.,garbage);
           delete exPars1;
           if( fake ) {
             fitterData.phiHits.push_back(fake);
@@ -683,7 +684,8 @@ namespace Muon {
         const Trk::TrackParameters* exPars2 = m_propagator->propagate(segPars2,fitterData.measurements.back()->associatedSurface(),
                                                                        Trk::anyDirection,false,m_magFieldProperties);
         if( exPars2 ){
-          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.back(),&exPars2->position(),0,10.,garbage);
+          Amg::Vector3D position = exPars2->position();
+          const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.back(),&position,0,10.,garbage);
           delete exPars2;
           if( fake ){
             fitterData.phiHits.push_back(fake);
@@ -2581,8 +2583,9 @@ namespace Muon {
             ATH_MSG_DEBUG(" Using error of parameters " << fakeError );
           }
 
+          Amg::Vector3D position = positionFirstFake->trackParameters()->position();
           const Trk::MeasurementBase* fake = createFakePhiForMeasurement( *(positionFirstFake->measurementOnTrack()), 
-                                                                          &(positionFirstFake->trackParameters()->position()),
+                                                                          &position,
                                                                           0, fakeError, garbage );
           if( fake ) {
             // need to clone as fake is already added to garbage collection
@@ -2599,8 +2602,10 @@ namespace Muon {
             fakeError = Amg::error( *positionSecondFake->trackParameters()->covariance(),Trk::loc2);
             ATH_MSG_DEBUG(" Using error of parameters " << fakeError );
           }
+
+          Amg::Vector3D position = positionSecondFake->trackParameters()->position();
           const Trk::MeasurementBase* fake = createFakePhiForMeasurement( *(positionSecondFake->measurementOnTrack()), 
-                                                                          &(positionSecondFake->trackParameters()->position()),
+                                                                          &position,
                                                                           0, fakeError, garbage );
           if( fake ) {
             // need to clone as fake is already added to garbage collection

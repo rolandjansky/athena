@@ -43,13 +43,6 @@ flags.Scheduler.ShowDataDeps = True
 flags.Scheduler.ShowDataFlow = True
 flags.Scheduler.ShowControlFlow = True
 
-import importlib
-setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup+"_newJO"
-setupMenuModule = importlib.import_module( setupMenuPath )
-assert setupMenuModule is not None, "Could not import module {}".format(setupMenuPath)
-assert setupMenuModule.setupMenu is not None, "Could not import setupMenu from {}".format(setupMenuPath)
-flags.needFlagsCategory('Trigger')
-setupMenuModule.setupMenu(flags)
 flags.Exec.MaxEvents=50
 flags.Input.isMC = False
 flags.Common.isOnline=True
@@ -86,6 +79,7 @@ acc.merge(ByteStreamReadCfg( flags ))
 
 from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig( flags ))
+
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg

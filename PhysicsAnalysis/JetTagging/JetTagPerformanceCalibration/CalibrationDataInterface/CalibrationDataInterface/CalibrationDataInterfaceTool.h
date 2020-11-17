@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,7 +56,7 @@ namespace Analysis
       verify that the aliasing is appropriate!
 
       DB representation (all residing under a common root folder):
-      .../\<jet author\>/\<tagger\>/\<operating point\>/\<flavour\>/\<object name\>
+      .../<jet author>/<tagger>/<operating point>/<flavour>/<object name>
 
       @author  Frank Filthaut <F.Filthaut@science.ru.nl>
   */  

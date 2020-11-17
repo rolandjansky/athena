@@ -188,6 +188,14 @@ InDetRttPlots::fill(const unsigned int nTrkANT, const unsigned int nTrkSTD, cons
   m_anTrackingPlots.fill(nTrkANT, nTrkSTD, nTrkBAT, mu, nVtx);
 
 }
+
+void
+InDetRttPlots::fill(const unsigned int ntracks, const unsigned int mu, const unsigned int nvertices) {
+
+ m_nTracks.fill(ntracks, mu, nvertices);
+
+  
+}
 //
 //Fill plots for selected truth particle
 //

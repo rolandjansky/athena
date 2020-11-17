@@ -49,7 +49,8 @@ LArHECWheelCalculator::~LArHECWheelCalculator()
   if(m_birksLaw) delete m_birksLaw;
 }
 
-StatusCode LArHECWheelCalculator::initialize()
+// not thread safe due to HECHVManager::getData()
+StatusCode LArHECWheelCalculator::initialize ATLAS_NOT_THREAD_SAFE ()
 {
   ATH_MSG_DEBUG("Use the LArHECWheelCalculator for the HEC");
 
@@ -68,6 +69,7 @@ StatusCode LArHECWheelCalculator::initialize()
       ATH_CHECK(detStore.retrieve() );
       ATH_CHECK(detStore->retrieve(manager));
       m_DetectorManager=manager->getHecManager();
+      m_hvdata = m_DetectorManager->getHVManager().getData();
     }
 
   return StatusCode::SUCCESS;
@@ -113,7 +115,7 @@ G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitDa
     const HECDetectorRegion *hecRegion=m_DetectorManager->getDetectorRegion(zSide<0? 0: 1, sampling, region);
     HECCellConstLink cell=hecRegion->getHECCell(eta, phi);
     const HECHVSubgap& subgap = cell->getSubgap(subgapIndex);
-    hdata[0].energy *= (pow(subgap.voltage()/1800.0,0.6));
+    hdata[0].energy *= (pow(m_hvdata.voltage(subgap)/1800.0,0.6));
   }
 
   return true;

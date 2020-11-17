@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -70,7 +70,7 @@ class CollisionDecisionGetter ( Configured )  :
 
             self._handle = skimmer
 
-        except:
+        except Exception:
             mlog.error ("Error configuring LArCollisionTimeAlg.")
             traceback.print_exc()
 

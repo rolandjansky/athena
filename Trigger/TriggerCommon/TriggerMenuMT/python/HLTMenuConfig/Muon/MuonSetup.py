@@ -489,17 +489,11 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
 
 def muonIDFastTrackingSequence( RoIs, name, extraLoads=None ):
 
-  # ATR-20453
-  # Until such time as FS and RoI collections do not interfere, a hacky fix
-  #from AthenaCommon.CFElements import parOR
-  from AthenaCommon.CFElements import seqAND
+  from AthenaCommon.CFElements import parOR
 
   viewNodeName=name+"FastIDViewNode"
 
-  # ATR-20453
-  # Until such time as FS and RoI collections do not interfere, a hacky fix
-  #muonIDFastTrackingSequence = parOR(viewNodeName)
-  muonIDFastTrackingSequence = seqAND(viewNodeName)
+  muonIDFastTrackingSequence = parOR(viewNodeName)
 
   ### Define input data of Inner Detector algorithms  ###
   ### and Define EventViewNodes to run the algorithms ###
@@ -939,14 +933,9 @@ def muEFInsideOutRecoSequence(RoIs, name):
 
 def efmuisoRecoSequence( RoIs, Muons ):
 
-  # ATR-20453
-  # Until such time as FS and RoI collections do not interfere, a hacky fix
-  from AthenaCommon.CFElements import seqAND,parOR
+  from AthenaCommon.CFElements import parOR
 
-  # ATR-20453
-  # Until such time as FS and RoI collections do not interfere, a hacky fix
-  #efmuisoRecoSequence = parOR("efmuIsoViewNode")
-  efmuisoRecoSequence = seqAND("efmuIsoViewNode")
+  efmuisoRecoSequence = parOR("efmuIsoViewNode")
 
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
   IDTrigConfig = getInDetTrigConfig( 'muonIso' )

@@ -47,7 +47,7 @@ namespace MuonCombined {
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */    
     virtual
       void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks, 
-		   Trk::SegmentCollection* segments ) const override;
+		   Trk::SegmentCollection* segments, const EventContext& ctx ) const override;
 
     virtual
       void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap,
@@ -55,7 +55,7 @@ namespace MuonCombined {
 		   const xAOD::CaloClusterContainer* caloClusterContainer) const override;
 
     virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const override;
+				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const override;
 
 
   private:

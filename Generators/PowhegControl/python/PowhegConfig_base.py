@@ -7,7 +7,6 @@
 #           Daniel Hayden   <danhayden0@googlemail.com>
 #           Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 
-#! /usr/bin/env python
 import glob, os, subprocess, time
 from . import strategies
 from AthenaCommon import Logging
@@ -62,7 +61,7 @@ class PowhegConfig_base(object) :
     self.add_parameter_set( 'base' )
 
     # Initialise values from runArgs
-    if runArgs == None :
+    if runArgs is None :
       self.logger.warning( 'No run arguments found! Using defaults.' )
     else :
       # Read values from runArgs
@@ -299,7 +298,7 @@ class PowhegConfig_base(object) :
     parameter_names, parameter_values = [], []
     for parameter, ( name, desc ) in self.configurable_parameters.items() :
       if isinstance( getattr(self,name), list ) :
-        if not name in [ 'PDF', 'mu_R', 'mu_F' ] : # these are treated separately
+        if name not in [ 'PDF', 'mu_R', 'mu_F' ] : # these are treated separately
           assert( len(weight_names) == len(getattr(self,name)) ), 'Number of parameter variations must be the same as the number of names provided'
           parameter_names.append( parameter )
           parameter_values.append( getattr(self,name) )

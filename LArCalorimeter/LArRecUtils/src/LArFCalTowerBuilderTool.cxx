@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -21,7 +21,7 @@
 #include <cmath>
 
 CaloCell_ID::SUBCALO 
-LArFCalTowerBuilderTool::m_caloIndex = CaloCell_ID::LARFCAL;
+const LArFCalTowerBuilderTool::m_caloIndex = CaloCell_ID::LARFCAL;
 
 LArFCalTowerBuilderTool::LArFCalTowerBuilderTool(const std::string& name,
 						 const std::string& type,

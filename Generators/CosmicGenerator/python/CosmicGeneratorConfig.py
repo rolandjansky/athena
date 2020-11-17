@@ -207,7 +207,7 @@ def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
         kwargs.setdefault('doReweighting', True)           # Whether to use reweighting for cosmic ray generation
         kwargs.setdefault('rvert_max', 300000.)            # - radius in mm for generating primary vertex
 
-    if simFlags.CosmicPtSlice.statusOn and simFlags.CosmicPtSlice() is not 'NONE':
+    if simFlags.CosmicPtSlice.statusOn and simFlags.CosmicPtSlice() != 'NONE':
         print ("Configuring cosmic pT slice: %s" % simFlags.CosmicPtSlice.get_Value())
         theCavern.reconfigureCavernGeometry()
 
@@ -223,7 +223,7 @@ def getInput_GenericCosmicGenerator(name="GenericCosmicGenerator", **kwargs):
 ############## Input: Creating cosmics from scratch ###############
 def getInput_EvgenCosmicGenerator(name="EvgenCosmicGenerator", **kwargs):
     ## Configuring the Athena application for a 'generator' job
-    import AthenaCommon.AtlasUnixGeneratorJob
+    import AthenaCommon.AtlasUnixGeneratorJob  # noqa: F401
 
     from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -234,7 +234,6 @@ def getInput_EvgenCosmicGenerator(name="EvgenCosmicGenerator", **kwargs):
         simFlags.CosmicFilterVolumeName = "CaloEntryLayer"
 
     #fix for bug: 49362
-    import sys
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.EventSelector.EventsPerRun = int(2**31 - 1) #sys.maxint on a 32-bit machine
 

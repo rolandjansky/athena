@@ -29,13 +29,17 @@ public:
 private:
   // ------------------------- Properties --------------------------------------
   SG::WriteHandleKey<xAOD::TrigCompositeContainer> m_l1TriggerResultWHKey {
-    this, "L1TriggerResultWHKey", "L1TriggerResult", "Key of the output L1 Trigger Result"};
+    this, "L1TriggerResultWHKey", "L1TriggerResult",
+    "Key of the output L1 Trigger Result"};
 
   // Muon RoIs
   SG::ReadHandleKey<xAOD::MuonRoIContainer> m_muRoIKey {
-    this, "MuRoIKey", "LVL1MuonRoIs", "Key of the muon RoI container to be linked to L1 Trigger Result"};
+    this, "MuRoIKey", "LVL1MuonRoIs",
+    "Key of the muon RoI container to be linked to L1 Trigger Result"};
+
   Gaudi::Property<std::string> m_muRoILinkName {
-    this, "MuRoILinkName", "mu_roi", "Name of the link to be created from L1 Trigger Result to muon RoI container"};
+    this, "MuRoILinkName", "mu_roi",
+    "Name of the link to be created from L1 Trigger Result to muon RoI container"};
 
   // Placeholder for other L1 xAOD outputs:
   // - CTP result

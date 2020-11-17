@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## \file Herwig7ConfigBuiltinME.py
 ## \brief Configuration class for built-in / "old-style" matrix elements
@@ -19,7 +19,7 @@ class Hw7ConfigBuiltinME(hw7Config.Hw7Config):
   def __init__(self, genSeq, runArgs, run_name="Herwig", beams="pp"):
 
     beams = beams.upper()
-    if not beams in ["EE", "EP" , "PP"]:
+    if beams not in ["EE", "EP" , "PP"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'beams' must be one of the following: ['EE', 'EP' , 'PP']"))
 
     ## provide variables initialized by the parent class

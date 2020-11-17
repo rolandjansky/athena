@@ -20,7 +20,6 @@ class TGCTriggerBWCWReader: public TGCTriggerLUTReader{
   bool loadParameters(TGCTriggerLUTs* writeCdo,
                       const CondAttrListCollection* readKey) override;
  private:
-  TGCTriggerBWCWReader() = default;
   enum {TMap_HH=0, TMap_HL, TMap_LH, TMap_LL, N_TMap};
   int getType(int lDR, int hDR, int lDPhi, int hDPhi) const;
   int subSectorAdd(int ssid, int modid, int phimod2, int type) const;

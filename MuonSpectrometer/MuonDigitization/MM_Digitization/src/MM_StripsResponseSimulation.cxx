@@ -120,8 +120,6 @@ void MM_StripsResponseSimulation::initFunctions()
 	//m_transverseDiffusionFunction = new TF1("transdiff", "gaus", -1., 1.);
   //m_transverseDiffusionFunction->SetParameters(1.,0.,1.);
 
-	m_random = new TRandom3(0);
-
 	ATH_MSG_DEBUG("MM_StripsResponseSimulation::initFunctions DONE");
 
 }
@@ -131,11 +129,13 @@ void MM_StripsResponseSimulation::clearValues()
 }
 
 /*******************************************************************************/
-void MM_StripsResponseSimulation::initialize()
+void MM_StripsResponseSimulation::initialize(unsigned long int seed)
 {
 
 	initHistos ();
 	initFunctions();
+
+	m_random = new TRandom3(seed);
 
 	ATH_MSG_DEBUG("MM_StripsResponseSimulation::initializationFrom set values");
 
@@ -233,23 +233,9 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 			<< pathLengthTraveled
 			);
 
-		for (auto& Electron : IonizationCluster.getElectrons()){
-
-		//	m_longitudinalDiffusionFunction->SetParameters(1.0, 0., initialPosition.Y()*m_longitudinalDiffusionSigma);
-
-		//	if ( m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
-
-		//		m_transverseDiffusionFunction->SetParameters( initialPosition.Y()*m_transverseDiffusionSigma , 0.0);
-
-		//	} else {
-
-		//		m_transverseDiffusionFunction->SetParameters( initialPosition.Y()*m_transverseDiffusionSigma , 1.0);
-
-		//	}
-
-			Electron->setOffsetPosition(getTransversDiffusion(initialPosition.Y()) , getLongitudinalDiffusion(initialPosition.Y()) );
-
-		}
+        for (auto& Electron : IonizationCluster.getElectrons()) {
+            Electron->setOffsetPosition(getTransverseDiffusion(initialPosition.Y()) , getLongitudinalDiffusion(initialPosition.Y()) );
+        }
 
 		IonizationCluster.propagateElectrons( lorentzAngle , m_driftVelocity );
 
@@ -337,28 +323,63 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 } // end of whichStrips()
 
-float MM_StripsResponseSimulation::getTransversDiffusion(float posY){
-  if ( m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
 
-	  m_transverseDiffusionFunction->SetParameter(2, posY*m_transverseDiffusionSigma);
-	  m_transverseDiffusionFunction->SetParameter(5, 0.0);
 
-	} else {
-	  m_transverseDiffusionFunction->SetParameter(2, posY*m_transverseDiffusionSigma);
-    m_transverseDiffusionFunction->SetParameter(5, 1.0);
-	}
-  return m_transverseDiffusionFunction->GetRandom(); 
-  }
+float MM_StripsResponseSimulation::generateTransverseDiffusion(float posY) {
+    // this is a helper function used in getTransverseDiffusion, generating double gaussian distributions
 
-float MM_StripsResponseSimulation::getLongitudinalDiffusion(float posY){
-  m_longitudinalDiffusionFunction->SetParameters(1.0, 0., posY*m_longitudinalDiffusionSigma);
-  return m_longitudinalDiffusionFunction->GetRandom();
+    // avoid division by zero in calculation of scale if ypos is 0
+    // also protect against negative values of ypos which should never happen
+    if (posY <= 0) posY = 0.001;
+
+    // need to scale weigths since initial distributions were not normalized
+    double scale = 0.001/(posY*m_transverseDiffusionSigma);
+
+    double uni = m_random->Uniform(0, 1.0+scale);
+    if (uni < scale) return m_random->Gaus(0.0, 1.0);
+    return m_random->Gaus(0., m_transverseDiffusionSigma * posY);
 }
 
-float  MM_StripsResponseSimulation::getEffectiveCharge(){return m_polyaFunction->GetRandom();}
 
-float MM_StripsResponseSimulation::getPathLengthTraveled(){
-	return  ( 1. / m_interactionDensityFunction->GetRandom() ) * -1. * log( m_random->Uniform() );
+float MM_StripsResponseSimulation::getTransverseDiffusion(float posY) {
+    // the random numbers are generate from the following function:
+    // "1.*TMath::Exp(-TMath::Power(x,2.)/(2.*[0]*[0])) + 0.001*TMath::Exp(-TMath::Power(x,2)/(2.*[1]*[1]))"
+    // in the range from -1 to 1
+    // Since sampling from a TF1 where its parameters are changed for every random number is slow,
+    // the following approach is used to generate random numbers from the mixture of two Gaussian:
+    // https://stats.stackexchange.com/questions/226834/sampling-from-a-mixture-of-two-gamma-distributions/226837#226837
+    // this approach seems to be around 20000 times faster
+
+    // if one of the diffusions is off, the tail is not present
+    if (m_longitudinalDiffusionSigma == 0 || m_transverseDiffusionSigma == 0) {
+        float tmp =  m_random->Gaus(0.0, posY*m_transverseDiffusionSigma);
+        // limit random number to be -1 < x < 1
+        while (std::abs(tmp) > 1.) tmp =  m_random->Gaus(0.0, posY*m_transverseDiffusionSigma);
+        return tmp;
+    }
+    float tmp = generateTransverseDiffusion(posY);
+    while (std::abs(tmp) > 1.) {tmp = generateTransverseDiffusion(posY);}
+
+    return tmp;
+  }
+
+float MM_StripsResponseSimulation::getLongitudinalDiffusion(float posY) {
+  float tmp = m_random->Gaus(0.0, posY*m_longitudinalDiffusionSigma);
+  // We only want random numbers between -5 and 5
+  while (std::abs(tmp) > 5) { tmp = m_random->Gaus(0.0, posY*m_longitudinalDiffusionSigma); }
+  return tmp;
+}
+
+float  MM_StripsResponseSimulation::getEffectiveCharge() {return m_polyaFunction->GetRandom();}
+
+float MM_StripsResponseSimulation::getPathLengthTraveled() {
+    float rndGaus = m_random->Gaus(m_interactionDensityMean, m_interactionDensitySigma);
+
+
+    // gaussian random number should be in the range from 0 to 10
+    while (rndGaus < 0. || rndGaus > 10.) {rndGaus = m_random->Gaus(m_interactionDensityMean, m_interactionDensitySigma);}
+
+    return  ( 1. / rndGaus) * -1. * log( m_random->Uniform() );
 }
 
 

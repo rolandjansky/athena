@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARELECCALIB_ILARADC2MEVTOOL_H
@@ -8,13 +8,14 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <vector> 
 
 // Declaration of the interface ID (interface id, major version, minor version)
 static const InterfaceID IID_ILArADC2MeVTool("ILArADC2MeVTool", 1 , 0);
 
-class ILArADC2MeVTool: virtual public IAlgTool {
+class ATLAS_NOT_THREAD_SAFE ILArADC2MeVTool: virtual public IAlgTool {
   /**
    * AlgoTool to compute ADC2MEV factor from the 3 subfactors ADC2DAC, DAC2UA, UA2MEV
    *
@@ -30,9 +31,9 @@ class ILArADC2MeVTool: virtual public IAlgTool {
 
   virtual ~ILArADC2MeVTool() {};
  
-  virtual const std::vector<float>& ADC2MEV(const HWIdentifier& id, int gain )  const = 0 ;
+  virtual const std::vector<float>& ADC2MEV ATLAS_NOT_THREAD_SAFE (const HWIdentifier& id, int gain )  const = 0 ;
   
-  virtual const std::vector<float>& ADC2MEV(const Identifier& id, int gain )  const = 0 ;
+  virtual const std::vector<float>& ADC2MEV ATLAS_NOT_THREAD_SAFE (const Identifier& id, int gain )  const = 0 ;
   
   enum {ERRORCODE = -999};
 

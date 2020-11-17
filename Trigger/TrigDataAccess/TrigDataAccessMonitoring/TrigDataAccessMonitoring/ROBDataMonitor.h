@@ -27,10 +27,11 @@ namespace robmonitor {
     UNCLASSIFIED      = 0,  // ROB was requested but never arrived at processor. History unknown. 
     SCHEDULED         = 1,  // ROB was scheduled before retrieveing
     RETRIEVED         = 2,  // ROB was retrieved from ROS by DataCollector
-    CACHED            = 4,  // ROB was found already in the internal cache of the ROBDataProviderSvc
-    IGNORED           = 8,  // ROB was on the "ignore" list and therefore not retrieved 
-    DISABLED          = 16,  // ROB was disabled in OKS and therefore not retrieved
-    NUM_ROBHIST_CODES = 6   // number of different history codes
+    HLT_CACHED        = 4,  // ROB was found already in the internal cache of the ROBDataProviderSvc
+    DCM_CACHED        = 8,  // ROB was found already in the internal cache of the DCM
+    IGNORED           = 16,  // ROB was on the "ignore" list and therefore not retrieved 
+    DISABLED          = 32,  // ROB was disabled in OKS and therefore not retrieved
+    NUM_ROBHIST_CODES = 7   // number of different history codes
   };
 
   /**
@@ -47,6 +48,14 @@ namespace robmonitor {
      */                                   
     ROBDataStruct(const uint32_t);
 
+    ROBDataStruct(const ROBDataStruct&) = default;
+
+    ROBDataStruct(ROBDataStruct&&) noexcept = default;
+
+    ROBDataStruct& operator=(const ROBDataStruct&) = default;
+
+    ROBDataStruct& operator=(ROBDataStruct&&) noexcept = default;
+
     // data variables
     uint32_t rob_id;                           // rob source id
     uint32_t rob_size;                         // size of rob in words
@@ -57,8 +66,10 @@ namespace robmonitor {
     // Accessor functions
     /** @brief ROB is unclassified */
     bool isUnclassified() const;
-    /** @brief ROB was found in cache */
-    bool isCached() const;
+    /** @brief ROB was found in ROBDataProviderSvc cache */
+    bool isHLTCached() const;
+    /** @brief ROB was found in DCM cache */
+    bool isDCMCached() const;
     /** @brief ROB was retrieved over network */
     bool isRetrieved() const;
     /** @brief ROB was ignored */
@@ -109,8 +120,10 @@ namespace robmonitor {
     unsigned allROBs() const;
     /** @brief number of unclassified ROBs in structure */
     unsigned unclassifiedROBs() const;
-    /** @brief number of cached ROBs in structure */
-    unsigned cachedROBs() const;
+    /** @brief number of ROBDataProviderSvc cached ROBs in structure */
+    unsigned HLTcachedROBs() const;
+    /** @brief number of DCM cached ROBs in structure */
+    unsigned DCMcachedROBs() const;
     /** @brief number of retrieved ROBs in structure */
     unsigned retrievedROBs() const;
     /** @brief number of ignored ROBs in structure */
@@ -140,9 +153,11 @@ namespace robmonitor {
       os << "UNCLASSIFIED";
     } else if (rhs.rob_history == robmonitor::RETRIEVED) {
       os << "RETRIEVED";
-    } else if (rhs.rob_history == robmonitor::CACHED) {
-      os << "CACHED";
-    } else if (rhs.rob_history == robmonitor::IGNORED) {
+    } else if (rhs.rob_history == robmonitor::HLT_CACHED) {
+      os << "HLT_CACHED";
+    } else if (rhs.rob_history == robmonitor::DCM_CACHED) {
+      os << "DCM_CACHED";
+    }else if (rhs.rob_history == robmonitor::IGNORED) {
       os << "IGNORED";
     } else if (rhs.rob_history == robmonitor::DISABLED) {
       os << "DISABLED";
@@ -185,7 +200,8 @@ namespace robmonitor {
     os << "\n" << prefix << "Requested ROBs:";
     os << "\n" << prefix << prefix2 << "All          " << rhs.allROBs()          ;
     os << "\n" << prefix << prefix2 << "Unclassified " << rhs.unclassifiedROBs() ;
-    os << "\n" << prefix << prefix2 << "Cached       " << rhs.cachedROBs()       ;
+    os << "\n" << prefix << prefix2 << "HLT Cached   " << rhs.HLTcachedROBs()    ;
+    os << "\n" << prefix << prefix2 << "DCM Cached   " << rhs.DCMcachedROBs()    ;
     os << "\n" << prefix << prefix2 << "Retrieved    " << rhs.retrievedROBs()    ;
     os << "\n" << prefix << prefix2 << "Ignored      " << rhs.ignoredROBs()      ;
     os << "\n" << prefix << prefix2 << "Disabled     " << rhs.disabledROBs()     ;

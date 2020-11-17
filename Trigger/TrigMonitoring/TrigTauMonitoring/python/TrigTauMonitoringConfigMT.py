@@ -196,6 +196,30 @@ class TrigTauMonAlgBuilder:
         self.bookRNNCluster( monAlg, trigger, online=False )
         self.bookbasicVars( monAlg, trigger, online=True )
         self.bookbasicVars( monAlg, trigger, online=False )
+        self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
+        self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+
+  #
+  # Booking HLT efficiencies
+  #
+
+  def bookHLTEffHistograms( self, monAlg, trigger, nProng ):
+
+    monGroupName = trigger+'_HLT_Efficiency_'+nProng
+    monGroupPath = 'HLT_Efficiency/'+trigger+'/HLT_Efficiency_'+ nProng
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName, 
+                              self.basePath+'/'+monGroupPath )
+
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_HLTpass,'+monGroupName+'_'+xvariable+';EffHLT_'+xvariable+'_wrt_Offline',
+                                title='HLT Efficiency ' +trigger+' '+nProng+';'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
+    defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
+    defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2) 
 
   #
   # Book RNN Variables

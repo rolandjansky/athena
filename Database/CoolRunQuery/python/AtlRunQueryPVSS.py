@@ -10,9 +10,6 @@
 # Created: Mar 27, 2010
 # ----------------------------------------------------------------
 
-import cx_Oracle
-from time import time
-
 def GetPVSS_BPMs( cursor, iovmin, iovmax ):
 
     # fetch the event history first

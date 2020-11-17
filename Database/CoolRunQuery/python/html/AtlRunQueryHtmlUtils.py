@@ -20,7 +20,8 @@ def WrapIntoHTML(content, title="Run query result", extracss=None):
 def OpenWindow(content, title="Run query result", extracss=None, size="normal"):
     wrap = WrapIntoHTML(content, title, extracss)
     openWindowCmd = 'openWindow'
-    if size=='large': openWindowCmd = 'openLargeWindow'
+    if size=='large':
+        openWindowCmd = 'openLargeWindow'
     return "<a href=\"javascript:%s('Print', '%s')\">" % ( openWindowCmd, wrap.replace('"','&quot') )
 
 
@@ -29,10 +30,10 @@ def CreatePopupHtmlPage(name,wincontent):
     outfn = '%s/%s' % (Run.Datapath, filename) 
     fh = open(outfn,"w")
     if type(wincontent)==list:
-        for l in wincontent:
-            print >> fh, l
+        for line in wincontent:
+            print (line, file = fh)
     else:
-        print >> fh, wincontent
+        print (wincontent, file = fh)
     fh.close()
     return outfn
 
@@ -60,7 +61,8 @@ def CreateLBTable(run):
 
 
 def CreateLBTooltip(run):
-    if len(run.lbtimes)==0: return
+    if len(run.lbtimes)==0:
+        return
     
     content = '<strong><b>LB start times (%s) and durations for run %i:</b></strong><br>Begin/end of run: %s' % (QC.tzdesc(), run.runNr, run.timestr('html', run.runNr != Run.runnropen))
     content += '<hr style="width:100%; background-color: #BBBBBB; height:1px; margin-left:0; border:0"/>'
@@ -83,14 +85,16 @@ def CreateLBTooltip(run):
 
 
 def CreateDQTooltip(run):
-    if not 'DQ' in Run.ShowOrder: return
+    if 'DQ' not in Run.ShowOrder:
+        return
 
     def_with_primaries = run.stats['DQ']["primaries"]
     condensed = True
     if not condensed:
         for x in sorted(def_with_primaries.keys()):
             l_ready = [y for y in def_with_primaries[x] if run.data.isReady( (y.since,y.until) )]
-            if len(l_ready)==0: continue
+            if len(l_ready)==0:
+                continue
             content  = '<strong><b>%s: comments for run %i:</b></strong><br><span style="font-size: 80%%">ATLAS READY in LBs %s</span>' % (x,run.runNr,', '.join(["%i&minus;%i" % (r.startlb, r.endlb-1) for r in run.data.isReady()]))
             content += '<hr width="100%%">'
             content += '<table style="width: auto; white-space: nowrap; border: 0px solid; margin: 0 0 0 0; border-spacing: 0px; border-collapse: separate; padding: 0px;">'
@@ -116,7 +120,8 @@ def CreateDQTooltip(run):
             content += '<table style="width: auto; white-space: nowrap; border: 0px solid; margin: 0 0 0 0; border-spacing: 0px; border-collapse: separate; padding: 0px;">'
             for pdef in sorted(gr[x]):
                 l_ready = [y for y in gr[x][pdef] if run.data.isReady( y )]
-                if len(l_ready)==0: continue
+                if len(l_ready)==0:
+                    continue
                 s = ", ".join(["%i&minus;%i" % y if y[1]-y[0]!=1 else "%i" % (y[0]) for y in l_ready])
                 content += '<tr><td colspan="2" style="color:blue; padding-right: 5px; max-width: 130;">LB %s</td></tr>' % s # the LB info
                 content += '<tr><td style="font-weight:bold; padding-right: 5px;">%s</td><td><i>%s</i></td></tr>' % (pdef[0].split("->")[-1], pdef[1])  # the primary and the comment
@@ -134,7 +139,8 @@ def CreateStreamOverlapTooltip(run,k):
             nacc+=1
             tdstr = '<td class="tdov%i">' % (nacc%2+1)
             fs = "%.2g" % fraction
-            if fraction==100: fs = "100"
+            if fraction==100:
+                fs = "100"
             ovstr += '<tr>%s%s</td>%s&nbsp;=&nbsp;</td>%s%s%%</td></tr>' % (tdstr, stream, tdstr, tdstr, fs)
             strpairs = [('STR:physics_MuonswBeam',   'physics_L1Calo'),
                         ('STR:physics_MinBias', 'physics_L1Calo'),
@@ -166,17 +172,21 @@ def CreateStreamOverlapTooltip(run,k):
     prodsteps = ['StrTier0TypesRAW', 'StrTier0TypesESD' ]
     allt0text = ''
     for p in prodsteps:
-        if run.stats[k.ResultKey].has_key(p):
+        if p in run.stats[k.ResultKey]:
             typelist = run.stats[k.ResultKey][p].keys()
-            if not typelist: continue
+            if not typelist:
+                continue
 
             typelist.sort()
             t0text = ''
             for i, t0out in enumerate(typelist):
-                if not 'TMP' in t0out: # don't show temporary output
-                    if i%4==0 and i>0: t0text += '<br>'                            
-                    if t0out == 'NTUP': t0outtxt = 'NTUP_... <font size="-2">(types as above)</font>' # stands for all NTUP types in merge step
-                    else:               t0outtxt = t0out
+                if 'TMP' not in t0out: # don't show temporary output
+                    if i%4==0 and i>0:
+                        t0text += '<br>'                            
+                    if t0out == 'NTUP':
+                        t0outtxt = 'NTUP_... <font size="-2">(types as above)</font>' # stands for all NTUP types in merge step
+                    else:
+                        t0outtxt = t0out
                     if run.stats[k.ResultKey][p][t0out]: # output on CAF
                         t0text += '<font color="#BB0000">%s</font>, ' % t0outtxt
                     else:
@@ -186,8 +196,8 @@ def CreateStreamOverlapTooltip(run,k):
                 allt0text += '<strong><b><i>'
                 if 'RAW' in p:
                     allt0text += 'Produced&nbsp;by&nbsp;reconstruction&nbsp;step'
-                    if run.stats[k.ResultKey].has_key('StrTier0AMI') and run.stats[k.ResultKey]['StrTier0AMI']:
-                        if run.stats[k.ResultKey]['StrTier0AMI'].has_key(p):
+                    if 'StrTier0AMI' in run.stats[k.ResultKey] and run.stats[k.ResultKey]['StrTier0AMI']:
+                        if p in run.stats[k.ResultKey]['StrTier0AMI']:
                             allt0text += '&nbsp;(AMI&nbsp;tag:&nbsp;%s)' % run.stats[k.ResultKey]['StrTier0AMI'][p]
                         else:
                             allt0text += '&nbsp;(AMI&nbsp;tag:&nbsp;%s)' % 'UNKNOWN'
@@ -197,7 +207,8 @@ def CreateStreamOverlapTooltip(run,k):
                 allt0text += ':</i></b></strong>'
 
                 allt0text += '<table class="overlaptable"><tr><td style="padding-left:10px">' + t0text[:len(t0text)-2] + '</td></tr></table>'
-                if p != prodsteps[-1]: allt0text += ''
+                if p != prodsteps[-1]:
+                    allt0text += ''
 
     if allt0text != '':
         boxcontent += '<tr><td>'
@@ -214,9 +225,12 @@ def CreateStreamOverlapTooltip(run,k):
         lbrecinfo = '<tr><td style="font-size:75%"><i>No LB information in SFO DB. <br> Probably because files for this stream <br>were not closed at LB boundaries by SFO.</i></td></tr>'
     else:
         ev = dict(lbrecinfo)
-        for lb in ev: ev[lb]=0
-        for lb,nev in lbrecinfo: ev[lb] += nev
-        lbs = ev.keys(); lbs.sort()
+        for lb in ev:
+            ev[lb]=0
+        for lb,nev in lbrecinfo:
+            ev[lb] += nev
+        lbs = ev.keys()
+        lbs.sort()
         output = '<tr>'
         idx = 0
         while idx <len(lbs):
@@ -224,7 +238,8 @@ def CreateStreamOverlapTooltip(run,k):
             if len(lbs)>50 and idx==23:
                 output += '</tr><tr><td style="font-size:75%; text-align:left" colspan="8">&nbsp;... <i>too many LBs ... show begin and end of run only...</i></td></tr>'
                 idx = len(lbs) - 23
-            elif (idx+1)%8==0: output += '</tr><tr>' # newline every 10
+            elif (idx+1)%8==0:
+                output += '</tr><tr>' # newline every 10
             idx += 1
         output += '</tr>'
         lbrecinfo = output
@@ -235,7 +250,7 @@ def CreateStreamOverlapTooltip(run,k):
     boxcontent += '</td></tr><tr><td>'
     boxcontent += '<table class="eventsperlbstreamtable" style="color:#222222">%s</table>' % lbrecinfo
     boxcontent += '</td></tr></table>'
-    if not 'No LB information' in lbrecinfo:
+    if 'No LB information' not in lbrecinfo:
         boxcontent += '<font color="#AA0000"><strong><b>Click to obtain the full LB list and plots in independent window!</b></strong></font>'
 
     run.addToolTip("STROV_%i_%s" % (run.runNr, k.ResultKey[4:]), boxcontent)
@@ -254,7 +269,7 @@ def createRatePopupWindow(v,run):
     averrate = []
     for tr in v:
         averrate.append((tr, sum([int(co[3]) for co in v[tr]])/duration))
-    averrate.sort(lambda x,y: cmp(y[1],x[1]))
+    averrate.sort(lambda x,y: y[1]-x[1])
 
     paths = []
     wincmds = []
@@ -323,24 +338,37 @@ def createRateWinContent(loopcntr, v, lbduration, triggers_in_range, run, path):
         linecontent = '<td>%i</td><td>%s</td><td class="dt">%3.1f</td>' % (lb,time.strftime("%X",timetuple),dt)
         for tr in triggers:
             _lb,bp,ap,av = v[tr][lb-1]
-            try: avr=float(av)/dt
-            except: avr=0
-            try: bpr=float(bp)/dt
-            except: bpr=0
-            try: apr=float(ap)/dt
-            except: apr=0
+            try:
+                avr=float(av)/dt
+            except ValueError:
+                avr=0
+            try:
+                bpr=float(bp)/dt
+            except ValueError:
+                bpr=0
+            try:
+                apr=float(ap)/dt
+            except ValueError:
+                apr=0
             deadtime=0
             bg = ""
             if apr>0:
                 deadtime = ( apr - avr ) / apr
-                if deadtime>0.90:   bg=' style="background-color: #ff0000;"'
-                elif deadtime>0.30: bg=' style="background-color: #ff3333;"'
-                elif deadtime>0.10: bg=' style="background-color: #ff6666;"'
-                elif deadtime>0.05: bg=' style="background-color: #ff9999;"'
-                elif deadtime>0.01: bg=' style="background-color: #ffcccc;"'
+                if deadtime>0.90:
+                    bg=' style="background-color: #ff0000;"'
+                elif deadtime>0.30:
+                    bg=' style="background-color: #ff3333;"'
+                elif deadtime>0.10:
+                    bg=' style="background-color: #ff6666;"'
+                elif deadtime>0.05:
+                    bg=' style="background-color: #ff9999;"'
+                elif deadtime>0.01:
+                    bg=' style="background-color: #ffcccc;"'
             linecontent += '<td>%3.1f</td><td>%3.1f</td><td%s class="dt">(%2.1f%%)</td>' % (bpr,avr,bg,100*deadtime)
-        if lb%2!=0: col = '#eeeeee'
-        else:       col = '#ffffff'
+        if lb%2!=0:
+            col = '#eeeeee'
+        else:
+            col = '#ffffff'
         wincontent += ['            <tr style="background:%s">%s</tr>' % (col,linecontent)]
 
     if run.runNr == Run.runnropen: # run still ongoing
@@ -375,17 +403,21 @@ def makeSummaryPlotForLHC(run):
     # stable beams
     hasStableBeamsInfo, xvecStb = run.getStableBeamsVector()
     for ik,k in enumerate( [ 'olc:beam1intensity', 'olc:beam2intensity', 'lhc:beamenergy' ] ):
-        if not k in Run.ShowOrder: continue
+        if k not in Run.ShowOrder:
+            continue
         for entry in run.data[k]:
-            if entry.startlb == 0: continue
+            if entry.startlb == 0:
+                continue
 
             val = float(entry.value) if (entry.value!='n.a.' and entry.value>0) else 0
 
             if ik==0 or ik==1:
-                if val > 1e30: val = 0
+                if val > 1e30:
+                    val = 0
                 val *= 1.0 # beam intensities in 10^11 protons
             elif ik==2:
-                if val >= 7864: val = -1
+                if val >= 7864:
+                    val = -1
 
             lastlb = min(entry.lastlb,run.lastlb)
 
@@ -394,9 +426,10 @@ def makeSummaryPlotForLHC(run):
 
             yvec[ik] += (lastlb-entry.startlb+1) * [val]
 
-            for ilb in xrange(entry.startlb,lastlb+1):
+            for ilb in range(entry.startlb,lastlb+1):
                 if val > ymax[ik]:
-                    if not hasStableBeamsInfo or ilb in xvecStb: ymax[ik] = val # find max                
+                    if not hasStableBeamsInfo or ilb in xvecStb:
+                        ymax[ik] = val # find max                
 
     histoText = ''
     path = makeLBPlotSummaryForLHC( xvec, xvecStb, yvec, run.runNr, Run.Datapath, histoText )
@@ -425,8 +458,10 @@ def makeSummaryPageForLHC(run, yvec, path):
         beam2intensity = yvec[1][idx] if idx<nbeam2intensity else 0
         beamenergy     = yvec[2][idx] if idx<nbeamenergy else 0
         wincontent += '<td>%i</td><td>%s</td><td>%.2f</td><td>%i</td><td>%.4g</td><td>%.4g</td>' % (lb, time.strftime("%X",timetuple), (float(lbendtime)-float(lbtime))/1.E9, beamenergy, beam1intensity, beam2intensity)
-        if idx%2!=0: col = '#eeeeee'
-        else:        col = '#ffffff'
+        if idx%2!=0:
+            col = '#eeeeee'
+        else:
+            col = '#ffffff'
         wincontent += '</tr><tr style=&quot;background:%s&quot;>' % col
     if run.runNr == Run.runnropen: # run still ongoing
         wincontent += '<tr><td style=&quot;text-align:left&quot;colspan=&quot;4&quot;><i>&nbsp;&nbsp;Run still ongoing ...</i></td></tr>'

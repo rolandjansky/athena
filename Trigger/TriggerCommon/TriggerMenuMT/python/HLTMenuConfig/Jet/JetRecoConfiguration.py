@@ -8,8 +8,9 @@
 # jet reco code.
 
 from JetRecConfig.JetDefinition import JetConstitSeq,JetConstitSource, xAODType, JetDefinition
-from . import TriggerJetMods # this is to define the ConstitFourMom_copy JetModifierC
-TriggerJetMods.ConstitFourMom_copy
+# this is to define trigger specific JetModifiers (ex: ConstitFourMom_copy) : 
+from .TriggerJetMods import jetmoddict  # noqa: F401
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration")
 
@@ -180,7 +181,6 @@ def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
 ##########################################################################################
 # Generation of modifier lists. So far only calib, but can add track, substructure mods
 
-from JetRecConfig.StandardJetMods import jetmoddict
 
 # Make generating the list a bit more comprehensible
 def getModSpec(modname,modspec=''):

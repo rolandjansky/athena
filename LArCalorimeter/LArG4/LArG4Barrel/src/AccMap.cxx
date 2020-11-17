@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AccMap.h"
@@ -12,12 +12,12 @@
 AccMap* AccMap::s_thePointer=nullptr;
 
 AccMap::AccMap()
+  : m_directory ("/afs/cern.ch/atlas/offline/data/lar/calo_data"),
+    m_nmax (14)
 {
   int i1[10]={0,0,3,2,9,12,10,9,0,2};      // first fold
   int i2[10]={2,1,12,12,13,13,13,13,1,4};  // last fold for 10 electronic regions
-  m_directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
 
-  m_nmax=14;
   m_xmin.resize(m_nmax);
   m_xmax.resize(m_nmax);
   m_ymin.resize(m_nmax);
@@ -43,7 +43,6 @@ AccMap::AccMap()
       //fileLocation=larLocation+"/calo_data/"+filename;
       fileLocation=larLocation+"/"+filename;
 #endif
-      //       std::cout << " try to open map " << fileLocation << std::endl;
       CurrMap* cm = new CurrMap(fileLocation,xnorm);
       int code=10*ifold+iregion;
       m_theMap[code]=cm;
@@ -66,7 +65,6 @@ AccMap::AccMap()
       //fileLocation=larLocation+"/calo_data/"+filename;
       fileLocation=larLocation+"/"+filename;
 #endif
-      //       std::cout << " try to open map " << fileLocation << std::endl;
       CurrMap* cm = new CurrMap(fileLocation,xnorm);
       int code=10*(20+istr)+iregion;
       m_theMap[code]=cm;
@@ -98,7 +96,6 @@ CurrMap* AccMap::GetMap(int ifold, int region, int sampling, int eta) const
 CurrMap* AccMap::GetMap(int ifold, int ielecregion) const
 {
   const int code=10*ifold+ielecregion;
-  // std::cout << " code is " << code << std::endl;
   const auto mapIter = m_theMap.find(code);
   if (mapIter != m_theMap.end())
     return mapIter->second;
@@ -135,7 +132,7 @@ int AccMap::Region(int region, int sampling, int eta) const
   return elecregion;
 }
 
-void AccMap::SetDirectory(std::string dir)
+void AccMap::SetDirectory(const std::string& dir)
 {
   m_directory=dir;
 }

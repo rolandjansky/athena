@@ -1621,7 +1621,7 @@ namespace Trk {
       }
     }
 
-    std::unique_ptr<GXFTrackState> firstpseudostate;
+    GXFTrackState * firstpseudostate = nullptr;
     std::vector<GXFTrackState *> outlierstates;
     std::vector<GXFTrackState *> outlierstates2;
     
@@ -1677,15 +1677,16 @@ namespace Trk {
           par2->associatedSurface()
         );
         
-        firstpseudostate = std::make_unique<GXFTrackState>(std::move(newpseudo), std::move(par2));
-        firstpseudostate->setMeasurementType(TrackState::Pseudo);
+        std::unique_ptr<GXFTrackState> firstpseudo = std::make_unique<GXFTrackState>(std::move(newpseudo), std::move(par2));
+        firstpseudo->setMeasurementType(TrackState::Pseudo);
         
         double errors[5];
         errors[0] = errors[2] = errors[3] = errors[4] = -1;
         errors[1] = 10;
         
-        firstpseudostate->setMeasurementErrors(errors);
-        trajectory.addMeasurementState(std::move(firstpseudostate));
+        firstpseudo->setMeasurementErrors(errors);
+        firstpseudostate = firstpseudo.get();
+        trajectory.addMeasurementState(std::move(firstpseudo));
         ATH_MSG_DEBUG("Adding PseudoMeasurement");
         continue;
       }

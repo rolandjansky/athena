@@ -42,7 +42,7 @@ namespace Trk {
  @author Andreas.Salzburger@cern.ch
  */
 
-class CylinderBounds : public SurfaceBounds
+class CylinderBounds final: public SurfaceBounds
 {
 public:
   /** BoundValues for readablility */

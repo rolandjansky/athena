@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file EventCommonD3PDMaker/python/LBMetadataConfig.py
 # @author scott snyder <snyder@bnl.gov>
@@ -8,17 +7,13 @@
 # @brief Return a configured LBMetadataTool.
 #
 
-
-import D3PDMakerCoreComps
 import EventCommonD3PDMaker
-from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
-
 
 def LBMetadataConfig ():
     # Configure LumiBlockMetaDataTool, if it hasn't been done already.
     from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
     mdtools = [t.getType() for t in ServiceMgr.MetaDataSvc.MetaDataTools]
-    if not 'LumiBlockMetaDataTool' in mdtools:
+    if 'LumiBlockMetaDataTool' not in mdtools:
         # add LumiBlockMetaDataTool to ToolSvc and configure
         from LumiBlockComps.LumiBlockCompsConf import LumiBlockMetaDataTool
         ToolSvc += LumiBlockMetaDataTool( "LumiBlockMetaDataTool" )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # python fragment to enable HV database access
 from IOVDbSvc.CondDB import conddb
@@ -12,7 +12,6 @@ if not conddb.isMC and not conddb.isOnline:
        conddb.addFolder("LAR_OFL","/LAR/HVPathologiesOfl/Rvalues",className="AthenaAttributeList")
 
     from AthenaCommon.AlgSequence import AthSequencer
-    from Gaudi.Configuration import DEBUG
     condseq = AthSequencer("AthCondSeq")
 
     from LArRecUtils.LArRecUtilsConf import LArHVIdMappingAlg

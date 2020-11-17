@@ -41,6 +41,7 @@ def getCopyTruthLabelParticles(truthtype):
         truthcategory = "Partons"
     elif truthtype in ["WBosons", "ZBosons", "HBosons", "TQuarksFinal"]:
         truthcategory = "BosonTop"
+        toolProperties['ParticleType'] = truthtype
     else:
         truthcategory = "FlavourLabel"
         toolProperties['ParticleType'] = truthtype
@@ -89,8 +90,13 @@ def getJetConeLabeling():
         )
     return truthpartonlabel
 
-  # Cone matching for B, C and tau truth for all but track jets.
-def getJetDeltaRLabelTool(modspec):
+def getJetDeltaRLabelTool(jetdef, modspec):
+    """returns a ParticleJetDeltaRLabelTool 
+    Cone matching for B, C and tau truth for all but track jets.
+
+    This function is meant to be used as callback from JetRecConfig where 
+    it is called as func(jetdef, modspec). Hence the jetdef argument even if not used in this case.
+    """
     jetptmin = float(modspec)
     jetdrlabeler = CompFactory.ParticleJetDeltaRLabelTool(
         "jetdrlabeler_jetpt{0}GeV".format(int(jetptmin/1000)),

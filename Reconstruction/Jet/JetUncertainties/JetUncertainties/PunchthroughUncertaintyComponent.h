@@ -17,7 +17,6 @@ class PunchthroughUncertaintyComponent : public UncertaintyComponent
         PunchthroughUncertaintyComponent(const ComponentHelper& component);
         PunchthroughUncertaintyComponent(const PunchthroughUncertaintyComponent& toCopy);
         virtual PunchthroughUncertaintyComponent* clone() const;
-        PunchthroughUncertaintyComponent & operator=(const PunchthroughUncertaintyComponent &) = delete;
         virtual ~PunchthroughUncertaintyComponent() {}
 
     protected:

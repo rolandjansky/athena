@@ -132,7 +132,7 @@ class useDynamicAlignFolders(JobProperty):
     """ Use to turn on dynamic alignment constants folder scheme (first deployed in 2016) """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 
 
@@ -154,6 +154,11 @@ class InDetGeometryFlags_JobProperties(JobPropertyContainer):
         self.IBLLayout.set_Value_and_Lock(InDetGeoFlags.getValue("IBLlayout"))
         self.GeoVersionName.set_Value_and_Lock(InDetGeoFlags.getValue("VersionName"))
         self.GeoLayout.set_Value_and_Lock(InDetGeoFlags.getValue("Layout"))
+
+    def setupDynamicAlignFolders(self):
+        from AthenaCommon.GlobalFlags import globalflags
+        if globalflags.DataSource.get_Value() != 'data':
+            self.useDynamicAlignFolders.set_Value_and_Lock(False)
 
 
     def reset(self,geoTagName="none"):
@@ -190,7 +195,7 @@ jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(useDynamicAlignFo
 
 InDetGeometryFlags = jobproperties.InDetGeometryFlags_JobProperties
 InDetGeometryFlags.setupValuesFromDB()
-
+InDetGeometryFlags.setupDynamicAlignFolders()
 
 
 

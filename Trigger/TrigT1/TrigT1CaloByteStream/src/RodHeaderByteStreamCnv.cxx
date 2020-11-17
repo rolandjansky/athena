@@ -32,8 +32,7 @@
 namespace LVL1BS {
 
 RodHeaderByteStreamCnv::RodHeaderByteStreamCnv( ISvcLocator* svcloc )
-    : Converter( storageType(), classID(), svcloc ),
-      m_name("RodHeaderByteStreamCnv"),
+    : AthConstConverter( storageType(), classID(), svcloc, "RodHeaderByteStreamCnv" ),
       m_tool("LVL1BS::RodHeaderByteStreamTool/RodHeaderByteStreamTool")
 {
 }
@@ -67,13 +66,13 @@ StatusCode RodHeaderByteStreamCnv::initialize()
 
 // createObj should create the RDO from bytestream.
 
-StatusCode RodHeaderByteStreamCnv::createObj( IOpaqueAddress* pAddr,
-                                        DataObject*& pObj )
+StatusCode RodHeaderByteStreamCnv::createObjConst( IOpaqueAddress* pAddr,
+                                                   DataObject*& pObj ) const
 {
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    REPORT_ERROR (StatusCode::FAILURE) << " Can not cast to ByteStreamAddress ";
+    ATH_MSG_ERROR( " Can not cast to ByteStreamAddress " );
     return StatusCode::FAILURE;
   }
 

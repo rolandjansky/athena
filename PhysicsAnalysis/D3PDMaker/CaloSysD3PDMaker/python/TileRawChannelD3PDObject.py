@@ -11,8 +11,8 @@ TileRawChannelSGKey='TileRawChannelFlt'
 def makeTileRawChannelD3PDObject (name, prefix, object_name='TileRawChannelD3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = TileRawChannelSGKey
-    if label == None: label = prefix
+    if sgkey is None: sgkey = TileRawChannelSGKey
+    if label is None: label = prefix
 
     if not getter:
         getter = CaloSysD3PDMaker.SGTileRawChannelGetterTool \

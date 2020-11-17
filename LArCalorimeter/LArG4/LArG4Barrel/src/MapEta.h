@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_MapEta_H
@@ -23,7 +23,7 @@ private:
 public:
    ~MapEta();
    MapEta(int isampling);
-   void SetDirectory(std::string dir);
+   void SetDirectory(const std::string& dir);
    void Initialize(int isampling);
    int Nx() const {return m_nx;}
    int Ny() const {return m_ny;}

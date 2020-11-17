@@ -69,7 +69,6 @@ excludeTracePattern.append("*/D3PDMakerCoreComps/MakerAlg.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/D3PDObject.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
 excludeTracePattern.append("*/DQDefects/virtual*")
-excludeTracePattern.append("*/PanTauAnalysis/Class_FeatureHandler.py")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 excludeTracePattern.append("*AthFile/impl.py")
@@ -570,6 +569,7 @@ if rec.doTrigger:
 
 #MT part
 ## Outputs
+from TriggerJobOpts.TriggerFlags import TriggerFlags
 if TriggerFlags.doMT() and rec.readESD() and rec.doAOD():
     # Don't run any trigger - only pass the HLT contents from ESD to AOD
     # Add HLT output

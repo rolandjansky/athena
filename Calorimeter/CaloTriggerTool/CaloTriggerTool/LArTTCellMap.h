@@ -8,12 +8,12 @@
 #include "Identifier/Identifier.h" 
 #include "CaloTriggerTool/LArTTCell.h" 
 #include "CaloTriggerTool/LArTTCell_P.h" 
-#include "CaloIdentifier/LArID_Exception.h" 
+#include "CaloIdentifier/LArID_Exception.h"
+#include "AthenaBaseComps/AthMessaging.h"
 
 #include <vector>
 #include <map>
 
-class MsgStream ; 
 
 /**
    @brief This is a StoreGate object holding the offline TT-cell map
@@ -25,6 +25,7 @@ class MsgStream ;
  */
 
 class LArTTCellMap
+  : public AthMessaging
 {
 public:
 
@@ -70,8 +71,6 @@ private:
   //  std::map<HWIdentifier,Identifier>  m_on2offIdMap;
 
   LArTTCell_P m_persData; 
-
-  MsgStream* m_msg ; 
 };
 
 #include "AthenaKernel/CLASS_DEF.h"

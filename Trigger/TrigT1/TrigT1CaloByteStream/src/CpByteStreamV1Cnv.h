@@ -7,8 +7,8 @@
 
 #include <string>
 
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -30,26 +30,22 @@ class CpByteStreamV1Tool;
  *  @author Peter Faulkner
  */
 
-class CpByteStreamV1Cnv: public Converter {
+class CpByteStreamV1Cnv: public AthConstConverter {
 public:
   CpByteStreamV1Cnv(ISvcLocator* svcloc);
 
-  ~CpByteStreamV1Cnv();
+  virtual ~CpByteStreamV1Cnv();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Create ByteStream from Cp Container
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
+  virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
 
   //  Storage type and class ID
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override  { return i_repSvcType(); }
   static  long storageType();
   static const CLID& classID();
 
 private:
-
-  /// Converter name
-  std::string m_name;
-
   /// Tool that does the actual work
   ToolHandle<LVL1BS::CpByteStreamV1Tool> m_tool;
 };

@@ -40,36 +40,8 @@ unsigned int FCALHVLine::getLineIndex() const
   return m_c->iLine;
 }
 
-bool FCALHVLine::hvOn() const
-{
-  FCALHVPayload *payload = m_c->module->getManager().getPayload(*this);
-  return (payload->voltage>=-9999);
-}
-
-double FCALHVLine::voltage() const {
-  FCALHVPayload *payload = m_c->module->getManager().getPayload(*this);
-  return payload->voltage;
-}
-
-double FCALHVLine::current() const {
-  FCALHVPayload *payload = m_c->module->getManager().getPayload(*this);
-  return payload->current;
-}
-
-void FCALHVLine::voltage_current(double& voltage, double&current) const {
- FCALHVPayload *payload = m_c->module->getManager().getPayload(*this);
- voltage = payload->voltage;
- current = payload->current;
-}
-
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 int FCALHVLine::hvLineNo(const LArHVIdMapping* hvIdMapping) const {
-  return hvIdMapping
-    ? m_c->module->getManager().hvLineNo(*this,hvIdMapping)
-    : m_c->module->getManager().getPayload(*this)->hvLineNo;
-}
-#else
-int FCALHVLine::hvLineNo() const {
-  return m_c->module->getManager().getPayload(*this)->hvLineNo;
+  return m_c->module->getManager().hvLineNo(*this,hvIdMapping);
 }
 #endif

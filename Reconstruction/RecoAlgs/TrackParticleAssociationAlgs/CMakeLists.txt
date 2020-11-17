@@ -1,6 +1,4 @@
-################################################################################
-# Package: TrackParticleAssociationAlgs
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrackParticleAssociationAlgs )
@@ -9,6 +7,4 @@ atlas_subdir( TrackParticleAssociationAlgs )
 atlas_add_component( TrackParticleAssociationAlgs
                      src/*.cxx
                      src/components/*.cxx
-		     INCLUDE_DIRS 
-                     LINK_LIBRARIES  CaloUtilsLib AthenaBaseComps xAODAssociations xAODCaloEvent xAODTracking FourMomUtils GaudiKernel RecoToolInterfaces TrackToCaloLib TrkToolInterfaces )
-
+                     LINK_LIBRARIES AthContainers AthenaBaseComps CaloUtilsLib FourMomUtils GaudiKernel RecoToolInterfaces StoreGateLib TrackToCaloLib TrackVertexAssociationToolLib TrkCaloExtension xAODAssociations xAODCaloEvent xAODTracking )

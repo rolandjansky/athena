@@ -13,7 +13,7 @@ def TRT_TrackSegmentsMaker_BarrelCosmicsCfg(flags, name='InDetTRTSegmentsMaker',
     acc.setPrivateTools(CompFactory.InDet.TRT_TrackSegmentsMaker_BarrelCosmics(name = name, **kwargs))
     return acc
 
-def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extension = '', TrackingCuts = None, InputCollections = None, **kwargs):
+def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extension = '', TrackingFlags = None, InputCollections = None, **kwargs):
     acc = ComponentAccumulator()
     #
     # --- decide if use the association tool
@@ -30,21 +30,21 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     #
     if extension == "_TRT":
         # TRT Subdetector segment finding
-        MinNumberDCs   = TrackingCuts.minTRTonly
-        pTmin          = TrackingCuts.minPT
-        sharedFrac     = TrackingCuts.maxTRTonlyShared
+        MinNumberDCs   = TrackingFlags.minTRTonly
+        pTmin          = TrackingFlags.minPT
+        sharedFrac     = TrackingFlags.maxTRTonlyShared
     else:
         # TRT-only/back-tracking segment finding
-        MinNumberDCs   = TrackingCuts.minSecondaryTRTonTrk
-        pTmin          = TrackingCuts.minSecondaryPt
-        sharedFrac     = TrackingCuts.maxSecondaryTRTShared
+        MinNumberDCs   = TrackingFlags.minSecondaryTRTonTrk
+        pTmin          = TrackingFlags.minSecondaryPt
+        sharedFrac     = TrackingFlags.maxSecondaryTRTShared
     #
     # --- offline version  of TRT segemnt making
     #
     InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
     acc.addPublicTool(InDetPatternPropagator)
 
-    InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags, TrackingCuts = TrackingCuts))
+    InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags, TrackingFlags = TrackingFlags))
     acc.addPublicTool(InDetTRTExtensionTool)
 
     kwargs.setdefault("TRT_ClustersContainer", 'TRT_DriftCircles') # InDetKeys.TRT_DriftCircles
@@ -53,7 +53,7 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else '')
     kwargs.setdefault("RemoveNoiseDriftCircles", flags.InDet.removeTRTNoise)
     kwargs.setdefault("MinNumberDriftCircles", MinNumberDCs)
-    kwargs.setdefault("NumberMomentumChannel", TrackingCuts.TRTSegFinderPtBins)
+    kwargs.setdefault("NumberMomentumChannel", TrackingFlags.TRTSegFinderPtBins)
     kwargs.setdefault("pTmin", pTmin)
     kwargs.setdefault("sharedFrac", sharedFrac)
 
@@ -61,30 +61,30 @@ def TRT_TrackSegmentsMaker_ATLxkCfg(flags, name = 'InDetTRT_SeedsMaker', extensi
     acc.setPrivateTools(InDetTRT_TrackSegmentsMaker)
     return acc
 
-def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(name = 'InDetTRT_SeedsMakerCondAlg', extension = '', TrackingCuts = None, **kwargs):
+def TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(name = 'InDetTRT_SeedsMakerCondAlg', extension = '', TrackingFlags = None, **kwargs):
     acc = ComponentAccumulator()
     #
     # --- cut values
     #
     if extension == "_TRT":
         # TRT Subdetector segment finding
-        pTmin = TrackingCuts.minPT
+        pTmin = TrackingFlags.minPT
     else:
         # TRT-only/back-tracking segment finding
-        pTmin = TrackingCuts.minSecondaryPt
+        pTmin = TrackingFlags.minSecondaryPt
 
     InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
     acc.addPublicTool(InDetPatternPropagator)
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    kwargs.setdefault("NumberMomentumChannel", TrackingCuts.TRTSegFinderPtBins)
+    kwargs.setdefault("NumberMomentumChannel", TrackingFlags.TRTSegFinderPtBins)
     kwargs.setdefault("pTmin", pTmin)
 
     InDetTRT_TrackSegmentsMakerCondAlg = CompFactory.InDet.TRT_TrackSegmentsMakerCondAlg_ATLxk(name = name, **kwargs)
     acc.addCondAlgo(InDetTRT_TrackSegmentsMakerCondAlg)
     return acc
 
-def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinderPhase', extension = '', TrackingCuts = None, BarrelSegments = None, InputCollections =None, doPhase = False, **kwargs):
+def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinderPhase', extension = '', TrackingFlags = None, BarrelSegments = None, InputCollections =None, doPhase = False, **kwargs):
     acc = ComponentAccumulator()
 
     # ---------------------------------------------------------------
@@ -107,7 +107,7 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinderPhase'
                                                                                                               TRT_ClustersContainer = 'TRT_DriftCircles')) # InDetKeys.TRT_DriftCircles
             acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
 
-            if flags.InDet.doCaloSeededTRTSegments or TrackingCuts.RoISeededBackTracking:
+            if flags.InDet.doCaloSeededTRTSegments or TrackingFlags.RoISeededBackTracking:
                 kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
                 kwargs.setdefault("SegmentsLocation", BarrelSegments)
                 kwargs.setdefault("useCaloSeeds", True)
@@ -123,31 +123,31 @@ def TRT_TrackSegmentsFinderCfg(flags, name = 'InDetTRT_TrackSegmentsFinderPhase'
         InDetTRT_TrackSegmentsMaker = acc.popToolsAndMerge(TRT_TrackSegmentsMaker_ATLxkCfg( flags, 
                                                                                             name = 'InDetTRT_SeedsMaker'+extension, 
                                                                                             extension = extension,
-                                                                                            TrackingCuts = TrackingCuts,
+                                                                                            TrackingFlags = TrackingFlags,
                                                                                             InputCollections = InputCollections))
         acc.addPublicTool(InDetTRT_TrackSegmentsMaker)
         kwargs.setdefault("SegmentsMakerTool", InDetTRT_TrackSegmentsMaker)
 
         acc.merge(TRT_TrackSegmentsMakerCondAlg_ATLxkCfg(name = 'InDetTRT_SeedsMakerCondAlg'+ extension, 
                                                          extension = extension,
-                                                         TrackingCuts=TrackingCuts))
+                                                         TrackingFlags=TrackingFlags))
 
     acc.addEventAlgo(CompFactory.InDet.TRT_TrackSegmentsFinder( name = name, **kwargs))
     return acc
 
-def SegmentDriftCircleAssValidationCfg(flags, name="InDetSegmentDriftCircleAssValidation", extension='', TrackingCuts=None, BarrelSegments='', **kwargs):
+def SegmentDriftCircleAssValidationCfg(flags, name="InDetSegmentDriftCircleAssValidation", extension='', TrackingFlags=None, BarrelSegments='', **kwargs):
     acc = ComponentAccumulator()
     #
     # --- cut values
     #
     if extension == "_TRT":
         # TRT Subdetector segment finding
-        MinNumberDCs = TrackingCuts.minTRTonly
-        pTmin        = TrackingCuts.minPT
+        MinNumberDCs = TrackingFlags.minTRTonly
+        pTmin        = TrackingFlags.minPT
     else:
         # TRT-only/back-tracking segment finding
-        MinNumberDCs = TrackingCuts.minSecondaryTRTonTrk
-        pTmin        = TrackingCuts.minSecondaryPt
+        MinNumberDCs = TrackingFlags.minSecondaryTRTonTrk
+        pTmin        = TrackingFlags.minSecondaryPt
 
     #kwargs.setdefault("OrigTracksLocation", BarrelSegments)
     kwargs.setdefault("TRT_DriftCirclesName", 'TRT_DriftCircles') # InDetKeys.TRT_DriftCircles
@@ -173,7 +173,7 @@ def TRTActiveCondAlgCfg(flags, name="TRTActiveCondAlg", **kwargs):
     acc.addCondAlgo(TRTActiveCondAlg)
     return acc
 
-def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, NewTrackingCuts = None, BarrelSegments = None, doPhase = False):
+def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, TrackingFlags = None, BarrelSegments = None, doPhase = False):
     acc = ComponentAccumulator()
     #
     # --- decide if use the association tool
@@ -195,7 +195,7 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, NewTrac
     acc.merge(TRT_TrackSegmentsFinderCfg( flags,
                                           name = 'InDetTRT_TrackSegmentsFinderPhase'+extension,
                                           extension =extension,
-                                          TrackingCuts = NewTrackingCuts,
+                                          TrackingFlags = TrackingFlags,
                                           BarrelSegments=BarrelSegments,
                                           InputCollections = InputCollections,
                                           doPhase = doPhase))
@@ -206,7 +206,7 @@ def TRTSegmentFindingCfg(flags, extension = "", InputCollections = None, NewTrac
     if flags.InDet.doTruth and not flags.Beam.Type == "cosmics":
         acc.merge(SegmentDriftCircleAssValidationCfg(flags,
                                                     name="InDetSegmentDriftCircleAssValidation"+extension,
-                                                    TrackingCuts = NewTrackingCuts,
+                                                    TrackingFlags = TrackingFlags,
                                                     BarrelSegments=BarrelSegments))
     
     return acc
@@ -253,7 +253,7 @@ if __name__ == "__main__":
     # NewTracking collection keys
     InputCombinedInDetTracks = []
 
-    InDetNewTrackingCuts = ConfigFlags.InDet.Tracking
+    TrackingFlags = ConfigFlags.InDet.Tracking
     #############################################################################
     top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
     top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
@@ -265,7 +265,7 @@ if __name__ == "__main__":
     top_acc.merge(TRTSegmentFindingCfg( ConfigFlags,
                                         "",
                                         InputCombinedInDetTracks,
-                                        InDetNewTrackingCuts,
+                                        TrackingFlags,
                                         'TRTSegments')) # InDetKeys.TRT_Segments
     #############################################################################
 

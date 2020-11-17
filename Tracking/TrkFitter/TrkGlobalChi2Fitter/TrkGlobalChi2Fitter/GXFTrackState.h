@@ -78,7 +78,7 @@ namespace Trk {
     bool isRecalibrated();
     void setRecalibrated(bool);
 
-    const Amg::Vector3D & position();
+    Amg::Vector3D position();
     void setPosition(Amg::Vector3D &);
 
     bool measuresPhi();

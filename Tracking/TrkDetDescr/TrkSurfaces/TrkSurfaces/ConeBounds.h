@@ -40,7 +40,7 @@ namespace Trk {
     @author Ian.Watson@cern.ch, Andreas.Salzburger@cern.ch, Robert.Langenberg@cern.ch
 */
 
-class ConeBounds : public SurfaceBounds
+class ConeBounds final: public SurfaceBounds
 {
 public:
   /** BoundValues for readablility */

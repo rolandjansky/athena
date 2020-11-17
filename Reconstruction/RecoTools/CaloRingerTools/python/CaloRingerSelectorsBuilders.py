@@ -70,7 +70,7 @@ class CaloRingerElectronSelectorsBuilder ( Configured ):
       if not isinstance(customElectronSelectors,(list)):
         customElectronSelectors = list(customElectronSelectors)
       for selector in customElectronSelectors:
-        if not selector.getType() is "Ringer::AsgElectronRingerSelector":
+        if selector.getType() != "Ringer::AsgElectronRingerSelector":
           raise ValueError(("Selector must be of type Ringer::AsgElectronRingerSelector"
                             "and is of type %s"),selector.getType())
       self._customSelectors.extend( customElectronSelectors )

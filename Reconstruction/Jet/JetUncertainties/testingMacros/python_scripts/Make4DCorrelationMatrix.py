@@ -176,11 +176,11 @@ print "6) still defined as:",fixedPtX,fixedPtY,fixedEtaX,fixedEtaY
 
 # Prepare the canvas
 print "Writing results to file: ",(re.sub(".eps","-*.eps",plotFileName) if plotFileName.endswith(".eps") else (re.sub(".png","-*.png",plotFileName) if plotFileName.endswith(".png") else plotFileName))
-canvas = TCanvas("canvas","4D Correlation Matrix",0,0,2500,2400)
-canvas.SetLeftMargin(0.10 if not useRelativeMetric else 0.08)
-canvas.SetRightMargin(0.15 if not useRelativeMetric else 0.17)
+canvas = TCanvas("canvas","4D Correlation Matrix",0,0,2600,2200)
+canvas.SetLeftMargin(0.09 if not useRelativeMetric else 0.08)
+canvas.SetRightMargin(0.19 if not useRelativeMetric else 0.17)
 canvas.SetBottomMargin(0.04)
-canvas.SetTopMargin(0.16)
+canvas.SetTopMargin(0.12)
 canvas.SetLogz(useRelativeMetric)
 canvas.cd()
 canvas.Draw()

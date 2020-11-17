@@ -4,6 +4,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 from future import standard_library
 standard_library.install_aliases()
 
+
 def getCastorDirectoryList(path,fileRange):
     cmd  = 'eos ls %s/ ' % (path)
     files = []

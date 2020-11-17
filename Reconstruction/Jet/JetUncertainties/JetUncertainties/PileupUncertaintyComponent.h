@@ -32,7 +32,6 @@ class PileupUncertaintyComponent : public UncertaintyComponent
                                     );
         PileupUncertaintyComponent(const PileupUncertaintyComponent& toCopy);
         virtual PileupUncertaintyComponent* clone() const;
-        PileupUncertaintyComponent & operator =( const PileupUncertaintyComponent &) = delete;
         virtual ~PileupUncertaintyComponent();
         virtual StatusCode initialize(TFile* histFile);
         

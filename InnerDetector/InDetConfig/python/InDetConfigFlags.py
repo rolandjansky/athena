@@ -63,7 +63,6 @@ def createInDetConfigFlags():
   icf.addFlag("InDet.doMonitoringSCT", False) # Use to turn on SCT monitoring 
   icf.addFlag("InDet.doMonitoringTRT", False) # Use to turn on TRT monitoring 
   icf.addFlag("InDet.doMonitoringAlignment", False) # Use to turn on alignment monitoring 
-  icf.addFlag("InDet.useDynamicAlignFolders",False) # Deprecated property - use InDetGeometryFlags directly to choose the alignment folder scheme 
   icf.addFlag("InDet.doPerfMon", False) # Use to turn on PerfMon 
   icf.addFlag("InDet.AODall", False) 
   icf.addFlag("InDet.useBeamConstraint", True) # use beam spot service in new tracking 

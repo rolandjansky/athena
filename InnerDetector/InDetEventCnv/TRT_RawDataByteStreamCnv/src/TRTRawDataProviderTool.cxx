@@ -24,7 +24,7 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 TRTRawDataProviderTool::TRTRawDataProviderTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AthAlgTool( type, name, parent ),
+  :  base_class( type, name, parent ),
      m_decoder   ("TRT_RodDecoder",this),
      m_storeInDetTimeColls(true),
      m_doEventCheck(true)
@@ -32,8 +32,6 @@ TRTRawDataProviderTool::TRTRawDataProviderTool
   declareProperty ("Decoder", m_decoder);
   declareProperty ("StoreInDetTimeCollections", m_storeInDetTimeColls);
   declareProperty ("checkLVL1ID", m_doEventCheck);
-
-  declareInterface< ITRTRawDataProviderTool >( this );   
 }
 
 // -------------------------------------------------------
@@ -48,21 +46,10 @@ TRTRawDataProviderTool::~TRTRawDataProviderTool()
 StatusCode TRTRawDataProviderTool::initialize()
 {
 
-   StatusCode sc = AlgTool::initialize(); 
-   if (sc.isFailure())
-   {
-      ATH_MSG_FATAL( "Failed to init baseclass" );
-     return StatusCode::FAILURE;
-   }
+  ATH_CHECK( AlgTool::initialize() );
 
-   // Retrieve decoder
-   if (m_decoder.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_decoder );
-     return StatusCode::FAILURE;
-   } else 
-      ATH_MSG_INFO( "Retrieved tool " << m_decoder );
-
-
+  ATH_CHECK( m_decoder.retrieve() );
+  ATH_MSG_INFO( "Retrieved tool " << m_decoder );
 
   //initialize write handles
   ATH_CHECK(m_lvl1idkey.initialize());
@@ -76,8 +63,8 @@ StatusCode TRTRawDataProviderTool::initialize()
 
 StatusCode TRTRawDataProviderTool::finalize()
 {
-   StatusCode sc = AlgTool::finalize(); 
-   return sc;
+  ATH_CHECK( AlgTool::finalize() );
+  return StatusCode::SUCCESS;
 }
 
 // -------------------------------------------------------
@@ -85,7 +72,7 @@ StatusCode TRTRawDataProviderTool::finalize()
 
 StatusCode TRTRawDataProviderTool::convert(const std::vector<const ROBFragment*>& vecRobs,
 					   TRT_RDO_Container* rdoIdc, 
-					   TRT_BSErrContainer* bserr)
+					   TRT_BSErrContainer* bserr) const
 {
 
   static std::atomic_int DecodeErrCount = 0;

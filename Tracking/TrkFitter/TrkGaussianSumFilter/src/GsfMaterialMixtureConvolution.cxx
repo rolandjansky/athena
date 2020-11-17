@@ -342,29 +342,26 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   // Gather the merges -- order is important -- RHS is smaller than LHS
-  std::vector<std::pair<int8_t, int8_t>> merges;
+  GSFUtils::MergeArray KL;
   if (n > m_maximumNumberOfComponents) {
-    merges = findMerges(componentsArray, m_maximumNumberOfComponents);
+    KL = findMerges(componentsArray, m_maximumNumberOfComponents);
   }
   // Merge components
   MultiComponentStateAssembler::Cache assemblerCache;
   int nMerges(0);
-  GSFUtils::IsMergedArray isMerged={};
-  for (const auto& mergePair : merges) {
-    const int8_t mini = mergePair.first;
-    const int8_t minj = mergePair.second;
+  GSFUtils::IsMergedArray isMerged = {};
+  int32_t returnedMerges = KL.numMerges;
+
+  for (int32_t i = 0; i < returnedMerges; ++i) {
+    const int8_t mini = KL.merges[i].To;
+    const int8_t minj = KL.merges[i].From;
     if (isMerged[minj]) {
       ATH_MSG_WARNING("Component is already merged " << minj);
-      for (const auto& mergePair2 : merges) {
-        ATH_MSG_DEBUG("Pairs that should be merged together: "
-                      << mergePair2.first << "  " << mergePair2.second);
-      }
       continue;
     }
     // Get the first TP
     size_t stateIndex = indices[mini].first;
     size_t materialIndex = indices[mini].second;
-
     // Copy weight and first parameters as they are needed later on
     // for updating the covariance
     AmgVector(5) firstParameters =
