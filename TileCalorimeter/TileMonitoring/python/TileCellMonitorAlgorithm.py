@@ -252,7 +252,7 @@ def TileCellMonitoringConfig(flags, **kwargs):
 
     # 23) Configure histograms with number of Tile E cell's energy  per partition
     titleEvEnergy = 'Tile Event SampE Energy;Event Energy [MeV]'
-    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellEventEnergySampE',
+    addTile1DHistogramsArray(helper, tileCellMonAlg, name = 'TileCellEventEnergy_SampE',
                              xvalue = 'energy', title = titleEvEnergy, path = 'Tile/Cell',
                              xbins = 120, xmin = -2000., xmax = 10000., type='TH1D', run = run, triggers = l1Triggers,
                              subDirectory = True, perPartition = True, perSample = False, perGain = False, allPartitions = True)

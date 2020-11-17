@@ -209,7 +209,7 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       monitoredModule = drawer;
 
       if (l1TriggerType != digitsCollection->getLvl1Type()) {
-        fill("TileMismatchedL1TiggerType", monitoredModule, monitoredROS);
+        fill("TileMismatchedL1TriggerType", monitoredModule, monitoredROS);
       }
 
       if (l1TriggerType == 0x82) {

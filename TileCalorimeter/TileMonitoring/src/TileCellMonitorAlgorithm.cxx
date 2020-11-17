@@ -51,7 +51,7 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_maskedGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellStatusInDB",
                                                   Tile::MAX_ROS - 1, Tile::MAX_GAIN);
 
-  m_energySampEGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEventEnergySampE",
+  m_energySampEGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEventEnergy_SampE",
                                                        Tile::MAX_ROS, nL1Triggers);
 
   m_moduleCorrGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellModuleCorrelation",
