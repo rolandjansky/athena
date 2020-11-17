@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-## -*- sh -*-
+## -*- sh -*-   
 ## lhapdf-config for MadGraph use in Athena
 ## this custom config is required to find both the lhapdf installation dir and the actual pdf set data from LHAPDF_DATA_PATH 
 ## in the default configuration the installation dir is hardcoded
