@@ -15,5 +15,4 @@ atlas_add_component( EventCommonD3PDMaker
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel Navigation AthenaPoolUtilities EventBookkeeperMetaData EventKernel FourMomUtils NavFourMom xAODBase xAODEventInfo GaudiKernel ParticleEvent D3PDMakerInterfaces D3PDMakerUtils JetEvent )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
