@@ -47,10 +47,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         job += CfgGetter.getAlgorithm("MdtDigitToMdtRDO")
 
     if DetFlags.overlay.sTGC_on():
-        # As of July 2019, the input RDOs still hold a DigitContainer
-        # so no Need to run Rdo->Digit
-        # To be changed when we remove digitContainer from RDO
-        #job += CfgGetter.getAlgorithm("STGC_RdoToDigitAlg")
+        job += CfgGetter.getAlgorithm("STGC_RdoToDigitAlg")
         job += CfgGetter.getAlgorithm("STGC_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("STGC_Overlay")
         if not overlayFlags.isDataOverlay():
@@ -58,10 +55,7 @@ if DetFlags.overlay.MDT_on() or DetFlags.overlay.CSC_on() or DetFlags.overlay.RP
         job += CfgGetter.getAlgorithm("STGC_DigitToRDO")
 
     if DetFlags.overlay.Micromegas_on():
-        # As of July 2019, the input RDOs still hold a DigitContainer
-        # so no need to run Rdo->Digit
-        # To be changed when we remove digitContainer from RDO
-        #job += CfgGetter.getAlgorithm("MM_RdoToDigitAlg")
+        job += CfgGetter.getAlgorithm("MM_RdoToDigitAlg")
         job += CfgGetter.getAlgorithm("MM_OverlayDigitizer")
         job += CfgGetter.getAlgorithm("MM_Overlay")
         if not overlayFlags.isDataOverlay():

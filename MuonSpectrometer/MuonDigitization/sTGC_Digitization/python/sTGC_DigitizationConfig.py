@@ -47,6 +47,7 @@ def getSTGCRange(name="sTgcRange", **kwargs):
 def STGC_OverlayDigitizationTool(name="STGC_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
         kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "sTGC_DIGITS")
         if not overlayFlags.isDataOverlay():
             kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "sTGC_SDO")

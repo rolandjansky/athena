@@ -98,7 +98,7 @@ private:
   CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
 
   /** Get next event and extract collection of hit collections */
-  StatusCode getNextEvent();
+  StatusCode getNextEvent(const EventContext& ctx);
   /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
   StatusCode doDigitization(const EventContext& ctx);
 

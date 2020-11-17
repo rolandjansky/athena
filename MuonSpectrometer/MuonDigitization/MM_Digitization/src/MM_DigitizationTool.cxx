@@ -328,7 +328,7 @@ StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
 }
 
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::getNextEvent() {
+StatusCode MM_DigitizationTool::getNextEvent(const EventContext& ctx) {
 
 // Get next event and extract collection of hit collections:
 // This is applicable to non-PileUp Event...
@@ -337,6 +337,21 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 
 	//  get the container(s)
 	typedef PileUpMergeSvc::TimedList<MMSimHitCollection>::type TimedHitCollList;
+
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<MMSimHitCollection> hitCollection(m_hitsContainerKey, ctx);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get MMSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_timedHitCollection_MM = std::make_unique<TimedHitCollection<MMSimHit>>(1);
+    m_timedHitCollection_MM->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("MMSimHitCollection found with " << hitCollection->size() << " hits");
+    return StatusCode::SUCCESS;
+  }
 
 	//this is a list<info<time_t, DataLink<MMSimHitCollection> > >
 	TimedHitCollList hitCollList;
@@ -397,7 +412,7 @@ StatusCode MM_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
 	//merging of the hit collection in getNextEvent method
 
-	if (m_timedHitCollection_MM == nullptr) ATH_CHECK( getNextEvent() );
+	if (m_timedHitCollection_MM == nullptr) ATH_CHECK( getNextEvent(ctx) );
 
 	ATH_CHECK( doDigitization(ctx) );
 
