@@ -98,10 +98,10 @@ stream& dump(stream& sl, const TgcRdo& coll)
     << ", orbit=" << coll.orbit()
     << std::endl << "TgcRawData: [" << std::endl;
     int iRaw = 0;
-    for (TgcRdo::const_iterator it = coll.begin(); it != coll.end(); it++)
+    for (const TgcRawData* rd : coll)
     {
         sl << ++iRaw
-        << ": " << **it << std::endl;
+        << ": " << *rd << std::endl;
     }
     sl << "]";
     return sl;

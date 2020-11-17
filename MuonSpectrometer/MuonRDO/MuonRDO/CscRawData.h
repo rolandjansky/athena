@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONBYTESTREAM_CSCRAWDATA_H
@@ -56,42 +56,57 @@ m_width(0), m_isTimeComputed(false), m_hashId(0) {}
 
   /** constructor for a single strip */
   CscRawData (const std::vector<uint16_t>& p_amp, uint32_t address, uint16_t id) : 
-    m_address(address), m_id(id) {
-    m_amps = p_amp;
-    m_time  = 0x0;
-    m_rpuID = 0x0;
-    m_width = 0x1;
-    m_isTimeComputed = false;
-    m_hashId = 0x0;
+    m_amps (p_amp),
+    m_address(address),
+    m_id(id),
+    m_time (0x0),
+    m_rpuID (0x0),
+    m_width (0x1),
+    m_isTimeComputed (false),
+    m_hashId (0x0)
+  {
   }
 
   /** single strip constructor with SPU information */
   CscRawData (const std::vector<uint16_t>& p_amp, uint32_t address, 
 	      uint16_t id, uint16_t rpuID) : 
-    m_address(address), m_id(id), m_rpuID(rpuID) {
-    m_amps = p_amp;
-    m_time = 0x0;
-    m_width = 0x1;
-    m_isTimeComputed = false;
-    m_hashId = 0x0;
+    m_amps (p_amp),
+    m_address(address),
+    m_id(id),
+    m_time (0x0),
+    m_rpuID(rpuID),
+    m_width (0x1),
+    m_isTimeComputed (false),
+    m_hashId (0x0)
+  {
   }
 
   /** cluster of strip constructor with cluster width and SPU identifier */
   CscRawData (const std::vector<uint16_t>& p_amp, uint32_t address, uint16_t id, 
 	      uint16_t rpuID, uint16_t width) : 
-    m_address(address), m_id(id), m_rpuID(rpuID), m_width(width) {
-    m_amps = p_amp;
-    m_time = 0x0;
-    m_isTimeComputed = false;
-    m_hashId = 0x0;
+    m_amps (p_amp),
+    m_address(address),
+    m_id(id),
+    m_time (0x0),
+    m_rpuID(rpuID),
+    m_width(width),
+    m_isTimeComputed (false),
+    m_hashId (0x0)
+  {
   }
 
   /** full constructor for cluster with timing information */
   CscRawData (const std::vector<uint16_t>& p_amp, uint32_t address, uint16_t id, 
               uint16_t time, uint16_t rpuID, uint16_t width, uint32_t hashId) : 
-    m_address(address), m_id(id), m_time(time), m_rpuID(rpuID), m_width(width), m_hashId(hashId) {
-    m_amps = p_amp;
-    m_isTimeComputed = true;
+    m_amps (p_amp),
+    m_address(address),
+    m_id(id),
+    m_time(time),
+    m_rpuID(rpuID),
+    m_width(width),
+    m_isTimeComputed (true),
+    m_hashId(hashId)
+  {
   }
 
   virtual ~CscRawData() {}
