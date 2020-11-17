@@ -21,6 +21,7 @@ atlas_depends_on_subdirs(
    Event/xAOD/xAODMuon
    PhysicsAnalysis/AnalysisCommon/PATCore
    PhysicsAnalysis/Interfaces/MuonAnalysisInterfaces
+   PhysicsAnalysis/MCTruthClassifier
    PRIVATE
    Event/xAOD/xAODCore
    Event/xAOD/xAODEventInfo
@@ -56,7 +57,7 @@ if( XAOD_STANDALONE )
    atlas_add_executable( MuonSelectorToolsTester
       util/MuonSelectorToolsTester.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon MCTruthClassifierLib
       xAODTracking xAODCore MuonSelectorToolsLib )
 endif()
 

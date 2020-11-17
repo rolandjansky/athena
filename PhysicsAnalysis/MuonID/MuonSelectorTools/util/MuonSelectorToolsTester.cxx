@@ -38,6 +38,10 @@
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
 
+// Truth classification
+#include "MCTruthClassifier/MCTruthClassifier.h"
+#include "MCTruthClassifier/MCTruthClassifierDefs.h"
+
 /// Example of how to run the MuonSelectorTools package to obtain information from muons
 
 int main( int argc, char* argv[] ) {
@@ -205,6 +209,9 @@ int main( int argc, char* argv[] ) {
        selectedMuonsEtaNotBad[eta][wp] = 0;
 
 
+   //Truth classifier
+   MCTruthClassifier truthClassifier("truthClassifier");
+   CHECK( truthClassifier.initialize() );
 
    // Loop over the events:
    for( Long64_t entry = 0; entry < entries; ++entry ) {
@@ -265,20 +272,23 @@ int main( int argc, char* argv[] ) {
 	      static_cast< int >( muCounter ) );
 
 
+	//Check truth origin
+	std::pair<MCTruthPartClassifier::ParticleType,MCTruthPartClassifier::ParticleOrigin> truthClassification = truthClassifier.particleTruthClassifier(*mu_itr);
+
 	if((*mu_itr)->charge() > 0)
 	  nPositive++;
 	else
 	  nNegative++;
-
 
         passesIDRequirements = selectorTools[0]->passedIDCuts(**mu_itr);
         passesPreselectionCuts = selectorTools[0]->passedMuonCuts(**mu_itr);
 	my_quality = selectorTools[0]->getQuality(**mu_itr);	
 
 	//Print some general information about the muon
-	Info( APP_NAME, "Muon pT [GeV]:       %g ", std::abs((*mu_itr)->pt())/1000.);
-	Info( APP_NAME, "Muon eta, phi:       %g, %g ", (*mu_itr)->eta(),(*mu_itr)->phi());
-	Info( APP_NAME, "Muon muonType:       %d (%s)", (*mu_itr)->muonType(), typeNames[(*mu_itr)->muonType()].c_str());
+	Info( APP_NAME, "Muon truthType:       %d", truthClassification.first);
+	Info( APP_NAME, "Muon pT [GeV]:        %g ", std::abs((*mu_itr)->pt())/1000.);
+	Info( APP_NAME, "Muon eta, phi:        %g, %g ", (*mu_itr)->eta(),(*mu_itr)->phi());
+	Info( APP_NAME, "Muon muonType:        %d (%s)", (*mu_itr)->muonType(), typeNames[(*mu_itr)->muonType()].c_str());
 
 	// Info( APP_NAME, "Muon charge:         %g ", (*mu_itr)->charge());
 	// Info( APP_NAME, "Muon allAuthors:     %d ", (*mu_itr)->allAuthors());
