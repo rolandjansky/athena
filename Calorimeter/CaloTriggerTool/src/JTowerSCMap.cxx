@@ -143,7 +143,7 @@ Identifier JTowerSCMap::whichTTID(const int& sHash) const
 {
 
 
-	if(sHash<m_cell2ttIdVec.size()){
+	if(sHash<int(m_cell2ttIdVec.size())){
 		return m_cell2ttIdVec.at(sHash);
 	}
 
@@ -162,7 +162,7 @@ JTowerSCMap::createCellIDvec(const int & jHash) const
 {
 
 
-	if(jHash<m_tt2cellIdVec.size()){
+	if(jHash<int(m_tt2cellIdVec.size())){
 		return m_tt2cellIdVec.at(jHash);
 	}
 
