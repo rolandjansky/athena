@@ -208,7 +208,7 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_StripsResponseSimulation->setInteractionDensityMean(interactionDensityMean);
 	m_StripsResponseSimulation->setInteractionDensitySigma(interactionDensitySigma);
 	m_StripsResponseSimulation->setLorentzAngleFunction(lorentzAngleFunction);
-	m_StripsResponseSimulation->initialize();
+	m_StripsResponseSimulation->initialize(m_randomSeed);
 
 	// ElectronicsResponseSimulation Creation
 	m_ElectronicsResponseSimulation = std::make_unique<MM_ElectronicsResponseSimulation>();

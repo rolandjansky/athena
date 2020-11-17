@@ -36,6 +36,9 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
 
+    # Temporary until migrated away from TRandom
+    kwargs.setdefault("RandomSeed", jobproperties.Digitization.rndmSeedOffset1.get_Value())
+
     return CfgMgr.MM_DigitizationTool(name,**kwargs)
 
 def getMMRange(name="MMRange", **kwargs):
