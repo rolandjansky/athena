@@ -22,7 +22,12 @@ def egammaMonitorPrecisionCfg(name):
                                 defineHistogram('deltaPhi1',title='Precision#Delta#phi1', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
                                 defineHistogram('deltaPhi2',title='Precision#Delta#phi2', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
                                 defineHistogram('deltaPhi3',title='Precision#Delta#phi3', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
-                           
+                                defineHistogram('deltaPhiRescaled0',title='Precision#Delta#phiRescaled0', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+                                defineHistogram('deltaPhiRescaled1',title='Precision#Delta#phiRescaled1', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+                                defineHistogram('deltaPhiRescaled2',title='Precision#Delta#phiRescaled2', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+                                defineHistogram('deltaPhiRescaled3',title='Precision#Delta#phiRescaled3', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+                                defineHistogram('deltaPhiFromLastMeasurement',title='Precision#Delta#phiLastMeasurement', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+
                            #Shower Shapes variables monitoring
                                 defineHistogram('e237',type='TH1F', path='EXPERT',title="Precision Reconstruction uncor energy in 3x7 cells in em sampling 2; E [MeV]",xbins=50, xmin=-15000, xmax=150000 ),
                                 defineHistogram('e277', type='TH1F', path='EXPERT',title="Precision Reconstruction  uncor energy in 7x7 cells in em sampling 2;E [MeV]",xbins=50, xmin=-15000, xmax=150000 ),
