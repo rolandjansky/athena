@@ -77,12 +77,15 @@ public:
   /** virtual Destructor */
   virtual ~ParametersBase() = default;
 
-  /** Access method for the parameters */
+  /** Access methods for the parameters */
   const AmgVector(DIM) & parameters() const;
+  AmgVector(DIM) & parameters();
 
   /** Access method for the covariance matrix - returns nullptr if no covariance
    * matrix is given */
   const AmgSymMatrix(DIM) * covariance() const;
+  AmgSymMatrix(DIM)* covariance();
+
 
   /** Access method for transverse momentum */
   double pT() const;
