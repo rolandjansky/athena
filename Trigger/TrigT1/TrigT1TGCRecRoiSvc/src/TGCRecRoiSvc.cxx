@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1TGCRecRoiSvc/TGCRecRoiSvc.h"
@@ -373,7 +373,7 @@ void TGCRecRoiSvc::getWireASDOut(TGCIdBase* & w_asdout,
   w_slbin.setId(wireSLBId);
   w_slbin.setChannel(41+offset+8*block);
   
-  TGCCablingBase* tgcCabling = m_cabling->getTGCCabling();
+  const TGCCablingBase* tgcCabling = m_cabling->getTGCCabling();
   w_asdout = tgcCabling->getASDOutChannel (&w_slbin);
   if (w_asdout==0) return;
   if (w_asdout->isValid()==false) {
@@ -412,7 +412,7 @@ void TGCRecRoiSvc::getStripASDOut(TGCIdBase* & s_asdout,
   w_slbin.setId(wireSLBId);
   w_slbin.setChannel(41+wireOffset+8*block);
 
-  TGCCablingBase* tgcCabling = m_cabling->getTGCCabling();
+  const TGCCablingBase* tgcCabling = m_cabling->getTGCCabling();
   w_asdout = tgcCabling->getASDOutChannel(&w_slbin);
 
   if (w_asdout==0) return;
