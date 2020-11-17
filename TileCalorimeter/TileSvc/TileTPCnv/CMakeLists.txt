@@ -72,7 +72,6 @@ atlas_add_test( TileDigitsContainerCnv_p2_test
 atlas_add_test( TileDigitsContainerCnv_p3_test
                 SOURCES
                 test/TileDigitsContainerCnv_p3_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES GaudiKernel IdDictParser TestTools TileConditionsLib TileIdentifier TileTPCnv
                 LOG_IGNORE_PATTERN "initialize_from_dictionary" )
 
