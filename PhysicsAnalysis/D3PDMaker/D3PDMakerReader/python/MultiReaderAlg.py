@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: MultiReaderAlg.py 452707 2011-08-08 11:45:42Z krasznaa $
-
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
 import D3PDMakerCoreComps
 
@@ -34,7 +32,7 @@ class MultiReaderAlg( D3PD__MultiReaderAlg ):
                       index = 0 )
 
         # tuple name defaults to the algorithm name.
-        if tuplename == None:
+        if tuplename is None:
             tuplename = name
 
         # Create the algorithm Configurable.
@@ -90,15 +88,14 @@ class MultiReaderAlg( D3PD__MultiReaderAlg ):
         """Add a new IObjFillerTool to a tree."""
 
         nchild = len( self )
-        if type( config ) != type( [] ):
+        if not isinstance( config, list ):
             # Check if this is a duplicate:
             if hasattr( self, config.getName() ):
-                self.__logger.warning( "Duplicate D3PDObject with name \"" +
-                                       config.ObjectName + "\" ignored" )
+                self.__logger.warning( "Duplicate D3PDObject with name \"%s\" ignored", config.ObjectName )
                 return self
             # If not then add it to the algorithm:
-            self.__logger.info( "Adding D3PDObject with name \"" + config.ObjectName +
-                                "\" and prefix \"" + config.Prefix + "\"" )
+            self.__logger.info( "Adding D3PDObject with name \"%s\" and prefix \"%s\"",
+                                config.ObjectName, config.Prefix )
             self.Tools      += [ config ]
             self.Prefixes   += [ config.Prefix ]
             self.ClassNames += [ config.ObjectName ]

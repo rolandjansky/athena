@@ -1,33 +1,10 @@
-################################################################################
-# Package: TruthD3PDMaker
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TruthD3PDMaker )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/Navigation
-                          Event/EventInfo
-                          Event/xAOD/xAODTruth
-                          GaudiKernel
-                          Generators/GeneratorObjects
-                          Generators/AtlasHepMC
-                          Generators/GenInterfaces
-                          Generators/TruthUtils
-                          PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
-                          PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
-                          PhysicsAnalysis/D3PDMaker/TruthD3PDAnalysis
-                          PhysicsAnalysis/MCTruthClassifier
-                          PhysicsAnalysis/TruthParticleID/McParticleEvent
-                          PhysicsAnalysis/TruthParticleID/McParticleKernel
-                          Reconstruction/Jet/JetEvent
-                          Tracking/TrkTools/TrkToolInterfaces )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 find_package( CLHEP )
 find_package( HepPDT )
 
@@ -36,7 +13,7 @@ atlas_add_component( TruthD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel Navigation EventInfo xAODTruth GaudiKernel GeneratorObjects TruthUtils D3PDMakerUtils TruthD3PDAnalysisLib MCTruthClassifierLib McParticleEvent McParticleKernel JetEvent TrkToolInterfaces GenInterfacesLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HEPPDT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AthenaBaseComps AthenaKernel Navigation EventInfo xAODTruth GaudiKernel GeneratorObjects TruthUtils D3PDMakerInterfaces D3PDMakerUtils TruthD3PDAnalysisLib MCTruthClassifierLib McParticleEvent McParticleKernel JetEvent TrkToolInterfaces GenInterfacesLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
