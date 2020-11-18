@@ -15,3 +15,7 @@ atlas_add_test( TriggerConfigFlagsTest
 atlas_add_test( TriggerConfigTest
    SCRIPT python -m TriggerJobOpts.TriggerConfig
    POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TriggerConfigFlags_AutoConfTest
+   SCRIPT test_TriggerFlags_autoconf.py
+   POST_EXEC_SCRIPT nopost.sh )
