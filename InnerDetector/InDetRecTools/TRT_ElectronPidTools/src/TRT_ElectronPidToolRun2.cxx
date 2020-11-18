@@ -73,7 +73,6 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   :
   AthAlgTool(t,n,p),
   m_trtId(nullptr),
-  m_TRTdetMgr(nullptr),
   m_minTRThits(5),
   m_ptMinNN(2000.),
   m_calculateNN(true)
