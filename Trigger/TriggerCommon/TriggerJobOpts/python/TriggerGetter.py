@@ -50,8 +50,6 @@ class TriggerGetter(Configured):
         if TF.doMT() and rec.readRDO() and rec.doWriteRDO():
             log.info("Nothing happens in TriggerGetter for RDOtoRDOTrigger MT")
             return True
-        else: #GenerateMenu imports slice flags, which are Menu/MenuMT dependent
-            from TriggerMenu.menu.GenerateMenu import GenerateMenu
         
         willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()
         willRunTriggerConfigGetter = recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly()
@@ -68,6 +66,7 @@ class TriggerGetter(Configured):
                                            "LVL1SimulationGetter " if not willRunLVL1SimulationGetter else "",
                                            "HLTSimulationGetter " if not willRunHLTSimulationGetter else "" )
         if recAlgs.doTrigger():
+            from TriggerMenu.menu.GenerateMenu import GenerateMenu
 
             if ((TF.doLVL1() or TF.doLVL2() or TF.doEF() or TF.doHLT()) and not TF.doTriggerConfigOnly()):
                 log.info("generating menu")
