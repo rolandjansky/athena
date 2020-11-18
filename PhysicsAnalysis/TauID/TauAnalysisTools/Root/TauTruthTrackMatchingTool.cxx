@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TauAnalysisTools/TauTruthTrackMatchingTool.h>
@@ -210,15 +210,19 @@ bool TauTruthTrackMatchingTool::checkTruthParent(const xAOD::TruthParticle& xTru
     if (xVertex->nIncomingParticles() > 0)
     {
       const xAOD::TruthParticle* xTruthParticleParent = xVertex->incomingParticle(0);
-      // store parent pdgID in history
-      sHistory.insert(0, std::to_string(xTruthParticleParent->pdgId())+":");//xTruthParticleParent->pdgId());
-      if (xTruthParticleParent->absPdgId() == 15)
-      {
-        return true;
-      }
-      else
-      {
-        return checkTruthParent(*xTruthParticleParent, iDepth, sHistory);
+      if (xTruthParticleParent) {
+        // store parent pdgID in history
+        sHistory.insert(0, std::to_string(xTruthParticleParent->pdgId())+":");//xTruthParticleParent->pdgId());
+        if (xTruthParticleParent->absPdgId() == 15)
+        {
+          return true;
+        }
+        else
+        {
+          return checkTruthParent(*xTruthParticleParent, iDepth, sHistory);
+        }
+      } else {
+        ATH_MSG_WARNING("vertex has incoming particles but no valid parent particle");
       }
     }
   }
