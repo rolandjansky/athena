@@ -237,18 +237,6 @@ namespace InDetDD {
     return Amg::CLHEPTransformToEigen(tmpTransform);
   }
 
-  const HepGeom::Transform3D
-  SiDetectorElement::recoToHitTransform() const
-  {
-    // Determine the reconstruction local (LocalPosition) to global transform.
-    if (m_firstTime) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (m_firstTime) updateCache();
-    }
-
-    return recoToHitTransformImpl();
-  }
-
   const Amg::Transform3D&
   SiDetectorElement::moduleTransform() const
   {
@@ -732,181 +720,18 @@ namespace InDetDD {
   void
   SiDetectorElement::updateCache() const
   {
-    const GeoTrf::Transform3D& geoTransform = transformHit();
 
-    double radialShift = 0.;
 
-    /*
-    Deprecated method for specialized ITk DetElement with different global frame - to be replaced!
-    const InDetDD::StripStereoAnnulusDesign* testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
-    if (testDesign) radialShift = testDesign->localModuleCentreRadius();
-    */
-    
-    HepGeom::Point3D<double> centerGeoModel(radialShift, 0., 0.);
-    m_centerCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * centerGeoModel;
-    m_center = Amg::Vector3D(m_centerCLHEP[0], m_centerCLHEP[1], m_centerCLHEP[2]);
+    SolidStateDetectorElementBase::updateCache();
 
-    //
-    // Determine directions depth, eta and phi axis in reconstruction local frame
-    // ie depth away from interaction point
-    //    phi in direction of increasing phi
-    //    eta in direction of increasing z in barrel, and increasing r in endcap
-    //
+    //Similar to 21.9, but ... Do we actually need this? If not, we could just rely on the base-class implementation?
 
-    // depthAxis, phiAxis, and etaAxis are defined to be x,y,z respectively for all detectors for hit local frame.
-    // depthAxis, phiAxis, and etaAxis are defined to be z,x,y respectively for all detectors for reco local frame.
-    static const HepGeom::Vector3D<double> localAxes[3] = {
-      HepGeom::Vector3D<double>(1., 0., 0.),
-      HepGeom::Vector3D<double>(0., 1., 0.),
-      HepGeom::Vector3D<double>(0., 0., 1.)
-    };
-
-    static const HepGeom::Vector3D<double>& localRecoPhiAxis = localAxes[distPhi];     // Defined to be same as x axis
-    static const HepGeom::Vector3D<double>& localRecoEtaAxis = localAxes[distEta];     // Defined to be same as y axis
-    static const HepGeom::Vector3D<double>& localRecoDepthAxis = localAxes[distDepth]; // Defined to be same as z axis
-
-    // We only need to calculate the rough orientation once.
-    // For it to change would require extreme unrealistic misalignment changes.
-    if (m_firstTime) {
-      // Determine the unit vectors in global frame
-
-      const HepGeom::Vector3D<double>& geoModelPhiAxis = localAxes[m_hitPhi];
-      const HepGeom::Vector3D<double>& geoModelEtaAxis = localAxes[m_hitEta];
-      const HepGeom::Vector3D<double>& geoModelDepthAxis = localAxes[m_hitDepth];
-
-      HepGeom::Vector3D<double> globalDepthAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelDepthAxis);
-      HepGeom::Vector3D<double> globalPhiAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelPhiAxis);
-      HepGeom::Vector3D<double> globalEtaAxis(Amg::EigenTransformToCLHEP(geoTransform) * geoModelEtaAxis);
-
-      // unit radial vector
-      HepGeom::Vector3D<double> unitR(m_center.x(), m_center.y(), 0.);
-      unitR.setMag(1.);
-
-      HepGeom::Vector3D<double> nominalEta;
-      HepGeom::Vector3D<double> nominalNormal;
-      HepGeom::Vector3D<double> nominalPhi(-unitR.y(), unitR.x(), 0.);
-
-      // In Barrel like geometry, the etaAxis is along increasing z, and normal is in increasing radial direction.
-      // In Endcap like geometry, the etaAxis is along increasing r, and normal is in decreasing z direction,
-      // We base whether it is barrel like or endcap like by the orientation of the local z axis of the
-      // the element. This allows the use of endcap identifiers in a TB setup. A warning message is issued however if
-      // the orientation and identifier are not consistent (ie a barrel like orientation with an endcap identifier).
-
-      bool barrelLike = true;
-      nominalEta.setZ(1.);
-      if (std::abs(globalEtaAxis.dot(nominalEta)) < 0.5) { // Check that it is in roughly the right direction.
-        barrelLike = false;
-      }
-
-      if (isBarrel() && !barrelLike) {
+      if (isBarrel() && !m_barrelLike) {
         ATH_MSG_WARNING("Element has endcap like orientation with barrel identifier.");
-      } else if (!isBarrel() && barrelLike) {
+      } else if (!isBarrel() && m_barrelLike) {
         ATH_MSG_WARNING("Element has barrel like orientation with endcap identifier.");
       }
 
-      if (barrelLike) {
-        nominalEta.setZ(1.);
-        nominalNormal = unitR;
-      } else { // endcap like
-        nominalNormal.setZ(-1.);
-        nominalEta = unitR;
-      }
-
-      // Determine if axes are to have there directions swapped.
-
-      //
-      // Depth axis.
-      //
-      double depthDir = globalDepthAxis.dot(nominalNormal);
-      m_depthDirection = true;
-      if (depthDir < 0.) {
-        if (m_design->depthSymmetric()) {
-          m_depthDirection = false;
-        } else {
-          ATH_MSG_WARNING("Unable to swap local depth axis.");
-        }
-      }
-      if (std::abs(depthDir) < 0.5) { // Check that it is in roughly the right direction.
-        ATH_MSG_ERROR("Orientation of local depth axis does not follow correct convention.");
-        // throw std::runtime_error("Orientation of local depth axis does not follow correct convention.");
-        m_depthDirection = true; // Don't swap.
-      }
-
-      //
-      // Phi axis
-      //
-      double phiDir = globalPhiAxis.dot(nominalPhi);
-      m_phiDirection = true;
-      if (phiDir < 0.) {
-        if (m_design->phiSymmetric()) {
-          m_phiDirection = false;
-        } else {
-          ATH_MSG_WARNING("Unable to swap local xPhi axis.");
-        }
-      }
-
-      if (std::abs(phiDir) < 0.5) { // Check that it is in roughly the right direction.
-        ATH_MSG_ERROR("Orientation of local xPhi axis does not follow correct convention.");
-        // throw std::runtime_error("Orientation of local xPhi axis does not follow correct convention.");
-        m_phiDirection = true; // Don't swap.
-      }
-
-      //
-      // Eta axis
-      //
-      double etaDir = globalEtaAxis.dot(nominalEta);
-      m_etaDirection = true;
-      if (etaDir < 0.) {
-        if (m_design->etaSymmetric()) {
-          m_etaDirection = false;
-        } else {
-          ATH_MSG_DEBUG("Unable to swap local xEta axis.");
-        }
-      }
-      if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
-        ATH_MSG_ERROR("Orientation of local xEta axis does not follow correct convention.");
-        // throw std::runtime_error("Orientation of local xEta axis does not follow correct convention.");
-        m_etaDirection = true; // Don't swap
-      }
-
-    } // end if (m_firstTime)
-
-    m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransformImpl();
-    m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
-
-    // Check that local frame is right-handed. (ie transform has no reflection)
-    // This can be done by checking that the determinant is >0.
-    if (m_firstTime) { // Only need to check this once.
-      HepGeom::Transform3D& t = m_transformCLHEP;
-      double det = t(0,0) * (t(1,1)*t(2,2) - t(1,2)*t(2,1)) -
-                   t(0,1) * (t(1,0)*t(2,2) - t(1,2)*t(2,0)) +
-                   t(0,2) * (t(1,0)*t(2,1) - t(1,1)*t(2,0));
-      if (det < 0.) {
-        if (m_design->depthSymmetric()) {
-          ATH_MSG_DEBUG("Local frame is left-handed, Swapping depth axis to make it right handed.");
-          m_depthDirection = !m_depthDirection;
-          m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransformImpl();
-          m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
-        } else {
-          ATH_MSG_WARNING("Local frame is left-handed.");
-        }
-      }
-    }
-
-    // Initialize various cached members
-    // The unit vectors
-    HepGeom::Vector3D<double> normalCLHEP = m_transformCLHEP * localRecoDepthAxis;
-    m_normal = Amg::Vector3D(normalCLHEP[0], normalCLHEP[1], normalCLHEP[2]);
-
-    m_phiAxisCLHEP = m_transformCLHEP * localRecoPhiAxis;
-    m_etaAxisCLHEP = m_transformCLHEP * localRecoEtaAxis;
-
-    m_phiAxis = Amg::Vector3D(m_phiAxisCLHEP[0], m_phiAxisCLHEP[1], m_phiAxisCLHEP[2]);
-    m_etaAxis = Amg::Vector3D(m_etaAxisCLHEP[0], m_etaAxisCLHEP[1], m_etaAxisCLHEP[2]);
-
-    getExtent(m_minR, m_maxR, m_minZ, m_maxZ, m_minPhi, m_maxPhi);
-
-    //Install the cache at the end
     m_cacheValid.store(true);
     if (m_firstTime) m_firstTime.store(false);
   }
@@ -1072,7 +897,7 @@ namespace InDetDD {
 
     phi = globalPoint.phi();
   }
-
+  /*
   const HepGeom::Transform3D
   SiDetectorElement::recoToHitTransformImpl() const
   {
@@ -1107,7 +932,7 @@ namespace InDetDD {
     if (!m_depthDirection) scale[distDepth] = -1.;
     return recoToHit * HepGeom::Scale3D(scale[0], scale[1], scale[2]);
   }
-
+  */
   double
   SiDetectorElement::sinStereoImpl() const
   {

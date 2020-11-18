@@ -550,6 +550,11 @@ namespace InDetDD {
      * number = 0 will return the primary readout cell id.
      */
     SiCellId connectedCell(const SiCellId cellId, int number) const;
+
+    /**
+     * Recalculate cached values.
+     */
+    virtual void updateCache() const;
     
   private:
     /**
@@ -562,11 +567,6 @@ namespace InDetDD {
      * Common code for constructors.
      */
     void commonConstructor();
-
-    /**
-     * Recalculate cached values.
-     */
-    virtual void updateCache() const;
     
     /**
      * Calculate extent in r,z and phi. The values are cached and there

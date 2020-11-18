@@ -274,11 +274,6 @@ namespace InDetDD {
     const HepGeom::Transform3D defTransformCLHEP() const;
     const Amg::Transform3D defTransform() const;
 
-    /**
-     * Transform to go from local reconstruction frame to local hit frame.
-     */
-    const HepGeom::Transform3D recoToHitTransform() const;
-    //@}
 
     /**
      * @name Module Frame
@@ -722,12 +717,6 @@ namespace InDetDD {
      */
     void getEtaPhiPoint(const HepGeom::Point3D<double>& point, double deltaZ,
                         double& etaMin, double& etaMax, double& phi) const;
-
-    /**
-     * Private recoToHitTransform Implementation method with no lock
-     */
-    const HepGeom::Transform3D recoToHitTransformImpl() const;
- 
     /**
      * Private implementation method with no lock at center
      */
