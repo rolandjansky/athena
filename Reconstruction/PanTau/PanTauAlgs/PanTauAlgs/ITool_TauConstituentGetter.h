@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_ITOOL_TAUCONSTITUENTGETTER_H
@@ -14,9 +14,6 @@ namespace PanTau{
     class TauConstituent2;
 }
 
-//namespace Analysis {
-//    class TauJet;
-//}
 #include "xAODTau/TauJet.h"
 
 namespace PanTau {
@@ -35,8 +32,7 @@ namespace PanTau {
         public:
             
     virtual bool isInitialized() = 0;
-            virtual StatusCode GetTauConstituents(//const Analysis::TauJet*,
-                                                  const xAOD::TauJet* tauJet,
+            virtual StatusCode GetTauConstituents(const xAOD::TauJet* tauJet,
                                                   std::vector<TauConstituent2*>& outputList,
                                                   std::string algName) const = 0;
             

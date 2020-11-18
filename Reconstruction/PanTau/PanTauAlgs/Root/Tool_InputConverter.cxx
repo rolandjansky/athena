@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -51,12 +51,6 @@ StatusCode PanTau::Tool_InputConverter::initialize() {
 
     return StatusCode::SUCCESS;
 }
-
-
-// StatusCode PanTau::Tool_InformationStore::finalize() {
-//     StatusCode sc = AlgTool::finalize();
-//     return sc;
-// }
 
 
 bool    PanTau::Tool_InputConverter::passesPreselectionEnergy(double itsEnergy) const {
@@ -124,7 +118,6 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
    }
 
  
-    //ATH_MSG_DEBUG("About to create 4 vector of EFO. E / Eta / Phi / m: " << constituentEnergy << " / " << pfo->eta() << " / " << pfo->phi() << " / " << constituentMass);
     TLorentzVector momentum; 
     PanTau::SetP4EEtaPhiM( momentum, constituentEnergy, pfo->eta(), pfo->phi(), constituentMass);
     
@@ -140,7 +133,6 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     
     if(deltaR_toTauJet > m_Config_TauConstituents_Types_DeltaRCore) {
         if(pfo->isCharged()) {
-	  //itsTypeFlags.at((int)PanTau::TauConstituent2::t_OutChrg) = 1;
             itsTypeFlags.at((int)PanTau::TauConstituent2::t_Charged) = 1;
         }
         if(!pfo->isCharged()) {
@@ -162,10 +154,6 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
             //neutral PFO arranging --- check for pi0 tag
             mvaValue = pfo->bdtPi0Score();
             
-            // bool isThreeProng = false;
-            // if(tauJet->nTracks() == 3) isThreeProng = true;
-            // ATH_MSG_DEBUG("numTrack = " << tauJet->nTracks() << ", is Threeprong = " << isThreeProng);
-
 	    int nPi0sPerCluster = 0;
 	    if( !pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0sPerCluster) ) {
 	      ATH_MSG_WARNING("WARNING: Could not retrieve nPi0Proto. Will set it to 1.");
@@ -179,11 +167,8 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
     
     //! ==================================================
     //! create the tau constituent
-    ATH_MSG_DEBUG("About to create 4 vector of EFO. E / Eta / Phi / m / charge / mvaValue: " << constituentEnergy << " / " << pfo->eta() << " / " << pfo->phi() << " / " << constituentMass << " / " << pfoCharge << " / " << mvaValue);
     tauConstituent = new PanTau::TauConstituent2(momentum, pfoCharge, itsTypeFlags, mvaValue, pfo);
     tauConstituent->makePrivateStore();
-    ATH_MSG_DEBUG("Created new TauConstituent2 at: " << tauConstituent);
-    ATH_MSG_DEBUG("\t Eta value of its 4-vector: " << momentum.Eta());
     
     //! ==================================================
     //! Check if the pfo object has shots:
@@ -193,9 +178,7 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
         ATH_MSG_DEBUG("WARNING: Could not get shots from current pfo");
     }
     
-    ATH_MSG_DEBUG("Number of shots in cluster:" << list_TauShots.size());
     if(list_TauShots.size() > 0) {
-        ATH_MSG_DEBUG("Now converting shots of cluster with E, Eta, Phi, M: " << momentum.E() << ", " << momentum.Eta() << ", " << momentum.Phi() << ", " << momentum.M());
         for(unsigned int iShot=0; iShot<list_TauShots.size(); iShot++) {
         
             if(list_TauShots.at(iShot) == 0) {
@@ -204,14 +187,12 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
             }
         
             xAOD::PFO*              curShot         = const_cast<xAOD::PFO*>( dynamic_cast<const xAOD::PFO*>(list_TauShots.at(iShot)) );
-            ATH_MSG_DEBUG("Checking shot E, Eta, Phi, M: " << curShot->e() << ", " << curShot->eta() << ", " << curShot->phi() << ", " << curShot->m());
             TLorentzVector          shotMomentum;
 	    PanTau::SetP4EEtaPhiM( shotMomentum, curShot->e(), curShot->eta(), curShot->phi(), curShot->m());
             std::vector<int>        shotTypeFlags   = std::vector<int>((unsigned int)PanTau::TauConstituent2::t_nTypes, 0);
             double                  shotMVAValue    = PanTau::TauConstituent2::DefaultBDTValue();
             PanTau::TauConstituent2* shotConstituent = new PanTau::TauConstituent2(shotMomentum, 0, itsTypeFlags, shotMVAValue, curShot);
 	    shotConstituent->makePrivateStore();
-            ATH_MSG_DEBUG("\tAdded shot with E, Eta, Phi, M: " << shotMomentum.E() << ", " << shotMomentum.Eta() << ", " << shotMomentum.Phi() << ", " << shotMomentum.M());
             
             int nPhotons = 0;
             if( curShot->attribute(xAOD::PFODetails::tauShots_nPhotons, nPhotons) == false) {
@@ -219,7 +200,6 @@ StatusCode PanTau::Tool_InputConverter::ConvertToTauConstituent2(xAOD::PFO* pfo,
                 ATH_MSG_DEBUG("WARNING: Could not get nPhotons for this shot! Set to -1");
             }
             shotConstituent->setNPhotonsInShot(nPhotons);
-            ATH_MSG_DEBUG("\tThe shot has " << shotConstituent->getNPhotonsInShot() << " photons in it");
             tauConstituent->addShot(shotConstituent);
             
         }//end loop over shots

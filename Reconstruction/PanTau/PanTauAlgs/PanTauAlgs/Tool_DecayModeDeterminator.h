@@ -1,20 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-//  Header file for class TauImpactParameterExtractionTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Tool to store information needed in PanTau Algorithms
-///////////////////////////////////////////////////////////////////
-// limbach@physik.uni-bonn.de
-///////////////////////////////////////////////////////////////////
 
 #ifndef PANTAUALGS_TOOL_DECAYMODEDETERMINATOR_H
 #define PANTAUALGS_TOOL_DECAYMODEDETERMINATOR_H
-
 
 //! C++
 #include <vector>
@@ -58,7 +47,6 @@ namespace PanTau {
         virtual ~Tool_DecayModeDeterminator ();
         
         virtual StatusCode initialize();
-//         virtual StatusCode finalize  ();
         
         virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);
         

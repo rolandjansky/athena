@@ -2,10 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////////////////////////
-// PanTauProcessor.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-
 //! C++ includes
 #include <string>
 
@@ -94,8 +90,6 @@ StatusCode PanTau::PanTauProcessor::initialize() {
     ATH_CHECK( m_Tool_DecayModeDeterminator.retrieve() );
     ATH_CHECK( m_Tool_DetailsArranger.retrieve() );
     
-    ATH_CHECK( m_Tool_InformationStore->dumpMaps() );
-    
     ATH_CHECK( m_Tool_InformationStore->getInfo_VecDouble("ModeDiscriminator_BinEdges_Pt", m_Config_PtBins) );
     m_Config_MinPt = m_Config_PtBins.front();
     m_Config_MaxPt = m_Config_PtBins.back();
@@ -115,18 +109,11 @@ StatusCode PanTau::PanTauProcessor::finalize() {
 /// //////////////////////////////////////////////////////////
 /// Execute
 /// //////////////////////////////////////////////////////////
-//StatusCode      PanTau::PanTauProcessor::execute(xAOD::TauJet& pTau) {
 StatusCode      PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container) {
-    
-    ATH_MSG_DEBUG("===========================================================");
-    ATH_MSG_DEBUG("===      PanTau::PanTauProcessor --- Seed Creation      ===");
-    ATH_MSG_DEBUG("===========================================================");
-    ATH_MSG_DEBUG("Executing PanTau::PanTauProcessor::execute() for input alg: " << m_Name_InputAlg);
     
     //get the current TauJet
     xAOD::TauJet* curTauJet = &pTau;
     ATH_MSG_DEBUG("===> Tau: ");
-    //curTauJet->dump();
 
     //check for null pointer
     if(curTauJet == 0) {
@@ -203,42 +190,21 @@ StatusCode      PanTau::PanTauProcessor::executePanTau(xAOD::TauJet& pTau, xAOD:
 							       l_List_SelectedTauConstituents,
 							       l_List_TauConstituents, pantauSeed_TechnicalQuality);
 
-    unsigned int nPi0LinksCellBased = curTauJet->protoPi0PFOLinks().size();
     curPanTauSeed->makePrivateStore();
-    ATH_MSG_DEBUG("Created new PanTauSeed2 at " << curPanTauSeed << " with proto mode " << curPanTauSeed->getDecayModeBySubAlg() << " and nPi0 CellBased = " << nPi0LinksCellBased);
     
     // Get the features for this PanTauSeed
-    ATH_MSG_DEBUG("Calculate features for this PanTauSeed");
     ATH_CHECK(m_Tool_FeatureExtractor->execute(curPanTauSeed) );
-    
-    //ATH_MSG_VERBOSE("Dumping features of finalized PanTauSeed2 ==========================================");
-    //curPanTauSeed->getFeatures()->dump(m_log, MSG::VERBOSE);
-    //ATH_MSG_VERBOSE("Dumped features of finalized PanTauSeed2 ===========================================");
-
-    ATH_MSG_DEBUG("Finished adding input taus as PantauSeeds");
-    
-    
-    
-    //! =======================================================================================
-    //! Finalize the seeds
-    ATH_MSG_DEBUG("===========================================================");
-    ATH_MSG_DEBUG("===    PanTau::PanTauProcessor --- Seed Finalization    ===");
-    ATH_MSG_DEBUG("===========================================================");
     
     // Seed finalizing:
     //  1. Pass the seed to the decay mode determination tool
     //  2. Pass the seed to the DetailsArranger tool to calculate the four momentum and add the details to tauJet
        
     // 1. call decay mode determinator for this seed
-    ATH_MSG_DEBUG("calling decay mode determinator for valid seed ");
     ATH_CHECK( m_Tool_DecayModeDeterminator->execute(curPanTauSeed) );
     
     // 2. calculate the four momentum and link the details to the tauJet
     ATH_CHECK( m_Tool_DetailsArranger->execute(curPanTauSeed, pi0Container) );
     
-    //that's it :)
-    ATH_MSG_DEBUG("PanTau::PanTauProcessor for input alg" << m_Name_InputAlg << " was successful!");
-
     delete curPanTauSeed;
     return StatusCode::SUCCESS;
 }//end of execute
