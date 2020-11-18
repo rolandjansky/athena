@@ -56,7 +56,7 @@ class GeoPixelRingECRingRef  {
   int m_diskId;
   int m_front_back;
  
-  double ComputeRMax(double rMin, double safety, double moduleLength, double moduleWidth, double inclination);
+  double ComputeRMax(double rMin, double moduleLength, double moduleWidth, double inclination);
   double m_ringZMin;
   double m_ringZMax;
   double m_ringZShift;
@@ -67,6 +67,7 @@ class GeoPixelRingECRingRef  {
   double m_halfLength;
   bool m_bPrebuild;  
   double m_inclination; 
+  double m_thickSafety;
 
   std::string m_readoutRegion;
   int m_readoutLayer;
