@@ -157,7 +157,9 @@ class InDetGeometryFlags_JobProperties(JobPropertyContainer):
 
     def setupDynamicAlignFolders(self):
         from AthenaCommon.GlobalFlags import globalflags
-        if globalflags.DataSource.get_Value() != 'data':
+        from IOVDbSvc.CondDB import conddb
+        # Disable for MC or for Run 1 (AlignL* folders are not in COMP200).
+        if globalflags.DataSource.get_Value() != 'data' or conddb.dbname == 'COMP200':
             self.useDynamicAlignFolders.set_Value_and_Lock(False)
 
 
@@ -196,6 +198,5 @@ jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(useDynamicAlignFo
 InDetGeometryFlags = jobproperties.InDetGeometryFlags_JobProperties
 InDetGeometryFlags.setupValuesFromDB()
 InDetGeometryFlags.setupDynamicAlignFolders()
-
 
 
