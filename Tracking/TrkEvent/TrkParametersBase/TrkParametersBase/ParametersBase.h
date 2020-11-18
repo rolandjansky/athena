@@ -10,11 +10,11 @@
 #define TRKPARAMETERSBASE_PARAMETERSBASE_H
 
 // Amg
-#include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
+#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <type_traits>
 

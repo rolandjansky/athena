@@ -5,9 +5,8 @@
 
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
-
-#include "TRTAlignCondAlg.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
+#include "TRTAlignCondAlg.h"
 
 
 TRTAlignCondAlg::TRTAlignCondAlg(const std::string& name
@@ -74,7 +73,7 @@ StatusCode TRTAlignCondAlg::execute()
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
                   << ". In theory this should not be called, but may happen"
                   << " if multiple concurrent events are being processed out of order.");
-    return StatusCode::SUCCESS; 
+    return StatusCode::SUCCESS;
   }
 
   // ____________ Construct new Write Cond Object and its range ____________
@@ -98,7 +97,7 @@ StatusCode TRTAlignCondAlg::execute()
     // ** Global
     SG::ReadCondHandle<CondAttrListCollection> readHandleDynamicGlobal{m_readKeyDynamicGlobal};
     // Get CDO and store it into container
-    const CondAttrListCollection* readCdoDynamicGlobal{*readHandleDynamicGlobal}; 
+    const CondAttrListCollection* readCdoDynamicGlobal{*readHandleDynamicGlobal};
     if(readCdoDynamicGlobal==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Dynamic Global");
       return StatusCode::FAILURE;
@@ -114,7 +113,7 @@ StatusCode TRTAlignCondAlg::execute()
     // ** Regular
     SG::ReadCondHandle<AlignableTransformContainer> readHandleDynamicRegular{m_readKeyDynamicRegular};
     // Get CDO and store it into container
-    const AlignableTransformContainer* readCdoDynamicRegular{*readHandleDynamicRegular}; 
+    const AlignableTransformContainer* readCdoDynamicRegular{*readHandleDynamicRegular};
     if(readCdoDynamicRegular==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Dynamic Regular");
       return StatusCode::FAILURE;
@@ -134,7 +133,7 @@ StatusCode TRTAlignCondAlg::execute()
     // 2. Regular folder
     SG::ReadCondHandle<AlignableTransformContainer> readHandleRegular{m_readKeyRegular};
     // Get CDO and store it into container
-    const AlignableTransformContainer* readCdoRegular{*readHandleRegular}; 
+    const AlignableTransformContainer* readCdoRegular{*readHandleRegular};
     if(readCdoRegular==nullptr) {
       ATH_MSG_ERROR("Null pointer to the read conditions object: Regular");
       return StatusCode::FAILURE;
@@ -159,10 +158,10 @@ StatusCode TRTAlignCondAlg::execute()
     return StatusCode::FAILURE;
   }
 
-  // ____________ Construct new Write Cond Object ____________                                                                                
+  // ____________ Construct new Write Cond Object ____________
   std::unique_ptr<InDetDD::TRT_DetElementContainer> writeCdoDetElCont{std::make_unique<InDetDD::TRT_DetElementContainer>()};
-  
-  // ____________ Update writeCdo using readCdo ____________                                                                                   
+
+  // ____________ Update writeCdo using readCdo ____________
   std::map<const InDetDD::TRT_EndcapElement*, InDetDD::TRT_EndcapElement*> oldToNewECMap;
   std::map<const InDetDD::TRT_BarrelElement*, InDetDD::TRT_BarrelElement*> oldToNewBAMap;
 
@@ -217,7 +216,7 @@ StatusCode TRTAlignCondAlg::execute()
 
   // Record the resulting CDO
   if(writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_ERROR("Could not record GeoAlignmentStore " << writeHandle.key() 
+    ATH_MSG_ERROR("Could not record GeoAlignmentStore " << writeHandle.key()
 		  << " with EventRange " << rangeW
 		  << " into Conditions Store");
     return StatusCode::FAILURE;

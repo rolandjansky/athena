@@ -2,10 +2,8 @@
   Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ActsGeometry/ActsAlignmentStore.h"
-
 #include "ActsGeometry/ActsDetectorElement.h"
-
+#include "ActsGeometry/ActsAlignmentStore.h"
 #include "Acts/Utilities/Definitions.hpp"
 
 ActsAlignmentStore::ActsAlignmentStore(const GeoAlignmentStore &gas){

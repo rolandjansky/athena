@@ -9,6 +9,11 @@
 #ifndef TRKSURFACES_SURFACE_H
 #define TRKSURFACES_SURFACE_H
 
+// Amg
+// Ensure Eigen plugin comes first
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
 // Trk
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/Intersection.h"
@@ -22,9 +27,6 @@
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkSurfaces/BoundaryCheck.h"
 #include "TrkSurfaces/DistanceSolution.h"
-// Amg
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 // Identifier
 #include "Identifier/Identifier.h"
 
@@ -130,7 +132,7 @@ public:
   virtual bool operator==(const Surface& sf) const = 0;
 
   /**Non-equality operator*/
-  bool operator!=(const Surface& sf) const ;
+  bool operator!=(const Surface& sf) const;
 
   /**Implicit constructor - uses the copy constructor */
   virtual Surface* clone() const = 0;
