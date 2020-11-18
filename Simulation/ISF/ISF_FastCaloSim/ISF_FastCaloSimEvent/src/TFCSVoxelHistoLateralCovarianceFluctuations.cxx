@@ -67,13 +67,14 @@ bool TFCSVoxelHistoLateralCovarianceFluctuations::initialize(TFile* inputfile, s
   int cs = calosample();
   int bin = 1;
 
-  m_voxel_template = (TH2F*)inputfile->Get(Form("voxel_template_cs%d_pca%d", cs, bin));
-  if (!m_voxel_template){
+  TH2* temp = dynamic_cast<TH2*>(inputfile->Get(Form("voxel_template_cs%d_pca%d", cs, bin)));
+  if (!temp){
       ATH_MSG_ERROR("Template hist not found for cs "+std::to_string(cs));
       return false;
   }
-  m_nDim_x = m_voxel_template->GetNbinsX();
-  m_nDim_y = m_voxel_template->GetNbinsY();
+  m_voxel_template.push_back(temp);
+  m_nDim_x = m_voxel_template[0]->GetNbinsX();
+  m_nDim_y = m_voxel_template[0]->GetNbinsY();
 
   while(inputfile->Get(Form("parMeans_cs%d_pca%d", cs, bin))){
       TVectorD parMeans;
@@ -179,7 +180,7 @@ FCSReturnCode TFCSVoxelHistoLateralCovarianceFluctuations::simulate(TFCSSimulati
   }
   
   weight_t* weightvec;
-  TH2F* voxel_temp;
+  TH2* voxel_temp;
 
   int Ebin = simulstate.Ebin();
 
@@ -192,7 +193,7 @@ FCSReturnCode TFCSVoxelHistoLateralCovarianceFluctuations::simulate(TFCSSimulati
       }
     }
     if(simulstate.hasAuxInfo(s_layer_hash_geo[ilayer])) {
-      voxel_temp=static_cast<TH2F*>(simulstate.getAuxInfo<void*>(s_layer_hash_geo[ilayer]));
+      voxel_temp=static_cast<TH2*>(simulstate.getAuxInfo<void*>(s_layer_hash_geo[ilayer]));
       if(voxel_temp) {
         delete voxel_temp;
         simulstate.setAuxInfo<void*>(s_layer_hash_geo[ilayer],nullptr);
@@ -239,11 +240,12 @@ FCSReturnCode TFCSVoxelHistoLateralCovarianceFluctuations::simulate(TFCSSimulati
     }
   }
  
-  voxel_temp = new TH2F(*m_voxel_template);
+  voxel_temp = static_cast<TH2*>(m_voxel_template[0]->Clone());
 
   //For now simulating only the layer calosample()
   simulstate.setAuxInfo<void*>(s_layer_hash[calosample()],weightvec);
   simulstate.setAuxInfo<void*>(s_layer_hash_geo[calosample()],voxel_temp);
+  
   if(msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG("simulstate after storing weight "<<weightvec<<" in AuxInfo");
     simulstate.Print();
@@ -268,8 +270,8 @@ FCSReturnCode TFCSVoxelHistoLateralCovarianceFluctuations::simulate_hit(Hit& hit
     return FCSFatal;
   } 
 
-  TH2F* voxel_template = nullptr;
-  if(simulstate.hasAuxInfo(s_layer_hash_geo[cs])) voxel_template=static_cast<TH2F*>(simulstate.getAuxInfo<void*>(s_layer_hash_geo[cs])); 
+  TH2* voxel_template = nullptr;
+  if(simulstate.hasAuxInfo(s_layer_hash_geo[cs])) voxel_template=static_cast<TH2*>(simulstate.getAuxInfo<void*>(s_layer_hash_geo[cs])); 
   if(!voxel_template) {
     ATH_MSG_ERROR("Voxel geometry not stored in simulstate for calosample="<<cs);
     return FCSFatal;
