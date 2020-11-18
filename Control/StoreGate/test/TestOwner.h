@@ -50,6 +50,7 @@ public:
   } 
   virtual void declare( Gaudi::DataHandle& )  override { std::abort(); }
   virtual void renounce( Gaudi::DataHandle& ) override { std::abort(); }
+  virtual bool renounceInput(const DataObjID&) override { std::abort(); }
 
 
   std::string m_name = "TestOwner";

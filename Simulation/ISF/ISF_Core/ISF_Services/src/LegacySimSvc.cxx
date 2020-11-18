@@ -15,6 +15,7 @@ ISF::LegacySimSvc::LegacySimSvc(const std::string& name,ISvcLocator* svc) :
 /** framework methods */
 StatusCode ISF::LegacySimSvc::initialize()
 {
+  m_checkToolDeps = false;
   ATH_CHECK ( m_simulatorTool.retrieve() );
   return StatusCode::SUCCESS;
 }

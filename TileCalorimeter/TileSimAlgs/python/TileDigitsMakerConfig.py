@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile digits maker algorithm"""
 
@@ -147,7 +147,7 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
         else:
             tileDigitsContainer = tileDigitsMaker.getDefaultProperty('TileFilteredContainer')
 
-    tileDigitsContainer = tileDigitsContainer.split('+').pop()
+    tileDigitsContainer = str(tileDigitsContainer).split('+').pop()
     if flags.Digitization.AddCaloDigi:
         outputItemList = ['TileDigitsContainer#*']
     else:

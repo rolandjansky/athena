@@ -69,6 +69,8 @@ StatusCode TrigNavigationThinningSvc::initialize() {
 
   ATH_MSG_DEBUG( "TrigNavigationThinningSvc::initialize()" << name() );
 
+  m_checkToolDeps = false;
+
   // load the required tools
   if( not m_trigDecisionTool.empty() ) {
     if ( m_trigDecisionTool.retrieve().isFailure() ) {

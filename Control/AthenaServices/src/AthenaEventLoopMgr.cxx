@@ -124,6 +124,9 @@ StatusCode AthenaEventLoopMgr::initialize()
          << " - package version " << PACKAGE_VERSION << endmsg ;
  
 
+  m_autoRetrieveTools = false;
+  m_checkToolDeps = false;
+  
   StatusCode sc = MinimalEventLoopMgr::initialize();
   if ( !sc.isSuccess() ) 
   {

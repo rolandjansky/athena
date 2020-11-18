@@ -51,9 +51,9 @@ def __decisionsFromHypo( hypo ):
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
     __log.debug("Hypo type %s is combo %r", hypo.getName(), __isCombo(hypo))
     if __isCombo( hypo ):
-        return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions[0]
+        return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], str(hypo.HypoOutputDecisions[0])
     else: # regular hypos
-        return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], hypo.HypoOutputDecisions
+        return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], str(hypo.HypoOutputDecisions)
 
 def __getSequenceChildrenIfIsSequence( s ):
     if isSequence( s ):
@@ -99,7 +99,7 @@ def collectFilters( steps ):
 
 def collectL1DecoderDecisionObjects(l1decoder):
     decisionObjects = set()
-    decisionObjects.update([ d.Decisions for d in l1decoder.roiUnpackers ])
+    decisionObjects.update([ str(d.Decisions) for d in l1decoder.roiUnpackers ])
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     decisionObjects.add( mapThresholdToL1DecisionCollection("FSNOSEED") ) # Include also Full Scan
     __log.info("Collecting %i decision objects from L1 decoder instance", len(decisionObjects))
@@ -113,14 +113,14 @@ def collectHypoDecisionObjects(hypos, inputs = True, outputs = True):
                          hypoAlg.getName(), hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions )
             if isinstance( hypoAlg.HypoInputDecisions, list):
                 if inputs:
-                    [ decisionObjects.add( d ) for d in hypoAlg.HypoInputDecisions ]
+                    [ decisionObjects.add( str(d) ) for d in hypoAlg.HypoInputDecisions ]
                 if outputs:
-                    [ decisionObjects.add( d ) for d in hypoAlg.HypoOutputDecisions ]
+                    [ decisionObjects.add( str(d) ) for d in hypoAlg.HypoOutputDecisions ]
             else:
                 if inputs:
-                    decisionObjects.add( hypoAlg.HypoInputDecisions )
+                    decisionObjects.add( str(hypoAlg.HypoInputDecisions) )
                 if outputs:
-                    decisionObjects.add( hypoAlg.HypoOutputDecisions )
+                    decisionObjects.add( str(hypoAlg.HypoOutputDecisions) )
     __log.info("Collecting %i decision objects from hypos", len(decisionObjects))
     return sorted(decisionObjects)
 
@@ -129,15 +129,15 @@ def collectFilterDecisionObjects(filters, inputs = True, outputs = True):
     for step, stepFilters in filters.items():
         for filt in stepFilters:
             if inputs and hasattr( filt, "Input" ):
-                decisionObjects.update( filt.Input )
+                decisionObjects.update( str(i) for i in filt.Input )
             if outputs and hasattr( filt, "Output" ):
-                decisionObjects.update( filt.Output )
+                decisionObjects.update( str(o) for o in filt.Output )
     __log.info("Collecting %i decision objects from filters", len(decisionObjects))
     return decisionObjects
 
 def collectHLTSummaryDecisionObjects(hltSummary):
     decisionObjects = set()
-    decisionObjects.add( hltSummary.DecisionsSummaryKey )
+    decisionObjects.add( str(hltSummary.DecisionsSummaryKey) )
     __log.info("Collecting %i decision objects from hltSummary", len(decisionObjects))
     return decisionObjects
 
@@ -445,8 +445,8 @@ def triggerPOOLOutputCfg(flags, edmSet):
 
     # Ensure OutputStream runs after TrigDecisionMakerMT and xAODMenuWriterMT
     streamAlg.ExtraInputs += [
-        ("xAOD::TrigDecision", decmaker.TrigDecisionKey),
-        ("xAOD::TrigConfKeys", menuwriter.KeyWriterTool.ConfKeys)]
+        ("xAOD::TrigDecision", str(decmaker.TrigDecisionKey)),
+        ("xAOD::TrigConfKeys", str(menuwriter.KeyWriterTool.ConfKeys))]
 
     # Produce xAOD L1 RoIs from RoIBResult
     from AnalysisTriggerAlgs.AnalysisTriggerAlgsCAConfig import RoIBResultToxAODCfg

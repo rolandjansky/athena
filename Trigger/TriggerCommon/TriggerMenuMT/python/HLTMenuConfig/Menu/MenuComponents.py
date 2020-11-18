@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from GaudiKernel.DataHandle import DataHandle
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 from collections import MutableSequence
@@ -19,10 +20,10 @@ class Node(object):
         self.outputs=[]
 
     def addOutput(self, name):
-        self.outputs.append(name)
+        self.outputs.append(str(name) if isinstance(name, DataHandle) else name)
 
     def addInput(self, name):
-        self.inputs.append(name)
+        self.inputs.append(str(name) if isinstance(name, DataHandle) else name)
 
     def getOutputList(self):
         return self.outputs
@@ -77,7 +78,7 @@ class AlgNode(Node):
             log.debug("Output DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.outputProp != '':
-                self.setPar(self.outputProp,name)
+                self.setPar(self.outputProp, name)
             else:
                 log.debug("no outputProp set for output of %s", self.Alg.getName())
         Node.addOutput(self, name)
@@ -91,7 +92,7 @@ class AlgNode(Node):
         if isinstance(cval, MutableSequence):
             outputs.extend(cval)
         else:
-            outputs.append(cval)
+            outputs.append(str(cval))
         return outputs
 
     def addInput(self, name):
@@ -100,7 +101,7 @@ class AlgNode(Node):
             log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.inputProp != '':
-                self.setPar(self.inputProp,name)
+                self.setPar(self.inputProp, name)
             else:
                 log.debug("no InputProp set for input of %s", self.Alg.getName())
         Node.addInput(self, name)
@@ -115,7 +116,7 @@ class AlgNode(Node):
         if isinstance(cval, MutableSequence):
             inputs.extend(cval)
         else:
-            inputs.append(cval)
+            inputs.append(str(cval))
         return inputs
 
     def __repr__(self):
@@ -967,7 +968,8 @@ class RecoFragmentsPool(object):
                allargs.update(kwargs)
         
         sortedkeys = sorted(allargs.keys())
-        sortedvals = [allargs[key] for key in sortedkeys]
+        sortedvals = [str(allargs[key]) if isinstance(allargs[key], DataHandle)
+                      else allargs[key] for key in sortedkeys]
 
         requestHash = hash( ( creator, tuple(sortedkeys), tuple(sortedvals) ) )
         if requestHash not in cls.fragments:

@@ -82,6 +82,10 @@ StoreGateSvc* EventSelectorAthenaPool::eventStore() const {
 }
 //________________________________________________________________________________
 StatusCode EventSelectorAthenaPool::initialize() {
+
+   m_autoRetrieveTools = false;
+   m_checkToolDeps = false;
+  
    if (m_isSecondary.value()) {
       ATH_MSG_DEBUG("Initializing secondary event selector " << name());
    } else {

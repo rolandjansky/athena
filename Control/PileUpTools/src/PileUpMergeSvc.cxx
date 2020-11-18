@@ -91,8 +91,13 @@ void PileUpMergeSvc::decodeIntervals() {
 /// Service initialisation
 StatusCode 
 PileUpMergeSvc::initialize()    {
+
   msg() << MSG::INFO << "Initializing AthService " << name() 
 	<< " - package version " << PACKAGE_VERSION << endmsg ;
+
+  m_autoRetrieveTools = false;
+  m_checkToolDeps = false;
+
   // set up the SG service:
   if ( !(p_overStore.retrieve()).isSuccess() ) 
   {

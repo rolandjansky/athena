@@ -60,10 +60,9 @@ muNamesFS = muonNames().getNames('FS')
 def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
 
   from AthenaCommon.CFElements import parOR
-  
-  muDecodeRecoSequence = parOR("decodeMuViewNode_"+RoIs)
 
-  postFix = "_"+RoIs
+  postFix = "_%s" % RoIs
+  muDecodeRecoSequence = parOR("decodeMuViewNode"+postFix)
 
   viewAlgs_MuonPRD = []  # These algs should be executed to prepare muon PRDs for muFast and muEF steps.
 
@@ -365,7 +364,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
       ViewVerify.DataObjects += [('Muon::MMPrepDataContainer','StoreGateSvc+MM_Measurements')]
     #muFastRecoSequence+=ViewVerify
   else:
-    ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
+    ViewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   ViewVerify.DataObjects += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                              ( 'DataVector< LVL1::RecMuonRoI >' , 'StoreGateSvc+HLT_RecMURoIs' )]
 
@@ -503,7 +502,7 @@ def muonIDFastTrackingSequence( RoIs, name, extraLoads=None ):
 
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
   viewAlgs, viewVerify = makeInDetAlgs( config = IDTrigConfig, rois = RoIs )
-  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
+  viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
   if extraLoads:
     viewVerify.DataObjects += extraLoads
 
@@ -520,7 +519,7 @@ def muCombRecoSequence( RoIs, name ):
   ### Required to satisfy data dependencies                                       ###
   import AthenaCommon.CfgMgr as CfgMgr
   ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
-  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+'+muNames.L2SAName)]
+  ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+%s' % muNames.L2SAName)]
 
   muCombRecoSequence+=ViewVerify
 
@@ -583,7 +582,8 @@ def muEFSARecoSequence( RoIs, name ):
 
   EFMuonViewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( "EFMuonViewDataVerifier_" + name )
   EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                        ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
+                                        ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
+
   efAlgs.append( EFMuonViewDataVerifier )
 
   #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
@@ -678,7 +678,7 @@ def muEFCBRecoSequence( RoIs, name ):
   ViewVerifyMS.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
                               ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                               ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                              ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs ),
+                              ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                               ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
   if "FS" in name:
     ViewVerifyMS.DataObjects +=[( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
@@ -973,8 +973,8 @@ def efmuisoRecoSequence( RoIs, Muons ):
   trackParticles = PTTrackParticles[-1]
   trigEFmuIso.IdTrackParticles = trackParticles
   trigEFmuIso.MuonContName = muNames.EFIsoMuonName
-  trigEFmuIso.ptcone02Name = Muons+".ptcone02"
-  trigEFmuIso.ptcone03Name = Muons+".ptcone03"
+  trigEFmuIso.ptcone02Name = "%s.ptcone02" % Muons
+  trigEFmuIso.ptcone03Name = "%s.ptcone03" % Muons
 
   efmuisoRecoSequence += trigEFmuIso
 

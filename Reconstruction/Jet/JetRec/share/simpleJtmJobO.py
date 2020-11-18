@@ -73,8 +73,8 @@ addJetRecoToAlgSequence()
 #--------------------------------------------------------------
 for esTool in jtm.allEDTools:
     t = getattr(ToolSvc, esTool.getName() )
-    jetFlags.jetAODList += [ "xAOD::EventShape#"+t.OutputContainer,
-                             "xAOD::EventShapeAuxInfo#"+t.OutputContainer+'Aux.' ]
+    jetFlags.jetAODList += [ "xAOD::EventShape#%s" % t.OutputContainer,
+                             "xAOD::EventShapeAuxInfo#%sAux." % t.OutputContainer ]
 
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.pool.root" )

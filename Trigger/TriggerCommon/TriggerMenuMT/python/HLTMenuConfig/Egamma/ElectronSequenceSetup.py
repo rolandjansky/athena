@@ -24,8 +24,8 @@ def fastElectronSequence(ConfigFlags):
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
-    viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
-                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
+    viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+%s' % CaloMenuDefs.L2CaloClusters ),
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
 
     TrackParticlesName = ""
     for viewAlg in viewAlgs:

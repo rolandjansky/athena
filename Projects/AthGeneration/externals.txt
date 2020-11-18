@@ -9,4 +9,4 @@
 AthGenerationExternalsVersion = 2.0.85
 
 # The version of atlas/Gaudi to use:
-GaudiVersion = v34r0.005
+GaudiVersion = v34r1.001
