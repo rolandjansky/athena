@@ -64,7 +64,6 @@ namespace InDetDD {
    *
    * -  Identification
    * -  Navigation
-   * -  Transformation/Orientation
    * -  Module Frame
    * -  Element Extent
    * -  Design methods
@@ -72,7 +71,6 @@ namespace InDetDD {
    * -  Lorentz Correction
    * -  Readout cell id
    * -  Miscellaneous
-   * -  Cache handling.
    *
    *
    * @author Grant Gorfine
@@ -152,23 +150,6 @@ namespace InDetDD {
      */
     SiDetectorElement& operator=(SiDetectorElement&&) = delete;
 
-    /**
-     * @name Cache handling
-     *
-     * Methods to handle invalidating and updating caches. The cached values include values that are affected by alignment
-     */
-    //@{
-    /**
-     * Signal that cached values are no longer valid.
-     * Invalidate general cache (inline)
-     */
-    virtual void invalidate();
-
-    /**
-     * Set/calculate cache values (inline)
-     */
-    virtual void setCache();
-    //@}
 
     /**
      * @name Navigation setters
@@ -232,48 +213,12 @@ namespace InDetDD {
      * @name Surface
      */
     //@{
-    /**
-     * Element Surface
-     */
-    virtual Trk::Surface& surface();
-    virtual const Trk::Surface& surface() const;
-    /**
-     * TrkDetElementBase interface (inline)
-     */
-    virtual const Trk::Surface& surface(const Identifier&) const;
-    
+
     /**
      * Returns the full list of surfaces associated to this detector element
      */
     virtual const std::vector<const Trk::Surface*>& surfaces() const;
-    //@}
-
-    /**
-     * @name Transformation
-     */
     //@{
-    /**
-     * Local (simulation/hit frame) to global transform
-     */
-    virtual const GeoTrf::Transform3D& transformHit() const;
-
-    /**
-     * Local (reconstruction frame) to global transform
-     */
-    const HepGeom::Transform3D& transformCLHEP() const;
-    const Amg::Transform3D& transform() const;
-    /**
-     * TrkDetElementBase interface (inline)
-     */
-    virtual const Amg::Transform3D& transform(const Identifier&) const;
-
-    /**
-     * Default Local (reconstruction frame) to global transform
-     * ie with no misalignment.
-     */
-    const HepGeom::Transform3D defTransformCLHEP() const;
-    const Amg::Transform3D defTransform() const;
-
 
     /**
      * @name Module Frame

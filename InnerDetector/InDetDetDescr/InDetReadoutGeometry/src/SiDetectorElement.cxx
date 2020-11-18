@@ -155,18 +155,6 @@ namespace InDetDD {
     return cellId;
   }
 
-  Trk::Surface&
-  SiDetectorElement::surface()
-  {
-    return *m_surface;
-  }
-
-  const Trk::Surface&
-  SiDetectorElement::surface() const
-  {
-    return *m_surface;
-  }
-
   const std::vector<const Trk::Surface*>&
   SiDetectorElement::surfaces() const
   {
@@ -186,57 +174,7 @@ namespace InDetDD {
     // return the surfaces
     return m_surfaces;
   }
-
-  const GeoTrf::Transform3D&
-  SiDetectorElement::transformHit() const
-  {
-    if (m_geoAlignStore) {
-      const GeoTrf::Transform3D* ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
-      if (ptrXf) return *ptrXf;
-    }
-    return getMaterialGeom()->getAbsoluteTransform();
-  }
-
-  const HepGeom::Transform3D&
-  SiDetectorElement::transformCLHEP() const
-  {
-    //stuff to get the CLHEP version of the local to global transform.
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_transformCLHEP;
-  }
-
-  const Amg::Transform3D&
-  SiDetectorElement::transform() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_transform;
-  }
-
-  const HepGeom::Transform3D
-  SiDetectorElement::defTransformCLHEP() const
-  {
-    if (m_geoAlignStore) {
-      const GeoTrf::Transform3D* ptrXf = m_geoAlignStore->getDefAbsPosition(getMaterialGeom());
-      if (ptrXf) return Amg::EigenTransformToCLHEP(*ptrXf) * recoToHitTransform();
-    }
-    return Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()) * recoToHitTransform();
-  }  
-   
-  const Amg::Transform3D
-  SiDetectorElement::defTransform() const
-  {
-    HepGeom::Transform3D tmpTransform = defTransformCLHEP();
-    return Amg::CLHEPTransformToEigen(tmpTransform);
-  }
-
+ 
   const Amg::Transform3D&
   SiDetectorElement::moduleTransform() const
   {
