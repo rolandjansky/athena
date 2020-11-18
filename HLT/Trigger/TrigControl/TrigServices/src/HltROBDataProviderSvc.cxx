@@ -419,7 +419,8 @@ void HltROBDataProviderSvc::robmap_monitorRobFragment(const EventContext& contex
 
   robData.rob_status_words = std::move(statusWords);
 
-  // Pass ROBDataStruct to CostMonitor
+  // Check if ROBDataStruct is move-constructible and pass data to CostMonitor
+  static_assert(std::is_nothrow_move_constructible<robmonitor::ROBDataStruct>::value);
   if (m_trigCostSvcHandle->monitorROS(context, std::move(robData)).isFailure()) {
     ATH_MSG_WARNING("TrigCost ROS monitoring failed!");
   }

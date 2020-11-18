@@ -19,9 +19,3 @@ atlas_add_test( Methods_test
                 test/Methods_test.cxx
                 LINK_LIBRARIES TrigDataAccessMonitoringLib
                 POST_EXEC_SCRIPT nopost.sh )
-
-atlas_add_test( Type_traits_test
-                SOURCES
-                test/ROBDataMonitor_type_traits_tests.cxx
-                LINK_LIBRARIES TrigDataAccessMonitoringLib
-                POST_EXEC_SCRIPT nopost.sh )
