@@ -291,7 +291,7 @@ def sctCondCfg(flags):
   acc.merge(SCT_CablingCondAlgCfg(flags))
   SCT_ConfigurationConditionsTool=CompFactory.SCT_ConfigurationConditionsTool
   acc.addPublicTool(SCT_ConfigurationConditionsTool())
-  channelFolder = "/SCT/DAQ/Config/ChipSlim" if flags.Input.isMC else "/SCT/DAQ/Config/Chip"
+  channelFolder = "/SCT/DAQ/Config/ChipSlim"
   moduleFolder = "/SCT/DAQ/Config/Module"
   murFolder = "/SCT/DAQ/Config/MUR"
   SCT_ConfigurationCondAlg=CompFactory.SCT_ConfigurationCondAlg
