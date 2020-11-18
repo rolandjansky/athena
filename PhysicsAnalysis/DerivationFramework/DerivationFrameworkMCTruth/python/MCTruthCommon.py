@@ -182,7 +182,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
                                              JetRadius = 1.0,
                                              JetBuilder = DFCommon_jbld,
                                              GhostArea = 0.01,
-                                             PtMin = threshold
+                                             PtMin = 50000.
                                              )
             #Now we setup a JetRecTool which will use the above JetFinder
             AntiKt10TruthJetsRec = CfgMgr.JetRecTool("AntiKt10TruthJetsRec",
@@ -205,7 +205,7 @@ def addTruthJets(kernel=None, decorationDressing=None):
                                                                             JetRadius = 1.0,
                                                                             JetBuilder = DFCommon_jbld,
                                                                             GhostArea = 0.01,
-                                                                            PtMin = threshold
+                                                                            PtMin = 50000.
                                                                             )
             from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorTool
             DFCommon_EnCorr = EnergyCorrelatorTool("DFCommon_EnCorr", Beta = 1.0)
