@@ -7,18 +7,21 @@ if 'TARGETVOLUME' in os.environ:
 else:
     print("VolumeDebugger: Running overlap check in default volume ("+target_volume+")")
 
+if target_volume != "NONE":
+    from AthenaCommon.CfgGetter import getPublicTool
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.OptionalUserActionList.addAction('G4UA::VolumeDebuggerTool',['Run'])
 
-from AthenaCommon.CfgGetter import getPublicTool
-from G4AtlasApps.SimFlags import simFlags
-simFlags.OptionalUserActionList.addAction('G4UA::VolumeDebuggerTool',['Run'])
+    getPublicTool('G4UA::VolumeDebuggerTool').TargetVolume=target_volume
+    getPublicTool('G4UA::VolumeDebuggerTool').Resolution=1000 # Default = 1000.   smaller is faster, this is an int
+    getPublicTool('G4UA::VolumeDebuggerTool').Tolerance=0.
+    getPublicTool('G4UA::VolumeDebuggerTool').Verbose=False
+    getPublicTool('G4UA::VolumeDebuggerTool').RunGeoTest=True
+    getPublicTool('G4UA::VolumeDebuggerTool').MaxCopiesToCheck=2.
+    getPublicTool('G4UA::VolumeDebuggerTool').DumpGDML=True
 
-getPublicTool('G4UA::VolumeDebuggerTool').TargetVolume=target_volume
-getPublicTool('G4UA::VolumeDebuggerTool').Resolution=1000 # Default = 1000.   smaller is faster, this is an int
-getPublicTool('G4UA::VolumeDebuggerTool').Tolerance=0.
-getPublicTool('G4UA::VolumeDebuggerTool').Verbose=False
-getPublicTool('G4UA::VolumeDebuggerTool').RunGeoTest=True
-getPublicTool('G4UA::VolumeDebuggerTool').MaxCopiesToCheck=2.
-getPublicTool('G4UA::VolumeDebuggerTool').DumpGDML=True
+else:
+    print("Target Volume is "+target_volume+". Not running Volume Debugger...")
 
 
 """
