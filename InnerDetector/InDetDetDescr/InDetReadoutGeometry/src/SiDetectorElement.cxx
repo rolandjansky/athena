@@ -224,81 +224,6 @@ namespace InDetDD {
     return !isStereo();
   }
 
-  const HepGeom::Vector3D<double>&
-  SiDetectorElement::phiAxisCLHEP() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_phiAxisCLHEP;
-  }
-
-  const Amg::Vector3D&
-  SiDetectorElement::phiAxis() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_phiAxis;
-  }
-
-  const HepGeom::Vector3D<double>&
-  SiDetectorElement::etaAxisCLHEP() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_etaAxisCLHEP;
-  }
-
-  const Amg::Vector3D&
-  SiDetectorElement::etaAxis() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_etaAxis;
-  }
- 
-  Amg::Vector2D
-  SiDetectorElement::hitLocalToLocal(double xEta, double xPhi) const  // Will change order to phi, eta
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    if (!m_etaDirection) xEta = -xEta;
-    if (!m_phiDirection) xPhi = -xPhi;
-    return Amg::Vector2D(xPhi, xEta);
-  }
-
-  HepGeom::Point3D<double>
-  SiDetectorElement::hitLocalToLocal3D(const HepGeom::Point3D<double>& hitPosition) const
-  {
-    // Equiv to transform().inverse * transformHit() * hitPosition
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    double xDepth = hitPosition[m_hitDepth];
-    double xPhi = hitPosition[m_hitPhi];
-    double xEta = hitPosition[m_hitEta];
-    if (!m_depthDirection) xDepth = -xDepth;
-    if (!m_phiDirection) xPhi = -xPhi;
-    if (!m_etaDirection) xEta = -xEta;
-    return HepGeom::Point3D<double>(xPhi, xEta, xDepth);
-  }
-
   // compute sin(tilt angle) at center:
   double
   SiDetectorElement::sinTilt() const
@@ -435,11 +360,6 @@ namespace InDetDD {
     }
   }
   
-  // const Trk::SurfaceBounds&
-  //SiDetectorElement::bounds() const
-  //{
-  //  return m_design->bounds();
-  //}
 
   bool
   SiDetectorElement::nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const

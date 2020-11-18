@@ -276,93 +276,6 @@ namespace InDetDD {
     //@}
 
     /**
-     * @name Orientation
-     */
-    //{@
-    
-    /**
-     * Directions of hit depth,phi,eta axes relative to reconstruction local
-     * position axes (LocalPosition). Returns +/-1. inline
-     */
-    double hitDepthDirection() const;
-    /**
-     * See previous method. inline
-     */
-    double hitPhiDirection() const;
-    /**
-     * See previous method. inline
-     */
-    double hitEtaDirection() const;
-    
-    /**
-     * To determine if readout direction between online and offline needs
-     * swapping, see methods swapPhiReadoutDirection() and
-     * swapEtaReadoutDirection() below in "Readout Cell id" section
-     *
-     * Orientation. 
-     * Directions.
-     *  - phiAxis in same direction as increasing phi and identifier phi_index/strip. 
-     *            NB. This requires some flipping of axes with repsect to the hits.
-     *  - etaAxis in direction of increasing z in the barrel and increasing r in the endcap.
-     *  - normal  choosen to give right-handed coordinate frame (x=normal,y=phiAxis,z=etaAxis)
-     *            NB. This requires some flipping of axes with repsect to the hits.
-     *
-     * Get reconstruction local phi axes in global frame. 
-     * In same direction as increasing phi and identifier phi_index/strip.
-     */
-    const HepGeom::Vector3D<double>& phiAxisCLHEP() const;
-    const Amg::Vector3D& phiAxis() const;
-    /**
-     * Get reconstruction local eta axes in global frame. 
-     * In direction of increasing z in the barrel and increasing r in the endcap.
-     */
-    const HepGeom::Vector3D<double>& etaAxisCLHEP() const;
-    const Amg::Vector3D& etaAxis() const;
-
-    //@}
-
-    /**
-     * @name Position
-     */
-    //@{
-
-    /**
-     * transform a hit local position into a global position (inline):
-     */
-    HepGeom::Point3D<double> globalPositionHit(const HepGeom::Point3D<double>& simulationLocalPos) const;
-    Amg::Vector3D globalPositionHit(const Amg::Vector3D& simulationLocalPos) const;
-      
-    /**
-     * transform a reconstruction local position into a global position (inline):
-     */
-    HepGeom::Point3D<double> globalPosition(const HepGeom::Point3D<double>& localPos) const;
-    Amg::Vector3D globalPosition(const Amg::Vector3D& localPos) const;
-
-    /**
-     * as in previous method but for 2D local position (inline)
-     */
-    HepGeom::Point3D<double> globalPositionCLHEP(const Amg::Vector2D& localPos) const;
-    Amg::Vector3D globalPosition(const Amg::Vector2D& localPos) const;
-    
-    /**
-     * Simulation/Hit local frame to reconstruction local frame. 2D.
-     *  TODO: Will change order of parameters at some point.
-     */
-    Amg::Vector2D hitLocalToLocal(double xEta, double xPhi) const;
-    /**
-     * Same as previuos method but 3D.
-     */
-    HepGeom::Point3D<double> hitLocalToLocal3D(const HepGeom::Point3D<double>& hitPosition) const;
-
-    /**
-     * transform a global position into a 2D local position (reconstruction frame) (inline)
-     */
-    Amg::Vector2D localPosition(const HepGeom::Point3D<double>& globalPosition) const;
-    Amg::Vector2D localPosition(const Amg::Vector3D& globalPosition) const;
-    
-    //@}
-
-    /**
      * @name Angle
      */
     //@{
@@ -432,12 +345,6 @@ namespace InDetDD {
      * access to the local description (inline):
      */
     const SiDetectorDesign& design() const;
-    
-    virtual const Trk::SurfaceBounds& bounds() const;
-    /**
-     * TrkDetElementBase interface (inline)
-     */
-    virtual const Trk::SurfaceBounds& bounds(const Identifier&) const;
 
     /**
      * Methods from design (inline)
