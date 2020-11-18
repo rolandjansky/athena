@@ -48,7 +48,7 @@
 
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
 #include "JetAnalysisInterfaces/IJetSelectorTool.h"
-//#include "ParticleJetTools/JetTruthLabelingTool.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 // Forward declaration(s):
 namespace top {
@@ -161,7 +161,7 @@ namespace top {
     StatusCode tagNominalLargeRJets();
 
     ///-- Large R jet truth labeling --///
-//    std::unique_ptr<JetTruthLabelingTool> m_jetTruthLabelingTool;
+    std::unique_ptr<JetTruthLabelingTool> m_jetTruthLabelingTool;
 
     // DL1 decoration
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelToolsDL1Decor;
