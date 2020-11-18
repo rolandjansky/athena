@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -131,8 +131,8 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
     moduleLabels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)]
     partitionLabels = [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)]
 
-    mismatchedLVL1Group = helper.addGroup(tileDQFragMonAlg, 'TileMismatchedL1TiggerType', 'Tile/')
-    mismatchedLVL1Group.defineHistogram('module,ROS;TileMismatchedL1TiggerType', path = 'DMUErrors',
+    mismatchedLVL1Group = helper.addGroup(tileDQFragMonAlg, 'TileMismatchedL1TriggerType', 'Tile/')
+    mismatchedLVL1Group.defineHistogram('module,ROS;TileMismatchedL1TriggerType', path = 'DMUErrors',
                                         title = run + ': Tile mismatched L1 Trigger Type;Module;Partition',
                                         type = 'TH2F', xlabels = moduleLabels, ylabels = partitionLabels,
                                         xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,

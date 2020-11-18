@@ -91,7 +91,7 @@ def TileClusterMonitoringConfig(flags, **kwargs):
                              perGain = False, subDirectory = True, allPartitions = True)
 
     # ) Configure histograms with Et in most energetic Tile tower per partition
-    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterEt', xvalue = 'Et',
+    addTile1DHistogramsArray(helper, tileClusterMonAlg, name = 'TileClusterEt', xvalue = 'et',
                              title = 'E_{T} [MeV] in most energetic Tile Cluster', path = 'Tile/Cluster',
                              xbins = 80, xmin = 0., xmax = 20000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
