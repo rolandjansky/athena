@@ -606,9 +606,11 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
 
 #-------------------------------------------------------------
-# Non-ComponentAccumulator Cost Monitoring
+# Cost Monitoring
 #-------------------------------------------------------------
-include("TrigCostMonitorMT/TrigCostMonitorMT_jobOptions.py")
+
+from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies
