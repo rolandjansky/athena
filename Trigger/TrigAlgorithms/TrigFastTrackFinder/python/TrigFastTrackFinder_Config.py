@@ -291,15 +291,11 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
 
         from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 
-        nClusterMin = TrackingCuts.minClusters()  
-        if remapped_type=="fullScan":
-            nClusterMin = 10
-
         TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+type,
                                               RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
                                               CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
                                               pTmin          = InDetTrigSliceSettings[('pTmin',remapped_type)],
-                                              nClustersMin   = nClusterMin,
+                                              nClustersMin   = TrackingCuts.minClusters(),
                                               nHolesMax      = TrackingCuts.nHolesMax(),
                                               nHolesGapMax   = TrackingCuts.nHolesGapMax(),
                                               SeedsFilterLevel = 0, # Do not use built-in seeds filter
