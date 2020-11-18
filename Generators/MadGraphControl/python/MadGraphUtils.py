@@ -62,9 +62,9 @@ def generate_prep(process_dir):
     shutil.copytree(process_dir+'/Cards','Cards_bkup')
     shutil.copyfile(process_dir+'/Source/make_opts','Cards_bkup/make_opts_bkup')
     MADGRAPH_COMMAND_STACK += ['# In case this fails, Cards_bkup should be in your original run directory']
-    MADGRAPH_COMMAND_STACK += ['# And PROC* can be replaced with whatever process directory exists in your stand-alone test']
-    MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/*dat PROC*/Cards/']
-    MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/make_opts_bkup PROC*/Source/make_opts']
+    MADGRAPH_COMMAND_STACK += ['# And ${MGaMC_PROCESS_DIR} can be replaced with whatever process directory exists in your stand-alone test']
+    MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/*dat ${MGaMC_PROCESS_DIR}/Cards/']
+    MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/make_opts_bkup ${MGaMC_PROCESS_DIR}/Source/make_opts']
 
 
 def error_check(errors):
@@ -278,6 +278,9 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
     if usePMGSettings:
         do_PMG_updates(process_dir)
 
+    # Make sure we store the resultant directory
+    MADGRAPH_COMMAND_STACK += ['export MGaMC_PROCESS_DIR='+process_dir]
+
     return process_dir
 
 
@@ -454,7 +457,7 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
 
     generate_prep(process_dir)
     global MADGRAPH_COMMAND_STACK
-    MADGRAPH_COMMAND_STACK += [ 'cd PROC*' ]
+    MADGRAPH_COMMAND_STACK += [ 'cd ${MGaMC_PROCESS_DIR}' ]
     global MADGRAPH_CATCH_ERRORS
     generate = stack_subprocess(command,stdin=subprocess.PIPE, stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
     (out,err) = generate.communicate()
@@ -471,7 +474,6 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
 
         if not isNLO:
             ### LO RUN - names with and without madspin ###
-            global MADGRAPH_COMMAND_STACK
             MADGRAPH_COMMAND_STACK += ['cp '+glob.glob(process_dir+'/'+MADGRAPH_RUN_NAME+'_*gridpack.tar.gz')[0]+' '+gridpack_name]
             shutil.copy(glob.glob(process_dir+'/'+MADGRAPH_RUN_NAME+'_*gridpack.tar.gz')[0],gridpack_name)
 
@@ -509,7 +511,6 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
 
             ### NLO RUN ###
             mglog.info('Package up process_dir')
-            global MADGRAPH_COMMAND_STACK
             MADGRAPH_COMMAND_STACK += ['mv '+process_dir+' '+MADGRAPH_GRIDPACK_LOCATION]
             os.rename(process_dir,MADGRAPH_GRIDPACK_LOCATION)
             tar = stack_subprocess(['tar','czf',gridpack_name,MADGRAPH_GRIDPACK_LOCATION,'--exclude=lib/PDFsets','--exclude=Events/*/*events*gz','--exclude=SubProcesses/P*/G*/log*txt','--exclude=*/*.o','--exclude=*/*/*.o','--exclude=*/*/*/*.o','--exclude=*/*/*/*/*.o'])
@@ -590,6 +591,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
 
     # Make sure we've set the number of processes appropriately
     setNCores(process_dir=MADGRAPH_GRIDPACK_LOCATION)
+    global MADGRAPH_CATCH_ERRORS
 
     if not isNLO:
         ### LO RUN ###
@@ -606,7 +608,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
         generate_prep(MADGRAPH_GRIDPACK_LOCATION)
-        global MADGRAPH_CATCH_ERRORS
         generate = stack_subprocess([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
         (out,err) = generate.communicate()
         error_check(err)
@@ -655,7 +656,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',MADGRAPH_GRIDPACK_LOCATION+'/Source/')
 
             generate_prep(MADGRAPH_GRIDPACK_LOCATION)
-            global MADGRAPH_CATCH_ERRORS
             generate = stack_subprocess([python,MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
             (out,err) = generate.communicate()
             error_check(err)
@@ -666,7 +666,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
                 os.unlink(MADGRAPH_GRIDPACK_LOCATION+'/lib/libLHAPDF.a')
 
             generate_prep(MADGRAPH_GRIDPACK_LOCATION)
-            global MADGRAPH_CATCH_ERRORS
             generate = stack_subprocess([python,MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
             (out,err) = generate.communicate()
             error_check(err)
@@ -946,7 +945,7 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
     global MADGRAPH_COMMAND_STACK
     MADGRAPH_COMMAND_STACK += [ '# Copy the LHAPDF files locally' ]
     MADGRAPH_COMMAND_STACK += [ 'cp -r '+os.getcwd()+'/MGC_LHAPDF .' ]
-    MADGRAPH_COMMAND_STACK += [ 'cp -r '+process_dir+'/lib/PDFsets PROC*/lib/' ]
+    MADGRAPH_COMMAND_STACK += [ 'cp -r '+process_dir+'/lib/PDFsets ${MGaMC_PROCESS_DIR}/lib/' ]
 
     return (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH)
 
