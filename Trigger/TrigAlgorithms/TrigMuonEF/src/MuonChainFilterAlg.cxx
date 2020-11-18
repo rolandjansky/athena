@@ -41,7 +41,7 @@ StatusCode MuonChainFilterAlg::execute()
 
   bool pass = false;
   //First check if there is anything in the filter list
-  if(m_filterChains.size()==0){
+  if(!m_notGate && m_filterChains.size()==0){
     ATH_MSG_DEBUG("Nothing to filter");
     setFilterPassed(true);
     return StatusCode::SUCCESS;
@@ -64,14 +64,27 @@ StatusCode MuonChainFilterAlg::execute()
 	  auto it = find(m_filterChains.begin(), m_filterChains.end(), chainName);
 	  //if there is any chain that is active and not on 
 	  //the filter list, set the filter to pass
-	  if(it != m_filterChains.end()){
-	    ATH_MSG_DEBUG("chain "<<chainName<<" is on the filter list, keep looking");
+	  if(!m_notGate) {
+	    if(it != m_filterChains.end()) {
+	      ATH_MSG_DEBUG("chain "<<chainName<<" is on the filter list, keep looking");
+	    }
+	    else {
+	      ATH_MSG_DEBUG("chain "<<chainName<<" is not on the filter list. Passing");
+	      pass = true;
+	      setFilterPassed(pass);
+	      return StatusCode::SUCCESS;
+	    }
 	  }
-	  else{
-	    ATH_MSG_DEBUG("chain "<<chainName<<" is not on the filter list. Passing");
-	    pass = true;
-	    setFilterPassed(pass);
-	    return StatusCode::SUCCESS;
+	  else {
+	    if(it != m_filterChains.end()) {
+	      ATH_MSG_DEBUG("chain "<<chainName<<" is on the not-filter list, Passing");
+	      pass = true;
+	      setFilterPassed(pass);
+	      return StatusCode::SUCCESS;
+	    }
+	    else{
+	      ATH_MSG_DEBUG("chain "<<chainName<<" is not on the not-filter list. keep looking");
+	    }
 	  }
 	}
       }
