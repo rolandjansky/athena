@@ -287,7 +287,7 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsT
     SCTConfigurationFolderPath=''
 
   cond_kwargs = {}
-  cond_kwargs["ChannelFolder"] = SCTConfigurationFolderPath+("ChipSlim" if flags.Input.isMC else "Chip")
+  cond_kwargs["ChannelFolder"] = SCTConfigurationFolderPath+("Chip" if flags.IOVDb.DatabaseInstance=="COMP200" else "ChipSlim")
   cond_kwargs["ModuleFolder"] = SCTConfigurationFolderPath+"Module"
   cond_kwargs["MurFolder"] = SCTConfigurationFolderPath+"MUR"
   cond_kwargs["dbInstance"] = "SCT"
@@ -348,7 +348,7 @@ def getSCTDAQConfigFolder(flags) :
 def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs):
   result = ComponentAccumulator()
   config_folder_prefix = getSCTDAQConfigFolder(flags)
-  channelFolder = config_folder_prefix+("ChipSlim" if flags.Input.isMC else "Chip")
+  channelFolder = config_folder_prefix+("Chip" if flags.IOVDb.DatabaseInstance=="COMP200" else "ChipSlim")
   kwargs.setdefault("ReadKeyChannel", channelFolder)
   kwargs.setdefault("ReadKeyModule", config_folder_prefix+"Module")
   kwargs.setdefault("ReadKeyMur", config_folder_prefix+"MUR")

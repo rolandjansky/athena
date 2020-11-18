@@ -213,8 +213,9 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
   sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
   sct_ConfigurationConditionsToolSetup.setToolName("InDetSCT_ConfigurationConditionsTool_" + signature)
-  if globalflags.DataSource() == 'geant4':
-     sct_ConfigurationConditionsToolSetup.setChannelFolder("/SCT/DAQ/Config/ChipSlim") # For MC (OFLP200)
+  from IOVDbSvc.CondDB import conddb
+  if (globalflags.DataSource() == "geant4") or (conddb.dbdata == "CONDBR2"):
+     sct_ConfigurationConditionsToolSetup.setChannelFolder("/SCT/DAQ/Config/ChipSlim") # For MC (OFLP200) or Run 2, 3 data (CONDBR2)
   sct_ConfigurationConditionsToolSetup.setup()
   InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ConfigurationConditionsToolSetup.getTool().getFullName())
 

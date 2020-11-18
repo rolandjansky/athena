@@ -274,10 +274,10 @@ if DetFlags.haveRIO.SCT_on():
         pass
     from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
     sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
-    if globalflags.DataSource() == "data":
-        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
+    if SCTConfigurationFolderPath=='/SCT/DAQ/Configuration/':
+        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip") # Run 1 data (COMP200)
     else:
-        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"ChipSlim") # For MC (OFLP200)
+        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"ChipSlim") # For MC (OFLP200) and Run 2, 3 data (CONDBR2)
     sct_ConfigurationConditionsToolSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
     sct_ConfigurationConditionsToolSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
     sct_ConfigurationConditionsToolSetup.setup()
