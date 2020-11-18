@@ -72,36 +72,6 @@ namespace InDetDD {
   //Adopting and adapting 21.9 strategy - is there a better way to avoid dynamic_cast?
     return dynamic_cast<const SiDetectorDesign&>(*m_design);
   }
-
-  inline double SiDetectorElement::width() const
-  {
-    return m_design->width();
-  }
-    
-  inline double SiDetectorElement::minWidth() const
-  {
-    return m_design->minWidth();
-  }
-    
-  inline double SiDetectorElement::maxWidth() const
-  {
-    return m_design->maxWidth();
-  }
-    
-  inline double SiDetectorElement::length() const
-  {
-    return m_design->length();
-  }
-    
-  inline double SiDetectorElement::thickness() const
-  {
-    return m_design->thickness();
-  }
-    
-  inline double SiDetectorElement::etaPitch() const
-  {
-    return m_design->etaPitch();
-  }
     
   inline double SiDetectorElement::phiPitch() const
   {
@@ -155,5 +125,7 @@ namespace InDetDD {
   {
     return m_commonItems->msgLvl(lvl);
   }
+
+
 
 } // namespace InDetDD

@@ -322,18 +322,6 @@ namespace InDetDD {
     bool isStereo() const;
     
     //@}
-
-    /**
-     * @name Element Extent
-     * Inline methods to get extent of element in r,phi and z.  
-     */
-    //@{
-    double rMin() const;
-    double rMax() const;
-    double zMin() const;
-    double zMax() const;
-    double phiMin() const;
-    double phiMax() const;
     
     
     /**
@@ -345,26 +333,6 @@ namespace InDetDD {
      * access to the local description (inline):
      */
     const SiDetectorDesign& design() const;
-
-    /**
-     * Methods from design (inline)
-     *
-     * Width in phi direction. For the SCT endcap it returns the average width.
-     */
-    double width() const;
-    /**
-     * Min width. Needed for the SCT endcap.
-     */
-    double minWidth() const;
-    /**
-     * Max width. Needed for the SCT endcap.
-     */
-    double maxWidth() const;
-    /**
-     * Length in eta direction (z - barrel, r - endcap)
-     */
-    double length() const;
-    double thickness() const;
 
     /**
      * Pitch (inline methods)
@@ -379,7 +347,9 @@ namespace InDetDD {
      *
      * All return pitch in distance units. 
      */
-    double etaPitch() const;
+    //double etaPitch() const;
+    
+
     double phiPitch() const;
     /**
      * Useful for SCT Forward.
@@ -412,22 +382,7 @@ namespace InDetDD {
      * Test if near bond gap within tolerances
      */
     bool nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const;
-    bool nearBondGap(const HepGeom::Point3D<double>& globalPosition, double etaTol) const;
-    
-    /**
-     * Test that it is in the active region
-     *
-     * Intersect has 3 states
-     * bool SiIntersect::in() const // definitely in\n
-     * bool SiIntersect::out() const // definitely out\n
-     * bool SiIntersect::nearBoundary() const // near a boundary within the tolerances\n
-     * bool SiIntersect::mayIntersect() const // in() OR nearBoundary()
-     */
-    SiIntersect inDetector(const Amg::Vector2D& localPosition, double phiTol, double etaTol) const;
-    SiIntersect inDetector(const HepGeom::Point3D<double>& globalPosition, double phiTol, double etaTol) const;
-    //@}
-    
-    
+    bool nearBondGap(const HepGeom::Point3D<double>& globalPosition, double etaTol) const; 
     
     /**
      * If cell is ganged return the id of the other cell which shares the readout
@@ -481,17 +436,6 @@ namespace InDetDD {
      * Private implementation method with no lock at given global position
      */
     double sinStereoImpl(const HepGeom::Point3D<double>& globalPosition) const;
- 
-    /**
-     * Declaring the Message method for further use (inline)
-     */
-    MsgStream& msg(MSG::Level lvl) const;
-    
-    /**
-     * Declaring the Method providing Verbosity Level (inline)
-     */
-    bool msgLvl(MSG::Level lvl) const;
-    //@}
     
     /**
      * Protected data:
@@ -572,6 +516,17 @@ namespace InDetDD {
     mutable bool m_isStereo ATLAS_THREAD_SAFE {false};
     //@}
 
+     /**
+     * Declaring the Message method for further use (inline)
+     */
+    MsgStream& msg(MSG::Level lvl) const;
+    
+    /**
+     * Declaring the Method providing Verbosity Level (inline)
+     */
+    bool msgLvl(MSG::Level lvl) const;
+    //@}
+    
   };
     
 } // namespace InDetDD

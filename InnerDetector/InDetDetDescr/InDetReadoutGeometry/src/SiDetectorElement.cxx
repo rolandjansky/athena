@@ -374,18 +374,7 @@ namespace InDetDD {
     return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition(globalPosition), etaTol);
   }
 
-  SiIntersect
-  SiDetectorElement::inDetector(const Amg::Vector2D& localPosition,
-                                double phiTol, double etaTol) const
-  {
-    return m_design->inDetector(localPosition, phiTol, etaTol);
-  }
 
-  SiIntersect
-  SiDetectorElement::inDetector(const HepGeom::Point3D<double>& globalPosition, double phiTol, double etaTol) const
-  {
-    return m_design->inDetector(localPosition(globalPosition), phiTol, etaTol);
-  }
 
   // Special method for SCT to retrieve the two ends of a "strip"
   std::pair<Amg::Vector3D,Amg::Vector3D>
