@@ -35,6 +35,7 @@ protected:
   ICaloGeometry* m_geo; //! do not persistify
   
   static std::uint32_t s_layer_hash[CaloCell_ID_FCS::MaxSample]; //! do not persistify
+  static std::uint32_t s_layer_hash_geo[CaloCell_ID_FCS::MaxSample]; //! do not persistify
 
   typedef std::vector< std::vector< float > > weight_t;
 
@@ -43,6 +44,7 @@ protected:
   //For a 5*5 cell grid, nDim should be 5
   int m_nDim_x;
   int m_nDim_y;
+  TH2F* m_voxel_template;
   std::vector<TVectorD> m_parMeans;
   std::vector<TMatrixD> m_EigenVectors; // Eigen-vectors of covariance
   std::vector<TVectorD> m_EigenValues;  // Eigen-values of covariance
