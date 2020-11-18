@@ -190,7 +190,7 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   declareProperty("EnergyThreshold",     m_energyThreshold = 50., "Minimal energy to produce a PRD"  );
   declareProperty("MaskMultiplet", m_maskMultiplet = 0,  "0: all, 1: first, 2: second, 3: both"  );
   
-  declareProperty("SaveInternalHistos",  m_writeOutputFile = true   );
+  declareProperty("SaveInternalHistos",  m_writeOutputFile = false  );
   
   //Object names
   declareProperty("InputObjectName",     m_inputObjectName     =  "MicromegasSensitiveDetector");
@@ -320,6 +320,7 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	// StripsResponseSimulation Creation
 	m_StripsResponseSimulation = new MM_StripsResponseSimulation();
+	m_StripsResponseSimulation->writeOutputFile(m_writeOutputFile); 
 	m_StripsResponseSimulation->setQThreshold(m_qThreshold);
 	m_StripsResponseSimulation->setDriftGapWidth(m_driftGapWidth);
 	m_StripsResponseSimulation->setCrossTalk1(m_crossTalk1);
