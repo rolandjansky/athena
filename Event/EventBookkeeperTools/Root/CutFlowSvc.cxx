@@ -115,7 +115,7 @@ CutIdentifier CutFlowSvc::registerTopFilter( const std::string& name,
   xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
   if (cbk == nullptr) {
     ATH_MSG_ERROR("Could not find CutBookkeeper with CutID " << cutID);
-    return 0;
+    throw std::runtime_error("Could not find CutBookkeeper");
   }
 
   // Then set the logic and outputStream of the relevant CutBookkeeper
@@ -139,7 +139,7 @@ CutIdentifier CutFlowSvc::registerCut( const std::string& name,
   xAOD::CutBookkeeper* parentCbk = getCutBookkeeper(parentCutID, 0);
   if (parentCbk == nullptr) {
     ATH_MSG_ERROR("Could not find parent CutBookkeeper with CutID " << parentCutID);
-    return 0;
+    throw std::runtime_error("Could not find CutBookkeeper");
   }
 
   // Call the registerFilter method and get the correct CutBookkeeper
@@ -148,7 +148,7 @@ CutIdentifier CutFlowSvc::registerCut( const std::string& name,
   xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, 0);
   if (cbk == nullptr) {
     ATH_MSG_ERROR("Could not find CutBookkeeper with CutID " << cutID);
-    return 0;
+    throw std::runtime_error("Could not find CutBookkeeper");
   }
 
   // Add child to parent
@@ -180,7 +180,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID,
 {
   if (weights.size() != m_containers.size()) {
     ATH_MSG_ERROR("Inconsistent weights and variation sizes " << weights.size() << " and " << m_containers.size());
-    return;
+    throw std::runtime_error("Inconsistent weights and variation sizes");
   }
 
   for (size_t i = 0; i < m_containers.size(); ++i) {
@@ -217,7 +217,7 @@ CutFlowSvc::addEvent( CutIdentifier cutID,
   xAOD::CutBookkeeper* cbk = getCutBookkeeper(cutID, index);
   if (cbk == nullptr) {
     ATH_MSG_ERROR("Could not find CutBookkeeper for CutID " << cutID << " and variation " << index);
-    return;
+    throw std::runtime_error("Could not find CutBookkeeper");
   }
 
   cbk->addNAcceptedEvents(1);
