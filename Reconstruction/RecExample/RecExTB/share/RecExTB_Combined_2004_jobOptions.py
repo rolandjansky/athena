@@ -522,7 +522,6 @@ if doLAr or doTile:
     jobproperties.CaloCellFlags.doLArSporadicMasking = False
     jobproperties.CaloCellFlags.doLArCellEmMisCalib = False
     jobproperties.CaloCellFlags.doPedestalCorr = False
-    jobproperties.CaloCellFlags.doLArRecalibration = False
     jobproperties.CaloCellFlags.doDeadCellCorr = False
 
     include( "CaloTBRec/CaloTBRec_H8_Cell_jobOptions.py" )

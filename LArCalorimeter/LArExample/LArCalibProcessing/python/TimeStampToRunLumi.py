@@ -7,8 +7,8 @@ def TimeStampToRunLumi(tmstmp,guard=1,dbInstance="CONDBR2"):
     db=dbSvc.openDatabase("COOLONL_TRIGGER/"+dbInstance)
     folder=db.getFolder("/TRIGGER/LUMI/LBTIME")
     range=guard*24*60*60*1e9 # 2 days in ns
-    t1=long(tmstmp-range)
-    t2=long(tmstmp+range)
+    t1=int(tmstmp-range)
+    t2=int(tmstmp+range)
     itr=folder.browseObjects(t1,t2,cool.ChannelSelection.all())
     while itr.goToNext():
         obj=itr.currentRef()

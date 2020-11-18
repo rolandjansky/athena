@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # JetAlgorithm.py
 #
@@ -184,7 +184,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   # Then, add all event shape tools in separate algs
   for evstool in jtm.allEDTools:
     from EventShapeTools.EventShapeToolsConf import EventDensityAthAlg
-    job += EventDensityAthAlg("edalg_"+evstool.OutputContainer,EventDensityTool=evstool)
+    job += EventDensityAthAlg("edalg_%s" % evstool.OutputContainer,
+                              EventDensityTool=evstool)
 
   if separateJetAlgs:
 

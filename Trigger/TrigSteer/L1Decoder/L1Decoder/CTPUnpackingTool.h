@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1DECODER_CTPUNPACKINGTOOL_H
@@ -29,7 +29,7 @@ public:
 
   virtual StatusCode start() override;
 
-  virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const;
+  virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* roib, const std::vector<std::string>& l1ItemNames, bool& pass) const override;
 
 private:
   // Menu objects (that act here as configuration) need to be available in detector store.

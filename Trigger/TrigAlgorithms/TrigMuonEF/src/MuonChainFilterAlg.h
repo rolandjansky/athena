@@ -41,6 +41,8 @@ class MuonChainFilterAlg : public AthAlgorithm
     Gaudi::Property< bool > m_writeL2muFast {this, "WriteMuFast", false, "Flag to record muFast muons" };
     SG::WriteHandleKey<xAOD::L2StandAloneMuonContainer> m_muFastKey {this, "L2MuFastContainer", "MuonL2SAInfo", "Output container for muFast"};
 
+    Gaudi::Property< bool > m_notGate {this, "NotGate", false, "filtering if not contained in ChainsToFilter" };
+
 };
 
 #endif

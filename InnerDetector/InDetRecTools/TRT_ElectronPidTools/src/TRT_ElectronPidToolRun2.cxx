@@ -73,14 +73,15 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   :
   AthAlgTool(t,n,p),
   m_trtId(nullptr),
-  m_TRTdetMgr(nullptr),
-  m_minTRThits(5)
+  m_minTRThits(5),
+  m_ptMinNN(2000.),
+  m_calculateNN(true)
 {
   declareInterface<ITRT_ElectronPidTool>(this);
   declareInterface<ITRT_ElectronToTTool>(this);
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
-  declareProperty("isData", m_DATA = true);
-  declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID=true);
+  declareProperty("MinimumTrackPtForNNPid", m_ptMinNN);
+  declareProperty("CalculateNNPid", m_calculateNN);
 }
 
 
@@ -149,22 +150,25 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const
 std::vector<float>
 InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) const {
 
- // Get the probability calculator
- const EventContext& ctx = Gaudi::Hive::currentContext();
- SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey,ctx};
- const HTcalculator* HTcalc = (*readHandle);
- // make sure some calibration is available
- if(HTcalc==nullptr) {
-   ATH_MSG_WARNING ("  No Pid calibration from the DB.");
- }
+  // Get the probability calculator
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey,ctx};
+  const HTcalculator* HTcalc = (*readHandle);
+  // make sure some calibration is available
+  if(HTcalc==nullptr) {
+    ATH_MSG_WARNING ("  No Pid calibration from the DB.");
+  }
 
- // Get the PID NN
- SG::ReadCondHandle<InDet::TRTPIDNN> readHandlePIDNN{m_TRTPIDNNReadKey,ctx};
- const InDet::TRTPIDNN* PIDNN = (*readHandlePIDNN);
- // make sure some calibration is available
- if(PIDNN==nullptr) {
-   ATH_MSG_WARNING ("  No PID NN available from the DB.");
- }
+  // Get the PID NN
+  const InDet::TRTPIDNN* PIDNN = nullptr;
+  if (m_calculateNN) {
+    SG::ReadCondHandle<InDet::TRTPIDNN> readHandlePIDNN{m_TRTPIDNNReadKey,ctx};
+    PIDNN = (*readHandlePIDNN);
+    // make sure some calibration is available
+    if(PIDNN==nullptr) {
+      ATH_MSG_WARNING ("  No PID NN available from the DB.");
+    }
+  }
 
   // Initialize the vector with default PID values
   std::vector<float> PIDvalues = Trk::eProbabilityDefault;
@@ -251,7 +255,16 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     if (!measurement) continue;
 
     // Get drift circle (ensures that hit is from TRT):
-    const InDet::TRT_DriftCircleOnTrack* driftcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(measurement);
+    // use the type methods to avoid dynamic_cast in a loop
+    const InDet::TRT_DriftCircleOnTrack* driftcircle = nullptr;
+    if (measurement->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
+      const Trk::RIO_OnTrack* tmpRio =
+        static_cast<const Trk::RIO_OnTrack*>(measurement);
+      if (tmpRio->rioType(Trk::RIO_OnTrackType::TRT_DriftCircle)) {
+        driftcircle = static_cast<const InDet::TRT_DriftCircleOnTrack*>(tmpRio);
+      }
+    }
+
     if (!driftcircle) continue;
 
     // From now (May 2015) onwards, we ONLY USE MIDDLE HT BIT:
@@ -306,11 +319,13 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     }
 
     // fill vectors for NN PID
-    hit_HitZ.push_back(HitZ);
-    hit_HitR.push_back(HitR);
-    hit_rTrkWire.push_back(rTrkWire);
-    hit_L.push_back(TRT_ToT_dEdx::calculateTrackLengthInStraw((*tsosIter), m_trtId));
-    hit_tot.push_back(driftcircle->timeOverThreshold());
+    if (m_calculateNN and pT >= m_ptMinNN) {
+      hit_HitZ.push_back(HitZ);
+      hit_HitR.push_back(HitR);
+      hit_rTrkWire.push_back(rTrkWire);
+      hit_L.push_back(TRT_ToT_dEdx::calculateTrackLengthInStraw((*tsosIter), m_trtId));
+      hit_tot.push_back(driftcircle->timeOverThreshold());
+    }
 
     // ------------------------------------------------------------------------------------
     // Collection and checks of input variables for HT probability calculation:
@@ -359,22 +374,24 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
                   << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire
                   << "  Occ_Local: " << PIDvalues[Trk::TRTTrackOccupancy]  << "  HTMB: " << isHTMB);
 
-    // RNN gas type observables
-    hit_gasType.push_back(static_cast<double>(GasType));
-    if (GasType == 0) {
-      nXehits++;
-    } else if (GasType == 1) {
-      nArhits++;
-    }
+    if (m_calculateNN and pT >= m_ptMinNN) {
+      // RNN gas type observables
+      hit_gasType.push_back(static_cast<double>(GasType));
+      if (GasType == 0) {
+        nXehits++;
+      } else if (GasType == 1) {
+        nArhits++;
+      }
 
-    // RNN hit preciion observables
-    float errDc = sqrt(driftcircle->localCovariance()(Trk::driftRadius, Trk::driftRadius));
-    bool isPrec = false;
-    if (errDc < 1.0) {
-      isPrec = true;
-      nPrecHits++;
+      // RNN hit preciion observables
+      float errDc = sqrt(driftcircle->localCovariance()(Trk::driftRadius, Trk::driftRadius));
+      bool isPrec = false;
+      if (errDc < 1.0) {
+        isPrec = true;
+        nPrecHits++;
+      }
+      hit_isPrec.push_back(static_cast<double>(isPrec));
     }
-    hit_isPrec.push_back(static_cast<double>(isPrec));
 
     // Then call pHT functions with these values:
     // ------------------------------------------
@@ -451,10 +468,14 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   // Troels: VERY NASTY NAMING, BUT AGREED UPON FOR NOW (for debugging, 27. NOV. 2014):
   PIDvalues[Trk::eProbabilityBrem] = pHTel_prod; // decorates electron LH to el brem for now... (still used?)
 
+  if (!m_calculateNN or pT < m_ptMinNN) {
+    return PIDvalues;
+  }
+
   // Calculate RNN PID score
   std::map<std::string, std::map<std::string, double>> scalarInputs_NN = PIDNN->getScalarInputs();
   std::map<std::string, std::map<std::string, std::vector<double>>> vectorInputs_NN = PIDNN->getVectorInputs();
-  
+
   // Calculate the hit fraction
   double fAr = static_cast<double>(nArhits) / nTRThits;
   double fHTMB = static_cast<double>(nTRThitsHTMB) / nTRThits;

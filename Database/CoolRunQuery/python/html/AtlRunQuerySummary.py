@@ -12,13 +12,12 @@
 #
 from __future__ import print_function
 import sys, time
-from array import array                
 from CoolRunQuery.utils.AtlRunQueryUtils  import prettyNumber, durationInSeconds, filesize, importroot
 from CoolRunQuery.utils.AtlRunQueryLookup import DQChannelDict, DQSuperGroupsDict, DQGroupDict, DQChannels
 from CoolRunQuery.output.AtlRunQueryRoot   import SetStyle, MakeHtml
-from CoolRunQuery.selector.AtlRunQuerySelectorBase       import DataKey
+from CoolRunQuery.selector.AtlRunQuerySelectorBase  import DataKey
 importroot()
-from ROOT import TCanvas, gPad, gStyle, TGraph, TColor, TGaxis, gROOT, TH1F, TLegend, TText, TLine, Double
+from ROOT import TCanvas, gPad, gStyle, TGraph, TColor, TGaxis, gROOT, TH1F, TLegend, TText, Double
 
 # custom ROOT colours
 c_White         = TColor.GetColor( "#ffffff" )
@@ -42,19 +41,26 @@ def MakeSummaryTableHtml( cornerstr, colstr, rowkeys, table, tablewidth ):
     s = '<table class="resulttable" width="%i" style="margin-left: 14px">\n' % tablewidth
     # headline    
     s += '<tr>\n'
-    if cornerstr != '': s += '   <th style="text-align:left">%s</th>  ' % cornerstr
-    else:               s += '   <th class="emptycorner">&minus;</th>'
+    if cornerstr != '':
+        s += '   <th style="text-align:left">%s</th>  ' % cornerstr
+    else:
+        s += '   <th class="emptycorner">&minus;</th>'
     for ic in range(0,ncol):
         s += '<th>%s</th>' % colstr[ic]
     s += '</tr>\n'
     for ir in range(0,nrow):
-        if ir%2 == 0: color = 1
-        else:         color = 2
-        if  'debug_' in rowkeys[ir][1]: s += '<tr class="outRed%s">\n' % color   # special colours for debug stream
-        else:                           s += '<tr class="out%s">\n' % color
+        if ir%2 == 0:
+            color = 1
+        else:
+            color = 2
+        if  'debug_' in rowkeys[ir][1]:
+            s += '<tr class="outRed%s">\n' % color   # special colours for debug stream
+        else:
+            s += '<tr class="out%s">\n' % color
         s += '   <th class="rowsum" style="text-align:left">%s&nbsp;</th>  ' % rowkeys[ir][1]
         for ic in range(ncol):
-            if ic in rowkeys[ir][4]: # exclude from printing
+            if ic in rowkeys[ir][4]:
+                # exclude from printing
                 s += '<td style="text-align:center">&minus;</td'
                 continue
             s += '<td style="text-align:right">'
@@ -73,7 +79,8 @@ def MakeSummaryTableHtml( cornerstr, colstr, rowkeys, table, tablewidth ):
 
 def MakeDQSummaryTableHtml( cornerstr, title, colstr, colchans, rowstr, rowstrNames, dic, nruns, labeloffset ):
 
-    if nruns <= 0: return ''    
+    if nruns <= 0:
+        return ''    
 
     # dimensions
     ncol = len(colstr) # flag types
@@ -92,34 +99,45 @@ def MakeDQSummaryTableHtml( cornerstr, title, colstr, colchans, rowstr, rowstrNa
                 for r in dic[colchans[ic]][rowstr[ir]][1]:
                     dw_call += '%s, ' % r
                     icc += 1
-                    if icc%8 == 0: dw_call += '<br>'
-                if dw_call[-1-3:] == '<br>': dw_call = dw_call[0:-1-3] # remove ', <br>'
-                else:                        dw_call = dw_call[0:-1-1] # remove ', '
+                    if icc%8 == 0:
+                        dw_call += '<br>'
+                if dw_call[-1-3:] == '<br>':
+                    dw_call = dw_call[0:-1-3] # remove ', <br>'
+                else:
+                    dw_call = dw_call[0:-1-1] # remove ', '
                 dw_call += """ ' };\n"""
     dw_call += '</script>\n\n'
 
     s = '<table class="resulttable" width="auto" style="margin-left: 14px">\n'
     # headline    
     s += '<tr>\n'
-    if cornerstr != '': s += '   <th class="rowsum" style="text-align:left" rowspan="2">%s</th>  ' % cornerstr
-    else:               s += '   <th class="emptycorner" rowspan="2">&minus;</th>'
+    if cornerstr != '':
+        s += '   <th class="rowsum" style="text-align:left" rowspan="2">%s</th>  ' % cornerstr
+    else:
+        s += '   <th class="emptycorner" rowspan="2">&minus;</th>'
     s += '<th class="colsumL" colspan="%i">%s</th></tr><tr>' % (ncol, title)
     for ic in range(0,ncol):
         s += '<th class="colsum">%s</th>' % colstr[ic]
     s += '</tr>\n'
     for ir in range(0,nrow):
-        if ir%2 == 0: color = 1
-        else:         color = 2
+        if ir%2 == 0:
+            color = 1
+        else:
+            color = 2
         s += '<tr class="out%s">\n' % color
         s += '   <th class="rowsum" style="text-align:left">%s</th>  ' % rowstrNames[ir]
-        for ic in range(0,ncol):            
+        for ic in range(0,ncol):
             dqk = rowstr[ir]
             dqk_tdtype = dqk
-            if dqk == 'n.a.': dqk_tdtype = 'NA'
+            if dqk == 'n.a.':
+                dqk_tdtype = 'NA'
             s += '<td class="td%s" style="text-align:center">' % dqk_tdtype
-            if dic[colchans[ic]][rowstr[ir]][0] > 0: s += '<div class="showTip var_%i_%i" style="display:inline;cursor:pointer">' % (ir,ic+labeloffset)
-            if dic[colchans[ic]][dqk][0]>0: s += '%i' % (dic[colchans[ic]][dqk][0])
-            if dic[colchans[ic]][rowstr[ir]][0] > 0: s += '</div>'
+            if dic[colchans[ic]][rowstr[ir]][0] > 0:
+                s += '<div class="showTip var_%i_%i" style="display:inline;cursor:pointer">' % (ir,ic+labeloffset)
+            if dic[colchans[ic]][dqk][0]>0:
+                s += '%i' % (dic[colchans[ic]][dqk][0])
+            if dic[colchans[ic]][rowstr[ir]][0] > 0:
+                s += '</div>'
             s += '</td>'
 
         s += '</tr>\n'
@@ -130,7 +148,8 @@ def MakeDQSummaryTableHtml( cornerstr, title, colstr, colchans, rowstr, rowstrNa
     return s
 
 def ComputeStats( vlist ):
-    if len(vlist) == 0: return [0,0,0,0,0]
+    if len(vlist) == 0:
+        return [0,0,0,0,0]
     tot = 0
     mn = +sys.maxint
     mx = -sys.maxint
@@ -149,8 +168,10 @@ def DecodeStr( s, tpe ):
         if len(s) <= 1:
             print ('Big troubles... in function "AtlRunQuerySummary::DecodeStr": invalid length for "%s"' % tpe)
             sys.exit(1)
-        if s[0] <= 0: return 0
-        else:         return float(s[1])/s[0]/1.0e6
+        if s[0] <= 0:
+            return 0
+        else:
+            return float(s[1])/s[0]/1.0e6
 
     # otherwise
     return int(s[0].value)
@@ -184,8 +205,10 @@ def DrawGraph( graph, col, width, style, legend, title,
         text.SetTextAlign( 12 )
         text.SetTextSize( 0.030 )
         text.SetTextColor( c_NovelBlue )
-        if y >= 100: yt = '%.0f'  % y
-        else:        yt = '%#.3g' % y
+        if y >= 100:
+            yt = '%.0f'  % y
+        else:
+            yt = '%#.3g' % y
         text.DrawText( x+0.015*dist, y, '%s %s' % (yt, unit) )
 
 def SetFrameStyle( frame, scale = 1.0 ):
@@ -279,8 +302,9 @@ def MakeRootPlots( rootstreamdic, datapath ):
     sortdic = {}
     maxnev = { 'all_':-1, 'debug_':-1,'calibration_':-1 }
     for key, content in rootstreamdic.iteritems():
-        if type(key)==DataKey: key = key.ResultKey
-        if not 'Start and endtime' in key:
+        if type(key)==DataKey:
+            key = key.ResultKey
+        if 'Start and endtime' not in key:
             graphs.append( TGraph( len(content) ) )
             graphs[-1].SetName( key.strip().replace(' ','_') )
             graphs[-1].SetTitle( key.strip() )
@@ -288,13 +312,16 @@ def MakeRootPlots( rootstreamdic, datapath ):
             for i in range(len(content)):
                 j = len(content)-1-i # reverse order
                 scale = 1.e6
-                if 'debug_' in key: scale = 1.e3
+                if 'debug_' in key:
+                    scale = 1.e3
                 cumulsum += content[j][1]/scale
                 graphs[-1].SetPoint( i, content[j][0], cumulsum ) # number of events in million
             for stype in maxnev.keys():
                 if stype in key:
-                    if cumulsum > maxnev[stype]: maxnev[stype] = cumulsum 
-            if not 'debug_' in key and cumulsum > maxnev['all_']: maxnev['all_'] = cumulsum
+                    if cumulsum > maxnev[stype]:
+                        maxnev[stype] = cumulsum 
+            if 'debug_' not in key and cumulsum > maxnev['all_']:
+                maxnev['all_'] = cumulsum
             sortdic[len(graphs)-1] = cumulsum
 
     # sort dictionary into list
@@ -310,8 +337,8 @@ def MakeRootPlots( rootstreamdic, datapath ):
             y = Double(0)
             g.GetPoint( g.GetN()-1, x, y )
             c, frame, legend = CreateCanvasAndFrame( runmin, runmax, tminS, tmaxS, y*1.1, '', 'million' )
-            legend.SetX2( legend.GetX2() - 0.2 );
-            legend.SetY1( legend.GetY2() - 0.05 );
+            legend.SetX2( legend.GetX2() - 0.2 )
+            legend.SetY1( legend.GetY2() - 0.05 )
             DrawGraph( g, colours[ic], 2, 1, legend, name.replace('physics_','').replace('express_','').replace('express','Express'), True, 'M', TText() )
             ic += 1
 
@@ -333,9 +360,9 @@ def MakeRootPlots( rootstreamdic, datapath ):
     for i in sortedlist:
         g = graphs[i]
         name = g.GetTitle()
-        if '#Events (streamed)' in name: 
+        if '#Events (streamed)' in name:
             DrawGraph( g, c_NovelBlue, 2, 2, legend, "Total number of streamed events" )
-        elif '#Events' == name:            
+        elif '#Events' == name:
             DrawGraph( g, c_NovelBlue, 5, 1, legend, "Total number of triggered events (excl. calib)", True, 'M', TText() )
         elif 'physics_' in name or 'express_' in name:
             DrawGraph( g, colours[ic], 2, 1, legend, name.replace('physics_','').replace('express_','').replace('express','Express') )
@@ -362,8 +389,8 @@ def MakeRootPlots( rootstreamdic, datapath ):
     for key, cprop in plottypes.iteritems():
                  
         c, frame, legend = CreateCanvasAndFrame( runmin, runmax, tminS, tmaxS, maxnev[key], cprop[0], cprop[1] )
-        legend.SetY1( legend.GetY1() + 0.15 );
-        legend.SetX2( legend.GetX2() - 0.15 );
+        legend.SetY1( legend.GetY1() + 0.15 )
+        legend.SetX2( legend.GetX2() - 0.15 )
         ic = 0
         for i in sortedlist:
             g = graphs[i]
@@ -388,7 +415,8 @@ def MakeRootPlots( rootstreamdic, datapath ):
     retstr    = '<table width="900" style="margin-left: 14px; background-color: #f0f0f0; border: 2px white solid; border-collapse: collapse;"><tr>'
     for i,s in enumerate(htmlstr):
         retstr += '<td style="padding: 4px">%s</td>' % s
-        if (i+1)%5 == 0: retstr += '</tr><tr>'
+        if (i+1)%5 == 0:
+            retstr += '</tr><tr>'
     retstr += '</tr></table>'
 
     return retstr
@@ -427,8 +455,7 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
         v = []
         for dk, c in dic.iteritems():
             # exact check?
-            Found = False
-            if ('*' in k[0] and k[0].replace('*','') in dk.ResultKey) or (not '*' in k[0] and k[0] == dk.ResultKey):            
+            if ('*' in k[0] and k[0].replace('*','') in dk.ResultKey) or ('*' not in k[0] and k[0] == dk.ResultKey):
                 for x in c:
                     try:
                         v.append( DecodeStr( x, k[0] ) )
@@ -468,12 +495,14 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
                 try:
                     rootstreamdic[dk].append([run, int(data)])
                 except ValueError:
-                    if data != 'n.a.': rootstreamdic[dk].append([run, data])
+                    if data != 'n.a.':
+                        rootstreamdic[dk].append([run, data])
             
         if 'Start and endtime' in dk.ResultKey:
             rootstreamdic[dk] = []
             for run,data in zip(runs,c):
-                if data != 'n.a.': rootstreamdic[dk].append([int(run), map(float,data.split(','))])
+                if data != 'n.a.':
+                    rootstreamdic[dk].append([int(run), map(float,data.split(','))])
             
         # collect streams
         if 'STR:' in dk.ResultKey:
@@ -494,14 +523,17 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
                     tmin_   = float(t.partition(',')[0])
                     tmax_   = float(t.partition(',')[2])
                     deltat = tmax_ - tmin_
-                    if (deltat > 0): streamratedic[sname].append(data[0]/deltat)
-                    else           : streamratedic[sname].append(-1)
+                    if (deltat > 0):
+                        streamratedic[sname].append(data[0]/deltat)
+                    else:
+                        streamratedic[sname].append(-1)
                     streamsizedic[sname] += data[1]
                     try:
                         rootstreamdic[sname].append([run, data[0]])
                     except ValueError:
                         pass
-                else: streamfracdic[sname].append('na')
+                else:
+                    streamfracdic[sname].append('na')
 
     # sort (physics, debug, calibration)
     streamtypes = ['physics', 'express', 'debug', 'calibration']
@@ -509,27 +541,29 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
     for stype in streamtypes:
         keys = {}
         for key, c in streamdic.iteritems():
-            if stype in key: keys[key] = sum(c)    
+            if stype in key:
+                keys[key] = sum(c)    
         sortedstreams += sorted(keys, key=keys.__getitem__, reverse=True)
     
     # fill table
     keys = []
     table  = []
-    newstreamfracdic = {}
-    for stream in sortedstreams:        
+    for stream in sortedstreams:
         stats = ComputeStats( streamdic[stream] )
         table.append( stats[0:4] )
 
         # compute event fractions (not for calibration streams)
-        if not 'calibration_' in stream: 
+        if 'calibration_' not in stream:
             v = []
             for i, evrun in enumerate(streamfracdic[stream]):
                 if evrun != 'na':
                     evsum = float(0)
                     for stream2 in sortedstreams:
-                        if not 'calibration_' in stream2:
-                            if streamfracdic[stream2][i] != 'na': evsum += streamfracdic[stream2][i]
-                    if evsum > 0: v.append( float(evrun)/evsum*100 ) # fraction in percent
+                        if 'calibration_' not in stream2:
+                            if streamfracdic[stream2][i] != 'na':
+                                evsum += streamfracdic[stream2][i]
+                    if evsum > 0:
+                        v.append( float(evrun)/evsum*100 ) # fraction in percent
 
             table[-1] += ['%.3g' % ComputeStats( v )[1]]
         else:
@@ -542,12 +576,15 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
         table[-1] += [stats[4]]
 
         # event sizes
-        if table[-1][0] > 0: table[-1] += [filesize(streamsizedic[stream]),
-                                           filesize(float(streamsizedic[stream])/table[-1][0])] 
-        else:                table[-1] += [filesize(streamsizedic[stream]),'&minus']
+        if table[-1][0] > 0:
+            table[-1] += [filesize(streamsizedic[stream]),
+                          filesize(float(streamsizedic[stream])/table[-1][0])] 
+        else:
+            table[-1] += [filesize(streamsizedic[stream]),'&minus']
 
         prettystr = stream
-        if 'debug' in stream: prettystr = '<font color="#C11B17">' + stream + '</font>'
+        if 'debug' in stream:
+            prettystr = '<font color="#C11B17">' + stream + '</font>'
         # format     Title in dico    Title in table     unit   format        which columns in table to exclude
         keys.append( [stream,         prettystr,         '',    'pretty-int', []] )
 
@@ -590,9 +627,10 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
                 ndq[chan][dqflag] = 0
 
         for chan, dqchan in dqitems:
-            if dic.has_key( dqchan ):
+            if dqchan in dic:
                 grchan = int(chan/10)*10
-                if grchan == 430: grchan = 420 # 'ad hoc' correction for TAU trigger
+                if grchan == 430:
+                    grchan = 420 # 'ad hoc' correction for TAU trigger
                 for dqflag in dic[dqchan]:
                     ndq[grchan][dqflag] += 1
 
@@ -615,7 +653,7 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
         for dqflag in dqflags:
             ndq[chan][dqflag] = [0, []]
 
-        if dic.has_key( dqchan ):
+        if dqchan in dic:
             for i, dqflag in enumerate(dic[dqchan]):
                 ndq[chan][dqflag][0] += 1
                 ndq[chan][dqflag][1].append(runs[i])
@@ -641,7 +679,7 @@ def MakeSummaryHtml( dic, dicsum, datapath ):
         colstr_   = []
         colchans_ = []
         title     = content[0]
-        for dqchan in content[1]:                        
+        for dqchan in content[1]:
             colstr_.append(dqchan)
             colchans_.append(DQChannelDict[dqchan])
         s += MakeDQSummaryTableHtml( '', title, colstr_, colchans_, dqflags, dqflagsNames, ndq, nruns, labeloffset )

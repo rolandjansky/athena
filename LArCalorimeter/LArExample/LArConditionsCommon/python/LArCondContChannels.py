@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: LArConditionsCommon/python/LArCondContChannels.py
 # Author: RD Schaffer (R.D.Schaffer@cern.ch)
@@ -6,8 +6,6 @@
 # The LArCondContChannels class provides the translation for between
 # LArConditionsContainer group numbering and COOL channel numbering.
 #
-
-from __future__ import print_function
 
 import operator
 
@@ -53,7 +51,7 @@ class LArCondContChannels(object) :
   def isSubDetectorGrouping(self, type):
     return type == self.SubDetectorGrouping
   
-  def isSubDetectorGrouping(self, type):
+  def isExtSubDetectorGrouping(self, type):
     return type == self.ExtSubDetectorGrouping
 
   def isFeedThroughGrouping(self, type):

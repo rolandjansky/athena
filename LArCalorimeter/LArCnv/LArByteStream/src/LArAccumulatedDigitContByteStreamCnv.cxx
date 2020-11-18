@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArByteStream/LArAccumulatedDigitContByteStreamCnv.h"
@@ -32,98 +32,55 @@
 
 
 LArAccumulatedDigitContByteStreamCnv::LArAccumulatedDigitContByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(storageType(), classID(),svcloc),m_log(NULL),m_tool(NULL),m_ByteStreamEventAccess(NULL),m_rdpSvc(NULL),m_storeGate(NULL){}
+  AthConstConverter(storageType(), classID(),svcloc,"LArAccumulatedDigitContByteStreamCnv"),
+  m_tool("LArRawDataContByteStreamTool"),
+  m_rdpSvc("ROBDataProviderSvc", name())
+{}
 
 const CLID& LArAccumulatedDigitContByteStreamCnv::classID(){
   return ClassID_traits<LArAccumulatedDigitContainer>::ID() ;
 }
 
 LArAccumulatedDigitContByteStreamCnv::~LArAccumulatedDigitContByteStreamCnv() {
-  if (m_log) 
-    delete m_log;
 }
 
 
 StatusCode
 LArAccumulatedDigitContByteStreamCnv::initialize()
 {
-   StatusCode sc = Converter::initialize(); 
-   if(StatusCode::SUCCESS!=sc) 
-   { 
-    return sc; 
-   } 
-   m_log = new MsgStream(msgSvc(),"LArAccumulatedDigitBSCnv");
-   IService* svc;
-  //Get ByteStreamCnvSvc
-  if(StatusCode::SUCCESS != serviceLocator()->getService("ByteStreamCnvSvc",svc)){
-    (*m_log) << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endmsg;
-    return StatusCode::FAILURE;
-  }
-  m_ByteStreamEventAccess=dynamic_cast<ByteStreamCnvSvc*>(svc);
-  if (m_ByteStreamEventAccess==NULL)
-    {
-      (*m_log) <<MSG::ERROR<< "  LArAccumulatedDigitContByteStreamCnv: Can't cast to  ByteStreamCnvSvc " <<endmsg; 
-      return StatusCode::FAILURE ;
-    }
+  ATH_CHECK( AthConstConverter::initialize() );
 
-  //Get ByteStreamInputSvc (only necessary for reading of digits, not for writing and for channels)
-  
-  if(StatusCode::SUCCESS != serviceLocator()->getService("ROBDataProviderSvc",svc)){
-    (*m_log) << MSG::WARNING << " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " << endmsg;
-    m_rdpSvc=0;
-  }
-  else {
-    m_rdpSvc=dynamic_cast<IROBDataProviderSvc*>(svc);
-    if(m_rdpSvc == 0 ) {
-      (*m_log) <<MSG::ERROR<< "  LArAccumulatedDigitContByteStreamCnv: Can't cast to  ByteStreamInputSvc " <<endmsg; 
-      return StatusCode::FAILURE;
-    }
+  if ( m_rdpSvc.retrieve().isFailure()) {
+    ATH_MSG_WARNING(  " Can't get ByteStreamInputSvc interface Reading of ByteStream Data not possible. " );
   }
 
-  // retrieve ToolSvc
-  IToolSvc* toolSvc;
+  ATH_CHECK( m_tool.retrieve() );
 
-  if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  //Get LArByteStreamTool
-  std::string toolType = "LArRawDataContByteStreamTool" ; 
-  if(StatusCode::SUCCESS !=toolSvc->retrieveTool(toolType,m_tool))
-  {
-    (*m_log) << MSG::ERROR << " Can't get LArRawDataByteStreamTool " << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  //Get StoreGateSvc
-  return service("StoreGateSvc", m_storeGate); 
+  return StatusCode::SUCCESS;
 
 }
 
 StatusCode
-LArAccumulatedDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
+LArAccumulatedDigitContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, DataObject*& pObj)  const
 {//Convert Accumulated  Digits from ByteStream to StoreGate
-  MsgStream log(msgSvc(), "LArAccumulatedDigitContByteStreamCnv");
-  (*m_log) << MSG::VERBOSE << "Executing CreateObj method for LArAccumulatedDigitContainer " << endmsg;
-  
+  ATH_MSG_VERBOSE(  "Executing CreateObj method for LArAccumulatedDigitContainer ");
 
-  if (!m_rdpSvc)
-    {(*m_log) << MSG::ERROR << " ROBDataProviderSvc not loaded. Can't read ByteStream." << endmsg;
-     return StatusCode::FAILURE;
-    }
+  if (!m_rdpSvc) {
+    ATH_MSG_ERROR( " ROBDataProviderSvc not loaded. Can't read ByteStream." );
+    return StatusCode::FAILURE;
+  }
   ByteStreamAddress *pRE_Addr;
   pRE_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); //Cast from OpaqueAddress to ByteStreamAddress
-  if (!pRE_Addr)
-    {(*m_log) << MSG::ERROR << "dynamic_cast of OpaqueAdress to ByteStreamAddress failed!" << endmsg;
-     return StatusCode::FAILURE;
-    }
+  if (!pRE_Addr) {
+    ATH_MSG_ERROR( "dynamic_cast of OpaqueAdress to ByteStreamAddress failed!" );
+    return StatusCode::FAILURE;
+  }
 
   const RawEvent* re = m_rdpSvc->getEvent();
-  if (!re)
-    {(*m_log) << MSG::ERROR << "Could not get raw event from ByteStreamInputSvc" << endmsg;
-     return StatusCode::FAILURE;
-    }
+  if (!re) {
+    ATH_MSG_ERROR( "Could not get raw event from ByteStreamInputSvc" );
+    return StatusCode::FAILURE;
+  }
   const std::string& key = *(pAddr->par()); // Get key used in the StoreGateSvc::retrieve function
   // get gain and pass to convert function.
   CaloGain::CaloGain gain=CaloGain::LARNGAIN; //At this place, LARNGAINS means Automatic gain.
@@ -135,20 +92,21 @@ LArAccumulatedDigitContByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObjec
     gain=CaloGain::LARLOWGAIN;
 
   // Convert the RawEvent to  LArAccumulatedDigitContainer
-  (*m_log) << MSG::DEBUG << "Converting LArAccumulatedDigits (from ByteStream). key=" << key << " ,gain=" << gain << endmsg; 
+  ATH_MSG_DEBUG(  "Converting LArAccumulatedDigits (from ByteStream). key=" << key << " ,gain=" << gain );
   LArAccumulatedDigitContainer *DigitContainer=new LArAccumulatedDigitContainer(SG::VIEW_ELEMENTS);
   StatusCode sc=m_tool->convert(re,DigitContainer,gain);
-  if (sc!=StatusCode::SUCCESS)
-    (*m_log) << MSG::WARNING << "Conversion tool returned an error. LArAccumulatedDigitContainer might be empty." << endmsg;
+  if (sc!=StatusCode::SUCCESS) {
+    ATH_MSG_WARNING( "Conversion tool returned an error. LArAccumulatedDigitContainer might be empty." );
+  }
   pObj = SG::asStorable(DigitContainer) ;
 
   return StatusCode::SUCCESS;
 }
 // IWS 19.07.2005 
  StatusCode 
- LArAccumulatedDigitContByteStreamCnv::createRep(DataObject* /*pObj*/, IOpaqueAddress*& /*pAddr*/) 
+ LArAccumulatedDigitContByteStreamCnv::createRepConst(DataObject* /*pObj*/, IOpaqueAddress*& /*pAddr*/)  const
 {// convert LArAccumulatedDigits from StoreGate into ByteStream
-  (*m_log) << MSG::ERROR << "CreateRep method of LArAccumulatedDigitContainer not implemented" << endmsg;
+  ATH_MSG_ERROR( "CreateRep method of LArAccumulatedDigitContainer not implemented" );
   return StatusCode::SUCCESS;
 }
 

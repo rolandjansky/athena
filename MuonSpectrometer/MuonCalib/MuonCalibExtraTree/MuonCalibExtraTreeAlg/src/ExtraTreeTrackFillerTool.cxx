@@ -41,12 +41,8 @@ namespace MuonCalib {
 
 ExtraTreeTrackFillerTool::ExtraTreeTrackFillerTool(const std::string &type, const std::string &name, const IInterface *parent) : 
   IExtraTreeFillerTool(), 
-  AthAlgTool(type, name, parent),
-  m_author(0) {
+  AthAlgTool(type, name, parent) {
   declareInterface<IExtraTreeFillerTool>(this);
-  declareProperty("TrackCollectionKey", m_trackCollectionKey);
-  declareProperty("SegmentAuthors", m_segment_authors);
-  declareProperty("TrackAuthor", m_author);
 }
 	
 StatusCode ExtraTreeTrackFillerTool::initialize() {

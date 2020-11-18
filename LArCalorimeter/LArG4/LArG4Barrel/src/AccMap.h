@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AccMap_h
-#define AccMap_h
+#ifndef LARG4BARREL_ACCMAP_H
+#define LARG4BARREL_ACCMAP_H
 
 #include "CurrMap.h"
 
@@ -17,7 +17,7 @@ class AccMap {
 public:
   ~AccMap();
   static AccMap* GetAccMap();
-  void SetDirectory(std::string dir);
+  void SetDirectory(const std::string& dir);
   void Reset();
   int  Region(int region, int sampling, int eta) const;
   CurrMap* GetMap(int ifold, int ielecregion) const;

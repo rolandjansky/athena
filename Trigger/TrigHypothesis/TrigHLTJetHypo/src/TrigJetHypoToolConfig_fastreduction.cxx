@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -136,7 +136,7 @@ TrigJetHypoToolConfig_fastreduction::getCapacityCheckedConditions() const {
   // return an invalid optional if any src signals a problem
 
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(std::make_unique<CapacityCheckedCondition>(std::move(cm->getCondition())));
+    conditions.push_back(std::make_unique<CapacityCheckedCondition>(cm->getCondition()));
   }
       
   return std::make_optional<ConditionPtrs>(std::move(conditions));
@@ -148,7 +148,7 @@ TrigJetHypoToolConfig_fastreduction::getConditions() const {
   
   ConditionsMT conditions;
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(std::move(cm->getCondition()));
+    conditions.push_back(cm->getCondition());
   }
   
   return std::make_optional<ConditionsMT>(std::move(conditions));

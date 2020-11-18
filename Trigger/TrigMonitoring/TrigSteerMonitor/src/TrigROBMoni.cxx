@@ -64,7 +64,7 @@ TrigROBMoni::TrigROBMoni(const std::string& type,
   m_ROBHistoryToBin[robmonitor::UNCLASSIFIED] = 1;
   m_ROBHistoryToBin[robmonitor::SCHEDULED]    = 2;
   m_ROBHistoryToBin[robmonitor::RETRIEVED]    = 3;
-  m_ROBHistoryToBin[robmonitor::CACHED]       = 4;
+  m_ROBHistoryToBin[robmonitor::HLT_CACHED]   = 4;
   m_ROBHistoryToBin[robmonitor::IGNORED]      = 5;
   m_ROBHistoryToBin[robmonitor::DISABLED]     = 6;
 
@@ -230,7 +230,7 @@ StatusCode TrigROBMoni::fillHists()
   for ( short n = 0; n < m_hs_history_event.NHISTS; ++n ) {
     TH1* h = m_hs_history_event.hist[n];
     for ( int b = 1; b <= h->GetNbinsX(); ++b ) {
-      double cached = h->GetBinContent(b, m_ROBHistoryToBin[robmonitor::CACHED]);
+      double cached = h->GetBinContent(b, m_ROBHistoryToBin[robmonitor::HLT_CACHED]);
       double retrieved = h->GetBinContent(b, m_ROBHistoryToBin[robmonitor::RETRIEVED]);
       if ( cached+retrieved > 0 ) {
         m_hs_cached_fraction.hist[n]->Fill(h->GetXaxis()->GetBinLabel(b),

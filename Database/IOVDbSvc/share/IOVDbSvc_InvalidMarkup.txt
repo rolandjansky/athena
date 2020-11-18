@@ -1,0 +1,5 @@
+ApplicationMgr.OutputLevel = 5;
+ApplicationMgr.CreateSvc += { "StoreGateSvc/DetectorStore" };
+IOVDbSvc.Folders = { "<db>COOLONL_INDET/CONDBR2</db> /Indet/Onl/Beampos <key>/Indet/Beampos</key><forceTimestamp>1536151928</forceTimestamp"};
+EventPersistencySvc.CnvServices += { "AthenaPoolCnvSvc" };
+MessageSvc.OutputLevel = 5;

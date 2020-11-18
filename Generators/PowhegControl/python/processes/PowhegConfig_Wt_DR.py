@@ -1,13 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @PowhegControl PowhegConfig_Wt_DR
 #  Powheg configuration for Wt_DR subprocess
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
-#! /usr/bin/env python
 from ..PowhegConfig_base import PowhegConfig_base
-from .. import ATLASCommonParameters
 
 ## Default Powheg configuration for Wt_DR generation
 #

@@ -38,19 +38,8 @@ class EMBPresamplerHVModule
   double getPhiMin() const;
   double getPhiMax() const;
 
-  // HV Status
-  bool hvOn(int iGap) const;
-  
-  double voltage(int iGap) const;
-  double current(int iGap) const;
-
-  // Voltage and current at the same time...
-  void voltage_current(int iGap, double& v, double& i) const;
-  
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
-  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
-#else
-  int hvLineNo(int iGap) const;
+  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const;
 #endif
 
   const EMBPresamplerHVManager& getManager() const;

@@ -83,7 +83,7 @@ def getRPCSensitiveDetectorCosmics(name="RPCSensitiveDetectorCosmics", **kwargs)
                                                               merger_input_property,
                                                               region)
     kwargs.setdefault("LogicalVolumeNames", ["Muon::gazGap"])
-    kwargs.setdefault("OutputCollectionNames", [bare_collection_name])
+    kwargs.setdefault("OutputCollectionNames", [hits_collection_name])
     return CfgMgr.RPCSensitiveDetectorCosmicsTool(name, **kwargs)
 
 

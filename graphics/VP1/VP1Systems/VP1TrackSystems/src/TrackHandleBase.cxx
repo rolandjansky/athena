@@ -1556,7 +1556,7 @@ QStringList TrackHandleBase::baseInfo() const
 }
 
 //____________________________________________________________________
-const Amg::Vector3D * TrackHandleBase::startPoint() const
+std::optional<Amg::Vector3D> TrackHandleBase::startPoint() const
 {
   m_d->ensureLoadPathInfo();
   if (m_d->pathInfo_TrkTrack) {
@@ -1566,17 +1566,17 @@ const Amg::Vector3D * TrackHandleBase::startPoint() const
       if (common()->trackSanityHelper()->isSafe(*tsos_iter)) {
         const Trk::TrackParameters* trackParam = (*tsos_iter)->trackParameters();
         if (common()->trackSanityHelper()->isSafe(trackParam))
-          return &(trackParam->position());
+          return trackParam->position();
       }
     }
   } else if (m_d->pathInfo_Points&&!m_d->pathInfo_Points->empty()) {
-    return &(m_d->pathInfo_Points->at(0));
+    return m_d->pathInfo_Points->at(0);
   }
-  return 0;
+  return {};
 }
 
 //____________________________________________________________________
-const Amg::Vector3D * TrackHandleBase::endPoint() const
+std::optional<Amg::Vector3D> TrackHandleBase::endPoint() const
 {
   m_d->ensureLoadPathInfo();
   if (m_d->pathInfo_TrkTrack) {
@@ -1586,18 +1586,18 @@ const Amg::Vector3D * TrackHandleBase::endPoint() const
       if (common()->trackSanityHelper()->isSafe(*tsos_iter)) {
         const Trk::TrackParameters* trackParam = (*tsos_iter)->trackParameters();
         if (common()->trackSanityHelper()->isSafe(trackParam))
-          return &(trackParam->position());
+          return trackParam->position();
       }
     }
   } else if (m_d->pathInfo_Points&&!m_d->pathInfo_Points->empty()) {
-    return &(m_d->pathInfo_Points->back());
+    return m_d->pathInfo_Points->back();
   }
-  return 0;
+  return {};
 }
 
 bool TrackHandleBase::isIDTrack() const 
 {
-  const Amg::Vector3D * start = startPoint();
+  std::optional<Amg::Vector3D> start = startPoint();
   if (!start) return false;
   return start->perp()<1100 &&fabs( start->z())>3500;  
 }

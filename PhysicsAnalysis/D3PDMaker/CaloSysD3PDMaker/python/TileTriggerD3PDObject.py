@@ -7,8 +7,8 @@ from D3PDMakerCoreComps.D3PDObject import D3PDObject
 def makeTileTriggerD3PDObject (name, prefix, object_name='TileTriggerD3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = 'TileTriggerCnt'
-    if label == None: label = prefix
+    if sgkey is None: sgkey = 'TileTriggerCnt'
+    if label is None: label = prefix
 
     
     print(" makeTileTriggerD3PDObject: name = ", name)

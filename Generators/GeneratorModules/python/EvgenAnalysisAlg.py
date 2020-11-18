@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaPython import PyAthena
-from AthenaPython.PyAthena import StatusCode, McEventCollection, HepMC, CLHEP
-import McParticleEvent.Pythonizations
+import McParticleEvent.Pythonizations  # noqa: F401
 
 
 class EvgenAnalysisAlg(PyAthena.Alg):

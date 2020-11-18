@@ -11,7 +11,6 @@ atlas_add_library( CommissionEvent
                    src/*.cxx
                    PUBLIC_HEADERS CommissionEvent
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel )
 

@@ -308,7 +308,7 @@ StatusCode TrigCOOLUpdateHelper::scheduleFolderUpdates(const EventContext& ctx)
   }
 
   // Loop over potential new folder updates
-  for (const std::pair<FolderIndex, FolderEntry>& kv : ctp_payload.getFolderUpdates()) {
+  for (const std::pair<const FolderIndex, FolderEntry>& kv : ctp_payload.getFolderUpdates()) {
 
     // Check if we already have an update for this folder
     std::map<FolderIndex, FolderUpdate>::const_iterator f = m_folderUpdates.find(kv.first);

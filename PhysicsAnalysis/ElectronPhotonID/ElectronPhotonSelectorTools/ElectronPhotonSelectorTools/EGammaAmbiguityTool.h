@@ -29,45 +29,39 @@ public:
 
 
   /** Standard destructor */
-  virtual ~EGammaAmbiguityTool();
+  virtual ~EGammaAmbiguityTool() = default;
 
 
 public:
   /** Gaudi Service Interface method implementations */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
-  /** Gaudi Service Interface method implementations */
-  virtual StatusCode finalize();
+   /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown */
 
-  /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown */
+  virtual unsigned int ambiguityResolve(
+    const xAOD::CaloCluster* cluster,
+    const xAOD::Vertex* vx,
+    const xAOD::TrackParticle* tp,
+    xAOD::AmbiguityTool::AmbiguityType& type) const override final;
 
-  virtual unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
-                                        const xAOD::Vertex* vx,
-                                        const xAOD::TrackParticle* tp, xAOD::AmbiguityTool::AmbiguityType& type) const;
-
-  /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
-      Needed because of existing client usage (i.e Trigger). Implementation calls method above
+  /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown
+      Needed because of existing client usage (i.e Trigger). Implementation
+     calls method above
   */
-  virtual unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
-                                        const xAOD::Vertex* vx,
-                                        const xAOD::TrackParticle* tp) const;
+  virtual unsigned int ambiguityResolve(
+    const xAOD::CaloCluster* cluster,
+    const xAOD::Vertex* vx,
+    const xAOD::TrackParticle* tp) const override final;
 
-  /** Access the ambiguity resolution of central electrons and photons and return
-   * AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
+  /** Access the ambiguity resolution of central electrons and photons and
+   * return AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown
    * or the author of the object if no overlapping object is found **/
-  unsigned int ambiguityResolve(const xAOD::Egamma& egamma) const;
+  virtual unsigned int ambiguityResolve(const xAOD::Egamma& egamma) const override final;
 
   /** Accept or reject egamma object based on ambiguity resolution 
     * (e.g. if object is a photon and ambiguity return value is electron -> reject) 
     **/
-  bool accept( const xAOD::Egamma& egamma) const;
-
-  /** Accept or reject egamma object (passed via pointer) based on ambiguity resolution 
-    * (e.g. if object is a photon and ambiguity return value is electron -> reject) 
-    **/
-  bool accept( const xAOD::Egamma* egamma) const{
-    return accept(*egamma);
-  }
+  virtual bool accept( const xAOD::Egamma& egamma) const override final;
   
   /** Return true if track has innermost pixel hit 
    * or next-to-innermost in case innermost is not expected

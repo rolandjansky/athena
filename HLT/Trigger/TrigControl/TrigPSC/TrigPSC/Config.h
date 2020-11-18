@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -42,8 +42,9 @@ namespace psc {
 
     /**
      * Gets an option in a "safer" way
+     * @param quiet  Print warning if option is not available
      */
-    std::string getOption(const std::string& key) const;
+    std::string getOption(const std::string& key, bool quiet=false) const;
 
     /**
      * Incredibly simple minded way to access this object from python.

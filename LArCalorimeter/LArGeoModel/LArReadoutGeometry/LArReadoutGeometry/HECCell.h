@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_HECCELL_H
@@ -9,6 +9,7 @@
 #include "GeoModelKernel/CellBinning.h"
 #include "GeoModelKernel/RCBase.h"
 #include "LArHV/HECHVSubgap.h"
+#include "CxxUtils/CachedValue.h"
 #include <mutex>
 
 /**
@@ -193,19 +194,15 @@ class HECCell : public RCBase
   /**
    * @brief	Cache of subgaps.
    */
-  mutable std::vector<const HECHVSubgap*> m_subgap;
+  CxxUtils::CachedValue<std::vector<const HECHVSubgap*> > m_subgaps;
 
   /**
    * @brief Additional Implementation Declarations
    */
   friend class ImaginaryFriend;
 
-  void initHV() const;
-
-  mutable std::mutex m_mut;
-
-  mutable bool m_initHVdone;
-
+  const std::vector<const HECHVSubgap*>& getSubgaps() const;
+  void initHV (std::vector<const HECHVSubgap*>& subgaps) const;
 };
 
 
@@ -216,7 +213,7 @@ inline HECCell::HECCell (unsigned int endcap, const HECDetDescr *hecDescriptor, 
   
   
   
-  :m_hecDetDescr(hecDescriptor),m_clockwork(phi | (eta<<6) | (endcap <<10)), m_initHVdone(false)
+  :m_hecDetDescr(hecDescriptor),m_clockwork(phi | (eta<<6) | (endcap <<10))
   
 {
   

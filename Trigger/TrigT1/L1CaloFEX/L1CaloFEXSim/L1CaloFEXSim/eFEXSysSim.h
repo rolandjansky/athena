@@ -22,6 +22,9 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 
+#include "xAODTrigger/eFexEMRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIAuxContainer.h"
+
 namespace LVL1 {
   
   //Doxygen class description below:
@@ -55,8 +58,14 @@ namespace LVL1 {
 
     virtual int calcTowerID(int eta, int phi, int mod) override ;
 
+    /**Create and fill a new eFexEMRoI object (corresponding to this window), and return a pointer to it*/
+    virtual StatusCode fillEDM(uint8_t eFEXNumber, uint32_t tobWord) override ; 
+
+
     /** Internal data */
   private:
+    std::unique_ptr< xAOD::eFexEMRoIContainer > m_eContainer;
+    std::unique_ptr< xAOD::eFexEMRoIAuxContainer > m_eAuxContainer;
 
     std::vector<eFEXSim*>  m_eFEXCollection;
     
@@ -65,7 +74,11 @@ namespace LVL1 {
     SG::ReadHandleKey<LVL1::eTowerContainer> m_eTowerContainerSGKey {this, "MyETowers", "eTowerContainer", "Input container for eTowers"};
     SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
 
-    std::map<int,eTower> m_eTowersColl;
+    SG::WriteHandleKey< xAOD::eFexEMRoIContainer > m_eFexOutKey {this,"Key_eFexEMOutputContainer","L1_eEMRoI","Output eFexEM container"};
+
+    //std::map<int,eTower> m_eTowersColl;
+
+    std::map<int, std::vector<uint32_t> > m_allEmTobs;
     
   };
   

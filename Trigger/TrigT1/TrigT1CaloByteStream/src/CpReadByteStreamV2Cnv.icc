@@ -28,11 +28,9 @@ namespace LVL1BS {
 
 template <typename Container>
 CpReadByteStreamV2Cnv<Container>::CpReadByteStreamV2Cnv( ISvcLocator* svcloc )
-    : Converter( storageType(), classID(), svcloc ),
-      m_name("CpReadByteStreamV2Cnv"),
+    : AthConstConverter( storageType(), classID(), svcloc, "CpReadByteStreamV2Cnv" ),
       m_tool("LVL1BS::CpByteStreamV2Tool/CpByteStreamV2Tool"),
-      m_robDataProvider("ROBDataProviderSvc", m_name),
-      m_debug(false)
+      m_robDataProvider("ROBDataProviderSvc", name())
 {
 }
 
@@ -61,8 +59,6 @@ long CpReadByteStreamV2Cnv<Container>::storageType()
 template <typename Container>
 StatusCode CpReadByteStreamV2Cnv<Container>::initialize()
 {
-  m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
-
   ATH_CHECK( Converter::initialize() );
   ATH_CHECK( m_tool.retrieve() );
   ATH_CHEKC( m_robDataProvider.retrieve() );
@@ -73,13 +69,13 @@ StatusCode CpReadByteStreamV2Cnv<Container>::initialize()
 // createObj should create the RDO from bytestream.
 
 template <typename Container>
-StatusCode CpReadByteStreamV2Cnv<Container>::createObj( IOpaqueAddress* pAddr,
-                                                        DataObject*& pObj )
+StatusCode CpReadByteStreamV2Cnv<Container>::createObjConst ( IOpaqueAddress* pAddr,
+                                                              DataObject*& pObj ) const
 {
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    REPORT_ERROR (StatusCode::FAILURE) << " Can not cast to ByteStreamAddress ";
+    ATH_MSG_ERROR( " Can not cast to ByteStreamAddress " );
     return StatusCode::FAILURE;
   }
 
@@ -94,9 +90,8 @@ StatusCode CpReadByteStreamV2Cnv<Container>::createObj( IOpaqueAddress* pAddr,
 
   // size check
   auto collection = std::make_unique<Container>();
-  if (m_debug) {
-    REPORT_MESSAGE (MSG::DEBUG) << " Number of ROB fragments is " << robFrags.size();
-  }
+  ATH_MSG_DEBUG( " Number of ROB fragments is " << robFrags.size() );
+
   if (robFrags.size() == 0) {
     pObj = SG::asStorable(std::move(collection)) ;
     return StatusCode::SUCCESS;

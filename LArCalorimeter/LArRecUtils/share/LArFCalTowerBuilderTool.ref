@@ -1,14 +1,14 @@
-Tue Oct  6 19:49:20 CEST 2020
+Thu Oct 22 13:07:27 EDT 2020
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.19] [x86_64-centos7-gcc8-opt] [master-refs/ea3e66422c4] -- built on [2020-10-06T1923]
+Py:Athena            INFO using release [WorkDir-22.0.19] [x86_64-centos7-gcc8-opt] [master-mt/9d6e7edd41b] -- built on [2020-10-22T1119]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "LArRecUtils/LArFCalTowerBuilderTool_test.py"
 Py:Athena            INFO SetGeometryVersion.py obtained major release version 22
 Py:Athena            INFO including file "IdDictDetDescrCnv/IdDictDetDescrCnv_joboptions.py"
-Py:ConfigurableDb    INFO Read module info for 5569 configurables from 10 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5616 configurables from 48 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 EventInfoMgtInit: Got release version  Athena-22.0.19
 Py:IOVDbSvc.CondDB    INFO Setting up conditions DB access to instance OFLP200
@@ -21,20 +21,20 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
-                                          running on aibuild028.cern.ch on Tue Oct  6 19:49:32 2020
+                                          running on spar0103.usatlas.bnl.gov on Thu Oct 22 13:07:43 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3586 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3535 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host aibuild028.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas1.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://frontier-atlas2.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier03.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccfrontier05.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://frontier-cache.sdcc.bnl.gov:3128)(proxyurl=http://frontier-cache1.sdcc.bnl.gov:3128)(proxyurl=http://frontier-cache2.sdcc.bnl.gov:3128)(proxyurl=http://atlasbpfrontier.fnal.gov:3127)(proxyurl=http://atlasbpfrontier.cern.ch:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host spar0103.usatlas.bnl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
@@ -67,7 +67,7 @@ IOVDbSvc             INFO Added taginfo remove for /LAR/LArCellPositionShift
 IOVDbSvc             INFO Added taginfo remove for /LAR/Identifier/LArTTCellMapAtlas
 ClassIDSvc           INFO  getRegistryEntries: read 273 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 26 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 243 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 180 CLIDRegistry entries for module ALL
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
 DetDescrCnvSvc       INFO  filling proxies for detector managers 
@@ -152,7 +152,7 @@ BarrelConstruction   INFO   Use sagging in geometry  ? 0
 EMECConstruction     INFO multi-layered version of absorbers activated, parameter value is 1
 EMECConstruction     INFO activating LAr::EMEC::Pos::InnerWheel
 EMECConstruction     INFO activating LAr::EMEC::Pos::OuterWheel
-ClassIDSvc           INFO  getRegistryEntries: read 6007 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 5905 CLIDRegistry entries for module ALL
 CaloIDHelper_ID...   INFO in createObj: creating a TileTBID helper object in the detector store
 TileTBID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -170,7 +170,7 @@ TileDddbManager      INFO n_tilb = 21
 TileDddbManager      INFO n_tileSwitches = 1
 CaloIDHelper_ID...   INFO in createObj: creating a TileID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/TileNeighbour_reduced.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/TileNeighbour_reduced.txt
 TileHWIDDetDesc...   INFO in createObj: creating a TileHWID helper object in the detector store
 TileHWID             INFO initialize_from_dictionary 
 AtlasDetectorID      INFO initialize_from_dictionary - OK
@@ -182,9 +182,9 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_ID helper object in th
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCal2DNeighbors-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsNext-April2011.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsPrev-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsPrev-April2011.txt
 CaloIDHelper_ID...   INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 LArMiniFCAL_ID       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
@@ -195,7 +195,7 @@ AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version Athe
 CondInputLoader      INFO Initializing CondInputLoader...
 CondInputLoader      INFO Adding base classes:
 CondInputLoader      INFO Will create WriteCondHandle dependencies for the following DataObjects:
-ClassIDSvc           INFO  getRegistryEntries: read 7305 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 7186 CLIDRegistry entries for module ALL
 ToolSvc.LArFCal...   INFO CaloTowerBuilder for the FCal initiated
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr       INFO Application Manager Started successfully
@@ -230,12 +230,12 @@ CaloIDHelper_ID...   INFO in createObj: creating a LArHEC_SuperCell_ID helper ob
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIDHelper_ID...   INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
-LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
 CaloIDHelper_ID...   INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
 AtlasDetectorID      INFO initialize_from_dictionary - OK
-TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-05T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/TileSuperCellNeighbour.txt
+TileNeighbour        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-10-20T2101/Athena/22.0.19/InstallArea/x86_64-centos7-gcc8-opt/share/TileSuperCellNeighbour.txt
 AtlasDetectorID      INFO initialize_from_dictionary - OK
 CaloIdMgrDetDes...   INFO  Finished 
 CaloIdMgrDetDes...   INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
@@ -566,7 +566,7 @@ towers
 318 5 63 34964.2 179831 179879 180391 180683 
 319 5 64 36415.3 179847 179895 180391 180683 
 320 6 1 54640 179847 179848 180391 180392 180684 
-321 6 2 69809.3 179832 179848 180392 180684 
+321 6 2 69809.4 179832 179848 180392 180684 
 322 6 3 66886.5 179816 179832 180392 180684 
 323 6 4 52807.2 179800 179816 179864 179865 180392 180409 180684 
 324 6 5 57327.3 179800 179833 179865 180409 180669 
@@ -784,7 +784,7 @@ towers
 536 9 25 45817 179726 179742 179757 179774 180366 180398 180642 
 537 9 26 31253.3 179742 180366 180642 
 538 9 27 24865.6 179742 179758 180366 180382 180626 180642 180658 180659 
-539 9 28 22483.9 179743 179758 180351 180382 180659 
+539 9 28 22484 179743 179758 180351 180382 180659 
 540 9 29 29469.7 179743 179758 179759 179791 180351 180382 180659 
 541 9 30 18617.4 179759 180351 180367 180659 180675 
 542 9 31 22776.2 179775 180367 180675 
@@ -871,7 +871,7 @@ towers
 623 10 48 33159.8 179699 180339 180663 
 624 10 49 32198.1 179700 180339 180340 180663 180664 
 625 10 50 33364 179700 180340 180664 
-626 10 51 37217.1 179684 180324 180664 
+626 10 51 37217 179684 180324 180664 
 627 10 52 52364.3 179684 180324 180648 
 628 10 53 33155.2 179701 179733 180308 180373 180648 180649 
 629 10 54 27658.4 179701 179717 179733 180308 180357 180373 180633 180649 
@@ -921,7 +921,7 @@ towers
 673 11 34 19046.7 179680 179696 180320 180628 
 674 11 35 36908.4 179664 179680 180304 180612 180644 
 675 11 36 59942.7 179664 179712 180304 180336 180612 180644 
-676 11 37 67432.4 179665 179697 180305 180337 180597 180629 180644 
+676 11 37 67432.3 179665 179697 180305 180337 180597 180629 180644 
 677 11 38 72290.6 179681 179697 180337 180629 
 678 11 39 69680.2 179681 179713 180321 180337 180338 180613 180629 
 679 11 40 52740.7 179649 179681 179698 179713 180321 180338 180613 
@@ -1100,7 +1100,7 @@ towers
 852 14 21 96794 179501 179549 179565 179597 180204 180237 180269 180301 180561 180593 
 853 14 22 68291.3 179565 179613 180269 180577 180593 
 854 14 23 53091.8 179533 179581 179613 180253 180269 180285 180577 180609 
-855 14 24 97258.9 179517 179581 179598 179629 180221 180253 180270 180285 180562 180577 180609 
+855 14 24 97258.8 179517 179581 179598 179629 180221 180253 180270 180285 180562 180577 180609 
 856 14 25 111508 179598 180270 180562 180578 
 857 14 26 102370 179550 179582 179598 179630 180238 180254 180270 180302 180562 180578 
 858 14 27 125072 179582 179614 180254 180286 180546 180578 180594 
@@ -1144,7 +1144,7 @@ towers
 896 15 1 52243.6 179528 179543 179592 179607 180215 180216 180264 180556 180604 
 897 15 2 70484.8 179512 179576 180200 180216 180248 180264 180540 180556 180588 180604 
 898 15 3 101974 179480 179496 179560 180184 180200 180248 180540 180588 
-899 15 4 64088.4 179480 179544 179561 180184 180232 180524 180572 
+899 15 4 64088.5 179480 179544 179561 180184 180232 180524 180572 
 900 15 5 106646 179529 179561 180217 180232 180557 180572 
 901 15 6 136494 179497 179529 179577 179609 180201 180217 180249 180557 180589 
 902 15 7 54741.8 179545 179577 180233 180249 180541 180557 180573 180589 
@@ -1321,7 +1321,7 @@ towers
 1073 17 50 177241 179300 179316 179380 180004 180020 180084 180100 180456 180504 180520 
 1074 17 51 181845 179284 179300 179348 179364 179988 180004 180068 180084 180488 180504 
 1075 17 52 218622 179268 179284 179333 179348 180052 180068 180488 180536 
-1076 17 53 193912 179285 179333 179349 179397 180052 180085 180149 180165 180489 180536 
+1076 17 53 193913 179285 179333 179349 179397 180052 180085 180149 180165 180489 180536 
 1077 17 54 143637 179237 179285 179301 179349 179413 180069 180085 180117 180149 180473 180489 
 1078 17 55 187779 179253 179301 179317 179365 180101 180117 180133 180181 180473 180505 
 1079 17 56 185595 179269 179317 179350 179381 180086 180101 180133 180457 180505 
@@ -5776,7 +5776,7 @@ towers
 5528 87 25 92083.9 181360 182032 182324 182340 
 5529 87 26 64780.8 181312 181344 181360 181392 182000 182016 182032 182064 182324 182340 
 5530 87 27 72406.4 181344 181376 182016 182048 182308 182340 182356 
-5531 87 28 85338.4 181328 181329 181376 181393 181984 182001 182016 182048 182308 182341 182356 
+5531 87 28 85338.5 181328 181329 181376 181393 181984 182001 182016 182048 182308 182341 182356 
 5532 87 29 108011 181329 181345 181393 181409 182001 182017 182048 182049 182341 182357 
 5533 87 30 88542.1 181345 181361 182017 182357 
 5534 87 31 134456 181361 181377 182017 182033 182357 182373 
@@ -6229,7 +6229,7 @@ towers
 5981 94 30 28966.8 181553 181569 182145 182453 
 5982 94 31 19570 181569 182145 182453 
 5983 94 32 11433.2 181538 181569 182130 182145 182453 
-5984 94 33 8118.99 181538 182130 182438 
+5984 94 33 8119 181538 182130 182438 
 5985 94 34 16421.1 181538 182130 182438 
 5986 94 35 37437.7 181522 182130 182438 
 5987 94 36 59285.2 181522 181554 181570 182131 182423 
@@ -6249,7 +6249,7 @@ towers
 6001 94 50 54792.9 181494 181542 181558 182134 182442 
 6002 94 51 49687.6 181494 181526 181542 182134 182442 
 6003 94 52 68532.4 181510 181526 181590 182118 182442 
-6004 94 53 65859.5 181510 181574 182118 182167 182411 182427 
+6004 94 53 65859.6 181510 181574 182118 182167 182411 182427 
 6005 94 54 24841.5 181527 181574 182151 182167 182427 
 6006 94 55 42637.8 181527 181543 181559 182151 182427 
 6007 94 56 73829.5 181543 181575 182151 182427 
@@ -6292,7 +6292,7 @@ towers
 6044 95 29 25182.2 181584 181585 182161 182176 182453 
 6045 95 30 34084.5 181585 181601 182161 182453 
 6046 95 31 46522.5 181569 181601 181617 182145 182161 182453 
-6047 95 32 54038.6 181538 181569 181602 181617 182130 182145 182146 182161 182453 
+6047 95 32 54038.7 181538 181569 181602 181617 182130 182145 182146 182161 182453 
 6048 95 33 26881.2 181538 181602 182130 182146 182438 
 6049 95 34 28041.7 181538 181586 182130 182146 182438 
 6050 95 35 66606.8 181570 181586 182146 182438 
@@ -6544,7 +6544,7 @@ towers
 6296 99 25 17575 182213 182466 
 6297 99 26 7951.68 181712 182213 
 6298 99 27 7357.76 181712 182213 182452 
-6299 99 28 1173.02 182452 
+6299 99 28 1173.03 182452 
 6300 99 29 16012.7 181681 181697 182177 182467 
 6301 99 30 22630 181697 182177 182193 182467 
 6302 99 31 13024.4 181713 182193 182467 
@@ -6656,25 +6656,25 @@ IncidentProcAlg1     INFO Finalize
 CondInputLoader      INFO Finalizing CondInputLoader...
 IncidentProcAlg2     INFO Finalize
 IdDictDetDescrCnv    INFO in finalize
-IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.04 ))s
+IOVDbFolder          INFO Folder /LAR/Align (PoolRef) db-read 1/1 objs/chan/bytes 1/1/170 ((     0.74 ))s
 IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
 IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
 IOVDbFolder          INFO Folder /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas (PoolRef) db-read 0/0 objs/chan/bytes 0/1/0 ((     0.00 ))s
-IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.02 ))s
-IOVDbFolder          INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/0 objs/chan/bytes 1/1/173 ((     0.02 ))s
+IOVDbFolder          INFO Folder /LAR/LArCellPositionShift (PoolRef) db-read 1/1 objs/chan/bytes 1/1/195 ((     0.10 ))s
+IOVDbFolder          INFO Folder /LAR/Identifier/LArTTCellMapAtlas (PoolRef) db-read 1/0 objs/chan/bytes 1/1/173 ((     0.10 ))s
 IOVDbFolder       WARNING Folder /LAR/Identifier/LArTTCellMapAtlas is requested but no data retrieved
-IOVDbSvc             INFO  bytes in ((      0.07 ))s
+IOVDbSvc             INFO  bytes in ((      0.94 ))s
 IOVDbSvc             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
-IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.07 ))s
+IOVDbSvc             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 3 ReadTime: ((     0.94 ))s
 IOVDbSvc             INFO Connection COOLOFL_CALO/OFLP200 : nConnect: 1 nFolders: 3 ReadTime: ((     0.00 ))s
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=  0.5  [s] Ave/Min/Max=    0.25(+-    0.25)/       0/     0.5  [s] #=  2
-cObj_ALL             INFO Time User   : Tot= 0.55  [s] Ave/Min/Max=   0.275(+-   0.265)/    0.01/    0.54  [s] #=  2
-ChronoStatSvc        INFO Time User   : Tot= 2.55  [s]  #=  1
+cObjR_ALL            INFO Time User   : Tot=  420 [ms] Ave/Min/Max=     210(+-     200)/      10/     410 [ms] #=  2
+cObj_ALL             INFO Time User   : Tot=  490 [ms] Ave/Min/Max=     245(+-     225)/      20/     470 [ms] #=  2
+ChronoStatSvc        INFO Time User   : Tot= 2.13  [s]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

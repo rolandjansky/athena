@@ -47,7 +47,7 @@ class MaterialEffectsEngine;
    @author Christos Anastopoulos (Athena MT modifications)
 */
 template<int DIM, class T, class S>
-class ParametersT : public ParametersBase<DIM, T>
+class ParametersT final : public ParametersBase<DIM, T>
 {
 public:
   static_assert(
@@ -108,11 +108,14 @@ public:
   //** Destructor */
   virtual ~ParametersT() = default;
 
+  /** Returns the charge */
+  virtual double charge() const override final;
+
   /** Access method for the position */
-  virtual const Amg::Vector3D& position() const override final;
+  virtual Amg::Vector3D position() const override final;
 
   /** Access method for the momentum */
-  virtual const Amg::Vector3D& momentum() const override final;
+  virtual Amg::Vector3D momentum() const override final;
 
   /** Test to see if there's a surface there. */
   virtual bool hasSurface() const override final;

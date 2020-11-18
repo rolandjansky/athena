@@ -43,7 +43,7 @@ using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 TRT_RodDecoder::TRT_RodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AthAlgTool              ( type,name,parent ),
+  :  base_class              ( type,name,parent ),
      m_CablingSvc            ( "TRT_CablingSvc", name ),
      //     m_bsErrSvc              ( "TRT_ByteStream_ConditionsSvc", name ),
      m_recordBSErrors        ( true ),
@@ -74,13 +74,6 @@ TRT_RodDecoder::TRT_RodDecoder
   declareProperty ( "LoadCompressTableDB",    m_loadCompressTableDB );
   declareProperty ( "ForceRodVersion",        m_forceRodVersion );
   declareProperty ( "LoadCompressTableVersions", m_LoadCompressTableVersions );
-
-  for (int i=0; i<256; i++)
-     m_compressTableLoaded[i] = false;
-
-
-  declareInterface<ITRT_RodDecoder>( this );
-
 }
 
 /* ----------------------------------------------------------
@@ -99,45 +92,31 @@ TRT_RodDecoder::~TRT_RodDecoder()
 StatusCode TRT_RodDecoder::initialize()
 {
   ATH_MSG_DEBUG( " initialize " );
-  StatusCode sc;
 
-  sc = AlgTool::initialize(); 
-  if (sc.isFailure())
-  {
-    ATH_MSG_FATAL( "Failed to init baseclass" );
-    return StatusCode::FAILURE;
+  ATH_CHECK( AlgTool::initialize() );
+
+  m_CompressionTables.resize (m_maxCompressionVersion+1);
+  for (std::atomic<EventContext::ContextEvt_t>& evt : m_lastPrint) {
+    evt = EventContext::INVALID_CONTEXT_EVT;
   }
 
   /*
    * Retrieve id mapping 
    */
-  if ( m_CablingSvc.retrieve().isFailure() )
-  {
-    ATH_MSG_FATAL( "Failed to retrieve tool " << m_CablingSvc );
-    return StatusCode::FAILURE;
-  } else 
-    ATH_MSG_INFO( "Retrieved tool " << m_CablingSvc );
+  ATH_CHECK ( m_CablingSvc.retrieve() );
+  ATH_MSG_INFO( "Retrieved tool " << m_CablingSvc );
 
 
   /*
    * get detector manager
    */
-   const InDetDD::TRT_DetectorManager* indet_mgr;
-   sc = detStore()->retrieve(indet_mgr,"TRT");
-   if (sc.isFailure()) 
-   {
-     ATH_MSG_FATAL( "Cannot retrieve TRT_DetectorManager!" );
-     return StatusCode::FAILURE;
-   }
+  const InDetDD::TRT_DetectorManager* indet_mgr;
+  ATH_CHECK( detStore()->retrieve(indet_mgr,"TRT") );
 
 
 
   // get the helper
-  if (detStore()->retrieve(m_trt_id, "TRT_ID").isFailure()) 
-  {
-    ATH_MSG_FATAL( "Could not get TRT ID helper" );
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_trt_id, "TRT_ID") );
   m_straw_layer_context = m_trt_id->straw_layer_context();
 
 
@@ -200,7 +179,7 @@ StatusCode TRT_RodDecoder::initialize()
 
 	 ATH_MSG_INFO( "Reading Compress Table: " << compressTableFile );
 
-	 sc = ReadCompressTableFile( compressTableFile );
+	 ATH_CHECK( ReadCompressTableFile( compressTableFile ) );
        }
      }
   }
@@ -215,7 +194,7 @@ StatusCode TRT_RodDecoder::initialize()
     ATH_MSG_WARNING( "****************************" );
   }
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -226,8 +205,6 @@ StatusCode TRT_RodDecoder::initialize()
 StatusCode TRT_RodDecoder::finalize() {
 
   ATH_MSG_VERBOSE( "in TRT_RodDecoder::finalize" );
-  for(auto &pair : m_CompressionTables) delete pair.second;
-  m_CompressionTables.clear();
   ATH_MSG_INFO( "Number of TRT RDOs created: " << m_Nrdos );
 
   return StatusCode::SUCCESS;
@@ -250,10 +227,8 @@ StatusCode
 TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 				 TRT_RDO_Container* rdoIdc,
 				 TRT_BSErrContainer* bsErr,
-				 const std::vector<IdentifierHash>* vecHash )
+				 const std::vector<IdentifierHash>* vecHash ) const
 {
-
-  std::lock_guard<std::mutex> lock(m_cacheMutex);
   // update compression tables
   StatusCode sc;
   if(m_loadCompressTableDB) sc = update(); 
@@ -286,23 +261,16 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 
 
       /*
-       * This is a hack to only print once per event.  It will work the
-       * vast majority of the time, but it may miss an occasional event.
+       * This is a hack to only print once per event.
        */
 
       const EventContext& ctx{Gaudi::Hive::currentContext()};
-      CacheEntry* ent{m_cache.get(ctx)};
-      if (ent->m_evt!=ctx.evt()) { // New event in this slot
-        ent->reset();
-        ent->m_evt = ctx.evt();
-      }
-
-      if ( (ent->Last_print_L1ID != robFrag->rod_lvl1_id()) || 
-      	   (ent->Last_print_BCID != robFrag->rod_bc_id()) )
-      {
-	ent->Last_print_L1ID = robFrag->rod_lvl1_id();
-	ent->Last_print_BCID = robFrag->rod_bc_id();
-
+      std::atomic<EventContext::ContextEvt_t>* evt = m_lastPrint.get();
+      EventContext::ContextEvt_t lastEvt = *evt;
+      while (lastEvt != ctx.evt() && !evt->compare_exchange_strong (lastEvt, ctx.evt()))
+        ;
+      if (lastEvt != ctx.evt()) {  // New event in this slot
+        *evt = ctx.evt();
 	ATH_MSG_INFO( "Non-Zero ROB status word for ROB " 
 		      << MSG::hex 
 		      << robFrag->rob_source_id() 
@@ -320,9 +288,9 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
   // get version to decide which method to use to decode !
   if ( 3 < RodBlockVersion && m_maxCompressionVersion >= RodBlockVersion )     // Full Compression
   {
-    if ( m_compressTableLoaded[RodBlockVersion] )
+    if ( m_CompressionTables[RodBlockVersion] )
       sc = int_fillFullCompress( robFrag, rdoIdc, 
-				 m_CompressionTables[RodBlockVersion],
+				 *m_CompressionTables[RodBlockVersion],
 				 vecHash );  
     else
     {
@@ -532,7 +500,7 @@ TRT_RodDecoder::fillCollection ( const ROBFragment* robFrag,
 StatusCode
 TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 				  TRT_RDO_Container* rdoIdc,
-				  const std::vector<IdentifierHash>* vecHash )
+				  const std::vector<IdentifierHash>* vecHash ) const
 {
   // get the ROBid
   uint32_t robid = robFrag->rod_source_id();
@@ -711,7 +679,7 @@ TRT_RodDecoder::int_fillExpanded( const ROBFragment* robFrag,
 StatusCode
 TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 					TRT_RDO_Container* rdoIdc,
-					const std::vector<IdentifierHash>* vecHash)
+					const std::vector<IdentifierHash>* vecHash) const
 {
   uint32_t robid = robFrag->rod_source_id();
   
@@ -943,8 +911,8 @@ TRT_RodDecoder::int_fillMinimalCompress( const ROBFragment *robFrag,
 StatusCode
 TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 				      TRT_RDO_Container* rdoIdc,
-				      t_CompressTable* Ctable,
-				      const std::vector<IdentifierHash>* vecHash)
+				      const t_CompressTable& Ctable,
+				      const std::vector<IdentifierHash>* vecHash) const
 {
   int phase;
   for ( phase=0; phase<2; phase++ )
@@ -1010,9 +978,9 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
     l = 1;
 
     //ATH_MSG_INFO( "l, firstcode, v " << l << " " 
-    //		  << MSG::hex << Ctable->m_firstcode[l] << " " << v << MSG::dec );
+    //		  << MSG::hex << Ctable.m_firstcode[l] << " " << v << MSG::dec );
 
-    while ( v < Ctable->m_firstcode[l] )
+    while ( v < Ctable.m_firstcode[l] )
     {
       v = 2 * v + ((vint[in_ptr] >> bit) & 0x1);
       
@@ -1027,17 +995,17 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
       l++;
 
       //ATH_MSG_INFO( "l, firstcode, v " << l << " " 
-      //		  << MSG::hex << Ctable->m_firstcode[l] << " " << v << MSG::dec );
+      //		  << MSG::hex << Ctable.m_firstcode[l] << " " << v << MSG::dec );
     }
 
-    int idx = Ctable->m_lengths_integral[l] + (v - Ctable->m_firstcode[l]);
+    int idx = Ctable.m_lengths_integral[l] + (v - Ctable.m_firstcode[l]);
 
     //ATH_MSG_INFO ( "lengths_int, idx, syms " << 
-    //	   Ctable->m_lengths_integral[l] << " " << idx << " " << MSG::hex <<
-    //	   idx << " " << Ctable->m_syms[idx] << MSG::dec );
+    //	   Ctable.m_lengths_integral[l] << " " << idx << " " << MSG::hex <<
+    //	   idx << " " << Ctable.m_syms[idx] << MSG::dec );
 
-    if ( idx <= Ctable->m_Nsymbols )
-      word = Ctable->m_syms[idx];
+    if ( idx <= Ctable.m_Nsymbols )
+      word = Ctable.m_syms[idx];
     else
     {
       if ( m_err_count_int_fillFullCompress < 100 ) 
@@ -1233,7 +1201,7 @@ TableFilename
 
 #ifdef TRT_READCOMPTABLE_FILE
 
-  t_CompressTable *Ctable = new t_CompressTable;
+  auto t_CompressTable Ctable = std::make_unique<t_CompressTable>();
 
   ATH_MSG_INFO( "Reading Compress Table File: " << TableFilename );
 
@@ -1244,9 +1212,6 @@ TableFilename
   {
      ATH_MSG_FATAL( "Could not open Compression Table File " 
 		    << TableFilename );
-
-     delete Ctable;
-
      return StatusCode::FAILURE;
   }
 
@@ -1298,8 +1263,6 @@ TableFilename
 	if( codewords )
 	  delete[] codewords;
 
-	delete Ctable;
-
 	return StatusCode::FAILURE;
       }
 
@@ -1342,8 +1305,6 @@ TableFilename
 	if( codewords )
 	  delete[] codewords;
 
-	delete Ctable;
-
 	return StatusCode::FAILURE;
       }
 
@@ -1373,8 +1334,6 @@ TableFilename
 
 	if( codewords )
 	  delete[] codewords;
-
-	delete Ctable;
 
 	return StatusCode::FAILURE;
       }
@@ -1408,8 +1367,6 @@ TableFilename
 	if( codewords )
 	  delete[] codewords;
 
-	delete Ctable;
-
 	return StatusCode::FAILURE;
       }
     }
@@ -1424,8 +1381,6 @@ TableFilename
 	
 	if ( lengths )
 	  delete[] lengths;
-
-	delete Ctable;
 
 	return StatusCode::FAILURE;
       }
@@ -1459,8 +1414,6 @@ TableFilename
 
 	if( codewords )
 	  delete[] codewords;
-
-	delete Ctable;
 
 	return StatusCode::FAILURE;
       }
@@ -1500,8 +1453,6 @@ TableFilename
 	if( codewords )
 	  delete[] codewords;
 
-	delete Ctable;
-
 	return StatusCode::FAILURE;
       }
 
@@ -1540,8 +1491,6 @@ TableFilename
 	if( codewords )
 	  delete[] codewords;
 
-	delete Ctable;
-
 	return StatusCode::FAILURE;
       }
 
@@ -1557,8 +1506,6 @@ TableFilename
 	
 	if( codewords )
 	  delete[] codewords;
-
-	delete Ctable;
 
 	return StatusCode::FAILURE;
       }
@@ -1592,8 +1539,6 @@ TableFilename
 	if( codewords )
 	  delete[] codewords;
 
-	delete Ctable;
-
 	return StatusCode::FAILURE;
       }
 
@@ -1614,8 +1559,6 @@ TableFilename
 
     if( codewords )
       delete[] codewords;
-
-    delete Ctable;
 
     return StatusCode::FAILURE;
   }
@@ -1676,24 +1619,19 @@ TableFilename
     ATH_MSG_WARNING( "Invalid Compression Table Version: " <<
 		     Ctable->m_TableVersion );
 
-    delete Ctable;
-
     return StatusCode::FAILURE;
   }
 
 
-  if ( m_compressTableLoaded[Ctable->m_TableVersion] ) 
+  if ( m_CompressionTables[Ctable->m_TableVersion] ) 
   {
     ATH_MSG_WARNING( "Table " << Ctable->m_TableVersion 
 		     << " already loaded!  Not overwriting" );
-    delete Ctable;
   }
   else
   {
-    m_CompressionTables[Ctable->m_TableVersion] = Ctable;
     ATH_MSG_INFO( "Loaded Compress Table Version: " << Ctable->m_TableVersion );
-
-    m_compressTableLoaded[Ctable->m_TableVersion] = true;
+    m_CompressionTables[Ctable->m_TableVersion].store (std::move(Ctable))
   }
 
 
@@ -1709,8 +1647,8 @@ TableFilename
  * Read Compression Table from DB on IOV change
  */
 StatusCode
-TRT_RodDecoder::update() {  
-
+TRT_RodDecoder::update() const
+{  
   /*
    * function to update compression table when condDB data changes:
    */
@@ -1729,37 +1667,34 @@ TRT_RodDecoder::update() {
 
     while ( catrIt != last_catr )
     {
-       t_CompressTable *Ctable = new t_CompressTable;
-
        const coral::AttributeList& atrlist = catrIt->second;
      
 
-       Ctable->m_TableVersion = (atrlist)["Version"].data<cool::Int32>();
+       int TableVersion = (atrlist)["Version"].data<cool::Int32>();
 
-
-       if ( Ctable->m_TableVersion  > m_maxCompressionVersion )
+       if ( TableVersion  > m_maxCompressionVersion )
        {
 	 ATH_MSG_WARNING( "Invalid Compression Table Version: " <<
-			  Ctable->m_TableVersion );
+			  TableVersion );
 
-	 delete Ctable;
 	 ++catrIt;
 
 	 continue;
        }
 
 
-       if ( m_compressTableLoaded[Ctable->m_TableVersion] ) 
+       if ( m_CompressionTables[TableVersion] ) 
        {
-	 ATH_MSG_DEBUG( "Table " << Ctable->m_TableVersion 
+	 ATH_MSG_DEBUG( "Table " << TableVersion 
 			  << " already loaded!  Not overwriting" );
-	 delete Ctable;
          ++catrIt;
 
 	 continue;
        }
 
 
+       auto Ctable = std::make_unique<t_CompressTable>();
+       Ctable->m_TableVersion = TableVersion;
        Ctable->m_Nsymbols = (atrlist)["Nsymbols"].data<cool::Int32>();
        ATH_MSG_DEBUG( "Nsymbols = " << Ctable->m_Nsymbols );
 
@@ -1774,8 +1709,6 @@ TRT_RodDecoder::update() {
 			 << " != " 
 			 << (Ctable->m_Nsymbols * sizeof(unsigned int))
 			 << " )" );
-
-	  delete Ctable;
 
 	  return StatusCode::FAILURE;
        }
@@ -1808,13 +1741,6 @@ TRT_RodDecoder::update() {
        }
 
 
-       m_CompressionTables[Ctable->m_TableVersion] = Ctable;
-       ATH_MSG_INFO( "Loaded Compress Table Version: " <<
-		     Ctable->m_TableVersion );
-
-       m_compressTableLoaded[Ctable->m_TableVersion] = true;
-
-
 #ifdef NOTDEF
        if ( 0 )
        {
@@ -1842,6 +1768,11 @@ TRT_RodDecoder::update() {
 			   << " " << Ctable->m_syms[(Ctable->m_Nsymbols - 10 + i)] );
        }
 #endif /* NOTDEF */
+
+       ATH_MSG_INFO( "Loaded Compress Table Version: " <<
+		     Ctable->m_TableVersion );
+       m_CompressionTables[Ctable->m_TableVersion].set (std::move(Ctable));
+
 
        ++catrIt;
 

@@ -9,8 +9,8 @@ from D3PDMakerCoreComps.D3PDObject import D3PDObject
 def makeTowerD3PDObject (name, prefix, object_name='TowerD3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = 'CombinedTower'
-    if label == None: label = prefix
+    if sgkey is None: sgkey = 'CombinedTower'
+    if label is None: label = prefix
     
     ContainerType='CaloTowerContainer'
     

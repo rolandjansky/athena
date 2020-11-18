@@ -76,9 +76,9 @@
 #include "CxxUtils/features.h"
 #include "TrkGaussianSumFilter/GsfConstants.h"
 #include <array>
-#include <vector>
 #include <cstdint>
 #include <utility>
+#include <vector>
 
 namespace GSFUtils {
 
@@ -107,14 +107,28 @@ struct Component1DArray
   int32_t numComponents = 0;
 };
 
+struct MergeArray
+{
+  struct merge
+  {
+    int8_t To = 0;
+    int8_t From = 0;
+  };
+  std::array<merge, GSFConstants::maxComponentsAfterConvolution> merges{};
+  int32_t numMerges=0;
+};
+
 /* typedef tracking which component has been merged
  */
 
-using IsMergedArray = std::array<bool,GSFConstants::maxComponentsAfterConvolution>; 
+using IsMergedArray =
+  std::array<bool, GSFConstants::maxComponentsAfterConvolution>;
 
 /**
  * @brief Merge the componentsIn and return
- * which componets got merged
+ * which componets got merged in each step
+ * the first element of the pair is the merged to
+ * the secone element is the merged from
  *
  * inputSize is expected to be >0, <128
  * and reducedSize < inputsize. Invalid input
@@ -122,9 +136,8 @@ using IsMergedArray = std::array<bool,GSFConstants::maxComponentsAfterConvolutio
  *
  * Furthemore, the input component array is assumed to be
  * GSFConstants::alignment aligned.
- * Can be created via the AlignedDynArray.
  */
-std::vector<std::pair<int8_t, int8_t>>
+MergeArray
 findMerges(Component1DArray& componentsIn, const int8_t reducedSize);
 
 /**

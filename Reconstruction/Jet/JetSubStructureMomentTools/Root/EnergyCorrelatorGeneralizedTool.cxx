@@ -68,6 +68,9 @@ StatusCode EnergyCorrelatorGeneralizedTool::initialize() {
   m_dec_ECFG_4_2_2 = std::make_unique< SG::AuxElement::Decorator<float> >(m_prefix+"ECFG_4_2_2");
   m_dec_ECFG_4_4_1 = std::make_unique< SG::AuxElement::Decorator<float> >(m_prefix+"ECFG_4_4_1");
 
+  /// Added for MDT studies, might remove later
+  m_dec_ECFG_3_3_2 = std::make_unique< SG::AuxElement::Decorator<float> >(m_prefix+"ECFG_3_3_2");
+
   return StatusCode::SUCCESS;
 
 }
@@ -181,6 +184,9 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
   float ECFG_4_2_2_value = -999;
   float ECFG_4_4_1_value = -999;
 
+  /// Added for MDT studies, might remove later
+  float ECFG_3_3_2_value = -999;
+
   /// N.B. ECFG_angles_n_beta !!
 
   if( calculate && m_doLSeries ) {
@@ -241,7 +247,12 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
     /// 441
     JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_4_1(4, 4, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
     ECFG_4_4_1_value = ECFG_4_4_1.result(jet);
-  
+
+    /// 332
+    /// Added for MDT studies, might remove later
+    JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_3_2(3, 3, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+    ECFG_3_3_2_value = ECFG_3_3_2.result(jet);
+
   }
 
   (*m_dec_ECFG_2_1_2)(injet) = ECFG_2_1_2_value;
@@ -251,6 +262,9 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
   (*m_dec_ECFG_3_3_1)(injet) = ECFG_3_3_1_value;
   (*m_dec_ECFG_4_2_2)(injet) = ECFG_4_2_2_value;
   (*m_dec_ECFG_4_4_1)(injet) = ECFG_4_4_1_value;
+
+  /// Added for MDT studies, might remove later
+  (*m_dec_ECFG_3_3_2)(injet) = ECFG_3_3_2_value;
 
   return 0;
 

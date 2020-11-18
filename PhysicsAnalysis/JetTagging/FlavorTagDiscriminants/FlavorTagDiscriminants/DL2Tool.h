@@ -29,6 +29,8 @@ namespace FlavorTagDiscriminants {
 
     // returns 0 for success
     virtual void decorate(const xAOD::Jet& jet) const override;
+
+    virtual std::set<std::string> getDecoratorKeys() const override;
   private:
     DL2Properties m_props; //!
     std::unique_ptr<DL2HighLevel> m_dl2; //!

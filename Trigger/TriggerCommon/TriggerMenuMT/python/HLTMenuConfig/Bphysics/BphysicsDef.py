@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -35,7 +35,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
     # ----------------------
     def assembleBphysChain(self):
 
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         stepDictionary = self.getBphysStepDictionary()
         key = self.getBphysKey()
@@ -54,6 +54,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
         stepDictionary = {
             'dimu' : [['getmuFast', 'getDimuComb'], ['getmuEFSA', 'getDimuEFCB']],
+            'bl2io': [['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getDimuEFCB']],
         }
         return stepDictionary
 
@@ -71,7 +72,8 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'bDimu'     : 'dimu',
             'bDimu2700' : 'dimu',
             'bPhi'      : 'dimu',
-            'bTau'      : 'dimu'
+            'bTau'      : 'dimu',
+            'bJpsimumul2io' : 'bl2io'
         }
 
         return topo_dict[the_topo]

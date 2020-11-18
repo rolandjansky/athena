@@ -37,7 +37,7 @@ class ParametersT;
  @author Andreas.Salzburger@cern.ch
  */
 
-class PerigeeSurface : public Surface
+class PerigeeSurface final: public Surface
 {
 
 public:

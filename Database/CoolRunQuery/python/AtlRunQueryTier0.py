@@ -16,9 +16,6 @@
 # http://hoecker.home.cern.ch/hoecker/Tier0DatasetSchema.png
 #
 
-import cx_Oracle
-from time import time
-
 def GetTier0_allDatasets( cursor, runlist, dsnamepattern = [] ):
     res = {}
     pos = 0
@@ -28,7 +25,8 @@ def GetTier0_allDatasets( cursor, runlist, dsnamepattern = [] ):
     for p in dsnamepattern:
         p = p.replace('*','%')
         dsselstring += "LOWER(DATASETNAME) like LOWER('%s') OR " % p
-    if dsselstring: dsselstring = 'and (' + dsselstring[:len(dsselstring)-4] + ')'
+    if dsselstring:
+        dsselstring = 'and (' + dsselstring[:len(dsselstring)-4] + ')'
 
     # do selection
     while pos<len(runlist):

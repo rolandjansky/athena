@@ -57,7 +57,7 @@ namespace DerivationFramework {
     ATH_MSG_VERBOSE("Particle has origin " << orig);
 
     switch(orig) {
-    case Unknown:
+    case NonDefined:
     case PhotonConv:
     case DalitzDec:
     case ElMagProc:

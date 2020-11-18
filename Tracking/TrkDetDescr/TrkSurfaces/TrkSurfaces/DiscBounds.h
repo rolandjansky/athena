@@ -40,7 +40,7 @@ namespace Trk {
  @author Andreas.Salzburger@cern.ch
  */
 
-class DiscBounds : public SurfaceBounds
+class DiscBounds final: public SurfaceBounds
 {
 
 public:

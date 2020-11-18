@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file StoreGate/VarHandleKeyProperty.h
  * @author scott snyder <snyder@bnl.gov>
@@ -29,7 +28,7 @@
 #include "StoreGate/UpdateHandleKey.h"
 #include "StoreGate/ReadDecorHandleKey.h"
 #include "StoreGate/WriteDecorHandleKey.h"
-#include "Gaudi/Property.h"
+#include "GaudiKernel/DataHandleProperty.h"
 #include <iostream>
 
 namespace Gaudi { 
@@ -78,7 +77,7 @@ namespace SG {
  * The Property object refers to an instance of @c SG::VarHandleKey
  * (the value object) and provides generic methods for manipulating it.
  */
-  class GAUDI_API VarHandleKeyProperty : public PropertyWithHandlers <>
+class GAUDI_API VarHandleKeyProperty : public DataHandleProperty
 {
 public:
 

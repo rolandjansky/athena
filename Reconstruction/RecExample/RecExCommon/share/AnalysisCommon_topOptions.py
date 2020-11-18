@@ -377,10 +377,6 @@ if rec.doDPD() and (rec.DPDMakerScripts()!=[] or rec.doDPD.passThroughMode):
         #    pass
         pass
 
-    # #First of all, schedule EventCounterAlg
-    # from EventBookkeeperTools.EventCounterAlg import EventCounterAlg
-    # topSequence+=EventCounterAlg("AllExecutedEvents")
-
     #Then include all requested DPD makers
     logAnaCommon_topOptions.debug( "Content of rec.DPDMakerSkripts = %s", rec.DPDMakerScripts() )
     for DPDMaker in rec.DPDMakerScripts():

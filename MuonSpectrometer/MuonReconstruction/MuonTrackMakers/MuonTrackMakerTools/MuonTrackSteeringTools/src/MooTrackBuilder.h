@@ -246,7 +246,7 @@ namespace Muon {
     */
     virtual void refine( MuPatTrack& track ) const override;
 
-    void cleanUp() const;
+    virtual void cleanUp() const override;
 
 
   private:

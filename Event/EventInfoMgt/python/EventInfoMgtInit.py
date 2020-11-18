@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file EventInfoMgtInit.py
 ## @brief Configurable for TagInfoMgr service initialization
 ## @author RD Schaffer <R.D.Schaffer@cern.ch>
-## $Id: EventInfoMgtInit.py,v 1.4 2008-08-25 10:17:35 schaffer Exp $
 ###############################################################
 #
 # The jobOptions for TagInfoMgr
@@ -78,7 +77,7 @@ def _loadBasicEventInfoMgt():
     svcMgr.TagInfoMgr.ExtraTagValuePairs = {"AtlasRelease" : release }
 
     # Add TagInfoMgr as cnv svc
-    from GaudiSvc.GaudiSvcConf import EvtPersistencySvc
+    from GaudiCommonSvc.GaudiCommonSvcConf import EvtPersistencySvc
     if not hasattr (svcMgr, 'EventPersistencySvc'):
         svcMgr += EvtPersistencySvc( "EventPersistencySvc" )
     svcMgr.EventPersistencySvc.CnvServices += [ "TagInfoMgr" ]

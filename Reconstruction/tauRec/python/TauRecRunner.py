@@ -12,13 +12,8 @@
 #
 ################################################################################
 
-import os, sys, string
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 from AthenaCommon.BeamFlags import jobproperties
-import traceback
-from RecExConfig.Configured import Configured
 from .TauRecRunConfigured import TauRecRunConfigured
 
 ################################################################################
@@ -37,8 +32,7 @@ class TauRecRunner ( TauRecRunConfigured ) :
     def configure(self):
         mlog = logging.getLogger ('TauRecRunner.py::configure:')
         mlog.info('entering')
-                
-        from RecExConfig.RecFlags import rec                
+
         import tauRec.TauAlgorithmsHolder as taualgs        
         from tauRec.tauRecFlags import tauFlags                
         
@@ -55,8 +49,6 @@ class TauRecRunner ( TauRecRunConfigured ) :
 
         tools.append(taualgs.getTauCommonCalcVars())
         tools.append(taualgs.getTauSubstructure())
-
-        tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
 
         # PanTau:
         if tauFlags.doPanTau() :
@@ -85,7 +77,6 @@ class TauRecRunner ( TauRecRunConfigured ) :
                                                          OutputVarname="RNNEleScore", MaxTracks=10, MaxClusters=6))
             tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
-            tools.append(taualgs.getTauEleOLRDecorator())              
             
             ################################
 

@@ -109,7 +109,7 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
 
     # Add the PseudoJetGetter alg to the sequence
     constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
-    constitPJKey = constitPJAlg.OutputContainer
+    constitPJKey = str(constitPJAlg.OutputContainer)
     recoSeq += conf2toConfigurable( constitPJAlg )
     # Basic list of PseudoJets is just the constituents
     # Append ghosts (tracks) if desired
@@ -130,7 +130,7 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         # Not currently written because impossible to merge
         # across event views, which is maybe a concern in
         # the case of regional PFlow
-        rhoKey = eventShapeAlg.EventDensityTool.OutputContainer
+        rhoKey = str(eventShapeAlg.EventDensityTool.OutputContainer)
 
     # Import the standard jet modifiers as defined for offline
     # We can add/configure these differently if desired. 
@@ -226,7 +226,7 @@ def reclusteredJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoD
     rcJetDef.modifiers = rcModList
 
     rcConstitPJAlg = getConstitPJGAlg( rcJetDef.inputdef )
-    rcConstitPJKey = rcConstitPJAlg.OutputContainer
+    rcConstitPJKey = str(rcConstitPJAlg.OutputContainer)
     recoSeq += conf2toConfigurable( rcConstitPJAlg )
 
     # Get online monitoring tool

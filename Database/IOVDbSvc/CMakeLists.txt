@@ -26,7 +26,7 @@ atlas_add_component( IOVDbSvc
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${COOL_LIBRARIES}
    ${Boost_LIBRARIES} ${CURL_LIBRARIES} nlohmann_json::nlohmann_json GaudiKernel
    AthenaBaseComps AthenaKernel StoreGateLib FileCatalog AthenaPoolUtilities
-   CoraCool IOVDbDataModel EventInfo EventInfoUtils GeoModelInterfaces
+   CoraCool IOVDbDataModel EventInfoUtils GeoModelInterfaces
    IOVDbMetaDataToolsLib EventInfoMgtLib PoolSvcLib IOVDbSvcLib )
 
 # Install files from the package:
@@ -47,8 +47,15 @@ atlas_add_test( IOVDbSvc_Boost_test
    SOURCES test/IOVDbSvc_Boost_test.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES}
-   GaudiKernel AthenaKernel CxxUtils TestTools StoreGateLib
-   LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG" )
+   GaudiKernel AthenaKernel CxxUtils TestTools StoreGateLib EventInfoMgtLib
+   POST_EXEC_SCRIPT "nopost.sh" )
+   
+atlas_add_test( IOVDbSvc_InvalidMarkup_test
+   SOURCES test/IOVDbSvc_InvalidMarkup_test.cxx
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES}
+   GaudiKernel AthenaKernel CxxUtils TestTools StoreGateLib EventInfoMgtLib
+   POST_EXEC_SCRIPT "nopost.sh" )
 
 atlas_add_test( IOVDbConn_test
    SOURCES test/IOVDbConn_test.cxx src/IOVDbConn.cxx
@@ -111,9 +118,8 @@ atlas_add_test( IOVDbFolder_test
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES}
    ${ROOT_LIBRARIES} ${CURL_LIBRARIES} nlohmann_json::nlohmann_json
    GaudiKernel AthenaKernel AthenaBaseComps StoreGateLib SGTools CxxUtils
-   TestTools CoraCool AthenaPoolUtilities GeoModelInterfaces EventInfo
-   IOVDbMetaDataToolsLib IOVDbDataModel
-   LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG"
+   TestTools CoraCool AthenaPoolUtilities GeoModelInterfaces
+   IOVDbMetaDataToolsLib IOVDbDataModel EventInfoMgtLib
    POST_EXEC_SCRIPT "nopost.sh" )
 
 atlas_add_test( IovStore_test
@@ -128,7 +134,7 @@ atlas_add_test( TagFunctions_test
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${COOL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${ROOT_LIBRARIES}
    GaudiKernel AthenaKernel StoreGateLib AthenaPoolUtilities CxxUtils TestTools
-   EventInfo GeoModelInterfaces
+   EventInfoMgtLib GeoModelInterfaces
    POST_EXEC_SCRIPT "nopost.sh" )
 
 atlas_add_test( IOVDbSvcCurl_test
@@ -160,7 +166,6 @@ atlas_add_test( Cool2Json_test
    LINK_LIBRARIES ${Boost_LIBRARIES} ${COOL_LIBRARIES} ${CORAL_LIBRARIES}
    ${ROOT_LIBRARIES} GaudiKernel AthenaKernel StoreGateLib CoraCool
    AthenaPoolUtilities CxxUtils TestTools
-   LOG_IGNORE_PATTERN "^HistogramPersis.* INFO|^IOVSvc +DEBUG|^IOVSvcTool +DEBUG"
    POST_EXEC_SCRIPT "nopost.sh" )
 
 atlas_add_test( CrestFunctions_test

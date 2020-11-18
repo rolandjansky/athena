@@ -127,18 +127,41 @@ class HltEventLoopMgr(_HltEventLoopMgr):
       super(HltEventLoopMgr, self).__init__(name)
       from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
       self.MonTool = GenericMonitoringTool('MonTool', HistPath='HLTFramework/'+name)
+
       self.MonTool.defineHistogram('TotalTime', path='EXPERT', type='TH1F',
                                    title='Total event processing time (all events);Time [ms];Events',
                                    xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTime;TotalTime_extRange', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (all events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=20000, opt='kCanRebin')
+
       self.MonTool.defineHistogram('TotalTimeAccepted', path='EXPERT', type='TH1F',
                                    title='Total event processing time (accepted events);Time [ms];Events',
                                    xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTimeAccepted;TotalTimeAccepted_extRange', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (accepted events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=20000, opt='kCanRebin')
+
       self.MonTool.defineHistogram('TotalTimeRejected', path='EXPERT', type='TH1F',
                                    title='Total event processing time (rejected events);Time [ms];Events',
                                    xbins=200, xmin=0, xmax=10000)
+      self.MonTool.defineHistogram('TotalTimeRejected;TotalTimeRejected_extRange', path='EXPERT', type='TH1F',
+                                   title='Total event processing time (rejected events);Time [ms];Events',
+                                   xbins=200, xmin=0, xmax=20000, opt='kCanRebin')
+
       self.MonTool.defineHistogram('SlotIdleTime', path='EXPERT', type='TH1F',
                                    title='Time between freeing and assigning a scheduler slot;Time [ms];Events',
                                    xbins=400, xmin=0, xmax=400)
+      self.MonTool.defineHistogram('SlotIdleTime;SlotIdleTime_extRange', path='EXPERT', type='TH1F',
+                                   title='Time between freeing and assigning a scheduler slot;Time [ms];Events',
+                                   xbins=400, xmin=0, xmax=800, opt='kCanRebin')
+
+      self.MonTool.defineHistogram('TIME_clearStore', path='EXPERT', type='TH1F',
+                                   title='Time of clearStore() calls;Time [ms];Calls',
+                                   xbins=200, xmin=0, xmax=50)
+      self.MonTool.defineHistogram('TIME_clearStore;TIME_clearStore_extRange', path='EXPERT', type='TH1F',
+                                   title='Time of clearStore() calls;Time [ms];Calls',
+                                   xbins=200, xmin=0, xmax=200, opt='kCanRebin')
 
       from TrigSteerMonitor.TrigSteerMonitorConfig import getTrigErrorMonTool
       self.TrigErrorMonTool = getTrigErrorMonTool()

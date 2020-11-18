@@ -6,7 +6,6 @@
 #define TAUREC_TAUAXISSETTER_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/ITauVertexCorrection.h"
 
 #include "AsgTools/ToolHandle.h"
 
@@ -33,22 +32,27 @@ class TauAxisSetter : public TauRecToolBase {
     TauAxisSetter(const std::string& name);
 
     /** @brief Destructor */
-    ~TauAxisSetter();
+    virtual ~TauAxisSetter() = default;
 
-    /** @brief Initialization of this tool */ 
-    virtual StatusCode initialize() override;
-    
     /** @brief Execution of this tool */ 
-    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
+    virtual StatusCode execute(xAOD::TauJet& tau) const override;
 
   private:
+  
+    /** Get the jet vertex */
+    const xAOD::Vertex* getJetVertex(const xAOD::Jet& jet) const;
+
+    /**@brief Get the vertex corrected four momentum */
+     TLorentzVector getVertexCorrectedP4(const xAOD::JetConstituent& constituent, 
+                                         const Amg::Vector3D& position) const; 
+    
+     /**@brief Get the vertex corrected four momentum */
+     TLorentzVector getVertexCorrectedP4(const xAOD::PFO& pfo, 
+                                         const Amg::Vector3D& position) const; 
 
     Gaudi::Property<double> m_clusterCone {this, "ClusterCone", 0.2, "cone of tau candidate"};
     Gaudi::Property<bool> m_doVertexCorrection {this, "VertexCorrection", true, "switch of tau vertex correction"};
-    Gaudi::Property<bool> m_useSubtractedCluster {this, "UseSubtractedCluster", true, "use shower subtracted clusters in calo calculations"};
-
-    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
-      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
+    Gaudi::Property<bool> m_doJetVertexCorrection {this, "JetVertexCorrection", true, "switch of jet vertex correction"};
 };
 
 #endif

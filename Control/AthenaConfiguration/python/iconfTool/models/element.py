@@ -1,40 +1,43 @@
-#!/usr/bin/env python2.7
-# -*- coding: utf-8 -*-
-
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+from __future__ import annotations
 import logging
+from typing import Any, List, Optional, Sequence
 
-logger = logging.getLogger('iconfTool.' + __name__)
+logger = logging.getLogger(__name__)
 
 INDENT = 3
 
 
-class Element(object):
-    def __init__(self, name, x_pos, parent=None):
-        self.name = '{}'.format(name) # handles situation when name is not str
-        self.x_pos = x_pos
-        self.parent = parent
-        self.show_children = False
-        self.marked = False  # For diff displaying
-        self.checked = False  # For disabling diff highlight
-        self.replaced = False  # To prevent replacing multiple times
-        self.hash = None
+class Element:
+    def __init__(self, name: str, x_pos: int, parent=None) -> None:
+        self.name: str = f"{name}"  # handles situation when name is not str
+        self.x_pos: int = x_pos
+        self.parent: GroupingElement = parent
+        self.show_children: bool = False
+        self.marked: bool = False  # For diff displaying
+        self.checked: bool = False  # For disabling diff highlight
+        self.replaced: bool = False  # To prevent replacing multiple times
+        self.hash: str = ""
         self.generate_hash()
 
-    def get_name(self):
+    def show(self) -> None:
+        if self.parent:
+            self.parent.show_children = True
+            self.parent.show()
+
+    def get_name(self) -> str:
         return self.name
 
-    def update_xpos(self, new_xpos):
+    def update_xpos(self, new_xpos: int) -> None:
         self.x_pos = new_xpos
 
-    def get_as_flat_list(self):
+    def get_as_flat_list(self) -> Sequence[Element]:
         return [self]
 
-    def mark(self):
+    def mark(self) -> None:
         self.marked = True
 
-    def has_parent(self, name_string):
+    def has_parent(self, name_string: str) -> bool:
         parent = self.parent
         while parent:
             if parent.get_name() == name_string:
@@ -42,17 +45,13 @@ class Element(object):
             parent = parent.parent  # Go level up
         return False
 
-    def set_parent(self, parent):
-        self.parent = parent
-        self.generate_hash()
-
-    def generate_hash(self):
+    def generate_hash(self) -> None:
         base = self.get_name()
         if self.parent:
             base = self.parent.hash + base
         self.hash = str(hash(base))
 
-    def is_checked(self):
+    def is_checked(self) -> bool:
         if self.checked:
             return True
         parent = self.parent
@@ -62,29 +61,48 @@ class Element(object):
             parent = parent.parent
         return False
 
-    def is_marked(self):
+    def is_marked(self) -> bool:
         return self.marked and not self.is_checked()
 
-    def set_as_checked(self):
+    def set_as_checked(self) -> None:
         self.checked = True
 
-    def set_as_unchecked(self):
+    def get_line(self) -> str:
+        pass
+
+    def set_as_unchecked(self) -> None:
         self.checked = False
 
-    def get_mark_character(self):
-        return ' ' if not self.checked else 'X'
+    def get_mark_character(self) -> str:
+        return " " if not self.checked else "X"
 
-    def sort_children(self):
+    def sort_children(self) -> None:
+        pass
+
+    def check_filter(self, filter_text: str) -> bool:
+        pass
+
+    def get_reference_name(self) -> str:
         pass
 
 
 class GroupingElement(Element):
-    def __init__(self, name, x_pos, parent=None):
-        super(GroupingElement, self).__init__(name, x_pos, parent)
-        self.type = 'GROUP'
-        self.children = []
+    def __init__(
+        self, name: str, x_pos: int, parent: GroupingElement = None
+    ) -> None:
+        super().__init__(name, x_pos, parent)
+        self.children: List[Element] = []
 
-    def check_filter(self, filter_text):
+    def get_names(self) -> List[str]:
+        return [el.name for el in self.children]
+
+    def get_child_by_name(self, name: str) -> Optional[Element]:
+        matched = list(filter(lambda el: el.name == name, self.children))
+        if matched:
+            return matched[0]
+        return None
+
+    def check_filter(self, filter_text: str) -> bool:
         if filter_text in self.get_name():
             return True
         for child in self.children:
@@ -92,55 +110,57 @@ class GroupingElement(Element):
                 return True
         return False
 
-    def add_child(self, child):
+    def add_child(self, child: Element) -> None:
         self.children.append(child)
         child.parent = self
 
-    def update_xpos(self, new_xpos):
+    def update_xpos(self, new_xpos: int) -> None:
         self.x_pos = new_xpos
         for child in self.children:
             child.update_xpos(new_xpos + INDENT)
 
-    def get_as_flat_list(self):
-        return [self] + [child.get_as_flat_list() for child in self.children]
-
-    def mark(self):
+    def mark(self) -> None:
         self.marked = True
         for child in self.children:
             child.mark()
 
-    def sort_children(self):
+    def sort_children(self) -> None:
         self.children.sort(key=lambda c: c.get_name().lower())
         for child in self.children:
-            if child.type == 'GROUP':
+            if isinstance(child, GroupingElement):
                 child.sort_children()
+
+    def get_reference_name(self) -> str:
+        return self.get_name()
+
+    def get_line(self) -> str:
+        return f"[{self.get_mark_character()}] {self.get_name()}"
 
 
 class SingleElement(Element):
-    def __init__(self, name, x_pos, parent=None):
-        super(SingleElement, self).__init__(name, x_pos, parent)
-        self.type = 'SINGLE'
-        self.value_type = False
-
-    def check_filter(self, filter_text):
+    def check_filter(self, filter_text: str) -> bool:
         return filter_text in self.get_name()
 
-    def get_reference_name(self):
-        return self.name.split('/')[-1] if type(self.name) is str \
-            else str(self.name)
+    def get_reference_name(self) -> str:
+        return str(self.name).split("/")[-1]
+
+    def get_mark_character(self) -> str:
+        return "-" if not self.checked else "*"
+
+    def get_line(self) -> str:
+        return f" {self.get_mark_character()} {self.get_name()}"
 
 
 class ValueElement(SingleElement):
-    def __init__(self, name, x_pos, value, parent=None):
-        """ Value must be initialized first as it is used in hash generating
-        """
-        self.value = value
-        super(ValueElement, self).__init__(name, x_pos, parent)
-        self.value_type = True
+    def __init__(
+        self, name: str, x_pos: int, value: Any, parent: Element = None
+    ) -> None:
+        """Value must be initialized first as it is used in hash generating"""
+        self.value: Any = value
+        super().__init__(name, x_pos, parent)
 
-    def get_name(self):
-        return '{} = {}'.format(self.name, self.value)
+    def get_name(self) -> str:
+        return f"{self.name} = {self.value}"
 
-    def get_reference_name(self):
-        return self.value.split('/')[-1] if type(self.value) == str \
-            else str(self.value)
+    def get_reference_name(self) -> str:
+        return str(self.value).split("/")[-1]

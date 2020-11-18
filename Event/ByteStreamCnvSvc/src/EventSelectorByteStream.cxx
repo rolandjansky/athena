@@ -81,6 +81,10 @@ EventSelectorByteStream::eventStore() const {
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::initialize() {
+
+  m_autoRetrieveTools = false;
+  m_checkToolDeps = false;
+  
    if (m_isSecondary.value()) {
       ATH_MSG_DEBUG("Initializing secondary event selector " << name());
    } else {
@@ -470,7 +474,15 @@ StatusCode EventSelectorByteStream::nextImpl(IEvtSelector::Context& it,
 
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) const {
-   lock_t lock (m_mutex);
+  lock_t lock (m_mutex);
+  return nextImpl (ctxt, jump, lock);
+}
+//________________________________________________________________________________
+StatusCode
+EventSelectorByteStream::nextImpl(IEvtSelector::Context& ctxt,
+                                  int jump,
+                                  lock_t& lock) const
+{
    if (jump > 0) {
       if ( m_NumEvents+jump != m_skipEvents.value()) {
          // Save initial event count
@@ -611,7 +623,15 @@ StatusCode EventSelectorByteStream::previousImpl(IEvtSelector::Context& /*ctxt*/
 }
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& ctxt, int jump) const {
-   lock_t lock (m_mutex);
+  lock_t lock (m_mutex);
+  return previousImpl (ctxt, jump, lock);
+}
+//________________________________________________________________________________
+StatusCode
+EventSelectorByteStream::previousImpl(IEvtSelector::Context& ctxt,
+                                      int jump,
+                                      lock_t& lock) const
+{
    if (jump > 0) {
       for (int i = 0; i < jump; i++) {
          if (!previousImpl(ctxt, lock).isSuccess()) {
@@ -675,7 +695,7 @@ StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
       }
       int delta = evtNum - m_firstEvt[m_fileCount];
       if (delta > 0) {
-        if (next(*m_beginIter,delta).isFailure()) return StatusCode::FAILURE;
+        if (nextImpl(*m_beginIter,delta, lock).isFailure()) return StatusCode::FAILURE;
       }
       else return this->seek(it, evtNum);
    } 
@@ -686,10 +706,10 @@ StatusCode EventSelectorByteStream::seek(Context& it, int evtNum) const {
          // nothing to do
       } 
       else if ( delta > 0 ) { // forward
-         if ( this->next(*m_beginIter, delta).isFailure() ) return StatusCode::FAILURE;
+         if ( this->nextImpl(*m_beginIter, delta, lock).isFailure() ) return StatusCode::FAILURE;
       } 
       else if ( delta < 0 ) { // backward
-         if ( this->previous(*m_beginIter, -1*delta).isFailure() ) return(StatusCode::FAILURE);
+         if ( this->previousImpl(*m_beginIter, -1*delta, lock).isFailure() ) return(StatusCode::FAILURE);
       } 
    }
    return(StatusCode::SUCCESS);
@@ -1038,7 +1058,16 @@ StatusCode EventSelectorByteStream::io_reinit() {
    }
    // all good... copy over.
    m_beginFileFired = false;
+
+   // Set m_inputCollectionsProp.  But we _dont_ want to run the update
+   // handler --- that calls reinit(), which will deadlock since
+   // we're holding the lock.  Instead, we'll call reinit() ourselves.
+   auto old_cb = m_inputCollectionsProp.updateCallBack();
+   m_inputCollectionsProp.declareUpdateHandler(
+      [] (Gaudi::Details::PropertyBase&) {}
+   );
    m_inputCollectionsProp = inputCollections;
+   m_inputCollectionsProp.declareUpdateHandler (old_cb);;
    
    return(this->reinit(lock));
 }

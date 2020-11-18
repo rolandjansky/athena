@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMECCELL_H
@@ -11,7 +11,7 @@
 #include "GeoModelKernel/RCBase.h"
 #include "LArHV/EMECHVElectrode.h"
 #include "LArHV/EMECPresamplerHVModule.h"
-#include <mutex>
+#include "CxxUtils/CachedValue.h"
 
 /**
  * @class EMECCell
@@ -154,22 +154,21 @@ class EMECCell : public RCBase
 
   const EMECDetDescr *m_emecDetDescr;
 
-  // The cell does NOT own the pointers to its electrodes
-  mutable std::vector<const EMECHVElectrode*> m_electrode;
-
-  mutable const EMECPresamplerHVModule* m_presamplerModule{nullptr};
+  struct HVInfo
+  {
+    // The cell does NOT own the pointers to its electrodes
+    std::vector<const EMECHVElectrode*> m_electrode;
+    const EMECPresamplerHVModule* m_presamplerModule = nullptr;
+  };
+  CxxUtils::CachedValue<HVInfo> m_hvinfo;
 
   unsigned int m_clockwork;
 
 
   friend class ImaginaryFriend;
 
-  void initHV() const;
-
-  mutable std::mutex m_mut;
-
-  mutable bool m_initHVdone;
-  
+  const HVInfo& getHVInfo() const;
+  void initHV (HVInfo& hvinfo) const;
 };
 
 
@@ -177,7 +176,7 @@ class EMECCell : public RCBase
 
 inline EMECCell::EMECCell (unsigned int endcap, const EMECDetDescr *emecDescriptor, unsigned int eta, unsigned int phi)
   // 8 bits are needed for phi index, 6 for eta, 1 for endcap.
- :m_emecDetDescr(emecDescriptor),m_clockwork(phi | (eta<<8) | (endcap <<15) ),m_initHVdone(false)
+ :m_emecDetDescr(emecDescriptor),m_clockwork(phi | (eta<<8) | (endcap <<15) )
 {
   
 }

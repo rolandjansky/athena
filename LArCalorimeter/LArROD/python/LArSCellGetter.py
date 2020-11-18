@@ -23,7 +23,7 @@ class LArSCellGetter ( Configured )  :
             try:
                 from LArL1Sim.LArSCL1Getter import LArSCL1Getter
                 theLArSCL1Getter = LArSCL1Getter()
-            except Exception as configException:
+            except Exception:
                 import traceback
                 mlog.error(traceback.format_exc())
                 mlog.error("could not get handle to LArDigitGetter Quit")
@@ -31,10 +31,6 @@ class LArSCellGetter ( Configured )  :
             if not theLArSCL1Getter.usable():
                 mlog.error("LArSCL1Getter unusable. Quite")
                 return False
-
-        from LArROD.LArRODFlags import larRODFlags
-
-        from AthenaCommon.GlobalFlags import globalflags
 
         # ADC2MeV tool
         from LArRecUtils.LArADC2MeVSCToolDefault import LArADC2MeVSCToolDefault
@@ -52,7 +48,7 @@ class LArSCellGetter ( Configured )  :
 
                 theLArSCellBuilder.LArRawChannelContainerName="LArSuperCells"
                 theLArSCellBuilder.DataLocation="LArDigitSCL1"
-                self_LArSCellBuilder = theLArSCellBuilder
+                self._LArSCellBuilder = theLArSCellBuilder
                 topSequence += theLArSCellBuilder
                 from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
                 if not hasattr(svcMgr,"LArFlatConditionSvc"):
@@ -129,7 +125,7 @@ class LArSCellGetter ( Configured )  :
     def outputKey(cls):
         return cls._output[cls._outputType]
 
-    def outputType(self):
+    def outputType(cls):
         return cls._outputType
 
     def outputTypeKey(self):

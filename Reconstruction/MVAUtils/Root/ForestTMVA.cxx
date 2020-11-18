@@ -74,26 +74,6 @@ TTree* ForestTMVA::WriteTree(TString name) const
     return tree;
 }
 
-float ForestTMVA::GetResponse(const std::vector<float>& values) const {
-    return GetRawResponse(values) + GetOffset();
-}
-
-float ForestTMVA::GetResponse(const std::vector<float*>& pointers) const {
-    return GetRawResponse(pointers) + GetOffset();
-}
-
-float ForestTMVA::GetClassification(const std::vector<float>& values) const
-{
-    float result = GetWeightedResponse(values);
-    return result / GetSumWeights();
-}
-
-float ForestTMVA::GetClassification(const std::vector<float*>& pointers) const
-{
-    float result = GetWeightedResponse(pointers);
-    return result / GetSumWeights();
-}
-
 void ForestTMVA::PrintForest() const
 {
     std::cout << "***BDT TMVA: Printing entire forest***" << std::endl;

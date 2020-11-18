@@ -25,8 +25,10 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
     
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_trigdec.retrieve());
+  ATH_CHECK(m_photonIsEMTool.retrieve());
   ATH_CHECK(m_electronIsEMTool.retrieve());
   ATH_CHECK(m_electronLHTool.retrieve());
+
 
   m_trigdec->ExperimentalAndExpertMethods()->enable();
 
@@ -46,25 +48,25 @@ StatusCode TrigEgammaMonitorBaseAlgorithm::initialize()
 
 
 
-bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string pidname) const
+bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg, const std::string pidName) const
 {
     auto ctx = Gaudi::Hive::currentContext() ;
-    if (pidname == "Tight"){
+    if (pidName == "Tight"){
         return (bool) this->m_electronIsEMTool[0]->accept(ctx,eg);
     }
-    else if (pidname == "Medium"){
+    else if (pidName == "Medium"){
         return  (bool) this->m_electronIsEMTool[1]->accept(ctx,eg);
     }
-    else if (pidname == "Loose"){
+    else if (pidName == "Loose"){
         return (bool) this->m_electronIsEMTool[2]->accept(ctx,eg);
     }
-    else if (pidname == "LHTight"){
+    else if (pidName == "LHTight"){
         return (bool) this->m_electronLHTool[0]->accept(ctx,eg);
     }
-    else if (pidname == "LHMedium"){
+    else if (pidName == "LHMedium"){
         return (bool) this->m_electronLHTool[1]->accept(ctx,eg);
     }
-    else if (pidname == "LHLoose"){
+    else if (pidName == "LHLoose"){
         return (bool) this->m_electronLHTool[2]->accept(ctx,eg);
     }
     else ATH_MSG_DEBUG("No Pid tool, continue without PID");
@@ -73,6 +75,24 @@ bool TrigEgammaMonitorBaseAlgorithm::ApplyElectronPid( const xAOD::Electron *eg,
 
 
 
+// ************************************************************************************************
+
+
+bool TrigEgammaMonitorBaseAlgorithm::ApplyPhotonPid( const xAOD::Photon *eg, const std::string pidName) const
+{
+    auto ctx = Gaudi::Hive::currentContext() ;
+    if (pidName == "Tight"){
+        return (bool) this->m_photonIsEMTool[0]->accept(ctx,eg);
+    }
+    else if (pidName == "Medium"){
+        return  (bool) this->m_photonIsEMTool[1]->accept(ctx,eg);
+    }
+    else if (pidName == "Loose"){
+        return (bool) this->m_photonIsEMTool[2]->accept(ctx,eg);
+    }
+    else ATH_MSG_DEBUG("No Pid tool, continue without PID");
+    return false;
+}
 
 
 // ************************************************************************************************

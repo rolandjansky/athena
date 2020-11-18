@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/EMECCell.h"
@@ -16,29 +16,31 @@ EMECCell::~EMECCell()
 }
 
 unsigned int EMECCell::getNumElectrodes() const {
-  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  if(!m_initHVdone) initHV();
-  return m_electrode.size();
+  return getHVInfo().m_electrode.size();
 }
 
 const EMECHVElectrode& EMECCell::getElectrode (unsigned int i) const {
-  //if ((m_electrode.size()==0 || m_electrode[i] == nullptr) && !m_presamplerModule) initHV();
-  if(!m_initHVdone) initHV();
-  return *(m_electrode[i]);
+  return *getHVInfo().m_electrode[i];
 }
 
 const EMECPresamplerHVModule& EMECCell::getPresamplerHVModule () const {
-  //if (m_electrode.size()==0 && !m_presamplerModule) initHV();
-  if(!m_initHVdone) initHV();
-  return *m_presamplerModule;
+  return *getHVInfo().m_presamplerModule;
 }
 
-void EMECCell::initHV() const {
 
-  if(m_initHVdone) return; // should be done only once
+const EMECCell::HVInfo& EMECCell::getHVInfo() const
+{
+  if (!m_hvinfo.isValid()) {
+    HVInfo hvinfo;
+    initHV (hvinfo);
+    m_hvinfo.set (std::move (hvinfo));
+  }
+  return *m_hvinfo.ptr();
+}
 
-  std::lock_guard<std::mutex> lock(m_mut);
 
+void EMECCell::initHV (HVInfo& hvinfo) const
+{
   if (getSamplingIndex()==0) {
     const EMECPresamplerHVManager& presamplerHVManager=getDescriptor()->getManager()->getPresamplerHVManager();
     double phiUpper = getPhiMaxNominal();
@@ -48,7 +50,7 @@ void EMECCell::initHV() const {
     const CellBinning * phiBinning=presamplerHVManager.getPhiBinning();
     unsigned int iPhi = int((phi - phiBinning->getStart())/phiBinning->getDelta()) + phiBinning->getFirstDivisionNumber();
     unsigned int iSide=getEndcapIndex();
-    m_presamplerModule = &(presamplerHVManager.getHVModule(iSide,iPhi));
+    hvinfo.m_presamplerModule = &(presamplerHVManager.getHVModule(iSide,iPhi));
 
   }
   else {
@@ -97,11 +99,10 @@ void EMECCell::initHV() const {
     //std::cout <<   " hvMod << " << hvMod << std::endl;
     for (unsigned int iElectrode=iOffset;iElectrode<iOffset+NE;iElectrode++) {
       const EMECHVElectrode& hvElec = hvMod.getElectrode(iElectrode);
-      m_electrode.push_back(&hvElec);
+      hvinfo.m_electrode.push_back(&hvElec);
     }
     
   } 
-  m_initHVdone = true;
 }
 
 

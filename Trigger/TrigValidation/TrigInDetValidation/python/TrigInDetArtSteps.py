@@ -60,7 +60,7 @@ class TrigInDetReco(ExecStep):
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
 
         self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
-        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" '
+        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --asetup "RAWtoESD:Athena,22.0.19" "ESDtoAOD:Athena,22.0.19" '
 
 
     def configure(self, test):
@@ -71,6 +71,7 @@ class TrigInDetReco(ExecStep):
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 chains += "'HLT_mu24_idperf_L1MU20',"
                 chains += "'HLT_mu26_ivarmedium_L1MU20',"
+                chains += "'HLT_mu28_ivarmedium_L1MU20',"
                 flags += 'doMuonSlice=True;'
             if (i=='electron') :
                 chains +=  "'HLT_e5_etcut_L1EM3',"  ## need an idperf chain once one is in the menu

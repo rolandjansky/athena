@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
   /**
@@ -43,14 +43,15 @@
 #include "LArElecCalib/ILArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID_Base.h"
 #include "CaloIdentifier/LArID.h"
+#include "CxxUtils/checker_macros.h"
 
 class LArOnlineID_Base; 
 class CaloDetDescrManager_Base; 
 class LArCablingBase;
 
-class LArOFCTool: public AthAlgTool,
-		  virtual public ILArOFCTool,
-		  public IIncidentListener 
+class ATLAS_NOT_THREAD_SAFE LArOFCTool: public AthAlgTool,
+                                        virtual public ILArOFCTool,
+                                        public IIncidentListener 
 {
  public:
   
@@ -65,14 +66,18 @@ class LArOFCTool: public AthAlgTool,
   // retrieve methods (default: take the value of Nminbias taken for AutoCorr)
 
      // online ID
-  ILArOFCTool::OFCRef_t OFC_a(const HWIdentifier& id,
+  ILArOFCTool::OFCRef_t OFC_a ATLAS_NOT_THREAD_SAFE
+                             (const HWIdentifier& id,
                               int gain,float Nminbias=-1)  const;    
-  ILArOFCTool::OFCRef_t OFC_b(const HWIdentifier& id,
+  ILArOFCTool::OFCRef_t OFC_b ATLAS_NOT_THREAD_SAFE
+                             (const HWIdentifier& id,
                               int gain,float Nminbias=-1)  const;
      // offline ID
-  ILArOFCTool::OFCRef_t OFC_a(const Identifier& id,
+  ILArOFCTool::OFCRef_t OFC_a ATLAS_NOT_THREAD_SAFE
+                             (const Identifier& id,
                               int gain,float Nminbias=-1)  const;
-  ILArOFCTool::OFCRef_t OFC_b(const Identifier& id,
+  ILArOFCTool::OFCRef_t OFC_b ATLAS_NOT_THREAD_SAFE
+                             (const Identifier& id,
                               int gain,float Nminbias=-1)  const;
 
   // initialize and finalize methods

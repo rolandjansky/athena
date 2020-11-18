@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ContainedMultiAssociation.py 526858 2012-11-20 18:13:46Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/ContainedMultiAssociation.py
 # @author scott snyder <snyder@bnl.gov>
@@ -29,7 +28,7 @@ def ContainedMultiAssociation (parent,
 
     Extra arguments are passed to the association tool.
 """
-    if blockname == None:
+    if blockname is None:
         blockname = assoctool.__name__
 
     def maker (name, prefix, object_name, **kw2):

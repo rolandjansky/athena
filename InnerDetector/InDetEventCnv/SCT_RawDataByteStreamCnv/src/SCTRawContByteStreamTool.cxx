@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawContByteStreamTool.h"
@@ -25,6 +25,8 @@ SCTRawContByteStreamTool::SCTRawContByteStreamTool(const std::string& type, cons
 
 StatusCode SCTRawContByteStreamTool::initialize() 
 {
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
+
   // Retrieve ID mapping
   ATH_CHECK(m_cabling.retrieve());
   ATH_MSG_INFO("Retrieved service " << m_cabling);
@@ -44,16 +46,15 @@ StatusCode SCTRawContByteStreamTool::finalize()
 
 // Convert method
 
-StatusCode SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont, 
-                                             RawEventWrite* rawEvtWrite, MsgStream& log) const 
+StatusCode SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont) const
 {
-  std::lock_guard<std::mutex> lock{m_mutex};
-
-  m_fullEventAssembler.clear();
+  FullEventAssembler<SrcIdMap>* fullEventAssembler = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fullEventAssembler,
+                                                        "SCTRawCont") );
   FullEventAssembler<SrcIdMap>::RODDATA* rod;
   
   // Set ROD Minor version
-  m_fullEventAssembler.setRodMinorVersion(m_rodBlockVersion);
+  fullEventAssembler->setRodMinorVersion(m_rodBlockVersion);
   ATH_MSG_DEBUG(" Setting Minor Version Number to " << m_rodBlockVersion);
   
   // Mapping between ROD IDs and the hits in that ROD
@@ -97,10 +98,9 @@ StatusCode SCTRawContByteStreamTool::convert(const SCT_RDO_Container* sctRDOCont
 
   // Now encode data for each ROD in turn
   for (auto rodToRDOs : rdoMap) {
-    rod = m_fullEventAssembler.getRodData(rodToRDOs.first); // Get ROD data address
+    rod = fullEventAssembler->getRodData(rodToRDOs.first); // Get ROD data address
     m_encoder->fillROD(*rod, rodToRDOs.first, rodToRDOs.second); // Encode ROD data
   }
-  m_fullEventAssembler.fill(rawEvtWrite, log);
   
   return StatusCode::SUCCESS;
 }

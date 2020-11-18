@@ -38,6 +38,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
     auto shallowCopy = xAOD::shallowCopyContainer (*taus);
     std::unique_ptr<xAOD::TauJetContainer> shallowTaus (shallowCopy.first);
+    std::unique_ptr<xAOD::ShallowAuxContainer> shallowTausAux (shallowCopy.second);
     
     //In tauMonTool these values are chosen as Et cuts for different Histograms
     const int lowerEtThreshold = 15;
@@ -99,13 +100,10 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     auto jetSeedPhi = Monitored::Scalar<float>("jetSeedPhi",0.0);
     auto jetSeedPt = Monitored::Scalar<float>("jetSeedPt",0.0);
 
-    auto BDTEleScoreSigTrans = Monitored::Scalar<float>("BDTEleScoreSigTrans",0.0);
     auto BDTJetScore = Monitored::Scalar<float>("BDTJetScore",0.0);
     auto BDTJetScoreSigTrans = Monitored::Scalar<float>("BDTJetScoreSigTrans",0.0);
     auto JetBDTBkgMedium  = Monitored::Scalar<float>("JetBDTBkgMedium",0.0);
 
-    auto eleBDTMedium = Monitored::Scalar<float>("eleBDTMedium",0.0);
-    auto eleBDTTight = Monitored::Scalar<float>("eleBDTTight",0.0);
     auto muonVeto = Monitored::Scalar<float>("muonVeto",0.0);
 
 
@@ -216,10 +214,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
         JetBDTBkgMedium = tau->isTau(xAOD::TauJetParameters::JetBDTBkgMedium);
 
-        BDTEleScoreSigTrans = tau->auxdata<float>("BDTEleScoreSigTrans"); 
 
-        eleBDTMedium =       tau->isTau(xAOD::TauJetParameters::EleBDTMedium);
-        eleBDTTight  =       tau->isTau(xAOD::TauJetParameters::EleBDTTight);
         muonVeto     =       tau->isTau(xAOD::TauJetParameters::MuonVeto);
         tauBDTLoose  =       tau->isTau(xAOD::TauJetParameters::JetBDTSigLoose);
         tauBDTMedium =       tau->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
@@ -466,13 +461,10 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
                     ,etEMAtEMScale
                     ,etHadAtEMScale
                     ,tauCharge
-                    ,BDTEleScoreSigTrans
                     ,BDTJetScore
                     ,BDTJetScoreSigTrans
                     ,JetBDTBkgMedium
                     ,RNNJetScore
-                    ,eleBDTMedium
-                    ,eleBDTTight
                     ,muonVeto
                     ,tauBDTLoose
                     ,tauBDTMedium

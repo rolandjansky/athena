@@ -335,6 +335,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                         tidabjet.ntupleChainNames += [
                                 "Offline",
                                 "HLT_j45_ftf_L1J15:key=HLT_IDTrack_FS_FTF:vtx=HLT_IDVertex_FS",
+                                "HLT_j.*_ftf.*boffperf.*:key=HLT_IDTrack_FS_FTF:vtx=HLT_IDVertex_FS",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_FTF",
                                 "HLT_j.*.*boffperf.*:key=HLT_IDTrack_Bjet_IDTrig"
                         ]

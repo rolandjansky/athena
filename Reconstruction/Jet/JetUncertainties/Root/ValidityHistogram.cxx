@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/ValidityHistogram.h"
@@ -32,7 +32,9 @@ class InfoHelper
         const float m_energyScale;
         const CompMassDef::TypeEnum m_massDef;
 
+        double getAbsMass(const xAOD::Jet& jet) const;
         double getMassOverPt(const xAOD::Jet& jet) const;
+        double getMassOverE(const xAOD::Jet& jet) const;
 };
 
 class InfoHelperPt : public InfoHelper
@@ -113,24 +115,111 @@ class InfoHelperPtMassAbsEta : public InfoHelper
         }
 };
 
+class InfoHelpereLOGmOe : public InfoHelper
+{
+    public:
+        InfoHelpereLOGmOe(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelpereLOGmOe* clone() const { return new InfoHelpereLOGmOe(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.e()*m_energyScale,log(getMassOverE(jet)));
+        }
+};
+
+class InfoHelpereLOGmOeEta : public InfoHelper
+{
+    public:
+        InfoHelpereLOGmOeEta(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelpereLOGmOeEta* clone() const { return new InfoHelpereLOGmOeEta(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.e()*m_energyScale,log(getMassOverE(jet)),jet.eta());
+        }
+};
+
+class InfoHelpereLOGmOeAbsEta : public InfoHelper
+{
+    public:
+        InfoHelpereLOGmOeAbsEta(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelpereLOGmOeAbsEta* clone() const { return new InfoHelpereLOGmOeAbsEta(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.e()*m_energyScale,log(getMassOverE(jet)),fabs(jet.eta()));
+        }
+};
+
+
+double InfoHelper::getAbsMass(const xAOD::Jet& jet) const
+{
+    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    
+    if (isSimpleCase)
+        return jet.m();
+
+    // Check if the specified scale is available and return it if so
+    if (scale.isAvailable(jet))
+        return scale(jet).M();
+    // Fall-back on the TA moment as a float if applicable
+    if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
+        return scaleTAMoment(jet);
+    // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
+    if (m_massDef == CompMassDef::CaloMass)
+        return jet.m();
+
+    // Specified scale is not available, error
+    return JESUNC_ERROR_CODE;
+}
+
 double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 {
-    static JetFourMomAccessor scale(CompMassDef::getJetScaleString(m_massDef).Data());
-    static SG::AuxElement::ConstAccessor<float> scaleTAMoment("JetTrackAssistedMassCalibrated");
-
-    // UNKNOWN is just use the assigned scale
-    if (m_massDef == CompMassDef::UNKNOWN)
-        return jet.m()/jet.pt();
+    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
     
+    if (isSimpleCase)
+        return jet.m()/jet.pt();
+
     // Check if the specified scale is available and return it if so
     if (scale.isAvailable(jet))
         return scale(jet).M()/scale(jet).Pt();
-    // Fall-back on the TA moment as a float if applicable (TODO: temporary until JetCalibTools updated)
+    // Fall-back on the TA moment as a float if applicable
     if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
         return scaleTAMoment(jet)/jet.pt();
-    // Fall-back on the calo mass as the 4-vec if applicable (TODO: temporary until JetCalibTools updated)
+    // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
     if (m_massDef == CompMassDef::CaloMass)
         return jet.m()/jet.pt();
+
+    // Specified scale is not available, error
+    return JESUNC_ERROR_CODE;
+
+}
+
+double InfoHelper::getMassOverE(const xAOD::Jet& jet) const
+{
+    bool isSimpleCase = (m_massDef == CompMassDef::UNKNOWN || m_massDef == CompMassDef::FourVecMass);
+    JetFourMomAccessor scale(isSimpleCase ? "" : CompMassDef::getJetScaleString(m_massDef).Data());
+    SG::AuxElement::ConstAccessor<float> scaleTAMoment(isSimpleCase ? "" : "JetTrackAssistedMassCalibrated");
+    
+    if (isSimpleCase)
+        return jet.m()/jet.e();
+
+    // Check if the specified scale is available and return it if so
+    if (scale.isAvailable(jet))
+        return scale(jet).M()/scale(jet).E();
+    // Fall-back on the TA moment as a float if applicable
+    if (m_massDef == CompMassDef::TAMass && scaleTAMoment.isAvailable(jet))
+        return scaleTAMoment(jet)/jet.e();
+    // Fall-back on the calo mass as the 4-vec if applicable (legacy support)
+    if (m_massDef == CompMassDef::CaloMass)
+        return jet.m()/jet.e();
 
     // Specified scale is not available, error
     return JESUNC_ERROR_CODE;
@@ -147,7 +236,7 @@ double InfoHelper::getMassOverPt(const xAOD::Jet& jet) const
 //////////////////////////////////////////////////
 
 ValidityHistogram::ValidityHistogram(const std::string& histName, const CompParametrization::TypeEnum parametrization, const float energyScale, const CompMassDef::TypeEnum massDef)
-    : UncertaintyHistogram(histName,false)
+    : UncertaintyHistogram(histName,Interpolate::None)
     , m_isInit(false)
     , m_param(parametrization)
     , m_energyScale(energyScale)
@@ -211,7 +300,10 @@ StatusCode ValidityHistogram::initialize(TFile* histFile)
             break;
         case CompParametrization::PtEta:
         case CompParametrization::PtAbsEta:
+        case CompParametrization::PtAbsMass:
         case CompParametrization::PtMass:
+        case CompParametrization::eLOGmOe:
+        case CompParametrization::PtLOGPtMassForTagSF:
             // 2D
             if (getNumDim() != 2)
             {
@@ -221,6 +313,10 @@ StatusCode ValidityHistogram::initialize(TFile* histFile)
             break;
         case CompParametrization::PtMassEta:
         case CompParametrization::PtMassAbsEta:
+        case CompParametrization::PtAbsMassEta:
+        case CompParametrization::PtAbsMassAbsEta:
+        case CompParametrization::eLOGmOeEta:
+        case CompParametrization::eLOGmOeAbsEta:
             // 3D
             if (getNumDim() != 3)
             {
@@ -253,6 +349,15 @@ StatusCode ValidityHistogram::initialize(TFile* histFile)
             break;
         case CompParametrization::PtMassAbsEta:
             m_helper = new InfoHelperPtMassAbsEta(*this,m_energyScale,m_massDef);
+            break;
+        case CompParametrization::eLOGmOe:
+            m_helper = new InfoHelpereLOGmOe(*this,m_energyScale,m_massDef);
+            break;
+        case CompParametrization::eLOGmOeEta:
+            m_helper = new InfoHelpereLOGmOeEta(*this,m_energyScale,m_massDef);
+            break;
+        case CompParametrization::eLOGmOeAbsEta:
+            m_helper = new InfoHelpereLOGmOeAbsEta(*this,m_energyScale,m_massDef);
             break;
         default:
             ATH_MSG_ERROR("ValidityHistogram named \"" << getName().Data() << "\" was not prepared to handle the provided parametrization: " << CompParametrization::enumToString(m_param).Data());

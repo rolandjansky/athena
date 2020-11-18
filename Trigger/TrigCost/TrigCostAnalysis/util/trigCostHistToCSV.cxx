@@ -114,8 +114,8 @@ void exploreTree(TFile* file, const size_t level = 0, std::vector<TString> dir =
         exploreTree(file, level + 1, dir);
       } else {
         exportDirectory(file, dir, walltime);
-        dir.pop_back();
       }
+      dir.pop_back();
     } else if (name.First("_walltime") != kNPOS) {
       // This is fine
     } else {

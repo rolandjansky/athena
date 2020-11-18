@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaBaseComps/AthCheckMacros.h"
@@ -27,6 +27,25 @@ StatusCode TrigCostDataStore<PAYLOAD>::insert(const AlgorithmIdentifier& ai, con
     msg << MSG::DEBUG << "Key caller:'" << ai.m_caller << "' store:'" << ai.m_store 
       << "' slot:" << ai.m_realSlot <<" already in the TrigCostDataStore" << endmsg; 
   }
+  return StatusCode::SUCCESS;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+template<typename PAYLOAD>
+template<typename ENTRY>
+StatusCode TrigCostDataStore<PAYLOAD>::push_back(const AlgorithmIdentifier& ai, ENTRY&& entry) {
+  MsgStream& msg = *(ai.m_msg);
+  ATH_CHECK( checkSlot(ai.m_slotToSaveInto, msg) );
+  tbb::concurrent_hash_map<AlgorithmIdentifier, std::vector<ENTRY>, AlgorithmIdentifierHashCompare>& mapReference = m_store.at( ai.m_slotToSaveInto );
+  typename tbb::concurrent_hash_map< AlgorithmIdentifier, std::vector<ENTRY>, AlgorithmIdentifierHashCompare>::accessor acc;
+
+  // Adds new value to store entries. If the AI is already there function will return false
+  // and duplicate will not be added. Otherwise new payload will be created
+  // Also obtains write lock on the key value 'name' until 'acc' goes out of scope
+  mapReference.insert(acc, ai);
+  acc->second.push_back(std::move(entry));
+
   return StatusCode::SUCCESS;
 }
 

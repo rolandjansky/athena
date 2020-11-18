@@ -145,6 +145,32 @@ def print_summary(all_test_results, failed_tests):
         logging.info("==================================================")
 
 
+def print_failed_ref_comp(all_test_results, failed_tests):
+    if len(failed_tests) == 0:
+        return
+
+    step_name = 'CountRefComp'
+    for test_name in failed_tests:
+        athena_failed = False
+        refcomp_failed = False
+        test_results = all_test_results[test_name]
+        for step in test_results['result']:
+            if step['name'] in ['athena', 'athenaHLT', 'Reco_tf', 'CheckLog'] and step['result'] != 0:
+                athena_failed = True
+            if step['name'] == step_name and step['result'] != 0:
+                refcomp_failed = True
+
+        # Print only if athena didn't fail, as a failed job will always give wrong counts
+        if refcomp_failed and not athena_failed:
+            log_path = 'results/runTrigART/{:s}/{:s}.log'.format(os.path.splitext(test_name)[0], step_name)
+            if not os.path.isfile(log_path):
+                continue
+            logging.info("==================================================")
+            logging.info('Printing output of failed CountRefComp for %s', test_name)
+            subprocess.call('cat ' + log_path, shell=True)
+            logging.info("==================================================")
+
+
 def prep_dirs(topdir, scripts):
     """ Creates test result structure if missing, if present clears the area only for the tests to be run"""
     import errno
@@ -217,6 +243,7 @@ def main():
                 logging.warning("Selected %d tests but ART executed only %d. Please check why some tests did not run!")
             failed_tests = analyse_results(all_test_results)
             print_summary(all_test_results, failed_tests)
+            print_failed_ref_comp(all_test_results, failed_tests)
             if len(failed_tests) > 0:
                 success = False
 

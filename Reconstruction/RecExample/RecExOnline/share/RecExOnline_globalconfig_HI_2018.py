@@ -224,15 +224,15 @@ from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doPixelClusterSplitting.set_Value(False) # does not work online
 
 
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
+from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
 if isHI_mode:
     ## ID alignment to test 2015 HI data
-    ## GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(False)
+    ## InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(False)
     ## ID alignment for 2018 HI data
-    GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
+    InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 else:
     ## new ID alignment 26 May 2017
-    GeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
+    InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(True)
 
 # ----------------------------------------------- Online flag
 athenaCommonFlags.EvtMax.set_Value_and_Lock(evtMax)
@@ -242,10 +242,6 @@ athenaCommonFlags.isOnlineStateless = isOnlineStateless
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.useBeamConstraint.set_Value_and_Lock(False)
 if isHI_mode:
-    ## ID alignment to test 2015 HI data
-    ## InDetFlags.useDynamicAlignFolders.set_Value_and_Lock(False);
-    ## ID alignment to run 2018 HI data
-    InDetFlags.useDynamicAlignFolders.set_Value_and_Lock(True);
     ### InDetFlags.cutLevel.set_Value_and_Lock(2);
     InDetFlags.cutLevel.set_Value_and_Lock(4);  ### (Nov 8th 2018, looser cuts)
 

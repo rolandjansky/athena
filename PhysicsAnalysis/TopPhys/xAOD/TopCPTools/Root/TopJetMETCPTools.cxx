@@ -117,7 +117,7 @@ namespace top {
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/ApplyJetCalibrationR21
 
     // Get jet calibration name and erase "Jets" from the end
-    std::string caloJets_type = m_config->sgKeyJetsType();
+    const std::string caloJets_type = m_config->sgKeyJets();
     std::string jetCalibrationName;
     if (caloJets_type == "AntiKt4EMTopoNoElJets") {
       jetCalibrationName = "AntiKt4EMTopoJets";
@@ -204,30 +204,30 @@ namespace top {
       top::check(jetUpdateJvtTool->initialize(), "Failed to initialize");
       m_jetUpdateJvtTool = jetUpdateJvtTool;
     }
-
+    
     ///-- Calculate fJVT --///
     //Only setup fJVT tool if user actually wants it
     if (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None") {
-      
+    
       const std::string fjvt_tool_name = "JetSelectfJvtTool";
       if (asg::ToolStore::contains<IJetModifier>(fjvt_tool_name)) {
-	m_jetSelectfJvtTool = asg::ToolStore::get<IJetModifier>(fjvt_tool_name);
+        m_jetSelectfJvtTool = asg::ToolStore::get<IJetModifier>(fjvt_tool_name);
       } else {
-	IJetModifier* JetSelectfJvtTool = new JetForwardJvtTool(fjvt_tool_name);
-	top::check(asg::setProperty(JetSelectfJvtTool, "JvtMomentName", "AnalysisTop_JVT"), //fJVT uses JVT decision
-		   "Failed to set JvtMomentName for JetForwardJvtTool");
-	
-	//Default fJVT WP is medium but this can't be used with default Tight MET WP
-	//MET WP takes precidence so making ATop default fJVT=Tight 
-	if (m_config->getfJVTWP() != "Medium"){ 
-	  top::check(asg::setProperty(JetSelectfJvtTool, "UseTightOP", true),
-                     "Failed to set UseTightOP for JetForwardJvtTool");
-	}
-	top::check(asg::setProperty(JetSelectfJvtTool, "OutputDec", "AnalysisTop_fJVTdecision"), //Adds custom decorator, 'AnalysisTop_fJVTdecision', to all jets
-		   "Failed to set OutputDec for JetForwardJvtTool");
-
-	top::check(JetSelectfJvtTool->initialize(), "Failed to initialize " + fjvt_tool_name);
-	m_jetSelectfJvtTool = JetSelectfJvtTool;
+        IJetModifier* JetSelectfJvtTool = new JetForwardJvtTool(fjvt_tool_name);
+        top::check(asg::setProperty(JetSelectfJvtTool, "JvtMomentName", "AnalysisTop_JVT"), //fJVT uses JVT decision
+        	   "Failed to set JvtMomentName for JetForwardJvtTool");
+        
+        //Default fJVT WP is medium but this can't be used with default Tight MET WP
+        //MET WP takes precidence so making ATop default fJVT=Tight 
+        if (m_config->getfJVTWP() != "Medium"){ 
+          top::check(asg::setProperty(JetSelectfJvtTool, "UseTightOP", true),
+                           "Failed to set UseTightOP for JetForwardJvtTool");
+        }
+        top::check(asg::setProperty(JetSelectfJvtTool, "OutputDec", "AnalysisTop_fJVTdecision"), //Adds custom decorator, 'AnalysisTop_fJVTdecision', to all jets
+        	   "Failed to set OutputDec for JetForwardJvtTool");
+  
+        top::check(JetSelectfJvtTool->initialize(), "Failed to initialize " + fjvt_tool_name);
+        m_jetSelectfJvtTool = JetSelectfJvtTool;
       }
     }
 
@@ -445,10 +445,12 @@ namespace top {
     // jets) are applied
     bool JERisMC = true;
 
-    m_jetUncertaintiesToolLargeR
-      = setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
-                                  jetCalibrationNameLargeR, MC_type, JERisMC,
-                                  configDir + "/R10_" + largeRJESJMS_config + ".config", nullptr, "", calibArea);
+    if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
+      m_jetUncertaintiesToolLargeR
+	= setupJetUncertaintiesTool("JetUncertaintiesToolLargeR",
+				    jetCalibrationNameLargeR, MC_type, JERisMC,
+				    configDir + "/R10_" + largeRJESJMS_config + ".config", nullptr, "", calibArea);
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -540,14 +542,14 @@ namespace top {
       }
      
       if (m_config->doForwardJVTinMET()) { 
-	if (m_config->getfJVTWP() == "Medium") {
-	  top::check(metMaker->setProperty("JetSelection", "Tenacious"), "Failed to set METMaker JetSelection to Tenacious");
-	}
+        if (m_config->getfJVTWP() == "Medium") {
+          top::check(metMaker->setProperty("JetSelection", "Tenacious"), "Failed to set METMaker JetSelection to Tenacious");
+        }
         top::check(metMaker->setProperty("JetRejectionDec","AnalysisTop_fJVTdecision"), "Failed to set METMaker JetRejectionDec to AnalysisTop_fJVTdecision");
-	top::check(metMaker->initialize(), "Failed to initialize");
-	metMaker->msg().setLevel(MSG::INFO);
-	m_met_maker = metMaker;
       }
+      top::check(metMaker->initialize(), "Failed to initialize");
+      metMaker->msg().setLevel(MSG::INFO);
+      m_met_maker = metMaker;
     }
 
     // MET Systematics tool

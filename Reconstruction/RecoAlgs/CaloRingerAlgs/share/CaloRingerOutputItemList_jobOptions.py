@@ -34,8 +34,7 @@ def addOutputToList(streamList, localCType, localCKey, auxOption):
   streamList.append('%s#%s' % (localCType, localCKey ) )
   if 'xAOD::' in localCType:
     auxType = localCType.replace('Container', 'AuxContainer')
-    auxKey =  localCKey + 'Aux.'
-    streamList.append( '%s#%s%s' % (auxType, auxKey, auxOption) )
+    streamList.append( '%s#%sAux.%s' % (auxType, localCKey, auxOption) )
 
 def addRingerInputMetaToList(streamList, containerType):
   # NOTE: Keys defined at: http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Reconstruction/RecExample/RecExConfig/python/InputFilePeeker.py

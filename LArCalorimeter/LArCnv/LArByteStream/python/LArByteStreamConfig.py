@@ -14,7 +14,7 @@ def LArRawDataContByteStreamToolConfig (name="LArRawDataContByteStreamTool",
          from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
          noisealg = CaloNoiseCondAlg ('totalNoise')
          if stream:
-            key = noisealg.OutputKey
+            key = str(noisealg.OutputKey)
             if key.find ('+') < 0:
                key = 'ConditionStore+' + key
             stream.ExtraInputs += [('CaloNoise', key)]

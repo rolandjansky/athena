@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: AnaAlgorithm/python/Logging.py
 # Author: TJ Khoo (khoo@cern.ch) -- borrowed from AthenaCommon/python/Logging.py
@@ -11,7 +11,7 @@
 try:
     from AthenaCommon.Logging import logging as logging
 
-except:
+except Exception:
 
     from AnaAlgorithm import Constants
 
@@ -75,13 +75,13 @@ except:
           if self.manager.disable >= logging.ALL:
              return
           if logging.ALL >= self.getEffectiveLevel():
-             apply(self._log, (logging.ALL, msg, args), kwargs)
+             self._log(logging.ALL, msg, args, **kwargs)
 
        def verbose( self, msg, *args, **kwargs):
           if self.manager.disable >= logging.VERBOSE:
              return
           if logging.VERBOSE >= self.getEffectiveLevel():
-             apply(self._log, (logging.VERBOSE, msg, args), kwargs)
+             self._log(logging.VERBOSE, msg, args, **kwargs)
 
 
     # now change the Logger class and make sure to reset the 'root' logger (which

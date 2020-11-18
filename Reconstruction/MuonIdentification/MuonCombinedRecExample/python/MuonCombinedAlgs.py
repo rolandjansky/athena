@@ -161,7 +161,7 @@ def recordMuonCreatorAlgObjs (kw):
         d = kw.get (prop)
         if d == None:
             d = Alg.__dict__[prop].default
-        return d
+        return str(d)
     objs = {'xAOD::MuonContainer': val('MuonContainerLocation'),
             'xAOD::TrackParticleContainer': (val('CombinedLocation')+'TrackParticles',
                                              val('ExtrapolatedLocation')+'TrackParticles',

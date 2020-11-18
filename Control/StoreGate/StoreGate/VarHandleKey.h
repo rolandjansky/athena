@@ -1,7 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -32,7 +32,7 @@ enum AllowEmptyEnum {
 
 
 class VarHandleBase;
-
+class VarHandleKeyProperty;
 
 /**
  * @brief A property holding a SG store/key/clid from which a VarHandle is made.
@@ -83,6 +83,12 @@ public:
                 Gaudi::DataHandle::Mode a,
                 const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE),
                 bool isCond = false);
+
+
+  /**
+   * @brief Declare corresponding property type
+   */
+  using PropertyType = SG::VarHandleKeyProperty;
 
 
   /**
@@ -228,6 +234,10 @@ private:
    */
   void updateHandle (const std::string& name);
 
+  /**
+   * @brief Python representation of Handle.
+   */
+  virtual std::string pythonRepr() const override;
 
   /// Handle to the referenced store.
   ServiceHandle<IProxyDict> m_storeHandle;

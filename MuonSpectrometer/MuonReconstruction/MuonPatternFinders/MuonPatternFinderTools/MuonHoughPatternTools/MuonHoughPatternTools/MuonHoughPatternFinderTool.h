@@ -51,7 +51,7 @@ namespace Muon {
           const std::vector<const CscPrepDataCollection*>& cscCols,  
           const std::vector<const TgcPrepDataCollection*>& tgcCols,  
           const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-          const MuonSegmentCombinationCollection* cscSegmentCombis ) const;
+          const MuonSegmentCombinationCollection* cscSegmentCombis, const EventContext& ctx ) const;
 
   private:
 
@@ -70,13 +70,13 @@ namespace Muon {
 
     /** analyse hits */
     MuonPatternCombinationCollection* analyse( const MuonHoughHitContainer& hitcontainer,
-					       const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation ) const;
+					       const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation, const EventContext& ctx ) const;
 
 
   private:
 
     /** record patterncollection to storegate or deletes collection when m_recordAllOutput is false */
-    void record(const MuonPrdPatternCollection* patCol, const SG::WriteHandleKey<MuonPrdPatternCollection>& key ) const;
+    void record(const MuonPrdPatternCollection* patCol, const SG::WriteHandleKey<MuonPrdPatternCollection>& key, const EventContext &ctx ) const;
 
 
     /** convert and add rpc preprawdata collection (1 chamber) */

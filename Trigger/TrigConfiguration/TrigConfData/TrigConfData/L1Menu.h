@@ -30,8 +30,6 @@ namespace TrigConf {
 
       /** Constructor */
       L1Menu();
-      L1Menu(const L1Menu&) = default;
-      L1Menu(L1Menu&&) = default;
 
       /** Constructor initialized with configuration data 
        * @param data The data containing the L1 menu 

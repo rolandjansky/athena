@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @PowhegControl IntegrationGridTester
 #  Helper class to calculate and output integration grid quality
@@ -39,7 +39,7 @@ class IntegrationGridTester(object):
               inclusive_xs_values = map( float, re.findall( cls.__re_match_floats, matched_lines[0] ) )
               inclusive_xs += inclusive_xs_values[0]
               inclusive_xs_error += inclusive_xs_values[1]
-          except : # catch all exceptions
+          except Exception: # catch all exceptions
             pass
         # Negative weight test
         with open( file_name, 'rb' ) as data_file :
@@ -48,7 +48,7 @@ class IntegrationGridTester(object):
             if len(matched_lines) > 0 :
               negative_weights += map( float, re.findall( cls.__re_match_floats, [line for line in matched_lines if 'btilde |neg.|' in line][0] ) )[0]
               total_weights += map( float, re.findall( cls.__re_match_floats, [line for line in matched_lines if 'btilde Total' in line][0] ) )[0]
-          except : # catch all exceptions
+          except Exception: # catch all exceptions
             pass
 
     for file_name in glob.glob( 'pwgcounters*.dat' ) :
@@ -60,21 +60,21 @@ class IntegrationGridTester(object):
             if len(matched_lines) > 0 :
               n_events += map( float, re.findall( cls.__re_match_floats, [line for line in matched_lines if 'event' in line][0] ) )[0]
               n_upper_bound_failures += sum( map( float, sum( [ re.findall( cls.__re_match_floats, line ) for line in matched_lines if 'upper bound failure' in line ], [] ) ) )
-          except : # catch all exceptions
+          except Exception: # catch all exceptions
             pass
 
     # Calculate test statistics
     try :
       inclusive_xs_test = 100 * inclusive_xs_error / inclusive_xs
-    except : # catch all exceptions
+    except Exception: # catch all exceptions
       inclusive_xs_test = float('nan')
     try :
       negative_weight_test = 100 * negative_weights / total_weights
-    except : # catch all exceptions
+    except Exception: # catch all exceptions
       negative_weight_test = float('nan')
     try :
       upper_bound_test = 100 * n_upper_bound_failures / n_events
-    except : # catch all exceptions
+    except Exception: # catch all exceptions
       upper_bound_test = float('nan')
 
     # Write output
@@ -82,5 +82,5 @@ class IntegrationGridTester(object):
       getattr( logger, ['warning','info'][0.0 <= inclusive_xs_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('cross-section uncertainty', inclusive_xs_test) )
       getattr( logger, ['warning','info'][0.0 <= negative_weight_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('negative weight fraction', negative_weight_test) )
       getattr( logger, ['warning','info'][0.0 <= upper_bound_test < 1.0] )( 'Integration test :: {0:>25} : {1:.2f}%'.format('upper bound violations', upper_bound_test) )
-    except : # catch all exceptions
+    except Exception: # catch all exceptions
       pass

@@ -64,10 +64,6 @@ bool Trk::PatternTrackParameters::production(const Trk::ParametersBase<5,Trk::Ch
     m_covariance.reset(nullptr);
   }
 
-  m_pposition.reset();
-  m_pmomentum.reset();
-  m_pchargeDef.reset();
-
   return true;
 }
 
@@ -138,12 +134,9 @@ AmgSymMatrix(5) Trk::PatternTrackParameters::newCovarianceMatrix
 // Global position of simple track parameters
 ///////////////////////////////////////////////////////////////////
 
-const Amg::Vector3D& Trk::PatternTrackParameters::position() const
+Amg::Vector3D Trk::PatternTrackParameters::position() const
 {
-  if (!m_pposition.isValid()) {
-    updatePositionCache();
-  }
-  return *m_pposition.ptr();
+  return calculatePosition();
 } 
 
 ///////////////////////////////////////////////////////////////////
@@ -494,10 +487,6 @@ bool Trk::PatternTrackParameters::initiate
     m_surface.reset(nullptr);
   }
 
-  m_pposition.reset();
-  m_pmomentum.reset();
-  m_pchargeDef.reset();
-  
   return true;
 }
 
@@ -531,17 +520,11 @@ void Trk::PatternTrackParameters::changeDirection()
     m_covariance->fillSymmetric(1, 4, -(*m_covariance)(1, 4));
     m_covariance->fillSymmetric(2, 4, -(*m_covariance)(2, 4));
 
-    m_pposition.reset();
-    m_pmomentum.reset();
-    m_pchargeDef.reset();
     return;
   }
 
   m_parameters[ 0] = -m_parameters[ 0];
 
-  m_pposition.reset();
-  m_pmomentum.reset();
-  m_pchargeDef.reset();
 
   if(m_covariance == nullptr) { return;
 }
@@ -554,44 +537,35 @@ void Trk::PatternTrackParameters::changeDirection()
   m_covariance->fillSymmetric(2, 4, -(*m_covariance)(2, 4));
 }
 
-void Trk::PatternTrackParameters::updateChargeCache(void) const {
-  if (m_parameters[4] > 0.0) {
-    m_pchargeDef.set(1);
-  } else {
-    m_pchargeDef.set(-1);
-  }
-}
-
-void Trk::PatternTrackParameters::updatePositionCache(void) const {
+Amg::Vector3D Trk::PatternTrackParameters::calculatePosition(void) const {
   if (!m_surface) {
-    m_pposition.set(Amg::Vector3D(0, 0, 0));
-    return;
+    return Amg::Vector3D(0, 0, 0);
   }
 
   if (const Trk::PlaneSurface * plane = dynamic_cast<const Trk::PlaneSurface*>(m_surface.get()); plane != nullptr) {
-    m_pposition.set(localToGlobal(plane));
+    return localToGlobal(plane);
   } else if (const Trk::StraightLineSurface * line = dynamic_cast<const Trk::StraightLineSurface*>(m_surface.get()); line != nullptr) {
-    m_pposition.set(localToGlobal(line));
+    return localToGlobal(line);
   } else if (const Trk::DiscSurface * disc = dynamic_cast<const Trk::DiscSurface*>(m_surface.get()); disc != nullptr) {
-    m_pposition.set(localToGlobal(disc));
+    return localToGlobal(disc);
   } else if (const Trk::CylinderSurface * cylinder = dynamic_cast<const Trk::CylinderSurface*>(m_surface.get()); cylinder != nullptr) {
-    m_pposition.set(localToGlobal(cylinder));
+    return localToGlobal(cylinder);
   } else if (const Trk::PerigeeSurface * pline = dynamic_cast<const Trk::PerigeeSurface*>(m_surface.get()); pline != nullptr) {
-    m_pposition.set(localToGlobal(pline));
+    return localToGlobal(pline);
   } else if (const Trk::ConeSurface * cone = dynamic_cast<const Trk::ConeSurface*>(m_surface.get()); cone != nullptr) {
-    m_pposition.set(localToGlobal(cone));
+    return localToGlobal(cone);
   } else {
-    m_pposition.set(Amg::Vector3D(0, 0, 0));
+    return Amg::Vector3D(0, 0, 0);
   }
 }
 
-void Trk::PatternTrackParameters::updateMomentumCache(void) const {
+Amg::Vector3D Trk::PatternTrackParameters::calculateMomentum(void) const {
   double p = m_parameters[4] != 0. ? 1. / std::abs(m_parameters[4]) : 10e9;
 
   double Sf = std::sin(m_parameters[2]), Cf = std::cos(m_parameters[2]);
   double Se = std::sin(m_parameters[3]), Ce = std::cos(m_parameters[3]);
 
-  m_pmomentum.set(Amg::Vector3D(p * Se * Cf, p * Se * Sf, p * Ce));
+  return Amg::Vector3D(p * Se * Cf, p * Se * Sf, p * Ce);
 }
 
 bool Trk::PatternTrackParameters::hasSurface() const {
@@ -615,7 +589,4 @@ int Trk::PatternTrackParameters::surfaceType() const {
 }
 
 void Trk::PatternTrackParameters::updateParametersHelper(const AmgVector(5) &) {
-  updatePositionCache();
-  updateMomentumCache();
-  updateChargeCache();
 }

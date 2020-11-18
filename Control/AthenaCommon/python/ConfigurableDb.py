@@ -11,18 +11,6 @@ This repository of (informations on) Configurables is used by the PropertyProxy
 class to locate Configurables and feed the JobOptionsSvc. It could also be used
 to feed the AthenaEmacs module..."""
 
-from __future__ import with_statement, print_function
-
-import string
-import six
-if six.PY2:
-    _maketrans = string.maketrans
-    _translate = string.translate
-else:
-    _maketrans = str.maketrans
-    _translate = str.translate
-
-
 ### data ---------------------------------------------------------------------
 __version__ = '3.0.0'
 __author__  = 'Sebastien Binet (binet@cern.ch)'
@@ -31,7 +19,7 @@ __all__ = [ 'CfgDb', 'cfgDb',
             'loadConfigurableDb', 'unloadConfigurableDb',
             'getConfigurable' ]
 
-_transtable = _maketrans('<>&*,: ().', '__rp__s___')
+_transtable = str.maketrans('<>&*,: ().', '__rp__s___')
 
 ### helpers ------------------------------------------------------------------
 def _fillConfDict():
@@ -236,7 +224,7 @@ def getConfigurable( className, requester = '', assumeCxxClass = True ):
    confClass = className
    if assumeCxxClass:
     # assume className is C++: --> translate to python
-      confClass = _translate( confClass, _transtable )
+      confClass = str.translate( confClass, _transtable )
 
  # attempt to retrieve existing information
    confClassInfo = cfgDb.get( confClass )

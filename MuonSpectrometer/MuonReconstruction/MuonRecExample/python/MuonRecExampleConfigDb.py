@@ -268,3 +268,7 @@ addTool("Muon::MSVertexRecoTool","MSVertexRecoTool")
 
 addTool("MuonAlign::AlignmentErrorTool","MuonAlignmentErrorTool")
 
+################################################################################
+# MDT calibration
+################################################################################
+addTool("MuonRecExample.MuonRecTools.ExtraTreeTrackFillerTool", "ExtraTreeTrackFillerTool")

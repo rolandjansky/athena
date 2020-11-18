@@ -1,19 +1,11 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # The name of the package:
 atlas_subdir( EventLoop )
 
-# The package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   PhysicsAnalysis/D3PDTools/RootCoreUtils
-   PhysicsAnalysis/D3PDTools/SampleHandler
-   PRIVATE
-   Control/AthToolSupport/AsgTools
-   Control/xAODRootAccess
-   Tools/PathResolver )
-
 # Find the needed external(s):
+find_package( Boost )
 find_package( ROOT COMPONENTS Core RIO Hist Tree TreePlayer )
-find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_root_dictionary( EventLoop
@@ -33,10 +25,10 @@ atlas_add_root_dictionary( EventLoop
 atlas_add_library( EventLoop
    EventLoop/*.h EventLoop/*.ihh Root/*.cxx ${EventLoopDictSource}
    PUBLIC_HEADERS EventLoop
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} RootCoreUtils
-   SampleHandler AnaAlgorithmLib
-   PRIVATE_LINK_LIBRARIES AsgTools xAODRootAccess PathResolver )
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AnaAlgorithmLib AsgMessagingLib AsgTools SampleHandler
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver RootCoreUtils xAODCore xAODRootAccess )
 
 target_compile_definitions (EventLoop PUBLIC USE_CMAKE)
 
@@ -53,8 +45,8 @@ atlas_add_test (EventLoop_gt_OutputStreamData
 
 atlas_add_test (EventLoop_gt_SubmitDirManager
       SOURCES test/gt_SubmitDirManager.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} EventLoop AsgTestingLib )
 
 # Install files from the package:
 atlas_install_scripts( scripts/el_retrieve scripts/el_resubmit scripts/el_wait scripts/el_build_docker )

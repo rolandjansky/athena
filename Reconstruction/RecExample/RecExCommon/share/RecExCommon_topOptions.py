@@ -69,7 +69,6 @@ excludeTracePattern.append("*/D3PDMakerCoreComps/MakerAlg.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/D3PDObject.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
 excludeTracePattern.append("*/DQDefects/virtual*")
-excludeTracePattern.append("*/PanTauAnalysis/Class_FeatureHandler.py")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 excludeTracePattern.append("*AthFile/impl.py")
@@ -568,6 +567,24 @@ if rec.doTrigger:
             treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
             recAlgs.doTrigger=False
 
+#MT part
+## Outputs
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+if TriggerFlags.doMT() and rec.readESD() and rec.doAOD():
+    # Don't run any trigger - only pass the HLT contents from ESD to AOD
+    # Add HLT output
+    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+    hltOutput = HLTTriggerResultGetter()
+    # Add Trigger menu metadata
+    if rec.doFileMetaData():
+        from RecExConfig.ObjKeyStore import objKeyStore
+        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                          "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+        objKeyStore.addManyTypesMetaData( metadataItems )
+    # Add L1 output (to be consistent with R2)
+    from TrigEDMConfig.TriggerEDM import getLvl1AODList
+    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
+
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
@@ -915,7 +932,7 @@ if globalflags.InputFormat()=='bytestream':
 MetaDataStore=svcMgr.MetaDataStore
 
 
-#Lumiblocks and EventBookkeepers
+# Lumiblocks and ByteStreamMetadata
 if rec.doFileMetaData():
 
     #lumiblocks
@@ -941,25 +958,6 @@ if rec.doFileMetaData():
         include ("LumiBlockComps/CreateLumiBlockFromFile_jobOptions.py")
         pass
 
-    # Add the needed stuff for cut-flow bookkeeping.
-    # Only the configurables that are not already present will be created
-    hasBookkeepers = False
-    if 'metadata_items' in metadata:
-        metadata_items = metadata['metadata_items']
-        if 'xAOD::CutBookkeeperContainer_v1' in set(metadata_items.values()):
-            logRecExCommon_topOptions.debug("Existing CutBookkeeperContainer found")
-            hasBookkeepers = True
-    if hasBookkeepers or hasattr(runArgs, "reductionConf"): # TODO: no other way to detect we are running derivations
-        # TODO: check all DAOD workflows
-        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
-        logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
-        CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
-        if rec.readAOD() or rec.readESD():
-            #force CutFlowSvc execution (necessary for file merging)
-            theApp.CreateSvc+=['CutFlowSvc']
-            logRecExCommon_topOptions.debug("Added CutFlowSvc to theApp")
-            pass    
-
     try:
         # ByteStreamMetadata
         from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool        
@@ -967,8 +965,6 @@ if rec.doFileMetaData():
             svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
     except Exception:
         treatException("Could not load ByteStreamMetadataTool")
-
-
     pass
 
 
@@ -981,7 +977,11 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
-        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
+
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=seq, addMetaDataToAllOutputFiles=True )
+
         seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
@@ -1317,6 +1317,29 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
 
 
 pdr.flag_domain('aod')
+
+# EventBookkeepers
+if rec.doFileMetaData() or rec.OutputFileNameForRecoStep() == 'EVNTtoDAOD':
+    # Add the needed stuff for cut-flow bookkeeping.
+    # Only the configurables that are not already present will be created
+    hasBookkeepers = False
+    if 'metadata_items' in metadata:
+        metadata_items = metadata['metadata_items']
+        if 'xAOD::CutBookkeeperContainer_v1' in set(metadata_items.values()):
+            logRecExCommon_topOptions.debug("Existing CutBookkeeperContainer found")
+            hasBookkeepers = True
+    if hasBookkeepers or rec.OutputFileNameForRecoStep() in ['EVNTtoDAOD', 'AODtoDAOD']:
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
+        if rec.readAOD() or rec.readESD():
+            #force CutFlowSvc execution (necessary for file merging)
+            theApp.CreateSvc+=['CutFlowSvc']
+            logRecExCommon_topOptions.debug("Added CutFlowSvc to theApp")
+            pass
+        pass
+    pass
+
 
 if rec.doWriteAOD():
     from ParticleBuilderOptions.AODFlags import AODFlags

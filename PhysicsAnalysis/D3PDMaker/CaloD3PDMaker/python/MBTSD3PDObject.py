@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file CaloD3PDMaker/python/MBTSD3PDObject.py
 # @author scott snyder <snyder@bnl.gov>
@@ -13,7 +12,7 @@
 # setup (that doesn't use GeoModelSvc).
 from AthenaCommon.AppMgr import ServiceMgr 
 if not hasattr (ServiceMgr, 'DetDescrCnvSvc'):
-    import DetDescrCnvSvc.DetStoreConfig
+    import DetDescrCnvSvc.DetStoreConfig  # noqa: F401
     ServiceMgr.DetDescrCnvSvc.DoInitNeighbours = False
 
 import CaloD3PDMaker

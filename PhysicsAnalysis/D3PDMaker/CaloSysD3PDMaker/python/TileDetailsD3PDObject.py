@@ -1,13 +1,11 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TileDetailsD3PDObject.py 522639 2012-10-22 09:41:42Z ssnyder $
 
 import CaloSysD3PDMaker
 import D3PDMakerCoreComps
 import EventCommonD3PDMaker
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
 from CaloD3PDMaker.makeTileCellFilterAlg import makeTileCellFilterAlg
-from CaloIdentifier import SUBCALO
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
 
 BaseSGKey='holder'
@@ -18,7 +16,7 @@ def makeTileD3PDObject (name, prefix, object_name='TileDetailsD3PDObject', gette
     global BaseSGKey
     BaseSGKey=sgkey
     sgkey = prefix
-    if label == None: label = prefix
+    if label is None: label = prefix
 
     
     print(" makeTileD3PDObject: name = ", name)
@@ -49,7 +47,7 @@ def hookForTileCellFilterAlg(c, prefix, *args, **kw) :
 
     cellSigmaCut=-1.
     global BaseSGKey
-    if BaseSGKey == None or BaseSGKey=='holder' : BaseSGKey='AllCalo'
+    if BaseSGKey is None or BaseSGKey=='holder' : BaseSGKey='AllCalo'
     sgkey = prefix
 
     print(" in makeTileD3PDObject, sgkey, cellSigmaCut = ",  sgkey, cellSigmaCut)
@@ -67,7 +65,7 @@ def hookForTileCellFilterAlg(c, prefix, *args, **kw) :
 
 def TileCellRawAssoc(parent,prefix='',target='',level=0,blockname=None,*args,**kw):
 
-    if blockname==None:
+    if blockname is None:
         blockname=prefix+'TileCellRawAssociation'
 
     return IndexMultiAssociation(parent,
@@ -79,7 +77,7 @@ def TileCellRawAssoc(parent,prefix='',target='',level=0,blockname=None,*args,**k
                                  nrowName='')
 
 def TileCellDigitAssoc(parent,prefix='',target='',level=0,blockname=None,*args,**kw):
-    if blockname==None:
+    if blockname is None:
         blockname=prefix+'TileCellDigitAssociation'
 
     return IndexMultiAssociation(parent,
@@ -110,20 +108,7 @@ def makeTileCellD3PDObject (maker, prefix,object_name) :
                                 SavePositionInfo=False,
                                 )
 
-    TileRawInCell=TileCellRawAssoc(parent=cellD3PDObject,
-                                   prefix='rawCh_',
-                                   target='tileraw_',
-                                   level=2,
-                                   blockname='RawChAssoc')
-
-    TileDigitInCell=TileCellDigitAssoc(parent=cellD3PDObject,
-                                   prefix='digit_',
-                                   target='tiledigit_',
-                                   level=3,
-                                   blockname='DigitAssoc')
-
-
-    return cellD3PDObject 
+    return cellD3PDObject
 
 
 

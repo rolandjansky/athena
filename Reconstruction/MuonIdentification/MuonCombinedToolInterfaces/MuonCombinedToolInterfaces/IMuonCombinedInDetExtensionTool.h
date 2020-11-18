@@ -41,11 +41,11 @@ namespace MuonCombined {
 
     /**IMuonCombinedInDetExtensionTool interface: build combined muons from ID candidates */    
     virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks, 
-			 Trk::SegmentCollection* segments) const = 0;
+			 Trk::SegmentCollection* segments, const EventContext& ctx) const = 0;
     
     /*New interface including PRDs for MuGirl segment-finding*/
     virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const = 0;
+				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const = 0;
 
     void cleanUp() const {};
 

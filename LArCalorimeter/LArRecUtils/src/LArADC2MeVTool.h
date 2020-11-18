@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaKernel/IIOVDbSvc.h" 
+#include "AthenaKernel/IIOVDbSvc.h"
 
 
 #include "LArElecCalib/ILArRamp.h"
@@ -40,11 +40,12 @@
 #include "LArRawConditions/LArConditionsContainer.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "CxxUtils/checker_macros.h"
 
 
-class LArADC2MeVTool: public AthAlgTool,
-		      virtual public ILArADC2MeVTool,
-		      public IIncidentListener 
+class ATLAS_NOT_THREAD_SAFE LArADC2MeVTool: public AthAlgTool,
+                                            virtual public ILArADC2MeVTool,
+                                            public IIncidentListener 
 {
  public:
   
@@ -57,8 +58,8 @@ class LArADC2MeVTool: public AthAlgTool,
   virtual ~LArADC2MeVTool();
   
   // retrieve methods 
-  const std::vector<float>& ADC2MEV(const HWIdentifier& id, int gain) const;  
-  const std::vector<float>& ADC2MEV(const Identifier& id, int gain) const;
+  const std::vector<float>& ADC2MEV ATLAS_NOT_THREAD_SAFE (const HWIdentifier& id, int gain) const;  
+  const std::vector<float>& ADC2MEV ATLAS_NOT_THREAD_SAFE (const Identifier& id, int gain) const;
   
   // initialize and finalize methods
   virtual StatusCode initialize();

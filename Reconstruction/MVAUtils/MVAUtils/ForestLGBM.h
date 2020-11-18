@@ -49,7 +49,6 @@ namespace MVAUtils
         ForestLGBMSimple (ForestLGBMSimple&&) = default;
         ForestLGBMSimple& operator=(ForestLGBMSimple&&) = default;
         ~ForestLGBMSimple()=default; 
-
         virtual TTree* WriteTree(TString name) const override;
         virtual void PrintForest() const override;
         virtual int GetNVars() const override { return m_max_var + 1; }
@@ -69,7 +68,6 @@ namespace MVAUtils
         ForestLGBM (ForestLGBM&&) = default;
         ForestLGBM& operator=(ForestLGBM&&) = default;
         ~ForestLGBM()=default;
-
         virtual TTree* WriteTree(TString name) const override;
         virtual void PrintForest() const override;
         virtual int GetNVars() const override { return m_max_var + 1; }

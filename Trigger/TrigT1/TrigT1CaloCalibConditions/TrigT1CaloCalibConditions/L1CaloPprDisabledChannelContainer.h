@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRDISABLEDCHANNELCONTAINER_H
@@ -43,7 +43,7 @@ public:
 
 	// IL1CaloPersistenceCapable interface
 	using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-	virtual void makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap);
+	virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
 
 	const L1CaloPprDisabledChannel* pprDisabledChannel(unsigned int channelId) const;
 	const L1CaloPprDisabledChannel* pprDisabledChannel(const L1CaloCoolChannelId& channelId) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "DecisionSummaryMakerAlg.h"
@@ -22,6 +22,7 @@ StatusCode DecisionSummaryMakerAlg::initialize() {
   }
 
   ATH_CHECK( m_costWriteHandleKey.initialize( m_doCostMonitoring ) );
+  ATH_CHECK( m_rosWriteHandleKey.initialize( m_doCostMonitoring ) );
   if (m_doCostMonitoring) {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
@@ -138,8 +139,9 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   // Do cost monitoring
   if (m_doCostMonitoring) {
     SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = createAndStore(m_costWriteHandleKey, context);
+    SG::WriteHandle<xAOD::TrigCompositeContainer> rosMonOutput = createAndStore(m_rosWriteHandleKey, context);
     // Populate collection (assuming monitored event, otherwise collection will remain empty)
-    ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));
+    ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput, rosMonOutput));
   }
 
   // Set the algorithm's filter status. This controlls the running of finalisation algs which we only want to execute

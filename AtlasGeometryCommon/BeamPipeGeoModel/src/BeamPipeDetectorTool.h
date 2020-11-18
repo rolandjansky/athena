@@ -22,6 +22,7 @@ class BeamPipeDetectorTool final : public GeoModelTool
   virtual StatusCode clear() override final;
  private:
   const BeamPipeDetectorManager* m_manager;
+  std::string m_mode;
 };
 
 #endif 

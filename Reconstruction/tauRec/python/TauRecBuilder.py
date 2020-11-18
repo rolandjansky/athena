@@ -12,13 +12,8 @@
 #
 ################################################################################
 
-import os, sys, string
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
-from AthenaCommon.BeamFlags import jobproperties
 import traceback
-from RecExConfig.Configured import Configured
 from .TauRecConfigured import TauRecConfigured
 
 ################################################################################
@@ -63,11 +58,14 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
                 tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA))
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(tauFlags.removeDuplicateCoreTracks() ) ))
-            if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
-            if not doMVATrackClassification and doRNNTrackClassification:
+            tools.append(taualgs.getTauClusterFinder())
+
+            if doRNNTrackClassification:
                 tools.append(taualgs.getTauTrackRNNClassifier())
+            elif doMVATrackClassification:
+                tools.append(taualgs.getTauTrackClassifier())
             if jobproperties.Beam.beamType()!="cosmics":
-                tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+                tools.append(taualgs.getEnergyCalibrationLC())
             
             tools.append(taualgs.getCellVariables())
             tools.append(taualgs.getElectronVetoVars())

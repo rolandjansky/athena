@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PsMap.h"
@@ -12,9 +12,8 @@
 PsMap* PsMap::s_thePointer=nullptr;
 
 PsMap::PsMap()
+  : m_directory ("/afs/cern.ch/atlas/offline/data/lar/calo_data")
 {
-  m_directory="/afs/cern.ch/atlas/offline/data/lar/calo_data";
-
 #ifndef LARG4_STAND_ALONE
   //std::string larLocation = PathResolver::find_directory("lar","DATAPATH");
   std::string larLocation = PathResolver::find_directory("LArG4Barrel","ATLASCALDATA");
@@ -74,7 +73,7 @@ CurrMap* PsMap::GetMap(int module) const
   }
 }
 
-void PsMap::SetDirectory(std::string dir)
+void PsMap::SetDirectory(const std::string& dir)
 {
   m_directory=dir;
 }

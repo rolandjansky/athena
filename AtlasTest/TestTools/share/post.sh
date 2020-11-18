@@ -118,6 +118,8 @@ PP="$PP"'|ClassIDSvc .* setTypeNameForID: .* already set for'
 PP="$PP"'|ClassIDSvc .* finalize: wrote .*'
 # PoolSvc
 PP="$PP"'|^PoolSvc.*INFO'
+# AlgTool auto-retrieve (Gaudi!1124)
+PP="$PP"'|^.*INFO\s+AlgTool:\s'
 # ignore any finalize output
 PP="$PP"'|^.*INFO [Ff]inali[sz]'
 # ignore rcs version comments

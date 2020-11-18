@@ -47,9 +47,6 @@
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
 
-//Pile-up
-#include "PileUpTools/PileUpMergeSvc.h"
-
 //Truth
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -79,15 +76,6 @@ using namespace MuonGM;
 /*******************************************************************************/
 MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::string& name, const IInterface* parent):
   PileUpToolBase(type, name, parent),
-  m_mergeSvc(nullptr),
-  m_file(nullptr),
-  m_ntuple(nullptr),
-  m_muonHelper(nullptr),
-  m_MuonGeoMgr(nullptr),
-  m_MMHitCollList(),
-  m_timedHitCollection_MM(nullptr),
-  m_StripsResponseSimulation(nullptr),
-  m_ElectronicsResponseSimulation(nullptr),
   m_driftVelocity(0),
   // Tree Branches...
   m_n_Station_side(-INT_MAX),
@@ -126,10 +114,8 @@ StatusCode MM_DigitizationTool::initialize() {
 	ATH_MSG_DEBUG ("MM_DigitizationTool:: in initialize()") ;
 
 	// Initialize transient detector store and MuonGeoModel OR MuonDetDescrManager
-	StoreGateSvc* detStore=nullptr;
-	ATH_CHECK( serviceLocator()->service("DetectorStore", detStore) );
-	if(detStore->contains<MuonGM::MuonDetectorManager>( "Muon" )){
-		ATH_CHECK( detStore->retrieve(m_MuonGeoMgr) );
+	if(detStore()->contains<MuonGM::MuonDetectorManager>( "Muon" )){
+		ATH_CHECK( detStore()->retrieve(m_MuonGeoMgr) );
 		ATH_MSG_DEBUG ( "Retrieved MuonGeoModelDetectorManager from StoreGate" );
 	}
 
@@ -138,23 +124,32 @@ StatusCode MM_DigitizationTool::initialize() {
 	// Digit tools
 	ATH_CHECK(m_digitTool.retrieve());
 
-    //initialize the output WriteHandleKeys
-    if(m_outputDigitCollectionKey.key()=="") {
-      ATH_MSG_FATAL("Property OutputObjectName not set !");
-      return StatusCode::FAILURE;
-    }
-    ATH_CHECK(m_outputDigitCollectionKey.initialize());
-    ATH_CHECK(m_outputSDO_CollectionKey.initialize());
-    ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
+    return StatusCode::FAILURE;
+  }
 
-    ATH_CHECK(m_fieldCondObjInputKey.initialize());
-	  ATH_CHECK(m_calibrationTool.retrieve());
+  if (m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container: '" << m_inputObjectName << "'");
+
+  // Pile-up merge service
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
+
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
+
+  // Initialize the output WriteHandleKeys
+  ATH_CHECK(m_outputDigitCollectionKey.initialize());
+  ATH_CHECK(m_outputSDO_CollectionKey.initialize());
+  ATH_MSG_DEBUG("Output Digits: '"<<m_outputDigitCollectionKey.key()<<"'");
+
+  ATH_CHECK(m_fieldCondObjInputKey.initialize());
+  ATH_CHECK(m_calibrationTool.retrieve());
 
 	//simulation identifier helper
 	m_muonHelper = MicromegasHitIdHelper::GetHelper();
-
-	// Locate the PileUpMergeSvc and initialize our local ptr
-	ATH_CHECK(service("PileUpMergeSvc", m_mergeSvc, true));
 
 	// Validation File Output
 	if (m_writeOutputFile){
@@ -192,7 +187,7 @@ StatusCode MM_DigitizationTool::initialize() {
 	}
 
 	// StripsResponseSimulation Creation
-	m_StripsResponseSimulation = new MM_StripsResponseSimulation();
+	m_StripsResponseSimulation = std::make_unique<MM_StripsResponseSimulation>();
 	m_StripsResponseSimulation->setQThreshold(m_qThreshold);
 	m_StripsResponseSimulation->setDriftGapWidth(m_driftGapWidth);
 	m_StripsResponseSimulation->setCrossTalk1(m_crossTalk1);
@@ -213,10 +208,10 @@ StatusCode MM_DigitizationTool::initialize() {
 	m_StripsResponseSimulation->setInteractionDensityMean(interactionDensityMean);
 	m_StripsResponseSimulation->setInteractionDensitySigma(interactionDensitySigma);
 	m_StripsResponseSimulation->setLorentzAngleFunction(lorentzAngleFunction);
-	m_StripsResponseSimulation->initialize();
+	m_StripsResponseSimulation->initialize(m_randomSeed);
 
 	// ElectronicsResponseSimulation Creation
-	m_ElectronicsResponseSimulation = new MM_ElectronicsResponseSimulation();
+	m_ElectronicsResponseSimulation = std::make_unique<MM_ElectronicsResponseSimulation>();
 	m_ElectronicsResponseSimulation->setPeakTime(m_peakTime); // VMM peak time parameter
 	m_ElectronicsResponseSimulation->setTimeWindowLowerOffset(m_timeWindowLowerOffset);
 	m_ElectronicsResponseSimulation->setTimeWindowUpperOffset(m_timeWindowUpperOffset);
@@ -281,8 +276,8 @@ StatusCode MM_DigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsign
 
 	m_MMHitCollList.clear();
 
-	if(!m_timedHitCollection_MM) {
-		m_timedHitCollection_MM = new TimedHitCollection<MMSimHit>();
+	if (m_timedHitCollection_MM == nullptr) {
+		m_timedHitCollection_MM = std::make_unique<TimedHitCollection<MMSimHit>>();
 	} else {
 		ATH_MSG_ERROR ( "m_timedHitCollection_MM is not null" );
 		return StatusCode::FAILURE;
@@ -315,37 +310,48 @@ StatusCode MM_DigitizationTool::processBunchXing(int bunchXing,
 
     // Iterating over the list of collections
     for( ; iColl != endColl; iColl++){
-    
-      MMSimHitCollection *hitCollPtr = new MMSimHitCollection(*iColl->second);
+
+      auto hitCollPtr = std::make_unique<MMSimHitCollection>(*iColl->second);
       PileUpTimeEventIndex timeIndex(iColl->first);
-    
+
       ATH_MSG_DEBUG("MMSimHitCollection found with " << hitCollPtr->size() <<
                     " hits");
       ATH_MSG_VERBOSE("time index info. time: " << timeIndex.time()
                       << " index: " << timeIndex.index()
                       << " type: " << timeIndex.type());
-    
-      m_timedHitCollection_MM->insert(timeIndex, hitCollPtr);
-      m_MMHitCollList.push_back(hitCollPtr);
-    
+
+      m_timedHitCollection_MM->insert(timeIndex, hitCollPtr.get());
+      m_MMHitCollList.push_back(std::move(hitCollPtr));
+
     }
 	return StatusCode::SUCCESS;
 }
 
 /*******************************************************************************/
-StatusCode MM_DigitizationTool::getNextEvent() {
+StatusCode MM_DigitizationTool::getNextEvent(const EventContext& ctx) {
 
 // Get next event and extract collection of hit collections:
 // This is applicable to non-PileUp Event...
 
 	ATH_MSG_DEBUG ( "MM_DigitizationTool::getNextEvent()" );
 
-	if (!m_mergeSvc) {
-		ATH_CHECK(service("PileUpMergeSvc", m_mergeSvc, true));
-	}
-
 	//  get the container(s)
 	typedef PileUpMergeSvc::TimedList<MMSimHitCollection>::type TimedHitCollList;
+
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<MMSimHitCollection> hitCollection(m_hitsContainerKey, ctx);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get MMSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_timedHitCollection_MM = std::make_unique<TimedHitCollection<MMSimHit>>(1);
+    m_timedHitCollection_MM->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("MMSimHitCollection found with " << hitCollection->size() << " hits");
+    return StatusCode::SUCCESS;
+  }
 
 	//this is a list<info<time_t, DataLink<MMSimHitCollection> > >
 	TimedHitCollList hitCollList;
@@ -360,8 +366,8 @@ StatusCode MM_DigitizationTool::getNextEvent() {
 	}
 
 	// create a new hits collection - Define Hit Collection
-	if(!m_timedHitCollection_MM) {
-		m_timedHitCollection_MM = new TimedHitCollection<MMSimHit>();
+	if (m_timedHitCollection_MM == nullptr) {
+		m_timedHitCollection_MM = std::make_unique<TimedHitCollection<MMSimHit>>();
 	}else{
 		ATH_MSG_ERROR ( "m_timedHitCollection_MM is not null" );
 		return StatusCode::FAILURE;
@@ -388,19 +394,10 @@ StatusCode MM_DigitizationTool::mergeEvent(const EventContext& ctx) {
 
 	ATH_CHECK( doDigitization(ctx) );
 
-	// reset the pointer (delete null pointer should be safe)
-	if (m_timedHitCollection_MM){
-		delete m_timedHitCollection_MM;
-		m_timedHitCollection_MM = nullptr;
-	}
+	// reset the pointer
+  m_timedHitCollection_MM.reset();
 
-	// remove cloned one in processBunchXing......
-	std::list<MMSimHitCollection*>::iterator MMHitColl = m_MMHitCollList.begin();
-	std::list<MMSimHitCollection*>::iterator MMHitCollEnd = m_MMHitCollList.end();
-	while(MMHitColl!=MMHitCollEnd) {
-		delete (*MMHitColl);
-		++MMHitColl;
-	}
+	// clear cloned list
 	m_MMHitCollList.clear();
 	return StatusCode::SUCCESS;
 }
@@ -415,15 +412,12 @@ StatusCode MM_DigitizationTool::processAllSubEvents(const EventContext& ctx) {
 
 	//merging of the hit collection in getNextEvent method
 
-	if (m_timedHitCollection_MM == nullptr) ATH_CHECK( getNextEvent() );
+	if (m_timedHitCollection_MM == nullptr) ATH_CHECK( getNextEvent(ctx) );
 
 	ATH_CHECK( doDigitization(ctx) );
 
-	// reset the pointer (delete null pointer should be safe)
-	if (m_timedHitCollection_MM){
-		delete m_timedHitCollection_MM;
-		m_timedHitCollection_MM = nullptr;
-	}
+	// reset the pointer
+	m_timedHitCollection_MM.reset();
 	return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
@@ -436,10 +430,6 @@ StatusCode MM_DigitizationTool::finalize() {
 		gDirectory=backup;
 		m_file->Close();
 	}
-
-
-	delete m_StripsResponseSimulation;
-	delete m_ElectronicsResponseSimulation;
 
 	return StatusCode::SUCCESS;
 }
@@ -469,7 +459,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
   }
   
   // Perform null check on m_thpcCSC
-  if(!m_timedHitCollection_MM) {
+  if (m_timedHitCollection_MM == nullptr) {
     ATH_MSG_ERROR ( "m_timedHitCollection_MM is null" );
     return StatusCode::FAILURE;
   }
@@ -1049,7 +1039,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     std::unique_ptr<MmDigit> newDigit = nullptr;
 
     if ( !m_doSmearing ) { 
-      newDigit = std::unique_ptr<MmDigit>(new MmDigit(   stripDigitOutputAllHits.digitID(),
+      newDigit = std::make_unique<MmDigit>(stripDigitOutputAllHits.digitID(),
 							 electronicsOutputForReadout->stripTime(),
 							 electronicsOutputForReadout->stripPos(),
 							 electronicsOutputForReadout->stripCharge(),
@@ -1061,7 +1051,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 							 finalElectronicsTriggerOutput.chipCharge(),
 							 finalElectronicsTriggerOutput.MMFEVMMid(),
 							 finalElectronicsTriggerOutput.VMMid()
-							 ));
+							 );
     }
     else {
 
@@ -1091,7 +1081,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       }
 
       if ( stripPosSmeared.size() > 0 ) { 
-	newDigit = std::unique_ptr<MmDigit>(new MmDigit(   digitId,
+	newDigit = std::make_unique<MmDigit>(digitId,
 							   stripTimeSmeared,
 							   stripPosSmeared,
 							   stripChargeSmeared,
@@ -1103,7 +1093,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 							   finalElectronicsTriggerOutput.chipCharge(),
 							   finalElectronicsTriggerOutput.MMFEVMMid(),
 							   finalElectronicsTriggerOutput.VMMid()
-							   ));
+							   );
       }
       else {
 	continue;
@@ -1126,7 +1116,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
     // put new collection in storegate
     // Get the messaging service, print where you are
     const MmDigitCollection* coll = digitContainer->indexFindPtr(moduleHash );
-    if (nullptr ==  coll) {
+    if (coll == nullptr) {
       digitCollection = new MmDigitCollection( elemId, moduleHash );
       digitCollection->push_back(std::move(newDigit));
       ATH_CHECK(digitContainer->addCollection(digitCollection, moduleHash ) );
@@ -1149,10 +1139,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
   
   ATH_MSG_DEBUG ( "MM_Digitization Done!"  );
   
-  if (m_timedHitCollection_MM){
-    delete m_timedHitCollection_MM;
-    m_timedHitCollection_MM = nullptr;
-  }
+  m_timedHitCollection_MM.reset();
   
   return StatusCode::SUCCESS;
 }

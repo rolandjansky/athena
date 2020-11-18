@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOTRIGGERTOWERSERVICE_H
@@ -7,7 +7,6 @@
 
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "StoreGate/DataHandle.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -26,6 +25,7 @@
 
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibConditions/L1CaloRxCoolChannelId.h"
+#include "CxxUtils/CachedPointer.h"
 
 
 class Identifier;
@@ -34,7 +34,6 @@ class LArOnlineID;
 class LArEM_ID;
 class TTOnlineID;
 class CaloLVL1_ID;
-class LArCablingLegacyService;
 
 static const InterfaceID IID_CaloTriggerTowerService("CaloTriggerTowerService", 1 , 0);
 
@@ -146,26 +145,6 @@ class CaloTriggerTowerService : public AthAlgTool
   //
 
   /**
-     Return a vector of LArOnlineID for a TTOnlineID   (online-online TT-cell mapping)
-
-     @param extTt used to decide wether the 'layer' info should be used or not <br>
-     extTt = 0 : the full TT is returned <br>
-     else      : the 'extended'TT (only 1 layer) is returned.
-
-     @warning the actual mapping is offline-offline, so this method is CPU expensive.
-     @warning this method is valid only for LAr Id so far
-  */
-  std::vector<HWIdentifier> createChannelIDvec(const HWIdentifier & id, int extTt) const;
-
-  /**
-     return the TTOnlineID of the TT to which a LArOnlineID belongs   (online-online TT-cell mapping)
-
-     @warning the actual mapping is offline-offline, so this method is CPU expensive.
-     @warning this method is valid only for LAr Id so far
-  */
-  HWIdentifier whichTTChannelID(const HWIdentifier & id) const;
-
-  /**
      Return a vector of offline Identifiers (corresponding helpers =
      LArEM_ID, LArHEC_ID, LArFCAL_ID) for a TT offline id (helper=CaloLVL1_ID)
      -> all layers together (Rem: equivalent to above extTt=0) <br>
@@ -188,11 +167,6 @@ class CaloTriggerTowerService : public AthAlgTool
   Identifier whichTTID(const Identifier & id) const;
 
   /**
-     return true if the channel is in the lvl1 sums; <br>
-     some channels mapped to TT are only in HLT (last HEC compartment and last cells of barrel PS)
-  */
-  bool is_in_lvl1(const HWIdentifier & id) const;
-  /**
      return true if the cell is in the lvl1 sums; <br>
      some channels mapped to TT are only in HLT (last HEC compartment and last cells of barrel PS)
   */
@@ -200,9 +174,11 @@ class CaloTriggerTowerService : public AthAlgTool
 
 
  private:
+    const LArTTCellMap*      getTTCellMap() const;
+    const CaloTTOnOffIdMap*  getCaloTTOnOffIdMap() const;
+    const CaloTTOnAttrIdMap* getCaloTTOnAttrIdMap() const;
+    const CaloTTPpmRxIdMap*  getCaloTTPpmRxIdMap() const;
 
-    /** pointer to the LArCablingSvc tool */
-    LArCablingLegacyService   * m_larcablingSvc;
     /** pointer to the LAr Online Id helper */
     const LArOnlineID   * m_onlineHelper ;
     /** pointer to the LArEM  offline Id helper */
@@ -212,10 +188,10 @@ class CaloTriggerTowerService : public AthAlgTool
     /** pointer to the Calo TT online Id helper */
     const TTOnlineID    * m_ttonlineHelper;
 
-    const DataHandle<LArTTCellMap>      m_TTCellMap;
-    const DataHandle<CaloTTOnOffIdMap>  m_caloTTOnOffIdMap;
-    const DataHandle<CaloTTOnAttrIdMap> m_caloTTOnAttrIdMap;
-    const DataHandle<CaloTTPpmRxIdMap>  m_caloTTPpmRxIdMap;
+    CxxUtils::CachedPointer<const LArTTCellMap>  m_TTCellMap;
+    CxxUtils::CachedPointer<const CaloTTOnOffIdMap>  m_caloTTOnOffIdMap;
+    CxxUtils::CachedPointer<const CaloTTOnAttrIdMap> m_caloTTOnAttrIdMap;
+    CxxUtils::CachedPointer<const CaloTTPpmRxIdMap>  m_caloTTPpmRxIdMap;
 
     std::string       m_TTCellMapKey;
     std::string       m_caloTTOnOffIdMapKey;

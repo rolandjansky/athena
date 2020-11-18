@@ -8,6 +8,9 @@
 
 #ifndef TRKSURFACES_STRAIGHTLINESURFACE_H
 #define TRKSURFACES_STRAIGHTLINESURFACE_H
+// Amg
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 // Trk
 #include "TrkDetDescrUtils/SharedObject.h"
@@ -15,9 +18,6 @@
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/NoBounds.h"
 #include "TrkSurfaces/Surface.h"
-// Amg
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "CxxUtils/CachedValue.h"
 
 class Identifier;
@@ -80,7 +80,7 @@ public:
   virtual bool operator==(const Surface& sf) const override;
 
   /**Implicit constructor*/
-  virtual StraightLineSurface* clone() const override;
+  virtual StraightLineSurface* clone() const override final;
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // sTgcDigitMaker.h
@@ -16,6 +16,7 @@
 #ifndef STGCDIGITMAKER_H
 #define STGCDIGITMAKER_H
 
+#include <memory>
 #include <vector>
 #include <string>
 
@@ -43,7 +44,7 @@ class sTgcDigitMaker {
   //------ for public
  public:
 
-  sTgcDigitMaker(sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager * mdManager);
+  sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager * mdManager);
 
   virtual ~sTgcDigitMaker();
 
@@ -53,7 +54,7 @@ class sTgcDigitMaker {
   */
   StatusCode initialize(CLHEP::HepRandomEngine* m_rndmEngine, const int channelTypes);
 
-  sTgcDigitCollection* executeDigi(const sTGCSimHit* hit, const float globalHitTime);
+  std::unique_ptr<sTgcDigitCollection> executeDigi(const sTGCSimHit* hit, const float globalHitTime);
 
   //Declaring the Message method for further use
   MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }
@@ -96,8 +97,8 @@ class sTgcDigitMaker {
   bool efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int multiPlet, const int gasGap, const int channelType, const double energyDeposit) const;
 
   //uint16_t bcTagging(const float digittime, const int channelType) const;
-  void addDigit(const Identifier id, const uint16_t bctag, const float digittime, int channelType);
-  void addDigit(const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType);
+  void addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, int channelType) const;
+  void addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) const;
 
   /** Read share/sTGC_Digitization_energyThreshold.dat file */
   void readFileOfEnergyThreshold();
@@ -141,12 +142,11 @@ class sTgcDigitMaker {
   //double m_alignmentTHS[N_STATIONNAME][N_STATIONETA][N_STATIONPHI];
 
   std::vector<std::vector<float> > m_vecAngle_Time;
- 
-  sTgcDigitCollection* m_digits;
-  CLHEP::HepRandomEngine* m_engine;
-  sTgcHitIdHelper* m_hitIdHelper;
-  const MuonGM::MuonDetectorManager* m_mdManager;
-  const sTgcIdHelper* m_idHelper;
+
+  CLHEP::HepRandomEngine* m_engine{}; // not owned here
+  const sTgcHitIdHelper* m_hitIdHelper{}; // not owned here
+  const MuonGM::MuonDetectorManager* m_mdManager{}; // not owned here
+  const sTgcIdHelper* m_idHelper{}; // not owned here
   float m_efficiencyOfWireGangs;
   float m_efficiencyOfStrips;
   float m_IntegralTimeOfElectr;

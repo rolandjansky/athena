@@ -11,8 +11,8 @@ TileDigitSGKey='TileDigitsFlt'
 def makeTileDigitD3PDObject (name, prefix, object_name='TileDigitD3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = TileDigitSGKey
-    if label == None: label = prefix
+    if sgkey is None: sgkey = TileDigitSGKey
+    if label is None: label = prefix
 
     if not getter:
         getter = CaloSysD3PDMaker.SGTileDigitsGetterTool \

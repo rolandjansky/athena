@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile digits filter algorithm"""
 
@@ -35,17 +35,17 @@ def TileDigitsFilterOutputCfg(flags, streamName = 'ESD', **kwargs):
     outputItemList = []
 
     if 'OutputDigitsContainer' in tileDigitsFilter._properties:
-        digitsContainer = tileDigitsFilter._properties['OutputDigitsContainer']
+        digitsContainer = str(tileDigitsFilter._properties['OutputDigitsContainer'])
     else:
-        digitsContainer = tileDigitsFilter._descriptors['OutputDigitsContainer'].default
+        digitsContainer = str(tileDigitsFilter._descriptors['OutputDigitsContainer'].default)
 
     if digitsContainer != '':
         outputItemList += ['TileDigitsContainer#' + digitsContainer]
 
     if 'OutputRawChannelContainer' in tileDigitsFilter._properties:
-        rawChannelContainer = tileDigitsFilter._properties['OutputRawChannelContainer']
+        rawChannelContainer = str(tileDigitsFilter._properties['OutputRawChannelContainer'])
     else:
-        rawChannelContainer = tileDigitsFilter._descriptors['OutputRawChannelContainer'].default
+        rawChannelContainer = str(tileDigitsFilter._descriptors['OutputRawChannelContainer'].default)
 
     if rawChannelContainer != '':
         outputItemList += ['TileRawChannelContainer#' + rawChannelContainer]

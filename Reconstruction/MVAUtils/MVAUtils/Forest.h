@@ -53,43 +53,55 @@ namespace MVAUtils
     class Forest : public IForest
     {
     public:
+      virtual float GetTreeResponse(const std::vector<float>& values,
+                                    unsigned int itree) const override final;
+      virtual float GetTreeResponse(const std::vector<float*>& pointers,
+                                    unsigned int itree) const override final;
 
-        virtual float GetTreeResponse(const std::vector<float>& values, unsigned int itree) const override;
-        virtual float GetTreeResponse(const std::vector<float*>& pointers, unsigned int itree) const override;
+      /** Return the offset of the forest. Since by default there is no offset,
+       * return 0 */
+      virtual float GetOffset() const override { return 0.; }
 
-        /** Return the offset of the forest. Since by default there is no offset, return 0 */
-        virtual float GetOffset() const override { return 0.; }
+      /** Return the response of the whole Forest. Raw is just the sum of all
+       * the trees **/
+      virtual float GetRawResponse(
+        const std::vector<float>& values) const override final; 
+      virtual float GetRawResponse(
+        const std::vector<float*>& pointers) const override final;
 
-        /** Return the response of the whole Forest. Raw is just the sum of all the trees **/
-        //  The method is not `final`, but it is very unlikely the derived class
-        //  will redefine this (since it is "raw")
-        virtual float GetRawResponse(const std::vector<float>& values) const override;
-        virtual float GetRawResponse(const std::vector<float*>& pointers) const override;
+      /** Compute the prediction for regression **/
+      // In this class it is equal to the raw-reponse. Derived class should
+      // override this.
+      virtual float GetResponse(
+        const std::vector<float>& values) const override;
+      virtual float GetResponse(
+        const std::vector<float*>& pointers) const override;
 
-        /** Compute the prediction for regression **/
-        // In this class it is equal to the raw-reponse. Derived class should
-        // override this.
-        virtual float GetResponse(const std::vector<float>& values) const override;
-        virtual float GetResponse(const std::vector<float*>& pointers) const override;
+      /** Compute the prediction for multiclassification (a score for each
+       *class). In addition to the input values need to pass the number of
+       *classes
+       **/
+      // Since TMVA and lgbm are identical the common implementation is here:
+      // Return the softmax of the sub-forest raw-response
+      virtual std::vector<float> GetMultiResponse(
+        const std::vector<float>& values,
+        unsigned int numClasses) const override;
 
-        /** Compute the prediction for multiclassification (a score for each class).
-         * In addition to the input values need to pass the number of classes
-         **/
-        // Since TMVA and lgbm are identical the common implementation is here:
-        // Return the softmax of the sub-forest raw-response
-        virtual std::vector<float> GetMultiResponse(const std::vector<float>& values,
-                                                    unsigned int numClasses) const override;
-        virtual std::vector<float> GetMultiResponse(const std::vector<float*>& pointers,
-                                                    unsigned int numClasses) const override;
+      virtual std::vector<float> GetMultiResponse(
+        const std::vector<float*>& pointers,
+        unsigned int numClasses) const override;
 
-        virtual unsigned int GetNTrees() const final { return m_forest.size(); }
+      virtual unsigned int GetNTrees() const override final
+      {
+        return m_forest.size();
+      }
 
-        virtual void PrintForest() const override;
+      virtual void PrintForest() const override;
 
-        virtual void PrintTree(unsigned int itree) const override;
+      virtual void PrintTree(unsigned int itree) const override;
 
-        /** Return the vector of nodes for the tree itree **/
-        virtual std::vector<Node_t> GetTree(unsigned int itree) const final;
+      /** Return the vector of nodes for the tree itree **/
+      std::vector<Node_t> GetTree(unsigned int itree) const;
 
     protected:
         /** Get the response of a tree. Instead of specifying the index of the tree

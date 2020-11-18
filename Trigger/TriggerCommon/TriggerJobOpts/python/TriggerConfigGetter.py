@@ -172,7 +172,12 @@ class TriggerConfigGetter(Configured):
         self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
         self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
         self.isRun1Data     = False 
-        self.hasxAODMeta    = ("metadata_items" in metadata and any(('TriggerMenu' or 'MenuJSON' in key) for key in metadata["metadata_items"].keys()))
+        self.hasxAODMeta    = ( 
+          ("metadata_items" in metadata)
+          and 
+          any((('TriggerMenu' or 'MenuJSON') in key) for key in metadata["metadata_items"].keys())
+        )
+
         if globalflags.DataSource()=='data':
             from RecExConfig.AutoConfiguration  import GetRunNumber
             runNumber = GetRunNumber()
@@ -318,7 +323,8 @@ class TriggerConfigGetter(Configured):
         
         if not self.hasxAODMeta:
             self.setupxAODWriting()
-
+        else:
+            log.info("Input file already has xAOD trigger metadata. Will not re-create it.")
 
         # all went fine we are configured
         return True
@@ -488,6 +494,16 @@ class TriggerConfigGetter(Configured):
                                   # "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_BGAux.", // TODO
                                 ]
                 objKeyStore.addManyTypesMetaData( metadataItems )
+
+            if TriggerFlags.EDMDecodingVersion() >= 3:
+                from TrigEDMConfig.TriggerEDMRun3 import recordable
+                from AthenaConfiguration.ComponentFactory import CompFactory
+                from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+
+                enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
+                enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
+
+                topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 
         except ImportError: # don't want to branch in rel 18
             pass

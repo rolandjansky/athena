@@ -56,7 +56,7 @@ class JetChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        log.debug("Assembling chain " + self.chainName)
+        log.debug("Assembling chain %s", self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
@@ -97,7 +97,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
         jetSeq = RecoFragmentsPool.retrieve( jetCaloHypoMenuSequence, 
                                              ConfigFlags, **self.recoDict )
-        jetCollectionName = jetSeq.hypo.Alg.Jets 
+        jetCollectionName = str(jetSeq.hypo.Alg.Jets)
 
         return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
@@ -109,7 +109,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
         jetSeq = RecoFragmentsPool.retrieve( jetTrackingHypoMenuSequence,
                                              ConfigFlags, clustersKey=clustersKey, **self.recoDict )
-        jetCollectionName = jetSeq.hypo.Alg.Jets 
+        jetCollectionName = str(jetSeq.hypo.Alg.Jets)
 
         return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
@@ -120,7 +120,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloRecoMenuSequence,
                                                           ConfigFlags, clusterCalib=self.recoDict["calib"] )
 
-        return clustersKey, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetCaloPreselChainStep(self):
         # Define a fixed preselection dictionary for prototyping -- we may expand the options
@@ -168,7 +168,7 @@ class JetChainConfiguration(ChainConfigurationBase):
         jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
                                                           ConfigFlags, **preselRecoDict )
 
-        return clustersKey, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
+        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
 
     def getJetTLAChainStep(self, jetCollectionName):
         from TriggerMenuMT.HLTMenuConfig.Jet.JetTLASequences import jetTLAMenuSequence

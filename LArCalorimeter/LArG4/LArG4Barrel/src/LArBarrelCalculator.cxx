@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // The Cell Identifier for the EM Barrel readout cells
@@ -468,16 +468,9 @@ G4bool LArBarrelCalculator::Process(const G4Step* step, std::vector<LArHitData>&
       // HV extrapolation
       double current;
       double hv=m_hv[ipm][ielec][ieta][iside];
-      //       std::cout << " etaBin,phiBin " << etaBin << " " << phiBin << std::endl;
-      //       std::cout << " ipm,ielec,ieta,iside " << ipm << " " << ielec << " " << ieta
-      //            << " " << iside << std::endl;
-      //       std::cout << " hv " << hv << std::endl;
-      //       std::cout << " current0,current1,current2 " << current0 << " " << current1
-      //         << " " << current2 << std::endl;
       if (hv>1995.) current=current0;
       else if (hv>5.) current=ScaleHV(hv,current0,current1,current2);
       else current=0.;
-      //       std::cout << " current " << current << std::endl;
 
       // extrapolation for non nominal gap (allows to include sagging effect)
       //  i ~ (gap/gap2)**1.3
@@ -699,6 +692,7 @@ void LArBarrelCalculator::InitHV()
     const LArHVManager *manager = nullptr;
     if (pDetStore->retrieve(manager)==StatusCode::SUCCESS) {
       const EMBHVManager& hvManager=manager->getEMBHVManager();
+      const EMBHVManager::EMBHVData hvdata = hvManager.getData();
       ATH_MSG_INFO(" got HV Manager ");
       // loop over HV modules
       for (unsigned int iSide=0;iSide<2;iSide++) {
@@ -710,7 +704,7 @@ void LArBarrelCalculator::InitHV()
                 const EMBHVElectrode& electrode = hvMod.getElectrode(ielec);
                 unsigned jElec = ielec+32*iSector+64*iPhi;
                 for (unsigned int iGap=0;iGap<2;iGap++) {
-                  double hv = electrode.voltage(iGap);
+                  double hv = hvdata.voltage (electrode, iGap);
                   ATH_MSG_DEBUG(" iSide,jElec,iEta,iGap,hv " << iSide << " " << jElec << " " << iEta << " " << iGap << " " << hv);
                   if (hv>-999.) m_hv[iSide][jElec][iEta][iGap] = hv;
                 }

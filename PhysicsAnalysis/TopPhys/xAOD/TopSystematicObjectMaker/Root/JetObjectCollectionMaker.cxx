@@ -14,6 +14,8 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODBTagging/BTaggingUtilities.h"
+
 #include "PATInterfaces/SystematicsUtil.h"
 
 #include "TopJetSubstructure/TopJetSubstructure.h"
@@ -92,8 +94,10 @@ namespace top {
     if (m_config->useLargeRJets()) {
       top::check(m_jetCalibrationToolLargeR.retrieve(),
                  "Failed to retrieve JetCalibrationToolLargeR");
-      top::check(m_jetUncertaintiesToolLargeR.retrieve(),
-                 "Failed to retrieve JetUncertaintiesToolLargeR");
+      if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
+	top::check(m_jetUncertaintiesToolLargeR.retrieve(),
+		   "Failed to retrieve JetUncertaintiesToolLargeR");
+      }
     }
 
     if (m_config->getDerivationStream() == "PHYS") {
@@ -466,13 +470,13 @@ namespace top {
     if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None")) {
       static bool checked_track_MET = false;
       if (!checked_track_MET) {
-	if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
-	  m_do_fjvt = true;
-	} else {
-	  ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
-	  return StatusCode::FAILURE; 
-	}
-	checked_track_MET = true;
+        if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
+          m_do_fjvt = true;
+        } else {
+          ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
+          return StatusCode::FAILURE; 
+        }
+        checked_track_MET = true;
       }
     }
     if (m_do_fjvt) {
@@ -486,13 +490,12 @@ namespace top {
       // NOTE, if we use one of the b-tagging re-trained collections, we need to load
       // the original uncalibrated jet container to which the b-tagging shallow-copy is pointing to
       const xAOD::JetContainer* xaod_original(nullptr);
-      // for small-R jet collections, set links to uncalibrated *original* jets (not BTagging shallow-copy)
-      if (m_config->sgKeyJets() != m_config->sgKeyJetsType()) {
-        top::check(evtStore()->retrieve(xaod_original,
-                                        m_config->sgKeyJetsType()),
-                   "Failed to retrieve uncalibrated Jets for METMaker!");
-      } else {
-        xaod_original = xaod;
+      top::check(evtStore()->retrieve(xaod_original,
+                                      m_config->sgKeyJets()),
+                 "Failed to retrieve uncalibrated Jets for METMaker!");
+      if (!xaod_original || !shallow_xaod_copy.first) {
+        ATH_MSG_ERROR("Cannot retrieve the original jet collection!");
+        return StatusCode::FAILURE;
       }
       bool setLinks = xAOD::setOriginalObjectLink(*xaod_original, *shallow_xaod_copy.first);
       if (!setLinks) ATH_MSG_ERROR(" Cannot set original object links for jets, MET recalculation may struggle");
@@ -880,18 +883,18 @@ namespace top {
         = (trackJets ? m_btagSelToolsDL1Decor_trkJet : m_btagSelToolsDL1Decor);
       for (std::pair<std::string, ToolHandle<IBTaggingSelectionTool>> algo : m_btagDecorTools) {
         double DL1_weight = -999.;
-        //double dl1_pb = -10.;
-        //double dl1_pc = -10.;
-        //double dl1_pu = -10.;
-        //if (jet->btagging()->pb(algo.first, dl1_pb)
-        //    && jet->btagging()->pc(algo.first, dl1_pc)
-        //    && jet->btagging()->pu(algo.first, dl1_pu)) {
-        //  if (!algo.second->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)) {
-        //    DL1_weight = -999.; // value for errors from retrieving DL1x weight
-        //  }
-        //} else {
-        //  DL1_weight = -100.; // value for errors from nonexistence of probabilities
-        //}
+        double dl1_pb = -10.;
+        double dl1_pc = -10.;
+        double dl1_pu = -10.;
+        if (xAOD::BTaggingUtilities::getBTagging(*jet)->pb(algo.first, dl1_pb)
+            && xAOD::BTaggingUtilities::getBTagging(*jet)->pc(algo.first, dl1_pc)
+            && xAOD::BTaggingUtilities::getBTagging(*jet)->pu(algo.first, dl1_pu)) {
+          if (!algo.second->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)) {
+            DL1_weight = -999.; // value for errors from retrieving DL1x weight
+          }
+        } else {
+          DL1_weight = -100.; // value for errors from nonexistence of probabilities
+        }
         DLx.at(algo.first)(*jet) = DL1_weight;
       }
     }

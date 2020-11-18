@@ -38,6 +38,7 @@
 #include "AsgDataHandles/ReadDecorHandle.h"
 #include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "AsgDataHandles/WriteDecorHandle.h"
+#include "xAODTracking/VertexContainer.h"
 
 
 namespace TMVA{ class Reader; }

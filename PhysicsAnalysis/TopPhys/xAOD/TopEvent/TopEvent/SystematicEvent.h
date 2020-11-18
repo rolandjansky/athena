@@ -1,65 +1,34 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
-
-// $Id: SystematicEvent.h 692539 2015-09-02 00:20:52Z morrisj $
 #ifndef ANALYSISTOP_TOPEVENT_SYSTEMATICEVENT_H
 #define ANALYSISTOP_TOPEVENT_SYSTEMATICEVENT_H
 
-/**
- * @author John Morris <john.morris@cern.ch>
- *
- * @brief SystematicEvent
- *   A simple xAOD class which we can persist into a mini-xAOD
- *   The xAOD EDM is way too complex, so let's simplify it
- *   It's not like ROOT can do schema evolution......
- *
- *   This class contains only vectors of unsigned int's
- *   It is very light weight and is used to make top::Event objects
- *
- * $Revision: 692539 $
- * $Date: 2015-09-02 01:20:52 +0100 (Wed, 02 Sep 2015) $
- *
- **/
-
-// EDM include(s):
-#include "AthContainers/DataVector.h"
+// EDM include(s).
 #include "AthContainers/AuxElement.h"
-#include "xAODCore/AuxContainerBase.h"
 #include "xAODCore/CLASS_DEF.h"
+
+// System include(s).
 #include <vector>
-#include <stdint.h>
 
 namespace xAOD {
-  /// Aux Container
-  class SystematicEventAuxContainer: public AuxContainerBase {
-  public:
-    /// Default constructor
-    SystematicEventAuxContainer();
-  private:
-    std::vector<std::size_t> hashValue;
-    std::vector<unsigned int> ttreeIndex;
-    std::vector<char> isLooseEvent;
 
-    std::vector<std::vector<unsigned int> > goodPhotons;
-    std::vector<std::vector<unsigned int> > goodElectrons;
-    std::vector<std::vector<unsigned int> > goodFwdElectrons;
-    std::vector<std::vector<unsigned int> > goodMuons;
-    std::vector<std::vector<unsigned int> > goodSoftMuons;
-    std::vector<std::vector<unsigned int> > goodTaus;
-    std::vector<std::vector<unsigned int> > goodJets;
-    std::vector<std::vector<unsigned int> > goodLargeRJets;
-    std::vector<std::vector<unsigned int> > goodTrackJets;
-    std::vector<std::vector<unsigned int> > goodTracks;
-  };
-
-  /// Interface class
+  /**
+   * @author John Morris <john.morris@cern.ch>
+   *
+   * @brief SystematicEvent
+   *   A simple xAOD class which we can persist into a mini-xAOD
+   *   The xAOD EDM is way too complex, so let's simplify it
+   *   It's not like ROOT can do schema evolution......
+   *
+   *   This class contains only vectors of unsigned int's
+   *   It is very light weight and is used to make top::Event objects
+   **/
   class SystematicEvent: public SG::AuxElement {
+
   public:
     /// Default constructor
-    SystematicEvent();
-    /// Default destructor
-    virtual ~SystematicEvent() {}
+    SystematicEvent() = default;
 
     /// get hash value
     std::size_t hashValue() const;
@@ -121,18 +90,16 @@ namespace xAOD {
     /// set TrackJets
     void setGoodTrackJets(const std::vector<unsigned int>&);
 
-    /// get Tracks                                                                                                                                                                                        
+    /// get Tracks
     const std::vector<unsigned int>& goodTracks() const;
-    /// set Tracks                                                                                                                                                                                        
+    /// set Tracks
     void setGoodTracks(const std::vector<unsigned int>&);
 
-  };
+  }; // class SystematicEvent
 
-  typedef DataVector< xAOD::SystematicEvent > SystematicEventContainer;
-}
+} // namespace xAOD
 
-// Dictonaries
+// Define a ClassID for the type.
 CLASS_DEF(xAOD::SystematicEvent, 173054021, 1)
-CLASS_DEF(xAOD::SystematicEventContainer, 1133646307, 1)
-CLASS_DEF(xAOD::SystematicEventAuxContainer, 1283481454, 1)
-#endif
+
+#endif // not ANALYSISTOP_TOPEVENT_SYSTEMATICEVENT_H

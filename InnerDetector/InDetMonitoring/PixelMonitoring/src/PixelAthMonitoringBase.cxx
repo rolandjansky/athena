@@ -128,7 +128,7 @@ void PixelAthMonitoringBase::fillFromArrays( const std::string& namePP0, Accumul
       // in the same plot 
       // the shift (b-1)*8 applies per disk counter b
       // (there are in total 8 sectors/disk)
-      auto pospp0x = Monitored::Scalar<int>( pospp0varx, (a-1)/6 + (b-1)*8 + 1);
+      auto pospp0x = Monitored::Scalar<int>( pospp0varx, a/6 + b*8);
       auto posx    = Monitored::Scalar<int>( posvarx, b);
       auto valp    = Monitored::Scalar<float>( valvarp, pixarrays.DA[a][b]);
       auto valm    = Monitored::Scalar<float>( valvarm, pixarrays.DA[a][b]*weightPix);
@@ -195,7 +195,7 @@ void PixelAthMonitoringBase::fillFromArrays( const std::string& namePP0, Accumul
       auto valp  = Monitored::Scalar<float>( valvarp, pixarrays.IBL[a][b]);
       auto valm  = Monitored::Scalar<float>( valvarm, pixarrays.IBL[a][b]*weightIBL);
       if (pixarrays.IBL[a][b]>-1) {
-	if (b>0.5*nbinb) {
+	if ( b > (0.5*nbinb-1) ) {
 	  fill("IBLA", pospp0x, valp);
 	} else {
 	  fill("IBLC", pospp0x, valp);

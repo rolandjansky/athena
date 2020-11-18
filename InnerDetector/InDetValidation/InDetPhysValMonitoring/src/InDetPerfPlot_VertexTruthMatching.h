@@ -72,22 +72,6 @@ private:
     // For reco-truth resolutions:
     TH2* m_vx_hs_truth_long_reso_vs_PU;
     TH2* m_vx_hs_truth_trans_reso_vs_PU;
-    TH2* m_vx_all_truth_long_reso_vs_PU;
-    TH2* m_vx_all_truth_trans_reso_vs_PU;
-
-    TH2* m_vx_hs_truth_long_pull_vs_PU;
-    TH2* m_vx_hs_truth_trans_pull_vs_PU;
-    TH2* m_vx_all_truth_long_pull_vs_PU;
-    TH2* m_vx_all_truth_trans_pull_vs_PU;
-
-    TH2* m_vx_hs_truth_long_reso_vs_nTrk;
-    TH2* m_vx_hs_truth_trans_reso_vs_nTrk;
-    TH2* m_vx_all_truth_long_reso_vs_nTrk;
-    TH2* m_vx_all_truth_trans_reso_vs_nTrk;
-    TH2* m_vx_hs_truth_long_pull_vs_nTrk;
-    TH2* m_vx_hs_truth_trans_pull_vs_nTrk;
-    TH2* m_vx_all_truth_long_pull_vs_nTrk;
-    TH2* m_vx_all_truth_trans_pull_vs_nTrk;
 
     TH1* m_vx_hs_truth_long_reso;
     TH1* m_vx_hs_truth_trans_reso;

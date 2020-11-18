@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from GaudiKernel.DataHandle import DataHandle
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 from collections import MutableSequence
@@ -8,6 +9,7 @@ from AthenaCommon.CFElements import parOR, seqAND, compName, getProp
 from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
 RoRSeqFilter=CompFactory.RoRSeqFilter
+PassFilter = CompFactory.PassFilter
 
 class Node(object):
     """base class representing one Alg + inputs + outputs, to be used to Draw dot diagrams and connect objects"""
@@ -18,10 +20,10 @@ class Node(object):
         self.outputs=[]
 
     def addOutput(self, name):
-        self.outputs.append(name)
+        self.outputs.append(str(name) if isinstance(name, DataHandle) else name)
 
     def addInput(self, name):
-        self.inputs.append(name)
+        self.inputs.append(str(name) if isinstance(name, DataHandle) else name)
 
     def getOutputList(self):
         return self.outputs
@@ -76,9 +78,9 @@ class AlgNode(Node):
             log.debug("Output DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.outputProp != '':
-                self.setPar(self.outputProp,name)
+                self.setPar(self.outputProp, name)
             else:
-                log.error("no OutputProp set")
+                log.debug("no outputProp set for output of %s", self.Alg.getName())
         Node.addOutput(self, name)
 
 
@@ -90,7 +92,7 @@ class AlgNode(Node):
         if isinstance(cval, MutableSequence):
             outputs.extend(cval)
         else:
-            outputs.append(cval)
+            outputs.append(str(cval))
         return outputs
 
     def addInput(self, name):
@@ -99,10 +101,11 @@ class AlgNode(Node):
             log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.inputProp != '':
-                self.setPar(self.inputProp,name)
+                self.setPar(self.inputProp, name)
             else:
-                log.error("no InputProp set")
+                log.debug("no InputProp set for input of %s", self.Alg.getName())
         Node.addInput(self, name)
+        return len(self.readInputList())
 
 
     def readInputList(self):
@@ -113,7 +116,7 @@ class AlgNode(Node):
         if isinstance(cval, MutableSequence):
             inputs.extend(cval)
         else:
-            inputs.append(cval)
+            inputs.append(str(cval))
         return inputs
 
     def __repr__(self):
@@ -130,6 +133,8 @@ def algColor(alg):
         return "cyan3"
     if isFilterAlg(alg):
         return "chartreuse3"
+    if isPassFilterAlg(alg):
+        return "darkgreen"
     return "cadetblue1"
 
 
@@ -173,7 +178,8 @@ class HypoAlgNode(AlgNode):
         elif self.initialOutput in outputs:
             AlgNode.addOutput(self, name)
         else:
-            log.error("Hypo " + self.name +" has already %s as configured output: you may want to duplicate the Hypo!" + outputs[0])
+            log.error("Hypo %s has already %s as configured output: you may want to duplicate the Hypo!",
+                      self.name, outputs[0])
 
 
     def addHypoTool (self, hypoToolConf):
@@ -210,11 +216,14 @@ class SequenceFilterNode(AlgNode):
     def __init__(self, Alg, inputProp, outputProp):
         AlgNode.__init__(self,  Alg, inputProp, outputProp)
 
-    def addChain(self, name):
-        return self.setPar("Chains", name)
+    def addChain(self, name, input_name):
+        return
 
     def getChains(self):
-        return self.getPar("Chains")
+        return []
+
+    def getChainsPerInput(self):
+        return [[]]
 
     def __repr__(self):
         return "SequenceFilter::%s  [%s] -> [%s], chains=%s"%(compName(self.Alg),' '.join(map(str, self.getInputList())),' '.join(map(str, self.getOutputList())), self.getChains())
@@ -225,6 +234,31 @@ class RoRSequenceFilterNode(SequenceFilterNode):
         Alg= RoRSeqFilter(name)
         SequenceFilterNode.__init__(self,  Alg, 'Input', 'Output')
 
+    def addChain(self, name, input_name):
+        input_index = self.readInputList().index(input_name)
+        chains_in_input = self.getPar("ChainsPerInput")
+        if len(chains_in_input) == input_index:
+            chains_in_input.append([name])
+        elif len(chains_in_input) > input_index:
+            chains_in_input[input_index].append(name)
+        else:
+            log.error("Error: why requiring input %i when size is %i ?" , input_index , len(chains_in_input))
+            raise RuntimeError("Error: why requiring input %i when size is %i " , input_index , len(chains_in_input))
+            
+        self.Alg.ChainsPerInput= chains_in_input
+        return self.setPar("Chains", name) # still neded?
+        
+    def getChains(self):
+        return self.getPar("Chains")
+
+    def getChainsPerInput(self):
+        return self.getPar("ChainsPerInput")
+
+class PassFilterNode(SequenceFilterNode):
+    """ PassFilter is a Filter node without inputs/outputs, so OutputProp=InputProp=empty"""
+    def __init__(self, name):
+        Alg= PassFilter(name)
+        SequenceFilterNode.__init__(self,  Alg, '', '')
 
 
 class InputMakerNode(AlgNode):
@@ -302,6 +336,9 @@ def isInputMakerBase(alg):
 
 def isFilterAlg(alg):
     return isinstance(alg, RoRSeqFilter)
+
+def isPassFilterAlg(alg):
+    return isinstance(alg, PassFilter)
 
 def isComboHypoAlg(alg):
     return  ('MultiplicitiesMap'  in alg.__class__.__dict__)
@@ -597,7 +634,7 @@ class Chain(object):
         for stepID in range(1,n_new_steps+1):
             new_step_name =  prev_step_name+'_'+empty_step_name+'%d_'%stepID+next_step_name
 
-            log.debug("Configuring empty step " + new_step_name)
+            log.debug("Configuring empty step %s", new_step_name)
             steps_to_add += [ChainStep(new_step_name, [], [], chainDicts=prev_chain_dict, comboHypoCfg=ComboHypoCfg)]
         
         self.steps = chain_steps_pre_split + steps_to_add + chain_steps_post_split
@@ -647,7 +684,7 @@ class Chain(object):
             log.debug("N(seq)=%d, N(chainDicts)=%d", len(step.sequences), len(step.stepDicts))
             for seq, onePartChainDict in zip(step.sequences, step.stepDicts):
                 log.debug('    seq: %s, onePartChainDict:', seq.name)
-                log.debug('    ' + str(onePartChainDict))
+                log.debug('    %s', onePartChainDict)
                 seq.createHypoTools( onePartChainDict )
 
             step.createComboHypoTools(self.name) 
@@ -676,7 +713,7 @@ class CFSequence(object):
         """ Set the output decision of this CFSequence as the hypo outputdecision; In case of combo, takes the Combo outputs"""
         self.decisions=[]
         # empty steps:
-        if not len(self.step.sequences):
+        if self.step.isEmpty:
             self.decisions.extend(self.filter.getOutputList())
         else:
             if self.step.isCombo:
@@ -828,10 +865,7 @@ class InEventReco( ComponentAccumulator ):
         self.mainSeq = seqAND( name )
         self.addSequence( self.mainSeq )
 
-        # Details below to be checked
         self.inputMakerAlg = inputMaker
-
-        # Avoid registering a duplicate
         self.addEventAlgo( self.inputMakerAlg, self.mainSeq.name )
         self.recoSeq = parOR( "InputSeq_"+self.inputMakerAlg.name )
         self.addSequence( self.recoSeq, self.mainSeq.name )
@@ -852,7 +886,7 @@ class InEventReco( ComponentAccumulator ):
 
 
 
-class InViewReco( ComponentAccumulator ):
+class InViewReco(ComponentAccumulator):
     """ Class to handle in-view reco, sets up the View maker if not provided and exposes InputMaker so that more inputs to it can be added in the process of assembling the menu """
     def __init__(self, name, viewMaker=None, roisKey=None):
         super( InViewReco, self ).__init__()
@@ -877,18 +911,19 @@ class InViewReco( ComponentAccumulator ):
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )
         self.addSequence( self.viewsSeq, self.mainSeq.name )
 
-    def addInputFromFilter(self, filterAlg ):
-        assert len(filterAlg.Output) == 1, "Can only oprate on filter algs with one configured output, use addInput to setup specific inputs"
-        self.addInput( filterAlg.Output[0], "Reco_"+( filterAlg.Output[0].replace("Filtered_", "") ) )
-
     def addInput(self, inKey, outKey ):
         """Adds input (DecisionsContainer) from which the views should be created """
         self.viewMakerAlg.InputMakerInputDecisions += [ inKey ]
         self.viewMakerAlg.InputMakerOutputDecisions = outKey
 
     def mergeReco( self, ca ):
-        """ Merged CA movnig reconstruction algorithms into the right sequence """
+        """ Merge CA movnig reconstruction algorithms into the right sequence """
         return self.merge( ca, sequenceName=self.viewsSeq.getName() )
+
+    def addRecoAlgo( self, algo ):
+        """ Place algorithm in the correct reconstruction sequence """
+        return self.addEventAlgo( algo, sequenceName=self.viewsSeq.getName() )
+
 
     def addHypoAlg(self, alg):
         self.addEventAlgo( alg, self.mainSeq.name )
@@ -933,7 +968,8 @@ class RecoFragmentsPool(object):
                allargs.update(kwargs)
         
         sortedkeys = sorted(allargs.keys())
-        sortedvals = [allargs[key] for key in sortedkeys]
+        sortedvals = [str(allargs[key]) if isinstance(allargs[key], DataHandle)
+                      else allargs[key] for key in sortedkeys]
 
         requestHash = hash( ( creator, tuple(sortedkeys), tuple(sortedvals) ) )
         if requestHash not in cls.fragments:

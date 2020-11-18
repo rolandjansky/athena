@@ -6,11 +6,16 @@
 #define LARHV_FCALHVMANAGER_H
 
 #include "LArHV/FCALHVModule.h"
+#include "Identifier/HWIdentifier.h"
+#include "CxxUtils/checker_macros.h"
+#include <memory>
+#include <functional>
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
+class CondAttrListCollection;
 struct FCALHVPayload;
 
 /**
@@ -30,6 +35,24 @@ struct FCALHVPayload;
 class FCALHVManager
 {
  public:
+  class FCALHVData
+  {
+  public:
+    static constexpr double INVALID = -99999;
+    class Payload;
+    FCALHVData();
+    FCALHVData (std::unique_ptr<Payload> payload);
+    FCALHVData& operator= (FCALHVData&& other);
+    ~FCALHVData();
+    bool hvOn (const FCALHVLine& line) const;
+    double voltage (const FCALHVLine& line) const;
+    double current (const FCALHVLine& line) const;
+    int  hvLineNo  (const FCALHVLine& line) const;
+  private:
+    int index (const FCALHVLine& line) const;
+    std::unique_ptr<Payload> m_payload;
+  };
+
   FCALHVManager();
   ~FCALHVManager();
 
@@ -47,27 +70,27 @@ class FCALHVManager
 				  , unsigned int iSector
 				  , unsigned int iSampling) const;
 
-  // Refresh from the database if needed
-  void update() const;
-  
-  // Make the data stale.  Force update of data.
-  void reset() const;
-  
   // Get the database payload
-  FCALHVPayload *getPayload(const FCALHVLine &) const;
+  FCALHVData getData ATLAS_NOT_THREAD_SAFE () const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
-  // Get hvLine for a subgap
+  FCALHVData getData (const LArHVIdMapping& hvIdMapping,
+                      const std::vector<const CondAttrListCollection*>& attrLists) const;
+  // Get hvLine for an electrode
   int hvLineNo(const FCALHVLine& line
                , const LArHVIdMapping* hvIdMapping) const;
 #endif
 
  private:
-  FCALHVManager(const FCALHVManager& right);
-  FCALHVManager& operator=(const FCALHVManager& right);
+  using idfunc_t = std::function<std::vector<HWIdentifier>(HWIdentifier)>;
+  FCALHVData getData (idfunc_t idfunc,
+                      const std::vector<const CondAttrListCollection*>& attrLists) const;
+
+  FCALHVManager(const FCALHVManager& right) = delete;
+  FCALHVManager& operator=(const FCALHVManager& right) = delete;
 
   class Clockwork;
-  Clockwork *m_c;
+  std::unique_ptr<const Clockwork> m_c;
 };
 
 #endif

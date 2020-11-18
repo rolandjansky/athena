@@ -15,13 +15,13 @@ RatesSelector        L1 rates from COOL
 
 import re,sys
 
-from time import time,strftime,gmtime
+from time import time
 from collections import defaultdict
 
 from PyCool import cool
 
-from CoolRunQuery.selector.AtlRunQuerySelectorBase    import Selector, RunLBBasedCondition
-from CoolRunQuery.utils.AtlRunQueryUtils           import coolDbConn, GetRanges, SmartRangeCalulator
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector, RunLBBasedCondition
+from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, GetRanges
 
 
 class TrigKeySelector(RunLBBasedCondition):
@@ -60,7 +60,8 @@ class TrigKeySelector(RunLBBasedCondition):
 
     def relStringToInt(self, r):
         major, minor, sub, patch = ([int(x) for x in r.split('.')] + [0,0,0,0])[0:4]
-        if sub<10: sub*=10;
+        if sub<10:
+            sub*=10
         return 1000000*major+10000*minor+100*sub+patch
     
     def __str__(self):
@@ -82,14 +83,17 @@ class TrigKeySelector(RunLBBasedCondition):
     def passes(self,values,key):
         if self.smkCutRange:
             smkPass = False
-            try: val = int(values)
+            try:
+                val = int(values)
             except ValueError:
                 self.selDataMissing = True
                 smkPass = True
             else:
                 for cr in self.smkCutRange:
-                    if val>=cr[0] and val<=cr[1]: smkPass= True
-            if not smkPass: return False
+                    if val>=cr[0] and val<=cr[1]:
+                        smkPass= True
+            if not smkPass:
+                return False
         if self.relCutRange:
             relPass = False
             val = values[1]
@@ -101,11 +105,13 @@ class TrigKeySelector(RunLBBasedCondition):
                 if len(val)>1:
                     val = self.relStringToInt(val[1])
                     for cr in self.relCutRange:
-                        if val>=cr[0] and val<=cr[1]: relPass= True
+                        if val>=cr[0] and val<=cr[1]:
+                            relPass= True
                 else:
                     self.selDataMissing = True
                     relPass = True
-            if not relPass: return False
+            if not relPass:
+                return False
         return True
 
     def prettyValue(self, value, key):
@@ -115,11 +121,13 @@ class TrigKeySelector(RunLBBasedCondition):
 
     def runAfterQuery(self,runlist):
         for k in self.ResultKey():
-            if k != 'SMK': continue
+            if k != 'SMK':
+                continue
             smks = set()
             for run in runlist:
                 smk = run.result['SMK']
-                if not str.isdigit(smk): continue
+                if not str.isdigit(smk):
+                    continue
                 smks.add(int(smk))
 
             from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getSmkNames, getRandom
@@ -128,7 +136,8 @@ class TrigKeySelector(RunLBBasedCondition):
             for run in runlist:
                 smk = run.result['SMK']
                 info = list(smknames[int(smk)] if str.isdigit(smk) else ("","",""))
-                if info[2]=="" or info[2]=="~": info[2]="no comment"
+                if info[2]=="" or info[2]=="~":
+                    info[2]="no comment"
                 run.stats[k] = { "info" : tuple(info),
                                  "random" : getRandom(int(smk)) if str.isdigit(smk) else (0,0,0,0)}
 
@@ -146,7 +155,8 @@ class BGSKeySelector(RunLBBasedCondition):
         return True
 
     def prettyValue(self, value, key):
-        if not str.isdigit(value): return None
+        if not str.isdigit(value):
+            return None
         return int(value)
 
     def runAfterQuery(self,runlist):
@@ -154,7 +164,8 @@ class BGSKeySelector(RunLBBasedCondition):
             for run in runlist:
                 run.stats[k] = { "blocks" : [], "first" : 0 }
                 entries = run.data[k]
-                if len(entries)==0: continue
+                if len(entries)==0:
+                    continue
                 blocks = []
                 for entry in entries:
                     v = entry.value
@@ -187,11 +198,13 @@ class L1TrigKeySelector(RunLBBasedCondition):
             for run in runlist:
                 run.stats[k] = { "blocks" : [], "first" : 0 }
                 entries = run.data[k]
-                if len(entries)==0: continue
+                if len(entries)==0:
+                    continue
                 blocks = []
                 for entry in entries:
                     v = entry.value
-                    if v == "n.a.": v = None
+                    if v == "n.a.":
+                        v = None
                     if len(blocks) > 0 and blocks[-1][0]==v and blocks[-1][2]==entry.startlb:
                         blocks[-1][2] = entry.endlb
                     else:
@@ -221,7 +234,8 @@ class HLTTrigKeySelector(RunLBBasedCondition):
         return True
 
     def prettyValue(self, value, key):
-        if not str.isdigit(value): return None
+        if not str.isdigit(value):
+            return None
         return int(value)
 
     def runAfterQuery(self,runlist):
@@ -231,7 +245,8 @@ class HLTTrigKeySelector(RunLBBasedCondition):
                 run.stats[k] = {}
                 for entry in run.data[k]:
                     v = entry.value
-                    if v == "n.a.": v = None
+                    if v == "n.a.":
+                        v = None
                     if len(blocks) > 0 and blocks[-1][0]==v and blocks[-1][2]==entry.startlb:
                         blocks[-1][2] = entry.endlb
                     else:
@@ -277,14 +292,16 @@ class HLTTrigKeySelector(RunLBBasedCondition):
             else:
                 l1names  = l1namesRun1
                 hltnames = hltnamesRun1
-            if not ('L1 PSK' in run.stats and 'HLT PSK' in run.stats): continue
+            if not ('L1 PSK' in run.stats and 'HLT PSK' in run.stats):
+                continue
             ic = 0
             blocks = set()
             for l1key, l1beg, l1end in run.stats['L1 PSK' ]['blocks']:
                 for hltkey, hltbeg, hltend in run.stats['HLT PSK' ]['blocks']:
                     lbmin = max(ic,min(l1beg,hltbeg))
                     lbmax = min(l1end-1,hltend-1)
-                    if lbmin > lbmax or lbmin == 0 or lbmax == 0: continue
+                    if lbmin > lbmax or lbmin == 0 or lbmax == 0:
+                        continue
                     ic = lbmax + 1
                     # accept if new
                     l1name = l1names[l1key] if l1key else ""
@@ -332,9 +349,9 @@ class RatesSelector(RunLBBasedCondition):
 
             namelookup = 256*['']
             channellist = []
-            #print (menu)
             for tr in menu:
-                if not tr.name.startswith("L1_"): continue
+                if not tr.name.startswith("L1_"):
+                    continue
                 ch = tr.counter
                 namelookup[ch] = tr.name
                 channellist.append(ch)
@@ -372,8 +389,10 @@ class RatesSelector(RunLBBasedCondition):
 
         duration = time() - start
 
-        if self.applySelection: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
-        else:                   print (" ==> Done (%g sec)" % duration)
+        if self.applySelection:
+            print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:
+            print (" ==> Done (%g sec)" % duration)
 
         return runlist
 
@@ -405,12 +424,15 @@ class TriggerSelector(RunLBBasedCondition):
         
 
     def addShowTriggerPattern(self, triggerpattern):
-        if triggerpattern=="": triggerpattern = "*"
+        if triggerpattern=="":
+            triggerpattern = "*"
         self.showtriggerpatterns += triggerpattern.split(',')
 
     def __str__(self):
-        if self.applySelection: return 'SELOUT Checking if the trigger name matches "%s"' % self.triggers
-        else: return "Retrieving trigger names [%s]" % ','.join(self.showtriggerpatterns)
+        if self.applySelection:
+            return 'SELOUT Checking if the trigger name matches "%s"' % self.triggers
+        else:
+            return "Retrieving trigger names [%s]" % ','.join(self.showtriggerpatterns)
 
 
     def getL1Prescales(self, runl1psks):
@@ -455,12 +477,11 @@ class TriggerSelector(RunLBBasedCondition):
             # the hlt menu
             l2chains, efchains = getHLTMenu(smk)
             d2 = l2menucache[smk] = dict([(c.counter,c) for c in l2chains])
-            d3 = efmenucache[smk] = dict([(c.counter,c) for c in efchains])
 
             # connect the levels (assign lower counter)
             for chain in efchains:
-                lowername = chain.lowername
-                if chain.lowername=="": continue
+                if chain.lowername=="":
+                    continue
                 cc = chain.counter
                 if (cc in d2) and (chain.lowername == d2[cc].name):
                     chain.lower = d2[cc]
@@ -473,7 +494,8 @@ class TriggerSelector(RunLBBasedCondition):
                         break
 
             for chain in l2chains:
-                if chain.lowername == "": continue
+                if chain.lowername == "":
+                    continue
                 for l1item in l1items:
                     if l1item and chain.lowername == l1item.name:
                         chain.lower = l1item
@@ -508,8 +530,6 @@ class TriggerSelector(RunLBBasedCondition):
         print (self, end='')
         sys.stdout.flush()
         newrunlist = []
-
-        runranges = SmartRangeCalulator(runlist)
 
         smks = [r.result['SMK'] for r in runlist]
         runl1psks = dict()
@@ -575,10 +595,11 @@ class TriggerSelector(RunLBBasedCondition):
 
                 # remove all the disabled triggers
                 for tr,pslist in value.items():
-                    if not any([ps==None or ps>=0 for ps in pslist]):
+                    if not any([ps is None or ps>=0 for ps in pslist]):
                         value.pop(tr)
 
-            if self.applySelection and not self.passes(value): continue
+            if self.applySelection and not self.passes(value):
+                continue
             newrunlist += [run.runNr]
 
             run.addResult(self.ResultKey()[0], value)
@@ -587,8 +608,10 @@ class TriggerSelector(RunLBBasedCondition):
 
         duration = time() - start
 
-        if self.applySelection: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
-        else:                   print (" ==> Done (%g sec)" % duration)
+        if self.applySelection:
+            print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:
+            print (" ==> Done (%g sec)" % duration)
 
         return runlist
 
@@ -614,5 +637,6 @@ class TriggerSelector(RunLBBasedCondition):
 
     def passes(self,triggers):
         for chain in triggers:
-            if chain.forselect: return True
+            if chain.forselect:
+                return True
         return False

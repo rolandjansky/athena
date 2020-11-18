@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ## \file Herwig7Control.py
 ## \brief Main python interface for %Herwig7 for preparing the event generation
 ## \author Daniel Rauch (daniel.rauch@desy.de)
@@ -10,10 +11,9 @@
 ## The event generation itself starting from reading the runfile is handled
 ## in Herwig7_i/Herwig7.h and src/Herwig7.cxx.
 
-import datetime, os, shutil, subprocess, sys, time
+import os, shutil, subprocess, sys
 import six
 
-from . import Herwig7Config as hw7Config
 from . import Herwig7Utils as hw7Utils
 # import Herwig7Defaults as HwDefaults
 
@@ -36,7 +36,7 @@ def get_share_path():
     path = os.path.join(path, "InstallArea", cmt_config, "share")
     try:
       filelist = os.listdir(path)
-    except:
+    except Exception:
       filelist = []
     if "HerwigDefaults.rpo" in filelist: return(path)
 
@@ -88,8 +88,6 @@ def matchbox_run(gen_config, integration_jobs, cleanup_herwig_scratch):
 ## \param[in] cleanup_herwig_scratch Remove `Herwig-scratch` folder after event generation to save disk space
 def matchbox_run_gridpack(gen_config, integration_jobs, gridpack_name, cleanup_herwig_scratch):
 
-  print_integration_logs = True
-
   gridpack_exists = hasattr(gen_config.runArgs, 'inputGenConfFile')
 
   ## print start banner including version numbers
@@ -132,11 +130,11 @@ def do_step(step, command, logfile_name=None):
     raise RuntimeError(hw7Utils.ansi_format_error("Some error occured during the '{}' step.".format(step)))
 
   if logfile:
-    athMsgLog.info("Content of {} log file '{}':".format(step, logfile_name))
+    athMsgLog.info("Content of %s log file '%s':", step, logfile_name)
     athMsgLog.info("")
     with open(logfile_name, 'r') as logfile:
       for line in logfile:
-        athMsgLog.info('  {}'.format(line.rstrip('\n')))
+        athMsgLog.info('  %s', line.rstrip('\n'))
     athMsgLog.info("")
 
 
@@ -261,7 +259,7 @@ def do_compress_gridpack(run_name, gridpack_name):
 
 def do_uncompress_gridpack(gridpack_name):
 
-  athMsgLog.info("unpacking gridpack '{}'".format(gridpack_name))
+  athMsgLog.info("unpacking gridpack '%s'", gridpack_name)
   do_step('uncompress', ['tar', 'xzf', gridpack_name])
 
 
@@ -401,13 +399,13 @@ def write_infile(gen_config, print_infile=True):
     with open(infile_name, 'w') as infile:
         for command in commands:
           infile.write(command+'\n')
-  except:
+  except Exception:
     raise RuntimeError('Could not write Herwig/Matchbox infile')
 
   if print_infile:
     athMsgLog.info("")
     for command in commands:
-      athMsgLog.info('  {}'.format(command))
+      athMsgLog.info('  %s', command)
     athMsgLog.info("")
 
 
@@ -417,16 +415,16 @@ def write_setupfile(run_name, commands, print_setupfile=True):
 
   if len(commands) > 0:
     if print_setupfile: athMsgLog.info("")
-    athMsgLog.info("Writing setupfile '{}'".format(setupfile_name))
+    athMsgLog.info("Writing setupfile '%s'", setupfile_name)
     try:
       with open(setupfile_name, 'w') as setupfile:
           for command in commands: setupfile.write(command+'\n')
-    except:
+    except Exception:
       raise RuntimeError('Could not write Herwig/Matchbox setupfile')
 
     if print_setupfile:
       athMsgLog.info("")
-      for command in commands: athMsgLog.info('  {}'.format(command))
+      for command in commands: athMsgLog.info('  %s', command)
       athMsgLog.info("")
 
   else:

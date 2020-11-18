@@ -65,7 +65,7 @@ public :
   virtual ~MM_StripsResponseSimulation();
   MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput);
 
-  void initialize ();
+  void initialize (unsigned long int seed);
   void writeHistos();
   void initHistos ();
   void clearValues ();
@@ -180,6 +180,15 @@ private:
  protected:
   //Declaring private message stream member.
   mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("MMStripResponseSimulation");
+
+  // seperate random number generation for performance monitoring
+  float generateTransverseDiffusion(float posY);
+  float getTransverseDiffusion(float posY);
+  float getLongitudinalDiffusion(float posY);
+  float getEffectiveCharge();
+  float getPathLengthTraveled();
+
+
 
 };
 #endif

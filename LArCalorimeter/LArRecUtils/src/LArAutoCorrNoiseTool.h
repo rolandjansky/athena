@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
   /**
@@ -34,10 +34,11 @@
 #include "CaloIdentifier/LArID.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "CxxUtils/checker_macros.h"
 
-class LArAutoCorrNoiseTool: public AthAlgTool,
-			    virtual public ILArAutoCorrNoiseTool,
-		      public IIncidentListener 
+class ATLAS_NOT_THREAD_SAFE LArAutoCorrNoiseTool: public AthAlgTool,
+                                                  virtual public ILArAutoCorrNoiseTool,
+                                                  public IIncidentListener 
 {
  public:
   
@@ -49,9 +50,11 @@ class LArAutoCorrNoiseTool: public AthAlgTool,
   // destructor 
   virtual ~LArAutoCorrNoiseTool() {}
   
-  const std::vector<float>& autoCorrSqrt(const HWIdentifier& id, int gain, int Nsamp=-1);
+  const std::vector<float>& autoCorrSqrt ATLAS_NOT_THREAD_SAFE
+    (const HWIdentifier& id, int gain, int Nsamp=-1);
   
-  const std::vector<float>& autoCorrSqrt(const Identifier& id, int gain, int Nsamp=-1);
+  const std::vector<float>& autoCorrSqrt ATLAS_NOT_THREAD_SAFE
+    (const Identifier& id, int gain, int Nsamp=-1);
   
   // initialize and finalize methods
   virtual StatusCode initialize();

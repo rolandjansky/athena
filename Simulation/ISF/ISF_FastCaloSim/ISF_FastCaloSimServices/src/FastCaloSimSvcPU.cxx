@@ -91,7 +91,7 @@ ISF::FastCaloSimSvcPU::~FastCaloSimSvcPU()
 StatusCode ISF::FastCaloSimSvcPU::initialize()
 {
    ATH_MSG_INFO ( m_screenOutputPrefix << "Initializing FastCaloSimSvcPU ...");
-   
+
    detID=new AtlasDetectorID();
    std::unique_ptr<IdDictParser> parser(new IdDictParser());
    IdDictMgr& idd = parser->parse ("IdDictParser/ATLAS_IDS.xml");

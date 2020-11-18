@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTRawContByteStreamTool.h"
@@ -21,7 +21,7 @@
 
 TRTRawContByteStreamTool::TRTRawContByteStreamTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AthAlgTool(type,name,parent),
+  :  base_class(type,name,parent),
      m_trt_CablingSvc ("TRT_CablingSvc", name ),
      m_trt_idHelper(nullptr)
 {
@@ -45,31 +45,16 @@ TRTRawContByteStreamTool::~TRTRawContByteStreamTool()
 StatusCode
 TRTRawContByteStreamTool::initialize()
 {
-   StatusCode sc = AlgTool::initialize(); 
-   if (sc.isFailure())
-   {
-      ATH_MSG_FATAL( "Failed to init baseclass" );
-     return StatusCode::FAILURE;
-   }
+   ATH_CHECK( AlgTool::initialize() );
 
-   // Retrieve id mapping 
-   if (m_trt_CablingSvc.retrieve().isFailure())
-   {
-     ATH_MSG_FATAL( "Failed to retrieve tool " << m_trt_CablingSvc );
-     return StatusCode::FAILURE;
-   } else 
-     ATH_MSG_INFO( "Retrieved tool " << m_trt_CablingSvc );
+   ATH_CHECK( m_trt_CablingSvc.retrieve() );
+   ATH_MSG_INFO( "Retrieved tool " << m_trt_CablingSvc );
 
+   ATH_CHECK( detStore()->retrieve(m_trt_idHelper, "TRT_ID") );
 
-   // Get the TRT Helper
-   if (detStore()->retrieve(m_trt_idHelper, "TRT_ID").isFailure()) 
-   {
-     ATH_MSG_FATAL( "Could not get TRT ID helper" );
-     return StatusCode::FAILURE;
-   }
+   ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
 
-
-   return sc;
+  return StatusCode::SUCCESS;
 }
 
 // ------------------------------------------------------------------------
@@ -78,10 +63,8 @@ TRTRawContByteStreamTool::initialize()
 StatusCode
 TRTRawContByteStreamTool::finalize()
 {
-   StatusCode sc = AlgTool::finalize(); 
-
-
-   return sc;
+   ATH_CHECK( AlgTool::finalize() );
+   return StatusCode::SUCCESS;
 }
 
 // ------------------------------------------------------------------------
@@ -89,15 +72,17 @@ TRTRawContByteStreamTool::finalize()
 // other detectors)
 
 StatusCode
-TRTRawContByteStreamTool::convert(TRT_RDO_Container* cont, RawEventWrite* re )
+TRTRawContByteStreamTool::convert(TRT_RDO_Container* cont) const
 {
    StatusCode sc(StatusCode::SUCCESS);
 
-  m_fea.clear();   
+  FullEventAssembler<SrcIdMap>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "TRTRawCont") );
   FullEventAssembler<SrcIdMap>::RODDATA*  theROD ; 
 
   // set ROD Minor version
-  m_fea.setRodMinorVersion(m_RodBlockVersion);
+  fea->setRodMinorVersion(m_RodBlockVersion);
   ATH_MSG_DEBUG( " Setting Minor Version Number to "<<m_RodBlockVersion );
    
   // a map for ROD ID onto Encoder
@@ -157,7 +142,7 @@ TRTRawContByteStreamTool::convert(TRT_RDO_Container* cont, RawEventWrite* re )
     theEncoder.set_trt_cabling (m_trt_CablingSvc);
     theEncoder.setRodMinorVersion(m_RodBlockVersion);
     // use encoder to get ROD fragment data
-    theROD = m_fea.getRodData((*it_map).first); // get ROD data address
+    theROD = fea->getRodData((*it_map).first); // get ROD data address
 
 
     if ( 1 == m_RodBlockVersion )
@@ -177,9 +162,6 @@ TRTRawContByteStreamTool::convert(TRT_RDO_Container* cont, RawEventWrite* re )
       ATH_MSG_WARNING( "TRT ROD Encoder has RECOVERABLE error" );
 
 
-   // Finally, fill full event
-   m_fea.fill( re, msg() ); 
-   
    return sc;
 }
 

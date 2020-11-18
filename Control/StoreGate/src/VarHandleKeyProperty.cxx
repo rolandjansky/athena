@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -79,7 +79,7 @@ namespace SG {
  */
 VarHandleKeyProperty::VarHandleKeyProperty( const std::string& name, 
                                             SG::VarHandleKey& ref )
-  : PropertyWithHandlers( name, typeid( SG::VarHandleKey ) ), 
+  : DataHandleProperty( name, ref ),
     m_pValue( &ref ) 
 {
 }

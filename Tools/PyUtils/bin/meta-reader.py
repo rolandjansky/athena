@@ -29,7 +29,7 @@ def _tree_print(content, indent = 2, pad = 0, list_max_items = -1, dict_sort=Non
 		if dict_sort == 'key':
 			items = list(sorted(content.items(), key = lambda t: t[0]))
 		elif dict_sort == 'value':
-			items = list(sorted(content.items(), key =  lambda t: t[1]))
+			items = list(sorted(content.items(), key = lambda t: t[1]))
 		else:
 			items = list(content.items())
 

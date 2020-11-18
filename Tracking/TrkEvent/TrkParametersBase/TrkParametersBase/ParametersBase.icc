@@ -49,17 +49,28 @@ Trk::ParametersBase<DIM, T>::ParametersBase(const AmgVector(DIM) & parameters,
   : m_parameters(parameters)
   , m_covariance(covariance)
   , m_chargeDef{}
-{
-}
+{}
 
 template<int DIM, class T>
-  const AmgVector(DIM) & ParametersBase<DIM, T>::parameters() const
+const AmgVector(DIM)& ParametersBase<DIM, T>::parameters() const
 {
   return m_parameters;
 }
 
 template<int DIM, class T>
-  const AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance() const
+AmgVector(DIM)& ParametersBase<DIM, T>::parameters()
+{
+  return m_parameters;
+}
+
+template<int DIM, class T>
+const AmgSymMatrix(DIM)* ParametersBase<DIM, T>::covariance() const
+{
+  return m_covariance.get();
+}
+
+template<int DIM, class T>
+AmgSymMatrix(DIM)* ParametersBase<DIM, T>::covariance()
 {
   return m_covariance.get();
 }
@@ -87,13 +98,6 @@ ParametersBase<DIM, T>::isCharged() const
   } else {
     return true;
   }
-}
-
-template<int DIM, class T>
-double
-ParametersBase<DIM, T>::charge() const
-{
-  return m_chargeDef.charge();
 }
 
 template<int DIM, class T>

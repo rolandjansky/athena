@@ -10,8 +10,8 @@ from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 def makeD3PDObject (name, prefix, object_name, getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = "LArHits"
-    if label == None: label = prefix
+    if sgkey is None: sgkey = "LArHits"
+    if label is None: label = prefix
 
     if prefix=="hitemb_" :
         sgkey = "LArHitEMB"

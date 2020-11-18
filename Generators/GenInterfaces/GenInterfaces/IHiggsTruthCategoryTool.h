@@ -15,7 +15,7 @@
 #include "HepMC/GenEvent.h"
 
 namespace HTXS {
-  class HiggsClassification;
+  struct HiggsClassification;
 }
 
 class IHiggsTruthCategoryTool : public virtual asg::IAsgTool {

@@ -39,11 +39,14 @@ StatusCode DerivationFramework::TruthQGDecorationTool::addBranches() const
   SG::AuxElement::Decorator<int> output_decorator(m_decOutput);
 
   for (auto ajet : *inputJets){
-    if (!ajet->isAvailable<int>("PartonTruthLabelID") ||
-        !ajet->isAvailable<int>("HadronConeExclTruthLabelID")){
-      ATH_MSG_ERROR("Did not have input decorations available");
+    if (!ajet->isAvailable<int>("PartonTruthLabelID") ){
+      ATH_MSG_ERROR("Did not have input PartonTruthLabelID decorations available");
       return StatusCode::FAILURE;
-    } // Now we have the input decorations          
+    }
+    else if (!ajet->isAvailable<int>("HadronConeExclTruthLabelID") ){
+      ATH_MSG_ERROR("Did not have input HadronConeExclTruthLabelID decorations available");
+      return StatusCode::FAILURE;
+    } // Now we have the input decorations
     /* Agreement from the HF-tagging and Jet/MET group:
         - If it is non-zero, use the label from the HF-tagging group (b, c, tau)
         - If it is zero, use the label from the Jet/MET group (q/g)

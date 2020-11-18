@@ -31,10 +31,8 @@
 namespace LVL1BS {
 
 CpByteStreamV1Cnv::CpByteStreamV1Cnv( ISvcLocator* svcloc )
-    : Converter( storageType(), classID(), svcloc ),
-      m_name("CpByteStreamV1Cnv"),
-      m_tool("LVL1BS::CpByteStreamV1Tool/CpByteStreamV1Tool"),
-      m_ByteStreamEventAccess("ByteStreamCnvSvc", m_name)
+    : AthConstConverter( storageType(), classID(), svcloc, "CpByteStreamV1Cnv" ),
+      m_tool("LVL1BS::CpByteStreamV1Tool/CpByteStreamV1Tool")
 {
 }
 
@@ -60,7 +58,6 @@ long CpByteStreamV1Cnv::storageType()
 StatusCode CpByteStreamV1Cnv::initialize()
 {
   ATH_CHECK( Converter::initialize() );
-  ATH_CHECK( m_ByteStreamEventAccess.retrieve() );
   ATH_CHECK( m_tool.retrieve() );
 
   return StatusCode::SUCCESS;
@@ -68,14 +65,12 @@ StatusCode CpByteStreamV1Cnv::initialize()
 
 // createRep should create the bytestream from RDOs.
 
-StatusCode CpByteStreamV1Cnv::createRep( DataObject* pObj,
-                                        IOpaqueAddress*& pAddr )
+StatusCode CpByteStreamV1Cnv::createRepConst( DataObject* pObj,
+                                              IOpaqueAddress*& pAddr ) const
 {
-  RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
-
   LVL1::CPBSCollectionV1* cp = 0;
   if( !SG::fromStorable( pObj, cp ) ) {
-    REPORT_ERROR (StatusCode::FAILURE) <<  "Cannot cast to CPBSCollectionV1";
+    ATH_MSG_ERROR( "Cannot cast to CPBSCollectionV1" );
     return StatusCode::FAILURE;
   }
 
@@ -86,7 +81,7 @@ StatusCode CpByteStreamV1Cnv::createRep( DataObject* pObj,
   pAddr = addr;
 
   // Convert to ByteStream
-  return m_tool->convert( cp, re );
+  return m_tool->convert( cp );
 }
 
 } // end namespace

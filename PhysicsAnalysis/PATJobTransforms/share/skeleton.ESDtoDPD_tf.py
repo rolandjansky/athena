@@ -152,11 +152,6 @@ try:
 except(ImportError):
     print("WARNING D3PDMakerFlags not available. ")
     pass
-try:
-    from SUSYD3PDMaker.SUSYD3PDFlags    import SUSYD3PDFlags
-except(ImportError):
-    print("WARNING SUSYD3PDFlags not available. ")
-    pass
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):

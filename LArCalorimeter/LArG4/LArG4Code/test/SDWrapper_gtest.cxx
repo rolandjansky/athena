@@ -1,6 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 
 #define SDWRAPPER_TEST//define the macro name to use it in the tested class SDWrapper. Using the macro name to do conditional compiling on the "private:" statement in the file SDWrapper.h
 

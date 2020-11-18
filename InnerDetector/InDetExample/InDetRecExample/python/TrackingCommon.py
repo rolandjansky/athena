@@ -343,9 +343,9 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
         from IOVDbSvc.CondDB import conddb
 
       if (conddb.dbmc == "OFLP200" or (conddb.dbdata=="OFLP200" and globalflags.DataSource=='data')) :
-        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-SIM-RUN2-000-00")
+        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-SIM-RUN2-000-02")
       if ((conddb.dbmc == "CONDBR2" and globalflags.DataSource!='data') or conddb.dbdata == "CONDBR2") :
-        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-DATA-RUN2-000-00")
+        conddb.addOverride("/PIXEL/PixelClustering/PixelNNCalibJSON","PixelNNCalibJSON-DATA-RUN2-000-02")
       ## End of temporary code
 
       log.debug("Setting up lwtnn system")
@@ -1003,9 +1003,8 @@ def getInDetTRT_ElectronPidTool(name = "InDetTRT_ElectronPidTool", **kwargs) :
 
     if 'TRT_ToT_dEdx_Tool' not in kwargs :
         kwargs = setDefaults( kwargs, TRT_ToT_dEdx_Tool = getInDetTRT_dEdxTool())
-
-    from AthenaCommon.GlobalFlags import globalflags
-    kwargs = setDefaults( kwargs, isData = (globalflags.DataSource == 'data'))
+    
+    kwargs = setDefaults( kwargs, CalculateNNPid = InDetFlags.doTRTPIDNN() )
 
     from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
     return InDet__TRT_ElectronPidToolRun2(name = the_name, **kwargs)
@@ -1108,7 +1107,7 @@ def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**
         kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits(**id_helper_args))
 
     if 'TRT_ElectronPidTool' not in kwargs :
-        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool())
+        kwargs = setDefaults( kwargs, TRT_ElectronPidTool    = getInDetTRT_ElectronPidTool(MinimumTrackPtForNNPid = 2000.)) # default is 2GeV
 
     if 'PixelToTPIDTool' not in kwargs :
         kwargs = setDefaults( kwargs, PixelToTPIDTool        = getInDetPixelToTPIDTool())
@@ -1470,9 +1469,10 @@ def searchProb(prob_val) :
                if isinstance(prop,ConfigurableAlgTool) and not prop.isInToolSvc() :
                    yield prop
 
+    from GaudiKernel.DataHandle import DataHandle
     for a_comp in iterateComp() :
         for name,prop in a_comp.getProperties().items() :
-            if isinstance(prop ,str) and prop == prob_val :
+            if isinstance(prop,(str,DataHandle)) and str(prop) == prob_val :
                 return True
     return False
 
@@ -1595,6 +1595,7 @@ def combinedClusterSplitProbName() :
           pass # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer # @TODO handle cluster splitting probability ?
       if InDetFlags.doDBMstandalone():
           CombinedInDetClusterSplitProbContainer=''
+
   return CombinedInDetClusterSplitProbContainer if hasSplitProb(CombinedInDetClusterSplitProbContainer) else ''
 
 def pixelClusterSplitProbName() :

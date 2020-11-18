@@ -468,11 +468,32 @@ class ChainDumpStep(InputDependentStep):
         super(ChainDumpStep, self).__init__(name)
         self.input_file = 'expert-monitoring.root'
         self.executable = 'chainDump.py'
-        self.args = '--json'
+        self.args = '--json --yaml'
 
     def configure(self, test):
         self.args += ' -f '+self.input_file
         super(ChainDumpStep, self).configure(test)
+
+
+class ChainCompStep(Step):
+    '''
+    Execute chainComp.py to compare counts from chainDump.py to a reference
+    '''
+
+    def __init__(self, name='ChainComp'):
+        super(ChainCompStep, self).__init__(name)
+        self.input_file = 'chainDump.yml'
+        self.reference = None
+        self.executable = 'chainComp.py'
+        self.args = ''
+        self.auto_report_result = True
+        self.output_stream = Step.OutputStream.FILE_AND_STDOUT
+
+    def configure(self, test):
+        if self.reference:
+            self.args += ' -r ' + self.reference
+        self.args += ' ' + self.input_file
+        super(ChainCompStep, self).configure(test)
 
 
 class TrigTestJsonStep(Step):

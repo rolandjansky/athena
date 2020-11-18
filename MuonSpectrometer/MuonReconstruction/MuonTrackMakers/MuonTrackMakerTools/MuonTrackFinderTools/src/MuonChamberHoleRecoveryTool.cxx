@@ -1014,9 +1014,11 @@ namespace Muon {
 	  }
 	  parsToBeDeleted.push_back(exPars);
 	}
-	
+
+    Amg::Vector3D momentum = exPars->momentum();
+
 	// calibrate Mdt PRD
-        MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &(exPars->momentum()));
+        MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &momentum);
 	// sanity check
 	if ( !mdtROT ) {
 	  ATH_MSG_DEBUG(" failed to calibrate MdtPrepData " << m_idHelperSvc->toString(id) );

@@ -1,34 +1,15 @@
-################################################################################
-# Package: IsolationAlgs
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( IsolationAlgs )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Control/AthContainers
-                          Control/AthenaBaseComps
-                          Event/xAOD/xAODPrimitives
-                          Event/xAOD/xAODEgamma
-                          Event/xAOD/xAODBase
-                          Reconstruction/RecoTools/RecoToolInterfaces
-			  PhysicsAnalysis/ElectronPhotonID/IsolationCorrections )
-
-# External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 
 # Component(s) in the package:
 atlas_add_component( IsolationAlgs
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} GaudiKernel CaloEvent AthContainers AthenaBaseComps xAODBase xAODPrimitives xAODEgamma RecoToolInterfaces IsolationCorrectionsLib)
+                     LINK_LIBRARIES GaudiKernel CaloEvent AthContainers AthenaBaseComps StoreGateLib xAODBase xAODPrimitives xAODEgamma RecoToolInterfaces IsolationCorrectionsLib)
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

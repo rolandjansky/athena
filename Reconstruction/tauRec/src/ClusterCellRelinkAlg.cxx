@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 */
 
-#include "tauRec/ClusterCellRelinkAlg.h"
+#include "ClusterCellRelinkAlg.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/WriteHandle.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"

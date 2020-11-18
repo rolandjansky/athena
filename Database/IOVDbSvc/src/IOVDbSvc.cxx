@@ -19,7 +19,6 @@
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include "FileCatalog/IFileCatalog.h"
-#include "EventInfo/TagInfo.h"
 #include "EventInfoUtils/EventIDFromStore.h"
 
 #include "IOVDbParser.h"
@@ -32,7 +31,7 @@
 // helper function for getting jobopt properties
 namespace {
   bool
-  refersToConditionsFolder(const TagInfo::NameTagPair & thisPair){
+  refersToConditionsFolder(const ITagInfoMgr::NameTagPair & thisPair){
     return thisPair.first.front() == '/';
   }
 
@@ -295,8 +294,8 @@ StatusCode IOVDbSvc::preLoadAddresses(StoreID::type storeID,tadList& tlist) {
         IOVDbFolder* folder=thisNamePtrPair.second;
         if (folder->conn()==pThisConnection || (folder->conn()==0 && doMeta)) {
           std::unique_ptr<SG::TransientAddress> tad =
-            folder->preLoadFolder(&(*m_h_detStore),m_par_cacheRun.value(),
-                                  m_par_cacheTime.value());
+            folder->preLoadFolder( &(*m_h_tagInfoMgr), m_par_cacheRun.value(),
+                                   m_par_cacheTime.value());
           if (oldconn!=pThisConnection) {
             // close old connection if appropriate
             if (m_par_manageConnections && oldconn!=0) oldconn->setInactive();
@@ -694,23 +693,18 @@ void IOVDbSvc::handle( const Incident& inc) {
 StatusCode IOVDbSvc::processTagInfo() {
   // Processing of taginfo
   // Set GlobalTag and any folder-specific overrides if given
-  const TagInfo* tagInfo=0;
-  if (StatusCode::SUCCESS!=m_h_detStore->retrieve(tagInfo)) {
-    ATH_MSG_ERROR( "No TagInfo in DetectorStore" );
-    return StatusCode::FAILURE;
-  }
+
   // dump out contents of TagInfo
-  ATH_MSG_DEBUG( "Tags from input TagInfo:");
-  if (msg().level()>=MSG::DEBUG) tagInfo->printTags(msg());
+   ATH_MSG_DEBUG( "Tags from input TagInfo:" << std::endl << m_h_tagInfoMgr->dumpTagInfoToStr() );
   
   // check IOVDbSvc GlobalTag, if not already set
   if (m_globalTag=="") {
-    tagInfo->findTag("IOVDbGlobalTag",m_globalTag);
+    m_globalTag = m_h_tagInfoMgr->findTag("IOVDbGlobalTag");
     if (m_globalTag!="") ATH_MSG_INFO( "Global tag: " << m_globalTag<< " set from input file" );
   }
 
   // now check for tag overrides for specific folders
-  const auto & nameTagPairs= tagInfo->getInputTags();
+  const ITagInfoMgr::NameTagPairVec nameTagPairs = m_h_tagInfoMgr->getInputTags();
   for (const auto & thisNameTagPair: nameTagPairs) {
     // assume tags relating to conditions folders start with /
     if (not refersToConditionsFolder(thisNameTagPair)) continue;
@@ -861,7 +855,11 @@ StatusCode IOVDbSvc::setupFolders() {
   for (const auto & thisFolder : m_par_folders.value()) {
     ATH_MSG_DEBUG( "Setup folder " << thisFolder );
     IOVDbParser folderdata(thisFolder,msg());
-    if (!folderdata.isValid()) return StatusCode::FAILURE;
+    if (!folderdata.isValid()) {
+      ATH_MSG_FATAL("setupFolders: Folder setup string is invalid: " <<thisFolder);
+      return StatusCode::FAILURE;
+    }
+    
     allFolderdata.push_back(folderdata);
   }
 
@@ -873,6 +871,10 @@ StatusCode IOVDbSvc::setupFolders() {
 
   for (const auto & thisOverrideTag : m_par_overrideTags) {
     IOVDbParser keys(thisOverrideTag,msg());
+    if (not keys.isValid()){
+      ATH_MSG_ERROR("An override tag was invalid: " << thisOverrideTag);
+      return StatusCode::FAILURE;
+    }
     std::string prefix;
     if (!keys.getKey("prefix","",prefix)) { // || !keys.getKey("tag","",tag)) {
       ATH_MSG_ERROR( "Problem in overrideTag specification " <<thisOverrideTag );

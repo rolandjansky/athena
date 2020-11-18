@@ -51,6 +51,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillRNNCluster(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
   void fillbasicVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
   void fillDistributions(std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, const std::string trigger) const;
+  void fillEfficiencies(const std::string trigger, std::vector<const xAOD::TauJet*> offline_tau_vec, std::vector<const xAOD::TauJet*> online_tau_vec, std::string nProng) const;
 
   inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const
   {
@@ -59,6 +60,16 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
     return sqrt(deta*deta + dphi*dphi);
   };
 
+  inline bool HLTMatching(const xAOD::TauJet* offline_tau, std::vector<const xAOD::TauJet*> online_tau_vec, float threshold) const
+  {
+    for(auto online_tau: online_tau_vec){
+      float deltaR = dR(offline_tau->eta(),offline_tau->phi(), online_tau->eta(),online_tau->phi());
+      if(deltaR < threshold){
+          return true;
+      }
+    }
+    return false;
+  };
 
   SG::ReadHandleKey< xAOD::TauJetContainer> m_offlineTauJetKey { this, "offlineTauJetKey", "TauJets", "Offline taujet container key" };
   SG::ReadHandleKey< xAOD::EmTauRoIContainer > m_l1TauRoIKey    { this, "l1TauRoIKey","LVL1EmTauRoIs","Tau L1 RoI key"};

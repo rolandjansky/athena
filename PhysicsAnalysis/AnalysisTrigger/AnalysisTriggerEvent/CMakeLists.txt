@@ -1,31 +1,15 @@
-################################################################################
-# Package: AnalysisTriggerEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AnalysisTriggerEvent )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Control/Navigation
-                          Event/EventKernel
-                          Event/FourMom )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( AnalysisTriggerEvent
                    src/*.cxx
                    PUBLIC_HEADERS AnalysisTriggerEvent
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES Navigation AthenaKernel EventKernel FourMom
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES Navigation AthenaKernel EventKernel FourMom )
 
 atlas_add_dictionary( AnalysisTriggerEventDict
                       AnalysisTriggerEvent/AnalysisTriggerEventDict.h
                       AnalysisTriggerEvent/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} Navigation AthenaKernel EventKernel FourMom AnalysisTriggerEvent )
-
+                      LINK_LIBRARIES AnalysisTriggerEvent )

@@ -439,21 +439,6 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
-class useDynamicAlignFolders(InDetFlagsJobProperty):
-    """ Deprecated property - use InDetGeometryFlags directly to choose the alignment folder scheme """
-    def _do_action( self, *args, **kwds):
-       self._log.warning('Deprecated property InDetFlags.useDynamicAlignFolders used to control the alignment scheme - update the code to from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags;  InDetGeometryFlags.useDynamicAlignFolders.... ')
-       if self.StoredValue != 'none':
-          from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-          InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(self.StoredValue)
-          self._log.info("InDetGeometryFlags.useDynamicAlignFolders set by InDetFlags: %s" % InDetGeometryFlags.useDynamicAlignFolders)
-       else:
-          self._log.warning("Not setting InDetGeometryFlags.useDynamicAlignFolders by InDetFlags: %s" % self.StoredValue)
-          
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
 class doPerfMon(InDetFlagsJobProperty):
     """ Use to turn on PerfMon """
     statusOn     = True
@@ -522,7 +507,7 @@ class useActsPriVertexing(InDetFlagsJobProperty):
     """ use ACTS primary vertexing """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doSiSPSeededTrackFinder(InDetFlagsJobProperty):
     """ use track finding in silicon """
@@ -962,13 +947,13 @@ class pixelClusterSplitProb1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.6
+   StoredValue = 0.55
 
 class pixelClusterSplitProb2 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into three parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.2
+   StoredValue = 0.45
 
 class pixelClusterSplitProb1_run1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
@@ -1152,10 +1137,10 @@ class doNNToTCalibration(InDetFlagsJobProperty):
   StoredValue  = False
 
 class useNNTTrainedNetworks(InDetFlagsJobProperty):
-  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available."""
+  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available. True gives rel21 (Run 2) configuration."""
   statusOn     = True
   allowedTypes = ['bool']
-  StoredValue  = True
+  StoredValue  = False
 
 class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
   """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
@@ -1204,6 +1189,13 @@ class nnCutLargeD0Threshold(InDetFlagsJobProperty):
   statusOn     = True
   allowedTypes = ['float']
   StoredValue  = -1.0
+
+class doTRTPIDNN(InDetFlagsJobProperty): 
+  """calculate NN-based TRT electron probability""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2515,8 +2507,6 @@ class InDetJobProperties(JobPropertyContainer):
           print('* use non-standard SCT DCS based on ~20V HV cut')
     if self.useTrtDCS():
        print('* use TRT DCS')
-    if self.useDynamicAlignFolders():
-       print('* use of Dynamic alignment folder scheme enabled')
 
     if not self.doPRDFormation():
        print('* PRD Formation is off for all technologies')
@@ -2660,7 +2650,6 @@ _list_InDetJobProperties = [Enabled,
                             doMonitoringSCT,
                             doMonitoringTRT,
                             doMonitoringAlignment,
-                            useDynamicAlignFolders,
                             doPerfMon,
                             AODall,
                             useBeamConstraint,
@@ -2783,7 +2772,8 @@ _list_InDetJobProperties = [Enabled,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
                             nnCutLargeD0Threshold,
-                            useMuForTRTErrorScaling
+                            useMuForTRTErrorScaling,
+                            doTRTPIDNN
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

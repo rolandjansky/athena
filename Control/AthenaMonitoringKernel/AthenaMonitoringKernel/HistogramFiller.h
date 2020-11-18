@@ -47,10 +47,6 @@ namespace Monitored {
     HistogramFiller(const HistogramFiller& hf)
       : m_histDef(hf.m_histDef),
         m_histogramProvider(hf.m_histogramProvider) {}
-    /**
-     * @brief Move constructor
-     */
-    HistogramFiller(HistogramFiller&&) = default;
 
     /**
      * @brief Virtual destructor

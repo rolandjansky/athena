@@ -176,9 +176,14 @@ def setupMenu():
         # 3photon chains
         ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH', groups=MultiPhotonGroup),
 
-        # ATR-19360
-        ChainProp(name='HLT_g5_etcut_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
-    
+        # ATR-21355
+        ChainProp(name='HLT_g3_loose_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g12_loose_LArPEB_L1EM10VH',stream=['LArCells'], groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g20_loose_LArPEB_L1EM15',stream=['LArCells'], groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g40_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g60_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g80_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
+
         # for moving to PhysicsP1, ATR-21242
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
 
@@ -358,6 +363,9 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4', groups=BphysicsGroup),
         #ATR-20839
         ChainProp(name='HLT_2mu4_bDimu_L12MU4', groups=BphysicsGroup),
+        #ATR-21003
+        ChainProp(name='HLT_2mu6_bJpsimumul2io_L12MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu6_bJpsimumu_L12MU6',     groups=BphysicsGroup),
     ]
 
     TriggerFlags.CombinedSlice.signatures = TriggerFlags.CombinedSlice.signatures() + [
@@ -438,9 +446,10 @@ def setupMenu():
 
     TriggerFlags.UnconventionalTrackingSlice.signatures = TriggerFlags.UnconventionalTrackingSlice.signatures() + [
         ChainProp(name='HLT_unconvtrk120_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
-        ChainProp(name='HLT_unconvtrk120_isohpttrack_icummedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
+        ChainProp(name='HLT_unconvtrk120_isohpttrack_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50']),
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
         ChainProp(name='HLT_xe80_tcpufit_unconvtrk80_isohpttrack_imedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
-        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_icummedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_iaggrmedium_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
+        ChainProp(name='HLT_xe80_tcpufit_unconvtrk120_isohpttrack_iaggrloose_L1XE50', groups=SingleMETGroup, l1SeedThresholds=['XE50','FSNOSEED']),
     ]
 

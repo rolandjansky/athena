@@ -32,7 +32,7 @@ class egammaMonitorPhotonAlgorithm: public AthAlgorithm
   public:
 
     egammaMonitorPhotonAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     virtual StatusCode execute() override final {
 
         return execute_r(Algorithm::getContext());

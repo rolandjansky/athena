@@ -35,6 +35,7 @@ class IAddressCreator;
 class StoreGateSvc;
 class IIOVDbMetaDataTool;
 class CondAttrListCollection;
+class ITagInfoMgr;
 
 class IOVDbFolder : public AthMessaging {
 public:
@@ -114,7 +115,7 @@ public:
   void summary();
   // preload address to Storegate (does folder initialisation from COOL)
   std::unique_ptr<SG::TransientAddress>
-  preLoadFolder(StoreGateSvc* detStore,
+  preLoadFolder(ITagInfoMgr *tagInfoMgr,
                 const unsigned int cacheRun,
                 const unsigned int cacheTime);
 
@@ -219,7 +220,7 @@ private:
   specialCacheUpdate(const cool::IObject& obj,const ServiceHandle<IIOVSvc>& iovSvc);
 
 
-  StoreGateSvc*        p_detStore{nullptr};     // pointer to detector store
+  ITagInfoMgr*         p_tagInfoMgr{nullptr};   // pointer to TagInfoMgr
   IClassIDSvc*         p_clidSvc{nullptr};      // pointer to CLID service
   IIOVDbMetaDataTool*  p_metaDataTool{nullptr}; // pointer to metadata tool (writing)
   IOVDbConn*           m_conn{nullptr};         // pointer to corresponding IOVDbConn object (=0 FLMD)

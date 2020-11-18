@@ -16,7 +16,7 @@
 static const InterfaceID IID_ITrackCaloClusterTool("ITrackCaloClusterTool", 1, 0);
 
 
-class TrackCaloClusterInfo;
+struct TrackCaloClusterInfo;
 
 /** @brief Interface for tools creating particles using TCC methods and filling a FlowElementContainer */
 class ITrackCaloClusterTool : virtual public IAlgTool {

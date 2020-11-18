@@ -76,14 +76,14 @@ class tauRecMVATrackClassification(JobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 
 class tauRecRNNTrackClassification(JobProperty):
     """Run the RNN Track Classifier
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 
 #can set from the command line via:
 # --preExec 'RAWtoESD:from tauRec.tauRecFlags import tauFlags;tauFlags.tauRecMVATrackClassificationConfig()[0]=["file", somenumber]'

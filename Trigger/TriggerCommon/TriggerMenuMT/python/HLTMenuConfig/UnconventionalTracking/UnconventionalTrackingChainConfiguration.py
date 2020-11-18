@@ -29,7 +29,7 @@ class UnconventionalTrackingChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        log.debug("Assembling chain " + self.chainName)
+        log.debug("Assembling chain %s", self.chainName)
 
         chainSteps = []
 

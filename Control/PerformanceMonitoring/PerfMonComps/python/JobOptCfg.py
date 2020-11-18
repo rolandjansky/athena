@@ -80,12 +80,12 @@ class PerfMonSvc( _PerfMonSvc ):
         
         ## configure the auditor service if not done already...
         if not hasattr(svcMgr, 'AuditorSvc'):
-            from GaudiSvc.GaudiSvcConf import AuditorSvc
+            from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
             svcMgr += AuditorSvc()
         
         ## configure the chronostat service
         if not hasattr(svcMgr, 'ChronoStatSvc'):
-            from GaudiSvc.GaudiSvcConf import ChronoStatSvc
+            from GaudiCommonSvc.GaudiCommonSvcConf import ChronoStatSvc
             svcMgr += ChronoStatSvc( OutputLevel = Lvl.WARNING,
                                      ChronoPrintOutTable = False )
 

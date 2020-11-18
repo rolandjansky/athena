@@ -28,7 +28,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
         SpStep = self.getMinBiasSpStep()
         TrkStep = self.getMinBiasTrkStep()
         return self.buildChain([SpStep,TrkStep])

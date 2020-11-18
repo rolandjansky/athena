@@ -41,7 +41,7 @@ MuonLayerSegmentFinderTool::initialize()
 void
 MuonLayerSegmentFinderTool::find(const MuonSystemExtension::Intersection&                intersection,
                                  std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments,
-                                 MuonLayerPrepRawData&                                   layerPrepRawData) const
+                                 MuonLayerPrepRawData&                                   layerPrepRawData, const EventContext& ctx) const
 {
 
     ATH_MSG_VERBOSE(" Running segment finding in sector "
@@ -55,7 +55,7 @@ MuonLayerSegmentFinderTool::find(const MuonSystemExtension::Intersection&       
                     << intersection.trackParameters->position().phi());
 
     // run cluster hit based segment finding on PRDs
-    findClusterSegments(intersection, layerPrepRawData, segments);
+    findClusterSegments(intersection, layerPrepRawData, segments, ctx);
     ATH_MSG_VERBOSE(" findClusterSegments " << segments.size());
 
     // run standard MDT/Trigger hit segment finding either from Hough or hits
@@ -280,11 +280,11 @@ MuonLayerSegmentFinderTool::findMdtSegments(const MuonSystemExtension::Intersect
 void
 MuonLayerSegmentFinderTool::findClusterSegments(const MuonSystemExtension::Intersection& intersection,
                                                 const MuonLayerPrepRawData&              layerPrepRawData,
-                                                std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const
+                                                std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments, const EventContext& ctx) const
 {
 
     // if there are CSC hits run CSC segment finding
-    if (!layerPrepRawData.cscs.empty()) findCscSegments(layerPrepRawData, segments);
+  if (!layerPrepRawData.cscs.empty()) findCscSegments(layerPrepRawData, segments, ctx);
 
     // find TGC segments
     // if( !layerPrepRawData.tgcs.empty() && intersection.layerSurface.layerIndex == MuonStationIndex::Middle ) {
@@ -333,15 +333,15 @@ MuonLayerSegmentFinderTool::findClusterSegments(const MuonSystemExtension::Inter
 
 void
 MuonLayerSegmentFinderTool::findCscSegments(const MuonLayerPrepRawData&                             layerPrepRawData,
-                                            std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments) const
+                                            std::vector<std::shared_ptr<const Muon::MuonSegment> >& segments, const EventContext& ctx) const
 {
 
     // run 2d segment finder
-    std::unique_ptr<MuonSegmentCombinationCollection> combi2D = m_csc2dSegmentFinder->find(layerPrepRawData.cscs);
+  std::unique_ptr<MuonSegmentCombinationCollection> combi2D = m_csc2dSegmentFinder->find(layerPrepRawData.cscs, ctx);
     if (combi2D) {
 
         // run 4d segment finder
-        std::unique_ptr<MuonSegmentCombinationCollection> combi4D = m_csc4dSegmentFinder->find(*combi2D);
+      std::unique_ptr<MuonSegmentCombinationCollection> combi4D = m_csc4dSegmentFinder->find(*combi2D, ctx);
         if (combi4D) {
 
             // extract segments and clean-up memory

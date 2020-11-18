@@ -1,12 +1,12 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "TopAnalysis/EventSaverxAOD.h"
 
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
-#include "TopEvent/SystematicEvent.h"
+#include "TopEvent/SystematicEventContainer.h"
 
 #include "TopPartons/PartonHistory.h"
 
@@ -59,11 +59,6 @@ namespace top {
     //Jets
     evtStore()->event()->setAuxItemList(m_prefix + m_config->sgKeyJets() + "Aux.", "pt.eta.phi.m.btaggingLink");
 
-    //b-tagging
-    const std::string btagName = "BTagging_" + m_config->sgKeyJets().substr(0, m_config->sgKeyJets().size() - 4);
-    evtStore()->event()->setAuxItemList(btagName + "Aux.", "MV1_discriminant");
-
-    //MET seems to be pretty small already
   }
 
   void EventSaverxAOD::saveEvent(const top::Event& event) {

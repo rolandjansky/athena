@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DQM_ALGORITHMS_DQM_ALGORITHMSDICT_H
@@ -158,5 +158,5 @@
 #include "dqm_algorithms/TRTCheckPeakSimple.h"
 #include "dqm_algorithms/TRTHistogramHasNonZeroEntries.h"
 #include "dqm_algorithms/TripleGaussCollFit.h"
-
+#include "dqm_algorithms/LastBinThresholdAction.h"
 #endif // DQM_ALGORITHMS_DQM_ALGORITHMSDICT_H

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
     ------ Documentation on HLT Tree creation -----
@@ -36,10 +36,8 @@ from AthenaCommon.AlgSequence import dumpSequence
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFDot import  stepCF_DataFlow_to_dot, stepCF_ControlFlow_to_dot, all_DataFlow_to_dot, create_dot
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
 from AthenaCommon.Configurable import Configurable
-
 from AthenaCommon.CFElements import getSequenceChildren, isSequence, compName
 import re
-
 
 
 from AthenaCommon.Logging import logging
@@ -379,11 +377,10 @@ def createDataFlow(chains, allDicts):
         lastCFseq = None
         lastDecisions = []
         for nstep, chainStep in enumerate( chain.steps ):
-            log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, chainStep.name, chain.name)
+            log.debug("\n************* Start connecting step %d %s for chain %s", nstep+1, chainStep.name, chain.name)           
 
             filterInput = chain.L1decisions if nstep == 0 else lastDecisions
             log.debug("Seeds added; having in the filter now: %s", filterInput)
-
 
             if len(filterInput) == 0 :
                 log.error("ERROR: Filter for step %s has %d inputs! At least one is expected", chainStep.name, len(filterInput))
@@ -392,15 +389,16 @@ def createDataFlow(chains, allDicts):
             # make one filter per step:
             sequenceFilter= None
             filterName = CFNaming.filterName(chainStep.name)
-            filterOutput =[ CFNaming.filterOutName(filterName, inputName) for inputName in filterInput ]
-#            log.debug("Filter outputps: %s", filterOutput)
-
-# note: can use 
+            if chainStep.isEmpty:
+                filterOutput= filterInput
+            else:
+                filterOutput =[ CFNaming.filterOutName(filterName, inputName) for inputName in filterInput ]
+       
             (foundFilter, foundCFSeq) = findCFSequences(filterName, CFseqList[nstep])
-            log.debug("Found %d CF sequences with filter name %s", foundFilter, filterName)
+            log.debug("Found %d CF sequences with filter name %s", foundFilter, filterName)        
              # add error if more than one
             if not foundFilter:
-                sequenceFilter = buildFilter(filterName, filterInput)
+                sequenceFilter = buildFilter(filterName, filterInput, chainStep.isEmpty)
                 CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sequenceFilter)
                 CFseq.connect(filterOutput)
                 CFseqList[nstep].append(CFseq)
@@ -411,7 +409,6 @@ def createDataFlow(chains, allDicts):
                     log.error("Found more than one seuqences containig this filter %s", filterName)
                 lastCFseq=foundCFSeq[0]
                 sequenceFilter=lastCFseq.filter
-                #lastCFseq.connect(filterOutput)
                 [ sequenceFilter.addInput(inputName) for inputName in filterInput ]
                 [ sequenceFilter.addOutput(outputName) for outputName in  filterOutput ]
                 lastCFseq.connect(filterOutput)
@@ -422,10 +419,13 @@ def createDataFlow(chains, allDicts):
 
             # add chains to the filter:
             chainLegs = chainStep.getChainLegs()
-            for leg in chainLegs:
-                sequenceFilter.addChain(leg)
-                log.debug("Adding chain %s to %s", leg, sequenceFilter.Alg.name())
-#            log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
+            if len(chainLegs) != len(filterInput):
+                log.error("chainlegs = %i differ from inputs=%i", len(chainLegs), len(filterInput))
+            for finput, leg in zip(filterInput, chainLegs):
+                sequenceFilter.addChain(leg, finput)
+                log.debug("Adding chain %s to input %s of %s", leg, finput,sequenceFilter.Alg.name())
+            log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
+            log.debug("Now Filter has chains/input: %s", sequenceFilter.getChainsPerInput())
 
             if chainStep.isCombo:
                 if chainStep.combo is not None:
@@ -487,112 +487,6 @@ def createControlFlow(HLTNode, CFseqList):
 
 
 
-"""
-Not used, kept for reference and testing purposes
-To be removed in future
-"""
-def generateDecisionTreeOld(HLTNode, chains, allChainDicts):
-    log.debug("Run generateDecisionTreeOld on %s", HLTNode.name())
-    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-    acc = ComponentAccumulator()
-    from collections import defaultdict
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CFSequence
-
-    chainStepsMatrix = defaultdict(lambda: defaultdict(lambda: list()))
-
-    ## Fill chain steps matrix
-    for chain in chains:
-        chain.createHypoTools()#allChainDicts)
-        for stepNumber, chainStep in enumerate(chain.steps):
-            chainName = chainStep.name.split('_')[0]
-            chainStepsMatrix[stepNumber][chainName].append(chain)
-
-    allSequences = []
-
-    ## Matrix with steps lists generated. Creating filters for each cell
-    for nstep in chainStepsMatrix:
-        CFsequences = []
-        stepDecisions = []
-        stepAccs = []
-        stepHypos = []
-
-        for chainName in chainStepsMatrix[nstep]:
-            chainsInCell = chainStepsMatrix[nstep][chainName]
-
-            if not chainsInCell:
-                continue
-
-
-            stepCategoryAcc = ComponentAccumulator()
-
-            stepHypo = None
-
-            for chain in chainsInCell:
-                for seq in chain.steps[nstep].sequences:
-                    if seq.ca:
-                        stepCategoryAcc.merge( seq.ca )
-
-                    alg = seq.hypo.Alg
-                    if stepHypo is None:
-                        stepHypo = alg
-                        stepHypos.append( alg )
-                    stepCategoryAcc.addEventAlgo( alg )
-
-            stepAccs.append( stepCategoryAcc )
-
-            stepCategoryAcc.printConfig( True, True )
-            firstChain = chainsInCell[0]
-
-            if nstep == 0:
-                filter_input = firstChain.L1decisions
-            else:
-                filter_input = []
-                for sequence in firstChain.steps[nstep - 1].sequences:
-                    filter_input += sequence.outputs
-
-            # One aggregated filter per chain (one per column in matrix)
-            filterName = 'Filter_{}'.format( firstChain.steps[nstep].name )
-            filter_output =[]
-            for i in filter_input:
-                filter_output.append( CFNaming.filterOutName(filterName, i))
-            sfilter = buildFilter(filterName,  filter_input)
-
-            chainStep = firstChain.steps[nstep]
-
-            CFseq = CFSequence( ChainStep=chainStep, FilterAlg=sfilter, connections=filter_output )
-            CFsequences.append( CFseq )
-
-
-            for sequence in chainStep.sequences:
-                stepDecisions += sequence.outputs
-
-            for chain in chainsInCell:
-                sfilter.addChain(chain.name)
-
-        allSequences.append(CFsequences)
-
-        stepName = 'Step{}'.format(nstep)
-        stepFilter = createStepFilterNode(stepName, CFsequences, dump=False)
-        stepCF = createStepRecoNode('{}_{}'.format(HLTNode.name(), stepName), CFsequences, dump=False)
-
-        from AthenaCommon.CFElements import findOwningSequence
-        for oneAcc, cfseq, hypo in zip( stepAccs, CFsequences, stepHypos):
-            owning = findOwningSequence( stepCF, hypo.getName() )
-            acc.addSequence( owning )
-            acc.merge( oneAcc, sequenceName = owning.getName() )
-        summary = makeSummary('TriggerSummary{}'.format(stepName), stepDecisions)
-
-        HLTNode += stepFilter
-        HLTNode += stepCF
-        HLTNode += summary
-        if create_dot():
-            stepCF_DataFlow_to_dot('{}_{}'.format(HLTNode.name(), stepName), CFsequences)
-            stepCF_ControlFlow_to_dot(stepCF)
-            all_DataFlow_to_dot(HLTNode.name(), allSequences)
-
-        matrixDisplay( allSequences )
-    return acc
-
 
 
 def findCFSequences(filter_name, cfseqList):
@@ -600,6 +494,7 @@ def findCFSequences(filter_name, cfseqList):
       searches for a filter, with given name, in the CF sequence list of this step
       """
       log.debug( "findCFSequences: filter base name %s", filter_name )
+
       foundFilters = [cfseq for cfseq in cfseqList if filter_name == cfseq.filter.Alg.name()]
       log.debug("found %d filters with base name %s", len( foundFilters ), filter_name)
 
@@ -609,19 +504,24 @@ def findCFSequences(filter_name, cfseqList):
       return (found, None)
 
 
-def buildFilter(filter_name,  filter_input):
+def buildFilter(filter_name,  filter_input, empty):
     """
      Build the FILTER
      one filter per previous sequence at the start of the sequence: always create a new one
      if the previous hypo has more than one output, try to get all of them
      one filter per previous sequence: 1 input/previous seq, 1 output/next seq
     """
-    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import  RoRSequenceFilterNode
-    sfilter = RoRSequenceFilterNode(name=filter_name)
-    for i in filter_input:
-        sfilter.addInput(i)
-    for i in filter_input:
-        sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import  RoRSequenceFilterNode, PassFilterNode
+    if empty:
+        sfilter = PassFilterNode(name=filter_name)
+        for i in filter_input:
+            sfilter.addInput(i)
+            sfilter.addOutput(i)
+    else:
+        sfilter = RoRSequenceFilterNode(name=filter_name)
+        for i in filter_input:
+            sfilter.addInput(i)
+            sfilter.addOutput(CFNaming.filterOutName(filter_name, i))
 
     log.debug("Added inputs to filter: %s", sfilter.getInputList())
     log.debug("Added outputs to filter: %s", sfilter.getOutputList())

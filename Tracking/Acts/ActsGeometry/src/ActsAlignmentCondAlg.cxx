@@ -4,6 +4,13 @@
 
 #include "ActsGeometry/ActsAlignmentCondAlg.h"
 
+// PACKAGE
+#include "ActsGeometry/ActsDetectorElement.h"
+#include "ActsGeometry/ActsAlignmentStore.h"
+#include "ActsGeometry/ActsGeometryContext.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
+
+
 // ATHENA
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
@@ -13,12 +20,6 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteCondHandle.h"
-
-// PACKAGE
-#include "ActsGeometry/ActsAlignmentStore.h"
-#include "ActsGeometry/ActsDetectorElement.h"
-#include "ActsGeometry/ActsGeometryContext.h"
-#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
 
 // ACTS
 #include "Acts/Geometry/DetectorElementBase.hpp"

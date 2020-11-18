@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from D3PDMakerCoreComps.D3PDObject         import make_SG_D3PDObject
 import EventCommonD3PDMaker
@@ -9,7 +9,7 @@ def _streamsName():
         from RecExConfig.InputFilePeeker import inputFileSummary
         streams=inputFileSummary['stream_names'][0]
         return streams + '_SkimDecisionsContainer'
-    except:
+    except Exception:
         from AthenaCommon.Logging import logging
         log = logging.getLogger ('SkimDecisionD3PDObject')
         log.warn ('Unable to get stream_names from inputFileSummary')

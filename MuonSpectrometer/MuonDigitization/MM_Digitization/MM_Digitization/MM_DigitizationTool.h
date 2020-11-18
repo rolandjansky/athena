@@ -34,6 +34,7 @@
 	In the execute() method...
 */
 
+#include "PileUpTools/PileUpMergeSvc.h"
 #include "PileUpTools/PileUpToolBase.h"
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -60,6 +61,7 @@
 #include "MagFieldElements/AtlasFieldCache.h"
 #include "MM_Digitization/IMM_DigitizationTool.h"
 
+#include <memory>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -71,9 +73,7 @@ namespace MuonGM{
   class MuonDetectorManager;
 }
 
-class PileUpMergeSvc;
 class MicromegasHitIdHelper;
-class StoreGateSvc;
 class TTree;
 class TFile;
 
@@ -113,7 +113,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 	private:
 		/** Record MmDigitContainer and MuonSimDataCollection */
-		StatusCode getNextEvent();
+		StatusCode getNextEvent(const EventContext& ctx);
 		StatusCode doDigitization(const EventContext& ctx);
 
 		bool  checkMMSimHit(const MMSimHit& /* hit */ ) const;
@@ -126,7 +126,10 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_fieldCondObjInputKey {this, "AtlasFieldCacheCondObj", "fieldCondObj"};
 
-		Gaudi::Property<std::string> m_inputObjectName{this,"InputObjectName","MicromegasSensitiveDetector","name of the input objects"};
+  	Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  	SG::ReadHandleKey<MMSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "MicromegasSensitiveDetector", "name of the input objects"};
+  	std::string m_inputObjectName{""};
+
 		Gaudi::Property<std::string> m_vmmReadoutMode{this,"vmmReadoutMode","peak","For readout (DAQ) path. Can be peak or threshold"};
 		Gaudi::Property<std::string> m_vmmARTMode{this,"vmmARTMode","threshold","For ART (trigger) path. Can be peak or threshold"};
 
@@ -151,8 +154,8 @@ class MM_DigitizationTool : public PileUpToolBase {
 		//each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
 		Gaudi::Property<float> m_qThreshold{this,"qThreshold",0.001,"Charge Threshold"};
 		Gaudi::Property<float> m_driftGapWidth{this,"DriftGapWidth",5.168,"Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)"};
-		Gaudi::Property<float> m_crossTalk1{this,"crossTalk1",0.1,"Strip Cross Talk with Nearest Neighbor"};
-		Gaudi::Property<float> m_crossTalk2{this,"crossTalk2",0.03,"Strip Cross Talk with 2nd Nearest Neighbor"};
+		Gaudi::Property<float> m_crossTalk1{this,"crossTalk1",0.2,"Strip Cross Talk with Nearest Neighbor"};
+		Gaudi::Property<float> m_crossTalk2{this,"crossTalk2",0.04,"Strip Cross Talk with 2nd Nearest Neighbor"};
 
 		Gaudi::Property<float> m_avalancheGain{this,"AvalancheGain",8.0e3,"avalanche Gain for rach gas mixture"};
 
@@ -162,20 +165,23 @@ class MM_DigitizationTool : public PileUpToolBase {
 		Gaudi::Property<float> m_stripdeadtime{this,"StripDeadTime",200,"dead-time for strip, default value 200 ns = 8 BCs"};
 		Gaudi::Property<float> m_ARTdeadtime{this,"ARTDeadTime",200,"dead-time for ART, default value 200 ns = 8 BCs"};
 
-        SG::WriteHandleKey<MmDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","MM_DIGITS","WriteHandleKey for Output MmigitContainer"}; // name of the output digits
-        SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","MM_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
+		SG::WriteHandleKey<MmDigitContainer> m_outputDigitCollectionKey{this,"OutputObjectName","MM_DIGITS","WriteHandleKey for Output MmigitContainer"}; // name of the output digits
+		SG::WriteHandleKey<MuonSimDataCollection> m_outputSDO_CollectionKey{this,"OutputSDOName","MM_SDO","WriteHandleKey for Output MuonSimDataCollection"}; // name of the output SDOs
 
-		PileUpMergeSvc *m_mergeSvc; // Pile up service
+		ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in digitization"};
 
-		TFile *m_file;
-		TTree *m_ntuple;
+		// Temporary until moving away from TRandom
+		Gaudi::Property<unsigned long int> m_randomSeed{this, "RandomSeed", 42, ""};
 
-		MicromegasHitIdHelper* m_muonHelper;
-		const MuonGM::MuonDetectorManager* m_MuonGeoMgr;
-		std::list<MMSimHitCollection*> m_MMHitCollList;
-		TimedHitCollection<MMSimHit>* m_timedHitCollection_MM; // the pileup hits
-		MM_StripsResponseSimulation* m_StripsResponseSimulation;
-		MM_ElectronicsResponseSimulation* m_ElectronicsResponseSimulation;
+		TFile *m_file{};
+		TTree *m_ntuple{};
+
+		const MicromegasHitIdHelper* m_muonHelper{}; // not owned
+		const MuonGM::MuonDetectorManager* m_MuonGeoMgr{}; // not owned
+		std::list<std::unique_ptr<MMSimHitCollection>> m_MMHitCollList{};
+		std::unique_ptr<TimedHitCollection<MMSimHit>> m_timedHitCollection_MM{}; // the pileup hits
+		std::unique_ptr<MM_StripsResponseSimulation> m_StripsResponseSimulation{};
+		std::unique_ptr<MM_ElectronicsResponseSimulation> m_ElectronicsResponseSimulation{};
 
 		float m_driftVelocity;
 		int m_n_Station_side;

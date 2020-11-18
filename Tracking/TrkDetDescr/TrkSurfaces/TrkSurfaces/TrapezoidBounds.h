@@ -39,7 +39,7 @@ namespace Trk {
  @author Andreas.Salzburger@cern.ch
  */
 
-class TrapezoidBounds : public SurfaceBounds
+class TrapezoidBounds final: public SurfaceBounds
 {
 
 public:

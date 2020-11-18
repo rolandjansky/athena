@@ -88,7 +88,7 @@ class Config:
     excludedSites   = ''
     forceSite       = ''
     noSubmit        = False
-    CMake           = (os.getenv('ROOTCORE_RELEASE_SERIES')=='25') # ROOTCORE_RELEASE_SERIES variable used to identify release (CMake required for R21)
+    CMake           = True
     mergeType       = 'Default' #None, Default, xAOD 
     destSE          = ''
     memory          = '2000' #in MB

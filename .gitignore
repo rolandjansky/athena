@@ -5,6 +5,7 @@
 \#*
 .\#*
 .DS_Store
+._*
 .pydevproject
 .project
 *.pyc

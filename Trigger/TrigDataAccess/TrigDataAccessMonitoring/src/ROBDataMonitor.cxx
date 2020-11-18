@@ -29,8 +29,12 @@ bool ROBDataStruct::isUnclassified() const {
   return ((rob_history == robmonitor::UNCLASSIFIED) ? true : false);
 }
 
-bool ROBDataStruct::isCached() const {
-  return ((rob_history == robmonitor::CACHED) ? true : false);
+bool ROBDataStruct::isHLTCached() const {
+  return ((rob_history == robmonitor::HLT_CACHED) ? true : false);
+}
+
+bool ROBDataStruct::isDCMCached() const {
+  return ((rob_history == robmonitor::DCM_CACHED) ? true : false);
 }
 
 bool ROBDataStruct::isRetrieved() const {
@@ -102,11 +106,20 @@ unsigned ROBDataMonitorStruct::unclassifiedROBs() const {
   return ret;
 } 
 
-unsigned ROBDataMonitorStruct::cachedROBs() const {
+unsigned ROBDataMonitorStruct::HLTcachedROBs() const {
   ptrdiff_t ret=0;
   for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isCached()) ++ret;
+    if ((*it).second.isHLTCached()) ++ret;
+  }     
+  return ret;
+}
+
+unsigned ROBDataMonitorStruct::DCMcachedROBs() const {
+  ptrdiff_t ret=0;
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
+        it != requested_ROBs.end(); it++ ) {
+    if ((*it).second.isDCMCached()) ++ret;
   }     
   return ret;
 }

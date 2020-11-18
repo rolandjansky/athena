@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# art-description: Run simulation from existing layout of geometry database and from local file (for muon geometry MuonSpectrometer-R.08.01)
+# art-description: Run simulation from existing layout of geometry database and from local amdb file (for muon geometry MuonSpectrometer-R.08.01)
 #
 # art-type: grid
 # art-include: master/Athena
@@ -14,16 +14,17 @@ art.py createpoolfile
 set -x
 
 #######################################
-# first, run simulation with ATLAS layout ATLAS-R2-2016-01-00-01 (official Run2) based on MuonSpectrometer-R.08.01
+# run simulation with ATLAS layout ATLAS-R2-2016-01-00-01 (official Run2) based on MuonSpectrometer-R.08.01
 # but from local file (in this case: amdb_simrec.r.08.01)
 #######################################
 
 # download amdb file
 wget http://atlas.web.cern.ch/Atlas/GROUPS/MUON/AMDB/amdb_simrec.r.08.01
 # run simulation from local amdb file
+# NOTE: the simFlags.G4Commands+=["/process/em/applyCuts true"] is added by hand, since it is part of the nominal s3512 job, but apparently overwritten when giving a custom postExec
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
           --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
-          --postExec 'input_amdb_simrec="amdb_simrec.r.08.01";include("MuonGeoModel/InitGeoFromLocal_postIncl.py")' \
+          --postExec 'input_amdb_simrec="amdb_simrec.r.08.01";include("MuonGeoModel/InitGeoFromLocal_postIncl.py");simFlags.G4Commands+=["/process/em/applyCuts true"]' \
           --AMI=s3512 \
           --maxEvents 25 \
           --imf False \
@@ -39,7 +40,7 @@ fi
 mv log.EVNTtoHITS log.EVNTtoHITS_fromLocal
 
 #######################################
-# second, run simulation with ATLAS layout ATLAS-R2-2016-01-00-01 (official Run2) based on MuonSpectrometer-R.08.01
+# run simulation with ATLAS layout ATLAS-R2-2016-01-00-01 (official Run2) based on MuonSpectrometer-R.08.01
 #######################################
 
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
@@ -60,7 +61,7 @@ fi
 # then diff the output files
 #######################################
 
-acmd.py diff-root --ignore-leaves timings --mode semi-detailed --error-mode resilient OUT_HITS_fromLocal.root OUT_HITS.root &> log_diff_HITS.log
+acmd.py diff-root OUT_HITS_fromLocal.root OUT_HITS.root --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings index_ref &> log_diff_HITS.log
 exit_code=$?
 echo  "art-result: ${exit_code} diff-root_sim"
 if [ ${exit_code} -ne 0 ]

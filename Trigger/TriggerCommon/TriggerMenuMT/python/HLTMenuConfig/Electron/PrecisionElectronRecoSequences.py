@@ -32,8 +32,8 @@ def precisionElectronRecoSequence(RoIs):
     ViewVerifyTrk   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier")
 
     ViewVerifyTrk.DataObjects = [( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
-                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+' + precisionCaloMenuDefs.precisionCaloClusters ),
-                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+' + TrigEgammaKeys.TrigElectronTracksCollectionName)] 
+                                 ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % precisionCaloMenuDefs.precisionCaloClusters ),
+                                 ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % TrigEgammaKeys.TrigElectronTracksCollectionName)]
 
 
     """ Retrieve the factories now """
@@ -41,7 +41,7 @@ def precisionElectronRecoSequence(RoIs):
     from TriggerMenuMT.HLTMenuConfig.Egamma.TrigEgammaFactories import  TrigEMTrackMatchBuilder
    
     #The sequence of these algorithms
-    thesequence = parOR( "precisionElectron_"+RoIs)
+    thesequence = parOR( "precisionElectron_%s" % RoIs)
    
     thesequence += ViewVerifyTrk
     # Create the sequence of three steps:

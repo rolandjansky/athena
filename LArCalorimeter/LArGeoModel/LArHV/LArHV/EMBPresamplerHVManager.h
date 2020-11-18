@@ -6,12 +6,18 @@
 #define LARHV_EMBPRESAMPLERHVMANAGER_H
 
 #include "LArHV/EMBPresamplerHVModule.h"
+#include "Identifier/HWIdentifier.h"
+#include "CxxUtils/checker_macros.h"
+#include <memory>
+#include <functional>
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
+class CondAttrListCollection;
 class EMBPresamplerHVDescriptor;
+class EMBPresamplerHVModule;
 struct EMBPresamplerHVPayload;
 
 /**
@@ -31,6 +37,24 @@ struct EMBPresamplerHVPayload;
 class EMBPresamplerHVManager
 {
  public:
+  class EMBPresamplerHVData
+  {
+  public:
+    static constexpr double INVALID = -99999;
+    class Payload;
+    EMBPresamplerHVData();
+    EMBPresamplerHVData (std::unique_ptr<Payload> payload);
+    EMBPresamplerHVData& operator= (EMBPresamplerHVData&& other);
+    ~EMBPresamplerHVData();
+    bool hvOn (const EMBPresamplerHVModule& module, const int& iGap) const;
+    double voltage (const EMBPresamplerHVModule& module, const int& iGap) const;
+    double current (const EMBPresamplerHVModule& module, const int& iGap) const;
+    int  hvLineNo  (const EMBPresamplerHVModule& module, const int& iGap) const;
+  private:
+    int index (const EMBPresamplerHVModule& module) const;
+    std::unique_ptr<Payload> m_payload;
+  };
+
   EMBPresamplerHVManager();
   ~EMBPresamplerHVManager();
 
@@ -51,16 +75,12 @@ class EMBPresamplerHVManager
   unsigned int beginSideIndex() const;
   unsigned int endSideIndex() const;
 
-  // Refresh from the database if needed
-  void update() const;
-
-  // Make the data stale.  Force update of data.
-  void reset() const;
-
   // Get the database payload
-  EMBPresamplerHVPayload *getPayload(const EMBPresamplerHVModule &) const;
+  EMBPresamplerHVData getData ATLAS_NOT_THREAD_SAFE () const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
+  EMBPresamplerHVData getData (const LArHVIdMapping& hvIdMapping,
+                               const std::vector<const CondAttrListCollection*>& attrLists) const;
   // Get hvLine for a module
   int hvLineNo(const EMBPresamplerHVModule& module
                , int gap
@@ -68,13 +88,17 @@ class EMBPresamplerHVManager
 #endif
 
  private:
+  using idfunc_t = std::function<std::vector<HWIdentifier>(HWIdentifier)>;
+  EMBPresamplerHVData getData (idfunc_t idfunc,
+                               const std::vector<const CondAttrListCollection*>& attrLists) const;
+
   // Illegal operations
-  EMBPresamplerHVManager(const EMBPresamplerHVManager& right);
-  EMBPresamplerHVManager& operator=(const EMBPresamplerHVManager& right);
+  EMBPresamplerHVManager(const EMBPresamplerHVManager& right) = delete;
+  EMBPresamplerHVManager& operator=(const EMBPresamplerHVManager& right) = delete;
   
   friend class ImaginaryFriend;
   class Clockwork;
-  Clockwork *m_c;
+  std::unique_ptr<const Clockwork> m_c;
 };
 
 #endif

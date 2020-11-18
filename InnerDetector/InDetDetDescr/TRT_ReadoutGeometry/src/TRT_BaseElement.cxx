@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetReadoutGeometry/SurfaceCache.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 #include "TRT_ReadoutGeometry/TRT_Conditions.h"
 
@@ -15,8 +14,6 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 
-#include "TrkSurfaces/StraightLineSurface.h"
-#include "TrkSurfaces/Surface.h"
 
 #include <vector>
 
@@ -36,7 +33,7 @@ namespace InDetDD {
         m_mutex{},
         m_geoAlignStore(geoAlignStore)
     {
-        m_idHash = m_idHelper->straw_layer_hash(id);  
+        m_idHash = m_idHelper->straw_layer_hash(id);
     }
 
     TRT_BaseElement::TRT_BaseElement(const TRT_BaseElement&right, const GeoAlignmentStore* geoAlignmentStore):
@@ -47,7 +44,7 @@ namespace InDetDD {
     m_conditions (right.m_conditions),
     m_geoAlignStore(geoAlignmentStore)
     {
-    }    
+    }
 
     Identifier TRT_BaseElement::identify() const
     {
@@ -60,7 +57,7 @@ namespace InDetDD {
     }
 
     // [0] GeoModel / CLHEP Access
-    const HepGeom::Transform3D TRT_BaseElement::getAbsoluteTransform(int straw) const 
+    const HepGeom::Transform3D TRT_BaseElement::getAbsoluteTransform(int straw) const
     {
         return Amg::EigenTransformToCLHEP(strawTransform(straw));
     }
@@ -70,48 +67,48 @@ namespace InDetDD {
     {
         return elementSurface();
     }
-    
+
     const Trk::SurfaceBounds& TRT_BaseElement::bounds() const
     {
         if (not m_surfaceCache) createSurfaceCache();
         return *(m_surfaceCache->bounds());
     }
-    
+
     const Amg::Transform3D& TRT_BaseElement::transform() const
-    {	
+    {
         if (not m_surfaceCache) createSurfaceCache();
         return *(m_surfaceCache->transform());
-    }    
+    }
 
 
     const Amg::Vector3D& TRT_BaseElement::center() const
-    {  
+    {
         if (not m_surfaceCache) createSurfaceCache();
         return *(m_surfaceCache->center());
     }
-    
+
     const Amg::Vector3D& TRT_BaseElement::normal() const
     {
         if (not m_surfaceCache) createSurfaceCache();
         return *(m_surfaceCache->normal());
     }
-    
+
     // [B] Description of the individual straws
     const Trk::Surface&  TRT_BaseElement::surface(const Identifier& id) const
     {
         int straw = m_idHelper->straw(id);
         // Create vector of all straws.
-        if (!m_strawSurfaces) createStrawSurfaces();
-        Trk::Surface * surfacePtr = (*m_strawSurfaces)[straw];
+        if (!m_strawSurfaces) {createStrawSurfaces();}
+        Trk::Surface * surfacePtr = (*m_strawSurfaces)[straw].get();
         if (!surfacePtr) {
             createSurfaceCache(id);
-            surfacePtr = (*m_strawSurfaces)[straw];
+            surfacePtr = (*m_strawSurfaces)[straw].get();
         }
         return *surfacePtr;
     }
 
 
-    const std::vector<const Trk::Surface*>& TRT_BaseElement::surfaces() const 
+    const std::vector<const Trk::Surface*>& TRT_BaseElement::surfaces() const
     {
         std::lock_guard<std::mutex> lock{m_mutex};
         if (!m_surfaces.size()){
@@ -123,32 +120,32 @@ namespace InDetDD {
     }
 
 
-    const Trk::SurfaceBounds& TRT_BaseElement::bounds(const Identifier&) const 
+    const Trk::SurfaceBounds& TRT_BaseElement::bounds(const Identifier&) const
     {
         return strawBounds();
     }
 
-    const Amg::Transform3D& TRT_BaseElement::transform(const Identifier & id) const 
+    const Amg::Transform3D& TRT_BaseElement::transform(const Identifier & id) const
     {
         int straw = m_idHelper->straw(id);
-        if (!m_strawSurfacesCache) createStrawSurfacesCache();
-        SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw];
+        if (!m_strawSurfacesCache) {createStrawSurfacesCache();}
+        SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw].get();
         if (!sCachePtr) {
             createSurfaceCache(id);
-            sCachePtr = (*m_strawSurfacesCache)[straw];
+            sCachePtr = (*m_strawSurfacesCache)[straw].get();
         }
         // forward the transform of the cache
         return *(sCachePtr->transform());
-    }       
+    }
 
-    const Amg::Transform3D& TRT_BaseElement::strawTransform(unsigned int straw) const 
+    const Amg::Transform3D& TRT_BaseElement::strawTransform(unsigned int straw) const
     {
-      if (!m_strawSurfacesCache) createStrawSurfacesCache();
-        SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw];
+      if (!m_strawSurfacesCache) {createStrawSurfacesCache();}
+        SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw].get();
         if (!sCachePtr) {
             Identifier id =  m_idHelper->straw_id(identify(), straw);
             createSurfaceCache(id);
-            sCachePtr = (*m_strawSurfacesCache)[straw];
+            sCachePtr = (*m_strawSurfacesCache)[straw].get();
         }
         // forward the transform of the cache
         return *(sCachePtr->transform());
@@ -164,59 +161,59 @@ namespace InDetDD {
        return normal();
     }
 
-    const Amg::Vector3D& TRT_BaseElement::center(const Identifier & id) const 
+    const Amg::Vector3D& TRT_BaseElement::center(const Identifier & id) const
     {
         int straw = m_idHelper->straw(id);
-        if (!m_strawSurfacesCache) createStrawSurfacesCache();
-        SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw];
+        if (!m_strawSurfacesCache) {createStrawSurfacesCache();}
+        SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw].get();
         if (!sCachePtr) {
             createSurfaceCache(id);
-            sCachePtr = (*m_strawSurfacesCache)[straw];
+            sCachePtr = (*m_strawSurfacesCache)[straw].get();
         }
         // forward the transform of the cache
         return *(sCachePtr->center());
     }
-    
+
     const Trk::StraightLineSurface& TRT_BaseElement::strawSurface(int straw) const
     {
         // Create vector of all straws.
-        if (!m_strawSurfaces) createStrawSurfaces();
-        Trk::StraightLineSurface* surfacePtr = (*m_strawSurfaces)[straw];
+        if (!m_strawSurfaces) {createStrawSurfaces();}
+        Trk::StraightLineSurface* surfacePtr = (*m_strawSurfaces)[straw].get();
         if (!surfacePtr) {
             // get the straw identifier to the given straw number and element identifier
             Identifier id =  m_idHelper->straw_id(identify(), straw);
             createSurfaceCache(id);
-            surfacePtr = (*m_strawSurfaces)[straw];
+            surfacePtr = (*m_strawSurfaces)[straw].get();
         }
         return *surfacePtr;
     }
 
-    const Amg::Transform3D& TRT_BaseElement::strawTransform(int straw) const 
+    const Amg::Transform3D& TRT_BaseElement::strawTransform(int straw) const
     {
-       if (!m_strawSurfacesCache) createStrawSurfacesCache();
-       SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw];
+       if (!m_strawSurfacesCache) {createStrawSurfacesCache();}
+       SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw].get();
        if (!sCachePtr) {
            Identifier id =  m_idHelper->straw_id(identify(), straw);
            createSurfaceCache(id);
-           sCachePtr = (*m_strawSurfacesCache)[straw];
+           sCachePtr = (*m_strawSurfacesCache)[straw].get();
        }
        // forward the transform of the cache
        return *(sCachePtr->transform());
     }
-    
-    const Amg::Vector3D& TRT_BaseElement::strawCenter(int straw) const 
+
+    const Amg::Vector3D& TRT_BaseElement::strawCenter(int straw) const
     {
-        if (!m_strawSurfacesCache) createStrawSurfacesCache();
-        SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw];
+        if (!m_strawSurfacesCache) {createStrawSurfacesCache();}
+        SurfaceCache* sCachePtr = (*m_strawSurfacesCache)[straw].get();
         if (!sCachePtr) {
             Identifier id =  m_idHelper->straw_id(identify(), straw);
             createSurfaceCache(id);
-            sCachePtr = (*m_strawSurfacesCache)[straw];
+            sCachePtr = (*m_strawSurfacesCache)[straw].get();
         }
         // forward the transform of the cache
         return *(sCachePtr->center());
     }
-    
+
     Amg::Vector3D TRT_BaseElement::strawAxis(int straw) const
     {
         return ( strawTransform(straw).linear()*Amg::Vector3D::UnitZ()*strawDirection() );
@@ -224,19 +221,19 @@ namespace InDetDD {
 
     /// ----- can be removed after full Amg migration ----------------------- (start)
     // [A] in CLHEP
-    
+
     const HepGeom::Transform3D TRT_BaseElement::transformCLHEP() const
-    {	
+    {
         return Amg::EigenTransformToCLHEP(*(m_surfaceCache->transform()));
     }
 
     const HepGeom::Point3D<double> TRT_BaseElement::centerCLHEP() const
     {
-        
+
         const Amg::Vector3D& cCenter = center();
         return HepGeom::Point3D<double>(cCenter.x(),cCenter.y(),cCenter.z());
     }
-    
+
     const HepGeom::Vector3D<double> TRT_BaseElement::normalCLHEP() const
     {
         const Amg::Vector3D& cNormal = normal();
@@ -244,18 +241,18 @@ namespace InDetDD {
     }
 
     // [B] in CLHEP
-    
-    const HepGeom::Transform3D TRT_BaseElement::transformCLHEP(const Identifier & id) const 
+
+    const HepGeom::Transform3D TRT_BaseElement::transformCLHEP(const Identifier & id) const
     {
         return Amg::EigenTransformToCLHEP(transform(id));
     }
-    
-    const HepGeom::Point3D<double> TRT_BaseElement::centerCLHEP(const Identifier & id) const 
+
+    const HepGeom::Point3D<double> TRT_BaseElement::centerCLHEP(const Identifier & id) const
     {
         const Amg::Vector3D cCenter = center(id);
         return HepGeom::Point3D<double>(cCenter.x(),cCenter.y(),cCenter.z());
     }
-    
+
     const HepGeom::Vector3D<double> TRT_BaseElement::normalCLHEP(const Identifier&) const
     {
         // Not sure if the normal of the straw is ever used.
@@ -270,34 +267,33 @@ namespace InDetDD {
 
     void TRT_BaseElement::createSurfaceCache(Identifier id) const
     {
-
       // should not happen, but worth the protection
-      if (!m_strawSurfacesCache) createStrawSurfacesCache();
-      if (!m_strawSurfaces) createStrawSurfaces();
+      if (!m_strawSurfacesCache) {
+        createStrawSurfacesCache();
+      }
+      if (!m_strawSurfaces) {
+        createStrawSurfaces();
+      }
 
-      int straw =  m_idHelper->straw(id);
+      int straw = m_idHelper->straw(id);
 
-      // get the StrawTransform from GeoModel 
+      // get the StrawTransform from GeoModel
       HepGeom::Transform3D cStrawTransform = calculateStrawTransform(straw);
 
       // convert neccessary parts to Amg
-      Amg::Transform3D* sTransform = new Amg::Transform3D(Amg::CLHEPTransformToEigen(cStrawTransform));
-      Amg::Vector3D*    sCenter    = new Amg::Vector3D(sTransform->translation());
-
-      // create the surface cache & fill it
-      SurfaceCache* sSurfaceCache     = new SurfaceCache(sTransform, sCenter, 0, 0);
-      (*m_strawSurfacesCache)[straw]  = sSurfaceCache;
-      
+      if (!(*m_strawSurfacesCache)[straw]) {
+        Amg::Transform3D* sTransform = new Amg::Transform3D(Amg::CLHEPTransformToEigen(cStrawTransform));
+        Amg::Vector3D* sCenter = new Amg::Vector3D(sTransform->translation());
+        // create the surface cache & fill it
+        (*m_strawSurfacesCache)[straw] = std::make_unique<SurfaceCache>(sTransform, sCenter, nullptr, nullptr);
+      }
       // creaete the surface only if needed (the links are still intact)
-      if (!(*m_strawSurfaces)[straw]){
-          Trk::StraightLineSurface* sSurface = new Trk::StraightLineSurface(*this, id);
-          (*m_strawSurfaces)[straw] = sSurface;
-          
+      if (!(*m_strawSurfaces)[straw]) {
+        (*m_strawSurfaces)[straw] = std::make_unique<Trk::StraightLineSurface>(*this, id);
       }
     }
 
-
-    void TRT_BaseElement::invalidate() const
+    void TRT_BaseElement::invalidate()
     {
         // Invalidate the caches
         // Call and barrel or endcap specific invalidation
@@ -306,23 +302,20 @@ namespace InDetDD {
         deleteCache();
     }
 
-    void TRT_BaseElement::deleteCache() const
+    void TRT_BaseElement::deleteCache()
     {
         // invalidates the cache, surface object can still live
 
         // for all straws
-      if (m_strawSurfacesCache.load()!=nullptr) {
-            for (size_t i=0; i<m_strawSurfacesCache.load()->size(); i++) {
-	        delete (*m_strawSurfacesCache)[i];
-                (*m_strawSurfacesCache)[i] = 0;
-            }
+        if (m_strawSurfacesCache) {
+          for (size_t i = 0; i < m_strawSurfacesCache->size(); i++) {
+            (*m_strawSurfacesCache)[i].reset();
+          }
         }
-        delete m_strawSurfacesCache;
-        m_strawSurfacesCache = 0;
+        m_strawSurfacesCache.store(nullptr);
     }
 
-
-    void TRT_BaseElement::updateAllCaches() const
+    void TRT_BaseElement::updateAllCaches()
     {
         // delete the caches first
         deleteCache();
@@ -333,7 +326,6 @@ namespace InDetDD {
             Identifier strawId = m_idHelper->straw_id(identify(),iStraw);
             createSurfaceCache(strawId);
         }
-
     }
 
     const TRT_Conditions* TRT_BaseElement::conditions() const
@@ -341,39 +333,23 @@ namespace InDetDD {
         return m_conditions;
     }
 
-
-
     TRT_BaseElement::~TRT_BaseElement()
     {
-        // delete the information about the straws
-        if (m_strawSurfaces) {
-            for (size_t i=0; i<m_strawSurfaces.load()->size(); i++) {
-                delete (*m_strawSurfaces)[i];
-            }
-        }
-        delete m_strawSurfaces;
-        deleteCache();
     }
 
-    void TRT_BaseElement::createStrawSurfaces() const {
-        if (m_strawSurfaces!=nullptr) return;
-        std::vector<Trk::StraightLineSurface*>* expected{nullptr};
-        std::vector<Trk::StraightLineSurface*>* desired{new std::vector<Trk::StraightLineSurface*>(nStraws(), 0)};
-        if (not m_strawSurfaces.compare_exchange_strong(expected, desired)) {
-            // This happens if more than one threads try to set m_strawSurfaces.
-            delete desired;
-            desired = nullptr;
-        }
+    void
+    TRT_BaseElement::createStrawSurfaces() const
+    {
+      auto strawSurfaces = std::make_unique<
+        std::vector<std::unique_ptr<Trk::StraightLineSurface>>>(nStraws());
+      m_strawSurfaces.set(std::move(strawSurfaces));
     }
 
-    void TRT_BaseElement::createStrawSurfacesCache() const {
-        if (m_strawSurfacesCache!=nullptr) return;
-        std::vector<SurfaceCache*>* expected{nullptr};
-        std::vector<SurfaceCache*>* desired{new std::vector<SurfaceCache*>(nStraws(), 0)};
-        if (not m_strawSurfacesCache.compare_exchange_strong(expected, desired)) {
-            // This happens if more than one threads try to set m_strawSurfaces.
-            delete desired;
-            desired = nullptr;
-        }
+    void
+    TRT_BaseElement::createStrawSurfacesCache() const
+    {
+      auto strawSurfacesCache =
+        std::make_unique<std::vector<std::unique_ptr<SurfaceCache>>>(nStraws());
+      m_strawSurfacesCache.set(std::move(strawSurfacesCache));
     }
 }

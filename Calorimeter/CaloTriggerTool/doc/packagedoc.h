@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -66,26 +66,6 @@ Channel online to Trigger Tower online correspondance <br>
 NOTA BENE: the mapping is actually stored in terms of offline<->offline correspondance,
 therefore the offline<->offline conversion is faster than the online<->online conversion below. <br>
 Example:<br>
-
-<pre>
-//
-//... to which TT does this (cell's) channel belong
-//
-HWIdentifier channelId = ...;
-HWIdentifier ttOnl = m_cablingService->whichTTChannelID(channelId);
-</pre>
-
-Trigger Tower online to cell channel online correspondance, example:
-
-<pre>
-//
-//... fill a vector with online identifier of cells belonging to tower ttChannel (online id with layer info)
-//
-HWIdentifier ttChannel=...;
-std::vector < HWIdentifier > channelIdVec = m_cablingService->createChannelIDvec(ttChannel,0);
-</pre>
-
-
 
 
 

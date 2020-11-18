@@ -1,12 +1,11 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
-
-// $Id: KLFitterTool.cxx 790035 2016-12-15 19:47:38Z aknue $
 
 // Local include(s):
 #include "TopEventReconstructionTools/KLFitterTool.h"
-#include "TopEvent/KLFitterResult.h"
+#include "TopEvent/KLFitterResultContainer.h"
+#include "TopEvent/KLFitterResultAuxContainer.h"
 #include "TopEvent/Event.h"
 #include "TopEvent/EventTools.h"
 #include "TopConfiguration/TopConfig.h"

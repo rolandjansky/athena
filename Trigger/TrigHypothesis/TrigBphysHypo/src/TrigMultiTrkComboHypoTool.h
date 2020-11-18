@@ -29,15 +29,12 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-using TrigCompositeUtils::Decision;
-using TrigCompositeUtils::DecisionIDContainer;
-
 
 class TrigMultiTrkComboHypoTool: public ComboHypoToolBase {
  public:
   TrigMultiTrkComboHypoTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual StatusCode initialize() override;
-  virtual StatusCode decideOnSingleObject(Decision*, const std::vector<DecisionIDContainer*>&) const override;
+  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<TrigCompositeUtils::DecisionIDContainer*>&) const override;
 
  private:
   bool passed(const xAOD::TrigBphys*) const;

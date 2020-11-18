@@ -64,14 +64,14 @@ def generateChains( flags, chainDict ):
     jetinputdefdic.setdefault(clustersname , JetInputDef(clustersname, xAODType.CaloCluster) )
     #hardcoded jet collection for now 
     clustermods = ["ECPSFrac","ClusterMoments"]
-    trigMinPt = 7e3
+    trigMinPt = 7000
     HLT_EMTopo = JetConstitSeq( "HLT_EMTopo",xAODType.CaloCluster, ["EM"], clustersname, clustersname,label="EMTopo")
     
-    HLT_AntiKt4EMTopo_subjesIS = JetDefinition( "AntiKt", 0.4, HLT_EMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt,
+    HLT_AntiKt4EMTopo_subjesIS = JetDefinition( "AntiKt", 0.4, HLT_EMTopo, ptmin=trigMinPt,
                                                 prefix="HLT_",
                                                 suffix = "_subjesIS",
                                                )
-    HLT_AntiKt4EMTopo_subjesIS.modifiers = ["Calib:TrigRun2:data:JetArea_EtaJES_GSC_Insitu:HLT_Kt4EMTopoEventShape","Sort"] + clustermods 
+    HLT_AntiKt4EMTopo_subjesIS.modifiers = ["Calib:TrigRun2:data:JetArea_EtaJES_GSC_Insitu:HLT_Kt4EMTopoEventShape","Sort", "Filter:"+str(trigMinPt)] + clustermods 
 
     # May need a switch to disable automatic modifier prerequisite generation
     jetRecoComps = JetRecConfig.JetRecCfg(HLT_AntiKt4EMTopo_subjesIS, flags) 
@@ -93,7 +93,7 @@ def generateChains( flags, chainDict ):
                                 CA = acc)
 
     jetStep = ChainStep(name=stepName, Sequences=[jetSequence], chainDicts=[chainDict])
-
+    
     l1Thresholds=[]
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])

@@ -18,7 +18,6 @@ using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::newDecisionIn;
-using TrigCompositeUtils::initialRoIString;
 using TrigCompositeUtils::featureString;
 using TrigCompositeUtils::roiString;
 using TrigCompositeUtils::findLink;
@@ -74,7 +73,7 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
   size_t counter = 0;
   for (const Decision* previousDecision: *previousDecisionsHandle) {
     // Get RoI
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, initialRoIString());
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>(previousDecision, roiString());
     auto roiEL = roiELInfo.link;
     ATH_CHECK(roiEL.isValid());
 

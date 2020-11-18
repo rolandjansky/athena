@@ -373,37 +373,43 @@ namespace MuonGM {
     GeoPcon* c4 = new GeoPcon( 0, 360*Gaudi::Units::deg );
 
     if(m_isAmdcDb) {
-      log<< MSG::INFO <<" Using hardcoded envelope dimesions from MuonSystem-11 table" <<endmsg;
-      c4->addPlane(-26046. , 1050.  ,  1500.  );
-      c4->addPlane(-23001. , 1050.  ,  1500.  );
-      c4->addPlane(-23001. , 1050.  ,  2750.  );
-      c4->addPlane(-22030. , 1050.  ,  2750.  );
-      c4->addPlane(-22030. ,  436.  , 12650.  );
-      c4->addPlane(-18650. ,  436.  , 12650.  );
-      c4->addPlane(-18650. ,  279.  , 13400.  );
-      c4->addPlane(-12900. ,  279.  , 13400.  );
-      c4->addPlane(-12900. ,   70.  , 13910.  );
-      c4->addPlane( -6783. ,   70.  , 13910.  );
-      c4->addPlane( -6783. ,  420.  , 13910.  );
-      c4->addPlane( -6736. ,  420.  , 13910.  );
-      c4->addPlane( -6736. , 3800.  , 13910.  );
-      c4->addPlane( -6550. , 3800.  , 13910.  );
-      c4->addPlane( -6550. , 4255.  , 13000.  );
-      c4->addPlane(  6550. , 4255.  , 13000.  );
-      c4->addPlane(  6550. , 3800.  , 13910.  );
-      c4->addPlane(  6736. , 3800.  , 13910.  );
-      c4->addPlane(  6736. ,  420.  , 13910.  );
-      c4->addPlane(  6783. ,  420.  , 13910.  );
-      c4->addPlane(  6783. ,   70.  , 13910.  );
-      c4->addPlane( 12900. ,   70.  , 13910.  );
-      c4->addPlane( 12900. ,  279.  , 13400.  );
-      c4->addPlane( 18650. ,  279.  , 13400.  );
-      c4->addPlane( 18650. ,  436.  , 12650.  );
-      c4->addPlane( 22030. ,  436.  , 12650.  );
-      c4->addPlane( 22030. , 1050.  ,  2750.  );
-      c4->addPlane( 23001. , 1050.  ,  2750.  );
-      c4->addPlane( 23001. , 1050.  ,  1500.  );
-      c4->addPlane( 26046. , 1050.  ,  1500.  );         
+      // NOTE: the following hard coded values are ONLY needed for local validation studies of new amdb layouts
+      // (when no values from the geometry database are retrieved, the values correspond to ATLAS-R2-2016-01-00-01)
+      log<< MSG::INFO <<" Using hardcoded envelope dimesions from MuonSystem-15 table" <<endmsg;
+      c4->addPlane(-26046. , 1050.  ,  1500);
+      c4->addPlane(-23001. , 1050.  ,  1500);
+      c4->addPlane(-23001. , 1050.  ,  2750);
+      c4->addPlane(-22030. , 1050.  ,  2750);
+      c4->addPlane(-22030. ,  436.7 , 12650);
+      c4->addPlane(-18650. ,  436.7 , 12650);
+      c4->addPlane(-18650. ,  279.  , 13400);
+      c4->addPlane(-12900. ,  279.  , 13400);
+      c4->addPlane(-12900. ,   70.  , 14200);
+      c4->addPlane( -6783. ,   70.  , 14200);
+      c4->addPlane( -6783. ,  420.  , 14200);
+      c4->addPlane( -6736. ,  420.  , 14200);
+      c4->addPlane( -6736. , 3800.  , 14200);
+      c4->addPlane( -6550. , 3800.  , 14200);
+      c4->addPlane( -6550. , 4255.  , 14200);
+      c4->addPlane( -4000. , 4255.  , 14200);
+      c4->addPlane( -4000. , 4255.  , 13000);
+      c4->addPlane(  4000. , 4255.  , 13000);
+      c4->addPlane(  4000. , 4255.  , 14200);
+      c4->addPlane(  6550. , 4255.  , 14200);
+      c4->addPlane(  6550. , 3800.  , 14200);
+      c4->addPlane(  6736. , 3800.  , 14200);
+      c4->addPlane(  6736. ,  420.  , 14200);
+      c4->addPlane(  6783. ,  420.  , 14200);
+      c4->addPlane(  6783. ,   70.  , 14200);
+      c4->addPlane( 12900. ,   70.  , 14200);
+      c4->addPlane( 12900. ,  279.  , 13400);
+      c4->addPlane( 18650. ,  279.  , 13400);
+      c4->addPlane( 18650. ,  436.7 , 12650);
+      c4->addPlane( 22030. ,  436.7 , 12650);
+      c4->addPlane( 22030. , 1050.  ,  2750);
+      c4->addPlane( 23001. , 1050.  ,  2750);
+      c4->addPlane( 23001. , 1050.  ,  1500);
+      c4->addPlane( 26046. , 1050.  ,  1500);
     } else {
 
       //--- --- --- CREATE ENVELOPE --- --- ---

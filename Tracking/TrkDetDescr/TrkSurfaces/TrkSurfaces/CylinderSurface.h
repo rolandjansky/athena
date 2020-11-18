@@ -191,7 +191,7 @@ public:
 
   /**This method returns the CylinderBounds by reference
    (NoBounds is not possible for cylinder)*/
-  virtual const CylinderBounds& bounds() const override;
+  virtual const CylinderBounds& bounds() const override final;
 
   bool hasBounds() const;
 

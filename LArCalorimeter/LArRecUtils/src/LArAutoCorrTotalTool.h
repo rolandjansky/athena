@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
   /**
@@ -38,12 +38,13 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/LArID.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "CxxUtils/checker_macros.h"
 
 class LArCablingBase ;
 
-class LArAutoCorrTotalTool: public AthAlgTool,
-			    virtual public ILArAutoCorrTotalTool,
-			    public IIncidentListener 
+class ATLAS_NOT_THREAD_SAFE LArAutoCorrTotalTool: public AthAlgTool,
+                                                  virtual public ILArAutoCorrTotalTool,
+                                                  public IIncidentListener 
 {
  public:
   
@@ -56,17 +57,21 @@ class LArAutoCorrTotalTool: public AthAlgTool,
   virtual ~LArAutoCorrTotalTool() {}
   
   // retrieve methods (default: take the value of Nminbias in the property)
-  const std::vector<double> autoCorrTotal(const HWIdentifier& id, 
+  const std::vector<double> autoCorrTotal ATLAS_NOT_THREAD_SAFE
+                                         (const HWIdentifier& id, 
 					  int gain, float Nminbias=-1 )  const;
   
-  const std::vector<double> autoCorrTotal(const Identifier& id, 
+  const std::vector<double> autoCorrTotal ATLAS_NOT_THREAD_SAFE
+                                         (const Identifier& id, 
 					  int gain, float Nminbias=-1 )  const;
 
-  const std::vector<double> samplRMS(const HWIdentifier& id,
+  const std::vector<double> samplRMS ATLAS_NOT_THREAD_SAFE
+                                    (const HWIdentifier& id,
                                      int gain,
                                      float Nminbias=-1) const;
 
-  const std::vector<double> samplRMS(const Identifier& id,
+  const std::vector<double> samplRMS ATLAS_NOT_THREAD_SAFE
+                                    (const Identifier& id,
                                      int gain,
                                      float Nminbias=-1) const;
   

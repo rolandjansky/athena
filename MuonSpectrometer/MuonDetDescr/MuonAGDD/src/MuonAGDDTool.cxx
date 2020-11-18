@@ -35,10 +35,8 @@ StatusCode MuonAGDDTool::initialize()
 		m_DBFileName = "Generated_" + m_outFileType + "_pool.txt";
 	}
 
-	// please see more details on regarding the dependency on AMDB on ATLASSIM-3636
-	// and the CMakeLists.txt . the NSWAGDDTool avoids the dependency already
 #ifndef SIMULATIONBASE
-	if(m_writeDBfile && !m_xmlFiles.size()) CHECK( p_AmdcsimrecAthenaSvc.retrieve() );
+	if(m_writeDBfile && !m_xmlFiles.size()) ATH_CHECK(p_AmdcsimrecAthenaSvc.retrieve());
 #endif
 
 	if (m_buildNSW) 
@@ -64,15 +62,16 @@ StatusCode MuonAGDDTool::construct()
 	{
 		ATH_MSG_INFO(" Reading AGDD2GeoSwitches flags ");
 		m_structuresFromFlags=theHelper.ReadAGDDFlags();
-		for (unsigned int i=0;i<m_structuresFromFlags.size();i++)
-			ATH_MSG_INFO(" ----> "<<m_structuresFromFlags[i]);
+		for (const auto &structure: m_structuresFromFlags) {
+			ATH_MSG_INFO(" ----> "<<structure);
+		}
 	}
 	
-	if (!m_readAGDD)
-	{
-		ATH_MSG_INFO(" trying to parse files ");
+	// reading from a local AGDD xml file
+	if (!m_readAGDD) {
+		ATH_MSG_INFO(" Parsing local xml file ");
 		m_controller->ParseFiles();
-		if(!m_writeDBfile) return StatusCode::SUCCESS;
+    // reading the AGDD xml blob from the ATLAS geometry database
 	} else {
 	    ATH_MSG_INFO(" now reading AGDD blob ");
 
@@ -87,19 +86,24 @@ StatusCode MuonAGDDTool::construct()
 	    m_controller->ParseString(AGDDfile);
 	}
 
-	if (m_printSections)
-	{	
+	if (m_printSections) {	
 		ATH_MSG_INFO("\t Printing all sections");
 		m_controller->PrintSections();
 	}
-	
-	ATH_MSG_INFO(" now dumping the flags ");
-	for (unsigned int i =0;i<m_structuresFromFlags.size();i++)
-	{
-		ATH_MSG_INFO("\t\t----- "<<m_structuresFromFlags[i]<<" "<<ALIAS(m_structuresFromFlags[i]));
-		if (!m_buildNSW && m_structuresFromFlags[i]=="NewSmallWheel") continue;
-		m_controller->GetBuilder()->BuildFromVolume(m_structuresFromFlags[i]);
-	}
+
+    // when reading from a local AGDD xml file and not creating a layout (i.e. running simulation from a local xml file),
+    // only build those volumes that are specified at the 'Volumes' property (analogously to the AGDD2GeoSwitches when reading the blob)
+    if (!m_readAGDD && !m_writeDBfile) {
+        for (const auto &vol:m_volumesToBuild) {
+            m_controller->GetBuilder()->BuildFromVolume(vol);
+        }
+    } else {
+    // when reading the AGDD xml blob, only build the volumes specified via the AGDD2GeoSwitches
+	    for (const auto &structure: m_structuresFromFlags) {
+            if (!m_buildNSW && structure=="NewSmallWheel") continue;
+            m_controller->GetBuilder()->BuildFromVolume(structure);
+        }
+    }
 
 	if(m_writeDBfile)
 	{
@@ -176,9 +180,12 @@ bool MuonAGDDTool::WritePREsqlFile() const
 	}
 
 	std::string TheAmdcName = m_amdcName;
-	// in principle this information could also be accessed differently and the
-	// dependency on AMDB could be avoided. for the moment it's kept to be fully
-	// consistent with previous table generations
+	// The following is only needed for creating AGDD muon (passive material) layouts
+    // *IF* the AGDD xml block is still stored in the amdb file (https://twiki.cern.ch/twiki/bin/viewauth/Atlas/AmdbSimrecFiles)
+    // Note that this was the case until amdb_simrec.r.08.01, from amdb_simrec.r.08.02 onwards, the AGDD xml is stored independently
+    // of the amdb file in MuonSpectrometer/MuonG4/MuonPassiveMaterials.
+    // Thus, this retrieval of the AmdcName is only kept for backwards compatibility (in case someone wants to create muon layouts 
+    // from amdb files older than amdb_simrec.r.08.02) to be fully consistent with previous table generations.
 #ifndef SIMULATIONBASE
     if (!m_xmlFiles.size()) {
         Amdcsimrec* pAmdcsimrec = p_AmdcsimrecAthenaSvc->GetAmdcsimrec();

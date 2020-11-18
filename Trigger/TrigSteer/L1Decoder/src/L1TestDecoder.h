@@ -31,18 +31,21 @@ public:
 private:
 
   ///@{ @name Properties
-  SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey{this, "RoIBResult", "RoIBResult", 
-      "Name of RoIBResult"};
-  
+  SG::ReadHandleKey<ROIB::RoIBResult> m_RoIBResultKey{
+    this, "RoIBResult", "RoIBResult",
+    "Name of RoIBResult"};
+
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigEMRoIsKey{
-    this, "EMRoIs", "HLT_TestEMRoIs", "Name of the EM RoIs object produced by the unpacker"};
+    this, "EMRoIs", "HLT_TestEMRoIs",
+    "Name of the EM RoIs object produced by the unpacker"};
 
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_EMDecisionsKey{
     this, "EMDecisions", "HLTNav_TestL1EM", "Decisions for each EM RoI"};
 
-  
+
   SG::WriteHandleKey<TrigRoiDescriptorCollection> m_trigFSRoIKey{
-    this, "OutputTrigFSRoI", "HLT_TestFSRoI", "Name of the Full Scan RoIs object produced by the unpacker"};
+    this, "OutputTrigFSRoI", "HLT_TestFSRoI",
+    "Name of the Full Scan RoIs object produced by the unpacker"};
 
   float m_roIWidth = 0.2;
 };

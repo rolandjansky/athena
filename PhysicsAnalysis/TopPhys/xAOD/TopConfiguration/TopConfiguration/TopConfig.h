@@ -122,6 +122,14 @@ namespace top {
       }
     }
 
+    // DataOverlay?
+    inline bool isDataOverlay() const {return m_isDataOverlay;}
+    inline void setIsDataOverlay(const bool value) {
+      if (!m_configFixed) {
+        m_isDataOverlay = value;
+      }
+    }
+
     // List of branches to be removed
     inline std::vector<std::string> filterBranches() const {return m_filterBranches;}
     inline void setFilterBranches(const std::vector<std::string>& value) {
@@ -564,11 +572,9 @@ namespace top {
     inline virtual const std::string& sgKeySoftMuons()      const {return m_sgKeySoftMuons;}
     inline virtual const std::string& sgKeyTaus()       const {return m_sgKeyTaus;}
     inline virtual const std::string& sgKeyJets()       const {return m_sgKeyJets;}
-    inline virtual const std::string& sgKeyJetsType()   const {return m_sgKeyJetsType;}
     inline virtual const std::string& sgKeyLargeRJets() const {return m_sgKeyLargeRJets;}
     inline virtual const std::string& sgKeyTrackJets()  const {return m_sgKeyTrackJets;}
     inline virtual const std::string& sgKeyTracks()  const {return m_sgKeyTracks;}
-    inline virtual const std::string& sgKeyTrackJetsType()  const {return m_sgKeyTrackJetsType;}
     inline virtual const std::string& sgKeyMissingEt()  const {return m_sgKeyMissingEt;}
     inline virtual const std::string& sgKeyMissingEtLoose()  const {return m_sgKeyMissingEtLoose;}
     inline const std::string& sgKeyInDetTrackParticles() const {return m_sgKeyInDetTrackParticles;}
@@ -2053,6 +2059,7 @@ namespace top {
 
     bool m_isMC;
     bool m_isAFII;
+    bool m_isDataOverlay;
     std::vector<std::string> m_filterBranches, m_filterPartonLevelBranches, m_filterParticleLevelBranches, m_filterNominalLooseBranches;
     std::string m_generators;
     std::string m_AMITag;
@@ -2168,10 +2175,8 @@ namespace top {
     std::string m_sgKeySoftMuons;
     std::string m_sgKeyTaus;
     std::string m_sgKeyJets;
-    std::string m_sgKeyJetsType;
     std::string m_sgKeyLargeRJets;
     std::string m_sgKeyTrackJets;
-    std::string m_sgKeyTrackJetsType;
 
     std::string m_sgKeyMissingEt;
     std::string m_sgKeyMissingEtLoose;
@@ -2733,6 +2738,9 @@ namespace top {
 
     // Private function only to simplify the setting of AFII values
     void ReadIsAFII(top::ConfigurationSettings* const& settings);
+    
+    // Private function only to simplify the setting of DataOverlay values
+    void ReadIsDataOverlay(top::ConfigurationSettings* const& settings);
 
     // Int holding the release series value
     int m_release_series;

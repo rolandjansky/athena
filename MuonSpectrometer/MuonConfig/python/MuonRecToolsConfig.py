@@ -15,7 +15,7 @@ def MuonEDMPrinterTool(flags, name="MuonEDMPrinterTool", **kwargs):
 def MuonTrackToSegmentToolCfg(flags,name="MuonTrackToSegmentTool", **kwargs):
     Muon__MuonTrackToSegmentTool=CompFactory.Muon.MuonTrackToSegmentTool
     #MDT conditions information not available online
-    if(flags.Common.isOnline):
+    if flags.Common.isOnline:
         kwargs.setdefault("MdtCondKey","")
     
     result = MuonStationIntersectSvcCfg(flags)
@@ -153,7 +153,7 @@ def MuonAmbiProcessorCfg(flags, name="MuonAmbiProcessor", **kwargs):
     acc.addPublicTool(scoring_tool)
     result.merge(acc)
     kwargs.setdefault('ScoringTool', scoring_tool )
-    muon_ami_selection_tool = Muon__MuonAmbiTrackSelectionTool()
+    muon_ami_selection_tool = Muon__MuonAmbiTrackSelectionTool(name="MuonAmbiSelectionTool")
     result.addPublicTool(muon_ami_selection_tool)
     kwargs.setdefault('SelectionTool', muon_ami_selection_tool)
     result.setPrivateTools(Trk__TrackSelectionProcessorTool(name=name,**kwargs))
@@ -190,7 +190,7 @@ def MuonTrackCleanerCfg(flags, name="MuonTrackCleaner", **kwargs):
     result.merge( extrapolator_CA )
     kwargs.setdefault("Extrapolator", extrapolator)
 
-    acc = MCTBFitterCfg(flags, name = "MCTBSLFitterMaterialFromTrack", StraightLine=True, GetMaterialFromTrack=True)
+    acc = MCTBSLFitterMaterialFromTrackCfg(flags)
     slfitter = acc.getPrimary()
     result.merge(acc)
     kwargs.setdefault("SLFitter", slfitter)
@@ -232,17 +232,27 @@ def MuonNavigatorCfg(flags, name="MuonNavigator", **kwargs):
     result.setPrivateTools(navigator)   
     return result     
 
+def MuonStraightLineExtrapolatorCfg(flags, name="MuonStraightLineExtrapolator",**kwargs):
+    # This is a bit odd , but this is exactly what was in the old configuration
+    acc = MuonSTEP_PropagatorCfg(flags, name = "MuonStraightLinePropagator")
+    muon_prop = acc.getPrimary()
+    kwargs.setdefault("Propagators",[ muon_prop])
+    kwargs.setdefault("STEP_Propagator",muon_prop)
+    result = MuonExtrapolatorCfg(flags, name ,**kwargs)
+    result.merge (acc)
+    return result
+
 def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
     Trk__MaterialEffectsUpdator, Trk__EnergyLossUpdator, Trk__MultipleScatteringUpdator=CompFactory.getComps("Trk::MaterialEffectsUpdator","Trk::EnergyLossUpdator","Trk::MultipleScatteringUpdator",)
     
     Trk__Extrapolator=CompFactory.Trk.Extrapolator
     result = ComponentAccumulator()
     
-    energy_loss_updator = Trk__EnergyLossUpdator() # Not really sure these should be tools...
+    energy_loss_updator = Trk__EnergyLossUpdator(name="AtlasEnergyLossUpdator") # Not really sure these should be tools...
     result.addPublicTool(energy_loss_updator) # TODO remove 
 
     # This one has a dependency on RndNumberService
-    mult_scat_updator = Trk__MultipleScatteringUpdator()
+    mult_scat_updator = Trk__MultipleScatteringUpdator(name="AtlasMultipleScatteringUpdator")
     result.addPublicTool(mult_scat_updator) # TODO remove 
     
     material_effects_updator = Trk__MaterialEffectsUpdator( EnergyLossUpdator=energy_loss_updator, MultipleScatteringUpdator=mult_scat_updator)
@@ -260,8 +270,8 @@ def MuonExtrapolatorCfg(flags,name = "MuonExtrapolator", **kwargs):
         muon_prop = acc.getPrimary()
         result.merge(acc)
         result.addPublicTool(muon_prop)
+        kwargs.setdefault("Propagators", [muon_prop])
     
-    kwargs.setdefault("Propagators", [muon_prop])
     kwargs.setdefault("ResolveMuonStation", True)
     kwargs.setdefault("Tolerance", 0.0011)  # must be > 1um to avoid missing MTG intersections
     extrap = Trk__Extrapolator(name=name, **kwargs)
@@ -325,7 +335,7 @@ def MuonSTEP_PropagatorCfg(flags, name='MuonSTEP_Propagator', **kwargs):
 def MCTBExtrapolatorCfg(flags, name='MCTBExtrapolator',**kwargs):
     result = ComponentAccumulator()
     
-    acc = MuonSTEP_PropagatorCfg(flags)
+    acc = MuonSTEP_PropagatorCfg(flags, name = "MCTBPropagator")
     prop = acc.getPrimary()
     result.addPublicTool(prop) 
     result.merge(acc)
@@ -337,28 +347,36 @@ def MCTBExtrapolatorCfg(flags, name='MCTBExtrapolator',**kwargs):
     
     return result
 
+def MCTBSLFitterMaterialFromTrackCfg(flags, name='MCTBSLFitterMaterialFromTrack', **kwargs):
+    kwargs["StraightLine"] = True       # always set
+    kwargs["GetMaterialFromTrack"]=True # always set
+    acc = MuonStraightLineExtrapolatorCfg(flags)
+    kwargs.setdefault("ExtrapolationTool", acc.getPrimary())
+
+    propagator = CompFactory.Trk.RungeKuttaPropagator(name="MuonRK_Propagator",AccuracyParameter=0.0002)
+    kwargs["PropagatorTool"]=propagator
+
+    result = MCTBFitterCfg(flags, name, **kwargs)
+    result.merge(acc)
+    return result
+
 def MCTBFitterCfg(flags, name='MCTBFitter', **kwargs):
     # didn't bother with MCTBSLFitter, since this seems redundant. Just set "StraightLine" = True since the kwargs are passed on to MuonChi2TrackFitterCfg  
+    # Ditto with MCTBFitterMaterialFromTrack. Just set "GetMaterialFromTrack" = True
     result = ComponentAccumulator()
     
     acc = MCTBExtrapolatorCfg(flags)
     mctbExtrapolator = acc.getPrimary()
-    result.addPublicTool(mctbExtrapolator)
     result.merge(acc)
     
     kwargs.setdefault("ExtrapolationTool", mctbExtrapolator)
     kwargs.setdefault("GetMaterialFromTrack", True)
     kwargs.setdefault("Momentum", flags.Muon.straightLineFitMomentum)
     
-    # extra_kwargs = {}
-    # if 'StraightLine' in kwargs:
-    #   # Pass this on! Can't safely just pass on kwargs, because MuonChi2TrackFitterCfg also has a property ExtrapolationTool
-    #   extra_kwargs.setdefault('StraightLine', kwargs['StraightLine'])
-    #   extra_kwargs.setdefault('GetMaterialFromTrack', kwargs['GetMaterialFromTrack'])
     acc = MuonChi2TrackFitterCfg(flags, name=name, **kwargs)
     mctbfitter = acc.getPrimary()
     result.merge(acc)
-    # print mctbfitter
+
     result.setPrivateTools(mctbfitter)
     return result
 

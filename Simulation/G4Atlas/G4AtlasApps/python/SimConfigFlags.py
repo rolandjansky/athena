@@ -135,4 +135,7 @@ def createSimConfigFlags():
         return RunToTimestampDict
     scf.addFlag("Sim.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
 
+    scf.addFlag("Sim.BeamPipeCut", 100.0)
+    scf.addFlag("Sim.TightMuonStepping", False)
+
     return scf

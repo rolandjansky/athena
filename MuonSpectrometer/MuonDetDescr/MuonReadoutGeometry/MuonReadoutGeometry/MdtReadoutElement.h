@@ -63,7 +63,7 @@ public:
    MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
                      int zi, int fi, bool is_mirrored, MuonDetectorManager* mgr);
                       
-   virtual ~MdtReadoutElement();
+   virtual ~MdtReadoutElement()=default;
 
    // Id set/get methods
    inline int getMultilayer() const;

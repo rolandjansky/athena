@@ -155,7 +155,6 @@ private:
   std::unordered_map<std::size_t, std::shared_ptr<JetReclusteringTool> > m_jetReclusteringTool;
   typedef std::unordered_map<std::size_t, std::shared_ptr<JetReclusteringTool> >::iterator m_tool_iterator;
 
-  ClassDef(RCJetMC15, 0);
 };
 
 #endif

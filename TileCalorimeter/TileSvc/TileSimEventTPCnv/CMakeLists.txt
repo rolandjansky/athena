@@ -23,11 +23,9 @@ atlas_add_dictionary( OLD_TileSimEventTPCnvDict
 atlas_add_test( TileHitCnv_p1_test
                 SOURCES
                 test/TileHitCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES GaudiKernel TestTools TileSimEventTPCnv )
 
 atlas_add_test( TileHitVectorCnv_p1_test
                 SOURCES
                 test/TileHitVectorCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES GaudiKernel TestTools TileSimEventTPCnv )

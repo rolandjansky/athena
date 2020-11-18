@@ -4,7 +4,9 @@
 # art-input: user.keli:user.keli.mc16_13TeV.422036.ParticleGun_single_mu_Pt100.merge.EVNT.e7967_e5984_tid20254953_00
 # art-input-nfiles: 1
 # art-include: master/Athena
-# art-output: *.root
+# art-output: physval*.root
+# art-output: SiHitValid*.root
+# art-output: *Analysis*.root
 # art-output: *.xml 
 # art-output: dcube*
 

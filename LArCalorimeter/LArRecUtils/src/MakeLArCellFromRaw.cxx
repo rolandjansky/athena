@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // implementation of MakeLArCellFromRaw
@@ -29,7 +29,7 @@
 using CLHEP::GeV;
 
 MakeLArCellFromRaw::MakeLArCellFromRaw()
-  : m_dataPool(0),
+  : m_poolMaxSize(0),
     m_msgSvc (0),
     m_cablingSvc (0),
     m_onlineID (0),
@@ -40,14 +40,15 @@ MakeLArCellFromRaw::MakeLArCellFromRaw()
 
 MakeLArCellFromRaw::~MakeLArCellFromRaw()
 {
-  delete m_dataPool;
  return ; 
 }
 
-void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
+void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* roiMap ,
 	const std::vector<CaloCellCorrection*>* pCorr, unsigned int poolMaxSize )
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  m_poolMaxSize = poolMaxSize;
 
   ISvcLocator* svcLoc = Gaudi::svcLocator( );
 
@@ -94,15 +95,8 @@ void MakeLArCellFromRaw::initialize( const LArRoI_Map* roiMap ,
   }
 
 
-  if (m_dataPool) {
-    delete m_dataPool;
-    m_dataPool = nullptr;
-  }
-
   // create DataPool if requested
   if (poolMaxSize!=0) {
-    m_dataPool = new DataPool<LArCell>();
-    m_dataPool->reserve(poolMaxSize);
     log << MSG::INFO << "MakeLArCellFromRaw Creating DataPool<LArCell> of size " << poolMaxSize << endmsg ;
   }else{
     log << MSG::INFO << "MakeLArCellFromRaw do not use DataPool" << endmsg ;
@@ -319,7 +313,7 @@ LArCell* MakeLArCellFromRaw::getLArCell(unsigned int feb, unsigned int chan ,
 	int e, int t, int q, CaloGain::CaloGain g, unsigned int& ttId ) const 
 {
 
-  CELL_MAP::iterator it =m_cellMap.find( feb ); 
+  CELL_MAP::const_iterator it =m_cellMap.find( feb ); 
 
   if(it == m_cellMap.end()){
 	MsgStream log(m_msgSvc, "MakeLArCellFromRaw");
@@ -329,7 +323,7 @@ LArCell* MakeLArCellFromRaw::getLArCell(unsigned int feb, unsigned int chan ,
 	return 0;
   }
 
-  CELL_VEC& cellVec = (*it).second; 
+  const CELL_VEC& cellVec = (*it).second; 
   if(cellVec.size()<= chan){
 	MsgStream log(m_msgSvc, "MakeLArCellFromRaw");
 	log << MSG::FATAL <<" MakeLArCellFromRaw ERROR, channel number= "<<chan<< endmsg ;
@@ -337,7 +331,7 @@ LArCell* MakeLArCellFromRaw::getLArCell(unsigned int feb, unsigned int chan ,
 	return 0;
   }
   
-  CellInfo& info = cellVec[chan] ; 
+  const CellInfo& info = cellVec[chan] ; 
   // do not create cell if it is not connected. 
   if(info.elem == 0) return 0; 
 
@@ -348,8 +342,9 @@ LArCell* MakeLArCellFromRaw::getLArCell(unsigned int feb, unsigned int chan ,
   // DR convert time from ps (in LArRawChannel ) to ns
   double time = t/1000.0;
 
-  if (m_dataPool!=0) {
-    cell = new ( (*m_dataPool)()) LArCell(info.elem,de,time,q,g); 
+  if (m_poolMaxSize > 0) {
+    DataPool<LArCell> pool;
+    cell = new ( pool.nextElementPtr()) LArCell(info.elem,de,time,q,g); 
   }
   else
     {
@@ -378,7 +373,6 @@ MakeLArCellFromRaw::getCorrection(LArCell* cell,
          } 
 
 	double c=  cell->energy()/en; 
-// 	std::cout<<" Correction init = "<<c<<std::endl;
 	return c;        
 }
 

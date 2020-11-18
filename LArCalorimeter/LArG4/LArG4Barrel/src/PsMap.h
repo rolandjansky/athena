@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4BARREL_PsMap_h
@@ -17,7 +17,7 @@ class PsMap {
   public:
    ~PsMap();
    static PsMap* GetPsMap();
-   void SetDirectory(std::string dir);
+   void SetDirectory(const std::string& dir);
    void Reset();
    CurrMap* GetMap (int module) const;
   private:

@@ -136,7 +136,7 @@ def muCombAlgSequence(ConfigFlags):
     extraLoads = []
 
     for decision in muonChainFilter.InputDecisions:
-      extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+'+decision )]
+      extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+%s' % decision )]
 
     muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
     # muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
@@ -151,6 +151,7 @@ def muCombAlgSequence(ConfigFlags):
     insideoutMuonChainFilter.L2MuCombContainer = muNames.L2CBName+"IOmode"
     insideoutMuonChainFilter.WriteMuFast = True
     insideoutMuonChainFilter.WriteMuComb = True
+    insideoutMuonChainFilter.NotGate = True
 
     muFastIOFilterSequence = seqAND("l2muFastIOFilterSequence", [insideoutMuonChainFilter, muFastIORecoSequence])
 
@@ -610,11 +611,11 @@ def getInsideOutMuonChainNames():
     chains =[]
 
     try:
-        chains += [chain.name for chain in muonSlice if "l2io" not in chain.name]
+        chains += [chain.name for chain in muonSlice if "l2io" in chain.name]
     except Exception as e:
         log.debug(e)
     try:
-        chains += [chain.name for chain in bphysSlice if "l2io" not in chain.name]
+        chains += [chain.name for chain in bphysSlice if "l2io" in chain.name]
     except Exception as e:
         log.debug(e)
 

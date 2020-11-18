@@ -9,8 +9,7 @@
 #@author Felix Friedrich <felix.friedrich@cern.ch>
 ################################################################################
 
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
+from AthenaCommon.SystemOfUnits import GeV, mm
 from tauRec.tauRecFlags import tauFlags
 
 cached_instances = {}
@@ -75,12 +74,19 @@ def getTauAxis():
     if _name in cached_instances:
         return cached_instances[_name]
     
+    from JetRec.JetRecFlags import jetFlags
+    
+    doJetVertexCorrection = False
+    if tauFlags.isStandalone:
+        doJetVertexCorrection = True
+    if jetFlags.useVertices() and jetFlags.useTracks():
+        doJetVertexCorrection = True
+    
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
                                     VertexCorrection = True,
-                                    TauVertexCorrection = getTauVertexCorrection(),
-                                    UseSubtractedCluster = tauFlags.useSubtractedCluster() )
+                                    JetVertexCorrection = doJetVertexCorrection)
                                     
     cached_instances[_name] = TauAxisSetter                
     return TauAxisSetter
@@ -97,8 +103,6 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
                                     calibrationFile = "TES_MC16a_prelim.root",
-                                    doEnergyCorrection = correctEnergy,
-                                    doAxisCorrection = correctAxis,
                                     doPtResponse = True,
                                     Key_vertexInputContainer = _DefaultVertexContainer 
                                     )
@@ -286,8 +290,6 @@ def getTauVertexVariables():
     
     if _name in cached_instances:
         return cached_instances[_name]
-
-    from tauRec.tauRecFlags import jobproperties
 
     from tauRecTools.tauRecToolsConf import TauVertexVariables
     TauVertexVariables = TauVertexVariables(  name = _name,
@@ -559,7 +561,6 @@ def getInDetTrackSelectorToolxAOD():
 # setup up JVA tools
 # Currently not used - moved into TauRecConfigured.py and added directly to topSequence
 def setupTauJVFTool():
-    from AthenaCommon.AppMgr import ToolSvc
 
     #Configures tau track selection tool for TJVA
     """
@@ -672,6 +673,30 @@ def getTauTrackFinder(removeDuplicateTracks=True):
     
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
+
+
+# Associate the cluster in jet constituents to the tau candidate
+def getTauClusterFinder():
+    _name = sPrefix + 'TauClusterFinder'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+  
+    from JetRec.JetRecFlags import jetFlags
+
+    doJetVertexCorrection = False
+    if tauFlags.isStandalone:
+        doJetVertexCorrection = True
+    if jetFlags.useVertices() and jetFlags.useTracks():
+        doJetVertexCorrection = True
+
+    from tauRecTools.tauRecToolsConf import TauClusterFinder
+    TauClusterFinder = TauClusterFinder(name = _name,
+                                        JetVertexCorrection = doJetVertexCorrection)
+
+    cached_instances[_name] = TauClusterFinder
+    return TauClusterFinder
+
 
 ########################################################################
 # MvaTESVariableDecorator
@@ -986,15 +1011,6 @@ def getTauDecayModeNNClassifier():
     cached_instances[_name] = TauDecayModeNNClassifier
     return TauDecayModeNNClassifier
 
-def getTauEleOLRDecorator():
-    _name = sPrefix + 'TauEleOLRDecorator'
-    from tauRecTools.tauRecToolsConf import TauEleOLRDecorator
-    myTauEleOLRDecorator = TauEleOLRDecorator(name=_name,
-                                              Key_electronInputContainer="Electrons",
-                                              EleOLRFile="eVetoAODfix.root")
-    cached_instances[_name] = myTauEleOLRDecorator
-    return myTauEleOLRDecorator
-
 def getTauVertexCorrection():
     from tauRec.tauRecFlags import tauFlags
     from tauRecTools.tauRecToolsConf import TauVertexCorrection
@@ -1023,13 +1039,9 @@ def getTauVertexCorrection():
 def getParticleCache():
     #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string
     from RecExConfig.RecFlags import rec
-    if True == rec.doESD:
+    if rec.doESD():
         ParticleCache = "ParticleCaloExtension"
-    else : 
+    else: 
         ParticleCache = ""
     
     return ParticleCache
-
-
-
-

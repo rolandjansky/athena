@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHECLocalCalculator.h"
@@ -89,6 +89,5 @@ G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double
 
   // Calculate the identifier.
   hdata[0].id = m_Geometry->CalculateIdentifier( a_step, LArG4::HEC::kLocActive, depthadd, deadzone);
-//  std::cout<<"LArHECLocalCalculator::Process "<<depthadd<<std::endl;
   return true;
 }

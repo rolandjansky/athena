@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOBYTESTREAM_RODHEADERBYTESTREAMTOOL_H
@@ -13,6 +13,7 @@
 #include "eformat/SourceIdentifier.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "L1CaloSrcIdMap.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
@@ -49,18 +50,18 @@ class RodHeaderByteStreamTool : public AthAlgTool {
    /// AlgTool InterfaceID
    static const InterfaceID& interfaceID();
 
-   virtual StatusCode initialize();
-   virtual StatusCode finalize();
+   virtual StatusCode initialize() override;
+   virtual StatusCode finalize() override;
 
    /// Convert ROB fragments to RODHeaders
    StatusCode convert(const std::string& name,
-                      DataVector<LVL1::RODHeader>* rhCollection);
+                      DataVector<LVL1::RODHeader>* rhCollection) const;
 
    StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
-                      DataVector<LVL1::RODHeader>* rhCollection);
+                      DataVector<LVL1::RODHeader>* rhCollection) const;
 
    /// Return reference to vector with all possible Source Identifiers
-   const std::vector<uint32_t>& sourceIDs(const std::string& sgKey);
+   const std::vector<uint32_t>& sourceIDs(const std::string& sgKey) const;
 
  private:
    typedef DataVector<LVL1::RODHeader>                   RodHeaderCollection;
@@ -69,10 +70,12 @@ class RodHeaderByteStreamTool : public AthAlgTool {
    typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType      RODPointer;
 
    /// Fill vector with ROB IDs for given sub-detector
-   void fillRobIds(bool all, int numCrates, int crateOffset,
-                   const std::vector<int>& slinks, int daqOrRoi,
-		   eformat::SubDetector subdet,
-		   std::vector<uint32_t>& detSourceIDs);
+   std::vector<uint32_t> makeAllRobIds() const;
+   std::vector<uint32_t>
+   makeRobIds(int numCrates, int crateOffset,
+              const std::vector<int>& slinks, int daqOrRoi,
+              eformat::SubDetector subdet,
+              const std::vector<uint32_t>& prop) const;
 
    /// Return true if StoreGate key ends in given string
    bool isAppended(const std::string& sgKey, const std::string& flag) const;
@@ -83,17 +86,16 @@ class RodHeaderByteStreamTool : public AthAlgTool {
    ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_errorTool;
 
    /// ROB source IDs
-   std::vector<uint32_t> m_sourceIDs;
-   std::vector<uint32_t> m_sourceIDsPP;
-   std::vector<uint32_t> m_sourceIDsCP;
-   std::vector<uint32_t> m_sourceIDsJEP;
-   std::vector<uint32_t> m_sourceIDsCPRoI;
-   std::vector<uint32_t> m_sourceIDsJEPRoI;
-   std::vector<uint32_t> m_sourceIDsCPRoIB;
-   std::vector<uint32_t> m_sourceIDsJEPRoIB;
+   std::vector<uint32_t> m_sourceIDsProp;
+   std::vector<uint32_t> m_sourceIDsPPProp;
+   std::vector<uint32_t> m_sourceIDsCPProp;
+   std::vector<uint32_t> m_sourceIDsJEPProp;
+   std::vector<uint32_t> m_sourceIDsCPRoIProp;
+   std::vector<uint32_t> m_sourceIDsJEPRoIProp;
+   std::vector<uint32_t> m_sourceIDsCPRoIBProp;
+   std::vector<uint32_t> m_sourceIDsJEPRoIBProp;
    /// Source ID converter
-   L1CaloSrcIdMap* m_srcIdMap;
-
+   const L1CaloSrcIdMap m_srcIdMap;
 };
 
 } // end namespace

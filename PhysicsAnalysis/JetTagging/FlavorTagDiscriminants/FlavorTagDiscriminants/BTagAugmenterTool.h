@@ -24,6 +24,8 @@ namespace FlavorTagDiscriminants {
     StatusCode initialize() override;
 
     virtual void decorate(const xAOD::Jet& jet) const override;
+
+    virtual std::set<std::string> getDecoratorKeys() const override;
   private:
     std::string m_flipTagConfig;
     std::unique_ptr<BTagJetAugmenter> m_aug; //!

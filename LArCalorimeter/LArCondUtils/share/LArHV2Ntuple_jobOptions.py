@@ -76,10 +76,7 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 #include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 
-from IOVDbSvc.CondDB import conddb 
-conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/HVLineToElectrodeMap");
-conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREl/I16")
-conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8")
+from LArConditionsCommon import LArHVDB
 
 from LArCondUtils.LArCondUtilsConf import LArHV2Ntuple
 theLArHV2Ntuple = LArHV2Ntuple("LArHV2Ntuple")

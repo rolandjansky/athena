@@ -24,7 +24,7 @@ def SCT_SiliconConditionsCfg(flags, name="SCT_Silicon", **kwargs):
         algkwargs["UseState"] = DCSConditionsTool.ReadAllDBFolders
         algkwargs["DCSConditionsTool"] = DCSConditionsTool
     else:
-        algkwargs["UseState"] = True
+        algkwargs["UseState"] = not flags.Common.isOnline
         algkwargs["DCSConditionsTool"] = acc.popToolsAndMerge(SCT_DCSConditionsCfg(flags))
     # For SCT_ID used in SCT_SiliconHVCondAlg,
     # SCT_SiliconTempCondAlg and SCT_SiliconConditionsTool

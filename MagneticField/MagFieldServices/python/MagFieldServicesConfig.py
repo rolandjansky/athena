@@ -25,18 +25,19 @@ def MagneticFieldSvcCfg(flags, **kwargs):
       "name": "AtlasFieldMapCondAlg",
     }
     if flags.Common.isOnline:
-      # online has the map loaded at start
+      # online has the map loaded at start and does not use DCS
       afmArgs.update( LoadMapOnStart = True )
+      afmArgs.update( UseMapsFromCOOL = False )
+    else:
+      # UseMapsFromCOOL is default for standard running
+      afmArgs.update( UseMapsFromCOOL =  True)
+      # However, for tests, this must be turned off. It is detected
+      # when UseDCS is set to False - UseDCS is directly an option for the field cache alg 
+      if 'UseDCS' in kwargs and not kwargs['UseDCS']:
+        afmArgs['UseMapsFromCOOL'] = False
+    magFieldMapCondAlg = CompFactory.MagField.AtlasFieldMapCondAlg(**afmArgs) 
+    result.addCondAlgo(magFieldMapCondAlg)
 
-    # UseMapsFromCOOL is default for standard running
-    afmArgs.update( UseMapsFromCOOL = True )
-    # However, for tests, this must be turned off. It is detected
-    # when UseDCS is set to False - UseDCS is directly an option for the field cache alg 
-    if 'UseDCS' in kwargs and not kwargs['UseDCS']:
-      afmArgs['UseMapsFromCOOL'] = False
-    mag_field_map_cond_alg = CompFactory.MagField.AtlasFieldMapCondAlg(**afmArgs) 
-    result.addCondAlgo(mag_field_map_cond_alg)
-    
     # AtlasFieldCacheCondAlg - for reading in current
     afcArgs = {
       "name": "AtlasFieldCacheCondAlg",
@@ -51,8 +52,8 @@ def MagneticFieldSvcCfg(flags, **kwargs):
     # For test, UseDCS is set to False
     if 'UseDCS' in kwargs:
       afcArgs['UseDCS'] = kwargs['UseDCS']
-    mag_field_cache_cond_alg = CompFactory.MagField.AtlasFieldCacheCondAlg(**afcArgs) 
-    result.addCondAlgo(mag_field_cache_cond_alg)
+    magFieldCacheCondAlg = CompFactory.MagField.AtlasFieldCacheCondAlg(**afcArgs) 
+    result.addCondAlgo(magFieldCacheCondAlg)
     
     return result 
     

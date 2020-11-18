@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRCONDITIONSCONTAINERRUN2_H
@@ -50,7 +50,7 @@ public:
   // IL1CaloPersistenceCapable interface
   virtual DataObject* makePersistent() const;
   using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap);
+  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
 
   const L1CaloPprConditionsRun2* pprConditions(unsigned int channelId) const;
   const L1CaloPprConditionsRun2* pprConditions(const L1CaloCoolChannelId& channelId) const;

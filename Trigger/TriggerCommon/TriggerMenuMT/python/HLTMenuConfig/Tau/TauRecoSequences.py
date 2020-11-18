@@ -213,8 +213,8 @@ def tauCaloMVASequence(ConfigFlags):
     return (tauCaloMVASequence, tauCaloMVAViewsMaker, sequenceOut)
 
 def preSelSequence( RoIs, name):
-    
-    tauPreSelSequence = seqAND(name)
+
+    tauPreSelSequence = parOR(name)
 
     signatureName, signatureNameID = _getTauSignatureShort( name )
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -247,7 +247,7 @@ def preSelSequence( RoIs, name):
 
 def tauIdSequence( RoIs, name):
 
-    tauIdSequence = seqAND(name)
+    tauIdSequence = parOR(name)
 
     signatureName, signatureNameID = _getTauSignatureShort( name )
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -255,7 +255,7 @@ def tauIdSequence( RoIs, name):
 
     ViewVerifyId = CfgMgr.AthViews__ViewDataVerifier("tauIdViewDataVerifier_"+signatureName)
     ViewVerifyId.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs'    ),
-                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs          ),
+                                ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs      ),
                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+RoiForTauCore'  ),
                                 ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),  
                                 ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor'   ),
@@ -288,28 +288,25 @@ def tauIdSequence( RoIs, name):
 
 def precTrackSequence( RoIs , name):
 
-    precTrackSequence = seqAND(name)
-
     signatureName, signatureNameID = _getTauSignatureShort( name )
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
     IDTrigConfig = getInDetTrigConfig( signatureNameID )
 
 
     ViewVerifyTrk = CfgMgr.AthViews__ViewDataVerifier("tauViewDataVerifier_"+signatureName)
-    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+'+IDTrigConfig.FT.tracksFTF() ),
+    ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+%s' % IDTrigConfig.FT.tracksFTF() ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' ),
-                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs ),
+                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                                  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
                                  ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                  ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly' ),    
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+'+IDTrigConfig.FT.tracksFTF() ),
+                                 ( 'xAOD::IParticleContainer' , 'StoreGateSvc+%s' % IDTrigConfig.FT.tracksFTF() ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' )]
 
     if "TrackInView" not in name:
        ViewVerifyTrk.DataObjects += [ ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+RoiForTauCore' ) ]
-
 
     # Make sure the required objects are still available at whole-event level
     from AthenaCommon.AlgSequence import AlgSequence
@@ -322,8 +319,6 @@ def precTrackSequence( RoIs , name):
       topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
       ViewVerifyTrk.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
-    precTrackSequence+= ViewVerifyTrk
-
     #Precision Tracking
     PTAlgs = [] #List of precision tracking algs 
     PTTracks = [] #List of TrackCollectionKeys
@@ -333,18 +328,16 @@ def precTrackSequence( RoIs , name):
     #When run in a different view than FTF some data dependencies needs to be loaded through verifier
     #Pass verifier as an argument and it will automatically append necessary DataObjects@NOTE: Don't provide any verifier if loaded in the same view as FTF
     PTTracks, PTTrackParticles, PTAlgs = makeInDetPrecisionTracking( config = IDTrigConfig, verifier = ViewVerifyTrk, rois = RoIs )
-    PTSeq = parOR("precisionTrackingIn"+signatureName, PTAlgs  )
+    precTrackSequence = parOR(name, [ViewVerifyTrk] + PTAlgs  )
 
     #Get last tracks from the list as input for other alg       
-    precTrackSequence += PTSeq
-
     sequenceOut = PTTrackParticles[-1]
 
     return precTrackSequence, sequenceOut
 
 def tauFTFSequence( RoIs, name ):
 
-    tauFTFSequence = seqAND(name)
+    tauFTFSequence = parOR(name)
 
     signatureName, signatureNameID = _getTauSignatureShort( name )
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -357,7 +350,7 @@ def tauFTFSequence( RoIs, name ):
        if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
          TrackCollection = viewAlg.TrackName
 
-    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+' + RoIs ),
+    viewVerify.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
                                ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_ByteStreamErrs' ),#For some reason not picked up properly
                                ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly')] 

@@ -7,12 +7,17 @@
 
 #include "LArHV/EMECHVModule.h"
 #include "LArHV/EMECHVDescriptor.h"
+#include "Identifier/HWIdentifier.h"
+#include "CxxUtils/checker_macros.h"
+#include <memory>
+#include <functional>
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif 
 
 struct EMECHVPayload;
+class CondAttrListCollection;
 
 /**
  * @class EMECHVManager
@@ -32,6 +37,24 @@ class EMECHVManager
 {
  public:
   typedef EMECHVModule::IOType IOType;
+
+  class EMECHVData
+  {
+  public:
+    static constexpr double INVALID = -99999;
+    class Payload;
+    EMECHVData();
+    EMECHVData (std::unique_ptr<Payload> payload);
+    EMECHVData& operator= (EMECHVData&& other);
+    ~EMECHVData();
+    bool hvOn (const EMECHVElectrode& electrode, const int& iGap) const;
+    double voltage (const EMECHVElectrode& electrode, const int& iGap) const;
+    double current (const EMECHVElectrode& electrode, const int& iGap) const;
+    int  hvLineNo  (const EMECHVElectrode& electrode, const int& iGap) const;
+  private:
+    int index (const EMECHVElectrode& electrode) const;
+    std::unique_ptr<Payload> m_payload;
+  };
 
   EMECHVManager(IOType wheel);
   ~EMECHVManager();
@@ -59,16 +82,12 @@ class EMECHVManager
   // Gets the Wheel, 0 for the Outer Wheel HV Manager and 1 for the inner Wheel HV Manager
   EMECHVManager::IOType getWheelIndex() const;
 
-  // Refresh from the database if needed
-  void update() const;
-  
-  // Make the data stale.  Force update of data.
-  void reset() const;
-
   // Get the database payload
-  EMECHVPayload *getPayload(const EMECHVElectrode &) const;
+  EMECHVData getData ATLAS_NOT_THREAD_SAFE () const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
+  EMECHVData getData (const LArHVIdMapping& hvIdMapping,
+                      const std::vector<const CondAttrListCollection*>& attrLists) const;
   // Get hvLine for an electrode
   int hvLineNo(const EMECHVElectrode& electrode
 	       , int gap
@@ -76,11 +95,15 @@ class EMECHVManager
 #endif
 
  private:
-  EMECHVManager& operator=(const EMECHVManager& right);
-  EMECHVManager(const EMECHVManager& right);
+  using idfunc_t = std::function<std::vector<HWIdentifier>(HWIdentifier)>;
+  EMECHVData getData (idfunc_t idfunc,
+                      const std::vector<const CondAttrListCollection*>& attrLists) const;
+
+  EMECHVManager& operator=(const EMECHVManager& right) = delete;
+  EMECHVManager(const EMECHVManager& right) = delete;
 
   class Clockwork;
-  Clockwork *m_c;
+  std::unique_ptr<const Clockwork> m_c;
 };
 
 #endif 

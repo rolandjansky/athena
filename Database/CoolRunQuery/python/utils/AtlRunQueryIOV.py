@@ -2,10 +2,11 @@
 
 
 from __future__ import print_function
-import sys,os,copy, time
-
+from functools import total_ordering
 from PyCool import cool
+import time
 
+@total_ordering
 class IOVTime:
     def __init__(self, run=None, lb=None, timerunlb=None,timebased=False):
         if isinstance(run,IOVTime):
@@ -19,7 +20,7 @@ class IOVTime:
             if timebased:
                 self.time=timerunlb
             else:
-                if timerunlb!=None:
+                if timerunlb is not None:
                     self.run = timerunlb>>32
                     self.lb = timerunlb&0xFFFFFFFF
                 else:
@@ -30,27 +31,22 @@ class IOVTime:
             if self.timebased:
                 try:
                     return "%s" % time.strftime("%a %b %d %Y %X",time.gmtime(self.time/1E9))
-                except:
+                except ValueError:
                     return "infinity" 
-            else:              return "%i/%i" % (self.run,self.lb)
+            else:
+                return "%i/%i" % (self.run,self.lb)
 
     def __lt__(self, other):
-        if self.timebased: return self.time<other.time
-        else: return self.run<other.run or self.run==other.run and self.lb<other.lb
-
-    def __cmp__(self, other):
         if self.timebased:
-            return cmp(self.time,other.time)
+            return self.time<other.time
         else:
-            if self.run==other.run: return cmp(self.lb,other.lb)
-            else: return cmp(self.run,other.run)
+            return self.run<other.run or self.run==other.run and self.lb<other.lb
 
     def __eq__(self, other):
-        if self.timebased: return self.time==other.time
-        else: return self.run==other.run and self.lb==other.lb
-
-    def __le__(self, other):
-        return self<other or self==other    
+        if self.timebased:
+            return self.time==other.time
+        else:
+            return self.run==other.run and self.lb==other.lb
 
     def __sub__(self, other):
         if isinstance(other, int):
@@ -62,7 +58,7 @@ class IOVTime:
     def timerunlb(self):
         if self.timebased:
             return self.time
-        res = long(self.run)<<32
+        res = self.run<<32
         res += self.lb
         return res
 
@@ -80,15 +76,16 @@ class IOVRange:
         elif isinstance(starttime, IOVTime) and isinstance(endtime, IOVTime):
             self.startTime = starttime
             self.endTime = endtime
-        elif isinstance(starttime,long) and isinstance(endtime,long):
+        elif isinstance(starttime,int) and isinstance(endtime,int):
             self.startTime = IOVTime(timerunlb=starttime,timebased=timebased)
             self.endTime = IOVTime(timerunlb=endtime,timebased=timebased)
-        elif runStart!=None and lbStart!=None and runEnd!=None and lbEnd!=None:
+        elif runStart is not None and lbStart is not None and runEnd is not None and lbEnd is not None:
             self.startTime = IOVTime(runStart, lbStart, timebased=False)
             self.endTime = IOVTime(runEnd, lbEnd, timebased=False)
         else:
             print ("IOVRange.__init__: Can't interpret arguments")
 
+    @total_ordering
     def truncateToSingleRun(self,runnr):
         if self.startTime.run<runnr:
             self.startTime.run=runnr
@@ -99,11 +96,15 @@ class IOVRange:
             
     def __str__(self):
         return "[%s, %s)" % (self.startTime,self.endTime)
+
     def __repr__(self):
         return str(self)
 
-    def __cmp__(self, other):
-        return cmp(self.startTime,other.startTime)
+    def __eq__(self, other):
+        return (self.startTime == other.startTime)
+
+    def __lt__(self, other):
+        return (self.startTime < other.startTime)
 
     def length(self):
         return "%2.1f" % ((self.endTime-self.startTime)/1.E9)

@@ -41,7 +41,7 @@ class ParametersT;
  @author sarka.todorova@cern.ch
  */
 
-class SlidingDiscSurface : public DiscSurface
+class SlidingDiscSurface final : public DiscSurface
 {
 
 public:

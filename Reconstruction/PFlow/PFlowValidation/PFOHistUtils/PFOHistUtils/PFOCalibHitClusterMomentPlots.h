@@ -7,6 +7,7 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 
 namespace PFO {
 
@@ -14,12 +15,12 @@ namespace PFO {
 
   public:
 
-    PFOCalibHitClusterMomentPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
+    PFOCalibHitClusterMomentPlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName);
     
     void fill(const xAOD::PFO& PFO);
+    void fill(const xAOD::FlowElement& FE);
     
   private:
-
     /** Histograms inclusive in eta */
     TH1* m_PFO_ENG_CALIB_FRAC_EM = nullptr;
     TH1* m_PFO_ENG_CALIB_FRAC_HAD = nullptr;
@@ -44,7 +45,7 @@ namespace PFO {
     
     void initializePlots();
     std::string m_sPFOContainerName;
-
+    std::string m_sFEContainerName;
   };
 
 }

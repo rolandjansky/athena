@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CalibrationHit.h
@@ -122,7 +122,7 @@ namespace LArG4 {
 
   typedef G4THitsCollection<CalibrationHit> CalibrationHitsCollection;
 
-  extern G4Allocator<CalibrationHit> CalibrationHitAllocator;
+  extern thread_local G4Allocator<CalibrationHit> CalibrationHitAllocator;
 
   inline void* CalibrationHit::operator new(size_t)
   {

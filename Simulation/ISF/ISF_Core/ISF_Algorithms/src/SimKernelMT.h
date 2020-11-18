@@ -127,6 +127,8 @@ private:
   /// Map of the simulation flavours used in this job to the corresponding Simulation Services
   std::map<ISF::SimulationFlavor, ISimulatorTool*> m_simToolMap;
 
+  /// Number of particles simultaneously sent to simulator
+  size_t m_maxParticleVectorSize{10240};
 };
 
 } // namespace ISF

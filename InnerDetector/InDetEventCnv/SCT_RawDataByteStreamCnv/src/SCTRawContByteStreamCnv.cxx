@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SCTRawContByteStreamCnv.h"
@@ -18,10 +18,9 @@
 // Constructor
 
 SCTRawContByteStreamCnv::SCTRawContByteStreamCnv(ISvcLocator* svcLoc) :
-  Converter(storageType(), classID(), svcLoc),
+  AthConstConverter(storageType(), classID(), svcLoc, "SCTRawContByteStreamCnv"),
   m_rawContByteStreamTool{"SCTRawContByteStreamTool"},
-  m_byteStreamEventAccess{"ByteStreamCnvSvc", "SCTRawContByteStreamCnv"},
-  m_log{msgSvc(), "SCTRawContByteStreamCnv"}
+  m_byteStreamEventAccess{"ByteStreamCnvSvc", "SCTRawContByteStreamCnv"}
 {
 }
 
@@ -29,32 +28,29 @@ SCTRawContByteStreamCnv::SCTRawContByteStreamCnv(ISvcLocator* svcLoc) :
 
 StatusCode SCTRawContByteStreamCnv::initialize()
 {
-  ATH_CHECK(Converter::initialize());
-  m_log << MSG::DEBUG<< " initialize " << endmsg;
+  ATH_CHECK(AthConstConverter::initialize());
+  ATH_MSG_DEBUG( " initialize " );
 
   // Retrieve ByteStreamCnvSvc
   ATH_CHECK(m_byteStreamEventAccess.retrieve());
-  m_log << MSG::INFO << "Retrieved service " << m_byteStreamEventAccess << endmsg;
+  ATH_MSG_INFO( "Retrieved service " << m_byteStreamEventAccess );
 
   // Retrieve byte stream tool
   ATH_CHECK(m_rawContByteStreamTool.retrieve());
-  m_log << MSG::INFO << "Retrieved tool " << m_rawContByteStreamTool << endmsg;
+  ATH_MSG_INFO( "Retrieved tool " << m_rawContByteStreamTool );
 
   return StatusCode::SUCCESS;
 }
 
 // Method to create RawEvent fragments
 
-StatusCode SCTRawContByteStreamCnv::createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress)
+StatusCode SCTRawContByteStreamCnv::createRepConst(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress) const
 {
-  // Get RawEvent pointer
-  RawEventWrite* rawEvtWrite{m_byteStreamEventAccess->getRawEvent()};
-
   // Get IDC for SCT Raw Data
   SCT_RDO_Container* sctRDOCont{nullptr};
   StoreGateSvc::fromStorable(pDataObject, sctRDOCont);
   if (sctRDOCont == nullptr) {
-    m_log << MSG::ERROR << " Can not cast to SCTRawContainer " << endmsg;
+    ATH_MSG_ERROR( " Can not cast to SCTRawContainer " );
     return StatusCode::FAILURE;
   }
 
@@ -63,7 +59,7 @@ StatusCode SCTRawContByteStreamCnv::createRep(DataObject* pDataObject, IOpaqueAd
   pOpaqueAddress = new ByteStreamAddress(classID(), dataObjectName, "");
 
   // Use the tool to do the conversion
-  ATH_CHECK(m_rawContByteStreamTool->convert(sctRDOCont, rawEvtWrite, m_log));
+  ATH_CHECK(m_rawContByteStreamTool->convert(sctRDOCont) );
 
   return StatusCode::SUCCESS;
 }

@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Block.py 485961 2012-03-01 14:29:38Z krasznaa $
 #
 # @file D3PDMakerCoreComps/python/Block.py
 # @author scott snyder <snyder@bnl.gov>

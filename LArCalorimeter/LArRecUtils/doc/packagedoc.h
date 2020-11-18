@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -34,7 +34,6 @@ on the job properties
 
 LArBadChennelTool:  classify problem channels, for H8 test beam only.
 
-LArCellFakeProbElectronics, LArCellFakeProbHV: emulate electronics and HV problem .
 
 @section LArRecUtils_SignalReco Signal reconstruction tools
 

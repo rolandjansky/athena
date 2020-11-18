@@ -7,7 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 PileUpToolsAlg, DigitizationAlg=CompFactory.getComps("PileUpToolsAlg","DigitizationAlg")
 
 
-def PileUpToolsCfg(flags, name="StandardPileUpToolsAlg", **kwargs):
+def PileUpToolsCfg(flags, **kwargs):
     """
     Return ComponentAccumulator with the correct algorithm to carry Digitization PileUpTools
 
@@ -29,5 +29,5 @@ def PileUpToolsCfg(flags, name="StandardPileUpToolsAlg", **kwargs):
     else:
         Alg = DigitizationAlg
 
-    acc.addEventAlgo(Alg(name, **kwargs))
+    acc.addEventAlgo(Alg(flags.Digitization.DigiSteeringConf, **kwargs))
     return acc

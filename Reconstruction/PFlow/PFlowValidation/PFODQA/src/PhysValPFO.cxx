@@ -27,13 +27,13 @@ StatusCode PhysValPFO::bookHistograms(){
   
   std::vector<HistData> hists;
   if (!m_useNeutralPFO){
-    m_PFOChargedValidationPlots.reset(new PFOChargedValidationPlots(0,theName, theName));
+    m_PFOChargedValidationPlots.reset(new PFOChargedValidationPlots(0,theName, theName,""));
     m_PFOChargedValidationPlots->setDetailLevel(100);
     m_PFOChargedValidationPlots->initialize();
     hists = m_PFOChargedValidationPlots->retrieveBookedHistograms();
   }
   else if (m_useNeutralPFO){
-    m_PFONeutralValidationPlots.reset(new PFONeutralValidationPlots(0,theName, theName));
+    m_PFONeutralValidationPlots.reset(new PFONeutralValidationPlots(0,theName, theName,""));
     m_PFONeutralValidationPlots->setDetailLevel(100);
     m_PFONeutralValidationPlots->initialize();
     hists = m_PFONeutralValidationPlots->retrieveBookedHistograms();
@@ -76,7 +76,6 @@ StatusCode PhysValPFO::fillHistograms(){
      ATH_MSG_WARNING("Invalid ReadHandle for xAOD::PFOContainer with key: " << PFOContainerReadHandle.key());
      return StatusCode::SUCCESS;
   }
-  
   for (auto thePFO : *PFOContainerReadHandle){
     if(thePFO){
        if (!m_useNeutralPFO) m_PFOChargedValidationPlots->fill(*thePFO,theVertex);

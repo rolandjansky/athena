@@ -5,12 +5,12 @@
 #ifndef MUONLAYERHOUGHALG_H
 #define MUONLAYERHOUGHALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonHoughPatternTools/MuonLayerHoughTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 
-class MuonLayerHoughAlg : public AthAlgorithm
+class MuonLayerHoughAlg : public AthReentrantAlgorithm
 {
  public:
   MuonLayerHoughAlg(const std::string& name, ISvcLocator* pSvcLocator);
@@ -18,12 +18,12 @@ class MuonLayerHoughAlg : public AthAlgorithm
   virtual ~MuonLayerHoughAlg() = default;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute() override;
+  virtual StatusCode execute(const EventContext& ctx) const override;
   virtual StatusCode finalize() override;
 
  private:
   template<class T> 
-  const T* GetObject(SG::ReadHandleKey<T> &key);
+    const T* GetObject(const SG::ReadHandleKey<T> &key, const EventContext& ctx) const;
 
   SG::ReadHandleKey<Muon::TgcPrepDataContainer>   m_keyTgc{this,"TgcPrepDataContainer","TGC_Measurements"};
   SG::ReadHandleKey<Muon::RpcPrepDataContainer>   m_keyRpc{this,"RpcPrepDataContainer","RPC_Measurements"};
@@ -42,8 +42,8 @@ class MuonLayerHoughAlg : public AthAlgorithm
 
 
 template<class T>
-const T* MuonLayerHoughAlg::GetObject(SG::ReadHandleKey<T> &key){
-  SG::ReadHandle<T> handle( key);
+const T* MuonLayerHoughAlg::GetObject(const SG::ReadHandleKey<T> &key, const EventContext& ctx) const{
+  SG::ReadHandle<T> handle( key, ctx);
   if( handle.isPresent() && !handle.isValid()) {
     ATH_MSG_WARNING("MuonLayerHoughAlg Cannot retrieve " << handle.key() );
     return nullptr;

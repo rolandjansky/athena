@@ -6,9 +6,9 @@
 # art-cores: 4
 # art-memory: 4096
 # art-include: master/Athena
-# art-output: *.root
+# art-output: physval*.root
 # art-output: *.xml 
-# art-output: art_core_*
+# art-output: art_core_0
 # art-output: dcube*
 
 set -x

@@ -17,7 +17,7 @@
 #include <boost/test/unit_test.hpp>
 //
 #include "AthenaKernel/IIOVDbSvc.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 #include "CoolApplication/DatabaseSvcFactory.h"
@@ -29,6 +29,7 @@
 #include "CoolKernel/IFolder.h"
 //
 #include "../src/TagFunctions.h"
+#include "../src/IOVDbStringFunctions.h"
 #include "GaudiKernelFixtureBase.h" 
 
 using namespace IOVDbNamespace;
@@ -42,18 +43,18 @@ struct GaudiKernelFixture:public GaudiKernelFixtureBase{
 //note destructor is separate here
 struct TestFolderFixture{
   ServiceHandle<IIOVDbSvc> iovdbsvc;
-  ServiceHandle<StoreGateSvc> detStore;
+  ServiceHandle<ITagInfoMgr> tagInfoMgr;
   const std::string fixtureFoldername;
   const std::string invalidFoldername;
   cool::IFolderPtr folderPtr;
   cool::IDatabasePtr coolDb;
   cool::RecordSpecification spec;
-  TestFolderFixture():iovdbsvc("IOVDbSvc", "test"),detStore("DetectorStore",""),fixtureFoldername("/key1"),invalidFoldername("nonsense") {
+  TestFolderFixture():iovdbsvc("IOVDbSvc", "test"), tagInfoMgr("TagInfoMgr",""), fixtureFoldername("/key1"),invalidFoldername("nonsense") {
     if (not iovdbsvc.retrieve().isSuccess()){
       throw (std::runtime_error("IOVDbSvc could not be retrieved in the TestFolderFixture"));
     }
-    if (not detStore.retrieve().isSuccess()){
-      throw (std::runtime_error("detStore could not be retrieved in the TestFolderFixture"));
+    if (not tagInfoMgr.retrieve().isSuccess()){
+      throw (std::runtime_error("tagInfoMgr could not be retrieved in the TestFolderFixture"));
     }
     unlink ("TagFunctionsTest.db");
     cool::IDatabaseSvc& dbSvc=cool::DatabaseSvcFactory::databaseService();
@@ -85,18 +86,23 @@ BOOST_FIXTURE_TEST_SUITE(TagFunctionsBasicTest , GaudiKernelFixture)
   //
   BOOST_FIXTURE_TEST_SUITE(TagFunctionsTest, TestFolderFixture)
     BOOST_AUTO_TEST_CASE(AllFunctions){
+      BOOST_TEST(getTagInfo("dummy", tagInfoMgr.get()).empty(),"Getting tag info for a non existent tag but valid tagInfoMgr should return an empty string");
+      BOOST_TEST(getTagInfo("dummy",nullptr) == "","Getting tag info for a non existent tag and null tagInfoMgr should return an empty string");
+
+      using namespace IOVDbNamespace;
       const std::string dummyMagicTag{"TagInfoMajor/AtlasLayerMat_v21_/Dummy"};
+      const std::string dummyTagName = tag2PrefixTarget( parseMagicTag(dummyMagicTag) ).second;
       const std::string trialMagicTag{"TagInfoMajor/AtlasLayerMat_v21_/Trial"};
-      BOOST_TEST(getTagInfo("dummy", detStore.get()).empty(),"Getting tag info for a non existent tag but valid detStore should return an empty string");
-      BOOST_TEST(getTagInfo("dummy",nullptr) == "","Getting tag info for a non existent tag and null detStore should return an empty string");
-      TagInfo t{};
+      const std::string trialTagName = tag2PrefixTarget( parseMagicTag(trialMagicTag) ).second;
+     
       const std::string empty{};
       const std::string someTag{"MyTag_6Char"};
-      t.addTag(std::pair<std::string, std::string>(dummyMagicTag,empty)).ignore();
-      t.addTag(std::pair<std::string, std::string>(trialMagicTag,someTag)).ignore();
+      tagInfoMgr->addTag(dummyTagName, empty).ignore();
+      tagInfoMgr->addTag(trialTagName, someTag).ignore();
+      
       BOOST_TEST_MESSAGE("Calling resolveUsingTagInfo(..) with dummy magic tag should throw (test mode: TagInfo object passed in)");
-      BOOST_CHECK_THROW(resolveUsingTagInfo(dummyMagicTag,nullptr, t), std::runtime_error);
-      BOOST_TEST(resolveUsingTagInfo(trialMagicTag,nullptr, t) == "MyTag", "resolveUsingTagInfo(..) with magic tag returns valid string (test mode)");
+      BOOST_CHECK_THROW(resolveUsingTagInfo(dummyMagicTag, tagInfoMgr.get()), std::runtime_error);
+      BOOST_TEST(resolveUsingTagInfo(trialMagicTag,  tagInfoMgr.get()) == "AtlasLayerMat_v21_MyTag", "resolveUsingTagInfo(..) with magic tag returns valid string (test mode)");
       BOOST_TEST(!checkTagLock(folderPtr,trialMagicTag).has_value(), "checkTagLock(..) doesn't have a value if there are no tags in the db");
       BOOST_TEST_MESSAGE("getGeoAtlasVersion() throws if the GeoModelSvc has not been set up");
       BOOST_CHECK_THROW(getGeoAtlasVersion(),std::runtime_error); //cant get

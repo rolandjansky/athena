@@ -75,7 +75,10 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     /*! Offline LH Very loose selector */
     ToolHandle<IAsgElectronLikelihoodTool> m_electronLHVLooseTool{this,"ElectronLHVLooseTool", ""};
     
+    /*! Offline isEM Photon Selectors */ 
+    ToolHandleArray<IAsgPhotonIsEMSelector> m_photonIsEMTool{this,"PhotonIsEMSelector",{}};
     
+
     /*! TP Trigger Analysis */
     Gaudi::Property<bool> m_tp{this, "TPTrigger", false };
     /*! default probe pid for trigitems that don't have pid in their name */
@@ -96,6 +99,8 @@ class TrigEgammaMonitorBaseAlgorithm : public AthMonitorAlgorithm {
     std::map<std::string,TrigInfo> getTrigInfoMap() { return m_trigInfo; } 
     /*! Get offline electron decision */
     bool ApplyElectronPid(const xAOD::Electron *eg,const std::string) const;
+    /*! Get offline electron decision */
+    bool ApplyPhotonPid(const xAOD::Photon *eg,const std::string) const;
     /*! Get the TDT  */
     const ToolHandle<Trig::TrigDecisionTool>& tdt() const {return m_trigdec;};
     /*! Get the e/g match tool */

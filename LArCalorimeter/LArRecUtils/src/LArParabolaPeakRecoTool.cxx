@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRecUtils/LArParabolaPeakRecoTool.h"
@@ -106,8 +106,7 @@ std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<short>& samp
 
 std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<float>& samples, int layer, float pedestal) const 
 {//const float dt=25.0;//ns
-  static std::vector<float> solution; 
-  solution.clear();
+  std::vector<float> solution; 
 
   const std::vector<float>::const_iterator it_max=max_element(samples.begin(),samples.end());
   if (it_max==samples.end()) {
@@ -125,7 +124,6 @@ std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<float>& samp
   HepVector beta(3);
   for (int i=0;i<3;i++)
     {beta[i]=*(it_max-1+i);
-    //std::cout << " " << beta[i];
     for (int j=0;j<3;j++)
       alpha[i][j]=pow(-1+i,j);
     }
@@ -158,8 +156,6 @@ std::vector<float> LArParabolaPeakRecoTool::peak (const std::vector<float>& samp
       retval =  ParabolaRawToTrueADC(trec, beta[1], pedestal, layer);
     }
   }
-  
-  //std::cout << "Parabola: Time=" << tmax << " adcmax=" << maxadc << " retval= " << retval << std::endl;
   
   solution.push_back(retval);
   if(!m_correctBias){

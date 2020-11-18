@@ -1,48 +1,29 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( PhotonEfficiencyCorrection )
 
-# Extra dependencies based on the build environment:
-set( extra_deps )
-if( XAOD_STANDALONE )
-   set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel )
-endif()
-
-# Dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEgamma
-   PhysicsAnalysis/AnalysisCommon/PATCore
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
-   PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
-   PRIVATE
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODEventInfo
-   Tools/PathResolver
-   ${extra_deps} )
-
 # External(s) for the package:
-find_package( Boost COMPONENTS filesystem )
-find_package( ROOT COMPONENTS Core Hist RIO MathCore )
+find_package( Boost )
+find_package( ROOT COMPONENTS Core )
 
 # Libraries in the package:
 atlas_add_library( PhotonEfficiencyCorrectionLib
    PhotonEfficiencyCorrection/*.h Root/*.cxx
    PUBLIC_HEADERS PhotonEfficiencyCorrection
-   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} EgammaAnalysisInterfacesLib AsgTools xAODEgamma
-   PATCoreLib PATInterfaces ElectronEfficiencyCorrectionLib
-   PRIVATE_LINK_LIBRARIES xAODEventInfo PathResolver )
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} EgammaAnalysisInterfacesLib AsgTools xAODEgamma
+   PATCoreAcceptLib PATInterfaces ElectronEfficiencyCorrectionLib
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PhotonEfficiencyCorrection
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODEventInfo xAODEgamma
-      xAODCore PhotonEfficiencyCorrectionLib )
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools AthenaBaseComps EgammaAnalysisInterfacesLib
+      ElectronEfficiencyCorrectionLib GaudiKernel PATCoreAcceptLib PATInterfaces
+      xAODCore xAODEgamma xAODEventInfo PhotonEfficiencyCorrectionLib )
 endif()
 
 atlas_add_dictionary( PhotonEfficiencyCorrectionDict
@@ -54,18 +35,18 @@ atlas_add_dictionary( PhotonEfficiencyCorrectionDict
 atlas_add_executable( PrintPhotonSF
    util/PrintPhotonSF.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
+   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ElectronEfficiencyCorrectionLib PATCoreAcceptLib
    PhotonEfficiencyCorrectionLib )
 
 if( XAOD_STANDALONE )
    atlas_add_executable( TestxAODPhotonAlg
       util/TestxAODPhotonAlg.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODEgamma
-      xAODCore PathResolver PATInterfaces PhotonEfficiencyCorrectionLib )
+      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib
+      ElectronEfficiencyCorrectionLib PATCoreAcceptLib PATInterfaces PathResolver
+      xAODCore xAODEgamma xAODEventInfo PhotonEfficiencyCorrectionLib )
 endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-#atlas_install_data( data/*.root )
 atlas_install_data( data/*.root data/*.txt )
