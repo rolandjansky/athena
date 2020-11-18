@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef IInDetVertexTruthMatchTool_h
 #define IInDetVertexTruthMatchTool_h
@@ -21,7 +20,7 @@
 
 class IInDetVertexTruthMatchTool : public virtual asg::IAsgTool {
 
-ASG_TOOL_INTERFACE( IInDetVertexTruthMatchTool );
+ASG_TOOL_INTERFACE( IInDetVertexTruthMatchTool )
 
 public:
 
@@ -31,3 +30,4 @@ public:
 };
 
 #endif
+

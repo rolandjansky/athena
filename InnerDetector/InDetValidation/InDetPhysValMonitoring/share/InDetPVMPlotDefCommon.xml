@@ -1234,6 +1234,90 @@
   <x title="Vertex type" n="7" lo="0" hi="7"/>
   <y title="Entries"/>
 </h>
+<h id="vx_type_truth" type="TH1F" title="Vertex Truth-Matched type">
+  <x title="Vertex Truth-Matched type" n="5" lo="-0.5" hi="4.5"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_hs_classification" type="TH1F" title="Event hardscatter vertex classification">
+  <x title="Hardscatter classification" n="5" lo="-0.5" hi="4.5"/>
+  <y title="Entries"/>
+</h>
+<h id="vx_nReco_vs_nTruth_inclusive" type="TProfile" title="Number of reco vertices (INCLUSIVE) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_matched" type="TProfile" title="Number of reco vertices (MATCHED) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_merged" type="TProfile" title="Number of reco vertices (MERGED) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_split" type="TProfile" title="Number of reco vertices (SPLIT) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_fake" type="TProfile" title="Number of reco vertices (FAKE) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_dummy" type="TProfile" title="Number of reco vertices (DUMMY) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_clean" type="TProfile" title="Number of reco vertices (CLEAN) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_lowpu" type="TProfile" title="Number of reco vertices (LOWPU) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_highpu" type="TProfile" title="Number of reco vertices (HIGHPU) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_hssplit" type="TProfile" title="Number of reco vertices (HSSPLIT) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_nReco_vs_nTruth_none" type="TProfile" title="Number of reco vertices (NONE) vs Number of interactions">
+  <x title="Number of interactions" n="301" lo="-0.5" hi="300.5"/>
+  <y title="Number of reco vertices" lo="0.0" hi="150.0"/>
+</h>
+<h id="vx_hs_reco_eff" type="TEfficiency" title="HS vertex reconstruction efficiency">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="HS vertex reconstruction efficiency" lo="0.8" hi="1.2"/>
+</h>
+<h id="vx_hs_sel_eff" type="TEfficiency" title="HS vertex selection efficiency (sum[pt,track^2])">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="HS vertex selection efficiency" lo="0.6" hi="1.2"/>
+</h>
+<h id="vx_hs_reco_long_reso" type="TProfile" title="Reco Longitudinal Resolution">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="Reco longitudinal resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_reco_trans_reso" type="TProfile" title="Reco Transverse Resolution">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="Reco transverse resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_truth_long_reso_vs_PU" type="TH2" title="Truth Longitudinal Resolution vs. PU (2D)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" n="20" lo="-0.08" hi="0.08"/>
+</h>
+<h id="vx_hs_truth_trans_reso_vs_PU" type="TH2" title="Truth Transverse Resolution vs. PU (2D)">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="|Reco-truth| transverse resolution [mm]" n="20" lo="0.0" hi="0.02"/>
+</h>
+<h id="vx_hs_truth_long_reso" type="TH1" title="Truth Longitudinal Resolution">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
+<h id="vx_hs_truth_trans_reso" type="TH1" title="Truth Transverse Resolution">
+  <x title="Local PU density [vertices/mm]" n="12" lo="0.0" hi="6.0"/>
+  <y title="|Reco-truth| transverse resolution [mm]" lo="0.0" hi="1.0"/>
+</h>
 <h id="vx_nTracks" type="TH1F" title="Number of tracks at vertex">
   <x title="Number of Tracks" n="150" lo="0" hi="150"/>
   <y title="Entries"/>

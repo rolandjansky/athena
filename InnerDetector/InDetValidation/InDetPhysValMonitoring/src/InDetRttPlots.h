@@ -36,6 +36,7 @@
 #include "InDetPerfPlot_HitDetailed.h"
 #include "InDetPerfPlot_Vertex.h"
 #include "InDetPerfPlot_VertexContainer.h"
+#include "InDetPerfPlot_VertexTruthMatching.h"
 
 #include "InDetPerfPlot_TrkInJet.h"
 
@@ -106,8 +107,9 @@ public:
 
   ///fill reco-vertex related plots
   void fill(const xAOD::VertexContainer& vertexContainer);
+  void fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices);
   ///fill reco-vertex related plots that need EventInfo
-  void fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei);
+  void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU);
 
   // New set has replaced fillJetPlot
   bool filltrkInJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet);
@@ -157,6 +159,7 @@ private:
   InDetPerfPlot_VertexContainer m_verticesPlots;
   InDetPerfPlot_Vertex m_vertexPlots;
   InDetPerfPlot_Vertex m_hardScatterVertexPlots;
+  InDetPerfPlot_VertexTruthMatching m_vertexTruthMatchingPlots;
 
   InDetPerfPlot_duplicate m_duplicatePlots;
 

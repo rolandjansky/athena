@@ -19,6 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/SCT_ReadoutGeometry
                           InnerDetector/InDetDetDescr/TRT_ReadoutGeometry
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
+                          InnerDetector/InDetValidation/InDetTruthVertexValidation
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           Tracking/TrkValidation/TrkValHistUtils
 			  DetectorDescription/AtlasDetDescr
@@ -40,6 +41,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkTools/TrkToolInterfaces )
+
                           
 
 # External dependencies:
@@ -54,13 +56,13 @@ atlas_add_library( InDetPhysValMonitoringLib
                    src/*.cxx
                    PUBLIC_HEADERS InDetPhysValMonitoring
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS}   ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES}  ${EIGEN_LIBRARIES}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES}  ${EIGEN_LIBRARIES} 
                    AthenaBaseComps AthenaMonitoringLib AtlasDetDescr xAODTracking xAODTruth GaudiKernel InDetIdentifier PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry
                    InDetTrackSelectionToolLib PATCoreLib TrkValHistUtils
                    PRIVATE_LINK_LIBRARIES AsgTools AthenaKernel GeoPrimitives EventPrimitives
                    xAODBase xAODEventInfo xAODJet InDetPrepRawData InDetRIO_OnTrack
                    AthContainers StoreGateLib
-                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidationLib )
+                   MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidationLib InDetTruthVertexValidation)
 
 
 
@@ -69,7 +71,7 @@ atlas_add_component( InDetPhysValMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}  ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaMonitoringLib xAODTracking xAODTruth GaudiKernel PATCoreLib TrkValHistUtils AsgTools AthenaKernel AtlasDetDescr GeoPrimitives EventPrimitives TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry xAODBase xAODEventInfo xAODJet InDetIdentifier InDetPrepRawData InDetRIO_OnTrack MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${XERCESC_LIBRARIES} ${Boost_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AthenaMonitoringLib xAODTracking xAODTruth GaudiKernel PATCoreLib TrkValHistUtils AsgTools AthenaKernel AtlasDetDescr GeoPrimitives EventPrimitives TRT_ReadoutGeometry SCT_ReadoutGeometry PixelReadoutGeometry xAODBase xAODEventInfo xAODJet InDetIdentifier InDetPrepRawData InDetRIO_OnTrack MCTruthClassifierLib PathResolver TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces InDetTruthVertexValidation)
 
 # Add the executable for postprocessing
 atlas_add_executable( postProcessIDPVMHistos

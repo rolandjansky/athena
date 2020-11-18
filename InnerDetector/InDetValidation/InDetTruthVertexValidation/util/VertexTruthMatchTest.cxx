@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 //ROOT
 #include <TFile.h>
@@ -93,7 +92,7 @@ int main( int argc, char* argv[] ) {
 
     event.getEntry( entry );
 
-    const xAOD::EventInfo * ei = 0;
+    const xAOD::EventInfo * ei = nullptr;
     result = event.retrieve( ei, "EventInfo" );
     if(!result) {
       Error( APP_NAME, "Failed to retrieve EventInfo on entry %i", static_cast<int>(entry));
@@ -109,7 +108,7 @@ int main( int argc, char* argv[] ) {
     }
 
     //get vertices
-    const xAOD::VertexContainer * vxContainer = 0;
+    const xAOD::VertexContainer * vxContainer = nullptr;
     result = event.retrieve( vxContainer, "PrimaryVertices" );
     if(!result) {
       Error( APP_NAME, "Failed to retrieve PrimaryVertices on entry %i", static_cast<int>(entry));
@@ -136,8 +135,6 @@ int main( int argc, char* argv[] ) {
     //get the best match for the hard scatter
     //const xAOD::Vertex * hsMatch = InDetVertexTruthMatchUtils::bestHardScatterMatch( *vxContainer );
     
-    
-
   }
 
   h_cat->Write();
@@ -146,3 +143,4 @@ int main( int argc, char* argv[] ) {
 
   return 0;
 }
+

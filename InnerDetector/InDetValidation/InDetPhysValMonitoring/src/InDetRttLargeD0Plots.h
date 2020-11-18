@@ -82,7 +82,7 @@ public:
   ///fill reco-vertex related plots
   void fill(const xAOD::VertexContainer& vertexContainer);
   ///fill reco-vertex related plots that need EventInfo
-  void fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei);
+  void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU);
 
   virtual ~InDetRttLargeD0Plots() {/**nop**/
   };

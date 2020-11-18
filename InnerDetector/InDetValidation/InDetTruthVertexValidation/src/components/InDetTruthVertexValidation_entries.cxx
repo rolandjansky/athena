@@ -1,18 +1,14 @@
+/*
+  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+*/
+
 // Gaudi/Athena include(s):
-#include "GaudiKernel/DeclareFactoryEntries.h"
+//#include "GaudiKernel/DeclareFactoryEntries.h"
 
 // Local include(s):
 #include "InDetTruthVertexValidation/InDetVertexTruthMatchTool.h"
 #include "../InDetVertexTruthMatchAlgorithm.h"
 
-DECLARE_TOOL_FACTORY( InDetVertexTruthMatchTool )
+DECLARE_COMPONENT( InDetVertexTruthMatchTool )
+DECLARE_COMPONENT( InDetVertexTruthMatchAlgorithm )
 
-DECLARE_ALGORITHM_FACTORY( InDetVertexTruthMatchAlgorithm )
-
-DECLARE_FACTORY_ENTRIES( InDetTruthVertexValidation ) {
-  
-  DECLARE_TOOL( InDetVertexTruthMatchTool )
-    
-  DECLARE_ALGORITHM( InDetVertexTruthMatchAlgorithm )
-
-}

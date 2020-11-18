@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef InDetVertexTruthMatchTool_h
 #define InDetVertexTruthMatchTool_h
@@ -24,16 +23,16 @@
 class InDetVertexTruthMatchTool : public virtual IInDetVertexTruthMatchTool,
                                   public asg::AsgTool {
 
-  ASG_TOOL_CLASS( InDetVertexTruthMatchTool, IInDetVertexTruthMatchTool );
+  ASG_TOOL_CLASS( InDetVertexTruthMatchTool, IInDetVertexTruthMatchTool )
 
  public:
 
   InDetVertexTruthMatchTool( const std::string & name );
   
-  virtual StatusCode initialize();
+  StatusCode initialize() override final;
   
   //take const collection of vertices, match them, and decorate with matching info
-  virtual StatusCode matchVertices( const xAOD::VertexContainer & vxContainer );
+  virtual StatusCode matchVertices( const xAOD::VertexContainer & vxContainer ) override;
   
  private:
   
@@ -47,9 +46,10 @@ class InDetVertexTruthMatchTool : public virtual IInDetVertexTruthMatchTool,
   float m_trkPtCut;
   
   //private methods to check if particles are good to use
-  bool pass( const xAOD::TruthParticle & truthPart );
-  bool pass( const xAOD::TrackParticle & trackPart );
+  bool pass( const xAOD::TruthParticle & truthPart ) const;
+  bool pass( const xAOD::TrackParticle & trackPart ) const;
   
 };
 
 #endif
+

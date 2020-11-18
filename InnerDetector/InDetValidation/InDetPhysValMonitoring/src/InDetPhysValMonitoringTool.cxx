@@ -149,6 +149,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_onlyInsideOutTracks(false),
   m_TrkSelectPV(false),
   m_trackSelectionTool("InDet::InDetTrackSelectionTool/TrackSelectionTool"),
+  m_vtxValidTool("InDetVertexTruthMatchTool/VtxTruthMatchTool"),
   m_truthSelectionTool("AthTruthSelectionTool", this),
   m_prospectsMatched(6, 0),
   m_twoMatchedEProb(0),
@@ -177,6 +178,7 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("useTrkSelectPV", m_TrkSelectPV);
   declareProperty("onlyInsideOutTracks", m_onlyInsideOutTracks);
   declareProperty("TrackSelectionTool", m_trackSelectionTool);
+  declareProperty("VertexTruthMatchTool", m_vtxValidTool);
   declareProperty("TruthSelectionTool", m_truthSelectionTool);
   declareProperty("FillTrackInJetPlots", m_fillTIDEPlots);
   declareProperty("FillExtraTrackInJetPlots", m_fillExtraTIDEPlots);
@@ -267,14 +269,30 @@ InDetPhysValMonitoringTool::fillHistograms() {
     // find last non-dummy vertex; note *usually* there is only one (or maybe zero)
     auto findVtx = std::find_if(stdVertexContainer.rbegin(), stdVertexContainer.rend(), acceptVertex);
     pvtx = (findVtx == stdVertexContainer.rend()) ? nullptr : *findVtx;
-    m_monPlots->fill(*pvertex);
+
+    //Filling plots for all reconstructed vertices and the hard-scatter
+    ATH_MSG_DEBUG("Filling vertices info monitoring plots");
+
+    // Fill vectors of truth HS and PU vertices
+    std::pair<std::vector<const xAOD::TruthVertex*>, std::vector<const xAOD::TruthVertex*>> truthVertices = getTruthVertices();
+    std::vector<const xAOD::TruthVertex*> truthHSVertices = truthVertices.first;
+    std::vector<const xAOD::TruthVertex*> truthPUVertices = truthVertices.second;
+
+    // Decorate vertices
+    if ( m_vtxValidTool) {
+       ATH_CHECK(m_vtxValidTool->matchVertices(*pvertex));
+       ATH_MSG_DEBUG("Hard scatter classification type: " << InDetVertexTruthMatchUtils::classifyHardScatter(*pvertex) << ", vertex container size = " << pvertex->size());
+    }
+    m_monPlots->fill(*pvertex, truthHSVertices, truthPUVertices);
+
   } else {
     ATH_MSG_WARNING("Skipping vertexing plots.");
   }
   ATH_MSG_DEBUG("Filling vertex/event info monitoring plots");
   const xAOD::EventInfo* pei = getContainer<xAOD::EventInfo>(m_eventInfoContainerName);
   if (pei and pvertex) {
-    m_monPlots->fill(*pvertex, *pei);
+    const float puEvents = truthPileupEventContainer ? static_cast<int>( truthPileupEventContainer->size() ) : pei->actualInteractionsPerCrossing() ;
+    m_monPlots->fill(*pvertex, puEvents);
   } else {
     ATH_MSG_WARNING("Skipping vertexing plots using EventInfo.");
   }
@@ -743,6 +761,75 @@ InDetPhysValMonitoringTool::getTruthParticles() {
   }
   return tempVec;
 }
+
+std::pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>>
+InDetPhysValMonitoringTool::getTruthVertices() const {
+
+  std::vector<const xAOD::TruthVertex*> truthHSVertices = {};
+  truthHSVertices.reserve(5);
+  std::vector<const xAOD::TruthVertex*> truthPUVertices = {};
+  truthPUVertices.reserve(270);
+  const xAOD::TruthVertex* truthVtx = nullptr;
+
+  bool doHS = false;
+  bool doPU = false;
+  if (m_pileupSwitch == "All") {
+    doHS = true;
+    doPU = true;
+  }
+  else if (m_pileupSwitch == "HardScatter") {
+    doHS = true;
+  }
+  else if (m_pileupSwitch == "PileUp") {
+    doPU = true;
+  }
+  else {
+    ATH_MSG_ERROR("Bad value for PileUpSwitch: " << m_pileupSwitch);
+  }
+
+  if (doHS) {
+
+    ATH_MSG_VERBOSE("Getting TruthEvents container.");
+    const xAOD::TruthEventContainer* truthEventContainer = nullptr;
+    const std::string truthEventCollName = evtStore()->contains<xAOD::TruthEventContainer>("TruthEvents") ? "TruthEvents" : "TruthEvent";
+    evtStore()->retrieve(truthEventContainer, truthEventCollName);
+
+    if ( truthEventContainer) {
+      for (const auto& evt : *truthEventContainer) {
+        truthVtx = evt->truthVertex(0);
+        if (truthVtx) {
+          truthHSVertices.push_back(truthVtx);
+        }
+      }
+    }
+    else {
+      ATH_MSG_ERROR("No entries in TruthEvents container!");
+    }
+  }
+
+  if (doPU) {
+    ATH_MSG_VERBOSE("Getting TruthPileupEvents container.");
+    const xAOD::TruthPileupEventContainer* truthPileupEventContainer = nullptr;
+    const std::string truthPUEventCollName = evtStore()->contains<xAOD::TruthPileupEventContainer>("TruthPileupEvents") ? "TruthPileupEvents" : "TruthPileupEvent";
+    evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
+
+
+    if ( truthPileupEventContainer) {
+      for (const auto& evt : *truthPileupEventContainer) {
+        truthVtx = evt->truthVertex(0);
+        if (truthVtx) {
+          truthPUVertices.push_back(truthVtx);
+        }
+      }
+    }
+    else {
+      ATH_MSG_ERROR("No entries in TruthPileupEvents container!");
+    }
+  }
+
+  return std::make_pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>>((const std::vector<const xAOD::TruthVertex*>)truthHSVertices, (const std::vector<const xAOD::TruthVertex*>)truthPUVertices);
+}
+
 
 void
 InDetPhysValMonitoringTool::fillTrackCutFlow(Root::TAccept& accept) {
