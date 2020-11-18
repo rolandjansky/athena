@@ -44,7 +44,7 @@ TFCSVoxelHistoLateralCovarianceFluctuations::~TFCSVoxelHistoLateralCovarianceFlu
 {
 }
 
-bool TFCSVoxelHistoLateralCovarianceFluctuations::initialize(TFile* inputfile, std::string folder)//, int nDim_x=-1, int nDim_y=-1)
+bool TFCSVoxelHistoLateralCovarianceFluctuations::initialize(TFile* inputfile, std::string folder)
 {
   //load m_eigenvariances and m_parMeans from input file
   //load histograms for each cell from input file
@@ -202,7 +202,7 @@ FCSReturnCode TFCSVoxelHistoLateralCovarianceFluctuations::simulate(TFCSSimulati
   //Fill genPars with multivarate random Gauss
   MultiGaus(simulstate,genPars);
 
-  //Loop through 5x5 grid
+  //Loop through voxels
   int count = 0;
   for(int x = 0; x < m_nDim_x; ++x){
     for(int y = 0; y < m_nDim_y; ++y){
@@ -292,9 +292,16 @@ FCSReturnCode TFCSVoxelHistoLateralCovarianceFluctuations::simulate_hit(Hit& hit
   float radius_mm = TMath::Sqrt(dphi_hit_minus_extrapol_mm * dphi_hit_minus_extrapol_mm + deta_hit_minus_extrapol_mm * deta_hit_minus_extrapol_mm); 
 
   int ix;
-  if(alpha_mm < 0) ix = voxel_template->GetXaxis()->FindBin(2*TMath::Pi()-fabs(alpha_mm))-1;
-  else ix = voxel_template->GetXaxis()->FindBin(alpha_mm)-1;
   int iy = voxel_template->GetYaxis()->FindBin(radius_mm)-1;
+
+  //Treat core as one bin for simulation
+  if(iy == 0){
+      ix == 0;
+  }
+  else{
+      if(alpha_mm < 0) ix = voxel_template->GetXaxis()->FindBin(2*TMath::Pi()-fabs(alpha_mm))-1;
+      else ix = voxel_template->GetXaxis()->FindBin(alpha_mm)-1;
+  }
 
   const int sizex=(*weightvec).size(); 
 
