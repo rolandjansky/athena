@@ -767,29 +767,29 @@ HLT_j45_subjesIS_ftf_preselj45_L1J20:
     0: 5
     1: 5
 HLT_j45_subjesgscIS_ftf_011jvt_L1J15:
-  eventCount: 5
+  eventCount: 6
   stepCounts:
     0: 7
-    1: 5
+    1: 6
   stepFeatures:
     0: 7
-    1: 5
+    1: 6
 HLT_j45_subjesgscIS_ftf_015jvt_L1J15:
-  eventCount: 5
+  eventCount: 6
   stepCounts:
     0: 7
-    1: 5
+    1: 6
   stepFeatures:
     0: 7
-    1: 5
+    1: 6
 HLT_j45_subjesgscIS_ftf_059jvt_L1J15:
-  eventCount: 5
+  eventCount: 6
   stepCounts:
     0: 7
-    1: 5
+    1: 6
   stepFeatures:
     0: 7
-    1: 5
+    1: 6
 HLT_j45_subjesgscIS_ftf_L1J15:
   eventCount: 7
   stepCounts:
@@ -807,15 +807,15 @@ HLT_j45_subjesgscIS_ftf_bdl1r70_split_L1J20:
     0: 5
     1: 5
 HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20:
-  eventCount: 1
+  eventCount: 2
   stepCounts:
     0: 5
     1: 5
-    2: 1
+    2: 2
   stepFeatures:
     0: 5
     1: 5
-    2: 1
+    2: 2
 HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:
   eventCount: 5
   stepCounts:
@@ -887,13 +887,13 @@ HLT_j85_ftf_L1J20:
     0: 5
     1: 3
 HLT_j85_pf_ftf_L1J20:
-  eventCount: 2
+  eventCount: 3
   stepCounts:
     0: 5
-    1: 2
+    1: 3
   stepFeatures:
     0: 5
-    1: 2
+    1: 3
 HLT_mb_sptrk_L1RD0_FILLED:
   eventCount: 19
   stepCounts:
@@ -1609,13 +1609,17 @@ HLT_tilecalib_laser_TilePEB_L1CALREQ2:
 HLT_timeburner_L1All:
   eventCount: 0
 HLT_unconvtrk120_isohpttrack_iaggrmedium_L1XE50:
-  eventCount: 0
-HLT_unconvtrk120_isohpttrack_imedium_L1XE50:
-  eventCount: 1
+  eventCount: 3
   stepCounts:
-    0: 1
+    0: 3
   stepFeatures:
-    0: 1
+    0: 4
+HLT_unconvtrk120_isohpttrack_imedium_L1XE50:
+  eventCount: 9
+  stepCounts:
+    0: 9
+  stepFeatures:
+    0: 13
 HLT_xe100_cvfpufit_L1XE50:
   eventCount: 0
   stepCounts:
@@ -1699,13 +1703,13 @@ HLT_xe30_mht_L1XE10:
   stepFeatures:
     0: 14
 HLT_xe30_mhtpufit_em_subjesgscIS_L1XE10:
-  eventCount: 6
+  eventCount: 5
   stepCounts:
     0: 20
-    1: 6
+    1: 5
   stepFeatures:
     0: 20
-    1: 6
+    1: 5
 HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10:
   eventCount: 3
   stepCounts:
@@ -1715,13 +1719,13 @@ HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10:
     0: 20
     1: 3
 HLT_xe30_pfopufit_L1XE10:
-  eventCount: 3
+  eventCount: 2
   stepCounts:
     0: 20
-    1: 3
+    1: 2
   stepFeatures:
     0: 20
-    1: 3
+    1: 2
 HLT_xe30_pfsum_L1XE10:
   eventCount: 6
   stepCounts:
@@ -1737,13 +1741,13 @@ HLT_xe30_tcpufit_L1XE10:
   stepFeatures:
     0: 6
 HLT_xe30_trkmht_L1XE10:
-  eventCount: 5
+  eventCount: 7
   stepCounts:
     0: 20
-    1: 5
+    1: 7
   stepFeatures:
     0: 20
-    1: 5
+    1: 7
 HLT_xe65_cell_L1XE50:
   eventCount: 0
 HLT_xe65_cell_xe110_tcpufit_L1XE50:
