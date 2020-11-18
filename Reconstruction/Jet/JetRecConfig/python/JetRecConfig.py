@@ -142,11 +142,10 @@ def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
         jetdef = jetOrConstitdef
     
     jetlog.info("Inspecting input file contents")
-    filecontents = configFlags.Input.Collections
+    filecontents = [coll for coll in configFlags.Input.Collections]
 
     inputdeps = [ inputkey for inputkey in jetdef._prereqOrder if inputkey.startswith('input:')]
 
-    
     for inputfull in inputdeps:
         inputInstance = jetdef._prereqDic[inputfull]
         isprimary = False # actually not using it yet.
@@ -163,13 +162,17 @@ def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
                 if constitalg:
                     components.addEventAlgo(constitalg, primary=isprimary)
         else: # it must be a JetInputDef
-            jetlog.debug("Requesting input {} with function {} and specs {}".format(inputInstance.name, inputInstance.algoBuilder, inputInstance.specs) )
-            # check if it has something to build an Algorithm
-            if inputInstance.algoBuilder:
-                components.addEventAlgo( inputInstance.algoBuilder( jetdef, inputInstance.specs ), primary=isprimary )
+            cname = inputInstance.containername(jetdef,inputInstance.specs)
+            if cname in filecontents:
+                jetlog.debug("Input container {0} for prereq {1} already in input file.".format(cname, inputInstance.name))
             else:
-                # for now just hope the input will be present... 
-                pass
+                jetlog.debug("Requesting input {} with function {} and specs {}".format(inputInstance.name, inputInstance.algoBuilder, inputInstance.specs) )
+                # check if it has something to build an Algorithm
+                if inputInstance.algoBuilder:
+                    components.addEventAlgo( inputInstance.algoBuilder( jetdef, inputInstance.specs ), primary=isprimary )
+                else:
+                    # for now just hope the input will be present... 
+                    pass
     return components
 
 
