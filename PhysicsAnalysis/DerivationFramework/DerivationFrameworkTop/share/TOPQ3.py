@@ -133,7 +133,9 @@ TOPQ3Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ3Kernel", Thi
 #====================================================================
 # JetTagNonPromptLepton decorations
 #====================================================================
-import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+#import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as JetTagConfig
+#JetTagNonPromptLepton package is moved to LeptonTaggers package
+import LeptonTaggers.LeptonTaggersConfig as JetTagConfig
 import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 
 # Build AntiKt4PV0TrackJets and run b-tagging
