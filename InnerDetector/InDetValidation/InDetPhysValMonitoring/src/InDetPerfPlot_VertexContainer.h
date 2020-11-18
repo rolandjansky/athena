@@ -27,7 +27,8 @@ public:
   InDetPerfPlot_VertexContainer(InDetPlotBase* pParent, const std::string& dirName);
 
   // Fills vertex container information; also uses EventInfo
-  void fill(const xAOD::VertexContainer& vertices, const xAOD::EventInfo& ei);
+  void fill(const xAOD::VertexContainer& vertices, unsigned int nPU);
+
 private:
   ///@name Number of vertices vs mu
   ///@{

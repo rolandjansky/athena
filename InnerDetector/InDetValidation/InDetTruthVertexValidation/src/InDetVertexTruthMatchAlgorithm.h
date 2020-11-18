@@ -19,9 +19,9 @@ class InDetVertexTruthMatchAlgorithm : public AthAlgorithm {
   InDetVertexTruthMatchAlgorithm( const std::string& name, ISvcLocator* svcLoc );
 
   /// Function initialising the algorithm
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
   /// Function executing the algorithm
-  virtual StatusCode execute();
+  virtual StatusCode execute() override final;
 
  private:
   /// StoreGate key for the muon container to investigate

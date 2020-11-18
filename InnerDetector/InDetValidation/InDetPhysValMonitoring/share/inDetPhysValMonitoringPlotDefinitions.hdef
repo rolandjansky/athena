@@ -123,6 +123,28 @@ TH1F vx_track_d0 "Tracks at vertex d_{0}" 100 -2.0 2.0 "d_{0} (mm)" "Entries" de
 TH1F vx_track_err_d0  "Tracks at vertex d_{0} error" 50 0.0 1.0 "#sigma(d_{0}) (mm)" "Entries" default
 TH1F vx_track_z0 "Tracks at vertex z_{0} - z_{0}^{vertex}" 100 -5.0 5.0 "z_{0}-z_{0}^{vertex} (mm)" "Entries" default
 TH1F vx_track_err_z0 "Tracks at vertex z_{0} error" 50 0.0 5.0 "#sigma(z_{0}) (mm)" "Entries" default
+TH1F vx_type_truth "Vertex Truth-Matched type" 5 -0.5 4.5 "Vertex Truth-Matched type" "Entries" 
+TH1F vx_hs_classification "Event hardscatter vertex classification" 5 -0.5 4.5 "Hardscatter classification" "Entries"
+TProfile vx_nReco_vs_nTruth_inclusive "Number of reco vertices (INCLUSIVE) vs Number of interactions" -0.5 300.5 301 0.0 150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_matched "Number of reco vertices (MATCHED) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_merged "Number of reco vertices (MERGED) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_split "Number of reco vertices (SPLIT) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_fake "Number of reco vertices (FAKE) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_dummy "Number of reco vertices (DUMMY) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_clean "Number of reco vertices (CLEAN) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices" 
+TProfile vx_nReco_vs_nTruth_lowpu "Number of reco vertices (LOWPU) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_highpu "Number of reco vertices (HIGHPU) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_hssplit "Number of reco vertices (HSSPLIT) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TProfile vx_nReco_vs_nTruth_none "Number of reco vertices (NONE) vs Number of interactions" -0.5 300.5 301 0.0  150.0 "Number of interactions" "Number of reco vertices"
+TEfficiency vx_hs_reco_eff "HS vertex reconstruction efficiency" 4 0.0 2.0 "Local PU density [vertices/mm]" 0.8 1.2 "HS vertex reconstruction efficiency" 
+TEfficiency vx_hs_sel_eff "HS vertex selection efficiency (sum[pt,track^2])" 4 0.0 2.0 "Local PU density [vertices/mm]" 0.6 1.2 "HS vertex selection efficiency" 
+TProfile vx_hs_reco_long_reso "Reco Longitudinal Resolution" 4 0.0 2.0 0.0 1.0 "Local PU density [vertices/mm]" "Reco longitudinal resolution [mm]" 
+TProfile vx_hs_reco_trans_reso "Reco Transverse Resolution"  4 0.0 2.0 0.0 1.0 "Local PU density [vertices/mm]" "Reco transverse resolution [mm]" 
+TH2 vx_hs_truth_long_reso_vs_PU "Truth Longitudinal Resolution vs. PU (2D)" 4 0.0 2.0 20 -0.08 0.02 "Local PU density [vertices/mm]" "|Reco-truth| longitudinal resolution [mm]" 
+TH2 vx_hs_truth_trans_reso_vs_PU "Truth Transverse Resolution vs. PU (2D)" 4 0.0 2.0 20 0.0 1.0 "Local PU density [vertices/mm]" "|Reco-truth| transverse resolution [mm]" 
+TH1 vx_hs_truth_long_reso "Truth Longitudinal Resolution" 4 0.0 2.0 0.0 1.0 "Local PU density [vertices/mm]" "|Reco-truth| longitudinal resolution [mm]" 
+TH1 vx_hs_truth_trans_reso "Truth Transverse Resolution" 4 0.0 2.0 0.0 1.0 "Local PU density [vertices/mm]" "|Reco-truth| transverse resolution [mm]" 
+
 #
 # Bad Match Rate (BMR) plots
 TProfile BadMatchRate "Fraction of Tracks with < 50.1% Truth Matching Probability" 20 -2.5 2.5 0 2 "x" "Bad Match Rate" default

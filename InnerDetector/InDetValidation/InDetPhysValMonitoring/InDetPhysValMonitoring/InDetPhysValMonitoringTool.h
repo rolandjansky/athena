@@ -22,6 +22,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
+#include "InDetTruthVertexValidation/IInDetVertexTruthMatchTool.h"
+
 //#gaudi includes
 #include "GaudiKernel/ToolHandle.h"
 //EDM includes
@@ -37,6 +39,10 @@
 //STL includes
 #include <string>
 #include <vector>
+
+
+#include "xAODTruth/TruthPileupEventContainer.h"
+#include "xAODTruth/TruthEventContainer.h"
 
 
 //fwd declaration
@@ -75,6 +81,8 @@ private:
   void fillCutFlow(Root::TAccept& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
   // Get truth particles into a vector, possibly using the pileup from the event
 	const std::vector<const xAOD::TruthParticle *> getTruthParticles();
+	std::pair<const std::vector<const xAOD::TruthVertex*>, const std::vector<const xAOD::TruthVertex*>> getTruthVertices() const;
+
 	//
 	const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );
   // Get a data container; implementation at end of this header file
@@ -99,6 +107,7 @@ private:
 	///EventInfo container name
 	std::string m_eventInfoContainerName;
 
+
 	///Directory name
 	std::string m_dirName;
 
@@ -109,7 +118,8 @@ private:
 	bool m_onlyInsideOutTracks;
 	bool m_TrkSelectPV;   // make track selection relative to PV
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
-  ToolHandle<IAthSelectionTool> m_truthSelectionTool;
+	ToolHandle<IInDetVertexTruthMatchTool> m_vtxValidTool;
+        ToolHandle<IAthSelectionTool> m_truthSelectionTool;
 	std::vector<int> m_prospectsMatched;
 	int m_twoMatchedEProb;
 	int m_threeMatchedEProb;

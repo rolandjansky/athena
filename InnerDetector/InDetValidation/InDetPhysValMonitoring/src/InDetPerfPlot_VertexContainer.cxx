@@ -30,7 +30,7 @@ InDetPerfPlot_VertexContainer::initializePlots() {
 }
 
 void
-InDetPerfPlot_VertexContainer::fill(const xAOD::VertexContainer& vertices, const xAOD::EventInfo& ei) {
+InDetPerfPlot_VertexContainer::fill(const xAOD::VertexContainer& vertices, unsigned int nPU) {
   // fill number of vertices
   int nGoodVertices(0);
 
@@ -40,5 +40,6 @@ InDetPerfPlot_VertexContainer::fill(const xAOD::VertexContainer& vertices, const
     }
     nGoodVertices++;
   }
-  fillHisto(m_vx_n_vs_mu, nGoodVertices, ei.actualInteractionsPerCrossing());
+  fillHisto(m_vx_n_vs_mu, nGoodVertices, nPU);
 }
+

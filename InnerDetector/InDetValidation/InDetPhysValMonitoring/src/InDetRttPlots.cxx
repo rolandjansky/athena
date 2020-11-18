@@ -52,6 +52,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir) : 
   m_verticesPlots(this, "Vertices/AllPrimaryVertices"),
   m_vertexPlots(this, "Vertices/AllPrimaryVertices"),
   m_hardScatterVertexPlots(this, "Vertices/HardScatteringVertex"),
+  m_vertexTruthMatchingPlots(this, "Vertices/Details"),
   m_duplicatePlots(this, "Tracks/SelectedGoodTracks"),
   m_trkInJetPlot(this, "Tracks/SelectedGoodJetTracks"),
   m_trkInJetPlot_highPt(this, "Tracks/SelectedGoodHighPtJetTracks"),
@@ -234,25 +235,33 @@ InDetRttPlots::fillRF(const xAOD::TrackParticle& track, float weight) {
   m_BadMatchRate.fillRF(track, weight);
 }
 
+
+//Fill Vertexing Plots
+//
 void
-InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer) {
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices) {
   // fill vertex container general properties
-  // m_verticesPlots.fill(vertexContainer); //if ever needed
+  // m_verticesVsMuPlots.fill(vertexContainer); //if ever needed
   // fill vertex-specific properties, for all vertices and for hard-scattering vertex
   for (const auto& vtx : vertexContainer.stdcont()) {
     if (vtx->vertexType() == xAOD::VxType::NoVtx) {
+      ATH_MSG_DEBUG("IN InDetRttPlots::fill, found xAOD::VxType::NoVtx");
       continue; // skip dummy vertex
     }
     m_vertexPlots.fill(*vtx);
+    ATH_MSG_DEBUG("IN InDetRttPlots::fill, filling for all vertices");
     if (vtx->vertexType() == xAOD::VxType::PriVtx) {
       m_hardScatterVertexPlots.fill(*vtx);
     }
   }
+
+  m_vertexTruthMatchingPlots.fill(vertexContainer, truthHSVertices, truthPUVertices);
+  
 }
 
 void
-InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei) {
-  m_verticesPlots.fill(vertexContainer, ei);
+InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, unsigned int nPU ) {
+  m_verticesPlots.fill(vertexContainer, nPU);
 }
 
 void

@@ -676,8 +676,8 @@ InDetRttLargeD0Plots::fill(const xAOD::VertexContainer& vertexContainer) {
 }
 
 void
-InDetRttLargeD0Plots::fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei) {
-  m_verticesPlots.fill(vertexContainer, ei);
+InDetRttLargeD0Plots::fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU) {
+  m_verticesPlots.fill(vertexContainer, nPU);
 }
 
 void
