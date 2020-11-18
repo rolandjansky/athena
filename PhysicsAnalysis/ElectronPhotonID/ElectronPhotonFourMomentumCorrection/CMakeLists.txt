@@ -18,7 +18,7 @@ atlas_add_library( ElectronPhotonFourMomentumCorrectionLib
    ElectronPhotonFourMomentumCorrection/*.h Root/*.cxx
    PUBLIC_HEADERS ElectronPhotonFourMomentumCorrection
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   PRIVATE_INCUDE_DIRS ${Boost_INCLUDE_DIRS}
+   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools AsgMessagingLib xAODCaloEvent xAODEgamma
    xAODEventInfo PATInterfaces EgammaAnalysisInterfacesLib PATCoreAcceptLib
    xAODRootAccess xAODTracking

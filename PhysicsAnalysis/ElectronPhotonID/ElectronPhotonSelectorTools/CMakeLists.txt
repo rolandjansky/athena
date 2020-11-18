@@ -40,7 +40,7 @@ if( XAOD_STANDALONE )
    atlas_add_executable( EGIdentification_testEGIdentificationPoints
       util/testEGIdentificationPoints.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools
+      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools
       EgammaAnalysisInterfacesLib ElectronPhotonSelectorToolsLib
       PATCoreAcceptLib xAODCore xAODEgamma )
 
