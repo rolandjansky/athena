@@ -96,16 +96,6 @@ namespace InDetDD {
 
     return (m_etaDirection) ? 1. : -1.;
   }
-    
-  inline const Amg::Vector3D& SiDetectorElement::normal(const Identifier&) const
-  {
-    return normal();
-  }
-
-  inline const Amg::Vector3D& SiDetectorElement::center(const Identifier&) const
-  {
-    return center();
-  }
 
   inline HepGeom::Point3D<double> SiDetectorElement::globalPositionHit(const HepGeom::Point3D<double>& simulationLocalPos) const
   {

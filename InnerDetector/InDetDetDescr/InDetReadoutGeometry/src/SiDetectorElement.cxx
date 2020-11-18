@@ -267,29 +267,7 @@ namespace InDetDD {
 
     return m_etaAxis;
   }
-
-  const Amg::Vector3D&
-  SiDetectorElement::normal() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_normal;
-  }
-
-  const Amg::Vector3D&
-  SiDetectorElement::center() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_center;
-  }
-
+ 
   Amg::Vector2D
   SiDetectorElement::hitLocalToLocal(double xEta, double xPhi) const  // Will change order to phi, eta
   {
@@ -445,76 +423,6 @@ namespace InDetDD {
     return m_isStereo;
   }
 
-  // Get eta/phi extent. Returns min/max eta and phi and r (for barrel)
-  // or z (for endcap) Takes as input the vertex spread in z (+-deltaZ).
-  // Gets 4 corners of the sensor and calculates eta phi for each corner
-  // for both +/- vertex spread.  The returned phi is between -M_PI and M_PI
-  // with the direction minPhi to maxPhi always in the positive sense,
-  // so if the element extends across the -180/180 boundary then minPhi will
-  // be greater than maxPhi.
-  void
-  SiDetectorElement::getEtaPhiRegion(double deltaZ, double& etaMin, double& etaMax, double& phiMin,
-                                     double& phiMax, double& rz) const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    HepGeom::Point3D<double> corners[4];
-    getCorners(corners);
-
-    bool first = true;
-
-    double phiOffset = 0.;
-
-    for (int i = 0; i < 4; i++) {
-      double etaMinPoint = 0.;
-      double etaMaxPoint = 0.;
-      double phiPoint = 0.;
-
-      // Get the eta phi value for this corner.
-      getEtaPhiPoint(corners[i], deltaZ, etaMinPoint, etaMaxPoint, phiPoint);
-
-      if (first) { // Use the first point to initialize the min/max values.
-
-        // Put phi in a range so that we are not near -180/+180 division.
-        // Do this by adding an offset if phi > 90 CLHEP::deg or < -90 CLHEP::deg. 
-        // This offset is later removed.
-        if (phiPoint < -0.5 * M_PI) {
-          phiOffset = -0.5 * M_PI;
-        } else if (phiPoint > 0.5 * M_PI) {
-          phiOffset = 0.5 * M_PI;
-        }
-        phiMin = phiMax = phiPoint - phiOffset;
-        etaMin = etaMinPoint;
-        etaMax = etaMaxPoint;
-      } else {
-        phiPoint -= phiOffset;
-        // put phi back in -M_PI < phi < +M_PI range
-        if (phiPoint < -M_PI) phiPoint += 2. * M_PI;
-        if (phiPoint >  M_PI) phiPoint -= 2. * M_PI;
-        phiMin = std::min(phiMin, phiPoint);
-        phiMax = std::max(phiMax, phiPoint);
-        etaMin = std::min(etaMin, etaMinPoint);
-        etaMax = std::max(etaMax, etaMaxPoint);
-      }
-      first = false;
-    }
-
-    // put phi back in -M_PI < phi < +M_PI range
-    phiMin += phiOffset;
-    phiMax += phiOffset;
-    if (phiMin < -M_PI) phiMin += 2. * M_PI;
-    if (phiMin >  M_PI) phiMin -= 2. * M_PI;
-    if (phiMax < -M_PI) phiMax += 2. * M_PI;
-    if (phiMax >  M_PI) phiMax -= 2. * M_PI;
-
-    rz = get_rz();
-
-    }
-
-
   double SiDetectorElement::get_rz() const
   {
     // Calculate rz = r (barrel) or z (endcap)
@@ -527,11 +435,11 @@ namespace InDetDD {
     }
   }
   
-  const Trk::SurfaceBounds&
-  SiDetectorElement::bounds() const
-  {
-    return m_design->bounds();
-  }
+  // const Trk::SurfaceBounds&
+  //SiDetectorElement::bounds() const
+  //{
+  //  return m_design->bounds();
+  //}
 
   bool
   SiDetectorElement::nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const
@@ -557,46 +465,6 @@ namespace InDetDD {
   SiDetectorElement::inDetector(const HepGeom::Point3D<double>& globalPosition, double phiTol, double etaTol) const
   {
     return m_design->inDetector(localPosition(globalPosition), phiTol, etaTol);
-  }
-
-  Identifier
-  SiDetectorElement::identifierOfPosition(const Amg::Vector2D& localPosition) const
-  {
-    SiCellId cellId = m_design->cellIdOfPosition(localPosition);
-    return identifierFromCellId(cellId);
-  }
-
-  SiCellId
-  SiDetectorElement::cellIdOfPosition(const Amg::Vector2D& localPosition) const
-  {
-    return m_design->cellIdOfPosition(localPosition);
-  }
-
-  Amg::Vector2D
-  SiDetectorElement::rawLocalPositionOfCell(const SiCellId& cellId) const
-  {
-    return m_design->localPositionOfCell(cellId);
-  }
-
-  Amg::Vector2D
-  SiDetectorElement::rawLocalPositionOfCell(const Identifier& id) const
-  {
-    SiCellId cellId = cellIdFromIdentifier(id);
-    return m_design->localPositionOfCell(cellId);
-  }
-
-  int
-  SiDetectorElement::numberOfConnectedCells(const SiCellId cellId) const
-  {
-    SiReadoutCellId readoutId = m_design->readoutIdOfCell(cellId);
-    return m_design->numberOfConnectedCells(readoutId);
-  }
-
-  SiCellId
-  SiDetectorElement::connectedCell(const SiCellId cellId, int number) const
-  {
-    SiReadoutCellId readoutId = m_design->readoutIdOfCell(cellId);
-    return m_design->connectedCell(readoutId, number);
   }
 
   // Special method for SCT to retrieve the two ends of a "strip"
@@ -701,176 +569,7 @@ namespace InDetDD {
 
     m_stereoCacheValid.store(true);
   }
-
-  // Get min/max or r, z,and phi
-  // helper method only to be used for the cache construction
-  // i.e inside updateCache
-  void
-  SiDetectorElement::getExtent(double& rMin, double& rMax,
-                               double& zMin, double& zMax,
-                               double& phiMin, double& phiMax) const
-  {
-
-     double radialShift = 0.;
-     /*
-    Deprecated method for specialized ITk DetElement with different global frame - to be replaced!
-    const InDetDD::StripStereoAnnulusDesign* testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
-    if (testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
-     */
-
-    HepGeom::Point3D<double> corners[4];
-    getCorners(corners);
-
-    bool first = true;
-
-    double phiOffset = 0.;
-
-   
-    const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
-
-    for (int i = 0; i < 4; i++) {
-
-      //if (testDesign) corners[i].transform(rShift); see comment re ITk...
-
-      // m_tranform is already there as  part of the cache construction
-      // This method seems to be used only as a helper for updateCache
-      HepGeom::Point3D<double> globalPoint = m_transformCLHEP * corners[i];
-
-      double rPoint = globalPoint.perp();
-      double zPoint = globalPoint.z();
-      double phiPoint = globalPoint.phi();
-
-      // Use first point to initializa min/max values.
-      if (first) {
-
-        // Put phi in a range so that we are not near -180/+180 division.
-        // Do this by adding an offset if phi > 90 CLHEP::deg or < -90 CLHEP::deg. 
-        // This offset is later removed.
-        if (phiPoint < -0.5 * M_PI) {
-          phiOffset = -0.5 * M_PI;
-        } else if (phiPoint > 0.5 * M_PI) {
-          phiOffset = 0.5 * M_PI;
-        }
-        phiMin = phiMax = phiPoint - phiOffset;
-        rMin = rMax = rPoint;
-        zMin = zMax = zPoint;
-
-      } else {
-        phiPoint -= phiOffset;
-        // put phi back in -M_PI < phi < +M_PI range
-        if (phiPoint < -M_PI) phiPoint += 2. * M_PI;
-        if (phiPoint > M_PI)  phiPoint -= 2. * M_PI;
-        phiMin = std::min(phiMin, phiPoint);
-        phiMax = std::max(phiMax, phiPoint);
-        rMin = std::min(rMin, rPoint);
-        rMax = std::max(rMax, rPoint);
-        zMin = std::min(zMin, zPoint);
-        zMax = std::max(zMax, zPoint);
-      }
-      first = false;
-    }
-
-    // put phi back in -M_PI < phi < +M_PI range
-    phiMin += phiOffset;
-    phiMax += phiOffset;
-    if (phiMin < -M_PI) phiMin += 2. * M_PI;
-    if (phiMin >  M_PI) phiMin -= 2. * M_PI;
-    if (phiMax < -M_PI) phiMax += 2. * M_PI;
-    if (phiMax >  M_PI) phiMax -= 2. * M_PI;
-
-  }
-
-  void
-  SiDetectorElement::getCorners(HepGeom::Point3D<double>* corners) const
-  {
-    // This makes the assumption that the forward SCT detectors are orientated such that 
-    // the positive etaAxis corresponds to the top of the detector where the width is largest.
-    // This is currently always the case.
-    // For the SCT barrel and pixel detectors minWidth and maxWidth are the same and so should 
-    // work for all orientations.
-
-    double tmpMinWidth = minWidth();
-    double tmpMaxWidth = maxWidth();
-    double tmpLength   = length();
   
-    // Lower left
-    corners[0][distPhi] = -0.5 * tmpMinWidth;
-    corners[0][distEta] = -0.5 * tmpLength;
-    corners[0][distDepth] = 0.;
-
-    // Lower right
-    corners[1][distPhi] =  0.5 * tmpMinWidth;
-    corners[1][distEta] = -0.5 * tmpLength;
-    corners[1][distDepth] = 0.;
-
-    // Upper Right
-    corners[2][distPhi] = 0.5 * tmpMaxWidth;
-    corners[2][distEta] = 0.5 * tmpLength;
-    corners[2][distDepth] = 0.;
-
-    // Upper left
-    corners[3][distPhi] = -0.5 * tmpMaxWidth;
-    corners[3][distEta] =  0.5 * tmpLength;
-    corners[3][distDepth] = 0.;
-  }
-
-  // Gets eta phi for a point given in local coordinates. deltaZ is specified to
-  // account for the vertex spread. phi is independent of this vertex
-  // spread. etaMax will correspond to zMin (-deltaZ) and etaMin will
-  // correspond to zMax (+deltaZ).
-  void
-  SiDetectorElement::getEtaPhiPoint(const HepGeom::Point3D<double>& point, double deltaZ,
-                                    double& etaMin, double& etaMax, double& phi) const
-  {
-    // Get the point in global coordinates.
-    HepGeom::Point3D<double> globalPoint = globalPosition(point);
-
-    double r = globalPoint.perp();
-    double z = globalPoint.z();
-  
-    double thetaMin = std::atan2(r,(z + deltaZ));
-    etaMax = -std::log(tan(0.5 * thetaMin));
-    double thetaMax = std::atan2(r,(z - deltaZ));
-    etaMin = -std::log(tan(0.5 * thetaMax));
-
-    phi = globalPoint.phi();
-  }
-  /*
-  const HepGeom::Transform3D
-  SiDetectorElement::recoToHitTransformImpl() const
-  {
-    //        = transfromHit * hitLocal
-    //        = transformHit * recoToHitTransform * recoLocal
-    // recoToHitTransform takes recoLocal to hitLocal
-    // x,y,z -> y,z,x
-    // equiv to a rotation around Y of 90 deg followed by a rotation around X of 90deg
-    //
-    // recoToHit is static as it needs to be calculated once only.
-    // We use the HepGeom::Transform3D constructor which takes one coordinates system to another where the
-    // coordinate system is defined by it center and two axes.
-    // distPhi, distEta are the reco local axes and hitPhi and hitEta are the hit local axes.
-    // It assume phi, eta, depth makes a right handed system which is the case.
-    static const HepGeom::Vector3D<double> localAxes[3] = {
-      HepGeom::Vector3D<double>(1., 0., 0.),
-      HepGeom::Vector3D<double>(0., 1., 0.),
-      HepGeom::Vector3D<double>(0., 0., 1.)
-    };
-
-    const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0., 0., 0.),
-                                         localAxes[distPhi],
-                                         localAxes[distEta],
-                                         HepGeom::Point3D<double>(0., 0., 0.),
-                                         localAxes[m_hitPhi],
-                                         localAxes[m_hitEta]);
-
-    // Swap direction of axis as appropriate
-    CLHEP::Hep3Vector scale(1., 1., 1.);
-    if (!m_phiDirection)   scale[distPhi]   = -1.;
-    if (!m_etaDirection)   scale[distEta]   = -1.;
-    if (!m_depthDirection) scale[distDepth] = -1.;
-    return recoToHit * HepGeom::Scale3D(scale[0], scale[1], scale[2]);
-  }
-  */
   double
   SiDetectorElement::sinStereoImpl() const
   {

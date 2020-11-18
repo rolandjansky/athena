@@ -724,22 +724,6 @@ namespace InDetDD {
     mutable double m_maxPhi ATLAS_THREAD_SAFE {std::numeric_limits<double>::lowest()};
     //@}
 
-    /**
-     * @name Variable set by determineStereo with m_stereoCacheValid of false
-     * Happens only once
-     */
-    //@{
-    mutable bool m_isStereo ATLAS_THREAD_SAFE {false};
-    //@}
-
-    /**
-     * @name Variable set by surfaces ith m_surfacesValid of false
-     * Happens only once
-     */
-    //@{
-    mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE {};
-    //@}
-
   };
     
 } // namespace InDetDD
