@@ -151,6 +151,7 @@ def muCombAlgSequence(ConfigFlags):
     insideoutMuonChainFilter.L2MuCombContainer = muNames.L2CBName+"IOmode"
     insideoutMuonChainFilter.WriteMuFast = True
     insideoutMuonChainFilter.WriteMuComb = True
+    insideoutMuonChainFilter.NotGate = True
 
     muFastIOFilterSequence = seqAND("l2muFastIOFilterSequence", [insideoutMuonChainFilter, muFastIORecoSequence])
 
@@ -610,11 +611,11 @@ def getInsideOutMuonChainNames():
     chains =[]
 
     try:
-        chains += [chain.name for chain in muonSlice if "l2io" not in chain.name]
+        chains += [chain.name for chain in muonSlice if "l2io" in chain.name]
     except Exception as e:
         log.debug(e)
     try:
-        chains += [chain.name for chain in bphysSlice if "l2io" not in chain.name]
+        chains += [chain.name for chain in bphysSlice if "l2io" in chain.name]
     except Exception as e:
         log.debug(e)
 
