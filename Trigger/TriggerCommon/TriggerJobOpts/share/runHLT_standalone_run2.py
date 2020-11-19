@@ -373,7 +373,9 @@ TriggerFlags.doMuon=True
 TriggerFlags.doCalo=True
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 athenaCommonFlags.isOnline = True
+ConfigFlags.Common.isOnline = True
 
 #TriggerFlags.CosmicSlice.testCosmic=False #Makes cosmic slice more quiet by default
 
@@ -398,6 +400,11 @@ elif PoolRDOInput!=None:
     else:
         athenaCommonFlags.PoolRDOInput=PoolRDOInput
     athenaCommonFlags.FilesInput = athenaCommonFlags.PoolRDOInput()
+
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+
+# Legacy (Run-2) trigger produces Run-2 EDM
+ConfigFlags.Trigger.EDMDecodingVersion = 2
 
 # Conditions and geometry tag
 if globalflags.InputFormat.is_pool() and (setDetDescr==None or setGlobalTag==None):

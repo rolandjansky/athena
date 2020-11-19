@@ -242,10 +242,8 @@ class TriggerConfigGetter(Configured):
         ########################################################################
         # START OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
         ########################################################################
-        from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
-        EDMDecodingVersion()  # In most use cases this needs to be called much earlier than in HLTTriggerResultGetter
-
-        if TriggerFlags.EDMDecodingVersion() >= 3:
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.EDMDecodingVersion >= 3:
             if self.hasxAODMeta:
                 if not hasattr(svcMgr, 'xAODConfigSvc'):
                     from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
@@ -435,7 +433,6 @@ class TriggerConfigGetter(Configured):
 
         # Get the algorithm sequence:
         from AthenaCommon.AlgSequence import AlgSequence
-        from .TriggerFlags import TriggerFlags
         topAlgs = AlgSequence()
 
         # Add the algorithm creating the trigger configuration metadata for
@@ -443,7 +440,8 @@ class TriggerConfigGetter(Configured):
         try: 
             writeTriggerMenu = True
             writeMenuJSON = False
-            if TriggerFlags.EDMDecodingVersion() <= 2:
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            if ConfigFlags.Trigger.EDMDecodingVersion <= 2:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
             else:
@@ -462,7 +460,6 @@ class TriggerConfigGetter(Configured):
                 Configurable.configurableRun3Behavior += 1
                 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
                 from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
-                from AthenaConfiguration.AllConfigFlags import ConfigFlags
                 acc = ComponentAccumulator()
                 acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
                 acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
@@ -493,7 +490,7 @@ class TriggerConfigGetter(Configured):
                                 ]
                 objKeyStore.addManyTypesMetaData( metadataItems )
 
-            if TriggerFlags.EDMDecodingVersion() >= 3:
+            if ConfigFlags.Trigger.EDMDecodingVersion >= 3:
                 from TrigEDMConfig.TriggerEDMRun3 import recordable
                 from AthenaConfiguration.ComponentFactory import CompFactory
                 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable

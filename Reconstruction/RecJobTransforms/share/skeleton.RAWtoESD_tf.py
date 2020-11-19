@@ -30,6 +30,7 @@ rec.DPDMakerScripts.append(SetupOutputDPDs(runArgs,listOfFlags))
 
 from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 
 
@@ -55,10 +56,12 @@ if hasattr(runArgs,"inputBSFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('bytestream')
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( runArgs.inputBSFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.BSRDOInput()
 if len(DRAWInputs) == 1:
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('bytestream')
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( getattr(runArgs, DRAWInputs[0]) )
+    ConfigFlags.Input.Files = athenaCommonFlags.BSRDOInput()
 elif len(DRAWInputs) > 1:
     raise RuntimeError('Impossible to run RAWtoESD with multiple input DRAW files (viz.: {0})'.format(DRAWInputs))
 
@@ -72,6 +75,7 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDO_TRIGFile)
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
     rec.doTrigger.set_Value_and_Lock(False)
     recAlgs.doTrigger.set_Value_and_Lock(False)
     from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags

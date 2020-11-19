@@ -351,14 +351,13 @@ if DQMonFlags.doMonitoring():
       from AthenaMonitoring.AthenaMonitoringCfg import AthenaMonitoringCfg
       from AthenaMonitoring.DQConfigFlags import allSteeringFlagsOff
       from AthenaMonitoring import AthenaMonitoringConf
-      from TriggerJobOpts.TriggerFlags import TriggerFlags
 
       Steering = ConfigFlags.DQ.Steering
       Steering.doGlobalMon=DQMonFlags.doGlobalMon()
       Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon()
       Steering.doCTPMon=DQMonFlags.doCTPMon()
       # do not enable new HLT monitoring if we are not in Run 3 EDM
-      Steering.doHLTMon=DQMonFlags.doHLTMon() and TriggerFlags.EDMDecodingVersion() == 3
+      Steering.doHLTMon=DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMDecodingVersion == 3
       Steering.doPixelMon=DQMonFlags.doPixelMon()
       Steering.doSCTMon=DQMonFlags.doSCTMon()
       Steering.doTRTMon=DQMonFlags.doTRTMon()
