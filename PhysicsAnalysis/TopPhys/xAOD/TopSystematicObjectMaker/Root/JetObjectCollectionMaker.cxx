@@ -381,88 +381,86 @@ namespace top {
     ///-- Shallow copy of the xAOD --///
     std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > shallow_xaod_copy = xAOD::shallowCopyContainer(*xaod);
 
+    ///-- Apply calibration --///
+    ///-- Calibrate jet container --///
+    top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)), "Failed to applyCalibration");
+
     ///-- Loop over the xAOD Container --///
-//    for (const auto jet : *(shallow_xaod_copy.first)) {
-//      if (!isLargeR) { ///-- small-R jets used in most analyses --///
-//        ///-- Calibrate jet --///
-//
-//        top::check(m_jetCalibrationTool->applyCalibration(*jet), "Failed to applyCalibration");
-//
-//        // only multiply by JSF and bJSF if one of them != 1.0 (used by top mass analysis)
-//        float JSF = m_config->JSF();
-//        float bJSF = m_config->bJSF();
-//
-//        if (JSF != 1.0 || bJSF != 1.0) {
-//          int truthflav = -1;
-//          if (jet->isAvailable<int>("PartonTruthLabelID")) {
-//            jet->getAttribute("PartonTruthLabelID", truthflav);
-//          }
-//
-//          xAOD::JetFourMom_t jet_p4 = jet->jetP4() * JSF;
-//          if (truthflav == 5) jet_p4 = jet_p4 * bJSF;
-//
-//          jet->setJetP4(jet_p4);
-//        }
-//        // end application JSF/bJSF
-//
-//
-//        top::check(decorateBJets(*jet), "Failed to decorate if b-jet");
-//      }
-//
-//      if (isLargeR && m_jetSubstructure.get() != nullptr) {
-//        m_jetSubstructure->correctJet(*jet);
-//      }
-//
-//      if (isLargeR) {
-//        ///-- Calibrate jet --///
-//
-//        float tau3 = jet->getAttribute<float>("Tau3_wta");
-//        float tau2 = jet->getAttribute<float>("Tau2_wta");
-//        float tau1 = jet->getAttribute<float>("Tau1_wta");
-//        float ECF1 = jet->getAttribute<float>("ECF1");
-//        float ECF2 = jet->getAttribute<float>("ECF2");
-//        float ECF3 = jet->getAttribute<float>("ECF3");
-//
-//        jet->auxdecor<float>("Tau32_wta") = fabs(tau2) > 1.e-6 ? (tau3 / tau2) : -999;  // 999 to match
-//                                                                                        // JetSubStructureMomentTools/NSubjettinessRatiosTool
-//        jet->auxdecor<float>("Tau21_wta") = fabs(tau1) > 1.e-6 ? (tau2 / tau1) : -999;  // 999 to match
-//                                                                                        // JetSubStructureMomentTools/NSubjettinessRatiosTool
-//        // Same definition as in JetSubStructureMomentTools/Root/EnergyCorrelatorRatiosTool.cxx
-//        jet->auxdecor<float>("D2") = (ECF2 > 1e-8) ? (ECF3*ECF1*ECF1*ECF1) / (ECF2*ECF2*ECF2) : -999;
-//        jet->auxdecor<float>("C2") = (ECF2 > 1e-8) ? (ECF3*ECF1) / (ECF2*ECF2) : -999;
-//        jet->auxdecor<float>("E3") = (ECF1 > 1e-8) ? ECF3 / (ECF1*ECF1*ECF1) : -999;
-//                                                                                      
-//
-//        top::check(m_jetCalibrationToolLargeR->applyCalibration(*jet), "Failed to applyCalibration");
-//
-//        ///-- for TA mass or calo mass, the calibrated mass or pt needs special treatment --///
-//        const std::string calibChoice = m_config->largeRJESJMSConfig();
-//        if (m_config->isMC()) {
-//          ///-- Truth labeling required by the large-R jet uncertainties --///
-////          top::check(m_jetTruthLabelingTool->modifyJet(*jet), "Failed to do truth labeling for large-R jet");
-//          if (calibChoice == "TAMass") {
-//            xAOD::JetFourMom_t jet_calib_p4;
-//            jet->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jet_calib_p4);
-//            jet->setJetP4(jet_calib_p4);
-//          }
-//        } else { //For data, there's only one config file so special method is required for TA mass and Calos mass
-//          if (calibChoice == "CaloMass") {
-//            xAOD::JetFourMom_t jetInsituP4_calo;
-//            jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumCalo", jetInsituP4_calo);
-//            jet->setJetP4(jetInsituP4_calo);
-//          } else if (calibChoice == "TAMass") {
-//            xAOD::JetFourMom_t jetInsituP4_ta;
-//            jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumTA", jetInsituP4_ta);
-//            jet->setJetP4(jetInsituP4_ta);
-//          }
-//        }
-//      }
-//
-//      ///-- Update JVT --///
-//      if (!isLargeR) {
-//        jet->auxdecor<float>("AnalysisTop_JVT") = m_jetUpdateJvtTool->updateJvt(*jet);
-//      }
-//    }
+    for (const auto jet : *(shallow_xaod_copy.first)) {
+      if (!isLargeR) { ///-- small-R jets used in most analyses --///
+        // only multiply by JSF and bJSF if one of them != 1.0 (used by top mass analysis)
+        float JSF = m_config->JSF();
+        float bJSF = m_config->bJSF();
+
+        if (JSF != 1.0 || bJSF != 1.0) {
+          int truthflav = -1;
+          if (jet->isAvailable<int>("PartonTruthLabelID")) {
+            jet->getAttribute("PartonTruthLabelID", truthflav);
+          }
+
+          xAOD::JetFourMom_t jet_p4 = jet->jetP4() * JSF;
+          if (truthflav == 5) jet_p4 = jet_p4 * bJSF;
+
+          jet->setJetP4(jet_p4);
+        }
+        // end application JSF/bJSF
+
+
+        top::check(decorateBJets(*jet), "Failed to decorate if b-jet");
+      }
+
+      if (isLargeR && m_jetSubstructure.get() != nullptr) {
+        m_jetSubstructure->correctJet(*jet);
+      }
+
+      if (isLargeR) {
+        ///-- Calibrate jet --///
+
+        float tau3 = jet->getAttribute<float>("Tau3_wta");
+        float tau2 = jet->getAttribute<float>("Tau2_wta");
+        float tau1 = jet->getAttribute<float>("Tau1_wta");
+        float ECF1 = jet->getAttribute<float>("ECF1");
+        float ECF2 = jet->getAttribute<float>("ECF2");
+        float ECF3 = jet->getAttribute<float>("ECF3");
+
+        jet->auxdecor<float>("Tau32_wta") = fabs(tau2) > 1.e-6 ? (tau3 / tau2) : -999;  // 999 to match
+                                                                                        // JetSubStructureMomentTools/NSubjettinessRatiosTool
+        jet->auxdecor<float>("Tau21_wta") = fabs(tau1) > 1.e-6 ? (tau2 / tau1) : -999;  // 999 to match
+                                                                                        // JetSubStructureMomentTools/NSubjettinessRatiosTool
+        // Same definition as in JetSubStructureMomentTools/Root/EnergyCorrelatorRatiosTool.cxx
+        jet->auxdecor<float>("D2") = (ECF2 > 1e-8) ? (ECF3*ECF1*ECF1*ECF1) / (ECF2*ECF2*ECF2) : -999;
+        jet->auxdecor<float>("C2") = (ECF2 > 1e-8) ? (ECF3*ECF1) / (ECF2*ECF2) : -999;
+        jet->auxdecor<float>("E3") = (ECF1 > 1e-8) ? ECF3 / (ECF1*ECF1*ECF1) : -999;
+
+
+        ///-- for TA mass or calo mass, the calibrated mass or pt needs special treatment --///
+        const std::string calibChoice = m_config->largeRJESJMSConfig();
+        if (m_config->isMC()) {
+          ///-- Truth labeling required by the large-R jet uncertainties --///
+          top::check(m_jetTruthLabelingTool->modifyJet(*jet), "Failed to do truth labeling for large-R jet");
+          if (calibChoice == "TAMass") {
+            xAOD::JetFourMom_t jet_calib_p4;
+            jet->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jet_calib_p4);
+            jet->setJetP4(jet_calib_p4);
+          }
+        } else { //For data, there's only one config file so special method is required for TA mass and Calos mass
+          if (calibChoice == "CaloMass") {
+            xAOD::JetFourMom_t jetInsituP4_calo;
+            jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumCalo", jetInsituP4_calo);
+            jet->setJetP4(jetInsituP4_calo);
+          } else if (calibChoice == "TAMass") {
+            xAOD::JetFourMom_t jetInsituP4_ta;
+            jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumTA", jetInsituP4_ta);
+            jet->setJetP4(jetInsituP4_ta);
+          }
+        }
+      }
+
+      ///-- Update JVT --///
+      if (!isLargeR) {
+        jet->auxdecor<float>("AnalysisTop_JVT") = m_jetUpdateJvtTool->updateJvt(*jet);
+      }
+    }
 
     // Check if the derivation we are running on contains
     // MET_Track (once), if so apply the fJVT decoration
