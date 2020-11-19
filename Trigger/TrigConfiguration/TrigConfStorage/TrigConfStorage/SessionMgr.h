@@ -89,7 +89,7 @@ namespace TrigConf {
       std::string            m_user { "" };        ///< user name
       std::string            m_password { "" };    ///< password
       bool                   m_useFrontier { false }; ///< uses frontier instead of oracle
-      bool                   m_useSQLite { true }; ///< uses frontier instead of oracle
+      bool                   m_useSQLite { true }; ///< resolve sqlite in the replicaSorter
       int                    m_retrialPeriod {0};
       int                    m_retrialTimeout {0};
       int                    m_connectionTimeout {0};
