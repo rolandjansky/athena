@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -710,10 +710,10 @@ InDetPhysValMonitoringTool::getTruthParticles() {
   } else {
     if (m_pileupSwitch == "HardScatter") {
       // get truthevent container to separate out pileup and hardscatter truth particles
+
       const xAOD::TruthEventContainer* truthEventContainer = nullptr;
-      const std::string truthEventCollName =
-        evtStore()->contains<xAOD::TruthEventContainer>("TruthEvents") ? "TruthEvents" : "TruthEvent";
-      evtStore()->retrieve(truthEventContainer, truthEventCollName);
+      const std::string truthEventCollName = evtStore()->contains<xAOD::TruthEventContainer>("TruthEvents") ? "TruthEvents" : "TruthEvent";
+      if ( evtStore()->contains<xAOD::TruthEventContainer>(truthEventCollName) ) evtStore()->retrieve(truthEventContainer, truthEventCollName);
       const xAOD::TruthEvent* event = (truthEventContainer) ? truthEventContainer->at(0) : nullptr;
       if (not event) {
         return tempVec;
@@ -731,10 +731,8 @@ InDetPhysValMonitoringTool::getTruthParticles() {
       ATH_MSG_VERBOSE("getting TruthPileupEvents container");
       // get truth particles from all pileup events
       const xAOD::TruthPileupEventContainer* truthPileupEventContainer = nullptr;
-      const std::string truthPUEventCollName =
-        evtStore()->contains<xAOD::TruthPileupEventContainer>("TruthPileupEvents") ? "TruthPileupEvents" :
-        "TruthPileupEvent";
-      evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
+      const std::string truthPUEventCollName = evtStore()->contains<xAOD::TruthPileupEventContainer>("TruthPileupEvents") ? "TruthPileupEvents" : "TruthPileupEvent";
+      if (evtStore()->contains<xAOD::TruthPileupEventContainer>(truthPUEventCollName)) evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
       if (truthPileupEventContainer) {
         const unsigned int nPileup = truthPileupEventContainer->size();
         tempVec.reserve(nPileup * 200); // quick initial guess, will still save some time
@@ -792,7 +790,7 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
     ATH_MSG_VERBOSE("Getting TruthEvents container.");
     const xAOD::TruthEventContainer* truthEventContainer = nullptr;
     const std::string truthEventCollName = evtStore()->contains<xAOD::TruthEventContainer>("TruthEvents") ? "TruthEvents" : "TruthEvent";
-    evtStore()->retrieve(truthEventContainer, truthEventCollName);
+    if ( evtStore()->contains<xAOD::TruthEventContainer>(truthEventCollName) ) evtStore()->retrieve(truthEventContainer, truthEventCollName);
 
     if ( truthEventContainer) {
       for (const auto& evt : *truthEventContainer) {
@@ -811,8 +809,7 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
     ATH_MSG_VERBOSE("Getting TruthPileupEvents container.");
     const xAOD::TruthPileupEventContainer* truthPileupEventContainer = nullptr;
     const std::string truthPUEventCollName = evtStore()->contains<xAOD::TruthPileupEventContainer>("TruthPileupEvents") ? "TruthPileupEvents" : "TruthPileupEvent";
-    evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
-
+    if (evtStore()->contains<xAOD::TruthPileupEventContainer>(truthPUEventCollName)) evtStore()->retrieve(truthPileupEventContainer, truthPUEventCollName);
 
     if ( truthPileupEventContainer) {
       for (const auto& evt : *truthPileupEventContainer) {
@@ -822,7 +819,8 @@ InDetPhysValMonitoringTool::getTruthVertices() const {
         }
       }
     }
-    else {
+    //Only triggers error if asked explicitly for PileUp configuration
+    else if(m_pileupSwitch == "PileUp"){
       ATH_MSG_ERROR("No entries in TruthPileupEvents container!");
     }
   }
