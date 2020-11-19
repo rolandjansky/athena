@@ -76,6 +76,19 @@ class InfoHelperPtAbsEta : public InfoHelper
         }
 };
 
+class InfoHelperPtAbsMass : public InfoHelper
+{
+    public:
+        InfoHelperPtAbsMass(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelperPtAbsMass* clone() const { return new InfoHelperPtAbsMass(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.pt()*m_energyScale,getAbsMass(jet));
+        }
+};
+
 class InfoHelperPtMass : public InfoHelper
 {
     public:
@@ -112,6 +125,32 @@ class InfoHelperPtMassAbsEta : public InfoHelper
         virtual bool isValid(const xAOD::Jet& jet) const
         {
             return m_validHist.getValue(jet.pt()*m_energyScale,getMassOverPt(jet),fabs(jet.eta()));
+        }
+};
+
+class InfoHelperPtAbsMassEta : public InfoHelper
+{
+    public:
+        InfoHelperPtAbsMassEta(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelperPtAbsMassEta* clone() const { return new InfoHelperPtAbsMassEta(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.pt()*m_energyScale,getAbsMass(jet)*m_energyScale,jet.eta());
+        }
+};
+
+class InfoHelperPtAbsMassAbsEta : public InfoHelper
+{
+    public:
+        InfoHelperPtAbsMassAbsEta(const ValidityHistogram& validHist, const float energyScale, const CompMassDef::TypeEnum massDef)
+            : InfoHelper(validHist,energyScale,massDef) {}
+        virtual InfoHelperPtAbsMassAbsEta* clone() const { return new InfoHelperPtAbsMassAbsEta(*this); }
+
+        virtual bool isValid(const xAOD::Jet& jet) const
+        {
+            return m_validHist.getValue(jet.pt()*m_energyScale,getAbsMass(jet)*m_energyScale,fabs(jet.eta()));
         }
 };
 
@@ -341,6 +380,9 @@ StatusCode ValidityHistogram::initialize(TFile* histFile)
         case CompParametrization::PtAbsEta:
             m_helper = new InfoHelperPtAbsEta(*this,m_energyScale);
             break;
+        case CompParametrization::PtAbsMass:
+            m_helper = new InfoHelperPtAbsMass(*this,m_energyScale,m_massDef);
+            break;
         case CompParametrization::PtMass:
             m_helper = new InfoHelperPtMass(*this,m_energyScale,m_massDef);
             break;
@@ -349,6 +391,12 @@ StatusCode ValidityHistogram::initialize(TFile* histFile)
             break;
         case CompParametrization::PtMassAbsEta:
             m_helper = new InfoHelperPtMassAbsEta(*this,m_energyScale,m_massDef);
+            break;
+        case CompParametrization::PtAbsMassEta:
+            m_helper = new InfoHelperPtAbsMassEta(*this,m_energyScale,m_massDef);
+            break;
+        case CompParametrization::PtAbsMassAbsEta:
+            m_helper = new InfoHelperPtAbsMassAbsEta(*this,m_energyScale,m_massDef);
             break;
         case CompParametrization::eLOGmOe:
             m_helper = new InfoHelpereLOGmOe(*this,m_energyScale,m_massDef);
