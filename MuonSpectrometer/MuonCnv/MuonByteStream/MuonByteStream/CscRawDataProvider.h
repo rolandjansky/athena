@@ -5,7 +5,8 @@
 #ifndef MUONBYTESTREAM_CSCRAWDATAPROVIDER_H
 #define MUONBYTESTREAM_CSCRAWDATAPROVIDER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+// Base class
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -16,7 +17,7 @@
 
 namespace Muon {
 
-class CscRawDataProvider : public AthAlgorithm
+class CscRawDataProvider : public AthReentrantAlgorithm
 {
 public:
 
@@ -27,7 +28,7 @@ public:
   virtual StatusCode initialize();
 
   //! Execute
-  virtual StatusCode execute();
+  virtual StatusCode execute(const EventContext& ctx) const;
 
   //! Destructor
   ~CscRawDataProvider()=default;

@@ -39,12 +39,19 @@ class ATLAS_NOT_THREAD_SAFE MDT_RawDataProviderTool : virtual public IMuonRawDat
   virtual StatusCode finalize  ();
   
   /** Convert method - declared in Muon::IMuonRdoToPrepDataTool*/
-  virtual StatusCode convert ATLAS_NOT_THREAD_SAFE ( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs);
-  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const std::vector<IdentifierHash>&);
+  virtual StatusCode convert ATLAS_NOT_THREAD_SAFE ( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs) override;
+  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const std::vector<IdentifierHash>&) override;
+
   /** the new ones */
   virtual StatusCode convert(); //!< for the entire event 
-  virtual StatusCode convert(const std::vector<IdentifierHash>& HashVec);
-  virtual StatusCode convert(const std::vector<uint32_t>& robIds);//!< for a particular vector of ROBId's
+  virtual StatusCode convert(const std::vector<IdentifierHash>& HashVec) override;
+  virtual StatusCode convert(const std::vector<uint32_t>& robIds) override;//!< for a particular vector of ROBId's
+  /** EventContext ones **/
+  virtual StatusCode convert(const EventContext&) const override; //!< for the entire event 
+  virtual StatusCode convert(const std::vector<IdentifierHash>& HashVec, const EventContext&) const override;
+  virtual StatusCode convert(const std::vector<uint32_t>& robIds, const EventContext&) const override;//!< for a particular vector of ROBId's
+  virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const EventContext&) const override;
+  virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const std::vector<IdentifierHash>&, const EventContext&) const override;
 
 
 };

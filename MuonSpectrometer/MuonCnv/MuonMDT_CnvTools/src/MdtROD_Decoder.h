@@ -7,6 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "MdtRODReadOut.h"
 #include "MdtCsmReadOut.h"
@@ -55,11 +56,11 @@ public:
         MDT_Hid2RESrcID* getHid2RE() {return m_hid2re;}
 
         StatusCode fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-			    MdtCsmContainer& rdoIDC);
+			    MdtCsmContainer& rdoIDC) const;
 
         int specialROBNumber() const {return m_specialROBNumber;}
         
-        std::pair<IdentifierHash, Identifier> getHash (Identifier ident);
+        std::pair<IdentifierHash, Identifier> getHash (Identifier ident) const;
 
 private:
         MDT_Hid2RESrcID* m_hid2re;
@@ -82,8 +83,9 @@ private:
         int m_BMGid;
 
         // variables to count how often the caching kicks in
-        unsigned int m_nCache = 0;
-        unsigned int m_nNotCache = 0;
+        // Mutable as this is just to count calls of const function
+        mutable std::atomic_uint m_nCache ATLAS_THREAD_SAFE = 0 ;
+        mutable std::atomic_uint m_nNotCache ATLAS_THREAD_SAFE = 0 ;
 }; 
 
 #endif

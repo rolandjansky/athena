@@ -71,18 +71,15 @@ namespace Muon
     // implementation of the abstract interface
     StatusCode fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
                                RpcPadContainer& rdoIdc,
-                               const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer*) const override;
+                               const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer*, const bool& decodeSL) const override;
     
     int specialROBNumber() const {return m_specialROBNumber;}
     
     bool isSector13Data() const {return m_sector13Data;}
-    virtual void setSLdecodingRequest() override {m_decodeSL=true;} 
     
     
   private:
     
-    bool m_decodeSL; 
-
     typedef OFFLINE_FRAGMENTS_NAMESPACE::PointerType BS;
     
     
@@ -94,12 +91,12 @@ namespace Muon
     
     // decoding of real data - 2010 & 2011 _v302 
     StatusCode fillCollection_v302new(BS data, const uint32_t data_size, RpcPad& v,
-                                   const uint32_t& sourceId, RpcSectorLogicContainer* ) const;
+                                   const uint32_t& sourceId, RpcSectorLogicContainer*, const bool& ) const;
     StatusCode fillCollection_v302(BS data, const uint32_t data_size, RpcPad& v,
                                    const uint32_t& sourceId,RpcSectorLogicContainer* ) const;
     // decoding of real data - 2010 & 2011 _v302 
     StatusCode fillCollectionsFromRob_v302(BS data, const uint32_t data_size, std::map<Identifier,RpcPad*>& vmap,
-				      const uint32_t& sourceId, RpcSectorLogicContainer* ) const;
+				      const uint32_t& sourceId, RpcSectorLogicContainer*, const bool& decodeSL) const;
     
     
     // fragment each of the 32 bit words into 2 16 bit words!
@@ -354,7 +351,7 @@ namespace Muon
   inline StatusCode 
   RpcROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
                                   RpcPadContainer& rdoIdc,
-                                  const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer* RPC_SECTORLOGIC) const
+                                  const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer* RPC_SECTORLOGIC, const bool& decodeSL) const
   {
 
     try 
@@ -411,6 +408,7 @@ namespace Muon
     {
       type = 2;
       ATH_MSG_VERBOSE("choosing fillCollection_v302");
+      ATH_MSG_VERBOSE("with decodeSL when decoding from ROB " << decodeSL); // Only meaningful for this function
     }
     
     
@@ -457,7 +455,7 @@ namespace Muon
       }
 
       // RpcPadCollections not decoded and in container are identified and passed explicitly to decoder
-      cnv_sc = fillCollectionsFromRob_v302(data,robFrag.rod_ndata(),mapOfCollections,rod_sourceId, RPC_SECTORLOGIC);
+      cnv_sc = fillCollectionsFromRob_v302(data,robFrag.rod_ndata(),mapOfCollections,rod_sourceId, RPC_SECTORLOGIC, decodeSL);
       if (cnv_sc!=StatusCode::SUCCESS)
       {
 	    if (cnv_sc==StatusCode::RECOVERABLE) 

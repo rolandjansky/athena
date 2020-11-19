@@ -39,12 +39,12 @@ namespace Muon {
       virtual StatusCode initialize();
       
       /** Method that converts the ROBFragments into the passed container */
-      virtual StatusCode convertIntoContainer(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, TgcRdoContainer& tgcRdoContainer);
+      virtual StatusCode convertIntoContainer(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, TgcRdoContainer& tgcRdoContainer) const;
 
 
     protected:
       /** Function to get the ROB data from a vector of IdentifierHash **/
-      std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> getROBData(const std::vector<IdentifierHash>& rdoIdhVect);
+      std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> getROBData(const std::vector<IdentifierHash>& rdoIdhVect) const;
 
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       /** Decoder for ROB fragment RDO conversion */

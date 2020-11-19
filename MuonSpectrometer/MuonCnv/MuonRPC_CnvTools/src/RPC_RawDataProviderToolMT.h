@@ -41,13 +41,17 @@ class RPC_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool,
 
     /** Decoding method. - current methods: let's keep them! */
     virtual StatusCode convert(const ROBFragmentList& vecRobs);
-    virtual StatusCode convert(const ROBFragmentList& vecRobs,
-                               const std::vector<IdentifierHash>& coll);    
+    virtual StatusCode convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& coll);    
     /** the new ones */
     virtual StatusCode convert(); //!< for the entire event 
     virtual StatusCode convert(const std::vector<IdentifierHash>&); //!< for a selection of rdo collections
     virtual StatusCode convert(const std::vector<uint32_t>&);
-
+    /** EventContext ones **/
+    virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const override;
+    virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&, const EventContext&) const override;
+    virtual StatusCode convert(const EventContext&) const override;
+    virtual StatusCode convert(const std::vector<IdentifierHash>&, const EventContext&) const override;
+    virtual StatusCode convert(const std::vector<uint32_t>&, const EventContext&) const override;
    
 
 private:
