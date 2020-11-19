@@ -16,7 +16,7 @@ def SCT_ConfigurationConditionsCfg(flags, **kwargs):
     SCT_ConfigurationConditionsTool = CompFactory.SCT_ConfigurationConditionsTool
     acc.addPublicTool(SCT_ConfigurationConditionsTool())
 
-    channelFolder = "/SCT/DAQ/Config/Chip"
+    channelFolder = "/SCT/DAQ/Config/ChipSlim"
     moduleFolder = "/SCT/DAQ/Config/Module"
     murFolder = "/SCT/DAQ/Config/MUR"
     from IOVDbSvc.IOVDbSvcConfig import addFolders
