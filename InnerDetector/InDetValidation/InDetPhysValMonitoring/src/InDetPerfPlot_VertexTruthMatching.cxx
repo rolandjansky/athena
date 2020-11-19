@@ -94,6 +94,9 @@ float InDetPerfPlot_VertexTruthMatching::getXyzDist2(const U* vtx1, const V* vtx
 }
 
 float InDetPerfPlot_VertexTruthMatching::getLocalPUDensity(const xAOD::TruthVertex* vtxOfInterest, const std::vector<const xAOD::TruthVertex*>& truthHSVertices, const std::vector<const xAOD::TruthVertex*>& truthPUVertices, const float xyzDistWindow) const {
+
+    if(truthPUVertices.size()==0) return 0.;
+
     float xyzDistWindow2 = std::pow(xyzDistWindow, 2);
     int nTracksInWindow = 0;
     float localPUDensity;
