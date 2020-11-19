@@ -12,7 +12,7 @@ find_package( ROOT COMPONENTS Graf Gpad Core Tree MathCore Hist RIO pthread Math
 atlas_add_library( TrkAlignGenToolsLib
                    src/*.cxx
                    PUBLIC_HEADERS TrkAlignGenTools
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthContainers AthenaBaseComps BeamSpotConditionsData EventPrimitives GaudiKernel GeoPrimitives InDetAlignGenToolsLib InDetTrackSelectionToolLib MuonRecToolInterfaces TrkAlignEvent TrkAlignInterfaces TrkEventPrimitives TrkFitterUtils TrkVertexFitterInterfaces VxVertex muonEvent xAODTracking
