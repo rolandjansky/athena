@@ -17,6 +17,12 @@ if not 'rec' in dir():
 
 from RecExConfig.RecAlgsFlags import recAlgs
 
+# if we are not in MT mode, do not run new-style monitoring
+# if you really want to override, use set_Value_and_Lock(True) on the relevant flags below
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+if not TriggerFlags.doMT():
+   DQMonFlags.doNewMonitoring=False
+
 # Set the data type based on beamType/HI flag
 if globalflags.DataSource.get_Value() == 'geant4':
    DQMonFlags.monManDataType = 'monteCarlo'
@@ -66,7 +72,6 @@ else:
    local_logger.warning("invalid DQMonFlags.monType: %s, using default monManEnvironment", DQMonFlags.monType())
 
 # the meaning of this flag has changed in MT
-from TriggerJobOpts.TriggerFlags import TriggerFlags
 if (rec.doTrigger() == False and 
     not (TriggerFlags.doMT() and DQMonFlags.monManEnvironment=='tier0ESD' and DQMonFlags.useTrigger())):
    DQMonFlags.useTrigger=False     # steers trigger-awareness
