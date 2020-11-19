@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4AtlasAlg/G4AtlasRunManager.h"
@@ -27,7 +27,6 @@ G4AtlasRunManager::G4AtlasRunManager()
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
   , m_physListSvc("PhysicsListSvc", "G4AtlasRunManager")
-  , m_userActionSvc("G4UA::UserActionSvc", "G4AtlasRunManager")
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasRunManager")
 {  }
 
@@ -42,26 +41,10 @@ G4AtlasRunManager* G4AtlasRunManager::GetG4AtlasRunManager()
 
 void G4AtlasRunManager::Initialize()
 {
-  const std::string methodName = "G4AtlasRunManager::Initialize";
-  
   // ADA 11/28.2018: switch initialization order to meet ISF requirements
   // Call the base class Initialize method. This will call
   // InitializeGeometry and InitializePhysics.
   G4RunManager::Initialize();
-  
-  // Setup the user actions now.
-  if( !m_userActionSvc.name().empty() ) {
-    ATH_MSG_INFO("Creating user actions now");
-    if(m_userActionSvc.retrieve().isFailure()) {
-      throw GaudiException("Could not retrieve UserActionSvc",
-                           methodName, StatusCode::FAILURE);
-    }
-    if(m_userActionSvc->initializeActions().isFailure()) {
-      throw GaudiException("Failed to initialize actions",
-                           methodName, StatusCode::FAILURE);
-    }
-  }
-
 }
 
 

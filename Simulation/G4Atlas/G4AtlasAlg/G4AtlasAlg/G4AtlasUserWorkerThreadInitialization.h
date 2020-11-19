@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4ATLASUSERWORKERTHREADINITIALIZATION_H
@@ -32,11 +32,6 @@ public:
 
   /// @name Methods to pass configuration in from G4AtlasAlg
   /// @{
-  /// Configure the user action service handle
-  void SetUserActionSvc(const std::string& typeAndName) {
-    m_userActionSvcName = typeAndName;
-  }
-
   /// Configure the detector geometry service handle
   void SetDetGeoSvc(const std::string& typeAndName) {
     m_detGeoSvcName = typeAndName;
@@ -56,7 +51,6 @@ private:
   std::string m_detGeoSvcName{"DetectorGeometrySvc"};
   std::string m_senDetToolName{"SensitiveDetectorMasterTool"};
   std::string m_fastSimToolName{"FastSimulationMasterTool"};
-  std::string m_userActionSvcName{"G4UA::UserActionSvc"};
 
 }; // class G4AtlasUserWorkerThreadInitialization
 
