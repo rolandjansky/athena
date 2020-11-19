@@ -10,11 +10,11 @@
 #define TRKPARAMETERSBASE_PARAMETERSBASE_H
 
 // Amg
+#include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
-#include "CxxUtils/checker_macros.h"
 #include <memory>
 #include <type_traits>
 
@@ -84,8 +84,7 @@ public:
   /** Access method for the covariance matrix - returns nullptr if no covariance
    * matrix is given */
   const AmgSymMatrix(DIM) * covariance() const;
-  AmgSymMatrix(DIM)* covariance();
-
+  AmgSymMatrix(DIM) * covariance();
 
   /** Access method for transverse momentum */
   double pT() const;
@@ -100,10 +99,17 @@ public:
       local parameter definitions differ for each surface type. */
   Amg::Vector2D localPosition() const;
 
+  /** set parameters*/
+  void setParameters(const AmgVector(DIM) & param);
+
+  /** set covariance */
+  void setCovariance(const AmgSymMatrix(DIM) & cov);
+
   /** Update parameters and covariance.
-   *
    * Derived classes override the
    * implementation via updateParametersHelper
+   * as this could possibly lead to updating
+   * other data members
    */
   void updateParameters(const AmgVector(DIM) &, AmgSymMatrix(DIM) * = nullptr);
 
@@ -113,9 +119,11 @@ public:
    *
    * Derived classes override the
    * implementation via updateParametersHelper
+   * as this could possibly lead to updating
+   * other data members
    */
   void updateParameters(const AmgVector(DIM) &, const AmgSymMatrix(DIM) &);
- 
+
   /** Returns the charge */
   virtual double charge() const = 0;
 
