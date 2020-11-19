@@ -317,8 +317,9 @@ METChainParts = {
     'L2muonCorr'     : [],
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
-    'sigFolder'     : 'MET',
-    'subSigs'       : ['MET']
+    'sigFolder'      : 'MET',
+    'subSigs'        : ['MET'],
+    'constitmod'     : ['cssk', 'vssk']
 }
 # ---- MetDictionary of default Values ----
 METChainParts_Default = {
@@ -336,6 +337,7 @@ METChainParts_Default = {
     'EFmuonCorr'     : '',
     'addInfo'        : '',
     'jetDataType'    : 'tc',
+    'constitmod'     : '',
     'sigFolder'     : 'MET',
     'subSigs'       : ['MET']
 }
