@@ -41,12 +41,16 @@ namespace CP {
     std::string m_sgKey;
     //::: Connection to the smearing tool
     ToolHandle< CP::IMuonCalibrationAndSmearingTool > m_MCaSTool;
+    //::: Connection to the selection tool
+    ToolHandle< CP::IMuonSelectionTool > m_MSTTool;
   
     std::vector<std::string> m_sysNames;
     std::vector< CP::SystematicSet > m_sysList;
 
     TFile* m_DebugFile;
     TTree* m_DebugTree;
+    ULong64_t m_EventNumber;
+    int m_Muon_Author, m_Muon_Type;
     int m_SelCategoryRaw, m_SelCategory;
     std::unique_ptr<MMCTest::TrackInfo> m_Combined;
     std::unique_ptr<MMCTest::TrackInfo> m_InnerDet;
