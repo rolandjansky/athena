@@ -1,0 +1,56 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
+namespace Trk {
+
+inline const InterfaceID&
+IExtendedTrackSummaryTool::interfaceID()
+{
+  return IID_IExtendedTrackSummaryTool;
+}
+
+inline void
+IExtendedTrackSummaryTool::computeAndReplaceTrackSummary(
+  Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map,
+  bool suppress_hole_search) const
+{
+  computeAndReplaceTrackSummary(Gaudi::Hive::currentContext(),
+                                track,
+                                prd_to_track_map,
+                                suppress_hole_search);
+}
+
+inline std::unique_ptr<Trk::TrackSummary>
+IExtendedTrackSummaryTool::summary(
+  const Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map) const
+{
+  return summary(Gaudi::Hive::currentContext(), track, prd_to_track_map);
+}
+
+inline void
+IExtendedTrackSummaryTool::updateTrackSummary(
+  Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map,
+  bool suppress_hole_search) const
+{
+
+  updateTrackSummary(Gaudi::Hive::currentContext(),
+                     track,
+                     prd_to_track_map,
+                     suppress_hole_search);
+}
+
+inline std::unique_ptr<Trk::TrackSummary>
+IExtendedTrackSummaryTool::summaryNoHoleSearch(
+  const Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map) const
+{
+  return summaryNoHoleSearch(
+    Gaudi::Hive::currentContext(), track, prd_to_track_map);
+}
+
+}
+
