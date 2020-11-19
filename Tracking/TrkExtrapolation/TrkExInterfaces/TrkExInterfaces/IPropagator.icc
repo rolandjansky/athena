@@ -3,12 +3,13 @@
 */
 
 /*
- * default implementations  
- * for some methods which need to be always
- * re-implemented.
+ * default implementations
+ * for some methods which do NOT need
+ * to be always re-implemented
+ * by derived classes ...
  *
- * TODO: Check usage / design causing
- * this
+ * We need to check the design for
+ * these.
  */
 inline Trk::TrackParameters*
 Trk::IPropagator::propagate(const EventContext&,
