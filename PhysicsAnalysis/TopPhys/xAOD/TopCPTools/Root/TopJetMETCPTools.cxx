@@ -201,6 +201,8 @@ namespace top {
       IJetUpdateJvt* jetUpdateJvtTool = new JetVertexTaggerTool(jvt_update_name);
       top::check(asg::setProperty(jetUpdateJvtTool, "JVTFileName", "JetMomentTools/" + m_jetJVT_ConfigFile),
                  "Failed to set JVTFileName for JetUpdateJvtTool");
+      top::check(asg::setProperty(jetUpdateJvtTool, "JetContainer", m_config->sgKeyJets()),
+                 "Failed to set JetContainer for JetUpdateJvtTool");
       top::check(jetUpdateJvtTool->initialize(), "Failed to initialize");
       m_jetUpdateJvtTool = jetUpdateJvtTool;
     }
