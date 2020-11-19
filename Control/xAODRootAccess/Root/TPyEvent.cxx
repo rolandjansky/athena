@@ -74,9 +74,9 @@ namespace xAOD {
    /// @param type The type name of the object being recorded
    /// @param basketSize The size of the baskets used to write the payload
    /// @param splitLevel The split level of the branch created
-   /// @returns The usual xAOD::TReturnCode types
+   /// @returns The usual StatusCode types
    ///
-   TReturnCode TPyEvent::record( int /*dummy*/, void* obj,
+   StatusCode TPyEvent::record( int /*dummy*/, void* obj,
                                  const std::string& key,
                                  const std::string& type,
                                  ::Int_t basketSize, ::Int_t splitLevel ) {
@@ -86,7 +86,7 @@ namespace xAOD {
                     TEvent::record( obj, type, key, basketSize, splitLevel,
                                     kFALSE, kFALSE, kFALSE ) );
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
 } // namespace xAOD

@@ -128,7 +128,6 @@ namespace met {
 //       CP::CorrectionCode::enableFailure();
 //       CP::SystematicCode::enableFailure();
 //       StatusCode::enableFailure();
-//       TReturnCode::enableFailure();
 // #else
 //       app = POOL::Init(); //important to do this first!
 // #endif

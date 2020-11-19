@@ -40,7 +40,7 @@ namespace xAOD {
       ::Bool_t isConst( const std::string& key, const std::string& type ) const;
 
       /// Record an object into the store in a typeless way
-      TReturnCode record( void* obj, const std::string& key,
+      StatusCode record( void* obj, const std::string& key,
                           const std::string& type );
 
       /// Print the contents of the store using a Python friendly function

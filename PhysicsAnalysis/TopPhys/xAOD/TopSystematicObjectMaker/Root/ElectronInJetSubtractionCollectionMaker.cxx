@@ -69,8 +69,8 @@ namespace top {
       std::string outputElectronsSGKey = m_config->sgKeyElectrons(currentSystematic);
       std::string outputElectronsSGKeyAux = outputElectronsSGKey + "Aux.";
 
-      xAOD::TReturnCode saveElectrons = evtStore()->tds()->record(shallow_electrons.first, outputElectronsSGKey);
-      xAOD::TReturnCode saveElectronsAux = evtStore()->tds()->record(shallow_electrons.second, outputElectronsSGKeyAux);
+      StatusCode saveElectrons = evtStore()->tds()->record(shallow_electrons.first, outputElectronsSGKey);
+      StatusCode saveElectronsAux = evtStore()->tds()->record(shallow_electrons.second, outputElectronsSGKeyAux);
       if (!saveElectrons || !saveElectronsAux) {
         return StatusCode::FAILURE;
       }
@@ -79,8 +79,8 @@ namespace top {
       std::string outputJetsSGKey = m_config->sgKeyJets(currentSystematic, false);
       std::string outputJetsSGKeyAux = outputJetsSGKey + "Aux.";
 
-      xAOD::TReturnCode saveJets = evtStore()->tds()->record(shallow_jets.first, outputJetsSGKey);
-      xAOD::TReturnCode saveJetsAux = evtStore()->tds()->record(shallow_jets.second, outputJetsSGKeyAux);
+      StatusCode saveJets = evtStore()->tds()->record(shallow_jets.first, outputJetsSGKey);
+      StatusCode saveJetsAux = evtStore()->tds()->record(shallow_jets.second, outputJetsSGKeyAux);
       if (!saveJets || !saveJetsAux) {
         return StatusCode::FAILURE;
       }
@@ -103,8 +103,8 @@ namespace top {
         std::string outputJetsLooseSGKey = m_config->sgKeyJets(currentSystematic, m_doLooseCuts);
         std::string outputJetsLooseSGKeyAux = outputJetsLooseSGKey + "Aux.";
 
-        xAOD::TReturnCode saveJetsLoose = evtStore()->tds()->record(shallow_jetsLoose.first, outputJetsLooseSGKey);
-        xAOD::TReturnCode saveJetsLooseAux =
+        StatusCode saveJetsLoose = evtStore()->tds()->record(shallow_jetsLoose.first, outputJetsLooseSGKey);
+        StatusCode saveJetsLooseAux =
           evtStore()->tds()->record(shallow_jetsLoose.second, outputJetsLooseSGKeyAux);
         if (!saveJetsLoose || !saveJetsLooseAux) {
           return StatusCode::FAILURE;

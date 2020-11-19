@@ -32,7 +32,7 @@ namespace xAOD {
    }
 
    template< typename T >
-   TReturnCode TStore::retrieve( const T*& obj, const std::string& key ) const {
+   StatusCode TStore::retrieve( const T*& obj, const std::string& key ) const {
 
       // Try to find the object:
       const void* ptr = getConstObject( key, typeid( T ) );
@@ -41,16 +41,16 @@ namespace xAOD {
          ::Warning( "xAOD::TStore::retrieve",
                     "Couldn't (const) retrieve \"%s/%s\"",
                     typeName.c_str(), key.c_str() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // If we were successful:
       obj = reinterpret_cast< const T* >( ptr );
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    template< typename T >
-   TReturnCode TStore::retrieve( T*& obj, const std::string& key ) const {
+   StatusCode TStore::retrieve( T*& obj, const std::string& key ) const {
 
       // Try to find the object:
       void* ptr = getObject( key, typeid( T ) );
@@ -59,19 +59,19 @@ namespace xAOD {
          ::Warning( "xAOD::TStore::retrieve",
                     "Couldn't (non-const) retrieve \"%s/%s\"",
                     typeName.c_str(), key.c_str() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // If we were successful:
       obj = reinterpret_cast< T* >( ptr );
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    template< typename T >
-   TReturnCode TStore::record( T* obj, const std::string& key ) {
+   StatusCode TStore::record( T* obj, const std::string& key ) {
 
       // Check if it's possible to record the object with a dictionary:
-      TReturnCode result = record( obj, key,
+      StatusCode result = record( obj, key,
                                    SG::normalizedTypeinfoName( typeid( T ) ) );
       // If it's a success or a failure, let's stop here. Only go on for a
       // recoverable error:
@@ -90,11 +90,11 @@ namespace xAOD {
    }
 
    template< typename T >
-   TReturnCode TStore::record( std::unique_ptr< T > obj,
+   StatusCode TStore::record( std::unique_ptr< T > obj,
                                const std::string& key ) {
 
       // Check if it's possible to record the object with a dictionary:
-      TReturnCode result = record( obj.get(), key,
+      StatusCode result = record( obj.get(), key,
                                    SG::normalizedTypeinfoName( typeid( T ) ) );
       // If it's a success or a failure, let's stop here. Only go on for a
       // recoverable error:
@@ -122,11 +122,11 @@ namespace xAOD {
       // In case of success, make the smart pointer give up ownership of
       // the object:
       obj.release();
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    template< class T >
-   TReturnCode TStore::record( ConstDataVector< T >* obj,
+   StatusCode TStore::record( ConstDataVector< T >* obj,
                                const std::string& key,
                                const std::type_info& ti ) {
 

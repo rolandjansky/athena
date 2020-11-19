@@ -46,11 +46,11 @@ namespace xAOD {
    /// @param port The port number to connect to
    /// #returns The usual return codes...
    ///
-   TReturnCode TSocket::connect( const TInetAddress& address, int port ) {
+   StatusCode TSocket::connect( const TInetAddress& address, int port ) {
 
       // If the address is invalid, give up now:
       if( ! address.IsValid() ) {
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // If not, translate it to a network address:
@@ -68,7 +68,7 @@ namespace xAOD {
       // Create a socket:
       m_socket = ::socket( AF_INET, SOCK_STREAM, 0 );
       if( m_socket < 0 ) {
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Create the address that we want to connect to:
@@ -82,28 +82,28 @@ namespace xAOD {
       if( ::connect( m_socket, ( struct sockaddr* ) &server,
                      sizeof( server ) ) < 0 ) {
          m_socket = -1;
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode TSocket::close() {
+   StatusCode TSocket::close() {
 
       // Check if anything needs to be done:
       if( ! isConnected() ) {
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Close the socket:
       if( ::close( m_socket ) != 0 ) {
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Return gracefully:
       m_socket = -1;
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    bool TSocket::isConnected() const {
@@ -117,11 +117,11 @@ namespace xAOD {
    /// @param payload The HTML style payload to send to the server
    /// @returns The usual return codes...
    ///
-   TReturnCode TSocket::send( const TString& payload ) {
+   StatusCode TSocket::send( const TString& payload ) {
 
       // Check if we're connected:
       if( ! isConnected() ) {
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // The buffer we are sending from:
@@ -135,14 +135,14 @@ namespace xAOD {
       for( int i = 0; i < length; i += sent ) {
          sent = ::send( m_socket, buffer + i, length - i, 0 );
          if( sent < 0 ) {
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          } else if( sent == 0 ) {
             break;
          }
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
    
 } // namespace xAOD

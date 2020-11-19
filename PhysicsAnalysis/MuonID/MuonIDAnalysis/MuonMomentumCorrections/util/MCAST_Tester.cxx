@@ -97,7 +97,7 @@ int main( int argc, char* argv[] ) {
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
   ANA_CHECK (xAOD::Init( APP_NAME ));
-  xAOD::TReturnCode::enableFailure();
+  StatusCode::enableChecking();
 
   //::: Open the input file:
   std::string fileName = argv[1];

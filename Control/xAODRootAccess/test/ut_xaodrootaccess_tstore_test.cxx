@@ -26,7 +26,7 @@
 /// Helper macro
 #define RETURN_CHECK( CONTEXT, EXP )                                 \
    do {                                                              \
-      const xAOD::TReturnCode result = EXP;                          \
+      const StatusCode result = EXP;                          \
       if( ! result.isSuccess() ) {                                   \
          ::Error( CONTEXT, XAOD_MESSAGE( "Failed to execute: %s" ),  \
                   #EXP );                                            \

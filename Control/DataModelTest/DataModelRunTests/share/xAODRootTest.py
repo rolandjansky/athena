@@ -8,7 +8,7 @@ cppyy.load_library("libDataModelTestDataReadDict")
 
 def CHECK(sc):
     if not sc.isSuccess():
-        raise Exception ('bad TReturnCode')
+        raise Exception ('bad StatusCode')
     return
 
 

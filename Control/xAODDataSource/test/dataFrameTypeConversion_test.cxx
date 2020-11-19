@@ -9,6 +9,7 @@
 // Framework include(s).
 #include "xAODRootAccess/Init.h"
 #include "CxxUtils/ubsan_suppress.h"
+#include "AsgMessaging/MessageCheck.h"
 
 // EDM include(s).
 #include "xAODBase/IParticleContainer.h"
@@ -20,12 +21,16 @@
 #include <iostream>
 
 int main() {
+
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+
    // Suppress ubsan warning.
    CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
 
    // Set up the runtime environment.
    ROOT::EnableImplicitMT();
-   CHECK( xAOD::Init() );
+   ANA_CHECK( xAOD::Init() );
 
    // Create a data frame object.
    auto df = xAOD::MakeDataFrame( "${ASG_TEST_FILE_DATA}" );

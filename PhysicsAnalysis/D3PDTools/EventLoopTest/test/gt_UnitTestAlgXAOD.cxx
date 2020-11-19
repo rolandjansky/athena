@@ -36,7 +36,7 @@ using namespace EL;
 
 TEST (UnitTestAlgXAODTest, all_tests)
 {
-  xAOD::TReturnCode::enableFailure();
+  StatusCode::enableFailure();
   xAOD::Init ().ignore();
 
   std::string prefix = "UnitTestAlgXAODSubmit";

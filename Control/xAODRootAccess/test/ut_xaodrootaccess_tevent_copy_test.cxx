@@ -19,7 +19,7 @@
 /// Helper macro
 #define CHECK( CONTEXT, EXP )                                        \
    do {                                                              \
-      const xAOD::TReturnCode result = EXP;                          \
+      const StatusCode result = EXP;                          \
       if( ! result.isSuccess() ) {                                   \
          ::Error( CONTEXT, XAOD_MESSAGE( "Failed to execute: %s" ),  \
                   #EXP );                                            \
@@ -28,7 +28,7 @@
    } while( false )
 
 /// Function testing the copying of a few objects
-xAOD::TReturnCode copyObjects( xAOD::TEvent::EAuxMode mode );
+StatusCode copyObjects( xAOD::TEvent::EAuxMode mode );
 
 int main() {
 
@@ -47,7 +47,7 @@ int main() {
    return 0;
 }
 
-xAOD::TReturnCode copyObjects( xAOD::TEvent::EAuxMode mode ) {
+StatusCode copyObjects( xAOD::TEvent::EAuxMode mode ) {
 
    // Construct a "mode name" for the printed messages:
    TString modeName;
@@ -75,7 +75,7 @@ xAOD::TReturnCode copyObjects( xAOD::TEvent::EAuxMode mode ) {
    if( ! ifile ) {
       Error( "copyObjects", XAOD_MESSAGE( "Couldn't open input file: %s" ),
              gSystem->Getenv( "ASG_TEST_FILE_DATA" ) );
-      return xAOD::TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
    RETURN_CHECK( "copyObjects", event.readFrom( ifile.get() ) );
    Info( "copyObjects", "Opened input file %s in mode %s",
@@ -86,7 +86,7 @@ xAOD::TReturnCode copyObjects( xAOD::TEvent::EAuxMode mode ) {
                                                 "RECREATE" ) );
    if( ! ofile.get() ) {
       Error( "copyObjects", XAOD_MESSAGE( "Couldn't open the output file" ) );
-      return xAOD::TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
    RETURN_CHECK( "copyObjects", event.writeTo( ofile.get() ) );
    Info( "copyObjects", "Opened the output file" );
@@ -100,7 +100,7 @@ xAOD::TReturnCode copyObjects( xAOD::TEvent::EAuxMode mode ) {
          Error( "copyObjects",
                 XAOD_MESSAGE( "Couldn't load entry %i from the input file" ),
                 static_cast< int >( entry ) );
-         return xAOD::TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Copy a standalone object:
@@ -112,7 +112,7 @@ xAOD::TReturnCode copyObjects( xAOD::TEvent::EAuxMode mode ) {
       if( event.fill() <= 0 ) {
          Error( "copyObjects", XAOD_MESSAGE( "Failed to write event %i" ),
                 static_cast< int >( entry ) );
-         return xAOD::TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
    }
 
@@ -121,5 +121,5 @@ xAOD::TReturnCode copyObjects( xAOD::TEvent::EAuxMode mode ) {
          static_cast< int >( entries ), modeName.Data() );
 
    // Return gracefully:
-   return xAOD::TReturnCode::kSuccess;
+   return StatusCode::SUCCESS;
 }

@@ -129,8 +129,8 @@ namespace top {
         std::pair< xAOD::ElectronContainer*,
                    xAOD::ShallowAuxContainer* > shallow_electrons = xAOD::shallowCopyContainer(*calibratedElectrons);
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_electrons.first, m_config->sgKeyElectronsTDS(hash));
-        xAOD::TReturnCode saveAux =
+        StatusCode save = evtStore()->tds()->record(shallow_electrons.first, m_config->sgKeyElectronsTDS(hash));
+        StatusCode saveAux =
           evtStore()->tds()->record(shallow_electrons.second, m_config->sgKeyElectronsTDSAux(hash));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
@@ -175,9 +175,9 @@ namespace top {
                    xAOD::ShallowAuxContainer* > shallow_fwdelectrons = xAOD::shallowCopyContainer(
           *calibratedFwdElectrons);
 
-        xAOD::TReturnCode save =
+        StatusCode save =
           evtStore()->tds()->record(shallow_fwdelectrons.first, m_config->sgKeyFwdElectronsTDS(hash));
-        xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_fwdelectrons.second, m_config->sgKeyFwdElectronsTDSAux(
+        StatusCode saveAux = evtStore()->tds()->record(shallow_fwdelectrons.second, m_config->sgKeyFwdElectronsTDSAux(
                                                                 hash));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
@@ -208,8 +208,8 @@ namespace top {
         std::pair< xAOD::PhotonContainer*, xAOD::ShallowAuxContainer* > shallow_photons = xAOD::shallowCopyContainer(
           *calibratedPhotons);
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_photons.first, m_config->sgKeyPhotonsTDS(hash));
-        xAOD::TReturnCode saveAux =
+        StatusCode save = evtStore()->tds()->record(shallow_photons.first, m_config->sgKeyPhotonsTDS(hash));
+        StatusCode saveAux =
           evtStore()->tds()->record(shallow_photons.second, m_config->sgKeyPhotonsTDSAux(hash));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
@@ -238,8 +238,8 @@ namespace top {
         std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > shallow_muons = xAOD::shallowCopyContainer(
           *calibratedMuons);
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_muons.first, m_config->sgKeyMuonsTDS(hash));
-        xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_muons.second, m_config->sgKeyMuonsTDSAux(hash));
+        StatusCode save = evtStore()->tds()->record(shallow_muons.first, m_config->sgKeyMuonsTDS(hash));
+        StatusCode saveAux = evtStore()->tds()->record(shallow_muons.second, m_config->sgKeyMuonsTDSAux(hash));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
 
@@ -282,8 +282,8 @@ namespace top {
         std::pair< xAOD::MuonContainer*, xAOD::ShallowAuxContainer* > shallow_softmuons = xAOD::shallowCopyContainer(
           *calibratedSoftMuons);
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_softmuons.first, m_config->sgKeySoftMuonsTDS(hash));
-        xAOD::TReturnCode saveAux =
+        StatusCode save = evtStore()->tds()->record(shallow_softmuons.first, m_config->sgKeySoftMuonsTDS(hash));
+        StatusCode saveAux =
           evtStore()->tds()->record(shallow_softmuons.second, m_config->sgKeySoftMuonsTDSAux(hash));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
@@ -315,8 +315,8 @@ namespace top {
         std::pair< xAOD::TauJetContainer*, xAOD::ShallowAuxContainer* > shallow_taus = xAOD::shallowCopyContainer(
           *calibratedTaus);
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_taus.first, m_config->sgKeyTausTDS(hash));
-        xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_taus.second, m_config->sgKeyTausTDSAux(hash));
+        StatusCode save = evtStore()->tds()->record(shallow_taus.first, m_config->sgKeyTausTDS(hash));
+        StatusCode saveAux = evtStore()->tds()->record(shallow_taus.second, m_config->sgKeyTausTDSAux(hash));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
 
@@ -357,8 +357,8 @@ namespace top {
         std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > shallow_jets = xAOD::shallowCopyContainer(
           *calibratedJets);
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_jets.first, m_config->sgKeyJetsTDS(hash, looseJets));
-        xAOD::TReturnCode saveAux =
+        StatusCode save = evtStore()->tds()->record(shallow_jets.first, m_config->sgKeyJetsTDS(hash, looseJets));
+        StatusCode saveAux =
           evtStore()->tds()->record(shallow_jets.second, m_config->sgKeyJetsTDSAux(hash, looseJets));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
@@ -494,8 +494,8 @@ namespace top {
         std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > shallow_jets = xAOD::shallowCopyContainer(
           *calibratedJets);
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_jets.first, m_config->sgKeyLargeRJetsTDS(hash));
-        xAOD::TReturnCode saveAux =
+        StatusCode save = evtStore()->tds()->record(shallow_jets.first, m_config->sgKeyLargeRJetsTDS(hash));
+        StatusCode saveAux =
           evtStore()->tds()->record(shallow_jets.second, m_config->sgKeyLargeRJetsTDSAux(hash));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
@@ -525,8 +525,8 @@ namespace top {
         std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > shallow_jets = xAOD::shallowCopyContainer(
           *calibratedJets);
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_jets.first, m_config->sgKeyTrackJetsTDS(hash));
-        xAOD::TReturnCode saveAux =
+        StatusCode save = evtStore()->tds()->record(shallow_jets.first, m_config->sgKeyTrackJetsTDS(hash));
+        StatusCode saveAux =
           evtStore()->tds()->record(shallow_jets.second, m_config->sgKeyTrackJetsTDSAux(hash));
         top::check((save && saveAux), "Failed to store object in TStore");
       }
@@ -556,8 +556,8 @@ namespace top {
 
 	std::pair< xAOD::TrackParticleContainer*, xAOD::ShallowAuxContainer* > shallow_tracks = xAOD::shallowCopyContainer(*calibratedTracks);
 
-	xAOD::TReturnCode save = evtStore()->tds()->record(shallow_tracks.first, m_config->sgKeyTracksTDS(hash));
-	xAOD::TReturnCode saveAux =
+	StatusCode save = evtStore()->tds()->record(shallow_tracks.first, m_config->sgKeyTracksTDS(hash));
+	StatusCode saveAux =
           evtStore()->tds()->record(shallow_tracks.second, m_config->sgKeyTracksTDSAux(hash));
 	top::check((save && saveAux), "Failed to store object in TStore");
       }

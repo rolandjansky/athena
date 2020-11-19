@@ -68,7 +68,6 @@ int main(int argc, char* argv[]) {
 
     // force strict checking of return codes
     CP::SystematicCode::enableFailure();
-    xAOD::TReturnCode::enableFailure();
     StatusCode::enableFailure();
 
     // The application's name:
