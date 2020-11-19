@@ -40,8 +40,8 @@ namespace top {
     declareProperty("TrigConfigTool", m_trigConfTool);
     declareProperty("TrigDecisionTool", m_trigDecisionTool);
     declareProperty("TrigMatchTool", m_trigMatchTool);
-//    declareProperty("GlobalTriggerEffTool", m_globalTriggerEffTool);
-//    declareProperty("GlobalTriggerEffToolLoose", m_globalTriggerEffToolLoose);
+    declareProperty("GlobalTriggerEffTool", m_globalTriggerEffTool);
+    declareProperty("GlobalTriggerEffToolLoose", m_globalTriggerEffToolLoose);
 
     m_muonTool = asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors/MuonTrigEff");
     m_muonToolLoose = asg::AnaToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors/MuonTrigEffLoose");
