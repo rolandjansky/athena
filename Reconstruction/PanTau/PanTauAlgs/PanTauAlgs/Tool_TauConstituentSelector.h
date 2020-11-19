@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_TAUCONSTITUENTSELECTOR
@@ -32,7 +32,6 @@ class Tool_TauConstituentSelector : public asg::AsgTool, virtual public PanTau::
         virtual ~Tool_TauConstituentSelector ();
         
         virtual StatusCode initialize();
-//         virtual StatusCode finalize();
         
         virtual StatusCode SelectTauConstituents(   std::vector<TauConstituent2*> inputList,
                                                     std::vector<TauConstituent2*>& outputList) const;

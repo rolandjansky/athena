@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_ITOOL_INFORMATIONSTORE_H
@@ -8,22 +8,6 @@
 #include "AsgTools/IAsgTool.h"
 
 #include <string>
-
-//class eflowObjectContainer;
-
-// namespace Analysis {
-//     class TauJetContainer;
-//     class TauDetailsContainer;
-// }
-
-//! xAOD EDM
-/*
-#include "xAODTau/TauJetContainer.h"
-
-namespace Rec {
-    class TrackParticleContainer;
-}
-*/
 
 namespace PanTau {
 
@@ -56,19 +40,11 @@ namespace PanTau {
     virtual inline void setMapVecDouble( MapVecDouble &v ) = 0 ;
 #endif
 
-            //virtual StatusCode updateInformation(std::string inputAlg) = 0;
             virtual StatusCode getInfo_Int(std::string varName,     int& value) = 0;
             virtual StatusCode getInfo_Double(std::string varName,  double& value) = 0;
             virtual StatusCode getInfo_VecDouble(std::string varName,  std::vector<double>& value) = 0;
             virtual StatusCode getInfo_String(std::string varName,  std::string& value) = 0;
             virtual StatusCode getInfo_VecString(std::string varName,  std::vector<std::string>& value) = 0;
-            
-            virtual StatusCode dumpMaps() const = 0;
-
-            /*
-            virtual const xAOD::TauJetContainer*            getContainer_TauRec() const = 0;
-            virtual const Rec::TrackParticleContainer*      getContainer_TrackParticle() const = 0;
-	    */
     };
     
 }

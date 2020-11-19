@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/PanTauSeed.h"
 #include "PanTauAlgs/TauClassificationTypes.h"
-/* #include "PanTauAlgs/TauConstituent.h" */
 #include "PanTauAlgs/TauFeature.h"
 
 #include "PanTauAlgs/ITool_PanTauTools.h"
@@ -34,7 +33,6 @@
 #pragma link C++ namespace PanTau;
 
 #pragma link C++ class PanTau::PanTauSeed2;
-/* #pragma link C++ class PanTau::TauConstituent; */
 #pragma link C++ class PanTau::TauFeature2;
 
 #pragma link C++ class PanTau::ITool_PanTauTools;
@@ -57,7 +55,5 @@
 #pragma link C++ enum PanTau::TauClassificationTypes::TruthTauType;
 #pragma link C++ enum PanTau::TauClassificationTypes::SeedTauType;
 #pragma link C++ enum PanTau::TauClassificationTypes::PanTauRecoMode;
-
-//#pragma link C++ enum TauID::Types::MethodType;
 
 #endif

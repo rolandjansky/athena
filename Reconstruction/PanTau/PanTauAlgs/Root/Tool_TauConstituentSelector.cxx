@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -88,10 +88,9 @@ StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(  std::vec
                                                                         std::vector<TauConstituent2*>& outputList) const {
     
     unsigned int nConst = inputList.size();
-    ATH_MSG_DEBUG("Perform tau constituent selection on " << nConst << "constituents");
+
     for(unsigned int iConst=0; iConst<nConst; iConst++) {
-        ATH_MSG_DEBUG("===>Constituent " << iConst << " / " << nConst);
-        
+
         PanTau::TauConstituent2*         curConstituent  = inputList[iConst];
         
         //general preselection:
@@ -102,7 +101,6 @@ StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(  std::vec
         }
         
         bool passesSelection = false;
-        ATH_MSG_DEBUG("Before selection, constituent is of type: " << curConstituent->getTypeNameString() );
 
 	// check if constituent is charged:
         if(curConstituent->isOfType(PanTau::TauConstituent2::t_Charged) == true) {
@@ -139,14 +137,11 @@ StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(  std::vec
             ATH_MSG_WARNING("Unhandled constituent type (" << curConstituent->getTypeNameString() << ") when trying to apply constituent selection - constituent will not be selected!");
             passesSelection = false;
         }
-        ATH_MSG_DEBUG("After selection (with result " << passesSelection << "), constituent is of type: " << curConstituent->getTypeNameString() );
         
         if(passesSelection == false) continue;
         
         outputList.push_back(inputList[iConst]);
     }
-    
-    ATH_MSG_DEBUG("Out of " << nConst << " contituents, " << outputList.size() << " passed the selection");
     
     return StatusCode::SUCCESS;
 }
@@ -154,28 +149,25 @@ StatusCode PanTau::Tool_TauConstituentSelector::SelectTauConstituents(  std::vec
 
 
 bool    PanTau::Tool_TauConstituentSelector::passesSelection_NeutralConstituent(PanTau::TauConstituent2* tauConstituent) const {
-    ATH_MSG_DEBUG("neutral sel for const at: " << tauConstituent);
+
     TLorentzVector tlv_Constituent = tauConstituent->p4();
     
     double curEta       = tlv_Constituent.Eta();
     double cut_MinEt    = getEtCut(fabs(curEta), PanTau::TauConstituent2::t_Neutral);
     double curEt        = tlv_Constituent.Et();
-    ATH_MSG_DEBUG("curEt (" << curEt << ") < cut_MinEt (" << cut_MinEt << ") ? ");
-//    ATH_MSG_DEBUG("curEt (" << curEt << ") < cut_MinEt (" << cut_MinEt << ") ? --- with curEta=" << curEta << "PanTau::TauConstituent2::t_Neutral=" << PanTau::TauConstituent2::t_Neutral);
+
     if(curEt < cut_MinEt) {
         ATH_MSG_DEBUG("\tNot using constituent at eta " << curEta << " with et of " << curEt);
         return false;
     }
 
-    ATH_MSG_DEBUG("Passed!");
-    
     return true;
 }
 
 
 
 bool    PanTau::Tool_TauConstituentSelector::passesSelection_Pi0NeutConstituent(PanTau::TauConstituent2* tauConstituent) const {
-    ATH_MSG_DEBUG("pi0neut sel for const at: " << tauConstituent);
+
     TLorentzVector tlv_Constituent = tauConstituent->p4();
     
     double curEta       = tlv_Constituent.Eta();
@@ -191,28 +183,10 @@ bool    PanTau::Tool_TauConstituentSelector::passesSelection_Pi0NeutConstituent(
 
 
 
-bool    PanTau::Tool_TauConstituentSelector::passesSelection_ChargedConstituent(PanTau::TauConstituent2* tauConstituent) const {
-
-  TLorentzVector tlv_Constituent = tauConstituent->p4();
+bool    PanTau::Tool_TauConstituentSelector::passesSelection_ChargedConstituent(PanTau::TauConstituent2* /*tauConstituent*/) const {
 
   // we want to use all tracks
   return true;
-
-  /*
-    
-    double curEta       = tlv_Constituent.Eta();
-    double cut_MinEt    = getEtCut(fabs(curEta), PanTau::TauConstituent2::t_Charged);
-    double curEt        = tlv_Constituent.Pt();
-    
-    if(curEt < cut_MinEt) {
-        ATH_MSG_DEBUG("\tNot using constituent at eta " << curEta << " with et of " << curEt);
-        return false;
-    }
-    
-    return true;
-
-  */
-
 }
 
 
@@ -229,23 +203,10 @@ bool    PanTau::Tool_TauConstituentSelector::passesSelection_OutNeutConstituent(
 }
 
 
-bool    PanTau::Tool_TauConstituentSelector::passesSelection_OutChrgConstituent(TauConstituent2* TauConstituent) const {
-
-  TLorentzVector tlv_Constituent = TauConstituent->p4();
+bool    PanTau::Tool_TauConstituentSelector::passesSelection_OutChrgConstituent(TauConstituent2* /*TauConstituent*/) const {
 
   // we want to use all tracks
   return true;
-
-  /*
-    
-    double curEta    = tlv_Constituent.Eta();
-    double cut_MinEt = getEtCut(fabs(curEta), PanTau::TauConstituent2::t_OutChrg);
-    double curEt     = tlv_Constituent.Pt();
-    
-    if(curEt < cut_MinEt) return false;
-    return true;
-
-  */
 }
 
 

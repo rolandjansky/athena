@@ -1,12 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_HELPERFUNCTIONS
 #define PANTAUALGS_TOOL_HELPERFUNCTIONS
-
-//#include "NavFourMom/INavigable4MomentumCollection.h"
-
 
 #include <string>
 #include <iostream>
@@ -49,9 +46,6 @@ namespace PanTau {
         
         virtual std::string convertNumberToString(double x) const;
         
-        // Will: moved to TauPi0ClusterScaler
-        //void vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* efo) const;
-        
         virtual int getBinIndex(std::vector<double> binEdges, double value) const;
         
         virtual double stddev(double sumOfSquares, double sumOfValues, int numConsts) const;
@@ -60,10 +54,6 @@ namespace PanTau {
         virtual int                 iPow(int man, int exp) const;
         virtual double              ulAngle(double x, double y) const;
         virtual double              sign(double a, double b) const;
-        virtual std::vector<double> calcThrust(std::vector<TauConstituent2*>* tauConstituents, bool& calcIsValid) const;
-        virtual void                ludbrb(TMatrix* mom, double the, double phi, double bx, double by, double bz) const;
-        virtual std::vector<double> calcFWMoments(std::vector<TauConstituent2*>* tauConstituents, bool& calcIsValid) const;
-        virtual std::vector<double> calcSphericity(std::vector<TauConstituent2*>* tauConstituents, bool& calcIsValid) const;
 
 #ifdef XAOD_ANALYSIS
 	template<class T>

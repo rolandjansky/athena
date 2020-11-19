@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/PanTauSeed.h"
@@ -78,10 +78,7 @@ PanTau::PanTauSeed2::PanTauSeed2(const PanTau::PanTauSeed2& rhs)
   m_DecayMode_BySubAlg(rhs.m_DecayMode_BySubAlg),
   m_DecayMode_ByPanTau(rhs.m_DecayMode_ByPanTau),
   m_decayModeHack_CellBasedShots(rhs.m_decayModeHack_CellBasedShots),
-  // is this not set on purpose?
-  //m_ProtoMomentum_Wide = seed.m_ProtoMomentum_Wide;
-  //m_ProtoMomentum_Core = seed.m_ProtoMomentum_Core;
-  //m_FinalMomentum      = seed.m_FinalMomentum;
+
   m_Features( (rhs.m_Features ? new PanTau::TauFeature2(*rhs.m_Features) : 0) )
 {
 }
@@ -109,10 +106,7 @@ PanTau::PanTauSeed2& PanTau::PanTauSeed2::operator=(const PanTau::PanTauSeed2& s
     m_ConstituentsList_AllSelected  = seed.m_ConstituentsList_AllSelected;
     m_ConstituentsList_All          = seed.m_ConstituentsList_All;
     m_decayModeHack_CellBasedShots  = seed.m_decayModeHack_CellBasedShots;
-    // is this not set on purpose?
-    //m_ProtoMomentum_Wide = seed.m_ProtoMomentum_Wide;
-    //m_ProtoMomentum_Core = seed.m_ProtoMomentum_Core;
-    //m_FinalMomentum      = seed.m_FinalMomentum;
+
     if(m_Features) delete m_Features;
     m_Features              = (seed.m_Features ? new PanTau::TauFeature2(*seed.m_Features) : 0);
   }
@@ -271,7 +265,6 @@ PanTau::PanTauSeed2::PanTauSeed2( std::string                             nameIn
       if(curType == (int)PanTau::TauConstituent2::t_Pi0Neut) nPi0Neut++;
 
       if((unsigned int)curType >= m_Constituents.size()) {
-	//std::cout << "PanTau::PanTauSeed\tERROR\tMore types in TauConstituent2 than reserved in PanTau seed constituent matrix!" << std::endl;
 	continue;
       }
 
@@ -377,7 +370,6 @@ std::string PanTau::PanTauSeed2::getDecayModeName(int decayMode) {
 
 bool                                                PanTau::PanTauSeed2::isOfTechnicalQuality(int pantauSeed_TechnicalQuality) const {
   if(pantauSeed_TechnicalQuality > PanTau::PanTauSeed2::t_nTechnicalQualities) {
-    //std::cout << "PanTauSeed\tERROR\tunknown technical quality value: " << pantauSeed_TechnicalQuality << ". Maximum allowed is " << PanTau::PanTauSeed2::t_nTechnicalQualities << "! Check PanTauAlgs/PanTauSeed.h" << std::endl;
     return false;
   }
   if(m_TechnicalQuality[pantauSeed_TechnicalQuality] == 1) return true;
@@ -390,7 +382,6 @@ bool                                                PanTau::PanTauSeed2::isOfTec
 std::vector<PanTau::TauConstituent2*>    PanTau::PanTauSeed2::getConstituentsOfType(int tauConstituent_Type, bool& foundit) {
     if(tauConstituent_Type > PanTau::TauConstituent2::t_nTypes) {
         foundit = false;
-        //std::cout << "PanTauSeed\tERROR\tunknown constituent type: " << tauConstituent_Type << " -> it's larger than the known types: " << PanTau::TauConstituent2::t_nTypes << std::endl;
         return std::vector<TauConstituent2*>(0);
     }
     foundit = true;
