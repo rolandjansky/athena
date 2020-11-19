@@ -59,14 +59,6 @@ env_setup() {
     echo "Setting up AthSimulationExternals from: ${extDir}"
     source ${extDir}/*/setup.sh
 
-    # Get the "platform name" from the directory created by the AthSimulationExternals
-    # build:
-    platform=$(cd ${extDir};ls)
-
-    # Point to Gaudi:
-    export GAUDI_ROOT=${BUILDDIR}/install/GAUDI/${version}/InstallArea/${platform}
-    echo "Taking Gaudi from: ${GAUDI_ROOT}"
-
     cd $startdir
 }
 

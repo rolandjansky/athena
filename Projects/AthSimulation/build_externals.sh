@@ -135,28 +135,6 @@ ${scriptsdir}/build_atlasexternals.sh \
     -p AthSimulationExternals ${RPMOPTIONS} -t ${BUILDTYPE} \
     ${EXTRACMAKE[@]/#/-x } -v ${version} || ((ERROR_COUNT++))
 
-# Get the "platform name" from the directory created by the AthSimulationExternals
-# build:
-platform=$(cd ${BUILDDIR}/install/AthSimulationExternals/${version}/InstallArea;ls)
-
-# Read in the tag/branch to use for Gaudi:
-GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
-
-# Check out Gaudi from the right branch/tag:
-${scriptsdir}/checkout_Gaudi.sh \
-    -t ${GaudiVersion} \
-    -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
-
-# Build Gaudi:
-${scriptsdir}/build_Gaudi.sh \
-    -s ${BUILDDIR}/src/GAUDI \
-    -b ${BUILDDIR}/build/GAUDI \
-    -i ${BUILDDIR}/install \
-    -e ${BUILDDIR}/install/AthSimulationExternals/${version}/InstallArea/${platform} \
-    -v ${version} \
-    -p AthSimulationExternals -f ${platform} ${EXTRACMAKE[@]/#/-x } \
-    ${RPMOPTIONS} -t ${BUILDTYPE} || ((ERROR_COUNT++))
-
 # Exit with the error count taken into account.
 if [ ${ERROR_COUNT} -ne 0 ]; then
     echo "AthSimulation externals build encountered ${ERROR_COUNT} error(s)"
