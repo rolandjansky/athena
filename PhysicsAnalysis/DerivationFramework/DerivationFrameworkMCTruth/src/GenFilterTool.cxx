@@ -6,6 +6,7 @@
 #include "GenFilterTool.h"
 
 // EDM includes
+#include "MCTruthClassifier/MCTruthClassifierDefs.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
 
@@ -26,7 +27,24 @@ namespace DerivationFramework {
     return false;
   }
 
+  static bool isFromWZTau(const xAOD::TruthParticle* tp) {
+    ParticleOrigin orig = static_cast<ParticleOrigin>(tp->auxdata<unsigned int>("classifierParticleOrigin"));
+
+    switch(orig) {
+    case ParticleOrigin::WBoson:
+      return true;
+    case ParticleOrigin::ZBoson:
+      return true;
+    case ParticleOrigin::TauLep:
+      return true;
+    default:
+      return false;
+    }
+    return false;
+  }
+
   static SG::AuxElement::Decorator<float> dec_genFiltHT("GenFiltHT");
+  static SG::AuxElement::Decorator<float> dec_genFiltHTinclNu("GenFiltHTinclNu");
   static SG::AuxElement::Decorator<float> dec_genFiltMET("GenFiltMET");
   static SG::AuxElement::Decorator<float> dec_genFiltPTZ("GenFiltPTZ");
   static SG::AuxElement::Decorator<float> dec_genFiltFatJ("GenFiltFatJ");
@@ -113,12 +131,13 @@ namespace DerivationFramework {
 
     m_originMap.clear();
 
-    float genFiltHT(0.), genFiltMET(0.), genFiltPTZ(0.), genFiltFatJ(0.);
-    ATH_CHECK( getGenFiltVars(truthPC, genFiltHT, genFiltMET, genFiltPTZ, genFiltFatJ) );
+    float genFiltHT(0.), genFiltHTinclNu(0.), genFiltMET(0.), genFiltPTZ(0.), genFiltFatJ(0.);
+    ATH_CHECK( getGenFiltVars(truthPC, genFiltHT, genFiltHTinclNu, genFiltMET, genFiltPTZ, genFiltFatJ) );
 
     ATH_MSG_DEBUG("Computed generator filter quantities: HT " << genFiltHT/1e3 << ", MET " << genFiltMET/1e3 << ", PTZ " << genFiltPTZ/1e3 << ", FatJ " << genFiltFatJ/1e3 );
 
     dec_genFiltHT(*eventInfo) = genFiltHT;
+    dec_genFiltHTinclNu(*eventInfo) = genFiltHTinclNu;
     dec_genFiltMET(*eventInfo) = genFiltMET;
     dec_genFiltPTZ(*eventInfo) = genFiltPTZ;
     dec_genFiltFatJ(*eventInfo) = genFiltFatJ;
@@ -130,7 +149,7 @@ namespace DerivationFramework {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode GenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltMET, float& genFiltPTZ, float& genFiltFatJ) const {
+  StatusCode GenFilterTool::getGenFiltVars(const xAOD::TruthParticleContainer* tpc, float& genFiltHT, float& genFiltHTinclNu, float& genFiltMET, float& genFiltPTZ, float& genFiltFatJ) const {
     // Get jet container out
     const xAOD::JetContainer* truthjets = 0;
     if ( evtStore()->retrieve( truthjets, m_truthJetsName).isFailure() || !truthjets ){
@@ -140,6 +159,7 @@ namespace DerivationFramework {
 
     // Get HT
     genFiltHT = 0.;
+    genFiltHTinclNu = 0.; // this HT definition includes neutrinos from W/Z/tau
     for (const auto& tj : *truthjets) {
       if ( tj->pt()>m_MinJetPt && fabs(tj->eta())<m_MaxJetEta ) {
         ATH_MSG_VERBOSE("Adding truth jet with pt " << tj->pt()
@@ -147,6 +167,7 @@ namespace DerivationFramework {
                         << ", phi " << tj->phi()
                         << ", nconst = " << tj->numConstituents());
         genFiltHT += tj->pt();
+        genFiltHTinclNu += tj->pt();
       }
     }
 
@@ -166,7 +187,20 @@ namespace DerivationFramework {
                           << ", status " << tp->status()
                           << ", pdgId " << pdgid);
           genFiltHT += tp->pt();
+          genFiltHTinclNu += tp->pt();
         }
+      }
+
+      // include neutrinos from W/Z/Tau in one of the HT definitions
+      // this corresponds to a subset of HT-sliced samples where the HT filter
+      // was configured to include these particles
+      if (tp->isNeutrino() && isFromWZTau(tp)) {
+        ATH_MSG_VERBOSE("Adding neutrino from W/Z/Tau with pt " << tp->pt()
+                        << ", eta " << tp->eta()
+                        << ", phi " << tp->phi()
+                        << ", status " << tp->status()
+                        << ", pdgId " << pdgid);
+        genFiltHTinclNu += tp->pt();
       }
 
       if (isNonInteracting(pdgid) && isPrompt(tp) ) {
