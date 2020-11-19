@@ -5,7 +5,8 @@
 #ifndef MUONBYTESTREAM_RPCRAWDATAPROVIDER_H
 #define MUONBYTESTREAM_RPCRAWDATAPROVIDER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+// Base class
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -15,7 +16,7 @@
 
 namespace Muon {
 
-class RpcRawDataProvider : public AthAlgorithm
+class RpcRawDataProvider : public AthReentrantAlgorithm
 {
 public:
 
@@ -26,7 +27,7 @@ public:
   virtual StatusCode initialize();
 
   //! Execute
-  virtual StatusCode execute();
+  virtual StatusCode execute(const EventContext& ctx) const;
 
   //! Destructur
   ~RpcRawDataProvider()=default;

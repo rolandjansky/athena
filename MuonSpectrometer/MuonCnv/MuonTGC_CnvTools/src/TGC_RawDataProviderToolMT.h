@@ -43,12 +43,20 @@ namespace Muon
       /** New decoding methods which do not use IROBDataProviderSvc in TgcRdoToPrepDataTool with ID Hash vector */
       virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect);
 
+      /** EventContext ones **/
+      virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const override;
+      virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&, const EventContext&) const override;
+      virtual StatusCode convert(const EventContext&) const override;
+      virtual StatusCode convert(const std::vector<IdentifierHash>&, const EventContext&) const override;
+
     private:
       // TGC container cache key
       SG::UpdateHandleKey<TgcRdo_Cache> m_rdoContainerCacheKey ;
 
       /** convert from vector of ROB IDs is not available */
       virtual StatusCode convert(const std::vector<uint32_t>&) {return StatusCode::FAILURE;}
+      /** EventContext ones **/
+      virtual StatusCode convert(const std::vector<uint32_t>&, const EventContext&) const override {return StatusCode::FAILURE;}
 
     };
 } // end of namespace

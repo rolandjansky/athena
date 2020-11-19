@@ -41,7 +41,7 @@ uint32_t Muon::TGC_Hid2RESrcID::getRodID(uint16_t subDetectorId, uint16_t rodId)
 }
 
 // get source ID for an TgcDigitCollection 
-uint32_t Muon::TGC_Hid2RESrcID::getRodID(const Identifier& offlineId)
+uint32_t Muon::TGC_Hid2RESrcID::getRodID(const Identifier& offlineId) const
 {
   int subDetectorId;
   int rodId;
@@ -56,7 +56,7 @@ uint32_t Muon::TGC_Hid2RESrcID::getRodID(const Identifier& offlineId)
 }
 
 // mapping SrcID from ROD to ROB 
-uint32_t Muon::TGC_Hid2RESrcID::getRobID(uint32_t rod_id) 
+uint32_t Muon::TGC_Hid2RESrcID::getRobID(uint32_t rod_id) const
 {
   // return Source ID. 
   // ROD source ID and ROB source ID are identical for TGC. 

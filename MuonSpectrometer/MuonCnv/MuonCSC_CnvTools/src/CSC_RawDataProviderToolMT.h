@@ -35,21 +35,23 @@ public:
       
     virtual StatusCode convert(const ROBFragmentList& vecRobs) override
     {
-      const CSC_RawDataProviderToolMT* cthis = this;
-      return cthis->convert (vecRobs, Gaudi::Hive::currentContext());
+      return this->convert (vecRobs, Gaudi::Hive::currentContext());
     }
 
     virtual StatusCode convert(const std::vector<IdentifierHash>& collections) override;
     virtual StatusCode convert() override
     {
-      const CSC_RawDataProviderToolMT* cthis = this;
-      return cthis->convert (Gaudi::Hive::currentContext());
+      return this->convert (Gaudi::Hive::currentContext());
     }
     virtual StatusCode convert(const std::vector<uint32_t>&) override {return StatusCode::FAILURE;}
 
-    StatusCode convert(const ROBFragmentList& vecRobs,
-                       const EventContext& ctx) const;
-    StatusCode convert(const EventContext& ctx) const;
+    virtual StatusCode convert(const ROBFragmentList& vecRobs,const EventContext& ctx) const override;
+    virtual StatusCode convert(const EventContext& ctx) const override;
+    virtual StatusCode convert(const std::vector<IdentifierHash>&, const EventContext&) const override;
+
+    // Not used
+    virtual StatusCode convert(const std::vector<uint32_t>&, const EventContext&) const override {return StatusCode::FAILURE;}
+    virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&, const EventContext&) const override {return StatusCode::FAILURE;}
 
 private:
 

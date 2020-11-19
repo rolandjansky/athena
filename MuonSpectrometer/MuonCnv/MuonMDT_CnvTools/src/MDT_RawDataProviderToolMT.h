@@ -42,6 +42,12 @@ class MDT_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool, publi
   virtual StatusCode convert(); //!< for the entire event 
   virtual StatusCode convert(const std::vector<IdentifierHash>& HashVec);
   virtual StatusCode convert(const std::vector<uint32_t>& robIds);//!< for a particular vector of ROBId's
+  /** EventContext **/
+  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const EventContext& ctx) const override;
+  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const std::vector<IdentifierHash>&, const EventContext& ctx) const override;
+  virtual StatusCode convert(const EventContext& ctx) const override; //!< for the entire event 
+  virtual StatusCode convert(const std::vector<IdentifierHash>& HashVec, const EventContext& ctx) const override;
+  virtual StatusCode convert(const std::vector<uint32_t>& robIds, const EventContext& ctx) const override;//!< for a particular vector of ROBId's
 
   private:
     
