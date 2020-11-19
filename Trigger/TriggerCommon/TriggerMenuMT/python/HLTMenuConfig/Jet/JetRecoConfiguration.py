@@ -98,6 +98,8 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
         constitModWithAlternateTrk("CorrectPFO", trkopt) 
         constitMods = ["CorrectPFO"+trkopt]
         # apply constituent pileup suppression
+        if "vs" in jetRecoDict["dataType"]:
+            constitMods.append("Vor")
         if "cs" in jetRecoDict["dataType"]:
             constitMods.append("CS")
         if "sk" in jetRecoDict["dataType"]:
@@ -119,6 +121,8 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             
     if "tc" in jetRecoDict["dataType"]:
         # apply constituent pileup suppression
+        if "vs" in jetRecoDict["dataType"]:
+            constitMods.append("Vor")
         if "cs" in jetRecoDict["dataType"]:
             constitMods.append("CS")
         if "sk" in jetRecoDict["dataType"]:
