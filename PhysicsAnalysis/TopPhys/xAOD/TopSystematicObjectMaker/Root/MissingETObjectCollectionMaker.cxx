@@ -266,11 +266,13 @@ namespace top {
         //get the soft cluster term, and applyCorrection
         xAOD::MissingET* softClusMet = (*new_met_container)["SoftClus"];
         if (softClusMet != nullptr) { //check we retrieved the clust term
+          m_met_systematics->setRandomSeed(static_cast<int>(1e6*softClusMet->phi()));
           top::check(m_met_systematics->applyCorrection(*softClusMet), "Failed to applyCorrection");
         }
 
         xAOD::MissingET* softTrkMet = (*new_met_container)["PVSoftTrk"];
         if (softTrkMet != nullptr) { //check we retrieved the soft trk
+          m_met_systematics->setRandomSeed(static_cast<int>(1e6*softTrkMet->phi()));
           top::check(m_met_systematics->applyCorrection(*softTrkMet), "Failed to applyCorrection");
         }
       }
