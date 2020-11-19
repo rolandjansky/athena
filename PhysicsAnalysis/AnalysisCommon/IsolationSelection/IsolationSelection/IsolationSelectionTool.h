@@ -4,6 +4,7 @@
  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
  */
 
+// $Id: IsolationSelectionTool.h 704447 2015-10-29 12:00:39Z jdevivi $
 #ifndef ISOLATIONSELECTION_ISOLATIONSELECTIONTOOL_H
 #define ISOLATIONSELECTION_ISOLATIONSELECTIONTOOL_H
 
@@ -52,11 +53,11 @@ namespace CP {
             enum IsoWPType {
                 Efficiency, Cut
             };
-            virtual const asg::AcceptData accept(const xAOD::Photon& x) const;
-            virtual const asg::AcceptData accept(const xAOD::Electron& x) const;
-            virtual const asg::AcceptData accept(const xAOD::Muon& x) const;
-            virtual const asg::AcceptData accept(const strObj& x) const;
-            virtual const asg::AcceptData accept(const xAOD::IParticle& x) const; // for tracks, and others?
+            virtual asg::AcceptData accept(const xAOD::Photon& x) const;
+            virtual asg::AcceptData accept(const xAOD::Electron& x) const;
+            virtual asg::AcceptData accept(const xAOD::Muon& x) const;
+            virtual asg::AcceptData accept(const strObj& x) const;
+            virtual asg::AcceptData accept(const xAOD::IParticle& x) const; // for tracks, and others?
 
             virtual const asg::AcceptInfo& getPhotonAcceptInfo() const;
             virtual const asg::AcceptInfo& getElectronAcceptInfo() const;
@@ -75,6 +76,7 @@ namespace CP {
             StatusCode addElectronWP(std::string wpname);
             StatusCode addUserDefinedWP(std::string WPname, xAOD::Type::ObjectType ObjType, std::vector<std::pair<xAOD::Iso::IsolationType, std::string> >& cuts, std::string key = "", IsoWPType type = Efficiency);
             StatusCode setIParticleCutsFrom(xAOD::Type::ObjectType ObjType);
+            void addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression, const xAOD::Iso::IsolationType isoCutRemap);
             void addCutToWP(IsolationWP* wp, std::string key, const xAOD::Iso::IsolationType t, const std::string expression);
 
             // Clearing, for very special use
@@ -94,6 +96,9 @@ namespace CP {
             std::string m_muWPname;
             std::string m_elWPname;
             std::string m_phWPname;
+            std::vector<std::string> m_muWPvec;
+            std::vector<std::string> m_elWPvec;
+            std::vector<std::string> m_phWPvec;
             std::string m_muWPKey;
             std::string m_elWPKey;
             std::string m_phWPKey;
@@ -108,15 +113,15 @@ namespace CP {
             std::vector<IsolationWP*> m_phWPs;
             std::vector<IsolationWP*> m_objWPs;
 
-            ///AcceptInfo
-            asg::AcceptInfo m_photonAcceptInfo;
-            asg::AcceptInfo m_electronAcceptInfo;
-            asg::AcceptInfo m_muonAcceptInfo;
-            asg::AcceptInfo m_objAcceptInfo;
+            /// AcceptInfo's
+            asg::AcceptInfo m_photonAccept;
+            asg::AcceptInfo m_electronAccept;
+            asg::AcceptInfo m_muonAccept;
+            asg::AcceptInfo m_objAccept;
 
             /// Iparticle interface
             std::vector<IsolationWP*>* m_iparWPs;
-            asg::AcceptInfo*  m_iparAcceptInfo;
+            asg::AcceptInfo *m_iparAcceptInfo = nullptr;
 
             // for cut interpolation
             bool m_doInterpM, m_doInterpE;
