@@ -12,9 +12,9 @@ from AthenaCommon.Logging import logging
 logger = logging.getLogger(__name__)
 logger.debug("Logger initialized.")
 
-from gui.wrappers import GuiLoader, DoublePad
-from models.loaders import ComponentsFileLoader, ComponentsDiffFileLoader
-from utils import serialization
+from AthenaConfiguration.iconfTool.gui.wrappers import GuiLoader, DoublePad
+from AthenaConfiguration.iconfTool.models.loaders import ComponentsFileLoader, ComponentsDiffFileLoader
+from AthenaConfiguration.iconfTool.utils import serialization
 
 
 if __name__ == '__main__':
