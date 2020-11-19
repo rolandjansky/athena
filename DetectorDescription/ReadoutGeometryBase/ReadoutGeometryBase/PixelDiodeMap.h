@@ -12,8 +12,9 @@
 #define READOUTGEOMETRYBASE_PIXELDIODEMAP_H
 
 // STL classes
-#include <vector>
 #include <list>
+#include <memory>
+#include <vector>
 
 // Data member classes
 #include "ReadoutGeometryBase/PixelDiodeMatrix.h"
@@ -44,7 +45,7 @@ class PixelDiodeMatrix;
         public:
         
           /** Constructor from Diode matrix description */
-          PixelDiodeMap(const PixelDiodeMatrix * diodeMatrix);
+          PixelDiodeMap(std::shared_ptr<const PixelDiodeMatrix> diodeMatrix);
           
           /** Copy constructor: */
           PixelDiodeMap(const PixelDiodeMap &map);
@@ -129,7 +130,7 @@ class PixelDiodeMatrix;
           // Private data:
           ///////////////////////////////////////////////////////////////////
         private:
-          const PixelDiodeMatrix * m_matrix;    //!< diode matrix
+          std::shared_ptr<const PixelDiodeMatrix> m_matrix;    //!< diode matrix
           bool m_generalLayout;                 //!< Flag set to allow for dealing wth more general layouts.
     };
     
