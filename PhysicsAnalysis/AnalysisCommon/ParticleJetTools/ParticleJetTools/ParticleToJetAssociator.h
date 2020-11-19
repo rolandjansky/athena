@@ -25,6 +25,7 @@ comments: A. Wildauer: 27.01.2005 rewritten into an AlgTool
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 
+#include <memory>
 #include <vector>
 #include <list>
 #include <string>
@@ -70,12 +71,12 @@ class ParticleToJetAssociator : public asg::AsgTool {
         // For the new way
         // FF: return the vector of associations 
         template<typename ConstituentType, typename coll>
-            std::vector<ConstituentType*>
+            std::vector< std::unique_ptr<ConstituentType> >
             associateParticlesToJets(jetcollection_t* theJets,
                     const coll* particleContainer,
                     const std::string& constituentName) const;
         template<typename ConstituentType, typename coll>
-            std::vector<ConstituentType*>
+            std::vector< std::unique_ptr<ConstituentType> >
             associateParticlesToJets(const xAOD::JetContainer* theJets,
                     const coll* particleContainer,
                     const std::string& constituentName) const;
@@ -176,19 +177,19 @@ class ParticleToJetAssociator : public asg::AsgTool {
 
 // For the new way
 template<typename ConstituentType, typename coll>
-    inline std::vector<ConstituentType*>
+    inline std::vector< std::unique_ptr<ConstituentType> >
     ParticleToJetAssociator::associateParticlesToJets(jetcollection_t* theJets,
             const coll* particleContainer,
             const std::string& constituentName) const {
 
-        std::vector<ConstituentType*> vecTrackConst;
+        std::vector< std::unique_ptr<ConstituentType> > vecTrackConst;
         ATH_MSG_VERBOSE("Number of Jets      : " << theJets->size());
         if (theJets->size()<1) return vecTrackConst;
         ATH_MSG_VERBOSE("Number of Particles of Type " << constituentName << " : " << particleContainer->size());
 
         for (jetcollection_t::iterator itr = theJets->begin(); itr != theJets->end(); ++itr) {
             //    NameType name(constituentName);
-            vecTrackConst.push_back(new ConstituentType);
+            vecTrackConst.push_back( std::make_unique<ConstituentType>() );
         }
 
         int index(0);
@@ -275,19 +276,19 @@ template<typename ConstituentType, typename coll>
     }
 
 template<typename ConstituentType, typename coll>
-    inline std::vector<ConstituentType*>
+    inline std::vector< std::unique_ptr<ConstituentType> >
     ParticleToJetAssociator::associateParticlesToJets(const xAOD::JetContainer * theJets,
             const coll* particleContainer,
             const std::string& constituentName) const {
 
-        std::vector<ConstituentType*> vecTrackConst;
+        std::vector< std::unique_ptr<ConstituentType> > vecTrackConst;
         ATH_MSG_VERBOSE("Number of Jets      : " << theJets->size());
         if (theJets->size()<1) return vecTrackConst;
         ATH_MSG_VERBOSE("Number of Particles of Type " << constituentName << " : " << particleContainer->size());
 
         for (xAOD::JetContainer::const_iterator itr = theJets->begin(); itr != theJets->end(); ++itr) {
             //    NameType name(constituentName);
-            vecTrackConst.push_back(new ConstituentType);
+            vecTrackConst.push_back( std::make_unique<ConstituentType>() );
         }
 
         int index(0);
