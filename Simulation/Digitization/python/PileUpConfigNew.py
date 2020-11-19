@@ -325,3 +325,10 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
 
     acc.addService(CompFactory.PileUpEventLoopMgr(name, **kwargs))
     return acc
+
+
+def NoPileUpMuWriterCfg(flags, name="NoPileUpMuWriter", **kwargs):
+    """NoPileUpMuWriter configuration."""
+    acc = ComponentAccumulator()
+    acc.addEventAlgo(CompFactory.NoPileUpMuWriter(name, **kwargs))
+    return acc
