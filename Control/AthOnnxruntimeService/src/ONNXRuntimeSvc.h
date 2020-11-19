@@ -1,10 +1,10 @@
 // Dear emacs, this is -*- c++ -*-
 // Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-#ifndef ATHEXONNXRUNTIME_ONNXRUNTIMESVC_H
-#define ATHEXONNXRUNTIME_ONNXRUNTIMESVC_H
+#ifndef ATHONNXRUNTIMESERVICE_ONNXRUNTIMESVC_H
+#define ATHONNXRUNTIMESERVICE_ONNXRUNTIMESVC_H
 
 // Local include(s).
-#include "AthExOnnxRuntime/IONNXRuntimeSvc.h"
+#include "AthOnnxruntimeService/IONNXRuntimeSvc.h"
 
 // Framework include(s).
 #include "AthenaBaseComps/AthService.h"
@@ -56,4 +56,4 @@ namespace AthONNX {
 
 } // namespace AthONNX
 
-#endif // ATHEXONNXRUNTIME_ONNXRUNTIMESVC_H
+#endif // ATHONNXRUNTIMESERVICE_ONNXRUNTIMESVC_H
