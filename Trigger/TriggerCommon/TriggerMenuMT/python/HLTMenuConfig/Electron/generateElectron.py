@@ -34,11 +34,8 @@ def generateChains( flags,  chainDict ):
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
-    fastCaloSequence = CAMenuSequence( Sequence  = l2CaloReco.sequence(),
-                                     Maker       = l2CaloReco.inputMaker(),
-                                     Hypo        = l2CaloHypo,
-                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict, 
-                                     CA = accCalo)
+    fastCaloSequence = CAMenuSequence(accCalo,
+                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict)
 
     accCalo.printConfig()
     # this cannot work for asymmetric combined chains....FP
@@ -84,11 +81,8 @@ def generateChains( flags,  chainDict ):
     accTrk.addEventAlgo(fastElectronHypoAlg, sequenceName=stepView.getName())
 
     from TrigEgammaHypo.TrigEgammaFastElectronHypoTool import TrigEgammaFastElectronHypoToolFromDict
-    fastInDetSequence = CAMenuSequence(Sequence    = fastInDetReco.sequence(),
-                                       Maker       = fastInDetReco.inputMaker(),
-                                       Hypo        = fastElectronHypoAlg,
-                                       HypoToolGen = TrigEgammaFastElectronHypoToolFromDict,
-                                       CA = accTrk)
+    fastInDetSequence = CAMenuSequence(accTrk, 
+                                       HypoToolGen = TrigEgammaFastElectronHypoToolFromDict)
 
     fastInDetStep = ChainStep( name=secondStepName, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 

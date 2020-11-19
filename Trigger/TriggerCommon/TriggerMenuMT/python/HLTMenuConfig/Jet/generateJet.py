@@ -86,11 +86,8 @@ def generateChains( flags, chainDict ):
     hypo.Jets = jetsfullname
     acc.addEventAlgo(hypo, sequenceName=stepView.getName() )
 
-    jetSequence = CAMenuSequence( Sequence    = inEventReco.sequence(),
-                                Maker       = inEventReco.inputMaker(),
-                                Hypo        = hypo,
-                                HypoToolGen = trigJetHypoToolFromDict,
-                                CA = acc)
+    jetSequence = CAMenuSequence(acc,
+                                 HypoToolGen = trigJetHypoToolFromDict)
 
     jetStep = ChainStep(name=stepName, Sequences=[jetSequence], chainDicts=[chainDict])
     
