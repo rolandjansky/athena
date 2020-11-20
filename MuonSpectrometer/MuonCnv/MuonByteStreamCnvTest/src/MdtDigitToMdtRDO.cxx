@@ -207,9 +207,11 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
           if (m_idHelperSvc->mdtIdHelper().stationName(channelId)==1
              && std::abs(m_idHelperSvc->mdtIdHelper().stationEta(channelId))>6
              && m_idHelperSvc->issMdt(channelId)) {
-             if (!bisWarningPrinted) ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 until a proper cabling is implemented...");
-             bisWarningPrinted=true;
-            cabling = readCdo->getOnlineId(name, eta, phi, multilayer, 1, 1,subsystem, mrod, link, tdc, channel);
+             if (!bisWarningPrinted) {
+               ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 until a proper cabling is implemented...");
+               bisWarningPrinted.store(true, std::memory_order_relaxed);
+             }
+             cabling = readCdo->getOnlineId(name, eta, phi, multilayer, 1, 1,subsystem, mrod, link, tdc, channel);
           }
           if (!cabling) {
             ATH_MSG_ERROR( "MDTcabling can't return an online ID for the channel : "  );
