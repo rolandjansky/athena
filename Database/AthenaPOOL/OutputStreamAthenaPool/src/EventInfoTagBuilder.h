@@ -7,7 +7,6 @@
 
 /*****************************************************************************
 Name    : EventInfoTagBuilder.h
-Package : offline/PhysicsAnalysis/EventTag/EventTagAlgs
 Author  : Ketevi A. Assamagan, Kristo Karr
 Created : July 2004
 Updated : February 2006

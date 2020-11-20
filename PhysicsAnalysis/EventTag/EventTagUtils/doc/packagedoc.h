@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
-@page EventTagUtils_page EventTagAlgs
+@page EventTagUtils_page EventTagUtils
 
 @section EventTagUtils_introductionEventTagUtils Introduction
 This package contains the alg tools to build the global trigger and event fragments of TAG, and also the detector 
