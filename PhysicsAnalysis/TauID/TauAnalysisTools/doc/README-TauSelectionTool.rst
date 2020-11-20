@@ -3,9 +3,11 @@ TauSelectionTool
 ================
 
 :authors: Dirk Duschinger, David Kirchmeier
-:contact: dirk.duschinger@cern.ch, david.kirchmeier@cern.ch
+:contact: guillermo.nicolas.hamity@cern.ch, dirk.duschinger@cern.ch, david.kirchmeier@cern.ch
 
-.. contents:: Table of contents
+.. contents:: Table of contents 
+
+**NOTE:** The eleBDT working points were updated to the new re-tuned eleBDT scores. These are only available in new derivations with AODfix (since 21.2.54.0, p3759). In cases where an electron veto is needed and older derivations are used, you may have to switch the ELEIDBDTOLDLOOSE or ELEIDBDTOLDMEDIUM working points. See the below ``CutEleBDTWP`` table with all eleBDT working points. 
 
 ------------
 Introduction
@@ -25,34 +27,8 @@ The tool at least needs to be created and initialized like::
   
 This creates the tool with the recommended cuts, which are defined in the
 default config file
-/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/TauAnalysisTools/00-00-30/Selection/recommended_selection_mc15.conf
+/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/TauAnalysisTools/00-00-30/Selection/recommended_selection_mc15.conf
 (or in newer versions).
-
-------------------
-Release Check
-------------------
-
-Since TauAnalysisTools-00-02-43 an automatic release check is implemented. 
-For samples which are not AODFix (before 20.7.8.5, excluding 20.7.8.2) the electron overlap removal is re-run. For AODFix samples (20.7.8.5 and above)
-the available electron overlap removal is used. One can turn off this release 
-check via::
-   
-   TauSelTool.setProperty("IgnoreAODFixCheck", true);
-
-In that case one can force the electron overlap-removal to be 
-re-calculated via::
-  
-   TauSelTool.setProperty("RecalcEleOLR", true);
-
-**Note:** that in case one wants to use the electron overlap-removal `EleOLR` in
- not AOD fixed samples it
- is recommended to run the `TauOverlappingElectronLLHDecorator
- <README-TauOverlappingElectronLLHDecorator.rst>`_ before calling the *accept*
- function of the TauSelectionTool. However, if this is not done, the tool uses
- the TauOverlappingElectronLLHDecorator internally to decorate the tau with the
- electron likelihood score. In this case it is recommended to call
- intializeEvent() in each new event, otherwise the electron container will be
- retrieved for each tau, which is overhead and much slower.
 
 ------------------
 Tool configuration
@@ -140,7 +116,7 @@ setup:
      - accepting taus with the given absolute charge
      - if ``AbsCharge`` is configured, ``AbsCharges`` configuration wont be considered
 
-   * - ``CutNTracks``
+   * - ``CutNTrack``
      - ``NTracks``
      - ``std::vector<size_t>``
      - accepting taus with a set of track multiplicities, each value in the vector will be accepted
@@ -152,23 +128,41 @@ setup:
      - accepting taus with the given track multiplicity
      - if ``NTrack`` is configured, ``NTracks`` configuration wont be considered
 
-   * - ``CutJetBDTScore``
-     - ``JetBDTRegion``
+   * - ``CutJetBDTScoreSigTrans``
+     - ``JetBDTSigTransRegion``
      - ``std::vector<double>``
      - accepting taus within jet BDT score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
-     -
+     - ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
 
    * -
-     - ``JetBDTMin``
+     - ``JetBDTSigTransMin``
      - ``double``
      - accepting taus with a jet BDT score above a lower bound
-     - if ``JetBDTMin`` is configured, ``JetBDTRegion`` configuration wont be considered
+     - if ``JetBDTMin`` is configured, ``JetBDTRegion`` configuration wont be considered. ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
 
    * - 
-     - ``JetBDTMax``
+     - ``JetBDTSigTransMax``
      - ``double``
      - accepting taus with a jet BDT score below an upper bound
-     - if ``JetBDTMax`` is configured, ``JetBDTRegion`` configuration wont be considered
+     - if ``JetBDTMax`` is configured, ``JetBDTRegion`` configuration wont be considered. ``JetBDTSigTrans`` is a transformed BDT score and provides flat ID efficiencies with respect to pT and pile-up. 
+
+   * - ``CutJetRNNScoreSigTrans``
+     - ``JetRNNSigTransRegion``
+     - ``std::vector<double>``
+     - accepting taus within jet RNN score regions, each `odd` in the vector is a lower bound, each `even` is an upper bound
+     - ``JetRNNSigTrans`` is a transformed RNN score and provides flat ID efficiencies with respect to pT and pile-up. 
+
+   * -
+     - ``JetRNNSigTransMin``
+     - ``double``
+     - accepting taus with a jet RNN score above a lower bound
+     - if ``JetRNNMin`` is configured, ``JetRNNRegion`` configuration wont be considered. ``JetRNNSigTrans`` is a transformed RNN score and provides flat ID efficiencies with respect to pT and pile-up. 
+
+   * - 
+     - ``JetRNNSigTransMax``
+     - ``double``
+     - accepting taus with a jet RNN score below an upper bound
+     - if ``JetRNNMax`` is configured, ``JetRNNRegion`` configuration wont be considered. ``JetRNNSigTrans`` is a transformed RNN score and provides flat ID efficiencies with respect to pT and pile-up. 
 
    * - ``CutJetIDWP``
      - ``JetIDWP``
@@ -229,14 +223,17 @@ Currently implemented working points for ``CutJetIDWP`` are:
    * - JETIDNONE
      - no cut at all
      
+   * - JETIDBDTVERYLOOSE
+     - passing BDT very loose working point, ID efficiency 95%
+
    * - JETIDBDTLOOSE
-     - passing BDT loose working point
+     - passing BDT loose working point, ID efficiency 85% (75%) for 1-prong (3-prong)
      
    * - JETIDBDTMEDIUM
-     - passing BDT medium working point
+     - passing BDT medium working point, ID efficiency 75% (60%) for 1-prong (3-prong)
      
    * - JETIDBDTTIGHT
-     - passing BDT tight working point
+     - passing BDT tight working point, ID efficiency 60% (45%) for 1-prong (3-prong)
      
    * - JETIDBDTLOOSENOTTIGHT
      - passing BDT loose but not BDT tight working point
@@ -250,31 +247,51 @@ Currently implemented working points for ``CutJetIDWP`` are:
    * - JETIDBDTNOTLOOSE
      - not passing BDT loose working point
 
-   * - JETIDBDTVERYLOOSE
-     - passing BDT very loose working point, new since release 21
-
    * - JETBDTBKGLOOSE
-     - loose background working point, new since release 21
+     - loose background working point
 
    * - JETBDTBKGMEDIUM
-     - medium background working point, new since release 21
+     - medium background working point
 
    * - JETBDTBKGTIGHT
-     - tight background working point, new since release 21
+     - tight background working point
+
+   * - JETIDRNNVERYLOOSE
+     - passing RNN very loose working point, ID efficiency 95%
+
+   * - JETIDRNNLOOSE
+     - passing RNN loose working point, ID efficiency 85% (75%) for 1-prong (3-prong)
+     
+   * - JETIDRNNMEDIUM
+     - passing RNN medium working point, ID efficiency 75% (60%) for 1-prong (3-prong)
+     
+   * - JETIDRNNTIGHT
+     - passing RNN tight working point, ID efficiency 60% (45%) for 1-prong (3-prong)
+     
 
 and for ``CutEleBDTWP``:
 
 .. list-table::
    :header-rows: 1
+   :widths: 5 30
 
    * - Electron veto working points
      - description
      
    * - ELEIDBDTLOOSE
-     - BDT loose electron veto 
+     - BDT loose electron veto (BDTEleScoreSigTrans_retuned > 0.05), available in new derivations with AODfix (since 21.2.54.0, p3759)
      
    * - ELEIDBDTMEDIUM
-     - BDT medium electron veto 
+     - BDT medium electron veto (BDTEleScoreSigTrans_retuned > 0.15), available in new derivations with AODfix (since 21.2.54.0, p3759)
+     
+   * - ELEIDBDTTIGHT
+     - BDT tight electron veto (BDTEleScoreSigTrans_retuned > 0.25), available in new derivations with AODfix (since 21.2.54.0, p3759)
+     
+   * - ELEIDBDTOLDLOOSE
+     - old BDT loose electron veto (BDTEleScoreSigTrans > 0.05)
+
+   * - ELEIDBDTOLDMEDIUM
+     - old BDT medium electron veto (BDTEleScoreSigTrans > 0.15)
      
 
 If one wants to use a different setup one has three options:
@@ -342,40 +359,6 @@ configured, the tool will accept any tau. However, configuration can be achieved
 as described in the `previous section
 <README-TauSelectionTool.rst#overwrite-particular-cut-setups-or-the-list-of-cuts-to-be-executed>`_.
 
-Other tool configurations for the electron overlap removal
-==========================================================
-
-The electron overlap removal uses pT and eta (of the leading track) dependent
-thresholds stored in a root file. The input file can be set via::
-
-  TauSelTool.setProperty("EleOLRFilePath", "PATH/TO/FILE");
-
-Currently the following official input files are available in
-``/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData``:
-
-.. list-table::
-   :header-rows: 1
-
-   * - file
-     - description
-
-   * - TauAnalysisTools/<latest tag>/Selection/eveto_cutvals.root
-     - 95% signal efficiency, loose working point
-       
-   * - TauAnalysisTools/<latest tag>/Selection/eveto_cutvals_90.root
-     - 90% signal efficiency, medium working point
-
-   * - TauAnalysisTools/<latest tag>/Selection/eveto_cutvals_85.root
-     - 85% signal efficiency, tight working point
-
-Use at least ``00-01-09`` for the ``<latest tag>``.
-     
-The electron overlap removal further depends on the electron container. If for
-some reason the electron container name differs from the default
-(``Electrons``), just change the property ``ElectronContainerName`` to the
-relevant container name::
-
-  TauSelTool.setProperty("ElectronContainerName", "MY/ELECTRON/CONTAINER/NAME");
      
 ----------------
 Tool application
@@ -454,12 +437,6 @@ FAQ
     TauSelectionTool          DEBUG cuts: Pt AbsEta AbsCharge NTrack JetIDWP EleOLR
 
    **Note:** only the cuts in the last line will be processed
-
-
-#. **Question:** How can I use different working points for the electron overlap
-   removal.
-
-   **Answer:** This is described in this `section <README-TauSelectionTool.rst#other-tool-configurations-for-the-electron-overlap-removal>`_
 
 #. **Question**: After cutting on EleOLR there are still taus with rather large
    likelihood scores.
