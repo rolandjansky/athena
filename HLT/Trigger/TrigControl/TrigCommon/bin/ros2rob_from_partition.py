@@ -69,7 +69,7 @@ def print_ros2rob(ros2rob, out):
   """
   print("ros2rob = {", file=out)
   count = 0
-  for k, v in ros2rob.iteritems():
+  for k, v in ros2rob.items():
     count += 1
     print("\t'%s': \n\t[" % k, file=out)
     for i in range(len(v)):
