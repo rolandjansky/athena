@@ -27,70 +27,70 @@ static const int kNumErrorStatesFEI4{27};
 // error states = enumerators of PixelByteStreamErrors and FEI4 SR's we care about
 //
 static constexpr std::array<const char*, kNumErrorStatesFEI3> error_names_stateFEI3 {
-    "ROD_Timeout",
-    "ROD_Sync_BCID_errors",
-    "ROD_Sync_LVL1ID_errors",
-    "Optical_Errors",
-    "Mod_Sync_LVL1ID_errors",
-    "Mod_Sync_BCID2_errors",
-    "Mod_Sync_BCID1_errors",
-    "Mod_Trunc_EoE_Overflow_errors",
-    "Mod_Trunc_Hit_Overflow_errors",
-    "FE_Warning",
-    "SEU_Hit_Parity",
-    "SEU_Register_Parity",
-    "SEU_Hamming",
-    "Mod_Trunc_EOC_errors",
-    "ROD_Trailer_Bit_errors",
-    "ROD_Trunc_HT_Limit_errors",
-    "ROD_Trunc_ROD_OF_errors"
+    "RODTimeout",
+    "RODSyncBCIDErrors",
+    "RODSyncLVL1IDErrors",
+    "OpticalErrors",
+    "ModSyncLVL1IDErrors",
+    "ModSyncBCID2Errors",
+    "ModSyncBCID1Errors",
+    "ModTruncEoEOverflowErrors",
+    "ModTruncHitOverflowErrors",
+    "FEWarning",
+    "SEUHitParity",
+    "SEURegisterParity",
+    "SEUHamming",
+    "ModTruncEOCErrors",
+    "RODTrailerBitErrors",
+    "RODTruncHTLimitErrors",
+    "RODTruncRODOFErrors"
 };
 
 static constexpr std::array<const char*, kNumErrorStatesFEI4> error_names_stateFEI4 {
-    "ROD_Timeout_errors",
-    "ROD_BCID_errors",
-    "ROD_LVL1ID_errors",
-    "ROD_Preamble_errors",
-    "ROD_Trailer_errors",
-    "ROD_Row-Column_errors",
-    "ROD_Masked_link",
-    "ROD_Limit_errors",
-    "SR0_BCID_counter_errors",
-    "SR1_Hamming_code_0_errors",
-    "SR2_Hamming_code_1_errors",
-    "SR3_Hamming_code_2_errors",
-    "SR4_L1_in_counter_errors",
-    "SR5_L1_request_counter_errors",
-    "SR6_L1_register_errors",
-    "SR7_L1_Trigger_ID_errors",
-    "SR8_FE_readout_process_errors",
-    "SR15_Skippped_trig_count_errors",
-    "SR16_Truncated_event_flag_errors",
-    "SR24_Triple_redundant_errors_CNFGMEM",
-    "SR25_Write_reg_data_errors",
-    "SR26_Address_errors",
-    "SR27_Other_CMD_decoder_errors",
-    "SR28_CMD_decoder_bitflip_errors",
-    "SR29_Triple_redundant_errors_CMD",
-    "SR30_Data_bus_address_errors",
-    "SR31_Triple_redundant_errors_EFUSE"
+    "RODTimeoutErrors",
+    "RODBCIDErrors",
+    "RODLVL1IDErrors",
+    "RODPreambleErrors",
+    "RODTrailerErrors",
+    "RODRowColumnErrors",
+    "RODMaskedLink",
+    "RODLimitErrors",
+    "SR0BCIDCounterErrors",
+    "SR1HammingCode0Errors",
+    "SR2HammingCode1Errors",
+    "SR3HammingCode2Errors",
+    "SR4L1InCounterErrors",
+    "SR5L1RequestCounterErrors",
+    "SR6L1RegisterErrors",
+    "SR7L1TriggerIDErrors",
+    "SR8FEReadoutProcessErrors",
+    "SR15SkipppedTrigCountErrors",
+    "SR16TruncatedEventFlagErrors",
+    "SR24TripleRedundantErrorsCNFGMEM",
+    "SR25WriteRegDataErrors",
+    "SR26AddressErrors",
+    "SR27OtherCMDDecoderErrors",
+    "SR28CMDDecoderBitflipErrors",
+    "SR29TripleRedundantErrorsCMD",
+    "SR30DataBusAddressErrors",
+    "SR31TripleRedundantErrorsEFUSE"
 };
 
 static constexpr std::array<const char*, ErrorCategoryRODMOD::COUNT> error_names_cat_rodmod {
-  "SyncErrors_Mod",
-  "SyncErrors_ROD",
-  "TruncErrors_Mod",
-  "TruncErrors_ROD",
-  "OpticalErrors_RODMod",
-  "SEUErrors_RODMod",
-  "TimeoutErrors_RODMod"
+  "SyncErrorsMod",
+  "SyncErrorsROD",
+  "TruncErrorsMod",
+  "TruncErrorsROD",
+  "OpticalErrorsRODMod",
+  "SEUErrorsRODMod",
+  "TimeoutErrorsRODMod"
 };
 
 static constexpr std::array<const char*, 4> error_names_cat_rodmod_norm {
-  "SyncErrors_Mod_Frac_per_event",
-  "SyncErrors_ROD_Frac_per_event",
-  "TruncErrors_Mod_Frac_per_event",
-  "TruncErrors_ROD_Frac_per_event"
+  "SyncErrorsModFracPerEvent",
+  "SyncErrorsRODFracPerEvent",
+  "TruncErrorsModFracPerEvent",
+  "TruncErrorsRODFracPerEvent"
 };
 
 static constexpr std::array<const char*, ErrorCategory::COUNT> error_names_cat {
@@ -102,11 +102,11 @@ static constexpr std::array<const char*, ErrorCategory::COUNT> error_names_cat {
 };
 
 static constexpr std::array<const char*, ErrorCategory::COUNT> error_names_cat_norm {
-  "SyncErrorsFrac_per_event", 
-  "TruncationErrorsFrac_per_event", 
-  "OpticalErrorsFrac_per_event", 
-  "SEUErrorsFrac_per_event", 
-  "TimeoutErrorsFrac_per_event"
+  "SyncErrorsFracPerEvent", 
+  "TruncationErrorsFracPerEvent", 
+  "OpticalErrorsFracPerEvent", 
+  "SEUErrorsFracPerEvent", 
+  "TimeoutErrorsFracPerEvent"
 };
 
 static const int numErrorStatesLayer[PixLayers::COUNT] = {

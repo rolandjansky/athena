@@ -29,19 +29,19 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
 
     errorGroup = helper.addGroup(alg, 'Error')
 
-    histoGroupName = 'errors_per_lumi'
+    histoGroupName = 'ErrorsPerLumi'
     title          = 'Average Total Errors'
     yaxistext      = ';# errors/event'
     define1DProfLumiLayers(helper, alg, histoGroupName, title, path, yaxistext, type='TProfile')
 
-    histoGroupName = 'ErrorState_per_lumi'
+    histoGroupName = 'ErrorStatePerLumi'
     title          = 'Average Errors by Error States'
     ylabels        = [[i[1] for i in ErrStateLabelsFEI3]]*len(layers)
     defineMapVsLumiLayers(helper, alg, histoGroupName, title, path, ';lumi block', ';error state', ybins=errbbinsy, ymins=errbminsy, binsizes=errbbsizy, ylabels=ylabels, type='TProfile2D', onlylayers=fei3layers)
     ylabels        = [[i[1] for i in ErrStateLabelsFEI4]]*len(layers)
     defineMapVsLumiLayers(helper, alg, histoGroupName, title, path, ';lumi block', ';error state', ybins=errbbinsy, ymins=errbminsy, binsizes=errbbsizy, ylabels=ylabels, type='TProfile2D', onlylayers=fei4layers)
 
-    histoGroupName = 'ErrorCatRODMod_per_lumi'
+    histoGroupName = 'ErrorCatRODModPerLumi'
     title          = 'Average Errors by Error Types'
     ylabels        = [[i[1] for i in ErrCatRODModLabels]]*len(layers)
     defineMapVsLumiLayers(helper, alg, histoGroupName, title, path, ';lumi block', ';error type', ybins=errtbinsy, ymins=errbminsy, binsizes=errbbsizy, ylabels=ylabels, type='TProfile2D')
@@ -69,50 +69,50 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
         title          = "Average "+ErrCatLabels[i][1]+" per Module"
         define1DProfLumiLayers(helper, alg, histoGroupName, title, path, yaxistext, type='TProfile')
 
-    histoGroupName = "femcc_errorwords"
+    histoGroupName = "FEMCCErrorwords"
     title          = "Average FE/MCC Error Words"
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D', onlylayers=fei3layers)
 
     if doLumiBlock:
-        histoGroupName = "Errors_LB"
+        histoGroupName = "ErrorsLB"
         title          = "Errors"
         define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', doWeight=True, lifecycle='lowStat')
 
-        histoGroupName = "Errors_ModSync_LB"
+        histoGroupName = "ErrorsModSyncLB"
         title          = "Errors_ModSync"
         define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lowStat')
 
-        histoGroupName = "Errors_RODSync_LB"
+        histoGroupName = "ErrorsRODSyncLB"
         title          = "Errors_RODSync"
         define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lowStat')
 
     for state in ErrStateLabelsFEI3:
-        histoGroupName = state[0]+"_Map"
-        title          = state[1]+" per event per LB"
+        histoGroupName = state[0]+"Map"
+        title          = state[1]+" Errors per event per LB"
         define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
-        histoGroupName = state[0]+"_per_lumi"
-        title          = 'Average '+state[1]
-        yaxistext      = ';# errors/event'
+        histoGroupName = state[0]+"PerLumi"
+        title          = 'Average '+state[1]+" Errors per event per LB"
+        yaxistext      = ';# errors/module/event'
         define1DProfLumiLayers(helper, alg, histoGroupName, title, pathExpert, yaxistext, type='TProfile', onlylayers=fei3layers)
 
     for state in ErrStateLabelsFEI4:
-        histoGroupName = state[0]+"_Map"
-        title          = state[1]+" per event per LB"
+        histoGroupName = state[0]+"Map"
+        title          = state[1]+" Errors per event per LB"
         define2DProfHist(helper, alg, histoGroupName, title, pathExpert, type='TH2F', doWeight=True)
-        histoGroupName = state[0]+"_per_lumi"
-        title          = 'Average '+state[1]
-        yaxistext      = ';# errors/event'
+        histoGroupName = state[0]+"PerLumi"
+        title          = 'Average '+state[1]+" Errors per event per LB"
+        yaxistext      = ';# errors/module/event'
         define1DProfLumiLayers(helper, alg, histoGroupName, title, pathExpert, yaxistext, type='TProfile', onlylayers=fei4layers)
 
     varName = 'ServiceRecord_val'
-    title = fullDressTitle('IBL ServiceRecord Unweighted', False, ';SR',';# errors/event')
-    varName += ';ServiceRecord_Unweighted_IBL'
+    title = fullDressTitle('IBL ServiceRecord Unweighted', False, ';SR',';# errors')
+    varName += ';ServiceRecordUnweighted_IBL'
     errorGroup.defineHistogram(varName, 
                                type='TH1F', path=pathExpert, title=title,
                                xbins=32, xmin=-0.5, xmax=31.5)
     varName = 'ServiceRecord_val'
-    title = fullDressTitle('IBL ServiceRecord Weighted with Payload', False, ';SR',';# errors/event')
-    varName += ';ServiceRecord_Weighted_IBL'
+    title = fullDressTitle('IBL ServiceRecord Weighted with Payload', False, ';SR',';# errors')
+    varName += ';ServiceRecordWeighted_IBL'
     errorGroup.defineHistogram(varName, weight='ServiceRecord_wgt',
                                type='TH1F', path=pathExpert, title=title,
                                xbins=32, xmin=-0.5, xmax=31.5)
