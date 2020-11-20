@@ -47,7 +47,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-        rodIDForSingleLink40=0
         # ITk:
         if geoFlags.isSLHC():
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
@@ -74,7 +73,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
         
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                       ReadDeadMapKey = "",
-                                      UseCablingConditions=False,
                                       CablingMapFileName=IdMappingDat)
 
     if useNewDeadmapFormat:
@@ -130,9 +128,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
 
         if not hasattr(condSeq, 'PixelCablingCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-            condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                           MappingFile=IdMappingDat,
-                                           RodIDForSingleLink40=rodIDForSingleLink40)
+            condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg", ReadKey="")
 
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixdEdx", className="AthenaAttributeList")

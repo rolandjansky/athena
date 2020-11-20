@@ -160,7 +160,6 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
 def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with configured PixelDigitizationTool"""
     acc = PixelGeometryCfg(flags)
-
     # module parameters
     acc.merge(PixelConfigCondAlgCfg(flags))
     # charge calibration
@@ -324,7 +323,6 @@ def PixelOverlayDigitizationBasicCfg(flags, **kwargs):
 
     # Set common overlay extra inputs
     kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
-
     PixelDigitization = CompFactory.PixelDigitization
     acc.addEventAlgo(PixelDigitization(name="PixelOverlayDigitization", **kwargs))
     return acc

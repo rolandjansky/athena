@@ -36,10 +36,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     SG::WriteCondHandleKey<PixelModuleData> m_writeKey
     {this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
 
-    // Switch parameters
-    Gaudi::Property<bool> m_useCablingConditions
-    {this, "UseCablingConditions", true, "Use cabling map conditions DB"};
-
     // Digitization parameters
     Gaudi::Property<double> m_bunchSpace
     {this, "BunchSpace", 25.0, "Bunch space [ns]"};

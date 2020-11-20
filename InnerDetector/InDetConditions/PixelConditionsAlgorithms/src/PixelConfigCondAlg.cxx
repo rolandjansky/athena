@@ -108,9 +108,6 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
   }
 
-  // Switch parameters
-  writeCdo -> setUseCablingConditions(m_useCablingConditions);
-
   // Digitization parameters
   writeCdo -> setBunchSpace(m_bunchSpace);
   writeCdo -> setUseComTime(m_UseComTime);
