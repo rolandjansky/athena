@@ -258,7 +258,7 @@ def list_patch_packages(isCImode=False):
 ###############################
 ########### Was the q test successful? To check simply count the number of lines containing the string "successful run"
 
-def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=False):
+def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=False,RunVolumeCheck=False):
     logging.info("-----------------------------------------------------"  )
     logging.info("Did each step of the "+q+" test complete successfully?" )
 
@@ -276,6 +276,14 @@ def QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqID,RunPatchedOnly=Fal
         else :
             logging.error(step+" Patched test failed")
             _Test = False
+
+        if RunVolumeCheck:
+            cmd_V = "grep \"G4Exception\" run_"+q+"/log."+str(step)
+            test_V = subprocess.Popen(['/bin/bash', '-c',cmd_V], stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate()[0]
+
+            if "G4Exception" in test_V:
+                logging.error(step+" Patched test failed VolumeDebugger checks")
+                _Test = False
 
         if RunPatchedOnly : continue   # Skip checking reference test because in this mode the clean tests have not been run
             
@@ -850,7 +858,7 @@ def main():
 
             # HAZ: Open question -- is there a cleaner way to do this?
             # HAZ: adding a decorator to `logging` would be nicest (require 0 errors)...
-            if not QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName,RunPatchedOnly):
+            if not QTestsFailedOrPassed(q,qTestsToRun,CleanRunHeadDir,UniqName,RunPatchedOnly,RunVolumeCheck):
                 All_Tests_Passed = False
                 continue
 
