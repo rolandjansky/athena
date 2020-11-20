@@ -273,8 +273,16 @@ void ConfigHelper::enforceGroupNamePrefix(const std::string& prefix)
 
 void ConfigHelper::enforceGroupNamePrefix(const TString& prefix)
 {
+    // Special config file string must exactly match this to activate the condition
+    const TString NOPREFIX = "NOPREFIX_";
+
+    // Check for a special NOPREFIX string
+    // This is to support parameters from other groups we have propagated into our uncertainties
+    // NPs can now have the same name, so tools will coherently scale different properties for the same uncertainty name
+    if (m_gInfo->name.BeginsWith(NOPREFIX))
+        m_gInfo->name = m_gInfo->name.ReplaceAll(NOPREFIX,"");
     // Doesn't have the prefix
-    if (!m_gInfo->name.BeginsWith(prefix,TString::kIgnoreCase))
+    else if (!m_gInfo->name.BeginsWith(prefix,TString::kIgnoreCase))
         m_gInfo->name = Form("%s%s",prefix.Data(),m_gInfo->name.Data());
     // Has the right prefix, but not the right case (enforce identical prefix)
     else if (!m_gInfo->name.BeginsWith(prefix))
