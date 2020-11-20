@@ -23,6 +23,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODPFlow/PFOContainer.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 // ROOT include(s):
 #include "Math/Vector4D.h"
@@ -292,8 +293,8 @@ namespace xAOD {
     /// Get the pointer to a given cluster associated with this tau
     const IParticle* cluster( size_t i) const;
     
-    //* @brief Get the clusters within dR cone of the tau candidate */
-    std::vector<const IParticle*> clusters(double dR = 0.2) const;
+    //* @brief Get the clusters */
+    std::vector<const IParticle*> clusters() const;
     
     /// Get TLV to a given cluster in calibrated state
     FourMom_t calibratedCluster( size_t i, xAOD::CaloCluster::State state=xAOD::CaloCluster::State::CALIBRATED) const;
@@ -303,6 +304,9 @@ namespace xAOD {
     void addClusterLink( const ElementLink< IParticleContainer >& tr);
     /// Remove all clusters from the tau
     void clearClusterLinks();
+
+    //* @brief Get the clusters corrected to poinst at tau vertex*/
+    std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusters() const;
 
     const IParticleLinks_t& pi0Links() const;
 
