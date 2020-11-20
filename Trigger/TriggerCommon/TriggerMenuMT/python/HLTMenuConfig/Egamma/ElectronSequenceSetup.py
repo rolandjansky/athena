@@ -8,7 +8,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
+from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def fastElectronSequence(ConfigFlags):
@@ -40,8 +40,14 @@ def fastElectronSequence(ConfigFlags):
 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
-    l2ElectronViewsMaker.RoIsLink = "initialRoI"
-    l2ElectronViewsMaker.RoITool = ViewCreatorInitialROITool()
+    l2ElectronViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
+    # Spawn View on SuperRoI encompassing all clusters found within the L1 RoI
+    roiTool = ViewCreatorCentredOnClusterROITool()
+    roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
+    roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastElectron")
+    roiTool.RoIEtaWidth = 0.05
+    roiTool.RoIPhiWidth = 0.10
+    l2ElectronViewsMaker.RoITool = roiTool
     l2ElectronViewsMaker.InViewRoIs = RoIs
     l2ElectronViewsMaker.Views = "EMElectronViews"
     l2ElectronViewsMaker.ViewFallThrough = True

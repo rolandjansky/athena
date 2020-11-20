@@ -32,16 +32,16 @@ StatusCode ViewCreatorFetchFromViewROITool::attachROILinks(TrigCompositeUtils::D
       const std::vector<LinkInfo<ViewContainer>> myViews = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::allFeaturesOfType);
       bool found = false;
       for(LinkInfo<ViewContainer> v : myViews){
-	if(v.link.dataID() == m_viewToFetchFrom){
-	  found = true;
-	  viewToFetchFrom = v;
-	  break;
-	}
+        if(v.link.dataID() == m_viewToFetchFrom){
+          found = true;
+          viewToFetchFrom = v;
+          break;
+        }
       }
       if(!found){
-	ATH_MSG_ERROR("Of the " << myViews.size() << " Views in the history of Decision object with index " << outputDecision->index()
-		      << ", none came from a View called " << m_viewToFetchFrom);
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Of the " << myViews.size() << " Views in the history of Decision object with index " << outputDecision->index()
+          << ", none came from a View called " << m_viewToFetchFrom);
+        return StatusCode::FAILURE;
       }
     }
     else{
@@ -49,13 +49,13 @@ StatusCode ViewCreatorFetchFromViewROITool::attachROILinks(TrigCompositeUtils::D
       // Assume the most recent View is the one we fetch from, and that there is exactly one most recent View after any merging
       const std::vector<LinkInfo<ViewContainer>> myView = findLinks<ViewContainer>(outputDecision, viewString(), TrigDefs::lastFeatureOfType);
       if (myView.size() != 1) {
-	ATH_MSG_ERROR("Did not find exactly one most-recent '" << viewString() << "' for Decision object index " << outputDecision->index()
-		      << ", found " << myView.size());
-	if (myView.size() > 1) {
-	  ATH_MSG_ERROR("Was this Decision Object was merged after having followed different reconstruction paths in previous Steps?");
-	  ATH_MSG_ERROR("Need more information about which of these Views to look in to find the desired '" << m_inViewRoIKey.key() << "' TrigRoiDescriptorCollection");
-	}
-	return StatusCode::FAILURE;
+        ATH_MSG_ERROR("Did not find exactly one most-recent '" << viewString() << "' for Decision object index " << outputDecision->index()
+          << ", found " << myView.size());
+        if (myView.size() > 1) {
+          ATH_MSG_ERROR("Was this Decision Object was merged after having followed different reconstruction paths in previous Steps?");
+          ATH_MSG_ERROR("Need more information about which of these Views to look in to find the desired '" << m_inViewRoIKey.key() << "' TrigRoiDescriptorCollection");
+        }
+        return StatusCode::FAILURE;
       }
       viewToFetchFrom = myView.at(0);
     }
@@ -78,5 +78,5 @@ StatusCode ViewCreatorFetchFromViewROITool::attachROILinks(TrigCompositeUtils::D
     outputDecision->setObjectLink(roiString(), newRoiEL);
   }
 
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
