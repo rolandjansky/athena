@@ -49,6 +49,7 @@ muonRecFlags.doCalibNtuple = False # write calibration ntuple?
 rec.doTruth.set_Value_and_Lock(False)
 
 rec.doTrigger = False
+rec.doWriteAOD=True
 
 muonRecFlags.doStandalone.set_Value_and_Lock(True)
 muonRecFlags.doTrackPerformance    = True
