@@ -180,12 +180,12 @@ private:
   /// method to filter ROBs with given Status code
   bool robmap_filterRobWithStatus(const ROBF*);
 
-  /// method to monitor ROB fragments in Cost
+  /// method to get ROB fragment from ROBF
   /// input:
   ///     context
-  ///     ROB fragment to be monitored
+  ///     ROB fragment to be parsed
   ///     ROB history status
-  void robmap_monitorRobFragment(const EventContext&, const ROBF&, robmonitor::ROBHistory) ;
+  robmonitor::ROBDataStruct robmap_getRobData(const ROBF&, robmonitor::ROBHistory) ;
 
   /*------------------------------+
    * Methods acting on EventCache |

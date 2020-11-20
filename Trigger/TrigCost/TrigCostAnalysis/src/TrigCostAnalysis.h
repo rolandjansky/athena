@@ -96,6 +96,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", true,
       "Monitor algorithm occupancy load of individual threads in an MT execution environment" };
 
+    Gaudi::Property<bool> m_doMonitorROS { this, "DoMonitorROS", true,
+      "Monitor Read-Out System" };
+
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };
 
@@ -110,6 +113,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_costDataKey { this, "CostReadHandleKey", "HLT_TrigCostContainer",
       "Trigger cost payload container for algorithms" };
+
+    SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_rosDataKey { this, "CostROSReadHandleKey", "HLT_TrigCostROSContainer",
+      "Trigger ROS cost payload container for algorithms" };
 
     SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
       "HLT Menu"};
