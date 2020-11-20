@@ -63,12 +63,17 @@ namespace InDetDD {
     enum Type {BARREL, ENDCAP};
 
     /** Constructor: */
-    TRT_BaseElement(const GeoVFullPhysVol *volume, const Identifier& id, const TRT_ID* idHelper, const TRT_Conditions* conditions, const GeoAlignmentStore* geoAlignStore=nullptr);
+    TRT_BaseElement(const GeoVFullPhysVol* volume,
+                    const Identifier& id,
+                    const TRT_ID* idHelper,
+                    const TRT_Conditions* conditions,
+                    const GeoAlignmentStore* geoAlignStore = nullptr);
 
-    TRT_BaseElement(const TRT_BaseElement&right, const GeoAlignmentStore* geoAlignStore);
-    
+    TRT_BaseElement(const TRT_BaseElement& right,
+                    const GeoAlignmentStore* geoAlignStore);
+
     /** Destructor: */
-    virtual ~TRT_BaseElement();
+    virtual ~TRT_BaseElement() = default;
 
     /** Type information: returns BARREL or ENDCAP */
     virtual TRT_BaseElement::Type type() const = 0; 
@@ -156,7 +161,7 @@ namespace InDetDD {
     Amg::Vector3D strawAxis(int straw) const;
       
     /** Number of straws in the element. */
-    virtual unsigned int nStraws() const = 0;
+    unsigned int nStraws() const;
 
     /** Active straw length */
     virtual const double& strawLength() const = 0;
@@ -221,27 +226,25 @@ namespace InDetDD {
     /** Illegal operations: */
     TRT_BaseElement(const TRT_BaseElement&right);
     const TRT_BaseElement& operator=(const TRT_BaseElement&right);
-
     /** Helper method for cache dealing */
     void deleteCache();
-
     void createStrawSurfaces() const;
     void createStrawSurfacesCache() const;
 
   protected:
-
     Identifier                                          m_id;
     IdentifierHash                                      m_idHash;
-    const TRT_ID*                                       m_idHelper;
-    const TRT_Conditions*                               m_conditions;
-
+    const TRT_ID*                                       m_idHelper=nullptr;
+    const TRT_Conditions*                               m_conditions=nullptr;
+    /*
+     * The number of straws and the vector below need to 
+     * initialosed in the derived constructors for now.
+     * This should fine as this is pure virtual class
+     */
+    unsigned int                                        m_nstraws=0;
     // Amg cache for the straw surfaces
-    CxxUtils::CachedUniquePtrT<
-      std::vector<std::unique_ptr<Trk::StraightLineSurface>>>
-      m_strawSurfaces{};
-
-    CxxUtils::CachedUniquePtrT<std::vector<std::unique_ptr<SurfaceCache>>>
-      m_strawSurfacesCache{};
+    std::vector<CxxUtils::CachedUniquePtr<Trk::StraightLineSurface>> m_strawSurfaces{};
+    std::vector<CxxUtils::CachedUniquePtr<SurfaceCache>> m_strawSurfacesCache{};
 
     //!< helper element surface for the cache   
     CxxUtils::CachedUniquePtr<SurfaceCache> m_surfaceCache;
@@ -249,13 +252,12 @@ namespace InDetDD {
     
     mutable std::vector<const Trk::Surface*> m_surfaces ATLAS_THREAD_SAFE; // Guarded by m_mutex
     mutable std::mutex m_mutex;
-
-    const GeoAlignmentStore* m_geoAlignStore{};
+    const GeoAlignmentStore* m_geoAlignStore=nullptr;
 
   };
     
 }
-
+#include "TRT_ReadoutGeometry/TRT_BaseElement.icc"
 #endif
 
 
