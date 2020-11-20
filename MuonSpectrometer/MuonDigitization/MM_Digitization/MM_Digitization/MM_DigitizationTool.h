@@ -140,7 +140,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		Gaudi::Property<int> m_maskMultiplet{this,"MaskMultiplet",0,"0: all, 1: first, 2: second, 3: both"};
 
-		Gaudi::Property<bool> m_writeOutputFile{this,"SaveInternalHistos",true};
+		Gaudi::Property<bool> m_writeOutputFile{this,"SaveInternalHistos",false};
 		Gaudi::Property<bool> m_needsMcEventCollHelper{this,"UseMcEventCollectionHelper",false};
 		Gaudi::Property<bool> m_checkMMSimHits{this,"CheckSimHits",true,"Control on the hit validity"};
 		Gaudi::Property<bool> m_useTimeWindow{this,"UseTimeWindow",true};
