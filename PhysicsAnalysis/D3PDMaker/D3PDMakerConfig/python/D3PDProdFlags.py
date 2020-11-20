@@ -140,8 +140,5 @@ listAllKnownD3PD.append (prodFlags.WriteTriggerD3PD)
 # Jet tag D3PDs
 _importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
 
-# Tracking D3PDs.
-_importFlagsFromModule ('InDetD3PDMaker.VertexD3PDAnalysisProdFlags', True)
-
 # egamma D3PDs.
 _importFlagsFromModule ('egammaD3PDMaker.egammaD3PDProdFlags')
