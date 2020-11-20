@@ -49,11 +49,11 @@ class ISvcLocator;
 /////////////////////////////////////////////////////////////////////
 
 CaloCellMakerHLTROB::CaloCellMakerHLTROB(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
-  ,  m_tcrAlgTools(this), 
-    m_counter(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_caloCellContainer(NULL),
-    m_fullScanEnabled(false)
+    m_tcrAlgTools(this),
+    m_fullScanEnabled(false),
+    m_counter(0)
  {
 
    // Name of Tools to check and finalize the cell container...
@@ -174,10 +174,7 @@ StatusCode CaloCellMakerHLTROB::execute( )
   ToolHandleArray<IAlgToolEFCalo>::iterator endtcr = m_tcrAlgTools.end();
   // Use specific Tools  to fill the container :
   int index=0;
-  uint32_t error = 0;
-  
 
-  unsigned idet=0;
   for (; itrtcr!=endtcr; ++itrtcr) {
     
     StatusCode sc;
@@ -192,8 +189,6 @@ StatusCode CaloCellMakerHLTROB::execute( )
     if ( sc.isFailure() ) {
       msg() << MSG::ERROR << "Error executing TCR tool " << (*itrtcr).name() << endmsg;
       return StatusCode::FAILURE;
-    } else {  
-      if ( m_fullScanEnabled ) idet = IAlgToolEFCalo::EFFULLCALO;
     }
     
     ++index;

@@ -579,7 +579,8 @@ double TrigL2PattRecoStrategyC::trackQuality(const Trk::Track* Tr)
    double q;
    if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
    else                     q =      (W-x2    );
-   if(q < 0.) q = 0.; quality+=q;
+   if(q < 0.) q = 0.;
+   quality+=q;
  }
  return quality;
 }
@@ -613,7 +614,8 @@ void TrigL2PattRecoStrategyC::filterSharedTracks(std::multimap<double,Trk::Track
     }
 
     if(nf >= m_nfreeCut|| nf == nc) {
-      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]); ++q;
+      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]);
+      ++q;
     } 
     else  {
       delete (*q).second; QT.erase(q++);

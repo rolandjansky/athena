@@ -51,7 +51,7 @@ RecJetRoI::RecJetRoI( const RecJetRoI &obj ) {
 }
 
 // written assignment operator
-RecJetRoI& RecJetRoI::operator=( const RecJetRoI &obj ) { 
+RecJetRoI& RecJetRoI::operator=( const RecJetRoI &/*obj*/ ) { 
    return *this;
 }
 

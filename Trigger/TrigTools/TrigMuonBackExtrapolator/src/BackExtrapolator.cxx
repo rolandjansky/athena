@@ -844,7 +844,7 @@ double data_Endcap_InnerST_EtaSigmas[2][2][2][2][2];
 bool 
 MuonBackExtrapolator::give_eta_phi_at_vertex(
              double pt, double eta, double phi,
-             bool barrel,bool triggerST,bool aligned,bool dataset, double& extEta,
+             bool barrel,bool triggerST,bool /*aligned*/,bool dataset, double& extEta,
              double& sigmaEta,double& extPhi,double& sigmaPhi,double PT,
              double data_Barrel_Param[2][2][2],
              double data_Barrel_Sigmas[2][2][2][2],
@@ -966,7 +966,7 @@ MuonBackExtrapolator::give_eta_phi_at_vertex(
 bool 
 MuonBackExtrapolator::give_eta_phi_at_tuned_vertex(
     double pt,double zetaId,double zetaMu,double eta,double phi, 
-    bool barrel,bool triggerST,bool aligned, bool dataset,
+    bool barrel,bool triggerST,bool /*aligned*/, bool dataset,
     double& extEta,double& sigmaEta,double& extPhi,double& sigmaPhi,double PT,
              double data_Barrel_Param[2][2][2],
              double data_Barrel_Sigmas[2][2][2][2],
@@ -1270,7 +1270,7 @@ MuonBackExtrapolator::retune_vtx(double IdZeta, double MuonZeta, double eta)
 }
 
 double
-MuonBackExtrapolator::retune_pt(double pt, bool dataset) 
+MuonBackExtrapolator::retune_pt(double pt, bool /*dataset*/) 
 {
     double tuned_pt = pt;
     

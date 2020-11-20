@@ -335,7 +335,8 @@ std::ostream& operator <<
 MsgStream& TrigTRTSegFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 ///////////////////////////////////////////////////////////////////
 // Dumps conditions information into the MsgStream

@@ -139,7 +139,8 @@ StatusCode TrigInDetVxInJetTool::initialize(){
     m_getNegativeTail=false;
   }
 
-  for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=TMath::ChisquareQuantile(0.9,2.*ntv-3.)/ntv; m_chiScale[0]=m_chiScale[2];
+  for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]=TMath::ChisquareQuantile(0.9,2.*ntv-3.)/ntv;
+  m_chiScale[0]=m_chiScale[2];
   for(int ntv=2; ntv<=10; ntv++) m_chiScale[ntv]/=m_chiScale[0];
 
   if(m_RobustFit>7)m_RobustFit=7;
