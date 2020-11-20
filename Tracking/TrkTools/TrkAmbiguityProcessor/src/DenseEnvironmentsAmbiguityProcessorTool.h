@@ -114,6 +114,10 @@ namespace Trk {
        {this, "OutputClusterSplitProbabilityName", "",""};
 
     bool m_rejectInvalidTracks;
+    /// If enabled, this flag will make the tool restore the hole information from the input track after a refit. 
+    /// This is used when we want to use holes from the pattern recognition instead of repeating the hole search
+    /// Off by default
+    BooleanProperty m_keepHolesFromBeforeFit{this,"KeepHolesFromBeforeRefit",false,"Restore hole information from input tracks after refit"}; 
   };
   
   inline std::unique_ptr<Trk::Track>

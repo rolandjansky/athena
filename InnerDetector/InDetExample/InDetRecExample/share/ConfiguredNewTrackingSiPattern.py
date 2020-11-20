@@ -526,6 +526,12 @@ class  ConfiguredNewTrackingSiPattern:
                                      SplitClusterMapExtension     = NewTrackingCuts.extension(),
                                      ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
                                      RenounceInputHandles         = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+           if InDetFlags.holeSearchInGX2Fit():
+               fitter_args = setDefaults(fitter_args,
+               DoHoleSearch                 = True,
+               BoundaryCheckTool            = TrackingCommon.getInDetBoundaryCheckTool())
+               
+
            fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+'Ambi'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
                              else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
 
@@ -552,7 +558,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                    tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                    caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                    pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                   RefitPrds          = True)
+                                                   RefitPrds          = True,
+                                                   KeepHolesFromBeforeRefit = InDetFlags.useHolesFromPattern())
 
          else:
            from AthenaCommon import CfgGetter
