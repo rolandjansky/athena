@@ -57,7 +57,7 @@ public:
   /** initialize the internal map
   */ 
   void initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* map,
-       const std::vector<CaloCellCorrection*>*  pCorr, unsigned int poolMaxSize =190000);
+       const std::vector<const CaloCellCorrection*>*  pCorr, unsigned int poolMaxSize =190000);
 
   /** access by Identifier 
   */ 
@@ -80,7 +80,7 @@ private:
 
  // Find correction factor for this LArCell 
  double getCorrection(LArCell* cell,
-                      const std::vector<CaloCellCorrection*>& vCorr,
+                      const std::vector<const CaloCellCorrection*>& vCorr,
                       const EventContext& ctx) const;
 
  // cells in a FEB stored in a vector

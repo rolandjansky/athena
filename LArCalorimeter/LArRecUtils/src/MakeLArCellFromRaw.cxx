@@ -44,7 +44,7 @@ MakeLArCellFromRaw::~MakeLArCellFromRaw()
 }
 
 void MakeLArCellFromRaw::initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* roiMap ,
-	const std::vector<CaloCellCorrection*>* pCorr, unsigned int poolMaxSize )
+	const std::vector<const CaloCellCorrection*>* pCorr, unsigned int poolMaxSize )
 {
   const EventContext& ctx = Gaudi::Hive::currentContext();
 
@@ -359,7 +359,7 @@ LArCell* MakeLArCellFromRaw::getLArCell(unsigned int feb, unsigned int chan ,
 
 double
 MakeLArCellFromRaw::getCorrection(LArCell* cell, 
-                                  const std::vector<CaloCellCorrection*>& vCorr,
+                                  const std::vector<const CaloCellCorrection*>& vCorr,
                                   const EventContext& ctx) const
 {
 // LArCell was made with energy = 50. 
