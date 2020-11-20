@@ -8,14 +8,14 @@
 '''
 # hack to deal with global variables in this module
 # check if we are in "old-" or "new-style" configuration
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from RecExConfig.AutoConfiguration import GetRunNumber
-if ConfigFlags.DQ.isReallyOldStyle:
-    runtext = ''
-    if GetRunNumber() is not None:
-        runtext = ' (Run %d)' % GetRunNumber()
-else:
-    runtext = ' (Run %d)' % ConfigFlags.Input.RunNumber[0]
+#from AthenaConfiguration.AllConfigFlags import ConfigFlags
+#from RecExConfig.AutoConfiguration import GetRunNumber
+#if ConfigFlags.DQ.isReallyOldStyle:
+runtext = ''
+#    if GetRunNumber() is not None:
+#        runtext = ' (Run %d)' % GetRunNumber()
+#else:
+#    runtext = ' (Run %d)' % ConfigFlags.Input.RunNumber[0]
 
 
 NumLayersDisk = 3
@@ -149,69 +149,69 @@ PP0LabelX = [PP0sEC, PP0sEC, StavesL0, StavesL1, StavesL2, StavesIBL, StavesIBL]
 
 #Errors
 ErrStateLabelsFEI3 = [
-      ("ROD_Timeout", "ROD Formatter Timeout"),
-      ("ROD_Sync_BCID_errors", "ROD BCID Sync"),
-      ("ROD_Sync_LVL1ID_errors", "ROD LVL1ID Sync"),
-      ("Optical_Errors", "Preamble/Header"),
-      ("Mod_Sync_LVL1ID_errors", "FE/MCC LVL1ID Sync"),
-      ("Mod_Sync_BCID2_errors", "FE/MCC BCID2 Sync"),
-      ("Mod_Sync_BCID1_errors", "FE/MCC BCID1 Sync"),
-      ("Mod_Trunc_EoE_Overflow_errors", "FE/MCC EoE Overflow Trunc"),
-      ("Mod_Trunc_Hit_Overflow_errors", "FE/MCC Hit Overflow Trunc"),
-      ("FE_Warning", "FE Warning"),
-      ("SEU_Hit_Parity", "SEU Hit Parity"),
-      ("SEU_Register_Parity", "SEU Register Parity"),
-      ("SEU_Hamming", "SEU Hamming Code"),
-      ("Mod_Trunc_EOC_errors", "FE/MCC EoC Trunc"),
-      ("ROD_Trailer_Bit_errors", "ROD Trailer Bit"),
-      ("ROD_Trunc_HT_Limit_errors", "ROD H/T Limit Trunc"),
-      ("ROD_Trunc_ROD_OF_errors", "ROD Overflow Trunc")
+      ("RODTimeout", "ROD Formatter Timeout"),
+      ("RODSyncBCIDErrors", "ROD BCID Sync"),
+      ("RODSyncLVL1IDErrors", "ROD LVL1ID Sync"),
+      ("OpticalErrors", "Preamble/Header"),
+      ("ModSyncLVL1IDErrors", "FE/MCC LVL1ID Sync"),
+      ("ModSyncBCID2Errors", "FE/MCC BCID2 Sync"),
+      ("ModSyncBCID1Errors", "FE/MCC BCID1 Sync"),
+      ("ModTruncEoEOverflowErrors", "FE/MCC EoE Overflow Trunc"),
+      ("ModTruncHitOverflowErrors", "FE/MCC Hit Overflow Trunc"),
+      ("FEWarning", "FE Warning"),
+      ("SEUHitParity", "SEU Hit Parity"),
+      ("SEURegisterParity", "SEU Register Parity"),
+      ("SEUHamming", "SEU Hamming Code"),
+      ("ModTruncEOCErrors", "FE/MCC EoC Trunc"),
+      ("RODTrailerBitErrors", "ROD Trailer Bit"),
+      ("RODTruncHTLimitErrors", "ROD H/T Limit Trunc"),
+      ("RODTruncRODOFErrors", "ROD Overflow Trunc")
 ]
 ErrStateLabelsFEI4 = [
-      ("ROD_Timeout_errors", "ROD Timeout"),
-      ("ROD_BCID_errors", "ROD BCID synchronization"),
-      ("ROD_LVL1ID_errors", "ROD LVL1ID synchronization"),
-      ("ROD_Preamble_errors", "ROD Preamble"),
-      ("ROD_Trailer_errors", "ROD Trailer"),
-      ("ROD_Row-Column_errors", "ROD row-column"),
-      ("ROD_Masked_link", "ROD Masked link"),
-      ("ROD_Limit_errors", "ROD Header Trailer limit"),
-      ("SR0_BCID_counter_errors", "SR0 BCID counter"),
-      ("SR1_Hamming_code_0_errors", "SR1 Hamming code in word 0"),
-      ("SR2_Hamming_code_1_errors", "SR2 Hamming code in word 1"),
-      ("SR3_Hamming_code_2_errors", "SR3 Hamming code in word 2"),
-      ("SR4_L1_in_counter_errors", "SR4 L1 in counter"),
-      ("SR5_L1_request_counter_errors", "SR5 L1 request counter"),
-      ("SR6_L1_register_errors", "SR6 L1 register"),
-      ("SR7_L1_Trigger_ID_errors", "SR7 L1 trigger ID"),
-      ("SR8_FE_readout_process_errors", "SR8 FE readout process"),
-      ("SR15_Skippped_trig_count_errors", "SR15 Skipped trigger counter"),
-      ("SR16_Truncated_event_flag_errors", "SR16 Truncated event"),
-      ("SR24_Triple_redundant_errors_CNFGMEM", "SR24 Triple redundant CNFGMEM"),
-      ("SR25_Write_reg_data_errors", "SR25 Write register data"),
-      ("SR26_Address_errors", "SR26 Address"),
-      ("SR27_Other_CMD_decoder_errors", "SR27 CMD decoder"),
-      ("SR28_CMD_decoder_bitflip_errors", "SR28 CMD decoder bit flip"),
-      ("SR29_Triple_redundant_errors_CMD", "SR29 Triple redundant CMD"),
-      ("SR30_Data_bus_address_errors", "SR30 Data bus address"),
-      ("SR31_Triple_redundant_errors_EFUSE", "SR31 Triple redundant EFUSE")
+      ("RODTimeoutErrors", "ROD Timeout"),
+      ("RODBCIDErrors", "ROD BCID synchronization"),
+      ("RODLVL1IDErrors", "ROD LVL1ID synchronization"),
+      ("RODPreambleErrors", "ROD Preamble"),
+      ("RODTrailerErrors", "ROD Trailer"),
+      ("RODRowColumnErrors", "ROD row-column"),
+      ("RODMaskedLink", "ROD Masked link"),
+      ("RODLimitErrors", "ROD Header Trailer limit"),
+      ("SR0BCIDCounterErrors", "SR0 BCID counter"),
+      ("SR1HammingCode0Errors", "SR1 Hamming code in word 0"),
+      ("SR2HammingCode1Errors", "SR2 Hamming code in word 1"),
+      ("SR3HammingCode2Errors", "SR3 Hamming code in word 2"),
+      ("SR4L1InCounterErrors", "SR4 L1 in counter"),
+      ("SR5L1RequestCounterErrors", "SR5 L1 request counter"),
+      ("SR6L1RegisterErrors", "SR6 L1 register"),
+      ("SR7L1TriggerIDErrors", "SR7 L1 trigger ID"),
+      ("SR8FEReadoutProcessErrors", "SR8 FE readout process"),
+      ("SR15SkipppedTrigCountErrors", "SR15 Skipped trigger counter"),
+      ("SR16TruncatedEventFlagErrors", "SR16 Truncated event"),
+      ("SR24TripleRedundantErrorsCNFGMEM", "SR24 Triple redundant CNFGMEM"),
+      ("SR25WriteRegDataErrors", "SR25 Write register data"),
+      ("SR26AddressErrors", "SR26 Address"),
+      ("SR27OtherCMDDecoderErrors", "SR27 CMD decoder"),
+      ("SR28CMDDecoderBitflipErrors", "SR28 CMD decoder bit flip"),
+      ("SR29TripleRedundantErrorsCMD", "SR29 Triple redundant CMD"),
+      ("SR30DataBusAddressErrors", "SR30 Data bus address"),
+      ("SR31TripleRedundantErrorsEFUSE", "SR31 Triple redundant EFUSE")
 ]
 
 ErrCatRODModLabels = [
-      ("SyncErrors_Mod", "FE/MCC Sync Errors"),
-      ("SyncErrors_ROD", "ROD Sync Errors"),
-      ("TruncErrors_Mod", "FE/MCC Trunc Errors"),
-      ("TruncErrors_ROD", "ROD Trunc Errors"),
-      ("OpticalErrors_RODMod", "Preamble/Header Errors"),
-      ("SEUErrors_RODMod", "SEU Errors"),
-      ("TimeoutErrors_RODMod", "Timeout Errors")
+      ("SyncErrorsMod", "FE/MCC Sync Errors"),
+      ("SyncErrorsROD", "ROD Sync Errors"),
+      ("TruncErrorsMod", "FE/MCC Trunc Errors"),
+      ("TruncErrorsROD", "ROD Trunc Errors"),
+      ("OpticalErrorsRODMod", "Preamble/Header Errors"),
+      ("SEUErrorsRODMod", "SEU Errors"),
+      ("TimeoutErrorsRODMod", "Timeout Errors")
 ]
 
 ErrCatRODModLabelsNorm = [
-      "SyncErrors_Mod_Frac_per_event",
-      "SyncErrors_ROD_Frac_per_event",
-      "TruncErrors_Mod_Frac_per_event",
-      "TruncErrors_ROD_Frac_per_event"
+      "SyncErrorsModFracPerEvent",
+      "SyncErrorsRODFracPerEvent",
+      "TruncErrorsModFracPerEvent",
+      "TruncErrorsRODFracPerEvent"
 ]
 
 ErrCatLabels = [
@@ -223,11 +223,11 @@ ErrCatLabels = [
 ]
 
 ErrCatLabelsNorm = [
-      "SyncErrorsFrac_per_event", 
-      "TruncationErrorsFrac_per_event", 
-      "OpticalErrorsFrac_per_event", 
-      "SEUErrorsFrac_per_event", 
-      "TimeoutErrorsFrac_per_event"
+      "SyncErrorsFracPerEvent", 
+      "TruncationErrorsFracPerEvent", 
+      "OpticalErrorsFracPerEvent", 
+      "SEUErrorsFracPerEvent", 
+      "TimeoutErrorsFracPerEvent"
 ]
 
 layergroups = {}
@@ -262,7 +262,7 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
     for i, layer in enumerate(layers):
         if layer not in onlylayers: 
             continue
-        fulltitle   = title + ' {0}'.format(layer) + runtext + etatxt[i] + phitext
+        fulltitle   = title + ', {0}'.format(layer) + runtext + etatxt[i] + phitext
         layerGroup = getLayerGroup(helper, alg, layer)
 
         fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'em', 'pm')
@@ -304,7 +304,7 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
             yatxt += 'FE'
         else :
             yatxt += 'module'
-        fulltitle   = title + ' {0}'.format(layer) + runtext + xatxt + yatxt
+        fulltitle   = title + ', {0}'.format(layer) + runtext + xatxt + yatxt
         groupname   = name  + '_{0}'.format(layer)
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'pospp0x', 'val')
@@ -337,7 +337,7 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
     for layer in layers:
         if layer not in onlylayers: 
             continue
-        fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
+        fulltitle   = title + ', {0}'.format(layer) + runtext + lumitext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'val')
@@ -368,7 +368,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
     for idx,layer in enumerate(layers):
         if layer not in onlylayers: 
             continue
-        fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
+        fulltitle   = title + ', {0}'.format(layer) + runtext + lumitext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'cat')
@@ -408,7 +408,7 @@ def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, 
     for idx,layer in enumerate(layers):
         if layer not in onlylayers: 
             continue
-        fulltitle   = title + ' {0}'.format(layer) + runtext + xaxistext + yaxistext
+        fulltitle   = title + ', {0}'.format(layer) + runtext + xaxistext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'val')
         fullvarstring += ';' + histname  + '_{0}'.format(layer)
@@ -426,7 +426,7 @@ def addOnTrackTxt(name, ontrack, wSpace=False):
         if wSpace:
             name += ' OnTrack'
         else:
-            name += '_OnTrack'
+            name += 'OnTrack'
     return name
 
 def addOnTrackToPath(name, ontrack):
