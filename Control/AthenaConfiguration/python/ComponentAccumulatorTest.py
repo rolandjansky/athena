@@ -115,7 +115,33 @@ class TestComponentAccumulator( unittest.TestCase ):
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo1").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo2").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
 
+def test_gatherProps(self):
+    self.acc.addEventAlgo(TestAlgo("GPTest", MyInt=123, MyBool=True))
+    appPropsToSet, mspPropsToSet, bshPropsToSet = self.acc.gatherProps()
 
+    self.assertIn(
+        "ExtSvc", appPropsToSet, "ExtSvc not present in appPropsToSet"
+    )
+    self.assertIn(
+        "OutputLevel",
+        mspPropsToSet,
+        "OutputLevel not present in mspPropsToSet",
+    )
+    # all bshPropsToSet elements should be should be tuples with 3 elements: (component_name, property_name, property_value)
+    self.assertTrue(
+        all(len(element) == 3 for element in bshPropsToSet),
+        "bshPropsToSet element length not equal to 3. Should be: (component_name, property_name, property_value)",
+    )
+    self.assertIn(
+        ("GPTest", "MyInt", "123"),
+        bshPropsToSet,
+        "MyInt prop not gathered by gatherProps",
+    )
+    self.assertIn(
+        ("GPTest", "MyBool", "True"),
+        bshPropsToSet,
+        "MyBool prop not gathered by gatherProps",
+    )
 
 class TestHLTCF( unittest.TestCase ):
     def runTest( self ):
