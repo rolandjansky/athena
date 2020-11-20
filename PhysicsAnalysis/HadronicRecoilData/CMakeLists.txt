@@ -1,27 +1,14 @@
-################################################################################
-# Package: HadronicRecoilData
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( HadronicRecoilData )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Calorimeter/CaloEvent
-                          Control/AthenaKernel
-                          Control/AthContainers
-                          PhysicsAnalysis/TruthParticleID/McParticleEvent
-                          Reconstruction/MuonIdentification/muonEvent
-                          Reconstruction/Particle
-                          Reconstruction/egamma/egammaEvent )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core MathCore )
 
 # Component(s) in the package:
 atlas_add_library( HadronicRecoilData
                    src/*.cxx
                    PUBLIC_HEADERS HadronicRecoilData
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthContainers McParticleEvent muonEvent Particle egammaEvent )
-
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent AthContainers AthenaKernel McParticleEvent muonEvent Particle egammaEvent )
