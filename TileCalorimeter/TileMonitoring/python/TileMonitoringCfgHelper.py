@@ -504,7 +504,7 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', ty
 
 
 def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '', path = '',
-                             xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
+                             weight = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, opt = '',
                              perGain = False, xlabels = (), allPartitions = False, separator = '_' ):
     '''
@@ -550,7 +550,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         subPath = getTileHistogramPath(path = '', subDirectory = subDirectory, **kwargs)
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
-        tool.defineHistogram( fullName, path = subPath, type = type, title = fullTitle,
+        tool.defineHistogram( fullName, path = subPath, weight = weight, type = type, title = fullTitle,
                               xlabels = nxlabels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt)
 
     return array
