@@ -39,6 +39,8 @@ namespace Muon {
     */
     virtual TrackCollection* find( const std::vector<const MuonSegment*>& segments ) const = 0;
 
+    virtual void cleanUp() const = 0;
+
   };
   
   inline const InterfaceID& IMuonTrackFinder::interfaceID()

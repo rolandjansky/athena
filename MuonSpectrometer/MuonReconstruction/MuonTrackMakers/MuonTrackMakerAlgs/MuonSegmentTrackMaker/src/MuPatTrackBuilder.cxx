@@ -101,6 +101,8 @@ StatusCode MuPatTrackBuilder::execute(const EventContext& ctx) const
     auto monitorIt = Monitored::Group(m_monTool, mstrks_n, mstrks_pt, mstrks_eta, mstrks_phi, mssegs_n, mssegs_eta, mssegs_phi);
   }
 
+  //Memory cleanup ... 
+  m_trackMaker->cleanUp();
   return StatusCode::SUCCESS;
 } // execute
 
