@@ -372,7 +372,7 @@ class forceConditions(_modifier):
         # All time-based folders (from IOVDbSvc DEBUG message, see athena!38274)
         timebased = ['/TDAQ/OLC/CALIBRATIONS',
                      '/TDAQ/Resources/ATLAS/SCT/Robins',
-                     '/SCT/DAQ/Config/Chip',
+                     '/SCT/DAQ/Config/ChipSlim',
                      '/SCT/DAQ/Config/Geog',
                      '/SCT/DAQ/Config/MUR',
                      '/SCT/DAQ/Config/Module',
