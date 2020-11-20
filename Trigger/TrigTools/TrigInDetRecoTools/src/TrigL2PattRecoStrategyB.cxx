@@ -1878,7 +1878,9 @@ HLT::ErrorCode TrigL2PattRecoStrategyB::executeTripletMaking() {
 	phi12 = atan2(s2->y()-s1->y(), s2->x()-s1->x());
 	if(phi12>M_PI) phi12=phi12-2*M_PI; else if(phi12<-M_PI) phi12=phi12+2*M_PI;
 	theta12 = atan2(s2->r()-s1->r(), s2->z()-s1->z());
-	if(theta12<-M_PI) theta12+=2*M_PI; if(theta12>M_PI) theta12-=2*M_PI; if(theta12<0) theta12=M_PI+theta12;
+	if(theta12<-M_PI) theta12+=2*M_PI;
+	if(theta12>M_PI) theta12-=2*M_PI;
+	if(theta12<0) theta12=M_PI+theta12;
 	tanHalfTheta=tan(0.5*theta12);
 	if(tanHalfTheta!=0)
 	  eta12 = -log(tanHalfTheta);
@@ -2692,7 +2694,9 @@ void TrigL2PattRecoStrategyB::fitRZ(TrigInDetTrack* t, float &xc, float &yc, flo
     z0=z1-((z2-z1)/(r2-r1))*r1;
     par->z0(z0);
     float theta = atan2(r2-r1, z2-z1);
-    if(theta<-M_PI) theta+=2*M_PI; if(theta>M_PI) theta-=2*M_PI; if(theta<0) theta=M_PI+theta;
+    if(theta<-M_PI) theta+=2*M_PI;
+    if(theta>M_PI) theta-=2*M_PI;
+    if(theta<0) theta=M_PI+theta;
     float tanHalfTheta=tan(0.5*theta);
     float eta=0;   
     if(tanHalfTheta!=0)
@@ -2726,7 +2730,9 @@ void TrigL2PattRecoStrategyB::fitRZ(TrigInDetTrack* t, float &xc, float &yc, flo
    
     /** Evaluate track parameters. */
     float theta = atan2(-q*rc, ang);
-    if(theta<-M_PI) theta+=2*M_PI; if(theta>M_PI) theta-=2*M_PI; if(theta<0) theta=M_PI+theta;
+    if(theta<-M_PI) theta+=2*M_PI;
+    if(theta>M_PI) theta-=2*M_PI;
+    if(theta<0) theta=M_PI+theta;
     float tanHalfTheta=tan(0.5*theta);
     float eta=0;   
     if(tanHalfTheta!=0)

@@ -72,7 +72,7 @@ bool SectorLogicReadOutStructure::isBody()
   ubit16 theword = (m_word&0xf000)>>12;
   if( (theword != headerVal) && 
       (theword != footerVal) ) return true;
-                               return false;
+  return false;
 }
 //----------------------------------------------------------------------------//
 bool SectorLogicReadOutStructure::isHeader()

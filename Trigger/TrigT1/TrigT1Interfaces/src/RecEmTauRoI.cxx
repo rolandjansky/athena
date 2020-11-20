@@ -63,7 +63,7 @@ RecEmTauRoI::RecEmTauRoI( const RecEmTauRoI &obj ) {
 }
 
 // written assignment operator
-RecEmTauRoI& RecEmTauRoI::operator = ( const RecEmTauRoI &obj ) { 
+RecEmTauRoI& RecEmTauRoI::operator = ( const RecEmTauRoI &/*obj*/ ) { 
    return *this;
 }
 

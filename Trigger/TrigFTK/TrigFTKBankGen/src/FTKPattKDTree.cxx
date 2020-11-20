@@ -543,7 +543,7 @@ bool compare_Mpatt(const FTKPattKDTree* a, const FTKPattKDTree* b) {
 int sortPatterns(int bank) {
   
 
-  if( sortedPatterns.size() <= bank )
+  if( int(sortedPatterns.size()) <= bank )
     sortedPatterns.resize(bank+1);
 
   sortedPatterns[bank].clear();
@@ -565,7 +565,7 @@ int sortPatterns(int bank) {
 int sortMPatterns(int bank) {
   
 
-  if( sortedPatterns.size() <= bank )
+  if( int(sortedPatterns.size()) <= bank )
     sortedPatterns.resize(bank+1);
 
   sortedPatterns[bank].clear();
@@ -587,15 +587,15 @@ int sortMPatterns(int bank) {
 
 int getNPatterns(int bank) {
 
-  if( bank >= sortedPatterns.size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
   return sortedPatterns[bank].size();
 
 }
 
 int getPatternSS( int bank, int pattid, int plane) {
 
-  if( bank >= sortedPatterns.size() ) return -1;
-  if( pattid >= sortedPatterns[bank].size() ) return -1;
+  if( bank >= int(sortedPatterns.size()) ) return -1;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return -1;
 
   return sortedPatterns[bank][pattid]->getPattern()[plane];
 
@@ -603,8 +603,8 @@ int getPatternSS( int bank, int pattid, int plane) {
 
 int getPatthashID( int bank, int pattid, int plane) {
 
-  if( bank >= sortedPatterns.size() ) return -1;
-  if( pattid >= sortedPatterns[bank].size() ) return -1;
+  if( bank >= int(sortedPatterns.size()) ) return -1;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return -1;
 
   return sortedPatterns[bank][pattid]->gethashID()[plane];
 
@@ -612,8 +612,8 @@ int getPatthashID( int bank, int pattid, int plane) {
 
 int getPattNHits(int bank, int pattid) {
 
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
 
   return (int) sortedPatterns[bank][pattid]->getHitCount();
   
@@ -621,8 +621,8 @@ int getPattNHits(int bank, int pattid) {
 
 double getPattC(int bank, int pattid) {
 
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
 
   return sortedPatterns[bank][pattid]->gettmpC();
   
@@ -630,8 +630,8 @@ double getPattC(int bank, int pattid) {
 
 double getPattD(int bank, int pattid) {
 
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
 
   return sortedPatterns[bank][pattid]->gettmpD();
   
@@ -639,8 +639,8 @@ double getPattD(int bank, int pattid) {
 
 double getPattPhi(int bank, int pattid) {
 
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
 
   return sortedPatterns[bank][pattid]->gettmpPhi();
   
@@ -648,16 +648,16 @@ double getPattPhi(int bank, int pattid) {
 
 double getPattCoto(int bank, int pattid) {
 
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
 
   return sortedPatterns[bank][pattid]->gettmpCoto();
   
 }
 double getPattZ(int bank, int pattid) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   
   return sortedPatterns[bank][pattid]->gettmpZ();
   
@@ -665,8 +665,8 @@ double getPattZ(int bank, int pattid) {
 
 double getPatthitc(int bank, int pattid, int dim) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
 
   return sortedPatterns[bank][pattid]->gettmphitc()[dim];
   
@@ -674,8 +674,8 @@ double getPatthitc(int bank, int pattid, int dim) {
 
 float getPattnhit(int bank, int pattid) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
 
   return sortedPatterns[bank][pattid]->gettmpnhit();
   
@@ -683,43 +683,43 @@ float getPattnhit(int bank, int pattid) {
 
 double getPattxC(int bank, int pattid, int dim) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->gettmpxC()[dim];
 }
 
 double getPattxD(int bank, int pattid, int dim) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->gettmpxD()[dim];
 }
 
 double getPattxPhi(int bank, int pattid, int dim) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->gettmpxPhi()[dim];
 }
 
 double getPattxCoto(int bank, int pattid, int dim) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->gettmpxCoto()[dim];
 }
 
 double getPattxZ(int bank, int pattid, int dim) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->gettmpxZ()[dim];
 }
 
 double getPattcovx(int bank, int pattid, int dim2) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->gettmpcovx()[dim2];
 }
 
@@ -728,38 +728,38 @@ double getPattcovx(int bank, int pattid, int dim2) {
 
 short getPattintc(int bank, int pattid ,int nhit) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->getintc()[nhit];
 }
 
 
 short getPattintphi(int bank, int pattid ,int nhit) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->getintphi()[nhit];
 }
 
 
 short getPattintd0(int bank, int pattid ,int nhit) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->getintd0()[nhit];
 }
 
 short getPattintz0(int bank, int pattid ,int nhit) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->getintz0()[nhit];
 }
 
 
 short getPattinteta(int bank, int pattid ,int nhit) {
   
-  if( bank >= sortedPatterns.size() ) return 0;
-  if( pattid >= sortedPatterns[bank].size() ) return 0;
+  if( bank >= int(sortedPatterns.size()) ) return 0;
+  if( pattid >= int(sortedPatterns[bank].size()) ) return 0;
   return sortedPatterns[bank][pattid]->getinteta()[nhit];
 }
