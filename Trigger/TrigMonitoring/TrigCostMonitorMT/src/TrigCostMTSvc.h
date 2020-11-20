@@ -93,7 +93,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
    * @param[in] context The event context
    * @param[in] payload ROB data to be associated with ROS
    */
-  virtual StatusCode monitorROS(const EventContext& context, robmonitor::ROBDataStruct payload) override;
+  virtual StatusCode monitorROS(const EventContext& context, robmonitor::ROBDataMonitorStruct payload) override;
 
   private: 
 
@@ -136,7 +136,7 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
   std::mutex m_globalMutex; //!< Used to protect all-slot modifications.
   TrigCostDataStore<AlgorithmPayload> m_algStartInfo; //!< Thread-safe store of algorithm start payload.
   TrigCostDataStore<TrigTimeStamp> m_algStopTime; //!< Thread-safe store of algorithm stop times.
-  TrigCostDataStore<std::vector<robmonitor::ROBDataStruct>> m_rosData; //!< Thread-safe store of ROS data
+  TrigCostDataStore<std::vector<robmonitor::ROBDataMonitorStruct>> m_rosData; //!< Thread-safe store of ROS data
 
   tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare> m_threadToAlgMap; //!< Keeps track of what is running right now in each thread.
 
