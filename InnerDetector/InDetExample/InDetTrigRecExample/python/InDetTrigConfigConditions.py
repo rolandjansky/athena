@@ -76,9 +76,7 @@ class PixelConditionsServicesSetup:
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
-      useCablingConditions = False
       IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-      rodIDForSingleLink40=0
       if (globalflags.DataSource()=='geant4'):
         # ITk:
         if geoFlags.isSLHC():
@@ -108,12 +106,8 @@ class PixelConditionsServicesSetup:
         from RecExConfig.AutoConfiguration import GetRunNumber
         runNum = GetRunNumber()
         if (runNum<222222):
-          useCablingConditions = False
           IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-          rodIDForSingleLink40=1300000
         else:
-          useCablingConditions = True
-          rodIDForSingleLink40=1300000
           # Even though we are reading from COOL, set the correct fallback map.
           if (runNum >= 344494):
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -127,7 +121,6 @@ class PixelConditionsServicesSetup:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
       alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                               UseCablingConditions=useCablingConditions,
                                CablingMapFileName=IdMappingDat)
       if not self.usePixMap:
         alg.ReadDeadMapKey = ""
@@ -258,9 +251,7 @@ class PixelConditionsServicesSetup:
 
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-      condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                     MappingFile=IdMappingDat,
-                                     RodIDForSingleLink40=rodIDForSingleLink40)
+      condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg")
 
     #############################
     # Offline calibration Setup #

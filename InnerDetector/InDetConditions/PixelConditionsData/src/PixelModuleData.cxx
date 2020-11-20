@@ -34,10 +34,6 @@ int PixelModuleData::getChipStatus(const int chanNum) const {
   return 0;
 }
 
-// Switch parameters
-void PixelModuleData::setUseCablingConditions(bool UseCablingConditions) { m_useCablingConditions = UseCablingConditions; }
-bool PixelModuleData::getUseCablingConditions() const { return m_useCablingConditions; }
-
 // Digitization parameters
 void PixelModuleData::setBunchSpace(double bunchSpace) { m_bunchSpace = bunchSpace; }
 double PixelModuleData::getBunchSpace() const { return m_bunchSpace; }

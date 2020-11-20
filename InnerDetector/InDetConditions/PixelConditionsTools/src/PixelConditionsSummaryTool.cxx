@@ -33,7 +33,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_CHECK(m_condTDAQKey.initialize( !m_condTDAQKey.empty() ));
   ATH_CHECK(m_condDeadMapKey.initialize());
   ATH_CHECK(m_pixelCabling.retrieve());
-
+ 
   for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
     if      (m_isActiveStates[istate]=="READY")      { m_activeState.push_back(PixelDCSStateData::DCSModuleState::READY); }
     else if (m_isActiveStates[istate]=="ON")         { m_activeState.push_back(PixelDCSStateData::DCSModuleState::ON); }
