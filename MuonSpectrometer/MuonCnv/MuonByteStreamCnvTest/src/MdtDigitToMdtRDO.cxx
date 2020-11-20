@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <atomic>
 
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
@@ -183,8 +184,8 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 
       // Iterate on the digits of the collection
       digit_iterator it_dig = mdtCollection->begin();
-      for ( ; it_dig != mdtCollection->end() ; ++it_dig) 
-	{
+      static std::atomic<bool> bisWarningPrinted = false;
+      for ( ; it_dig != mdtCollection->end() ; ++it_dig) {
 	  const MdtDigit* mdtDigit = *it_dig;
 	  Identifier channelId = mdtDigit->identify();
 	    
@@ -201,12 +202,13 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata(const EventContext& ctx) const {
 					     tdc, channel);
 	            
         if (!cabling) {
-          // as long as there is no BIS78 cabling, to avoid a hard crash, replace the tubeNumber
+          // as long as there is no BIS sMDT cabling, to avoid a hard crash, replace the tubeNumber
           // of tubes not covered in the cabling by 1
           if (m_idHelperSvc->mdtIdHelper().stationName(channelId)==1
              && std::abs(m_idHelperSvc->mdtIdHelper().stationEta(channelId))>6
              && m_idHelperSvc->issMdt(channelId)) {
-             ATH_MSG_WARNING("Found BIS78 sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 for now...");
+             if (!bisWarningPrinted) ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 until a proper cabling is implemented...");
+             bisWarningPrinted=true;
             cabling = readCdo->getOnlineId(name, eta, phi, multilayer, 1, 1,subsystem, mrod, link, tdc, channel);
           }
           if (!cabling) {

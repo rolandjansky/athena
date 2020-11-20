@@ -51,6 +51,7 @@
 #include <sstream>
 #include <iostream>
 #include <fstream>
+#include <atomic>
 
 //12 charge points, 15 BetaGamma points, 180 efficiency points for fcp search
 namespace {
@@ -587,16 +588,15 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
       
       double corrtimejitter    =  0 ;
       if(m_CorrJitter>0.01) corrtimejitter    = CLHEP::RandGaussZiggurat::shoot(rndmEngine,0.,m_CorrJitter); //correlated jitter
-      //      std::cout<<" Correlated eta / phi jitter = "<<corrtimejitter<<std::endl;
       // handle here the special case where eta panel is dead => phi strip status (dead or eff.) cannot be resolved; 
       // measured panel eff. will be used in that case and no phi strip killing will happen
       bool undefPhiStripStat = false;
 
-      std::vector<int> pcseta    = PhysicalClusterSize(ctx, &idpaneleta, &hit, rndmEngine); //set to one for new algorithms
+      std::vector<int> pcseta = PhysicalClusterSize(ctx, &idpaneleta, &hit, rndmEngine); //set to one for new algorithms
       ATH_MSG_DEBUG ( "Simulated cluster on eta panel: size/first/last= "<<pcseta[0]   <<"/"<<pcseta[1]   <<"/"<<pcseta[2] );
       std::vector<int> pcsphi = PhysicalClusterSize(ctx, &idpanelphi, &hit, rndmEngine); //set to one for new algorithms
       ATH_MSG_DEBUG ( "Simulated cluster on phi panel: size/first/last= "<<pcsphi[0]<<"/"<<pcsphi[1]<<"/"<<pcsphi[2] );
-
+      
       // create Identifiers
       Identifier atlasRpcIdeta = m_idHelper->channelID(stationName, stationEta, stationPhi, doubletR,
                                                        doubletZ, doubletPhi,gasGap, 0, pcseta[1] );
@@ -610,8 +610,10 @@ StatusCode RpcDigitizationTool::doDigitization(const EventContext& ctx, RpcDigit
 
       // as long there is no proper implementation of the BI RPC cabling and digitisation,
       // skip this method to avoid hard crash of digitisation
+      static std::atomic<bool> biWarningPrinted = false;
       if (stationName.find("BI")!=std::string::npos) {
-        ATH_MSG_WARNING("skipping RPC DetectionEfficiency for BI");
+        if (!biWarningPrinted) ATH_MSG_WARNING("skipping call of RPC DetectionEfficiency for BI as long as no proper cabling is implemented");
+        biWarningPrinted=true;
       } else {
         ATH_CHECK(DetectionEfficiency(ctx, &atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, rndmEngine, particleLink));
       }
@@ -1061,7 +1063,7 @@ std::vector<int> RpcDigitizationTool::PhysicalClusterSize(const EventContext& ct
   else{
 
     float xstripnorm=xstrip/30.;
-    result[0] = ClusterSizeEvaluation(ctx, id, xstripnorm, rndmEngine );
+    result[0] = ClusterSizeEvaluation(ctx, id, xstripnorm, rndmEngine);
 
     int nstrips = ele->Nstrips(measuresPhi);
     //
@@ -2095,11 +2097,16 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
   else if(stationName>50) index = index - 44 ;
   // BME and BOE 53 and 54 are at indices 7 and 8 
 
+  static std::atomic<bool> clusterIndexAPrinted = false;
+  static std::atomic<bool> clusterIndexCPrinted = false;
   if( !m_ClusterSize_fromCOOL ){
     index += m_FracClusterSize1_A.size()/2*measuresPhi ;
     if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
-	index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-      ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName) ;
+      index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
+      if (stationName==0 || stationName==1) {
+        if (!clusterIndexAPrinted) ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
+        clusterIndexAPrinted=true;
+      } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
       return 1;
     }
     FracClusterSize1    = m_FracClusterSize1_A      [index];
@@ -2110,9 +2117,12 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
     if(stationEta<0){
       index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
-	  index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-	ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName) ;
-	return 1;
+      index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
+        if (stationName==0 || stationName==1) {
+          if (!clusterIndexCPrinted) ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
+          clusterIndexCPrinted=true;
+        } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
+        return 1;
       }
 
       FracClusterSize1    = m_FracClusterSize1_C      [index];
@@ -2130,18 +2140,30 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
     int    RPC_ProjectedTracks = 0;
 
     if( readCdo->getProjectedTracksMap().find(Id) != readCdo->getProjectedTracksMap().end()) RPC_ProjectedTracks = readCdo->getProjectedTracksMap().find(Id)->second ;
-
-    if(readCdo->getFracClusterSize1Map().find(Id) != readCdo->getFracClusterSize1Map().end()) FracClusterSize1	= float(readCdo->getFracClusterSize1Map().find(Id)->second) ;
-    else ATH_MSG_INFO ( "FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
+    // the FracClusterSize maps are 
+    static std::atomic<bool> fracCluster1Printed = false;
+    if(readCdo->getFracClusterSize1Map().find(Id) != readCdo->getFracClusterSize1Map().end()) FracClusterSize1  = float(readCdo->getFracClusterSize1Map().find(Id)->second) ;
+    else {
+      if (!fracCluster1Printed) ATH_MSG_WARNING("FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used");
+      fracCluster1Printed=true;
+    }
+    static std::atomic<bool> fracCluster2Printed = false;
     if(readCdo->getFracClusterSize2Map().find(Id) != readCdo->getFracClusterSize2Map().end()) FracClusterSize2	= float(readCdo->getFracClusterSize2Map().find(Id)->second) ;
-    else ATH_MSG_INFO ( "FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
+    else {
+      if (!fracCluster2Printed) ATH_MSG_WARNING("FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used");
+      fracCluster2Printed=true;
+    }
 
     ATH_MSG_DEBUG ( "FracClusterSize1 and 2 "<< FracClusterSize1 << " " << FracClusterSize2  );
 
     FracClusterSizeTail = 1. - FracClusterSize1 - FracClusterSize2 ;
 
+    static std::atomic<bool> meanClusterPrinted = false;
     if(readCdo->getMeanClusterSizeMap().find(Id) != readCdo->getMeanClusterSizeMap().end()) MeanClusterSize     = float(readCdo->getMeanClusterSizeMap().find(Id)->second)  ;
-    else ATH_MSG_INFO ( "MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
+    else {
+      if (!meanClusterPrinted) ATH_MSG_WARNING ("MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" (stationName="<<stationName<<") default will be used");
+      meanClusterPrinted=true;
+    }
 
     MeanClusterSizeTail = MeanClusterSize - FracClusterSize1 - 2*FracClusterSize2 ;
 
@@ -2151,9 +2173,12 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
     if(RPC_ProjectedTracks<m_CutProjectedTracks ||  RPC_ProjectedTracks>10000000 || MeanClusterSize>m_CutMaxClusterSize || MeanClusterSize<=1 || FracClusterSizeTail < 0 || FracClusterSize1 < 0 || FracClusterSize2 < 0  || FracClusterSizeTail > 1 || FracClusterSize1 > 1 || FracClusterSize2 >1){
       index += m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
-	  index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-	ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName) ;
-	return 1;
+        index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
+        if (stationName==0 || stationName==1) {
+          if (!clusterIndexAPrinted) ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName);
+          clusterIndexAPrinted=true;
+        } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName);
+        return 1;
       }
       FracClusterSize1	= m_FracClusterSize1_A      [index];
       FracClusterSize2	= m_FracClusterSize2_A      [index];
@@ -2161,20 +2186,21 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const EventContext& ctx, const Id
       MeanClusterSizeTail = m_MeanClusterSizeTail_A   [index];
 
       if(stationEta<0){
-	index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
-	if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
-	    index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-	  ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName ) ;
-	  return 1;
-	}
-
-	FracClusterSize1	 = m_FracClusterSize1_C      [index];
-	FracClusterSize2	 = m_FracClusterSize2_C      [index];
-	FracClusterSizeTail = m_FracClusterSizeTail_C   [index];
-	MeanClusterSizeTail = m_MeanClusterSizeTail_C   [index];
+        index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
+        if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
+          index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
+          if (stationName==0 || stationName==1) {
+            if (!clusterIndexCPrinted) ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName);
+            clusterIndexCPrinted=true;
+          } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName);
+          return 1;
+        }
+        FracClusterSize1	 = m_FracClusterSize1_C      [index];
+        FracClusterSize2	 = m_FracClusterSize2_C      [index];
+        FracClusterSizeTail = m_FracClusterSizeTail_C   [index];
+        MeanClusterSizeTail = m_MeanClusterSizeTail_C   [index];
       }
     }
-
   }
 
   if(FracClusterSize1>1   )FracClusterSize1   =1.;
