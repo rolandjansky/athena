@@ -1,20 +1,10 @@
-################################################################################
-# Package: AnalysisAssociation
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AnalysisAssociation )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Event/EventKernel
-                          Event/FourMomUtils
-                          GaudiKernel
-                          PhysicsAnalysis/AnalysisCommon/AnalysisUtils )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( AnalysisAssociation
