@@ -4,7 +4,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
+from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool, ViewCreatorPreviousROITool
 import AthenaCommon.CfgMgr as CfgMgr
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
@@ -28,10 +28,16 @@ def fastPhotonMenuSequence():
     #thePhotonFex.RoIs="EMIDRoIs"
 
     l2PhotonViewsMaker = EventViewCreatorAlgorithm("IMl2Photon")
-    l2PhotonViewsMaker.RoIsLink = "initialRoI"
+    l2PhotonViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
+    # Spawn View on SuperRoI encompassing all clusters found within the L1 RoI
+    roiTool = ViewCreatorCentredOnClusterROITool()
+    roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
+    roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastPhoton")
+    roiTool.RoIEtaWidth = 0.05
+    roiTool.RoIPhiWidth = 0.10
+    l2PhotonViewsMaker.RoITool = roiTool
     l2PhotonViewsMaker.InViewRoIs = "EMIDRoIs" 
     #l2PhotonViewsMaker.InViewRoIs = "EMCaloRoIs"
-    l2PhotonViewsMaker.RoITool = ViewCreatorInitialROITool()
     l2PhotonViewsMaker.Views = "EMPhotonViews"
     l2PhotonViewsMaker.ViewFallThrough = True
     l2PhotonViewsMaker.RequireParentView = True
@@ -71,7 +77,7 @@ def precisionPhotonSequence(ConfigFlags):
     precisionPhotonViewsMaker.ViewFallThrough = True                          
     precisionPhotonViewsMaker.RequireParentView = True
     precisionPhotonViewsMaker.RoIsLink = "initialRoI"            # ROI link used to merge inputs
-    precisionPhotonViewsMaker.RoITool = ViewCreatorInitialROITool() # Tool used to supply ROIs for EventViews
+    precisionPhotonViewsMaker.RoITool = ViewCreatorPreviousROITool() # Tool used to supply ROIs for EventViews
     precisionPhotonViewsMaker.InViewRoIs = InViewRoIs            # names to use for the collection of which the RoIs are picked up
     precisionPhotonViewsMaker.Views = "precisionPhotonViews"     # Output container which has the view objects
 
