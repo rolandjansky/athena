@@ -18,6 +18,10 @@
 
 // For finding that file
 #include "PathResolver/PathResolver.h"
+
+// Units
+#include "GaudiKernel/SystemOfUnits.h"
+
 #include <fstream>
 #include <cstdlib>
 
@@ -30,6 +34,7 @@ ISF::GenParticleSimWhiteList::GenParticleSimWhiteList( const std::string& t,
     // different options
     declareProperty("WhiteLists", m_whiteLists={"G4particle_whitelist.txt"});
     declareProperty("QuasiStableSim", m_qs=true);
+    declareProperty("MinimumDecayRadiusQS", m_minDecayRadiusQS=22.0*Gaudi::Units::mm);
 }
 
 // Athena algtool's Hooks
@@ -108,18 +113,28 @@ bool ISF::GenParticleSimWhiteList::pass(const HepMC::GenParticle& particle , std
   passFilter = passFilter && particle.status()<3;
   // Test all daughter particles
   if (particle.end_vertex() && m_qs && passFilter){
-    // Break loops
-    if ( std::find( used_vertices.begin() , used_vertices.end() , particle.end_vertex()->barcode() )==used_vertices.end() ){
-      used_vertices.push_back( particle.end_vertex()->barcode() );
-      for (HepMC::GenVertex::particle_iterator it = particle.end_vertex()->particles_begin(HepMC::children);
-                                               it != particle.end_vertex()->particles_end(HepMC::children); ++it){
-        passFilter = passFilter && pass( **it , used_vertices );
-        if (!passFilter) {
-          ATH_MSG_VERBOSE( "Daughter particle " << **it << " does not pass." );
-          break;
-        }
-      } // Loop over daughters
-    } // Break loops
+    // Primarily interested in passing particles decaying outside
+    // m_minDecayRadiusQS (nomimally the inner radius of the
+    // beampipe). However, it is also interesting to pass particles
+    // which start outside m_minDecayRadiusQS, but decay inside it.
+    passFilter = passFilter && ( (m_minDecayRadiusQS < particle.end_vertex()->position().perp()) || (m_minDecayRadiusQS < particle.production_vertex()->position().perp()) );
+    if (passFilter) {
+      // Break loops
+      if ( std::find( used_vertices.begin() , used_vertices.end() , particle.end_vertex()->barcode() )==used_vertices.end() ){
+        used_vertices.push_back( particle.end_vertex()->barcode() );
+        for (HepMC::GenVertex::particle_iterator it = particle.end_vertex()->particles_begin(HepMC::children);
+             it != particle.end_vertex()->particles_end(HepMC::children); ++it){
+          passFilter = passFilter && pass( **it , used_vertices );
+          if (!passFilter) {
+            ATH_MSG_VERBOSE( "Daughter particle " << **it << " does not pass." );
+            break;
+          }
+        } // Loop over daughters
+      } // Break loops
+    } // particle decayed before the min radius to be considered for simulation
+    else {
+      ATH_MSG_VERBOSE( "Particle " << particle << " was produced and decayed within a radius of " << m_minDecayRadiusQS << " mm.");
+    }
   } // particle had daughters
   else if (!particle.end_vertex() && !passFilter && particle.status()<3) { // no daughters... No end vertex... Check if this isn't trouble
     ATH_MSG_ERROR( "Found a particle with no end vertex that does not appear in the white list." );
