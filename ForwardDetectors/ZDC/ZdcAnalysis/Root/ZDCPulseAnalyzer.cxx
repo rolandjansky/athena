@@ -785,7 +785,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
         //
         // If the slope is large, negative, and none of the baseline-subtracted samples are negative, do exponential interpolation
         //
-        if (slope3 < -10 && !(m_samplesSub[n - 3] < 0 || m_samplesSub[n - 2] < 0 || m_samplesSub[n - 1] < 0)) {
+        if (slope3 < -10 && !(m_samplesSub[n - 3] <= 0 || m_samplesSub[n - 2] <= 0 || m_samplesSub[n - 1] <= 0)) {
           m_baselineCorr =  -m_samplesSub[n - 2] + std::exp((std::log(m_samplesSub[n - 3]) + std::log(m_samplesSub[n - 1])) * 0.5);
         }
         else {
@@ -940,7 +940,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(size_t nSamples, size_t preSampleIdx,
                                      m_samplesDeriv2nd.begin() + loopLimit + 1);
 
     int minPreDeriv2ndIndex = std::distance(m_samplesDeriv2nd.cbegin(), minPreDeriv2ndIter);
-    float minPreDeriv2nd = *minPreDeriv2ndIter;
+    float minPreDeriv2nd = *minPreDeriv2ndIter + 1e-3;
 
     SampleCIter minSamplePreIter = std::min_element(m_samplesSub.begin() + std::max(m_minSampleEvt, minPreDeriv2ndIndex), m_samplesSub.begin() + m_peak2ndDerivMinSample - m_peak2ndDerivMinTolerance + 1);
 
