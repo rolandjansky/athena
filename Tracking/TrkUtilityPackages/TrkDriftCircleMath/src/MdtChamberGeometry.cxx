@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkDriftCircleMath/MdtChamberGeometry.h"
@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <TString.h> // for Form
 
 namespace TrkDriftCircleMath {
 
@@ -57,8 +58,6 @@ namespace TrkDriftCircleMath {
       m_wasInit.push_back(1);
       m_crossedTubes.reserve(50);
     }
-  
-    MdtChamberGeometry::~MdtChamberGeometry() {}
 
     void MdtChamberGeometry::setGeometry(unsigned int nml, unsigned int nlay,
 					 unsigned int ntubesml0, unsigned int ntubesml1, 
@@ -78,19 +77,11 @@ namespace TrkDriftCircleMath {
       m_firstTube[1] = tube0ml1;
 
       m_allTubes.clear();
-      if( m_nml > 2 ){
-	std::cout << " invalid geometry: nml " << m_nml << std::endl;
-	m_validGeometry = false;
-      }
-      if( m_nlay > 4 ){ 
-	std::cout << " invalid geometry: nlay " << m_nlay << std::endl;
-	m_validGeometry = false;
-      }
-      if( ntubesml0 > 78 || ntubesml1 > 78 ) {
-	std::cout << " invalid geometry: ntubes ml0 " << ntubesml0
-		  << " ntubes ml1 " << ntubesml1 << std::endl;
-	m_validGeometry = false;
-      }
+      if(m_nml<1 || m_nml>2) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with nml=%d which is definitely out of range", __FILE__, __LINE__,m_nml));
+      if(m_nlay<1 || m_nlay>4) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with nlay=%d which is definitely out of range", __FILE__, __LINE__,m_nlay));
+      if(ntubesml0<1 || ntubesml0>120) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with ntubesml0=%d which is definitely out of range", __FILE__, __LINE__,ntubesml0));
+      // there can be chambers with only 1 multilayer. Then, the second multilayer will have ntubesml1=0
+      if(ntubesml1>120) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with ntubesml1=%d which is definitely out of range", __FILE__, __LINE__,ntubesml1));
       m_stationTheta = stationTheta;
     }
 
@@ -99,7 +90,7 @@ namespace TrkDriftCircleMath {
 
   bool MdtChamberGeometry::validId(  unsigned int ml, unsigned int lay,unsigned int tube) const
   {
-    if( !m_validGeometry) return false;
+    if(!m_validGeometry) return false;
 
     if( ml > 1 ) {
       std::cout << " ERROR wrong index: ml " << ml << " max " << m_nml << std::endl;
@@ -122,16 +113,13 @@ namespace TrkDriftCircleMath {
   {
     if( !m_validGeometry) return m_allTubes;
     if( !m_allTubes.empty() ) return m_allTubes;
-    
-//     std::cout << " building chamber geometry mls " << m_nml << " lays " << m_nlay << " tubes ml 0 " << m_ntubeslay[0] 
-// 	      << " ml 1 " << m_ntubeslay[1] << std::endl;
+
     // create vector with all tubes in chamber
     for( unsigned int ml=0;ml<m_nml;++ml){
       if( !m_wasInit[ml] ) continue;
       for( unsigned int lay=0;lay<m_nlay;++lay){
 	for( unsigned int tube=0;tube<m_ntubesml[ml];++tube ){
 	  const LocPos& lp = tubePosition(ml,lay,tube);
-// 	  std::cout << " ml " << ml << " lay " << lay << " tube " << tube << " " << lp << std::endl;
 	  m_allTubes.push_back( lp );
 	}
       }
@@ -142,9 +130,7 @@ namespace TrkDriftCircleMath {
   void MdtChamberGeometry::tubesPassedByLine( const Line& line, int inMultilayer, DCVec& crossedTubes ) const {
   
     m_resLine.set(line);
-    
-//     if( inMultilayer != -1 )
-//       std::cout << " ----- tubesPassedByLine for ml " << inMultilayer << std::endl;
+
     const LocPos& linepos = line.position();
     const LocDir& linedir = line.direction();
     double dxdy = fabs(linedir.y())> 0.0001 ? linedir.x()/linedir.y() :  linedir.x()/0.0001;
@@ -155,7 +141,6 @@ namespace TrkDriftCircleMath {
 
       // if indicated only scan single multilayer
       if( inMultilayer != -1 && inMultilayer != (int)ml ){
- 	//std::cout << "  skippin ml " << ml << std::endl;
 	continue;
       }
       for( unsigned int lay=0;lay<m_nlay;++lay){
@@ -169,66 +154,48 @@ namespace TrkDriftCircleMath {
 	if( ctube >= (int)m_ntubesml[ml] ) ctube = m_ntubesml[ml]-1;
 
  	if( inMultilayer != -1 ) 
- 	  //std::cout << " y position layer " << ylay << " xpos intersect " << xintersect << " relpos " 
-	  //<< relpos << " tube " << ctube << " in ml " << ml << " lay " << lay << std::endl;
-	
 
- 	//std::cout << "  backward loop " << std::endl;
 	for( int i = ctube-1;i>=0;--i ){
 	  const LocPos& lp = tubePosition(ml,lay,i);
 	  double res = m_resLine.residual(lp);
-  	  //std::cout << "   tube " << i << " pos " << lp << " res " << res << std::endl;
 	  if( std::abs(res) > m_tubeRad ) {
- 	    //std::cout << "   tube has larger radius " << std::endl;
 
 	    if( m_tubeDist > 0 ){
 	      if( res > m_tubeRad ) break;
 	    }else{
 	      if( res < -m_tubeRad ) break;
 	    }
-
- 	    //std::cout << "   continue search " << std::endl;
 	  }else{
 	    // if this is a chamber with only the second ml, set the ml index accordingly
 	    unsigned int actualMl = m_isSecondMultiLayer ? 1 : ml;
 	    crossedTubes.push_back( DriftCircle(lp,m_tubeRad,res,DriftCircle::EmptyTube,MdtId(m_id.isBarrel(),actualMl,lay,i),0) );
- 	    //std::cout << "   passed tube " << lp << " res " << res << " in ml " << ml << " lay " << lay << " tube " << i << std::endl;
 	  }
 	}
- 	//std::cout << "  forward loop " << std::endl;
 	for( int i =ctube;i < (int)m_ntubesml[ml];++i ){
 	  const LocPos& lp = tubePosition(ml,lay,i);
 	  double res = m_resLine.residual(lp);
-  	  //std::cout << "   tube " << i << " pos " << lp << " res " << res << std::endl;
 	  if( std::abs(res) > m_tubeRad ) {
- 	    //std::cout << "   tube has larger radius " << std::endl;
 	    if( m_tubeDist > 0 ){
 	      if( res < - m_tubeRad ) break;
 	    }else{
 	      if( res > m_tubeRad ) break;
 	    }
- 	    //std::cout << "   continue search " << std::endl;
 	  }else{
 	    unsigned int actualMl = m_isSecondMultiLayer ? 1 : ml;
 	    crossedTubes.push_back( DriftCircle(lp,m_tubeRad,res,DriftCircle::EmptyTube,MdtId(m_id.isBarrel(),actualMl,lay,i),0) );
- 	    //std::cout << "   passed tube " << lp << " res " << res << " in ml " << ml << " lay " << lay << " tube " << i << std::endl;
 	  }
 	}	
       }
 
     }
-    //std::cout << " total number of passed tubes " << m_crossedTubes.size() << std::endl;
 
-  }  
+  }
 
   const DCVec& MdtChamberGeometry::tubesPassedByLine( const Line& line, int inMultilayer ) const
   {
     m_crossedTubes.clear();
 
-    if( !m_validGeometry){ 
-      std::cout << " >>>>> invalid geometry <<<<< " << std::endl;
-      return m_crossedTubes;
-    }
+    if( !m_validGeometry) return m_crossedTubes;
 
     tubesPassedByLine(line,inMultilayer,m_crossedTubes);
 

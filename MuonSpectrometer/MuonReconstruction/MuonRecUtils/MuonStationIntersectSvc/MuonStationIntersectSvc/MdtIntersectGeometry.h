@@ -38,7 +38,7 @@ namespace Muon {
 
     const Identifier& chamberId() const { return m_chid; }
   private:
-    double tubeLength( int ml, int layer, int tube ) const;
+    double tubeLength(const int ml, const int layer, const int tube) const;
     void init(MsgStream* msg);
     void fillDeadTubes(const MuonGM::MdtReadoutElement* mydetEl, MsgStream* msg);
 
