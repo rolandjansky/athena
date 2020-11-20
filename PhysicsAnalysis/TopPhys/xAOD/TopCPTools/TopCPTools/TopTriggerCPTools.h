@@ -20,7 +20,7 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TrigTauMatching/ITrigTauMatching.h"
-//#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
+#include "TriggerAnalysisInterfaces/ITrigGlobalEfficiencyCorrectionTool.h"
 // Need to have these tools held in the class
 #include "EgammaAnalysisInterfaces/IAsgElectronEfficiencyCorrectionTool.h"
 #include "MuonAnalysisInterfaces/IMuonTriggerScaleFactors.h"
@@ -41,8 +41,8 @@ namespace top {
     ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
     ToolHandle<Trig::IMatchingTool> m_trigMatchTool;
     ToolHandle<Trig::ITrigTauMatchingTool> m_trigMatchTauTool;
-//    ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffTool;
-//    ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;
+    ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffTool;
+    ToolHandle<ITrigGlobalEfficiencyCorrectionTool> m_globalTriggerEffToolLoose;
     StatusCode initialiseGlobalTriggerEff();
     std::string mapWorkingPoints(const std::string& type);
 

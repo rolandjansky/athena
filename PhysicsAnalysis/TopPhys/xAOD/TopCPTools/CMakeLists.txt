@@ -34,6 +34,7 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                                   TopConfiguration
                                   TrigConfInterfaces
                                   TrigDecisionToolLib
+                                  TriggerAnalysisInterfaces
                                   TrigTauMatchingLib
                                   TriggerMatchingToolLib
                                   xAODBTaggingEfficiencyLib
