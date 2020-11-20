@@ -1,15 +1,7 @@
-# $Id: CMakeLists.txt 782748 2016-11-07 13:28:06Z will $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( AsgAnalysisInterfaces )
-
-# The dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces )
 
 # External(s):
 find_package( ROOT COMPONENTS Core )
