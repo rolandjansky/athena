@@ -479,7 +479,7 @@ namespace CP {
       return 0;
   }
 
-  double  MuonCalibrationAndSmearingTool::sagitta(TProfile2D* corrM, TLorentzVector &lv) const {
+  double MuonCalibrationAndSmearingTool::sagitta(TProfile2D* corrM, TLorentzVector &lv) const {
     if( corrM == nullptr) return 0; ;
     int binEta=corrM->GetXaxis()->FindBin(lv.Eta());
     int binPhi=corrM->GetYaxis()->FindBin(lv.Phi());
@@ -904,7 +904,6 @@ namespace CP {
         return CP::CorrectionCode::Error;
       }
       else {
-        ATH_MSG_VERBOSE("Can you tell me the ID/ME pts now? " << muonInfo.ptid << "/" << muonInfo.ptms);
         ptWeight =  muonInfo.ptcb;
         muonInfo.ptcb=origPt;
       }
@@ -1098,7 +1097,7 @@ namespace CP {
 
       // SAF specifics
       if( mu.muonType() == xAOD::Muon::SiliconAssociatedForwardMuon ) {
-        ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle..." );
+        ATH_MSG_VERBOSE( "Retrieving ElementLink to CB TrackParticle for SAF muon..." );
         ATH_MSG_VERBOSE( "Setting Pt  [CB]: if no track available, set to 0..." );
         float temp_cb_pt = 0.;
         //if( mu.isAvailable<ElementLink<xAOD::TrackParticleContainer> > ("inDetTrackParticleLink")){
@@ -1108,6 +1107,7 @@ namespace CP {
             temp_cb_pt = ( !cb_track ) ? 0. : ( *cb_track )->pt();
           }
         }
+        ATH_MSG_DEBUG( "SAF Muon, setting Pt[CB]: " << temp_cb_pt );
         mu.setP4( temp_cb_pt, muonInfo.eta, muonInfo.phi );
       }
 
@@ -1132,8 +1132,9 @@ namespace CP {
     double res_msPt = GeVtoMeV * CalculatePt( MCAST::DetectorType::MS, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo );
     double res_cbPt = GeVtoMeV * CalculatePt( MCAST::DetectorType::CB, muonInfo.smearDeltaID, muonInfo.smearDeltaMS, m_currentParameters->Scale, muonInfo );
 
-    if( ( m_doSagittaCorrection ||  m_doSagittaMCDistortion ) &&  (m_currentParameters->SagittaRho != MCAST::SystVariation::Default ||
-                                                                   m_currentParameters->SagittaBias != MCAST::SystVariation::Default) ){
+    if( (mu.muonType()!=xAOD::Muon::SiliconAssociatedForwardMuon) && 
+        (m_doSagittaCorrection || m_doSagittaMCDistortion) &&
+        (m_currentParameters->SagittaRho != MCAST::SystVariation::Default || m_currentParameters->SagittaBias != MCAST::SystVariation::Default) ){
       ATH_MSG_VERBOSE( "Systematic uncertainties for sagitta bias "<< muonInfo.ptcb << res_idPt);
 
       muonInfo.ptid = res_idPt * MeVtoGeV;
