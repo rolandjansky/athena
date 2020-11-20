@@ -35,7 +35,7 @@ def main():
     options = parser.parse_args()
 
     import importlib
-    options.batchSystemModule = importlib.import_module("sherpaTarCreator."+options.batchSystem)
+    options.batchSystemModule = importlib.import_module("Sherpa_i.sherpaTarCreator."+options.batchSystem)
 
     for i in range(len(options.jobOptionDir)):
         options.jobOptionDir[i] = os.path.abspath(options.jobOptionDir[i])

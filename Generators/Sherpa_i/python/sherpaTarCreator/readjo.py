@@ -81,7 +81,7 @@ def readJO(options):
             })
 
     #import dummy.py which is later included as replacement for Sherpa_i.Sherpa_iConf
-    import dummy
+    from . import dummy
     sys.modules["Sherpa_i.Sherpa_iConf"] = dummy
     sys.modules["Sherpa_i"] = dummy
 
