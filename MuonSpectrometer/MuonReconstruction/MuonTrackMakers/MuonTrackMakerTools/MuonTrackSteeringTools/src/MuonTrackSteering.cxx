@@ -142,7 +142,8 @@ namespace Muon {
     // clean up track builder tools
     m_mooBTool->cleanUp();
     m_trackBTool->cleanUp();
-    
+    m_trackRefineTool->cleanUp();
+   
   }
 
   //-----------------------------------------------------------------------------------------------------------

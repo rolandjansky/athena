@@ -40,6 +40,8 @@ namespace Muon {
     */
     virtual void refine( MuPatTrack& track ) const = 0;
 
+    virtual void cleanUp() const = 0;
+
   };
   
   inline const InterfaceID& IMuonTrackRefiner::interfaceID()
