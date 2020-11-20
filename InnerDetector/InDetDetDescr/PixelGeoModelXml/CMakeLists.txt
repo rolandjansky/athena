@@ -14,7 +14,6 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           InnerDetector/InDetDetDescr/InDetGeoModelUtils
                           InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetSimEvent
                           PRIVATE
@@ -38,7 +37,7 @@ atlas_add_library( PixelGeoModelXmlLib
                    src/*.cxx
                    PUBLIC_HEADERS PixelGeoModelXml
                    INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry PixelReadoutGeometry PixelReadoutGeometry StoreGateLib InDetSimEvent
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils ReadoutGeometryBase InDetReadoutGeometry PixelReadoutGeometry PixelReadoutGeometry StoreGateLib InDetSimEvent
                    PRIVATE_LINK_LIBRARIES SGTools AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier PathResolver)
 
 atlas_add_component( PixelGeoModelXml

@@ -14,7 +14,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
