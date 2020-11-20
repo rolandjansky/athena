@@ -59,6 +59,7 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(tauFlags.removeDuplicateCoreTracks() ) ))
             tools.append(taualgs.getTauClusterFinder())
+            tools.append(taualgs.getTauVertexedClusterDecorator())
 
             if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
             if not doMVATrackClassification and doRNNTrackClassification:
