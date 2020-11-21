@@ -1,29 +1,13 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-#
-# @author Nils Krumnack
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( MetAnalysisAlgorithms )
 
-# The package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Event/xAOD/xAODMissingET
-   PhysicsAnalysis/Algorithms/SystematicsHandles
-   PhysicsAnalysis/D3PDTools/AnaAlgorithm
-   PhysicsAnalysis/Interfaces/METInterface
-   Reconstruction/MET/METInterface
-   Reconstruction/MET/METUtilities
-   PRIVATE )
-
 atlas_add_library( MetAnalysisAlgorithmsLib
    MetAnalysisAlgorithms/*.h MetAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS MetAnalysisAlgorithms
-   LINK_LIBRARIES xAODMissingET
-   SystematicsHandlesLib AnaAlgorithmLib METInterface
-   SelectionHelpersLib METUtilitiesLib
-   PRIVATE_LINK_LIBRARIES  )
+   LINK_LIBRARIES AnaAlgorithmLib METInterface SystematicsHandlesLib xAODBase xAODMissingET
+   PRIVATE_LINK_LIBRARIES METUtilitiesLib xAODEventInfo )
 
 atlas_add_dictionary( MetAnalysisAlgorithmsDict
    MetAnalysisAlgorithms/MetAnalysisAlgorithmsDict.h
@@ -33,10 +17,11 @@ atlas_add_dictionary( MetAnalysisAlgorithmsDict
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MetAnalysisAlgorithms
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel MetAnalysisAlgorithmsLib )
+      LINK_LIBRARIES AnaAlgorithmLib METInterface SystematicsHandlesLib xAODBase
+      xAODMissingET MetAnalysisAlgorithmsLib )
 endif()
 
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
