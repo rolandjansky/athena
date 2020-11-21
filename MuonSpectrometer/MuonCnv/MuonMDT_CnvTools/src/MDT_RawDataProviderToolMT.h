@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDTCNVTOOLS_MUONMDTRAWDATAPROVIDERTOOLMT_H
@@ -30,18 +30,18 @@ class MDT_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool, publi
     virtual ~MDT_RawDataProviderToolMT () { }
     
   /** standard Athena-Algorithm method */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
     
   /** standard Athena-Algorithm method */
-  virtual StatusCode finalize  ();
+  virtual StatusCode finalize  () override;
   
   /** Convert method - declared in Muon::IMuonRdoToPrepDataTool*/
-  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs);
-  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const std::vector<IdentifierHash>&);
+  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs) override;
+  virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const std::vector<IdentifierHash>&) override;
   /** the new ones */
-  virtual StatusCode convert(); //!< for the entire event 
-  virtual StatusCode convert(const std::vector<IdentifierHash>& HashVec);
-  virtual StatusCode convert(const std::vector<uint32_t>& robIds);//!< for a particular vector of ROBId's
+  virtual StatusCode convert() override; //!< for the entire event 
+  virtual StatusCode convert(const std::vector<IdentifierHash>& HashVec) override;
+  virtual StatusCode convert(const std::vector<uint32_t>& robIds) override;//!< for a particular vector of ROBId's
   /** EventContext **/
   virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const EventContext& ctx) const override;
   virtual StatusCode convert( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, const std::vector<IdentifierHash>&, const EventContext& ctx) const override;

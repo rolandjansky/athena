@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRPCRAWDATAPROVIDERTOOLMT_H
@@ -37,15 +37,15 @@ class RPC_RawDataProviderToolMT : virtual public IMuonRawDataProviderTool,
 
     virtual ~RPC_RawDataProviderToolMT();
     
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** Decoding method. - current methods: let's keep them! */
-    virtual StatusCode convert(const ROBFragmentList& vecRobs);
-    virtual StatusCode convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& coll);    
+    virtual StatusCode convert(const ROBFragmentList& vecRobs) override;
+    virtual StatusCode convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& coll) override;
     /** the new ones */
-    virtual StatusCode convert(); //!< for the entire event 
-    virtual StatusCode convert(const std::vector<IdentifierHash>&); //!< for a selection of rdo collections
-    virtual StatusCode convert(const std::vector<uint32_t>&);
+    virtual StatusCode convert() override; //!< for the entire event 
+    virtual StatusCode convert(const std::vector<IdentifierHash>&) override; //!< for a selection of rdo collections
+    virtual StatusCode convert(const std::vector<uint32_t>&) override;
     /** EventContext ones **/
     virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const override;
     virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&, const EventContext&) const override;
