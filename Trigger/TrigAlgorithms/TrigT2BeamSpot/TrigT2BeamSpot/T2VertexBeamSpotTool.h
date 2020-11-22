@@ -29,6 +29,7 @@
 #include "../src/T2Track.h"
 #include "../src/T2BeamSpot.h"
 #include "../src/T2SplitVertex.h"
+#include "../src/T2TrackClusterer.h"
 //Athena tools
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -54,7 +55,6 @@ namespace HLT {
 }
 namespace PESA {
    class T2SplitVertex;
-   class T2TrackClusterer;
    /**
     *   This class uses primary vertex reconstruction to measure
     *   and monitor the LHC beam as seen by the ATLAS detector. 
@@ -116,6 +116,8 @@ namespace PESA {
          bool         m_splitWholeCluster;
          bool         m_reclusterSplit;
          double       m_trackSeedPt;
+         std::string  m_clusterPerigee = "original"; // one of "original", "beamspot", "beamline"
+         T2TrackClusterer::TrackPerigee m_clusterTrackPerigee = T2TrackClusterer::perigee_original;
 
          /* Track selection criteria */
          unsigned  m_totalNTrkMin;
@@ -177,10 +179,8 @@ namespace PESA {
          std::string m_vertexCollName;
 
       private:
+
          ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
-
-         
-
 
    };
 
