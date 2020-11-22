@@ -31,6 +31,7 @@ from ttbb import ttbb
 from ttH import ttH
 from ttj import ttj
 from VBF_H import VBF_H
+from VBF_ZZ import VBF_ZZ
 from VBF_osWW import VBF_osWW
 from VBF_ssWW import VBF_ssWW
 from VBF_W import VBF_W
