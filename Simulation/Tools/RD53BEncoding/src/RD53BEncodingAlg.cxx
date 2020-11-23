@@ -166,15 +166,43 @@ void RD53BEncodingAlg::fillChipMaps() {
       
       // get the module and chip definitions
       const int chips = design->numberOfCircuits();            
-      const int rowsPerChip = design->rowsPerCircuit();
-      const int columnsPerChip = design->columnsPerCircuit();
+      int rowsPerChip = design->rowsPerCircuit();
+      int columnsPerChip = design->columnsPerCircuit();
       const int chipsInPhi = design->rows()/rowsPerChip;
-      const int chipsinEta = design->columns()/columnsPerChip;
+      const int chipsinEta = design->columns()/columnsPerChip;            
       
       const float phiPitch = design->phiPitch();
       bool use50x50 = true;
       if (phiPitch < s_pitch50x50)
         use50x50 = false;        
+      
+      // get the chip type
+      ChipType ctype = (chips==1) ? SINGLE : QUAD;
+      
+      // get the region and the layer ltype for filling the histograms
+      Region region = (*element)->isBarrel() ? BARREL : ENDCAP;
+        
+      LayerType ltype;
+      if (m_pixIdHelper->is_innermost(rdoCollID))
+        ltype = INNERMOST;
+      else if (m_pixIdHelper->is_nexttoinnermost(rdoCollID))
+        ltype = NEXT_TO_INNERMOST;
+      else 
+        ltype = OUTER;
+      
+      bool doSwapCoordinates = false;
+      // takle the case where the chips are rotated. You need to swap the phi/eta indices for the pixel
+      // since the front-end as well is rotated and the chip map has to get the right coordinates
+      // It happens for all the single chip modules in the endcap:
+      // - innermost layer
+      // - shorties in the next-to-innermost layer          
+      if (region==ENDCAP and chips==1) {
+        doSwapCoordinates = true;
+      }
+      
+      // swap dimensions if needed
+      if (doSwapCoordinates) 
+        std::swap(columnsPerChip, rowsPerChip);
       
       std::vector<ChipMap> chip_maps = std::vector<ChipMap>(chips, ChipMap(columnsPerChip, rowsPerChip, use50x50));
             
@@ -195,24 +223,16 @@ void RD53BEncodingAlg::fillChipMaps() {
         PixelRDO_Collection::const_iterator rdo_itr((*rdoCont_itr)->begin());
         const PixelRDO_Collection::const_iterator rdo_end((*rdoCont_itr)->end());
         
-        // get the region and the layer ltype for filling the histograms
-        Region region = (*element)->isBarrel() ? BARREL : ENDCAP;
-        
-        LayerType ltype;
-        if (m_pixIdHelper->is_innermost(rdoCollID))
-          ltype = INNERMOST;
-        else if (m_pixIdHelper->is_nexttoinnermost(rdoCollID))
-          ltype = NEXT_TO_INNERMOST;
-        else 
-          ltype = OUTER;
-        
-        ChipType ctype = (chips==1) ? SINGLE : QUAD;
-        
         for ( ; rdo_itr != rdo_end; ++rdo_itr ) {          
           const Identifier rdoID((*rdo_itr)->identify());
           int pixPhiIx(m_pixIdHelper->phi_index(rdoID));
           int pixEtaIx(m_pixIdHelper->eta_index(rdoID));
           const int tot((*rdo_itr)->getToT());
+          
+          // swap coordinates if needed
+          if (doSwapCoordinates) {
+            std::swap(pixEtaIx,pixPhiIx);
+          }
           
           // evaluating the chip number considering the number of rows and columns per chip and
           // the total number of rows and columns on the sensor
@@ -220,18 +240,10 @@ void RD53BEncodingAlg::fillChipMaps() {
                     
           ATH_MSG_VERBOSE("            --> " << pixEtaIx << "(" << std::ceil(pixEtaIx/columnsPerChip) << ")/" << pixPhiIx << "(" << std::ceil(pixPhiIx/rowsPerChip) << ") - " << chip); 
           
-          // takle the case where the chips are rotated. You need to swap the phi/eta indices for the pixel
-          // since the front-end as well is rotated and the chip map has to get the right coordinates
-          // It happens for all the single chip modules in the endcap:
-          // - innermost layer
-          // - shorties in the next-to-innermost layer          
-          if (region==ENDCAP and chips==1)
-            std::swap(pixEtaIx,pixPhiIx);
-          
           // get the eta/phi index wrt to the chip, not the module
           int pixEta = pixEtaIx - std::ceil(pixEtaIx/columnsPerChip)*columnsPerChip;
-          int pixPhi = pixPhiIx - std::ceil(pixPhiIx/rowsPerChip)*rowsPerChip;
-             
+          int pixPhi = pixPhiIx - std::ceil(pixPhiIx/rowsPerChip)*rowsPerChip;          
+                       
           chip_maps.at(chip).fillChipMap(pixEta, pixPhi, tot);
           
           // filling histograms only for the first events to keep them small
