@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-from OutputStreamAthenaPool.MultipleStreamManager import *
+from OutputStreamAthenaPool.MultipleStreamManager import AugmentedStreamBase, AugmentedPoolStream
 from AthenaCommon.AppMgr import theApp
 
 class AugmentedNTUPStream( AugmentedStreamBase ):
@@ -12,13 +10,11 @@ class AugmentedNTUPStream( AugmentedStreamBase ):
         AugmentedStreamBase.__init__(self,StreamName)
 
         # Check if the user specified a tree name or not:
-        if tupleName == None:
+        if tupleName is None:
             tupleName = StreamName
 
         # event-by-event stream
-        import AthenaCommon.CfgMgr as CfgMgr
         from AthenaRootComps.WriteAthenaRoot import createNtupleOutputStream
-        from AthenaRootComps.AthenaRootCompsConf import Athena__RootOutputStreamTool as AthenaRootOutputStreamTool
         from AthenaRootComps.AthenaRootCompsConf import Athena__RootNtupleOutputMetadataTool as RootNtupleOutputMetadataTool
 
         self.Stream = createNtupleOutputStream( StreamName, FileName, tupleName, asAlg)
@@ -86,7 +82,7 @@ class MultipleNTUPStreamManager:
 
     def NewNTUPStream(self,StreamName,FileName=None,TreeName=None,asAlg=False):
         # Check if a file name was specified or not:
-        if FileName == None:
+        if FileName is None:
             FileName = StreamName + ".root"
         # Use the common function for creating the stream:
         return self.NewStream( StreamName, FileName, type='ntup', asAlg = asAlg,
@@ -130,14 +126,9 @@ class MultipleNTUPStreamManager:
         
         return self.StreamList[index]
     
-    def StreamExists(self, StreamName):        
-        try:
-            index=self.StreamDict[StreamName]
-        except KeyError:
-            return False
-        
-        return True
-    
+    def StreamExists(self, StreamName):
+        return StreamName in self.StreamDict
+
     def Print(self):
         print ("**** MultipleNTUPStreamManager INFOS ****" )
         print ("Number of streams:", self.nStream)
