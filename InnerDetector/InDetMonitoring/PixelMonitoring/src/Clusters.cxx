@@ -102,7 +102,7 @@ StatusCode PixelMainMon::bookClustersMon(void) {
   sc = clusterExpert.regHist(m_clusterSize_eta = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_eta, min_eta, max_eta));
 
   hname = makeHistname("Clusters_per_lumi", true);
-  htitles = makeHisttitle("Average number of pixel clusters per event", (atext_LB + atext_clu), true);
+  htitles = makeHisttitle("Average number of pixel clusters per event per LB", (atext_LB + atext_clu), true);
   sc = clusterShift.regHist(m_clusters_per_lumi = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB));
 
   hname = makeHistname("TotalClusters_per_lumi", true);
@@ -219,7 +219,7 @@ StatusCode PixelMainMon::bookClustersMon(void) {
   }
 
   if (m_doOnTrack) {
-    sc = clusterExpert.regHist(m_clustersOnOffTrack_per_lumi = TProfile_LW::create("ClustersOnOffTrack_per_lumi", ("Fraction pixel clusters on track per event per LB" + m_histTitleExt + ";lumi block; fraction clusters/event").c_str(), 2500, -0.5, 2499.5));
+    sc = clusterExpert.regHist(m_clustersOnOffTrack_per_lumi = TProfile_LW::create("ClustersOnOffTrack_per_lumi", ("Fraction pixel clusters on track per event per LB" + m_histTitleExt + ";lumi block;fraction clusters/event").c_str(), 2500, -0.5, 2499.5));
 
     hname = makeHistname("Zoomed_Cluster_ToTxCosAlpha_lumi_IBL", false);
     htitles = makeHisttitle("Zoomed Cluster ToTxCosAlpha, IBL", ";lumi block;ToT [BC]", false);
