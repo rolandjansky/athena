@@ -33,7 +33,7 @@ std::string PixelMainMon::makeHistname(std::string set, bool ontrk) {
 
 std::string PixelMainMon::makeHisttitle(std::string set, std::string axis, bool ontrk) {
   std::string name = set;
-  if (ontrk && m_doOnTrack) name += "_OnTrack";
+  if (ontrk && m_doOnTrack) name += " OnTrack";
   name = name + m_histTitleExt + axis;
   return name;
 }
