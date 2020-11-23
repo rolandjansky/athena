@@ -105,6 +105,11 @@ StatusCode JetTagMonitorAlgorithm::initialize() {
   }
   ATH_CHECK(m_btagResultKey.initialize(SG::AllowEmpty));
 
+  ATH_CHECK(m_MuonEtIsoDecorKey.initialize());
+  ATH_CHECK(m_MuonPtIsoDecorKey.initialize());
+  ATH_CHECK(m_EleEtIsoDecorKey.initialize());
+  ATH_CHECK(m_ElePtIsoDecorKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
