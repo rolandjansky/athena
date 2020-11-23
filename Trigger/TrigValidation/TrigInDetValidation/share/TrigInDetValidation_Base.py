@@ -19,20 +19,22 @@ from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, T
 import sys,getopt
 
 try:
-    opts, args = getopt.getopt(sys.argv[1:],"lxpn:",["local"])
+    opts, args = getopt.getopt(sys.argv[1:],"lcxpn:",["local","config"])
 except getopt.GetoptError:
     print("Usage:  ")
     print("-l(--local)    run locally with input file from art eos grid-input")
     print("-x             don't run athena or post post-processing, only plotting")
     print("-p             run post-processing, even if -x is set")
-    print("")
     print("-n  N          run only on N events per job")
+    print("-c(--config)   run with config_only and print to a pkl file")
+    print("")
 
 
 Events_local  = 0
 local         = False
 exclude       = False
 postproc      = False
+testconfig    = False
 lowpt_local   = []
 
 
@@ -53,6 +55,9 @@ for opt,arg in opts:
         postproc=True
     if opt=="-n":
         Events_local=arg
+    if opt in ("-c", "--config"):
+        testconfig = True
+
 
 if 'postinclude_file' in dir() :
     rdo2aod = TrigInDetReco( postinclude_file = postinclude_file )
@@ -64,6 +69,7 @@ else :
 rdo2aod.slices            = Slices
 rdo2aod.threads           = Threads
 rdo2aod.concurrent_events = Slots 
+rdo2aod.config_only       = testconfig
 
 if "Lowpt" in locals() : 
     if isinstance( Lowpt, list ) : 
@@ -107,8 +113,6 @@ if (not exclude):
     test.exec_steps = [rdo2aod]
     test.exec_steps.append(TrigInDetAna())
     test.check_steps = CheckSteps.default_check_steps(test)
-
-
 
 # Run TIDArdict
 
