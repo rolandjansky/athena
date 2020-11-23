@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,8 +15,10 @@
 #include "LArElecCalib/ILArfSampl.h"
 #include "LArSimEvent/LArHitContainer.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/WriteHandle.h"
+#include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadHandleKey.h"
 #include "TileSimEvent/TileHitVector.h"
+#include "EventInfo/PileUpEventInfo.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -30,9 +32,6 @@ class LArEM_ID;
 class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
-
-// No NameSpace selected
-//{
 
 /** @class FastHitConvertTool
 
@@ -60,18 +59,13 @@ public:
                               const EventContext& ctx) const override;
 
 private:
-  StatusCode process_nc (CaloCellContainer *theCellContainer);
-
-  StatusCode initEvent();
-  StatusCode finaliseEvent();
-  StatusCode hitConstruction(CaloCellContainer *theCellCont);
 
   //for writing out of Hit, naming as G4 for default
-  SG::WriteHandle<LArHitContainer> m_embHitContainer;
-  SG::WriteHandle<LArHitContainer> m_emecHitContainer;
-  SG::WriteHandle<LArHitContainer> m_fcalHitContainer;
-  SG::WriteHandle<LArHitContainer> m_hecHitContainer;
-  SG::WriteHandle<TileHitVector>   m_tileHitVector;
+  SG::WriteHandleKey<LArHitContainer> m_embHitContainerKey{this,"embHitContainername","LArHitEMB","Name of output FastSim LAr EM Barrel Hit Container"};
+  SG::WriteHandleKey<LArHitContainer> m_emecHitContainerKey{this,"emecHitContainername","LArHitEMEC","Name of output FastSim LAr EM Endcap Hit Container"};
+  SG::WriteHandleKey<LArHitContainer> m_fcalHitContainerKey{this,"fcalHitContainername","LArHitFCAL","Name of output FastSim LAr FCAL Hit Container"};
+  SG::WriteHandleKey<LArHitContainer> m_hecHitContainerKey{this,"hecHitContainername","LArHitHEC","Name of output FastSim LAr HEC Hit Container"};
+  SG::WriteHandleKey<TileHitVector>   m_tileHitVectorKey{this,"tileHitContainername","TileHitVec","Name of output FastSim Tile Hit Container"};
 
   ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
   PileUpMergeSvc *m_pMergeSvc;
@@ -83,9 +77,8 @@ private:
   const LArHEC_ID *m_larHecID;
   const TileID* m_tileID;
 
-  bool m_pileup;
-  /** member variables for algorithm properties: */
-  // int/double/bool  m_propertyName;
-
+  Gaudi::Property<bool> m_pileup{this,"doPileup",false,"Pileup mode (default=false)"};
+  SG::ReadHandleKey<EventInfo> m_pileup_evt{this,"pileupEventInfo","MyEvent",""};
+  SG::ReadHandleKey<PileUpEventInfo> m_pileup_pOverEvent{this,"pileupOverlayEvent","OverlayEvent",""};
 };
 #endif          //FASTCALOSIMHIT_FASTHITCONVERTTOOL_H
