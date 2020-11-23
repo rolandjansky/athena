@@ -43,7 +43,7 @@ public:
   bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
   CP::SystematicSet affectingSystematics() const;
   CP::SystematicSet recommendedSystematics() const;
-  CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
+  StatusCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
 
 private:

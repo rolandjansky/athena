@@ -236,7 +236,7 @@ void TestTrigSF::CheckSyst(const xAOD::Muon *ptr, const std::string &syst_name, 
     CP::SystematicSet syst_set;
     syst_set.insert(syst);
 
-    if (m_trigEff->applySystematicVariation(syst_set) != CP::SystematicCode::Ok) {
+    if (m_trigEff->applySystematicVariation(syst_set) != StatusCode::SUCCESS) {
         msg(MSG::WARNING) << "Failed to apply systematic: " << syst_name << endmsg;
         return;
     }
@@ -255,7 +255,7 @@ void TestTrigSF::CheckSyst(const xAOD::Muon *ptr, const std::string &syst_name, 
 
     msg(MSG::INFO) << "Systematic=" << syst_name << " step=" << step << " hist=" << h->GetName() << " SF value=" << triggerSF << endmsg;
 
-    if (m_trigEff->applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+    if (m_trigEff->applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS) {
         msg(MSG::WARNING) << "Failed to apply default after systematic: " << syst_name << endmsg;
         return;
     }

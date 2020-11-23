@@ -24,7 +24,7 @@ which are using different tagger algorighthms.
 #include "FTagAnalysisInterfaces/IBTaggingEigenVectorRecompositionTool.h"
 #include "FTagAnalysisInterfaces/IBTaggingEfficiencyTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include <string>
 #include <vector>
@@ -89,7 +89,7 @@ class BTaggingEigenVectorRecompositionTool: public asg::AsgTool,
   /** it indicates which systematic shifts are to be applied for all future calls
    * no systematics for now, proxy for later
    **/
-  CP::SystematicCode applySystematicVariation( const CP::SystematicSet & systConfig);
+  StatusCode applySystematicVariation( const CP::SystematicSet & systConfig);
 
   /**
    * subset of systematics that are recommended by the

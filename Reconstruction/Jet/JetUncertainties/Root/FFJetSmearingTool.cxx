@@ -151,7 +151,7 @@ StatusCode FFJetSmearingTool::initialize()
 
     // Add the affecting systematics to the global registry
     CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-    if(registry.registerSystematics(*this) != CP::SystematicCode::Ok){
+    if(registry.registerSystematics(*this) != StatusCode::SUCCESS){
       ATH_MSG_ERROR("Unable to register systematics!");
       return StatusCode::FAILURE;
     }
@@ -195,7 +195,7 @@ CP::SystematicSet FFJetSmearingTool::recommendedSystematics() const
 // Apply systematic configuration
 //-----------------------------------------------------------------------------
 
-CP::SystematicCode FFJetSmearingTool::applySystematicVariation
+StatusCode FFJetSmearingTool::applySystematicVariation
 (const CP::SystematicSet& systematics)
 {
     // First check if we already know this systematic configuration.
@@ -211,10 +211,10 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
         CP::SystematicSet filteredSysts;
         if( CP::SystematicSet::
             filterForAffectingSystematics(systematics, affectingSysts, filteredSysts) !=
-            CP::SystematicCode::Ok ) 
+            StatusCode::SUCCESS ) 
         {
             ATH_MSG_ERROR("Received unsupported systematics: " << systematics.name());
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
 
         // At this point, we can do some additional checks for consistency
@@ -224,7 +224,7 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
         if(filteredSysts.size() > 1){
             ATH_MSG_ERROR("No support for more than one JMS/JMR sys at a time: " <<
                     filteredSysts.name());
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
 
 
@@ -243,7 +243,7 @@ CP::SystematicCode FFJetSmearingTool::applySystematicVariation
     // Apply the filtered systematics
     m_currentSysData = &iter->second;
 
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
 

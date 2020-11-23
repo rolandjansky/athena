@@ -173,17 +173,17 @@ namespace PMGTools
   }
 
 
-  CP::SystematicCode PMGTruthWeightTool::applySystematicVariation(const CP::SystematicSet& systConfig)
+  StatusCode PMGTruthWeightTool::applySystematicVariation(const CP::SystematicSet& systConfig)
   {
     auto iter = m_weightData.find (systConfig);
     if (iter != m_weightData.end())
     {
       m_currentWeightData = &iter->second;
-      return CP::SystematicCode::Ok;
+      return StatusCode::SUCCESS;
     }
 
     CP::SystematicSet currentSys;
-    ANA_CHECK_SET_TYPE (CP::SystematicCode);
+    ANA_CHECK_SET_TYPE (StatusCode);
     ANA_CHECK (CP::SystematicSet::filterForAffectingSystematics (systConfig, m_systematicsSet, currentSys));
 
     WeightData currentWeight{};
@@ -196,7 +196,7 @@ namespace PMGTools
     auto insert = m_weightData.emplace(systConfig, std::move(currentWeight));
     m_currentWeightData = &insert.first->second;
 
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
 
 

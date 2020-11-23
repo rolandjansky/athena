@@ -14,7 +14,7 @@
 
 // Local include(s):
 #include "PATInterfaces/SystematicsTool.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
 
@@ -68,7 +68,7 @@ namespace CP {
       return m_appliedSystematics->name();
    }
 
-   SystematicCode SystematicsTool::
+   StatusCode SystematicsTool::
    applySystematicVariation( const SystematicSet& systConfig ) {
 
       RCU_CHANGE_INVARIANT( this );
@@ -85,8 +85,8 @@ namespace CP {
              filterForAffectingSystematics( systConfig,
                                             m_affectingSystematics,
                                             myAppliedSystematics ) !=
-             SystematicCode::Ok ) {
-            return SystematicCode::Unsupported;
+             StatusCode::SUCCESS ) {
+            return StatusCode::FAILURE;
          }
 
          // Insert the new filtered set onto our filter map
@@ -97,16 +97,16 @@ namespace CP {
 
       // Apply the filtered systematics
       if( sysApplySystematicVariation( itr->second ) !=
-          SystematicCode::Ok ) {
-         return SystematicCode::Unsupported;
+          StatusCode::SUCCESS ) {
+         return StatusCode::FAILURE;
       }
 
       // Store the filtered systematics
       m_appliedSystematics = &itr->second;
-      return SystematicCode::Ok;
+      return StatusCode::SUCCESS;
    }
 
-   SystematicCode SystematicsTool::
+   StatusCode SystematicsTool::
    addAffectingSystematic( const SystematicVariation& systematic, bool recommended ) {
 
       RCU_READ_INVARIANT( this );
@@ -115,14 +115,14 @@ namespace CP {
       reg.registerSystematic( systematic );
       m_affectingSystematics.insert( systematic );
       if( recommended ) {
-         if( addRecommendedSystematic(systematic) != SystematicCode::Ok ) {
-            return SystematicCode::Unsupported;
+         if( addRecommendedSystematic(systematic) != StatusCode::SUCCESS ) {
+            return StatusCode::FAILURE;
          }
       }
-      return SystematicCode::Ok;
+      return StatusCode::SUCCESS;
    }
 
-   SystematicCode SystematicsTool::
+   StatusCode SystematicsTool::
    addRecommendedSystematic( const SystematicVariation& systematic ) {
 
       RCU_READ_INVARIANT( this );
@@ -130,10 +130,10 @@ namespace CP {
       SystematicRegistry& reg = SystematicRegistry::getInstance();
       m_recommendedSystematics.insert( systematic );
       if( reg.addSystematicToRecommended( systematic ) !=
-          SystematicCode::Ok ) {
-         return SystematicCode::Unsupported;
+          StatusCode::SUCCESS ) {
+         return StatusCode::FAILURE;
       }
-      return SystematicCode::Ok;
+      return StatusCode::SUCCESS;
    }
 
    void SystematicsTool::
@@ -146,7 +146,7 @@ namespace CP {
       reg.registerSystematics( systematics );
    }
 
-   SystematicCode SystematicsTool::
+   StatusCode SystematicsTool::
    addRecommendedSystematics( const SystematicSet& systematics ) {
 
       RCU_READ_INVARIANT( this );
@@ -154,10 +154,10 @@ namespace CP {
       SystematicRegistry& reg = SystematicRegistry::getInstance();
       m_recommendedSystematics.insert( systematics );
       if( reg.addSystematicsToRecommended( systematics ) !=
-          SystematicCode::Ok ) {
-         return SystematicCode::Unsupported;
+          StatusCode::SUCCESS ) {
+         return StatusCode::FAILURE;
       }
-      return SystematicCode::Ok;
+      return StatusCode::SUCCESS;
    }
 
    void SystematicsTool::testInvariant() const {

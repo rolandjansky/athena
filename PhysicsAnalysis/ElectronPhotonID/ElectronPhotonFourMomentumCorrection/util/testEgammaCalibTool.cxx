@@ -32,7 +32,7 @@
 
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 // for smart slimming
 #include "xAODCore/tools/IOStats.h"
@@ -151,7 +151,7 @@ int main( int argc, char* argv[] ) {
        std::cout << "\n=============SYSTEMATICS CHECK NOW";
        for (auto sys : sysList)	 {
 	 // Tell the calibration tool which variation to apply
-	 if (tool->applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+	 if (tool->applySystematicVariation(sys) != StatusCode::SUCCESS) {
 	   Error(APP_NAME, "Cannot configure calibration tool for systematics");
 	 }
 	 
@@ -191,7 +191,7 @@ int main( int argc, char* argv[] ) {
        std::cout << "\n=============SYSTEMATICS CHECK NOW";
        for (auto sys : sysList)	 {
 	 // Tell the calibration tool which variation to apply
-	 if (tool->applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+	 if (tool->applySystematicVariation(sys) != StatusCode::SUCCESS) {
 	   Error(APP_NAME, "Cannot configure calibration tool for systematics");
 	 }
 	 

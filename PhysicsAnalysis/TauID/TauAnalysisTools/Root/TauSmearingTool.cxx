@@ -159,7 +159,7 @@ CP::SystematicSet TauSmearingTool::recommendedSystematics() const
   return m_tCommonSmearingTool->recommendedSystematics();
 }
 
-CP::SystematicCode TauSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+StatusCode TauSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   return m_tCommonSmearingTool->applySystematicVariation( sSystematicSet );
 }

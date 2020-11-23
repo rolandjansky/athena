@@ -118,7 +118,7 @@ public:
   //Systematics to be used for physics analysis
   virtual CP::SystematicSet recommendedSystematics() const override;
   //Use specific systematic
-  virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
+  virtual StatusCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
   virtual void setRandomSeed(unsigned seed=0) override;
   virtual void setRandomSeedFunction(const IdFunction&& function) { m_set_seed_function = function; }
 	const IdFunction getRandomSeedFuction() const { return m_set_seed_function; }

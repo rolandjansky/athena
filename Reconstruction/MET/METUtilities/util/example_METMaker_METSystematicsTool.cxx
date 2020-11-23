@@ -65,7 +65,6 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   xAOD::Init() ;
   //enable status code failures
   CP::CorrectionCode::enableFailure();
-  CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
 #else
   IAppMgrUI* app = POOL::Init(); //important to do this first!

@@ -66,7 +66,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     // Interface - Systematics to be used for physics analysis
     virtual SystematicSet recommendedSystematics() const override;
     // Interface - Use specific systematic
-    virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) override;
+    virtual StatusCode applySystematicVariation ( const SystematicSet& systConfig ) override;
     // Interface - get the expected resolution of the muon
     virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const override;
     // Interface - get the expected resolution of the muon

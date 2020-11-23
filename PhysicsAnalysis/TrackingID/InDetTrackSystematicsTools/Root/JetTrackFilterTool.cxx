@@ -167,7 +167,7 @@ namespace InDet {
     return InDetTrackSystematicsTool::recommendedSystematics();
   }
 
-  CP::SystematicCode JetTrackFilterTool::applySystematicVariation( const CP::SystematicSet& systs )
+  StatusCode JetTrackFilterTool::applySystematicVariation( const CP::SystematicSet& systs )
   {
     return InDetTrackSystematicsTool::applySystematicVariation(systs);
   }

@@ -453,15 +453,15 @@ CP::SystematicSet TauEfficiencyCorrectionsTool::recommendedSystematics() const
 }
 
 //______________________________________________________________________________
-CP::SystematicCode TauEfficiencyCorrectionsTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+StatusCode TauEfficiencyCorrectionsTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
-    if ((**it)->applySystematicVariation(sSystematicSet) == CP::SystematicCode::Unsupported)
-      return CP::SystematicCode::Unsupported;
+    if ((**it)->applySystematicVariation(sSystematicSet) == StatusCode::FAILURE)
+      return StatusCode::FAILURE;
   for (auto it = m_vTriggerEfficiencyTools.begin(); it != m_vTriggerEfficiencyTools.end(); it++)
-    if ((**it)->applySystematicVariation(sSystematicSet) == CP::SystematicCode::Unsupported)
-      return CP::SystematicCode::Unsupported;
-  return CP::SystematicCode::Ok;
+    if ((**it)->applySystematicVariation(sSystematicSet) == StatusCode::FAILURE)
+      return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
 }
 
 //=================================PRIVATE-PART=================================

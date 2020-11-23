@@ -181,7 +181,7 @@ StatusCode ParticleScaleFactorTool::initialize() {
   delete f;
   f = 0;
   
-  if(CP::SystematicRegistry::getInstance().registerSystematics(*this) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
+  if(CP::SystematicRegistry::getInstance().registerSystematics(*this) != StatusCode::SUCCESS ) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
@@ -238,18 +238,18 @@ const std::pair<CP::SystematicVariation,TH1*> ParticleScaleFactorTool::Hists::ge
 
 
 
-CP::SystematicCode ParticleScaleFactorTool::applySystematicVariation( const CP::SystematicSet& systConfig ) { 
+StatusCode ParticleScaleFactorTool::applySystematicVariation( const CP::SystematicSet& systConfig ) { 
     for(auto& syst : systConfig) {
       for(auto& s : m_affectingSysts) {
         if(s.basename()==syst.basename()) {
           m_currentSyst = syst; m_isNominal=false;
-          return CP::SystematicCode::Ok;
+          return StatusCode::SUCCESS;
         }
       }
     }
     m_currentSyst = CP::SystematicVariation("");
     m_isNominal = true;
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
 

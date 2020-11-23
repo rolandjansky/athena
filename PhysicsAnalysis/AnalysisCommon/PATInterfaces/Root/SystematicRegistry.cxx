@@ -12,7 +12,7 @@
 #include <PATInterfaces/SystematicRegistry.h>
 #include <PATInterfaces/ISystematicsTool.h>
 #include <PATInterfaces/SystematicSet.h>
-#include <PATInterfaces/SystematicCode.h>
+#include <AsgMessaging/StatusCode.h>
 
 //
 // method implementations
@@ -41,7 +41,7 @@ namespace CP
   }
 
 
-  SystematicCode SystematicRegistry ::
+  StatusCode SystematicRegistry ::
   registerSystematics (const ISystematicsTool& tool)
   {
     registerSystematics (tool.affectingSystematics());
@@ -68,31 +68,31 @@ namespace CP
 
 
   // Add a systematic to the configuratin set
-  SystematicCode SystematicRegistry::addSystematicToRecommended
+  StatusCode SystematicRegistry::addSystematicToRecommended
   (const SystematicVariation& systematic)
   {
     // Check for consistency
     if(!m_globalSystematics.matchSystematic(systematic,
                                             SystematicSet::FULLORCONTINUOUS))
     {
-      return SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
     m_recommendedSystematics.insert(systematic);
-    return SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
 
 
   // Add a systematic set to the configuration set
-  SystematicCode SystematicRegistry::addSystematicsToRecommended
+  StatusCode SystematicRegistry::addSystematicsToRecommended
   (const SystematicSet& systematics)
   {
     std::set<SystematicVariation>::const_iterator sysItr;
     for(sysItr = systematics.begin(); sysItr != systematics.end(); ++sysItr)
     {
-      SystematicCode code = addSystematicToRecommended(*sysItr);
-      if(code != SystematicCode::Ok) return code;
+      StatusCode code = addSystematicToRecommended(*sysItr);
+      if(code != StatusCode::SUCCESS) return code;
     }
-    return SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
 
 

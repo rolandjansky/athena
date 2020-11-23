@@ -327,9 +327,9 @@ namespace CP {
     }
     // We need to parse the variations to all three instances because we do not know whether the file changes in the backgronud
     // during the variation loop
-    SystematicCode MuonCalibrationPeriodTool::applySystematicVariation ( const SystematicSet& systConfig ) {
-        if (m_calibTool_1516->applySystematicVariation(systConfig) == SystematicCode::Unsupported) {}
-        if (m_calibTool_17->applySystematicVariation(systConfig) == SystematicCode::Unsupported) {}
+    StatusCode MuonCalibrationPeriodTool::applySystematicVariation ( const SystematicSet& systConfig ) {
+        if (m_calibTool_1516->applySystematicVariation(systConfig) == StatusCode::FAILURE) {}
+        if (m_calibTool_17->applySystematicVariation(systConfig) == StatusCode::FAILURE) {}
         return m_calibTool_18->applySystematicVariation(systConfig);
     }
 

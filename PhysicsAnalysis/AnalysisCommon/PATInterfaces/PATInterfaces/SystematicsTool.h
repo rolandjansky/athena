@@ -14,7 +14,7 @@
 // Local include(s):
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicVariation.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicSet.h"
 
 namespace CP {
@@ -100,7 +100,7 @@ namespace CP {
       ///   only supports 1 sigma variations)
       /// failures: unsupported combination of supported systematic
       /// failures: other tool specific errors
-      virtual SystematicCode applySystematicVariation
+      virtual StatusCode applySystematicVariation
       ( const SystematicSet& systConfig );
 
    protected:
@@ -110,12 +110,12 @@ namespace CP {
       ///   of systematics, if not already there
       /// guarantee: strong
       /// failures: out of memory II
-      SystematicCode addAffectingSystematic
+      StatusCode addAffectingSystematic
       ( const SystematicVariation& systematic, bool recommended );
 
       /// effects: add a systematic to the list of recommended systematics
       /// failures: unsupported systematic
-      SystematicCode addRecommendedSystematic
+      StatusCode addRecommendedSystematic
       ( const SystematicVariation& systematic );
 
       /// effects: add a SystematicSet to the registered systematics.
@@ -123,7 +123,7 @@ namespace CP {
       ( const SystematicSet& systematics );
 
       /// effects: add a SystematicSet to the recommended systematics.
-      SystematicCode addRecommendedSystematics
+      StatusCode addRecommendedSystematics
       ( const SystematicSet& systematics );
 
       /// effects: configure this tool for the given list of systematic
@@ -133,7 +133,7 @@ namespace CP {
       /// failures: out of memory II
       /// failures: unsupported combination of supported systematics
       /// failures: other tool specific errors
-      virtual SystematicCode sysApplySystematicVariation
+      virtual StatusCode sysApplySystematicVariation
       ( const SystematicSet& systConfig ) = 0;
 
    public:

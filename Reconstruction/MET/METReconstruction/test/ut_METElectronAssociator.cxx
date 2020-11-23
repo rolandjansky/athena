@@ -42,7 +42,6 @@ struct globalxAODSetup
     xAOD::Init() ;
     // CP::CorrectionCode::enableFailure();
     // StatusCode::enableFailure();
-    // CP::SystematicCode::enableFailure();
 
     TString const fileName = "/afs/cern.ch/work/m/maklein/public/mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD.e2928_s1982_s2008_r6114_r6104_tid04859512_00/AOD.04859512._000001.pool.root";
 //"/afs/cern.ch/work/r/rsmith/public/METUtilities_testfiles/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6006_tid04628718_00/AOD.04628718._000158.pool.root.1";

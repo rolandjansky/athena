@@ -48,8 +48,8 @@ public:
     bool isAffectedBySystematic(const CP::SystematicVariation& var) const override {return CP::SystematicsTool::isAffectedBySystematic(var);}
     CP::SystematicSet affectingSystematics() const override {return CP::SystematicsTool::affectingSystematics();}
     CP::SystematicSet recommendedSystematics() const override {return CP::SystematicsTool::recommendedSystematics();}
-    CP::SystematicCode applySystematicVariation(const CP::SystematicSet& set) override {return CP::SystematicsTool::applySystematicVariation(set);}
-    CP::SystematicCode sysApplySystematicVariation(const CP::SystematicSet&) override;
+    StatusCode applySystematicVariation(const CP::SystematicSet& set) override {return CP::SystematicsTool::applySystematicVariation(set);}
+    StatusCode sysApplySystematicVariation(const CP::SystematicSet&) override;
 
     float getJvtThresh() const override {return m_jvtCut;}
     float getUserPtMax() const override {return m_maxPtForJvt;} 
