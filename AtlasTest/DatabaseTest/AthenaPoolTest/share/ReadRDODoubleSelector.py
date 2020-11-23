@@ -90,9 +90,9 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "Stream1", noTag=True )
 
 # Run OutputStream as an algorithm
-topSequence += AthenaPoolOutputStream( "Stream1", noTag=True )
+topSequence += Stream1
 # Must make sure that no OutStream's have been declared
-theApp.OutStream     = []; 
+theApp.OutStream     = []
 # Stream's output file
 Stream1.WritingTool = "AthenaOutputStreamTool"
 Stream1.OutputFile  = "CombinedRDO.root"
@@ -104,7 +104,7 @@ Stream1.ItemList   += ["SCT_RDO_Container#*"]
 Stream1.ItemList   += ["TRT_RDO_Container#*"]
 Stream1.ItemList   += ["PixelRDOElemLinkVec#*"]
 
-printfunc (Stream1.ItemList)
+print(Stream1.ItemList)
 
 
 #--------------------------------------------------------------
