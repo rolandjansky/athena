@@ -42,6 +42,8 @@ ConfigSvcBase::declareCommonProperties() {
                     "The SuperMaster key");
    declareProperty( "UseFrontier",      m_useFrontier,
                     "Tries to use Frontier for accessing the TriggerDB");
+   declareProperty( "UseSQLite",      m_useSQLite,
+                    "Tries to use SQLite for accessing the TriggerDB if available");
    declareProperty( "PrintMenu",        m_printMenuLevel,
                     "Prints menu with detail level x=0..5 [default = " + boost::lexical_cast<string,int>(m_printMenuLevel) + "]");
 }
@@ -108,7 +110,7 @@ ConfigSvcBase::initStorageMgr() {
       StorageMgr * sm = new StorageMgr( connectionString, m_dbconfig->m_user, m_dbconfig->m_password );
 
       sm->setUseFrontier(m_dbconfig->m_useFrontier);
-
+      sm->setUseSQLite(m_useSQLite);
       sm->setRetrialPeriod( m_dbconfig->m_retrialPeriod );
       sm->setRetrialTimeout( m_dbconfig->m_retrialPeriod * (m_dbconfig->m_maxRetrials + 1) );
       sm->setConnectionTimeout( 0 );
