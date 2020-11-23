@@ -172,6 +172,14 @@ void ZDCDataAnalyzer::SetTauT0Values(const ZDCModuleBoolArray& fixTau1, const ZD
   }
 }
 
+void ZDCDataAnalyzer::SetModuleAmpFractionLG(const ZDCDataAnalyzer::ZDCModuleFloatArray& moduleAmpFractionLG) {
+  for (size_t side : {0, 1}) {
+    for (size_t module : {0, 1, 2, 3}) {
+      m_moduleAmpFractionLG[side][module] = moduleAmpFractionLG[side][module];
+    }
+  }
+}
+
 void ZDCDataAnalyzer::SetFitMinMaxAmpValues(const ZDCModuleFloatArray& minAmpHG, const ZDCModuleFloatArray& minAmpLG,
     const ZDCModuleFloatArray& maxAmpHG, const ZDCModuleFloatArray& maxAmpLG)
 {
@@ -414,6 +422,7 @@ bool ZDCDataAnalyzer::FinishEvent()
   // Now sum up amplitudes etc
   //
   for (size_t side : {0, 1}) {
+    float tempFraction = 1.0;
     for (size_t module : {0, 1, 2, 3}) {
       ZDCPulseAnalyzer* pulseAna_p = m_moduleAnalyzers[side][module].get();
 
@@ -444,7 +453,11 @@ bool ZDCDataAnalyzer::FinishEvent()
 
         m_averageTime[side] += m_calibTime[side][module] * m_calibAmplitude[side][module];
       }
+
+      // subtract the fraction of LGOverflow events if we have fraction available (<0 means unavailable)
+      if (pulseAna_p->LGOverflow() && m_moduleAmpFractionLG[side][module] > 0) {tempFraction -= m_moduleAmpFractionLG[side][module];}
     }
+    if (tempFraction < 1.0) {m_moduleSum[side] /= tempFraction;}
   }
 
   // Finish calculation of energy-weighted times

@@ -444,6 +444,10 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
                                                  75.16, 73.71, 72.25, 73.61
                                                 };
 
+    ZDCDataAnalyzer::ZDCModuleFloatArray moduleAmpFractionLG = {0.2760, 0.3045, 0.2369, 0.1826,
+                                                                0.3216, 0.2593, 0.2511, 0.1680
+                                                               };
+
     // Delta T0 cut
     ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutLowHG = { -6, -5, -5, -5, -5, -5, -5, -5};
     ZDCDataAnalyzer::ZDCModuleFloatArray DeltaT0CutHighHG = {8, 8, 8, 11, 8, 10, 8, 12};
@@ -507,6 +511,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
     zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0HG, t0LG);
+    zdcDataAnalyzer->SetModuleAmpFractionLG(moduleAmpFractionLG);   // fraction calculation for LGOverflows     added Nov 23, 2020
     zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, DeltaT0CutLowHG, DeltaT0CutHighHG, DeltaT0CutLowLG, DeltaT0CutHighLG);
 
     // We allow the combineDelay to be controlled by the properties

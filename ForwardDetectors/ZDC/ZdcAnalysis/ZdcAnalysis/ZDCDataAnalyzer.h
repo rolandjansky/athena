@@ -72,6 +72,7 @@ private:
   std::array<float, 2> m_averageTime;
   std::array<bool, 2> m_fail;
 
+  std::array<std::array<float, 4>, 2> m_moduleAmpFractionLG;
 
 public:
 
@@ -128,6 +129,8 @@ public:
   void SetTauT0Values(const ZDCModuleBoolArray& fxiTau1, const ZDCModuleBoolArray& fxiTau2,
                       const ZDCModuleFloatArray& tau1, const ZDCModuleFloatArray& tau2,
                       const ZDCModuleFloatArray& t0HG, const ZDCModuleFloatArray& t0LG);
+
+  void SetModuleAmpFractionLG(const ZDCDataAnalyzer::ZDCModuleFloatArray& moduleAmpFractionLG);
 
   void SetFitMinMaxAmpValues(const ZDCModuleFloatArray& minAmpHG, const ZDCModuleFloatArray& minAmpLG,
                              const ZDCModuleFloatArray& maxAmpHG, const ZDCModuleFloatArray& maxAmpLG);

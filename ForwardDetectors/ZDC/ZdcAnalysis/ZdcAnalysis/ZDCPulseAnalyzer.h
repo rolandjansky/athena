@@ -399,7 +399,7 @@ public:
   bool preExpTail()     const {return m_preExpTail;}
   bool fitMinimumAmplitude() const {return m_fitMinAmp;}
   bool repassPulse() const {return m_repassPulse;}
-  bool ArmSumInclude() const {return HavePulse() && !(FitFailed() || BadChisq() || BadT0() || fitMinimumAmplitude());}
+  bool ArmSumInclude() const {return HavePulse() && !(FitFailed() || BadChisq() || BadT0() || fitMinimumAmplitude() || LGOverflow());}
 
   // ------------------------------------------------------------
 
