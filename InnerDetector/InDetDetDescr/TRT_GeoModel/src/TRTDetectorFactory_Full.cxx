@@ -12,7 +12,7 @@
 #include "TRT_ReadoutGeometry/TRT_EndcapDescriptor.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/Version.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetIdentifier/TRT_ID.h"
