@@ -88,13 +88,19 @@ StatusCode RpcRdoToRpcPrepData::execute() {
 	return StatusCode::SUCCESS;
       }
       else{
-	std::vector<uint32_t> rpcrobs;
+	//temporarily using hashID list for seeded decoding instead of ROB based decoding
+	//keeping ROB based lines commented out to eventually switch back
+	//std::vector<uint32_t> rpcrobs;
+	std::vector<IdentifierHash> idlist;
+	std::vector<IdentifierHash> idlistWithData;
 	for(auto roi : *muonRoI){
-	  m_regsel_rpc->ROBIDList(*roi,rpcrobs);
-	  if(rpcrobs.size()!=0){
+	  m_regsel_rpc->HashIDList(*roi,idlist);
+	  //	  m_regsel_rpc->ROBIDList(*roi,rpcrobs);
+	  if(idlist.size()!=0){
 	    decoded=true;
-	    status=m_tool->decode(rpcrobs);
-	    rpcrobs.clear();
+	    //	    status=m_tool->decode(rpcrobs);
+	    status=m_tool->decode(idlist, idlistWithData);
+	    idlist.clear();
 	  }
 	}
       }
