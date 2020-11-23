@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONTGC_CNVTOOLS_TGC_HID2RESRCID
@@ -30,36 +30,32 @@ namespace Muon
     public:
 
       /** Constrcutor */ 
-      TGC_Hid2RESrcID () : m_cabling(0) {}
+      TGC_Hid2RESrcID () {}
 
       /** Destrcutor */ 
       ~TGC_Hid2RESrcID () {} 
 
-      /** Initialize the cabling service. */
-      void set(const ITGCcablingSvc* p_cabling);
-
       /** Make a ROD Source ID for TGC RDO. */ 
-      uint32_t getRodID(const TgcRdo *rdo);
+      uint32_t getRodID(const TgcRdo *rdo) const;
       /** Make a ROD Source ID for SubDetector ID and ROD ID. */ 
-      uint32_t getRodID(uint16_t subDetectorId, uint16_t rodId);
+      uint32_t getRodID(uint16_t subDetectorId, uint16_t rodId) const;
       /** Make a ROD Source ID for TgcDigitCollection. */ 
-      uint32_t getRodID(const Identifier & offlineId) const;
+      uint32_t getRodID(const Identifier & offlineId,
+                        const ITGCcablingSvc* cabling) const;
       /** Make a ROB Source ID from a ROD source ID. */ 
       uint32_t getRobID  (uint32_t rod_id) const; 
       /** Make a ROS Source ID from a ROB source ID. */ 
-      uint32_t getRosID  (uint32_t rob_id); 
+      uint32_t getRosID  (uint32_t rob_id) const;
       /** Make a SubDetector ID from ROS source ID. */
-      uint32_t getDetID  (uint32_t ros_id); 
+      uint32_t getDetID  (uint32_t ros_id) const;
 
       /** Return all the ROB IDs. */
       const std::vector<uint32_t>& allRobIds() const { return m_robIDs; } 
 
-    private:
       /** Fill all the ROB IDs. */
       void fillAllRobIds();
 
     private:
-      const ITGCcablingSvc * m_cabling;
       std::vector<uint32_t> m_robIDs;
     };
 

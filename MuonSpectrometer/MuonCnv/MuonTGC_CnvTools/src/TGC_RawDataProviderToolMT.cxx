@@ -83,11 +83,6 @@ StatusCode  Muon::TGC_RawDataProviderToolMT::convert(){
 
 StatusCode  Muon::TGC_RawDataProviderToolMT::convert(const EventContext& ctx) const
 {
-  if(!m_cabling) {
-    ATH_MSG_ERROR("Tgc cabling is not available and needs to be set in initialise");
-    return StatusCode::FAILURE;
-  }
-
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
   const std::vector<uint32_t>& robIds = m_hid2re.allRobIds();
 
