@@ -54,7 +54,7 @@ def addSoftBVrt(sequencer=None,WP='Loose',postfix=''):
 
     from InDetVKalVxInJetTool.InDetVKalVxInJetFinder import InDetVKalVxInJetFinder
     from AthenaCommon import CfgMgr
-    if not hasattr(sequencer,"SoftB_BTagAug"):
+    if not hasattr(sequencer,"SoftB_BTagAug") and not hasattr(sequencer,"BTagVertexAugmenter"):
         sequencer += CfgMgr.BTagVertexAugmenter("SoftB_BTagAug")
 
     SoftBJetSVFinderTool      = InDetVKalVxInJetFinder("SoftBJetSVFinder"+WP+postfix)
