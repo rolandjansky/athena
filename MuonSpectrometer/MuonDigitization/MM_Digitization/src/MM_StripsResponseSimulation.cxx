@@ -51,7 +51,7 @@ MM_StripsResponseSimulation::MM_StripsResponseSimulation():
 	m_transverseDiffusionFunction(0),
 	m_interactionDensityFunction(0),
 	m_random(0),
-	m_writeOutputFile(true),
+	m_writeOutputFile(false),
 	m_writeEventDisplays(false),
 	m_outputFile(0)
 	{
@@ -62,27 +62,26 @@ void MM_StripsResponseSimulation::initHistos()
 	if(m_writeOutputFile){
 		m_outputFile = new TFile("MM_StripsResponse_Plots.root","RECREATE");
 		if(m_outputFile) m_outputFile->cd();
+
+		m_mapOfHistograms["nInteractions"] = new TH1F("nInteractions","nInteractions",200,0,200);
+		m_mapOfHistograms["nElectrons"] = new TH1F("nElectrons","nElectrons",200,0,200);
+		m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,3);
+		m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,1e5);
+		m_mapOfHistograms["effectiveNElectrons"] = new TH1F("effectiveNElectrons","effectiveNElectrons",200,0,200);
+		m_mapOfHistograms["totalEffectiveCharge"] = new TH1F("totalEffectiveCharge","totalEffectiveCharge",400,0,200);
+		m_mapOf2DHistograms["totalEffectiveChargeVsTheta"] = new TH2F("totalEffectiveChargeVsTheta","totalEffectiveChargeVsTheta",17,0,35,300,0,300);
+
+		m_mapOf2DHistograms["pathLengthVsTheta"] = new TH2F("pathLengthVsTheta","pathLengthVsTheta",  100,0,10,  100,-3,3);
+		m_mapOf2DHistograms["pathLengthVsAlpha"] = new TH2F("pathLengthVsAlpha","pathLengthVsAlpha",  100,0,10,  100,-3,3);
+
+		m_mapOf2DHistograms["lorentzAngleVsTheta"] = new TH2F("lorentzAngleVsTheta","lorentzAngleVsTheta",  100,-3,3,  100,-3,3);
+		m_mapOf2DHistograms["lorentzAngleVsBy"]    = new TH2F("lorentzAngleVsBy","lorentzAngleVsBy",  100,-3,3,  100,-2.,2.);
+
+		m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]    = new TH2F("deltaLorentzAngleVsByForPosTheta","deltaLorentzAngleVsByForPosTheta",  100,-3,3,  100,-2.,2.);
+		m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]    = new TH2F("deltaLorentzAngleVsByForNegTheta","deltaLorentzAngleVsByForNegTheta",  100,-3,3,  100,-2.,2.);
+
+		m_mapOf2DHistograms["driftDistanceVsDriftTime"]            = new TH2F("driftDistanceVsDriftTime","driftDistanceVsDriftTime",  100,0,10,  100,0,200);
 	}
-
-	m_mapOfHistograms["nInteractions"] = new TH1F("nInteractions","nInteractions",200,0,200);
-	m_mapOfHistograms["nElectrons"] = new TH1F("nElectrons","nElectrons",200,0,200);
-	m_mapOfHistograms["lorentzAngle"] = new TH1F("lorentzAngle","lorentzAngle",100,0,3);
-	m_mapOfHistograms["effectiveCharge"] = new TH1F("effectiveCharge","effectiveCharge",100,0,1e5);
-	m_mapOfHistograms["effectiveNElectrons"] = new TH1F("effectiveNElectrons","effectiveNElectrons",200,0,200);
-	m_mapOfHistograms["totalEffectiveCharge"] = new TH1F("totalEffectiveCharge","totalEffectiveCharge",400,0,200);
-	m_mapOf2DHistograms["totalEffectiveChargeVsTheta"] = new TH2F("totalEffectiveChargeVsTheta","totalEffectiveChargeVsTheta",17,0,35,300,0,300);
-
-	m_mapOf2DHistograms["pathLengthVsTheta"] = new TH2F("pathLengthVsTheta","pathLengthVsTheta",  100,0,10,  100,-3,3);
-	m_mapOf2DHistograms["pathLengthVsAlpha"] = new TH2F("pathLengthVsAlpha","pathLengthVsAlpha",  100,0,10,  100,-3,3);
-
-	m_mapOf2DHistograms["lorentzAngleVsTheta"] = new TH2F("lorentzAngleVsTheta","lorentzAngleVsTheta",  100,-3,3,  100,-3,3);
-	m_mapOf2DHistograms["lorentzAngleVsBy"]    = new TH2F("lorentzAngleVsBy","lorentzAngleVsBy",  100,-3,3,  100,-2.,2.);
-
-	m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]    = new TH2F("deltaLorentzAngleVsByForPosTheta","deltaLorentzAngleVsByForPosTheta",  100,-3,3,  100,-2.,2.);
-	m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]    = new TH2F("deltaLorentzAngleVsByForNegTheta","deltaLorentzAngleVsByForNegTheta",  100,-3,3,  100,-2.,2.);
-
-	m_mapOf2DHistograms["driftDistanceVsDriftTime"]            = new TH2F("driftDistanceVsDriftTime","driftDistanceVsDriftTime",  100,0,10,  100,0,200);
-
 }
 /*******************************************************************************/
 void MM_StripsResponseSimulation::writeHistos()
@@ -196,10 +195,10 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 	// Still need to understand which sign is which... But I think this is correct...
 
 	float lorentzAngle = ( b.y()>0. ?  1.  :  -1. ) * m_lorentzAngleFunction->Eval( fabs( b.y() ) ) * TMath::DegToRad() ; // in radians
-
-	m_mapOf2DHistograms["lorentzAngleVsTheta"]->Fill(lorentzAngle,theta);
-	m_mapOf2DHistograms["lorentzAngleVsBy"]->Fill(lorentzAngle,b.y());
-
+	if (m_writeOutputFile) {
+		m_mapOf2DHistograms["lorentzAngleVsTheta"]->Fill(lorentzAngle,theta);
+		m_mapOf2DHistograms["lorentzAngleVsBy"]->Fill(lorentzAngle,b.y());
+	}
 
 	ATH_MSG_DEBUG("LorentzAngle vs theta: " <<lorentzAngle <<" " <<theta);
     ATH_MSG_DEBUG("Function pointer points to " << m_interactionDensityFunction);
@@ -208,13 +207,14 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 	float pathLength  = m_driftGapWidth/TMath::Cos(theta); // Increasing path length based on XZ angle
 	pathLength       /= TMath::Cos(alpha);                 // Further increasing path length for YZ angle
-
-	m_mapOf2DHistograms["pathLengthVsTheta"]->Fill(pathLength, theta);
-	m_mapOf2DHistograms["pathLengthVsAlpha"]->Fill(pathLength, alpha);
-
-	if (theta>0) m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]->Fill(  lorentzAngle-theta , b.y() );
-	else         m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]->Fill(  lorentzAngle-theta , b.y() );
-
+    
+	if (m_writeOutputFile) {
+		m_mapOf2DHistograms["pathLengthVsTheta"]->Fill(pathLength, theta);
+		m_mapOf2DHistograms["pathLengthVsAlpha"]->Fill(pathLength, alpha);
+	
+		if (theta>0) m_mapOf2DHistograms["deltaLorentzAngleVsByForPosTheta"]->Fill(  lorentzAngle-theta , b.y() );
+		else         m_mapOf2DHistograms["deltaLorentzAngleVsByForNegTheta"]->Fill(  lorentzAngle-theta , b.y() );
+	}
 	while (pathLengthTraveled < pathLength){
 
 		// N.B. Needs correction from alpha angle still...
@@ -249,17 +249,17 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
 			ATH_MSG_DEBUG("Electron's effective charge is  "<< effectiveCharge);
 
-			m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
-
-			m_mapOf2DHistograms["driftDistanceVsDriftTime"]->Fill(Electron->getOffsetPosition().Mod(), Electron->getTime() );
-
+			if (m_writeOutputFile) {
+				m_mapOfHistograms["effectiveCharge"]->Fill( effectiveCharge );
+				m_mapOf2DHistograms["driftDistanceVsDriftTime"]->Fill(Electron->getOffsetPosition().Mod(), Electron->getTime() );
+			}
 			// Add eventTime in Electron time
 			Electron->setTime(Electron->getTime() + eventTime);
 
 			tmpEffectiveNElectrons+= effectiveCharge;
 		}
 
-		m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons / m_avalancheGain);
+		if(m_writeOutputFile)	m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons / m_avalancheGain);
 
 		//---
 		m_IonizationClusters.push_back(IonizationCluster);
@@ -293,14 +293,16 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 
     // Output diagnostic hists and graphs
     //
-    m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
-    m_mapOfHistograms["nElectrons"]->Fill(stripResponseObject.getNElectrons());
-    m_mapOfHistograms["totalEffectiveCharge"]->Fill(stripResponseObject.getTotalCharge() * electronsToFC);
-    m_mapOf2DHistograms["totalEffectiveChargeVsTheta"]->Fill(std::abs(incidentAngleXZ),
-                                                   stripResponseObject.getTotalCharge() * electronsToFC);
-    ATH_MSG_DEBUG("incidentAngleXZ" << incidentAngleXZ << "charge [fC]"
-                  << stripResponseObject.getTotalCharge() / 6241.);
-    m_mapOfHistograms["lorentzAngle"]->Fill(lorentzAngle);
+    if (m_writeOutputFile) {
+        m_mapOfHistograms["nInteractions"]->Fill(nPrimaryIons);
+        m_mapOfHistograms["nElectrons"]->Fill(stripResponseObject.getNElectrons());
+        m_mapOfHistograms["totalEffectiveCharge"]->Fill(stripResponseObject.getTotalCharge() * electronsToFC);
+        m_mapOf2DHistograms["totalEffectiveChargeVsTheta"]->Fill(std::abs(incidentAngleXZ),
+                                                       stripResponseObject.getTotalCharge() * electronsToFC);
+        ATH_MSG_DEBUG("incidentAngleXZ" << incidentAngleXZ << "charge [fC]"
+                      << stripResponseObject.getTotalCharge() / 6241.);
+        m_mapOfHistograms["lorentzAngle"]->Fill(lorentzAngle);
+    }
 
 	if(m_writeEventDisplays){
 		if(m_outputFile) m_outputFile->cd();
