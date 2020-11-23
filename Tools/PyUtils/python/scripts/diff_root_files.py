@@ -81,6 +81,11 @@ default='%(default)s'.
 allowed: %(choices)s
 """
                   )
+@acmdlib.argument('--nan-equal',
+                  action='store_true',
+                  default=False,
+                  help="""Compare nan as equal to nan""")
+
 def main(args):
     """check that 2 ROOT files have same content (containers and sizes)
     """
