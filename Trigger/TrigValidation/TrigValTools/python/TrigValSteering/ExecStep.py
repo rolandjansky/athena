@@ -34,6 +34,7 @@ class ExecStep(Step):
         self.imf = True
         self.perfmon = True
         self.prmon = True
+        self.config_only = False
         self.auto_report_result = True
         self.required = True
         self.depends_on_previous = True
@@ -167,6 +168,20 @@ class ExecStep(Step):
                 athenaopts += ' --imf'
             if self.perfmon:
                 athenaopts += ' --perfmon'
+
+        # Run config-only if requested
+        if self.config_only :
+
+            if self.type == 'athenaHLT' or (self.type == "other" and self.executable == "athenaHLT.py") :
+                athenaopts += ' --dump-config-exit'
+
+            elif self.type == 'athena' or self.type == 'Reco_tf' or (self.type == "other" and self.executable == "athena.py") :
+                athenaopts += ' --config-only=' + self.name + '.pkl'
+
+            # No current support if it isn't clear exactly what's being run
+            # This includes Trig_reco_tf and 'other' where the executable is not known
+            else :
+                self.misconfig_abort('Cannot determine what config-only option is needed. Consider adding the appropriate flag to "args" instead.')
 
         # Default threads/concurrent_events/forks
         if test.package_name == 'TrigP1Test' and self.type == 'athenaHLT':
