@@ -11,11 +11,12 @@
 
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "CxxUtils/checker_macros.h"
 
 namespace Muon 
 {
-  class TgcPrepDataReplicationTool 
-    : virtual public ITgcPrepDataReplicationTool, virtual public AthAlgTool
+  class ATLAS_NOT_THREAD_SAFE TgcPrepDataReplicationTool 
+    : public extends<AthAlgTool, ITgcPrepDataReplicationTool>
   {
     public:
       /** Constructor */
@@ -24,17 +25,11 @@ namespace Muon
       /** Destructor */
       virtual ~TgcPrepDataReplicationTool()=default;
 
-      /** Provide InterfaceID */
-      static const InterfaceID& interfaceID() { return ITgcPrepDataReplicationTool::interfaceID(); };
-
-      /** Query interface */
-      virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvIF);
-
-      virtual StatusCode initialize();
-      virtual StatusCode finalize();
-      virtual StatusCode replicate();
-      virtual StatusCode convert3BCtoAllBC();
-      virtual StatusCode convertAllBCto3BC();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
+      virtual StatusCode replicate() const override;
+      virtual StatusCode convert3BCtoAllBC() const;
+      virtual StatusCode convertAllBCto3BC() const;
       
     private:
       enum {BC_PREVIOUS=0, BC_CURRENT, BC_NEXT, BC_ALL, BC_NUM};
@@ -45,7 +40,7 @@ namespace Muon
       TgcPrepDataContainer* m_tgcPrepDataContainer[BC_NUM];
 
       /** Make new TgcPrepData */
-      TgcPrepData* makeTgcPrepData(TgcPrepDataCollection::const_iterator itr, uint16_t bcBitMap);
+      TgcPrepData* makeTgcPrepData(TgcPrepDataCollection::const_iterator itr, uint16_t bcBitMap) const;
 
    }; 
 } // end of namespace
