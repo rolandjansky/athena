@@ -256,6 +256,53 @@ def setup(TOPQname, TOPQThinningSvc, ToolSvc):
         thinningTools.append(TOPQTrkJetThinningToolExkt)
         print TOPQname+".py", TOPQname+"TrkJetThinningTool: ", TOPQTrkJetThinningToolExkt
 
+        # keep soft secondary vertices
+        from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__VertexParticleThinning
+
+        # tc-lvt loose
+        TOPQVertexTPThinningToolLoose = DerivationFramework__VertexParticleThinning(
+            name                    = TOPQname + "VertexTPThinningToolLoose",
+            ThinningService         = TOPQThinningSvc,
+            VertexKey	            = "SoftBVrtClusterTool_Loose_Vertices",
+            InDetTrackParticlesKey  = "InDetTrackParticles"
+        )
+        ToolSvc += TOPQVertexTPThinningToolLoose
+        thinningTools.append(TOPQVertexTPThinningToolLoose)
+        print TOPQname+".py", TOPQname+"VertexTPThinningTool: ", TOPQVertexTPThinningToolLoose
+
+        # tc-lvt medium
+        TOPQVertexTPThinningToolMedium = DerivationFramework__VertexParticleThinning(
+            name                    = TOPQname + "VertexTPThinningToolMedium",
+            ThinningService         = TOPQThinningSvc,
+            VertexKey	            = "SoftBVrtClusterTool_Medium_Vertices",
+            InDetTrackParticlesKey  = "InDetTrackParticles"
+        )
+        ToolSvc += TOPQVertexTPThinningToolMedium
+        thinningTools.append(TOPQVertexTPThinningToolMedium)
+        print TOPQname+".py", TOPQname+"VertexTPThinningTool: ", TOPQVertexTPThinningToolMedium
+
+        # tc-lvt tight
+        TOPQVertexTPThinningToolTight = DerivationFramework__VertexParticleThinning(
+            name                    = TOPQname + "VertexTPThinningToolTight",
+            ThinningService         = TOPQThinningSvc,
+            VertexKey	            = "SoftBVrtClusterTool_Tight_Vertices",
+            InDetTrackParticlesKey  = "InDetTrackParticles"
+        )
+        ToolSvc += TOPQVertexTPThinningToolTight
+        thinningTools.append(TOPQVertexTPThinningToolTight)
+        print TOPQname+".py", TOPQname+"VertexTPThinningTool: ", TOPQVertexTPThinningToolTight
+
+        # t-lvt
+        TOPQVertexTPThinningTool = DerivationFramework__VertexParticleThinning(
+            name                   = TOPQname + "VertexTPThinningTool",
+            ThinningService        = TOPQThinningSvc,
+            VertexKey              = "VrtSecInclusive_SoftBtagCandidateVertices",
+            InDetTrackParticlesKey = "InDetTrackParticles"
+        )
+        ToolSvc += TOPQVertexTPThinningTool
+        thinningTools.append(TOPQVertexTPThinningTool)
+        print TOPQname+".py", TOPQname+"VertexTPThinningTool: ", TOPQVertexTPThinningTool
+
     #============================
     # JetCaloCluster Thinning (AntiKt4EMTopoJets)
     #============================

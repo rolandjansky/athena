@@ -228,6 +228,47 @@ TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ1 =  ["AntiKt8EMPFlowExKt
                                                              + "SoftBVrtClusterTool_MSVTight_Vertices_lzsig."
                                                              + "SoftBVrtClusterTool_MSVTight_Vertices_3dsig."]
 
+TOPQExtraVariables_SoftBVrtClusterTool_Loose_Vertices_ForTOPQ1 = ["SoftBVrtClusterTool_Loose_Vertices."
+                                                                  + "tc_lvt_px."
+                                                                  + "tc_lvt_py."
+                                                                  + "tc_lvt_pz."
+                                                                  + "tc_lvt_ee."
+                                                                  + "tc_lvt_label."]
+
+TOPQExtraVariables_SoftBVrtClusterTool_Medium_Vertices_ForTOPQ1 = ["SoftBVrtClusterTool_Medium_Vertices."
+                                                                  + "tc_lvt_px."
+                                                                  + "tc_lvt_py."
+                                                                  + "tc_lvt_pz."
+                                                                  + "tc_lvt_ee."
+                                                                  + "tc_lvt_label."]
+
+TOPQExtraVariables_SoftBVrtClusterTool_Tight_Vertices_ForTOPQ1 = ["SoftBVrtClusterTool_Tight_Vertices."
+                                                                  + "tc_lvt_px."
+                                                                  + "tc_lvt_py."
+                                                                  + "tc_lvt_pz."
+                                                                  + "tc_lvt_ee."
+                                                                  + "tc_lvt_label."]
+
+TOPQExtraVariables_VrtSecInclusive_SoftBtagCandidateVertices_ForTOPQ1 = ["VrtSecInclusive_SoftBtagCandidateVertices."
+                                                                  + "chi2_assoc."
+                                                                  + "chi2_core."
+                                                                  + "dCloseVrt."
+                                                                  + "mass."
+                                                                  + "mass_e."
+                                                                  + "mass_selectedTracks."
+                                                                  + "minOpAng."
+                                                                  + "ndof_assoc."
+                                                                  + "ndof_core."
+                                                                  + "num_associatedTracks."
+                                                                  + "num_selectedTracks."
+                                                                  + "num_trks."
+                                                                  + "vtx_charge."
+                                                                  + "vtx_px."
+                                                                  + "vtx_py."
+                                                                  + "vtx_pz."
+                                                                  + "vtx_mass."]
+
+
 # Full list: DerivationFrameworkJetEtMiss/python/AntiKt4EMPFlowJetsCPContent.py
 TOPQExtraVariables_AntiKt4EMPFlowJets = ["AntiKt4EMPFlowJets."
                                          + "ActiveArea."

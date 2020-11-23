@@ -196,6 +196,19 @@ addMSVVariables("AntiKt4EMTopoJets", TOPQ1Sequence, ToolSvc)
 from DerivationFrameworkTop.TOPQCommonJets import addExKtDoubleTagVariables
 addExKtDoubleTagVariables(TOPQ1Sequence, ToolSvc)
 
+# add soft secondary vertexing variables -- tc-lvt (TOPQDERIV-104)
+from SoftBVrtClusterTool.SoftBVrtConfig import addSoftBVrt
+addSoftBVrt(TOPQ1Sequence,'Loose')
+addSoftBVrt(TOPQ1Sequence,'Medium')
+addSoftBVrt(TOPQ1Sequence,'Tight')
+
+# add soft secondary vertexing variables -- t-lvt (TOPQDERIV-104)
+from DerivationFrameworkFlavourTag.SoftBtagCommon import applySoftBtagging
+# make Pixel and SCT conditions available
+include("InDetRecExample/PixelConditionsAccess.py") # include all pixel condtions avaliable in AOD /DT
+include("InDetRecExample/SCTConditionsAccess.py")
+applySoftBtagging("softBtag", TOPQ1Sequence)
+
 # Then apply thinning
 #AugmentationTool for TOPQDERIV-69
 TOPQ1Sequence += CfgMgr.DerivationFramework__DerivationKernel("TOPQ1Kernel", ThinningTools = thinningTools, AugmentationTools = [TOPQ1_Reco_V0Finder])
