@@ -42,8 +42,10 @@ MuonCombinedInDetExtensionAlg::execute(const EventContext& ctx) const
 
     ATH_MSG_VERBOSE("Loaded InDetCandidateCollection " << m_indetCandidateCollectionName << " with  "
                                                        << indetCandidateCollection->size() << " elements.");
-    for (const MuonCombined::InDetCandidate* candidate : *indetCandidateCollection)
-        ATH_MSG_VERBOSE(candidate->toString());
+    if (msgLvl(MSG::VERBOSE)) {
+      for (const MuonCombined::InDetCandidate* candidate : *indetCandidateCollection)
+        msg(MSG::VERBOSE) << candidate->toString() << endmsg;
+    }
 
     SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap, ctx);
     ATH_CHECK(tagMap.record(std::make_unique<MuonCombined::InDetCandidateToTagMap>()));
