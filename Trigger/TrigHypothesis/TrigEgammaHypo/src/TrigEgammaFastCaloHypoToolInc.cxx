@@ -390,12 +390,13 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
   
   ATH_MSG_DEBUG("Et = "<< et << " Eta = "<<eta << " mu = " << avgmu << "rsize = "<< refRings.size()); 
 
-  auto output = m_selectorTool.calculate( refRings, et, eta, avgmu, propagate_time, preproc_time );
+  // use the energy (in MeV) and eta from emCluster
+  auto output = m_selectorTool.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu, propagate_time, preproc_time );
   rnnOutMon = output;
   ATH_MSG_DEBUG(name()<< " generate as NN output " <<  output );
   
   decide_time.start();
-  bool accept = m_selectorTool.accept(output, et,eta,avgmu);
+  bool accept = m_selectorTool.accept(output, emCluster->et(),emCluster->eta(),avgmu);
   decide_time.stop();
 
   total_time.stop();
