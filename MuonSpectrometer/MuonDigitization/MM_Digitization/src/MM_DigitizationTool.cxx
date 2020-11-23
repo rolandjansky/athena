@@ -188,6 +188,7 @@ StatusCode MM_DigitizationTool::initialize() {
 
 	// StripsResponseSimulation Creation
 	m_StripsResponseSimulation = std::make_unique<MM_StripsResponseSimulation>();
+	m_StripsResponseSimulation->writeOutputFile(m_writeOutputFile); 
 	m_StripsResponseSimulation->setQThreshold(m_qThreshold);
 	m_StripsResponseSimulation->setDriftGapWidth(m_driftGapWidth);
 	m_StripsResponseSimulation->setCrossTalk1(m_crossTalk1);

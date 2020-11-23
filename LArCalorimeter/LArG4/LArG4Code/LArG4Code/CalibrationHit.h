@@ -40,7 +40,7 @@ namespace LArG4 {
       m_energy3(0.)
     {}
 
-    CalibrationHit(LArG4Identifier ident, 
+    CalibrationHit(const LArG4Identifier& ident, 
 		   G4double energy0 = 0.,
 		   G4double energy1 = 0.,
 		   G4double energy2 = 0.,

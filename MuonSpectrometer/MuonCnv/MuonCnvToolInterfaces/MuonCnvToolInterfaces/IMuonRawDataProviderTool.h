@@ -8,6 +8,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "ByteStreamData/RawEvent.h"
 #include "Identifier/IdentifierHash.h"
+#include "GaudiKernel/EventContext.h"
 #include <vector>
 
 static const InterfaceID IID_IMuonRawDataProviderTool( "Muon::IMuonRawDataProviderTool", 1, 0 );
@@ -34,6 +35,14 @@ public:
     virtual StatusCode convert() = 0; //!< for the entire event 
     virtual StatusCode convert(const std::vector<IdentifierHash>&) = 0; //!< for a selection of rdo collections
     virtual StatusCode convert(const std::vector<uint32_t>&){return StatusCode::FAILURE;}
+    /** Event Context functions **/
+    virtual StatusCode convert(const EventContext&) const {return StatusCode::FAILURE;}
+    virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const {return StatusCode::FAILURE;}
+    virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&, const EventContext&) const {return StatusCode::FAILURE;}
+    virtual StatusCode convert(const std::vector<IdentifierHash>&, const EventContext&) const {return StatusCode::FAILURE;}
+    virtual StatusCode convert(const std::vector<uint32_t>&, const EventContext&) const {return StatusCode::FAILURE;}
+    
+    
 };
 }
 

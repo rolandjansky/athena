@@ -29,7 +29,7 @@ NO_SANITIZE_UNDEFINED(Trk::ParametersT<DIM, T, S>& p)
 {
   AmgVector(DIM) newParam = p.parameters();
   newParam[Trk::qOverP] = 0;
-  p.updateParameters(newParam);
+  p.setParameters(newParam);
 }
 }
 

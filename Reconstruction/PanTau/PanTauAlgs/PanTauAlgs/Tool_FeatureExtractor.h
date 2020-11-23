@@ -1,16 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-//  Header file for class Tool_FeatureExtractor
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Tool to extract jet features from tau seeds
-///////////////////////////////////////////////////////////////////
-// sebastian.fleischmann@cern.ch
-///////////////////////////////////////////////////////////////////
 
 #ifndef PANTAUALGS_TOOL_FEATUREEXTRACTOR_H
 #define PANTAUALGS_TOOL_FEATUREEXTRACTOR_H
@@ -30,9 +20,6 @@
 #include "PanTauAlgs/TauConstituent.h"
 #include "PanTauAlgs/TauFeature.h"
 
-//#include "ITrackToVertex/ITrackToVertex.h"
-
-
 namespace PanTau {
     
 /** @class Tool_FeatureExtractor
@@ -47,10 +34,7 @@ namespace PanTau {
     public:
 
         Tool_FeatureExtractor(const std::string &name);
-//         virtual ~Tool_FeatureExtractor ();
         virtual StatusCode initialize();
-//         virtual StatusCode finalize  ();
-        
         
         //get the features for an input seed
         virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);
@@ -62,7 +46,6 @@ namespace PanTau {
         PanTau::HelperFunctions   m_HelperFunctions;
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
 	std::string m_Tool_InformationStoreName;
-	//ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
         
         //map containing different methods to calc seed et
         std::map<std::string, double>   m_Variants_SeedEt;
@@ -79,9 +62,6 @@ namespace PanTau {
         
         //Function to calculate features based on two sets of constituents
         StatusCode addCombinedFeatures(PanTau::PanTauSeed2* inSeed);
-        
-        //Function to calculate generic jet features
-        StatusCode addGenericJetFeatures(PanTau::PanTauSeed2* inSeed) const;
         
         //Function to add impact parameter features
         StatusCode addImpactParameterFeatures(PanTau::PanTauSeed2* inSeed) const;

@@ -530,9 +530,16 @@ class MenuSequence(object):
 class CAMenuSequence(MenuSequence):
     ''' MenuSequence with Compoment Accumulator '''
 
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA):
-        self.ca = CA
-        MenuSequence.__init__(self, Sequence, Maker,  Hypo, HypoToolGen)
+    def __init__(self, ca, HypoToolGen ):
+        self.ca = ca
+        allAlgs = ca.getEventAlgos()
+        inputMaker = [ a for a in allAlgs if isInputMakerBase(a)]
+        assert len(inputMaker) == 1, "Wrong number of input makers in the compnent accumulator {}".format(len(inputMaker))
+        inputMaker = inputMaker[0]
+        hypoAlg = [ a for a in allAlgs if isHypoAlg(a)]
+        assert len(hypoAlg) == 1, "Wrong number of hypo algs in the compnent accumulator {}".format(len(hypoAlg))
+        hypoAlg = hypoAlg[0]
+        MenuSequence.__init__(self, ca.getSequence(), inputMaker,  hypoAlg, HypoToolGen)
 
     @property
     def sequence(self):
@@ -873,13 +880,11 @@ class InEventReco( ComponentAccumulator ):
 
     def mergeReco( self, ca ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
-        return self.merge( ca, sequenceName=self.recoSeq.getName() )
+        return self.merge( ca, sequenceName=self.recoSeq.name )
 
-    def addHypoAlg(self, alg):
-        self.addEventAlgo( alg, self.mainSeq.name )
-
-    def sequence( self ):
-        return self.mainSeq
+    def addRecoAlgo( self, algo ):
+        """ Place algorithm in the correct reconstruction sequence """
+        return self.addEventAlgo( algo, sequenceName=self.recoSeq.name )
 
     def inputMaker( self ):
         return self.inputMakerAlg
@@ -911,25 +916,13 @@ class InViewReco(ComponentAccumulator):
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )
         self.addSequence( self.viewsSeq, self.mainSeq.name )
 
-    def addInput(self, inKey, outKey ):
-        """Adds input (DecisionsContainer) from which the views should be created """
-        self.viewMakerAlg.InputMakerInputDecisions += [ inKey ]
-        self.viewMakerAlg.InputMakerOutputDecisions = outKey
-
     def mergeReco( self, ca ):
         """ Merge CA movnig reconstruction algorithms into the right sequence """
-        return self.merge( ca, sequenceName=self.viewsSeq.getName() )
+        return self.merge( ca, sequenceName=self.viewsSeq.name )
 
     def addRecoAlgo( self, algo ):
         """ Place algorithm in the correct reconstruction sequence """
-        return self.addEventAlgo( algo, sequenceName=self.viewsSeq.getName() )
-
-
-    def addHypoAlg(self, alg):
-        self.addEventAlgo( alg, self.mainSeq.name )
-
-    def sequence( self ):
-        return self.mainSeq
+        return self.addEventAlgo( algo, sequenceName=self.viewsSeq.name )
 
     def inputMaker( self ):
         return self.viewMakerAlg

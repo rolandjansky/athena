@@ -27,10 +27,6 @@ class PixelModuleData {
     void setChipStatus(const int chanNum, const int value);
     int getChipStatus(const int chanNum) const;
 
-    // Switch parameters
-    void setUseCablingConditions(bool UseCablingConditions);
-    bool getUseCablingConditions() const;
-
     // Digitization parameters
     void setBunchSpace(double bunchSpace);
     double getBunchSpace() const;
@@ -191,8 +187,6 @@ class PixelModuleData {
     IntConditions  m_chipStatus;
 
     typedef std::map<int, std::vector<float>> chipCharge;
-
-    bool m_useCablingConditions;
 
     double m_bunchSpace;
     bool m_UseComTime;

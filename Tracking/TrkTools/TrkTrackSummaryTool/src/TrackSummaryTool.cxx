@@ -24,21 +24,27 @@
 #include <cmath> //std::sqrt
 
 namespace {
-  template<class Indexable, class IntegerArray>
-  void
-  setTheseElements(Indexable& container, const IntegerArray & indices, const typename Indexable::value_type & toValue){
-   for (const auto idx: indices){
-     container[idx] = toValue;
-   }
+template<class Indexable, class IntegerArray>
+void
+setTheseElements(Indexable& container,
+                 const IntegerArray& indices,
+                 const typename Indexable::value_type& toValue)
+{
+  for (const auto idx : indices) {
+    container[idx] = toValue;
   }
+}
   //
-  template <class Indexable>
-  void
-  setTheseElements(Indexable& container, const std::initializer_list<size_t> & indices, const typename Indexable::value_type & toValue){
-   for (const auto idx: indices){
-     container[idx] = toValue;
-   }
+template<class Indexable>
+void
+setTheseElements(Indexable& container,
+                 const std::initializer_list<size_t>& indices,
+                 const typename Indexable::value_type& toValue)
+{
+  for (const auto idx : indices) {
+    container[idx] = toValue;
   }
+}
 }
 
 
@@ -92,62 +98,84 @@ Trk::TrackSummaryTool::finalize(){
  */
 void
 Trk::TrackSummaryTool::computeAndReplaceTrackSummary(
+  const EventContext& ctx,
   Trk::Track& track,
   const Trk::PRDtoTrackMap* pPrdToTrackMap,
-  bool suppress_hole_search) const{
-  track.setTrackSummary(createSummary(track, pPrdToTrackMap,
+  bool suppress_hole_search) const
+{
+  track.setTrackSummary(createSummary(ctx,
+                                      track,
+                                      pPrdToTrackMap,
                                       m_doHolesInDet & !suppress_hole_search,
                                       m_doHolesMuon & !suppress_hole_search));
 }
 
 std::unique_ptr<Trk::TrackSummary>
-Trk::TrackSummaryTool::summary(const Track& track) const{
-  return createSummary(track, nullptr, m_doHolesInDet, m_doHolesMuon);
+Trk::TrackSummaryTool::summary(const EventContext& ctx,
+                               const Track& track) const
+{
+  return createSummary(ctx, track, nullptr, m_doHolesInDet, m_doHolesMuon);
 }
 
 std::unique_ptr<Trk::TrackSummary>
-Trk::TrackSummaryTool::summary(const Track& track,
-                               const Trk::PRDtoTrackMap* pPrdToTrackMap) const{
-  return createSummary(track, pPrdToTrackMap, m_doHolesInDet, m_doHolesMuon);
+Trk::TrackSummaryTool::summary(const EventContext& ctx,
+                               const Track& track,
+                               const Trk::PRDtoTrackMap* pPrdToTrackMap) const
+{
+  return createSummary(
+    ctx, track, pPrdToTrackMap, m_doHolesInDet, m_doHolesMuon);
 }
 
 std::unique_ptr<Trk::TrackSummary>
-Trk::TrackSummaryTool::summaryNoHoleSearch(const Track& track) const{
-  return createSummary(track, nullptr, false, false);
+Trk::TrackSummaryTool::summaryNoHoleSearch(const EventContext& ctx,
+                                           const Track& track) const
+{
+  return createSummary(ctx, track, nullptr, false, false);
 }
 
 std::unique_ptr<Trk::TrackSummary>
 Trk::TrackSummaryTool::summaryNoHoleSearch(
+  const EventContext& ctx,
   const Track& track,
   const Trk::PRDtoTrackMap* pPrdToTrackMap) const{
-  return createSummary(track, pPrdToTrackMap, false, false);
+  return createSummary(ctx,track, pPrdToTrackMap, false, false);
 }
 
-//Method to create a new summary
+// Method to create a new summary
 std::unique_ptr<Trk::TrackSummary>
-Trk::TrackSummaryTool::createSummary( const Track& track,
-                                      const Trk::PRDtoTrackMap *pPrdToTrackMap,
-                                      bool doHolesInDet,
-                                      bool doHolesMuon) const{
+Trk::TrackSummaryTool::createSummary(const EventContext& ctx,
+                                     const Track& track,
+                                     const Trk::PRDtoTrackMap* pPrdToTrackMap,
+                                     bool doHolesInDet,
+                                     bool doHolesMuon) const
+{
   std::unique_ptr<Trk::TrackSummary> ts;
 
   // first check if track has summary already and then clone it.
-  if (track.trackSummary()!=nullptr) {
-    ATH_MSG_DEBUG ("Return cached summary for author : "<<track.info().dumpInfo());
+  if (track.trackSummary() != nullptr) {
+    ATH_MSG_DEBUG(
+      "Return cached summary for author : " << track.info().dumpInfo());
     ts = std::make_unique<Trk::TrackSummary>(*(track.trackSummary()));
   } else {
     ts = std::make_unique<Trk::TrackSummary>();
   }
-  //fill the summary
-  fillSummary(*ts, track, pPrdToTrackMap, doHolesInDet, doHolesMuon);
+  // fill the summary
+  fillSummary(ctx, *ts, track, pPrdToTrackMap, doHolesInDet, doHolesMuon);
   return ts;
 }
 
 // Method filling the summary with information
 void
-Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,const Trk::Track& track,const Trk::PRDtoTrackMap *prdToTrackMap,bool doHolesInDet,bool doHolesMuon) const {
+Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
+                                   Trk::TrackSummary& ts,
+                                   const Trk::Track& track,
+                                   const Trk::PRDtoTrackMap* prdToTrackMap,
+                                   bool doHolesInDet,
+                                   bool doHolesMuon) const
+{
   std::vector<int>& information = ts.m_information;
-  information.resize(std::min(information.size(),static_cast<size_t>(numberOfTrackSummaryTypes)));
+  information.resize(std::min(information.size(),
+                              static_cast<size_t>(numberOfTrackSummaryTypes)));
 
   // Troels.Petersen@cern.ch:
   std::vector<float> eProbability = Trk::eProbabilityDefault;;
@@ -160,8 +188,8 @@ Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,const Trk::Track& track
     if (m_pixelExists) {
       constexpr size_t numberOfPixelCounters{14};
       const std::array<size_t, numberOfPixelCounters> atPixelIndices{
-        numberOfContribPixelLayers, 
-        numberOfInnermostPixelLayerHits, numberOfInnermostPixelLayerOutliers, 
+        numberOfContribPixelLayers,
+        numberOfInnermostPixelLayerHits, numberOfInnermostPixelLayerOutliers,
         numberOfNextToInnermostPixelLayerHits, numberOfNextToInnermostPixelLayerOutliers,
         numberOfPixelHits, numberOfPixelOutliers,
         numberOfGangedPixels, numberOfGangedFlaggedFakes,
@@ -175,7 +203,7 @@ Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,const Trk::Track& track
       information[Trk::numberOfDBMHits] = 0;
     }
     constexpr size_t numberOfSctOrTrtCounters{11};
-    const std::array<size_t, numberOfSctOrTrtCounters> atSctOrTrtIndices{
+    constexpr std::array<size_t, numberOfSctOrTrtCounters> atSctOrTrtIndices{
       numberOfSCTHits, numberOfSCTSpoiltHits, numberOfSCTOutliers,
       numberOfTRTHits, numberOfTRTXenonHits, numberOfTRTHighThresholdHits, numberOfTRTHighThresholdHitsTotal,
       numberOfTRTOutliers, numberOfTRTHighThresholdOutliers, numberOfTRTTubeHits, numberOfTRTSharedHits
@@ -183,20 +211,25 @@ Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,const Trk::Track& track
     setTheseElements(information, atSctOrTrtIndices, toZero);
     if (!m_eProbabilityTool.empty()) {
       eProbability = m_eProbabilityTool->electronProbability(track);
-      information[Trk::numberOfTRTHitsUsedFordEdx] = static_cast<int>(eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx]);
+      information[Trk::numberOfTRTHitsUsedFordEdx] = static_cast<int>(
+        eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx]);
     }
   }
   if (m_doSharedHits) {
-    information [numberOfSCTSharedHits]      = 0;
+    information[numberOfSCTSharedHits] = 0;
     if (m_pixelExists) {
-      setTheseElements(information, {numberOfInnermostPixelLayerSharedHits, numberOfNextToInnermostPixelLayerSharedHits, numberOfPixelSharedHits}, toZero);
+      setTheseElements(information,
+                       { numberOfInnermostPixelLayerSharedHits,
+                         numberOfNextToInnermostPixelLayerSharedHits,
+                         numberOfPixelSharedHits },
+                       toZero);
     }
   }
   if (!m_muonTool.empty()) {
     constexpr size_t numberOfMuonRelatedCounters{15};
-    const std::array<size_t, numberOfMuonRelatedCounters> atMuonIndices{
+    constexpr std::array<size_t, numberOfMuonRelatedCounters> atMuonIndices{
       numberOfMdtHits,
-      numberOfTgcPhiHits, numberOfTgcEtaHits, 
+      numberOfTgcPhiHits, numberOfTgcEtaHits,
       numberOfCscPhiHits, numberOfCscEtaHits, numberOfCscUnspoiltEtaHits,
       numberOfRpcPhiHits, numberOfRpcEtaHits,
       Trk::numberOfMdtHoles,
@@ -206,7 +239,7 @@ Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,const Trk::Track& track
     };
     // New Small Wheel
     constexpr size_t numberOfNswRelatedCounters{6};
-    const std::array<size_t, numberOfNswRelatedCounters> atNswIndices{
+    constexpr std::array<size_t, numberOfNswRelatedCounters> atNswIndices{
       Trk::numberOfStgcEtaHits, Trk::numberOfStgcPhiHits, Trk::numberOfMmHits,
       Trk::numberOfStgcEtaHoles, Trk::numberOfStgcPhiHoles, Trk::numberOfMmHoles
     };
@@ -216,12 +249,20 @@ Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,const Trk::Track& track
 
   std::bitset<numberOfDetectorTypes> hitPattern;
   ATH_MSG_DEBUG ("Produce summary for: "<<track.info().dumpInfo());
-  const EventContext& ctx= Gaudi::Hive::currentContext();
-  if (track.trackStateOnSurfaces()){
+  if (track.trackStateOnSurfaces()) {
     information[Trk::numberOfOutliersOnTrack] = 0;
-    processTrackStates(ctx,track,prdToTrackMap,track.trackStateOnSurfaces(),information,hitPattern,doHolesInDet,doHolesMuon);
+    processTrackStates(ctx,
+                       track,
+                       prdToTrackMap,
+                       track.trackStateOnSurfaces(),
+                       information,
+                       hitPattern,
+                       doHolesInDet,
+                       doHolesMuon);
   } else {
-    ATH_MSG_WARNING ("Null pointer to TSoS found on Track (author = "<<track.info().dumpInfo()<<"). This should never happen! ");
+    ATH_MSG_WARNING("Null pointer to TSoS found on Track (author = "
+                    << track.info().dumpInfo()
+                    << "). This should never happen! ");
   }
 
   bool holeSearchDone = (
@@ -257,15 +298,21 @@ Trk::TrackSummaryTool::fillSummary(Trk::TrackSummary& ts,const Trk::Track& track
   }
 }
 
-void 
-Trk::TrackSummaryTool::updateSharedHitCount(const Track& track, const Trk::PRDtoTrackMap *prdToTrackMap,TrackSummary &summary) const{
+void
+Trk::TrackSummaryTool::updateSharedHitCount(
+  const Track& track,
+  const Trk::PRDtoTrackMap* prdToTrackMap,
+  TrackSummary& summary) const
+{
   // first check if track has no summary - then it is recreated
   m_idTool->updateSharedHitCount(track, prdToTrackMap, summary);
 }
 
-
-void 
-Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,  TrackSummary &summary, bool initialiseToZero) const{
+void
+Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,
+                                            TrackSummary& summary,
+                                            bool initialiseToZero) const
+{
   std::vector<float> eProbability = Trk::eProbabilityDefault;
   if (!m_eProbabilityTool.empty()) {
     eProbability = m_eProbabilityTool->electronProbability(track);
@@ -288,15 +335,21 @@ Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,  TrackSummary &s
   if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,summary);
 }
 
-
-
-
 /*
  * Then the internal helpers
  */
 void
-Trk::TrackSummaryTool::processTrackStates(const EventContext& ctx,const Track& track,const Trk::PRDtoTrackMap* prdToTrackMap,const DataVector<const TrackStateOnSurface>* tsos,std::vector<int>& information,std::bitset<numberOfDetectorTypes>& hitPattern,bool doHolesInDet,bool doHolesMuon) const{
-  ATH_MSG_DEBUG ("Starting to process " << tsos->size() << " track states");
+Trk::TrackSummaryTool::processTrackStates(
+  const EventContext& ctx,
+  const Track& track,
+  const Trk::PRDtoTrackMap* prdToTrackMap,
+  const DataVector<const TrackStateOnSurface>* tsos,
+  std::vector<int>& information,
+  std::bitset<numberOfDetectorTypes>& hitPattern,
+  bool doHolesInDet,
+  bool doHolesMuon) const
+{
+  ATH_MSG_DEBUG("Starting to process " << tsos->size() << " track states");
   int measCounter = 0;
   int cntAddChi2 = 0;
   float chi2Sum = 0;
@@ -350,12 +403,20 @@ Trk::TrackSummaryTool::processTrackStates(const EventContext& ctx,const Track& t
   if (cntAddChi2>0){
     const auto inverseCount{1./cntAddChi2};
     varChi2 = (chi2Sum2 - (chi2Sum * chi2Sum * inverseCount)) * inverseCount;
-  } 
+  }
   if (varChi2>0 && varChi2<1.e13) information[Trk::standardDeviationOfChi2OS] = int(std::sqrt(varChi2)*100);
 }
 
-void 
-Trk::TrackSummaryTool::processMeasurement(const EventContext& ctx,const Track& track,const Trk::PRDtoTrackMap *prdToTrackMap,const Trk::MeasurementBase* meas,const Trk::TrackStateOnSurface* tsos,std::vector<int>& information,std::bitset<numberOfDetectorTypes>& hitPattern) const{
+void
+Trk::TrackSummaryTool::processMeasurement(
+  const EventContext& ctx,
+  const Track& track,
+  const Trk::PRDtoTrackMap* prdToTrackMap,
+  const Trk::MeasurementBase* meas,
+  const Trk::TrackStateOnSurface* tsos,
+  std::vector<int>& information,
+  std::bitset<numberOfDetectorTypes>& hitPattern) const
+{
   // Check if the measurement type is RIO on Track (ROT)
   const RIO_OnTrack* rot = nullptr;
   if (meas->type(Trk::MeasurementBaseType::RIO_OnTrack)) {
@@ -425,9 +486,14 @@ Trk::TrackSummaryTool::getTool(const Identifier& id) const{
   return nullptr;
 }
 
-void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,std::vector<int>& information,bool doHolesInDet,bool doHolesMuon) const{
-  ATH_MSG_VERBOSE ("Entering Trk::TrackSummaryTool::searchHolesStepWise");
-// -------- obtain hits in Pixel and SCT only
+void
+Trk::TrackSummaryTool::searchHolesStepWise(const Trk::Track& track,
+                                           std::vector<int>& information,
+                                           bool doHolesInDet,
+                                           bool doHolesMuon) const
+{
+  ATH_MSG_VERBOSE("Entering Trk::TrackSummaryTool::searchHolesStepWise");
+  // -------- obtain hits in Pixel and SCT only
   if (track.trackStateOnSurfaces()==nullptr){
     ATH_MSG_DEBUG ("No trackStatesOnSurface!!!!");
     const int toMinusOne{-1};
@@ -435,7 +501,7 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,std::ve
       numberOfPixelHoles, numberOfPixelDeadSensors,
       numberOfSCTHoles, numberOfSCTDoubleHoles, numberOfSCTDeadSensors,
       numberOfTRTHoles, numberOfTRTDeadStraws,
-      numberOfCscEtaHoles, numberOfCscPhiHoles, 
+      numberOfCscEtaHoles, numberOfCscPhiHoles,
       numberOfRpcEtaHoles, numberOfRpcPhiHoles,
       numberOfTgcEtaHoles, numberOfTgcPhiHoles,
       //new small wheels
@@ -462,7 +528,7 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track,std::ve
     // and probably more efficient. But this hopefully works for now! EJWM
     constexpr size_t numberOfRelatedMuonCounters{10};
     const std::array<size_t, numberOfRelatedMuonCounters> atMuonIndices{
-      numberOfMdtHoles, 
+      numberOfMdtHoles,
       numberOfCscEtaHoles, numberOfCscPhiHoles,
       numberOfRpcEtaHoles, numberOfRpcPhiHoles,
       numberOfTgcEtaHoles, numberOfTgcPhiHoles,

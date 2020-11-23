@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -241,7 +241,7 @@ private:
   MakeLArCellFromRaw m_makeCell;  
   std::vector<std::string> m_LArCellCorrNames;
   std::vector<unsigned int> m_IgnoreCheckFEBs;
-  std::vector<CaloCellCorrection*> m_LArCellCorrTools;
+  std::vector<const CaloCellCorrection*> m_LArCellCorrTools;
   
   bool m_doBadChanMasking;
   ILArBadChannelMasker* m_badChannelMasker;

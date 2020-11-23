@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4Code/LArG4SimpleSD.h"
@@ -136,7 +136,7 @@ G4bool LArG4SimpleSD::ProcessHits(G4Step* a_step,G4TouchableHistory*)
   return result;
 }
 
-G4bool LArG4SimpleSD::SimpleHit( LArG4Identifier lar_id , G4double time , G4double energy )
+G4bool LArG4SimpleSD::SimpleHit( const LArG4Identifier& lar_id , G4double time , G4double energy )
 {
   // Build the hit from the calculator results.
   Identifier id = ConvertID( lar_id );

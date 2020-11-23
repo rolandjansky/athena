@@ -44,8 +44,12 @@ namespace xAOD {
     std::vector<xAOD::TauTrack*> tauTracksNonConst( const xAOD::TauJet* tau, xAOD::TauTrackContainer* trackCont, xAOD::TauJetParameters::TauTrackFlag flag=xAOD::TauJetParameters::TauTrackFlag::classifiedCharged );
     std::vector<xAOD::TauTrack*> tauTracksNonConstWithMask( const xAOD::TauJet* tau, xAOD::TauTrackContainer* trackCont, xAOD::TauTrack::TrackFlagType mask );
     std::vector<xAOD::TauTrack*> allTauTracksNonConst( const xAOD::TauJet* tau, xAOD::TauTrackContainer* trackCont );
+    
+    //* @brief Obtain the CaloCluster within dRMax of the tau candidate */
+    std::vector<const xAOD::IParticle*> clusters(const xAOD::TauJet& tau, double dRMax);
 
-
+    //* @brief Obtain the CaloVertexedTopoCluster within dRMax of the tau candidate */
+    std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusters(const xAOD::TauJet& tau, double dRMax);
 
   }// TauHelpers
 

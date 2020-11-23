@@ -99,9 +99,9 @@ namespace xAOD {
    /// @param obj  Pointer to the object to be put into the store
    /// @param key  Key of the object in the store
    /// @param type The type name of the object we are inserting
-   /// @returns The usual xAOD::TReturnCode types
+   /// @returns The usual StatusCode types
    ///
-   TReturnCode TPyStore::record( void* obj, const std::string& key,
+   StatusCode TPyStore::record( void* obj, const std::string& key,
                                  const std::string& type ) {
 
       // Simply forward the call to the appropriate function from the base
@@ -110,7 +110,7 @@ namespace xAOD {
                     TStore::record( obj, key, type, kFALSE ) );
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This is just a convenience function, to make it easier to print the

@@ -312,10 +312,10 @@ namespace top {
     outputSGKey+=outputContainerSuffix;
     const std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-    xAOD::TReturnCode save = evtStore()->tds()->record(new_met_container, outputSGKey);
-    xAOD::TReturnCode saveAux = evtStore()->tds()->record(new_met_aux_container, outputSGKeyAux);
+    StatusCode save = evtStore()->tds()->record(new_met_container, outputSGKey);
+    StatusCode saveAux = evtStore()->tds()->record(new_met_aux_container, outputSGKeyAux);
 
-    if (!save || !saveAux) {
+    if (save.isFailure() || saveAux.isFailure()) {
       return StatusCode::FAILURE;
     }
 

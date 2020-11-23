@@ -10,7 +10,7 @@
 
 Muon::RpcRawDataProvider::RpcRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_regionSelector  ("RegSelSvc",name) 
 {
   declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
@@ -34,13 +34,16 @@ StatusCode Muon::RpcRawDataProvider::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::RpcRawDataProvider::execute() {
+// --------------------------------------------------------------------
+// Execute
+
+StatusCode Muon::RpcRawDataProvider::execute(const EventContext& ctx) const {
   ATH_MSG_VERBOSE( "RpcRawDataProvider::execute"  );
 
   if(m_seededDecoding) {
     
     // read in the RoIs to process
-    SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
+    SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey, ctx);
     if(!muonRoI.isValid()){
       ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
       return StatusCode::SUCCESS;
@@ -54,7 +57,7 @@ StatusCode Muon::RpcRawDataProvider::execute() {
       m_regionSelector->DetROBIDListUint(RPC,*roi,rpcrobs);
 
       // decode the ROBs
-      if(m_rawDataTool->convert(rpcrobs).isFailure()) {
+      if(m_rawDataTool->convert(rpcrobs, ctx).isFailure()) {
         ATH_MSG_ERROR( "RoI seeded BS conversion into RDOs failed"  );
       }
       // clear vector of ROB IDs ready for next RoI
@@ -63,7 +66,7 @@ StatusCode Muon::RpcRawDataProvider::execute() {
 
     } else {
       // ask RpcRawDataProviderTool to decode the event and to fill the IDC
-      if (m_rawDataTool->convert().isFailure())
+      if (m_rawDataTool->convert(ctx).isFailure())
         ATH_MSG_ERROR( "BS conversion into RDOs failed"  );
     }
 

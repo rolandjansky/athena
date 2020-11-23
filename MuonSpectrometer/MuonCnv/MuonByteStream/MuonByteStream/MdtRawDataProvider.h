@@ -5,7 +5,8 @@
 #ifndef MUONBYTESTREAM_MDTRAWDATAPROVIDER_H
 #define MUONBYTESTREAM_MDTRAWDATAPROVIDER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+// Base class
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -16,7 +17,7 @@
 
 namespace Muon {
 
-class MdtRawDataProvider : public AthAlgorithm
+class MdtRawDataProvider : public AthReentrantAlgorithm
 {
 public:
 
@@ -27,7 +28,7 @@ public:
   virtual StatusCode initialize();
 
   //! Execute
-  virtual StatusCode execute();
+  virtual StatusCode execute(const EventContext& ctx) const;
 
   //! Destructur
   ~MdtRawDataProvider()=default;

@@ -17,7 +17,7 @@
 #include "AthContainers/ConstDataVector.h"
 
 // Local include(s):
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 namespace xAOD {
 
@@ -71,22 +71,22 @@ namespace xAOD {
 
       /// Retrieve either a constant or non-constant object from the store
       template< typename T >
-      TReturnCode retrieve( const T*& obj, const std::string& key ) const;
+      StatusCode retrieve( const T*& obj, const std::string& key ) const;
       /// Retrieve a non-constant object from the store
       template< typename T >
-      TReturnCode retrieve( T*& obj, const std::string& key ) const;
+      StatusCode retrieve( T*& obj, const std::string& key ) const;
 
       /// Add an object to the store
       template< typename T >
-      TReturnCode record( T* obj, const std::string& key );
+      StatusCode record( T* obj, const std::string& key );
       /// Add an object othe store, explicitly taking ownership of it
       template< typename T >
-      TReturnCode record( std::unique_ptr< T > obj, const std::string& key );
+      StatusCode record( std::unique_ptr< T > obj, const std::string& key );
 
       /// Remove an object from the store by name
-      TReturnCode remove( const std::string& key );
+      StatusCode remove( const std::string& key );
       /// Remove an object from the store by pointer
-      TReturnCode remove( void* ptr );
+      StatusCode remove( void* ptr );
 
       /// Clear the store of all of its contents
       void clear();
@@ -109,18 +109,18 @@ namespace xAOD {
       const void* getConstObject( const std::string& key,
                                   const std::type_info& ti ) const;
       /// Function recording an object that has a dictionary available
-      TReturnCode record( void* obj, const std::string& key,
+      StatusCode record( void* obj, const std::string& key,
                           const std::string& classname,
                           ::Bool_t isOwner = kTRUE );
       /// Function recording an object that has no dictionary
-      TReturnCode record( void* obj, const std::string& key,
+      StatusCode record( void* obj, const std::string& key,
                           const std::type_info& ti );
       /// Function doing the first step of recording a ConstDataVector object
       template< class T >
-      TReturnCode record( ConstDataVector< T >* obj, const std::string& key,
+      StatusCode record( ConstDataVector< T >* obj, const std::string& key,
                           const std::type_info& ti );
       /// Function doing the second step of recording a ConstDataVector object
-      TReturnCode record( THolder* hldr, const std::string& key );
+      StatusCode record( THolder* hldr, const std::string& key );
 
       /// @name Functions mostly used by TEvent in the TVirtualEvent functions
       /// @{

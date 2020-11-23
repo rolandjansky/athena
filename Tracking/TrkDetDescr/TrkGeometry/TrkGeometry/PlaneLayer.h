@@ -187,28 +187,33 @@ class LayerMaterialProperties;
         virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par,
                                                  Trk::PropDirection dir) const override;
 
-       /** move the Layer */
-        virtual void moveLayer( Amg::Transform3D& shift ) override;
         /** move the Layer */
-        virtual void moveLayer ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override
+        virtual void moveLayer(Amg::Transform3D& shift) override final;
+        /** move the Layer */
+        virtual void moveLayer
+        ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final
         {
           const_cast<PlaneLayer*>(this)->moveLayer(shift);
         }
 
      private:
-       /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeLayer(const VolumeBounds&, double) override{}      
        /** Resize the layer to the tracking volume - not implemented */
-       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                      double) const override
+       virtual void resizeLayer(const VolumeBounds&, double) override final {}
+       /** Resize the layer to the tracking volume - not implemented */
+       virtual void resizeLayer
+       ATLAS_NOT_THREAD_SAFE(const VolumeBounds&, double) const override final
        {}
 
-       /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double) override {}
        /** Resize the layer to the tracking volume - not implemented */
-       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                                   const Amg::Vector3D&,
-                                                                   double) const override
+       virtual void resizeAndRepositionLayer(const VolumeBounds&,
+                                             const Amg::Vector3D&,
+                                             double) override final
+       {}
+       /** Resize the layer to the tracking volume - not implemented */
+       virtual void resizeAndRepositionLayer
+       ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                             const Amg::Vector3D&,
+                             double) const override final
        {}
   };
 

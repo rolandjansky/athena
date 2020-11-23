@@ -10,6 +10,8 @@
 #include "AthContainers/AuxVectorBase.h"
 #include "xAODCore/AuxContainerBase.h"
 
+#include "AsgMessaging/MessageCheck.h"
+
 // Local include(s):
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
@@ -36,15 +38,18 @@ public:
 }; // class ClassB
 
 /// Helper function, "processing" a TChain
-xAOD::TReturnCode process( xAOD::TEvent& event, xAOD::TStore& store );
+StatusCode process( xAOD::TEvent& event, xAOD::TStore& store );
 
 int main() {
+
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
 
    // Get the name of the application:
    const char* APP_NAME = "ut_xaodrootaccess_tchain_test";
 
    // Initialise the environment:
-   RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
+   ANA_CHECK( xAOD::Init( APP_NAME ) );
 
    // Create the tested object(s):
    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
@@ -66,11 +71,11 @@ int main() {
    chain1.Add( FNAME2.c_str() );
 
    // Connect the TEvent object to it:
-   RETURN_CHECK( APP_NAME, event.readFrom( &chain1 ) );
+   ANA_CHECK( event.readFrom( &chain1 ) );
 
    // Run the processing:
    ::Info( APP_NAME, "Processing mc14_8TeV chain..." );
-   RETURN_CHECK( APP_NAME, process( event, store ) );
+   ANA_CHECK( process( event, store ) );
 
    // Set up a TChain with some mc14_8TeV input files:
    ::TChain chain2( "CollectionTree" );
@@ -86,17 +91,17 @@ int main() {
    chain2.Add( FNAME4.c_str() );
 
    // Connect the TEvent object to it:
-   RETURN_CHECK( APP_NAME, event.readFrom( &chain2 ) );
+   ANA_CHECK( event.readFrom( &chain2 ) );
 
    // Run the processing:
    ::Info( APP_NAME, "Processing mc14_13TeV chain..." );
-   RETURN_CHECK( APP_NAME, process( event, store ) );
+   ANA_CHECK( process( event, store ) );
 
    // Return gracefully:
    return 0;
 }
 
-xAOD::TReturnCode process( xAOD::TEvent& event, xAOD::TStore& store ) {
+StatusCode process( xAOD::TEvent& event, xAOD::TStore& store ) {
 
    // Loop over all events:
    const ::Long64_t entries = event.getEntries();
@@ -109,7 +114,7 @@ xAOD::TReturnCode process( xAOD::TEvent& event, xAOD::TStore& store ) {
       if( event.getEntry( entry ) < 0 ) {
          ::Error( "process", "Couldn't load entry %i",
                   static_cast< int >( entry ) );
-         return xAOD::TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
       if( ! ( entry % 100 ) ) {
          ::Info( "process", "Processed %i / %i events",
@@ -139,5 +144,5 @@ xAOD::TReturnCode process( xAOD::TEvent& event, xAOD::TStore& store ) {
    }
 
    // Return gracefully:
-   return xAOD::TReturnCode::kSuccess;
+   return StatusCode::SUCCESS;
 }

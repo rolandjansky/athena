@@ -72,6 +72,7 @@ atlas_add_test( ValidateXml_test
 atlas_add_test( StandaloneRun_test 
                 SCRIPT test/IDPVM_standalone_test.sh 
                 POST_EXEC_SCRIPT "nopost.sh"                
+                PROPERTIES TIMEOUT 900
 )
 
 

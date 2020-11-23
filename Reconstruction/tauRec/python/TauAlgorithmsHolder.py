@@ -1035,6 +1035,29 @@ def getTauVertexCorrection():
     cached_instances[_name] = myTauVertexCorrection
     return myTauVertexCorrection
 
+def getTauVertexedClusterDecorator():
+    from tauRec.tauRecFlags import tauFlags
+    from tauRecTools.tauRecToolsConf import TauVertexedClusterDecorator
+    from JetRec.JetRecFlags import jetFlags
+
+    _name = sPrefix + 'TauVertexedClusterDecorator'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+  
+    doJetVertexCorrection = False
+    if tauFlags.isStandalone:
+        doJetVertexCorrection = True
+    if jetFlags.useVertices() and jetFlags.useTracks():
+        doJetVertexCorrection = True
+
+    myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
+                                                                SeedJet = tauFlags.tauRecSeedJetCollection(), 
+                                                                VertexCorrection = True,
+                                                                JetVertexCorrection = doJetVertexCorrection)
+    
+    cached_instances[_name] = myTauVertexedClusterDecorator
+    return myTauVertexedClusterDecorator
 
 def getParticleCache():
     #If reading from ESD we not create a cache of extrapolations to the calorimeter, so we should signify this by setting the cache key to a null string

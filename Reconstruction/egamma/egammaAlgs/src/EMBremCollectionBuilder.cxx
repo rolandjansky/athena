@@ -148,7 +148,7 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
   /*
    * Fill the final collections
    */
-  ATH_CHECK(createCollections(refitted,failedfit,trtAloneTrkTracks,
+  ATH_CHECK(createCollections(ctx,refitted,failedfit,trtAloneTrkTracks,
                     cPtrTracks,cPtrTrkPart,trackTES.ptr()));
    /*
    * update counters
@@ -192,6 +192,7 @@ EMBremCollectionBuilder::refitTracks(
 
 StatusCode
 EMBremCollectionBuilder::createCollections(
+  const EventContext& ctx,
   std::vector<TrackWithIndex>& refitted,
   std::vector<TrackWithIndex>& failedfit,
   std::vector<TrackWithIndex>& trtAlone,
@@ -204,7 +205,7 @@ EMBremCollectionBuilder::createCollections(
    * so need to update the summary
    */
   for (auto& Info : refitted){
-    updateGSFTrack(Info, AllTracks);
+    updateGSFTrack(ctx,Info, AllTracks);
   }
 
   for (auto& Info : refitted){
@@ -305,12 +306,13 @@ EMBremCollectionBuilder::createNew(
 
 void
 EMBremCollectionBuilder::updateGSFTrack(
+  const EventContext& ctx,
   const TrackWithIndex& Info,
   const xAOD::TrackParticleContainer* AllTracks) const
 {
 
   //update the summary of the non-const track without hole search
-  m_summaryTool->updateTrackSummary(*(Info.track));
+  m_summaryTool->updateTrackSummary(ctx,*(Info.track));
   //Get the summary so as to add info to it
   Trk::TrackSummary* summary = Info.track->trackSummary();
 

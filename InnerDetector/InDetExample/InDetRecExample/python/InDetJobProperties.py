@@ -491,11 +491,17 @@ class doHolesOnTrack(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
-class useHolesFromPattern(InDetFlagsJobProperty):
+class holeSearchInGX2Fit(InDetFlagsJobProperty):
     """ use holes from the pattern recognition """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True
+
+class useHolesFromPattern(InDetFlagsJobProperty):
+    """ use holes from the pattern recognition """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
 
 class useZvertexTool(InDetFlagsJobProperty):
     """ start with Zvertex finding """
@@ -1712,6 +1718,12 @@ class InDetJobProperties(JobPropertyContainer):
       self.doPRDFormation        = self.preProcessing() and self.doPRDFormation()        and (DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on() or DetFlags.makeRIO.TRT_on())
       
       # --------------------------------------------------------------------
+      # ---- Hole search strategy 
+      # --------------------------------------------------------------------
+      # Here, we make sure to not configure the fitter to run a costly hole search in case 
+      # we are writing holes from the pattern recognition anyway.  
+      self.holeSearchInGX2Fit = self.holeSearchInGX2Fit() and not self.useHolesFromPattern()
+      # --------------------------------------------------------------------
       # --- 1st iteration, inside out tracking
       # --------------------------------------------------------------------
       #
@@ -2516,6 +2528,8 @@ class InDetJobProperties(JobPropertyContainer):
        print('* SCT PRD Formation is off')
     if not self.doTRT_PRDFormation():
        print('* TRT PRD Formation is off')
+    if self.holeSearchInGX2Fit():
+       print('* Running hole search within global chi2 fit')
     if self.useHolesFromPattern():
        print('* Using holes and deads from pattern recognition')
 
@@ -2658,6 +2672,7 @@ _list_InDetJobProperties = [Enabled,
                             propagatorType,
                             trackFitterType,
                             doHolesOnTrack,
+                            holeSearchInGX2Fit,
                             useHolesFromPattern,
                             useZvertexTool,
                             useActsPriVertexing,

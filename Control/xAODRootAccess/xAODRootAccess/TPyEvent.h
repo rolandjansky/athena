@@ -39,7 +39,7 @@ namespace xAOD {
                                   const std::string& type ) const;
 
       /// Add an output object to the event
-      TReturnCode record( int dummy, void* obj, const std::string& key,
+      StatusCode record( int dummy, void* obj, const std::string& key,
                           const std::string& type,
                           ::Int_t basketSize = 32000, ::Int_t splitLevel = 0 );
 

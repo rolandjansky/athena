@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/TauFeature.h"
@@ -34,7 +34,6 @@ if(m_featureMap.end() == iter)
 {
      // not found
      isValid=false;
-     //std::cout << "Could not find key called '" << ItsName << "' in feature map. Either the spelling is wrong or the feature does not exist. Returning -999999." << std::endl;
      return -999999.;
 }
 // entry found, return value
@@ -124,28 +123,4 @@ void PanTau::TauFeature2::addFeaturesFromMap(std::map<std::string, double> other
     
     return;
 }
-
-/*
-std::ostream& operator<< ( std::ostream& out, PanTau::TauFeature2 
-                            xAOD::FileMetaData_v1::MetaDataType type ) {
-MsgStream& PanTau::TauFeature2::dump( MsgStream& out, MSG::Level debugLevel = MSG::VERBOSE ) const
-{ 
-    std::string name("TauFeature2: ");
-    out << debugLevel << name << endmsg;
-    FeatureMapConstIter iter = m_featureMap.begin();
-    FeatureMapConstIter iterEnd = m_featureMap.end();
-    for ( ; iter!=iterEnd; iter++) {
-        out << debugLevel << (*iter).first << " : \t" << (*iter).second <<endmsg;
-    }
-    
-    std::string nameVec("TauVecFeature: ");
-    out << debugLevel << nameVec << endmsg;
-    VectorFeatureMapConstIter iterVec = m_vecFeatureMap.begin();
-    VectorFeatureMapConstIter iterEndVec = m_vecFeatureMap.end();
-    for ( ; iterVec!=iterEndVec; iterVec++) {
-        out << debugLevel << (*iterVec).first << " : \t" << (*iterVec).second.size() << " entries" <<endmsg;
-    }
-    return out; 
-}
-*/
 

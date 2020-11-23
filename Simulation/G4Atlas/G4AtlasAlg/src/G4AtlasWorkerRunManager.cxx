@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Hide multi-threading classes from builds without G4MT
@@ -36,7 +36,6 @@ G4AtlasWorkerRunManager::G4AtlasWorkerRunManager()
   , m_detGeoSvc("DetectorGeometrySvc", "G4AtlasWorkerRunManager")
   , m_senDetTool("SensitiveDetectorMasterTool")
   , m_fastSimTool("FastSimulationMasterTool")
-  , m_userActionSvc("G4UA::UserActionSvc", "G4AtlasWorkerRunManager")
 {}
 
 
@@ -53,18 +52,6 @@ void G4AtlasWorkerRunManager::Initialize()
 {
   // Locking this initialization to protect currently thread-unsafe services
   std::lock_guard<std::mutex> lock(workerInitMutex);
-
-  const std::string methodName = "G4AtlasWorkerRunManager::Initialize";
-
-  // Setup the user actions for current worker thread.
-  if(m_userActionSvc.retrieve().isFailure()) {
-    throw GaudiException("Could not retrieve UserActionSvc for worker thread",
-                         methodName, StatusCode::FAILURE);
-  }
-  if(m_userActionSvc->initializeActions().isFailure()) {
-    throw GaudiException("Failed to initialize actions for worker thread",
-                         methodName, StatusCode::FAILURE);
-  }
 
   // Setup geometry and physics via the base class
   G4RunManager::Initialize();
@@ -84,6 +71,7 @@ void G4AtlasWorkerRunManager::Initialize()
   ** will have to be thoroughly reviewed.
   */
   ATH_MSG_DEBUG("G4 Command: Trying at the end of Initialize()");
+  const std::string methodName = "G4AtlasWorkerRunManager::Initialize";
   G4MTRunManager* masterRM = G4MTRunManager::GetMasterRunManager();
   std::vector<G4String> cmds = masterRM->GetCommandStack();
   G4UImanager* uimgr = G4UImanager::GetUIpointer();

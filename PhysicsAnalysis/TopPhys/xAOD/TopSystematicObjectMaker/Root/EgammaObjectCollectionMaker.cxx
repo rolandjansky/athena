@@ -276,8 +276,8 @@ namespace top {
       std::string outputSGKey = m_config->sgKeyPhotons(systematic.hash());
       std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-      xAOD::TReturnCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
+      StatusCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
+      StatusCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
 
       if (!save || !saveAux) {
         return StatusCode::FAILURE;
@@ -435,8 +435,8 @@ namespace top {
       std::string outputSGKey = m_config->sgKeyElectronsStandAlone(systematic.hash());
       std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-      xAOD::TReturnCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
+      StatusCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
+      StatusCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
 
       if (!save || !saveAux) {
         return StatusCode::FAILURE;
@@ -487,8 +487,8 @@ namespace top {
       std::string outputSGKey = m_config->sgKeyFwdElectronsStandAlone(systematic.hash());
       std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-      xAOD::TReturnCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
+      StatusCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
+      StatusCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
 
       if (!save || !saveAux) {
         return StatusCode::FAILURE;

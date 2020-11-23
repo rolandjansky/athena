@@ -1,0 +1,29 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+namespace Trk {
+
+inline std::unique_ptr<Trk::TrackSummary>
+ITrackSummaryTool::summary(const Track& track) const
+{
+  return summary(Gaudi::Hive::currentContext(), track);
+}
+
+inline std::unique_ptr<Trk::TrackSummary>
+ITrackSummaryTool::summaryNoHoleSearch(const Track& track) const
+{
+  return summaryNoHoleSearch(Gaudi::Hive::currentContext(), track);
+}
+
+inline void
+ITrackSummaryTool::updateTrack(Track& track) const
+{
+  updateTrack(Gaudi::Hive::currentContext(), track);
+}
+
+inline void
+ITrackSummaryTool::updateTrackSummary(Track& track) const
+{
+  updateTrackSummary(Gaudi::Hive::currentContext(), track);
+}
+}

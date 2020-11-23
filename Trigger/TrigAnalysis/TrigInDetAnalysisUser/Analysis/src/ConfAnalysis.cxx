@@ -245,6 +245,9 @@ void ConfAnalysis::initialiseInternal() {
   mres.push_back(  rnscth_pt_rec = new Resplot( "nscth_pt_rec", ptnbins, ptbinlims,  22, -0.5, 21.5 ) );
 
 
+  mres.push_back(  m_rnsct_vs_npix     = new Resplot( "nsct_vs_npix",     12, -0.5,  11.5,   22, -0.5, 21.5 ) );
+  mres.push_back(  m_rnsct_vs_npix_rec = new Resplot( "nsct_vs_npix_rec", 12, -0.5,  11.5,   22, -0.5, 21.5 ) );
+
   mres.push_back(  rChi2prob = new Resplot( "Chi2prob", ptnbins, ptbinlims,  20, 0,   1 ) );
   mres.push_back(  rChi2     = new Resplot( "Chi2",     ptnbins, ptbinlims, 200, 0, 100 ) );
   mres.push_back(  rChi2dof  = new Resplot( "Chi2dof",  ptnbins, ptbinlims, 100, 0,  10 ) );
@@ -1378,6 +1381,9 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
     rnpix_lb->Fill( gevent->lumi_block(), npixt*1.0 );
 
+
+    m_rnsct_vs_npix->Fill( npixt, nsctt );
+
     double                 etovpt_val = 0;
     const TrackTrigObject* tobj       = 0;
     
@@ -1916,6 +1922,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 
     double ntrtr   = testtracks[i]->trHits(); 
     double nstrawr = testtracks[i]->strawHits(); 
+
+
+    m_rnsct_vs_npix_rec->Fill( npixr, nsctr );
+
 
 #if 0
     double dpTr_b  = testtracks[i]->dpT()/1000;

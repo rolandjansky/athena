@@ -27,11 +27,10 @@ public:
     }
 
     // enter declaration of your interface-defining member functions here
+    // bool decodeSL - Used to determine whether sector logic is being decoded too
     virtual StatusCode fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, 
-                         RpcPadContainer& rdoIdc,
-			 const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer*) const = 0;
+                         			   RpcPadContainer& rdoIdc, const std::vector<IdentifierHash> &collections, RpcSectorLogicContainer*, const bool& decodeSL) const = 0;
 
-    virtual void setSLdecodingRequest() = 0;
 };
 
 } // end of namespace

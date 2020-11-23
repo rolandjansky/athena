@@ -86,8 +86,7 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const EventContext& ctx) const
 
 StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
                                                   const std::vector<IdentifierHash>& /* collections */){
-  const CSC_RawDataProviderTool* cthis = this;
-  return cthis->convert (vecRobs, Gaudi::Hive::currentContext());
+  return this->convert (vecRobs, Gaudi::Hive::currentContext());
 }
 
 StatusCode

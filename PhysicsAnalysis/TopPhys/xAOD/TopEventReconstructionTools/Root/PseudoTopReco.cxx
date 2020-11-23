@@ -118,8 +118,8 @@ namespace top {
     }
     std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-    xAOD::TReturnCode save = evtStore()->tds()->record(pseudoTop, outputSGKey);
-    xAOD::TReturnCode saveAux = evtStore()->tds()->record(pseudoTopAuxCont, outputSGKeyAux);
+    StatusCode save = evtStore()->tds()->record(pseudoTop, outputSGKey);
+    StatusCode saveAux = evtStore()->tds()->record(pseudoTopAuxCont, outputSGKeyAux);
     if (!save || !saveAux) {
       return StatusCode::FAILURE;
     }
@@ -182,8 +182,8 @@ namespace top {
     std::string outputSGKey = m_config->sgKeyPseudoTop(0);
     std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-    xAOD::TReturnCode save = evtStore()->tds()->record(pseudoTop, outputSGKey);
-    xAOD::TReturnCode saveAux = evtStore()->tds()->record(pseudoTopAuxCont, outputSGKeyAux);
+    StatusCode save = evtStore()->tds()->record(pseudoTop, outputSGKey);
+    StatusCode saveAux = evtStore()->tds()->record(pseudoTopAuxCont, outputSGKeyAux);
     if (!save || !saveAux) {
       return StatusCode::FAILURE;
     }

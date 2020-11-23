@@ -16,6 +16,8 @@
 // EDM include(s):
 #include "AthContainers/AuxVectorBase.h"
 
+#include "AsgMessaging/MessageCheck.h"
+
 // Local include(s):
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
@@ -23,19 +25,22 @@
 
 int main() {
 
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+
    // The application's name:
    static const char* APP_NAME = "ut_xaodrootaccess_remap_test";
 
    // Initialise the environment:
-   RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
+   ANA_CHECK( xAOD::Init( APP_NAME ) );
 
    // Create the object(s) used for the testing:
    xAOD::TEvent event;
 
    // Declare some name remappings:
-   RETURN_CHECK( APP_NAME, event.addNameRemap( "Muons",
+   ANA_CHECK( event.addNameRemap( "Muons",
                                                "MyMuons" ) );
-   RETURN_CHECK( APP_NAME, event.addNameRemap( "Taus", "MyTaus" ) );
+   ANA_CHECK( event.addNameRemap( "Taus", "MyTaus" ) );
 
    // Print the definitions:
    event.printNameRemap();
@@ -47,7 +52,7 @@ int main() {
       ::Error( APP_NAME, XAOD_MESSAGE( "Couldn't open file %s" ), FNAME );
       return 1;
    }
-   RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
+   ANA_CHECK( event.readFrom( ifile.get() ) );
 
    // Load the first event:
    if( event.getEntry( 0 ) < 0 ) {
@@ -58,8 +63,8 @@ int main() {
 
    // Retrieve a DataVector using an alias, and the actual name:
    const SG::AuxVectorBase* vec = 0;
-   RETURN_CHECK( APP_NAME, event.retrieve( vec, "Muons" ) );
-   RETURN_CHECK( APP_NAME, event.retrieve( vec, "MyMuons" ) );
+   ANA_CHECK( event.retrieve( vec, "Muons" ) );
+   ANA_CHECK( event.retrieve( vec, "MyMuons" ) );
 
    // Create a dummy, temporary file to test the object copying:
    TUUID uuid;
@@ -72,10 +77,10 @@ int main() {
                tempFName.Data() );
       return 1;
    }
-   RETURN_CHECK( APP_NAME, event.writeTo( ofile.get() ) );
+   ANA_CHECK( event.writeTo( ofile.get() ) );
 
    // Copy the electrons to the output:
-   RETURN_CHECK( APP_NAME, event.copy( "MyMuons" ) );
+   ANA_CHECK( event.copy( "MyMuons" ) );
 
    // Write the event:
    if( event.fill() < 0 ) {
@@ -85,7 +90,7 @@ int main() {
    }
 
    // Finish writing to the file:
-   RETURN_CHECK( APP_NAME, event.finishWritingTo( ofile.get() ) );
+   ANA_CHECK( event.finishWritingTo( ofile.get() ) );
 
    ::TTree* otree = dynamic_cast< ::TTree* >( ofile->Get( "CollectionTree" ) );
    if( ! otree ) {
@@ -96,7 +101,7 @@ int main() {
    otree->Print();
 
    // Now start reading from this temporary file to test its health:
-   RETURN_CHECK( APP_NAME, event.readFrom( ofile.get() ) );
+   ANA_CHECK( event.readFrom( ofile.get() ) );
 
    // Load the first, and only event:
    if( event.getEntry( 0 ) < 0 ) {
@@ -106,7 +111,7 @@ int main() {
    }
 
    // Retrieve a DataVector using the actual name this time:
-   RETURN_CHECK( APP_NAME, event.retrieve( vec, "MyMuons" ) );
+   ANA_CHECK( event.retrieve( vec, "MyMuons" ) );
 
    // And this should fail:
    if( event.retrieve( vec, "Muons" ).isSuccess() ) {

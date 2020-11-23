@@ -16,7 +16,7 @@
 #include "xAODCore/AuxSelection.h"
 
 // Local include(s):
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include "Rtypes.h"
 
@@ -70,7 +70,7 @@ namespace xAOD {
       /// Get what structure mode the object was constructed with
       EStructMode structMode() const;
       /// Set the structure mode of the object to a new value
-      TReturnCode setStructMode( EStructMode mode );
+      StatusCode setStructMode( EStructMode mode );
 
       /// Get the currently configured branch name prefix
       const char* prefix() const;
@@ -93,9 +93,9 @@ namespace xAOD {
       void setSplitLevel( Int_t value );
 
       /// Connect the object to an input TTree
-      TReturnCode readFrom( ::TTree* tree, ::Bool_t printWarnings = kTRUE );
+      StatusCode readFrom( ::TTree* tree, ::Bool_t printWarnings = kTRUE );
       /// Connect the object to an output TTree
-      TReturnCode writeTo( ::TTree* tree );
+      StatusCode writeTo( ::TTree* tree );
 
       /// Read the values from the specified TTree entry
       Int_t getEntry( Long64_t entry, Int_t getall = 0 );
@@ -180,15 +180,15 @@ namespace xAOD {
    private:
       /// Function used for setting up the statistics info about the managed
       /// branches
-      TReturnCode initStats( ::TTree* tree );
+      StatusCode initStats( ::TTree* tree );
       /// Connect a variable to the input tree
-      TReturnCode setupInputData( auxid_t auxid ) const;
+      StatusCode setupInputData( auxid_t auxid ) const;
       /// Connect a variable to the output tree
-      TReturnCode setupOutputData( auxid_t auxid ) const;
+      StatusCode setupOutputData( auxid_t auxid ) const;
       /// Scan the input TTree for auxiliary branches
-      TReturnCode scanInputTree();
+      StatusCode scanInputTree();
       /// Register one input branch as an available auxiliary variable
-      TReturnCode setupAuxBranch( ::TBranch* br, const char* auxName,
+      StatusCode setupAuxBranch( ::TBranch* br, const char* auxName,
                                   ::Bool_t staticBranch );
       /// Check if this auxiliary variable needs to go to the output
       ::Bool_t isAuxIDSelected( auxid_t auxid ) const;

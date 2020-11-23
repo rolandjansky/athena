@@ -211,11 +211,8 @@ def generateChains( flags, chainDict ):
 
     acc.addEventAlgo(l2muFastHypo, sequenceName=stepView.getName())
 
-    l2muFastSequence = CAMenuSequence( Sequence = reco.sequence(),
-                                     Maker = reco.inputMaker(),
-                                     Hypo = l2muFastHypo,
-                                     HypoToolGen = TrigMufastHypoToolFromDict,
-                                     CA = acc )
+    l2muFastSequence = CAMenuSequence(acc, 
+                                      HypoToolGen = TrigMufastHypoToolFromDict )
 
     l2muFastStep = ChainStep( name=stepName, Sequences=[l2muFastSequence], chainDicts=[chainDict] )
 
@@ -240,17 +237,14 @@ def generateChains( flags, chainDict ):
 
         accL2CB.merge(recoL2CB, sequenceName = stepL2CBReco.getName())
 
-        l2muCombHypo = l2MuCombHypoCfg( flags,
-                                        name = 'TrigL2MuCombHypo',
-                                        muCombInfo = 'HLT_MuonL2CBInfo' )
+        l2muCombHypo = l2MuCombHypoCfg(flags,
+                                       name = 'TrigL2MuCombHypo',
+                                       muCombInfo = 'HLT_MuonL2CBInfo' )
 
         accL2CB.addEventAlgo(l2muCombHypo, sequenceName=stepL2CBView.getName())
 
-        l2muCombSequence = CAMenuSequence( Sequence = recoL2CB.sequence(),
-                                           Maker = recoL2CB.inputMaker(),
-                                           Hypo = l2muCombHypo,
-                                           HypoToolGen = TrigmuCombHypoToolFromDict,
-                                           CA = accL2CB )
+        l2muCombSequence = CAMenuSequence(accL2CB,
+                                          HypoToolGen = TrigmuCombHypoToolFromDict)
 
         l2muCombStep = ChainStep( name=stepL2CBName, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
 
@@ -323,11 +317,8 @@ def generateChains( flags, chainDict ):
 
         accMS.addEventAlgo(efmuMSHypo, sequenceName=stepEFMSView.getName())
 
-        efmuMSSequence = CAMenuSequence( Sequence = recoMS.sequence(),
-                                         Maker = recoMS.inputMaker(),
-                                         Hypo = efmuMSHypo,
-                                         HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict,
-                                         CA = accMS )
+        efmuMSSequence = CAMenuSequence(accMS,
+                                        HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
 
         efmuMSStep = ChainStep( name=stepEFMSName, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 

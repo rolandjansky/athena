@@ -5,7 +5,7 @@
 # art-include: master/Athena
 # art-athena-mt: 8
 # art-output: runOne
-# art-output: tunTwo
+# art-output: runTwo
 
 preExecStringOne="RAWtoESD:from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False);from AthenaMonitoring.DQMonFlags import jobproperties;jobproperties.DQMonFlagsCont.doMonitoring.set_Value_and_Lock(False)"
 preExecStringTwo="ESDtoAOD:from RecExConfig.RecFlags import rec;rec.doTrigger.set_Value_and_Lock(False)"

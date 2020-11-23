@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATTRACKBUILDER_H
@@ -7,7 +7,7 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -18,13 +18,13 @@
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-class MuPatTrackBuilder : public AthReentrantAlgorithm
+class MuPatTrackBuilder : public AthAlgorithm
 {
  public:
- using AthReentrantAlgorithm::AthReentrantAlgorithm;
+ using AthAlgorithm::AthAlgorithm;
  public:
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& ctx) const override;
+  virtual StatusCode execute() override;
 
  private:
 

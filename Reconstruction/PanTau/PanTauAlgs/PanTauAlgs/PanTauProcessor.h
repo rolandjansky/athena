@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -26,10 +26,6 @@
 #include "PanTauAlgs/ITool_DetailsArranger.h"
 #include "PanTauAlgs/ITool_PanTauTools.h"
 
-//#include "PanTauAlgs/PanTauSeedContainer.h"
-
-
-
 namespace PanTau 
 {
 
@@ -47,7 +43,6 @@ namespace PanTau
     {
     public:
 
-      // as in https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/tauRecTools/trunk/tauRecTools/TauCalibrateLC.h
        ASG_TOOL_CLASS2( PanTauProcessor, TauRecToolBase, ITauToolBase )
 
        PanTauProcessor(const std::string& name);
@@ -57,11 +52,7 @@ namespace PanTau
        virtual StatusCode finalize();
        virtual StatusCode executePanTau(xAOD::TauJet& pTau, xAOD::ParticleContainer& pi0Container);
        
-       virtual void print() const { }
-
     private:
-        
-       //mutable MsgStream                                   m_log;
         
         std::string                                         m_Name_InputAlg;
         
@@ -84,8 +75,6 @@ namespace PanTau
         //Tools used in seed finalizing
         std::string               m_Tool_DecayModeDeterminatorName;
         std::string               m_Tool_DetailsArrangerName;
-
-	
         
         std::vector<double>                                 m_Config_PtBins;
         double                                              m_Config_MinPt;

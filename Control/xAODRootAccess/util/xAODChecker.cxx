@@ -12,6 +12,8 @@
 #include <TFile.h>
 #include <TError.h>
 
+#include "AsgMessaging/MessageCheck.h"
+
 // Local include(s):
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
@@ -19,6 +21,9 @@
 #include "xAODRootAccess/tools/ReturnCheck.h"
 
 int main( int argc, char* argv[] ) {
+
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
 
    // The application's name:
    const char* APP_NAME = argv[ 0 ];
@@ -31,7 +36,7 @@ int main( int argc, char* argv[] ) {
    }
 
    // Initialise the application's environment:
-   RETURN_CHECK( APP_NAME, xAOD::Init() );
+   ANA_CHECK( xAOD::Init() );
 
    // The object used in the checks:
    xAOD::TFileChecker checker;
@@ -59,10 +64,10 @@ int main( int argc, char* argv[] ) {
 
       // Set up reading from the file:
       xAOD::TEvent event;
-      RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
+      ANA_CHECK( event.readFrom( ifile.get() ) );
 
       // Run the sanity checks:
-      RETURN_CHECK( APP_NAME, checker.check( event ) );
+      ANA_CHECK( checker.check( event ) );
    }
 
    // Return gracefully:

@@ -29,7 +29,7 @@ namespace xAOD {
 
    }
 
-   TReturnCode TTreeMgr::readFrom( ::TFile* file, ::Bool_t useTreeCache,
+   StatusCode TTreeMgr::readFrom( ::TFile* file, ::Bool_t useTreeCache,
                                    const char* treeName ) {
 
       // Delete the current transient tree(s):
@@ -44,17 +44,17 @@ namespace xAOD {
          ::Error( "xAOD::TTreeMgr::readFrom",
                   "Couldn't load the first event from file \"%s\"",
                   file->GetName() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Remember the event tree name:
       m_eventTreeName = treeName;
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode
+   StatusCode
    TTreeMgr::enableEventObj( const std::vector< std::string >& names ) {
 
       // If the event tree already exists, this call will have no effect:
@@ -62,17 +62,17 @@ namespace xAOD {
          ::Warning( "xAOD::TTreeMgr::enableEventObj",
                     "Event tree already created, can't filter its contents "
                     "anymore" );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Remember the selection:
       m_enableEventObj = names;
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode
+   StatusCode
    TTreeMgr::suppressEventObj( const std::vector< std::string >& names ) {
 
       // If the event tree already exists, this call will have no effect:
@@ -80,17 +80,17 @@ namespace xAOD {
          ::Warning( "xAOD::TTreeMgr::suppressEventObj",
                     "Event tree already created, can't filter its contents "
                     "anymore" );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Remember the selection:
       m_suppressEventObj = names;
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode
+   StatusCode
    TTreeMgr::enableMetaObj( const std::vector< std::string >& names ) {
 
       // If the metadata tree already exists, this call will have no effect:
@@ -98,17 +98,17 @@ namespace xAOD {
          ::Warning( "xAOD::TTreeMgr::enableMetaObj",
                     "Metadata tree already created, can't filter its contents "
                     "anymore" );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Remember the selection:
       m_enableMetaObj = names;
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode
+   StatusCode
    TTreeMgr::suppressMetaObj( const std::vector< std::string >& names ) {
 
       // If the metadata tree already exists, this call will have no effect:
@@ -116,14 +116,14 @@ namespace xAOD {
          ::Warning( "xAOD::TTreeMgr::suppressMetaObj",
                     "Metadata tree already created, can't filter its contents "
                     "anymore" );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Remember the selection:
       m_suppressMetaObj = names;
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    ::TTree* TTreeMgr::eventTree() {

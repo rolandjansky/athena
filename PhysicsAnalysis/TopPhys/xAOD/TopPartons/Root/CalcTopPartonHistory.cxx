@@ -29,7 +29,7 @@ namespace top {
     }
     
     //we give control of the container to the store, because in this way we are able to retrieve it as a const data vector, see https://twiki.cern.ch/twiki/bin/view/AtlasComputing/DataVector#ConstDataVector
-    xAOD::TReturnCode save = evtStore()->tds()->record(out_cont,out_contName);
+    StatusCode save = evtStore()->tds()->record(out_cont,out_contName);
     if (!save) return StatusCode::FAILURE;
 
     return StatusCode::SUCCESS;
@@ -663,8 +663,8 @@ namespace top {
     std::string outputSGKey = m_config->sgKeyTopPartonHistory();
     std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-    xAOD::TReturnCode save = evtStore()->tds()->record(partonCont, outputSGKey);
-    xAOD::TReturnCode saveAux = evtStore()->tds()->record(partonAuxCont, outputSGKeyAux);
+    StatusCode save = evtStore()->tds()->record(partonCont, outputSGKey);
+    StatusCode saveAux = evtStore()->tds()->record(partonAuxCont, outputSGKeyAux);
     if (!save || !saveAux) {
       return StatusCode::FAILURE;
     }

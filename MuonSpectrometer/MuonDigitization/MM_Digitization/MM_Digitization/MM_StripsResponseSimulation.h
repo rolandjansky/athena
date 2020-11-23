@@ -106,6 +106,8 @@ public :
   bool msgLvl(const MSG::Level lvl) const { return m_msg.get().level() <= lvl ; }
   void setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
 
+  inline void writeOutputFile(bool val) {m_writeOutputFile = val;}
+
 private:
 
   /** qThreshold=2e, we accept a good strip if the charge is >=2e */

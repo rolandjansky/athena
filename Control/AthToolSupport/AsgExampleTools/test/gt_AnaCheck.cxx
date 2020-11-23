@@ -64,7 +64,7 @@ namespace asg
   {
     checkType<StatusCode> (StatusCode::SUCCESS, StatusCode::FAILURE, StatusCode::FAILURE, [] (const StatusCode& sc) -> bool {return sc.isSuccess();});
 #ifdef ROOTCORE
-    checkType<xAOD::TReturnCode> (xAOD::TReturnCode::kSuccess, xAOD::TReturnCode::kFailure, xAOD::TReturnCode::kRecoverable, [] (const xAOD::TReturnCode& sc) -> bool {return sc.isSuccess();});
+    checkType<StatusCode> (StatusCode::SUCCESS, StatusCode::FAILURE, StatusCode::RECOVERABLE, [] (const StatusCode& sc) -> bool {return sc.isSuccess();});
 #endif
     checkType<bool> (true, false, false, [] (const bool& sc) -> bool {return sc;});
   }

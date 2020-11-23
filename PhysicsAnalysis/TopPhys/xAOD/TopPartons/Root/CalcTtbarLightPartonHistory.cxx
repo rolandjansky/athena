@@ -154,8 +154,8 @@ namespace top {
     std::string outputSGKey = m_config->sgKeyTopPartonHistory();
     std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-    xAOD::TReturnCode save = evtStore()->tds()->record(partonCont, outputSGKey);
-    xAOD::TReturnCode saveAux = evtStore()->tds()->record(partonAuxCont, outputSGKeyAux);
+    StatusCode save = evtStore()->tds()->record(partonCont, outputSGKey);
+    StatusCode saveAux = evtStore()->tds()->record(partonAuxCont, outputSGKeyAux);
     if (!save || !saveAux) {
       return StatusCode::FAILURE;
     }

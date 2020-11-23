@@ -12,6 +12,8 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 
+#include "AsgMessaging/MessageCheck.h"
+
 // Local include(s):
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TAuxStore.h"
@@ -30,11 +32,14 @@
 
 int main() {
 
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+
    // The name of the application:
    const char* APP_NAME = "ut_xaodrootaccess_tauxstore_test";
 
    // Initialise the environment:
-   RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
+   ANA_CHECK( xAOD::Init( APP_NAME ) );
 
    // Reference to the auxiliary type registry:
    SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
@@ -67,7 +72,7 @@ int main() {
    store.lock();
 
    // Connect it to this transient input tree:
-   RETURN_CHECK( APP_NAME, store.readFrom( itree.get() ) );
+   ANA_CHECK( store.readFrom( itree.get() ) );
 
    // Check that it found the two variables that it needed to:
    ::Info( APP_NAME, "Auxiliary variables found on the input:" );
@@ -124,7 +129,7 @@ int main() {
    otree->SetDirectory( 0 );
 
    // Connect the store object to the tree:
-   RETURN_CHECK( APP_NAME, store.writeTo( otree.get() ) );
+   ANA_CHECK( store.writeTo( otree.get() ) );
 
    // Create the decoration again:
    SIMPLE_ASSERT( store.getDecoration( decId, 5, 5 ) != 0 );

@@ -42,20 +42,20 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   std::vector<VecAccumulator2DMap> error_maps_per_state;
   error_maps_per_state.reserve(kNumErrorStatesFEI3 + kNumErrorStatesFEI4);
   for (const auto& state : error_names_stateFEI3) {
-    error_maps_per_state.emplace_back(state + std::string("_Map"));
+    error_maps_per_state.emplace_back( state + std::string("Map"), true );
   }
   for (const auto& state : error_names_stateFEI4) {
-    error_maps_per_state.emplace_back(state + std::string("_Map"));
+    error_maps_per_state.emplace_back( state + std::string("Map"), true );
   }
   std::vector<VecAccumulator2DMap> error_maps_per_cat_rodmod; 
   // only first four rodmod histos are unique, others are covered by 
   // the overall, rod/mod-agnostic categories below
   for (unsigned int cat = 0; cat < ErrorCategoryRODMOD::kTruncROD+1; ++cat) {
-    error_maps_per_cat_rodmod.emplace_back(error_names_cat_rodmod[cat]);
+    error_maps_per_cat_rodmod.emplace_back( error_names_cat_rodmod[cat], true );
   }
   std::vector<VecAccumulator2DMap> error_maps_per_cat;
   for (unsigned int cat = 0; cat < ErrorCategory::COUNT; ++cat) {
-    error_maps_per_cat.emplace_back(error_names_cat[cat]);
+    error_maps_per_cat.emplace_back( error_names_cat[cat], true );
   }
 
   // containers to keep IBL service records info
@@ -74,10 +74,10 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   float num_errormodules_per_cat_rodmod[ErrorCategoryRODMOD::COUNT][PixLayers::COUNT] = {{0}};
 
   // Generate femcc_errwords and per LB maps, all _per module_, including IBL.
-  VecAccumulator2DMap femcc_errwords_maps("femcc_errorwords", true);
-  VecAccumulator2DMap all_errors_maps("Errors_LB", true);
-  VecAccumulator2DMap modsync_errors_maps("Errors_ModSync_LB", true);
-  VecAccumulator2DMap rodsync_errors_maps("Errors_RODSync_LB", true);
+  VecAccumulator2DMap femcc_errwords_maps("FEMCCErrorwords", true);
+  VecAccumulator2DMap all_errors_maps("ErrorsLB", true);
+  VecAccumulator2DMap modsync_errors_maps("ErrorsModSyncLB", true);
+  VecAccumulator2DMap rodsync_errors_maps("ErrorsRODSyncLB", true);
 
   //====================================================================================
   // This is an example how to read the Error informaiton.
@@ -276,10 +276,10 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   for (unsigned int state = 0; state < kNumErrorStatesFEI3+kNumErrorStatesFEI4; state++) {
     if ( state < kNumErrorStatesFEI3 ) {
       fill2DProfLayerAccum(error_maps_per_state[state]);
-      fill1DProfLumiLayers(error_names_stateFEI3[state] + std::string("_per_lumi"), lb, num_errors_per_state[state], PixLayers::NFEI3LAYERS);
+      fill1DProfLumiLayers(error_names_stateFEI3[state] + std::string("PerLumi"), lb, num_errors_per_state[state], PixLayers::NFEI3LAYERS);
     } else {
       fill2DProfLayerAccum(error_maps_per_state[state]);
-      fill1DProfLumiLayers(error_names_stateFEI4[state-kNumErrorStatesFEI3] + std::string("_per_lumi"), lb, num_errors_per_state[state-kNumErrorStatesFEI3], PixLayers::COUNT - PixLayers::NFEI3LAYERS);
+      fill1DProfLumiLayers(error_names_stateFEI4[state-kNumErrorStatesFEI3] + std::string("PerLumi"), lb, num_errors_per_state[state-kNumErrorStatesFEI3], PixLayers::COUNT - PixLayers::NFEI3LAYERS);
     }
   }
   // Fill the accumulated maps
@@ -297,15 +297,15 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
     }
   }
   // Fill the luminosity error profiles for all layers.
-  fill1DProfLumiLayers("errors_per_lumi", lb, num_errors);
+  fill1DProfLumiLayers("ErrorsPerLumi", lb, num_errors);
 
   auto vals = Monitored::Collection( "ServiceRecord_val", flagged_ibl_error_bits );
   auto wgts = Monitored::Collection( "ServiceRecord_wgt", weights_of_flagged_ibl_error_bits );
   fill( errorGroup, vals, wgts);
 
   // Fill 2D luminosity error profiles per error bit and cat split by ROD/MOD for all layers.
-  fill2DProfLumiLayers("ErrorState_per_lumi", lb, num_errors_per_state, numErrorStatesLayer);
-  fill2DProfLumiLayers("ErrorCatRODMod_per_lumi", lb, num_errormodules_per_cat_rodmod, numErrorCatRODModsLayer);
+  fill2DProfLumiLayers("ErrorStatePerLumi", lb, num_errors_per_state, numErrorStatesLayer);
+  fill2DProfLumiLayers("ErrorCatRODModPerLumi", lb, num_errormodules_per_cat_rodmod, numErrorCatRODModsLayer);
 
   // Fill 1D luminosity error profiles for error catergory for all layers.
   for (unsigned int cat = 0; cat < error_names_cat_rodmod_norm.size(); ++cat) {

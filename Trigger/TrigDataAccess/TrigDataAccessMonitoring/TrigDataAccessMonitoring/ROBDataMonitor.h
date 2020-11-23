@@ -48,14 +48,6 @@ namespace robmonitor {
      */                                   
     ROBDataStruct(const uint32_t);
 
-    ROBDataStruct(const ROBDataStruct&) = default;
-
-    ROBDataStruct(ROBDataStruct&&) noexcept = default;
-
-    ROBDataStruct& operator=(const ROBDataStruct&) = default;
-
-    ROBDataStruct& operator=(ROBDataStruct&&) noexcept = default;
-
     // data variables
     uint32_t rob_id;                           // rob source id
     uint32_t rob_size;                         // size of rob in words
@@ -108,12 +100,26 @@ namespace robmonitor {
      */                                   
     ROBDataMonitorStruct(const uint32_t, const std::vector<uint32_t>&, const std::string);
 
+    ROBDataMonitorStruct(const ROBDataMonitorStruct&) = default;
+
+    ROBDataMonitorStruct(ROBDataMonitorStruct&&) noexcept = default;
+
+    ROBDataMonitorStruct& operator=(const ROBDataMonitorStruct&) = default;
+
+    ROBDataMonitorStruct& operator=(ROBDataMonitorStruct&&) noexcept = default;
+
     // data variables
     uint32_t lvl1ID;                                                    //current L1 ID from L1 ROBs
     std::string requestor_name;                                         //name of requesting algorithm
     std::map<const uint32_t,robmonitor::ROBDataStruct> requested_ROBs;  //map of ROBs requested
+
+    // Legacy timestamps
     struct timeval start_time_of_ROB_request;                           //start time of ROB request 
     struct timeval end_time_of_ROB_request;                             //stop  time of ROB request
+
+    // Run3 TrigTimeStamp
+    uint64_t start_time;                                                //start time of ROB request
+    uint64_t end_time;                                                 //stop  time of ROB request
 
     // Accessor functions to ROB history summaries
     /** @brief number of ROBs in structure */
@@ -139,7 +145,7 @@ namespace robmonitor {
     float elapsedTime() const;
 
     // Extraction operators
-    friend std::ostream& operator<<(std::ostream& os, robmonitor::ROBDataMonitorStruct& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const robmonitor::ROBDataMonitorStruct& rhs);
   };
 
   // Extraction operator for ROBDataStruct 
@@ -177,7 +183,7 @@ namespace robmonitor {
   }
 
   // Extraction operator for ROBDataMonitorStruct
-  inline std::ostream& operator<<(std::ostream& os, robmonitor::ROBDataMonitorStruct& rhs) {
+  inline std::ostream& operator<<(std::ostream& os, const robmonitor::ROBDataMonitorStruct& rhs) {
     std::string prefix("   ");
     std::string prefix2("-> ");
     os << "ROB Request for L1 ID = " << std::dec << rhs.lvl1ID << " (decimal), L1 ID = 0x" 
@@ -207,7 +213,7 @@ namespace robmonitor {
     os << "\n" << prefix << prefix2 << "Disabled     " << rhs.disabledROBs()     ;
     os << "\n" << prefix << prefix2 << "Scheduled     " << rhs.scheduledROBs()     ;
     os << "\n" << prefix << prefix2 << "Status OK    " << rhs.statusOkROBs()     ;
-    for (std::map<const uint32_t,robmonitor::ROBDataStruct>::iterator it=rhs.requested_ROBs.begin();
+    for (std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it=rhs.requested_ROBs.begin();
 	 it != rhs.requested_ROBs.end(); ++it) {
       os << "\n" << prefix << prefix2 << (*it).second;
     }

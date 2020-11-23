@@ -135,47 +135,57 @@ class OverlapDescriptor;
                                                  const BoundaryCheck& bcheck,
                                                  bool resolveSubSurfaces = 0,
                                                  const ICompatibilityEstimator* ice = nullptr) const override;
-        
-       /** move the Layer */
-       virtual void moveLayer ( Amg::Transform3D& shift ) override;
- 
-       /** move the Layer */
-       virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
-           const_cast<CylinderLayer*>(this)->moveLayer(shift);
-       }
-     
-     private:   
-       /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */ 
-       virtual void resizeLayer(const VolumeBounds& vBounds, double envelope) override;        
-   
-       /** Resize the layer to the tracking volume - only works for CylinderVolumeBouns */
-       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
-                                                      double envelope) const override
+
+        /** move the Layer */
+        virtual void moveLayer(Amg::Transform3D& shift) override final;
+
+        /** move the Layer */
+        virtual void moveLayer
+        ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final
+        {
+          const_cast<CylinderLayer*>(this)->moveLayer(shift);
+        }
+
+     private:
+       /** Resize the layer to the tracking volume - only works for
+        * CylinderVolumeBouns */
+       virtual void resizeLayer(const VolumeBounds& vBounds,
+                                double envelope) override final;
+
+       /** Resize the layer to the tracking volume - only works for
+        * CylinderVolumeBouns */
+       virtual void resizeLayer
+       ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
+                             double envelope) const override final
        {
-         const_cast<CylinderLayer*>(this)->resizeLayer(vBounds,envelope);
+         const_cast<CylinderLayer*>(this)->resizeLayer(vBounds, envelope);
        }
 
        /** Resize the layer to the tracking volume */
        virtual void resizeAndRepositionLayer(const VolumeBounds& vBounds,
                                              const Amg::Vector3D& cCenter,
-                                             double envelope) override;
+                                             double envelope) override final;
 
        /** Resize the layer to the tracking volume */
        virtual void resizeAndRepositionLayer
        ATLAS_NOT_THREAD_SAFE(const VolumeBounds& vBounds,
                              const Amg::Vector3D& cCenter,
-                             double envelope) const override
+                             double envelope) const override final
        {
-         const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(vBounds,cCenter,envelope);
+         const_cast<CylinderLayer*>(this)->resizeAndRepositionLayer(
+           vBounds, cCenter, envelope);
        }
+
+       /** Surface seen on approach - if not defined differently, it is the
+        * surfaceRepresentation() */
+       const Surface& approachSurface(
+         const Amg::Vector3D& pos,
+         const Amg::Vector3D& dir,
+         const BoundaryCheck& bcheck) const;
 
        /** build approach surfaces */
        void buildApproachDescriptor();
-       
-       /** Surface seen on approach - if not defined differently, it is the surfaceRepresentation() */
-       const Surface& approachSurface(const Amg::Vector3D& pos,
-                                      const Amg::Vector3D& dir,
-                                      const BoundaryCheck& bcheck) const;
+
 
      protected:
        /** surfaces on approach to the layer */

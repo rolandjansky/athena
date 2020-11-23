@@ -52,25 +52,25 @@ Trk::ParametersBase<DIM, T>::ParametersBase(const AmgVector(DIM) & parameters,
 {}
 
 template<int DIM, class T>
-const AmgVector(DIM)& ParametersBase<DIM, T>::parameters() const
+  const AmgVector(DIM) & ParametersBase<DIM, T>::parameters() const
 {
   return m_parameters;
 }
 
 template<int DIM, class T>
-AmgVector(DIM)& ParametersBase<DIM, T>::parameters()
+  AmgVector(DIM) & ParametersBase<DIM, T>::parameters()
 {
   return m_parameters;
 }
 
 template<int DIM, class T>
-const AmgSymMatrix(DIM)* ParametersBase<DIM, T>::covariance() const
+  const AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance() const
 {
   return m_covariance.get();
 }
 
 template<int DIM, class T>
-AmgSymMatrix(DIM)* ParametersBase<DIM, T>::covariance()
+  AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance()
 {
   return m_covariance.get();
 }
@@ -105,6 +105,25 @@ Amg::Vector2D
 ParametersBase<DIM, T>::localPosition() const
 {
   return Amg::Vector2D(parameters()[Trk::loc1], parameters()[Trk::loc2]);
+}
+
+template<int DIM, class T>
+void
+ParametersBase<DIM, T>::setParameters(const AmgVector(DIM) & param)
+{
+  m_parameters = param;
+}
+
+template<int DIM, class T>
+void
+ParametersBase<DIM, T>::setCovariance(const AmgSymMatrix(DIM) & cov)
+{
+  // if the covariance is there update in place
+  if (m_covariance) {
+    (*m_covariance) = cov;
+  } else { // otherwise create one
+    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(cov);
+  }
 }
 
 template<int DIM, class T>

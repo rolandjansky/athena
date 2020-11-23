@@ -7,7 +7,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "TrkTrack/Track.h" //used in the included icc file
+#include "TrkTrack/Track.h"               //used in the included icc file
 #include "TrkTrackSummary/TrackSummary.h" //used in the included icc file
 
 #include "TRT_ElectronPidTools/ITRT_ToT_dEdx.h" //template parameter to tool handle
@@ -16,10 +16,9 @@
 #include "TrkToolInterfaces/ITRT_ElectronPidTool.h" //template parameter to tool handle
 
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
-#include <vector>
-#include <memory> //unique_ptr
 #include <bitset>
-
+#include <memory> //unique_ptr
+#include <vector>
 
 class EventContext;
 class AtlasDetectorID;
@@ -28,7 +27,8 @@ class Identifier;
 namespace Trk {
 
 /** @enum flag the methods for the probability calculation */
-enum TRT_ElectronPidProbability{
+enum TRT_ElectronPidProbability
+{
   Combined = 0,
   HighThreshold = 1,
   TimeOverThreshold = 2,
@@ -61,10 +61,16 @@ public:
    * search is performed according to the settings of the ID and muon hole
    * search properties unless the suppress_hole_search argument is true.
    */
+  using IExtendedTrackSummaryTool::computeAndReplaceTrackSummary;
+  using IExtendedTrackSummaryTool::summary;
+  using IExtendedTrackSummaryTool::summaryNoHoleSearch;
+  using IExtendedTrackSummaryTool::updateTrack;
+  
   virtual void computeAndReplaceTrackSummary(
+    const EventContext& ctx,
     Track& track,
     const Trk::PRDtoTrackMap* pPrdToTrackMap,
-    bool suppress_hole_search = false) const override;
+    bool suppress_hole_search = false) const override final;
 
   /** Same behavious as
    * IExtendedTrackSummaryTool:computeAndReplaceTrackSummary
@@ -72,14 +78,16 @@ public:
    * Trk::PRDtoTrackMap
    * Does hole search
    */
-  virtual void updateTrack(Track& track) const override;
-  
+  virtual void updateTrack(const EventContext& ctx,
+                           Track& track) const override final;
+
   /* Start from a copy of the existing input track summary if there,
    * otherwise start from a new one. Fill it and return it.
    * Does not modify the const track.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
-    const Track& track) const override;
+    const EventContext& ctx,
+    const Track& track) const override final;
 
   /* Start from a copy of the existing input track summary if there,
    * otherwise start from a new one. Fill it and return it.
@@ -87,47 +95,51 @@ public:
    * Does not modify the const track.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
-    const Track& track) const override;
+    const EventContext& ctx,
+    const Track& track) const override final;
 
   /* Start from a copy of the existing input track summary if there,
    * otherwise start from a new one. Fill it and return it.
    * Does not modify the const track.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
+    const EventContext& ctx,
     const Track& track,
-    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override;
-  
+    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override final;
+
   /* Start from a copy of the existing input track summary if there,
    * otherwise start from a new one. Fill it and return it.
    * but without doing the hole search.
    * Does not modify the const track.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
+    const EventContext& ctx,
     const Track& track,
-    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override;
+    const Trk::PRDtoTrackMap* pPrdToTrackMap) const override final;
 
   /** method which can be used to update the summary of a track
-   * it, without doing shared hit/ or hole search. 
+   * it, without doing shared hit/ or hole search.
    * If a summary is present it is  modified in place.
    * Otherwise a new one is created and filled.
    */
-  virtual void updateTrackSummary(Track& track) const override;
+  virtual void updateTrackSummary(const EventContext& ctx,
+                                  Track& track) const override final;
 
   /** method which can be used to update the summary of a track
    * If a summary is present it is  modified in place.
    * Otherwise a new one is created and filled.
    */
   virtual void updateTrackSummary(
+    const EventContext& ctx,
     Track& track,
     const Trk::PRDtoTrackMap* pPrdToTrackMap,
-    bool suppress_hole_search = false) const override;
+    bool suppress_hole_search = false) const override final;
 
   /** method to update the shared hit content only, this is optimised for track
    * collection merging. */
   virtual void updateSharedHitCount(
     Track& track,
     const Trk::PRDtoTrackMap* pPrdToTrackMap) const override;
-
 
   /** Update the shared hit count of the given track summary.
    * @param summary the summary to be updated i.e. a copy of the track summary
@@ -170,12 +182,12 @@ public:
   virtual void updateAdditionalInfo(Track& track) const override;
 
 private:
-
   /*
    * Fill the summary info for a Track*/
-  void fillSummary(Trk::TrackSummary& ts,
+  void fillSummary(const EventContext& ctx,
+                   Trk::TrackSummary& ts,
                    const Trk::Track& track,
-                   const Trk::PRDtoTrackMap *pPrdToTrackMap,
+                   const Trk::PRDtoTrackMap* pPrdToTrackMap,
                    bool doHolesInDet,
                    bool doHolesMuon) const;
 
@@ -183,10 +195,11 @@ private:
    * If a summary is there Update it with the required info.
    * If not there create a new one with the required info.
    */
-  void UpdateSummary(Track& track,
+  void UpdateSummary(const EventContext& ctx,
+                     Track& track,
                      const Trk::PRDtoTrackMap* pPrdToTrackMap,
                      bool suppress_hole_search) const;
-  
+
   void updateAdditionalInfo(const Track& track,
                             TrackSummary& summary,
                             bool initialise_to_zero) const;
@@ -195,10 +208,12 @@ private:
   for this track but not returned. the summary can then be obtained from the
   track. Because it is taken from the track the ownership stays with the track
   */
-  void updateTrack(Track& track,
+  void updateTrack(const EventContext& ctx,
+                   Track& track,
                    const Trk::PRDtoTrackMap* pPrdToTrackMap) const;
 
   std::unique_ptr<Trk::TrackSummary> createSummary(
+    const EventContext& ctx,
     const Track& track,
     const Trk::PRDtoTrackMap* pPrdToTrackMap,
     bool doHolesInDet,
@@ -213,7 +228,10 @@ private:
   ToolHandle<IExtendedTrackSummaryHelperTool>
     m_idTool{ this, "InDetSummaryHelperTool", "", "" };
   /**tool to calculate electron probabilities*/
-  ToolHandle<ITRT_ElectronPidTool> m_eProbabilityTool{ this,"TRT_ElectronPidTool","","" };
+  ToolHandle<ITRT_ElectronPidTool> m_eProbabilityTool{ this,
+                                                       "TRT_ElectronPidTool",
+                                                       "",
+                                                       "" };
   /**tool to calculate dE/dx using pixel clusters*/
   ToolHandle<IPixelToTPIDTool> m_dedxtool{ this, "PixelToTPIDTool", "", "" };
   /**tool to decipher muon RoTs*/
@@ -243,9 +261,10 @@ private:
   /** switch to deactivate Pixel info init */
   Gaudi::Property<bool> m_pixelExists{ this, "PixelExists", true, "" };
 
-  Gaudi::Property<bool> m_alwaysRecomputeHoles {
-    this, "AlwaysRecomputeHoles", false, ""
-  };
+  Gaudi::Property<bool> m_alwaysRecomputeHoles{ this,
+                                                "AlwaysRecomputeHoles",
+                                                false,
+                                                "" };
 
   /**atlas id helper*/
   const AtlasDetectorID* m_detID;

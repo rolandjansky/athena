@@ -79,7 +79,7 @@ StatusCode MdtROD_Decoder::finalize() {
 
 
 StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
-					   MdtCsmContainer& rdoIDC)
+					   MdtCsmContainer& rdoIDC) const
 {
 
   //  m_debug = (m_log.level() <= MSG::DEBUG); // use to control if output debug info.
@@ -516,7 +516,7 @@ StatusCode MdtROD_Decoder::fillCollections(const OFFLINE_FRAGMENTS_NAMESPACE::RO
   return StatusCode::SUCCESS; 
 }
 
-std::pair<IdentifierHash, Identifier>  MdtROD_Decoder::getHash ( Identifier ident)  {    
+std::pair<IdentifierHash, Identifier>  MdtROD_Decoder::getHash ( Identifier ident) const {    
     //get hash from identifier.
     IdentifierHash idHash;
     Identifier regid;

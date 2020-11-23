@@ -24,7 +24,7 @@
 #include "xAODRootAccessInterfaces/TVirtualEvent.h"
 
 // Local include(s):
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "xAODRootAccess/tools/IProxyDict.h"
 
 // Forward declaration(s):
@@ -122,15 +122,15 @@ namespace xAOD {
       /// @{
 
       /// Connect the object to a new input file
-      TReturnCode readFrom( ::TFile* file, Bool_t useTreeCache = kTRUE,
+      StatusCode readFrom( ::TFile* file, Bool_t useTreeCache = kTRUE,
                             const char* treeName = EVENT_TREE_NAME );
       /// Connect the object to a new input tree/chain
-      TReturnCode readFrom( ::TTree* tree, Bool_t useTreeCache = kTRUE );
+      StatusCode readFrom( ::TTree* tree, Bool_t useTreeCache = kTRUE );
       /// Connect the object to an output file
-      TReturnCode writeTo( ::TFile* file, Int_t autoFlush = 200,
+      StatusCode writeTo( ::TFile* file, Int_t autoFlush = 200,
                            const char* treeName = EVENT_TREE_NAME );
       /// Finish writing to an output file
-      TReturnCode finishWritingTo( ::TFile* file );
+      StatusCode finishWritingTo( ::TFile* file );
 
       /// Set this event object as the currently active one
       void setActive() const;
@@ -140,14 +140,14 @@ namespace xAOD {
                            const std::string& itemList );
 
       /// Register an incident listener object
-      TReturnCode addListener( TVirtualIncidentListener* listener );
+      StatusCode addListener( TVirtualIncidentListener* listener );
       /// Remove an incident listener object
-      TReturnCode removeListener( TVirtualIncidentListener* listener );
+      StatusCode removeListener( TVirtualIncidentListener* listener );
       /// Remove all listeners from the object
       void clearListeners();
 
       /// Add a name re-mapping rule
-      TReturnCode addNameRemap( const std::string& onfile,
+      StatusCode addNameRemap( const std::string& onfile,
                                 const std::string& newName );
       /// Clear the current name re-mapping
       void clearNameRemap();
@@ -168,18 +168,18 @@ namespace xAOD {
 
       /// Retrieve either an input or an output object from the event
       template< typename T >
-      TReturnCode retrieve( const T*& obj, const std::string& key );
+      StatusCode retrieve( const T*& obj, const std::string& key );
       /// Retrieve an output object from the event
       template< typename T >
-      TReturnCode retrieve( T*& obj, const std::string& key );
+      StatusCode retrieve( T*& obj, const std::string& key );
 
       /// Add an output object to the event
       template< typename T >
-      TReturnCode record( T* obj, const std::string& key,
+      StatusCode record( T* obj, const std::string& key,
                           ::Int_t basketSize = 32000, ::Int_t splitLevel = 0 );
       /// Add an output object to the event, explicitly taking ownership of it
       template< typename T >
-      TReturnCode record( std::unique_ptr< T > obj, const std::string& key,
+      StatusCode record( std::unique_ptr< T > obj, const std::string& key,
                           ::Int_t basketSize = 32000, ::Int_t splitLevel = 0 );
 
       /// Add an auxiliary store object to the output
@@ -190,10 +190,10 @@ namespace xAOD {
                                 Int_t splitLevel = 0 );
 
       /// Copy an object directly from the input to the output
-      TReturnCode copy( const std::string& key,
+      StatusCode copy( const std::string& key,
                         ::Int_t basketSize = 32000, ::Int_t splitLevel = 0 );
       /// Copy all (ROOT readable) objects directly from the input to the output
-      TReturnCode copy( ::Int_t basketSize = 32000, ::Int_t splitLevel = 0 );
+      StatusCode copy( ::Int_t basketSize = 32000, ::Int_t splitLevel = 0 );
 
       /// @}
 
@@ -209,24 +209,24 @@ namespace xAOD {
 
       /// Retrieve an input metadata object
       template< typename T >
-      TReturnCode retrieveMetaInput( const T*& obj, const std::string& key );
+      StatusCode retrieveMetaInput( const T*& obj, const std::string& key );
 
       /// Retrieve an output metadata object
       template< typename T >
-      TReturnCode retrieveMetaOutput( const T*& obj, const std::string& key );
+      StatusCode retrieveMetaOutput( const T*& obj, const std::string& key );
       /// Retrieve an output metadata object
       template< typename T >
-      TReturnCode retrieveMetaOutput( T*& obj, const std::string& key );
+      StatusCode retrieveMetaOutput( T*& obj, const std::string& key );
 
       /// Add an object to the output file's metadata
       template< typename T >
-      TReturnCode recordMeta( T* obj, const std::string& key,
+      StatusCode recordMeta( T* obj, const std::string& key,
                               ::Int_t basketSize = 32000,
                               ::Int_t splitLevel = 1 );
       /// Add an object to the output file's metadata, explicitly taking
       /// ownership of it
       template< typename T >
-      TReturnCode recordMeta( std::unique_ptr< T > obj, const std::string& key,
+      StatusCode recordMeta( std::unique_ptr< T > obj, const std::string& key,
                               ::Int_t basketSize = 32000,
                               ::Int_t splitLevel = 1 );
 
@@ -269,7 +269,7 @@ namespace xAOD {
 
       /// Internal function for recording an object into the output
       // Declared public so we can call it from python.
-      TReturnCode record( void* obj, const std::string& typeName,
+      StatusCode record( void* obj, const std::string& typeName,
                           const std::string& key,
                           ::Int_t basketSize, ::Int_t splitLevel,
                           ::Bool_t overwrite = kFALSE,
@@ -342,7 +342,7 @@ namespace xAOD {
       /// @}
 
       /// Function to initialise the statistics for all Tree content
-      TReturnCode initStats();
+      StatusCode initStats();
       /// Function for retrieving an output object in a non-template way
       void* getOutputObject( const std::string& key,
                              const std::type_info& ti,
@@ -353,29 +353,29 @@ namespace xAOD {
                                   ::Bool_t silent = kFALSE,
                                   ::Bool_t metadata = kFALSE );
       /// Internal function for adding an auxiliary store object to the output
-      TReturnCode record( TAuxStore* store, const std::string& key,
+      StatusCode record( TAuxStore* store, const std::string& key,
                           ::Int_t basketSize, ::Int_t splitLevel,
                           ::Bool_t ownsStore = kFALSE );
       /// Function setting up access to a particular branch
-      TReturnCode connectBranch( const std::string& key,
+      StatusCode connectBranch( const std::string& key,
                                  ::Bool_t silent = kFALSE );
       /// Function setting up access to a branch in the metadata tree
-      TReturnCode connectMetaBranch( const std::string& key,
+      StatusCode connectMetaBranch( const std::string& key,
                                      ::Bool_t silent = kFALSE );
       /// Function setting up access to a set of auxiliary branches
-      TReturnCode connectAux( const std::string& prefix, ::Bool_t standalone );
+      StatusCode connectAux( const std::string& prefix, ::Bool_t standalone );
       /// Function setting up access to a set of auxiliary branches for a
       /// metadata object
-      TReturnCode connectMetaAux( const std::string& prefix,
+      StatusCode connectMetaAux( const std::string& prefix,
                                   ::Bool_t standalone );
       /// Function adding dynamic variable reading capabilities to an auxiliary
       /// store object
-      TReturnCode setUpDynamicStore( TObjectManager& mgr, ::TTree* tree );
+      StatusCode setUpDynamicStore( TObjectManager& mgr, ::TTree* tree );
       /// Function connecting a DV object to its auxiliary store
-      TReturnCode setAuxStore( TObjectManager& mgr,
+      StatusCode setAuxStore( TObjectManager& mgr,
                                ::Bool_t metadata = kFALSE );
       /// Function saving the dynamically created auxiliary properties
-      TReturnCode putAux( ::TTree& outTree, TVirtualManager& mgr,
+      StatusCode putAux( ::TTree& outTree, TVirtualManager& mgr,
                           ::Int_t basketSize = 32000, ::Int_t splitLevel = 0,
                           ::Bool_t metadata = kFALSE );
       /// Function checking if a given object may have an auxiliary store

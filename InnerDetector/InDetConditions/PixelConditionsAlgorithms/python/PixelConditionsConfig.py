@@ -186,7 +186,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         DefaultTemperature=-7.0
     )
     # Cabling parameters
-    useCablingConditions = False
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC or flags.Overlay.DataOverlay:
         # ITk:
@@ -215,10 +214,8 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         
     elif not flags.Input.isMC:
         if runNum < 222222:
-            useCablingConditions = False
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
         else:
-            useCablingConditions = True
             # Even though we are reading from COOL, set the correct fallback map.
             if (runNum >= 344494):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -232,7 +229,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
     CondArgs.update(
-        UseCablingConditions=useCablingConditions,
         CablingMapToFile=False,
         CablingMapFileName=IdMappingDat
     )
@@ -279,62 +275,13 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
     if not flags.Input.isMC and not flags.Overlay.DataOverlay:
         acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
         kwargs.setdefault("ReadKey", "/PIXEL/CablingMap")
+        if flags.Input.RunNumber[0]<222222:
+            kwargs.setdefault("ReadKey", "")
     else:
         kwargs.setdefault("ReadKey", "")
-
-    # Cabling parameters
-    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-    rodIDForSingleLink40=0
-    if flags.Input.isMC or flags.Overlay.DataOverlay:
-        # ITk:
-        if flags.GeoModel.Run == "RUN4":
-            IdMappingDat = "ITk_Atlas_IdMapping.dat"
-            if flags.GeoModel.Type == "BrlIncl4.0_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-            elif flags.GeoModel.Type == "IBrlExt4.0ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-            elif flags.GeoModel.Type == "BrlExt4.0_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-            elif flags.GeoModel.Type == "BrlExt3.2_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif flags.GeoModel.Run == "RUN2" or flags.GeoModel.Run == "RUN3":
-            # Planar IBL
-            if flags.GeoModel.IBLLayout == "planar":
-                if flags.GeoModel.Run == "RUN2":
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
-                else:
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
-            # Hybrid IBL plus DBM
-            elif flags.GeoModel.IBLLayout == "3D":
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
-        else:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
-        
-    elif not flags.Input.isMC:
-        runNum = flags.Input.RunNumber[0]
-        if runNum < 222222:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-            rodIDForSingleLink40=1300000
-        else:
-            rodIDForSingleLink40=1300000
-            # Even though we are reading from COOL, set the correct fallback map.
-            if (runNum >= 344494):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
-            elif (runNum >= 314940 and runNum < 344494):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_314940.dat"
-            elif (runNum >= 289350 and runNum < 314940): # 2016
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-            elif (runNum >= 222222 and runNum < 289350): # 2015
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
-            else:
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-
-    kwargs.setdefault("RodIDForSingleLink40", rodIDForSingleLink40)
-    kwargs.setdefault("MappingFile", IdMappingDat)
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("PixelReadoutSpeedData", "PixelReadoutSpeedData")
     kwargs.setdefault("WriteKey", "PixelCablingCondData")
-    kwargs.setdefault("RecordInInitialize", not flags.Detector.OverlayPixel)
     acc.addCondAlgo(CompFactory.PixelCablingCondAlg(name, **kwargs))
     return acc
 

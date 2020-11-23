@@ -4,11 +4,15 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingUtilities.h"
+#include "AsgMessaging/MessageCheck.h"
 
 #include "TFile.h"
 #include "TTree.h"
 
 int main (int argc, char *argv[]) {
+
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
 
   if (argc != 3) {
     std::cerr << "usage: " << argv[0] << ": <DAOD> <jet collection>"
@@ -22,7 +26,7 @@ int main (int argc, char *argv[]) {
   const char *const APP_NAME = "BTagTestDumper";
 
   // Set up the environment:
-  RETURN_CHECK( APP_NAME, xAOD::Init() );
+  ANA_CHECK( xAOD::Init() );
 
   // Set up the event object:
   xAOD::TEvent event(xAOD::TEvent::kClassAccess);
@@ -36,7 +40,7 @@ int main (int argc, char *argv[]) {
   Info( APP_NAME, "Opened file: %s", file.c_str() );
 
   // Connect the event object to it:
-  RETURN_CHECK( APP_NAME, event.readFrom(ifile.get()) );
+  ANA_CHECK( event.readFrom(ifile.get()) );
 
   unsigned long long nbad = 0;
   unsigned long long ngood = 0;
@@ -49,7 +53,7 @@ int main (int argc, char *argv[]) {
       return 1;
     }
     const xAOD::JetContainer *jets = nullptr;
-    RETURN_CHECK( APP_NAME, event.retrieve(jets, jets_name) );
+    ANA_CHECK( event.retrieve(jets, jets_name) );
     for (const xAOD::Jet *const jet : *jets) {
       const xAOD::BTagging *btag = xAOD::BTaggingUtilities::getBTagging( *jet );
       if (!btag) {

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef LARG4SIMPLESD_H
-#define LARG4SIMPLESD_H
+#ifndef LARG4CODE_LARG4SIMPLESD_H
+#define LARG4CODE_LARG4SIMPLESD_H
 
 #include "G4VSensitiveDetector.hh"
 
@@ -69,7 +69,7 @@ public:
   G4bool ProcessHits(G4Step* a_step, G4TouchableHistory*) override;
 
   /// First method translates to this - also for fast sims
-  G4bool SimpleHit( LArG4Identifier lar_id , G4double time , G4double energy );
+  G4bool SimpleHit( const LArG4Identifier& lar_id , G4double time , G4double energy );
 
   /// End of athena event processing
   void EndOfAthenaEvent( LArHitContainer* hitContnainer );

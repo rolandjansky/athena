@@ -12,7 +12,7 @@ import ROOT
 import cppyy
 
 ROOT.xAOD.TEvent
-ROOT.xAOD.TReturnCode.enableFailure()
+ROOT.StatusCode.enableChecking()
 
 
 from AthenaCommon.Include import Include

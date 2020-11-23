@@ -33,7 +33,5 @@ class LeptonNFEValidationPlots : public PlotBase {
   PFO::LeptonFELinkerPlots m_ElectronMatchedNFEPlots;
   PFO::LeptonFELinkerPlots m_MuonMatchedNFEPlots;
   PFO::LeptonFELinkerPlots m_TauJetMatchedNFEPlots;
-
-  bool m_isNeutral=false;
 };
 #endif

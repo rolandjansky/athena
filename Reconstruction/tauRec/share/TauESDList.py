@@ -14,7 +14,7 @@ TauESDList = []
 # Taus
 #------------------------------------------------------------------------------
 TauESDList += [ "xAOD::TauJetContainer#TauJets" ]
-TauESDList += [ "xAOD::TauJetAuxContainer#TauJetsAux." ]
+TauESDList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters" ]
 
 #------------------------------------------------------------------------------
 # Tau tracks

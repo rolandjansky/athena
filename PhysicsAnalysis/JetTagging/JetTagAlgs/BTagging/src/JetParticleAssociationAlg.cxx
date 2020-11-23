@@ -69,7 +69,7 @@ namespace Analysis {
 
     if (m_release == "21") {
           // compute the associations
-      std::vector<std::vector<const xAOD::TrackParticle*>*> assocs =
+      std::vector< std::unique_ptr< std::vector<const xAOD::TrackParticle*> > > assocs =
               m_TrackToJetAssociator->associateParticlesToJets<std::vector<const xAOD::TrackParticle*>, xAOD::TrackParticleContainer>( h_JetCollectionName.ptr(), h_TrackParticleContainerName.ptr(), "'BTagTrackToJetAssociator ala 21" );
 
       unsigned int i = 0;

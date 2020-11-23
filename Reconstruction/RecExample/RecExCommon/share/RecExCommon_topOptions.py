@@ -848,14 +848,8 @@ if rec.doWriteESD() or rec.doWriteAOD() or rec.doWriteRDO() or rec.doWriteTAG():
 theApp.OutStream = []
 
 if rec.doWriteTAG():
-    # the TAG making algorithm
-    try:
-        include( "EventTagAlgs/EventTag_jobOptions.py" )
-    except Exception:
-        rec.doWriteTAG=False
-        treatException("Could not include EventTagAlgs/EventTag_jobOptions.py. Disable TAG writing")
-else: # minimal TAG to be written into AOD
-    printfunc ("Using EventInfoAttList")
+    logRecExCommon_topOptions.error("Producing TAG files is not supported anymore, disabling it.")
+    rec.doWriteTAG = False
 
 if rec.doWriteRDO():
     #Create output StreamRDO
@@ -906,7 +900,7 @@ if rec.doWriteRDO():
 
     ## Add TAG attribute list to payload data
     try:
-        StreamRDO_Augmented.GetEventStream().WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+        StreamRDO_Augmented.GetEventStream().WritingTool.AttributeListKey = "SimpleTag"
     except:
         logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
@@ -1097,7 +1091,7 @@ if rec.doWriteESD():
 
     ## Add TAG attribute list to payload data
     try:
-        StreamESD_Augmented.GetEventStream().WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+        StreamESD_Augmented.GetEventStream().WritingTool.AttributeListKey = "SimpleTag"
     except:
         logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
@@ -1411,9 +1405,8 @@ if rec.doWriteAOD():
     StreamAOD=StreamAOD_Augmented.GetEventStream()
 
     ## Add TAG attribute list to payload data
-    from EventTagAlgs.EventTagGlobal import EventTagGlobal
     try:
-        StreamAOD.WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+        StreamAOD.WritingTool.AttributeListKey = "SimpleTag"
     except:
         logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
@@ -1587,7 +1580,7 @@ try:
             # if not new tag
             StreamTAG = RegistrationStream("StreamTAG",
                                            CollectionType="ExplicitROOT")
-            StreamTAG.ItemList += [ "AthenaAttributeList#"+EventTagGlobal.AttributeList ]
+            StreamTAG.ItemList += [ "AthenaAttributeList#SimpleTag" ]
             logRecExCommon_topOptions.info( "StreamTAG set up the old way (with StreamTagTool" )
 
         from AthenaCommon.AlgSequence import AthSequencer

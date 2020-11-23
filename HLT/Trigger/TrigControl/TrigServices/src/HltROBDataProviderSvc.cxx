@@ -3,6 +3,7 @@
 */
 #include "HltROBDataProviderSvc.h"
 #include "TrigKernel/HltExceptions.h"
+#include "TrigTimeAlgs/TrigTimeStamp.h"
 
 // Gaudi
 #include "Gaudi/Interfaces/IOptionsSvc.h"
@@ -319,6 +320,8 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 				       const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, 
 				       const std::string_view callerName)
 {
+  TrigTimeStamp rosStartTime;
+
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << ": Number of ROB Ids to get = " << robIds.size() 
 		  << " caller name = " << callerName);
   EventCache* cache = m_eventsCache.get( context );
@@ -372,15 +375,16 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
   }
 
   // Check if event should be monitored and monitor ROB data
+  auto monitorData = robmonitor::ROBDataMonitorStruct(cache->currentLvl1ID, std::string(callerName));
   if (m_doCostMonitoring && m_trigCostSvcHandle->isMonitoredEvent(context, /*includeMultiSlot =*/ false)) {
     // Monitor HLT cached ROBs
     for (const ROBF* robFrag : robFragments) {
-      robmap_monitorRobFragment(context, *robFrag, robmonitor::HLT_CACHED);
+      monitorData.requested_ROBs[robFrag->source_id()] = robmap_getRobData(*robFrag, robmonitor::HLT_CACHED);
     }
 
     // Monitor DCM ROBs
     for (const hltinterface::DCM_ROBInfo& robInfo : vRobInfos) {
-      robmap_monitorRobFragment(context, robInfo.robFragment, 
+      monitorData.requested_ROBs[robInfo.robFragment.source_id()] = robmap_getRobData(robInfo.robFragment, 
         robInfo.robIsCached ? robmonitor::DCM_CACHED : robmonitor::RETRIEVED);
     }
   }
@@ -390,9 +394,23 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 
   // return all the requested ROB fragments from the cache
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
+
+  // Save ROS processing time and pass ROS data to CostMonitor
+  if (m_doCostMonitoring && m_trigCostSvcHandle->isMonitoredEvent(context, /*includeMultiSlot =*/ false)) {
+    TrigTimeStamp rosEndTime;
+
+    monitorData.start_time = rosStartTime.microsecondsSinceEpoch();
+    monitorData.end_time = rosEndTime.microsecondsSinceEpoch();
+
+    // Check if ROBMonitorDataStruct is move-constructible
+    static_assert(std::is_nothrow_move_constructible<robmonitor::ROBDataMonitorStruct>::value);
+    if (m_trigCostSvcHandle->monitorROS(context, std::move(monitorData)).isFailure()) {
+      ATH_MSG_WARNING("TrigCost ROS monitoring failed!");
+    }  
+  }
 }
 
-void HltROBDataProviderSvc::robmap_monitorRobFragment(const EventContext& context, const ROBF& robFrag, robmonitor::ROBHistory robStatus)
+robmonitor::ROBDataStruct HltROBDataProviderSvc::robmap_getRobData(const ROBF& robFrag, robmonitor::ROBHistory robStatus)
 {
   auto robData = robmonitor::ROBDataStruct(robFrag.source_id());
   robData.rob_size = robFrag.fragment_size_word();
@@ -410,20 +428,16 @@ void HltROBDataProviderSvc::robmap_monitorRobFragment(const EventContext& contex
   }
   catch (const std::exception& ex) {
     ATH_MSG_ERROR("std::exception caught when reading status words: " << ex.what());
-    return;
+    return robmonitor::ROBDataStruct();
   }
   catch (...) {
     ATH_MSG_ERROR("Unknown exception caught when reading status words");
-    return;
+    return robmonitor::ROBDataStruct();
   }
 
   robData.rob_status_words = std::move(statusWords);
 
-  // Check if ROBDataStruct is move-constructible and pass data to CostMonitor
-  static_assert(std::is_nothrow_move_constructible<robmonitor::ROBDataStruct>::value);
-  if (m_trigCostSvcHandle->monitorROS(context, std::move(robData)).isFailure()) {
-    ATH_MSG_WARNING("TrigCost ROS monitoring failed!");
-  }
+  return robData;
 }
 
 /// Retrieve the full event fragment

@@ -329,10 +329,20 @@ class JetInputDef(object):
                   The function must return a tuple : (bool, "reason of failure")
      - prereqs : a list of prerequisites (str) for this input definition.
     """
-    def __init__(self, name, objtype, algoBuilder=None, specs=None, filterfn= _condAlwaysPass, prereqs=[]):
+    def __init__(self, name, objtype, algoBuilder=None, specs=None, containername=None, filterfn= _condAlwaysPass, prereqs=[]):
         self.name = name
         self.basetype = objtype
         self.algoBuilder = algoBuilder
+
+        # In certain cases (EventShape) we need to configure the concrete
+        # output container name based on the jetdef and specs, so can
+        # pass in a (lambda) function to define this.
+        if containername:
+            self.containername = containername
+        else:
+            # Ordinarily we just return the name
+            self.containername = lambda dummyjetdef,dummyspecs : self.name
+
         self.specs = specs
         self.filterfn = filterfn 
         self.prereqs = prereqs

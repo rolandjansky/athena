@@ -1,29 +1,15 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-#
-# @author Nils Krumnack
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # The name of the package:
 atlas_subdir( JetAnalysisAlgorithms )
-
-atlas_depends_on_subdirs(
-    PUBLIC
-    Event/xAOD/xAODJet
-    PhysicsAnalysis/Algorithms/SelectionHelpers
-    PhysicsAnalysis/Algorithms/SystematicsHandles
-    PhysicsAnalysis/D3PDTools/AnaAlgorithm
-    Reconstruction/Jet/JetCalibTools
-    Reconstruction/Jet/JetCPInterfaces
-    Reconstruction/Jet/JetInterface
-    Reconstruction/Jet/JetJvtEfficiency
-    Reconstruction/MET/METUtilities )
 
 atlas_add_library( JetAnalysisAlgorithmsLib
    JetAnalysisAlgorithms/*.h JetAnalysisAlgorithms/*.icc Root/*.cxx
    PUBLIC_HEADERS JetAnalysisAlgorithms
    LINK_LIBRARIES xAODJet SelectionHelpersLib SystematicsHandlesLib
    AnaAlgorithmLib JetCalibToolsLib JetInterface
-   JetCPInterfaces JetJvtEfficiencyLib JetAnalysisInterfacesLib METUtilitiesLib )
+   JetCPInterfaces JetAnalysisInterfacesLib
+   PRIVATE_LINK_LIBRARIES METUtilitiesLib xAODMuon )
 
 atlas_add_dictionary( JetAnalysisAlgorithmsDict
    JetAnalysisAlgorithms/JetAnalysisAlgorithmsDict.h
@@ -33,10 +19,11 @@ atlas_add_dictionary( JetAnalysisAlgorithmsDict
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetAnalysisAlgorithms
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel JetAnalysisAlgorithmsLib )
+      LINK_LIBRARIES AnaAlgorithmLib JetAnalysisInterfacesLib JetCPInterfaces JetCalibToolsLib
+      JetInterface SelectionHelpersLib SystematicsHandlesLib xAODJet JetAnalysisAlgorithmsLib )
 endif()
 
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 

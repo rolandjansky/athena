@@ -328,7 +328,10 @@ private:
   bool m_initialised;
   bool m_initialiseFirstEvent;
 
-  //  bool m_lfirst;
+
+  Resplot* m_rnsct_vs_npix;
+  Resplot* m_rnsct_vs_npix_rec;
+
 
 };
 

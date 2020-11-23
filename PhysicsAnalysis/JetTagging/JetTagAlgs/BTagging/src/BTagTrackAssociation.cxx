@@ -156,7 +156,7 @@ namespace Analysis {
           ATH_MSG_VERBOSE("#BTAG# Number of TrackParticles in event: " << tpContainer->size());
 
           // compute the associations
-          std::vector<std::vector<const xAOD::TrackParticle*>*> assocs =
+          std::vector< std::unique_ptr< std::vector<const xAOD::TrackParticle*> > > assocs =
               (*tAssocIter)->associateParticlesToJets<std::vector<const xAOD::TrackParticle*>, xAOD::TrackParticleContainer>( theJets, tpContainer, *tAssocNameIter );
 
           // then store them in the BTagging objects. Note that for this to work, the ElementLink from Jet to BTagging object must exist
@@ -184,10 +184,6 @@ namespace Analysis {
               ++i;
           }
           ATH_MSG_VERBOSE("#BTAG# stored track-to jet associations under name " << *tAssocNameIter);
-          //delete pointer created in associateParticlesToJets
-          for (i=0; i < assocs.size(); i++) {
-              delete assocs[i];
-          }
           ++tNameIter;
           ++tAssocNameIter;
       }
@@ -208,7 +204,7 @@ namespace Analysis {
           }
           ATH_MSG_DEBUG("#BTAG# Number of Muons in event: " << muonContainer->size());
 
-          std::vector<std::vector<const xAOD::Muon*>*> assocs =
+          std::vector< std::unique_ptr< std::vector<const xAOD::Muon*> > > assocs =
               (*muAssocIter)->associateParticlesToJets<std::vector<const xAOD::Muon*>, xAOD::MuonContainer>( theJets, muonContainer, *muAssocNameIter );
 
           // then store them in the BTagging objects. Note that for this to work, the ElementLink from Jet to BTagging object must exist 
@@ -225,10 +221,6 @@ namespace Analysis {
               ++i;
           }
           ATH_MSG_VERBOSE("#BTAG# stored muon-to-jet associations under name " << *muAssocNameIter);
-          //delete pointer created in associateParticlesToJets
-          for (i=0; i < assocs.size(); i++) {
-              delete assocs[i];
-          }
           ++muNameIter;
           ++muAssocNameIter;
       }          
@@ -281,7 +273,7 @@ namespace Analysis {
           ATH_MSG_VERBOSE("#BTAG# Number of TrackParticles in event: " << (*h_TrackContainerName).size());
 
           // compute the associations
-          std::vector<std::vector<const xAOD::TrackParticle*>*> assocs =
+          std::vector< std::unique_ptr< std::vector<const xAOD::TrackParticle*> > > assocs =
               (*tAssocIter)->associateParticlesToJets<std::vector<const xAOD::TrackParticle*>, xAOD::TrackParticleContainer>( jetContainer, &(*h_TrackContainerName), *tAssocNameIter );
 
           // then store them in the BTagging objects.
@@ -297,10 +289,6 @@ namespace Analysis {
               ++i;
           }
           ATH_MSG_VERBOSE("#BTAG# stored track-to jet associations under name " << *tAssocNameIter);
-          //delete pointer created in associateParticlesToJets
-          for (i=0; i < assocs.size(); i++) {
-              delete assocs[i];
-          }
           ++tAssocNameIter;
       }
       
@@ -329,7 +317,7 @@ namespace Analysis {
           }
           ATH_MSG_DEBUG("#BTAG# Number of Muons in event: " << (*h_MuonContainerName).size());
 
-          std::vector<std::vector<const xAOD::Muon*>*> assocs =
+          std::vector< std::unique_ptr< std::vector<const xAOD::Muon*> > > assocs =
               (*muAssocIter)->associateParticlesToJets<std::vector<const xAOD::Muon*>, xAOD::MuonContainer>( jetContainer, &(*h_MuonContainerName), *muAssocNameIter );
 
           // then store them in the BTagging objects. 
@@ -345,10 +333,6 @@ namespace Analysis {
               ++i;
           }
           ATH_MSG_VERBOSE("#BTAG# stored muon-to-jet associations under name " << *muAssocNameIter);
-          //delete pointer created in associateParticlesToJets
-          for (i=0; i < assocs.size(); i++) {
-              delete assocs[i];
-          }
           ++muNameIter;
           ++muAssocNameIter;
       }          

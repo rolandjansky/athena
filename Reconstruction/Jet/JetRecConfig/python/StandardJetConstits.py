@@ -52,9 +52,11 @@ _stdInputList = [
 
     # *****************************
     JetInputDef("EventDensity", "EventShape", algoBuilder = inputcfg.buildEventShapeAlg,
+                containername = lambda jetdef, specs : (specs or "")+"Kt4"+jetdef.inputdef.label+"EventShape",
                 prereqs = lambda jetdef : ["input:"+jetdef.inputdef.name] # this will force the input to be build *before* the EventDensity alg.
     ),
     JetInputDef("HLT_EventDensity", "EventShape", algoBuilder = inputcfg.buildEventShapeAlg,
+                containername = lambda jetdef, specs : (specs or "")+"Kt4"+jetdef.inputdef.label+"EventShape",
                 prereqs = lambda jetdef : ["input:"+jetdef.inputdef.name], # this will force the input to be build *before* the EventDensity alg.
                 specs = 'HLT_'
     ),

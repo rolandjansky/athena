@@ -54,7 +54,7 @@ namespace top {
 
     //fail on unchecked error codes
     if (failOnUnchecked) {
-      xAOD::TReturnCode::enableFailure();
+      StatusCode::enableFailure();
       CP::SystematicCode::enableFailure();
       CP::CorrectionCode::enableFailure();
       //StatusCode::enableFailure();

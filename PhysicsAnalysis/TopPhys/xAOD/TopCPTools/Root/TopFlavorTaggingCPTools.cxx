@@ -122,7 +122,7 @@ namespace top {
         BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
         top::check(btagsel->setProperty("TaggerName", m_tagger),
                    "Failed to set b-tagging selecton tool TaggerName");
-        top::check(btagsel->setProperty("JetAuthor", caloJets_collection),
+        top::check(btagsel->setProperty("JetAuthor", caloJets_collection+"_BTagging201903"),
                    "Failed to set b-tagging selection JetAuthor");
         top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
                                         m_cdi_file),
@@ -155,7 +155,7 @@ namespace top {
                      "Failed to set b-tagging TaggerName");
           top::check(btageff->setProperty("OperatingPoint", btagWP),
                      "Failed to set b-tagging OperatingPoint");
-          top::check(btageff->setProperty("JetAuthor", caloJets_collection),
+          top::check(btageff->setProperty("JetAuthor", caloJets_collection+"_BTagging201903"),
                      "Failed to set b-tagging JetAuthor");
           top::check(btageff->setProperty("MinPt",
                                           static_cast<double>(m_config->jetPtcut())),

@@ -21,6 +21,7 @@
 // Tau EDM
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauTrack.h"
+#include "xAODTau/TauxAODHelpers.h"
 
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
@@ -107,11 +108,7 @@ namespace met {
                                                    const met::METAssociator::ConstitHolder& /*tcCont*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
-
-    for (const xAOD::IParticle* particle : tau->clusters(0.2)) {
-      const CaloCluster* cluster = static_cast<const CaloCluster*>(particle);
-      tclist.push_back(cluster);
-    }
+    tclist = xAOD::TauHelpers::clusters(*tau, 0.2);
 
     return StatusCode::SUCCESS;
   }

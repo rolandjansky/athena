@@ -12,7 +12,7 @@
 
 // Local include(s):
 #include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "xAODRootAccess/tools/xAODTEventTree.h"
 #include "xAODRootAccess/tools/xAODTMetaTree.h"
 
@@ -41,7 +41,7 @@ namespace xAOD {
       /// @{
 
       /// Read from the file given to the function
-      TReturnCode readFrom( ::TFile* file, ::Bool_t useTreeCache = kTRUE,
+      StatusCode readFrom( ::TFile* file, ::Bool_t useTreeCache = kTRUE,
                             const char* treeName = "CollectionTree" );
 
       /// @}
@@ -50,14 +50,14 @@ namespace xAOD {
       /// @{
 
       /// Object/container names that should be used in the event tree
-      TReturnCode enableEventObj( const std::vector< std::string >& names );
+      StatusCode enableEventObj( const std::vector< std::string >& names );
       /// Object/container names that should be vetoed from the event tree
-      TReturnCode suppressEventObj( const std::vector< std::string >& names );
+      StatusCode suppressEventObj( const std::vector< std::string >& names );
 
       /// Object/container names that should be used in the metadata tree
-      TReturnCode enableMetaObj( const std::vector< std::string >& names );
+      StatusCode enableMetaObj( const std::vector< std::string >& names );
       /// Object/container names that should be suppressed in the metadata tree
-      TReturnCode suppressMetaObj( const std::vector< std::string >& names );
+      StatusCode suppressMetaObj( const std::vector< std::string >& names );
 
       /// @}
 

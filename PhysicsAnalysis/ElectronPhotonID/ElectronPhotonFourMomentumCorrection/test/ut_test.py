@@ -728,5 +728,5 @@ if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
 #    from ROOT import EgammaCalibPeriodRunNumbersExample
 
-    #ROOT.xAOD.TReturnCode.enableFailure()
+    #ROOT.StatusCode.enableChecking()
     unittest.main()

@@ -174,7 +174,7 @@ StatusCode TrigCostMTSvc::monitor(const EventContext& context, const AlgorithmId
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataStruct payload){
+StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataMonitorStruct payload){
   ATH_MSG_DEBUG( "Received ROB payload " << payload );
 
   // Associate payload with an algorithm
@@ -186,7 +186,7 @@ StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor
   }
 
   // Record data in TrigCostDataStore
-  ATH_MSG_DEBUG( "Adding " << payload.rob_id << " to " << theAlg.m_hash );
+  ATH_MSG_DEBUG( "Adding ROBs from" << payload.requestor_name << " to " << theAlg.m_hash );
   ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload)) );
 
   return StatusCode::SUCCESS;
@@ -342,7 +342,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     aiToHandleIndex[ai.m_hash] = costOutputHandle->size() - 1;
   }
 
-  typedef tbb::concurrent_hash_map< AlgorithmIdentifier, std::vector<robmonitor::ROBDataStruct>, AlgorithmIdentifierHashCompare>::const_iterator ROBConstIt;
+  typedef tbb::concurrent_hash_map< AlgorithmIdentifier, std::vector<robmonitor::ROBDataMonitorStruct>, AlgorithmIdentifierHashCompare>::const_iterator ROBConstIt;
   ROBConstIt beginRob;
   ROBConstIt endRob;
   
@@ -356,16 +356,37 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     }
 
     // Save ROB data via TrigComposite
-    for (const robmonitor::ROBDataStruct& robData : it->second) {
+    for (const robmonitor::ROBDataMonitorStruct& robData : it->second) {
       xAOD::TrigComposite* tc = new xAOD::TrigComposite();
       rosOutputHandle->push_back(tc); 
 
+      // Retrieve ROB requests data into primitives vectors
+      std::vector<uint32_t> robs_id;
+      std::vector<uint32_t> robs_size;
+      std::vector<unsigned> robs_history;
+      std::vector<uint32_t> robs_status;
+
+      robs_id.reserve(robData.requested_ROBs.size());
+      robs_size.reserve(robData.requested_ROBs.size());
+      robs_history.reserve(robData.requested_ROBs.size());
+      robs_status.reserve(robData.requested_ROBs.size());
+
+      for (const auto& rob : robData.requested_ROBs) {
+        robs_id.push_back(rob.second.rob_id);
+        robs_size.push_back(rob.second.rob_size);
+        robs_history.push_back(rob.second.rob_history);
+        robs_status.push_back(rob.second.rob_status_words.size() ? rob.second.rob_status_words.at(0) : 0);
+      }
+
       bool result = true;
       result &= tc->setDetail("alg_idx", aiToHandleIndex[aiHash]);
-      result &= tc->setDetail("rob_id", robData.rob_id);
-      result &= tc->setDetail("rob_size", robData.rob_size);
-      result &= tc->setDetail<unsigned>("rob_history", robData.rob_history);
-      result &= tc->setDetail("rob_status_words", robData.rob_status_words);
+      result &= tc->setDetail("lvl1ID", robData.lvl1ID);
+      result &= tc->setDetail<std::vector<uint32_t>>("robs_id", robs_id);
+      result &= tc->setDetail<std::vector<uint32_t>>("robs_size", robs_size);
+      result &= tc->setDetail<std::vector<unsigned>>("robs_history", robs_history);
+      result &= tc->setDetail<std::vector<uint32_t>>("robs_status_words", robs_status);
+      result &= tc->setDetail("start", robData.start_time);
+      result &= tc->setDetail("stop", robData.end_time);
 
       if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost ROS TC");
     }

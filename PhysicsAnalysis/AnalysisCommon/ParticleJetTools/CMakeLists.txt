@@ -1,45 +1,7 @@
-################################################################################
-# Package: ParticleJetTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ParticleJetTools )
-
-
-# Declare the package's dependencies:
-if( XAOD_STANDALONE )
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgDataHandles
-      Control/AthToolSupport/AsgTools
-      Event/EventPrimitives
-      Event/xAOD/xAODJet
-      Event/xAOD/xAODTracking
-      Event/xAOD/xAODTruth
-      PhysicsAnalysis/MCTruthClassifier
-      Reconstruction/Jet/JetInterface
-      Reconstruction/Jet/JetRec
-      PRIVATE
-      Control/AthContainers
-      Generators/TruthUtils )
-else()
-   atlas_depends_on_subdirs(
-      PUBLIC
-      Control/AthToolSupport/AsgDataHandles
-      Control/AthToolSupport/AsgTools
-      Event/EventPrimitives
-      Event/xAOD/xAODJet
-      Event/xAOD/xAODTracking
-      Event/xAOD/xAODTruth
-      GaudiKernel
-      PhysicsAnalysis/MCTruthClassifier
-      Reconstruction/Jet/JetInterface
-      Reconstruction/Jet/JetRec
-      PRIVATE
-      Control/AthAnalysisBaseComps
-      Control/AthContainers
-      Generators/TruthUtils )
-endif()
 
 # Component(s) in the package:
 if( XAOD_STANDALONE )
@@ -53,15 +15,16 @@ else()
    atlas_add_library( ParticleJetToolsLib
       ParticleJetTools/*.h Root/*.cxx src/*.cxx
       PUBLIC_HEADERS ParticleJetTools
-      LINK_LIBRARIES AsgTools EventPrimitives xAODJet xAODTracking xAODTruth GaudiKernel
-      JetInterface MCTruthClassifierLib JetRecLib AsgDataHandlesLib
-      PRIVATE_LINK_LIBRARIES AthAnalysisBaseCompsLib AthContainers TruthUtils )
+      LINK_LIBRARIES AsgDataHandlesLib AsgTools AthContainers AthenaBaseComps EventPrimitives
+      GaudiKernel JetInterface JetRecLib MCTruthClassifierLib
+      xAODBase xAODEventInfo xAODJet xAODTruth
+      PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AthAnalysisBaseCompsLib TruthUtils xAODTracking )
 endif()
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ParticleJetTools
       src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel ParticleJetToolsLib )
+      LINK_LIBRARIES ParticleJetToolsLib )
 endif()
 
 atlas_add_dictionary( ParticleJetToolsDict
@@ -70,4 +33,4 @@ atlas_add_dictionary( ParticleJetToolsDict
   LINK_LIBRARIES ParticleJetToolsLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
