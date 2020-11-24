@@ -130,12 +130,7 @@ private:
     } 
     
     ExtractorRange bump(int step) const {
-      ExtractorRange result = *this;
-      result.m_lo += step;
-      result.m_hi += step;
-      IConstituentExtractor* ce = m_e->clone();
-      result.m_e = ce;
-      return result;
+      return ExtractorRange(m_lo + step, m_hi + step, m_e->clone());
     }
 
     int m_lo;
