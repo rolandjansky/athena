@@ -2,7 +2,7 @@
  *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "ClusterTiming.h"
+#include "TrigL0GepPerf/ClusterTiming.h"
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
