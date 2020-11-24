@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHYPOTOOLCONFIG_FASTREDUCTION_H
@@ -25,7 +25,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
-#include "./ITrigJetConditionConfig.h"
+#include "./ITrigJetCapacityCheckedConditionConfig.h"
 
 class TrigJetHypoToolConfig_fastreduction:
 public extends<AthAlgTool, ITrigJetHypoToolConfig> {
@@ -47,7 +47,7 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
 
  private:
-  ToolHandleArray<ITrigJetConditionConfig> m_conditionMakers{
+  ToolHandleArray<ITrigJetCapacityCheckedConditionConfig> m_conditionMakers{
     this, "conditionMakers", {}, "hypo tree node to conditiionMaker map"};
 
   Gaudi::Property<std::vector<std::size_t>> m_treeVec{

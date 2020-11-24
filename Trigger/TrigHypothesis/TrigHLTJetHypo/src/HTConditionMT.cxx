@@ -55,7 +55,7 @@ HTConditionMT::isSatisfied(const HypoJetVector& ips,
 }
     
 
-std::string HTConditionMT::toString() const noexcept {
+std::string HTConditionMT::toString() const {
   std::stringstream ss;
   ss << "HTConditionMT: htMin: "
      << m_htMin;

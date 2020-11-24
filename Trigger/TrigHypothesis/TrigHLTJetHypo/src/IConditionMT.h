@@ -27,7 +27,7 @@ class IConditionMT {
                            const std::unique_ptr<ITrigJetHypoInfoCollector>&) const = 0;
   
   virtual unsigned int capacity() const = 0;
-  virtual std::string toString() const noexcept = 0;
+  virtual std::string toString() const = 0;
 };
 
 #endif

@@ -73,7 +73,11 @@ class ConditionsToolSetterHT(object):
         conditionMaker = self._get_tool_instance('htcondition')
         config_tool = self._get_tool_instance('htconfig')
         cut_windows = {}
-        [cut_windows.update(d) for d in node.conf_attrs]
+
+        # HT not handled by FastReducer. Cut mulitplicity must be 1.
+        for d in node.conf_attrs: assert d[1] == 1
+        
+        [cut_windows.update(d[0]) for d in node.conf_attrs]
         print (cut_windows)
         conditionMaker.htmin = cut_windows['ht']['min']
         conditionMaker.etmin = cut_windows['et']['min']
