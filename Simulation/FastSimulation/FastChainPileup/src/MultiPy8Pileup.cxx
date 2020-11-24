@@ -106,10 +106,10 @@ StatusCode MultiPy8Pileup::callGenerator() {
 	HepMC::GenEvent* evt=new HepMC::GenEvent();
 	if (Pythia8_i::fillEvt(evt)==StatusCode::SUCCESS) {
 	  // change the process ID to incorporate the BCID * 10000
-	  int pid=evt->signal_process_id();
+	  int pid=HepMC::signal_process_id(evt);
 	  evt->set_signal_process_id(pid+10000*bcid);
 	  ATH_MSG_DEBUG("Signal process ID " << pid << " set to " <<
-			evt->signal_process_id() << " for BCID " << bcid);
+			HepMC::signal_process_id(evt) << " for BCID " << bcid);
 	  m_evts.push_back(evt);
 	  ++m_ngen;
 	} else {
