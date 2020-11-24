@@ -1,17 +1,22 @@
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-#include "../MissingETGepCl.h"
+
+#include "TrigL0GepPerf/GepClusteringAlg.h"
+DECLARE_ALGORITHM_FACTORY( GepClusteringAlg )
+
+#include "TrigL0GepPerf/MissingETGepCl.h"
 DECLARE_ALGORITHM_FACTORY( MissingETGepCl )
 
-#include "../ClusterTiming.h"
+#include "TrigL0GepPerf/ClusterTiming.h"
 DECLARE_ALGORITHM_FACTORY( ClusterTiming )
 
-#include "../MissingETGepPufit.h"
+#include "TrigL0GepPerf/MissingETGepPufit.h"
 DECLARE_ALGORITHM_FACTORY( MissingETGepPufit )
 
 DECLARE_FACTORY_ENTRIES( TrigL0GepPerf ) 
 {
+  DECLARE_ALGORITHM( GepClusteringAlg );
   DECLARE_ALGORITHM( ClusterTiming );
   DECLARE_ALGORITHM( MissingETGepPufit );
   DECLARE_ALGORITHM( MissingETGepCl );

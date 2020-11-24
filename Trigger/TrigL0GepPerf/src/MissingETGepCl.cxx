@@ -2,7 +2,7 @@
  *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-#include "MissingETGepCl.h"
+#include "TrigL0GepPerf/MissingETGepCl.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "AthenaBaseComps/AthAlgTool.h"
