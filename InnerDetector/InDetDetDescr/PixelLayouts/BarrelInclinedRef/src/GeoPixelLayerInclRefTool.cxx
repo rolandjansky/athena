@@ -194,20 +194,32 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
       ATH_MSG_DEBUG("Layer "<<m_layer<<" in/out radius init "<<rmin<<"  "<<rmax);
 
       // Enlarge layer envelope if longerons are being built.
+      // Do not split longerons between layers unless longeron with inner service routing follows
+      // i.e., allow PP0 services running on top of the longerons
       PixelInclRefStaveXMLHelper staveHelperCurrLayer(m_layer, basics);
       if (staveHelperCurrLayer.getStaveSupportType() == "Longeron") {
-	rmax = staveHelperCurrLayer.getRadialMidpointAtEOS();
-	
-	// Last layer longeron conects to PST, so extend envelope some more (refine this!)
-	if (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers())-1) rmax = brl_rmax - 0.01;
+	rmax = staveHelperCurrLayer.getRadialMidpointAtEOS() ;
+        bool extend = (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers())-1) ? true : false;
+	if (!extend) {
+	  PixelInclRefStaveXMLHelper staveHelperNextLayer(m_layer+1, basics);
+          if ( staveHelperNextLayer.getSvcRoutingPos() != "inner" ) extend = true;
+	}
+        // the extended envelope size is calculated from the radial position of the upper edge of the "inner" part of longeron
+        // parametrization follows the GeoPixelSlimStaveSupportRef , 10 microns safety buffer added  
+	if (extend)  rmax = sqrt(pow(rmax+staveHelperCurrLayer.getXStepHighR(0)
+				     +0.5*staveHelperCurrLayer.getRadialLengthAtEOS(0)+0.25,2)
+				 +pow(staveHelperCurrLayer.getBarrelWidth(0)/2.,2))+0.01;
       }
 
       // If previous layer used a longeron, extend this layer's envelope down to meet it
+      // only used if inner service routing
       if (m_layer>0) {
 	PixelInclRefStaveXMLHelper staveHelperLastLayer(m_layer-1, basics);
-	if (staveHelperLastLayer.getStaveSupportType() == "Longeron") rmin = staveHelperLastLayer.getRadialMidpointAtEOS();
+	if (staveHelperLastLayer.getStaveSupportType() == "Longeron" 
+	    && staveHelperCurrLayer.getSvcRoutingPos()=="inner")
+	  rmin = staveHelperLastLayer.getRadialMidpointAtEOS();
       }
-      
+     
       if ( rmin < brl_rmin ) rmin = brl_rmin + 0.001;
       if ( rmax > brl_rmax ) rmax = brl_rmax - 0.001;
       
@@ -241,9 +253,6 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
     if(ladderCmpt>nbLadderType-1) ladderCmpt=0;
   }
 
-
-
-
   // Shorthand for enum (should this be in header?)
   typedef GeoPixelSlimStaveSupportInclRef::halfStaveType halfStaveType;
 
@@ -258,9 +267,11 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
     PixelInclRefStaveXMLHelper staveDBHelper(m_layer, basics);
 
     // Do we need an inner shell to complete the outer shell built on previous layer?
+    // ONLY if inner routing 
     if (staveHalf == halfStaveType::INNER && m_layer != 0 ) {
       PixelInclRefStaveXMLHelper staveDBHelper_LastLayer(m_layer-1, basics);
-      if (staveDBHelper_LastLayer.getStaveSupportType() == "Longeron") {
+      if (staveDBHelper_LastLayer.getStaveSupportType() == "Longeron" && 
+          staveDBHelper.getSvcRoutingPos() == "inner") {
 	buildStaveSupport = true;
 	innerLayerID = m_layer-1;
 	owningLayerID = staveDBHelper_LastLayer.getOwningLayer();
@@ -277,6 +288,11 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
       
       // Last layer is a special case - outer shell will be full longeron (inner+outer halves)
       if (m_layer == int(m_xmlReader->nbOfPixelBarrelLayers()-1)) ShellsToBuild.push_back(halfStaveType::INNER);
+      //  + full longeron for next layer without inner routing
+      else {
+	PixelInclRefStaveXMLHelper staveDBHelper_NextLayer(m_layer+1, basics);
+	if (staveDBHelper_NextLayer.getSvcRoutingPos() != "inner") ShellsToBuild.push_back(halfStaveType::INNER);
+      }
     }
     
    
