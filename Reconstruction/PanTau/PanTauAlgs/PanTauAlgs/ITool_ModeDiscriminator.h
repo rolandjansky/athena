@@ -7,12 +7,9 @@
 
 #include "AsgTools/IAsgTool.h"
 
-
-//class Jet;
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
 }
-
 
 namespace PanTau {
 
@@ -29,7 +26,7 @@ namespace PanTau {
         public:
 
     virtual bool isInitialized() = 0;
-    virtual double getResponse(PanTau::PanTauSeed2* inSeed, bool& isOK) = 0;
+    virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) = 0;
     };
 
 }

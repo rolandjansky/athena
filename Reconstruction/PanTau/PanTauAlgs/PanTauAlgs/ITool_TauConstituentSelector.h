@@ -5,7 +5,6 @@
 #ifndef PANTAUALGS_ITOOL_TAUCONSTITUENTSELECTOR_H
 #define PANTAUALGS_ITOOL_TAUCONSTITUENTSELECTOR_H
 
-// Gaudi
 #include "AsgTools/IAsgTool.h"
 
 #include <vector>
@@ -26,8 +25,8 @@ namespace PanTau {
 
         public:
     virtual bool isInitialized() = 0;
-            virtual StatusCode SelectTauConstituents(std::vector<TauConstituent2*> inputList,
-                                                     std::vector<TauConstituent2*>& outputList) const = 0;
+            virtual StatusCode SelectTauConstituents(std::vector<TauConstituent*> inputList,
+                                                     std::vector<TauConstituent*>& outputList) const = 0;
     };
     
 }

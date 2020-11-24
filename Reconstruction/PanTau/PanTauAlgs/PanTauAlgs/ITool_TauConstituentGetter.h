@@ -5,13 +5,12 @@
 #ifndef PANTAUALGS_ITOOL_TAUCONSTITUENTGETTER_H
 #define PANTAUALGS_ITOOL_TAUCONSTITUENTGETTER_H
 
-// Gaudi
 #include "AsgTools/IAsgTool.h"
 
 #include <string>
 
 namespace PanTau{
-    class TauConstituent2;
+    class TauConstituent;
 }
 
 #include "xAODTau/TauJet.h"
@@ -33,7 +32,7 @@ namespace PanTau {
             
     virtual bool isInitialized() = 0;
             virtual StatusCode GetTauConstituents(const xAOD::TauJet* tauJet,
-                                                  std::vector<TauConstituent2*>& outputList,
+                                                  std::vector<TauConstituent*>& outputList,
                                                   std::string algName) const = 0;
             
     };

@@ -8,23 +8,18 @@
 #include <string>
 #include <vector>
 
-//! ASG
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 
-//! xAOD EDM
 #include "xAODTau/TauJet.h"
-
-//! PanTau
-#include "PanTauAlgs/ITool_DetailsArranger.h"
-#include "PanTauAlgs/ITool_InformationStore.h"
-
-#include "PanTauAlgs/TauConstituent.h"
-
 #include "xAODParticleEvent/ParticleContainer.h"
 
+#include "PanTauAlgs/ITool_DetailsArranger.h"
+#include "PanTauAlgs/ITool_InformationStore.h"
+#include "PanTauAlgs/TauConstituent.h"
+
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
     class PanTauDetails;
 }
 
@@ -52,21 +47,21 @@ namespace PanTau {
         
         virtual StatusCode initialize();
         
-        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed, xAOD::ParticleContainer& pi0Container);
+        virtual StatusCode execute(PanTau::PanTauSeed* inSeed, xAOD::ParticleContainer& pi0Container);
         
     protected:
         
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
 	std::string m_Tool_InformationStoreName;
         
-        void                        addPanTauDetailToTauJet(PanTauSeed2*                            inSeed,
+        void                        addPanTauDetailToTauJet(PanTauSeed*                            inSeed,
                                                             std::string                            featName,
                                                             xAOD::TauJetParameters::PanTauDetails  detailEnum,
                                                             PanTauDetailsType                      detailType) const;
 
-        StatusCode                        arrangePFOLinks(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, xAOD::ParticleContainer& pi0Container);
+        StatusCode                        arrangePFOLinks(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, xAOD::ParticleContainer& pi0Container);
 
-        void                        SetHLVTau(PanTau::PanTauSeed2* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string varTypeName_Basic);
+        void                        SetHLVTau(PanTau::PanTauSeed* inSeed, xAOD::TauJet* tauJet, std::string inputAlg, std::string varTypeName_Basic);
 
 	std::vector< ElementLink< xAOD::PFOContainer > > PreselectNeutralLinks(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, xAOD::TauJet* tauJet);
 
@@ -78,7 +73,7 @@ namespace PanTau {
 
 	void SetNeutralConstituentVectorMasses(std::vector< ElementLink<xAOD::PFOContainer> > neutralPFOLinks, double mass);
 
-	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed2* inSeed, std::vector< ElementLink< xAOD::PFOContainer > > cellbased_neutralPFOLinks, PanTau::TauConstituent2::Type type );
+	std::vector< ElementLink< xAOD::PFOContainer > > CollectConstituentsAsPFOLinks( PanTau::PanTauSeed* inSeed, std::vector< ElementLink< xAOD::PFOContainer > > cellbased_neutralPFOLinks, PanTau::TauConstituent::Type type );
 
 	void createPi0Vectors(xAOD::TauJet* tauJet, std::vector<TLorentzVector>& vPi0s, std::vector< std::vector< ElementLink<xAOD::PFOContainer> > > &vec_pi0pfos);
     
