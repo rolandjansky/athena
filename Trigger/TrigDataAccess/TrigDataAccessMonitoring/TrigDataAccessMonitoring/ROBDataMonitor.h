@@ -52,7 +52,7 @@ namespace robmonitor {
     uint32_t rob_id;                           // rob source id
     uint32_t rob_size;                         // size of rob in words
     robmonitor::ROBHistory rob_history;        // History of ROB retrieval
-    std::vector<uint32_t> rob_status_words;    // all status words in the ROB header
+    uint32_t rob_status_word;                  // last status word in the ROB header
 
 
     // Accessor functions
@@ -174,10 +174,7 @@ namespace robmonitor {
       os << "invalid code";
     }
     os << ",(";
-    for (uint32_t i(0); i < rhs.rob_status_words.size(); ++i) {
-      if (i > 0) os << ",";
-      os << std::hex <<  std::setfill( '0' ) << "0x" << std::setw(8) << rhs.rob_status_words[i];
-    }
+    os << std::hex <<  std::setfill( '0' ) << "0x" << std::setw(8) << rhs.rob_status_word;
     os << ")]";
     return os;
   }
