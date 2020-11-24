@@ -49,8 +49,9 @@ namespace Muon
       StatusCode decode(const std::vector<uint32_t>& robIds) override;
 
       
-      StatusCode processCollection(const STGC_RawDataCollection *rdoColl, 
-				   std::vector<IdentifierHash>& idWithDataVect);
+      StatusCode processCollection(Muon::sTgcPrepDataContainer* stgcPrepDataContainer,
+                                   const STGC_RawDataCollection *rdoColl, 
+				   std::vector<IdentifierHash>& idWithDataVect) const;
 
       virtual void printPrepData() override;
       virtual void printInputRdo() override;
@@ -60,25 +61,19 @@ namespace Muon
       
     protected:
       
-      enum SetupSTGC_PrepDataContainerStatus {
-	FAILED = 0, ADDED, ALREADYCONTAINED
-      };
+      virtual Muon::sTgcPrepDataContainer* setupSTGC_PrepDataContainer() const = 0;
 
-      virtual SetupSTGC_PrepDataContainerStatus setupSTGC_PrepDataContainer();
+      const STGC_RawDataContainer* getRdoContainer() const;
 
-      const STGC_RawDataContainer* getRdoContainer();
-
-      void processRDOContainer(std::vector<IdentifierHash>& idWithDataVect);
+      void processRDOContainer(Muon::sTgcPrepDataContainer* stgcPrepDataContainer,
+                               std::vector<IdentifierHash>& idWithDataVect) const;
 
       SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-      bool m_fullEventDone;
-
       /** TgcPrepRawData container key for current BC */ 
       std::string m_outputCollectionLocation;      
-      Muon::sTgcPrepDataContainer* m_stgcPrepDataContainer;
       SG::ReadHandleKey<STGC_RawDataContainer> m_rdoContainerKey;//"TGCRDO"
       SG::WriteHandleKey<sTgcPrepDataContainer> m_stgcPrepDataContainerKey;
       bool m_merge; // merge Prds

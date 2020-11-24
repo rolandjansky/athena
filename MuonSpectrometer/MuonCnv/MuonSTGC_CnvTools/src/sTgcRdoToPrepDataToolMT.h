@@ -26,7 +26,7 @@ namespace Muon
       virtual StatusCode initialize() override;
 
     protected:
-      virtual SetupSTGC_PrepDataContainerStatus setupSTGC_PrepDataContainer() override;
+      virtual Muon::sTgcPrepDataContainer* setupSTGC_PrepDataContainer() const override;
    }; 
 } // end of namespace
 

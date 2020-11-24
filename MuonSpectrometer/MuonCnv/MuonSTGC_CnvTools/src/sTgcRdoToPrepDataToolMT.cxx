@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,22 +27,21 @@ StatusCode Muon::sTgcRdoToPrepDataToolMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-Muon::sTgcRdoToPrepDataToolCore::SetupSTGC_PrepDataContainerStatus Muon::sTgcRdoToPrepDataToolMT::setupSTGC_PrepDataContainer() 
+Muon::sTgcPrepDataContainer* Muon::sTgcRdoToPrepDataToolMT::setupSTGC_PrepDataContainer() const
 {
 
   if(!evtStore()->contains<Muon::sTgcPrepDataContainer>(m_stgcPrepDataContainerKey.key())){    
-    m_fullEventDone=false;
-    
     SG::WriteHandle< Muon::sTgcPrepDataContainer > handle(m_stgcPrepDataContainerKey);
     StatusCode status = handle.record(std::make_unique<Muon::sTgcPrepDataContainer>(m_idHelperSvc->stgcIdHelper().module_hash_max()));
     
     if (status.isFailure() || !handle.isValid() )   {
       ATH_MSG_FATAL("Could not record container of STGC PrepData Container at " << m_stgcPrepDataContainerKey.key()); 
-      return FAILED;
+      return nullptr;
     }
-    m_stgcPrepDataContainer = handle.ptr();
-    return ADDED;
-    
+    return handle.ptr();
   }
-  return ALREADYCONTAINED;
+
+  ATH_MSG_FATAL("STGC PrepData Container " << m_stgcPrepDataContainerKey.key()
+                << " already exists");
+  return nullptr;
 }
