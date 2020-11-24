@@ -76,9 +76,7 @@ class PixelConditionsServicesSetup:
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
-      useCablingConditions = False
       IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-      rodIDForSingleLink40=0
       if (globalflags.DataSource()=='geant4'):
         # ITk:
         if geoFlags.isSLHC():
@@ -108,12 +106,8 @@ class PixelConditionsServicesSetup:
         from RecExConfig.AutoConfiguration import GetRunNumber
         runNum = GetRunNumber()
         if (runNum<222222):
-          useCablingConditions = False
           IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-          rodIDForSingleLink40=1300000
         else:
-          useCablingConditions = True
-          rodIDForSingleLink40=1300000
           # Even though we are reading from COOL, set the correct fallback map.
           if (runNum >= 344494):
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -127,7 +121,6 @@ class PixelConditionsServicesSetup:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
       alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                               UseCablingConditions=useCablingConditions,
                                CablingMapFileName=IdMappingDat)
       if not self.usePixMap:
         alg.ReadDeadMapKey = ""
@@ -258,9 +251,7 @@ class PixelConditionsServicesSetup:
 
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-      condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                     MappingFile=IdMappingDat,
-                                     RodIDForSingleLink40=rodIDForSingleLink40)
+      condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg")
 
     #############################
     # Offline calibration Setup #
@@ -435,10 +426,10 @@ class SCT_ConditionsToolsSetup:
     from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
     sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
     from AthenaCommon.GlobalFlags import globalflags
-    if (globalflags.DataSource() == 'data'):
-      sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/Chip")
+    if (sctdaqpath=='/SCT/DAQ/Configuration'):
+      sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/Chip") # For Run 1 data (COMP200)
     else:
-      sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/ChipSlim") # For MC (OFLP200)
+      sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/ChipSlim") # For MC (OFLP200) and Run 2, 3 data (CONDBR2)
     sct_ConfigurationConditionsToolSetup.setModuleFolder(sctdaqpath+"/Module")
     sct_ConfigurationConditionsToolSetup.setMurFolder(sctdaqpath+"/MUR")
     sct_ConfigurationConditionsToolSetup.setToolName(instanceName)

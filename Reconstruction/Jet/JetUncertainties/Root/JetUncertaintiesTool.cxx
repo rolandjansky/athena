@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // General package includes
@@ -7,6 +7,7 @@
 #include "JetUncertainties/Helpers.h"
 #include "JetUncertainties/UncertaintyEnum.h"
 #include "JetUncertainties/ConfigHelper.h"
+#include "JetUncertainties/ResolutionHelper.h"
 #include "JetUncertainties/CorrelationMatrix.h"
 
 // UncertaintyHistogram types
@@ -19,13 +20,20 @@
 #include "JetUncertainties/UncertaintySet.h"
 #include "JetUncertainties/PtUncertaintyComponent.h"
 #include "JetUncertainties/PtEtaUncertaintyComponent.h"
+#include "JetUncertainties/PtLogPtMassForTagSFUncertaintyComponent.h"
+#include "JetUncertainties/PtAbsMassUncertaintyComponent.h"
 #include "JetUncertainties/PtMassUncertaintyComponent.h"
+#include "JetUncertainties/PtAbsMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/PtMassEtaUncertaintyComponent.h"
+#include "JetUncertainties/ELogMassUncertaintyComponent.h"
+#include "JetUncertainties/ELogMassEtaUncertaintyComponent.h"
 #include "JetUncertainties/PileupUncertaintyComponent.h"
 #include "JetUncertainties/FlavourUncertaintyComponent.h"
+#include "JetUncertainties/PerJetFlavourUncertaintyComponent.h"
 #include "JetUncertainties/PunchthroughUncertaintyComponent.h"
 #include "JetUncertainties/ClosebyUncertaintyComponent.h"
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
+#include "JetUncertainties/LargeRTopologyUncertaintyComponent.h"
 
 // xAOD includes
 #include "xAODCore/ShallowCopy.h"
@@ -42,7 +50,6 @@
 #include "TROOT.h"
 #include "TEnv.h"
 #include "TH2D.h"
-#include "TRandom3.h"
 
 // C++ includes
 #include <unordered_set>
@@ -64,9 +71,12 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_jetDef("")
     , m_mcType("")
     , m_configFile("")
+    , m_calibArea("CalibArea-08")
     , m_path("")
     , m_analysisFile("")
+    , m_analysisHistPattern("")
     , m_systFilters()
+    , m_defAnaFile("")
     , m_refNPV(-1)
     , m_refMu(-1)
     , m_refNPVHist(NULL)
@@ -83,22 +93,31 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
     , m_TAMassWeight(NULL)
     , m_combMassWeightCaloMassDef(CompMassDef::UNKNOWN)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
+    , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(0)
-    , m_rand(new TRandom3())
+    , m_rand()
+    , m_isData(true)
+    , m_resHelper(NULL)
     , m_namePrefix("JET_")
+    , m_accTagScaleFactor("temp_SF")
+    , m_accEffSF("temp_effSF")
+    , m_accEfficiency("temp_efficiency")
 {
     declareProperty("JetDefinition",m_jetDef);
     declareProperty("MCType",m_mcType);
     declareProperty("ConfigFile",m_configFile);
+    declareProperty("CalibArea",m_calibArea);
     declareProperty("Path",m_path);
     declareProperty("AnalysisFile",m_analysisFile);
+    declareProperty("AnalysisHistPattern",m_analysisHistPattern);
     declareProperty("VariablesToShift",m_systFilters);
+    declareProperty("IsData",m_isData);
 
     ATH_MSG_DEBUG("Creating JetUncertaintiesTool named "<<m_name);
 
     // Set dummy default systematic (do nothing)
     // Prevents NULL access if user tries to apply correction without first calling function
-    if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok)
+    if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS)
         ATH_MSG_ERROR(Form("Failed to pre-set applySystematicVariation to no variation"));
 }
 
@@ -111,9 +130,12 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_jetDef(toCopy.m_jetDef)
     , m_mcType(toCopy.m_mcType)
     , m_configFile(toCopy.m_configFile)
+    , m_calibArea(toCopy.m_calibArea)
     , m_path(toCopy.m_path)
     , m_analysisFile(toCopy.m_analysisFile)
+    , m_analysisHistPattern(toCopy.m_analysisHistPattern)
     , m_systFilters(toCopy.m_systFilters)
+    , m_defAnaFile(toCopy.m_defAnaFile)
     , m_refNPV(toCopy.m_refNPV)
     , m_refMu(toCopy.m_refMu)
     , m_refNPVHist(toCopy.m_refNPVHist?new UncertaintyHistogram(*toCopy.m_refNPVHist):NULL)
@@ -130,16 +152,22 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     , m_TAMassWeight(NULL)
     , m_combMassWeightCaloMassDef(CompMassDef::UNKNOWN)
     , m_combMassWeightTAMassDef(CompMassDef::UNKNOWN)
+    , m_combMassParam(CompParametrization::UNKNOWN)
     , m_userSeed(toCopy.m_userSeed)
-    , m_rand(toCopy.m_rand ? new TRandom3(*toCopy.m_rand) : NULL)
+    , m_rand(toCopy.m_rand)
+    , m_isData(toCopy.m_isData)
+    , m_resHelper(new ResolutionHelper(*toCopy.m_resHelper))
     , m_namePrefix(toCopy.m_namePrefix)
+    , m_accTagScaleFactor(toCopy.m_accTagScaleFactor)
+    , m_accEffSF(toCopy.m_accEffSF)
+    , m_accEfficiency(toCopy.m_accEfficiency)
 {
     ATH_MSG_DEBUG("Creating copy of JetUncertaintiesTool named "<<m_name);
 
     for (size_t iGroup = 0; iGroup < toCopy.m_groups.size(); ++iGroup)
         m_groups.push_back(new UncertaintyGroup(*toCopy.m_groups.at(iGroup)));
 
-    if (applySystematicVariation(m_currentSystSet) != CP::SystematicCode::Ok)
+    if (applySystematicVariation(m_currentSystSet) != StatusCode::SUCCESS)
         ATH_MSG_ERROR(Form("Failed to re-set applySystematicVariation in new tool copy"));
 }
 
@@ -166,7 +194,7 @@ JetUncertaintiesTool::~JetUncertaintiesTool()
         JESUNC_SAFE_DELETE(iter->second);
     m_systSetMap.clear();
 
-    JESUNC_SAFE_DELETE(m_rand);
+    JESUNC_SAFE_DELETE(m_resHelper);
 }
 
 StatusCode JetUncertaintiesTool::setScaleToMeV()
@@ -211,10 +239,10 @@ StatusCode JetUncertaintiesTool::initialize()
     gROOT->cd();
 
     // Read the config file
-    const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str());
+    const TString configFilePath = jet::utils::findFilePath(m_configFile.c_str(),m_path.c_str(),m_calibArea.c_str());
     if (configFilePath == "")
     {
-        ATH_MSG_ERROR("Cannot find config file: " << m_configFile << " (path is " << m_path << ")");
+        ATH_MSG_ERROR("Cannot find config file: " << m_configFile << " (path is \"" << m_path << "\", CalibArea is \"" << m_calibArea << "\")");
         return StatusCode::FAILURE;
     }
 
@@ -228,9 +256,11 @@ StatusCode JetUncertaintiesTool::initialize()
     // We can read it - start printing
     ATH_MSG_INFO(Form("================================================"));
     ATH_MSG_INFO(Form("  Initializing the JetUncertaintiesTool named %s",m_name.c_str()));
-    ATH_MSG_INFO(Form("  Path is: %s",m_path.c_str()));
-    ATH_MSG_INFO(Form("  Configuration read in from:" ));
-    ATH_MSG_INFO(Form("    %s",configFilePath.Data()));
+    ATH_MSG_INFO(Form("  Path is: \"%s\"",m_path.c_str()));
+    ATH_MSG_INFO(Form("  CalibArea is: \"%s\"",m_calibArea.c_str()));
+    ATH_MSG_INFO(Form("  IsData is: \"%s\"",m_isData ? "true" : "false"));
+    ATH_MSG_INFO(Form("  Configuration file: \"%s\"",m_configFile.c_str()));
+    ATH_MSG_INFO(Form("    Location: %s",configFilePath.Data()));
     
     
     // Get the uncertainty release
@@ -291,22 +321,61 @@ StatusCode JetUncertaintiesTool::initialize()
         ATH_MSG_ERROR("Cannot find uncertainty histogram file");
         return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO(Form("  UncertaintyFile: %s",histFileName.Data()));
-
-    // Get the analysis ROOT file for later use (only if it wasn't specified by user config)
-    if (m_analysisFile == "")
-        m_analysisFile = settings.GetValue("AnalysisRootFile","");
-    if (m_analysisFile != "")
-        ATH_MSG_INFO(Form("  AnalysisFile: %s",m_analysisFile.c_str()));
-
+    ATH_MSG_INFO(Form("  UncertaintyFile: \"%s\"",histFileName.Data()));
+    
+    // Now find the histogram file
+    const TString histFilePath = utils::findFilePath(histFileName,m_path.c_str(),m_calibArea.c_str());
+    if (histFilePath == "")
+    {
+        ATH_MSG_ERROR("Cannot find the path of the uncertainty histogram file");
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO(Form("    Location: %s",histFilePath.Data()));
+    
     // Now open the histogram file
-    TFile* histFile = utils::readRootFile(histFileName,m_path.c_str());
+    TFile* histFile = new TFile(histFilePath,"READ");
     if (!histFile || histFile->IsZombie())
     {
         ATH_MSG_ERROR("Cannot open uncertainty histogram file: " << histFileName.Data());
         return StatusCode::FAILURE;
     }
     
+
+    // Get the default analysis ROOT file for later use
+    // Overwrite the analysisFile if it wasn't specified
+    m_defAnaFile = settings.GetValue("AnalysisRootFile","");
+    if (m_analysisFile == "")
+        m_analysisFile = m_defAnaFile;
+    if (m_analysisFile != "")
+    {
+        ATH_MSG_INFO(Form("  AnalysisFile: \"%s\"",m_analysisFile.c_str()));
+        // Ensure that we can find the file
+        const TString analysisFilePath = utils::findFilePath(m_analysisFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+        if (analysisFilePath == "")
+        {
+            ATH_MSG_ERROR("Cannot find the path of the analysis histogram file");
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_INFO(Form("    Location: %s",analysisFilePath.Data()));
+    }
+    if (m_defAnaFile != m_analysisFile && m_defAnaFile != "")
+    {
+        ATH_MSG_INFO(Form("  DefaultAnalysisFile: \"%s\"",m_defAnaFile.c_str()));
+        // Ensure that we can find the file
+        const TString analysisFilePath = utils::findFilePath(m_defAnaFile.c_str(),m_path.c_str(),m_calibArea.c_str());
+        if (analysisFilePath == "")
+        {
+            ATH_MSG_ERROR("Cannot find the path of the default analysis histogram file");
+            return StatusCode::FAILURE;
+        }
+        ATH_MSG_INFO(Form("    Location: %s",analysisFilePath.Data()));
+        // if a histogram pattern was provided, then use it (only if an analysis file is used)
+        if (m_analysisHistPattern != "")
+        {
+            ATH_MSG_INFO(Form("  AnalysisHistPattern: \"%s\"",m_analysisHistPattern.c_str()));
+        }
+    }
+
     // Get a file-wide validity histogram if specified
     TString validHistForFile = settings.GetValue("FileValidHistogram","");
     if (validHistForFile != "")
@@ -338,17 +407,27 @@ StatusCode JetUncertaintiesTool::initialize()
     const TString TAMassWeight   = TString(settings.GetValue("CombMassWeightTAHist",""));
     if (caloMassWeight != "" && TAMassWeight != "")
     {
-        m_caloMassWeight = new UncertaintyHistogram(caloMassWeight+"_"+m_jetDef.c_str(),true);
-        m_TAMassWeight = new UncertaintyHistogram(TAMassWeight+"_"+m_jetDef.c_str(),true);
+        m_caloMassWeight = new UncertaintyHistogram(caloMassWeight+"_"+m_jetDef.c_str(),Interpolate::Full);
+        m_TAMassWeight = new UncertaintyHistogram(TAMassWeight+"_"+m_jetDef.c_str(),Interpolate::Full);
 
         if (m_caloMassWeight->initialize(histFile).isFailure())
             return StatusCode::FAILURE;
         if (m_TAMassWeight->initialize(histFile).isFailure())
             return StatusCode::FAILURE;
 
+        // Get the weight parametrization, defaulting to pT vs m/pT
+        const TString combMassParam  = TString(settings.GetValue("CombMassWeightParam","PtMass"));
+        m_combMassParam = CompParametrization::stringToEnum(combMassParam);
+        if (m_combMassParam == CompParametrization::UNKNOWN)
+        {
+            ATH_MSG_ERROR("Unexpected combined mass parametrization: " << combMassParam.Data());
+            return StatusCode::FAILURE;
+        }
+
         ATH_MSG_INFO("  Found and loaded combined mass weight factors");
         ATH_MSG_INFO("    WeightCaloHist = " << m_caloMassWeight->getName());
         ATH_MSG_INFO("    WeightTAHist   = " << m_TAMassWeight->getName());
+        ATH_MSG_INFO("    WeightParam    = " << CompParametrization::enumToString(m_combMassParam).Data());
 
         // Check for custom mass definitions for the weight factors (not required, defaults exist)
         const TString caloWeightMassDef = settings.GetValue("CombMassWeightCaloMassDef","Calo");
@@ -375,7 +454,17 @@ StatusCode JetUncertaintiesTool::initialize()
         return StatusCode::FAILURE;
     }
 
-    
+    // Get name of accessor to SF value
+    m_name_TagScaleFactor  = TString(settings.GetValue("FileValidSFName","temp_SF"));
+    m_name_EffSF           = TString(settings.GetValue("FileValidEffSFName","temp_effSF"));
+    m_name_Efficiency      = TString(settings.GetValue("FileValidEfficiencyName","temp_efficiency"));
+    if ( m_name_TagScaleFactor != "temp_SF") {
+      ATH_MSG_INFO("   accessor of SF is " << m_name_TagScaleFactor);
+    }
+    m_accTagScaleFactor = SG::AuxElement::Accessor<float>(m_name_TagScaleFactor);
+    m_accEffSF = SG::AuxElement::Accessor<float>(m_name_EffSF);
+    m_accEfficiency = SG::AuxElement::Accessor<float>(m_name_Efficiency);
+
     // Get the NPV/mu reference values
     // These may not be set - only needed if a pileup component is requested
     TString refNPV = settings.GetValue("Pileup.NPVRef","");
@@ -393,7 +482,7 @@ StatusCode JetUncertaintiesTool::initialize()
             m_refNPV = utils::getTypeObjFromString<float>(refNPV);
         else
         {
-            m_refNPVHist = new UncertaintyHistogram(refNPV+"_"+m_jetDef,false);
+            m_refNPVHist = new UncertaintyHistogram(refNPV+"_"+m_jetDef,Interpolate::None);
             if (m_refNPVHist->initialize(histFile).isFailure())
                 return StatusCode::FAILURE;
         }
@@ -402,7 +491,7 @@ StatusCode JetUncertaintiesTool::initialize()
             m_refMu = utils::getTypeObjFromString<float>(refMu);
         else
         {
-            m_refMuHist = new UncertaintyHistogram(refMu+"_"+m_jetDef,false);
+            m_refMuHist = new UncertaintyHistogram(refMu+"_"+m_jetDef,Interpolate::None);
             if (m_refMuHist->initialize(histFile).isFailure())
                 return StatusCode::FAILURE;
         }
@@ -426,6 +515,12 @@ StatusCode JetUncertaintiesTool::initialize()
         }
         ATH_MSG_INFO(Form("  VariablesToShift: %s",varString.c_str()));
     }
+
+    // Attempt to read in nominal resolution information
+    // There may be no such information - this is perfectly normal
+    m_resHelper = new ResolutionHelper(m_name+"_RH",m_jetDef);
+    if(m_resHelper->initialize(settings,histFile,m_mcType.c_str()).isFailure())
+        return StatusCode::FAILURE;
 
     // Prepare for reading components and groups
     // Components can be a group by themself (single component groups) if "Group" == 0
@@ -577,114 +672,6 @@ StatusCode JetUncertaintiesTool::initialize()
     }
 
 
-    /*
-    // Deal with subgroups
-    // Have to do this carefully to ensure we can have multiple levels of subgroups (groups of groups of groups of ...)
-
-    // First split into complex groups and basic groups (groups which include subgroups and groups which do not include subgroups)
-    // Also get the full list of subgroup requests to ensure there are no duplicates
-    std::vector<size_t> complexGroupIndices;
-    std::vector<size_t> basicGroupIndices;
-    std::set<int> subgroupsRequested;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-    {
-        const std::vector<int> subgroupNums = m_groups.at(iGroup)->getSubgroupNums();
-        if (subgroupNums.size())
-        {
-            for (size_t iSubgroup = 0; iSubgroup < subgroupNums.size(); ++iSubgroup)
-            {
-                const int subgroupNum = subgroupNums.at(iSubgroup);
-                if (subgroupNum == 0)
-                {
-                    ATH_MSG_ERROR("Requested group number 0 as a subgroup, which is forbidden (0 is a simple group)");
-                    return StatusCode::FAILURE;
-                }
-                else if (subgroupsRequested.count(subgroupNum))
-                {
-                    ATH_MSG_ERROR(Form("Requested group number %d as a subgroup of multiple complex groups",subgroupNum));
-                    return StatusCode::FAILURE;
-                }
-                else
-                    subgroupsRequested.insert(subgroupNum);
-            }
-            complexGroupIndices.push_back(iGroup);
-        }
-        else
-            basicGroupIndices.push_back(iGroup);
-    }
-
-    // Match indices to each of the requested subgroups
-    std::vector< std::pair<int,size_t> > subgroupPairs;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-    {
-        const int groupNum = m_groups.at(iGroup)->getGroupNum();
-        if (groupNum == 0) continue;
-        
-        for (std::set<int>::const_iterator iter = subgroupsRequested.begin(); iter != subgroupsRequested.end(); ++iter)
-        {
-            if ( (*iter) == groupNum )
-            {
-                subgroupPairs.push_back(std::make_pair(groupNum,iGroup));
-                break;
-            }
-        }
-    }
-
-    // We now have the map of (group-->index)
-    // Combine all of the groups as applicable
-    // Leave all of the groups in the class member vector for now until we have completed the merger
-    for (size_t iCompGroup = 0; iCompGroup < complexGroupIndices.size(); ++iCompGroup)
-    {
-        const size_t compGroupIndex = complexGroupIndices.at(iCompGroup);
-        const std::vector<int> subgroupNums = m_groups.at(compGroupIndex)->getSubgroupNums();
-        for (size_t iSubgroupPair = 0; iSubgroupPair < subgroupPairs.size(); ++iSubgroupPair)
-        {
-            for (size_t iSubgroup = 0; iSubgroup < subgroupNums.size(); ++iSubgroup)
-            {
-                // Ensure we're not adding a cyclic group
-                if (m_groups.at(compGroupIndex)->getGroupNum() == subgroupNums.at(iSubgroup))
-                {
-                    ATH_MSG_ERROR(Form("Blocking the request to add group number %d as a subgroup of itself",subgroupNums.at(iSubgroup)));
-                    return StatusCode::FAILURE;
-                }
-
-                // Now add the subgroup to the complex group
-                if (subgroupNums.at(iSubgroup) == subgroupPairs.at(iSubgroupPair).first)
-                {
-                    if (m_groups.at(compGroupIndex)->addSubgroup(m_groups.at(subgroupPairs.at(iSubgroupPair).second)).isFailure())
-                    {
-                        ATH_MSG_ERROR(Form("Failed to add subgroup \"%s\" to complex group \"%s\"",m_groups.at(subgroupPairs.at(iSubgroupPair).second)->getName().Data(),m_groups.at(compGroupIndex)->getName().Data()));
-                    }
-                    break;
-                }
-            }
-        }
-    }
-
-    // Clean up all of the subgroups, leaving only the outermost complex groups and independent groups in the class member variable
-    // Faster to do it this way rather than deleting individual entries of the vector
-    std::vector<UncertaintyGroup*> localGroupVec;
-    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
-        localGroupVec.push_back(m_groups.at(iGroup));
-    m_groups.clear();
-    for (size_t iGroup = 0; iGroup < localGroupVec.size(); ++iGroup)
-    {
-        // Check if this group should be retained
-        bool retainGroup = true;
-        for (size_t iSubgroupPair = 0; iSubgroupPair < subgroupPairs.size(); ++iSubgroupPair)
-        {
-            if (subgroupPairs.at(iSubgroupPair).second == iGroup)
-            {
-                retainGroup = false;
-                break;
-            }
-        }
-        // Keep the group if applicable
-        if (retainGroup)
-            m_groups.push_back(localGroupVec.at(iGroup));
-    }
-    */
-
     
     // Initialize all of the groups (and thus all of the components)
     // Also ensure that there are no empty groups
@@ -708,9 +695,29 @@ StatusCode JetUncertaintiesTool::initialize()
         //      If unspecified, all variables are systematically shifted by default
         const bool isRecommended = checkIfRecommendedSystematic(*m_groups.at(iGroup));
         CP::SystematicVariation systVar(m_groups.at(iGroup)->getName().Data(),CP::SystematicVariation::CONTINUOUS);
-        if (addAffectingSystematic(systVar,isRecommended) != CP::SystematicCode::Ok)
+        if (addAffectingSystematic(systVar,isRecommended) != StatusCode::SUCCESS)
             return StatusCode::FAILURE;
     }
+
+    // Ensure that we have nominal resolutions for any requested resolution uncertainties
+    // Do this at initialization, even if it is also checked in execution
+    // Also ensure that it was specified whether this is data or MC if resolutions are specified
+    for (size_t iGroup = 0; iGroup < m_groups.size(); ++iGroup)
+    {
+        std::set<CompScaleVar::TypeEnum> scaleVars = m_groups.at(iGroup)->getScaleVars();
+        for (CompScaleVar::TypeEnum var : scaleVars)
+        {
+            if (CompScaleVar::isResolutionType(var))
+            {
+                if (!m_resHelper->hasRelevantInfo(var,m_groups.at(iGroup)->getTopology()))
+                {
+                    ATH_MSG_ERROR("Config file requests a resolution uncertainty without specifying the corresponding nominal resolution: " << CompScaleVar::enumToString(var).Data());
+                    return StatusCode::FAILURE;
+                }
+            }
+        }
+    }
+
 
     // Ensure that the filters are sane (they are all associated to at least one group)
     for (size_t iFilter = 0; iFilter < m_systFilters.size(); ++iFilter)
@@ -966,7 +973,12 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 return NULL;
             }
             else if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
-                return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile,m_path.c_str());
+            {
+                if (component.flavourType == FlavourComp::PerJetResponse)
+                    return new PerJetFlavourUncertaintyComponent(component);
+                else
+                    return new FlavourUncertaintyComponent(component,m_jetDef,m_analysisFile.c_str(),m_defAnaFile.c_str(),m_path.c_str(),m_calibArea.c_str(),m_analysisHistPattern.c_str());
+            }
             else
             {
                 ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
@@ -1012,18 +1024,10 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             CombinedMassUncertaintyComponent* cmuc = new CombinedMassUncertaintyComponent(combComp);
             
             // Set the weights
-            if (cmuc->setCaloWeights(m_caloMassWeight).isFailure()) {
-              delete cmuc;
-              return NULL;
-            }
-            if (cmuc->setTAWeights(m_TAMassWeight).isFailure()){
-              delete cmuc;
-              return NULL;
-            }
-            if (cmuc->setCombWeightMassDefs(m_combMassWeightCaloMassDef,m_combMassWeightTAMassDef).isFailure()){
-              delete cmuc;
-              return NULL;
-            }
+            if (cmuc->setCaloWeights(m_caloMassWeight).isFailure()) return NULL;
+            if (cmuc->setTAWeights(m_TAMassWeight).isFailure())     return NULL;
+            if (cmuc->setCombWeightMassDefs(m_combMassWeightCaloMassDef,m_combMassWeightTAMassDef).isFailure()) return NULL;
+            if (cmuc->setCombWeightParam(m_combMassParam).isFailure())  return NULL;
             if (component.combMassType == CombMassComp::Calo || component.combMassType == CombMassComp::Both)
             {
                 // Define the calorimeter group if applicable
@@ -1047,8 +1051,6 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 if (caloComps.size() != caloMassDefs.size())
                 {
                     ATH_MSG_ERROR("Unbalanced number of calo mass terms and calo mass definitions, " << caloComps.size() << " vs " << caloMassDefs.size() << " for combined mass component: " << component.name.Data());
-                    delete cmuc;
-                    delete caloGroup;
                     return NULL;
                 }
                 
@@ -1065,8 +1067,6 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                     if (caloCompH.massDef == CompMassDef::UNKNOWN)
                     {
                         ATH_MSG_ERROR("Failed to parse calo mass definition " << iComp << " (" << caloMassDefs.at(iComp).Data() << ") for combined mass component: " << component.name.Data());
-                        delete cmuc;
-                        delete caloGroup;
                         return NULL;
                     }
 
@@ -1106,8 +1106,6 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                 if (TAComps.size() != TAMassDefs.size())
                 {
                     ATH_MSG_ERROR("Unbalanced number of TA mass terms and TA mass definitions, " << TAComps.size() << " vs " << TAMassDefs.size() << " for combined mass component: " << component.name.Data());
-                    delete TAGroup;
-                    delete cmuc;
                     return NULL;
                 }
 
@@ -1124,8 +1122,6 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
                     if (TACompH.massDef == CompMassDef::UNKNOWN)
                     {
                         ATH_MSG_ERROR("Failed to parse TA mass definition " << iComp << " (" << TAMassDefs.at(iComp).Data() << ") for combined mass component: " << component.name.Data());
-                        delete cmuc;
-                        delete TAGroup;
                         return NULL;
                     }
 
@@ -1148,6 +1144,27 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             // Done, return the component
             return cmuc;
         }
+        // Next check large-R topology
+        else if (component.name.Contains("Large",TString::kIgnoreCase) && component.name.Contains("Topology",TString::kIgnoreCase))
+        {
+            if (component.parametrization == CompParametrization::PtEta || component.parametrization == CompParametrization::PtAbsEta)
+            {
+                if (component.LargeRJetTruthLabels.size() > 0)
+                {
+                    return new LargeRTopologyUncertaintyComponent(component);
+                }
+                else
+                {
+                    ATH_MSG_ERROR(Form("No LargeRJetTruthLabels specified for Large-R jet topology component %s",component.name.Data()));
+                    return NULL;
+                }
+            }
+            else
+            {
+                ATH_MSG_ERROR(Form("Unexpected parametrization of %s for component %s",CompParametrization::enumToString(component.parametrization).Data(),component.name.Data()));
+                return NULL;
+            }
+        }
         else
         {
             ATH_MSG_ERROR("Unexpected special component: " << component.name.Data());
@@ -1165,11 +1182,23 @@ UncertaintyComponent* JetUncertaintiesTool::buildUncertaintyComponent(const Comp
             case CompParametrization::PtEta:
             case CompParametrization::PtAbsEta:
                 return new PtEtaUncertaintyComponent(component);
+            case CompParametrization::PtAbsMass:
+                return new PtAbsMassUncertaintyComponent(component);
             case CompParametrization::PtMass:
                 return new PtMassUncertaintyComponent(component);
+            case CompParametrization::PtLOGPtMassForTagSF:
+                return new PtLogPtMassForTagSFUncertaintyComponent(component);
             case CompParametrization::PtMassEta:
             case CompParametrization::PtMassAbsEta:
                 return new PtMassEtaUncertaintyComponent(component);
+            case CompParametrization::PtAbsMassEta:
+            case CompParametrization::PtAbsMassAbsEta:
+                return new PtAbsMassEtaUncertaintyComponent(component);
+            case CompParametrization::eLOGmOe:
+                return new ELogMassUncertaintyComponent(component);
+            case CompParametrization::eLOGmOeEta:
+            case CompParametrization::eLOGmOeAbsEta:
+                return new ELogMassEtaUncertaintyComponent(component);
             default:
                 ATH_MSG_ERROR("Encountered unexpected parameter type: " << component.param.Data());
                 return NULL;
@@ -1236,7 +1265,7 @@ bool JetUncertaintiesTool::checkIfRecommendedSystematic(const jet::UncertaintyGr
     return true;
 }
 
-CP::SystematicCode JetUncertaintiesTool::addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended)
+StatusCode JetUncertaintiesTool::addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended)
 {
     CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
     registry.registerSystematic(systematic);
@@ -1244,40 +1273,40 @@ CP::SystematicCode JetUncertaintiesTool::addAffectingSystematic(const CP::System
     if (recommended)
     {
         m_recommendedSystematics.insert(systematic);
-        if (registry.addSystematicToRecommended(systematic) != CP::SystematicCode::Ok)
+        if (registry.addSystematicToRecommended(systematic) != StatusCode::SUCCESS)
         {
             ATH_MSG_ERROR("Failed to add systematic to list of recommended systematics: " << systematic.name());
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
     }
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
-CP::SystematicCode JetUncertaintiesTool::applySystematicVariation(const CP::SystematicSet& systConfig)
+StatusCode JetUncertaintiesTool::applySystematicVariation(const CP::SystematicSet& systConfig)
 {
     //if (!m_isInit)
     //{
     //    ATH_MSG_FATAL("Tool must be initialized before calling applySystematicVariation");
-    //    return CP::SystematicCode::Unsupported;
+    //    return StatusCode::FAILURE;
     //}
 
     // Filter the full set of systematics to the set we care about
     CP::SystematicSet filteredSet;
-    if (getFilteredSystematicSet(systConfig,filteredSet) != CP::SystematicCode::Ok)
-        return CP::SystematicCode::Unsupported;
+    if (getFilteredSystematicSet(systConfig,filteredSet) != StatusCode::SUCCESS)
+        return StatusCode::FAILURE;
 
     // Get the uncertainty set associated to the filtered systematics set
     jet::UncertaintySet* uncSet = NULL;
-    if (getUncertaintySet(filteredSet,uncSet) != CP::SystematicCode::Ok)
-        return CP::SystematicCode::Unsupported;
+    if (getUncertaintySet(filteredSet,uncSet) != StatusCode::SUCCESS)
+        return StatusCode::FAILURE;
 
     // Change the current state
     m_currentSystSet.swap(filteredSet);
     m_currentUncSet = uncSet;
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
-CP::SystematicCode JetUncertaintiesTool::getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet)
+StatusCode JetUncertaintiesTool::getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet)
 {
     // Check if we have already encountered this set
     std::unordered_map<CP::SystematicSet,CP::SystematicSet>::iterator iter = m_systFilterMap.find(systConfig);
@@ -1286,15 +1315,15 @@ CP::SystematicCode JetUncertaintiesTool::getFilteredSystematicSet(const CP::Syst
     // Make the filtered set and store it
     else
     {
-        if (CP::SystematicSet::filterForAffectingSystematics(systConfig,m_recognizedSystematics,filteredSet) != CP::SystematicCode::Ok)
-            return CP::SystematicCode::Unsupported;
+        if (CP::SystematicSet::filterForAffectingSystematics(systConfig,m_recognizedSystematics,filteredSet) != StatusCode::SUCCESS)
+            return StatusCode::FAILURE;
         m_systFilterMap.insert(std::make_pair(systConfig,filteredSet));
     }
 
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
-CP::SystematicCode JetUncertaintiesTool::getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet)
+StatusCode JetUncertaintiesTool::getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet)
 {
     // Check if we have already encountered this set
     std::unordered_map<CP::SystematicSet,UncertaintySet*>::iterator iter = m_systSetMap.find(filteredSet);
@@ -1312,12 +1341,12 @@ CP::SystematicCode JetUncertaintiesTool::getUncertaintySet(const CP::SystematicS
         {
             ATH_MSG_ERROR("Failed to create UncertaintySet for filtered CP::SystematicSet: " << filteredSet.name());
             JESUNC_SAFE_DELETE(uncSet);
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
         m_systSetMap.insert(std::make_pair(filteredSet,uncSet));
     }
     
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
 
@@ -1557,15 +1586,35 @@ bool JetUncertaintiesTool::getComponentScalesD2Beta1(const size_t index) const
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::D2Beta1);
 }
+bool JetUncertaintiesTool::getComponentScalesC2Beta1(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::C2Beta1);
+}
 bool JetUncertaintiesTool::getComponentScalesQw(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
     return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::Qw);
 }
+bool JetUncertaintiesTool::getComponentScalesTagScaleFactor(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return false;
+    return checkScalesSingleVar(m_groups.at(index)->getScaleVars(),CompScaleVar::TagScaleFactor);
+}
 bool JetUncertaintiesTool::getComponentScalesMultiple(const size_t index) const
 {
     if (checkIndexInput(index).isFailure()) return false;
     return m_groups.at(index)->getScaleVars().size() > 1;
+}
+std::set<CompScaleVar::TypeEnum> JetUncertaintiesTool::getComponentScaleVars(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return std::set<CompScaleVar::TypeEnum>();
+    return m_groups.at(index)->getScaleVars();
+}
+JetTopology::TypeEnum JetUncertaintiesTool::getComponentTopology(const size_t index) const
+{
+    if (checkIndexInput(index).isFailure()) return JetTopology::UNKNOWN;
+    return m_groups.at(index)->getTopology();
 }
 
 
@@ -1723,6 +1772,113 @@ bool JetUncertaintiesTool::getValidUncertainty(size_t index, double& unc, const 
 }
 
 
+double JetUncertaintiesTool::getNominalResolutionMC(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology) const
+{
+    return getNominalResolution(jet,smearType,topology,true);
+}
+
+double JetUncertaintiesTool::getNominalResolutionData(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology) const
+{
+    return getNominalResolution(jet,smearType,topology,false);
+}
+
+double JetUncertaintiesTool::getNominalResolution(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const JetTopology::TypeEnum topology, const bool readMC) const
+{
+    if (!m_isInit)
+    {
+        ATH_MSG_FATAL("Tool must be initialized before calling getNominalResolution");
+        return JESUNC_ERROR_CODE;
+    }
+    if (!m_resHelper)
+    {
+        ATH_MSG_ERROR("The ResolutionHelper class was not created");
+        return JESUNC_ERROR_CODE;
+    }
+
+    // Get the nominal histogram, parametrization, and mass def (if relevant) from the helper
+    std::tuple<const UncertaintyHistogram*,CompParametrization::TypeEnum,CompMassDef::TypeEnum> resolution = m_resHelper->getNominalResolution(smearType,topology,readMC);
+
+    // Check that we retrieved them successfully
+    if (!std::get<0>(resolution) || std::get<1>(resolution) == CompParametrization::UNKNOWN)
+        return JESUNC_ERROR_CODE;
+    if (CompParametrization::includesMass(std::get<1>(resolution)) && std::get<2>(resolution) == CompMassDef::UNKNOWN)
+    {
+        // We should never reach this, as it was also checked during initialization
+        ATH_MSG_ERROR("Parametrization involves mass but mass def is unknown");
+        return JESUNC_ERROR_CODE;
+    }
+
+    // Now read the uncertainty from the histogram
+    return readHistoFromParam(jet,*std::get<0>(resolution),std::get<1>(resolution),std::get<2>(resolution));
+}
+
+
+double JetUncertaintiesTool::readHistoFromParam(const xAOD::Jet& jet, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param, const jet::CompMassDef::TypeEnum massDef) const
+{
+    // Simple case (no mass dependence)
+    if (!CompParametrization::includesMass(param))
+        return readHistoFromParam(jet.jetP4(),histo,param);
+    
+    // Complex case (need to check the mass type to use)
+    // Simple four-vector case
+    if (massDef == CompMassDef::UNKNOWN || massDef == CompMassDef::FourVecMass)
+        return readHistoFromParam(jet.jetP4(),histo,param);
+    // Special scale case
+    JetFourMomAccessor massScaleAccessor(CompMassDef::getJetScaleString(massDef).Data());
+    return readHistoFromParam(massScaleAccessor(jet),histo,param);
+}
+
+double JetUncertaintiesTool::readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param) const
+{
+    double value = 0;
+    switch (param)
+    {
+        case CompParametrization::Pt:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale);
+            break;
+        case CompParametrization::PtEta:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
+            break;
+        case CompParametrization::PtAbsEta:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::PtAbsMass:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale);
+            break;
+        case CompParametrization::PtMass:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt());
+            break;
+        case CompParametrization::PtLOGPtMassForTagSF:
+	    value = histo.getValue(jet4vec.Pt()*m_energyScale,log(jet4vec.M()/jet4vec.Pt()));
+            break;
+        case CompParametrization::PtMassEta:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),jet4vec.Eta());
+            break;
+        case CompParametrization::PtMassAbsEta:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()/jet4vec.Pt(),fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::PtAbsMassEta:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale,jet4vec.Eta());
+            break;
+        case CompParametrization::PtAbsMassAbsEta:
+            value = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale,fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::eLOGmOe:
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()));
+            break;
+        case CompParametrization::eLOGmOeEta:
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),jet4vec.Eta());
+            break;
+        case CompParametrization::eLOGmOeAbsEta:
+            value = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()/jet4vec.E()),fabs(jet4vec.Eta()));
+            break;
+        default:
+            ATH_MSG_ERROR("Failed to read histogram due to unknown parametrization type in " << getName());
+            break;
+    }
+    return value;
+}
+
 
 double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) const
 {
@@ -1731,14 +1887,13 @@ double JetUncertaintiesTool::getNormalizedCaloMassWeight(const xAOD::Jet& jet) c
     static JetFourMomAccessor caloScale (CompMassDef::getJetScaleString(m_combMassWeightCaloMassDef).Data());
     static JetFourMomAccessor TAScale (CompMassDef::getJetScaleString(m_combMassWeightTAMassDef).Data());
 
-
-    const double caloRes = m_caloMassWeight->getValue(caloScale.pt(jet)*m_energyScale,caloScale.m(jet)/caloScale.pt(jet) );
-    const double TARes   = m_TAMassWeight->getValue(TAScale.pt(jet)*m_energyScale,TAScale.m(jet)/TAScale.pt(jet));
+    const double caloRes = m_caloMassWeight ? readHistoFromParam(caloScale(jet),*m_caloMassWeight,m_combMassParam) : 0;
+    const double TARes   = m_TAMassWeight ? readHistoFromParam(TAScale(jet),*m_TAMassWeight,m_combMassParam) : 0;
 
     if (caloRes == 0 || TARes == 0) return 0;
 
-    const double caloFactor = 1./(caloRes*caloRes);
-    const double TAFactor   = 1./(TARes*TARes);
+    const double caloFactor = (caloRes == 0) ? 0 : 1./(caloRes*caloRes);
+    const double TAFactor   = ( TARes  == 0) ? 0 : 1./(TARes*TARes);
     
     if (caloFactor + TAFactor == 0) return 0;
 
@@ -1905,9 +2060,9 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
     }
     
     // Check for a global validity histogram
-    if (m_fileValidHist && !m_fileValidHist->getValidity(jet))
+    if (m_fileValidHist && !m_fileValidHist->getValidity(jet)){
         return CP::CorrectionCode::OutOfValidityRange;
-    
+    }
 
     // Scale the jet and/or its moments by the uncertainty/uncertainties
     // Note that uncertainties may be either positive or negative
@@ -1932,16 +2087,57 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
     if (!allValid)
         return CP::CorrectionCode::OutOfValidityRange;
     
+    // Ensure that we don't mix relative and absolute resolution uncertainties of the same type
+    // Such situations violate the current code structure
+    std::vector<CompScaleVar::TypeEnum> scaleVars = m_currentUncSet->getScaleVars();
+    bool hasMassRes = false;
+    bool hasPtRes   = false;
+    bool hasFvRes   = false;
+    for (CompScaleVar::TypeEnum var : scaleVars)
+    {
+        if (var == CompScaleVar::MassRes || var == CompScaleVar::MassResAbs)
+        {
+            if (hasMassRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative mass resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasMassRes = true;
+        }
+        else if (var == CompScaleVar::PtRes || var == CompScaleVar::PtResAbs)
+        {
+            if (hasPtRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative pT resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasPtRes = true;
+        }
+        else if (var == CompScaleVar::FourVecRes || var == CompScaleVar::FourVecResAbs)
+        {
+            if (hasFvRes)
+            {
+                ATH_MSG_ERROR("Varying both absolute and relative four-vector resolution components simultaneously is not supported");
+                return CP::CorrectionCode::Error;
+            }
+            else
+                hasFvRes = true;
+        }
+    }
+
     // Handle each case as needed
     for (size_t iVar = 0; iVar < uncSet.size(); ++iVar)
     {
         const CompScaleVar::TypeEnum scaleVar = uncSet.at(iVar).first;
         //const double unc = uncSet.at(iVar).second;
         const double shift = 1 + uncSet.at(iVar).second;
-        
+        const double smear = uncSet.at(iVar).second;
 
         // Careful of const vs non-const objects with accessors
         // Can unintentionally create something new which didn't exist, as jet is non-const
+        double smearingFactor = 1;
         switch (scaleVar)
         {
             case CompScaleVar::FourVec:
@@ -1981,12 +2177,45 @@ CP::CorrectionCode JetUncertaintiesTool::applyCorrection(xAOD::Jet& jet, const x
                 if (updateD2Beta1(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
+            case CompScaleVar::C2Beta1:
+                if (updateC2Beta1(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
             case CompScaleVar::Qw:
                 if (updateQw(jet,shift).isFailure())
                     return CP::CorrectionCode::Error;
                 break;
+            case CompScaleVar::TagScaleFactor:
+	        if (updateTagScaleFactor(jet,shift).isFailure())
+                    return CP::CorrectionCode::Error;
+                break;
             case CompScaleVar::MassRes:
-                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),getMassSmearingFactor(jet,shift)*jet.m()));
+            case CompScaleVar::MassResAbs:
+                if (m_currentUncSet->getTopology() == JetTopology::UNKNOWN)
+                {
+                    // The JMR requires that there is a topology specified
+                    // (JMR uncertainties are topology-specific)
+                    ATH_MSG_ERROR("Smearing the mass without specifying the topology is not supported");
+                    return CP::CorrectionCode::Error;
+                }
+                if (m_currentUncSet->getTopology() == JetTopology::MIXED)
+                {
+                    // We can't handle multi-topology JMR uncertainties
+                    ATH_MSG_ERROR("Smearing the mass using multiple topology definitions is not supported");
+                    return CP::CorrectionCode::Error;
+                }
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(jet.pt(),jet.eta(),jet.phi(),smearingFactor*jet.m()));
+                break;
+            case CompScaleVar::PtRes:
+            case CompScaleVar::PtResAbs:
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(smearingFactor*jet.pt(),jet.eta(),jet.phi(),jet.m()));
+                break;
+            case CompScaleVar::FourVecRes:
+            case CompScaleVar::FourVecResAbs:
+                smearingFactor = getSmearingFactor(jet,scaleVar,smear);
+                jet.setJetP4(xAOD::JetFourMom_t(smearingFactor*jet.pt(),jet.eta(),jet.phi(),smearingFactor*jet.m()));
                 break;
             default:
                 ATH_MSG_ERROR("Asked to scale an UNKNOWN variable for set: " << m_currentUncSet->getName());
@@ -2103,35 +2332,156 @@ const xAOD::EventInfo* JetUncertaintiesTool::getDefaultEventInfo() const
 
 
 
-// Courtest of Francesco Spano
-float JetUncertaintiesTool::getMassSmearingFactor(xAOD::Jet& jet, const double shift) const
+
+double JetUncertaintiesTool::getSmearingFactor(const xAOD::Jet& jet, const CompScaleVar::TypeEnum smearType, const double variation) const
 {
-    //----input discussion---
-    // input should the standard deviation of mass response, sigma(M_smear/M_nominal), recover that deviation
-    // even if it is the fractional deviation of the mass response, it is fine as long as the mass is calibrated
-    // sigma(M_smear/M_nominal)/<M_smear/M_nominal>~ sigma(M_smear/M_nominal) as   <M_smear/M_nominal> ~ 1
-    //----
+    /*
+        Below follows discussion between B Malaescu, C Young, and S Schramm on 14/08/2018
 
-    // the input shift is the fractional resolution + 1--> recover the nominal fractional resolution
-    // we should have the resolution of the mass response, but
-    double frac_sigma_nominal = fabs(shift-1);
+        sigma_smear^2 = (sigma_nominal + |n*x + m*y + ...|)^2 - (sigma_nominal)^2
+            sigma_smear: width of the Gaussian to smear with
+            sigma_nominal: the nominal resolution in either (pseudo-)data OR mc (see below)
+            n: #sigma variation for NP1
+            m: #sigma variation for NP2
+            x: uncertainty from NP1
+            y: uncertainty from NP2
+        Note that n,m,x,y all are signed quantities
+            n,m are + for upward variations and - for downward variations
+            x,y are + or - to differentiate regions of anticorrelations within a given NP
 
-    // Set the seed; same procedure as in JERSmearingTool::getSmearingFactor(const xAOD::Jet* jet, double sigma)
-    long long int seed = m_userSeed;
-    if(seed == 0) seed = 1.e+5*std::abs(jet.phi());  
-    m_rand->SetSeed(seed);
+        The source of sigma_nominal depends on what is being smeared
+            (nx+my+...) > 0  -->  smear MC, so use sigma_nominal^MC
+            (nx+my+...) < 0  -->  smear (pseudo-)data, so use sigma_nominal^data
+            (nx+my+...) = 0  -->  no smearing is required
+
+        In some cases, it is not desireable to smear (pseudo-)data
+        Result: two correlation smearing options, "full" and "simple"
+            Full = full correlations preserved, smear both (peudo-)data and MC
+            Simple = simplified correlations (= loss of correlations), smear only MC
+
+        In "simple" case, we are smearing MC even if we should ideally smear (pseudo-)data
+            sign(nx+my+...)  -->  no longer matters, always use sigma_nominal^MC
+        Furthermore, take the absolute value as we are forcing an upward variation
+            sigma_smear^2 = (sigma_nom^MC + |n*x + m*y + ...|)^2 - (sigma_nom^MC)^2
+            In the case of 1 NP, analysis gets same result if n is positive or negative
+            Analysis must symmetrize uncertainties themselves to get downward variations
+
+        The above is all for absolute resolution uncertainties
+            In the case of relative resolution uncertainties, not much changes
+            n*x --> n*sigma_nominal*x
+                n: unchanged from before, #sigma variation for NP1
+                x: now this is a fractional uncertainty, but it is still the value of NP1
+                sigma_nominal: uncertainty measurement varies (sign unaffected by nominal)
+            In other words, all of the above is directly extended
+
+        This all relies on the fact that absolute and relative resolutions are not mixed
+            This is enforced by the tool enums, which are one or the other
+            Asking for both relative and absolute smearing is two separate scale variables
+            The tool checks for such cases and explicitly blocks them
+
+        There is one exception to the above: a "data-MC difference" smearing
+            If MC is below data, then we smear MC to match data (nominal smearing)
+                Occurs if (sigma_nom^MC - sigma_nom^data) < 0, or equivalently (sigma_nom^data - sigma_nom^MC) > 0
+            If data is below MC, we don't want to degrade the resolution of data to match MC
+                Occurs if (sigma_nom^MC - sigma_nom^data) > 0, or equivalently (sigma_nom^data - sigma_nom^MC) < 0
+            We also can't anti-smear MC (at least not with Gaussian smearing)
+        Instead, smear by sigma_smear^2 = (sigma_nom + |Nsigma*[sigma_nom^data - sigma_nom^MC]|)^2 - (sigma_nom)^2
+            This uses the second form of the above inequalities to stick with convention
+            This way, we signify that we are smearing data (uncertainty < 0 if Nsigma > 0)
+        This should be smearing of data (sigma_nom = sigma_nom^data)
+            However, in the simple scenario, we still only smear MC
+                Apply the uncertainty as-is, with sigma_nom = sigma_nom^MC
+                This is actually "conservative" (in magnitude, not necessarily in correlations)
+                    |Nsigma*(sigma_nom^data - sigma_nom^MC)| is a fixed value independent of choice, call it X
+                    sigma_smear^2 = (sigma_nom + X)^2 - (sigma_nom)^2
+                    sigma_smear^2 = sigma_nom^2 [ (1 + X/sigma_nom)^2 - 1 ]
+                    Taylor expand: sigma_smear^2 ~ sigma_nom^2 ( 1 + 2*X/sigma_nom - 1 )
+                    sigma_smear^2 ~ sigma_nom^2 * 2 X / sigma_nom
+                    sigma_smear^2 ~ sigma_nom * 2 X
+                    Therefore, larger sigma_nom --> larger sigma_smear
+                    In this case, we know that sigma_nom^MC > sigma_nom^data (motivation for uncertainty)
+                    As such, sigma_nom = sigma_nom^MC is conservative
+        This does not need to be handled any different than other uncertainties in the code
+            However, the inputs will need to be made carefully to do the correct thing
+            In particular, smear data occurs if sign(unc) < 0
+            That is why it is written above as (sigma_nom^data - sigma_nom^MC) < 0
+            In other words, the histogram must be created to be <= 0
+            It should be <0 when data is below MC, and =0 when data is above MC
+            This *could* be calculated on-the-fly from the two nominal histograms
+                This requires substantial code development, as now this one NP is different from all others
+                In the interest of time and code re-use, instead demand an extra histogram input
+
+        In the end, smear by a Gaussian of mean 1 and width sigma_smear
+
+        ----------
+        
+        Given this, the arguments to the function are:
+            jet: jet to smear, needed for the kinematic dependence of nominal resolutions
+            smearType: the resolution type to select the relevant nominal resolutions
+            variation: the signed value of n*x + m*y + ... (for both relative and absolute)
+
+        Dedicated class member variables used by this function are:
+            m_isData: needed to control whether or not to smear the jet
+            m_resHelper: contains lots of global resolution information
+                - Whether to smear MC and data, or only MC
+                - Nominal resolution histograms for data
+                - Nominal resolution histograms for MC
+                - Parametrizations of nominal resolution histograms
+            m_rand: the random number generator
+            m_userSeed: the optional user-specified seed to use for the random generator
+
+        Technical detail on relative uncertainties:
+            The input value of "variation" is always n*x + m*y + ...
+            This is trivially correct for absolute uncertainties, but not relative
+            However, for relative uncertainties, all NPs are with respect to same nominal
+            As such, it factors out, and we can take variation*sigma_nominal^data
+            Furthermore, as it factors out, the nominal doesn't matter to determine the sign
+            This is important as the sign sets whether data or MC is the nominal
+    */
+
+    // Check if we need to do anything at all
+    if (variation == 0)
+        return 1; // No smearing if the variation is 0
+    else if (m_isData)
+    {
+        if (m_resHelper->smearOnlyMC())
+            return 1; // No smearing if this is data and we are in the simple scenario
+        if (variation > 0)
+            return 1; // No smearing if this is data and the sign says to smear MC
+    }
+    else if (variation < 0 && !m_resHelper->smearOnlyMC())
+        return 1; // No smearing if this is MC and the sign says to smear data and this is not the simple scenario
     
-    //  get the Gaussian random number associated to the relative resolution
-    // 1st way : a la JetRes use a relative standard deviation
-    // FIXME: for the moment the additional smearing is hardcoded: it will have to change in the future as a kinematic dependent function
-    double smearingFact1=m_rand->Gaus(1.,0.66*frac_sigma_nominal);  
+    // Figure out which resolution is nominal (MC or data)
+    const bool nominalIsMC = (m_resHelper->smearOnlyMC() || variation > 0);
 
-    // 2nd alternative way : use the relative standard deviation 
-    //  const double GaussZeroOne = m_rand->Gaus(0.,1.); 
-    //  double smearingFact2=1+0.66*GaussZeroOne*frac_sigma_nominal;
-    double smearingFact=smearingFact1;
+    // Get the relevant nominal resolution
+    const double sigmaNom = getNominalResolution(jet,smearType,m_currentUncSet->getTopology(),nominalIsMC);
 
-    return smearingFact;
+    // If this is a relative uncertainty, get the relevant nominal data histogram
+    // This is used to scale the input relative variation to get the absolute impact
+    const double relativeFactor = CompScaleVar::isRelResolutionType(smearType) ? sigmaNom : 1;
+
+    // We now have the required information, so let's calculate the smearing factor
+    // Note that relativeFactor is 1 if this is an absolute uncertainty
+    const double sigmaSmear = sqrt(pow(sigmaNom + fabs(variation)*relativeFactor,2) - pow(sigmaNom,2));
+
+    // We have the smearing factor, so prepare to smear
+    // If the user specified a seed, then use it
+    // If not, then use the jet's phi times 1*10^5 in MC, 1.23*10^5 in (pseudo-)data
+    // Difference in seed between allows for easy use of pseudo-data
+    long long int seed = m_userSeed != 0 ? m_userSeed : (m_isData ? 1.23e+5 : 1.00e+5)*fabs(jet.phi());
+    // SetSeed(0) uses the clock, avoid this
+    if(seed == 0) seed = m_isData ? 34545654 : 45583453; // arbitrary numbers which the seed couldn't otherwise be
+    m_rand.SetSeed(seed);
+
+    // Calculate and return the smearing factor
+    // Force this to be a positive value
+    // Negative values should be extraordinarily rare, but they do exist
+    double smearingFactor = -1;
+    while (smearingFactor < 0)
+        smearingFactor = m_rand.Gaus(1.,sigmaSmear);
+    return smearingFactor;
 }
 
 
@@ -2478,6 +2828,45 @@ StatusCode JetUncertaintiesTool::updateD2Beta1(xAOD::Jet& jet, const double shif
     return StatusCode::FAILURE;
 }
 
+StatusCode JetUncertaintiesTool::updateC2Beta1(xAOD::Jet& jet, const double shift) const
+{
+    static SG::AuxElement::Accessor<float> accC2("C2");
+    static SG::AuxElement::Accessor<float> accECF1("ECF1");
+    static SG::AuxElement::Accessor<float> accECF2("ECF2");
+    static SG::AuxElement::Accessor<float> accECF3("ECF3");
+    const static bool C2wasAvailable  = accC2.isAvailable(jet);
+    const static bool ECFwasAvailable = accECF1.isAvailable(jet) && accECF2.isAvailable(jet) && accECF3.isAvailable(jet);
+
+    const xAOD::Jet& constJet = jet;
+    if (C2wasAvailable)
+    {
+        if (!accC2.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("The C2 moment was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = accC2(constJet);
+        accC2(jet) = shift*value;
+        return StatusCode::SUCCESS;
+    }
+    if (ECFwasAvailable)
+    {
+        if (! (accECF1.isAvailable(constJet) && accECF2.isAvailable(constJet) && accECF3.isAvailable(constJet)) )
+        {
+            ATH_MSG_ERROR("The ECF1, ECF2, and ECF3 moments were previously available but are not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float ecf1 = accECF1(constJet);
+        const float ecf2 = accECF2(constJet);
+        const float ecf3 = accECF3(constJet);
+        accC2(jet) = fabs(ecf2) > 1.e-6 ? shift * (ecf3*ecf1/pow(ecf2,2)) : -999; // 999 to match JetSubStructureMomentTools/EnergyCorrelatorRatiosTool
+        return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_ERROR("Neither C2 nor ECF1+ECF2+ECF3 moments are available on the jet, please make sure one of these options is available before calling the tool");
+    return StatusCode::FAILURE;
+}
+
 StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) const
 {
     static SG::AuxElement::Accessor<float> accQw("Qw");
@@ -2492,6 +2881,58 @@ StatusCode JetUncertaintiesTool::updateQw(xAOD::Jet& jet, const double shift) co
 
     ATH_MSG_ERROR("Qw moment is not available on the jet, please make sure to set Qw before calling the tool");
     return StatusCode::FAILURE;       
+}
+
+StatusCode JetUncertaintiesTool::updateTagScaleFactor(xAOD::Jet& jet, const double shift) const
+{
+    const bool TagScaleFactorwasAvailable  = m_accTagScaleFactor.isAvailable(jet);    
+    const xAOD::Jet& constJet = jet;
+    if (TagScaleFactorwasAvailable)
+    {
+        if (!m_accTagScaleFactor.isAvailable(jet))
+        {
+            ATH_MSG_ERROR("TagScaleFactor was previously available but is not available on this jet.  This functionality is not supported.");
+            return StatusCode::FAILURE;
+        }
+        const float value = m_accTagScaleFactor(constJet);
+	if (m_accEffSF.isAvailable(jet)) {
+	  // if efficiency and efficiency SF are available, inefficiency SF will be calculated
+	  const float effSF = m_accEffSF(constJet);
+	  const float efficiency = m_accEfficiency(constJet);
+	  if ( value == effSF ){
+	    // this jet is "tagged" since SF applied to the event is equal to effSF
+	    if ( shift*value < 0.0 ){
+	      m_accTagScaleFactor(jet) = 0.0;
+	    } else {
+	      m_accTagScaleFactor(jet) = shift*value;
+	    }
+	    return StatusCode::SUCCESS;
+	  } else {
+	    // this jet is "failed", since SF applied to the event is (1-effSF*efficiency)/(1-efficiency)
+	    // so inefficiency SF will be recalculated for given uncertainty
+	    if ( efficiency < 1.0 ){
+	      if ( shift*value < 0.0 ){
+		m_accTagScaleFactor(jet) = 1.0/(1. - efficiency);
+	      } else {
+		m_accTagScaleFactor(jet) = (1. - shift*effSF*efficiency) / (1. - efficiency);
+	      }
+	    }
+	    return StatusCode::SUCCESS;	    	    
+	  }
+	} else {
+	  // if efficiency and efficiency SF are NOT available, inefficiency SF will not be calculated
+	  
+	  if ( shift*value < 0.0 ){
+	    m_accTagScaleFactor(jet) = 0.0;
+	  } else {
+	    m_accTagScaleFactor(jet) = shift*value;
+	  }
+	  return StatusCode::SUCCESS;
+	}
+    }
+
+    ATH_MSG_ERROR("TagScaleFactor is not available on the jet, please make sure you called BoostedJetTaggers tag() function before calling this function.");
+    return StatusCode::FAILURE;
 }
 
 

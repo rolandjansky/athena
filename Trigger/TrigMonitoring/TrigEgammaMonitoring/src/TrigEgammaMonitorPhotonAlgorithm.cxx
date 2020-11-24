@@ -61,7 +61,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
           
         std::vector< std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> pairObjs;
     
-        if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,pairObjs).isFailure() ) 
+        if ( executeNavigation( ctx, info.trigName,info.trigThrHLT,info.trigPidType,pairObjs).isFailure() ) 
         {
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
@@ -84,7 +84,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::fillHistograms( const EventContext&
 
 
 
-StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventContext& ctx, std::string trigItem, float etthr, 
+StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventContext& ctx, std::string trigItem, float etthr, std::string pidName,  
                                                        std::vector<std::pair<const xAOD::Egamma*, const TrigCompositeUtils::Decision * >> &pairObjs) 
   const
 {
@@ -100,7 +100,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
   }
  
 
-  const std::string decor="is"+m_photonPid;
+  const std::string decor="is"+pidName;
 
   for(const auto& eg : *offPhotons ){
       const TrigCompositeUtils::Decision *dec=nullptr; 
@@ -109,7 +109,18 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
           continue;
       } 
       if( !(getCluster_et(eg) > (etthr-5.)*Gaudi::Units::GeV)) continue; //Take 2GeV above threshold
-      if(!eg->passSelection(m_photonPid)) continue;
+      
+
+      //if(!eg->passSelection(m_photonPid)) continue;
+      if(m_forcePidSelection){///default is true
+        if(!ApplyPhotonPid(eg,pidName)){
+	        ATH_MSG_DEBUG("Fails PhotonID "<< pidName);
+	        continue;
+	      }
+	      ATH_MSG_DEBUG("Passes PhotonID "<< pidName);
+      }
+
+      
       if(m_doUnconverted){
           if (eg->vertex()){
               ATH_MSG_DEBUG("Removing converted photons, continuing...");

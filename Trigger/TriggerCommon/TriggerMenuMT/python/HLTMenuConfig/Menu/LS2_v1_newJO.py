@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
-import six
-
 # def get_flag_item(chainName, L1itemsChainParts, groups):
 #     PhysicsStream = 'Main'
 
@@ -20,6 +18,7 @@ def setupMenu(flags):
     """ 
     Assign chains for LS2_v1 to menu flags
     """
+    chains = {}
 
     #---------------------------------------------------------------------
     # INPUT FORMAT FOR CHAINS:
@@ -39,7 +38,7 @@ def setupMenu(flags):
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     CombinedGroup = ['RATE:Combined', 'BW:Combined']
 
-    flags.Trigger.menu.muon = [        
+    chains["muon"] = [        
         ChainProp(name='HLT_mu20_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_L1MU10', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup),
@@ -49,29 +48,31 @@ def setupMenu(flags):
         ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup)
     ]
 
-    flags.Trigger.menu.electron = [
+    chains["electron"] = [
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_2e3_etcut_L12EM3', groups=MultiElectronGroup),
-        ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
+# this chain does not work yet        
+   #     ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup)
     ]
 
-    flags.Trigger.menu.photon = [
+    chains["photon"] = [
        ChainProp(name='HLT_g10_etcut_L1EM7',  groups=SinglePhotonGroup),
        ChainProp(name='HLT_g11_etcut_L1EM7', groups=SinglePhotonGroup),
     ]
 
-    flags.Trigger.menu.jet = [
+    chains["jet"] = [
        ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
        ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
        ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
     ]
 
-    flags.Trigger.menu.combined = [
+    chains["combined"] = [
         ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', mergingStrategy='parallel', groups=CombinedGroup),
         ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', mergingStrategy='parallel', groups=CombinedGroup)
     ]
+    return chains
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
@@ -90,16 +91,15 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Trigger.generateMenuDiagnostics = True
-    setupMenu(ConfigFlags)
-
+    
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
-
+    ConfigFlags.Trigger.triggerMenuSetup="LS2_v1"
     ConfigFlags.lock()
     ConfigFlags.dump()
     
     from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu    
-    menu = generateMenu( ConfigFlags )
+    menu = generateMenu( ConfigFlags)
 
     acc.merge(menu)
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     # print all hypo algs and their hypo tools for debugging
     from AthenaCommon.CFElements import flatAlgorithmSequences    
     fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )
-    for seq, algs in six.iteritems (fs):
+    for seq, algs in fs.items():
         for alg in algs:
             if 'HypoTools' in alg._properties:
                 log.verbose("%s %s", alg.name, [ t.getFullJobOptName() for t in alg.HypoTools ])

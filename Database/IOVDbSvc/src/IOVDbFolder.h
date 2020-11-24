@@ -35,6 +35,7 @@ class IAddressCreator;
 class StoreGateSvc;
 class IIOVDbMetaDataTool;
 class CondAttrListCollection;
+class ITagInfoMgr;
 
 class IOVDbFolder : public AthMessaging {
 public:
@@ -64,6 +65,7 @@ public:
   // in subsequent events.
   bool extensible() const;
   bool dropped() const;
+  bool iovOverridden() const;
   const std::string& joTag() const;
   const std::string& resolvedTag() const;
   const std::string& eventStore() const;
@@ -113,7 +115,7 @@ public:
   void summary();
   // preload address to Storegate (does folder initialisation from COOL)
   std::unique_ptr<SG::TransientAddress>
-  preLoadFolder(StoreGateSvc* detStore,
+  preLoadFolder(ITagInfoMgr *tagInfoMgr,
                 const unsigned int cacheRun,
                 const unsigned int cacheTime);
 
@@ -218,7 +220,7 @@ private:
   specialCacheUpdate(const cool::IObject& obj,const ServiceHandle<IIOVSvc>& iovSvc);
 
 
-  StoreGateSvc*        p_detStore{nullptr};     // pointer to detector store
+  ITagInfoMgr*         p_tagInfoMgr{nullptr};   // pointer to TagInfoMgr
   IClassIDSvc*         p_clidSvc{nullptr};      // pointer to CLID service
   IIOVDbMetaDataTool*  p_metaDataTool{nullptr}; // pointer to metadata tool (writing)
   IOVDbConn*           m_conn{nullptr};         // pointer to corresponding IOVDbConn object (=0 FLMD)
@@ -315,6 +317,8 @@ inline bool IOVDbFolder::fromMetaDataOnly() const { return m_fromMetaDataOnly; }
 inline bool IOVDbFolder::extensible() const { return m_extensible; }
 
 inline bool IOVDbFolder::dropped() const { return m_dropped; }
+
+inline bool IOVDbFolder::iovOverridden() const { return m_iovoverridden; }
 
 inline const std::string& IOVDbFolder::joTag() const { return m_jotag; }
 

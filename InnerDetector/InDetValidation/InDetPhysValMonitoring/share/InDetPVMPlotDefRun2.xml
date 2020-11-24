@@ -33,6 +33,9 @@
 <!-- dR plots for tracks in jets -->
 <!ENTITY DRMAX "0.4">
 <!ENTITY SMALLDRMAX "0.1">
+<!-- Number of tracks vs MU -->
+<!ENTITY EXPMU "100">
+<!ENTITY EXPTRK "2000">
 <!-- histogram definitions common to Run2 and ITk -->
 <!ENTITY Common SYSTEM "InDetPVMPlotDefCommon.xml">
 ]>
@@ -368,7 +371,7 @@
 </h>
 
 <h id="efficiencySplit_vs_phi" type="TEfficiency" title="Efficiency">
-  <x title="#phi" n="32" lo="-3.14;" hi="3.14"/>
+  <x title="#phi" n="32" lo="-3.14" hi="3.14"/>
   <y title="Efficiency" lo="0" hi="2.0"/>
 </h>
 
@@ -399,7 +402,7 @@
 
 <h id="fakeSplit_vs_eta" type="TEfficiency" title="Fake Rate">
   <x title="#eta" n="32" lo="-&ETA;" hi="&ETA;"/>
-  <y title="Fake Rate" lo="0" hi="2.0"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/> 
 </h>
 
 <h id="fakeSplit_vs_pt" type="TEfficiency" title="Fake Rate">
@@ -408,7 +411,7 @@
 </h>
 
 <h id="fakeSplit_vs_phi" type="TEfficiency" title="Fake Rate">
-  <x title="#phi" n="32" lo="-3.14;" hi="3.14"/>
+  <x title="#phi" n="32" lo="-3.14" hi="3.14"/>
   <y title="Fake Rate" lo="0" hi="2.0"/>
 </h>
 

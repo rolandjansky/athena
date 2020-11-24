@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -10,6 +10,7 @@
 #include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
 #include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
 #include "G4AtlasAlg/G4AtlasRunManager.h"
+#include "G4AtlasAlg/G4AtlasActionInitialization.h"
 #include "ISFFluxRecorder.h"
 
 #include "AthenaKernel/RNGWrapper.h"
@@ -121,11 +122,13 @@ void iGeant4::G4TransportTool::initializeOnce()
     // Worker Thread initialization used to create worker run manager on demand.
     std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
       std::make_unique<G4AtlasUserWorkerThreadInitialization>();
-    workerInit->SetUserActionSvc( m_userActionSvc.typeAndName() );
     workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
     workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
     workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
     runMgr->SetUserInitialization( workerInit.release() );
+    std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
+      std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
+    runMgr->SetUserInitialization(actionInitialization.release());
 #else
     throw std::runtime_error("Trying to use multi-threading in non-MT build!");
 #endif
@@ -136,11 +139,13 @@ void iGeant4::G4TransportTool::initializeOnce()
     m_physListSvc->SetPhysicsList();
     runMgr->SetRecordFlux( m_recordFlux, std::make_unique<ISFFluxRecorder>() );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
-    runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
     runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
     runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
     runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
+    std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
+      std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
+    runMgr->SetUserInitialization(actionInitialization.release());
   }
 
   G4UImanager *ui = G4UImanager::GetUIpointer();
@@ -305,9 +310,31 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
     return StatusCode::FAILURE;
   }
 
+  // Get user actions that return secondaries
+  auto actionsFound = m_secondaryActions.find( std::this_thread::get_id() );
+  if ( actionsFound == m_secondaryActions.end() ) {
+    // Get all UAs
+    std::vector< G4UserSteppingAction* > allActions;
+    StatusCode sc = m_userActionSvc->getSecondaryActions( allActions );
+    if ( !sc.isSuccess() ) {
+      ATH_MSG_ERROR( "Failed to retrieve secondaries from UASvc" );
+      return sc;
+    }
+
+    // Find the UAs that can return secondaries
+    for ( G4UserSteppingAction* action : allActions ) {
+      passbackAction_t* castAction = dynamic_cast< passbackAction_t* >( action );
+      if ( castAction ) {
+        m_secondaryActions[ std::this_thread::get_id() ].push_back( castAction );
+      }
+    }
+
+    actionsFound = m_secondaryActions.find( std::this_thread::get_id() );
+  }
+
   // Retrieve secondaries from user actions
-  for ( auto& parent : particles ) {
-    for ( auto* action : m_secondaryActions ) {
+  for ( auto* action : actionsFound->second ) {
+    for ( auto& parent : particles ) {
 
       ISF::ISFParticleContainer someSecondaries = action->ReturnSecondaries( parent );
 
@@ -326,23 +353,6 @@ StatusCode iGeant4::G4TransportTool::simulateVector( const ISF::ConstISFParticle
   // not implemented yet... need to get particle stack from Geant4 and convert to ISFParticle
   ATH_MSG_VERBOSE( "Simulation done" );
 
-  Slot& slot = *m_slots;
-  Slot::lock_t lock (slot.m_mutex);
-  
-  for (auto* cisp : particles) {
-    // return any secondaries associated with this particle
-    auto searchResult = slot.m_secondariesMap.find( cisp );
-    if ( searchResult == slot.m_secondariesMap.end() ) {
-
-      ATH_MSG_VERBOSE( "Found no secondaries" );
-
-    } else {
-
-      ATH_MSG_VERBOSE( "Found secondaries: " << searchResult->second.size() );
-      secondaries.splice( end(secondaries), std::move(searchResult->second) ); //append vector
-      slot.m_secondariesMap.erase( searchResult );
-    }
-  }
   // Geant4 call done
   return StatusCode::SUCCESS;
 }
@@ -379,26 +389,6 @@ StatusCode iGeant4::G4TransportTool::setupEvent()
 
   // make sure SD collections are properly initialized in every Athena event
   G4SDManager::GetSDMpointer()->PrepareNewEvent();
-
-  if ( m_secondaryActions.empty() )
-  {
-    // Get all UAs
-    std::vector< G4UserSteppingAction* > actions;
-    StatusCode sc = m_userActionSvc->getSecondaryActions( actions );
-    if ( !sc.isSuccess() ) {
-      ATH_MSG_ERROR( "Failed to retrieve secondaries from UASvc" );
-      return sc;
-    }
-
-    // Find the UAs that can return secondaries
-    m_secondaryActions.reserve( actions.size() );
-    for ( G4UserSteppingAction* action : actions ) {
-      G4UA::iGeant4::TrackProcessorUserActionBase * castAction = dynamic_cast< G4UA::iGeant4::TrackProcessorUserActionBase* >( action );
-      if ( castAction ) {
-        m_secondaryActions.push_back( castAction );
-      }
-    }
-  }
 
   return StatusCode::SUCCESS;
 }

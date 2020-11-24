@@ -5,9 +5,7 @@
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
-#! /usr/bin/env python
 import subprocess
-import time
 from .NonBlockingStreamReader import NonBlockingStreamReader
 
 ## A wrapper to handle multiple Powheg subprocesses

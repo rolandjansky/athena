@@ -524,8 +524,10 @@ namespace Muon {
     // update hole search flag, set to false if we are close to the tube edge
     if ( doHoleSearch && fabs(posAlongWire) < halfTubeLength + roadWidthZ ) doHoleSearch = false;
 
+    Amg::Vector3D momentum = exPars->momentum();
+
     // pointer to ROT
-    const MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &(exPars->momentum()));
+    const MdtDriftCircleOnTrack* mdtROT = m_mdtRotCreator->createRIO_OnTrack(mdtPrd, exPars->position(), &momentum);
 
     // clean up pointers
     delete exPars;

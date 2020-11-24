@@ -110,6 +110,8 @@ StatusCode JepByteStreamTool::initialize()
     return sc;
   } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
 
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
+
   return StatusCode::SUCCESS;
 }
 
@@ -178,17 +180,17 @@ StatusCode JepByteStreamTool::convert(
 // Conversion of JEP container to bytestream
 
 // xxx
-StatusCode JepByteStreamTool::convert(const LVL1::JEPBSCollection* const jep,
-                                      RawEventWrite* const re) const
+StatusCode JepByteStreamTool::convert(const LVL1::JEPBSCollection* const jep) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
 
-  // Clear the event assembler
-  FullEventAssembler<L1CaloSrcIdMap> fea;
-  fea.clear();
+  // Get the event assembler
+  FullEventAssembler<L1CaloSrcIdMap>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "JepByteStream") );
   const uint16_t minorVersion = m_srcIdMap.minorVersion();
-  fea.setRodMinorVersion(minorVersion);
+  fea->setRodMinorVersion(minorVersion);
 
   // Pointer to ROD data vector
 
@@ -272,7 +274,7 @@ StatusCode JepByteStreamTool::convert(const LVL1::JEPBSCollection* const jep,
         userHeader.setJem(trigJemNew);
         const uint32_t rodIdJem = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
                                   m_subDetector);
-        theROD = fea.getRodData(rodIdJem);
+        theROD = fea->getRodData(rodIdJem);
         theROD->push_back(userHeader.header());
       }
       if (debug) msg() << "Module " << module << endmsg;
@@ -551,10 +553,6 @@ StatusCode JepByteStreamTool::convert(const LVL1::JEPBSCollection* const jep,
       subBlock->write(theROD);
     }
   }
-
-  // Fill the raw event
-
-  fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
 }

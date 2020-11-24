@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // TheLArCollisionsAlg.h
@@ -46,13 +46,13 @@ class LArCollisionTimeAlg : public AthAlgorithm {
   // Properties
   // --------------------------------------------------
   Gaudi::Property<bool>  m_isMC     { this, "isMC", false, "Are we working with simu?" };
-  Gaudi::Property<bool>  m_iterCut  { this, "cutIteration", true, "cut on OFC iteration, will not work for Online" };
+  Gaudi::Property<bool>  m_iterCut  { this, "cutIteration", false, "cut on OFC iteration, will not work for Online" };
   Gaudi::Property<float> m_timeCut  { this, "timeDiffCut", 5., "|A-C| time < timeDiffCut to pass the filter" };
   Gaudi::Property<int>   m_minCells { this, "nCells", 2, "min. number of cells per endcap to pass the filter" };
 
 
-  SG::ReadHandleKey<CaloCellContainer> m_cellsContName;
-  SG::WriteHandleKey<LArCollisionTime> m_collTimeName;
+  SG::ReadHandleKey<CaloCellContainer> m_cellsContName{this,"cellContainerName","AllCalo"};
+  SG::WriteHandleKey<LArCollisionTime> m_collTimeName{this,"collisionTime","LArCollisionTime"};
   SG::ReadCondHandleKey<CaloNoise> m_noiseCDOKey{this,"CaloNoiseKey","totalNoise","SG Key of CaloNoise data object"};
 
 };

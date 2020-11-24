@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=================================================================================
 ## Name:        LArCellConditionsAlg.py
@@ -7,7 +7,6 @@
 ##              and print the bad channel status
 ##               
 ##==================================================================================
-from __future__ import print_function
 
 __author__="Walter Lampl <walter.lampl@cern.ch>"
 __doc__ = " An athena-like algorithm to interactivly convert LAr Identifiers and print the bad channel status"
@@ -16,17 +15,13 @@ __doc__ = " An athena-like algorithm to interactivly convert LAr Identifiers and
 from AthenaPython.PyAthena import StatusCode
 import AthenaPython.PyAthena as PyAthena
 
-import ROOT,cppyy 
+import ROOT
 
-from ROOT import HWIdentifier, Identifier, Identifier32, IdentifierHash, LArBadChannel, LArBadChanBitPacking
+from ROOT import HWIdentifier, Identifier, IdentifierHash, LArBadChannel, LArBadChanBitPacking
 from ROOT import CaloDetDescrManager
 
 from ctypes import c_uint
-
-from string import *
-#from cmath import pi
 from time import clock
-
 import os
 
 class LArCellConditionsAlg(PyAthena.Alg):
@@ -98,8 +93,8 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
         if self.includeLocation:
             try:
-                self.caloDDM = CaloDetDescrManager.instance() ;
-            except:
+                self.caloDDM = CaloDetDescrManager.instance()
+            except Exception:
                 print("Failed to retrieve CaloDDM")
                 return StatusCode.Failure
 
@@ -226,7 +221,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
                                
             if rep.startswith("SEARCH"):
-                inp=rep_in[6:].strip();
+                inp=rep_in[6:].strip()
                 starttime=clock()
                 self.search(inp)
                 print("seach time %.1f sec" % (clock()-starttime))
@@ -246,7 +241,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                     print(t.get_identifier32().get_compact()," IsLAr (online)")
                 if self.offlineID.is_lar(t):
                     print(t.get_identifier32().getCompact()," isLAr (offline)")
-            except:
+            except Exception:
                 pass
 
 
@@ -372,7 +367,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         if file is not None: file.write(out+"\n")
         print(out)
         self.nLinesPrinted=self.nLinesPrinted+1
-        if self.nLinesPrinted%40 is 0:
+        if self.nLinesPrinted%40 == 0:
             c=input("Press 'q' to quit, 'a' for all ...")
             if c.upper().startswith("Q"):
                 return True
@@ -385,7 +380,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         self.nLinesPrinted=0
         try:
             rep=input("Enter Id >")
-        except:
+        except Exception:
             return ""
 
         return rep.strip()
@@ -416,12 +411,12 @@ class LArCellConditionsAlg(PyAthena.Alg):
             onlName+="FT "+str(ft)+"("+ftname+")/Slot "+str(slot)+"/Chan "+str(chan)
 
             try:
-                calibLines=self.larCabling.calibSlotLine(chid);
+                calibLines=self.larCabling.calibSlotLine(chid)
                 if (len(calibLines)):
                     onlName+="/CL"
                     for calib_chid in calibLines:
                         onlName+=" "+str(self.onlineID.channel(calib_chid))
-            except:
+            except Exception:
                 pass
 
             onlName+=']'
@@ -474,7 +469,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             #hex-input
             try:
                 id_int=int(upInput,16)
-            except:
+            except Exception:
                 self._oflErrStr="Can't interpret hexadecimal identifier, got " + upInput
                 return None
             id=Identifier(id_int << 32)
@@ -485,7 +480,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         elif upInput.isdigit():
             try:
                 id_int=int(upInput,10)
-            except:
+            except Exception:
                 self._oflErrStr="Can't interpret decimal identifier, got "+upInput
                 return None
             id=Identifier(id_int << 32)
@@ -495,7 +490,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 return None
 
         else: #given as expanded ID
-            tbl=str.maketrans(",:;/\#","      "); 
+            tbl=str.maketrans(r",:;/\#","      ")
             fields=[]
             for f in upInput.translate(tbl).split():
                 if len(f):
@@ -532,9 +527,9 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 self._oflErrStr="Can't interpret input: Expected 5 or 6 sub-fields, found "+str(len(fields))
                 return None
 
-            if sidefield.endswith("A") or sidefield.endswith("P") or sidefield.endswith("POS") or sidefield is '1':
+            if sidefield.endswith("A") or sidefield.endswith("P") or sidefield.endswith("POS") or sidefield == '1':
                 side=1
-            elif sidefield.endswith("C") or sidefield.endswith("N") or sidefield.endswith("NEG") or sidefield is '0':
+            elif sidefield.endswith("C") or sidefield.endswith("N") or sidefield.endswith("NEG") or sidefield == '0':
                 side=-1
             else:
                 self._oflErrStr="Can't interpret field for detector side, got "+ sidefield
@@ -558,7 +553,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 region=int(fields[-3])
                 eta=int(fields[-2])
                 phi=int(fields[-1])
-            except:
+            except Exception:
                 self._oflErrStr="Not-numerical input for region, eta or phi"
                 return None
 
@@ -566,7 +561,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             #self.offlineID.set_do_checks(True)
             try: #Build Region ID
                 regid=self.offlineID.region_id(subcalo,bepn,layer,region)
-            except:
+            except Exception:
                 self._oflErrStr="Failed to build offline region identifier. Layer/region values inconsistent?"
                 return None   
                 
@@ -587,7 +582,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             try:
                 id=self.offlineID.cell_id(regid,eta,phi)
                 #id=self.offlineID.cell_id(subcalo,bepn,layer,region,eta,phi)
-            except:
+            except Exception:
                 self._oflErrStr="Failed to build offline identifier. One or more values out-of-range?"
                 id=None
                 
@@ -603,7 +598,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             #hex-input
             try:
                 id_int=int(upInput,16)
-            except:
+            except Exception:
                 self._onlErrStr="Can't interpret hexadecimal online identifier, got "+input
                 return None
 
@@ -620,7 +615,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         elif upInput.isdigit():
             try:
                 id_int=int(upInput,10)
-            except:
+            except Exception:
                 self._onlErrStr="Can't interpret decimal online identifier, got "+input
                 return None
             
@@ -634,7 +629,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 return None
 
         else: #given as expanded ID
-            tbl=str.maketrans(",:;/\#","      "); 
+            tbl=str.maketrans(r",:;/\#","      ")
             fields=[]
             for f in upInput.translate(tbl).split():
                 if len(f):
@@ -671,7 +666,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
                 chan=int(fields[-1])
                 slot=int(fields[-2])
                 ft=int(fields[-3])
-            except:
+            except Exception:
                 self._onlErrStr="Not-numerical input for FT slot or channel"
                 return None
 
@@ -697,7 +692,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
             #self.onlineID.set_do_checks(True)
             try:
                 id=self.onlineID.channel_Id(bec,side,ft,slot,chan)
-            except:
+            except Exception:
                 self._onlErrStr="Failed to build online identifier. One or more values out-of-range?"
                 id=None
             #self.onlineID.set_do_checks(False)
@@ -718,7 +713,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
         outfile=None
         layer=None
         cl=None
-        tbl=str.maketrans(",:;#=","     ");
+        tbl=str.maketrans(",:;#=","     ")
         tokens=[]
         for t in input.translate(tbl).split():
             if len(t):
@@ -743,14 +738,14 @@ class LArCellConditionsAlg(PyAthena.Alg):
             pos=pos+1
             try:
                 e1=float(input[:pos])
-            except:
+            except Exception:
                 print("Expected numerical value, got",input[:pos] )
                 return None
 
             if uplow is not None:
                 try:
                     e2=float(input[pos+1:])
-                except:
+                except Exception:
                     print("Expected numerical value after '+-', got",input[pos+1:])
                     return None
 
@@ -877,7 +872,7 @@ class LArCellConditionsAlg(PyAthena.Alg):
 
             if cl is not None:
                 try:
-                    calibLines=self.larCabling.calibSlotLine(chid);
+                    calibLines=self.larCabling.calibSlotLine(chid)
                     keep=False
                     for foundCLs in calibLines:
                         if self.onlineID.channel(foundCLs) == cl:

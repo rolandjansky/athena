@@ -6,10 +6,10 @@
 #define _LWTNNCollection_H_
 
 //#include <vector>
-#include "lwtnn/LightweightGraph.hh"
+#include "LwtnnUtils/FastGraph.h"
 
 class LWTNNCollection 
-  :  public std::map<int, std::unique_ptr<lwt::LightweightGraph> >
+  :  public std::map<int, std::unique_ptr<lwt::atlas::FastGraph> >
 {
 public:
 

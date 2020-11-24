@@ -1,33 +1,10 @@
-################################################################################
-# Package: InDetAssociationTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( InDetAssociationTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          DetectorDescription/Identifier
-                          GaudiKernel
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          Tracking/TrkEvent/TrkPrepRawData
-                          Tracking/TrkTools/TrkToolInterfaces
-                          Tracking/TrkEvent/TrkEventUtils
-                          PRIVATE
-                          DetectorDescription/AtlasDetDescr
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          Tracking/TrkDetDescr/TrkDetElementBase
-                          Tracking/TrkEvent/TrkRIO_OnTrack
-                          Tracking/TrkEvent/TrkTrack )
 
 # Component(s) in the package:
 atlas_add_component( InDetAssociationTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel InDetPrepRawData TrkPrepRawData TrkToolInterfaces AtlasDetDescr InDetIdentifier InDetRIO_OnTrack TrkDetElementBase TrkRIO_OnTrack TrkTrack TrkEventUtils )
-
-# Install files from the package:
-atlas_install_headers( InDetAssociationTools )
-
+                     LINK_LIBRARIES AthenaBaseComps Identifier GaudiKernel InDetPrepRawData TrkPrepRawData TrkToolInterfaces AtlasDetDescr InDetIdentifier InDetRIO_OnTrack InDetReadoutGeometry StoreGateLib TrkDetElementBase TrkRIO_OnTrack TrkTrack TrkEventUtils )

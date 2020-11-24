@@ -211,7 +211,7 @@ namespace SG {
       gLog << MSG::WARNING 
 		<< "can't convert stored DataObject " << pDObj 
 		<< " to type ("
-		<< ClassID_traits<T>::typeName() 
+		<< ClassID_traits<T_nc>::typeName() 
 		<< ")\n Unless you are following a symlink,"
 	        << " it probably means you have a duplicate "
 		<< "CLID = "  << pDObj->clID() 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Tile includes
@@ -7,7 +7,7 @@
 #include "TileIdentifier/TileHWID.h"
 #include "TileCalibBlobObjs/TileCalibUtils.h"
 
-#include <math.h> 
+#include <math.h>
 // Athena includes
 #include "StoreGate/ReadHandle.h"
 
@@ -36,9 +36,9 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::initialize() {
   using Tile = TileCalibUtils;
   using namespace Monitored;
 
-  m_hfnGroups = buildToolMap<int>(m_tools, "TMDBDigitsHFN", Tile::MAX_ROS - 1);
-  m_pedGroups = buildToolMap<int>(m_tools, "TMDBDigitsPedestal", Tile::MAX_ROS - 1);    
-  m_ampGroups = buildToolMap<int>(m_tools, "TMDBDigitsAmplitude", Tile::MAX_ROS - 1);
+  m_hfnGroups = buildToolMap<int>(m_tools, "TMDB_DigitsHFN", Tile::MAX_ROS - 1);
+  m_pedGroups = buildToolMap<int>(m_tools, "TMDB_DigitsPedestal", Tile::MAX_ROS - 1);
+  m_ampGroups = buildToolMap<int>(m_tools, "TMDB_DigitsAmplitude", Tile::MAX_ROS - 1);
 
 
     if (m_nChannels.size() != (Tile::MAX_ROS - 1)) {
@@ -49,16 +49,15 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::initialize() {
     std::vector<std::string> partitionName = {"LBA", "LBC", "EBA", "EBC"}; // ROS - 1 to partition name map
     for (unsigned int partition = 0; partition < Tile::MAX_ROS-1; ++partition) {
       m_cellPedGroups.push_back(buildToolMap<int>(m_tools,
-                                                  "TMDBDigitsCellPedestal_" + partitionName[partition],
+                                                  "TMDB_DigitsCellPedestal_" + partitionName[partition],
                                                   m_nChannels[partition]));
       m_cellHFNGroups.push_back(buildToolMap<int>(m_tools,
-                                                  "TMDBDigitsCellHFN_" + partitionName[partition],
+                                                  "TMDB_DigitsCellHFN_" + partitionName[partition],
                                                   m_nChannels[partition]));
       m_cellAmpGroups.push_back(buildToolMap<int>(m_tools,
-                                                  "TMDBDigitsCellAmplitude_" + partitionName[partition],
-                                                  m_nChannels[partition]));                                                                                        
+                                                  "TMDB_DigitsCellAmplitude_" + partitionName[partition],
+                                                  m_nChannels[partition]));
     }
-    
 
   return StatusCode::SUCCESS;
 }
@@ -83,7 +82,7 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::fillHistograms( const EventContext& c
 
   for (IdentifierHash hash : digitsContainer->GetAllCurrentHashes()) {
     const TileDigitsCollection* digitsCollection = digitsContainer->indexFindPtr (hash);
- 
+
     int fragId = digitsCollection->identify();
     unsigned int drawer = (fragId & 0x3F);
     unsigned int ros = fragId >> 8;
@@ -110,7 +109,7 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::fillHistograms( const EventContext& c
 
         double ped = digits[0];
         pedestals[partition].push_back(ped);
-  
+
         mean_samp /= n_digits;
         rms_samp = rms_samp / n_digits - mean_samp * mean_samp;
         rms_samp = (rms_samp > 0.0) ? sqrt(rms_samp * n_digits / (n_digits - 1)) : 0.0;
@@ -132,7 +131,7 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::fillHistograms( const EventContext& c
          cellAmplitudes[partition][channel].push_back(amplitude);
         }
 
-      } 
+      }
     }
   }
 
@@ -146,27 +145,27 @@ StatusCode TileTMDBDigitsMonitorAlgorithm::fillHistograms( const EventContext& c
 
       auto monHFN = Monitored::Collection("HFN", hfns[partition]);
       fill(m_tools[m_hfnGroups[partition]], monModule, monChannel, monHFN);
-    
+
       auto monAmplitude = Monitored::Collection("amplitude", amplitudes[partition]);
-      fill(m_tools[m_ampGroups[partition]], monModule, monChannel, monAmplitude);   
+      fill(m_tools[m_ampGroups[partition]], monModule, monChannel, monAmplitude);
 
       for (int channel = 0; channel < int(m_nChannels[partition]); ++channel) {
         if (!cellPedestals[partition][channel].empty()) {
           auto monPedestal = Monitored::Collection("pedestal", cellPedestals[partition][channel]);
-          fill(m_tools[m_cellPedGroups[partition][channel]], monPedestal);          
+          fill(m_tools[m_cellPedGroups[partition][channel]], monPedestal);
         }
         if (!cellHFNs[partition][channel].empty()) {
           auto monHFN = Monitored::Collection("HFN", cellHFNs[partition][channel]);
-          fill(m_tools[m_cellHFNGroups[partition][channel]], monHFN);          
+          fill(m_tools[m_cellHFNGroups[partition][channel]], monHFN);
         }
         if (!cellAmplitudes[partition][channel].empty()) {
           auto monAmplitude = Monitored::Collection("amplitude", cellAmplitudes[partition][channel]);
-          fill(m_tools[m_cellAmpGroups[partition][channel]], monAmplitude);          
+          fill(m_tools[m_cellAmpGroups[partition][channel]], monAmplitude);
         }
-      }      
+      }
     }
-  }   
+  }
 
-    
+
   return StatusCode::SUCCESS;
 }

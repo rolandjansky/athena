@@ -14,7 +14,7 @@ TauAODList = []
 # Taus
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::TauJetContainer#TauJets" ]
-TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-mu.-nVtxPU.-ABS_ETA_LEAD_TRACK.-TAU_ABSDELTAPHI.-TAU_ABSDELTAETA.-absipSigLeadTrk" ]
+TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters.-mu.-nVtxPU.-ABS_ETA_LEAD_TRACK.-TAU_ABSDELTAPHI.-TAU_ABSDELTAETA.-absipSigLeadTrk" ]
 
 #------------------------------------------------------------------------------
 # Tau tracks
@@ -36,10 +36,11 @@ TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
 TauAODList += [ "CaloClusterCellLinkContainer#TauPi0Clusters_links" ]
 
 #------------------------------------------------------------------------------
-# Shot clusters
+# Shot clusters and cell links
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::CaloClusterContainer#TauShotClusters"]
 TauAODList += [ "xAOD::CaloClusterAuxContainer#TauShotClustersAux."]
+TauAODList += [ "CaloClusterCellLinkContainer#TauShotClusters_links" ]
 
 #------------------------------------------------------------------------------
 # Final reconstructed 4-vectors of Pi0s

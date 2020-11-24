@@ -73,15 +73,15 @@ namespace MuonCombined {
   }
 
   void MuonStauRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
+					 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const {
     // Maybe we'll need this later, I wouldn't be surprised if the PRDs are retrieved somewhere down the chain
     // For now it's just a placeholder though
     if(!prdData.mdtPrds) ATH_MSG_DEBUG("empty PRDs passed");
-    extend(inDetCandidates, tagMap, combTracks, meTracks, segments);
+    extend(inDetCandidates, tagMap, combTracks, meTracks, segments, ctx);
   }
 
   void MuonStauRecoTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-				 Trk::SegmentCollection* segments) const {
+				 Trk::SegmentCollection* segments, const EventContext&) const {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     if(meTracks) ATH_MSG_DEBUG("Not currently creating ME tracks for staus");

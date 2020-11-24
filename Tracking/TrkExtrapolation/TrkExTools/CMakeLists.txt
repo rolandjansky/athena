@@ -15,6 +15,7 @@ atlas_add_component( TrkExTools
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives
 		             EventPrimitives xAODTracking GaudiKernel TrkDetDescrUtils TrkGeometry TrkSurfaces TrkVolumes TrkEventPrimitives
 		             TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils AthContainers CxxUtils TrkDetDescrInterfaces TrkEventUtils
+		             TrkPatternParameters
 		             TrkMaterialOnTrack TrkParticleBase TrkTrack StoreGateLib )
 
 # Install files from the package:

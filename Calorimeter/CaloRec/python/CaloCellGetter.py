@@ -493,67 +493,6 @@ class CaloCellGetter (Configured)  :
             theCaloCellMaker.CaloCellMakerToolNames += [theLArCellHVCorrTool]
 
         #
-        # correction to undo online calibration and apply new LAr electronics calibration for ADC->MeV conversion
-        #
-        doLArRecalibration = False
-        if jobproperties.CaloCellFlags.doLArRecalibration.statusOn:
-           from AthenaCommon.GlobalFlags import globalflags
-           from LArConditionsCommon.LArCondFlags import larCondFlags
-           if jobproperties.CaloCellFlags.doLArRecalibration() and globalflags.DataSource() == 'data' and (not larCondFlags.SingleVersion()) :
-               doLArRecalibration = True
-               mlog.info("Redoing LAr electronics calibration for ADC->MeV")
-
-
-        if doLArRecalibration:
-
-            # get tool for cell recalibration
-            try:
-                from LArCellRec.LArCellRecConf import LArCellRecalibration
-                theLArCellRecalibration = LArCellRecalibration("LArCellRecalibration")
-            except Exception:
-                mlog.error("could not get handle to LArCellRecalibration Quit")
-                print(traceback.format_exc())
-                return False
-
-            # get new ADC2MeVTool
-            try:
-                from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
-                theLArADC2MeVToolDefault = LArADC2MeVToolDefault()
-            except Exception:
-                mlog.error("Could not get handle to LArADC2MeVToolDefault Quit")
-                print(traceback.format_exc())
-                return False
-            ToolSvc += theLArADC2MeVToolDefault
-
-            # get old  ADC2MeVTool
-            try:
-                from LArRecUtils.LArADC2MeVToolOnline import LArADC2MeVToolOnline
-                theLArADC2MeVToolOnline = LArADC2MeVToolOnline()
-            except Exception:
-                mlog.error("Could not get handle to LArADC2MeVToolOnline Quit")
-                print(traceback.format_exc())
-                return False
-            ToolSvc += theLArADC2MeVToolOnline
-
-            theLArCellRecalibration.adc2MeVTool = theLArADC2MeVToolDefault
-            theLArCellRecalibration.adc2MeVToolOnline = theLArADC2MeVToolOnline
-
-
-            try:
-                from CaloRec.CaloRecConf import CaloCellContainerCorrectorTool
-                from CaloIdentifier import SUBCALO 
-                theLArRecalibrationTool = CaloCellContainerCorrectorTool("LArRecalibrationTool",
-                        CaloNums=[ SUBCALO.LAREM, SUBCALO.LARHEC, SUBCALO.LARFCAL ],
-                        CellCorrectionToolNames=[ theLArCellRecalibration])
-            except Exception:
-                mlog.error("could not get handle to HVCorrTool Quit")
-                print(traceback.format_exc())
-                return False
-            theCaloCellMaker += theLArRecalibrationTool
-            theCaloCellMaker.CaloCellMakerToolNames += [theLArRecalibrationTool]
-
-
-        #
         # Correction for MinBias energy shift for MC pileup reco
         #
         doMinBiasAverage = False

@@ -119,11 +119,11 @@ namespace Trk {
   {  
 //       for( int i=0; i<(int)includedVrt.size(); i++) includedVrt[i]=0;  // these vertice are not owned, then must not be deleted.
   }
-  void VKVertex::setRefV(double v[3]){ refV[0]=v[0]; refV[1]=v[1]; refV[2]=v[2];}
-  void VKVertex::setRefIterV(double v[]){ refIterV[0]=v[0]; refIterV[1]=v[1]; refIterV[2]=v[2];}
-  void VKVertex::setIniV(double v[3]){ iniV[0]=v[0]; iniV[1]=v[1]; iniV[2]=v[2];}
-  void VKVertex::setFitV(double v[3]){ fitV[0]=v[0]; fitV[1]=v[1]; fitV[2]=v[2];}
-  void VKVertex::setCnstV(double v[3]){ cnstV[0]=v[0]; cnstV[1]=v[1]; cnstV[2]=v[2];}
+  void VKVertex::setRefV(double v[3]) noexcept { std::copy(v, v+3, refV);}
+  void VKVertex::setRefIterV(double v[]) noexcept { std::copy(v, v+3, refIterV); }
+  void VKVertex::setIniV(double v[3]) noexcept { std::copy(v, v+3, iniV); }
+  void VKVertex::setFitV(double v[3]) noexcept { std::copy(v, v+3, fitV); }
+  void VKVertex::setCnstV(double v[3]) noexcept { std::copy(v, v+3, cnstV);}
 
 
   VKVertex::VKVertex(const VKVertex & src):        //copy constructor

@@ -1,6 +1,6 @@
 //Dear emacs, this is -*-c++-*-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EVENTINFOMGT_TAGINFOMGR_H
@@ -13,8 +13,6 @@
  *  Store with current tag values. 
  *
  * @author RD Schaffer <R.D.Schaffer@cern.ch>
- *
- * $Id: TagInfoMgr.h,v 1.11 2009-04-29 07:47:40 schaffer Exp $
  */
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -86,37 +84,46 @@ public:
 
     /// @name Basic service methods
     //@{
-    virtual StatusCode   initialize();
-    virtual StatusCode   start();
-    virtual StatusCode   finalize();
+    virtual StatusCode   initialize() override;
+    virtual StatusCode   start() override;
+    virtual StatusCode   finalize() override;
   
     /// Query the interfaces.
-    virtual StatusCode   queryInterface( const InterfaceID& riid, void** ppvInterface );
+    virtual StatusCode   queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
     //@}
 
     /// @name Interface methods
     //@{
     /// @name Method to allow clients add in tags as: tag name, tag value
     virtual StatusCode   addTag(const std::string& tagName, 
-                              const std::string& tagValue);
+                              const std::string& tagValue) override;
 
     /// Method to allow clients to remove a tag which may have come in
     /// on the input
-    virtual StatusCode   removeTagFromInput(const std::string& tagName);
+    virtual StatusCode   removeTagFromInput(const std::string& tagName) override;
 
     /// Method to allow clients to access the TagInfo object key.
-    virtual std::string& tagInfoKey();
+    virtual std::string& tagInfoKey() override;
 
     /// callback from IOVSvc - only used as test of callback
-    StatusCode           checkTagInfo(IOVSVC_CALLBACK_ARGS);
+    virtual StatusCode           checkTagInfo(IOVSVC_CALLBACK_ARGS) override;
     //@}
 
+    /// Find tag by name, return by value
+    virtual std::string findTag(const std::string & name) const override final;
+
+    /// Return a vector with all current input tags
+    virtual NameTagPairVec getInputTags() const override final;
+
+    /// Dump the content of the current TagInfo to std::string for debug
+    virtual std::string dumpTagInfoToStr() const override final;
+   
     /// @name TagInfo management methods:
     //@{
     /// Callback at BeginRun and BeginEvent
     ///   - BeginRun:   fill and regsister TagInfo
     ///   - BeginEvent: fill EventInfo from TagInfo
-    void                 handle(const Incident& incident);
+    virtual void handle(const Incident& incident) override;
 
     typedef IAddressProvider::tadList tadList;
     typedef IAddressProvider::tadListIterator tadListIterator;
@@ -124,17 +131,17 @@ public:
     /// preload the detector store with the transient address for
     /// TagInfo 
     virtual StatusCode preLoadAddresses( StoreID::type storeID,
-					 tadList& tlist );
+					 tadList& tlist ) override;
       
     ///  Create a TagInfo object and record in storegate
     virtual StatusCode updateAddress(StoreID::type storeID, SG::TransientAddress* tad,
-                                     const EventContext& ctx);
+                                     const EventContext& ctx) override;
 
 
     /// Implementation of IConverter: Create the transient representation of an object from persistent state.
     /// @param pAddress [IN] pointer to IOpaqueAddress of the representation.
     /// @param refpObject [OUT] pointer to DataObject to be created.
-    virtual StatusCode createObj(IOpaqueAddress* pAddress, DataObject*& refpObject);
+    virtual StatusCode createObj(IOpaqueAddress* pAddress, DataObject*& refpObject) override;
 
    /// Create a Generic address using explicit arguments to identify a single object.
    /// @param svcType [IN] service type of the address.
@@ -146,12 +153,12 @@ public:
 		   const CLID& clid,
 		   const std::string* par,
 		   const unsigned long* ip,
-		   IOpaqueAddress*& refpAddress);
+		   IOpaqueAddress*& refpAddress) override;
 
    /// Convert address to string form
    /// @param pAddress [IN] address to be converted.
    /// @param refAddress [OUT] converted string form.
-   virtual StatusCode convertAddress(const IOpaqueAddress* pAddress, std::string& refAddress);
+   virtual StatusCode convertAddress(const IOpaqueAddress* pAddress, std::string& refAddress) override;
 
     /// Create address from string form
     /// @param svcType [IN] service type of the address.
@@ -161,7 +168,7 @@ public:
     virtual StatusCode createAddress(long svcType,
                                      const CLID& clid,
                                      const std::string& refAddress,
-                                     IOpaqueAddress*& refpAddress);
+                                     IOpaqueAddress*& refpAddress) override;
     //@}
 
     ///////////////////////////////////////////////////////////////////

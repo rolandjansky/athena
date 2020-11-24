@@ -33,7 +33,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_CHECK(m_condTDAQKey.initialize( !m_condTDAQKey.empty() ));
   ATH_CHECK(m_condDeadMapKey.initialize());
   ATH_CHECK(m_pixelCabling.retrieve());
-
+ 
   for (unsigned int istate=0; istate<m_isActiveStates.size(); istate++) {
     if      (m_isActiveStates[istate]=="READY")      { m_activeState.push_back(PixelDCSStateData::DCSModuleState::READY); }
     else if (m_isActiveStates[istate]=="ON")         { m_activeState.push_back(PixelDCSStateData::DCSModuleState::ON); }
@@ -87,7 +87,7 @@ PixelConditionsSummaryTool::IDCCacheEntry* PixelConditionsSummaryTool::getCacheE
 uint64_t PixelConditionsSummaryTool::getBSErrorWord(const IdentifierHash& moduleHash, const EventContext& ctx) const {
   if (!m_useByteStream) { return 0; }
 
-  std::lock_guard<std::mutex> lock{m_cacheMutex};
+  std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
   auto idcCachePtr = getCacheEntry(ctx)->IDCCache;
   if (idcCachePtr==nullptr) {
     ATH_MSG_ERROR("PixelConditionsSummaryTool No cache! " );

@@ -24,27 +24,28 @@
 #include "JetRec/JetGroomer.h"
 #include "JetRec/PseudoJetContainer.h"
 
-class JetTrimming
-: virtual public JetGroomer {
-  ASG_TOOL_CLASS(JetTrimming, IJetProvider)
+namespace JetGrooming {
+  class JetTrimming
+    : virtual public JetGroomer {
+    ASG_TOOL_CLASS(JetTrimming, IJetProvider)
 
-public:
+    public:
 
-  using JetGroomer::JetGroomer;
+    using JetGroomer::JetGroomer;
 
-  StatusCode initialize() override final;
+    StatusCode initialize() override final;
 
-  virtual void insertGroomedJet(const xAOD::Jet&, const PseudoJetContainer&, xAOD::JetContainer&, PseudoJetVector&) const override final;
+    virtual void insertGroomedJet(const xAOD::Jet&, const PseudoJetContainer&, xAOD::JetContainer&, PseudoJetVector&) const override final;
 
-private:
+  private:
 
-  // The filter object that will apply the grooming
-  std::unique_ptr<fastjet::Filter> m_trimmer;
+    // The filter object that will apply the grooming
+    std::unique_ptr<fastjet::Filter> m_trimmer;
     
-  // Job options.
-  Gaudi::Property<float> m_rclus        {this, "RClus", 0.3 , "R for reclustering (0 for none)"}; 
-  Gaudi::Property<float> m_ptfrac       {this, "PtFrac", 0.03, "pT fraction for retaining subjets"};
-  
-};
+    // Job options.
+    Gaudi::Property<float> m_rclus  {this, "RClus", 0.3 , "R for reclustering (0 for none)"}; 
+    Gaudi::Property<float> m_ptfrac      {this, "PtFrac", 0.03, "pT fraction for retaining subjets"};
+  };
 
+}
 #endif

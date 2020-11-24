@@ -618,6 +618,11 @@ void InDet::SiTrajectoryElement_xk::set
   }
   
   const Amg::Transform3D& tr = m_surface->transform();
+  //Initialise material corrections
+  m_radlength = 0.03; 
+  /// add material for the forward pixels
+  if(m_ndf == 2 && std::abs(tr(2,2)) >= 1.) m_radlength = .07;
+  
 
   m_localTransform[ 0] = tr(0,0); m_localTransform[ 1]=tr(1,0); m_localTransform[ 2]=tr(2,0);
   m_localTransform[ 3] = tr(0,1); m_localTransform[ 4]=tr(1,1); m_localTransform[ 5]=tr(2,1);
@@ -718,8 +723,15 @@ void InDet::SiTrajectoryElement_xk::CloseClusterSeach
   (m_detelement->isSCT() && m_detelement->design().shape()==InDetDD::Trapezoid) ? 
     m_stereo = true : m_stereo = false;
   if(m_detstatus && m_ndf == 1) m_halflength = (*sb)->width().z()*.5;
-
-  if(m_detlink->intersect(Tpa,m_dist) > 0 || !searchClusters(Tpa,m_linkForward)) return;
+  /// in this case, we do not wish to overwrite the m_inside member.
+  /// So store the old value and restore after the check. 
+  int inside_originalVal = m_inside; 
+  checkBoundaries(Tpa); 
+  if(m_inside > 0 || !searchClusters(Tpa,m_linkForward)) {
+    m_inside = inside_originalVal; 
+    return;
+  }
+  m_inside = inside_originalVal; 
   m_cluster = m_linkForward[0].cluster();
   m_xi2Forward    = m_linkForward[0].xi2    ();
 }

@@ -43,7 +43,7 @@ class MDT_RawDataProviderToolCore : public AthAlgTool
   virtual StatusCode initialize();
   
   /** Convert method */
-  virtual StatusCode convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer);
+  virtual StatusCode convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer) const;
 
   protected:
 

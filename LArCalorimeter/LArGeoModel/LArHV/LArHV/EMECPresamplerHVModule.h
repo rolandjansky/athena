@@ -37,19 +37,8 @@ class EMECPresamplerHVModule
   // Side Index (0=Negative, 1=Positive)
   unsigned int getSideIndex() const;
 
-  // HV Status
-  bool hvOn(int iGap) const;
-    
-  double voltage(int iGap) const;
-  double current(int iGap) const;
-
-  // Current and voltage at the same time:
-  void voltage_current(int iGap, double& v, double& i) const;
-
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
-  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping=nullptr) const;
-#else
-  int hvLineNo(int iGap) const;
+  int hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const;
 #endif
   
   const EMECPresamplerHVManager& getManager() const;

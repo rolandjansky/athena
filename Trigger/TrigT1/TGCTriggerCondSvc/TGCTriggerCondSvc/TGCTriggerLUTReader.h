@@ -29,9 +29,6 @@ class TGCTriggerLUTReader{
   const int m_lutType;
   IMessageSvc* m_msgSvc;
   ISvcLocator* m_svcLocator;
-
- private:
-  TGCTriggerLUTReader() = default;
 };
 
 

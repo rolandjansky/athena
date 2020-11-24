@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -107,19 +107,19 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
     # 2) Configure histogram with Tile error state in EventInfo vs lumi block
     errorStateGroup = helper.addGroup(tileDQFragMonAlg, 'TileEventsWithErrEventInfoLB', 'Tile/DMUErrors')
     errorStateGroup.defineHistogram('lumiBlock;TileEventsWithErrEventInfo', path = 'BadDrawers', type='TH1F',
-                                    title = '# events with Tile error state in EventInfo;LumiBlock;# events with error',
+                                    title = 'Run ' + run + ': # events with Tile error state in EventInfo;LumiBlock;# events with error',
                                     xbins = 1000, xmin = -0.5, xmax = 999.5, opt = 'kAddBinsDynamically')
 
     # 3) Configure histogram with number of consecutive bad Tile modules
     consecutiveBadGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModules', 'Tile/DMUErrors')
     consecutiveBadGroup.defineHistogram('TileConsecutiveBad', path = 'BadDrawers', type='TH1F',
-                                        title = 'Max # Tile consecutive bad modules;# consecutive bad modules;N',
+                                        title = 'Run ' + run + ': Max # Tile consecutive bad modules;# consecutive bad modules;N',
                                         xbins = 17, xmin = -0.5, xmax = 16.5)
 
     # 4) Configure histogram with number of consecutive bad Tile modules per lumi block
     consecutiveBadLBGroup = helper.addGroup(tileDQFragMonAlg, 'TileConsecutiveBadModulesLB', 'Tile/DMUErrors')
     consecutiveBadLBGroup.defineHistogram('lumiBlock,TileConsecutiveBad;TileConsecutiveBadLB', path = 'BadDrawers', type='TH2F',
-                                          title = 'Max # Tile consecutive bad modules;LumiBlock;# consecutive bad modules',
+                                          title = 'Run ' + run + ': Max # Tile consecutive bad modules;LumiBlock;# consecutive bad modules',
                                           xbins = 1000, xmin = -0.5, xmax = 999.5, ybins = 17, ymin = -0.5, ymax = 16.5,
                                           opt = 'kAddBinsDynamically')
 
@@ -131,23 +131,28 @@ def _TileDQFragMonitoringCore(helper, algConfObj, runNumber, **kwargs):
     moduleLabels = [str(module) for module in range(1, Tile.MAX_DRAWER + 1)]
     partitionLabels = [getPartitionName(ros) for ros in range(1, Tile.MAX_ROS)]
 
-    mismatchedLVL1Group = helper.addGroup(tileDQFragMonAlg, 'TileMismatchedL1TiggerType', 'Tile/')
-    mismatchedLVL1Group.defineHistogram('module,ROS;TileMismatchedL1TiggerType', path = 'DMUErrors',
-                                        title = run + ': Tile mismatched L1 Trigger Type;Module;Partition',
+    mismatchedLVL1Group = helper.addGroup(tileDQFragMonAlg, 'TileMismatchedL1TriggerType', 'Tile/')
+    mismatchedLVL1Group.defineHistogram('module,ROS;TileMismatchedL1TriggerType', path = 'DMUErrors',
+                                        title = 'Run ' + run + ': Tile mismatched L1 Trigger Type;Module;Partition',
                                         type = 'TH2F', xlabels = moduleLabels, ylabels = partitionLabels,
                                         xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                                         ybins = Tile.MAX_ROS - 1, ymin = 1.0, ymax = Tile.MAX_ROS)
 
-
     # 6) Configure histogram with no all Tile digits in the case of Trigger Type = 0x82
     noAllDigitsGroup = helper.addGroup(tileDQFragMonAlg, 'TileNoAllDigits', 'Tile/')
     noAllDigitsGroup.defineHistogram('module,ROS;TileNoalldigits', path = 'DMUErrors', type = 'TH2F',
-                                     title = run + ': No All Tile digits in event with Trigger Type = 0x82;Module;Partition',
+                                     title = 'Run ' + run + ': No All Tile digits in event with Trigger Type = 0x82;Module;Partition',
                                      xlabels = moduleLabels, ylabels = partitionLabels,
-                                     xbins = Tile.MAX_DRAWER, xmin = 0.0, xmax = Tile.MAX_DRAWER,
+                                     xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                                      ybins = Tile.MAX_ROS - 1, ymin = 1.0, ymax = Tile.MAX_ROS)
 
-
+    # ) Configure histogram with global CRC errors vs module and partition
+    globalCRCGroup = helper.addGroup(tileDQFragMonAlg, 'TileBadGlobalCRC', 'Tile/')
+    globalCRCGroup.defineHistogram('module,ROS;TileBadGlobalCRC', path = 'DMUErrors', type = 'TH2F',
+                                   title = 'Run ' + run + ': Global CRC errors;Module;Partition',
+                                   xlabels = moduleLabels, ylabels = partitionLabels,
+                                   xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
+                                   ybins = Tile.MAX_ROS - 1, ymin = 1.0, ymax = Tile.MAX_ROS)
 
     # 7) Configure histograms with Tile DMU errors
     maxDMUs = 16

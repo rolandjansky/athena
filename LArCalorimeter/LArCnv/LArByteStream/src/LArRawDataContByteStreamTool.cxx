@@ -49,7 +49,6 @@ LArRawDataContByteStreamTool::LArRawDataContByteStreamTool
   declareProperty("IncludeDigits",m_includeDigits=false);
   declareProperty("DigitsContainer",m_DigitContName="LArDigitContainer_MC_Thinned");
   m_RodBlockStructure=NULL;
-  m_lastEvent = 0xFFFFFFFF;
 }
 
 LArRawDataContByteStreamTool::~LArRawDataContByteStreamTool() {
@@ -128,7 +127,10 @@ LArRawDataContByteStreamTool::finalize()
 }
 
 
-StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont, FullEventAssembler<Hid2RESrcID> *fea) {
+StatusCode
+LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont,
+                                             FEA_t& fea) const
+{
  if (!m_initializeForWriting) {
    ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
                    << name()<<".InitializeForWriting" );
@@ -144,11 +146,11 @@ StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer*
    return StatusCode::FAILURE;
  }
  //prepareWriting();
- fea->setRodMinorVersion(m_RodBlockVersion);
- fea->setDetEvtType(m_DSPRunMode);
+ fea.setRodMinorVersion(m_RodBlockVersion);
+ fea.setDetEvtType(m_DSPRunMode);
  ATH_MSG_DEBUG ( "Setting Detector Event Type to " << m_DSPRunMode 
                  << " and Minor Version Number to " << m_RodBlockVersion );
- FullEventAssembler<Hid2RESrcID>::RODDATA*  theROD;
+ FEA_t::RODDATA*  theROD;
  LArDigitContainer::const_iterator it_b=digitCont->begin();
  LArDigitContainer::const_iterator it_e=digitCont->end();
  if (it_b==it_e) {
@@ -197,20 +199,21 @@ StatusCode LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer*
  // LArRodEncoder has collected all the channels, now can fill the
  // ROD block data.
  for(; it!=it_end;++it) {
-   theROD  = fea->getRodData( (*it).first );
+   theROD  = fea.getRodData( (*it).first );
    ((*it).second).fillROD(*theROD,msg(), **noise, m_nfebsigma ) ; 
  } 
  ATH_MSG_DEBUG ( "Filled " << mapEncoder.size() << " Rod Blocks" );
  // Finally, fill full event
- //fea->fill(re,log); 
+ //fea.fill(re,log); 
  return StatusCode::SUCCESS;
 }
 
 
 
-StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigitContainer* digitCont, 
-							     FullEventAssembler<Hid2RESrcID> *fea) {
-
+StatusCode
+LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigitContainer* digitCont, 
+                                                  FEA_t& fea) const
+{
  if (!m_initializeForWriting) {
    ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
                    << name()<<".InitializeForWriting" );
@@ -226,11 +229,11 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
    return StatusCode::FAILURE;
  }
  //prepareWriting(); 
- fea->setRodMinorVersion(m_RodBlockVersion);
- fea->setDetEvtType(m_DSPRunMode);
+ fea.setRodMinorVersion(m_RodBlockVersion);
+ fea.setDetEvtType(m_DSPRunMode);
  ATH_MSG_DEBUG ( "Setting Detector Event Type to " << m_DSPRunMode 
                  << "and Minor Version Number to " << m_RodBlockVersion );
- FullEventAssembler<Hid2RESrcID>::RODDATA*  theROD;
+ FEA_t::RODDATA*  theROD;
  LArCalibDigitContainer::const_iterator it_b=digitCont->begin();
  LArCalibDigitContainer::const_iterator it_e=digitCont->end();
  if (it_b==it_e) {
@@ -266,7 +269,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
  // LArRodEncoder has collected all the channels, now can fill the
  // ROD block data.
  for(; it!=it_end;++it) {
-   theROD  = fea->getRodData( (*it).first ); 
+   theROD  = fea.getRodData( (*it).first ); 
    ((*it).second).fillROD( *theROD,msg(), **noise, m_nfebsigma ) ; 
  } 
  ATH_MSG_DEBUG ( "Filled " << mapEncoder.size() << " Rod Blocks" );
@@ -274,8 +277,10 @@ StatusCode LArRawDataContByteStreamTool::WriteLArCalibDigits(const LArCalibDigit
 }
 
 
-StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannelContainer* channelCont, 
-							     FullEventAssembler<Hid2RESrcID> *fea) {
+StatusCode
+LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannelContainer* channelCont, 
+                                                  FEA_t& fea) const
+{
  if (!m_initializeForWriting) {
    ATH_MSG_ERROR ( "Tool not setup for writing! Use property " 
                    << name()<<".InitializeForWriting" );
@@ -289,9 +294,9 @@ StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannel
    ATH_MSG_DEBUG ( "This instance of LArRodBlockStructure can't hold LArRawChannels!" );
     return StatusCode::FAILURE;
  }
- FullEventAssembler<Hid2RESrcID>::RODDATA*  theROD;
- fea->setRodMinorVersion(m_RodBlockVersion);
- fea->setDetEvtType(m_DSPRunMode);
+ FEA_t::RODDATA*  theROD;
+ fea.setRodMinorVersion(m_RodBlockVersion);
+ fea.setDetEvtType(m_DSPRunMode);
  ATH_MSG_DEBUG ( "Setting Detector Event Type to " << m_DSPRunMode 
                  << "and Minor Version Number to " << m_RodBlockVersion );
  LArRawChannelContainer::const_iterator it = channelCont->begin(); 
@@ -353,7 +358,7 @@ StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannel
  // LArRodEncoder has collected all the channels, now can fill the
  // ROD block data.
  for(; it_m!=it_m_e;++it_m) {
-   theROD  = fea->getRodData( (*it_m).first ); 
+   theROD  = fea.getRodData( (*it_m).first ); 
    ((*it_m).second).fillROD( *theROD,msg(), **noise, m_nfebsigma ) ; 
    // delete ((*it_m).second);
    // ((*it_m).second)=NULL;
@@ -363,15 +368,14 @@ StatusCode LArRawDataContByteStreamTool::WriteLArRawChannels(const LArRawChannel
 }
 
  
-StatusCode LArRawDataContByteStreamTool::prepareRobIndex(const RawEvent* re)
+StatusCode
+LArRawDataContByteStreamTool::prepareRobIndex(const RawEvent* re,
+                                              RobIndex_t& robIndex) const
 {
   // This `optimization' leads to disaster if there ever happen to be
   // two adjacent events with identical L1 IDs --- in that case,
   // we'd be using the dangling ROB pointers from the last event.
-  // We should generally come through here only once per event anyway,
-  // so just remove this test.
-if ( 1/*re->lvl1_id() != m_lastEvent*/ ) {
-  m_lastEvent = re->lvl1_id();
+  // We should generally come through here only once per event anyway.
   ATH_MSG_DEBUG( "Converting event (from ByteStream)" );
 
   if (!re) {
@@ -386,11 +390,10 @@ if ( 1/*re->lvl1_id() != m_lastEvent*/ ) {
   ATH_MSG_VERBOSE ("Fragment size in words: " << re->fragment_size_word() );
 
   // Need to clear up or it will accumulate
-  m_robIndex.clear();
-  eformat::helper::build_toc(*re, m_robIndex );
-  if ( m_robIndex.empty() ) { // This is a problem
+  robIndex.clear();
+  eformat::helper::build_toc(*re, robIndex );
+  if ( robIndex.empty() ) { // This is a problem
 	return StatusCode::FAILURE;
-  }
   }
   return StatusCode::SUCCESS;
 }

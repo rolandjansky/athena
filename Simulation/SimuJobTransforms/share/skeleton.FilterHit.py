@@ -99,7 +99,8 @@ else:
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
 theApp.EvtSel = "EventSelector"
 # Number of input events to be skipped
-ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+if hasattr(runArgs,"skipEvents"):
+    ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 #--------------------------------------------------------------
 # Setup Output
@@ -119,6 +120,13 @@ except:
     Stream1 = AthenaPoolOutputStream( "StreamHITS", "DidNotSetOutputName.root", noTag=True )
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #Stream1.ExcludeList = ['6421#*']
+
+# Set AutoFlush to 1 as per ATLASSIM-4274
+# These outputs are meant to be read randomly
+from AthenaPoolCnvSvc import PoolAttributeHelper as pah
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Stream1.OutputFile , "CollectionTree",  1 ) ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Stream1.OutputFile , "POOLContainer", 1 ) ]
+ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Stream1.OutputFile , "POOLContainerForm", 1 ) ]
 
 #--------------------------------------------------------------
 # Specify collections for output HIT files, as not all are required.

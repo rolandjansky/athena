@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /* Algorihtm to fill the background word that is stored in the EventInfo 
@@ -139,6 +139,7 @@ StatusCode BackgroundWordFiller::initialize() {
   ATH_CHECK(m_rawInfoSummaryForTagKey.initialize(!m_isMC));
   ATH_CHECK(m_tileCellContainerKey.initialize());
   ATH_CHECK(m_lArCollisionTimeKey.initialize(!m_isMC));
+  ATH_CHECK(m_eventInfoDecorKey.initialize());
   
   return StatusCode::SUCCESS;  
 }

@@ -3,6 +3,8 @@
 # Declare the package name:
 atlas_subdir( GeneratorUtils )
 
+find_package( Boost )
+
 # Component(s) in the package:
 atlas_add_library( GeneratorUtilsLib
                    GeneratorUtils/*.h

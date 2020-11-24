@@ -5,6 +5,8 @@
 #################
 ## Load common flags
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
+from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from InDetRecExample.InDetJobProperties import InDetFlags
 from DerivationFrameworkInDet.InDetCommon import *
 
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
@@ -733,7 +735,7 @@ IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."
 
 if DRAWZSel:
   IDTRKVALIDStream.AddItem("xAOD::TauJetContainer#TauJets")
-  IDTRKVALIDStream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.")
+  IDTRKVALIDStream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters.")
   IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
   IDTRKVALIDStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
   IDTRKVALIDStream.AddItem("xAOD::JetContainer#AntiKt4LCTopoJets")

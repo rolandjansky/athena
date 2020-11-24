@@ -25,6 +25,15 @@ SingleBjetGroup = ['RATE:SingleBJet', 'BW:BJet']
 SingleTauGroup = ['RATE:SingleTau', 'BW:Tau']
 MultiTauGroup = ['RATE:MultiTau', 'BW:Tau']
 BphysicsGroup = ['RATE:Bphysics', 'BW:Bphysics']
+EgammaMuonGroup = ['RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon']
+EgammaMETGroup = ['RATE:EgammaMET', 'BW:Egamma', 'BW:MET']
+MuonJetGroup =['RATE:MuonJet','BW:Muon', 'BW:Jet']
+MuonTauGroup =['RATE:MuonTau', 'BW:Tau', 'BW:Muon']
+TauMETGroup =['RATE:TauMET', 'BW:Tau']
+MuonMETGroup =['RATE:MuonMET', 'BW:Muon']
+EgammaJetGroup = ['RATE:EgammaJet', 'BW:Egamma']
+TauGammaGroup =['RATE:TauGamma', 'BW:Tau', 'BW:Egamma']
+JetMETGroup = ['RATE:JetMET', 'BW:Jet']
 MinBiasGroup = ['RATE:MinBias', 'BW:MinBias']
 ZeroBiasGroup = ['RATE:ZeroBias', 'BW:ZeroBias']
 EgammaStreamersGroup = ['RATE:SeededStreamers', 'BW:Egamma']
@@ -100,8 +109,8 @@ def setupMenu():
         ChainProp(name='HLT_5j70_0eta240_L14J20', groups=MultiJetGroup), # this chain is supposed to be seeded off L1_4J15 in principle, needs CF fix
         ChainProp(name='HLT_3j200_L1J100', groups=MultiJetGroup),
         # FP: workaround tmp for l1SeedThresholds
-        ChainProp(name='HLT_j80_L1J15', groups=SingleJetGroup),
-        ChainProp(name='HLT_2j60_L1J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_L1J15', groups=['Online',SingleJetGroup]),
+        ChainProp(name='HLT_2j60_L1J15', groups=['Online',MultiJetGroup]),
         ChainProp(name='HLT_j80_j60_L1J15', l1SeedThresholds=2*['FSNOSEED'], groups=MultiJetGroup),
         # FP: workaround tmp for l1SeedThresholds
         ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', l1SeedThresholds=['FSNOSEED']*3, groups=MultiJetGroup),

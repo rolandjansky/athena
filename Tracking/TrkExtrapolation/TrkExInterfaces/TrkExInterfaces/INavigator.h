@@ -152,24 +152,24 @@ public:
 
   /** INavigator interface method - returns the TrackingGeometry used for
    * navigation */
-  virtual const TrackingGeometry* trackingGeometry() const;
+  const TrackingGeometry* trackingGeometry() const;
 
   /** INavigator interface method - global search for the Volume one is in */
-  virtual const TrackingVolume* volume(const Amg::Vector3D& gp) const;
+  const TrackingVolume* volume(const Amg::Vector3D& gp) const;
 
   /** INavigator interface method - forward hightes TrackingVolume */
-  virtual const TrackingVolume* highestVolume() const;
+  const TrackingVolume* highestVolume() const;
 
   /** INavigator interface method - getting the next BoundarySurface not knowing
    * the Volume*/
-  virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface(
+  const BoundarySurface<TrackingVolume>* nextBoundarySurface(
     const IPropagator& prop,
     const TrackParameters& parms,
     PropDirection dir) const;
 
   /** INavigator interface method - getting the next BoundarySurface when
    * knowing the Volume*/
-  virtual const BoundarySurface<TrackingVolume>* nextBoundarySurface(
+  const BoundarySurface<TrackingVolume>* nextBoundarySurface(
     const IPropagator& prop,
     const TrackParameters& parms,
     PropDirection dir,
@@ -177,24 +177,22 @@ public:
 
   /** INavigator interface method - - getting the next Volume and the parameter
    * for the next Navigation */
-  virtual NavigationCell nextTrackingVolume(
-    const IPropagator& prop,
-    const TrackParameters& parms,
-    PropDirection dir,
-    const TrackingVolume& vol) const;
+  NavigationCell nextTrackingVolume(const IPropagator& prop,
+                                    const TrackParameters& parms,
+                                    PropDirection dir,
+                                    const TrackingVolume& vol) const;
 
   /** INavigator interface method - getting the next Volume and the parameter
     for the next Navigation
     - contains full loop over volume boundaries
   */
-  virtual NavigationCell nextDenseTrackingVolume(const IPropagator& prop,
-                                                 const TrackParameters& parms,
-                                                 const Surface* destination,
-                                                 PropDirection dir,
-                                                 ParticleHypothesis particle,
-                                                 const TrackingVolume& vol,
-                                                 double& path) const;
-
+  NavigationCell nextDenseTrackingVolume(const IPropagator& prop,
+                                         const TrackParameters& parms,
+                                         const Surface* destination,
+                                         PropDirection dir,
+                                         ParticleHypothesis particle,
+                                         const TrackingVolume& vol,
+                                         double& path) const;
 };
 
 } // end of namespace

@@ -38,7 +38,7 @@ namespace Muon
       /** Standard AlgTool method */
       virtual StatusCode finalize();
       /** Convert ROBFragment to RDO */
-      virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc);
+      virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const;
 
     private:
       /** TGC ID helper */
@@ -47,7 +47,7 @@ namespace Muon
       /** Retrieve header of ROBFragment */
       void getCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdo* rdo) const;
       /** Convert data contents of ROBFragment to RDO */
-      void byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs, TgcRdo* rdo, uint32_t source_id);
+      void byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs, TgcRdo* rdo, uint32_t source_id) const;
       /** Show status words */
       void showStatusWords(const uint32_t source_id, const uint16_t rdoId, const int idHash, 
 			   const uint32_t nstatus, const uint32_t* status) const;
@@ -57,8 +57,8 @@ namespace Muon
       bool m_skipCoincidence;
 
       // counters to see how often we use the cache for the raw data collections
-      unsigned int m_nCache = 0;
-      unsigned int m_nNotCache = 0;
+      mutable unsigned int m_nCache ATLAS_THREAD_SAFE = 0 ;
+      mutable unsigned int m_nNotCache ATLAS_THREAD_SAFE = 0 ;
     };
 } // end of namespace
 

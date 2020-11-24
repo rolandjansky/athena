@@ -41,7 +41,7 @@ namespace InDet {
 	}
       }
       auto systCode = m_smearTool->applySystematicVariation( m_systActive );
-      if (systCode != CP::SystematicCode::Ok) {
+      if (systCode != StatusCode::SUCCESS) {
 	ATH_MSG_ERROR( "Failure to apply systematic variation." );
 	return StatusCode::FAILURE;
       }

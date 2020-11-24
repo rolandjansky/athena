@@ -130,7 +130,7 @@ StatusCode MuonTruthHitsFillerTool::fillHitCounts (int barcode)
 
     for (const PRD_MultiTruthCollection::value_type& mc : *collection) {
       // check if gen particle same as input
-      if( mc.second->barcode() != barcode ) continue;
+      if( HepMC::barcode(mc.second) != barcode ) continue;
       found = true;
       const Identifier& id = mc.first;
       ATH_MSG_VERBOSE("found matching hit " << m_idHelperSvc->toString(id) );

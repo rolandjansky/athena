@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./DijetConditionMT.h"
@@ -79,7 +79,7 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
 
 }
 
-std::string DijetConditionMT::toString() const noexcept {
+std::string DijetConditionMT::toString() const {
 
 
   std::stringstream ss;

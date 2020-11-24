@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MissingETGoodness/METCollisionFilter.h"
@@ -8,10 +8,6 @@
 #include "PrimaryDPDMaker/MBTSTimeFilterTool.h"
 #include "GoodRunsLists/IGoodRunsListSelectorTool.h"
 #include "GaudiKernel/SystemOfUnits.h"
-
-
-using CLHEP::GeV;
-using CLHEP::ns;
 
 
 // MB: reference to MET Goodies map for storing derived quantities
@@ -44,10 +40,10 @@ METCollisionFilter::METCollisionFilter(const std::string& name, ISvcLocator* pSv
   declareProperty( "BlackRunsListArray", m_brlnameVec );
 
   declareProperty( "clusterTimeMinEta", m_clusterMinEta = 1.);
-  declareProperty( "clusterTimeMinE", m_clusterMinE = 1.*GeV);
-  declareProperty( "clusterTimeMean", m_clusterTimeMean = 0.*ns);
-  declareProperty( "clusterTimeMeanDelta", m_clusterTimeMeanDelta = 10.*ns);
-  declareProperty( "clusterTimeACDelta", m_clusterTimeACDelta = 10.*ns);
+  declareProperty( "clusterTimeMinE", m_clusterMinE = 1.*Gaudi::Units::GeV);
+  declareProperty( "clusterTimeMean", m_clusterTimeMean = 0.*Gaudi::Units::ns);
+  declareProperty( "clusterTimeMeanDelta", m_clusterTimeMeanDelta = 10.*Gaudi::Units::ns);
+  declareProperty( "clusterTimeACDelta", m_clusterTimeACDelta = 10.*Gaudi::Units::ns);
 }
 
 

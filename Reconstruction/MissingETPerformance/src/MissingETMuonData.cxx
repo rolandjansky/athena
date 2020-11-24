@@ -110,9 +110,9 @@ StatusCode MissingETMuonData::retrieveMuons() {
 
     if (foundMCCOLL) {
       IsGenStable istab;
-      for (HepMC::GenEvent::particle_const_iterator it = (mcEventCol->at(0))->particles_begin(); it != (mcEventCol->at(0))->particles_end(); ++it) {
-	if ( istab(*it) && abs((*it)->pdg_id()) == 13) {
-	  m_truth_Muons.push_back(*it);
+      for (auto it: *(mcEventCol->at(0))) {
+	if ( istab(it) && std::abs(it->pdg_id()) == 13) {
+	  m_truth_Muons.push_back(it);
 	}//found truth muon
       }//loop over mc parts
     }//if foundMCCOLL

@@ -35,11 +35,11 @@ Interface definition for jFEXSim
 
     virtual void execute() = 0;
     virtual int ID() = 0;
-    virtual void SetTowersAndCells_SG(int tmp[16][9]) = 0;
-    virtual void SetTowersAndCells_SG(int tmp[16][8]) = 0;
+    virtual void SetTowersAndCells_SG(int tmp[16*2][17]) = 0;
+    virtual void SetTowersAndCells_SG(int tmp[16*2][24]) = 0;
 
-    virtual StatusCode NewExecute(int tmp[16*4][9]) = 0;
-    virtual StatusCode NewExecute(int tmp[16*4][8]) = 0;
+    virtual StatusCode NewExecute(int tmp[16*4][17]) = 0;
+    virtual StatusCode NewExecute(int tmp[16*4][24]) = 0;
 
   private:
 

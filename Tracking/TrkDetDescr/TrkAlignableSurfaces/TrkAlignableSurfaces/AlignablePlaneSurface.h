@@ -66,9 +66,9 @@ public:
   /**Assignment operator */
   AlignablePlaneSurface& operator=(const AlignablePlaneSurface& sf);
   /**Equality operator*/
-  bool operator==(const Surface& sf) const;
+  virtual bool operator==(const Surface& sf) const override;
   /**Implicit constructor - uses the copy constructor */
-  AlignablePlaneSurface* clone() const;
+  virtual AlignablePlaneSurface* clone() const override;
 
   /** return associated Detector Element - forwarded from nominal Surface */
   const TrkDetElementBase* associatedDetectorElement() const;
@@ -82,22 +82,22 @@ public:
   /** -------------------------- interface from AlignableSurface ------------------ */
 
   /** Get the Surface representation */
-  const PlaneSurface& surfaceRepresentation() const;
+  virtual const PlaneSurface& surfaceRepresentation() const override;
 
   /** Get the nominal surface */
-  const PlaneSurface& nominalSurface() const;
+  virtual const PlaneSurface& nominalSurface() const override; 
 
   /** Get the nominal transformation */
-  const Amg::Transform3D& nominalTransform() const;
+  virtual const Amg::Transform3D& nominalTransform() const override;
 
   /** Add an alignment correction on top of the actual one */
-  void addAlignmentCorrection(Amg::Transform3D& corr);
+  virtual void addAlignmentCorrection(Amg::Transform3D& corr) override;
 
   /** Set an alignment correction on top of the nominal one */
-  void setAlignmentCorrection(Amg::Transform3D& corr);
+  virtual void setAlignmentCorrection(Amg::Transform3D& corr) override;
 
   /** Set an alignment correction on top of the nominal one */
-  void setAlignableTransform(Amg::Transform3D& trans);
+  virtual void setAlignableTransform(Amg::Transform3D& trans) override;
 
 protected:
   /** The pointer ro the nominal Surface */

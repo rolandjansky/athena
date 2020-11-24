@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file CaloD3PDMaker/python/CollisionFilterAlg.py
 # @author scott snyder <snyder@bnl.gov>
@@ -42,8 +41,8 @@ class CollisionFilterAlg (PyAthena.Alg):
         sdc = self.sg.retrieve( "SkimDecisionCollection",
                                 self.SkimDecisionsContainerName )
         passed = False
-        if sdc == None:
-            self.msg.error ("Can't find SkimDecisionCollection " +
+        if sdc is None:
+            self.msg.error ("Can't find SkimDecisionCollection %s",
                             self.SkimDecisionsContainerName)
         else:
             for sd in sdc:

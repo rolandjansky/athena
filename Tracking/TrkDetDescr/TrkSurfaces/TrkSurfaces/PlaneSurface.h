@@ -203,7 +203,7 @@ public:
 
   /**This method returns the bounds by reference, static NoBounds in case of no
    * boundaries*/
-  virtual const SurfaceBounds& bounds() const override;
+  virtual const SurfaceBounds& bounds() const override final;
 
   /**This method calls the inside() method of the Bounds*/
   virtual bool insideBounds(const Amg::Vector2D& locpos,
@@ -211,7 +211,7 @@ public:
                             double tol2 = 0.) const override;
 
   virtual bool insideBoundsCheck(const Amg::Vector2D& locpos,
-                                 const BoundaryCheck& bchk) const override;
+                                 const BoundaryCheck& bchk) const override final;
 
   /** This method returns true if the GlobalPosition is on the Surface for both,
     within or without check of whether the local position is inside boundaries
@@ -219,7 +219,7 @@ public:
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
                            BoundaryCheck bchk = true,
                            double tol1 = 0.,
-                           double tol2 = 0.) const override;
+                           double tol2 = 0.) const override final;
 
   /** Specified for PlaneSurface: LocalToGlobal method without dynamic memory
    * allocation */
@@ -283,7 +283,7 @@ public:
     bool Bound) const override final;
 
   /** Return properly formatted class name for screen output */
-  virtual std::string name() const override ;
+  virtual std::string name() const override;
 
 protected: //!< data members
   template<class SURFACE, class BOUNDS_CNV>

@@ -72,7 +72,7 @@ if numThreads > 0:
 #--------------------------------------------------------------
 # use auditors
 #--------------------------------------------------------------
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
@@ -197,9 +197,7 @@ if doPixel:
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
-        useCablingConditions = False
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-        rodIDForSingleLink40=0
         if (globalflags.DataSource()=='geant4'):
             # ITk:
             if geoFlags.isSLHC():
@@ -229,12 +227,8 @@ if doPixel:
             from RecExConfig.AutoConfiguration import GetRunNumber
             runNum = GetRunNumber()
             if (runNum<222222):
-                useCablingConditions = False
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-                rodIDForSingleLink40=1300000
             else:
-                useCablingConditions = True
-                rodIDForSingleLink40=1300000
                 # Even though we are reading from COOL, set the correct fallback map.
                 if (runNum >= 344494):
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -245,12 +239,12 @@ if doPixel:
                 elif (runNum >= 222222 and runNum < 289350): # 2015
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
                 else:
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
+                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
-        alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                 UseCablingConditions=useCablingConditions,
-                                 CablingMapFileName=IdMappingDat)
+        alg = PixelConfigCondAlg(name="PixelConfigCondAlg", CablingMapFileName=IdMappingDat)
         if athenaCommonFlags.isOnline():
+            alg.ReadDeadMapKey = ''
+        if useNewDeadmapFormat:
             alg.ReadDeadMapKey = ''
         condSeq += alg
 
@@ -320,9 +314,17 @@ if doPixel:
 
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                       MappingFile=IdMappingDat,
-                                       RodIDForSingleLink40=rodIDForSingleLink40)
+        alg = PixelCablingCondAlg(name="PixelCablingCondAlg")
+        if (not conddb.folderRequested("/PIXEL/CablingMap") and not conddb.folderRequested("/PIXEL/Onl/CablingMap")):
+            alg.ReadKey = ''
+        if (globalflags.DataSource()=='geant4'):
+            alg.ReadKey = ''
+        if (globalflags.DataSource=='data'):
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            runNum = GetRunNumber()
+            if (runNum<222222):
+                alg.ReadKey = ''
+        condSeq += alg
 
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
@@ -683,6 +685,7 @@ InDetRotCreator = Trk__RIO_OnTrackCreator(name             = "InDetRotCreator",
                                           Mode             = "indet")
 ToolSvc += InDetRotCreator
 
+from InDetRecExample import TrackingCommon as TrackingCommon
 # Set up SiCombinatorialTrackFinder_xk (private)
 # Taken from InDetRecExample/share/InDetRecLoadTools.py
 from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
@@ -690,6 +693,7 @@ InDetSiComTrackFinder = InDet__SiCombinatorialTrackFinder_xk(name               
                                                              PropagatorTool        = InDetPatternPropagator,
                                                              UpdatorTool           = InDetPatternUpdator,
                                                              RIOonTrackTool        = InDetRotCreator,
+                                                             BoundaryCheckTool     = TrackingCommon.getInDetBoundaryCheckTool(),
                                                              SctSummaryTool        = SCT_ConditionsSummaryTool,
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on(),
@@ -738,7 +742,6 @@ if not doBeamSpot:
 
 # Set up SiSPSeededTrackFinder (alg)
 # InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
-from InDetRecExample import TrackingCommon as TrackingCommon
 from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
 InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name           = "InDetSiSpTrackFinder"+NewTrackingCuts.extension(),
                                                           TrackTool      = InDetSiTrackMaker,

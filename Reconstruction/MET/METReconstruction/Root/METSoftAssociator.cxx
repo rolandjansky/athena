@@ -89,7 +89,45 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    if (m_pflow) {
+    if(!m_fecollKey.key().empty()){
+      // PFOs have been provided as FlowElements
+      const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.pfoCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
+      if(m_decorateSoftTermConst) {
+        dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
+        dec_softConst(*metCoreTrk).reserve(uniquePFOs->size());
+        dec_softConst(*metCoreCl) = std::vector<ElementLink<IParticleContainer> >();
+        dec_softConst(*metCoreCl).reserve(uniquePFOs->size());
+      }
+      for(const IParticle* sig : *uniquePFOs) {
+        const xAOD::FlowElement *pfo = static_cast<const xAOD::FlowElement*>(sig);
+        if (pfo->isCharged()) { // Charged PFOs
+          // We set a small -ve pt for cPFOs that were rejected
+          // by the ChargedHadronSubtractionTool
+          const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
+          if (PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(pfo->chargedObject(0))) ) ) {
+            // For the TST, we add the track pt, as this need not be
+            // corrected for nearby energy in the calo
+            *metCoreTrk += pfo->chargedObject(0);
+            // For CST we add the PFO pt, which is weighted down
+            // to account for energy in the calo that may not have
+            // been subtracted
+            *metCoreCl  += sig;
+            if(m_decorateSoftTermConst) {
+              dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+              dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+            }
+          }
+        } else { // Neutral PFOs
+          if (pfo->e()>FLT_MIN) {
+            // This is a non-issue; just add the four-vector
+             *metCoreCl += sig;
+             if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+          }
+        }
+      }
+      delete uniquePFOs;
+    }
+    else if (m_pflow) {
       const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.pfoCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
       if(m_decorateSoftTermConst) {
         dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
@@ -98,31 +136,31 @@ namespace met {
         dec_softConst(*metCoreCl).reserve(uniquePFOs->size());
       }
       for(const auto& sig : *uniquePFOs) {
-	const PFO *pfo = static_cast<const PFO*>(sig);
-	if (pfo->isCharged()) { // Charged PFOs
-	  // We set a small -ve pt for cPFOs that were rejected
-	  // by the ChargedHadronSubtractionTool
-	  const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");	
-	  if (PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
-	    // For the TST, we add the track pt, as this need not be
-	    // corrected for nearby energy in the calo
-	    *metCoreTrk += pfo->track(0);
-	    // For CST we add the PFO pt, which is weighted down
-	    // to account for energy in the calo that may not have
-	    // been subtracted
-	    *metCoreCl  += sig;
-	    if(m_decorateSoftTermConst) {
-	      dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
-	      dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
-	    }
-	  }
-	} else { // Neutral PFOs
-	  if (pfo->e()>FLT_MIN) {
-	    // This is a non-issue; just add the four-vector
- 	    *metCoreCl += sig;
- 	    if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
-	  }
-	}
+        const PFO *pfo = static_cast<const PFO*>(sig);
+        if (pfo->isCharged()) { // Charged PFOs
+          // We set a small -ve pt for cPFOs that were rejected
+          // by the ChargedHadronSubtractionTool
+          const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
+          if (PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfo->track(0)) ) ) {
+            // For the TST, we add the track pt, as this need not be
+            // corrected for nearby energy in the calo
+            *metCoreTrk += pfo->track(0);
+            // For CST we add the PFO pt, which is weighted down
+            // to account for energy in the calo that may not have
+            // been subtracted
+            *metCoreCl  += sig;
+            if(m_decorateSoftTermConst) {
+              dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+              dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+            }
+          }
+        } else { // Neutral PFOs
+          if (pfo->e()>FLT_MIN) {
+            // This is a non-issue; just add the four-vector
+             *metCoreCl += sig;
+             if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(sig->container()),sig->index()));
+          }
+        }
       }
       delete uniquePFOs;
     } else {
@@ -140,44 +178,44 @@ namespace met {
       SG::ReadHandle<xAOD::CaloClusterContainer> emtc(m_emmodclus_key);
 
       for(const auto& cl : *uniqueClusters) {
-	if (cl->e()>FLT_MIN) {
-	  if(m_useModifiedClus) {
-	    if(lctc.isValid() && emtc.isValid()) {
-	      size_t cl_idx(cl->index());
-	      // clusters at LC scale
-	      *metCoreCl += (*lctc)[cl_idx];
-	      if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(lctc.cptr()),cl->index()));
-	      // clusters at EM scale
-	      *metCoreEMCl += (*emtc)[cl_idx];
-	    } else {
-	      ATH_MSG_WARNING("Invalid LC/EM modified cluster collections -- cannot add cluster to soft term!");
-	    }
-	  } else {
-	    // clusters at LC scale
-	    if (cl->type()==xAOD::Type::CaloCluster) {
+        if (cl->e()>FLT_MIN) {
+          if(m_useModifiedClus) {
+            if(lctc.isValid() && emtc.isValid()) {
+              size_t cl_idx(cl->index());
+              // clusters at LC scale
+              *metCoreCl += (*lctc)[cl_idx];
+              if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(lctc.cptr()),cl->index()));
+              // clusters at EM scale
+              *metCoreEMCl += (*emtc)[cl_idx];
+            } else {
+              ATH_MSG_WARNING("Invalid LC/EM modified cluster collections -- cannot add cluster to soft term!");
+            }
+          } else {
+            // clusters at LC scale
+            if (cl->type()==xAOD::Type::CaloCluster) {
         CaloVertexedClusterBase stateClLC(*(static_cast<const CaloCluster*>(cl)),xAOD::CaloCluster::CALIBRATED);
-	      *metCoreCl += (&stateClLC);
-	    } else *metCoreCl += cl;
-	    if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(cl->container()),cl->index()));
-	    // clusters at EM scale
-	    if (cl->type()==xAOD::Type::CaloCluster) {
+              *metCoreCl += (&stateClLC);
+            } else *metCoreCl += cl;
+            if(m_decorateSoftTermConst) dec_softConst(*metCoreCl).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(cl->container()),cl->index()));
+            // clusters at EM scale
+            if (cl->type()==xAOD::Type::CaloCluster) {
         CaloVertexedClusterBase stateClEM( *(static_cast<const CaloCluster*>(cl)),xAOD::CaloCluster::UNCALIBRATED);
         *metCoreEMCl += (&stateClEM);
-	    } else *metCoreEMCl += cl;
-	  }
-	}
+            } else *metCoreEMCl += cl;
+          }
+        }
       }
 
       if(constits.pv) {
-	for(const auto& trk : *uniqueTracks) {
-	  ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
-	  if(acceptTrack(static_cast<const TrackParticle*>(trk),constits.pv) && isGoodEoverP(static_cast<const TrackParticle*>(trk))) {
-	    ATH_MSG_VERBOSE("Add core track with pt " << trk->pt());
-	    *metCoreTrk += trk;
-	    if(m_decorateSoftTermConst) dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(trk->container()),trk->index()));
+        for(const auto& trk : *uniqueTracks) {
+          ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
+          if(acceptTrack(static_cast<const TrackParticle*>(trk),constits.pv) && isGoodEoverP(static_cast<const TrackParticle*>(trk))) {
+            ATH_MSG_VERBOSE("Add core track with pt " << trk->pt());
+            *metCoreTrk += trk;
+            if(m_decorateSoftTermConst) dec_softConst(*metCoreTrk).push_back(ElementLink<IParticleContainer>(*static_cast<const IParticleContainer*>(trk->container()),trk->index()));
 
-	  }
-	}
+          }
+        }
       }
       delete uniqueClusters;
       delete uniqueTracks;

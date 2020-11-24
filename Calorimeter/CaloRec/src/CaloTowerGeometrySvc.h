@@ -2,7 +2,7 @@
 #ifndef CALOREC_CALOTOWERGEOMETRYSVC_H
 #define CALOREC_CALOTOWERGEOMETRYSVC_H
 
-/* Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration */
+/* Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration */
 
 #include "AthenaBaseComps/AthService.h"
 
@@ -42,7 +42,7 @@ public:
   ///@name Gaudi interfaces and implementations
   ///@{
   static const InterfaceID& interfaceID() { return IID_CaloTowerGeometrySvc; }      ///< Interface indentifier needed by Gaudi
-  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppcInterface);  ///< Interface query with fallbacks
+  virtual StatusCode queryInterface(const InterfaceID& riid, void** ppcInterface) override;  ///< Interface query with fallbacks
   ///@}
 
   ///@{

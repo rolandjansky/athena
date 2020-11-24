@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # InDet GeoModel initialization
@@ -70,21 +70,21 @@ class InDetGMFlags(CommonGMFlags, object):
         self.__dict__["IBL"] = False
         self.__dict__["SLHC"] = False
         if _layout in ['IBL'] : self.__dict__["IBL"] = True
-        if self.__dict__["IBL"] == False: self.__dict__["IBLlayout"]="noIBL"
+        if self.__dict__["IBL"] is False: self.__dict__["IBLlayout"]="noIBL"
         if _layout not in ['SLHC'] and ( CommonGeometryFlags.Run() in ["RUN2", "RUN3"] ) : self.__dict__["IBL"] = True
         if _layout in ['SLHC'] : self.__dict__["SLHC"] = True
 
 
     def dump(self):
 
-        Logging.log.info("Geometry tag InDetGMFlags : "+self.__dict__["geomTag"]+" ------------------------------------")
-        Logging.log.info("VersionName = "+self.__dict__["VersionName"])
-        Logging.log.info("Layout      = "+self.__dict__["Layout"])
-        Logging.log.info("DBM         = "+self.__dict__["DBM"])
+        Logging.log.info("Geometry tag InDetGMFlags : %s", self.__dict__["geomTag"]+" ------------------------------------")
+        Logging.log.info("VersionName = %s", self.__dict__["VersionName"])
+        Logging.log.info("Layout      = %s", self.__dict__["Layout"])
+        Logging.log.info("DBM         = %s", self.__dict__["DBM"])
 
-        Logging.log.info("SLHC flag : "+self.__dict__["SLHC"])
-        Logging.log.info("IBL flag   : "+self.__dict__["IBL"])
-        Logging.log.info("IBL layout : "+ self.__dict__["IBLlayout"])
+        Logging.log.info("SLHC flag : %s", self.__dict__["SLHC"])
+        Logging.log.info("IBL flag   : %s", self.__dict__["IBL"])
+        Logging.log.info("IBL layout : %s", self.__dict__["IBLlayout"])
 
 
 # -------------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ class useDynamicAlignFolders(JobProperty):
     """ Use to turn on dynamic alignment constants folder scheme (first deployed in 2016) """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 
 
@@ -155,6 +155,13 @@ class InDetGeometryFlags_JobProperties(JobPropertyContainer):
         self.GeoVersionName.set_Value_and_Lock(InDetGeoFlags.getValue("VersionName"))
         self.GeoLayout.set_Value_and_Lock(InDetGeoFlags.getValue("Layout"))
 
+    def setupDynamicAlignFolders(self):
+        from AthenaCommon.GlobalFlags import globalflags
+        from IOVDbSvc.CondDB import conddb
+        # Disable for MC or for Run 1 (AlignL* folders are not in COMP200).
+        if globalflags.DataSource.get_Value() != 'data' or conddb.dbname == 'COMP200':
+            self.useDynamicAlignFolders.set_Value_and_Lock(False)
+
 
     def reset(self,geoTagName="none"):
         
@@ -169,14 +176,14 @@ class InDetGeometryFlags_JobProperties(JobPropertyContainer):
 
     def dump(self):
 
-        Logging.log.info("VersionName = "+self.GeoVersionName())
-        Logging.log.info("Layout      = "+self.GeoLayout())
-        Logging.log.info("DBM         = "+self.isDBM())
+        Logging.log.info("VersionName = %s", self.GeoVersionName())
+        Logging.log.info("Layout      = %s", self.GeoLayout())
+        Logging.log.info("DBM         = %s", self.isDBM())
 
-        Logging.log.info("SLHC flag : "+self.isSLHC())
-        Logging.log.info("IBL flag   : "+self.isIBL())
-        Logging.log.info("IBL layout : "+self.IBLLayout())
-        Logging.log.info("Dynamic alignment : "+self.useDynamicAlignFolders())
+        Logging.log.info("SLHC flag : %s", self.isSLHC())
+        Logging.log.info("IBL flag   : %s", self.isIBL())
+        Logging.log.info("IBL layout : %s", self.IBLLayout())
+        Logging.log.info("Dynamic alignment : %s", self.useDynamicAlignFolders())
 
 
 jobproperties.add_Container(InDetGeometryFlags_JobProperties)
@@ -190,7 +197,6 @@ jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(useDynamicAlignFo
 
 InDetGeometryFlags = jobproperties.InDetGeometryFlags_JobProperties
 InDetGeometryFlags.setupValuesFromDB()
-
-
+InDetGeometryFlags.setupDynamicAlignFolders()
 
 

@@ -197,24 +197,24 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
 
   auto nhitsval = Monitored::Scalar<int>( "nhits_per_event", nhits );
   fill( hitGroup, lbval, nhitsval );
-  fill1DProfLumiLayers( "Hits_per_lumi", lb, nhits_layer );
+  fill1DProfLumiLayers( "HitsPerLumi", lb, nhits_layer );
 
-  fillFromArrays( "Hit_Occupancy_PP0", hitsPerEventArray, "Occupancy_per_pixel_event");
+  fillFromArrays( "HitOccupancyPP0", hitsPerEventArray, "OccupancyPerPixelEvent");
 
   for (int i = 0; i < PixLayers::COUNT; i++) {
     if (nGoodChannels_layer[i]>0)   avgocc_good_layer[i] = nhits_layer[i] / nGoodChannels_layer[i];
-    auto val = Monitored::Scalar<float>( "AvgOcc_per_BCID_val", avgocc_good_layer[i]);
+    auto val = Monitored::Scalar<float>( "AvgOccPerBCID_val", avgocc_good_layer[i]);
     fill( pixLayersLabel[i], bcidval, val );
     if (nActiveChannels_layer[i]>0) avgocc_active_layer[i] = nhits_layer[i] / nActiveChannels_layer[i];
   }
-  fill1DProfLumiLayers( "AvgOcc_active_per_lumi", lb, avgocc_active_layer );
-  fill1DProfLumiLayers( "AvgOcc_good_per_lumi", lb, avgocc_good_layer );
+  fill1DProfLumiLayers( "AvgOccActivePerLumi", lb, avgocc_active_layer );
+  fill1DProfLumiLayers( "AvgOccGoodPerLumi", lb, avgocc_good_layer );
 
   if (m_doOnline && avgocc_good_layer[PixLayers::kIBL]>0) {
     for (int i = 0; i < PixLayers::COUNT; i++) {
       avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
     }
-    fill1DProfLumiLayers( "AvgOcc_ratio_toIBL_per_lumi", lb, avgocc_ratio_toIBL_layer );
+    fill1DProfLumiLayers( "AvgOccRatioToIBLPerLumi", lb, avgocc_ratio_toIBL_layer );
   }
   //*******************************************************************************
   //************************** End of filling Hit Histograms **********************

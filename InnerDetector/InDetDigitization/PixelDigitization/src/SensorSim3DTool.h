@@ -80,7 +80,7 @@ class SensorSim3DTool : public SensorSimTool {
     Gaudi::Property<bool> m_doChunkCorrection
     {this, "doChunkCorrection", false, "doChunkCorrection bool: should be flag"};
 
-    Gaudi::Property<int> m_fluence
+    Gaudi::Property<double> m_fluence
     {this, "fluence", 0, "this is the fluence benchmark, 0-6.  0 is unirradiated, 1 is start of Run 2, 5 is end of 2018 and 6 is projected end of 2018"};
 
     Gaudi::Property<double> m_trappingTimeElectrons

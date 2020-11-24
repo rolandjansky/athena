@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -11,34 +11,52 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSequence, tauCaloMVAMenuSequence, tauTwoStepTrackSeqCore, tauTwoStepTrackSeqIso, tauIdTrackSeq, tauTrackSeq, tauTrackTwoSeq, tauTrackTwoEFSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauIDPrecSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
 #--------------------------------------------------------
 def getTauCaloCfg(flags):
-    return tauCaloMenuSequence("Tau")
+    return tauCaloMenuSeq("Tau")
 
 def getTauCaloMVACfg(flags):
-    return tauCaloMVAMenuSequence("Tau")
+    return tauCaloMVAMenuSeq("Tau")
 
-def getTauTrackCfg(flags):
-    return tauTrackSeq()
+def getFTFTauCfg(flags):
+    return tauFTFTauSeq()
 
-def getTauTrackTwoCfg(flags):
-    return tauTrackTwoSeq()
+def getFTFCoreCfg(flags):
+    return tauFTFTauCoreSeq()
 
-def getTauIdTrackCfg(flags):
-    return tauIdTrackSeq()
+def getFTFIsoCfg(flags):
+    return tauFTFTauIsoSeq()
 
-def getTauFastTrackCfg(flags):
-    return tauTwoStepTrackSeqCore()
+def getIDPrecCfg(flags):
+    return tauIDPrecSeq()
 
-def getTauIsoTrackCfg(flags):
-    return tauTwoStepTrackSeqIso()
+def getTrackPrecCfg(flags):
+    return tauTrackPrecSeq()
 
-def getTauTrackTwoEFCfg(flags):
+def getTrackTwoPrecCfg(flags):
+    return tauTrackTwoPrecSeq()
+
+def getTrackTwoEFCfg(flags):
     return tauTrackTwoEFSeq()
+
+def getTrackTwoMVACfg(flags):
+    return tauTrackTwoMVASeq()
+
+def getPreSelCfg(flags):
+    return tauPreSelSeq()
+
+def getPreSelTTCfg(flags):
+    return tauPreSelTTSeq()
+
+def getPrecTrackCfg(flags):
+    return tauPrecTrackSeq()
+
+def getPrecTrackIsoCfg(flags):
+    return tauPrecTrackIsoSeq()
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -54,17 +72,17 @@ class TauChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):                            
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "ptonly"     :['getCaloSeq'   , 'getIdTrack'  ], 
-            "track"      :['getCaloSeq'   , 'getTrack'    ], 
-            "tracktwo"   :['getCaloSeq'   , 'getFastTrack' , 'getTrackTwo'],
-            "tracktwoEF" :['getCaloSeq'   , 'getFastTrack' , 'getTrack2EF'],
-            "tracktwoMVA":['getCaloMVASeq', 'getFastTrack' , 'getTrackIso'],
+            "ptonly"     :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getTauEmpty'  , 'getPrecTrack'    , 'getIDPrec'      ], 
+            "track"      :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
+            "tracktwo"   :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
+            "tracktwoEF" :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoEF'  ],
+            "tracktwoMVA":['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -88,32 +106,72 @@ class TauChainConfiguration(ChainConfigurationBase):
         stepName = 'MVA_tau'
         return self.getStep(1,stepName, [getTauCaloMVACfg])
 
-    # --------------------                                                                                                                                    
-    def getTrack(self):
-        stepName = 'Track_tau'
-        return self.getStep(2,stepName, [getTauTrackCfg])
-
-    # --------------------                                                                                                                        
-    def getTrackTwo(self):
-        stepName = 'TrackTwo_tau'
-        return self.getStep(3,stepName, [getTauTrackTwoCfg])
-
-    # --------------------                                                                                                                    
-    def getIdTrack(self):
-        stepName = 'FTId_tau'
-        return self.getStep(2,stepName, [getTauIdTrackCfg])
+    # --------------------                                                                                                 
+    def getFTFTau(self):
+        stepName = 'FTFTau_tau'
+        return self.getStep(2,stepName, [getFTFTauCfg])
         
     # --------------------
-    def getFastTrack(self):
-        stepName = 'FT_tau'
-        return self.getStep(2,stepName, [getTauFastTrackCfg])
+    def getFTFCore(self):
+        stepName = 'FTFCore_tau'
+        return self.getStep(2,stepName, [getFTFCoreCfg])
+
+    # --------------------                                                                                                      
+    def getFTFIso(self):
+        stepName = 'FTFIso_tau'
+        return self.getStep(3,stepName, [getFTFIsoCfg])
+
+    # --------------------                                                                                                                                   
+    def getTrkEmpty(self):
+        stepName = 'TrkEmpty_tau'
+        return self.getEmptyStep(3,stepName)
+
+    # --------------------                                                                                                                                   
+    def getPreSel(self):
+        stepName = 'PreSel_tau'
+        return self.getStep(4,stepName, [getPreSelCfg])
+
+    # --------------------                                                                                                                                   
+    def getPreSelTT(self):
+        stepName = 'PreSelTT_tau'
+        return self.getStep(4,stepName, [getPreSelTTCfg])
+
+    # --------------------                                                                                                                                   
+    def getTauEmpty(self):
+        stepName = 'TauEmpty_tau'
+        return self.getEmptyStep(4,stepName)
+
+    # --------------------                                                                                                                                   
+    def getPrecTrack(self):
+        stepName = 'PrecTrk_tau'
+        return self.getStep(5,stepName,[getPrecTrackCfg])
+
+    # --------------------                                                                                                                                   
+    def getPrecTrackIso(self):
+        stepName = 'PrecTrkIso_tau'
+        return self.getStep(5,stepName,[getPrecTrackIsoCfg])
 
     # --------------------                                                                                                       
-    def getTrackIso(self):
-        stepName = 'FTIso_tau'
-        return self.getStep(3,stepName, [getTauIsoTrackCfg])
+    def getIDPrec(self):
+        stepName = 'IDPrec_tau'
+        return self.getStep(6,stepName, [getIDPrecCfg])
 
-    # --------------------                                                                                                                                                       
-    def getTrack2EF(self):
-        stepName = 'FTEF_tau'
-        return self.getStep(3, stepName, [getTauTrackTwoEFCfg])
+    # --------------------                                                                                                       
+    def getTrackPrec(self):
+        stepName = 'TrkPrec_tau'
+        return self.getStep(6,stepName, [getTrackPrecCfg])
+
+    # --------------------                                                                                                     
+    def getTrackTwoPrec(self):
+        stepName = 'TrkTwo_tau'
+        return self.getStep(6,stepName, [getTrackTwoPrecCfg])
+
+    # --------------------                                                                                                     
+    def getTrackTwoEF(self):
+        stepName = 'TrkTwoEF_tau'
+        return self.getStep(6, stepName, [getTrackTwoEFCfg])
+
+    # --------------------                                                                                                      
+    def getTrackTwoMVA(self):
+        stepName = 'TrkTwoMVA_tau'
+        return self.getStep(6, stepName, [getTrackTwoMVACfg])

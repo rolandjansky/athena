@@ -3,7 +3,7 @@
 */
 
 //***************************************************************************
-//                           eFEXFPGA.h  -
+//                           IeFEXFPGA.h  -
 //                              -------------------
 //     begin                : 23 03 2019
 //     email                :  jacob.julian.kempster@cern.ch
@@ -14,10 +14,7 @@
 
 
 #include "GaudiKernel/IAlgTool.h"
-#include "L1CaloFEXSim/eTower.h"
-#include "CaloEvent/CaloCellContainer.h"
-#include "CaloIdentifier/CaloIdManager.h"
-#include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "xAODTrigger/eFexEMRoI.h"
 
 namespace LVL1 {
   
@@ -37,11 +34,17 @@ Interface definition for eFEXFPGA
 
     virtual void reset() = 0;
 
-    virtual int ID() = 0;
+    virtual int getID() = 0;
 
     virtual void SetTowersAndCells_SG(int [][6]) = 0;
     
     virtual void SetIsoWP(std::vector<unsigned int> &, std::vector<unsigned int> &, unsigned int &) = 0;
+
+    virtual uint32_t formEmTOB(int &, int &) = 0;
+
+    virtual std::vector<uint32_t> getEmTOBs() = 0; 
+
+    // static virtual bool etSort(uint32_t &, uint32_t &) = 0;
 
   private:
 

@@ -32,13 +32,10 @@
 //---------------------------------------------------
 
 //----- Constructor
-sTgcDigitMaker::sTgcDigitMaker(sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager* mdManager)
+sTgcDigitMaker::sTgcDigitMaker(const sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonDetectorManager* mdManager)
 {
-  m_digits                  = 0;
-  m_engine                  = 0;
   m_hitIdHelper             = hitIdHelper;
   m_mdManager               = mdManager;
-  m_idHelper                = 0;
   m_efficiencyOfWireGangs   = 1.000; // 100% efficiency for sTGCSimHit_p1
   m_efficiencyOfStrips      = 1.000; // 100% efficiency for sTGCSimHit_p1
   m_doTimeCorrection        = true;
@@ -52,7 +49,7 @@ sTgcDigitMaker::sTgcDigitMaker(sTgcHitIdHelper* hitIdHelper, const MuonGM::MuonD
   m_GausMean                = 2.27;  //mm; VMM response from Oct/Nov 2013 test beam
   m_GausSigma               = 0.1885;//mm; VMM response from Oct/Nov 2013 test beam
   m_IntegralTimeOfElectr    = 20.00; // ns
-  m_CrossTalk               = 0.03; 
+  m_CrossTalk               = 0.00; // Turn off cross-talk. Old guesstimate was 0.03: Alexandre Laurier 2020-10-11 
   m_StripResolution         = 0.07; // Angular strip resolution parameter
   m_ChargeSpreadFactor      = 0.;
   m_channelTypes            = 3; // 1 -> strips, 2 -> strips+pad, 3 -> strips/wires/pads
@@ -67,7 +64,7 @@ sTgcDigitMaker::~sTgcDigitMaker()
 StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const int channelTypes)
 {
   // Initialize TgcIdHelper
-  if(!m_hitIdHelper) {
+  if (m_hitIdHelper == nullptr) {
     m_hitIdHelper = sTgcHitIdHelper::GetHelper();
   }
 
@@ -106,7 +103,7 @@ StatusCode sTgcDigitMaker::initialize(CLHEP::HepRandomEngine *rndmEngine, const 
 //---------------------------------------------------
 // Execute Digitization
 //---------------------------------------------------
-sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const float /*globalHitTime*/)
+std::unique_ptr<sTgcDigitCollection> sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const float /*globalHitTime*/)
 { 
 
   // check the digitization channel type
@@ -159,7 +156,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   m_idHelper->get_detectorElement_hash(layid, coll_hash);
   //ATH_MSG_DEBUG(" looking up collection using hash " << (int)coll_hash << " " << m_idHelper->print_to_string(layid) );
 
-  m_digits = new sTgcDigitCollection(layid, coll_hash);
+  auto digits = std::make_unique<sTgcDigitCollection>(layid, coll_hash);
 
   bool isValid = 0;
 
@@ -232,7 +229,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   //                    << " time jitter from detector response : " << timeJitterDetector  
   //                    << " time jitter from electronics response : " << timeJitterElectronics  
   //      	      << " propagation time: " << stripPropagationTime )
-  //  return m_digits;
+  //  return digits;
   //}
 
   //currently do not give any bcId information, just give the acurate time
@@ -253,8 +250,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   bool insideBounds = SURF_STRIP.insideBounds(posOnSurf_strip);
   if(!insideBounds) { 
     ATH_MSG_DEBUG("Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(newId) << "; local position " <<posOnSurf_strip ); 
-    if(m_digits) {delete m_digits; m_digits = 0;}
-    return 0;
+    return nullptr;
   }
 
   //************************************ find the nearest readout element ************************************** 
@@ -268,8 +264,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripNumber, true, &isValid);
   if(!isValid && stripNumber != -1) {
     ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
-    if(m_digits) {delete m_digits; m_digits = 0;}
-    return 0;
+    return nullptr;
   }
 
   int NumberOfStrips = detEl->numberOfStrips(newId); 
@@ -312,16 +307,16 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
         float charge = charge_spread->Integral(xmin, xmax);
         charge = CLHEP::RandGauss::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
-          addDigit(newId, bctag, sDigitTimeStrip, charge, channelType);
+          addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
           //************************************** introduce cross talk ************************************************
           for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
             if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(digits.get(), newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
             if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
           }// end of introduce cross talk
       } // end isValid
@@ -341,17 +336,17 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
         float charge = charge_spread->Integral(xmin, xmax);
         charge = CLHEP::RandGauss::shoot(m_engine, charge, m_ChargeSpreadFactor*charge);
 
-          addDigit(newId, bctag, sDigitTimeStrip, charge, channelType);
+          addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge, channelType);
 
           //************************************** introduce cross talk ************************************************
           for(int crosstalk=1; crosstalk<=3; crosstalk++){ // up to the third nearest neighbors
             if((stripnum-crosstalk)>=1&&(stripnum-crosstalk)<=NumberOfStrips){
              newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum-crosstalk, true, &isValid);
-             if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
+             if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
             if((stripnum+crosstalk)>=1&&(stripnum+crosstalk)<=NumberOfStrips){
               newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, stripnum+crosstalk, true, &isValid);
-              if(isValid) addDigit(newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
+              if(isValid) addDigit(digits.get(),newId, bctag, sDigitTimeStrip, charge*std::pow(m_CrossTalk, crosstalk), channelType);
             }
           }// end of introduce cross talk
       } // end isValid
@@ -363,7 +358,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
 
   if(m_channelTypes==1) {
     ATH_MSG_WARNING("Only digitize strip response !");
-    return m_digits;
+    return digits;
   }
 
   //##################################################################################
@@ -392,7 +387,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
     }  
     newId = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, channelType, padNumber, true, &isValid);
     if(isValid) {  
-      addDigit(newId, bctag, sDigitTimePad, channelType);
+      addDigit(digits.get(), newId, bctag, sDigitTimePad, channelType);
     }
     else if(padNumber != -1) {  
       ATH_MSG_ERROR("Failed to obtain identifier " << m_idHelper->print_to_string(newId) ); 
@@ -404,7 +399,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   
   if(m_channelTypes==2) {
     ATH_MSG_WARNING("Only digitize strip/pad response !");
-    return m_digits;
+    return digits;
   }
    
  
@@ -440,7 +435,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
   
         if(isValid) {
           int NumberOfWiregroups = detEl->numberOfStrips(newId); // 0 --> pad, 1 --> strip, 2 --> wire
-          if(wiregroupNumber>=1&&wiregroupNumber<=NumberOfWiregroups) addDigit(newId, bctag, sDigitTimeWire, channelType);
+          if(wiregroupNumber>=1&&wiregroupNumber<=NumberOfWiregroups) addDigit(digits.get(), newId, bctag, sDigitTimeWire, channelType);
         } // end of if(isValid)
         else if (wiregroupNumber != -1){
           ATH_MSG_ERROR("Failed to obtain wiregroup identifier " << m_idHelper->print_to_string(newId) );
@@ -451,7 +446,7 @@ sTgcDigitCollection* sTgcDigitMaker::executeDigi(const sTGCSimHit* hit, const fl
     }
     // end of wire digitization
 
-  return m_digits;
+  return digits;
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -576,7 +571,7 @@ bool sTgcDigitMaker::efficiencyCheck(const std::string stationName, const int st
 //  return bctag;
 //}
 //+++++++++++++++++++++++++++++++++++++++++++++++
-void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const float digittime, int channelType) {
+void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, int channelType) const {
 
   if(channelType!=0&&channelType!=2) {
     ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
@@ -590,7 +585,7 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //      	    << " channelType  = " << channelType );
    
   //if((bctag & 0x1) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
   //    if(id==(*it)->identify() && sTgcDigit::BC_PREVIOUS==(*it)->bcTag()) {
   //      duplicate = true;
   //      break;
@@ -598,12 +593,12 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //  }
   //  if(!duplicate) {
   //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_PREVIOUS);
-  //    //m_digits->push_back(multihitDigit);
-  //    m_digits->push_back(new sTgcDigit(id,sTgcDigit::BC_PREVIOUS));
+  //    //digits->push_back(multihitDigit);
+  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_PREVIOUS));
   //  }
   //}
   //if((bctag & 0x2) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
   //    if(id==(*it)->identify() && sTgcDigit::BC_CURRENT==(*it)->bcTag()) {
   //      duplicate = true;
   //      break;
@@ -611,12 +606,12 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //  }
   //  if(!duplicate) {
   //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_CURRENT);
-  //    //m_digits->push_back(multihitDigit);
-  //    m_digits->push_back(new sTgcDigit(id,sTgcDigit::BC_CURRENT));
+  //    //digits->push_back(multihitDigit);
+  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_CURRENT));
   //  }
   //}
   //if((bctag & 0x4) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
   //    if(id==(*it)->identify() && sTgcDigit::BC_NEXT==(*it)->bcTag()) {
   //      duplicate = true;
   //      break;
@@ -624,25 +619,25 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //  }
   //  if(!duplicate) {
   //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_NEXT);
-  //    //m_digits->push_back(multihitDigit);
-  //    m_digits->push_back(new sTgcDigit(id,sTgcDigit::BC_NEXT));
+  //    //digits->push_back(multihitDigit);
+  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_NEXT));
   //  }
   //}
 
-  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
     if(id==(*it)->identify() && digittime==(*it)->time()) {
       duplicate = true;
       break;
     }
   }
   if(!duplicate) {
-    m_digits->push_back(new sTgcDigit(id, bctag, digittime, -1, 0, 0));
+    digits->push_back(new sTgcDigit(id, bctag, digittime, -1, 0, 0));
   }
 
   return;
 }
 
-void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) {
+void sTgcDigitMaker::addDigit(sTgcDigitCollection* digits, const Identifier id, const uint16_t bctag, const float digittime, float charge, int channelType) const {
 
   if(channelType!=1) {
     ATH_MSG_WARNING("Wrong sTgcDigit object with channelType" << channelType );
@@ -657,7 +652,7 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //      	    << " channelType  = " << channelType );
    
   //if((bctag & 0x1) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
   //    if(id==(*it)->identify() && sTgcDigit::BC_PREVIOUS==(*it)->bcTag()) {
   //      duplicate = true;
   //      (*it)->set_charge(charge+(*it)->charge());  
@@ -666,12 +661,12 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //  }
   //  if(!duplicate) {
   //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_PREVIOUS, charge);
-  //    //m_digits->push_back(multihitDigit);
-  //    m_digits->push_back(new sTgcDigit(id,sTgcDigit::BC_PREVIOUS, charge));
+  //    //digits->push_back(multihitDigit);
+  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_PREVIOUS, charge));
   //  }
   //}
   //if((bctag & 0x2) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
   //    if(id==(*it)->identify() && sTgcDigit::BC_CURRENT==(*it)->bcTag()) {
   //      (*it)->set_charge(charge+(*it)->charge());  
   //      duplicate = true;
@@ -680,12 +675,12 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //  }
   //  if(!duplicate) {
   //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_CURRENT, charge);
-  //    //m_digits->push_back(multihitDigit);
-  //    m_digits->push_back(new sTgcDigit(id,sTgcDigit::BC_CURRENT, charge));
+  //    //digits->push_back(multihitDigit);
+  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_CURRENT, charge));
   //  }
   //}
   //if((bctag & 0x4) != 0) {
-  //  for(sTgcDigitCollection::const_iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  //  for(sTgcDigitCollection::const_iterator it=digits->begin(); it!=digits->end(); it++) {
   //    if(id==(*it)->identify() && sTgcDigit::BC_NEXT==(*it)->bcTag()) {
   //      (*it)->set_charge(charge+(*it)->charge());  
   //      duplicate = true;
@@ -694,12 +689,12 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
   //  }
   //  if(!duplicate) {
   //    //multihitDigit = new sTgcDigit(id,sTgcDigit::BC_NEXT, charge);
-  //    //m_digits->push_back(multihitDigit);
-  //    m_digits->push_back(new sTgcDigit(id,sTgcDigit::BC_NEXT, charge));
+  //    //digits->push_back(multihitDigit);
+  //    digits->push_back(new sTgcDigit(id,sTgcDigit::BC_NEXT, charge));
   //  }
   //}
 
-  for(sTgcDigitCollection::iterator it=m_digits->begin(); it!=m_digits->end(); it++) {
+  for(sTgcDigitCollection::iterator it=digits->begin(); it!=digits->end(); it++) {
     if(id==(*it)->identify() && digittime==(*it)->time()) {
       (*it)->set_charge(charge+(*it)->charge());  
       duplicate = true;
@@ -707,7 +702,7 @@ void sTgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, const f
     }
   }
   if(!duplicate) {
-    m_digits->push_back(new sTgcDigit(id, bctag, digittime, charge, 0, 0));
+    digits->push_back(new sTgcDigit(id, bctag, digittime, charge, 0, 0));
   }
 
   return;

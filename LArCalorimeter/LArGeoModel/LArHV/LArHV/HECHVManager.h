@@ -7,11 +7,16 @@
 
 #include "LArHV/HECHVDescriptor.h"
 #include "LArHV/HECHVModule.h"
+#include "Identifier/HWIdentifier.h"
+#include "CxxUtils/checker_macros.h"
+#include <memory>
+#include <functional>
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
 class LArHVIdMapping;
 #endif
 
+class CondAttrListCollection;
 struct HECHVPayload;
 
 /**
@@ -31,6 +36,24 @@ struct HECHVPayload;
 class HECHVManager
 {
  public:
+  class HECHVData
+  {
+  public:
+    static constexpr double INVALID = -99999;
+    class Payload;
+    HECHVData();
+    HECHVData (std::unique_ptr<Payload> payload);
+    HECHVData& operator= (HECHVData&& other);
+    ~HECHVData();
+    bool hvOn (const HECHVSubgap& subgap) const;
+    double voltage (const HECHVSubgap& subgap) const;
+    double current (const HECHVSubgap& subgap) const;
+    int  hvLineNo  (const HECHVSubgap& subgap) const;
+  private:
+    int index (const HECHVSubgap& subgap) const;
+    std::unique_ptr<Payload> m_payload;
+  };
+
   HECHVManager();
   ~HECHVManager();
 
@@ -50,27 +73,27 @@ class HECHVManager
 				 , unsigned int iPhi
 				 , unsigned int iSampling) const;
 
-  // Refresh from the database if needed
-  void update() const;
-
-  // Make the data stale.  Force update of data.
-  void reset() const;
-
   // Get the database payload
-  HECHVPayload *getPayload(const HECHVSubgap &) const;
+  HECHVData getData ATLAS_NOT_THREAD_SAFE () const;
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
+  HECHVData getData (const LArHVIdMapping& hvIdMapping,
+                     const std::vector<const CondAttrListCollection*>& attrLists) const;
   // Get hvLine for a subgap
   int hvLineNo(const HECHVSubgap& subgap
                , const LArHVIdMapping* hvIdMapping) const;
 #endif
 
  private:
-  HECHVManager(const HECHVManager& right);
-  HECHVManager& operator=(const HECHVManager& right);
+  using idfunc_t = std::function<std::vector<HWIdentifier>(HWIdentifier)>;
+  HECHVData getData (idfunc_t idfunc,
+                     const std::vector<const CondAttrListCollection*>& attrLists) const;
+
+  HECHVManager(const HECHVManager& right) = delete;
+  HECHVManager& operator=(const HECHVManager& right) = delete;
 
   class Clockwork;
-  Clockwork *m_c;
+  std::unique_ptr<const Clockwork> m_c;
 };
 
 #endif

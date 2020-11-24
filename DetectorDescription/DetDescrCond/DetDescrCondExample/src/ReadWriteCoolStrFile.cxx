@@ -6,10 +6,10 @@
 // read/write of CondStrFile
 // Richard Hawkings, started 14/11/05
 
+#include "ReadWriteCoolStrFile.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "DetDescrConditions/DetCondKeyTrans.h"
 #include "DetDescrCondTools/ICoolStrFileSvc.h"
-#include "DetDescrCondExample/ReadWriteCoolStrFile.h"
 
 ReadWriteCoolStrFile::ReadWriteCoolStrFile(const std::string& name, 
   ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),

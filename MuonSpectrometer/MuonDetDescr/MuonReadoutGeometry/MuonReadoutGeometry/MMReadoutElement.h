@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONGEOMODEL_MMREADOUTELEMENT_H
-#define MUONGEOMODEL_MMREADOUTELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H
+#define MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H
 
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
@@ -282,4 +282,4 @@ namespace MuonGM {
 
 } // namespace MuonGM
 
-#endif // MUONGEOMODEL_STGCREADOUTELEMENT_H
+#endif // MUONREADOUTGEOMETRY_MMREADOUTELEMENT_H

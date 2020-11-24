@@ -10,13 +10,12 @@
 #include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "AthenaBaseComps/AthConstConverter.h"
 
-#include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class DataObject;
 class ISCTRawContByteStreamTool;
-class MsgStream;
 
 /**
  * @class SCTRawContByteStreamCnv
@@ -28,7 +27,7 @@ class MsgStream;
  * we use a tool (SCTRawContByteStreamTool) which in turn uses the lightweight 
  * SCT_RodEncoder class, to do the actual converting. 
  */
-class SCTRawContByteStreamCnv : public Converter 
+class SCTRawContByteStreamCnv : public AthConstConverter 
 {
  public:
 
@@ -49,7 +48,7 @@ class SCTRawContByteStreamCnv : public Converter
   static const CLID& classID() { return ClassID_traits<SCT_RDO_Container>::ID(); }
   
   /** createObj method (not used!) */
-  virtual StatusCode createObj(IOpaqueAddress*, DataObject*&) override { return StatusCode::FAILURE; }
+  virtual StatusCode createObjConst(IOpaqueAddress*, DataObject*&) const override { return StatusCode::FAILURE; }
 
   /** 
    * @brief Method to convert SCT Raw Data into ByteStream
@@ -62,7 +61,7 @@ class SCTRawContByteStreamCnv : public Converter
    * @param pDataObject Pointer to data object.
    * @param pOpaqueAddress Opaque address to object.
    */
-  virtual StatusCode createRep(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress) override;
+  virtual StatusCode createRepConst(DataObject* pDataObject, IOpaqueAddress*& pOpaqueAddress) const override;
 
  private: 
 
@@ -71,9 +70,6 @@ class SCTRawContByteStreamCnv : public Converter
 
   /** Interface for accessing raw data */
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess; 
-
-  /** Object used to transmit messages and log errors */
-  MsgStream m_log;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTBYTESTREAMCNV_H

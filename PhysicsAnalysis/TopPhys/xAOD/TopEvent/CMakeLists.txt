@@ -1,57 +1,36 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# Declare the name of this package:
+# Declare the name of this package.
 atlas_subdir( TopEvent )
 
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          CxxUtils
-                          xAODCore
-                          AthContainers
-                          AthLinks
-                          AsgTools
-                          xAODEventInfo
-                          xAODTruth
-                          xAODEgamma
-                          xAODMuon
-                          xAODJet
-                          xAODTau
-                          xAODMissingET
-                          xAODTracking
-                          TopConfiguration
-                          TopPartons )
+# Externals.
+find_package( Boost )
+find_package( ROOT REQUIRED COMPONENTS Core MathCore )
+find_package( FastJet COMPONENTS fastjetplugins fastjettools )
+find_package( FastJetContrib COMPONENTS EnergyCorrelator Nsubjettiness )
+find_package( xAODUtilities )
 
-# This package uses ROOT:
-find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
+# Component(s) in the package.
+atlas_add_library( TopEvent
+   TopEvent/*.h Root/*.cxx
+   PUBLIC_HEADERS TopEvent
+   LINK_LIBRARIES AthContainers xAODCore xAODEventInfo xAODTracking xAODEgamma
+   xAODMuon xAODJet xAODTau xAODMissingET xAODTruth TopConfiguration TopPartons
+   AsgTools xAODRootAccess JetReclusteringLib
+   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS}
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES}
+   ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} CxxUtils xAODBase
+   PATInterfaces JetSubStructureUtils FourMomUtils )
 
-# Generate a CINT dictionary source file:
-atlas_add_root_dictionary( TopEvent _cintDictSource
-   ROOT_HEADERS TopEvent/SystematicEvent.h TopEvent/KLFitterResult.h
-   TopEvent/PseudoTopResult.h Root/LinkDef.h
-   EXTERNAL_PACKAGES ROOT )
+atlas_add_xaod_smart_pointer_dicts(
+   INPUT TopEvent/selection.xml
+   OUTPUT _selectionFile
+   CONTAINERS "xAOD::KLFitterResultContainer" "xAOD::PseudoTopResultContainer"
+              "xAOD::SystematicEventContainer" )
 
-# Build a library that other components can link against:
-atlas_add_library( TopEvent Root/*.cxx Root/*.h Root/*.icc
-                   TopEvent/*.h TopEvent/*.icc TopEvent/*/*.h
-                   TopEvent/*/*.icc ${_cintDictSource} 
-                   PUBLIC_HEADERS TopEvent
-                   LINK_LIBRARIES CxxUtils
-                                  xAODCore
-                                  AthContainers
-                                  AthLinks
-                                  AsgTools
-                                  xAODEventInfo
-                                  xAODTruth
-                                  xAODEgamma
-                                  xAODMuon
-                                  xAODJet
-                                  xAODTau
-                                  xAODMissingET
-                                  xAODTracking
-                                  TopConfiguration
-                                  TopPartons
-                                  ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
-
-# Install data files from the package:
-atlas_install_data( share/* )
-
+atlas_add_dictionary( TopEventDict
+   TopEvent/TopEventDict.h
+   ${_selectionFile}
+   LINK_LIBRARIES xAODCore TopEvent
+   EXTRA_FILES Root/dict/*.cxx )

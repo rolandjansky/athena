@@ -71,30 +71,37 @@ class OverlapDescriptor;
         using CylinderSurface::insideBounds;
 
         /** move the Layer */
-        virtual void moveLayer( Amg::Transform3D& shift ) override;
+        virtual void moveLayer(Amg::Transform3D& shift) override final;
 
         /** move the Layer */
-        virtual void moveLayer ATLAS_NOT_THREAD_SAFE ( Amg::Transform3D& shift ) const override{
-         const_cast<SubtractedCylinderLayer*> (this)->moveLayer(shift);
+        virtual void moveLayer
+        ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final
+        {
+          const_cast<SubtractedCylinderLayer*>(this)->moveLayer(shift);
         }
 
-
       private:
-       /** Resize the layer to the tracking volume - not implemented*/  
-       virtual void resizeLayer(const VolumeBounds&, double) override {}
-      /** Resize the layer to the tracking volume - not implemented*/  
-       virtual void resizeLayer ATLAS_NOT_THREAD_SAFE (const VolumeBounds&, double) const  override {}
+        /** Resize the layer to the tracking volume - not implemented*/
+        virtual void resizeLayer(const VolumeBounds&, double) override final {}
+        /** Resize the layer to the tracking volume - not implemented*/
+        virtual void resizeLayer
+        ATLAS_NOT_THREAD_SAFE(const VolumeBounds&, double) const override final
+        {}
 
-       /** Resize the layer to the tracking volume - not implemented */ 
-       virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)   override {}
+        /** Resize the layer to the tracking volume - not implemented */
+        virtual void resizeAndRepositionLayer(const VolumeBounds&,
+                                              const Amg::Vector3D&,
+                                              double) override final
+        {}
 
-       /** Resize the layer to the tracking volume - not implemented */
-       virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                                   const Amg::Vector3D&,
-                                                                   double) const override
-       {}
+        /** Resize the layer to the tracking volume - not implemented */
+        virtual void resizeAndRepositionLayer
+        ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                              const Amg::Vector3D&,
+                              double) const override final
+        {}
   };
- 
+
 } // end of namespace
 
 #endif // TRKGEOMETRY_SUBTRACTEDCYLINDERLAYER_H

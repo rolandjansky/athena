@@ -79,13 +79,13 @@ class MuonPatternCalibration : virtual public IMuonPatternCalibration, public At
 
     virtual StatusCode initialize();
 
-    void calibrate(const MuonPatternCombination& pat, IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion) const;
+    void calibrate(const MuonPatternCombination& pat, IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion, const EventContext& ctx) const;
     int  getRegionId(const Identifier& id) const;
     void clearRotsPerRegion(IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion) const;
     bool checkForPhiMeasurements(const MuonPatternCombination& pat) const;
 
   private:
-    void createRegionMap(const MuonPatternCombination& pat, RegionMap& regionMap, bool hasPhiMeasurements) const;
+    void createRegionMap(const MuonPatternCombination& pat, RegionMap& regionMap, bool hasPhiMeasurements, const EventContext& ctx) const;
     void printRegionMap(const RegionMap& regionMap) const;
 
     void calibrateRegionMap(const RegionMap& regionMap, IMuonPatternCalibration::ROTsPerRegion& hitsPerRegion) const;
@@ -98,7 +98,7 @@ class MuonPatternCalibration : virtual public IMuonPatternCalibration, public At
                    const Amg::Vector3D& patdire, bool hasPhiMeasurements) const;
 
 
-    void retrieveTriggerHitContainers() const;
+    void retrieveTriggerHitContainers(const EventContext& ctx) const;
 
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator{
         this,

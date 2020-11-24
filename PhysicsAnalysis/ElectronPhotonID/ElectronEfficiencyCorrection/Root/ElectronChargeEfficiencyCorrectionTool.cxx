@@ -655,16 +655,16 @@ CP::SystematicSet  CP::ElectronChargeEfficiencyCorrectionTool::recommendedSystem
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Gets a SystematicSet and filters it
-CP::SystematicCode CP::ElectronChargeEfficiencyCorrectionTool::applySystematicVariation( const SystematicSet& systConfig ) {
+StatusCode CP::ElectronChargeEfficiencyCorrectionTool::applySystematicVariation( const SystematicSet& systConfig ) {
 
   if (!SystematicSet::filterForAffectingSystematics(systConfig, m_affectingSys, m_mySysConf)){
     ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool! ");
-    return SystematicCode::Unsupported;
+    return StatusCode::FAILURE;
   }
 
 
 
-  return SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 
 }
 

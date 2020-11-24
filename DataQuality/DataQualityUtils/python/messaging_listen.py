@@ -18,12 +18,13 @@ class ATLASDQMListener(object):
         self.selector = selector
 
     def __enter__(self):
-        if stomp.__version__ >= (4,1,11):
-            return self.__enter41__()
+        if stomp.__version__ >= (6,1,0):
+            return self.__enter61__()
         else:
-            return self.__enter31__()
+            logging.critical("Unable to find stomp.py >= 6.1.0, can't proceed")
+            raise ValueError("Version of stomp.py is too old")
 
-    def __enter31__(self):
+    def __enter61__(self):
         serverlist=[_[4] for _ in socket.getaddrinfo(MSGSERVER, MSGPORT,
                                                      socket.AF_INET, 
                                                      socket.SOCK_STREAM)]
@@ -33,23 +34,16 @@ class ATLASDQMListener(object):
         if hasattr(self.listener, 'conn'):
             self.listener.conn=[]
         for svr in serverlist:
-            #print 'set up', svr
-            cfg = stompconfig.config()
+            auth = stompconfig.config()
+            cfg = {}
             cfg['heartbeats'] = (0,0)
             cfg['reconnect_attempts_max'] = 3
             cfg['version'] = 1.1
             conn=stomp.Connection([svr], **cfg)
-            #print('set up Connection')
             conn.set_listener('somename',self.listener)
             if hasattr(self.listener, 'conn'):
                 self.listener.conn.append(conn)
-            #print('Set up listener')
-            conn.start()
-
-            #print('started connection')
-
-            conn.connect(wait=True)
-            #print('connected')
+            conn.connect(wait=True, **auth)
             hdr = {}
             if self.selector is not None: hdr['selector'] = self.selector
             if hasattr(self.listener, 'ack_mode'):
@@ -57,46 +51,6 @@ class ATLASDQMListener(object):
             else:
                 ack_mode='auto'
             conn.subscribe(destination=self.dest, ack=ack_mode, headers = hdr, id=len(self.conns))
-            #print('subscribed')
-            self.conns.append(conn)
-        return self
-
-    def __enter41__(self):
-        serverlist=[_[4] for _ in socket.getaddrinfo(MSGSERVER, MSGPORT,
-                                                     socket.AF_INET, 
-                                                     socket.SOCK_STREAM)]
-        
-        from . import stompconfig
-        self.conns = []
-        if hasattr(self.listener, 'conn'):
-            self.listener.conn=[]
-        for svr in serverlist:
-            #print 'set up', svr
-            cfg = stompconfig.config()
-            #cfg['heart-beat'] = (5000,5000)
-            cfg['reconnect_attempts_max'] = 3
-            cfg['version'] = 1.1
-            cfg['login'] = cfg['user']
-            conn=stomp.Connection([svr], heartbeats=(180000,180000))
-            #print('set up Connection')
-            conn.set_listener('somename',self.listener)
-            if hasattr(self.listener, 'conn'):
-                self.listener.conn.append(conn)
-            #print('Set up listener')
-            conn.start()
-
-            #print('started connection')
-
-            conn.connect(wait=True, **cfg)
-            #print('connected')
-            hdr = {}
-            if self.selector is not None: hdr['selector'] = self.selector
-            if hasattr(self.listener, 'ack_mode'):
-                ack_mode=self.listener.ack_mode
-            else:
-                ack_mode='auto'
-            conn.subscribe(destination=self.dest, ack=ack_mode, headers = hdr, id=len(self.conns))
-            #print('subscribed')
             self.conns.append(conn)
         return self
 

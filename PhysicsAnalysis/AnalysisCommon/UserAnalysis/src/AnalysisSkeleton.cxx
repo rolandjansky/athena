@@ -1315,7 +1315,7 @@ StatusCode AnalysisSkeleton::getTopQpT(int& numTops, double& top1, double& top2)
 
       HepMC::GenVertex* prod_vtx = part->production_vertex();
       int vtx_barcode = 1;
-      if(prod_vtx) vtx_barcode = prod_vtx->barcode();
+      if(prod_vtx) vtx_barcode = HepMC::barcode(prod_vtx);
 
       if(vtx_barcode == -1) {
 

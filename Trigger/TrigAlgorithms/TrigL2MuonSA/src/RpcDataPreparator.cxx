@@ -84,6 +84,7 @@ void TrigL2MuonSA::RpcDataPreparator::setMultiMuonTrigger( const bool multiMuonT
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
                                                         unsigned int roiWord,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
+                                                        TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
                                                         ToolHandle<RpcPatFinder>*   rpcPatFinder)
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
@@ -121,6 +122,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
    std::vector<const Muon::RpcPrepDataCollection*> rpcCols;
    std::vector<IdentifierHash> rpcHashList;
+   std::vector<IdentifierHash> rpcHashListWithData;
    std::vector<IdentifierHash> rpcHashList_cache;
 
    if (m_use_RoIBasedDataAccess) {
@@ -133,7 +135,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        m_regionSelector->HashIDList(fullscan_roi, rpcHashList);
      }
      ATH_MSG_DEBUG("rpcHashList.size()=" << rpcHashList.size());
-     
+
      std::vector<uint32_t> rpcRobList;
      m_regionSelector->ROBIDList(*iroi, rpcRobList);
      if(m_doDecoding) {
@@ -142,11 +144,10 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
              ATH_MSG_WARNING("Conversion of BS for decoding of RPCs failed");
          }
        }
-       if ( m_rpcPrepDataProvider->decode(rpcRobList).isFailure() ) {
+       if ( m_rpcPrepDataProvider->decode(rpcHashList, rpcHashListWithData).isFailure() ) {
          ATH_MSG_WARNING("Problems when preparing RPC PrepData ");
        }
      }//do decoding
-     
    } else {
      
      ATH_MSG_DEBUG("Use full data access");
@@ -185,7 +186,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
      // Get RPC collections
      for(const IdentifierHash& id : rpcHashList) {
-
        auto RPCcoll = rpcPrds->indexFindPtr(id);
 
        if( RPCcoll == nullptr ) {
@@ -293,10 +293,10 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
 
        if (m_use_RoIBasedDataAccess) {
          if ( deta<deta_thr && dphi<dphi_thr)
-           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz, rpcLayerHits);
        } else {
          if ( deta<0.15 && dphi<0.1)
-           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+           (*rpcPatFinder)->addHit(stationName, stationEta, measuresPhi, gasGap, doubletR, hitx, hity, hitz, rpcLayerHits);
        }
      }
    }

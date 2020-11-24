@@ -104,7 +104,7 @@ def TileMuIdMonitoringConfig(flags, **kwargs):
 
     # 9) Configure histograms with all Tile MuId energy
     addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuIdEnergy', xvalue = 'energy',
-                             title = 'Tile MuId Energy [MeV]', path = 'Tile/MuId',
+                             title = 'Tile MuId Energy;Energy [MeV]', path = 'Tile/MuId',
                              xbins = 100, xmin = 0., xmax = 10000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
@@ -139,7 +139,7 @@ def TileMuIdMonitoringConfig(flags, **kwargs):
 
     # 14) Configure histograms with all Tile MuId muon average energy vs phi
     addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuIdEnePhi', xvalue = 'phi', value='energy',
-                             title = 'Tile MuId muon everage energy;#phi', path = 'Tile/MuId',
+                             title = 'Tile MuId muon everage energy [MeV];#phi', path = 'Tile/MuId',
                              xbins = Tile.MAX_DRAWER, xmin = -3.15, xmax = 3.15, type = 'TProfile',
                              run = run, triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
@@ -147,7 +147,7 @@ def TileMuIdMonitoringConfig(flags, **kwargs):
 
     # 15) Configure histograms with all Tile MuId energy when Tags=1
     addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId1TagEnergy', xvalue = 'energy',
-                             title = 'Tile MuId Tags=1 Energy [MeV]', path = 'Tile/MuId',
+                             title = 'Tile MuId Tags=1 Energy;Energy [MeV]', path = 'Tile/MuId',
                              xbins = 100, xmin = 0., xmax = 10000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
@@ -159,24 +159,23 @@ def TileMuIdMonitoringConfig(flags, **kwargs):
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
-    # 17) Configure histograms with all Tile MuId muon average energy vs eta when Tags=1
-    addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId1TagEneEta', xvalue = 'eta',
-                             value = 'energy', title = 'Tile MuId Tags=1 muon average energy;#eta',
-                             path = 'Tile/MuId', xbins = 40, xmin = -2., xmax = 2., type = 'TProfile',
+    # 17) Configure histograms with all Tile MuId muon eta position when Tags=1
+    addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId1TagEta', xvalue = 'eta',
+                             title = 'Tile MuId Tags=1 muon #eta position;#eta', path = 'Tile/MuId',
+                             weight = 'energy', xbins = 40, xmin = -2., xmax = 2., type = 'TH1D', run = run,
+                             triggers = l1Triggers, perPartition = False, perSample = False,
+                             perGain = False, subDirectory = False, allPartitions = False)
+
+    # 18) Configure histograms with all Tile MuId muon phi position when Tags=1
+    addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId1TagPhi', xvalue = 'phi',
+                             title = 'Tile MuId Tags=1 muon #phi position;#phi', path = 'Tile/MuId',
+                             weight = 'energy', xbins = Tile.MAX_DRAWER, xmin = -3.15, xmax = 3.15, type = 'TH1D',
                              run = run, triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
-    # 18) Configure histograms with all Tile MuId muon average energy vs phi when Tags=1
-    addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId1TagEnePhi', xvalue = 'phi',
-                             value = 'energy', title = 'Tile MuId Tags=1 muon everage energy;#phi',
-                             path = 'Tile/MuId', xbins = Tile.MAX_DRAWER, xmin = -3.15, xmax = 3.15,
-                             type = 'TProfile', run = run, triggers = l1Triggers, perPartition = False,
-                             perSample = False, perGain = False, subDirectory = False, allPartitions = False)
-
-
     # 19) Configure histograms with all Tile MuId energy when Tags=2
     addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId2TagEnergy', xvalue = 'energy',
-                             title = 'Tile MuId Tags=2 Energy [MeV]', path = 'Tile/MuId',
+                             title = 'Tile MuId Tags=2 Energy; Energy [MeV]', path = 'Tile/MuId',
                              xbins = 100, xmin = 0., xmax = 10000., type = 'TH1D', run = run,
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
@@ -188,19 +187,19 @@ def TileMuIdMonitoringConfig(flags, **kwargs):
                              triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
-    # 21) Configure histograms with all Tile MuId muon average energy vs eta when Tags=2
-    addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId2TagEneEta', xvalue = 'eta',
-                             value = 'energy', title = 'Tile MuId Tags=2 muon average energy;#eta',
-                             path = 'Tile/MuId', xbins = 40, xmin = -2., xmax = 2., type = 'TProfile',
-                             run = run, triggers = l1Triggers, perPartition = False, perSample = False,
+    # 21) Configure histograms with all Tile MuId muon eta position when Tags=2
+    addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId2TagEta', xvalue = 'eta',
+                             title = 'Tile MuId Tags=2 muon #eta position;#eta', path = 'Tile/MuId',
+                             weight = 'energy', xbins = 40, xmin = -2., xmax = 2., type = 'TH1D', run = run,
+                             triggers = l1Triggers, perPartition = False, perSample = False,
                              perGain = False, subDirectory = False, allPartitions = False)
 
-    # 22) Configure histograms with all Tile MuId muon average energy vs phi when Tags=2
-    addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId2TagEnePhi', xvalue = 'phi',
-                             value = 'energy', title = 'Tile MuId Tags=2 muon everage energy;#phi',
-                             path = 'Tile/MuId', xbins = Tile.MAX_DRAWER, xmin = -3.15, xmax = 3.15,
-                             type = 'TProfile', run = run, triggers = l1Triggers, perPartition = False,
-                             perSample = False, perGain = False, subDirectory = False, allPartitions = False)
+    # 22) Configure histograms with all Tile MuId muon phi position when Tags=2
+    addTile1DHistogramsArray(helper, tileMuIdMonAlg, name = 'TileMuId2TagPhi', xvalue = 'phi',
+                             title = 'Tile MuId Tags=2 muon #phi position;#phi', path = 'Tile/MuId',
+                             weight = 'energy', xbins = Tile.MAX_DRAWER, xmin = -3.15, xmax = 3.15, type = 'TH1D',
+                             run = run, triggers = l1Triggers, perPartition = False, perSample = False,
+                             perGain = False, subDirectory = False, allPartitions = False)
 
     accumalator = helper.result()
     result.merge(accumalator)
@@ -225,6 +224,8 @@ if __name__=='__main__':
     ConfigFlags.Output.HISTFileName = 'TileMuIdMonitorOutput.root'
     ConfigFlags.DQ.useTrigger = False
     ConfigFlags.DQ.enableLumiAccess = False
+    ConfigFlags.Exec.MaxEvents = 3
+    ConfigFlags.fillFromArgs()
     ConfigFlags.lock()
 
     # Initialize configuration object, add accumulator, merge, and run.
@@ -244,7 +245,7 @@ if __name__=='__main__':
 
     cfg.store( open('TileMuIdMonitorAlgorithm.pkl','wb') )
 
-    sc = cfg.run(maxEvents=-1)
+    sc = cfg.run()
 
     import sys
     # Success should be 0

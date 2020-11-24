@@ -274,7 +274,7 @@ namespace CP {
       return StatusCode::FAILURE;
     }
     SystematicRegistry& registry = SystematicRegistry::getInstance();
-    if( registry.registerSystematics( *this ) != SystematicCode::Ok ) { 
+    if( registry.registerSystematics( *this ) != StatusCode::SUCCESS ) { 
         ATH_MSG_ERROR( "Unkown systematic list");
         return StatusCode::FAILURE;
     }
@@ -1345,13 +1345,13 @@ namespace CP {
     return affectingSystematics();
   }
 
-  SystematicCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
+  StatusCode MuonCalibrationAndSmearingTool::applySystematicVariation( const SystematicSet& systConfig ) {
 
     // First check if we already know this systematic configuration
     std::unordered_map< SystematicSet, ParameterSet >::iterator parIter = m_Parameters.find( systConfig );
     if( parIter != m_Parameters.end() ) {
       m_currentParameters = &parIter->second;
-      return SystematicCode::Ok;
+      return StatusCode::SUCCESS;
     }
 
     // Then check if it is actually supported
@@ -1359,7 +1359,7 @@ namespace CP {
     SystematicSet checkSysConf;
     if( !SystematicSet::filterForAffectingSystematics( systConfig, affSysts, checkSysConf ) ) {
       ATH_MSG_ERROR( "Passing unsupported systematic to the tool!" );
-      return SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
 
     ParameterSet param;
@@ -1386,7 +1386,7 @@ namespace CP {
       param.SagittaRho=MCAST::SystVariation::Default;
       param.SagittaBias=MCAST::SystVariation::Default;
     }
-    else if( !syst.empty() ) return SystematicCode::Unsupported;
+    else if( !syst.empty() ) return StatusCode::FAILURE;
 
     // MS systematics
     syst = systConfig.getSystematicByBaseName( "MUON_MS" );
@@ -1405,7 +1405,7 @@ namespace CP {
       param.SagittaRho=MCAST::SystVariation::Default;
       param.SagittaBias=MCAST::SystVariation::Default;
     }
-    else if( !syst.empty() ) return SystematicCode::Unsupported;
+    else if( !syst.empty() ) return StatusCode::FAILURE;
 
     // Scale systematics
     syst = systConfig.getSystematicByBaseName( "MUON_SCALE" );
@@ -1424,7 +1424,7 @@ namespace CP {
       param.SagittaRho=MCAST::SystVariation::Default;
       param.SagittaBias=MCAST::SystVariation::Default;
     }
-    else if( !syst.empty() ) return SystematicCode::Unsupported;
+    else if( !syst.empty() ) return StatusCode::FAILURE;
 
 
     // Sagitta Rho systematics
@@ -1444,7 +1444,7 @@ namespace CP {
       param.SagittaRho=MCAST::SystVariation::Up;
       param.SagittaBias=MCAST::SystVariation::Default;
     }
-    else if( !syst.empty() ) return SystematicCode::Unsupported;
+    else if( !syst.empty() ) return StatusCode::FAILURE;
 
 
     // Sagitta Residual Bias systematics
@@ -1464,7 +1464,7 @@ namespace CP {
       param.SagittaRho=MCAST::SystVariation::Default;
       param.SagittaBias=MCAST::SystVariation::Up;
     }
-    else if( !syst.empty() ) return SystematicCode::Unsupported;
+    else if( !syst.empty() ) return StatusCode::FAILURE;
 
 
     //
@@ -1473,7 +1473,7 @@ namespace CP {
     ATH_MSG_DEBUG( "Systematic variation's parameters, Scale: " << param.Scale );
     // store this calibration for future use, and make it current
     m_currentParameters = &m_Parameters.insert( std::make_pair( systConfig, param ) ).first->second;
-    return SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 
   }
 

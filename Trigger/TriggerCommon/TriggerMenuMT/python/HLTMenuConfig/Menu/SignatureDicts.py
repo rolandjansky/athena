@@ -4,7 +4,6 @@ log = logging.getLogger( __name__ )
 log.info("Importing %s",__name__)
 
 from copy import deepcopy
-import six
 
 #==========================================================
 # This is stored in chainDict['Signature']
@@ -129,11 +128,12 @@ JetChainParts = {
                       'bmv2c2040' , 'bmv2c2050' , 'bmv2c2060' , 'bmv2c2070' , 'bmv2c2077' , 'bmv2c2085' ,
                       'bmv2c1040' , 'bmv2c1050' , 'bmv2c1060' , 'bmv2c1070' , 'bmv2c1077' , 'bmv2c1085' ,
                       'bhmv2c1040', 'bhmv2c1050', 'bhmv2c1060', 'bhmv2c1070', 'bhmv2c1077', 'bhmv2c1085',
-                      'dl1r60','dl1r70','dl1r77','dl1r85'],
+                      'bdl1r60','bdl1r70','bdl1r77','bdl1r85'],
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
     'trkopt'       : ['notrk','ftk','ftkrefit','ftf'],
+    'trkpresel'    : ['nopresel','preselj45'],
     'hypoScenario' : ['simple', 'vbenf',
                       'vbenfSEP30etSEP34mass35SEP50fbet',
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
@@ -172,6 +172,7 @@ JetChainParts_Default = {
     'bMatching'     : [],
     'dataScouting'  : '',
     'trkopt'        : 'notrk',
+    'trkpresel'     : 'nopresel',
     'hypoScenario'  : 'simple',
     'smc'           : 'nosmc',
     'sigFolder'     : 'Jet',
@@ -231,7 +232,7 @@ MuonChainParts_Default = {
 #==========================================================
 # Bphysics
 #==========================================================
-AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau']
+AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau','bJpsimumul2io']
 
 # ---- Bphysics Dictionary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)
@@ -316,8 +317,9 @@ METChainParts = {
     'L2muonCorr'     : [],
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
-    'sigFolder'     : 'MET',
-    'subSigs'       : ['MET']
+    'sigFolder'      : 'MET',
+    'subSigs'        : ['MET'],
+    'constitmod'     : ['cssk', 'vssk']
 }
 # ---- MetDictionary of default Values ----
 METChainParts_Default = {
@@ -335,6 +337,7 @@ METChainParts_Default = {
     'EFmuonCorr'     : '',
     'addInfo'        : '',
     'jetDataType'    : 'tc',
+    'constitmod'     : '',
     'sigFolder'     : 'MET',
     'subSigs'       : ['MET']
 }
@@ -841,7 +844,7 @@ UnconventionalTrackingChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['unconvtrk'],
     'threshold'      : '',
-    'isoInfo'        : ['icummedium','imedium','iloose'],
+    'isoInfo'        : ['iaggrmedium','iaggrloose','imedium','iloose'],
     'extra'          : ["isohpttrack"],
     'addInfo'        : [],
     'sigFolder'     : 'UnconventionalTracking',
@@ -892,7 +895,7 @@ AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_Bphysics + Allowe
 #==========================================================
 def getSignatureNameFromToken(chainpart):
     theMatchingTokens = []
-    reverseSliceIDDict = dict([(value, key) for key, value in six.iteritems (SliceIDDict)]) #reversed SliceIDDict
+    reverseSliceIDDict = { value: key for key, value in SliceIDDict.items() } #reversed SliceIDDict
     for sig,token in SliceIDDict.items():
         if (token in chainpart):
             theMatchingTokens += [token]

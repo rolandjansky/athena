@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETUNCERTAINTIES_UNCERTAINTYCOMPONENT_H
@@ -28,7 +28,6 @@ class UncertaintyComponent : public asg::AsgMessaging
         UncertaintyComponent(const ComponentHelper& component, const size_t numHist = 1);
         UncertaintyComponent(const UncertaintyComponent& toCopy);
         virtual UncertaintyComponent* clone() const = 0;
-        UncertaintyComponent & operator = (const UncertaintyComponent &) = delete;
         virtual ~UncertaintyComponent();
         virtual StatusCode initialize(TFile* histFile);
         
@@ -36,6 +35,7 @@ class UncertaintyComponent : public asg::AsgMessaging
         virtual TString                getName()      const { return m_uncHistName;   }
         virtual TString                getValidName() const { return m_validHistName; }
         virtual CompScaleVar::TypeEnum getScaleVar()  const { return m_scaleVar;      }
+        virtual JetTopology::TypeEnum  getTopology()  const { return m_topology;      }
 
         // Helpers for special situations
         virtual bool   isAlwaysZero() const;
@@ -51,11 +51,12 @@ class UncertaintyComponent : public asg::AsgMessaging
         const TString m_uncHistName;
         const TString m_validHistName;
         const CompScaleVar::TypeEnum m_scaleVar;
+        const JetTopology::TypeEnum m_topology;
         const float m_energyScale;
-        const bool m_interpolate;
+        const Interpolate::TypeEnum m_interpolate;
         const int m_splitNumber;
         
-        int m_numExpectedHist{};
+        int m_numExpectedHist;
         UncertaintyHistogram* m_uncHist;
         UncertaintyHistogram* m_validHist;
 
@@ -66,7 +67,9 @@ class UncertaintyComponent : public asg::AsgMessaging
         // Helper methods
         virtual bool getValidBool(const double validity) const;
         virtual double getSplitFactor(const xAOD::Jet& jet) const;
+        virtual double getAbsMass(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
         virtual double getMassOverPt(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
+        virtual double getMassOverE(const xAOD::Jet& jet, const CompMassDef::TypeEnum massDef) const;
 
     private:
         UncertaintyComponent(const std::string& name = "");

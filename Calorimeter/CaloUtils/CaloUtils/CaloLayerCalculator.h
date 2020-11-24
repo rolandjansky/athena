@@ -368,9 +368,6 @@ private:
     // Added to cluster in the calorimeter frame
     double m_s10r; // eta_raw-weighted energy sum.
     double m_s01r; // phi_raw-weighted energy sum.
-
-    /// Phi-wrapping helper.
-    static const CaloPhiRange s_range;
   };
   friend struct Helper;
   //@}

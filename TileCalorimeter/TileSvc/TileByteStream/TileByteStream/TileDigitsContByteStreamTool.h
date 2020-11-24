@@ -59,6 +59,7 @@ class TileDigitsContByteStreamTool: public AthAlgTool {
     bool m_verbose;
     bool m_doFragType1;
     bool m_doFragType5;
+    int  m_runPeriod;
 };
 
 #endif

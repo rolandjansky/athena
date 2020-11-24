@@ -124,10 +124,17 @@ enum SummaryType {
         eProbabilityToT_res                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].   
         eProbabilityBrem_res                = 50, //!< Electron probability from Brem fitting (DNA) [float]. 
         pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
+        eProbabilityNN_res                  = 73, //!< Electron probability from NN [float].
+        TRTTrackOccupancy_res               = 74, //!< TRT track occupancy.
+        TRTdEdx_res                         = 75, //!< dEdx from TRT ToT measurement.
 
  // -- numbers...
-        numberOfTrackSummaryTypes = 73
+        numberOfTrackSummaryTypes = 76
     };
+
+// summary types that are stored as float values
+static const std::vector<unsigned int> floatSummaryTypes = {eProbabilityComb_res, eProbabilityHT_res, eProbabilityToT_res, eProbabilityBrem_res,
+                                                      pixeldEdx_res, eProbabilityNN_res, TRTTrackOccupancy_res, TRTdEdx_res};
 
 // Troels.Petersen@cern.ch:
     enum eProbabilityType {
@@ -135,11 +142,14 @@ enum SummaryType {
         eProbabilityHT              = 1,       //!< Electron probability from High Threshold (HT) information.
         eProbabilityToT             = 2,       //!< Electron probability from Time-Over-Threshold (ToT) information.
         eProbabilityBrem            = 3,       //!< Electron probability from Brem fitting (DNA).
-        numberOfeProbabilityTypes   = 4        
-    }; 
-  // the eProbability vector is abused to store : 
-  // [4] TRT local occupancy
-  // [5] TRT dE/dx
+        eProbabilityNN              = 4,       //!< Electron probability from NN.
+        TRTTrackOccupancy           = 5,       //!< TRT track occupancy.
+        TRTdEdx                     = 6,       //!< dEdx from TRT ToT measurement.
+        eProbabilityNumberOfTRTHitsUsedFordEdx = 7, //!< Number of TRT hits used for dEdx measurement.
+        numberOfeProbabilityTypes   = 8        
+    };
+
+static const std::vector<float> eProbabilityDefault(numberOfeProbabilityTypes, 0.5);
 
 /** enumerates the various detector types currently accessible from the isHit() method.
 \todo work out how to add muons to this*/

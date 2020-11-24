@@ -5,8 +5,6 @@
 ## @brief  Python setup for online running (similar to athena.py)
 ## @author Werner Wiedenmann <Werner.Wiedenmann@cern.ch>
 ###############################################################
-from __future__ import print_function
-
 import builtins
 printfunc = getattr(builtins,'print')
 

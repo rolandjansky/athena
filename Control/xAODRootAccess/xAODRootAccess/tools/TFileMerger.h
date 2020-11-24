@@ -20,7 +20,7 @@
 
 // Local include(s):
 #include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "xAODRootAccess/tools/THolder.h"
 
 // Forward declaration(s):
@@ -53,15 +53,15 @@ namespace xAOD {
       ~TFileMerger();
 
       /// Set the name of the output file that should be created
-      TReturnCode setOutputFileName( const std::string& name,
+      StatusCode setOutputFileName( const std::string& name,
                                      const std::string& mode = "RECREATE" );
 
       /// Add a file to the list to be merged, by name
-      TReturnCode addFile( const std::string& name,
+      StatusCode addFile( const std::string& name,
                            bool copyLocally = false );
 
       /// Add a metadata tool to be used during the merging
-      TReturnCode addMetaDataTool( const std::string& typeName );
+      StatusCode addMetaDataTool( const std::string& typeName );
 
       /// Types of merging that can be done
       ///
@@ -77,7 +77,7 @@ namespace xAOD {
       static const ::Long64_t kBigNumber = 1234567890;
 
       /// Execute the file merge itself
-      TReturnCode merge( EMergeMode mode = kFastMerge,
+      StatusCode merge( EMergeMode mode = kFastMerge,
                          ::Long64_t entries = kBigNumber );
 
       /// The access mode used for slow and metadata merging
@@ -97,21 +97,21 @@ namespace xAOD {
 
    private:
       /// Close all the open files
-      TReturnCode closeFiles();
+      StatusCode closeFiles();
       /// Merge the contents of one directory from the input files
-      TReturnCode mergeDirectory( ::TDirectory& input, ::TDirectory& output,
+      StatusCode mergeDirectory( ::TDirectory& input, ::TDirectory& output,
                                   EMergeMode mode, bool topLevelDir );
       /// Merge two top level objects that were found in the inputs
-      TReturnCode mergeObject( ::TObject& input, ::TObject& output );
+      StatusCode mergeObject( ::TObject& input, ::TObject& output );
       /// Instantiate the metadata handling tools
-      TReturnCode createMetaDataTools();
+      StatusCode createMetaDataTools();
       /// Get the auxiliary branches missing in one of the trees
       std::vector< ::TBranch* > getMissingBranches( ::TTree* first,
                                                     ::TTree* second ) const;
       /// Get the branches that should be skipped from merging
       std::vector< ::TBranch* > getSkippedBranches( ::TTree* tree ) const;
       /// Duplicate an auxiliary branch from the input into the output
-      TReturnCode addAuxBranch( ::TTree* otree, ::TBranch* ibranch ) const;
+      StatusCode addAuxBranch( ::TTree* otree, ::TBranch* ibranch ) const;
 
       /// The list of input files to be merged
       std::vector< ::TFile* > m_input;

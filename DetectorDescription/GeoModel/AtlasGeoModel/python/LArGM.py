@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # LAr GeoModel initialization
@@ -13,10 +13,10 @@ if ( DetFlags.detdescr.LAr_on() ):
     GeoModelSvc.DetectorTools += [ LArDetectorToolNV() ]
 
     # as long as not created anywhere else in GeoModel :
-    from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv
+    from CaloDetMgrDetDescrCnv import CaloDetMgrDDCnv  # noqa: F401
 
     # apply possible alignments
     if ( jobproperties.Global.DetGeo() == "atlas" or
          jobproperties.Global.DetGeo() == "commis" ):
-        from LArConditionsCommon import LArAlignable
+        from LArConditionsCommon import LArAlignable  # noqa: F401
         GeoModelSvc.DetectorTools[ "LArDetectorToolNV" ].ApplyAlignments = True

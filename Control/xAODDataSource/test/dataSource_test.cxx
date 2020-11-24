@@ -10,6 +10,8 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/tools/Message.h"
 
+#include "AsgMessaging/MessageCheck.h"
+
 // ROOT include(s).
 #include <TError.h>
 
@@ -18,8 +20,11 @@
 
 int main() {
 
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+
    // Set up the runtime environment.
-   CHECK( xAOD::Init() );
+   ANA_CHECK( xAOD::Init() );
 
    // Set up the data source.
    xAOD::RDataSource ds( "${ASG_TEST_FILE_DATA}" );

@@ -302,7 +302,7 @@ std::unique_ptr<std::vector<Trk::HitInfo>> FastCaloSimCaloExtrapolation::caloHit
         int sample=(*it).detID;
         Amg::Vector3D hitPos = (*it).trackParms->position();
         ATH_MSG_DEBUG(" HIT: layer="<<sample<<" sample="<<sample-IDCaloBoundary<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" d="<<hitPos.mag());
-        it++;
+        ++it;
     }
   }
 
@@ -311,7 +311,7 @@ std::unique_ptr<std::vector<Trk::HitInfo>> FastCaloSimCaloExtrapolation::caloHit
     int sample=(*it2).detID;
     Amg::Vector3D hitPos = (*it2).trackParms->position();
     ATH_MSG_DEBUG(" HIT: layer="<<sample<<" sample="<<sample-IDCaloBoundary<<" eta="<<hitPos.eta()<<" phi="<<hitPos.phi()<<" r="<<hitPos.perp()<<" z="<<hitPos[Amg::z]);
-    it2++;
+    ++it2;
   }
 
   // Extrapolation may fail for very low pT charged particles. Enforce charge 0 to prevent this 

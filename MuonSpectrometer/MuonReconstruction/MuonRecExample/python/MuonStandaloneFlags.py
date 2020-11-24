@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file StandaloneFlags.py Flags for configuring the %Standalone muon reconstruction algorithm
 
 ## @namespace python::StandaloneFlags @copydoc StandaloneFlags.py
 
-from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer,jobproperties
+from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer
 from MuonRecExample.MuonRecUtils import fillJobPropertyContainer
-from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 

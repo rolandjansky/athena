@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ###############################################################
 #
 # Minimal athena options to execute the CutFlowSvc with algorithms
@@ -12,16 +12,17 @@
 #==============================================================
 
 # debug logging
+from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Logging import logging
 logging.getLogger('CreateCutFlowSvc').setLevel(DEBUG)
 
 # basic job configuration
-import AthenaCommon.AtlasUnixStandardJob
+import AthenaCommon.AtlasUnixStandardJob  # noqa: F401
 
 # setup the input
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if 'inputFiles' in dir():
-    athenaCommonFlags.FilesInput = inputFiles.split(',')
+    athenaCommonFlags.FilesInput = inputFiles.split(',')  # noqa: F821
     del inputFiles
 else:
     athenaCommonFlags.FilesInput = [
@@ -39,7 +40,7 @@ from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from AthenaCommon.AppMgr import theApp
 
 # load POOL support
-import AthenaPoolCnvSvc.ReadAthenaPool
+import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401
 
 # setup some configuration
 from RecExConfig.RecFlags import rec
@@ -50,11 +51,9 @@ from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
 CreateCutFlowSvc(seq=topSequence)
 
 # add a test algorithm
-from EventBookkeeperTools.EventBookkeeperToolsConf import CppFilterTester
-alg = CppFilterTester('CppFilterTester')
-alg.cut1 = 21
-alg.cut2 = 12
-topSequence += alg
+from EventBookkeeperTools.EventBookkeeperToolsConf import TestFilterReentrantAlg
+topSequence += TestFilterReentrantAlg("TestReentrant1", FilterKey="TestReentrant1", Modulo=2)
+topSequence += TestFilterReentrantAlg("TestReentrant2", FilterKey="TestReentrant2", Modulo=4)
 
 # output options
 from OutputStreamAthenaPool.CreateOutputStreams import AthenaPoolOutputStream
@@ -68,5 +67,5 @@ ServiceMgr.MessageSvc.defaultLimit = 9999999
 ServiceMgr.CutFlowSvc.OutputLevel = DEBUG
 ToolSvc.CutBookkeepersTool.OutputLevel = DEBUG
 
-# run on 10 events
-theApp.EvtMax = 10
+# run on 100 events
+theApp.EvtMax = 100

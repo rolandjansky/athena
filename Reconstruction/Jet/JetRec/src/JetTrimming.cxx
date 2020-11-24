@@ -11,9 +11,12 @@
 
 #include "JetRec/PseudoJetTranslator.h"
 
+using namespace JetGrooming;
 
+namespace {
   // tool implementing the operations to convert fastjet::PseudoJet -> xAOD::Jet
-const static PseudoJetTranslator s_pjTranslator(false, false); // false => do not save jet areas
+  const static PseudoJetTranslator s_pjTranslator(false, false); // false => do not save jet areas
+}
 
 //**********************************************************************
 
@@ -49,7 +52,7 @@ StatusCode JetTrimming::initialize() {
 //**********************************************************************
 
 void JetTrimming::insertGroomedJet(const xAOD::Jet& parentjet, const PseudoJetContainer& inpjcont, xAOD::JetContainer& outcont, PseudoJetVector& trimpjvec) const {
-
+  
   const static SG::AuxElement::Accessor<const fastjet::PseudoJet*> s_pjAcc("PseudoJet");
   const static SG::AuxElement::ConstAccessor<const fastjet::PseudoJet*> s_pjConstAcc("PseudoJet");
 
@@ -69,7 +72,7 @@ void JetTrimming::insertGroomedJet(const xAOD::Jet& parentjet, const PseudoJetCo
 
   // decorate with the pointer to the PJ we keep in the evt store.
   s_pjAcc(jet) = & trimpjvec[jet.index()];
-
+  
   int nptrim = trimmedPJ.pieces().size();
   jet.setAttribute<int>(xAOD::JetAttribute::TransformType, xAOD::JetTransform::Trim);
   jet.setAttribute<int>(xAOD::JetAttribute::NTrimSubjets, nptrim);

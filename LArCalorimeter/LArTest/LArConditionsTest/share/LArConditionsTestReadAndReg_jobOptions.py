@@ -21,7 +21,7 @@ DetFlags.digitize.all_setOff()
 from AthenaCommon.GlobalFlags import GlobalFlags
 GlobalFlags.DataSource.set_geant4()
 GlobalFlags.DetGeo.set_atlas()
-include ("AtlasGeoModel/SetGeometryVersion.py")
+from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
 include ("LArRawConditions/LArIdMap_ATLAS_jobOptions.py")
 

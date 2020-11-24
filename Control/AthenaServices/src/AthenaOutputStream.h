@@ -209,7 +209,7 @@ private:
    /// Add item data objects to output streamer list
   void addItemObjects(const SG::FolderItem&, SG::SelectionVetoes& vetoes, SG::CompressionInfo& compInfo);
 
-   void handleVariableSelection (SG::IAuxStoreIO& auxio,
+   void handleVariableSelection (const SG::IConstAuxStore& auxstore,
                                  SG::DataProxy& itemProxy,
                                  const std::string& tns,
                                  const std::string& aux_attr,

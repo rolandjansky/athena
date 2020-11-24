@@ -67,6 +67,7 @@ ISF::DNNCaloSimSvc::DNNCaloSimSvc(const std::string& name, ISvcLocator* svc) :
   declareProperty("RandomSvc"                      ,       m_rndGenSvc                );
   declareProperty("RandomStream"                   ,       m_randomEngineName         );
   declareProperty("FastCaloSimCaloExtrapolation"   ,       m_FastCaloSimCaloExtrapolation );
+
 }
 
 ISF::DNNCaloSimSvc::~DNNCaloSimSvc()
@@ -75,6 +76,7 @@ ISF::DNNCaloSimSvc::~DNNCaloSimSvc()
 /** framework methods */
 StatusCode ISF::DNNCaloSimSvc::initialize()
 {
+
   ATH_MSG_INFO(m_screenOutputPrefix << "Initializing ...");
 
   ATH_CHECK(m_rndGenSvc.retrieve());

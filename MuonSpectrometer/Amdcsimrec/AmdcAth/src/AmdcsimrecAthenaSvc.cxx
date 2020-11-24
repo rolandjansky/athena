@@ -203,20 +203,20 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
 
     if (m_AlignmentSource == 3 ){
       ATH_MSG_DEBUG( "=>Strings come from Ascii file and A/B line stores as well<=" ) ;
-      m_IsInitialized = true ;
-      m_IsUsable      = true ;
-    }else{
-      ATH_MSG_DEBUG( "=>Strings come from Ascii file and A/B line stores from cool<=" ) ;
-      m_IsInitialized = false ;
-      m_IsUsable      = false ;
     }
+    else{
+      ATH_MSG_DEBUG( "=>Strings come from Ascii file and A/B line stores from cool<=" ) ;
+    }
+
+    m_IsInitialized = true ;
+    m_IsUsable      = true ;
 
     ATH_CHECK(initializeAscii());
     ATH_MSG_DEBUG( "Done: initializeAscii " ) ;
     
     if (m_AlignmentSource == 2 ){
-      ATH_CHECK(regFcnSetAmdcABlineFromCool());
-      ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
+      ATH_CHECK(SetAmdcABlineFromCool());
+      ATH_MSG_DEBUG( "Done: SetAmdcABlineFromCool " ) ;
     }
 
   }
@@ -235,16 +235,14 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
 //Strings come from Geomodel and A/B line stores from cool
    if ( (m_NameOfTheSource=="POOL" || m_NameOfTheSource=="GEOMODEL" ) && m_AlignmentSource == 2 ){
     ATH_MSG_DEBUG( "=>Strings come from Geomodel and A/B line stores from cool<=" ) ;
-    m_IsInitialized = false ;
-    m_IsUsable      = false ;
-
-    ATH_MSG_DEBUG( "      p_IGeoModelSvc->geoInitialized() true "  ) ;
+    m_IsInitialized = true ;
+    m_IsUsable      = true ;
 
     ATH_CHECK(initializeFromGeomodel());
     ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
     
-    ATH_CHECK(regFcnSetAmdcABlineFromCool());
-    ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
+    ATH_CHECK(SetAmdcABlineFromCool());
+    ATH_MSG_DEBUG( "Done: SetAmdcABlineFromCool " ) ;
 
   }
   
@@ -254,22 +252,21 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
 
     if (m_AlignmentSource == 3 ){
       ATH_MSG_DEBUG( "=>Strings come from Oracle and A/B line stores as well<=" ) ;
-      m_IsInitialized = true ;
-      m_IsUsable      = true ;
-    }else{
-      ATH_MSG_DEBUG( "=>Strings come from Oracle and A/B line stores from cool<=" ) ;
-      m_IsInitialized = false ;
-      m_IsUsable      = false ;
     }
+    else{
+      ATH_MSG_DEBUG( "=>Strings come from Oracle and A/B line stores from cool<=" ) ;
+    }
+
+    m_IsInitialized = true ;
+    m_IsUsable      = true ;
 
     ATH_CHECK(initializeFromOracleNode());
     ATH_MSG_DEBUG( "Done: initializeFromOracleNode " ) ;
     
     if (m_AlignmentSource == 2 ){
-      ATH_CHECK(regFcnSetAmdcABlineFromCool());
-      ATH_MSG_DEBUG( "Done: regFcnSetAmdcABlineFromCool " ) ;
+      ATH_CHECK(SetAmdcABlineFromCool());
+      ATH_MSG_DEBUG( "Done: SetAmdcABlineFromCool " ) ;
     }
-
   }
 
 //Set pointer on Muondetector Manager
@@ -344,40 +341,6 @@ StatusCode AmdcsimrecAthenaSvc::initializeAscii()
 
   return StatusCode::SUCCESS;
 
-}
-
-StatusCode AmdcsimrecAthenaSvc::regFcninitializeFromGeomodel() 
-{
-
-  ATH_MSG_DEBUG("----> regFcninitializeFromGeomodel is called" ) ; 
-
-  ATH_CHECK(p_detStore->regFcn(
-                          &IGeoModelSvc::align, &*p_IGeoModelSvc,
-                          &AmdcsimrecAthenaSvc::initializeFromGeomodelCallback, this
-                         ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::initializeFromGeomodelCallback from IGeoModelSvc::align" ) ;
-
-  ATH_CHECK(p_detStore->regFcn(
-               &AmdcsimrecAthenaSvc::initializeFromGeomodelCallback, this,
-               &AmdcsimrecAthenaSvc::UpdatedSvc, this
-              ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::initializeFromGeomodelCallback" ) ;
-
-  return StatusCode::SUCCESS;
-  
-}
-
-StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodelCallback(IOVSVC_CALLBACK_ARGS) 
-{
-
-  ATH_MSG_DEBUG("----> initializeFromGeomodelCallback is called" ) ; 
-  
-  ATH_CHECK(initializeFromGeomodel());
-  ATH_MSG_DEBUG( "Done: initializeFromGeomodel" ) ;
-
-  m_IsUsable      = true ;
-
-  return StatusCode::SUCCESS;
 }
 
 StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodel()
@@ -874,85 +837,12 @@ StatusCode AmdcsimrecAthenaSvc::SetAliStoreInternal()
   return StatusCode::SUCCESS;
 
 }
-StatusCode AmdcsimrecAthenaSvc::regFcninitializeFromGeomodelSetAmdcABlineFromCool()
-{
 
-  ATH_MSG_DEBUG("----> regFcninitializeFromGeomodelSetAmdcABlineFromCool is called" ) ; 
-
-  ATH_CHECK(p_detStore->retrieve(p_MuonDetectorManager));
-  ATH_MSG_DEBUG( "Done:p_MuonDetectorManager found " ) ;
- 
-  ATH_CHECK(p_detStore->regFcn(
-                          &IGeoModelSvc::align, &*p_IGeoModelSvc,
-                          &AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback, this
-                         ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback from IGeoModelSvc::align" ) ;
-
-  ATH_CHECK(p_detStore->regFcn(
-               &AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback, this,
-               &AmdcsimrecAthenaSvc::UpdatedSvc, this
-              ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback" ) ;
-
-  return StatusCode::SUCCESS;
-  
-}
-StatusCode AmdcsimrecAthenaSvc::initializeFromGeomodelSetAmdcABlineFromCoolCallback(IOVSVC_CALLBACK_ARGS)
-{
-
-  ATH_MSG_DEBUG( "----> initializeFromGeomodelSetAmdcABlineFromCoolCallback is called " ) ;
-
-  ATH_CHECK(initializeFromGeomodel());
-  ATH_MSG_DEBUG( "Done: initializeFromGeomodel" ) ;
-  ATH_CHECK(SetAmdcABlineFromCool());
-  ATH_MSG_DEBUG( "Done: SetAmdcABlineFromCool" ) ;
-
-  m_IsUsable      = true ;
-
-  return StatusCode::SUCCESS;
-  
-}
-
-StatusCode AmdcsimrecAthenaSvc::regFcnSetAmdcABlineFromCool()
-{
-
-  ATH_MSG_DEBUG("----> regFcnSetAmdcABlineFromCool is called" ) ; 
-
-  ATH_CHECK(p_detStore->retrieve(p_MuonDetectorManager));
-  ATH_MSG_DEBUG( "Done:p_MuonDetectorManager found " ) ;
-  
-  ATH_CHECK(p_detStore->regFcn(
-                          &IGeoModelSvc::align,p_IGeoModelSvc,
-                          &AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback,this
-                         ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback from IGeoModelSvc::align" ) ;
-
-  ATH_CHECK(p_detStore->regFcn(
-               &AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback, this,
-               &AmdcsimrecAthenaSvc::UpdatedSvc, this
-              ));
-  ATH_MSG_DEBUG( "Done: Register callback on AmdcsimrecAthenaSvc::UpdatedSvc from AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback" ) ;
-
-  return StatusCode::SUCCESS;
-  
-}
-StatusCode AmdcsimrecAthenaSvc::SetAmdcABlineFromCoolCallback(IOVSVC_CALLBACK_ARGS)
-{
-
-  ATH_MSG_DEBUG( "----> SetAmdcABlineFromCoolCallback is called " ) ;
-
-  ATH_CHECK(SetAmdcABlineFromCool());
-  ATH_MSG_DEBUG( "Done: SetAmdcABlineFromCool" ) ;
-
-  m_IsUsable      = true ;
-
-  return StatusCode::SUCCESS;
-  
-}
 StatusCode AmdcsimrecAthenaSvc::SetAmdcABlineFromCool()
 {
 
  ATH_MSG_DEBUG( "----> SetAmdcABlineFromCool is called " ) ;
+ ATH_CHECK(p_detStore->retrieve(p_MuonDetectorManager));
  
  if ( m_DontSetAmdcABlineFromCool == 1 ){
    ATH_MSG_DEBUG( "DontSetAmdcABlineFromCool == 1; SetAmdcABlineFromCool will not change the containers " ) ; 

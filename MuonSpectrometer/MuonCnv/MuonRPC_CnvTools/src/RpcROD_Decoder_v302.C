@@ -3,13 +3,13 @@
 */
 
 StatusCode Muon::RpcROD_Decoder::fillCollection_v302new(BS data, const uint32_t data_size, RpcPad& v,
-							const uint32_t& sourceId, RpcSectorLogicContainer* sectorLogicContainer ) const
+							const uint32_t& sourceId, RpcSectorLogicContainer* sectorLogicContainer, const bool& decodeSL) const
 
 {
   ATH_MSG_VERBOSE("in fillCollection_v302new");
   std::map<Identifier,RpcPad*> vmap;
   vmap[v.identify()]=&v;
-  StatusCode cnvsc= fillCollectionsFromRob_v302(data,data_size,vmap,sourceId, sectorLogicContainer);
+  StatusCode cnvsc= fillCollectionsFromRob_v302(data,data_size,vmap,sourceId, sectorLogicContainer, decodeSL);
   if (cnvsc!=StatusCode::SUCCESS) 
     {
       ATH_MSG_DEBUG("Some decoding problem observed");
@@ -18,8 +18,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollection_v302new(BS data, const uint32_t 
 }
 
 
-StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint32_t data_size,	std::map<Identifier,RpcPad*>& vmap, const uint32_t& sourceId,
-    RpcSectorLogicContainer* sectorLogicContainer ) const 
+StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint32_t data_size,	std::map<Identifier,RpcPad*>& vmap, const uint32_t& sourceId, RpcSectorLogicContainer* sectorLogicContainer, const bool& decodeSL ) const 
 {
 
   bool skipSectorLogicDecoding = (sectorLogicContainer == nullptr);
@@ -617,7 +616,7 @@ StatusCode Muon::RpcROD_Decoder::fillCollectionsFromRob_v302(BS data, const uint
 	      if ((unsigned int)nDecodedPads==vmap.size())
 		{
 		  ATH_MSG_DEBUG("All pads requested are found and decoded"); 
-		  if (!m_decodeSL)
+		  if (!decodeSL)
 		    {
 		      ATH_MSG_DEBUG("... since no SL decoding is requested exit here");
 		      return StatusCode::SUCCESS;

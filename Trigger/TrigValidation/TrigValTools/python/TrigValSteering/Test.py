@@ -129,7 +129,7 @@ class Test(object):
             if previous_code != 0 and step.depends_on_previous:
                     self.log.error('Skipping step %s because previous step(s) failed', step.name)
                     step.result = 1
-                    code, cmd = step.result, '# Skipped %s because of earlier failure'.format(step.name)
+                    code, cmd = step.result, '# Skipped {} because of earlier failure'.format(step.name)
                     if step.auto_report_result:
                         step.report_result()
                     continue

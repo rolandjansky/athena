@@ -28,16 +28,21 @@ StatusCode JetHistoMatchedFiller::processJetContainer(const JetMonitoringAlg& pa
 
   SG::ReadDecorHandle<xAOD::JetContainer, char>  matchedHandle(m_matchedKey, ctx);
   SG::ReadDecorHandle<xAOD::JetContainer, double> ptdiffHandle(m_ptdiffKey, ctx);
-  
-  auto dPt = Monitored::Scalar<double>("ptdiff",0.0);
+ 
+  auto matched = Monitored::Collection("matched", jets, [matchedHandle](const xAOD::Jet * jet) {return matchedHandle(*jet);}); 
+  auto dPt = Monitored::Scalar("ptdiff",0.0);
 
   // Loop over jets and fill pt difference between matched jets
+  
   for(const xAOD::Jet* jet : jets){
     bool matched = matchedHandle(*jet);
-    if(matched) dPt = ptdiffHandle(*jet);
+    if(matched){
+      dPt = ptdiffHandle(*jet);
+      parentAlg.fill(m_group,dPt);
+    } 
   }
-  
-  parentAlg.fill(m_group,dPt); 
+ 
+  parentAlg.fill(m_group,matched);
   
   return StatusCode::SUCCESS;
 }

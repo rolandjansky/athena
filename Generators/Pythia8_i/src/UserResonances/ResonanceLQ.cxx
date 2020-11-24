@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // The ResonanceLQ class modifies the default Pythia8 setup 
@@ -81,6 +81,11 @@ namespace Pythia8{
     
     void calcPreFac(bool) {
 
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8300
+      CoupSM* couplingsPtr = infoPtr->coupSMPtr;
+  #endif
+#endif
       alpEM   = couplingsPtr->alphaEM(mHat * mHat);
       preFac  = 0.25 * alpEM * m_kCoup * mHat; 
       

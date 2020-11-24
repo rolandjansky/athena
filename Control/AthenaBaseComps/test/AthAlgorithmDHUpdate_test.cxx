@@ -58,6 +58,8 @@ public:
   { std::abort(); }
   virtual void renounce(Gaudi::DataHandle&) override
   { std::abort(); }
+  virtual bool renounceInput(const DataObjID&) override
+  { std::abort(); }
   virtual unsigned long addRef() override
   { std::abort(); }
   virtual unsigned long release() override

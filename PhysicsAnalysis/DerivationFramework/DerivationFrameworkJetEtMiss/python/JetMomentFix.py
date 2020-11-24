@@ -5,13 +5,11 @@
 # Schedules jet moment corrections
 #********************************************************************
 
-from __future__ import print_function
-
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 
 from JetRec.JetRecConf import JetAlgorithm
-from DerivationFrameworkJetEtMiss.DFJetMetFlags import *
+from JetRec.JetRecStandard import jtm
+from DerivationFrameworkJetEtMiss.DFJetMetFlags import dfjmFlags
 
 if dfjmFlags.doJetTrackMomentFix:
     print ("Scheduling jet track moment fix: ")

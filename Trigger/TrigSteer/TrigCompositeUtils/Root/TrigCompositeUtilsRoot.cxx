@@ -18,6 +18,7 @@ CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
 #include <unordered_map>
 #include <regex>
 #include <iomanip> // std::setfill
+#include <mutex>
 
 static const SG::AuxElement::Accessor< std::vector<TrigCompositeUtils::DecisionID> > readWriteAccessor("decisions");
 static const SG::AuxElement::ConstAccessor< std::vector<TrigCompositeUtils::DecisionID> > readOnlyAccessor("decisions");
@@ -137,12 +138,12 @@ namespace TrigCompositeUtils {
   }
 #endif
 
-  void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex ) {
+  void linkToPrevious( Decision* d, const std::string& previousCollectionKey, size_t previousIndex  ) {
     ElementLink<DecisionContainer> seed = ElementLink<DecisionContainer>( previousCollectionKey, previousIndex );
     if (!seed.isValid()) {
       throw std::runtime_error("TrigCompositeUtils::linkToPrevious Invalid Decision Link key or index provided");
     } else {
-      d->addObjectCollectionLink("seed", seed);
+      d->addObjectCollectionLink(seedString(), seed);
     }
   }
 
@@ -215,33 +216,42 @@ namespace TrigCompositeUtils {
     return composite->hasObjectCollectionLinks( m_name );
   }
 
- std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionID id) {
+ std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionIDContainer ids) {
     std::vector<const Decision*> output;
     // The list of containers we need to read can change on a file-by-file basis (it depends on the SMK)
     // Hence we query SG for all collections rather than maintain a large and ever changing ReadHandleKeyArray
 
-    std::vector<std::string> keys;
+    static std::vector<std::string> keys ATLAS_THREAD_SAFE;
+    static std::mutex keysMutex;
     // TODO TODO TODO NEED TO REPLACE THIS WITH A STANDALONE-FRIENDLY VERSION
 #ifndef XAOD_STANDALONE
-    eventStore->keys(static_cast<CLID>( ClassID_traits< DecisionContainer >::ID() ), keys);
+    {
+      std::lock_guard<std::mutex> lock(keysMutex);
+      if (keys.size() == 0) {
+        // In theory this can change from file to file, 
+        // the use case for this function is monitoring, and this is typically over a single run.
+        eventStore->keys(static_cast<CLID>( ClassID_traits< DecisionContainer >::ID() ), keys);
+      }
+    }
 #else
+    eventStore->event(); // Avoid unused warning
     throw std::runtime_error("Cannot yet obtain rejected HLT features in AnalysisBase");
 #endif
 
     // Loop over each DecisionContainer,
     for (const std::string& key : keys) {
       // Get and check this container
-      if ( key.find("HLTNav") != 0 ) {
+      if ( key.find("HLTNav_") != 0 ) {
         continue; // Only concerned about the decision containers which make up the navigation, they have name prefix of HLTNav
       }
       if ( key == "HLTNav_Summary" ) {
         continue; //  This is where accepted paths start. We are looking for rejected ones
       }
-      const DecisionContainer* container = nullptr;
-      if ( eventStore->retrieve( container, key ).isFailure() ) {
+      SG::ReadHandle<DecisionContainer> containerRH(key);
+      if (!containerRH.isValid()) {
         throw std::runtime_error("Unable to retrieve " + key + " from event store.");
       }
-      for (const Decision* d : *container) {
+      for (const Decision* d : *containerRH) {
         if (!d->hasObjectLink(featureString())) {
           // TODO add logic for ComboHypo where this is expected
           continue; // Only want Decision objects created by HypoAlgs
@@ -276,10 +286,10 @@ namespace TrigCompositeUtils {
         // So the size of activeChainsIntoThisDecision corresponds to the number of HypoTools which will have run
         // What do we care about? A chain, or all chains?
         DecisionIDContainer chainsToCheck;
-        if (id == 0) { // We care about *all* chains
+        if (ids.size() == 0) { // We care about *all* chains
           chainsToCheck = activeChainsIntoThisDecision;
-        } else { // We care about *one* chain
-          chainsToCheck.insert(id);
+        } else { // We care about sepcified chains
+          chainsToCheck = ids;
         }
         // We have found a rejected decision node *iff* a chainID to check is *not* present here
         // I.e. the HypoTool for the chain returned a NEGATIVE decision
@@ -300,12 +310,11 @@ namespace TrigCompositeUtils {
   void recursiveGetDecisionsInternal(const Decision* node, 
     const Decision* comingFrom, 
     NavGraph& navGraph, 
-    const DecisionID id,
+    const DecisionIDContainer ids,
     const bool enforceDecisionOnNode) {
 
     // Does this Decision satisfy the chain requirement?
-    DecisionIDContainer idSet = {id};
-    if (enforceDecisionOnNode && id != 0 && !isAnyIDPassing(node, idSet)) {
+    if (enforceDecisionOnNode && ids.size() != 0 && !isAnyIDPassing(node, ids)) {
       return; // Stop propagating down this leg. It does not concern the chain with DecisionID = id
     }
 
@@ -318,7 +327,7 @@ namespace TrigCompositeUtils {
       for ( ElementLink<DecisionContainer> seed : getLinkToPrevious(node)) {
         const Decision* seedDecision = *(seed); // Dereference ElementLink
         // Sending true as final parameter for enforceDecisionOnStartNode as we are recursing away from the supplied start node
-        recursiveGetDecisionsInternal(seedDecision, node, navGraph, id, /*enforceDecisionOnNode*/ true);
+        recursiveGetDecisionsInternal(seedDecision, node, navGraph, ids, /*enforceDecisionOnNode*/ true);
       }
     }
     return;
@@ -326,11 +335,11 @@ namespace TrigCompositeUtils {
 
   void recursiveGetDecisions(const Decision* start, 
     NavGraph& navGraph, 
-    const DecisionID id,
+    const DecisionIDContainer ids,
     const bool enforceDecisionOnStartNode) {
 
     // Note: we do not require navGraph to be an empty graph. We can extend it.
-    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, id, enforceDecisionOnStartNode);
+    recursiveGetDecisionsInternal(start, /*comingFrom*/nullptr, navGraph, ids, enforceDecisionOnStartNode);
     
     return;
   }

@@ -24,9 +24,9 @@ class MM_ElectronicsToolInput {
 
     ~MM_ElectronicsToolInput() {}
 
-    std::vector<int> NumberOfStripsPos() const { return m_NumberOfStripsPos; }
-    std::vector<std::vector<float>> chipCharge() const { return m_chipCharge; }
-    std::vector<std::vector<float>> chipTime() const { return m_chipTime; }
+   const std::vector<int>& NumberOfStripsPos() const { return m_NumberOfStripsPos; }
+   const std::vector<std::vector<float>>& chipCharge() const { return m_chipCharge; }
+   const std::vector<std::vector<float>>& chipTime() const { return m_chipTime; }
     Identifier digitID() const { return m_digitID; }
     float kineticEnergy() const { return m_kineticEnergy; }
 

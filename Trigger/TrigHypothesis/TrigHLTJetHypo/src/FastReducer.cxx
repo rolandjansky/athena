@@ -38,7 +38,7 @@ struct IndexVecComp{
 
 FastReducer::FastReducer(const HypoJetGroupCIter& groups_b,
                          const HypoJetGroupCIter& groups_e,
-                         const ConditionsMT& conditions,
+                         const ConditionPtrs& conditions,
                          const Tree& tree,
                          const std::vector<std::vector<int>>& sharedConditions,
                          xAODJetCollector& jetCollector,
@@ -179,10 +179,10 @@ bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
     }
   }
 
+
   // check all leaf conditions are satisfied
   for (const auto& i : leaves) {
-    auto& satisfiedBy = m_satisfiedBy.at(i);
-    if (satisfiedBy.empty()) {
+    if (!capacitySatisfied(i, collector)) {
       return false;
     }
   }
@@ -317,8 +317,6 @@ bool FastReducer::propagate_(std::size_t child,
   // child == 0  do not attempt to process parent of node.
   if(child == 0){return true;}
 
-  // par is parent of the child (and siblings) passed to this method.
-  bool par_satisfied{false};  
       
   // calculate the external product of the jet groups
   // eg if condition c1 is satisfied by jg11 and jg12, while its only
@@ -328,7 +326,7 @@ bool FastReducer::propagate_(std::size_t child,
    
   auto jg_product = JetGroupProduct(siblings, m_satisfiedBy);
    
-  // obtain the next product of hob groups passing siblings
+  // obtain the next product of jet groups passing siblings
   auto next = jg_product.next(collector);
 
   // step through the jet groups found by combining ghe child groups
@@ -351,7 +349,7 @@ bool FastReducer::propagate_(std::size_t child,
 		      m_jg2elemjgs[i].end());
     }
 
-    // if any of the elemetal jet group indices are repeated,
+    // if any of the elemental jet group indices are repeated,
     // stop processing of the new jet group. (do not allow sharing for
     // among leaf nodes. Sharing is handled by processing > 1 leaf groups
     // each of which does not share.
@@ -380,7 +378,6 @@ bool FastReducer::propagate_(std::size_t child,
     if (m_conditions[par]->isSatisfied(jg, collector)){// par is a tree ind.
 
       // get an index for this set of elementarys jhob groups indices
-      par_satisfied = true;
       m_satisfiedBy[par].push_back(cur_jg);
 
       m_jg2elemjgs[cur_jg] = elem_jgs;
@@ -390,6 +387,10 @@ bool FastReducer::propagate_(std::size_t child,
     next = jg_product.next(collector);
   }
 
+  // check if enough job groups pass the parent condition
+  bool par_satisfied =
+    m_conditions[par]->multiplicitySatisfied(m_satisfiedBy[par].size(),
+					     collector);
   if(collector and !par_satisfied){
     collector->collect("FastReducer",
 		       "Condition node " + std::to_string(par) +
@@ -497,8 +498,24 @@ void FastReducer::recordJetGroup(std::size_t ind,
 	 << " et " << ip->et();
   }
   ss1 << '\n';
-  collector -> collect(ss0.str(), ss1.str());
+  collector->collect(ss0.str(), ss1.str());
 }
 
 bool FastReducer::pass() const { return m_pass; }
 
+
+bool FastReducer::capacitySatisfied(std::size_t ind,
+				    const Collector& collector) const {
+  // Check that the number of satisfying job groups is sufficient to
+  // satisfy the capacity of the Condition. Uses include handling
+  // of Conditions which represent multiple identical conditions.
+  
+  auto jgMult = m_satisfiedBy.at(ind).size();
+  auto capSat = m_conditions.at(ind)->multiplicitySatisfied(jgMult, collector);
+  if (!capSat and collector) {
+    collector->collect("FastReduce", "Condition " + std::to_string(ind)
+		       + " unsatisfied multiplicity, aborting"); 
+  }
+  
+  return capSat;
+}

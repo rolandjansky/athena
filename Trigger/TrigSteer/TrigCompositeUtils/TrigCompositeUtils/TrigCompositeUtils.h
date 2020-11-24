@@ -256,10 +256,10 @@ namespace TrigCompositeUtils {
   /**
    * @brief Query all DecisionCollections in the event store, locate all Decision nodes in the graph where an object failed selection for a given chain.
    * @param[in] eventStore Pointer to event store within current event context
-   * @param[in] id ID of chain to located failed decision nodes for. Passing 0 returns all decision nodes which failed at least one chain.
+   * @param[in] ids IDs of chain (if multi-leg chain, include all legs) to located failed decision nodes for. Passing an empty set returns all decision nodes which failed at least one chain.
    * @return Vector of Decision nodes whose attached feature failed the trigger chain logic for chain with DecisionID id
    **/
-  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionID id = 0);
+  std::vector<const Decision*> getRejectedDecisionNodes(asg::EventStoreType* eventStore, const DecisionIDContainer ids = {});
   
 
 
@@ -268,14 +268,14 @@ namespace TrigCompositeUtils {
    * @brief Search back in time from "node" and locate all paths back through Decision objects for a given chain.
    * @param[in] node The Decision object to start the search from. Typically this will be one of the terminus objects from the HLTNav_Summary.
    * @param[inout] navPaths Holds a sub-graph of the full navigation graph, filtered by DecisionID. An already partially populated graph may be provided as input.
-   * @param[in] id Optional DecisionID of a Chain to trace through the navigation. If omitted, no chain requirement will be applied.
+   * @param[in] ids Optional DecisionIDContainer of Chains / Chain-Legs to trace through the navigation. If omitted, no chain requirement will be applied.
    * @param[in] enforceDecisionOnStartNode If the check of DecisionID should be carried out on the start node.
    * enforceDecisionOnStartNode should be true if navigating for a trigger which passed (e.g. starting from HLTPassRaw)
    * enforceDecisionOnStartNode should be false if navigating for a trigger which failed but whose failing start node(s) were recovered via getRejectedDecisionNodes
    **/
   void recursiveGetDecisions(const Decision* node, 
     NavGraph& navGraph, 
-    const DecisionID id = 0,
+    const DecisionIDContainer ids = {},
     const bool enforceDecisionOnStartNode = true);
 
 
@@ -287,7 +287,7 @@ namespace TrigCompositeUtils {
   void recursiveGetDecisionsInternal(const Decision* node, 
     const Decision* comingFrom,
     NavGraph& navGraph,
-    const DecisionID id,
+    const DecisionIDContainer ids,
     const bool enforceDecisionOnNode);
 
   /**

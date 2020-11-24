@@ -7,93 +7,43 @@ from pprint import pprint, pformat
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger("testJetRecDeps")
 
-def JetRecTestCfg(jetdefs,configFlags,args):
-
-    if args.printDependencies:
-        for jetdef in jetdefs:
-            deps = JetRecConfig.resolveDependencies(jetdef)
-            jetlog.info("Dumping dependency dict for {0}".format(jetdef))
-            depstr = pformat(deps)
-            jetlog.info(depstr)
-
-    if args.printAccumulators:
-        jetlog.info("Printing component accumulators for each jet collection")
-    jetcas = []
-    for jetdef in jetdefs:
-       jetcomps = JetRecConfig.JetRecCfg(jetdef,configFlags)
-       if args.printAccumulators:
-           jetcomps.printConfig(withDetails=args.verboseAccumulators,summariseProps=True)
-       jetcas.append(jetcomps)
-
-    jetlog.info("Printing component accumulator for entire sequence")
-    components = ComponentAccumulator()
-    for ca in jetcas:
-        components.merge(ca)
-    components.printConfig(withDetails=args.verboseAccumulators,summariseProps=True)
-
-    return components
-
 def DefineJetCollections(configFlags):
 
     ########################################################################
-    # First a demonstration of just building jets using standard definitions
-    from JetRecConfig.StandardSmallRJets import AntiKt4EMTopo, AntiKt4EMPFlow, AntiKt4Truth, AntiKt4TruthWZ
+    # import the standard definitions 
+    from JetRecConfig.StandardSmallRJets import  AntiKt4EMPFlow, AntiKt4EMTopo, AntiKt4Truth, AntiKt4TruthWZ
+    from JetRecConfig.StandardLargeRJets import  AntiKt10LCTopoSoftDrop
 
-
-    # ************************
-    # TEMPORARY : comment out jet def modifications
-    
-    # # This updates the original jet definitions, so might be a little risky
-    # # in derivation code. Safer would be to always deepcopy into a local variable.
-    # #AntiKt4EMTopo.ptminfilter = 15e3
-    # AntiKt4EMTopo.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + clustermods + truthmods
-
-    # AntiKt4EMPFlow.ptminfilter = 10e3
-    # AntiKt4EMPFlow.modifiers = ["Calib:T0:mc","Sort"] + standardrecomods + truthmods
-    # AntiKt4EMPFlow.ghostdefs = standardghosts
-    # #AntiKt4EMPFlow.modifiers = ["Calib:AnalysisLatest:mc"]
-
-    # AntiKt4Truth.ptminfilter = 2e3
-    # AntiKt4Truth.extrainputs = ["EventDensity"]
-
-    # AntiKt4TruthWZ.ptminfilter = 2e3
-    # AntiKt4TruthWZ.extrainputs = ["EventDensity"]
+    # Example for defining a custom definition
+    from JetRecConfig.JetDefinition import JetConstitSeq, JetDefinition, xAODType
+    from JetRecConfig.StandardSmallRJets import standardrecomods, clustermods, truthmods, standardghosts
+    EMTopoCSSK = JetConstitSeq("EMTopoOriginCSSK", xAODType.CaloCluster, ["EM","Origin","CS","SK"], "CaloCalTopoClusters", "EMOriginTopoCSSK", label="EMTopoOriginCSSK")
+    AntiKt4EMTopoCSSK = JetDefinition("AntiKt",0.4,EMTopoCSSK,ptmin=2e3,prefix="New")
+    recomods = tuple( mod for mod in standardrecomods if not mod.startswith("Calib") ) # remove calib modifier : no calib exists for EMTopoCSSK
+    AntiKt4EMTopoCSSK.modifiers   = ["Filter:2000","ConstitFourMom"]
+    AntiKt4EMTopoCSSK.modifiers  += recomods + clustermods + truthmods
+    AntiKt4EMTopoCSSK.ghostdefs   = standardghosts 
+    AntiKt4EMTopoCSSK.extrainputs = ["EventDensity"]
 
     ########################################################################
-    # ************************
-    # TEMPORARY : comment out custom CSSK definitions
-    # # Now we define our own definitions
-    # from JetRecConfig.JetDefinition import JetConstit, JetDefinition, xAODType
-    # EMTopoCSSK = JetConstit(xAODType.CaloCluster, ["EM","Origin","CS","SK"])
-    # AntiKt4EMTopoCSSK = JetDefinition("AntiKt",0.4,EMTopoCSSK,ptmin=2e3,ptminfilter=2e3)
-    # AntiKt4EMTopoCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + clustermods + truthmods
-    # AntiKt4EMTopoCSSK.ghostdefs = standardghosts
-    # AntiKt4EMTopoCSSK.extrainputs = ["EventDensity"]
-
-    # ########################################################################
-    # # We can also copy and modify the standard ones
-    # from copy import deepcopy
-    # from JetRecConfig.StandardJetDefs import CHSPFlow
-
-    # CSSKPFlow = deepcopy(CHSPFlow)
-    # CSSKPFlow.modifiers = ["CS","SK"]
-    # AntiKt4EMPFlowCSSK = deepcopy(AntiKt4EMPFlow)
-    # AntiKt4EMPFlowCSSK.inputdef = CSSKPFlow
-    # AntiKt4EMPFlowCSSK.modifiers = ["ConstitFourMom"] + standardrecomods + truthmods
-    # AntiKt4EMPFlowCSSK.ptmin = 2e3
-    # AntiKt4EMPFlowCSSK.ptminfilter = 2e3
-    # AntiKt4EMPFlowCSSK.ghostdefs = standardghosts
-    # AntiKt4EMPFlowCSSK.extrainputs = ["EventDensity"]
+    # We can also clone and modify an standard definition
+    from JetRecConfig.StandardJetConstits import jetconstitdic
+    AntiKt4EMPFlowCSSK = AntiKt4EMPFlow.clone(prefix="New")
+    AntiKt4EMPFlowCSSK.inputdef    = jetconstitdic["EMPFlowCSSK"]
+    AntiKt4EMPFlowCSSK.modifiers   = ["Filter:2000","ConstitFourMom"]
+    AntiKt4EMPFlowCSSK.extrainputs = ["EventDensity"]
 
     jetdefs = [
+        # we re-clone the standard with a prefix to avoid conflicts with pre-existing in-file collections
         AntiKt4EMTopo.clone(prefix="New"),
         AntiKt4EMPFlow.clone(prefix="New"),
-        # AntiKt4EMTopoCSSK,
-        # AntiKt4EMPFlowCSSK,
+        AntiKt4EMTopoCSSK,
+        AntiKt4EMPFlowCSSK,
+        AntiKt10LCTopoSoftDrop,
     ]
     if configFlags.Input.isMC:
-        jetdefs += [AntiKt4Truth,
-                    AntiKt4TruthWZ]
+        jetdefs += [AntiKt4Truth.clone(prefix="New"),
+                    AntiKt4TruthWZ.clone(prefix="New"),]
     
     return jetdefs
 
@@ -168,7 +118,12 @@ if __name__=="__main__":
     jetdefs = DefineJetCollections(ConfigFlags)
 
     # Add the components from our jet reconstruction job
-    cfg.merge(JetRecTestCfg(jetdefs,ConfigFlags,args))
+    from JetRecConfig.JetRecConfig import JetRecCfg
+    for jetdef in jetdefs:
+        comp = JetRecCfg(jetdef,ConfigFlags)
+        comp.printConfig(withDetails=args.verboseAccumulators,summariseProps=True)
+        
+        cfg.merge(comp)
 
     # Write what we produced to AOD
     # First define the output list

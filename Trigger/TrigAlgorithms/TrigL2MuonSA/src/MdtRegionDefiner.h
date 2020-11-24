@@ -50,43 +50,40 @@ namespace TrigL2MuonSA {
     StatusCode getMdtRegions(const LVL1::RecMuonRoI*           p_roi,
 			     const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			     TrigL2MuonSA::MuonRoad&           muonRoad,
-			     TrigL2MuonSA::MdtRegion&          mdtRegion);
+			     TrigL2MuonSA::MdtRegion&          mdtRegion) const;
     
     StatusCode getMdtRegions(const LVL1::RecMuonRoI*           p_roi,
 			     const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			     TrigL2MuonSA::MuonRoad&           muonRoad,
-			     TrigL2MuonSA::MdtRegion&          mdtRegion);
+			     TrigL2MuonSA::MdtRegion&          mdtRegion) const;
     
   private:
     StatusCode prepareTgcPoints(const TrigL2MuonSA::TgcHits& tgcHits);
     void find_barrel_road_dim(float max_road, float aw, float bw,
-			      float rMmin,float rMax,float *zMin,float *zMax);
+			      float rMmin,float rMax,float *zMin,float *zMax) const;
     void find_endcap_road_dim(float road,float aw, float bw, float zMin,
-			      float zMax,float *rMin,float *rMax);
+			      float zMax,float *rMin,float *rMax) const;
     void find_eta_min_max(float zMin, float rMin,
 			  float zMax, float rMax,
-			  float& etaMin, float& etaMax);
-    void find_phi_min_max(float phiMiddle, float& phiMin, float& phiMax);
+			  float& etaMin, float& etaMax) const;
+    void find_phi_min_max(float phiMiddle, float& phiMin, float& phiMax) const;
         
-    void find_station_sector(std::string name, int phi, bool& endcap, int& chamber, int& sector);
+    void find_station_sector(std::string name, int phi, bool& endcap, int& chamber, int& sector) const;
 
     StatusCode computePhi(const LVL1::RecMuonRoI*           p_roi,
 			  const TrigL2MuonSA::RpcFitResult& rpcFitResult,
 			  const TrigL2MuonSA::MdtRegion&    mdtRegion,
-			  TrigL2MuonSA::MuonRoad&           muonRoad);
+			  TrigL2MuonSA::MuonRoad&           muonRoad) const;
       
     StatusCode computePhi(const LVL1::RecMuonRoI*           p_roi,
 			  const TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			  const TrigL2MuonSA::MdtRegion&    mdtRegion,
-			  TrigL2MuonSA::MuonRoad&           muonRoad);
+			  TrigL2MuonSA::MuonRoad&           muonRoad) const;
 
   private:
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
 
-    const MuonGM::MdtReadoutElement* m_mdtReadout {nullptr};
-    const MuonGM::MuonStation* m_muonStation {nullptr};
-    
     bool m_use_rpc {true};
 
     TrigL2MuonSA::TgcFit::PointArray m_tgcStripMidPoints;  // List of TGC strip middle station points.

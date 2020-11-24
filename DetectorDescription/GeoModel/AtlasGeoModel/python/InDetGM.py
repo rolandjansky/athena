@@ -1,22 +1,18 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # InDet GeoModel initialization
 #
-from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.DetFlags      import DetFlags
 from AthenaCommon.AppMgr        import ServiceMgr as svcMgr
 
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-if InDetGeometryFlags.isSLHC():
-    #SLHC specific code
-    from AthenaCommon.AppMgr import ToolSvc
 
 # Treat CTB separately
 if ( jobproperties.Global.DetGeo() == "ctbh8" or jobproperties.Global.DetGeo() == "ctbh6" ):
-    from AtlasGeoModel import InDetGMCTB
+    from AtlasGeoModel import InDetGMCTB  # noqa: F401
 
 elif ( DetFlags.detdescr.ID_on() ):
     from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
@@ -31,7 +27,6 @@ elif ( DetFlags.detdescr.ID_on() ):
         GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("PixelDetectorTool", checkType=True) ]
 
         if (DetFlags.detdescr.BCM_on() ) :
-            from AthenaCommon.AppMgr import ToolSvc
             from BCM_GeoModel.BCM_GeoModelConf import InDetDD__BCM_Builder
             bcmTool = InDetDD__BCM_Builder()
             GeoModelSvc.DetectorTools['PixelDetectorTool'].BCM_Tool = bcmTool
@@ -51,7 +46,6 @@ elif ( DetFlags.detdescr.ID_on() ):
             else:
                 from SCT_SLHC_GeoModel.SCT_SLHC_GeoModelConf import SCT_SLHC_DetectorTool
                 sctSLHCTool = SCT_SLHC_DetectorTool()
-                sctSLHCTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
             GeoModelSvc.DetectorTools += [ sctSLHCTool ]
         else:
             # Current atlas specific code
@@ -71,10 +65,8 @@ elif ( DetFlags.detdescr.ID_on() ):
         #SLHC specific code
         servMatTool = InDetServMatTool()
         GeoModelSvc.DetectorTools += [ servMatTool ]
-        servMatTool.ServiceBuilderTool = InDetServMatBuilderToolSLHC
     else:
         GeoModelSvc.DetectorTools += [ InDetServMatTool() ]
 
     # Make alignable
-    from InDetCondFolders import InDetAlignFolders
-
+    from InDetCondFolders import InDetAlignFolders  # noqa: F401

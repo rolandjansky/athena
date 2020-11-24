@@ -1,31 +1,7 @@
-# $Id: CMakeLists.txt 782721 2016-11-07 12:38:42Z krasznaa $
-################################################################################
-# Package: FsrUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( FsrUtils )
-
-# Extra dependencies based on the environment:
-set( extra_dep )
-if( XAOD_STANDALONE )
-   set( extra_dep Control/xAODRootAccess )
-else()
-   set( extra_dep GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODMuon
-   PhysicsAnalysis/AnalysisCommon/IsolationSelection
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PRIVATE
-   Control/AthenaBaseComps
-   Event/xAOD/xAODCore
-   ${extra_dep} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Physics RIO )
@@ -34,8 +10,8 @@ find_package( ROOT COMPONENTS Core Physics RIO )
 atlas_add_library( FsrUtilsLib
    FsrUtils/*.h Root/*.cxx
    PUBLIC_HEADERS FsrUtils
-   LINK_LIBRARIES AsgTools xAODMuon xAODEgamma PATInterfaces
-   IsolationSelectionLib )
+   LINK_LIBRARIES AsgTools xAODMuon xAODEgamma PATInterfaces IsolationSelectionLib
+   PRIVATE_LINK_LIBRARIES AsgMessagingLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( FsrUtils
@@ -50,8 +26,7 @@ if( XAOD_STANDALONE )
    atlas_add_executable( FsrPhotonToolTester
       util/FsrPhotonToolTester.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODMuon xAODCore
-      FsrUtilsLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODMuon xAODCore FsrUtilsLib )
 endif()
 
 # Install files from the package:

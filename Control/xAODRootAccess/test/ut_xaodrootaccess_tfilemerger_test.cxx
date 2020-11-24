@@ -31,7 +31,7 @@
 /// Helper macro
 #define R_CHECK( CONTEXT, EXP )                                 \
    do {                                                              \
-      const xAOD::TReturnCode result = EXP;                          \
+      const StatusCode result = EXP;                          \
       if( ! result.isSuccess() ) {                                   \
          ::Error( CONTEXT, XAOD_MESSAGE( "Failed to execute: %s" ),  \
                   #EXP );                                            \
@@ -40,10 +40,10 @@
    } while( false )
 
 /// Function checking the payload of the merged file
-xAOD::TReturnCode checkMergedFile( const std::string& fileName,
+StatusCode checkMergedFile( const std::string& fileName,
                                    xAOD::TFileMerger::EMergeMode mode );
 /// Function checking just one auxiliary branch in the merged file
-xAOD::TReturnCode checkMergedBranch( ::TTree& tree, const std::string& name );
+StatusCode checkMergedBranch( ::TTree& tree, const std::string& name );
 
 int main() {
 
@@ -221,9 +221,9 @@ int main() {
 ///
 /// @param fileName The merged file's name to test
 /// @param mode The mode with which the file was merged
-/// @returns The usual <code>xAOD::TReturnCode</code> types
+/// @returns The usual <code>StatusCode</code> types
 ///
-xAOD::TReturnCode checkMergedFile( const std::string& fileName,
+StatusCode checkMergedFile( const std::string& fileName,
                                    xAOD::TFileMerger::EMergeMode mode ) {
 
    // Open the file:
@@ -232,7 +232,7 @@ xAOD::TReturnCode checkMergedFile( const std::string& fileName,
    if( ! merged.get() ) {
       ::Error( "checkMergedFile", XAOD_MESSAGE( "Couldn't open %s" ),
                fileName.c_str() );
-      return xAOD::TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
 
    // Access the TTree in it:
@@ -241,7 +241,7 @@ xAOD::TReturnCode checkMergedFile( const std::string& fileName,
       ::Error( "checkMergedFile",
                XAOD_MESSAGE( "Couldn't file \"CollectionTree\" in merged "
                              "file" ) );
-      return xAOD::TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
 
    // Check the "InfoAux." branches:
@@ -258,7 +258,7 @@ xAOD::TReturnCode checkMergedFile( const std::string& fileName,
 
    // In slow merging mode those are the only ones to check...
    if( mode == xAOD::TFileMerger::kSlowMerge ) {
-      return xAOD::TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    // Check the "ContainerAux." branches:
@@ -272,10 +272,10 @@ xAOD::TReturnCode checkMergedFile( const std::string& fileName,
                  checkMergedBranch( *tree, "ContainerAuxDyn.FloatVar" ) );
 
    // Return gracefully:
-   return xAOD::TReturnCode::kSuccess;
+   return StatusCode::SUCCESS;
 }
 
-xAOD::TReturnCode checkMergedBranch( ::TTree& tree, const std::string& name ) {
+StatusCode checkMergedBranch( ::TTree& tree, const std::string& name ) {
 
    // Try to access the branch:
    ::TBranch* br = tree.GetBranch( name.c_str() );
@@ -283,7 +283,7 @@ xAOD::TReturnCode checkMergedBranch( ::TTree& tree, const std::string& name ) {
       ::Error( "checkedMergedBranch",
                XAOD_MESSAGE( "Couldn't find branch \"%s\" in output file" ),
                name.c_str() );
-      return xAOD::TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
 
    // Make sure that it has the right number of entries:
@@ -292,9 +292,9 @@ xAOD::TReturnCode checkMergedBranch( ::TTree& tree, const std::string& name ) {
                XAOD_MESSAGE( "Number of entries in branch \"%s\" is: %i "
                              "(!=20)" ),
                name.c_str(), static_cast< int >( br->GetEntries() ) );
-      return xAOD::TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
 
    // Return gracefully:
-   return xAOD::TReturnCode::kSuccess;
+   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArG4Code/SDWrapper.h"
@@ -26,7 +26,7 @@ namespace LArG4
     //-------------------------------------------------------------------------
     template<class SDType, class HitContainerType>
     SDWrapper<SDType, HitContainerType>::
-    SDWrapper(const std::string& name, const std::string& hitCollectionName, std::string deadHitCollectionName)
+    SDWrapper(const std::string& name, const std::string& hitCollectionName, const std::string& deadHitCollectionName)
       : G4VSensitiveDetector(name),
         m_hitCollName(hitCollectionName),
         m_hitColl(hitCollectionName),

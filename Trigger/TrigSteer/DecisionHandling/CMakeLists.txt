@@ -27,13 +27,13 @@ atlas_add_component( DecisionHandling
                      src/TestHypoTool.cxx
                      src/TestHypoAlg.cxx
                      src/PassFilter.cxx
-                     LINK_LIBRARIES DecisionHandlingLib xAODTrigCalo AthViews xAODTracking xAODJet )
+                     LINK_LIBRARIES DecisionHandlingLib AthenaKernel xAODTrigCalo AthViews xAODTracking xAODJet )
 
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_data( share/*.ref)
 
-
+atlas_install_scripts( test/test_emu_step_menu_processing.sh )
 
 
 

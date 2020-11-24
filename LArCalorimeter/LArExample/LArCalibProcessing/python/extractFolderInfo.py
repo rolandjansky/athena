@@ -18,7 +18,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
     ss=selection.split(",")
     for s in ss:
         if len(s)==0:continue
-        idx=s.find(":");
+        idx=s.find(":")
         if idx==-1:
             c1=cool.ChannelId(int(s))
             c2=c1
@@ -27,9 +27,9 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
             c2=cool.ChannelId(int(s[1+idx:]))
         #print ("ExtractFolderInfo: Add channel range",c1,"to",c2)
         if sel is None:
-            sel=cool.ChannelSelection(c1,c2,cool.ChannelSelection.sinceBeforeChannel);
+            sel=cool.ChannelSelection(c1,c2,cool.ChannelSelection.sinceBeforeChannel)
         else:
-            sel.addRange(c1,c2);
+            sel.addRange(c1,c2)
                                
     if sel is None:
         print ("ExtractFolderInfo: No COOL channel selection given, work on all channels")
@@ -44,7 +44,7 @@ def extractFolderInfo(dbname,globaltag="",checkFolders=[],runnumber=cool.Validit
         if len(checkFolders):
             takeFolder=False
             for cf in checkFolders:
-                if cf[-1] is "/": cf=cf[0:-1]
+                if cf[-1] == "/": cf=cf[0:-1]
                 idx=len(cf)
                 if fn.startswith(cf) and (idx>=len(fn) or fn[idx]=="/"):
                     takeFolder=True

@@ -93,7 +93,18 @@ StatusCode InDet::SiCombinatorialTrackFinder_xk::initialize()
     }
   } else {
     m_sctCondSummaryTool.disable();
+  }  
+  
+  // Get InDetBoundaryCheckTool
+  if ( m_boundaryCheckTool.retrieve().isFailure() ) {
+      ATH_MSG_FATAL("Failed to retrieve tool " << m_boundaryCheckTool);
+      return StatusCode::FAILURE;
+    }
+  else {
+    ATH_MSG_INFO("Retrieved tool " << m_boundaryCheckTool);
   }
+  
+
   
   // Setup callback for magnetic field
   //
@@ -374,12 +385,14 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracks
 
   Trk::Track* t = convertToTrack(data);
   ++data.findtracks();
+  if (m_writeHolesFromPattern) data.addPatternHoleSearchOutcome(t,data.trajectory().getHoleSearchResult()); 
   data.tracks().push_back(t);
 
   if (!data.tools().multiTrack() || data.simpleTrack() || Sp.size()<=2 || data.cosmicTrack() || data.trajectory().pTfirst() < data.tools().pTmin()) return data.tracks();
 
   while ((t=convertToNextTrack(data))) {
     ++data.findtracks();
+    if (m_writeHolesFromPattern) data.addPatternHoleSearchOutcome(t,data.trajectory().getHoleSearchResult()); 
     data.tracks().push_back(t);
   }
   return data.tracks();
@@ -426,6 +439,7 @@ const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
   //
   Trk::Track* t = convertToTrack(data);
   if (t==nullptr) return data.tracks();
+  if (m_writeHolesFromPattern) data.addPatternHoleSearchOutcome(t,data.trajectory().getHoleSearchResult()); 
 
   ++data.findtracks();
   data.tracks().push_back(t);
@@ -433,6 +447,7 @@ const std::list<Trk::Track*>& InDet::SiCombinatorialTrackFinder_xk::getTracks
   if (!data.tools().multiTrack() || data.simpleTrack() || Sp.size()<=2 || data.cosmicTrack() || data.trajectory().pTfirst() < data.tools().pTmin()) return data.tracks();
 
   while ((t=convertToNextTrack(data))) {
+    if (m_writeHolesFromPattern) data.addPatternHoleSearchOutcome(t,data.trajectory().getHoleSearchResult()); 
     ++data.findtracks();
     data.tracks().push_back(t);
   } 
@@ -495,6 +510,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
     data.tools().setMultiTracks(mult,Xi2m);
 
     if (!t) return data.tracks();
+    if (m_writeHolesFromPattern) data.addPatternHoleSearchOutcome(t,data.trajectory().getHoleSearchResult()); 
     ++data.findtracks();
     data.tracks().push_back(t);
     na = data.trajectory().nclusters();
@@ -536,6 +552,7 @@ const std::list<Trk::Track*>&  InDet::SiCombinatorialTrackFinder_xk::getTracksWi
   data.tools().setMultiTracks(mult, Xi2m);
 
   if (t==nullptr) return data.tracks();
+  if (m_writeHolesFromPattern) data.addPatternHoleSearchOutcome(t,data.trajectory().getHoleSearchResult()); 
 
   ++data.findtracks();
   data.tracks().push_back(t);
@@ -677,6 +694,13 @@ InDet::SiCombinatorialTrackFinder_xk::EStat_t InDet::SiCombinatorialTrackFinder_
 
   if (data.trajectory().nclusters() < data.nclusminb() || data.trajectory().ndf      () < data.nwclusmin()) return CantFindTrk;
   
+  /// refine the hole cut 
+  if (m_writeHolesFromPattern){
+    data.trajectory().updateHoleSearchResult(); 
+    if (!data.trajectory().getHoleSearchResult().passPatternHoleCut) return CantFindTrk;
+  }
+
+
   return Success;
 }
 
@@ -881,7 +905,8 @@ void InDet::SiCombinatorialTrackFinder_xk::initializeCombinatorialData(const Eve
                 &*m_riocreator,
                 (m_usePIX ? &*m_pixelCondSummaryTool : nullptr),
                 (m_useSCT ? &*m_sctCondSummaryTool : nullptr),
-                &m_fieldprop);
+                &m_fieldprop,
+                &*m_boundaryCheckTool);
   
 }
 

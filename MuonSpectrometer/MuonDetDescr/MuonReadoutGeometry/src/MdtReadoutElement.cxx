@@ -49,6 +49,11 @@
 // m_ep = 1.0e-5; // 10 ppm
 // m_en = 1.0e-5; // 10 ppm
 
+namespace {
+  // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
+}
+
 namespace MuonGM {
 
 MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
@@ -74,11 +79,6 @@ MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 
   setStationName(stName);
 }
-
-
-MdtReadoutElement::~MdtReadoutElement()
-{
-}    
 
 bool MdtReadoutElement::getWireFirstLocalCoordAlongZ(int tubeLayer, double& coord) const
 {
@@ -155,7 +155,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
         // usually the tube number corresponds to the child number, however for
         // BMG chambers full tubes are skipped during the building process
         // therefore the matching needs to be done via the volume ID
-        int packed_id = tube + 100*tubeLayer;
+        int packed_id = tube + maxNTubesPerLayer*tubeLayer;
         int kk = 0;
         bool found = false;
         geoGetIds ([&](int id) {
@@ -167,7 +167,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
                    }, &*cv);
         if (found && log.level()<=MSG::DEBUG) {
           log << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
-                    << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
+                    << ") - output match : tube(" << ii%maxNTubesPerLayer << "), layer(" << ii/maxNTubesPerLayer << ")" << endmsg;
         }
       }
       if (ii>=nGrandchildren) {
@@ -487,7 +487,7 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
           // usually the tube number corresponds to the child number, however for
           // BMG chambers full tubes are skipped during the building process
           // therefore the matching needs to be done via the volume ID
-          int packed_id = tube + 100*tubelayer;
+          int packed_id = tube + maxNTubesPerLayer*tubelayer;
           int kk = 0;
           bool found = false;
           geoGetIds ([&](int id) {
@@ -500,7 +500,7 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 #ifndef NDEBUG
           if (found && log.level()<=MSG::DEBUG) {
             log << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
-                      << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
+                      << ") - output match : tube(" << ii%maxNTubesPerLayer << "), layer(" << ii/maxNTubesPerLayer << ")" << endmsg;
           }
 #endif
         }
@@ -513,8 +513,12 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 #ifdef NDEBUG
           MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
 #endif
-          log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for a MDT with cutouts "
-                 << endmsg << ": from tube-id and pitch, tube pos = " << xtube
+        const MdtIdHelper* idh = manager()->mdtIdHelper();
+        const Identifier id = identify();
+          log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for MDT with stationName="
+            << idh->stationName(id) << " ("<< idh->stationNameString(idh->stationName(id)) << "), stationEta="<< idh->stationEta(id) << ", stationPhi="<< idh->stationPhi(id)<< ", multilayer="
+            << idh->multilayer(id) << ", tubeLayer="<< idh->tubeLayer(id) << ", tube="<< idh->tube(id) 
+                 << ": from tube-id and pitch, tube pos = " << xtube
                  << ", " << ytube << ", " << ztube
                  << " but geoModel gives " << tubeTrans(0,3)
                  << ", " << tubeTrans(1,3) << ", " << tubeTrans(2,3)
@@ -534,22 +538,11 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 #endif
             if (std::abs(m_cutoutShift - tubeTrans(1,3)) > maxtol) // check only for tubes actually shifted 
             {
-#ifdef NDEBUG
-              MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
-#endif
-              log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local X (amdb) for a MDT with cutouts "
-                       << endmsg << ": from tube-id/pitch/cutout  tube pos = " << xtube
-                       << ", " << m_cutoutShift  << ", " << ztube
-                       << " but geoModel gives " << tubeTrans(0,3)
-                       << ", " << tubeTrans(1,3) << ", " << tubeTrans(2,3)
-                       << endmsg
-                       << " for tube " << tube << " tube layer " << tubelayer
-                       << " multilayer " << multilayer << endmsg
-                       << " There are " << nGrandchildren << " child volumes & "
-                       << m_ntubesperlayer*m_nlayers << " tubes expected."
-                       << " There should be " << m_nlayers << " layers and "
-                       << m_ntubesperlayer << " tubes per layer."
-                       <<endmsg;
+              const MdtIdHelper* idh = manager()->mdtIdHelper();
+              const Identifier id = identify();
+              throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::nodeform_localTubePos(%d,%d,%d) - mismatch between local from tube-id/pitch/cutout tube position (x,y,z=%.3f,%.3f,%.3f) and GeoModel (x,y,z=%.3f,%.3f,%.3f)\nfor MdtReadoutElement with stationName=%d (%s), stationEta=%d, stationPhi=%d, multilayer=%d, tubeLayer=%d, tube=%d\nThere are %d child volumes & %d tubes expected. There should be %d layers and %d tubes per layer.", 
+                                       __FILE__, __LINE__, multilayer, tubelayer, tube, xtube, m_cutoutShift, ztube, tubeTrans(0,3), tubeTrans(1,3), tubeTrans(2,3), idh->stationName(id), idh->stationNameString(idh->stationName(id)).c_str(),
+                                       idh->stationEta(id), idh->stationPhi(id), idh->multilayer(id), idh->tubeLayer(id), idh->tube(id), nGrandchildren, m_ntubesperlayer*m_nlayers, m_nlayers, m_ntubesperlayer));
             }
         }
         
@@ -1765,7 +1758,7 @@ void MdtReadoutElement::fillCache()
                 // usually the tube number corresponds to the child number, however for
                 // BMG chambers full tubes are skipped during the building process
                 // therefore the matching needs to be done via the volume ID
-                int packed_id = tube + 100*tl;
+                int packed_id = tube + maxNTubesPerLayer*tl;
                 bool found = false;
                 geoGetIds ([&](int id) {
                              if (!found && id == packed_id) {

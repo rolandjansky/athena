@@ -4,7 +4,7 @@ from __future__ import print_function
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
-
+        
 # The earliest bunch crossing time for which interactions will be sent
 # to the Pixel Digitization code.
 def Pixel_FirstXing():
@@ -55,12 +55,24 @@ def SensorSimPlanarTool(name="SensorSimPlanarTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
-#    kwargs.setdefault("LorentzAngleTool", pixelLorentzAngleToolSetup.PixelLorentzAngleTool)
+    kwargs.setdefault("doRadDamage", digitizationFlags.doRadiationDamage.get_Value())
+    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
+    kwargs.setdefault("fluence", 6.4)
+    kwargs.setdefault("fluenceB", 4.6)
+    kwargs.setdefault("fluence1", 2.1)
+    kwargs.setdefault("fluence2", 1.3)
+    kwargs.setdefault("voltage", 400)
+    kwargs.setdefault("voltageB", 400)
+    kwargs.setdefault("voltage1", 250)
+    kwargs.setdefault("voltage2", 250)
     return CfgMgr.SensorSimPlanarTool(name, **kwargs)
 
 def SensorSim3DTool(name="SensorSim3DTool", **kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("SiPropertiesTool", ToolSvc.PixelSiPropertiesTool)
+    kwargs.setdefault("doRadDamage", digitizationFlags.doRadiationDamage.get_Value())
+    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
+    kwargs.setdefault("fluence", 6)
     return CfgMgr.SensorSim3DTool(name, **kwargs)
 
 def SensorSimTool(name="SensorSimTool", **kwargs):
@@ -85,19 +97,31 @@ def EndcapRD53SimTool(name="EndcapRD53SimTool", **kwargs):
 def BarrelFEI4SimTool(name="BarrelFEI4SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
     kwargs.setdefault("DoNoise", digitizationFlags.doInDetNoise.get_Value())
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FEI4SimTool(name, **kwargs)
 
 def DBMFEI4SimTool(name="DBMFEI4SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 4)
     kwargs.setdefault("DoNoise", digitizationFlags.doInDetNoise.get_Value())
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FEI4SimTool(name, **kwargs)
 
 def BarrelFEI3SimTool(name="BarrelFEI3SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 0)
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FEI3SimTool(name, **kwargs)
 
 def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
     kwargs.setdefault("BarrelEC", 2)
+    from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
+    pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool", UseByteStream=False)
+    kwargs.setdefault("PixelConditionsSummaryTool", pixelConditionsSummaryToolSetup)
     return CfgMgr.FEI3SimTool(name, **kwargs)
 
 def IdMapping():
@@ -149,7 +173,6 @@ def PixelConfigCondAlg_MC():
 
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
     alg = PixelConfigCondAlg(name="PixelConfigCondAlg")
-    alg.UseCablingConditions=False
 
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType == "cosmics" :
@@ -177,6 +200,9 @@ def PixelConfigCondAlg_MC():
 
     alg.BunchSpace=25.0
     alg.FEI4BarrelHitDiscConfig=[2]
+
+    alg.ChargeScaleFEI4=1.0
+    alg.UseFEI4SpecialScalingFunction=False
 
     #====================================================================================
     # Run-dependent SIMULATION(digitization) parameters:
@@ -314,6 +340,9 @@ def PixelConfigCondAlg_MC():
 
     alg.CablingMapFileName=IdMapping()
 
+    if useNewDeadmapFormat:
+        alg.ReadDeadMapKey = ''
+
     return alg
 
 def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
@@ -328,6 +357,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
         condSeq += PixelConfigCondAlg_MC()
+
     useNewDeadmapFormat = False
     useNewChargeFormat  = False
 
@@ -405,11 +435,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                       ReadKey = pixelReadKey,
-                                       MappingFile=IdMapping(),
-                                       RodIDForSingleLink40=0,
-                                       RecordInInitialize=not globalflags.isOverlay())
+        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg", ReadKey = pixelReadKey)
 
     if not conddb.folderRequested("/PIXEL/PixReco"):
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixReco", className="DetCondCFloat")
@@ -556,5 +582,4 @@ def PixelOverlayDigitization(name="PixelOverlayDigitization",**kwargs):
         kwargs.setdefault('Cardinality', concurrencyProps.ConcurrencyFlags.NumThreads())
         # Set common overlay extra inputs
         kwargs.setdefault("ExtraInputs", [("McEventCollection", "TruthEvent")])
-
     return CfgMgr.PixelDigitization(name,**kwargs)

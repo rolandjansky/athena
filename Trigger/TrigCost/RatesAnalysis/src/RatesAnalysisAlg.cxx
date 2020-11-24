@@ -9,12 +9,12 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TrigConfL1Data/BunchGroupSet.h"
-
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
 
 #include <sstream>
+
 
 RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthAnalysisAlgorithm( name, pSvcLocator ),
@@ -233,25 +233,26 @@ StatusCode RatesAnalysisAlg::addExisting(const std::string pattern) {
       // }
     }
 
-    // Get the prescale, express prescale and lower prescale. Note these prescales are from SUPPLIED XML. 
+    // Get the prescale, express prescale and lower prescale. Note these prescales are from SUPPLIED JSON. 
     double prescale = 1., expressPrescale = -1., lowerPrescale = 1.;
-    if (m_loadedXML.size() != 0) {
-      if (m_loadedXML.count(trigger) == 0) {
-        ATH_MSG_WARNING("Unable to find " << trigger << " in supplied XML. DISABLING." );
+    if (m_prescalesJSON.size() != 0) {
+      if (m_prescalesJSON.value().count(trigger) == 0) {
+        ATH_MSG_WARNING("Unable to find " << trigger << " in supplied JSON. DISABLING." );
         prescale = 0.;
       } else {
-        prescale        = m_loadedXML.at( trigger ).m_prescale;
-        expressPrescale = m_loadedXML.at( trigger ).m_expressPrescale;
+        prescale        = m_prescalesJSON[trigger];
+	//expressPrescale = m_prescalesJSON.at( trigger ).m_expressPrescale;
       }
       if (isHLT) {
-        if (m_loadedXML.count(lowerName) == 0) {
-          ATH_MSG_WARNING("Unable to find " << trigger << "'s seed, " << lowerName << ", in supplied XML. DISABLING." );
+        if (m_prescalesJSON.value().count(lowerName) == 0) {
+          ATH_MSG_WARNING("Unable to find " << trigger << "'s seed, " << lowerName << ", in supplied JSON. DISABLING." );
           lowerPrescale = 0.;
         } else {
-          lowerPrescale = m_loadedXML.at( lowerName ).m_prescale;
+          lowerPrescale = m_prescalesJSON[lowerName];
         }
       }
     }
+
 
     // We now have all the info needed to add this trigger
     ATH_MSG_DEBUG("Registering existing trigger " << trigger << " for automatic TDT based rates prediction." );
@@ -702,14 +703,15 @@ void RatesAnalysisAlg::writeMetadata() {
   std::vector<std::string> triggers;
   std::vector<std::string> lowers;
   std::vector<double> prescales;
-  triggers.reserve(m_existingTriggers.size());
-  lowers.reserve(m_existingTriggers.size());
-  prescales.reserve(m_existingTriggers.size());
-  for (const auto& entry : m_existingTriggers) {
-    triggers.push_back( entry.first );
-    lowers.push_back( m_lowerTrigger[entry.first] );
-    prescales.push_back( entry.second->getPrescale() );
+  triggers.reserve(m_triggers.size());
+  lowers.reserve(m_triggers.size());
+  prescales.reserve(m_triggers.size());
+  for (const auto& trigger : m_triggers) {
+    triggers.push_back(trigger.first);
+    lowers.push_back(trigger.second->getSeedName());
+    prescales.push_back(trigger.second->getPrescale() );
   }
+
   m_metadataTree->Branch("triggers", &triggers);
   m_metadataTree->Branch("lowers", &lowers);
   m_metadataTree->Branch("prescales", &prescales);

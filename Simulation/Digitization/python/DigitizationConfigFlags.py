@@ -64,6 +64,9 @@ def constBunchSpacingPattern(constBunchSpacing):
 def createDigitizationCfgFlags():
     """Return an AthConfigFlags object with required flags"""
     flags = AthConfigFlags()
+    # Digitization Steering - needed for easy comparison with the
+    # old-style configuration, but can potentially drop
+    flags.addFlag("Digitization.DigiSteeringConf", "StandardPileUpToolsAlg")
     # Run Inner Detector noise simulation
     flags.addFlag("Digitization.DoInnerDetectorNoise", True)
     # Run pile-up digitization on one bunch crossing at a time?
@@ -75,13 +78,13 @@ def createDigitizationCfgFlags():
     # Run Calorimeter noise simulation
     flags.addFlag("Digitization.DoCaloNoise", True)
     # Compute and store DigiTruth information
-    flags.addFlag("Digitization.DoDigiTruth", True)
+    flags.addFlag("Digitization.DoDigiTruth", False)
     # Use high-gain Forward Calorimeters
     flags.addFlag("Digitization.HighGainFCal", False)
     # Use high-gain ElectroMagnetic EndCap Inner Wheel
     flags.addFlag("Digitization.HighGainEMECIW", True)
     # Do global pileup digitization
-    flags.addFlag("Digitization.Pileup", True)
+    flags.addFlag("Digitization.Pileup", False)
     # TRT Range cut used in simulation in mm. Should be 0.05 or 30.
     flags.addFlag("Digitization.TRTRangeCut", lambda prevFlags : float(GetFileMD(prevFlags.Input.Files).get('TRTRangeCut', 0.05)))
     # Write out truth information?
@@ -94,6 +97,9 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.ExtraInputs", [("xAOD::EventInfo", "EventInfo")])
     # Override the HIT file Run Number with one from a data run
     flags.addFlag("Digitization.DataRunNumber", -1)
+    
+    # Run radiation damage simulation
+    flags.addFlag("Digitization.DoRadiationDamage", False)
     
     # for PileUp digitization
     # Beam Halo input collections

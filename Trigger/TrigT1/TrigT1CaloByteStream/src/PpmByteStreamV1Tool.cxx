@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -25,9 +25,10 @@
 #include "L1CaloSubBlock.h"
 #include "L1CaloUserHeader.h"
 #include "ModifySlices.h"
-#include "PpmSubBlockV1.h"
 
 #include "PpmByteStreamV1Tool.h"
+
+#include "CxxUtils/checker_macros.h"
 
 namespace LVL1BS
 {
@@ -56,9 +57,7 @@ PpmByteStreamV1Tool::PpmByteStreamV1Tool(const std::string &type,
       m_errorTool("LVL1BS::L1CaloErrorByteStreamTool/L1CaloErrorByteStreamTool"),
       m_sms("SegMemSvc/SegMemSvc", name),
       m_version(1), m_compVers(4),
-      m_dataChannels(true), m_spareChannels(false), m_muonChannels(false),
-      m_subDetector(eformat::TDAQ_CALO_PREPROC),
-      m_srcIdMap(0), m_towerKey(0), m_errorBlock(0), m_rodStatus(0), m_fea(0)
+      m_subDetector(eformat::TDAQ_CALO_PREPROC)
 {
     declareInterface<PpmByteStreamV1Tool>(this);
 
@@ -75,7 +74,7 @@ PpmByteStreamV1Tool::PpmByteStreamV1Tool(const std::string &type,
     // Properties for reading bytestream only
     declareProperty("ZeroSuppress",       m_zeroSuppress    = 0,
                     "Only make trigger towers with non-zero EM or Had energy");
-    declareProperty("ROBSourceIDs",       m_sourceIDs,
+    declareProperty("ROBSourceIDs",       m_sourceIDsProp,
                     "ROB fragment source identifiers");
     declareProperty("PedestalValue",      m_pedestal        = 10,
                     "Pedestal value - needed for compressed formats 0,1 only");
@@ -113,37 +112,12 @@ PpmByteStreamV1Tool::~PpmByteStreamV1Tool()
 
 StatusCode PpmByteStreamV1Tool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                   << PACKAGE_VERSION << endmsg;
+    ATH_MSG_INFO ( "Initializing " << name() << " - package version "
+                   << PACKAGE_VERSION);
 
-    StatusCode sc = m_ppmMaps.retrieve();
-    if (sc.isFailure())
-    {
-        msg(MSG::ERROR) << "Failed to retrieve tool " << m_ppmMaps << endmsg;
-        return sc;
-    }
-    else msg(MSG::INFO) << "Retrieved tool " << m_ppmMaps << endmsg;
-
-    sc = m_errorTool.retrieve();
-    if (sc.isFailure())
-    {
-        msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
-        return sc;
-    }
-    else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
-
-    sc = m_sms.retrieve();
-    if (sc.isFailure())
-    {
-        msg(MSG::ERROR) << "Failed to retrieve service " << m_sms << endmsg;
-        return sc;
-    }
-    else msg(MSG::INFO) << "Retrieved service " << m_sms << endmsg;
-
-    m_srcIdMap  = new L1CaloSrcIdMap();
-    m_towerKey  = new LVL1::TriggerTowerKey();
-    m_rodStatus = new std::vector<uint32_t>(2);
-    m_fea       = new FullEventAssembler<L1CaloSrcIdMap>();
+    ATH_CHECK( m_ppmMaps.retrieve() );
+    ATH_CHECK( m_errorTool.retrieve() );
+    ATH_CHECK( m_sms.retrieve() );
 
     return StatusCode::SUCCESS;
 }
@@ -157,44 +131,55 @@ StatusCode PpmByteStreamV1Tool::finalize()
         msg(MSG::INFO);
         printCompStats();
     }
-    delete m_fea;
-    delete m_rodStatus;
-    delete m_errorBlock;
-    delete m_towerKey;
-    delete m_srcIdMap;
     return StatusCode::SUCCESS;
 }
+
 
 // Conversion bytestream to trigger towers
 
 StatusCode PpmByteStreamV1Tool::convert(
+    const std::string& sgKey,
     const IROBDataProviderSvc::VROBFRAG &robFrags,
-    DataVector<LVL1::TriggerTower> *const ttCollection)
+    DataVector<LVL1::TriggerTower> *const ttCollection) const
 {
     const bool debug   = msgLvl(MSG::DEBUG);
     const bool verbose = msgLvl(MSG::VERBOSE);
     if (debug) msg(MSG::DEBUG);
 
+    const std::string flag("Spare");
+    const std::string::size_type pos = sgKey.find(flag);
+    bool spareChannels =
+        (pos != std::string::npos && pos == (sgKey.length() - flag.length()));
+    const std::string flag2("Muon");
+    const std::string::size_type pos2 = sgKey.find(flag2);
+    bool muonChannels =
+        (pos2 != std::string::npos && pos2 == (sgKey.length() - flag2.length()));
+    bool dataChannels = (!spareChannels && !muonChannels);
+
     // Set up TriggerTower pool and mappings
     // (NB. This assumes mappings won't change during the course of a job)
     const int maxChannels = s_crates * s_modules * s_channels;
     const int chanBitVecSize = maxChannels / 32;
-    if (m_ttData.empty())
+
+    SlotData& sd = *m_slotData;
+    std::lock_guard guard (sd.m_mutex);
+    
+    if (sd.m_ttData.empty())
     {
         const int spareSize = maxChannels - 2 * s_dataSize;
         const int muonSize = 2 * s_channels;
         const int modBitVecSize = (s_crates * s_modules) / 32;
-        m_ttData.reserve(s_dataSize);
-        m_ttSpare.reserve(spareSize);
-        m_ttMuon.reserve(muonSize);
-        m_ttPos.resize(maxChannels);
-        m_chanLayer.resize(chanBitVecSize);
-        m_dataChan.resize(chanBitVecSize);
-        m_spareChan.resize(chanBitVecSize);
-        m_muonChan.resize(chanBitVecSize);
-        m_dataMod.resize(modBitVecSize);
-        m_spareMod.resize(modBitVecSize);
-        m_muonMod.resize(modBitVecSize);
+        sd.m_ttData.reserve(s_dataSize);
+        sd.m_ttSpare.reserve(spareSize);
+        sd.m_ttMuon.reserve(muonSize);
+        sd.m_ttPos.resize(maxChannels);
+        sd.m_chanLayer.resize(chanBitVecSize);
+        sd.m_dataChan.resize(chanBitVecSize);
+        sd.m_spareChan.resize(chanBitVecSize);
+        sd.m_muonChan.resize(chanBitVecSize);
+        sd.m_dataMod.resize(modBitVecSize);
+        sd.m_spareMod.resize(modBitVecSize);
+        sd.m_muonMod.resize(modBitVecSize);
         TriggerTowerMap ttMap;
         TriggerTowerMap::iterator itt;
         std::vector<int> dummyS;
@@ -221,7 +206,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                     if (m_ppmMaps->mapping(crate, module, channel, eta, phi, layer))
                     {
                         // Data channels
-                        key = m_towerKey->ttKey(phi, eta);
+                        key = sd.m_towerKey.ttKey(phi, eta);
                         itt = ttMap.find(key);
                         if (itt == ttMap.end())
                         {
@@ -230,18 +215,18 @@ StatusCode PpmByteStreamV1Tool::convert(
                             LVL1::TriggerTower(phi, eta, key,
                                                dummyF, dummyL, dummyF, dummyL, 0, 0, 0,
                                                dummyF, dummyL, dummyF, dummyL, 0, 0, 0);
-                            m_ttData.push_back(tt);
+                            sd.m_ttData.push_back(tt);
                             const int count = dataCount++;
-                            m_ttPos[index] = count;
+                            sd.m_ttPos[index] = count;
                             ttMap.insert(std::make_pair(key, count));
                         }
                         else
                         {
-                            m_ttPos[index] = itt->second;
+                            sd.m_ttPos[index] = itt->second;
                         }
-                        m_chanLayer[word] |= (layer << bit);
-                        m_dataChan[word]  |= (1 << bit);
-                        m_dataMod[word2]  |= (1 << bit2);
+                        sd.m_chanLayer[word] |= (layer << bit);
+                        sd.m_dataChan[word]  |= (1 << bit);
+                        sd.m_dataMod[word2]  |= (1 << bit2);
                     }
                     else
                     {
@@ -258,16 +243,16 @@ StatusCode PpmByteStreamV1Tool::convert(
                         LVL1::TriggerTower(phi, eta, key,
                                            dummyF, dummyL, dummyF, dummyL, 0, 0, 0,
                                            dummyS, dummyS, dummyS, dummyS, 0, 0, 0);
-                        m_ttSpare.push_back(tt);
-                        m_ttPos[index] = spareCount++;
-                        m_chanLayer[word] |= (layer << bit);
-                        m_spareChan[word] |= (1 << bit);
-                        m_spareMod[word2] |= (1 << bit2);
+                        sd.m_ttSpare.push_back(tt);
+                        sd.m_ttPos[index] = spareCount++;
+                        sd.m_chanLayer[word] |= (layer << bit);
+                        sd.m_spareChan[word] |= (1 << bit);
+                        sd.m_spareMod[word2] |= (1 << bit2);
                         if ((crate == 2 || crate == 3) && (module == 0))
                         {
-                            m_ttMuon.push_back(tt);
-                            m_muonChan[word] |= (1 << bit);
-                            m_muonMod[word2] |= (1 << bit2);
+                            sd.m_ttMuon.push_back(tt);
+                            sd.m_muonChan[word] |= (1 << bit);
+                            sd.m_muonMod[word2] |= (1 << bit2);
                         }
                     }
                 }
@@ -277,23 +262,23 @@ StatusCode PpmByteStreamV1Tool::convert(
 
     // Set up according to the collection we want
 
-    TriggerTowerVector &ttCol((m_dataChannels) ? m_ttData
-                              : (m_spareChannels)
-                              ? m_ttSpare
-                              : m_ttMuon);
-    TriggerTowerVector &ttColRef((m_dataChannels) ? m_ttData
-                                 : m_ttSpare);
-    ChannelBitVector &colChan((m_dataChannels) ? m_dataChan
-                              : (m_spareChannels)
-                              ? m_spareChan
-                              : m_muonChan);
-    ChannelBitVector &colMod((m_dataChannels) ? m_dataMod
-                             : (m_spareChannels)
-                             ? m_spareMod
-                             : m_muonMod);
-    const int colSize = (m_dataChannels) ? 2 * ttCol.size()
+    TriggerTowerVector &ttCol(dataChannels ? sd.m_ttData
+                              : spareChannels
+                              ? sd.m_ttSpare
+                              : sd.m_ttMuon);
+    TriggerTowerVector &ttColRef(dataChannels ? sd.m_ttData
+                                 : sd.m_ttSpare);
+    const ChannelBitVector &colChan(dataChannels ? sd.m_dataChan
+                                    : spareChannels
+                                    ? sd.m_spareChan
+                                    : sd.m_muonChan);
+    const ChannelBitVector &colMod(dataChannels ? sd.m_dataMod
+                                   : spareChannels
+                                   ? sd.m_spareMod
+                                   : sd.m_muonMod);
+    const int colSize = dataChannels ? 2 * ttCol.size()
                         : ttCol.size();
-    m_foundChan.assign(chanBitVecSize, 0);
+    sd.m_foundChan.assign(chanBitVecSize, 0);
     int ttCount = 0;
 
     // Vectors to unpack into
@@ -303,6 +288,8 @@ StatusCode PpmByteStreamV1Tool::convert(
     std::vector<int> bcidFadc;
 
     // Loop over ROB fragments
+
+    int fadcBaseline = m_fadcBaseline;
 
     int robCount = 0;
     std::set<uint32_t> dupCheck;
@@ -357,11 +344,11 @@ StatusCode PpmByteStreamV1Tool::convert(
 
         // Check identifier
         const uint32_t sourceID = (*rob)->rod_source_id();
-        if (m_srcIdMap->getRobID(sourceID) != robid         ||
-                m_srcIdMap->subDet(sourceID)   != m_subDetector ||
-                m_srcIdMap->daqOrRoi(sourceID) != 0             ||
-                m_srcIdMap->slink(sourceID)    >= m_slinks      ||
-                m_srcIdMap->crate(sourceID)    >= s_crates)
+        if (m_srcIdMap.getRobID(sourceID) != robid         ||
+                m_srcIdMap.subDet(sourceID)   != m_subDetector ||
+                m_srcIdMap.daqOrRoi(sourceID) != 0             ||
+                m_srcIdMap.slink(sourceID)    >= m_slinks      ||
+                m_srcIdMap.crate(sourceID)    >= s_crates)
         {
             m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_ROD_ID);
             if (debug)
@@ -375,16 +362,16 @@ StatusCode PpmByteStreamV1Tool::convert(
 
         // Check minor version
         const int minorVersion = (*rob)->rod_version() & 0xffff;
-        if (minorVersion > m_srcIdMap->minorVersionPreLS1())
+        if (minorVersion > m_srcIdMap.minorVersionPreLS1())
         {
             if (debug) msg() << "Skipping post-LS1 data" << endmsg;
             continue;
         }
-        const int rodCrate = m_srcIdMap->crate(sourceID);
+        const int rodCrate = m_srcIdMap.crate(sourceID);
         if (debug)
         {
             msg() << "Treating crate " << rodCrate
-                  << " slink "         << m_srcIdMap->slink(sourceID) << endmsg;
+                  << " slink "         << m_srcIdMap.slink(sourceID) << endmsg;
         }
 
         // First word should be User Header
@@ -412,14 +399,14 @@ StatusCode PpmByteStreamV1Tool::convert(
         const int trigLut  = userHeader.ppmLut();
         const int trigFadc = userHeader.ppmFadc();
         // FADC baseline lower bound
-        m_fadcBaseline = userHeader.lowerBound();
+        fadcBaseline = userHeader.lowerBound();
         if (debug)
         {
             msg() << "Minor format version number: "
                   << MSG::hex << minorVersion << MSG::dec              << endmsg
                   << "LUT triggered slice offset:  " << trigLut        << endmsg
                   << "FADC triggered slice offset: " << trigFadc       << endmsg
-                  << "FADC baseline lower bound:   " << m_fadcBaseline << endmsg;
+                  << "FADC baseline lower bound:   " << fadcBaseline << endmsg;
         }
         const int runNumber = (*rob)->rod_run_no() & 0xffffff;
 
@@ -440,11 +427,11 @@ StatusCode PpmByteStreamV1Tool::convert(
             }
             firstBlock = true;
             firstWord = *payload;
-            if (m_ppmBlocks.empty())
+            if (sd.m_ppmBlocks.empty())
             {
-                m_ppmBlocks.push_back(new PpmSubBlockV1());
+                sd.m_ppmBlocks.push_back(new PpmSubBlockV1());
             }
-            PpmSubBlockV1 *const subBlock = m_ppmBlocks[0];
+            PpmSubBlockV1 *const subBlock = sd.m_ppmBlocks[0];
             subBlock->clear();
             payloadFirst = subBlock->read(payload, payloadEnd);
             chanPerSubBlock = subBlock->channelsPerSubBlock();
@@ -465,12 +452,12 @@ StatusCode PpmByteStreamV1Tool::convert(
             continue;
         }
         const int numSubBlocks = s_channels / chanPerSubBlock;
-        const int size = m_ppmBlocks.size();
+        const int size = sd.m_ppmBlocks.size();
         if (numSubBlocks > size)
         {
             for (int i = size; i < numSubBlocks; ++i)
             {
-                m_ppmBlocks.push_back(new PpmSubBlockV1());
+                sd.m_ppmBlocks.push_back(new PpmSubBlockV1());
             }
         }
 
@@ -510,7 +497,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                     rodErr = L1CaloSubBlock::ERROR_MISSING_SUBBLOCK;
                     break;
                 }
-                PpmSubBlockV1 *const subBlock = m_ppmBlocks[block];
+                PpmSubBlockV1 *const subBlock = sd.m_ppmBlocks[block];
                 nPpmBlocks++;
                 if (firstBlock)
                 {
@@ -576,32 +563,31 @@ StatusCode PpmByteStreamV1Tool::convert(
                         && PpmSubBlockV1::errorBlock(*payload))
                 {
                     if (debug) msg() << "Error block found" << endmsg;
-                    if (!m_errorBlock) m_errorBlock = new PpmSubBlockV1();
-                    else m_errorBlock->clear();
+                    sd.m_errorBlock.clear();
                     isErrBlock = true;
-                    payload = m_errorBlock->read(payload, payloadEnd);
-                    if (m_errorBlock->crate() != crate)
+                    payload = sd.m_errorBlock.read(payload, payloadEnd);
+                    if (sd.m_errorBlock.crate() != crate)
                     {
                         if (debug) msg() << "Inconsistent crate number in error block"
                                              << endmsg;
                         rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
                         break;
                     }
-                    if (m_errorBlock->module() != module)
+                    if (sd.m_errorBlock.module() != module)
                     {
                         if (debug) msg() << "Inconsistent module number in error block"
                                              << endmsg;
                         rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
                         break;
                     }
-                    if (m_errorBlock->dataWords() && !m_errorBlock->unpack())
+                    if (sd.m_errorBlock.dataWords() && !sd.m_errorBlock.unpack())
                     {
                         if (debug)
                         {
-                            std::string errMsg(m_errorBlock->unpackErrorMsg());
+                            std::string errMsg(sd.m_errorBlock.unpackErrorMsg());
                             msg() << "Unpacking error block failed: " << errMsg << endmsg;
                         }
-                        rodErr = m_errorBlock->unpackErrorCode();
+                        rodErr = sd.m_errorBlock.unpackErrorCode();
                         break;
                     }
                 }
@@ -618,11 +604,11 @@ StatusCode PpmByteStreamV1Tool::convert(
 
             for (int block = 0; block < nPpmBlocks; ++block)
             {
-                PpmSubBlockV1 *const subBlock = m_ppmBlocks[block];
+                PpmSubBlockV1 *const subBlock = sd.m_ppmBlocks[block];
                 subBlock->setLutOffset(trigLut);
                 subBlock->setFadcOffset(trigFadc);
                 subBlock->setPedestal(m_pedestal);
-                subBlock->setFadcBaseline(m_fadcBaseline);
+                subBlock->setFadcBaseline(fadcBaseline);
                 subBlock->setRunNumber(runNumber);
                 if (debug)
                 {
@@ -648,7 +634,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                     const int word  = index / 32;
                     const int bit   = index % 32;
                     if (!((colChan[word] >> bit) & 1)) continue; // skip unwanted channels
-                    if (((m_foundChan[word] >> bit) & 1))
+                    if (((sd.m_foundChan[word] >> bit) & 1))
                     {
                         if (debug) msg() << "Duplicate data for crate/module/channel: "
                                              << crate << "/" << module << "/" << channel
@@ -687,16 +673,16 @@ StatusCode PpmByteStreamV1Tool::convert(
                     if (isErrBlock)
                     {
                         errorBits.set(LVL1::DataError::PPMErrorWord,
-                                      m_errorBlock->ppmError(channel));
+                                      sd.m_errorBlock.ppmError(channel));
                         errorBits.set(LVL1::DataError::SubStatusWord,
-                                      m_errorBlock->subStatus());
+                                      sd.m_errorBlock.subStatus());
                     }
                     else
                     {
                         errorBits.set(LVL1::DataError::PPMErrorWord,
                                       subBlock->ppmError(channel));
                         const PpmSubBlockV1 *const lastBlock =
-                            m_ppmBlocks[nPpmBlocks - 1];
+                            sd.m_ppmBlocks[nPpmBlocks - 1];
                         errorBits.set(LVL1::DataError::SubStatusWord,
                                       lastBlock->subStatus());
                     }
@@ -720,10 +706,10 @@ StatusCode PpmByteStreamV1Tool::convert(
                         printVec(bcidFadc);
                         msg() << MSG::hex << error << MSG::dec << "/";
                     }
-                    m_foundChan[word] |= (1 << bit);
+                    sd.m_foundChan[word] |= (1 << bit);
                     ++ttCount;
-                    LVL1::TriggerTower *tt = ttColRef[m_ttPos[index]];
-                    const int layer = ((m_chanLayer[word] >> bit) & 1);
+                    LVL1::TriggerTower *tt = ttColRef[sd.m_ttPos[index]];
+                    const int layer = ((sd.m_chanLayer[word] >> bit) & 1);
                     if (layer == 0)    // EM
                     {
                         tt->addEM(fadc, lut, bcidFadc, bcidLut, error, trigLut, trigFadc);
@@ -752,20 +738,20 @@ StatusCode PpmByteStreamV1Tool::convert(
         std::vector<int> dummy(1);
         for (int word = 0; word < chanBitVecSize; ++word)
         {
-            if (m_foundChan[word] != colChan[word])
+            if (sd.m_foundChan[word] != colChan[word])
             {
                 for (int bit = 0; bit < 32; ++bit)
                 {
-                    if (((m_foundChan[word] >> bit) & 1) != ((colChan[word] >> bit) & 1))
+                    if (((sd.m_foundChan[word] >> bit) & 1) != ((colChan[word] >> bit) & 1))
                     {
                         const int index = word * 32 + bit;
-                        LVL1::TriggerTower *tt = ttColRef[m_ttPos[index]];
-                        const int layer = ((m_chanLayer[word] >> bit) & 1);
+                        LVL1::TriggerTower *tt = ttColRef[sd.m_ttPos[index]];
+                        const int layer = ((sd.m_chanLayer[word] >> bit) & 1);
                         if (layer == 0)              // EM
                         {
                             tt->addEM(dummy, dummy, dummy, dummy, 0, 0, 0);
                         }
-                        else if (m_dataChannels)     // Had
+                        else if (dataChannels)     // Had
                         {
                             tt->addHad(dummy, dummy, dummy, dummy, 0, 0, 0);
                         }
@@ -783,7 +769,7 @@ StatusCode PpmByteStreamV1Tool::convert(
         TriggerTowerVector::iterator itrE = ttCol.end();
         for (; itr != itrE; ++itr)
         {
-            if ((*itr)->emEnergy() || (m_dataChannels && (*itr)->hadEnergy()))
+            if ((*itr)->emEnergy() || (dataChannels && (*itr)->hadEnergy()))
             {
                 ttCollection->push_back(*itr);
             }
@@ -801,25 +787,30 @@ StatusCode PpmByteStreamV1Tool::convert(
 
 StatusCode PpmByteStreamV1Tool::convert(
     const DataVector<LVL1::TriggerTower> *const ttCollection,
-    RawEventWrite *const re)
+    RawEventWrite *const re) const
 {
     const bool debug = msgLvl(MSG::DEBUG);
     if (debug) msg(MSG::DEBUG);
 
     // Clear the event assembler
-
-    m_fea->clear();
-    const uint16_t minorVersion = m_srcIdMap->minorVersionPreLS1();
-    m_fea->setRodMinorVersion(minorVersion);
-    m_rodStatusMap.clear();
+    FullEventAssembler<L1CaloSrcIdMap> fea;
+    fea.clear();
+    const uint16_t minorVersion = m_srcIdMap.minorVersionPreLS1();
+    fea.setRodMinorVersion(minorVersion);
 
     // Pointer to ROD data vector
 
     FullEventAssembler<L1CaloSrcIdMap>::RODDATA *theROD = 0;
 
+    LVL1::TriggerTowerKey towerKey;
+
     // Set up trigger tower maps
 
-    setupTTMaps(ttCollection);
+    // Trigger tower map for conversion EM to bytestream
+    TriggerTowerMapConst ttEmMap;
+    // Trigger tower map for conversion Had to bytestream
+    TriggerTowerMapConst ttHadMap;
+    setupTTMaps(ttCollection, ttEmMap, ttHadMap, towerKey);
 
     // Create the sub-blocks to do the packing
 
@@ -861,7 +852,9 @@ StatusCode PpmByteStreamV1Tool::convert(
                 // Get number of slices and triggered slice offsets
                 // for this slink
                 if ( ! slinkSlices(crate, module, modulesPerSlink,
-                                   slicesLut, slicesFadc, trigLut, trigFadc))
+                                   slicesLut, slicesFadc, trigLut, trigFadc,
+                                   ttEmMap, ttHadMap,
+                                   towerKey))
                 {
                     msg(MSG::ERROR) << "Inconsistent number of slices or "
                                     << "triggered slice offsets in data for crate "
@@ -893,11 +886,10 @@ StatusCode PpmByteStreamV1Tool::convert(
                 userHeader.setPpmLut(trigLutNew);
                 userHeader.setPpmFadc(trigFadcNew);
                 userHeader.setLowerBound(m_fadcBaseline);
-                const uint32_t rodIdPpm = m_srcIdMap->getRodID(crate, slink, daqOrRoi,
+                const uint32_t rodIdPpm = m_srcIdMap.getRodID(crate, slink, daqOrRoi,
                                           m_subDetector);
-                theROD = m_fea->getRodData(rodIdPpm);
+                theROD = fea.getRodData(rodIdPpm);
                 theROD->push_back(userHeader.header());
-                m_rodStatusMap.insert(make_pair(rodIdPpm, m_rodStatus));
             }
             if (debug) msg() << "Module " << module << endmsg;
 
@@ -938,7 +930,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                 int layer = 0;
                 if (m_ppmMaps->mapping(crate, module, channel, eta, phi, layer))
                 {
-                    tt = findLayerTriggerTower(eta, phi, layer);
+                  tt = findLayerTriggerTower(eta, phi, layer, ttEmMap, ttHadMap, towerKey);
                 }
                 if (tt )
                 {
@@ -1057,23 +1049,22 @@ StatusCode PpmByteStreamV1Tool::convert(
 
     // Fill the raw event
 
-    m_fea->fill(re, msg());
-
-    // Set ROD status words
-
-    //L1CaloRodStatus::setStatus(re, m_rodStatusMap, m_srcIdMap);
+    fea.fill(re, msg());
 
     return StatusCode::SUCCESS;
 }
 
 // Add compression stats to totals
 
-void PpmByteStreamV1Tool::addCompStats(const std::vector<uint32_t> &stats)
+void PpmByteStreamV1Tool::addCompStats(const std::vector<uint32_t> &stats) const
 {
     if (stats.empty()) return;
-    const int n = stats.size();
-    if (m_compStats.empty()) m_compStats.resize(n);
-    for (int i = 0; i < n; ++i) m_compStats[i] += stats[i];
+    const int n = std::min (stats.size(), static_cast<size_t>(MAXFORMATS));
+    for (int i = 0; i < n; ++i) {
+      std::atomic<uint32_t>& stat ATLAS_THREAD_SAFE =
+        const_cast<std::atomic<uint32_t>&> (m_compStats[i]);
+      stat += stats[i];
+    }
 }
 
 // Print compression stats
@@ -1081,8 +1072,7 @@ void PpmByteStreamV1Tool::addCompStats(const std::vector<uint32_t> &stats)
 void PpmByteStreamV1Tool::printCompStats() const
 {
     msg() << "Compression stats format/count: ";
-    const int n = m_compStats.size();
-    for (int i = 0; i < n; ++i)
+    for (unsigned int i = 0; i < MAXFORMATS; ++i)
     {
         msg() << " " << i << "/" << m_compStats[i];
     }
@@ -1092,20 +1082,23 @@ void PpmByteStreamV1Tool::printCompStats() const
 // Find a trigger tower using separate layer maps
 
 const LVL1::TriggerTower *PpmByteStreamV1Tool::findLayerTriggerTower(
-    const double eta, const double phi, const int layer)
+    const double eta, const double phi, const int layer,
+    const TriggerTowerMapConst& ttEmMap,
+    const TriggerTowerMapConst& ttHadMap,
+    LVL1::TriggerTowerKey& towerKey) const
 {
     const LVL1::TriggerTower *tt = 0;
-    const unsigned int key = m_towerKey->ttKey(phi, eta);
+    const unsigned int key = towerKey.ttKey(phi, eta);
     TriggerTowerMapConst::const_iterator mapIter;
     if (layer == 0)
     {
-        mapIter = m_ttEmMap.find(key);
-        if (mapIter != m_ttEmMap.end()) tt = mapIter->second;
+        mapIter = ttEmMap.find(key);
+        if (mapIter != ttEmMap.end()) tt = mapIter->second;
     }
     else
     {
-        mapIter = m_ttHadMap.find(key);
-        if (mapIter != m_ttHadMap.end()) tt = mapIter->second;
+        mapIter = ttHadMap.find(key);
+        if (mapIter != ttHadMap.end()) tt = mapIter->second;
     }
     return tt;
 }
@@ -1113,18 +1106,21 @@ const LVL1::TriggerTower *PpmByteStreamV1Tool::findLayerTriggerTower(
 // Set up trigger tower maps
 
 void PpmByteStreamV1Tool::setupTTMaps(const TriggerTowerCollection *
-                                      const ttCollection)
+                                      const ttCollection,
+                                      TriggerTowerMapConst& ttEmMap,
+                                      TriggerTowerMapConst& ttHadMap,
+                                      LVL1::TriggerTowerKey& towerKey) const
 {
     using std::accumulate;
 
-    m_ttEmMap.clear();
-    m_ttHadMap.clear();
+    ttEmMap.clear();
+    ttHadMap.clear();
     TriggerTowerCollection::const_iterator pos  = ttCollection->begin();
     TriggerTowerCollection::const_iterator pose = ttCollection->end();
     for (; pos != pose; ++pos)
     {
         const LVL1::TriggerTower *tt = *pos;
-        const unsigned int key = m_towerKey->ttKey(tt->phi(), tt->eta());
+        const unsigned int key = towerKey.ttKey(tt->phi(), tt->eta());
         // Ignore any with zero data
         // EM
         if (accumulate((tt->emLUT()).begin(),     (tt->emLUT()).end(),     0) ||
@@ -1133,7 +1129,7 @@ void PpmByteStreamV1Tool::setupTTMaps(const TriggerTowerCollection *
                 accumulate((tt->emBCIDext()).begin(), (tt->emBCIDext()).end(), 0) ||
                 tt->emError())
         {
-            m_ttEmMap.insert(std::make_pair(key, tt));
+            ttEmMap.insert(std::make_pair(key, tt));
         }
         // Had
         if (accumulate((tt->hadLUT()).begin(),     (tt->hadLUT()).end(),     0) ||
@@ -1142,7 +1138,7 @@ void PpmByteStreamV1Tool::setupTTMaps(const TriggerTowerCollection *
                 accumulate((tt->hadBCIDext()).begin(), (tt->hadBCIDext()).end(), 0) ||
                 tt->hadError())
         {
-            m_ttHadMap.insert(std::make_pair(key, tt));
+            ttHadMap.insert(std::make_pair(key, tt));
         }
     }
 }
@@ -1151,7 +1147,10 @@ void PpmByteStreamV1Tool::setupTTMaps(const TriggerTowerCollection *
 
 bool PpmByteStreamV1Tool::slinkSlices(const int crate, const int module,
                                       const int modulesPerSlink, int &slicesLut, int &slicesFadc,
-                                      int &trigLut, int &trigFadc)
+                                      int &trigLut, int &trigFadc,
+                                      const TriggerTowerMapConst& ttEmMap,
+                                      const TriggerTowerMapConst& ttHadMap,
+                                      LVL1::TriggerTowerKey& towerKey) const
 {
     int sliceL = -1;
     int sliceF =  m_dfltSlicesFadc;
@@ -1167,7 +1166,8 @@ bool PpmByteStreamV1Tool::slinkSlices(const int crate, const int module,
             if (!m_ppmMaps->mapping(crate, mod, chan,
                                     eta, phi, layer)) continue;
             const LVL1::TriggerTower *const tt = findLayerTriggerTower(
-                    eta, phi, layer);
+                    eta, phi, layer, ttEmMap, ttHadMap,
+                    towerKey);
             if ( !tt ) continue;
             if (layer == 0)
             {
@@ -1219,43 +1219,70 @@ bool PpmByteStreamV1Tool::slinkSlices(const int crate, const int module,
 
 // Return reference to vector with all possible Source Identifiers
 
+std::vector<uint32_t>
+PpmByteStreamV1Tool::makeSourceIDs (bool spareChannels, bool muonChannels) const
+{
+  std::vector<uint32_t> robIds;
+
+  if (!spareChannels && !muonChannels) {
+    robIds = m_sourceIDsProp;
+  }
+
+  if (robIds.empty()) {
+    const int maxlinks = m_srcIdMap.maxSlinks();
+    for (int crate = 0; crate < s_crates; ++crate)
+    {
+      for (int slink = 0; slink < maxlinks; ++slink)
+      {
+        const int daqOrRoi = 0;
+        const uint32_t rodId = m_srcIdMap.getRodID(crate, slink, daqOrRoi,
+                                                    m_subDetector);
+        const uint32_t robId = m_srcIdMap.getRobID(rodId);
+
+        if (spareChannels && !(crate > 1 && crate < 6)) {
+          continue;
+        }
+
+        if (muonChannels && !(crate > 1 && crate < 4 && slink == 0)) {
+          continue;
+        }
+
+        robIds.push_back (robId);
+      }
+    }
+  }
+  return robIds;
+}
+
 const std::vector<uint32_t> &PpmByteStreamV1Tool::sourceIDs(
-    const std::string &sgKey)
+    const std::string &sgKey) const
 {
     // Check if spare channels wanted
     const std::string flag("Spare");
     const std::string::size_type pos = sgKey.find(flag);
-    m_spareChannels =
+    bool spareChannels =
         (pos != std::string::npos && pos == (sgKey.length() - flag.length()));
     // Check if Tile Muon channels wanted
     const std::string flag2("Muon");
     const std::string::size_type pos2 = sgKey.find(flag2);
-    m_muonChannels =
+    bool muonChannels =
         (pos2 != std::string::npos && pos2 == (sgKey.length() - flag2.length()));
-    m_dataChannels = (!m_spareChannels && !m_muonChannels);
-    if (m_sourceIDs.empty())
-    {
-        const int maxlinks = m_srcIdMap->maxSlinks();
-        for (int crate = 0; crate < s_crates; ++crate)
-        {
-            for (int slink = 0; slink < maxlinks; ++slink)
-            {
-                const int daqOrRoi = 0;
-                const uint32_t rodId = m_srcIdMap->getRodID(crate, slink, daqOrRoi,
-                                       m_subDetector);
-                const uint32_t robId = m_srcIdMap->getRobID(rodId);
-                m_sourceIDs.push_back(robId);
-                if (crate > 1 && crate < 6)
-                {
-                    m_sourceIDsSpare.push_back(robId);
-                    if (crate < 4 && slink == 0) m_sourceIDsMuon.push_back(robId);
-                }
-            }
-        }
+
+    if (spareChannels) {
+      static const std::vector<uint32_t> sourceIDsSpare =
+        makeSourceIDs (true, false);
+      return sourceIDsSpare;
     }
-    if (m_spareChannels) return m_sourceIDsSpare;
-    if (m_muonChannels)  return m_sourceIDsMuon;
-    return m_sourceIDs;
+
+    if (muonChannels) {
+      static const std::vector<uint32_t> sourceIDsMuon =
+        makeSourceIDs (false, true);
+      return sourceIDsMuon;
+    }
+
+    static const std::vector<uint32_t> sourceIDs =
+      makeSourceIDs (false, false);
+    return sourceIDs;
 }
 
 // Print a vector

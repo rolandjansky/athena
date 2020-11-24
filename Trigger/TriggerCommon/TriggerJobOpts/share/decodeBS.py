@@ -2,7 +2,6 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-import six
 
 # Parse option to specify output item list
 ItemList = []
@@ -68,7 +67,7 @@ from TrigEDMConfig.TriggerEDM import getTriggerEDMList
 TriggerFlags.EDMDecodingVersion = 3 # currently hard-coded
 edmList = getTriggerEDMList(TriggerFlags.ESDEDMSet(), TriggerFlags.EDMDecodingVersion())
 if len(ItemList) == 0:
-    for edmType, edmKeys in six.iteritems (edmList):
+    for edmType, edmKeys in edmList.items():
         for key in edmKeys:
             ItemList.append(edmType+'#'+key)
     ItemList += [ "xAOD::EventInfo#EventInfo", "xAOD::EventAuxInfo#EventInfoAux." ]

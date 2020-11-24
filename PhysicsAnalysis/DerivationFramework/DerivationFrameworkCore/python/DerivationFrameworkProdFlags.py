@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
@@ -914,7 +914,7 @@ jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM11Strea
 listAODtoDPD.append(WriteDAOD_STDM11Stream.StreamName)
 
 class WriteDAOD_STDM12Stream (JobProperty):
-    """Derivation for B\pm fragmentation, Photon + B\pm, J/psi and Upsilon fragmentation measurements"""
+    """Derivation for B+- fragmentation, Photon + B+-, J/psi and Upsilon fragmentation measurements"""
     statusOn = True
     allowedTypes = ['bool']
     StoredValue = False
@@ -2010,6 +2010,20 @@ class WriteDAOD_FTAG5Stream (JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG5Stream)
 listAODtoDPD.append(WriteDAOD_FTAG5Stream.StreamName)
+
+class WriteDAOD_FTAG6Stream (JobProperty):
+    """FTAG5: MC-based optimization studies"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_FTAG6'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkFlavourTag/FTAG6.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG6Stream)
+listAODtoDPD.append(WriteDAOD_FTAG6Stream.StreamName)
+
 
 ######################################
 # Defined by the B-physics group

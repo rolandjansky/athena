@@ -1,109 +1,60 @@
-# Auto-generated on: 2017-03-08 14:47:34.346308
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the name of this package:
-atlas_subdir( TopCPTools None )
+atlas_subdir( TopCPTools )
 
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          xAODRootAccess
-                          AsgTools
-                          AthContainers
-                          PATCore
-                          PATInterfaces
-                          TrigConfInterfaces
-                          TrigConfxAOD
-                          TrigDecisionTool
-                          TriggerMatchingTool
-                          TrigTauMatching
-                          GoodRunsLists
-			  EgammaAnalysisInterfaces
-			  ElectronPhotonFourMomentumCorrection
-                          ElectronPhotonSelectorTools
-                          ElectronEfficiencyCorrection
-                          ElectronPhotonShowerShapeFudgeTool
-                          PhotonEfficiencyCorrection
-                          MuonMomentumCorrections
-                          MuonSelectorTools
-                          MuonEfficiencyCorrections
-                          TauAnalysisTools
-                          CalibrationDataInterface
-                          xAODBTaggingEfficiency
-                          JetCalibTools
-                          JetCPInterfaces
-                          JetUncertainties
-                          JetInterface
-                          JetMomentTools
-                          JetSelectorTools
-                          JetResolution
-                          METInterface
-                          METUtilities
-                          IsolationSelection
-                          IsolationCorrections
-                          PathResolver
-                          TopConfiguration
-                          TopEvent
-                          PileupReweighting
-                          AssociationUtils
-                          JetJvtEfficiency
-                          PMGTools
-                          InDetTrackSystematicsTools )
-
-# This package uses ROOT:
-find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
-
-# Custom definitions needed for this package:
-add_definitions( -g -std=c++14 )
+# External depdendencies:
+find_package( Boost )
 
 # Build a library that other components can link against:
 atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                    TopCPTools/*.h TopCPTools/*.icc TopCPTools/*/*.h
                    TopCPTools/*/*.icc 
                    PUBLIC_HEADERS TopCPTools
-                   LINK_LIBRARIES xAODRootAccess
+                   LINK_LIBRARIES AsgAnalysisInterfaces
                                   AsgTools
-                                  AthContainers                                  
-				  PATCoreLib			  
-                                  PATInterfaces
-                                  TrigConfInterfaces
-                                  TrigConfxAODLib
-                                  TrigDecisionToolLib
-                                  TriggerMatchingToolLib
-                                  TrigTauMatchingLib
-                                  GoodRunsListsLib
-                                  EgammaAnalysisInterfacesLib
-				  ElectronPhotonFourMomentumCorrectionLib
-                                  ElectronPhotonSelectorToolsLib
-                                  ElectronEfficiencyCorrectionLib
-                                  ElectronPhotonShowerShapeFudgeToolLib
-                                  PhotonEfficiencyCorrectionLib
-                                  MuonMomentumCorrectionsLib
-                                  MuonSelectorToolsLib
-                                  MuonEfficiencyCorrectionsLib
-                                  TauAnalysisToolsLib
-                                  CalibrationDataInterfaceLib
-                                  xAODBTaggingEfficiencyLib
-                                  JetCalibToolsLib
-                                  JetCPInterfaces
-                                  JetUncertaintiesLib
-                                  JetInterface
-                                  JetMomentToolsLib
-                                  JetSelectorToolsLib
-                                  JetResolutionLib
-                                  METInterface
-                                  METUtilitiesLib
-                                  IsolationSelectionLib
-                                  IsolationCorrectionsLib
-                                  PathResolver
-                                  TopConfiguration
-                                  TopEvent
-                                  PileupReweightingLib
                                   AssociationUtilsLib
-                                  JetJvtEfficiencyLib
-                                  PMGToolsLib
+                                  EgammaAnalysisInterfacesLib
+                                  FTagAnalysisInterfacesLib
+                                  InDetTrackSelectionToolLib
                                   InDetTrackSystematicsToolsLib
-                                  ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
-
-# Install data files from the package:
-atlas_install_data( share/* )
-
+                                  IsolationCorrectionsLib
+                                  IsolationSelectionLib
+                                  JetAnalysisInterfacesLib
+                                  JetCPInterfaces
+                                  JetCalibToolsLib
+                                  JetInterface
+                                  JetSelectorToolsLib
+                                  METInterface
+                                  MuonAnalysisInterfacesLib
+                                  MuonMomentumCorrectionsLib
+                                  PMGAnalysisInterfacesLib
+                                  PMGToolsLib
+                                  TauAnalysisToolsLib
+                                  TopConfiguration
+                                  TrigConfInterfaces
+                                  TrigDecisionToolLib
+                                  TriggerAnalysisInterfaces
+                                  TrigTauMatchingLib
+                                  TriggerMatchingToolLib
+                                  xAODBTaggingEfficiencyLib
+                   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+                   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES}
+                                          ElectronEfficiencyCorrectionLib
+                                          ElectronPhotonFourMomentumCorrectionLib
+                                          ElectronPhotonSelectorToolsLib
+                                          ElectronPhotonShowerShapeFudgeToolLib
+                                          GoodRunsListsLib
+                                          JetJvtEfficiencyLib
+                                          JetMomentToolsLib
+                                          JetUncertaintiesLib
+                                          METUtilitiesLib
+                                          MuonEfficiencyCorrectionsLib
+                                          MuonSelectorToolsLib
+                                          PATCoreAcceptLib
+                                          PathResolver
+                                          PhotonEfficiencyCorrectionLib
+                                          PileupReweightingLib
+                                          TopEvent
+                                          TrigConfxAODLib
+                                          xAODBase )

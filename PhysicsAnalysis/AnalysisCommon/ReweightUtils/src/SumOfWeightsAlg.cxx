@@ -51,7 +51,8 @@ StatusCode SumOfWeightsAlg::initialize() {
     CutIdentifier cID = cutFlowSvc()->registerTopFilter( toolName,
                                                          toolName, // description (can be improved FIXME)
                                                          xAOD::CutBookkeeper::CutLogic::ALLEVENTSPROCESSED,
-                                                         "AllStreams");
+                                                         "AllStreams",
+                                                         true);
     m_cutIDs.push_back(cID);
   }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKIEXTENDEDTRACKSUMMARYTOOL_H
@@ -25,11 +25,11 @@ class IExtendedTrackSummaryTool : virtual public ITrackSummaryTool
 public:
   static const InterfaceID& interfaceID();
 
-  using  ITrackSummaryTool::summary;
-  using  ITrackSummaryTool::updateTrackSummary;
-  using  ITrackSummaryTool::summaryNoHoleSearch;
-  using  ITrackSummaryTool::updateSharedHitCount;
-  using  ITrackSummaryTool::updateAdditionalInfo;
+  using ITrackSummaryTool::summary;
+  using ITrackSummaryTool::summaryNoHoleSearch;
+  using ITrackSummaryTool::updateAdditionalInfo;
+  using ITrackSummaryTool::updateSharedHitCount;
+  using ITrackSummaryTool::updateTrackSummary;
 
   /** Compute track summary and replace the summary in given track.
    * @param track the track whose track summary is replaced with a newly
@@ -45,25 +45,40 @@ public:
    * search properties unless the suppress_hole_search argument is true.
    */
   virtual void computeAndReplaceTrackSummary(
+    const EventContext& ctx,
     Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map,
     bool suppress_hole_search = false) const = 0;
-  
-   /* Start from a copy of the existing input track summary if there,
-    * otherwise start from a new one. Fill it and return it.
-    * Does not modify the const track.
-    */
+
+  void computeAndReplaceTrackSummary(Track& track,
+                                     const Trk::PRDtoTrackMap* prd_to_track_map,
+                                     bool suppress_hole_search = false) const;
+
+  /* Start from a copy of the existing input track summary if there,
+   * otherwise start from a new one. Fill it and return it.
+   * Does not modify the const track.
+   */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
+    const EventContext& ctx,
     const Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const = 0;
+
+  std::unique_ptr<Trk::TrackSummary> summary(
+    const Track& track,
+    const Trk::PRDtoTrackMap* prd_to_track_map) const;
 
   /** method which can be used to update the summary of a track.
    * If a summary is present is modified in place
    * otherwise a new one is created.
    */
-  virtual void updateTrackSummary(Track& track,
+  virtual void updateTrackSummary(const EventContext& ctx,
+                                  Track& track,
                                   const Trk::PRDtoTrackMap* prd_to_track_map,
                                   bool suppress_hole_search = false) const = 0;
+
+  void updateTrackSummary(Track& track,
+                          const Trk::PRDtoTrackMap* prd_to_track_map,
+                          bool suppress_hole_search = false) const;
 
   /* Start from a copy of the existing input track summary if there,
    * otherwise start from a new one. Fill it and return it.
@@ -71,8 +86,13 @@ public:
    * Does not modify the const track.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
+    const EventContext& ctx,
     const Track& track,
     const Trk::PRDtoTrackMap* prd_to_track_map) const = 0;
+
+  std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
+    const Track& track,
+    const Trk::PRDtoTrackMap* prd_to_track_map) const;
 
   /** Update the shared hit count of the given track summary.
    * @param track the track which corresponds to the given track summary and is
@@ -108,19 +128,10 @@ public:
    * summary is owned by the track.
    */
   virtual void updateAdditionalInfo(const Track& track,
-                                    const Trk::PRDtoTrackMap* prd_to_track_map,
                                     TrackSummary& summary) const = 0;
 
-  virtual void updateAdditionalInfo(
-    Track& track,
-    const Trk::PRDtoTrackMap* prd_to_track_map) const = 0;
+  virtual void updateAdditionalInfo(Track& track) const = 0;
 };
-
-inline const InterfaceID&
-Trk::IExtendedTrackSummaryTool::interfaceID()
-{
-  return IID_IExtendedTrackSummaryTool;
 }
-
-}
+#include "TrkToolInterfaces/IExtendedTrackSummaryTool.icc"
 #endif

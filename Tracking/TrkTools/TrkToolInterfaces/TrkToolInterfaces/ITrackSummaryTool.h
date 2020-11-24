@@ -1,13 +1,14 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKITRACKSUMMARYTOOL_H
 #define TRKITRACKSUMMARYTOOL_H
 
-#include "CxxUtils/checker_macros.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/IAlgTool.h"
-
+#include "TrkTrackSummary/TrackSummary.h" 
 #include <memory>
 namespace Trk {
 
@@ -32,15 +33,22 @@ public:
    * Does not modify the const track.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summary(
+    const EventContext& ctx,
     const Track& track) const = 0;
-  
+
+  std::unique_ptr<Trk::TrackSummary> summary(const Track& track) const;
+
   /* Start from a copy of the existing input track summary if there,
    * otherwise start from a new one. Fill it and return it.
    * but without doing the hole search.
    * Does not modify the const track.
    */
   virtual std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
+    const EventContext& ctx,
     const Track& track) const = 0;
+
+  std::unique_ptr<Trk::TrackSummary> summaryNoHoleSearch(
+    const Track& track) const;
 
   /** Same behavious as
    * IExtendedTrackSummaryTool:computeAndReplaceTrackSummary
@@ -48,14 +56,17 @@ public:
    * Trk::PRDtoTrackMap
    * Does hole search
    */
-  virtual void updateTrack(Track& track) const = 0;
+  virtual void updateTrack(const EventContext& ctx, Track& track) const = 0;
+  void updateTrack(Track& track) const;
 
   /** method which can be used to update the summary of a track
-   * it, without doing shared hit/ or hole search. 
+   * it, without doing shared hit/ or hole search.
    * If a summary is present is modified in place
    * otherwise a new one is created.
    */
-  virtual void updateTrackSummary(Track& track) const = 0;
+  virtual void updateTrackSummary(const EventContext& ctx,
+                                  Track& track) const = 0;
+  void updateTrackSummary(Track& track) const;
 
   /** method to update the shared hit content only, this is optimised for track
    * collection merging. */
@@ -73,4 +84,5 @@ Trk::ITrackSummaryTool::interfaceID()
 }
 
 }
+#include "TrkToolInterfaces/ITrackSummaryTool.icc"
 #endif

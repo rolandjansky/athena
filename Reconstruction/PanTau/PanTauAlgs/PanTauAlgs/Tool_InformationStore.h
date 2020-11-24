@@ -1,16 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-//  Header file for class Tool_InformationStore
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Tool to store information needed in PanTau Algorithms
-///////////////////////////////////////////////////////////////////
-// limbach@physik.uni-bonn.de
-///////////////////////////////////////////////////////////////////
 
 #ifndef PANTAUALGS_TOOL_INFORMATIONSTORE_H
 #define PANTAUALGS_TOOL_INFORMATIONSTORE_H
@@ -37,9 +27,6 @@ namespace PanTau {
     
     ASG_TOOL_CLASS1(Tool_InformationStore, PanTau::ITool_InformationStore)
     
-   
-    
-    
     public:
 
 #ifdef XAOD_ANALYSIS
@@ -55,15 +42,12 @@ namespace PanTau {
         
 	virtual void ABRDefaultInit();
         virtual StatusCode initialize();
-//         virtual StatusCode finalize  ();
         
         virtual StatusCode getInfo_Int(std::string varName,     int& value);
         virtual StatusCode getInfo_Double(std::string varName,  double& value);
         virtual StatusCode getInfo_VecDouble(std::string varName,  std::vector<double>& value);
         virtual StatusCode getInfo_String(std::string varName,  std::string& value);
         virtual StatusCode getInfo_VecString(std::string varName,  std::vector<std::string>& value);
-        
-        StatusCode  dumpMaps() const;
         
        
     private:

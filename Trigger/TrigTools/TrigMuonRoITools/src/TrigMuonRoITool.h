@@ -24,7 +24,7 @@ class TrigMuonRoITool: public extends<AthAlgTool, ITrigMuonRoITool>
     virtual StatusCode initialize() override;
 
     /// Decoding the muCTPi RoIB and DAQ ROB and return in and out of time RoIs
-    virtual std::unique_ptr<TrigMuonRoITool::MuonRois> decodeMuCTPi(const EventContext& ctx) const;
+    virtual std::unique_ptr<TrigMuonRoITool::MuonRois> decodeMuCTPi(const EventContext& ctx) const override;
 
 
     private:

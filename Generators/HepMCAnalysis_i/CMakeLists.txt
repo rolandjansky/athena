@@ -25,13 +25,13 @@ atlas_add_component( HepMCAnalysis_i
    ${HEPMC_INCLUDE_DIRS}
    ${HEPMC_HepMCAnalysis_INTERFACE_DIR}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMCANALYSIS_LIBRARIES}
-   ${HEPUTILS_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
+   ${HEPUTILS_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib  ${HEPMC_LIBRARIES}
    ${FASTJET_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib EventInfo
    GeneratorObjects TruthUtils )
 
 # Install files from the package:
 atlas_install_headers( HepMCAnalysis_i )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 atlas_install_runtime( test/*.xml share/*.C share/*.py share/common/*.py
    share/RTTJO/HepMCAnalysisJO_*.py )

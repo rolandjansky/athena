@@ -3,6 +3,7 @@
 */
 #include "HltROBDataProviderSvc.h"
 #include "TrigKernel/HltExceptions.h"
+#include "TrigTimeAlgs/TrigTimeStamp.h"
 
 // Gaudi
 #include "Gaudi/Interfaces/IOptionsSvc.h"
@@ -142,6 +143,8 @@ StatusCode HltROBDataProviderSvc::initialize()
 
   // Retrieve the monitoring tool
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
+
+  if (m_doCostMonitoring) ATH_CHECK(m_trigCostSvcHandle.retrieve());
 
   return(StatusCode::SUCCESS);
 }
@@ -317,6 +320,8 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 				       const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, 
 				       const std::string_view callerName)
 {
+  TrigTimeStamp rosStartTime;
+
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << ": Number of ROB Ids to get = " << robIds.size() 
 		  << " caller name = " << callerName);
   EventCache* cache = m_eventsCache.get( context );
@@ -337,7 +342,7 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
   ATH_MSG_DEBUG( __FUNCTION__ << ": Number of ROB Ids to retrieve with DCM = " << robIds_missing.size()); 
 
   typedef std::vector<hltinterface::DCM_ROBInfo> ROBInfoVec;
-  ROBInfoVec vRobInfos ;
+  ROBInfoVec vRobInfos;
 
   // Get ROB Fragments with DataCollector
   vRobInfos.reserve( robIds_missing.size() ) ;
@@ -368,11 +373,51 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 		    << " retrieved from DCM for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
     robFragments_missing.push_back( it->robFragment );
   }
+
+  // Check if event should be monitored and monitor ROB data
+  auto monitorData = robmonitor::ROBDataMonitorStruct(cache->currentLvl1ID, std::string(callerName));
+  if (m_doCostMonitoring && m_trigCostSvcHandle->isMonitoredEvent(context, /*includeMultiSlot =*/ false)) {
+    // Monitor HLT cached ROBs
+    for (const ROBF* robFrag : robFragments) {
+      monitorData.requested_ROBs[robFrag->source_id()] = robmap_getRobData(*robFrag, robmonitor::HLT_CACHED);
+    }
+
+    // Monitor DCM ROBs
+    for (const hltinterface::DCM_ROBInfo& robInfo : vRobInfos) {
+      monitorData.requested_ROBs[robInfo.robFragment.source_id()] = robmap_getRobData(robInfo.robFragment, 
+        robInfo.robIsCached ? robmonitor::DCM_CACHED : robmonitor::RETRIEVED);
+    }
+  }
+
   // add the ROBs to the cache/rob map
   eventCache_addRobData(cache, robFragments_missing) ;
 
   // return all the requested ROB fragments from the cache
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
+
+  // Save ROS processing time and pass ROS data to CostMonitor
+  if (m_doCostMonitoring && m_trigCostSvcHandle->isMonitoredEvent(context, /*includeMultiSlot =*/ false)) {
+    TrigTimeStamp rosEndTime;
+
+    monitorData.start_time = rosStartTime.microsecondsSinceEpoch();
+    monitorData.end_time = rosEndTime.microsecondsSinceEpoch();
+
+    // Check if ROBMonitorDataStruct is move-constructible
+    static_assert(std::is_nothrow_move_constructible<robmonitor::ROBDataMonitorStruct>::value);
+    if (m_trigCostSvcHandle->monitorROS(context, std::move(monitorData)).isFailure()) {
+      ATH_MSG_WARNING("TrigCost ROS monitoring failed!");
+    }  
+  }
+}
+
+robmonitor::ROBDataStruct HltROBDataProviderSvc::robmap_getRobData(const ROBF& robFrag, robmonitor::ROBHistory robStatus)
+{
+  auto robData = robmonitor::ROBDataStruct(robFrag.source_id());
+  robData.rob_size = robFrag.fragment_size_word();
+  robData.rob_history = robStatus;
+  robData.rob_status_word = robFrag.nstatus() ? robFrag.status()[0] : 0;
+
+  return robData;
 }
 
 /// Retrieve the full event fragment

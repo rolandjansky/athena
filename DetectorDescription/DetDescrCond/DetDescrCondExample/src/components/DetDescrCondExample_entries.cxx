@@ -1,7 +1,7 @@
-#include "DetDescrCondExample/ReadAlignTrans.h"
-#include "DetDescrCondExample/ReadTopTrans.h"
-#include "DetDescrCondExample/ReadWriteCoolStrFile.h"
-#include "DetDescrCondExample/CoolHistExample.h"
+#include "../ReadAlignTrans.h"
+#include "../ReadTopTrans.h"
+#include "../ReadWriteCoolStrFile.h"
+#include "../CoolHistExample.h"
 
 DECLARE_COMPONENT( ReadAlignTrans )
 DECLARE_COMPONENT( ReadTopTrans )

@@ -27,7 +27,7 @@ def TrigElectronSelectors(sel):
     # Configure the LH selectors
     from AthenaCommon import CfgMgr
     #TrigEgammaKeys.pidVersion.set_On()
-    mlog.info("TrigEgammaPidTools version " + str(TrigEgammaKeys.pidVersion))
+    mlog.info("TrigEgammaPidTools version %s", TrigEgammaKeys.pidVersion)
     ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
     
     SelectorNames = {
@@ -47,10 +47,10 @@ def TrigElectronSelectors(sel):
 
     mlog.info('Configuring electron PID tools...')
     if sel not in SelectorNames:
-        mlog.error('No selector defined for working point '+sel+' for electrons :-( ')
+        mlog.error('No selector defined for working point %s for electrons :-( ', sel)
         return
     else:
-        mlog.info('Configuring electron PID for '+sel)
+        mlog.info('Configuring electron PID for %s', sel)
         SelectorTool=CfgMgr.AsgElectronLikelihoodTool(SelectorNames[sel])
         SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
         SelectorTool.usePVContainer = False 
@@ -93,14 +93,14 @@ def TrigPhotonSelectors(sel):
 
     mlog.info('Configuring photon PID tools...')
     if sel not in SelectorNames:
-        mlog.error('No selector defined for working point '+sel+' for photons :-( ')
+        mlog.error('No selector defined for working point %s for photons :-( ', sel)
         return
     else:
-        mlog.info('Configuring photon PID for '+sel)
+        mlog.info('Configuring photon PID for %s', sel)
         SelectorTool = ConfiguredAsgPhotonIsEMSelector(SelectorNames[sel], SelectorPID[sel])
         ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
         ConfigFile = ConfigFilePath + '/' + PhotonToolConfigFile[sel] 
-        mlog.info('Configuration file: '+ConfigFile)
+        mlog.info('Configuration file: %s', ConfigFile)
         SelectorTool.ConfigFile = ConfigFile
         SelectorTool.ForceConvertedPhotonPID = True
         SelectorTool.isEMMask = PhotonIsEMBits[sel] 

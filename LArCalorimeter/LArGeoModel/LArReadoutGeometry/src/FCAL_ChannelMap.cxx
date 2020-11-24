@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
@@ -305,13 +305,15 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
 float 
 FCAL_ChannelMap::x(int isam, int eta, int phi) const
 {
-  if(m_invert_xy){ 
-   // temp turn off the flag 
-   m_invert_xy=false; 
-   float y1 =  y(isam,eta,phi); 
-   m_invert_xy=true; 
-   return y1; 
-  } 
+  if(m_invert_xy) { 
+    return y1(isam,eta,phi); 
+  }
+  return x1 (isam, eta, phi);
+}
+
+float 
+FCAL_ChannelMap::x1(int isam, int eta, int phi) const
+{
   float x;
 
   tileName_t tilename = (eta << 16) + phi  ; 
@@ -348,15 +350,14 @@ float
 FCAL_ChannelMap::y(int isam, int eta, int phi) const
 {
   if(m_invert_xy){
-
-   // temp turn off the flag 
-   m_invert_xy=false; 
-   float x1 =  x(isam,eta,phi); 
-   m_invert_xy=true; 
-   return x1; 
-
+    return x1(isam,eta,phi); 
   }
+  return y1 (isam, eta, phi);
+}
 
+float 
+FCAL_ChannelMap::y1(int isam, int eta, int phi) const
+{
   float y;
 
   tileName_t tilename = (eta << 16) + phi  ; 
@@ -452,7 +453,7 @@ FCAL_ChannelMap::print_tubemap( int imap) const
   boost::io::ios_all_saver ias (std::cout);
   std::cout << "First 10 elements of the New FCAL tube map : " << imap << std::endl;
   std::cout.precision(5);
-  for ( int i=0;  i<10; i++, it++)
+  for ( int i=0;  i<10; ++i, ++it)
     std::cout << std::hex << it->first << "\t" 
 	      << (it->second).get_tileName() << std::dec <<"\t" 
 	      << (it->second).x() <<"\t" 

@@ -59,7 +59,12 @@ StatusCode Muon::CSC_RawDataProviderToolMT::initialize()
 //============================================================================================
 
 // new one
+
 StatusCode Muon::CSC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect){
+  return this->convert (rdoIdhVect, Gaudi::Hive::currentContext());
+}
+
+StatusCode Muon::CSC_RawDataProviderToolMT::convert(const std::vector<IdentifierHash>& rdoIdhVect, const EventContext& ctx) const{
 
   IdContext cscContext = m_idHelperSvc->cscIdHelper().module_context();
 
@@ -73,7 +78,10 @@ StatusCode Muon::CSC_RawDataProviderToolMT::convert(const std::vector<Identifier
   }
   m_robDataProvider->getROBData(robIds, vecOfRobf);
   ATH_MSG_VERBOSE ( "Number of ROB fragments " << vecOfRobf.size() );
-  return convert(vecOfRobf, rdoIdhVect);
+
+  // This would be passed to the function which does not use the IdentifierHash further
+  return convert(vecOfRobf, ctx);
+
 }
 
 StatusCode Muon::CSC_RawDataProviderToolMT::convert(const EventContext& ctx) const {
@@ -90,14 +98,13 @@ StatusCode Muon::CSC_RawDataProviderToolMT::convert(const EventContext& ctx) con
 
 
 StatusCode Muon::CSC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs,
-                                                  const std::vector<IdentifierHash>& /* collections */){
-  const CSC_RawDataProviderToolMT* cthis = this;
-  return cthis->convert (vecRobs, Gaudi::Hive::currentContext());
+                                                    const std::vector<IdentifierHash>& /* collections */){
+  return this->convert (vecRobs, Gaudi::Hive::currentContext());
 }
 
 StatusCode
 Muon::CSC_RawDataProviderToolMT::convert(const ROBFragmentList& vecRobs,
-                                       const EventContext& ctx) const
+					 const EventContext& ctx) const
 {
 
   SG::WriteHandle<CscRawDataContainer> rdoContainerHandle(m_containerKey, ctx);

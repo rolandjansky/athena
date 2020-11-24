@@ -25,20 +25,6 @@ TrigL2MuonSA::RpcPatFinder::RpcPatFinder(const std::string& type,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::RpcPatFinder::clear() {
-  std::list<double> z;
-  z.clear();
-  m_hits_in_layer_eta.assign(8,z);
-  m_hits_in_layer_phi.assign(8,z);
-  std::vector<double> zz;
-  zz.clear();
-  m_hits_in_layer_R.assign(8,zz);
-  m_hits_in_layer_Z.assign(8,zz);
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
 					int stationEta,
 					bool  measuresPhi,
@@ -46,7 +32,8 @@ void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
 					unsigned  int doubletR,
 					double gPosX,
 					double gPosY,
-					double gPosZ ){
+					double gPosZ,
+                                        TrigL2MuonSA::RpcLayerHits& rpcLayerHits ) const{
   
   int ilay=0;
   // BO 
@@ -65,31 +52,37 @@ void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
     // if eta measurement then save Z/R
     R = calibR(stationName,R, Phi);  
     double x=gPosZ/R;
-    m_hits_in_layer_eta.at(ilay).push_back(x);
-    m_hits_in_layer_R.at(ilay).push_back(R);//mod!
-    m_hits_in_layer_Z.at(ilay).push_back(gPosZ);//mod!
+    rpcLayerHits.hits_in_layer_eta.at(ilay).push_back(x);
+    rpcLayerHits.hits_in_layer_R.at(ilay).push_back(R);//mod!
+    rpcLayerHits.hits_in_layer_Z.at(ilay).push_back(gPosZ);//mod!
    }else{
     // if phi measurement then save phi
-    m_hits_in_layer_phi.at(ilay).push_back(Phi);
+    rpcLayerHits.hits_in_layer_phi.at(ilay).push_back(Phi);
   }
 }
 
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-bool TrigL2MuonSA::RpcPatFinder::findPatternPhi(double &phi_middle, double &phi_outer,   unsigned int &pattern){
+bool TrigL2MuonSA::RpcPatFinder::findPatternPhi(double &phi_middle, 
+                                                double &phi_outer, 
+                                                unsigned int &pattern,
+                                                const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const{
   double result_dMO;
   bool found=false;
-  if (patfinder(true, pattern, phi_middle,phi_outer, result_dMO)>=2) found=true;
+  if (patfinder(true, pattern, phi_middle,phi_outer, result_dMO, rpcLayerHits)>=2) found=true;
   return found;
 }
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool TrigL2MuonSA::RpcPatFinder::findPatternEta(double aw[], double bw[], unsigned int & pattern){
+bool TrigL2MuonSA::RpcPatFinder::findPatternEta(double aw[], 
+                                                double bw[], 
+                                                unsigned int & pattern,
+                                                const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const{
   double result_delta[3]={9999,9999,9999};
   bool found=false;
-  if( patfinder_forEta(false, pattern,  aw, bw, result_delta)>=2) found=true;
+  if( patfinder_forEta(false, pattern,  aw, bw, result_delta, rpcLayerHits)>=2) found=true;
   return found;
 }
 // --------------------------------------------------------------------------------
@@ -99,10 +92,11 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder_forEta(bool iphi,
 			     unsigned int &result_pat,
 			     double result_aw[],
 			     double result_bw[],
-			     double result_dist[]){
+			     double result_dist[],
+                             const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const {
   
-  std::vector<std::list<double>> *  rpc_x;
-  rpc_x = &m_hits_in_layer_eta;
+  const std::vector<std::list<double>> *  rpc_x;
+  rpc_x = &rpcLayerHits.hits_in_layer_eta;
   
   int  layer_end;
   if(rpc_x->at(6).size()+rpc_x->at(7).size() >0) layer_end = 7;//special "feet" towers
@@ -120,7 +114,7 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder_forEta(bool iphi,
     for(int i=0; i<8; i++) index[i]=0;
 
     // Loop on hits of start layer, for each hit try a new pattern
-    for (std::list<double>::iterator i_start=rpc_x->at(l_start).begin(); i_start!=rpc_x->at(l_start).end(); i_start++){
+    for (std::list<double>::const_iterator i_start=rpc_x->at(l_start).begin(); i_start!=rpc_x->at(l_start).end(); i_start++){
       int n_hits=1;
       unsigned int pat=(1<<l_start); // bit pattern of hit layers
       double dMO=9999; // disstance middle-outer station
@@ -140,7 +134,7 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder_forEta(bool iphi,
 	double x_layer=0;
 	double delta_layer=999;
 	//  loop on hits of test layer and picks the one with smaller distance from current_x
-	for (std::list<double>::iterator i_test=rpc_x->at(l_test).begin(); i_test!=rpc_x->at(l_test).end(); i_test++){ 
+	for (std::list<double>::const_iterator i_test=rpc_x->at(l_test).begin(); i_test!=rpc_x->at(l_test).end(); i_test++){ 
 	  double delta=-1;
 	  // check if within the road
 	  if (deltaOK(l_current,l_test,current_x,*i_test,iphi,delta)){
@@ -191,7 +185,7 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder_forEta(bool iphi,
   }//for l_start
 
   if (n_max>=2) {
-    abcal(result_pat, result_index, result_aw, result_bw);
+    abcal(result_pat, result_index, result_aw, result_bw, rpcLayerHits);
     ATH_MSG_DEBUG("patfinder: BEST pat= " << (std::bitset<8>)result_pat
 		  <<"  dMM= "<<result_dist[1] <<"  dMO= "<<result_dist[2]);
   
@@ -207,15 +201,16 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder(bool iphi,
 			     unsigned int &result_pat,
 			     double &result_x,
 			     double &result_x1,
-			     double &result_dMO){
+			     double &result_dMO, 
+                             const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const{
   
   const int N_layers=8;
 
-  std::vector<std::list<double>> *  rpc_x;
+  const std::vector<std::list<double>> *  rpc_x;
   if (iphi){
-    rpc_x = &m_hits_in_layer_phi;
+    rpc_x = &rpcLayerHits.hits_in_layer_phi;
   } else {
-    rpc_x = &m_hits_in_layer_eta;
+    rpc_x = &rpcLayerHits.hits_in_layer_eta;
   }
   
   int l_start_max=2; //max layer of first hit
@@ -233,7 +228,7 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder(bool iphi,
   // Loop on start layer
   for (int l_start=0; l_start<=l_start_max; l_start++){
     // Loop on hits of start layer, for each hit try a new pattern
-    for (std::list<double>::iterator i_start=rpc_x->at(l_start).begin(); i_start!=rpc_x->at(l_start).end(); i_start++){
+    for (std::list<double>::const_iterator i_start=rpc_x->at(l_start).begin(); i_start!=rpc_x->at(l_start).end(); i_start++){
       int n_hits=1;
       unsigned int pat=(1<<l_start); // bit pattern of hit layers
       double dMO=9999; // disstance middle-outer station
@@ -251,7 +246,7 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder(bool iphi,
 	double x_layer=0;
 	double delta_layer=999;
 	//  loop on hits of test layer and picks the one with smaller distance from current_x
-	for (std::list<double>::iterator i_test=rpc_x->at(l_test).begin(); i_test!=rpc_x->at(l_test).end(); i_test++){ 
+	for (std::list<double>::const_iterator i_test=rpc_x->at(l_test).begin(); i_test!=rpc_x->at(l_test).end(); i_test++){ 
 	  double delta=-1;
 	  // check if within the road
 	  if (deltaOK(l_current,l_test,current_x,*i_test,iphi,delta)){
@@ -311,7 +306,7 @@ int  TrigL2MuonSA::RpcPatFinder::patfinder(bool iphi,
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, int isphi, double &delta){
+bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, int isphi, double &delta) const{
   
   
   // ROAD tuned for ~20 GeV 
@@ -413,13 +408,17 @@ double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, dou
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, size_t index[], double aw[], double bw[]){
+void TrigL2MuonSA::RpcPatFinder::abcal(unsigned int result_pat, 
+                                       size_t index[], 
+                                       double aw[], 
+                                       double bw[],
+                                       const TrigL2MuonSA::RpcLayerHits rpcLayerHits) const{
   const float ZERO_LIMIT = 1.e-5;
 
-  std::vector<std::vector<double> > * rpc_R;
-  std::vector<std::vector<double> > * rpc_Z;
-  rpc_R = &m_hits_in_layer_R;
-  rpc_Z = &m_hits_in_layer_Z;
+  const std::vector<std::vector<double> > * rpc_R;
+  const std::vector<std::vector<double> > * rpc_Z;
+  rpc_R = &rpcLayerHits.hits_in_layer_R;
+  rpc_Z = &rpcLayerHits.hits_in_layer_Z;
   double R[8]={0,0,0,0,0,0,0,0};
   double Z[8]={0,0,0,0,0,0,0,0};
   unsigned int bit=1;

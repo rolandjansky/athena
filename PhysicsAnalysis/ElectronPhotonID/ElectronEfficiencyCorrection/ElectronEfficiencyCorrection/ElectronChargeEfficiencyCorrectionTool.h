@@ -74,9 +74,9 @@ namespace CP {
     /// Returns the list of all systematics this tool recommends to use
     virtual CP::SystematicSet  recommendedSystematics() const;
 
-    virtual CP::SystematicCode applySystematicVariation( const SystematicSet& systConfig );
+    virtual StatusCode applySystematicVariation( const SystematicSet& systConfig );
 
-    CP::SystematicCode registerSystematics();
+    StatusCode registerSystematics();
 
     /// returns: the currently applied systematics
     const CP::SystematicSet& appliedSystematics() const {

@@ -27,6 +27,8 @@
 
 using namespace TrkDriftCircleMath;
 
+// maxNTubesPerLayer is included via DriftCircle.h
+
 namespace Muon {
 
   MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,const std::string& n,const IInterface* p)  :  
@@ -77,7 +79,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
                                     const std::vector<const CscPrepDataCollection*>& cscCols,  
                                     const std::vector<const TgcPrepDataCollection*>& tgcCols,  
                                     const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-                                    const MuonSegmentCombinationCollection* cscSegmentCombis ) const {
+                                    const MuonSegmentCombinationCollection* cscSegmentCombis, const EventContext& ctx) const {
 
     /** map between mdt chamber identifiers and corresponding rpc hits (hit_no_begin and hit_no_end)*/
   std::map<int,std::vector<std::pair<int, int> > > rpcmdtstationmap;
@@ -93,7 +95,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     // analyse data
     std::unique_ptr<MuonPatternCombinationCollection> patCombiCol;
     if( hitcontainer ) {
-      patCombiCol.reset(analyse( *hitcontainer, phietahitassociation.get()));
+      patCombiCol.reset(analyse( *hitcontainer, phietahitassociation.get(), ctx));
     }else{
       ATH_MSG_INFO (" No hit container created! ");
     }
@@ -142,7 +144,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     return StatusCode::SUCCESS;
   }
 
-  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer, const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation ) const {
+  MuonPatternCombinationCollection* MuonHoughPatternFinderTool::analyse( const MuonHoughHitContainer& hitcontainer, const std::map <const Trk::PrepRawData*, std::set<const Trk::PrepRawData*,Muon::IdentifierPrdLess> >* phietahitassociation, const EventContext& ctx ) const {
     
     ATH_MSG_DEBUG ("size of event: " << hitcontainer.size());
 
@@ -182,9 +184,9 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       combinedpatterns =  new MuonPrdPatternCollection();
     }
 
-    record( phipatterns, m_CosmicPhiPatternsKey );
-    record( etapatterns, m_CosmicEtaPatternsKey );
-    record( combinedpatterns, m_COMBINED_PATTERNSKey );
+    record( phipatterns, m_CosmicPhiPatternsKey, ctx );
+    record( etapatterns, m_CosmicEtaPatternsKey, ctx );
+    record( combinedpatterns, m_COMBINED_PATTERNSKey, ctx );
     
     /** empty and clear the houghpattern vectors */
     m_muonHoughPatternTool->reset(houghpattern);
@@ -386,7 +388,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
   
   } // getAllHits
 
-  void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, const  SG::WriteHandleKey<MuonPrdPatternCollection> &key ) const {
+  void MuonHoughPatternFinderTool::record( const MuonPrdPatternCollection* patCol, const  SG::WriteHandleKey<MuonPrdPatternCollection> &key, const EventContext &ctx ) const {
     
     if( !patCol ) {
       ATH_MSG_WARNING ("Zero pointer, could not save patterns!!! ");
@@ -401,7 +403,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
       delete patCol;
     }
     else {
-      SG::WriteHandle<MuonPrdPatternCollection> handle(key);
+      SG::WriteHandle<MuonPrdPatternCollection> handle(key, ctx);
       StatusCode sc = handle.record(std::unique_ptr<MuonPrdPatternCollection>(const_cast<MuonPrdPatternCollection*> (patCol)));
       if ( sc.isFailure() ){
 	ATH_MSG_WARNING ("Could not save patterns at " << key.key());
@@ -1474,7 +1476,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     int nhits = 0;
     for( ;it1!=it_end;++it1, nhits++ ) {
       sel[nhits] = 0;
-      int isort = 100*(4*(it1->id().ml()) + it1->id().lay()) + it1->id().tube();
+      int isort = maxNTubesPerLayer*(4*(it1->id().ml()) + it1->id().lay()) + it1->id().tube();
       dcsId[isort] = nhits;
       int ilay = 4*(it1->id().ml()) + it1->id().lay();
       ATH_MSG_VERBOSE (" ilay " << ilay << " isort " << isort);
@@ -1572,7 +1574,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     TrkDriftCircleMath::DCOnTrackIt itt_end = hitsOnLineSel.end();
     int i = 0;
     for( ;itt!=itt_end;++itt,i++ ) {
-      int isort = 100*(4*(itt->id().ml()) + itt->id().lay()) + itt->id().tube();
+      int isort = maxNTubesPerLayer*(4*(itt->id().ml()) + itt->id().lay()) + itt->id().tube();
       if (dcsId.count(isort) == 1) {
 	int dcsIndex = dcsId[isort];
 	sel[dcsIndex] = 1;

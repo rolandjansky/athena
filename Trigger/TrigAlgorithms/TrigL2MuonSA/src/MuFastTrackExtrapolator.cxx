@@ -29,7 +29,7 @@ TrigL2MuonSA::MuFastTrackExtrapolator::MuFastTrackExtrapolator(const std::string
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
-                                                                   double winPt)
+                                                                   double winPt) const
 {
   ATH_MSG_DEBUG("in extrapolateTrack");
   
@@ -110,7 +110,8 @@ void TrigL2MuonSA::MuFastTrackExtrapolator::setMuFastRes(std::vector<double>& ve
 // Copied from TrigmuComb/muCombUtil.cxx
 double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> vec,
                                                            const double pt, const int add,
-                                                           const double eta, const double phi) {
+                                                           const double eta, const double phi) const
+{
   
   if (pt == 0) return 1.0e30;
   

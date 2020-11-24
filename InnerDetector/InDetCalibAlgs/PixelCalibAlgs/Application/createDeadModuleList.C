@@ -478,7 +478,7 @@ int main (int argc, char* argv[]){
   pyFile[LB] << "" << std::endl;
   pyFile[LB] << "### configure the event selector" << std::endl;
   pyFile[LB] << "" << std::endl;
-  pyFile[LB] << "from GaudiSvc.GaudiSvcConf import EventSelector" << std::endl;
+  pyFile[LB] << "from GaudiCoreSvc.GaudiCoreSvcConf import EventSelector" << std::endl;
   pyFile[LB] << "" << std::endl;
   pyFile[LB] << "ServiceMgr += EventSelector()" << std::endl;
   pyFile[LB] << "" << std::endl;

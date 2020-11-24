@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -44,6 +44,11 @@ private:
     RHK<Trk::SegmentCollection> m_SegmentCollectionKey {this, "MuonSegmentsKey", "MuonSegments", ""};
     RHK<BeamBackgroundData> m_BeamBackgroundDataKey {this, "BeamBackgroundDataKey", "BeamBackgroundData", ""};
     RHK<xAOD::VertexContainer> m_VertexContainerKey {this, "PrimaryVerticesKey", "PrimaryVertices", ""};
+    SG::ReadDecorHandleKey<xAOD::EventInfo> m_eventInfoDecorKey{this,"eventInfoDecorKey",
+                                                               "EventInfo.backgroundWord",
+                                                               "Key to enforce scheduling"};
+    // we dp not need a decorhandle key for the MBTS background because we already depend on MBTSCollisionTime
+
 
     // For parsing the int returned by TrigDecTool's getBGCode()
     GP<int> m_filledBG {this, "FilledBGIndex", 1};

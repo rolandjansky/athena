@@ -16,9 +16,27 @@ beamFlags = jobproperties.Beam
 
 muonCombinedRecFlags.setDefaults()
 
-include ("MuonCombinedRecExample/MuonCombinedRec_preprocessing.py")
+if muonCombinedRecFlags.useNewConfig():
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
+    from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedReconstructionCfg
 
-include ("MuonCombinedRecExample/MuonCombinedRec_identification.py")
+    ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+    ConfigFlags.Detector.GeometryMDT   = True 
+    ConfigFlags.Detector.GeometryTGC   = True
+    ConfigFlags.Detector.GeometryCSC   = True     
+    ConfigFlags.Detector.GeometryRPC   = True     
+    # TODO Keep here for the moment, since we still have debugging to do.
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger( "conf2toConfigurable".ljust(30) )
+    log.setLevel(DEBUG)
+    CAtoGlobalWrapper(MuonCombinedReconstructionCfg,ConfigFlags)
 
-if not rec.doAODMerging():    
-    include ("MuonCombinedRecExample/MuonCombinedRec_postprocessing.py")
+else:
+    include ("MuonCombinedRecExample/MuonCombinedRec_preprocessing.py")
+
+    include ("MuonCombinedRecExample/MuonCombinedRec_identification.py")
+
+    if not rec.doAODMerging():    
+        include ("MuonCombinedRecExample/MuonCombinedRec_postprocessing.py")

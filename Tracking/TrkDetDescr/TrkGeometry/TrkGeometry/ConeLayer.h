@@ -95,27 +95,35 @@ namespace Trk {
     
       /** getting the MaterialProperties back - for post-update*/ 
       virtual double  postUpdateMaterialFactor(const Trk::TrackParameters& par, Trk::PropDirection dir) const override;
-   
-      /** move the Layer */
-      virtual void moveLayer(Amg::Transform3D& shift) override;
 
       /** move the Layer */
-      virtual void moveLayer ATLAS_NOT_THREAD_SAFE (Amg::Transform3D& shift) const override{
-       const_cast<ConeLayer*>(this)->moveLayer(shift); 
+      virtual void moveLayer(Amg::Transform3D& shift) override final;
+
+      /** move the Layer */
+      virtual void moveLayer
+      ATLAS_NOT_THREAD_SAFE(Amg::Transform3D& shift) const override final
+      {
+        const_cast<ConeLayer*>(this)->moveLayer(shift);
       };
 
     private:
       /** Resize the layer to the tracking volume - not (yet) supported for ConeLayer */ 
      void resize(const VolumeBounds&, double) const {}
- 
-     /** Resize the layer to the tracking volume - not supported since this an entry layer method*/ 
-    virtual void resizeAndRepositionLayer(const VolumeBounds&, const Amg::Vector3D&, double)  override {}       
 
-      
-    /** Resize the layer to the tracking volume - not supported since this an entry layer method*/ 
-    virtual void resizeAndRepositionLayer ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
-                                                                const Amg::Vector3D&, double) const override {}       
-      
+     /** Resize the layer to the tracking volume - not supported since this an
+      * entry layer method*/
+     virtual void resizeAndRepositionLayer(const VolumeBounds&,
+                                           const Amg::Vector3D&,
+                                           double) override final
+     {}
+
+     /** Resize the layer to the tracking volume - not supported since this an
+      * entry layer method*/
+     virtual void resizeAndRepositionLayer
+     ATLAS_NOT_THREAD_SAFE(const VolumeBounds&,
+                           const Amg::Vector3D&,
+                           double) const override final
+     {}
   };
  
 } // end of namespace

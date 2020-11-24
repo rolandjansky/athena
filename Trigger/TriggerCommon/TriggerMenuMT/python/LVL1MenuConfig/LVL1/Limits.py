@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 This temporarily holds CTP sizes
 """
-import six
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('LVL1.Limits')
@@ -40,8 +39,7 @@ class Access(type):
 
 
 
-@six.add_metaclass(Access)
-class Limits(object):
+class Limits(object, metaclass=Access):
 
     CTPVersion      = None
     L1CommonVersion = None

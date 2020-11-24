@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-# art-description: Test of transform HITS->RDO with serial athena followed by RDO->RDO_TRIG with threads=1
+# art-description: Test of transform HITS->RDO followed by RDO->RDO_TRIG
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
+# art-memory: 6000
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -20,15 +22,11 @@
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Input
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
-import os
-
-# To run single-process transform on MCORE sites
-if 'ATHENA_NPROC_NUM' in os.environ:
-    del os.environ['ATHENA_NPROC_NUM']
 
 hit2rdo = ExecStep.ExecStep('HITtoRDO')
 hit2rdo.type = 'Reco_tf'
 hit2rdo.input = 'ttbar_HITS'
+hit2rdo.max_events = 800
 hit2rdo.args = '--outputRDOFile=RDO.pool.root'
 
 pu_low = Input.get_input('pileup_low')
@@ -48,7 +46,8 @@ rdo2rdotrig = ExecStep.ExecStep('RDOtoRDOTrigger')
 rdo2rdotrig.type = 'Reco_tf'
 rdo2rdotrig.input = ''
 rdo2rdotrig.explicit_input = True
-rdo2rdotrig.threads = 1
+rdo2rdotrig.threads = 4
+rdo2rdotrig.concurrent_events = 4
 rdo2rdotrig.args = '--inputRDOFile=RDO.pool.root --outputRDO_TRIGFile=RDO_TRIG.pool.root'
 rdo2rdotrig.args += ' --preExec="setMenu=\'LS2_v1_TriggerValidation_mc_prescale\'"'
 

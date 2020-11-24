@@ -72,9 +72,7 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 #include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
-conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/HVLineToElectrodeMap")
-conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREl/I16")
-conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8")
+from LArConditionsCommon import LArHVDB
 #--------------------------------------------------------------
 # Access to IOVSvc, IOVDbSvc and CondDBMySQLCnvSvc
 #--------------------------------------------------------------

@@ -57,7 +57,7 @@ class ParticleScaleFactorTool: public asg::AsgTool, public virtual IObservableTo
   bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const override { return (m_affectingSysts.find(systematic)!=m_affectingSysts.end()); }
   CP::SystematicSet affectingSystematics() const override { return m_affectingSysts; }
   CP::SystematicSet recommendedSystematics() const override { return affectingSystematics(); }
-  CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig ) override;
+  StatusCode applySystematicVariation( const CP::SystematicSet& systConfig ) override;
 
  private: 
    std::string m_configFile;

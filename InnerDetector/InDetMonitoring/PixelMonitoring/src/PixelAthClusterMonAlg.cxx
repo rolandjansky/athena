@@ -59,7 +59,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
   int etaMod(-99);
   bool copyFEval(false);
   AccumulatorArrays clusPerEventArray = { {{0}}, {{0}}, {{0}}, {{0}}, {{0}}, {{0}} };
-  VecAccumulator2DMap Map_Of_Modules_Status("Map_Of_Modules_Status", true);
+  VecAccumulator2DMap Map_Of_Modules_Status("MapOfModulesStatus", true);
   
   for (auto idIt = m_pixelid->wafer_begin(); idIt!=m_pixelid->wafer_end(); ++idIt) {
     Identifier     waferID = *idIt;
@@ -105,8 +105,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
   }  // end of pixelid wafer loop
 
   fill2DProfLayerAccum( Map_Of_Modules_Status );
-  fill1DProfLumiLayers("BadModules_per_lumi", lb, nBadMod);
-  fill1DProfLumiLayers("DisabledModules_per_lumi", lb, nDisabledMod);
+  fill1DProfLumiLayers("BadModulesPerLumi", lb, nBadMod);
+  fill1DProfLumiLayers("DisabledModulesPerLumi", lb, nDisabledMod);
 
   //*******************************************************************************
   //*************************** End of filling Status Histograms ******************
@@ -120,9 +120,9 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 
   ATH_MSG_DEBUG("Filling Track Monitoring Histograms");
 
-  VecAccumulator2DMap TSOS_Outlier("TSOS_Outlier", true);
-  VecAccumulator2DMap TSOS_Hole("TSOS_Hole", true);
-  VecAccumulator2DMap TSOS_Measurement("TSOS_Measurement", true);
+  VecAccumulator2DMap TSOS_Outlier("TSOSOutlier", true);
+  VecAccumulator2DMap TSOS_Hole("TSOSHole", true);
+  VecAccumulator2DMap TSOS_Measurement("TSOSMeasurement", true);
   VecAccumulator2DMap HolesRatio("HolesRatio", true);
   VecAccumulator2DMap MissHitsRatio("MissHitsRatio", true);
   auto trackGroup = getGroup("Track");
@@ -191,8 +191,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
      
       float nOutlier = 0.;
       float nHole    = 0.;
-      auto effval  = Monitored::Scalar<float>( "HitEff_all_val", 0. );
-      auto efflb   = Monitored::Scalar<float>( "HitEff_all_lb", lb );
+      auto effval  = Monitored::Scalar<float>( "HitEffAll_val", 0. );
+      auto efflb   = Monitored::Scalar<float>( "HitEffAll_lb", lb );
       if ((*trackStateOnSurfaceIterator)->type(Trk::TrackStateOnSurface::Outlier)) {
         nOutlier = 1.0;
 	if (!m_doOnline) TSOS_Outlier.add(pixlayer, surfaceID, m_pixelid, 1.0);
@@ -309,17 +309,17 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 
   auto clToTcosAlphaLB = Monitored::Scalar<float>( "Cluster_ToTxCosAlpha_OnTrack_lb", lb);
 
-  VecAccumulator2DMap Cluster_LVL1A_Mod("Cluster_LVL1A_Mod");
-  VecAccumulator2DMap Cluster_LVL1A_SizeCut("Cluster_LVL1A_SizeCut");
-  VecAccumulator2DMap Cluster_LVL1A_Mod_OnTrack("Cluster_LVL1A_Mod_OnTrack");
-  VecAccumulator2DMap Cluster_LVL1A_SizeCut_OnTrack("Cluster_LVL1A_SizeCut_OnTrack");
-  VecAccumulator2DMap ClusterMap_Mon("ClusterMap_Mon");
-  VecAccumulator2DMap ClusterMap_Mon_OnTrack("ClusterMap_Mon_OnTrack");
-  VecAccumulator2DMap Cluster_Size_Map_OnTrack("Cluster_Size_Map_OnTrack");
-  VecAccumulator2DMap Cluster_Occupancy("Cluster_Occupancy");
-  VecAccumulator2DMap Cluster_Occupancy_OnTrack("Cluster_Occupancy_OnTrack");
-  VecAccumulator2DMap Clus_Occ_SizeCut("Clus_Occ_SizeCut");
-  VecAccumulator2DMap Clus_Occ_SizeCut_OnTrack("Clus_Occ_SizeCut_OnTrack");
+  VecAccumulator2DMap Cluster_LVL1A_Mod("ClusterLVL1AMod");
+  VecAccumulator2DMap Cluster_LVL1A_SizeCut("ClusterLVL1ASizeCut");
+  VecAccumulator2DMap Cluster_LVL1A_Mod_OnTrack("ClusterLVL1AModOnTrack");
+  VecAccumulator2DMap Cluster_LVL1A_SizeCut_OnTrack("ClusterLVL1ASizeCutOnTrack");
+  VecAccumulator2DMap ClusterMap_Mon("ClusterMapMon");
+  VecAccumulator2DMap ClusterMap_Mon_OnTrack("ClusterMapMonOnTrack");
+  VecAccumulator2DMap Cluster_Size_Map_OnTrack("ClusterSizeMapOnTrack");
+  VecAccumulator2DMap Cluster_Occupancy("ClusterOccupancy");
+  VecAccumulator2DMap Cluster_Occupancy_OnTrack("ClusterOccupancyOnTrack");
+  VecAccumulator2DMap Clus_Occ_SizeCut("ClusOccSizeCut");
+  VecAccumulator2DMap Clus_Occ_SizeCut_OnTrack("ClusOccSizeCutOnTrack");
   auto clusterGroup = getGroup("Cluster");
   auto clusterGroup_OnTrack = getGroup("Cluster_OnTrack");
 
@@ -366,7 +366,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
       fill( clusterGroup, clLVL1A);
       Cluster_LVL1A_Mod.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
       if (cluster.rdoList().size() > 1) Cluster_LVL1A_SizeCut.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
-      if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill( "Cluster_LVL1A_ToTCut_" + pixLayersLabel[pixlayer], clLVL1A);
+      if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill( "ClusterLVL1AToTCut_" + pixLayersLabel[pixlayer], clLVL1A);
 
       // 
       // end timing histos
@@ -412,15 +412,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 	fill( clusterGroup_OnTrack, clLVL1A);
 	Cluster_LVL1A_Mod_OnTrack.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
 	if (cluster.rdoList().size() > 1) Cluster_LVL1A_SizeCut_OnTrack.add(pixlayer, clusID, m_pixelid, cluster.LVL1A() + 0.00001);
-	if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill( "Cluster_LVL1A_ToTCut_OnTrack_" + pixLayersLabel[pixlayer], clLVL1A);
+	if (cluster.totalToT() > clusterToTMinCut[pixlayer]) fill( "ClusterLVL1AToTCutOnTrack_" + pixLayersLabel[pixlayer], clLVL1A);
 	// 
 	// end timing histos
 	// begin cluster sizes
 	//
-	auto clSize    = Monitored::Scalar<float>( "Cluster_Size_OnTrack_clsize", cluster.rdoList().size());
-	auto etaModule = Monitored::Scalar<float>( "Cluster_Size_OnTrack_em", m_pixelid->eta_module(clusID) );
+	auto clSize    = Monitored::Scalar<float>( "ClusterSizeOnTrack_clsize", cluster.rdoList().size());
+	auto etaModule = Monitored::Scalar<float>( "ClusterSizeOnTrack_em", m_pixelid->eta_module(clusID) );
 	if ( abs(m_pixelid->barrel_ec(clusID))!=0 ) etaModule = m_pixelid->layer_disk(clusID) + 1;
-	fill( "Cluster_groupsize_vs_eta_OnTrack_" + pixLayersLabel[pixlayer], etaModule, clSize );
+	fill( "ClusterGroupsizeVsEtaOnTrack_" + pixLayersLabel[pixlayer], etaModule, clSize );
 	Cluster_Size_Map_OnTrack.add(pixlayer, clusID, m_pixelid, cluster.rdoList().size());
 	// 
 	// end cluster sizes
@@ -437,10 +437,10 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 	// end cluster occupancy
 	// begin cluster ToT and charge
 	//
-	auto clToTcosAlpha = Monitored::Scalar<float>( "Cluster_ToTxCosAlpha_OnTrack_val", cluster.totalToT() * cosalpha );
+	auto clToTcosAlpha = Monitored::Scalar<float>( "ClusterToTxCosAlphaOnTrack_val", cluster.totalToT() * cosalpha );
 	fill( pixLayersLabel[pixlayer], clToTcosAlpha);
 	if (!m_doOnline) {
-	  auto clQcosAlpha   = Monitored::Scalar<float>( "Cluster_QxCosAlpha_OnTrack_val", cluster.totalCharge() * cosalpha);
+	  auto clQcosAlpha   = Monitored::Scalar<float>( "ClusterQxCosAlphaOnTrack_val", cluster.totalCharge() * cosalpha);
 	  fill( pixLayersLabel[pixlayer], clQcosAlpha);
 	} else {
 	  fill( pixLayersLabel[pixlayer], clToTcosAlphaLB, clToTcosAlpha);
@@ -477,14 +477,14 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
     fill( clusterGroup_OnTrack, lbval, clsFracOnTrack);
   }
 
-  fill1DProfLumiLayers( "Clusters_per_lumi", lb, nclusters_mod);
-  fill1DProfLumiLayers( "Clusters_per_lumi_OnTrack", lb, nclusters_ontrack_mod);
+  fill1DProfLumiLayers( "ClustersPerLumi", lb, nclusters_mod);
+  fill1DProfLumiLayers( "ClustersPerLumiOnTrack", lb, nclusters_ontrack_mod);
 
-  fillFromArrays( "Cluster_Occupancy_PP0_OnTrack", clusPerEventArray);
+  fillFromArrays( "ClusterOccupancyPP0OnTrack", clusPerEventArray);
 
   if (ntracksPerEvent>0) {
     for (unsigned int ii=0; ii<PixLayers::COUNT; ii++) nclusters_ontrack_mod[ii]/= ntracksPerEvent; // keep as in Run 1,2
-    fill1DProfLumiLayers( "num_clusters_per_track_per_lumi", lb, nclusters_ontrack_mod);
+    fill1DProfLumiLayers( "NumClustersPerTrackPerLumi", lb, nclusters_ontrack_mod);
   }
   // 
   // end cluster rate

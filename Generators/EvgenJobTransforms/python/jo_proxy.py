@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Helper functions for setting up a job options proxy
 import os,shutil
@@ -17,7 +17,7 @@ def mk_jo_proxy(targetbasepath, pkgname, proxypath, addtosearch=True):
     os.environ['LOCAL_DATA_DIR'] = (os.environ['DATAPATH']).split(":")[0]
 
     dirlist =  get_immediate_subdirectories(targetbasepath)
-    subdirlist=dirlist;
+    subdirlist=dirlist
     for dd in (dirlist):
       if (('.svn' not in dd) and ('cmt' not in dd) and ('_joproxy' not in dd)):
         deepdir = os.path.join(targetbasepath, dd)

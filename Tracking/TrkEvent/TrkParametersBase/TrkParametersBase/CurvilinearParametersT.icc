@@ -18,10 +18,9 @@ Trk::CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   const AmgVector(DIM + 2) & parameters,
   AmgSymMatrix(DIM) * covariance,
   unsigned int cIdentifier)
-  : ParametersBase<DIM, T>(
-      Amg::Vector3D(parameters[x], parameters[y], parameters[z]),
-      Amg::Vector3D(parameters[3], parameters[4], parameters[5]),
-      covariance)
+  : ParametersBase<DIM, T>(covariance)
+  , m_position(Amg::Vector3D(parameters[x], parameters[y], parameters[z]))
+  , m_momentum(Amg::Vector3D(parameters[3], parameters[4], parameters[5]))
   , m_surface{ nullptr }
   , m_cIdentifier(cIdentifier)
 {
@@ -117,11 +116,10 @@ CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
 template<int DIM, class T, class S>
 CurvilinearParametersT<DIM, T, S>::CurvilinearParametersT(
   const CurvilinearParametersT<DIM, T, S>& rhs)
-  : ParametersBase<DIM, T>(rhs.parameters(),
-                           nullptr,
-                           rhs.position(),
-                           rhs.momentum(),
-                           rhs.charge())
+  : ParametersBase<DIM, T>(rhs.parameters(), nullptr, rhs.charge())
+
+  , m_position(rhs.position())
+  , m_momentum(rhs.momentum())
   , m_surface(nullptr)
   , m_cIdentifier(rhs.m_cIdentifier)
 {
@@ -167,6 +165,27 @@ void
 CurvilinearParametersT<DIM, T, S>::setcIdentifier(unsigned int cIdentifier)
 {
   m_cIdentifier = cIdentifier;
+}
+
+template<int DIM, class T, class S>
+double
+CurvilinearParametersT<DIM, T, S>::charge() const
+{
+  return m_chargeDef.charge();
+}
+
+template<int DIM, class T, class S>
+Amg::Vector3D
+CurvilinearParametersT<DIM, T, S>::position() const
+{
+  return m_position;
+}
+
+template<int DIM, class T, class S>
+Amg::Vector3D
+CurvilinearParametersT<DIM, T, S>::momentum() const
+{
+  return m_momentum;
 }
 
 /** Test to see if there's a surface there. */
@@ -257,7 +276,6 @@ CurvilinearParametersT<DIM, T, S>::surfaceType() const
   return S::staticType;
 }
 
-
 // Surface return (with on demand construction)
 template<int DIM, class T, class S>
 Amg::RotationMatrix3D
@@ -273,7 +291,6 @@ CurvilinearParametersT<DIM, T, S>::measurementFrame() const
   // return the rotation matrix that defines the curvilinear parameters
   return mFrame;
 }
-
 
 template<int DIM, class T, class S>
 CurvilinearUVT
@@ -304,7 +321,6 @@ CurvilinearParametersT<DIM, T, S>::dump(std::ostream& out) const
 
   return out;
 }
-
 
 // private updateParametersHelper
 template<int DIM, class T, class S>

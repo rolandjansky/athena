@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 
@@ -107,7 +107,7 @@ class LArExtendedFTGrouping:
                 extPart+=[p]
                 
         for p in extPart:
-            if self._partitions.has_key(p):
+            if p in self._partitions:
                 for g in gains:
                     for c in self._partitions[p]:
                         chans+=[c+(g*236)]
@@ -126,7 +126,6 @@ class LArExtendedFTGrouping:
             return retVal
         retVal=str(chans[0])
         c1=chans[0]
-        sep=','
         series=False
         for c2 in chans[1:]:
             if c1 == c2:
@@ -148,7 +147,6 @@ class LArExtendedFTGrouping:
 
 
     def getChannelSelection(self,partitions,gains):
-        chans=list()
         return self.makeRange(self.getChannelList(partitions,gains))
 
     def getChannelSelectionAllGains(self,partitions):
@@ -181,7 +179,7 @@ class LArExtendedFTGrouping:
     def channelsPerPartition(self,chans,show=True):
         class counterElem:
             def __init__(self,l,n):
-                self.size=l;
+                self.size=l
                 self.name=n
                 self.counts=[0,0,0]
             def inc(self,g):
@@ -211,7 +209,7 @@ class LArExtendedFTGrouping:
         
         for c in chans:
             (gain,cs)=self.getGain(c)
-            if cs == None:
+            if cs is None:
                 print("ERROR: Unkown channel",c)
             else:    
                 if (c<711):

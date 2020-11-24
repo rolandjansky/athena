@@ -1,0 +1,27 @@
+<!-- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration -->
+<lcgdict>
+
+   <!-- xAOD::KLFitterResult type(s). -->
+   <class name="xAOD::KLFitterResult" />
+   <class name="xAOD::KLFitterResultContainer"
+          id="CED870BE-2030-11EB-8A3E-E70046876250" />
+   <class name="xAOD::KLFitterResultAuxContainer"
+          id="D466BCE8-2030-11EB-9751-B78BD3F9D07F" />
+
+   <!-- xAOD::PseudoTopResult type(s). -->
+   <class name="xAOD::PseudoTopResult" />
+   <class name="xAOD::PseudoTopResultContainer"
+          id="F1F909B4-2030-11EB-9DC8-DBB5EBD379C6" />
+
+   <!-- xAOD::SystematicEvent type(s). -->
+   <class name="xAOD::SystematicEvent" />
+   <class name="xAOD::SystematicEventContainer"
+          id="145369AA-2031-11EB-B328-27CBFECB7C67" />
+   <class name="xAOD::SystematicEventAuxContainer"
+          id="1B7C57E6-2031-11EB-B796-BB92DD1855E8" />
+
+   <!-- Tool type(s). -->
+   <class name="RCJetMC15" />
+   <class name="top::TopEventMaker" />
+
+</lcgdict>

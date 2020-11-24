@@ -59,7 +59,6 @@ CaloCellList::CaloCellList(const CaloCellContainer* cell_container,
   std::copy(caloNums.begin(), caloNums.end(), back_inserter(m_caloNums));
 }
 
-CaloCellList::~CaloCellList() {}
 
 void
 CaloCellList::select(double eta, double phi, double deta, double dphi)
@@ -137,7 +136,7 @@ CaloCellList::doSelect(const CaloDetDescrManager& mgr,
   std::vector<IdentifierHash> calo_mgr_vect;
   std::vector<CaloCell_ID::SUBCALO>::const_iterator itrCaloNum = m_caloNums.begin();
   std::vector<CaloCell_ID::SUBCALO>::const_iterator itrEndCaloNum = m_caloNums.end();
-  
+
   for (; itrCaloNum != itrEndCaloNum; ++itrCaloNum) {
     CaloCell_ID::SUBCALO caloNum = *itrCaloNum;
     if (sam != CaloCell_ID::Unknown) {

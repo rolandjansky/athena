@@ -5,11 +5,16 @@
 #ifndef ACTSGEOMETRY_ACTSDETECTORELEMENT_H
 #define ACTSGEOMETRY_ACTSDETECTORELEMENT_H
 
+//Amg Eigen plugin includes
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
 // ATHENA INCLUDES
+
+#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "TRT_ReadoutGeometry/TRT_BaseElement.h"
 
 // ACTS
 #include "Acts/Geometry/DetectorElementBase.hpp"

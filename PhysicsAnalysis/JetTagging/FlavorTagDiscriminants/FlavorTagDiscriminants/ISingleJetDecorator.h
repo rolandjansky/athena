@@ -20,6 +20,8 @@ public:
   /// Method to decorate a jet.
   virtual void decorate(const xAOD::Jet& jet) const = 0;
 
+  // Names of the decorations being added
+  virtual std::set<std::string> getDecoratorKeys() const = 0;
 };
 
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigTauRec.TrigTauRecConf import TrigTauRecMergedMT
 from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnly
@@ -23,7 +23,7 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
             tools.append(taualgs.getTauAxis())
             # Calibrate to TES
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy', caloOnly=True))
+            tools.append(taualgs.getEnergyCalibrationLC(caloOnly=True))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
             tools.append(taualgs.getCellVariables(cellConeSize=0.2))
 
@@ -56,7 +56,7 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
             # Set LC energy scale (0.2 cone) and intermediate axis (corrected for vertex: useless at trigger)
             tools.append(taualgs.getTauAxis())
             # Calibrate to TES
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy', caloOnly=True))
+            tools.append(taualgs.getEnergyCalibrationLC(caloOnly=True))
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
             tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()
@@ -95,7 +95,7 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMergedMT) :
             # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017-2018 (see ATR-15845)
             tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1, noSelector=False))
             # Calibrate to TES
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            tools.append(taualgs.getEnergyCalibrationLC())
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
             tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # Variables combining tracking and calorimeter information
@@ -138,7 +138,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
             # Count tracks with deltaZ0 cut of 2mm for 2016 and 1mm for 2017-2018 (see ATR-15845)
             tools.append(taualgs.getTauTrackFinder(applyZ0cut=True, maxDeltaZ0=1))
             # Calibrate to TES
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            tools.append(taualgs.getEnergyCalibrationLC())
             # Calculate cell-based quantities: strip variables, EM and Had energies/radii, centFrac, isolFrac and ring energies
             tools.append(taualgs.getCellVariables(cellConeSize=0.2))
             # Lifetime variables
@@ -207,7 +207,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
                 tools.append(taualgs.getTauTrackClassifier())
 
             # Calibrate to calo TES
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
+            tools.append(taualgs.getEnergyCalibrationLC())
 
             if doMVATES:
                 # Compute MVA TES (ATR-17649), stores MVA TES as default tau pt()

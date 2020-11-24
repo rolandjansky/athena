@@ -8,10 +8,12 @@
 #include "../MuonSegmentTagTool.h"
 #include "../MuonCaloTagTool.h"
 #include "../TrackSegmentAssociationTool.h"
+#include "../MuonAlignmentUncertTool.h"
 
 using namespace MuonCombined;
 using namespace Muon;
 DECLARE_COMPONENT( MuonCandidateTool )
+DECLARE_COMPONENT( MuonAlignmentUncertTool )
 DECLARE_COMPONENT( MuonCombinedTool )
 DECLARE_COMPONENT( MuonCombinedDebuggerTool )
 DECLARE_COMPONENT( MuonCreatorTool )

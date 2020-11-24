@@ -15,6 +15,7 @@
 
 */
 
+#include "PileUpTools/PileUpMergeSvc.h"
 #include "PileUpTools/PileUpToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -35,10 +36,13 @@
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
+#include "sTGC_Digitization/sTgcDigitMaker.h"
+
 #include <string>
 #include <sstream>
 #include <vector>
 #include <map>
+#include <memory>
 
 /*******************************************************************************/
 namespace MuonGM{
@@ -48,9 +52,7 @@ namespace CLHEP {
   class HepRandomEngine;
 }
 
-class PileUpMergeSvc;
 class sTgcHitIdHelper;
-class sTgcDigitMaker;
 
 /*******************************************************************************/
 class sTgcDigitizationTool : public PileUpToolBase {
@@ -92,27 +94,22 @@ public:
   */
   StatusCode digitize(const EventContext& ctx);
 
-  /** Finalize */
-  StatusCode finalize();
-
-protected:
-  PileUpMergeSvc *m_mergeSvc; // Pile up service
-
 private:
   CLHEP::HepRandomEngine* getRandomEngine(const std::string& streamName, const EventContext& ctx) const;
 
   /** Get next event and extract collection of hit collections */
-  StatusCode getNextEvent();
+  StatusCode getNextEvent(const EventContext& ctx);
   /** Core part of digitization use by mergeEvent (IPileUpTool) and digitize (IMuonDigitizationTool) */
   StatusCode doDigitization(const EventContext& ctx);
 
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc{this, "MergeSvc", "PileUpMergeSvc", "Merge service used in digitization"};
   ServiceHandle<IAthRNGSvc> m_rndmSvc{this, "RndmSvc", "AthRNGSvc", "Random Number Service used in Muon digitization"};
-  sTgcHitIdHelper* m_hitIdHelper;
+  const sTgcHitIdHelper* m_hitIdHelper{}; // not owned here
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-  const MuonGM::MuonDetectorManager* m_mdManager;
-  sTgcDigitMaker* m_digitizer;
-  TimedHitCollection<sTGCSimHit>* m_thpcsTGC;
-  std::list<sTGCSimHitCollection*> m_STGCHitCollList;
+  const MuonGM::MuonDetectorManager* m_mdManager{}; // not owned here
+  std::unique_ptr<sTgcDigitMaker> m_digitizer{};
+  std::unique_ptr<TimedHitCollection<sTGCSimHit>> m_thpcsTGC{};
+  std::vector<std::unique_ptr<sTGCSimHitCollection>> m_STGCHitCollList{};
 
   ToolHandle<Muon::INSWCalibSmearingTool> m_smearingTool{this,"SmearingTool","Muon::NSWCalibSmearingTool/STgcCalibSmearingTool"};
 
@@ -124,7 +121,10 @@ private:
   Gaudi::Property<bool> m_doToFCorrection{this,"doToFCorrection",false};
 
   Gaudi::Property<std::string> m_rndmEngineName{this,"RndmEngine","MuonDigitization","Random engine name"};
-  Gaudi::Property<std::string> m_inputHitCollectionName{this,"InputObjectName","sTGCSensitiveDetector","name of the input object"};
+
+  Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
+  SG::ReadHandleKey<sTGCSimHitCollection> m_hitsContainerKey{this, "InputObjectName", "sTGCSensitiveDetector", "name of the input object"};
+  std::string m_inputObjectName{""};
 
   Gaudi::Property<int> m_doChannelTypes{this,"doChannelTypes",3};
 

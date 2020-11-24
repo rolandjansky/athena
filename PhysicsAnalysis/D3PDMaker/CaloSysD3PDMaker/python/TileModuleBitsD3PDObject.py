@@ -7,8 +7,8 @@ from D3PDMakerCoreComps.D3PDObject import D3PDObject
 def makeTileModuleBitsD3PDObject (name, prefix, object_name='TileModuleBitsD3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = "TileRawChannelFlt"
-    if label == None: label = prefix
+    if sgkey is None: sgkey = "TileRawChannelFlt"
+    if label is None: label = prefix
 
     if not getter:
         getter = CaloSysD3PDMaker.SGTileModuleBitsGetterTool \

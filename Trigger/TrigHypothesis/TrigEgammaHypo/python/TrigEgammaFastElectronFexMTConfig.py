@@ -88,3 +88,35 @@ class EgammaFastElectronFex_HighPt(EgammaFastElectronFex_all):
         self.AcceptAll = False
         self.TrackPt = 2.0 * GeV
 
+def fastElectronFexAlgCfg(flags, name="EgammaFastElectronFex_1", rois="EMRoIs"):
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from TrigEDMConfig.TriggerEDMRun3 import recordable
+    acc = ComponentAccumulator()
+
+    from TrackToCalo.TrackToCaloConfig import ParticleCaloExtensionToolCfg
+    extAcc = ParticleCaloExtensionToolCfg(flags)
+    extTool = acc.popToolsAndMerge(extAcc)
+
+    efex = CompFactory.TrigEgammaFastElectronFexMT("EgammaFastElectronFex_1",
+                                                    AcceptAll=True,
+                                                    TrackPt=1.0 * GeV,
+                                                    TrackPtHighEt=2.0 * GeV,
+                                                    ClusEt=20.0 * GeV,
+                                                    CaloTrackdEtaNoExtrap=0.5,
+                                                    CaloTrackdEtaNoExtrapHighEt=0.1,
+                                                    CaloTrackdETA=0.5,
+                                                    CaloTrackdPHI=0.5,
+                                                    CaloTrackdEoverPLow=0.0,
+                                                    CaloTrackdEoverPHigh=999.0,
+                                                    RCalBarrelFace=1470.0*mm,
+                                                    ZCalEndcapFace=3800.0*mm,
+                                                    ParticleCaloExtensionTool=extTool,
+                                                    ElectronsName=recordable("HLT_FastElectrons"),
+                                                    RoIs=rois,
+                                                    TrackParticlesName="HLT_IDTrack_Electron_FTF",
+                                                    TrigEMClusterName="HLT_FastCaloEMClusters"
+                                                    )
+
+    acc.addEventAlgo(efex)
+    return acc

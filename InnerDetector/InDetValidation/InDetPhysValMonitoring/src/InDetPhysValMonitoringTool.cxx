@@ -285,7 +285,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   //
   std::vector<const xAOD::TrackParticle*> selectedTracks {};
   selectedTracks.reserve(tracks->size());
-  unsigned int nTrackBAT = 0, nTrackSTD = 0, nTrackANT = 0;
+  unsigned int nTrackBAT = 0, nTrackSTD = 0, nTrackANT = 0, nTrackTOT = 0;
   for (const auto& thisTrack: *tracks) {
     //FIXME: Why is this w.r.t the primary vertex?
     const asg::AcceptData& accept = m_trackSelectionTool->accept(*thisTrack, primaryvertex);
@@ -303,7 +303,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
     if(isBAT) nTrackBAT++;
     if(isSTD) nTrackSTD++;
     if(isANT) nTrackANT++;
-
+    nTrackTOT++;
     m_monPlots->fill(*thisTrack);                                      
     m_monPlots->fill(*thisTrack, puEvents, nVertices);  //fill mu dependent plots
     const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
@@ -335,6 +335,8 @@ InDetPhysValMonitoringTool::fillHistograms() {
 
   }
   m_monPlots->fill(nTrackANT, nTrackSTD, nTrackBAT, puEvents, nVertices);
+  m_monPlots->fill(nTrackTOT, puEvents, nVertices);
+
   //FIXME: I don't get why... this is here
   if (m_truthSelectionTool.get()) {
     ATH_MSG_DEBUG( CutFlow(tmp_truth_cutflow).report(m_truthSelectionTool->names()) );

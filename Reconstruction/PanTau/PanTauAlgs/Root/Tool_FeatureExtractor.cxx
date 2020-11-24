@@ -1,25 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-
-///////////////////////////////////////////////////////////////////
-//   Implementation file for class Tool_FeatureExtractor
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Tool to extract jet features from seed
-///////////////////////////////////////////////////////////////////
-// sebastian.fleischmann@cern.ch
-///////////////////////////////////////////////////////////////////
 
 //! Helper classes
 #include "xAODTau/TauJet.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
-
-//#include "TrkParameters/TrackParameters.h"
-//#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 //! ROOT includes
 #include "TMath.h"
@@ -64,9 +50,7 @@ PanTau::Tool_FeatureExtractor::Tool_FeatureExtractor(
     const std::string& name ) :
         asg::AsgTool(name),
         m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore"){
-	//m_trackToVertexTool("Reco::TrackToVertex") {
-    
-    //declareProperty("TrackToVertexTool", m_trackToVertexTool);
+
     declareProperty("Tool_InformationStore",            m_Tool_InformationStore,            "Tool handle to the information store tool");
     declareProperty("Tool_InformationStoreName",        m_Tool_InformationStoreName,            "Tool handle to the information store tool");
     
@@ -79,7 +63,6 @@ StatusCode PanTau::Tool_FeatureExtractor::initialize() {
     ATH_MSG_INFO(" initialize()");
     m_init=true;
     
-    //ATH_CHECK( m_trackToVertexTool.retrieve() );
     ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName ) );
     ATH_CHECK( m_Tool_InformationStore.retrieve() );
     
@@ -166,9 +149,6 @@ void    PanTau::Tool_FeatureExtractor::addFeatureWrtSeedEnergy( PanTau::TauFeatu
 
 StatusCode PanTau::Tool_FeatureExtractor::execute(PanTau::PanTauSeed2* inSeed) {
     
-    ATH_MSG_DEBUG("Calculating features...");
-    
-    
     bool noAnyConstituents           = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoConstituentsAtAll);
     bool noSelConstituents           = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoSelectedConstituents);
     bool noValidInputTau             = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoValidInputTau);
@@ -183,18 +163,14 @@ StatusCode PanTau::Tool_FeatureExtractor::execute(PanTau::PanTauSeed2* inSeed) {
     inSeed->getFeatures()->addFeature(inSeed->getNameInputAlgorithm() + "_" + m_varTypeName_Basic + "_isPanTauCandidate", 1);
     
     
-    ATH_MSG_DEBUG("Basic features");
     ATH_CHECK( calculateBasicFeatures(inSeed) );
     
-    
-    ATH_MSG_DEBUG("RawConstituent 4 vectors");
     ATH_CHECK( addConstituentMomenta(inSeed) );
     
     //first, calculate the Et variants for the seed
     fillVariantsSeedEt(inSeed->getConstituentsAsList_All());
     
     //loop through all types of Constituents in tau and calculate type features for them
-    ATH_MSG_DEBUG("type specific features");
     //baseline
     ATH_CHECK( calculateFeatures(inSeed, PanTau::TauConstituent2::t_NoType) );  //=> all constituents
     ATH_CHECK( calculateFeatures(inSeed, PanTau::TauConstituent2::t_Charged) ); //=> charged ones in core
@@ -206,18 +182,11 @@ StatusCode PanTau::Tool_FeatureExtractor::execute(PanTau::PanTauSeed2* inSeed) {
     
     
     //fill the combined features
-    ATH_MSG_DEBUG("combined features");
     ATH_CHECK( addCombinedFeatures(inSeed) );
     
-    //fill the generic jet features
-    ATH_MSG_DEBUG("generic jet features");
-    ATH_CHECK( addGenericJetFeatures(inSeed) );
-    
     //fill the impact paramter features
-    ATH_MSG_DEBUG("impact parameter features");
     ATH_CHECK( addImpactParameterFeatures(inSeed) );
     
-    ATH_MSG_DEBUG("Finished feature extraction");
     return StatusCode::SUCCESS;
 }
 
@@ -356,9 +325,6 @@ StatusCode PanTau::Tool_FeatureExtractor::addConstituentMomenta(PanTau::PanTauSe
 
 StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2* inSeed,
                                                             int                 tauConstituentType) {
-    //
-    
-    
     
     std::string                             curTypeName                     = PanTau::TauConstituent2::getTypeName( (PanTau::TauConstituent2::Type)tauConstituentType );
     std::string                             curTypeName_All                 = PanTau::TauConstituent2::AllConstituentsName();
@@ -406,10 +372,6 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
     if(list_TypeConstituents_SortBDT.size() > 0) tlv_1st_BDT = list_TypeConstituents_SortBDT[0]->p4();
     if(list_TypeConstituents_SortBDT.size() > 1) tlv_2nd_BDT = list_TypeConstituents_SortBDT[1]->p4();
     if(list_TypeConstituents_SortBDT.size() > 2) tlv_3rd_BDT = list_TypeConstituents_SortBDT[2]->p4();
-    
-    
-    
-    
     
     //! //////////////////////////////////////////                  
     //! Prepare variables for information from eflow Objects
@@ -565,7 +527,6 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
         value_sumBDT_BDTSort += value_BDT;
         std::string iConst = m_HelperFunctions.convertNumberToString((double)(iTypeConst+1));
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BDTValues_BDTSort_" + iConst, value_BDT);
-	ATH_MSG_DEBUG("\t\tAdded variable " << inputAlgName << "_" << curTypeName << "_" << prefixVARType << "_BDTValues_BDTSort_" << iConst << " with value " << value_BDT);
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BDTValuesSum_BDTSort_" + iConst, value_sumBDT_BDTSort);
     }
     
@@ -587,7 +548,6 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
     prefixVARType = PanTau::Tool_FeatureExtractor::varTypeName_Shots();
     //only execute if the constituent type is neutral
     if(PanTau::TauConstituent2::isNeutralType(tauConstituentType) == true) {
-        ATH_MSG_DEBUG("---> Dumping shot information from " << list_TypeConstituents_SortBDT.size() << " constituents of type " << curTypeName << " in tau");
         
         TLorentzVector          totalTLV_SumShots       = TLorentzVector(0., 0., 0., 0.);
         unsigned int            totalPhotonsInSeed      = 0;
@@ -600,33 +560,24 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
         std::vector<TLorentzVector> allShotTLVs = std::vector<TLorentzVector>(0);
         
         for(unsigned int iConst=0; iConst<list_TypeConstituents_SortBDT.size(); iConst++) {
-            ATH_MSG_DEBUG("\tConstituent " << iConst << " / " << list_TypeConstituents_SortBDT.size());
             
             PanTau::TauConstituent2*                 curConst            = list_TypeConstituents_SortBDT.at(iConst);
             TLorentzVector                          tlv_CurConst        = curConst->p4();
             std::vector<PanTau::TauConstituent2*>    shotConstituents    = curConst->getShots();
             unsigned int                            nShots              = shotConstituents.size();
-            ATH_MSG_DEBUG("\t\tConstituent has Pt/Eta/Phi/M: " << tlv_CurConst.Pt() << " / " << tlv_CurConst.Eta() << " / " << tlv_CurConst.Phi() << " / " << tlv_CurConst.M());
-            ATH_MSG_DEBUG("\t\tShots in this constituent: " << nShots);
             
             unsigned int totalPhotonsInNeutral = 0;
             TLorentzVector tlv_SumShots = TLorentzVector(0., 0., 0., 0.);
             
             for(unsigned int iShot=0; iShot<nShots; iShot++) {
                 PanTau::TauConstituent2* curShot     = shotConstituents.at(iShot);
-                unsigned int            curNPhotons = curShot->getNPhotonsInShot();
-                ATH_MSG_DEBUG("\t\t\tPhotons in this shot: " << curNPhotons);
                 totalPhotonsInNeutral += curShot->getNPhotonsInShot();
-                ATH_MSG_DEBUG("\t\t\tPt/Eta/Phi/M of this shot: " << curShot->p4().Pt() << " / " << curShot->p4().Eta() << " / " << curShot->p4().Phi() << " / " << curShot->p4().M() );
                 tlv_SumShots += curShot->p4();
                 allShotTLVs.push_back(curShot->p4());
             }//end loop over shots
             totalShotsInSeed    += nShots;
             totalTLV_SumShots   += tlv_SumShots;
             totalPhotonsInSeed  += totalPhotonsInNeutral;
-            
-            ATH_MSG_DEBUG("\t\tTotal Photons: " << totalPhotonsInNeutral);
-            ATH_MSG_DEBUG("\t\tPt/Eta/Phi/M of combined shots: " << tlv_SumShots.Pt() << " / " << tlv_SumShots.Eta() << " / " << tlv_SumShots.Phi() << " / " << tlv_SumShots.M() );
             
             std::string iConstStr = m_HelperFunctions.convertNumberToString((double)(iConst+1));
                        
@@ -655,9 +606,6 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
             
         }//end loop over constituents in tau
         
-        ATH_MSG_DEBUG("\tLoop over constituents in tau finished!");
-        ATH_MSG_DEBUG("\tTotal photons from shots: " << totalPhotonsInSeed);
-        
         //delta R values
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_MaxDeltaRSumShotToConst", maxDeltaRSumShotToConst);
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_MinDeltaRSumShotToConst", minDeltaRSumShotToConst);
@@ -673,7 +621,6 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_NPhotonsInSeed", totalPhotonsInSeed);
 
         //build di-Shot mass
-        ATH_MSG_DEBUG("\tBuild di-shot masses and check difference to pion mass");
         double maxDiShotMass    = -200;
         double minDiShotMass    = 99999;
         double bestDiShotMass   = -200;
@@ -694,7 +641,7 @@ StatusCode PanTau::Tool_FeatureExtractor::calculateFeatures(PanTau::PanTauSeed2*
                 if(curDiShotMass < minDiShotMass) minDiShotMass = curDiShotMass;
             }
         }
-        ATH_MSG_DEBUG("\tBest di-shot mass: " << bestDiShotMass);
+
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_BestDiShotMass", bestDiShotMass);
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_MaxDiShotMass", maxDiShotMass);
         tauFeatureMap->addFeature(inputAlgName + "_" + curTypeName + "_" + prefixVARType + "_MinDiShotMass", minDiShotMass);
@@ -1127,69 +1074,9 @@ StatusCode PanTau::Tool_FeatureExtractor::addCombinedFeatures(PanTau::PanTauSeed
 
 
 
-StatusCode PanTau::Tool_FeatureExtractor::addGenericJetFeatures(PanTau::PanTauSeed2* inSeed) const {
-    
-    std::string                     inputAlgName    = inSeed->getNameInputAlgorithm();
-    std::vector<TauConstituent2*>    allConstituents = inSeed->getConstituentsAsList_Core();
-    PanTau::TauFeature2*             tauFeatures     = inSeed->getFeatures();
-    
-    const std::string namePrefix = m_varTypeName_JetShape;
-    //! Jet Thrust
-    if(allConstituents.size() > 1) {
-        bool thrustOK = false;
-        std::vector<double> thrustValues = m_HelperFunctions.calcThrust(&allConstituents, thrustOK);
-        if (thrustValues.size() == 3 && thrustOK==true) {
-            const double thrust         = thrustValues[0];
-            const double thrust_major   = thrustValues[1];
-            const double thrust_minor   = thrustValues[2];
-
-            tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetThrust", thrust);
-            tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetThrustMajor", thrust_major);
-            if (allConstituents.size() > 2) {
-                tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetThrustMinor", thrust_minor);
-                tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetOblateness", thrust_major - thrust_minor);
-            } //end check for num. constituents for reasonable minor and oblateness
-        }//end check for reasonable thrustValues
-    }//end check for calculation of thrust
-    
-    
-    //! Jet Fox Wolfram Moments
-    // described here: http://cepa.fnal.gov/psm/simulation/mcgen/lund/pythia_manual/pythia6.3/pythia6301/node215.html
-    bool fwOK = false;
-    std::vector<double> fwValues = m_HelperFunctions.calcFWMoments(&allConstituents, fwOK);
-    if(fwOK == true) {
-        tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetFoxWolfram1", fwValues[1]);
-        tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetFoxWolfram2", fwValues[2]);
-        tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetFoxWolfram3", fwValues[3]);
-        tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetFoxWolfram4", fwValues[4]);
-    
-        if(fwValues[1] > 0.) {
-            tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetFoxWolframRatioFW2OverFW1", fwValues[2] / fwValues[1]);
-            tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetFoxWolframRatioFW4pow4OverFW1", pow(fwValues[4], 4) / fwValues[1]);
-            tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetFoxWolframRatioFW234OverFW1pow4", fwValues[2]*fwValues[3]*fwValues[4] / pow(fwValues[1], 4));
-        }
-        if(fwValues[4] > 0.) tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetFoxWolframRatioFW1PlusFW2OverFW4", (fwValues[1] + fwValues[2]) / fwValues[4]);
-    } //end check for valid calculation of FoxWolfram moments
-    
-    
-    //! Sphericity, aplanarity and planarity
-    bool sphericityOK =false;
-    std::vector<double> sphValues = m_HelperFunctions.calcSphericity(&allConstituents, sphericityOK);
-    if(sphericityOK == true) {
-        tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetSphericity",     sphValues[0]);
-        tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetAplanarity",     sphValues[1]);
-        tauFeatures->addFeature(inputAlgName + "_" + namePrefix + "_JetPlanarity",      sphValues[2]);
-    }
-    
-    return StatusCode::SUCCESS;
-}
-
-
-
 StatusCode PanTau::Tool_FeatureExtractor::addImpactParameterFeatures(PanTau::PanTauSeed2* inSeed) const {
     
     const xAOD::TauJet*     tauJet      = inSeed->getTauJet();
-//     const Trk::RecVertex*   vtx_TauJet  = 0; //inSeed->getTauJet()->origin();
 
     const xAOD::Vertex* vtx_TauJet = tauJet->vertexLink().cachedElement();
     if(vtx_TauJet == 0) {
@@ -1223,62 +1110,15 @@ StatusCode PanTau::Tool_FeatureExtractor::addImpactParameterFeatures(PanTau::Pan
     for(unsigned int iTrk=0; iTrk<list_Tracks.size(); iTrk++) {
         const xAOD::TrackParticle*              curTrack        = list_Tracks[iTrk];
         
-	//const Trk::Perigee* perigee = m_trackToVertexTool->perigeeAtVertex(curTrack, (*pTau.vertexLink())->position());
-	//const Trk::Perigee* perigee = m_trackToVertexTool->perigeeAtVertex(curTrack, vtx_TauJet->position());
-	/*
-        const Trk::ImpactParametersAndSigma*    impactParameter = m_Tool_TrackToVertexIPEstimator->estimate(curTrack, vtx_TauJet);
-        
-        if(impactParameter == 0) {
-            ATH_MSG_DEBUG("could not extract impact parameter for track at " << curTrack << " and vtx at " << vtx_TauJet);
-            continue;
-        }
-	*/
-
-        //get d0 value and significance
-        //double recoD0 = fabs(impactParameter->IPd0);
-	//double recoD0 = perigee->parameters()[Trk::d0];
-	// from http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/StandardModelPhys/Validation/ZeeValidation/src/ReconElectronsPlots.cxx#0242
 	double recoD0 = curTrack->d0();
-        //double signfD0 = (impactParameter->sigmad0 > 0. ? fabs(recoD0/impactParameter->sigmad0) : -999. );
-        //double signfD0 = perigee->parameters()[Trk::d0]/std::sqrt((*perigee->covariance())(Trk::d0, Trk::d0));
 	double errD02 = curTrack->definingParametersCovMatrix()(0, 0);
         double signfD0 = -999.;
 	if(errD02 > 0) signfD0 = curTrack->d0() / sqrtf( errD02 );
-	/*
-	// Need that?
-        if (vtx_TauJet) {
-            //FIXME:
-            //xAOD::TrackParticle does not return requested Trk::TrackParameters for get3DLifetimeSignOfTrack 
-            double lifetimeSign = m_Tool_TrackToVertexIPEstimator->get3DLifetimeSignOfTrack(curTrack->perigeeParameters(), tauDirection, *vtx_TauJet);
-            recoD0 *= lifetimeSign;
-            signfD0 *= lifetimeSign;
-        } else {
-            ATH_MSG_WARNING( "No primary vertex, use absolute value of transverse impact parameter" );
-        }
-	*/
-        
-        //get z0 value and significance
-        //double recoZ0 = fabs(impactParameter->IPz0);
-	//double recoZ0 = perigee->parameters()[Trk::z0];
-	// from http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/PhysicsAnalysis/StandardModelPhys/Validation/ZeeValidation/src/ReconElectronsPlots.cxx#0242
+
 	double recoZ0 = curTrack->z0();
-        //double signfZ0 = (impactParameter->sigmaz0 > 0. ? fabs(recoZ0/impactParameter->sigmaz0) : -999. );
-        //double signfZ0 = perigee->parameters()[Trk::z0]/std::sqrt((*perigee->covariance())(Trk::z0, Trk::z0));
 	double errZ02 = curTrack->definingParametersCovMatrix()(1, 1);
         double signfZ0 = -999.;
 	if(errZ02 > 0) signfZ0 = curTrack->z0() / sqrtf( errZ02 );
-	/*
-	// Need that?
-        if (vtx_TauJet) {
-            //FIXME:
-            //xAOD::TrackParticle does not return requested Trk::TrackParameters for getZLifetimeSignOfTrack 
-            double lifetimeSign = m_Tool_TrackToVertexIPEstimator->getZLifetimeSignOfTrack(curTrack->perigeeParameters(), tauDirection, *vtx_TauJet);
-            recoZ0 *= lifetimeSign;
-            signfZ0 *= lifetimeSign;
-        } else {
-            ATH_MSG_WARNING( "No primary vertex, use absolute value of longitudinal impact parameter" );
-        }
-	*/
         
         // add to features
         if (iTrk < 4) {
@@ -1293,11 +1133,6 @@ StatusCode PanTau::Tool_FeatureExtractor::addImpactParameterFeatures(PanTau::Pan
             impactParameterSignf.push_back(fabs(signfD0));
         }
 
-	/*        
-        delete impactParameter;
-        impactParameter = 0;
-	*/
-            
     }//end loop over tracks
     
     //sort impact parameters and also store sorted by value

@@ -96,7 +96,7 @@ def makeLongBeamspotVertexPositioner(name="LongBeamspotVertexPositioner", **kwar
     return Simulation__LongBeamspotVertexPositioner(name, **kwargs)
 
 
-def BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs):
+def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
     """Return an accumulator and algorithm for beam effects, wihout output"""
     acc = ComponentAccumulator()
     alg = Simulation__BeamEffectsAlg(name="BeamEffectsAlg", **kwargs)
@@ -122,14 +122,30 @@ def BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs):
     return acc
 
 
-def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
+def BeamEffectsAlgOutputCfg(ConfigFlags, **kwargs):
     """Return an accumulator and algorithm for beam effects, with output"""
-    acc = BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs)
+    acc = BeamEffectsAlgCfg(ConfigFlags, **kwargs)
     # Set to write HITS pool file
     alg = acc.getPrimary()
     ItemList = ["McEventCollection#" + alg.OutputMcEventCollection]
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     acc.merge(OutputStreamCfg(ConfigFlags, "HITS", ItemList=ItemList, disableEventTag=True))
+    return acc
+
+
+def BeamSpotFixerAlgCfg(ConfigFlags, **kwargs):
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc = BeamSpotCondAlgCfg(ConfigFlags)
+
+    kwargs.setdefault('InputKey', 'Input_EventInfo')
+
+    if ConfigFlags.Digitization.PileUpPremixing:
+        kwargs.setdefault('OutputKey', ConfigFlags.Overlay.BkgPrefix + 'EventInfo')
+    else:
+        kwargs.setdefault('OutputKey', 'EventInfo')
+
+    alg = CompFactory.Simulation.BeamSpotFixerAlg(name="BeamSpotFixerAlg", **kwargs)
+    acc.addEventAlgo(alg, sequenceName="AthAlgSeq", primary=True)
     return acc
 
 

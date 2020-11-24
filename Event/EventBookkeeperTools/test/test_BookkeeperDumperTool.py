@@ -15,8 +15,8 @@ from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from EventBookkeeperTools.EventBookkeeperToolsConfig import BookkeeperDumperToolCfg
 
 # Argument parsing
-parser = ArgumentParser(prog='dump-cbk')
-parser.add_argument('input', metavar='input', type=str, nargs='?',
+parser = ArgumentParser(prog='test_BookkeeperDumpertool')
+parser.add_argument('input', type=str, nargs='?',
                     help='Specify the input file')
 args = parser.parse_args()
 
@@ -26,7 +26,7 @@ Configurable.configurableRun3Behavior = True
 if args.input:
     ConfigFlags.Input.Files = [args.input]
 else:
-    ConfigFlags.Input.Files = defaultTestFiles.AOD
+    ConfigFlags.Input.Files = defaultTestFiles.AOD_MC
 ConfigFlags.lock()
 
 # Setup tools

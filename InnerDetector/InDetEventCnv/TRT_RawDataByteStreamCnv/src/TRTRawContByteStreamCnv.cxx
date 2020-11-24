@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRTRawContByteStreamCnv.h"
 
-#include "ByteStreamCnvSvcBase/IByteStreamEventAccess.h"
-#include "ByteStreamData/RawEvent.h" 
+#include "ByteStreamData/RawEvent.h"
+#include "AthenaKernel/StorableConversions.h"
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/MsgStream.h"
 
@@ -13,9 +13,8 @@
 // constructor
 
 TRTRawContByteStreamCnv::TRTRawContByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(storageType(), classID(),svcloc),
-    m_tool                 ("TRTRawContByteStreamTool"),                  // init tool handles
-    m_byteStreamEventAccess("ByteStreamCnvSvc","TRTRawContByteStreamCnv") // init service handle
+    AthConstConverter(storageType(), classID(),svcloc,"TRTRawContByteStreamCnv"),
+    m_tool                 ("TRTRawContByteStreamTool")                  // init tool handles
 {}
  
 // ------------------------------------------------------
@@ -24,27 +23,15 @@ TRTRawContByteStreamCnv::TRTRawContByteStreamCnv(ISvcLocator* svcloc) :
 StatusCode
 TRTRawContByteStreamCnv::initialize()
 {
-   StatusCode sc = Converter::initialize(); 
-   if(StatusCode::SUCCESS!=sc) return sc; 
+   ATH_CHECK( AthConstConverter::initialize() );
 
-   MsgStream log(msgSvc(), "TRTRawContByteStreamCnv");
-   log << MSG::DEBUG<< " initialize " <<endmsg; 
-
-   // Retrieve ByteStreamCnvSvc
-   if (m_byteStreamEventAccess.retrieve().isFailure()) {
-     log << MSG::FATAL << "Failed to retrieve service " << m_byteStreamEventAccess << endmsg;
-     return StatusCode::FAILURE;
-   } else 
-     log << MSG::INFO << "Retrieved service " << m_byteStreamEventAccess << endmsg;
+   ATH_MSG_DEBUG( " initialize " );
 
    // Retrieve byte stream tool
-   if (m_tool.retrieve().isFailure()) {
-     log << MSG::FATAL << "Failed to retrieve tool " << m_tool << endmsg;
-     return StatusCode::FAILURE;
-   } else 
-     log << MSG::INFO << "Retrieved tool " << m_tool << endmsg;
+   ATH_CHECK( m_tool.retrieve() );
+   ATH_MSG_INFO( "Retrieved tool " << m_tool );
 
-   log << MSG::INFO << "Leaving TRTRawContByteStreamCnv::initialize()" << endmsg;
+   ATH_MSG_INFO( "Leaving TRTRawContByteStreamCnv::initialize()" );
    return StatusCode::SUCCESS; 
 
 }
@@ -53,19 +40,13 @@ TRTRawContByteStreamCnv::initialize()
 // convert TRT Raw Data in the container into ByteStream
 
 StatusCode 
-TRTRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) 
+TRTRawContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr)  const
 {
-  // message stream
-  MsgStream log(msgSvc(), "TRTRawContByteStreamCnv");
-  
-  // get RawEvent pointer
-  RawEventWrite* re = m_byteStreamEventAccess->getRawEvent(); 
-  
   // get IDC for TRT Raw Data
   TRT_RDO_Container* cont=0; 
-  StoreGateSvc::fromStorable(pObj, cont); 
+  SG::fromStorable(pObj, cont); 
   if(!cont){
-    log << MSG::ERROR << " Can not cast to TRTRawContainer " << endmsg ; 
+    ATH_MSG_ERROR( " Can not cast to TRTRawContainer " );
     return StatusCode::FAILURE;    
   } 
   
@@ -74,12 +55,7 @@ TRTRawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr)
   pAddr = new ByteStreamAddress(classID(),nm,""); 
 
   // now use the tool to do the conversion
-  StatusCode sc = m_tool->convert(cont, re );
-  if(sc.isFailure()){
-    log << MSG::ERROR
-	<< " Could not convert rdo with TRTRawContByteStreamTool " << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_tool->convert(cont) );
 
   return StatusCode::SUCCESS ;
 }

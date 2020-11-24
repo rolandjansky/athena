@@ -76,7 +76,8 @@ StatusCode TRTTrackHoleSearchTool::initialize() {
 	// retrieve ConditionsSummarySvc
 	ATH_CHECK(m_conditions_svc.retrieve());
 
-	m_trt_outer_surf = new Trk::CylinderSurface(new Amg::Transform3D, m_outer_radius, m_max_z);
+	m_trt_outer_surf = new Trk::CylinderSurface(new Amg::Transform3D(Amg::Transform3D::Identity()),
+	 m_outer_radius, m_max_z);
 	// note: HepGeom::Translate3D is deleted by Trk::Surface destructor
 
 	return StatusCode::SUCCESS;

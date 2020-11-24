@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -8,7 +8,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
+from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 
 
 def precisionElectronSequence(ConfigFlags):
@@ -17,7 +17,7 @@ def precisionElectronSequence(ConfigFlags):
     # EVCreator:
     precisionElectronViewsMaker = EventViewCreatorAlgorithm("IMprecisionElectron")
     precisionElectronViewsMaker.RoIsLink = "initialRoI"
-    precisionElectronViewsMaker.RoITool = ViewCreatorInitialROITool()
+    precisionElectronViewsMaker.RoITool = ViewCreatorPreviousROITool()
     precisionElectronViewsMaker.InViewRoIs = InViewRoIs
     precisionElectronViewsMaker.Views = "precisionElectronViews" #precisionElectronViews
     precisionElectronViewsMaker.ViewFallThrough = True
@@ -25,9 +25,9 @@ def precisionElectronSequence(ConfigFlags):
 
     # Configure the reconstruction algorithm sequence
     from TriggerMenuMT.HLTMenuConfig.Electron.PrecisionElectronRecoSequences import precisionElectronRecoSequence
-    (electronPrecisionRec, electronPrecisionTrack, sequenceOut) = precisionElectronRecoSequence(InViewRoIs)
+    (electronPrecisionRec, sequenceOut) = precisionElectronRecoSequence(InViewRoIs)
 
-    electronPrecisionInViewAlgs = parOR("electronPrecisionInViewAlgs", [electronPrecisionTrack, electronPrecisionRec])
+    electronPrecisionInViewAlgs = parOR("electronPrecisionInViewAlgs", [electronPrecisionRec])
     precisionElectronViewsMaker.ViewNodeName = "electronPrecisionInViewAlgs"
 
     electronPrecisionAthSequence = seqAND("electronPrecisionAthSequence", [precisionElectronViewsMaker, electronPrecisionInViewAlgs ] )

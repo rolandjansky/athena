@@ -62,6 +62,10 @@ namespace TrigConf {
        */
       unsigned char triggerTypeAsUChar() const;
 
+      /** Accessor to the item legacy flag
+       */
+      std::optional<bool> legacy() const;
+
       /** Accessor to the item logic
        *
        * The current description of the logic is rather complex and
@@ -72,7 +76,8 @@ namespace TrigConf {
    private:
 
       /** Update the internal data after modification of the data object */
-      virtual void update();
+      virtual void update() { load(); };
+      void load();
 
       std::vector<std::string> m_bunchgroups{};
 

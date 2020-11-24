@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloRampRunPlan.h"
@@ -25,7 +25,7 @@ L1CaloRampRunPlan::L1CaloRampRunPlan(): AbstractL1CaloPersistentCondition("Athen
     this->addSpecification(eEnergySteps,   std::string("EnergySteps"),   std::string("string"));
 }
 
-L1CaloRampRunPlan::L1CaloRampRunPlan(int nEventsPerStep, std::vector<double> vEnergySteps): AbstractL1CaloPersistentCondition("AthenaAttributeList"),
+L1CaloRampRunPlan::L1CaloRampRunPlan(int nEventsPerStep, const std::vector<double>& vEnergySteps): AbstractL1CaloPersistentCondition("AthenaAttributeList"),
     m_bEndOfRampRun(false),
     m_nEventsPerStep(nEventsPerStep),
     m_vEnergySteps(vEnergySteps),

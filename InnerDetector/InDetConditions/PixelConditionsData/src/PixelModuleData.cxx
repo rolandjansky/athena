@@ -34,10 +34,6 @@ int PixelModuleData::getChipStatus(const int chanNum) const {
   return 0;
 }
 
-// Switch parameters
-void PixelModuleData::setUseCablingConditions(bool UseCablingConditions) { m_useCablingConditions = UseCablingConditions; }
-bool PixelModuleData::getUseCablingConditions() const { return m_useCablingConditions; }
-
 // Digitization parameters
 void PixelModuleData::setBunchSpace(double bunchSpace) { m_bunchSpace = bunchSpace; }
 double PixelModuleData::getBunchSpace() const { return m_bunchSpace; }
@@ -270,6 +266,11 @@ int PixelModuleData::getFEI4OverflowToT(int bec, int layer) const {
   unsigned int idx=static_cast<unsigned int>(getFEI4HitDiscConfig(bec,layer)) < 4 ? getFEI4HitDiscConfig(bec,layer) : 4;
   return overflow[idx];
 }
+
+void PixelModuleData::setFEI4ChargScaling(float scaleFEI4) { m_scaleFEI4 = scaleFEI4; }
+void PixelModuleData::setUseFEI4SpecialScalingFunction(bool UseFEI4SpecialScalingFunction) { m_UseFEI4SpecialScalingFunction = UseFEI4SpecialScalingFunction; }
+float PixelModuleData::getFEI4ChargScaling() const { return m_scaleFEI4; }
+bool PixelModuleData::getUseFEI4SpecialScalingFunction() const { return m_UseFEI4SpecialScalingFunction; }
 
 // Charge calibration parameters
 void PixelModuleData::setDefaultQ2TotA(float paramA) { m_paramA=paramA; }

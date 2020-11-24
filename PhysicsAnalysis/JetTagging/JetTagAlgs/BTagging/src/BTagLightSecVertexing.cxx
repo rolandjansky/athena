@@ -375,7 +375,7 @@ namespace Analysis {
 
         for (xAOD::JetContainer::const_iterator jetIter = jetContainer->begin(); jetIter != jetContainer->end(); ++jetIter, ++btagIter, ++infoSVIter) {
           const xAOD::Jet& jetToTag = **jetIter;
-          const Trk::VxSecVertexInfo& myVertexInfo = **infoSVIter;
+          const Trk::VxSecVertexInfo* myVertexInfo = *infoSVIter;
 
           const xAOD::TrackParticleContainer* theTrackParticleContainer = nullptr;
 
@@ -422,7 +422,7 @@ namespace Analysis {
           }
 
           if (basename == "SV1") {
-            const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(&myVertexInfo);
+            const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo);
 	          ATH_MSG_DEBUG("#BTAG# Found valid VKalVertexInfo information: " << infoCont.key());
 	          StatusCode sc = fillVkalVariables(**jetIter, *btagIter, myVertexInfoVKal, theTrackParticleContainer, basename);
 	          if(sc.isFailure()){
@@ -430,7 +430,7 @@ namespace Analysis {
 	            return sc;
 	          }
           } else if (basename == "JetFitter") {
-            const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(&myVertexInfo);
+            const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo);
             ATH_MSG_DEBUG("#BTAG# Found valid VxJetFitterVertexInfo information: " << infoCont.key());
             StatusCode sc = fillJFVariables(jetToTag, *btagIter, myVertexInfoJetFitter, theTrackParticleContainer, basename);
             if(sc.isFailure()){

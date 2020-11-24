@@ -2,10 +2,11 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetDef")
+log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, RecoFragmentsPool
+from .JetRecoConfiguration import jetRecoDictToString
 
 import copy
 
@@ -55,24 +56,29 @@ class JetChainConfiguration(ChainConfigurationBase):
     # Assemble the chain depending on information from chainName
     # ----------------------
     def assembleChain(self):                            
-        log.debug("Assembling chain " + self.chainName)
+        log.debug("Assembling chain %s", self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         # Only one step for now, but we might consider adding steps for
         # reclustering and trimming workflows
-
-        step1_jetCollectionName, step1= self.getJetChainStep()
-        steps=[step1]
-
         chainSteps = []
-        for step in steps:
-            chainSteps+=[step]
-         
-         
+        if self.recoDict["trkopt"]=="ftf":
+            if self.recoDict["trkpresel"]=="nopresel":
+                clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
+                chainSteps.append( caloRecoStep )
+            elif self.recoDict["trkpresel"]=="preselj45":
+                clustersKey, jetPreselStep = self.getJetCaloPreselChainStep()
+                chainSteps.append( jetPreselStep )
+            jetCollectionName, jetTrackingHypoStep = self.getJetTrackingHypoChainStep(clustersKey)
+            chainSteps.append( jetTrackingHypoStep )
+        else:
+            jetCollectionName, jetCaloHypoStep = self.getJetCaloHypoChainStep()
+            chainSteps.append( jetCaloHypoStep )
+
         if "JetDS" in self.chainName:
-           TLAStep = self.getJetTLAChainStep(step1_jetCollectionName)
+           TLAStep = self.getJetTLAChainStep(jetCollectionName)
            chainSteps+= [TLAStep]
         
         myChain = self.buildChain(chainSteps)
@@ -83,27 +89,93 @@ class JetChainConfiguration(ChainConfigurationBase):
     # --------------------
     # Configuration of steps
     # --------------------
-    def getJetChainStep(self):
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetMenuSequence
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetRecoSequences import jetRecoDictToString
-
+    def getJetCaloHypoChainStep(self):
         jetDefStr = jetRecoDictToString(self.recoDict)
 
-        stepName = "Step1_jet_"+jetDefStr
+        stepName = "MainStep_jet_"+jetDefStr
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        jetSeq1 = RecoFragmentsPool.retrieve( jetMenuSequence, ConfigFlags, **self.recoDict ) # the None will be used for flags in future
-        step1_jetCollectionName = jetSeq1.hypo.Alg.Jets 
-        chainStep1 = ChainStep(stepName, [jetSeq1], multiplicity=[1], chainDicts=[self.dict])
-        
-        return step1_jetCollectionName, chainStep1
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
+        jetSeq = RecoFragmentsPool.retrieve( jetCaloHypoMenuSequence, 
+                                             ConfigFlags, **self.recoDict )
+        jetCollectionName = str(jetSeq.hypo.Alg.Jets)
+
+        return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
+    def getJetTrackingHypoChainStep(self, clustersKey):
+        jetDefStr = jetRecoDictToString(self.recoDict)
+
+        stepName = "MainStep_jet_"+jetDefStr
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
+        jetSeq = RecoFragmentsPool.retrieve( jetTrackingHypoMenuSequence,
+                                             ConfigFlags, clustersKey=clustersKey, **self.recoDict )
+        jetCollectionName = str(jetSeq.hypo.Alg.Jets)
+
+        return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
+    def getJetCaloRecoChainStep(self):
+        stepName = "CaloRecoPTStep_jet_"+self.recoDict["calib"]
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloRecoMenuSequence
+        jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloRecoMenuSequence,
+                                                          ConfigFlags, clusterCalib=self.recoDict["calib"] )
+
+        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
+
+    def getJetCaloPreselChainStep(self):
+        # Define a fixed preselection dictionary for prototyping -- we may expand the options
+        preselRecoDict = {
+            'recoAlg':'a4',
+            'dataType':'tc',
+            'calib':'em',
+            'jetCalib':'subjesIS',
+            'trkopt':'notrk',
+            'trkpresel': 'nopresel'
+        }
+        preselJetParts = dict(preselRecoDict)
+        preselJetParts.update(
+            {'L1threshold': 'NOL1SEED',
+             'TLA': '',
+             'addInfo': [],
+             'bConfig': [],
+             'bMatching': [],
+             'bTag': '',
+             'bTracking': '',
+             'chainPartName': 'j45',
+             'cleaning': 'noCleaning',
+             'dataScouting': '',
+             'etaRange': '0eta320',
+             'extra': '',
+             'hypoScenario': 'simple',
+             'jvt': '',
+             'momCuts': '',
+             'multiplicity': '1',
+             'scan': 'FS',
+             'signature': 'Jet',
+             'smc': 'nosmc',
+             'threshold': '20',
+             'topo': [],
+             'trigType': 'j'}
+        )
+        preselChainDict = dict(self.dict)
+        preselChainDict['chainParts'] = [preselJetParts]
+
+        jetDefStr = jetRecoDictToString(preselRecoDict)
+
+        stepName = "PreselStep_jet_"+jetDefStr
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloPreselMenuSequence
+        jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloPreselMenuSequence,
+                                                          ConfigFlags, **preselRecoDict )
+
+        return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[preselChainDict])
 
     def getJetTLAChainStep(self, jetCollectionName):
-        #maybe not needed
-        from TriggerMenuMT.HLTMenuConfig.Jet.JetTLAConfiguration import jetTLAMenuSequence
+        from TriggerMenuMT.HLTMenuConfig.Jet.JetTLASequences import jetTLAMenuSequence
 
-        stepName = "Step2_jetTLA_"+jetCollectionName
-        jetSeq2 = RecoFragmentsPool.retrieve( jetTLAMenuSequence, jetCollectionName ) # the None will be used for flags in future
-        chainStep2 = ChainStep(stepName, [jetSeq2], multiplicity=[1], chainDicts=[self.dict])
+        stepName = "TLAStep_"+jetCollectionName
+        jetSeq = RecoFragmentsPool.retrieve( jetTLAMenuSequence, jetCollectionName )
+        chainStep = ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
-        return chainStep2
+        return chainStep
 

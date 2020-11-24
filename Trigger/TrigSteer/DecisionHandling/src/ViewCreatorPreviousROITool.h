@@ -2,8 +2,8 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef VIEWALGS_VIEWCREATORPREVIOUSROITOOL_H
-#define VIEWALGS_VIEWCREATORPREVIOUSROITOOL_H
+#ifndef DESICIONHANDLING_VIEWCREATORPREVIOUSROITOOL_H
+#define DESICIONHANDLING_VIEWCREATORPREVIOUSROITOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DecisionHandling/IViewCreatorROITool.h"
@@ -22,11 +22,19 @@ public:
 
   virtual ~ViewCreatorPreviousROITool() = default;
 
+  virtual StatusCode initialize() override;
+
 /**
  * @brief Tool interface method. Context not used in this tool implementation.
  **/
   virtual StatusCode attachROILinks(TrigCompositeUtils::DecisionContainer& decisions, const EventContext& ctx) const override;
 
+  Gaudi::Property< std::string > m_roiSGKey{this, "RoISGKey", "",
+    "Optional StorgeGate key of ROI collection. Use this when an ambiguous situation needs resolving, e.g. after merging different reconstructon paths"};
+
+  SG::WriteHandleKey< TrigRoiDescriptorCollection > m_roisWriteHandleKey {this,"RoisWriteHandleKey", "",
+    "Optional StoreGate key, will cause this Tool to create a new output ROI collection, instead of re-using the existing links."};
+
 };
 
-#endif //> !VIEWALGS_VIEWCREATORPREVIOUSROITOOL_H
+#endif //> !DESICIONHANDLING_VIEWCREATORPREVIOUSROITOOL_H

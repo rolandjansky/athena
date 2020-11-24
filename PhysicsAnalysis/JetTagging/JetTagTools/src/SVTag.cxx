@@ -53,6 +53,7 @@ namespace Analysis
     declareProperty("UseDRJetPvSv", m_useDRJPVSV = true);
     declareProperty("UseCHypo", m_useCHypo=true);
     declareProperty("UseSV2Pt", m_usePtSV2=false);
+    declareProperty("SaveProbabilities", m_save_probabilities=false);
 
   }
 
@@ -446,9 +447,11 @@ namespace Analysis
 	  }
 	}
 
+  if (m_save_probabilities) {
 	BTag.setVariable<double>(m_xAODBaseName, "pb", probi[0]);
 	BTag.setVariable<double>(m_xAODBaseName, "pu", probi[1]);
 	if (m_useCHypo) BTag.setVariable<double>(m_xAODBaseName, "pc", probi[2]);
+  }
 	
       }
 

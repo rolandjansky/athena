@@ -2,7 +2,6 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from six import iteritems
 from AthenaCommon.Logging import logging
 log = logging.getLogger('L1DecoderConfig')
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -22,7 +21,7 @@ def mapThresholdToL1DecisionCollection(threshold):
                                 "TE" : "HLTNav_L1MET" }
 
     # remove actual threshold value from L1 threshold string
-    for (thresholdType, l1Collection) in iteritems(mapThresholdToL1Decoder):
+    for (thresholdType, l1Collection) in mapThresholdToL1Decoder.items():
         if threshold.startswith( thresholdType ):
             return l1Collection
 
@@ -43,7 +42,7 @@ def mapThresholdToL1RoICollection(threshold):
                                 "TE" : "HLT_FSRoI" }
 
     # remove actual threshold value from L1 threshold string
-    for (thresholdType, l1Collection) in iteritems(mapThresholdToL1Decoder):
+    for (thresholdType, l1Collection) in mapThresholdToL1Decoder.items():
         if threshold.startswith( thresholdType ):
             return l1Collection
 
@@ -94,6 +93,11 @@ def createPrescalingTool():
     prescaler = CompFactory.PrescalingTool(MonTool = PrescalingMonitoring())
     return prescaler
 
+def createKeyWriterTool():
+    keyWriter = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOnline')
+    keyWriter.ConfKeys = 'TrigConfKeysOnline'
+    keyWriter.IncludeL1PrescaleKey = False
+    return keyWriter
 
 def getL1TriggerResultMaker():
     l1trMaker = CompFactory.L1TriggerResultMaker()
@@ -136,6 +140,7 @@ class L1Decoder(CompFactory.L1Decoder) :
             self.roiUnpackers += unpackers
 
         self.prescaler = createPrescalingTool()
+        self.KeyWriterTool = createKeyWriterTool()
 
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
         self.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
@@ -180,6 +185,7 @@ def L1DecoderCfg(flags, seqName = None):
         decoderAlg.roiUnpackers += unpackers
 
     decoderAlg.prescaler = createPrescalingTool()
+    decoderAlg.KeyWriterTool = createKeyWriterTool()
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 

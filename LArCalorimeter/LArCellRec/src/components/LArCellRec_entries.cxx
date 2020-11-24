@@ -4,7 +4,6 @@
 #include "../LArCellRescaler.h"
 #include "../LArCellMaskingTool.h"
 #include "../LArCellHVCorr.h"
-#include "../LArCellRecalibration.h"
 #include "../LArCellNoiseMaskingTool.h"
 #include "../LArBadFebMaskingTool.h"
 #include "../LArCellGainPathology.h"
@@ -24,7 +23,6 @@ DECLARE_COMPONENT( LArCellEmMiscalib )
 DECLARE_COMPONENT( LArCellRescaler )
 DECLARE_COMPONENT( LArCellMaskingTool )
 DECLARE_COMPONENT( LArCellHVCorr )
-DECLARE_COMPONENT( LArCellRecalibration )
 DECLARE_COMPONENT( LArCellNoiseMaskingTool )
 DECLARE_COMPONENT( LArBadFebMaskingTool )
 DECLARE_COMPONENT( LArCellGainPathology )

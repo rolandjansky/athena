@@ -21,76 +21,76 @@ class ErrorCategoryRODMOD {
   enum ErrorCategoryRODMODID {kSyncMod = 0, kSyncROD, kTruncMod, kTruncROD, kOpt, kSeu, kTout, COUNT};
 };
 
-static const int kNumErrorBitsFEI3{32};
-static const int kNumErrorBitsFEI4{40};
+static const int kNumErrorStatesFEI3{17};
+static const int kNumErrorStatesFEI4{27};
 
-// error states = error bits we care about but also ordered differently
-// order and naming is inherited from Run 2
-// (all state histograms go into ErrorsExpert folder)
-static constexpr std::array<const char*, 16> error_names_stateFEI3 {
-    "Mod_Sync_BCID1_errors",
-    "Mod_Sync_BCID2_errors",
-    "Mod_Sync_LVL1ID_errors",
-    "ROD_Sync_BCID_errors",
-    "ROD_Sync_LVL1ID_errors",
-    "Mod_Trunc_EOC_errors",
-    "Mod_Trunc_Hit_Overflow_errors",
-    "Mod_Trunc_EoE_Overflow_errors",
-    "ROD_Trunc_HT_Limit_errors",
-    "ROD_Trunc_ROD_OF_errors",
-    "Optical_Errors",
-    "SEU_Hit_Parity",
-    "SEU_Register_Parity",
-    "SEU_Hamming",
-    "ROD_Timeout",
-    "FE_Warning"
+// error states = enumerators of PixelByteStreamErrors and FEI4 SR's we care about
+//
+static constexpr std::array<const char*, kNumErrorStatesFEI3> error_names_stateFEI3 {
+    "RODTimeout",
+    "RODSyncBCIDErrors",
+    "RODSyncLVL1IDErrors",
+    "OpticalErrors",
+    "ModSyncLVL1IDErrors",
+    "ModSyncBCID2Errors",
+    "ModSyncBCID1Errors",
+    "ModTruncEoEOverflowErrors",
+    "ModTruncHitOverflowErrors",
+    "FEWarning",
+    "SEUHitParity",
+    "SEURegisterParity",
+    "SEUHamming",
+    "ModTruncEOCErrors",
+    "RODTrailerBitErrors",
+    "RODTruncHTLimitErrors",
+    "RODTruncRODOFErrors"
 };
 
-static constexpr std::array<const char*, 27> error_names_stateFEI4 {
-    "ROD_BCID_errors",
-    "ROD_LVL1ID_errors",
-    "SR_BCID_counter_errors",
-    "SR_L1_in_counter_errors",
-    "SR_L1_request_counter_errors",
-    "SR_L1_register_errors",
-    "SR_L1_Trigger_ID_errors",
-    "SR_Skippped_trig_count_errors",
-    "SR_Row-Column_errors",
-    "SR_Limit_errors",
-    "SR_Truncated_event_flag_errors",
-    "ROD_Preamble_errors",
-    "SR_Hamming_code_0_errors",
-    "SR_Hamming_code_1_errors",
-    "SR_Hamming_code_2_errors",
-    "SR_Triple_redundant_errors_CNFGMEM",
-    "SR_CMD_decoder_bitflip_errors",
-    "SR_Triple_redundant_errors_CMD",
-    "SR_Triple_redundant_errors_EFUSE",
-    "ROD_Trailer_errors",
-    "ROD_Timeout_errors",
-    "SR_Masked_link",
-    "SR_FE_readout_process_errors",
-    "SR_Write_reg_data_errors",
-    "SR Address_errors",
-    "SR_Other_CMD_decoder_errors",
-    "SR_Data_bus_address_errors"
+static constexpr std::array<const char*, kNumErrorStatesFEI4> error_names_stateFEI4 {
+    "RODTimeoutErrors",
+    "RODBCIDErrors",
+    "RODLVL1IDErrors",
+    "RODPreambleErrors",
+    "RODTrailerErrors",
+    "RODRowColumnErrors",
+    "RODMaskedLink",
+    "RODLimitErrors",
+    "SR0BCIDCounterErrors",
+    "SR1HammingCode0Errors",
+    "SR2HammingCode1Errors",
+    "SR3HammingCode2Errors",
+    "SR4L1InCounterErrors",
+    "SR5L1RequestCounterErrors",
+    "SR6L1RegisterErrors",
+    "SR7L1TriggerIDErrors",
+    "SR8FEReadoutProcessErrors",
+    "SR15SkipppedTrigCountErrors",
+    "SR16TruncatedEventFlagErrors",
+    "SR24TripleRedundantErrorsCNFGMEM",
+    "SR25WriteRegDataErrors",
+    "SR26AddressErrors",
+    "SR27OtherCMDDecoderErrors",
+    "SR28CMDDecoderBitflipErrors",
+    "SR29TripleRedundantErrorsCMD",
+    "SR30DataBusAddressErrors",
+    "SR31TripleRedundantErrorsEFUSE"
 };
 
 static constexpr std::array<const char*, ErrorCategoryRODMOD::COUNT> error_names_cat_rodmod {
-  "SyncErrors_Mod",
-  "SyncErrors_ROD",
-  "TruncErrors_Mod",
-  "TruncErrors_ROD",
-  "OpticalErrors_RODMod",
-  "SEUErrors_RODMod",
-  "TimeoutErrors_RODMod"
+  "SyncErrorsMod",
+  "SyncErrorsROD",
+  "TruncErrorsMod",
+  "TruncErrorsROD",
+  "OpticalErrorsRODMod",
+  "SEUErrorsRODMod",
+  "TimeoutErrorsRODMod"
 };
 
 static constexpr std::array<const char*, 4> error_names_cat_rodmod_norm {
-  "SyncErrors_Mod_Frac_per_event",
-  "SyncErrors_ROD_Frac_per_event",
-  "TruncErrors_Mod_Frac_per_event",
-  "TruncErrors_ROD_Frac_per_event"
+  "SyncErrorsModFracPerEvent",
+  "SyncErrorsRODFracPerEvent",
+  "TruncErrorsModFracPerEvent",
+  "TruncErrorsRODFracPerEvent"
 };
 
 static constexpr std::array<const char*, ErrorCategory::COUNT> error_names_cat {
@@ -102,16 +102,16 @@ static constexpr std::array<const char*, ErrorCategory::COUNT> error_names_cat {
 };
 
 static constexpr std::array<const char*, ErrorCategory::COUNT> error_names_cat_norm {
-  "SyncErrorsFrac_per_event", 
-  "TruncationErrorsFrac_per_event", 
-  "OpticalErrorsFrac_per_event", 
-  "SEUErrorsFrac_per_event", 
-  "TimeoutErrorsFrac_per_event"
+  "SyncErrorsFracPerEvent", 
+  "TruncationErrorsFracPerEvent", 
+  "OpticalErrorsFracPerEvent", 
+  "SEUErrorsFracPerEvent", 
+  "TimeoutErrorsFracPerEvent"
 };
 
-static const int numErrorBitsLayer[PixLayers::COUNT] = {
-  kNumErrorBitsFEI3, kNumErrorBitsFEI3, kNumErrorBitsFEI3, kNumErrorBitsFEI3,
-  kNumErrorBitsFEI3, kNumErrorBitsFEI4, kNumErrorBitsFEI4, kNumErrorBitsFEI4
+static const int numErrorStatesLayer[PixLayers::COUNT] = {
+  kNumErrorStatesFEI3, kNumErrorStatesFEI3, kNumErrorStatesFEI3, kNumErrorStatesFEI3,
+  kNumErrorStatesFEI3, kNumErrorStatesFEI4, kNumErrorStatesFEI4, kNumErrorStatesFEI4
 };
 static const int kNumErrorCatRODMods{ErrorCategoryRODMOD::COUNT};
 static const int numErrorCatRODModsLayer[PixLayers::COUNT] = {
@@ -128,8 +128,12 @@ class PixelAthErrorMonAlg : public PixelAthMonitoringBase {
   virtual StatusCode initialize() override;
   virtual StatusCode fillHistograms( const EventContext& ctx ) const override;
   std::string findComponentString(int bec, int ld) const;
-  int getErrorState(int bit, bool isibl) const;
   int getErrorCategory(int error_cat_rodmod) const;
+  std::bitset<kNumErrorStatesFEI3> getErrorStateFEI3Mod(uint64_t errorword) const;
+  std::bitset<kNumErrorStatesFEI3> getErrorStateFE(uint64_t errorword, bool isibl) const;
+  void fillErrorCatRODmod(uint64_t mod_errorword, int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT]) const;
+  void fillErrorCatRODmod(uint64_t fe_errorword, bool is_fei4, int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT]) const;
+  void fillErrorCatRODmod(int servicecode, int payload, int (&nerrors_cat_rodmod)[ErrorCategoryRODMOD::COUNT]) const;
 
  private:
 

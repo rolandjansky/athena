@@ -13,6 +13,8 @@
 #include "StoreGate/WriteHandleKey.h"
 #include "AthContainers/ConstDataVector.h"
 
+#include <Gaudi/Accumulators.h>
+
 class egammaTopoClusterCopier : public AthReentrantAlgorithm {
 
  public:

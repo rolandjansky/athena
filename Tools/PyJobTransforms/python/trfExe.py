@@ -15,7 +15,6 @@ from builtins import int
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 792052 2017-01-13 13:36:51Z mavogel $
 
 import copy
 import json
@@ -956,30 +955,18 @@ class athenaExecutor(scriptExecutor):
             msg.info('input event count is UNDEFINED, setting expectedEvents to 0')
             expectedEvents = 0
         
-        # Check the consistency of parallel configuration: CLI flags + evnironment
-        # 1. Both --multithreaded and --multiprocess flags have been set
-        if ('multithreaded' in self.conf._argdict and
-            'multiprocess' in self.conf._argdict):
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
-                                                            'both --multithreaded and --multiprocess command line options provided. Please use only one of them')
-
-        # 2. One of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
+        # Check the consistency of parallel configuration: CLI flags + evnironment.
+        # At least one of the parallel command-line flags has been provided but ATHENA_CORE_NUMBER environment has not been set
         if (('multithreaded' in self.conf._argdict or 'multiprocess' in self.conf._argdict) and
             ('ATHENA_CORE_NUMBER' not in os.environ)):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
                                                             'either --multithreaded nor --multiprocess command line option provided but ATHENA_CORE_NUMBER environment has not been set')
 
         # Try to detect AthenaMT mode, number of threads and number of concurrent events
-        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict)
+        self._athenaMT, self._athenaConcurrentEvents = detectAthenaMTThreads(self.conf.argdict,self.name)
 
         # Try to detect AthenaMP mode and number of workers
-        self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
-
-        # Another constistency check: make sure we don't have a configuration like follows:
-        # ... --multithreaded --athenaopts=--nprocs=N
-        if (self._athenaMT != 0 and self._athenaMP != 0):
-            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_SETUP'),
-                                                            'transform configured to run Athena in both MT and MP modes. Only one parallel mode at a time must be used')
+        self._athenaMP = detectAthenaMPProcs(self.conf.argdict,self.name)
 
         if self._disableMP:
             self._athenaMP = 0
@@ -1377,7 +1364,7 @@ class athenaExecutor(scriptExecutor):
         self._dbsetup     = dbsetup
         self._wrapperFile = 'runwrapper.{name}.sh'.format(name = self._name)
         msg.debug(
-            'Preparing wrapper file {wrapperFileName} with ' +
+            'Preparing wrapper file {wrapperFileName} with '
             'asetup={asetupStatus} and dbsetup={dbsetupStatus}'.format(
                 wrapperFileName = self._wrapperFile,
                 asetupStatus    = self._asetup,

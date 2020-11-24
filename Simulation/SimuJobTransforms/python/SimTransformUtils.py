@@ -128,6 +128,7 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
                            outData=['HITS','NULL'] )
     executorSet.add(TRExe)
     SimExe = athenaExecutor(name = 'EVNTtoHITS', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py',
+                            skeletonCA = 'SimuJobTransforms.ISF_Skeleton',
                                    substep = 'sim', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData=['NULL','EVNT'],
                                    outData=['EVNT_TR','HITS','NULL'] )

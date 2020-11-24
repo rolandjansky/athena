@@ -97,7 +97,7 @@ MooSegmentFinderAlg::execute(const EventContext& ctx) const
 
     SG::WriteHandle<MuonPatternCombinationCollection> patHandle(m_patternCombiLocation, ctx);
 
-    m_segmentFinder->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output);
+    m_segmentFinder->findSegments(mdtCols, cscCols, tgcCols, rpcCols, output, ctx);
 
     if (output.patternCombinations) {
         if (patHandle.record(std::unique_ptr<MuonPatternCombinationCollection>(output.patternCombinations)).isSuccess())

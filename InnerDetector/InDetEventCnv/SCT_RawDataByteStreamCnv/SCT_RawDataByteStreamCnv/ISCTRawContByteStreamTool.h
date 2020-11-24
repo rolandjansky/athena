@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -36,8 +36,7 @@ class ISCTRawContByteStreamTool : virtual public IAlgTool
   virtual ~ISCTRawContByteStreamTool() = default;
 
   /** Convert method */
-  virtual StatusCode convert(const SCT_RDO_Container* sctRDOCont, 
-                             RawEventWrite* rawEvtWritecont, MsgStream& log) const = 0;
+  virtual StatusCode convert(const SCT_RDO_Container* sctRDOCont) const = 0;
 };
 
 #endif // SCT_RAWDATABYTESTREAMCNV_ISCTRAWCONTBYTESTREAMTOOL_H

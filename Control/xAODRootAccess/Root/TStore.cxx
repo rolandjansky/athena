@@ -41,7 +41,7 @@ namespace xAOD {
       return;
    }
 
-   TReturnCode TStore::remove( const std::string& key ) {
+   StatusCode TStore::remove( const std::string& key ) {
 
       // Look up this object:
       Objects_t::iterator itr = m_objects.find( key );
@@ -49,7 +49,7 @@ namespace xAOD {
          ::Warning( "xAOD::TStore::remove",
                     "Couldn't find object with key \"%s\"",
                     key.c_str() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Delete the hoder object:
@@ -60,10 +60,10 @@ namespace xAOD {
       m_keys.erase( Utils::hash( key ) );
 
       // We were successful:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode TStore::remove( void* ptr ) {
+   StatusCode TStore::remove( void* ptr ) {
 
       // Look for this object:
       Objects_t::iterator itr = m_objects.begin();
@@ -79,14 +79,14 @@ namespace xAOD {
          delete itr->second;
          m_objects.erase( itr );
          m_keys.erase( Utils::hash( itr->first ) );
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // We didn't find the object in the store:
       ::Warning( "xAOD::TStore::remove",
                  "Couldn't find object with pointer %p",
                  ptr );
-      return TReturnCode::kRecoverable;
+      return StatusCode::RECOVERABLE;
    }
 
    void TStore::clear() {
@@ -207,9 +207,9 @@ namespace xAOD {
    /// @param classname The type name of the object being recorded
    /// @param isOwner   If <code>kTRUE</code>, the store takes ownership of the
    ///                  object, otherwise it doesn't
-   /// @returns The usual xAOD::TReturnCode types
+   /// @returns The usual StatusCode types
    ///
-   TReturnCode TStore::record( void* obj, const std::string& key,
+   StatusCode TStore::record( void* obj, const std::string& key,
                                const std::string& classname,
                                ::Bool_t isOwner ) {
 
@@ -220,7 +220,7 @@ namespace xAOD {
       if( clItr != clMap.end() ) {
          // If the cached value doesn't work, then bail now:
          if( ( ! clItr->second ) || ( ! clItr->second->IsLoaded() ) ) {
-            return TReturnCode::kRecoverable;
+            return StatusCode::RECOVERABLE;
          }
          // Otherwise we're done:
          cl = clItr->second;
@@ -232,7 +232,7 @@ namespace xAOD {
          clMap[ classname ] = cl;
       }
       if( ( ! cl ) || ( ! cl->IsLoaded() ) ) {
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Make sure that the key is not yet taken:
@@ -240,16 +240,16 @@ namespace xAOD {
          ::Error( "xAOD::TStore::record",
                   XAOD_MESSAGE( "Trying to overwrite object with key \"%s\"" ),
                   key.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Register the new object:
       m_objects[ key ] = new THolder( obj, cl, isOwner );
       m_keys[ Utils::hash( key ) ] = key;
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode TStore::record( void* obj, const std::string& key,
+   StatusCode TStore::record( void* obj, const std::string& key,
                                const std::type_info& ti ) {
 
       // Make sure that the key is not yet taken:
@@ -257,16 +257,16 @@ namespace xAOD {
          ::Error( "xAOD::TStore::record",
                   XAOD_MESSAGE( "Trying to overwrite object with key \"%s\"" ),
                   key.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Register the new object:
       m_objects[ key ] = new THolder( obj, ti );
       m_keys[ Utils::hash( key ) ] = key;
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode TStore::record( THolder* hldr, const std::string& key ) {
+   StatusCode TStore::record( THolder* hldr, const std::string& key ) {
 
       // Make sure that the key is not yet taken:
       if( m_objects.find( key ) != m_objects.end() ) {
@@ -277,13 +277,13 @@ namespace xAOD {
          // of code readibility, but it results in fewer characters in the
          // template code...
          delete hldr;
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Register the new object:
       m_objects[ key ] = hldr;
       m_keys[ Utils::hash( key ) ] = key;
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This is a reasonably fast function. It checks whether an object with the

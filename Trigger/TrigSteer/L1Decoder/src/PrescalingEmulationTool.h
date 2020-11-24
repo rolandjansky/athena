@@ -43,8 +43,14 @@ public:
  private: 
 
   PrescalingEmulationTool();  
-  Gaudi::Property<bool> m_keepUnknownChains{ this, "KeepUnknownChains", true, "If True then chains for which prescaling information is not set are kept" }; 
-  Gaudi::Property< std::vector<std::string> > m_prescalingConfig{ this, "Prescales", {}, "The prescaling info in the form: \"chainName:PSValue\"" }; 
+  Gaudi::Property<bool> m_keepUnknownChains{
+    this, "KeepUnknownChains", true,
+    "If True then chains for which prescaling information is not set are kept" };
+
+  Gaudi::Property< std::vector<std::string> > m_prescalingConfig{
+    this, "Prescales", {},
+    "The prescaling info in the form: \"chainName:PSValue\"" };
+
   ATHRNG::RNGWrapper m_RNGEngines;
   
   typedef std::map<HLT::Identifier, float> PrescalingInfo;

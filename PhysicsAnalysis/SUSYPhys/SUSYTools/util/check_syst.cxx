@@ -25,7 +25,7 @@
 // Other includes
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 std::string getFW(std::string in, unsigned int width=30){
   for(unsigned int i=in.size() ; i < width; i++)
@@ -39,7 +39,6 @@ int main( int argc, char* argv[] ) {
   ANA_CHECK_SET_TYPE (int);
 
   StatusCode::enableFailure();
-  CP::SystematicCode::enableFailure();
   CP::CorrectionCode::enableFailure();
 
   // The application's name:

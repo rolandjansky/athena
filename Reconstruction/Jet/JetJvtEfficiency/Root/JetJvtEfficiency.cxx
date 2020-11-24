@@ -3,7 +3,7 @@
 */
 
 #include "JetJvtEfficiency/JetJvtEfficiency.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PathResolver/PathResolver.h"
@@ -147,7 +147,7 @@ StatusCode JetJvtEfficiency::initialize(){
   }
 
   // Configure for nominal systematics
-  if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+  if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Could not configure for nominal settings");
     return StatusCode::FAILURE;
   }
@@ -328,14 +328,14 @@ bool JetJvtEfficiency::isInRange(const xAOD::Jet& jet) const {
   return true;
 }
 
-SystematicCode JetJvtEfficiency::sysApplySystematicVariation(const CP::SystematicSet& systSet){
+StatusCode JetJvtEfficiency::sysApplySystematicVariation(const CP::SystematicSet& systSet){
   m_appliedSystEnum = NONE;
   if (systSet.size()==0) {
     ATH_MSG_DEBUG("No affecting systematics received.");
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   } else if (systSet.size()>1) {
     ATH_MSG_WARNING("Tool does not support multiple systematics, returning unsupported" );
-    return CP::SystematicCode::Unsupported;
+    return StatusCode::FAILURE;
   }
   SystematicVariation systVar = *systSet.begin();
   if (systVar == SystematicVariation("")) m_appliedSystEnum = NONE;
@@ -348,7 +348,7 @@ SystematicCode JetJvtEfficiency::sysApplySystematicVariation(const CP::Systemati
   else m_appliedSystEnum = NONE;
 
   ATH_MSG_DEBUG("applied systematic is " << m_appliedSystEnum);
-  return SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode JetJvtEfficiency::tagTruth(const xAOD::IParticleContainer *jets,const xAOD::IParticleContainer *truthJets) {

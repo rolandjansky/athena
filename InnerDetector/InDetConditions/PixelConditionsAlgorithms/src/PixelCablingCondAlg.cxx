@@ -29,101 +29,13 @@ StatusCode PixelCablingCondAlg::initialize() {
   ATH_CHECK(m_condSvc.retrieve());
   ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readoutspeedKey.initialize());
-  ATH_CHECK(m_readKey.initialize(!m_readKey.empty()));
+  ATH_CHECK(m_readKey.initialize(SG::AllowEmpty));
 
   ATH_CHECK(m_writeKey.initialize());
   if (m_condSvc->regHandle(this,m_writeKey).isFailure()) {
     ATH_MSG_FATAL("unable to register WriteCondHandle " << m_writeKey.fullKey() << " with CondSvc");
     return StatusCode::FAILURE;
   }
-
-  if (!m_recordInInitialize.value()) {
-    ATH_MSG_WARNING("Special treatment disabled.");
-    return StatusCode::SUCCESS;
-  }
-
-  ATH_MSG_WARNING("Special treatment: Once RegionSelectorTable is fixed, these lines should be removed.");
-
-  SG::WriteCondHandle<PixelCablingCondData> writeHandle(m_writeKey);
-  if (writeHandle.isValid()) {
-    ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
-    return StatusCode::SUCCESS; 
-  }
-  std::unique_ptr<PixelCablingCondData> writeCdo(std::make_unique<PixelCablingCondData>());
-  const EventIDBase::number_type UNDEFNUM = EventIDBase::UNDEFNUM;
-  const EventIDBase::event_number_t UNDEFEVT = EventIDBase::UNDEFEVT;
-
-  /// FIXME: this is a hack to get the code to work - the comfiguration should be 
-  ///        such that the cabling is now only configured with a proper IoV and not 
-  ///        in the initialise method
-  EventIDRange rangeW (EventIDBase (0, UNDEFEVT, UNDEFNUM, 0, 0),
-                       EventIDBase (9999999, UNDEFEVT, UNDEFNUM, 0, 0));
-
-  // Signed values
-  int barrel_ec, eta_module;
-
-  // Unsigned 32 bit values
-  uint32_t layer_disk, phi_module;
-  uint32_t robid, rodid;
-  uint32_t sl_40_fmt, sl_40_link, sl_80_fmt, sl_80_link;
-
-  // Unsigned 64-bit values
-  uint64_t onlineId = 0;
-  uint64_t linknumber = 0;
-
-  // Strings
-  std::string DCSname;
-  std::string line;
-
-  std::string filename = PathResolverFindCalibFile(m_final_mapping_file);
-  if (filename.size()==0) {
-    ATH_MSG_FATAL("Mapping File: " << m_final_mapping_file << " not found!");
-    return StatusCode::FAILURE;
-  }
-  std::ifstream fin(filename.c_str());
-  if (!fin) { return StatusCode::FAILURE; }
-  std::stringstream instr;
-  instr << fin.rdbuf();
-
-  while (instr.good() && getline(instr, line)) {
-    if (line.size()==0) { continue; }
-    if (line.substr(0,1)==" " || line.substr(0,1)=="#") { continue; }
-    if (line.length()<21) { continue; }
-    if (line.substr(line.length()-3,line.length())=="GMT") { continue; }
-    std::istringstream parse(line);
-    parse >> barrel_ec >> layer_disk >> phi_module >> eta_module >> std::hex >> robid >> rodid >> sl_40_fmt >> sl_40_link >> sl_80_fmt >> sl_80_link >> DCSname;
-    Identifier offlineId = m_pixelID->wafer_id(barrel_ec,layer_disk,phi_module,eta_module);
-    if ((robid & 0xFFFFFF)>=0x140000) {
-      linknumber = sl_40_link | (sl_40_fmt<<4) | (sl_80_link<<8) | (sl_80_fmt<<12);
-    }
-    else {
-      // Valid for data
-      bool readoutSpeed = true;
-      if (rodid>m_rodidForSingleLink40) { readoutSpeed=false; }
-      if (readoutSpeed==false) { linknumber=(sl_40_link & 0xF) | ((sl_40_fmt & 0xF)<<4); }
-      else                     { linknumber=(sl_80_link & 0xF) | ((sl_80_fmt & 0xF)<<4); }
-    }
-    onlineId = (robid & 0xFFFFFF) | (linknumber<<24);
-    IdentifierHash hashId;
-    IdContext cntxpixel = m_pixelID->wafer_context();
-    if (m_pixelID->get_hash(offlineId, hashId, &cntxpixel)) {
-      ATH_MSG_WARNING("Could not get hash from offlineId");
-    }
-    writeCdo->add_entry_onoff(onlineId, offlineId);
-    writeCdo->add_entry_offon(offlineId, onlineId);
-    writeCdo->add_entry_offlineList(robid,offlineId);
-    writeCdo->add_entry_offrob(offlineId, robid);
-    writeCdo->add_entry_rodrob(rodid, robid);
-    writeCdo->add_entry_robrod(robid, rodid);
-    writeCdo->add_entry_DCSoffline(DCSname, offlineId);
-  }
-  if (writeHandle.record(rangeW, std::move(writeCdo)).isFailure()) {
-    ATH_MSG_FATAL("Could not record PixelCablingCondData " << writeHandle.key() << " with EventRange " << rangeW << " into Conditions Store");
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_WARNING("recorded new CDO " << writeHandle.key() << " with range " << rangeW << " into Conditions Store");
-  ATH_MSG_WARNING("Tempolary fix!!: Refilled pixel cabling from file \"" << m_final_mapping_file << "\"");
-
   return StatusCode::SUCCESS;
 }
 
@@ -132,10 +44,10 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
 
   SG::WriteCondHandle<PixelCablingCondData> writeHandle(m_writeKey, ctx);
   ATH_MSG_DEBUG("Conditions updates every event!!! This should be avoided once RegionSelectorTable is fixed!!");
-//   if (writeHandle.isValid()) {
-//     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
-//     return StatusCode::SUCCESS; 
-//   }
+  if (writeHandle.isValid()) {
+    ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid.. In theory this should not be called, but may happen if multiple concurrent events are being processed out of order.");
+    return StatusCode::SUCCESS; 
+  }
 
   // Construct the output Cond Object and fill it in
   std::unique_ptr<PixelCablingCondData> writeCdo(std::make_unique<PixelCablingCondData>());
@@ -165,7 +77,7 @@ StatusCode PixelCablingCondAlg::execute(const EventContext& ctx) const {
   if (moduleData->getCablingMapToFile()) { output_mapping_file_interpreted.open("pixel_cabling_map_interpreted.txt"); }
 
   std::stringstream instr;
-  if (moduleData->getUseCablingConditions()) {
+  if (!m_readKey.empty()) {
     SG::ReadCondHandle<AthenaAttributeList> readHandle(m_readKey, ctx);
     const AthenaAttributeList* readCdo = *readHandle; 
     if (readCdo==nullptr) {

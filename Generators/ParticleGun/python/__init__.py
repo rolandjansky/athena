@@ -1,10 +1,12 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from GeneratorModules.EvgenAlg import EvgenAlg
-from ParticleGun.samplers import *
-from ParticleGun.histsampling import TH1, TH2
+from ParticleGun.samplers import ParticleSampler
+from ParticleGun.samplers import *   # noqa: F401, F403 (import into our namespace)
 from AthenaPython.PyAthena import StatusCode
+import ROOT
+import random
 
 __author__ = "Andy Buckley <andy.buckley@cern.ch>"
 
@@ -35,7 +37,7 @@ class ParticleGun(EvgenAlg):
         """
         Pass the AtRndmGenSvc seed to Python's random module, or use a fixed value set via pg.randomSeed.
         """
-        import McParticleEvent.Pythonizations
+        import McParticleEvent.Pythonizations  # noqa: F401
         seed = None
         ## Use self.randomSeed directly, or if it's None find a seed string from the ATLAS random number service
         if self.randomSeed is not None:
@@ -46,18 +48,18 @@ class ParticleGun(EvgenAlg):
                 for seedstr in randomSvc.Seeds:
                     if seedstr.startswith(self.randomStream):
                         seed = seedstr
-                        self.msg.info("ParticleGun: Using random seed '%s'" % seed)
+                        self.msg.info("ParticleGun: Using random seed '%s'", seed)
                         break
                 if seed is None:
-                    self.msg.warning("ParticleGun: Failed to find a seed for the random stream named '%s'" % self.randomStream)
+                    self.msg.warning("ParticleGun: Failed to find a seed for the random stream named '%s'", self.randomStream)
             else:
-                self.msg.warning("ParticleGun: Failed to find random number service called '%s'" % self.randomSvcName)
+                self.msg.warning("ParticleGun: Failed to find random number service called '%s'", self.randomSvcName)
         ## Apply the seed
         if seed is not None:
             random.seed(seed)
             return StatusCode.Success
         else:
-            self.msg.error("ParticleGun: randomSeed property not set, and no %s random number service found" % self.randomSvcName)
+            self.msg.error("ParticleGun: randomSeed property not set, and no %s random number service found", self.randomSvcName)
             return StatusCode.Failure
 
 

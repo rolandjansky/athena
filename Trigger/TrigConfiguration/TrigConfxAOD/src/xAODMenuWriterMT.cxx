@@ -28,6 +28,7 @@
 // Local include(s):
 #include "xAODMenuWriterMT.h"
 #include "PrintVectorHelper.h"
+#include "TrigConfxAOD/KeyWriterTool.h"
 
 
 namespace TrigConf {
@@ -52,10 +53,14 @@ namespace TrigConf {
       ATH_MSG_VERBOSE( "MetaDataStore = " << m_metaStore );
 
       // Retrieve the necessary service(s):
-      CHECK( m_trigConf.retrieve() );
-      CHECK( m_metaStore.retrieve() );
+      ATH_CHECK( m_trigConf.retrieve() );
+      ATH_CHECK( m_metaStore.retrieve() );
 
-      CHECK( m_eventName.initialize() ); // WriteHandleKey
+      const bool writeKeysWithTool = (m_isHLTJSONConfig && m_isL1JSONConfig);
+      if (writeKeysWithTool) {
+         ATH_CHECK( m_keyWriterTool.retrieve() );
+      }
+      ATH_CHECK( m_eventName.initialize( !writeKeysWithTool ) ); // WriteHandleKey
 
       CHECK( m_HLTMenuKey.initialize(m_isHLTJSONConfig) ); // ReadHandleKey
       CHECK( m_HLTPrescaleSetInputKey.initialize(m_isHLTJSONConfig) ); // ReadCondHandleKey
@@ -140,34 +145,22 @@ namespace TrigConf {
 
    StatusCode xAODMenuWriterMT::execute(const EventContext& ctx) const {
 
-      std::unique_ptr<xAOD::TrigConfKeys> keys;
-      if (m_writexAODTriggerMenuJson) {
-         SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle( m_HLTMenuKey, ctx );
-         SG::ReadCondHandle<TrigConf::L1PrescalesSet> l1PSHandle( m_L1PrescaleSetInputKey, ctx );
-         SG::ReadCondHandle<TrigConf::HLTPrescalesSet> hltPSHandle( m_HLTPrescaleSetInputKey, ctx );
-         ATH_CHECK( hltMenuHandle.isValid() );
-         ATH_CHECK( l1PSHandle.isValid() );
-         ATH_CHECK( hltPSHandle.isValid() );
-         keys = std::make_unique<xAOD::TrigConfKeys>(
-           hltMenuHandle->smk(),
-           l1PSHandle->psk(),
-           hltPSHandle->psk() );
-      } else { // Fall back to R2 TrigConfSvc. Expect this to stop working in the near future (2021+)
-         keys = std::make_unique<xAOD::TrigConfKeys>(
-           m_trigConf->masterKey(),
-           m_trigConf->lvl1PrescaleKey(),
-           m_trigConf->hltPrescaleKey() );
-      }
-
       // Create the keys in the "internal format":
-      const TrigKey_t ckeys =
-         std::make_pair( keys->smk(),
-            std::make_pair( keys->l1psk(),
-                            keys->hltpsk() ) );
+      TrigKey_t ckeys;
 
-
-      SG::WriteHandle<xAOD::TrigConfKeys> trigConfKeysWrite(m_eventName, ctx);
-      ATH_CHECK( trigConfKeysWrite.record( std::move(keys) ) );
+      if (m_writexAODTriggerMenuJson) {
+         // Write to SG via writer tool. 
+         // Get keys back via pass-by-reference
+         ATH_CHECK( m_keyWriterTool->writeKeys(ctx, /*SMK*/ckeys.first, /*L1PSK*/ckeys.second.first, /*HLTPSK*/ckeys.second.second ) );
+      } else { // Fall back to R2 TrigConfSvc. Expect this to stop working in the near future (2021+)
+         ckeys.first = m_trigConf->masterKey();
+         ckeys.second.first = m_trigConf->lvl1PrescaleKey();
+         ckeys.second.second = m_trigConf->hltPrescaleKey();
+         // Write the keys here, do not use the keyWriterTool (this is R3 only)
+         std::unique_ptr<xAOD::TrigConfKeys> keys = std::make_unique<xAOD::TrigConfKeys>(ckeys.first, ckeys.second.first, ckeys.second.second);
+         SG::WriteHandle<xAOD::TrigConfKeys> trigConfKeysWrite(m_eventName, ctx);
+         ATH_CHECK( trigConfKeysWrite.record( std::move(keys) ) );
+      }
 
       // The following code must only run on one event at a time
       std::lock_guard<std::mutex> lock(m_mutex);
@@ -287,7 +280,7 @@ namespace TrigConf {
       // Set its LVL1 information:
       //
       ATH_MSG_DEBUG( "Filling LVL1 information" );
-      SG::ReadHandle<TrigConf::L1Menu> l1MenuHandle = SG::makeHandle( m_L1MenuKey, ctx );
+      SG::ReadHandle<TrigConf::L1Menu> l1MenuHandle( m_L1MenuKey, ctx );
       ATH_CHECK( l1MenuHandle.isValid() );
       const size_t nL1Items = l1MenuHandle->size();
       ATH_MSG_DEBUG("Configuring from " << m_L1MenuKey << " with " << nL1Items << " L1 items");
@@ -336,7 +329,7 @@ namespace TrigConf {
       // Set its HLT information:
       //
       ATH_MSG_DEBUG( "Filling HLT information" );
-      SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle = SG::makeHandle( m_HLTMenuKey, ctx );
+      SG::ReadHandle<TrigConf::HLTMenu> hltMenuHandle( m_HLTMenuKey, ctx );
       ATH_CHECK( hltMenuHandle.isValid() );
       const size_t nChains = hltMenuHandle->size();
       ATH_MSG_DEBUG("Configuring from " << m_HLTMenuKey << " with " << nChains << " chains");

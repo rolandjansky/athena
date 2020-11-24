@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainerRun2.h"
@@ -178,7 +178,7 @@ DataObject* L1CaloPprConditionsContainerRun2::makePersistent() const {
 }
 
 void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
-    std::string, CondAttrListCollection*> condAttrListCollectionMap) {
+    std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
   this->clear();
   // --------------------------------------------------------------------------
   // Folder names
@@ -189,12 +189,11 @@ void L1CaloPprConditionsContainerRun2::makeTransient(const std::map<
   std::string chanCalibStrategyFolderKey = this->coolFolderKey(
       L1CaloPprConditionsContainerRun2::ePprChanCalibStrategy);
 
-  decltype(condAttrListCollectionMap)::const_iterator
-      it_pprChanCalibAttrListCollection = condAttrListCollectionMap.end();
+  // cppcheck-suppress duplicateAssignExpression
+  auto it_pprChanCalibAttrListCollection = condAttrListCollectionMap.end();
   
-  decltype(condAttrListCollectionMap)::const_iterator
-      it_pprChanCalibStrategyAttrListCollection =
-          condAttrListCollectionMap.end();
+  auto it_pprChanCalibStrategyAttrListCollection = condAttrListCollectionMap.end();
+
   // --------------------------------------------------------------------------
   bool isUseStrategy = false;
   // Check that folders exist

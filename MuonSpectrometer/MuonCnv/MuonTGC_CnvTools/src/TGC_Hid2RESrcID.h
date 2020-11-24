@@ -43,16 +43,16 @@ namespace Muon
       /** Make a ROD Source ID for SubDetector ID and ROD ID. */ 
       uint32_t getRodID(uint16_t subDetectorId, uint16_t rodId);
       /** Make a ROD Source ID for TgcDigitCollection. */ 
-      uint32_t getRodID(const Identifier & offlineId);
+      uint32_t getRodID(const Identifier & offlineId) const;
       /** Make a ROB Source ID from a ROD source ID. */ 
-      uint32_t getRobID  (uint32_t rod_id); 
+      uint32_t getRobID  (uint32_t rod_id) const; 
       /** Make a ROS Source ID from a ROB source ID. */ 
       uint32_t getRosID  (uint32_t rob_id); 
       /** Make a SubDetector ID from ROS source ID. */
       uint32_t getDetID  (uint32_t ros_id); 
 
       /** Return all the ROB IDs. */
-      const std::vector<uint32_t>& allRobIds() { return m_robIDs; } 
+      const std::vector<uint32_t>& allRobIds() const { return m_robIDs; } 
 
     private:
       /** Fill all the ROB IDs. */

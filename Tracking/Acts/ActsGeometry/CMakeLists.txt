@@ -22,7 +22,7 @@ atlas_add_library( ActsGeometryLib
                    src/util/*.cxx
                    PUBLIC_HEADERS ActsGeometry
                    INCLUDE_DIRS ${GEANT4_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${GEANT4_INCLUDE_DIRS} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TBB_LIBRARIES}
+                   LINK_LIBRARIES ${GEANT4_LIBRARIES} ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TBB_LIBRARIES}
                    ActsCore
                    ActsGeometryInterfacesLib
                    ActsInteropLib
@@ -72,6 +72,8 @@ atlas_add_component( ActsGeometry
                      ActsGeometryInterfacesLib
                      ActsGeometryLib
                      ActsInteropLib
+                     EventPrimitives
+                     GeoPrimitives
                      AthenaBaseComps
                      AthenaKernel
                      CaloDetDescrLib

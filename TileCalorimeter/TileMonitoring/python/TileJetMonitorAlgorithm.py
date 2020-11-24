@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -54,7 +54,7 @@ def TileJetMonitoringConfig(flags, **kwargs):
 
         jvtTool = CompFactory.JetVertexTaggerTool()
         jetContainer = kwargs.get('JetContainer', tileJetMonAlg._descriptors['JetContainer'].default)
-        jvtTool.JetContainer = jetContainer
+        jvtTool.JetContainer = str(jetContainer)
         tileJetMonAlg.JVT = jvtTool
 
         jetCleaningTool = CompFactory.JetCleaningTool()

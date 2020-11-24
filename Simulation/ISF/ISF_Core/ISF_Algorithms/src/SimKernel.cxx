@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ISF_Algs includes
@@ -25,6 +25,8 @@
 // GeneratorObjects
 #include "GeneratorObjects/McEventCollection.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
+
+#undef ISFDEBUG
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -372,11 +374,17 @@ StatusCode ISF::SimKernel::execute()
 
   // -----------------------------------------------------------------------------------------------
   // Step 3: ISimulation KERNEL : loop over particle stack, until empty
+  unsigned int loopCounter{0};
   ATH_MSG_DEBUG( "Starting simulation loop, initial particle stack size: " << m_particleBroker->numParticles());
-  while ( true ) {
+  while ( m_particleBroker->numParticles() ) {
+    ++loopCounter;
+    ATH_MSG_VERBOSE("Main Loop pass no. " << loopCounter);
+    ATH_MSG_VERBOSE("Queue starts with " << m_particleBroker->numParticles() << " particles.");
     // get next vector of particles for simulation
     const ISF::ConstISFParticleVector &particles = m_particleBroker->popVector(m_maxParticleVectorSize);
+    const unsigned int numParticlesLeftInBroker = m_particleBroker->numParticles();
     int numParticles = particles.size();
+
     // particle vector empty -> end simulation
     if (numParticles==0) break;
 
@@ -390,6 +398,16 @@ StatusCode ISF::SimKernel::execute()
 
     ATH_MSG_DEBUG  ( "Took " << numParticles << " particles from queue (remaining: " << m_particleBroker->numParticles() << ")" );
     ATH_MSG_VERBOSE( " -> All particles will be sent to '" << m_simSvcNames[simID] << "' simulator (SimSvcID=" << simID << ")"  );
+
+    #ifdef ISFDEBUG
+    if (loopCounter>100 && numParticles<3) {
+      ATH_MSG_INFO("Main Loop pass no. " << loopCounter);
+      ATH_MSG_INFO("Selected " << numParticles << " particles to be processed by " << m_simSvcNames[simID]);
+      for ( const ISFParticle *particle : particles ) {
+        ATH_MSG_INFO(*particle);
+      }
+    }
+    #endif // ISFDEBUG
 
     // ensure that all particles in the vector have the same SimID
     for ( const ISFParticle *particle : particles ) {
@@ -409,13 +427,15 @@ StatusCode ISF::SimKernel::execute()
       // NB Passing only the hard-scatter McEventCollection is not
       // correct if Geant4 simulation were to be used for pile-up Hits
       // in Fast Chain.
+      ATH_MSG_VERBOSE("Selected " << particles.size() << " particles to be processed by " <<  m_simSvcNames[simID]);
       if (m_simSvcs[simID]->simulateVector(particles, m_outputHardScatterTruth.ptr()).isFailure()) {
         ATH_MSG_WARNING( "Simulation of particles failed in Simulator: " << m_simSvcNames[simID]);
       }
+      ATH_MSG_VERBOSE(m_simSvcNames[simID] << " returned " << m_particleBroker->numParticles()-numParticlesLeftInBroker << " new particles to be added to the queue." );
     }
 
   }
-  ATH_MSG_VERBOSE( "Ending simulation loop, no more particles in the stack" );
+  ATH_MSG_VERBOSE("Final status: queue contains " << m_particleBroker->numParticles() << " particles.");
   // -----------------------------------------------------------------------------------------------
 
 

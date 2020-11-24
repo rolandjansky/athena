@@ -7,9 +7,8 @@ __doc__    = "hold a set of customized configurables and factory functions"
 __author__ = "Sebastien Binet <binet@cern.ch>"
 __version__= "$Revision: 1.14 $"
 
-import EventKernel.ParticleDataType
 from .McParticleAlgsConf import TruthParticleBuilder
-
+from AthenaCommon import CfgMgr
 
 class PileUpClassification(object):
     # same order as in McParticleEvent/PileUpClassification.h # PLEASE keep in sync with this header !!
@@ -52,7 +51,6 @@ class McAodBuilder( TruthParticleBuilder ):
             return
 
         from .McAodFlags import jobproperties as jp
-        from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon.Configurable import Configurable
         
         if not hasattr(hdl, 'FilterTool'):
@@ -108,7 +106,6 @@ def createMcAodBuilder( name = "McAodBuilder",
     Factory function to create a fully and correctly configured customized
     TruthParticleBuilder algorithm
     """
-    from AthenaCommon import CfgMgr
     if doTruthEtIsolations is None:
         from .McAodFlags import jobproperties as jp
         doTruthEtIsolations = jp.McAodFlags.doTruthEtIsolations()
@@ -224,7 +221,7 @@ class TruthParticleContainerGetter(Configured):
             )
         self._seq += builder
         mlog =  logging.getLogger( self.__class__.__name__)        
-        mlog.info(" Recorded the %s ESD TruthParticle shadow collection - will be recreated on the fly "%(self.outputKey(),))
+        mlog.info("Recorded the %s ESD TruthParticle shadow collection - will be recreated on the fly", self.outputKey())
         objKeyStore.addStreamESD("TruthParticleContainer",self.outputKey())
         
         return True

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrTotalTool.h"
@@ -457,8 +457,8 @@ LArAutoCorrTotalTool::computeRMS(const std::vector<float>& terms,
 
 // *** retrieve AutoCorrTotal (nsamples*(nsamples-1)/2 coeffs) for a given cell ***
 const std::vector<double> 
-LArAutoCorrTotalTool::autoCorrTotal(const HWIdentifier& CellID,
-				    int gain, float Nminbias) const
+LArAutoCorrTotalTool::autoCorrTotal ATLAS_NOT_THREAD_SAFE (const HWIdentifier& CellID,
+                                                           int gain, float Nminbias) const
 {
   int thisgain = (m_isSC ? 0 : gain);
 
@@ -493,8 +493,8 @@ LArAutoCorrTotalTool::autoCorrTotal(const HWIdentifier& CellID,
 
 // *** retrieve AutoCorrTotal (4 coeffs) for a given cell ***
 const std::vector<double> 
-LArAutoCorrTotalTool::autoCorrTotal(const Identifier& CellID,
-				    int gain, float Nminbias) const
+LArAutoCorrTotalTool::autoCorrTotal ATLAS_NOT_THREAD_SAFE (const Identifier& CellID,
+                                                           int gain, float Nminbias) const
 {
   HWIdentifier id = m_cablingService->createSignalChannelID(CellID);  
   return this->autoCorrTotal(id, gain, Nminbias);
@@ -515,8 +515,8 @@ void LArAutoCorrTotalTool::handle(const Incident&) {
 }
 ///////////////////////////////////////////////////////////////////////////
 const std::vector<double>
-LArAutoCorrTotalTool::samplRMS(const HWIdentifier& CellID, 
-                                int gain, float Nminbias) const
+LArAutoCorrTotalTool::samplRMS ATLAS_NOT_THREAD_SAFE (const HWIdentifier& CellID, 
+                                                      int gain, float Nminbias) const
 {
   int thisgain = (m_isSC ? 0 : gain);
   HWIdentifier id;
@@ -538,8 +538,8 @@ LArAutoCorrTotalTool::samplRMS(const HWIdentifier& CellID,
 
 ///////////////////////////////////////////////////////////
 const std::vector<double>
-LArAutoCorrTotalTool::samplRMS(const Identifier& CellID, 
-                                    int gain, float Nminbias) const
+LArAutoCorrTotalTool::samplRMS ATLAS_NOT_THREAD_SAFE (const Identifier& CellID, 
+                                                      int gain, float Nminbias) const
   
 {
   HWIdentifier id = m_cablingService->createSignalChannelID(CellID);  

@@ -8,7 +8,6 @@ from AthenaCommon.GlobalFlags import globalflags
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from AthenaCommon.AppMgr import theApp,ToolSvc,ServiceMgr
 from AthenaCommon.DetFlags import DetFlags
-from RecExConfig.RecFlags import rec as recFlags
 from MuonCnvExample.MuonCnvFlags import muonCnvFlags
 
 from AthenaCommon.AlgSequence import AthSequencer
@@ -39,10 +38,9 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
             muonCnvFlags.RpcCablingMode = 'new'
         else:
             log.info("No RPC cabling taginfo found. Using normal configuration.")
-    except:
+    except KeyError:
         log.info("No metadata/Taginfo found. Using normal configuration for RPC")
-    log.info("RPC cabling is using mode: %s" % muonCnvFlags.RpcCablingMode())
-    
+    log.info("RPC cabling is using mode: %s",muonCnvFlags.RpcCablingMode())
     from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc
     ServiceMgr += RPCcablingServerSvc()
     theApp.CreateSvc += [ "RPCcablingServerSvc" ] # TODO: Remove once the C++ dependencies are fixed
@@ -50,10 +48,8 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     ServiceMgr.RPCcablingServerSvc.forcedUse=True
     ServiceMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc=True #Needed to switch to new cabling
 
-    from MuonRPC_Cabling.MuonRPC_CablingConf import MuonRPC_CablingSvc
-    # ServiceMgr += MuonRPC_CablingSvc()
-    import MuonRPC_Cabling.MuonRPC_CablingConfig
-    # ServiceMgr.MuonRPC_CablingSvc.OutputLevel = 3
+    # without the following line, the MuonRPC_CablingSvc is not part of the ServiceMgr, thus add flake8 ignore flag
+    import MuonRPC_Cabling.MuonRPC_CablingConfig # noqa: F401
     ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=True
     from IOVDbSvc.CondDB import conddb
     #
@@ -89,7 +85,7 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     condSequence += RpcCablingCondAlg("RpcCablingCondAlg")
 
 if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.readRIOPool.TGC_on() or DetFlags.digitize.TGC_on():
-    log.info("TGC cabling is using mode: %s" % muonCnvFlags.TgcCablingMode())
+    log.info("TGC cabling is using mode: %s",muonCnvFlags.TgcCablingMode())
     
     from MuonCablingServers.MuonCablingServersConf import TGCcablingServerSvc
     ServiceMgr += TGCcablingServerSvc()
@@ -130,7 +126,7 @@ if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.read
         #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_TILE") 
 
 if DetFlags.readRDOBS.MDT_on() or DetFlags.readRDOPool.MDT_on()  or DetFlags.readRIOPool.MDT_on() or DetFlags.digitize.MDT_on():
-    log.info("MDT cabling is using mode: %s" % muonCnvFlags.MdtCablingMode())
+    log.info("MDT cabling is using mode: %s",muonCnvFlags.MdtCablingMode())
 
     #Set up new cabling.
     from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingSvc

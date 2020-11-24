@@ -21,6 +21,7 @@ defaultInputKey = {
    'LCJet'     :'AntiKt4LCTopoJets',
    'EMJet'     :'AntiKt4EMTopoJets',
    'PFlowJet'  :'AntiKt4EMPFlowJets',
+   'PFlowFEJet':'AntiKt4EMPFlowFEJets',
    'Muon'      :'Muons',
    'Soft'      :'',
    'ClusColl'  :'CaloCalTopoClusters',
@@ -82,6 +83,8 @@ def getAssociator(config,suffix,doPFlow=False,
         tool = CfgMgr.met__METJetAssocTool('MET_EMJetAssocTool_'+suffix)
     if config.objType == 'PFlowJet':
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
+    if config.objType == 'PFlowFEJet':
+        tool = CfgMgr.met__METJetAssocTool('MET_PFlowFEJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix,DoClusterMatch=False)
     if config.objType == 'Soft':
@@ -94,9 +97,6 @@ def getAssociator(config,suffix,doPFlow=False,
         ToolSvc == tool
         tool.RecoJetKey = config.inputKey
     if doPFlow:
-        pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
-        ToolSvc += pfotool
-        tool.PFOTool = pfotool
         tool.PFlow = True
     else:
         tool.UseModifiedClus = doOriginCorrClus

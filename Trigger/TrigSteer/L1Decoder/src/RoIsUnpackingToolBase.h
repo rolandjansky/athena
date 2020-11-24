@@ -49,10 +49,11 @@ protected:
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_decisionsKey{
     this, "Decisions", "RoIDecisions", "Decisions for each RoI"};
 
-  SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
-      "HLT Menu"};
+  SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{
+    this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu", "HLT Menu"};
 
-  ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
+  ToolHandle<GenericMonitoringTool> m_monTool{
+    this, "MonTool", "", "Monitoring tool"};
   ///@}
 
   std::map<HLT::Identifier, HLT::IDVec> m_thresholdToChainMapping;

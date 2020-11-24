@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloRxGain.h"
@@ -45,14 +45,14 @@ L1CaloRxGain::L1CaloRxGain():
 {
 }
 
-L1CaloRxGain::L1CaloRxGain( unsigned int channelId, int gain, std::string comment ):
+L1CaloRxGain::L1CaloRxGain( unsigned int channelId, int gain, const std::string& comment ):
 	m_channelId(channelId),
 	m_gain(gain),
 	m_comment(comment)
 {
 }
 
-L1CaloRxGain::L1CaloRxGain( const L1CaloRxCoolChannelId& channelId, int gain, std::string comment ):
+L1CaloRxGain::L1CaloRxGain( const L1CaloRxCoolChannelId& channelId, int gain, const std::string& comment ):
 	m_channelId(channelId),
 	m_gain(gain),
 	m_comment(comment)

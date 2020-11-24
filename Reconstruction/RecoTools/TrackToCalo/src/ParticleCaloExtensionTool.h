@@ -22,7 +22,7 @@
 
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h" 
-
+#include "TrkDetDescrUtils/GeometrySignature.h"
 /* 
  * xAOD includes
  */
@@ -91,6 +91,9 @@ private:
   Gaudi::Property<bool>  m_startFromPerigee{this,"StartFromPerigee",false, "Start from Perigee"};
   const AtlasDetectorID* m_detID;
   ParticleHypothesis  m_particleType ;
+
+  Gaudi::Property<unsigned int>  m_extrapolDetectorID{this,"ExtrapolationDetectorID", Trk::Calo, "The detector this tool should extrapolate through. Expects a Trk::GeometrySignature enum value."};
+  
 };
 }
 

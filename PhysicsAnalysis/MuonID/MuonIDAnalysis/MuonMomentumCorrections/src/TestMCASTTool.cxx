@@ -110,7 +110,7 @@ StatusCode TestMCASTTool::execute() {
     //---\\---// Calibrating muon
     ATH_MSG_DEBUG( "Calibrating muon" ); 
     for(std::vector<CP::SystematicSet>::iterator sysItr = m_sysList.begin() + 1; sysItr != m_sysList.end(); ++sysItr) {
-      if( m_MCaSTool->applySystematicVariation(*sysItr) != CP::SystematicCode::Ok) {
+      if( m_MCaSTool->applySystematicVariation(*sysItr) != StatusCode::SUCCESS) {
         continue;
       }
       xAOD::Muon* mu = 0;

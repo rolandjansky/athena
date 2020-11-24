@@ -6,6 +6,7 @@ atlas_subdir( PerfMonEvent )
 # External dependencies:
 find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( nlohmann_json )
 
 # We don't have a direct dependency on boost from this package, but if we
 # pick up the dependency implicitly rather than explicitly, we include
@@ -24,7 +25,7 @@ atlas_add_library( PerfMonEvent
                    PUBLIC_HEADERS PerfMonEvent
                    INCLUDE_DIRS ${Python_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Python_LIBRARIES} ${Boost_LIBRARIES} GaudiKernel rt
+                   LINK_LIBRARIES ${Python_LIBRARIES} ${Boost_LIBRARIES} GaudiKernel rt nlohmann_json::nlohmann_json
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( PerfMonEventDict

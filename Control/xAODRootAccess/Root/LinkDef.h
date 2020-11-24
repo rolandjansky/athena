@@ -11,7 +11,6 @@
 #include "xAODRootAccess/tools/xAODTMetaBranch.h"
 #include "xAODRootAccess/tools/xAODTMetaTree.h"
 #include "xAODRootAccess/tools/TTransTrees.h"
-#include "xAODRootAccess/tools/TReturnCode.h"
 #include "xAODRootAccess/tools/TFileMerger.h"
 #include "xAODRootAccess/tools/TFileChecker.h"
 #include "xAODRootAccess/MakeTransientTree.h"
@@ -31,7 +30,6 @@
 #pragma link C++ class xAODTMetaBranch;
 #pragma link C++ class xAODTMetaTree;
 #pragma link C++ class xAOD::TTransTrees;
-#pragma link C++ class xAOD::TReturnCode;
 #pragma link C++ class xAOD::TFileMerger;
 #pragma link C++ class xAOD::TFileChecker;
 #pragma link C++ function xAOD::MakeTransientTrees(TFile*,const char*);

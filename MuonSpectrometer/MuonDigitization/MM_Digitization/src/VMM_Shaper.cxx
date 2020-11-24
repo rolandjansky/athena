@@ -4,6 +4,7 @@
 
 #include "MM_Digitization/VMM_Shaper.h"
 #include <cmath>
+#include <algorithm>
 
 namespace {
     // VMM shaper parameters provided by G. Iakovidis
@@ -16,16 +17,18 @@ namespace {
     static constexpr double mmIonFlowTime = 150.;  // ns
 }
 
-VMM_Shaper::VMM_Shaper(float peakTime):m_peakTime(peakTime),
-m_timeStep(0.1),
-m_maxTime(700.0)
+VMM_Shaper::VMM_Shaper(const float peakTime,const float lowerTimeWindow,const float upperTimeWindow):m_peakTime(peakTime),
+m_lowerTimeWindow(lowerTimeWindow),
+m_upperTimeWindow(upperTimeWindow),
+m_timeStep(0.1)
 {
+    m_inverseTimeStep = 1./m_timeStep;
     initialize();
 }
 
 void VMM_Shaper::initialize() {
     // hardcoded vmm shaper values are provided by G. Iakovidis
-    m_a = (m_peakTime*(10^-9))/1.5;
+    m_a = (m_peakTime*(1e-9))/1.5;
     m_pole0 = 1.263/m_a;
     m_re_pole1 = 1.149/m_a;
     m_im_pole1 = -0.786/m_a;
@@ -33,80 +36,172 @@ void VMM_Shaper::initialize() {
     m_k1_abs = std::sqrt(Re_K1*Re_K1 + Im_K1*Im_K1);
     m_argK1 = std::atan2(Im_K1, Re_K1);
 
-    m_nBins = m_maxTime/m_timeStep;
     // scale factor for charge taking into account the mm ion flow time of ~150ns
     // if the peaking time is lower then that, only a fration of the total charge is integrated
     m_peakTimeChargeScaling = (m_peakTime < mmIonFlowTime ? 1.0*m_peakTime/mmIonFlowTime : 1.0);
+    
+    // preCalculate factor to avoid recalculating for each electron
+    m_preCalculationVMMShaper = chargeScaleFactor*m_peakTimeChargeScaling*std::pow(m_a, 3)*m_pole0*m_pole1_square;
+
+    m_pole0_ns = m_pole0*(1e-9);
+    m_re_pole1_ns = m_re_pole1*(1e-9);
+    m_im_pole1_ns = m_im_pole1*(1e-9);
 }
 
-void VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, TH1F &response) const {
-    for (uint i_electron = 0; i_electron < effectiveCharge.size(); i_electron++) {
-        for (double ti = electronsTime[i_electron]; ti < m_maxTime; ti += m_timeStep) {
-            double t = (ti-electronsTime.at(i_electron))*(10^-9);
+double VMM_Shaper::vmmResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, double time) const{
+    double response = 0;
+    for (unsigned int i_electron = 0; i_electron < effectiveCharge.size(); i_electron++) {
+            if (time < electronsTime.at(i_electron)) continue;
+            double t = (time-electronsTime.at(i_electron));
             // now follows the vmm shaper response function provided by G. Iakovidis
             // It is described in section 7.1.3 of https://cds.cern.ch/record/1955475
-            double st = effectiveCharge.at(i_electron)*chargeScaleFactor*m_peakTimeChargeScaling*std::pow(m_a, 3)*m_pole0*m_pole1_square*((K0*std::exp(-t*m_pole0))+(2.*m_k1_abs*std::exp(-t*m_re_pole1)*std::cos(-t*m_im_pole1+m_argK1)));
-            response.Fill(ti, st);
+            double st = effectiveCharge.at(i_electron)*m_preCalculationVMMShaper*((K0*std::exp(-t*m_pole0_ns))+(2.*m_k1_abs*std::exp(-t*m_re_pole1_ns)*std::cos(-t*m_im_pole1_ns+m_argK1)));
+            response += st;
+    }
+    return response;
+}
+
+void VMM_Shaper::vmmPeakResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) const{
+    double t_peak = findPeak(effectiveCharge, electronsTime, electronicsThreshold);
+    
+    if (t_peak == -9999 ) return;  // no peak found
+
+    amplitudeFirstPeak = vmmResponse(effectiveCharge, electronsTime, t_peak);
+    timeFirstPeak = t_peak;
+}
+
+
+void VMM_Shaper::vmmThresholdResponse(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) const {
+    if (!aboveThresholdSimple(effectiveCharge, electronsTime, electronicsThreshold)) return;
+
+    if (effectiveCharge.size() == 0) return;  // protect min_element
+    double startTime = m_lowerTimeWindow;
+    double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
+    if (startTime < minElectronTime) startTime = minElectronTime;  // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
+    
+    double tmpTimeAtThreshold = -9999;
+    
+    for (double time = startTime; time < minElectronTime + 0.9*m_peakTime; time += 10*m_timeStep) { // quick search till the first possible peak
+      if(vmmResponse(effectiveCharge, electronsTime, time) <= electronicsThreshold ) continue;
+      for(double fineTime = time; fineTime >= time - 10*m_timeStep; fineTime -= m_timeStep) { // since value above threshold was found, loop back in time to find the crossing with the timeStep precission
+          if(vmmResponse(effectiveCharge, electronsTime, fineTime) >= electronicsThreshold) continue;
+              tmpTimeAtThreshold = fineTime + 0.5*m_timeStep; //  get time between time above and time below threshold 
+              break;
+          }
+      break;
+    } 
+    
+    if(tmpTimeAtThreshold == -9999) {  // threshold crossing not yet found 
+        // check if first possible peak was before start time
+        double tmpStartTime = std::max(minElectronTime + 0.9*m_peakTime, startTime); 
+        for (double time = tmpStartTime; time < m_upperTimeWindow; time += m_timeStep) {
+          if (vmmResponse(effectiveCharge, electronsTime, time) >= electronicsThreshold) {
+              tmpTimeAtThreshold = time;
+              break;
+          }
+       } 
+    
+    }
+
+    if (tmpTimeAtThreshold == -9999) return;
+
+    double t_peak = findPeak(effectiveCharge, electronsTime, electronicsThreshold);
+    if (t_peak == -9999) return;
+
+    timeAtThreshold = tmpTimeAtThreshold;
+    amplitudeAtFirstPeak = vmmResponse(effectiveCharge, electronsTime, t_peak);
+}
+
+
+double VMM_Shaper::findPeak(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const{
+    if(effectiveCharge.size()==0) return -9999; // protect min_element
+    double startTime = m_lowerTimeWindow;
+    double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
+
+    minElectronTime += 0.8*m_peakTime;  // only start looking for the peak close to the first possible peak
+    if(startTime < minElectronTime) startTime = minElectronTime; // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
+
+    double oldResponse = 0;
+    //double currentDerivative = 0;
+
+    double timeStepScaleFactor = 5.0;
+
+    for (double time = startTime; time < m_upperTimeWindow; time += m_timeStep*timeStepScaleFactor) {
+
+        double response = vmmResponse(effectiveCharge, electronsTime, time);
+        if(oldResponse < response){oldResponse=response; continue;}
+        oldResponse = response;
+
+        int searchWindow = 5;
+
+        std::vector<double> tmpTime, tmpResponse;
+
+        tmpTime.reserve(2*timeStepScaleFactor);
+        tmpResponse.reserve(2*timeStepScaleFactor);
+
+
+        for(double fineTime = (time-1.5*m_timeStep*timeStepScaleFactor); fineTime < time+0.5*m_timeStep*timeStepScaleFactor; fineTime += m_timeStep) {
+          tmpTime.push_back(fineTime);
+          tmpResponse.push_back(vmmResponse(effectiveCharge,electronsTime,fineTime));     
+        }
+
+        int nBins = tmpTime.size();
+
+        for(int i_time = 1; i_time < nBins-1;i_time++){
+            if(tmpResponse.at(i_time)<tmpResponse.at(i_time+1)) continue;
+
+            if(tmpResponse.at(i_time) < electronicsThreshold) break; 
+            
+            bool checkTimeWindow = false;
+            for(int i_timeOfPeak = i_time - searchWindow + 1; i_timeOfPeak <= i_time + searchWindow; i_timeOfPeak++) {
+              if(i_timeOfPeak < 1 || i_timeOfPeak == nBins - 1) continue;
+              
+              double oldDerivative = (tmpResponse.at(i_time) - tmpResponse.at(i_time-1));
+              double newDerivative = (tmpResponse.at(i_time+1) - tmpResponse.at(i_time));
+              if (newDerivative > oldDerivative){
+                checkTimeWindow = false;
+                break; 
+              } else {
+                checkTimeWindow = true;
+              }
+            
+           }
+           if(checkTimeWindow) return tmpTime.at(i_time);
+
         }
     }
-}
-
-void VMM_Shaper::vmmPeakResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeFirstPeak, double &timeFirstPeak) const {
-    TH1F response("response", "response", m_nBins, 0, m_maxTime);
-
-    vmmResponse(effectiveCharge, electronsTime, response);
-    int i_bin_peak = findPeak(response, electronicsThreshold);
-
-    if (i_bin_peak == -1) return;  // no peak found
-
-    timeFirstPeak = response.GetXaxis()->GetBinCenter(i_bin_peak);
-    amplitudeFirstPeak = response.GetBinContent(i_bin_peak);
+    return -9999;  // no peak found
 }
 
 
-void VMM_Shaper::vmmThresholdResponse(const std::vector<float> effectiveCharge, const std::vector<float> electronsTime, const double electronicsThreshold, double &amplitudeAtFirstPeak, double &timeAtThreshold) const {
-    TH1F response("response", "response", m_nBins, 0, m_maxTime);
+bool VMM_Shaper::hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const{
+    if (!aboveThresholdSimple(effectiveCharge, electronsTime, electronicsThreshold)) return false;
 
-    vmmResponse(effectiveCharge, electronsTime, response);
-    int i_bin_peak = findPeak(response, electronicsThreshold);
+    if (effectiveCharge.size() == 0) return false;  // protect min_element
+    double startTime = m_lowerTimeWindow;
+    double minElectronTime = *std::min_element(electronsTime.begin(), electronsTime.end());
+    // since we are only checking if signal is above threshold, we can start searching close to the peak
+    minElectronTime += m_peakTime * 0.8;
+    if (startTime < minElectronTime) startTime = minElectronTime;  // if smallest strip times are higher then the lower time window, just start the loop from the smallest electron time
 
-    int binAboveThreshold = response.FindFirstBinAbove(electronicsThreshold);
-    if (binAboveThreshold == -1) return;
-    timeAtThreshold = response.GetXaxis()->GetBinCenter(binAboveThreshold);
-    amplitudeAtFirstPeak = response.GetBinContent(i_bin_peak);
-}
-
-
-int VMM_Shaper::findPeak(const TH1F &response, const double &electronicsThreshold) const{
-    TH1F derivative("derivative", "derivative", m_nBins, 0, m_maxTime);
-
-    // First the derivative gets calculated, then its zero crossing is searched for
-    // if in 4 bins around the 0 crossing the derivative is falling, it is accepted as peak
-
-    for(int i_bin = 1; i_bin<m_nBins; i_bin++){
-        derivative.SetBinContent(i_bin, (response.GetBinContent(i_bin+1) - response.GetBinContent(i_bin)) / response.GetXaxis()->GetBinWidth(i_bin));
-    }
-
-    for (int i_bin = 1; i_bin < m_nBins; i_bin++) {
-        if (derivative.GetBinContent(i_bin) * derivative.GetBinContent(i_bin + 1) > 0.0) continue;  //  continue loop if no 0 crossing was there
-        if (response.GetBinContent(i_bin + 1) < electronicsThreshold) continue;  //  continue if peak is below threshold
-        bool derivativeCut = true;
-        for (int j_bin = i_bin-2; j_bin <= i_bin + 2; j_bin++) {
-            if (derivative.GetBinContent(j_bin) <= derivative.GetBinContent(j_bin+1)) {  // check that the derivative is falling for 4 bins around the 0 crossing
-                derivativeCut = false;
-            }
-            if (derivativeCut) {
-                return i_bin + 1;
-            }
+    for (double time = startTime; time < m_upperTimeWindow; time += m_timeStep) {
+        if (vmmResponse(effectiveCharge, electronsTime, time) >= electronicsThreshold) {
+           return true;
         }
     }
-    return -1;
+    return false;
+
 }
 
 
-bool VMM_Shaper::hasChargeAboveThreshold(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double &electronicsThreshold) const {
-    TH1F response("response", "response", m_nBins, 0, m_maxTime);
-    vmmResponse(effectiveCharge, electronsTime, response);
-    int i_aboveThreshold = response.FindFirstBinAbove(electronicsThreshold);
-    return i_aboveThreshold > 0;
+bool VMM_Shaper::aboveThresholdSimple(const std::vector<float> &effectiveCharge, const std::vector<float> &electronsTime, const double electronicsThreshold) const {
+    // check if total strip charge is above threshold, otherwise skip VMM
+    float chargeSum = 0;
+    for (unsigned int i_elec = 0; i_elec < effectiveCharge.size(); i_elec++) {
+        if (electronsTime.at(i_elec) >= m_lowerTimeWindow - m_peakTime && electronsTime.at(i_elec) <= m_upperTimeWindow) {
+            chargeSum += effectiveCharge.at(i_elec)*m_peakTimeChargeScaling;
+        }
+    }
+    if (chargeSum >= electronicsThreshold) return true;
+    return false;
 }

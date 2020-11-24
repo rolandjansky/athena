@@ -62,7 +62,7 @@ class TileMuRcvContByteStreamTool: public AthAlgTool {
 
   const TileHid2RESrcID* m_hid2re;
 
-  //bool m_verbose;
+  int m_runPeriod;
 };
 
 #endif

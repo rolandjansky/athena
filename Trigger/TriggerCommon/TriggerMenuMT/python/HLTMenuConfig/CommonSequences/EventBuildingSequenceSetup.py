@@ -7,14 +7,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
+from DecisionHandling import DecisionHandlingConf
 from libpyeformat_helper import SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger('EventBuildingSequenceSetup')
 
 
-def addEventBuildingSequence(chain, eventBuildType):
+def addEventBuildingSequence(chain, eventBuildType, chainDict):
     '''
     Add an extra ChainStep to a Chain object with a PEBInfoWriter sequence configured for the eventBuildType
     '''
@@ -28,7 +28,7 @@ def addEventBuildingSequence(chain, eventBuildType):
     def pebInfoWriterToolGenerator(chainDict):
         return pebInfoWriterTool(chainDict['chainName'], eventBuildType)
 
-    inputMaker = pebInputMaker(eventBuildType)
+    inputMaker = pebInputMaker(chain, eventBuildType)
     seq = MenuSequence(
         Sequence    = pebSequence(eventBuildType, inputMaker),
         Maker       = inputMaker,
@@ -36,7 +36,7 @@ def addEventBuildingSequence(chain, eventBuildType):
         HypoToolGen = pebInfoWriterToolGenerator)
 
     step_name = 'Step{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1, eventBuildType)
-    step = ChainStep(name=step_name, Sequences=[seq])
+    step = ChainStep(name=step_name, Sequences=[seq], chainDicts=[chainDict])
     chain.steps.append(step)
 
 
@@ -114,10 +114,15 @@ def pebInfoWriterTool(name, eventBuildType):
     return tool
 
 
-def pebInputMaker(eventBuildType):
-    maker = InputMakerForRoI("IMpeb_"+eventBuildType)
-    maker.RoITool = ViewCreatorInitialROITool()
+def pebInputMaker(chain, eventBuildType):
+    maker = DecisionHandlingConf.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
+    if len(chain.steps) == 0:
+        # Streamers: use initial RoI
+        maker.RoITool = DecisionHandlingConf.ViewCreatorInitialROITool()
+    else:
+        # Other chains: use previous RoI
+        maker.RoITool = DecisionHandlingConf.ViewCreatorPreviousROITool()
     return maker
 
 
@@ -163,4 +168,4 @@ def alignEventBuildingSteps(all_chains):
         if pebStepPosition < maxPebStepPosition[ebt]:
             numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
             log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainDict['chainName'], numStepsNeeded)
-            chainConfig.insertEmptySteps(chainDict,'EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
+            chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)

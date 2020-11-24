@@ -30,7 +30,8 @@ public:
   virtual StatusCode start() override;
 
 private:
-  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_fsRoIKey{ this, "OutputTrigRoIs", "HLT_FSRoI", "The key of FS RoI" };
+  SG::WriteHandleKey<TrigRoiDescriptorCollection> m_fsRoIKey{
+    this, "OutputTrigRoIs", "HLT_FSRoI", "The key of FS RoI" };
 
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   HLT::IDSet m_allFSChains;

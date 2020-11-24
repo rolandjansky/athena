@@ -31,7 +31,6 @@ class UncertaintyGroup : public asg::AsgMessaging
         UncertaintyGroup(const GroupHelper& group);
         UncertaintyGroup(const UncertaintyGroup& toCopy);
         //virtual UncertaintyGroup* clone() const = 0;
-        UncertaintyGroup & operator=(const UncertaintyGroup &) = delete;
         virtual ~UncertaintyGroup();
         virtual StatusCode addComponent(UncertaintyComponent* component);
         virtual StatusCode addSubgroup(UncertaintyGroup* subgroup);
@@ -54,6 +53,9 @@ class UncertaintyGroup : public asg::AsgMessaging
   
         // Access to information on the constituent components
         virtual std::set<CompScaleVar::TypeEnum> getScaleVars() const;
+
+        // Specialty access methods
+        virtual JetTopology::TypeEnum getTopology(const CompScaleVar::TypeEnum scaleVar = CompScaleVar::UNKNOWN) const;
 
         // Methods to check for special situations
         virtual bool isAlwaysZero()  const;

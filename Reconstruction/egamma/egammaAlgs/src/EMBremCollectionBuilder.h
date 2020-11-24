@@ -67,6 +67,7 @@ private:
                          std::vector<TrackWithIndex>& failedfit) const;
 
   StatusCode createCollections(
+    const EventContext& ctx,
     std::vector<TrackWithIndex>& refitted,
     std::vector<TrackWithIndex>& failedfit,
     std::vector<TrackWithIndex>& trtAlone,
@@ -79,7 +80,8 @@ private:
                        xAOD::TrackParticleContainer* finalTrkPartContainer,
                        const xAOD::TrackParticleContainer* AllTracks) const;
 
-  void updateGSFTrack(const TrackWithIndex& Info,
+  void updateGSFTrack(const EventContext& ctx,
+                      const TrackWithIndex& Info,
                       const xAOD::TrackParticleContainer* AllTracks) const;
 
   /** @brief The track refitter */

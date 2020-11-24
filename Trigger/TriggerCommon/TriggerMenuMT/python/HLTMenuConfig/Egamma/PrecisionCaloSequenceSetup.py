@@ -6,7 +6,7 @@
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
+from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TrigEDMConfig.TriggerEDMRun3 import recordable
       
@@ -20,8 +20,13 @@ def precisionCaloSequence(ConfigFlags):
     InViewRoIs="PrecisionCaloRoIs"     
     precisionCaloViewsMaker = EventViewCreatorAlgorithm( "IMprecisionCalo")
     precisionCaloViewsMaker.ViewFallThrough = True
-    precisionCaloViewsMaker.RoIsLink = "initialRoI"
-    precisionCaloViewsMaker.RoITool = ViewCreatorInitialROITool()
+    precisionCaloViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
+    roiTool = ViewCreatorPreviousROITool()
+    # Note: This step processes Decision Objects which have followed either Electron reco, Photon reco, or both.
+    # For Decision Object which have followed both, there is an ambiguity about which ROI should be used in this
+    # merged step. In such cases we break the ambiguity by specifying that the Electron ROI is to be used.
+    roiTool.RoISGKey = "HLT_Roi_FastElectron"
+    precisionCaloViewsMaker.RoITool = roiTool
     precisionCaloViewsMaker.InViewRoIs = InViewRoIs
     precisionCaloViewsMaker.Views = "precisionCaloViews"
     precisionCaloViewsMaker.RequireParentView = True

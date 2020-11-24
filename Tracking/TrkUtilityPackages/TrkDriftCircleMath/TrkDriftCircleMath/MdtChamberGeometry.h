@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DCMATH_MDTCHAMBERGEOMETRY_H
@@ -25,7 +25,7 @@ namespace TrkDriftCircleMath {
 			LocPos tube0ml0, LocPos tube0ml1, 
 			double tubeDist, double tubeStage, double layDist, double stationTheta );  
   
-    virtual ~MdtChamberGeometry();
+    virtual ~MdtChamberGeometry()=default;
 
     void init();
     void setGeometry(unsigned int nml, unsigned int nlay,

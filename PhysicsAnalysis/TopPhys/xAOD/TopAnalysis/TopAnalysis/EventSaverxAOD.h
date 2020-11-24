@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef EVENTSAVERXAOD_H_
 #define EVENTSAVERXAOD_H_
@@ -13,14 +13,12 @@
 class TFile;
 
 namespace top {
-
 /**
  * @brief Write out the selected events in xAOD format.  At some point this will
  * be the future.  But probably not right now.  Still too many missing features.
  */
-class EventSaverxAOD : public top::EventSaverBase , public asg::AsgTool {
-  
-public:
+  class EventSaverxAOD: public top::EventSaverBase, public asg::AsgTool {
+  public:
     /**
      * @brief Kept simple, set the output container prefix (so they have a
      * different name to the input containers).
@@ -46,11 +44,12 @@ public:
      * EventInfo.  e.g. the branch that tells you if an event passed a certain
      * selection.  If you add it here, it'll be written to the output file.
      */
-    virtual void initialize(std::shared_ptr<top::TopConfig> config, TFile* file, const std::vector<std::string>& extraBranches);
-    
+    virtual void initialize(std::shared_ptr<top::TopConfig> config, TFile* file,
+                            const std::vector<std::string>& extraBranches);
+
     //Keep the asg::AsgTool happy
-    virtual StatusCode initialize(){return StatusCode::SUCCESS;}
-    
+    virtual StatusCode initialize() {return StatusCode::SUCCESS;}
+
     /**
      * @brief Save an event.
      *
@@ -73,8 +72,7 @@ public:
 
     ///xAOD needs to write some more stuff to the file at the end of a job
     virtual void finalize();
-
-private:
+  private:
     ///Name to prepend to the output containers
     const std::string m_prefix;
 
@@ -85,8 +83,7 @@ private:
     TFile* m_outputFile;
 
     ClassDef(top::EventSaverxAOD, 0);
-};
-
+  };
 }
 
 #endif

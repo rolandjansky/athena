@@ -18,7 +18,6 @@
 
 //sTGC digitization includes
 #include "sTGC_Digitization/sTgcDigitizationTool.h"
-#include "sTGC_Digitization/sTgcDigitMaker.h"
 #include "sTGC_Digitization/sTgcVMMSim.h"
 #include "sTGC_Digitization/sTgcSimDigitData.h"
 
@@ -30,9 +29,6 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
-
-//Pile-up
-#include "PileUpTools/PileUpMergeSvc.h"
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -89,12 +85,6 @@ inline bool sort_digitsEarlyToLate(sTgcSimDigitData a, sTgcSimDigitData b){
 /*******************************************************************************/
 sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent) :
     PileUpToolBase(type, name, parent),
-    m_mergeSvc(nullptr),
-    m_hitIdHelper(nullptr),
-    m_mdManager(nullptr),
-    m_digitizer(nullptr),
-    m_thpcsTGC(nullptr),
-    m_STGCHitCollList(),
     m_readoutThreshold(0),
     m_neighborOnThreshold(0),
     m_saturation(0),
@@ -117,15 +107,26 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
 //--------------------------------------------
 StatusCode sTgcDigitizationTool::initialize() {
 
-  StatusCode status(StatusCode::SUCCESS);
-
   ATH_MSG_INFO (" sTgcDigitizationTool  retrieved");
   ATH_MSG_INFO ( "Configuration  sTgcDigitizationTool" );
   ATH_MSG_INFO ( "RndmSvc                " << m_rndmSvc             );
   ATH_MSG_INFO ( "RndmEngine             " << m_rndmEngineName      );
-  ATH_MSG_INFO ( "InputObjectName        " << m_inputHitCollectionName );
+  ATH_MSG_INFO ( "InputObjectName        " << m_hitsContainerKey.key());
   ATH_MSG_INFO ( "OutputObjectName       " << m_outputDigitCollectionKey.key());
   ATH_MSG_INFO ( "OutputSDOName          " << m_outputSDO_CollectionKey.key());
+
+  if (m_hitsContainerKey.key().empty()) {
+    ATH_MSG_FATAL("Property InputObjectName not set !");
+    return StatusCode::FAILURE;
+  }
+
+  if (m_onlyUseContainerName) m_inputObjectName = m_hitsContainerKey.key();
+  ATH_MSG_DEBUG("Input objects in container: '" << m_inputObjectName << "'");
+
+  // Pile-up merge service
+  if (m_onlyUseContainerName) {
+    ATH_CHECK(m_mergeSvc.retrieve());
+  }
 
   // retrieve MuonDetctorManager from DetectorStore
   ATH_CHECK(detStore()->retrieve(m_mdManager));
@@ -134,26 +135,15 @@ StatusCode sTgcDigitizationTool::initialize() {
   // sTgcHitIdHelper
   m_hitIdHelper = sTgcHitIdHelper::GetHelper();
 
-  // check the input object name
-  if(m_inputHitCollectionName=="") {
-    ATH_MSG_FATAL("Property InputObjectName not set !");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Input objects: '" << m_inputHitCollectionName << "'");
-  }
+  // Initialize ReadHandleKey
+  ATH_CHECK(m_hitsContainerKey.initialize(!m_onlyUseContainerName));
 
   //initialize the output WriteHandleKeys
-  if(m_outputDigitCollectionKey.key()=="") {
-    ATH_MSG_FATAL("Property OutputObjectName not set !");
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_INFO("Output digits: '" << m_outputDigitCollectionKey.key() << "'");
-  }
   ATH_CHECK(m_outputDigitCollectionKey.initialize());
   ATH_CHECK(m_outputSDO_CollectionKey.initialize());
   
   // initialize class to execute digitization 
-  m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
+  m_digitizer = std::make_unique<sTgcDigitMaker>(m_hitIdHelper, m_mdManager);
   m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   ATH_CHECK(m_rndmSvc.retrieve());
     
@@ -173,7 +163,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   m_timeJitterElectronicsPad = 2.; //ns
   m_timeJitterElectronicsStrip= 2.; //ns
 
-  return status;
+  return StatusCode::SUCCESS;
 }
 /*******************************************************************************/ 
 StatusCode sTgcDigitizationTool::prepareEvent(const EventContext& /*ctx*/, unsigned int nInputEvents) {
@@ -189,20 +179,20 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
               SubEventIterator bSubEvents,
               SubEventIterator eSubEvents) {
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::in processBunchXing()" );
-  if(!m_thpcsTGC) {
-    m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
+  if (m_thpcsTGC == nullptr) {
+    m_thpcsTGC = std::make_unique<TimedHitCollection<sTGCSimHit>>();
   }
   typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type TimedHitCollList;
   TimedHitCollList hitCollList;
 
-  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputHitCollectionName, hitCollList, bunchXing,
+  if (!(m_mergeSvc->retrieveSubSetEvtData(m_inputObjectName, hitCollList, bunchXing,
                                           bSubEvents, eSubEvents).isSuccess()) &&
       hitCollList.size() == 0) {
     ATH_MSG_ERROR("Could not fill TimedHitCollList");
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_VERBOSE(hitCollList.size() << " sTGCSimHitCollection with key " <<
-                    m_inputHitCollectionName << " found");
+                    m_inputObjectName << " found");
   }
 
   TimedHitCollList::iterator iColl(hitCollList.begin());
@@ -211,7 +201,7 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
   // Iterating over the list of collections
   for( ; iColl != endColl; iColl++){
 
-    sTGCSimHitCollection *hitCollPtr = new sTGCSimHitCollection(*iColl->second);
+    auto hitCollPtr = std::make_unique<sTGCSimHitCollection>(*iColl->second);
     PileUpTimeEventIndex timeIndex(iColl->first);
 
     ATH_MSG_DEBUG("sTGCSimHitCollection found with " << hitCollPtr->size() <<
@@ -220,32 +210,38 @@ StatusCode sTgcDigitizationTool::processBunchXing(int bunchXing,
                     << " index: " << timeIndex.index()
                     << " type: " << timeIndex.type());
 
-    m_thpcsTGC->insert(timeIndex, hitCollPtr);
-    m_STGCHitCollList.push_back(hitCollPtr);
+    m_thpcsTGC->insert(timeIndex, hitCollPtr.get());
+    m_STGCHitCollList.push_back(std::move(hitCollPtr));
   }
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
-StatusCode sTgcDigitizationTool::getNextEvent() {
+StatusCode sTgcDigitizationTool::getNextEvent(const EventContext& ctx) {
 
   ATH_MSG_DEBUG ( "sTgcDigitizationTool::getNextEvent()" );
-   
-  if (!m_mergeSvc) {
-    const bool CREATEIF(true);
-    if (!(service("PileUpMergeSvc", m_mergeSvc, CREATEIF)).isSuccess() ||
-  0 == m_mergeSvc) {
-      ATH_MSG_ERROR ("Could not find PileUpMergeSvc" );
-      return StatusCode::FAILURE;
-    }
-  }
 
   //  get the container(s)
   typedef PileUpMergeSvc::TimedList<sTGCSimHitCollection>::type TimedHitCollList;
+
+  // In case of single hits container just load the collection using read handles
+  if (!m_onlyUseContainerName) {
+    SG::ReadHandle<sTGCSimHitCollection> hitCollection(m_hitsContainerKey, ctx);
+    if (!hitCollection.isValid()) {
+      ATH_MSG_ERROR("Could not get sTGCSimHitCollection container " << hitCollection.name() << " from store " << hitCollection.store());
+      return StatusCode::FAILURE;
+    }
+
+    // create a new hits collection
+    m_thpcsTGC = std::make_unique<TimedHitCollection<sTGCSimHit>>(1);
+    m_thpcsTGC->insert(0, hitCollection.cptr());
+    ATH_MSG_DEBUG("sTGCSimHitCollection found with " << hitCollection->size() << " hits");
+    return StatusCode::SUCCESS;
+  }
  
   //this is a list<info<time_t, DataLink<sTGCSimHitCollection> > >
   TimedHitCollList hitCollList;
    
-  if (!(m_mergeSvc->retrieveSubEvtsData(m_inputHitCollectionName, hitCollList).isSuccess()) ) {
+  if (!(m_mergeSvc->retrieveSubEvtsData(m_inputObjectName, hitCollList).isSuccess()) ) {
     ATH_MSG_ERROR ( "Could not fill TimedHitCollList" );
     return StatusCode::FAILURE;
   }
@@ -254,12 +250,12 @@ StatusCode sTgcDigitizationTool::getNextEvent() {
     return StatusCode::FAILURE;
   }
   else {
-    ATH_MSG_DEBUG ( hitCollList.size() << " sTGC SimHitCollections with key " << m_inputHitCollectionName << " found" );
+    ATH_MSG_DEBUG ( hitCollList.size() << " sTGC SimHitCollections with key " << m_inputObjectName << " found" );
   }
    
   //Perform null check on m_thpcsTGC. If pointer is not null throw error
-  if(!m_thpcsTGC) { 
-        m_thpcsTGC = new TimedHitCollection<sTGCSimHit>();
+  if (m_thpcsTGC == nullptr) { 
+    m_thpcsTGC = std::make_unique<TimedHitCollection<sTGCSimHit>>();
   }else{
   ATH_MSG_ERROR ( "m_thpcsTGC is not null" );
   return StatusCode::FAILURE; 
@@ -289,19 +285,10 @@ StatusCode sTgcDigitizationTool::mergeEvent(const EventContext& ctx) {
     ATH_MSG_ERROR ( "doDigitization Failed" );
   }
 
-  // reset the pointer (delete null pointer should be safe)
-  delete m_thpcsTGC; 
-  m_thpcsTGC = 0;
+  // reset the pointer
+  m_thpcsTGC.reset();
 
-  
-  std::list<sTGCSimHitCollection*>::iterator STGCHitColl = m_STGCHitCollList.begin();
-  std::list<sTGCSimHitCollection*>::iterator STGCHitCollEnd = m_STGCHitCollList.end();
-  while(STGCHitColl!=STGCHitCollEnd) {
-    delete (*STGCHitColl);
-    ++STGCHitColl;
-  }
-  m_STGCHitCollList.clear(); 
-
+  m_STGCHitCollList.clear();
 
   return status;
 }
@@ -315,8 +302,8 @@ StatusCode sTgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
   ATH_MSG_DEBUG (" sTgcDigitizationTool::processAllSubEvents()" );
 
   //merging of the hit collection in getNextEvent method      
-  if (0 == m_thpcsTGC) {
-    status = getNextEvent();
+  if (m_thpcsTGC == nullptr) {
+    status = getNextEvent(ctx);
     if (StatusCode::FAILURE == status) {
       ATH_MSG_INFO ( "There are no sTGC hits in this event" );
       return status;
@@ -327,19 +314,12 @@ StatusCode sTgcDigitizationTool::processAllSubEvents(const EventContext& ctx) {
     ATH_MSG_ERROR ( "doDigitization() Failed" );
   }   
   
-  // reset the pointer (delete null pointer should be safe)
-  delete m_thpcsTGC; 
-  m_thpcsTGC = 0;
-
+  // reset the pointer
+  m_thpcsTGC.reset();
 
   return status;
 }
-/*******************************************************************************/
-StatusCode sTgcDigitizationTool::finalize() {
-  delete m_digitizer; 
-  m_digitizer = nullptr;
-  return StatusCode::SUCCESS;
-}
+
 /*******************************************************************************/
 StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   
@@ -368,8 +348,6 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
   std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > > unmergedWireDigits;
   
   std::map< Identifier, std::map< Identifier, std::vector<sTgcDigit> > > outputDigits;
-
-  sTgcDigitCollection* digitCollection = 0;  //output digits
 
   ATH_MSG_DEBUG("create Digit container of size " << m_idHelperSvc->stgcIdHelper().module_hash_max());
   
@@ -498,11 +476,10 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
       float tof = temp_hit.globalPosition().mag()/CLHEP::c_light;
       float bunchTime = globalHitTime - tof;
 
-      sTgcDigitCollection* digiHits = 0;
-
-      digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
-      if(!digiHits)
+      std::unique_ptr<sTgcDigitCollection> digiHits = m_digitizer->executeDigi(&temp_hit, globalHitTime);  //Create all the digits for this particular Sim Hit
+      if (digiHits == nullptr) {
         continue;
+      }
 
       sTgcDigitCollection::const_iterator it_digiHits;
       ATH_MSG_VERBOSE("Hit produced " << digiHits->size() << " digits." );
@@ -549,7 +526,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
         ATH_MSG_VERBOSE("...Check time 5: " << newTime );
         // Create a new digit with updated time and BCTag
-        sTgcDigit* newDigit = new sTgcDigit(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  
+        auto newDigit = std::make_unique<sTgcDigit>(newDigitId, newBcTag, newTime, newCharge, isDead, isPileup);  
         ATH_MSG_VERBOSE("Unmerged Digit") ;
         ATH_MSG_VERBOSE(" BC tag = "    << newDigit->bcTag()) ;
         ATH_MSG_VERBOSE(" digitTime = " << newDigit->time()) ;
@@ -578,10 +555,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
           //Put the hit and digit in a vector associated with the RE
           unmergedWireDigits[elemId][newDigitId].push_back(sTgcSimDigitData(simData, *newDigit));   
         }
-        delete newDigit;
       } // end of loop digiHits
-      delete digiHits;
-      digiHits = 0;
     } // end of while(i != e)
   } //end of while(m_thpcsTGC->nextDetectorElement(i, e))
 
@@ -935,7 +909,7 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
     IdentifierHash coll_hash;
     m_idHelperSvc->stgcIdHelper().get_module_hash(elemId, coll_hash);
     msg(MSG::VERBOSE) << "coll = "<< elemId << endmsg;
-    digitCollection = new sTgcDigitCollection(elemId, coll_hash);
+    auto digitCollection = std::make_unique<sTgcDigitCollection>(elemId, coll_hash);
 
     for(std::map< Identifier, std::vector<sTgcDigit> >::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
       for(std::vector< sTgcDigit >::iterator it_digit = it_REID->second.begin(); it_digit != it_REID->second.end(); ++it_digit){
@@ -976,23 +950,20 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
 
     } // end of loop for all the ReadoutElementID
 
-    if(digitCollection->size()){
-      ATH_MSG_VERBOSE("push the collection to m_digitcontainer : HashId = " << digitCollection->identifierHash() );
-      if(digitContainer->addCollection(digitCollection, digitCollection->identifierHash()).isFailure())
-        ATH_MSG_WARNING("Failed to add collection with hash " << digitCollection->identifierHash());
+    if (!digitCollection->empty()){
+      const IdentifierHash hash = digitCollection->identifierHash();
+      ATH_MSG_VERBOSE("Adding collection to m_digitcontainer : HashId = " << hash << " of size " << digitCollection->size());
 
-      ATH_MSG_VERBOSE("Collection added to m_digitcontainer : HashId = " << digitCollection->identifierHash() << " of size " << digitCollection->size());
-
-      for(sTgcDigitCollection::iterator it_stgcDigit_final = digitCollection->begin(); it_stgcDigit_final != digitCollection->end(); ++it_stgcDigit_final) {
-        ATH_MSG_VERBOSE(" BC tag = "    << (*it_stgcDigit_final)->bcTag()) ;
-        ATH_MSG_VERBOSE(" digitTime = " << (*it_stgcDigit_final)->time()) ;
-        ATH_MSG_VERBOSE(" charge_6bit = "    << (*it_stgcDigit_final)->charge_6bit()) ;
-        ATH_MSG_VERBOSE(" charge_10bit = "    << (*it_stgcDigit_final)->charge_10bit()) ;
+      for(const sTgcDigit *digit : *digitCollection) {
+        ATH_MSG_VERBOSE(" BC tag = "       << digit->bcTag()) ;
+        ATH_MSG_VERBOSE(" digitTime = "    << digit->time()) ;
+        ATH_MSG_VERBOSE(" charge_6bit = "  << digit->charge_6bit()) ;
+        ATH_MSG_VERBOSE(" charge_10bit = " << digit->charge_10bit()) ;
       }
-    }
-    else {
-      delete digitCollection;
-      digitCollection = 0;
+
+      if(digitContainer->addCollection(digitCollection.release(), hash).isFailure()) {
+        ATH_MSG_WARNING("Failed to add collection with hash " << hash);
+      }
     }
   } 
 

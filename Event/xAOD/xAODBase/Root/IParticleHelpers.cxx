@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IParticleHelpers.cxx 700032 2015-10-12 11:38:33Z krasznaa $
-
 // System include(s):
 #include <iostream>
 
@@ -156,6 +154,22 @@ namespace xAOD {
 
       // Apparently all is fine:
       return *link;
+   }
+
+   /// This function should be used instead of @c xAOD::getOriginalObject when
+   /// we want to use the "original object" as a link, and not primarily as an
+   /// object itself.
+   ///
+   /// @param copy The object that should have a parent set on it
+   /// @returns A smart pointer to the object's parent, if it exist (Throws an
+   ///          exception if it is not.)
+   ///
+   const ElementLink< IParticleContainer >&
+   getOriginalObjectLink( const IParticle& copy ) {
+
+      // Blindly retrieve the link. Rely on the auxiliary store code throwing an
+      // appropriate exception if this cannot be done. ;-)
+      return acc( copy );
    }
 
 } // namespace xAOD

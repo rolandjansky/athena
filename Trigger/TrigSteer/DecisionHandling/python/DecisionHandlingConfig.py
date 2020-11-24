@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # 
 
 def setupFilterMonitoring( filterAlg ):    
@@ -8,7 +8,7 @@ def setupFilterMonitoring( filterAlg ):
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     monTool = GenericMonitoringTool('MonTool')
     
-    inputKeys = filterAlg.Input
+    inputKeys = [str(i) for i in filterAlg.Input]
 
     monTool.HistPath="HLTFramework/Filters"
     monTool.defineHistogram( 'name,stat;'+filterAlg.getName(),  path='EXPERT', type='TH2I',

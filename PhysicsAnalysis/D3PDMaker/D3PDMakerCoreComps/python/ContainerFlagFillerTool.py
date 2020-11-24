@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ContainerFlagFillerTool.py 495152 2012-04-11 15:09:02Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/ContainerFlagFillerTool.py
 # @author scott snyder <snyder@bnl.gov>
@@ -8,7 +7,7 @@
 # @brief Helper to configure ContainerFlagFillerTool.
 #
 
-
+import D3PDMakerCoreComps
 from D3PDMakerCoreComps import D3PDMakerCoreCompsConf
 
 

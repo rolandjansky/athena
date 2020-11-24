@@ -40,7 +40,8 @@ StatusCode Muon::TGC_RawDataProviderToolCore::initialize()
   //try to configure the cabling service
   StatusCode sc = getCabling();
   if(sc.isFailure()) {
-      ATH_MSG_INFO( "TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event. " );
+      ATH_MSG_ERROR( "TGCcablingServerSvc not yet configured, but this needs to be available when TGC_RawDataProviderToolCore is initalised as we cannot create it on the fly during event processing inside const decode functions.");
+      return StatusCode::FAILURE;
   }
   
   return StatusCode::SUCCESS;
@@ -48,7 +49,7 @@ StatusCode Muon::TGC_RawDataProviderToolCore::initialize()
 
 //============================================================================================
 
-StatusCode Muon::TGC_RawDataProviderToolCore::convertIntoContainer(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, TgcRdoContainer& tgcRdoContainer) 
+StatusCode Muon::TGC_RawDataProviderToolCore::convertIntoContainer(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, TgcRdoContainer& tgcRdoContainer) const
 {    
 
   /// Static variables are not thread safe
@@ -84,7 +85,6 @@ StatusCode  Muon::TGC_RawDataProviderToolCore::getCabling() {
   sc = TgcCabGet->giveCabling(m_cabling);
   if(sc.isFailure()) {
     ATH_MSG_FATAL( "Could not get ITGCcablingSvc from the Server !" );
-    m_cabling = 0;
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_VERBOSE( "ITGCcablingSvc obtained" );
@@ -96,14 +96,12 @@ StatusCode  Muon::TGC_RawDataProviderToolCore::getCabling() {
 }
 
 
-std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> Muon::TGC_RawDataProviderToolCore::getROBData(const std::vector<IdentifierHash>& rdoIdhVect) {
+std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> Muon::TGC_RawDataProviderToolCore::getROBData(const std::vector<IdentifierHash>& rdoIdhVect) const {
 
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
   if(!m_cabling) {
-    if( getCabling().isFailure() ) {
       ATH_MSG_ERROR("Could not get cabling, return empty vector of ROB fragments");
       return vecOfRobf;
-    }
   }
 
   IdContext tgcContext = m_idHelperSvc->tgcIdHelper().module_context();

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrNoiseTool.h"
@@ -204,7 +204,8 @@ StatusCode LArAutoCorrNoiseTool::getTerms()
 /////////////////////////////////////////////////////////////////////////////
 
 const std::vector<float> &
-LArAutoCorrNoiseTool::autoCorrSqrt(const HWIdentifier& CellID,
+LArAutoCorrNoiseTool::autoCorrSqrt ATLAS_NOT_THREAD_SAFE
+                                   (const HWIdentifier& CellID,
 				    int gain, int Nsampl) 
 {
 
@@ -244,7 +245,8 @@ LArAutoCorrNoiseTool::autoCorrSqrt(const HWIdentifier& CellID,
 /////////////////////////////////////////////////////////////////////////////
 
 const std::vector<float> &
-LArAutoCorrNoiseTool::autoCorrSqrt(const Identifier& CellID,
+LArAutoCorrNoiseTool::autoCorrSqrt ATLAS_NOT_THREAD_SAFE
+                                  (const Identifier& CellID,
                                    int gain, int /*Nsampl*/) 
 {
 

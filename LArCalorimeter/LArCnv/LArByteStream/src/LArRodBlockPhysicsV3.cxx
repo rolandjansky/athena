@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of the LArRODBlockStructure_3 class
@@ -44,14 +44,14 @@ m_logstr(Athena::getMessageSvc(), BlockType())
   StatusCode sc =svcLoc->service( "DetectorStore", detStore );
   if (sc.isFailure()) {
     m_logstr << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
-    exit(1);
+    std::abort();
   } else {
     m_logstr << MSG::INFO << "Successfully located DetectorStore" << endmsg;
   }     
   sc = detStore->retrieve(online_id, "LArOnlineID");
   if (sc.isFailure()) {
     m_logstr << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
-    exit(1);
+    std::abort();
   } 
   else {
     m_onlineHelper=online_id;
@@ -429,7 +429,7 @@ void LArRodBlockPhysicsV3::setRawData(const int channel, const std::vector<short
    m_logstr << MSG::ERROR << "Number of samples mismatch!\n";
    m_logstr << "  nsamples       =" << nsamples;
    m_logstr << "  samples.size() =" << samples.size() << endmsg;
-   exit(0);
+   std::abort();
  }
  
  setBit(&m_RawDataBlock[0],rcNb);
@@ -581,7 +581,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
  n = m_EnergyBlock.size();
  BlockOffset=LE_getVectorHeader16(EBlkOffset);
  LARBSDBG("Checking Energy Block n=" << n << "BlockOffset=" << BlockOffset);
- //Check if Energy-Block exits and is not yet part of the fragment
+ //Check if Energy-Block exists and is not yet part of the fragment
  if (n && !BlockOffset)
    {
      LE_setHeader16(EBlkOffset,m_vFragment->size());
@@ -596,7 +596,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
  n = m_GainBlock.size();
  BlockOffset=LE_getVectorHeader16(GainBlkOffset);
  LARBSDBG("Checking Gain Block n=" << n << "BlockOffset=" << BlockOffset);
- //Check if Gain-Block exits and is not yet part of the fragment
+ //Check if Gain-Block exists and is not yet part of the fragment
  if (n && !BlockOffset)
    {
      LE_setHeader16(GainBlkOffset,m_vFragment->size());
@@ -614,7 +614,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
  n = m_FebInfoBlock.size();
  BlockOffset=LE_getVectorHeader16(FebInfoBlkOffset);
  LARBSDBG("Checking FebInfo Block n=" << n << "BlockOffset=" << BlockOffset);
- //Check if Gain-Block exits and is not yet part of the fragment
+ //Check if Gain-Block exists and is not yet part of the fragment
  if (n && !BlockOffset)
    {
      LE_setHeader16(FebInfoBlkOffset,m_vFragment->size());
@@ -628,7 +628,7 @@ void LArRodBlockPhysicsV3::finalizeFEB()
  n = m_TimeQualityBlock.size();
  BlockOffset=LE_getVectorHeader16(TimeQualityBlkOffset);
  LARBSDBG("Checking Time and Quality Block n=" << n << "BlockOffset=" << BlockOffset);
- //Check if Time and Quality Block exits and is not yet part of the fragment
+ //Check if Time and Quality Block exists and is not yet part of the fragment
  if (n && !BlockOffset)
    {
      LE_setHeader16(TimeQualityBlkOffset,m_vFragment->size());
@@ -683,9 +683,7 @@ void  LArRodBlockPhysicsV3::concatinateFEBs()
  FEBMAPTYPE::const_iterator feb_it_b=m_mFebBlocks.begin();
  FEBMAPTYPE::const_iterator feb_it_e=m_mFebBlocks.end();
  FEBMAPTYPE::const_iterator feb_it;
- std::vector<uint32_t>::const_iterator data_it;
- std::vector<uint32_t>::const_iterator data_it_e;
- for (feb_it=feb_it_b;feb_it!=feb_it_e;feb_it++) {
+ for (feb_it=feb_it_b;feb_it!=feb_it_e;++feb_it) {
    if (feb_it!=feb_it_b) //Not first Feb
 /*
      if (fullHeader) {//Add middle header
@@ -702,10 +700,8 @@ void  LArRodBlockPhysicsV3::concatinateFEBs()
        m_pRODblock->resize( m_pRODblock->size()+m_MiddleHeaderSize);
    
    //Add feb data to rod data block
-   data_it=feb_it->second.begin();
-   data_it_e=feb_it->second.end();
-   for (;data_it!=data_it_e;data_it++)
-     m_pRODblock->push_back(*data_it);
+   m_pRODblock->insert (m_pRODblock->end(),
+                        feb_it->second.begin(), feb_it->second.end());
  } //end for feb_it
 
   m_mFebBlocks.clear();

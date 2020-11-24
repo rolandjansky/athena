@@ -1,7 +1,4 @@
-# $Id: CMakeLists.txt 796274 2017-02-08 17:13:03Z griffith $
-################################################################################
-# Package: tauRecTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( tauRecTools )
@@ -30,6 +27,7 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauDecayModeNNClassifier.h
   tauRecTools/TauVertexCorrection.h
+  tauRecTools/TauVertexedClusterDecorator.h
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
   )

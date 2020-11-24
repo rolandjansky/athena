@@ -33,7 +33,7 @@ PrintOutCalibDefectMaps               = False # Print out the calib defect maps
 #--------------------------------------------------------------
 from AthenaCommon.AppMgr import ServiceMgr
 
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 from AthenaCommon.AppMgr import theApp
 
 ServiceMgr += AuditorSvc()

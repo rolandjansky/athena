@@ -15,25 +15,13 @@ from __future__ import with_statement, print_function
 
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-import CoolRunQuery.utils.AtlRunQueryFastBlobRead
-
-import cx_Oracle
-
-try:
-    Set = set
-except NameError:
-    from sets import Set
-
-import sys, re, os
-from datetime import timedelta,datetime
-from PyCool import cool
-from time import time,strftime,gmtime
-from collections import defaultdict
-from copy import deepcopy
+import re
+import os
+from time import time
 
 from utils.AtlRunQueryUtils              import coolDbConn, runsOnServer
 
-from selector.AtlRunQuerySelectorRuntime import RunTimeSelector, TimeRunSelector
+from selector.AtlRunQuerySelectorRuntime import RunTimeSelector
 from selector.AtlRunQuerySelectorBase    import Selector, DataKey
 
 from CoolRunQuery.AtlRunQueryRun         import Run
@@ -93,33 +81,39 @@ class AtlRunQuery:
         if not self.cmdlineOptions.show:
             self.cmdlineOptions.show = ['run','time']
 
-        if self.cmdlineOptions.xmlfile != None:
+        if self.cmdlineOptions.xmlfile is not None:
             # format 'file.xml:runlist' or 'runlist:file.xml'
             str1,str2 = self.cmdlineOptions.xmlfile.strip().split(':',1)
             if   '.xml' in str1:
                 self.xmlFileName = str1
-                if str2 != '': self.xmlFileLabel = str2
+                if str2 != '':
+                    self.xmlFileLabel = str2
             elif '.xml' in str2:
                 self.xmlFileName = str2
-                if str1 != '': self.xmlFileLabel = str1            
+                if str1 != '':
+                    self.xmlFileLabel = str1            
                 
         if self.cmdlineOptions.html:
             self.html = self.cmdlineOptions.html
         else:
-            if   html=="AUTO": self.html = runsOnServer()
-            elif html=="YES":  self.html = True
-            elif html=="NO":   self.html = False
-            else: raise RuntimeError ("Unknown argument for option 'html': %s" % html)
+            if html=="AUTO":
+                self.html = runsOnServer()
+            elif html=="YES":
+                self.html = True
+            elif html=="NO":
+                self.html = False
+            else:
+                raise RuntimeError ("Unknown argument for option 'html': %s" % html)
         Run.writehtml = self.html
 
-        if self.cmdlineOptions.prodgrl != None : # happens only if --nogrl is specified
+        if self.cmdlineOptions.prodgrl is not None : # happens only if --nogrl is specified
             self.prodgrl = self.cmdlineOptions.prodgrl
-        elif self.cmdlineOptions.xmlfile != None :
+        elif self.cmdlineOptions.xmlfile is not None :
             self.prodgrl = True # if an xml file is specified it will be produced
         else:
             self.prodgrl = not runsOnServer()
 
-        if self.cmdlineOptions.dictroot != None : # happens if --root or --noroot is specified
+        if self.cmdlineOptions.dictroot is not None : # happens if --root or --noroot is specified
             self.dictroot = self.cmdlineOptions.dictroot
         else:
             self.dictroot = not runsOnServer()
@@ -131,30 +125,50 @@ class AtlRunQuery:
         if self.cmdlineOptions.condtag:
             Selector.condtag = self.cmdlineOptions.condtag
 
-        QC.localtime = (self.cmdlineOptions.utc==None)
+        QC.localtime = (self.cmdlineOptions.utc is None)
         QC.settimezone()
 
         # check which runs currently participate in prompt calibration
         # we need this for the web display only
         if self.html:
             nemo_dir = '/afs/cern.ch/user/a/atlcond/scratch0/nemo/prod/web/'
-            f = open( nemo_dir + 'calibruns.txt' )
-            for line in f:
-                try:
-                    if line: Run.PromptCalibRuns.append( int(line.strip()) )
-                except ValueError:
-                    pass
-            # read list of NEMO tasks
-            # do we need this for each query, or just for the web??
-            fname = os.listdir( nemo_dir + 'tasks' )
-            i = 0
-            for taskname in fname:
-                m = re.match('.*(task_(\d+)_\d+.txt)',taskname)
-                if m:
-                    i+=1
-                    fname, runnr = m.groups()
-                    Run.NemoTasks[int(runnr)] = fname
-
+            try:
+                f = open( nemo_dir + 'calibruns.txt' )
+                for line in f:
+                    try:
+                        if line:
+                            Run.PromptCalibRuns.append( int(line.strip()) )
+                    except ValueError:
+                        pass
+                # read list of NEMO tasks
+                # do we need this for each query, or just for the web??
+                fname = os.listdir( nemo_dir + 'tasks' )
+                i = 0
+                for taskname in fname:
+                    m = re.match(r'.*(task_(\d+)_\d+.txt)',taskname)
+                    if m:
+                        i+=1
+                        fname, runnr = m.groups()
+                        Run.NemoTasks[int(runnr)] = fname
+            except IOError as err:
+                print (err)
+                print ("Because of this I can't mark runs that are currently in the calibration loop")
+        
+        #DQ summary relative to GRL
+        if 'cosmics' in options.show:
+            self.dqsumgrl = "PHYS_Cosmics_AllGood"
+        elif 'heavyions' in options.show:
+            self.dqsumgrl = "PHYS_HeavyIonP_All_Good"
+        elif self.cmdlineOptions.dqsumgrl:
+            self.dqsumgrl = self.cmdlineOptions.dqsumgrl
+        else:
+            self.dqsumgrl = 'PHYS_StandardGRL_All_Good_25ns'
+            
+        #defect and logic tag of defect database
+        if self.cmdlineOptions.defecttag and self.cmdlineOptions.logictag:
+            self.dbbtag = (self.cmdlineOptions.defecttag, self.cmdlineOptions.logictag)
+        else:
+            self.dbbtag = ("HEAD", "HEAD") 
 
 
     def run(self):
@@ -163,21 +177,23 @@ class AtlRunQuery:
         sfoconnection = coolDbConn.GetSFODBConnection()
         sfocursor     = sfoconnection.cursor()
         retlist       = GetSFO_lastNruns( sfocursor, 1 )
-        if 'OPENED' in retlist[0][1]: Run.runnropen = retlist[0][0]
+        if 'OPENED' in retlist[0][1]:
+            Run.runnropen = retlist[0][0]
 
-        if self.cmdlineOptions.runlist != None:
+        if self.cmdlineOptions.runlist is not None:
             runlist = self.cmdlineOptions.runlist
             if any('last' in x for x in self.cmdlineOptions.runlist):
-                for idx in xrange(len(runlist)):
+                for idx in range(len(runlist)):
                     rrange = runlist[idx]
-                    if not 'last' in rrange: continue
+                    if 'last' not in rrange:
+                        continue
                     rrange = rrange.replace('last','')
                     self.maxNumOfRuns = int(rrange)
                     # list of last n runs run numbers, where at least one stream is not calibration
                     retlist    = GetSFO_lastNruns( sfocursor, 1.1*self.maxNumOfRuns )
                     runlist[idx] = '%i+' % (retlist[-1][0])
 
-        elif self.cmdlineOptions.timelist != None:
+        elif self.cmdlineOptions.timelist is not None:
             # translate time into run-range
             if 'last' in self.cmdlineOptions.timelist[0]:
                  # contains 'last'
@@ -311,6 +327,8 @@ class AtlRunQuery:
                          'makeDQeff'     : self.makeDQeff,
                          'makeDQSummary' : self.makeDQSummary,
                          'makeDQPlots'   : self.makeDQPlots,
+                         'dqsumgrl'      : self.dqsumgrl,
+                         'dbbtag'        : self.dbbtag,
                          'roothtmlstr'   : roothtmlstr,
                          'xmlfilename'   : self.xmlFileName,
                          'xmlhtmlstr'    : xmlhtmlstr,

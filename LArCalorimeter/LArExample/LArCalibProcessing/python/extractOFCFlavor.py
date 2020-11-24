@@ -2,7 +2,6 @@
 
 #!/bin/env python
 from PyCool import cool
-from string import *
 
 def getOFCFlavor():
     onlineOFCFolder="/LAR/ElecCalibFlat/OFC"
@@ -36,7 +35,6 @@ def getOFCFlavor():
     db.closeDatabase()
 
     OFCOptions=[]
-    currOFCOption=None
 
     db=dbSvc.openDatabase("COOLOFL_LAR/CONDBR2")
     #db=dbSvc.openDatabase("sqlite://;schema=freshConstants_ofl.db;dbname=CONDBR2")
@@ -60,7 +58,7 @@ def getOFCFlavor():
                 if offlineOFCFolder.endswith("%isamples1phase" %  curr_nsamples):
                     try:
                         currentOFCOption=(offlineOFCFolder,pFldr.resolveTag("LARCALIB-RUN2-00"))
-                    except:
+                    except Exception:
                         print ("Could not resolve global tag in folder ",offlineOFCFolder)
                         pass
                     pass

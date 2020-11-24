@@ -24,7 +24,6 @@ namespace Reco { class ITrackToVertex; }
 namespace Trk  { class ITrackToVertexIPEstimator; }
 // following two are temporary (to be moved to a separate Tool)
 namespace InDet { class IInDetTrackSelectionTool; }
-namespace CP { class ITrackVertexAssociationTool;}
 
 namespace Analysis { 
 
@@ -161,10 +160,6 @@ namespace Analysis {
     
     /** InDetTrackSelectorTool (temporary: to be moved to a separate Tool) */
     ToolHandle< InDet::IInDetTrackSelectionTool > m_InDetTrackSelectorTool;
-
-    /** TrackVertex associator (temporary: to be moved to a separate Tool) */
-    ToolHandle< CP::ITrackVertexAssociationTool > m_TightTrackVertexAssociationTool;
-      
 
     // VD: for debugging
     mutable std::atomic<int> m_nbjet;

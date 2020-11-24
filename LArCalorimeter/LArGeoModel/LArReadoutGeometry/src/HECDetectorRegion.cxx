@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/HECDetectorRegion.h"
@@ -76,7 +76,7 @@ HepGeom::Point3D<double> HECDetectorRegion::getRefPlanePos () const
   if (shape->typeID()!=GeoPcon::getClassTypeID()) {
     throw std::runtime_error ("HECDetectorRegion cannot compute absolute position of reference plane");
   }
-  GeoPcon *pcon = (GeoPcon *) shape;
+  const GeoPcon *pcon = static_cast<const GeoPcon *> (shape);
   HepGeom::Point3D<double> center(0,0,pcon->getZPlane(0));
   return (Amg::EigenTransformToCLHEP(physVol->getAbsoluteTransform())*center);
 }

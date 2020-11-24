@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import CaloD3PDMaker
 import D3PDMakerCoreComps
 import EventCommonD3PDMaker
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
-from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-from CaloD3PDMaker import CaloD3PDMakerConf
 from CaloIdentifier import SUBCALO
 from CaloD3PDMaker.makeCaloCellFilterAlg import makeCaloCellFilterAlg 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -20,8 +18,8 @@ prefix_to_det["cc_tile_"] = [SUBCALO.TILE]
 def makeCellD3PDObject (name, prefix, object_name, getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = 'AllCalo'
-    if label == None: label = prefix
+    if sgkey is None: sgkey = 'AllCalo'
+    if label is None: label = prefix
 
     if prefix in prefix_to_det.keys():
         sgkey = prefix 

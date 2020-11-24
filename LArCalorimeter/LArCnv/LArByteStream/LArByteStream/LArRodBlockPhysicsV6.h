@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKPHYSICSV6_H
@@ -95,7 +95,7 @@ public:
   virtual inline int32_t getEy() const;
   virtual inline int32_t getEz() const;
   virtual inline int32_t getSumE() const;
-  virtual inline uint32_t getVROBFebId() const;
+  virtual inline uint32_t getVROBFebId();
   virtual inline int32_t getVROBEx() const;
   virtual inline int32_t getVROBEy() const;
   virtual inline int32_t getVROBEz() const;
@@ -127,6 +127,7 @@ public:
 
   
 private:
+  void setE(unsigned int index, double E);
   virtual void resetPointers();
   virtual bool setPointers();
   void setNextEnergy(const uint16_t energy,const int16_t time, const int16_t quality, const uint32_t gain);
@@ -285,7 +286,7 @@ inline int LArRodBlockPhysicsV6::getNextEnergy(int& channelNumber,int32_t& energ
   if (m_TimeQualityPointer && hasTQ) // Data has Time and Quality information 
     {
       //Time is in 10 ps in ByteStream, hence the factor 10 to convert to ps
-      time    = 10*((int16_t *)m_TimeQualityPointer)[m_TimeQualityIndex++]; 
+      time    = 10*(reinterpret_cast<const int16_t *>(m_TimeQualityPointer))[m_TimeQualityIndex++]; 
       quality = m_TimeQualityPointer[m_TimeQualityIndex++]; 
 
 #ifdef LARBSDBGOUTPUT
@@ -336,7 +337,7 @@ inline int32_t LArRodBlockPhysicsV6::getSumE() const
   return 0;
 }
 
-inline uint32_t  LArRodBlockPhysicsV6::getVROBFebId() const
+inline uint32_t  LArRodBlockPhysicsV6::getVROBFebId()
 {
   m_ROB_to_decode--;
   if ( m_ROB_to_decode>=0){
@@ -349,25 +350,29 @@ inline uint32_t  LArRodBlockPhysicsV6::getVROBFebId() const
 
 inline int32_t  LArRodBlockPhysicsV6::getVROBEx() const
 {
-  if(m_virtualROBPointerLocal) return (((int32_t*)m_virtualROBPointerLocal)[1]>>9);
+  const int32_t* p = reinterpret_cast<const int32_t*>(m_virtualROBPointerLocal);
+  if(p) return (p[1]>>9);
   return 0;
 }
 
 inline int32_t  LArRodBlockPhysicsV6::getVROBEy() const
 {
-  if(m_virtualROBPointerLocal) return (((int32_t*)m_virtualROBPointerLocal)[2]>>9);
+  const int32_t* p = reinterpret_cast<const int32_t*>(m_virtualROBPointerLocal);
+  if(p) return (p[2]>>9);
   return 0;
 }
 
 inline int32_t  LArRodBlockPhysicsV6::getVROBEz() const
 {
-  if(m_virtualROBPointerLocal) return (((int32_t*)m_virtualROBPointerLocal)[3]>>9);
+  const int32_t* p = reinterpret_cast<const int32_t*>(m_virtualROBPointerLocal);
+  if(p) return (p[3]>>9);
   return 0;
 }
 
 inline int32_t  LArRodBlockPhysicsV6::getVROBSumE() const
 {
-  if(m_virtualROBPointerLocal) return (((int32_t*)m_virtualROBPointerLocal)[4]>>9);
+  const int32_t* p = reinterpret_cast<const int32_t*>(m_virtualROBPointerLocal);
+  if(p) return (p[4]>>9);
   return 0;
 }
 
@@ -377,50 +382,40 @@ return ( (ch&0x7) << 4) | ( (ch&0x38) >>2 ) | ((ch&0x40)>>6);
 
 }
 
-inline void LArRodBlockPhysicsV6::setEx(double Ex){ 
+inline void LArRodBlockPhysicsV6::setE(unsigned index, double E){ 
 
-        int32_t copy=(int32_t)Ex;
-        copy=(copy<<9);
-        uint16_t* to_push = (uint16_t*)&copy;
+        union {
+          int32_t i;
+          uint16_t us[2];
+        } conv;
+        conv.i = static_cast<int32_t>(E);
+        // Write as multiplication, not as left shift, since left-shifting
+        // a negative number is undefined in C++.
+        // Compiles to the same code on x86_64.
+        conv.i *= (1<<9);
         if ( m_TimeQualityBlock.size()>=8 ){
-                m_TimeQualityBlock[0]=to_push[0];
-                m_TimeQualityBlock[1]=to_push[1];
+                m_TimeQualityBlock[index]=conv.us[0];
+                m_TimeQualityBlock[index+1]=conv.us[1];
         }
+}
+
+
+inline void LArRodBlockPhysicsV6::setEx(double Ex){ 
+        setE (0, Ex);
 }
 
 
 inline void LArRodBlockPhysicsV6::setEy(double Ey){
-
-        int32_t copy=(int32_t)Ey;
-        copy=(copy<<9);
-        uint16_t* to_push = (uint16_t*)&copy;
-        if ( m_TimeQualityBlock.size()>=8 ){
-                m_TimeQualityBlock[2]=to_push[0];
-                m_TimeQualityBlock[3]=to_push[1];
-        }
+        setE (2, Ey);
 }
 
 
 inline void LArRodBlockPhysicsV6::setEz(double Ez){
-
-        int32_t copy=(int32_t)Ez;
-        copy=(copy<<9);
-        uint16_t* to_push = (uint16_t*)&copy;
-        if ( m_TimeQualityBlock.size()>=8 ){
-                m_TimeQualityBlock[4]=to_push[0];
-                m_TimeQualityBlock[5]=to_push[1];
-        }
+        setE (4, Ez);
 }
 
 inline void LArRodBlockPhysicsV6::setSumE(double SumE){
-
-        int32_t copy=(int32_t)SumE;
-        copy=(copy<<9);
-        uint16_t* to_push = (uint16_t*)&copy;
-        if ( m_TimeQualityBlock.size()>=8 ){
-                m_TimeQualityBlock[6]=to_push[0];
-                m_TimeQualityBlock[7]=to_push[1];
-        }
+        setE (6, SumE);
 }
 
 

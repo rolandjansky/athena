@@ -965,8 +965,8 @@ Trk::GaussianSumFitter::stepForwardFit(
   }
 
   auto fitQuality = std::make_unique<Trk::FitQualityOnSurface>();
-  //Here we need to clone as the extrapolated state can be used
-  //afterwards
+  // Here we need to clone as the extrapolated state can be used
+  // afterwards
   updatedState = m_updator.update(
     std::move(*(MultiComponentStateHelpers::clone(extrapolatedState))),
     *measurement,
@@ -984,7 +984,7 @@ Trk::GaussianSumFitter::stepForwardFit(
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface =
       new MultiComponentStateOnSurface(
         measurement.release(),
-        //used below for the updated state so clone
+        // used below for the updated state so clone
         Trk::MultiComponentStateHelpers::clone(extrapolatedState).release(),
         fitQuality.release(),
         nullptr,
@@ -1099,8 +1099,8 @@ Trk::GaussianSumFitter::fit(
     MultiComponentStateCombiner::combine(firstSmoothedState, true);
 
   /*Create updatedStateOnSurface which owned be the tragectory*/
-  //we clone do not just move firstSmoothedState as used
-  //afterwards
+  // we clone do not just move firstSmoothedState as used
+  // afterwards
   const Trk::MultiComponentStateOnSurface* updatedStateOnSurface =
     new MultiComponentStateOnSurface(
       firstSmootherMeasurementOnTrack,
@@ -1135,8 +1135,8 @@ Trk::GaussianSumFitter::fit(
    * too much to help in the TRT
    */
   std::unique_ptr<Trk::MultiComponentState> smoothedStateWithScaledError =
-    MultiComponentStateHelpers::cloneWithScaledError(
-      firstSmoothedState, 15., 5., 15., 5., 15.);
+    MultiComponentStateHelpers::toPtrWithScaledError(
+      std::move(firstSmoothedState), 15., 5., 15., 5., 15.);
 
   // Perform a measurement update on this new state before loop
   Trk::MultiComponentState updatedState = m_updator.update(
@@ -1173,7 +1173,7 @@ Trk::GaussianSumFitter::fit(
       continue;
     }
     // Clone the MeasurementBase object
-    std::unique_ptr<const Trk::MeasurementBase> measurement =
+    auto measurement =
       std::unique_ptr<const Trk::MeasurementBase>(measurement_in->clone());
     /* Extrapolate the current multi-component state to the
      next measurement surface. For the smoother the direction of propagation
@@ -1279,7 +1279,7 @@ Trk::GaussianSumFitter::fit(
         std::unique_ptr<Trk::TrackParameters> combinedLastState =
           MultiComponentStateCombiner::combine(updatedState, true);
 
-        //Here we can move the updated state we created above
+        // Here we can move the updated state we created above
         if (combinedLastState) {
           updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(
             measurement.release(),
@@ -1330,7 +1330,7 @@ Trk::GaussianSumFitter::combine(
      Loop over all components in forwards multi-state
      ================================================ */
 
-  for (const auto & forwardsComponent : forwardsMultiState) {
+  for (const auto& forwardsComponent : forwardsMultiState) {
     // Need to check that all components have associated weight matricies
     const AmgSymMatrix(5)* forwardMeasuredCov =
       forwardsComponent.first->covariance();
@@ -1339,7 +1339,7 @@ Trk::GaussianSumFitter::combine(
        Loop over all components in the smoother multi-state
        ==================================================== */
 
-    for (const auto & smootherComponent : smootherMultiState) {
+    for (const auto& smootherComponent : smootherMultiState) {
       // Need to check that all components have associated weight matricies
       const AmgSymMatrix(5)* smootherMeasuredCov =
         smootherComponent.first->covariance();

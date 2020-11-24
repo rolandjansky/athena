@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ConcurrencyFlags.h"
@@ -56,6 +56,7 @@ StatusCode TrigCostMTSvc::initialize() {
 
   ATH_CHECK(m_algStartInfo.initialize(m_eventSlots));
   ATH_CHECK(m_algStopTime.initialize(m_eventSlots));
+  ATH_CHECK(m_rosData.initialize(m_eventSlots));
 
   return StatusCode::SUCCESS;
 }
@@ -86,6 +87,7 @@ StatusCode TrigCostMTSvc::startEvent(const EventContext& context, const bool ena
       // Empty transient thread-safe stores in preparation for recording this event's cost data
       ATH_CHECK(m_algStartInfo.clear(context, msg()));
       ATH_CHECK(m_algStopTime.clear(context, msg()));
+      ATH_CHECK(m_rosData.clear(context, msg()));
     }
 
     // Enable collection of data in this slot for monitoredEvents
@@ -149,9 +151,11 @@ StatusCode TrigCostMTSvc::monitor(const EventContext& context, const AlgorithmId
     ATH_CHECK( m_algStartInfo.insert(ai, ap) );
 
     // Cache the AlgorithmIdentifier which has just started executing on this thread
-    tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare>::accessor acc;
-    m_threadToAlgMap.insert(acc, ap.m_algThreadID);
-    acc->second = ai;
+    if (ai.m_realSlot == ai.m_slotToSaveInto) {
+      tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare>::accessor acc;
+      m_threadToAlgMap.insert(acc, ap.m_algThreadID);
+      acc->second = ai;
+    }
 
   } else if (type == AuditType::After) {
 
@@ -170,7 +174,28 @@ StatusCode TrigCostMTSvc::monitor(const EventContext& context, const AlgorithmId
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<xAOD::TrigCompositeContainer>& outputHandle) { 
+StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataMonitorStruct payload){
+  ATH_MSG_DEBUG( "Received ROB payload " << payload );
+
+  // Associate payload with an algorithm
+  AlgorithmIdentifier theAlg;
+  {
+    tbb::concurrent_hash_map<std::thread::id, AlgorithmIdentifier, ThreadHashCompare>::const_accessor acc;
+    ATH_CHECK( m_threadToAlgMap.find(acc, std::this_thread::get_id()) );
+    theAlg = acc->second;
+  }
+
+  // Record data in TrigCostDataStore
+  ATH_MSG_DEBUG( "Adding ROBs from" << payload.requestor_name << " to " << theAlg.m_hash );
+  ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload)) );
+
+  return StatusCode::SUCCESS;
+}
+
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+
+StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<xAOD::TrigCompositeContainer>& costOutputHandle, SG::WriteHandle<xAOD::TrigCompositeContainer>& rosOutputHandle) { 
   ATH_CHECK(checkSlot(context));
   if (m_eventMonitored[ context.slot() ] == false) {
     // This event was not monitored - nothing to do.
@@ -228,6 +253,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
 
   ATH_MSG_DEBUG("Monitored event with " << std::distance(beginIt, endIt) << " AlgorithmPayload objects.");
 
+  std::map<size_t, size_t> aiToHandleIndex;
   for (it = beginIt; it != endIt; ++it) {
     const AlgorithmIdentifier& ai = it->first;
     const AlgorithmPayload& ap = it->second;
@@ -284,7 +310,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
 
     // Make a new TrigComposite to persist monitoring payload for this alg
     xAOD::TrigComposite* tc = new xAOD::TrigComposite();
-    outputHandle->push_back( tc ); 
+    costOutputHandle->push_back( tc ); 
     // tc is now owned by storegate and, and has an aux store provided by the TrigCompositeCollection
 
     const uint32_t threadID = static_cast<uint32_t>( std::hash< std::thread::id >()(ap.m_algThreadID) );
@@ -312,11 +338,63 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     result &= tc->setDetail("start", startTime);
     result &= tc->setDetail("stop", stopTime);
     if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost TC");
+
+    aiToHandleIndex[ai.m_hash] = costOutputHandle->size() - 1;
+  }
+
+  typedef tbb::concurrent_hash_map< AlgorithmIdentifier, std::vector<robmonitor::ROBDataMonitorStruct>, AlgorithmIdentifierHashCompare>::const_iterator ROBConstIt;
+  ROBConstIt beginRob;
+  ROBConstIt endRob;
+  
+  ATH_CHECK(m_rosData.getIterators(context, msg(), beginRob, endRob));
+  
+  for (ROBConstIt it = beginRob; it != endRob; ++it) {
+    size_t aiHash = it->first.m_hash;
+
+    if (aiToHandleIndex.count(aiHash) == 0) {
+      ATH_MSG_WARNING("Algorithm with hash " << aiHash << " not found!");
+    }
+
+    // Save ROB data via TrigComposite
+    for (const robmonitor::ROBDataMonitorStruct& robData : it->second) {
+      xAOD::TrigComposite* tc = new xAOD::TrigComposite();
+      rosOutputHandle->push_back(tc); 
+
+      // Retrieve ROB requests data into primitives vectors
+      std::vector<uint32_t> robs_id;
+      std::vector<uint32_t> robs_size;
+      std::vector<unsigned> robs_history;
+      std::vector<uint8_t> robs_status;
+
+      robs_id.reserve(robData.requested_ROBs.size());
+      robs_size.reserve(robData.requested_ROBs.size());
+      robs_history.reserve(robData.requested_ROBs.size());
+      robs_status.reserve(robData.requested_ROBs.size());
+
+      for (const auto& rob : robData.requested_ROBs) {
+        robs_id.push_back(rob.second.rob_id);
+        robs_size.push_back(rob.second.rob_size);
+        robs_history.push_back(rob.second.rob_history);
+        robs_status.push_back(rob.second.isStatusOk());
+      }
+
+      bool result = true;
+      result &= tc->setDetail("alg_idx", aiToHandleIndex[aiHash]);
+      result &= tc->setDetail("lvl1ID", robData.lvl1ID);
+      result &= tc->setDetail<std::vector<uint32_t>>("robs_id", robs_id);
+      result &= tc->setDetail<std::vector<uint32_t>>("robs_size", robs_size);
+      result &= tc->setDetail<std::vector<unsigned>>("robs_history", robs_history);
+      result &= tc->setDetail<std::vector<uint8_t>>("robs_status", robs_status);
+      result &= tc->setDetail("start", robData.start_time);
+      result &= tc->setDetail("stop", robData.end_time);
+
+      if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost ROS TC");
+    }
   }
 
   if (msg().level() <= MSG::VERBOSE) {
     ATH_MSG_VERBOSE("--- Trig Cost Event Summary ---");
-    for ( const xAOD::TrigComposite* tc : *outputHandle ) {
+    for ( const xAOD::TrigComposite* tc : *costOutputHandle ) {
       ATH_MSG_VERBOSE("Algorithm:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("alg"), "ALG") << "'");
       ATH_MSG_VERBOSE("  Store:'" << TrigConf::HLTUtils::hash2string( tc->getDetail<TrigConf::HLTHash>("store"), "STORE") << "'");
       ATH_MSG_VERBOSE("  View ID:" << tc->getDetail<int16_t>("view"));
@@ -328,6 +406,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       ATH_MSG_VERBOSE("  Stop Time:" << tc->getDetail<uint64_t>("stop") << " mu s");
     }
   }
+
   
   return StatusCode::SUCCESS;
 }
@@ -354,11 +433,11 @@ int32_t TrigCostMTSvc::getROIID(const EventContext& context) {
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-bool TrigCostMTSvc::isMonitoredEvent(const EventContext& context) const {
+bool TrigCostMTSvc::isMonitoredEvent(const EventContext& context, const bool includeMultiSlot) const {
   if (m_eventMonitored[ context.slot() ]) {
     return true;
   }
-  if (m_enableMultiSlot) {
+  if (includeMultiSlot && m_enableMultiSlot) {
     return m_eventMonitored[ m_masterSlot ];
   }
   return false;

@@ -66,6 +66,7 @@ int main(int argc, char **argv)
   // Retrieve the tool
   asg::AnaToolHandle<asg::AsgMetadataTool> tool("BookkeeperDumperTool/BookkeeperDumperTool");
   ANA_CHECK(tool.setProperty("StandaloneMode", true));
+  ANA_CHECK(tool.setProperty("AllVariations", true));
   ANA_CHECK(tool.retrieve());
 
   // Trigger finalization of all services and tools created by the Gaudi Application

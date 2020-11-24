@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """ AssociationUtils/config.py
     This file contains the configuration helper code for the overlap removal
@@ -8,9 +8,7 @@
     working in RootCore.
 """
 
-from AthenaCommon.Constants import INFO
-
-from AssociationUtils.AssociationUtilsConf import (
+from AssociationUtils.AssociationUtilsConf import (      # noqa: F401
     ORUtils__OverlapRemovalTool as OverlapRemovalTool,
     ORUtils__DeltaROverlapTool as DeltaROverlapTool,
     ORUtils__MuPFJetOverlapTool as MuPFJetOverlapTool,

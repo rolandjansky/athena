@@ -1215,7 +1215,10 @@ double TRT_ToT_dEdx::trackOccupancyCorrection(const Trk::Track* track,  bool use
     corr=dEdxCorrection->trackOccPar0NoHt[index]+dEdxCorrection->trackOccPar1NoHt[index]*trackOcc+dEdxCorrection->trackOccPar2NoHt[index]*pow(trackOcc,2);
   }
 
-  return corr;
+  if (corr != 0) {
+    return 1./corr;
+  }
+  return 0.;
 }
 
 double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface* trackState, const TRT_ID* identifier) {
@@ -1251,6 +1254,11 @@ double TRT_ToT_dEdx::calculateTrackLengthInStraw(const Trk::TrackStateOnSurface*
   int HitPart = std::abs(identifier->barrel_ec(DCId));
   const InDetDD::TRT_BaseElement* element = driftcircle->detectorElement();
   double strawphi = element->center(DCId).phi();
+
+  // check if track is an outlier
+  if (Trt_Rtrack >= 2.0) {
+    return 0.;
+  }
 
   double length=0;
   if (HitPart == 1) { //Barrel

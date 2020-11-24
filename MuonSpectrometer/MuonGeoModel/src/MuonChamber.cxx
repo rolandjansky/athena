@@ -72,6 +72,22 @@
 #define RPCON true
 #define useAssemblies false
 
+namespace {
+    // const maps holding the y/z translation for BIS RPCs (since they cannot be parsed by amdb)
+    const static std::map<std::string, float> rpcYTrans = {
+      std::make_pair<std::string, float>("RPC26",-9.1),//big RPC7
+      std::make_pair<std::string, float>("RPC27",-9.1),//small RPC7
+      std::make_pair<std::string, float>("RPC28",-27.7),//big RPC8
+      std::make_pair<std::string, float>("RPC29",-8.8),//small RPC8
+    };
+    const static std::map<std::string, float> rpcZTrans = {
+      std::make_pair<std::string, float>("RPC26",3.22),//big RPC7
+      std::make_pair<std::string, float>("RPC27",3.06),//small RPC7
+      std::make_pair<std::string, float>("RPC28",3.11),//big RPC8
+      std::make_pair<std::string, float>("RPC29",3.11),//small RPC8
+    };
+}
+
 namespace MuonGM {
 
 //cutouts for BMS at eta=+-1 and phi=4 (RPC/DED/MDT) ok //16 tubes shorter + entire RPC and DED (of dbz1) narrower
@@ -980,6 +996,12 @@ GeoVPhysVol* MuonChamber::build(
       if (fpv == 0) {
         Rpc* r = new Rpc(c);
         r->setLogVolName(stName+techname);
+        if (stName.find("BI")!=std::string::npos) {
+          std::map<std::string,float>::const_iterator yItr = rpcYTrans.find(techname);
+          if (yItr != rpcYTrans.end()) r->y_translation=yItr->second;
+          std::map<std::string,float>::const_iterator zItr = rpcZTrans.find(techname);
+          if (zItr != rpcZTrans.end()) r->z_translation=zItr->second;
+        }
 
         if ((manager->IncludeCutoutsFlag() && rpcCutoutFlag) ||
             (manager->IncludeCutoutsBogFlag() && stName.substr(0,3) == "BOG")) {
@@ -1477,7 +1499,7 @@ GeoVPhysVol* MuonChamber::build(
             << "///" << gasGap << "/" << measuresPhi << "/" << strip << endmsg << " Copy number "
             << geoid << " tagName= " << stag << endmsg;
       }
-      if (stName.find("BIS")==0) det->setNumberOfLayers(3); // all BIS RPCs always have 3 gas gaps
+      if (stName.find("BI")!=std::string::npos) det->setNumberOfLayers(3); // all BI RPCs always have 3 gas gaps
       det->setParentStationPV(PVConstLink(ptrd));
       det->setParentMuonStation(mstat);
 
@@ -1491,6 +1513,12 @@ GeoVPhysVol* MuonChamber::build(
 
       det->setIdentifier(id);
       det->setLastInitField(nfields);
+      if (stName.find("BI")!=std::string::npos) {
+          std::map<std::string,float>::const_iterator yItr = rpcYTrans.find(techname);
+          if (yItr != rpcYTrans.end()) det->setYTranslation(yItr->second);
+          std::map<std::string,float>::const_iterator zItr = rpcZTrans.find(techname);
+          if (zItr != rpcZTrans.end()) det->setZTranslation(zItr->second);
+      }
 
       det->fillCache(); // fill temporary cache (global position on known yet)
       det->initDesign(); ///  init design : design uses  global (converting back to local) positions

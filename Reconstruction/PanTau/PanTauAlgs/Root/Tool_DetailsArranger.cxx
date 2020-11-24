@@ -1,16 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-//   Implementation file for class Tool_DetailsArranger
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Tool for PID of TauSeeds
-///////////////////////////////////////////////////////////////////
-// sebastian.fleischmann@cern.ch
-///////////////////////////////////////////////////////////////////
 
 //! C++
 #include <string>
@@ -53,7 +43,6 @@ PanTau::Tool_DetailsArranger::~Tool_DetailsArranger() {
 
 StatusCode PanTau::Tool_DetailsArranger::initialize() {
 
-    ATH_MSG_DEBUG( name() << " initialize()" );
     m_init=true;
 
     ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName ) );
@@ -87,9 +76,6 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed, xA
 
     std::string inputAlg = inSeed->getNameInputAlgorithm();
     
-  
-    ATH_MSG_DEBUG("Tool_DetailsArranger::execute called for input seed at: " << inSeed << " from inputalg: " << inputAlg);
-    
     bool noAnyConstituents           = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoConstituentsAtAll);
     bool noSelConstituents           = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoSelectedConstituents);
     bool noValidInputTau             = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoValidInputTau);
@@ -101,18 +87,13 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed, xA
     //if the tau is valid, overwrite with non-default values
     xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
     
-    ATH_MSG_DEBUG("check for bad seed -> isBadSeed = " << isBadSeed);
     if(isBadSeed == true) {
         ATH_MSG_DEBUG("This seed is not useable for detail arranging (other than validity flag)");
         tauJet->setPanTauDetail(xAOD::TauJetParameters::PanTau_isPanTauCandidate, 0);
         return StatusCode::SUCCESS;
     }
     
-    
-    ATH_MSG_DEBUG("arrange for seed from inputalg: " << inputAlg);
-
     ATH_CHECK(arrangePFOLinks(inSeed, tauJet, pi0Container));
-
 
     //Basic variables
     addPanTauDetailToTauJet(inSeed, m_varTypeName_Basic + "_isPanTauCandidate",      xAOD::TauJetParameters::PanTau_isPanTauCandidate, PanTau::Tool_DetailsArranger::t_Int);
@@ -159,7 +140,6 @@ void PanTau::Tool_DetailsArranger::addPanTauDetailToTauJet(PanTauSeed2*         
                                                            xAOD::TauJetParameters::PanTauDetails  detailEnum,
                                                            PanTauDetailsType                      detailType) const {
 
-    ATH_MSG_DEBUG( "addPanTauDetailToTauJet called for feature of type " << detailType << ": " << featName);
     bool isValid;
     PanTau::TauFeature2* features        = inSeed->getFeatures();
     std::string         fullFeatName    = inSeed->getNameInputAlgorithm() + "_" + featName;
@@ -176,21 +156,17 @@ void PanTau::Tool_DetailsArranger::addPanTauDetailToTauJet(PanTauSeed2*         
         theValue = -1111;
     }
 
-    ATH_MSG_DEBUG( "the value is" << theValue);
-
     xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
     int     valueToAddInt   = -1;
     float   valueToAddFloat = -1.1;
-    ATH_MSG_DEBUG( "will add it to xAOD::TauJet at " << tauJet);
+
     switch(detailType) {
         case PanTau::Tool_DetailsArranger::t_Int:
             valueToAddInt   = (int)theValue;
-            ATH_MSG_DEBUG( "Adding int feature: " << valueToAddInt);
             tauJet->setPanTauDetail(detailEnum, valueToAddInt);
             break;
         case PanTau::Tool_DetailsArranger::t_Float:
             valueToAddFloat = (float)theValue;
-            ATH_MSG_DEBUG( "Adding float feature: " << valueToAddFloat);
             tauJet->setPanTauDetail(detailEnum, valueToAddFloat);
             break;
         default:
@@ -237,16 +213,6 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
     
     tauJet->setDetail(xAOD::TauJetParameters::nCharged, (int)chrgPFOLinks.size());
 
-
-    ATH_MSG_DEBUG("Dumping preselected neutral pfo links");
-    for(unsigned int iPFO=0; iPFO<preSelected_neutralPFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = preSelected_neutralPFOLinks.at(iPFO).cachedElement();
-        int nPi0 = -1;
-        bool getOK = pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0);
-        if(getOK == false) ATH_MSG_DEBUG("problems reading pi0Proto attribute");
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m() << "  isPi0: " << nPi0 << " , BDTscore: " << pfo->bdtPi0Score() );
-    }
-    
     //arrange pi0 pfos: depends on decay mode classification
     int decayModeProto = inSeed->getDecayModeBySubAlg();
     int decayModeFinal = inSeed->getDecayModeByPanTau();
@@ -258,33 +224,8 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
         return StatusCode::SUCCESS;
     }
     
-    ATH_MSG_DEBUG("Before re-linking: DecayMode Proto / Final: " << decayModeProto << " / " << decayModeFinal);
-    ATH_MSG_DEBUG("Number of chrg, pi0, neut PFOs in subAlg: " << chrgPFOLinks.size() << ", " << pi0PFOLinks.size() << ", " << neutralPFOLinks.size());
-    ATH_MSG_DEBUG("Number of pi0 PFOs in PanTau: " << preLinkPi0PFOLinks.size());
-    
-    //#ifndef NDEBUG
-    ATH_MSG_DEBUG("Dumping pi0 pfos for subalg");
-    for(unsigned int iPFO=0; iPFO<pi0PFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = pi0PFOLinks.at(iPFO).cachedElement();
-
-        int nPi0 = -1;
-        bool getOK = pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0);
-        if(getOK == false) ATH_MSG_DEBUG("problems reading pi0Proto attribute");
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m() << "  isPi0: " << nPi0 << " , BDTscore: " << pfo->bdtPi0Score());
-    }
-    ATH_MSG_DEBUG("Dumping neutral pfos for subalg");
-    for(unsigned int iPFO=0; iPFO<neutralPFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = neutralPFOLinks.at(iPFO).cachedElement();
-        int nPi0 = -1;
-        bool getOK = pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0);
-        if(getOK == false) ATH_MSG_DEBUG("problems reading pi0Proto attribute");
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m() << "  isPi0: " << nPi0 << " , BDTscore: " << pfo->bdtPi0Score() );
-    }
-    //#endif //NDEBUG
-
     //if pantau sets the same decay mode as the substructure algorithm, just copy the links
     if(decayModeProto == decayModeFinal) {
-      ATH_MSG_DEBUG("Modes are the same");
       
       if( decayModeFinal == xAOD::TauJetParameters::Mode_3pXn && pi0PFOLinks.size() > 1 ){
 
@@ -307,10 +248,6 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
 
     } else {
 
-      // *****
-      // if(preSelected_neutralPFOLinks.size() > 0) are not necessary! 
-      // *****
-
       if( decayModeFinal == xAOD::TauJetParameters::Mode_1p1n && decayModeProto == xAOD::TauJetParameters::Mode_1p0n ){
 
 	// add the highest BDT-score neutral from the sub-alg:
@@ -329,10 +266,6 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
 
 
 	if( pi0PFOLinks.size() == 1 && HasMultPi0sInOneCluster(pi0PFOLinks.at(0).cachedElement(), decayModeProto, inputAlg) ){ 
-	  //   ATH_MSG_WARNING("RecalculatePantauConstituents: Inconsistent decay mode classification! (wasAlteredByCellBasedShots=true although decay mode = " << decayModeFinal);
-	  //   tauJet->setPi0PFOLinks(pi0PFOLinks);
-	  //   return StatusCode::SUCCESS;
-	  // }
 	  
 	  // assign twice the pi0 mass to the one pi0 PFO:
 	  SetNeutralConstituentVectorMasses(pi0PFOLinks, 2*MASS_PI0);
@@ -381,83 +314,17 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
 
     tauJet->setPi0PFOLinks(preLinkPi0PFOLinks);
 
-
-    
-    ATH_MSG_DEBUG("Done setting links");
-    ATH_MSG_DEBUG("DecayMode Proto / Final: " << decayModeProto << " / " << decayModeFinal);
-    ATH_MSG_DEBUG("Number of chrg, pi0, neut PFOs in subAlg: " << chrgPFOLinks.size() << ", " << pi0PFOLinks.size() << ", " << neutralPFOLinks.size());
-   
-
     SetHLVTau(inSeed, tauJet, inputAlg, m_varTypeName_Basic);
-
-//    PanTau::TauFeature2* featureMap = inSeed->getFeatures();
-//    featureMap->addFeature(inputAlg + "_" + m_varTypeName_Basic + "_FinalMomentumCore_pt", hlv_PanTau_Final.perp() );
-//    featureMap->addFeature(inputAlg + "_" + m_varTypeName_Basic + "_FinalMomentumCore_eta", hlv_PanTau_Final.eta() );
-//    featureMap->addFeature(inputAlg + "_" + m_varTypeName_Basic + "_FinalMomentumCore_phi", hlv_PanTau_Final.phi() );
-//    featureMap->addFeature(inputAlg + "_" + m_varTypeName_Basic + "_FinalMomentumCore_m", hlv_PanTau_Final.m() );
-
 
     std::vector< ElementLink< xAOD::PFOContainer > > finalChrgPFOLinks       = tauJet->chargedPFOLinks();
     std::vector< ElementLink< xAOD::PFOContainer > > finalPi0PFOLinks        = tauJet->pi0PFOLinks();
     std::vector< ElementLink< xAOD::PFOContainer > > finalNeutralPFOLinks    = tauJet->neutralPFOLinks();
  
-    //! DEBUG output
-    //#ifndef NDEBUG
-    ATH_MSG_DEBUG("Dumping charged pfos for subalg");
-    for(unsigned int iPFO=0; iPFO<chrgPFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = chrgPFOLinks.at(iPFO).cachedElement();
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m());
-    }
-    ATH_MSG_DEBUG("Dumping charged pfos for pantau");
-    for(unsigned int iPFO=0; iPFO<finalChrgPFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = finalChrgPFOLinks.at(iPFO).cachedElement();
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m());
-    }
-    
-    ATH_MSG_DEBUG("Dumping pi0 pfos for subalg");
-    for(unsigned int iPFO=0; iPFO<pi0PFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = pi0PFOLinks.at(iPFO).cachedElement();
-        int nPi0 = -1;
-        bool getOK = pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0);
-        if(getOK == false) ATH_MSG_DEBUG("problems reading pi0 attribute");
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m() << "  isPi0: " << nPi0 <<  " , BDTscore: " << pfo->bdtPi0Score() );
-    }
-    ATH_MSG_DEBUG("Dumping pi0 pfos for pantau");
-    for(unsigned int iPFO=0; iPFO<finalPi0PFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = finalPi0PFOLinks.at(iPFO).cachedElement();
-        int nPi0 = -1;
-        bool getOK = pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0);
-        if(getOK == false) ATH_MSG_DEBUG("problems reading pi0 attribute");
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m() << "  isPi0: " << nPi0 <<  " , BDTscore: " << pfo->bdtPi0Score() );
-    }
-    
-    ATH_MSG_DEBUG("Dumping neutral pfos for subalg");
-    for(unsigned int iPFO=0; iPFO<neutralPFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = neutralPFOLinks.at(iPFO).cachedElement();
-        int nPi0 = -1;
-        bool getOK = pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0);
-        if(getOK == false) ATH_MSG_DEBUG("problems reading pi0 attribute");
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m() << "  isPi0: " << nPi0 <<  " , BDTscore: " << pfo->bdtPi0Score() );
-    }
-    ATH_MSG_DEBUG("Dumping neutral pfos for pantau");
-    for(unsigned int iPFO=0; iPFO<finalNeutralPFOLinks.size(); iPFO++) {
-        const xAOD::PFO* pfo = finalNeutralPFOLinks.at(iPFO).cachedElement();
-        int nPi0 = -1;
-        bool getOK = pfo->attribute(xAOD::PFODetails::nPi0Proto, nPi0);
-        if(getOK == false) ATH_MSG_DEBUG("problems reading pi0 attribute");
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m() << "  isPi0: " << nPi0 <<  " , BDTscore: " << pfo->bdtPi0Score() );
-    }
-    //#endif //NDEBUG
-    
 
     // vector of 4-vectors of actual pi0s and a vector with pointers to PFOs:
     std::vector< TLorentzVector > vec_pi04vec;
     std::vector< std::vector< ElementLink<xAOD::PFOContainer> > > vec_pi0pfos;
     createPi0Vectors(tauJet, vec_pi04vec, vec_pi0pfos);
-
-    
-    //xAOD::ParticleContainer* pi0Container=0;
-    //ATH_CHECK( evtStore()->retrieve(pi0Container, "finalTauPi0s") );
 
     for(unsigned int itlv=0; itlv!=vec_pi04vec.size(); ++itlv) {      
       xAOD::Particle* p = new xAOD::Particle();
@@ -467,7 +334,7 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
       for( uint ipfo = 0; ipfo != vec_pi0pfos.at(itlv).size(); ++ipfo) {
 	pfo_link_vector.push_back(vec_pi0pfos.at(itlv).at(ipfo));
       }
-      //p->auxdecor<std::vector< ElementLink< xAOD::PFOContainer > > >("pi0PFOLinks") = pfo_link_vector;
+
       static SG::AuxElement::Accessor<std::vector< ElementLink< xAOD::PFOContainer > > > accPi0PFOLinks("pi0PFOLinks");
       accPi0PFOLinks(*p) = pfo_link_vector;
 
@@ -476,7 +343,6 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
 
       tauJet->addPi0Link(linkToPi0);
     }
-
     
     return StatusCode::SUCCESS;
 }
@@ -488,7 +354,6 @@ void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed2* inSeed, xAOD:
     std::vector< ElementLink< xAOD::PFOContainer > > finalChrgPFOLinks       = tauJet->chargedPFOLinks();
     std::vector< ElementLink< xAOD::PFOContainer > > finalPi0PFOLinks        = tauJet->pi0PFOLinks();
     std::vector< ElementLink< xAOD::PFOContainer > > finalNeutralPFOLinks    = tauJet->neutralPFOLinks();
-    ATH_MSG_DEBUG("Number of chrg, pi0, neut PFOs in PanTau: " << finalChrgPFOLinks.size() << ", " << finalPi0PFOLinks.size() << ", " << finalNeutralPFOLinks.size());
 
     unsigned int NCharged    = finalChrgPFOLinks.size();
     unsigned int NPi0Neut    = finalPi0PFOLinks.size();
@@ -496,20 +361,12 @@ void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed2* inSeed, xAOD:
     TLorentzVector tlv_PanTau_Final;
     for(unsigned int iPFO=0; iPFO<NCharged; iPFO++) {
         const xAOD::PFO* pfo = finalChrgPFOLinks.at(iPFO).cachedElement();
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m());
         tlv_PanTau_Final += pfo->p4();
     }
     for(unsigned int iPFO=0; iPFO<NPi0Neut; iPFO++) {
         const xAOD::PFO* pfo = finalPi0PFOLinks.at(iPFO).cachedElement();
-        ATH_MSG_DEBUG("pfo " << iPFO << " pt, eta, phi, m: " << pfo->pt() << ", " << pfo->eta() << ", " << pfo->phi() << ", " << pfo->m());
         tlv_PanTau_Final += pfo->p4();
     }
-
-    ATH_MSG_DEBUG("Final 4-vector: ");
-    ATH_MSG_DEBUG("\tEt : " << tlv_PanTau_Final.Et());
-    ATH_MSG_DEBUG("\tEta: " << tlv_PanTau_Final.Eta());
-    ATH_MSG_DEBUG("\tPhi: " << tlv_PanTau_Final.Phi());
-    ATH_MSG_DEBUG("\tm  : " << tlv_PanTau_Final.M());
 
     inSeed->setFinalMomentum(tlv_PanTau_Final);
 
@@ -520,7 +377,6 @@ void PanTau::Tool_DetailsArranger::SetHLVTau( PanTau::PanTauSeed2* inSeed, xAOD:
     featureMap->addFeature(inputAlg + "_" + varTypeName_Basic + "_FinalMomentumCore_m", tlv_PanTau_Final.M() );
 
     return;
-
 }
 
    
@@ -544,7 +400,6 @@ bool PanTau::Tool_DetailsArranger::HasMultPi0sInOneCluster(const xAOD::PFO* pfo,
   }
 
   return (nPi0sPerCluster > 1);
-
 }
 
 
@@ -555,8 +410,7 @@ void PanTau::Tool_DetailsArranger::SetNeutralConstituentMass(xAOD::PFO* neutral_
   PanTau::SetP4EEtaPhiM( momentum, neutral_pfo->e(), neutral_pfo->eta(), neutral_pfo->phi(), mass);
   neutral_pfo->setP4(momentum.Pt(), neutral_pfo->eta(), neutral_pfo->phi(), mass);
 
-  return;
-    
+  return;    
 }
 
 
@@ -570,8 +424,7 @@ void PanTau::Tool_DetailsArranger::SetNeutralConstituentVectorMasses(std::vector
       
   }
     
-  return;
-    
+  return;    
 }
 
 
@@ -616,7 +469,6 @@ std::vector< ElementLink< xAOD::PFOContainer > > PanTau::Tool_DetailsArranger::C
   if( nConstsOfType != new_links.size() ){
     ATH_MSG_WARNING("CollectConstituentsAsPFOLinks: Couldn't find PFOLinks " << new_links.size() << " for all tau constituents (" << tauConstituents.size() << ")!");
 
-    ATH_MSG_DEBUG("Dumping neutral pfo links from all constituents of type " << type);
     for(unsigned int iConst=0; iConst<tauConstituents.size(); iConst++) {
       const xAOD::PFO* pfo = tauConstituents[iConst]->getPFO();
       int nPi0 = -1;
@@ -636,7 +488,6 @@ std::vector< ElementLink< xAOD::PFOContainer > > PanTau::Tool_DetailsArranger::C
   }
 
   return new_links;
-
 }
 
 
@@ -711,7 +562,3 @@ void PanTau::Tool_DetailsArranger::createPi0Vectors(xAOD::TauJet* tauJet, std::v
   }
 
 }
-
-
-
-

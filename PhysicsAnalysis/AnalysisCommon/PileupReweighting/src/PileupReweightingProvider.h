@@ -75,11 +75,11 @@ class PileupReweightingProvider : public AthAlgorithm {
                   ATH_MSG_VERBOSE("Doing systematic : " << syst.name());
                   if(! m_tool->isAffectedBySystematic( syst )) continue;
                   CP::SystematicSet tmp; tmp.insert( syst );
-                  if( m_tool->applySystematicVariation( tmp ) != CP::SystematicCode::Ok ) continue;
+                  if( m_tool->applySystematicVariation( tmp ) != StatusCode::SUCCESS ) continue;
                   CHECK( m_tool->apply(*evtInfo) );
                }
                //make sure we leave the tool in the nominal mode
-               if( m_tool->applySystematicVariation( CP::SystematicSet() ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
+               if( m_tool->applySystematicVariation( CP::SystematicSet() ) != StatusCode::SUCCESS ) return StatusCode::FAILURE;
             }
 
             return StatusCode::SUCCESS; 

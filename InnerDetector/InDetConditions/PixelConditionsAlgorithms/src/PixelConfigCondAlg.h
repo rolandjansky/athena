@@ -36,10 +36,6 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     SG::WriteCondHandleKey<PixelModuleData> m_writeKey
     {this, "WriteKey", "PixelModuleData", "Output key of pixel module data"};
 
-    // Switch parameters
-    Gaudi::Property<bool> m_useCablingConditions
-    {this, "UseCablingConditions", true, "Use cabling map conditions DB"};
-
     // Digitization parameters
     Gaudi::Property<double> m_bunchSpace
     {this, "BunchSpace", 25.0, "Bunch space [ns]"};
@@ -525,6 +521,12 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_FEI4EndcapHitDiscConfig
     {this, "FEI4EndcapHitDiscConfig", {2}, "Set HitDiscConfig parameter for endcap pixel layers"};
 
+    Gaudi::Property<float> m_chargeScaleFEI4
+    {this, "ChargeScaleFEI4", 1.0, "Scaling of the FEI4 charge"};
+
+    Gaudi::Property<bool> m_UseFEI4SpecialScalingFunction
+    {this, "UseFEI4SpecialScalingFunction", false, "Use FEI4 special scaling function"};
+
     // Charge calibration parameters
     Gaudi::Property<float> m_CalibrationParameterA
     {this, "DefaultCalibrationParameterA", 70.2, "Default charge calibration parameter A"};
@@ -534,7 +536,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<float> m_CalibrationParameterC
     {this, "DefaultCalibrationParameterC", 26000.0, "Default charge calibration parameter C"};
-    
+
     // DCS parameters
     Gaudi::Property<float> m_biasVoltage
     {this, "DefaultBiasVoltage", 150.0, "Default bias voltage"};

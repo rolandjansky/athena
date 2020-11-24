@@ -27,7 +27,7 @@ namespace Trk {
    */
 
 template<class T>
-class CompactBinnedArray2DT : public CompactBinnedArrayT<T>
+class CompactBinnedArray2DT final: public CompactBinnedArrayT<T>
 {
 
 public:

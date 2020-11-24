@@ -26,7 +26,6 @@ defaultInputKey = {
    'Muon'     :'Muons',
    'SoftTrk'  :'InDetTrackParticles',
    'SoftClus' :'CaloCalTopoClusters',
-   'SoftPFlow':'JetETMissNeutralParticleFlowObjects',
    'PrimaryVx':'PrimaryVertices',
    'Truth'    :'TruthEvents',
    'Calo'     :'AllCalo',
@@ -42,7 +41,6 @@ defaultOutputKey = {
     'Muon'     :'Muons',
     'SoftTrk'  :'SoftTrk',
     'SoftClus' :'SoftClus',
-    'SoftPFlow':'SoftPFlow',
     'Total'    :'Final',
     'Truth'    :'Truth',
     'Calo'     :'Calo'
@@ -86,11 +84,6 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.objType.endswith('SoftClus'):
         tool = CfgMgr.met__METSoftTermsTool('MET_SoftClusTool_'+suffix)
         tool.InputComposition = 'Clusters'
-    if config.objType == 'SoftPFlow':
-        tool = CfgMgr.met__METSoftTermsTool('MET_SoftPFlowTool_'+suffix)
-        tool.InputComposition = 'PFlow'
-        pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
-        tool.PFOTool = pfotool
     if suffix == 'Truth':
         tool = CfgMgr.met__METTruthTool('MET_TruthTool_'+config.objType)
         tool.InputComposition = config.objType

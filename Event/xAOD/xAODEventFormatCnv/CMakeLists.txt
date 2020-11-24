@@ -3,36 +3,27 @@
 # Declare the package name.
 atlas_subdir( xAODEventFormatCnv )
 
+# Find the necessary "externals".
 find_package( xAODUtilities )
 
+# Set up the "main library" of the package.
 atlas_add_component( xAODEventFormatCnv
   src/*.h src/*.cxx src/components/*.cxx
   LINK_LIBRARIES
     GaudiKernel AthenaKernel AthenaBaseComps StoreGateLib xAODEventFormat )
 
-atlas_add_component( xAODEventFormatCnvTest
-  src/test/*.h src/test/*.cxx
-  LINK_LIBRARIES
-    GaudiKernel
-    AthenaBaseComps
-    AthContainers
-    AthContainersInterfaces
-    StoreGateLib
-    xAODCore
-    xAODEventFormat )
-
+# Set up the test code of the package.
 atlas_add_library( xAODEventFormatCnvTestLib
-  src/test/*.h src/test/*.cxx
+  xAODEventFormatCnv/test/*.h xAODEventFormatCnv/test/versions/*.h
+  src/test/A_v1.cxx src/test/AAuxContainer_v1.cxx
   PUBLIC_HEADERS xAODEventFormatCnv
-  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES
-    GaudiKernel
-    AthenaKernel
-    AthContainers
-    AthContainersInterfaces
-    xAODCore
-    xAODEventFormat
-  PRIVATE_LINK_LIBRARIES AthenaBaseComps StoreGateLib )
+  LINK_LIBRARIES AthContainers xAODCore
+  PRIVATE_LINK_LIBRARIES AthContainersInterfaces )
+
+atlas_add_component( xAODEventFormatCnvTest
+  src/test/*.h src/test/ACreatorAlg.cxx src/test/EventFormatPrinterAlg.cxx
+  LINK_LIBRARIES GaudiKernel AthenaKernel AthenaBaseComps StoreGateLib
+  xAODEventFormat xAODEventFormatCnvTestLib )
 
 atlas_add_poolcnv_library( xAODEventFormatCnvTestAthenaPoolCnv
   src/test/cnv/*.h src/test/cnv/*.cxx
@@ -46,23 +37,22 @@ atlas_add_poolcnv_library( xAODEventFormatCnvTestAthenaPoolCnv
     xAODMakerTest::AAuxContainer
   CNV_PFX xAODMakerTest
   LINK_LIBRARIES
+    GaudiKernel
+    AthenaKernel
     AthenaPoolCnvSvcLib
-    AthenaPoolUtilities
     AthContainers
     xAODEventFormatCnvTestLib )
-
-atlas_add_dictionary( xAODEventFormatCnvTestDict
-  xAODEventFormatCnv/test/xAODEventFormatCnvTestDict.h
-  xAODEventFormatCnv/test/selection.xml
-  ${_selectionFile}
-  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES xAODCore xAODEventFormatCnvTestLib
-  EXTRA_FILES src/test/dict/*.cxx )
 
 atlas_add_xaod_smart_pointer_dicts(
   INPUT xAODEventFormatCnv/test/selection.xml
   OUTPUT _selectionFile
   CONTAINERS "xAODMakerTest::AVec_v1" )
+
+atlas_add_dictionary( xAODEventFormatCnvTestDict
+  xAODEventFormatCnv/test/xAODEventFormatCnvTestDict.h
+  ${_selectionFile}
+  LINK_LIBRARIES xAODCore xAODEventFormatCnvTestLib
+  EXTRA_FILES src/test/dict/*.cxx )
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )

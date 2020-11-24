@@ -27,10 +27,6 @@ class PixelModuleData {
     void setChipStatus(const int chanNum, const int value);
     int getChipStatus(const int chanNum) const;
 
-    // Switch parameters
-    void setUseCablingConditions(bool UseCablingConditions);
-    bool getUseCablingConditions() const;
-
     // Digitization parameters
     void setBunchSpace(double bunchSpace);
     double getBunchSpace() const;
@@ -127,6 +123,11 @@ class PixelModuleData {
     int getFEI4HitDiscConfig(int bec, int layer) const;
     int getFEI4OverflowToT(int bec, int layer) const;
 
+    void setFEI4ChargScaling(float scaleFEI4);
+    void setUseFEI4SpecialScalingFunction(bool UseFEI4SpecialScalingFunction);
+    float getFEI4ChargScaling() const;
+    bool getUseFEI4SpecialScalingFunction() const;
+
     // Charge calibration parameters
     void setDefaultQ2TotA(float paramA);
     void setDefaultQ2TotE(float paramE);
@@ -192,8 +193,6 @@ class PixelModuleData {
 
     typedef std::map<int, std::vector<float>> chipCharge;
 
-    bool m_useCablingConditions;
-
     double m_bunchSpace;
     bool m_UseComTime;
     double m_ComTime;
@@ -251,6 +250,9 @@ class PixelModuleData {
     std::vector<int>  m_FEI3EndcapTimingSimTune;
     std::vector<int>  m_FEI4BarrelHitDiscConfig;
     std::vector<int>  m_FEI4EndcapHitDiscConfig;
+
+    float m_scaleFEI4;
+    bool m_UseFEI4SpecialScalingFunction;
 
     float m_paramA;
     float m_paramE;

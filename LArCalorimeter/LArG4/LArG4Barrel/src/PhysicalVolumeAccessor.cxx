@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PhysicalVolumeAccessor.h"
@@ -7,7 +7,7 @@
 #include <string>
 #include <assert.h>
 
-G4LogicalVolume* PhysicalVolumeAccessor::GetLV(std::string name)
+G4LogicalVolume* PhysicalVolumeAccessor::GetLV(const std::string& name)
 {
   G4LogicalVolumeStore *lvs=G4LogicalVolumeStore::GetInstance();
   for (unsigned int i=0;i<lvs->size();i++)
@@ -16,18 +16,16 @@ G4LogicalVolume* PhysicalVolumeAccessor::GetLV(std::string name)
       if (name==lname)
         return (lvs->operator[](i));
     }
-  // std::cout<<"PhysicalVolumeAccessor::GetLV Warning!!! Volume "<<name
-  //               <<" not found!!! returning nullptr"<<std::endl;
   return nullptr;
 }
 
-PhysicalVolumeAccessor::PhysicalVolumeAccessor(std::string name)
+PhysicalVolumeAccessor::PhysicalVolumeAccessor(const std::string& name)
 {
   m_theLogicalVolume=GetLV(name);
 }
 
-PhysicalVolumeAccessor::PhysicalVolumeAccessor(std::string name,
-                                               std::string PVname)
+PhysicalVolumeAccessor::PhysicalVolumeAccessor(const std::string& name,
+                                               const std::string& PVname)
 {
   m_theLogicalVolume=GetLV(name);
   assert (m_theLogicalVolume!=nullptr);
@@ -48,13 +46,11 @@ const G4VPhysicalVolume* PhysicalVolumeAccessor::GetPhysicalVolume(int icopy) co
     return physVolIter->second;
   else
     {
-      //              std::cout<<"Physical Volume copy "<<icopy<<" not found in"
-      //                       <<m_theLogicalVolume->GetName()<<"!!! return nullptr"<<std::endl;
       return nullptr;
     }
 }
 
-void PhysicalVolumeAccessor::SetPhysicalVolumeList(std::string name)
+void PhysicalVolumeAccessor::SetPhysicalVolumeList(const std::string& name)
 {
   // assert (m_thePhysicalVolumes.size()==0);
   for (int i=0;i<m_theLogicalVolume->GetNoDaughters();i++)

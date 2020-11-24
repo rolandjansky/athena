@@ -162,7 +162,7 @@ def JetGroomAlgCfg(ConfigFlags,buildjetsname,groomjetsname):
     groomcfg.addSequence( CompFactory.AthSequencer(sequencename) )
 
     # Create the JetGroomer, provide it with a JetTrimmer
-    jtrim = CompFactory.JetTrimming("trimSmallR2Frac5",RClus=0.2,PtFrac=0.05)
+    jtrim = CompFactory.getComp("JetGrooming::JetTrimming")("trimSmallR2Frac5",RClus=0.2,PtFrac=0.05)
     jtrim.UngroomedJets = buildjetsname
     jtrim.ParentPseudoJets = "PseudoJetMerged_"+buildjetsname
 

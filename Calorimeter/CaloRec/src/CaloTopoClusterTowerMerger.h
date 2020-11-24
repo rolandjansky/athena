@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -33,7 +33,7 @@ public:
 
   ///@name Algorithm interface
   ///@{
-  virtual StatusCode initialize();                                     ///< Initialization sets up read and write handle keys
+  virtual StatusCode initialize() override;                            ///< Initialization sets up read and write handle keys
   virtual StatusCode execute(const EventContext& ctx) const override;  ///< Execution merges the container contents 
   ///@}
 

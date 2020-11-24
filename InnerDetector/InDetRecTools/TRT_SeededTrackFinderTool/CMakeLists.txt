@@ -1,32 +1,7 @@
-################################################################################
-# Package: TRT_SeededTrackFinderTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TRT_SeededTrackFinderTool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          GaudiKernel
-                          InnerDetector/InDetRecTools/InDetRecToolInterfaces
-                          MagneticField/MagFieldInterfaces
-                          Tracking/TrkDetDescr/TrkGeometry
-                          Tracking/TrkDetDescr/TrkSurfaces
-                          Tracking/TrkEvent/TrkParameters
-                          Tracking/TrkEvent/TrkEventUtils
-                          PRIVATE
-                          Control/StoreGate
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          InnerDetector/InDetRecEvent/InDetRIO_OnTrack
-                          InnerDetector/InDetRecEvent/SiSPSeededTrackFinderData
-                          Tracking/TrkEvent/TrkCaloClusterROI
-                          Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-                          Tracking/TrkEvent/TrkTrack
-                          Tracking/TrkExtrapolation/TrkExInterfaces
-                          Tracking/TrkTools/TrkToolInterfaces )
 
 # External dependencies:
 find_package( CLHEP )
@@ -36,8 +11,4 @@ atlas_add_component( TRT_SeededTrackFinderTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetRecToolInterfaces MagFieldInterfaces TrkGeometry TrkSurfaces TrkParameters StoreGateLib SGtests InDetIdentifier InDetPrepRawData InDetRIO_OnTrack SiSPSeededTrackFinderData TrkCaloClusterROI TrkEventPrimitives TrkPseudoMeasurementOnTrack TrkTrack TrkExInterfaces TrkToolInterfaces )
-
-# Install files from the package:
-atlas_install_headers( TRT_SeededTrackFinderTool )
-
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetRecToolInterfaces MagFieldConditions MagFieldElements SiSPSeededTrackFinderData StoreGateLib TrkCaloClusterROI TrkEventPrimitives TrkEventUtils TrkExInterfaces TrkGeometry TrkParameters TrkPseudoMeasurementOnTrack TrkSurfaces TrkToolInterfaces TrkTrack )

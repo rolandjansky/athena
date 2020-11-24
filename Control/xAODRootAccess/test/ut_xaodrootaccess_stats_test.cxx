@@ -18,6 +18,8 @@
 #include "xAODCore/tools/ReadStats.h"
 #include "xAODCore/tools/IOStats.h"
 
+#include "AsgMessaging/MessageCheck.h"
+
 // Local include(s):
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
@@ -25,11 +27,14 @@
 
 int main() {
 
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+
    // Get the name of the application:
    const char* APP_NAME = "ut_xaodrootaccess_stats_test";
 
    // Initialise the environment:
-   RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
+   ANA_CHECK( xAOD::Init( APP_NAME ) );
 
    // Create the tested object(s):
    xAOD::TEvent event( xAOD::TEvent::kClassAccess );
@@ -41,7 +46,7 @@ int main() {
       ::Error( APP_NAME, "File %s couldn't be opened...", FNAME );
       return 1;
    }
-   RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
+   ANA_CHECK( event.readFrom( ifile.get() ) );
 
    // Get the auxiliary ID of the "pt" variable:
    const SG::auxid_t auxidPt =
@@ -67,23 +72,23 @@ int main() {
       // Retrieve some interface containers, to trigger the setup of the
       // auxiliary containers:
       const SG::AuxVectorBase* vb = 0;
-      RETURN_CHECK( APP_NAME, event.retrieve( vb, "ElectronCollection" ) );
-      RETURN_CHECK( APP_NAME, event.retrieve( vb, "Muons" ) );
+      ANA_CHECK( event.retrieve( vb, "Electrons" ) );
+      ANA_CHECK( event.retrieve( vb, "Muons" ) );
 
       // Load some containers from it and access their "pt" property:
       const xAOD::AuxContainerBase* dummy = 0;
-      RETURN_CHECK( APP_NAME, event.retrieve( dummy,
-                                              "ElectronCollectionAux." ) );
-      if( strcmp( dummy->name(), "ElectronCollectionAux." ) ) {
+      ANA_CHECK( event.retrieve( dummy,
+                                              "ElectronsAux." ) );
+      if( strcmp( dummy->name(), "ElectronsAux." ) ) {
          ::Error( APP_NAME,
-                  "The name of ElectronCollectionAux. was not set correctly" );
+                  "The name of ElectronsAux. was not set correctly" );
          return 1;
       }
       dummy->getData( auxidPt );
-      RETURN_CHECK( APP_NAME, event.retrieve( dummy, "MuonsAux." ) );
+      ANA_CHECK( event.retrieve( dummy, "MuonsAux." ) );
       if( strcmp( dummy->name(), "MuonsAux." ) ) {
          ::Error( APP_NAME,
-                  "The name of ElectronCollectionAux. was not set correctly" );
+                  "The name of ElectronsAux. was not set correctly" );
          return 1;
       }
       dummy->getData( auxidPt );

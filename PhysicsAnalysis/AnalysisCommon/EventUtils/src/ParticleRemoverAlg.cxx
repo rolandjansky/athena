@@ -93,7 +93,7 @@ StatusCode ParticleRemoverAlg::initialize()
   }
 
   // Abort on an unchecked systematics code
-  // CP::SystematicCode::enableFailure();
+  // StatusCode::enableFailure();
 
   // Build the vector of all input and output container names
   const std::size_t totSize = 1 + m_suffixes.value().size(); // the '1' comes from the InputContainer

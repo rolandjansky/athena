@@ -5,11 +5,13 @@
 # Schedules all tools needed for ID track object selection and writes
 # results into SG. These may then be accessed along the train   
 #********************************************************************
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 
 # Check file contains PrimaryVertices container (protect against non-collision data)
 # If running from RAW the eventdata_items are none or emtpy
 from RecExConfig.InputFilePeeker import inputFileSummary
+from AthenaCommon import CfgMgr
+from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.BeamFlags import jobproperties
 from InDetRecExample.InDetJobProperties import InDetFlags
 
@@ -47,8 +49,7 @@ if have_PV_container :
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
-    
-    from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+
     DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("InDetCommonKernel",
                                                                              AugmentationTools = [DFCommonTrackSelection,DFCommonZ0AtPV]
                                                                              )

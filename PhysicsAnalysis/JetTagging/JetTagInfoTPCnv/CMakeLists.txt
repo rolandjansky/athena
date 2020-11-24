@@ -1,54 +1,26 @@
-################################################################################
-# Package: JetTagInfoTPCnv
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetTagInfoTPCnv )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/DataModelAthenaPool
-                          Database/AthenaPOOL/AthenaPoolCnvSvc
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          Event/EventPrimitives
-                          GaudiKernel
-                          PhysicsAnalysis/JetTagging/JetTagEvent
-                          PhysicsAnalysis/JetTagging/JetTagInfo
-                          PhysicsAnalysis/MuonID/MuonIDEvent
-                          Reconstruction/Jet/JetEvent
-                          Reconstruction/Jet/JetEventTPCnv
-                          Reconstruction/Particle
-                          Reconstruction/egamma/egammaEvent
-                          Tracking/TrkEvent/VxVertex
-                          Tracking/TrkEventCnv/TrkEventTPCnv
-                          Control/CxxUtils
-                          PRIVATE
-                          Control/SGTools
-                          AtlasTest/TestTools )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_library( JetTagInfoTPCnv
                    src/*.cxx
                    PUBLIC_HEADERS JetTagInfoTPCnv
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolUtilities EventPrimitives GaudiKernel JetTagEvent JetTagInfo MuonIDEvent JetEvent JetEventTPCnv Particle egammaEvent VxVertex TrkEventTPCnv DataModelAthenaPoolLib AthenaPoolCnvSvcLib
-                   PRIVATE_LINK_LIBRARIES CxxUtils )
+                   LINK_LIBRARIES AthenaPoolUtilities CxxUtils EventPrimitives JetTagEvent JetTagInfo MuonIDEvent JetEvent JetEventTPCnv Particle egammaEvent VxVertex TrkEventTPCnv DataModelAthenaPoolLib AthenaPoolCnvSvcLib
+                   PRIVATE_LINK_LIBRARIES GaudiKernel )
 
 atlas_add_dictionary( JetTagInfoTPCnvDict
                       JetTagInfoTPCnv/JetTagInfoTPCnvDict.h
                       JetTagInfoTPCnv/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventPrimitives GaudiKernel JetTagEvent JetTagInfo MuonIDEvent JetEvent JetEventTPCnv Particle egammaEvent VxVertex TrkEventTPCnv CxxUtils JetTagInfoTPCnv )
+                      LINK_LIBRARIES JetTagInfoTPCnv )
 
 atlas_add_dictionary( ARA_JetTagInfoTPCnvDict
                       JetTagInfoTPCnv/JetTagInfoTPCnvDict.h
                       JetTagInfoTPCnv/ARA_selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} DataModelAthenaPoolLib AthenaPoolCnvSvcLib AthenaPoolUtilities EventPrimitives GaudiKernel JetTagEvent JetTagInfo MuonIDEvent JetEvent JetEventTPCnv Particle egammaEvent VxVertex TrkEventTPCnv CxxUtils JetTagInfoTPCnv )
+                      LINK_LIBRARIES JetTagInfoTPCnv )
 
+# Test(s) in the package:
 set( _jobOPath "${CMAKE_CURRENT_SOURCE_DIR}/share" )
 set( _jobOPath "${_jobOPath}:${CMAKE_JOBOPT_OUTPUT_DIRECTORY}" )
 set( _jobOPath "${_jobOPath}:$ENV{JOBOPTSEARCHPATH}" )
@@ -67,9 +39,7 @@ foreach( test AtlfInfoCnv_p1 BaseTagInfoCnv_p1 ElectronAssociationCnv_p1
   atlas_add_test( ${test}_test
                   SOURCES
                   test/${test}_test.cxx
-                  INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                  LINK_LIBRARIES ${ROOT_LIBRARIES} JetTagInfoTPCnv AthenaPoolUtilities EventPrimitives GaudiKernel JetTagEvent JetTagInfo MuonIDEvent JetEvent JetEventTPCnv Particle egammaEvent VxVertex TrkEventTPCnv DataModelAthenaPoolLib AthenaPoolCnvSvcLib CxxUtils TestTools SGTools
+                  LINK_LIBRARIES GaudiKernel JetTagInfoTPCnv SGTools TestTools
                   ENVIRONMENT "JOBOPTSEARCHPATH=${_jobOPath}" )
 endforeach()
               
-

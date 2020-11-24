@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./EtConditionMT.h"
@@ -49,7 +49,7 @@ EtConditionMT::isSatisfied(const HypoJetVector& ips,
 }
 
 
-std::string EtConditionMT::toString() const noexcept {
+std::string EtConditionMT::toString() const {
   std::stringstream ss;
   ss << "EtConditionMT (" << this << ") "
      << " Et threshold: " 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileDQFragMonitorAlgorithm.h"
@@ -29,6 +29,7 @@ StatusCode TileDQFragMonitorAlgorithm::initialize() {
   ATH_CHECK( m_DCSStateKey.initialize(m_checkDCS) );
   ATH_CHECK( m_digitsContainerKey.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_rawChannelContainerKey.initialize(SG::AllowEmpty) );
+  ATH_CHECK( m_eventInfoTileStatusKey.initialize() );
 
   using Tile = TileCalibUtils;
 
@@ -208,7 +209,7 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       monitoredModule = drawer;
 
       if (l1TriggerType != digitsCollection->getLvl1Type()) {
-        fill("TileMismatchedL1TiggerType", monitoredModule, monitoredROS);
+        fill("TileMismatchedL1TriggerType", monitoredModule, monitoredROS);
       }
 
       if (l1TriggerType == 0x82) {
@@ -299,7 +300,8 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     }
   }
 
-
+  std::vector<int> rosWithGloblaCRC;
+  std::vector<int> drawerWithGlobalCRC;
   auto fractionOfBadDMUs = Monitored::Scalar<float>("fractionOfBadDMUs", 0.0);
 
   for (unsigned int ros = 1; ros < Tile::MAX_ROS; ++ros) {
@@ -435,9 +437,18 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       fill(m_tools[m_errorsGroups[ros - 1][drawer]], drawerDMUs, errorsInDMUs);
       fill(m_tools[m_errorsVsLBGroups[ros - 1][drawer]], lumiBlock, fractionOfBadDMUs);
 
+      if (dqStatus->checkGlobalCRCErr(ros, drawer, 0) != 0) {
+        rosWithGloblaCRC.push_back(ros);
+        drawerWithGlobalCRC.push_back(drawer);
+      }
     }
   }
 
+  if (!rosWithGloblaCRC.empty()) {
+    auto monModule = Monitored::Collection("module", drawerWithGlobalCRC);
+    auto monROS = Monitored::Collection("ROS", rosWithGloblaCRC);
+    fill("TileBadGlobalCRC", monModule, monROS);
+  }
 
   fill("TileDQFragMonExecuteTime", timer);
 

@@ -4,6 +4,7 @@
 # art-description: Test of transform RDO->RDO_TRIG->ESD->AOD with serial athena (legacy trigger)
 # art-type: grid
 # art-include: master/Athena
+# art-memory: 6000
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -23,11 +24,6 @@
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
-import os
-
-# To run single-process transform on MCORE sites
-if 'ATHENA_NPROC_NUM' in os.environ:
-    del os.environ['ATHENA_NPROC_NUM']
 
 preExec = ';'.join([
   'from TriggerJobOpts.TriggerFlags import TriggerFlags',
@@ -38,7 +34,7 @@ preExec = ';'.join([
 rdo2aod = ExecStep.ExecStep()
 rdo2aod.type = 'Reco_tf'
 rdo2aod.input = 'ttbar'
-rdo2aod.max_events = 500
+rdo2aod.max_events = 400
 rdo2aod.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
 rdo2aod.args += ' --preExec="all:{:s};"'.format(preExec)
 

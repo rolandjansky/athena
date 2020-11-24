@@ -36,10 +36,10 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include <fstream>
 #include "MuonCablingData/MuonMDT_CablingMap.h"
-#include "RPC_CondCabling/RpcCablingCondData.h"
 
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 #include "CxxUtils/checker_macros.h"
+
 ATLAS_NO_CHECK_FILE_THREAD_SAFETY;  // legacy trigger code
 
 #include <vector>
@@ -110,19 +110,19 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   /** Run segment finding only */
   virtual HLT::ErrorCode getSegments(const IRoiDescriptor* muonRoI,
 				     TrigMuonEFMonVars& monvars,
-				     std::vector<TrigTimer*>& timers);
+				     std::vector<TrigTimer*>& timers, const EventContext& ctx);
 
   /** Run segment finding and spectrometer track building */
   virtual HLT::ErrorCode getSpectrometerTracks(const IRoiDescriptor* muonRoI,
 					       TrigMuonEFMonVars& monVars,
-					       std::vector<TrigTimer*>& timers);
+					       std::vector<TrigTimer*>& timers, const EventContext& ctx);
 
   /** Run segment finding, spectrometer track building and extrapolation */
   virtual HLT::ErrorCode getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
 					       MuonCandidateCollection& candidateCollection,
 					       TrackCollection& extrapolatedTracks,
 					       TrigMuonEFMonVars& monvars,
-					       std::vector<TrigTimer*>& timers);
+					       std::vector<TrigTimer*>& timers, const EventContext& ctx);
   
   /** get list of hashIDs used in roi (used for internal caching in TrigMuSuperEF) **/
   virtual std::vector<std::vector<IdentifierHash> > getHashList(const IRoiDescriptor* muonRoI);
@@ -206,7 +206,7 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   HLT::ErrorCode getSpectrometerTracks(const IRoiDescriptor* muonRoI,
 				       SegmentCache*& cache,
 				       TrigMuonEFMonVars& monVars,
-				       std::vector<TrigTimer*>& timers);
+				       std::vector<TrigTimer*>& timers, const EventContext& ctx);
 
   /** Run segment finding, spectrometer track building and extrapolation */
   HLT::ErrorCode getExtrapolatedTracks(const IRoiDescriptor* muonRoI,
@@ -214,14 +214,14 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
 				       TrackCollection& extrapolatedTracks,
 				       SegmentCache*& cache,
 				       TrigMuonEFMonVars& monvars,
-				       std::vector<TrigTimer*>& timers);
+				       std::vector<TrigTimer*>& timers, const EventContext& ctx);
   
 
   /** Find segments in input ROI */
   HLT::ErrorCode findSegments(const IRoiDescriptor* muonRoI,
 			      SegmentCache*& cache,
 			      TrigMuonEFSegmentMonVars& monvars,
-			      std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex );
+			      std::vector<TrigTimer*>& timers, unsigned int firstTimerIndex, const EventContext& ctx );
 
   /** Build tracks out of input segments */
   HLT::ErrorCode buildTracks(const Trk::SegmentCollection* segment_collection,
@@ -386,7 +386,6 @@ class TrigMuonEFStandaloneTrackTool : public AthAlgTool,
   bool m_ignoreCSC;
   ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;
   SG::ReadCondHandleKey<MuonMDT_CablingMap> m_mdtCablingKey{this, "MdtCablingKey", "MuonMDT_CablingMap", "Key of MuonMDT_CablingMap"};
-  SG::ReadCondHandleKey<RpcCablingCondData> m_rpcCablingKey{this, "RpcCablingKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
 };
 

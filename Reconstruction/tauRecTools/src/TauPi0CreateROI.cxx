@@ -3,33 +3,20 @@
 */
 
 #ifndef XAOD_ANALYSIS
-//-----------------------------------------------------------------------------
-// file:        TauPi0CreateROI.cxx
-// package:     Reconstruction/tauEvent
-// authors:     Will Davey, Benedict Winter, Stephanie Yuen
-// date:        2012-10-09
-//-----------------------------------------------------------------------------
+
+#include "TauPi0CreateROI.h"
 
 #include "CaloUtils/CaloCellList.h"
-#include "TauPi0CreateROI.h"
 
 #include <boost/scoped_ptr.hpp>
 
-//-------------------------------------------------------------------------
-// Constructor
-//-------------------------------------------------------------------------
+
 
 TauPi0CreateROI::TauPi0CreateROI(const std::string& name) :
-     TauRecToolBase(name)
-{
+     TauRecToolBase(name) {
 }
    
-//-------------------------------------------------------------------------
-// Destructor
-//-------------------------------------------------------------------------
 
-TauPi0CreateROI::~TauPi0CreateROI() {
-}
 
 StatusCode TauPi0CreateROI::initialize() {
     
@@ -38,58 +25,45 @@ StatusCode TauPi0CreateROI::initialize() {
     return StatusCode::SUCCESS;
 }
 
-//______________________________________________________________________________
-StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& pTau, CaloCellContainer& pPi0CellContainer, boost::dynamic_bitset<>& addedCellsMap) const {
 
-    //---------------------------------------------------------------------
-    // only run on 1-5 prong taus 
-    //---------------------------------------------------------------------
-    if (pTau.nTracks() == 0 || pTau.nTracks() >5 ) {
-        return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG("new tau. \tpt = " << pTau.pt() << "\teta = " << pTau.eta() << "\tphi = " << pTau.phi() << "\tnprongs = " << pTau.nTracks());
 
-    //---------------------------------------------------------------------
-    // retrieve cells around tau 
-    //---------------------------------------------------------------------
-    // get all calo cell container
-    SG::ReadHandle<CaloCellContainer> caloCellInHandle( m_caloCellInputContainer );
-    if (!caloCellInHandle.isValid()) {
-      ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << caloCellInHandle.key());
-      return StatusCode::FAILURE;
-    }
-    const CaloCellContainer *pCellContainer = NULL;
-    pCellContainer = caloCellInHandle.cptr();
-    
-    // get only EM cells within dR<0.4
-    std::vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
-    emSubCaloBlocks.push_back(CaloCell_ID::LAREM);
-    boost::scoped_ptr<CaloCellList> pCells(new CaloCellList(pCellContainer,emSubCaloBlocks)); 
-    pCells->select(pTau.eta(), pTau.phi(), 0.4); // TODO: change hardcoded 0.4 to tau cone variable, (or func. from TauJet)?
-
-    //---------------------------------------------------------------------
-    // Put Ecal cells in output container
-    //---------------------------------------------------------------------
-
-    CaloCellList::list_iterator cellItr(pCells->begin()), cellItrE(pCells->end());
-    for(; cellItr != cellItrE; ++cellItr) {
-        const CaloCell* cell = (*cellItr);
-
-        // only keep cells that are in Ecal (PS, EM1, EM2 and EM3, both barrel and endcap).
-        int samp = cell->caloDDE()->getSampling();
-        if(samp>7) continue;
-
-        // Store cell in output container
-        const IdentifierHash cellHash = cell->caloDDE()->calo_hash();
-
-	if(!addedCellsMap.test(cellHash)) {
-            CaloCell* copyCell = cell->clone();
-            pPi0CellContainer.push_back(copyCell);
-	    addedCellsMap.set(cellHash);
-        }
-    }
-
+StatusCode TauPi0CreateROI::executePi0CreateROI(xAOD::TauJet& tau, CaloCellContainer& pi0CellContainer, boost::dynamic_bitset<>& addedCellsMap) const {
+  // only run on 1-5 prong taus 
+  if (tau.nTracks() == 0 || tau.nTracks() >5 ) {
     return StatusCode::SUCCESS;
+  }
+
+  SG::ReadHandle<CaloCellContainer> caloCellInHandle( m_caloCellInputContainer );
+  if (!caloCellInHandle.isValid()) {
+    ATH_MSG_ERROR ("Could not retrieve HiveDataObj with key " << caloCellInHandle.key());
+    return StatusCode::FAILURE;
+  }
+  const CaloCellContainer *cellContainer = caloCellInHandle.cptr();;
+  
+  // get only EM cells within dR < 0.4
+  // TODO: change hardcoded 0.4 to meaningful variable
+  std::vector<CaloCell_ID::SUBCALO> emSubCaloBlocks;
+  emSubCaloBlocks.push_back(CaloCell_ID::LAREM);
+  boost::scoped_ptr<CaloCellList> cellList(new CaloCellList(cellContainer,emSubCaloBlocks)); 
+  // FIXME: tau p4 is corrected to point at tau vertex, but the cells are not
+  cellList->select(tau.eta(), tau.phi(), 0.4);
+
+  for (const CaloCell* cell : *cellList) {
+    // only keep cells that are in Ecal (PS, EM1, EM2 and EM3, both barrel and endcap).
+    int sampling = cell->caloDDE()->getSampling();
+    if (sampling > 7) continue;
+
+    // Store cell in output container
+    const IdentifierHash cellHash = cell->caloDDE()->calo_hash();
+
+    if (!addedCellsMap.test(cellHash)) {
+      CaloCell* newCell = cell->clone();
+      pi0CellContainer.push_back(newCell);
+      addedCellsMap.set(cellHash);
+    }
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 #endif

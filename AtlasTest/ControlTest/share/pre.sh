@@ -1,1 +1,0 @@
-source ../cmt/setup.sh

@@ -13,32 +13,29 @@ The JetModifier config class is defined in JetDefinition.py
    2. Tool Name (ignored if the helper is a custom one)
   [3.] Config helper
   [4.] Prereqs (default to []). Can also be a function.
-  [5.] Flag passJetDef specifying if the helper needs the jet definition
+
         --> should this be by default? prefer to avoid ignored args
 """
 from .JetDefinition import JetModifier
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 jetmoddict = {}
 
 ########################################################################
 # Define the simple modifier setups here -- those defined in JetRec.
 
-from AthenaConfiguration.ComponentFactory import CompFactory
-def getJetFilterTool(modspec):
-    threshold = int(modspec)
-    jetptfilter = CompFactory.JetFilterTool("jetptfilter_{0}mev".format(threshold))
-    jetptfilter.PtMin = threshold
-    return jetptfilter
 jetrecmods = {
     "Sort":   JetModifier("JetSorter","jetsort"),
-    "Filter": JetModifier("JetFilterTool","jetptfilter",createfn=getJetFilterTool),
+    "Filter": JetModifier("JetFilterTool","jetptfilter_{modspec}",
+                          # we give a function as PtMin : it will be evaluated when instantiating the tool (modspec will come alias usage like "Filter:10000" --> PtMin=100000) 
+                          PtMin = lambda _,modspec: int(modspec) ) #
 }
 jetmoddict.update (jetrecmods)
 
 ########################################################################
 # Below, we populate the jetmoddict with modifier definitions for tools
 # that are defined in other packages.
-# The helper functions for tools in PackageName live in modules called
+# When necessary, the helper functions 'createfn' for tools in PackageName live in modules called
 # PackageName.PackageConfig (modules to be moved)
 
 # Calibration
@@ -46,7 +43,7 @@ from JetCalibTools import JetCalibToolsConfig
 jetcalibmods = {
     "Calib": JetModifier("JetCalibrationTool","jetcalib_jetcoll_calibseq",
                          createfn=JetCalibToolsConfig.getJetCalibToolFromString,
-                         prereqs=JetCalibToolsConfig.getJetCalibToolPrereqs,passJetDef=True)
+                         prereqs=JetCalibToolsConfig.getJetCalibToolPrereqs)
     }
 jetmoddict.update(jetcalibmods)
 
@@ -67,15 +64,16 @@ jetmomentmods = {
     # More complex cases here
     "CaloEnergies":    JetModifier("JetCaloEnergies", "jetens",
                                    prereqs=["mod:EMScaleMom"]
-    ),
+                                   ),
     "CaloQuality":     JetModifier("JetCaloQualityTool", "caloqual",
-                                   createfn=JetMomentToolsConfig.getCaloQualityTool),
+                                   TimingCuts = [5,10],
+                                   Calculations = ["LArQuality", "N90Constituents", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF", "BchCorrCell"],),
+
     "ConstitFourMom":  JetModifier("JetConstitFourMomTool", "constitfourmom_basename",
-                                   createfn=JetMomentToolsConfig.getConstitFourMomTool,
-                                   passJetDef=True),
+                                   createfn=JetMomentToolsConfig.getConstitFourMomTool,),
     "EMScaleMom":      JetModifier("JetEMScaleMomTool", "emscalemom_basename",
-                                   createfn=JetMomentToolsConfig.getEMScaleMomTool,
-                                   passJetDef=True),
+                                   createfn=JetMomentToolsConfig.getEMScaleMomTool,),
+
     "JVF":             JetModifier("JetVertexFractionTool", "jvf",
                                    createfn=JetMomentToolsConfig.getJVFTool,
                                    prereqs = ["mod:TrackMoments"] ),
@@ -93,6 +91,8 @@ jetmomentmods = {
     "TrackSumMoments": JetModifier("JetTrackSumMomentsTool", "trksummoms",
                                    createfn=JetMomentToolsConfig.getTrackSumMomentsTool,
                                    prereqs = [ "input:JetTrackVtxAssoc","ghost:Track" ]),
+    "Charge" : JetModifier("JetChargeTool", "jetcharge", 
+                                   prereqs = [ "ghost:Track" ]),
 }
 jetmoddict.update(jetmomentmods)
 
@@ -105,7 +105,9 @@ particlejetmods = {
 
     # More complex cases here
     "TruthPartonDR":    JetModifier("Analysis::JetConeLabeling","truthpartondr",
-                                    createfn=ParticleJetToolsConfig.getJetConeLabeling),
+                                    JetTruthMatchTool = lambda *l : CompFactory.Analysis.JetQuarkLabel("jetquarklabel", McEventCollection='TruthEvents') ),
+
+                                    
     "JetDeltaRLabel":   JetModifier("ParticleJetDeltaRLabelTool","jetdrlabeler_jetptmin",
                                     createfn=ParticleJetToolsConfig.getJetDeltaRLabelTool,
                                     prereqs=["ghost:BHadronsFinal",
@@ -114,19 +116,40 @@ particlejetmods = {
     }
 jetmoddict.update(particlejetmods)
 
-# Todo: jet substructure moment tools
 
-# This can also be expanded by users if they would rather do this than
-# pass in JetModifier instances in the JetDefinition
+# Substructure tools 
 
+substrmods = dict( 
+    nsubjettiness = JetModifier( "NSubjettinessTool", "nsubjettiness",Alpha = 1.0),
+    nsubjettinessR = JetModifier( "NSubjettinessRatiosTool", "nsubjettinessR",),
 
-## TEMPORARY HACK (change the names of ghost tracks )
-from JetRecTools.JetRecToolsConfig import trackcollectionmap
-trackcollectionmap[""] =  {
-    "Tracks":           "InDetTrackParticles",
-    "JetTracks":        "JetSelectedTracks",
-    "Vertices":         "PrimaryVertices",
-    "TVA":              "JetTrackVtxAssoc",
-    "GhostTracks":      "PseudoJetGhostTrack",
-    "GhostTracksLabel": "GhostTrack",
-    }
+    
+    ktdr       = JetModifier("KtDeltaRTool", "ktdr", JetRadius = 0.4),
+
+    ktsplitter = JetModifier( "KTSplittingScaleTool", "ktsplitter"),
+    
+    angularity = JetModifier( "AngularityTool", "angularity"),
+    
+    dipolarity = JetModifier( "DipolarityTool", "dipolarity",SubJetRadius = 0.3),
+    
+    planarflow = JetModifier( "PlanarFlowTool", "planarflow"),
+
+    ktmassdrop = JetModifier( "KtMassDropTool", "ktmassdrop"),
+
+    ecorr      = JetModifier( "EnergyCorrelatorTool", "ecorr", Beta = 1.0),
+    ecorrR      = JetModifier( "EnergyCorrelatorRatiosTool", "ecorrR", ),
+
+    ecorrgeneral = JetModifier( "EnergyCorrelatorGeneralizedTool", "ecorrgeneral"),
+
+    ecorrgeneralratios = JetModifier( "EnergyCorrelatorGeneralizedRatiosTool", "ecorrgeneralratios"),
+
+    comshapes = JetModifier( "CenterOfMassShapesTool","comshapes"),
+
+    pull      = JetModifier("JetPullTool", "pull",  UseEtaInsteadOfY = False, IncludeTensorMoments = True ),
+
+    charge    = JetModifier( "JetChargeTool", "charge", K=1.0),
+
+    qw = JetModifier( "QwTool", "qw"),
+    #showerdec = JetModifier( "  ShowerDeconstructionTool"),
+)
+jetmoddict.update(substrmods)

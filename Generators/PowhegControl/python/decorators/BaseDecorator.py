@@ -1,12 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @PowhegControl BaseDecorator
 #  Powheg runcard decorator for universal functionality
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
-
-#! /usr/bin/env python
-from .. import ATLASCommonParameters
 
 class BaseDecorator(object) :
 

@@ -69,10 +69,10 @@ def _setupMdtCondDB(flags):
 # end of function setupMdtCondDB()
 
 def MdtCalibrationToolCfg(flags, **kwargs):
-    result=MdtCalibrationDbToolCfg(flags, **kwargs)
-    mdt_calibibration_db_tool = result.getPrimary()
+    result=MdtCalibrationDbToolCfg(flags)
+    mdt_calibration_db_tool = result.getPrimary()
     
-    kwargs.setdefault("CalibrationDbTool", mdt_calibibration_db_tool)
+    kwargs.setdefault("CalibrationDbTool", mdt_calibration_db_tool)
     kwargs.setdefault("DoSlewingCorrection", flags.Muon.Calib.correctMdtRtForTimeSlewing)
     kwargs.setdefault("DoTemperatureCorrection", flags.Muon.Calib.applyRtScaling)
     kwargs.setdefault("DoWireSagCorrection", flags.Muon.Calib.correctMdtRtWireSag)
@@ -80,7 +80,7 @@ def MdtCalibrationToolCfg(flags, **kwargs):
     
     acc = MagneticFieldSvcCfg(flags)
     result.merge(acc)
-    
+
     MdtCalibrationTool = CompFactory.MdtCalibrationTool
     mdt_calibration_tool = MdtCalibrationTool(**kwargs)
     result.setPrivateTools(mdt_calibration_tool)
@@ -93,7 +93,8 @@ def MdtCalibrationDbToolCfg(flags, **kwargs):
     kwargs.setdefault("CreateBFieldFunctions", flags.Muon.Calib.correctMdtRtForBField)
     kwargs.setdefault("CreateWireSagFunctions", flags.Muon.Calib.correctMdtRtWireSag)
     kwargs.setdefault("CreateSlewingFunctions", flags.Muon.Calib.correctMdtRtForTimeSlewing)
-    
+    kwargs.setdefault("WasConfigured", True)
+
     MdtCalibrationDbTool = CompFactory.MdtCalibrationDbTool
     mdt_calibration_db_tool = MdtCalibrationDbTool(**kwargs)
     result.setPrivateTools(mdt_calibration_db_tool)
@@ -107,8 +108,7 @@ def MdtCalibDbAlgCfg(flags,name="MdtCalibDbAlg",**kwargs):
     result.merge(acc)
 
     # set some default proper ties
-    from IOVDbSvc.CondDB import conddb
-    if conddb.isOnline and not conddb.isMC:
+    if flags.Common.isOnline and not flags.Input.isMC:
        kwargs.setdefault("TubeFolder", "/MDT/T0")
        kwargs.setdefault("RtFolder",  "/MDT/RT")
     else:

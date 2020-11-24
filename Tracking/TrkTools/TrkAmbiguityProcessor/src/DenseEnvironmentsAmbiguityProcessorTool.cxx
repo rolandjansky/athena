@@ -232,7 +232,11 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScores &tr
       ATH_MSG_DEBUG ("Good track("<< atrack.track() << ") but need to fit this track first, score, add it into map again and retry ! ");
       Trk::Track * pRefittedTrack = refitTrack(atrack.track(),prdToTrackMap, stat);
       if(pRefittedTrack) {
-         addTrack( pRefittedTrack, true , scoreTrackFitflagMap, prdToTrackMap, trackDustbin, stat);
+        /// If we want to keep the holes from before the refit (instead of triggering a new search), 
+        /// copy over the existing summary to prevent a new hole search.
+        /// Not done in default tracking, only relevant when using holes from pattern recognition. 
+        if (m_keepHolesFromBeforeFit && atrack.track()->trackSummary()) pRefittedTrack->setTrackSummary(std::make_unique<Trk::TrackSummary>(*atrack.track()->trackSummary()));
+        addTrack( pRefittedTrack, true , scoreTrackFitflagMap, prdToTrackMap, trackDustbin, stat);
       }
       // remove original copy, but delay removal since some pointer to it or its constituents may still be in used
       if (atrack.newTrack()) {

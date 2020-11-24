@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 */
 
-#include "tauRec/TauCellThinningAlg.h"
+#include "TauCellThinningAlg.h"
 #include "StoreGate/ReadHandle.h"
 #include "StoreGate/ThinningHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -15,6 +15,7 @@
 StatusCode TauCellThinningAlg::initialize()
 {
   ATH_CHECK( m_cells.initialize(m_streamName) );
+  ATH_CHECK( m_cellLinks.initialize(m_streamName) );
   ATH_CHECK( m_taus.initialize() );
 
   return StatusCode::SUCCESS;
@@ -28,6 +29,9 @@ StatusCode TauCellThinningAlg::execute (const EventContext& ctx) const
 {
   SG::ThinningHandle<CaloCellContainer> cells (m_cells, ctx);
   cells.thinAll();
+  
+  SG::ThinningHandle<CaloClusterCellLinkContainer> cellLinkHandle (m_cellLinks, ctx);
+  cellLinkHandle.thinAll();
 
   SG::ReadHandle<xAOD::TauJetContainer> taus (m_taus, ctx);
   if (!taus.isValid()) {
@@ -45,7 +49,7 @@ StatusCode TauCellThinningAlg::execute (const EventContext& ctx) const
 
       const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
       if (!cellLinks) {
-	ATH_MSG_WARNING( "Cluster without cell links found! Cells cannot be written in AOD." );
+	ATH_MSG_WARNING( "Cluster without cell links found! Cells cannot be written in xAOD." );
 	continue;
       }
       
@@ -56,7 +60,18 @@ StatusCode TauCellThinningAlg::execute (const EventContext& ctx) const
 			 << m_cells.key() << "; cluster skipped.");
 	continue;
       }
-      
+
+      // cluster cell link thinning
+      CaloClusterCellLinkContainer::const_iterator cellLinks_it = std::find(cellLinkHandle->begin(), cellLinkHandle->end(), cellLinks);
+      if(cellLinks_it != cellLinkHandle->end()) {
+	size_t link_index = std::distance(cellLinkHandle->begin(), cellLinks_it);
+	cellLinkHandle.keep(link_index);
+      }
+      else {
+	ATH_MSG_WARNING( "Could not find cluster cell link in " << m_cellLinks.key() << ", won't be saved in xAOD." );
+      }
+
+      // cell thinning
       CaloClusterCellLink::const_iterator it = cellLinks->begin();
       CaloClusterCellLink::const_iterator end = cellLinks->end();
       for (; it != end; ++it) {

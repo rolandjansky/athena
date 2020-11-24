@@ -32,4 +32,8 @@ namespace FlavorTagDiscriminants {
     m_dl2->decorate(jet);
   }
 
+  std::set<std::string> DL2Tool::getDecoratorKeys() const {
+    return m_dl2->getDataDependencyNames().bTagOutputs;
+  }
+
 }

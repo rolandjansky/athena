@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOCONDPHYSALGS_CALOCELLCALCENERGYCORR_H
@@ -37,9 +37,11 @@ class CaloCellCalcEnergyCorr: public AthAlgorithm
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
   virtual StatusCode  finalize();
-  virtual StatusCode  stop ATLAS_NOT_THREAD_SAFE /* calls ctor of AthenaAttributeList*/();
+  virtual StatusCode  stop ATLAS_NOT_THREAD_SAFE /* Calls getData() method of HV managers */();
 
 private:
+  struct ATLAS_NOT_THREAD_SAFE HVData;
+
   // Properties
   std::string m_folder;
   std::vector<int> m_calosample;  // which CaloSamples to be filled (numbers from CaloSample enum in CaloCell_Base_ID
@@ -53,7 +55,7 @@ private:
   const LArHEC_ID* m_larhec_id;
   const LArFCAL_ID* m_larfcal_id;
 
-  std::vector<int> GetHVLines(const Identifier& id) ;
+  std::vector<int> GetHVLines(const HVData& hvdata, const Identifier& id) ;
 }; 
 
 #endif //> !CALOCONDPHYSALGS_CALOCELLCALCENERGYCORR_H

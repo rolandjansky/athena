@@ -99,12 +99,12 @@ std::pair<std::vector<const xAOD::Muon*>,std::vector<const xAOD::Muon*> > MuonRe
   }
 
   if (m_doCalib) {
-    if( m_calibTool->applySystematicVariation( sys ) != CP::SystematicCode::Ok )
+    if( m_calibTool->applySystematicVariation( sys ) != StatusCode::SUCCESS )
       ATH_MSG_WARNING( "Cannot configure muon calibration tool for systematic " << sys.name() );
   }
 
   if (m_doEff) {
-    if( m_sfTool->applySystematicVariation( sys ) != CP::SystematicCode::Ok )
+    if( m_sfTool->applySystematicVariation( sys ) != StatusCode::SUCCESS )
       ATH_MSG_WARNING( "Cannot configure muon efficiency corrections for systematic " << sys.name() );
   }
 

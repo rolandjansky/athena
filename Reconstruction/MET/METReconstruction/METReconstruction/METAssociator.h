@@ -35,9 +35,9 @@
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
-//#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElementContainer.h"
 
 namespace InDet {
   class IInDetTrackSelectionTool;
@@ -64,6 +64,7 @@ namespace met {
       // Use IParticleContainer for flexibility e.g. if combining clusters & towers
       const xAOD::IParticleContainer* tcCont = 0;
       const xAOD::PFOContainer* pfoCont = 0;
+      const xAOD::FlowElementContainer* feCont = 0;
       const xAOD::Vertex* pv = 0;
     };
 
@@ -95,6 +96,7 @@ namespace met {
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey;
     SG::ReadHandleKey<xAOD::TrackParticleContainer>  m_trkcollKey;
     SG::ReadHandleKey<xAOD::PFOContainer>  m_pfcollKey{this,"PFlowColl","CHSParticleFlowObjects","PFO Collection"};
+    SG::ReadHandleKey<xAOD::FlowElementContainer>  m_fecollKey{this,"FlowElementCollection","","FlowElement Collection (overrides PFO if not empty)"};
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_forcollKey;
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_hybridContKey;
 
@@ -122,17 +124,21 @@ namespace met {
     bool isGoodEoverP(const xAOD::TrackParticle* trk) const;
 
     virtual StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
-				    const xAOD::IParticleContainer* hardObjs) const;
+                                    const xAOD::IParticleContainer* hardObjs) const;
     virtual StatusCode extractPFO(const xAOD::IParticle* obj,
-				  std::vector<const xAOD::IParticle*>& pfolist,
-				  const met::METAssociator::ConstitHolder& constits,
-				  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const = 0;
+                                  std::vector<const xAOD::IParticle*>& pfolist,
+                                  const met::METAssociator::ConstitHolder& constits,
+                                  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const = 0;
+    virtual StatusCode extractFE(const xAOD::IParticle* obj,
+                                 std::vector<const xAOD::IParticle*>& felist,
+                                 const met::METAssociator::ConstitHolder& constits,
+                                 std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const = 0;
     virtual StatusCode extractTracks(const xAOD::IParticle* obj,
-				     std::vector<const xAOD::IParticle*>& constlist,
-				     const met::METAssociator::ConstitHolder& constits) const = 0;
+                                     std::vector<const xAOD::IParticle*>& constlist,
+                                     const met::METAssociator::ConstitHolder& constits) const = 0;
     virtual StatusCode extractTopoClusters(const xAOD::IParticle* obj,
-					   std::vector<const xAOD::IParticle*>& tclist,
-					   const met::METAssociator::ConstitHolder& constits) const = 0;
+                                           std::vector<const xAOD::IParticle*>& tclist,
+                                           const met::METAssociator::ConstitHolder& constits) const = 0;
     static inline bool greaterPt(const xAOD::IParticle* part1, const xAOD::IParticle* part2) {
       return part1->pt()>part2->pt();
     }
@@ -141,6 +147,11 @@ namespace met {
       if (part1->charge()!=0 && part2->charge()==0) return true;
       if (part1->charge()==0 && part2->charge()==0) return part1->ptEM()>part2->ptEM();
       return part1->pt()>part2->pt();
+    }
+    static inline bool greaterPtFE(const xAOD::FlowElement* part1, const xAOD::FlowElement* part2) {
+      if (!(part1->isCharged()) && part2->isCharged()) return false;
+      if (part1->isCharged() && !(part2->isCharged())) return true;
+      return part1->pt() > part2->pt();
     }
     ///////////////////////////////////////////////////////////////////
     // Private methods:

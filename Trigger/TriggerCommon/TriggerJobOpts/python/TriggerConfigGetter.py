@@ -172,7 +172,12 @@ class TriggerConfigGetter(Configured):
         self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
         self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
         self.isRun1Data     = False 
-        self.hasxAODMeta    = ("metadata_items" in metadata and any(('TriggerMenu' or 'MenuJSON' in key) for key in metadata["metadata_items"].keys()))
+        self.hasxAODMeta    = ( 
+          ("metadata_items" in metadata)
+          and 
+          any((('TriggerMenu' or 'MenuJSON') in key) for key in metadata["metadata_items"].keys())
+        )
+
         if globalflags.DataSource()=='data':
             from RecExConfig.AutoConfiguration  import GetRunNumber
             runNumber = GetRunNumber()
@@ -318,7 +323,8 @@ class TriggerConfigGetter(Configured):
         
         if not self.hasxAODMeta:
             self.setupxAODWriting()
-
+        else:
+            log.info("Input file already has xAOD trigger metadata. Will not re-create it.")
 
         # all went fine we are configured
         return True
@@ -443,16 +449,28 @@ class TriggerConfigGetter(Configured):
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
             else:
-                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT
+                from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriterMT, TrigConf__KeyWriterTool
                 menuwriter = TrigConf__xAODMenuWriterMT()
                 menuwriter.IsHLTJSONConfig = True
                 menuwriter.IsL1JSONConfig = True
                 menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
                 menuwriter.WritexAODTriggerMenuJson = True
+                menuwriter.KeyWriterTool = TrigConf__KeyWriterTool('KeyWriterToolOffline')
                 writeTriggerMenu = menuwriter.WritexAODTriggerMenu
                 writeMenuJSON = menuwriter.WritexAODTriggerMenuJson
-
                 topAlgs += menuwriter
+                # Schedule also the prescale conditions algs
+                from AthenaCommon.Configurable import Configurable
+                Configurable.configurableRun3Behavior += 1
+                from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
+                from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
+                from AthenaConfiguration.AllConfigFlags import ConfigFlags
+                acc = ComponentAccumulator()
+                acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
+                acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
+                appendCAtoAthena( acc )
+                Configurable.configurableRun3Behavior -= 1
+
 
             # Set up the metadata for the output ESD and AOD:
             from RecExConfig.ObjKeyStore import objKeyStore
@@ -464,18 +482,28 @@ class TriggerConfigGetter(Configured):
                 objKeyStore.addManyTypesMetaData( metadataItems )
 
             if writeMenuJSON:
-                metadataItems = [ "xAOD::TriggerMenuJSONContainer#MenuJSON_HLT",
-                                  "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_HLTAux.",
-                                  "xAOD::TriggerMenuJSONContainer#MenuJSON_L1",
-                                  "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_L1Aux.",
-                                  "xAOD::TriggerMenuJSONContainer#MenuJSON_HLTPS",
-                                  "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_HLTPSAux.",
-                                  "xAOD::TriggerMenuJSONContainer#MenuJSON_L1PS",
-                                  "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_L1PSAux.",
-                                  # "xAOD::TriggerMenuJSONContainer#MenuJSON_BG", // TODO
-                                  # "xAOD::TriggerMenuJSONAuxContainer#MenuJSON_BGAux.", // TODO
+                metadataItems = [ "xAOD::TriggerMenuJsonContainer#MenuJSON_HLT",
+                                  "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTAux.",
+                                  "xAOD::TriggerMenuJsonContainer#MenuJSON_L1",
+                                  "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1Aux.",
+                                  "xAOD::TriggerMenuJsonContainer#MenuJSON_HLTPS",
+                                  "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_HLTPSAux.",
+                                  "xAOD::TriggerMenuJsonContainer#MenuJSON_L1PS",
+                                  "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_L1PSAux.",
+                                  # "xAOD::TriggerMenuJsonContainer#MenuJSON_BG", // TODO
+                                  # "xAOD::TriggerMenuJsonAuxContainer#MenuJSON_BGAux.", // TODO
                                 ]
                 objKeyStore.addManyTypesMetaData( metadataItems )
+
+            if TriggerFlags.EDMDecodingVersion() >= 3:
+                from TrigEDMConfig.TriggerEDMRun3 import recordable
+                from AthenaConfiguration.ComponentFactory import CompFactory
+                from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable
+
+                enhancedBiasWeightCompAlg = CompFactory.EnhancedBiasWeightCompAlg()
+                enhancedBiasWeightCompAlg.EBWeight = recordable("HLT_EBWeight")
+
+                topAlgs += conf2toConfigurable( enhancedBiasWeightCompAlg )
 
         except ImportError: # don't want to branch in rel 18
             pass

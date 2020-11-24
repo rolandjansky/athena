@@ -32,6 +32,7 @@
 #include "xAODCore/AuxCompression.h"
 
 #include "AthContainersInterfaces/IAuxStore.h"
+#include "AthContainersInterfaces/IConstAuxStore.h"
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "OutputStreamSequencerSvc.h"
 #include "MetaDataSvc.h"
@@ -851,32 +852,22 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item,
 
                /// Handle variable selections.
                if (item_key.find( "Aux." ) == ( item_key.size() - 4 )) {
-                  SG::IAuxStoreIO* auxio(nullptr);
-                  try {
-                     SG::fromStorable(itemProxy->object(), auxio, true);
-                  }catch( const std::exception& ) {
-                     // exception from Control/StoreGateBindings/src/SgPyDataModel.cxx:71
-                     ATH_MSG_DEBUG( "Error in casting object with CLID "
-                                    << itemProxy->clID() << " to SG::IAuxStoreIO*" );
-                     auxio = nullptr;
-                  }
 
-                  if (auxio) {
-                    handleVariableSelection (*auxio, *itemProxy,
-                                             tns.str(), aux_attr,
-                                             vetoes);
-                  }
-
-                  // Here comes the compression logic using ThinningInfo
-                  SG::IAuxStore* auxstore( nullptr );
+                  const SG::IConstAuxStore* auxstore( nullptr );
                   try {
                     SG::fromStorable( itemProxy->object(), auxstore, true );
                   } catch( const std::exception& ) {
                     ATH_MSG_DEBUG( "Error in casting object with CLID "
-                                   << itemProxy->clID() << " to SG::IAuxStore*" );
+                                   << itemProxy->clID() << " to SG::IConstAuxStore*" );
                     auxstore = nullptr;
                   }
-                  if ( auxstore ) {
+
+                  if (auxstore) {
+                    handleVariableSelection (*auxstore, *itemProxy,
+                                             tns.str(), aux_attr,
+                                             vetoes);
+
+                    // Here comes the compression logic using ThinningInfo
                     // Get a hold of all AuxIDs for this store (static, dynamic etc.)
                     const SG::auxid_set_t allVars = auxstore->getAuxIDs();
 
@@ -982,7 +973,7 @@ AthenaOutputStream::buildCompressionSet (const ToolHandle<SG::IFolder>& handle,
   return result;
 }
 
-void AthenaOutputStream::handleVariableSelection (SG::IAuxStoreIO& auxio,
+void AthenaOutputStream::handleVariableSelection (const SG::IConstAuxStore& auxstore,
                                                   SG::DataProxy& itemProxy,
                                                   const std::string& tns,
                                                   const std::string& aux_attr,
@@ -1014,15 +1005,13 @@ void AthenaOutputStream::handleVariableSelection (SG::IAuxStoreIO& auxio,
     key.erase (key.size()-4, 4);
   }
 
-  SG::auxid_set_t dynVars = auxio.getSelectedAuxIDs();
-
   // Find the entry for the selection.
   SG::auxid_set_t& vset = vetoes[key];
 
   // Form the veto mask for this object.
   xAOD::AuxSelection sel;
   sel.selectAux (attributes);
-  vset = sel.getSelectedAuxIDs (dynVars);
+  vset = sel.getSelectedAuxIDs (auxstore.getAuxIDs());
 
   vset.flip();
 }

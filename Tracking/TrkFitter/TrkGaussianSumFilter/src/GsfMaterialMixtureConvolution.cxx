@@ -211,7 +211,7 @@ Trk::GsfMaterialMixtureConvolution::update(
       if (measuredCov) {
         caches[i].deltaCovariances[0] += *measuredCov;
       }
-      n += caches[i].weights.size();
+      n += caches[i].numWeights;
       continue;
     }
 
@@ -227,7 +227,7 @@ Trk::GsfMaterialMixtureConvolution::update(
       if (measuredCov) {
         caches[i].deltaCovariances[0] += *measuredCov;
       }
-      n += caches[i].weights.size();
+      n += caches[i].numWeights;
       continue;
     }
 
@@ -242,14 +242,14 @@ Trk::GsfMaterialMixtureConvolution::update(
                                particleHypothesis);
 
     // check vectors have the same size
-    if (caches[i].weights.size() != caches[i].deltaPs.size()) {
-      ATH_MSG_ERROR("Inconsistent number of components in the updator!!! no "
-                    "material effect will be applied");
+    if (caches[i].numWeights != caches[i].numDeltaPs) {
+      ATH_MSG_WARNING("Inconsistent number of components in the updator!!! no "
+                      "material effect will be applied");
       caches[i].resetAndAddDummyValues();
     }
 
     // Apply material effects to input state and store results in cache
-    for (size_t j(0); j < caches[i].weights.size(); ++j) {
+    for (size_t j(0); j < caches[i].numWeights; ++j) {
       if (measuredCov) {
         caches[i].deltaCovariances[j] += *measuredCov;
       } else {
@@ -272,20 +272,20 @@ Trk::GsfMaterialMixtureConvolution::update(
         caches[i].weights[j] = std::numeric_limits<float>::min();
       }
     }
-    n += caches[i].weights.size();
+    n += caches[i].numWeights;
   }
 
   // Fill information for to calculate which components to merge
-  // Inaddition scan all components for covariance matrices. If one or more
+  // In addition scan all components for covariance matrices. If one or more
   // component is missing an error matrix, component reduction is impossible.
   bool componentWithoutMeasurement = false;
 
-  GSFUtils::AlignedDynArray<GSFUtils::Component1D, GSFUtils::alignment>
-    components(n);
-  size_t k(0);
+  GSFUtils::Component1DArray componentsArray;
+  componentsArray.numComponents = n;
   std::vector<std::pair<size_t, size_t>> indices(n);
+  size_t k(0);
   for (size_t i(0); i < inputState.size(); ++i) {
-    for (size_t j(0); j < caches[i].weights.size(); ++j) {
+    for (size_t j(0); j < caches[i].numWeights; ++j) {
       const AmgSymMatrix(5)* measuredCov = inputState[i].first->covariance();
       // Fill in infomation
       const double cov =
@@ -295,21 +295,22 @@ Trk::GsfMaterialMixtureConvolution::update(
         componentWithoutMeasurement = true;
       }
 
-      components[k].mean = caches[i].deltaParameters[j][Trk::qOverP];
-      components[k].cov = cov;
-      components[k].invCov = cov > 0 ? 1. / cov : 1e10;
-      components[k].weight = caches[i].weights[j];
+      componentsArray.components[k].mean =
+        caches[i].deltaParameters[j][Trk::qOverP];
+      componentsArray.components[k].cov = cov;
+      componentsArray.components[k].invCov = cov > 0 ? 1. / cov : 1e10;
+      componentsArray.components[k].weight = caches[i].weights[j];
       indices[k] = { i, j };
       ++k;
     }
   }
 
   if (componentWithoutMeasurement) {
-    auto *result = std::max_element(
-      components.begin(), components.end(), [](const auto& a, const auto& b) {
-        return a.weight < b.weight;
-      });
-    auto index = std::distance(components.begin(), result);
+    auto* result = std::max_element(
+      componentsArray.components.data(),
+      componentsArray.components.data() + componentsArray.numComponents,
+      [](const auto& a, const auto& b) { return a.weight < b.weight; });
+    auto index = std::distance(componentsArray.components.data(), result);
 
     // Build the first TP
     size_t stateIndex = indices[index].first;
@@ -341,29 +342,26 @@ Trk::GsfMaterialMixtureConvolution::update(
   }
 
   // Gather the merges -- order is important -- RHS is smaller than LHS
-  std::vector<std::pair<int8_t, int8_t>> merges;
-  if (n > m_maximumNumberOfComponents)
-    merges = findMerges(components.buffer(), n, m_maximumNumberOfComponents);
-
+  GSFUtils::MergeArray KL;
+  if (n > m_maximumNumberOfComponents) {
+    KL = findMerges(componentsArray, m_maximumNumberOfComponents);
+  }
   // Merge components
   MultiComponentStateAssembler::Cache assemblerCache;
   int nMerges(0);
-  std::vector<bool> isMerged(n, false);
-  for (const auto& mergePair : merges) {
-    const int8_t mini = mergePair.first;
-    const int8_t minj = mergePair.second;
+  GSFUtils::IsMergedArray isMerged = {};
+  int32_t returnedMerges = KL.numMerges;
+
+  for (int32_t i = 0; i < returnedMerges; ++i) {
+    const int8_t mini = KL.merges[i].To;
+    const int8_t minj = KL.merges[i].From;
     if (isMerged[minj]) {
       ATH_MSG_WARNING("Component is already merged " << minj);
-      for (const auto& mergePair2 : merges) {
-        ATH_MSG_DEBUG("Pairs that should be merged together: "
-                      << mergePair2.first << "  " << mergePair2.second);
-      }
       continue;
     }
     // Get the first TP
     size_t stateIndex = indices[mini].first;
     size_t materialIndex = indices[mini].second;
-
     // Copy weight and first parameters as they are needed later on
     // for updating the covariance
     AmgVector(5) firstParameters =

@@ -17,7 +17,7 @@
 #include "xAODTau/versions/TauJetCalibMapper_v1.h"
 //#include "xAODTau/versions/TauJetCalibMapper_v3.h"
 #include "TauJetAccessors_v3.h"
-
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 namespace{
   bool
@@ -627,6 +627,20 @@ namespace xAOD {
     return *(clusterAcc(*this).at(i));
   }
 
+
+  std::vector<const IParticle*> TauJet_v3::clusters() const {
+    std::vector<const IParticle*> particleList;
+
+    for (const auto& link : clusterAcc(*this)) {
+      const IParticle* particle = *link;
+      particleList.push_back(particle);
+    }
+
+    return particleList;
+  }
+
+
+
   TauJet_v3::FourMom_t TauJet_v3::calibratedCluster( size_t i, xAOD::CaloCluster::State state/*=xAOD::CaloCluster::State::CALIBRATED*/) const{
     const xAOD::IParticle* part = this->cluster(i);
     if(!part) return FourMom_t();
@@ -650,6 +664,11 @@ namespace xAOD {
     clusterAcc( *this ).clear();
   }
 
+  static const SG::AuxElement::Accessor< std::vector< xAOD::CaloVertexedTopoCluster > > vertexedClustersAcc( "VertexedClusters" );
+
+  std::vector<xAOD::CaloVertexedTopoCluster> TauJet_v3::vertexedClusters() const {
+    return vertexedClustersAcc(*this);
+  }
 
   // setters and getters for the pi0 links
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TauJet_v3,

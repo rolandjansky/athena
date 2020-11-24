@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4CODE_SDWRAPPER_H
@@ -58,7 +58,7 @@ namespace LArG4
         using SDList_t = std::vector< std::unique_ptr<SDType> >;
 
         /// Construct the wrapper from the output collection name
-        SDWrapper(const std::string& name, const std::string& hitCollectionName, std::string deadHitCollectionName="");
+        SDWrapper(const std::string& name, const std::string& hitCollectionName, const std::string& deadHitCollectionName="");
 
         /// Add an SD to this wrapper
         void addSD(std::unique_ptr<SDType> sd);

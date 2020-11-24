@@ -36,7 +36,7 @@
 
 
 #define CHECK_CPSys(Arg) \
-    if (Arg.code() == CP::SystematicCode::Unsupported){    \
+    if (Arg.isFailure()){                                              \
         Warning(#Arg,"Unsupported systematic (in line %i) ",__LINE__); \
     }      
 

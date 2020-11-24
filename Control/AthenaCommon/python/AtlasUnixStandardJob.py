@@ -12,20 +12,22 @@ def _setupAtlasUnixStandardJob():
     from .AppMgr import ServiceMgr as svcMgr
 
     ## basic Gaudi services
-    import GaudiSvc.GaudiSvcConf as GaudiSvcConf
-    svcMgr += GaudiSvcConf.IncidentSvc()
-    svcMgr += GaudiSvcConf.EvtPersistencySvc( "EventPersistencySvc" )
-    svcMgr += GaudiSvcConf.HistogramSvc( "HistogramDataSvc" )
-    svcMgr += GaudiSvcConf.NTupleSvc()
     # ToolSvc is already added in AppMgr.py.
+    import GaudiSvc.GaudiSvcConf as GaudiSvcConf
+    import GaudiCoreSvc.GaudiCoreSvcConf as GaudiCoreSvcConf
+    import GaudiCommonSvc.GaudiCommonSvcConf as GaudiCommonSvcConf
+    svcMgr += GaudiCoreSvcConf.IncidentSvc()
+    svcMgr += GaudiCommonSvcConf.EvtPersistencySvc( "EventPersistencySvc" )
+    svcMgr += GaudiCommonSvcConf.HistogramSvc( "HistogramDataSvc" )
+    svcMgr += GaudiSvcConf.NTupleSvc()
     svcMgr += GaudiSvcConf.RndmGenSvc()
-    svcMgr += GaudiSvcConf.ChronoStatSvc()
+    svcMgr += GaudiCommonSvcConf.ChronoStatSvc()
 
     import GaudiAud.GaudiAudConf as GaudiAudConf
     svcMgr.AuditorSvc += GaudiAudConf.AlgContextAuditor()
 
     # make the message service available
-    # from GaudiSvc.GaudiSvcConf import MessageSvc
+    # from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
     svcMgr.MessageSvc = theApp.service( "MessageSvc" )     # already instantiated
 
     # StoreGate services configuration

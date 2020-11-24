@@ -13,6 +13,7 @@ import json
 import glob
 
 from TrigValTools.TrigValSteering.Step import Step, get_step_from_list
+from TrigValTools.TrigValSteering.ExecStep import ExecStep
 from TrigValTools.TrigValSteering.Common import art_input_eos, art_input_cvmfs, running_in_CI
 
 class RefComparisonStep(Step):
@@ -468,11 +469,32 @@ class ChainDumpStep(InputDependentStep):
         super(ChainDumpStep, self).__init__(name)
         self.input_file = 'expert-monitoring.root'
         self.executable = 'chainDump.py'
-        self.args = '--json'
+        self.args = '--json --yaml'
 
     def configure(self, test):
         self.args += ' -f '+self.input_file
         super(ChainDumpStep, self).configure(test)
+
+
+class ChainCompStep(Step):
+    '''
+    Execute chainComp.py to compare counts from chainDump.py to a reference
+    '''
+
+    def __init__(self, name='ChainComp'):
+        super(ChainCompStep, self).__init__(name)
+        self.input_file = 'chainDump.yml'
+        self.reference = None
+        self.executable = 'chainComp.py'
+        self.args = ''
+        self.auto_report_result = True
+        self.output_stream = Step.OutputStream.FILE_AND_STDOUT
+
+    def configure(self, test):
+        if self.reference:
+            self.args += ' -r ' + self.reference
+        self.args += ' ' + self.input_file
+        super(ChainCompStep, self).configure(test)
 
 
 class TrigTestJsonStep(Step):
@@ -608,16 +630,18 @@ class MessageCountStep(Step):
             self.print_on_fail = self.required
         if self.print_on_fail:
             self.args += ' --saveAll'
+
+        max_events = test.exec_steps[0].max_events if isinstance(test.exec_steps[0], ExecStep) else 0
         if 'WARNING' not in self.thresholds:
             self.thresholds['WARNING'] = 0
         if 'INFO' not in self.thresholds:
-            self.thresholds['INFO'] = test.exec_steps[0].max_events
+            self.thresholds['INFO'] = max_events
         if 'DEBUG' not in self.thresholds:
             self.thresholds['DEBUG'] = 0
         if 'VERBOSE' not in self.thresholds:
             self.thresholds['VERBOSE'] = 0
         if 'other' not in self.thresholds:
-            self.thresholds['other'] = test.exec_steps[0].max_events
+            self.thresholds['other'] = max_events
         super(MessageCountStep, self).configure(test)
 
     def run(self, dry_run=False):

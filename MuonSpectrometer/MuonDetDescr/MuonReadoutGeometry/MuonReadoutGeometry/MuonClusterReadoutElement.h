@@ -2,13 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
-Muon Cluster Readout Element properties
- -----------------------------------------
-***************************************************************************/
-
-#ifndef MUONGEOMODEL_MUONCLUSTERREADOUTELEMENT_H
-#define MUONGEOMODEL_MUONCLUSTERREADOUTELEMENT_H
+#ifndef MUONREADOUTGEOMETRY_MUONCLUSTERREADOUTELEMENT_H
+#define MUONREADOUTGEOMETRY_MUONCLUSTERREADOUTELEMENT_H
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
@@ -234,4 +229,4 @@ namespace MuonGM {
   }
 
 }
-#endif // MUONGEOMODEL_MUONCLUSTERREADOUTELEMENT_H
+#endif // MUONREADOUTGEOMETRY_MUONCLUSTERREADOUTELEMENT_H

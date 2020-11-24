@@ -193,24 +193,6 @@ namespace LArG4 {
                    << etaIndex
                    << phiIndex;
 
-        //	std::cout << "LArG4FCAL/LArFCALCalibCalculatorBase: 4/3/"
-        //                <<zSide<<"/"
-        //                <<sampling<<"/"
-        //                <<etaIndex<<"/"
-        //                <<phiIndex<<": "
-        //                << energies[0] << ", "
-        //                << energies[1] << ", "
-        //                << energies[2] << ", "
-        //                << energies[3]
-        //                << ", i=" << i
-        //                << ", j=" << j
-        //                << ", l.x=" << theLocalPoint.x()
-        //                << ", l.y=" << theLocalPoint.y()
-        //                << ", p.x=" << p.x()
-        //                << ", p.y=" << p.y()
-        //                << ", deltaX=" << m_deltaX
-        //                << ", deltaY=" << m_deltaY
-        //                << std::endl;
       }
       else {
         // S.M.: we have a hit which fails the electrode identifier
@@ -270,25 +252,6 @@ namespace LArG4 {
                    << etaIndex
                    << phiIndex;
 
-        //	std::cout << "LArG4FCAL/LArFCALCalibCalculatorBase: 10/4/"
-        //                <<type<<"/"
-        //                <<sampling<<"/"
-        //                <<region<<"/"
-        //                <<etaIndex<<"/"
-        //                <<phiIndex<<": "
-        //                << energies[0] << ", "
-        //                << energies[1] << ", "
-        //                << energies[2] << ", "
-        //                << energies[3]
-        //                << ", i=" << i
-        //                << ", j=" << j
-        //                << ", l.x=" << theLocalPoint.x()
-        //                << ", l.y=" << theLocalPoint.y()
-        //                << ", p.x=" << p.x()
-        //                << ", p.y=" << p.y()
-        //                << ", deltaX=" << m_deltaX
-        //                << ", deltaY=" << m_deltaY
-        //                << std::endl;
       }
 
       return true;

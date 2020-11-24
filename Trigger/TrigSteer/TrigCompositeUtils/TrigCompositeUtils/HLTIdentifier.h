@@ -12,6 +12,7 @@
 
 #include "AsgMessaging/MsgStream.h"
 #include "CxxUtils/checker_macros.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 /**
  * @brief An trigger identifier class, used to provide mapping fromt the human readable IDs to efficienct unsigned ints
@@ -34,7 +35,7 @@ public:
   /**
    * @brief Construct wiht numeric ID
    **/
- Identifier( unsigned id ) : m_id( id ) {}
+ Identifier( TrigCompositeUtils::DecisionID id ) : m_id( id ) {}
 
   /**
    * @brief reports human redable name if it is enabled or, empty string
@@ -44,16 +45,17 @@ public:
   /**
    * @brief numeric ID
    **/    
-  inline unsigned numeric() const { return m_id; }
-  inline operator unsigned () const { return numeric(); }
+  inline TrigCompositeUtils::DecisionID numeric() const { return m_id; }
+  inline operator TrigCompositeUtils::DecisionID () const { return numeric(); }
+
   /**
    *  @brief comparisons, for containers of identifiers
    **/      
   bool operator == ( const Identifier& rhs )  const { return numeric() == rhs.numeric(); }
   bool operator < ( const Identifier& rhs )  const { return numeric() < rhs.numeric(); }
-  bool operator < ( unsigned id ) const { return numeric() < id; } 
+  bool operator < ( TrigCompositeUtils::DecisionID id ) const { return numeric() < id; } 
 private:
-  unsigned m_id;
+  TrigCompositeUtils::DecisionID m_id;
   static bool s_reportStringIDs ATLAS_THREAD_SAFE;
   
 };

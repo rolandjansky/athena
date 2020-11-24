@@ -5,9 +5,6 @@
 
 """Unit tests for verifying setting of CfgItemList and CfgKeyStore."""
 
-from __future__ import print_function
-import six
-
 import unittest, sys
 
 from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
@@ -373,9 +370,7 @@ class BasicCfgKeyStoreTestCase( unittest.TestCase ):
         del ks
         ## FIXME
         ## ARGH!!! Somebody is keeping a ref toward ks!
-        ## OK with py3
-        if six.PY3:
-            self.assertTrue( len(list(CfgKeyStore.instances.keys())) == 0 )
+        self.assertTrue( len(list(CfgKeyStore.instances.keys())) == 0 )
 
 ##         ks = CfgKeyStore( "MyStore" )
 

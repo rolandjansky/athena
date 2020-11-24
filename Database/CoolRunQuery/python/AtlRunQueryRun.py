@@ -13,13 +13,12 @@
 from __future__ import with_statement, print_function
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-from utils.AtlRunQueryUtils        import addKommaToNumber, filesize, prettyNumber, coolDbConn, RunPeriods
+from utils.AtlRunQueryUtils        import addKommaToNumber, filesize, prettyNumber, RunPeriods
 from utils.AtlRunQueryLookup       import DecodeDetectorMask
 from utils.AtlRunQueryIOV          import IOVRange,IOVTime
-from utils.AtlRunQueryLookup       import DQChannelDict, LArConfig, isDQ, OLCAlgorithms
-from output.AtlRunQueryRoot        import makeLBPlot, makeLBPlotList, makeTimePlotList, makeLBPlotSummaryForLHC, makeBSPlots, SaveGraphsToFile
+from utils.AtlRunQueryLookup       import LArConfig, isDQ, OLCAlgorithms
+from output.AtlRunQueryRoot        import makeLBPlot, makeLBPlotList, makeTimePlotList, makeBSPlots, SaveGraphsToFile
 from AtlRunQueryQueryConfig        import QC
-from utils.AtlRunQueryMemUtil      import memory
 from selector.AtlRunQuerySelectorBase import DataKey, Selector
 
 import math
@@ -28,10 +27,7 @@ import sys
 import re
 import datetime
 import subprocess
-import os.path
 import urllib
-from copy import deepcopy
-from collections import defaultdict
 
 _fW = {'Run' : 12, 'NLB': 5, 'Time': 50, '#Events': 10, 'Stream': 10}
 
@@ -50,7 +46,8 @@ class DataEntry:
 
     def __len__(self):
         length_L = self.lastlb-self.startlb+1
-        if length_L>0x7FFFFFFF: length_L = 0x7FFFFFFF
+        if length_L>0x7FFFFFFF:
+            length_L = 0x7FFFFFFF
         return int(length_L)
 
     @property
@@ -124,7 +121,7 @@ class RunData:
         return k in self.data
 
     def __getitem__(self,k):
-        if not k in self:
+        if k not in self:
             self.data[k] = DataEntryList(key=k, run=self.run)
             return self.data[k]
         else:
@@ -138,7 +135,8 @@ class RunData:
     def __iter__(self):
         self.stops = self._calcStops()
         for lb in self.stops: # the last stop is the LB after the last
-            if lb>self.__run_o.lastlb: break
+            if lb>self.__run_o.lastlb:
+                break
             self._setLB(lb)
             yield self
 
@@ -154,7 +152,8 @@ class RunData:
         return self.current_lb
 
     def lbend(self,lb=None):
-        if lb==None: lb=self.current_lb
+        if lb is None:
+            lb=self.current_lb
         return self.stops[self.stops.index(lb)+1]-1
 
     @property
@@ -173,7 +172,8 @@ class RunData:
             if k in RunData.DQKeys:
                 need_dq_check = True
                 continue # exclude DQ from this, since it gets its own treatment
-            if s==None: continue
+            if s is None:
+                continue
             for e in s:
                 if e.rejected:
                     return True
@@ -200,30 +200,34 @@ class RunData:
         return False
 
     def isDQDefectRejected(self):
-        if not 'DQ' in self.data_current_lb: return False
+        if 'DQ' not in self.data_current_lb:
+            return False
         return not RunData.DefectSelector(self.data_current_lb['DQ'])
 
 
     @property
     def isRejected(self):
         for s in self:
-            if not s.isRejectedCurrentLB: return False
+            if not s.isRejectedCurrentLB:
+                return False
         return True
 
 
     def isReady(self,lb=None):
-        if not 'Ready for physics' in self:
+        if 'Ready for physics' not in self:
             raise RuntimeError("No ready data available")
         readydata = [x for x in self.data['Ready for physics'] if x.value=='1']
-        if lb==None:
+        if lb is None:
             return readydata
         if type(lb)==int:
             for x in readydata:
-                if x.contains(lb): return True
+                if x.contains(lb):
+                    return True
             return False
         if type(lb)==tuple and len(lb)==2:
             for x in readydata:
-                if x.intersects(lb): return True
+                if x.intersects(lb):
+                    return True
             return False
         raise RuntimeError("Can't interpret lb to check isReady(lb=%r)" % lb)
             
@@ -232,11 +236,13 @@ class RunData:
         last_lb = self.__run_o.nr_lb
         a = [(int(data.lb),not data.isRejectedCurrentLB) for data in self if data.lb<=last_lb]
         #a = [(int(data.lb),not data.isRejectedCurrentLB) for data in self]
-        if not a: return []
+        if not a:
+            return []
         start,state = a[0]
         ranges = []
         for x in a[:-1]:
-            if x[1] == state: continue
+            if x[1] == state:
+                continue
             ranges += [(state, start, x[0])]
             start,state = x
         last_start,last_state = a[-1]
@@ -246,7 +252,7 @@ class RunData:
             ranges += [(state, start, last_start)]
             ranges += [(last_state, last_start, last_lb+1)]
         if activeOnly:
-            return [x for x in ranges if x[0]==True]
+            return [x for x in ranges if x[0]]
         else:
             return ranges
 
@@ -270,16 +276,20 @@ class RunData:
         if Run.showrunnr:
             s += "%*s %*s  " % (4, self.lb, 4, self.lbend())
         s += ("r" if self.isRejectedCurrentLB else "a")
-        if Run.showtime:        s += "%*s  " % (_fW['Time'],'')
-        if Run.showduration:    s += "            "
+        if Run.showtime:
+            s += "%*s  " % (_fW['Time'],'')
+        if Run.showduration:
+            s += "            "
         for k in Run.SortedShowOrder():
             k = k.ResultKey
             w = 10
-            if k in _fW: w = _fW[k]
+            if k in _fW:
+                w = _fW[k]
             v=""
             if self.data_current_lb[k]:
                 v = [x.value for x in self.data_current_lb[k]][0]
-                if v==None: v=""
+                if v is None:
+                    v=""
             if k == "#Events" or k[0:4] == "STR:" or k=="TriggerMenu" or k=="TriggerRates" or k=="olc:bcidmask":
                 v = ""
             s += "%*s  " % (w,v)
@@ -313,7 +323,7 @@ class Run:
     @classmethod
     def AddToShowOrder(cls,key):
         #print ("ADDING TO SHOWORDER  %r" % key)
-        if not key in cls.ShowOrder:
+        if key not in cls.ShowOrder:
             cls.ShowOrder += [ key ]
 
     @classmethod
@@ -372,7 +382,8 @@ class Run:
         if len(self.xvecStb)==0 and 'lhc:stablebeams' in Run.ShowOrder and 'lhc:stablebeams' in self.data:
             entries = self.data['lhc:stablebeams']
             for entry in entries:
-                if entry.startlb == 0: continue
+                if entry.startlb == 0:
+                    continue
                 if 'true' in entry.value.lower():
                     self.xvecStb += range(entry.startlb,entry.endlb)
             self.hasStableBeamsInfo = len(self.xvecStb)>0
@@ -380,15 +391,17 @@ class Run:
 
     @classmethod
     def SortedShowOrder(cls):
-        if Run._SortedShowOrder != None:
+        if Run._SortedShowOrder is not None:
             if len(Run._SortedShowOrder) != len(Run.ShowOrder):
                 raise RuntimeError ("Sorting not up-to-date %i %i" % (len(Run._SortedShowOrder), len(Run.ShowOrder) ))
             return Run._SortedShowOrder
         hk = []
         for order in Run.DisplayOrder:
             for x in Run.ShowOrder:
-                if not order.match(x.ResultKey): continue
-                if x in hk: continue
+                if not order.match(x.ResultKey):
+                    continue
+                if x in hk:
+                    continue
                 hk += [x]
         Run._SortedShowOrder = hk
         if len(Run._SortedShowOrder) != len(Run.ShowOrder):
@@ -398,12 +411,16 @@ class Run:
     @classmethod
     def headerkeys(cls):
         hk = []
-        if Run.showrunnr:    hk += ['Run','Links','#LB']
-        if Run.showtime:     hk += ['Start and endtime (%s)' % QC.localStr()]
-        if Run.showduration: hk += ['Duration']
+        if Run.showrunnr:
+            hk += ['Run','Links','#LB']
+        if Run.showtime:
+            hk += ['Start and endtime (%s)' % QC.localStr()]
+        if Run.showduration:
+            hk += ['Duration']
         for x in cls.SortedShowOrder():
             x = x.ResultKey
-            if 'L1 PSK' in x or ('olc:' in x and ('beam1bunches' in x or 'beam2bunches' in x or 'collbunches' in x or 'beam1intensity' in x or 'beam2intensity' in x)): continue
+            if 'L1 PSK' in x or ('olc:' in x and ('beam1bunches' in x or 'beam2bunches' in x or 'collbunches' in x or 'beam1intensity' in x or 'beam2intensity' in x)):
+                continue
             hk += [x]
         return hk
 
@@ -412,21 +429,24 @@ class Run:
     def header(cls):
         if Run.writehtml:
             # flags...
-            hasLAr = False
-            hasLHC = False
-            hasBS  = False
             ofllumiFlag = False
             s = '<tr>\n'
-            if Run.showrunnr:    s += '  <th>Run</th><th>Links</th><th>#LB</th>\n'
+            if Run.showrunnr:
+                s += '  <th>Run</th><th>Links</th><th>#LB</th>\n'
             if Run.showtime:
                 s += '  <th>Start and endtime (%s)</th>\n' % QC.localStr()
-            if Run.showduration: s += '  <th>Duration</th>\n'
+            if Run.showduration:
+                s += '  <th>Duration</th>\n'
             for ik, data_key in enumerate(Run.SortedShowOrder()):
                 k = data_key.ResultKey
-                if k[0:4] == 'STR:':       s += '  <th><font size="-2">%s_<BR>%s</font></th>' % tuple(k[4:].split('_',1))
-                elif k[0:8] == "Detector": s += '  <th>%s</th>' % k
-                elif "SolCurrent" in k:    s += '  <th>Solenoid<br>current&nbsp;(A)</th>'
-                elif "TorCurrent" in k:    s += '  <th>Toroid<br>current&nbsp;(A)</th>'
+                if k[0:4] == 'STR:':
+                    s += '  <th><font size="-2">%s_<BR>%s</font></th>' % tuple(k[4:].split('_',1))
+                elif k[0:8] == "Detector":
+                    s += '  <th>%s</th>' % k
+                elif "SolCurrent" in k:
+                    s += '  <th>Solenoid<br>current&nbsp;(A)</th>'
+                elif "TorCurrent" in k:
+                    s += '  <th>Toroid<br>current&nbsp;(A)</th>'
                 elif 'DQ' == k:
                     s += '  '
                     matching_names = dict(Run.Fieldinfo['DQ']['DefMatch'])
@@ -446,7 +466,6 @@ class Run:
                         #slices = [slice(x,len(a)+3,4) for x in range(4)]
                         #zipped = zip(*map((a+4*['']).__getitem__,slices))
                         #vertical
-                        ncol=4
                         n = 4*[len(a)/4]
                         for x in range(len(a)-4*(len(a)/4)):
                             n[x]+=1
@@ -457,7 +476,8 @@ class Run:
                             slices += [slice(cx,cx+x)]
                             cx+=x
                         m = map(a.__getitem__,slices)
-                        for x in range(1,len(m)): m[x]+=['']
+                        for x in range(1,len(m)):
+                            m[x]+=['']
                         zipped = zip(*m)
                         
                         tts = ''
@@ -484,38 +504,56 @@ class Run:
                         s += '(%s)' % (foldertag)
                     s += '</font></th>'
                     
-                elif k == "L1 PSK":        continue
-                elif k == "HLT PSK":       s += '  <th>Prescale keys</th>' 
-                elif k == "Release":       s += '  <th>HLT Release</th>'
-                elif k == "Datasets":      s += '  <th>Tier-0 Datasets</th>'
-                elif k == '#Events (incl. calib.)': s += '  <th>#Events<br><font size="-2">(incl.&nbsp;calib.)</font></th>'
-                elif k == '#Events (streamed)'    : s += '  <th>#Events<br><font size="-2">(streamed)</font></th>'
+                elif k == "L1 PSK":
+                    continue
+                elif k == "HLT PSK":
+                    s += '  <th>Prescale keys</th>' 
+                elif k == "Release":
+                    s += '  <th>HLT Release</th>'
+                elif k == "Datasets":
+                    s += '  <th>Tier-0 Datasets</th>'
+                elif k == '#Events (incl. calib.)':
+                    s += '  <th>#Events<br><font size="-2">(incl.&nbsp;calib.)</font></th>'
+                elif k == '#Events (streamed)'    :
+                    s += '  <th>#Events<br><font size="-2">(streamed)</font></th>'
                 elif 'lar:' in k:
-                    hasLAr = True                   
-                    if   'runtype'        in k: s += '  <th><font size="-2">Run type</font></th>' 
-                    elif 'nsamples'       in k: s += '  <th><font size="-2">#Samples</font></th>' 
-                    elif 'firstsample'    in k: s += '  <th><font size="-2">1st sample</font></th>' 
-                    elif 'format'         in k: s += '  <th><font size="-2">Format</font></th>' 
+                    if   'runtype'        in k:
+                        s += '  <th><font size="-2">Run type</font></th>' 
+                    elif 'nsamples'       in k:
+                        s += '  <th><font size="-2">#Samples</font></th>' 
+                    elif 'firstsample'    in k:
+                        s += '  <th><font size="-2">1st sample</font></th>' 
+                    elif 'format'         in k:
+                        s += '  <th><font size="-2">Format</font></th>' 
                     else:
                         print ('ERROR: unknown LAr option "%s"' % k)
                         sys.exit(1)
                 elif 'lhc:' in k:
-                    if   'fillnumber'     in k: s += '  <th>  LHC Fill</th>'
+                    if   'fillnumber'     in k:
+                        s += '  <th>  LHC Fill</th>'
                     elif 'stablebeams'    in k:
                         s += '  <th>Stable beams</th>'
-                        if 'lhc:beammode' in Run.ShowOrder:   s += '  <th>Beam mode</th>' 
+                        if 'lhc:beammode' in Run.ShowOrder:
+                            s += '  <th>Beam mode</th>' 
                         if 'lhc:beamenergy' in Run.ShowOrder:
                             s += '  <th>Beam&nbsp;energy and&nbsp;intensities</th>'
-                            hasLHC = True
                             
-                    elif 'beamenergy'     in k: continue # included in 'fillbeams' summary
-                    elif 'nbunch1'        in k: s += '  <th>#Bunches B1 <br><font size="-2"><b>(NOT YET RELIABLE)</b></font></th>' 
-                    elif 'nbunch2'        in k: s += '  <th>#Bunches B2 <br><font size="-2"><b>(NOT YET RELIABLE)</b></font></th>' 
-                    elif 'nbunchcoll'     in k: s += '  <th>#Bunches<br>colliding <br><font size="-2"><b>(NOT YET RELIABLE)</b></font></th>' 
-                    elif 'beamtype1'      in k: s += '  <th>Beam type&nbsp;B1</th>' 
-                    elif 'beamtype2'      in k: s += '  <th>Beam type&nbsp;B2</th>' 
-                    elif 'machinemode'    in k: s += '  <th>LHC mode</th>' 
-                    elif 'beammode'       in k: continue
+                    elif 'beamenergy'     in k:
+                        continue # included in 'fillbeams' summary
+                    elif 'nbunch1'        in k:
+                        s += '  <th>#Bunches B1 <br><font size="-2"><b>(NOT YET RELIABLE)</b></font></th>' 
+                    elif 'nbunch2'        in k:
+                        s += '  <th>#Bunches B2 <br><font size="-2"><b>(NOT YET RELIABLE)</b></font></th>' 
+                    elif 'nbunchcoll'     in k:
+                        s += '  <th>#Bunches<br>colliding <br><font size="-2"><b>(NOT YET RELIABLE)</b></font></th>' 
+                    elif 'beamtype1'      in k:
+                        s += '  <th>Beam type&nbsp;B1</th>' 
+                    elif 'beamtype2'      in k:
+                        s += '  <th>Beam type&nbsp;B2</th>' 
+                    elif 'machinemode'    in k:
+                        s += '  <th>LHC mode</th>' 
+                    elif 'beammode'       in k:
+                        continue
                     else:
                         print ('ERROR: unknown LHC option "%s"' % k)
                         sys.exit(1)
@@ -524,7 +562,6 @@ class Run:
                         s += '  <th>Offline Luminosity<br><font style="font-weight:normal">(%s)</font></font></th>' % k.split(':')[-1]
                         ofllumiFlag = True
                 elif 'bs:' in k:
-                    hasBS = True
                     kt = k.replace('bs:','')
                     if 'bs:Pos' in k or 'bs:Sig' in k:
                         s += '  <th><font size="-2">%s<br><font style="font-weight:normal">(mm)</font></font></th>' % kt
@@ -532,27 +569,37 @@ class Run:
                         s += '  <th><font size="-2">%s<br><font style="font-weight:normal">(rad)</font></font></th>' % kt
                     else:
                         s += '  <th><font size="-2">%s</font></th>' % kt
-                elif 'BPM' in k:  s += '  <th>Beam&nbsp;Position Monitors&nbsp;(BPM)</th>' 
+                elif 'BPM' in k:
+                    s += '  <th>Beam&nbsp;Position Monitors&nbsp;(BPM)</th>' 
                 elif 'olc:' in k:
-                    if 'olc:lumi' in k:                    
+                    if 'olc:lumi' in k:
                         tp1, tp2, chan = k.split(':')
                         try:
                             chan = float(chan)
                         except ValueError:
                             chan = -1
-                        if OLCAlgorithms.has_key(chan): chanstr = OLCAlgorithms[chan]
-                        else:                           chanstr = 'UNKNOWN'
+                        if chan in OLCAlgorithms:
+                            chanstr = OLCAlgorithms[chan]
+                        else:
+                            chanstr = 'UNKNOWN'
                         s += '  <th>Online&nbsp;del.&nbsp;Luminosity&nbsp;<font size="-2"><br><font style="font-weight:normal">[%s]</font></font></th>' % chanstr
-                    elif 'beam1bunches' in k:  continue # not used anymore
-                    elif 'beam2bunches' in k:  continue # not used anymore
-                    elif 'collbunches'  in k:  continue # not used anymore
-                    elif 'bcidmask'     in k:  s += '  <th>Bunch&nbsp;structure</th>'
-                    elif 'beam1intensity' in k: continue # included in 'fillbeams' summary
-                    elif 'beam2intensity' in k: continue # included in 'fillbeams' summary
+                    elif 'beam1bunches' in k:
+                        continue # not used anymore
+                    elif 'beam2bunches' in k:
+                        continue # not used anymore
+                    elif 'collbunches'  in k:
+                        continue # not used anymore
+                    elif 'bcidmask' in k:
+                        s += '  <th>Bunch&nbsp;structure</th>'
+                    elif 'beam1intensity' in k:
+                        continue # included in 'fillbeams' summary
+                    elif 'beam2intensity' in k:
+                        continue # included in 'fillbeams' summary
                     else:
                         s += '  <th>%s</th>' % k
 
-                elif 'BGS Key' in k: s += '  <th>Bunch group key</th>'
+                elif 'BGS Key' in k:
+                    s += '  <th>Bunch group key</th>'
                         
                 else:
                     s += '  <th>%s</th>' % k
@@ -574,7 +621,8 @@ class Run:
             for (p,hdesc) in patterns:
                 matchedpositions = [idx for (idx,head) in enumerate(Run.headerkeys()) if re.match(p,head)]
                 #print ("pattern",p,matchedpositions)
-                if matchedpositions: order += [(min(matchedpositions),max(matchedpositions),hdesc)]
+                if matchedpositions:
+                    order += [(min(matchedpositions),max(matchedpositions),hdesc)]
             order.sort()
 
             mergeempty = True
@@ -585,14 +633,16 @@ class Run:
                         if th[0]>current:
                             secondheader += '<th colspan="%s"></th>'  % (th[0]-current)
                     else:
-                        for x in xrange(th[0]-current): secondheader += '<th></th>'
+                        for x in range(th[0]-current):
+                            secondheader += '<th></th>'
                     secondheader += '<th colspan="%s">%s</th>' % (th[1]-th[0]+1,th[2])
                     current=th[1]+1
                 if len(Run.headerkeys())>current:
                     if mergeempty:
                         secondheader += '<th colspan="%s"></th>' % (len(Run.headerkeys())-current)
                     else:
-                        for x in xrange(len(Run.headerkeys())-current): secondheader += '<th></th>'
+                        for x in range(len(Run.headerkeys())-current):
+                            secondheader += '<th></th>'
                 secondheader = "<tr>%s</tr>" % secondheader
             
 
@@ -627,39 +677,52 @@ class Run:
 
         else:
             s = ''
-            for l in [1,2]:
+            for lll in [1,2]:
                 if Run.showrunnr:
-                    if l==0: s += '%-*s  %*s  ' % (_fW['Run'],'Run',_fW['NLB'],'#LB')
-                    if l==1: s += '%-*s  %*s  ' % (_fW['Run'],' ',_fW['NLB'],' ')
+                    if lll==0:
+                        s += '%-*s  %*s  ' % (_fW['Run'],'Run',_fW['NLB'],'#LB')
+                    if lll==1:
+                        s += '%-*s  %*s  ' % (_fW['Run'],' ',_fW['NLB'],' ')
                 s+=" " # accept/reject flag
                 if Run.showtime:
                     hstr = 'Start and endtime (%s)' % QC.localStr()
-                    if l==0:
+                    if lll==0:
                         s += '%*s  ' %(_fW['Time'],hstr)
-                    if l==1: s += '%*s  ' %(_fW['Time'],' ')
+                    if lll==1:
+                        s += '%*s  ' %(_fW['Time'],' ')
                 if Run.showduration:
-                    if l==0: s += '%*s  ' % (10,'Duration')
-                    if l==1: s += '%*s  ' % (10,' ')
+                    if lll==0:
+                        s += '%*s  ' % (10,'Duration')
+                    if lll==1:
+                        s += '%*s  ' % (10,' ')
                 for k in Run.SortedShowOrder():
                     if k.Type == DataKey.STREAM:
                         w = max(len(k.Header)-k.Header.find('_'),_fW['Stream'])
-                        if l==0: s += '%*s  ' % (w,k.Header[4:k.Header.find('_')])
-                        if l==1: s += '%*s  ' % (w,k.Header[k.Header.find('_')+1:])
+                        if lll==0:
+                            s += '%*s  ' % (w,k.Header[4:k.Header.find('_')])
+                        if lll==1:
+                            s += '%*s  ' % (w,k.Header[k.Header.find('_')+1:])
                     else:
                         w = 10
-                        if k in _fW: w = _fW[k.ResultKey]
-                        if l==0: s += '%*s  ' % (w,k.Header)
-                        if l==1: s += '%*s  ' % (w,' ')
-                if l==0: s+='\n'
+                        if k in _fW:
+                            w = _fW[k.ResultKey]
+                        if lll==0:
+                            s += '%*s  ' % (w,k.Header)
+                        if lll==1:
+                            s += '%*s  ' % (w,' ')
+                if lll==0:
+                    s+='\n'
         return s
 
     def addResult(self, resDictKey, value, iov=None, reject=False):
-        if resDictKey=='DQ' and value=='n.a.': return
+        if resDictKey=='DQ' and value=='n.a.':
+            return
         #print ("Run.addResult:",resDictKey, value, iov,"reject=",reject)
-        if not resDictKey in self.result:
+        if resDictKey not in self.result:
             self.result[resDictKey] = value
         if iov:
-            if iov.startTime.lb>self.lastlb: return # sometimes there are IOVs completely outside the run e.g. run 165821 DQ SHIFTOFL
+            if iov.startTime.lb>self.lastlb:
+                return # sometimes there are IOVs completely outside the run e.g. run 165821 DQ SHIFTOFL
             iov.endTime = min(iov.endTime, IOVTime(self.runNr,self.lastlb+1) ) 
         self.data.addResult(iov, resDictKey, value, reject)
 
@@ -735,12 +798,16 @@ class Run:
 
         # end format
         endformat = "%X"
-        if end[0]>begin[0]:                      endformat = "%a %b %d, %Y %X"
-        elif end[1]>begin[1] or end[2]>begin[2]: endformat = "%a %b %d, %X"
+        if end[0]>begin[0]:
+            endformat = "%a %b %d, %Y %X"
+        elif end[1]>begin[1] or end[2]>begin[2]:
+            endformat = "%a %b %d, %X"
 
         # end string
-        if closed: endstr = time.strftime(endformat,end)
-        else:      endstr = '<font color=#BB0000>ongoing</font>' if format=='html' else 'ongoing'
+        if closed:
+            endstr = time.strftime(endformat,end)
+        else:
+            endstr = '<font color=#BB0000>ongoing</font>' if format=='html' else 'ongoing'
 
         # output
         if format=='html':
@@ -763,13 +830,19 @@ class Run:
     def prettyChain(cls,tr,ps):
         i = len(ps)-1
         while i>0:
-            if ps[i]==ps[i-1]: ps[i]=' '
-            elif ps[i]<0:      ps[i]='x'
-            else:              ps[i]=str(ps[i])
+            if ps[i]==ps[i-1]:
+                ps[i]=' '
+            elif ps[i]<0:
+                ps[i]='x'
+            else:
+                ps[i]=str(ps[i])
             i-=1
-        if ps[0]==None: ps[0]='n.a.'
-        elif ps[0]<0: ps[0]='x'
-        else:       ps[0]=str(ps[0])
+        if ps[0] is None:
+            ps[0]='n.a.'
+        elif ps[0]<0:
+            ps[0]='x'
+        else:
+            ps[0]=str(ps[0])
         
         pss = '-'.join(ps)
         s = "%s (%s)" % (tr.name,pss)
@@ -778,7 +851,8 @@ class Run:
     def splitTriggerChains(self, chainlist):
         res = { 'L1': [], 'L2': [], 'EF': [] }
         for tr,pslist in chainlist.items():
-            if not tr.forshow: continue
+            if not tr.forshow:
+                continue
             k = tr.name[0:2]
             res[k] += [Run.prettyChain(tr,pslist)]
         res['L1'].sort()
@@ -788,9 +862,12 @@ class Run:
         l2chains = '<br> '.join(res['L2'])
         efchains = '<br> '.join(res['EF'])
         ret = ()
-        if l1chains: ret += (l1chains.replace('.0',''), )
-        if l2chains: ret += (l2chains.replace('.0',''), )
-        if efchains: ret += (efchains.replace('.0',''), )
+        if l1chains:
+            ret += (l1chains.replace('.0',''), )
+        if l2chains:
+            ret += (l2chains.replace('.0',''), )
+        if efchains:
+            ret += (efchains.replace('.0',''), )
         return ret
 
     def __str__(self):
@@ -820,12 +897,15 @@ class Run:
 
         if Run.showduration:
             dt = time.gmtime((self.eor-self.sor)/1.E9)[2:6]
-            if dt[0]>1: s += "%id %ih %im %is " % ((dt[0]-1,) + dt[1:])
-            else: s += "%2ih %2im %2is " % dt[1:]
+            if dt[0]>1:
+                s += "%id %ih %im %is " % ((dt[0]-1,) + dt[1:])
+            else:
+                s += "%2ih %2im %2is " % dt[1:]
 
         for k in Run.SortedShowOrder():
             w = 10
-            if k in _fW: w = _fW[k]
+            if k in _fW:
+                w = _fW[k]
             v = self.result[k.ResultKey]
             ostr=v
             if k == "#Events":
@@ -855,13 +935,17 @@ def ashtml(run):
         s = "<!-- Run %s -->\n" % run.runNrS
 
         # disctionary with results
-        if Run.bgcolor == "1": Run.bgcolor = "2"
-        else: Run.bgcolor = "1"
+        if Run.bgcolor == "1":
+            Run.bgcolor = "2"
+        else:
+            Run.bgcolor = "1"
         color = Run.bgcolor
 
         runrowclass = "out"
-        if run.showDataIncomplete: runrowclass="showmiss"
-        if run.selDataIncomplete: runrowclass="selmiss"
+        if run.showDataIncomplete:
+            runrowclass="showmiss"
+        if run.selDataIncomplete:
+            runrowclass="selmiss"
         runrowclass += color   
 
         s += '<tr class="out%s">\n' % (color)
@@ -876,7 +960,8 @@ def ashtml(run):
                 if p:
                     # split in the middle
                     idx=-1
-                    for i in range(p.count(',')/2+1): idx = p.find(',',idx+1)
+                    for i in range(p.count(',')//2+1):
+                        idx = p.find(',',idx+1)
                     s += '<br><font color="#488AC7"><font size=-2><nobr>Period: %s<br>%s</nobr></font></font>' % (p[:idx],p[idx+1:])
 
             # open for prompt calibration?
@@ -891,8 +976,10 @@ def ashtml(run):
             lbcontent = '%s' % run.NrLBs
             try:
                 vf = float(run.NrLBs)
-                if vf > 0: lbcontent = '%s<br><font size="-2">(%i&nbsp;s)</font>' % (run.NrLBs, (run.eor-run.sor)/(1.0E9*vf) )
-            except ValueError: pass
+                if vf > 0:
+                    lbcontent = '%s<br><font size="-2">(%i&nbsp;s)</font>' % (run.NrLBs, (run.eor-run.sor)/(1.0E9*vf) )
+            except ValueError:
+                pass
 
             window  = HU.OpenWindow( HU.CreateLBTable(run), extracss=['html/atlas-runquery-lb.css'] )
 
@@ -907,14 +994,18 @@ def ashtml(run):
 
 
         if Run.showduration:
-            if run.runNr == Run.runnropen: s += '  <td><font color="#BB0000">%s<br><font size="-2">(ongoing)</font></font></td>' % run.durationstr()
-            else:                          s += "  <td>%s</td>" % run.durationstr()
+            if run.runNr == Run.runnropen:
+                s += '  <td><font color="#BB0000">%s<br><font size="-2">(ongoing)</font></font></td>' % run.durationstr()
+            else:
+                s += "  <td>%s</td>" % run.durationstr()
 
         # find maximum output rate in case of streams
         sumstrnev = 0
         for k in Run.SortedShowOrder():
-            if k.Type == DataKey.STREAM and k.ResultKey in run.stats and not 'calibration' in k.ResultKey: sumstrnev += run.result[k.ResultKey][0]
-        if sumstrnev == 0: sumstrnev = -1
+            if k.Type == DataKey.STREAM and k.ResultKey in run.stats and 'calibration' not in k.ResultKey:
+                sumstrnev += run.result[k.ResultKey][0]
+        if sumstrnev == 0:
+            sumstrnev = -1
 
         # flags...
         ofllumiFlag = False
@@ -934,7 +1025,8 @@ def ashtml(run):
                         'beam2bunches' in k,
                         'collbunches' in k,
                         'L1 PSK' == k,
-                        ]): continue
+                        ]):
+                    continue
 
 
                 
@@ -947,7 +1039,8 @@ def ashtml(run):
                     durInSec = (run.eor-run.sor)/1.0E9                
                     rate = 'n.a. Hz'
                     try:
-                        if durInSec > 0: rate = '%.1f Hz' % (float(v)/durInSec)
+                        if durInSec > 0:
+                            rate = '%.1f Hz' % (float(v)/durInSec)
                     except ValueError: # if n.a.
                         pass
                     s += '  <td style="text-align: right">%s<BR><font size="-2">(%s)</font></td>' % (addKommaToNumber(v),rate)
@@ -968,7 +1061,7 @@ def ashtml(run):
                         if channelname == '':
                             matching_dqentries = run.stats[k]["defects"]
                         elif channelname == 'DET':
-                            matching_dqentries = [dqentry for dqentry in run.stats[k]["defects"] if not '_' in dqentry[0]]
+                            matching_dqentries = [dqentry for dqentry in run.stats[k]["defects"] if '_' not in dqentry[0]]
                         else:
                             from re import compile
                             pattern = compile(channelname)
@@ -1012,8 +1105,10 @@ def ashtml(run):
                     foundComment = False
                     for (dq,comment), start, end in run.stats[k]["blocks"]:
                         dqcss = dq
-                        if dq == 'n.a.': dqcss = 'NA'
-                        elif comment: foundComment = True
+                        if dq == 'n.a.':
+                            dqcss = 'NA'
+                        elif comment:
+                            foundComment = True
 
                         if n[dq]>0 and dq != dqmax:
                             if start == end-1:  # only one LB
@@ -1021,12 +1116,15 @@ def ashtml(run):
                             else:               # range of LBs
                                 extraDQInfo += '<tr><td class="td%s" style="min-width: 45px; text-align: left; border-width: 0px; padding:1px;">&nbsp;LB&nbsp;%g&minus;%g:</td><td class="td%s" style="text-align: left; border-width: 0px; padding: 1px; ">%s&nbsp;</td></tr>' % (dqcss,start,end-1,dqcss,dq)
 
-                    if foundComment: tip = 'showTip dqcomm_%s_%i' % (k, run.runNr)
+                    if foundComment:
+                        tip = 'showTip dqcomm_%s_%i' % (k, run.runNr)
                     if extraDQInfo:
                         extraDQInfo = '<br><img vspace=2 height="1" width="1" src="wdot.jpg"><br><table style="width: 100%; border: 1px solid; border-width: 1px; border-spacing: 0px; border-color: #eeeeee; border-collapse: separate; padding: 0px; font-size: 65%"><tr>' + extraDQInfo + '</table>'
 
-                    if tip: s += '<td class="%s td tooltip td%s">%s%s</td>' % (tip,dqmax,dqmax,extraDQInfo)
-                    else:   s += '<td class="td td%s">%s%s</td>' % (dqmax,dqmax,extraDQInfo)
+                    if tip:
+                        s += '<td class="%s td tooltip td%s">%s%s</td>' % (tip,dqmax,dqmax,extraDQInfo)
+                    else:
+                        s += '<td class="td td%s">%s%s</td>' % (dqmax,dqmax,extraDQInfo)
 
                     continue
 
@@ -1057,7 +1155,7 @@ def ashtml(run):
                         assert entry.startlb != 0, 'entry should not start at LB=0'
                         val = entry.value if (entry.value!='n.a.' and entry.value>0) else 0
                         lastlb = min(entry.lastlb,run.nr_lb)
-                        xvec += xrange(entry.startlb,lastlb+1)
+                        xvec += range(entry.startlb,lastlb+1)
                         nlb = lastlb - entry.startlb + 1
                         yvec    += nlb*[val]
                         yvecInt += nlb*[val]
@@ -1085,7 +1183,8 @@ def ashtml(run):
                         yvec[idx]    *= 1.0*run.lumiunit         # unit of yvec was: ub-1 s-1, transform to: 10^30 cm-2s-1
                         intlumi      += yvecInt[idx]
 
-                        if yvec[idx] > peaklumi: peaklumi = yvec[idx]
+                        if yvec[idx] > peaklumi:
+                            peaklumi = yvec[idx]
                         if lb in xvecStb:
                             intlumiStb += yvecInt[idx]
                             if   lb == lb1:
@@ -1110,8 +1209,10 @@ def ashtml(run):
                     tp1, tp2, chan = k.split(':')
                     try:
                         chan = int(chan)
-                        if OLCAlgorithms.has_key(chan): chanstr = OLCAlgorithms[chan]
-                        else:                           chanstr = 'UNKNOWN'            
+                        if chan in OLCAlgorithms:
+                            chanstr = OLCAlgorithms[chan]
+                        else:
+                            chanstr = 'UNKNOWN'            
                     except ValueError:
                         chanstr = chan
 
@@ -1138,11 +1239,21 @@ def ashtml(run):
                     wincontent += '</tr><tr style=&quot;background:%s&quot;>' % '#eeeeee'
                     intlumi = 0
                     mumax = -1
+                    minBiasXsec = 80.0 if Selector.isRun2() else 71.5 # minbias cross-section for 8TeV (71.5) and 13TeV (80.0)
+
+                    is5TeVRun = (run.sor/1.E9) > time.mktime((2017,11,11,0,0,0,0,0,0)) and (run.sor/1.E9) < time.mktime((2017,11,21,8,0,0,0,0,0))
+                    if is5TeVRun:
+                        minBiasXsec = 66.25 
+
+                    is5TeVHIRun = (run.sor/1.E9) > time.mktime((2018,11,7,0,0,0,0,0,0)) and (run.sor/1.E9) < time.mktime((2018,12,31,0,0,0,0,0,0))
+                    if is5TeVHIRun:
+                        minBiasXsec = 7660
+                    
                     for idx,(lbtime,lbendtime) in enumerate(run.lbtimes):
-                        lb=idx+1                    
+                        lb=idx+1
+                        isStableBeams = (lb in xvecStb)
                         intlumi += yvecInt[idx]
-                        stbBeams = '&minus;'
-                        if lb in xvecStb: stbBeams = 'T'
+                        stbBeams = 'T' if isStableBeams else '&minus;'
                         timetuple = time.localtime(lbtime/1.E9) if QC.localtime else time.gmtime(lbtime/1.E9)
                         wincontent += '<td>%s</td><td>%s</td><td>%.2f</td><td>%.4g</td><td>%.4g</td><td>%.4g</td>' % (lb, time.strftime("%X",timetuple), (float(lbendtime)-float(lbtime))/1.E9, yvec[idx], yvecInt[idx], intlumi)
                         # pileup <mu> information?
@@ -1150,18 +1261,23 @@ def ashtml(run):
                             nb = 0
                             for n,v,lbstart,lbend in run.stats['olc:bcidmask']['blocks']:
                                 if lb >= lbstart and lb <= lbend:
-                                    if v: nb = len(v[2])
+                                    if v:
+                                        nb = len(v[2])
                                     break
                             # compute expected number of interactions
                             lumi_mb = yvec[idx]*1000.0
                             mu = 0
-                            if nb: mu = lumi_mb*71.5/11245.511/nb
+                            if nb:
+                                mu = lumi_mb * minBiasXsec / 11245.511 / nb
                             wincontent += '<td>%.3g</td>' % mu
-                            if mu > mumax: mumax = mu
+                            if isStableBeams and mu > mumax:
+                                mumax = mu
                         if hasStableBeamsInfo:
                             wincontent += '<td>%s</td>' % stbBeams
-                        if idx%2!=0: col = '#eeeeee'
-                        else:        col = '#ffffff'
+                        if idx%2!=0:
+                            col = '#eeeeee'
+                        else:
+                            col = '#ffffff'
                         wincontent += '</tr><tr style=&quot;background:%s&quot;>' % col
 
                     printMuInfoToFile = True
@@ -1171,8 +1287,12 @@ def ashtml(run):
                         muout.write( '%10i   %f\n' % (run.runNr, mumax) )
                         muout.close()
 
-                    if mumax < 0: mumax = 'n.a.'
-                    else:         mumax = "%0.3g" % mumax
+                    if mumax < 0:
+                        s_mumax = "n.a."
+                    elif mumax < 0.1:
+                        s_mumax = "%0.3e" % mumax
+                    else:
+                        s_mumax = "%0.3f" % mumax
 
                     if run.runNr == Run.runnropen: # run still ongoing
                         wincontent += '<tr><td style=&quot;text-align:left&quot;colspan=&quot;3&quot;><i>&nbsp;&nbsp;Run still ongoing ...</i></td></tr>'
@@ -1187,10 +1307,10 @@ def ashtml(run):
                     openwincmd += "')\">"
 
                     # line to be printed in column
-                    fullprint  = '<table class="bcidtable">'
+                    fullprint = '<table class="bcidtable">'
                     fullprint += '<tr><td colspan="2"><img src="%s" align="left" width="90px"></td></tr>' % path
                     if hasStableBeamsInfo:
-                        fullprint += '<tr><td style="text-align:left">Entire&nbsp;run:</td><td style="text-align:left">&nbsp;%0.4g&nbsp;%s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Stable&nbsp;beams:</td><td style="text-align:left">&nbsp;%0.4g&nbsp;%s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Peak&nbsp;lumi:</td><td style="text-align:left">&nbsp;%.2g&nbsp;e%s&nbsp;cm<sup>&minus;2</sup>s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Peak&nbsp;&lt;&mu;&gt;:</td><td style="text-align:left">&nbsp;%s</td></tr>' % (intlumi, run.lumiunittxt, intlumiStb, run.lumiunittxt, peaklumi, run.instlumiunittxt, mumax)
+                        fullprint += '<tr><td style="text-align:left">Entire&nbsp;run:</td><td style="text-align:left">&nbsp;%0.4g&nbsp;%s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Stable&nbsp;beams:</td><td style="text-align:left">&nbsp;%0.4g&nbsp;%s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Peak&nbsp;lumi:</td><td style="text-align:left">&nbsp;%.2g&nbsp;e%s&nbsp;cm<sup>&minus;2</sup>s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Peak&nbsp;&lt;&mu;&gt;:</td><td style="text-align:left">&nbsp;%s</td></tr>' % (intlumi, run.lumiunittxt, intlumiStb, run.lumiunittxt, peaklumi, run.instlumiunittxt, s_mumax)
                         if lifetime > 0:
                             fullprint += '<tr><td style="text-align:left">Approx.&nbsp;lifetime:</td><td style="text-align:left">&nbsp;%0.2g&nbsp;h</td></tr>' % (lifetime)
                     else:
@@ -1243,21 +1363,26 @@ def ashtml(run):
                             unpaired2 = [b for b in beam2 if b not in beam12]
 
                             noBunches = not unpaired1 and not unpaired2 and not beam12  # happens at least in run 152508
-                            if not unpaired1: unpaired1 = ['&minus;']
-                            if not unpaired2: unpaired2 = ['&minus;']
-                            if not beam12:    beam12    = ['&minus;']
+                            if not unpaired1:
+                                unpaired1 = ['&minus;']
+                            if not unpaired2:
+                                unpaired2 = ['&minus;']
+                            if not beam12:
+                                beam12    = ['&minus;']
 
                             # analyse bunch train structure
                             if isInStableBeamPeriod and first and not noBunches:
                                 first = False # don't do that again
 
                                 maxBunchDistanceInTrain = 6                            
-                                if int(run.runNr) > 168665: maxBunchDistanceInTrain = 25 # large (20) bunch distance for Heavy Ion collisions
+                                if int(run.runNr) > 168665:
+                                    maxBunchDistanceInTrain = 25 # large (20) bunch distance for Heavy Ion collisions
                                 trains = []
                                 bp = -1
                                 for b in beam12:
                                     if bp > 0 and b - bp <= maxBunchDistanceInTrain:
-                                        if trains[-1][-1] != bp: trains.append([bp])
+                                        if trains[-1][-1] != bp:
+                                            trains.append([bp])
                                         trains[-1].append(b)
                                     elif len(beam12) > 1 and bp <= 0 and beam12[0] - b <= maxBunchDistanceInTrain:
                                         trains.append([b])
@@ -1273,7 +1398,8 @@ def ashtml(run):
                                     # it may be that the BCID=1 is a single pilot bunch only without a train
                                     # in that case, don't use it to compute bunch distance in train, but print comment
                                     icoor = 0 
-                                    if len(trains) > 1: icoor = 1
+                                    if len(trains) > 1:
+                                        icoor = 1
                                     if len(trains[icoor]) > 1:
                                         bunchDist = trains[icoor][1] - trains[icoor][0]
                                         fullprint += '<tr><td style="text-align:left"><nobr>Bunch dist. in trains:</nobr></td><td><nobr><b> %i</b> (%i ns)</nobr></td></tr>' % (bunchDist, bunchDist*25)
@@ -1335,7 +1461,8 @@ def ashtml(run):
                     idx        = 0
 
                     for entry in run.data[k]:
-                        if entry.startlb==0 and entry.lastlb==0: continue
+                        if entry.startlb==0 and entry.lastlb==0:
+                            continue
 
                         val,valerr = entry.value
                         ref  = run.data[refkey].atLB(entry.startlb)[0].value[0]
@@ -1365,8 +1492,10 @@ def ashtml(run):
                     if iave>0:
                         vave /= float(iave)
                         rad = eave/iave - vave*vave
-                        if rad>=0: eave = math.sqrt(rad)
-                        else:      eave = 0
+                        if rad>=0:
+                            eave = math.sqrt(rad)
+                        else:
+                            eave = 0
                     else:
                         vave = -1
 
@@ -1380,15 +1509,19 @@ def ashtml(run):
                             ymin = -0.1
                             ymax = 0.1
 
-                    if ymin==ymax: delta = 0.1*abs(ymax)
-                    else:          delta = 0.1*(ymax-ymin)
+                    if ymin==ymax:
+                        delta = 0.1*abs(ymax)
+                    else:
+                        delta = 0.1*(ymax-ymin)
                     ymin -= delta
                     ymax += delta
 
 
                     bstype = 'pos'
-                    if   'Sig'  in k: bstype = 'width'
-                    elif 'Tilt' in k: bstype = 'tilt'
+                    if   'Sig'  in k:
+                        bstype = 'width'
+                    elif 'Tilt' in k:
+                        bstype = 'tilt'
                     bstype += k[k.find('-'):] 
 
                     histoText = 'Average beam spot %s: (%.4g +- %.1g) mm' % (bstype, vave, eave)
@@ -1411,7 +1544,7 @@ def ashtml(run):
                     wincontent += '<table style=&quot;width: auto; border: 0px solid; border-width: margin: 0 0 0 0; border-spacing: 0px; border-collapse: separate; padding: 0px; font-size: 90%; vertical-align:top; &quot;>'
                     wincontent += '<tr><th style=&quot;text-align:right&quot;>LB</th><th style=&quot;text-align:right&quot;>&nbsp;&nbsp;&nbsp;Start time<br> (%s)</th><th style=&quot;text-align:right&quot;>&nbsp;&nbsp;&nbsp;Duration<br>(sec)</th><th style=&quot;text-align:right&quot;>&nbsp;&nbsp;&nbsp;Beamspot %s<br>(mm)</th><th style=&quot;text-align:right&quot;>&nbsp;&nbsp;&nbsp;Fit&nbsp;status</th>' % (QC.tzdesc(),bstype)
                     wincontent += '</tr><tr style=&quot;background:%s&quot;>' % '#eeeeee'
-                    for idx,(lbtime,lbendtime) in enumerate(run.lbtimes):                
+                    for idx,(lbtime,lbendtime) in enumerate(run.lbtimes):
                         lb=idx+1
                         timetuple = time.localtime(lbtime/1.E9) if QC.localtime else time.gmtime(lbtime/1.E9)
                         wincontent += '<td style=&quot;text-align:right&quot;>&nbsp;&nbsp;%s</td>' % lb
@@ -1420,8 +1553,10 @@ def ashtml(run):
                         wincontent += '<td style=&quot;text-align:right&quot;>%.4g &plusmn; %.2g</td>' % yvec[bsidx[idx]]
                         wincontent += '<td style=&quot;text-align:right&quot;>%i</td>' % yvecSt[bsidx[idx]]
 
-                        if idx%2!=0: col = '#eeeeee'
-                        else:        col = '#ffffff'
+                        if idx%2!=0:
+                            col = '#eeeeee'
+                        else:
+                            col = '#ffffff'
                         wincontent += '</tr><tr style=&quot;background:%s&quot;>' % col
                     if run.runNr == Run.runnropen: # run still ongoing
                         wincontent += '<tr><td style=&quot;text-align:left&quot;colspan=&quot;3&quot;><i>&nbsp;&nbsp;Run still ongoing ...</i></td></tr>'
@@ -1460,13 +1595,16 @@ def ashtml(run):
                     durInSec = (run.eor-run.sor)/1.0E9                
                     rate = 'n.a.&nbsp;Hz'
                     try:
-                        if durInSec > 0: rate = '%.3f&nbsp;Hz' % (v[0]/durInSec)
-                    except ValueError: pass
+                        if durInSec > 0:
+                            rate = '%.3f&nbsp;Hz' % (v[0]/durInSec)
+                    except ValueError:
+                        pass
                     strevents = v[0]
                     strsize = v[1]
                     # add relative fraction (only if not calibrtion string)
                     fracstr = ''
-                    if not 'calibration' in k: fracstr = '%.1f%%,' % (float(strevents)/sumstrnev*100)                
+                    if 'calibration' not in k:
+                        fracstr = '%.1f%%,' % (float(strevents)/sumstrnev*100)                
 
 
                     ev = {}
@@ -1484,15 +1622,18 @@ def ashtml(run):
                     # insert events per LB
                     lbrecinfo = run.stats[k]['LBRecInfo']
 
-                    isPhysicsStream = lbrecinfo!=None and len(lbrecinfo)>0
+                    isPhysicsStream = lbrecinfo is not None and len(lbrecinfo)>0
                     if isPhysicsStream: # only for physics stream we have LB wise information
                         ev = dict(lbrecinfo)
-                        for lb in ev: ev[lb]=0
-                        for lb,nev in lbrecinfo: ev[lb] += nev
+                        for lb in ev:
+                            ev[lb]=0
+                        for lb,nev in lbrecinfo:
+                            ev[lb] += nev
                         for idx,(lbtime,lbendtime) in enumerate(run.lbtimes):
                             lb=idx+1                    
                             nev = 0
-                            if ev.has_key(lb): nev = ev[lb]
+                            if lb in ev:
+                                nev = ev[lb]
                             xvec.append(lb)
                             yvecN.append(nev)                        
                             yvecR.append(0)
@@ -1503,7 +1644,8 @@ def ashtml(run):
                             except ValueError:
                                 pass
 
-                        lbs = ev.keys(); lbs.sort()
+                        lbs = ev.keys()
+                        lbs.sort()
 
                         # find range with stable beams (requires LHC information to be available)
                         hasStableBeamsInfo, xvecStb = run.getStableBeamsVector()
@@ -1536,26 +1678,31 @@ def ashtml(run):
                         for idx,(lbtime,lbendtime) in enumerate(run.lbtimes):
                             lb=idx+1                    
                             nev = 0
-                            if ev.has_key(lb): nev = ev[lb]
+                            if lb in ev:
+                                nev = ev[lb]
                             sumnev += nev
                             stbBeams = '&minus;'                                
                             if yvecR[idx] > 0:
                                 averate += yvecR[idx]
-                                if yvecR[idx] > maxrate: maxrate = yvecR[idx]
+                                if yvecR[idx] > maxrate:
+                                    maxrate = yvecR[idx]
                                 nc += 1
-                            if lb in xvecStb: 
+                            if lb in xvecStb:
                                 stbBeams = 'T'
 
                             timetuple = time.localtime(lbtime/1.E9) if QC.localtime else time.gmtime(lbtime/1.E9)
                             wincontent += '<td>%s</td><td>%s</td><td>%.2f</td><td>%i</td><td>%i</td><td>%.3g</td>' % (lb, time.strftime("%X",timetuple), (float(lbendtime)-float(lbtime))/1.E9, int(yvecN[idx]), sumnev, yvecR[idx])
                             if hasStableBeamsInfo:
                                 wincontent += '<td>%s</td>' % stbBeams
-                            if idx%2!=0: col = '#eeeeee'
-                            else:        col = '#ffffff'
+                            if idx%2!=0:
+                                col = '#eeeeee'
+                            else:
+                                col = '#ffffff'
                             wincontent += '</tr>\n<tr style="background:%s">' % col
 
                         # compute max and averages
-                        if nc>0: averate    /= float(nc)
+                        if nc>0:
+                            averate    /= float(nc)
 
                         if run.runNr == Run.runnropen: # run still ongoing
                             wincontent += '<tr><td style="text-align:left"colspan="3"><i>&nbsp;&nbsp;Run still ongoing ...</i></td></tr>\n'
@@ -1595,10 +1742,14 @@ def ashtml(run):
 
                 if k=="TriggerMenu":
                     chains = run.splitTriggerChains(v)
-                    if len(chains)==0:   s += '<td></td>' 
-                    elif len(chains)==1: s += '<td style="min-width:300px"><font size="-2">%s</font></td>' % ( chains )
-                    elif len(chains)==2: s += '<td style="min-width:300px"><font size="-2">%s<hr color="gray" size=1>%s</font></td>' % ( chains )
-                    else:                s += '<td style="min-width:300px"><font size="-2">%s<hr color="gray" size=1>%s<hr color="gray" size=1>%s</font></td>' % ( chains )
+                    if len(chains)==0:
+                        s += '<td></td>' 
+                    elif len(chains)==1:
+                        s += '<td style="min-width:300px"><font size="-2">%s</font></td>' % ( chains )
+                    elif len(chains)==2:
+                        s += '<td style="min-width:300px"><font size="-2">%s<hr color="gray" size=1>%s</font></td>' % ( chains )
+                    else:
+                        s += '<td style="min-width:300px"><font size="-2">%s<hr color="gray" size=1>%s<hr color="gray" size=1>%s</font></td>' % ( chains )
                     continue
 
                 if k=="TriggerRates":
@@ -1638,32 +1789,40 @@ def ashtml(run):
                         for step in steptypes:
                             for dtype in datatypes:
                                 selectedds = {}
-                                for ds in v:                            
+                                for ds in v:
                                     if (stype in ds[0] and step in ds[0] and dtype in ds[0]) or (stype in ds[0] and stype == 'debug_' and step == 'other' and (dtype in ds[0] or dtype == 'other')) and not ds[0] in shownlist:
                                         vetoed = False
                                         for veto in vetotypes:
-                                            if veto in ds[0]: 
+                                            if veto in ds[0]:
                                                 vetoed = True
                                                 break
                                         if not vetoed:
                                             # number of files, size, events
                                             st  = ['&nbsp;%s&nbsp;files' % (prettyNumber(ds[4]))]
                                             st += ['&nbsp;%s'         % (filesize(ds[5]))]
-                                            if ds[6] == 0: st += ['&nbsp;unkn.&nbsp;evts&nbsp;']
-                                            else:          st += ['&nbsp;%s&nbsp;evts&nbsp;'  % (prettyNumber(ds[6]))]
+                                            if ds[6] == 0:
+                                                st += ['&nbsp;unkn.&nbsp;evts&nbsp;']
+                                            else:
+                                                st += ['&nbsp;%s&nbsp;evts&nbsp;'  % (prettyNumber(ds[6]))]
                                             selectedds[ds[0]] = st
                                             # replication status
-                                            if 'replicate:done' in ds[2]: selectedds[ds[0]] += [True]
-                                            else:                         selectedds[ds[0]] += [False]
-                                            if ds[3] == 'DONE':           selectedds[ds[0]] += [True]
-                                            else:                         selectedds[ds[0]] += [False]
+                                            if 'replicate:done' in ds[2]:
+                                                selectedds[ds[0]] += [True]
+                                            else:
+                                                selectedds[ds[0]] += [False]
+                                            if ds[3] == 'DONE':
+                                                selectedds[ds[0]] += [True]
+                                            else:
+                                                selectedds[ds[0]] += [False]
                                             selectedds[ds[0]] += [ds[7]] # add dataset creation time
                                             shownlist.append(ds[0])                                    
 
-                                if not selectedds: continue
+                                if not selectedds:
+                                    continue
                                 dsnames = selectedds.keys()
                                 dsnames.sort()
-                                if not first: s += hrline
+                                if not first:
+                                    s += hrline
                                 first = False
                                 s += '<tr><td colspan="1"><font color="#666666"><i>[&nbsp;Stream&nbsp;type&nbsp;+&nbsp;processing&nbsp;step&nbsp;+&nbsp;data&nbsp;type:&nbsp;<b>%s</b>&nbsp;+&nbsp;<b>%s</b>&nbsp;+&nbsp;<b>%s</b>&nbsp;]</i> </font></td></tr>' % (stype, step, dtype)
                                 for dsname in dsnames:
@@ -1708,7 +1867,8 @@ def ashtml(run):
                                     s += '</tr>'
                                 if dtype != datatypes[-1]:
                                     hrline = '<tr><td colspan="8"><hr style="width:100%; background-color: #BBBBBB; height:1px; margin-left:0; border:0"/></td>'
-                                else: hrline = ''
+                                else:
+                                    hrline = ''
 
                             if step != steptypes[-1]:
                                 hrline = '<tr><td colspan="8"><hr style="width:100%; background-color: #666666; height:2px; margin-left:0; border:0"/></td>'
@@ -1717,7 +1877,7 @@ def ashtml(run):
                     # sanity check
                     s_ = ''
                     for ds in v:
-                        if not 'TMP.' in ds[0] and not ds[0] in shownlist:
+                        if 'TMP.' not in ds[0] and ds[0] not in shownlist:
                             s_ += '<tr><td colspan=8>' + ds[0] + '</td></tr>'
                     if s_:
                         s += '<tr><td colspan="8"><hr style="width:100%; background-color: #EE0000; height:3px; margin-left:0; border:0"/></td>'
@@ -1736,16 +1896,21 @@ def ashtml(run):
 
                 if 'HLT PSK' == k:
                     # add another column with links to trigger menu for all SMK and PSKs combinations
-                    links = ''
                     linklist = run.stats['PSK']['blocks']
 
                     if linklist:
-                        if len(linklist)<=15: ncol = 1
-                        elif len(linklist)<=30: ncol = 2
-                        else: ncol = 3
-                        if len(linklist)<=15: nrow = len(linklist)
-                        elif len(linklist)<=45: nrow = 15
-                        else: nrow = (len(linklist)+2)/3
+                        if len(linklist)<=15:
+                            ncol = 1
+                        elif len(linklist)<=30:
+                            ncol = 2
+                        else:
+                            ncol = 3
+                        if len(linklist)<=15:
+                            nrow = len(linklist)
+                        elif len(linklist)<=45:
+                            nrow = 15
+                        else:
+                            nrow = (len(linklist)+2)/3
                         
                         s += '<td align="center"><table class="triggerlinktable" align="center">'
                         s += '<tr>'
@@ -1757,11 +1922,12 @@ def ashtml(run):
                             s += '<tr>'
                             for col in range(ncol):
                                 entry = row + col*nrow
-                                if entry>=len(linklist): continue
+                                if entry>=len(linklist):
+                                    continue
                                 link = linklist[entry]
                                 s += '<td style="padding-left: 0.8em">%s</td><td>&minus;</td><td>%s:&nbsp;</td>' % (str(link[0]),str(link[1]))
-                                l = '<a href="https://atlas-trigconf.cern.ch/run/smkey/%s/l1key/%s/hltkey/%s/" target="_blank" title="L1 \'%s\', HLT \'%s\'. Obtain full trigger menu corresponding to SMK=%s and prescale keys L1=%s, HLT=%s, in independent window">' % (run.result['SMK'],link[2],link[3],link[4],link[5],run.result['SMK'],link[2],link[3])
-                                s += '<td style="border-right: 1px solid gray; padding-right: 0.8em">%s%s&nbsp;|&nbsp;%s</a></td>' % (l, link[2],link[3])
+                                lll = '<a href="https://atlas-trigconf.cern.ch/run/smkey/%s/l1key/%s/hltkey/%s/" target="_blank" title="L1 \'%s\', HLT \'%s\'. Obtain full trigger menu corresponding to SMK=%s and prescale keys L1=%s, HLT=%s, in independent window">' % (run.result['SMK'],link[2],link[3],link[4],link[5],run.result['SMK'],link[2],link[3])
+                                s += '<td style="border-right: 1px solid gray; padding-right: 0.8em">%s%s&nbsp;|&nbsp;%s</a></td>' % (lll, link[2],link[3])
                             s += '</tr>'
                         s += '</table>'
                         s += '<hr style="width:100%; background-color: #AAAABB; height:1px; margin-left:0; border:0"/>'
@@ -1777,8 +1943,8 @@ def ashtml(run):
                             s += '<td align="center"><table class="triggerlinktable" align="center"><tr><td style="text-align:left;font-weight:bold" colspan="3">LB&nbsp;range</td><td style="text-align:right;font-weight:bold">BGS</td></tr>'
                             for bgskey, lbbeg, lbend in run.stats['BGS Key' ]['blocks']:
                                 s += '<tr><td style="text-align:right">%i</td><td style="text-align:right">&minus;</td><td style="text-align:right">%i:&nbsp;</td>' % (lbbeg, lbend-1)
-                                l = '&nbsp;<a href="https://atlas-trigconf.cern.ch/bunchgroups?key=%s" target="_blank" title="Obtain bunch group description for BGS Key=%s in independent window">' % (bgskey,bgskey)
-                                s += '<td>%s%s</a></td></tr>' % (l, bgskey)
+                                lll = '&nbsp;<a href="https://atlas-trigconf.cern.ch/bunchgroups?key=%s" target="_blank" title="Obtain bunch group description for BGS Key=%s in independent window">' % (bgskey,bgskey)
+                                s += '<td>%s%s</a></td></tr>' % (lll, bgskey)
                             s += '</table>'
                             s+='</td>'
                         else:
@@ -1788,7 +1954,8 @@ def ashtml(run):
                     continue
 
                 if "SMK" == k:
-                    if v=='n.a.': s += '<td class="tdna">n.a.</td>'
+                    if v=='n.a.':
+                        s += '<td class="tdna">n.a.</td>'
                     else:
                         namecomment = '<div style="font-size:80%%;color:#488AC7"><b>%s</b> (v.%i)</div><div style="width:200px;font-size:60%%;color:#777777;text-align:left">%s</div>' % run.stats['SMK']['info']
                         s += '<td style="text-align: center;">%s<br>%s</td>' % (v,namecomment)
@@ -1799,8 +1966,10 @@ def ashtml(run):
                     try:
                         s += '<td style="text-align: center">%s<br><font size="-2">(%s)</font></td>' % (v,info[int(v)])
                     except ValueError:
-                        if v=='n.a.': s += '<td class="tdna">n.a.</td>'
-                        else:         s += '<td style="text-align: right">%s</td>' % v
+                        if v=='n.a.':
+                            s += '<td class="tdna">n.a.</td>'
+                        else:
+                            s += '<td style="text-align: right">%s</td>' % v
                     continue
 
                 if 'BPM' == k:
@@ -1825,8 +1994,6 @@ def ashtml(run):
                     ymin    = +1e30
                     ymax    = -1e30
                     legend  = []
-                    datemin = '' # run sor
-                    datemax = '' # run eor
                     for ik,key in enumerate(keys):
                         y  = 0
                         y2 = 0                
@@ -1845,8 +2012,10 @@ def ashtml(run):
                         if ic > 0:
                             y /= float(ic)
                             arg = y2/float(ic) - y*y
-                            if arg > 0: y2 = math.sqrt(arg)
-                            else:       y2 = 0
+                            if arg > 0:
+                                y2 = math.sqrt(arg)
+                            else:
+                                y2 = 0
                         ymin = min(ymin,y - 1.5*y2)
                         ymax = max(ymax,y + 1.5*y2)                
 
@@ -1867,7 +2036,8 @@ def ashtml(run):
                         legend.append( lname )
                         fullprint += '<tr><td style="text-align:left">%s:&nbsp;</td><td>(</td><td style="text-align:right">&nbsp;%s</td><td style="text-align:left">&nbsp;&#177;&nbsp;</td><td style="text-align:left">%.4g</td><td>)&nbsp;um</td><td>&nbsp;&nbsp;&nbsp;</td>' % (vname, ('%.4g' % y).replace('-','&minus;'), y2)
 
-                        if ik == 0: fullprint += '<td rowspan="4">REPLACEME</td>'
+                        if ik == 0:
+                            fullprint += '<td rowspan="4">REPLACEME</td>'
                         fullprint += '</tr>'
 
                     # write to file (as text and TGraphs)
@@ -1925,7 +2095,8 @@ def ashtml(run):
 
                 if 'ofllumi:' in k:
 
-                    if ofllumiFlag: continue
+                    if ofllumiFlag:
+                        continue
                     ofllumiFlag = True
 
                     # find range with stable beams (requires LHC information to be available)
@@ -1946,8 +2117,10 @@ def ashtml(run):
                     chanstr = []
                     for ch in chans:
                         ich = int(ch)
-                        if OLCAlgorithms.has_key(ich): chanstr.append(OLCAlgorithms[ich])
-                        else:                          chanstr.append('Unknown')
+                        if ich in OLCAlgorithms:
+                            chanstr.append(OLCAlgorithms[ich])
+                        else:
+                            chanstr.append('Unknown')
 
                     # insert events per LB
                     xvec       = []
@@ -1961,11 +2134,13 @@ def ashtml(run):
                         intlumi.append(0)
                         intlumiStb.append(0)
                         for entry in run.data[kp]:
-                            if entry.startlb == 0: continue
+                            if entry.startlb == 0:
+                                continue
                             val = entry.value if entry.value!='n.a.' and entry.value>0 else 0
                             lastlb = min(entry.lastlb,run.lastlb)
                             lbs = range(entry.startlb,lastlb+1)
-                            if ikp == 0: xvec += lbs
+                            if ikp == 0:
+                                xvec += lbs
                             yvec[-1] += len(lbs)*[float(val)]
 
 
@@ -1975,10 +2150,12 @@ def ashtml(run):
                         for ich in range(len(chans)):
                             tmp = yvec[ich]
                             intlumi[ich]   += tmp[idx]*dt/1000.0  # unit of yvec was: ub-1 s-1 -> nb-1
-                            if lb in xvecStb: intlumiStb[ich] += yvec[ich][idx]*dt/1000.0
+                            if lb in xvecStb:
+                                intlumiStb[ich] += yvec[ich][idx]*dt/1000.0
 
                             yvec[ich][idx] *= 1.0                # unit of yvec was: ub-1 s-1, transform to: 10^30 cm-2s-1
-                            if yvec[ich][idx] > peaklumi[ich]: peaklumi[ich] = yvec[ich][idx]
+                            if yvec[ich][idx] > peaklumi[ich]:
+                                peaklumi[ich] = yvec[ich][idx]
 
                     # line to be printed in column
                     fullprint_ = ''
@@ -2008,21 +2185,24 @@ def ashtml(run):
                     wincontent += '<hr color=&quot;black&quot; size=1>'
                     wincontent += '<table class=&quot;LB&quot;>'
                     wincontent += '<tr><th>LB</th><th>Start time<br> (%s)</th><th>Duration<br>(sec)</th>' % QC.tzdesc()
-                    for ch in chanstr: 
+                    for ch in chanstr:
                         wincontent += '<th>Inst. luminosity<br>(1e%s&nbsp;cm<sup>&minus;2</sup>s<sup>&minus;1</sup>)<br>[ %s ]</th>' % (run.instlumiunittxt,ch)
                     wincontent += '<th>Stable beams</th>'
                     wincontent += '</tr><tr style=&quot;background:%s&quot;>' % '#eeeeee'
                     for idx,(lbtime,lbendtime) in enumerate(run.lbtimes):
                         lb=idx+1                    
                         stbBeams = '&minus;'
-                        if lb in xvecStb: stbBeams = 'T'
+                        if lb in xvecStb:
+                            stbBeams = 'T'
                         timetuple = time.localtime(lbtime/1.E9) if QC.localtime else time.gmtime(lbtime/1.E9)
                         wincontent += '<td>%i</td><td>%s</td><td>%.2f</td>' % (lb, time.strftime("%X",timetuple), (float(lbendtime)-float(lbtime))/1.E9)
                         for ich in range(len(chans)):
                             wincontent += '<td>%.4g</td>' % (yvec[ich][idx])
                         wincontent += '<td>%s</td>' % stbBeams
-                        if idx%2!=0: col = '#eeeeee'
-                        else:        col = '#ffffff'
+                        if idx%2!=0:
+                            col = '#eeeeee'
+                        else:
+                            col = '#ffffff'
                         wincontent += '</tr><tr style=&quot;background:%s&quot;>' % col
                     if run.runNr == Run.runnropen: # run still ongoing
                         wincontent += '<tr><td style=&quot;text-align:left&quot;colspan=&quot;3&quot;><i>&nbsp;&nbsp;Run still ongoing ...</i></td></tr>'
@@ -2037,7 +2217,7 @@ def ashtml(run):
                     fullprint += '<tr><td colspan="2"><img src="%s" align="left" width="90px"></td></tr>' % path
                     if hasStableBeamsInfo:
                         for ich in range(len(chans)):
-                            fullprint += '<tr><td style="text-align:left">Entire&nbsp;run:</td><td style="text-align:left">&nbsp;%0.4g&nbsp;%s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Stable&nbsp;beams:</td><td style="text-align:left">&nbsp;%0.4g&nbsp;%s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Peak&nbsp;lumi:</td><td style="text-align:left">&nbsp;%0.2g&nbsp;e%s&nbsp;cm<sup>&minus;2</sup>s<sup>&minus;1</sup></td></tr>' % (intlumi[ich], run.lumiunittxt, intlumiStb[ich], run.lumiunittxt, peaklumi[ich], run.instlumiunittxt)
+                            fullprint += '<tr><td style="text-align:left">Entire&nbsp;run:</td><td style="text-align:left">&nbsp;%0.4g&nbsp;%s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Stable&nbsp;beams:</td><td style="text-align:left">&nbsp;%0.4g&nbsp;%s<sup>&minus;1</sup></td></tr><tr><td style="text-align:left">Peak&nbsp;lumi:</td><td style="text-align:left">&nbsp;%0.3g&nbsp;e%s&nbsp;cm<sup>&minus;2</sup>s<sup>&minus;1</sup></td></tr>' % (intlumi[ich], run.lumiunittxt, intlumiStb[ich], run.lumiunittxt, peaklumi[ich], run.instlumiunittxt)
                     else:
                         for ich in range(len(chans)):
                             fullprint += '<td style="text-align:left">All&nbsp;LBs:</td><td style="text-align:left">&nbsp;%0.4g</td></tr>' % (intlumi[ich])
@@ -2047,7 +2227,7 @@ def ashtml(run):
                     s += '<td class="showTip OFLLumi stream" style="text-decoration:none; text-align: right">%s%s</a></td>' % (openwincmd, fullprint)  
                     continue
 
-                if any( [ ('lhc:' in k and not 'beamenergy' in k),
+                if any( [ ('lhc:' in k and 'beamenergy' not in k),
                           ('TorCurrent' in k),
                           ('SolCurrent' in k),
                           ('bs:' in k),
@@ -2058,19 +2238,24 @@ def ashtml(run):
 
                     # search unique ranges            
                     for entry in run.data[k]:
-                        if entry.startlb == 0: continue
+                        if entry.startlb == 0:
+                            continue
                         val = entry.value
 
                         try:
                             val = float(val)
-                            if not 'bs:' in k and not 'ofllumi:' and not 'beam1intensity' in k and not 'beam2intensity' in k: val = round(val) # no floating points, unless it is 'bs'
-                        except ValueError: pass
+                            if 'bs:' not in k and 'ofllumi:' not in k and 'beam1intensity' not in k and 'beam2intensity' not in k:
+                                val = round(val) # no floating points, unless it is 'bs'
+                        except ValueError:
+                            pass
 
                         # special treatment for E-beam = 7864
-                        if 'beamenergy' in k and val>=7864: val = 'ASYNC'
+                        if 'beamenergy' in k and val>=7864:
+                            val = 'ASYNC'
 
                         if not keys or res[-1] != val:
-                            if keys: keys[-1][1] = entry.startlb
+                            if keys:
+                                keys[-1][1] = entry.startlb
                             res.append ( val )
                             keys.append( [entry.startlb, entry.endlb] )
                         elif res[-1] == val:
@@ -2088,8 +2273,10 @@ def ashtml(run):
                                 val = float(res[i])
                                 if 'bs:' in k or 'beam1intensity' in k or 'beam2intensity' in k:
                                     vt = '%.4g' % abs(val)
-                                    if val < 0: vt = '&minus;' + vt
-                                    if 'e-' in vt: vt = vt.replace('e-','e&minus;')
+                                    if val < 0:
+                                        vt = '&minus;' + vt
+                                    if 'e-' in vt:
+                                        vt = vt.replace('e-','e&minus;')
                                     s += '<td style="text-align:right">%s</td></tr>' % vt
                                 elif 'ofllumi:' in k:
                                     s += '<td style="text-align:right">%g</td></tr>' % val
@@ -2103,18 +2290,24 @@ def ashtml(run):
                         try:
                             if 'bs:' in k:
                                 vt = '%.4g' % abs(float(v))
-                                if float(v) < 0: v = '&minus;' + vt
-                                else:            v = vt
-                                if 'e-' in v: v = v.replace('e-','e&minus;')
+                                if float(v) < 0:
+                                    v = '&minus;' + vt
+                                else:
+                                    v = vt
+                                if 'e-' in v:
+                                    v = v.replace('e-','e&minus;')
                             else:
                                 v = round(float(v))
-                                if 'beamenergy' in k and v >= 7864: v = 'ASYNC'
-                                else:                               v = '%i' % v                    
-                        except ValueError: pass
+                                if 'beamenergy' in k and v >= 7864:
+                                    v = 'ASYNC'
+                                else:
+                                    v = '%i' % v                    
+                        except ValueError:
+                            pass
                         s += '<td style="text-align:center;font-size: 85%%">%s</td>' % v
 
 
-                    if ('lhc:stablebeams' in k and 'lhc:beamenergy' in Run.ShowOrder and not 'lhc:beammode' in Run.ShowOrder) or 'lhc:beammode' in k:
+                    if ('lhc:stablebeams' in k and 'lhc:beamenergy' in Run.ShowOrder and 'lhc:beammode' not in Run.ShowOrder) or 'lhc:beammode' in k:
                         imgpath, xvec, yvec, ymax = HU.makeSummaryPlotForLHC(run)
                         wincontent = HU.makeSummaryPageForLHC(run, yvec, imgpath)
                         openwincmd = HU.OpenWindow(wincontent, 'Summary of LHC information')
@@ -2130,8 +2323,10 @@ def ashtml(run):
                     continue
 
                 # all others
-                if v=='n.a.': s += '<td class="tdna">n.a.</td>'
-                else:         s += '<td style="text-align: right">%s</td>' % v
+                if v=='n.a.':
+                    s += '<td class="tdna">n.a.</td>'
+                else:
+                    s += '<td style="text-align: right">%s</td>' % v
 
 
     s += "</tr>\n\n"
@@ -2166,19 +2361,25 @@ def createToolTips(run):
     # DQ (old)
     for data_key in Run.ShowOrder:
         k = data_key.ResultKey
-        if not isDQ(k): continue
-        if not k in run.stats: continue
+        if not isDQ(k):
+            continue
+        if k not in run.stats:
+            continue
         commentbox = ''
         for (dq,comment), start, end in run.stats[k]["blocks"]:
             if dq != 'n.a.':
-                if not comment: comment = 'no comment'
+                if not comment:
+                    comment = 'no comment'
                 col = "#000000"
-                if   dq == 'R': col = "#AA0000"
-                elif dq == 'G': col = "#006600"
-                elif dq == 'Y': col = "#716309"
+                if   dq == 'R':
+                    col = "#AA0000"
+                elif dq == 'G':
+                    col = "#006600"
+                elif dq == 'Y':
+                    col = "#716309"
                 if start == end-1:
                     commentbox += '<tr style="color:%s"><td style="vertical-align:top;">LB&nbsp;</td><td style="text-align:right;vertical-align:top;">%s</td><td style="text-align:right;vertical-align:top;"></td><td style="text-align:right;vertical-align:top;">&nbsp;(%s)&nbsp;:&nbsp;</td><td style="text-align:left;vertical-align:top;"><i><strong><b>"%s"</b></strong></i></td></tr>' % (col,start,dq,comment)
-                else:    
+                else:
                     commentbox += '<tr style="color:%s"><td style="vertical-align:top;">LB&nbsp;</td><td style="text-align:right;vertical-align:top;">%s</td><td style="text-align:right;vertical-align:top;">&minus;</td><td style="text-align:right;vertical-align:top;">%s&nbsp;(%s)&nbsp;:&nbsp;</td><td style="text-align:left;vertical-align:top;"><i><strong><b>"%s"</b></strong></i></td></tr>' % (col,start,end-1,dq,comment)
             else:
                 if start == end-1:
@@ -2195,7 +2396,7 @@ def createToolTips(run):
     # trigger keys
     lbtrigtypes = { 'L1 PSK': ['L1&nbsp;PSK', 'L1K'], 'HLT PSK' : ['HLT&nbsp;PSK','HLTK'] }
     for lbtrigtype, c in lbtrigtypes.iteritems():
-        if lbtrigtype in Run.ShowOrder and run.stats[lbtrigtype].has_key('blocks') and len(run.stats[lbtrigtype]['blocks'])>1:
+        if lbtrigtype in Run.ShowOrder and 'blocks' in run.stats[lbtrigtype] and len(run.stats[lbtrigtype]['blocks'])>1:
             boxcontent = '<strong><b>%s&nbsp;evolved&nbsp;during&nbsp;run:</b></strong><br>' % c[0]
             boxcontent += '<table style="width: auto; border: 0px solid; border-width: margin: 0 0 0 0; 0px; border-spacing: 0px; border-collapse: separate; padding: 0px; font-size: 100%">'
             for item, start, stop in run.stats[lbtrigtype]['blocks']:

@@ -6,7 +6,7 @@
 #define XAODROOTACCESS_TOOLS_TSOCKET_H
 
 // Local include(s):
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 // Forward declaration(s):
 class TString;
@@ -40,15 +40,15 @@ namespace xAOD {
       TSocket& operator=( const TSocket& ) = delete;
 
       /// Function connecting to the specified address
-      TReturnCode connect( const TInetAddress& address, int port );
+      StatusCode connect( const TInetAddress& address, int port );
       /// Close the current connection
-      TReturnCode close();
+      StatusCode close();
 
       /// Check if the socket is connected to some address at the moment
       bool isConnected() const;
 
       /// Function sending a message to the connected address
-      TReturnCode send( const TString& payload );
+      StatusCode send( const TString& payload );
 
    private:
       /// The underlying socket

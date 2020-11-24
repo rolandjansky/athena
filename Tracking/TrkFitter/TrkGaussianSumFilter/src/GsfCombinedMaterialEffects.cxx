@@ -48,12 +48,7 @@ Trk::GsfCombinedMaterialEffects::compute(
   Trk::PropDirection direction,
   Trk::ParticleHypothesis particleHypothesis) const
 {
-
-  // Reset everything before computation
-  cache.reset();
-
   const AmgSymMatrix(5)* measuredCov = componentParameters.first->covariance();
-
   /*
    * 1.  Retrieve multiple scattering corrections
    */
@@ -91,25 +86,29 @@ Trk::GsfCombinedMaterialEffects::compute(
   /*
    * 3. Combine the multiple scattering with each of the  energy loss components
    */
+  // Reset everything before computation
+  cache.reset();
   for (int i = 0; i < cache_energyLoss.numElements; ++i) {
-
     double combinedWeight = cache_energyLoss.elements[i].weight;
     double combinedDeltaP = cache_energyLoss.elements[i].deltaP;
-    cache.weights.push_back(combinedWeight);
-    cache.deltaPs.push_back(combinedDeltaP);
+    cache.weights[i] = combinedWeight;
+    cache.deltaPs[i] = combinedDeltaP;
     if (measuredCov) {
       // Create the covariance
       const double covPhi = cache_multipleScatter.deltaPhiCov;
       const double covTheta = cache_multipleScatter.deltaThetaCov;
       const double covQoverP = cache_energyLoss.elements[i].deltaQOvePCov;
-      AmgSymMatrix(5) cov;
-      cov << 0, 0, 0, 0, 0,   // 5
-        0, 0, 0, 0, 0,        // 10
-        0, 0, covPhi, 0, 0,   // 15
-        0, 0, 0, covTheta, 0, // 20
+      cache.deltaCovariances[i] << 0, 0, 0, 0, 0, // 5
+        0, 0, 0, 0, 0,                            // 10
+        0, 0, covPhi, 0, 0,                       // 15
+        0, 0, 0, covTheta, 0,                     // 20
         0, 0, 0, 0, covQoverP;
-      cache.deltaCovariances.emplace_back(std::move(cov));
+    } else {
+      cache.deltaCovariances[i].setZero();
     }
+    ++cache.numWeights;
+    ++cache.numDeltaPs;
+    ++cache.numDeltaCovariance;
   } // end for loop over energy loss components
 }
 

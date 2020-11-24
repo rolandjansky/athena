@@ -215,7 +215,7 @@ AANTupleStream.OutputLevel = WARNING
 ###################### For interactive analysis
 #include ("PyAnalysisCore/InitPyAnalysisCore.py")
 
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr.AuditorSvc.Auditors  += [ "ChronoAuditor"]
 
 AthenaPoolCnvSvc = Service("AthenaPoolCnvSvc")

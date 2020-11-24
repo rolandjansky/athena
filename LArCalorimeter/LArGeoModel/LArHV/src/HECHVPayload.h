@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARHV_HECHVPAYLOAD_H
@@ -8,12 +8,11 @@
 struct HECHVPayload {
   double         voltage;
   double         current;
-  unsigned int   status;
   int            hvLineNo;
 };
 
 inline std::ostream & operator << (std::ostream & o, const HECHVPayload & payload) {
-  o << "HEC Subgap: HV Line No "  << payload.hvLineNo    << ' ' << payload.voltage << " volts; " << payload.current << " amps; status = " << payload.status << std::endl;
+  o << "HEC Subgap: HV Line No "  << payload.hvLineNo    << ' ' << payload.voltage << " volts; " << payload.current << " amps" << std::endl;
   return o;
 }
 #endif

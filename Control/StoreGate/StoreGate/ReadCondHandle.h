@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATE_READCONDHANDLE_H
@@ -26,6 +26,17 @@
 
 
 namespace SG {
+
+
+  /**
+   * @brief Report a conditions container lookup failure.
+   * @param cc The conditions container.
+   * @param eid The time for which to search.
+   * @param The key corresponding to the conditions container.
+   */
+  void ReadCondHandleNotFound (const CondContBase& cc,
+                               const EventIDBase& eid,
+                               const std::string& key);
 
   template <typename T>
   class ReadCondHandle {
@@ -162,14 +173,7 @@ namespace SG {
     if (m_obj != 0) return true;
 
     if ( ATH_UNLIKELY(!m_cc->find(m_eid, m_obj, &m_range)) ) {
-      std::ostringstream ost;
-      m_cc->list(ost);
-      MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
-      msg << MSG::ERROR 
-          << "ReadCondHandle: could not find current EventTime " 
-          << m_eid  << " for key " << m_hkey.objKey() << "\n"
-          << ost.str()
-          << endmsg;
+      ReadCondHandleNotFound (*m_cc, m_eid, m_hkey.objKey());
       m_obj = nullptr;
       return false;
     }
@@ -212,14 +216,7 @@ namespace SG {
     //    pointer_type obj(0);
     const_pointer_type cobj(0);
     if (! (m_cc->find(eid, cobj) ) ) {
-      std::ostringstream ost;
-      m_cc->list(ost);
-      MsgStream msg(Athena::getMessageSvc(), "ReadCondHandle");
-      msg << MSG::ERROR 
-          << "ReadCondHandle::retrieve() could not find EventTime " 
-          << eid  << " for key " << m_hkey.objKey() << "\n"
-          << ost.str()
-          << endmsg;
+      ReadCondHandleNotFound (*m_cc, eid, m_hkey.objKey());
       return nullptr;
     }
   

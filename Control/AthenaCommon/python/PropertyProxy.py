@@ -1,21 +1,15 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # File: AthenaCommon/python/PropertyProxy.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 # Author: Martin Woudstra (Martin.Woudstra@cern.ch)
 
-from __future__ import print_function
-
-import six
 import os, weakref, copy
 from GaudiKernel.GaudiHandles import GaudiHandle, GaudiHandleArray
+from GaudiKernel.DataHandle import DataHandle
 
 # dictionary with configurable class : python module entries
 from AthenaCommon import ConfigurableDb
-
-if six.PY3:
-   long = int
-
 
 ### data ---------------------------------------------------------------------
 __version__ = '2.0.0'
@@ -54,12 +48,10 @@ def _isCompatible( tp, value, context = "" ):
  # compatibility check that relies on conversion (which will always fail
  # for configurables) is acceptable.
 
-   if six.PY2 and type(value) == unicode: # noqa: F821
-      value = value.encode()
    if ( tp == str or type(value) == str ) and not isinstance( value, tp ):
     # special case, insist on exact match for str (no conversions allowed)
       raise ValueError( "received an instance of %s, but %s expected, context: %s" % (type(value),tp, context) )
-   elif ( tp == int or tp == long ) and type(value) == float:
+   elif ( tp == int ) and type(value) == float:
     # special case, insist on strict match for integer types
       raise ValueError( "received an instance of %s, but %s expected, context: %s" % (type(value),tp, context) )
    else:
@@ -407,6 +399,48 @@ class GaudiHandleArrayPropertyProxy(GaudiHandlePropertyProxyBase):
       return newValue
 
 
+class DataHandlePropertyProxy(PropertyProxy):
+    def __init__(self, descr, docString, default):
+        PropertyProxy.__init__(self, descr, docString, default)
+
+    def __get__(self, obj, type=None):
+        try:
+            return self.descr.__get__(obj, type)
+        except AttributeError:
+            # Get default
+            try:
+                default = obj.__class__.getDefaultProperty(self.descr.__name__)
+                default = self.convertValueToBeSet(obj, default)
+                if default:
+                    self.__set__(obj, default)
+            except AttributeError as e:
+                # change type of exception to avoid false error message
+                raise RuntimeError(*e.args)
+
+        return self.descr.__get__(obj, type)
+
+    def __set__(self, obj, value):
+        if not obj._isInSetDefaults() or obj not in self.history:
+            value = self.convertValueToBeSet(obj, value)
+            # assign the value
+            self.descr.__set__(obj, value)
+            log.debug("Setting %s = %r", self.fullPropertyName(obj), value)
+            self.history.setdefault(obj, []).append(value)
+
+    def convertValueToBeSet(self, obj, value):
+        if value is None:
+            value = ''
+
+        mode = obj.__class__.getDefaultProperty(self.descr.__name__).mode()
+        _type = obj.__class__.getDefaultProperty(self.descr.__name__).type()
+        if type(value) == str:
+            return DataHandle(value, mode, _type)
+        elif isinstance(value, DataHandle):
+            return DataHandle(value.__str__(), mode, _type)
+        else:
+            raise ValueError("received an instance of %s, but %s expected" %
+                             (type(value), 'str or DataHandle'))
+
 
 def PropertyProxyFactory( descr, doc, default ):
 #   print "PropertyProxyFactory( %s, %r )" % (descr.__name__,default)
@@ -415,5 +449,8 @@ def PropertyProxyFactory( descr, doc, default ):
 
    if isinstance(default,GaudiHandle):
       return GaudiHandlePropertyProxy( descr, doc, default )
+
+   if isinstance(default,DataHandle):
+      return DataHandlePropertyProxy( descr, doc, default )
 
    return PropertyProxy( descr, doc, default )

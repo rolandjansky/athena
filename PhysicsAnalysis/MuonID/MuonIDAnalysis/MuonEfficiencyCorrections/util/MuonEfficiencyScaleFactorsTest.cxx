@@ -49,7 +49,7 @@
         return 1;   \
     }
 #define CHECK_CPSys(Arg) \
-    if (Arg.code() == CP::SystematicCode::Unsupported){    \
+    if (Arg.isFailure()){                                              \
         Warning(#Arg,"Unsupported systematic (in line %i) ",__LINE__); \
     }      
 
@@ -72,8 +72,7 @@ EffiToolInstance createSFTool(const std::string& WP, const std::string& CustomIn
 int main(int argc, char* argv[]) {
 
     // force strict checking of return codes
-    CP::SystematicCode::enableFailure();
-    xAOD::TReturnCode::enableFailure();
+    StatusCode::enableFailure();
     StatusCode::enableFailure();
 
     // The application's name:

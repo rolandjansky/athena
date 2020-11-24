@@ -1,0 +1,64 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{xstring}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usepackage{ifthen}
+\usepackage{calc}
+%\usepackage{pfgopts}
+\usepackage{tikz-uml}
+\usetikzlibrary{positioning}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Brief Article}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+%\maketitle
+%\section{}
+%\subsection{}
+
+ 
+\begin{tikzpicture} 
+
+\umlsimpleclass[x=0, y=2, fill=white]{TrigJetHypoAlg}
+\umlsimpleclass[x=0, y=0]{TrigJetHypoTool}
+\umlsimpleclass[x=0, y=-2]{TrigJetHypoToolHelper}
+\umlsimpleclass[x=-7, y=-2, fill=white]{IMatcher}
+\umlsimpleclass[x=-7, y=-4, fill=red!20]{FastReductionMatcher}
+\umlsimpleclass[x=5, y=-2, fill=red!20]{TrigJetGrouper}
+\umlsimpleclass[x=-7, y=-6, fill=red!20]{FastReducer}
+
+
+\umlclass[x=0, y=-4]{TrigJetHypoTooHelperConfig-fastreduction}{+ getMatcher()\\+getGrouper()\\}{- treeVector:list$<$int$>$}
+\umlclass[x=0, y=-7]{ConditionMaker}{+ getCondition()}{stuff to make a Condition}
+
+\umluniassoc[mult=*, pos=0.65]{TrigJetHypoAlg}{TrigJetHypoTool}
+\umluniassoc[mult=1, pos=0.65]{TrigJetHypoTool}{TrigJetHypoToolHelper}
+\umluniassoc[mult=1, pos=0.65]{TrigJetHypoToolHelper}{TrigJetHypoTooHelperConfig-fastreduction}
+\umluniassoc[mult=*, pos=0.65]{TrigJetHypoTooHelperConfig-fastreduction}{ConditionMaker}
+\umluniassoc[mult=1, pos=0.65]{TrigJetHypoToolHelper}{IMatcher}
+\umlimpl[pos=0.65]{FastReductionMatcher}{IMatcher}
+\umluniassoc[mult=1, pos=0.65]{TrigJetHypoToolHelper}{TrigJetGrouper}
+\umluniassoc[mult=1, pos=0.65]{FastReductionMatcher}{FastReducer}
+
+\umlnote[x=-7, y=2, width=140]{TrigJetHypoAlg}{Initialised by trig framework\\- not jet trig python}
+\umlnote[x=-7, y=0, width=140]{TrigJetHypoTool}{Trig framework interaction\\Delegate work to Helper}
+\umlnote[x=4, y=0]{TrigJetHypoToolHelper}{No semantics}
+\umlnote[x=5, y=-8, width=100]{ConditionMaker}{Provides 1 Condition for the Matcher}
+\umlnote[x=-9, y=-8, width=100]{FastReducer}{Semantics and key data structures here}
+
+
+
+
+\end{tikzpicture}
+
+
+\end{document}  

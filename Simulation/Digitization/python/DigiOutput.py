@@ -169,15 +169,19 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.TGC_on():
             StreamRDO_ItemList+=["TgcRdoContainer#*"]
         if DetFlags.writeRDOPool.sTGC_on():
-            StreamRDO_ItemList+=["sTgcDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
+            if not digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["sTgcDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
             StreamRDO_ItemList+=["Muon::STGC_RawDataContainer#*"]
             # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
-            StreamRDO_ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
+            if not digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["sTGCSimHitCollection#sTGCSensitiveDetector"]
         if DetFlags.writeRDOPool.Micromegas_on():
-            StreamRDO_ItemList+=["MmDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
+            if not digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["MmDigitContainer#*"] # FIXME - we should remove this eventually. Not RDOs!
             StreamRDO_ItemList+=["Muon::MM_RawDataContainer#*"]
             # the sensitive detector must not be removed w/o checking with the atlas-muon-nsw-sim-dev list
-            StreamRDO_ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
+            if not digitizationFlags.PileUpPremixing:
+                StreamRDO_ItemList+=["MMSimHitCollection#MicromegasSensitiveDetector"]
     # LVL1 Emulation Output
     if DetFlags.simulateLVL1.LAr_on():
         if DetFlags.writeRDOPool.LAr_on():

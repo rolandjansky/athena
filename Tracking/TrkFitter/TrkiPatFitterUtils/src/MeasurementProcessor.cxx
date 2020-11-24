@@ -75,7 +75,7 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
     if(m_useStepPropagator==2)  m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
 
     
-    for (auto m : m_measurements)
+    for (auto *m : m_measurements)
     {
 	if (! m->numberDoF())		continue;
 	if (m->isAlignment()) m_alignments.push_back(m);
@@ -178,7 +178,7 @@ MeasurementProcessor::calculateDerivatives(void)
     }
 
     // loop over measurements to compute derivatives:
-    for (auto m : m_measurements)
+    for (auto *m : m_measurements)
     {
 	// strip detector types
 	if (m->isCluster())
@@ -339,7 +339,7 @@ MeasurementProcessor::calculateResiduals(void)
 {
     int nAlign		= 0;
     int nScat		= 0;
-    for (auto m : m_measurements)
+    for (auto *m : m_measurements)
     {
 	if (! (*m).numberDoF())	continue;
 
@@ -638,7 +638,7 @@ MeasurementProcessor::propagationDerivatives(void)
 {
     // compute additional derivatives when needed for covariance propagation.
     //   loop over measurements:
-  for (auto m : m_measurements)
+  for (auto *m : m_measurements)
     {
 	// compute the D0 and Z0 derivs that don't already exist
 	if (! m->isPositionMeasurement() || m->numberDoF() > 1) continue;

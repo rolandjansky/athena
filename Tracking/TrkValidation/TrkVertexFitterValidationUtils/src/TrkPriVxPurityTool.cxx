@@ -60,7 +60,6 @@ namespace Trk {
 
 //analysis method
     const TrkPriVxPurity * TrkPriVxPurityTool::purity ( const Trk::VxCandidate * vertex ) const {
-//    std::cout<<" The purity method called"<<std::endl;
 //protection and related
         if ( vertex != 0 ) {
             const std::vector<Trk::VxTrackAtVertex *> * tracks = vertex->vxTrackAtVertex();
@@ -97,7 +96,6 @@ namespace Trk {
                                           ( *pv )->position().t() );
                 double pv_r = pv_pos.perp();
                 double pv_z = pv_pos.z();
-//    std::cout<<"Purity: Primary vertex position: "<<pv_pos<<std::endl;
 
 // storing all the ids of vertices reasonably close to the primary one.
 // here the region of interest is selected.
@@ -114,17 +112,6 @@ namespace Trk {
                     }//end of accepted vertices check
                 }//end  of loop over all the vertices
 
-//    std::cout<<"Actual number of merged vertices "<<vertex_ids.size()<<std::endl;
-                /*-------------------Some debug output-------------------------------------------------
-                  std::cout<<"Actual number of merged vertices "<<vertex_ids.size()<<std::endl;
-                  for( std::map<int,HepMC::GenVertex *>::const_iterator i = vertex_ids.begin();
-                  i != vertex_ids.end(); ++i)
-                  {
-                  HepMC::GenVertex * cev =(*i).second;
-                  std::cout<<"Selected GenVertex has event index: "<<cev->parent_event()->event_number() <<std::endl;
-                  }//end of debug loop over all the vertices
-                  //------------------ End of debug output ------------------------------------------------
-                  */
 
 //getting the track truth collection
                 const TrackParticleTruthCollection * trackParticleTruthCollection ( 0 );
@@ -147,8 +134,7 @@ namespace Trk {
                 std::vector<double> out_weights ( 0 );
                 std::vector<double> pu_weights ( 0 );
                 std::vector<double> no_correspondance ( 0 );
-	
-//        std::cout<< "Getting to the main loop"<<std::endl;
+
 
                 for ( ;vt!=ve;++vt ) {
 //original element link
@@ -163,7 +149,6 @@ namespace Trk {
                             if ( tr_part !=0  && tr_part->isValid()) {
 //                 ++total_size;
                 
-//		std::cout<< "Link non zero"<<std::endl;
 
                                 std::map< Rec::TrackParticleTruthKey, TrackParticleTruth>::const_iterator ttItr = trackParticleTruthCollection->end();
                   
@@ -178,29 +163,21 @@ namespace Trk {
                                     }
                                 }
                 
-//		std::cout<< "Find done"<<std::endl;
-			
+
                                 if (ttItr != trackParticleTruthCollection->end() ) {
-//		std::cout<< "Found correspondance"<<std::endl;
                                     const HepMcParticleLink& particleLink = ttItr->second.particleLink();
                                     const HepMC::GenParticle* genParticle = particleLink.cptr();
-//		 std::cout<<"GenParticle pointer: "<<  genParticle<<std::endl;
-		 
+
                                     if(genParticle !=0) {
                                         HepMC::GenEvent * tpEvent = genParticle->parent_event();
-		 
-//		  std::cout<<"Parent event "<<  tpEvent<<std::endl;
-		 
                                         if(tpEvent==genEvent) { 
                                             const HepMC::GenVertex * pVertex(0);
                                             if (genParticle!=0) pVertex = genParticle->production_vertex();
-		
                                             if ( pVertex != 0 ) {
                                                 int link_pid = genParticle->pdg_id();
                                                 bool primary_track = false;
                                                 bool secondary_track = false;
                   
-//		    std::cout<< "Decision loop starts"<<std::endl;
 //loop over the particles until decision is really taken
                                                 do {
                                                     int tvrt_code = pVertex->barcode();

@@ -1,14 +1,32 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GENERATOR_PYTHIA8_USER_HOOKS_FACTORY_H
 #define GENERATOR_PYTHIA8_USER_HOOKS_FACTORY_H
 
+#include "Pythia8/Pythia.h"
 #include "Pythia8/UserHooks.h"
 
 #include <string>
 #include <map>
+
+#define PYTHIA8_PTRWRAP(A) A
+#define PYTHIA8_INITUSERHOOK_WRAP(A) A->initPtr(infoPtr, settingsPtr, particleDataPtr, rndmPtr, beamAPtr, beamBPtr, beamPomAPtr, beamPomBPtr, coupSMPtr, partonSystemsPtr, sigmaTotPtr)
+#ifdef PYTHIA_VERSION_INTEGER
+  #if PYTHIA_VERSION_INTEGER > 8299
+    #define PYTHIA8_3SERIES
+    typedef std::shared_ptr<Pythia8::UserHooks> UserHooksPtrType;
+    #undef PYTHIA8_PTRWRAP
+    #define PYTHIA8_PTRWRAP(A) std::shared_ptr<Pythia8::UserHooks>(A)
+    #undef PYTHIA8_INITUSERHOOK_WRAP
+    #define PYTHIA8_INITUSERHOOK_WRAP(A) registerSubObject(*A)
+  #else
+    typedef Pythia8::UserHooks* UserHooksPtrType;
+  #endif
+#else
+  typedef Pythia8::UserHooks* UserHooksPtrType;
+#endif
 
 namespace Pythia8_UserHooks{
  
@@ -19,7 +37,7 @@ namespace Pythia8_UserHooks{
     
   public:
     
-    static UserHooks* create(const std::string &hookName);
+    static UserHooks *create(const std::string &hookName);
     
   private:
     

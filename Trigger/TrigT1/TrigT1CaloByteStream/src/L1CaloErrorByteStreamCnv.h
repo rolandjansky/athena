@@ -7,9 +7,8 @@
 
 #include <string>
 
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Converter.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class DataObject;
@@ -29,32 +28,25 @@ class L1CaloErrorByteStreamTool;
  *  @author Peter Faulkner
  */
 
-class L1CaloErrorByteStreamCnv: public Converter {
+class L1CaloErrorByteStreamCnv: public AthConstConverter {
 
 public:
   L1CaloErrorByteStreamCnv(ISvcLocator* svcloc);
 
-  ~L1CaloErrorByteStreamCnv();
+  virtual ~L1CaloErrorByteStreamCnv();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Create error vector from ByteStream
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+  virtual StatusCode createObjConst (IOpaqueAddress* pAddr, DataObject*& pObj) const override;
 
   //  Storage type and class ID
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override { return i_repSvcType(); }
   static  long storageType();
   static const CLID& classID();
 
 private:
-
-  /// Converter name
-  std::string m_name;
-
   /// Tool that does the actual work
   ToolHandle<LVL1BS::L1CaloErrorByteStreamTool> m_tool;
-
-  /// Message log
-  bool m_debug;
 };
 
 } // end namespace

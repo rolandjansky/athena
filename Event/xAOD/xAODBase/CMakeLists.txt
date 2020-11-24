@@ -18,8 +18,7 @@ atlas_add_library( xAODBase
    xAODBase/*.h Root/*.cxx
    PUBLIC_HEADERS xAODBase
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers ${extra_libs}
-   PRIVATE_LINK_LIBRARIES AthLinks )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks ${extra_libs} )
 
 atlas_add_xaod_smart_pointer_dicts(
    INPUT xAODBase/selection.xml
@@ -36,7 +35,7 @@ atlas_add_dictionary( xAODBaseObjectTypeDict
    xAODBase/selection-ObjectType.xml )
 
 # Install files from the package.
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Test(s) in the package.
 atlas_add_test( ut_xAODObjectType_test

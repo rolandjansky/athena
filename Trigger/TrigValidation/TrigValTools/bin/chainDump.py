@@ -9,6 +9,7 @@ import sys
 import argparse
 import logging
 import json
+import yaml
 import ROOT
 from collections import OrderedDict
 
@@ -43,6 +44,12 @@ def get_parser():
                         nargs='?',
                         const='chainDump.json',
                         help='Save outputs also to a json file with the given name or %(const)s if no name is given')
+    parser.add_argument('--yaml',
+                        metavar='PATH',
+                        nargs='?',
+                        const='chainDump.yml',
+                        help='Produce a small yaml file including condensed counts information for test file only '
+                             '(no ref) with the given name or %(const)s if no name is given')
     parser.add_argument('--fracTolerance',
                         metavar='FRAC',
                         type=float,
@@ -60,6 +67,7 @@ def get_parser():
                         nargs='+',
                         default=[
                             'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance',
+                            'HLTFramework/../HLTFramework/TrigSignatureMoniMT/SignatureAcceptance',
                             'TrigSteer_HLT/ChainAcceptance',
                             'TrigSteer_HLT/NumberOfActiveTEs',
                             'HLTFramework/TrigSignatureMoniMT/DecisionCount',
@@ -80,6 +88,7 @@ def get_parser():
                         nargs='+',
                         default=[
                             'HLTFramework/TrigSignatureMoniMT/SignatureAcceptance:HLTChain',
+                            'HLTFramework/../HLTFramework/TrigSignatureMoniMT/SignatureAcceptance:HLTStep',
                             'TrigSteer_HLT/ChainAcceptance:HLTChain',
                             'TrigSteer_HLT/NumberOfActiveTEs:HLTTE',
                             'HLTFramework/TrigSignatureMoniMT/DecisionCount:HLTDecision',
@@ -313,6 +322,44 @@ def write_txt_output(json_dict, diff_only=False):
                     outfile.write(line+'\n')
 
 
+def make_light_dict(full_dict):
+    light_dict = dict()
+    for chain in full_dict['HLTChain']['counts'].items():
+        chain_name = chain[0]
+
+        # Leave only chain counts and skip total / groups / streams
+        skip = [True for s in ['All', 'grp_', 'str_'] if chain_name.startswith(s)]
+        if skip:
+            continue
+
+        light_dict[chain_name] = dict()
+        chain_tot_count = chain[1]['count']
+        light_dict[chain_name]['eventCount'] = chain_tot_count
+
+        def extract_steps(in_name, out_name):
+            step_counts = [o for o in full_dict[in_name]['counts'].items() if o[0].startswith(chain_name)]
+            step_dict = dict()
+            for step in step_counts:
+                step_count = step[1]['count']
+                if step_count == 0:
+                    continue
+                step_name = step[0]
+                step_number = int(step_name[step_name.find("_Step")+5:])
+                step_dict[step_number] = step_count
+            if len(step_dict) == 0:
+                return
+            if out_name not in light_dict[chain_name]:
+                light_dict[chain_name][out_name] = dict()
+            # Change step numbers to enumeration
+            for step_index, step_info in enumerate(sorted(step_dict.items())):
+                light_dict[chain_name][out_name][step_index] = step_info[1]
+
+        extract_steps('HLTStep', 'stepCounts')
+        extract_steps('HLTDecision', 'stepFeatures')
+
+    return light_dict
+
+
 def main():
     args = get_parser().parse_args()
     logging.basicConfig(stream=sys.stdout,
@@ -393,11 +440,11 @@ def main():
                 'results would be overwritten. Use --countHists and ',
                 '--histDict options to avoid duplicates. Exiting.')
 
-        counts = get_2D_counts(hist) if text_name == 'HLTDecision' else get_counts(hist)
+        counts = get_2D_counts(hist) if text_name in ['HLTStep', 'HLTDecision'] else get_counts(hist)
         ref_counts = {}
         if ref_hists:
             ref_hist = ref_hists[hist_name]
-            ref_counts = get_2D_counts(ref_hist) if text_name == 'HLTDecision' else get_counts(ref_hist)
+            ref_counts = get_2D_counts(ref_hist) if text_name in ['HLTStep', 'HLTDecision'] else get_counts(ref_hist)
         d = make_counts_json_dict(counts, ref_counts)
 
         json_dict[text_name] = OrderedDict()
@@ -424,6 +471,12 @@ def main():
         logging.info('Writing results to %s', args.json)
         with open(args.json, 'w') as outfile:
             json.dump(json_dict, outfile, sort_keys=True)
+
+    if args.yaml:
+        logging.info('Writing results extract to %s', args.yaml)
+        light_dict = make_light_dict(json_dict)
+        with open(args.yaml, 'w') as outfile:
+            yaml.dump(light_dict, outfile, sort_keys=True)
 
     return retcode
 

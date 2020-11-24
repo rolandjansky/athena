@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/CombinedMassUncertaintyComponent.h"
@@ -27,6 +27,7 @@ CombinedMassUncertaintyComponent::CombinedMassUncertaintyComponent(const std::st
     , m_TAMassWeight(NULL)
     , m_caloMassScale_weights("")
     , m_TAMassScale_weights("")
+    , m_weightParam(CompParametrization::UNKNOWN)
 {
     JESUNC_NO_DEFAULT_CONSTRUCTOR;
 }
@@ -41,6 +42,7 @@ CombinedMassUncertaintyComponent::CombinedMassUncertaintyComponent(const Compone
     , m_TAMassWeight(NULL)
     , m_caloMassScale_weights("")
     , m_TAMassScale_weights("")
+    , m_weightParam(CompParametrization::UNKNOWN)
 {
     ATH_MSG_DEBUG("Created CombinedMassUncertaintyComponent named " << getName().Data());
 }
@@ -55,6 +57,7 @@ CombinedMassUncertaintyComponent::CombinedMassUncertaintyComponent(const Combine
     , m_TAMassWeight(toCopy.m_TAMassWeight)
     , m_caloMassScale_weights(toCopy.m_caloMassScale_weights)
     , m_TAMassScale_weights(toCopy.m_TAMassScale_weights)
+    , m_weightParam(toCopy.m_weightParam)
 {
     ATH_MSG_DEBUG("Creating copy of CombinedMassUncertaintyComponent named " << getName().Data());
     if (toCopy.m_caloMassComp)
@@ -176,6 +179,18 @@ StatusCode CombinedMassUncertaintyComponent::setCombWeightMassDefs(const CompMas
     }
 
     m_setWeightMassDefs = true;
+    return StatusCode::SUCCESS;
+}
+
+StatusCode CombinedMassUncertaintyComponent::setCombWeightParam(const CompParametrization::TypeEnum param)
+{
+    if (m_isInit)
+    {
+        ATH_MSG_ERROR("Can only set the weight parametrization before initialization: " << getName().Data());
+        return StatusCode::FAILURE;
+    }
+    m_weightParam = param;
+
     return StatusCode::SUCCESS;
 }
 
@@ -320,8 +335,6 @@ StatusCode CombinedMassUncertaintyComponent::calculateCombinedMass(const xAOD::J
     else
         combMass = (caloMassScale.m(jet)*shiftFactorCalo*caloWeight) + (TAMassScale.m(jet)*shiftFactorTA*TAWeight);
 
-    //if (fabs(jet.pt()*m_energyScale-700)<1 && fabs(jet.m()*m_energyScale-70)<1) ATH_MSG_INFO(Form("CombMass: %f*%f*%f + %f*%f*%f = %f",caloMassScale(jet).M()*m_energyScale,shiftFactorCalo,caloWeight,TAMassScale(jet).M()*m_energyScale,shiftFactorTA,TAWeight,combMass*m_energyScale));
-
     return StatusCode::SUCCESS;
 }
 
@@ -361,8 +374,6 @@ double CombinedMassUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet
     const double massUncUp   = fabs((massUp-massDefault)/massDefault);
     const double massUncDown = fabs((massDown-massDefault)/massDefault);
 
-    //if (fabs(jet.pt()*m_energyScale-700)<1 && fabs(jet.m()*m_energyScale-70)<1) ATH_MSG_INFO(Form("Combined mass: pT = %.0f, m = %.1f, mComb = %.1f, mCaloUnc = %.1f%%, mTAUnc = %.1f%%, m+1s = %.1f (%.1f%%), m-1s = %.1f (%.1f%%)",jet.pt()*m_energyScale,jet.m()*m_energyScale,massDefault*m_energyScale,100*uncCalo,100*uncTA,massUp*m_energyScale,100*massUncUp,massDown*m_energyScale,100*massUncDown));
-
     return (massUncUp+massUncDown)/2.;
 }
 
@@ -398,20 +409,66 @@ bool CombinedMassUncertaintyComponent::getValidUncertaintyTA(double& unc, const 
     return !m_TAMassComp ? true : m_TAMassComp->getValidUncertainty(unc,jet,eInfo,CompScaleVar::Mass);
 }
 
-double CombinedMassUncertaintyComponent::getWeightFactorCalo(const xAOD::Jet& jet, const double shiftFactor) const
+double CombinedMassUncertaintyComponent::readHistoFromParam(const xAOD::JetFourMom_t& jet4vec, const UncertaintyHistogram& histo, const CompParametrization::TypeEnum param, const double massShiftFactor) const
 {
-    const double resolution = !m_caloMassWeight ? 0 : m_caloMassWeight->getValue(m_caloMassScale_weights(jet).Pt()*m_energyScale,
-                                                                                 (m_caloMassScale_weights(jet).M()*shiftFactor)/m_caloMassScale_weights(jet).Pt()
-                                                                                );
+    double resolution = 0;
+    switch (param)
+    {
+        case CompParametrization::Pt:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale);
+            break;
+        case CompParametrization::PtEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.Eta());
+            break;
+        case CompParametrization::PtAbsMass:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale*massShiftFactor);
+            break;
+        case CompParametrization::PtAbsEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::PtMass:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*massShiftFactor/jet4vec.Pt());
+            break;
+        case CompParametrization::PtMassEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*massShiftFactor/jet4vec.Pt(),jet4vec.Eta());
+            break;
+        case CompParametrization::PtMassAbsEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*massShiftFactor/jet4vec.Pt(),fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::PtAbsMassEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale*massShiftFactor,jet4vec.Eta());
+            break;
+        case CompParametrization::PtAbsMassAbsEta:
+            resolution = histo.getValue(jet4vec.Pt()*m_energyScale,jet4vec.M()*m_energyScale*massShiftFactor,fabs(jet4vec.Eta()));
+            break;
+        case CompParametrization::eLOGmOe:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()*massShiftFactor/jet4vec.E()));
+            break;
+        case CompParametrization::eLOGmOeEta:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()*massShiftFactor/jet4vec.E()),jet4vec.Eta());
+            break;
+        case CompParametrization::eLOGmOeAbsEta:
+            resolution = histo.getValue(jet4vec.E()*m_energyScale,log(jet4vec.M()*massShiftFactor/jet4vec.E()),fabs(jet4vec.Eta()));
+            break;
+        default:
+            ATH_MSG_ERROR("Failed to read histogram due to unknown parametrization type in " << getName());
+            break;
+    }
     return resolution == 0 ? 0 : 1./(resolution*resolution);
 }
 
-double CombinedMassUncertaintyComponent::getWeightFactorTA(const xAOD::Jet& jet, const double shiftFactor) const
+double CombinedMassUncertaintyComponent::getWeightFactorCalo(const xAOD::Jet& jet, const double massShiftFactor) const
 {
-    const double resolution = !m_TAMassWeight ? 0 : m_TAMassWeight->getValue(m_TAMassScale_weights(jet).Pt()*m_energyScale,
-                                                                             (m_TAMassScale_weights(jet).M()*shiftFactor)/m_TAMassScale_weights(jet).Pt()
-                                                                            );
-    return resolution == 0 ? 0 : 1./(resolution*resolution);
+    if(m_caloMassScale_weights(jet).M() < 0.0) return 0;
+    if(!m_caloMassWeight) return 0;
+    return readHistoFromParam(m_caloMassScale_weights(jet),*m_caloMassWeight,m_weightParam,massShiftFactor);
+}
+
+double CombinedMassUncertaintyComponent::getWeightFactorTA(const xAOD::Jet& jet, const double massShiftFactor) const
+{
+    if(m_TAMassScale_weights(jet).M() < 0.0) return 0;
+    if(!m_TAMassWeight) return 0;
+    return readHistoFromParam(m_TAMassScale_weights(jet),*m_TAMassWeight,m_weightParam,massShiftFactor);
 }
 
 

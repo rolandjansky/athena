@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_TAUCONSTITUENTGETTER
@@ -21,10 +21,6 @@
 //! xAOD EDM
 #include "xAODTau/TauJet.h"
 
-//namespace Analysis {
-//    class TauJet;
-//}
-
 namespace PanTau {
     class TauConstituent2;
 }
@@ -45,10 +41,8 @@ class Tool_TauConstituentGetter : public asg::AsgTool, virtual public PanTau::IT
         virtual ~Tool_TauConstituentGetter ();
         
         virtual StatusCode initialize();
-//         virtual StatusCode finalize();
         
-        virtual StatusCode GetTauConstituents(//const Analysis::TauJet*,
-                                              const xAOD::TauJet* tauJet,
+        virtual StatusCode GetTauConstituents(const xAOD::TauJet* tauJet,
                                               std::vector<TauConstituent2*>& outputList,
                                               std::string algName) const;
         

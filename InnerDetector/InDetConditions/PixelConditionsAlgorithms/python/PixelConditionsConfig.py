@@ -9,7 +9,6 @@ from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelConfigCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/PixMapOverlay", "PIXEL_OFL", className="CondAttrListCollection"))
     acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixMapOverlay",
                                         "/PIXEL/PixMapOverlay", "CondAttrListCollection"))
     runNum = flags.Input.RunNumber[0]
@@ -47,7 +46,9 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         # Digitization parameters
         CondArgs.update(
             BunchSpace=25.0,
-            FEI4BarrelHitDiscConfig=[2]
+            FEI4BarrelHitDiscConfig=[2],
+            ChargeScaleFEI4=1.0,
+            UseFEI4SpecialScalingFunction=False
         )
         #====================================================================================
         # Run-dependent SIMULATION(digitization) parameters:
@@ -180,6 +181,8 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         DefaultCalibrationParameterA=70.2,
         DefaultCalibrationParameterE=-3561.25,
         DefaultCalibrationParameterC=26000.0
+#        IBLChargeScale=1.0,
+#        IBLSpecificCorrection=False
     )
     # DCS parameters
     CondArgs.update(
@@ -187,7 +190,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         DefaultTemperature=-7.0
     )
     # Cabling parameters
-    useCablingConditions = False
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC or flags.Overlay.DataOverlay:
         # ITk:
@@ -216,10 +218,8 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         
     elif not flags.Input.isMC:
         if runNum < 222222:
-            useCablingConditions = False
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
         else:
-            useCablingConditions = True
             # Even though we are reading from COOL, set the correct fallback map.
             if (runNum >= 344494):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -233,7 +233,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
     CondArgs.update(
-        UseCablingConditions=useCablingConditions,
         CablingMapToFile=False,
         CablingMapFileName=IdMappingDat
     )
@@ -280,62 +279,13 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
     if not flags.Input.isMC and not flags.Overlay.DataOverlay:
         acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
         kwargs.setdefault("ReadKey", "/PIXEL/CablingMap")
+        if flags.Input.RunNumber[0]<222222:
+            kwargs.setdefault("ReadKey", "")
     else:
         kwargs.setdefault("ReadKey", "")
-
-    # Cabling parameters
-    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-    rodIDForSingleLink40=0
-    if flags.Input.isMC or flags.Overlay.DataOverlay:
-        # ITk:
-        if flags.GeoModel.Run == "RUN4":
-            IdMappingDat = "ITk_Atlas_IdMapping.dat"
-            if flags.GeoModel.Type == "BrlIncl4.0_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-            elif flags.GeoModel.Type == "IBrlExt4.0ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-            elif flags.GeoModel.Type == "BrlExt4.0_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-            elif flags.GeoModel.Type == "BrlExt3.2_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif flags.GeoModel.Run == "RUN2" or flags.GeoModel.Run == "RUN3":
-            # Planar IBL
-            if flags.GeoModel.IBLLayout == "planar":
-                if flags.GeoModel.Run == "RUN2":
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
-                else:
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
-            # Hybrid IBL plus DBM
-            elif flags.GeoModel.IBLLayout == "3D":
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
-        else:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
-        
-    elif not flags.Input.isMC:
-        runNum = flags.Input.RunNumber[0]
-        if runNum < 222222:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-            rodIDForSingleLink40=1300000
-        else:
-            rodIDForSingleLink40=1300000
-            # Even though we are reading from COOL, set the correct fallback map.
-            if (runNum >= 344494):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
-            elif (runNum >= 314940 and runNum < 344494):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_314940.dat"
-            elif (runNum >= 289350 and runNum < 314940): # 2016
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-            elif (runNum >= 222222 and runNum < 289350): # 2015
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
-            else:
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-
-    kwargs.setdefault("RodIDForSingleLink40", rodIDForSingleLink40)
-    kwargs.setdefault("MappingFile", IdMappingDat)
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("PixelReadoutSpeedData", "PixelReadoutSpeedData")
     kwargs.setdefault("WriteKey", "PixelCablingCondData")
-    kwargs.setdefault("RecordInInitialize", not flags.Detector.OverlayPixel)
     acc.addCondAlgo(CompFactory.PixelCablingCondAlg(name, **kwargs))
     return acc
 
@@ -343,7 +293,7 @@ def PixelChargeCalibCondAlgCfg(flags, name="PixelChargeCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelChargeCalibCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/PixCalib")
@@ -355,7 +305,7 @@ def PixelChargeLUTCalibCondAlgCfg(flags, name="PixelChargeLUTCalibCondAlg", **kw
     """Return a ComponentAccumulator with configured PixelChargeLUTCalibCondAlg"""
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
-    acc.merge(addFolders(flags, "/PIXEL/PixCalib", "PIXEL_OFL", className="CondAttrListCollection"))
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixCalib", "/PIXEL/PixCalib", className="CondAttrListCollection"))
     kwargs.setdefault("PixelDetEleCollKey", "PixelDetectorElementCollection")
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("ReadKey", "/PIXEL/ChargeCalibration")
@@ -368,9 +318,12 @@ def PixelDCSCondHVAlgCfg(flags, name="PixelDCSCondHVAlg", **kwargs):
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
     if flags.Common.isOnline:
-        acc.merge(addFolders(flags, "/PIXEL/HLT/DCS/HV", "PIXEL_ONL", className="CondAttrListCollection"))
+        kwargs.update( ReadKey="/PIXEL/HLT/DCS/HV")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
     else:
-        acc.merge(addFolders(flags, "/PIXEL/DCS/HV", "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.update( ReadKey="/PIXEL/DCS/HV")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "DCS_OFL", className="CondAttrListCollection"))
+
     kwargs.setdefault("WriteKey", "PixelDCSHVCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondHVAlg(name, **kwargs))
     return acc
@@ -404,11 +357,12 @@ def PixelDCSCondTempAlgCfg(flags, name="PixelDCSCondTempAlg", **kwargs):
     acc = ComponentAccumulator()
     acc.merge(PixelConfigCondAlgCfg(flags))
     if flags.Common.isOnline:
-        acc.merge(addFolders(flags, "/PIXEL/HLT/DCS/TEMPERATURE", "PIXEL_ONL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKey", "/PIXEL/HLT/DCS/TEMPERATURE")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "PIXEL_ONL", className="CondAttrListCollection"))
     else:
-        acc.merge(addFolders(flags, "/PIXEL/DCS/TEMPERATURE", "DCS_OFL", className="CondAttrListCollection"))
+        kwargs.setdefault("ReadKey", "/PIXEL/DCS/TEMPERATURE")
+        acc.merge(addFolders(flags, kwargs["ReadKey"], "DCS_OFL", className="CondAttrListCollection"))
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
-    kwargs.setdefault("ReadKey", "/PIXEL/DCS/TEMPERATURE")
     kwargs.setdefault("WriteKey", "PixelDCSTempCondData")
     acc.addCondAlgo(CompFactory.PixelDCSCondTempAlg(name, **kwargs))
     return acc
@@ -463,8 +417,8 @@ def PixelHitDiscCnfgAlgCfg(flags, name="PixelHitDiscCnfgAlg", **kwargs):
 def PixelOfflineCalibCondAlgCfg(flags, name="PixelOfflineCalibCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelOfflineCalibCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFolders(flags, "/PIXEL/PixReco", "PIXEL_OFL", className="DetCondCFloat"))
-    kwargs.setdefault("InputSource",2)
+    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixReco", "/PIXEL/PixReco", className="DetCondCFloat"))
+    kwargs.setdefault("InputSource", 1 if flags.Common.isOnline else 2)
     kwargs.setdefault("PixelClusterErrorDataFile", "PixelClusterErrorData.txt")
     kwargs.setdefault("PixelClusterOnTrackErrorDataFile", "PixelClusterOnTrackErrorData.txt")
     kwargs.setdefault("PixelChargeInterpolationDataFile", "PixelChargeInterpolationData.txt")

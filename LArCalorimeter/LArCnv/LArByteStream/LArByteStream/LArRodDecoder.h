@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -149,33 +149,46 @@ public:
   inline void setsecfeb (HWIdentifier feb) {m_febIdHLT = feb.get_identifier32().get_compact();};
 
   // fast decoding for trigger
-  inline void fillCollectionHLT (const uint32_t* p, uint32_t n, LArCellCollection& coll);
+  inline uint32_t fillCollectionHLT (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                     const uint32_t* p, uint32_t n, LArCellCollection& coll);
 
-  void fillCollection(const uint32_t* p, uint32_t n, LArRawChannelContainer& coll, const CaloGain::CaloGain gain); 
+  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                      const uint32_t* p, uint32_t n, LArRawChannelContainer& coll, const CaloGain::CaloGain gain) const; 
 
   //Specialized method to convert ROD Data words into LArDigit
-  void fillCollection(const uint32_t* p, uint32_t n, LArDigitContainer& coll, const CaloGain::CaloGain gain);
+  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                      const uint32_t* p, uint32_t n, LArDigitContainer& coll, const CaloGain::CaloGain gain) const;
 
   //Specialized method to convert ROD Accumulated Calib Digit words into LArAccumulatedCalibDigit
-  void fillCollection(const uint32_t* p, uint32_t n, LArAccumulatedCalibDigitContainer& coll, const CaloGain::CaloGain gain);
+  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                      const uint32_t* p,
+                      uint32_t n,
+                      LArAccumulatedCalibDigitContainer& coll,
+                      const CaloGain::CaloGain gain);
 
   //Specialized method to convert ROD Accumulated Digit words into LArAccumulatedDigit
-  void fillCollection(const uint32_t* p, uint32_t n, LArAccumulatedDigitContainer& coll, const CaloGain::CaloGain gain);
+  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                      const uint32_t* p, uint32_t n, LArAccumulatedDigitContainer& coll, const CaloGain::CaloGain gain) const;
 
   //Specialized method to convert ROD Data words into LArCalibDigit
-  void fillCollection(const uint32_t* p, uint32_t n, LArCalibDigitContainer& coll, const CaloGain::CaloGain gain);
+  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                      const uint32_t* p,
+                      uint32_t n,
+                      LArCalibDigitContainer& coll,
+                      const CaloGain::CaloGain gain);
 
   //Specialized method to convert ROD Data words to read the headers of the Feb
-  void fillCollection(const uint32_t* p, uint32_t n, LArFebHeaderContainer& coll, const CaloGain::CaloGain);
+  void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                      const uint32_t* p, uint32_t n, LArFebHeaderContainer& coll, const CaloGain::CaloGain) const;
 
   //fast convert ROD Data words to read the headers of the Feb
-  inline void fillCollectionHLTFeb(const uint32_t* p, uint32_t n, LArFebEnergyCollection& coll);
+  inline uint32_t fillCollectionHLTFeb(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                       const uint32_t* p, uint32_t n, LArFebEnergyCollection& coll);
                                                       
   //fast convert ROD Data words to read the headers of the Feb coming from ROS
-  inline void fillCollectionHLTROSFeb(const uint32_t* p, uint32_t n, LArFebEnergyCollection& coll);
+  inline uint32_t fillCollectionHLTROSFeb(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                          const uint32_t* p, uint32_t n, LArFebEnergyCollection& coll);
                                                       
-  inline void setRobFrag(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob);
-  
   //Send an error reported by the eformat package to a MsgStream.
   //inline void report_error (const ers::Issue& error, MsgStream& log);
   //Inputs: error: The eformat exception
@@ -183,22 +196,22 @@ public:
 
   //Check an eformat fragment for validity. Report an error if it's not valid.
   template <class T>
-  inline bool check_valid (const T* frag, MsgStream& log);
+  inline bool check_valid (const T* frag, MsgStream& log) const;
   //Inputs: frag: The fragment to check
   //        log:  The Gaudi MsgStream.
-  inline uint32_t report_error( void ) { return m_error; }
 	
     
     
 private:
-  LArRodBlockStructure* prepareBlockStructure(const uint32_t* p, uint32_t n, const CaloGain::CaloGain RequestedGain);
+  LArRodBlockStructure* prepareBlockStructure(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                              const uint32_t* p, uint32_t n, const CaloGain::CaloGain RequestedGain) const;
   inline void setCellEnergy(
    LArCell* element, int energy, int time,
    int quality, CaloGain::CaloGain gain) const ;
   LArRodBlockStructure* m_larblockstruct;
 
   inline void writeFebInfo(
-     LArCellCollection& m_coll, LArFebEnergy& febene);
+     LArCellCollection& m_coll, LArFebEnergy& febene) const;
 
   //  inline void writeFebInfo(LArRawChannelContainer& m_coll, LArFebEnergy& febene);
 
@@ -228,7 +241,7 @@ private:
   MakeLArCellFromRaw m_makeCell;  
   std::vector<std::string> m_LArCellCorrNames;
   std::vector<unsigned int> m_IgnoreCheckFEBs;
-  std::vector<CaloCellCorrection*> m_LArCellCorrTools;
+  std::vector<const CaloCellCorrection*> m_LArCellCorrTools;
   
   bool m_doBadChanMasking;
   ILArBadChannelMasker* m_badChannelMasker;
@@ -249,21 +262,14 @@ private:
   LArRodBlockStructure* m_rodPhysicsV5;
   LArRodBlockStructure* m_rodPhysicsV6;
 
-  const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* m_robFrag ;
-  //uint32_t m_rodVersion;
-  //uint16_t m_rodMinorVersion;
-  //uint8_t m_rodBlockType;
-  
-
   bool m_MultiDSPMode;
   bool m_CheckSum;
-  uint32_t m_error;
   unsigned short m_requiredPhysicsNSamples;
 
 } ; 
 
 template <class T>
-inline bool LArRodDecoder::check_valid (const T* frag, MsgStream& /*log*/)
+inline bool LArRodDecoder::check_valid (const T* frag, MsgStream& /*log*/) const
 { 
 
 
@@ -295,20 +301,17 @@ inline void LArRodDecoder::report_error (const ers::Issue& error, MsgStream& log
 }
 */
 
-inline void LArRodDecoder::setRobFrag(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* rob)
-{m_robFrag=rob;
-}
-
 // fillCollection for HLT without automatic BS Cnv
 
-void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
-	, LArCellCollection& coll)
+uint32_t LArRodDecoder::fillCollectionHLT(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                          const uint32_t* p, uint32_t n,
+                                          LArCellCollection& coll)
 {
   LArCell *collElem=0; //Pointer to a new element to be added to the collection
-  m_error = 0;
+  uint32_t error = 0;
 
 #ifndef NDEBUG
-  ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragement of size " << n);
+  ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragment of size " << n);
 #endif
 /*  if (n<2) //Avoid segmentation fault
     {(*m_log) << MSG::WARNING << "Got empty Rod Fragment!" << endmsg;
@@ -319,15 +322,15 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
   if (blocksize>n) {
     msg(MSG::ERROR) << "Got truncated ROD Fragment!" << endmsg;
     // First Bit is truncated (see also below)
-    m_error|= 0x1;
-    return;
+    error|= 0x1;
+    return error;
   }
 
   if ( m_larblockstruct == (LArRodBlockStructure*)NULL ||  m_MultiDSPMode ){
   // If you don't know the format, find it out!
-  eformat::helper::Version ver(m_robFrag->rod_version());
+  eformat::helper::Version ver(robFrag.rod_version());
   const uint16_t& rodMinorVersion= ver.minor_version();
-  const uint32_t& rodBlockType=m_robFrag->rod_detev_type()&0xff;
+  const uint32_t& rodBlockType=robFrag.rod_detev_type()&0xff;
 #ifndef NDEBUG
   ATH_MSG_VERBOSE("RodBlockType=" << (int)rodBlockType << " Version: "<< rodMinorVersion);
 #endif
@@ -336,14 +339,14 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
     {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endmsg;
      // Second Bit is block empty or unknown
-     m_error|= 0x2;
-     return;
+     error|= 0x2;
+     return error;
     }
   if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
     {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endmsg;
      // Second Bit is block empty or unknown
-     m_error|= 0x2;
-    return;
+     error|= 0x2;
+     return error;
     }
 #ifndef NDEBUG
   else
@@ -379,7 +382,7 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
 	ATH_MSG_DEBUG("Bad FebID=0x"<< std::hex << BlStruct->getFEBID() << std::dec << " found for this FEB, skipping it!");
 #endif
      // Third Bit is FEB ID issue (disabled - use 0x20 instead)
-     //m_error|= 0x4;
+     //error|= 0x4;
        continue;
     }
   // RL 05.11.2007 checksum
@@ -391,7 +394,7 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
       msg(MSG::WARNING) << " online checksum  = 0x" << MSG::hex << onsum  << endmsg;
       msg(MSG::WARNING) << " offline checksum = 0x" << MSG::hex << offsum << MSG::dec << endmsg;
      // Fourth Bit CheckSum issue (maybe disabled!)
-     m_error|= 0x8;
+     error|= 0x8;
       continue;
     }
   }
@@ -424,37 +427,38 @@ void LArRodDecoder::fillCollectionHLT(const uint32_t* p, uint32_t n
   }
   while (BlStruct->nextFEB()); //Get NextFeb
   // Error meaning data corruption. Maybe in any FEB
-  if ( BlStruct->report_error() ) m_error |= 0x1;
+  if ( BlStruct->report_error() ) error |= 0x1;
   // error of uncompatible number of cells is bit 5
   unsigned int collection_size = coll.size();
-  if ( feb_number== 0 && collection_size>0 ) m_error |= 0x20;
-  if ( feb_number== 1 && collection_size !=128 ) m_error |= 0x20;
-  if ( feb_number== 2 && collection_size !=256 ) m_error |= 0x20;
-  return;
+  if ( feb_number== 0 && collection_size>0 ) error |= 0x20;
+  if ( feb_number== 1 && collection_size !=128 ) error |= 0x20;
+  if ( feb_number== 2 && collection_size !=256 ) error |= 0x20;
+  return error;
 }
 
 
-void LArRodDecoder::fillCollectionHLTFeb(const uint32_t* p, uint32_t n
-        , LArFebEnergyCollection& coll)
+uint32_t LArRodDecoder::fillCollectionHLTFeb(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                             const uint32_t* p, uint32_t n,
+                                             LArFebEnergyCollection& coll)
 {
 #ifndef NDEBUG
-  ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragement of size " << n);
+  ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragment of size " << n);
 #endif
   if (n<2) //Avoid segmentation fault
     {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
-     return;
+     return 0;
     }
   const uint32_t blocksize=p[0]; //First word contains block size
   if (blocksize>n)
     {msg(MSG::ERROR) << "Got truncated ROD Fragment!" << endmsg;
-     return;
+     return 0;
     }
 
   if ( m_larblockstruct == (LArRodBlockStructure*)NULL){
   // If you don't know the format, find it out!
-  eformat::helper::Version ver(m_robFrag->rod_version());
+  eformat::helper::Version ver(robFrag.rod_version());
   const uint16_t& rodMinorVersion= ver.minor_version();
-  const uint32_t& rodBlockType=m_robFrag->rod_detev_type()&0xff;
+  const uint32_t& rodBlockType=robFrag.rod_detev_type()&0xff;
 #ifndef NDEBUG
   ATH_MSG_VERBOSE("RodBlockType=" << (int)rodBlockType << " Version: "<< rodMinorVersion);
 #endif
@@ -462,11 +466,11 @@ void LArRodDecoder::fillCollectionHLTFeb(const uint32_t* p, uint32_t n
 
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
     {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endmsg;
-     return;
+     return 0;
     }
   if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
     {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endmsg;
-    return;
+    return 0;
     }
 #ifndef NDEBUG
   else
@@ -529,25 +533,25 @@ void LArRodDecoder::fillCollectionHLTFeb(const uint32_t* p, uint32_t n
       coll.push_back(febenergy);
     }
   while (BlStruct->nextFEB()); //Get NextFeb
-  return;
+  return 0;
 }
 
-void LArRodDecoder::fillCollectionHLTROSFeb(const uint32_t* p, uint32_t n
-        , LArFebEnergyCollection& coll)
+uint32_t LArRodDecoder::fillCollectionHLTROSFeb(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag,
+                                                const uint32_t* p, uint32_t n,
+                                                LArFebEnergyCollection& coll)
 {
-  m_error = 0;
 #ifndef NDEBUG
-  ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragement of size " << n);
+  ATH_MSG_VERBOSE("Prepare LArRodBlockStructure. Got a fragment of size " << n);
 #endif
   if (n<2) //Avoid segmentation fault
     {msg(MSG::WARNING) << "Got empty Rod Fragment!" << endmsg;
-     return;
+     return 0;
     }
   if ( m_larblockstruct == (LArRodBlockStructure*)NULL){
   // If you don't know the format, find it out!
-  eformat::helper::Version ver(m_robFrag->rod_version());
+  eformat::helper::Version ver(robFrag.rod_version());
   const uint16_t& rodMinorVersion= ver.minor_version();
-  const uint32_t& rodBlockType=m_robFrag->rod_detev_type()&0xff;
+  const uint32_t& rodBlockType=robFrag.rod_detev_type()&0xff;
 #ifndef NDEBUG
   ATH_MSG_VERBOSE("RodBlockType=" << (int)rodBlockType << " Version: "<< rodMinorVersion);
 #endif
@@ -555,11 +559,11 @@ void LArRodDecoder::fillCollectionHLTROSFeb(const uint32_t* p, uint32_t n
 
   if (rodBlockType>=m_BlStructArray.size() || m_BlStructArray[rodBlockType].size()==0)
     {msg(MSG::ERROR) << "Unknown Rod block type " << (int)rodBlockType << endmsg;
-     return;
+     return 0;
     }
   if (rodMinorVersion>=m_BlStructArray[rodBlockType].size() || m_BlStructArray[rodBlockType][rodMinorVersion]==NULL)
     {msg(MSG::ERROR) << "No version " << rodMinorVersion  << " of Rod Block Type  " << (int)rodBlockType << "known." << endmsg;
-    return;
+    return 0;
     }
 #ifndef NDEBUG
   else
@@ -572,7 +576,7 @@ void LArRodDecoder::fillCollectionHLTROSFeb(const uint32_t* p, uint32_t n
 
   LArFebEnergy* febenergy;
   int nfebs = BlStruct->setFragmentVirtualROB(p,n);
-  if ( !nfebs ) return;
+  if ( !nfebs ) return 0;
   for(int i = 0; i<nfebs; i++) {
       febenergy = new LArFebEnergy( BlStruct->getVROBFebId() );
       febenergy->setFebEx(BlStruct->getVROBEx());
@@ -581,7 +585,7 @@ void LArRodDecoder::fillCollectionHLTROSFeb(const uint32_t* p, uint32_t n
       febenergy->setFebSumE(BlStruct->getVROBSumE());
       coll.push_back(febenergy);
   } // nfebs loop
-  return;
+  return 0;
 }
 
 
@@ -594,7 +598,7 @@ inline void LArRodDecoder:: setCellEnergy(
 }
 
 inline void LArRodDecoder:: writeFebInfo(
-   LArCellCollection& coll, LArFebEnergy& febene)
+   LArCellCollection& coll, LArFebEnergy& febene) const
  {
    coll.addfebenergy(febene);
  }

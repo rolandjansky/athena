@@ -21,7 +21,7 @@ if numThreads > 0:
 
 # use auditors
 from AthenaCommon.AppMgr import ServiceMgr
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
@@ -184,6 +184,9 @@ if useSlim:
     # conddb.addFolderWithTag("SCT_OFL","/SCT/DAQ/Config/Chip","SctDaqConfigChip-MC-14",force=True,forceMC=True,className="CondAttrListVec");
     # conddb.blockFolder("/SCT/DAQ/Config/ChipSlim")
     conddb.addFolderWithTag("SCT_OFL","/SCT/DAQ/Config/ChipSlim","SctDaqConfigChipSlim-MC-14",force=True,forceMC=True,className="CondAttrListVec");
+  elif (test=='run2Data'):
+    sct_ConfigurationConditionsToolSetup.setChannelFolder("/SCT/DAQ/Config/ChipSlim")
+    conddb.addFolder("SCT","/SCT/DAQ/Config/ChipSlim",force=True,forceData=True,className="CondAttrListVec");
 
 sct_ConfigurationConditionsToolSetup.setup()
 

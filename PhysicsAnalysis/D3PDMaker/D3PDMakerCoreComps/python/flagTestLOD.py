@@ -14,7 +14,7 @@ from .D3PDObject                import DeferArg
 
 def _make_fdict (flags):
     fdict = {}
-    if type(flags) != type([]):
+    if not isinstance(flags, list):
         flags = [flags]
     for f in flags:
         for k, v in f.__dict__.items():

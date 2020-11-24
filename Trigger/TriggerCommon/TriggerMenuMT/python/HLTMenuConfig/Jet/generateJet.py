@@ -5,16 +5,17 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 import pprint
 from AthenaCommon.Logging import logging
+from ..CommonSequences.FullScanDefs import caloFSRoI
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 
 def HLTCaloCellMakerCfg( cellsname, cdaSvc ):
     result = ComponentAccumulator()
     verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVFSCaloJet',
-                                                    DataObjects = [('TrigRoiDescriptorCollection', 'StoreGateSvc+HLT_FSJETRoI'),
+                                                    DataObjects = [('TrigRoiDescriptorCollection', f"StoreGateSvc+{caloFSRoI}"),
                                                                   ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage') ])
     result.addEventAlgo( verifier )
     cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
-    cellmaker.RoIs = "HLT_FSJETRoI"
+    cellmaker.RoIs = caloFSRoI
     cellmaker.TrigDataAccessMT = cdaSvc
     cellmaker.CellsName = cellsname
 
@@ -63,14 +64,14 @@ def generateChains( flags, chainDict ):
     jetinputdefdic.setdefault(clustersname , JetInputDef(clustersname, xAODType.CaloCluster) )
     #hardcoded jet collection for now 
     clustermods = ["ECPSFrac","ClusterMoments"]
-    trigMinPt = 7e3
+    trigMinPt = 7000
     HLT_EMTopo = JetConstitSeq( "HLT_EMTopo",xAODType.CaloCluster, ["EM"], clustersname, clustersname,label="EMTopo")
     
-    HLT_AntiKt4EMTopo_subjesIS = JetDefinition( "AntiKt", 0.4, HLT_EMTopo, ptmin=trigMinPt,ptminfilter=trigMinPt,
+    HLT_AntiKt4EMTopo_subjesIS = JetDefinition( "AntiKt", 0.4, HLT_EMTopo, ptmin=trigMinPt,
                                                 prefix="HLT_",
                                                 suffix = "_subjesIS",
                                                )
-    HLT_AntiKt4EMTopo_subjesIS.modifiers = ["Calib:TrigRun2:data:JetArea_EtaJES_GSC_Insitu:HLT_Kt4EMTopoEventShape","Sort"] + clustermods 
+    HLT_AntiKt4EMTopo_subjesIS.modifiers = ["Calib:TrigRun2:data:JetArea_EtaJES_GSC_Insitu:HLT_Kt4EMTopoEventShape","Sort", "Filter:"+str(trigMinPt)] + clustermods 
 
     # May need a switch to disable automatic modifier prerequisite generation
     jetRecoComps = JetRecConfig.JetRecCfg(HLT_AntiKt4EMTopo_subjesIS, flags) 
@@ -85,14 +86,11 @@ def generateChains( flags, chainDict ):
     hypo.Jets = jetsfullname
     acc.addEventAlgo(hypo, sequenceName=stepView.getName() )
 
-    jetSequence = CAMenuSequence( Sequence    = inEventReco.sequence(),
-                                Maker       = inEventReco.inputMaker(),
-                                Hypo        = hypo,
-                                HypoToolGen = trigJetHypoToolFromDict,
-                                CA = acc)
+    jetSequence = CAMenuSequence(acc,
+                                 HypoToolGen = trigJetHypoToolFromDict)
 
     jetStep = ChainStep(name=stepName, Sequences=[jetSequence], chainDicts=[chainDict])
-
+    
     l1Thresholds=[]
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])

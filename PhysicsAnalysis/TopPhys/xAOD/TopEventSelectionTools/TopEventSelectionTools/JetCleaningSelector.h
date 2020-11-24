@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef JETCLEANINGSELECTOR_H_
 #define JETCLEANINGSELECTOR_H_
@@ -10,6 +10,7 @@
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "JetInterface/IJetSelector.h"
+#include "JetSelectorTools/IEventCleaningTool.h"
 
 namespace top {
   class TopConfig;
@@ -24,8 +25,8 @@ namespace top {
  * passed the event selection are marked as bad.  Probably should check that
  * this is okay after overlap removal.
  */
-class JetCleaningSelector : public EventSelectorBase {
-public:
+  class JetCleaningSelector: public EventSelectorBase {
+  public:
     /**
      * @brief Setup the jet group's cleaning tool.
      *
@@ -50,19 +51,30 @@ public:
      * at.
      */
     std::string name() const override;
+  private:
+    /**
+     * @brief A helper function to check if the event passes BadBatman cleaning
+     * in a specified range (from config) of RunNUmbers
+     *
+     * @return true if event passes
+     */
+    bool checkBadBatman(const top::Event& event) const;
 
-private:
     ///The jet cleaning tools
     ToolHandle<IJetSelector> m_jetCleaningToolLooseBad;
-    ToolHandle<IJetSelector> m_jetCleaningToolTightBad;    
+    ToolHandle<IJetSelector> m_jetCleaningToolTightBad;
+
+    ///The jet event cleaning tools
+    ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolLooseBad;
+    ToolHandle<ECUtils::IEventCleaningTool> m_jetEventCleaningToolTightBad;
 
     ///The level to configure to, so we can print it in the name.
     std::string m_level;
     bool m_useLooseBad;
+    bool m_useEventLevelJetCleaningTool;
 
     std::shared_ptr<top::TopConfig> m_config;
-};
-
+  };
 }
 
 #endif

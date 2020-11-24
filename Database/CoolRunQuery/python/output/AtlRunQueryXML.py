@@ -17,9 +17,8 @@
 from __future__ import with_statement
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-import datetime, sys, os
-from xml.dom.minidom import Document, DocumentType, Comment, Text, Element
-from CoolRunQuery.AtlRunQueryRun   import Run
+import datetime, sys
+from xml.dom.minidom import Document, DocumentType, Element
 from CoolRunQuery.utils.AtlRunQueryUtils import prettyNumber
 
 # ---------------------------------------------------------------------------------------------------
@@ -40,7 +39,7 @@ class TextElement(Element):
         self.attOrder = []
         
     def setAttribute(self, attname, value):
-        if not attname in self.attOrder:
+        if attname not in self.attOrder:
             self.attOrder += [attname]
         Element.setAttribute(self, attname, value)
         
@@ -150,17 +149,23 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
             if len(run.stats['SMK']['random'])==2:
                 (rd0,rd1) = run.stats['SMK']['random'][0:2]
                 # protect against missing information
-                if rd0 == 'n.a.': rd0 = 0
-                if rd1 == 'n.a.': rd1 = 0
+                if rd0 == 'n.a.':
+                    rd0 = 0
+                if rd1 == 'n.a.':
+                    rd1 = 0
                 runnrelm.setAttribute('PrescaleRD0',0x1<<(3+rd0))
                 runnrelm.setAttribute('PrescaleRD1',0x1<<(3+rd1))
             else:
                 (rd0,rd1,rd2,rd3) = run.stats['SMK']['random'][0:4]
                 # protect against missing information
-                if rd0 == 'n.a.': rd0 = 0
-                if rd1 == 'n.a.': rd1 = 0
-                if rd2 == 'n.a.': rd2 = 0
-                if rd3 == 'n.a.': rd3 = 0
+                if rd0 == 'n.a.':
+                    rd0 = 0
+                if rd1 == 'n.a.':
+                    rd1 = 0
+                if rd2 == 'n.a.':
+                    rd2 = 0
+                if rd3 == 'n.a.':
+                    rd3 = 0
                 runnrelm.setAttribute('Cut0', rd0)
                 runnrelm.setAttribute('Cut1', rd1)
                 runnrelm.setAttribute('Cut2', rd2)
@@ -171,13 +176,15 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
             # streams (initialisation)
             streams = {}
             streams_byrun[run.runNr] = streams
-            if runstreamevents.has_key(run.runNr): # protection in case the run does not have any stream
+            if run.runNr in runstreamevents: # protection in case the run does not have any stream
                 for stream in runstreamevents[run.runNr].keys():
                     if 'physics_' == stream[:8]:
                         streams[stream] = [0,0] # only for physics streams
-                        if not streams_sum.has_key(stream): streams_sum[stream] = [0,0]
+                        if stream not in streams_sum:
+                            streams_sum[stream] = [0,0]
                         # total number of events in stream
-                        for (nlb,nev) in runstreamevents[run.runNr][stream]: streams[stream][0] += nev 
+                        for (nlb,nev) in runstreamevents[run.runNr][stream]:
+                            streams[stream][0] += nev 
 
             # lumiblock ranges
 
@@ -187,11 +194,12 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
                 lbrelm.setAttribute('End',lbrange[2]-1)
                 lbc.appendChild(lbrelm)
                 # count nevents in streams
-                if runstreamevents.has_key(run.runNr): # protection in case the run does not have any stream
+                if run.runNr in runstreamevents: # protection in case the run does not have any stream
                     for stream, lbnevts in runstreamevents[run.runNr].items():
                         if 'physics_' == stream[:8]:
                             for (nlb,nev) in lbnevts:
-                                if nlb>=lbrange[1] and nlb<lbrange[2]: streams[stream][1] += nev
+                                if nlb>=lbrange[1] and nlb<lbrange[2]:
+                                    streams[stream][1] += nev
 
             # append stream element
             s = streams.keys()        
@@ -207,14 +215,16 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
                     strelm.setAttribute('NumOfSelectedEvents', nevts[1])
                     strselm.appendChild(strelm)
                 eff = 0
-                if nevts[0] > 0: eff = nevts[1]/float(nevts[0])*100.0
+                if nevts[0] > 0:
+                    eff = nevts[1]/float(nevts[0])*100.0
 
                 # collect total number of events
                 streams_sum[stream][0] += nevts[0]
                 streams_sum[stream][1] += nevts[1]
 
             # append streams
-            if ShowNumberOfEventsPerStreamPerRun: lbc.appendChild(strselm)
+            if ShowNumberOfEventsPerStreamPerRun:
+                lbc.appendChild(strselm)
 
             # append LumiBlickCollection
             namedLR.appendChild(lbc)
@@ -248,7 +258,6 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
 
         # provide also pretty html text output
         htmltext = ''
-        hspace   = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;'
         htmltext += '<table style=&quot;width: auto; border: 0px solid; border-width: margin: 0 0 0 0; 0px; border-spacing: 0px; border-collapse: separate; padding: 0px;&quot; font-family: sans-serif; font-size: 85%%&quot;>\n'
         htmltext += '<tr><td colspan=&quot;2&quot;><b><font color=&quot;#999999&quot;>' + txt.strip() + '</font></b></td></tr>\n'
         htmltext += '<tr><td style=&quot;vertical-align:top&quot;>SVN&nbsp;Version: </td><td> ' + svnversion + '</td></tr>\n'    
@@ -290,7 +299,8 @@ def CreateXMLFile( runlist, options, origQuery, datapath, xmlfname, xmllabel, sv
         for stream in sorted(streams_sum.keys()):
             nevts  = streams_sum[stream]
             eff = 0
-            if nevts[0] > 0: eff = nevts[1]/float(nevts[0])*100.0
+            if nevts[0] > 0:
+                eff = nevts[1]/float(nevts[0])*100.0
             htmltext += '<tr><td style=&quot;text-align:left&quot;><i>%s</i></td><td style=&quot;text-align:right&quot;>%s</td><td style=&quot;text-align:right&quot;>%s</td><td style=&quot;text-align:right&quot;>%.4g</td></tr>\n' % (stream, prettyNumber(nevts[0]),prettyNumber(nevts[1]),eff)
         htmltext += '</table>\n'
 

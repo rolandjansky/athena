@@ -22,7 +22,12 @@ def egammaMonitorPrecisionCfg(name):
                                 defineHistogram('deltaPhi1',title='Precision#Delta#phi1', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
                                 defineHistogram('deltaPhi2',title='Precision#Delta#phi2', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
                                 defineHistogram('deltaPhi3',title='Precision#Delta#phi3', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
-                           
+                                defineHistogram('deltaPhiRescaled0',title='Precision#Delta#phiRescaled0', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+                                defineHistogram('deltaPhiRescaled1',title='Precision#Delta#phiRescaled1', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+                                defineHistogram('deltaPhiRescaled2',title='Precision#Delta#phiRescaled2', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+                                defineHistogram('deltaPhiRescaled3',title='Precision#Delta#phiRescaled3', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+                                defineHistogram('deltaPhiFromLastMeasurement',title='Precision#Delta#phiLastMeasurement', path='EXPERT',xbins=80, xmin=-0.1,xmax=0.1),
+
                            #Shower Shapes variables monitoring
                                 defineHistogram('e237',type='TH1F', path='EXPERT',title="Precision Reconstruction uncor energy in 3x7 cells in em sampling 2; E [MeV]",xbins=50, xmin=-15000, xmax=150000 ),
                                 defineHistogram('e277', type='TH1F', path='EXPERT',title="Precision Reconstruction  uncor energy in 7x7 cells in em sampling 2;E [MeV]",xbins=50, xmin=-15000, xmax=150000 ),
@@ -71,3 +76,22 @@ def egammaMonitorPrecisionCfg(name):
                                 defineHistogram('ptcone40',   type='TH1F', path='EXPERT', title="count;ptcone40",xbins=50, xmin=0, xmax=10 ),
                                 defineHistogram('topoetcone20',    type='TH1F', path='EXPERT',title="count;topoetcone20[GeV]",xbins=50, xmin=-10, xmax=50 )]
         return monTool_photon
+
+
+def egammaMonitorSuperClusterCfg(name):
+
+     from math import pi
+    
+     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+     monTool = GenericMonitoringTool("MonTool_"+name)
+     monTool.Histograms = [ 
+                           #calo cluster variables monitoring
+                              defineHistogram('et',             type='TH1D', path='EXPERT', title="E_{T};              E_{T} [GeV];        Entries", xbins= 150, xmin= 0.0, xmax= 200.0),
+                              defineHistogram('eta',            type='TH1D', path='EXPERT', title="#eta;               #eta;               Entries", xbins=  50, xmin=-3.0, xmax=   3.0) ,
+                              defineHistogram('phi',            type='TH1D', path='EXPERT', title="#phi;               #phi;               Entries", xbins=  64, xmin= -pi, xmax=    pi),
+                              defineHistogram('container_size', type='TH1D', path='EXPERT', title="Container Size;     Number of Clusters; Entries", xbins=2001, xmin=-0.5, xmax=2000.5),
+                              defineHistogram('clusterSize',    type='TH1D', path='EXPERT', title="Cluster Size;       Type;               Entries", xbins=  13, xmin= 0.5, xmax=  13.5),
+                              defineHistogram('signalState',    type='TH1D', path='EXPERT', title="Signal State;       Signal State;       Entries", xbins=   4, xmin=-1.5, xmax=   2.5)] 
+     
+     return monTool
+    

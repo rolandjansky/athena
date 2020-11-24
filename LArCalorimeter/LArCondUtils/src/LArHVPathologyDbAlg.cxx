@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHVPathologyDbAlg.h"
@@ -27,6 +27,7 @@
 #include "LArHV/HECHVSubgap.h"
 #include "LArReadoutGeometry/FCALTile.h"
 #include "LArHV/FCALHVLine.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include <fstream>
 #include <cstdlib>
@@ -117,6 +118,8 @@ StatusCode LArHVPathologyDbAlg::initialize()
      return StatusCode::FAILURE;
   }
 
+  ATH_CHECK( m_hvCablingKey.initialize() );
+
   return sc;
 }
 
@@ -124,13 +127,15 @@ StatusCode LArHVPathologyDbAlg::execute()
 {
   msg(MSG::INFO) <<" in execute()" <<endmsg;
 
-  int nevt = getContext().eventID().event_number();
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+
+  int nevt = ctx.eventID().event_number();
 
   if(m_writeCondObjs && nevt==1) {
     msg(MSG::INFO) << "Creating conditions objects" << endmsg;
 
     // Create cond objects
-    if(!createCondObjects().isSuccess()) {
+    if(!createCondObjects(ctx).isSuccess()) {
       msg(MSG::ERROR) << "Could not create cond objects " << endmsg;
       m_writeCondObjs = false;
       return StatusCode::FAILURE;
@@ -138,7 +143,7 @@ StatusCode LArHVPathologyDbAlg::execute()
   }
 
   // Dump cond objects
-  StatusCode sc = printCondObjects();
+  StatusCode sc = printCondObjects (ctx);
   if(!sc.isSuccess()) {
     msg(MSG::ERROR) << "Could not print out cond objects" << endmsg;
     return sc;
@@ -166,7 +171,7 @@ StatusCode LArHVPathologyDbAlg::stop()
   return sc;
 }
 
-StatusCode LArHVPathologyDbAlg::createCondObjects()
+StatusCode LArHVPathologyDbAlg::createCondObjects (const EventContext & ctx)
 {
   msg(MSG::INFO) <<" in createCondObjects() " <<endmsg;
 
@@ -174,6 +179,8 @@ StatusCode LArHVPathologyDbAlg::createCondObjects()
     msg(MSG::INFO) << "EMB Pathologies already in SG, skipping " <<endmsg;
   }
   else {
+    SG::ReadCondHandle<LArHVIdMapping> hvIdMapping (m_hvCablingKey, ctx);
+
     // Read input file and construct LArHVPathologiesDb for given folder
     std::ifstream infile;
     infile.open(m_inpFile.value().c_str());
@@ -229,7 +236,7 @@ StatusCode LArHVPathologyDbAlg::createCondObjects()
           HWIdentifier hwid = m_laronline_id->channel_Id(bec,pos_neg,FT,slot,channel);
           Identifier id = m_cablingService->cnvToIdentifier( hwid);
           cellID = (unsigned int)(id.get_identifier32().get_compact());
-          elecList=getElectInd(id,hvModule,hvLine);
+          elecList=getElectInd(**hvIdMapping, id,hvModule,hvLine);
           msg(MSG::INFO) << " cellId , elecList size " << cellID << " " << elecList.size() << endmsg;
         }
         for (unsigned int i=0;i<elecList.size();i++) {
@@ -272,9 +279,12 @@ StatusCode LArHVPathologyDbAlg::createCondObjects()
   return StatusCode::SUCCESS;
 }
 
-StatusCode LArHVPathologyDbAlg::printCondObjects()
+StatusCode LArHVPathologyDbAlg::printCondObjects (const EventContext& ctx)
 {
   msg(MSG::INFO) <<" in printCondObjects() " <<endmsg;
+
+  SG::ReadCondHandle<LArHVIdMapping> hvIdMapping (m_hvCablingKey, ctx);
+
   std::ofstream *fout=0;
   const AthenaAttributeList* attrlist;
   StatusCode sc = detStore()->retrieve(attrlist,m_folder);
@@ -302,7 +312,7 @@ StatusCode LArHVPathologyDbAlg::printCondObjects()
       } else {
          msg(MSG::INFO) << "Got pathology for cell ID: " << electPath.cellID << endmsg;
          HWIdentifier hwid = m_cablingService->createSignalChannelID(Identifier32(electPath.cellID));
-         int HVLine=getHVline(Identifier(electPath.cellID),electPath.electInd);
+         int HVLine=getHVline(**hvIdMapping,Identifier(electPath.cellID),electPath.electInd);
          if(HVLine<0) {
             msg(MSG::ERROR) << "No HVline for cell "<<electPath.cellID<< endmsg;
          } else {
@@ -340,7 +350,11 @@ StatusCode LArHVPathologyDbAlg::registerCondObjects()
   return sc;
 }
  
-std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id,unsigned int module, unsigned int line)
+std::vector<unsigned int>
+LArHVPathologyDbAlg::getElectInd(const LArHVIdMapping& hvIdMapping,
+                                 const Identifier & id,
+                                 unsigned int module,
+                                 unsigned int line)
 {
 
   std::vector<unsigned int> list;
@@ -356,7 +370,7 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
          for (unsigned int i=0;i<nelec;i++) {
             const EMBHVElectrode& electrode = cell->getElectrode(i);
             for (unsigned int igap=0;igap<2;igap++) {
-              if (electrode.hvLineNo(igap)==HVline) {
+              if (electrode.hvLineNo(igap, &hvIdMapping)==HVline) {
                   list.push_back(2*i+igap);
               }
             } 
@@ -371,7 +385,7 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
          for (unsigned int i=0;i<nelec;i++) {
             const EMECHVElectrode& electrode = cell->getElectrode(i);
             for (unsigned int igap=0;igap<2;igap++) {
-              if (electrode.hvLineNo(igap)==HVline) {
+              if (electrode.hvLineNo(igap, &hvIdMapping)==HVline) {
                   list.push_back(2*i+igap);
               }       
             }       
@@ -384,7 +398,7 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
         const EMBCellConstLink cell = embElement->getEMBCell();
         const EMBPresamplerHVModule& hvmodule =  cell->getPresamplerHVModule ();
         for (unsigned int igap=0;igap<2;igap++) {
-           if (hvmodule.hvLineNo(igap)==HVline) {
+           if (hvmodule.hvLineNo(igap, &hvIdMapping)==HVline) {
              list.push_back(igap);
            }
         }
@@ -396,7 +410,7 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
        const EMECCellConstLink cell = emecElement->getEMECCell();
        const EMECPresamplerHVModule& hvmodule = cell->getPresamplerHVModule ();
        for (unsigned int igap=0;igap<2;igap++) {
-        if (hvmodule.hvLineNo(igap)==HVline) {
+        if (hvmodule.hvLineNo(igap, &hvIdMapping)==HVline) {
           list.push_back(igap);
         }
        }
@@ -410,7 +424,7 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
       unsigned int nsubgaps = cell->getNumSubgaps();
       for (unsigned int i=0;i<nsubgaps;i++) {
           const HECHVSubgap& subgap = cell->getSubgap(i);
-          if (subgap.hvLineNo()==HVline) {
+          if (subgap.hvLineNo(&hvIdMapping)==HVline) {
             list.push_back(i);
           }
       }
@@ -424,7 +438,7 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
        for (unsigned int i=0;i<nlines;i++) {
          const FCALHVLine* line2 = tile->getHVLine(i);
 	 if(line2) {
-	   if (line2->hvLineNo()==HVline) {
+	   if (line2->hvLineNo(&hvIdMapping)==HVline) {
 	     list.push_back(i);
 	   }
 	 }
@@ -436,7 +450,9 @@ std::vector<unsigned int> LArHVPathologyDbAlg::getElectInd(const Identifier & id
 
 }
 
-int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int ElectInd)
+int LArHVPathologyDbAlg::getHVline(const LArHVIdMapping& hvIdMapping,
+                                   const Identifier & id,
+                                   short unsigned int ElectInd)
 {
 
   unsigned int igap, ielec;
@@ -453,7 +469,7 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
             msg(MSG::ERROR) << "Wrong electrode number " << ielec << " for cell "<< id.get_identifier32().get_compact() <<endmsg;
             return -1;
          } else { 
-            return cell->getElectrode(ielec).hvLineNo(igap);
+            return cell->getElectrode(ielec).hvLineNo(igap, &hvIdMapping);
          }
        }
      }
@@ -468,7 +484,7 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
             msg(MSG::ERROR) << "Wrong electrode number " << ielec << " for cell "<< id.get_identifier32().get_compact() <<endmsg;
             return -1;
          } else { 
-            return cell->getElectrode(ielec).hvLineNo(igap);
+            return cell->getElectrode(ielec).hvLineNo(igap, &hvIdMapping);
          }
        }
      }
@@ -481,7 +497,7 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
             msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for EMBPS cell "<<id.get_identifier32().get_compact() <<endmsg;
             return -1;
         } else {
-            return hvmodule.hvLineNo(ElectInd);
+            return hvmodule.hvLineNo(ElectInd, &hvIdMapping);
         }
        }
      }
@@ -494,7 +510,7 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
             msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for EMECPS cell "<<id.get_identifier32().get_compact() <<endmsg;
             return -1;
         } else {
-            return hvmodule.hvLineNo(ElectInd);
+            return hvmodule.hvLineNo(ElectInd, &hvIdMapping);
         }
       }
     }
@@ -508,7 +524,7 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
          msg(MSG::ERROR) << "Wrong igap "<<ElectInd<<" for HEC cell "<<id.get_identifier32().get_compact() <<endmsg;
          return -1;
       } else {
-         return cell->getSubgap(ElectInd).hvLineNo();
+         return cell->getSubgap(ElectInd).hvLineNo(&hvIdMapping);
       }
     }
   }
@@ -523,7 +539,7 @@ int LArHVPathologyDbAlg::getHVline(const Identifier & id, short unsigned int Ele
       } else {
          const FCALHVLine* line2 = tile->getHVLine(ElectInd);
          if(line2) {
-	   return line2->hvLineNo();
+	   return line2->hvLineNo(&hvIdMapping);
          } else {
 	   msg(MSG::ERROR) << "Do not have HVLine for "<<ElectInd<<" for FCAL cell "<<id.get_identifier32().get_compact() <<endmsg;
 	   return -1;

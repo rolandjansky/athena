@@ -12,10 +12,10 @@
 #define GENINTERFACES_IHIGGSTRUTHCATEGORYTOOL_H 1
 
 #include "AsgTools/IAsgTool.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 namespace HTXS {
-  class HiggsClassification;
+  struct HiggsClassification;
 }
 
 class IHiggsTruthCategoryTool : public virtual asg::IAsgTool {

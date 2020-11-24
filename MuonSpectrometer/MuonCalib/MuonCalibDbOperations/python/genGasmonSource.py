@@ -3,10 +3,8 @@
 from __future__ import print_function
 
 import sys
-from MuonCalibDbOperations.CalibrationSourceConfig import *
-import cx_Oracle
+from MuonCalibDbOperations.CalibrationSourceConfig import MuonCalib__gCalibrationSourceConfigs, MuonCalib__CalibrationSourceConfig
 import time
-
 
 def MuonCalib__genGasmonSource(toroidOn, cal_time, reader_cursor):
 	if len(MuonCalib__gCalibrationSourceConfigs)==0 and not time:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/UncertaintyHistogram.h"
@@ -9,9 +9,12 @@
 #include "TMath.h"
 #include "TFile.h"
 #include "TAxis.h"
+#include "TH2.h"
 #include "TH3.h"
 #include "TH3F.h"
 #include "TH3D.h"
+
+#include <stdexcept>
 
 namespace jet
 {
@@ -22,24 +25,25 @@ namespace jet
 //                                              //
 //////////////////////////////////////////////////
 
-UncertaintyHistogram::UncertaintyHistogram(const std::string& histName, const bool interpolate)
+UncertaintyHistogram::UncertaintyHistogram(const std::string& histName, const Interpolate::TypeEnum interpolate)
     : asg::AsgMessaging(histName)
     , m_isInit(false)
     , m_name(histName.c_str())
     , m_interpolate(interpolate)
     , m_histo(NULL)
     , m_nDim(0)
+    , m_cachedProj()
 {
     if (histName == "")
         JESUNC_NO_DEFAULT_CONSTRUCTOR;
     ATH_MSG_DEBUG(Form("Creating UncertaintyHistogram named %s",getName().Data()));
 }
 
-UncertaintyHistogram::UncertaintyHistogram(const TString histName, const bool interpolate)
+UncertaintyHistogram::UncertaintyHistogram(const TString histName, const Interpolate::TypeEnum interpolate)
     : UncertaintyHistogram(std::string(histName.Data()),interpolate)
 { }
 
-UncertaintyHistogram::UncertaintyHistogram(const char* histName, const bool interpolate)
+UncertaintyHistogram::UncertaintyHistogram(const char* histName, const Interpolate::TypeEnum interpolate)
     : UncertaintyHistogram(std::string(histName),interpolate)
 { }
 
@@ -50,6 +54,7 @@ UncertaintyHistogram::UncertaintyHistogram(const UncertaintyHistogram& toCopy)
     , m_interpolate(toCopy.m_interpolate)
     , m_histo(NULL)
     , m_nDim(toCopy.m_nDim)
+    , m_cachedProj()
 {
     ATH_MSG_DEBUG("Creating copy of UncertaintyHistogram named " << getName().Data());
 
@@ -57,8 +62,18 @@ UncertaintyHistogram::UncertaintyHistogram(const UncertaintyHistogram& toCopy)
     {
         m_histo = dynamic_cast<TH1*>(toCopy.m_histo->Clone());
         if (!m_histo)
+        {
             ATH_MSG_FATAL("Failed to copy uncertainty histogram for " << getName().Data());
+            throw std::runtime_error("Failed to copy histogram in UncertaintyHistogram copy constructor");
+        }
     }
+
+    if (toCopy.m_cachedProj.size())
+        if (cacheProjections().isFailure())
+        {
+            ATH_MSG_FATAL("Failed to build the required cache for " << getName().Data());
+            throw std::runtime_error("Failed to build projection cache in UncertaintyHistogram copy constructor");
+        }
 }
 
 UncertaintyHistogram::~UncertaintyHistogram()
@@ -102,6 +117,11 @@ StatusCode UncertaintyHistogram::initialize(TFile* histFile)
 
     // Cache dimensionality
     m_nDim = m_histo->GetDimension();
+
+    // Cache the projections if relevant
+    if (m_interpolate == Interpolate::OnlyX || m_interpolate == Interpolate::OnlyY)
+        if (cacheProjections().isFailure())
+            return StatusCode::FAILURE;
 
     // Print a summary
     ATH_MSG_DEBUG(Form("%s: Found histogram",getName().Data()));
@@ -173,27 +193,99 @@ double UncertaintyHistogram::readHisto(const double var1, const double var2, con
     }
 
     // Check first dimension boundaries, always applicable
-    const float valX = checkBoundaries(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
+    const float valX = checkBoundariesByBin(m_histo->GetXaxis(),m_histo->GetNbinsX(),var1);
     if (m_nDim == 1)
     {
-        if (m_interpolate) return Interpolate(m_histo,valX);
-        else               return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX));
+        switch (m_interpolate)
+        {
+            case Interpolate::Full:
+            case Interpolate::OnlyX:
+                return JetHelpers::Interpolate(m_histo,valX);
+
+            case Interpolate::None:
+                return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX));
+
+            default:
+                ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
+                return JESUNC_ERROR_CODE;
+        }
     }
 
     // Check second dimension boundaries, if applicable
-    const float valY = checkBoundaries(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
+    const float valY = checkBoundariesByBin(m_histo->GetYaxis(),m_histo->GetNbinsY(),var2);
     if (m_nDim == 2)
     {
-        if (m_interpolate) return Interpolate(m_histo,valX,valY);
-        else               return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY));
+        // We need a 2D histogram for the projection calls
+        switch (m_interpolate)
+        {
+            case Interpolate::Full:
+                return JetHelpers::Interpolate(m_histo,valX,valY);
+
+            case Interpolate::OnlyX:
+                // Interpolate on the x projection for a given Y bin
+                return JetHelpers::Interpolate(m_cachedProj.at(0).at((m_histo->GetYaxis())->FindBin(valY)).get(),valX);
+
+            case Interpolate::OnlyY:
+                // Interpolate on the y projection for a given X bin
+                return JetHelpers::Interpolate(m_cachedProj.at(0).at((m_histo->GetXaxis())->FindBin(valX)).get(),valY);
+
+            case Interpolate::None:
+                return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX),(m_histo->GetYaxis())->FindBin(valY));
+
+            default:
+                ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
+                return JESUNC_ERROR_CODE;
+        }
     }
 
     // Check third dimension boundaries, if applicable
-    const float valZ = checkBoundaries(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
-    if (m_interpolate) return Interpolate(m_histo,valX,valY,valZ);
-    return m_histo->GetBinContent(FindBin(m_histo->GetXaxis(),valX),FindBin(m_histo->GetYaxis(),valY),FindBin(m_histo->GetZaxis(),valZ));
+    const float valZ = checkBoundariesByBin(m_histo->GetZaxis(),m_histo->GetNbinsZ(),var3);
+    
+    switch (m_interpolate)
+    {
+        case Interpolate::Full:
+            return JetHelpers::Interpolate(m_histo,valX,valY,valZ);
+
+        case Interpolate::OnlyX:
+            // Interpolate on the x projection for a given y,z bin
+            return JetHelpers::Interpolate(m_cachedProj.at((m_histo->GetYaxis())->FindBin(valY)).at((m_histo->GetZaxis())->FindBin(valZ)).get(),valX);
+
+        case Interpolate::OnlyY:
+            // Interpolate on the y projection for a given x,z bin
+            return JetHelpers::Interpolate(m_cachedProj.at((m_histo->GetXaxis())->FindBin(valX)).at((m_histo->GetZaxis())->FindBin(valZ)).get(),valY);
+
+        case Interpolate::None:
+            return m_histo->GetBinContent((m_histo->GetXaxis())->FindBin(valX),(m_histo->GetYaxis())->FindBin(valY),(m_histo->GetZaxis())->FindBin(valZ));
+
+        default:
+            ATH_MSG_ERROR("Unsupported histogram interpolation type of \"" << Interpolate::enumToString(m_interpolate).Data() << " for 1D histogram named " << m_name.Data());
+            return JESUNC_ERROR_CODE;
+    }
 }
 
+
+double UncertaintyHistogram::checkBoundariesByBin(const TAxis* axis, const int numBins, const double valInput) const
+{
+    double val = valInput;
+
+    // Root histogram binning:
+    //  bin 0 = underflow bin
+    //  bin 1 = first actual bin
+    //  bin N = last actual bin
+    //  bin N+1 = overflow bin
+    const int binIndex = axis->FindBin(valInput);
+    if (binIndex < 1)
+        val = axis->GetBinLowEdge(1);
+    else if (binIndex > numBins)
+    {
+        // Don't use the upper edge as floating point can make it roll into the next bin (which is overflow)
+        // Instead, use the last bin width to go slightly within the boundary
+        // An offset of 1.e-4*binWidth is negligible for physics as the values don't change fast, but above floating point precision
+        val = 1.e-4*axis->GetBinWidth(numBins)+axis->GetBinLowEdge(numBins);
+    }
+    
+    return val;
+}
 
 double UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBins, const double valInput) const
 {
@@ -222,311 +314,152 @@ double UncertaintyHistogram::checkBoundaries(const TAxis* axis, const int numBin
     return val;
 }
 
-double UncertaintyHistogram::Interpolate(const TH1* histo, const double x) const
+StatusCode UncertaintyHistogram::cacheProjections()
 {
-    // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
-    // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
-    // Probable reason is that FindBin isn't const, but there should be a const version...
-    Int_t xbin = FindBin(histo->GetXaxis(),x);
-    Double_t x0,x1,y0,y1;
+    // Ensure the histogram exists
+    if (!m_histo)
+    {
+        ATH_MSG_FATAL("Cannot cache histogram as it doesn't exist: " << m_name.Data());
+        return StatusCode::FAILURE;
+    }
+
+    // Ensure the number of dimensions is sane
+    if (m_histo->GetDimension() < 1 || m_histo->GetDimension() > 3)
+    {
+        ATH_MSG_FATAL("Unsupported histogram dimensionality for projection caching: " << m_histo->GetDimension());
+        return StatusCode::FAILURE;
+    }
+
+    // Ensure the cache doesn't already exist
+    if (m_cachedProj.size())
+    {
+        ATH_MSG_FATAL("Cannot cache histogram as the cache is non-empty: " << m_name.Data());
+        return StatusCode::FAILURE;
+    }
+
+    // Protect vs Interpolate
+    switch (m_interpolate)
+    {
+        case Interpolate::OnlyX:
+            // Simple case of 1D
+            if (m_histo->GetDimension() == 1)
+                return StatusCode::SUCCESS;
+            break;
+
+        case Interpolate::OnlyY:
+            //  Failure case of 1D
+            if (m_histo->GetDimension() == 1)
+            {
+                ATH_MSG_FATAL("Cannot project in Y for a 1D histogram: " << m_name.Data());
+                return StatusCode::FAILURE;
+            }
+            break;
+
+        default:
+            ATH_MSG_FATAL("The interpolation type is not supported for caching: " << m_name.Data());
+            return StatusCode::FAILURE;
+    }
     
-    if(x<=histo->GetBinCenter(1)) {
-       return histo->GetBinContent(1);
-    } else if(x>=histo->GetBinCenter(histo->GetNbinsX())) {
-       return histo->GetBinContent(histo->GetNbinsX());
-    } else {
-       if(x<=histo->GetBinCenter(xbin)) {
-          y0 = histo->GetBinContent(xbin-1);
-          x0 = histo->GetBinCenter(xbin-1);
-          y1 = histo->GetBinContent(xbin);
-          x1 = histo->GetBinCenter(xbin);
-       } else {
-          y0 = histo->GetBinContent(xbin);
-          x0 = histo->GetBinCenter(xbin);
-          y1 = histo->GetBinContent(xbin+1);
-          x1 = histo->GetBinCenter(xbin+1);
-       }
-    return y0 + (x-x0)*((y1-y0)/(x1-x0));
-    }
-}
-
-double UncertaintyHistogram::Interpolate(const TH1* histo, const double x, const double y) const
-{
-    // Call the unified method for consistency
-    return Interpolate2D(histo,x,y);
-}
-
-double UncertaintyHistogram::Interpolate2D(const TH1* histo, const double x, const double y, const int xAxis, const int yAxis, const int otherDimBin) const
-{
-    // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
-    // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
-    // Probable reason is that FindBin isn't const, but there should be a const version...
-    const TAxis* fXaxis = xAxis == 1 ? histo->GetXaxis() : xAxis == 2 ? histo->GetYaxis() : xAxis == 3 ? histo->GetZaxis() : NULL;
-    const TAxis* fYaxis = yAxis == 1 ? histo->GetXaxis() : yAxis == 2 ? histo->GetYaxis() : yAxis == 3 ? histo->GetZaxis() : NULL;
-
-    if (!fXaxis || !fYaxis)
+    // If we got here, then the request makes sense
+    // Start the projections
+    // Intentionally include underflow and overflow bins
+    // This keeps the same indexing scheme as root
+    // Avoids confusion and problems later at cost of a small amount of RAM
+    if (m_histo->GetDimension() == 2)
     {
-        histo->Error("Interpolate2D","Failed to parse axes from inputs");
-        return 0;
-    }
+        // Prepare to cache
+        TH2* localHist = dynamic_cast<TH2*>(m_histo);
+        m_cachedProj.resize(1); // 2D is a single slice of 3D
+        if (!localHist)
+        {
+            ATH_MSG_FATAL("Failed to convert histogram to a TH2, please check inputs: " << m_name.Data());
+            return StatusCode::FAILURE;
+        }
 
-    Double_t f=0;
-    Double_t x1=0,x2=0,y1=0,y2=0;
-    Double_t dx,dy;
-    Int_t bin_x = FindBin(fXaxis,x);
-    Int_t bin_y = FindBin(fYaxis,y);
-    if(bin_x<1 || bin_x>fXaxis->GetNbins() || bin_y<1 || bin_y>fYaxis->GetNbins()) {
-       histo->Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(fXaxis->GetNbins()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(fYaxis->GetNbins()+1));
-       return 0;
-    }
-    Int_t quadrant = 0; // CCW from UR 1,2,3,4
-    // which quadrant of the bin (bin_P) are we in?
-    dx = fXaxis->GetBinUpEdge(bin_x)-x;
-    dy = fYaxis->GetBinUpEdge(bin_y)-y;
-    if (dx<=fXaxis->GetBinWidth(bin_x)/2 && dy<=fYaxis->GetBinWidth(bin_y)/2)
-    quadrant = 1; // upper right
-    if (dx>fXaxis->GetBinWidth(bin_x)/2 && dy<=fYaxis->GetBinWidth(bin_y)/2)
-    quadrant = 2; // upper left
-    if (dx>fXaxis->GetBinWidth(bin_x)/2 && dy>fYaxis->GetBinWidth(bin_y)/2)
-    quadrant = 3; // lower left
-    if (dx<=fXaxis->GetBinWidth(bin_x)/2 && dy>fYaxis->GetBinWidth(bin_y)/2)
-    quadrant = 4; // lower right
-    switch(quadrant) {
-    case 1:
-       x1 = fXaxis->GetBinCenter(bin_x);
-       y1 = fYaxis->GetBinCenter(bin_y);
-       x2 = fXaxis->GetBinCenter(bin_x+1);
-       y2 = fYaxis->GetBinCenter(bin_y+1);
-       break;
-    case 2:
-       x1 = fXaxis->GetBinCenter(bin_x-1);
-       y1 = fYaxis->GetBinCenter(bin_y);
-       x2 = fXaxis->GetBinCenter(bin_x);
-       y2 = fYaxis->GetBinCenter(bin_y+1);
-       break;
-    case 3:
-       x1 = fXaxis->GetBinCenter(bin_x-1);
-       y1 = fYaxis->GetBinCenter(bin_y-1);
-       x2 = fXaxis->GetBinCenter(bin_x);
-       y2 = fYaxis->GetBinCenter(bin_y);
-       break;
-    case 4:
-       x1 = fXaxis->GetBinCenter(bin_x);
-       y1 = fYaxis->GetBinCenter(bin_y-1);
-       x2 = fXaxis->GetBinCenter(bin_x+1);
-       y2 = fYaxis->GetBinCenter(bin_y);
-       break;
-    }
-    Int_t bin_x1 = FindBin(fXaxis,x1);
-    if(bin_x1<1) bin_x1=1;
-    Int_t bin_x2 = FindBin(fXaxis,x2);
-    if(bin_x2>fXaxis->GetNbins()) bin_x2=fXaxis->GetNbins();
-    Int_t bin_y1 = FindBin(fYaxis,y1);
-    if(bin_y1<1) bin_y1=1;
-    Int_t bin_y2 = FindBin(fYaxis,y2);
-    if(bin_y2>fYaxis->GetNbins()) bin_y2=fYaxis->GetNbins();
-
-    Double_t q11;
-    Double_t q12;
-    Double_t q21;
-    Double_t q22;
-    if (otherDimBin > 0)
-    {
-        // X,Y variable and Z fixed
-        if (xAxis == 1 && yAxis == 2)
+        // Create the projections
+        if (m_interpolate == Interpolate::OnlyX)
         {
-            q11 = histo->GetBinContent(histo->GetBin(bin_x1,bin_y1,otherDimBin));
-            q12 = histo->GetBinContent(histo->GetBin(bin_x1,bin_y2,otherDimBin));
-            q21 = histo->GetBinContent(histo->GetBin(bin_x2,bin_y1,otherDimBin));
-            q22 = histo->GetBinContent(histo->GetBin(bin_x2,bin_y2,otherDimBin));
+            for (Long64_t binY = 0; binY < localHist->GetNbinsY()+1; ++binY)
+            {
+                // Single bin of Y, interpolate across X
+                m_cachedProj.at(0).emplace_back(localHist->ProjectionX(Form("projx_%lld",binY),binY,binY));
+            }
         }
-        // X,Z variable and Y fixed
-        else if (xAxis == 1 && yAxis == 3)
+        else if (m_interpolate == Interpolate::OnlyY)
         {
-            q11 = histo->GetBinContent(histo->GetBin(bin_x1,otherDimBin,bin_y1));
-            q12 = histo->GetBinContent(histo->GetBin(bin_x1,otherDimBin,bin_y2));
-            q21 = histo->GetBinContent(histo->GetBin(bin_x2,otherDimBin,bin_y1));
-            q22 = histo->GetBinContent(histo->GetBin(bin_x2,otherDimBin,bin_y2));
-        }
-        // Y,Z variable and X fixed
-        else if (xAxis == 2 && yAxis == 3)
-        {
-            q11 = histo->GetBinContent(histo->GetBin(otherDimBin,bin_x1,bin_y1));
-            q12 = histo->GetBinContent(histo->GetBin(otherDimBin,bin_x1,bin_y2));
-            q21 = histo->GetBinContent(histo->GetBin(otherDimBin,bin_x2,bin_y1));
-            q22 = histo->GetBinContent(histo->GetBin(otherDimBin,bin_x2,bin_y2));
-        }
-        // Y,X variable and Z fixed
-        else if (xAxis == 2 && yAxis == 1)
-        {
-            q11 = histo->GetBinContent(histo->GetBin(bin_y1,bin_x1,otherDimBin));
-            q12 = histo->GetBinContent(histo->GetBin(bin_y1,bin_x2,otherDimBin));
-            q21 = histo->GetBinContent(histo->GetBin(bin_y2,bin_x1,otherDimBin));
-            q22 = histo->GetBinContent(histo->GetBin(bin_y2,bin_x2,otherDimBin));
-        }
-        // Z,X variable and Y fixed
-        else if (xAxis == 3 && yAxis == 1)
-        {
-            q11 = histo->GetBinContent(histo->GetBin(bin_y1,otherDimBin,bin_x1));
-            q12 = histo->GetBinContent(histo->GetBin(bin_y1,otherDimBin,bin_x2));
-            q21 = histo->GetBinContent(histo->GetBin(bin_y2,otherDimBin,bin_x1));
-            q22 = histo->GetBinContent(histo->GetBin(bin_y2,otherDimBin,bin_x2));
-        }
-        // Z,Y variable and X fixed
-        else if (xAxis == 3 && yAxis == 2)
-        {
-            q11 = histo->GetBinContent(histo->GetBin(otherDimBin,bin_y1,bin_x1));
-            q12 = histo->GetBinContent(histo->GetBin(otherDimBin,bin_y1,bin_x2));
-            q21 = histo->GetBinContent(histo->GetBin(otherDimBin,bin_y2,bin_x1));
-            q22 = histo->GetBinContent(histo->GetBin(otherDimBin,bin_y2,bin_x2));
+            for (Long64_t binX = 0; binX < localHist->GetNbinsX()+1; ++binX)
+            {
+                // Single bin of X, interpolate across Y
+                m_cachedProj.at(0).emplace_back(localHist->ProjectionY(Form("projy_%lld",binX),binX,binX));
+            }
         }
         else
         {
-            histo->Error("Interpolate2D","Unsupported axis combination: (x,y)=(%d,%d) with one bin fixed",xAxis,yAxis);
-            return 0;
+            // We shouldn't make it here due to earlier checks
+            ATH_MSG_FATAL("Unexpected interpolation type, somehow escaped earlier checks: " << m_name.Data());
+            return StatusCode::FAILURE;
+        }
+    }
+    else if (m_histo->GetDimension() == 3)
+    {
+        // Prepare to cache
+        TH3* localHist = dynamic_cast<TH3*>(m_histo);
+        if (!localHist)
+        {
+            ATH_MSG_FATAL("Failed to convert histogram to a TH3, please check inputs: " << m_name.Data());
+            return StatusCode::FAILURE;
+        }
+
+        // Create the projections
+        if (m_interpolate == Interpolate::OnlyX)
+        {
+            m_cachedProj.resize(localHist->GetNbinsY()+1); // 3D is a full double-index scan
+            for (Long64_t binY = 0; binY < localHist->GetNbinsY()+1; ++binY)
+            {
+                for (Long64_t binZ = 0; binZ < localHist->GetNbinsZ()+1; ++binZ)
+                {
+                    // Single bin of Y-Z, interpolate across X
+                    m_cachedProj.at(binY).emplace_back(localHist->ProjectionX(Form("projx_%lld_%lld",binY,binZ),binY,binY,binZ,binZ));
+                }
+            }
+        }
+        else if (m_interpolate == Interpolate::OnlyY)
+        {
+            m_cachedProj.resize(localHist->GetNbinsX()+1); // 3D is a full double-index scan
+            for (Long64_t binX = 0; binX < localHist->GetNbinsX()+1; ++binX)
+            {
+                for (Long64_t binZ = 0; binZ < localHist->GetNbinsZ()+1; ++binZ)
+                {
+                    // Single bin of X-Z, interpolate across Y
+                    m_cachedProj.at(binX).emplace_back(localHist->ProjectionY(Form("projy_%lld_%lld",binX,binZ),binX,binX,binZ,binZ));
+                }
+            }
+        }
+        else
+        {
+            // We shouldn't make it here due to earlier checks
+            ATH_MSG_FATAL("Unexpected interpolation type, somehow escaped earlier checks: " << m_name.Data());
+            return StatusCode::FAILURE;
         }
     }
     else
     {
-        // X,Y variable, no Z
-        if (xAxis == 1 && yAxis == 2)
-        {
-            q11 = histo->GetBinContent(histo->GetBin(bin_x1,bin_y1));
-            q12 = histo->GetBinContent(histo->GetBin(bin_x1,bin_y2));
-            q21 = histo->GetBinContent(histo->GetBin(bin_x2,bin_y1));
-            q22 = histo->GetBinContent(histo->GetBin(bin_x2,bin_y2));
-        }
-        // Y,X variable, no Z
-        else if (xAxis == 2 && yAxis == 1)
-        {
-            q11 = histo->GetBinContent(histo->GetBin(bin_y1,bin_x1));
-            q12 = histo->GetBinContent(histo->GetBin(bin_y1,bin_x2));
-            q21 = histo->GetBinContent(histo->GetBin(bin_y2,bin_x1));
-            q22 = histo->GetBinContent(histo->GetBin(bin_y2,bin_x2));
-        }
-        else
-        {
-            histo->Error("Interpolate2D","Unsupported axis combination: (x,y)=(%d,%d)",xAxis,yAxis);
-            return 0;
-        }
+        // We shouldn't make it here due to earlier checks
+        ATH_MSG_FATAL("Unexpected dimensionality: " << m_histo->GetDimension());
+        return StatusCode::FAILURE;
     }
-    
-    Double_t d = (x2-x1)*(y2-y1);
-    f = (q11*(x2-x)*(y2-y)+q21*(x-x1)*(y2-y)+q12*(x2-x)*(y-y1)+q22*(x-x1)*(y-y1)) / d;
-    return f;
-}
 
-double UncertaintyHistogram::Interpolate(const TH1* histo, const double x, const double y, const double z) const
-{
-    // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TH1, TH2, and TH3 Interpolate methods
-    // This is done because I want a const version of interpolation, and none of the methods require modification of the histogram
-    // Probable reason is that FindBin isn't const, but there should be a const version...
-    const TAxis* fXaxis = histo->GetXaxis();
-    const TAxis* fYaxis = histo->GetYaxis();
-    const TAxis* fZaxis = histo->GetZaxis();
-
-    // Find the bin by bin edges
-    Int_t ubx = FindBin(fXaxis,x);
-    Int_t uby = FindBin(fYaxis,y);
-    Int_t ubz = FindBin(fZaxis,z);
-    
-    // Check if the value(s) are outside of the bin range(s)
-    if ( ubx < 1 || ubx > histo->GetNbinsX() || uby < 1 || uby > histo->GetNbinsY() || ubz < 1 || ubz > histo->GetNbinsZ() )
+    // Ensure that ROOT doesn't try to take posession of any of the projections
+    for (size_t index = 0; index < m_cachedProj.size(); ++index)
     {
-       histo->Error("Interpolate","Cannot interpolate outside histogram domain. (x: %f vs [%f,%f], y: %f vs [%f,%f], z: %f vs [%f,%f])",x,fXaxis->GetBinLowEdge(1),fXaxis->GetBinLowEdge(histo->GetNbinsX()+1),y,fYaxis->GetBinLowEdge(1),fYaxis->GetBinLowEdge(histo->GetNbinsY()+1),z,fZaxis->GetBinLowEdge(1),fZaxis->GetBinLowEdge(histo->GetNbinsZ()+1));
-       return 0;
+        for (auto& hist : m_cachedProj.at(index))
+        {
+            hist->SetDirectory(nullptr);
+        }
     }
 
-    // Now switch from bin edges to bin centres
-    // Note that we want to support edge cases, so it is possible that ub* == ob*
-    // This functionality is not in original ROOT TH3::Interpolate()
-    // This functionality is inspired by TH2::Interpolate()
-    Int_t obx = ubx + 1;
-    Int_t oby = uby + 1;
-    Int_t obz = ubz + 1;
-    
-    // Calculate distance weights before checking under/overflow bins
-    Double_t xw = fXaxis->GetBinCenter(obx) - fXaxis->GetBinCenter(ubx);
-    Double_t yw = fYaxis->GetBinCenter(oby) - fYaxis->GetBinCenter(uby);
-    Double_t zw = fZaxis->GetBinCenter(obz) - fZaxis->GetBinCenter(ubz);
-    
-    if (x < fXaxis->GetBinCenter(ubx)) { ubx -= 1; obx -= 1; }
-    if (ubx < 1) ubx = 1;
-    if (obx > histo->GetNbinsX()) obx = histo->GetNbinsX();
-
-    if (y < fYaxis->GetBinCenter(uby)) { uby -= 1; oby -= 1; }
-    if (uby < 1) uby = 1;
-    if (oby > histo->GetNbinsY()) oby = histo->GetNbinsY();
-
-    if (z < fZaxis->GetBinCenter(ubz)) { ubz -= 1; obz -= 1; }
-    if (ubz < 1) ubz = 1;
-    if (obz > histo->GetNbinsZ()) obz = histo->GetNbinsZ();
-
-    // Edge cases were tried with weights set including the under/overflow bins (to follow what TH2::Interpolate() does for boundaries)
-    // In some cases, it performed quite poorly
-    // Tests of switching to 2D interpolation with the third dimension fixed appeared to work much better
-    // Thus, the below is now a switch to bilinear interpolation when bin(s) are equal in trilinear interpolation
-    if (ubx == obx || uby == oby || ubz == obz)
-    {
-        // Bilinear interpolation
-        if (ubz == obz)
-            return Interpolate2D(histo,x,y,1,2,ubz);
-        else if (uby == oby)
-            return Interpolate2D(histo,x,z,1,3,uby);
-        else if (ubx == obx)
-            return Interpolate2D(histo,y,z,2,3,ubx);
-        
-    }
-    
-    // Not a boundary case, resume normal ROOT::TH3::Interpolate()
-    Double_t xd = (x - fXaxis->GetBinCenter(ubx)) / xw;
-    Double_t yd = (y - fYaxis->GetBinCenter(uby)) / yw;
-    Double_t zd = (z - fZaxis->GetBinCenter(ubz)) / zw;
-    
-    
-    Double_t v[] = { histo->GetBinContent( ubx, uby, ubz ), histo->GetBinContent( ubx, uby, obz ),
-                     histo->GetBinContent( ubx, oby, ubz ), histo->GetBinContent( ubx, oby, obz ),
-                     histo->GetBinContent( obx, uby, ubz ), histo->GetBinContent( obx, uby, obz ),
-                     histo->GetBinContent( obx, oby, ubz ), histo->GetBinContent( obx, oby, obz ) };
-    
-    
-    Double_t i1 = v[0] * (1 - zd) + v[1] * zd;
-    Double_t i2 = v[2] * (1 - zd) + v[3] * zd;
-    Double_t j1 = v[4] * (1 - zd) + v[5] * zd;
-    Double_t j2 = v[6] * (1 - zd) + v[7] * zd;
-    
-    
-    Double_t w1 = i1 * (1 - yd) + i2 * yd;
-    Double_t w2 = j1 * (1 - yd) + j2 * yd;
-    
-    
-    Double_t result = w1 * (1 - xd) + w2 * xd;
-    
-    return result;
-}
-
-Int_t UncertaintyHistogram::FindBin(const TAxis* axis, const double x) const
-{
-    // Copied from ROOT directly and trivially modified, all credit to ROOT authors of TAxis FindBin method
-    // This is done because I want a const version of bin finding (no expanding on under/overflow)
-    const double fXmin = axis->GetXmin();
-    const double fXmax = axis->GetXmax();
-    const Int_t fNbins = axis->GetNbins();
-    const TArrayD* fXbins = axis->GetXbins();
-    Int_t bin;
-    if (x < fXmin) {              //*-* underflow
-       bin = 0;
-    } else  if ( !(x < fXmax)) {     //*-* overflow  (note the way to catch NaN
-       bin = fNbins+1;
-    } else {
-       if (!fXbins->fN) {        //*-* fix bins
-          bin = 1 + int (fNbins*(x-fXmin)/(fXmax-fXmin) );
-       } else {                  //*-* variable bin sizes
-          //for (bin =1; x >= fXbins->fArray[bin]; bin++);
-          bin = 1 + TMath::BinarySearch(fXbins->fN,fXbins->fArray,x);
-       }
-    }
-    return bin;
+    // All done
+    return StatusCode::SUCCESS;
 }
 
 } // end jet namespace

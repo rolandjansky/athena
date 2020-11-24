@@ -11,7 +11,6 @@
 #  Permanent fixes that are only applied online should be
 #  put into Trigger_topOptions_standalone.py
 ###############################################################
-from __future__ import print_function
 
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -360,6 +359,45 @@ class useOnlineLumi(_modifier):
     def preSetup(self):
         from LumiBlockComps.LuminosityCondAlgDefault import LuminosityCondAlgOnlineDefault
         LuminosityCondAlgOnlineDefault()
+
+
+class forceConditions(_modifier):
+    """
+    Force all conditions (except prescales) to match run from input file
+    """
+    def postSetup(self):
+        # Do not override these folders:
+        ignore = ['/TRIGGER/HLT/PrescaleKey']   # see ATR-22143
+
+        # All time-based folders (from IOVDbSvc DEBUG message, see athena!38274)
+        timebased = ['/TDAQ/OLC/CALIBRATIONS',
+                     '/TDAQ/Resources/ATLAS/SCT/Robins',
+                     '/SCT/DAQ/Config/ChipSlim',
+                     '/SCT/DAQ/Config/Geog',
+                     '/SCT/DAQ/Config/MUR',
+                     '/SCT/DAQ/Config/Module',
+                     '/SCT/DAQ/Config/ROD',
+                     '/SCT/DAQ/Config/RODMUR',
+                     '/SCT/HLT/DCS/HV',
+                     '/SCT/HLT/DCS/MODTEMP',
+                     '/MUONALIGN/Onl/MDT/BARREL',
+                     '/MUONALIGN/Onl/MDT/ENDCAP/SIDEA',
+                     '/MUONALIGN/Onl/MDT/ENDCAP/SIDEC',
+                     '/MUONALIGN/Onl/TGC/SIDEA',
+                     '/MUONALIGN/Onl/TGC/SIDEC']
+
+        from RecExConfig.RecFlags import rec
+        from TrigCommon.AthHLT import get_sor_params
+        sor = get_sor_params(rec.RunNumber())
+
+        for i,f in enumerate(svcMgr.IOVDbSvc.Folders):
+            if any(name in f for name in ignore):
+                continue
+            if any(name in f for name in timebased):
+                svcMgr.IOVDbSvc.Folders[i] += '<forceTimestamp>%d</forceTimestamp>' % (sor['SORTime'] // int(1e9))
+            else:
+                svcMgr.IOVDbSvc.Folders[i] += '<forceRunNumber>%d</forceRunNumber>' % sor['RunNumber']
+
 
 
 ###############################################################
@@ -1117,8 +1155,12 @@ class enableSchedulerMon(_modifier):
     Enable SchedulerMonSvc
     """
     def preSetup(self):
-        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
         from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+        if not flags.Trigger.Online.isPartition:
+            log.debug('SchedulerMonSvc currently only works with athenaHLT / online partition. Skipping setup.')
+            return
+
+        from AthenaConfiguration.ComponentAccumulator import CAtoGlobalWrapper
         from TrigSteerMonitor.TrigSteerMonitorConfig import SchedulerMonSvcCfg
         CAtoGlobalWrapper(SchedulerMonSvcCfg, flags)
     

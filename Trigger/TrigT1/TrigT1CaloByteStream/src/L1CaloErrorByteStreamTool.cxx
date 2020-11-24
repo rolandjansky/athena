@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -86,7 +86,7 @@ void L1CaloErrorByteStreamTool::rodError(const uint32_t robid,
 // Fill vector with accumulated errors and reset
 
 StatusCode L1CaloErrorByteStreamTool::errors(std::vector<unsigned int>*
-                                                                 const errColl)
+                                                                 const errColl) const
 {
   ErrorMaps& maps = *m_maps;
   std::scoped_lock lock (maps.m_mutex);

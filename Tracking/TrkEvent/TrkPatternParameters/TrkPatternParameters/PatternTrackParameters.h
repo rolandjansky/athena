@@ -20,6 +20,7 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkPatternParameters/NoiseOnSurface.h"
+#include "CxxUtils/CachedValue.h"
 
 class MsgStream;
 
@@ -49,7 +50,8 @@ namespace Trk {
       // Main methods
       ///////////////////////////////////////////////////////////////////
 
-      const Surface&   associatedSurface ()     const {return   *m_surface;}
+      virtual
+      const Surface&   associatedSurface ()     const override {return   *m_surface;}
       bool             iscovariance      ()     const {return   m_covariance != nullptr ;}
       double           sinPhi            ()     const;
       double           cosPhi            ()     const;
@@ -58,8 +60,8 @@ namespace Trk {
       double           cotTheta          ()     const;
       void             changeDirection   ()          ;
 
-      virtual const Amg::Vector3D& position() const override final;
-      virtual const Amg::Vector3D& momentum() const override final;
+      virtual Amg::Vector3D position() const override final;
+      virtual Amg::Vector3D momentum() const override final;
       virtual double charge() const override final;
       virtual bool hasSurface() const override final;
       virtual Amg::RotationMatrix3D measurementFrame() const override final;
@@ -109,8 +111,8 @@ namespace Trk {
       // Print
       ///////////////////////////////////////////////////////////////////
 
-      std::ostream& dump(std::ostream&) const;
-      MsgStream&    dump(MsgStream&   ) const;	
+      virtual std::ostream& dump(std::ostream&) const override;
+      virtual MsgStream&    dump(MsgStream&   ) const override;
 
     protected:
       
@@ -119,7 +121,6 @@ namespace Trk {
       ///////////////////////////////////////////////////////////////////
 
       SurfaceUniquePtrT<const Surface> m_surface;
-      mutable bool          m_posmom_updated ATLAS_THREAD_SAFE = false;
 
       ///////////////////////////////////////////////////////////////////
       // Comments
@@ -144,9 +145,8 @@ namespace Trk {
       Amg::Vector3D localToGlobal(const PerigeeSurface     *) const;
       Amg::Vector3D localToGlobal(const ConeSurface        *) const;
 
-      void updateCache(void) const;
-      void updatePositionCache(void) const;
-      void updateMomentumCache(void) const;
+      Amg::Vector3D calculatePosition(void) const;
+      Amg::Vector3D calculateMomentum(void) const;
     };
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -192,12 +192,6 @@ namespace Trk {
             *m_covariance = *P.m_covariance;
           }
         }
-
-        if (P.m_posmom_updated) {
-          m_position = P.m_position;
-          m_momentum = P.m_momentum;
-          m_posmom_updated = true;
-        }
       }
 
       return (*this);
@@ -219,7 +213,6 @@ namespace Trk {
       m_parameters[ 3] = p[ 3];
       m_parameters[ 4] = p[ 4];
       m_covariance.reset(nullptr);
-      m_posmom_updated = false;
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -263,7 +256,6 @@ namespace Trk {
       m_parameters[ 2] = p[ 2];
       m_parameters[ 3] = p[ 3];
       m_parameters[ 4] = p[ 4];
-      m_posmom_updated = false;
       setCovariance(c  );
     }
 
@@ -329,8 +321,6 @@ namespace Trk {
 	N.correctionIMom() > 1. ? 
 	  m_parameters[ 4]/=N.correctionIMom() : m_parameters[ 4]*=N.correctionIMom();
       }
-
-      m_posmom_updated = false;
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -354,8 +344,6 @@ namespace Trk {
 	N.correctionIMom() > 1. ? 
 	  m_parameters[ 4]*=N.correctionIMom() : m_parameters[ 4]/=N.correctionIMom();
       }
-
-      m_posmom_updated = false;
     }
 
   ///////////////////////////////////////////////////////////////////
@@ -364,10 +352,11 @@ namespace Trk {
 
   inline double         PatternTrackParameters::charge        () const
     {
-      if (!m_posmom_updated) {
-        updateCache();
+      if (m_parameters[4] > 0.0) {
+        return 1.0;
+      } else {
+        return -1.0;
       }
-      return m_chargeDef.charge();
     }	
 
   inline double         PatternTrackParameters::sinPhi        () const
@@ -395,12 +384,9 @@ namespace Trk {
       return (1./tan(m_parameters[3]));
     }
 
-  inline const Amg::Vector3D& PatternTrackParameters::momentum      () const
+  inline Amg::Vector3D PatternTrackParameters::momentum      () const
     {
-      if (!m_posmom_updated) {
-        updateCache();
-      }
-      return m_momentum;
+      return calculateMomentum();
     }
 } // end of name space
 

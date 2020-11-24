@@ -83,20 +83,33 @@ namespace LVL1 {
 
  }
 
-StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][9]){
+StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][17]){
 
-  const int nrows = 16;
-  const int ncols = 9;
+  const int nrows = 16*2;
+  const int ncols = 17;
 
   int tmp_jTowersIDs_subset_FPGA[nrows][ncols];
+  
+  // FPGA boundaries in phi: 0.0, 1.6, 3.2, 4.8, 6.4
+  // Written explicitly:
+  // 5.6 -> 2.4 [core is 0.0 to 1.6]
+  // 0.8 -> 4.0 [core is 1.6 to 3.2]
+  // 2.4 -> 5.6 [core is 3.2 to 4.8]
+  // 4.0 -> 0.8 [core is 4.8 to 6.4]
 
   ATH_CHECK( m_jFEXFPGATool.retrieve() );
 
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
-  for (int myrow = 0; myrow<nrows; myrow++){
+  // 5.6 -> 2.4 [core is 0.0 to 1.6]
+  for (int myrow = 0; myrow<8; myrow++){
     for (int mycol = 0; mycol<ncols; mycol++){
-      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[myrow][mycol];
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[56+myrow][mycol]; // fills target rows 0-7 with source rows 56-63
+    }
+  }
+  for (int myrow = 8; myrow<32; myrow++){
+    for (int mycol = 0; mycol<ncols; mycol++){
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[myrow-8][mycol]; // fills target rows 8-31 with source rows 0-23
     }
   }
   ATH_CHECK(m_jFEXFPGATool->init(0, m_id));
@@ -107,9 +120,10 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][9]){
 
   //FPGA 1----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
-  for (int myrow = nrows; myrow<nrows*2; myrow++){
+  // 0.8 -> 4.0 [core is 1.6 to 3.2]
+  for (int myrow = 0; myrow<32; myrow++){
     for (int mycol = 0; mycol<ncols; mycol++){
-      tmp_jTowersIDs_subset_FPGA[myrow-nrows][mycol] = tmp_jTowersIDs_subset[myrow][mycol];
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[8+myrow][mycol]; // fills target rows 0-31 with source rows 8-39
     }
   }
   ATH_CHECK(m_jFEXFPGATool->init(1, m_id));
@@ -121,9 +135,10 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][9]){
 
   //FPGA 2----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
-  for (int myrow = nrows*2; myrow<nrows*3; myrow++){
+  // 2.4 -> 5.6 [core is 3.2 to 4.8]
+  for (int myrow = 0; myrow<32; myrow++){
     for (int mycol = 0; mycol<ncols; mycol++){
-      tmp_jTowersIDs_subset_FPGA[myrow-(nrows*2)][mycol] = tmp_jTowersIDs_subset[myrow][mycol];
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[24+myrow][mycol]; // fills target rows 0-31 with source rows 24-55 
     }
   }
   ATH_CHECK(m_jFEXFPGATool->init(2, m_id));
@@ -134,9 +149,15 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][9]){
 
   //FPGA 3----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
-  for (int myrow = nrows*3; myrow<nrows*4; myrow++){
+  // 4.0 -> 0.8 [core is 4.8 to 6.4]
+  for (int myrow = 0; myrow<24; myrow++){
     for (int mycol = 0; mycol<ncols; mycol++){
-      tmp_jTowersIDs_subset_FPGA[myrow-(nrows*3)][mycol] = tmp_jTowersIDs_subset[myrow][mycol];
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[40+myrow][mycol]; // fills target rows 0-23 with source rows 40-63
+    }
+  }
+  for (int myrow = 24; myrow<32; myrow++){
+    for (int mycol = 0; mycol<ncols; mycol++){
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[myrow-24][mycol]; // fills target rows 24-31 with source rows 0-8
     }
   }
   ATH_CHECK(m_jFEXFPGATool->init(3, m_id));
@@ -149,12 +170,19 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][9]){
 
 }
 
-StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][8]){
+StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][24]){
 
   //std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(10*18),&m_jTowersIDs[0][0]);
 
-  const int nrows = 16;
-  const int ncols = 8;
+  const int nrows = 16*2;
+  const int ncols = 24;
+
+  // FPGA boundaries in phi: 0.0, 1.6, 3.2, 4.8, 6.4
+  // Written explicitly:
+  // 5.6 -> 2.4 [core is 0.0 to 1.6]
+  // 0.8 -> 4.0 [core is 1.6 to 3.2]
+  // 2.4 -> 5.6 [core is 3.2 to 4.8]
+  // 4.0 -> 0.8 [core is 4.8 to 6.4]
 
   int tmp_jTowersIDs_subset_FPGA[nrows][ncols];
 
@@ -162,9 +190,15 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][8]){
   
   //FPGA 0----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
-  for (int myrow = 0; myrow<nrows; myrow++){
+  // 5.6 -> 2.4 [core is 0.0 to 1.6]
+  for (int myrow = 0; myrow<8; myrow++){
     for (int mycol = 0; mycol<ncols; mycol++){
-      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[myrow][mycol];
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[56+myrow][mycol]; // fills target rows 0-7 with source rows 56-63
+    }
+  }
+  for (int myrow = 8; myrow<32; myrow++){
+    for (int mycol = 0; mycol<ncols; mycol++){
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[myrow-8][mycol]; // fills target rows 8-31 with source rows 0-23
     }
   }
   ATH_CHECK(m_jFEXFPGATool->init(0, m_id));
@@ -175,9 +209,10 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][8]){
   
   //FPGA 1----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
-  for (int myrow = nrows; myrow<nrows*2; myrow++){
+  // 0.8 -> 4.0 [core is 1.6 to 3.2]
+  for (int myrow = 0; myrow<32; myrow++){
     for (int mycol = 0; mycol<ncols; mycol++){
-      tmp_jTowersIDs_subset_FPGA[myrow-nrows][mycol] = tmp_jTowersIDs_subset[myrow][mycol];
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[8+myrow][mycol]; // fills target rows 0-31 with source rows 8-39
     }
   }
   ATH_CHECK(m_jFEXFPGATool->init(1, m_id));
@@ -189,9 +224,10 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][8]){
 
   //FPGA 2----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
-  for (int myrow = nrows*2; myrow<nrows*3; myrow++){
+  // 2.4 -> 5.6 [core is 3.2 to 4.8]
+  for (int myrow = 0; myrow<32; myrow++){
     for (int mycol = 0; mycol<ncols; mycol++){
-      tmp_jTowersIDs_subset_FPGA[myrow-(nrows*2)][mycol] = tmp_jTowersIDs_subset[myrow][mycol];
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[24+myrow][mycol]; // fills target rows 0-31 with source rows 24-55
     }
   }
   ATH_CHECK(m_jFEXFPGATool->init(2, m_id));
@@ -202,9 +238,15 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][8]){
 
   //FPGA 3----------------------------------------------------------------------------------------------------------------------------------------------
   memset(tmp_jTowersIDs_subset_FPGA, 0, sizeof tmp_jTowersIDs_subset_FPGA);
-  for (int myrow = nrows*3; myrow<nrows*4; myrow++){
+  // 4.0 -> 0.8 [core is 4.8 to 6.4]
+  for (int myrow = 0; myrow<24; myrow++){
     for (int mycol = 0; mycol<ncols; mycol++){
-      tmp_jTowersIDs_subset_FPGA[myrow-(nrows*3)][mycol] = tmp_jTowersIDs_subset[myrow][mycol];
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[40+myrow][mycol]; // fills target rows 0-23 with source rows 40-63
+    }
+  }
+  for (int myrow = 24; myrow<32; myrow++){
+    for (int mycol = 0; mycol<ncols; mycol++){
+      tmp_jTowersIDs_subset_FPGA[myrow][mycol] = tmp_jTowersIDs_subset[myrow-24][mycol]; // fills target rows 24-31 with source rows 0-8
     }
   }
   ATH_CHECK(m_jFEXFPGATool->init(3, m_id));
@@ -217,12 +259,12 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][8]){
 
 }
 
-void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[16][8]){ // METHOD USING ONLY IDS
+void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[16*2][17]){ // METHOD USING ONLY IDS
 
-  const int nrows = 16;
-  const int ncols = 8;
+  const int nrows = 16*2;
+  const int ncols = 17;
 
-  std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(nrows*ncols),&m_jTowersIDs_Thin[0][0]);
+  std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(nrows*ncols),&m_jTowersIDs_Wide[0][0]);
 
   int tmp_jTowersIDs_subset_FPGA[nrows][ncols];
   
@@ -269,12 +311,12 @@ void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[16][8]){ // METHOD 
   
 }
 
-  void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[16][9]){ // METHOD USING ONLY IDS
+  void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[16*2][24]){ // METHOD USING ONLY IDS
 
-    const int nrows = 16;
-    const int ncols = 9;
+    const int nrows = 16*2;
+    const int ncols = 24;
 
-    std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(nrows*ncols),&m_jTowersIDs_Wide[0][0]);
+    std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(nrows*ncols),&m_jTowersIDs_Thin[0][0]);
 
     int tmp_jTowersIDs_subset_FPGA[nrows][ncols];
 

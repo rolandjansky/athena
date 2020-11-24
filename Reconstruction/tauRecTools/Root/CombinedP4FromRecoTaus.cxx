@@ -110,7 +110,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 
 
 StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& tau) const {
-  TLorentzVector combinedP4(tau.p4(xAOD::TauJetParameters::TauEtaCalib));
+  TLorentzVector combinedP4(tau.p4(xAOD::TauJetParameters::TauEnergyScale));
   
   // used to store immediate results
   Variables variables;
@@ -162,10 +162,10 @@ bool CombinedP4FromRecoTaus::getUseCaloPtFlag(const xAOD::TauJet& tau) const {
   xAOD::TauJetParameters::DecayMode decayMode = getDecayMode(tau);  
   int decayModeIndex = getDecayModeIndex(decayMode);
 
-  int etaIndex = getEtaIndex(tau.etaTauEtaCalib());
+  int etaIndex = getEtaIndex(tau.etaTauEnergyScale());
   
-  double caloSigma = tau.ptTauEtaCalib() * getCaloResolution(tau.ptTauEtaCalib(), decayModeIndex, etaIndex);
-  double deltaEt = tau.ptFinalCalib() - tau.ptTauEtaCalib();
+  double caloSigma = tau.ptTauEnergyScale() * getCaloResolution(tau.ptTauEnergyScale(), decayModeIndex, etaIndex);
+  double deltaEt = tau.ptFinalCalib() - tau.ptTauEnergyScale();
   
   bool useCaloPt = false;
   
@@ -334,11 +334,11 @@ double CombinedP4FromRecoTaus::getWeight(const double& caloSigma,
 double CombinedP4FromRecoTaus::getCombinedSigma(const double& caloSigma,
 					                            const double& panTauSigma,
                                                 const double& correlation) const {
-  // FIXME: the calculation seems not right
-  double combinedSigma2 = std::pow(caloSigma, 2) + std::pow(panTauSigma, 2) 
-                          - 2 * correlation * caloSigma * panTauSigma;
+  double numerator = std::pow(caloSigma, 2) * std::pow(panTauSigma, 2) * (1 - std::pow(correlation, 2));
+  double denominator = std::pow(caloSigma, 2) + std::pow(panTauSigma, 2) 
+                       - 2 * correlation * caloSigma * panTauSigma;
   
-  return std::sqrt(combinedSigma2);
+  return std::sqrt(numerator/denominator);
 }
 
 
@@ -426,7 +426,7 @@ double CombinedP4FromRecoTaus::getCombinedEt(const double& caloEt,
 
 
 TLorentzVector CombinedP4FromRecoTaus::getCombinedP4(const xAOD::TauJet& tau, Variables& variables) const {
-  const TLorentzVector& caloP4 = tau.p4(xAOD::TauJetParameters::TauEtaCalib);
+  const TLorentzVector& caloP4 = tau.p4(xAOD::TauJetParameters::TauEnergyScale);
   const TLorentzVector& panTauP4 = tau.p4(xAOD::TauJetParameters::PanTauCellBased);
     
   ATH_MSG_DEBUG("Four momentum at calo TES, pt: " << caloP4.Pt() << " eta: " << caloP4.Eta() << 

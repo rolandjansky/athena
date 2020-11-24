@@ -40,10 +40,8 @@ def _configureWriteAthenaPool():
     # Increase default BasketSize to 32K, ROOT default (but overwritten by POOL)
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '32000'" ]
 
-    # Turn off auto_flush for DataHeader container to avoid basket optimization
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'POOLContainer(DataHeader)'; BRANCH_BASKET_SIZE = '256000'" ]
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'POOLContainerForm(DataHeaderForm)'; BRANCH_BASKET_SIZE = '1024000'" ]
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '99'" ]
+    # Set POOLContainerForm(DataHeaderForm) split level to 0
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainerForm(DataHeaderForm)'; CONTAINER_SPLITLEVEL = '0'" ]
 
     svcMgr.AthenaPoolCnvSvc.TopLevelContainerName = ""
     svcMgr.AthenaPoolCnvSvc.SubLevelBranchName = "<type>/<key>"

@@ -98,6 +98,7 @@ StatusCode CpByteStreamTool::initialize()
 
   ATH_CHECK( m_cpmMaps.retrieve() );
   ATH_CHECK( m_errorTool.retrieve() );
+  ATH_CHECK( m_byteStreamCnvSvc.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -137,16 +138,17 @@ StatusCode CpByteStreamTool::convert(
 
 // Conversion of CP container to bytestream
 
-StatusCode CpByteStreamTool::convert(const LVL1::CPBSCollection* const cp,
-                                           RawEventWrite* const re) const
+StatusCode CpByteStreamTool::convert(const LVL1::CPBSCollection* const cp) const
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug) msg(MSG::DEBUG);
 
-  // Clear the event assembler
-  FullEventAssembler<L1CaloSrcIdMap> fea;
+  // Get the event assembler
+  FullEventAssembler<L1CaloSrcIdMap>* fea = nullptr;
+  ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler (fea,
+                                                        "CpByteStream") );
   const uint16_t minorVersion = m_srcIdMap.minorVersion();
-  fea.setRodMinorVersion(minorVersion);
+  fea->setRodMinorVersion(minorVersion);
 
   // Pointer to ROD data vector
 
@@ -222,7 +224,7 @@ StatusCode CpByteStreamTool::convert(const LVL1::CPBSCollection* const cp,
         userHeader.setCpm(trigCpmNew);
 	const uint32_t rodIdCpm = m_srcIdMap.getRodID(hwCrate, slink, daqOrRoi,
 	                                                        m_subDetector);
-	theROD = fea.getRodData(rodIdCpm);
+	theROD = fea->getRodData(rodIdCpm);
 	theROD->push_back(userHeader.header());
       }
       if (debug) msg() << "Module " << module << endmsg;
@@ -412,10 +414,6 @@ StatusCode CpByteStreamTool::convert(const LVL1::CPBSCollection* const cp,
       subBlock->write(theROD);
     }
   }
-
-  // Fill the raw event
-
-  fea.fill(re, msg());
 
   return StatusCode::SUCCESS;
 }

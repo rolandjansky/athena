@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Class to obtain the chain configuration dictionary from the short or long name
@@ -148,6 +148,7 @@ def getChainMultFromDict(chainDict):
     Look for all multiplicities stored in chains
     """
     allMultis = []
+   
     for cpart in chainDict['chainParts']:
         if cpart['multiplicity'] != '':
             allMultis.append( int(cpart['multiplicity']))
@@ -230,6 +231,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                      'trigType': sigToken, 'extra': ''}
         mdicts.append( groupdict )
 
+       
     log.debug("chain parts: %s", cparts)
     for cpart in cparts:
 
@@ -252,13 +254,13 @@ def analyseChainName(chainName, L1thresholds, L1item):
                 if theMultiChainIndex not in multichainindex:
                     multichainindex.append(theMultiChainIndex)
 
-            log.debug("HLTChainName: %s", hltChainName)
-            log.debug("HLTChainNameShort: %s", hltChainNameShort)
-            log.debug("cpart: %s", cpart)
-            log.debug("groupdict: %s", groupdict)
-            log.debug("multichainindex: %s", multichainindex)
+                    log.debug("HLTChainName: %s", hltChainName)
+                    log.debug("HLTChainNameShort: %s", hltChainNameShort)
+                    log.debug("cpart: %s", cpart)
+                    log.debug("groupdict: %s", groupdict)
+                    log.debug("multichainindex: %s", multichainindex)
 
-            sName = getSignatureNameFromToken(cpart)
+                sName = getSignatureNameFromToken(cpart)
             
             groupdict['signature'] = sName
             groupdict['alignmentGroup'] = getAlignmentGroupFromPattern(sName, groupdict['extra'])
@@ -279,7 +281,7 @@ def analyseChainName(chainName, L1thresholds, L1item):
                                   (AllowedBeamspotChainIdentifiers, 'Beamspot', 'beamspot'),
                                   (['eb'], 'EnhancedBias', 'eb')]:
                 if cpart in chainCategory[0]:
-                    log.debug('Doing chain type {}'.format(chainCategory[1]))
+                    log.debug('Doing chain type %s', chainCategory[1])
                     multichainindex.append(hltChainNameShort.index(cpart))
                     buildDict(chainCategory[1], chainCategory[2])
 
@@ -501,7 +503,7 @@ def dictFromChainName(chainInfo):
         mergingOffset   = chainInfo.mergingOffset
         mergingOrder    = chainInfo.mergingOrder
         topoStartFrom   = chainInfo.topoStartFrom
-
+        
     else:
         assert True, "Format of chainInfo passed to genChainDict not known"
 

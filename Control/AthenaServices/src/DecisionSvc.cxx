@@ -434,7 +434,7 @@ void DecisionSvc::DeclareToCutFlowSvc()
       ATH_MSG_DEBUG("Declaring logic " << logicalKey << " for " << streamName);
       for (auto filter  = (*vec)->begin();
                 filter != (*vec)->end(); ++filter) {
-        if(!m_cutflowSvc.empty()) {m_cutflowSvc->registerTopFilter( (*filter), logicalKey, 2, streamName ); }
+        if(!m_cutflowSvc.empty()) {m_cutflowSvc->registerTopFilter( (*filter), logicalKey, 2, streamName, true ); } // TODO: validate
       }
     }
   }

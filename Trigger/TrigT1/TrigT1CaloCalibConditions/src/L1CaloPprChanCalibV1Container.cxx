@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprChanCalibV1Container.h"
@@ -40,6 +40,7 @@ L1CaloPprChanCalibV1Container::L1CaloPprChanCalibV1Container()
 L1CaloPprChanCalibV1Container::L1CaloPprChanCalibV1Container(const std::string& folderKey)
   : L1CaloPprChanCalibV1Container() // delegating constructor
 {
+  // cppcheck-suppress useInitializationList
   m_coolFolderKey = folderKey;
 }
 
@@ -81,7 +82,7 @@ DataObject* L1CaloPprChanCalibV1Container::makePersistent() const
   return static_cast<DataObject*>(attrListCollection.release());
 }
 
-void L1CaloPprChanCalibV1Container::makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap)
+void L1CaloPprChanCalibV1Container::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap)
 {
   clear();
 

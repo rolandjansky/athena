@@ -51,9 +51,9 @@ namespace TrigL2MuonSA {
     double calc_residual(double aw,
 			 double bw,
 			 double x,
-			 double y);
+			 double y) const;
 
-    double calc_residual_phi(double aw, double bw, double phiw, double hitphi, double hitz);
+    double calc_residual_phi(double aw, double bw, double phiw, double hitphi, double hitz) const;
 
   private:
 

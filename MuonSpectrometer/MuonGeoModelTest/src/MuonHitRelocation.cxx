@@ -154,16 +154,15 @@ StatusCode MuonHitRelocation::execute() {
 
   Amg::Vector3D direction(0., 0., 0.);
   for (e=mcEvent->begin();e!=mcEvent->end(); e++) {
-    for (HepMC::GenEvent::particle_const_iterator p= (**e).particles_begin();
-	 p!= (**e).particles_end(); p++) {
+    for (auto p: (**e)) {
 
-        float xv = (**p).production_vertex()->position().x();
-        float yv = (**p).production_vertex()->position().y();
-        float zv = (**p).production_vertex()->position().z();
- 	float xd = (**p).momentum().px();
- 	float yd = (**p).momentum().py();
- 	float zd = (**p).momentum().pz();
- 	float mag = sqrt(xd*xd + yd*yd + zd*zd);
+        float xv = p->production_vertex()->position().x();
+        float yv = p->production_vertex()->position().y();
+        float zv = p->production_vertex()->position().z();
+        float xd = p->momentum().px();
+        float yd = p->momentum().py();
+        float zd = p->momentum().pz();
+        float mag = sqrt(xd*xd + yd*yd + zd*zd);
         direction[0] = xd/mag;
         direction[1] = yd/mag;
         direction[2] = zd/mag;

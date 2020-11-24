@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: __init__.py 348546 2011-03-01 15:09:56Z krasznaa $
 #
 # @file D3PDMakerReader/python/__init__.py
 # @author scott snyder <snyder@bnl.gov>
@@ -22,5 +21,5 @@ for k, v in D3PDMakerReaderConf.__dict__.items():
         globals()[k[6:]] = v
 
 # Bring the reader algorithms into this scope as well.
-from ReaderAlg import ReaderAlg
-from MultiReaderAlg import MultiReaderAlg
+from ReaderAlg import ReaderAlg             # noqa: F401
+from MultiReaderAlg import MultiReaderAlg   # noqa: F401

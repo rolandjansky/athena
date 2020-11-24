@@ -40,7 +40,7 @@ namespace InDet {
       static SG::AuxElement::ConstAccessor< Link_t > linkAcc( m_truthParticleLinkName.data() );
       const Link_t& link = linkAcc( *track );
       if( link.isValid() ) {
-	truth = *link;
+	      truth = *link;
       }
     }
 
@@ -49,86 +49,84 @@ namespace InDet {
 
     int origin = 0;
 
-    // not matched to truth: call it fake
+    // truth link is broken: call it from pileup (not true for < 100 MeV!)
+    if (!truth){
+      origin = origin | (0x1 << InDet::TrkOrigin::Pileup);
+    }
+
+    // low TruthMatchProbability: call it fake (also includes poorly reconstructed tracks)
     if(truthProb < m_matchingProbabilityCut) {
       origin = origin | (0x1 << InDet::TrkOrigin::Fake);
     }
-    // matched to truth: find truth origin
-    else{
-      // matched but truth link is broken: call it from pileup (not true for < 100 MeV!)
-      if (!truth){
-	origin = origin | (0x1 << InDet::TrkOrigin::Pileup);
+    
+    // truth link is present: find truth origin
+    if (truth) {
+  
+      // is it fragmentation? yes until proven otherwise
+      bool isFragmentation = true;
+
+      // from B decay chain?
+      if(isFrom(truth, 5)) {
+        origin = origin | (0x1 << InDet::TrkOrigin::BHadronDecay);
+        isFragmentation = false;
       }
 
-      // matched and link is present: find trutn origin
-      else{
+      // from D decay chain?
+      if(isFrom(truth, 4)) {
+        origin = origin | (0x1 << InDet::TrkOrigin::DHadronDecay);
+        isFragmentation = false;
+      }
 
-	// is it fragmentation? yes until proven otherwise
-	bool isFragmentation = true;
+      // Secondary? check based on barcode: secondaries are produced by G4,
+      // and have barcodes > 2e5.
+      int truthBarcode = truth->barcode();
+      if (truthBarcode > m_barcodeG4) {
+        // sub-categorize secondaries...
+        int parentID = getParentID(truth);
 
-	// from B decay chain?
-	if(isFrom(truth, 5)) {
-	  origin = origin | (0x1 << InDet::TrkOrigin::BHadronDecay);
-	  isFragmentation = false;
-	}
+        // photon conversions
+        if(parentID == 22) {
+          origin = origin | (0x1 << InDet::TrkOrigin::GammaConversion);
+        }
 
-	// from D decay chain?
-	if(isFrom(truth, 4)) {
-	  origin = origin | (0x1 << InDet::TrkOrigin::DHadronDecay);
-	  isFragmentation = false;
-	}
+        // K-short
+        else if(parentID == 310) {
+          origin = origin | (0x1 << InDet::TrkOrigin::KshortDecay);
+        }
 
-	// Secondary? check based on barcode: secondaries are produced by G4.
-	int truthBarcode = truth->barcode();
-	if (truthBarcode > m_barcodeG4) {
-	  // sub-categorize secondaries...
-	  int parentID = getParentID(truth);
+        // Lambda
+        else if(abs(parentID) == 3122){
+          origin = origin | (0x1 << InDet::TrkOrigin::LambdaDecay);
+        }
 
-	  // photon conversions
-	  if(parentID == 22) {
-	    origin = origin | (0x1 << InDet::TrkOrigin::GammaConversion);
-	  }
+        // other long living particle decays
+        else if(abs(parentID) > 3) {
+          origin = origin | (0x1 << InDet::TrkOrigin::OtherDecay);
+        }
 
-	  // K-short
-	  else if(parentID == 310) {
-	    origin = origin | (0x1 << InDet::TrkOrigin::KshortDecay);
-	  }
+        // hadronic interactions
+        else if(parentID == -1) {
+          origin = origin | (0x1 << InDet::TrkOrigin::HadronicInteraction);
+        }
 
-	  // Lambda
-	  else if(abs(parentID) == 3122){
-	    origin = origin | (0x1 << InDet::TrkOrigin::LambdaDecay);
-	  }
+        // other secondaries? 
+        //  ---> Not sure what if anything should be here...
+        else if(parentID == -2) {
+          origin = origin | (0x1 << InDet::TrkOrigin::OtherSecondary);
+        }
 
-	  // other long living particle decays
-	  else if(abs(parentID) > 3) {
-	    origin = origin | (0x1 << InDet::TrkOrigin::OtherDecay);
-	  }
+        // other unknown origin (e.g. parent not in the record:) 
+        //  ---> Not sure what if anything should be here...
+        else{
+          origin = origin | (0x1 << InDet::TrkOrigin::OtherOrigin);
+        }
 
-	  // hadronic interactions
-	  else if(parentID == -1) {
-	    origin = origin | (0x1 << InDet::TrkOrigin::HadronicInteraction);
-	  }
+        isFragmentation = false;
+      }
 
-	  // other secondaries? 
-	  //  ---> Not sure what if anything should be here...
-	  else if(parentID == -2) {
-	    origin = origin | (0x1 << InDet::TrkOrigin::OtherSecondary);
-	  }
-
-	  // other unknown origin (e.g. parent not in the record:) 
-	  //  ---> Not sure what if anything should be here...
-	  else{
-	    origin = origin | (0x1 << InDet::TrkOrigin::OtherOrigin);
-	  }
-
-	  isFragmentation = false;
-	}
-
-	// uncategorized: call it fragmentation
-	if(isFragmentation) {
-	  origin = origin | (0x1 << InDet::TrkOrigin::Fragmentation);
-	}
-
+      // uncategorized: call it fragmentation
+      if(isFragmentation) {
+        origin = origin | (0x1 << InDet::TrkOrigin::Fragmentation);
       }
     }
   
@@ -140,8 +138,6 @@ namespace InDet {
     if ( part == nullptr ) return false;
 
     if( flav != 5 && flav != 4 ) return false;
-
-    if( ! part->isHadron() ) return false;
 
     if( flav == 5 && part->isBottomHadron() ) return true;
 

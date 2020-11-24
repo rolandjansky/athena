@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_FASTREDUCER_H
 #define TRIGHLTJETHYPO_FASTREDUCER_H
 
-
-#include "./ConditionsDefsMT.h"
+#include "./CapacityCheckedConditionsDefs.h"
 #include "./Tree.h"
 #include "./JetGroupProduct.h"
 #include "./JetGroupIndAllocator.h"
@@ -30,7 +29,7 @@ class FastReducer {
 
   FastReducer(const HypoJetGroupCIter& groups_b,
               const HypoJetGroupCIter& groups_e,
-              const ConditionsMT& conditionObjects,
+              const ConditionPtrs& conditionObjects,
               const Tree& conditionsTree,
               const std::vector<std::vector<int>>& sharedConditions,
               xAODJetCollector& jetCollector,
@@ -47,7 +46,7 @@ class FastReducer {
 
  private:
 
-  const ConditionsMT& m_conditions;
+  const ConditionPtrs& m_conditions;
 
   /** tree structure for Conditions objects.
    The conditions tree gives relations among conditions (eg parent-child
@@ -114,6 +113,8 @@ class FastReducer {
   void collectLeafJets(xAODJetCollector& jetCollector,
 		       const Collector& collector) const;
 
+  bool capacitySatisfied(std::size_t ind,
+			 const Collector& collector) const;
 
 };
 #endif

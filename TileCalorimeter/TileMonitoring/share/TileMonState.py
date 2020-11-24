@@ -53,7 +53,9 @@ ByteStreamEmonInputSvc = svcMgr.ByteStreamInputSvc
 # ############################################################
 
 if 'Partition' not in dir():
-    Partition="ATLAS"
+    import os
+    Partition = os.getenv("TDAQ_PARTITION","ATLAS")
+
 ByteStreamEmonInputSvc.Partition = Partition
 
 
@@ -127,7 +129,7 @@ else:
 # #########################################
 #ByteStreamEmonInputSvc.Key = "ReadoutApplication"
 if 'Key' not in dir():
-    Key="dcm"
+    Key = {'ATLAS' : 'dcm', 'TileMon' : 'CompleteEvent', 'Tile' : 'ReadoutApplication'}.get(Partition, 'dcm')
 ByteStreamEmonInputSvc.Key = Key
 
 # ############################################################
@@ -139,6 +141,8 @@ ByteStreamEmonInputSvc.Key = Key
 #    KeyValue=[""]
 #ByteStreamEmonInputSvc.KeyValue = KeyValue
 
+if Partition == 'Tile':
+    KeyValue = ['TileREB-ROS']
 if 'KeyValue' in dir():
     ByteStreamEmonInputSvc.KeyValue = KeyValue
 

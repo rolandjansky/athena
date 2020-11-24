@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:element name="hdef">
+        <xs:annotation>
+            <xs:documentation>An hdef root definition may contain one or more histogram definitions,
+                or 'h' elements.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element maxOccurs="unbounded" ref="h"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="h">
+        <xs:annotation>
+            <xs:documentation>A histogram definition must have title, type and unique id attributes. It
+                must contain at least x and y (axis) elements, and optionally a z axis
+                element.</xs:documentation>
+        </xs:annotation>
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="x" />
+                <xs:element ref="y"/>
+                <xs:element ref="z" minOccurs="0"/>
+            </xs:sequence>
+            <xs:attribute name="id" use="required" type="xs:ID"/>
+            <xs:attribute name="title" use="required" type="xs:string"/>
+            <xs:attribute name="type" use="required" type="histogramType"/>
+        </xs:complexType>
+    </xs:element>
+    
+    <xs:element name="x" type="xAxisDef"><xs:annotation>
+            <xs:documentation>An x axis definition must have title, lo, hi and n (i.e. nbins) attributes.</xs:documentation>
+        </xs:annotation></xs:element>
+    <xs:element name="y" type="axisDef"><xs:annotation>
+            <xs:documentation>A y axis definition must have a title attribute, and may have lo, hi, n attributes.</xs:documentation>
+        </xs:annotation></xs:element>
+    <xs:element name="z" type="axisDef"><xs:annotation>
+            <xs:documentation>A z axis definition must have a title attribute, and may have lo, hi, n attributes.</xs:documentation>
+        </xs:annotation>
+    </xs:element>
+    <!-- types used above -->
+    <!-- x axis definition -->
+    <xs:complexType name="xAxisDef">
+      <xs:attribute name="hi" use="required" type="xs:double"/>
+            <xs:attribute name="lo" use="required" type="xs:double"/>
+            <xs:attribute name="n" use="required" type="xs:positiveInteger"/>
+            <xs:attribute name="title" use="required" type="xs:string"/>
+    </xs:complexType>
+    
+    <!-- optional axes definitions (y,z) -->
+    <xs:complexType name="axisDef">
+      <xs:attribute name="hi" type="xs:double"/>
+            <xs:attribute name="lo" type="xs:double"/>
+            <xs:attribute name="n" type="xs:positiveInteger"/>
+            <xs:attribute name="title" use="required" type="xs:string"/>
+    </xs:complexType>
+    <!-- Types of histograms allowed -->
+    <xs:simpleType name="histogramType">
+    <xs:annotation>
+      <xs:documentation>Histogram types understood in this package</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="TH1"/>
+      <xs:enumeration value="TH2"/>
+      <xs:enumeration value="TH3"/>
+      <xs:enumeration value="TH1F"/>
+      <xs:enumeration value="TH2F"/>
+      <xs:enumeration value="TH3F"/>
+      <xs:enumeration value="TProfile"/>
+      <xs:enumeration value="TEfficiency"/>
+    </xs:restriction>
+  </xs:simpleType>
+</xs:schema>
+

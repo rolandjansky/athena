@@ -17,19 +17,15 @@
 #ifndef BCM_RAWDATABYTESTREAMCNV_BCM_RAWCONTBYTESTREAMCNV_H
 #define BCM_RAWDATABYTESTREAMCNV_BCM_RAWCONTBYTESTREAMCNV_H
 
-#include "GaudiKernel/Converter.h"
+#include "AthenaBaseComps/AthConstConverter.h"
 
 #include "ByteStreamData/RawEvent.h" 
-
-//including the Message Stream Member
-#include "AthenaKernel/MsgStreamMember.h"
-#include "CxxUtils/checker_macros.h"
 
 class BCM_RawContByteStreamTool;
 class IByteStreamEventAccess;
 class StoreGateSvc;
 
-class BCM_RawContByteStreamCnv: public Converter {
+class BCM_RawContByteStreamCnv: public AthConstConverter {
 
  public:
 
@@ -39,28 +35,15 @@ class BCM_RawContByteStreamCnv: public Converter {
   virtual StatusCode initialize() override;
 
   // create the RawEvent fragments for BCM
-  virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr) override;
+  virtual StatusCode createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const override;
 
   // Storage type and class ID
   virtual long repSvcType() const override { return i_repSvcType(); }
   static long storageType();
   static const CLID& classID();
 
-  //Declaring the Message method for further use
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-
-  //Declaring the Method providing Verbosity Level
-  bool msgLevel (MSG::Level lvl){ return m_msg.get().level() <= lvl; }
 
 private: 
-
   BCM_RawContByteStreamTool* m_BCMRawContBSTool;
-
-  IByteStreamEventAccess* m_ByteStreamEventAccess; 
-
-
-  //Declaring private message stream member.
-  mutable Athena::MsgStreamMember m_msg ATLAS_THREAD_SAFE;
-
 };
 #endif

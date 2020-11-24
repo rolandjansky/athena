@@ -29,7 +29,7 @@ atlas_add_library( xAODRootAccess
    PUBLIC_HEADERS xAODRootAccess
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers xAODCore xAODEventFormat
-   xAODRootAccessInterfaces ${extra_libs} )
+   xAODRootAccessInterfaces AsgMessagingLib ${extra_libs} )
 
 # Build a (Reflex) dictionary library:
 atlas_add_dictionary( xAODRootAccessDict
@@ -69,16 +69,14 @@ endmacro( _add_test )
 if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    _add_test( ut_xaodrootaccess_metadata_test )
    _add_test( ut_xaodrootaccess_athenaMode_test )
-endif()
-if( NOT GENERATIONBASE )
    _add_test( ut_xaodrootaccess_remap_test )
+   _add_test( ut_xaodrootaccess_slimming_test )
+   _add_test( ut_xaodrootaccess_stats_test )
+   _add_test( ut_xaodrootaccess_tchain_test )
 endif()
-_add_test( ut_xaodrootaccess_slimming_test )
-_add_test( ut_xaodrootaccess_stats_test )
 _add_test( ut_xaodrootaccess_tauxvector_test )
 _add_test( ut_xaodrootaccess_tauxstore_test )
 _add_test( ut_xaodrootaccess_tauxstore_insertmove_test )
-_add_test( ut_xaodrootaccess_tchain_test )
 _add_test( ut_xaodrootaccess_tfileaccesstracer_test )
 _add_test( ut_xaodrootaccess_tfilemerger_test )
 _add_test( ut_xaodrootaccess_tstore_test )

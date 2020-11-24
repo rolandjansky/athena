@@ -15,22 +15,26 @@ ROBDataStruct::ROBDataStruct()
   : rob_id(0),
     rob_size(0),
     rob_history(robmonitor::UNCLASSIFIED),
-    rob_status_words()
+    rob_status_word(0)
 {}
 
 ROBDataStruct::ROBDataStruct(const uint32_t srcId)
   : rob_id(srcId),
     rob_size(0),
     rob_history(robmonitor::UNCLASSIFIED),
-    rob_status_words()
+    rob_status_word(0)
 {}
 
 bool ROBDataStruct::isUnclassified() const {
   return ((rob_history == robmonitor::UNCLASSIFIED) ? true : false);
 }
 
-bool ROBDataStruct::isCached() const {
-  return ((rob_history == robmonitor::CACHED) ? true : false);
+bool ROBDataStruct::isHLTCached() const {
+  return ((rob_history == robmonitor::HLT_CACHED) ? true : false);
+}
+
+bool ROBDataStruct::isDCMCached() const {
+  return ((rob_history == robmonitor::DCM_CACHED) ? true : false);
 }
 
 bool ROBDataStruct::isRetrieved() const {
@@ -49,11 +53,8 @@ bool ROBDataStruct::isScheduled() const {
   return ((rob_history == robmonitor::SCHEDULED) ? true : false);
 }
 
-
 bool ROBDataStruct::isStatusOk() const {
-  if (rob_status_words.size() == 0) return true;
-  if ((rob_status_words.size() > 0) && (rob_status_words[0] == 0)) return true;
-  return false;
+  return (rob_status_word == 0) ? true : false;
 }
 
 
@@ -102,11 +103,20 @@ unsigned ROBDataMonitorStruct::unclassifiedROBs() const {
   return ret;
 } 
 
-unsigned ROBDataMonitorStruct::cachedROBs() const {
+unsigned ROBDataMonitorStruct::HLTcachedROBs() const {
   ptrdiff_t ret=0;
   for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
         it != requested_ROBs.end(); it++ ) {
-    if ((*it).second.isCached()) ++ret;
+    if ((*it).second.isHLTCached()) ++ret;
+  }     
+  return ret;
+}
+
+unsigned ROBDataMonitorStruct::DCMcachedROBs() const {
+  ptrdiff_t ret=0;
+  for ( std::map<const uint32_t,robmonitor::ROBDataStruct>::const_iterator it = requested_ROBs.begin();
+        it != requested_ROBs.end(); it++ ) {
+    if ((*it).second.isDCMCached()) ++ret;
   }     
   return ret;
 }

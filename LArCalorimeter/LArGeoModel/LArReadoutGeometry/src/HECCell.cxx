@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArReadoutGeometry/HECCell.h"
@@ -13,24 +13,28 @@ HECCell::~HECCell()
 
 
 unsigned int HECCell::getNumSubgaps() const {
-  //if (m_subgap.size()==0) initHV();
-  if(!m_initHVdone) initHV();
-  return m_subgap.size();
+  return getSubgaps().size();
 }
 
 const HECHVSubgap& HECCell::getSubgap (unsigned int i) const {
-  //if (m_subgap.size()==0) initHV();
-  if(!m_initHVdone) initHV();
-  return *(m_subgap[i]);
+  return *getSubgaps()[i];
 }
 
-void HECCell::initHV() const {
 
-  if(m_initHVdone) return; // should be done only once
+const std::vector<const HECHVSubgap*>&
+HECCell::getSubgaps() const
+{
+  if (!m_subgaps.isValid()) {
+    std::vector<const HECHVSubgap*> subgaps;
+    initHV (subgaps);
+    m_subgaps.set (std::move (subgaps));
+  }
+  return *m_subgaps.ptr();
+}
 
-  std::lock_guard<std::mutex> lock(m_mut);
 
-
+void HECCell::initHV (std::vector<const HECHVSubgap*>& subgaps) const
+{
   const HECHVManager& hvManager=getDescriptor()->getManager()->getHVManager();
 
 
@@ -47,9 +51,8 @@ void HECCell::initHV() const {
   const HECHVModule& hvMod = hvManager.getHVModule(iSide,iPhi,iSampling);
   for (unsigned int iSubgap=0;iSubgap<4;iSubgap++) {
     const HECHVSubgap& hvElec = hvMod.getSubgap(iSubgap);
-    m_subgap.push_back(&hvElec);
+    subgaps.push_back(&hvElec);
   }
-  m_initHVdone=true;
 } 
 
 

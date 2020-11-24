@@ -67,8 +67,8 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/AnalysisCommon/TruthClassification
 + PhysicsAnalysis/D3PDTools/.*
-- PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
@@ -104,6 +104,7 @@
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/tauRecTools
 + Reconstruction/PanTau/PanTauAlgs
++ Reconstruction/LwtnnUtils
 + Tools/ART
 + Tools/DirectIOART
 + Tools/PathResolver
@@ -125,5 +126,24 @@
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigSteer/TrigCompositeUtils
 #+ Trigger/TrigValidation/TrigAnalysisTest
+
+#
+### AnalysisTop packages
+#
+
++ PhysicsAnalysis/TopPhys/TopPhysUtils/TopDataPreparation
++ PhysicsAnalysis/TopPhys/xAOD/TopAnalysis
++ PhysicsAnalysis/TopPhys/xAOD/TopCPTools
++ PhysicsAnalysis/TopPhys/xAOD/TopConfiguration
++ PhysicsAnalysis/TopPhys/xAOD/TopCorrections
++ PhysicsAnalysis/TopPhys/xAOD/TopEvent
++ PhysicsAnalysis/TopPhys/xAOD/TopEventReconstructionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopEventSelectionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopExamples
++ PhysicsAnalysis/TopPhys/xAOD/TopJetSubstructure
++ PhysicsAnalysis/TopPhys/xAOD/TopObjectSelectionTools
++ PhysicsAnalysis/TopPhys/xAOD/TopParticleLevel
++ PhysicsAnalysis/TopPhys/xAOD/TopPartons
++ PhysicsAnalysis/TopPhys/xAOD/TopSystematicObjectMaker
 
 - .*

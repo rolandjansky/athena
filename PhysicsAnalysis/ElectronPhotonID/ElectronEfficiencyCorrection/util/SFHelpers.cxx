@@ -43,7 +43,7 @@ int SFHelpers::result(AsgElectronEfficiencyCorrectionTool& tool,
             double total2{} ; 
             double systematic{}; 
             for(const auto& sys : variations){
-                if(tool.applySystematicVariation({sys})!=CP::SystematicCode::Ok ||
+                if(tool.applySystematicVariation({sys})!=StatusCode::SUCCESS ||
                         tool.getEfficiencyScaleFactor(el,systematic) != CP::CorrectionCode::Ok){   
                     MSG_ERROR("Error in setting/getting " << sys.name());
                     return CP::CorrectionCode::Error;    
@@ -75,7 +75,7 @@ int SFHelpers::result(AsgElectronEfficiencyCorrectionTool& tool,
         //Do the work
         for (const auto& sys : toys){
             double systematic{};
-            CHECK(tool.applySystematicVariation(sys)==CP::SystematicCode::Ok &&
+            CHECK(tool.applySystematicVariation(sys)==StatusCode::SUCCESS &&
                     tool.getEfficiencyScaleFactor(el,systematic) == CP::CorrectionCode::Ok); 
             MSG_DEBUG( tool.appliedSystematics().name() << " toy Result : " <<systematic)
                 toysVal.push_back(systematic);

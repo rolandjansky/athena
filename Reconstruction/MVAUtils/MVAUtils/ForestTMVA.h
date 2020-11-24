@@ -25,22 +25,16 @@ namespace MVAUtils
     public:
         ForestWeighted() : m_sumWeights(0.) { }
 
-        float GetTreeResponseWeighted(const std::vector<float>& values, unsigned int itree) const
-        {
-            return Forest<Node_t>::GetTreeResponse(values, itree) * m_weights[itree];
-        }
-
-        float GetTreeResponseWeighted(const std::vector<float*>& pointers, unsigned int itree) const
-        {
-            return Forest<Node_t>::GetTreeResponse(pointers, itree) * m_weights[itree];
-        }
-
-        using Forest<Node_t>::GetNTrees;  // lookup is deferred until template paramers are known, force it
+        using Forest<Node_t>::GetNTrees;
         using Forest<Node_t>::newTree;
+
+        float GetTreeResponseWeighted(const std::vector<float>& values, unsigned int itree) const;
+        float GetTreeResponseWeighted(const std::vector<float*>& pointers, unsigned int itree) const;
 
         float GetWeightedResponse(const std::vector<float>& values) const;
         float GetWeightedResponse(const std::vector<float*>& pointers) const;
-        virtual void newTree(const std::vector<Node_t>& nodes, float weight);
+       
+        void newTree(const std::vector<Node_t>& nodes, float weight);
         float GetTreeWeight(unsigned int itree) const { return m_weights[itree]; }
         float GetSumWeights() const { return m_sumWeights; }
 
@@ -56,33 +50,6 @@ namespace MVAUtils
         float m_sumWeights; //!< the sumOfBoostWeights--no need to recompute each call
     };
 
-
-    template<typename Node_t>
-    float ForestWeighted<Node_t>::GetWeightedResponse(const std::vector<float>& values) const {
-        float result = 0.;
-        for (unsigned int itree = 0; itree != GetNTrees(); ++itree)
-        {
-            result += GetTreeResponseWeighted(values, itree);
-        }
-        return result;
-    }
-
-    template<typename Node_t>
-    float ForestWeighted<Node_t>::GetWeightedResponse(const std::vector<float*>& pointers) const {
-        float result = 0.;
-        for (unsigned int itree = 0; itree != GetNTrees(); ++itree)
-        {
-            result += GetTreeResponseWeighted(pointers, itree);
-        }
-        return result;
-    }
-
-    template<typename Node_t>
-    void ForestWeighted<Node_t>::newTree(const std::vector<Node_t>& nodes, float weight) {
-        newTree(nodes);
-        m_weights.push_back(weight);
-        m_sumWeights += weight;
-    }
 
     /*
      * Support TMVA processing
@@ -118,5 +85,5 @@ namespace MVAUtils
     };
 
 }
-
+#include "MVAUtils/ForestTMVA.icc"
 #endif

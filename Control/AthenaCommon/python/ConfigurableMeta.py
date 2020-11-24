@@ -3,10 +3,7 @@
 # File: AthenaCommon/python/ConfigurableMeta.py
 # Author: Wim Lavrijsen (WLavrijsen@lbl.gov)
 
-from __future__ import print_function
-
 import weakref
-import six
 from AthenaCommon import Logging, PropertyProxy
 
 
@@ -50,13 +47,13 @@ class ConfigurableMeta( type ):
 
          for meth, nArgs in meths.items():
             try:
-               f = six.get_unbound_function(getattr( newclass, meth ))
+               f = getattr( newclass, meth )
             except AttributeError:
                raise NotImplementedError("%s is missing in class %s" % (meth,str(newclass)))
 
           # in addition, verify the number of arguments w/o defaults
-            nargcount = six.get_function_code(f).co_argcount
-            dflts = six.get_function_defaults(f)
+            nargcount = f.__code__.co_argcount
+            dflts = f.__defaults__
             ndefaults = dflts and len(dflts) or 0
             if not nargcount - ndefaults <= nArgs <= nargcount:
                raise TypeError("%s.%s requires exactly %d arguments" % (newclass,meth,nArgs))

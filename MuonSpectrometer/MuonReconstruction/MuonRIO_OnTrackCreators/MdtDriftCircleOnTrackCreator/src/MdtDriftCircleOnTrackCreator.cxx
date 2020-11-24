@@ -137,6 +137,10 @@ StatusCode Muon::MdtDriftCircleOnTrackCreator::initialize()
     ATH_MSG_ERROR( "Time Correction Type too large! Aborting." );
     return StatusCode::FAILURE;
   }
+
+  if (!m_wasConfigured){
+    ATH_MSG_WARNING( "This tool is too complicated to rely on defaults. Potential configuration issue." );
+  }
   
   return StatusCode::SUCCESS; 
 } 
@@ -456,8 +460,10 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
     ATH_MSG_WARNING( " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " );
     return 0;
   }
-  
-  return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum(),0,strategy,beta,tTrack);
+
+  Amg::Vector3D momentum = tp.momentum();
+
+  return createRIO_OnTrack(*mdtPrd,tp.position(),&momentum,0,strategy,beta,tTrack);
 }
 
 
@@ -470,8 +476,10 @@ Muon::MdtDriftCircleOnTrack* Muon::MdtDriftCircleOnTrackCreator::correct(
     ATH_MSG_WARNING( " Incorrect hit type:  Trk::PrepRawData not a Muon::MdtPrepData!! No rot created " );
     return 0;
   }
-  
-  return createRIO_OnTrack(*mdtPrd,tp.position(),&tp.momentum());
+
+  Amg::Vector3D momentum = tp.momentum();
+
+  return createRIO_OnTrack(*mdtPrd,tp.position(),&momentum);
 }
 
 

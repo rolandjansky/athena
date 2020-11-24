@@ -11,7 +11,7 @@
 
 Muon::CscRawDataProvider::CscRawDataProvider(const std::string& name,
                                       ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
+  AthReentrantAlgorithm(name, pSvcLocator),
   m_regionSelector  ("RegSelSvc",name)
 {
   declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
@@ -36,19 +36,22 @@ StatusCode Muon::CscRawDataProvider::initialize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::CscRawDataProvider::execute() {
+// --------------------------------------------------------------------
+// Execute
+
+StatusCode Muon::CscRawDataProvider::execute(const EventContext& ctx) const {
   ATH_MSG_VERBOSE( "CscRawDataProvider::execute" );
 
   if(m_seededDecoding) {
 
-    SG::ReadCondHandle<ALineMapContainer> readALineHandle(m_ALineKey);// !!! REMOVEME: when MuonDetectorManager in cond store
+    SG::ReadCondHandle<ALineMapContainer> readALineHandle(m_ALineKey, ctx);// !!! REMOVEME: when MuonDetectorManager in cond store
     if(!readALineHandle.isValid()){// !!! REMOVEME: when MuonDetectorManager in cond store
       ATH_MSG_WARNING("Cannot retrieve ALine Handle "<<m_ALineKey.key());// !!! REMOVEME: when MuonDetectorManager in cond store
       return StatusCode::SUCCESS;// !!! REMOVEME: when MuonDetectorManager in cond store
     }// !!! REMOVEME: when MuonDetectorManager in cond store
   
     // read in the RoIs to process
-    SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
+    SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey, ctx);
     if(!muonRoI.isValid()){
       ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
       return StatusCode::SUCCESS;
@@ -62,7 +65,7 @@ StatusCode Muon::CscRawDataProvider::execute() {
       m_regionSelector->DetHashIDList(CSC, *roi, csc_hash_ids);
 
       // decode the ROBs
-      if(m_rawDataTool->convert(csc_hash_ids).isFailure()) {
+      if(m_rawDataTool->convert(csc_hash_ids, ctx).isFailure()) {
         ATH_MSG_ERROR( "RoI seeded BS conversion into RDOs failed"  );
       }
       // clear vector of hash IDs ready for next RoI
@@ -70,7 +73,7 @@ StatusCode Muon::CscRawDataProvider::execute() {
     }
   } else {
    // ask CscRawDataProviderTool to decode entire event and to fill the IDC
-   if (m_rawDataTool->convert().isFailure())
+   if (m_rawDataTool->convert(ctx).isFailure())
      ATH_MSG_ERROR ( "BS conversion into RDOs failed" );
  }
 

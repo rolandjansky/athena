@@ -10,7 +10,6 @@ from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
 
 
-
 flags.Detector.GeometryPixel = True
 flags.Detector.GeometrySCT   = True
 flags.Detector.GeometryTRT   = True
@@ -44,16 +43,10 @@ flags.Scheduler.ShowDataDeps = True
 flags.Scheduler.ShowDataFlow = True
 flags.Scheduler.ShowControlFlow = True
 
-import importlib
-setupMenuPath = "TriggerMenuMT.HLTMenuConfig.Menu."+flags.Trigger.triggerMenuSetup+"_newJO"
-setupMenuModule = importlib.import_module( setupMenuPath )
-assert setupMenuModule is not None, "Could not import module {}".format(setupMenuPath)
-assert setupMenuModule.setupMenu is not None, "Could not import setupMenu from {}".format(setupMenuPath)
-flags.needFlagsCategory('Trigger')
-setupMenuModule.setupMenu(flags)
 flags.Exec.MaxEvents=50
 flags.Input.isMC = False
-flags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1"]
+flags.Common.isOnline=True
+flags.IOVDb.GlobalTag="CONDBR2-HLTP-2018-01"
 
 
 flags.Concurrency.NumThreads=1
@@ -61,6 +54,12 @@ flags.Concurrency.NumConcurrentEvents=1
 
 flags.InDet.useSctDCS=False
 flags.InDet.usePixelDCS=False
+
+# command line handling
+# options that are defined in: AthConfigFlags are handled here
+# they override values from above
+parser = flags.getArgumentParser()
+flags.fillFromArgs(parser=parser)
 
 flags.lock()
 
@@ -80,6 +79,7 @@ acc.merge(ByteStreamReadCfg( flags ))
 
 from TriggerJobOpts.TriggerHistSvcConfig import TriggerHistSvcConfig
 acc.merge(TriggerHistSvcConfig( flags ))
+
 
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu as generateHLTMenu
 from TriggerJobOpts.TriggerConfig import triggerRunCfg

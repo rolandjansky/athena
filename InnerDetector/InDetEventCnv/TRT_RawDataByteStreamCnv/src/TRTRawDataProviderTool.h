@@ -24,15 +24,9 @@
 
 class TRT_BSErrorContainer;
 
-class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool, 
-                                public AthAlgTool
+class TRTRawDataProviderTool : public extends<AthAlgTool, ITRTRawDataProviderTool>
 {
-
  public:
-   
-  //! AlgTool InterfaceID
-  static const InterfaceID& interfaceID( ) ;
-  
   //! constructor
   TRTRawDataProviderTool( const std::string& type, const std::string& name,
 			  const IInterface* parent ) ;
@@ -50,11 +44,9 @@ class TRTRawDataProviderTool : virtual public ITRTRawDataProviderTool,
   virtual StatusCode convert(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,
 			     TRT_RDO_Container* rdoIdc,
 			     TRT_BSErrContainer* bsErrCont
-			     ) override;
+			     ) const override;
 
 private: 
-  TRTRawDataProviderTool( ); //Not implemented
-  
   ToolHandle<ITRT_RodDecoder>  m_decoder;   
 
   // bookkeeping if we have decoded a ROB already

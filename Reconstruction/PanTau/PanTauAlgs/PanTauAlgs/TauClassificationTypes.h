@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// TauClassificationTypes.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef PANTAUALGS_TAUCLASSIFICATIONTYPES_H
 #define PANTAUALGS_TAUCLASSIFICATIONTYPES_H
@@ -54,14 +50,6 @@ namespace PanTau {
             Reco_InvalidInSeed      = -4,
             Reco_nModes             = 8
         };
-        
-//         enum CandTauType {
-//             TauRecBoth=0,
-//             TauRecBothMissing=1,
-//             TauRec=2,
-//             Tau1p3p=3,
-//             NumberOfCandTauTypes=4
-//         };
         
         inline std::string getRecoModeName(PanTauRecoMode recoMode) {
             switch(recoMode) {

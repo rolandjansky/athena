@@ -85,7 +85,7 @@ def defineLegacyInputsMenu():
             "legacy" : True,
             "thresholds" : [
                 'J30.0ETA49', 'J35.0ETA23', 'J40.0ETA25', # 3 x central Jet
-                'J40', 'J50', 'J75', 'J85', 'J100', 'J45.0ETA20', 'J400', # 6 jets + 1 central jet
+                'J40', 'J50', 'J75', 'J85', 'J100', 'J45.0ETA23', 'J400', # 6 jets + 1 central jet
                 'J15.31ETA49', 'J20.31ETA49', 'J30.31ETA49', 'J50.31ETA49', 'J75.31ETA49', # 6 x FJ
             ]
         },

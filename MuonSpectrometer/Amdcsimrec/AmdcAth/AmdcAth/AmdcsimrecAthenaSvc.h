@@ -59,10 +59,6 @@ public:
    bool       UsableSvc();
    StatusCode UpdatedSvc(IOVSVC_CALLBACK_ARGS);
 
-   StatusCode initializeFromGeomodelCallback(IOVSVC_CALLBACK_ARGS);
-   StatusCode SetAmdcABlineFromCoolCallback(IOVSVC_CALLBACK_ARGS);
-   StatusCode initializeFromGeomodelSetAmdcABlineFromCoolCallback(IOVSVC_CALLBACK_ARGS);
-
    /**Get Amdcsimrec interface */
    Amdcsimrec* GetAmdcsimrec();
 
@@ -109,11 +105,7 @@ private:
 
    bool m_IsInitialized ; //!< Tell initialisation state 
 
-   /**Initialize from GeoModel  and Set A and B lines collections*/
-   StatusCode regFcninitializeFromGeomodelSetAmdcABlineFromCool();
-
    /**Set A and B lines collections*/
-   StatusCode regFcnSetAmdcABlineFromCool();
    StatusCode SetAmdcABlineFromCool();
 
    /**Initialize from an Ascii file */
@@ -123,7 +115,6 @@ private:
    StatusCode SetLocation(std::string NameFile, std::string& FileLocation);
 
    /**Initialize from GeoModel */
-   StatusCode regFcninitializeFromGeomodel();
    StatusCode initializeFromGeomodel();
 
    /**Initialize from Oracle node*/

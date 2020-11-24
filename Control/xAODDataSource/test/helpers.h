@@ -12,17 +12,6 @@
 #include <iostream>
 #include <vector>
 
-/// Helper macro for checking return values
-#define CHECK( EXP )                                                    \
-   do {                                                                 \
-      auto ret = EXP;                                                   \
-      if( ! ret.isSuccess() ) {                                         \
-         Error( "dataSource_test",                                      \
-                XAOD_MESSAGE( "Failed to execute: %s" ), #EXP );        \
-         return 1;                                                      \
-      }                                                                 \
-   } while( false )
-
 /// Helper print operator
 template< typename FIRST, typename SECOND >
 std::ostream& operator<< ( std::ostream& out,

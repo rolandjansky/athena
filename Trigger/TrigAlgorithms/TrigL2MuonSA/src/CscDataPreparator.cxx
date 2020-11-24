@@ -233,7 +233,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-double TrigL2MuonSA::CscDataPreparator::calc_residual(double aw,double bw,double x,double y)
+double TrigL2MuonSA::CscDataPreparator::calc_residual(double aw,double bw,double x,double y) const
 {
   const double ZERO_LIMIT = 1e-4;
   if( fabs(aw) < ZERO_LIMIT ) return y-bw;
@@ -245,7 +245,8 @@ double TrigL2MuonSA::CscDataPreparator::calc_residual(double aw,double bw,double
 }
 
 
-double TrigL2MuonSA::CscDataPreparator::calc_residual_phi( double aw, double bw, double phiw, double hitphi, double hitz){
+double TrigL2MuonSA::CscDataPreparator::calc_residual_phi( double aw, double bw, double phiw, double hitphi, double hitz) const 
+{
 
   double roadr = hitz*aw + bw;
 

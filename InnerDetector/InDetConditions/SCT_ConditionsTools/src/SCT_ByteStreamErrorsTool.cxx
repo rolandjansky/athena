@@ -102,7 +102,7 @@ SCT_ByteStreamErrorsTool::IDCCacheEntry* SCT_ByteStreamErrorsTool::getCacheEntry
 bool
 SCT_ByteStreamErrorsTool::isGood(const IdentifierHash& elementIdHash, const EventContext& ctx) const {
   {
-    std::lock_guard<std::mutex> lock{m_cacheMutex};
+    std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
     ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool isGood called for " << elementIdHash);
     auto idcCachePtr{getCacheEntry(ctx)->IDCCache};
     if (idcCachePtr == nullptr) {
@@ -351,7 +351,7 @@ SCT_ByteStreamErrorsTool::fillData(const EventContext& ctx) const {
 
 unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleId, const EventContext& ctx) const {
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool tempMaskedChips");
-  std::lock_guard<std::mutex> lock{m_cacheMutex};
+  std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
   auto cacheEntry{getCacheEntry(ctx)};
   if (cacheEntry->IDCCache == nullptr) return 0;
 
@@ -370,7 +370,7 @@ unsigned int SCT_ByteStreamErrorsTool::tempMaskedChips(const Identifier& moduleI
 
 unsigned int SCT_ByteStreamErrorsTool::abcdErrorChips(const Identifier& moduleId, const EventContext& ctx) const {
   ATH_MSG_VERBOSE("SCT_ByteStreamErrorsTool abcdErrorChips");
-  std::lock_guard<std::mutex> lock{m_cacheMutex};
+  std::scoped_lock<std::mutex> lock{*m_cacheMutex.get(ctx)};
   auto cacheEntry{getCacheEntry(ctx)};
   if (cacheEntry->IDCCache == nullptr) return 0;
 

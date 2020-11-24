@@ -21,7 +21,7 @@ class ContentHandler:
 		if containerName in theDictionary.keys():
 			line = theDictionary[containerName]+"#"+containerName
 		else:
-			msg.warning('Collection with name %s not found in input file or in definitions from user. No action will be taken for this collection.' % containerName)
+			msg.warning('Collection with name %s not found in input file or in definitions from user. No action will be taken for this collection.', containerName)
 		return line
 		
 

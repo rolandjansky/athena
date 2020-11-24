@@ -100,13 +100,19 @@ StatusCode HLTEDMCreator::initialize()
 #undef INIT
 #undef INIT_XAOD
 
-  ATH_CHECK( m_CaloClusterContainerShallowCopy.initialize() );
-  renounceArray( m_CaloClusterContainerShallowCopy );
-  for ( auto k: m_CaloClusterContainerShallowCopy )
-    m_CaloClusterContainerShallowCopyOut.push_back(k.key());
-  ATH_CHECK( m_CaloClusterContainerShallowCopyOut.initialize() );
-  renounceArray( m_CaloClusterContainerShallowCopyOut );
-  
+#define INIT_SHALLOW(__TYPE) \
+  ATH_CHECK( m_##__TYPE##ShallowCopy.initialize() ); \
+  renounceArray( m_##__TYPE##ShallowCopy ); \
+  for ( auto k: m_##__TYPE##ShallowCopy ) \
+    m_##__TYPE##ShallowCopyOut.push_back(k.key()); \
+  ATH_CHECK( m_##__TYPE##ShallowCopyOut.initialize() ); \
+  renounceArray( m_##__TYPE##ShallowCopyOut )
+
+  INIT_SHALLOW( CaloClusterContainer );
+  INIT_SHALLOW( JetContainer );
+
+#undef INIT_SHALLOW
+
   return StatusCode::SUCCESS;
 }
 
@@ -374,18 +380,24 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
 #undef CREATE_XAOD_NO_MERGE
 
   // special cases
-  {
-    for ( size_t index = 0; index < m_CaloClusterContainerShallowCopy.size(); ++index ){
-      auto readHandle = SG::makeHandle<xAOD::CaloClusterContainer> (  m_CaloClusterContainerShallowCopy[index], context );
-      if ( not readHandle.isValid() ) { // collection is missing
-	ATH_MSG_DEBUG( "Creating missing CaloClusterContainerShallowCopy " <<  m_CaloClusterContainerShallowCopy[index].key() );
-	auto writeHandle = SG::makeHandle( m_CaloClusterContainerShallowCopyOut[index], context );
-	ATH_CHECK( writeHandle.record( std::make_unique<xAOD::CaloClusterContainer>(), std::make_unique<xAOD::ShallowAuxContainer>() ));
-      } else {
-	ATH_MSG_DEBUG( "CaloClusterContainerShallowCopy " <<  m_CaloClusterContainerShallowCopyOut[index].key() << " present in the event, done nothing");
-      }
-    }
+  #define CREATE_SHALLOW(__TYPE) \
+  { \
+    for ( size_t index = 0; index < m_##__TYPE##ShallowCopy.size(); ++index ){ \
+      auto readHandle = SG::makeHandle<xAOD::__TYPE> (  m_##__TYPE##ShallowCopy[index], context ); \
+      if ( not readHandle.isValid() ) { \
+	ATH_MSG_DEBUG( "Creating missing "#__TYPE"ShallowCopy " <<  m_##__TYPE##ShallowCopy[index].key() ); \
+	auto writeHandle = SG::makeHandle( m_##__TYPE##ShallowCopyOut[index], context ); \
+	ATH_CHECK( writeHandle.record( std::make_unique<xAOD::__TYPE>(), std::make_unique<xAOD::ShallowAuxContainer>() )); \
+      } else { \
+	ATH_MSG_DEBUG( #__TYPE"ShallowCopy " <<  m_##__TYPE##ShallowCopyOut[index].key() << " present in the event, done nothing"); \
+      } \
+    } \
   }
+
+  CREATE_SHALLOW( CaloClusterContainer )
+  CREATE_SHALLOW( JetContainer )
+
+  #undef CREATE_SHALLOW
 
   if ( m_dumpSGAfter )  
     ATH_MSG_DEBUG( evtStore()->dump() );

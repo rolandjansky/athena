@@ -34,13 +34,10 @@ def generateChains(flags, chainDict):
 
     accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
 
-    fastCaloSequence = CAMenuSequence( Sequence = l2CaloReco.sequence(),
-                                     Maker = l2CaloReco.inputMaker(),
-                                     Hypo = l2CaloHypo,
-                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict,
-                                     CA = accCalo )
+    fastCaloSequence = CAMenuSequence(accCalo,
+                                      HypoToolGen = TrigEgammaFastCaloHypoToolFromDict)
 
-    fastCaloStep = ChainStep(firstStepName, [fastCaloSequence])
+    fastCaloStep = ChainStep(firstStepName, [fastCaloSequence], multiplicity=[1],chainDicts=[chainDict] )
 
 
     secondStepName = 'FastPhoton'
@@ -58,13 +55,10 @@ def generateChains(flags, chainDict):
 
     accPhoton.addEventAlgo(l2PhotonHypo, sequenceName=stepView.getName())
 
-    l2PhotonSequence = CAMenuSequence( Sequence = l2PhotonReco.sequence(),
-                                     Maker = l2PhotonReco.inputMaker(),
-                                     Hypo = l2PhotonHypo,
-                                     HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict,
-                                     CA = accPhoton )
+    l2PhotonSequence = CAMenuSequence(accPhoton,
+                                      HypoToolGen = TrigEgammaFastPhotonHypoToolFromDict)
 
-    l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence])
+    l2PhotonStep = ChainStep(secondStepName, [l2PhotonSequence], multiplicity=[1],chainDicts=[chainDict] )
 
 
     l1Thresholds=[]

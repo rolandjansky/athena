@@ -1,30 +1,21 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
 
-import sys
-import os
-
 import logger
 import AtlasStyle
+from analysis import makeDirectory
 
 ROOT.gROOT.SetBatch(True)
 
-#Make a directory if it doesn't exist
-def makeDirectory(outputDirectory):
-    try:
-        os.makedirs(outputDirectory)
-        print 'Made directory', outputDirectory
-    except:
-        print 'directory already exists:', outputDirectory
-        pass
 
 class Proc:
-    def __init__(self, filename, colour, caption, isMC = True):
+    def __init__(self, filename, colour, caption, isMC=True):
         self.name = filename
         self.colour = colour
         self.caption = caption
         self.isMC = isMC
+
 
 class Plotter:
     def __init__(self, htmlOutputName, stack, mcSF):
@@ -42,20 +33,23 @@ class Plotter:
 
         makeDirectory(self.imgDirectory)
 
-        print logger.OKBLUE +'Stack configuration'+ logger.ENDC
+        print(logger.OKBLUE + 'Stack configuration' + logger.ENDC)
         for currentProcess in stack:
-            print '  Name %s Colour %d Caption %s' % (currentProcess.name, currentProcess.colour, currentProcess.caption)
+            print('  Name {0} Colour {1} Caption {2}'.format(
+                currentProcess.name,
+                currentProcess.colour,
+                currentProcess.caption))
 
     def doneAndDusted(self):
         self.out.write('</html>\n')
         self.out.close()
 
     def getPlot(self, fileName, histName):
-        if not self.files.has_key(fileName):
+        if fileName not in self.files:
             f = ROOT.TFile.Open(fileName)
             if not f:
-                print logger.FAIL + 'Failed to open %s' % fileName + logger.ENDC
-                raise Exception('Failed to open %s' % fileName)
+                print(logger.FAIL + 'Failed to open ' + fileName + logger.ENDC)
+                raise Exception('Failed to open ' + fileName)
 
             self.files[fileName] = f
 
@@ -81,7 +75,7 @@ class Plotter:
         return legend
 
     def plot(self, histName):
-        print 'plotting ', histName
+        print('plotting ', histName)
         self.c1.Clear()
 
         entries = []
@@ -105,7 +99,7 @@ class Plotter:
                 h.Scale(self.mcSF)
                 ths.Add(h)
 
-                if blackoutline == None:
+                if blackoutline is None:
                     blackoutline = h.Clone()
                 else:
                     blackoutline.Add(h)
@@ -152,7 +146,7 @@ class Plotter:
 
         showIntLumi = True
         if showIntLumi:
-            s = "#int Ldt = " + str(round(self.mcSF, 1)) +  " fb^{-1}"
+            s = "#int Ldt = " + str(round(self.mcSF, 1)) + " fb^{-1}"
             lmode = ROOT.TLatex()
             lmode.SetNDC()
             lmode.SetTextColor(1)
@@ -174,20 +168,22 @@ class Plotter:
 
         #save a gif (and a little thumbnail)
         #and an eps version of the plot
-        imgname = histName.replace('/','.') + '.gif'
+        imgname = histName.replace('/', '.') + '.gif'
         self.c1.Print(self.imgDirectory + imgname)
-        self.c1.Print(self.imgDirectory + imgname.replace('.gif','.eps'))
+        self.c1.Print(self.imgDirectory + imgname.replace('.gif', '.eps'))
         self.thumbnail(self.imgDirectory + imgname, 200, 200)
-        self.out.write('<a href="%s"><img src="%s"></a>\n' % (self.imgDirectory + imgname, self.imgDirectory +imgname.replace('.gif', '_tn.gif')))
+        self.out.write('<a href="{0}"><img src="{1}"></a>\n'.format(
+            self.imgDirectory + imgname,
+            self.imgDirectory + imgname.replace('.gif', '_tn.gif')))
 
     def br(self):
         self.out.write('<br>\n')
 
     def h1(self, txt):
-        self.out.write('<h1>%s</h1>\n' % txt)
+        self.out.write('<h1>{0}</h1>\n'.format(txt))
 
     def h2(self, txt):
-        self.out.write('<h2>%s</h2>\n' % txt)
+        self.out.write('<h2>{0}</h2>\n'.format(txt))
 
     def h3(self, txt):
-        self.out.write('<h3>%s</h3>\n' % txt)
+        self.out.write('<h3>{0}</h3>\n'.format(txt))

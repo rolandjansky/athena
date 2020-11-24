@@ -19,6 +19,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
 
 class CaloIdManager;
 
@@ -35,6 +36,7 @@ class eFEXDriver : public AthAlgorithm
   virtual StatusCode initialize();
   virtual StatusCode execute(/*const EventContext& ctx*/);// const;
   StatusCode finalize();
+  virtual StatusCode testEDM(); 
 
  private:
 
@@ -45,6 +47,8 @@ class eFEXDriver : public AthAlgorithm
   //SG::WriteHandleKey<eFEXOutputCollection> m_eFEXOutputCollectionSGKey {this, "MyOutputs", "eFEXOutputCollection", "MyOutputs"};
 
   SG::ReadHandleKey<CaloCellContainer> m_scellsCollectionSGKey {this, "SCell", "SCell", "SCell"};
+
+  SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEDMKey {this, "myEDM", "L1_eEMRoI", "Reading container of eFexEMRoIs"};
 
   ToolHandle<IeTowerBuilder> m_eTowerBuilderTool {this, "eTowerBuilderTool", "LVL1::eTowerBuilder", "Tool that builds eTowers for simulation"};
   ToolHandle<IeSuperCellTowerMapper> m_eSuperCellTowerMapperTool {this, "eSuperCellTowerMapperTool", "LVL1::eSuperCellTowerMapper", "Tool that maps supercells to eTowers"};

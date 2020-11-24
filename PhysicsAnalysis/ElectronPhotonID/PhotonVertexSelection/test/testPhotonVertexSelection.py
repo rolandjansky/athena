@@ -65,8 +65,8 @@ def setupAthenaJob(algoClass, inputfile = defaultFile, EvtMax = None):
 
   # Maximum events
   if EvtMax:
-    from Configurables import StopperAlg
-    AlgFactory( StopperAlg,  StopCount=EvtMax )()
+    from Configurables import AthenaStopperAlg
+    AlgFactory( AthenaStopperAlg,  StopCount=EvtMax )()
 
 # --------------------------------
 # Athena algorithm and setup

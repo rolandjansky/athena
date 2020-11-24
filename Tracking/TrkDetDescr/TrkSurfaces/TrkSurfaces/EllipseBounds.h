@@ -39,7 +39,7 @@ namespace Trk {
  @author Marcin.Wolter@cern.ch
  */
 
-class EllipseBounds : public SurfaceBounds
+class EllipseBounds final: public SurfaceBounds
 {
 public:
   /** @enum for readibility */
@@ -78,24 +78,24 @@ public:
   virtual bool operator==(const SurfaceBounds& sbo) const override;
 
   /**Virtual constructor*/
-  virtual EllipseBounds* clone() const override;
+  virtual EllipseBounds* clone() const override final;
 
   /** Return the type of the bounds for persistency */
-  virtual BoundsType type() const override { return SurfaceBounds::Ellipse; }
+  virtual BoundsType type() const override final { return SurfaceBounds::Ellipse; }
 
   /**This method checks if the point given in the local coordinates is between two ellipsoids
      if only tol1 is given and additional in the phi sector is tol2 is given */
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override final;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /**Check for inside first local coordinate */
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /**Check for inside second local coordinate */
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-  virtual double minDistance(const Amg::Vector2D& pos) const override;
+  virtual double minDistance(const Amg::Vector2D& pos) const override final;
 
   /**This method returns first inner radius*/
   double rMinX() const;
@@ -110,7 +110,7 @@ public:
   double rMaxY() const;
 
   /**This method returns the maximum expansion on the plane (=max(rMaxX,rMaxY))*/
-  virtual double r() const override;
+  virtual double r() const override final;
 
   /**This method returns the average phi*/
   double averagePhi() const;

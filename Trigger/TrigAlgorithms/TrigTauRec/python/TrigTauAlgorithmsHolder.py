@@ -101,7 +101,7 @@ def getTauAxis():
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
                                     VertexCorrection = doVertexCorrection,
-                                    TauVertexCorrection = getTauVertexCorrection()
+                                    JetVertexCorrection = False
                                   )
     # No Axis correction at trigger level
                                     
@@ -110,30 +110,25 @@ def getTauAxis():
 
 ########################################################################
 # Tau energy calibration
-def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', caloOnly=False):
+def getEnergyCalibrationLC(caloOnly=False):
  
-    _name = sPrefix +'EnergyCalibrationLC' + postfix
+    _name = sPrefix +'EnergyCalibrationLC'
     
     if _name in cached_instances:
         return cached_instances[_name]
 
-
-##    calibFileName = "TES2015_LC_online.root"
     calibFileName = "TES2016_LC_online.root"
     if caloOnly:
-##        calibFileName = "TES2015_LC_online.root"
         calibFileName = "TES2016_LC_online_inc.root"
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    calibrationFile = calibFileName,
-                                    doEnergyCorrection = correctEnergy,
-                                    doAxisCorrection = correctAxis)
+                                    calibrationFile = calibFileName)
 
     TauCalibrateLC.isCaloOnly = caloOnly
     #Need to empty the vertex key collection in the trigger case
     TauCalibrateLC.Key_vertexInputContainer = ""
-            
+
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
 

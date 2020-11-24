@@ -69,7 +69,6 @@ excludeTracePattern.append("*/D3PDMakerCoreComps/MakerAlg.py")
 excludeTracePattern.append("*/D3PDMakerCoreComps/D3PDObject.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
 excludeTracePattern.append("*/DQDefects/virtual*")
-excludeTracePattern.append("*/PanTauAnalysis/Class_FeatureHandler.py")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 excludeTracePattern.append("*AthFile/impl.py")
@@ -568,6 +567,24 @@ if rec.doTrigger:
             treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
             recAlgs.doTrigger=False
 
+#MT part
+## Outputs
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+if TriggerFlags.doMT() and rec.readESD() and rec.doAOD():
+    # Don't run any trigger - only pass the HLT contents from ESD to AOD
+    # Add HLT output
+    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+    hltOutput = HLTTriggerResultGetter()
+    # Add Trigger menu metadata
+    if rec.doFileMetaData():
+        from RecExConfig.ObjKeyStore import objKeyStore
+        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                          "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+        objKeyStore.addManyTypesMetaData( metadataItems )
+    # Add L1 output (to be consistent with R2)
+    from TrigEDMConfig.TriggerEDM import getLvl1AODList
+    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
+
 AODFix_postTrigger()
 
 if globalflags.DataSource()=='geant4':
@@ -831,14 +848,8 @@ if rec.doWriteESD() or rec.doWriteAOD() or rec.doWriteRDO() or rec.doWriteTAG():
 theApp.OutStream = []
 
 if rec.doWriteTAG():
-    # the TAG making algorithm
-    try:
-        include( "EventTagAlgs/EventTag_jobOptions.py" )
-    except Exception:
-        rec.doWriteTAG=False
-        treatException("Could not include EventTagAlgs/EventTag_jobOptions.py. Disable TAG writing")
-else: # minimal TAG to be written into AOD
-    printfunc ("Using EventInfoAttList")
+    logRecExCommon_topOptions.error("Producing TAG files is not supported anymore, disabling it.")
+    rec.doWriteTAG = False
 
 if rec.doWriteRDO():
     #Create output StreamRDO
@@ -889,7 +900,7 @@ if rec.doWriteRDO():
 
     ## Add TAG attribute list to payload data
     try:
-        StreamRDO_Augmented.GetEventStream().WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+        StreamRDO_Augmented.GetEventStream().WritingTool.AttributeListKey = "SimpleTag"
     except:
         logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
@@ -915,7 +926,7 @@ if globalflags.InputFormat()=='bytestream':
 MetaDataStore=svcMgr.MetaDataStore
 
 
-#Lumiblocks and EventBookkeepers
+# Lumiblocks and ByteStreamMetadata
 if rec.doFileMetaData():
 
     #lumiblocks
@@ -941,17 +952,6 @@ if rec.doFileMetaData():
         include ("LumiBlockComps/CreateLumiBlockFromFile_jobOptions.py")
         pass
 
-    # Add the needed stuff for cut-flow bookkeeping.
-    # Only the configurables that are not already present will be created
-    from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
-    logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
-    CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
-    if rec.readAOD() or rec.readESD():
-        #force CutFlowSvc execution (necessary for file merging)
-        theApp.CreateSvc+=['CutFlowSvc']
-        logRecExCommon_topOptions.debug("Added CutFlowSvc to theApp")
-        pass    
-
     try:
         # ByteStreamMetadata
         from ByteStreamCnvSvc.ByteStreamCnvSvcConf import ByteStreamMetadataTool        
@@ -959,8 +959,6 @@ if rec.doFileMetaData():
             svcMgr.MetaDataSvc.MetaDataTools += [ "ByteStreamMetadataTool" ]
     except Exception:
         treatException("Could not load ByteStreamMetadataTool")
-
-
     pass
 
 
@@ -973,7 +971,11 @@ if rec.doTrigger and rec.doTriggerFilter() and globalflags.DataSource() == 'data
 ### seq will be our filter sequence
         from AthenaCommon.AlgSequence import AthSequencer
         seq=AthSequencer("AthMasterSeq")
-        seq+=CfgMgr.EventCounterAlg("AllExecutedEventsAthMasterSeq")
+
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        logRecExCommon_topOptions.debug("Calling CreateCutFlowSvc")
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=seq, addMetaDataToAllOutputFiles=True )
+
         seq+=topSequence.RoIBResultToxAOD
         seq+=topSequence.TrigBSExtraction
         seq+=topSequence.TrigDecMaker
@@ -1089,7 +1091,7 @@ if rec.doWriteESD():
 
     ## Add TAG attribute list to payload data
     try:
-        StreamESD_Augmented.GetEventStream().WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+        StreamESD_Augmented.GetEventStream().WritingTool.AttributeListKey = "SimpleTag"
     except:
         logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
@@ -1283,25 +1285,55 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             from tauRec.tauRecFlags import tauFlags
             if ( rec.readESD() or tauFlags.Enabled() ) and rec.doTau:                
                 from CaloRec.CaloRecConf import CaloThinCellsByClusterAlg
-                alg = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
-                                                StreamName = 'StreamAOD',
-                                                Clusters = 'TauPi0Clusters',
-                                                Cells = 'AllCalo')
-                topSequence += alg
+                tauCellAlg1 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauPi0Clusters',
+                                                        StreamName = 'StreamAOD',
+                                                        Clusters = 'TauPi0Clusters',
+                                                        Cells = 'AllCalo')
+                topSequence += tauCellAlg1
+
+                tauCellAlg2 = CaloThinCellsByClusterAlg('CaloThinCellsByClusterAlg_TauShotClusters',
+                                                        StreamName = 'StreamAOD',
+                                                        Clusters = 'TauShotClusters',
+                                                        Cells = 'AllCalo')
+                topSequence += tauCellAlg2
 
                 from tauRec.tauRecConf import TauCellThinningAlg
-                alg = TauCellThinningAlg('TauCellThinningAlg',
-                                         StreamName = 'StreamAOD',
-                                         Cells = 'AllCalo',
-                                         Taus = "TauJets",
-                                         UseSubtractedCluster = tauFlags.useSubtractedCluster())
-                topSequence += alg
+                tauCellAlg3 = TauCellThinningAlg('TauCellThinningAlg',
+                                                 StreamName = 'StreamAOD',
+                                                 Cells = 'AllCalo',
+                                                 CellLinks = 'CaloCalTopoClusters_links',
+                                                 Taus = "TauJets",
+                                                 UseSubtractedCluster = tauFlags.useSubtractedCluster())
+                topSequence += tauCellAlg3
                 
         except Exception:
             treatException("Could not make AOD cells" )
 
 
 pdr.flag_domain('aod')
+
+# EventBookkeepers
+if rec.doFileMetaData() or rec.OutputFileNameForRecoStep() == 'EVNTtoDAOD':
+    # Add the needed stuff for cut-flow bookkeeping.
+    # Only the configurables that are not already present will be created
+    hasBookkeepers = False
+    if 'metadata_items' in metadata:
+        metadata_items = metadata['metadata_items']
+        if 'xAOD::CutBookkeeperContainer_v1' in set(metadata_items.values()):
+            logRecExCommon_topOptions.debug("Existing CutBookkeeperContainer found")
+            hasBookkeepers = True
+    if hasBookkeepers or rec.OutputFileNameForRecoStep() in ['EVNTtoDAOD', 'AODtoDAOD']:
+        from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+        logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
+        CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
+        if rec.readAOD() or rec.readESD():
+            #force CutFlowSvc execution (necessary for file merging)
+            theApp.CreateSvc+=['CutFlowSvc']
+            logRecExCommon_topOptions.debug("Added CutFlowSvc to theApp")
+            pass
+        pass
+    pass
+
 
 if rec.doWriteAOD():
     from ParticleBuilderOptions.AODFlags import AODFlags
@@ -1373,9 +1405,8 @@ if rec.doWriteAOD():
     StreamAOD=StreamAOD_Augmented.GetEventStream()
 
     ## Add TAG attribute list to payload data
-    from EventTagAlgs.EventTagGlobal import EventTagGlobal
     try:
-        StreamAOD.WritingTool.AttributeListKey = EventTagGlobal.AttributeList
+        StreamAOD.WritingTool.AttributeListKey = "SimpleTag"
     except:
         logRecExCommon_topOptions.warning("Failed to add TAG attribute list to payload data")
 
@@ -1549,7 +1580,7 @@ try:
             # if not new tag
             StreamTAG = RegistrationStream("StreamTAG",
                                            CollectionType="ExplicitROOT")
-            StreamTAG.ItemList += [ "AthenaAttributeList#"+EventTagGlobal.AttributeList ]
+            StreamTAG.ItemList += [ "AthenaAttributeList#SimpleTag" ]
             logRecExCommon_topOptions.info( "StreamTAG set up the old way (with StreamTagTool" )
 
         from AthenaCommon.AlgSequence import AthSequencer

@@ -358,8 +358,9 @@ MCTruthClassifier::genPartToCalo(const xAOD::CaloCluster* clus,
     extensionOK = EtaPhiCaloHelper(caloExtension.get(), sample, etaCalo, phiCalo);
   }
   if (!extensionOK) {
-    ATH_MSG_WARNING("extrapolation of Truth Particle with eta  " << thePart->eta() << " and Pt " << thePart->pt()
-                                                                 << " to calo failed");
+    ATH_MSG_WARNING("extrapolation of Truth Particle with eta  "
+                    << thePart->eta() << " , charge " << thePart->charge()
+                    << " , Pt " << thePart->pt() << " to calo failed");
     return false;
   }
 

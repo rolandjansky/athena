@@ -32,6 +32,14 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream& log) :
       // first find the end of the tag, either '>' or ' ', whichever first
       std::string::size_type iofs2=input.find(">",iofs1);
       std::string::size_type iofs3=input.find("/>",iofs1);
+      bool noClosingTag = (iofs2 == std::string::npos);
+      if (noClosingTag){
+        m_msg << MSG::FATAL << 
+            "Badly formed XML string, no closing tag in " << input << endmsg;
+        m_valid=false;
+        iofs=std::string::npos;
+        return;
+      }
       if (iofs2!=std::string::npos && iofs2<iofs3) {
         // found a closing >, so tag is standard <tag>value</tag> form
         std::string tag=IOVDbNamespace::spaceStrip(input.substr(iofs1+1,iofs2-iofs1-1));
@@ -41,13 +49,22 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream& log) :
           // found closing tag, store tag and text
           m_keys[tag]=IOVDbNamespace::spaceStrip(input.substr(iofs2+1,iofs4-iofs2-1));
           // advance to the next part of the string, after '>' on closing tag
-          iofs=input.find(">",iofs4)+1;
+          iofs=input.find(">",iofs4);
+          if (iofs == std::string::npos) {
+            m_msg << MSG::FATAL << 
+              "Badly formed XML string, no closing tag in " << input << endmsg;
+            m_valid=false;
+            iofs=std::string::npos;
+            return;
+          } else {
+            iofs+=1;
+          }          
         } else {
-          m_msg << MSG::ERROR << 
-            "Badly formed XML string, no closing tag for " << tag <<
-            " in " << input << endmsg;
+          m_msg << MSG::FATAL << 
+            "Badly formed XML string, no closing tag in " << input << endmsg;
           m_valid=false;
           iofs=std::string::npos;
+          return;
         }
       } else if (iofs3!=std::string::npos) {
         // found a />, so tag is of form <tag values info/>
@@ -66,10 +83,11 @@ IOVDbParser::IOVDbParser(const std::string& input, MsgStream& log) :
         iofs=iofs3+2;
       } else {
         // found a < but no closing >
-        m_msg << MSG::ERROR << "Badly formed XML string, no closing < in input " <<
+        m_msg << MSG::FATAL << "Badly formed XML string, no closing > in input " <<
           input << endmsg;
         iofs=std::string::npos;
         m_valid=false;
+        return;
       }
     } else {
       // no more < in input, take the rest into 'outside' data slot

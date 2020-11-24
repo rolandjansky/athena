@@ -53,19 +53,19 @@ namespace LVL1 {
 
     virtual int ID() override {return m_id;}
     
-    virtual void SetTowersAndCells_SG(int tmp[16][9]) override;
-    virtual void SetTowersAndCells_SG(int tmp[16][8]) override;
+    virtual void SetTowersAndCells_SG(int tmp[16*2][17]) override;
+    virtual void SetTowersAndCells_SG(int tmp[16*2][24]) override;
 
-    virtual StatusCode NewExecute(int tmp[16*4][9]) override;
-    virtual StatusCode NewExecute(int tmp[16*4][8]) override;
+    virtual StatusCode NewExecute(int tmp[16*4][17]) override;
+    virtual StatusCode NewExecute(int tmp[16*4][24]) override;
 
     /** Internal data */
   private:
 
     int m_id;
 
-    int m_jTowersIDs_Wide [16*4][9];
-    int m_jTowersIDs_Thin [16*4][8];
+    int m_jTowersIDs_Wide [16*4][17];
+    int m_jTowersIDs_Thin [16*4][24];
 
     std::map<int,jTower> m_jTowersColl;
     CaloCellContainer m_sCellsCollection;

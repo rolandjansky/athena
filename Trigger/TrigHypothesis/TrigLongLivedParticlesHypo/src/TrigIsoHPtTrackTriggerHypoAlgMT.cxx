@@ -7,10 +7,7 @@
 #include "TrigIsoHPtTrackTriggerHypoAlgMT.h"
 #include "AthViews/ViewHelper.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-
-
-
-
+#include "GaudiKernel/SystemOfUnits.h"
 
 using TrigCompositeUtils::createAndStore; 
 using TrigCompositeUtils::DecisionContainer;
@@ -66,6 +63,9 @@ StatusCode TrigIsoHPtTrackTriggerHypoAlgMT::execute( const EventContext& context
 
     // Loop over all tracks and get a track decision associated with it and create the input 
     for ( const xAOD::TrackParticle_v1* track : *AllTracks) {
+
+      //Although it's unconventional to have a track pT decision in the Algorithm part, this line should save a lot of CPU time. We require at least 50 GeV track pT to have decision on that track.
+      if (track->pt()< 50*Gaudi::Units::GeV ) continue;
 
       auto d = newDecisionIn( decisions , previousDecision, "", context);
       d->setObjectLink( featureString(), ElementLink<xAOD::TrackParticleContainer>( *AllTracks, track->index() ) );

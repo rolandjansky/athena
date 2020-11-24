@@ -65,7 +65,7 @@ public :
   virtual ~MM_StripsResponseSimulation();
   MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput);
 
-  void initialize ();
+  void initialize (unsigned long int seed);
   void writeHistos();
   void initHistos ();
   void clearValues ();
@@ -105,6 +105,8 @@ public :
   MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }
   bool msgLvl(const MSG::Level lvl) const { return m_msg.get().level() <= lvl ; }
   void setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
+
+  inline void writeOutputFile(bool val) {m_writeOutputFile = val;}
 
 private:
 
@@ -180,6 +182,15 @@ private:
  protected:
   //Declaring private message stream member.
   mutable Athena::MsgStreamMember m_msg = Athena::MsgStreamMember("MMStripResponseSimulation");
+
+  // seperate random number generation for performance monitoring
+  float generateTransverseDiffusion(float posY);
+  float getTransverseDiffusion(float posY);
+  float getLongitudinalDiffusion(float posY);
+  float getEffectiveCharge();
+  float getPathLengthTraveled();
+
+
 
 };
 #endif

@@ -30,7 +30,7 @@
 #include "xAODCore/tools/ReadStats.h"
 #include "AsgMessaging/Check.h"
 #include "AsgTools/AnaToolHandle.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
@@ -97,7 +97,7 @@ int main( int argc, char* argv[] ) {
   //:::  initialize the application and get the event
   ////////////////////////////////////////////////////
   ANA_CHECK (xAOD::Init( APP_NAME ));
-  xAOD::TReturnCode::enableFailure();
+  StatusCode::enableChecking();
 
   //::: Open the input file:
   std::string fileName = argv[1];
@@ -245,7 +245,7 @@ int main( int argc, char* argv[] ) {
       Info( APP_NAME, "Looking at %s systematic", ( sysListItr->name() ).c_str() );
 
       //::: Check if systematic is applicable to the correction tool
-      if( corrTool->applySystematicVariation( *sysListItr ) != CP::SystematicCode::Ok ) {
+      if( corrTool->applySystematicVariation( *sysListItr ) != StatusCode::SUCCESS ) {
         Error( APP_NAME, "Cannot configure muon calibration tool for systematic" );
       }
 

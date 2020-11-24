@@ -8,14 +8,14 @@
 '''
 # hack to deal with global variables in this module
 # check if we are in "old-" or "new-style" configuration
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from RecExConfig.AutoConfiguration import GetRunNumber
-if ConfigFlags.DQ.isReallyOldStyle:
-    runtext = ''
-    if GetRunNumber() is not None:
-        runtext = ' (Run %d)' % GetRunNumber()
-else:
-    runtext = ' (Run %d)' % ConfigFlags.Input.RunNumber[0]
+#from AthenaConfiguration.AllConfigFlags import ConfigFlags
+#from RecExConfig.AutoConfiguration import GetRunNumber
+#if ConfigFlags.DQ.isReallyOldStyle:
+runtext = ''
+#    if GetRunNumber() is not None:
+#        runtext = ' (Run %d)' % GetRunNumber()
+#else:
+#    runtext = ' (Run %d)' % ConfigFlags.Input.RunNumber[0]
 
 
 NumLayersDisk = 3
@@ -50,13 +50,16 @@ xbinstotz= [    3,    3,  13,  13,  13,   20,     3,     3]
 xminstotz= [ -0.5, -0.5,-0.5,-0.5,-0.5, -0.5,  -0.5,  -0.5]
 ztotbinsy= [   20,   20,  20,  20,  20,   20,    20,    20]
 ztotminsy= [ 19.5, 19.5, 7.5,19.5,19.5, -0.5,  -0.5,  -0.5]
-errbbinsy= [   32,   32,  32,  32,  32,   40,    40,    40]
+errbbinsy= [   17,   17,  17,  17,  17,   27,    27,    27]
 errbminsy= [    0,    0,   0,   0,   0,    0,     0,     0]
 errbbsizy= [    1,    1,   1,   1,   1,    1,     1,     1]
 errtbinsy= [    7,    7,   7,   7,   7,    7,     7,     7]
 
 pp0layers= ["ECA","ECC","B0","B1","B2","IBLA","IBLC"]
 pp0xbins = [   24,   24,  22,  38,  52,   14,     14]
+
+fei3layers= ["ECA","ECC","B0","B1","B2"]
+fei4layers= ["IBL","DBMA","DBMC"]
 
 lumitext  = ";lumi block"
 lumibinsx = 3000
@@ -145,93 +148,70 @@ PP0sEC = [
 PP0LabelX = [PP0sEC, PP0sEC, StavesL0, StavesL1, StavesL2, StavesIBL, StavesIBL]
 
 #Errors
-ErrBitsFEI3 = [
-    "ROD Overflow Trunc",        "ROD H/T Limit Trunc",       "2",                     "3",
-    "FE/MCC EoC Trunc",          "SEU Hit Parity",            "SEU Register Parity",   "SEU Hamming Code",
-    "FE Warning (Bit Flip)",     "9",                         "10",                    "11",
-    "FE/MCC Hit Overflow Trunc", "FE/MCC EoE Overflow Trunc", "FE/MCC BCID1 Sync",     "FE/MCC BCID2 Sync",
-    "FE/MCC LVL1ID Sync",        "17",                        "18",                    "19",
-    "ROD BCID Sync",             "ROD LVL1ID Sync",           "ROD Formatter Timeout", "Preamble/Header",
-    "24",                        "25",                        "26",                    "27",
-    "28",                        "29",                        "30",                    "31"]
-
-ErrBitsFEI4 = [
-    "Row/ Column Error",         "Limit Error",          "Trailer Error",        "BCID Error",
-    "LVL1ID Error",              "Preamble Error",       "Masked Link",          "Timeout Error",
-    "BCID counter",              "Hamming code 0",       "Hamming code 1",       "Hamming code 2",
-    "L1_in counter",             "L1 request counter",   "L1 register",          "L1 Trigger ID",
-    "Readout processor",         "17",                   "18",                   "19",
-    "20",                        "21",                   "22",                   "Skipped trig counter",
-    "Truncated event flag",      "25",                   "26",                   "27",
-    "28",                        "29",                   "30"                    "31"
-    "Triple redundant CNFGMEM",  "Write reg data",       "Address error",        "Other CMD decoder",
-    "CMD decoder bit flip",      "CMD decoder SEU",      "Data bus address",     "Triple redundant EFUSE"]
-
-ErrBitLabels = [ErrBitsFEI3, ErrBitsFEI3, ErrBitsFEI3, ErrBitsFEI3, ErrBitsFEI3, ErrBitsFEI4, ErrBitsFEI4, ErrBitsFEI4]
-
 ErrStateLabelsFEI3 = [
-      ("Mod_Sync_BCID1_errors", "FE/MCC BCID1 Sync Errors"),
-      ("Mod_Sync_BCID2_errors", "FE/MCC BCID2 Sync Errors"),
-      ("Mod_Sync_LVL1ID_errors", "FE/MCC LVL1ID Sync Errors"),
-      ("ROD_Sync_BCID_errors", "ROD BCID Sync Errors"),
-      ("ROD_Sync_LVL1ID_errors", "ROD LVL1ID Sync Errors"),
-      ("Mod_Trunc_EOC_errors", "FE/MCC EoC Trunc Errors"),
-      ("Mod_Trunc_Hit_Overflow_errors", "FE/MCC Hit Overflow Trunc Errors"),
-      ("Mod_Trunc_EoE_Overflow_errors", "FE/MCC EoE Overflow Trunc Errors"),
-      ("ROD_Trunc_HT_Limit_errors", "ROD H/T Limit Trunc Errors"),
-      ("ROD_Trunc_ROD_OF_errors", "ROD Overflow Trunc Errors"),
-      ("Optical_Errors", "Preamble/Header Errors"),
-      ("SEU_Hit_Parity", "SEU Hit Parity Errors"),
-      ("SEU_Register_Parity", "SEU Register Parity Errors"),
-      ("SEU_Hamming", "SEU Hamming Code Errors"),
-      ("ROD_Timeout", "ROD Formatter Timeout Errors"),
-      ("FE_Warning", "FE Warning Errors"),
+      ("RODTimeout", "ROD Formatter Timeout"),
+      ("RODSyncBCIDErrors", "ROD BCID Sync"),
+      ("RODSyncLVL1IDErrors", "ROD LVL1ID Sync"),
+      ("OpticalErrors", "Preamble/Header"),
+      ("ModSyncLVL1IDErrors", "FE/MCC LVL1ID Sync"),
+      ("ModSyncBCID2Errors", "FE/MCC BCID2 Sync"),
+      ("ModSyncBCID1Errors", "FE/MCC BCID1 Sync"),
+      ("ModTruncEoEOverflowErrors", "FE/MCC EoE Overflow Trunc"),
+      ("ModTruncHitOverflowErrors", "FE/MCC Hit Overflow Trunc"),
+      ("FEWarning", "FE Warning"),
+      ("SEUHitParity", "SEU Hit Parity"),
+      ("SEURegisterParity", "SEU Register Parity"),
+      ("SEUHamming", "SEU Hamming Code"),
+      ("ModTruncEOCErrors", "FE/MCC EoC Trunc"),
+      ("RODTrailerBitErrors", "ROD Trailer Bit"),
+      ("RODTruncHTLimitErrors", "ROD H/T Limit Trunc"),
+      ("RODTruncRODOFErrors", "ROD Overflow Trunc")
 ]
 ErrStateLabelsFEI4 = [
-      ("ROD_BCID_errors", "ROD BCID synchronization errors"),
-      ("ROD_LVL1ID_errors", "ROD LVL1ID synchronization errors"),
-      ("SR_BCID_counter_errors", "SR BCID counter errors"),
-      ("SR_L1_in_counter_errors", "SR L1 in counter errors"),
-      ("SR_L1_request_counter_errors", "SR L1 request counter errors"),
-      ("SR_L1_register_errors", "SR L1 register errors"),
-      ("SR_L1_Trigger_ID_errors", "SR L1 trigger ID errors"),
-      ("SR_Skippped_trig_count_errors", "SR Skipped trigger counter errors"),
-      ("SR_Row-Column_errors", "SR row-column errors"),
-      ("SR_Limit_errors", "SR Header Trailer limit errors"),
-      ("SR_Truncated_event_flag_errors", "SR Truncated event errors"),
-      ("ROD_Preamble_errors", "ROD Preamble errors"),
-      ("SR_Hamming_code_0_errors", "SR Hamming code in word 0 errors"),
-      ("SR_Hamming_code_1_errors", "SR Hamming code in word 1 errors"),
-      ("SR_Hamming_code_2_errors", "SR Hamming code in word 2 errors"),
-      ("SR_Triple_redundant_errors_CNFGMEM", "SR Triple redundant errors CNFGMEM"),
-      ("SR_CMD_decoder_bitflip_errors", "SR CMD decoder bit flip errors"),
-      ("SR_Triple_redundant_errors_CMD", "SR Triple redundant errors CMD"),
-      ("SR_Triple_redundant_errors_EFUSE", "SR Triple redundant errors EFUSE"),
-      ("ROD_Trailer_errors", "ROD Trailer errors"),
-      ("ROD_Timeout_errors", "ROD Timeout errors"),
-      ("SR_Masked_link", "SR Masked link errors"),
-      ("SR_FE_readout_process_errors", "SR FE readout process errors"),
-      ("SR_Write_reg_data_errors", "SR Write register data errors"),
-      ("SR Address_errors", "SR Address errors"),
-      ("SR_Other_CMD_decoder_errors", "SR CMD decoder errors"),
-      ("SR_Data_bus_address_errors", "SR Data bus address errors")
+      ("RODTimeoutErrors", "ROD Timeout"),
+      ("RODBCIDErrors", "ROD BCID synchronization"),
+      ("RODLVL1IDErrors", "ROD LVL1ID synchronization"),
+      ("RODPreambleErrors", "ROD Preamble"),
+      ("RODTrailerErrors", "ROD Trailer"),
+      ("RODRowColumnErrors", "ROD row-column"),
+      ("RODMaskedLink", "ROD Masked link"),
+      ("RODLimitErrors", "ROD Header Trailer limit"),
+      ("SR0BCIDCounterErrors", "SR0 BCID counter"),
+      ("SR1HammingCode0Errors", "SR1 Hamming code in word 0"),
+      ("SR2HammingCode1Errors", "SR2 Hamming code in word 1"),
+      ("SR3HammingCode2Errors", "SR3 Hamming code in word 2"),
+      ("SR4L1InCounterErrors", "SR4 L1 in counter"),
+      ("SR5L1RequestCounterErrors", "SR5 L1 request counter"),
+      ("SR6L1RegisterErrors", "SR6 L1 register"),
+      ("SR7L1TriggerIDErrors", "SR7 L1 trigger ID"),
+      ("SR8FEReadoutProcessErrors", "SR8 FE readout process"),
+      ("SR15SkipppedTrigCountErrors", "SR15 Skipped trigger counter"),
+      ("SR16TruncatedEventFlagErrors", "SR16 Truncated event"),
+      ("SR24TripleRedundantErrorsCNFGMEM", "SR24 Triple redundant CNFGMEM"),
+      ("SR25WriteRegDataErrors", "SR25 Write register data"),
+      ("SR26AddressErrors", "SR26 Address"),
+      ("SR27OtherCMDDecoderErrors", "SR27 CMD decoder"),
+      ("SR28CMDDecoderBitflipErrors", "SR28 CMD decoder bit flip"),
+      ("SR29TripleRedundantErrorsCMD", "SR29 Triple redundant CMD"),
+      ("SR30DataBusAddressErrors", "SR30 Data bus address"),
+      ("SR31TripleRedundantErrorsEFUSE", "SR31 Triple redundant EFUSE")
 ]
 
 ErrCatRODModLabels = [
-      ("SyncErrors_Mod", "FE/MCC Sync Errors"),
-      ("SyncErrors_ROD", "ROD Sync Errors"),
-      ("TruncErrors_Mod", "FE/MCC Trunc Errors"),
-      ("TruncErrors_ROD", "ROD Trunc Errors"),
-      ("OpticalErrors_RODMod", "Preamble/Header Errors"),
-      ("SEUErrors_RODMod", "SEU Errors"),
-      ("TimeoutErrors_RODMod", "Timeout Errors")
+      ("SyncErrorsMod", "FE/MCC Sync Errors"),
+      ("SyncErrorsROD", "ROD Sync Errors"),
+      ("TruncErrorsMod", "FE/MCC Trunc Errors"),
+      ("TruncErrorsROD", "ROD Trunc Errors"),
+      ("OpticalErrorsRODMod", "Preamble/Header Errors"),
+      ("SEUErrorsRODMod", "SEU Errors"),
+      ("TimeoutErrorsRODMod", "Timeout Errors")
 ]
 
 ErrCatRODModLabelsNorm = [
-      "SyncErrors_Mod_Frac_per_event",
-      "SyncErrors_ROD_Frac_per_event",
-      "TruncErrors_Mod_Frac_per_event",
-      "TruncErrors_ROD_Frac_per_event"
+      "SyncErrorsModFracPerEvent",
+      "SyncErrorsRODFracPerEvent",
+      "TruncErrorsModFracPerEvent",
+      "TruncErrorsRODFracPerEvent"
 ]
 
 ErrCatLabels = [
@@ -243,11 +223,11 @@ ErrCatLabels = [
 ]
 
 ErrCatLabelsNorm = [
-      "SyncErrorsFrac_per_event", 
-      "TruncationErrorsFrac_per_event", 
-      "OpticalErrorsFrac_per_event", 
-      "SEUErrorsFrac_per_event", 
-      "TimeoutErrorsFrac_per_event"
+      "SyncErrorsFracPerEvent", 
+      "TruncationErrorsFracPerEvent", 
+      "OpticalErrorsFracPerEvent", 
+      "SEUErrorsFracPerEvent", 
+      "TimeoutErrorsFracPerEvent"
 ]
 
 layergroups = {}
@@ -259,7 +239,7 @@ def getLayerGroup(helper, alg, layer):
     return layergroups[alg][layer]
 
 
-def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None):
+def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None, onlylayers=layers):
     '''
     This function configures 2D (Profile) histograms (or maps) for Pixel layers.
 
@@ -273,20 +253,25 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
          lifecycle  -- global life duration of histograms (run, lowstat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
          zmin(zmax) -- fix the displayed range - simply chopping the range!!!
          opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
-         histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way 
+         histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way
+         onlylayers -- sublist of layers 
     '''
+    assert(set(onlylayers).issubset(layers))
     if histname is None:
         histname = name
     for i, layer in enumerate(layers):
-        fulltitle   = title + ' {0}'.format(layer) + runtext + etatxt[i] + phitext
+        if layer not in onlylayers: 
+            continue
+        fulltitle   = title + ', {0}'.format(layer) + runtext + etatxt[i] + phitext
         layerGroup = getLayerGroup(helper, alg, layer)
 
         fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'em', 'pm')
-        if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'val')
-        if doWeight:
-            weightvar = '{0}_{1}'.format(name, 'wgt')
-        else :
-            weightvar = ''
+        weightvar = ''
+        if 'Profile' in type: 
+            fullvarstring += ',{0}_{1}'.format(name, 'val')
+        elif doWeight:
+            weightvar = '{0}_{1}'.format(name, 'val') # re-use the same variable for TH2 for now.
+            
         fullvarstring += ';' + histname + '_{0}'.format(layer)
         layerGroup.defineHistogram(fullvarstring, 
                                     type=type, path=path, title=fulltitle, weight=weightvar,
@@ -319,7 +304,7 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
             yatxt += 'FE'
         else :
             yatxt += 'module'
-        fulltitle   = title + ' {0}'.format(layer) + runtext + xatxt + yatxt
+        fulltitle   = title + ', {0}'.format(layer) + runtext + xatxt + yatxt
         groupname   = name  + '_{0}'.format(layer)
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'pospp0x', 'val')
@@ -331,7 +316,7 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
 
 
 
-def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TProfile', histname=None):
+def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TProfile', histname=None, onlylayers=layers):
     '''
     This function configures 1D (Profile) vs lumi histograms for Pixel layers.
 
@@ -344,12 +329,15 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
          yaxistext -- Text on the y-axis
          type      -- Type of histogram (TH1D, TProfile)
          histname  -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way 
+         onlylayers -- sublist of layers
     '''
-
+    assert(set(onlylayers).issubset(layers))
     if histname is None:
         histname = name
     for layer in layers:
-        fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
+        if layer not in onlylayers: 
+            continue
+        fulltitle   = title + ', {0}'.format(layer) + runtext + lumitext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'val')
@@ -358,7 +346,7 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
                                     type=type, path=path, title=fulltitle,
                                     xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
 
-def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], ylabels=None, type='TH2F', histname=None):
+def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, ybins, ymins, binsizes=[1.0], ylabels=None, type='TH2F', histname=None, onlylayers=layers):
     '''
     This function configures 2D histograms vs lumi for Pixel layers.
 
@@ -371,13 +359,16 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
          ybins, ymin, ymax, yaxistext
                  -- Configure Y-axis
          type    -- Type of histogram (TH2I, TH2F, TProfile2D)
-         histname-- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)  
+         histname-- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)
+         onlylayers -- sublist of layers
     '''
-
+    assert(set(onlylayers).issubset(layers))
     if histname is None:
         histname = name
     for idx,layer in enumerate(layers):
-        fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
+        if layer not in onlylayers: 
+            continue
+        fulltitle   = title + ', {0}'.format(layer) + runtext + lumitext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'cat')
@@ -395,7 +386,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
                                        ybins=ybins[idx], ymin=ymins[idx], ymax=ymins[idx]+binsizes[idx]*ybins[idx], ylabels=ylabels[idx])
 
 
-def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F', histname=None):
+def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, xmins, binsizes=[1.0], type='TH1F', histname=None, onlylayers=layers):
     '''
     This function configures 1D (Profile) histograms for Pixel layers.
 
@@ -408,13 +399,16 @@ def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, 
          xaxistext  -- X-axis title
          yaxistext  -- Y-axis title
          type       -- Type of histogram
-         histname   -- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)  
+         histname   -- alternative root name of the histogram (to be filled with the same variables defined by 'name' above)
+         onlylayers -- sublist of layers
     '''
-
+    assert(set(onlylayers).issubset(layers))
     if histname is None:
         histname = name
     for idx,layer in enumerate(layers):
-        fulltitle   = title + ' {0}'.format(layer) + runtext + xaxistext + yaxistext
+        if layer not in onlylayers: 
+            continue
+        fulltitle   = title + ', {0}'.format(layer) + runtext + xaxistext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'val')
         fullvarstring += ';' + histname  + '_{0}'.format(layer)
@@ -432,7 +426,7 @@ def addOnTrackTxt(name, ontrack, wSpace=False):
         if wSpace:
             name += ' OnTrack'
         else:
-            name += '_OnTrack'
+            name += 'OnTrack'
     return name
 
 def addOnTrackToPath(name, ontrack):

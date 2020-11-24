@@ -40,11 +40,11 @@ public:
    TEventClass( xAOD::TEvent::EAuxMode mode ) : xAOD::TEvent( mode ) {}
 
    /// Function loading all interface objects of the event
-   xAOD::TReturnCode loadInputObjects() {
+   StatusCode loadInputObjects() {
       // Get the event format object:
       const xAOD::EventFormat* ef = this->inputEventFormat();
       if( ! ef ) {
-         return xAOD::TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
       // Loop over the objects of the file:
       for( auto ef_itr : *ef ) {
@@ -83,11 +83,11 @@ public:
             Error( "TEventClass::loadInputObjects",
                    XAOD_MESSAGE( "Couldnt load object: %s" ),
                    efe.branchName().c_str() );
-            return xAOD::TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       }
       // Return gracefully:
-      return xAOD::TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 }; // class TEventClass
 

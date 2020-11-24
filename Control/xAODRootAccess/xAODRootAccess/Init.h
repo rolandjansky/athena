@@ -9,7 +9,7 @@
 #include <cstddef>
 
 // Local include(s):
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 /// Namespace holding all the xAOD EDM/tool classes
 namespace xAOD {
@@ -24,10 +24,10 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
    /// @param appname Name of the application/script [optional]
-   /// @returns <code>TReturnCode::kSuccess</code> if successful,
-   ///          <code>TReturnCode::kFailure</code> if not
+   /// @returns <code>StatusCode::SUCCESS</code> if successful,
+   ///          <code>StatusCode::FAILURE</code> if not
    ///
-   TReturnCode Init( const char* appname = "xAOD::Init" );
+   StatusCode Init( const char* appname = "xAOD::Init" );
 
    /// Function initialising an application for using the ATLAS EDM
    ///
@@ -43,10 +43,10 @@ namespace xAOD {
    /// @param appname Name of the application
    /// @param argc The argc argument from main(...)
    /// @param argv The argv argument from main(...)
-   /// @returns <code>TReturnCode::kSuccess</code> if successful,
-   ///          <code>TReturnCode::kFailure</code> if not
+   /// @returns <code>StatusCode::SUCCESS</code> if successful,
+   ///          <code>StatusCode::FAILURE</code> if not
    ///
-   TReturnCode Init( const char* appname, int* argc, char** argv );
+   StatusCode Init( const char* appname, int* argc, char** argv );
 
    /// Set the width of the source strings for the printed messages
    ///
