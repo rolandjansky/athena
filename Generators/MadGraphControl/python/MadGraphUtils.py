@@ -142,22 +142,26 @@ def error_check(errors):
 
     # Now raise an error if we were in either of the error states
     if unmasked_error or my_debug_file is not None:
-        # Beta feature: offline stand-alone reproduction script
-        with open('standalone_script.sh','w') as standalone_script:
-            mglog.info('Beta feature: Stand-alone debugging script')
-            mglog.info('This is an attempt to provide you commands that you can use')
-            mglog.info('to reproduce the error locally\n\n')
-            global MADGRAPH_COMMAND_STACK
-            mglog.info('# Script start; trim off columns left of the "#"')
-            for command in MADGRAPH_COMMAND_STACK:
-                for line in command.split('\n'):
-                    mglog.info(line)
-                    standalone_script.write(line+'\n')
-            mglog.info('# Script end')
-        mglog.info('Script also written to %s/standalone_script.sh',os.getcwd())
-
+        write_test_script()
         raise RuntimeError('Error detected in MadGraphControl process')
     return
+
+
+# Write a short test script for standalone debugging
+def write_test_script():
+    mglog.info('Beta feature: Stand-alone debugging script')
+    mglog.info('This is an attempt to provide you commands that you can use')
+    mglog.info('to reproduce the error locally\n\n')
+    global MADGRAPH_COMMAND_STACK
+    mglog.info('# Script start; trim off columns left of the "#"')
+    # Beta feature: offline stand-alone reproduction script
+    with open('standalone_script.sh','w') as standalone_script:
+        for command in MADGRAPH_COMMAND_STACK:
+            for line in command.split('\n'):
+                mglog.info(line)
+                standalone_script.write(line+'\n')
+    mglog.info('# Script end')
+    mglog.info('Script also written to %s/standalone_script.sh',os.getcwd())
 
 
 def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePMGSettings=False):
