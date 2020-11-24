@@ -325,7 +325,7 @@ HLT_2mu6_bJpsimumul2io_L12MU6:
     3: 2
   stepFeatures:
     0: 12
-    1: 28
+    1: 26
     2: 8
     3: 4
 HLT_2mu6_l2io_L12MU6:
@@ -337,7 +337,7 @@ HLT_2mu6_l2io_L12MU6:
     3: 2
   stepFeatures:
     0: 12
-    1: 28
+    1: 26
     2: 8
     3: 8
 HLT_2mu6_muonqual_L12MU6:
@@ -1925,17 +1925,17 @@ HLT_mu24_L1MU20:
     2: 5
     3: 5
 HLT_mu24_idperf_L1MU20:
-  eventCount: 4
+  eventCount: 5
   stepCounts:
-    0: 5
-    1: 5
-    2: 4
-    3: 4
-  stepFeatures:
     0: 6
     1: 6
     2: 5
     3: 5
+  stepFeatures:
+    0: 7
+    1: 7
+    2: 6
+    3: 6
 HLT_mu24_ivarmedium_L1MU20:
   eventCount: 2
   stepCounts:
@@ -2059,7 +2059,7 @@ HLT_mu35_ivarmedium_L1MU20:
   stepCounts:
     0: 8
     1: 5
-    2: 4
+    2: 3
     3: 2
     4: 1
   stepFeatures:
@@ -2071,13 +2071,13 @@ HLT_mu35_ivarmedium_L1MU20:
 HLT_mu4_l2io_L1MU4:
   eventCount: 11
   stepCounts:
-    0: 12
-    1: 12
+    0: 11
+    1: 11
     2: 11
     3: 11
   stepFeatures:
-    0: 15
-    1: 50
+    0: 14
+    1: 46
     2: 15
     3: 15
 HLT_mu50_L1MU20:
