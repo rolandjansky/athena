@@ -308,11 +308,11 @@
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools
 + Simulation/ISF/ISF_SimulationSelectors
 + Simulation/ISF/ISF_Tracking/ISF_TrackingInterfaces
-+ Simulation/ISF/ISF_Validation
 + Simulation/Interfaces/HepMC_Interfaces
 + Simulation/RunDependentSim/RunDependentSimComps
 + Simulation/SimuJobTransforms
 + Simulation/SimulationJobOptions
++ Simulation/Tests/ISF_Validation
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Simulation/Tools/McEventCollectionFilter
 + TileCalorimeter/TileCalib/TileCalibBlobObjs
