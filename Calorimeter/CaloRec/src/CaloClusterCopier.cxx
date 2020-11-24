@@ -13,8 +13,6 @@ CREATED:  Sep 2005
 
 ********************************************************************/
 
-//#include "CaloUtils/CaloClusterStoreHelper.h"
-
 #include "CaloClusterCopier.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
