@@ -37,6 +37,11 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "IRegionSelector/RegSelEnums.h"
 
+namespace {
+  // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
+}
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -1048,7 +1053,7 @@ void TrigL2MuonSA::MdtDataPreparator::initDeadChannels(const MuonGM::MdtReadoutE
   std::vector<int>::iterator it = tubes.begin();
   for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      int want_id = layer*100 + tube;
+      int want_id = layer*maxNTubesPerLayer + tube;
       if (it != tubes.end() && *it == want_id) {
         ++it;
       }

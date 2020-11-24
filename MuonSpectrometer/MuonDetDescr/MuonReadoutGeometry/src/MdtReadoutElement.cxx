@@ -49,6 +49,11 @@
 // m_ep = 1.0e-5; // 10 ppm
 // m_en = 1.0e-5; // 10 ppm
 
+namespace {
+  // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
+}
+
 namespace MuonGM {
 
 MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
@@ -150,7 +155,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
         // usually the tube number corresponds to the child number, however for
         // BMG chambers full tubes are skipped during the building process
         // therefore the matching needs to be done via the volume ID
-        int packed_id = tube + 100*tubeLayer;
+        int packed_id = tube + maxNTubesPerLayer*tubeLayer;
         int kk = 0;
         bool found = false;
         geoGetIds ([&](int id) {
@@ -162,7 +167,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
                    }, &*cv);
         if (found && log.level()<=MSG::DEBUG) {
           log << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer 
-                    << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
+                    << ") - output match : tube(" << ii%maxNTubesPerLayer << "), layer(" << ii/maxNTubesPerLayer << ")" << endmsg;
         }
       }
       if (ii>=nGrandchildren) {
@@ -482,7 +487,7 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
           // usually the tube number corresponds to the child number, however for
           // BMG chambers full tubes are skipped during the building process
           // therefore the matching needs to be done via the volume ID
-          int packed_id = tube + 100*tubelayer;
+          int packed_id = tube + maxNTubesPerLayer*tubelayer;
           int kk = 0;
           bool found = false;
           geoGetIds ([&](int id) {
@@ -495,7 +500,7 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 #ifndef NDEBUG
           if (found && log.level()<=MSG::DEBUG) {
             log << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer 
-                      << ") - output match : tube(" << ii%100 << "), layer(" << ii/100 << ")" << endmsg;
+                      << ") - output match : tube(" << ii%maxNTubesPerLayer << "), layer(" << ii/maxNTubesPerLayer << ")" << endmsg;
           }
 #endif
         }
@@ -1753,7 +1758,7 @@ void MdtReadoutElement::fillCache()
                 // usually the tube number corresponds to the child number, however for
                 // BMG chambers full tubes are skipped during the building process
                 // therefore the matching needs to be done via the volume ID
-                int packed_id = tube + 100*tl;
+                int packed_id = tube + maxNTubesPerLayer*tl;
                 bool found = false;
                 geoGetIds ([&](int id) {
                              if (!found && id == packed_id) {
