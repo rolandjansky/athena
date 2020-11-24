@@ -48,6 +48,7 @@ class GeoPixelLadderPlanarRef : public PixelGeoBuilder {
   double envLength() const {return m_envLength;}
   double rmin() const {return m_rmin; }
   double rmax() const {return m_rmax; }
+  double radialSafety() const {return m_radialSafety;}
 
   void setSector(int sector) {m_sector = sector; }
 
@@ -74,6 +75,7 @@ class GeoPixelLadderPlanarRef : public PixelGeoBuilder {
   double m_rmin;
   double m_rmax;
   double m_moduleSvcThickness;
+  double m_radialSafety;
 
   //  std::vector<int> m_geoLadderIndex;
   int m_barrelModuleNumber;

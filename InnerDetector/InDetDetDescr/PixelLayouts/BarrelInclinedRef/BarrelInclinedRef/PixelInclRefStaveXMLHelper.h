@@ -25,6 +25,7 @@ class PixelInclRefStaveXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  
   double getStaggerSign() const;
   double getCenterShift() const;
   double getBarrelModuleDZ() const;
+  double getRadialSafety() const;
 
   double getStaveSupportLength() const;
   double getStaveSupportWidth() const;

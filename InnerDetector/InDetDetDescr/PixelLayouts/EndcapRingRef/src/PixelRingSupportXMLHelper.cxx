@@ -5,6 +5,8 @@
 #include "PathResolver/PathResolver.h"
 #include "PixelLayoutUtils/DBXMLUtils.h"
 
+#include <algorithm>
+
 PixelRingSupportXMLHelper::PixelRingSupportXMLHelper(const PixelGeoBuilderBasics* basics):
   GeoXMLUtils(),
   PixelGeoBuilder(basics),
@@ -58,6 +60,41 @@ bool PixelRingSupportXMLHelper::swapFrontBackModulePhiPosition(){
   bool m_swapFrontBack = 0;
   if(getSchemaVersion() > 6) return getBoolean("ModulePhiPosition",m_swapFrontBack, "swapFrontBack");
   else return false;
+}
+
+double PixelRingSupportXMLHelper::getRingSafetyEnvelopeZ(int layer) const {
+  double m_envelope = 0.;
+  if(getSchemaVersion() > 7) {
+      std::vector<int> layers = getVectorInt("SensitiveRingSafetyEnvelopes",0,"layers");
+      std::vector<int>::iterator itr = std::find(layers.begin(), layers.end(), layer);
+      if (itr!=layers.end()) {
+        std::vector<double> z_envelopes = getVectorDouble("SensitiveRingSafetyEnvelopes",0,"zEnvelope");
+        if (z_envelopes.empty())
+          return m_envelope;
+        unsigned int position = std::distance(layers.begin(), itr);
+        m_envelope = (z_envelopes.size()>position) ? z_envelopes.at(position) : z_envelopes.at(0);
+        return m_envelope;
+      } else return m_envelope;    
+  }
+  else return m_envelope;  
+}
+
+
+double PixelRingSupportXMLHelper::getRingSafetyEnvelopeRmin(int layer) const {
+  double m_envelope = 0.;
+  if(getSchemaVersion() > 7) {
+      std::vector<int> layers = getVectorInt("SensitiveRingSafetyEnvelopes",0,"layers");
+      std::vector<int>::iterator itr = std::find(layers.begin(), layers.end(), layer);
+      if (itr!=layers.end()) {
+        std::vector<double> rmin_envelopes = getVectorDouble("SensitiveRingSafetyEnvelopes",0,"rMinEnvelope");
+        if (rmin_envelopes.empty())
+          return m_envelope;
+        unsigned int position = std::distance(layers.begin(), itr);
+        m_envelope = (rmin_envelopes.size()>position) ? rmin_envelopes.at(position) : rmin_envelopes.at(0);
+        return m_envelope;
+      } else return m_envelope;    
+  }
+  else return m_envelope;  
 }
 
 int PixelRingSupportXMLHelper::getNbSupport(int layer, int ring) 
