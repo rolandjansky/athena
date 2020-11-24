@@ -57,7 +57,7 @@ public:
 
   virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor);
 
-  virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
+  virtual StatusCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
   virtual StatusCode setRunNumber(int iRunNumber);
 

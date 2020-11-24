@@ -24,7 +24,7 @@
 
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -343,7 +343,7 @@ StatusCode DumpAllSystematics::do_energy(xAOD::Egamma& particle, int itool)
   m_nominal_E[itool] = m_energy_variations_sum_up[itool] = m_energy_variations_sum_down[itool] = -999.;
   std::fill(m_energy_variations[itool].begin(), m_energy_variations[itool].end(), -999.);
 
-  if (m_EgammaCalibrationAndSmearingTools[itool]->applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+  if (m_EgammaCalibrationAndSmearingTools[itool]->applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("cannot apply nominal energy");
     return StatusCode::FAILURE;
   }
@@ -367,7 +367,7 @@ StatusCode DumpAllSystematics::do_energy(xAOD::Egamma& particle, int itool)
     CP::SystematicSet ss;
     ss.insert(sys);
 
-    if (m_EgammaCalibrationAndSmearingTools[itool]->applySystematicVariation(ss) != CP::SystematicCode::Ok)  {
+    if (m_EgammaCalibrationAndSmearingTools[itool]->applySystematicVariation(ss) != StatusCode::SUCCESS)  {
       ATH_MSG_ERROR("Cannot configure calibration tool for systematic");
       continue;
     }

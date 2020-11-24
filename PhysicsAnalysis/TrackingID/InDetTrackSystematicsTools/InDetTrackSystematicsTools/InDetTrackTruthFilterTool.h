@@ -58,7 +58,7 @@ namespace InDet {
     /// returns: list of recommended systematics to use with this tool
     virtual CP::SystematicSet recommendedSystematics() const override;
     /// configure the tool to apply a given list of systematic variations
-    virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& ) override;
+    virtual StatusCode applySystematicVariation( const CP::SystematicSet& ) override;
 
   private:
 

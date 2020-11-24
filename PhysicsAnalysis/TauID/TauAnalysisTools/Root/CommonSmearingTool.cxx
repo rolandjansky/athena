@@ -138,7 +138,7 @@ StatusCode CommonSmearingTool::initialize()
   generateSystematicSets();
 
   // load empty systematic variation by default
-  if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok )
+  if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS )
     return StatusCode::FAILURE;
 
 #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
@@ -383,14 +383,14 @@ CP::SystematicSet CommonSmearingTool::recommendedSystematics() const
       e.g. TOTAL=(SYST^2 + STAT^2)^0.5
 */
 //______________________________________________________________________________
-CP::SystematicCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+StatusCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   // first check if we already know this systematic configuration
   auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
   if (itSystematicSet != m_mSystematicSets.end())
   {
     m_sSystematicSet = &itSystematicSet->first;
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
 
   // sanity checks if systematic set is supported
@@ -411,7 +411,7 @@ CP::SystematicCode CommonSmearingTool::applySystematicVariation ( const CP::Syst
     {
       ATH_MSG_ERROR("unsupported set of systematic variations, you should either use only \"UP\" or only \"DOWN\" systematics in one set!");
       ATH_MSG_ERROR("systematic set will not be applied");
-      return CP::SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
     dDirection = sSyst.parameter();
 
@@ -419,7 +419,7 @@ CP::SystematicCode CommonSmearingTool::applySystematicVariation ( const CP::Syst
     {
       ATH_MSG_ERROR("unsupported set of systematic variations, you should not combine \"TAUS_{TRUE|FAKE}_SME_TOTAL\" with other systematic variations!");
       ATH_MSG_ERROR("systematic set will not be applied");
-      return CP::SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
 
     // finally add the systematic to the set of systematics to process
@@ -429,7 +429,7 @@ CP::SystematicCode CommonSmearingTool::applySystematicVariation ( const CP::Syst
   // store this calibration for future use, and make it current
   m_sSystematicSet = &m_mSystematicSets.insert(std::pair<CP::SystematicSet,std::string>(sSystematicSetAvailable, sSystematicSet.name())).first->first;
 
-  return CP::SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 //=================================PRIVATE-PART=================================

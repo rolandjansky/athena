@@ -144,7 +144,7 @@ int main (int argc, char* argv[])
     }
     CP::SystematicSet syst;
     syst.insert(variation);
-    if (tool->applySystematicVariation(syst) != CP::SystematicCode::Ok)
+    if (tool->applySystematicVariation(syst) != StatusCode::SUCCESS)
     {
         printf("Failed to apply systematic variation\n");
         exit(1);

@@ -14,7 +14,7 @@
 /// Local include(s):
 #include "PATInterfaces/CorrectionCode.h"
 #include "PATInterfaces/ISystematicsTool.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "PATInterfaces/SystematicVariation.h"

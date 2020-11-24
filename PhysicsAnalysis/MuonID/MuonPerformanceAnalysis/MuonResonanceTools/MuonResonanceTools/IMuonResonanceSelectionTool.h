@@ -18,7 +18,7 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 class IMuonResonanceSelectionTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMuonResonanceSelectionTool)

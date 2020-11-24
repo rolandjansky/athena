@@ -283,7 +283,7 @@ namespace InDet {
     return InDetTrackSystematicsTool::recommendedSystematics();
   }
 
-  CP::SystematicCode InDetTrackBiasingTool::applySystematicVariation( const CP::SystematicSet& systs )
+  StatusCode InDetTrackBiasingTool::applySystematicVariation( const CP::SystematicSet& systs )
   {
     return InDetTrackSystematicsTool::applySystematicVariation(systs);
   }

@@ -91,7 +91,7 @@ namespace CP {
       if (m_ddVersion == "2012" or m_ddVersion == "2015") {
 	//register ourselves with the systematic registry! 
 	CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-	if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
+	if( registry.registerSystematics( *this ) != StatusCode::SUCCESS ) return StatusCode::FAILURE;
       } else
 	ATH_MSG_WARNING("Unknown data driven correction");
     } else{
@@ -242,12 +242,12 @@ namespace CP {
     return affectingSystematics();
   }
 
-  CP::SystematicCode IsolationCorrectionTool::applySystematicVariation( const CP::SystematicSet& systConfig ) {
+  StatusCode IsolationCorrectionTool::applySystematicVariation( const CP::SystematicSet& systConfig ) {
     if (systConfig.find(m_systDDonoff) != systConfig.end())
       m_apply_dd = false;
     else
       m_apply_dd = m_apply_ddDefault ? true  : false;
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
 
   IsolationCorrectionTool::~IsolationCorrectionTool() {

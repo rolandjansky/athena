@@ -1309,7 +1309,7 @@ std::string SUSYObjDef_xAOD::TrigSingleLep() const { return m_electronTriggerSFS
 std::string SUSYObjDef_xAOD::TrigDiLep()     const { return m_electronTriggerSFStringDiLepton; }
 std::string SUSYObjDef_xAOD::TrigMixLep()    const { return m_electronTriggerSFStringMixedLepton; }
 
-CP::SystematicCode SUSYObjDef_xAOD::resetSystematics() {   
+StatusCode SUSYObjDef_xAOD::resetSystematics() {   
   return this->applySystematicVariation(m_defaultSyst);
 }
 
@@ -1355,11 +1355,11 @@ bool SUSYObjDef_xAOD::currentSystematicIsWeight() const {
 
 
 
-CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::SystematicSet& systConfig )
+StatusCode SUSYObjDef_xAOD::applySystematicVariation( const CP::SystematicSet& systConfig )
 {
   if (!m_tool_init) {
     ATH_MSG_ERROR("SUSYTools was not initialized!!");
-    return CP::SystematicCode::Unsupported;
+    return StatusCode::FAILURE;
   }
 
   ATH_MSG_DEBUG(" in SUSYObjDef_xAOD::applySystematicVariation \"" << systConfig.name() << "\" size " << systConfig.size());
@@ -1368,40 +1368,40 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
 
   // NB: SystematicSet typically has only one component (see SUSYToolsTester macro)
   if (!m_jetUncertaintiesTool.empty()) {
-    CP::SystematicCode ret = m_jetUncertaintiesTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_jetUncertaintiesTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_VERBOSE("Cannot configure JetUncertaintiesTool for systematic var. " << systConfig.name() );
     } else {
       ATH_MSG_VERBOSE("Configured JetUncertaintiesTool for systematic var. " << systConfig.name() );
     }
   }
   if (!m_fatjetUncertaintiesTool.empty()) {
-    CP::SystematicCode ret = m_fatjetUncertaintiesTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_fatjetUncertaintiesTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_VERBOSE("Cannot configure (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
     } else {
       ATH_MSG_VERBOSE("Configured (Fat)JetUncertaintiesTool for systematic var. " << systConfig.name() );
     }
   }
   if (!m_jetJvtEfficiencyTool.empty()) {
-    CP::SystematicCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_VERBOSE("Cannot configure JVTEfficiency for systematic var. " << systConfig.name() );
     } else {
       ATH_MSG_VERBOSE("Configured JVTEfficiency for systematic var. " << systConfig.name() );
     }
   }
   if (!m_jerSmearingTool.empty()) {
-    CP::SystematicCode ret = m_jerSmearingTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_jerSmearingTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure JERSmearingTool for  systematic var. " << systConfig.name());
     } else {
       ATH_MSG_VERBOSE("Configured JERSmearing for systematic var. " << systConfig.name() );
     }
   }
   if (!m_muonCalibrationAndSmearingTool.empty()) {
-    CP::SystematicCode ret =   m_muonCalibrationAndSmearingTool->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret =   m_muonCalibrationAndSmearingTool->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure MuonCalibrationAndSmearingTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1409,8 +1409,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_muonEfficiencySFTool.empty()) {
-    CP::SystematicCode ret  = m_muonEfficiencySFTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret  = m_muonEfficiencySFTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure MuonEfficiencyScaleFactors for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1418,8 +1418,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_muonEfficiencyBMHighPtSFTool.empty()) {
-    CP::SystematicCode ret  = m_muonEfficiencyBMHighPtSFTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret  = m_muonEfficiencyBMHighPtSFTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure MuonBadMuonHighPtScaleFactors for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1427,8 +1427,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_muonTTVAEfficiencySFTool.empty()) {
-    CP::SystematicCode ret  = m_muonTTVAEfficiencySFTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret  = m_muonTTVAEfficiencySFTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure MuonTTVAEfficiencyScaleFactors for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1436,8 +1436,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_muonIsolationSFTool.empty()) {
-    CP::SystematicCode ret  = m_muonIsolationSFTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret  = m_muonIsolationSFTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure MuonIsolationScaleFactors for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1445,8 +1445,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_muonTriggerSFTool2015.empty()) {
-    CP::SystematicCode ret  = m_muonTriggerSFTool2015->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret  = m_muonTriggerSFTool2015->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2015) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1454,8 +1454,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_muonTriggerSFTool2016.empty()) {
-    CP::SystematicCode ret  = m_muonTriggerSFTool2016->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret  = m_muonTriggerSFTool2016->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2016) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1463,8 +1463,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_reco.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_reco->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_reco->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (reco) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1472,8 +1472,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_id.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_id->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_id->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (id) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1481,8 +1481,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_trig_singleLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trig_singleLep->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_trig_singleLep->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1490,8 +1490,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_trig_diLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trig_diLep->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_trig_diLep->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1499,8 +1499,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_trig_mixLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trig_mixLep->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_trig_mixLep->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1508,8 +1508,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_trigEff_singleLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1517,8 +1517,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_trigEff_diLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_diLep->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_trigEff_diLep->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1526,8 +1526,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_trigEff_mixLep.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_trigEff_mixLep->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_trigEff_mixLep->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1535,8 +1535,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_iso.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_iso->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_iso->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1544,8 +1544,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecEfficiencySFTool_chf.empty()) {
-    CP::SystematicCode ret = m_elecEfficiencySFTool_chf->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecEfficiencySFTool_chf->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (chf) for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1553,8 +1553,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_elecChargeEffCorrTool.empty()) {
-    CP::SystematicCode ret = m_elecChargeEffCorrTool->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_elecChargeEffCorrTool->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure ElectronChargeEffCorrectionTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1562,8 +1562,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!isData() && !m_photonEfficiencySFTool.empty()) {
-    CP::SystematicCode ret = m_photonEfficiencySFTool->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_photonEfficiencySFTool->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1571,8 +1571,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!isData() && !m_photonIsolationSFTool.empty()) {
-    CP::SystematicCode ret = m_photonIsolationSFTool->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_photonIsolationSFTool->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1580,8 +1580,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_egammaCalibTool.empty()) {
-    CP::SystematicCode ret = m_egammaCalibTool->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_egammaCalibTool->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure EgammaCalibrationAndSmearingTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1589,8 +1589,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_isoCorrTool.empty()) {
-    CP::SystematicCode ret = m_isoCorrTool->applySystematicVariation(systConfig);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_isoCorrTool->applySystematicVariation(systConfig);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure IsolationCorrectionTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1599,8 +1599,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
   }
   if (!m_btagEffTool.empty()) {
     //if ( systConfig.size() > 0 && m_btagEffTool->isAffectedBySystematic(*systConfig.begin()) ) {
-    CP::SystematicCode ret = m_btagEffTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_btagEffTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure xAODBTaggingEfficiency for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1609,8 +1609,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     //}
   }
   if (!m_tauSmearingTool.empty()) {
-    CP::SystematicCode ret = m_tauSmearingTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_tauSmearingTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure TauSmearingTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1618,8 +1618,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_tauEffTool.empty()) {
-    CP::SystematicCode ret = m_tauEffTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_tauEffTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1627,16 +1627,16 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_tauTrigEffTool0.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool0->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_tauTrigEffTool0->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() );
       return ret;
     } else {
       ATH_MSG_VERBOSE("Configured TauEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() );
     }
   }  if (!m_tauTrigEffTool1.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool1->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_tauTrigEffTool1->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1644,8 +1644,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_tauTrigEffTool2.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool2->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_tauTrigEffTool2->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1653,8 +1653,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_tauTrigEffTool3.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool3->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_tauTrigEffTool3->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1662,8 +1662,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_tauTrigEffTool4.empty()) {
-    CP::SystematicCode ret = m_tauTrigEffTool4->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_tauTrigEffTool4->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1671,8 +1671,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_metSystTool.empty()) {
-    CP::SystematicCode ret = m_metSystTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_metSystTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure METSystematicsTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1680,8 +1680,8 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
   if (!m_prwTool.empty()) {
-    CP::SystematicCode ret = m_prwTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_prwTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure PileupReweightingTool for systematic var. " << systConfig.name() );
       return ret;
     } else {
@@ -1689,7 +1689,7 @@ CP::SystematicCode SUSYObjDef_xAOD::applySystematicVariation( const CP::Systemat
     }
   }
 
-  return CP::SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 std::vector<ST::SystInfo> SUSYObjDef_xAOD::getSystInfoList() const {

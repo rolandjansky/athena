@@ -135,10 +135,10 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
 
   /** Set the tool to return "shifted" values.
       Note that only single-parameter variations or empty sets (the latter are to revert to nominal results)
-      are supported at present; @c SystematicCode::Unsupported will be returned for variations of multiple parameters
+      are supported at present; @c StatusCode::FAILURE will be returned for variations of multiple parameters
       or variations that aren't recognised.
    */
-  CP::SystematicCode applySystematicVariation(const CP::SystematicSet & set);
+  StatusCode applySystematicVariation(const CP::SystematicSet & set);
 
   /** Return a list of all systematic variations supported by this tool.
       Note that this list depends on the uncertainty model used, and on the (dynamic)

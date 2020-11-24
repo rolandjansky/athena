@@ -28,7 +28,7 @@
 #include "xAODRootAccess/Init.h"
 //#include "xAODRootAccess/LoadDictionaries.h"
 
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/CorrectionCode.h"
 
 #include "AsgTools/AsgMetadataTool.h"
@@ -55,9 +55,7 @@ namespace top {
     //fail on unchecked error codes
     if (failOnUnchecked) {
       StatusCode::enableFailure();
-      CP::SystematicCode::enableFailure();
       CP::CorrectionCode::enableFailure();
-      //StatusCode::enableFailure();
     }
   }
 

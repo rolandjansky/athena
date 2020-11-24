@@ -49,7 +49,7 @@ namespace CP
     // Interface methods for editing the registry
 
     /// effects: register all the systematics from the tool
-    SystematicCode registerSystematics (const ISystematicsTool& tool);
+    StatusCode registerSystematics (const ISystematicsTool& tool);
 
     /// description: add a systematic to the global registry set
     void registerSystematic(const SystematicVariation& systematic);
@@ -59,10 +59,10 @@ namespace CP
     void registerSystematics(const SystematicSet& systematics);
 
     /// description: add a systematic to the recommended set
-    SystematicCode addSystematicToRecommended(const SystematicVariation& systematic);
+    StatusCode addSystematicToRecommended(const SystematicVariation& systematic);
 
     /// description: add a set of systematics to the recommended set
-    SystematicCode addSystematicsToRecommended(const SystematicSet& systematics);
+    StatusCode addSystematicsToRecommended(const SystematicSet& systematics);
 
   private:
     /// Private constructor

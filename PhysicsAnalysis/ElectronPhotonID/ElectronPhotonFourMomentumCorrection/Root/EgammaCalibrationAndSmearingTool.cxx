@@ -489,7 +489,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
 
   applySystematicVariation(CP::SystematicSet()).ignore();   // this set the flags for the internal tool without systematics
   CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-  if ( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
+  if ( registry.registerSystematics( *this ) != StatusCode::SUCCESS ) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
@@ -1144,7 +1144,7 @@ CP::SystematicSet EgammaCalibrationAndSmearingTool::recommendedSystematics() con
   return affectingSystematics();
 }
 
-CP::SystematicCode EgammaCalibrationAndSmearingTool::applySystematicVariation(const CP::SystematicSet& systConfig) {
+StatusCode EgammaCalibrationAndSmearingTool::applySystematicVariation(const CP::SystematicSet& systConfig) {
 
   // set the nominal one (no systematics)
   m_currentScaleVariation_MC = egEnergyCorr::Scale::None;
@@ -1153,7 +1153,7 @@ CP::SystematicCode EgammaCalibrationAndSmearingTool::applySystematicVariation(co
   m_currentResolutionVariation_data = egEnergyCorr::Resolution::None;
   m_currentScalePredicate = [](const xAOD::Egamma&) { return true; };
 
-  if (systConfig.size() == 0) return CP::SystematicCode::Ok;
+  if (systConfig.size() == 0) return StatusCode::SUCCESS;
 
   // the following code allows only ONE systematic variation at a time (1 for scale, 1 for resolution)
 
@@ -1182,7 +1182,7 @@ CP::SystematicCode EgammaCalibrationAndSmearingTool::applySystematicVariation(co
     }
   }
 
-  return CP::SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 double EgammaCalibrationAndSmearingTool::intermodule_correction(double Ecl,  double phi, double eta) const

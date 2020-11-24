@@ -228,17 +228,17 @@ AsgElectronEfficiencyCorrectionTool::initialize() {
     }
 
     //Initialize the systematics
-    if (InitSystematics() != CP::SystematicCode::Ok) {
-        ATH_MSG_ERROR("(InitSystematics() != CP::SystematicCode::Ok)");
+    if (InitSystematics() != StatusCode::SUCCESS) {
+        ATH_MSG_ERROR("(InitSystematics() != StatusCode::SUCCESS)");
         return StatusCode::FAILURE;
     }
     // Add the recommended systematics to the registry
-    if (registerSystematics() != CP::SystematicCode::Ok) {
-        ATH_MSG_ERROR("(registerSystematics() != CP::SystematicCode::Ok)");
+    if (registerSystematics() != StatusCode::SUCCESS) {
+        ATH_MSG_ERROR("(registerSystematics() != StatusCode::SUCCESS)");
         return StatusCode::FAILURE;
     }
     // Configure for nominal systematics
-    if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+    if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS) {
         ATH_MSG_ERROR("Could not configure for nominal settings");
         return StatusCode::FAILURE;
     }
@@ -465,15 +465,15 @@ AsgElectronEfficiencyCorrectionTool::affectingSystematics() const {
     return m_affectedSys;
 }
 // Register the systematics with the registry and add them to the recommended list
-CP::SystematicCode
+StatusCode
 AsgElectronEfficiencyCorrectionTool::registerSystematics() {
     CP::SystematicRegistry &registry = CP::SystematicRegistry::getInstance();
 
-    if (registry.registerSystematics(*this) != CP::SystematicCode::Ok) {
+    if (registry.registerSystematics(*this) != StatusCode::SUCCESS) {
         ATH_MSG_ERROR("Failed to add systematic to list of recommended systematics.");
-        return CP::SystematicCode::Unsupported;
+        return StatusCode::FAILURE;
     }
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 /// returns: the list of all systematics this tool recommends to use
 CP::SystematicSet
@@ -481,7 +481,7 @@ AsgElectronEfficiencyCorrectionTool::recommendedSystematics() const {
     return affectingSystematics();
 }
 /// Apply one variation at a time
-CP::SystematicCode
+StatusCode
 AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::SystematicSet &systConfig) {
     // First, check if this configuration exists in the filtered map/registy
     auto itr = m_systFilter.find(systConfig);
@@ -497,12 +497,12 @@ AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::Systemat
         CP::SystematicSet filteredSys;
         if (!CP::SystematicSet::filterForAffectingSystematics(systConfig, affectingSys, filteredSys)) {
             ATH_MSG_ERROR("Unsupported combination of systematic variations passed to the tool!");
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
         // Does filtered make sense ,  only one per time
         if (filteredSys.size() > 1) {
             ATH_MSG_ERROR("More than one systematic variation passed at the same time");
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
 
         if (filteredSys.empty() && !systConfig.empty()) {
@@ -519,10 +519,10 @@ AsgElectronEfficiencyCorrectionTool::applySystematicVariation(const CP::Systemat
         CP::SystematicSet &mySysConf = itr->second;
         m_appliedSystematics = &mySysConf;
     }
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
-CP::SystematicCode
+StatusCode
 AsgElectronEfficiencyCorrectionTool::InitSystematics() {
 
     // Correlated
@@ -561,7 +561,7 @@ AsgElectronEfficiencyCorrectionTool::InitSystematics() {
                         Form("UncorrUncertaintyNP%d", i), -1));
         }
     }
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
 /*

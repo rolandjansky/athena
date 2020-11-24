@@ -10,8 +10,9 @@ gSystem.Load('libPATInterfaces.so')
 gSystem.Load('libRootCoreUtils.so') # For the TestInvariant dependency
 
 # Import the systematics classes
+from ROOT import StatusCode
 from ROOT.CP import SystematicVariation, SystematicSet
-from ROOT.CP import SystematicCode, SystematicRegistry
+from ROOT.CP import SystematicRegistry
 from ROOT.CP import make_systematics_vector
 
 # Build a dumb set of systematics
@@ -31,7 +32,7 @@ sys_reg = SystematicRegistry.getInstance()
 # Register the systematics
 sys_reg.registerSystematics(sys_set)
 code = sys_reg.addSystematicsToRecommended(sys_set)
-if code.code() != SystematicCode.Ok:
+if code.isFailure():
     raise Exception('Failed to call SystematicRegistry::addSystematicsToRecommended')
 
 # Build a systematics list

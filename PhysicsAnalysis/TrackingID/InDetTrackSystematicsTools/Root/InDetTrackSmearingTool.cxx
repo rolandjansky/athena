@@ -215,9 +215,9 @@ namespace InDet {
     return RecommendedSystematics;
   }
 
-  CP::SystematicCode InDetTrackSmearingTool::applySystematicVariation( const CP::SystematicSet& systs )
+  StatusCode InDetTrackSmearingTool::applySystematicVariation( const CP::SystematicSet& systs )
   {
-    // should do check in here and return CP::SystematicCode::Unsupported if LOOSE and TIGHT versions are set simultaneously
+    // should do check in here and return StatusCode::FAILURE if LOOSE and TIGHT versions are set simultaneously
     return InDetTrackSystematicsTool::applySystematicVariation(systs);
   }
 
