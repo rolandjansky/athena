@@ -17,6 +17,7 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "TClass.h"
 
 //===========================================================
 CaloTriggerTowerService::CaloTriggerTowerService( const std::string& type,
@@ -93,6 +94,17 @@ StatusCode CaloTriggerTowerService::initialize ()
   } else {
     msg() << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endmsg;
   }
+
+  // Make sure the dictionaries for the LArTTCellMap persistent classes
+  // are available.  We used to read this object via a conditions callback,
+  // but callbacks are not thread-friendly, so this was changed to retrieving
+  // it from detStore during event processing.  However, this meant that
+  // the TClass's for the persistent objects were also being loaded
+  // at that time.  As of root 6.22.00, at least, TClass can sometimes
+  // fail to properly load a dictionary when it's being run in a multithreaded
+  // context.  So force the needed dictionaries to load now.
+  TClass::GetClass ("LArTTCell_P");
+  TClass::GetClass ("LArTTCell_P::LArTTCell_P_t");
 
   msg()<<MSG::INFO<<" ====> ...CaloTriggerTowerService::init() OK "<< endmsg;
   return StatusCode::SUCCESS;
