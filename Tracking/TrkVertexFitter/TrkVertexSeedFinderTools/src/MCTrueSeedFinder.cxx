@@ -145,9 +145,7 @@ namespace Trk
       
       //get "intensity" (scalar sum ot p_T^2)
       double sum_pt2(0.0);
-      HepMC::GenEvent::particle_const_iterator pitr;
-      for (pitr = myEvent->particles_begin(); pitr != myEvent->particles_end(); ++pitr ) {
-	HepMC::GenParticle *part = (*pitr);
+      for (auto part: *myEvent) {
 	if(!pass(part, mcEventCollection.cptr())) continue; //select stable charged particles
 	sum_pt2 += part->momentum().perp2();
       }
