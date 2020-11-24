@@ -46,7 +46,9 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         # Digitization parameters
         CondArgs.update(
             BunchSpace=25.0,
-            FEI4BarrelHitDiscConfig=[2]
+            FEI4BarrelHitDiscConfig=[2],
+            ChargeScaleFEI4=1.0,
+            UseFEI4SpecialScalingFunction=False
         )
         #====================================================================================
         # Run-dependent SIMULATION(digitization) parameters:
@@ -179,6 +181,8 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         DefaultCalibrationParameterA=70.2,
         DefaultCalibrationParameterE=-3561.25,
         DefaultCalibrationParameterC=26000.0
+#        IBLChargeScale=1.0,
+#        IBLSpecificCorrection=False
     )
     # DCS parameters
     CondArgs.update(
