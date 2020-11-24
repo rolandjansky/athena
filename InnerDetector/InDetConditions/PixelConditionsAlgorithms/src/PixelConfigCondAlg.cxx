@@ -138,6 +138,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   writeCdo -> setDBMThermalNoise(m_DBMThermalNoise);
   writeCdo -> setFEI4BarrelHitDiscConfig(m_FEI4BarrelHitDiscConfig);
   writeCdo -> setFEI4EndcapHitDiscConfig(m_FEI4EndcapHitDiscConfig);
+  writeCdo -> setFEI4ChargScaling(m_chargeScaleFEI4);
+  writeCdo -> setUseFEI4SpecialScalingFunction(m_UseFEI4SpecialScalingFunction);
 
   // Charge calibration parameters
   writeCdo -> setDefaultQ2TotA(m_CalibrationParameterA);
