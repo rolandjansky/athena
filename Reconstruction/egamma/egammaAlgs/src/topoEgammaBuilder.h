@@ -101,7 +101,7 @@ private:
 
     /** @brief Tool to resolve electron/photon ambiguity */
     ToolHandle<IEGammaAmbiguityTool> m_ambiguityTool {this, 
-        "AmbiguityTool", "ElectronPhotonSelectorTools/EGammaAmbiguityTool", 
+        "AmbiguityTool", "EGammaAmbiguityTool/egammaambiguitytool",
         "Tool that does electron/photon ambiguity resolution"};
 
     /** @brief Tool to resolve electron/photon ambiguity */
