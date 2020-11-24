@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <TString.h> // for Form
 
+// maxNTubesPerLayer is included via MdtChamberGeometry.h -> DriftCircle.h
+
 namespace TrkDriftCircleMath {
 
   MdtChamberGeometry::MdtChamberGeometry() : 
@@ -79,9 +81,9 @@ namespace TrkDriftCircleMath {
       m_allTubes.clear();
       if(m_nml<1 || m_nml>2) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with nml=%d which is definitely out of range", __FILE__, __LINE__,m_nml));
       if(m_nlay<1 || m_nlay>4) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with nlay=%d which is definitely out of range", __FILE__, __LINE__,m_nlay));
-      if(ntubesml0<1 || ntubesml0>120) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with ntubesml0=%d which is definitely out of range", __FILE__, __LINE__,ntubesml0));
+      if(ntubesml0<1 || ntubesml0>maxNTubesPerLayer) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with ntubesml0=%d which is definitely out of range", __FILE__, __LINE__,ntubesml0));
       // there can be chambers with only 1 multilayer. Then, the second multilayer will have ntubesml1=0
-      if(ntubesml1>120) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with ntubesml1=%d which is definitely out of range", __FILE__, __LINE__,ntubesml1));
+      if(ntubesml1>maxNTubesPerLayer) throw std::runtime_error(Form("File: %s, Line: %d\nMdtChamberGeometry::setGeometry() - got called with ntubesml1=%d which is definitely out of range", __FILE__, __LINE__,ntubesml1));
       m_stationTheta = stationTheta;
     }
 

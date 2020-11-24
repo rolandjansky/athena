@@ -27,6 +27,8 @@
 
 using namespace TrkDriftCircleMath;
 
+// maxNTubesPerLayer is included via DriftCircle.h
+
 namespace Muon {
 
   MuonHoughPatternFinderTool::MuonHoughPatternFinderTool(const std::string& t,const std::string& n,const IInterface* p)  :  
@@ -1474,7 +1476,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     int nhits = 0;
     for( ;it1!=it_end;++it1, nhits++ ) {
       sel[nhits] = 0;
-      int isort = 100*(4*(it1->id().ml()) + it1->id().lay()) + it1->id().tube();
+      int isort = maxNTubesPerLayer*(4*(it1->id().ml()) + it1->id().lay()) + it1->id().tube();
       dcsId[isort] = nhits;
       int ilay = 4*(it1->id().ml()) + it1->id().lay();
       ATH_MSG_VERBOSE (" ilay " << ilay << " isort " << isort);
@@ -1572,7 +1574,7 @@ std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<Muo
     TrkDriftCircleMath::DCOnTrackIt itt_end = hitsOnLineSel.end();
     int i = 0;
     for( ;itt!=itt_end;++itt,i++ ) {
-      int isort = 100*(4*(itt->id().ml()) + itt->id().lay()) + itt->id().tube();
+      int isort = maxNTubesPerLayer*(4*(itt->id().ml()) + itt->id().lay()) + itt->id().tube();
       if (dcsId.count(isort) == 1) {
 	int dcsIndex = dcsId[isort];
 	sel[dcsIndex] = 1;
