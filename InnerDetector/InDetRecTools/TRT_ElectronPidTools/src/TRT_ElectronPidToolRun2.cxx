@@ -148,10 +148,12 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const
 \*****************************************************************************/
 
 std::vector<float>
-InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) const {
+InDet::TRT_ElectronPidToolRun2::electronProbability(
+  const EventContext& ctx,
+  const Trk::Track& track) const
+{
 
   // Get the probability calculator
-  const EventContext& ctx = Gaudi::Hive::currentContext();
   SG::ReadCondHandle<HTcalculator> readHandle{m_HTReadKey,ctx};
   const HTcalculator* HTcalc = (*readHandle);
   // make sure some calibration is available
@@ -203,7 +205,8 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   PIDvalues[Trk::TRTTrackOccupancy] = m_LocalOccTool->LocalOccupancy(ctx,track);
 
   if (PIDvalues[Trk::TRTTrackOccupancy] > 1.0  || PIDvalues[Trk::TRTTrackOccupancy]  < 0.0) {
-    ATH_MSG_WARNING("  Occupancy was outside allowed range! Returning default Pid values. Occupancy = " << PIDvalues[Trk::TRTTrackOccupancy] );
+    ATH_MSG_WARNING("  Occupancy was outside allowed range! Returning default Pid values. Occupancy = "
+                    << PIDvalues[Trk::TRTTrackOccupancy] );
     return PIDvalues;
   }
 
@@ -289,13 +292,22 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
     int StrawLayer = 0;
     if (TrtPart == 0) {
       // Barrel:
-      if      (m_trtId->layer_or_wheel(DCid) == 0) StrawLayer = m_trtId->straw_layer(DCid);
-      else if (m_trtId->layer_or_wheel(DCid) == 1) StrawLayer = 19 + m_trtId->straw_layer(DCid);
-      else                                         StrawLayer = 19 + 24 + m_trtId->straw_layer(DCid);
+      if (m_trtId->layer_or_wheel(DCid) == 0) {
+        StrawLayer = m_trtId->straw_layer(DCid);
+      } else if (m_trtId->layer_or_wheel(DCid) == 1) {
+        StrawLayer = 19 + m_trtId->straw_layer(DCid);
+      } else {
+        StrawLayer = 19 + 24 + m_trtId->straw_layer(DCid);
+      }
     } else {
       // Endcap:
-      if (m_trtId->layer_or_wheel(DCid) < 6) StrawLayer = 16*m_trtId->layer_or_wheel(DCid) + m_trtId->straw_layer(DCid);
-      else                                   StrawLayer = 8*(m_trtId->layer_or_wheel(DCid)-6) + m_trtId->straw_layer(DCid);
+      if (m_trtId->layer_or_wheel(DCid) < 6) {
+        StrawLayer =
+          16 * m_trtId->layer_or_wheel(DCid) + m_trtId->straw_layer(DCid);
+      } else {
+        StrawLayer =
+          8 * (m_trtId->layer_or_wheel(DCid) - 6) + m_trtId->straw_layer(DCid);
+      }
     }
 
     // Get Z (Barrel) or R (Endcap) location of the hit, and distance from track to wire (i.e. anode) in straw:
@@ -362,10 +374,16 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
       else if  ( stat==1 || stat==4 ) { GasType = 1; } // Ar
       else if  ( stat==5 )            { GasType = 1; } // Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
       else if  ( stat==6 )            { GasType = 1; } // Emulated Ar
-      else if  ( stat==7 )            { GasType = 1; } // Emulated Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
-      else { ATH_MSG_FATAL ("getStatusHT = " << stat << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)' or 'EmulatedArgon(6)' or 'EmulatedKr(7)'!");
-             throw std::exception();
-           }
+      else if  ( stat==7 )            { GasType = 1;
+      } // Emulated Kr -- ESTIMATED AS AR UNTIL PID IS TUNED TO HANDLE KR
+      else {
+        ATH_MSG_FATAL(
+          "getStatusHT = "
+          << stat
+          << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or "
+             "'Krypton(5)' or 'EmulatedArgon(6)' or 'EmulatedKr(7)'!");
+        throw std::exception();
+      }
     }
 
     ATH_MSG_DEBUG("check Hit: "
@@ -456,14 +474,17 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   PIDvalues[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx] = m_TRTdEdxTool->usedHits(ctx,&track);
   double dEdx_noHTHits = m_TRTdEdxTool->dEdx(ctx,&track, false); // Divide by L, exclude HT hits
   double dEdx_usedHits_noHTHits = m_TRTdEdxTool->usedHits(ctx,&track, false);
-  PIDvalues[Trk::eProbabilityToT] = m_TRTdEdxTool->getTest(ctx, dEdx_noHTHits, pTrk, Trk::electron, Trk::pion, dEdx_usedHits_noHTHits);
+  PIDvalues[Trk::eProbabilityToT] = m_TRTdEdxTool->getTest(
+    ctx, dEdx_noHTHits, pTrk, Trk::electron, Trk::pion, dEdx_usedHits_noHTHits);
 
   // Limit the probability values the upper and lower limits that are given/trusted for each part:
   double limProbHT = HTcalc->Limit(PIDvalues[Trk::eProbabilityHT]);
   double limProbToT = HTcalc->Limit(PIDvalues[Trk::eProbabilityToT]);
 
   // Calculate the combined probability, assuming no correlations (none are expected).
-  PIDvalues[Trk::eProbabilityComb] = (limProbHT * limProbToT ) / ( (limProbHT * limProbToT) + ( (1.0-limProbHT) * (1.0-limProbToT)) );
+  PIDvalues[Trk::eProbabilityComb] =
+    (limProbHT * limProbToT) /
+    ((limProbHT * limProbToT) + ((1.0 - limProbHT) * (1.0 - limProbToT)));
 
   // Troels: VERY NASTY NAMING, BUT AGREED UPON FOR NOW (for debugging, 27. NOV. 2014):
   PIDvalues[Trk::eProbabilityBrem] = pHTel_prod; // decorates electron LH to el brem for now... (still used?)
@@ -524,7 +545,6 @@ InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk::Track& track) con
   return PIDvalues;
 }
 
-
 /*****************************************************************************\
 |*%%%  TRT straw address check, done once per hit.  %%%%%%%%%%%%%%%%%%%%%%%%%*|
 |*%%%  Nowhere else are these numbers checked. If this is deemed  %%%%%%%%%%%*|
@@ -564,7 +584,9 @@ bool InDet::TRT_ElectronPidToolRun2::CheckGeometry(int BEC, int Layer, int Straw
                                         {16,16,16,16,16,16,8,8,8,8,8,8,8,8}};
 
   if(not(StrawLayer < strawsPerBEC[part][Layer])){
-    ATH_MSG_ERROR("TRT part "<<BEC<<" Layer "<<Layer<<" only has "<<strawsPerBEC[part][Layer]<<" straws. Found index "<<StrawLayer);
+    ATH_MSG_ERROR("TRT part " << BEC << " Layer " << Layer << " only has "
+                              << strawsPerBEC[part][Layer]
+                              << " straws. Found index " << StrawLayer);
     return false;
   }
 
@@ -593,7 +615,8 @@ InDet::TRT_ElectronPidToolRun2::probHT(
 }
 
 double
-InDet::TRT_ElectronPidToolRun2::probHTRun2(float pTrk,
+InDet::TRT_ElectronPidToolRun2::probHTRun2(const EventContext& ctx,
+                                           float pTrk,
                                            Trk::ParticleHypothesis hypothesis,
                                            int TrtPart,
                                            int GasType,
@@ -602,7 +625,7 @@ InDet::TRT_ElectronPidToolRun2::probHTRun2(float pTrk,
                                            float rTrkWire,
                                            float Occupancy) const
 {
-  SG::ReadCondHandle<HTcalculator> readHandle{ m_HTReadKey };
+  SG::ReadCondHandle<HTcalculator> readHandle{ m_HTReadKey, ctx };
   bool hasTrackPar = true;
   return (*readHandle)
     ->getProbHT(pTrk,
