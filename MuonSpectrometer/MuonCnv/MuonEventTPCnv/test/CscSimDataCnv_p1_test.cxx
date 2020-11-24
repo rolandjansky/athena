@@ -83,11 +83,11 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
   Athena_test::Leakcheck check;
 
   std::vector<CscSimData::Deposit> deps;
-  HepMcParticleLink trkLink1(genPartVector.at(0)->barcode(),genPartVector.at(0)->parent_event()->event_number());
+  HepMcParticleLink trkLink1(HepMC::barcode(genPartVector.at(0)),genPartVector.at(0)->parent_event()->event_number());
   deps.emplace_back (trkLink1, CscMcData ( 2.5,  3.5,  4.5));
-  HepMcParticleLink trkLink2(genPartVector.at(1)->barcode(),genPartVector.at(1)->parent_event()->event_number());
+  HepMcParticleLink trkLink2(HepMC::barcode(genPartVector.at(1)),genPartVector.at(1)->parent_event()->event_number());
   deps.emplace_back (trkLink2, CscMcData (12.5, 13.5, 14.5));
-  HepMcParticleLink trkLink3(genPartVector.at(2)->barcode(),genPartVector.at(2)->parent_event()->event_number());
+  HepMcParticleLink trkLink3(HepMC::barcode(genPartVector.at(2)),genPartVector.at(2)->parent_event()->event_number());
   deps.emplace_back (trkLink3, CscMcData (22.5, 23.5, 24.5));
   deps[0].second.setCharge ( 5.5);
   deps[1].second.setCharge (15.5);

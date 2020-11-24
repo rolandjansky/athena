@@ -12,7 +12,7 @@
 #define GENINTERFACES_IHIGGSTRUTHCATEGORYTOOL_H 1
 
 #include "AsgTools/IAsgTool.h"
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
 
 namespace HTXS {
   struct HiggsClassification;

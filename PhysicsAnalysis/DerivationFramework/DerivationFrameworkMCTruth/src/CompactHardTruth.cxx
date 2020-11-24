@@ -32,14 +32,6 @@
 // Needed for FourVector
 #include "AtlasHepMC/SimpleVector.h"
 
-//#include "McParticleUtils/McVtxFilter.h"
-
-//#include "TruthHelper/IsGenStable.h"
-//#include "TruthHelper/IsGenNonInteracting.h"
-//#include "TruthHelper/IsGenerator.h"
-
-//#include "EventKernel/PdtPdg.h"
-
 // ROOT includes
 #include "TH1F.h"
 
@@ -207,7 +199,7 @@ StatusCode CompactHardTruth::execute() {
 
   if( doPrint ){
     std::cout <<"========== BEGIN EVENT BEFORE THINNING ==========" <<std::endl;
-    thinEvt->print();
+    HepMC::Print::line(std::cout,thinEvt);
     std::cout <<"========== END EVENT BEFORE THINNING ==========" <<std::endl;
   }
 
@@ -284,7 +276,7 @@ StatusCode CompactHardTruth::execute() {
     isHadVtx = isHadVtx && isHadOut;
     if( isHadVtx ) hadVertices.push_back(*hadv);
     if( doDebug && isHadVtx ) ATH_MSG_VERBOSE("Hadronization vertex "
-                                              <<(*hadv)->barcode());
+                                              <<HepMC::barcode(*hadv));
   }
 
   if( hadVertices.size() < 1 ){
@@ -303,7 +295,7 @@ StatusCode CompactHardTruth::execute() {
   for(unsigned int iv=0; iv<hadVertices.size(); ++iv){
     HepMC::GenVertex* ivtx = hadVertices[iv];
     if( doDebug ) ATH_MSG_DEBUG("Removing partons from hadVertex "
-                                <<ivtx->barcode());
+                                <<HepMC::barcode(ivtx));
     HepMC::GenVertex::particles_in_const_iterator pin =
      ivtx->particles_in_const_begin();
     HepMC::GenVertex::particles_in_const_iterator pinE =
@@ -346,7 +338,7 @@ StatusCode CompactHardTruth::execute() {
     }
 
     // Geant vertices/particles
-    if( (*hadv)->barcode() > -cutG4 ) continue;
+    if( HepMC::barcode(*hadv) > -cutG4 ) continue;
     HepMC::GenVertex::particles_in_const_iterator pin =
      (*hadv)->particles_in_const_begin();
     HepMC::GenVertex::particles_in_const_iterator pinE =
@@ -423,7 +415,7 @@ StatusCode CompactHardTruth::execute() {
 
   if( doDebug && doExtra ){
     std::cout <<"========== BEGIN EVENT BEFORE CLUSTER ==========" <<std::endl;
-    thinEvt->print();
+    HepMC::Print::line(std::cout,thinEvt);
     std::cout <<"========== END EVENT BEFORE CLUSTER ==========" <<std::endl;
   }
 
@@ -670,9 +662,9 @@ StatusCode CompactHardTruth::execute() {
 
         if( doDebug ){
           ATH_MSG_DEBUG("Merge 1->2: ppvtx,pp,pvtx,pout1,pout2,evtx "
-                       <<ppvtx->barcode() <<" " <<pp->barcode() <<" "
-                       <<pvtx->barcode() <<" " <<pout1->barcode() <<" "
-                       <<pout2->barcode());
+                       <<HepMC::barcode(ppvtx) <<" " <<HepMC::barcode(pp) <<" "
+                       <<HepMC::barcode(pvtx) <<" " <<HepMC::barcode(pout1) <<" "
+                       <<HepMC::barcode(pout2));
           ATH_MSG_DEBUG("Merge 1->2: id " <<pp->pdg_id() <<" "
                        <<pout1->pdg_id() <<" " <<pout2->pdg_id());
         }
@@ -775,7 +767,7 @@ StatusCode CompactHardTruth::execute() {
 
   if( doDebug && doExtra ){
     std::cout <<"========== BEGIN EVENT BEFORE SOFT ==========" <<std::endl;
-    thinEvt->print();
+    HepMC::Print::line(std::cout,thinEvt);
     std::cout <<"========== END EVENT BEFORE SOFT ==========" <<std::endl;
   }
 
@@ -930,7 +922,7 @@ StatusCode CompactHardTruth::execute() {
 
   if( doDebug && doExtra ){
     std::cout <<"========== BEGIN EVENT BEFORE 1-BODY ==========" <<std::endl;
-    thinEvt->print();
+    HepMC::Print::line(std::cout,thinEvt);
     std::cout <<"========== END EVENT BEFORE 1-BODY ==========" <<std::endl;
   }
 
@@ -1019,8 +1011,8 @@ StatusCode CompactHardTruth::execute() {
       ++m_dangleFound;
       if( pt > m_danglePtCut ) continue;
       if( doDebug ) ATH_MSG_DEBUG("1->0: removing pp,badv,pt " 
-                    <<pp->barcode() <<" "
-                    <<(*badv)->barcode() <<" " <<pt);
+                    <<HepMC::barcode(pp) <<" "
+                    <<HepMC::barcode(*badv) <<" " <<pt);
       removePV.push_back(vpPair(*badv,pp));
       deleteP.push_back(pp);
       removeV.push_back(*badv);
@@ -1038,7 +1030,7 @@ StatusCode CompactHardTruth::execute() {
     // Actually implement changes -- remove vertices
     for(unsigned int i=0; i<removeV.size(); ++i){
       if( !thinEvt->remove_vertex(removeV[i]) ){
-        ATH_MSG_WARNING("1->0: Failed to remove vertex "<<removeV[i]->barcode());
+        ATH_MSG_WARNING("1->0: Failed to remove vertex "<<HepMC::barcode(removeV[i]));
       }
     }
 
@@ -1064,7 +1056,7 @@ StatusCode CompactHardTruth::execute() {
 
   if( doPrint ){
     std::cout <<"========== BEGIN EVENT AFTER THINNING ==========" <<std::endl;
-    thinEvt->print();
+    HepMC::Print::line(std::cout,thinEvt);
     std::cout <<"========== END EVENT AFTER THINNING ==========" <<std::endl;
   }
 
@@ -1148,21 +1140,6 @@ HepMC::FourVector CompactHardTruth::vtxOutMom(HepMC::GenVertex* v){
   return HepMC::FourVector(px,py,pz,e);
 }
 
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 } //> end namespace DerivationFramework
 

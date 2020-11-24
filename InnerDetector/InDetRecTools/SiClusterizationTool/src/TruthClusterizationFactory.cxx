@@ -90,11 +90,11 @@ namespace InDet {
               //Now iterate over all barcodes
               std::vector<int>::iterator barcodeIterator;
               //Look for the barcode of the specific particle depositing energy in the barcodes vector
-              barcodeIterator  = find(barcodes.begin(), barcodes.end(), deposit.first->barcode());
+              barcodeIterator  = find(barcodes.begin(), barcodes.end(), HepMC::barcode(deposit.first));
               //If this barcode is not found
               if (!(barcodeIterator != barcodes.end())){
                 //Add the barcode to the barcodes vector
-                barcodes.push_back(deposit.first->barcode());
+                barcodes.push_back(HepMC::barcode(deposit.first));
               }
             }
             else ATH_MSG_WARNING("No deposits found");

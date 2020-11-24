@@ -83,11 +83,11 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
   Athena_test::Leakcheck check;
 
   std::vector<MuonSimData::Deposit> deps;
-  HepMcParticleLink trkLink1(genPartVector.at(0)->barcode(),genPartVector.at(0)->parent_event()->event_number());
+  HepMcParticleLink trkLink1(HepMC::barcode(genPartVector.at(0)),genPartVector.at(0)->parent_event()->event_number());
   deps.emplace_back (trkLink1, MuonMCData ( 2.5,  3.5));
-  HepMcParticleLink trkLink2(genPartVector.at(1)->barcode(),genPartVector.at(1)->parent_event()->event_number());
+  HepMcParticleLink trkLink2(HepMC::barcode(genPartVector.at(1)),genPartVector.at(1)->parent_event()->event_number());
   deps.emplace_back (trkLink2, MuonMCData (12.5, 13.5));
-  HepMcParticleLink trkLink3(genPartVector.at(2)->barcode(),genPartVector.at(2)->parent_event()->event_number());
+  HepMcParticleLink trkLink3(HepMC::barcode(genPartVector.at(2)),genPartVector.at(2)->parent_event()->event_number());
   deps.emplace_back (trkLink3, MuonMCData (22.5, 23.5));
   MuonSimData trans1 (deps, 4321);
   trans1.setPosition (Amg::Vector3D ( 4.5,  5.5,  6.5));

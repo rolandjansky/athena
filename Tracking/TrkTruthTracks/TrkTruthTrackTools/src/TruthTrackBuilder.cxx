@@ -147,7 +147,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
                                  genPart->momentum().y(),
                                  genPart->momentum().z());
     //!< get the charge via the particle table ...
-    int barcode = genPart->barcode();
+    int barcode = HepMC::barcode(genPart);
     int pdgCode = genPart->pdg_id();
     int absPdgCode = abs(pdgCode);
     // get the charge: ap->charge() is used later, DOES NOT WORK RIGHT NOW
