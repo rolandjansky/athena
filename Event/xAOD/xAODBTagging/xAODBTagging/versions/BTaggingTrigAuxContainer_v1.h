@@ -19,6 +19,8 @@
 //#include "xAODVertex/VertexContainer.h"
 #include "xAODBTagging/BTagVertexContainer.h"
 
+#include "xAODBTagging/ftagfloat_t.h"
+
 namespace xAOD {
 
    /// Temporary container used until we have I/O for AuxStoreInternal
@@ -40,40 +42,40 @@ namespace xAOD {
 
    private:
 
-     std::vector< double > SV0_significance3D;
+     std::vector< ftagfloat_t > SV0_significance3D;
      //std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer > > > SV0_TrackParticles;
 
-     std::vector< double > SV1_pb;
-     std::vector< double > SV1_pu;
-     std::vector< double > SV1_pc;
+     std::vector< ftagfloat_t > SV1_pb;
+     std::vector< ftagfloat_t > SV1_pu;
+     std::vector< ftagfloat_t > SV1_pc;
      //std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer > > > SV1_TrackParticles;
 
-     std::vector< double > IP2D_pb;
-     std::vector< double > IP2D_pu;
-     std::vector< double > IP2D_pc;
+     std::vector< ftagfloat_t > IP2D_pb;
+     std::vector< ftagfloat_t > IP2D_pu;
+     std::vector< ftagfloat_t > IP2D_pc;
      //std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer > > > IP2D_TrackParticles;
      
-     std::vector< double > IP3D_pb;
-     std::vector< double > IP3D_pu;
-     std::vector< double > IP3D_pc;
+     std::vector< ftagfloat_t > IP3D_pb;
+     std::vector< ftagfloat_t > IP3D_pu;
+     std::vector< ftagfloat_t > IP3D_pc;
      //std::vector< std::vector< ElementLink< xAOD::TrackParticleContainer > > > IP3D_TrackParticles;
 
-     std::vector< double > JetFitter_pb;
-     std::vector< double > JetFitter_pu;
-     std::vector< double > JetFitter_pc;
+     std::vector< ftagfloat_t > JetFitter_pb;
+     std::vector< ftagfloat_t > JetFitter_pu;
+     std::vector< ftagfloat_t > JetFitter_pc;
 
-     std::vector< double > JetFitterCombNN_pb;
-     std::vector< double > JetFitterCombNN_pu;
-     std::vector< double > JetFitterCombNN_pc;
+     std::vector< ftagfloat_t > JetFitterCombNN_pb;
+     std::vector< ftagfloat_t > JetFitterCombNN_pu;
+     std::vector< ftagfloat_t > JetFitterCombNN_pc;
 
-     std::vector< double > MV1_discriminant;
+     std::vector< ftagfloat_t > MV1_discriminant;
 
      // Add the dynamic variables from BTaggingAuxContainer here as static variables
      // (otherwise this information isn't available in the trigger)
 
-     std::vector<double> MV2c00_discriminant;
-     std::vector<double> MV2c10_discriminant;
-     std::vector<double> MV2c20_discriminant;
+     std::vector< ftagfloat_t > MV2c00_discriminant;
+     std::vector< ftagfloat_t > MV2c10_discriminant;
+     std::vector< ftagfloat_t > MV2c20_discriminant;
 
      std::vector< std::vector< float > > IP2D_valD0wrtPVofTracks;
      std::vector< std::vector< float > > IP2D_sigD0wrtPVofTracks;
@@ -94,9 +96,9 @@ namespace xAOD {
      std::vector< std::vector< int   > > IP3D_gradeOfTracks;
 
      std::vector< float >   SV0_normdist;
-     std::vector< double >  SV0_pb;
-     std::vector< double >  SV0_pu;
-     std::vector< double >  SV0_pc;
+     std::vector< ftagfloat_t >  SV0_pb;
+     std::vector< ftagfloat_t >  SV0_pu;
+     std::vector< ftagfloat_t >  SV0_pc;
      std::vector< float >   SV0_energyTrkInJet;
      std::vector< float >   SV0_masssvx;
      std::vector< float >   SV0_efracsvx;

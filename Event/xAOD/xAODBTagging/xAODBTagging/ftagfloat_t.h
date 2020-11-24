@@ -9,6 +9,6 @@
 /// https://its.cern.ch/jira/browse/ATLASRECTS-5201
 ///
 
-using ftagfloat_t = double;
+using ftagfloat_t = float;
 
 #endif

@@ -23,6 +23,8 @@
 #include "xAODBTagging/BTagging.h"
 #include <string>
 
+#include "xAODBTagging/ftagfloat_t.h"
+
 namespace Analysis {
 
   class IJetFitterTagInfo;
@@ -39,9 +41,9 @@ namespace Analysis {
 					    const std::string & jetauthor,
 					    const std::string& inputbasename,
 					    const std::string& outputbasename,
-					    double jetpT,
-					    double jeteta,
-					    double IP3dlike=-5000) const = 0;
+					    ftagfloat_t jetpT,
+					    ftagfloat_t jeteta,
+					    ftagfloat_t IP3dlike=-5000) const = 0;
   }; 
 }
 

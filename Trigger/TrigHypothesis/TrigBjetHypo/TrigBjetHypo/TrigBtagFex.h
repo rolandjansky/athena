@@ -196,10 +196,10 @@ class TrigBtagFex: public HLT::FexAlgo {
   float m_mon_tag_IP3D;
   float m_mon_tag_SV1;
   float m_mon_tag_IP3DSV1;
-  float m_mon_tag_MV2c00;
-  float m_mon_tag_MV2c10;
-  float m_mon_tag_MV2c10_hybrid;
-  float m_mon_tag_MV2c20;
+  double m_mon_tag_MV2c00;
+  double m_mon_tag_MV2c10;
+  double m_mon_tag_MV2c10_hybrid;
+  double m_mon_tag_MV2c20;
   //2017 variables
   float m_mon_tag_IP2_c;
   float m_mon_tag_IP2_cu;
