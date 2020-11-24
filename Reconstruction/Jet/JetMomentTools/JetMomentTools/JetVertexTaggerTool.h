@@ -85,7 +85,7 @@ public:
   JetVertexTaggerTool(const std::string& name);
 
   // Destructor
-  ~JetVertexTaggerTool();
+  virtual ~JetVertexTaggerTool();
 
   // Initialization.
   StatusCode initialize() override;
