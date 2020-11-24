@@ -4,7 +4,6 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
 from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
 )
@@ -28,7 +27,6 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
 
     tree = parser.parse()
 
-
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
@@ -47,28 +45,8 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
 
     log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
 
-    # debug flag to be relayed to C++ objects
-    tool = None
-
-    if toolSetter is None:
-        toolSetter = ConditionsToolSetterTree(chain_name)
-        tree.accept(modifier=toolSetter)
-        tool = tree.tool
-    else:
-
-        if toolSetter.__class__.__name__ in (
-                'ConditionsToolSetterFastReduction',
-                'ConditionsToolSetterHT'):
-            toolSetter.mod(tree)
-            tool = toolSetter.tool
-
-        elif toolSetter.__class__.__name__ in (
-                    'ConditionsToolSetterTree',):
-                tree.accept(modifier=toolSetter)
-                tool = tree.tool
-        else:
-            toolSetter = ConditionsToolSetterTree(chain_name)
-            tool = tree.tool
+    toolSetter.mod(tree)
+    tool = toolSetter.tool
 
     log.debug(visitor.report())
 

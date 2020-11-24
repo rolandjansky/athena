@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./MomentConditionMT.h"
@@ -69,7 +69,7 @@ MomentConditionMT::isSatisfied(const HypoJetVector& ips,
 }
 
 
-std::string MomentConditionMT::toString() const noexcept {
+std::string MomentConditionMT::toString() const {
   std::stringstream ss;
   ss << "MomentConditionMT (" << this << ") "
      << " Et threshold: " 

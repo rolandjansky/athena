@@ -136,7 +136,7 @@ TrigJetHypoToolConfig_fastreduction::getCapacityCheckedConditions() const {
   // return an invalid optional if any src signals a problem
 
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(std::make_unique<CapacityCheckedCondition>(cm->getCondition()));
+    conditions.push_back(std::move(cm->getCapacityCheckedCondition()));
   }
       
   return std::make_optional<ConditionPtrs>(std::move(conditions));
@@ -148,7 +148,7 @@ TrigJetHypoToolConfig_fastreduction::getConditions() const {
   
   ConditionsMT conditions;
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(cm->getCondition());
+    conditions.push_back(std::move(cm->getCapacityCheckedCondition()));
   }
   
   return std::make_optional<ConditionsMT>(std::move(conditions));

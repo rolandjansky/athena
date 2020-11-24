@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
   Instantiator for ET Condition
  */
 #include "TrigJetConditionConfig_compound.h"
+#include "CapacityCheckedCondition.h"
 #include "GaudiKernel/StatusCode.h"
 #include "./CompoundConditionMT.h"
 #include <vector>
@@ -31,10 +32,12 @@ ConditionMT TrigJetConditionConfig_compound::getCondition() const {
   }
   
   return std::make_unique<CompoundConditionMT>(elements);
+
 }
 				     
 
 StatusCode TrigJetConditionConfig_compound::checkVals() const {
+
   return StatusCode::SUCCESS;
 }
 

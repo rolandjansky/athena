@@ -1,0 +1,81 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{xstring}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usepackage{ifthen}
+\usepackage{calc}
+%\usepackage{pfgopts}
+\usepackage{tikz-uml}
+\usetikzlibrary{positioning}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Brief Article}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+%\maketitle
+%\section{}
+%\subsection{}
+
+ 
+\begin{tikzpicture} 
+
+\umlclass{TrigJetHypoToolHelperMT}{
+}{
+ name:string='helper\_0\_fn\_n1p0'\\
+ %HypoConfigurer=TrigJetHypoToolConfig\_fastreduction('fastreduction\_0\_fn'\\
+ %conditionMakers=PrivateToolHandleArray(['TrigJetConditionConfig\_acceptAll/all\_0\_fn','TrigJetConditionConfig\_compound/% compound\_0\_fn']), treeVector=[0, 0], sharedVector=[1]), 
+ int:node\_id=1\\
+ int:parent\_id=0\\
+}
+
+\umlclass [x=10] {TrigJetHypoToolConfig-fastreduction} {}{
+list:treeVector= [0, 0] \\
+list:sharedVector=[1]\\ 
+int:node\_id=1\\ 
+int:parent\_id=0\\
+%%name:string='TrigJetHypoToolConfig\_fastreduction('fastreduction\_0\_fn'\\
+conditionMakers:PrivateToolHandleArray=[\\
+\hspace{20pt}TrigJetConditionConfig\_acceptAll\\
+\hspace{20pt}TrigJetConditionConfig\_compound]\\
+}
+\umluniassoc[mult=1]{TrigJetHypoToolHelperMT}{TrigJetHypoToolConfig-fastreduction}
+
+%\umlsimpleclass[right=4cm of TrigJetHypoAlgMT] {TrigJetHypoToolMT}{
+%}{}
+%\umlsimpleclass[below=2cm of TrigJetHypoToolMT] {TrigJetHypoToolHelper}{}{}
+%\umlclass[left=3cm of TrigJetHypoToolHelper, type=Interface] {ITrigJetHypoToolConfig}{}{+ getMatcher()\\
+%+ getGrouper()\\}
+%\umlclass[below=2cm of ITrigJetHypoToolConfig] {TrigJetHypoToolConfig-fastreducer}{}{- getConditions\\
+%}
+%
+%\umlclass[right=3cm of TrigJetHypoToolConfig-fastreducer, type=Interface] {ITrigJetConditionConfig}{}{+getCondition()}
+%
+%\umlsimpleclass[below left=2.5cm and -1.5cm of ITrigJetConditionConfig] {TrigJetConditionConfig-et}
+%\umlsimpleclass[below =3.5cm  and -0.5cm of ITrigJetConditionConfig] {TrigJetConditionConfig-eta}
+%\umlsimpleclass[below right =4.5cm  and -3.5 of ITrigJetConditionConfig] {TrigJetConditionConfig-moment}
+%
+%
+%\umluniassoc[mult=*]{TrigJetHypoAlgMT}{TrigJetHypoToolMT}
+%\umluniassoc[mult=1]{TrigJetHypoToolMT}{TrigJetHypoToolHelper}
+%\umluniassoc[mult=1]{TrigJetHypoToolHelper}{ITrigJetHypoToolConfig}
+%\umluniassoc[mult=*]{TrigJetHypoToolConfig-fastreducer}{ITrigJetConditionConfig}
+%\umlimpl{TrigJetHypoToolConfig-fastreducer}{ITrigJetHypoToolConfig}
+%\umlimpl{TrigJetConditionConfig-et}{ITrigJetConditionConfig}
+%\umlimpl{TrigJetConditionConfig-eta}{ITrigJetConditionConfig}
+%\umlimpl{TrigJetConditionConfig-moment}{ITrigJetConditionConfig}
+%
+%
+
+\end{tikzpicture}
+
+
+\end{document}  

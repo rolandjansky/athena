@@ -27,35 +27,25 @@ class ITrigJetHypoInfoCollector;
 
 class CapacityCheckedCondition: public ICapacityCheckedCondition {
  public:
- CapacityCheckedCondition(std::unique_ptr<IConditionMT> cp):
-  m_condition{std::move(cp)} {
-  }
+ CapacityCheckedCondition(std::unique_ptr<IConditionMT> cp,
+			  std::size_t mult);
+  virtual ~CapacityCheckedCondition();
   
-  virtual ~CapacityCheckedCondition(){
-  }
-
   virtual bool
-    capacitySatisfied(std::size_t jgMultiplicity,
-		      const Collector&) const override {
+  multiplicitySatisfied(std::size_t jgMultiplicity,
+			const Collector&) const override;
+  virtual bool
+    isSatisfied(const HypoJetVector& v,
+		const std::unique_ptr<ITrigJetHypoInfoCollector>& c) const override;
+  
+  virtual unsigned int capacity() const override;
+  
+  virtual std::string toString() const override;
 
-    return m_condition->capacity() <= jgMultiplicity;
-  }
-  
-  virtual bool isSatisfied(const HypoJetVector& v,
-                           const std::unique_ptr<ITrigJetHypoInfoCollector>& c) const override {
-    return m_condition->isSatisfied(v, c);
-  }
-  
-  virtual unsigned int capacity() const override {
-    return m_condition->capacity();
-  }
-  
-  virtual std::string toString() const noexcept override {
-    return m_condition->toString();
-  }
-  
- private:
+private:
+
   std::unique_ptr<IConditionMT> m_condition;
+  std::size_t m_multiplicity;
 };
 
 #endif

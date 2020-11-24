@@ -30,8 +30,8 @@ class ICapacityCheckedCondition: public IConditionMT {
  public:
   virtual ~ICapacityCheckedCondition(){}
 
-  virtual bool capacitySatisfied(std::size_t jgMultiplicity,
-				 const Collector&) const = 0;
+  virtual bool multiplicitySatisfied(std::size_t jgMultiplicity,
+				     const Collector&) const = 0;
   
 };
 

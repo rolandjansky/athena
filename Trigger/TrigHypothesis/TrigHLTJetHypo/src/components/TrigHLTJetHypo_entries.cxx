@@ -35,16 +35,13 @@
 #include "../TrigJetConditionConfig_acceptAll.h"
 #include "../TrigJetConditionConfig_moment.h"
 #include "../TrigJetConditionConfig_compound.h"
+#include "../TrigJetConditionConfig_capacitychecked.h"
 
 //
-#include "../NotHelperTool.h"
-#include "../AndHelperTool.h"
-#include "../OrHelperTool.h"
 #include "../TrigJetHypoToolMT.h"
 #include "../TrigJetHypoToolHelperMT.h"
 #include "../TrigJetTLAHypoAlgMT.h"
 #include "../TrigJetTLAHypoToolMT.h"
-#include "../CombinationsHelperTool.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/BasicCleanerTool.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/AntiCleanerTool.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtCleanerTool.h"
@@ -69,9 +66,6 @@ DECLARE_COMPONENT(TrigJetHypoToolConfig_partgen)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_leaf)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_ht)
-DECLARE_COMPONENT(NotHelperTool)
-DECLARE_COMPONENT(AndHelperTool)
- DECLARE_COMPONENT(OrHelperTool)
 DECLARE_COMPONENT(TrigHLTJetHypo_SMC)
 DECLARE_COMPONENT(TrigHLTJetHypo_HT)
 DECLARE_COMPONENT(TrigHLTJetHypo_TLA)
@@ -90,6 +84,7 @@ DECLARE_COMPONENT(TrigJetConditionConfig_jvt)
 DECLARE_COMPONENT(TrigJetConditionConfig_acceptAll)
 DECLARE_COMPONENT(TrigJetConditionConfig_moment)
 DECLARE_COMPONENT(TrigJetConditionConfig_compound)
+DECLARE_COMPONENT(TrigJetConditionConfig_capacitychecked)
 DECLARE_COMPONENT(TrigJetConditionConfig_qjet_mass)
 
 DECLARE_COMPONENT(TrigJetHypoAlgMT)
@@ -97,7 +92,6 @@ DECLARE_COMPONENT(TrigJetHypoToolMT)
 DECLARE_COMPONENT(TrigJetTLAHypoAlgMT)
 DECLARE_COMPONENT(TrigJetTLAHypoToolMT)
 DECLARE_COMPONENT(TrigJetHypoToolHelperMT)
-DECLARE_COMPONENT(CombinationsHelperTool)
 
 DECLARE_COMPONENT(BasicCleanerTool)
 DECLARE_COMPONENT(AntiCleanerTool)

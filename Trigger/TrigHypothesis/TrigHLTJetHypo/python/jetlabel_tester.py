@@ -1,15 +1,14 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """Utility to test whether a string is a legal jet chain label"""
 from __future__ import print_function
 
 
 from ChainLabelParser import ChainLabelParser
 from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
-from  TrigHLTJetHypo.ConditionsToolSetterFlowNetwork import (
-    ConditionsToolSetterFlowNetwork,)
+from  TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
+    ConditionsToolSetterFastReduction,)
 
-def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
+def compile(label, setter, expand=False, do_dump=False, do_print=False):
     print ('compile:',  label)
 
     parser = ChainLabelParser(label, debug=False)
@@ -22,13 +21,12 @@ def compile(label, setter=None, expand=False, do_dump=False, do_print=False):
         visitor = TreeParameterExpander()
         tree.accept(visitor)
 
+        if setter is not None:
+            setter.mod(tree)
+
     print ('compile: tree.scenario', tree.scenario)
 
-    if setter is not None:
-        if setter.__class__.__name__ == 'ConditionsToolSetterFlowNetwork':
-            setter.mod(tree)
-        else:
-            raise NotImplementedError('Unknown setter ' + setter.__class__.__name__)
+        
         
     if do_print:
         print ('\nnode dumping top node only:\n')
@@ -67,13 +65,11 @@ if __name__ == '__main__':
     print('index', index)
     label = test_strings[index]
 
-    setter = None
-    unused_setter0 = ConditionsToolSetterTree('toolSetter')
-    unised_setter1 = ConditionsToolSetterFlowNetwork('fnToolSetter')
+    setter = ConditionsToolSetterFastReduction('toolSetterFastReduction')
     
     tree = compile(label, setter=setter,  expand=True, do_dump=True)
 
-    print ('tvec: %s' % str(setter.treeVec))
+    print ('tvec: %s' % str(setter.tool))
     print ('svec: %s' % setter.shared)
     print ('conditionsVec [%d]: %s' % (len(setter.conditionsVec),
                                        str(setter.conditionsVec)))
