@@ -12,14 +12,11 @@
 
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 
-//#include "CLHEP/Geometry/Transform3D.h"
-
-//#include "TrkEventPrimitives/GlobalPosition.h"
-//#include "TrkEventPrimitives/GlobalMomentum.h"
 
 #include "HepPDT/ParticleDataTable.hh"
 //#include "TrkParameters/Perigee.h"

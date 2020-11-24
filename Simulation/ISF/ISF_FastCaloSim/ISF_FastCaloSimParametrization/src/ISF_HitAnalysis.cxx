@@ -977,27 +977,27 @@ StatusCode ISF_HitAnalysis::execute()
      if(mcEvent->size()) {
        int particleIndex=0;
        int loopEnd = m_NtruthParticles;
-       if(loopEnd==-1) {
-         loopEnd = (*mcEvent->begin())->particles_size(); //is this the correct thing?
-       }
-       //std::cout <<"ISF_HitAnalysis: MC first truth event size: "<<(*mcEvent->begin())->particles_size()<<std::endl;
 #ifdef HEPMC3
-       for (auto part: *(*mcEvent->begin())) {
+       int particles_size=(*mcEvent->begin())->particles().size();
 #else
-       for (HepMC::GenEvent::particle_const_iterator it = (*mcEvent->begin())->particles_begin(); it != (*mcEvent->begin())->particles_end(); ++it) {
+       int particles_size=(*mcEvent->begin())->particles_size();
 #endif
-         ATH_MSG_DEBUG("Number truth particles="<<(*mcEvent->begin())->particles_size()<<" loopEnd="<<loopEnd);
+       if(loopEnd==-1) {
+         loopEnd = particles_size; //is this the correct thing?
+       }
+       for (auto part: *(*mcEvent->begin())) {
+         ATH_MSG_DEBUG("Number truth particles="<<particles_size<<" loopEnd="<<loopEnd);
          particleIndex++;
 
          if (particleIndex>loopEnd) break; //enough particles
 
          //UPDATE EXTRAPOLATION WITH ALGTOOL***********************************************
 
-         TFCSTruthState truth((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz(),(*it)->momentum().e(),(*it)->pdg_id());
+         TFCSTruthState truth(part->momentum().px(),part->momentum().py(),part->momentum().pz(),part->momentum().e(),part->pdg_id());
 
          //calculate the vertex
          TVector3 moment;
-         moment.SetXYZ((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz());
+         moment.SetXYZ(part->momentum().px(),part->momentum().py(),part->momentum().pz());
          TVector3 direction=moment.Unit();
 
          //does it hit the barrel or the EC?
@@ -1010,8 +1010,8 @@ StatusCode ISF_HitAnalysis::execute()
            direction*=m_CaloBoundaryZ/abs(direction.Z());
          }  
 
-         if((*it)->production_vertex()) {
-           truth.set_vertex((*it)->production_vertex()->position().x(), (*it)->production_vertex()->position().y(), (*it)->production_vertex()->position().z());
+         if((part)->production_vertex()) {
+           truth.set_vertex((part)->production_vertex()->position().x(), (part)->production_vertex()->position().y(), (part)->production_vertex()->position().z());
          } else {
            truth.set_vertex(direction.X(),direction.Y(),direction.Z());
            ATH_MSG_WARNING("No particle production vetext, use VERTEX from direction: x "<<direction.X()<<" y "<<direction.Y()<<" z "<<direction.Z());
@@ -1125,12 +1125,12 @@ StatusCode ISF_HitAnalysis::execute()
 
          //Amg::Vector3D mom((*it)->momentum().x(),(*it)->momentum().y(),(*it)->momentum().z());
 
-         m_truth_energy->push_back((*it)->momentum().e());
-         m_truth_px->push_back((*it)->momentum().px());
-         m_truth_py->push_back((*it)->momentum().py());
-         m_truth_pz->push_back((*it)->momentum().pz());
-         m_truth_pdg->push_back((*it)->pdg_id());
-         m_truth_barcode->push_back((*it)->barcode());
+         m_truth_energy->push_back((part)->momentum().e());
+         m_truth_px->push_back((part)->momentum().px());
+         m_truth_py->push_back((part)->momentum().py());
+         m_truth_pz->push_back((part)->momentum().pz());
+         m_truth_pdg->push_back((part)->pdg_id());
+         m_truth_barcode->push_back(HepMC::barcode(part));
 
        } //for mcevent
      } //mcevent size

@@ -355,13 +355,13 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
   }
   if( msgLvl(MSG::VERBOSE) ) ATH_MSG_VERBOSE(" looping over MC particles ");
   for (e=mcEvent->begin();e!=mcEvent->end(); e++) {
-    for (HepMC::GenEvent::particle_const_iterator p= (**e).particles_begin(); p!= (**e).particles_end(); p++) {
+    for (auto p: (**e)) {
 
-      int pdg = (**p).pdg_id();
-      if( abs(pdg) != 13 && pdg !=0 && abs(pdg) != 998) continue;
-      if( !(**p).production_vertex() ) continue;
+      int pdg = p->pdg_id();
+      if( std::abs(pdg) != 13 && pdg !=0 && std::abs(pdg) != 998) continue;
+      if( !p->production_vertex() ) continue;
 
-      int barcode = (**p).barcode();
+      int barcode = HepMC::barcode(p);
       ATH_MSG_VERBOSE(" pdg " << pdg << " barcode " <<  barcode);
       
       TruthInfo* info; 
@@ -392,10 +392,10 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
 //  Fix geantino
       if(pdg==-998)  particle->charge   = -1.; 
       if(pdg==0)  particle->charge   = 1.; 
-      particle->momentum = Amg::Vector3D( (**p).momentum().px(),(**p).momentum().py(),(**p).momentum().pz());
-      particle->position = Amg::Vector3D( (**p).production_vertex()->position().x(),
-				       (**p).production_vertex()->position().y(),
-				       (**p).production_vertex()->position().z() );
+      particle->momentum = Amg::Vector3D( p->momentum().px(),p->momentum().py(),p->momentum().pz());
+      particle->position = Amg::Vector3D( p->production_vertex()->position().x(),
+				       p->production_vertex()->position().y(),
+				       p->production_vertex()->position().z() );
       
       particle->pars= new Trk::Perigee( particle->position, particle->momentum, particle->charge, Amg::Vector3D(0.,0.,0.) );
 
