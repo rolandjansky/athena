@@ -26,6 +26,12 @@ JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
 
 //**********************************************************************
 
+JetVertexTaggerTool::~JetVertexTaggerTool(){
+  if(m_jvthisto) delete m_jvthisto;
+}
+
+//**********************************************************************
+
 StatusCode JetVertexTaggerTool::initialize() {
   ATH_MSG_INFO("Initializing JetVertexTaggerTool " << name());
 
