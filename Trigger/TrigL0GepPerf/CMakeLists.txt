@@ -29,6 +29,15 @@ atlas_depends_on_subdirs(
     Event/xAOD/xAODMissingET
     Event/xAOD/xAODTruth
 
+    # new:
+    Calorimeter/CaloInterface
+    Calorimeter/CaloIdentifier
+    Event/xAOD/xAODCaloEvent
+    Reconstruction/Jet/JetRec
+    LArCalorimeter/LArROD
+
+    InnerDetector/InDetExample/InDetSLHC_Example
+
     PRIVATE
     # Control/AthAnalysisBaseComps
 )
@@ -50,7 +59,10 @@ atlas_add_component( TrigL0GepPerf
 		     src/*.cxx
 		     src/components/*.cxx
 		     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel AthContainers TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODTruth xAODMissingET xAODJet xAODEgamma xAODTrigCalo xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel LArToolsLib CaloTriggerToolLib PathResolver TrigT1Interfaces xAODTrigger TrigDecisionToolLib TriggerMatchingToolLib AsgTools IsolationSelectionLib
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel AthContainers TrigAnalysisInterfaces JetInterface JetCalibToolsLib xAODEventInfo CaloEvent xAODTrigL1Calo xAODTruth xAODMissingET xAODJet xAODEgamma xAODTrigCalo xAODBase xAODCore CaloDetDescrLib CaloIdentifier AthenaBaseComps AthAnalysisBaseCompsLib GaudiKernel LArToolsLib CaloTriggerToolLib PathResolver TrigT1Interfaces xAODTrigger TrigDecisionToolLib TriggerMatchingToolLib AsgTools IsolationSelectionLib JetEDM xAODJet
+
+                     #CaloTools                     
+
 		     PRIVATE_LINK_LIBRARIES TrigEFMissingETLib
 )
 

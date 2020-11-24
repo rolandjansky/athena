@@ -1,3 +1,7 @@
+/*
+ *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ */
+
 #ifndef TRIGL0GEPPERF_MISSINGETGEPPUFIT_H
 #define TRIGL0GEPPERF_MISSINGETGEPPUFIT_H 1
 
