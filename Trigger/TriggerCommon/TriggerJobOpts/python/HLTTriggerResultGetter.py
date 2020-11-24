@@ -28,10 +28,10 @@ class xAODConversionGetter(Configured):
 
         from TrigEDMConfig.TriggerEDM import getPreregistrationList
         from TrigEDMConfig.TriggerEDM import getEFRun1BSList,getEFRun2EquivalentList,getL2Run1BSList,getL2Run2EquivalentList
-        xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMDecodingVersion)
-        ## if ConfigFlags.Trigger.EDMDecodingVersion == 2:
+        xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
+        ## if ConfigFlags.Trigger.EDMVersion == 2:
         ##     #        if TriggerFlags.doMergedHLTResult():
-        ##     #if ConfigFlags.Trigger.EDMDecodingVersion == 2: #FPP
+        ##     #if ConfigFlags.Trigger.EDMVersion == 2: #FPP
         ##     xaodconverter.Navigation.ClassesToPreregister = getHLTPreregistrationList()
         ## else:
         ##     xaodconverter.Navigation.ClassesToPreregister = list(set(getL2PreregistrationList()+getEFPreregistrationList()+getHLTPreregistrationList()))
@@ -124,7 +124,7 @@ class ByteStreamUnpackGetterRun2(Configured):
             extr.Navigation.Dlls = getEDMLibraries()            
 
             from TrigEDMConfig.TriggerEDM import getPreregistrationList
-            extr.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMDecodingVersion)
+            extr.Navigation.ClassesToPreregister = getPreregistrationList(ConfigFlags.Trigger.EDMVersion)
             
             if TriggerFlags.doMergedHLTResult():
                 extr.L2ResultKey=""
@@ -160,7 +160,7 @@ class ByteStreamUnpackGetterRun2(Configured):
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TrigSerToolTP
         from TrigEDMConfig.TriggerEDM import getTPList
-        TrigSerToolTP.TPMap = getTPList((ConfigFlags.Trigger.EDMDecodingVersion))
+        TrigSerToolTP.TPMap = getTPList((ConfigFlags.Trigger.EDMVersion))
         
         from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
         TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
@@ -294,25 +294,25 @@ class HLTTriggerResultGetter(Configured):
         topSequence = AlgSequence()
         log.info("BS unpacking (TF.readBS): %d", TriggerFlags.readBS() )
         if TriggerFlags.readBS():
-            if ConfigFlags.Trigger.EDMDecodingVersion <= 2:
+            if ConfigFlags.Trigger.EDMVersion <= 2:
                 bs = ByteStreamUnpackGetterRun2()  # noqa: F841
             else:
                 bs = ByteStreamUnpackGetter()  # noqa: F841
 
         xAODContainers = {}
 #        if not recAlgs.doTrigger():      #only convert when running on old data
-        if ConfigFlags.Trigger.EDMDecodingVersion == 1:
+        if ConfigFlags.Trigger.EDMVersion == 1:
             xaodcnvrt = xAODConversionGetter()
             xAODContainers = xaodcnvrt.xaodlist
 
         if recAlgs.doTrigger() or TriggerFlags.doTriggerConfigOnly():
-            if ConfigFlags.Trigger.EDMDecodingVersion <= 2:
+            if ConfigFlags.Trigger.EDMVersion <= 2:
                 tdt = TrigDecisionGetterRun2()  # noqa: F841
             else:
                 tdt = TrigDecisionGetter()  # noqa: F841
 
         # Temporary hack to add Run-3 navigation to ESD and AOD
-        if (rec.doESD() or rec.doAOD()) and ConfigFlags.Trigger.EDMDecodingVersion == 3:
+        if (rec.doESD() or rec.doAOD()) and ConfigFlags.Trigger.EDMVersion == 3:
             # The hack with wildcards is needed for BS->ESD because we don't know the exact keys
             # of HLT navigation containers before unpacking them from the BS event.
             objKeyStore._store['streamESD'].allowWildCard(True)
@@ -381,17 +381,17 @@ class HLTTriggerResultGetter(Configured):
         if(xAODContainers):
             _TriggerESDList.update( xAODContainers )
         else:
-            _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  ConfigFlags.Trigger.EDMDecodingVersion) ) 
+            _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  ConfigFlags.Trigger.EDMVersion) ) 
         
-        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", TriggerFlags.ESDEDMSet(), ConfigFlags.Trigger.EDMDecodingVersion)
+        log.info("ESD content set according to the ESDEDMSet flag: %s and EDM version %d", TriggerFlags.ESDEDMSet(), ConfigFlags.Trigger.EDMVersion)
 
         # AOD objects choice
         _TriggerAODList = {}
         
         #from TrigEDMConfig.TriggerEDM import getAODList    
-        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  ConfigFlags.Trigger.EDMDecodingVersion) ) 
+        _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  ConfigFlags.Trigger.EDMVersion) ) 
 
-        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", TriggerFlags.AODEDMSet(),ConfigFlags.Trigger.EDMDecodingVersion)
+        log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d", TriggerFlags.AODEDMSet(),ConfigFlags.Trigger.EDMVersion)
 
         log.debug("ESD EDM list: %s", _TriggerESDList)
         log.debug("AOD EDM list: %s", _TriggerAODList)

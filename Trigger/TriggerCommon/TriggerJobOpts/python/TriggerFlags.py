@@ -96,7 +96,7 @@ class doMT(JobProperty):
 
 _flags.append(doMT)
 
-class EDMDecodingVersion(JobProperty):
+class EDMVersion(JobProperty):
     """ if 1, Run1 decoding version is set; if 2, Run2; if 3, Run3 """
     statusOn=False
     allowedType=['int']
@@ -109,13 +109,13 @@ class EDMDecodingVersion(JobProperty):
     def __call__(self):
         if not self.statusOn:
             log = logging.getLogger('TriggerJobOpts.TriggerFlags')
-            log.warning('TriggerFlags.EDMDecodingVersion is deprecated, please use ConfigFlags.Trigger.EDMDecodingVersion')
+            log.warning('TriggerFlags.EDMVersion is deprecated, please use ConfigFlags.Trigger.EDMVersion')
             from AthenaConfiguration.AllConfigFlags import ConfigFlags
-            self.StoredValue = ConfigFlags.Trigger.EDMDecodingVersion
+            self.StoredValue = ConfigFlags.Trigger.EDMVersion
             self.statusOn = True
         return JobProperty.__call__(self)
 
-_flags.append(EDMDecodingVersion)
+_flags.append(EDMVersion)
 
 class enableMonitoring(JobProperty):
     """ enables certain monitoring type: Validation, Online, Time"""

@@ -9,7 +9,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # Legacy (Run-2) trigger produces Run-2 EDM
-ConfigFlags.Trigger.EDMDecodingVersion = 2
+ConfigFlags.Trigger.EDMVersion = 2
 
 if globalflags.InputFormat() == 'bytestream':
     TriggerFlags.doLVL1=False

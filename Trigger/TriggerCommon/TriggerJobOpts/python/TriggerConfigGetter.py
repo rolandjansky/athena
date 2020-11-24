@@ -243,7 +243,7 @@ class TriggerConfigGetter(Configured):
         # START OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
         ########################################################################
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        if ConfigFlags.Trigger.EDMDecodingVersion >= 3:
+        if ConfigFlags.Trigger.EDMVersion >= 3:
             if self.hasxAODMeta:
                 if not hasattr(svcMgr, 'xAODConfigSvc'):
                     from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
@@ -441,7 +441,7 @@ class TriggerConfigGetter(Configured):
             writeTriggerMenu = True
             writeMenuJSON = False
             from AthenaConfiguration.AllConfigFlags import ConfigFlags
-            if ConfigFlags.Trigger.EDMDecodingVersion <= 2:
+            if ConfigFlags.Trigger.EDMVersion <= 2:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
             else:
@@ -490,7 +490,7 @@ class TriggerConfigGetter(Configured):
                                 ]
                 objKeyStore.addManyTypesMetaData( metadataItems )
 
-            if ConfigFlags.Trigger.EDMDecodingVersion >= 3:
+            if ConfigFlags.Trigger.EDMVersion >= 3:
                 from TrigEDMConfig.TriggerEDMRun3 import recordable
                 from AthenaConfiguration.ComponentFactory import CompFactory
                 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable

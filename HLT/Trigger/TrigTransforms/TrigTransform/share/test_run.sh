@@ -396,7 +396,7 @@ Trig_reco_tf.py \
 --outputNTUP_TRIGRATEFile="NTUP_TRIGRATE.04854087._000852.root.1" \
 --outputNTUP_TRIGEBWGHTFile="NTUP_TRIGEBWGHT.04854087._000852.root.1" \
 --geometryVersion 'ATLAS-R1-2012-02-00-00' --conditionsTag 'COMCOND-BLKPA-RUN1-07' --beamType 'collisions' --autoConfiguration 'everything' \
---preExec "RAWtoESD:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.EDMDecodingVersion=2;DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False" "ESDtoAOD:DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doTau=False" \
+--preExec "RAWtoESD:from AthenaConfiguration.AllConfigFlags import ConfigFlags; ConfigFlags.Trigger.EDMVersion=2;DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False" "ESDtoAOD:DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False;from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags;HLTMonFlags.doTau=False" \
 --outputBSFile="RAW.05530098._000001.pool.root.1" \
 --outputESDFile='thetestESD.pool.root' \
 --outputAODFile='thetestAOD.pool.root'  \

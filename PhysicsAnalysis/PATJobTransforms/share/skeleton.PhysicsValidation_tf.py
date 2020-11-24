@@ -155,7 +155,7 @@ if hasattr(runArgs,"postExec"):
 
 
 # Temporary (July 19) trigger additions
-if ConfigFlags.Trigger.EDMDecodingVersion == 3:
+if ConfigFlags.Trigger.EDMVersion == 3:
   if hasattr(ToolSvc, 'TrigDecisionTool'):
     ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite"
 

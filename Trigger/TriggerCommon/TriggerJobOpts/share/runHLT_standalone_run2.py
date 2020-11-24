@@ -404,7 +404,7 @@ elif PoolRDOInput!=None:
 ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 
 # Legacy (Run-2) trigger produces Run-2 EDM
-ConfigFlags.Trigger.EDMDecodingVersion = 2
+ConfigFlags.Trigger.EDMVersion = 2
 
 # Conditions and geometry tag
 if globalflags.InputFormat.is_pool() and (setDetDescr==None or setGlobalTag==None):

@@ -126,7 +126,7 @@ if data_type == 'pool':
     from TrigEDMConfig.TriggerEDM import EDMLibraries
     ToolSvc.TrigDecisionTool.Navigation.Dlls = [e for e in  EDMLibraries if 'TPCnv' not in e]
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    if ConfigFlags.Trigger.EDMDecodingVersion == 3:
+    if ConfigFlags.Trigger.EDMVersion == 3:
         ToolSvc.TrigDecisionTool.NavigationFormat="TrigComposite"
     
     if hasattr(runArgs,"useDB") and runArgs.useDB:

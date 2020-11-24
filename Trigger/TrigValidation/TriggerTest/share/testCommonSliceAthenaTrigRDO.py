@@ -30,7 +30,7 @@ doTAG=False
 rec.doTruth.set_Value_and_Lock(False)
 
 # Legacy (Run-2) trigger produces Run-2 EDM
-ConfigFlags.Trigger.EDMDecodingVersion = 2
+ConfigFlags.Trigger.EDMVersion = 2
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")

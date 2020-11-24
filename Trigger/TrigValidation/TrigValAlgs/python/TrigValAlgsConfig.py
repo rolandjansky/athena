@@ -66,7 +66,7 @@ class TrigEDMChecker ( TrigEDMChecker ):
 def getEDMAuxList():
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
-    EDMVersion = ConfigFlags.Trigger.EDMDecodingVersion
+    EDMVersion = ConfigFlags.Trigger.EDMVersion
     tlist=getTriggerEDMList('AODFULL',EDMVersion)
     objlist=[]
     for t,kset in six.iteritems(tlist):

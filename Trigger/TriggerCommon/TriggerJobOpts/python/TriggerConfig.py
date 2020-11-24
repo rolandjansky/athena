@@ -390,7 +390,7 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
 def triggerPOOLOutputCfg(flags, edmSet):
     # Get the list of output collections from TriggerEDM
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-    edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMDecodingVersion)
+    edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMVersion)
 
     # Build the output ItemList
     itemsToRecord = []

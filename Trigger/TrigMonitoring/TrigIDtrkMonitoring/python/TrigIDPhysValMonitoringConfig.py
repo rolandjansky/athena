@@ -15,7 +15,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
       
   mt_chains = True
-  if ( ConfigFlags.Trigger.EDMDecodingVersion < 3 or legacy_monitoring ) :
+  if ( ConfigFlags.Trigger.EDMVersion < 3 or legacy_monitoring ) :
     mt_chains = False
         
   if rec.doInDet:

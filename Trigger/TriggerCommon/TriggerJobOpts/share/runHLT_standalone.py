@@ -169,7 +169,7 @@ else:   # athenaHLT
 ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
 
 # Run-3 Trigger produces Run-3 EDM
-ConfigFlags.Trigger.EDMDecodingVersion = 3
+ConfigFlags.Trigger.EDMVersion = 3
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag

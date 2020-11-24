@@ -75,7 +75,7 @@ primary_bphys = [
                  'HLT_mu11_mu6_bDimu',
                  ]
 
-if ConfigFlags.Trigger.EDMDecodingVersion == 3 :
+if ConfigFlags.Trigger.EDMVersion == 3 :
   monitoring_bphys = [
                       'HLT_2mu4_bJpsimumu_L12MU4',
                       'HLT_2mu4_bUpsimumu_L12MU4',

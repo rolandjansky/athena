@@ -17,7 +17,7 @@ containers = [
               "HLT_xAOD__TrigBphysContainer_MultiTrkFex",
               "HLT_xAOD__TrigBphysContainer_EFTrackMass"
               ]
-if ConfigFlags.Trigger.EDMDecodingVersion == 3 :
+if ConfigFlags.Trigger.EDMVersion == 3 :
   # will add the MT version of TrigBphys containers once they are available in EDM
   containers = [ "HLT_DimuEF" ]
   

@@ -357,7 +357,7 @@ if DQMonFlags.doMonitoring():
       Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon()
       Steering.doCTPMon=DQMonFlags.doCTPMon()
       # do not enable new HLT monitoring if we are not in Run 3 EDM
-      Steering.doHLTMon=DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMDecodingVersion == 3
+      Steering.doHLTMon=DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMVersion == 3
       Steering.doPixelMon=DQMonFlags.doPixelMon()
       Steering.doSCTMon=DQMonFlags.doSCTMon()
       Steering.doTRTMon=DQMonFlags.doTRTMon()
