@@ -35,6 +35,8 @@
 
 #include "ParticleJetTools/JetFlavourInfo.h"
 
+#include "xAODBTagging/ftagfloat_t.h"
+
 namespace Analysis {
 
   JetFitterTag::JetFitterTag(const std::string& t, const std::string& n, const IInterface* p)
@@ -161,8 +163,8 @@ namespace Analysis {
       jetauthor = m_ForcedCalibName;
     }
 
-    double jetpT = jetToTag.pt();
-    double jeteta = jetToTag.eta();
+    ftagfloat_t jetpT = jetToTag.pt();
+    ftagfloat_t jeteta = jetToTag.eta();
 
     /** for the reference mode we need the true label: */
     std::string pref  = "";

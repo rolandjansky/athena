@@ -51,9 +51,9 @@ namespace Analysis {
     const std::string & jetauthor,
     const std::string& inputbasename,
     const std::string& /*outputbasename*/,
-    double /*jetpT*/,
-    double /*jeteta*/,
-    double /*IP3dlike*/) const
+    ftagfloat_t /*jetpT*/,
+    ftagfloat_t /*jeteta*/,
+    ftagfloat_t /*IP3dlike*/) const
   {
     if (jetauthor=="") {
       ATH_MSG_WARNING(" Hypothesis or jetauthor is empty. No likelihood value given back. ");

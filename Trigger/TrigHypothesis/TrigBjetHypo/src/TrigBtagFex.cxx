@@ -301,7 +301,6 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
       if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed in taggers call" << endmsg;
     }
   }
-
   // Fill monitoring variables
   float sv_check;
   float sv_mass_check;
@@ -394,12 +393,17 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   m_mon_tag_IP2D    = trigBTagging->IP2D_loglikelihoodratio();
   m_mon_tag_IP3D    = trigBTagging->IP3D_loglikelihoodratio();
   m_mon_tag_IP3DSV1 = trigBTagging->SV1plusIP3D_discriminant();
-  m_mon_tag_MV2c00  = trigBTagging->auxdata<double>("MV2c00_discriminant");
-  m_mon_tag_MV2c10  = trigBTagging->auxdata<double>("MV2c10_discriminant");
+  m_mon_tag_MV2c00  = 0;
+  m_mon_tag_MV2c10  = 0;
+  trigBTagging->MVx_discriminant( "Mv2c00",m_mon_tag_MV2c00 );
+  trigBTagging->MVx_discriminant( "Mv2c10",m_mon_tag_MV2c10 );
   // Temporary use mv2c00 for hybrid tuning
   //  m_mon_tag_MV2c10_hybrid  = trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant");
-  m_mon_tag_MV2c10_hybrid  = trigBTagging->auxdata<double>("MV2c00_discriminant");
-  m_mon_tag_MV2c20  = trigBTagging->auxdata<double>("MV2c20_discriminant");
+  m_mon_tag_MV2c10_hybrid  = 0;
+  m_mon_tag_MV2c20  = 0;
+  trigBTagging->MVx_discriminant( "MV2c00",m_mon_tag_MV2c10_hybrid );
+  trigBTagging->MVx_discriminant( "MV2c20",m_mon_tag_MV2c20 );
+
   if( trigBTagging->IP2D_pc() != 0 && trigBTagging->IP2D_pb() != 0 ) m_mon_tag_IP2_c   = log(( trigBTagging->IP2D_pb() )/( trigBTagging->IP2D_pc() ));
   else m_mon_tag_IP2_c   = -999.;
   if( trigBTagging->IP2D_pu() != 0 && trigBTagging->IP2D_pc() != 0 ) m_mon_tag_IP2_cu  = log(( trigBTagging->IP2D_pc() )/( trigBTagging->IP2D_pu() ));
@@ -412,15 +416,14 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
   m_mon_jet_pt  =  jet->pt()  ;
   m_mon_jet_eta =  jet->eta() ;
 
-
   // Dump results 
   ATH_MSG_DEBUG( "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
 		 << "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
 		 << "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
-		 << "   MV2c20 var: " << trigBTagging->auxdata<double>("MV2c20_discriminant") 
-		 << "   MV2c10 var: " << trigBTagging->auxdata<double>("MV2c10_discriminant")
+		 << "   MV2c20 var: " << m_mon_tag_MV2c20
+		 << "   MV2c10 var: " << m_mon_tag_MV2c10
 		 // Temporary use mv2c00 for hybrid tuning   
-		 << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c00_discriminant") );
+		 << "   MV2c10_hybrid var: " << m_mon_tag_MV2c00 );
   //	  << "   MV2c10_hybrid var: " << trigBTagging->auxdata<double>("MV2c10_hybrid_discriminant") << endmsg;
   
   // ATTACH FEATURES AND CLEAR TEMPORARY OBJECTS
