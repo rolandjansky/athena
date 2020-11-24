@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of LArRODBlockStructure class
@@ -17,8 +17,8 @@
 //uint32_t LArRodBlockStructure::OfflineToFebGainMap[3]={2,1,0};
 // uint32_t LArRodBlockStructure::m_RawToOfflineGainMap[4]={0, 0, 1,2};
 // uint32_t LArRodBlockStructure::m_OfflineToRawGainMap[3]={1,2,3};
- uint32_t LArRodBlockStructure::m_RawToOfflineGainMap[4]={0, 2, 1,0};
- uint32_t LArRodBlockStructure::m_OfflineToRawGainMap[3]={3,2,1};
+const uint32_t LArRodBlockStructure::m_RawToOfflineGainMap[4]={0, 2, 1,0};
+const uint32_t LArRodBlockStructure::m_OfflineToRawGainMap[3]={3,2,1};
 LArRodBlockStructure::LArRodBlockStructure()
   : m_Ex(0),
     m_Ey(0),
