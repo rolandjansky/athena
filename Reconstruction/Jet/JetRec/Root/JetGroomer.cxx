@@ -10,11 +10,14 @@
 
 using xAOD::JetContainer;
 
-StatusCode JetGroomer::initialize() {
+using namespace JetGrooming;
 
+
+StatusCode JetGroomer::initialize() {
+  
   ATH_MSG_DEBUG("Initializing...");
 
- if(m_inputJetContainer.empty()){
+  if(m_inputJetContainer.empty()){
     ATH_MSG_ERROR("Jet grooming requested with no input ungroomed jets");
     return StatusCode::FAILURE;
   } else if(m_inputPseudoJets.empty()){

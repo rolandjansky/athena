@@ -3,7 +3,6 @@
 */
 
 // JetRecursiveSoftDrop.cxx
-
 #include "JetRec/JetRecursiveSoftDrop.h"
 #include <iomanip>
 #include "fastjet/PseudoJet.hh"

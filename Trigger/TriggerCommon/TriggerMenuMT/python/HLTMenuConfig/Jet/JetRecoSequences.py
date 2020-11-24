@@ -149,7 +149,7 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     # make sure all our JetModifier have their track inputs set up according to trkopt
     from JetRecConfig.JetModConfig import jetModWithAlternateTrk    
     jetModWithAlternateTrk(jetDef, jetRecoDict['trkopt'] )
-    
+
     # Generate a JetAlgorithm to run the jet finding and modifiers
     # (via a JetRecTool instance).
     jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, monTool)
@@ -177,10 +177,7 @@ def groomedJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict 
     parentpjs = getattr(ungroomedJetRecoSequence,"jetalg_{}".format(ungroomedJetsName)).Tools[0].InputPseudoJets
 
     groomDef = JetRecoConfiguration.defineGroomedJets(jetRecoDict,ungroomedDef)
-    groomedJetsFullName = groomDef.fullname()+"_"+jetRecoDict["jetCalib"]
-    if jetRecoDict["trkopt"]!="notrk":
-        groomedJetsFullName += "_"+jetRecoDict["trkopt"]
-
+    groomedJetsFullName = groomDef.fullname()
     groomDef.modifiers = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource)
     # Can add substructure mods here
 
@@ -188,9 +185,9 @@ def groomedJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict 
     from JetRec import JetOnlineMon
     monTool = JetOnlineMon.getMonTool_TrigJetAlgorithm("HLTJets/"+groomedJetsFullName+"/")
 
-    from JetRecConfig.JetGroomConfig import getJetGroomAlg, instantiateGroomingAliases
+    from JetRecConfig.JetGroomConfig import getJetGroomAlg_jetAlg, instantiateGroomingAliases
     instantiateGroomingAliases(groomDef)
-    groomalg = getJetGroomAlg(groomedJetsFullName,groomDef,parentpjs,monTool)
+    groomalg = getJetGroomAlg_jetAlg(groomDef,parentpjs,monTool)
     recoSeq += conf2toConfigurable( groomalg )
 
     jetsOut = recordable(groomedJetsFullName)

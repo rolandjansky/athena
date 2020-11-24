@@ -105,6 +105,7 @@ class JetDefinition(object):
         # used internally to resolve dependencies
         self._prereqDic = {}
         self._prereqOrder = [] 
+        self._internalAtt = {} 
         self._locked = lock
 
             
@@ -147,19 +148,9 @@ class JetDefinition(object):
     @make_lproperty
     def prefix(self): pass
     
-    @prefix.lsetter
-    def prefix(self,p):
-        self._prefix = p
-        self._defineName()
-
     @make_lproperty
     def suffix(self): pass
     
-    @suffix.lsetter
-    def suffix(self,p):
-        self._suffix = p
-        self._defineName()
-
     @make_lproperty
     def basename(self): pass
 
@@ -367,11 +358,6 @@ class JetInputDef(object):
 
     # make outputname an alias of name so JetInputDef shares an interface with JetConstitSeq.
     outputname = make_alias("name")
-    # @make_lproperty
-    # def outputname(self): pass
-    # @outputname.setter
-    # def outputname(self,v):
-    #     raise Exception("Can not set the 'outputname' attribute of a JetInputDef, set its 'name' instead")
 
 
 ########################################################################    

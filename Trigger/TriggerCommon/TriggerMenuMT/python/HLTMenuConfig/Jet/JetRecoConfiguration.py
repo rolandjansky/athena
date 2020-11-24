@@ -174,11 +174,15 @@ def defineReclusteredJets(jetRecoDict,smallRjets):
     return rcJetDef
 
 def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
-    from JetRecConfig.JetGrooming import JetTrimming, JetSoftDrop
+    from JetRecConfig.JetGrooming import JetTrimmingTrig, JetSoftDropTrig
     groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
+    suffix = "_"+ jetRecoDict["jetCalib"]
+    if jetRecoDict["trkopt"]!="notrk":
+        suffix += "_"+jetRecoDict["trkopt"]
+    
     groomDef = {
-        "sd":JetSoftDrop(ungroomedDef,zcut=0.1,beta=1.0),
-        "t" :JetTrimming(ungroomedDef,smallR=0.2,ptfrac=0.04),
+        "sd":JetSoftDropTrig(ungroomedDef,ZCut=0.1,Beta=1.0, suffix=suffix),
+        "t" :JetTrimmingTrig(ungroomedDef,RClus=0.2,PtFrac=0.04, suffix=suffix),
     }[groomAlg]
     return groomDef
 
