@@ -1,10 +1,14 @@
-#ifndef XAOD_STANDALONE
-
 // Dear emacs, this is -*- c++ -*-
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
+
+/*
+TauOverlappingElectronLLHDecorator depends on an EGamma tool which is
+not avaible in AnalysisBase. To make TauAnalysisTools compiel, this
+class is ignored in AnalysisBase.
+*/
+#ifndef XAOD_STANDALONE
 
 #ifndef TAUANALYSISTOOLS_TAUOVERLAPPINGELECTRONLLHDECORATOR_H
 #define TAUANALYSISTOOLS_TAUOVERLAPPINGELECTRONLLHDECORATOR_H
@@ -12,11 +16,7 @@
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  documentation in: https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauOverlappingElectronLLHDecorator.rst
 */
 
 // Framework include(s):
@@ -57,8 +57,6 @@ public:
 
   /// Function initialising the tool
   virtual StatusCode initialize();
-
-  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauOverlappingElectronLLHDecorator.rst")));
 
   virtual StatusCode decorate(const xAOD::TauJet& xTau) const;
 
