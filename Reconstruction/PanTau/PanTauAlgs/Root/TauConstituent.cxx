@@ -1,18 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PanTauAlgs/TauConstituent.h"
 
-#include <iostream>
-
-PanTau::TauConstituent2::TauConstituent2()
-  :
+PanTau::TauConstituent::TauConstituent() :
   IParticle(),
   m_p4(), m_p4Cached( false ),
   m_TypeFlags(),
-  m_BDTValue(PanTau::TauConstituent2::DefaultBDTValue()),
-  m_Charge(PanTau::TauConstituent2::DefaultCharge()),
+  m_BDTValue(PanTau::TauConstituent::DefaultBDTValue()),
+  m_Charge(PanTau::TauConstituent::DefaultCharge()),
   m_PFOLink(0),
   m_Shots(),
   m_nPhotonsInShot(0)
@@ -20,14 +17,11 @@ PanTau::TauConstituent2::TauConstituent2()
 }
 
 
-
-PanTau::TauConstituent2::TauConstituent2(TLorentzVector   itsMomentum,
-					 int              itsCharge,
-					 std::vector<int> itsType,
-					 double           itsBDTValue,
-					 xAOD::PFO*       itsPFO
-					 )
-  :
+PanTau::TauConstituent::TauConstituent(TLorentzVector   itsMomentum,
+				       int              itsCharge,
+				       std::vector<int> itsType,
+				       double           itsBDTValue,
+				       xAOD::PFO*       itsPFO) :
   IParticle(),
   m_p4(itsMomentum), m_p4Cached(true),
   m_TypeFlags(itsType),
@@ -40,10 +34,7 @@ PanTau::TauConstituent2::TauConstituent2(TLorentzVector   itsMomentum,
 }
 
 
-
-PanTau::TauConstituent2::TauConstituent2(
-					 const PanTau::TauConstituent2& rhs
-					 ):
+PanTau::TauConstituent::TauConstituent(const PanTau::TauConstituent& rhs) :
   IParticle(rhs),
   m_p4(rhs.m_p4), m_p4Cached(rhs.m_p4Cached),
   m_TypeFlags(rhs.m_TypeFlags),
@@ -56,24 +47,22 @@ PanTau::TauConstituent2::TauConstituent2(
 }
 
 
-
-PanTau::TauConstituent2::~TauConstituent2()
+PanTau::TauConstituent::~TauConstituent()
 {
   //delete the shot constituents
   for(unsigned int iShot=0; iShot<m_Shots.size(); iShot++) {
-    PanTau::TauConstituent2* curConst = m_Shots[iShot];
+    PanTau::TauConstituent* curConst = m_Shots[iShot];
     delete curConst;
   }
 }
 
 
-
-PanTau::TauConstituent2& PanTau::TauConstituent2::operator=(const PanTau::TauConstituent2& tauConst)
+PanTau::TauConstituent& PanTau::TauConstituent::operator=(const PanTau::TauConstituent& tauConst)
 {
   if (this!=&tauConst){
 
     if (!this->container() && !this->hasStore() ) {      
-    	makePrivateStore();
+      makePrivateStore();
     }
     this->IParticle::operator=( tauConst );
     this->m_p4 = tauConst.m_p4;
@@ -89,35 +78,35 @@ PanTau::TauConstituent2& PanTau::TauConstituent2::operator=(const PanTau::TauCon
 }
 
 
-double PanTau::TauConstituent2::pt() const {
+double PanTau::TauConstituent::pt() const {
   static Accessor< float > acc( "pt" );
   return acc( *this );
 }
 
-double PanTau::TauConstituent2::eta() const {
+double PanTau::TauConstituent::eta() const {
   static Accessor<float > acc( "eta" );
   return acc( *this );
 }
 
-double PanTau::TauConstituent2::phi() const {
+double PanTau::TauConstituent::phi() const {
   static Accessor< float > acc( "phi" );
   return acc( *this );
 }
 
-double PanTau::TauConstituent2::m() const {
+double PanTau::TauConstituent::m() const {
   static Accessor< float> acc( "m" );
   return acc( *this );
 }
 
-double PanTau::TauConstituent2::e() const{
+double PanTau::TauConstituent::e() const{
   return p4().E(); 
 }
 
-double PanTau::TauConstituent2::rapidity() const {
+double PanTau::TauConstituent::rapidity() const {
   return p4().Rapidity(); 
 }
 
-PanTau::TauConstituent2::FourMom_t PanTau::TauConstituent2::p4() const {
+PanTau::TauConstituent::FourMom_t PanTau::TauConstituent::p4() const {
   if( ! m_p4Cached ) {
     m_p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
     m_p4Cached=true;
@@ -125,7 +114,7 @@ PanTau::TauConstituent2::FourMom_t PanTau::TauConstituent2::p4() const {
   return m_p4;
 }
 
-void PanTau::TauConstituent2::setP4(float pt, float eta, float phi, float m){
+void PanTau::TauConstituent::setP4(float pt, float eta, float phi, float m){
   static Accessor< float > acc1( "pt" );
   acc1( *this ) = pt;
   static Accessor< float > acc2( "eta" );
@@ -138,28 +127,28 @@ void PanTau::TauConstituent2::setP4(float pt, float eta, float phi, float m){
   m_p4Cached=false;
 }
 
-void PanTau::TauConstituent2::setPt(float pt){
+void PanTau::TauConstituent::setPt(float pt){
   static Accessor< float > acc( "pt" );
   acc( *this ) = pt;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;
 }
 
-void PanTau::TauConstituent2::setEta(float eta){
+void PanTau::TauConstituent::setEta(float eta){
   static Accessor< float > acc( "eta" );
   acc( *this ) = eta;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;
 }
 
-void PanTau::TauConstituent2::setPhi(float phi){
+void PanTau::TauConstituent::setPhi(float phi){
   static Accessor< float > acc( "phi" );
   acc( *this ) = phi;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;
 }
 
-void PanTau::TauConstituent2::setM(float m){
+void PanTau::TauConstituent::setM(float m){
   static Accessor< float > acc( "m" );
   acc( *this ) = m;
   //Need to recalculate m_p4 if requested after update
@@ -167,14 +156,12 @@ void PanTau::TauConstituent2::setM(float m){
 }
 
 
-xAOD::Type::ObjectType PanTau::TauConstituent2::type() const {
+xAOD::Type::ObjectType PanTau::TauConstituent::type() const {
   return xAOD::Type::ParticleFlow;
 }
 
 
-
-
-void             PanTau::TauConstituent2::removeTypeFlag(TauConstituent2::Type aType) {
+void PanTau::TauConstituent::removeTypeFlag(TauConstituent::Type aType) {
   unsigned int typeIndex = (unsigned int)aType;
   m_TypeFlags.at(typeIndex) = 0;
   return;
@@ -182,94 +169,88 @@ void             PanTau::TauConstituent2::removeTypeFlag(TauConstituent2::Type a
 
 
 //the static getTypeName which does a translation
-std::string      PanTau::TauConstituent2::getTypeName(PanTau::TauConstituent2::Type aType) {
+std::string  PanTau::TauConstituent::getTypeName(PanTau::TauConstituent::Type aType) {
   switch(aType) {
-  case PanTau::TauConstituent2::t_Charged: return "Charged";
-  case PanTau::TauConstituent2::t_Neutral: return "Neutral";
-  case PanTau::TauConstituent2::t_Pi0Neut: return "Pi0Neut";
-  case PanTau::TauConstituent2::t_OutChrg: return "OuterChrg";
-  case PanTau::TauConstituent2::t_OutNeut: return "OuterNeut";
-  case PanTau::TauConstituent2::t_NeutLowA: return "NeutLowA";
-  case PanTau::TauConstituent2::t_NeutLowB: return "NeutLowB";
-  case PanTau::TauConstituent2::t_NoType: return "All";
+  case PanTau::TauConstituent::t_Charged: return "Charged";
+  case PanTau::TauConstituent::t_Neutral: return "Neutral";
+  case PanTau::TauConstituent::t_Pi0Neut: return "Pi0Neut";
+  case PanTau::TauConstituent::t_OutChrg: return "OuterChrg";
+  case PanTau::TauConstituent::t_OutNeut: return "OuterNeut";
+  case PanTau::TauConstituent::t_NeutLowA: return "NeutLowA";
+  case PanTau::TauConstituent::t_NeutLowB: return "NeutLowB";
+  case PanTau::TauConstituent::t_NoType: return "All";
   default: return "UnkownType";
   }
 }
 
 
-
-bool         PanTau::TauConstituent2::isNeutralType(int tauConstituentType) {
-  PanTau::TauConstituent2::Type type = (PanTau::TauConstituent2::Type)tauConstituentType;
+bool PanTau::TauConstituent::isNeutralType(int tauConstituentType) {
+  PanTau::TauConstituent::Type type = (PanTau::TauConstituent::Type)tauConstituentType;
   switch(type) {
-  case PanTau::TauConstituent2::t_Neutral: return true;
-  case PanTau::TauConstituent2::t_Pi0Neut: return true;
-  case PanTau::TauConstituent2::t_OutNeut: return true;
-  case PanTau::TauConstituent2::t_NeutLowA: return true;
-  case PanTau::TauConstituent2::t_NeutLowB: return true;
+  case PanTau::TauConstituent::t_Neutral: return true;
+  case PanTau::TauConstituent::t_Pi0Neut: return true;
+  case PanTau::TauConstituent::t_OutNeut: return true;
+  case PanTau::TauConstituent::t_NeutLowA: return true;
+  case PanTau::TauConstituent::t_NeutLowB: return true;
   default: return false;
   }
   return false;
 }
 
 
-
-bool         PanTau::TauConstituent2::isCoreType(int tauConstituentType) {
-  PanTau::TauConstituent2::Type type = (PanTau::TauConstituent2::Type)tauConstituentType;
+bool PanTau::TauConstituent::isCoreType(int tauConstituentType) {
+  PanTau::TauConstituent::Type type = (PanTau::TauConstituent::Type)tauConstituentType;
   switch(type) {
-  case PanTau::TauConstituent2::t_Charged: return true;
-  case PanTau::TauConstituent2::t_Neutral: return true;
-  case PanTau::TauConstituent2::t_Pi0Neut: return true;
-  case PanTau::TauConstituent2::t_OutNeut: return false;
-  case PanTau::TauConstituent2::t_OutChrg: return false;
-  case PanTau::TauConstituent2::t_NeutLowA: return true;
-  case PanTau::TauConstituent2::t_NeutLowB: return true;
+  case PanTau::TauConstituent::t_Charged: return true;
+  case PanTau::TauConstituent::t_Neutral: return true;
+  case PanTau::TauConstituent::t_Pi0Neut: return true;
+  case PanTau::TauConstituent::t_OutNeut: return false;
+  case PanTau::TauConstituent::t_OutChrg: return false;
+  case PanTau::TauConstituent::t_NeutLowA: return true;
+  case PanTau::TauConstituent::t_NeutLowB: return true;
   default: return false;
   }
   return false;
 }
-
 
 
 //the non static getType name, which returns
-std::vector<std::string>            PanTau::TauConstituent2::getTypeName() const {
+std::vector<std::string> PanTau::TauConstituent::getTypeName() const {
   std::vector<std::string> res;
-  for(unsigned int iType=0; iType<TauConstituent2::t_nTypes; iType++) {
+  for(unsigned int iType=0; iType<TauConstituent::t_nTypes; iType++) {
     if(m_TypeFlags[iType] == 1) {
-      PanTau::TauConstituent2::Type curType = (PanTau::TauConstituent2::Type)iType;
-      res.push_back( TauConstituent2::getTypeName(curType) );
+      PanTau::TauConstituent::Type curType = (PanTau::TauConstituent::Type)iType;
+      res.push_back( TauConstituent::getTypeName(curType) );
     }
   }
   return res;
 }
 
 
-
-std::string                         PanTau::TauConstituent2::getTypeNameString() const {
+std::string PanTau::TauConstituent::getTypeNameString() const {
   std::string res;
   for(unsigned int iType=0; iType<m_TypeFlags.size(); iType++) {
     if(m_TypeFlags[iType] == 1) {
-      res += PanTau::TauConstituent2::getTypeName((PanTau::TauConstituent2::Type)(iType)) + ",";
+      res += PanTau::TauConstituent::getTypeName((PanTau::TauConstituent::Type)(iType)) + ",";
     }
   }
   return res;
 }
 
 
-
-double PanTau::TauConstituent2::getBDTValue() const {
+double PanTau::TauConstituent::getBDTValue() const {
   return m_BDTValue;
 }
 
 
-
-std::vector<int> PanTau::TauConstituent2::getTypeFlags() const {
+std::vector<int> PanTau::TauConstituent::getTypeFlags() const {
   return m_TypeFlags;
 }
 
 
-bool                                      PanTau::TauConstituent2::isOfType(PanTau::TauConstituent2::Type theType) const {
+bool PanTau::TauConstituent::isOfType(PanTau::TauConstituent::Type theType) const {
   int typeIndex = (int)theType;
-  if(theType >= (int)TauConstituent2::t_nTypes) {
+  if(theType >= (int)TauConstituent::t_nTypes) {
     return false;
   }
   if(m_TypeFlags.at(typeIndex) == 1) return true;
@@ -277,35 +258,36 @@ bool                                      PanTau::TauConstituent2::isOfType(PanT
 }
 
 
-int PanTau::TauConstituent2::getCharge() const {
+int PanTau::TauConstituent::getCharge() const {
   return m_Charge;
 }
 
 
-
-xAOD::PFO* PanTau::TauConstituent2::getPFO() const {
+xAOD::PFO* PanTau::TauConstituent::getPFO() const {
   return m_PFOLink;
 }
 
 
-
-void                      PanTau::TauConstituent2::addShot(TauConstituent2* shot) {
+void PanTau::TauConstituent::addShot(TauConstituent* shot) {
   if(shot != 0) m_Shots.push_back(shot);
 }
 
 
-std::vector<PanTau::TauConstituent2*>            PanTau::TauConstituent2::getShots() {
+std::vector<PanTau::TauConstituent*> PanTau::TauConstituent::getShots() {
   return m_Shots;
 }
 
-unsigned int                PanTau::TauConstituent2::getNShots() {
+
+unsigned int PanTau::TauConstituent::getNShots() {
   return m_Shots.size();
 }
 
-void                        PanTau::TauConstituent2::setNPhotonsInShot(int nPhotons) {
+
+void PanTau::TauConstituent::setNPhotonsInShot(int nPhotons) {
   m_nPhotonsInShot = nPhotons;
 }
-int                         PanTau::TauConstituent2::getNPhotonsInShot() {
+
+
+int PanTau::TauConstituent::getNPhotonsInShot() {
   return m_nPhotonsInShot;
 }
-

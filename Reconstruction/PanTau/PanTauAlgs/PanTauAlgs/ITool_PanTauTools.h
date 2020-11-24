@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_ITOOL_PANTAUTOOLS_H
@@ -17,9 +17,9 @@
 
 
 namespace PanTau {
-    class TauFeature2;
-    class PanTauSeed2;
-    class TauConstituent2;
+    class TauFeature;
+    class PanTauSeed;
+    class TauConstituent;
 }
 
 
@@ -44,7 +44,7 @@ namespace PanTau {
 
     virtual bool isInitialized() = 0;
             // used in Tool_FeatureExtractor, Tool_DecayModeDeterminator and Tool_DetailsArranger:
-            virtual StatusCode execute(PanTau::PanTauSeed2* inSeed) = 0;
+            virtual StatusCode execute(PanTau::PanTauSeed* inSeed) = 0;
 
     };
 

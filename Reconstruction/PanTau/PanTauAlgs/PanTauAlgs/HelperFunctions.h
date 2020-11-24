@@ -7,18 +7,16 @@
 
 #include <string>
 #include <iostream>
+#include <vector>
 
 #include "AsgMessaging/AsgMessaging.h"
 #include "AsgTools/ToolHandle.h"
-
-#include "xAODTau/TauJet.h"
-#include "xAODPFlow/PFO.h"
 
 class TLorentzVector;
 class TVector3;
 
 namespace PanTau {
-    class TauConstituent2;
+    class TauConstituent;
 }
 
 class TVector3;
@@ -37,12 +35,8 @@ namespace PanTau {
 
 	virtual ~HelperFunctions () {};
         
-        
-        virtual void dumpFourMomentum(TLorentzVector FourMom) const;
-        virtual void dumpTauConstituent2(PanTau::TauConstituent2* tauConstituent) const;
-        
-        TauConstituent2* getNeutralConstWithLargestAngle(TLorentzVector                 charged, 
-                                                        std::vector<PanTau::TauConstituent2*>    neutral);
+        TauConstituent* getNeutralConstWithLargestAngle(TLorentzVector                 charged, 
+                                                        std::vector<PanTau::TauConstituent*>    neutral);
         
         virtual std::string convertNumberToString(double x) const;
         

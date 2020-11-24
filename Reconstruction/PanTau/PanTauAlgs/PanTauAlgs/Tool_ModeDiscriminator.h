@@ -21,7 +21,7 @@
 #include "MVAUtils/BDT.h"
 
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
 }
 
 
@@ -46,11 +46,11 @@ namespace PanTau {
         virtual StatusCode finalize  ();
 
 
-        virtual double getResponse(PanTau::PanTauSeed2* inSeed, bool& isOK);
+        virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK);
         
     private:
         
-        void                                        updateReaderVariables(PanTau::PanTauSeed2* inSeed);
+        void                                        updateReaderVariables(PanTau::PanTauSeed* inSeed);
         
 	std::string                                 m_calib_path; //<! cvmfs folder for data files
         std::string                                 m_Name_InputAlg;

@@ -37,7 +37,7 @@ namespace PanTau {
         virtual StatusCode initialize();
         
         //get the features for an input seed
-        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);
+        virtual StatusCode execute(PanTau::PanTauSeed* inSeed);
         void Log10();
         
     protected:
@@ -51,27 +51,27 @@ namespace PanTau {
         std::map<std::string, double>   m_Variants_SeedEt;
         
         //Function to calculate basic features
-        StatusCode calculateBasicFeatures(PanTau::PanTauSeed2* inSeed);
+        StatusCode calculateBasicFeatures(PanTau::PanTauSeed* inSeed);
         
         //Function to calculate features for one set of constituents
-        StatusCode calculateFeatures(PanTau::PanTauSeed2*    inSeed,
+        StatusCode calculateFeatures(PanTau::PanTauSeed*    inSeed,
                                      int                    tauConstituentType);
         
         //Function to add the 4 momenta of the tau constituents to the features
-        StatusCode addConstituentMomenta(PanTau::PanTauSeed2* inSeed);
+        StatusCode addConstituentMomenta(PanTau::PanTauSeed* inSeed);
         
         //Function to calculate features based on two sets of constituents
-        StatusCode addCombinedFeatures(PanTau::PanTauSeed2* inSeed);
+        StatusCode addCombinedFeatures(PanTau::PanTauSeed* inSeed);
         
         //Function to add impact parameter features
-        StatusCode addImpactParameterFeatures(PanTau::PanTauSeed2* inSeed) const;
+        StatusCode addImpactParameterFeatures(PanTau::PanTauSeed* inSeed) const;
         
         //Function to fill the m_Variants_SeedEt member
-        void fillVariantsSeedEt(std::vector<PanTau::TauConstituent2*> tauConstituents);
+        void fillVariantsSeedEt(std::vector<PanTau::TauConstituent*> tauConstituents);
         
         
         //helper function to fill the m_Variants_SeedEt map
-        void    addFeatureWrtSeedEnergy(PanTau::TauFeature2* targetMap,
+        void    addFeatureWrtSeedEnergy(PanTau::TauFeature* targetMap,
                                         std::string featName,
                                         double numerator,
                                         std::map<std::string, double>* denominatorMap) const;
