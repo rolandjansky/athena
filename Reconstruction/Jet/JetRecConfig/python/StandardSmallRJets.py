@@ -12,7 +12,6 @@ from xAODBase.xAODType import xAODType
 standardghosts =  ["Track","MuonSegment","Truth"]
 
 
-#flavourghosts = ["TruthLabel"+ghosttype  for ghosttype in [
 flavourghosts = [ "BHadronsInitial", "BHadronsFinal", "BQuarksFinal",
                   "CHadronsInitial", "CHadronsFinal", "CQuarksFinal",
                   "TausFinal",
@@ -47,7 +46,7 @@ pflowmods        = ()
 
 
 AntiKt4EMPFlow = JetDefinition("AntiKt",0.4,cst.EMPFlow,
-                               ghostdefs = standardghosts+flavourghosts , # not working well yet : flavourghosts,
+                               ghostdefs = standardghosts+flavourghosts , 
                                modifiers = standardrecomods+truthmods, 
                                standardRecoMode = True,                               
                                lock = True
@@ -90,6 +89,7 @@ AntiKt4TruthWZ = JetDefinition("AntiKt",0.4, cst.TruthWZ,
 
 
 def StandardSmallRJetCfg(configFlags):
+    """Top-level function to schedule the smallR jets in standard reconstruction """
     from JetRecConfig.JetRecConfig import JetRecCfg
 
     standarSmallRList = [

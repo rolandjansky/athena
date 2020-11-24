@@ -116,5 +116,40 @@ particlejetmods = {
     }
 jetmoddict.update(particlejetmods)
 
-# Todo: jet substructure moment tools
 
+# Substructure tools 
+
+substrmods = dict( 
+    nsubjettiness = JetModifier( "NSubjettinessTool", "nsubjettiness",Alpha = 1.0),
+    nsubjettinessR = JetModifier( "NSubjettinessRatiosTool", "nsubjettinessR",),
+
+    
+    ktdr       = JetModifier("KtDeltaRTool", "ktdr", JetRadius = 0.4),
+
+    ktsplitter = JetModifier( "KTSplittingScaleTool", "ktsplitter"),
+    
+    angularity = JetModifier( "AngularityTool", "angularity"),
+    
+    dipolarity = JetModifier( "DipolarityTool", "dipolarity",SubJetRadius = 0.3),
+    
+    planarflow = JetModifier( "PlanarFlowTool", "planarflow"),
+
+    ktmassdrop = JetModifier( "KtMassDropTool", "ktmassdrop"),
+
+    ecorr      = JetModifier( "EnergyCorrelatorTool", "ecorr", Beta = 1.0),
+    ecorrR      = JetModifier( "EnergyCorrelatorRatiosTool", "ecorrR", ),
+
+    ecorrgeneral = JetModifier( "EnergyCorrelatorGeneralizedTool", "ecorrgeneral"),
+
+    ecorrgeneralratios = JetModifier( "EnergyCorrelatorGeneralizedRatiosTool", "ecorrgeneralratios"),
+
+    comshapes = JetModifier( "CenterOfMassShapesTool","comshapes"),
+
+    pull      = JetModifier("JetPullTool", "pull",  UseEtaInsteadOfY = False, IncludeTensorMoments = True ),
+
+    charge    = JetModifier( "JetChargeTool", "charge", K=1.0),
+
+    qw = JetModifier( "QwTool", "qw"),
+    #showerdec = JetModifier( "  ShowerDeconstructionTool"),
+)
+jetmoddict.update(substrmods)

@@ -18,6 +18,9 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 import JetRecConfig.ConstModHelpers as constH
 import JetRecConfig.JetModConfig as modH
 
+from JetRecConfig.JetDefinition import JetDefinition
+from JetRecConfig.JetGrooming import GroomingDefinition
+
 
 
 
@@ -26,78 +29,96 @@ __all__ = ["JetRecCfg", "JetInputCfg"]
 
 
 ########################################################################
+
+
+def JetRecCfg(jetdef, configFlags):
+    """Top-level function for running jet finding or grooming.
     
-def JetRecCfg(jetdef0, configFlags):
-    """Top-level function for running jet finding
-    (i.e. clustering from inputs)
     This returns a ComponentAccumulator that can be merged with others
     from elsewhere in the job, but will provide everything needed to
     reconstruct one jet collection.
-    This could still be modularised further into the subcomponents of the
-    jet reconstruction job.
-    Receives the jet definition and input flags, mainly for input file
+    Receives the jet or grooming definition (jetdef) and input flags (configFlags), mainly for input file
     peeking such that we don't attempt to reproduce stuff that's already
-    in the input file
+    in the input file.
+
     """
     # we clone the jetdef, so we're sure we're not using a 'locked' one 
-    jetdef = jetdef0.clone()
+    jetdef_i = jetdef.clone()
     
-    jetsfullname = jetdef.fullname()
-    jetlog.info("Setting up to find {0}".format(jetsfullname))
-
-    sequenceName = jetsfullname
+    sequenceName = jetdef_i.fullname()
+    jetlog.info("******************")    
+    jetlog.info("Setting up to find {0}".format(sequenceName))
 
     components = ComponentAccumulator()
     from AthenaCommon.CFElements import parOR
     components.addSequence( parOR(sequenceName) )
 
-    # create proper config instances for each input and ghost aliases in this jetdef
+    # call the relevant function according to jetdef_i type 
+    if isinstance(jetdef_i, JetDefinition):
+        addJetClusteringToComponent(components, jetdef_i, configFlags)
+
+    elif isinstance(jetdef_i, GroomingDefinition):
+        from JetRecConfig.JetGroomConfig import addGroomToComponent
+        addGroomToComponent(components, jetdef_i,  configFlags)
+
+    return components
+
+def addJetClusteringToComponent(components, jetdef_i, configFlags, sequenceName=None):
+    """internal function which instantiates the JetRecAlg defined by the JetDefinition 'jetdef_i'  
+    into the ComponentAccumulator 'components' 
+    """
+    sequenceName = sequenceName or jetdef_i.fullname()
+    # create proper config instances for each input and ghost aliases in this jetdef_i
     # this implicitely calculates and adds the dependencies.
-    instantiateAliases(jetdef)
+    instantiateAliases(jetdef_i)
     
-    # check if the conditions are compatible with the inputs & modifiers of this jetdef.
+    # check if the conditions are compatible with the inputs & modifiers of this jetdef_i.
     # if in standardRecoMode we will remove whatever is incompatible and still try to run
     # if not, we raise an exception
-    removeComponentFailingConditions(jetdef, configFlags, raiseOnFailure= not jetdef.standardRecoMode)
+    removeComponentFailingConditions(jetdef_i, configFlags, raiseOnFailure= not jetdef_i.standardRecoMode)
     
     
     # Schedule the various input collections.
     # We don't have to worry about ordering, as the scheduler
     # will handle the details. Just merge the components.
-    inputcomps = JetInputCfg(jetdef, configFlags, sequenceName)
+    inputcomps = JetInputCfg(jetdef_i, configFlags, sequenceName)
     components.merge(inputcomps)
 
     # schedule the algs to create fastjet::PseudoJet objects out of the inputs
-    pjCompo, pjContainer = PseudoJetCfg(jetdef, configFlags, sequenceName)
+    pjCompo= PseudoJetCfg(jetdef_i, configFlags, sequenceName)
     components.merge(pjCompo)
     
     # Generate a JetRecAlg to run the jet finding and modifiers
-    jetrecalg = getJetRecAlg( jetdef, pjContainer)
+    jetrecalg = getJetRecAlg( jetdef_i)
     components.addEventAlgo(jetrecalg, sequenceName)
     
-    jetlog.info("Scheduled JetAlgorithm instance \"jetalg_{0}\"".format(jetsfullname))
+    jetlog.info("Scheduled JetAlgorithm instance \"jetalg_{0}\"".format(jetdef_i.fullname()))
+
     return components
 
-def PseudoJetCfg(jetdef, configFlags, sequenceName):
-    """Builds a ComponentAccumulator for creating PseudoJetContainer needed by jetdef.
-    IMPORTANT returns a tuple : (components, finalPJContainerName) """
+
+def buildPseudoJetAlgs(jetdef):
+    """ Builds the list of configured PseudoJetAlgorithm needed for this jetdef.
+    THIS updates jetdef._internalAtt['finalPJContainer'] 
+    (this function is factorized out of PseudoJetCfg so it can be used standalone in the trigger config)
+    """
     
-    components = ComponentAccumulator(sequenceName)
-    # Schedule the constituent PseudoJetAlg
     constitpjalg = getConstitPJGAlg( jetdef.inputdef )
-    components.addEventAlgo( constitpjalg, sequenceName )
     finalPJContainer = constitpjalg.OutputContainer
+    pjalglist = [constitpjalg]
     
     # Schedule the ghost PseudoJetAlgs
     ghostlist = [ key for key in jetdef._prereqOrder if key.startswith('ghost:')]
     if ghostlist != []:
+        # then we need to schedule a PseudoJetAlg for each ghost collections...
         pjContNames = [finalPJContainer]
         for ghostkey in sorted(ghostlist):
             ghostdef = jetdef._prereqDic[ghostkey]
             ghostpjalg = getGhostPJGAlg( ghostdef )
-            components.addEventAlgo( ghostpjalg, sequenceName )
+            pjalglist.append(ghostpjalg)
             pjContNames.append( ghostpjalg.OutputContainer )
 
+        # .. and merge them together with the input constituents 
         mergeId = mergedPJId( pjContNames )
         finalPJContainer = constitpjalg.OutputContainer+"_merged"+mergeId
         mergerName = "PJMerger_id"+mergeId
@@ -106,12 +127,25 @@ def PseudoJetCfg(jetdef, configFlags, sequenceName):
             InputPJContainers = pjContNames,
             OutputContainer = finalPJContainer,
         )
-        components.addEventAlgo( mergeAlg, sequenceName)
-
-    return components, finalPJContainer
+        pjalglist.append(mergeAlg)
+        
+    # set the name of the complete,merged input PseudoJets, so it can be re-used downstream
+    jetdef._internalAtt['finalPJContainer'] = finalPJContainer
+    return pjalglist
+    
+def PseudoJetCfg(jetdef, configFlags, sequenceName):
+    """Builds a ComponentAccumulator for creating PseudoJetContainer needed by jetdef.
+    THIS updates jetdef._internalAtt['finalPJContainer'] 
+    """
+    components = ComponentAccumulator(sequenceName)
+    pjalglist = buildPseudoJetAlgs( jetdef )
+    for pjalg in pjalglist:
+        components.addEventAlgo( pjalg, sequenceName )
+    return components
 
 _mergedPJContainers = dict()
 def mergedPJId(pjList):
+    """returns a simple unique ID for the list of PseudoJet container in pjList"""
     t = tuple(pjList)
     currentSize = len(_mergedPJContainers)
     return str(_mergedPJContainers.setdefault(t, currentSize))
@@ -129,12 +163,12 @@ def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
      * a JetConstitSource : to allow scheduling the corresponding constituents algs independently of any jet alg. 
     """
 
-    jetlog.info("Setting up jet inputs.")
     components = ComponentAccumulator(sequenceName)
 
     
     from .JetDefinition import JetConstitSource, JetDefinition
     if isinstance(jetOrConstitdef, JetConstitSource):
+        jetlog.info("Setting up jet inputs from JetConstitSource : "+jetOrConstitdef.name)
         jetdef = JetDefinition('Kt', 0., jetOrConstitdef.clone())
         instantiateAliases(jetdef)        
         removeComponentFailingConditions(jetdef, configFlags, raiseOnFailure= not jetdef.standardRecoMode)
@@ -142,7 +176,7 @@ def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
         jetdef = jetOrConstitdef
     
     jetlog.info("Inspecting input file contents")
-    filecontents = [coll for coll in configFlags.Input.Collections]
+    filecontents = configFlags.Input.Collections
 
     inputdeps = [ inputkey for inputkey in jetdef._prereqOrder if inputkey.startswith('input:')]
 
@@ -162,7 +196,7 @@ def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
                 if constitalg:
                     components.addEventAlgo(constitalg, primary=isprimary)
         else: # it must be a JetInputDef
-            cname = inputInstance.containername(jetdef,inputInstance.specs)
+            cname = inputInstance.containername(jetdef,inputInstance.specs) # (by defaults this is just inputInstance.name)
             if cname in filecontents:
                 jetlog.debug("Input container {0} for prereq {1} already in input file.".format(cname, inputInstance.name))
             else:
@@ -257,15 +291,16 @@ def getJetAlgorithm(jetname, jetdef, pjContNames, monTool = None):
 ########################################################################
 # Function that substitues JetRecTool + JetAlgorithm
 #
-def getJetRecAlg( jetdef, pjContNames):
+def getJetRecAlg( jetdef):
     """ """
+    pjContNames = jetdef._internalAtt['finalPJContainer']
     jclust = CompFactory.JetClusterer(
         "builder",
         JetAlgorithm = jetdef.algorithm,
         JetRadius = jetdef.radius,
         PtMin = jetdef.ptmin,
         InputPseudoJets = pjContNames,
-        GhostArea = 0.01, # In which cases do we not want areas?
+        GhostArea = 0.01 if (jetdef.radius < 0.6)  else 0. , 
         JetInputType = jetdef.inputdef.jetinputtype,
     )
 
@@ -389,7 +424,6 @@ def removeComponentFailingConditions(jetdef, configflags, raiseOnFailure=True):
     The compatibility is ultimately tested using the component 'filterfn' attributes.
     Internally calls the function isComponentPassingConditions() (see below) 
     """
-    jetlog.info("******************")
     jetlog.info("Standard Reco mode : filtering components in "+str(jetdef))
 
 
