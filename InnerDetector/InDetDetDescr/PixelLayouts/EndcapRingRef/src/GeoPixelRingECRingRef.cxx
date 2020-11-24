@@ -104,8 +104,6 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   double thickChip = ringModule->ThicknessP();
   m_thickSafety = (m_inclination!=0)?  ringModule->Thickness() : std::max(thickHyb,thickChip) ;
 
-  m_halfLength = ringModule->Thickness()/2.;
-
   double edge = buildDeadEdges ? fabs(  ringModule->Length()-ringModule->getModuleChipLength() ) : 0.;
   m_ringRMin = rmin- 0.5*edge*cos(m_inclination) - m_thickSafety*fabs(sin(m_inclination)) - 0.001;
   m_ringRMax = rmax+0.5*edge*cos(m_inclination)+m_thickSafety*fabs(sin(m_inclination))+0.001;
@@ -114,18 +112,24 @@ void GeoPixelRingECRingRef::preBuild(const PixelGeoBuilderBasics* basics )
   m_ringZMin = -m_thickSafety*cos(m_inclination) - 0.5*edge*sin(m_inclination) - 0.001;
   m_ringZMax = m_thickSafety*cos(m_inclination) + (ringModule->getModuleSensorLength()-0.5*edge)*sin(m_inclination) + 0.001;
 
- // This is the radius of the center of the active sensor 
+  // This is the radius of the center of the active sensor
   double moduleRadius = m_radius + 0.5*cos(m_inclination)*activeSensorLength;
   double moduleHalfLength = ringModule->Length()*.5;
   rmin = moduleRadius-moduleHalfLength*cos(m_inclination);
 
   if(rmin<m_ringRMin) m_ringRMin = rmin-0.001;
   
+  m_halfLength = ringModule->Thickness()/2.;
   m_ringZShift = (thickChip-m_halfLength)*cos(m_inclination);    
-
   m_halfLength += ringModule->Length()/2.*sin(m_inclination);
+  
+  // adding additional safety margin if needed for logical volume definition
+  double safety_Rmin = ringHelper.getRingSafetyEnvelopeRmin(m_layer);
+  double safety_Z = ringHelper.getRingSafetyEnvelopeZ(m_layer);
+  m_ringRMin-=safety_Rmin;
+  m_halfLength+=safety_Z;
 
-  m_ringId = m_ring; 
+  m_ringId = m_ring;
 
   m_bPrebuild = true;  
 }
@@ -156,6 +160,7 @@ GeoFullPhysVol* GeoPixelRingECRingRef::Build(const PixelGeoBuilderBasics* basics
 
   double zModuleShift = m_ringZShift;
   double halflength = m_halfLength+.001;
+  
   if(m_front_back==1) zModuleShift*=-1;
   zModuleShift += zshift + 0.5*sin(m_inclination)*activeSensorLength;
   if (m_inclination!=0) zModuleShift+= -ringModule->getModuleSensorThick()*.5*cos(m_inclination); 

@@ -135,6 +135,11 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
   
   GeoFullPhysVol* layerPhys = 0;
   PixelInclRefStaveXMLHelper staveDBHelper(m_layer, basics);
+  
+  // retrieve the radial safety margin for logical volume definition
+  double layer_safety = pixelLadder.radialSafety() * CLHEP::mm;
+  if (layer_safety==0.)
+    layer_safety = 0.01 * CLHEP::mm;
 
   // Loop over the sectors and place everything
   //
@@ -148,26 +153,25 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
     GeoVPhysVol *pigtailPhys=pixelLadder.BuildPigtail();
     
     if(ii==0){
-
-      double safety = 0.01 * CLHEP::mm;
-      double rmin =  layerRadius-m_layerThicknessN - safety;
-      double rmax =  layerRadius+m_layerThicknessP + safety;
+      double rmin =  layerRadius-m_layerThicknessN - layer_safety;
+      double rmax =  layerRadius+m_layerThicknessP + layer_safety;
+     
       //enlarge the rmax to ensure pigtails are included
       if(pigtailPhys != 0){
-	InDet::BarrelLayerTmp *lp1 = m_xmlReader->getPixelBarrelLayerTemplate(m_layer+1);
-	double lp1_radius = lp1->radius;
-	double lp1_tilt = lp1->stave_tilt;	
-	HepGeom::Transform3D lp1_xform = HepGeom::TranslateX3D(lp1_radius)*HepGeom::RotateZ3D(lp1_tilt);
-	std::vector<InDet::StaveTmp *> lp1_stave = m_xmlReader->getPixelStaveTemplate(m_layer+1);
-	GeoPixelLadderPlanarRef lp1_ladder(basics, lp1_stave[0], m_layer+1, lp1_xform); 
-		
-	double lp1_thickN = lp1_ladder.thicknessN();
-	double lp1_halfWidth = lp1_ladder.width()/2;
-
-	HepGeom::Point3D<double> lp1_lowerCorner(-lp1_thickN, lp1_halfWidth, 0);
-	lp1_lowerCorner = HepGeom::TranslateX3D(lp1_radius) * HepGeom::RotateZ3D(std::abs(lp1_tilt)) * lp1_lowerCorner;
-
-	rmax = lp1_lowerCorner.perp() - safety;
+        InDet::BarrelLayerTmp *lp1 = m_xmlReader->getPixelBarrelLayerTemplate(m_layer+1);
+        double lp1_radius = lp1->radius;
+        double lp1_tilt = lp1->stave_tilt;
+        HepGeom::Transform3D lp1_xform = HepGeom::TranslateX3D(lp1_radius)*HepGeom::RotateZ3D(lp1_tilt);
+        std::vector<InDet::StaveTmp *> lp1_stave = m_xmlReader->getPixelStaveTemplate(m_layer+1);
+        GeoPixelLadderPlanarRef lp1_ladder(basics, lp1_stave[0], m_layer+1, lp1_xform); 
+        
+        double lp1_thickN = lp1_ladder.thicknessN();
+        double lp1_halfWidth = lp1_ladder.width()/2;
+        
+        HepGeom::Point3D<double> lp1_lowerCorner(-lp1_thickN, lp1_halfWidth, 0);
+        lp1_lowerCorner = HepGeom::TranslateX3D(lp1_radius) * HepGeom::RotateZ3D(std::abs(lp1_tilt)) * lp1_lowerCorner;
+        
+        rmax = lp1_lowerCorner.perp() - layer_safety;
       }
       double ladderLength = pixelLadder.envLength() + 4*basics->epsilon(); // Ladder has length gmt_mgr->PixelLadderLength() +  2*m_epsilon
 

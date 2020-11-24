@@ -56,6 +56,14 @@ double PixelInclRefStaveXMLHelper::getClearance() const
   return getDouble("PixelStaveGeo",m_layerIndices,"ClearanceX");
 }
 
+double PixelInclRefStaveXMLHelper::getRadialSafety() const
+{
+  if(getSchemaVersion() > 7) {
+    return getDouble("PixelStaveGeo",m_layerIndices,"RadialSafety");
+  } 
+  return 0.;
+}
+
 double PixelInclRefStaveXMLHelper::getStaggerDist() const
 {
   return getDouble("PixelStaveGeo",m_layerIndices,"StaggerDist");

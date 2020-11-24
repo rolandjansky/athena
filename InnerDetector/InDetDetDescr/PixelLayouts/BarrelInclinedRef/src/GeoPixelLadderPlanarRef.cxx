@@ -171,7 +171,7 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
 
   const GeoMaterial* air = matMgr()->getMaterial("std::Air");
   std::ostringstream ladderName; 
-  ladderName<<"_L"<<m_layer;
+  ladderName<<"Ladder_L"<<m_layer;
   m_theLadder = new GeoLogVol(ladderName.str(),m_ladderShape,air);
 
   ATH_MSG_INFO("LADDER size LxWxT "<<m_length<<" "<<m_width<<"  "<<2.*halfThickness);
@@ -190,6 +190,9 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   m_thicknessP = thicknessP_tot;
   m_thicknessN = thicknessN_tot;
   m_envLength = m_length;
+  
+  // retrieve radial safety for logical layer definition
+  m_radialSafety = staveDBHelper.getRadialSafety();
 
 }
 
