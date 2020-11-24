@@ -15,14 +15,14 @@ ROBDataStruct::ROBDataStruct()
   : rob_id(0),
     rob_size(0),
     rob_history(robmonitor::UNCLASSIFIED),
-    rob_status_words()
+    rob_status_word(0)
 {}
 
 ROBDataStruct::ROBDataStruct(const uint32_t srcId)
   : rob_id(srcId),
     rob_size(0),
     rob_history(robmonitor::UNCLASSIFIED),
-    rob_status_words()
+    rob_status_word(0)
 {}
 
 bool ROBDataStruct::isUnclassified() const {
@@ -53,11 +53,8 @@ bool ROBDataStruct::isScheduled() const {
   return ((rob_history == robmonitor::SCHEDULED) ? true : false);
 }
 
-
 bool ROBDataStruct::isStatusOk() const {
-  if (rob_status_words.size() == 0) return true;
-  if ((rob_status_words.size() > 0) && (rob_status_words[0] == 0)) return true;
-  return false;
+  return (rob_status_word == 0) ? true : false;
 }
 
 
