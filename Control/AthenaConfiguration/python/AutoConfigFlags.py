@@ -17,6 +17,8 @@ def GetFileMD(filenames):
     from AthenaCommon.Logging import logging
     msg = logging.getLogger('AutoConfigFlags')
     filename=filenames[0]
+    if filename == '_ATHENA_GENERIC_INPUTFILE_NAME_':
+        raise RuntimeError('Input file name not set, instead _ATHENA_GENERIC_INPUTFILE_NAME_ found. Cannot read metadata.')
     if filename not in _fileMetaData:
         if len(filenames)>1:
             msg.info("Multiple input files. Use the first one for auto-configuration")

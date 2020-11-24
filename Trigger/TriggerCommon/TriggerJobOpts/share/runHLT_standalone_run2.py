@@ -191,6 +191,10 @@ defaultOptions={
 }
 
 
+# Legacy (Run-2) trigger produces Run-2 EDM
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Trigger.EDMVersion = 2
+
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags
 #-------------------------------------------------------------
@@ -373,7 +377,6 @@ TriggerFlags.doMuon=True
 TriggerFlags.doCalo=True
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 athenaCommonFlags.isOnline = True
 ConfigFlags.Common.isOnline = True
 
@@ -402,9 +405,6 @@ elif PoolRDOInput!=None:
     athenaCommonFlags.FilesInput = athenaCommonFlags.PoolRDOInput()
 
 ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
-
-# Legacy (Run-2) trigger produces Run-2 EDM
-ConfigFlags.Trigger.EDMVersion = 2
 
 # Conditions and geometry tag
 if globalflags.InputFormat.is_pool() and (setDetDescr==None or setGlobalTag==None):

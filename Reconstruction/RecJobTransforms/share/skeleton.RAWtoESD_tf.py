@@ -71,6 +71,7 @@ if hasattr(runArgs,"inputRDOFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolRDOInput()
 if hasattr(runArgs,"inputRDO_TRIGFile"):
     rec.readRDO.set_Value_and_Lock( True )
     globalflags.InputFormat.set_Value_and_Lock('pool')
@@ -98,6 +99,7 @@ if hasattr(runArgs,"inputRDO_TRIGFile"):
     from TrigEDMConfig.TriggerEDM import getLvl1ESDList
     from TrigEDMConfig.TriggerEDM import getLvl1AODList
     from TrigEDMConfig.TriggerEDM import getTrigIDTruthList
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
     objKeyStore.addManyTypesStreamESD(getTrigIDTruthList(TriggerFlags.ESDEDMSet()))
     objKeyStore.addManyTypesStreamAOD(getTrigIDTruthList(TriggerFlags.AODEDMSet()))
     objKeyStore.addManyTypesStreamESD(getLvl1ESDList())

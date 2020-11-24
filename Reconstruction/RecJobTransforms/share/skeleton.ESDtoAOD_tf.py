@@ -52,8 +52,8 @@ if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True ) 
     athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
-    # Begin temporary trigger block
-    if TriggerFlags.doMT():
+    # Begin temporary block for Run-3 Trigger outputs
+    if ConfigFlags.Trigger.EDMVersion == 3:
         # Lock DQ configuration to prevent downstream override
         from AthenaMonitoring.DQMonFlags import DQMonFlags
         print('DQMonFlags override')
