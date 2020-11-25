@@ -43,8 +43,10 @@ namespace Analysis {
     // decorators for tracks
     SG::AuxElement::Decorator< float > m_dec_d0;
     SG::AuxElement::Decorator< float > m_dec_z0;
+    SG::AuxElement::Decorator< float > m_dec_z0SinTheta;
     SG::AuxElement::Decorator< float > m_dec_d0_sigma;
     SG::AuxElement::Decorator< float > m_dec_z0_sigma;
+    SG::AuxElement::Decorator< float > m_dec_z0SinTheta_sigma;
 
     // these are used to calculate the signing with respect to the jet
     Vector3DDecorator m_dec_track_pos;
