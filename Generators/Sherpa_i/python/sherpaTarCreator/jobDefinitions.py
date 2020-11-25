@@ -114,17 +114,16 @@ def mkMakelibsJob(options, prevJob):
     job.cmds += ["source $AtlasSetup/scripts/asetup.sh "+options.athenaVersion]
 
     ## install scons to make it available for makelibs
-    job.cmds += ["mkdir fake-home"]
-    job.cmds += ["export HOME=$PWD/fake-home"]
-    job.cmds += ["python -m pip install --user scons"]
-    job.cmds += ["export PATH=$PATH:$PWD/fake-home/.local/bin"]
-    job.cmds += ["export PYTHONPATH=$PYTHONPATH:$PWD/fake-home/.local/lib/python2.7/site-packages/"]
+    job.cmds += ["wget http://prdownloads.sourceforge.net/scons/scons-local-3.1.2.tar.gz"]
+    job.cmds += ["tar xzf scons-local-*.tar.gz"]
+    job.cmds += ["ln -s scons.py scons"]
+    job.cmds += ["export PATH=$PATH:$PWD"]
 
     job.cmds += ["set -e"]
     job.cmds += ["./makelibs -j"+str(options.ncoresMakelibs)]
     job.cmds += ["rm -rf Process/Amegic/P2_*"]
 
-    job.cmds += ["rm -rf fake-home"]
+    job.cmds += ["rm -rf scons*"]
 
     job.write()
     job.submit(dryRun=options.dryRun)

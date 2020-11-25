@@ -20,7 +20,7 @@ class batchJob(batchJobBase):
             #ram = 5250
             self.memMB = 2583
             cpt = 2
-        cmd = "sbatch -e "+self.basedir+"/"+self.name+".log -o "+self.basedir+"/"+self.name+".log --time="+str(self.hours)+":00:00 --mem-per-cpu="+str(self.memMB)+" --cpus-per-task="+str(cpt)+" -N 1 --ntasks "+str(self.nCores)
+        cmd = "sbatch -e "+self.basedir+"/"+self.name+".log -o "+self.basedir+"/"+self.name+".log --time="+str(self.hours)+":00:00 --mem-per-cpu="+str(self.memMB)+" -p haswell,romeo --cpus-per-task="+str(cpt)+" -N 1 --ntasks "+str(self.nCores)
         if os.environ.get('SLURM_MAIL_USER'):
             cmd +=  " --mail-type='END,FAIL,TIME_LIMIT' --mail-user='"+os.environ.get('SLURM_MAIL_USER')+"'"
 
