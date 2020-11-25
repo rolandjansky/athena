@@ -24,12 +24,14 @@ namespace Analysis {
     const std::string& name, ISvcLocator* loc):
     AthAlgorithm(name, loc),
     m_extrapolator("Trk::Extrapolator"),
-    m_dec_d0("DUMMY"),
-    m_dec_z0("DUMMY"),
-    m_dec_d0_sigma("DUMMY"),
-    m_dec_z0_sigma("DUMMY"),
-    m_dec_track_pos("DUMMYv"),
-    m_dec_track_mom("DUMMYv"),
+    m_dec_d0("DUMMY_FLT"),
+    m_dec_z0("DUMMY_FLT"),
+    m_dec_z0SinTheta("DUMMY_FLT"),
+    m_dec_d0_sigma("DUMMY_FLT"),
+    m_dec_z0_sigma("DUMMY_FLT"),
+    m_dec_z0SinTheta_sigma("DUMMY_FLT"),
+    m_dec_track_pos("DUMMY_FLTv"),
+    m_dec_track_mom("DUMMY_FLTv"),
     m_prefix("btagIp_"),
     m_primaryVertexContainer("PrimaryVertices"),
     m_trackContainer("InDetTrackParticles")
@@ -53,9 +55,11 @@ namespace Analysis {
     // name the decorations
     typedef SG::AuxElement::Decorator< float > AEF;
     m_dec_d0 = AEF(m_prefix + "d0");
-    m_dec_z0 = AEF(m_prefix + "z0SinTheta");
+    m_dec_z0 = AEF(m_prefix + "z0");
+    m_dec_z0SinTheta = AEF(m_prefix + "z0SinTheta");
     m_dec_d0_sigma = AEF(m_prefix + "d0Uncertainty");
-    m_dec_z0_sigma = AEF(m_prefix + "z0SinThetaUncertainty");
+    m_dec_z0_sigma = AEF(m_prefix + "z0Uncertainty");
+    m_dec_z0SinTheta_sigma = AEF(m_prefix + "z0SinThetaUncertainty");
     m_dec_track_pos = Vector3DDecorator(m_prefix + "trackDisplacement");
     m_dec_track_mom = Vector3DDecorator(m_prefix + "trackMomentum");
 
@@ -85,16 +89,20 @@ namespace Analysis {
         m_track_to_vx->estimate(track, primary));
       if (ip) {
         m_dec_d0(*track) = ip->IPd0;
-        m_dec_z0(*track) = ip->IPz0SinTheta;
+        m_dec_z0(*track) = ip->IPz0;
+        m_dec_z0SinTheta(*track) = ip->IPz0SinTheta;
         m_dec_d0_sigma(*track) = ip->sigmad0;
-        m_dec_z0_sigma(*track) = ip->sigmaz0SinTheta;
+        m_dec_z0_sigma(*track) = ip->sigmaz0;
+        m_dec_z0SinTheta_sigma(*track) = ip->sigmaz0SinTheta;
       } else {
         ATH_MSG_WARNING(
           "failed to estimate track impact parameter, using dummy values");
         m_dec_d0(*track) = NAN;
         m_dec_z0(*track) = NAN;
+        m_dec_z0SinTheta(*track) = NAN;
         m_dec_d0_sigma(*track) = NAN;
         m_dec_z0_sigma(*track) = NAN;
+        m_dec_z0SinTheta_sigma(*track) = NAN;
       }
 
       // some other parameters we have go get directly from the
