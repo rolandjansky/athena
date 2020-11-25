@@ -37,9 +37,9 @@ HLT_2e3_etcut_L12EM3:
     3: 12
   stepFeatures:
     0: 94
-    1: 294
-    2: 180
-    3: 80
+    1: 210
+    2: 168
+    3: 72
 HLT_2g10_loose_mu20_L1MU20:
   eventCount: 0
 HLT_2g15_tight_dPhi15_L1DPHI-M70-2EM12I:
@@ -283,7 +283,7 @@ HLT_e12_lhloose_2mu10_L12MU10:
     1: 1
   stepFeatures:
     0: 1
-    1: 14
+    1: 11
 HLT_e140_lhloose_L1EM22VHI:
   eventCount: 0
 HLT_e140_lhloose_nod0_L1EM22VHI:
@@ -359,9 +359,9 @@ HLT_e3_etcut_L1EM3:
     3: 13
   stepFeatures:
     0: 48
-    1: 148
-    2: 91
-    3: 41
+    1: 106
+    2: 85
+    3: 37
 HLT_e5_etcut_L1EM3:
   eventCount: 12
   stepCounts:
@@ -371,21 +371,21 @@ HLT_e5_etcut_L1EM3:
     3: 12
   stepFeatures:
     0: 41
-    1: 135
-    2: 51
-    3: 35
+    1: 96
+    2: 47
+    3: 32
 HLT_e5_lhloose_L1EM3:
   eventCount: 0
   stepCounts:
     0: 10
-    1: 9
-    2: 8
-    3: 8
+    1: 8
+    2: 7
+    3: 7
   stepFeatures:
     0: 19
-    1: 56
-    2: 21
-    3: 14
+    1: 40
+    2: 17
+    3: 11
 HLT_e5_lhloose_noringer_L1EM3:
   eventCount: 0
   stepCounts:
@@ -395,7 +395,7 @@ HLT_e5_lhloose_noringer_L1EM3:
     3: 9
   stepFeatures:
     0: 15
-    1: 49
+    1: 38
     2: 27
     3: 14
 HLT_e5_lhmedium_L1EM3:
@@ -407,9 +407,9 @@ HLT_e5_lhmedium_L1EM3:
     3: 8
   stepFeatures:
     0: 21
-    1: 60
-    2: 23
-    3: 16
+    1: 43
+    2: 19
+    3: 13
 HLT_e5_lhmedium_noringer_L1EM3:
   eventCount: 0
   stepCounts:
@@ -419,33 +419,33 @@ HLT_e5_lhmedium_noringer_L1EM3:
     3: 8
   stepFeatures:
     0: 13
-    1: 47
+    1: 38
     2: 25
     3: 12
 HLT_e5_lhtight_L1EM3:
   eventCount: 0
   stepCounts:
     0: 9
-    1: 8
-    2: 7
-    3: 7
+    1: 7
+    2: 6
+    3: 6
   stepFeatures:
     0: 17
-    1: 46
-    2: 18
-    3: 12
+    1: 33
+    2: 14
+    3: 9
 HLT_e5_lhtight_nod0_L1EM3:
   eventCount: 0
   stepCounts:
     0: 9
-    1: 8
-    2: 7
-    3: 7
+    1: 7
+    2: 6
+    3: 6
   stepFeatures:
     0: 17
-    1: 46
-    2: 18
-    3: 12
+    1: 33
+    2: 14
+    3: 9
 HLT_e5_lhtight_noringer_L1EM3:
   eventCount: 0
   stepCounts:
@@ -455,7 +455,7 @@ HLT_e5_lhtight_noringer_L1EM3:
     3: 8
   stepFeatures:
     0: 13
-    1: 47
+    1: 38
     2: 25
     3: 12
 HLT_e5_lhtight_noringer_nod0_L1EM3:
@@ -467,7 +467,7 @@ HLT_e5_lhtight_noringer_nod0_L1EM3:
     3: 8
   stepFeatures:
     0: 13
-    1: 47
+    1: 38
     2: 25
     3: 12
 HLT_e60_lhmedium_L1EM22VHI:
@@ -483,9 +483,9 @@ HLT_e7_etcut_L1EM3:
     3: 11
   stepFeatures:
     0: 26
-    1: 89
-    2: 26
-    3: 20
+    1: 67
+    2: 24
+    3: 18
 HLT_e7_lhmedium_mu24_L1MU20:
   eventCount: 0
 HLT_eb_low_L1RD2_FILLED:

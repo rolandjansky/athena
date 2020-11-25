@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
 
 # menu components   
@@ -32,8 +31,8 @@ def fastElectronSequence(ConfigFlags):
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
       
-    from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import EgammaFastElectronFex_1
-    theElectronFex= EgammaFastElectronFex_1()
+    from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import EgammaFastElectronFex_Clean
+    theElectronFex= EgammaFastElectronFex_Clean()
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
     theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
