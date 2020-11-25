@@ -49,6 +49,10 @@ public: // Non-static members
    template <typename T, typename TKEY> 
    StatusCode remove(const TKEY& key, bool ignoreIfAbsent=false);
 
+   /// Check if object is already is already in store
+   template <typename T, typename TKEY>
+   bool contains(const TKEY& key);
+
    /// The output MetaData Store
    virtual StoreGateSvc* outputDataStore() const = 0;
 
@@ -140,6 +144,11 @@ StatusCode IMetaDataSvc::remove(const TKEY& key, bool ignoreIfAbsent)
    removeHook(typeid(T));
    if( container and container->erase( currentRangeID() ) )  return StatusCode::SUCCESS;
    return ignoreIfAbsent? StatusCode::SUCCESS : StatusCode::FAILURE;
+}
+
+template <typename T, typename TKEY>
+bool IMetaDataSvc::contains(const TKEY& key) {
+  return outputDataStore()->contains< MetaCont<T> >(key);
 }
 
 #endif
