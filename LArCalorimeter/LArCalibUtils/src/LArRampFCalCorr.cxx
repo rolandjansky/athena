@@ -27,8 +27,6 @@
 #include <cmath>
 using std::pow;
 
-#include <cmath>
-
 LArRampFCalCorr::LArRampFCalCorr(const std::string& name,ISvcLocator* pSvcLocator)
   :AthAlgorithm(name, pSvcLocator),
    m_onlineHelper(0)

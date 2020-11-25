@@ -16,7 +16,6 @@
 #include "TKey.h"
 #include "TTree.h"
 #include "TSystem.h"
-#include "TSystem.h"
 
 LArPulseShape::LArPulseShape(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), m_initialized(false),  m_calo_id(0),  
