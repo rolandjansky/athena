@@ -4,10 +4,10 @@
 
 #undef NDEBUG
 
-//=== AttributeList
-//#include "CoralBase/Attribute.h"
+
 #include "TileCalibBlobObjs/TileCalibDrawerOfc.h"
 
+//=== AttributeList
 #include "CoralBase/Blob.h"
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
