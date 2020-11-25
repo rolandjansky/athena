@@ -23,12 +23,9 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MSSurfaces.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
-#include "MuonCombinedEvent/SegmentTag.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 #include "AthLinks/ElementLink.h"
-#include "xAODMuon/MuonSegmentContainer.h"
-#include "xAODMuon/MuonSegment.h"
 #include "TrkCaloExtension/CaloExtension.h" 
 
 #include <iomanip>
