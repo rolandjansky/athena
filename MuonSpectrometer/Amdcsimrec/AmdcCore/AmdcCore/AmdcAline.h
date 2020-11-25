@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcAline_H
-#define AmdcAline_H
+#ifndef AMDCCORE_AMDCALINE_H
+#define AMDCCORE_AMDCALINE_H
 
-#include "AmdcCore/AmdcsimrecMisc.h"
+#include <iostream>
+#include <string>
 
   /**
    @class AmdcAline

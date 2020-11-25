@@ -10,6 +10,9 @@
 #include "AmdcDb/AmdcDb2Sql.h"
 
 #include "AmdcDb/AmdcDbRecord.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 
 AmdcDb2Sql::AmdcDb2Sql(){ 
 

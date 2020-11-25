@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GetAmdcsimrecVariable_H
-#define GetAmdcsimrecVariable_H
+#ifndef AMDCSTAND_GETAMDCSIMRECVARIABLE_H
+#define AMDCSTAND_GETAMDCSIMRECVARIABLE_H
 
-#include "AmdcStand/AmdcStandMisc.h"
+#include <string>
 
 double       GetAmdcRealVar(std::string VarName, int I1, int I2, int I3);
 int          GetAmdcIntVar (std::string VarName, int I1, int I2, int I3);

@@ -2,10 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcDbSvcMakerFromAmdc_H
-#define AmdcDbSvcMakerFromAmdc_H
+#ifndef AMDCDB_AMDCDBSVCMAKERFROMAMDC_H
+#define AMDCDB_AMDCDBSVCMAKERFROMAMDC_H
 
-#include "AmdcDb/AmdcDbMisc.h"
+#include <string>
+#include <map>
+
 class Amdcsimrec;
 class AmdcDbSvc;
 class AmdcDbRecordset;
@@ -23,7 +25,7 @@ class AmdcDbRecord;
 class AmdcDbSvcMakerFromAmdc{
 public:
     AmdcDbSvcMakerFromAmdc();
-    virtual ~AmdcDbSvcMakerFromAmdc()=default;
+    ~AmdcDbSvcMakerFromAmdc()=default;
 
 public:
 ///////////////////////////////////
