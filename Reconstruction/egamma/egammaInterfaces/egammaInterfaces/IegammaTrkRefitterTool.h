@@ -23,7 +23,6 @@ CREATED:  Jul 2008
 #include "xAODEgamma/ElectronFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "TrkTrack/Track.h"
-#include "TrkParameters/TrackParameters.h"
 #include <memory>
 
 static const InterfaceID IID_egammaTrkRefitterTool("IegammaTrkRefitterTool", 1, 0);

@@ -15,7 +15,6 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
-#include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
