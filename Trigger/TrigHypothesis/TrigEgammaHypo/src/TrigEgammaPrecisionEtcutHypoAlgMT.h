@@ -31,9 +31,7 @@ class TrigEgammaPrecisionEtcutHypoAlgMT : public ::HypoBase {
 
  private: 
   ToolHandleArray< ITrigEgammaPrecisionEtcutHypoTool > m_hypoTools { this, "HypoTools", {}, "Hypo tools" };
-     
-  SG::ReadHandleKey< xAOD::CaloClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in roi" };  
-  
+      
 
 }; 
 

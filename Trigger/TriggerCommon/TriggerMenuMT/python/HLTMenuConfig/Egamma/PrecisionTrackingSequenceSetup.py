@@ -45,7 +45,6 @@ def precisionTrackingMenuSequence(name):
     from TrigEgammaHypo.TrigEgammaPrecisionEtcutHypoTool import TrigEgammaPrecisionEtcutHypoToolFromDict
 
     thePrecisionEtcutHypo = TrigEgammaPrecisionEtcutHypoAlgMT(name+"precisionEtcutHypo")
-    thePrecisionEtcutHypo.CaloClusters = caloclusters
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionEtcutViewsMaker, 

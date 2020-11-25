@@ -18,9 +18,6 @@ TrigEgammaPrecisionEtcutHypoAlgMT::TrigEgammaPrecisionEtcutHypoAlgMT( const std:
 StatusCode TrigEgammaPrecisionEtcutHypoAlgMT::initialize() {
   ATH_CHECK( m_hypoTools.retrieve() );
   
-  ATH_CHECK( m_clustersKey.initialize() );
-  renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
-
   return StatusCode::SUCCESS;
 }
 
@@ -35,19 +32,19 @@ StatusCode TrigEgammaPrecisionEtcutHypoAlgMT::execute( const EventContext& conte
 
   // new output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
-  auto outputDecision = outputHandle.ptr();
+  DecisionContainer* outputDecision = outputHandle.ptr();
 
   // input for decision
   std::vector<ITrigEgammaPrecisionEtcutHypoTool::ClusterInfo> toolInput;
 
   // loop over previous decisions
   size_t counter=0;
-  for ( auto previousDecision: *previousDecisionsHandle ) {
+  for ( const Decision* previousDecision: *previousDecisionsHandle ) {
   
     const auto featureEL = findLink<xAOD::CaloClusterContainer>( previousDecision, featureString() );
     ATH_CHECK(featureEL.isValid());
     auto d = newDecisionIn( outputDecision, name() );
-    d->setObjectLink<>( featureString(),  featureEL.link );
+    d->setObjectLink<xAOD::CaloClusterContainer>( featureString(),  featureEL.link );
     
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
     toolInput.emplace_back( d, previousDecision );   
