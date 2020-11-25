@@ -873,8 +873,6 @@ def CaloMuonScoreToolCfg(flags, name='CaloMuonScoreTool', **kwargs ):
     from TrackToCalo.TrackToCaloConfig import ParticleCaloCellAssociationToolCfg
     result = ParticleCaloCellAssociationToolCfg(flags)
     kwargs.setdefault("ParticleCaloCellAssociationTool", result.popPrivateTools())
-    caloMuonScoreSvc = CompFactory.CaloMuonScoreONNXRuntimeSvc(name="CaloMuonScoreONNXRuntimeSvc")
-    result.addService(caloMuonScoreSvc)
     tool = CompFactory.CaloMuonScoreTool(name, **kwargs )
     result.setPrivateTools(tool)
     return result

@@ -21,10 +21,6 @@
 	calorimeter cell energy deposits using a convolutional 
 	neural network.
 
-@section CaloTrkMuIdTools_CaloMuonScoreONNXRuntimeSvcIntroduction CaloMuonScoreONNXRuntimeSvc
-	Service that maintains a ONNX session which holds 
-	a tensorflow model and can perform inference on it.
-
 @section CaloTrkMuIdTools_CaloMuonTagIntroduction CaloMuonTag
 	Muon tagger using calorimeter deposits.
 	A track is tagged when deposits above the noise treshold are found in the 
