@@ -11,7 +11,7 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   ElectronPhotonSelectorTools/*.h Root/*.cxx
   PUBLIC_HEADERS ElectronPhotonSelectorTools
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking
+  LINK_LIBRARIES EgammaAnalysisInterfacesLib AsgTools xAODEgamma  xAODTracking MVAUtils
   xAODHIEvent PATCoreAcceptLib AsgDataHandlesLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib FourMomUtils xAODCaloEvent
   xAODEventInfo PathResolver )
