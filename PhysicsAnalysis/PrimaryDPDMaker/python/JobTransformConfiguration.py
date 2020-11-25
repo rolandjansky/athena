@@ -7,8 +7,6 @@
 # Creation: David Cote (DESY), August 2008 #
 ############################################
 
-from __future__ import print_function
-
 __doc__ = """Set of functions to configure DPD from PATJobTransforms"""
     
 def ApplyPrescale(arg):
@@ -18,13 +16,13 @@ def ApplyPrescale(arg):
             name_val=arg[4:]
             try:
                 i=name_val.rindex('_')
-            except:
+            except Exception:
                 raise SyntaxError("ApplyPrescale arg needs to have the form 'SET_StreamName_val', arg= "+arg)
             name=name_val[:i]
             val=name_val[i+1:]
             try:
                 prescale=int(val)
-            except:
+            except Exception:
                 raise TypeError("ApplyPrescale val needs to be an integer: val= "+val)
         else:
             raise SyntaxError("ApplyPrescale arg needs to start with 'SET_'. arg= "+arg)
