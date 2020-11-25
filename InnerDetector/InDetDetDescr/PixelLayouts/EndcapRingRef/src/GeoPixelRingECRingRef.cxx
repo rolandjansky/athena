@@ -379,7 +379,16 @@ std::pair<GeoFullPhysVol*,GeoFullPhysVol*> GeoPixelRingECRingRef::BuildSplit(con
   // the startAngle is the phi of the first element in the ring (defined as offset in the XML)
   double phiHalfRingTwdsStart =  (m_mode==NONE) ? startAngle : startAngle - phiAtBottomCorner;
   double phiHalfRingAwayStart =  phiHalfRingTwdsStart + CLHEP::pi*CLHEP::rad;  
-        
+  
+  // increase a bit the extension and the starting angles to account for dead edges
+  // only for logical volumes
+  if (buildDeadEdges) {
+    // adding half a degree
+    ExtensionPhi+=0.02;
+    phiHalfRingTwdsStart-=0.01;
+    phiHalfRingAwayStart-=0.01;
+  }
+  
   // to accomodate for services, this half-ring will get a z-shift toward beam-spot  
   const GeoTubs* ringTubsTwdBS = new GeoTubs(m_ringRMin,m_ringRMax,halflength, phiHalfRingTwdsStart,ExtensionPhi);
   // to accomodate for services, this half-ring will get a z-shift away from beam-spot
