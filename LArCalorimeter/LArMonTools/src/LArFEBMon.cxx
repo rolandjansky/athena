@@ -159,10 +159,10 @@ StatusCode LArFEBMon::bookHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
   
   //  if(isNewRun){
-    MonGroup summaryGroupW( this, "/LAr/FEBMon/Summary", run, ATTRIB_MANAGED, "", "weightedEff" );
-    MonGroup summaryGroup( this, "/LAr/FEBMon/Summary", run, ATTRIB_MANAGED );
-    MonGroup perPartitionDataGroup( this, "/LAr/FEBMon/perPartitionData", run, ATTRIB_MANAGED );
-    MonGroup perPartitionDataGroupLowerLB( this, "/LAr/FEBMon/perPartitionData", run, ATTRIB_MANAGED, "", "lowerLB" );
+    MonGroup summaryGroupW( this, "/LAr/FEBMonOldTool/Summary", run, ATTRIB_MANAGED, "", "weightedEff" );
+    MonGroup summaryGroup( this, "/LAr/FEBMonOldTool/Summary", run, ATTRIB_MANAGED );
+    MonGroup perPartitionDataGroup( this, "/LAr/FEBMonOldTool/perPartitionData", run, ATTRIB_MANAGED );
+    MonGroup perPartitionDataGroupLowerLB( this, "/LAr/FEBMonOldTool/perPartitionData", run, ATTRIB_MANAGED, "", "lowerLB" );
     // General summary histos
     m_rejectedHisto = TH1F_LW::create("EventsRejected","Nb of events rejected (at least one error)",3,0.5,3.5);
     (m_rejectedHisto->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
@@ -170,7 +170,7 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_rejectedHisto->GetXaxis())->SetBinLabel(3,"Accepted");
     //sc &= summaryGroup.regHist(m_rejectedHisto);
     
-    sc = regHist(m_rejectedHisto,  "/LAr/FEBMon/Summary", run);
+    sc = regHist(m_rejectedHisto,  "/LAr/FEBMonOldTool/Summary", run);
     
     m_rejectedYield = TH1F_LW::create("EventsRejectedYield","Data corruption yield",3,0.5,3.5);
     (m_rejectedYield->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
@@ -904,10 +904,10 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
 {
   ATH_MSG_DEBUG( "In bookNewPartitionSumm ->" << summName );
   
-  MonGroup perPartitionGroup( this, "/LAr/FEBMon/perPartition", run, ATTRIB_MANAGED );
-  MonGroup perPartitionYieldGroup( this, "/LAr/FEBMon/perPartition", run, ATTRIB_MANAGED, "" , "weightedEff" );
-  MonGroup perPartitionDataGroup( this, "/LAr/FEBMon/perPartitionData", run, ATTRIB_MANAGED );
-  MonGroup perPartitionMiscGroup( this, "/LAr/FEBMon/perPartitionMisc", run, ATTRIB_MANAGED );
+  MonGroup perPartitionGroup( this, "/LAr/FEBMonOldTool/perPartition", run, ATTRIB_MANAGED );
+  MonGroup perPartitionYieldGroup( this, "/LAr/FEBMonOldTool/perPartition", run, ATTRIB_MANAGED, "" , "weightedEff" );
+  MonGroup perPartitionDataGroup( this, "/LAr/FEBMonOldTool/perPartitionData", run, ATTRIB_MANAGED );
+  MonGroup perPartitionMiscGroup( this, "/LAr/FEBMonOldTool/perPartitionMisc", run, ATTRIB_MANAGED );
   
   int nbOfFT = 25;
   int nbOfSlot = 15;
@@ -1188,7 +1188,7 @@ LArFEBMon::fillFebInError(const summaryPartition& summ,int errorType,int barrel_
   
   //  TH2I* tempHisto = TH2I_LW::create(*summ.parity);
   
-  std::string hName = "/LAr/FEBMon/perPartition/FebInErrors/" + summName;
+  std::string hName = "/LAr/FEBMonOldTool/perPartition/FebInErrors/" + summName;
   
   MonGroup generalGroup( this, hName.c_str(), run, ATTRIB_MANAGED);
   

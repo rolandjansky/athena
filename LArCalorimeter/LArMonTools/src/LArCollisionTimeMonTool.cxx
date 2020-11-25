@@ -58,7 +58,7 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
   declareProperty( "timeDiffCut"	,      m_timeCut = 5.0 );
   declareProperty( "nCells"		,      m_minCells = 2 );
   declareProperty( "eWeighted"		,      m_eWeighted = true );
-  declareProperty( "histPath"           ,      m_histPath="LArCollisionTime"); 
+  declareProperty( "histPath"           ,      m_histPath="LArCollisionTimeOldTool"); 
   declareProperty( "BunchCrossingTool"  ,      m_bunchGroupTool); 
   declareProperty( "TrainFrontDistance" ,      m_distance = 30); 
   declareProperty( "IsOnline"           ,      m_IsOnline=false);
