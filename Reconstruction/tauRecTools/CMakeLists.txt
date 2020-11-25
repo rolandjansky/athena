@@ -41,8 +41,8 @@ if( XAOD_STANDALONE OR XAOD_ANALYSIS )
       ${FASTJET_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
-      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
-      xAODTracking xAODParticleEvent AsgDataHandlesLib  MVAUtils
+      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODTau
+      xAODTracking xAODParticleEvent AsgDataHandlesLib MVAUtils
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet
       PathResolver )
 else()
@@ -53,10 +53,10 @@ else()
       ${FASTJET_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${FASTJETCONTRIB_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
-      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODEgamma xAODTau
+      AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODTau
       xAODTracking xAODParticleEvent CaloUtilsLib Particle AsgDataHandlesLib MVAUtils
       PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet BeamSpotConditionsData 
-      PathResolver ElectronPhotonSelectorToolsLib )
+      PathResolver )
 endif()
 
 if( NOT XAOD_STANDALONE )
@@ -65,15 +65,15 @@ if( NOT XAOD_STANDALONE )
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} xAODTau
-         xAODTracking xAODEgamma AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib BeamSpotConditionsData GaudiKernel tauRecToolsLib )
+         xAODTracking AthContainers FourMomUtils xAODCaloEvent xAODJet 
+         xAODPFlow xAODParticleEvent MVAUtils BeamSpotConditionsData GaudiKernel tauRecToolsLib )
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} CaloUtilsLib
-         xAODTau xAODTracking xAODEgamma AthContainers FourMomUtils NavFourMom
-         xAODCaloEvent xAODJet xAODPFlow xAODParticleEvent MVAUtils ElectronPhotonSelectorToolsLib GaudiKernel
+         xAODTau xAODTracking AthContainers FourMomUtils NavFourMom
+         xAODCaloEvent xAODJet xAODPFlow xAODParticleEvent MVAUtils GaudiKernel
          InDetRecToolInterfaces JetEDM Particle ITrackToVertex
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
