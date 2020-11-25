@@ -97,7 +97,7 @@
     SG::WriteDecorHandleKey<xAOD::JetContainer> m_fjvtDecKey{this, "FJVTName", "fJvt", "Decoration key for fJvt"};
     
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerName{this, "VertexContainerName", "PrimaryVertices", "SG key for vertex container"};
-    SG::ReadHandleKey<xAOD::MissingETContainer> m_trkMETName{this, "Met_TrackName", "Met_Track", "SG key for MET track container"};
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_trkMETName{this, "Met_TrackName", "MET_Track", "SG key for MET track container"};
 
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_widthKey{this, "WidthName", "Width", "SG key for jet width"};
     SG::ReadDecorHandleKey<xAOD::JetContainer> m_jvtMomentKey{this, "JvtMomentName", "Jvt", "JVT moment name"};
