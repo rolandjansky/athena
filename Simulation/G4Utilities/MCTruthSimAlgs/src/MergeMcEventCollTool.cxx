@@ -93,8 +93,8 @@ namespace {
     typedef std::map<IndexKey, int> PileUpBackgroundMap;
     GenEventSorter(const PileUpBackgroundMap& backgroundClassificationMap) : m_backgroundClassificationMap(backgroundClassificationMap) {}
     bool operator() (const HepMC::GenEvent *pGenEvent1, const HepMC::GenEvent *pGenEvent2) {
-      const int signal_process_id1(pGenEvent1->signal_process_id()), event_number1(pGenEvent1->event_number()), separator_hack1(pGenEvent1->mpi());
-      const int signal_process_id2(pGenEvent2->signal_process_id()), event_number2(pGenEvent2->event_number()), separator_hack2(pGenEvent2->mpi());
+      const int signal_process_id1(HepMC::signal_process_id(pGenEvent1)), event_number1(pGenEvent1->event_number()), separator_hack1(HepMC::mpi(pGenEvent1));
+      const int signal_process_id2(HepMC::signal_process_id(pGenEvent2)), event_number2(pGenEvent2->event_number()), separator_hack2(HepMC::mpi(pGenEvent2));
       const IndexKey key1(makekey(signal_process_id1, event_number1,separator_hack1));
       const IndexKey key2(makekey(signal_process_id2, event_number2,separator_hack2));
       const PileUpBackgroundMap::const_iterator event1=m_backgroundClassificationMap.find(key1);
@@ -309,7 +309,7 @@ void MergeMcEventCollTool::printDetailsOfMergedMcEventCollection() const {
     ATH_MSG_INFO ( "INTIME("<<int(INTIME)<<"), OUTOFTIME("<<int(OUTOFTIME)<<"), RESTOFMB("<<int(RESTOFMB)<<"), CAVERN("<<int(CAVERN)<<"), NOPUTYPE("<<int(NOPUTYPE)<<")" );
     ATH_MSG_INFO ( "Current OUTPUT GenEvent: " );
     while(outputEventItr!=endOfEvents) {
-      const int signal_process_id((*outputEventItr)->signal_process_id()), event_number((*outputEventItr)->event_number()), separator_hack((*outputEventItr)->mpi());
+      const int signal_process_id(HepMC::signal_process_id((*outputEventItr))), event_number((*outputEventItr)->event_number()), separator_hack(HepMC::mpi((*outputEventItr)));
       const IndexKey key(makekey(signal_process_id,event_number,separator_hack));
       const PileUpBackgroundMap::const_iterator event(m_backgroundClassificationMap.find(key));
       ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<<", category="<<event->second<<", number of Vertices="<<(*outputEventItr)->vertices_size() );
@@ -327,7 +327,7 @@ StatusCode MergeMcEventCollTool::processFirstSubEvent(const McEventCollection *p
   m_signal_event_number = m_pOvrlMcEvColl->at(0)->event_number();
   m_pOvrlMcEvColl->at(0)->set_event_number(-2); //Set this to zero for the purposes of sorting. (restore after sorting).
 
-  updateClassificationMap(m_pOvrlMcEvColl->at(0)->signal_process_id(), m_pOvrlMcEvColl->at(0)->event_number(), 0,- 1, true);
+  updateClassificationMap(HepMC::signal_process_id(m_pOvrlMcEvColl->at(0)), m_pOvrlMcEvColl->at(0)->event_number(), 0,- 1, true);
   m_newevent=false; //Now the McEventCollection and classification map are not empty this should be set to false.
   ATH_MSG_DEBUG( "execute: copied original event McEventCollection" );
   const unsigned int nBackgroundMcEventCollections(m_nInputMcEventColls-1); // -1 for original event
@@ -356,7 +356,7 @@ StatusCode MergeMcEventCollTool::processFirstSubEvent(const McEventCollection *p
     //if a type is enabled leave room to insert the events of that type, otherwise place separator immediately after
     currentMcEventCollectionIndex += 1;
     m_pOvrlMcEvColl->at(currentMcEventCollectionIndex-1) = new HepMC::GenEvent(0, -1); //pid 0 & event_number -1 flags this GenEvent as SEPARATOR
-    m_pOvrlMcEvColl->at(currentMcEventCollectionIndex-1)->set_mpi(type);
+    HepMC::set_mpi(m_pOvrlMcEvColl->at(currentMcEventCollectionIndex-1),type);
     updateClassificationMap(0, -1, type, type, true);
     ATH_MSG_DEBUG ( "Placing Separator for Type: "<<type<<" at Posistion: " << currentMcEventCollectionIndex-1 );
   }
@@ -437,7 +437,7 @@ StatusCode MergeMcEventCollTool::processTruthFilteredEvent(const McEventCollecti
   if ( fabs(currentEventTime)<51.0 ) {
     currentGenEventClassification = ( fabs(currentEventTime)<1.0 ) ? INTIME : OUTOFTIME;
   }
-  updateClassificationMap(currentBackgroundEvent.signal_process_id(),
+  updateClassificationMap(HepMC::signal_process_id(currentBackgroundEvent),
                           currentBackgroundEvent.event_number(),
                           0, currentGenEventClassification, true);
   return StatusCode::SUCCESS;
@@ -598,7 +598,7 @@ StatusCode MergeMcEventCollTool::compressOutputMcEventCollection() {
   if (! m_pOvrlMcEvColl->empty()) {
     DataVector<HepMC::GenEvent>::iterator outputEventItr(m_pOvrlMcEvColl->begin());
     while(outputEventItr!=m_pOvrlMcEvColl->end()) { //as end may change
-      const int signal_process_id((*outputEventItr)->signal_process_id()),event_number((*outputEventItr)->event_number());
+      const int signal_process_id(HepMC::signal_process_id((*outputEventItr))),event_number((*outputEventItr)->event_number());
       //Check for separators
       if(signal_process_id==0 && event_number==-1) {
         ++outputEventItr;

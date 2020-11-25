@@ -635,7 +635,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                   if (matchedPartIter == truthData.end()) {
                     // did not find particle in list of selected particles
                     truthIndex = -1;
-                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Matched particle with barcode " << genParticle->barcode() << " is not in list of selected particles" << endmsg;
+                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Matched particle with barcode " << HepMC::barcode(genParticle) << " is not in list of selected particles" << endmsg;
                     if ( genParticle->production_vertex() ) {
                       newTrackPerigee = m_truthToTrack->makePerigeeParameters( genParticle );
                       generatedTrackPerigee = newTrackPerigee;

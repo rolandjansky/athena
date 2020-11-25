@@ -67,7 +67,7 @@ StatusCode PileUpTruthExample::execute() {
        double yi = (prodVtx->position()).y();
        double zi = (prodVtx->position()).z();
        ATH_MSG_INFO ("pileup vertex is " << xi << " " << yi << " " << zi
-                     << " process ID = " << (*ibeg)->signal_process_id()
+                     << " process ID = " <<  HepMC::signal_process_id((*ibeg))
                      << " McEvent index = " << (*ibeg)->event_number());
     }
   }

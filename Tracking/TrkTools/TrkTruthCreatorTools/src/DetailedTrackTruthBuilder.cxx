@@ -420,7 +420,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink(ExtendedEventIndex(s->first, proxy).makeLink((*ppart)->barcode(), proxy)));
+      traj.push_back(HepMcParticleLink(ExtendedEventIndex(s->first, proxy).makeLink(HepMC::barcode(*ppart), proxy)));
     }
 
     // Count PRDs on the TruthTrajectory

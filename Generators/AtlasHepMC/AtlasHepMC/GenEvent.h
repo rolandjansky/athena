@@ -63,6 +63,14 @@ if (id>0&&id<=(int)particles.size()) return particles[id-1];
 return  HepMC3::GenParticlePtr(); 
 }
 
+inline int mpi(const GenEvent evt) {
+std::shared_ptr<HepMC3::IntAttribute> A_mpi=evt.attribute<HepMC3::IntAttribute>("mpi");
+ return A_mpi?(A_mpi->value()):0;
+}
+inline int mpi(const GenEvent* evt) {
+std::shared_ptr<HepMC3::IntAttribute> A_mpi=evt->attribute<HepMC3::IntAttribute>("mpi");
+ return A_mpi?(A_mpi->value()):0;
+}
 
 inline int signal_process_id(const GenEvent evt) {
 std::shared_ptr<HepMC3::IntAttribute> A_signal_process_id=evt.attribute<HepMC3::IntAttribute>("signal_process_id");
@@ -74,6 +82,8 @@ std::shared_ptr<HepMC3::IntAttribute> A_signal_process_id=evt->attribute<HepMC3:
 }
 inline void set_signal_process_id(GenEvent* e, const int i=0) {     std::shared_ptr<HepMC3::IntAttribute> signal_process_id = std::make_shared<HepMC3::IntAttribute>(i);
                                                                     e->add_attribute("signal_process_id",signal_process_id);  }
+inline void set_mpi(GenEvent* e, const int i=0) {     std::shared_ptr<HepMC3::IntAttribute> mpi = std::make_shared<HepMC3::IntAttribute>(i);
+                                                                    e->add_attribute("mpi",mpi);  }
 inline void set_random_states(GenEvent* e, std::vector<long int>& a)  { 
  e->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(a));
 }
@@ -99,6 +109,12 @@ inline GenEvent* newGenEvent(const int a, const int b ){ return new GenEvent(a,b
 inline GenVertex* signal_process_vertex(const GenEvent* e) { return e->signal_process_vertex(); }
 inline GenVertex* barcode_to_vertex(const GenEvent* e, int id ){return  e->barcode_to_vertex(id);}
 inline GenParticle* barcode_to_particle(const GenEvent* e, int id ){return  e->barcode_to_particle(id);}
+inline int mpi(const GenEvent e) {
+    return e.mpi();
+}
+inline int mpi(const GenEvent* e) {
+    return e->mpi();
+}
 inline int signal_process_id(const GenEvent e) {
     return e.signal_process_id();
 }
@@ -107,6 +123,9 @@ inline int signal_process_id(const GenEvent* e) {
 }
 inline void set_signal_process_id(GenEvent* e, const int i) {
     e->set_signal_process_id(i);
+}
+inline void set_mpi(GenEvent* e, const int i) {
+    e->set_mpi(i);
 }
 template <class T> void set_random_states(GenEvent* e, std::vector<T> a) {
     e->set_random_states(a);

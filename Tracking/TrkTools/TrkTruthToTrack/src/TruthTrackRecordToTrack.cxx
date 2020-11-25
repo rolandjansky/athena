@@ -90,13 +90,13 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
           
-    if ( (*record).GetBarCode() == part->barcode() ) {
+    if ( (*record).GetBarCode() == HepMC::barcode(part) ) {
 
       id = (*record).GetPDGCode();
       pd = m_particleDataTable->particle(std::abs(id));
       if (!pd) {
         ATH_MSG_WARNING ("found barcode but could not digest pdg_id. " <<
-                         part->barcode() << " , " << id);
+                         HepMC::barcode(part) << " , " << id);
         continue;
       }
 

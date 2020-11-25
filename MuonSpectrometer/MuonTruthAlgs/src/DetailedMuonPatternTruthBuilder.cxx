@@ -415,7 +415,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     const HepMC::GenParticle *current = link.cptr();
     
     do {
-      HepMcParticleLink curlink(current->barcode(), eventIndex);
+      HepMcParticleLink curlink(HepMC::barcode(current), eventIndex);
 
       // remove the current particle from the list of particles to consider (if it is still there)
       seeds.erase(curlink);
@@ -477,7 +477,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex()));
+      traj.push_back(HepMcParticleLink(HepMC::barcode(*ppart), s->first.eventIndex()));
     }
 
     // Count PRDs on the TruthTrajectory
@@ -966,7 +966,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex()));
+      traj.push_back(HepMcParticleLink(HepMC::barcode(*ppart), s->first.eventIndex()));
     }
 
     // Count PRDs on the TruthTrajectory
@@ -1214,7 +1214,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex()));
+      traj.push_back(HepMcParticleLink(HepMC::barcode(*ppart), s->first.eventIndex()));
     }
 
     // Count PRDs on the TruthTrajectory

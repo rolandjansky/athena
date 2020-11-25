@@ -710,9 +710,9 @@ namespace Muon {
     bool foundBC = false;
     for( auto pit: traj){
       if (!pit) continue;
-      if (pit->barcode()==barcodeIn || foundBC){
+      if (HepMC::barcode(pit)==barcodeIn || foundBC){
         foundBC = true;
-        ATH_MSG_DEBUG( "getMother() : pdg = " << pit->pdg_id() << " barcode = " << pit->barcode () );
+        ATH_MSG_DEBUG( "getMother() : pdg = " << pit->pdg_id() << " barcode = " << HepMC::barcode (pit) );
         if( pit->pdg_id() != pdgFinal ) { // the first case a track had a different flavour
           if (pit->pdg_id()==pdgFinal) ATH_MSG_ERROR( "Wrong pdgId association in getMother() " );
           return pit;
@@ -727,7 +727,7 @@ namespace Muon {
     bool foundBC = false;
     for(auto pit: traj){
       if (!pit) continue;
-      if (pit->barcode()==barcodeIn || foundBC){
+      if (HepMC::barcode(pit)==barcodeIn || foundBC){
         foundBC = true;
         if( pit->status() > 1 ) {//first non final state particle
           return pit;
@@ -747,7 +747,7 @@ namespace Muon {
     double ePrev = 0.;
     const HepMC::GenParticle* theFirst=nullptr;
     for(auto pit=traj.begin();pit!=traj.end();++pit){
-      if ((*pit)->barcode()==barcodeIn || foundBC){
+      if (HepMC::barcode(*pit)==barcodeIn || foundBC){
         if (!foundBC){
           foundBC = true;
           theFirst = *pit;

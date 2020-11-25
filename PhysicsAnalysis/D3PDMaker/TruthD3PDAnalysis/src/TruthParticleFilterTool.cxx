@@ -347,14 +347,14 @@ bool TruthParticleFilterTool::isBSM(const HepMC::GenParticle* part) const{
 
   int pdg = part->pdg_id();
 
-  if ( (31<abs(pdg) && abs(pdg)<38) || // BSM Higgs / W' / Z' / etc
-       abs(pdg)==39 ||
-       abs(pdg)==41 ||
-       abs(pdg)==42 ||
-       (1000000<abs(pdg) && abs(pdg)<1000040) || // left-handed SUSY
-       (2000000<abs(pdg) && abs(pdg)<2000040) || // right-handed SUSY
-       abs(pdg)==7 || abs(pdg)==8 || // 4th Generation
-       (abs(pdg)>=9000001 && abs(pdg)<=9000006) ) // Monotop from MadGraph
+  if ( (31<std::abs(pdg) && std::abs(pdg)<38) || // BSM Higgs / W' / Z' / etc
+       std::abs(pdg)==39 ||
+       std::abs(pdg)==41 ||
+       std::abs(pdg)==42 ||
+       (1000000<abs(pdg) && std::abs(pdg)<1000040) || // left-handed SUSY
+       (2000000<abs(pdg) && std::abs(pdg)<2000040) || // right-handed SUSY
+       std::abs(pdg)==7 || std::abs(pdg)==8 || // 4th Generation
+       (std::abs(pdg)>=9000001 && std::abs(pdg)<=9000006) ) // Monotop from MadGraph
     return true;
 
   return false;
@@ -364,20 +364,20 @@ bool TruthParticleFilterTool::isBoson(const HepMC::GenParticle* part) const{
 
   int pdg = part->pdg_id();
 
-  if(abs(pdg) != 22  &&
-     abs(pdg) != 23 &&
-     abs(pdg) != 24 &&
-     abs(pdg) != 25 ) return false;
+  if(std::abs(pdg) != 22  &&
+     std::abs(pdg) != 23 &&
+     std::abs(pdg) != 24 &&
+     std::abs(pdg) != 25 ) return false;
 
-  if(abs(pdg)==22 && part->momentum().perp()<3.*GeV) return false;
+  if(std::abs(pdg)==22 && part->momentum().perp()<3.*GeV) return false;
 
   return true;
 }
 
 bool TruthParticleFilterTool::isFsrFromLepton(const HepMC::GenParticle* part) const {
   int pdg = part->pdg_id();
-  if(abs(pdg) != 22) return false; // photon
-  if(part->barcode() >=  200000) return false; // Geant photon
+  if(std::abs(pdg) != 22) return false; // photon
+  if(HepMC::barcode(part) >=  200000) return false; // Geant photon
 
   HepMC::GenVertex* prod = part->production_vertex();
   if(!prod) return false; // no parent.
