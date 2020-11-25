@@ -19,7 +19,8 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonDigitContainer
                           MuonSpectrometer/MuonIdHelpers
                           Trigger/TrigT1/TrigT1Interfaces
-                          Trigger/TrigT1/TrigT1RPChardware )
+                          Trigger/TrigT1/TrigT1RPChardware
+			  MuonSpectrometer/MuonRDO)
 
 # External dependencies:
 find_package( HepMC )
@@ -29,7 +30,7 @@ atlas_add_component( TrigT1RPCsteering
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel RPCcablingInterfaceLib MuonReadoutGeometry TrigT1RPClogicLib GeneratorObjects MuonDigitContainer MuonIdHelpersLib TrigT1Interfaces TrigT1RPChardwareLib RPChardware )
+                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps StoreGateLib SGtests Identifier GaudiKernel RPCcablingInterfaceLib MuonReadoutGeometry TrigT1RPClogicLib GeneratorObjects MuonDigitContainer MuonIdHelpersLib MuonRDO TrigT1Interfaces TrigT1RPChardwareLib RPChardware )
 
 # Install files from the package:
 atlas_install_headers( TrigT1RPCsteering )
