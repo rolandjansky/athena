@@ -42,4 +42,4 @@ ArtJobName=$2
 
 
 art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
-echo  "art-result: $? art-compare"
+echo  "art-result: $? regression"
