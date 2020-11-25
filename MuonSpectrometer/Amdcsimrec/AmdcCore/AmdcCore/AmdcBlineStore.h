@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcBlineStore_H
-#define AmdcBlineStore_H
-
-#include "AmdcCore/AmdcsimrecMisc.h"
+#ifndef AMDCCORE_AMDCBLINESTORE_H
+#define AMDCCORE_AMDCBLINESTORE_H
 
 #include "AmdcCore/AmdcBline.h"
+#include <vector>
+#include <iostream>
 
   /**
    @class AmdcBlineStore
@@ -21,7 +21,7 @@
 class AmdcBlineStore{
 public:
     AmdcBlineStore();
-    virtual ~AmdcBlineStore();
+    ~AmdcBlineStore();
 
 public:
 ///////////////////////////////////

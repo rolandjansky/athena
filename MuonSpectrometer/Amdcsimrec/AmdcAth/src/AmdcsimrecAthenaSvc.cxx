@@ -36,6 +36,8 @@
 #include "AmdcStand/bigamdcdump.h"
 #include "AmdcStand/loadamdcagddfromstring.h"
 
+#include <fstream>
+
 /// Standard Constructor
 AmdcsimrecAthenaSvc::AmdcsimrecAthenaSvc(const std::string& name,ISvcLocator* svc):
   AthService(name,svc),
@@ -59,9 +61,6 @@ AmdcsimrecAthenaSvc::AmdcsimrecAthenaSvc(const std::string& name,ISvcLocator* sv
 
    m_AmdcString = "" ;
    m_AgddString = "" ;
-
-   m_IsInitialized = false;
-   m_IsUsable      = false;
 
    m_AmdcABlinesStamp = 1;
    
@@ -208,9 +207,6 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
       ATH_MSG_DEBUG( "=>Strings come from Ascii file and A/B line stores from cool<=" ) ;
     }
 
-    m_IsInitialized = true ;
-    m_IsUsable      = true ;
-
     ATH_CHECK(initializeAscii());
     ATH_MSG_DEBUG( "Done: initializeAscii " ) ;
     
@@ -225,9 +221,6 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
   if ( (m_NameOfTheSource=="POOL" || m_NameOfTheSource=="GEOMODEL" ) && m_AlignmentSource == 3 ){
     ATH_MSG_DEBUG( "=>Strings come from Geomodel and A/B line stores as well<=" ) ;
     
-    m_IsInitialized = true ;
-    m_IsUsable      = true ;
-    
     ATH_CHECK(initializeFromGeomodel());
     ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
   }
@@ -235,8 +228,6 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
 //Strings come from Geomodel and A/B line stores from cool
    if ( (m_NameOfTheSource=="POOL" || m_NameOfTheSource=="GEOMODEL" ) && m_AlignmentSource == 2 ){
     ATH_MSG_DEBUG( "=>Strings come from Geomodel and A/B line stores from cool<=" ) ;
-    m_IsInitialized = true ;
-    m_IsUsable      = true ;
 
     ATH_CHECK(initializeFromGeomodel());
     ATH_MSG_DEBUG( "Done: initializeFromGeomodel " ) ;
@@ -256,9 +247,6 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
     else{
       ATH_MSG_DEBUG( "=>Strings come from Oracle and A/B line stores from cool<=" ) ;
     }
-
-    m_IsInitialized = true ;
-    m_IsUsable      = true ;
 
     ATH_CHECK(initializeFromOracleNode());
     ATH_MSG_DEBUG( "Done: initializeFromOracleNode " ) ;
@@ -291,14 +279,6 @@ StatusCode AmdcsimrecAthenaSvc::queryInterface( const InterfaceID& riid, void** 
   return StatusCode::SUCCESS;
 }
 
-bool AmdcsimrecAthenaSvc::UsableSvc()      {return m_IsUsable     ;}
-bool AmdcsimrecAthenaSvc::InitializedSvc() {return m_IsInitialized;}
-StatusCode AmdcsimrecAthenaSvc::UpdatedSvc(IOVSVC_CALLBACK_ARGS)
-{
- ATH_MSG_DEBUG("----> UpdatedSvc is called" ) ; 
- return StatusCode::SUCCESS;
-}
- 
 Amdcsimrec* AmdcsimrecAthenaSvc::GetAmdcsimrec(){return p_Amdcsimrec;}
 
 std::string AmdcsimrecAthenaSvc::GetNameOfTheSource(){return m_NameOfTheSource;}

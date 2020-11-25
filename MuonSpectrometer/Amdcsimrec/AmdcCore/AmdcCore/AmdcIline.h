@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcIline_H
-#define AmdcIline_H
+#ifndef AMDCCORE_AMDCILINE_H
+#define AMDCCORE_AMDCILINE_H
 
-#include "AmdcCore/AmdcsimrecMisc.h"
+#include <string>
+#include <iostream>
 
   /**
    @class AmdcIline
@@ -19,7 +20,7 @@
 class AmdcIline{
 public:
    AmdcIline();
-   virtual ~AmdcIline();
+   ~AmdcIline();
 
 public:
 ///////////////////////////////////
