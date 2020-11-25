@@ -25,14 +25,25 @@ def GetDecoratePromptLeptonAlgs(name="", addSpectators=False):
     algs  = []
 
     if name == "" or name == 'Electrons':
-        algs += [DecoratePromptLepton('PromptLeptonIso',  'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecoratePromptLepton('PromptLeptonVeto', 'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecorateLowPtPromptLepton('LowPtPromptLeptonVeto', 'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
 
     if name == "" or name == 'Muons':
-        algs += [DecoratePromptLepton('PromptLeptonIso',  'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecoratePromptLepton('PromptLeptonVeto', 'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
         algs += [DecorateLowPtPromptLepton('LowPtPromptLeptonVeto', 'Muons', 'AntiKt4PV0TrackJets', addSpectators)]    
+
+    return algs
+
+#------------------------------------------------------------------------------
+def GetDecoratePromptLeptonIsoAlgs(name="", addSpectators=False):
+
+    algs  = []
+
+    if name == "" or name == 'Electrons':
+        algs += [DecoratePromptLepton('PromptLeptonIso',  'Electrons', 'AntiKt4PV0TrackJets', addSpectators)]
+
+    if name == "" or name == 'Muons':
+        algs += [DecoratePromptLepton('PromptLeptonIso',  'Muons', 'AntiKt4PV0TrackJets', addSpectators)]
 
     return algs
 
