@@ -203,40 +203,40 @@ LArDigitMon::bookHistograms()
     m_eventsCounter=0;
     
     /**Book Histograms of Barrel.*/
-    MonGroup GroupBarrelShift( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
-    MonGroup GroupBarrelExpert( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED );
-    MonGroup GroupBarrelExpertEff( this, "/LAr/Digits/Barrel", run, ATTRIB_MANAGED ,"","weightedEff");
+    MonGroup GroupBarrelShift( this, "/LAr/DigitsOldTool/Barrel", run, ATTRIB_MANAGED );
+    MonGroup GroupBarrelExpert( this, "/LAr/DigitsOldTool/Barrel", run, ATTRIB_MANAGED );
+    MonGroup GroupBarrelExpertEff( this, "/LAr/DigitsOldTool/Barrel", run, ATTRIB_MANAGED ,"","weightedEff");
     
     LArDigitMon::BookPartitions(m_BarrelA,"BarrelA",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
     LArDigitMon::BookPartitions(m_BarrelC,"BarrelC",GroupBarrelShift,GroupBarrelExpert,GroupBarrelExpertEff);
     
     /**Book Histogram of EMEC*/
-    MonGroup GroupEMECShift( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED );
-    MonGroup GroupEMECExpert( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED );
-    MonGroup GroupEMECExpertEff( this, "/LAr/Digits/EMEC", run, ATTRIB_MANAGED,"","weightedEff");
+    MonGroup GroupEMECShift( this, "/LAr/DigitsOldTool/EMEC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECExpert( this, "/LAr/DigitsOldTool/EMEC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECExpertEff( this, "/LAr/DigitsOldTool/EMEC", run, ATTRIB_MANAGED,"","weightedEff");
     
     LArDigitMon::BookPartitions(m_EmecA,"EmecA",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
     LArDigitMon::BookPartitions(m_EmecC,"EmecC",GroupEMECShift,GroupEMECExpert,GroupEMECExpertEff);
     
     /**Book Histogram of HEC*/
-    MonGroup GroupHECShift( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED );
-    MonGroup GroupHECExpert( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED );
-    MonGroup GroupHECExpertEff( this, "/LAr/Digits/HEC", run, ATTRIB_MANAGED,"","weightedEff");
+    MonGroup GroupHECShift( this, "/LAr/DigitsOldTool/HEC", run, ATTRIB_MANAGED );
+    MonGroup GroupHECExpert( this, "/LAr/DigitsOldTool/HEC", run, ATTRIB_MANAGED );
+    MonGroup GroupHECExpertEff( this, "/LAr/DigitsOldTool/HEC", run, ATTRIB_MANAGED,"","weightedEff");
     
     LArDigitMon::BookPartitions(m_HecA,"HecA",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
     LArDigitMon::BookPartitions(m_HecC,"HecC",GroupHECShift,GroupHECExpert,GroupHECExpertEff);
     
     /**Book Histogram of FCAL.*/
-    MonGroup GroupFCALShift( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED );
-    MonGroup GroupFCALExpert( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED );
-    MonGroup GroupFCALExpertEff( this, "/LAr/Digits/FCAL", run, ATTRIB_MANAGED,"","weightedEff");
+    MonGroup GroupFCALShift( this, "/LAr/DigitsOldTool/FCAL", run, ATTRIB_MANAGED );
+    MonGroup GroupFCALExpert( this, "/LAr/DigitsOldTool/FCAL", run, ATTRIB_MANAGED );
+    MonGroup GroupFCALExpertEff( this, "/LAr/DigitsOldTool/FCAL", run, ATTRIB_MANAGED,"","weightedEff");
     
     LArDigitMon::BookPartitions(m_FcalA,"FcalA",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
     LArDigitMon::BookPartitions(m_FcalC,"FcalC",GroupFCALShift,GroupFCALExpert,GroupFCALExpertEff);
     
     
     /**Book summary histo*/
-    MonGroup generalGroup( this, "/LAr/Digits", run, ATTRIB_MANAGED );
+    MonGroup generalGroup( this, "/LAr/DigitsOldTool", run, ATTRIB_MANAGED );
     const char *  hName = "summary";
     const char * hTitle = "LArDigit Summary";
     

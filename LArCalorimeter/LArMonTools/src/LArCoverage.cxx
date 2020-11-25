@@ -136,12 +136,12 @@ LArCoverage::bookHistograms()
     }
   
     // Create top folder for histos
-    MonGroup generalGroup( this, "/LAr/Coverage", run, ATTRIB_MANAGED );
+    MonGroup generalGroup( this, "/LAr/CoverageOldTool", run, ATTRIB_MANAGED );
     
     //
     // Book Maps vs eta/phi - One map per sampling
     //
-    MonGroup CovGroupShift( this, "/LAr/Coverage/perPartition", run, ATTRIB_MANAGED, "", "lowerLB" );
+    MonGroup CovGroupShift( this, "/LAr/CoverageOldTool/perPartition", run, ATTRIB_MANAGED, "", "lowerLB" );
 
     //
     // Coverage EM Barrel - Store Granularity
@@ -471,7 +471,7 @@ LArCoverage::bookHistograms()
     // CaloNoiseTool histograms - per FT/Slot
     //
 
-    MonGroup CaloNoiseGroupShift( this, "/LAr/Coverage/CaloNoiseTool", run, ATTRIB_MANAGED, "", "lowerLB");
+    MonGroup CaloNoiseGroupShift( this, "/LAr/CoverageOldTool/CaloNoiseTool", run, ATTRIB_MANAGED, "", "lowerLB");
 
     // EM histos
     for (int i=0; i<4;i++){
@@ -507,7 +507,7 @@ LArCoverage::bookHistograms()
     // Bad Channels DataBase content
     //
      
-    MonGroup BadChannelsGroupShift( this, "/LAr/Coverage/BadChannels/", run, ATTRIB_MANAGED, "", "lowerLB");
+    MonGroup BadChannelsGroupShift( this, "/LAr/CoverageOldTool/BadChannels/", run, ATTRIB_MANAGED, "", "lowerLB");
  
     m_hBadChannelsBarrelA = TH2I_LW::create("DBBadChannelsBarrelA",Form("Known Bad Channels - Barrel A - LB %4d",lb1),
 					    448,0.,32.,128,-0.5,127.5);
