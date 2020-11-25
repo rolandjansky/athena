@@ -72,7 +72,7 @@ if not 'SuperCells' in dir():
 
 if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
 else: include("LArCalibProcessing/LArCalib_FlagsSC.py")
-include("RecExCommission/GetInputFiles.py")
+include("LArCalibProcessing/GetInputFiles.py")
 
 if SuperCells:
    from AthenaCommon.GlobalFlags import globalflags
