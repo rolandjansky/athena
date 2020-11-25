@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Author Sebastien Binet
 
@@ -10,7 +10,7 @@ __all__ = [ 'ObjKeyStore', 'objKeyStore', 'cfgKeyStore' ]
 from AthenaCommon.Include import excludeTracePattern
 excludeTracePattern.append("*/RecExConfig/ObjKeyStore*")
 
-from AthenaCommon.KeyStore import CfgItemList, CfgKeyStore
+from AthenaCommon.KeyStore import CfgKeyStore
 class _ObjKeyStore( object ):
 
     def __init__(self, name="KeyStore"):
@@ -52,7 +52,7 @@ class _ObjKeyStore( object ):
     def __isInDict(self, label):
         def isIn(d, k, v):
             return d.has_item( "%s#%s" % (k,v) )
-        fct = lambda key, value : isIn(self._store[label], key, value)
+        fct = lambda key, value : isIn(self._store[label], key, value)  # noqa: E731
         class __helper:
             def __call__(self, key, value):
                 return fct(key, value)
@@ -62,7 +62,7 @@ class _ObjKeyStore( object ):
         def fill(d, k, v):
             d.add( { k : v } )
             return            
-        fct = lambda key, value: fill(self._store[label], key, value)
+        fct = lambda key, value: fill(self._store[label], key, value)  # noqa: E731
         class __helper:
             def __call__(self, key, value):
                 return fct(key, value)
@@ -73,21 +73,21 @@ class _ObjKeyStore( object ):
         def fill(d, thedict):
             d.add(thedict)
             return
-        fct = lambda thedict : fill(self._store[label], thedict)
+        fct = lambda thedict : fill(self._store[label], thedict)  # noqa: E731
         class __helper:
             def __call__(self, thedict):
                 return fct(thedict)
         return __helper()
 
     def __writePy(self, label):
-        fct = lambda fileName: self._store.write( fileName, label )
+        fct = lambda fileName: self._store.write( fileName, label )  # noqa: E731
         class __helper:
             def __call__(self, fileName):
                 return fct(fileName)
         return __helper()
         
     def __readPy(self, label):
-        fct = lambda fileName: self._store.read( fileName, label )
+        fct = lambda fileName: self._store.read( fileName, label )  # noqa: E731
         class __helper:
             def __call__(self, fileName):
                 return fct(fileName)
