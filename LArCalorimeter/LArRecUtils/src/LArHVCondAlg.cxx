@@ -31,8 +31,6 @@
 #include "LArHV/FCALHVManager.h"
 #include "LArHV/FCALHVLine.h"
 
-#include "LArHV/LArHVManager.h"
-
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArIdentifier/LArOnlineID.h"

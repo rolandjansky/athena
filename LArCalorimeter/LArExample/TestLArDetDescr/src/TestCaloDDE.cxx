@@ -23,7 +23,6 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/ICaloRecoMaterialTool.h"
 #include "CaloDetDescr/ICaloRecoSimpleGeomTool.h"
-#include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include <cmath>
