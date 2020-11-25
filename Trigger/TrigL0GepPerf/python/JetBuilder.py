@@ -1,6 +1,7 @@
+import logging as log
 DFJetAlgs = {}
 
-def modifyClusters():
+def modifyClusters( topoclAlg, puSupprAlgs ):
 
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence=AlgSequence()
@@ -19,22 +20,32 @@ def modifyClusters():
     
     ctm.add( SoftKillerWeightTool("JetConstit_SoftKiller", SKGridSize=0.6),
             alias = 'softkiller' )
-    
-    clustSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigSKSeq',
-                                                OutputContainer = 'OrigSKTopoClusters',                 
-                                                InputContainer= 'CaloCalTopoClusters',                  
-                                                modList = [  'softkiller'] , InputType='CaloCluster')   
-     
-    clustVorSeq = ctm.buildConstitModifSequence( 'ConstitOrigVorSeq',                                   
-                                                OutputContainer = 'OrigVorTopoClusters',                
-                                                InputContainer= 'CaloCalTopoClusters',                  
-                                                modList = [ 'voronoi']   , InputType='CaloCluster')     
-    clustVorSKSeq = ctm.buildConstitModifSequence( 'ConstitOrigVorSKSeq',                               
-                                                OutputContainer = 'OrigVorSKTopoClusters',              
-                                                InputContainer= 'OrigVorTopoClusters',                  
-                                                modList = [ 'softkiller']   , InputType='CaloCluster')
 
-    topSequence += JetAlgorithm("ClusterModifiers", Tools = [clustSKSeq, clustVorSeq, clustVorSKSeq])
+    inputContainer = topoclAlg + 'TopoClusters'
+    log.info('\n Running pu suppression algs on ' + inputContainer + '\n')
+
+    if 'SK' in puSupprAlgs:    
+        clustSKSeq = ctm.buildConstitModifSequence( topoclAlg+'ConstitOrigSKSeq',
+                                                    OutputContainer = topoclAlg+'SKTopoClusters',                 
+                                                    InputContainer= inputContainer,                  
+                                                    modList = [  'softkiller'] , InputType='CaloCluster')   
+        topSequence += JetAlgorithm(topoclAlg+'SKClusterModifier', Tools = [clustSKSeq])
+
+    if( 'Vor' in puSupprAlgs or 'VorSK' in puSupprAlgs):
+        clustVorSeq = ctm.buildConstitModifSequence( topoclAlg+'ConstitOrigVorSeq',                                   
+                                                     OutputContainer = topoclAlg+'VorTopoClusters',                
+                                                     InputContainer= inputContainer,                  
+                                                     modList = [ 'voronoi']   , InputType='CaloCluster')     
+        topSequence += JetAlgorithm(topoclAlg+"VorClusterModifiers", Tools = [clustVorSeq])
+
+    if 'VorSK' in puSupprAlgs:
+        clustVorSKSeq = ctm.buildConstitModifSequence( topoclAlg+'ConstitOrigVorSKSeq',                               
+                                                       OutputContainer = topoclAlg+'VorSKTopoClusters',              
+                                                       InputContainer= topoclAlg+'VorTopoClusters',                  
+                                                       modList = [ 'softkiller']   , InputType='CaloCluster')
+        topSequence += JetAlgorithm(topoclAlg+"VorSKClusterModifiers", Tools = [clustVorSKSeq])
+
+    #topSequence += JetAlgorithm("ClusterModifiers", Tools = [clustSKSeq, clustVorSeq, clustVorSKSeq])
 
 
 def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
@@ -108,7 +119,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         DFJetAlgs[algname] = alg;
 
 
-def modifyJets():
+def modifyJets( topoclAlgs ):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence=AlgSequence()
     
@@ -116,40 +127,22 @@ def modifyJets():
     from JetRec.JetRecConf import PseudoJetGetter
     from JetRec.JetRecStandard import jtm
 
-    getter0 = PseudoJetGetter("JetGetter_NoAlg",
-                              Label = "LCTopo",
-                              InputContainer = "CaloCalTopoClusters",
-                              OutputContainer = "PseudoJetsNoAlg",
+    Label = "EMTopo"
+    label = "emtopo"
+    if( "CaloCal" in topoclAlgs ): 
+        Label = "LCTopo"
+        label = "lctopo"
+
+    nameAffix = topoclAlgs
+    getter = PseudoJetGetter("JetGetter_"+nameAffix,
+                              Label = Label,
+                              InputContainer = nameAffix + "TopoClusters",
+                              OutputContainer = "PseudoJets" + nameAffix,
                               SkipNegativeEnergy = True,
-    )
+                          )
+    jtm += getter
+    
+    addStandardJets("AntiKt", 0.4, label, algseq=topSequence, namesuffix=nameAffix, outputGroup="output_"+nameAffix, customGetters=[getter])
 
-    getter1 = PseudoJetGetter("JetGetter_SK",
-                              Label = "LCTopo",
-                              InputContainer = "OrigSKTopoClusters",
-                              OutputContainer = "PseudoJetsSK",
-                              SkipNegativeEnergy = True,
-    )
 
-    getter2 = PseudoJetGetter("JetGetter_Vor",
-                              Label = "LCTopo",
-                              InputContainer = "OrigVorTopoClusters",
-                              OutputContainer = "PseudoJetsVor",
-                              SkipNegativeEnergy = True,
-    )
 
-    getter3 = PseudoJetGetter("JetGetter_VorSK",
-                              Label = "LCTopo",
-                              InputContainer = "OrigVorSKTopoClusters",
-                              OutputContainer = "PseudoJetsVorSK",
-                              SkipNegativeEnergy = True,
-    )
-
-    jtm += getter0
-    jtm += getter1
-    jtm += getter2
-    jtm += getter3
-
-    addStandardJets("AntiKt", 0.4, "lctopo", algseq=topSequence, namesuffix="NoAlg", outputGroup="output_noalg", customGetters=[getter0])
-    addStandardJets("AntiKt", 0.4, "lctopo", algseq=topSequence, namesuffix="SK", outputGroup="output_sk", customGetters=[getter1])
-    addStandardJets("AntiKt", 0.4, "lctopo", algseq=topSequence, namesuffix="Vor", outputGroup="output_vor", customGetters=[getter2])
-    addStandardJets("AntiKt", 0.4, "lctopo", algseq=topSequence, namesuffix="VorSK", outputGroup="output_vorsk", customGetters=[getter3])
