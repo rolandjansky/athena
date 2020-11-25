@@ -241,11 +241,17 @@ void TrigTauMonitorAlgorithm::fillRNNInputVars(const std::string trigger, std::v
                                                     float detail = -999;
                                                     if (tau->detail(xAOD::TauJetParameters::dRmax, detail)){
                                                     } return detail;});
-  auto absipSigLeadTrk    = Monitored::Collection("absipSigLeadTrk", tau_vec,  [] (const xAOD::TauJet* tau){
-                                                    float detail = -999;
-                                                    if (tau->detail(xAOD::TauJetParameters::ipSigLeadTrk, detail)){
-                                                      detail = std::min(TMath::Abs(detail), 30.0f);
-                                                    } return detail;});
+  
+   auto absipSigLeadTrk    = online ?   (Monitored::Collection("absipSigLeadTrk", tau_vec,  [] (const xAOD::TauJet* tau){
+                                                        float detail = -999;
+                                                        if (tau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, detail)){
+                                                            detail = TMath::Log10(std::max(detail, 0.1f));
+                                                        } return detail;})) : 
+                                        (Monitored::Collection("absipSigLeadTrk", tau_vec,  [] (const xAOD::TauJet* tau){
+                                                        float detail = (tau->nTracks()>0) ? std::abs(tau->track(0)->d0SigTJVA()) : 0.;
+                                                        detail = std::min(TMath::Abs(detail), 30.0f);
+                                                        return detail;}));
+   
   auto sumPtTrkFrac       = Monitored::Collection("sumPtTrkFrac", tau_vec,  [] (const xAOD::TauJet* tau){
                                                     float detail = -999;
                                                     if (tau->detail(xAOD::TauJetParameters::SumPtTrkFrac, detail)){

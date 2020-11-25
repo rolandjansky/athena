@@ -19,6 +19,8 @@
 #include <map>
 #include <list>
 
+#include "xAODBTagging/ftagfloat_t.h"
+
 using Athena::Units::GeV;
 
 namespace Analysis {
@@ -202,7 +204,7 @@ namespace Analysis {
 	  BTag.setMV1_discriminant(mv1);
 	}
       else{
-	BTag.setVariable<double>(m_xAODBaseName, "discriminant", mv1);
+	BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "discriminant", mv1);
       }
 
     }

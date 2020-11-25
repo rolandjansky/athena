@@ -21,6 +21,8 @@
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 
+#include "xAODBTagging/ftagfloat_t.h"
+
 using std::vector;
 
 
@@ -271,7 +273,7 @@ HLT::ErrorCode TrigBjetHypoAllTE::hltExecute(std::vector<std::vector<HLT::Trigge
     //
     //  Get pt and btagging weight
     //
-    double btagWeight = btagInfo->auxdata<double>(m_tagger);  
+    double btagWeight = btagInfo->auxdata<ftagfloat_t>(m_tagger);  
     double btagEt     = jet->p4().Et();
 
     //

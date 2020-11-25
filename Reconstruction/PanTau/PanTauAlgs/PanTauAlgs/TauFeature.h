@@ -17,7 +17,7 @@ namespace PanTau {
     @author Sebastian.Fleischmann@cern.ch
     */
 
-class TauFeature2 {
+class TauFeature {
 
 typedef std::map<std::string, double> FeatureMap;
 typedef FeatureMap::iterator FeatureMapIter;
@@ -28,10 +28,10 @@ typedef VectorFeatureMap::const_iterator VectorFeatureMapConstIter;
 
 public:
     /** Default constructor */
-    TauFeature2();
+    TauFeature();
 
     /** Destructor */
-    virtual ~TauFeature2();
+    virtual ~TauFeature();
 
     /** returns the value of the feature given by its name*/
     double value(const std::string& ItsName, bool& isValid) const;
@@ -56,7 +56,7 @@ public:
     int nVecValues() const;
     
     
-    void add(PanTau::TauFeature2* otherFeatures);
+    void add(PanTau::TauFeature* otherFeatures);
     
     void addFeaturesFromMap(std::map<std::string, double>, std::string prefix);
     
@@ -68,7 +68,6 @@ protected:
     VectorFeatureMap m_vecFeatureMap;
     
 };
-
 
 }
 

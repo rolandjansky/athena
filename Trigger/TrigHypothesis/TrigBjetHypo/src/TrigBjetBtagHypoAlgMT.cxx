@@ -340,13 +340,13 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_btagging( const ElementLinkVector< xAO
   MONITOR_BTAG_AUX_VAR(SV1_significance3d, float, bTaggingEL);
 
   MONITOR_BTAG_AUX_VAR(IP2D_isDefaults, char, bTaggingEL);
-  MONITOR_BTAG_AUX_VAR(IP2D_bu, double, bTaggingEL);
-  MONITOR_BTAG_AUX_VAR(IP2D_bc, double, bTaggingEL);
-  MONITOR_BTAG_AUX_VAR(IP2D_cu, double, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP2D_bu, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP2D_bc, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP2D_cu, float, bTaggingEL);
   MONITOR_BTAG_AUX_VAR(IP3D_isDefaults, char, bTaggingEL);
-  MONITOR_BTAG_AUX_VAR(IP3D_bu, double, bTaggingEL);
-  MONITOR_BTAG_AUX_VAR(IP3D_bc, double, bTaggingEL);
-  MONITOR_BTAG_AUX_VAR(IP3D_cu, double, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP3D_bu, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP3D_bc, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(IP3D_cu, float, bTaggingEL);
 
   MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_nTracks, int, bTaggingEL);
   MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_isDefaults, char, bTaggingEL);

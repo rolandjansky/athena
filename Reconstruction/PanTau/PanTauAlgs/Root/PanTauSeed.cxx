@@ -3,15 +3,11 @@
 */
 
 #include "PanTauAlgs/PanTauSeed.h"
-
 #include "PanTauAlgs/TauConstituent.h"
-
-#include <iostream>
-
 #include "xAODTau/TauJet.h"
 
 // default constructor
-PanTau::PanTauSeed2::PanTauSeed2()
+PanTau::PanTauSeed::PanTauSeed()
   :
   IParticle(),
   m_p4(), m_p4Cached( false ),
@@ -33,15 +29,14 @@ PanTau::PanTauSeed2::PanTauSeed2()
 }
 
 
-
 // destructor
-PanTau::PanTauSeed2::~PanTauSeed2()
+PanTau::PanTauSeed::~PanTauSeed()
 {
   if(m_Features != 0) delete m_Features;
 
   //delete the constituents                                                                                                                                                                                                                      
   for(unsigned int iConst=0; iConst<m_ConstituentsList_All.size(); iConst++) {
-    PanTau::TauConstituent2* curConst = m_ConstituentsList_All[iConst];
+    PanTau::TauConstituent* curConst = m_ConstituentsList_All[iConst];
     if(curConst != 0) delete curConst;
   }
   m_ConstituentsList_All.clear();
@@ -49,19 +44,18 @@ PanTau::PanTauSeed2::~PanTauSeed2()
   m_ConstituentsList_Core.clear();
   m_ConstituentsList_Wide.clear();
 
-  //also clear the constituent matrix                                                                                                                                                                                                            
-  //dont delete the entries as they point to the (at this point already deleted) constituents in m_ConstituentsList                                                                                                                              
+  // also clear the constituent matrix
+  // dont delete the entries as they point to the (at this point already deleted) constituents in m_ConstituentsList
   for(unsigned int iType=0; iType<m_Constituents.size(); iType++) {
-    std::vector<PanTau::TauConstituent2*> curConsts = m_Constituents[iType];
+    std::vector<PanTau::TauConstituent*> curConsts = m_Constituents[iType];
     curConsts.clear();
   }
   m_Constituents.clear();
-
 }
 
 
 //copy constructor
-PanTau::PanTauSeed2::PanTauSeed2(const PanTau::PanTauSeed2& rhs)
+PanTau::PanTauSeed::PanTauSeed(const PanTau::PanTauSeed& rhs)
   :
   IParticle(rhs),
   m_p4(rhs.m_p4), m_p4Cached(rhs.m_p4Cached),
@@ -79,13 +73,12 @@ PanTau::PanTauSeed2::PanTauSeed2(const PanTau::PanTauSeed2& rhs)
   m_DecayMode_ByPanTau(rhs.m_DecayMode_ByPanTau),
   m_decayModeHack_CellBasedShots(rhs.m_decayModeHack_CellBasedShots),
 
-  m_Features( (rhs.m_Features ? new PanTau::TauFeature2(*rhs.m_Features) : 0) )
+  m_Features( (rhs.m_Features ? new PanTau::TauFeature(*rhs.m_Features) : 0) )
 {
 }
 
 
-
-PanTau::PanTauSeed2& PanTau::PanTauSeed2::operator=(const PanTau::PanTauSeed2& seed)
+PanTau::PanTauSeed& PanTau::PanTauSeed::operator=(const PanTau::PanTauSeed& seed)
 {
   if (this != &seed){
 
@@ -108,46 +101,45 @@ PanTau::PanTauSeed2& PanTau::PanTauSeed2::operator=(const PanTau::PanTauSeed2& s
     m_decayModeHack_CellBasedShots  = seed.m_decayModeHack_CellBasedShots;
 
     if(m_Features) delete m_Features;
-    m_Features              = (seed.m_Features ? new PanTau::TauFeature2(*seed.m_Features) : 0);
+    m_Features              = (seed.m_Features ? new PanTau::TauFeature(*seed.m_Features) : 0);
   }
   return *this;
 }
 
 
-
-double PanTau::PanTauSeed2::pt() const {
+double PanTau::PanTauSeed::pt() const {
   // static Accessor< float > acc( "pt" );
   // return acc( *this );
   return p4().Pt();
 }
 
-double PanTau::PanTauSeed2::eta() const {
+double PanTau::PanTauSeed::eta() const {
   // static Accessor<float > acc( "eta" );
   // return acc( *this );
   return p4().Eta();
 }
 
-double PanTau::PanTauSeed2::phi() const {
+double PanTau::PanTauSeed::phi() const {
   // static Accessor< float > acc( "phi" );
   // return acc( *this );
   return p4().Phi();
 }
 
-double PanTau::PanTauSeed2::m() const {
+double PanTau::PanTauSeed::m() const {
   // static Accessor< float> acc( "m" );
   // return acc( *this );
   return p4().M();
 }
 
-double PanTau::PanTauSeed2::e() const{
+double PanTau::PanTauSeed::e() const{
   return p4().E(); 
 }
 
-double PanTau::PanTauSeed2::rapidity() const {
+double PanTau::PanTauSeed::rapidity() const {
   return p4().Rapidity(); 
 }
 
-PanTau::PanTauSeed2::FourMom_t PanTau::PanTauSeed2::p4() const {
+PanTau::PanTauSeed::FourMom_t PanTau::PanTauSeed::p4() const {
   if( ! m_p4Cached ) {
     m_p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
     m_p4Cached=true;
@@ -155,7 +147,7 @@ PanTau::PanTauSeed2::FourMom_t PanTau::PanTauSeed2::p4() const {
   return m_p4;
 }
 
-void PanTau::PanTauSeed2::setP4(float pt, float eta, float phi, float m){
+void PanTau::PanTauSeed::setP4(float pt, float eta, float phi, float m){
   static Accessor< float > acc1( "pt" );
   acc1( *this ) = pt;
   static Accessor< float > acc2( "eta" );
@@ -169,28 +161,28 @@ void PanTau::PanTauSeed2::setP4(float pt, float eta, float phi, float m){
 
 }
 
-void PanTau::PanTauSeed2::setPt(float pt){
+void PanTau::PanTauSeed::setPt(float pt){
   static Accessor< float > acc( "pt" );
   acc( *this ) = pt;
   //Need to recalculate m_p4 if requested after update
-   m_p4Cached=false;
+  m_p4Cached=false;
 }
 
-void PanTau::PanTauSeed2::setEta(float eta){
+void PanTau::PanTauSeed::setEta(float eta){
   static Accessor< float > acc( "eta" );
   acc( *this ) = eta;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;  
 }
 
-void PanTau::PanTauSeed2::setPhi(float phi){
+void PanTau::PanTauSeed::setPhi(float phi){
   static Accessor< float > acc( "phi" );
   acc( *this ) = phi;
   //Need to recalculate m_p4 if requested after update
   m_p4Cached=false;
 }
 
-void PanTau::PanTauSeed2::setM(float m){
+void PanTau::PanTauSeed::setM(float m){
   static Accessor< float > acc( "m" );
   acc( *this ) = m;
   //Need to recalculate m_p4 if requested after update
@@ -198,25 +190,25 @@ void PanTau::PanTauSeed2::setM(float m){
 }
 
 
-xAOD::Type::ObjectType PanTau::PanTauSeed2::type() const {
+xAOD::Type::ObjectType PanTau::PanTauSeed::type() const {
   return xAOD::Type::Tau;
 }
 
 
 
 /** Main constructor to be used */
-PanTau::PanTauSeed2::PanTauSeed2( std::string                             nameInputAlgorithm,
-                                const xAOD::TauJet*                     tauJet,
-                                std::vector<PanTau::TauConstituent2*>    tauConstituents,
-                                std::vector<PanTau::TauConstituent2*>    tauConstituentsAll,
-                                std::vector<int>                        pantauSeed_TechnicalQuality
+PanTau::PanTauSeed::PanTauSeed( std::string                             nameInputAlgorithm,
+				const xAOD::TauJet*                     tauJet,
+				std::vector<PanTau::TauConstituent*>    tauConstituents,
+				std::vector<PanTau::TauConstituent*>    tauConstituentsAll,
+				std::vector<int>                        pantauSeed_TechnicalQuality
 				)
- :
+  :
   IParticle()
 {
 
   // *This may be a bug!!! change to Set*Pt*EtaPhiM?? ***
-// PanTau::SetP4EEtaPhiM( m_p4, tauJet->ptIntermediateAxis() * cosh( tauJet->etaIntermediateAxis() ), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
+  // PanTau::SetP4EEtaPhiM( m_p4, tauJet->ptIntermediateAxis() * cosh( tauJet->etaIntermediateAxis() ), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
   m_p4.SetPtEtaPhiM(tauJet->ptIntermediateAxis(), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
   m_p4Cached=true;
   m_IsValidSeed           = true;
@@ -224,26 +216,26 @@ PanTau::PanTauSeed2::PanTauSeed2( std::string                             nameIn
   m_NameInputAlgorithm    = nameInputAlgorithm;
   m_TauJet                = tauJet;
   m_decayModeHack_CellBasedShots = false;
-  m_Features              = new PanTau::TauFeature2;
+  m_Features              = new PanTau::TauFeature;
 
   //save a copy of the flat constituents list and also split into core/wide constituents                                                                                                                                                         
   m_ConstituentsList_All = tauConstituentsAll;
   m_ConstituentsList_AllSelected = tauConstituents; //all types are in here, this is the complete list                                                                                                                                           
   for(unsigned int iConst=0; iConst<tauConstituents.size(); iConst++) {
-    bool isCoreChrg = tauConstituents[iConst]->isOfType(PanTau::TauConstituent2::t_Charged);
-    bool isCoreNeut = tauConstituents[iConst]->isOfType(PanTau::TauConstituent2::t_Neutral);
-    bool isCorePi0  = tauConstituents[iConst]->isOfType(PanTau::TauConstituent2::t_Pi0Neut);
+    bool isCoreChrg = tauConstituents[iConst]->isOfType(PanTau::TauConstituent::t_Charged);
+    bool isCoreNeut = tauConstituents[iConst]->isOfType(PanTau::TauConstituent::t_Neutral);
+    bool isCorePi0  = tauConstituents[iConst]->isOfType(PanTau::TauConstituent::t_Pi0Neut);
 
     if(isCoreChrg == true || isCoreNeut == true || isCorePi0 == true) m_ConstituentsList_Core.push_back(tauConstituents[iConst]); // Core only contains the currently used objects                                                             
 
-    bool isWideChrg = tauConstituents[iConst]->isOfType(PanTau::TauConstituent2::t_OutChrg);
-    bool isWideNeut = tauConstituents[iConst]->isOfType(PanTau::TauConstituent2::t_OutNeut);
+    bool isWideChrg = tauConstituents[iConst]->isOfType(PanTau::TauConstituent::t_OutChrg);
+    bool isWideNeut = tauConstituents[iConst]->isOfType(PanTau::TauConstituent::t_OutNeut);
     if(isWideChrg == true || isWideNeut == true) m_ConstituentsList_Wide.push_back(tauConstituents[iConst]); // Wide contains objectsin 0.2-0.4                                                                                                
   }
 
   //create the constituents lists                                                                                                                                                                                                                
-  for(int iType=0; iType<PanTau::TauConstituent2::t_nTypes; iType++) {
-    m_Constituents.push_back( std::vector<PanTau::TauConstituent2*>(0) );
+  for(int iType=0; iType<PanTau::TauConstituent::t_nTypes; iType++) {
+    m_Constituents.push_back( std::vector<PanTau::TauConstituent*>(0) );
     m_TypeHLVs.push_back( TLorentzVector(0,0,0,0) );
   }
 
@@ -255,14 +247,14 @@ PanTau::PanTauSeed2::PanTauSeed2( std::string                             nameIn
   int nPi0Neut = 0;
 
   for(unsigned int iConst=0; iConst<tauConstituents.size(); iConst++) {
-    PanTau::TauConstituent2* curConst = tauConstituents.at(iConst);
+    PanTau::TauConstituent* curConst = tauConstituents.at(iConst);
     std::vector<int>        curTypes = curConst->getTypeFlags();
 
     for(unsigned int curType=0; curType<curTypes.size(); curType++) {
       if(curTypes.at(curType) == 0) continue;
 
-      if(curType == (int)PanTau::TauConstituent2::t_Charged) nCharged++;
-      if(curType == (int)PanTau::TauConstituent2::t_Pi0Neut) nPi0Neut++;
+      if(curType == (int)PanTau::TauConstituent::t_Charged) nCharged++;
+      if(curType == (int)PanTau::TauConstituent::t_Pi0Neut) nPi0Neut++;
 
       if((unsigned int)curType >= m_Constituents.size()) {
 	continue;
@@ -278,8 +270,8 @@ PanTau::PanTauSeed2::PanTauSeed2( std::string                             nameIn
     hlv_SumConstituents_Wide += curConst->p4();
 
     //add all charged and neutral constituents (i.e. from core region) to core proto momentum                                                                                                                                                  
-    if(curConst->isOfType(PanTau::TauConstituent2::t_Charged)) {hlv_SumConstituents_Core += curConst->p4(); continue;}
-    if(curConst->isOfType(PanTau::TauConstituent2::t_Pi0Neut)) {hlv_SumConstituents_Core += curConst->p4(); continue;}
+    if(curConst->isOfType(PanTau::TauConstituent::t_Charged)) {hlv_SumConstituents_Core += curConst->p4(); continue;}
+    if(curConst->isOfType(PanTau::TauConstituent::t_Pi0Neut)) {hlv_SumConstituents_Core += curConst->p4(); continue;}
 
   }//end loop over constituents                                                                                                                                                                                                                  
 
@@ -287,10 +279,10 @@ PanTau::PanTauSeed2::PanTauSeed2( std::string                             nameIn
   m_ProtoMomentum_Core = hlv_SumConstituents_Core;
 
   //set mode as obtained from subalg                                                                                                                                                                                                             
-  m_DecayMode_BySubAlg = PanTau::PanTauSeed2::getDecayMode(nCharged, nPi0Neut);
+  m_DecayMode_BySubAlg = PanTau::PanTauSeed::getDecayMode(nCharged, nPi0Neut);
   m_DecayMode_ByPanTau = xAOD::TauJetParameters::Mode_Error;
 
-  if(isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoValidInputTau) == true) {
+  if(isOfTechnicalQuality(PanTau::PanTauSeed::t_NoValidInputTau) == true) {
     m_DecayMode_ByPanTau = xAOD::TauJetParameters::Mode_NotSet;
   }
 
@@ -298,11 +290,10 @@ PanTau::PanTauSeed2::PanTauSeed2( std::string                             nameIn
 
 
 /** Constructor for invalid seeds */
-PanTau::PanTauSeed2::PanTauSeed2( std::string                          nameInputAlgorithm,
-                                const xAOD::TauJet*                  tauJet,
-                                std::vector<int>                     pantauSeed_TechnicalQuality
-				)
- :
+PanTau::PanTauSeed::PanTauSeed(std::string nameInputAlgorithm,
+			       const xAOD::TauJet* tauJet,
+			       std::vector<int> pantauSeed_TechnicalQuality)				  
+  :
   IParticle(),
   m_Constituents(),
   m_TypeHLVs(),
@@ -313,45 +304,41 @@ PanTau::PanTauSeed2::PanTauSeed2( std::string                          nameInput
   m_decayModeHack_CellBasedShots(false)
 {
   // *This may be a bug!!! change to Set*Pt*EtaPhiM?? ***
-//  PanTau::SetP4EEtaPhiM( m_p4, tauJet->ptIntermediateAxis() * cosh( tauJet->etaIntermediateAxis() ), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
+  //  PanTau::SetP4EEtaPhiM( m_p4, tauJet->ptIntermediateAxis() * cosh( tauJet->etaIntermediateAxis() ), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
   m_p4.SetPtEtaPhiM(tauJet->ptIntermediateAxis(), tauJet->etaIntermediateAxis(), tauJet->phiIntermediateAxis(), tauJet->mIntermediateAxis() );
   m_p4Cached=true;
   m_IsValidSeed           = false;
   m_TechnicalQuality      = pantauSeed_TechnicalQuality;
   m_NameInputAlgorithm    = nameInputAlgorithm;
   m_TauJet                = tauJet;
-  m_Features              = new PanTau::TauFeature2;
+  m_Features              = new PanTau::TauFeature;
 }
 
 
-
-int PanTau::PanTauSeed2::getDecayMode(int nCharged, int nNeutral) {
+int PanTau::PanTauSeed::getDecayMode(int nCharged, int nNeutral) {
 
   int decayMode;
-  // 1 Prong modes                                                                                                                                                                                                                               
+
+  // 1 Prong modes
   if(nCharged == 1 && nNeutral == 0) decayMode = (int)xAOD::TauJetParameters::Mode_1p0n;
   else if(nCharged == 1 && nNeutral == 1) decayMode = (int)xAOD::TauJetParameters::Mode_1p1n;
   else if(nCharged == 1 && nNeutral >  1) decayMode = (int)xAOD::TauJetParameters::Mode_1pXn;
-
-  // 3 prong modes                                                                                                                                                                                                                               
+  // 3 prong modes
   else if(nCharged == 3 && nNeutral == 0) decayMode = (int)xAOD::TauJetParameters::Mode_3p0n;
   else if(nCharged == 3 && nNeutral >  0) decayMode = (int)xAOD::TauJetParameters::Mode_3pXn;
-
-  // other mode                                                                                                                                                                                                                                  
+  // other mode
   else if(nCharged == 2) decayMode = (int)xAOD::TauJetParameters::Mode_Other;
   else if(nCharged == 4) decayMode = (int)xAOD::TauJetParameters::Mode_Other;
   else if(nCharged == 5) decayMode = (int)xAOD::TauJetParameters::Mode_Other;
-
   else if(nCharged == 0) decayMode = (int)xAOD::TauJetParameters::Mode_NotSet;
   else if(nCharged >= 6) decayMode = (int)xAOD::TauJetParameters::Mode_NotSet;
-
   else decayMode = (int)xAOD::TauJetParameters::Mode_Error;
 
   return decayMode;
 }
 
 
-std::string PanTau::PanTauSeed2::getDecayModeName(int decayMode) {
+std::string PanTau::PanTauSeed::getDecayModeName(int decayMode) {
 
   xAOD::TauJetParameters::DecayMode mode = (xAOD::TauJetParameters::DecayMode)decayMode;
 
@@ -367,9 +354,8 @@ std::string PanTau::PanTauSeed2::getDecayModeName(int decayMode) {
 }
 
 
-
-bool                                                PanTau::PanTauSeed2::isOfTechnicalQuality(int pantauSeed_TechnicalQuality) const {
-  if(pantauSeed_TechnicalQuality > PanTau::PanTauSeed2::t_nTechnicalQualities) {
+bool PanTau::PanTauSeed::isOfTechnicalQuality(int pantauSeed_TechnicalQuality) const {
+  if(pantauSeed_TechnicalQuality > PanTau::PanTauSeed::t_nTechnicalQualities) {
     return false;
   }
   if(m_TechnicalQuality[pantauSeed_TechnicalQuality] == 1) return true;
@@ -377,39 +363,32 @@ bool                                                PanTau::PanTauSeed2::isOfTec
 }
 
 
-
-
-std::vector<PanTau::TauConstituent2*>    PanTau::PanTauSeed2::getConstituentsOfType(int tauConstituent_Type, bool& foundit) {
-    if(tauConstituent_Type > PanTau::TauConstituent2::t_nTypes) {
-        foundit = false;
-        return std::vector<TauConstituent2*>(0);
-    }
-    foundit = true;
-    if(tauConstituent_Type == (int)PanTau::TauConstituent2::t_NoType) return m_ConstituentsList_AllSelected;
-    return m_Constituents.at(tauConstituent_Type);
+std::vector<PanTau::TauConstituent*> PanTau::PanTauSeed::getConstituentsOfType(int tauConstituent_Type, bool& foundit) {
+  if(tauConstituent_Type > PanTau::TauConstituent::t_nTypes) {
+    foundit = false;
+    return std::vector<TauConstituent*>(0);
+  }
+  foundit = true;
+  if(tauConstituent_Type == (int)PanTau::TauConstituent::t_NoType) return m_ConstituentsList_AllSelected;
+  return m_Constituents.at(tauConstituent_Type);
 }
 
 
-
-int                                     PanTau::PanTauSeed2::getNumberOfConstituentsOfType(int tauConstituent_Type) {
-    bool isOK = false;
-    std::vector<PanTau::TauConstituent2*> consts = this->getConstituentsOfType(tauConstituent_Type, isOK);
-    if(isOK) {
-        return (int)consts.size();
-    }
-    return -1;
+int PanTau::PanTauSeed::getNumberOfConstituentsOfType(int tauConstituent_Type) {
+  bool isOK = false;
+  std::vector<PanTau::TauConstituent*> consts = this->getConstituentsOfType(tauConstituent_Type, isOK);
+  if(isOK) {
+    return (int)consts.size();
+  }
+  return -1;
 }
 
 
-TLorentzVector                PanTau::PanTauSeed2::getSubsystemHLV(int tauConstituent_Type, bool& foundit) {
-    if(tauConstituent_Type > PanTau::TauConstituent2::t_nTypes) {
-        foundit = false;
-        return TLorentzVector(0,0,0,0);
-    }
-    foundit = true;
-    return m_TypeHLVs.at(tauConstituent_Type);
+TLorentzVector PanTau::PanTauSeed::getSubsystemHLV(int tauConstituent_Type, bool& foundit) {
+  if(tauConstituent_Type > PanTau::TauConstituent::t_nTypes) {
+    foundit = false;
+    return TLorentzVector(0,0,0,0);
+  }
+  foundit = true;
+  return m_TypeHLVs.at(tauConstituent_Type);
 }
-
-
-
-

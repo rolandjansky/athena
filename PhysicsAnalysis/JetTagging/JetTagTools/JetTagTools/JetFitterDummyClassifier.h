@@ -19,6 +19,8 @@
 
 #include "JetTagTools/IJetFitterClassifierTool.h"
 
+#include "xAODBTagging/ftagfloat_t.h"
+
 namespace Analysis {
 
 
@@ -38,9 +40,9 @@ namespace Analysis {
                                     const std::string & jetauthor,
                                     const std::string& inputbasename,
                                     const std::string& outputbasename,
-                                    double jetpT,
-                                    double jeteta,
-                                    double IP3dlike=-5000) const override;
+                                    ftagfloat_t jetpT,
+                                    ftagfloat_t jeteta,
+                                    ftagfloat_t IP3dlike=-5000) const override;
   };
 
 }//end Analysis namespace
