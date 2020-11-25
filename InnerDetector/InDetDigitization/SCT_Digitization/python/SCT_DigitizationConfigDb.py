@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CfgGetter import addTool,addService,addAlgorithm
+from AthenaCommon.CfgGetter import addTool, addAlgorithm
 addTool("SCT_Digitization.SCT_DigitizationConfig.SCT_DigitizationTool"          , "SCT_DigitizationTool")
 addTool("SCT_Digitization.SCT_DigitizationConfig.SCT_GeantinoTruthDigitizationTool"          , "SCT_GeantinoTruthDigitizationTool")
 addTool("SCT_Digitization.SCT_DigitizationConfig.SCT_DigitizationToolHS"        , "SCT_DigitizationToolHS")
