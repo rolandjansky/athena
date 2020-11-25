@@ -46,6 +46,10 @@ StatusCode CostData::cache() {
   return StatusCode::SUCCESS;
 }
 
+void CostData::setRosToRobMap(const std::map<std::string, std::vector<uint32_t>>& rosToRobMap) {
+  m_rosToRob = &rosToRobMap;
+}
+
 void CostData::setLb(uint32_t lb) {
   m_lb = lb;
 }
@@ -80,6 +84,9 @@ const xAOD::TrigCompositeContainer& CostData::rosCollection() const {
   return *m_rosCollection;
 }
 
+const std::map<std::string, std::vector<uint32_t>>& CostData::rosToRobMap() const {
+  return *m_rosToRob;
+}
 
 float CostData::algTotalTimeMilliSec() const {
   return m_algTotalTime * 1e-3; // microseconds to milliseconds

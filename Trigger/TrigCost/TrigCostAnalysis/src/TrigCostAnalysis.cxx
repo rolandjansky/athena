@@ -152,6 +152,7 @@ StatusCode TrigCostAnalysis::execute() {
   const uint32_t onlineSlot = getOnlineSlot( costDataHandle.get() );
   CostData costData;
   ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
+  costData.setRosToRobMap(m_rosToRob);
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
   if (!m_enhancedBiasTool.name().empty()) {
