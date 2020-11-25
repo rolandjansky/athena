@@ -12,6 +12,8 @@
 
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
+#include "Gaudi/Parsers/Factory.h"
+
 #include "MonitoredRange.h"
 
 #include <unordered_map>
@@ -110,6 +112,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
 
     Gaudi::Property<float> m_baseEventWeight { this, "BaseEventWeight", true,
       "Base events weight, other weights may be multiplied on top of this one." };
+
+    Gaudi::Property<std::map<std::string, std::vector<uint32_t>>> m_rosToRob {
+      this, "ROSToROBMap", {}, "ROS to ROB mapping" };
 
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_costDataKey { this, "CostReadHandleKey", "HLT_TrigCostContainer",
       "Trigger cost payload container for algorithms" };
