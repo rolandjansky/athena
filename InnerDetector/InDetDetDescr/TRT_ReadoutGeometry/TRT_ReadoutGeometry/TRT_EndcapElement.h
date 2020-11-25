@@ -45,15 +45,15 @@ namespace InDetDD {
     
     public:
       /** Constructor */
-      TRT_EndcapElement(const GeoVFullPhysVol *volume, 
-      	                const TRT_EndcapDescriptor *descriptor, 
-      	                bool isPositive, 
-      	                unsigned int wheelIndex, 
-      	                unsigned int strawLayIndex,
-      	                unsigned int phiIndex,
-      	                const TRT_ID * idHelper,
-      		        const TRT_Conditions * conditions,
-                        const GeoAlignmentStore* geoAlignStore=nullptr);
+      TRT_EndcapElement(const GeoVFullPhysVol* volume,
+                        const TRT_EndcapDescriptor* descriptor,
+                        bool isPositive,
+                        unsigned int wheelIndex,
+                        unsigned int strawLayIndex,
+                        unsigned int phiIndex,
+                        const TRT_ID* idHelper,
+                        const TRT_Conditions* conditions,
+                        const GeoAlignmentStore* geoAlignStore = nullptr);
 
       TRT_EndcapElement(const TRT_EndcapElement &right, const GeoAlignmentStore* geoAlignStore);
     
@@ -65,9 +65,6 @@ namespace InDetDD {
     
       /** Default Local -> global transform of the straw (ie before alignment corrections) */
       virtual HepGeom::Transform3D defStrawTransform(int straw) const;
-    
-      /** Number of straws in the element */
-      virtual unsigned int nStraws() const;
     
       /** Active straw length */
       virtual const double & strawLength() const;

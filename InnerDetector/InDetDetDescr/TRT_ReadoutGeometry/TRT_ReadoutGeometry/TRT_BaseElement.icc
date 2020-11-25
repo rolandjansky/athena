@@ -3,10 +3,12 @@
 */
 
 namespace InDetDD {
-	
-inline const HepGeom::Transform3D & TRT_BaseElement::defTransform() const
+
+// Get the number of straws:
+inline unsigned int
+TRT_BaseElement::nStraws() const
 {
-  return getMaterialGeom()->getDefAbsoluteTransform();
+  return m_nstraws;
 }
 
 }
