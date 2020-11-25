@@ -19,7 +19,6 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "MuonAGDDDescription/sTGCDetectorHelper.h"
 #include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include "MuonReadoutGeometry/MuonStation.h"
-#include "RegSelLUT/RegSelSiLUT.h"
 
 #include <iostream>
 #include <vector>

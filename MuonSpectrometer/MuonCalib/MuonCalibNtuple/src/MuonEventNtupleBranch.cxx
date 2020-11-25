@@ -10,7 +10,6 @@
 //other packages
 #include "CLHEP/Vector/ThreeVector.h"
 #include "TTree.h"
-#include "TString.h"
 
 // std packages
 #include <iostream>

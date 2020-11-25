@@ -35,7 +35,6 @@
 #include "MdtCalibData/BFieldCorFunc.h"
 #include "MdtCalibData/WireSagCorFunc.h"
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
-#include "MdtCalibData/CalibFunc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
 //TODO: use smart pointers

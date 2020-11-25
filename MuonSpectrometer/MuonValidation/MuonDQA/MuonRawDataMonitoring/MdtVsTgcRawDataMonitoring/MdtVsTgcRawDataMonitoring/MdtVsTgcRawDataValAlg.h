@@ -24,7 +24,6 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonTrigCoinData/TgcCoinData.h"
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "MuonPrepRawData/MdtPrepDataContainer.h"

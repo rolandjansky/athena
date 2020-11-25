@@ -28,7 +28,6 @@
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "xAODMuon/MuonContainer.h"
-#include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepData.h"
 #include "StoreGate/ReadHandleKey.h"

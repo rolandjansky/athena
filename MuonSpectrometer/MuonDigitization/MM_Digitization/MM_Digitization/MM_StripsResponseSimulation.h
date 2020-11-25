@@ -49,7 +49,6 @@ Comments to be added here...
 #include <iomanip>
 #include <utility>
 #include <string>
-#include <sstream>
 #include <sys/stat.h>
 
 class MM_DigitToolInput;

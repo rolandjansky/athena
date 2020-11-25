@@ -2,8 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// CscThresholdClusterBuilderTool.h
-
 #ifndef CscThresholdClusterBuilderTool_H
 #define CscThresholdClusterBuilderTool_H
 
@@ -62,7 +60,6 @@
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "CscClusterization/ICscClusterBuilder.h"
-#include "MuonPrepRawData/CscPrepDataContainer.h"
 
 class ICscCalibTool;
 class ICscStripFitter;

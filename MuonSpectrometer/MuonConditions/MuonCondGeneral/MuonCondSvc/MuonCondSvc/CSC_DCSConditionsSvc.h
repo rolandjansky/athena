@@ -14,10 +14,8 @@
 #include "MuonCondInterface/ICSC_DCSConditionsTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonCondSvc/MuonHierarchy.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IIOVDbSvc.h" 
 
 #include <vector>

@@ -22,7 +22,6 @@
 #include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonSimData/CscSimDataCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
-#include "TrkTrack/TrackCollection.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"

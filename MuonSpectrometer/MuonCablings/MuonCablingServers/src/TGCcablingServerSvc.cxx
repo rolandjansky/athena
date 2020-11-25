@@ -5,14 +5,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-
 #include "StoreGate/StoreGateSvc.h"
-
 #include "MuonCablingServers/TGCcablingServerSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 TGCcablingServerSvc::TGCcablingServerSvc(const std::string& name, ISvcLocator* sl) : 
 AthService( name, sl )

@@ -9,7 +9,6 @@
 
 #include "MuonCalibExtraTreeEvent/MuonCalibTrackSummary.h"
 #include "MuonCalibExtraUtils/MuonCalibLayerMapping.h"
-#include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibExtraTreeEvent/MuonCalibRawHitAssociationMap.h"
 #include "CxxUtils/checker_macros.h"
 

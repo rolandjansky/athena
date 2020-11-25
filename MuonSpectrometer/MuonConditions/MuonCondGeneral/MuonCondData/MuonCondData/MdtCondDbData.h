@@ -105,7 +105,6 @@ private:
 };
 
 CLASS_DEF( MdtCondDbData, 58088442, 1)
-#include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<MdtCondDbData>, 62077248, 0)
 
 #endif
