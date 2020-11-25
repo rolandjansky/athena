@@ -202,7 +202,6 @@ void InDetPerfPlot_VertexTruthMatching::fillResoHist(TH1* resoHist, const TH2* r
 const xAOD::TruthVertex* InDetPerfPlot_VertexTruthMatching::getTruthVertex(const xAOD::Vertex* recoVtx) const {
     const xAOD::TruthVertex* truthVtx = nullptr;
     if (recoVtx) {
-        //const static xAOD::Vertex::Decorator<std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>> truthMatchingInfos("TruthEventMatchingInfos");
         const static SG::AuxElement::Decorator<std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>> truthMatchingInfos("TruthEventMatchingInfos");
         const std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>& truthInfos = truthMatchingInfos(*recoVtx);
         if (!truthInfos.empty()) {
@@ -217,7 +216,7 @@ const xAOD::TruthVertex* InDetPerfPlot_VertexTruthMatching::getTruthVertex(const
             }
         }
         else {
-            ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
+            ATH_MSG_INFO("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
         }
     }
     return truthVtx;
@@ -268,7 +267,7 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
 
     // Best reco HS vertex identified via sumpt2
     const xAOD::Vertex* bestRecoHSVtx_sumpt2 = getHSRecoVertexSumPt2(vertexContainer); // Could potentially use the first vertex in the container if sumpt2-ordered
-    // Best reco HS vertex identified via truth HS weights
+    // Best reco HS vertex identified via number of truth HS tracks
     const xAOD::Vertex* bestRecoHSVtx_truth = InDetVertexTruthMatchUtils::bestHardScatterMatch(vertexContainer);
 
     // Did we correctly select the best reco HS vertex using sumpt2?
@@ -287,13 +286,17 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
             ATH_MSG_WARNING("Size of truth HS vertex vector is >1 -- only using the first one in the vector.");
         }
         truthHSVtx = truthHSVertices.at(0);
-        // If the radial(xyz distance) difference between the truth-pkg-selected best reco HS vertex and the truth HS vertex is
-        // less than some cut (e.g., 0.1 mm), then we say the truth HS vertex is reconstructed
-        truthRecoXyzDist2 = getXyzDist2(bestRecoHSVtx_truth, truthHSVtx);
-        if (truthRecoXyzDist2 < minTruthRecoXyzDist2) {
-            truthHSVtxRecoed = true;
-            minTruthRecoXyzDist2 = truthRecoXyzDist2;
+
+        if(bestRecoHSVtx_truth){
+	     // If the radial(xyz distance) difference between the truth-pkg-selected best reco HS vertex and the truth HS vertex is
+	     // less than some cut (e.g., 0.1 mm), then we say the truth HS vertex is reconstructed
+	     truthRecoXyzDist2 = getXyzDist2(bestRecoHSVtx_truth, truthHSVtx);
+	     if (truthRecoXyzDist2 < minTruthRecoXyzDist2) {
+                 truthHSVtxRecoed = true;
+		 minTruthRecoXyzDist2 = truthRecoXyzDist2;
+	     }
         }
+
     }
     else {
         ATH_MSG_WARNING("Size of truth HS vertex vector is 0 -- assuming truth HS vertex to NOT be reconstructed.");
