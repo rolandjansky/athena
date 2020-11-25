@@ -392,10 +392,10 @@ StatusCode SingleTrackValidation::execute() {
 
     // You have an x,y, and z position.  Now go and get the Element corresponding to
     // that hit position. There are four, one for each sampling layer:
-    double radImpact   = sqrt(x*x+y*y+z*z);
-    double phiImpact   = atan2(y,x);
-    double thetaImpact = acos(z/radImpact);
-    double etaImpact   = -log(tan(thetaImpact/2));
+    double radImpact   = std::sqrt(x*x+y*y+z*z);
+    double phiImpact   = std::atan2(y,x);
+    double thetaImpact = std::acos(z/radImpact);
+    double etaImpact   = -std::log(std::tan(thetaImpact/2));
       
     const CaloDetDescrElement *element[15]={NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL};
 
@@ -536,18 +536,18 @@ StatusCode SingleTrackValidation::execute() {
       m_c->s_t00[z]=t00[z];
       m_c->s_hits[z]=hit_count[z];
       if (z<12){
-        m_c->s_deltaPhi[z]=radImpact*sin(thetaImpact)*(ePhi[z]);
-        m_c->s_sigmaPhi[z]=radImpact*sin(thetaImpact)*sqrt(ePhiPhi[z]- ePhi[z]*ePhi[z]);
+        m_c->s_deltaPhi[z]=radImpact*std::sin(thetaImpact)*(ePhi[z]);
+        m_c->s_sigmaPhi[z]=radImpact*std::sin(thetaImpact)*std::sqrt(ePhiPhi[z]- ePhi[z]*ePhi[z]);
         m_c->s_deltaEta[z]=radImpact*dThetaDEta*(eEta[z]-etaImpact);
-        m_c->s_sigmaEta[z]=radImpact*fabs(dThetaDEta)*sqrt(eEtaEta[z]- eEta[z]*eEta[z]);
+        m_c->s_sigmaEta[z]=radImpact*std::fabs(dThetaDEta)*std::sqrt(eEtaEta[z]- eEta[z]*eEta[z]);
       } else {
         m_c->s_deltaPhi[z]=(eX[z]-x);
-        m_c->s_sigmaPhi[z]=sqrt(eXX[z]- eX[z]*eX[z]);
+        m_c->s_sigmaPhi[z]=std::sqrt(eXX[z]- eX[z]*eX[z]);
         m_c->s_deltaEta[z]=(eY[z]-y);
-        m_c->s_sigmaEta[z]=sqrt(eYY[z]-eY[z]*eY[z]);
+        m_c->s_sigmaEta[z]=std::sqrt(eYY[z]-eY[z]*eY[z]);
       }
-      m_c->s_widthX[z]=sqrt(eXX[z]-eX[z]*eX[z]);
-      m_c->s_widthY[z]=sqrt(eYY[z]-eY[z]*eY[z]);
+      m_c->s_widthX[z]=std::sqrt(eXX[z]-eX[z]*eX[z]);
+      m_c->s_widthY[z]=std::sqrt(eYY[z]-eY[z]*eY[z]);
     }
 	
     m_histos[161]->Fill(e_dep/Units::GeV);
@@ -559,15 +559,15 @@ StatusCode SingleTrackValidation::execute() {
       m_histos[126+i]->Fill( sqrt(eXX[i]-eX[i]*eX[i]) );
       m_histos[141+i]->Fill( sqrt(eYY[i]-eY[i]*eY[i]) );
       if (i<8){
-        m_histos[51+i]->Fill( radImpact*sin(thetaImpact)*ePhi[i] );
-        m_histos[66+i]->Fill( radImpact*sin(thetaImpact)*sqrt(ePhiPhi[i]-ePhi[i]*ePhi[i]) );
+        m_histos[51+i]->Fill( radImpact*std::sin(thetaImpact)*ePhi[i] );
+        m_histos[66+i]->Fill( radImpact*std::sin(thetaImpact)*std::sqrt(ePhiPhi[i]-ePhi[i]*ePhi[i]) );
         m_histos[81+i]->Fill( radImpact*dThetaDEta*(eEta[i]-etaImpact) );
-        m_histos[96+i]->Fill( radImpact*fabs(dThetaDEta)*sqrt(eEtaEta[i]-eEta[i]*eEta[i]) );
+        m_histos[96+i]->Fill( radImpact*std::fabs(dThetaDEta)*std::sqrt(eEtaEta[i]-eEta[i]*eEta[i]) );
       } else {
         m_histos[51+i]->Fill( eX[i]-x );
-        m_histos[66+i]->Fill( sqrt(eXX[i]-eX[i]*eX[i]) );
+        m_histos[66+i]->Fill( std::sqrt(eXX[i]-eX[i]*eX[i]) );
         m_histos[81+i]->Fill( eY[i]-y );
-        m_histos[96+i]->Fill( sqrt(eYY[i]-eY[i]*eY[i]) );
+        m_histos[96+i]->Fill( std::sqrt(eYY[i]-eY[i]*eY[i]) );
       }
     }
 

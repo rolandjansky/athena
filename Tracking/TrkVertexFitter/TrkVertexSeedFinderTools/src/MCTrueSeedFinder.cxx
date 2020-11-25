@@ -188,7 +188,7 @@ namespace Trk
 
     bool isEmpty = ( evt->particles_size() == 0 );
     bool isDummy = ( ( evt->event_number() == -1 ) &&
-		     ( evt->signal_process_id() == 0 ) );
+		     ( HepMC::signal_process_id(evt) == 0 ) );
     if( isDummy ) isEmpty = false;
 
     if( isEmpty ) return false;
@@ -208,7 +208,7 @@ namespace Trk
     int gotzero = 1;
     for( ; iter != end; ++iter ) {
       if( ( ( ( *iter )->event_number() == -1 ) &&
-            ( ( *iter )->signal_process_id() == 0 ) ) ) {
+            ( HepMC::signal_process_id( *iter ) == 0 ) ) ) {
 	++gotzero;
       }
       if( evt == *iter ) break;

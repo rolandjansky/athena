@@ -201,9 +201,9 @@ StatusCode TruthParticleCnvTool::execute (const EventContext& ctx) const
       continue;
     }
     genEventIndex = (it - mcEventsReadHandle->begin());
-    ATH_MSG_DEBUG(" adding event id="<< evt->signal_process_id()<<"  genEventIndex="<< genEventIndex );
+    ATH_MSG_DEBUG(" adding event id="<< HepMC::signal_process_id(evt)<<"  genEventIndex="<< genEventIndex );
 
-    if( evt->signal_process_id() == 0 ) continue;
+    if( HepMC::signal_process_id(evt) == 0 ) continue;
     if (!this->convert( mcEventsReadHandle.ptr(), genEventIndex, mcPartsOutputWriteHandle.ptr(), dummyVisitor ).isSuccess()) {
       ATH_MSG_DEBUG("Failed to convert an event...");
       all_good = false;
@@ -283,10 +283,10 @@ TruthParticleCnvTool::convert( const McEventCollection * mcCollection,
 
     if ( hepMcPart != mcPart->genParticle() ) {
       ATH_MSG_ERROR("TruthParticle is not wrapping the GenParticle : " 
-		    << hepMcPart->barcode() << " !!");
+		    << HepMC::barcode(hepMcPart) << " !!");
     }
     //bcToMcPart[ hepMcPart->barcoade() ] = mcPart;
-    HepMcParticleLink mcLink( hepMcPart->barcode(), genEventIndex, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION, sg ); // FIXME assuming that we are using the hard-scatter McEventCollection - would need to pass this info as an argument to the convert function.
+    HepMcParticleLink mcLink( HepMC::barcode(hepMcPart), genEventIndex, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION, sg ); // FIXME assuming that we are using the hard-scatter McEventCollection - would need to pass this info as an argument to the convert function.
     bcToMcPart[ mcLink.compress() ] = mcPart;
 
   }//> end loop over particles

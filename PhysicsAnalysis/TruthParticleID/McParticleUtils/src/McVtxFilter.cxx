@@ -366,7 +366,7 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
 
   m_msg << MSG::VERBOSE << ">>> CheckParentBranch is DONE : " 
 	<< ( accepted ? "accept" : "reject" )
-	<< " vtx= " << vtx->barcode()
+	<< " vtx= " << HepMC::barcode(vtx)
 	<< endmsg;
   return accepted;
 }
@@ -420,7 +420,7 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
 
   m_msg << MSG::VERBOSE << ">>> CheckChildBranch is DONE : " 
 	<< ( accepted ? "accept" : "reject" )
-	<< " vtx= " << vtx->barcode()
+	<< " vtx= " << HepMC::barcode(vtx)
 	<< endmsg;
   return accepted;
 }

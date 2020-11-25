@@ -153,7 +153,7 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
 
              if(fabs(lv_pos.perp() - pv_r)<m_radiusRes  && fabs(lv_pos.z() - pv_z)<m_zPosRes)
              {
-               pv_vtx_ids.insert(std::make_pair(par_vert->barcode(),par_vert));
+               pv_vtx_ids.insert(std::make_pair(HepMC::barcode(par_vert),par_vert));
              } else {
                 bool new_sec_vtx = true;
                 //loop over all entries in sec_vtx_ids_vec = vector of sec_vtx_map's
@@ -172,7 +172,7 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
 		    // if vertex position are nearly the same, store this vertex in the map
                     if(fabs(lv_pos.perp() - sec_r)< m_radiusRes && fabs(lv_pos.z() - sec_z)<m_zPosRes)
                     {
-                       sec_vtx_map.insert(std::make_pair(par_vert->barcode(),par_vert));
+                       sec_vtx_map.insert(std::make_pair(HepMC::barcode(par_vert),par_vert));
                        new_sec_vtx = false;
                        break;
                     }
