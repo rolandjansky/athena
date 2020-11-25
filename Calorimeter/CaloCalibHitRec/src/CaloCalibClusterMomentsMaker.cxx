@@ -39,7 +39,6 @@
 #include "CaloIdentifier/CaloDM_ID.h"
 
 #include "StoreGate/ReadHandle.h" 
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <CLHEP/Geometry/Vector3D.h>
 #include <CLHEP/Units/SystemOfUnits.h>
