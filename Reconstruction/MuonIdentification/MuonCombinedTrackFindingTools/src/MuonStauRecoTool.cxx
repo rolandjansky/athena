@@ -26,7 +26,6 @@
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
-#include "EventPrimitives/EventPrimitivesHelpers.h"
 
 namespace MuonCombined {
 

@@ -7,10 +7,8 @@
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
-#include "xAODPrimitives/tools/getIsolationAccessor.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackSummaryAccessors_v1.h"
-
 #include "xAODPrimitives/tools/getIsolationAccessor.h"
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 
