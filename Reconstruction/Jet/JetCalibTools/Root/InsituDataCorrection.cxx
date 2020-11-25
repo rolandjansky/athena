@@ -71,23 +71,21 @@ StatusCode InsituDataCorrection::initializeTool(const std::string&) {
 
   rel_histoname.ReplaceAll("JETALGO",m_jetAlgo); abs_histoname.ReplaceAll("JETALGO",m_jetAlgo);
   if(m_applyRelativeandAbsoluteInsitu){
-    TH2D * rel_histo = (TH2D*)JetCalibUtils::GetHisto2(insitu_file,rel_histoname);
-    TH1D * abs_histo = (TH1D*)JetCalibUtils::GetHisto(insitu_file,abs_histoname);
+    std::unique_ptr<TH2D> rel_histo(dynamic_cast<TH2D*>(JetCalibUtils::GetHisto2(insitu_file,rel_histoname)));
+    std::unique_ptr<TH1D> abs_histo(dynamic_cast<TH1D*>(JetCalibUtils::GetHisto(insitu_file,abs_histoname)));
     if ( !rel_histo || !abs_histo ) {
       ATH_MSG_FATAL( "\n  Tool configured for data, but no residual in-situ histograms could be retrieved. Aborting..." );
       return StatusCode::FAILURE;
     }
-    else {
-      gROOT->cd();
-      // save pTmax of the relative and absolute in situ calibrations
-      m_relhistoPtMax = rel_histo->GetXaxis()->GetBinLowEdge(rel_histo->GetNbinsX()+1);
-      m_abshistoPtMax = abs_histo->GetBinLowEdge(abs_histo->GetNbinsX()+1);
-      // combine in situ calibrations
-      m_insituCorr = combineCalibration(rel_histo,abs_histo);
-      m_insituEtaMax = m_insituCorr->GetYaxis()->GetBinLowEdge(m_insituCorr->GetNbinsY()+1);
-      m_insituPtMin = m_insituCorr->GetXaxis()->GetBinLowEdge(1);
-      m_insituPtMax = m_insituCorr->GetXaxis()->GetBinLowEdge(m_insituCorr->GetNbinsX()+1);
-    }
+    gROOT->cd();
+    // save pTmax of the relative and absolute in situ calibrations
+    m_relhistoPtMax = rel_histo->GetXaxis()->GetBinLowEdge(rel_histo->GetNbinsX()+1);
+    m_abshistoPtMax = abs_histo->GetBinLowEdge(abs_histo->GetNbinsX()+1);
+    // combine in situ calibrations
+    m_insituCorr = combineCalibration(rel_histo.get(),abs_histo.get());
+    m_insituEtaMax = m_insituCorr->GetYaxis()->GetBinLowEdge(m_insituCorr->GetNbinsY()+1);
+    m_insituPtMin = m_insituCorr->GetXaxis()->GetBinLowEdge(1);
+    m_insituPtMax = m_insituCorr->GetXaxis()->GetBinLowEdge(m_insituCorr->GetNbinsX()+1);
     if(m_applyEtaRestrictionRelativeandAbsolute) m_insituEtaMax = insitu_etarestriction_relativeandabsolute;
   }
   if(m_applyResidualMCbasedInsitu){

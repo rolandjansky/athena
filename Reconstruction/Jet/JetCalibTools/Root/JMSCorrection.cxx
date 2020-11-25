@@ -45,58 +45,19 @@ JMSCorrection::JMSCorrection(const std::string& name, TEnv * config, TString jet
 
 JMSCorrection::~JMSCorrection() {
 
-    if (m_use3Dhisto)
-    {
-        // Free 3D histograms
-        if (m_respFactorMass3D)
-        {
-            delete m_respFactorMass3D;
-            m_respFactorMass3D = NULL;
-        }
-        if (m_respFactorTrackAssistedMass3D)
-        {
-            delete m_respFactorTrackAssistedMass3D;
-            m_respFactorTrackAssistedMass3D = NULL;
-        }
-        if (m_caloResolutionMassCombination3D)
-        {
-            delete m_caloResolutionMassCombination3D;
-            m_caloResolutionMassCombination3D = NULL;
-        }
-        if (m_taResolutionMassCombination3D)
-        {
-            delete m_taResolutionMassCombination3D;
-            m_taResolutionMassCombination3D = NULL;
-        }
-        if (m_correlationMapMassCombination3D)
-        {
-            delete m_correlationMapMassCombination3D;
-            m_correlationMapMassCombination3D = NULL;
-        }
-    }
-    {
-        // Free 2D histograms
-        for (TH2F* histo : m_respFactorsMass)
-            delete histo;
-        m_respFactorsMass.clear();
-        
-        for (TH2F* histo : m_respFactorsTrackAssistedMass)
-            delete histo;
-        m_respFactorsTrackAssistedMass.clear();
+  // Free 3D histograms
+  if (m_respFactorMass3D               ) delete m_respFactorMass3D;
+  if (m_respFactorTrackAssistedMass3D  ) delete m_respFactorTrackAssistedMass3D;
+  if (m_caloResolutionMassCombination3D) delete m_caloResolutionMassCombination3D;
+  if (m_taResolutionMassCombination3D  ) delete m_taResolutionMassCombination3D;
+  if (m_correlationMapMassCombination3D) delete m_correlationMapMassCombination3D;
 
-        for (TH2D* histo : m_caloResolutionMassCombination)
-            delete histo;
-        m_caloResolutionMassCombination.clear();
-
-        for (TH2D* histo : m_taResolutionMassCombination)
-            delete histo;
-        m_taResolutionMassCombination.clear();
-
-        for (TH2D* histo : m_correlationMapMassCombination)
-            delete histo;
-        m_correlationMapMassCombination.clear();
-    }
-
+  // Free 2D histograms
+  for (TH2F* histo : m_respFactorsMass              ){if(histo) delete histo;}
+  for (TH2F* histo : m_respFactorsTrackAssistedMass ){if(histo) delete histo;}
+  for (TH2D* histo : m_caloResolutionMassCombination){if(histo) delete histo;}
+  for (TH2D* histo : m_taResolutionMassCombination  ){if(histo) delete histo;}
+  for (TH2D* histo : m_correlationMapMassCombination){if(histo) delete histo;}
 }
 
 StatusCode JMSCorrection::initializeTool(const std::string&) {

@@ -20,8 +20,15 @@ using xAOD::JetFourMom_t;
 //**********************************************************************
 
 JetVertexTaggerTool::JetVertexTaggerTool(const std::string& name)
-: asg::AsgTool(name)
+: asg::AsgTool(name),
+  m_jvthisto(nullptr)
 {
+}
+
+//**********************************************************************
+
+JetVertexTaggerTool::~JetVertexTaggerTool(){
+  if(m_jvthisto) delete m_jvthisto;
 }
 
 //**********************************************************************

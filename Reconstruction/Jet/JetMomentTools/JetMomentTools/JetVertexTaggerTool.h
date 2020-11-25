@@ -84,6 +84,9 @@ public:
   // Constructor from tool name
   JetVertexTaggerTool(const std::string& name);
 
+  // Destructor
+  virtual ~JetVertexTaggerTool();
+
   // Initialization.
   StatusCode initialize() override;
 
