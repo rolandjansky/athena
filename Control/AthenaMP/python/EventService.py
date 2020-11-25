@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Configure AthenaMP Strategy
 from AthenaMP.AthenaMPFlags import jobproperties as jps
 jps.AthenaMPFlags.Strategy="EventService"
