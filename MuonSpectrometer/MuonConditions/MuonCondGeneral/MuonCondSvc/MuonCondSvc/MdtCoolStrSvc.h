@@ -11,7 +11,7 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "MuonCondInterface/MdtICoolStrSvc.h"
-#include "GaudiKernel/Service.h"
+
 namespace MuonCalib {
 class MdtCoolStrSvc : public AthService, virtual MdtICoolStrSvc
 {

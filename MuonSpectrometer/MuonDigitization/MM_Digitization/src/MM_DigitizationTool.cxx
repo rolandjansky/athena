@@ -36,15 +36,8 @@
 #include "MuonSimEvent/MicromegasHitIdHelper.h"
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkEventPrimitives/LocalDirection.h"
-#include "TrkSurfaces/Surface.h"
 #include "PathResolver/PathResolver.h"
 #include "AIDA/IHistogram1D.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
-#include "MuonReadoutGeometry/MMReadoutElement.h"
-#include "MuonReadoutGeometry/MuonChannelDesign.h"
-#include "MuonSimEvent/MicromegasHitIdHelper.h"
-#include "TrkDetDescrUtils/GeometryStatics.h"
-#include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
 
 //Truth

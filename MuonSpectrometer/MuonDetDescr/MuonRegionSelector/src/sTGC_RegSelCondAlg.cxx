@@ -32,12 +32,6 @@
 
 #include "MuonReadoutGeometry/MuonStation.h"
 
-#include "RegSelLUT/RegSelSiLUT.h"
-
-
-/// not implemented yet
-/// #include "Muon_sTGC_Cabling/MuonMM_CablingSvc.h"
-
 #include "sTGC_RegSelCondAlg.h"
 
 

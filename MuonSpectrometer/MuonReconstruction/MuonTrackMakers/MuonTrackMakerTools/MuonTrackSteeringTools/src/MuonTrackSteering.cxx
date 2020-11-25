@@ -2,19 +2,15 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "MuonTrackSteering.h"
-#include "MuonTrackSteeringStrategy.h"
 
+#include "MuonTrackSteeringStrategy.h"
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
-
 #include "MuPatSegment.h"
 #include "MuPatCandidateBase.h"
 #include "MuPatTrack.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
-
-#include "MuonSegment/MuonSegment.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
