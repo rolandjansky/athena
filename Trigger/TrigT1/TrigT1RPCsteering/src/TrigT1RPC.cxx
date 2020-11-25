@@ -97,12 +97,9 @@ StatusCode TrigT1RPC::initialize(){
     m_rpcId = m_MuonMgr->rpcIdHelper();
     
 
-    
-
     // initialize RPC cabling service
     CHECK(m_cabling_getter.retrieve());
     CHECK(m_cabling_getter->giveCabling(m_cabling));
-    
     
   return StatusCode::SUCCESS;
 }
@@ -193,7 +190,7 @@ StatusCode TrigT1RPC::execute() {
               << ", Th=" << TriggerRPC::PT1(data_word)                    //
               << ", data word " << MSG::hex << data_word                  //
               << MSG::dec );                                      //
-
+          
           ctpiInRPC->setSectorLogicData(data_word,0,subsystem,logic_sector,dbc);
       }
                                                                         //
@@ -290,6 +287,20 @@ StatusCode TrigT1RPC::execute() {
 
   }
 
+
+  // ******************* Start of BIS78 section *****************
+
+  // Now BIS78 Trigger 
+  uint8_t dstrip_phi=1; // Delta phi for BIS78 coincidence
+  uint8_t dstrip_eta=1; // Delta eta for BIS78 coincidence
+  uint16_t bcid=0;
+  
+  Muon::RpcBis78_TrigRawDataContainer* bis78TrgContainer = new Muon::RpcBis78_TrigRawDataContainer;
+  CHECK( BIS78TrigSim.build_trigRawData(bis78TrgContainer, dstrip_phi, dstrip_eta, bcid) );
+  CHECK( evtStore()->record(bis78TrgContainer,DEFAULT_L1StoreLocationBIS78) );
+  
+  
+  
   ATH_MSG_DEBUG ( "TrigT1RPC terminated succesfully!" );
 
   return StatusCode::SUCCESS;
@@ -319,6 +330,10 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
     const DataHandle <RpcDigitContainer> container;
     CHECK(evtStore()->retrieve(container,key));
 
+    // Cleanup the BIS78 strip data 
+    CHECK( BIS78TrigSim.initialize() );
+
+    int bisStationIndex=m_rpcId->stationNameIndex("BIS");
 
     collection_iterator it1_coll= container->begin(); 
     collection_iterator it2_coll= container->end(); 
@@ -329,9 +344,6 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
  
         Identifier moduleId = rpcCollection->identify();
         
-        //        if (m_rpcId->validElement(moduleId) && 
-        //	    m_digit_position->initialize(moduleId))
-
 	if (m_rpcId->is_rpc(moduleId))
         {
             digit_iterator it1_digit = rpcCollection->begin();
@@ -422,7 +434,19 @@ StatusCode TrigT1RPC::fill_RPCdata(RPCsimuData& data)
                                        << setiosflags(ios::fixed) << setprecision(3)
                                        << setw(11) << pos.z() );
                         
+			
                     }
+		    
+		    // This section fills the BIS strip data 
+		    if (stationType == bisStationIndex) {
+        	      ATH_MSG_DEBUG (  "Filling BIS strip data: StationName=" << StationName << " StationEta=" << StationEta 
+        		      << " StationPhi=" << StationPhi<< " MeasuresPhi=" << MeasuresPhi
+        		      << " Strip=" << Strip<< " GasGap=" << GasGap 
+			      << " Time=" <<rpcDigit->time() );
+		    
+		      BIS78TrigSim.AddStrip(StationEta, StationPhi, GasGap, MeasuresPhi, Strip);
+		    }
+  
                 }
             }
             string id = m_rpcId->show_to_string(moduleId);

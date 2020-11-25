@@ -31,7 +31,10 @@
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 
+#include "TrigT1RPCsteering/BIS78_triggerSimulation.h"
+
 #define DEFAULT_L1MuctpiStoreLocationRPC "/Event/L1MuctpiStoreRPC"
+#define DEFAULT_L1StoreLocationBIS78     "/Event/BIS78TrigContainer"
 
 class RpcIdHelper;
 
@@ -76,6 +79,8 @@ private:
     IntegerProperty m_lastBC_to_MUCTPI;   // First BC to be sent to muctpi, wrt to BC0, e.g. -1 meanst the BC before the trigger Bc
     
   StatusCode fill_RPCdata(RPCsimuData&);
+  
+  BIS78_triggerSimulation BIS78TrigSim;
 
 private:
 
