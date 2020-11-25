@@ -38,9 +38,9 @@ namespace xAOD {
       /// @{
 
       /// Operator testing the equality of two objects
-      bool operator==( const FileMetaData_v1& rhs );
+      bool operator==( const FileMetaData_v1& rhs ) const;
       /// Operator testing the inequality of two objects
-      bool operator!=( const FileMetaData_v1& rhs );
+      bool operator!=( const FileMetaData_v1& rhs ) const;
 
       /// @}
 

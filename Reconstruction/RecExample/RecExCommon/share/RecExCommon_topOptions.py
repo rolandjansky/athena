@@ -1393,6 +1393,11 @@ if rec.doWriteAOD():
         ToolSvc += CfgMgr.xAODMaker__EventFormatMetaDataTool( "EventFormatMetaDataTool")
 
         svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.EventFormatMetaDataTool ]
+
+        # FileMetaData tool
+        ToolSvc += CfgMgr.xAODMaker__FileMetaDataTool("FileMetaDataTool")
+        svcMgr.MetaDataSvc.MetaDataTools += [ToolSvc.FileMetaDataTool]
+
         # Put MetaData in AOD stream via AugmentedPoolStream_
         # Write all meta data containers
         StreamAOD_Augmented.AddMetaDataItem(dfMetadataItemList())

@@ -11,12 +11,12 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
    AthenaOutputStreamTool=CompFactory.AthenaOutputStreamTool
    StoreGateSvc=CompFactory.StoreGateSvc
 
+   msg = logging.getLogger('OutputStreamCfg')
    flagName="Output.%sFileName" % streamName
    if configFlags.hasFlag(flagName):
       fileName=configFlags._get(flagName)
    else:
       fileName="my%s.pool.root" % streamName
-      msg = logging.getLogger('OutputStreamCfg')
       msg.info("No file name predefined for stream %s. Using %s", streamName, fileName)
 
    if fileName in configFlags.Input.Files:
@@ -54,6 +54,34 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
         "IOVMetaDataContainer#*",
    ]
 
+   # Make EventFormat object
+   event_format_key = 'EventFormat{}'.format(streamName)
+   event_format_tool = CompFactory.xAODMaker.EventFormatStreamHelperTool(
+      '{}_MakeEventFormat'.format(event_format_key),
+      Key=event_format_key,
+   )
+   outputStream.HelperTools.append(event_format_tool)
+   msg.info("Creating event format for this stream")
+
+   # Simplifies naming 
+   outputStream.MetadataItemList.append(
+      "xAOD::EventFormat#{}".format(event_format_key)
+   )
+
+   # setup FileMetaData
+   file_metadata_key = "FileMetaData"
+   outputStream.HelperTools.append(
+        CompFactory.xAODMaker.FileMetaDataCreatorTool(
+            name='{}_FileMetaDataCreatorTool'.format(streamName),
+            OutputKey=file_metadata_key,
+            StreamName=streamName,
+        )
+   )
+   outputStream.MetadataItemList += [
+        "xAOD::FileMetaData#{}".format(file_metadata_key),
+        "xAOD::FileMetaDataAuxInfo#{}Aux.".format(file_metadata_key),
+   ]
+
    # Event Tag
    if not disableEventTag:
       key = "SimpleTag"
@@ -64,24 +92,8 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
                                        Tool=EventInfoAttListTool())
       result.addEventAlgo(tagBuilder)
 
-   # Make EventFormat object
-   event_format_key = 'EventFormat{}'.format(streamName)
-   event_format_tool = CompFactory.xAODMaker.EventFormatStreamHelperTool(
-      '{}_MakeEventFormat'.format(event_format_key),
-      Key=event_format_key,
-   )
-   outputStream.HelperTools.append(event_format_tool)
-
-   # Simplifies naming 
-   outputStream.MetadataItemList.append(
-      "xAOD::EventFormat#{}".format(event_format_key)
-   )
    # For xAOD output
    if "xAOD" in streamName:
-      xAODMaker__FileMetaDataMarkUpTool=CompFactory.xAODMaker.FileMetaDataMarkUpTool
-      streamMarkUpTool = xAODMaker__FileMetaDataMarkUpTool( streamName + "_FileMetaDataMarkUpTool" )
-      streamMarkUpTool.Key = streamName
-      outputStream.HelperTools += [ streamMarkUpTool ]
       outputStream.WritingTool.SubLevelBranchName = "<key>"
 
       AthenaPoolCnvSvc=CompFactory.AthenaPoolCnvSvc

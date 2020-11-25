@@ -5,16 +5,24 @@
 // Local include(s):
 #include "xAODMetaDataCnv/FileMetaDataTool.h"
 
+// standard library includes
+#include <memory>
+#include <utility>
+
+// EDM include(s):
+#include "xAODMetaData/FileMetaData.h"
+#include "xAODMetaData/FileMetaDataAuxInfo.h"
+
+
 namespace xAODMaker {
 
 FileMetaDataTool::FileMetaDataTool(const std::string& name)
-    : asg::AsgMetadataTool(name)
-    , m_md()
-    , m_mdAux()
-    , m_beginFileIncidentSeen(false) {
-      declareProperty("InputKey", m_inputKey = "FileMetaData");
-      declareProperty("OutputKey", m_outputKey = "FileMetaData");
+    : asg::AsgMetadataTool(name) {
+  declareProperty("InputKey", m_inputKey = "FileMetaData",
+                  "Key of xAOD::FileMetaData object in input");
 
+  declareProperty("OutputKey", m_outputKey = "FileMetaData",
+                  "Key of xAOD::FileMetaData in MetaDataStore");
 #ifndef XAOD_STANDALONE
       declareInterface< ::IMetaDataTool >(this);
 #endif  // XAOD_STANDALONE
@@ -22,19 +30,26 @@ FileMetaDataTool::FileMetaDataTool(const std::string& name)
 
 StatusCode
     FileMetaDataTool::initialize() {
-      // Greet the user:
-      ATH_MSG_DEBUG("Initialising xAODMaker::FileMetaDataTool");
-      ATH_MSG_DEBUG("  InputKey  = " << m_inputKey);
-      ATH_MSG_DEBUG("  OutputKey = " << m_outputKey);
-
-      // Reset the member variable(s):
-      m_md.reset();
-      m_mdAux.reset();
-      m_beginFileIncidentSeen = false;
+#ifndef XAOD_STANDALONE
+      ASG_CHECK(m_metaDataSvc.retrieve());
+#endif  // XAOD_STANDALONE
 
       // Return gracefully:
       return StatusCode::SUCCESS;
     }
+
+#ifndef XAOD_STANDALONE
+StatusCode
+    FileMetaDataTool::endInputFile(const SG::SourceID&) {
+      // Return gracefully:
+      return StatusCode::SUCCESS;
+    }
+
+StatusCode
+    FileMetaDataTool::beginInputFile(const SG::SourceID&) {
+      return beginInputFile();
+    }
+#endif  // XAOD_STANDALONE
 
 StatusCode
     FileMetaDataTool::endInputFile() {
@@ -44,49 +59,67 @@ StatusCode
 
 StatusCode
     FileMetaDataTool::beginInputFile() {
-      // Whatever happens, we've seen the incident:
-      m_beginFileIncidentSeen = true;
+      // Previous input file has been processed
+      std::lock_guard lock(m_toolMutex);
 
-      // If the input file doesn't have any file-level metadata, then
-      // finish right away:
+      // Quit gracefully if there is nothing to do
       if (!inputMetaStore()->contains< xAOD::FileMetaData >(m_inputKey)) {
+        ATH_MSG_INFO("No xAOD::FileMetaData in the input file");
         return StatusCode::SUCCESS;
       }
 
-      // Retrieve the input object:
-      const xAOD::FileMetaData* input = 0;
-      ATH_CHECK(inputMetaStore()->retrieve(input, m_inputKey));
+      // Get the FileMetaData object from the input file
+      const xAOD::FileMetaData * input = nullptr;
+      ASG_CHECK(inputMetaStore()->retrieve(input, m_inputKey));
 
-      // Create the output objects if they don't exist yet:
-      if ((!m_md.get()) && (!m_mdAux.get())) {
-        ATH_MSG_DEBUG("Creating output objects");
-        m_md.reset(new xAOD::FileMetaData());
-        m_mdAux.reset(new xAOD::FileMetaDataAuxInfo());
-        m_md->setStore(m_mdAux.get());
+      // Emit a warning if the FileMetaData from previous files does not
+      // match that of the new input file
+#ifdef XAOD_STANDALONE
+      if (outputMetaStore()->contains< xAOD::FileMetaData >(m_outputKey)) {
+        xAOD::FileMetaData * output = nullptr;
+        ASG_CHECK(
+            outputMetaStore()->retrieve(output, m_outputKey));
+#else
+      if (m_metaDataSvc->contains< xAOD::FileMetaData >(m_outputKey)) {
+        auto output = m_metaDataSvc->tryConstRetrieve< xAOD::FileMetaData >(m_outputKey);
+        if (!output) return StatusCode::FAILURE;
+#endif  // XAOD_STANDALONE
 
-        // Copy the payload of the input object:
-        *(m_md.get()) = *input;
+        if (*input != *output)
+          ATH_MSG_WARNING("Inconsistent input file MetaData");
+
+        return StatusCode::SUCCESS;
+
       }
 
-      // Make sure that the objects are compatible:
-      if (*(m_md.get()) != *input) {
-        ATH_MSG_ERROR("Processing input files with differing conditions");
-        ATH_MSG_ERROR("Consistent xAOD::FileMetaData can't be provided for "
-                      "the output");
-        return StatusCode::FAILURE;
-      }
+      ATH_MSG_DEBUG("Creating output objects");
+      auto output = std::make_unique< xAOD::FileMetaData >();
+      auto outputAux = std::make_unique< xAOD::FileMetaDataAuxInfo >();
+      output->setStore(outputAux.get());
 
-      // Return gracefully:
-      return StatusCode::SUCCESS;
-    }
+      // Copy input object
+      *output = *input;
 
-StatusCode
-    FileMetaDataTool::beginEvent() {
-      // In case we missed the BeginInputFile incident for the first input file,
-      // make sure that we still run the appropriate function.
-      if (!m_beginFileIncidentSeen) {
-        ATH_CHECK(beginInputFile());
-      }
+
+#ifdef XAOD_STANDALONE
+      ASG_CHECK(
+          outputMetaStore()->record< xAOD::FileMetaData >(
+              std::move(output), m_outputKey));
+
+      ASG_CHECK(
+          outputMetaStore()->record< xAOD::FileMetaDataAuxInfo >(
+              std::move(outputAux), m_outputKey + "Aux."));
+#else
+      ASG_CHECK(
+          m_metaDataSvc->record< xAOD::FileMetaData >(
+              std::move(output), m_outputKey));
+
+      ASG_CHECK(
+          m_metaDataSvc->record< xAOD::FileMetaDataAuxInfo >(
+              std::move(outputAux), m_outputKey + "Aux."));
+#endif  // XAOD_STANDALONE
+
+      ATH_MSG_INFO("Copied xAOD::FileMetaData to MetaDataStore");
 
       // Return gracefully:
       return StatusCode::SUCCESS;
@@ -94,22 +127,7 @@ StatusCode
 
 StatusCode
     FileMetaDataTool::metaDataStop() {
-      // Don't be offended if the metadata already exists in the output:
-      if (outputMetaStore()->contains< xAOD::FileMetaData >(m_outputKey)) {
-        ATH_MSG_DEBUG("xAOD::FileMetaData already in the output");
-        return StatusCode::SUCCESS;
-      }
-
-      // Record the metadata, if any was found on the input:
-      if (m_md.get() && m_mdAux.get()) {
-        ATH_MSG_DEBUG("Recoding file level metadata");
-        ATH_CHECK(outputMetaStore()->record(m_md.release(), m_outputKey));
-        ATH_CHECK(outputMetaStore()->record(m_mdAux.release(),
-                                            m_outputKey + "Aux."));
-      }
-
       // Return gracefully:
       return StatusCode::SUCCESS;
     }
-
 }  // namespace xAODMaker

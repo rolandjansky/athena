@@ -10,82 +10,157 @@
 #include <memory>
 
 // Infrastructure include(s):
+#include "Gaudi/Property.h"
+#include "GaudiKernel/extends.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IIOVSvc.h"
-#include "AsgTools/AsgMetadataTool.h"
-#include "AthenaKernel/IMetaDataTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaKernel/IAthenaOutputTool.h"
+#include "AthenaKernel/IMetaDataSvc.h"
+#include "IOVDbDataModel/IOVMetaDataContainer.h"
+#include "CoralBase/AttributeList.h"
+#include "StoreGate/ReadHandleKey.h"
 
 // EDM include(s):
+#include "PersistentDataModel/DataHeader.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "xAODMetaData/FileMetaData.h"
 #include "xAODMetaData/FileMetaDataAuxInfo.h"
 
 namespace xAODMaker {
 
-/// Tool creating or propagating xAOD::FileMetaData information
+/// Tool creating xAOD::FileMetaData information
 ///
-/// This Athena-only tool can be used to create xAOD::FileMetaData
-/// information out of the non-ROOT-readable metadata available in
-/// the input.
-///
-/// Or, if the input file already has xAOD::FileMetaData payload,
-/// it is taken as is, and copied to the output.
-///
-/// The class uses asg::AsgMetadataTool as a base class for convenience,
-/// but it's not a dual-use tool. (Hence the header is hidden from the
-/// outside world.)
+/// This Athena-only tool can be used to create xAOD::FileMetaData information
+/// out of the non-ROOT-readable metadata available in the input. The
+/// FileMetaDataTool may have copied a xAOD::FileMetaData object to the
+/// MetaDataStore. If such a xAOD::FileMetaData object is found it is updated
+/// to reflect the current data type and MC channel number.
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-///
-/// $Revision: 676522 $
-/// $Date: 2015-06-19 00:17:03 +0200 (Fri, 19 Jun 2015) $
+/// @author Frank Berghaus <fberghaus@anl.gov>
 ///
 class FileMetaDataCreatorTool
-    : public asg::AsgMetadataTool
-    , public virtual ::IMetaDataTool {
-  /// Declare the correct constructor for Athena
-  ASG_TOOL_CLASS(FileMetaDataCreatorTool, IMetaDataTool)
-
+    : public extends< AthAlgTool, IAthenaOutputTool, IIncidentListener > {
  public:
-      /// Regular AsgTool constructor
-      FileMetaDataCreatorTool(const std::string& name =
-                              "FileMetaDataCreatorTool");
+  using extends::extends;
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
-      virtual StatusCode start();
+  /// @name AlgTool Methods
+  /// @{
+  /// Called by AthenaOutputStream::initialize() (via ToolSvc retrieve()).
+  StatusCode initialize() override;
 
- protected:
-      /// @name Functions called by the AsgMetadataTool base class
-      /// @{
+  /// Called at the end of AthenaOutputStream::finalize() (via release()).
+  StatusCode finalize() override;
+  /// @}
 
-      /// Function collecting the metadata from a new input file
-      virtual StatusCode beginInputFile();
+  /// @name Methods inherited by IAthenaOutputTool
+  /// @{
+  /// Called at the end of AthenaOutputStream::initialize().
+  StatusCode postInitialize() override;
 
-      /// Function collecting the metadata from a new input file
-      virtual StatusCode endInputFile();
+  /// Called at the beginning of AthenaOutputStream::execute().
+  StatusCode preExecute() override;
 
-      /// Function writing the collected metadata to the output
-      virtual StatusCode metaDataStop();
+  /// Called before actually streaming objects.
+  StatusCode preStream() override;
 
-      /// Function collecting the metadata from a new input file
-      virtual StatusCode beginInputFile(const SG::SourceID&) {return beginInputFile();}
+  /// Called at the end of AthenaOutputStream::execute().
+  StatusCode postExecute() override;
 
-      /// Function collecting the metadata from a new input file
-      virtual StatusCode endInputFile(const SG::SourceID&) {return endInputFile();}
+  /// Called at the beginning of AthenaOutputStream::finalize().
+  StatusCode preFinalize() override;
+  /// @}
 
-      /// @}
+  /// @name IIncidentListener methods
+  //@{
+  /// Handle BeginInputFile incident after MetaDataSvc
+  void handle(const Incident&) override;
+  //@}
 
  private:
-      /// Function called by the DetectorStore when the metadata is updated
-      StatusCode update(IOVSVC_CALLBACK_ARGS_P(I, keys));
+  /// output key for produced xAOD::FileMetaData in MetaDataStore
+  Gaudi::Property< std::string > m_key{
+      this,
+      "OutputKey",
+      "FileMetaData",
+      "Key to use for FileMetaData in MetaDataStore"
+  };
 
-      /// Key of the metadata object for the output file
-      std::string m_outputKey;
+  /// Read tag information
+  SG::ReadHandleKey< IOVMetaDataContainer > m_tagInfoKey {
+      this,
+      "TagInfoKey",
+      "InputMetaDataStore+/TagInfo",
+      "Store and Key to use to look up tags"
+  };
 
-      /// The output interface object
-      std::unique_ptr< xAOD::FileMetaData > m_md;
-      /// The output auxiliary object
-      std::unique_ptr< xAOD::FileMetaDataAuxInfo > m_mdAux;
+  /// Read simulation parameters
+  SG::ReadHandleKey< IOVMetaDataContainer > m_simInfoKey {
+      this,
+      "SimInfoKey",
+      "InputMetaDataStore+/Simulation/Parameters",
+      "Store and Key to use to look up simulation parameters"
+  };
+
+  /// DataHeader is produced by another OutputTool, so need StoreGateSvc
+  ServiceHandle< StoreGateSvc > m_eventStore{"StoreGateSvc", name()};
+
+
+  /// Key for xAOD::EventInfo to update MC channel number
+  Gaudi::Property< std::string > m_eventInfoKey {
+      this,
+      "EventInfoKey",
+      "EventInfo",
+      "StoreGate key to read xAOD::EventInfo"
+  };
+
+  /// Key for DataHeader in StoreGateSvc
+  Gaudi::Property< std::string > m_dataHeaderKey {
+      this,
+      "StreamName",
+      "",
+      "key of data header in event store"
+  };
+
+  /// Use MetaDataSvc store interface to support output in EventService
+  ServiceHandle< IMetaDataSvc > m_metaDataSvc{"MetaDataSvc", name()};
+
+  /// Update from Simulation Parameters and TagInfo
+  StatusCode updateFromNonEvent();
+
+  /// helper tool to update file meta data with IOV string content
+  StatusCode setString(
+      const coral::AttributeList& attributeList,
+      const std::string& tag,
+      const xAOD::FileMetaData::MetaDataType type);
+
+  /// helper tool to update file meta data with IOV float content
+  StatusCode setFloat(
+      const coral::AttributeList& attrList,
+      const std::string& tag,
+      const xAOD::FileMetaData::MetaDataType);
+
+  /// helper tool to update file meta data with IOV boolean content
+  StatusCode setBool(
+      const coral::AttributeList& attrList,
+      const std::string& tag,
+      const xAOD::FileMetaData::MetaDataType);
+
+  /// The object created for this output stream
+  std::unique_ptr< xAOD::FileMetaData > m_info;
+
+  /// The auxiliary containing the created object
+  std::unique_ptr< xAOD::FileMetaDataAuxInfo > m_aux;
+
+  /// FileMetaData has been filled with non-event info
+  bool m_filledNonEvent{false};
+
+  /// FileMetaData has been filled with event information
+  bool m_filledEvent{false};
+
+  /// creation of FileMetaData should happen on a single thread
+  std::mutex m_toolMutex;
 };  // class FileMetaDataCreatorTool
 
 }  // namespace xAODMaker

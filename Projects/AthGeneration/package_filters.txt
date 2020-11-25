@@ -140,6 +140,9 @@
 + Event/xAOD/xAODEventShape
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
++ Event/xAOD/xAODMetaData
++ Event/xAOD/xAODMetaDataAthenaPool
++ Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODMuon
 + Event/xAOD/xAODPrimitives
 + Event/xAOD/xAODTracking

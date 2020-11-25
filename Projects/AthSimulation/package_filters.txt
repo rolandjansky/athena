@@ -151,6 +151,9 @@
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
++ Event/xAOD/xAODMetaData
++ Event/xAOD/xAODMetaDataAthenaPool
++ Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODPrimitives
 + Event/xAOD/xAODTruth
 + Event/xAOD/xAODTruthAthenaPool
