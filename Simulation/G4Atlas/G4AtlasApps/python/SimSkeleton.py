@@ -1,4 +1,4 @@
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from G4AtlasApps import AtlasG4Eng
 
@@ -218,9 +218,7 @@ class SimSkeleton(object):
             AtlasG4Eng.G4Eng.log.verbose('SimSkeleton._do_persistency :: starting')
 
             ## The following used to be in G4AtlasApps/HitAthenaPoolWriteOptions
-            from AthenaCommon.DetFlags import DetFlags
-            from AthenaCommon.Configurable import Configurable
-            from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
+            import AthenaPoolCnvSvc.WriteAthenaPool  # noqa: F401
 
             ## Default setting for one output stream
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -229,7 +227,7 @@ class SimSkeleton(object):
             svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolHitsOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'" ]
 
             ## Write geometry tag info
-            import EventInfoMgt.EventInfoMgtInit
+            import EventInfoMgt.EventInfoMgtInit  # noqa: F401
 
             ## Instantiate StreamHITS
             if athenaCommonFlags.PoolHitsOutput.statusOn:
@@ -260,12 +258,13 @@ class SimSkeleton(object):
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         ## ReadTR is only present in simFlags for ATLAS geometries with cosmics switched on
         if (not simFlags.ISFRun) and hasattr(simFlags, "ReadTR") and simFlags.ReadTR.statusOn:
+            from AthenaCommon.Include import include
             include("CosmicGenerator/SetCosmicGenerator.py")
 
         if athenaCommonFlags.PoolEvgenInput.statusOn:
             ## Tell the event selector about the evgen input files and event skipping
             if not hasattr(svcMgr, 'EventSelector'):
-                import AthenaPoolCnvSvc.ReadAthenaPool
+                import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401
             svcMgr.EventSelector.InputCollections = athenaCommonFlags.PoolEvgenInput()
             if athenaCommonFlags.SkipEvents.statusOn:
                 svcMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
@@ -274,7 +273,7 @@ class SimSkeleton(object):
         else:
             ## No input file so assume that we are running a Generator in the same job
             if not hasattr(svcMgr, 'EventSelector'):
-                import AthenaCommon.AtlasUnixGeneratorJob
+                import AthenaCommon.AtlasUnixGeneratorJob  # noqa: F401
             # TODO: Check that there is at least one algorithm already in the AlgSequence?
             ## Warn if attempting to skip events in a generator job
             if athenaCommonFlags.SkipEvents.statusOn and athenaCommonFlags.SkipEvents()!=0:
@@ -314,16 +313,16 @@ class SimSkeleton(object):
         ## Execute the known methods from the known_methods in pre_init
         for k in known_methods:
             try:
-                AtlasG4Eng.G4Eng.log.debug('SimSkeleton._do_PreInit :: evaluating method ' + k)
+                AtlasG4Eng.G4Eng.log.debug('SimSkeleton._do_PreInit :: evaluating method %s', k)
                 getattr(cls, k).__call__()
             except Exception as err:
                 print ("Error: %s" % str(err))
                 import traceback,sys
                 traceback.print_exc(file=sys.stdout)
-                raise RuntimeError('SimSkeleton._do_PreInit :: found problems with the method  %s' % k)
+                raise RuntimeError('SimSkeleton._do_PreInit :: found problems with the method  %s', k)
 
          ## Run pre-init callbacks
-        AtlasG4Eng.G4Eng.log.debug("AtlasG4Eng.G4Eng:init stage " + "preInit")
+        AtlasG4Eng.G4Eng.log.debug("AtlasG4Eng.G4Eng:init stage preInit")
         if simFlags.InitFunctions.statusOn and "preInit" in simFlags.InitFunctions.get_Value():
             for callback_fn in simFlags.InitFunctions.get_Value()["preInit"]:
                     callback_fn.__call__()
@@ -343,7 +342,7 @@ class SimSkeleton(object):
         ## Execute the known methods from the known_methods list
         for k in known_methods:
             try:
-                AtlasG4Eng.G4Eng.log.debug('SimSkeleton :: evaluating method ' +k)
+                AtlasG4Eng.G4Eng.log.debug('SimSkeleton :: evaluating method %s', k)
                 getattr(cls, k).__call__()
             except Exception as err:
                 print ("Error: %s" % str(err))
@@ -354,7 +353,7 @@ class SimSkeleton(object):
         for i in dir(cls):
             if i.find('do_') == 0 and i not in known_methods:
                try:
-                   AtlasG4Eng.G4Eng.log.debug('SimSkeleton :: evaluating method %s' % i)
+                   AtlasG4Eng.G4Eng.log.debug('SimSkeleton :: evaluating method %s',  i)
                    getattr(cls, i).__call__()
                except Exception as err:
                    print ("Error: %s" % str(err))

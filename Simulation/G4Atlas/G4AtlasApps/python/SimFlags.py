@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Simulation-specific flags.
@@ -14,7 +14,7 @@ application specific ones in e.g. atlas_flags.py.
 __author__  = 'A. Dell`Acqua, M. Gallas, Z. Marshall, A. Buckley'
 
 
-import re, os, sys
+import os
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer, jobproperties
 
 # TODO: Needed? If so, edit this comment to explain why :)
@@ -221,12 +221,12 @@ class PhysicsList(JobProperty):
                 if n_value not in self.allowedValues:
                     self.allowedValues.append(n_value)
         if n_value == 'FTFP_BERT_G4Precompound':
-            _sflog.warning('Setting G4CASCADE_USE_PRECOMPOUND for use of ' +
+            _sflog.warning('Setting G4CASCADE_USE_PRECOMPOUND for use of '
                            'precompound model' )
             os.environ['G4CASCADE_USE_PRECOMPOUND'] = '1'
             n_value = 'FTFP_BERT'
         elif 'G4CASCADE_USE_PRECOMPOUND' in os.environ:
-            _sflog.warning('Setting G4CASCADE_USE_PRECOMPOUND back to 0 ' +
+            _sflog.warning('Setting G4CASCADE_USE_PRECOMPOUND back to 0 '
                            '(why was it set?)')
             os.environ['G4CASCADE_USE_PRECOMPOUND'] = '0'
         JobProperty.__setattr__(self, name, n_value)
@@ -371,13 +371,12 @@ class RandomSeedList(JobProperty):
         """Add seeds to internal seedlist. Seeds will be incremented by offset values."""
         newseed = name + " OFFSET " + str(jobproperties.SimFlags.RandomSeedOffset.get_Value()) + " " + str(seed1) + " " + str(seed2) #option 1b
 
-        _sflog.info("Adding Simulation random number seed '" + newseed + "'")
+        _sflog.info("Adding Simulation random number seed %s", newseed)
 
         ## Ensure that each stream is only initialized once
         found = self.checkForExistingSeed(name)
         if found:
-            _sflog.error("Initialization values for random number stream " +
-                         name + " already exist!")
+            _sflog.error("Initialization values for random number stream %s already exist!", name)
         else:
             seedlist = self.get_Value()
             seedlist += [newseed]
@@ -387,10 +386,9 @@ class RandomSeedList(JobProperty):
         """print random seeds """
         from AthenaCommon.ConfigurableDb import getConfigurable
         rndmSvc = getConfigurable(jobproperties.SimFlags.RandomSvc.get_Value())()
-        _sflog.info("Random Number Seeds stored in simFlag: " +
-                    str(self.get_Value()))
-        _sflog.info("Random Number Seeds attached to Service '" +
-                    rndmSvc.name() + "': " + str(rndmSvc.Seeds))
+        _sflog.info("Random Number Seeds stored in simFlag: %s", self.get_Value())
+        _sflog.info("Random Number Seeds attached to Service '%s': %s",
+                    rndmSvc.name(), rndmSvc.Seeds)
 
     def checkRndmSvc(self):
         """Check if the random number service has already been defined"""
@@ -399,23 +397,22 @@ class RandomSeedList(JobProperty):
             from AthenaCommon.ConfigurableDb import getConfigurable
             rndmSvc = getConfigurable(jobproperties.SimFlags.RandomSvc.get_Value())()
             if len(rndmSvc.Seeds)!=0:
-                _sflog.warn(rndmSvc.name() + ".Seeds is not empty!")
-                _sflog.warn("Random Number Seeds already attached to Service '" +
-                            rndmSvc.name() + "': " + str(rndmSvc.Seeds))
+                _sflog.warn("%s.Seeds is not empty!", rndmSvc.name())
+                _sflog.warn("Random Number Seeds already attached to Service '%s': ",
+                            rndmSvc.name(), rndmSvc.Seeds)
                 _sflog.warn("Please use simFlags.RandomSeedList.addSeed() instead!")
                 for seedstring in rndmSvc.Seeds:
                     if 'OFFSET' not in seedstring:
-                        _sflog.warn("Existing Seed: '" + seedstring +
-                                    "' incorrectly defined - missing OFFSET! " +
-                                    "Removing...")
+                        _sflog.warn("Existing Seed: '%s' "
+                                    "incorrectly defined - missing OFFSET! "
+                                    "Removing...", seedstring)
                     else:
                         # If seed is correctly formatted add seed properly after
                         # checking it hasn't already been defined in the stream list.
                         splitseedstring = seedstring.split()
                         if self.checkForExistingSeed(splitseedstring[0]):
-                            _sflog.error("Initialization values for random " +
-                                         "number stream " + splitseedstring[0] +
-                                         " already exist!")
+                            _sflog.error("Initialization values for random "
+                                         "number stream %s already exist!", splitseedstring[0])
                         else:
                             self.addSeed( splitseedstring[0], splitseedstring[3],
                                           splitseedstring[4] )
@@ -426,8 +423,8 @@ class RandomSeedList(JobProperty):
         """
         from AthenaCommon.ConfigurableDb import getConfigurable
         rndmSvc = getConfigurable(jobproperties.SimFlags.RandomSvc.get_Value())()
-        _sflog.info("Adding Simulation random number seed stored in jobProperties " +
-                    "to Random Number Service '" + rndmSvc.name() + "'")
+        _sflog.info("Adding Simulation random number seed stored in jobProperties "
+                    "to Random Number Service '%s'", rndmSvc.name())
         self.checkRndmSvc()
         rndmSvc.Seeds += self.get_Value()
         from GaudiKernel.Configurable import WARNING
@@ -623,7 +620,7 @@ class RunDict(JobProperty):
     statusOn = True
     allowedTypes = ['dict']
     StoredValue = { 197451 : 1 , 201445 : 1 }
-    def GetRunNumber( a_job ):
+    def GetRunNumber(self, a_job ):
         """
         Get a run number based on the runs in the dictionary.  Returns
         as though we process a linear sequence for the moment
@@ -638,8 +635,8 @@ class RunDict(JobProperty):
             for a in self.get_Value():
                 if baseJN<=self.get_Value()[a]: return a
                 else: baseJN-= self.get_Value()[a]
-        _sflog.warning('Something went wrong with job ' + str(a_job) +
-                       '. Returning run number -1.' )
+        _sflog.warning('Something went wrong with job %s.'
+                       'Returning run number -1.', a_job )
         return -1
 
 class DoLArBirk(JobProperty):
@@ -743,8 +740,8 @@ class OptionalUserActionList(JobProperty):
             try:
                 self.StoredValue[role] += [actionTool]
             except KeyError:
-                _sflog.warn('Attempt to assign action %s to role %s not allowed' %
-                            (actionTool, role))
+                _sflog.warn('Attempt to assign action %s to role %s not allowed',
+                            actionTool, role)
 
     def removeAction(self, actionTool, roles=['General']):
         # Remove the action from the list of actions - no error if role isn't in the list.
@@ -752,11 +749,11 @@ class OptionalUserActionList(JobProperty):
             try:
                 self.StoredValue[role].remove(actionTool)
             except KeyError:
-                _sflog.warn('Attempt to remove action %s from role %s not allowed' %
-                            (actionTool, role))
+                _sflog.warn('Attempt to remove action %s from role %s not allowed',
+                            actionTool, role)
             except ValueError:
-                _sflog.warn('Attempt to remove unknown action %s from role %s' %
-                            (actionTool, role))
+                _sflog.warn('Attempt to remove unknown action %s from role %s',
+                            actionTool, role)
 
 class G4Commands(JobProperty):
     """
@@ -858,9 +855,9 @@ class SimFlags(JobPropertyContainer):
         """
         Load extra config flags specific to ATLAS layouts.
         """
-        if not "atlas_flags" in self.extra_flags:
+        if "atlas_flags" not in self.extra_flags:
             self._log.info("SimFlags:: Loading ATLAS flags")
-            if not "ATLAS-" in self.SimLayout.get_Value():
+            if "ATLAS-" not in self.SimLayout.get_Value():
                 self._log.warning("Loading ATLAS flags, but SimLayout tag is not an ATLAS geometry")
             self.extra_flags.append("atlas_flags")
             self.import_JobProperties('G4AtlasApps.atlas_flags')
@@ -870,7 +867,7 @@ class SimFlags(JobPropertyContainer):
         """
         Load extra config flags specific to cosmics simulation.
         """
-        if not "cosmics_flags" in self.extra_flags:
+        if "cosmics_flags" not in self.extra_flags:
             self._log.info("SimFlags:: Loading cosmics flags")
             self.extra_flags.append("cosmics_flags")
             self.import_JobProperties('CosmicGenerator.cosmics_flags')
@@ -880,9 +877,9 @@ class SimFlags(JobPropertyContainer):
         """
         Load extra config flags specific to CTB layouts.
         """
-        if not "ctb_flags" in self.extra_flags:
+        if "ctb_flags" not in self.extra_flags:
             self._log.info("SimFlags:: Loading CTB flags")
-            if not "ctbh8" in self.SimLayout.get_Value():
+            if "ctbh8" not in self.SimLayout.get_Value():
                 self._log.warning("Loading CTB flags, but SimLayout tag is not a CTB geometry")
             self.extra_flags.append("ctb_flags")
             self.import_JobProperties('G4AtlasApps.ctb_flags')
@@ -892,9 +889,9 @@ class SimFlags(JobPropertyContainer):
         """
         Load extra config flags specific to TB LAr H6 layouts.
         """
-        if not "tbLArH6_flags" in self.extra_flags:
+        if "tbLArH6_flags" not in self.extra_flags:
             self._log.info("SimFlags:: Loading TB LAr H6 flags")
-            if not "tb_LArH6" in self.SimLayout.get_Value():
+            if "tb_LArH6" not in self.SimLayout.get_Value():
                 self._log.warning("Loading TB LAr H6 flags, but SimLayout tag is not a TB LAr H6 geometry")
             self.extra_flags.append("tbLArH6_flags")
             self.import_JobProperties('G4AtlasApps.tbLArH6_flags')
@@ -904,9 +901,9 @@ class SimFlags(JobPropertyContainer):
         """
         Load extra config flags specific to TB Tile layouts.
         """
-        if not "tbtile_flags" in self.extra_flags:
+        if "tbtile_flags" not in self.extra_flags:
             self._log.info("SimFlags:: Loading TB Tile flags")
-            if not "tb_Tile2000_2003" in self.SimLayout.get_Value():
+            if "tb_Tile2000_2003" not in self.SimLayout.get_Value():
                 self._log.warning("Loading TB Tile flags, but SimLayout tag is not a TB Tile geometry")
             self.extra_flags.append("tbtile_flags")
             self.import_JobProperties('G4AtlasApps.tbtile_flags')
@@ -920,7 +917,7 @@ for jpname in dir():
     import inspect
     if inspect.isclass(jp):
         if issubclass(jp, JobProperty) and jp is not JobProperty:
-            _sflog.debug("Adding SimFlag '%s' to SimFlags container" % jpname)
+            _sflog.debug("Adding SimFlag '%s' to SimFlags container", jpname)
             jobproperties.SimFlags.add_JobProperty(jp)
 
 
