@@ -78,6 +78,19 @@ def parse_args():
 
 
 def main(args):
+    if args.ignoreIrrelevant:
+        args.ignoreList = [
+            "StoreGateSvc",
+            "OutputLevel",
+            "MuonEDMHelperSvc",
+            "ExtraInputs",
+            "ExtraOutputs",
+            "DetStore",
+            "EvtStore",
+            "NeededResources",
+        ]
+        print(f"Components to ignore: {args.ignoreList}")
+
     if args.printComps:
         for fileName in args.file:
             conf = _loadSingleFile(fileName, args)
@@ -124,18 +137,6 @@ def main(args):
             if isinstance(chk, dict):
                 flattenedChk.update(chk)
 
-        if args.ignoreIrrelevant:
-            args.ignoreList = [
-                "StoreGateSvc",
-                "OutputLevel",
-                "MuonEDMHelperSvc",
-                "ExtraInputs",
-                "ExtraOutputs",
-                "DetStore",
-                "EvtStore",
-                "NeededResources",
-            ]
-            print(f"Components to ignore: {args.ignoreList}")
         _compareConfig(flattenedRef, flattenedChk, args)
 
 
@@ -210,6 +211,15 @@ def _loadSingleFile(fname, args):
 
         conf = [
             {key: value for (key, value) in dic.items() if eligible(key)}
+            for dic in conf
+            if isinstance(dic, dict)
+        ]
+
+    if args.ignoreIrrelevant:
+        def remove_irrelevant(val_dict):
+            return {key:val for key, val in val_dict.items() if key not in args.ignoreList}
+        conf = [
+            {key: remove_irrelevant(value) for (key, value) in dic.items()}
             for dic in conf
             if isinstance(dic, dict)
         ]
@@ -296,9 +306,6 @@ def _compareComponent(compRef, compChk, prefix, args, component):
         allProps.sort()
 
         for prop in allProps:
-            if args.ignoreIrrelevant and prop in args.ignoreList:
-                continue
-
             if prop not in compRef.keys():
                 print(
                     "%s%s = %s: \033[94m exists only in 2nd file \033[0m \033[91m<< !!!\033[0m"
@@ -323,9 +330,6 @@ def _compareComponent(compRef, compChk, prefix, args, component):
                 pass
             except ValueError:
                 pass  # literal_eval exception when parsing particular strings
-
-            if args.ignoreIrrelevant and chkVal in args.ignoreList:
-                continue
 
             refVal, chkVal = _parseNumericalValues(refVal, chkVal)
 

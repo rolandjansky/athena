@@ -690,7 +690,7 @@ namespace TrkDriftCircleMath {
     m_minuit->mnstat(chisq, edm, errdef, npari, nparx, icstat);
    
     int fitretval = errFlag5;
-    if (npari<0 || nparx < 0 || chisq < 0) ATH_MSG_ERROR("MdtSegmentT0Fitter MINUIT problem " << " chisq "<<chisq<<" npari "<<npari<<" nparx "<< nparx <<" fitretval "<< fitretval);
+    if (npari<0 || nparx < 0 || chisq < 0) ATH_MSG_WARNING("MdtSegmentT0Fitter MINUIT problem " << " chisq "<<chisq<<" npari "<<npari<<" nparx "<< nparx <<" fitretval "<< fitretval<<" (cf. ATLASRECTS-5795)");
 
     if (fitretval !=0 &&m_trace)  {
       ATH_MSG_DEBUG(  " ALARM return value " << fitretval  );

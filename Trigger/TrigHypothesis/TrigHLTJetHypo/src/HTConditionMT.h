@@ -41,7 +41,7 @@ class HTConditionMT: public IConditionMT{
   bool isSatisfied(const HypoJetVector&,
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
-  std::string toString() const noexcept override;
+  std::string toString() const override;
   virtual unsigned int capacity() const override {return s_capacity;}
 
  private:

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CSCCONDDATACOLLECTIONBASE_H 
@@ -13,20 +13,13 @@
 
         Exists so that CscCondDataCollection objects of different types can be stored in the same vector, map, etc. 
 **/
-#include <sstream>
+
 #include "AthContainers/DataVector.h"
 #include "StoreGate/DataHandle.h"
-//#include "AthenaKernel/CLASS_DEF.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MuonCondData/CscCondData.h"
-#include <sstream>
 
-class CondAttrListCollection;
-/*
-namespace std {
-typedef istringstream;
-}
- */
+#include <sstream>
 
 namespace MuonCalib {
   class CscCondDataCollectionBase 

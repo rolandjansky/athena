@@ -126,7 +126,6 @@ namespace met {
 //       xAOD::Init() ;
 //       //enable status code failures
 //       CP::CorrectionCode::enableFailure();
-//       CP::SystematicCode::enableFailure();
 //       StatusCode::enableFailure();
 // #else
 //       app = POOL::Init(); //important to do this first!

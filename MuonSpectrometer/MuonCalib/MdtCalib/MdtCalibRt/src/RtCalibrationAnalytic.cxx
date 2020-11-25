@@ -37,8 +37,6 @@
 #include "MdtCalibRt/RtParabolicExtrapolation.h"
 #include "MdtCalibData/RtFromPoints.h"
 #include "MdtCalibData/IRtRelation.h"
-#include "MdtCalibData/RtRelationLookUp.h"
-#include "MdtCalibRt/RtCalibrationOutput.h"
 #include "MdtCalibInterfaces/IMdtCalibrationOutput.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibMath/BaseFunction.h"

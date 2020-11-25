@@ -14,8 +14,8 @@
 #define TRKSPACEPOINT_SCTSPACEPOINT_H
 
 #include "TrkSpacePoint/SpacePoint.h"
+
 #include "Identifier/IdentifierHash.h"
-#include "TrkSpacePoint/SpacePoint.h"
 
 namespace Trk
 {

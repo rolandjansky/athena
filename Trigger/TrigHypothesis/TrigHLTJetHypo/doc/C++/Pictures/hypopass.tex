@@ -1,0 +1,40 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+
+\begin{document}
+
+
+\begin{tikzpicture}[scale=3, ->, >=stealth, shorten >=1pt, auto, node distance = 2.8cm, on grid, semithick,
+nd/.style={circle,draw=blue!50, thick,minimum size=15mm}, dots/.style={draw=black!50, thick,minimum size=15mm}]
+  \node[nd]  (0) {$c_0$};
+  \node (d1)  [below=of 0]   {...};
+  \node[nd] (11) [left=of d1]   {$c_{11}$};
+  \node[nd] (10) [left=of 11]   {$c_{10}$};
+   \node[nd] (12) [right=of d1]   {$c_{1n_1-1}$};
+      \node[nd] (13) [right=of 12]   {$c_{1n_1}$};
+
+%    \node[nd] (4) [below =of 10]   {$c_{20}$};
+%    \node[nd] (5) [below =of 20]   {$c_{2n_2}$};
+%    \node[nd] (5) [below right=of 3]   {$c_5$};
+
+%  \path  (0) edge [red] node [swap]   {2/2} (1)
+%                  edge [red] node {2/1`} (2)
+%           (1)  edge [red] node [swap]   {3/2} (3)
+%                  edge node [near start] {1/0} (4)
+%           (2)  edge node [near start] {1/0} (3)
+%                  edge [red] node  {1/1} (4)
+%           (3)  edge [red] node [swap]  {2/2} (5)
+%           (4)  edge [red] node {3/1} (5);
+\end{tikzpicture}.
+
+\end{document}

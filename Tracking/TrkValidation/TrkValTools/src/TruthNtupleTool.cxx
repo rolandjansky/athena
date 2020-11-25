@@ -294,7 +294,7 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
             m_mc_prodR   = 0.;
             m_mc_prodz   = 0.;
         } else {
-            m_mc_barcode = genParticle->barcode();
+            m_mc_barcode = HepMC::barcode(genParticle);
             m_mc_particleID = genParticle->pdg_id();
             m_mc_energy     = genParticle->momentum().e();
 

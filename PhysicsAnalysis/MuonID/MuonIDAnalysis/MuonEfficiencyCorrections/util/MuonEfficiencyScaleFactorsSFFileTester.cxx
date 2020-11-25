@@ -67,7 +67,7 @@ EffiToolInstance createSFTool(const std::string& WP, const std::string& CustomIn
 int main(int argc, char* argv[]) {
 
     // force strict checking of return codes
-    CP::SystematicCode::enableFailure();
+    StatusCode::enableFailure();
     StatusCode::enableFailure();
 
     // The application's name:

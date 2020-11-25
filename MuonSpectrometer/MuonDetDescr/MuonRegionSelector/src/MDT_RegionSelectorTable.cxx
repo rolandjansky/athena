@@ -16,7 +16,6 @@
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonStation.h"
-#include "RegSelLUT/RegSelSiLUT.h"
 #include "MuonMDT_Cabling/MuonMDT_CablingSvc.h"
 
 #include <iostream>

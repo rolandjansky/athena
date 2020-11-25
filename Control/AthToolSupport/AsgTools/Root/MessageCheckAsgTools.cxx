@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -23,3 +23,14 @@ namespace asg
   ANA_MSG_SOURCE (msgProperty, "AsgTools.Property")
   ANA_MSG_SOURCE (msgToolHandle, "AsgTools.AnaToolHandle")
 }
+
+// Ensure that TLS defined in this library actually gets used.
+// Avoids a potential slowdown in accessing TLS seen in simualation.
+// See ATLASSIM-4932.
+namespace {
+[[maybe_unused]]
+thread_local int tlsDum;
+[[maybe_unused]]
+const int& msgDumRef = tlsDum;
+}
+

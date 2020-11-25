@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # NTUPtoNTUPProdFlags.py for NTUP->NTUP
 #
@@ -62,13 +62,13 @@ class NTUPScripts(JobProperty):
     StoredValue=[]
     def append(self,item):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             AddValidItemToList(item,self.StoredValue)
         return
     def remove(self,item):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             RemoveValidItemFromList(item,self.StoredValue)
         return

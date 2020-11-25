@@ -51,6 +51,11 @@
 #include <cmath>
 #include <sstream>
 
+namespace {
+  // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
+}
+
 float parESD1, parESD2, parESD3, parESD4;
 
 enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
@@ -548,24 +553,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
       else {ATH_MSG_DEBUG("m_nummdtchamberswithHighOcc not in hist list!" );}
 
       m_MdtNHitsvsRpcNHits->Fill(nPrd,Nhitsrpc);
-      
-      // TotalNumber_of_MDT_hits_per_event with RPCtrig
-      /*if (mdtevents_RPCtrig){ 
-        if(HasTrigBARREL()) mdtevents_RPCtrig->Fill(nPrdcut);
-      }    
-      else { 
-        ATH_MSG_DEBUG("mdtevents_RPCtrig not in hist list!" );
-      }
 
-
-      // TotalNumber_of_MDT_hits_per_event with TGCtrig
-      if (mdtevents_TGCtrig){ 
-        if(HasTrigENDCAP()) mdtevents_TGCtrig->Fill(nPrdcut);
-      }    
-      else {
-        ATH_MSG_DEBUG("mdtevents_TGCtrig not in hist list!" );
-      }
-*/
       // TotalNumber_of_MDT_hits_per_event with cut on ADC
       if (m_mdteventscutLumi) m_mdteventscutLumi->Fill(nPrdcut);    
       else {ATH_MSG_DEBUG("m_mdteventscutLumi not in hist list!" );}
@@ -582,20 +570,7 @@ StatusCode MdtRawDataValAlg::fillHistograms()
       if (m_mdteventsLumi_big) m_mdteventsLumi_big->Fill(nPrd);    
       else {ATH_MSG_DEBUG("m_mdteventsLumi_big not in hist list!" );}
 
-     /* if (m_numberOfEvents < 10000){    //only make this plot for first 10000 events 
-        // TotalNumber_of_MDT_hits_vs_event_number with cut on ADC
-        if (mdthitsvseventnumcut) mdthitsvseventnumcut->SetBinContent(m_numberOfEvents, nPrdcut);    
-        else {ATH_MSG_DEBUG("mdthitsvseventnumcut not in hist list!" );}
-      
-        // TotalNumber_of_MDT_hits_vs_event_number without cut on ADC
-        if (mdthitsvseventnum) mdthitsvseventnum->SetBinContent(m_numberOfEvents, nPrd);    
-        else {ATH_MSG_DEBUG("mdthitsvseventnum not in hist list!" );}
-      }*/
-
-      //if(nPrdcut > 20000){
-        //int realTime = m_time - m_firstTime;
-        if (m_mdtglobalhitstime) m_mdtglobalhitstime->Fill(m_time - m_firstTime);
-      //}
+      if (m_mdtglobalhitstime) m_mdtglobalhitstime->Fill(m_time - m_firstTime);
 
       // Number_of_Chambers_with_hits_per_event
       if (m_nummdtchamberswithhits) m_nummdtchamberswithhits->Fill(nColl);
@@ -2022,7 +1997,7 @@ void MdtRawDataValAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
   std::vector<int>::iterator it = tubes.begin();
   for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      int want_id = layer*100 + tube;
+      int want_id = layer*maxNTubesPerLayer + tube;
       if (it != tubes.end() && *it == want_id) {
         ++it;
       }

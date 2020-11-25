@@ -55,12 +55,11 @@ StatusCode MuonHitTestToolBase::executeCheckEventInfo()
   //    changed it to take the gen particle
   DataVector<HepMC::GenEvent>::const_iterator e;
   for (e=mcEvent->begin();e!=mcEvent->end(); e++) {
-    HepMC::GenEvent::particle_const_iterator p;
-    for (p= (**e).particles_begin(); p!= (**e).particles_end(); p++) {
-      if ( HepMC::barcode(*p)<200000) {
-        Amg::Vector3D temp_momentum((**p).momentum().px(),
-                                    (**p).momentum().py(),
-                                    (**p).momentum().pz());
+    for (auto p: (**e)) {
+      if ( HepMC::barcode(p)<200000) {
+        Amg::Vector3D temp_momentum(p->momentum().px(),
+                                    p->momentum().py(),
+                                    p->momentum().pz());
         m_direction = temp_momentum.unit();
         break;
       }

@@ -16,7 +16,6 @@
 #include "CaloUtils/CaloVertexedTopoCluster.h"
 #include "CaloEvent/CaloTester.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetectorElements.h"

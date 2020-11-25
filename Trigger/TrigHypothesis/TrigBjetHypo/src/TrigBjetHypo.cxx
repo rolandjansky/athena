@@ -185,7 +185,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
     for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
 
-      double x = (*trigBTagging)->auxdata<double>("MV2c20_discriminant");
+      double x = 0.;
+      (*trigBTagging)->MVx_discriminant("MV2c20",x);
 
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"MV2c20 x =  " << x;
       if(x>m_xcutMV2c20) {
@@ -203,7 +204,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
     for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) {
 
-      double x = (*trigBTagging)->auxdata<double>("MV2c10_discriminant");
+      double x = 0.;
+      (*trigBTagging)->MVx_discriminant("MV2c10",x);
 
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c10 x =  " << x;
       if(x>m_xcutMV2c10) {
@@ -225,7 +227,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
       // Temporary use mv2c00 for hybrid tuning
       //      double x = (*trigBTagging)->auxdata<double>("MV2c10_hybrid_discriminant");
-      double x = (*trigBTagging)->auxdata<double>("MV2c00_discriminant");
+      double x = 0.;
+      (*trigBTagging)->MVx_discriminant( "MV2c00",x );
 
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c10_hybrid x =  " << x;
       if(x>m_xcutMV2c10_hybrid) {

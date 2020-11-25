@@ -81,10 +81,10 @@ namespace CP {
       return *m_appliedSystematics;
     }
 
-    virtual SystematicCode applySystematicVariation
+    virtual StatusCode applySystematicVariation
     ( const SystematicSet& systConfig );
 
-    CP::SystematicCode registerSystematics();
+    StatusCode registerSystematics();
 
 
     //status helpers

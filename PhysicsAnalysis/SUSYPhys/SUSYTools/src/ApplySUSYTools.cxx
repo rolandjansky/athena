@@ -44,7 +44,7 @@
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
 // Needed for systematics
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicSet.h"
 //#include "PATInterfaces/SystematicList.h"
 #include "PATInterfaces/SystematicRegistry.h"
@@ -314,7 +314,7 @@ StatusCode ApplySUSYTools::execute()
   if( doPrint ) ATH_MSG_INFO("Begin ApplySUSYTools for event " <<m_evtCount);
 
   // Reset systematics
-  CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
+  CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
 
 
   ////////////////////////////
@@ -413,7 +413,7 @@ StatusCode ApplySUSYTools::execute()
     std::string sysname = sys.name();
     if( sysname == "" ) sysname = "Nominal";
     if( doPrint ) ATH_MSG_DEBUG("Applying jet systematic " <<sysname);
-    CHECK(m_objTool->applySystematicVariation(sys) == CP::SystematicCode::Ok);
+    CHECK(m_objTool->applySystematicVariation(sys) == StatusCode::SUCCESS);
 
     // This largely replicates GetJets
     // setShallowIO writes output as shallow copy
@@ -467,7 +467,7 @@ StatusCode ApplySUSYTools::execute()
   // Fat Jets (nominal only!)
   ///////
   if(m_doFatJets){
-    CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
+    CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
     
     std::string sysname = "Nominal";
     if( doPrint ) ATH_MSG_DEBUG("Applying jet systematic " <<sysname);
@@ -493,7 +493,7 @@ StatusCode ApplySUSYTools::execute()
   // Muons
   ////////
 
-  CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
+  CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
 
   // Initialize mask to false; true if any variation passes "baseline".
   // Pass m_muPtCut to FillMuon
@@ -513,7 +513,7 @@ StatusCode ApplySUSYTools::execute()
     std::string sysname = sys.name();
     if( sysname == "" ) sysname = "Nominal";
     if( doPrint ) ATH_MSG_DEBUG("Applying muon systematic " <<sysname);
-    CHECK(m_objTool->applySystematicVariation(sys) == CP::SystematicCode::Ok);
+    CHECK(m_objTool->applySystematicVariation(sys) == StatusCode::SUCCESS);
 
     // This largely replicates GetMuons
     // setShallowIO writes output as shallow copy
@@ -572,7 +572,7 @@ StatusCode ApplySUSYTools::execute()
   // Electrons
   ////////////
 
-  CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
+  CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
 
   // Initialize mask to false; true if any variation passes "baseline".
   // Pass m_elPtCut to FillElectron
@@ -584,7 +584,7 @@ StatusCode ApplySUSYTools::execute()
     std::string sysname = sys.name();
     if( sysname == "" ) sysname = "Nominal";
     if( doPrint ) ATH_MSG_DEBUG("Applying electron systematic " <<sysname);
-    CHECK(m_objTool->applySystematicVariation(sys) == CP::SystematicCode::Ok);
+    CHECK(m_objTool->applySystematicVariation(sys) == StatusCode::SUCCESS);
 
     // This largely replicates GetJets
     // setShallowIO writes output as shallow copy
@@ -655,14 +655,14 @@ StatusCode ApplySUSYTools::execute()
   if( !m_doTST ) METsName = m_METsName + "Clus";
 
   // Jet systematics
-  CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
+  CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
 
   for(auto si : m_systInfoJET){
     const CP::SystematicSet& sys = si->systset;
     std::string sysname = sys.name();
     if( sysname == "" ) sysname = "Nominal";
     if( doPrint ) ATH_MSG_DEBUG("MET sysname " <<sysname);
-    CHECK(m_objTool->applySystematicVariation(sys) == CP::SystematicCode::Ok);
+    CHECK(m_objTool->applySystematicVariation(sys) == StatusCode::SUCCESS);
 
     const xAOD::JetContainer* p_JetsSys = 0;
     if( doPrint ) ATH_MSG_DEBUG("Using jet name " <<m_JetsName+sysname);
@@ -696,7 +696,7 @@ StatusCode ApplySUSYTools::execute()
       std::string sysname = sys.name();
       if( sysname == "" ) sysname = "Nominal";
       if( doPrint ) ATH_MSG_DEBUG("MET sysname " <<sysname);
-      CHECK(m_objTool->applySystematicVariation(sys) == CP::SystematicCode::Ok);
+      CHECK(m_objTool->applySystematicVariation(sys) == StatusCode::SUCCESS);
       xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
       xAOD::MissingETAuxContainer* metaux = new xAOD::MissingETAuxContainer;
       met->setStore( metaux);
@@ -718,7 +718,7 @@ StatusCode ApplySUSYTools::execute()
       std::string sysname = sys.name();
       if( sysname == "" ) sysname = "Nominal";
       if( doPrint ) ATH_MSG_DEBUG("MET sysname " <<sysname);
-      CHECK(m_objTool->applySystematicVariation(sys) == CP::SystematicCode::Ok);
+      CHECK(m_objTool->applySystematicVariation(sys) == StatusCode::SUCCESS);
       xAOD::MissingETContainer* met = new xAOD::MissingETContainer;
       xAOD::MissingETAuxContainer* metaux = new xAOD::MissingETAuxContainer;
       met->setStore( metaux);
@@ -740,7 +740,7 @@ StatusCode ApplySUSYTools::execute()
   // TauJets
   //////////
 
-  CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
+  CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
 
   // Selection defined by SUSYTools TauID = Loose/Medium/Tight.
   // Initialize mask to false; true if any variation passes "baseline"
@@ -777,7 +777,7 @@ StatusCode ApplySUSYTools::execute()
     std::string sysname = sys.name();
     if( sysname == "" ) sysname = "Nominal";
     if( doPrint ) ATH_MSG_DEBUG("Applying tau systematic " <<sysname);
-    CHECK(m_objTool->applySystematicVariation(sys) == CP::SystematicCode::Ok);
+    CHECK(m_objTool->applySystematicVariation(sys) == StatusCode::SUCCESS);
 
     // This largely replicates GetTaus
     // setShallowIO writes output as shallow copy
@@ -840,7 +840,7 @@ StatusCode ApplySUSYTools::execute()
   // Photons
   //////////
 
-  CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
+  CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
 
   // Selection defined by SUSYTools PhotonID = Loose/Medium/Tight.
   // Initialize mask to false; true if any variation passes "baseline"
@@ -852,7 +852,7 @@ StatusCode ApplySUSYTools::execute()
     std::string sysname = sys.name();
     if( sysname == "" ) sysname = "Nominal";
     if( doPrint ) ATH_MSG_DEBUG("Applying photon systematic " <<sysname);
-    CHECK(m_objTool->applySystematicVariation(sys) == CP::SystematicCode::Ok);
+    CHECK(m_objTool->applySystematicVariation(sys) == StatusCode::SUCCESS);
 
     // This largely replicates GetPhotons
     // setShallowIO writes output as shallow copy
@@ -1103,7 +1103,7 @@ StatusCode ApplySUSYTools::execute()
 
   // DerivationFramework trigger thinning is complicated. Just support
   // TrigDecisionTool and flag matched Electrons and Muons.
-  CHECK( m_objTool->resetSystematics() == CP::SystematicCode::Ok );
+  CHECK( m_objTool->resetSystematics() == StatusCode::SUCCESS );
   if( doPrint ) ATH_MSG_DEBUG("Start trigger");
 
   for( const auto& key : m_ElectronTrigs ){

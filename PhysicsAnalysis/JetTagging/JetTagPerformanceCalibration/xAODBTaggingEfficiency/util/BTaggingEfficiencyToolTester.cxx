@@ -14,7 +14,6 @@
 #include <iomanip>
 
 using CP::CorrectionCode;
-using CP::SystematicCode;
 
 int main() {
   bool retval = true;
@@ -105,8 +104,8 @@ int main() {
     CP::SystematicVariation var = *iter;
     CP::SystematicSet set;
     set.insert(var);
-    SystematicCode sresult = tool->applySystematicVariation(set);
-    if( sresult !=SystematicCode::Ok) {
+    StatusCode sresult = tool->applySystematicVariation(set);
+    if( sresult !=StatusCode::SUCCESS) {
       std::cout << var.name() << " apply systematic variation FAILED " << std::endl;
   }
     result = tool->getScaleFactor(*jet,sf);
@@ -118,8 +117,8 @@ int main() {
   }
   // don't forget to switch back off the systematics...
   CP::SystematicSet defaultSet;
-  SystematicCode dummyResult = tool->applySystematicVariation(defaultSet);
-  if (dummyResult != SystematicCode::Ok)
+  StatusCode dummyResult = tool->applySystematicVariation(defaultSet);
+  if (dummyResult != StatusCode::SUCCESS)
     std::cout << "problem disabling systematics setting!" << std::endl;
 
 

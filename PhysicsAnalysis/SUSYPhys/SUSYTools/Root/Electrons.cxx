@@ -486,58 +486,58 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
   float sf(1.);
 
   //Set the new systematic variation
-  CP::SystematicCode ret = m_elecEfficiencySFTool_reco->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  StatusCode ret = m_elecEfficiencySFTool_reco->applySystematicVariation(systConfig);
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (reco) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_id->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (id) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_trig_singleLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_trig_diLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_trig_mixLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_trigEff_diLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_trigEff_mixLep->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_iso->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecEfficiencySFTool_chf->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (charge-flip) for systematic var. " << systConfig.name() );
   }
 
   ret = m_elecChargeEffCorrTool->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure ElectronChargeEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
   }
 
@@ -547,57 +547,57 @@ double SUSYObjDef_xAOD::GetEleTriggerEfficiency(const xAOD::Electron& el, const 
 
   //Roll back to default
   ret = m_elecEfficiencySFTool_reco->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (reco) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_id->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (id) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_trig_singleLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_trig_diLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_trig_mixLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_trigEff_singleLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_trigEff_diLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_trigEff_mixLep->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (trigger) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_iso->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (iso) back to default.");
   }
 
   ret = m_elecEfficiencySFTool_chf->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgElectronEfficiencyCorrectionTool (charge-flip) back to default.");
   }
 
   ret = m_elecChargeEffCorrTool->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure ElectronChargeEfficiencyCorrectionTool back to default.");
   }
 

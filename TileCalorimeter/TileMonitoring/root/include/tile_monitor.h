@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -18,7 +18,6 @@
 #include "TGraph.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TGraph.h"
 #include "TProfile.h"
 #include "TCanvas.h"
 #include "TStyle.h"

@@ -11,6 +11,7 @@
 
 #include <PATInterfaces/SystematicSet.h>
 
+#include <AsgMessaging/MessageCheck.h>
 #include <RootCoreUtils/Assert.h>
 #include <cmath>
 #include <gtest/gtest.h>

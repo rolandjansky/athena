@@ -309,7 +309,7 @@ QStringList VP1TruthVertexCollection::infoOnClicked(SoPath* pickedPath)
     if (m_d->controller->printVerboseInfoOnClick()) {
       l <<"======== Dump ========";
       std::ostringstream s;
-      vtx->print(s);
+      HepMC::Print::line(s,vtx);
       l << QString(s.str().c_str()).split('\n');
       l <<"======================";
     }

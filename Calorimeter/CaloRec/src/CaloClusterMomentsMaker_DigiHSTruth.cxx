@@ -25,7 +25,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
-//#include "CxxUtils/unordered_set.h"
 #include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Geometry/Vector3D.h"
 #include "CxxUtils/prefetch.h"
@@ -37,8 +36,6 @@
 #include <iterator>
 #include <limits>
 #include <sstream>
-//#include "fastjet/PseudoJet.hh"
-//#include <fastjet/PseudoJet.hh>
 
 
 

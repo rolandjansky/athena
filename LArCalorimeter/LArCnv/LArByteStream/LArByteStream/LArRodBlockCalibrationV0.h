@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKCALIBRATIONV0_H
@@ -106,7 +106,7 @@ inline void  LArRodBlockCalibrationV0<DSPHEADER>::setPulsed(const unsigned chann
 #ifdef LARBYTESTREAMRODBLOCK_CHCKBOUNDARIES
   if (channelNumber>=128) {
     std::cout << "ERROR WRITE BEYOND ARRAY BONDARY!" << std::endl;
-    exit(-1);
+    std::abort();
   }
 #endif
   this->setBit((uint32_t*) (&(this->m_vFragment->front())+(DSPHEADER::IsPulsed/2)),channelNumber);

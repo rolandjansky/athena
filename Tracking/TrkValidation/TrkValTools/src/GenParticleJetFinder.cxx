@@ -59,7 +59,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
 
   std::vector<Trk::GenParticleJet>::iterator iAtMin, jAtMin;
 
-  for( std::vector <const HepMC::GenParticle *>::iterator  i = GenStableCharged.begin() ; i < GenStableCharged.end();  i++){
+  for( auto  i = GenStableCharged.begin() ; i < GenStableCharged.end();  i++){
     totalEnergyFromTracks = totalEnergyFromTracks + (*i)->momentum().e();
     Trk::GenParticleJet tempPJ;
     tempPJ.addParticle( *i, int(i - GenStableCharged.begin()) );
@@ -119,9 +119,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
         if (partsTemp.size()!=0) {
           
           std::vector<int>::iterator       ki=indexTemp.begin();
-		  for (std::vector<const HepMC::GenParticle* >::const_iterator k =partsTemp.begin();
-               k!=partsTemp.end(); ++k, ++ki) {
-
+          for (auto k =partsTemp.begin(); k!=partsTemp.end(); ++k, ++ki) {
             (*iAtMin).addParticle(*k,*ki);
           }
 		} else {
@@ -139,8 +137,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
         if (partsTemp.size()!=0) {
 
           std::vector<int>::iterator       ki=indexTemp.begin();
-		  for (std::vector<const HepMC::GenParticle* >::const_iterator k =partsTemp.begin();
-               k!=partsTemp.end(); ++k, ++ki) {
+          for (auto k =partsTemp.begin(); k!=partsTemp.end(); ++k, ++ki) {
             //		  tempPartJet.addParticle(*k);
             (*jAtMin).addParticle(*k,*ki);
           }

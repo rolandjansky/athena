@@ -79,31 +79,31 @@ else()
 endif()
 
 atlas_add_test( StoreGateReentrant
-   SCRIPT test/StoreGateReentrant.sh
+   SCRIPT athena.py AthExStoreGateExample/StoreGateExample_Reentrant_jobOptions.py
    PROPERTIES TIMEOUT 300
    LOG_IGNORE_PATTERN "Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved" )
 
 atlas_add_test( StoreGateGen
-   SCRIPT test/StoreGateGen.sh
+   SCRIPT athena.py AthExStoreGateExample/StoreGateExample_Gen_jobOptions.py
    PROPERTIES TIMEOUT 300
    LOG_IGNORE_PATTERN "Retrieved const handle to default|type EventInfo|^StoreGateSvc +DEBUG|^ of type|object modifiable when retrieved" )
 
 atlas_add_test( StoreGateDFlow
-   SCRIPT test/StoreGateDFlow.sh
+   SCRIPT athena.py AthExStoreGateExample/dflow_jobo.py
    PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( test_interactive_athena
-   SCRIPT test/test_interactive_athena.sh
+   SCRIPT athena.py ControlTest/test_interactive_athena.py
    PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( test_cfgItemList
-                SCRIPT test/test_cfgItemList.sh )
+                SCRIPT python -m ControlTest.test_cfgItemList )
 
 atlas_add_test( test_keyStore
-                SCRIPT test/test_keyStore.sh )
+                SCRIPT python -m ControlTest.test_keyStore )
 
 atlas_add_test( test_handleTest
-                SCRIPT test/test_handleTest.sh )
+                SCRIPT athena.py AthExStoreGateExample/HandleTest_jobOptions.py )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

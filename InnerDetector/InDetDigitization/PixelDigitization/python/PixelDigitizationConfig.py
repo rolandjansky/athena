@@ -201,6 +201,9 @@ def PixelConfigCondAlg_MC():
     alg.BunchSpace=25.0
     alg.FEI4BarrelHitDiscConfig=[2]
 
+    alg.ChargeScaleFEI4=1.0
+    alg.UseFEI4SpecialScalingFunction=False
+
     #====================================================================================
     # Run-dependent SIMULATION(digitization) parameters:
     #====================================================================================

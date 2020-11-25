@@ -18,7 +18,6 @@ namespace CP
   template<class T> class ICorrectionTool;
   class MakeSystematicsVector;
   class ISystematicsTool;
-  class SystematicCode;
   class SystematicVariation;
   class SystematicSet;
   class SystematicsTool;

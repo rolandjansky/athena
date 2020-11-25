@@ -18,7 +18,7 @@ xAOD::Jet& PseudoJetTranslator::translate(const fastjet::PseudoJet& pj,
 
   // Record the jet-finding momentum, i.e. the one used to find/groom the jet.
   jet.setJetP4(xAOD::JetConstitScaleMomentum, jet.jetP4());
-
+  
   // save area if needed ---------
   if( pj.has_area() ){
 
@@ -45,13 +45,16 @@ xAOD::Jet& PseudoJetTranslator::translate(const fastjet::PseudoJet& pj,
   if ( parentCont == 0 ) { return jet ;}  // can this happen? if so THIS IS an ERROR ! should do something
 
   ElementLink<xAOD::JetContainer> el(*parentCont, parent.index());
-  jet.setAttribute("Parent", el);
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::JetContainer> > parentELacc("Parent"); 
+  parentELacc(jet) =el;
 
   jet.setInputType(parent.getInputType());
   jet.setAlgorithmType(parent.getAlgorithmType());
   jet.setSizeParameter(parent.getSizeParameter());
   jet.setConstituentsSignalState(parent.getConstituentsSignalState());
-  jet.setAttribute(xAOD::JetAttribute::JetGhostArea, parent.getAttribute<float>(xAOD::JetAttribute::JetGhostArea));
 
+  float area=0;
+  if(parent.getAttribute(xAOD::JetAttribute::JetGhostArea, area)) jet.setAttribute(xAOD::JetAttribute::JetGhostArea, area);
+    
   return jet;
 }

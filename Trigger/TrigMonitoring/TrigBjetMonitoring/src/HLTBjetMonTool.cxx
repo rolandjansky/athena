@@ -980,16 +980,17 @@ StatusCode HLTBjetMonTool::book(){
 	    const xAOD::BTaggingContainer* onlinebjet = onlinebjets[0].cptr();
 	    ATH_MSG_DEBUG("                 -   nBjet: " << onlinebjet->size());
 	    for(const auto* bjet : *onlinebjet) {
-	      double wIP3D, wSV1, wCOMB, wMV2c00, wMV2c10, wMV2c20  = 0.; // discriminant variables
+	      double wIP3D=0., wSV1=0., wCOMB=0., wMV2c00=0., wMV2c10=0., wMV2c20  = 0.; // discriminant variables
 	      //	  double wMV1  = 0.;
-	      float svp_efrc, svp_mass = -1.; int svp_n2t = -1; // SV1 variables
+	      float svp_efrc =-1, svp_mass = -1.; int svp_n2t = -1; // SV1 variables
 	      bjet->loglikelihoodratio("IP3D", wIP3D);
 	      bjet->loglikelihoodratio("SV1", wSV1);
 	      double SV1_loglikelihoodratioLZ = bjet->SV1_loglikelihoodratio();
 	      wCOMB = wIP3D+wSV1;
-	      wMV2c00 = bjet->auxdata<double>("MV2c00_discriminant");
-	      wMV2c10 = bjet->auxdata<double>("MV2c10_discriminant");
-	      wMV2c20 = bjet->auxdata<double>("MV2c20_discriminant");
+	      bjet->MVx_discriminant("MV2c00",wMV2c00);
+	      bjet->MVx_discriminant("MV2c10",wMV2c10);
+	      bjet->MVx_discriminant("MV2c20",wMV2c20);
+
 	      //	  wMV1 = bjet->MV1_discriminant();
 	      // Suggestion of LZ
 	      bjet->variable<float>("SV1", "masssvx", svp_mass);
@@ -1108,7 +1109,7 @@ StatusCode HLTBjetMonTool::book(){
 	    double SV1_loglikelihoodratioLZ = btag->SV1_loglikelihoodratio();
 	    wCOMB = wIP3D+wSV1;
 
-	    wMV2c10 = btag->auxdata<double>("MV2c10_discriminant");
+	    btag->MVx_discriminant("MV2c10",wMV2c10);
 
 	    // Suggestion of LZ
 	    btag->variable<float>("SV1", "masssvx", svp_mass);

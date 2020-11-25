@@ -145,9 +145,7 @@ namespace Trk
       
       //get "intensity" (scalar sum ot p_T^2)
       double sum_pt2(0.0);
-      HepMC::GenEvent::particle_const_iterator pitr;
-      for (pitr = myEvent->particles_begin(); pitr != myEvent->particles_end(); ++pitr ) {
-	HepMC::GenParticle *part = (*pitr);
+      for (auto part: *myEvent) {
 	if(!pass(part, mcEventCollection.cptr())) continue; //select stable charged particles
 	sum_pt2 += part->momentum().perp2();
       }
@@ -231,7 +229,7 @@ namespace Trk
     if( ! pass( part->parent_event(), coll ) ) return false;
 
     // Now check for stable particles
-    if (part->barcode() < 200000) {
+    if (HepMC::barcode(part) < 200000) {
       if( ! TruthHelper::IsGenStable()( part ) ) return false;
       if( ! TruthHelper::IsGenInteracting()( part ) ) return false;
     }
@@ -240,13 +238,13 @@ namespace Trk
     int pdg = part->pdg_id();
 
     /// remove gluons and quarks of status 2 that pass IsGenStable!!!
-    if( abs(pdg) < 7 || abs(pdg) == 21 ) return false;
+    if( std::abs(pdg) < 7 || std::abs(pdg) == 21 ) return false;
 
-    const HepPDT::ParticleData* pd = m_partPropSvc->PDT()->particle( abs( pdg ) );
+    const HepPDT::ParticleData* pd = m_partPropSvc->PDT()->particle( std::abs( pdg ) );
     if( ! pd ) {
       ATH_MSG_DEBUG( "Could not get particle data for pdg = " << pdg 
-		     << " status " << part->status() << " barcode " <<part->barcode()
-		     << " process id " <<part->parent_event()->signal_process_id());
+		     << " status " << part->status() << " barcode " <<HepMC::barcode(part)
+		     << " process id " <<HepMC::signal_process_id(part->parent_event()));
       return false;
     }
     float charge = pd->charge();

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_SELECTIONCUTS_H
@@ -10,11 +10,7 @@
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  documentation in: https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauSelectionTool.rst
 */
 
 // Framework include(s):
@@ -154,6 +150,7 @@ public:
 private:
   virtual void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist) override;
 };
+
 
 class SelectionCutJetIDWP
   : public SelectionCut

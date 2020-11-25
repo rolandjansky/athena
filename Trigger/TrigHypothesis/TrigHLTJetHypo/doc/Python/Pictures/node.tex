@@ -1,0 +1,51 @@
+\documentclass[11pt]{amsart}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{xstring}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usepackage{ifthen}
+\usepackage{calc}
+\usepackage{pbox}
+%\usepackage{pfgopts}
+\usepackage{tikz-uml}
+\usetikzlibrary{positioning}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Brief Article}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+%\maketitle
+%\section{}
+%\subsection{}
+
+ 
+\begin{tikzpicture} 
+
+\umlclass{Node}{
+}{
+        int:node\_id=None\\
+        int:parent\_id=None\\
+        
+        string:scenario='simple'\\
+        string:parameters={\color{red}(260et,320eta490)}\\
+        list:children=[]\\
+        list$<$dict$>$:conf\_attrs={\color{blue}[\{'et': \{'min': '260000.0', 'max': 'inf'\},}\\ \makebox[4cm]{}{\color{blue}'eta': \{'min': '3.2', 'max': '4.9'\}\}]}\\
+        bool:tree\_top=True\\
+}
+\umluniassoc[mult=0..*, recursive=-90|0|5.6cm, pos=0.95]{Node}{Node}
+\umlnote[x = 10, y=2, width=120] {Node}{{\color{red} params} filled in by Parser
+
+TreeExpanderVisitor adds defaults, fills in {\color{blue} conf\_attrs}}
+
+\end{tikzpicture}
+
+
+\end{document}  

@@ -387,7 +387,7 @@ const {
 
   eta = std::fabs(eta);
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
-  //et  = et*1e-3; ///in GeV
+  et  = et*1e-3; ///in GeV
   
   if(m_discriminators.size() > 0){
     for(unsigned i=0; i<m_discriminators.size(); ++i){

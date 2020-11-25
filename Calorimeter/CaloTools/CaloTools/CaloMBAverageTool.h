@@ -27,7 +27,6 @@ class CaloDetDescrElement;
 #include "StoreGate/DataHandle.h"
 #include "CaloInterface/ICaloMBAverageTool.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "CxxUtils/checker_macros.h"
 

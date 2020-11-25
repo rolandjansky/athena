@@ -124,21 +124,21 @@ CP::SystematicSet PileupReweightingTool::recommendedSystematics() const {
    return affectingSystematics();
 }
 
-CP::SystematicCode PileupReweightingTool::applySystematicVariation( const CP::SystematicSet& systConfig ) { 
+StatusCode PileupReweightingTool::applySystematicVariation( const CP::SystematicSet& systConfig ) { 
    if(systConfig.find( m_systUp ) != systConfig.end() && systConfig.find( m_systDown ) != systConfig.end()) {
       ATH_MSG_ERROR("Errr... what the!? You're trying to do both PRW_DATASF directions at the same time!!!??"); 
-      return SystematicCode::Unsupported; 
+      return StatusCode::FAILURE; 
    }
    if(systConfig.find( m_systUp ) != systConfig.end()) {
-      if(!m_upTool) { ATH_MSG_ERROR("Requested up variation of PRW_DATASF, but not configured to do this :-("); return SystematicCode::Unsupported; }
+      if(!m_upTool) { ATH_MSG_ERROR("Requested up variation of PRW_DATASF, but not configured to do this :-("); return StatusCode::FAILURE; }
       m_activeTool = m_upTool.get();
    }
    else if(systConfig.find( m_systDown ) != systConfig.end() ) {
-      if(!m_downTool) { ATH_MSG_ERROR("Requested down variation of PRW_DATASF, but not configured to do this :-("); return SystematicCode::Unsupported; }
+      if(!m_downTool) { ATH_MSG_ERROR("Requested down variation of PRW_DATASF, but not configured to do this :-("); return StatusCode::FAILURE; }
       m_activeTool = m_downTool.get();
    }
    else m_activeTool = this;
-   return SystematicCode::Ok;
+   return StatusCode::SUCCESS;
 }
 
 
@@ -271,7 +271,7 @@ StatusCode PileupReweightingTool::initialize() {
 
    //register ourselves with the systematic registry! 
    CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-   if( registry.registerSystematics( *this ) != CP::SystematicCode::Ok ) return StatusCode::FAILURE;
+   if( registry.registerSystematics( *this ) != StatusCode::SUCCESS ) return StatusCode::FAILURE;
 
 
    //delay initializing underlying tool until first usage, just in case user wants to do any advanced initialization options

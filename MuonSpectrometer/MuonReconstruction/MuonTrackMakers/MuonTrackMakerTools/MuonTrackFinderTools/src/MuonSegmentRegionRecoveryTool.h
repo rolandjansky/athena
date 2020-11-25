@@ -16,7 +16,6 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
@@ -30,7 +29,6 @@
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuonChamberHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
-#include "MuonChamberHoleRecoveryTool.h"
 #include "IRegionSelector/IRegSelTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"

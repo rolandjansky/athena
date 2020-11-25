@@ -1,17 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-//   T0CalibrationMT.h
-//   Header file for class T0CalibrationMT
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// 
-///////////////////////////////////////////////////////////////////
 
 #ifndef T0CALIBRATIONMT_H
 #define T0CALIBRATIONMT_H
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -20,12 +13,7 @@
 
 #include "MdtCalibInterfaces/IMdtCalibration.h"
 #include "MdtCalibData/MdtTubeFitContainer.h"
-#include "MdtCalibData/MdtTubeFitContainer.h"
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
-//#include "T0MTSettings.h"
-//#include "T0MTHistos.h"
-//#include "ADCMTHistos.h"
-//#include "HistogramId.h"
 
 class TH1;
 class TFile;
@@ -42,9 +30,6 @@ class T0ADCHistos;
 class ADCMTHistos;
 class HistogramId;
 class MdtRelativeTubeT0;
-//class MdtTubeFitContainer;
-
-
 
 /**@class T0CalibrationMT
    Implementation of a T0 calibration using the MT approach.

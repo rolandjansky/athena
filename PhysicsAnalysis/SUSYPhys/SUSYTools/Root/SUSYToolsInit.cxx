@@ -328,8 +328,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     ATH_CHECK( m_jetUncertaintiesTool.retrieve() );
 
     CP::SystematicSet defaultSet;
-    CP::SystematicCode ret = m_jetUncertaintiesTool->applySystematicVariation(defaultSet);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_jetUncertaintiesTool->applySystematicVariation(defaultSet);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure JetUncertaintiesTool for default systematic setting.");
       return StatusCode::FAILURE;
     }
@@ -368,8 +368,8 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
 
     ATH_CHECK( m_fatjetUncertaintiesTool.retrieve() );
     CP::SystematicSet defaultSet;
-    CP::SystematicCode ret = m_fatjetUncertaintiesTool->applySystematicVariation(defaultSet);
-    if (ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_fatjetUncertaintiesTool->applySystematicVariation(defaultSet);
+    if (ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure (Fat)JetUncertaintiesTool for default systematic setting.");
       return StatusCode::FAILURE;
     }

@@ -14,7 +14,7 @@
 #include <string>
 #include <functional>
 
-#include <PATInterfaces/SystematicCode.h>
+#include <AsgMessaging/StatusCode.h>
 #include <PATInterfaces/SystematicVariation.h>
 
 
@@ -91,7 +91,7 @@ namespace CP
                          MATCHTYPE type=FULL) const;
 
     /// description: get the subset of systematics matching basename
-    /// Should this return a SystematicCode instead?
+    /// Should this return a StatusCode instead?
     SystematicSet filterByBaseName(const std::string& basename) const;
 
     /// description: get the set of base systematic names from this set
@@ -129,7 +129,7 @@ namespace CP
     /// failures: requesting an unsupported variation on an otherwise
     ///   supported systematic (e.g. a 2 sigma variation and the tool
     ///   only supports 1 sigma variations)
-    static SystematicCode
+    static StatusCode
     filterForAffectingSystematics (const SystematicSet& systConfig,
                                    const SystematicSet& affectingSystematics,
                                    SystematicSet& filteredSystematics);

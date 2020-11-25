@@ -48,7 +48,7 @@ namespace CP {
             /// returns: the list of all systematics this tool recommends to use
             virtual SystematicSet recommendedSystematics() const;
 
-            virtual SystematicCode applySystematicVariation(const SystematicSet& systConfig);
+            virtual StatusCode applySystematicVariation(const SystematicSet& systConfig);
 
             /// Obtain the muon efficiency measured using the data
             virtual CorrectionCode getDataEfficiency(const xAOD::Muon& mu, float& eff, const xAOD::EventInfo* info = 0) const;

@@ -30,16 +30,10 @@ fileName   = buildFileName( derivationFlags.WriteDAOD_PHYSLITEStream )
 PHYSLITEStream = MSMgr.NewPoolRootStream( streamName, fileName )
 PHYSLITEStream.AcceptAlgs(["PHYSLITEKernel"])
 
-### Thinning and augmentation tools lists
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-PHYSLITEThinningHelper = ThinningHelper( "PHYSLITEThinningHelper" )
-PHYSLITEThinningHelper.AppendToStream( PHYSLITEStream )
 thinningTools       = []
 AugmentationTools   = []
-
 # Special sequence 
 SeqPHYSLITE = CfgMgr.AthSequencer("SeqPHYSLITE")
-
 #====================================================================
 # TRUTH CONTENT
 #====================================================================
@@ -47,6 +41,7 @@ if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addPVCollection
   addStandardTruthContents(SeqPHYSLITE)
   addPVCollection(SeqPHYSLITE)
+'''
   from DerivationFrameworkMCTruth.HFHadronsCommon import *
   # Extra classifiers for the Higgs group
   import DerivationFrameworkHiggs.TruthCategories
@@ -200,7 +195,7 @@ PHYSLITEVertexThinningTool = DerivationFramework__VertexThinning(name = "PHYSLIT
                                                                  VertexKey = "PrimaryVertices")
 ToolSvc += PHYSLITEVertexThinningTool
 thinningTools.append(PHYSLITEVertexThinningTool)
-
+'''
 #==============================================================================
 # Jet building
 #==============================================================================
@@ -221,9 +216,17 @@ if (DerivationFrameworkIsMonteCarlo):
 # q/g discrimination
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=SeqPHYSLITE,algname="QGTaggerToolPFAlg")
 
-# fJVT
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSLITE, algname='PHYSLITEJetForwardPFlowJvtToolAlg')
+if DerivationFrameworkIsMonteCarlo:
+   # Schedule the two energy density tools for running after the pseudojets are created.
+   for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
+      if hasattr(topSequence, alg):
+         edtalg = getattr(topSequence, alg)
+         delattr(topSequence, alg)
+         SeqPHYSLITE += edtalg
 
+# fJVT
+# getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqPHYSLITE, algname='PHYSLITEJetForwardPFlowJvtToolAlg')
+'''
 #====================================================================
 # Flavour tagging   
 #====================================================================
@@ -249,11 +252,11 @@ sysLoader = CfgMgr.CP__SysListLoaderAlg( 'SysLoaderAlg' )
 sysLoader.systematicsList= ['']
 SeqPHYSLITE += sysLoader
 
+'''
 dataType = "data"
 
 if DerivationFrameworkIsMonteCarlo:
   dataType = "mc"
-
 #in your c++ code, create a ToolHandle<IPileupReweightingTool>
 #the ToolHandle constructor should be given "CP::PileupReweightingTool/myTool" as its string argument
 from PileupReweighting.AutoconfigurePRW import getLumiCalcFiles
@@ -262,6 +265,7 @@ ToolSvc += CfgMgr.CP__PileupReweightingTool("PHYSLITE_PRWTool",
                                             UnrepresentedDataAction=2,
                                             LumiCalcFiles=getLumiCalcFiles())
 SeqPHYSLITE += CfgMgr.CP__PileupReweightingProvider(Tool=ToolSvc.PHYSLITE_PRWTool,RunSystematics=False)
+'''
 
 # Include, and then set up the electron analysis sequence:
 from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
@@ -285,13 +289,11 @@ print( photonSequence ) # For debugging
 SeqPHYSLITE += photonSequence
 
 # Include, and then set up the muon analysis algorithm sequence:
- 
 from MuonAnalysisAlgorithms.MuonAnalysisSequence import makeMuonAnalysisSequence
 muonSequence = makeMuonAnalysisSequence( dataType, shallowViewOutput = False, deepCopyOutput = True, workingPoint = 'Loose.NonIso' )
 muonSequence.configure( inputName = 'Muons',
                         outputName = 'AnalysisMuons' )
 print( muonSequence ) # For debugging
-
 # Add the sequence to the job:
  
 SeqPHYSLITE += muonSequence
@@ -332,7 +334,7 @@ PHYSLITE_cfg = METAssocConfig('AnalysisMET',
                               doPFlow=True)
 METCommon.customMETConfigs.setdefault('AnalysisMET',{})[PHYSLITE_cfg.suffix] = PHYSLITE_cfg
 scheduleMETAssocAlg(sequence=SeqPHYSLITE,configlist="AnalysisMET")
-
+'''
 #====================================================================
 # TRIGGER CONTENT
 #====================================================================
@@ -364,7 +366,7 @@ for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
     if not 'ChainName' in trig_item: continue
     if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
     if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
-
+'''
 # Create trigger matching decorations
 trigmatching_helper_notau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolNoTau',
         OutputContainerPrefix = "Analysis",
@@ -378,7 +380,7 @@ trigmatching_helper_tau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToo
         InputMuons="AnalysisMuons",InputTaus="AnalysisTauJets")
 SeqPHYSLITE += trigmatching_helper_notau.alg
 SeqPHYSLITE += trigmatching_helper_tau.alg
-
+'''
 #====================================================================
 # MAIN KERNEL
 #====================================================================
@@ -391,7 +393,6 @@ SeqPHYSLITE += CfgMgr.DerivationFramework__DerivationKernel(
    AugmentationTools = AugmentationTools,
    ThinningTools = thinningTools,
    )
-
 #====================================================================
 # CONTENT LIST  
 #====================================================================
@@ -472,7 +473,7 @@ if DerivationFrameworkIsMonteCarlo:
     addTruth3ContentToSlimmerTool(PHYSLITESlimmingHelper)
 
 # Extra trigger collections
-trigmatching_helper_notau.add_to_slimming(PHYSLITESlimmingHelper)
-trigmatching_helper_tau.add_to_slimming(PHYSLITESlimmingHelper)
+# trigmatching_helper_notau.add_to_slimming(PHYSLITESlimmingHelper)
+# trigmatching_helper_tau.add_to_slimming(PHYSLITESlimmingHelper)
 
 PHYSLITESlimmingHelper.AppendContentToStream(PHYSLITEStream)

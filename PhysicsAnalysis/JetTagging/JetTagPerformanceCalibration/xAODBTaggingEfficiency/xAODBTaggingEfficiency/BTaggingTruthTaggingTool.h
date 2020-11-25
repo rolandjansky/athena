@@ -101,7 +101,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   StatusCode initialize();
 
   CP::SystematicSet affectingSystematics() const;
-  CP::SystematicCode applySystematicVariation( const CP::SystematicSet & systConfig);
+  StatusCode applySystematicVariation( const CP::SystematicSet & systConfig);
   CP::SystematicSet recommendedSystematics() const;
   bool isAffectedBySystematic( const CP::SystematicVariation & systematic ) const;
 

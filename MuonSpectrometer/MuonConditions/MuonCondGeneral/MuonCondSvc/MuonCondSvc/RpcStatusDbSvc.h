@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDSVC_RPCSTATUSDBSVC_H
@@ -12,9 +12,6 @@
 #include "AthenaBaseComps/AthService.h"
 
 #include "MuonCondInterface/IRpcDetectorStatusDbTool.h"
-//#include "MuonCondData/RpcCalibDataContainer.h"
-//#include "MuonCondData/RpcStripStatus.h"
-
 
 class IIOVSvc;
 

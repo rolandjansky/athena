@@ -415,27 +415,7 @@ robmonitor::ROBDataStruct HltROBDataProviderSvc::robmap_getRobData(const ROBF& r
   auto robData = robmonitor::ROBDataStruct(robFrag.source_id());
   robData.rob_size = robFrag.fragment_size_word();
   robData.rob_history = robStatus;
-
-  // Read status words
-  std::vector<uint32_t> statusWords;
-  // try-catch around eformat calls and raw-pointer operations
-  try {
-    const uint32_t nStatus = robFrag.nstatus();
-    const uint32_t* rawStatus = robFrag.status();
-
-    // Copy range of data into vector using efficient memmove/memcopy
-    statusWords.assign(rawStatus, rawStatus + nStatus);
-  }
-  catch (const std::exception& ex) {
-    ATH_MSG_ERROR("std::exception caught when reading status words: " << ex.what());
-    return robmonitor::ROBDataStruct();
-  }
-  catch (...) {
-    ATH_MSG_ERROR("Unknown exception caught when reading status words");
-    return robmonitor::ROBDataStruct();
-  }
-
-  robData.rob_status_words = std::move(statusWords);
+  robData.rob_status_word = robFrag.nstatus() ? robFrag.status()[0] : 0;
 
   return robData;
 }

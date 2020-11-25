@@ -56,8 +56,8 @@ theApp.EvtMax = 5
 #--------------------------------------------------------------
 from AthenaPoolTest.AthenaPoolTestConf import AthenaPoolTestDataWriter
 topSequence += AthenaPoolTestDataWriter( "AthenaPoolTestDataWriter" )
-AthenaPoolTestDataWriter.PartialCreate = TRUE
-AthenaPoolTestDataWriter.ReadOtherHalf = TRUE
+AthenaPoolTestDataWriter.PartialCreate = True
+AthenaPoolTestDataWriter.ReadOtherHalf = True
 
 #--------------------------------------------------------------
 # Output options
@@ -66,13 +66,13 @@ AthenaPoolTestDataWriter.ReadOtherHalf = TRUE
 include( "EventAthenaPool/EventAthenaPoolItemList_joboptions.py" )
 include( "AthenaPoolTestAthenaPool/AthenaPoolTestAthenaPoolItemList_joboptions.py" )
 
-printfunc (fullItemList)
+print(fullItemList)
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream3 = AthenaPoolOutputStream( "Stream3", noTag=True )
 
 # Run OutputStream as an algorithm
-topSequence += AthenaPoolOutputStream( "Stream3", noTag=True )
+topSequence += Stream3
 # Must make sure that no OutStream's have been declared
 theApp.OutStream     = []; 
 # Stream's output file
@@ -87,7 +87,7 @@ Stream3.ItemList   += ["IAthenaPoolTestCollection#AthenaPoolTestCollection_2"]
 Stream3.ItemList   += ["IAthenaPoolTestCollection#AthenaPoolTestCollection_3"]
 Stream3.ItemList   += ["AthenaPoolTestMatrix#*"]
 
-printfunc (Stream3.ItemList)
+print(Stream3.ItemList)
 
 # Change output file catalog to avoid collisions.
 from PoolSvc import PoolSvcConf

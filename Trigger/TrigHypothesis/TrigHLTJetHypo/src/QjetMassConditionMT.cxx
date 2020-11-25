@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./QjetMassConditionMT.h"
@@ -63,7 +63,7 @@ QjetMassConditionMT::isSatisfied(const HypoJetVector& ips,
 
 }
 
-std::string QjetMassConditionMT::toString() const noexcept {
+std::string QjetMassConditionMT::toString() const {
 
 
   std::stringstream ss;

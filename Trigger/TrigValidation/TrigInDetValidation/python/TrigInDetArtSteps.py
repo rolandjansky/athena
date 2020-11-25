@@ -60,7 +60,7 @@ class TrigInDetReco(ExecStep):
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
 
         self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
-        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --asetup "RAWtoESD:Athena,22.0.19" "ESDtoAOD:Athena,22.0.19" '
+        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --asetup "RAWtoESD:Athena,22.0.20" "ESDtoAOD:Athena,22.0.20" '
 
 
     def configure(self, test):

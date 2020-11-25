@@ -20,7 +20,6 @@ PURPOSE:  check integrity of CaloCellContainer find and iterators
 #include "CaloEvent/CaloConstCellContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloIdentifier/CaloCell_ID.h"
 
 #include "CLHEP/Units/SystemOfUnits.h"
 

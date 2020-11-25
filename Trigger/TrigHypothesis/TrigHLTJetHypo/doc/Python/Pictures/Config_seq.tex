@@ -1,0 +1,68 @@
+\documentclass[11pt]{amsart}
+\usepackage[left=10px,right=10px,top=10px,bottom=10px,paperwidth=12in]{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{xstring}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usepackage{ifthen}
+\usepackage{calc}
+%\usepackage{pfgopts}
+\usepackage{tikz-uml}
+\usetikzlibrary{positioning}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Brief Article}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+%\maketitle
+%\section{}
+%\subsection{}
+
+ 
+\begin{tikzpicture} 
+\begin{umlseqdiag}
+\umlobject [no ddots] {menu}
+\umlobject [class=JC, x=3.7] {trigJetHypoToolFromDict}
+\umlobject [class=JC, x=9.5] {trigJetHypoToolHelperFromDict}
+\begin{umlcall}[op={chaindict}, dt=5, return=tool]{menu}{trigJetHypoToolFromDict}
+	\umlcreatecall[class=TrigJetHypoTool, x=25.7]{trigJetHypoToolFromDict}{tool}
+	\begin{umlcall}[op={chaindict}, dt=5, return=t-setter.helper]{trigJetHypoToolFromDict}{trigJetHypoToolHelperFromDict}
+		\umlcreatecall[class=ChainLabel, x=13]{trigJetHypoToolHelperFromDict}{label}
+		\umlcreatecall[class=ConditionsToolSetterFastReduction, x=19]{trigJetHypoToolHelperFromDict} {t-setter}
+		\umlcreatecall[class=ChainLabelParser, x=13.7]{trigJetHypoToolHelperFromDict} {parser}
+		\begin{umlcall}[op={parse(label)}, dt=5, return=tree]{trigJetHypoToolHelperFromDict}{parser}
+			\umlcreatecall[class=Node, x=16.5]{parser}{tree}
+		\end{umlcall}
+		\umlcreatecall[class=TreeParameterExpander, x=13.7]{trigJetHypoToolHelperFromDict} {visitor}
+		 \begin{umlfragment}[type=navigate tree]
+			\begin{umlcall}[op={accept(visitor)}, dt=5]{trigJetHypoToolHelperFromDict}{tree}
+			\end{umlcall}
+		\end{umlfragment}
+		\begin{umlcall}[op={mod(tree)}, dt=5]{trigJetHypoToolHelperFromDict}{t-setter}
+			 \begin{umlfragment}[type=navigate tree]
+			\begin{umlcall}[op={accept(self)}, dt=5]{t-setter}{tree}
+			\end{umlcall}
+			\end{umlfragment}
+			\umlcreatecall[class=TrigJetHypoHelperTool, x=23]{t-setter} {helper}
+			\begin{umlcallself}[op=attach(helper)]{t-setter}
+			\end{umlcallself}
+		\end{umlcall}
+
+	\end{umlcall}
+	\begin{umlcall}[op={attach(helper)}, dt=5]{trigJetHypoToolFromDict}{tool}
+	\end{umlcall}
+\end{umlcall}
+ 
+\end{umlseqdiag}
+\end{tikzpicture}
+
+JC: abbreviation for TrigJetToolConfig.py
+
+\end{document}  

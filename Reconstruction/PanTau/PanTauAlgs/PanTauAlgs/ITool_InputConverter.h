@@ -5,26 +5,20 @@
 #ifndef PANTAUALGS_ITOOL_INPUTCONVERTER_H
 #define PANTAUALGS_ITOOL_INPUTCONVERTER_H
 
-// Gaudi
 #include "AsgTools/IAsgTool.h"
 
 #include <string>
 
-
-//! xAOD EDM
 #include "xAODPFlow/PFO.h"
 #include "xAODTau/TauJet.h"
 
 namespace PanTau{
-    class TauConstituent2;
+    class TauConstituent;
 }
 
 namespace Rec {
     class TrackParticle;
 }
-
-
-
 
 namespace PanTau {
 
@@ -43,8 +37,8 @@ namespace PanTau {
     virtual bool isInitialized() = 0;
             
     //PFO Converter (r19+)
-    virtual StatusCode ConvertToTauConstituent2(xAOD::PFO* pfo,
-						PanTau::TauConstituent2* &tauConstituent,
+    virtual StatusCode ConvertToTauConstituent(xAOD::PFO* pfo,
+						PanTau::TauConstituent* &tauConstituent,
 						const xAOD::TauJet* tauJet) const = 0;
             
     };

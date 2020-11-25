@@ -8,8 +8,6 @@
 #define t3333_cxx
 #include "t3333.h"
 #include <TH2.h>
-#include <TStyle.h>
-#include <TCanvas.h>
 
 #include <TROOT.h>
 #include <TTree.h>

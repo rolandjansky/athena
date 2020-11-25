@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 #define MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
@@ -11,15 +10,12 @@
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 
 class MuonMDT_CablingMap;
 class MdtMezzanineType;
 class StoreGateSvc;
-//class IMDTcablingSvc;
 class IMDTCablingDbTool;
 class ITagInfoMgr;
-
 class IdentifierHash;
 
 #include <list>
@@ -27,12 +23,7 @@ class IdentifierHash;
 
 static const InterfaceID IID_IMuonMDT_CablingSvc("MuonMDT_CablingSvc", 1, 0);
 
-
-
-class MuonMDT_CablingSvc : public AthService 
-			   //			   virtual public IInterface, 
-
-{
+class MuonMDT_CablingSvc : public AthService  {
 
  public:
 

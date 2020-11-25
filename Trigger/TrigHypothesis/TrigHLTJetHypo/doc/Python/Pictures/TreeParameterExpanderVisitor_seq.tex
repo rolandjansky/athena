@@ -1,0 +1,61 @@
+\documentclass[11pt]{amsart}
+\usepackage[left=10px,right=10px,top=10px,bottom=10px,paperwidth=12in]{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{xstring}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usepackage{ifthen}
+\usepackage{calc}
+%\usepackage{pfgopts}
+\usepackage{tikz-uml}
+\usetikzlibrary{positioning}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Brief Article}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+%\maketitle
+%\section{}
+%\subsection{}
+
+ 
+\begin{tikzpicture} 
+\begin{umlseqdiag}
+\umlobject [class=JC, x=9.5] {trigJetHypoToolHelperFromDict}
+\umlobject [class=Node, x=27.5] {tree}
+\umlcreatecall[class=TreeParameterExpander, x=13.7, dt=10]{trigJetHypoToolHelperFromDict} {visitor}
+\begin{umlcall}[op={mod(tree)}]{trigJetHypoToolHelperFromDict}{visitor}
+	\umlcreatecall[class=TreeParameterExpander-simple, x=18.7]{visitor}{expander} 
+	\begin{umlcall}[op={mod(tree)}, dt=5]{visitor}{expander}
+	\begin{umlcall}[op={accept(visitor)}, dt=5]{expander}{tree}
+		\begin{umlfragment}	[type=loop, name=childloop]		
+			\begin{umlcall}[op={mod(node=self)}]{tree}{expander}
+			\end{umlcall}
+			\begin{umlcreatecall}[class=ConditionDictMaker, x=25]{expander}{cdm}
+			\end{umlcreatecall}
+			\begin{umlcall}[op={makeDict(node.parameters)}, return=dict, dt=5]{expander}{cdm}
+			\end{umlcall}
+			\begin{umlcall} [op={attach(dict)}, dt=5, name=nodemod] {expander}{tree}
+			\end{umlcall}
+		\end{umlfragment}
+			\end{umlcall}
+
+		\umlnote[x=23, y = -13, width=150]{childloop}{navigate tree by modifing child nodes, then self}
+	\end{umlcall}
+\end{umlcall}
+
+\umlnote[x=3]{trigJetHypoToolHelperFromDict}{using a visitor, for each node in a Conditions tree, attach a dictionary of elemental conditions and their explicit values}
+\end{umlseqdiag}
+
+
+\end{tikzpicture}
+
+
+\end{document}  

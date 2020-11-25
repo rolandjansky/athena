@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_ITOOL_DETAILSARRANGER_H
@@ -9,11 +9,9 @@
 
 #include "xAODParticleEvent/ParticleContainer.h"
 
-//class Jet;
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
 }
-
 
 namespace PanTau {
 
@@ -30,9 +28,10 @@ namespace PanTau {
         public:
 
         virtual bool isInitialized() = 0;
-        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed, xAOD::ParticleContainer& pi0Container) = 0;
+        virtual StatusCode execute(PanTau::PanTauSeed* inSeed, xAOD::ParticleContainer& pi0Container) = 0;
 
     };
 
 }
+
 #endif // PANTAUALGS_ITAUDISCRIMINANTTOOL_H

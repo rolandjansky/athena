@@ -140,7 +140,6 @@ public:
 };
 
 CLASS_DEF( CscCondDbData, 10742890, 1)
-#include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<CscCondDbData>, 43297256, 0)
 
 #endif

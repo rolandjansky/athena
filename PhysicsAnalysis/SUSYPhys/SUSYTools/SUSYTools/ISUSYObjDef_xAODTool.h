@@ -324,9 +324,9 @@ namespace ST {
     virtual StatusCode OverlapRemoval(const xAOD::ElectronContainer *electrons, const xAOD::MuonContainer *muons, const xAOD::JetContainer *jets,
 				      const xAOD::PhotonContainer* gamma = 0, const xAOD::TauJetContainer* taujet = 0, const xAOD::JetContainer *fatjets = 0) = 0;
 
-    virtual CP::SystematicCode resetSystematics() = 0;
+    virtual StatusCode resetSystematics() = 0;
 
-    virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig ) = 0;
+    virtual StatusCode applySystematicVariation( const CP::SystematicSet& systConfig ) = 0;
 
     virtual bool isPrompt(const xAOD::IParticle* part) const = 0;
 

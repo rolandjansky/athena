@@ -109,7 +109,7 @@ if write_xAOD:
     xaodStream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
 
     xaodStream.AddItem("xAOD::TauJetContainer#TauJets")
-    xaodStream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.")
+    xaodStream.AddItem("xAOD::TauJetAuxContainer#TauJetsAux.-VertexedClusters.")
 
     xaodStream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
     xaodStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")

@@ -75,7 +75,7 @@ public:
   /// configure this tool for the given list of systematic variations.  any
   /// requested systematics that are not affecting this tool will be silently
   /// ignored (unless they
-  virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
+  virtual StatusCode applySystematicVariation ( const CP::SystematicSet& sSystematicSet);
 
   virtual bool isSupportedRunNumber( int iRunNumber )
   {

@@ -300,7 +300,8 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     }
   }
 
-
+  std::vector<int> rosWithGloblaCRC;
+  std::vector<int> drawerWithGlobalCRC;
   auto fractionOfBadDMUs = Monitored::Scalar<float>("fractionOfBadDMUs", 0.0);
 
   for (unsigned int ros = 1; ros < Tile::MAX_ROS; ++ros) {
@@ -436,9 +437,18 @@ StatusCode TileDQFragMonitorAlgorithm::fillHistograms( const EventContext& ctx )
       fill(m_tools[m_errorsGroups[ros - 1][drawer]], drawerDMUs, errorsInDMUs);
       fill(m_tools[m_errorsVsLBGroups[ros - 1][drawer]], lumiBlock, fractionOfBadDMUs);
 
+      if (dqStatus->checkGlobalCRCErr(ros, drawer, 0) != 0) {
+        rosWithGloblaCRC.push_back(ros);
+        drawerWithGlobalCRC.push_back(drawer);
+      }
     }
   }
 
+  if (!rosWithGloblaCRC.empty()) {
+    auto monModule = Monitored::Collection("module", drawerWithGlobalCRC);
+    auto monROS = Monitored::Collection("ROS", rosWithGloblaCRC);
+    fill("TileBadGlobalCRC", monModule, monROS);
+  }
 
   fill("TileDQFragMonExecuteTime", timer);
 

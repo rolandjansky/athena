@@ -177,7 +177,7 @@ StatusCode ALFA_BeamTransport::execute()
 		    //convert unit MeV to GeV for energy and momenta
 		    MeVToGeV (evt);
 
-		    evt->print();
+		    HepMC::Print::line(std::cout,*evt);
 		    
 		    //Select final state particle from event generator
 		    //set event status !=1 (final state)
@@ -200,7 +200,7 @@ StatusCode ALFA_BeamTransport::execute()
 	
 	
 		    //Print new data collection on screen
-		    evt->print();
+		    HepMC::Print::line(std::cout,*evt);
 
 		    
 	       }

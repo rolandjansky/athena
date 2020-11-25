@@ -317,8 +317,6 @@ bool FastReducer::propagate_(std::size_t child,
   // child == 0  do not attempt to process parent of node.
   if(child == 0){return true;}
 
-  // par is parent of the child (and siblings) passed to this method.
-  bool par_satisfied{false};  
       
   // calculate the external product of the jet groups
   // eg if condition c1 is satisfied by jg11 and jg12, while its only
@@ -380,7 +378,6 @@ bool FastReducer::propagate_(std::size_t child,
     if (m_conditions[par]->isSatisfied(jg, collector)){// par is a tree ind.
 
       // get an index for this set of elementarys jhob groups indices
-      par_satisfied = true;
       m_satisfiedBy[par].push_back(cur_jg);
 
       m_jg2elemjgs[cur_jg] = elem_jgs;
@@ -390,6 +387,10 @@ bool FastReducer::propagate_(std::size_t child,
     next = jg_product.next(collector);
   }
 
+  // check if enough job groups pass the parent condition
+  bool par_satisfied =
+    m_conditions[par]->multiplicitySatisfied(m_satisfiedBy[par].size(),
+					     collector);
   if(collector and !par_satisfied){
     collector->collect("FastReducer",
 		       "Condition node " + std::to_string(par) +
@@ -510,10 +511,10 @@ bool FastReducer::capacitySatisfied(std::size_t ind,
   // of Conditions which represent multiple identical conditions.
   
   auto jgMult = m_satisfiedBy.at(ind).size();
-  auto capSat = m_conditions.at(ind)->capacitySatisfied(jgMult, collector);
+  auto capSat = m_conditions.at(ind)->multiplicitySatisfied(jgMult, collector);
   if (!capSat and collector) {
     collector->collect("FastReduce", "Condition " + std::to_string(ind)
-			 + " unsatisfied capacity, aborting"); 
+		       + " unsatisfied multiplicity, aborting"); 
   }
   
   return capSat;

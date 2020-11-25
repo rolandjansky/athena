@@ -12,6 +12,7 @@ def DefineJetCollections(configFlags):
     ########################################################################
     # import the standard definitions 
     from JetRecConfig.StandardSmallRJets import  AntiKt4EMPFlow, AntiKt4EMTopo, AntiKt4Truth, AntiKt4TruthWZ
+    from JetRecConfig.StandardLargeRJets import  AntiKt10LCTopoSoftDrop
 
     # Example for defining a custom definition
     from JetRecConfig.JetDefinition import JetConstitSeq, JetDefinition, xAODType
@@ -38,6 +39,7 @@ def DefineJetCollections(configFlags):
         AntiKt4EMPFlow.clone(prefix="New"),
         AntiKt4EMTopoCSSK,
         AntiKt4EMPFlowCSSK,
+        AntiKt10LCTopoSoftDrop,
     ]
     if configFlags.Input.isMC:
         jetdefs += [AntiKt4Truth.clone(prefix="New"),

@@ -315,7 +315,7 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
   }
   
   if ( m_msg.level() <= MSG::VERBOSE ) {
-    vtx->print();
+    HepMC::Print::line(std::cout,vtx);
   }
 
   /// Check if number of parents is OK
@@ -376,7 +376,7 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
   m_msg << MSG::VERBOSE << "In checkChildBranch..." << endmsg;
 
   if ( m_msg.level() <= MSG::VERBOSE ) {
-    vtx->print();
+    HepMC::Print::line(std::cout,vtx);
   }
 
   /// Check we aren't in the "any particle" case

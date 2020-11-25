@@ -21,7 +21,7 @@
 #include "SUSYTools/ISUSYObjDef_xAODTool.h"
 
 ///////////////////////// -*- C++ -*- /////////////////////////////
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
@@ -313,11 +313,11 @@ namespace ST {
 // ZM - not implemented?
 //    StatusCode IsoOverlapRemoval(const xAOD::IParticleContainer *parts);
 
-    CP::SystematicCode resetSystematics() override final;
+    StatusCode resetSystematics() override final;
 
     const CP::SystematicSet& currentSystematic() const;
 
-    CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig ) override final;
+    StatusCode applySystematicVariation( const CP::SystematicSet& systConfig ) override final;
 
 
     //truth helpers

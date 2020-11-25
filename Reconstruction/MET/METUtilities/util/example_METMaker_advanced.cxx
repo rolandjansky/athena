@@ -59,7 +59,6 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 #ifdef XAOD_STANDALONE
   //enable status code failures
   //  CP::CorrectionCode::enableFailure();
-  //  CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
   xAOD::Init() ;
 #else

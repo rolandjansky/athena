@@ -19,7 +19,6 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICaloMBAverageTool.h"
-#include "GaudiKernel/ToolHandle.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"

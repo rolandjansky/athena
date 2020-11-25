@@ -70,7 +70,7 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
   TrackParticleTruthCollection trans1 (DataLink<Rec::TrackParticleContainer>("tpc"));
   for (int i=0; i<10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     Rec::TrackParticleTruthKey key (ElementLink<Rec::TrackParticleContainer> ("tpc", i));
     TrackParticleTruth val (trkLink, (float)i/10);
     trans1[key] = val;

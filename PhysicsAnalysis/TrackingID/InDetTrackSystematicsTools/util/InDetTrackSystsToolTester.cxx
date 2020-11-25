@@ -67,7 +67,7 @@ int main( int argc, char* argv[] ) {
 
    StatusCode::enableFailure();
    CP::CorrectionCode::enableFailure();
-   CP::SystematicCode::enableFailure();
+   StatusCode::enableFailure();
 
    // Initialise the application:
    CHECK( xAOD::Init( APP_NAME ) );
@@ -148,7 +148,7 @@ int main( int argc, char* argv[] ) {
      tool->msg().setLevel( MSG::DEBUG );
      CHECK( tool->initialize() );
      auto systCode = tool->applySystematicVariation(systSet);
-     if (systCode != CP::SystematicCode::Ok) {
+     if (systCode != StatusCode::SUCCESS) {
        Error( APP_NAME, "Failed to apply systematic variation on tool %s", tool->name().data() );
        return 2;
      }

@@ -51,7 +51,8 @@ class ConditionsToolSetterFastReduction(object):
             'smc': [CompFactory.TrigJetConditionConfig_smc, 0],
             'jvt': [CompFactory.TrigJetConditionConfig_jvt, 0],
             'all': [CompFactory.TrigJetConditionConfig_acceptAll, 0],
-            'compound': [CompFactory.TrigJetConditionConfig_compound, 0],
+            'capacitychecked':
+            [CompFactory.TrigJetConditionConfig_capacitychecked, 0],
             'fastreduction': [CompFactory.TrigJetHypoToolConfig_fastreduction, 0],
             'helper': [CompFactory.TrigJetHypoToolHelperMT, 0],
             }
@@ -134,8 +135,11 @@ class ConditionsToolSetterFastReduction(object):
         #  compound_condition_tools:
         # elemental condition maker AlgToolshelper by the compound condition
         # AlgTool
-        compound_condition_tools = []  
-        for c in node.conf_attrs: # loop over conditions
+        outer_condition_tools = []
+
+        # loop  over elements of node.conf_attrs. The elements are (dict, int)
+        # int is multiplicity, dict holds Condition parameters.
+        for c, mult in node.conf_attrs:
             condition_tools = [] # elemental conditions for this compounnd ct.
             for k, v in c.items(): # loop over elemental conditions
                 condition_tool = self._get_tool_instance(k)
@@ -154,14 +158,15 @@ class ConditionsToolSetterFastReduction(object):
 
                 condition_tools.append(condition_tool)
 
-            # create compound condition from elemental condition
-            compoundCondition_tool =self._get_tool_instance('compound')
-            compoundCondition_tool.conditionMakers = condition_tools
+            # create capacitychecked condition from elemental condition
+            condition_tool =self._get_tool_instance('capacitychecked')
+            condition_tool.conditionMakers = condition_tools
+            condition_tool.multiplicity = mult
 
-            # add compound condition to list
-            compound_condition_tools.append(compoundCondition_tool)
+            # add capacitychecked condition to list
+            outer_condition_tools.append(condition_tool)
 
-        return compound_condition_tools
+        return outer_condition_tools
 
     def _mod_leaf(self, node):
         """ Add Condition tools to For a leaf node."""
@@ -285,7 +290,9 @@ class ConditionsToolSetterFastReduction(object):
 
         else:
             # must have a tool for Gaudi to instantiate in
-            cmap[node.node_id] = self._get_tool_instance('all')
+            cmap[node.node_id] = self._get_tool_instance('capacitychecked')
+            cmap[node.node_id].conditionMakers = [self._get_tool_instance('all')]
+            cmap[node.node_id].multiplicity = 1
         
         for cn in node.children:
             self._fill_conditions_map(cn, cmap)
