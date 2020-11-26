@@ -328,7 +328,7 @@ bool SplitElectronContainer::MatchTruthElectron(const Analysis::Electron* recoEl
       // look for mother
       if( (*pItr)->nParents() >=1 ){
 	
-	const HepMC::GenParticle* mother = (*pItr)->genMother(0);
+	auto mother = (*pItr)->genMother(0);
 	
 	if( mother->pdg_id() == 23){
 	  
