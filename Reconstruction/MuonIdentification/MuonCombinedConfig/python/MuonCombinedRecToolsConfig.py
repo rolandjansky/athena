@@ -353,13 +353,9 @@ def MuonCombinedToolCfg(flags, name="MuonCombinedTool",**kwargs):
     return result 
 
 def MuonCombinedFitTagToolCfg(flags, name="MuonCombinedFitTagTool",**kwargs):
-    # if TriggerFlags.MuonSlice.doTrigMuonConfig:
-    #     from TrkExRungeKuttaIntersector.TrkExRungeKuttaIntersectorConf import Trk.IntersectorWrapper as Propagator
-    #     TrigMuonPropagator = Propagator(name = 'TrigMuonPropagator')
-    #     ToolSvc += TrigMuonPropagator
-    #     kwargs.setdefault("TrackBuilder",         getPublicToolClone("TrigMuonTrackBuilder", "CombinedMuonTrackBuilder", Propagator=TrigMuonPropagator) )
-    #     kwargs.setdefault("VertexContainer", "")
-    # else:
+    if flags.Muon.MuonTrigger:
+        kwargs.setdefault("VertexContainer", "")
+
     result = CombinedMuonTrackBuilderCfg(flags)
     tool = result.popPrivateTools()
     result.addPublicTool(tool)
