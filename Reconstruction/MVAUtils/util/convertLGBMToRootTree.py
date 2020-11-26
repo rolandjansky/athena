@@ -381,8 +381,8 @@ def test_multiclass(booster, mva_utils, ntests=10000, test_file=None):
             zip(data_input, results_lgbm, results_MVAUtils), 1):
         if not np.allclose(output_lgbm, output_MVAUtils):
             stop_event_loop = True
-            logging.info("output are different on input %d/%d:\n" %
-                         (ievent, len(data_input)))
+            logging.info("output are different on input %d/%d:\n",
+                         ievent, len(data_input))
             for ivar, input_value in enumerate(input_values):
                 logging.info("var %d: %.15f", ivar, input_value)
             logging.info("=" * 50)
@@ -405,13 +405,13 @@ def test_multiclass(booster, mva_utils, ntests=10000, test_file=None):
                 if not np.allclose(output_tree_mva_utils, output_tree_lgbm[0]):
                     stop_tree_loop = True
                     logging.info(
-                        "first tree/class with different answer (%d)" % itree)
+                        "first tree/class with different answer (%d)", itree)
                     for isubtree, (ol, om) in enumerate(
                             zip(output_tree_lgbm[0], output_tree_mva_utils)):
                         if not np.allclose(ol, om):
-                            logging.info("different in position %d" % isubtree)
-                            logging.info("lgbm:     %f" % ol)
-                            logging.info("mvautils: %f" % om)
+                            logging.info("different in position %d", isubtree)
+                            logging.info("lgbm:     %f", ol)
+                            logging.info("mvautils: %f", om)
                             logging.info("=" * 50)
                             logging.info("tree %d (itree) * %d (nclasses)"
                                          "+ %d (isubtree) = %d",
