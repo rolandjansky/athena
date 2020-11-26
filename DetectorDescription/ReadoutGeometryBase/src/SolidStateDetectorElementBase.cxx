@@ -58,12 +58,12 @@ using Trk::distDepth;
   const GeoTrf::Transform3D&
   SolidStateDetectorElementBase::transformHit() const
   {
-     if (!m_cacheValid) {
+    if (!m_cacheValid) {
       std::lock_guard<std::mutex> lock(m_mutex);
       if (!m_cacheValid) updateCache();
     }
-
-    return m_transformHit;
+    
+      return m_transformHit;
   }
 
   const HepGeom::Transform3D&
@@ -365,18 +365,27 @@ using Trk::distDepth;
   void
   SolidStateDetectorElementBase::updateCache() const
   {
-    //Need to check if this is the same as 
-    const GeoTrf::Transform3D &geoTransform = getMaterialGeom()->getAbsoluteTransform();
-    //const GeoTrf::Transform3D& geoTransform = transformHit();
+    
+    // use aligned transform if available
+    const GeoTrf::Transform3D* ptrXf;
+    
+    if (m_geoAlignStore){ 
+      ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
+      if (ptrXf) {
+	m_transformHit = (*ptrXf) * m_design->SiHitToGeoModel();
+      }
+    }
+    else{
+      m_transformHit  = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel());
+    }
+    
+    const GeoTrf::Transform3D& geoTransform = m_transformHit;
 
     m_baseCacheValid = true;
     
     bool firstTimeBaseTmp = m_firstTimeBase;
     m_firstTimeBase = false;
     
-    //Previous (21.9) had...
-    // m_centerCLHEP = geoTransform * m_design->sensorCenter();
-    //m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
     m_center = geoTransform * m_design->sensorCenter();
     
     Amg::Vector3D centerGeoModel(0., 0., 0.);
@@ -392,9 +401,9 @@ using Trk::distDepth;
     // depthAxis, phiAxis, and etaAxis are defined to be x,y,z respectively for all detectors for hit local frame.
     // depthAxis, phiAxis, and etaAxis are defined to be z,x,y respectively for all detectors for reco local frame.
     static const Amg::Vector3D localAxes[3] = {
-        Amg::Vector3D(1,0,0),
-        Amg::Vector3D(0,1,0),
-        Amg::Vector3D(0,0,1)
+        Amg::Vector3D(1.,0.,0.),
+        Amg::Vector3D(0.,1.,0.),
+        Amg::Vector3D(0.,0.,1.)
     };
 
     static const Amg::Vector3D & localRecoPhiAxis = localAxes[distPhi];     // Defined to be same as x axis
@@ -410,33 +419,36 @@ using Trk::distDepth;
         const Amg::Vector3D &geoModelEtaAxis = localAxes[m_hitEta];
         const Amg::Vector3D &geoModelDepthAxis = localAxes[m_hitDepth];
  
-        Amg::Vector3D globalDepthAxis(geoTransform * geoModelDepthAxis);
-        Amg::Vector3D globalPhiAxis(geoTransform * geoModelPhiAxis);
-        Amg::Vector3D globalEtaAxis(geoTransform * geoModelEtaAxis);
+        Amg::Vector3D globalDepthAxis(geoTransform.linear() * geoModelDepthAxis);
+        Amg::Vector3D globalPhiAxis(geoTransform.linear() * geoModelPhiAxis);
+        Amg::Vector3D globalEtaAxis(geoTransform.linear() * geoModelEtaAxis);
 
         // unit radial vector
         Amg::Vector3D unitR(m_center.x(), m_center.y(), 0.);
         unitR.normalize();
 
-        Amg::Vector3D nominalEta;
-        Amg::Vector3D nominalNormal;
-        Amg::Vector3D nominalPhi(-unitR.y(), unitR.x(), 0);
+        Amg::Vector3D nominalEta(0.0,0.0,1.0);
+        Amg::Vector3D nominalNormal(0.0,0.0,0.0);
+        Amg::Vector3D nominalPhi(-unitR.y(), unitR.x(), 0.0);
 
         // In Barrel like geometry, the etaAxis is along increasing z, and normal is in increasing radial direction.
         // In Endcap like geometry, the etaAxis is along increasing r, and normal is in decreasing z direction,
         // We base whether it is barrel like or endcap like by the orientation of the local z axis of the 
         // the element. This allows the use of endcap identifiers in a TB setup.
 
-        nominalEta(2) = 1;
+
+        nominalEta(2) = 1.0;
+	m_barrelLike = true;
+
         if (std::abs(globalEtaAxis.dot(nominalEta)) < 0.5) { // Check that it is in roughly the right direction. Allowed not to be for ITK inclined/barrel ring modules
             m_barrelLike = false;
         }
 
         if (m_barrelLike) {
-          nominalEta(2) = 1;
+          nominalEta(2) = 1.0;
           nominalNormal =  unitR;
         } else { // endcap like
-          nominalNormal(2) = 1;
+          nominalNormal(2) = -1.0;
           nominalEta = unitR;
         }
 
@@ -495,12 +507,6 @@ using Trk::distDepth;
         }
 
     } // end if (firstTimeBaseTemp)
-
-    // use aligned transform if available
-    const GeoTrf::Transform3D* ptrXf;
-    if (m_geoAlignStore) ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
-    if (ptrXf) m_transformHit   = (*ptrXf) * m_design->SiHitToGeoModel();
-    else m_transformHit = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel());
     
     m_transformCLHEP = Amg::EigenTransformToCLHEP(geoTransform) * recoToHitTransformImpl();
     m_transform = Amg::CLHEPTransformToEigen(m_transformCLHEP);
@@ -525,10 +531,6 @@ using Trk::distDepth;
     // Initialize various cached members, needs to be done here otherwise the necessary transforms are not yet initialized
     // The unit vectors
     m_normal = m_transform * localRecoDepthAxis;
-    
-    //m_normalCLHEP - are these actually neeeded anymore?
-    //m_phiAxisCLHEP = m_transformCLHEP * localRecoPhiAxis;
-    //m_etaAxisCLHEP = m_transformCLHEP * localRecoEtaAxis;
   
     m_phiAxis = m_transform * localRecoPhiAxis;
     m_etaAxis = m_transform * localRecoEtaAxis;
