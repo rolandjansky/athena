@@ -67,6 +67,11 @@ class CostData {
     void setRosToRobMap(const std::map<std::string, std::vector<uint32_t>>& rosToRobMap);
 
     /**
+     * @brief Getter of map between algorithm (index in costCollection) and ROS requests (indicies in rosCollection)
+     */
+    const std::map<size_t, std::vector<size_t>>& algToRequestMap() const;
+
+    /**
      * @brief Setter of effective P1 walltime represented by the current event.
      */
     void setLb(uint32_t lb);

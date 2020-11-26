@@ -88,6 +88,10 @@ const std::map<std::string, std::vector<uint32_t>>& CostData::rosToRobMap() cons
   return *m_rosToRob;
 }
 
+const std::map<size_t, std::vector<size_t>>& CostData::algToRequestMap() const {
+  return m_algToRos;
+}
+
 float CostData::algTotalTimeMilliSec() const {
   return m_algTotalTime * 1e-3; // microseconds to milliseconds
 }
