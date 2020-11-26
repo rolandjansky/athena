@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
         
@@ -126,6 +124,7 @@ def EndcapFEI3SimTool(name="EndcapFEI3SimTool", **kwargs):
 
 def IdMapping():
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
 
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
 
@@ -160,8 +159,6 @@ def PixelConfigCondAlg_MC():
     # Set up Pixel Module data (2018 condition)
     ############################################################################################
     from IOVDbSvc.CondDB import conddb
-    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
-    from AthenaCommon.AlgSequence import AthSequencer
 
     #################
     # Module status #
@@ -349,7 +346,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.AppMgr import ServiceMgr
     from AthenaCommon.AppMgr import ToolSvc
     from IOVDbSvc.CondDB import conddb
-    from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
     from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.AlgSequence import AthSequencer
