@@ -131,8 +131,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_0){
 
   auto G = builder->create(groups.begin(), groups.end(), collector, nodeToJet);
   EXPECT_FALSE(G.has_value());
-
-  for(auto j : jets){delete j;}
 }
 
 TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_1){
@@ -188,8 +186,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_1){
 
   EXPECT_TRUE((*G)->V() == 14);
   EXPECT_TRUE(((*G)->edges()).size() == 13);
-
-  for(auto j : jets){delete j;}
 }
 
 TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_2){
@@ -237,8 +233,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj_flowNetworkBuilder_2){
 
   EXPECT_TRUE((*G)->V() == 14);
   EXPECT_TRUE(((*G)->edges()).size() == 13);
-
-  for(auto j : jets){delete j;}
 }
 
 
@@ -294,8 +288,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
 			     collector);
   
   if (m_debug){collector->write();}
-
-  for(auto j : jets){delete j;}
 
   EXPECT_TRUE(jetCollector.empty());
   EXPECT_FALSE(*pass);
@@ -353,8 +345,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
 // 
 //   if(m_debug){collector->write();}
 //   
-//   for(auto j : jets){delete j;}
-// 
 //   EXPECT_TRUE(jetCollector.empty());
 //   EXPECT_FALSE(*pass);
 // }
@@ -411,8 +401,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
 // 
 //   if(m_debug){collector->write();}
 //   
-//   for(auto j : jets){delete j;}
-// 
 //   EXPECT_TRUE(jetCollector.empty()); // not xAOD jets
 //   
 //   EXPECT_TRUE(*pass);
@@ -468,7 +456,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
 // 
 //   if(m_debug){collector->write();}
 //   
-//   for(auto j : jets){delete j;}
 //   EXPECT_TRUE(jetCollector.empty()); //not xAOD jets
 //   EXPECT_TRUE(*pass);
 // }
@@ -531,8 +518,6 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest_Multijet, mj0){
 // 
 //   if(m_debug){collector->write();}
 //   
-//   for(auto j : jets){delete j;}
-// 
 //   EXPECT_TRUE(jetCollector.empty()); // not xAOD jets
 //   EXPECT_TRUE(*pass);
 // }

@@ -39,7 +39,7 @@ EtaEtAsymmetricConditionMT::isSatisfied(const pHypoJet& ip,
                                       
                                       
     std::stringstream ss1;
-    auto j_addr = static_cast<const void*>(ip);
+    auto j_addr = static_cast<const void*>(ip.get());
     ss1 << "    jet: ("  << j_addr << ")"
         << " eta " << eta
         << " et " << et << '\n';
