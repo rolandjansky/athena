@@ -216,8 +216,18 @@ def _loadSingleFile(fname, args):
         ]
 
     if args.ignoreIrrelevant:
+
         def remove_irrelevant(val_dict):
-            return {key:val for key, val in val_dict.items() if key not in args.ignoreList}
+            return (
+                {
+                    key: val
+                    for key, val in val_dict.items()
+                    if key not in args.ignoreList
+                }
+                if isinstance(val_dict, dict)
+                else val_dict
+            )
+
         conf = [
             {key: remove_irrelevant(value) for (key, value) in dic.items()}
             for dic in conf
