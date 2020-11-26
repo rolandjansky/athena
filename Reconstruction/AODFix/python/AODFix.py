@@ -48,7 +48,7 @@ def AODFix_Init():
     ##################
     # exit if locked to false
     ##################
-    if rec.doApplyAODFix.is_locked() and rec.doApplyAODFix.get_Value() == False:
+    if rec.doApplyAODFix.is_locked() and rec.doApplyAODFix.get_Value() is False:
         logAODFix.info("doApplyAODFix is locked to False; not applying anything")
         return
 
@@ -60,7 +60,7 @@ def AODFix_Init():
     import os
     curRelease=os.getenv("AtlasVersion") or ''
 
-    logAODFix.debug("curRelease set to " + curRelease)
+    logAODFix.debug("curRelease set to %s", curRelease)
     
     
     ##################
@@ -113,8 +113,8 @@ def AODFix_Init():
         logAODFix.info(" Input file is MC")
     else:
         logAODFix.info(" Input file is DATA")
-    logAODFix.info(" Input file produced with Athena version <%s>." % prevRelease)
-    logAODFix.info(" AODFix version <%s> was previously applied." % prevAODFix)
+    logAODFix.info(" Input file produced with Athena version <%s>.", prevRelease)
+    logAODFix.info(" AODFix version <%s> was previously applied.", prevAODFix)
     if rec.doApplyAODFix.is_locked():
         logAODFix.info(" AODFix is forced to run!")
 
@@ -159,7 +159,7 @@ def AODFix_Init():
             logAODFix.info("No AODFix scheduled for this release.")
 
     else:
-        logAODFix.info("Current release is of strange form: %s" % curRelease)
+        logAODFix.info("Current release is of strange form: %s", curRelease)
 
 # To inquire whether AODFix will be run
 
