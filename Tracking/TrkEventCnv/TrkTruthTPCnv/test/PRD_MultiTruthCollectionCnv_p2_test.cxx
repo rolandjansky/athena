@@ -62,13 +62,13 @@ void testit (const PRD_MultiTruthCollection& trans1)
 }
 
 
-void test1(std::vector<HepMC::GenParticle*> genPartVector)
+void test1(std::vector<HepMC::GenParticlePtr> genPartVector)
 {
   std::cout << "test1\n";
 
   PRD_MultiTruthCollection trans1;
   for (int i=0; i<10; i++) {
-    const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
+    auto pGenParticle = genPartVector.at(i);
     HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     const Identifier chanId(i+100);
     trans1.insert(trans1.end(), std::make_pair(chanId, trkLink) );
@@ -81,7 +81,7 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
 int main()
 {
   ISvcLocator* pSvcLoc = nullptr;
-  std::vector<HepMC::GenParticle*> genPartVector;
+  std::vector<HepMC::GenParticlePtr> genPartVector;
   if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;

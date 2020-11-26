@@ -51,7 +51,7 @@ public:
 
   }
 
-  static void set (TrigInDetTrackTruth& p, std::vector<HepMC::GenParticle*>& genPartVector, int ndx)
+  static void set (TrigInDetTrackTruth& p, std::vector<HepMC::GenParticlePtr>& genPartVector, int ndx)
   {
     int nstat = 1;
     p.m_nr_common_hits.resize (nstat);
@@ -101,10 +101,10 @@ void testit (const TrigInDetTrackTruthMap& trans1)
 }
 
 
-void test1(std::vector<HepMC::GenParticle*>& genPartVector)
+void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
+  auto particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
   HepMcParticleLink dummyHMPL(HepMC::barcode(particle),particle->parent_event()->event_number());
   assert(dummyHMPL.cptr()==particle);
@@ -145,7 +145,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
 int main()
 {
   ISvcLocator* pSvcLoc = nullptr;
-  std::vector<HepMC::GenParticle*> genPartVector;
+  std::vector<HepMC::GenParticlePtr> genPartVector;
   if (!Athena_test::initMcEventCollection(pSvcLoc, genPartVector)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;

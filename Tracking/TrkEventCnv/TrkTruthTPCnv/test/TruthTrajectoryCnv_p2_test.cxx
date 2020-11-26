@@ -60,13 +60,13 @@ void testit (const TruthTrajectory& trans1)
 }
 
 
-void test1(std::vector<HepMC::GenParticle*> genPartVector)
+void test1(std::vector<HepMC::GenParticlePtr> genPartVector)
 {
   std::cout << "test1\n";
 
   TruthTrajectory trans1;
   for (int i=0; i<10; i++) {
-    const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
+    auto pGenParticle = genPartVector.at(i);
     HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     trans1.push_back(trkLink);
   }
@@ -78,7 +78,7 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
 int main()
 {
   ISvcLocator* pSvcLoc = nullptr;
-  std::vector<HepMC::GenParticle*> genPartVector;
+  std::vector<HepMC::GenParticlePtr> genPartVector;
   if (!Athena_test::initMcEventCollection(pSvcLoc,genPartVector)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
