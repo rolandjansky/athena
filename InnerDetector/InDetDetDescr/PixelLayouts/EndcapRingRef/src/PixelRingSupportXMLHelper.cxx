@@ -64,7 +64,7 @@ bool PixelRingSupportXMLHelper::swapFrontBackModulePhiPosition(){
 
 double PixelRingSupportXMLHelper::getRingSafetyEnvelopeZ(int layer) const {
   double m_envelope = 0.;
-  if(getSchemaVersion() > 7) {
+  if(getSchemaVersion() > 8) {
       std::vector<int> layers = getVectorInt("SensitiveRingSafetyEnvelopes",0,"layers");
       std::vector<int>::iterator itr = std::find(layers.begin(), layers.end(), layer);
       if (itr!=layers.end()) {
@@ -82,7 +82,7 @@ double PixelRingSupportXMLHelper::getRingSafetyEnvelopeZ(int layer) const {
 
 double PixelRingSupportXMLHelper::getRingSafetyEnvelopeRmin(int layer) const {
   double m_envelope = 0.;
-  if(getSchemaVersion() > 7) {
+  if(getSchemaVersion() > 8) {
       std::vector<int> layers = getVectorInt("SensitiveRingSafetyEnvelopes",0,"layers");
       std::vector<int>::iterator itr = std::find(layers.begin(), layers.end(), layer);
       if (itr!=layers.end()) {

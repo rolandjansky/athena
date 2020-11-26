@@ -58,7 +58,7 @@ double PixelInclRefStaveXMLHelper::getClearance() const
 
 double PixelInclRefStaveXMLHelper::getRadialSafety() const
 {
-  if(getSchemaVersion() > 7) {
+  if(getSchemaVersion() > 6) {
     return getDouble("PixelStaveGeo",m_layerIndices,"RadialSafety");
   } 
   return 0.;
