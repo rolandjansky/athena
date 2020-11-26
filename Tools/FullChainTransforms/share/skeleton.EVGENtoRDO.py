@@ -116,7 +116,7 @@ if jobproperties.Beam.beamType.get_Value() != 'cosmics':
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
+    import AthenaMP.EventService
 
 from ISF_Config.ISF_jobProperties import ISF_Flags
 if jobproperties.Beam.beamType.get_Value() == 'cosmics':
