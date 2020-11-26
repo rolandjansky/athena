@@ -12,7 +12,6 @@
 
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
-#include "TrkEventUtils/ClusterSplitProbabilityContainer.h"
 
 //need to include the following, since its a typedef and can't be forward declared.
 #include "TrkTrack/TrackCollection.h"
@@ -83,8 +82,7 @@ namespace Trk {
     std::unique_ptr<Trk::Track>
     fit(const std::vector<const Trk::MeasurementBase*> &measurements,
           const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const;
-          
-    
+
     std::unique_ptr<Trk::Track>
     fit(const Track &track, bool flag, Trk::ParticleHypothesis hypo) const override final;
     bool 
@@ -107,11 +105,6 @@ namespace Trk {
     /** selection tool - here the decision which hits remain on a track and
         which are removed are made */
     ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
-
-    SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer> m_clusterSplitProbContainerIn
-       {this, "InputClusterSplitProbabilityName", "",""};
-    SG::WriteHandleKey<Trk::ClusterSplitProbabilityContainer> m_clusterSplitProbContainerOut
-       {this, "OutputClusterSplitProbabilityName", "",""};
 
     bool m_rejectInvalidTracks;
     /// If enabled, this flag will make the tool restore the hole information from the input track after a refit. 

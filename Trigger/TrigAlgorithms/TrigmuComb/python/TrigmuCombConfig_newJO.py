@@ -58,7 +58,16 @@ def muCombCfg(flags, postFix="", useBackExtrp=True):
 def l2MuCombRecoCfg(flags, name="L2MuCombReco"):
 
     from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
-    reco = InViewReco(name)
+    ViewCreatorFetchFromViewROITool=CompFactory.ViewCreatorFetchFromViewROITool
+    viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+name,
+                                                         ViewFallThrough = True,
+                                                         RoIsLink        = 'initialRoI',
+                                                         RoITool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuon", InViewRoIs = "forID", ViewToFetchFrom = "L2MuFastRecoViews"),
+                                                         InViewRoIs      = name+'RoIs',
+                                                         Views           = name+'Views',
+                                                         ViewNodeName    = name+"InView")
+
+    reco = InViewReco(name, viewMaker=viewMakerAlg)
 
     acc, alg = muCombCfg(flags)
     alg.L2StandAloneMuonContainerName=muFastInfo

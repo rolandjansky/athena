@@ -105,35 +105,7 @@ StatusCode xAODTestRead::execute (const EventContext& ctx) const
   }
 
   if (!m_gvecReadKey.empty()) {
-    SG::ReadHandle<GVec> gvec (m_gvecReadKey, ctx);
-
-    names.clear();
-    for (SG::auxid_t auxid : gvec->getAuxIDs())
-      names.push_back (r.getName(auxid));
-    std::sort (names.begin(), names.end());
-    std::ostringstream ost3;
-    ost3 << "gvec aux items: ";
-    for (const std::string& n : names)
-      ost3 << n << " ";
-    ost3 << "\n";
-    for (const G* g : *gvec) {
-      ost3 << " anInt " << g->anInt();
-      ost3 << "\n";
-    }
-    ATH_MSG_INFO (ost3.str());
-
-    if (!m_gvecWriteKey.empty()) {
-      auto gvecnew = std::make_unique<GVec>();
-      auto gstore = std::make_unique<GAuxContainer>();
-      gvecnew->setStore (gstore.get());
-      for (size_t i = 0; i < gvec->size(); i++) {
-        gvecnew->push_back (new G);
-        *gvecnew->back() = *(*gvec)[i];
-      }
-      SG::WriteHandle<GVec> gvecWrite (m_gvecWriteKey, ctx);
-      ATH_CHECK( gvecWrite.record (std::move(gvecnew),
-                                   std::move(gstore)) );
-    }
+    ATH_CHECK( read_gvec (ctx) );
   }
 
   ATH_CHECK( read_cvec_with_data (ctx) );
@@ -171,6 +143,50 @@ StatusCode xAODTestRead::read_cvec_with_data (const EventContext& ctx) const
     SG::WriteHandle<CVecWithData> cvecWDWrite (m_cvecWDWriteKey, ctx);
     ATH_CHECK( cvecWDWrite.record (std::move(vecnew),
                                    std::move(store)) );
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Test reading GVec object.
+ */
+StatusCode xAODTestRead::read_gvec (const EventContext& ctx) const
+{
+  SG::ReadHandle<GVec> gvec (m_gvecReadKey, ctx);
+  const SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+
+  std::vector<std::string> names;
+  for (SG::auxid_t auxid : gvec->getAuxIDs())
+    names.push_back (r.getName(auxid));
+  std::sort (names.begin(), names.end());
+  std::ostringstream ost3;
+  ost3 << "gvec aux items: ";
+  for (const std::string& n : names)
+    ost3 << n << " ";
+  ost3 << "\n";
+  for (const G* g : *gvec) {
+    ost3 << " anInt " << g->anInt();
+    ost3 << " gFloat " << g->gFloat();
+    ost3 << " gvFloat ";
+    for (float f : g->gvFloat())
+      ost3 << f << " ";
+    ost3 << "\n";
+  }
+  ATH_MSG_INFO (ost3.str());
+
+  if (!m_gvecWriteKey.empty()) {
+    auto gvecnew = std::make_unique<GVec>();
+    auto gstore = std::make_unique<GAuxContainer>();
+    gvecnew->setStore (gstore.get());
+    for (size_t i = 0; i < gvec->size(); i++) {
+      gvecnew->push_back (new G);
+      *gvecnew->back() = *(*gvec)[i];
+    }
+    SG::WriteHandle<GVec> gvecWrite (m_gvecWriteKey, ctx);
+    ATH_CHECK( gvecWrite.record (std::move(gvecnew),
+                                 std::move(gstore)) );
   }
 
   return StatusCode::SUCCESS;

@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """
 TaskManager is a tool for keeping track of JobRunner jobs using a
 database. TaskManager uses the notion of a task as the primary unit for
@@ -19,7 +17,7 @@ Written by Juerg Beringer (LBNL) in 2009.
 __author__  = 'Juerg Beringer'
 __version__ = 'TaskManager.py atlas/athena'
 
-import time, os, glob, dircache, sys
+import time, os, glob, dircache
 
 from InDetBeamSpotExample.Utils import getRunFromName
 from InDetBeamSpotExample.Utils import getUserName
@@ -68,7 +66,7 @@ def getStatusClass(status):
 def appendUnique(s,v):
     if not s:
         s = ''   # make sure it is not None
-    if not v in s.split():
+    if v not in s.split():
         s = ' '.join([s,v])
     return s
 
@@ -151,7 +149,7 @@ class TaskManager:
 
         try:
             dbtype, dbname = connstring.split(':', 1)
-        except:
+        except Exception:
             raise ValueError ('Illegal database connection string {}'.format(connstring))
 
         if dbtype == 'auth_file':
@@ -161,7 +159,7 @@ class TaskManager:
                 with open(authfile) as af:
                     connstring = af.read().strip()
                 dbtype, dbname = connstring.split(':', 1)
-            except:
+            except Exception:
                 raise ValueError ('Invalid authorization file {} (not readable or invalid format)'.format(authfile))
 
         return dbtype, dbname
@@ -196,7 +194,7 @@ class TaskManager:
             self.paramstyle = 'named'
             try:
                 self.dbcon = cx_Oracle.connect(self.dbname)
-            except:
+            except Exception:
                 print ('ERROR: First connection attempt to Beam Spot Oracle database failed; will retry in 10s ...')
                 time.sleep(10)
                 self.dbcon = cx_Oracle.connect(self.dbname)
@@ -214,7 +212,7 @@ class TaskManager:
         ''' Close the database connection at the end of the 'with' statement. '''
         try:
             self.dbcon.close()
-        except:
+        except Exception:
             print ('ERROR: Unable to close database connection')
 
     def _createSQLiteSchema(self):
@@ -357,7 +355,7 @@ end;
                 else:
                     sqlParts.append(p)
 
-        if sqlParts==None:
+        if sqlParts is None:
             raise ValueError ('Unknown SQL parameter style %s' % self.paramstyle)
             return None
         sql = ' '.join(sqlParts)
@@ -420,7 +418,7 @@ end;
                              ', NJOBS = ',DbParam(task['NJOBS']+njobs),
                              ', ONDISK = ',DbParam(onDisk)]
 
-                if not release in task['ATLREL']:
+                if release not in task['ATLREL']:
                     print ('WARNING: Updating task using different release: DSNAME = %s, TASKNAME = %s, release = = %s vs %s' % (dsName,taskName,task['ATLREL'],release))
                     release = '; '.join([task['ATLREL'],release])
                     updateStr += [', ATLREL = ',DbParam(release)]
@@ -687,7 +685,7 @@ class JobAnalyzer:
     def jobList(self):
         try:
             l = dircache.listdir(self.path)
-        except:
+        except Exception:
             l = []
         return l
 
@@ -719,7 +717,7 @@ class JobAnalyzer:
                     status = TaskManager.StatusCodes['FAILED']
             try:
                 exitcode = open(glob.glob(p+'/*.exitstatus.dat')[0]).read()
-            except:
+            except Exception:
                 pass
             if len(glob.glob(p+'/*.exit.*'))>len(glob.glob(p+'/*.exit.0')):
                 status = TaskManager.StatusCodes['FAILED']

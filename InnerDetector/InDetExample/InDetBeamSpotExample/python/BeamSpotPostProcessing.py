@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """
 Beam spot postprocessing library.
 """
@@ -13,7 +11,7 @@ __version__ = '$Id $'
 
 import os
 
-from InDetBeamSpotExample.PostProcessing import *
+from InDetBeamSpotExample.PostProcessing import PostProcessingStep, PostProcessingError, PostponeProcessing, runPostProcStep
 from InDetBeamSpotExample.TaskManager import TaskManager
 from InDetBeamSpotExample import COOLUtils
 
@@ -74,7 +72,7 @@ class JobPostProcessing(PostProcessingStep):
         #if self.oldStatus==TaskManager.StatusCodes['POSTPROCESSING']:
         try:
             postProcSteps = self.getJobConfig(self.jobName)['jobpostprocsteps'].split()
-        except:
+        except Exception:
             raise PostProcessingError('ERROR: No config file or jobpostprocsteps parameter found for %s/%s' % (self.dsName,self.taskName),self.executedSteps)
         for step in postProcSteps:
             self.log('Running postprocessing step:  %s' % step)
@@ -143,7 +141,7 @@ class PlotBeamSpotCompareReproc(PostProcessingStep):
         # tag will be the one containing the best results to date and hence we compare to that
         try: 
             beamspottag = COOLUtils.resolveCurrentBeamSpotFolder()
-        except:
+        except Exception:
             raise PostProcessingError('ERROR: Unable to resolve beamspot folder tag',self.executedSteps,TaskManager.StatusCodes['POSTPROCFAILED'])
 
         if os.path.exists('/'.join([self.taskDir,ntFileName])):
@@ -307,7 +305,7 @@ class CheckT0Status(PostProcessingStep):
             f = self.getJobConfig(self.jobName)['inputfiles'][0]
             if 'ESD' in f:
                 filter = 'ESD'
-        except:
+        except Exception:
             self.log('WARNING: Unable to determine input file type - will assume default (%s)\n' % filter, doPrint=True)
         cmd = 'beamspotman.py -n -f %s queryT0 %s %s' % (filter,self.dsName,self.taskName)
         status = self.logExec(cmd,doPrint=True,abortOnError=False)
@@ -330,7 +328,7 @@ class UploadBeamSpot(PostProcessingStep):
         # Resolve beamspot tag
         try: 
             beamspottag = COOLUtils.resolveCurrentBeamSpotFolder()
-        except:
+        except Exception:
             raise PostProcessingError('ERROR: Unable to resolve beamspot folder tag',self.executedSteps,TaskManager.StatusCodes['POSTPROCFAILED'])
         
         # Check that we haven't uploaded yet
@@ -414,7 +412,7 @@ class UploadDataQuality(PostProcessingStep):
         if os.path.exists('/'.join([self.taskDir,dataQualityDbFileName])):
             self.logExec('beamspotman.py -b -n --dqtag %s dqflag %s %s' % (dqtag,self.dsName,self.taskName))            
         else:
-            self.log(text='ERROR: No beam spot DQ flag SQLite file %s\n       Nothing to upload - was DQ determination successful?\n' % dqDbFileName,doPrint=True)
+            self.log(text='ERROR: No beam spot DQ flag SQLite file %s\n       Nothing to upload - was DQ determination successful?\n' % dataQualityDbFileName,doPrint=True)
 
 
 class BeamSpotNtNoAve(PostProcessingStep):

@@ -745,7 +745,7 @@ StatusCode FakeMissingETTool::fakeMissingET(MissingETData *data, MissingETMuonDa
       bool fakeevent = false;
 
       //Loop over truth muons
-      for (std::vector<const HepMC::GenParticle*>::const_iterator it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
+      for (auto it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
 
 	if ((*it)->momentum().perp() > 10.0*GeV) {
 	  //try to find a matching reco muon

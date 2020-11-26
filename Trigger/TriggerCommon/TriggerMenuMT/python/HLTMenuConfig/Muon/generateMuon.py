@@ -5,7 +5,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
 from TrigmuComb.TrigmuCombConfig_newJO import l2MuCombRecoCfg, l2MuCombHypoCfg
-from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict
+from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict
 from TrigInDetConfig.TrigInDetConfig import trigInDetCfg
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
@@ -19,6 +19,18 @@ log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Muon.generateMuon' )
 def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
+
+def EFMuonCBViewDataVerifierCfg():
+    EFMuonCBViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFCBMuon")
+    EFMuonCBViewDataVerifier.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_Muon_FTF' ),
+                                            ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
+                                            ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
+                                            ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
+                                            ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
+                                            ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    result = ComponentAccumulator()
+    result.addEventAlgo(EFMuonCBViewDataVerifier)
+    return result
 
 def EFMuonViewDataVerifierCfg():
     EFMuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFMuon")
@@ -112,11 +124,11 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
     result.addEventAlgo( trackcnv, primary=True )
     return result
 
-def efMuMSHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
+def efMuHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFHypoAlg
-    efMSHypo = TrigMuonEFHypoAlg(name)
-    efMSHypo.MuonDecisions = inputMuons
-    return efMSHypo
+    efHypo = TrigMuonEFHypoAlg(name)
+    efHypo.MuonDecisions = inputMuons
+    return efHypo
 
 
 def generateChains( flags, chainDict ):
@@ -249,78 +261,129 @@ def generateChains( flags, chainDict ):
         l2muCombStep = ChainStep( name=stepL2CBName, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
 
 
-    if 'msonly' in chainDict['chainName'] or True:
-        #only runningn in MS-only chains for now
-        #EF MS only
-        stepEFMSName = 'EFMSMuon'
-        stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
+    #EF MS only
+    stepEFMSName = 'EFMSMuon'
+    stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
 
-        #Clone and replace offline flags so we can set muon trigger specific values
-        muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
-        muonflags.Muon.useTGCPriorNextBC=True
-        muonflags.Muon.enableErrorTuning=False
-        muonflags.Muon.MuonTrigger=True
-        muonflags.Muon.SAMuonTrigger=True
-        muonflags.lock()
+    #Clone and replace offline flags so we can set muon trigger specific values
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
+    muonflags.Muon.useTGCPriorNextBC=True
+    muonflags.Muon.enableErrorTuning=False
+    muonflags.Muon.MuonTrigger=True
+    muonflags.Muon.SAMuonTrigger=True
+    muonflags.lock()
 
-        accMS = ComponentAccumulator()
-        accMS.addSequence(stepEFMSView)
+    accMS = ComponentAccumulator()
+    accMS.addSequence(stepEFMSView)
+    
+    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
+    ViewCreatorFetchFromViewROITool=CompFactory.ViewCreatorFetchFromViewROITool
+    viewName="EFMuMSReco"
+    viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+viewName,
+                                                         ViewFallThrough = True,
+                                                         RoIsLink        = 'initialRoI',
+                                                         RoITool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuonForEF", InViewRoIs = "forMS", ViewToFetchFrom = "L2MuFastRecoViews"),
+                                                         InViewRoIs      = viewName+'RoIs',
+                                                         Views           = viewName+'Views',
+                                                         ViewNodeName    = viewName+"InView")
+    recoMS = InViewReco(name=viewName, viewMaker=viewMakerAlg)
+    recoMS.inputMaker().RequireParentView = True
+    
+    #Probably this block will eventually need to move somewhere more central
+    from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
+    accMS.merge( BeamPipeGeometryCfg(flags) )
 
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+    accMS.merge(PixelGeometryCfg(flags))
+    
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+    accMS.merge(SCT_GeometryCfg(flags))
+    
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+    accMS.merge(TRT_GeometryCfg(flags))
+
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    accMS.merge(TrackingGeometrySvcCfg(flags))
+    ###################
+
+    EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
+    recoMS.mergeReco(EFMuonViewDataVerifier)
+    
+    from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
+    segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)
+    recoMS.mergeReco(segCfg)
+
+    from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
+    trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
+    recoMS.mergeReco(trkCfg)
+
+    cnvCfg = MuonTrackParticleCnvCfg(muonflags, name = "TrigMuonTrackParticleCnvAlg")
+    recoMS.mergeReco(cnvCfg)
+    
+    from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
+    candCfg = MuonCombinedMuonCandidateAlgCfg(muonflags, name = "TrigMuonCandidateAlg")
+    recoMS.mergeReco(candCfg)
+
+    from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCreatorAlgCfg
+    creatorCfg = MuonCreatorAlgCfg(muonflags, name = "TrigMuonCreatorAlg")
+    recoMS.mergeReco(creatorCfg)
+
+    accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
+
+    efmuMSHypo = efMuHypoCfg( muonflags,
+                              name = 'TrigMuonEFMSonlyHypo',
+                              inputMuons = "Muons" )
+
+    accMS.addEventAlgo(efmuMSHypo, sequenceName=stepEFMSView.getName())
+
+    efmuMSSequence = CAMenuSequence(accMS,
+                                    HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
+
+    efmuMSStep = ChainStep( name=stepEFMSName, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
+
+
+    #EF combined muons
+    if 'msonly' not in chainDict['chainName']:
+        stepEFCBName = 'EFCBMuon'
+        stepEFCBReco, stepEFCBView = createStepView(stepEFCBName)
+
+        accCB = ComponentAccumulator()
+        accCB.addSequence(stepEFCBView)
+    
         from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import InViewReco
-        recoMS = InViewReco("EFMuMSReco")
-        recoMS.inputMaker().RequireParentView = True
+        recoCB = InViewReco("EFMuCBReco")
+        recoCB.inputMaker().RequireParentView = True
 
-        #Probably this block will eventually need to move somewhere more central
-        from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-        accMS.merge( BeamPipeGeometryCfg(flags) )
+        recoCB.mergeReco(EFMuonCBViewDataVerifierCfg())
+    
+        from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedInDetCandidateAlg, MuonCombinedAlgCfg
+        indetCandCfg = MuonCombinedInDetCandidateAlg(muonflags, name="TrigMuonCombinedInDetCandidateAlg_RoI", TrackParticleLocation=["HLT_IDTrack_Muon_FTF"], 
+                                                     InDetCandidateLocation="IndetCandidates_RoI", TrackSelector="",
+                                                     DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
+        recoCB.mergeReco(indetCandCfg)
 
-        from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-        accMS.merge(PixelGeometryCfg(flags))
+        muonCombCfg = MuonCombinedAlgCfg(muonflags, name="TrigMuonCombinedAlg_RoI", MuonCandidateLocation="MuonCandidates", 
+                                         InDetCandidateLocation="IndetCandidates_RoI")
+        recoCB.mergeReco(muonCombCfg)
 
-        from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-        accMS.merge(SCT_GeometryCfg(flags))
+        muonCreatorCBCfg = MuonCreatorAlgCfg(muonflags, name="TrigMuonCreatorAlgCB_RoI", MuonCandidateLocation="MuonCandidates", TagMaps=["muidcoTagMap"], 
+                                            InDetCandidateLocation="InDetCandidates_RoI", MuonContainerLocation = "MuonsCB", SegmentContainerName = "CBSegments", 
+                                            ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_RoI")
+        recoCB.mergeReco(muonCreatorCBCfg)
 
-        from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-        accMS.merge(TRT_GeometryCfg(flags))
+        accCB.merge(recoCB, sequenceName=stepEFCBReco.getName())
 
-        from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-        accMS.merge(TrackingGeometrySvcCfg(flags))
-        ###################
+        efmuCBHypo = efMuHypoCfg( muonflags,
+                                  name = 'TrigMuonEFCBHypo',
+                                  inputMuons = "MuonsCB" )
 
-        EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
-        recoMS.mergeReco(EFMuonViewDataVerifier)
+        accCB.addEventAlgo(efmuCBHypo, sequenceName=stepEFCBView.getName())
 
-        from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
-        segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)
-        recoMS.mergeReco(segCfg)
+        efmuCBSequence = CAMenuSequence(accCB,
+                                        HypoToolGen = TrigMuonEFCombinerHypoToolFromDict)
 
-        from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
-        trkCfg = MuonTrackBuildingCfg(muonflags, name="TrigMuPatTrackBuilder")
-        recoMS.mergeReco(trkCfg)
+        efmuCBStep = ChainStep( name=stepEFCBName, Sequences=[efmuCBSequence], chainDicts=[chainDict] )
 
-        cnvCfg = MuonTrackParticleCnvCfg(muonflags, name = "TrigMuonTrackParticleCnvAlg")
-        recoMS.mergeReco(cnvCfg)
-
-        from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCombinedMuonCandidateAlgCfg
-        candCfg = MuonCombinedMuonCandidateAlgCfg(muonflags, name = "TrigMuonCandidateAlg")
-        recoMS.mergeReco(candCfg)
-
-        from MuonCombinedConfig.MuonCombinedReconstructionConfig import MuonCreatorAlgCfg
-        creatorCfg = MuonCreatorAlgCfg(muonflags, name = "TrigMuonCreatorAlg")
-        recoMS.mergeReco(creatorCfg)
-
-        accMS.merge(recoMS, sequenceName=stepEFMSReco.getName())
-
-        efmuMSHypo = efMuMSHypoCfg( muonflags,
-                                    name = 'TrigMuonEFMSonlyHypo',
-                                    inputMuons = "Muons" )
-
-        accMS.addEventAlgo(efmuMSHypo, sequenceName=stepEFMSView.getName())
-
-        efmuMSSequence = CAMenuSequence(accMS,
-                                        HypoToolGen = TrigMuonEFMSonlyHypoToolFromDict)
-
-        efmuMSStep = ChainStep( name=stepEFMSName, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:
@@ -330,8 +393,8 @@ def generateChains( flags, chainDict ):
 
     if 'msonly' in chainDict['chainName']:
         emptyStep = ChainStep(name="EmptyNoL2MuComb", Sequences=[EmptyMenuSequence("EmptyNoL2MuComb")], chainDicts=[chainDict])
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, emptyStep, efmuMSStep ] )
+        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, emptyStep, efmuMSStep, emptyStep ] )
     else:
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, l2muCombStep, efmuMSStep ] )
+        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, l2muCombStep, efmuMSStep, efmuCBStep ] )
     return chain
 
