@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_HID2RESRCID_H
 #define LARBYTESTREAM_HID2RESRCID_H
 
-// #include "ByteStreamData/RESrcID.h" 
+#include "LArByteStream/RodRobIdMap.h" 
 #include "LArIdentifier/LArOnlineID.h" 
 #include "LArCabling/LArCablingLegacyService.h" 
 
@@ -14,6 +14,9 @@
 #include <map>
 
 #include "LArIdentifier/LArReadoutModuleService.h"
+#include "CxxUtils/checker_macros.h"
+
+class LArFebRodMapping;
 
 
 
@@ -39,17 +42,28 @@ public:
 
   typedef HWIdentifier COLLECTION_ID; 
 
-  /** constrcutor 
+  /** constructor 
   */ 
   Hid2RESrcID(); 
 
-  StatusCode initialize(); 
+  // Legacy unsafe version, relying on old cabling service.
+  // Currently still used by TrigT2CaloCommon.
+  StatusCode initialize ATLAS_NOT_THREAD_SAFE (); 
+
+  StatusCode initialize (const LArFebRodMapping& rodMapping);
 
   bool isInitialized() const { return m_initialized;}
 
   /** make a ROD SrcID for a HWIdentifier 
-  */ 
-  uint32_t getRodID  (const HWIdentifier& hid) const ;
+  */
+  // Legacy unsafe version, relying on old cabling service.
+  // Currently still used by TrigT2CaloCommon.
+  uint32_t getRodID ATLAS_NOT_THREAD_SAFE  (const HWIdentifier& hid) const ;
+
+  /** make a ROD SrcID for a HWIdentifier 
+  */
+  uint32_t getRodID (const LArFebRodMapping& rodMapping,
+                     const HWIdentifier& hid) const;
 
   /** make a ROD SrcID for a COLLECTION_ID
   */ 
@@ -67,15 +81,16 @@ public:
   */
   uint32_t getDetID  ( uint32_t ros_id) const;
 
-private: 
+private:
+  StatusCode initialize (const std::vector<HWIdentifier>& roms);
+
   bool m_initialized;
   LArCablingLegacyService* m_cablingSvc; 
   const LArOnlineID* m_onlineHelper; 
   typedef std::map<HWIdentifier, uint32_t> COLL_MAP ; 
   COLL_MAP m_coll2ROD ; 
-
   LArReadoutModuleService m_readoutModuleSvc;
-
+  RodRobIdMap m_rodRobIdMap;
 };
 
 #endif 
