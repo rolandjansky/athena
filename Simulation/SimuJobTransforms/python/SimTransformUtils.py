@@ -148,6 +148,7 @@ def addAtlasG4Substep(executorSet):
                                    inData=['EVNT_TR'],
                                    outData=['HITS','NULL'] ))
     executorSet.add(athenaExecutor(name = 'AtlasG4Tf', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',
+                                   skeletonCA = 'SimuJobTransforms.G4AtlasAlg_Skeleton',
                                    substep = 'sim', tryDropAndReload = False,
                                    inData=['NULL','EVNT'],
                                    outData=['EVNT_TR','HITS','NULL'] ))
