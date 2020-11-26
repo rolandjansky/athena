@@ -1,7 +1,6 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
-// $Id$
 /**
  * @file DataModelTestDataCommon/src/AuxDataTestDecor.cxx
  * @author snyder@bnl.gov
@@ -46,15 +45,19 @@ xAODTestReadDecor::xAODTestReadDecor (const std::string &name,
  */
 StatusCode xAODTestReadDecor::initialize()
 {
-  m_cvecDecorKey  = m_readPrefix + m_cvecName +  "."  + m_decorName;
-  m_cinfoDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName;
-  m_cinfoBaseDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName + "Base";
-  m_objDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName;
+  if (!m_cvecName.empty()) {
+    m_cvecDecorKey  = m_readPrefix + m_cvecName +  "."  + m_decorName;
+    ATH_CHECK( m_cvecDecorKey.initialize() );
+  }
 
-  ATH_CHECK( m_cvecDecorKey.initialize() );
-  ATH_CHECK( m_cinfoDecorKey.initialize() );
-  ATH_CHECK( m_cinfoBaseDecorKey.initialize() );
-  ATH_CHECK( m_objDecorKey.initialize() );
+  if (!m_cinfoName.empty()) {
+    m_cinfoDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName;
+    m_cinfoBaseDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName + "Base";
+    m_objDecorKey = m_readPrefix + m_cinfoName + "." + m_decorName;
+    ATH_CHECK( m_cinfoDecorKey.initialize() );
+    ATH_CHECK( m_cinfoBaseDecorKey.initialize() );
+    ATH_CHECK( m_objDecorKey.initialize() );
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -64,7 +67,7 @@ StatusCode xAODTestReadDecor::initialize()
  */
 StatusCode xAODTestReadDecor::execute (const EventContext& ctx) const
 {
-  {
+  if (!m_cvecDecorKey.empty()) {
     std::ostringstream ss;
     SG::ReadDecorHandle<CVec, int> cvecDecor (m_cvecDecorKey, ctx);
     if (!cvecDecor.isPresent()) return StatusCode::FAILURE;
@@ -74,25 +77,25 @@ StatusCode xAODTestReadDecor::execute (const EventContext& ctx) const
     ATH_MSG_INFO (m_cvecDecorKey.key() << ":" << ss.str());
   }
 
-  {
+  if (!m_cinfoDecorKey.empty()) {
     SG::ReadDecorHandle<C, int> cinfoDecor (m_cinfoDecorKey, ctx);
     if (!cinfoDecor.isPresent()) return StatusCode::FAILURE;
     ATH_MSG_INFO (m_cinfoDecorKey.key() << ": " << cinfoDecor(0));
   }
 
-  {
+  if (!m_cinfoBaseDecorKey.empty()) {
     SG::ReadDecorHandle<C, int> cinfoBaseDecor (m_cinfoBaseDecorKey, ctx);
     if (!cinfoBaseDecor.isPresent()) return StatusCode::FAILURE;
     ATH_MSG_INFO (m_cinfoBaseDecorKey.key() << ": " << cinfoBaseDecor(0));
   }
 
-  {
+  if (!m_objDecorKey.empty()) {
     SG::ReadDecorHandle<SG::AuxElement, int> objDecor (m_objDecorKey, ctx);
     if (!objDecor.isPresent()) return StatusCode::FAILURE;
     ATH_MSG_INFO (m_objDecorKey.key() << ": " << objDecor(0));
   }
 
-  {
+  if (!m_cinfoDecorKey.empty()) {
     SG::ReadDecorHandleKey<C> testKey (m_cinfoDecorKey);
     testKey = testKey.key() + "_test";
     SG::ReadDecorHandle<C, int> cinfoDecorTest (testKey, ctx);
