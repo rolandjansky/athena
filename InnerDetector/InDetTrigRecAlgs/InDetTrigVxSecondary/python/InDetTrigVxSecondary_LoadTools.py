@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from InDetTrigVxSecondary.InDetTrigVxSecondaryConf import InDet__TrigVxSecondary
 from InDetTrigVxSecondary.InDetTrigVxSecondaryConf import InDet__TrigVxSecondaryCombo
-from GaudiKernel.Constants import VERBOSE,INFO,DEBUG
 
 class TrigVxSecondary_EF( InDet__TrigVxSecondary ):
    __slots__ = []
@@ -10,9 +9,7 @@ class TrigVxSecondary_EF( InDet__TrigVxSecondary ):
       super( InDet__TrigVxSecondary, self ).__init__( name )
       
       from AthenaCommon.AppMgr import ToolSvc
-      from AthenaCommon.Include import include
-      from AthenaCommon.GlobalFlags import GlobalFlags
-      
+
       # Start of offline vertex finder tool configuration
       
       from InDetVKalVxInJetTool.InDetVKalVxInJetToolConf import InDet__InDetVKalVxInJetTool
@@ -59,8 +56,6 @@ class TrigVxSecondaryCombo_EF( InDet__TrigVxSecondaryCombo ):
       super( InDet__TrigVxSecondaryCombo, self ).__init__( name )
 
       from AthenaCommon.AppMgr import ToolSvc
-      from AthenaCommon.Include import include
-      from AthenaCommon.GlobalFlags import GlobalFlags
 
       # Start of offline vertex finder tool configuration
 
