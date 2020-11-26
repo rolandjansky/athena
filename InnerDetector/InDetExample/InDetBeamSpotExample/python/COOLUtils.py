@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """
 Miscellaneous utilities related to COOL.
 """
@@ -149,7 +147,7 @@ class COOLQuery:
           self.cooldb.closeDatabase()
           self.cooltrigdb.closeDatabase()
           self.cooldcsdb.closeDatabase()
-        except:
+        except Exception:
           print ("DB time out -- ignore")
 
     def getRunStartTime(self,runnr):
@@ -161,10 +159,9 @@ class COOLQuery:
         try:
             itr.goToNext()
             obj = itr.currentRef()
-            run = obj.payload()['RunNumber']
             sorTime = obj.payload()['SORTime']
             return COOLToUnixTime(sorTime)
-        except:
+        except Exception:
             return
 
 
@@ -186,10 +183,10 @@ class COOLQuery:
             for k in info.keys():
                 try:
                     info[k] = obj.payload()[k]
-                except:
+                except Exception:
                     print ('WARNING: Cannot find value for',k)
             return info
-        except:
+        except Exception:
             return None
 
     def getRunEndTime(self,runnr):
@@ -201,10 +198,9 @@ class COOLQuery:
         try:
             itr.goToNext()
             obj = itr.currentRef()
-            run = obj.payload()['RunNumber']
             eorTime = obj.payload()['EORTime']
             return COOLToUnixTime(eorTime)
-        except:
+        except Exception:
             return
 
     def getLbTimes(self,runnr):
@@ -257,7 +253,7 @@ def resolveNextAlias(tagtype='ST'):
     alias = ''
     try:
         alias = resolveAlias.getNext()
-    except:
+    except Exception:
         alias = ''
         
     return alias.replace('*', tagtype)
