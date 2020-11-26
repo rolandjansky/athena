@@ -25,7 +25,7 @@ namespace xAOD {
 
    }
 
-   bool FileMetaData_v1::operator==( const FileMetaData_v1& rhs ) {
+   bool FileMetaData_v1::operator==( const FileMetaData_v1& rhs ) const {
 
       // Get the variable types from both objects:
       const SG::auxid_set_t& auxids1 = this->getAuxIDs();
@@ -161,7 +161,7 @@ namespace xAOD {
       return true;
    }
 
-   bool FileMetaData_v1::operator!=( const FileMetaData_v1& rhs ) {
+   bool FileMetaData_v1::operator!=( const FileMetaData_v1& rhs ) const {
 
       return !( this->operator==( rhs ) );
    }

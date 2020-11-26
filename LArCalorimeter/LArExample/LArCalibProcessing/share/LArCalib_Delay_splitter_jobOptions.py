@@ -11,7 +11,7 @@ import subprocess
 ###########################################################################
 
 include("LArCalibProcessing/LArCalib_Flags.py")
-include("RecExCommission/GetInputFiles.py")
+include("LArCalibProcessing/GetInputFiles.py")
 
 #######################################################
 #       Run properties

@@ -5,8 +5,9 @@
 #ifndef AMDCDB_AMDCDBSVC_H
 #define AMDCDB_AMDCDBSVC_H
 
-#include "AmdcDb/AmdcDbMisc.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include <string>
+#include <map>
 
 class pIRDBRecordset;
 

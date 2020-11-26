@@ -119,12 +119,12 @@ Trig::DecisionAccess::associateToEventView(SG::ReadHandle<CONTAINER>& inViewCont
     if (!accessor.isAvailable(**it)) { // iterator dereferences to an OBJECT*, OBJECT* dereferences to an OBJECT
       if (isFullscan) {
         ATH_MSG_DEBUG("Supplied container has no viewIndex decoration. But isFullscan flag is TRUE. "
-          << "Returning iterators over whole container.");
-        return std::make_pair(container->begin(), container->end());
+          << "Returning a pair of iterators over the whole of the container.");
+        return std::make_pair(container->begin(), end);
       } else {
-        ATH_MSG_ERROR("Unable to read the viewIndex decoration from the supplied container. Was it created inside an EventView?");
-        throw std::runtime_error("Trig::DecisionAccess::associateToEventView Unable to read the viewIndex decoration from the "
-          "supplied container. Was it created inside an EventView?");
+        ATH_MSG_WARNING("Unable to read the viewIndex decoration from the supplied container. Was it created inside an EventView? "
+          << "Returning a pair of iterators from the end of the container.");
+        return std::make_pair(end, end);
       }
     }
     const ElementLink<TrigRoiDescriptorCollection> objectROI = accessor( **it );

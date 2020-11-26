@@ -18,9 +18,6 @@
 #include "AthContainers/DataVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
-#include "LArRecEvent/LArFebEnergy.h"
-
-
 class LArFebEnergyCollection : public DataVector<LArFebEnergy> {
 
  public:

@@ -35,13 +35,11 @@ TEST_F(xAODJetCollectorTest, multipleInputJets){
   //multiple jets in. Jet collector is not empty and has the correct number.
 
   constexpr std::size_t njets{11};
-  HypoJetVector jets;
   std::vector<xAOD::Jet> xaodjets (njets);
-  std::vector<HypoJet::xAODJetAsIJet> ijets;
-  ijets.reserve (njets);
+  HypoJetVector jets;
+  jets.reserve (njets);
   for(unsigned int ijet = 0; ijet < njets; ++ijet){
-    ijets.emplace_back (&xaodjets[ijet], ijet);
-    jets.push_back(&ijets.back());
+    jets.emplace_back (new HypoJet::xAODJetAsIJet(&xaodjets[ijet], ijet));
   }
 
   xAODJetCollector collector;
@@ -57,12 +55,10 @@ TEST_F(xAODJetCollectorTest, nonXAODJets){
 
   unsigned int njets{11};
   HypoJetVector jets;
-  std::vector<TLorentzVectorAsIJet> ijets;
-  ijets.reserve (njets);
+  jets.reserve (njets);
   for(unsigned int ijet = 0; ijet < njets; ++ijet){
     TLorentzVector v;
-    ijets.emplace_back (v);
-    jets.push_back(&ijets.back());
+    jets.emplace_back (new TLorentzVectorAsIJet(v));
   }
 
   xAODJetCollector collector;

@@ -35,10 +35,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TFormula.h>
-
 #include "egammaLayerRecalibTool/corr_HV_EMBPS.h"
-#include "xAODEgamma/Egamma.h"
-#include "xAODCaloEvent/CaloCluster.h"
 
 
 struct StdCalibrationInputs

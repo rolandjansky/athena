@@ -15,7 +15,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/NullCleaner.h"
 #include <sstream>
 
-bool NullCleaner::operator()(const pHypoJet&) const {return true;}    
+bool NullCleaner::operator()(const HypoJet::IJet&) const {return true;}    
 
 std::string NullCleaner::toString() const noexcept {
   std::stringstream ss;

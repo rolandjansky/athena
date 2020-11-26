@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ### This module contains functions which may need to peek at the input file metadata
 
 ## Get the logger
-from AthenaCommon.Logging import *
+from AthenaCommon.Logging import logging
 simMDlog = logging.getLogger('Sim_Metadata')
 
 def fillAtlasMetadata(ConfigFlags, dbFiller):
@@ -26,7 +26,7 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
 
     #---------  
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
-    from AthenaCommon.DetFlags import DetFlags
+    from AthenaCommon.DetFlags import DetFlags  # noqa: F401
     simDets = []
     for det in ['Pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth','LVL1']:
         attrname = "Detector.Geometry"+det
@@ -37,7 +37,7 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
         else:
             simMDlog.info("No flag called '%s' found in ConfigFlags", attrname)
 
-    simMDlog.info("Setting 'SimulatedDetectors' = %s" % repr(simDets))
+    simMDlog.info("Setting 'SimulatedDetectors' = %r", simDets)
     dbFiller.addSimParam('SimulatedDetectors', repr(simDets))
 
     ## Hard-coded simulation hit file magic number (for major changes)

@@ -6,13 +6,8 @@
 #    Authors: Jike Wang      (jike.wang@cern.ch)
 #################################################################
 
-from __future__ import print_function
-
-import os, types
+import os
 import sys
-
-from future import standard_library
-standard_library.install_aliases()
 import subprocess
 
 
@@ -105,14 +100,14 @@ class ConfiguredIDAlignDatasets:
 		if ("mc09" == self.__datasetType or "MC09" == self.__datasetType) :
 			oneDatasetName = "mc09_valid.107271.Multimuons_pt9.recon.ESD.e436_s561_r731"
 			return oneDatasetName
-	 
+
 		elif self.containType("Customed") and "Customed" == topology :
 			oneDatasetName = self.__DatasetsOptions["CustomedDatasetsNameList"][0]
 
 		elif ("Collision" == topology) :  
 			if self.stream() == "MinBias" and self.containType("900GeV") :
 				oneDatasetName = "data09_900GeV.%08d.physics_MinBias.recon.ESD.%s" % ( int(self.__DatasetsOptions["CollisionRunList"][0]), self.__DatasetsOptions["CollisionRecoTag"][0] )
-									                                  
+
 			if self.stream() == "MinBias" and self.containType("7TeV"):
 				oneDatasetName = "data10_7TeV.%08d.physics_MinBias.recon.ESD.%s"   % ( int(self.__DatasetsOptions["CollisionRunList"][0]), self.__DatasetsOptions["CollisionRecoTag"][0] )
 
@@ -244,8 +239,6 @@ class ConfiguredIDAlignDatasets:
 				namesList.append(datasetName)
 			str = ",".join(namesList)
 			return str
-                #elif("CosmicBon" == topology)
-
 
 
 	def recoScript(self, topology = "", i = 0) :
@@ -257,8 +250,8 @@ class ConfiguredIDAlignDatasets:
 
 			#elif "mc" in self.__DatasetsOptions["CustomedDatasetsNameList"][i] :
 			#	recoScript = "InDetAlignExample/loadInDetRec.py"                               
-	     	         
-			else:                           
+
+			else:
 				recoScript = "InDetAlignExample/loadInDetRec_new.py"
 
 			return recoScript 

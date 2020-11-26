@@ -2,7 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// CscPeakThresholdClusterBuilderTool.cxx
 #include "CscPeakThresholdClusterBuilderTool.h"
 
 #include <sstream>

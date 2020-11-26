@@ -101,19 +101,19 @@ StatusCode LArNoisyROMon::bookHistograms()
     std::string hTitle;
     std::stringstream tit;
 
-    MonGroup overall(this, "/LAr/NoisyRO", run, ATTRIB_MANAGED );
+    MonGroup overall(this, "/LAr/NoisyROOldTool", run, ATTRIB_MANAGED );
     if(m_doHisto) {
     // Book histograms per partitions    
-    MonGroup GroupBarrel(this, "/LAr/NoisyRO/Barrel", run, ATTRIB_MANAGED );
-    MonGroup GroupBarrelFrac(this, "/LAr/NoisyRO/Barrel", run, ATTRIB_MANAGED ,"", "weightedEff");
-    MonGroup GroupBarrelFracBin(this, "/LAr/NoisyRO/Barrel", run, ATTRIB_MANAGED ,"", "perBinEffPerCent");
+    MonGroup GroupBarrel(this, "/LAr/NoisyROiOldTool/Barrel", run, ATTRIB_MANAGED );
+    MonGroup GroupBarrelFrac(this, "/LAr/NoisyROOldTool/Barrel", run, ATTRIB_MANAGED ,"", "weightedEff");
+    MonGroup GroupBarrelFracBin(this, "/LAr/NoisyROOldTool/Barrel", run, ATTRIB_MANAGED ,"", "perBinEffPerCent");
     m_partHistos.resize(4);
     bookPartitionHistos(m_partHistos[1],"EMBA",GroupBarrel,GroupBarrelFrac,GroupBarrelFracBin);
     bookPartitionHistos(m_partHistos[2],"EMBC",GroupBarrel,GroupBarrelFrac,GroupBarrelFracBin);
     
-    MonGroup GroupEMEC(this, "/LAr/NoisyRO/EMEC", run, ATTRIB_MANAGED );
-    MonGroup GroupEMECFrac(this, "/LAr/NoisyRO/EMEC", run, ATTRIB_MANAGED,"", "weightedEff" );
-    MonGroup GroupEMECFracBin(this, "/LAr/NoisyRO/EMEC", run, ATTRIB_MANAGED,"", "perBinEffPerCent" );
+    MonGroup GroupEMEC(this, "/LAr/NoisyROOldTool/EMEC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECFrac(this, "/LAr/NoisyROOldTool/EMEC", run, ATTRIB_MANAGED,"", "weightedEff" );
+    MonGroup GroupEMECFracBin(this, "/LAr/NoisyROOldTool/EMEC", run, ATTRIB_MANAGED,"", "perBinEffPerCent" );
     bookPartitionHistos(m_partHistos[0],"EMECA",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
     bookPartitionHistos(m_partHistos[3],"EMECC",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
 

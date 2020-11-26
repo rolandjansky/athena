@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "AthenaKernel/SlotSpecificObj.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 #include "TrkParameters/TrackParameters.h"
 

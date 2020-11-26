@@ -6,7 +6,7 @@
 #define CALOTRKMUIDTOOLS_CALOMUONSCORETOOL_H
 
 #include "ICaloTrkMuIdTools/ICaloMuonScoreTool.h"
-#include "ICaloTrkMuIdTools/ICaloMuonScoreONNXRuntimeSvc.h"
+#include "AthOnnxruntimeService/IONNXRuntimeSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -67,27 +67,20 @@ public:
   std::vector<float> getInputTensor(std::vector<float> &eta, std::vector<float> &phi, std::vector<float> &energy, std::vector<int> &sampling) const;
 
 private:
-  // Number of bins in eta
-  int m_etaBins = 30;
 
-  // Number of bins in phi
-  int m_phiBins = 30;
-
-  // window in terms of abs(eta) to consider around the median eta value
-  float m_etaCut = 0.25;
-
-  // window in terms of abs(phi) to consider around the median phi value
-  float m_phiCut = 0.25;
-
-  // Number of colour channels to consider in the convolutional neural network
-  int m_nChannels = 7;
+  Gaudi::Property<float> m_CaloCellAssociationConeSize {this, "CaloCellAssociationConeSize", 0.2, "Size of the cone within which calo cells are associated with a track particle"};
+  Gaudi::Property<int> m_etaBins {this, "etaBins", 30, "Number of bins in eta"};
+  Gaudi::Property<int> m_phiBins {this, "phiBins", 30, "Number of bins in phi"};
+  Gaudi::Property<float> m_etaCut {this, "etaCut", 0.25, "Eta cut on the calorimeter cells associated with the track particle after centering of the calorimeter image"};
+  Gaudi::Property<float> m_phiCut {this, "phiCut", 0.25, "Phi cut on the calorimeter cells associated with the track particle after centering of the calorimeter image"};
+  Gaudi::Property<int> m_nChannels {this, "nChannels", 7, "Number of colour channels in the convolutional neural network"};
 
   ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool{this, "ParticleCaloCellAssociationTool", ""}; 
 
-  /// Handle to @c IONNXRuntimeSvc
-  ServiceHandle< ICaloMuonScoreONNXRuntimeSvc > m_svc{ this, "CaloMuonScoreONNXRuntimeSvc",
-      "CaloMuonScoreONNXRuntimeSvc",
-      "Name of the service to use" };
+  /// Handle to @c AthONNX::IONNXRuntimeSvc
+  ServiceHandle< AthONNX::IONNXRuntimeSvc > m_svc{ this, "ONNXRuntimeSvc",
+      "AthONNX::ONNXRuntimeSvc",
+      "CaloMuonScoreTool ONNXRuntimeSvc" };
 
   std::unique_ptr< Ort::Session > m_session;
 

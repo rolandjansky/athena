@@ -5,7 +5,6 @@
 #  Class for local processing
 #
 # =====================================================================
-from __future__ import print_function
 
 from threading import Thread
 import os
@@ -43,87 +42,85 @@ class runProcess(Thread):
                 self.status=1
                 break
             
-import os
 class SortCpus:
-	def __init__(self, TOTALCPUS, LOCALDIR, FILELIST, OutputLevel):
-		def sort_by_value(d):
-			""" Returns the keys of dictionary d sorted by their values """
-			items=d.items()
-			backitems=[ [v[1],v[0]] for v in items]
-			backitems.sort()
-			backitems.reverse()	
-			return [ backitems[i][1] for i in range(0,len(backitems))]		
-		self.OutputLevel = OutputLevel
-		inputfiles = open(FILELIST, "r")
-		filelist = inputfiles.read().split()
-		inputfiles.close()
-		if not LOCALDIR:
-			print ("Reading Custom File")
-			FinalListSorted = []
-			for line in filelist:
-				if line and line[0] != '#':
-					FinalListSorted.append(line)
-			print (FinalListSorted)
-			
-		elif "castor" in LOCALDIR:
-			print ("Reading castor directory. Please wait...")
-			extendedFileList = os.popen("rfdir "+ LOCALDIR[7:]).read().splitlines()
-		else:
-			print ("Reading directory. Please wait...")
-			extendedFileList = os.popen("ls -l "+ LOCALDIR).read().splitlines()
+        def __init__(self, TOTALCPUS, LOCALDIR, FILELIST, OutputLevel):
+                def sort_by_value(d):
+                        """ Returns the keys of dictionary d sorted by their values """
+                        items=d.items()
+                        backitems=[ [v[1],v[0]] for v in items]
+                        backitems.sort()
+                        backitems.reverse()
+                        return [ backitems[i][1] for i in range(0,len(backitems))]
+                self.OutputLevel = OutputLevel
+                inputfiles = open(FILELIST, "r")
+                filelist = inputfiles.read().split()
+                inputfiles.close()
+                if not LOCALDIR:
+                        print ("Reading Custom File")
+                        FinalListSorted = []
+                        for line in filelist:
+                                if line and line[0] != '#':
+                                        FinalListSorted.append(line)
+                        print (FinalListSorted)
 
-		if LOCALDIR:
-			i = 0
-			SizeList = {}
-			for line in extendedFileList:
-				curr = line.split()
-				SizeList[i] = {}
-				SizeList[i][0] = curr[8]
-				SizeList[i][1] = curr[4]
-				i = i+1
-			FinalList = {}
-			count = 0
-			for i in range(0,len(SizeList)):
-				if SizeList[i][0] in filelist:
-					#print (SizeList[i][0], " size:", SizeList[i][1])
-					FinalList[SizeList[i][0]] = int(SizeList[i][1])
+                elif "castor" in LOCALDIR:
+                        print ("Reading castor directory. Please wait...")
+                        extendedFileList = os.popen("rfdir "+ LOCALDIR[7:]).read().splitlines()
+                else:
+                        print ("Reading directory. Please wait...")
+                        extendedFileList = os.popen("ls -l "+ LOCALDIR).read().splitlines()
 
-			#SizeListSorted = [ (k,SizeList[k]) for k in sorted(SizeList.values())] 
-			FinalListSorted = sort_by_value(FinalList)
-			#print ("Sorted list" )
-			#for i in range(0,len(FinalListSorted)):
-			#	print (FinalListSorted[i], "\tsize:\t", FinalList[FinalListSorted[i]])
-		currCPU = 0
-		reverse = False
-		self.CPUsFiles = {}
-		for i in range(0,len(FinalListSorted)):
-			#print (FinalListSorted[i], "CPU: ", currCPU)
-			if currCPU in self.CPUsFiles:
-				self.CPUsFiles[currCPU].append(LOCALDIR+FinalListSorted[i])
-			else:
-				self.CPUsFiles[currCPU] = [LOCALDIR+FinalListSorted[i]]
-			if(not reverse):
-				currCPU = currCPU + 1
-				if(currCPU == TOTALCPUS):
-					#currCPU = currCPU - 1
-					reverse = not reverse
-			if(reverse):
-				currCPU = currCPU - 1
-				if(currCPU == -1):
-					currCPU = currCPU + 1
-					reverse = not reverse
+                if LOCALDIR:
+                        i = 0
+                        SizeList = {}
+                        for line in extendedFileList:
+                                curr = line.split()
+                                SizeList[i] = {}
+                                SizeList[i][0] = curr[8]
+                                SizeList[i][1] = curr[4]
+                                i = i+1
+                        FinalList = {}
+                        for i in range(0,len(SizeList)):
+                                if SizeList[i][0] in filelist:
+                                        #print (SizeList[i][0], " size:", SizeList[i][1])
+                                        FinalList[SizeList[i][0]] = int(SizeList[i][1])
+
+                        #SizeListSorted = [ (k,SizeList[k]) for k in sorted(SizeList.values())]
+                        FinalListSorted = sort_by_value(FinalList)
+                        #print ("Sorted list" )
+                        #for i in range(0,len(FinalListSorted)):
+                        #       print (FinalListSorted[i], "\tsize:\t", FinalList[FinalListSorted[i]])
+                currCPU = 0
+                reverse = False
+                self.CPUsFiles = {}
+                for i in range(0,len(FinalListSorted)):
+                        #print (FinalListSorted[i], "CPU: ", currCPU)
+                        if currCPU in self.CPUsFiles:
+                                self.CPUsFiles[currCPU].append(LOCALDIR+FinalListSorted[i])
+                        else:
+                                self.CPUsFiles[currCPU] = [LOCALDIR+FinalListSorted[i]]
+                        if(not reverse):
+                                currCPU = currCPU + 1
+                                if(currCPU == TOTALCPUS):
+                                        #currCPU = currCPU - 1
+                                        reverse = not reverse
+                        if(reverse):
+                                currCPU = currCPU - 1
+                                if(currCPU == -1):
+                                        currCPU = currCPU + 1
+                                        reverse = not reverse
                     
                                         
-	def getCPU(self,CURRENTCPU):
-		if self.OutputLevel=='DEBUG':
-			print ("|",40*"-"," CPU #: ", CURRENTCPU, 40*"-", "|")
-			for line in self.CPUsFiles[CURRENTCPU]:
-				print ("|  - ",line)
-			print ("|",93*"-","|")
-		return self.CPUsFiles[CURRENTCPU]
+        def getCPU(self,CURRENTCPU):
+                if self.OutputLevel=='DEBUG':
+                        print ("|",40*"-"," CPU #: ", CURRENTCPU, 40*"-", "|")
+                        for line in self.CPUsFiles[CURRENTCPU]:
+                                print ("|  - ",line)
+                        print ("|",93*"-","|")
+                return self.CPUsFiles[CURRENTCPU]
            
                 
-		
+
 class writeJob:
     def __init__(self,
                  OutputPath,
@@ -196,7 +193,7 @@ class writeJob:
         topOptions=open(topOptionFileName,'r')
             
         #job=open(TempPath+"/"+self.JOBNAME,'w')
-        job=open(self.JOBNAME,'w')	
+        job=open(self.JOBNAME,'w')
         job.write(topOptions.readline())
         job.write(topOptions.readline())
         job.write("\n")
@@ -315,7 +312,7 @@ class writeScript:
         script.write("source %s/../InnerDetector/InDetExample/InDetAlignExample/cmt/setup.sh \n" % self.CMTDIR)
 
 #        script.write("source %s/../%s/InnerDetector/InDetExample/InDetAlignExample/cmt/setup.sh \n" % (self.CMTDIR,self.ATHENAREL))
-		
+
 #        script.write("cd %s \n" % temppath)
         script.write("cd %s \n" % self.RUNPATH)
 
@@ -375,7 +372,6 @@ class collectRAmodules:
         print ("------------------------------------------")
         print ("  Collecting Iter%d RA module files" % self.i)
         print ("------------------------------------------")
-        HOME = os.environ['HOME']
         os.chdir("%s/Iter%d" % (self.OutputPath,self.i))
         os.mkdir("moduleRA")
         
@@ -452,7 +448,6 @@ class mergeMatrix:
         print ("------------------------------------------")
         print ("  Merging Iter%d GX2 Matrices" % self.i)
         print ("------------------------------------------")
-        HOME = os.environ['HOME']
         if os.environ['HOSTNAME'] != 'tst01.ific.uv.es':
             os.chdir(self.addbigPath)
             print (self.addbigPath)
@@ -598,7 +593,6 @@ class COG:
                     ATHENAREL,
                     TAGS,
                     RUNPATH):
-        TempPath="%s/Iter%d/" % (self.OutputPath, self.iter)
         script=open(self.SCRIPTNAME,'w')
         script.write("#BSUB -J %s_Iter%dCog \n" % (self.preName,self.iter))         
         script.write("#BSUB -o %s/Iter%d/logs/Iter%dCog.log \n" % (self.OutputPath,self.iter,self.iter))

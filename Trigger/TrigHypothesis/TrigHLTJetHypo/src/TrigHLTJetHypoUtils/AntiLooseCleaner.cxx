@@ -26,7 +26,7 @@ AntiLooseCleaner::AntiLooseCleaner(float fSampMaxLooseThreshold,
                emfHighLooseThreshold, 
                hecfLooseThreshold){}
 
-bool AntiLooseCleaner::operator()(const pHypoJet& jet) const{
+bool AntiLooseCleaner::operator()(const HypoJet::IJet& jet) const{
   return !LooseCleaner::operator()(jet);
 }
 

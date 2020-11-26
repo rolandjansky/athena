@@ -49,7 +49,7 @@ class ConditionsToolSetterHT(object):
 
         return rep
 
-    def mod(self, node):
+    def mod(self, anode):
         """Entry point for this module. HT specific.
         Set up 
         TrigJetConditionConfig_ht,
@@ -60,13 +60,14 @@ class ConditionsToolSetterHT(object):
         # navigate the tree filling in node-parent and node- Condtion factory
         # relations
 
-
-        # root = Node(scenario='root')
-        # root.children = [node]
-
-        # self._check_scenarios(root)
-
         # root is an alias for node - as in ConditionTooSetterFastReduction
+        node = None
+        if anode.scenario == 'root':
+            assert len(anode.children)==1
+            node =anode.children[0]
+        else:
+            node = anode
+            
         assert node.scenario == 'ht'
 
         print (node)

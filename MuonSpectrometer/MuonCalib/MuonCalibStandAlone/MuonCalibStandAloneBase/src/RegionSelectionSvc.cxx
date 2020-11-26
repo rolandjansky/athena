@@ -23,7 +23,6 @@
 #include "TTree.h"
 #include "TFile.h"
 #include "TDirectory.h"
-#include "TTree.h"
 #include "TKey.h"
 
 using namespace MuonCalib;

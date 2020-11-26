@@ -529,15 +529,21 @@ def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
 ################################################################## 
 
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
+
+    from  DerivationFrameworkTau.TauCommon import AddTauAugmentation
+    AddTauAugmentation(sequence,doLoose=True)
+
     from AssociationUtils.config import recommended_tools
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
     bJetLabel = '' #default
+    tauLabel = 'DFTauLoose'
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
     algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
-                OverlapLabel=outputLabel,
-                            OverlapRemovalTool=orTool,
-                            BJetLabel=bJetLabel)
+                                    OverlapLabel=outputLabel,
+                                    OverlapRemovalTool=orTool,
+                                    TauLabel=tauLabel,
+                                    BJetLabel=bJetLabel)
     sequence += algOR
 
     from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonJetDrTool
@@ -576,9 +582,9 @@ def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
     ecToolLoose.JetCleanPrefix = prefix
     ecToolLoose.JetCleaningTool = getJetCleaningTool("LooseBad")
     algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_Loose',
-                            EventCleaningTool=ecToolLoose,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                            EventCleanPrefix=prefix)
+                                         EventCleaningTool=ecToolLoose,
+                                         JetCollectionName="AntiKt4EMTopoJets",
+                                         EventCleanPrefix=prefix)
     sequence += algCleanLoose
 
 ##################################################################  
@@ -591,11 +597,11 @@ def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
     ecToolTight.JetCleanPrefix = prefix
     ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
     algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_Tight',
-                            EventCleaningTool=ecToolTight,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                            EventCleanPrefix=prefix,
-                            CleaningLevel="TightBad",
-                            doEvent=False)
+                                         EventCleaningTool=ecToolTight,
+                                         JetCollectionName="AntiKt4EMTopoJets",
+                                         EventCleanPrefix=prefix,
+                                         CleaningLevel="TightBad",
+                                         doEvent=False)
     sequence += algCleanTight
 
 ##################################################################  
@@ -782,10 +788,9 @@ def addCHSPFlowObjects():
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
 
-# Need DFCommonElectronsLHLoose for these to work
-#applyOverlapRemoval()
-#eventCleanLoose_xAODColl("AntiKt4EMTopo")
-#eventCleanTight_xAODColl("AntiKt4EMTopo")
-#eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
+applyOverlapRemoval()
+eventCleanLoose_xAODColl("AntiKt4EMTopo")
+eventCleanTight_xAODColl("AntiKt4EMTopo")
+eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
 #eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 #eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")

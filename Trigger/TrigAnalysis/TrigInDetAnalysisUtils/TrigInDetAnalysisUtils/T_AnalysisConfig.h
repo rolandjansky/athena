@@ -322,6 +322,10 @@ protected:
 
     SG::ReadHandle<Collection> handle(key);
 
+    CLID checkCLID;
+    const std::string* keyStr = m_provider->evtStore()->keyToString(roi_link.key(), checkCLID);
+    m_provider->msg(MSG::DEBUG) << "Requesting range over (" << key << ") associated to ROI from " << (keyStr == nullptr ? "UNKNOWN" : *keyStr) << endmsg;
+
     itrpair = (*m_tdt)->associateToEventView( handle, roi_link );
 
     return itrpair;
@@ -462,6 +466,10 @@ protected:
 	       typename Collection::const_iterator > itrpair;
 
     SG::ReadHandle<Collection> handle(key);
+
+    CLID checkCLID;
+    const std::string* keyStr = m_provider->evtStore()->keyToString(roi_link.key(), checkCLID);
+    m_provider->msg(MSG::DEBUG) << "Requesting range over (" << key << ") associated to ROI from " << (keyStr == nullptr ? "UNKNOWN" : *keyStr) << endmsg;
 
     itrpair = (*m_tdt)->associateToEventView( handle, roi_link );
 

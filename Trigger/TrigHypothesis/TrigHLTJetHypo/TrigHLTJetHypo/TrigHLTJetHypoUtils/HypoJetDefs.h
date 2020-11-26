@@ -22,8 +22,8 @@
 #include <queue>
 #include <ostream>
 
-//using pHypoJet = std::shared_ptr<const HypoJet::IJet>;
-using pHypoJet = const HypoJet::IJet*;
+using pHypoJet = std::shared_ptr<const HypoJet::IJet>;
+//using pHypoJet = const HypoJet::IJet*;
 using HypoJetVector = std::vector<pHypoJet>;
 using HypoJetIter = HypoJetVector::iterator;
 using HypoJetCIter = HypoJetVector::const_iterator;

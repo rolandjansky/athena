@@ -81,7 +81,24 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
          Key=event_format_key,
       )
       outputStream.MetadataItemList += ["xAOD::EventFormat#{}".format(event_format_key)]
-      outputStream.HelperTools = [ streamInfoTool, event_format_tool]
+
+      # Create a new xAOD::FileMetaData object
+      file_metadata_key = "FileMetaData"
+      file_metadata_creator_tool = CfgMgr.xAODMaker__FileMetaDataCreatorTool(
+          "FileMetaDataCreatorTool",
+          OutputKey=file_metadata_key,
+          StreamName=streamName,
+      )
+      outputStream.MetadataItemList += [
+          "xAOD::FileMetaData#{}".format(file_metadata_key),
+          "xAOD::FileMetaDataAuxInfo#{}Aux.".format(file_metadata_key),
+      ]
+
+      outputStream.HelperTools = [
+          streamInfoTool,
+          event_format_tool,
+          file_metadata_creator_tool,
+      ]
 
 
    # Support for MT thinning.

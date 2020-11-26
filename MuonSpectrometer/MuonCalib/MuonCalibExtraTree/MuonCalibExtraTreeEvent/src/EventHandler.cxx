@@ -23,7 +23,6 @@
 #include "MuonCalibEventBase/MuonCalibPattern.h"
 #include "MuonCalibEventBase/MuonCalibSegment.h"
 #include "MuonCalibEventBase/MuonCalibRawHitCollection.h"
-#include "MuonCalibEventBase/MuonCalibTruthCollection.h"
 #include "MuonCalibStl/DeleteObject.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"

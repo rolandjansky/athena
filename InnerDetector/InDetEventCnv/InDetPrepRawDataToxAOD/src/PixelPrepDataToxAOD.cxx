@@ -1024,7 +1024,7 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
     positions_indexY[hitNumber] = truthIndexY - cellIdWeightedPosition.etaIndex();
 
     HepGeom::Point3D<double> diffPositions = (siHit.localEndPosition() - siHit.localStartPosition());
-    double bowphi = atan2( diffPositions.y(), diffPositions.x() );
+    double bowphi = std::atan2( diffPositions.y(), diffPositions.x() );
    
 
     //Truth Track incident angle theta

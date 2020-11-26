@@ -54,7 +54,7 @@ public:
     int nstat = 4;
     p.m_nr_common_hits.resize (nstat);
     for (int i=0; i < nstat; i++) {
-      HepMcParticleLink particleLink(genPartVector.at(i)->barcode(),genPartVector.at(i)->parent_event()->event_number());
+      HepMcParticleLink particleLink(HepMC::barcode(genPartVector.at(i)),genPartVector.at(i)->parent_event()->event_number());
       TrigIDHitStats tihs;
       tihs[TrigIDHitStats::PIX] = 12 + i*10;
       tihs[TrigIDHitStats::SCT] = 13 + i*10;
@@ -93,7 +93,7 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   std::cout << "test1\n";
   const HepMC::GenParticle *particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(),particle->parent_event()->event_number());
+  HepMcParticleLink dummyHMPL(HepMC::barcode(particle),particle->parent_event()->event_number());
   assert(dummyHMPL.cptr()==particle);
   Athena_test::Leakcheck check;
 

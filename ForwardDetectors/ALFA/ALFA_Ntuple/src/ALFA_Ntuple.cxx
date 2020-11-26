@@ -925,7 +925,7 @@ StatusCode ALFA_Ntuple::TruthInfo()
 					m  = (*child)->momentum().m();
 
 					ATH_MSG_DEBUG(std::setprecision(12));
-					ATH_MSG_DEBUG("particle barcode = " << (*child)->barcode());
+					ATH_MSG_DEBUG("particle barcode = " << HepMC::barcode(*child));
 					ATH_MSG_DEBUG("particle pdg = " << (*child)->pdg_id());
 					ATH_MSG_DEBUG("particle status = " << (*child)->status());
 					ATH_MSG_DEBUG(" *  px = " << px << ", py = " << py << ", pz = " << pz <<  ", E = " << E << ", m = " << m);

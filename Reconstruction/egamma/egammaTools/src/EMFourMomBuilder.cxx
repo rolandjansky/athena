@@ -23,7 +23,6 @@ PACKAGE:  offline/Reconstruction/egamma/egammaTools
 #include "EventPrimitives/EventPrimitives.h"
 #include "FourMom/EigenP5Jacobiand0z0PhiThetaqOverP2d0z0PhiEtaP.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
 
 //  END OF HEADER FILES INCLUDE
 

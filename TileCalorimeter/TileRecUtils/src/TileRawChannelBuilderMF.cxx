@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // small hack to enable datapool usage
@@ -11,7 +11,6 @@
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
 #include "TileConditions/TileInfo.h"
-#include "CLHEP/Matrix/Matrix.h"
 
 // Atlas includes
 #include "AthAllocators/DataPool.h"

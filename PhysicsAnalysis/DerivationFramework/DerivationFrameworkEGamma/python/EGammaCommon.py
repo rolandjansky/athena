@@ -91,13 +91,13 @@ ToolSvc += ElectronLHSelectorLooseBL
 #
 # Disabled as is missing in R22
 #
-'''
+
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronChargeIDSelectorTool
 ElectronChargeIDSelector = AsgElectronChargeIDSelectorTool("ElectronChargeIDSelectorLoose")
 ElectronChargeIDSelector.primaryVertexContainer = "PrimaryVertices"
 ElectronChargeIDSelector.TrainingFile = "ElectronPhotonSelectorTools/ChargeID/ECIDS_20180731rel21Summer2018.root"
 ToolSvc += ElectronChargeIDSelector
-'''
+
 
 #====================================================================
 # FWD ELECTRON LH SELECTORS
@@ -240,7 +240,7 @@ print(ElectronPassLHTight)
 #
 # Disabled as is missing in R22
 #
-'''
+
 # decorate electrons with the output of ECIDS ----------------------------------------------------------------------
 ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassECIDS",
                                                                           EGammaElectronLikelihoodTool = ElectronChargeIDSelector,
@@ -251,7 +251,7 @@ ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name =
                                                                           StoreTResult = True)
 ToolSvc += ElectronPassECIDS
 print (ElectronPassECIDS)
-
+'''
 # decorate forward electrons with the output of LH loose
 ForwardElectronPassLHLoose = DerivationFramework__EGSelectionToolWrapper( name = "ForwardElectronPassLHLoose",
                                                                           EGammaSelectionTool = ForwardElectronLHSelectorLoose,
@@ -366,13 +366,13 @@ ElectronAmbiguity = DF_EGEAT(name               = "ElectronAdditionnalAmbiguity"
 ToolSvc += ElectronAmbiguity
 
 #
-# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, ElectronPassECIDS tools due to they are not available in R22 yet
+# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, tools due to they are not available in R22 yet
 #
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
                        #ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
-                       #ElectronPassECIDS,
+                       ElectronPassECIDS,
                        PhotonPassIsEMLoose, PhotonPassIsEMTight, 
                        PhotonPassIsEMTightPtIncl, 
                        PhotonPassCleaning,

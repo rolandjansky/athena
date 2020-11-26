@@ -19,9 +19,6 @@
 //LAr services:
 #include "Identifier/Range.h" 
 #include "Identifier/IdentifierHash.h"
-//#include "Identifier/HWIdentifier.h"
-//#include "LArElecCalib/ILArPedestal.h"
-//#include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/LArBadChannelCont.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
@@ -37,10 +34,6 @@
 
 // Electrons
 #include "egammaEvent/ElectronContainer.h"
-
-//CBNT_UTILS
-//#include "CBNT_Utils/CBNT_AthenaAwareBase.h"
-//#include "AthenaBaseComps/AthAlgorithm.h"
 
 //STL:
 #include <string>

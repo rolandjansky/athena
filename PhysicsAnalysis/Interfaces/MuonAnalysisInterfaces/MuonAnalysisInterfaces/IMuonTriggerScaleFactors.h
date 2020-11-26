@@ -11,7 +11,6 @@
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
 
-#include "PATInterfaces/CorrectionCode.h"
 #include <string>
 #include <vector>
 #include <map>

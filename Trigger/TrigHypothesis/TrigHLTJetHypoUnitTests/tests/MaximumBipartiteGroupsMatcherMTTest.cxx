@@ -88,10 +88,10 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, tooFewSelectedJets){
   auto factory = TLorentzVectorFactory();
   auto tl = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet0(tl);
-  MockJetWithLorentzVector jet1{tl};
+  auto jet0 = std::make_shared<const MockJetWithLorentzVector>(tl);
+  auto jet1 = std::make_shared<const MockJetWithLorentzVector>(tl);
 
-  HypoJetVector jets{&jet0, &jet1};
+  HypoJetVector jets{jet0, jet1};
 
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
   matcher.reset(new MaximumBipartiteGroupsMatcherMT(std::move(m_conditions)));
@@ -125,26 +125,26 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, oneSelectedJet){
   auto factory = TLorentzVectorFactory();
   auto tl = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet0(tl);
-  MockJetWithLorentzVector jet1{tl};
-  MockJetWithLorentzVector jet2{tl};
+  auto jet0 = std::make_shared<const MockJetWithLorentzVector>(tl);
+  auto jet1 = std::make_shared<const MockJetWithLorentzVector>(tl);
+  auto jet2 = std::make_shared<const MockJetWithLorentzVector>(tl);
 
   eta = 0;
   et = 150000;
   auto tl0 = factory.make(eta, et);
-  MockJetWithLorentzVector jet3{tl0};
+  auto jet3 = std::make_shared<const MockJetWithLorentzVector>(tl0);
 
-  HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
+  HypoJetVector jets{jet0, jet1, jet2, jet3};
 
-  EXPECT_CALL(jet0, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet1, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet2, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet3, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet0, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet1, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet2, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet3, eta()).Times(m_nconditions);
 
-  EXPECT_CALL(jet0, et()).Times(m_nconditions);
-  EXPECT_CALL(jet1, et()).Times(m_nconditions);
-  EXPECT_CALL(jet2, et()).Times(m_nconditions);
-  EXPECT_CALL(jet3, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet0, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet1, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet2, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet3, et()).Times(m_nconditions);
 
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
   matcher.reset(new MaximumBipartiteGroupsMatcherMT(std::move(m_conditions)));
@@ -178,37 +178,37 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, twoSelectedJets){
   auto factory = TLorentzVectorFactory();
   auto tl0 = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet0(tl0);
+  auto jet0 = std::make_shared<const MockJetWithLorentzVector>(tl0);
 
   eta = 0.1;
   et = 139;
   auto tl1 = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet1{tl1};
+  auto jet1 = std::make_shared<const MockJetWithLorentzVector>(tl1);
 
 
   eta = 5.;
   et = 100.;
   auto tl2 = factory.make(eta, et);
-  MockJetWithLorentzVector jet2{tl2};
+  auto jet2 = std::make_shared<const MockJetWithLorentzVector>(tl2);
 
   eta = 0;
   et = 150;
   auto tl3 = factory.make(eta, et);
-  MockJetWithLorentzVector jet3{tl3};
+  auto jet3 = std::make_shared<const MockJetWithLorentzVector>(tl3);
 
-  HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
+  HypoJetVector jets{jet0, jet1, jet2, jet3};
 
 
-  EXPECT_CALL(jet0, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet1, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet2, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet3, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet0, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet1, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet2, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet3, eta()).Times(m_nconditions);
 
-  EXPECT_CALL(jet0, et()).Times(m_nconditions);
-  EXPECT_CALL(jet1, et()).Times(m_nconditions);
-  EXPECT_CALL(jet2, et()).Times(m_nconditions);
-  EXPECT_CALL(jet3, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet0, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet1, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet2, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet3, et()).Times(m_nconditions);
 
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
   matcher.reset(new MaximumBipartiteGroupsMatcherMT(std::move(m_conditions)));
@@ -246,37 +246,37 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, threeSelectedJets){
   auto factory = TLorentzVectorFactory();
   auto tl0 = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet0(tl0);
+  auto jet0 = std::make_shared<const MockJetWithLorentzVector>(tl0);
 
   eta = 0.1;
   et = 139;
   auto tl1 = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet1{tl1};
+  auto jet1 = std::make_shared<const MockJetWithLorentzVector>(tl1);
 
 
   eta = 0.5;
   et = 141.;
   auto tl2 = factory.make(eta, et);
-  MockJetWithLorentzVector jet2{tl2};
+  auto jet2 = std::make_shared<const MockJetWithLorentzVector>(tl2);
 
   eta = -0.2;
   et = 101.;
   auto tl3 = factory.make(eta, et);
-  MockJetWithLorentzVector jet3{tl3};
+  auto jet3 = std::make_shared<const MockJetWithLorentzVector>(tl3);
 
-  HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
+  HypoJetVector jets{jet0, jet1, jet2, jet3};
 
 
-  EXPECT_CALL(jet1, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet2, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet3, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet0, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet1, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet2, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet3, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet0, eta()).Times(m_nconditions);
 
-  EXPECT_CALL(jet1, et()).Times(m_nconditions);
-  EXPECT_CALL(jet2, et()).Times(m_nconditions);
-  EXPECT_CALL(jet3, et()).Times(m_nconditions);
-  EXPECT_CALL(jet0, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet1, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet2, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet3, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet0, et()).Times(m_nconditions);
 
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
   matcher.reset(new MaximumBipartiteGroupsMatcherMT(std::move(m_conditions)));
@@ -310,36 +310,36 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, fourSelectedJets){
   auto factory = TLorentzVectorFactory();
   auto tl0 = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet0(tl0);
+  auto jet0 = std::make_shared<const MockJetWithLorentzVector>(tl0);
 
   eta = 0.1;
   et = 139;
   auto tl1 = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet1{tl1};
+  auto jet1 = std::make_shared<const MockJetWithLorentzVector>(tl1);
 
 
   eta = 0.5;
   et = 175.;
   auto tl2 = factory.make(eta, et);
-  MockJetWithLorentzVector jet2{tl2};
+  auto jet2 = std::make_shared<const MockJetWithLorentzVector>(tl2);
 
   eta = -0.2;
   et = 101.;
   auto tl3 = factory.make(eta, et);
-  MockJetWithLorentzVector jet3{tl3};
+  auto jet3 = std::make_shared<const MockJetWithLorentzVector>(tl3);
 
-  HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
+  HypoJetVector jets{jet0, jet1, jet2, jet3};
 
-  EXPECT_CALL(jet0, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet1, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet2, eta()).Times(m_nconditions);
-  EXPECT_CALL(jet3, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet0, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet1, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet2, eta()).Times(m_nconditions);
+  EXPECT_CALL(*jet3, eta()).Times(m_nconditions);
 
-  EXPECT_CALL(jet0, et()).Times(m_nconditions);
-  EXPECT_CALL(jet1, et()).Times(m_nconditions);
-  EXPECT_CALL(jet2, et()).Times(m_nconditions);
-  EXPECT_CALL(jet3, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet0, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet1, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet2, et()).Times(m_nconditions);
+  EXPECT_CALL(*jet3, et()).Times(m_nconditions);
 
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
  matcher.reset(new MaximumBipartiteGroupsMatcherMT(std::move(m_conditions)));
@@ -384,36 +384,36 @@ TEST_F(MaximumBipartiteGroupsMatcherMTTest, overlappingEtaRegions){
   auto factory = TLorentzVectorFactory();
   auto tl0 = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet0(tl0);
+  auto jet0 = std::make_shared<const MockJetWithLorentzVector>(tl0);
 
   eta = 0.1;
   et = 101;
   auto tl1 = factory.make(eta, et);
 
-  MockJetWithLorentzVector jet1{tl1};
+  auto jet1 = std::make_shared<const MockJetWithLorentzVector>(tl1);
 
 
   eta = 0.1;
   et = 91.;
   auto tl2 = factory.make(eta, et);
-  MockJetWithLorentzVector jet2{tl2};
+  auto jet2 = std::make_shared<const MockJetWithLorentzVector>(tl2);
 
   eta = 0.1;
   et = 81.;
   auto tl3 = factory.make(eta, et);
-  MockJetWithLorentzVector jet3{tl3};
+  auto jet3 = std::make_shared<const MockJetWithLorentzVector>(tl3);
 
-  HypoJetVector jets{&jet0, &jet1, &jet2, &jet3};
+  HypoJetVector jets{jet0, jet1, jet2, jet3};
   
-  EXPECT_CALL(jet0, eta()).Times(nconditions);
-  EXPECT_CALL(jet1, eta()).Times(nconditions);
-  EXPECT_CALL(jet2, eta()).Times(nconditions);
-  EXPECT_CALL(jet3, eta()).Times(nconditions);
+  EXPECT_CALL(*jet0, eta()).Times(nconditions);
+  EXPECT_CALL(*jet1, eta()).Times(nconditions);
+  EXPECT_CALL(*jet2, eta()).Times(nconditions);
+  EXPECT_CALL(*jet3, eta()).Times(nconditions);
   
-  EXPECT_CALL(jet0, et()).Times(nconditions);
-  EXPECT_CALL(jet1, et()).Times(nconditions);
-  EXPECT_CALL(jet2, et()).Times(nconditions);
-  EXPECT_CALL(jet3, et()).Times(nconditions);
+  EXPECT_CALL(*jet0, et()).Times(nconditions);
+  EXPECT_CALL(*jet1, et()).Times(nconditions);
+  EXPECT_CALL(*jet2, et()).Times(nconditions);
+  EXPECT_CALL(*jet3, et()).Times(nconditions);
   
   std::unique_ptr<IGroupsMatcherMT> matcher(nullptr);
   matcher.reset(new MaximumBipartiteGroupsMatcherMT(std::move(conditions)));

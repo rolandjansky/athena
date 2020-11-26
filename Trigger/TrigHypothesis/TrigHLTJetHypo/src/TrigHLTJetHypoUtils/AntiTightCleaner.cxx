@@ -26,7 +26,7 @@ AntiTightCleaner::AntiTightCleaner(float fSampMaxTightThreshold,
                emfHighTightThreshold, 
                hecfTightThreshold){}
 
-bool AntiTightCleaner::operator()(const pHypoJet& jet) const{
+bool AntiTightCleaner::operator()(const HypoJet::IJet& jet) const{
   return TightCleaner::operator()(jet);
 }
 

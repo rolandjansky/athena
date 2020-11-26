@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TomoTubeDisplacement_H
-#define TomoTubeDisplacement_H
+#ifndef AMDCSTAND_TOMOTUBEDISPLACEMENT_H
+#define AMDCSTAND_TOMOTUBEDISPLACEMENT_H
 
-#include "AmdcStand/AmdcStandMisc.h"
+#include <string>
 
 void tomotubedisplacement_(
 		         int& optionflag,

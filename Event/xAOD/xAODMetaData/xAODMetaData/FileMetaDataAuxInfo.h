@@ -19,5 +19,11 @@ namespace xAOD {
 // Declare a CLID for the type:
 #include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::FileMetaDataAuxInfo, 73252552, 1 )
+#ifndef XAOD_STANDALONE
+#include "AthenaKernel/MetaCont.h"
+CLASS_DEF( MetaCont<xAOD::FileMetaDataAuxInfo> , 233059795, 1 )
+#include "xAODCore/BaseInfo.h"
+SG_BASE( MetaCont<xAOD::FileMetaDataAuxInfo>, MetaContBase );
+#endif // not XAOD_STANDALONE
 
 #endif // XAODMETADATA_FILEMETADATAAUXINFO_H

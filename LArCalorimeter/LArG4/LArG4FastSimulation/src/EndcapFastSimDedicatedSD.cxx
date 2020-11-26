@@ -8,7 +8,6 @@
 #include "LArReadoutGeometry/EMECDetectorManager.h"
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
 #include "LArG4Code/EnergySpot.h"
-#include "LArSimEvent/LArHitContainer.h"
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Geometry/Point3D.h"

@@ -33,27 +33,22 @@ inline const TRT_BarrelCode & TRT_BarrelElement::getCode() const
 
 
 // Get X Position - should not be used anymore
-inline double TRT_BarrelElement::strawXPos (unsigned int straw) const {   
+inline double TRT_BarrelElement::strawXPos (unsigned int straw) const {
   return strawCenter(straw).x();
 }
-  
+
 // Get Y Position - should not be used anymore
 inline double TRT_BarrelElement::strawYPos (unsigned int straw) const {
     return strawCenter(straw).y();
 }
-  
+
 // Get Z Position - should not be used anymore
 inline double TRT_BarrelElement::strawZPos (unsigned int straw) const {
     return strawCenter(straw).z();
 }
 
-// Get the number of straws:
-inline unsigned int  TRT_BarrelElement::nStraws() const {
-  return m_descriptor->nStraws();	
-}
-
 // Get the length of the straws:
 inline const double & TRT_BarrelElement::strawLength() const {
-  return m_descriptor->strawLength();	
+  return m_descriptor->strawLength();
 }
 }

@@ -389,7 +389,7 @@ GenAodValidationTool::compareParts( const HepMC::GenParticle* p1,
     return false;
   }
 
-  if ( p1->barcode() != p2->barcode() ) {
+  if ( HepMC::barcode(p1) != HepMC::barcode(p2) ) {
     return false;
   }
 

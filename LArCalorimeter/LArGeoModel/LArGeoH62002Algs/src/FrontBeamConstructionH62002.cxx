@@ -22,7 +22,6 @@
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"  
 #include "GeoModelKernel/GeoIdentifierTag.h"  
-#include "GeoModelKernel/GeoSerialDenominator.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"

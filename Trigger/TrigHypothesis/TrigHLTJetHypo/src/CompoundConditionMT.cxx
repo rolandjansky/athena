@@ -42,7 +42,7 @@ bool CompoundConditionMT::isSatisfied(const HypoJetVector& ips,
         << " pass: "  << std::boolalpha << pass << '\n';
 
     for(const auto& ip : ips){
-      auto j_addr = static_cast<const void*>(ip);
+      auto j_addr = static_cast<const void*>(ip.get());
       std::stringstream ss1;
       ss1 <<  "     jet : ("<< j_addr << ")\n";
     

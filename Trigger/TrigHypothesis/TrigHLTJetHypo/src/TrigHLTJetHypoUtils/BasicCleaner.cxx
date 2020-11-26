@@ -26,13 +26,13 @@ BasicCleaner::BasicCleaner(float n90Threshold,
   m_negativeEThreshold(negativeEThreshold){
   }
   
-bool BasicCleaner::operator()(const pHypoJet& jet) const {
+bool BasicCleaner::operator()(const HypoJet::IJet& jet) const {
   /* make cuts on jet attributes to select clean jets */
   
   bool isClean{true};
 
   float n90jet;
-  if (jet -> getAttribute("N90Constituents", n90jet)){
+  if (jet.getAttribute("N90Constituents", n90jet)){
     //std::cout << "TrigHLTJetHypoHelpers: N90Constituents = " << n90jet << '\n';
     if(n90jet < m_n90Threshold){isClean = false;}
   } else {
@@ -43,7 +43,7 @@ bool BasicCleaner::operator()(const pHypoJet& jet) const {
   //example of code to compute presamplerFraction
   /*
   std::vector<float> vecvalue;
-  if (jet->getAttribute(xAOD::JetAttribute::EnergyPerSampling, vecvalue)) {
+  if (jet.getAttribute(xAOD::JetAttribute::EnergyPerSampling, vecvalue)) {
      int vecsize = vecvalue.size();
      std::cout << "TrigHLTJetHypoHelpers: Got EnergyPerSampling vector, size: " << vecsize << '\n';
      if (vecsize != 0) {
@@ -60,7 +60,7 @@ bool BasicCleaner::operator()(const pHypoJet& jet) const {
            //see Reconstruction/Jet/JetUtils/Root/JetCaloQualityUtils.cxx
            double presamplerE = vecvalue[CaloSampling::PreSamplerB] + vecvalue[CaloSampling::PreSamplerE];
            std::cout << "TrigHLTJetHypoHelpers: presamplerE = " << presamplerE << '\n';
-           double jetE = jet->jetP4(xAOD::JetEMScaleMomentum).E();
+           double jetE = jet.jetP4(xAOD::JetEMScaleMomentum).E();
            std::cout << "TrigHLTJetHypoHelpers: jetE = " << jetE << '\n';
            double presamplerF = 0;
            if(jetE!=0) presamplerF = presamplerE/jetE;
@@ -74,7 +74,7 @@ bool BasicCleaner::operator()(const pHypoJet& jet) const {
   //use of presamplerFraction needs further study, for now not used
   /*
   float presamplerfractionjet;
-  if(jet -> getAttribute<float>("presamplerFraction", presamplerfractionjet)){
+  if(jet.getAttribute<float>("presamplerFraction", presamplerfractionjet)){
     if(presamplerfractionjet > m_presamplerThreshold) {isClean = false;}
   } else {
     throw UncleanableJet("Cleaner Cannot retrieve presamplerFraction");
@@ -82,7 +82,7 @@ bool BasicCleaner::operator()(const pHypoJet& jet) const {
   */
 
   float negEjet;
-  if(jet -> getAttribute("NegativeE", negEjet)){
+  if(jet.getAttribute("NegativeE", negEjet)){
     //std::cout << "TrigHLTJetHypoHelpers: NegativeE = " << negEjet << '\n';
     if(negEjet < m_negativeEThreshold){isClean = false;}
   } else {

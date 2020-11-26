@@ -34,11 +34,19 @@ void test1()
   assert (k1.initialize().isSuccess());
   assert (k1.storeHandle().isSet());
 
+  assert (k1.contHandleKey().clid() == 293847295);
+  assert (k1.contHandleKey().key() == "aaa");
+  assert (k1.contHandleKey().mode() == Gaudi::DataHandle::Reader);
+  assert (k1.contHandleKey().storeHandle().name() == "StoreGateSvc");
+  assert (k1.contHandleKey().storeHandle().isSet());
+
   k1 = "bbb.foo";
   assert (k1.key() == "bbb.foo");
+  assert (k1.contHandleKey().key() == "bbb");
 
   assert (k1.assign ("ccc.fee").isSuccess());
   assert (k1.key() == "ccc.fee");
+  assert (k1.contHandleKey().key() == "ccc");
 
 
   TestOwner owner;
@@ -46,6 +54,9 @@ void test1()
   assert (k3.clid() == 293847295);
   assert (k3.key() == "ccc.dec");
   assert (k3.mode() == Gaudi::DataHandle::Reader);
+  assert (k3.contHandleKey().clid() == 293847295);
+  assert (k3.contHandleKey().key() == "ccc");
+  assert (k3.contHandleKey().mode() == Gaudi::DataHandle::Reader);
   assert (owner.getProperty ("CCCKey").name() == "CCCKey");
   assert (owner.getProperty ("CCCKey").documentation() == "doc string");
   assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::ReadHandleKey<MyObj>));

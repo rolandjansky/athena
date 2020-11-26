@@ -1355,18 +1355,18 @@ void GetLCSinglePionsPerf::as_in_atlas ( double &eta,  double &phi,
   constexpr double Yrun2 = 70;
 
   //  Get transformation parameters
-  double Beta = 2*atan( exp(-Eta0) );
+  double Beta = 2*std::atan( std::exp(-Eta0) );
   double Zemec = Zcalo[0];
-  double b = Zemec * tan(Beta);
-  double Yrun1 = b*cos(Alpha) - Zemec*sin(Alpha);
-  double z0 = z0emec + Yrun2*tan(Alpha) - b*sin(Alpha) - Zemec*cos(Alpha);
+  double b = Zemec * std::tan(Beta);
+  double Yrun1 = b*cos(Alpha) - Zemec*std::sin(Alpha);
+  double z0 = z0emec + Yrun2*std::tan(Alpha) - b*std::sin(Alpha) - Zemec*cos(Alpha);
   double y0 = Yrun2 - Yrun1;
-  double z0calo = z0emec + (Zcalo[iCalo]-Zcalo[0]) / cos (Alpha);
+  double z0calo = z0emec + (Zcalo[iCalo]-Zcalo[0]) / std::cos (Alpha);
 
   //  Get interception point: track with calorimeter front face
   double ctga = 1./ tan(Alpha);
   //double tgth = tan(Theta);
-  double tgth = tan(2*atan(exp(-eta)))*sin(phi);
+  double tgth = std::tan(2*std::atan(std::exp(-eta)))*std::sin(phi);
   double zx = (Y0 - Z0*tgth + z0calo*ctga) / (ctga - tgth);
   double yx = (zx - z0calo) * ctga;
   double xx = X0 + xCryo;

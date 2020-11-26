@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcIlineStore_H
-#define AmdcIlineStore_H
+#ifndef AMDCCORE_AMDCILINESTORE_H
+#define AMDCCORE_AMDCILINESTORE_H
 
-#include "AmdcCore/AmdcsimrecMisc.h"
+#include <vector>
+#include <iostream>
 
 #include "AmdcCore/AmdcIline.h"
 

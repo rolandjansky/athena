@@ -29,7 +29,7 @@ class CleanerBridge{
   m_pCleaner(cleaner){}
 
   bool operator()(const pHypoJet& jet) const{
-    return m_pCleaner -> operator()(jet);
+    return m_pCleaner -> operator()(*jet);
   }
 
   std::string toString() const {

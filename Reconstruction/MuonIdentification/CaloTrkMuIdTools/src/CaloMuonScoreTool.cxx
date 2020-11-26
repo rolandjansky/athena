@@ -146,8 +146,10 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
 
   ATH_MSG_DEBUG("Calculating muon score for track particle with eta="<<track_eta);
 
-  // - associate calocells to trackparticle, cone size 0.2, use cache
-  std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,0.2,nullptr);
+  ATH_MSG_DEBUG("Finding calo cell association for track particle within cone of delta R="<<m_CaloCellAssociationConeSize);
+
+  // - associate calocells to trackparticle
+  std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,m_CaloCellAssociationConeSize,nullptr);
   if(!association){
     ATH_MSG_VERBOSE("Could not get particleCellAssociation");
     return -1.;

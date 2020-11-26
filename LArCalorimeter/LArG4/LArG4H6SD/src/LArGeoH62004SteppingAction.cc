@@ -13,7 +13,6 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4SDManager.hh"
 #include "G4TrackStatus.hh"
-#include "G4StepPoint.hh"
 
 #include "boost/io/ios_state.hpp"
 #include <iomanip>

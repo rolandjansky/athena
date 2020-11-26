@@ -473,7 +473,7 @@ std::string FastReducer::dataStructuresToStr() const {
   for(const auto& pair : m_indJetGroup){
     ss << pair.first << " [";
     for(const auto& j : pair.second){
-      ss << static_cast<const void*>(j) << " ";
+      ss << static_cast<const void*>(j.get()) << " ";
     }
     ss << "]\n";
   }
@@ -530,7 +530,7 @@ void FastReducer::recordJetGroup(std::size_t ind,
   
   std::stringstream ss1;
   for(auto ip : jg){
-    const void* address = static_cast<const void*>(ip);
+    const void* address = static_cast<const void*>(ip.get());
     ss1  << "\n "  << address << " eta " << ip->eta()
 	 << " e " << ip->e()
 	 << " et " << ip->et();

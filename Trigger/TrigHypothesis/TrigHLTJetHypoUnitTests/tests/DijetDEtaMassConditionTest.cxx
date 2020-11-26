@@ -80,16 +80,16 @@ TEST_F(DijetDEtaMassConditionTest, artefacts){
 
 TEST_F(DijetDEtaMassConditionTest, accepts) {
     
-    MockJetWithLorentzVector jet0{m_tl0};
-    MockJetWithLorentzVector jet1{m_tl1};
+    auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+    auto jet1 = std::make_shared<MockJetWithLorentzVector>(m_tl1);
        
-    EXPECT_CALL(jet0, et());
-    EXPECT_CALL(jet0, eta());
+    EXPECT_CALL(*jet0, et());
+    EXPECT_CALL(*jet0, eta());
     
-    EXPECT_CALL(jet1, et());
-    EXPECT_CALL(jet1, eta());
+    EXPECT_CALL(*jet1, et());
+    EXPECT_CALL(*jet1, eta());
       
-    HypoJetVector jets{&jet0, &jet1};
+    HypoJetVector jets{jet0, jet1};
     
     DijetDEtaMassCondition condition({0.5-0.001, 0.5-0.001}, 
                                      {0.5 + 0.001,  0.5 + 0.001}, 
@@ -105,16 +105,16 @@ TEST_F(DijetDEtaMassConditionTest, accepts) {
 
 TEST_F(DijetDEtaMassConditionTest, belowAbsEtaMinCut) {
     
-    MockJetWithLorentzVector jet0{m_tl0};
-    MockJetWithLorentzVector jet1{m_tl1};
+    auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+    auto jet1 = std::make_shared<MockJetWithLorentzVector>(m_tl1);
     
-    HypoJetVector jets{&jet0, &jet1};
+    HypoJetVector jets{jet0, jet1};
      
-    EXPECT_CALL(jet0, et()).Times(AnyNumber());
-    EXPECT_CALL(jet0, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, eta()).Times(AnyNumber());
     
-    EXPECT_CALL(jet1, et()).Times(AnyNumber());
-    EXPECT_CALL(jet1, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, eta()).Times(AnyNumber());
       
     DijetDEtaMassCondition condition({0.5+0.001, 0.5+0.001}, 
                                      {0.5 + 0.002,  0.5 + 0.002}, 
@@ -139,17 +139,16 @@ TEST_F(DijetDEtaMassConditionTest, aboveAbsEtaMaxCut) {
                                    {104.2 -0.1},
                                    {104.2 + 0.1});
   
-  MockJetWithLorentzVector jet0{m_tl0};
-  MockJetWithLorentzVector jet1{m_tl1};
-
+  auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+  auto jet1 = std::make_shared<MockJetWithLorentzVector>(m_tl1);
        
-  EXPECT_CALL(jet0, et()).Times(AnyNumber());
-  EXPECT_CALL(jet0, eta()).Times(AnyNumber());
+  EXPECT_CALL(*jet0, et()).Times(AnyNumber());
+  EXPECT_CALL(*jet0, eta()).Times(AnyNumber());
     
-  EXPECT_CALL(jet1, et()).Times(AnyNumber());
-  EXPECT_CALL(jet1, eta()).Times(AnyNumber());
+  EXPECT_CALL(*jet1, et()).Times(AnyNumber());
+  EXPECT_CALL(*jet1, eta()).Times(AnyNumber());
       
-  HypoJetVector jets{&jet0, &jet1};
+  HypoJetVector jets{jet0, jet1};
   
   EXPECT_FALSE(condition.isSatisfied(jets));
 }
@@ -165,17 +164,16 @@ TEST_F(DijetDEtaMassConditionTest, belowYStarCut) {
                                      {104.2 + 0.1});
 
 
-    MockJetWithLorentzVector jet0{m_tl0};
-    MockJetWithLorentzVector jet1{m_tl1};
+    auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+    auto jet1 = std::make_shared<MockJetWithLorentzVector>(m_tl1);
 
-           
-    EXPECT_CALL(jet0, et()).Times(AnyNumber());
-    EXPECT_CALL(jet0, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, eta()).Times(AnyNumber());
     
-    EXPECT_CALL(jet1, et()).Times(AnyNumber());
-    EXPECT_CALL(jet1, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, eta()).Times(AnyNumber());
       
-    HypoJetVector jets{&jet0, &jet1};
+    HypoJetVector jets{jet0, jet1};
     
     EXPECT_FALSE(condition.isSatisfied(jets));
 }
@@ -191,16 +189,16 @@ TEST_F(DijetDEtaMassConditionTest, aboveYStarCut) {
                                      {104.2 -0.1},
                                      {104.2 + 0.1});
 
-    MockJetWithLorentzVector jet0{m_tl0};
-    MockJetWithLorentzVector jet1{m_tl1};
+    auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+    auto jet1 = std::make_shared<MockJetWithLorentzVector>(m_tl1);
 
-    EXPECT_CALL(jet0, et()).Times(AnyNumber());
-    EXPECT_CALL(jet0, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, eta()).Times(AnyNumber());
     
-    EXPECT_CALL(jet1, et()).Times(AnyNumber());
-    EXPECT_CALL(jet1, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, eta()).Times(AnyNumber());
          
-    HypoJetVector jets{&jet0, &jet1};
+    HypoJetVector jets{jet0, jet1};
     
     EXPECT_FALSE(condition.isSatisfied(jets));
 }
@@ -216,16 +214,16 @@ TEST_F(DijetDEtaMassConditionTest, belowMassCut) {
                                      {1.0 + 0.001},
                                      {104.2 + 0.1},
                                      {104.2 + 0.2});
-    MockJetWithLorentzVector jet0{m_tl0};
-    MockJetWithLorentzVector jet1{m_tl1};
+    auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+    auto jet1 = std::make_shared<MockJetWithLorentzVector>(m_tl1);
            
-    EXPECT_CALL(jet0, et()).Times(AnyNumber());
-    EXPECT_CALL(jet0, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, eta()).Times(AnyNumber());
     
-    EXPECT_CALL(jet1, et()).Times(AnyNumber());
-    EXPECT_CALL(jet1, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, eta()).Times(AnyNumber());
       
-    HypoJetVector jets{&jet0, &jet1};
+    HypoJetVector jets{jet0, jet1};
     EXPECT_FALSE(condition.isSatisfied(jets));
 }
 
@@ -240,16 +238,16 @@ TEST_F(DijetDEtaMassConditionTest, aboveMassCut) {
                                      {104.2 - 0.2},
                                      {104.2 - 0.1});
 
-    MockJetWithLorentzVector jet0{m_tl0};
-    MockJetWithLorentzVector jet1{m_tl1};
+    auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+    auto jet1 = std::make_shared<MockJetWithLorentzVector>(m_tl1);
            
-    EXPECT_CALL(jet0, et()).Times(AnyNumber());
-    EXPECT_CALL(jet0, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet0, eta()).Times(AnyNumber());
     
-    EXPECT_CALL(jet1, et()).Times(AnyNumber());
-    EXPECT_CALL(jet1, eta()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, et()).Times(AnyNumber());
+    EXPECT_CALL(*jet1, eta()).Times(AnyNumber());
       
-    HypoJetVector jets{&jet0, &jet1};
+    HypoJetVector jets{jet0, jet1};
 
     EXPECT_FALSE(condition.isSatisfied(jets));
 }
@@ -266,11 +264,11 @@ TEST_F(DijetDEtaMassConditionTest, tooManyJets) {
                                      {104.2 -0.1},
                                      {104.2 + 0.1});
 
-    MockJetWithLorentzVector jet0{m_tl0};
-    MockJetWithLorentzVector jet1{m_tl1};
+    auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+    auto jet1 = std::make_shared<MockJetWithLorentzVector>(m_tl1);
     
-    HypoJetVector jets{&jet0, &jet1};
-    jets.push_back(&jet0);
+    HypoJetVector jets{jet0, jet1};
+    jets.push_back(jet0);
     
     EXPECT_THROW(condition.isSatisfied(jets), std::runtime_error);
 }
@@ -287,9 +285,9 @@ TEST_F(DijetDEtaMassConditionTest, tooFewJets) {
                                      {104.2 -0.1},
                                      {104.2 + 0.1});
 
-    MockJetWithLorentzVector jet0{m_tl0};
+    auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
     
-    HypoJetVector jets{&jet0};
+    HypoJetVector jets{jet0};
     
     
     EXPECT_THROW(condition.isSatisfied(jets), std::runtime_error);

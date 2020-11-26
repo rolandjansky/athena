@@ -46,22 +46,22 @@ namespace InDetDD {
   public:
     
     /** Constructor: */
-    TRT_BarrelElement(const GeoVFullPhysVol *volume, 
-		      const TRT_BarrelDescriptor *descriptor, 
-		      bool isPositive, 
-		      unsigned int modIndex, 
-		      unsigned int phiIndex, 
-		      unsigned int strawLayIndex,
-		      const TRT_ID * idHelper,
-		      const TRT_Conditions * conditions,
-                      const GeoAlignmentStore* geoAlignStore=nullptr);
+    TRT_BarrelElement(const GeoVFullPhysVol* volume,
+                      const TRT_BarrelDescriptor* descriptor,
+                      bool isPositive,
+                      unsigned int modIndex,
+                      unsigned int phiIndex,
+                      unsigned int strawLayIndex,
+                      const TRT_ID* idHelper,
+                      const TRT_Conditions* conditions,
+                      const GeoAlignmentStore* geoAlignStore = nullptr);
 
+    TRT_BarrelElement(const TRT_BarrelElement& right,
+                      const GeoAlignmentStore* geoAlignStore);
 
-    TRT_BarrelElement(const TRT_BarrelElement &right, const GeoAlignmentStore* geoAlignStore);
-    
     /** Destructor: */
-    virtual ~TRT_BarrelElement();
-    
+    virtual ~TRT_BarrelElement() = default;
+
     /** Type information */
     virtual TRT_BaseElement::Type type() const {return TRT_BaseElement::BARREL;} 
 
@@ -88,9 +88,6 @@ namespace InDetDD {
     
     /** Default Local -> global transform of the straw (ie before alignment corrections) */
     virtual HepGeom::Transform3D defStrawTransform(int straw) const;
- 
-    /** Get the number of straws: */
-    virtual unsigned int nStraws() const;
     
     /** Get the length of the straws (active length): */
     virtual const double & strawLength() const;

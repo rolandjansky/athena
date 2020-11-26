@@ -15,7 +15,7 @@ HypoJetVector makeHypoJets(const std::vector<double>& etas){
   TLorentzVectorFactory factory;
   
   auto make_jet = [&factory](double eta){
-    return new TLorentzVectorAsIJet(factory.make(eta, 10.));
+    return std::shared_ptr<const HypoJet::IJet>(new TLorentzVectorAsIJet(factory.make(eta, 10.)));
   };
 
   std::transform(etas.begin(),

@@ -6,7 +6,6 @@
 #define TRIGLHLTJETHYPO_XAODJETCOLLECTOR_H
 
 #include  "xAODJet/Jet.h"
-#include  "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include  "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
 #include <string>
@@ -18,9 +17,6 @@
 // xAODJetCollector - an object send to a (possibly recursive)
 // TrigJetHypoToolHelpers to obtain xAOD jets
 
-namespace HypoJet{
-  class IJet;
-}
 
   
 class xAODJetCollector {
@@ -89,7 +85,7 @@ public:
     auto new_end =
       std::partition(hypoJets.begin(),
 		     hypoJets.end(),
-		     [](const HypoJet::IJet* j){
+		     [](const pHypoJet& j){
 		       return (j->xAODJet()).has_value();});
     // add xAOD::Jet* to m_jets
     std::vector<const xAOD::Jet*> xJets;

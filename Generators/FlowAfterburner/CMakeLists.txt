@@ -15,7 +15,7 @@ atlas_add_library( FlowAfterburnerLib
                    INCLUDE_DIRS ${GSL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS 
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AtlasHepMCLib GaudiKernel TruthHelper GeneratorObjects
+                   LINK_LIBRARIES ${GSL_LIBRARIES} ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel AtlasHepMCLib AtlasHepMCsearchLib GaudiKernel TruthHelper GeneratorObjects
                    PRIVATE_LINK_LIBRARIES StoreGateLib TruthUtils )
 
 atlas_add_component( FlowAfterburner

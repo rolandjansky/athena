@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcDumpGeoModel_H
-#define AmdcDumpGeoModel_H
+#ifndef AMDCMGM_AMDCDUMPGEOMODEL_H
+#define AMDCMGM_AMDCDUMPGEOMODEL_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -13,8 +13,11 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 /////////////////////////////////////////////////////////////////////////////
-#include "AmdcMGM/AmdcMGMMisc.h"
 #include "AmdcAth/AmdcsimrecAthenaSvc.h"
+
+#include <string>
+#include <vector>
+#include <fstream>
 
 namespace MuonGM {
     class MdtReadoutElement;
@@ -39,8 +42,6 @@ public:
 
    StatusCode initialize();
    StatusCode execute(){return StatusCode::SUCCESS;}
-
-   StatusCode DoItCallback(IOVSVC_CALLBACK_ARGS);
 
 private:
 ///////////////////////////////////
@@ -210,16 +211,12 @@ private:
    double m_Csc_MaxDiffzz  ; //!< Max deviation
    double m_Csc_MaxDifftt  ; //!< Max deviation
 
-   bool m_AmdcsimrecAthenaSvcUpdatedSvcDONE     ; //!< status of p_AmdcsimrecAthenaSvc
-
    int m_KountCallsDoIt     ; //!< Kount calls to DoIt
 
    ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
    ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-   StatusCode regFcnDoIt();
    StatusCode DoIt();
-
 };
 
 #endif

@@ -31,7 +31,7 @@ SMCConditionMT::isSatisfied(const pHypoJet& ip,
         << " mass[" << m_min << ", " << m_max << "]" 
         << " pass: "  << std::boolalpha << pass << '\n';
 
-    auto j_addr = static_cast<const void*>(ip);
+    auto j_addr = static_cast<const void*>(ip.get());
     std::stringstream ss1;
     ss1 <<  "     jet : ("<< j_addr << ") jet mass " << mass << '\n';
 
