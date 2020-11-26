@@ -21,7 +21,8 @@ namespace SG {
  */
 template <class T, class D>
 ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
-  : Base (key),
+  : Base (key.contHandleKey()),
+    m_decorKey (key.key()),
     m_acc (SG::decorKeyFromKey (key.key()))
 {
 }
@@ -41,7 +42,8 @@ ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
 template <class T, class D>
 ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key,
                                         const EventContext& ctx)
-  : Base (key, ctx),
+  : Base (key.contHandleKey(), ctx),
+    m_decorKey (key.key()),
     m_acc (SG::decorKeyFromKey (key.key()))
 {
 }
@@ -53,6 +55,7 @@ ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key,
 template <class T, class D>
 ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandle& rhs)
   : Base (rhs),
+    m_decorKey (rhs.m_decorKey),
     m_acc (rhs.m_acc)
 {
 }
@@ -64,6 +67,7 @@ ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandle& rhs)
 template <class T, class D>
 ReadDecorHandle<T, D>::ReadDecorHandle (ReadDecorHandle&& rhs)
   : Base (std::move (rhs)),
+    m_decorKey (std::move (rhs.m_decorKey)),
     m_acc (std::move (rhs.m_acc))
 {
 }
@@ -77,6 +81,7 @@ ReadDecorHandle<T, D>& ReadDecorHandle<T, D>::operator= (const ReadDecorHandle& 
 {
   if (this != &rhs) {
     *static_cast<Base*>(this) = rhs;
+    m_decorKey = rhs.m_decorKey;
     m_acc = rhs.m_acc;
   }
   return *this;
@@ -91,6 +96,7 @@ ReadDecorHandle<T, D>& ReadDecorHandle<T, D>::operator= (ReadDecorHandle&& rhs)
 {
   if (this != &rhs) {
     *static_cast<Base*>(this) = std::move (rhs);
+    m_decorKey = std::move (rhs.m_decorKey);
     m_acc = std::move (rhs.m_acc);
   }
   return *this;
@@ -106,9 +112,10 @@ ReadDecorHandle<T, D>& ReadDecorHandle<T, D>::operator= (ReadDecorHandle&& rhs)
  * Const method; the handle does not change as a result of this.
  */
 template <class T, class D>
+inline
 bool ReadDecorHandle<T, D>::isPresent() const
 {
-  return this->isPresent_impl (contKeyFromKey (this->key()));
+  return Base::isPresent();
 }
 
 
@@ -175,6 +182,17 @@ inline
 SG::auxid_t ReadDecorHandle<T, D>::auxid() const
 {
   return m_acc.auxid();
+}
+
+
+/**
+ * @brief Return the name of the decoration alias (CONT.DECOR).
+ */
+template <class T, class D>
+inline
+std::string ReadDecorHandle<T, D>::decorKey() const
+{
+  return m_decorKey;
 }
 
 

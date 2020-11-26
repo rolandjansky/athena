@@ -167,8 +167,8 @@ namespace Analysis {
             ATH_MSG_ERROR( " cannot retrieve jet container particle EL decoration with key " << elTP.key()  );
             return StatusCode::FAILURE;
           }
-          std::string::size_type iofs=h_jetParticleLinkName.key().rfind(".");
-          std::string assocN = h_jetParticleLinkName.key().substr(iofs+1);
+          std::string::size_type iofs=h_jetParticleLinkName.decorKey().rfind(".");
+          std::string assocN = h_jetParticleLinkName.decorKey().substr(iofs+1);
           const std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = h_jetParticleLinkName(*jet);
           newBTagMT->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(assocN) = associationLinks;
         }

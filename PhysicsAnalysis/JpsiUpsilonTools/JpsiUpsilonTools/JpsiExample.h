@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <string>
@@ -84,9 +84,9 @@ private:
   TTree* m_auxTree; // Tree for auxilliary n-tuple
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_JpsiCandidatesKey; //!< Name of J/psi container
-  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPX;
-  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPY;
-  SG::ReadDecorHandleKey<xAOD::Vertex> m_refPZ;
+  SG::ReadDecorHandleKey<xAOD::VertexContainer> m_refPX;
+  SG::ReadDecorHandleKey<xAOD::VertexContainer> m_refPY;
+  SG::ReadDecorHandleKey<xAOD::VertexContainer> m_refPZ;
 
 };
  
