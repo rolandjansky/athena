@@ -12,9 +12,10 @@ from TrigHLTJetHypo.ConditionsToolSetterHT import ConditionsToolSetterHT
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
-# from TrigHLTJetHypo.chainDict2jetLabel import make_simple_comb_label as make_simple_label # TIMING studies
-
 from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
+from TrigHLTJetHypo.node import Node
+from TrigHLTJetHypo.NodeSplitterVisitor import NodeSplitterVisitor
+
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
@@ -25,12 +26,23 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
 
     parser = ChainLabelParser(chain_label, debug=False)
 
-    tree = parser.parse()
+    rootless_tree = parser.parse()
+    
+    # add a root node so that split simple nodes cann connect.
+    tree = Node('root')
+    tree.children = [rootless_tree]
+    tree.node_id = 0
+    tree.parent_id = 0
+    rootless_tree.tree_top = False
+    tree.tree_top = True
 
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
     log.debug(visitor.report())
+
+    visitor = NodeSplitterVisitor()
+    tree.accept(visitor)
 
     # tell the child nodes who their parent is.
     tree.set_ids(node_id=0, parent_id=0)
@@ -48,7 +60,7 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
     toolSetter.mod(tree)
     tool = toolSetter.tool
 
-    log.debug(visitor.report())
+    log.debug(toolSetter.report())
 
     return tool
 

@@ -72,63 +72,6 @@ def _make_simple_label(chain_parts):
     return label
 
 
-def _make_simple_partition_label(chain_dict):
-    """Marshal information deom the selected chainParts to create a
-    'simple_partition' label.
-    """
-
-    cps = chain_dict['chainParts']
-    if not (_select_simple_chainparts(cps)):
-        raise NotImplementedError(
-            'chain fails substring selection: not "simple": %s' % (
-                chain_dict['chainName']))
-    
-    label = 'simplepartition(['
-    for cp in cps:
-        smcstr =  str(cp['smc'])
-        if smcstr == 'nosmc':
-            smcstr = ''
-        for i in range(int(cp['multiplicity'])):
-            # condition_str = '(%set,%s,%s)' % (str(cp['threshold']),
-            #                                  str(cp['etaRange']),
-            #                                  smcstr,)
-            condition_str = '(%set,%s' % (str(cp['threshold']),
-                                              str(cp['etaRange']),)
-            if smcstr:
-                condition_str += ',%s)'
-            else:
-                condition_str += ')'
-            label += condition_str
-    label += '])'
-    return label
-
-
-def _make_simple_comb_label(chain_dict):
-    """Marshal information deom the selected chainParts to create a
-    'simple' label NOTE: DO NOT USE this method.
-    THIS CHAINLABEL IS FOR TIMING STUDIES ONLY.
-    It has n^2 behaviour rather than n obtained using _make_simple_label.
-    """
-
-    cps = chain_dict['chainParts']
-    if not (_select_simple_chainparts(cps)):
-        raise NotImplementedError(
-            'chain fails substring selection: not "simple": %s' % (
-                chain_dict['chainName']))
-    
-    simple_strs = []
-
-    for cp in cps:
-        print(cp)
-        simple_strs.append(_make_simple_label([cp]))
-
-        label = 'combgen([(%d)]' % len(cps)
-        for s in simple_strs:
-            label += ' %s ' % s
-        label += ')'
-    return label
-
-
 def _args_from_scenario(scenario):
     separator = 'SEP'
     
@@ -161,7 +104,7 @@ def _make_vbenf_label(chain_parts):
     assert scenario.startswith('vbenf')
     args = _args_from_scenario(scenario)
     if not args:
-        return 'and([]simple([(50et)(70et)])combgen([(2)] dijet([(900djmass, 26djdphi)])))'        
+        return 'all([]simple([(50et)(70et)])dijet([(900djmass, 26djdphi)] all[], all[])))'        
     arg_res = [
         re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'),
         re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'),
@@ -199,20 +142,16 @@ def _make_vbenf_label(chain_parts):
     assert len(args) == 0
 
     return """
-    and
+    all
     (
       []
       simple
       (
         [(%(etlo).0fet, 500neta)(%(etlo).0fet, peta500)]
       )
-      combgen
+      dijet
       (
-        [(10et, 0eta320)]
-        dijet
-        (
-          [(%(masslo).0fdjmass, 26djdphi)]
-        ) 
+        [(%(masslo).0fdjmass, 26djdphi)]
         simple
         (
           [(10et, 0eta320)(20et, 0eta320)]
@@ -281,16 +220,12 @@ def _make_dijet_label(chain_parts):
     assert len(args) == 0
 
     return """
-    combgen(
-            [(2)(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
-                (%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
-               ]
-    
-            dijet(
-                  [(%(djmasslo).0fdjmass)])
-            simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
-                    (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f)])
-            )""" % argvals
+    all([]
+        dijet(
+              [(%(djmasslo).0fdjmass)])
+        simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
+                (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f)])
+    )""" % argvals
 
 
 def _make_agg_label(chain_parts):
@@ -363,45 +298,6 @@ def _make_agg_label(chain_parts):
     return result
     
 
-
-def _make_combinationsTest_label(chain_parts):
-    """make test label for  combinations helper with two simple children."""
-
-    assert len(chain_parts) == 1
-    scenario = chain_parts[0]['hypoScenario']
-    
-    assert scenario == 'combinationsTest'
-
-   
-
-    return """
-    combgen(
-            [(2)(20et, 0eta320)]
-    
-            simple([(40et, 0eta320) (50et, 0eta320)])
-            simple([(35et, 0eta240) (55et, 0eta240)])
-            )"""
-
-
-def _make_partitionsTest_label(chain_parts):
-    """make test label for  combinations helper with two simple children."""
-
-    assert len(chain_parts) == 1
-    scenario = chain_parts[0]['hypoScenario']
-    
-    assert scenario == 'partitionsTest'
-
-   
-
-    return """
-    partgen(
-            [(20et, 0eta320)]
-    
-            simple([(40et, 0eta320) (50et, 0eta320)])
-            simple([(35et, 0eta240) (55et, 0eta240)])
-            )"""
-
-
 def chainDict2jetLabel(chain_dict):
     """Entry point to this Module. Return a chain label according to the
     value of cp['hypoScenario'], where cp is an element of list/
@@ -420,8 +316,6 @@ def chainDict2jetLabel(chain_dict):
         'agg':   _make_agg_label,
         'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
-        'combinationsTest': _make_combinationsTest_label,
-        'partitionsTest': _make_partitionsTest_label,
     }
 
     # chain_part - scenario association
@@ -446,7 +340,7 @@ def chainDict2jetLabel(chain_dict):
     if nlabels == 1: return labels[0]
     if nlabels == 2:
         alabel = """\
-and([]
+all([]
     %s
     %s)""" % (tuple(labels))
         return alabel

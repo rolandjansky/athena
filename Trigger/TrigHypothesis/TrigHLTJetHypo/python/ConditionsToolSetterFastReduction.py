@@ -8,8 +8,6 @@ from __future__ import print_function
 
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-from TrigHLTJetHypo.node import Node
-
 from collections import defaultdict
 
 import copy
@@ -22,7 +20,8 @@ def is_leaf(node):
 
 
 def is_inner(node):
-    return node.scenario in ('root', 'and', 'combgen', 'partgen' , 'inserted')
+    # return node.scenario in ('root', 'and', 'combgen', 'partgen' , 'inserted')
+    return node.scenario in ('root', 'all', 'inserted')
 
 
 class ConditionsToolSetterFastReduction(object):
@@ -227,39 +226,14 @@ class ConditionsToolSetterFastReduction(object):
         more than one set of shared nodes. These are generated
         if an "And" not is present in the hypo tree"""
 
-
-        if node.scenario == 'root':
-            for cn in node.children:
-                self._find_shared(cn, shared)
-
-        elif node.scenario == 'and':
-            for cn in node.children:
-                shared.append([])
-                self._find_shared(cn, shared)
-
-        elif node.scenario == 'partgen':
-            for cn in node.children:
-                self._find_shared(cn, shared)
-
-        elif node.scenario == 'inserted':
-            for cn in node.children:
-                self._find_shared(cn, shared)
-
-        elif is_leaf(node):
-            if len(node.children) == 0:
-                if len(shared) == 0:
-                    shared.append([node])
-                else:
-                    shared[-1].append(node)
-
-            else:
-                for cn in node.children:
-                    self._find_shared(cn, shared)
-
+        if node.scenario == 'simple':
+            shared.append(node.node_id)
         else:
-            raise RuntimeError('%s illegal node. scenario: %s' %
-                               (self.__class__.__name__,
-                               node.scenario))
+            shared.append(-1)
+            
+        for cn in node.children:
+            self._find_shared(cn, shared)
+
 
         return shared
 
@@ -277,7 +251,6 @@ class ConditionsToolSetterFastReduction(object):
 
     def _fill_tree_map(self, node, tmap):
         tmap[node.node_id] = node.parent_id
-
         for cn in node.children:
             self._fill_tree_map(cn, tmap)
 
@@ -313,7 +286,7 @@ class ConditionsToolSetterFastReduction(object):
         for cn in node.children:
             self._check_scenarios(cn)
 
-    def mod(self, node):
+    def mod(self, tree):
         """Entry point for this module. 
         Modifies a  (usually compound) hypo tree node to 
         reduce it to form from whuch the treevector, conditionsVector and
@@ -327,22 +300,17 @@ class ConditionsToolSetterFastReduction(object):
         # navigate the tree filling in node-parent and node- Condtion factory
         # relations
 
-
-        # Alg step 1: add root node
-        root = Node(scenario='root')
-        root.children = [node]
-
-        self._check_scenarios(root)
+        self._check_scenarios(tree)
         
         # add Condition builders to leaf nodes.
-        self._set_conditions(root)
+        self._set_conditions(tree)
         
-        # Alg step 2: remove combgen nodes
-        self._remove_combgen(root)
+#         # Alg step 2: remove combgen nodes
+#         self._remove_combgen(root)
 
         # Alg step 3: split leaf nodes with multiple Conditions with a
         # single Condition
-        self._split_leaves(root)
+#         self._split_leaves(root)
         
         # Alg step 4: remove partgen nodes
         # single Condition
@@ -350,42 +318,20 @@ class ConditionsToolSetterFastReduction(object):
         # Alg step 5: identify the leaf nodes that are to shared
         # ie that see the input jet collection. Then remove And nodes
         shared = []
-        slist = self._find_shared(root, shared)
+        self.shared = self._find_shared(tree, shared)
+        if shared[-1] != -1: self.shared.append(-1)
 
-        # remove top stub node if possible
-        def is_prunable(node):
-            assert root.scenario == 'root'
-            return len(root.children) == 1 and is_inner(root.children[0])
-
-        if is_prunable(root):
-            root = root.children[0]
-            root.scenario
-        
-        root.set_ids(node_id=0, parent_id = 0)
-        
-
-        # would like to pass a list of lists to the C++ tools
-        # but this cannot be done using Gaudi::Properties.
-        # use -1 to separate the list sections all entries of which
-        # are >= 0.
-
-        self.shared = []
-        for ilist in slist:
-            for n in ilist:
-                self.shared.append(n.node_id)
-            self.shared.append(-1)
-
-        self.shared = self.shared[:-1] # remnove trailing -1
-            
+        print ('shared ', self.shared)
         tree_map = {}
-        self._fill_tree_map(root, tree_map)
+        self._fill_tree_map(tree, tree_map)
+
         for k, v in tree_map.items():
-            log.debug("Tree map debug %s %s", str(k), str(v))
+            log.debug("Tree map debug ", str(k), str(v))
             
         self.treeVec = self._map_2_vec(tree_map)
 
         conditionsMap = {}
-        self._fill_conditions_map(root, conditionsMap)
+        self._fill_conditions_map(tree, conditionsMap)
         self.conditionsVec = self._map_2_vec(conditionsMap)
                
         # make a config tool and provide it with condition makers
@@ -394,10 +340,10 @@ class ConditionsToolSetterFastReduction(object):
         config_tool.treeVector = self.treeVec
         config_tool.sharedVector = self.shared
 
-        nodestr = 'n%dp%d' % (node.node_id, node.parent_id)
+        nodestr = 'n%dp%d' % (tree.node_id, tree.parent_id)
         helper_tool = self._get_tool_instance('helper', extra=nodestr)
         helper_tool.HypoConfigurer = config_tool
-        helper_tool.node_id = node.node_id
-        helper_tool.parent_id = node.parent_id
+        helper_tool.node_id = tree.node_id
+        helper_tool.parent_id = tree.parent_id
 
         self.tool = helper_tool
