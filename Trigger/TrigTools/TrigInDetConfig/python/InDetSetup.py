@@ -12,16 +12,7 @@ log = logging.getLogger("InDetSetup")
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags # noqa: F401
 
-if 'InDetTrigFlags' not in dir():
-   # --- setup flags with default values
-   from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-   InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
-   InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
-   InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)
-   InDetTrigFlags.doPixelClusterSplitting = False
-   InDetTrigFlags.doPrintConfigurables = False
-
-
+include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
 
 def makeInDetAlgsNoView( config = None, rois = 'EMViewRoIs', doFTF = True ):
 
@@ -157,18 +148,15 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
     viewAlgs.append(InDetSCTEventFlagWriter)
 
-
-
   #Pixel clusterisation
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
-
+  
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool_" + signature,
                                                   SCTLorentzAngleTool = TrigSCTLorentzAngleTool,
                                                   PixelLorentzAngleTool = TrigPixelLorentzAngleTool)
 
   ToolSvc += InDetClusterMakerTool
-
 
   from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
   InDetMergedPixelsTool = InDet__MergedPixelsTool(name                    = "InDetMergedPixelsTool_" + signature,
@@ -305,7 +293,6 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiElementPropertiesTableCondAlg
       condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
-
   #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
   if doFTF: 
       #Load signature configuration (containing cut values, names of collections, etc)
@@ -323,7 +310,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
       viewAlgs.append(theFTF)
 
-
+      
       from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
       from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
