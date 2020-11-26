@@ -46,11 +46,13 @@ namespace InDet {
     MsgStream &dumpStat(MsgStream &out) const;
 
     //! process events
-    TrackCollection* createExtendedTracks(const TrackCollection* tracks_in,
+    TrackCollection* createExtendedTracks(const EventContext& ctx,
+                                          const TrackCollection* tracks_in,
                                           const TrackExtensionMap* track_extension_map) const;
 
     //! internal structuring: creates new track with original one plus extension as outliers
-    Trk::Track* trackPlusExtension(const Trk::Track*,
+    Trk::Track* trackPlusExtension(const EventContext& ctx,
+                                   const Trk::Track*,
                                    const std::vector<const Trk::MeasurementBase*>&) const;
 
     //
