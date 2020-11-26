@@ -1496,5 +1496,9 @@ namespace MuonCombined {
     time  -= 1.5;
     error *= 1.;
   }
+
+  void MuonStauRecoTool::cleanUp() const {
+    m_insideOutRecoTool->cleanUp();
+  }
+
 }
- 
