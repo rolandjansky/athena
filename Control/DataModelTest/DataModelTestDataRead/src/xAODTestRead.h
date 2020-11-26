@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /**
- * @file src/xAODTestRead.h
+ * @file DataModelTestDataRead/src/xAODTestRead.h
  * @author scott snyder <snyder@bnl.gov>
  * @date May, 2014
  * @brief Algorithm to test reading xAOD data.
@@ -57,6 +56,9 @@ public:
 private:
   /// Test reading container with additional data.
   StatusCode read_cvec_with_data (const EventContext& ctx) const;
+
+  /// Test reading GVec object.
+  StatusCode read_gvec (const EventContext& ctx) const;
 
   /// Test reading view container.
   //StatusCode read_cview() const;
