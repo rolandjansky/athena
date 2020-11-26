@@ -336,7 +336,8 @@ GeoFullPhysVol* MultiLayer::build()
   slay = &(slay->subtract( (*sbox)<<GeoTrf::Translate3D(0.,0.,length/2.)));
 
   for (int i = 0; i < nrOfLayers; i++) {
-    if (xx[i] > tubePitch/2. + 10.*Gaudi::Units::mm) {
+    // check in which tubeLayers the layer x position is outside of the envelope and add tube to envelope (not for BMG)
+    if (logVolName.find("BMG")==std::string::npos && 2*xx[i]>=tubePitch) {
       // subtract tube at the start
       if (verbose_multilayer) {
         log << MSG::VERBOSE
