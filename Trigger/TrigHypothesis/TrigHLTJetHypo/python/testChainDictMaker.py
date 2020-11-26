@@ -41,6 +41,8 @@ def testChainDictMaker():
         ChainProp(name='HLT_10j40_L1J15',
                   l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
 
+        ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20',
+                  groups=SingleJetGroup),
 
         # ChainProp(name='HLT_j70_j50 _0eta490_invm1000j50_dphi20_deta40_L1J20',
         #          l1SeedThresholds=['FSNOSEED']*2,
