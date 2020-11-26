@@ -119,8 +119,11 @@ void MdtReadoutElement::geoInitDone()
 }
 
 
-double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
+double MdtReadoutElement::getTubeLengthForCaching(const int tubeLayer, const int tube) const
 {
+  if (tube<=0 || (unsigned int)(tube)>maxNTubesPerLayer) throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::getTubeLengthForCaching() - got called with tube=%d which is definitely out of range", __FILE__, __LINE__,tube));
+  if (tubeLayer<=0 || tubeLayer>4) throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::getTubeLengthForCaching() - got called with tubeLayer=%d which is definitely out of range", __FILE__, __LINE__,tubeLayer));
+
   const MdtIdHelper* idh = manager()->mdtIdHelper();
   double nominalTubeLength = 0.;
   if (m_inBarrel) nominalTubeLength = m_Ssize;
@@ -151,6 +154,9 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
       if (nGrandchildren <= 0) return tlength;
       // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
       int ii = (tubeLayer-1)*m_ntubesperlayer+tube;
+      const Identifier id=identify();
+      // BIS78 only (the BIS7 of Run1/2 has no cutouts, thus, this block won't be reached)
+      if ((idh->stationName(id)==1 && std::abs(idh->stationEta(id))==7)) --ii;
       if (idh->isBMG(identify())) {
         // usually the tube number corresponds to the child number, however for
         // BMG chambers full tubes are skipped during the building process
@@ -177,7 +183,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
         log << MSG::WARNING << "returning nominalTubeLength "<<endmsg; 
 	  return tlength;
 	}
-      if (ii<=0) {
+      if (ii<0) {
         log << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
 		  << " stPhi " << getStationPhi() << " multilayer "<<getMultilayer()<<" has cutouts, nChild = "<<nGrandchildren
 		  <<" --- getTubeLength is looking for child with index ii="<<ii<<" for tubeL and tube = "<<tubeLayer<<" "<<tube<< endmsg;
@@ -317,7 +323,7 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(const Identifier& id) c
     int tube     = idh->tube(id);
     return signedRODistanceFromTubeCentre(ml, layer, tube);
 }
-double MdtReadoutElement::RODistanceFromTubeCentre(int multilayer, int tubelayer, int tube) const
+double MdtReadoutElement::RODistanceFromTubeCentre(const int multilayer, const int tubelayer, const int tube) const
 {
     // it is a un-signed quantity:
     if (multilayer != m_multilayer) {
@@ -325,7 +331,7 @@ double MdtReadoutElement::RODistanceFromTubeCentre(int multilayer, int tubelayer
     }
     return getWireLength(tubelayer, tube)/2.;
 }
-double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tubelayer, int tube) const
+double MdtReadoutElement::signedRODistanceFromTubeCentre(const int multilayer, const int tubelayer, const int tube) const
 {
     // it is a signed quantity:
     // the sign corresponds to the sign of the z coordinate of the RO endplug in the tube
@@ -393,12 +399,12 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tub
     return amdb_plus_minus1*getWireLength(tubelayer, tube)/2.;
 }
 
-const Amg::Vector3D MdtReadoutElement::tubeFrame_localROPos(int multilayer, int tubelayer, int tube) const
+const Amg::Vector3D MdtReadoutElement::tubeFrame_localROPos(const int multilayer, const int tubelayer, const int tube) const
 {
     Amg::Vector3D Pro(0., 0., signedRODistanceFromTubeCentre(multilayer, tubelayer, tube));
     return Pro;
 }
-const Amg::Vector3D MdtReadoutElement::tubeFrame_localROPos(Identifier id) const
+const Amg::Vector3D MdtReadoutElement::tubeFrame_localROPos(const Identifier id) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
     int ml   = idh->multilayer(id);
@@ -406,25 +412,25 @@ const Amg::Vector3D MdtReadoutElement::tubeFrame_localROPos(Identifier id) const
     int tube     = idh->tube(id);
     return tubeFrame_localROPos(ml, layer, tube);
 }
-const Amg::Vector3D MdtReadoutElement::localROPos(int multilayer, int tubelayer, int tube) const
+const Amg::Vector3D MdtReadoutElement::localROPos(const int multilayer, const int tubelayer, const int tube) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
     Identifier id = idh->channelID(idh->parentID(identify()), multilayer, tubelayer, tube);
     return tubeToMultilayerCoords(tubeFrame_localROPos(multilayer, tubelayer, tube) , id);    
 }
-const Amg::Vector3D MdtReadoutElement::localROPos(Identifier id) const
+const Amg::Vector3D MdtReadoutElement::localROPos(const Identifier id) const
 {
     return tubeToMultilayerCoords(tubeFrame_localROPos(id) , id);
 }
 
 const Amg::Vector3D 
-MdtReadoutElement::ROPos(int multilayer, int tubelayer, int tube) const
+MdtReadoutElement::ROPos(const int multilayer, const int tubelayer, const int tube) const
 {
   return transform(tubelayer, tube)*tubeFrame_localROPos(multilayer, tubelayer, tube);
 }
 
 const Amg::Vector3D 
-MdtReadoutElement::ROPos(Identifier id) const
+MdtReadoutElement::ROPos(const Identifier id) const
 {
   const MdtIdHelper* idh = manager()->mdtIdHelper();
   int ml = idh->multilayer(id);
@@ -435,7 +441,7 @@ MdtReadoutElement::ROPos(Identifier id) const
 
 
 const Amg::Vector3D 
-MdtReadoutElement::localTubePos(int multilayer, int tubelayer, int tube) const
+MdtReadoutElement::localTubePos(const int multilayer, const int tubelayer, const int tube) const
 {
   const Amg::Vector3D idealPos     = nodeform_localTubePos(multilayer, tubelayer, tube);
   const Amg::Transform3D toDeform = fromIdealToDeformed(multilayer, tubelayer, tube);
@@ -444,22 +450,23 @@ MdtReadoutElement::localTubePos(int multilayer, int tubelayer, int tube) const
 
 
 const Amg::Vector3D 
-MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube) const
+MdtReadoutElement::nodeform_localTubePos(const int multilayer, const int tubelayer, const int tube) const
 {
-    if (multilayer != m_multilayer)
+    int theMultilayer=multilayer;
+    if (theMultilayer != m_multilayer)
     {
         MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
-        log << MSG::WARNING<<"asking WRONG QUESTION: nodeform_localTubePos with args. ml/tl/t = "<<multilayer<<"/"<<tubelayer<<"/"<<tube
+        log << MSG::WARNING<<"asking WRONG QUESTION: nodeform_localTubePos with args. ml/tl/t = "<<theMultilayer<<"/"<<tubelayer<<"/"<<tube
                <<" to MdtReadoutElement "<<getStationName()<<"/"<<getTechnologyName()<<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
                <<" multilayer "<<getMultilayer()<<endmsg;
         log << MSG::WARNING<<"will answer for  args:                                  ml/tl/t = "<<getMultilayer()<<"/"<<tubelayer<<"/"<<tube<<endmsg;
-        multilayer = m_multilayer;
+        theMultilayer = m_multilayer;
     }
 #ifndef NDEBUG
         MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
         if (log.level()<=MSG::VERBOSE) log << MSG::VERBOSE<<" Computing LocalTubePos for "
                <<getStationName()<<"/"<<getTechnologyName()<<" eta/phi "<<getStationEta()<<"/"<<getStationPhi()
-               <<" ml/tl/t "<<multilayer<<"/"<<tubelayer<<"/"<<tube<<endmsg;
+               <<" ml/tl/t "<<theMultilayer<<"/"<<tubelayer<<"/"<<tube<<endmsg;
 #endif
 
     double xtube = 0.;
@@ -483,6 +490,10 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
         int nGrandchildren = cv->getNChildVols();
         // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
         int ii = (tubelayer-1)*m_ntubesperlayer+tube;
+        const Identifier id=identify();
+        const MdtIdHelper* idh = manager()->mdtIdHelper();
+        // BIS78 only (the BIS7 of Run1/2 has no cutouts, thus, this block won't be reached)
+        if ((idh->stationName(id)==1 && std::abs(idh->stationEta(id))==7)) --ii;
         if (manager()->mdtIdHelper()->isBMG(identify())) {
           // usually the tube number corresponds to the child number, however for
           // BMG chambers full tubes are skipped during the building process
@@ -510,26 +521,9 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 
         if (std::abs(xtube - tubeTrans(0,3)) > maxtol ||
             std::abs(ztube - tubeTrans(2,3)) > maxtol) {
-#ifdef NDEBUG
-          MsgStream log(Athena::getMessageSvc(),"MdtReadoutElement");
-#endif
-        const MdtIdHelper* idh = manager()->mdtIdHelper();
-        const Identifier id = identify();
-          log << MSG::WARNING << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for MDT with stationName="
-            << idh->stationName(id) << " ("<< idh->stationNameString(idh->stationName(id)) << "), stationEta="<< idh->stationEta(id) << ", stationPhi="<< idh->stationPhi(id)<< ", multilayer="
-            << idh->multilayer(id) << ", tubeLayer="<< idh->tubeLayer(id) << ", tube="<< idh->tube(id) 
-                 << ": from tube-id and pitch, tube pos = " << xtube
-                 << ", " << ytube << ", " << ztube
-                 << " but geoModel gives " << tubeTrans(0,3)
-                 << ", " << tubeTrans(1,3) << ", " << tubeTrans(2,3)
-                 << endmsg
-                 << " for tube " << tube << " tube layer " << tubelayer
-                 << " multilayer " << multilayer << endmsg
-                 << " There are " << nGrandchildren << " child volumes & "
-                 << m_ntubesperlayer*m_nlayers << " tubes expected."
-                 << " There should be " << m_nlayers << " layers and "
-                 << m_ntubesperlayer << " tubes per layer."
-                 <<endmsg;
+          throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::nodeform_localTubePos(%d,%d,%d) - mismatch between local from tube-id/pitch/cutout tube position (x,y,z=%.3f,%.3f,%.3f) and GeoModel (x,y,z=%.3f,%.3f,%.3f)\nfor MdtReadoutElement with stationName=%d (%s), stationEta=%d, stationPhi=%d, multilayer=%d, tubeLayer=%d, tube=%d\nThere are %d child volumes & %d tubes expected. There should be %d layers and %d tubes per layer.",
+                                   __FILE__, __LINE__, theMultilayer, tubelayer, tube, xtube, ytube, ztube, tubeTrans(0,3), tubeTrans(1,3), tubeTrans(2,3), idh->stationName(id), idh->stationNameString(idh->stationName(id)).c_str(),
+                                   idh->stationEta(id), idh->stationPhi(id), idh->multilayer(id), idh->tubeLayer(id), idh->tube(id), nGrandchildren, m_ntubesperlayer*m_nlayers, m_nlayers, m_ntubesperlayer));
         }
         if (tubeTrans(1,3)> maxtol) {
 #ifndef NDEBUG
@@ -538,10 +532,8 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
 #endif
             if (std::abs(m_cutoutShift - tubeTrans(1,3)) > maxtol) // check only for tubes actually shifted 
             {
-              const MdtIdHelper* idh = manager()->mdtIdHelper();
-              const Identifier id = identify();
               throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::nodeform_localTubePos(%d,%d,%d) - mismatch between local from tube-id/pitch/cutout tube position (x,y,z=%.3f,%.3f,%.3f) and GeoModel (x,y,z=%.3f,%.3f,%.3f)\nfor MdtReadoutElement with stationName=%d (%s), stationEta=%d, stationPhi=%d, multilayer=%d, tubeLayer=%d, tube=%d\nThere are %d child volumes & %d tubes expected. There should be %d layers and %d tubes per layer.", 
-                                       __FILE__, __LINE__, multilayer, tubelayer, tube, xtube, m_cutoutShift, ztube, tubeTrans(0,3), tubeTrans(1,3), tubeTrans(2,3), idh->stationName(id), idh->stationNameString(idh->stationName(id)).c_str(),
+                                       __FILE__, __LINE__, theMultilayer, tubelayer, tube, xtube, m_cutoutShift, ztube, tubeTrans(0,3), tubeTrans(1,3), tubeTrans(2,3), idh->stationName(id), idh->stationNameString(idh->stationName(id)).c_str(),
                                        idh->stationEta(id), idh->stationPhi(id), idh->multilayer(id), idh->tubeLayer(id), idh->tube(id), nGrandchildren, m_ntubesperlayer*m_nlayers, m_nlayers, m_ntubesperlayer));
             }
         }
@@ -817,7 +809,7 @@ MdtReadoutElement::fromIdealToDeformed(const Identifier& id) const
 }
 
 
-double MdtReadoutElement::getNominalTubeLengthWoCutouts(int tubeLayer, int tube) const {
+double MdtReadoutElement::getNominalTubeLengthWoCutouts(const int tubeLayer, const int tube) const {
   const MdtIdHelper* idh = manager()->mdtIdHelper();
   if (m_inBarrel) return m_Ssize;
   else {
@@ -834,7 +826,7 @@ double MdtReadoutElement::getNominalTubeLengthWoCutouts(int tubeLayer, int tube)
   }
 }
 
-Amg::Vector3D MdtReadoutElement::localNominalTubePosWoCutouts(int tubelayer, int tube) const
+Amg::Vector3D MdtReadoutElement::localNominalTubePosWoCutouts(const int tubelayer, const int tube) const
 {
   double xtube = 0.;
   double ytube = 0.;
@@ -849,7 +841,7 @@ Amg::Vector3D MdtReadoutElement::localNominalTubePosWoCutouts(int tubelayer, int
   return Amg::Vector3D(xtube,ytube,ztube);
 }
 
-const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, int tubelayer, int tube) const
+const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(const int multilayer, const int tubelayer, const int tube) const
 {
   size_t itube = (tubelayer-1)*m_ntubesperlayer + tube - 1;
   if( itube >= m_deformTransf.size() ) {
@@ -1190,7 +1182,7 @@ MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos,
 // to be inlined here if possible.
 __attribute__ ((flatten))
 #endif
-void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, int multilayer, int tubelayer, int tube) const
+void MdtReadoutElement::wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, const int multilayer, const int tubelayer, const int tube) const
 {
   const MdtAsBuiltPar* params = parentMuonStation()->getMdtAsBuiltParams();
   if (!params) {
@@ -1337,7 +1329,7 @@ MdtReadoutElement::transform(const Identifier & id) const
 
 
 std::unique_ptr<MdtReadoutElement::GeoInfo>
-MdtReadoutElement::makeGeoInfo (int tubelayer, int tube) const
+MdtReadoutElement::makeGeoInfo (const int tubelayer, const int tube) const
 {
   const Amg::Transform3D& toDeformed = fromIdealToDeformed (getMultilayer(), tubelayer, tube);
   const Amg::Transform3D transform = globalTransform (nodeform_localTubePos(getMultilayer(), tubelayer, tube),
@@ -1347,7 +1339,7 @@ MdtReadoutElement::makeGeoInfo (int tubelayer, int tube) const
 
 
 const MdtReadoutElement::GeoInfo&
-MdtReadoutElement::geoInfo (int tubeLayer, int tube) const
+MdtReadoutElement::geoInfo (const int tubeLayer, const int tube) const
 {
   size_t itube = (tubeLayer-1)*m_ntubesperlayer + tube - 1;
   if( itube >= m_tubeGeo.size() ) {
@@ -1372,7 +1364,7 @@ MdtReadoutElement::geoInfo (int tubeLayer, int tube) const
 
 
 const Amg::Transform3D &
-MdtReadoutElement::transform(int tubeLayer, int tube) const 
+MdtReadoutElement::transform(const int tubeLayer, const int tube) const 
 {
   return geoInfo (tubeLayer, tube).m_transform;
 }
@@ -1424,7 +1416,7 @@ void MdtReadoutElement::shiftTube(const Identifier& id)
 }
   
 const Trk::SaggedLineSurface&
-MdtReadoutElement::surface (int tubeLayer, int tube) const
+MdtReadoutElement::surface(const int tubeLayer, const int tube) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
     Identifier id = idh->channelID(idh->parentID(identify()), getMultilayer(), tubeLayer, tube);
@@ -1455,7 +1447,7 @@ MdtReadoutElement::surface (int tubeLayer, int tube) const
     return *ptr;
 }
 const Trk::SaggedLineSurface&
-MdtReadoutElement::surface (const Identifier& id) const
+MdtReadoutElement::surface(const Identifier& id) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
 #ifndef NDEBUG
@@ -1478,7 +1470,7 @@ MdtReadoutElement::surface (const Identifier& id) const
     return surface(idh->tubeLayer(id), idh->tube(id));    
 }
 const Trk::CylinderBounds  &
-MdtReadoutElement::bounds(int tubeLayer, int tube) const
+MdtReadoutElement::bounds(const int tubeLayer, const int tube) const
 {  
     int istep = 0;
     int ntot_steps = m_nsteps;
@@ -1502,9 +1494,12 @@ MdtReadoutElement::bounds(int tubeLayer, int tube) const
 	  istep = 0;
 	}
       }
-
-    const CxxUtils::CachedUniquePtr<Trk::CylinderBounds>& ptr =
-      m_tubeBounds.at(istep);
+    if ((unsigned int)istep>=m_tubeBounds.size()) {
+      const MdtIdHelper* idh = manager()->mdtIdHelper();
+      const Identifier id=identify();
+      throw std::runtime_error(Form("File: %s, Line: %d\nMdtReadoutElement::bounds(%d,%d) - istep=%d but m_tubeBounds.size()=%lu for station %s, stationEta=%d", __FILE__, __LINE__,tubeLayer,tube,istep,m_tubeBounds.size(),idh->stationNameString(idh->stationName(id)).c_str(),idh->stationEta(id)));
+    }
+    const CxxUtils::CachedUniquePtr<Trk::CylinderBounds>& ptr = m_tubeBounds.at(istep);
     if (!ptr) {
       double tubelength = getTubeLengthForCaching(tubeLayer, tube);
       ptr.set (std::make_unique<Trk::CylinderBounds>(innerTubeRadius(), 0.5*tubelength - m_deadlength));
@@ -1537,7 +1532,7 @@ MdtReadoutElement::bounds(const Identifier& id) const
     return bounds(idh->tubeLayer(id), idh->tube(id));
 }
 const Amg::Vector3D&
-MdtReadoutElement::center (const Identifier& id) const
+MdtReadoutElement::center(const Identifier& id) const
 {
     const MdtIdHelper* idh = manager()->mdtIdHelper();
 #ifndef NDEBUG
@@ -1560,12 +1555,12 @@ MdtReadoutElement::center (const Identifier& id) const
     return center (idh->tubeLayer(id), idh->tube(id));
 }
 const Amg::Vector3D&
-MdtReadoutElement::center (int tubeLayer, int tube) const
+MdtReadoutElement::center(const int tubeLayer, const int tube) const
 {
     return geoInfo (tubeLayer, tube).m_center;
 }
 const Amg::Vector3D&
-MdtReadoutElement::normal () const
+MdtReadoutElement::normal() const
 {
     if (!m_elemNormal.isValid()) {
       m_elemNormal.set (Amg::Vector3D( transform().linear()*Amg::Vector3D(1.,0.,0.)) );
@@ -1574,7 +1569,7 @@ MdtReadoutElement::normal () const
 }
 
 const Amg::Vector3D
-MdtReadoutElement::tubeNormal (const Identifier& id) const
+MdtReadoutElement::tubeNormal(const Identifier& id) const
 {
   const MdtIdHelper* idh = manager()->mdtIdHelper();
   return tubeNormal( idh->tubeLayer(id), idh->tube(id) );
