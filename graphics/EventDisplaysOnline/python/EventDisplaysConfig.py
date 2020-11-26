@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 def GetRunType():
   """Get the run type by reading the run-type setting in the partition from IS """
 
@@ -15,9 +13,9 @@ def GetRunType():
     partition = os.environ['TDAQ_PARTITION']
   except KeyError :
     partition = "ATLAS"
-    mlog.warning("TDAQ_PARTITION not defined in environment, using %s as default"%partition)
+    mlog.warning("TDAQ_PARTITION not defined in environment, using %s as default", partition)
   
-  mlog.debug('Probing partition %s for RunType'%partition)
+  mlog.debug('Probing partition %s for RunType', partition)
 
   #now try and read the information from IS
   try :
@@ -30,14 +28,14 @@ def GetRunType():
     mlog.error(err)
     #Set the default runtype
     runType="collisions"
-    mlog.warning("Failed to read run type from IS, using %s as default"%runType)
+    mlog.warning("Failed to read run type from IS, using %s as default", runType)
   finally :
-    if not runType in ['collisions','singlebeam','cosmics']:
-      mlog.fatal("Invalid run type: %s"%runType)
+    if runType not in ['collisions','singlebeam','cosmics']:
+      mlog.fatal("Invalid run type: %s", runType)
       import sys
       sys.exit(1)
 
-  mlog.info("Setting run type to: %s"%runType)
+  mlog.info("Setting run type to: %s", runType)
   return runType
 
 def GetBFields():
@@ -48,16 +46,16 @@ def GetBFields():
 
   #BFields are read from initial partition
   partition='initial'
-  mlog.debug("Trying to read magnetic field configuration from partition %s"%partition)
+  mlog.debug("Trying to read magnetic field configuration from partition %s", partition)
 
   #now try and read the information from IS
   try :
     from ipc import IPCPartition
     from ispy import ISObject
     #Get hold of the initial partition
-    ipcPart = IPCPartition(partition);
+    ipcPart = IPCPartition(partition)
     if not ipcPart.isValid():
-      raise UserWarning("Partition %s invalid - cannot access magnetic field setting"%partition);
+      raise UserWarning("Partition %s invalid - cannot access magnetic field setting"%partition)
     #Get the current and valid status
     toroidCurrent = ISObject(ipcPart,'DCS_GENERAL.MagnetToroidsCurrent.value','DdcFloatInfo')
     solenoidCurrent = ISObject(ipcPart,'DCS_GENERAL.MagnetSolenoidCurrent.value','DdcFloatInfo')
@@ -78,8 +76,8 @@ def GetBFields():
     sys.exit(1)
 
   #print the result
-  mlog.info("Magnetic field in solenoid is %s" % ((solenoidOn and "ON") or "OFF"))
-  mlog.info("Magnetic field in toroid is %s" % ((toroidOn and "ON") or "OFF"))
+  mlog.info("Magnetic field in solenoid is %s", (solenoidOn and "ON") or "OFF")
+  mlog.info("Magnetic field in toroid is %s", (toroidOn and "ON") or "OFF")
 
   #finally return our values
   return (solenoidOn,toroidOn)

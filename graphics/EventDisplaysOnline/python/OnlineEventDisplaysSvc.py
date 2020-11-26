@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 __doc__ = """This service runs in the online Athena event display threads. It
 manages the distribution of incoming events to the right event display streams.
 In order to do that it connects to the different Atlantis and VP1 event output
@@ -63,9 +61,9 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		vp1alg = PyAthena.py_alg('VP1EventProd')
 		self.VP1EventProducer = InterfaceCast(gbl.IProperty).cast(vp1alg)
 
-		self.msg.info("StreamToFileTool: %s" % self.StreamToFileTool)
-		self.msg.info("StreamToServerTool: %s" % self.StreamToServerTool)
-		self.msg.info("VP1EventProducer: %s" % self.VP1EventProducer)
+		self.msg.info("StreamToFileTool: %s", self.StreamToFileTool)
+		self.msg.info("StreamToServerTool: %s", self.StreamToServerTool)
+		self.msg.info("VP1EventProducer: %s", self.VP1EventProducer)
 
 	def beginEvent(self):
 		if not (self.StreamToFileTool and self.StreamToServerTool and self.VP1EventProducer):
@@ -74,7 +72,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 		try:
 			eventInfo = PyEventTools.getEventInfo('EventInfo')
 		except LookupError as err:
-			self.msg.error("Could not retrieve EventInfo: %s" % err)
+			self.msg.error("Could not retrieve EventInfo: %s", err)
 			return StatusCode.Recoverable
 
 		try:
@@ -85,7 +83,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			# Retrieve trigger info
 			streamTags = eventInfo.streamTags()
 		except Exception as err:
-			self.msg.error("Exception occured while reading event/trigger info: %s" % err)
+			self.msg.error("Exception occured while reading event/trigger info: %s", err)
 			return StatusCode.Recoverable
 
 		# Retrieve the physics stream names from the trigger info
@@ -94,7 +92,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			
 			## Added 08/03/15 - sjiggins - Wanted to see if events had physics stream tag or was from random trigger
 			if tag.name():
-				self.msg.debug("Event %d/%d has the corresponding streamTags: %s" % (self.run, self.event, tag.type()))
+				self.msg.debug("Event %d/%d has the corresponding streamTags: %s", self.run, self.event, tag.type())
 			##################################################################################
 			if tag.type() == 'express' and tag.name():
 				streams += [tag.type()+'_'+tag.name()]
@@ -118,14 +116,14 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 					if physicsReady.ready4physics and runparams.T0_project_tag in self.projecttags:
 						streams += ['Public']
 					else:
-						self.msg.debug("RunParams.Ready4Physics is not set, run number is not set, or T0_project_tag is not set to any of %s" % ", ".join(self.projecttags))
+						self.msg.debug("RunParams.Ready4Physics is not set, run number is not set, or T0_project_tag is not set to any of %s", ", ".join(self.projecttags))
 						break
 		except Exception as err:
-			self.msg.error("Exception occured while reading RunParams.Ready4Physics: %s" % err)
+			self.msg.error("Exception occured while reading RunParams.Ready4Physics: %s", err)
 
 		# Randomize list of streams
 		random.shuffle(streams)
-		self.msg.debug("Event %d/%d has event display stream tags: %s" % (self.run, self.event, ", ".join(streams)))
+		self.msg.debug("Event %d/%d has event display stream tags: %s", self.run, self.event, ", ".join(streams))
 
 		# Start from the beginning and send the event to the first stream that passes our directory checks
 		self.directory = ''
@@ -133,20 +131,20 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			self.directory = "%s/%s" % (self.output, self.stream)
 			if os.access(self.directory, os.F_OK):
 				if os.path.isdir(self.directory) and os.access(self.directory, os.W_OK):
-					self.msg.debug("Going to write file to existing directory: %s" % self.directory)
+					self.msg.debug("Going to write file to existing directory: %s", self.directory)
 					if os.stat(self.directory).st_gid != self.DQMgid:
-						self.msg.debug("Setting group to 'DQM' for directory: %s" % self.directory)
+						self.msg.debug("Setting group to 'DQM' for directory: %s", self.directory)
 						os.chown(self.directory, -1, self.DQMgid)
 					break
 				else:
-					self.msg.warning("Directory \'%s\' is not usable, trying next alternative" % self.directory)
+					self.msg.warning("Directory \'%s\' is not usable, trying next alternative", self.directory)
 					self.directory = ''
 			else:
 				try:
 					os.mkdir(self.directory)
 					os.chmod(self.directory, stat.S_IRWXU | stat.S_IRWXG | stat.S_IROTH | stat.S_IXOTH)
 					os.chown(self.directory, -1, self.DQMgid)
-					self.msg.info("Created output directory \'%s\' for stream \'%s\'" % (self.directory, self.stream))
+					self.msg.info("Created output directory \'%s\' for stream \'%s\'", self.directory, self.stream)
 					break
 				except OSError as err:
 					self.msg.warning("Failed to create output directory \'%s\' for stream \'%s\': %s", (self.directory, self.stream, err.strerror))
@@ -154,7 +152,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 
 		# Check if a suitable directory was found
 		if self.directory:
-			self.msg.debug("Event %d/%d will be streamed to: %s" % (self.run, self.event, self.stream))
+			self.msg.debug("Event %d/%d will be streamed to: %s", self.run, self.event, self.stream)
 		else:
 			# This event is hopelessly lost, send StatusCode.Recoverable in an attempt to abort.
 			# But if Athena chooses to ignore that, set the output to the "Unknown" trashcan stream.
@@ -168,7 +166,7 @@ class OnlineEventDisplaysSvc( PyAthena.Svc ):
 			# And also for the VP1 event producer algorithm
 			#self.VP1EventProducer.getProperty('DestinationDirectory').setValue(self.directory) # lshi June 22 2020
 		except Exception as err:
-			self.msg.error("Exception occured while setting job options: %s" % err)
+			self.msg.error("Exception occured while setting job options: %s", err)
 			return StatusCode.Failure
 
 		if not self.directory:
