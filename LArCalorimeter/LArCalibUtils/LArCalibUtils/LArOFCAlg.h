@@ -37,8 +37,6 @@ class LArOnlineID_Base;
 class CaloDetDescrManager_Base; 
 class LArDSPConfig;
 
-#include "GaudiKernel/ToolHandle.h"
-
 class LArOFCAlg:public AthAlgorithm {
  
 public:

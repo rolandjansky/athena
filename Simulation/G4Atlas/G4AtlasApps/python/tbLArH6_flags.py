@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """ Simulation specific flags.
 
@@ -20,7 +20,7 @@ from AthenaCommon.JobProperties import JobProperty
 
 # We re-use already defined flags that maybe we will customize here
 from G4AtlasApps.SimFlags import jobproperties
-from ctb_flags import *
+from ctb_flags import *  # noqa: F401 F403
 # 25/03/2008  A.M.  added  by analogy with atlas_flags.py
 
 jobproperties.SimFlags.CalibrationRun.set_Off()

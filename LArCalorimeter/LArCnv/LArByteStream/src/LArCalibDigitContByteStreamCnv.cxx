@@ -102,7 +102,7 @@ LArCalibDigitContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*
 {// convert LArDigits from StoreGate into ByteStream
   ATH_MSG_VERBOSE( "Execute CreateRep method of LArCalibDigitContainer " );
   // Get Full Event Assembler
-  FullEventAssembler<Hid2RESrcID> *fea = 0;
+  FullEventAssembler<RodRobIdMap> *fea = 0;
   ATH_CHECK( m_byteStreamCnvSvc->getFullEventAssembler(fea,"LAr") );
 
   LArCalibDigitContainer* CalibDigitContainer=0;

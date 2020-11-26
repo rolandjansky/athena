@@ -42,7 +42,7 @@ class CostData {
     CostData(const CostData&) = delete;
 
     /**
-     * @brief Cache the cost collection, after formally requesting it from storegate.
+     * @brief Cache the cost and ros collections, after formally requesting it from storegate.
      */
     StatusCode set(const xAOD::TrigCompositeContainer* costCollection, const xAOD::TrigCompositeContainer* rosCollection, uint32_t onlineSlot);
 
@@ -55,6 +55,21 @@ class CostData {
      * @brief Getter of the cached ros cost collection pointer.
      */
     const xAOD::TrigCompositeContainer& rosCollection() const;
+
+    /**
+     * @brief Getter of the ROS to ROB map.
+     */
+    const std::map<std::string, std::vector<uint32_t>>& rosToRobMap() const;
+
+    /**
+     * @brief Set ROS to ROB map
+     */
+    void setRosToRobMap(const std::map<std::string, std::vector<uint32_t>>& rosToRobMap);
+
+    /**
+     * @brief Getter of map between algorithm (index in costCollection) and ROS requests (indicies in rosCollection)
+     */
+    const std::map<size_t, std::vector<size_t>>& algToRequestMap() const;
 
     /**
      * @brief Setter of effective P1 walltime represented by the current event.
@@ -134,6 +149,8 @@ class CostData {
     bool m_liveTimeIsPerEvent; //!< If the livetime represents a single event or all of the current LB
     const std::unordered_map<uint32_t, std::string>* m_typeMapPtr; //!< Cached non-owning pointer mapping algorithm instance names to types
     std::map<size_t, std::vector<size_t>> m_algToRos; //!< Mapping of indexes from m_costCollection to corresponding ROS requests made by algorithm
+    const std::map<std::string, std::vector<uint32_t>>* m_rosToRob; //!< Mapping of ROS corresponding to ROB requests
+
 };
 
 #endif // TRIGCOSTANALYSIS_COSTDATA_H

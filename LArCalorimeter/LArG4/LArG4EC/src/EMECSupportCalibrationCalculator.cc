@@ -27,7 +27,6 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/Units.h"
-#include "globals.hh"
 
 #include "G4Step.hh"
 #include "G4StepPoint.hh"

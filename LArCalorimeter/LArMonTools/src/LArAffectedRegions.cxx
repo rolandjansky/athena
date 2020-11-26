@@ -108,7 +108,7 @@ LArAffectedRegions::bookHistograms()
   //  if(isNewRun ){ // Commented by B.Trocme to comply with new ManagedMonitorToolBase
   
     // Create top folder for histos
-  MonGroup generalGroup( this, "/LAr/AffectedRegions", run, ATTRIB_MANAGED,"", "weightedAverage");
+  MonGroup generalGroup( this, "/LAr/AffectedRegionsOldTool", run, ATTRIB_MANAGED,"", "weightedAverage");
     
     // EM Calorimeter - Barrel - PS 
     m_hLArAffectedRegionsEMBPS[0] = TH2I_LW::create("LArAffectedRegionsEMBAPS",

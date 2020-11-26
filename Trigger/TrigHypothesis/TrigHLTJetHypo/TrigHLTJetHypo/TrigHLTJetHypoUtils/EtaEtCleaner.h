@@ -29,7 +29,7 @@ public:
 
   ~EtaEtCleaner(){}
   
-  bool operator()(const pHypoJet&) const override;
+  bool operator()(const HypoJet::IJet&) const override;
   std::string toString() const noexcept override;
   std::string getName() const noexcept override;
 

@@ -147,7 +147,7 @@ void NewMergeMcEventCollTool::printDetailsOfMergedMcEventCollection(McEventColle
   ATH_MSG_INFO ( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );
   ATH_MSG_INFO ( "Current OUTPUT GenEvent: " );
   while(outputEventItr!=endOfEvents) {
-    const int signal_process_id((*outputEventItr)->signal_process_id());
+    const int signal_process_id(HepMC::signal_process_id((*outputEventItr)));
     const int event_number((*outputEventItr)->event_number());
     ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<</*", category="<<event->second<<*/", number of Vertices="<<(*outputEventItr)->vertices_size() );
     char fname[80];

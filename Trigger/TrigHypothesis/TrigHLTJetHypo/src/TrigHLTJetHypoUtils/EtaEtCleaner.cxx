@@ -26,9 +26,9 @@ EtaEtCleaner::EtaEtCleaner(double etaMin,
   m_etaMin(etaMin), m_etaMax(etaMax), m_etMin(etMin), m_etMax(etMax){
   }
 
-bool EtaEtCleaner::operator()(const pHypoJet& jet) const{
-  auto eta =  std::abs(jet->eta());
-  auto et = jet->et();
+bool EtaEtCleaner::operator()(const HypoJet::IJet& jet) const{
+  auto eta =  std::abs(jet.eta());
+  auto et = jet.et();
   
   return eta >= m_etaMin and eta < m_etaMax and et >= m_etMin and et < m_etMax;
 }

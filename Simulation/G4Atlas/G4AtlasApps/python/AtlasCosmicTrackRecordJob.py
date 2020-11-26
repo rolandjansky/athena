@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file AtlasCosmicTrackRecordJob.py
 ## @brief py-module to configure the Athena AppMgr for cosmic track record reading jobs
@@ -6,7 +6,7 @@
 ###############################################################
 
 def _setupAtlasCosmicTrackRecordJob():
-    import AthenaCommon.AtlasUnixStandardJob
+    import AthenaCommon.AtlasUnixStandardJob  # noqa: F401
     from AthenaCommon.AppMgr import theApp
     from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 

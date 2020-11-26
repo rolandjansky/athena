@@ -259,14 +259,14 @@ StatusCode TruthHitAnalysis::execute() {
 	m_h_vtx_r->Fill(r);
 	m_h_vtx_z->Fill(z);
 
-	int bcode = (*vtx)->barcode();
+	int bcode = HepMC::barcode(*vtx);
 	m_vtx_x->push_back(x);
 	m_vtx_y->push_back(y);
 	m_vtx_r->push_back(r);
 	m_vtx_z->push_back(z);
 	m_vtx_barcode->push_back(bcode);
 
-	if ((*vtx)->barcode() > -20000) {
+	if (bcode > -20000) {
 	  m_h_vtx_prim_xy->Fill(x,y);
 	  m_h_vtx_prim_zr->Fill(z,r);
 	  ++nvtx;

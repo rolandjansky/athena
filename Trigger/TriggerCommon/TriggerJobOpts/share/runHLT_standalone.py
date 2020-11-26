@@ -360,9 +360,12 @@ DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
+    include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     from InDetRecExample.InDetJobProperties import InDetFlags
     InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
-    include( "InDetRecExample/InDetRecCabling.py" )
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
@@ -377,17 +380,7 @@ if ConfigFlags.Trigger.doMuon:
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-if ConfigFlags.Trigger.doID:
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    InDetTrigFlags.doPixelClusterSplitting = False
-
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from AthenaCommon.Include import include
-    include("InDetRecExample/InDetRecConditionsAccess.py")
-
+    
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------

@@ -4,6 +4,10 @@
 
 #include "AmdcDb/AmdcDbRecord.h"
 #include <cmath>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+
 AmdcDbRecord::AmdcDbRecord(long UniversalId,std::string NameOfTheRecord){
 
   m_MapOfint["Dummy"]    =  0  ; m_MapOfint.clear();

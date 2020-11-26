@@ -139,7 +139,7 @@ class useFlowElements(JobProperty):
     """ Flag to toggle whether to create the new FlowElement EDM objects in addition to the PFO EDM objects. """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = False
+    StoredValue = True
 
 class doFlowElementValidation(JobProperty):
     """Flag to turn on Validation plots for Flow Elements (only works if useFlowElements also set ON)"""

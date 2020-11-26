@@ -58,6 +58,9 @@ enhancedBiasWeighter.RunNumber = 379158
 enhancedBiasWeighter.UseBunchCrossingTool = False
 
 from AthenaCommon import CfgMgr
+from TrigCostAnalysis.ROSToROB import ROSToROBMap
+rosToRobMap = ROSToROBMap()
+
 trigCostAnalysis = CfgMgr.TrigCostAnalysis()
 trigCostAnalysis.OutputLevel = DEBUG
 trigCostAnalysis.RootStreamName = "COSTSTREAM"
@@ -66,6 +69,7 @@ trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
 trigCostAnalysis.UseEBWeights = False
 trigCostAnalysis.MaxFullEventDumps = 100
 trigCostAnalysis.FullEventDumpProbability = 1 # X. Where probability is 1 in X
+trigCostAnalysis.ROSToROBMap = rosToRobMap.get_mapping()
 topSequence += trigCostAnalysis
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr

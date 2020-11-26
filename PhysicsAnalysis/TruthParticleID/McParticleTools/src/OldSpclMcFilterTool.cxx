@@ -188,7 +188,7 @@ StatusCode OldSpclMcFilterTool::selectSpclMcBarcodes()
     const double pt   = hlv.perp();
     const double eta  = hlv.pseudoRapidity();
     const double mass = hlv.m();
-    const int barcode = part->barcode();
+    const int barcode = HepMC::barcode(part);
 
     const HepMC::GenVertex * decayVtx = part->end_vertex();
     const HepMC::GenVertex * prodVtx  = part->production_vertex();

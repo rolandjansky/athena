@@ -1662,6 +1662,10 @@ class InDetJobProperties(JobPropertyContainer):
     if rec.doExpressProcessing() :
        self.checkThenSet(self.useBeamConstraint,False)
 
+    # --- Setup correct mu for TRT mu-scaling
+    if not rec.doRDOTrigger():
+       self.checkThenSet(self.useMuForTRTErrorScaling, True) 
+
   def init(self):
     #Method to do the final setup of the flags according to user input before.
     #This method MUST ONLY BE CALLED once in InDetRecExample/InDetRec_jobOptions.py!!

@@ -98,34 +98,6 @@ class TreeBuilder(object):
         return self.tree
 
 
-class TreeToBooleanExpression(object):
-    """visit a hypo tree. If boolean scenarios are present, build a
-    boolean expression string."""
-    
-    def __init__(self):
-        self.stack = []
-
-    def mod(self, node):
-        if node.scenario == 'not':
-            self.stack.append(' ! ')
-            return
-
-        if node.scenario == 'and':
-            self.stack.append(' x ')
-            return
-
-        if node.scenario == 'or':
-            self.stack.append(' + ')
-            return
-
-        self.stack.append(' %s ' %node.tool.name())
-
-    def report(self):
-        s = '%s: ' % self.__class__.__name__
-        while self.stack: s += self.stack.pop()
-        return s.strip()
-
-
 class ConditionsDictMaker(object):
 
     """Convert parameter string into dictionary holding low, high window
@@ -328,12 +300,12 @@ class TreeParameterExpander_dijet(object):
         node.conf_attrs = d
 
     def report(self):
-        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs)
 
 
-class TreeParameterExpander_combgen(object):
+class  TreeParameterExpander_all(object):
     """Convert parameter string into a dictionary holding low, high window
-    cut vals. Specialistaion for the combgen Tool
+    cut vals. Specialistaion for the "all" node
 
     parameter strings look like '40m,100deta200, 50dphi300'
     """
@@ -343,66 +315,18 @@ class TreeParameterExpander_combgen(object):
 
     def mod(self, node):
 
-        ok = True # status flag
-        # the group size must be the first attribute, then the conditions.
-        # size_re = re.compile(r'^\((\d+)\)')
-        parameters = node.parameters[:]
-        # m = size_re.match(parameters)
-        # if m is None:
-        #     self.msgs.append('Error')
-        #     return
+        if node.parameters != '' :
+            self.msgs.append(
+                'Error, all node with parameters ' + node.parameters)
+            return
 
-        # node.conf_attrs = {'groupSize':int(m.groups()[0])}
-        # remove goup info + 2 parentheses
-        # parameters = parameters[len(m.groups()[0])+2:]
+        node.conf_attrs = ''
 
-        cdm = ConditionsDictMaker()
-        d, error, msgs = cdm.makeDict(parameters)
-        self.msgs.extend(msgs)
-        node.conf_attrs = d
-        
-
-        if ok:
-            self.msgs = ['All OK']
-        else:
-            self.msgs.append('Error')
+        self.msgs = ['All OK']
 
         
     def report(self):
-        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
-
-
-class TreeParameterExpander_partgen(object):
-    """Convert parameter string into a dictionary holding low, high window
-    cut vals. Specialistaion for the combgen Tool
-
-    parameter strings look like '40m,100deta200, 50dphi300'
-    """
-    
-    def __init__(self):
-        self.msgs = []
-
-    def mod(self, node):
-
-        parameters = node.parameters[:]
- 
-        cdm = ConditionsDictMaker()
-
-        d, error, msgs = cdm.makeDict(parameters)
-
-        self.msgs.extend(msgs)
-        node.conf_attrs = d
-        
-
-        if not error:
-            self.msgs = ['All OK']
-        else:
-            self.msgs.append('Error')
-
-        return d, error, msgs
-    
-    def report(self):
-        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs)
 
 
 class TreeParameterExpander_null(object):
@@ -418,23 +342,18 @@ class TreeParameterExpander_null(object):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
     
 
-
 class TreeParameterExpander(object):
     """Class to expand node.parameters string. Delegates to
     specialised expanders."""
     
     router = {
         'z': TreeParameterExpander_null,
+        'root': TreeParameterExpander_null,
         'simple': TreeParameterExpander_simple,
-        'simplepartition': TreeParameterExpander_simple,
         'ht': TreeParameterExpander_simple,
         'dijet': TreeParameterExpander_dijet,
         'qjet': TreeParameterExpander_simple,
-        'not': TreeParameterExpander_null,
-        'and': TreeParameterExpander_null,
-        'or': TreeParameterExpander_null,
-        'combgen': TreeParameterExpander_combgen,
-        'partgen': TreeParameterExpander_partgen,
+        'all': TreeParameterExpander_all,
         'agree': TreeParameterExpander_null,
     }
 
@@ -442,9 +361,9 @@ class TreeParameterExpander(object):
         self.expander = None
 
     def mod(self, node):
+
         self.expander = self.router[node.scenario]()
         self.expander.mod(node)
-        print (self.expander.report())
 
     def report(self):
         return self.expander.report()

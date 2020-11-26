@@ -113,7 +113,7 @@ LArHVCorrectionMonTool::bookHistograms()
   //  if(isNewRun){
     
     // Create top folder for histos
-    MonGroup generalGroup( this, "/LAr/HVCorrection", run, ATTRIB_MANAGED, "", "weightedAverage" );
+    MonGroup generalGroup( this, "/LAr/HVCorrectionOldTool", run, ATTRIB_MANAGED, "", "weightedAverage" );
     
     // EM Calorimeter - Barrel
     m_hLArHVCorrectionEMB[0] = TH2F_LW::create("LArHVCorrectionEMBA",

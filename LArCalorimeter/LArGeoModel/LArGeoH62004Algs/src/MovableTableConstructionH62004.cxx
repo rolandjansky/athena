@@ -18,7 +18,6 @@
 #include "GeoModelKernel/GeoTube.h"  
 #include "GeoModelKernel/GeoNameTag.h"  
 #include "GeoModelKernel/GeoTransform.h"  
-#include "GeoModelKernel/GeoSerialDenominator.h"  
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"  

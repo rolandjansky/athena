@@ -189,14 +189,14 @@ LArNoiseCorrelationMon::bookHistograms()
     m_chan_low=-0.5;
     m_chan_up=127.5;
 
-    MonGroup GroupEMBA( this, "/LAr/NoiseCorrelation/EMBA", run, ATTRIB_MANAGED );
-    MonGroup GroupEMBC( this, "/LAr/NoiseCorrelation/EMBC", run, ATTRIB_MANAGED );
-    MonGroup GroupEMECA( this, "/LAr/NoiseCorrelation/EMECA", run, ATTRIB_MANAGED );
-    MonGroup GroupEMECC( this, "/LAr/NoiseCorrelation/EMECC", run, ATTRIB_MANAGED );
-    MonGroup GroupHECA( this, "/LAr/NoiseCorrelation/HECA", run, ATTRIB_MANAGED );
-    MonGroup GroupHECC( this, "/LAr/NoiseCorrelation/HECC", run, ATTRIB_MANAGED );
-    MonGroup GroupFCALA( this, "/LAr/NoiseCorrelation/FCALA", run, ATTRIB_MANAGED );
-    MonGroup GroupFCALC( this, "/LAr/NoiseCorrelation/FCALC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMBA( this, "/LAr/NoiseCorrelationOldTool/EMBA", run, ATTRIB_MANAGED );
+    MonGroup GroupEMBC( this, "/LAr/NoiseCorrelationOldTool/EMBC", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECA( this, "/LAr/NoiseCorrelationOldTool/EMECA", run, ATTRIB_MANAGED );
+    MonGroup GroupEMECC( this, "/LAr/NoiseCorrelationOldTool/EMECC", run, ATTRIB_MANAGED );
+    MonGroup GroupHECA( this, "/LAr/NoiseCorrelationOldTool/HECA", run, ATTRIB_MANAGED );
+    MonGroup GroupHECC( this, "/LAr/NoiseCorrelationOldTool/HECC", run, ATTRIB_MANAGED );
+    MonGroup GroupFCALA( this, "/LAr/NoiseCorrelationOldTool/FCALA", run, ATTRIB_MANAGED );
+    MonGroup GroupFCALC( this, "/LAr/NoiseCorrelationOldTool/FCALC", run, ATTRIB_MANAGED );
 
     /**declare strings for histograms title*/
     m_hist_name = "NoiseCorr_"; 

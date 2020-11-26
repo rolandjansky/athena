@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CfgGetter import addTool,addService,addAlgorithm
+from AthenaCommon.CfgGetter import addTool, addAlgorithm
 
 addTool("PixelDigitization.PixelDigitizationConfig.PixelDigitizationTool", "PixelDigitizationTool")
 addTool("PixelDigitization.PixelDigitizationConfig.PixelGeantinoTruthDigitizationTool", "PixelGeantinoTruthDigitizationTool")

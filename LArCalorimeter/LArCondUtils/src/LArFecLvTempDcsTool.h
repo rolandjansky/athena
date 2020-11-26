@@ -23,7 +23,6 @@
 #include "StoreGate/DataHandle.h" 
 #include "Identifier/Identifier.h" 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
-#include "StoreGate/DataHandle.h" 
 
 #include <string>
 

@@ -53,7 +53,14 @@ GlobalSequentialCorrection::GlobalSequentialCorrection(const std::string& name, 
 { }
 
 GlobalSequentialCorrection::~GlobalSequentialCorrection() {
-
+  for(TH2F* hist : m_respFactorsEM3            ){if(hist) delete hist;}
+  for(TH2F* hist : m_respFactorsnTrk           ){if(hist) delete hist;}
+  for(TH2F* hist : m_respFactorstrackWIDTH     ){if(hist) delete hist;}
+  for(TH2F* hist : m_respFactorsTile0          ){if(hist) delete hist;}
+  for(TH2F* hist : m_respFactorsPunchThrough   ){if(hist) delete hist;}
+  for(TH2F* hist : m_respFactorsChargedFraction){if(hist) delete hist;}
+  for(TH2F* hist : m_respFactorsN90Constituents){if(hist) delete hist;}
+  for(TH2F* hist : m_respFactorscaloWIDTH      ){if(hist) delete hist;}
 }
 
 StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {

@@ -37,7 +37,7 @@ LArCollisionTimeMon = LArCollisionTimeMonTool(
 
 
 LArCluCollTimeMonTool=LArCollisionTimeMonTool(Key="ClusterCollTime",
-                                              histPath="LArClusterCollTime",
+                                              histPath="LArClusterCollTimeOldTool",
                                               nCells=0,
                                               m_lumi_blocks=3000,
                                               BunchCrossingTool = theBunchCrossingTool,

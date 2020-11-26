@@ -35,13 +35,13 @@ class Timer{
 
   void timeit(){
     HypoJetVector jets;
-    TLorentzVectorAsIJet  j0 (m_tl0);
-    TLorentzVectorAsIJet  j1 (m_tl1);
+    auto j0 = std::make_shared<TLorentzVectorAsIJet>(m_tl0);
+    auto j1 =std::make_shared<TLorentzVectorAsIJet>(m_tl1);
     HypoJetVector jets0;
-    jets0.push_back(&j0);
+    jets0.push_back(j0);
 
     HypoJetVector jets1;
-    jets1.push_back(&j1);
+    jets1.push_back(j1);
     HypoJetGroupVector jetGroups{jets0, jets1};
 
     std::vector<double> etaMins{-1., -1., -1.};

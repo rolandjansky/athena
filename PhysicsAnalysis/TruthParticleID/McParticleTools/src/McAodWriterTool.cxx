@@ -143,7 +143,7 @@ StatusCode McAodWriterTool::write( const TruthParticleContainer* mcParts )
 	<< " "  << std::setprecision(3) << std::setw(10) << mc->e()
 	<< " "  << std::setprecision(3) << std::setw(10) << mc->pdgId()
 	<< " "  << std::setprecision(3) << std::setw(10) << mc->charge()
-	<< " "  << std::setprecision(3) << std::setw(10) << mc->genParticle()->barcode()
+	<< " "  << std::setprecision(3) << std::setw(10) << HepMC::barcode(mc->genParticle())
 	<< std::endl;
     out << "EtIsol " 
 	<< std::setw(3) << TruthParticleParameters::NbrOfCones

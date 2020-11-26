@@ -22,49 +22,54 @@
 
 namespace InDetDD {
 
-TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol *volume, 
-				     const TRT_BarrelDescriptor *descriptor,
-				     bool isPositive, 
-				     unsigned int modIndex, 
-				     unsigned int phiIndex, 
-				     unsigned int strawLayIndex, 
-				     const TRT_ID * idHelper,
-				     const TRT_Conditions * conditions,
+TRT_BarrelElement::TRT_BarrelElement(const GeoVFullPhysVol* volume,
+                                     const TRT_BarrelDescriptor* descriptor,
+                                     bool isPositive,
+                                     unsigned int modIndex,
+                                     unsigned int phiIndex,
+                                     unsigned int strawLayIndex,
+                                     const TRT_ID* idHelper,
+                                     const TRT_Conditions* conditions,
                                      const GeoAlignmentStore* geoAlignStore)
-  :
-  TRT_BaseElement(volume, 
-		  idHelper->layer_id((isPositive ? 1:-1), phiIndex, modIndex, strawLayIndex),
-		  idHelper, conditions, geoAlignStore),
-  m_code(isPositive,modIndex,phiIndex,strawLayIndex),
-  m_descriptor(descriptor),
-  m_nextInPhi(NULL),
-  m_previousInPhi(NULL),
-  m_nextInR(NULL),
-  m_previousInR(NULL)
+  : TRT_BaseElement(volume,
+                    idHelper->layer_id((isPositive ? 1 : -1),
+                                       phiIndex,
+                                       modIndex,
+                                       strawLayIndex),
+                    idHelper,
+                    conditions,
+                    geoAlignStore)
+  , m_code(isPositive, modIndex, phiIndex, strawLayIndex)
+  , m_descriptor(descriptor)
+  , m_nextInPhi(nullptr)
+  , m_previousInPhi(nullptr)
+  , m_nextInR(nullptr)
+  , m_previousInR(nullptr)
 
 {
+  m_nstraws = m_descriptor->nStraws();
+  m_strawSurfaces.resize(m_nstraws);
+  m_strawSurfacesCache.resize(m_nstraws);
 }
 
-
-  TRT_BarrelElement::TRT_BarrelElement(const TRT_BarrelElement &right, const GeoAlignmentStore* geoAlignStore) :
-    TRT_BaseElement(right,geoAlignStore),
-    m_code (right.m_code),
-    m_descriptor (right.m_descriptor),
-    m_nextInPhi (right.m_nextInPhi),
-    m_previousInPhi (right.m_previousInPhi),
-    m_nextInR (right.m_nextInR),
-    m_previousInR (right.m_previousInR)
-  {   
-  }
-
-
-TRT_BarrelElement::~TRT_BarrelElement()
+TRT_BarrelElement::TRT_BarrelElement(const TRT_BarrelElement& right,
+                                     const GeoAlignmentStore* geoAlignStore)
+  : TRT_BaseElement(right, geoAlignStore)
+  , m_code(right.m_code)
+  , m_descriptor(right.m_descriptor)
+  , m_nextInPhi(right.m_nextInPhi)
+  , m_previousInPhi(right.m_previousInPhi)
+  , m_nextInR(right.m_nextInR)
+  , m_previousInR(right.m_previousInR)
 {
+  m_nstraws = right.m_nstraws;
+  m_strawSurfaces.resize(m_nstraws);
+  m_strawSurfacesCache.resize(m_nstraws);
 }
 
 const TRT_BarrelConditions * TRT_BarrelElement::getConditionsData() const
 {
-  return NULL;
+  return nullptr;
 }
 
 const TRT_BarrelDescriptor * TRT_BarrelElement::getDescriptor() const
@@ -94,10 +99,10 @@ void  TRT_BarrelElement::setPreviousInR(const TRT_BarrelElement *element)
 
 
 
-HepGeom::Transform3D TRT_BarrelElement::calculateStrawTransform(int straw) const 
+HepGeom::Transform3D TRT_BarrelElement::calculateStrawTransform(int straw) const
 {
   // NB The tranformation to a straw is reconstructed here precisely as
-  // it was ... hopefully... in the factory.  One could eliminate this 
+  // it was ... hopefully... in the factory.  One could eliminate this
   // requirement and make the code a little more robust in this regard but
   // at the cost of doubling the descriptors.  (One descriptor now suffices
   // for both positive and negative endcaps).
@@ -111,7 +116,7 @@ HepGeom::Transform3D TRT_BarrelElement::calculateStrawTransform(int straw) const
     return  Amg::EigenTransformToCLHEP(getMaterialGeom()->getAbsoluteTransform()*((*f)(straw+offsetInto)))
       * HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos)
       * calculateLocalStrawTransform(straw);
-    ////return  conditions()->solenoidFrame() 
+    ////return  conditions()->solenoidFrame()
     ////  * getMaterialGeom()->getAbsoluteTransform()*((*f)(straw+offsetInto))
     ////  * HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos)
     ////  * calculateLocalStrawTransform(straw);
@@ -149,13 +154,13 @@ HepGeom::Transform3D TRT_BarrelElement::calculateLocalStrawTransform(int straw) 
 }
 
 
-HepGeom::Transform3D TRT_BarrelElement::defStrawTransform(int straw) const 
+HepGeom::Transform3D TRT_BarrelElement::defStrawTransform(int straw) const
 {
   // Same as calculateStrawTransform, except we use getDefAbsoluteTransform()
   // rather than  getAbsoluteTransform()
 
   // NB The tranformation to a straw is reconstructed here precisely as
-  // it was ... hopefully... in the factory.  One could eliminate this 
+  // it was ... hopefully... in the factory.  One could eliminate this
   // requirement and make the code a little more robust in this regard but
   // at the cost of doubling the descriptors.  (One descriptor now suffices
   // for both positive and negative endcaps).
@@ -165,27 +170,27 @@ HepGeom::Transform3D TRT_BarrelElement::defStrawTransform(int straw) const
     size_t offsetInto = m_descriptor->getStrawTransformOffset();
     double zPos = -m_descriptor->strawZPos();
     double zAng =  m_code.isPosZ() ? M_PI : 0;
-    return Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()*((*f)(straw+offsetInto))) 
+    return Amg::EigenTransformToCLHEP(getMaterialGeom()->getDefAbsoluteTransform()*((*f)(straw+offsetInto)))
       * HepGeom::RotateY3D(zAng)*HepGeom::TranslateZ3D(zPos);
   } else {
     std::cout << "calculateStrawTransform:  f is 0 !!!!" << std::endl;
     return HepGeom::Transform3D();
   }
-  
+
 }
 
- 
-const Trk::SurfaceBounds& TRT_BarrelElement::strawBounds() const 
+
+const Trk::SurfaceBounds& TRT_BarrelElement::strawBounds() const
 {
   return m_descriptor->strawBounds();
 }
 
-const Trk::Surface& TRT_BarrelElement::elementSurface() const 
+const Trk::Surface& TRT_BarrelElement::elementSurface() const
 {
   if (not m_surface) m_surface.set(std::make_unique<Trk::PlaneSurface>(*this));
   return *m_surface;
 }
-   
+
 void TRT_BarrelElement::createSurfaceCache() const
 {
   // Calculate the surface from the two end straws.
@@ -197,13 +202,13 @@ void TRT_BarrelElement::createSurfaceCache() const
 
   // Calculate center as the average position of the end straws.
   Amg::Vector3D* center = new Amg::Vector3D(0.5*(centerFirstStraw+centerLastStraw));
-  
+
   Amg::Vector3D  phiAxis = centerLastStraw - centerFirstStraw;
   double width = phiAxis.mag();
   phiAxis = phiAxis.normalized();
   double elementWidth = width + 2 * m_descriptor->innerTubeRadius(); // Add the straw tube radius
-  
-  // Get local z-axis. This is roughly in +ve global z direction  (exactly if no misalignment) 
+
+  // Get local z-axis. This is roughly in +ve global z direction  (exactly if no misalignment)
   // We could probably use any straw for this but we average the first and last straw and renormalize
   // to a unit vector.
   Amg::Vector3D etaAxis = 0.5*(strawAxis(firstStraw) + strawAxis(lastStraw));
@@ -214,7 +219,7 @@ void TRT_BarrelElement::createSurfaceCache() const
   // of increasing phi and the straw axis is in +ve z direction.
   Amg::Vector3D* normal = new Amg::Vector3D(phiAxis.cross( etaAxis ));  // phi cross z
 
-  // Transform from local to global. 
+  // Transform from local to global.
   // local x axis -> phiAxis
   // local y axis -> etaAxis
   // local z axis -> cross product of local x and local y
@@ -222,21 +227,23 @@ void TRT_BarrelElement::createSurfaceCache() const
 
   // This constructor takes three points in the two coordinate systems.
   Amg::Transform3D* transform = new Amg::Transform3D();
-  
+
   Amg::RotationMatrix3D rotation;
   rotation.col(0) = phiAxis;
   rotation.col(1) = etaAxis;
   rotation.col(2) = (*normal);
 
   (*transform)  = Amg::Translation3D(*center) * rotation;
-    
+
   // create the element bounds
   Trk::RectangleBounds * elementBounds = new Trk::RectangleBounds(0.5*elementWidth, 0.5*strawLength());
   // create the surface cache
   m_surfaceCache.set(std::make_unique<SurfaceCache>(transform, center, normal, elementBounds));
 
   // creaete the surface (only if needed, links are still ok even if cache update)
-  if (not m_surface) elementSurface();
+  if (not m_surface) {
+    elementSurface();
+  }
 }
 
 
@@ -244,9 +251,9 @@ int TRT_BarrelElement::strawDirection() const
 {
   // Return +1 if the straw local axis is in the same direction as the z axis, -1 otherwise.
   // The straw axis by convention goes in the direction away from the readout.
-  // So for -ve endcap this is the positive z direction (we return +1) and in the 
+  // So for -ve endcap this is the positive z direction (we return +1) and in the
   // +ve endcap its in the -ve z direction (we return -1).
-  // 
+  //
   return !(m_code.isPosZ()) ? +1 : -1;
 }
 

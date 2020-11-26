@@ -4,7 +4,7 @@
 
 #include "./HTConditionMT.h"
 #include "./ITrigJetHypoInfoCollector.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
 #include <sstream>
 #include <cmath>
@@ -39,7 +39,7 @@ HTConditionMT::isSatisfied(const HypoJetVector& ips,
     return std::accumulate(ips_c.begin(),
 			   iter,
 			   0.0,
-			   [](double sum, const HypoJet::IJet* jp){
+			   [](double sum, const pHypoJet& jp){
 			     return sum + jp->et();}) > m_htMin;
   } else {
     if(infoCollector) {
@@ -49,7 +49,7 @@ HTConditionMT::isSatisfied(const HypoJetVector& ips,
     return std::accumulate(ips.begin(),
 			   ips.end(),
 			   0.0,
-			   [](double sum, const HypoJet::IJet* jp){
+			   [](double sum, const pHypoJet& jp){
 			     return sum + jp->et();}) > m_htMin;
   }
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef AMDCATH_AMDCSIMRECATHENASVC_H
@@ -22,8 +22,8 @@ class AtlasDetectorID ;
 
 #include "AthenaKernel/IOVSvcDefs.h"
 
-/////////////////////////////////////////////////////////////////////////////
-#include "AmdcAth/AmdcAthMisc.h"
+#include <vector>
+#include <string>
 
 class AmdcAlineStore ;
 class AmdcBlineStore ;
@@ -54,10 +54,6 @@ public:
    virtual StatusCode finalize();
 
    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-
-   bool       InitializedSvc();
-   bool       UsableSvc();
-   StatusCode UpdatedSvc(IOVSVC_CALLBACK_ARGS);
 
    /**Get Amdcsimrec interface */
    Amdcsimrec* GetAmdcsimrec();
@@ -100,10 +96,6 @@ public:
 private:
 ///////////////////////////////////
    void getAbsMax(double& currentMax, const double toCheck) const;
-
-   bool m_IsUsable ; //!< Tell usuability state 
-
-   bool m_IsInitialized ; //!< Tell initialisation state 
 
    /**Set A and B lines collections*/
    StatusCode SetAmdcABlineFromCool();

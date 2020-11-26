@@ -20,7 +20,7 @@ AntiBasicCleaner::AntiBasicCleaner(float n90Threshold,
                                    float negativeEThreshold):
   BasicCleaner(n90Threshold, presamplerThreshold, negativeEThreshold){}
 
-bool AntiBasicCleaner::operator()(const pHypoJet& jet) const{
+bool AntiBasicCleaner::operator()(const HypoJet::IJet& jet) const{
   return !BasicCleaner::operator()(jet);
 }
 

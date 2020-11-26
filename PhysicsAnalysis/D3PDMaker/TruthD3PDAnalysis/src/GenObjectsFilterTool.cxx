@@ -95,7 +95,7 @@ bool GenObjectsFilterTool::pass( const HepMC::GenEvent* evt,
 
    bool isEmpty = ( evt->particles_size() == 0 );
    bool isDummy = ( ( evt->event_number() == -1 ) &&
-                    ( evt->signal_process_id() == 0 ) );
+                    ( HepMC::signal_process_id(evt) == 0 ) );
    if( isDummy ) isEmpty = false;
 
    if( m_removeEmptyEvents && isEmpty ) return false;
@@ -130,7 +130,7 @@ bool GenObjectsFilterTool::pass( const HepMC::GenEvent* evt,
 
 bool GenObjectsFilterTool::isBCHadron(const HepMC::GenParticle* part) const{
 
-  if(part->barcode() >= 200000) return false;
+  if(HepMC::barcode(part) >= 200000) return false;
   int type = HadronClass::type(part->pdg_id()).second;
   if(type == 5 || type == 4)  return true;
 
@@ -185,7 +185,7 @@ bool GenObjectsFilterTool::isRequested( const HepMC::GenParticle* part) const{
    double pt = p4.perp();
    double eta = p4.eta();
 
-   int barcode = part->barcode();
+   int barcode = HepMC::barcode(part);
    int pdg = part->pdg_id();
    int status = part->status();
 
@@ -384,7 +384,7 @@ bool GenObjectsFilterTool::pass( const HepMC::GenParticle* part,
    // If we don't want to specifically select charged truth tracks, then this
    // is already good enough:
    if( ! m_selectTruthTracks ) return true;
-   if (part->barcode() < 200000) {
+   if (HepMC::barcode(part) < 200000) {
      if( ! TruthHelper::IsGenStable()( part ) ) return false;
      if( ! TruthHelper::IsGenInteracting()( part ) ) return false;
    }
@@ -396,8 +396,8 @@ bool GenObjectsFilterTool::pass( const HepMC::GenParticle* part,
    const HepPDT::ParticleData* pd = m_partPropSvc->PDT()->particle( abs( pdg ) );
    if( ! pd ) {
      ATH_MSG_DEBUG( "Could not get particle data for pdg = " << pdg 
-		      << " status " << part->status() << " barcode " <<part->barcode()
-		      << " process id " <<part->parent_event()->signal_process_id());
+		      << " status " << part->status() << " barcode " <<HepMC::barcode(part)
+		      << " process id " <<HepMC::signal_process_id(part->parent_event()));
       return false;
    }
    float charge = pd->charge();

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -6,12 +6,10 @@ class InDetTrigTrackingCuts :
   """
   A copy of ConfiguredNewtrackingCuts from InDetRecExample used by the trigger.
   
-  think twice before jumping to wrong conclusions
-
   """
 
 
-  def __init__ (self, mode = "offline"):
+  def __init__ (self, mode = "Offline"):
 
     import AthenaCommon.SystemOfUnits as Units
 
@@ -131,7 +129,6 @@ class InDetTrigTrackingCuts :
       self.__useTRTonlyParamCuts       = False
       self.__useTRTonlyOldLogic        = True
 
-
     #
     # --------------------------------------
     # --- now start tighening cuts level by level
@@ -183,12 +180,59 @@ class InDetTrigTrackingCuts :
       # --- slightly tighen NewTracking cuts
       self.__maxHoles                  = 2                # was 3
       self.__maxPixelHoles             = 1                # was 2
-    
+
     if self.__indetflags.cutLevel() >= 9:
       self.__maxZImpact              = 200. * Units.mm     #this should come from RS/Roi
 
     if self.__indetflags.cutLevel() >= 10:
       self.__doZBoundary              = True
+
+    if self.__indetflags.cutLevel() >= 12:
+      # --- Tighten track reconstruction criteria
+      self.__Xi2max                  = 9.0  # was 15
+      self.__Xi2maxNoAdd             = 25.0 # was 35
+      self.__nHolesMax               = 2 # was 3
+      self.__nHolesGapMax            = 2 # was 3
+
+    """
+    if self.__indetflags.cutLevel() >= 13 and DetFlags.detdescr.Calo_allOn():
+      # --- turn on RoI seeded for Back Tracking and TRT only
+      self.__RoISeededBackTracking   = True
+      self.__minRoIClusterEt         = 4500. * Units.MeV #Default cut to mimic rel21-ish
+
+    if self.__indetflags.cutLevel() >= 14 :
+      self.__minPT                   = 0.5 * Units.GeV
+
+    if self.__indetflags.cutLevel() >= 15 :
+      self.__minClusters             = 8 #based on studies by R.Jansky
+
+    if self.__indetflags.cutLevel() >= 16 :
+      self.__maxPrimaryImpact        = 5.0 * Units.mm #based on studies by T.Strebler
+
+    if self.__indetflags.cutLevel() >= 17:
+      # Tuning of the search road and strip seed IP in the track finder.
+      # Designed to speed up reconstruction at minimal performance impact. 
+      self.__roadWidth              = 12
+      self.__maxdImpactSSSSeeds     = 5.0 * Units.mm
+      self.__maxZImpact              = 200
+
+    if self.__indetflags.cutLevel() >= 18:
+      # Further tuning of the pattern recognition designed to 
+      # speed up reconstruction compared to 17 with minimal additional 
+      # impact. Kept as separate level pending cross-check of 
+      # seed confirmation robustness with end-of-run-3 radiation
+      # damage. 
+      self.__keepAllConfirmedPixelSeeds  = True
+      self.__maxSeedsPerSP_Pixels          = 1
+      self.__maxSeedsPerSP_Strips          = 5
+    
+    if self.__indetflags.cutLevel() >= 19:
+      # Calo cluster Et for RoI seeded backtracking for TRT segment finding
+      # and for TRT-si extensions
+      self.__minRoIClusterEt         = 6000. * Units.MeV
+      self.__minSecondaryPt          = 3.0 * Units.GeV  # Increase pT cut used for back-tracking to match calo-RoI
+
+    """
 
     if self.__indetflags.cutLevel() >= mxlevel:
       print ('InDetTrigTrackingCuts INFO using cutLevel %d/%d' % (mxlevel,self.__indetflags.cutLevel()))

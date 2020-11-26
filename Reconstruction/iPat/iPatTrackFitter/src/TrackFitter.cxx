@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -12,7 +12,6 @@
 
 #include <cmath>
 #include <iomanip>
-#include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GeoPrimitives/GeoPrimitives.h"

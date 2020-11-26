@@ -11,7 +11,7 @@ def getEventlist(msg, directory):
 
 	# Build a list of files ordered by run/event number
 	for file in files:
-		matches = re.search('(?:JiveXML|vp1)_(\d+)_(\d+)(?:\.xml|_.+\.pool\.root)', file)
+		matches = re.search(r'(?:JiveXML|vp1)_(\d+)_(\d+)(?:\.xml|_.+\.pool\.root)', file)
 
 		# Event file, add tot the list
 		if matches:
@@ -27,11 +27,11 @@ def getEventlist(msg, directory):
 			# If the file is recent, it might be from another thread... delete after 5 minutes
 			try:
 				if time.time() - os.path.getmtime(file) > 300:
-					msg.info("File '%s' does not belong in the output directory, removing it." % file)
+					msg.info("File '%s' does not belong in the output directory, removing it.", file)
 					try:
 						os.unlink("%s/%s" % (directory, file))
 					except OSError as err:
-						msg.warning("Could not remove '%s': %s" % (file, err))
+						msg.warning("Could not remove '%s': %s", file, err)
 			except OSError:
 				# File was probably a temp file from another thread that already disappeared
 				pass
@@ -61,7 +61,7 @@ def getEventlist(msg, directory):
 			eventlist.append(evententry)
 			i = i + 1
 
-	return eventlist;
+	return eventlist
 
 # Prune events in the given directory if the number exceeds the specified number
 def pruneEvents(msg, directory, maxevents, eventlist):
@@ -72,15 +72,15 @@ def pruneEvents(msg, directory, maxevents, eventlist):
 	if numevents > maxevents:
 		for i in range(numevents-maxevents):
 			run, event, atlantis, vp1 = eventlist.pop(0)
-			msg.debug("Going to prune files %s and %s for run %s and event %s." % (atlantis, vp1, run, event))
+			msg.debug("Going to prune files %s and %s for run %s and event %s.", atlantis, vp1, run, event)
 			try:
 				os.unlink("%s/%s" % (directory, atlantis))
 				os.unlink("%s/%s" % (directory, vp1))
 			except OSError as err:
-				msg.warning("Could not remove files for run %s, event %s: %s" % (run, event, err))
+				msg.warning("Could not remove files for run %s, event %s: %s", run, event, err)
 
 	else:
-		msg.debug("Nothing to prune (%d <= %d)." % (numevents, maxevents))
+		msg.debug("Nothing to prune (%d <= %d).", numevents, maxevents)
 
 # Build the event.list file that is used by atlas-live.cern.ch for synchronizing events
 def writeEventlist(msg, directory, eventlist):
@@ -91,13 +91,13 @@ def writeEventlist(msg, directory, eventlist):
 			file.write("run:%s,event:%s,atlantis:%s,vp1:%s\n" % (run, event, atlantis, vp1))
 		file.close()
 	except IOError as err:
-		msg.warning("Could not write event list: %s" % err)
+		msg.warning("Could not write event list: %s", err)
 
 	# Rename for an atomic overwrite operation
 	try:
 		os.rename("%s/event.%d" % (directory, pid), "%s/event.list" % directory)
 	except OSError as err:
-		msg.warning("Could not rename event.%d to event.list: %s" % (pid, err))
+		msg.warning("Could not rename event.%d to event.list: %s", pid, err)
 
 # Perform all of these in one command
 def cleanDirectory(msg, directory, maxevents):

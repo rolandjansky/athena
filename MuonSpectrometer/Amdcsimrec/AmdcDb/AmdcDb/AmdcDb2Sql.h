@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcDb2Sql_H
-#define AmdcDb2Sql_H
+#ifndef AMDCDB_AMDCDB2SQL_H
+#define AMDCDB_AMDCDB2SQL_H
 
-#include "AmdcDb/AmdcDbMisc.h"
 class IRDBAccessSvc;
 
   /**
@@ -20,7 +19,7 @@ class IRDBAccessSvc;
 class AmdcDb2Sql{
 public:
     AmdcDb2Sql();
-    virtual ~AmdcDb2Sql();
+    ~AmdcDb2Sql();
 
 public:
 ///////////////////////////////////

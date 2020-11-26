@@ -322,15 +322,8 @@ MuonDetectorTool::createFactory(MuonDetectorFactory001& theFactory) const
     bool isAmdcDb = false;
     if( dynamic_cast<AmdcDb*>(access) && m_amdcDb) {
       ATH_MSG_INFO("AmdcDb is used instead of RDBAccessSvc");
-      AmdcDb* p_access = dynamic_cast<AmdcDb*>(access);
       isAmdcDb = true;
-      if (p_access->InitializedSvc()) {
-        ATH_MSG_INFO("AmdcDb->InitializedSvc() is true") ;
-      }else{
-        ATH_MSG_INFO("AmdcDb->InitializedSvc() is false");
-        if(p_access->initialize()) ATH_MSG_INFO("Now it's initialized. Go ahead and use it!");
-        ATH_MSG_INFO("\t\t BUT PAY ATTENTION THE HARD WIRED ENVELOPE IS USED (see MuonDetectorFactory001.cxx)!!");
-      }
+      ATH_MSG_INFO("AmdcDb->InitializedSvc() is true") ;
     }
 
     theFactory.setDBAtlasVersion(AtlasVersion);

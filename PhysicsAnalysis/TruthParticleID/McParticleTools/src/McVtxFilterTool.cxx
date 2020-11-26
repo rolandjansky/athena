@@ -439,7 +439,7 @@ bool McVtxFilterTool::keepParticle( const VtxType::Flag vtxType,
       << "In keepParticle: Don't know anything about this VtxType ["
       << vtxType << "] !!"
       << endmsg
-      << "We'll keep this particle [bc= " << part->barcode() 
+      << "We'll keep this particle [bc= " << HepMC::barcode(part) 
       << "] but : Check your jobOption !!"
       << endmsg;
     return true;

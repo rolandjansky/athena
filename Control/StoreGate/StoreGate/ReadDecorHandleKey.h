@@ -1,8 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
-// $Id$
 /**
  * @file StoreGate/ReadDecorHandleKey.h
  * @author scott snyder <snyder@bnl.gov>
@@ -117,16 +116,58 @@ public:
                       const std::string& doc = "");
 
   
-  /// Can get this from the base class.
-  using Base::operator=;
+  /**
+   * @brief Change the key of the object to which we're referring.
+   * @param sgkey The StoreGate key for the object.
+   * 
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
+   * the store is not changed.
+   */
+  ReadDecorHandleKey& operator= (const std::string& sgkey);
 
 
+  /**
+   * @brief Change the key of the object to which we're referring.
+   * @param sgkey The StoreGate key for the object.
+   * 
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store is not changed.  A key name that starts with a slash
+   * is interpreted as a hierarchical key name, not an empty store name.
+   *
+   * Returns failure the key string format is bad.
+   */
+  virtual StatusCode assign (const std::string& sgkey) override;
+
+  
   /**
    * @brief Return the class ID for the referenced object.
    *
    * Overridden here to return the CLID for @c T instead of @c topbase_t.
    */
   CLID clid() const;
+
+
+  /**
+   * @brief If this object is used as a property, then this should be called
+   *        during the initialize phase.  It will fail if the requested
+   *        StoreGate service cannot be found or if the key is blank.
+   * @param used If false, then this handle is not to be used.
+   *             Instead of normal initialization, the key will be cleared.
+   */
+  StatusCode initialize (bool used = true);
+
+
+  /**
+   * @brief Return the handle key for the container.
+   */
+  const ReadHandleKey<T>& contHandleKey() const;
+
+
+private:
+  /// The container handle.
+  ReadHandleKey<T> m_contHandleKey;
 };
 
 

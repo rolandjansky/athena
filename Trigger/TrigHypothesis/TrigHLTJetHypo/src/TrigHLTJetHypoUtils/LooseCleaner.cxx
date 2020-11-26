@@ -30,27 +30,27 @@ LooseCleaner::LooseCleaner(float fSampMaxLooseThreshold,
   m_hecfLooseThreshold(hecfLooseThreshold){
   }
   
-bool LooseCleaner::operator()(const pHypoJet& jet) const {
+bool LooseCleaner::operator()(const HypoJet::IJet& jet) const {
   /* make cuts on jet attributes to select clean jets */
   
   bool isClean{true};
 
   float fsmJet;
-  if(jet -> getAttribute("FracSamplingMax", fsmJet)){
-    if(fsmJet > m_fSampMaxLooseThreshold && std::abs(jet->eta()) < m_etaLooseThreshold){isClean = false;}
+  if(jet.getAttribute("FracSamplingMax", fsmJet)){
+    if(fsmJet > m_fSampMaxLooseThreshold && std::abs(jet.eta()) < m_etaLooseThreshold){isClean = false;}
   } else {
     throw UncleanableJet("Cleaner Cannot retrieve FracSamplingMax");
   }
 
   float emfJet;
-  if(jet -> getAttribute("EMFrac", emfJet)){
+  if(jet.getAttribute("EMFrac", emfJet)){
     if(emfJet < m_emfLowLooseThreshold || emfJet > m_emfHighLooseThreshold){isClean = false;}
   } else {
     throw UncleanableJet("Cleaner Cannot retrieve EMFrac");
   }
 
   float hecfJet;
-  if(jet -> getAttribute("HECFrac", hecfJet)){
+  if(jet.getAttribute("HECFrac", hecfJet)){
     if(hecfJet > m_hecfLooseThreshold){isClean = false;}
   } else {
     throw UncleanableJet("Cleaner Cannot retrieve HECFrac");

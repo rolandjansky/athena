@@ -4,7 +4,6 @@
 
 #include "MuonResonanceTools/MuonResonancePlots.h"
 #include "TLorentzVector.h"
-#include <iostream>
 #ifndef ROOTCORE
 #include "GaudiKernel/IToolSvc.h"
 #include "AthenaBaseComps/AthCheckMacros.h"
