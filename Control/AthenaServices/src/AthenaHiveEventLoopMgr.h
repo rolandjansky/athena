@@ -14,25 +14,23 @@
 #include <string>
 #include <vector>
 
-#include "GaudiKernel/IEvtSelector.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/MinimalEventLoopMgr.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "AthenaKernel/Timeout.h"
-#include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
-#include "AthenaKernel/IEventSeek.h"
-#include "AthenaKernel/ICollectionSize.h"
-#include "AthenaKernel/IConditionsCleanerSvc.h"
-
-//////////////////////////////////////////////////
 #include "GaudiKernel/IAlgResourcePool.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IScheduler.h"
 #include "GaudiKernel/IAlgExecStateSvc.h"
+
+#include "AthenaKernel/Timeout.h"
+#include "AthenaKernel/IAthenaEvtLoopPreSelectTool.h"
+#include "AthenaKernel/IEventSeek.h"
+#include "AthenaKernel/ICollectionSize.h"
+#include "AthenaKernel/IConditionsCleanerSvc.h"
 
 // Standard includes
 #include <functional>
