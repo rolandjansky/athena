@@ -179,15 +179,9 @@ else:
    if PscConfig.dumpJobProperties:
       from AthenaCommon import ConfigurationShelve
       from TrigConfIO.JsonUtils import create_joboptions_json
-      ConfigurationShelve.storeJobOptionsCatalogue('HLTJobOptions.pkl')
       fname = 'HLTJobOptions'
-      with open(fname+'.pkl', "rb") as f:
-         import pickle
-         jocat = pickle.load(f)   # basic job properties
-         jocfg = pickle.load(f)   # some specialized services
-         jocat.update(jocfg)       # merge the two dictionaries
-         psclog.info('Dumping joboptions to "%s.json"', fname)
-         create_joboptions_json(jocat, fname+".json")
+      ConfigurationShelve.storeJobOptionsCatalogue(fname+".pkl")
+      create_joboptions_json(fname+".pkl",fname+".json")
 
       if PscConfig.exitAfterDump:
          theApp.exit(0)
