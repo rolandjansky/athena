@@ -28,7 +28,7 @@ public:
                    float negativeEThreshold);
   ~AntiBasicCleaner(){}
   
-  bool operator()(const pHypoJet&) const override;
+  bool operator()(const HypoJet::IJet&) const override;
   std::string getName() const noexcept override;
 };
 

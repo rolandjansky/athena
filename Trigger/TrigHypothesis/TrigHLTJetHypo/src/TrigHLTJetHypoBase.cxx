@@ -188,7 +188,7 @@ class xAODJetAsIJetFactory{
 public:
   xAODJetAsIJetFactory(): m_ind(-1){}
   pHypoJet operator() (const xAOD::Jet* j){
-    return new HypoJet::xAODJetAsIJet(j, ++m_ind);}
+    return pHypoJet(new HypoJet::xAODJetAsIJet(j, ++m_ind));}
 private:
   unsigned int m_ind;
 };
@@ -252,9 +252,6 @@ HLT::ErrorCode TrigHLTJetHypoBase::hltExecute(const HLT::TriggerElement* outputT
     ATH_MSG_ERROR("Trig bits storage failed"); 
      return status;}
   
-  // delete the xAOD::Jet wrappers
-  for(auto i : hypoJets){delete i;}
-
   return HLT::OK;
 }
 

@@ -3,7 +3,7 @@
 */
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HTCondition.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
 #include <sstream>
 #include <cmath>
@@ -19,7 +19,7 @@ HTCondition::isSatisfied(const HypoJetVector& ips) const {
   return std::accumulate(ips.begin(),
                          ips.end(),
                          0.0,
-                         [](double sum, const HypoJet::IJet* jp){
+                         [](double sum, const pHypoJet& jp){
                            return sum + jp->et();}) > m_htMin;
 }
 

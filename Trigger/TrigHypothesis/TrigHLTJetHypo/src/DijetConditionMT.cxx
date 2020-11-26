@@ -68,8 +68,8 @@ DijetConditionMT::isSatisfied(const HypoJetVector& ips,
 
      std::stringstream ss1;
 
-     for(auto ip : ips){
-       address = static_cast<const void*>(ip);
+     for(const auto& ip : ips){
+       address = static_cast<const void*>(ip.get());
        ss1 << "    "  << address << " " << ip->eta() << " e " << ip->e() << '\n';
      }
      ss1 << '\n';

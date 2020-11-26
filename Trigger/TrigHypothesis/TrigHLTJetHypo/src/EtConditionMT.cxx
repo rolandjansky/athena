@@ -29,7 +29,7 @@ bool EtConditionMT::isSatisfied(const pHypoJet& ip,
         << " et thresh " << m_min
         << " pass: "  << std::boolalpha << pass << '\n';
 
-    auto j_addr = static_cast<const void*>(ip);
+    auto j_addr = static_cast<const void*>(ip.get());
     std::stringstream ss1;
     ss1 <<  "     jet : ("<< j_addr << ")"
         " et " << et << '\n';
