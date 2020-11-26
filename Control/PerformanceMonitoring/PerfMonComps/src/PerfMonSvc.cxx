@@ -1459,7 +1459,6 @@ PerfMonSvc::do_io_mon()
 #ifdef __APPLE__
 #include <mach/task.h>
 #include <mach/mach_init.h>
-#include <unistd.h>
 #endif
 
 ///// local utils

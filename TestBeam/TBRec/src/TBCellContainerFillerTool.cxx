@@ -7,7 +7,6 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloIdentifier/CaloCell_ID.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 

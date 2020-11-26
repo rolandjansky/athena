@@ -16,8 +16,6 @@
 
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
 
-#include "GaudiKernel/ToolHandle.h"
-
 class IInterface;
 
 
