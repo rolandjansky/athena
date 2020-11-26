@@ -26,7 +26,6 @@
 #include <stdexcept>
 #include <cmath> // For pow
 
-#include "unistd.h"
 #include <signal.h>
 
 namespace SharedHiveEvtQueueConsumer_d {
