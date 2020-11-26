@@ -501,8 +501,7 @@ class  ConfiguredNewTrackingSiPattern:
          # @TODO is the cluster split probability container needed here ?
          ambi_track_summary_tool = TrackingCommon.getInDetTrackSummaryTool(namePrefix                 = 'InDetAmbiguityProcessorSplitProb',
                                                                            nameSuffix                 = NewTrackingCuts.extension(),
-                                                                           ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
-                                                                           RenounceInputHandles       = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+                                                                           ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            # DenseEnvironmentsAmbiguityScoreProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
@@ -524,8 +523,7 @@ class  ConfiguredNewTrackingSiPattern:
            fitter_args = setDefaults({},
                                      nameSuffix                   = 'Ambi'+NewTrackingCuts.extension(),
                                      SplitClusterMapExtension     = NewTrackingCuts.extension(),
-                                     ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
-                                     RenounceInputHandles         = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+                                     ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
            if InDetFlags.holeSearchInGX2Fit():
                fitter_args = setDefaults(fitter_args,
                DoHoleSearch                 = True,
