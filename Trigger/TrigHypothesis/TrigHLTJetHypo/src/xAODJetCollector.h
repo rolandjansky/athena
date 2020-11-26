@@ -9,7 +9,9 @@
 #include  "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include  "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
 
+#include <string>
 #include <vector>
+#include <map>
 #include <algorithm>
 #include <cassert>
 
@@ -20,17 +22,69 @@ namespace HypoJet{
   class IJet;
 }
 
+  
 class xAODJetCollector {
 
 public:
 
-  void addJets(const HypoJetCIter& begin, const HypoJetCIter& end){
-    m_jets.insert(m_jets.end(), begin, end);
+  void addJets(const HypoJetCIter& begin,
+	       const HypoJetCIter& end,
+	       const std::string& label=""){
+    auto& jets = m_jets.at(label);
+    jets.insert(jets.end(), begin, end);
   }
   
   std::vector<const xAOD::Jet*> xAODJets() const {
     
-    HypoJetVector hypoJets(m_jets.begin(), m_jets.end());
+    HypoJetVector all;
+    for (const auto& p : m_jets){
+      std::copy(p.second.cbegin(),
+		p.second.cend(),
+		std::back_inserter(all)
+		);
+    }
+    return xAODJets_(all.cbegin(), all.cend());
+  }
+
+  std::vector<const xAOD::Jet*> xAODJets(const std::string& label) const {
+    
+    const auto& jets = m_jets.at(label);
+    return xAODJets_(jets.cbegin(), jets.cend());
+  }
+  
+
+  
+  HypoJetVector hypoJets() const {
+    HypoJetVector all;
+    for (const auto& p : m_jets){
+      std::copy(p.second.cbegin(),
+		p.second.cend(),
+		std::back_inserter(all)
+		);
+    }
+    HypoJetSet js(all.begin(), all.end());
+    return HypoJetVector(js.begin(), js.end());
+  }
+  
+  void addOneJet(const pHypoJet jet, const std::string& label=""){
+    m_jets[label].push_back(jet);
+  }
+
+  std::size_t size() const {return m_jets.size();}
+  bool empty() const {return m_jets.empty();}
+ 
+ private:
+
+  std::map<std::string, HypoJetVector> m_jets;
+
+    
+  std::vector<const xAOD::Jet*>
+  xAODJets_(const HypoJetVector::const_iterator begin,
+	    const HypoJetVector::const_iterator end
+	    )  const {
+    
+    
+    HypoJetVector hypoJets(begin, end);
     
     auto new_end =
       std::partition(hypoJets.begin(),
@@ -44,27 +98,12 @@ public:
 		   new_end,
 		   back_inserter(xJets),
 		   [](const pHypoJet j){return *(j->xAODJet());});
-
+    
     std::set<const xAOD::Jet*> js(xJets.begin(), xJets.end());
     return std::vector<const xAOD::Jet*> (js.begin(), js.end());
   }
-
   
-  HypoJetVector hypoJets() const {
-    HypoJetSet js(m_jets.begin(), m_jets.end());
-    return HypoJetVector(js.begin(), js.end());
-  }
   
-  void addOneJet(const pHypoJet jet){
-    m_jets.push_back(jet);
-  }
-
-  std::size_t size() const {return m_jets.size();}
-  bool empty() const {return m_jets.empty();}
- 
- private:
-  HypoJetVector m_jets;
-
 };
 
 #endif

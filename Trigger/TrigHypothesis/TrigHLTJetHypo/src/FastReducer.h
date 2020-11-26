@@ -10,6 +10,7 @@
 #include "./JetGroupProduct.h"
 #include "./JetGroupIndAllocator.h"
 #include "./xAODJetCollector.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include <string>
 
 using TreeVec = std::vector<std::size_t>;
@@ -22,7 +23,6 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
 
-class ITrigJetHypoInfoCollector;
 
 class FastReducer {
  public:
@@ -108,7 +108,7 @@ class FastReducer {
   
   void recordJetGroup(std::size_t ind,
 		      const HypoJetVector& jg,
-		      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+		      const Collector& collector) const;
 
   void collectLeafJets(xAODJetCollector& jetCollector,
 		       const Collector& collector) const;

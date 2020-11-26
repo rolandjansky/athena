@@ -97,6 +97,26 @@ void FastReducer::collectLeafJets(xAODJetCollector& jetCollector,
 
   // basic passing jet reporting
 
+  // find the indices of the jets that make up the jet groups that pass
+  // the root node.
+
+  //.. obtain the passing jet groups for the root node...
+
+  std::set<std::size_t> rootSatJetGroupInds(m_satisfiedBy.at(0).begin(),
+					    m_satisfiedBy.at(0).end());
+
+  // ...obtain the elemental jet group indicies...
+
+  std::set<std::size_t> rootElSatJetGroupInds;
+  for (const auto& ji : rootSatJetGroupInds) {
+    rootElSatJetGroupInds.insert(m_jg2elemjgs.at(ji).begin(),
+				 m_jg2elemjgs.at(ji).end());
+  }
+
+    
+
+  // now do the same for the leaf nodes
+  
   // find the indices of the leaf nodes
   std::set<int> leafCondInds;
   for (const auto& leaves: m_sharedConditions){
@@ -104,31 +124,49 @@ void FastReducer::collectLeafJets(xAODJetCollector& jetCollector,
   }
 
   // obtain the jet group indices for the jet groups satisfying the leaf conds
-  std::set<std::size_t> satJetGroupInds;
-  for (const auto& ci : leafCondInds) {
+  for (const auto& ci : leafCondInds) {  // for each leaf node...
+    std::set<std::size_t> satJetGroupInds;
 
+    // ... collect the (possibly compound) jet group indices...
     satJetGroupInds.insert(m_satisfiedBy.at(ci).cbegin(),
                            m_satisfiedBy.at(ci).cend());
+    
+    // ...obtain the corresponding elemental jet group indices...
+    std::set<std::size_t> elSatJetGroupInds;
+    for (const auto& ji : satJetGroupInds) {
+      elSatJetGroupInds.insert(m_jg2elemjgs.at(ji).begin(),
+			       m_jg2elemjgs.at(ji).end());
+    }
+
+    // .. get the leg label for the condition (possibly "")
+    auto conditionLabel = (m_conditions.at(ci))->label();
+    
+    if (collector) {
+      std::stringstream ss;
+      ss <<  "elSatJettGroupInds.size() "
+	 << conditionLabel
+	 << ": "
+	 << elSatJetGroupInds.size();
+      collector->collect("FastReducer", ss.str());
+    }
+
+    // ... use the elemental jet group induces to recover the jets
+
+    // if the leaf not jet is one of the jets that contributes to
+    // passing root, store it in the collector, labelled by the leaf node
+    // chainLegLabel
+    
+    auto end = rootElSatJetGroupInds.end();
+    for(const auto& ji : elSatJetGroupInds) {
+      
+      if (rootElSatJetGroupInds.find(ji) != end){  /// jets by indices
+	jetCollector.addJets(m_indJetGroup.at(ji).begin(), //jets py ptrs
+			     m_indJetGroup.at(ji).end(),
+			     conditionLabel);
+      }
+    }
   }
   
-  // obtain the corresponding elemental jet group indices
-  std::set<std::size_t> elSatJetGroupInds;
-  for (const auto& ji : satJetGroupInds) {
-    elSatJetGroupInds.insert(m_jg2elemjgs.at(ji).begin(),
-			     m_jg2elemjgs.at(ji).end());
-  }
-
-  if (collector) {
-    std::stringstream ss;
-    ss <<  "elSatJettGroupInds.size() " << elSatJetGroupInds.size();
-    collector->collect("FastReducer", ss.str());
-  }
-  
-  for(const auto& ji : elSatJetGroupInds) {
-    jetCollector.addJets(m_indJetGroup.at(ji).begin(),
-                         m_indJetGroup.at(ji).end());
-  }
-
 }
 
 
