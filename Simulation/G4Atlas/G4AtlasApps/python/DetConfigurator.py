@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from G4AtlasApps import AtlasG4Eng
 class DetConfigurator:
     """ DetConfigurator is a hook for the specific sub-detector configuration.
@@ -40,7 +42,7 @@ class DetConfigurator:
             self.build(self.Mode)
             self._Built = True
         else:
-            AtlasG4Eng.G4Eng.log.info(' DetConfigurator: with name '+self.Name+ ' is already in the Dict_DetConfig: please use it!')
+            AtlasG4Eng.G4Eng.log.info(' DetConfigurator: with name %s is already in the Dict_DetConfig: please use it!', self.Name)
 
 
     def build(self,mode):
