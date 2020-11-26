@@ -7,9 +7,6 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
-
-#include "MuonAlignmentData/CscInternalAlignmentPar.h"
-
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"

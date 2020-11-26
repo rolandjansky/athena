@@ -4,6 +4,8 @@
 
 // DecisionHandling includes
 #include "RoRSeqFilter.h"
+#include "AthenaKernel/Timeout.h"
+#include "AthenaKernel/AthStatusCode.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "Gaudi/Property.h"
 
@@ -110,6 +112,10 @@ StatusCode RoRSeqFilter::initialize()
 
 StatusCode RoRSeqFilter::execute( const EventContext& ctx ) const {
   ATH_MSG_DEBUG ( "Executing " << name() << "..." );
+  if (Athena::Timeout::instance(ctx).reached()) {
+    ATH_MSG_ERROR("Timeout reached before " << name());
+    return Athena::Status::TIMEOUT;
+  }
   auto inputHandles  = m_inputKeys.makeHandles( ctx );
   auto outputHandles = m_outputKeys.makeHandles( ctx );
 

@@ -12,7 +12,7 @@ __author__  = 'D. Rousseau, M. Gallas'
 __version__="$Revision: 1.49 $"
 __doc__="Reconstruction specific flags . "
 
-from AthenaCommon.Constants import *
+from AthenaCommon.Constants import ALL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL
 
 #=======================================================================
 #
@@ -89,13 +89,13 @@ class DPDMakerScripts(JobProperty):
     StoredValue=[]
     def append(self,item):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             AddValidItemToList(item,self.StoredValue)
         return
     def remove(self,item):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             RemoveValidItemFromList(item,self.StoredValue)
         return
@@ -108,13 +108,13 @@ class AutoConfiguration(JobProperty):
     StoredValue=[]
     def append(self,item):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             AddValidItemToList(item,self.StoredValue)
         return
     def remove(self,item):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             RemoveValidItemFromList(item,self.StoredValue)
         return

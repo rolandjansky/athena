@@ -117,7 +117,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const std::string& name)
 
     // Set dummy default systematic (do nothing)
     // Prevents NULL access if user tries to apply correction without first calling function
-    if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok)
+    if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS)
         ATH_MSG_ERROR(Form("Failed to pre-set applySystematicVariation to no variation"));
 }
 
@@ -167,7 +167,7 @@ JetUncertaintiesTool::JetUncertaintiesTool(const JetUncertaintiesTool& toCopy)
     for (size_t iGroup = 0; iGroup < toCopy.m_groups.size(); ++iGroup)
         m_groups.push_back(new UncertaintyGroup(*toCopy.m_groups.at(iGroup)));
 
-    if (applySystematicVariation(m_currentSystSet) != CP::SystematicCode::Ok)
+    if (applySystematicVariation(m_currentSystSet) != StatusCode::SUCCESS)
         ATH_MSG_ERROR(Form("Failed to re-set applySystematicVariation in new tool copy"));
 }
 
@@ -695,7 +695,7 @@ StatusCode JetUncertaintiesTool::initialize()
         //      If unspecified, all variables are systematically shifted by default
         const bool isRecommended = checkIfRecommendedSystematic(*m_groups.at(iGroup));
         CP::SystematicVariation systVar(m_groups.at(iGroup)->getName().Data(),CP::SystematicVariation::CONTINUOUS);
-        if (addAffectingSystematic(systVar,isRecommended) != CP::SystematicCode::Ok)
+        if (addAffectingSystematic(systVar,isRecommended) != StatusCode::SUCCESS)
             return StatusCode::FAILURE;
     }
 
@@ -1265,7 +1265,7 @@ bool JetUncertaintiesTool::checkIfRecommendedSystematic(const jet::UncertaintyGr
     return true;
 }
 
-CP::SystematicCode JetUncertaintiesTool::addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended)
+StatusCode JetUncertaintiesTool::addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended)
 {
     CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
     registry.registerSystematic(systematic);
@@ -1273,40 +1273,40 @@ CP::SystematicCode JetUncertaintiesTool::addAffectingSystematic(const CP::System
     if (recommended)
     {
         m_recommendedSystematics.insert(systematic);
-        if (registry.addSystematicToRecommended(systematic) != CP::SystematicCode::Ok)
+        if (registry.addSystematicToRecommended(systematic) != StatusCode::SUCCESS)
         {
             ATH_MSG_ERROR("Failed to add systematic to list of recommended systematics: " << systematic.name());
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
     }
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
-CP::SystematicCode JetUncertaintiesTool::applySystematicVariation(const CP::SystematicSet& systConfig)
+StatusCode JetUncertaintiesTool::applySystematicVariation(const CP::SystematicSet& systConfig)
 {
     //if (!m_isInit)
     //{
     //    ATH_MSG_FATAL("Tool must be initialized before calling applySystematicVariation");
-    //    return CP::SystematicCode::Unsupported;
+    //    return StatusCode::FAILURE;
     //}
 
     // Filter the full set of systematics to the set we care about
     CP::SystematicSet filteredSet;
-    if (getFilteredSystematicSet(systConfig,filteredSet) != CP::SystematicCode::Ok)
-        return CP::SystematicCode::Unsupported;
+    if (getFilteredSystematicSet(systConfig,filteredSet) != StatusCode::SUCCESS)
+        return StatusCode::FAILURE;
 
     // Get the uncertainty set associated to the filtered systematics set
     jet::UncertaintySet* uncSet = NULL;
-    if (getUncertaintySet(filteredSet,uncSet) != CP::SystematicCode::Ok)
-        return CP::SystematicCode::Unsupported;
+    if (getUncertaintySet(filteredSet,uncSet) != StatusCode::SUCCESS)
+        return StatusCode::FAILURE;
 
     // Change the current state
     m_currentSystSet.swap(filteredSet);
     m_currentUncSet = uncSet;
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
-CP::SystematicCode JetUncertaintiesTool::getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet)
+StatusCode JetUncertaintiesTool::getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet)
 {
     // Check if we have already encountered this set
     std::unordered_map<CP::SystematicSet,CP::SystematicSet>::iterator iter = m_systFilterMap.find(systConfig);
@@ -1315,15 +1315,15 @@ CP::SystematicCode JetUncertaintiesTool::getFilteredSystematicSet(const CP::Syst
     // Make the filtered set and store it
     else
     {
-        if (CP::SystematicSet::filterForAffectingSystematics(systConfig,m_recognizedSystematics,filteredSet) != CP::SystematicCode::Ok)
-            return CP::SystematicCode::Unsupported;
+        if (CP::SystematicSet::filterForAffectingSystematics(systConfig,m_recognizedSystematics,filteredSet) != StatusCode::SUCCESS)
+            return StatusCode::FAILURE;
         m_systFilterMap.insert(std::make_pair(systConfig,filteredSet));
     }
 
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
-CP::SystematicCode JetUncertaintiesTool::getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet)
+StatusCode JetUncertaintiesTool::getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet)
 {
     // Check if we have already encountered this set
     std::unordered_map<CP::SystematicSet,UncertaintySet*>::iterator iter = m_systSetMap.find(filteredSet);
@@ -1341,12 +1341,12 @@ CP::SystematicCode JetUncertaintiesTool::getUncertaintySet(const CP::SystematicS
         {
             ATH_MSG_ERROR("Failed to create UncertaintySet for filtered CP::SystematicSet: " << filteredSet.name());
             JESUNC_SAFE_DELETE(uncSet);
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
         m_systSetMap.insert(std::make_pair(filteredSet,uncSet));
     }
     
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
 }
 
 

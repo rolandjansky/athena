@@ -100,16 +100,31 @@ namespace InDet
     virtual StatusCode initialize() override;
 
     /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  () override;
+    virtual StatusCode finalize() override;
 
     /** Electron probabilities to be returned */
-    virtual std::vector<float> electronProbability(const Trk::Track& track) const override;
+    virtual std::vector<float> electronProbability(
+      const EventContext& ctx,
+      const Trk::Track& track) const override final;
 
     /** Electron probabilities to be returned */
     std::vector<float> electronProbability_old(const Trk::Track& track);
 
-    virtual double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) const override;
-    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const override;
+    virtual double probHT(const double pTrk,
+                          const Trk::ParticleHypothesis hypothesis,
+                          const int HitPart,
+                          const int Layer,
+                          const int Strawlayer) const override final;
+
+    virtual double probHTRun2(const EventContext& ctx,
+                              float pTrk,
+                              Trk::ParticleHypothesis hypothesis,
+                              int TrtPart,
+                              int GasType,
+                              int StrawLayer,
+                              float ZR,
+                              float rTrkWire,
+                              float Occupancy) const override final;
 
   private:
 

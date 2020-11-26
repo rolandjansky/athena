@@ -67,7 +67,7 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
   TruthTrajectory trans1;
   for (int i=0; i<10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     trans1.push_back(trkLink);
   }
 

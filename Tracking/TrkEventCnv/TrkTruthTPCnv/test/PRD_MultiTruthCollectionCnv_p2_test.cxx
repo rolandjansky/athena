@@ -69,7 +69,7 @@ void test1(std::vector<HepMC::GenParticle*> genPartVector)
   PRD_MultiTruthCollection trans1;
   for (int i=0; i<10; i++) {
     const HepMC::GenParticle* pGenParticle = genPartVector.at(i);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     const Identifier chanId(i+100);
     trans1.insert(trans1.end(), std::make_pair(chanId, trkLink) );
   }

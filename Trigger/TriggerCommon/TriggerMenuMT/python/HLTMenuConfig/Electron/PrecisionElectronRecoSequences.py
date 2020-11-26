@@ -81,3 +81,4 @@ def precisionElectronRecoSequence(RoIs):
     thesequence += PrecisionElectronSuperClusterMonAlgo
 
     return (thesequence, collectionOut)
+

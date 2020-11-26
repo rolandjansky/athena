@@ -183,11 +183,11 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
   int nHitsUsed_dEdx = -1;
   int nOverflowHits_dEdx = -1;
   // Now set values to 0 for the ones we evaluate
-  const int toZero{0};
+  constexpr int toZero{0};
   if (!m_idTool.empty()) {
     if (m_pixelExists) {
       constexpr size_t numberOfPixelCounters{14};
-      const std::array<size_t, numberOfPixelCounters> atPixelIndices{
+      constexpr std::array<size_t, numberOfPixelCounters> atPixelIndices{
         numberOfContribPixelLayers,
         numberOfInnermostPixelLayerHits, numberOfInnermostPixelLayerOutliers,
         numberOfNextToInnermostPixelLayerHits, numberOfNextToInnermostPixelLayerOutliers,
@@ -210,7 +210,7 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
     };
     setTheseElements(information, atSctOrTrtIndices, toZero);
     if (!m_eProbabilityTool.empty()) {
-      eProbability = m_eProbabilityTool->electronProbability(track);
+      eProbability = m_eProbabilityTool->electronProbability(ctx,track);
       information[Trk::numberOfTRTHitsUsedFordEdx] = static_cast<int>(
         eProbability[Trk::eProbabilityNumberOfTRTHitsUsedFordEdx]);
     }
@@ -496,8 +496,8 @@ Trk::TrackSummaryTool::searchHolesStepWise(const Trk::Track& track,
   // -------- obtain hits in Pixel and SCT only
   if (track.trackStateOnSurfaces()==nullptr){
     ATH_MSG_DEBUG ("No trackStatesOnSurface!!!!");
-    const int toMinusOne{-1};
-    const std::array<size_t, 16> atIndices{
+    constexpr int toMinusOne{-1};
+    constexpr std::array<size_t, 16> atIndices{
       numberOfPixelHoles, numberOfPixelDeadSensors,
       numberOfSCTHoles, numberOfSCTDoubleHoles, numberOfSCTDeadSensors,
       numberOfTRTHoles, numberOfTRTDeadStraws,
@@ -512,7 +512,7 @@ Trk::TrackSummaryTool::searchHolesStepWise(const Trk::Track& track,
     return;
   }
 
-  const int toZero{0};
+  constexpr int toZero{0};
   if (doHolesInDet){
     // -------- perform the InDet hole search
     if (m_pixelExists) {
@@ -527,7 +527,7 @@ Trk::TrackSummaryTool::searchHolesStepWise(const Trk::Track& track,
     // so we need to make this all a bit more general
     // and probably more efficient. But this hopefully works for now! EJWM
     constexpr size_t numberOfRelatedMuonCounters{10};
-    const std::array<size_t, numberOfRelatedMuonCounters> atMuonIndices{
+    constexpr std::array<size_t, numberOfRelatedMuonCounters> atMuonIndices{
       numberOfMdtHoles,
       numberOfCscEtaHoles, numberOfCscPhiHoles,
       numberOfRpcEtaHoles, numberOfRpcPhiHoles,

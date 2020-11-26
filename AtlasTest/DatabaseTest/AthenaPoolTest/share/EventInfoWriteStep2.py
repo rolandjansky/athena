@@ -32,7 +32,7 @@ import AthenaPoolCnvSvc.WriteAthenaPool
 # Define the input parameters
 #--------------------------------------------------------------
 
-svcMgr.EventSelector.InputCollections        = [ "SimplePoolFile.root" ]
+svcMgr.EventSelector.InputCollections        = [ "EventInfoPoolFile.root" ]
 
 #--------------------------------------------------------------
 # Set flags and load det descr
@@ -96,7 +96,7 @@ printfunc (fullItemList)
 
 # Stream's output file - Run OutputStream as an algorithm
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1", "SimplePoolFile1.root", asAlg = True, noTag=True )
+Stream1 = AthenaPoolOutputStream( "Stream1", "EventInfoPoolFile1.root", asAlg = True, noTag=True )
 
 # List of DO's to write out
 Stream1.ItemList   += fullItemList

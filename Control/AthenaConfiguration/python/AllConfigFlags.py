@@ -39,7 +39,7 @@ def _createCfgFlags():
             return []
 
         rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
-        collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
+        collections = [col for col in rawCollections if not col.endswith('Aux.') ]
         return collections
 
     acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )

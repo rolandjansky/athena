@@ -77,6 +77,6 @@ recommendations and only compiles in RootCore (so far).
      user want to request systematics that no tool supports he will
      have to add them to the global list manually.
 
- * For the time being SystematicCode is simply a renamed copy of
+ * For the time being StatusCode is simply a renamed copy of
    StatusCode from EventLoop which is in turn derived from StatusCode
    in Athena.

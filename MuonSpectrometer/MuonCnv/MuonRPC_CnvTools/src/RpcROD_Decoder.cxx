@@ -4,8 +4,6 @@
 
 #include "RpcROD_Decoder.h"
 
-#include <algorithm> 
-
 #include <deque>
 #include <vector>
 #include <utility>

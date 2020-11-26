@@ -369,7 +369,7 @@ StatusCode FakeMissingETTool::fakeMissingET(MissingETData *data, MissingETMuonDa
 
   float calculated_truth_metx = 0.;
   float calculated_truth_mety = 0.;
-  for (std::vector<const HepMC::GenParticle*>::const_iterator it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
+  for (auto it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
     calculated_truth_metx -= (*it)->momentum().px();
     calculated_truth_mety -= (*it)->momentum().py();
   }
@@ -794,12 +794,12 @@ StatusCode FakeMissingETTool::fakeMissingET(MissingETData *data, MissingETMuonDa
 	if ((*irec)->perp() < 40.0*GeV) {
 	  continue;
 	}
-	for (std::vector<const HepMC::GenParticle*>::const_iterator it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
+	for (auto it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
 	  if ((*it)->momentum().perp() < 10.0*GeV) {
 	    continue;
 	  }
 	  double deta = (*it)->momentum().eta() - (*irec)->eta();
-	  double dphi = fabs((*it)->momentum().phi() - (*irec)->phi());
+	  double dphi = std::fabs((*it)->momentum().phi() - (*irec)->phi());
 	  if (dphi > M_PI) dphi = fabs(dphi - 2*M_PI);
 	  double dR = sqrt(deta*deta + dphi*dphi);
 	  if (dR < 0.1) {

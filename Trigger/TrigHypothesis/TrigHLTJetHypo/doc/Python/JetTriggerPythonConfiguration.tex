@@ -1,0 +1,365 @@
+\documentclass{beamer}
+
+% \usepackage{beamerthemesplit} // Activate for custom appearance
+
+\title{The Trigger Jet Hypo - Python Configuration}
+\author{P Sherwood}
+\date{10 November 2020}
+
+\addtobeamertemplate{navigation symbols}{}{%
+    \usebeamerfont{footline}%
+    \usebeamercolor[fg]{footline}%
+    \hspace{1em}%
+    \insertframenumber/\inserttotalframenumber
+}
+\usepackage{xcolor}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{wrapfig}
+
+
+\begin{document}
+
+\frame{\titlepage}
+% \begin{frame}
+%       \frametitle{Outline}
+%       \begin{quotation}
+%       My mind is clearer now - at last all too well I can see where we all soon will be
+%	\end{quotation}
+%       \tableofcontents[pausesections]
+%\end{frame}
+
+
+
+%\subsection {Tree Structures}
+%\subsection{HypoTrees}
+%\subsection{ConditionTrees}
+%\subsection{Dynamic Programming}
+
+%\part{The Jet Hypo as a Tree}
+%\frame{\partpage
+%	
+%%{
+%  \frametitle{Part 1: Fast Reduction Generalities}
+%  }
+%}
+
+\frame 
+ {
+ \frametitle{Context}
+ 
+ \begin{block}{High level: C++}
+ At initialisation, the Trigger Framework:
+ \begin{itemize}
+\item instantiates 1 JetHypoTool per chain.
+\item instantiates 1 JetHypoAlgorithm
+\item passes the tools to the Algorithm
+\end{itemize}
+\end{block}
+
+\begin{block}{Role of the python configuration}
+Provide the initialisation for any JetHypoAlgTool and its helper AlgTool classes
+\end{block}
+}
+
+
+\frame 
+ {
+ \frametitle{Jet Hypo AlgTool structure (C++)}
+   \begin{block}{}
+   %\begin{wrapfigure}{l}{0.82\linewidth}
+      \begin{minipage}[T]{0.75\linewidth}
+   \includegraphics[trim = 20mm 130mm 0mm 25mm, clip, width= 0.98\linewidth]{Pictures/class_overview}
+   \end{minipage}%
+   % \end{wrapfigure}   AlgTools to be intialised in yellow
+         \begin{minipage}[T]{0.25\linewidth}
+         \begin{small}
+          {\bf Yellow:} AlgTools to be initialised by jet~trig python\\
+          {\it C++ \& python classes are isomorphic}
+          
+          \hrulefill\\
+          {\bf Red:} Non-component objects instantiated by HelperConfig
+          \end{small}
+           \end{minipage}
+   \end{block}   
+   \begin{block}{}
+   Experience from Run 2:  different hypo approaches can be encapsulated in the Matcher (FastReduction, AlgTrees, Maxflow...)
+   \end{block}
+}
+
+\frame 
+ {
+ \frametitle{Overview of the jet trigger python configuration}
+ \begin{block}{Goal}
+ Create python instances of TrigJetHypoTool and associated classes in order to initialise the  corresponding C++ classes
+  \end{block}
+  \begin{block}{Classes to be initialised for each chain}
+  \begin{itemize}
+  \item TrigJetHypoToolMT
+  \item TrigJetHypoToolHelperMT
+  \item TrigJetHypoToolHelperConfig\_fastreduction
+  \item multiple TrigJetConditionConfig
+  \end{itemize}
+
+
+  \end{block}
+  
+}
+
+\frame{
+	\frametitle{How do we do it?}
+	
+	\begin{block}{View from 35 000 ft}
+	
+		\begin{enumerate}
+			\item Trigger framework sends a chain dict.
+			\item chain dict $\rightarrow$ chain label (hierarchical tree representation)
+			\item chain label $\rightarrow$ node tree  (hierarchical tree representation)
+			\item process node tree to recover python AlgTools
+		\end	{enumerate}
+	\end{block}
+}
+
+\begin{frame}[fragile]
+	\frametitle{Chain Label examples}
+
+	\begin{block}{chain label examples: scenario = `simple'}
+		\begin{itemize}
+			\item 'simple([(38et, 0eta320)])',
+			\item 'simple([(38et, 0eta320)(40et, 0eta320)])',
+			\item 'simple([(38et, 0eta320, 011jvt)])',
+		\end{itemize}
+	\end{block}
+	
+	\begin{block}{chain label examples: scenario $\neq$ `simple', nested scenarios}
+		and([]\\
+    \makebox[1cm]{}{simple([(30et,500neta)(30et,peta500)])}\\
+    \makebox[1cm]{}combgen([(10et,0eta320)]\\
+	    \makebox[2cm]{}dijet([(34djmass,26djdphi)])\\
+	    \makebox[2cm]{}simple([(10et,0eta320)(20et,0eta320)]\\
+	    \makebox[1cm]{})\\
+    )
+	\end{block}
+\end{frame}
+
+
+\frame{
+
+\frametitle{chainDict $\rightarrow$ chain label (chanDict2jetLabel.py)}
+% \frametitle{What's the deal with the `simple' scenario?}
+\begin{block}{hypo scenarios}
+`hypoScenario'  is a key in the chainDict. Its values decides how the chain label is constructed.
+\end{block}
+
+\begin{block}{hypoScenario = `simple'}
+\begin{itemize}
+\item The `simple' scenario maintains continuity with Run 2 chains.
+\item The chain names and chainDict remain as before remain as in Run 2.
+\item The jet trig python code assembles the chain label from various entries in the chainDict.
+\end{itemize}
+\end{block}
+
+\begin{block}{otherwise...}
+\begin{itemize}
+\item The `hypoScenario' key in the chain dict contains the chain label 
+which is taken from the chain name. {\it ex:}~HLT\_j0\_{\color{red}vbenf}{\color{blue}SEP30etSEP34mass35SEP50fbet}\_L1J20
+\item scenario ({\color{red}vbenf}) identifies a string template which is filled in using {\color{blue}parameters} in hypoScenario.
+\end{itemize}
+\end{block}
+
+}
+
+\frame{
+	\frametitle{chain label $\rightarrow$ node tree}
+	\begin{block}{chain label vs node treel}
+	\begin{center}
+		\begin{tabular}{|l|c|c|} \hline
+		& ChainLabel & node tree \\ \hline
+		type & string & node objects \\
+		par-child &nested parens & child elements \\
+		extendable & no & typically via visitors \\
+		\hline
+		\end{tabular}
+	\end{center}
+
+%	\begin{itemize}
+%		\item chain label is structured - legal chain labels conform to a syntax
+%		\item  the syntax allows for the prescription of a tree through nested parentheses.
+%	\item chain label contains information on Conditions (cut predicates)
+%	\end{itemize}
+	\end{block}
+\begin{block}{Why have a node tree as well?}
+Chain label and Node tree: same tree structure. Nodes allow python mechanics to set up AlgTools
+\end{block}
+	
+\begin{block}{Node tree creation and evolution}
+\begin{itemize}
+\item JetTrigParser reads the chain label. Syntax is checked. Creates initial node tree.
+\item Attributes of the nodes modifiable (are python objects!)
+\item Code organisation: encapsulate node modification actions in visitors - avoid complex Node class.
+\end{itemize}
+
+\end{block}
+}
+
+\frame{
+	\frametitle{ChainLabel $\rightarrow$ node tree: Generalities}
+	\begin{block}{chain label}
+	\begin{itemize}
+		\item chain label is structured - legal chain labels conform to a syntax
+		\item  the syntax allows for the prescription of a tree through nested parentheses.
+	\item chain label contains information on Conditions (cut vars, window cuts) and child nodes.
+	\end{itemize}
+	\end{block}
+
+\begin{block}{conversion to a node tree}
+\begin{itemize}
+\item node tree is tree made of node instances, Each node contains data, and a list of child nodes.
+\item the node tree has the strupwdcture prescribed by the chain label.
+\item the conversion from chain label to node tree is done using Jet
+\end{itemize}
+
+\end{block}
+}
+
+\frame{
+\frametitle{ChainLabel Syntax}
+
+Alphabet: $\Sigma=$\{[a-z][0-9],\}.
+\begin{center}
+\begin{tabular}{lll}
+{\it lower} & $\rightarrow$ & $a|b|c|d|e|f|g|h|i|j|k|l|m|n|o|p|q|r|s|t|u|v|w|x|y|z$\\
+{\it digit \it} & $\rightarrow$ &$0|1|2|3|4|5|6|7|8|9$\\
+{\it parR}& $\rightarrow$ & ) \\
+{\it parL }  & $\rightarrow$ &( \\
+{\it braL} & $\rightarrow$ &[ \\
+{\it braR \it} & $\rightarrow$ &] \\
+{\it comma \it} & $\rightarrow$ &, \\
+{\it scenario \it}& $\rightarrow$ & {\it name, parL, windowList, \{scenario\}, parR }\\
+{\it name \it} & $\rightarrow$ &{\it lower,\{lower\}} \\
+{\it windowList \it} & $\rightarrow$ & {\it braL window, \{comma, window\}, braR \it}\\
+{\it window \it} & $\rightarrow$ &{\it \{digit\}, lower, \{lower\}, \{digit\}}  \\
+{\it scenarioList \it} & $\rightarrow$ &{\color{red}{\it scenario} $|$ {\it scenario scenarioList} } \\
+{\it  label$_S$ \it} & $\rightarrow$ &{\it scenarioList}  \\
+\end{tabular}
+\end{center}
+
+The scenarioList is what allows nesting (recursion).
+}
+
+\frame{
+	\frametitle{ChainLabel $\rightarrow$ node tree: Parsing}
+%	\begin{block}{}
+%	\begin{itemize}
+%		\item The parser checks the ChainLabel obeys the syntax (else ERROR)
+%		\item Creates an isomorphic node tree
+%	\end{itemize}
+%	\end{block}
+	
+	\begin{block}{}
+	   	\begin{minipage}[T]{0.5\linewidth}
+	 	\includegraphics[trim = 30mm 0mm 30mm 30mm, clip, width= \linewidth]{Pictures/hypoStateMachine}
+		\end{minipage}%
+		\begin{minipage}[T]{0.5\linewidth}
+		The parser ensures correct ChainLabel syntax (else Error Condition), node tree ismorphic to the ChainLabel.
+		\end{minipage}
+	\end{block}
+	
+}	
+
+\frame{
+ \frametitle{Recursive Classes = Trees}
+ \begin{block}{UML representations of a tree}
+  \includegraphics[trim = 10mm 230mm 0mm 20mm, clip, width= 1.0\linewidth]{Pictures/recursive}
+\end{block}
+
+ \begin{block}{Visitors traverse Trees}
+   \begin{minipage}[T]{0.55\linewidth}
+   \includegraphics[trim = 10mm 195mm 60mm 25mm, clip, width= 1.0\linewidth]{Pictures/visitor}
+   \end{minipage}%
+    \begin{minipage}[T]{0.45\linewidth}
+  	A: navigation\\Visitor: functionality.\\\mbox{}\\
+	New visitors can be introduced with modifying A.
+   \end{minipage}
+ \end{block}
+
+ }
+ 
+  
+\frame
+{
+  \frametitle{The visitors, and what they do}
+ % \begin{minipage}[T]{0.7\linewidth}
+\begin{block}{HLT\_j260\_320eta490\_L1J75\_31ETA49}
+ \includegraphics[trim = 10mm 180mm 0mm 20mm, clip, width= 0.8\linewidth]{Pictures/node}
+
+ \begin{description}
+\item[TreeParameterExpander\_visitor] Modifies  node: attach a conf\_attr list of dictionaries
+\end{description}
+\end{block}
+\begin{block}{}
+ \begin{description}
+ \item[ConditionsToolSetterFastReduction\_visitor] Modifies self: attaches  a TrigJetHypoToolHelperMT instance
+ \end{description}
+ \end{block}
+ }
+ 
+ \frame
+{
+  \frametitle{Python TrigJetHypoTool creation: Sequence Overview}
+  \begin{block}{}
+   \includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width= \linewidth]{Pictures/Config_seq}
+   \end{block}
+ }
+ 
+  
+ \frame
+{
+  \frametitle{Python TrigJetHypoTool creation: TreeExpander\_Visitor}
+  \begin{block}{}
+   \includegraphics[trim = 0mm 0mm 0mm 0mm, clip, width= \linewidth]{Pictures/TreeParameterExpanderVisitor_seq}
+   \end{block}
+ }
+ 
+  \frame
+{
+  \frametitle{Python TrigJetHypoTool creation: TreeToolSetterFastReduction Visitor}
+  \begin{block}{}
+         \begin{minipage}[T]{0.45\linewidth}
+	   \includegraphics[trim = 0mm 0mm 100mm 0mm, clip, width= \linewidth]{Pictures/ConditionsToolSetterFastreduction_seq}
+	 \end{minipage}%
+	 \begin{minipage}[T]{0.55\linewidth}
+	 Non-leaf nodes $\rightarrow$ AcceptAll nodes\\
+	 Collect information from tree to:
+	 \begin{itemize}
+		\item build tree vector
+		\item instantiate ConditionMakers
+	\end{itemize}
+	 \end{minipage}
+
+   \end{block}
+ }
+
+ 
+
+ \end{document}
+
+\frame{
+ \frametitle{Concepts}
+ \begin{block}{TrigJetHypoToolHelperMT}
+ \begin{description}
+\item[Tree] A graph where each node has a single parent, except the rroot node. Each node as zero or more children.
+\item [Jet Group] a vector of jets
+\item[Condition] A predicate that accepts a jet group.
+\item[Grouper] A device that splits jet groups into smaller jet groups
+\item[Matcher] A device that presents jet froups to Conditions
+\end{description}
+ \end{block}
+  \begin{block}{FastReduction}
+  \begin{description}
+\item[ Condition Tree] Expresses hierarchical relations among Conditions
+\item[FastReducer] Class that performs FastReduction 
+\end{description}
+\end{block}
+ }
+

@@ -15,7 +15,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
-#include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include <TString.h> // for Form
 

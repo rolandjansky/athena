@@ -70,12 +70,6 @@ private:
 
         /** TMP special ROB number for sector13 runs*/
         int m_specialROBNumber;
-
-        // Methods for the decoding
-        MdtRODReadOut * m_rodReadOut;
-        MdtCsmReadOut * m_csmReadOut;
-        MdtAmtReadOut * m_amtReadOut;
-        MdtHptdcReadOut * m_hptdcReadOut;
         
         bool m_BMEpresent;
         bool m_BMGpresent;

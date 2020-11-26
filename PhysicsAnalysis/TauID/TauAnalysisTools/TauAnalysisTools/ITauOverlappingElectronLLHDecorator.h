@@ -10,11 +10,8 @@
 /*
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
-  documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  documentation in: https://gitlab.cern.ch/atlas/athena/-/blob/master/PhysicsAnalysis/TauID/TauAnalysisTools/doc/README-TauOverlappingElectronLLHDecorator.rst
+                    
 */
 
 
@@ -36,8 +33,6 @@ class ITauOverlappingElectronLLHDecorator
   ASG_TOOL_INTERFACE( TauAnalysisTools::ITauOverlappingElectronLLHDecorator )
 
 public:
-
-  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauOverlappingElectronLLHDecorator.rst"))) = 0;
 
   virtual StatusCode decorate(const xAOD::TauJet& xTau) const = 0;
   virtual StatusCode setEleOlrPassDecorationName(const std::string& name) = 0;

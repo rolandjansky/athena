@@ -56,7 +56,7 @@ include( "IOVDbSvc/IOVRecExCommon.py" )
 # Define the output Db parameters (the default value are shown)
 #--------------------------------------------------------------
 
-input = locals().get('inputFile', "SimplePoolFile4.root")
+input = locals().get('inputFile', "EventInfoPoolFile4.root")
 svcMgr.EventSelector.InputCollections        = [ input ]
 
 #--------------------------------------------------------------

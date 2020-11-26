@@ -19,7 +19,6 @@
 using CP::CorrectionCode;
 using CP::SystematicSet;
 using CP::SystematicVariation;
-using CP::SystematicCode;
 using CP::SystematicRegistry;
 
 using Analysis::Uncertainty;
@@ -477,7 +476,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   }
   // systematics framework
   SystematicRegistry & registry = SystematicRegistry::getInstance();
-  if( registry.registerSystematics(*this) != SystematicCode::Ok) 
+  if( registry.registerSystematics(*this) != StatusCode::SUCCESS) 
     return StatusCode::FAILURE;
 
   // Finally, also initialise the selection tool, if needed (for now this is the case only for DL1 tag weight computations,
@@ -971,36 +970,36 @@ BTaggingEfficiencyTool::getEigenRecompositionCoefficientMap(const std::string &l
 
 // WARNING the behaviour of future calls to getEfficiency and friends are modified by this
 // method - it indicates which systematic shifts are to be applied for all future calls
-SystematicCode BTaggingEfficiencyTool::applySystematicVariation( const SystematicSet & systConfig) {
+StatusCode BTaggingEfficiencyTool::applySystematicVariation( const SystematicSet & systConfig) {
   // First filter out any systematics that do not apply to us
   SystematicSet filteredSysts;
-  if (SystematicSet::filterForAffectingSystematics(systConfig, affectingSystematics(), filteredSysts) != SystematicCode::Ok) {
+  if (SystematicSet::filterForAffectingSystematics(systConfig, affectingSystematics(), filteredSysts) != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("received unsupported systematics: " << systConfig.name());
-    return SystematicCode::Unsupported;
+    return StatusCode::FAILURE;
   }
   // check the size of the remaining (filtered) SystematicSet
   if (filteredSysts.size() == 0) {
     // If it is 0 then turn off systematics
     ATH_MSG_VERBOSE("empty systematics set; nothing to be done");
     m_applySyst = false;
-    return SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   } else if (filteredSysts.size() > 1) {
     // Restriction: we allow only a single systematic variation affecting b-tagging
     ATH_MSG_WARNING("more than a single b-tagging systematic variation requested but not (yet) supported");
-    return SystematicCode::Unsupported;
+    return StatusCode::FAILURE;
   } else {
     // Interpret the (single) remaining variation
     SystematicVariation var = *(filteredSysts.begin());
     auto mapIter = m_systematicsInfo.find(var);
     if (mapIter == m_systematicsInfo.end()) {
       ATH_MSG_WARNING("variation '" << var.name() << "' not found! Cannot apply");
-      return SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
     m_applySyst = true;
     m_applyThisSyst = mapIter->second;
     ATH_MSG_VERBOSE("variation '" << var.name() << "' applied successfully");
   }
-  return SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 //
 

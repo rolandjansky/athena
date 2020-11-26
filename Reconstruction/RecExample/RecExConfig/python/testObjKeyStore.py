@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from RecExConfig.ObjKeyStore import ObjKeyStore, objKeyStore
 
 # simple dictionary test
@@ -17,7 +16,7 @@ print("anotherd:",anotherd)
 for k in anotherd.keys():
     if k in thed:
         for v in anotherd[k]:
-            if not v in thed[k]: thed[k]+=[v]
+            if v not in thed[k]: thed[k]+=[v]
             pass
         pass
     else:

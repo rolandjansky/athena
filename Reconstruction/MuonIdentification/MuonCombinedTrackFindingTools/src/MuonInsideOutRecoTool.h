@@ -65,7 +65,7 @@ namespace MuonCombined {
     std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*> 
     findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const;
     
-    void cleanUp() const;
+    virtual void cleanUp() const override;
 
   private:
     /** handle a single candidate */

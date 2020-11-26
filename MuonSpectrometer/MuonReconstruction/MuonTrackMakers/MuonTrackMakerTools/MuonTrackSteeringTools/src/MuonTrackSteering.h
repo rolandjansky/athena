@@ -19,8 +19,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackCollection.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMerger.h"

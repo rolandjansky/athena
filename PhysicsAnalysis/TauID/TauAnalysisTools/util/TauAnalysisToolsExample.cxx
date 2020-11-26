@@ -63,8 +63,6 @@ using namespace TauAnalysisTools;
  
 int main( int argc, char* argv[] )
 {
-  CP::SystematicCode::enableFailure();
-
   StatusCode::enableFailure();
 
   // Check if we received a file name:

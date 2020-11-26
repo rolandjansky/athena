@@ -23,7 +23,7 @@ HLT_2e17_etcut_L12EM15VH:
     3: 2
   stepFeatures:
     0: 12
-    1: 314
+    1: 106
     2: 16
     3: 12
 HLT_2e17_lhvloose_L12EM15VH:
@@ -59,9 +59,9 @@ HLT_2e3_etcut_L12EM3:
     3: 20
   stepFeatures:
     0: 342
-    1: 3730
-    2: 796
-    3: 304
+    1: 2214
+    2: 784
+    3: 300
 HLT_2g10_loose_mu20_L1MU20:
   eventCount: 0
   stepCounts:
@@ -325,7 +325,7 @@ HLT_2mu6_bJpsimumul2io_L12MU6:
     3: 2
   stepFeatures:
     0: 12
-    1: 28
+    1: 26
     2: 8
     3: 4
 HLT_2mu6_l2io_L12MU6:
@@ -337,7 +337,7 @@ HLT_2mu6_l2io_L12MU6:
     3: 2
   stepFeatures:
     0: 12
-    1: 28
+    1: 26
     2: 8
     3: 8
 HLT_2mu6_muonqual_L12MU6:
@@ -514,7 +514,7 @@ HLT_e17_lhloose_mu14_L1EM15VH_MU10:
     8: 2
   stepFeatures:
     0: 2
-    1: 43
+    1: 11
     2: 4
     3: 2
     4: 2
@@ -532,12 +532,22 @@ HLT_e17_lhvloose_nod0_L1EM15VH:
     4: 5
   stepFeatures:
     0: 6
-    1: 80
+    1: 22
     2: 9
     3: 6
     4: 5
 HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3:
   eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+    2: 1
+    3: 1
+  stepFeatures:
+    0: 2
+    1: 9
+    2: 3
+    3: 2
 HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH:
   eventCount: 0
 HLT_e24_lhmedium_g25_medium_L12EM20VH:
@@ -554,7 +564,7 @@ HLT_e24_lhvloose_L1EM20VH:
     4: 5
   stepFeatures:
     0: 6
-    1: 80
+    1: 22
     2: 9
     3: 6
     4: 5
@@ -567,23 +577,23 @@ HLT_e26_etcut_L1EM22VHI:
     3: 6
   stepFeatures:
     0: 7
-    1: 132
+    1: 47
     2: 7
     3: 7
 HLT_e26_lhloose_L1EM15VH:
-  eventCount: 5
+  eventCount: 4
   stepCounts:
-    0: 6
-    1: 6
-    2: 6
-    3: 6
-    4: 5
+    0: 5
+    1: 5
+    2: 5
+    3: 5
+    4: 4
   stepFeatures:
-    0: 6
-    1: 80
-    2: 9
-    3: 6
-    4: 5
+    0: 5
+    1: 17
+    2: 8
+    3: 5
+    4: 4
 HLT_e26_lhloose_L1EM22VHI:
   eventCount: 4
   stepCounts:
@@ -594,23 +604,23 @@ HLT_e26_lhloose_L1EM22VHI:
     4: 4
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 4
 HLT_e26_lhmedium_L1EM15VH:
   eventCount: 4
   stepCounts:
-    0: 6
-    1: 6
-    2: 6
-    3: 6
+    0: 5
+    1: 5
+    2: 5
+    3: 5
     4: 4
   stepFeatures:
-    0: 6
-    1: 80
-    2: 9
-    3: 6
+    0: 5
+    1: 17
+    2: 8
+    3: 5
     4: 4
 HLT_e26_lhmedium_L1EM22VHI:
   eventCount: 4
@@ -622,7 +632,7 @@ HLT_e26_lhmedium_L1EM22VHI:
     4: 4
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 4
@@ -638,7 +648,7 @@ HLT_e26_lhmedium_mu8noL1_L1EM22VHI:
     6: 2
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 4
@@ -647,16 +657,16 @@ HLT_e26_lhmedium_mu8noL1_L1EM22VHI:
 HLT_e26_lhtight_L1EM15VH:
   eventCount: 4
   stepCounts:
-    0: 6
-    1: 6
-    2: 6
-    3: 6
+    0: 5
+    1: 5
+    2: 5
+    3: 5
     4: 4
   stepFeatures:
-    0: 6
-    1: 80
-    2: 9
-    3: 6
+    0: 5
+    1: 17
+    2: 8
+    3: 5
     4: 4
 HLT_e26_lhtight_L1EM22VHI:
   eventCount: 4
@@ -668,7 +678,7 @@ HLT_e26_lhtight_L1EM22VHI:
     4: 4
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 4
@@ -682,7 +692,7 @@ HLT_e26_lhtight_ivarloose_L1EM22VHI:
     4: 3
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 3
@@ -696,7 +706,7 @@ HLT_e26_lhtight_ivarmedium_L1EM22VHI:
     4: 3
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 3
@@ -710,7 +720,7 @@ HLT_e26_lhtight_ivartight_L1EM22VHI:
     4: 3
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 3
@@ -724,7 +734,7 @@ HLT_e26_lhtight_nod0_L1EM22VHI:
     4: 4
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 4
@@ -738,7 +748,7 @@ HLT_e26_lhtight_nod0_L1EM24VHI:
     4: 4
   stepFeatures:
     0: 5
-    1: 63
+    1: 17
     2: 8
     3: 5
     4: 4
@@ -763,9 +773,9 @@ HLT_e3_etcut_L1EM3:
     3: 20
   stepFeatures:
     0: 171
-    1: 1865
-    2: 398
-    3: 152
+    1: 1107
+    2: 392
+    3: 150
 HLT_e5_etcut_L1EM3:
   eventCount: 20
   stepCounts:
@@ -775,23 +785,23 @@ HLT_e5_etcut_L1EM3:
     3: 20
   stepFeatures:
     0: 137
-    1: 1656
-    2: 190
-    3: 115
+    1: 986
+    2: 189
+    3: 114
 HLT_e5_lhloose_L1EM3:
-  eventCount: 5
+  eventCount: 4
   stepCounts:
     0: 18
     1: 18
     2: 18
     3: 18
-    4: 5
+    4: 4
   stepFeatures:
-    0: 54
-    1: 575
+    0: 55
+    1: 339
     2: 88
     3: 50
-    4: 6
+    4: 5
 HLT_e5_lhloose_noringer_L1EM3:
   eventCount: 5
   stepCounts:
@@ -802,7 +812,7 @@ HLT_e5_lhloose_noringer_L1EM3:
     4: 5
   stepFeatures:
     0: 56
-    1: 651
+    1: 361
     2: 103
     3: 55
     4: 6
@@ -815,8 +825,8 @@ HLT_e5_lhmedium_L1EM3:
     3: 18
     4: 4
   stepFeatures:
-    0: 53
-    1: 570
+    0: 54
+    1: 335
     2: 86
     3: 49
     4: 5
@@ -830,7 +840,7 @@ HLT_e5_lhmedium_noringer_L1EM3:
     4: 4
   stepFeatures:
     0: 48
-    1: 528
+    1: 312
     2: 81
     3: 47
     4: 5
@@ -843,8 +853,8 @@ HLT_e5_lhtight_L1EM3:
     3: 18
     4: 4
   stepFeatures:
-    0: 51
-    1: 551
+    0: 52
+    1: 321
     2: 82
     3: 47
     4: 5
@@ -857,8 +867,8 @@ HLT_e5_lhtight_nod0_L1EM3:
     3: 18
     4: 4
   stepFeatures:
-    0: 51
-    1: 551
+    0: 52
+    1: 321
     2: 82
     3: 47
     4: 5
@@ -872,7 +882,7 @@ HLT_e5_lhtight_noringer_L1EM3:
     4: 4
   stepFeatures:
     0: 45
-    1: 513
+    1: 299
     2: 73
     3: 44
     4: 5
@@ -886,7 +896,7 @@ HLT_e5_lhtight_noringer_nod0_L1EM3:
     4: 4
   stepFeatures:
     0: 45
-    1: 513
+    1: 299
     2: 73
     3: 44
     4: 5
@@ -900,7 +910,7 @@ HLT_e60_lhmedium_L1EM22VHI:
     4: 2
   stepFeatures:
     0: 2
-    1: 34
+    1: 10
     2: 4
     3: 2
     4: 2
@@ -914,7 +924,7 @@ HLT_e60_lhmedium_nod0_L1EM22VHI:
     4: 2
   stepFeatures:
     0: 2
-    1: 34
+    1: 10
     2: 4
     3: 2
     4: 2
@@ -927,7 +937,7 @@ HLT_e7_etcut_L1EM3:
     3: 20
   stepFeatures:
     0: 89
-    1: 1124
+    1: 670
     2: 122
     3: 78
 HLT_e7_lhmedium_mu24_L1MU20:
@@ -944,7 +954,7 @@ HLT_e7_lhmedium_mu24_L1MU20:
     8: 1
   stepFeatures:
     0: 9
-    1: 97
+    1: 47
     2: 13
     3: 9
     4: 2
@@ -1925,17 +1935,17 @@ HLT_mu24_L1MU20:
     2: 5
     3: 5
 HLT_mu24_idperf_L1MU20:
-  eventCount: 4
+  eventCount: 5
   stepCounts:
-    0: 5
-    1: 5
-    2: 4
-    3: 4
-  stepFeatures:
     0: 6
     1: 6
     2: 5
     3: 5
+  stepFeatures:
+    0: 7
+    1: 7
+    2: 6
+    3: 6
 HLT_mu24_ivarmedium_L1MU20:
   eventCount: 2
   stepCounts:
@@ -2059,7 +2069,7 @@ HLT_mu35_ivarmedium_L1MU20:
   stepCounts:
     0: 8
     1: 5
-    2: 4
+    2: 3
     3: 2
     4: 1
   stepFeatures:
@@ -2071,13 +2081,13 @@ HLT_mu35_ivarmedium_L1MU20:
 HLT_mu4_l2io_L1MU4:
   eventCount: 11
   stepCounts:
-    0: 12
-    1: 12
+    0: 11
+    1: 11
     2: 11
     3: 11
   stepFeatures:
-    0: 15
-    1: 50
+    0: 14
+    1: 46
     2: 15
     3: 15
 HLT_mu50_L1MU20:

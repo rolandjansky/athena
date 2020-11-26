@@ -19,7 +19,6 @@
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/DetailedMuonPatternTruthCollection.h"
 #include "TrkToolInterfaces/ITruthTrajectoryBuilder.h"
-#include "TrkTruthData/DetailedTrackTruth.h"
 #include "TrkTruthData/DetailedSegmentTruth.h"
 #include "TrkTruthData/SubDetHitStatistics.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"

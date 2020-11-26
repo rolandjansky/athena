@@ -1,7 +1,7 @@
 #ifndef XAOD_STANDALONE
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -28,7 +28,7 @@ TauOverlappingElectronLLHDecorator::TauOverlappingElectronLLHDecorator( const st
   , m_bElectonsAvailable(true)
   , m_hCutValues(0)
   , m_bEleOLRMatchAvailable(false)
-  , m_bNewEvent(false)
+  , m_bNewEvent(true)
   // , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150224/ElectronLikelihoodLooseOfflineConfig2015.conf")
   , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf")
   , m_sEleOlrPassDecorationName("ele_olr_pass_fix")
@@ -184,15 +184,6 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
 
   return StatusCode::SUCCESS;
 }
-
-//______________________________________________________________________________
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-StatusCode TauOverlappingElectronLLHDecorator::initializeEvent()
-{
-  return beginEvent();
-}
-#pragma GCC diagnostic pop
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________

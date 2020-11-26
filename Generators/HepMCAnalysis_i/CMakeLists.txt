@@ -25,7 +25,7 @@ atlas_add_component( HepMCAnalysis_i
    ${HEPMC_INCLUDE_DIRS}
    ${HEPMC_HepMCAnalysis_INTERFACE_DIR}
    LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMCANALYSIS_LIBRARIES}
-   ${HEPUTILS_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib
+   ${HEPUTILS_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib  ${HEPMC_LIBRARIES}
    ${FASTJET_LIBRARIES} AthenaBaseComps GaudiKernel StoreGateLib EventInfo
    GeneratorObjects TruthUtils )
 

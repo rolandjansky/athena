@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./SMCConditionMT.h"
@@ -50,7 +50,7 @@ SMCConditionMT::isSatisfied(const HypoJetVector& ips,
 }
 
 
-std::string SMCConditionMT::toString() const noexcept {
+std::string SMCConditionMT::toString() const {
   std::stringstream ss;
   ss << "SMCConditionMT (" << this << ") mass min "
      <<  m_min 

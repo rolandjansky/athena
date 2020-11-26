@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
@@ -14,7 +14,6 @@
 #include "TileConditions/ITileDCSTool.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TileEvent/TileLaserObject.h"
-#include "TileConditions/ITileBadChanTool.h"
 #include "TileMonitoring/ITileStuckBitsProbsTool.h"
 
 

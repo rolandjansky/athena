@@ -208,14 +208,14 @@ CP::SystematicSet BTaggingEigenVectorRecompositionTool::affectingSystematics() c
 
 // it indicates which systematic shifts are to be applied for all future calls
 // no systematics for now, proxy for later
-CP::SystematicCode BTaggingEigenVectorRecompositionTool::applySystematicVariation( const CP::SystematicSet & systConfig )
+StatusCode BTaggingEigenVectorRecompositionTool::applySystematicVariation( const CP::SystematicSet & systConfig )
 {
   for (auto syst : systConfig) {
     CP::SystematicSet myset;
     ATH_MSG_WARNING("applySystematicVariation was called for " << syst.name() << " but BTaggingEigenVectorRecompositionTool does not apply Systematic Variations");
     //the truth tagging tool provides results for all possible systematic variations in its results objects, the user does not need to call each one seperatly.
   }
-  return CP::SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 // returns true if the argument systematic is supported by the

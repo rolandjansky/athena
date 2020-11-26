@@ -59,8 +59,6 @@ public:
    bool       UsableSvc();
    StatusCode UpdatedSvc(IOVSVC_CALLBACK_ARGS);
 
-   StatusCode SetAmdcABlineFromCoolCallback(IOVSVC_CALLBACK_ARGS);
-
    /**Get Amdcsimrec interface */
    Amdcsimrec* GetAmdcsimrec();
 
@@ -108,7 +106,6 @@ private:
    bool m_IsInitialized ; //!< Tell initialisation state 
 
    /**Set A and B lines collections*/
-   StatusCode regFcnSetAmdcABlineFromCool();
    StatusCode SetAmdcABlineFromCool();
 
    /**Initialize from an Ascii file */

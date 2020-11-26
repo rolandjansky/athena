@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./EtaConditionAbsMT.h"
@@ -50,7 +50,7 @@ EtaConditionAbsMT::isSatisfied(const HypoJetVector& ips,
 }
 
 
-std::string EtaConditionAbsMT::toString() const noexcept {
+std::string EtaConditionAbsMT::toString() const {
   std::stringstream ss;
   ss << "EtaConditionAbsMT (" << this << ") Capacity: " << s_capacity
      << " etaMin "<<  m_min 

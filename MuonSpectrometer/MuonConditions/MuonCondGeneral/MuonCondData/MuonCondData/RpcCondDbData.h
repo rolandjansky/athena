@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDDATA_RPCCONDDBDATA_H
@@ -120,7 +120,6 @@ public:
 };
 
 CLASS_DEF( RpcCondDbData, 25128902, 1)
-#include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<RpcCondDbData>, 178635428, 0)
 
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETCONDITIONCONFIG_COMPOUND_H
@@ -29,7 +29,7 @@ public extends<AthAlgTool, ITrigJetConditionConfig> {
   ToolHandleArray<ITrigJetConditionConfig> m_elementConditions{
     this, "conditionMakers", {},
       "elemental conditions makers for a leaf node."};
-  
+
   StatusCode checkVals()  const;
  
 };

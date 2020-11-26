@@ -20,7 +20,6 @@
 #include "AGDDKernel/AliasStore.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
-#include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"

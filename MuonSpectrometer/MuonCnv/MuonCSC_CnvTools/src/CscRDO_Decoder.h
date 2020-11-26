@@ -11,12 +11,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-
 #include "CSCcabling/CSCcablingSvc.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "CSCcabling/CSCcablingSvc.h"
-
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <inttypes.h>

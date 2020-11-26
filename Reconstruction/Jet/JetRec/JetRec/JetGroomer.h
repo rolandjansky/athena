@@ -29,13 +29,15 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAuxContainer.h"
 
-class JetGroomer
-  : public asg::AsgTool,
-    virtual public JetProvider<xAOD::JetAuxContainer>
-{
-  ASG_TOOL_CLASS(JetGroomer, IJetProvider)
 
-  public:
+namespace JetGrooming {
+  class JetGroomer
+    : public asg::AsgTool,
+      virtual public JetProvider<xAOD::JetAuxContainer>
+  {
+    ASG_TOOL_CLASS(JetGroomer, IJetProvider)
+
+    public:
     using asg::AsgTool::AsgTool;
 
     virtual StatusCode initialize() override;
@@ -46,17 +48,18 @@ class JetGroomer
     // Implementation of grooming goes here
     // The jet is inserted into the output container, which is necessary for speed
     // in the xAOD container paradigm
-  virtual void insertGroomedJet(const xAOD::Jet&, const PseudoJetContainer&, xAOD::JetContainer&, PseudoJetVector&) const = 0;
+    virtual void insertGroomedJet(const xAOD::Jet&, const PseudoJetContainer&, xAOD::JetContainer&, PseudoJetVector&) const = 0;
 
   protected:
-  /// Handle Input JetContainer (this contains the parent ungroomed jets to be trimmed)
-  SG::ReadHandleKey<xAOD::JetContainer> m_inputJetContainer {this, "UngroomedJets", "ungroomedinput", "Input ungroomed jet container"};
+    /// Handle Input JetContainer (this contains the parent ungroomed jets to be trimmed)
+    SG::ReadHandleKey<xAOD::JetContainer> m_inputJetContainer {this, "UngroomedJets", "ungroomedinput", "Input ungroomed jet container"};
 
-  /// This is the input to the parent JetContainer. It is needed in order to re-assign the ghost constituents from the final groomed PJ to the xAOD::Jet
-  SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets {this, "ParentPseudoJets", "inputpseudojet", "input constituents of parent JetContainer"};
+    /// This is the input to the parent JetContainer. It is needed in order to re-assign the ghost constituents from the final groomed PJ to the xAOD::Jet
+    SG::ReadHandleKey<PseudoJetContainer> m_inputPseudoJets {this, "ParentPseudoJets", "inputpseudojet", "input constituents of parent JetContainer"};
 
-   SG::WriteHandleKey<PseudoJetVector> m_finalPseudoJets {this, "FinalPseudoJets_DONOTSET", "", "output pseudojets -- autoconfigured name"};
+    SG::WriteHandleKey<PseudoJetVector> m_finalPseudoJets {this, "FinalPseudoJets_DONOTSET", "", "output pseudojets -- autoconfigured name"};
 
-};
+  };
 
+}
 #endif

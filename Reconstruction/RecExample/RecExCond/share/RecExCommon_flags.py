@@ -229,8 +229,9 @@ if len(athenaCommonFlags.FilesInput())>0:
 if len(rec.AutoConfiguration())>0:
     from RecExConfig.AutoConfiguration import ConfigureFromListOfKeys
     ConfigureFromListOfKeys(rec.AutoConfiguration())
-    include ("RecExConfig/AutoConfigConsistencyCheck.py")
-
+    from RecExConfig.PyComps import AutoConfigConsistencyCheckSvc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    svcMgr += AutoConfigConsistencyCheckSvc("AutoConfigConsistencyCheckSvc")
 
 
 #special commisioning job options

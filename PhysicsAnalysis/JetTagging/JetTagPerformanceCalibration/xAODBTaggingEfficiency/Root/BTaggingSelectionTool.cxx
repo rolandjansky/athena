@@ -24,7 +24,6 @@ using std::string;
 using CP::CorrectionCode;
 using CP::SystematicSet;
 using CP::SystematicVariation;
-using CP::SystematicCode;
 using CP::SystematicRegistry;
 
 using Analysis::Uncertainty;

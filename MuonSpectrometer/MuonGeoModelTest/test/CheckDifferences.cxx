@@ -1,24 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
 #include <iostream>
 #include <string>
-//use the method defined at:  http://annwm.lbl.gov/~leggett/Atlas/gcc-3.2.html
-// #ifdef HAVE_NEW_IOSTREAMS
-//   #include <sstream>
-// typedef std::istringstream my_isstream;
-
-// #else
-// #include <strstream>
-// typedef strstream my_isstream;
-// #endif
-
 #include <sstream>
 typedef std::istringstream my_isstream;
-
-
 #include <cmath>
 #include <cassert>
 
@@ -26,8 +14,6 @@ typedef std::istringstream my_isstream;
 //#define print_level 2 //debug
 //#define print_level 2 //info
 #define print_level 3 //summary
-
-//
 
 typedef enum iost {READ, WRITE} IOMaterialMap;
 

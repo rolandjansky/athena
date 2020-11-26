@@ -81,7 +81,7 @@ StatusCode CopyMcEventCollection::execute(const EventContext& ctx) const
     if (!outputContainer->empty()) {
       ATH_MSG_DEBUG("McEventCollection contents:");
       for (const HepMC::GenEvent *event : *outputContainer) {
-        ATH_MSG_DEBUG("  GenEvent #" << event->event_number() << ", signal_process_id=" << event->signal_process_id());
+        ATH_MSG_DEBUG("  GenEvent #" << event->event_number() << ", signal_process_id=" << HepMC::signal_process_id(event));
       }
     }
   }

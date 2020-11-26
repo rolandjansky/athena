@@ -14,8 +14,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "CaloIdentifier/CaloCell_ID.h"
-
 #include "CaloGeoHelpers/CaloPhiRange.h"
 
 #include "CaloEvent/CaloCell.h"

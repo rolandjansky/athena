@@ -15,7 +15,6 @@
 //      Gennady Pospelov
 //
 //-----------------------------------------------------------------------
-#include "CaloLocalHadCalib/CaloHadDMCoeffData.h"
 #include <cmath>
 #include <fstream>
 #include <iostream>

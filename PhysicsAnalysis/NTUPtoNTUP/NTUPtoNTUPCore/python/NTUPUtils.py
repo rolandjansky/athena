@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from RecExConfig.RecoFunctions import AddValidItemToList
 def SetupOutputNTUPs(runArgs,flagContainerList):
@@ -54,9 +54,6 @@ def NTUPtoNTUPProdFlags():
 def SkimProdFlags():
     from NTUPtoNTUPCore.SkimProdFlags import prodFlags
     return prodFlags
-
-def NTUPtoNTUPTopOptionsInclude():
-    include( "NTUPtoNTUPCore/NTUPtoNTUP_topOptions.py" )
 
 def MNSMgr():
     from NTUPtoNTUPCore.MultipleNTUPStreamManager import MNSMgr

@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARRODBLOCKPHYSICSV5_H
@@ -94,7 +94,7 @@ public:
   virtual inline int32_t getEx() const;
   virtual inline int32_t getEy() const;
   virtual inline int32_t getEz() const;
-  virtual inline uint32_t getVROBFebId() const;
+  virtual inline uint32_t getVROBFebId();
   virtual inline int32_t getVROBEx() const;
   virtual inline int32_t getVROBEy() const;
   virtual inline int32_t getVROBEz() const;
@@ -283,7 +283,7 @@ inline int LArRodBlockPhysicsV5::getNextEnergy(int& channelNumber,int32_t& energ
   if (m_TimeQualityPointer && hasTQ) // Data has Time and Quality information 
     {
       //Time is in 10 ps in ByteStream, hence the factor 10 to convert to ps
-      time    = 10*((int16_t *)m_TimeQualityPointer)[m_TimeQualityIndex++]; 
+      time    = 10*(reinterpret_cast<const int16_t *>(m_TimeQualityPointer))[m_TimeQualityIndex++]; 
       quality = m_TimeQualityPointer[m_TimeQualityIndex++]; 
 
 #ifdef LARBSDBGOUTPUT
@@ -329,7 +329,7 @@ inline int32_t LArRodBlockPhysicsV5::getEz() const
   return 0;
 }
 
-inline uint32_t  LArRodBlockPhysicsV5::getVROBFebId() const
+inline uint32_t  LArRodBlockPhysicsV5::getVROBFebId()
 {
   m_ROB_to_decode--;
   if ( m_ROB_to_decode>=0 ) {
@@ -342,19 +342,22 @@ inline uint32_t  LArRodBlockPhysicsV5::getVROBFebId() const
 
 inline int32_t  LArRodBlockPhysicsV5::getVROBEx() const
 {
-  if(m_virtualROBPointerLocal) return (((int32_t*)m_virtualROBPointerLocal)[1]>>9);
+  const int32_t* p = reinterpret_cast<const int32_t*>(m_virtualROBPointerLocal);
+  if(p) return (p[1]>>9);
   return 0;
 }
 
 inline int32_t  LArRodBlockPhysicsV5::getVROBEy() const
 {
-  if(m_virtualROBPointerLocal) return (((int32_t*)m_virtualROBPointerLocal)[2]>>9);
+  const int32_t* p = reinterpret_cast<const int32_t*>(m_virtualROBPointerLocal);
+  if(p) return (p[2]>>9);
   return 0;
 }
 
 inline int32_t  LArRodBlockPhysicsV5::getVROBEz() const
 {
-  if(m_virtualROBPointerLocal) return (((int32_t*)m_virtualROBPointerLocal)[3]>>9);
+  const int32_t* p = reinterpret_cast<const int32_t*>(m_virtualROBPointerLocal);
+  if(p) return (p[3]>>9);
   return 0;
 }
 

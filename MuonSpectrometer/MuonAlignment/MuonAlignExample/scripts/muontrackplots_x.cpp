@@ -21,7 +21,6 @@
 #include <TAxis.h>
 #include "TFile.h"
 #include "TH1F.h"
-#include "TStyle.h"
 #include "TLine.h"
 #include "TSystem.h"
 #include "TH2F.h"

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigJetConditionConfig_acceptAll.h"
@@ -19,9 +19,8 @@ ConditionMT TrigJetConditionConfig_acceptAll::getCondition() const {
 
 
 
-bool TrigJetConditionConfig_acceptAll::addToCapacity(std::size_t cap) {
-  m_capacity  += cap;
-  return true;
+bool TrigJetConditionConfig_acceptAll::addToCapacity(std::size_t ) {
+  return false;
 }
 
 

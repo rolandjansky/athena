@@ -1,7 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        AutoConfiguration.py
@@ -11,7 +8,6 @@ from __future__ import print_function
 ##=============================================================================
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
-from RecExConfig.RecoFunctions import ItemInListStartsWith
 
 from AthenaCommon.Logging import logging
 
@@ -101,7 +97,7 @@ def GetFieldFromCool():
     try:
         from RecExConfig.GetCool import cool
         return cool.solenoidCurrent(),cool.toroidCurrent()
-    except:
+    except Exception:
         return None,None
     
 
@@ -123,7 +119,7 @@ def GetFieldFromInputFile():
         try:
             solenoidCurrent = metadata['/EXT/DCS/MAGNETS/SENSORDATA']['value'][0]  # CentralSol_Current
             toroidCurrent = metadata['/EXT/DCS/MAGNETS/SENSORDATA']['value'][2]  # Toroids_Current
-        except:
+        except Exception:
             logAutoConfiguration.warning("Unable to find solenoid and toroid currents in /EXT/DCS/MAGNETS/SENSORDATA")
 
 
@@ -163,7 +159,7 @@ def GetApproximateFieldFromGeo():
         solenoidCurrent=fullSolenoidCurrent
         toroidCurrent=fullToroidCurrent
     else:
-        logAutoConfiguration.warning("Don't know how to interpret magnetic field status from geometry '%s'."%geo)
+        logAutoConfiguration.warning("Don't know how to interpret magnetic field status from geometry '%s'.",geo)
     return solenoidCurrent,toroidCurrent
 
 def GetApproximateFieldFromConditions():
@@ -189,7 +185,7 @@ def GetApproximateFieldFromConditions():
         solenoidCurrent=0.0
         toroidCurrent=0.0
     else:
-        logAutoConfiguration.warning("Don't know how to interpret magnetic field status from conditionsTag '%s'."%cond)
+        logAutoConfiguration.warning("Don't know how to interpret magnetic field status from conditionsTag '%s'.",cond)
     return solenoidCurrent,toroidCurrent
 
 
@@ -218,23 +214,23 @@ def ConfigureField():
 
     elif metadata['file_type'] == 'BS' and metadata['eventTypes'][0] == 'IS_SIMULATION':
         logAutoConfiguration.info("Field info is not stored in MC BS values are set via conditions tag:")
-        if solenoidCurrent==None or toroidCurrent==None:
+        if solenoidCurrent is None or toroidCurrent is None:
             solenoidCurrent,toroidCurrent=GetApproximateFieldFromConditions()
-        if solenoidCurrent==None or toroidCurrent==None:
+        if solenoidCurrent is None or toroidCurrent is None:
             logAutoConfiguration.warning("BField of MC BS cannot be autoconfigured!! BField is turned ON")
             solenoidCurrent=fullSolenoidCurrent
             toroidCurrent=fullToroidCurrent
 
     elif metadata['file_type'] == 'POOL':
         solenoidCurrent,toroidCurrent=GetFieldFromInputFile()
-        if solenoidCurrent==None or toroidCurrent==None:
+        if solenoidCurrent is None or toroidCurrent is None:
             solenoidCurrent,toroidCurrent=GetApproximateFieldFromConditions()             
-        if solenoidCurrent==None or toroidCurrent==None:
+        if solenoidCurrent is None or toroidCurrent is None:
             solenoidCurrent,toroidCurrent=GetApproximateFieldFromGeo() 
     else:
         raise RuntimeError("Don't know how to interpret file_type '%s'"%metadata['file_type'])
 
-    if solenoidCurrent==None or toroidCurrent==None:
+    if solenoidCurrent is None or toroidCurrent is None:
         raise RuntimeError("Unable to determine field status for this file.")
 
     if toroidCurrent>1.:
@@ -274,10 +270,10 @@ def ConfigureGeo():
             geo="ATLAS-R1-2010-02-00-00" #geo='ATLAS-GEO-16-00-01'
         if metadata['eventTypes'][0] == 'IS_SIMULATION':
             try: geo = metadata['GeoAtlas']
-            except: logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with geometry. Probably an old file.")
-            pass
+            except Exception:
+                logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with geometry. Probably an old file.")
         globalflags.DetDescrVersion.set_Value_and_Lock(geo)
-        logAutoConfiguration.info("Set GeometryVersion to '%s'"%geo)
+        logAutoConfiguration.info("Set GeometryVersion to '%s'",geo)
 
     elif metadata['file_type'] == 'POOL':
         # configure Geometry from input file
@@ -313,23 +309,23 @@ def GetProjectName():
         whatIsIt=None
         try:
             whatIsIt = metadata['eventTypes'][0]
-        except:
+        except Exception:
             pass
         if whatIsIt=='IS_SIMULATION':
             project='IS_SIMULATION'
         else:
             try:
                 project = metadata['project_name']
-            except:
+            except Exception:
                 from RecExConfig.GetCool import cool
                 project = cool.fileNameTag()
             pass
         #rec.projectName.set_Value_and_Lock(project)
-        logAutoConfiguration.info("Success! GetProjectName() found a project named %s"%project)
+        logAutoConfiguration.info("Success! GetProjectName() found a project named %s",project)
     else:
         project=rec.projectName()
-    if not project in KnownProjects:
-        logAutoConfiguration.warning("Project '%s' is not part of the KnownProjects list."%project)
+    if project not in KnownProjects:
+        logAutoConfiguration.warning("Project '%s' is not part of the KnownProjects list.",project)
         #print(KnownProjects)
 
     return project
@@ -338,7 +334,7 @@ def ConfigureBeamType():
     logAutoConfiguration.debug("Configuring beamType...")
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType.is_locked():      
-        logAutoConfiguration.info("beamType is locked to '%s'. We won't change change it."%jobproperties.Beam.beamType())
+        logAutoConfiguration.info("beamType is locked to '%s'. We won't change change it.",jobproperties.Beam.beamType())
         return
 
     BeamType=None
@@ -351,10 +347,10 @@ def ConfigureBeamType():
         listOfKnownBeamTypes=['cosmics' ,'singlebeam','collisions']
         if metadata['beam_type'] in listOfKnownBeamTypes:
             BeamType = metadata['beam_type']
-    except:
+    except Exception:
         logAutoConfiguration.info("beam type not stored in input file, set beam type according to project name...")
         
-    if BeamType==None:
+    if BeamType is None:
         project=GetProjectName()
         if project in KnownCosmicsProjects: BeamType='cosmics'
         elif project in KnownTestProjects: BeamType='cosmics'
@@ -363,13 +359,13 @@ def ConfigureBeamType():
         elif project in KnownHeavyIonProjects: BeamType='collisions'
         elif project in KnownHeavyIonProtonProjects: BeamType='collisions'
     # special treatment for online, set to collisions if undefined
-    if BeamType==None:
+    if BeamType is None:
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         if athenaCommonFlags.isOnline():
             BeamType='collisions' # best guess if we have encountered an unknown project name
-            logAutoConfiguration.warning("Unable to determine BeamType from project name, guessing: %s" % BeamType)
+            logAutoConfiguration.warning("Unable to determine BeamType from project name, guessing: %s", BeamType)
             
-    if BeamType==None:
+    if BeamType is None:
         raise RuntimeError("Unable to determine beamType from projectName '%s'"%project)
     else:
         from AthenaCommon.BeamFlags import jobproperties
@@ -384,11 +380,11 @@ def ConfigureBeamType():
         if project in KnownHeavyIonProjects:
             rec.doHeavyIon.set_Value_and_Lock(True)
             rec.doHIP.set_Value_and_Lock(False)
-            logAutoConfiguration.info("Set rec.doHeavyIon=True based on project tag '%s'" % project)
+            logAutoConfiguration.info("Set rec.doHeavyIon=True based on project tag '%s'", project)
         elif project in KnownHeavyIonProtonProjects:
             rec.doHeavyIon.set_Value_and_Lock(False)
             rec.doHIP.set_Value_and_Lock(True)
-            logAutoConfiguration.info("Set rec.doHIP=True based on project tag '%s'" % project)
+            logAutoConfiguration.info("Set rec.doHIP=True based on project tag '%s'", project)
         else:
             logAutoConfiguration.info("Not a heavy ion project")
             pass
@@ -415,7 +411,7 @@ def ConfigureNumberOfCollisions():
         # auto configure number of collissions
         try:
             jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(metadata['numberOfCollisions'])
-        except:
+        except Exception:
             logAutoConfiguration.warning("numberOfCollisions could not be auto configured, no info available using default value: %s "
                                          ,jobproperties.Beam.numberOfCollisions() )
             return
@@ -491,7 +487,7 @@ def ConfigureBeamEnergy():
                 else:
                     logAutoConfiguration.warning("Could not auto-configure beam energy based on project name: %s" , projectName)
                     return
-                if beamEnergy!=None:
+                if beamEnergy is not None:
                     jobproperties.Beam.energy.set_Value_and_Lock(beamEnergy)
         elif metadata['eventTypes'][0] == 'IS_SIMULATION':
             if metadata['beam_energy'] != 'N/A' and metadata['beam_energy'] != '':
@@ -515,7 +511,7 @@ def ConfigureBeamBunchSpacing():
         try:
             jobproperties.Beam.bunchSpacing.set_Value_and_Lock(int(metadata['intraTrainBunchSpacing']))
             logAutoConfiguration.info("Auto configured bunchSpacing: %s ", jobproperties.Beam.bunchSpacing())
-        except:
+        except Exception:
             logAutoConfiguration.warning("bunchSpacing could not be auto configured, no info available using default value: %s ",jobproperties.Beam.bunchSpacing() )
 
     else:
@@ -551,7 +547,7 @@ def ConfigureBeamBunchSpacing():
                 jobproperties.Beam.bunchSpacing.set_Value_and_Lock(25)
                 logAutoConfiguration.info("Autoconfigure bunch-spacing to 25 ns")
             else:
-                logAutoConfiguration.info("larger bunch spacing, leave default value of %i ns" % jobproperties.Beam.bunchSpacing())
+                logAutoConfiguration.info("larger bunch spacing, leave default value of %i ns", jobproperties.Beam.bunchSpacing())
                 pass
             pass
         else:
@@ -639,20 +635,20 @@ def ConfigureInputType():
         rec.doAOD=False
         rec.doESD=True
         rec.doWriteAOD=False
-        logAutoConfiguration.info ("BS format: setting globalflags.InputFormat=%s "%globalflags.InputFormat() )
-        logAutoConfiguration.info ("BS format: setting rec.readRDO=%s "%rec.readRDO() )
-        logAutoConfiguration.info ("BS format: setting rec.doAOD=%s "%rec.doAOD() )
-        logAutoConfiguration.info ("BS format: setting rec.doESD=%s "%rec.doESD() )
-        logAutoConfiguration.info ("BS format: setting rec.doWriteAOD=%s "%rec.doWriteAOD() )
+        logAutoConfiguration.info ("BS format: setting globalflags.InputFormat=%s ",globalflags.InputFormat() )
+        logAutoConfiguration.info ("BS format: setting rec.readRDO=%s ",rec.readRDO() )
+        logAutoConfiguration.info ("BS format: setting rec.doAOD=%s ",rec.doAOD() )
+        logAutoConfiguration.info ("BS format: setting rec.doESD=%s ",rec.doESD() )
+        logAutoConfiguration.info ("BS format: setting rec.doWriteAOD=%s ",rec.doWriteAOD() )
     else:        
         globalflags.InputFormat='pool'
         #Get streamsName
         streamsName=[]
         if 'processingTags' in metadata:
             streamsName = metadata['processingTags']
-        if streamsName==None:
+        if streamsName is None:
             streamsName=[]
-        logAutoConfiguration.info("Extracted streams %s from input file " % streamsName )   
+        logAutoConfiguration.info("Extracted streams %s from input file ", streamsName )
 
         if len(streamsName)==0:
            logAutoConfiguration.warning("ConfigureInputType: no stream in input file.")   
@@ -664,7 +660,7 @@ def ConfigureInputType():
     from RecExConfig.RecoFunctions import OverlapLists
     try:
         from PrimaryDPDMaker.PrimaryDPDFlags import listRAWtoDPD,listESDtoDPD,listAODtoDPD
-    except:
+    except Exception:
         logAutoConfiguration.warning("Unable to import PrimaryDPDFlags. OK for ATN tests below AtlasAnalysis, otherwise suspicious.")
         listRAWtoDPD=[]
         listESDtoDPD=[]
@@ -675,15 +671,15 @@ def ConfigureInputType():
         from PrimaryDPDMaker.PrimaryDPDFlags import listBackwardCompatibleAODtoDPD, listBackwardCompatibleESDtoDPD
         listESDtoDPD.extend(listBackwardCompatibleESDtoDPD)
         listAODtoDPD.extend(listBackwardCompatibleAODtoDPD)
-    except:
+    except Exception:
         logAutoConfiguration.warning("Primary DPDMake does not support the old naming convention!!")   
 
-    if 'TagStreamsRef' in metadata and metadata['TagStreamsRef']!=None:
+    if 'TagStreamsRef' in metadata and metadata['TagStreamsRef'] is not None:
         logAutoConfiguration.info("Input TAG detected")
         rec.readTAG=True
-        logAutoConfiguration.info ("Auto configured rec.readTAG=%s "%rec.readTAG() )
+        logAutoConfiguration.info ("Auto configured rec.readTAG=%s ",rec.readTAG() )
 
-    from RecExConfig.RecoFunctions import ItemInListStartsWith    
+    from RecExConfig.RecoFunctions import ItemInListStartsWith
     if ItemInListStartsWith ("StreamAOD", streamsName) or ItemInListStartsWith('StreamDAOD',streamsName) or ItemInListStartsWith('StreamD2AOD',streamsName) or OverlapLists(streamsName,listAODtoDPD) or ItemInListStartsWith('DAOD',streamsName) or ItemInListStartsWith('D2AOD',streamsName):
         logAutoConfiguration.info("Input AOD detected")   
         rec.readRDO=False
@@ -691,7 +687,7 @@ def ConfigureInputType():
         rec.readAOD=True
         rec.doAOD=False
         rec.doESD=False
-        logAutoConfiguration.info ("setting rec.readAOD=%s "%rec.readAOD() )
+        logAutoConfiguration.info ("setting rec.readAOD=%s ",rec.readAOD() )
     elif ItemInListStartsWith ("StreamESD", streamsName) or ItemInListStartsWith('StreamDESD',streamsName) or ItemInListStartsWith('StreamD2ESD',streamsName) or OverlapLists(streamsName,listESDtoDPD) or ItemInListStartsWith('DESD',streamsName) or ItemInListStartsWith('D2ESD',streamsName):
         logAutoConfiguration.info("Input ESD detected")   
         rec.readRDO=False
@@ -699,8 +695,8 @@ def ConfigureInputType():
         rec.readAOD=False
         rec.doAOD=True
         rec.doESD=False
-        logAutoConfiguration.info ("setting rec.readESD=%s "%rec.readESD() )
-        logAutoConfiguration.info ("setting rec.doAOD=%s "%rec.doAOD() )
+        logAutoConfiguration.info ("setting rec.readESD=%s ",rec.readESD() )
+        logAutoConfiguration.info ("setting rec.doAOD=%s ",rec.doAOD() )
     elif ItemInListStartsWith ("Stream1", streamsName) or ItemInListStartsWith ("StreamRDO", streamsName) or ItemInListStartsWith ("OutputStreamRDO", streamsName) or OverlapLists(streamsName,listRAWtoDPD):
         logAutoConfiguration.info("Input RDO detected")   
         rec.readRDO=True
@@ -708,8 +704,8 @@ def ConfigureInputType():
         rec.readAOD=False
         rec.doAOD=False
         rec.doESD=True
-        logAutoConfiguration.info ("setting rec.readRDO=%s "%rec.readRDO() )
-        logAutoConfiguration.info ("setting rec.doESD=%s "% rec.doESD() )
+        logAutoConfiguration.info ("setting rec.readRDO=%s ",rec.readRDO() )
+        logAutoConfiguration.info ("setting rec.doESD=%s ",rec.doESD() )
     elif ItemInListStartsWith ("StreamEVGEN", streamsName):
         logAutoConfiguration.info("Input EVGEN detected")   
         rec.readRDO=False
@@ -732,35 +728,35 @@ def ConfigureTriggerStream():
     if metadata['file_type'] == 'BS':
         try:
             streamName = metadata['stream'].split('_')[1]
-        except:
+        except Exception:
             logAutoConfiguration.warning("Input file does not contain bs_metadata! Trying to specify otherwise!")
     elif metadata['file_type'] == 'POOL':
         try:
             streamName = metadata['triggerStreamOfFile']
-        except:
+        except Exception:
             logAutoConfiguration.warning("Input file does not contain triggerStreamOfFile! Trying to specify otherwise!")
 
     if streamName=='':
         try:
             if len(metadata['processingTags'])==1:
                 streamName = metadata['processingTags'][0]
-        except:
+        except Exception:
             logAutoConfiguration.warning("No trigger stream found in input file!!! ") 
 
 
     if streamName=='':
         logAutoConfiguration.info("Failed to find triggerStream from MetaReaderPeeker. OK for MC but can be problematic for data.")
-        logAutoConfiguration.info("Keeping input value untouched: rec.triggerStream='%s'"%rec.triggerStream())
+        logAutoConfiguration.info("Keeping input value untouched: rec.triggerStream='%s'",rec.triggerStream())
         return
     
-    logAutoConfiguration.info("Set rec.triggerStream='%s' from MetaReaderPeeker."%streamName)
+    logAutoConfiguration.info("Set rec.triggerStream='%s' from MetaReaderPeeker.",streamName)
     rec.triggerStream=streamName
     return
 
 
 def ConfigureConditionsTag():
     if globalflags.ConditionsTag.is_locked():
-        logAutoConfiguration.info("conditionsTag is locked to value: '%s'."%globalflags.ConditionsTag())
+        logAutoConfiguration.info("conditionsTag is locked to value: '%s'.",globalflags.ConditionsTag())
         return
 
     from PyUtils.MetaReaderPeeker import metadata
@@ -768,7 +764,7 @@ def ConfigureConditionsTag():
         try:
             globalflags.ConditionsTag.set_Value_and_Lock(metadata['IOVDbGlobalTag'])
             logAutoConfiguration.info("Auto-configured ConditionsTag '%s' from MetaReaderPeeker ",globalflags.ConditionsTag())
-        except:
+        except Exception:
             logAutoConfiguration.error("ConditionsTag could not be auto-configured no info stored in MetaReaderPeeker!!!")
             #logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with conditions_tag !")
 
@@ -778,15 +774,15 @@ def ConfigureConditionsTag():
     else: #Regular data files 
         try:
             year=int(rec.projectName()[4:6])
-        except:
-            logAutoConfiguration.warning("Failed to extract year from project tag "+ rec.projectName() +". Guessing 2015")
+        except Exception:
+            logAutoConfiguration.warning("Failed to extract year from project tag %s. Guessing 2015", rec.projectName())
             year=15
         if (year<14): #Run1
             globalflags.ConditionsTag.set_Value_and_Lock("COMCOND-BLKPA-RUN1-09")
-            logAutoConfiguration.info("Found run 1 input bytestream file, autoconfigure conditions tag to '%s'"%globalflags.ConditionsTag())
+            logAutoConfiguration.info("Found run 1 input bytestream file, autoconfigure conditions tag to '%s'",globalflags.ConditionsTag())
         else:
             globalflags.ConditionsTag.set_Value_and_Lock("CONDBR2-BLKPA-2015-17")
-            logAutoConfiguration.info("Found run 2 input bytestream file, autoconfigure conditions tag to '%s'"%globalflags.ConditionsTag())
+            logAutoConfiguration.info("Found run 2 input bytestream file, autoconfigure conditions tag to '%s'",globalflags.ConditionsTag())
             pass
         pass
     return
@@ -818,7 +814,7 @@ def ConfigureFieldAndGeoESDtoESD():
 
     logAutoConfiguration.info("Auto configured Geometry: %s ",globalflags.DetDescrVersion() )
     from AthenaCommon.BFieldFlags import jobproperties
-    logAutoConfiguration.info("Auto configured B Field: ");
+    logAutoConfiguration.info("Auto configured B Field: ")
     logAutoConfiguration.info("BField: barrelToroidOn = %s ",jobproperties.BField.barrelToroidOn() )
     logAutoConfiguration.info("BField: BField.endcapToroidOn = %s ",jobproperties.BField.endcapToroidOn() )
     logAutoConfiguration.info("BField: BField.solenoidOn = %s ",jobproperties.BField.solenoidOn() )
@@ -826,13 +822,13 @@ def ConfigureFieldAndGeoESDtoESD():
 
 def ConfigureDoTruth():
     if rec.doTruth.is_locked():
-        logAutoConfiguration.info ("rec.doTruth=%s is locked. Auto-config will not attempt to change it."%rec.doTruth())
+        logAutoConfiguration.info ("rec.doTruth=%s is locked. Auto-config will not attempt to change it.",rec.doTruth())
         return
 
     from PyUtils.MetaReaderPeeker import metadata, convert_itemList
     if metadata['file_type'] == 'BS' and metadata['eventTypes'][0] != 'IS_SIMULATION':
         rec.doTruth.set_Value_and_Lock(False)
-        logAutoConfiguration.info("Input is bytestream. Auto-configuring doTruth=%s"%rec.doTruth())
+        logAutoConfiguration.info("Input is bytestream. Auto-configuring doTruth=%s",rec.doTruth())
 
     if metadata['file_type'] == 'POOL':
         itemsList = convert_itemList(layout='#join')
@@ -843,9 +839,9 @@ def ConfigureDoTruth():
 
         rec.doTruth.set_Value_and_Lock(itemsHaveTruth)
         if itemsHaveTruth:
-            logAutoConfiguration.info("Input has McEventCollection. Auto-configuring doTruth=%s"%rec.doTruth())
+            logAutoConfiguration.info("Input has McEventCollection. Auto-configuring doTruth=%s",rec.doTruth())
         else:
-            logAutoConfiguration.info("Input has no McEventCollection. Auto-configuring doTruth=%s"%rec.doTruth())
+            logAutoConfiguration.info("Input has no McEventCollection. Auto-configuring doTruth=%s",rec.doTruth())
         
     return
 
@@ -857,16 +853,16 @@ def IsInInputFile(collectionname,key=None):
             try:
                 ItemDic = convert_itemList(layout='dict')
                 if collectionname in ItemDic:
-                    logAutoConfiguration.info("found collection with name %s in input file." % collectionname)
+                    logAutoConfiguration.info("found collection with name %s in input file.", collectionname)
                     print(ItemDic[collectionname])
                     if key is None:
                         logAutoConfiguration.info("no explicit storegate key given. Returning True")
                         return True
                     if key in ItemDic[collectionname]:
-                        logAutoConfiguration.info("collection with key %s is in input file. Returning True" % key)
+                        logAutoConfiguration.info("collection with key %s is in input file. Returning True", key)
                         return True
                     else:
-                        logAutoConfiguration.info("collection with key %s is NOT in input file. Returning False" % key)
+                        logAutoConfiguration.info("collection with key %s is NOT in input file. Returning False", key)
                         return False
                     logAutoConfiguration.info("Shouldn't be here !")
                     return False
@@ -877,7 +873,7 @@ def IsInInputFile(collectionname,key=None):
     except Exception:
         logAutoConfiguration.warning("Could not run IsInInputFile. input file maybe not specified at this point")#
 
-    logAutoConfiguration.info("looks like object of name %s is NOT in input file. Returning False" % key)
+    logAutoConfiguration.info("looks like object of name %s is NOT in input file. Returning False", key)
     return False
 
 def ConfigureSimulationOrRealData():
@@ -885,7 +881,7 @@ def ConfigureSimulationOrRealData():
     whatIsIt="N/A"
     try:
         whatIsIt = metadata['eventTypes'][0]
-    except:
+    except Exception:
         if metadata['nentries'] == 0:
             logAutoConfiguration.error("Input file has no events: unable to configure SimulationOrRealData.")
             return
@@ -905,11 +901,13 @@ def ConfigureSimulationOrRealData():
     return
 
 def ConfigureFromListOfKeys(l):
+    from RecExConfig.RecoFunctions import ItemInList
+
     keys=set(l)
     allDefaultKeys=frozenset(('ProjectName','RealOrSim','FieldAndGeo','BeamType','ConditionsTag','DoTruth','InputType','BeamEnergy','LumiFlags','TriggerStream'))
     if 'everything' in keys:
         keys.remove('everything')
-        keys |= allDefaultKeys;
+        keys |= allDefaultKeys
         logAutoConfiguration.info("Auto-configuration key 'everything' requested. All default keys will be used.")
 
     logAutoConfiguration.info("Auto-configuration will procede according to the following keys:")
@@ -959,7 +957,7 @@ def ConfigureFromListOfKeys(l):
 
     #Final sanity check...
     for key in keys:
-        if not key in allDefaultKeys:
+        if key not in allDefaultKeys:
             #these special keys are allowed to not be allDefaultKeys, however check for conflicts
             if key=="FieldAndGeoESDToESD":
                 if ItemInList("FieldAndGeo",l):

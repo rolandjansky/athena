@@ -15,9 +15,10 @@
 #include "TrkDriftCircleMath/MdtId.h"
 #include <TString.h> // for Form
 
+// maxNTubesPerLayer is included via MdtChamberGeometry.h -> DriftCircle.h
+
 namespace Muon{
 
-  
   MdtIntersectGeometry::MdtIntersectGeometry(const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData, MsgStream* msg, const Muon::IMuonIdHelperSvc* idHelp) :
       m_chid(chid),
       m_mdtGeometry(nullptr),
@@ -105,7 +106,7 @@ namespace Muon{
   {
     if (ml<0 || ml>1) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with ml=%d which is definitely out of range", __FILE__, __LINE__,ml));
     if (layer<0 || layer>3) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with layer=%d which is definitely out of range", __FILE__, __LINE__,layer));
-    if (tube<0 || tube>119) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with tube=%d which is definitely out of range", __FILE__, __LINE__,tube));
+    if (tube<0 || tube>int(maxNTubesPerLayer-1)) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with tube=%d which is definitely out of range", __FILE__, __LINE__,tube));
     // shift by one to account for MuonGeoModel scheme
     int theTube = tube+1;
     int theLayer = layer+1;
@@ -246,7 +247,7 @@ namespace Muon{
       std::vector<int>::iterator it = tubes.begin();
       for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
          for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-           int want_id = layer*100 + tube;
+           int want_id = layer*maxNTubesPerLayer + tube;
            if (it != tubes.end() && *it == want_id) {
              ++it;
            }

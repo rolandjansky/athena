@@ -1,0 +1,108 @@
+\documentclass[11pt]{amsart}
+\usepackage[left=10px,right=10px,top=10px,bottom=10px,paperwidth=12in, paperheight=12in]{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{a4paper}                   % ... or a4paper or a5paper or ... 
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{xstring}
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage[english]{babel}
+\usepackage{tikz}
+\usepackage{ifthen}
+\usepackage{calc}
+%\usepackage{pfgopts}
+\usepackage{tikz-uml}
+\usetikzlibrary{positioning}
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+\title{Brief Article}
+\author{The Author}
+%\date{}                                           % Activate to display a given date or no date
+
+\begin{document}
+%\maketitle
+%\section{}
+%\subsection{}
+
+ 
+\begin{tikzpicture} 
+\begin{umlseqdiag}
+\umlobject [class=Node] {tree}
+\umlobject [class=ConditionsToolSetterFastReduction, x=5] {toolSetter}
+\begin{umlcall}[op={mod(self)}, dt=5]{tree}{toolSetter}
+	\umlcreatecall[class=Node, x=15]{toolSetter}{root}
+	\begin{umlcall}[op={attach(tree)}, dt=5]{toolSetter}{root}
+	\end{umlcall}
+	\begin{umlcall}[op={check\_scenarios}, dt=5]{toolSetter}{root}
+	\end{umlcall}
+	\begin{umlcall}[op={set\_conditions(root)}]{toolSetter}{toolSetter}
+		\begin{umlcall}[op={mod\_leaf(node)}]{toolSetter}{toolSetter}
+			\umlcreatecall[class=TrigJetConditionConfig\_compound, x=11]{toolSetter}{anon}
+			\begin{umlcall}[op={attach(anon)}]{toolSetter}{root}
+			\end{umlcall}
+		\end{umlcall}
+	\end{umlcall}	
+	\begin{umlcall}[op={remove\_combgen}, dt=5]{toolSetter}{root}
+	\end{umlcall}
+	\begin{umlcall}[op={remo\_combgen}, dt=5]{toolSetter}{root}
+	\end{umlcall}
+	\begin{umlcall}[op={split\_leaves}, dt=5]{toolSetter}{root}
+	\end{umlcall}
+	\begin{umlcall}[op={find\_shared}, dt=5]{toolSetter}{root}
+	\end{umlcall}
+	\begin{umlcall}[op={set\_ids(par=0, id=0)}, dt=5]{toolSetter}{root}
+	\end{umlcall}
+	\umlcreatecall[class=map, x=9]{toolSetter}{conditionsMap}
+	\begin{umlcall}[op={fillConditionsMap(conditionsMap)}]{toolSetter}{root}
+	\end{umlcall}
+	\begin{umlcallself}[op={map\_2\_vec(conditionsMap)}, return=conditionsVec]{toolSetter}
+	\end{umlcallself}
+	\umlcreatecall[class=map, x=9]{toolSetter}{tree-map}
+	\begin{umlcall}[op={fill\_tree\_map(tree-map)}]{toolSetter}{toolSetter}
+	\end{umlcall}
+	\begin{umlcallself}[op={map\_2\_vec(tree-map)}, return=treeVec]{toolSetter}
+	\end{umlcallself}
+	\umlcreatecall[class=TrigJetHypoToolConfig-fastreduction, x=15]{toolSetter}{confTool}
+	\begin{umlcall}[op={attach(conditionsVec)}]{toolSetter}{confTool}
+	\end{umlcall}
+	\begin{umlcall}[op={attach(treeVec)}]{toolSetter}{confTool}
+	\end{umlcall}
+	\begin{umlcall}[op={attach(sharedVector)}]{toolSetter}{confTool}
+	\end{umlcall}
+	\umlcreatecall[class=TrigJetHypoToolHelperMT, x=11]{toolSetter}{helperTool}
+	\begin{umlcall}[op={attach(configTool)}]{toolSetter}{helperTool}
+	\end{umlcall}
+	\begin{umlcall}[op={attach(helperTool)}]{toolSetter}{toolSetter}
+	\end{umlcall}
+\end{umlcall}
+%	\umlcreatecall[class=TrigJetHypoTool, x=25.7]{trigJetHypoToolFromDict}{tool}
+%	\begin{umlcall}[op={chaindict}, dt=5, return=helper]{trigJetHypoToolFromDict}{trigJetHypoToolHelperFromDict}
+%		\umlcreatecall[class=ChainLabel, x=13]{trigJetHypoToolHelperFromDict}{label}
+%		\umlcreatecall[class=ConditionsToolSetterFastReduction, x=19]{trigJetHypoToolHelperFromDict} {t-setter}
+%		\umlcreatecall[class=ChainLabelParser, x=13.7]{trigJetHypoToolHelperFromDict} {parser}
+%		\begin{umlcall}[op={parse(label)}, dt=5, return=tree]{trigJetHypoToolHelperFromDict}{parser}
+%			\umlcreatecall[class=Node, x=16.5]{parser}{tree}
+%		\end{umlcall}
+%		\umlcreatecall[class=TreeParameterExpander, x=13.7]{trigJetHypoToolHelperFromDict} {visitor}
+%		\begin{umlcall}[op={accept(visitor)}, dt=5]{trigJetHypoToolHelperFromDict}{tree}
+%		\end{umlcall}
+%		\begin{umlcall}[op={accept(t-setter)}, dt=5]{trigJetHypoToolHelperFromDict}{tree}
+%			\begin{umlcall}[op={mod(tree)}, return=helper, dt=5]{tree}{t-setter}
+%				\umlcreatecall[class=TrigJetHypoHelperTool, x=23]{t-setter} {helper}
+%			\end{umlcall}
+%			\begin{umlcallself}[op=attach(helper)]{tree}
+%			\end{umlcallself}
+%		\end{umlcall}
+%	\end{umlcall}
+%	\begin{umlcall}[op={attach(helper)}, dt=5]{trigJetHypoToolFromDict}{tool}
+%	\end{umlcall}
+%\end{umlcall}
+\end{umlseqdiag}
+
+
+
+\end{tikzpicture}
+
+
+\end{document}  

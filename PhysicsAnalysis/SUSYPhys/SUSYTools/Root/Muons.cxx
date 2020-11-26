@@ -546,32 +546,32 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
 
   double sf(1.);
   //Set the new systematic variation
-  CP::SystematicCode ret = m_muonEfficiencySFTool->applySystematicVariation(systConfig);
-  if ( ret != CP::SystematicCode::Ok) {
+  StatusCode ret = m_muonEfficiencySFTool->applySystematicVariation(systConfig);
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonEfficiencyScaleFactors for systematic var. " << systConfig.name() );
   }
 
   ret = m_muonEfficiencyBMHighPtSFTool->applySystematicVariation(systConfig);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonBadMuonHighPtScaleFactors for systematic var. " << systConfig.name() );
   }
 
   ret = m_muonTTVAEfficiencySFTool->applySystematicVariation(systConfig);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonTTVAEfficiencyScaleFactors for systematic var. " << systConfig.name() );
   }
 
   ret  = m_muonIsolationSFTool->applySystematicVariation(systConfig);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonIsolationScaleFactors for systematic var. " << systConfig.name() );
   }
 
   ret  = m_muonTriggerSFTool2015->applySystematicVariation(systConfig);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2015) for systematic var. " << systConfig.name() );
   }
   ret  = m_muonTriggerSFTool2016->applySystematicVariation(systConfig);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2016) for systematic var. " << systConfig.name() );
   }
 
@@ -579,31 +579,31 @@ double SUSYObjDef_xAOD::GetTotalMuonTriggerSF(const xAOD::MuonContainer& sfmuons
 
   //Roll back to default
   ret  = m_muonEfficiencySFTool->applySystematicVariation(m_currentSyst);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonEfficiencyScaleFactors back to default.");
   }
 
   ret = m_muonEfficiencyBMHighPtSFTool->applySystematicVariation(m_currentSyst);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonBadMuonHighPtScaleFactors back to default.");
   }
 
   ret  = m_muonTTVAEfficiencySFTool->applySystematicVariation(m_currentSyst);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonTTVAEfficiencyScaleFactors back to default.");
   }
 
   ret  = m_muonIsolationSFTool->applySystematicVariation(m_currentSyst);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonIsolationScaleFactors back to default.");
   }
 
   ret  = m_muonTriggerSFTool2015->applySystematicVariation(m_currentSyst);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2015) back to default.");
   }
   ret  = m_muonTriggerSFTool2016->applySystematicVariation(m_currentSyst);
-  if ( ret != CP::SystematicCode::Ok) {
+  if ( ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure MuonTriggerScaleFactors (2016) back to default.");
   }
 

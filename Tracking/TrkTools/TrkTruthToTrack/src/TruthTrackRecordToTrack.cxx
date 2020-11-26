@@ -108,7 +108,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
                             (*record).GetMomentum().z());
       globalMom = hv2;
 
-      ATH_MSG_DEBUG("found barcode " << part->barcode() << " with pdg ID " <<
+      ATH_MSG_DEBUG("found barcode " << HepMC::barcode(part) << " with pdg ID " <<
                     id << ", momentum " << hv2 << " production " << globalPos);
       
 

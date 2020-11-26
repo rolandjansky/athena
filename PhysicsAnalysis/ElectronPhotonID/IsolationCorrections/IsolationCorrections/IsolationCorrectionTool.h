@@ -47,7 +47,7 @@ class IsolationCorrectionTool  : virtual public IIsolationCorrectionTool,
         //Systematics to be used for physics analysis
         virtual CP::SystematicSet recommendedSystematics() const override;
         //Use specific systematic
-        virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig ) override;
+        virtual StatusCode applySystematicVariation ( const CP::SystematicSet& systConfig ) override;
 
         virtual float GetPtCorrectedIsolation(const xAOD::Egamma&, xAOD::Iso::IsolationType) override;
 	virtual float GetPtCorrection(const xAOD::Egamma&, xAOD::Iso::IsolationType) const override;

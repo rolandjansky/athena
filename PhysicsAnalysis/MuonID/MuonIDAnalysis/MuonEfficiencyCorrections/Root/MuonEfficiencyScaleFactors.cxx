@@ -7,7 +7,7 @@
 #include "MuonEfficiencyCorrections/EffiCollection.h"
 
 #include "AsgDataHandles/ReadHandle.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PathResolver/PathResolver.h"
@@ -507,10 +507,10 @@ namespace CP {
         }
         return affectingSystematics();
     }
-    SystematicCode MuonEfficiencyScaleFactors::applySystematicVariation(const SystematicSet& systConfig) {
+    StatusCode MuonEfficiencyScaleFactors::applySystematicVariation(const SystematicSet& systConfig) {
         if (!m_init) {
             ATH_MSG_ERROR("Initialize first the tool!");
-            return SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
         
         //check if systematics is cached
@@ -521,7 +521,7 @@ namespace CP {
         if (itr == m_filtered_sys_sets.end()) {
              if (!SystematicSet::filterForAffectingSystematics(systConfig, m_affectingSys, mySysConf)) {
                 ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool! ");
-                return SystematicCode::Unsupported;
+                return StatusCode::FAILURE;
             }
             itr = m_filtered_sys_sets.find(mySysConf);
         }
@@ -531,7 +531,7 @@ namespace CP {
             std::vector<std::unique_ptr<EffiCollection>>::const_iterator coll_itr = std::find_if(m_sf_sets.begin(), m_sf_sets.end(),[&mySysConf](const std::unique_ptr<EffiCollection>& a){return a->isAffectedBySystematic(mySysConf);});
             if (coll_itr == m_sf_sets.end()){
                 ATH_MSG_WARNING("Invalid systematic given.");
-                return SystematicCode::Unsupported;
+                return StatusCode::FAILURE;
             }
             m_filtered_sys_sets.insert(std::pair<SystematicSet, EffiCollection*>(systConfig, coll_itr->get()));
             itr = m_filtered_sys_sets.find(systConfig);
@@ -547,13 +547,13 @@ namespace CP {
                     std::pair<unsigned, float> pair = (*t).getToyVariation();
                     if (pair.first != 0 && !m_current_sf->SetSystematicBin(pair.first)){
                         ATH_MSG_WARNING("Could not apply systematic " << (*t).name() << " for bin " << pair.first);
-                            return SystematicCode::Unsupported;
+                            return StatusCode::FAILURE;
                     }
-                    return SystematicCode::Ok; 
+                    return StatusCode::SUCCESS; 
                 }
             }
         }
-        return SystematicCode::Ok;
+        return StatusCode::SUCCESS;
     }
     std::string MuonEfficiencyScaleFactors::getUncorrelatedSysBinName(unsigned int Bin) const {
         if (!m_current_sf){

@@ -88,11 +88,7 @@ namespace JiveXML {
     for ( McEvtCollItr = McEvtColl->begin(); McEvtCollItr != McEvtColl->end(); ++McEvtCollItr){
 
       //Loop over particles in the event
-      HepMC::GenEvent::particle_const_iterator ParticleItr = (*McEvtCollItr)->particles_begin();
-      for ( ; ParticleItr!=(*McEvtCollItr)->particles_end(); ++ParticleItr ) {
-
-        //Get the particle
-        auto particle = (*ParticleItr);
+      for (auto particle:  *(*McEvtCollItr) ) {
         
         //Additional cuts for decaying particles
         if ( particle->end_vertex() ) {

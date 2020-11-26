@@ -54,7 +54,7 @@ public:
   /// returns: the list of all systematics this tool recommends to use
   virtual CP::SystematicSet recommendedSystematics() const;
 
-  virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
+  virtual StatusCode applySystematicVariation( const CP::SystematicSet& systConfig );
 
   enum TESComponent
   {

@@ -405,7 +405,7 @@ StatusCode MuonTool::muonSetup(MissingETMuonData *muondata) {
     HepLorentzVector muonHLV = (*muonBoyItr)->hlv();
     truthMatched = false;
     jetMatched = false;
-    for (std::vector<const HepMC::GenParticle*>::const_iterator it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
+    for (auto it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
       HepLorentzVector t1((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz(),(*it)->momentum().e());
       if(t1.deltaR(muonHLV) < .02) truthMatched = true;
     }//end of truth loop
@@ -504,7 +504,7 @@ StatusCode MuonTool::muonSetup(MissingETMuonData *muondata) {
 	  truthMatched = false;
 	  jetMatched = false;
 
-	  for (std::vector<const HepMC::GenParticle*>::const_iterator it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
+	  for (auto it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
 	    HepLorentzVector t1((*it)->momentum().px(),(*it)->momentum().py(),(*it)->momentum().pz(),(*it)->momentum().e());
 	    if(t1.deltaR(caloMuonHLV) < .02) truthMatched = true;
 	  }//end of truth loop
@@ -562,7 +562,7 @@ StatusCode MuonTool::muonSetup(MissingETMuonData *muondata) {
     }
   }//end of the jet loop
  
-  for (std::vector<const HepMC::GenParticle*>::const_iterator it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
+  for (auto it = truth_muons.begin(); it != truth_muons.end(); ++it ) {
     if(fabs((*it)->momentum().eta()) < 2.5 && sqrt(pow((*it)->momentum().px(),2)+pow((*it)->momentum().py(),2))/GeV > 2.0) {
       m_h_MC_eta_dist_Truth->Fill((*it)->momentum().eta());
       m_h_MC_phi_dist_Truth->Fill((*it)->momentum().phi());

@@ -69,7 +69,7 @@ bool JVTConditionMT::isSatisfied(const HypoJetVector& ips, const std::unique_ptr
 
 }
 
-std::string JVTConditionMT::toString() const noexcept {
+std::string JVTConditionMT::toString() const {
 
   std::stringstream ss;
   const void* address = static_cast<const void*>(this);

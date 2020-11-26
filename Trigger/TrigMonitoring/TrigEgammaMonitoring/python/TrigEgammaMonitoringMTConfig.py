@@ -11,6 +11,7 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 import cppyy
+import functools
  
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentFactory import CompFactory as CfgMgr
@@ -412,8 +413,8 @@ class TrigEgammaMonAlgBuilder:
     if self.activate_photon and self.phMonAlg:
       self.bookExpertHistograms( self.phMonAlg, self.phMonAlg.TriggerList )
   
-
- 
+  # If we've already defined the group, return the object already defined
+  @functools.lru_cache(None)
   def addGroup( self, monAlg, name, path ):
     return self.helper.addGroup( monAlg, name, path )
 

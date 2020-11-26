@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
 // extra-maths for cylinder intersections
-#include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"

@@ -9,7 +9,6 @@
 #include <vector>
 #include <string>
 
-//! ASG
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 
@@ -18,15 +17,11 @@
 #include "PanTauAlgs/ITool_TauConstituentGetter.h"
 #include "PanTauAlgs/ITool_InputConverter.h"
 
-//! xAOD EDM
 #include "xAODTau/TauJet.h"
 
 namespace PanTau {
-    class TauConstituent2;
+    class TauConstituent;
 }
-
-
-
 
 
 namespace PanTau {
@@ -43,7 +38,7 @@ class Tool_TauConstituentGetter : public asg::AsgTool, virtual public PanTau::IT
         virtual StatusCode initialize();
         
         virtual StatusCode GetTauConstituents(const xAOD::TauJet* tauJet,
-                                              std::vector<TauConstituent2*>& outputList,
+                                              std::vector<TauConstituent*>& outputList,
                                               std::string algName) const;
         
         
@@ -64,10 +59,7 @@ class Tool_TauConstituentGetter : public asg::AsgTool, virtual public PanTau::IT
         
     }; //end class ConstituentGetter
 
-
 }//end namespace PanTau
-
-
 
 
 #endif // PANTAUALGS_TOOL_TAUCONSTITUENTGETTER

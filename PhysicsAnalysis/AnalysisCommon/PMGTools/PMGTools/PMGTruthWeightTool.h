@@ -74,7 +74,7 @@ namespace PMGTools
     virtual CP::SystematicSet recommendedSystematics() const override;
 
     /// Implements interface from ISystematicsTool
-    virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
+    virtual StatusCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
 
     /// @}
 

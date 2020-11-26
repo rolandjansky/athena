@@ -15,7 +15,6 @@
 #include "CxxUtils/checker_macros.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-// For magneticfield
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
@@ -23,7 +22,6 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonTrackMakerUtils/SortMeasurementsByPosition.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMatchingTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuPatCandidateTool.h"
 

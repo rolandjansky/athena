@@ -236,7 +236,7 @@ StatusCode SCT_PrepDataToxAOD::execute(const EventContext& ctx) const
           std::vector<int> barcodes;
           auto range{prdmtColl->equal_range(clusterId)};
           for (auto& i{range.first}; i!=range.second; ++i) {
-            barcodes.push_back(i->second.barcode());
+            barcodes.push_back(HepMC::barcode(i->second));
           }
           AUXDATA(xprd, std::vector<int>, truth_barcode) = barcodes;
         }
@@ -280,7 +280,7 @@ void SCT_PrepDataToxAOD::addSDOInformation(xAOD::TrackMeasurementValidation* xpr
       std::vector<float> sdoDepEnergy(pos->second.getdeposits().size());
       unsigned int nDepos{0};
       for (auto& deposit: pos->second.getdeposits()) {
-        if (deposit.first) sdoDepBC[nDepos] = deposit.first->barcode();
+        if (deposit.first) sdoDepBC[nDepos] = HepMC::barcode(deposit.first);
         ATH_MSG_DEBUG(" SDO Energy Deposit " << deposit.second);
         sdoDepEnergy[nDepos] = deposit.second;
         nDepos++;

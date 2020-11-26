@@ -293,7 +293,7 @@ config.makeTool (ffjetsmearingtool, cleanup);
     printf("\n=============SYSTEMATICS CHECK NOW \n");
     for (auto sys : sysList)	 {
         // Tell the calibration tool which variation to apply
-        if (ffjetsmearingtool.applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+        if (ffjetsmearingtool.applySystematicVariation(sys) != StatusCode::SUCCESS) {
             printf("Error, Cannot configure calibration tool for systematics \n");
         }
 

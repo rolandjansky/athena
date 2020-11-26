@@ -123,7 +123,7 @@ namespace CP {
       bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
       CP::SystematicSet affectingSystematics() const;
       CP::SystematicSet recommendedSystematics() const;
-      CP::SystematicCode applySystematicVariation( const CP::SystematicSet& systConfig );
+      StatusCode applySystematicVariation( const CP::SystematicSet& systConfig );
 
 #ifndef XAOD_STANDALONE
      void updateHandler(Gaudi::Details::PropertyBase& /*p*/);

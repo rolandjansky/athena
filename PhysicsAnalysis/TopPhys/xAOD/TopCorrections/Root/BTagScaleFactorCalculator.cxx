@@ -14,7 +14,7 @@
 #include <functional>
 
 // For debug function
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicSet.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "CalibrationDataInterface/CalibrationDataInterfaceROOT.h"

@@ -135,7 +135,7 @@ StatusCode ReadTruthParticles::execute()
                  << " PDG-ID: " << (*itr)->pdgId()
                  << " nChildren: " << (*itr)->nDecay()
                  << " status: " << (*itr)->genParticle()->status()
-                 << " bc: " << (*itr)->genParticle()->barcode());
+                 << " bc: " << HepMC::barcode((*itr)->genParticle()));
     for ( unsigned int iChild = 0; iChild != (*itr)->nDecay(); ++iChild ){
       const TruthParticle * child = (*itr)->child( iChild );
       if ( 0 != child ) {
@@ -144,10 +144,10 @@ StatusCode ReadTruthParticles::execute()
             << "\tchild: " << iChild
             << "\tPDGID: " << child->pdgId()
             << " status: " << child->genParticle()->status()
-            << " bc: "     << child->genParticle()->barcode()
+            << " bc: "     << HepMC::barcode(child->genParticle())
             << " bc Parents: " << child->nParents() << " [ ";
           for ( unsigned int iMoth = 0; iMoth != child->nParents(); ++iMoth ) {
-            msg(MSG::INFO) << child->genMother(iMoth)->barcode() << " ";
+            msg(MSG::INFO) << HepMC::barcode(child->genMother(iMoth)) << " ";
           }
           msg(MSG::INFO) << "]" << endmsg;
         }

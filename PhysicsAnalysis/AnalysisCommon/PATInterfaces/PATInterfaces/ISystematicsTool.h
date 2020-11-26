@@ -11,7 +11,7 @@
 #include "AsgTools/IAsgTool.h"
 
 // Local include(s):
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicSet.h"
 
@@ -64,7 +64,7 @@ namespace CP {
       /// failures: unsupported combination of supported systematic
       /// failures: other tool specific errors
       ///
-      virtual SystematicCode applySystematicVariation
+      virtual StatusCode applySystematicVariation
       ( const SystematicSet& systConfig ) = 0;
 
    }; // class ISystematicsTool
