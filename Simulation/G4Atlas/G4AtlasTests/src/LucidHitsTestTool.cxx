@@ -1,16 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LucidHitsTestTool.h"
 
 #include "LUCID_SimEvent/LUCID_SimHitCollection.h"
-//#include "LUCID_SimEvent/LUCID_SimHit.h"
 #include "AtlasHepMC/GenParticle.h"
 
 #include <cmath>
 #include <string>
-#include <cmath>
 #include <TH2D.h>
 #include <TH1D.h>
 

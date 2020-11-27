@@ -44,8 +44,6 @@
 #include "LArG4RunControl/LArG4TBPosOptions.h"
 
 // Other useful tools for particle/event/beam info
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
