@@ -1,7 +1,7 @@
 // this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef HEPTopTagger_H
@@ -63,8 +63,9 @@ namespace HTTxAOD {
 
     /// Default constructor
     HEPTopTagger(const std::string& name);
+
     /// Default destructor
-    ~HEPTopTagger();
+    ~HEPTopTagger() {};
 
     StatusCode initialize();
 
@@ -103,15 +104,12 @@ namespace HTTxAOD {
     // Output functions
 
   private:
-    std::string m_name;
-
 
     ToolHandle<IJetFromPseudojet> m_jetFromPJTool;  // Tool to build jets.
     ToolHandleArray<IJetCalibrationTool> m_jetCalibTools;
     ToolHandleArray<IJetCalibrationTool> m_jetCalibToolsCA15;
 
     std::string m_preDefSettings;
-
 
     std::string m_topContName;
     //std::string m_topSubjetContName;
@@ -163,7 +161,6 @@ namespace HTTxAOD {
 
 
     // Properties of HEPTopTagger algorithm
-    // bool   m_isData;
 
     bool   m_CutCalibratedSubjetPt;
     // bool   m_InclusiveSubjets_areaCorrection;
@@ -209,10 +206,6 @@ namespace HTTxAOD {
     int    m_FilterNSubJets;
     double m_FilterR;
     std::string m_groomedContName;
-
-    // bool   debug;
-
-    // Output Variables
 
   }; // class HEPTopTagger
 }

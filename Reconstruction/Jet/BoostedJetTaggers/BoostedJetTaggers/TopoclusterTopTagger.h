@@ -7,95 +7,58 @@
 
 #include "BoostedJetTaggers/JSSTaggerBase.h"
 #include "BoostedJetTaggers/TopoclusterTransform.h"
-#include "AsgTools/AsgTool.h"
 
 #include "lwtnn/LightweightNeuralNetwork.hh"
 #include "lwtnn/parse_json.hh"
 
-#include <TF1.h>
+class TopoclusterTopTagger :
+  public JSSTaggerBase {
+    ASG_TOOL_CLASS0(TopoclusterTopTagger)
 
-#include <fstream>
+    public:
 
-class TopoclusterTopTagger :  public JSSTaggerBase {
+      enum Result {
 
-  ASG_TOOL_CLASS0(TopoclusterTopTagger)
+        OutOfRangeHighPt = -3,
+        OutOfRangeLowPt = -2,
+        OutOfRangeEta = -1,
+        InvalidJet = 0,
 
-  public:
+        AllPassed = 1,
+        MassPassMVAPass = 1,
 
-    enum Result {
+        MassPassMVAFail     = 2,
+        LowMassFailMVAPass  = 4,
+        LowMassFailMVAFail  = 8,
+        HighMassFailMVAPass = 16,
+        HighMassFailMVAFail = 32,
 
-      OutOfRangeHighPt = -3,
-      OutOfRangeLowPt = -2,
-      OutOfRangeEta = -1,
-      InvalidJet = 0,
+      };
 
-      AllPassed = 1,
-      MassPassMVAPass = 1,
+      //Default - so root can load based on a name
+      TopoclusterTopTagger(const std::string& name);
 
-      MassPassMVAFail     = 2,
-      LowMassFailMVAPass  = 4,
-      LowMassFailMVAFail  = 8,
-      HighMassFailMVAPass = 16,
-      HighMassFailMVAFail = 32,
+      // Run once at the start of the job to setup everything
+      virtual StatusCode initialize() override;
 
-    };
+      // IJetSelectorTool interface
+      virtual Root::TAccept& tag(const xAOD::Jet& jet) const override;
 
-    //Default - so root can load based on a name
-    TopoclusterTopTagger(const std::string& name);
+      // Preprocess the jet constituents by applying transformations
+      void preprocess(std::map<std::string,double> &clusters, xAOD::Jet jet) const;
 
-    // Default - so we can clean up
-    ~TopoclusterTopTagger();
-    TopoclusterTopTagger& operator=(const TopoclusterTopTagger& rhs);
+      // Retrieve score for a given DNN type (top/W)
+      double getScore(const xAOD::Jet& jet) const;
 
-    // Run once at the start of the job to setup everything
-    StatusCode initialize();
+      // Update the jet constituents for this jet to use in DNN
+      std::map<std::string,double> getJetConstituents(const xAOD::Jet& jet) const;
 
-    // IJetSelectorTool interface
-    virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
+    private:
 
-    // Preprocess the jet constituents by applying transformations
-    void preprocess(std::map<std::string,double> &clusters, xAOD::Jet jet) const;
+      // DNN tools
+      std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
+      std::map<std::string, double> m_DNN_inputValues;   // variables for DNN
 
-    // Retrieve score for a given DNN type (top/W)
-    double getScore(const xAOD::Jet& jet) const;
-
-    // Write the decoration to the jet
-    void decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const;
-
-    // Update the jet substructure variables for each jet to use in DNN
-    std::map<std::string,double> getJetProperties(const xAOD::Jet& jet) const;
-
-    // Update the jet constituents for this jet to use in DNN
-    std::map<std::string,double> getJetConstituents(const xAOD::Jet& jet) const;
-
-    StatusCode finalize();
-
-  private:
-    std::string m_name;
-    std::string m_APP_NAME;
-
-    // DNN tools
-    std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
-    std::map<std::string, double> m_DNN_inputValues;   // variables for DNN
-
-    // bool to check whether variables are corrupt
-    mutable bool m_undefInput;
-
-    // parameters to store specific cut values
-    std::string m_strMassCutLow;
-    std::string m_strMassCutHigh;
-    std::string m_strScoreCut;
-
-    // functions that are configurable for specific cut values
-    TF1* m_funcMassCutLow;
-    TF1* m_funcMassCutHigh;
-    TF1* m_funcScoreCut;
-
-    // decorators to be used throughout
-    SG::AuxElement::Decorator<float> m_dec_mcutL;
-    SG::AuxElement::Decorator<float> m_dec_mcutH;
-    SG::AuxElement::Decorator<float> m_dec_scoreCut;
-    SG::AuxElement::Decorator<float> m_dec_scoreValue;
-};
+  };
 
 #endif

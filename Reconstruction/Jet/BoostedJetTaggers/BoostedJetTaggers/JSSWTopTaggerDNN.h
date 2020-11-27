@@ -5,84 +5,40 @@
 #ifndef JSSWTOPTAGGERDNN_H_
 #define JSSWTOPTAGGERDNN_H_
 
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
 #include "BoostedJetTaggers/JSSTaggerBase.h"
-#include "AsgTools/AsgTool.h"
-#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 #include "lwtnn/LightweightNeuralNetwork.hh"
 #include "lwtnn/parse_json.hh"
 
-#include "xAODJet/JetContainer.h"
-#include "xAODTruth/TruthParticleContainer.h"
+class JSSWTopTaggerDNN :
+  public JSSTaggerBase {
+    ASG_TOOL_CLASS0(JSSWTopTaggerDNN)
 
-#include <TF1.h>
+    public:
 
-#include <fstream>
+      /// Constructor
+      JSSWTopTaggerDNN( const std::string& name );
 
-class JSSWTopTaggerDNN:  public JSSTaggerBase {
-  ASG_TOOL_CLASS0(JSSWTopTaggerDNN)
-  
-  public:
-  
-  //Default - so root can load based on a name
-  JSSWTopTaggerDNN(const std::string& name);
-  
-  // Default - so we can clean up
-  ~JSSWTopTaggerDNN();
-  JSSWTopTaggerDNN& operator=(const JSSWTopTaggerDNN& rhs);
-  
-  // Run once at the start of the job to setup everything
-  StatusCode initialize();
-  
-  // IJSSTagger interface
-  virtual Root::TAccept& tag(const xAOD::Jet& jet) const;
-  
-  // Retrieve score for a given DNN type (top/W)
-  double getScore(const xAOD::Jet& jet) const;
-  
-  // Get scale factor
-  std::pair<double,double> getWeight(const xAOD::Jet& jet) const;
-  
-  // Update the jet substructure variables for each jet to use in DNN
-  std::map<std::string,double> getJetProperties(const xAOD::Jet& jet) const;
-  StatusCode finalize();
-  
-private:
-  std::string m_name;
-  std::string m_APP_NAME;
-  
-  // for the tagging type
-    enum TAGCLASS{Unknown, WBoson, TopQuark};
+      /// Run once at the start of the job to setup everything
+      virtual StatusCode initialize() override;
 
-    // DNN tools
-    std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
-    std::map<std::string, double> m_DNN_inputValues;   // variables for DNN
+      /// IJetSelectorTool interface
+      virtual Root::TAccept& tag( const xAOD::Jet& jet ) const override;
 
-    // for internal usage
-    mutable TAGCLASS m_TagClass;
+    private:
 
-    // bool to check whether variables are corrupt
-    mutable bool m_undefInput;
+      /// DNN tools
+      std::unique_ptr<lwt::LightweightNeuralNetwork> m_lwnn;
 
-    // parameters to store specific cut values
-    std::string m_strMassCutLow;
-    std::string m_strMassCutHigh;
-    std::string m_strScoreCut;
+      /// Variables for DNN
+      std::map<std::string, double> m_DNN_inputValues;
 
-    // functions that are configurable for specific cut values
-    TF1* m_funcMassCutLow;
-    TF1* m_funcMassCutHigh;
-    TF1* m_funcScoreCut;
+      /// Retrieve score for a given DNN type (top/W)
+      double getScore( const xAOD::Jet& jet ) const;
 
-    // truth labeling tool
-    asg::AnaToolHandle<JetTruthLabelingTool> m_JetTruthLabelingTool; //!
+      /// Update the jet substructure variables for each jet to use in DNN
+      std::map<std::string,double> getJetProperties( const xAOD::Jet& jet ) const;
 
-    // decorators
-    SG::AuxElement::Decorator<float> m_dec_mcutL;
-    SG::AuxElement::Decorator<float> m_dec_mcutH;
-    SG::AuxElement::Decorator<float> m_dec_scoreCut;
-    SG::AuxElement::Decorator<float> m_dec_scoreValue;
-};
+  };
 
 #endif

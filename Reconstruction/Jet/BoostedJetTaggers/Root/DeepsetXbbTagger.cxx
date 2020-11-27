@@ -11,11 +11,7 @@
 
 #include "BoostedJetTaggers/DeepsetXbbTagger.h"
 
-// utilities
-#include "PathResolver/PathResolver.h"
-
 // EDM stuff
-#include <xAODJet/JetContainer.h>
 #include <xAODTracking/TrackParticleContainer.h>
 #include <xAODTracking/Vertex.h>
 
@@ -29,15 +25,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/exceptions.hpp>
 
-// ROOT
-#include <TLorentzVector.h>
-
-#include <fstream>
 #include <regex>
-#include <set>
-#include <cmath>
-#include <tuple>
-
 
 namespace DeepsetXbbTagger {
 
@@ -152,8 +140,8 @@ DexterTool::DexterTool( const std::string& name ) :
   m_decorators(),
   m_offsets()
 {
+
   declareProperty( "secvtxCollection",   m_secvtx_collection_name);
-  declareProperty( "JetEtaMax",  m_jetEtaMax = 2.0, "Eta cut to define fiducial phase space for the tagger");
   declareProperty( "decorationNames", m_decoration_names);
   declareProperty( "negativeTagMode", m_negativeTagMode);
   
@@ -332,16 +320,12 @@ std::map<std::string, double> DexterTool::getScores(const xAOD::Jet& jet)
   return nn_output;
 }
 
-Root::TAccept& DexterTool::tag(const xAOD::Jet& jet) const{
+Root::TAccept& DexterTool::tag( const xAOD::Jet& jet ) const {
 
   ATH_MSG_DEBUG( ": Obtaining Dexter result" );
 
-  //clear all accept values
-  m_accept.clear();
-
-  // set the jet validity bits to 1 by default
-  m_accept.setCutResult( "ValidPtRangeLow" , true);  
-  m_accept.setCutResult( "ValidEtaRange"   , true);
+  /// Reset the TAccept cut results
+  resetCuts();
 
   // check basic kinematic selection
   if (std::abs(jet.eta()) > m_jetEtaMax) {

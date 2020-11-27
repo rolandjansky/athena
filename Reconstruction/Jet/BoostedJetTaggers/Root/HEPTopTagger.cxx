@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s):
@@ -99,7 +99,7 @@ namespace HTTxAOD {
 
   // a filter operator implementing a absolute eta cut
   struct AbsEtaPJFilter {
-    bool operator()(const fastjet::PseudoJet &pj) const {return fabs(pj.eta())<etacut;}
+    bool operator()(const fastjet::PseudoJet &pj) const {return std::abs(pj.eta())<etacut;}
     const double etacut;
   };
 
@@ -206,8 +206,6 @@ namespace HTTxAOD {
     declareProperty("FiltContainerName", m_groomedContName);
   }
 
-  HEPTopTagger::~HEPTopTagger() {}
-
   StatusCode HEPTopTagger::initialize(){
 
     ATH_CHECK(m_jetFromPJTool.retrieve());
@@ -309,7 +307,7 @@ namespace HTTxAOD {
       }
 
       // there's no JetTool yet to filter on mass/eta. Do it here :
-      if( fabs(j->eta()) > m_MaxFatjetEta ) {notTagged(j); continue;}
+      if( std::abs(j->eta()) > m_MaxFatjetEta ) {notTagged(j); continue;}
       if( j->m() < m_MinFatjetM ) {notTagged(j); continue;}
 
       ATH_MSG_DEBUG("Runing HTT for jet at "<< j->index() << "  "<<j->pt() );
