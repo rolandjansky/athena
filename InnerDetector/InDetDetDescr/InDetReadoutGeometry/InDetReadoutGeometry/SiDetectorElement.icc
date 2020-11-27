@@ -69,8 +69,7 @@ namespace InDetDD {
     
   inline const SiDetectorDesign& SiDetectorElement::design() const
   {
-  //Adopting and adapting 21.9 strategy - is there a better way to avoid dynamic_cast?
-    return dynamic_cast<const SiDetectorDesign&>(*m_design);
+    return *m_design;
   }
     
   inline double SiDetectorElement::phiPitch() const
@@ -112,8 +111,7 @@ namespace InDetDD {
     
   inline SiCellId SiDetectorElement::gangedCell(const SiCellId& cellId) const
   {
-  //again, 21.9 logic... doesn't seem optimal?
-    return dynamic_cast<const SiDetectorDesign *>(m_design)->gangedCell(cellId);
+  return  m_design->gangedCell(cellId);
   }
     
   inline MsgStream& SiDetectorElement::msg(MSG::Level lvl) const

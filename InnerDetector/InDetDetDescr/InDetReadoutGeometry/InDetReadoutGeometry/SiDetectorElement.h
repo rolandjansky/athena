@@ -476,7 +476,7 @@ namespace InDetDD {
      * @name Variables set by constructor
      */
     //@{
-
+    const SiDetectorDesign* m_design;
 
     /**
      * @name Variables set by commonConstructor

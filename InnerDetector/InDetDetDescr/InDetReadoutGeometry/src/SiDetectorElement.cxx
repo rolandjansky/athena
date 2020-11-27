@@ -39,7 +39,9 @@ namespace InDetDD {
                                        const GeoVFullPhysVol* geophysvol,
                                        const SiCommonItems* commonItems,
                                        const GeoAlignmentStore* geoAlignStore) :
-    SolidStateDetectorElementBase(id,design,geophysvol,commonItems,geoAlignStore) {
+    SolidStateDetectorElementBase(id,design,geophysvol,commonItems,geoAlignStore),
+    m_design(design)
+  {
     commonConstructor();
   }
 
@@ -422,6 +424,7 @@ namespace InDetDD {
 
     // Set surface
     m_surface = std::make_unique<Trk::PlaneSurface>(*this);
+
   }
 
   // update cache
