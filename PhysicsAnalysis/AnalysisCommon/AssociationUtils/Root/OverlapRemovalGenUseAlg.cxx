@@ -44,7 +44,7 @@ OverlapRemovalGenUseAlg::OverlapRemovalGenUseAlg(const std::string& name,
                     "Input label for passing photons");
     declareProperty("MuonKey", m_muonKey="Muons",
                     "StoreGate/TEvent key for muons");
-    declareProperty("MuonLabel", m_muonLabel="DFCommonGoodMuon",
+    declareProperty("MuonLabel", m_muonLabel="DFCommonMuonPassIDCuts",
                     "Input label for passing muons");
     declareProperty("TauKey", m_tauKey="TauJets",
                     "StoreGate/TEvent key for taus");

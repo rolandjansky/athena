@@ -285,19 +285,19 @@ namespace CP {
     }
     acceptData.setCutResult( "Eta", true );
 
-    // Passes ID hit cuts 
-    ATH_MSG_VERBOSE( "Passes ID Hit cuts " << passedIDCuts(mu) );
-    if( !passedIDCuts (mu) ) {
-      return acceptData;
-    }
-    acceptData.setCutResult( "IDHits", true );
+    // Passes ID hit cuts
+    bool passIDCuts=passedIDCuts(mu);
+    ATH_MSG_VERBOSE( "Passes ID Hit cuts " << passIDCuts);
+    acceptData.setCutResult( "IDHits", passIDCuts );
     
-    // Passes muon preselection
-    ATH_MSG_VERBOSE( "Passes preselection cuts " << passedMuonCuts(mu) );
-    if( !passedMuonCuts (mu) ) {
+    //passes muon preselection
+    bool passMuonCuts=passedMuonCuts(mu);
+    ATH_MSG_VERBOSE( "Passes preselection cuts " << passMuonCuts );
+    acceptData.setCutResult( "Preselection", passMuonCuts );
+    
+    if( !passIDCuts || !passMuonCuts ) {
       return acceptData;
-    }
-    acceptData.setCutResult( "Preselection", true );
+    }    
 
     // Passes quality requirements 
     xAOD::Muon::Quality thisMu_quality = getQuality(mu);
@@ -1169,7 +1169,7 @@ namespace CP {
       else return true;
     }
     // ::
-    if( mu.muonType() == xAOD::Muon::CaloTagged && std::abs(mu.eta())<0.105 && passedCaloTagQuality(mu)) return true;
+    if( mu.muonType() == xAOD::Muon::CaloTagged && std::abs(mu.eta())<0.105 ) return true; //removed the passedCaloTagQuality(mu) until this is better understood in r22
     // ::
     if( mu.muonType() == xAOD::Muon::SegmentTagged && std::abs(mu.eta())<0.105 ) return true;
     // ::
