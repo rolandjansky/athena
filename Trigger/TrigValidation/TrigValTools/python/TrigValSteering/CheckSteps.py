@@ -30,7 +30,7 @@ class RefComparisonStep(Step):
         if self.reference and self.ref_test_name:
             self.misconfig_abort('Both options "reference" and "ref_test_name" used. Use at most one of them.')
 
-        if not self.ref_test_name:
+        if not self.reference and not self.ref_test_name:
             self.ref_test_name = test.name
 
         if self.reference is not None:
