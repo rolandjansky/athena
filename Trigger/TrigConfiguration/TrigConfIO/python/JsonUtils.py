@@ -27,8 +27,8 @@ def create_joboptions_json(pkl_file, json_file):
    """ also create a configuration JSON file that can be uploaded
    to the triggerdb for running at P1
    """
-   base, ending = (json_file.rsplit('.',1) + ["json"])[:2]
-   db_file = base + ".db." + ending
+   assert json_file[-5:] == ".json"
+   db_file = json_file.replace(".json", ".db.json")
 
    modifyConfigForP1(json_file, db_file)
 
