@@ -261,7 +261,6 @@ void G4HadronPhysicsFTFP_BERP_ATL::ConstructParticle()
   pShortLivedConstructor.ConstructParticle();  
 }
 
-#include "G4ProcessManager.hh"
 void G4HadronPhysicsFTFP_BERP_ATL::ConstructProcess()
 {
   CreateModels();
