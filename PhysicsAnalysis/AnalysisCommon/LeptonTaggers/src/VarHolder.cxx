@@ -326,6 +326,7 @@ int Prompt::Def::RegisterAllVars()
       
   // PromptLeptonImproved
   result += RegisterVar( MVAXBin,                                                 "MVAXBin");
+  result += RegisterVar( RawPt,                                                   "RawPt");
   result += RegisterVar( PromptLeptonRNN_prompt,                                  "PromptLeptonRNN_prompt");
   result += RegisterVar( CaloClusterERel,                                         "CaloClusterERel");
   result += RegisterVar( topoetcone30rel,                                         "topoetcone30rel");
