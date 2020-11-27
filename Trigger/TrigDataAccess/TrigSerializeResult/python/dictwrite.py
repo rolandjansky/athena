@@ -1,6 +1,6 @@
 #!/usr/bin/env pyroot.py 
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #----------------------------------------------
 #
@@ -69,7 +69,7 @@ def update_streamerinfos(objects, updated_objects):
   types_bad = 0
   fulllist = list(set(fulllist))
   for item in fulllist:
-    if doxAODonly and not 'xAOD' in item: continue # current issues seen because of missing xAOD libs not being loaded
+    if doxAODonly and 'xAOD' not in item: continue # current issues seen because of missing xAOD libs not being loaded
     print("Trying to fill item", item, "to root file")
     c_clid = cgen.genClidFromName(item)
     c_typeinfo = cgen.getTidFromClid(c_clid)
@@ -77,11 +77,11 @@ def update_streamerinfos(objects, updated_objects):
     print("TypeInfo", c_typeinfo)
     try:
       cls = ROOT.gROOT.GetClass(item)
-    except:
+    except Exception:
       cls = ROOT.gROOT.GetClass(c_typeinfo)
     print(cls)
 
-    if cls!=None:
+    if cls is not None:
       streamerinfo = cls.GetStreamerInfo()
       if streamerinfo.GetCheckSum() == 0:
         # try to patch missing checksum in DataVectors
