@@ -320,8 +320,10 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
         acc.merge(NoProfileSvcCfg(flags))
         kwargs.setdefault("BeamLuminosity", acc.getService("NoProfileSvc"))
 
-    # for beam spot fix
     kwargs.setdefault("EventInfoName", "Input_EventInfo")
+    # Note that this is a hack. It is needed to fix beam spot information
+    # as original xAOD::EventInfo is created before conditions data could
+    # be read. Only the "EventInfoName" should change.
 
     acc.addService(CompFactory.PileUpEventLoopMgr(name, **kwargs))
     return acc
