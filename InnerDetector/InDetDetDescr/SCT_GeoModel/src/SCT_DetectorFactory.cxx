@@ -33,8 +33,8 @@
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "InDetReadoutGeometry/Version.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
