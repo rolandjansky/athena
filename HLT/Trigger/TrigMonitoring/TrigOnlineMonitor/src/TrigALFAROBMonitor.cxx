@@ -37,7 +37,8 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TProfile2D.h>
- 
+
+
 ////////////////////////////////////////////////////////////////////////////
 
 TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -104,34 +105,8 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
  m_map_TrgNamesToHistGroups["L1_ALFA_ELAST15"] = 0;
  m_map_TrgNamesToHistGroups["L1_ALFA_ELAST18"] = 0;
 
- m_map_TrgNamesToHistGroups["L1_ALFA_ELAST15_Calib"] = 1;
- m_map_TrgNamesToHistGroups["L1_ALFA_ELAST18_Calib"] = 1;
+ m_map_TrgNamesToHistGroups["L1_ALFA_ANY"] = 1;
 
- m_map_TrgNamesToHistGroups["L1_ALFA_SDIFF5"] = 2;
- m_map_TrgNamesToHistGroups["L1_ALFA_SDIFF6"] = 2;
- m_map_TrgNamesToHistGroups["L1_ALFA_SDIFF7"] = 2;
- m_map_TrgNamesToHistGroups["L1_ALFA_SDIFF8"] = 2;
-
- m_map_TrgNamesToHistGroups["L1_MBTS_1_A_ALFA_C"] = 3;
- m_map_TrgNamesToHistGroups["L1_MBTS_1_C_ALFA_A"] = 3;
-
- m_map_TrgNamesToHistGroups["L1_LUCID_A_ALFA_C"] = 4;
- m_map_TrgNamesToHistGroups["L1_LUCID_C_ALFA_A"] = 4;
-
- m_map_TrgNamesToHistGroups["L1_EM3_ALFA_ANY"] = 5;
-
- m_map_TrgNamesToHistGroups["L1_J12_ALFA_ANY"] = 6;
-
- m_map_TrgNamesToHistGroups["L1_TRT_ALFA_ANY"] = 7;
-
- m_map_TrgNamesToHistGroups["L1_ALFA_ANY"] = 8;
-
- m_map_TrgNamesToHistGroups["L1_ALFA_ANY_UNPAIRED_ISO"] = 9;
-
- m_map_TrgNamesToHistGroups["L1_ALFA_ANY_CALIB"] = 10;
-
- m_map_TrgNamesToHistGroups["L1_ALFA_ANY_A_EMPTY"] = 11;
- m_map_TrgNamesToHistGroups["L1_ALFA_ANY_C_EMPTY"] = 11;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -186,7 +161,7 @@ StatusCode TrigALFAROBMonitor::initialize(){
 
   ATH_CHECK( m_L1MenuKey.initialize() );
 
-  if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
+  ATH_CHECK( m_monTools.retrieve() );
 
   ATH_MSG_INFO("Initialize completed");
   return StatusCode::SUCCESS;
@@ -198,8 +173,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
 
   uint32_t  LB; // luminosity block number
   uint32_t previousEventLB(99999); // luminosity block number of the previous events
-  uint32_t prevLB10reset = 0;   // LB at which previous reset of 10LB histograms happened
-  uint32_t prevLB60reset = 0;   // LB  -- 60LB histograms were reset
   uint32_t prescKey(-999); // current hlt prescale key
   bool SBflag(false);
 
@@ -218,56 +191,20 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
     return StatusCode::SUCCESS;
   }
 
-  // get EventInfo - in new athena MT EventContext shoudl be used.
- /*
-  const EventInfo* p_EventInfo(0);
-  StatusCode sc = evtStore()->retrieve(p_EventInfo);
-  if(sc.isFailure()){
-      ATH_MSG_ERROR("Can't get EventIinfo object");
-      return StatusCode::SUCCESS;
-  }
-  */
-    
-  //--------------------------------------------------------------------------
-  // take only events with alfaCalibrationStream tag  
-  //--------------------------------------------------------------------------
-  // if this algo will be used in regular HLT chain - then the chain selection will provide only events triggered by ALFA and with tag of ALFA_calib stream
- /*
-  bool eventInCalibStream = false;
-  typedef std::vector< TriggerInfo::StreamTag > StreamTagVector_t;
-  StreamTagVector_t vecStreamTags = p_EventInfo->trigger_info()->streamTags();
-  for (std::vector<TriggerInfo::StreamTag>::iterator iter = vecStreamTags.begin(); iter!=vecStreamTags.end(); iter++) {
-         if ((*iter).name().compare(m_calibrationStreamName.value()) == 0 ){
-             eventInCalibStream = true;
-             break;
-         }
-  }
-  if (!eventInCalibStream) {
-       //ATH_MSG_INFO ("event not tagged for calibration stream - return without ROS data request ");
-    return StatusCode::SUCCESS;
-  }
-*/
-
-
   bool event_with_checksum_failure(false);
   
   //ATH_MSG_INFO ("new event");
   // get EventID
-
   //const EventID* p_EventID = p_EventInfo->event_ID();
+
   const EventIDBase p_EventIDBase = ctx.eventID();
   LB = p_EventIDBase.lumi_block();
-  ATH_MSG_INFO(" Decoded lumi block nb: " <<LB);
+  ATH_MSG_DEBUG(" Decoded lumi block nb: " <<LB);
 
   if (previousEventLB >= 99999) {
     previousEventLB = LB;  // first event
-    prevLB10reset = LB;
-    prevLB60reset = LB;
   } else {
      if (LB > previousEventLB){ // new LB
-        reset1LBhistos();
-        if ((LB - prevLB10reset) > 10 ) {reset10LBhistos(); prevLB10reset = LB;};
-        if ((LB - prevLB60reset) > 60 ) {reset60LBhistos(); prevLB60reset = LB;};
         uint32_t newPrescKey = m_configSvc->hltPrescaleKey();
         if (newPrescKey != prescKey) {
              ATH_MSG_INFO ("HLT prescale key changed to "<<newPrescKey );
@@ -300,14 +237,14 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
 
   // Now try to extract L1 decisons from ROIB fragment
   if(!evtStore()->contains<ROIB::RoIBResult>(m_keyRBResult)) {
-       ATH_MSG_DEBUG("RoIBResult does not exist with key: " << m_keyRBResult);
+       ATH_MSG_INFO("RoIBResult does not exist with key: " << m_keyRBResult);
   }
 
   const ROIB::RoIBResult* roIBResult=0;
   StatusCode sc = evtStore()->retrieve(roIBResult,m_keyRBResult);
 
   if(sc.isFailure()){
-    ATH_MSG_DEBUG(" Unable to retrieve RoIBResult from storeGate!");
+    ATH_MSG_INFO(" Unable to retrieve RoIBResult from storeGate!");
                return StatusCode::SUCCESS; //HLT::NO_LVL1_RESULT;
   } else {
     const std::vector<ROIB::CTPRoI> ctpRoIVecAV = roIBResult->cTPResult().TAV();
@@ -364,7 +301,6 @@ StatusCode TrigALFAROBMonitor::execute (const EventContext& ctx) const {
     if (p_EventInfo) {
       StreamTagVector_t vecStreamTags = p_EventInfo->trigger_info()->streamTags();
       vecStreamTags.push_back( TriggerInfo::StreamTag(m_debugStreamName,"debug",false) );
-      // FIXME: const_cast
       const_cast<TriggerInfo*>(p_EventInfo->trigger_info())->setStreamTags(vecStreamTags);
     }
   }
@@ -397,7 +333,10 @@ StatusCode TrigALFAROBMonitor::start() {
         m_map_TrgItemNumbersToHistGroups[item.ctpId()] = it->second;
         // locate golden alfa triggers for data quality assesment base on the ratio of tracks in elastic triggered events
         if (item.name().compare("L1_ALFA_ELAST15") == 0) { m_elast15 = item.ctpId(); continue; }
-        if (item.name().compare("L1_ALFA_ELAST18") == 0) m_elast18 = item.ctpId();
+        if (item.name().compare("L1_ALFA_ELAST18") == 0) { m_elast18 = item.ctpId(); continue; }
+        if (item.name().compare("L1_ALFA_SYST17")  == 0) { m_syst17  = item.ctpId(); continue; }
+        if (item.name().compare("L1_ALFA_SYST18")  == 0)   m_syst18  = item.ctpId();
+
       }
     }
   }
@@ -412,8 +351,6 @@ StatusCode TrigALFAROBMonitor::start() {
   // Define histograms only when checks are requested
   if ((not m_doROBChecksum.value()) && (not m_doROBStatus.value())) return StatusCode::SUCCESS;
 
-  ATH_MSG_DEBUG("TrigALFAROBMonitor::start() 3");
-
   // *-- booking path
   m_pathHisto = std::string("/EXPERT/") + name() + "/";
 
@@ -421,194 +358,6 @@ StatusCode TrigALFAROBMonitor::start() {
   //eformat::helper::SourceIdentifier srcID_ALFA( eformat::FORWARD_ALPHA ,0);
   //eformat::helper::SourceIdentifier srcID_CTP( eformat::TDAQ_CTP ,0);
   //eformat::helper::SourceIdentifier srcID_HLT( eformat::TDAQ_HLT, 0);
-
-  if ( m_doROBChecksum.value() ) {
-    // *-- ROBs with failed checksum
-    m_hist_failedChecksumForALFAROB = new TH1F (m_histProp_failedChecksumForALFAROB.value().title().c_str(),
-					       (m_histProp_failedChecksumForALFAROB.value().title()+";ALFA ROB id").c_str(),
-					        m_histProp_failedChecksumForALFAROB.value().bins(),
-					        m_histProp_failedChecksumForALFAROB.value().lowEdge(),
-					        m_histProp_failedChecksumForALFAROB.value().highEdge());
-    if (m_hist_failedChecksumForALFAROB) {
-      m_hist_failedChecksumForALFAROB->SetCanExtend(TH1::kAllAxes);
-      if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_failedChecksumForALFAROB->GetName(), m_hist_failedChecksumForALFAROB).isFailure() ) {
-	ATH_MSG_WARNING("Can not register ALFA ROB checksum monitoring histogram: " << m_hist_failedChecksumForALFAROB->GetName());
-      }
-    }
-  }
-
-  if ( m_doDataGoodMonitoring.value() ) {
-    // *-- book histo to assess fraction of elastic triggered events with elastic tracks candidates
-    std::string histTitle = "goodDataAssessment";
-    m_hist_goodData = new TH1F (histTitle.c_str(), (histTitle + " elastics").c_str(), 10, -0.5, 9.5);
-    if (m_hist_goodData) {
-      m_hist_goodData->SetCanExtend(TH1::kAllAxes);
-      if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodData->GetName(), m_hist_goodData).isFailure() ) {
-	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic monitoring histogram: " << m_hist_goodData->GetName());
-      }
-    }
-    histTitle = "goodDataAssessmentLB15";
-    m_hist_goodDataLB15 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
-    if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodDataLB15->GetName(), m_hist_goodDataLB15).isFailure() ) {
-	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 15 monitoring histogram: " << m_hist_goodDataLB15->GetName());
-    }
-    histTitle = "goodDataAssessmentLB18";
-    m_hist_goodDataLB18 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
-    if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_goodDataLB18->GetName(), m_hist_goodDataLB18).isFailure() ) {
-	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_goodDataLB18->GetName());
-    }
-    histTitle = "corruptedROD";
-    m_hist_corruptedROD_LB = new TH2F (histTitle.c_str(), (histTitle + " perLB").c_str(), 1000, -0.5, 999.5, 2, -0.5, 1.5);
-    if( m_rootHistSvc->regHist(m_pathHisto + "common/" + m_hist_corruptedROD_LB->GetName(), m_hist_corruptedROD_LB).isFailure() ) {
-	ATH_MSG_WARNING("Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_corruptedROD_LB->GetName());
-    }
-  }
-
-
-  if ( m_doALFATracking.value() ) {
-     std::string histTitle;
-
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              histTitle = m_stationNames[station] + "_f_" + m_trigConditions[trgCond];
-              m_hist_ALFA_trig_validated_tracks[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
-                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (m_hist_ALFA_trig_validated_tracks[trgCond][station]) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/full/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        m_hist_ALFA_trig_validated_tracks[trgCond][station]).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
-                                   << (m_hist_ALFA_trig_validated_tracks[trgCond][station])->GetName());
-                 }
-              }
-         }
-     }
-
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              histTitle = m_stationNames[station] + "_f_SB_" + m_trigConditions[trgCond];
-              m_hist_ALFA_trig_validated_tracks_SB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
-                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (m_hist_ALFA_trig_validated_tracks_SB[trgCond][station]) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/full_SB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        m_hist_ALFA_trig_validated_tracks_SB[trgCond][station]).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
-                                   << (m_hist_ALFA_trig_validated_tracks_SB[trgCond][station])->GetName());
-                 }
-              }
-         }
-     }
-
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              histTitle = m_stationNames[station] + "_current_" + m_trigConditions[trgCond];
-              m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
-                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station]) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/current/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station]).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
-                                   << (m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station])->GetName());
-                 } 
-              }
-         }
-     }
-
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              histTitle = m_stationNames[station] + "_1_" + m_trigConditions[trgCond];
-              m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
-                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station]) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset1LB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station]).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
-                                   << (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->GetName());
-                 } 
-              }
-         }
-     }
-
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              histTitle = m_stationNames[station] + "_10_" + m_trigConditions[trgCond];
-              m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
-                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station]) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset10LB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station]).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
-                                   << (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->GetName());
-                 }
-              }
-         }
-     }
-
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              histTitle = m_stationNames[station] + "_60_" + m_trigConditions[trgCond];
-              m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
-                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station]) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset60LB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station]).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
-                                   << (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->GetName());
-                 }
-              }
-         }
-     }
-  }
-
-  if ( m_doPMFMonitoring.value() ) {
-
-     std::string histTitle;
-
-     for (uint32_t station = 0; station < 8; station++) {
-         histTitle = "RP_" + std::to_string(station+1) + " PMT_activity";
-         m_hist_pmfMonitoring[station] = new TH2F (histTitle.c_str(), (histTitle + " all PMTs").c_str(), 64,0.,64.,23.,1.,24.);
-              if (m_hist_pmfMonitoring[station]) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "detectors/"+ m_stationNames[station] + "/" + (m_hist_pmfMonitoring[station])->GetName(), 
-                       m_hist_pmfMonitoring[station]).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: " 
-                                   << (m_hist_pmfMonitoring[station])->GetName());
-                 }
-              }
-     }
-  }
-
-
-  if ( m_doODDistance.value() ) {
-
-     std::string histTitle;
-
-     for (uint32_t iDet = 0; iDet < 8; iDet++) {
-      for (uint32_t iSide=0; iSide<2; iSide++) {
-         histTitle = "RP_" + std::to_string(iDet+1) + "_" + std::to_string(iSide) + " position";
-         m_hist_PosDetector[iDet][iSide] = new TH1F (histTitle.c_str(), (histTitle).c_str(), 200.,-145.0,-125.0);
-         if (m_hist_PosDetector[iDet][iSide]) {
-             if( m_rootHistSvc->regHist(m_pathHisto + "OD/"+ m_stationNames[iDet] + "/" + (m_hist_PosDetector[iDet][iSide])->GetName(), 
-                     m_hist_PosDetector[iDet][iSide]).isFailure() ) {
-                     ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: " 
-                                 << (m_hist_PosDetector[iDet][iSide])->GetName());
-             }
-         }
-       }
-     }
-     for (uint32_t iStation = 0; iStation < 4; iStation++) {
-       for (uint32_t iSide=0; iSide<2; iSide++) {
-         histTitle = "Distance_" + std::to_string(2*iStation+1) + "_" + std::to_string(2*iStation+2) + "_side_" + std::to_string(iSide);
-         m_hist_DistStation[2*iStation][iSide] = new TH1F (histTitle.c_str(), (histTitle).c_str(), 401.,-20.05,20.05);
-         if (m_hist_DistStation[2*iStation][iSide]) {
-             if( m_rootHistSvc->regHist(m_pathHisto + "OD/"+ m_stationNames[2*iStation] + "/" + (m_hist_DistStation[2*iStation][iSide])->GetName(),                   
-                     m_hist_DistStation[2*iStation][iSide]).isFailure() ) {
-                     ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: "  
-                                 << (m_hist_DistStation[2*iStation][iSide])->GetName());
-             }
-         }
-  
-       }
-     }
-  }
 
   // release histogramming service
   // when we plan to book now histograms at the LB boundaries we should not release the histogramming service ...m_rootHistSvc.release().ignore();
@@ -621,8 +370,6 @@ StatusCode TrigALFAROBMonitor::start() {
 StatusCode TrigALFAROBMonitor::stop() {
 
   // find LB number some other way that from EventInfo
-  reset1LBhistos();
-
   return StatusCode::SUCCESS;
 }
 
@@ -780,12 +527,10 @@ uint32_t TrigALFAROBMonitor::decodeALFA(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFr
         // check consistency of the ROD data - if data from LWC point to TWC
         if ((*lwcPtr & 0xff000000) != 0x81000000) {
     	    ATH_MSG_DEBUG("ROD "<< MSG::hex<<rodId<<" skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
-    	    ATH_MSG_INFO("ROD "<< MSG::hex<<rodId<<"skipped - LWC(-1): "<< *(lwcPtr-1) <<" LWC: "<<*lwcPtr << " LWC+1: "<< *(lwcPtr+1) );
             return (1); //continue;
         }
         if ((*twcPtr & 0xff000000) != 0x8a000000) {
-    	    ATH_MSG_DEBUG( "ROD "<< MSG::hex<<rodId<<" skipped - TWC: "<< *twcPtr );
-    	    ATH_MSG_INFO( "ROD "<< MSG::hex<<rodId<<" skipped - TWC(-1): "<< *(twcPtr-1)<< " TWC: "<< *twcPtr <<" TWC+1: " << *(twcPtr+1) 
+    	    ATH_MSG_DEBUG( "ROD "<< MSG::hex<<rodId<<" skipped - TWC(-1): "<< *(twcPtr-1)<< " TWC: "<< *twcPtr <<" TWC+1: " << *(twcPtr+1) 
                            <<" LWC: " << *lwcPtr << " mbNb: "<< mbNb);
             return (1); //continue;
         }
@@ -886,12 +631,11 @@ void TrigALFAROBMonitor::decodeRealPMT (uint32_t dataWord, uint32_t quarter, uin
        if (dataWord & mask) {
            int channel = offset + quarter*16;
 
-           m_hist_pmfMonitoring[mbNb]->Fill(double(channel),double(pmf)); 
            {
-               std::string stationName = "det-" + m_stationNames[mbNb] + "-Channel";
+               std::string stationName =  m_stationNames[mbNb] + "_"; 
                auto channelNb = Monitored::Scalar<double>(stationName, channel);
                auto pmfNb     = Monitored::Scalar<double>("PMF", pmf);
-               auto monGroup = Monitored::Group ( m_monTool, channelNb, pmfNb );
+               auto monGroup = Monitored::Group ( *m_monTools["MonTool_detectors"], channelNb, pmfNb );
            }
 
            if (layerNb >= 0) {
@@ -1022,42 +766,6 @@ bool TrigALFAROBMonitor::getHLTResult(HLT::HLTResult &resultHLT) const {
 	}
     }
 }
-
-void TrigALFAROBMonitor::reset1LBhistos() const {
-
-     ATH_MSG_INFO ("reset 1LB histos" );
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->Reset();
-              (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->Add(m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station]);
-              (m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station])->Reset();
-         }
-     }
-}
-
-
-void TrigALFAROBMonitor::reset10LBhistos() const {
-
-     ATH_MSG_INFO ("reset 10LB histos");
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-             (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->Reset();
-         }
-     }
-}
-
-
-void TrigALFAROBMonitor::reset60LBhistos() const {
-
-     ATH_MSG_INFO ("reset 60LB histos");
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-            (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->Reset();
-         }
-     }
-}
-
-
 
 void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult, 
                                          const int lumiBlockNb, 
@@ -1212,19 +920,30 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
                                           ATH_MSG_DEBUG( "findALFATracks access TBP at: " <<word<<" with offset: "<<offset );
                                           if ((ctpRoIVecBP.at(word)).roIWord() & 1<<offset) {
                                                 ATH_MSG_DEBUG( "filling findALFATracks histos " );
-                                                m_hist_ALFA_trig_validated_tracks[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
            					{
-               						std::string stationName = "trk-full-" + m_trigConditions[it->second]+ "-" + m_stationNames[iDet] + "-x";
+               						std::string stationName =  m_trigConditions[it->second]+ "_" + m_stationNames[iDet];
                						auto x_coord = Monitored::Scalar<double>(stationName, x_Rec[iDet]);
                						auto y_coord = Monitored::Scalar<double>("y", y_Rec[iDet]);
-               						auto monGroup = Monitored::Group ( m_monTool, x_coord, y_coord );
+                                                        std::string current, trk1, trk10, trk60;
+                                                        if (it->second == 0) {
+                                                            current = "trackingElast";
+                                                            trk1 =    "trackingElast_1LB";
+                                                            trk10 =   "trackingElast_10LB";
+                                                            trk60 =   "trackingElast_60LB";
+                                                        } else {
+                                                            current = "trackingAny";
+                                                            trk1 =    "trackingAny_1LB";
+                                                            trk10 =   "trackingAny_10LB";
+                                                            trk60 =   "trackingAny_60LB";
+                                                        }
+               						    auto monGroup =   Monitored::Group (  *m_monTools["MonTool_" + current], x_coord, y_coord );
+               						    auto monGroup1 =  Monitored::Group (  *m_monTools["MonTool_" + trk1],    x_coord, y_coord );
+               						    auto monGroup10 = Monitored::Group (  *m_monTools["MonTool_" + trk10],   x_coord, y_coord );
+               						    auto monGroup60 = Monitored::Group (  *m_monTools["MonTool_" + trk60],   x_coord, y_coord );
            					}
 
-                                                m_hist_ALFA_trig_validated_tracks_1LB_current[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
-                                                m_hist_ALFA_trig_validated_tracks_10LB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
-                                                m_hist_ALFA_trig_validated_tracks_60LB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
                                                 if (SBflag) {
-                                                   m_hist_ALFA_trig_validated_tracks_SB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                                   //m_hist_ALFA_trig_validated_tracks_SB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
                                                 }
                                                 //ATH_MSG_INFO ("found track in det: "<<iDet<<" item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
                     			   }
@@ -1251,51 +970,43 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
            if ((ctpRoIVecBP.at(m_elast15>>5)).roIWord() & (1 <<(m_elast15%32))) {
               {
                   std::string stationName  = "goodDataAssessmentLB15";
-                  std::string stationName1 = "com-goodDataAssessment";
+                  std::string stationName1 = "com_goodDataAssessment";
                   auto one      = Monitored::Scalar<double>(stationName, 1.);
                   auto anotherOne = Monitored::Scalar<double>(stationName1, 1.);
-                  auto lbNb     = Monitored::Scalar<double>("com-LB", lumiBlockNb);
-                  auto monGroup = Monitored::Group ( m_monTool, one, anotherOne, lbNb );
+                  auto lbNb     = Monitored::Scalar<double>("com_LB", lumiBlockNb);
+                  auto monGroup = Monitored::Group (  *m_monTools["MonTool_common"], one, anotherOne, lbNb );
               }
-              m_hist_goodData->Fill(1.);
-              m_hist_goodDataLB15->Fill(lumiBlockNb, 1.);
               if ((nbOfTracksInDetectors[0] <=2) && (nbOfTracksInDetectors[2] <=2) && (nbOfTracksInDetectors[5]<=2) && (nbOfTracksInDetectors[7] <= 2) &&
                     (nbOfTracksInDetectors[0]>0) && (nbOfTracksInDetectors[2] >0) && (nbOfTracksInDetectors[5]>0) && (nbOfTracksInDetectors[7] > 0) ) {
                  {
                      std::string stationName  = "goodDataAssessmentLB15";
-                     std::string stationName1 = "com-goodDataAssessment";
+                     std::string stationName1 = "com_goodDataAssessment";
                      auto two      = Monitored::Scalar<double>(stationName, 2.);
                      auto anotherTwo = Monitored::Scalar<double>(stationName1, 2.);
-                     auto lbNb     = Monitored::Scalar<double>("com-LB", lumiBlockNb);
-                     auto monGroup = Monitored::Group ( m_monTool, two, anotherTwo, lbNb );
+                     auto lbNb     = Monitored::Scalar<double>("com_LB", lumiBlockNb);
+                     auto monGroup = Monitored::Group (  *m_monTools["MonTool_common"], two, anotherTwo, lbNb );
                  }
-                 m_hist_goodData->Fill(2.);
-                 m_hist_goodDataLB15->Fill(lumiBlockNb, 2.);
               }
            }
            if ((ctpRoIVecBP.at(m_elast18>>5)).roIWord() & (1 <<(m_elast18%32))) {
                  {
                      std::string stationName  = "goodDataAssessmentLB18";
-                     std::string stationName1 = "com-goodDataAssessment";
+                     std::string stationName1 = "com_goodDataAssessment";
                      auto one      = Monitored::Scalar<double>(stationName, 1.);
                      auto four = Monitored::Scalar<double>(stationName1, 4.);
-                     auto lbNb     = Monitored::Scalar<double>("com-LB", lumiBlockNb);
-                     auto monGroup = Monitored::Group ( m_monTool, one, four, lbNb );
+                     auto lbNb     = Monitored::Scalar<double>("com_LB", lumiBlockNb);
+                     auto monGroup = Monitored::Group (  *m_monTools["MonTool_common"], one, four, lbNb );
                  }
-              m_hist_goodData->Fill(4.);
-              m_hist_goodDataLB18->Fill(lumiBlockNb, 1.);
               if ((nbOfTracksInDetectors[1] <=2) && (nbOfTracksInDetectors[3] <=2) && (nbOfTracksInDetectors[4]<=2) && (nbOfTracksInDetectors[6] <= 2) &&
                     (nbOfTracksInDetectors[1]>0) && (nbOfTracksInDetectors[3] >0) && (nbOfTracksInDetectors[4]>0) && (nbOfTracksInDetectors[6] > 0) ) {
                  {
                      std::string stationName  = "goodDataAssessmentLB18";
-                     std::string stationName1 = "com-goodDataAssessment";
+                     std::string stationName1 = "com_goodDataAssessment";
                      auto two      = Monitored::Scalar<double>(stationName, 2.);
                      auto five = Monitored::Scalar<double>(stationName1, 5.);
                      auto lbNb     = Monitored::Scalar<double>("com-LB", lumiBlockNb);
-                     auto monGroup = Monitored::Group ( m_monTool, two, five, lbNb );
+                     auto monGroup = Monitored::Group (  *m_monTools["MonTool_common"], two, five, lbNb );
                  }
-                 m_hist_goodData->Fill(5.);
-                 m_hist_goodDataLB18->Fill(lumiBlockNb, 2.);
               }
            }
         }
@@ -1303,6 +1014,276 @@ void TrigALFAROBMonitor::findALFATracks( const ROIB::RoIBResult* roIBResult,
         for(int i=0; i<8; i++) {
            ATH_MSG_DEBUG( "det: "<<i<<" - "<<nbOfTracksInDetectors[i]<<"; ");
         }
+
+        const float dist = 8264.;
+        const std::vector <std::string> triggers={"elast15", "elast18", "syst17", "syst18"};
+        const std::vector <std::string> armSets={"L1U", "L1D", "R1U","R1D"};
+        if ((ctpRoIVecBP.at(m_elast15>>5)).roIWord() & (1 <<(m_elast15%32))) {
+           if ( (nbOfTracksInDetectors[0] == 1) && (nbOfTracksInDetectors[2] == 1) && (nbOfTracksInDetectors[5] == 1) && (nbOfTracksInDetectors[7] == 1) &&
+                 (nbOfTracksInDetectors[1] == 0) && (nbOfTracksInDetectors[3] == 0) && (nbOfTracksInDetectors[4] == 0) && (nbOfTracksInDetectors[6] == 0) ) {
+               if ( (x_Rec[0] > -9000.) && (x_Rec[2] > -9000.) && (x_Rec[7] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[0] + "_x_" + armSets[0];
+                         std::string name1 = triggers[0] + "_ax_" + armSets[0]; 
+                         auto pcx_x = Monitored::Scalar<float>(name,-x_Rec[0]);
+                         auto pcx_y = Monitored::Scalar<float>("y", -x_Rec[7]);
+                         auto pax_x = Monitored::Scalar<float>(name1,-x_Rec[2]);
+                         auto pax_y = Monitored::Scalar<float>("y", (1000000.*(x_Rec[2] - x_Rec[0]))/dist);
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundElast15"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_1LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_10LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_60LB"], pcx_x, pcx_y, pax_x, pax_y);
+                       }
+               
+               if ( (y_Rec[0] > -9000.) && (y_Rec[2] > -9000.) && (y_Rec[7] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[0] + "_y_" + armSets[0];
+                         std::string name1 = triggers[0] + "_ay_" + armSets[0]; 
+                         auto pcy_x = Monitored::Scalar<float>(name,y_Rec[0]);
+                         auto pcy_y = Monitored::Scalar<float>("y", y_Rec[7]);
+                         auto pay_x = Monitored::Scalar<float>(name1,y_Rec[2]);
+                         auto pay_y = Monitored::Scalar<float>("y", (1000000.*(y_Rec[0] - y_Rec[2]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundElast15"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_1LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_10LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_60LB"], pcy_x, pcy_y, pay_x, pay_y);
+                       }
+               }
+               if ( (x_Rec[5] > -9000.) && (x_Rec[7] > -9000.) && (x_Rec[2] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[0] + "_x_" + armSets[3];
+                         std::string name1 = triggers[0] + "_ax_" + armSets[3]; 
+                         auto pcx_x = Monitored::Scalar<float>(name,-x_Rec[2]);
+                         auto pcx_y = Monitored::Scalar<float>("y", -x_Rec[5]);
+                         auto pax_x = Monitored::Scalar<float>(name1,-x_Rec[5]);
+                         auto pax_y = Monitored::Scalar<float>("y", (1000000.*(x_Rec[5] - x_Rec[7]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundElast15"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_1LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_10LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_60LB"], pcx_x, pcx_y, pax_x, pax_y);
+                       }
+               }
+               if ( (y_Rec[5] > -9000.) && (y_Rec[7] > -9000.) && (y_Rec[2] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[0] + "_y_" + armSets[3];
+                         std::string name1 = triggers[0] + "_ay_" + armSets[3]; 
+                         auto pcy_x = Monitored::Scalar<float>(name,y_Rec[2]);
+                         auto pcy_y = Monitored::Scalar<float>("y", y_Rec[5]);
+                         auto pay_x = Monitored::Scalar<float>(name1,y_Rec[5]);
+                         auto pay_y = Monitored::Scalar<float>("y",  (1000000.*(y_Rec[7] - y_Rec[5]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundElast15"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_1LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_10LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast15_60LB"], pcy_x, pcy_y, pay_x, pay_y);
+                       }
+               }
+           }
+         }
+        }
+
+        if ((ctpRoIVecBP.at(m_elast18>>5)).roIWord() & (1 <<(m_elast18%32))) {
+           if ( (nbOfTracksInDetectors[1] == 1) && (nbOfTracksInDetectors[3] == 1) && (nbOfTracksInDetectors[4] == 1) && (nbOfTracksInDetectors[6] == 1) &&
+                 (nbOfTracksInDetectors[0] == 0) && (nbOfTracksInDetectors[2] == 0) && (nbOfTracksInDetectors[5] == 0) && (nbOfTracksInDetectors[7] == 0) ) {
+               if ( (x_Rec[1] > -9000.) && (x_Rec[3] > -9000.) && (x_Rec[6] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[1] + "_x_" + armSets[1];
+                         std::string name1 = triggers[1] + "_ax_" + armSets[1]; 
+                         auto pcx_x = Monitored::Scalar<float>(name,-x_Rec[1]);
+                         auto pcx_y = Monitored::Scalar<float>("y", -x_Rec[6]);
+                         auto pax_x = Monitored::Scalar<float>(name1,-x_Rec[3]);
+                         auto pax_y = Monitored::Scalar<float>("y",  (1000000.*(x_Rec[3] - x_Rec[1]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundElast18"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_1LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_10LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_60LB"], pcx_x, pcx_y, pax_x, pax_y);
+                       }
+               }
+               if ( (y_Rec[1] > -9000.) && (y_Rec[3] > -9000.) && (y_Rec[6] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[1] + "_y_" + armSets[1];
+                         std::string name1 = triggers[1] + "_ay_" + armSets[1]; 
+                         auto pcy_x = Monitored::Scalar<float>(name,y_Rec[1]);
+                         auto pcy_y = Monitored::Scalar<float>("y", y_Rec[6]);
+                         auto pay_x = Monitored::Scalar<float>(name1,y_Rec[3]);
+                         auto pay_y = Monitored::Scalar<float>("y",  (1000000.*(y_Rec[1] - y_Rec[3]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundElast18"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_1LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_10LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_60LB"], pcy_x, pcy_y, pay_x, pay_y);
+                       }
+               }
+               if ( (x_Rec[4] > -9000.) && (x_Rec[6] > -9000.) && (x_Rec[3] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[1] + "_x_" + armSets[2];
+                         std::string name1 = triggers[1] + "_ax_" + armSets[2]; 
+                         auto pcx_x = Monitored::Scalar<float>(name,-x_Rec[3]);
+                         auto pcx_y = Monitored::Scalar<float>("y", -x_Rec[4]);
+                         auto pax_x = Monitored::Scalar<float>(name1,-x_Rec[4]);
+                         auto pax_y = Monitored::Scalar<float>("y", (1000000.*(x_Rec[4] - x_Rec[6]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundElast18"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_1LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_10LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_60LB"], pcx_x, pcx_y, pax_x, pax_y);
+                       }
+               }
+               if ( (y_Rec[4] > -9000.) && (y_Rec[6] > -9000.) && (y_Rec[3] > -9000.)  ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[1] + "_y_" + armSets[2];
+                         std::string name1 = triggers[1] + "_ay_" + armSets[2]; 
+                         auto pcy_x = Monitored::Scalar<float>(name,y_Rec[3]);
+                         auto pcy_y = Monitored::Scalar<float>("y", y_Rec[4]);
+                         auto pay_x = Monitored::Scalar<float>(name1,y_Rec[4]);
+                         auto pay_y = Monitored::Scalar<float>("y",  (1000000.*(y_Rec[6] - y_Rec[4]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundElast18"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_1LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_10LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundElast18_60LB"], pcy_x, pcy_y, pay_x, pay_y);
+                       }
+               }
+           }
+         }
+
+        if ((ctpRoIVecBP.at(m_syst17>>5)).roIWord() & (1 <<(m_syst17%32))) {
+           //if ( (m_nbOfTracksInDetectors[0] >= 1) && (m_nbOfTracksInDetectors[2] >= 1) && (m_nbOfTracksInDetectors[4] >= 1) && (m_nbOfTracksInDetectors[6] >= 1) &&
+             if (1) {  // (m_nbOfTracksInDetectors[1] == 0) && (m_nbOfTracksInDetectors[3] == 0) && (m_nbOfTracksInDetectors[5] == 0) && (m_nbOfTracksInDetectors[7] == 0) ) {
+               //ATH_MSG_INFO(" m_syst17 fired: xrec0: "<<x_Rec[0]<<" xrec2: "<<x_Rec[2]<<" xrec4: "<<x_Rec[4]<<" xrec6: "<<x_Rec[6] );
+               if ( (x_Rec[0] > -9000.) && (x_Rec[2] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[2] + "_x_" + armSets[0];
+                         std::string name1 = triggers[2] + "_ax_" + armSets[0]; 
+                         auto pcx_x = Monitored::Scalar<float>(name,-x_Rec[0]);
+                         auto pcx_y = Monitored::Scalar<float>("y", -x_Rec[2]);
+                         auto pax_x = Monitored::Scalar<float>(name1,-x_Rec[2]);
+                         auto pax_y = Monitored::Scalar<float>("y", (1000000.*(x_Rec[2] - x_Rec[0]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_1LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_10LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_60LB"], pcx_x, pcx_y, pax_x, pax_y);
+                       }
+               }
+               if ( (y_Rec[0] > -9000.) && (y_Rec[2] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[2] + "_y_" + armSets[0];
+                         std::string name1 = triggers[2] + "_ay_" + armSets[0]; 
+                         auto pcy_x = Monitored::Scalar<float>(name,y_Rec[0]);
+                         auto pcy_y = Monitored::Scalar<float>("y", y_Rec[2]);
+                         auto pay_x = Monitored::Scalar<float>(name1, y_Rec[2]);
+                         auto pay_y = Monitored::Scalar<float>("y",  (1000000.*(y_Rec[0] - y_Rec[2]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_1LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_10LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_60LB"], pcy_x, pcy_y, pay_x, pay_y);
+                       }
+               }
+               if ( (x_Rec[4] > -9000.) && (x_Rec[6] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[2] + "_x_" + armSets[2];
+                         std::string name1 = triggers[2] + "_ax_" + armSets[2]; 
+                         auto pcx_x = Monitored::Scalar<float>(name,-x_Rec[6]);
+                         auto pcx_y = Monitored::Scalar<float>("y", -x_Rec[4]);
+                         auto pax_x = Monitored::Scalar<float>(name1, -x_Rec[4]);
+                         auto pax_y = Monitored::Scalar<float>("y", (1000000.*(x_Rec[4] - x_Rec[6]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_1LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_10LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_60LB"], pcx_x, pcx_y, pax_x, pax_y);
+                       }
+               }
+               if ( (y_Rec[4] > -9000.) && (y_Rec[6] > -9000.)) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[2] + "_y_" + armSets[2];
+                         std::string name1 = triggers[2] + "_ay_" + armSets[2]; 
+                         auto pcy_x = Monitored::Scalar<float>(name,y_Rec[6]);
+                         auto pcy_y = Monitored::Scalar<float>("y", y_Rec[4]);
+                         auto pay_x = Monitored::Scalar<float>(name1, y_Rec[4]);
+                         auto pay_y = Monitored::Scalar<float>("y",  (1000000.*(y_Rec[6] - y_Rec[4]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_1LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_10LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst17_60LB"], pcy_x, pcy_y, pay_x, pay_y);
+                       }
+               }
+           }
+         }
+
+        if ((ctpRoIVecBP.at(m_syst18>>5)).roIWord() & (1 <<(m_syst18%32))) {
+            //if ( (m_nbOfTracksInDetectors[1] >= 1) && (m_nbOfTracksInDetectors[3] >= 1) && (m_nbOfTracksInDetectors[5] >= 1) && (m_nbOfTracksInDetectors[7] >= 1) &&
+              if (1) { //((m_nbOfTracksInDetectors[0] == 0) && (m_nbOfTracksInDetectors[2] == 0) && (m_nbOfTracksInDetectors[4] == 0) && (m_nbOfTracksInDetectors[6] == 0) ) {
+               //ATH_MSG_INFO(" m_syst18 fired: xrec1: "<<x_Rec[1]<<" xrec3: "<<x_Rec[3]<<" xrec5: "<<x_Rec[5]<<" xrec7: "<<x_Rec[7] );
+               if ( (x_Rec[1] > -9000.) && (x_Rec[3] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[3] + "_x_" + armSets[1];
+                         std::string name1 = triggers[3] + "_ax_" + armSets[1]; 
+                         auto pcx_x = Monitored::Scalar<float>(name,-x_Rec[1]);
+                         auto pcx_y = Monitored::Scalar<float>("y", -x_Rec[3]);
+                         auto pax_x = Monitored::Scalar<float>(name1, -x_Rec[3]);
+                         auto pax_y = Monitored::Scalar<float>("y", (1000000.*(x_Rec[3] - x_Rec[1]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_1LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_10LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_60LB"], pcx_x, pcx_y, pax_x, pax_y);
+                       }
+               }
+               if ( (y_Rec[1] > -9000.) && (y_Rec[3] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[3] + "_y_" + armSets[1];
+                         std::string name1 = triggers[3] + "_ay_" + armSets[1]; 
+                         auto pcy_x = Monitored::Scalar<float>(name,y_Rec[1]);
+                         auto pcy_y = Monitored::Scalar<float>("y", y_Rec[3]);
+                         auto pay_x = Monitored::Scalar<float>(name1, y_Rec[3]);
+                         auto pay_y = Monitored::Scalar<float>("y",  (1000000.*(y_Rec[1] - y_Rec[3]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_1LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_10LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_60LB"], pcy_x, pcy_y, pay_x, pay_y);
+                       }
+               }
+               if ( (x_Rec[5] > -9000.) && (x_Rec[7] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[3] + "_x_" + armSets[3];
+                         std::string name1 = triggers[3] + "_ax_" + armSets[3]; 
+                         auto pcx_x = Monitored::Scalar<float>(name,-x_Rec[7]);
+                         auto pcx_y = Monitored::Scalar<float>("y", -x_Rec[5]);
+                         auto pax_x = Monitored::Scalar<float>(name1, -x_Rec[5]);
+                         auto pax_y = Monitored::Scalar<float>("y", (1000000.*(x_Rec[5] - x_Rec[7]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_1LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_10LB"], pcx_x, pcx_y, pax_x, pax_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_60LB"], pcx_x, pcx_y, pax_x, pax_y);
+                       }
+               }
+               if ( (y_Rec[5] > -9000.)&& (y_Rec[7] > -9000.) ) {
+                       {
+                         ATH_MSG_DEBUG( "filling bckg histos " );
+                         std::string name = triggers[3] + "_y_" + armSets[3];
+                         std::string name1 = triggers[3] + "_ay_" + armSets[3]; 
+                         auto pcy_x = Monitored::Scalar<float>(name,y_Rec[7]);
+                         auto pcy_y = Monitored::Scalar<float>("y", y_Rec[5]);
+                         auto pay_x = Monitored::Scalar<float>(name1, y_Rec[5]);
+                         auto pay_y = Monitored::Scalar<float>("y", (1000000.*(y_Rec[7] - y_Rec[5]))/dist );
+                         auto monGroup = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_1LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_1LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_10LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_10LB"], pcy_x, pcy_y, pay_x, pay_y);
+                         auto monGroup_60LB = Monitored::Group ( *m_monTools["MonTool_backgroundSyst18_60LB"], pcy_x, pcy_y, pay_x, pay_y);
+                       }
+               }
+           }
+         }
 
    return;
 }  
@@ -1403,10 +1384,6 @@ void TrigALFAROBMonitor::findODTracks( bool FiberHitsODNeg[][3][30], bool FiberH
                             if (FoundTrack[iUL]) break;
                         }
                     }//end of iLay-loop
-                    // hMinMultipl[iStation*2+iUL][iSide]->Fill(MinMultipl);
-                    // hMultipl2D[iStation*2+iUL][iSide][0]->Fill(Multiplicity[0],Multiplicity[1]);
-                    // hMultipl2D[iStation*2+iUL][iSide][1]->Fill(Multiplicity[0],Multiplicity[2]);
-                    // hMultipl2D[iStation*2+iUL][iSide][2]->Fill(Multiplicity[1],Multiplicity[2]);
                 }//end of iUL-loop
 
             } else {//The same just for the negative side
@@ -1481,45 +1458,38 @@ void TrigALFAROBMonitor::findODTracks( bool FiberHitsODNeg[][3][30], bool FiberH
                         }
                         if (FoundTrack[iUL]) break;
                     }//end of iLay-loop
-                    // hMinMultipl[iStation*2+iUL][iSide]->Fill(MinMultipl);
-                    // hMultipl2D[iStation*2+iUL][iSide][0]->Fill(Multiplicity[0],Multiplicity[1]);
-                    // hMultipl2D[iStation*2+iUL][iSide][1]->Fill(Multiplicity[0],Multiplicity[2]);
-                    // hMultipl2D[iStation*2+iUL][iSide][2]->Fill(Multiplicity[1],Multiplicity[2]);
                 }//end of iUL-loop
             }
 
             //If we have a track in both upper and lower detector, we fill the histograms
             if (FoundTrack[0]) { 
                  {
-                     std::string stationName  = "od-" + m_stationNames[iStation*2] + "-RP_" + std::to_string(iStation*2+1) + "_" + std::to_string(iSide) + " position";
-                     ATH_MSG_INFO(stationName);
+                     std::string stationName  = "od_" + m_stationNames[iStation*2] + "_RP_" + std::to_string(iStation*2+1) + "_" + std::to_string(iSide) + " position";
                      auto pos    = Monitored::Scalar<double>(stationName, Pos[0]);
-                     auto monGroup = Monitored::Group ( m_monTool, pos );
+                     auto monGroup = Monitored::Group (  *m_monTools["MonTool_OD_" + m_stationNames[iStation*2]], pos );
                  }
 
-                 m_hist_PosDetector[iStation*2][iSide]->Fill(Pos[0]);
+                 //m_hist_PosDetector[iStation*2][iSide]->Fill(Pos[0]);
                  ODtracks[iStation*2][iSide] = Pos[0];
             }
             if (FoundTrack[1]) {
                  {
-                     std::string stationName  = "od-" + m_stationNames[iStation*2+1] + "-RP_" + std::to_string(iStation*2+2) + "_" + std::to_string(iSide) + " position";
-                     ATH_MSG_INFO(stationName);
+                     std::string stationName  = "od_" + m_stationNames[iStation*2+1] + "_RP_" + std::to_string(iStation*2+2) + "_" + std::to_string(iSide) + " position";
                      auto pos    = Monitored::Scalar<double>(stationName, Pos[1]);
-                     auto monGroup = Monitored::Group ( m_monTool, pos );
+                     auto monGroup = Monitored::Group (  *m_monTools["MonTool_OD_" + m_stationNames[iStation*2+1]], pos );
                  }
-                 m_hist_PosDetector[iStation*2+1][iSide]->Fill(Pos[1]);
+                 //m_hist_PosDetector[iStation*2+1][iSide]->Fill(Pos[1]);
                  ODtracks[iStation*2+1][iSide] = Pos[1];
             }
             //if (FoundTrack[0] && FoundTrack[1]){
             if( (ODtracks[iStation*2][iSide] < 0) && (ODtracks[iStation*2+1][iSide] < 0) ) {
               {
-                  std::string stationName  = "od-" + m_stationNames[iStation*2] + "-distance_" + std::to_string(iStation*2+1) + "_" + std::to_string(iStation*2+2)+ "_side_" + std::to_string(iSide);
-                  ATH_MSG_INFO(stationName);
+                  std::string stationName  = "od_" + m_stationNames[iStation*2] + "_distance_" + std::to_string(iStation*2+1) + "_" + std::to_string(iStation*2+2)+ "_side_" + std::to_string(iSide);
                   auto pos    = Monitored::Scalar<double>(stationName, -ODtracks[iStation*2][iSide] - ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
-                  auto monGroup = Monitored::Group ( m_monTool, pos );
+                  auto monGroup = Monitored::Group (  *m_monTools["MonTool_OD_" +  m_stationNames[iStation*2]], pos );
               }
 
-              m_hist_DistStation[2*iStation][iSide]->Fill(-ODtracks[iStation*2][iSide] - ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
+              //m_hist_DistStation[2*iStation][iSide]->Fill(-ODtracks[iStation*2][iSide] - ODtracks[iStation*2+1][iSide] + m_alfa_edge[iStation*2] + m_alfa_edge[iStation*2+1]);
             }
 
         }//end of iSide-loop
