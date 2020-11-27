@@ -8,10 +8,6 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-
-// STL includes
-//#include <sstream>
-
 // FrameWork includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "Gaudi/Property.h"
@@ -26,10 +22,6 @@
 
 // McParticleTools includes
 #include "HepMcTupleWriterTool.h"
-
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
 
 /// Constructors
 ////////////////
@@ -48,8 +40,7 @@ HepMcTupleWriterTool::HepMcTupleWriterTool( const std::string& type,
 		   m_outputFileName = "hepmc.root", 
 		   "Name of the output file which will contain the HepMC tuple"
 		   "\nEx: hepmc.root" );
-  m_outputFileName.declareUpdateHandler( &HepMcTupleWriterTool::setupBackend,
-					 this );
+  m_outputFileName.declareUpdateHandler( &HepMcTupleWriterTool::setupBackend, this );
 
   declareProperty( "OutputStream", 
 		   m_outputStreamName = "hepmc", 
@@ -107,10 +98,8 @@ StatusCode HepMcTupleWriterTool::execute()
 {
   // retrieve the McEventCollection
   const McEventCollection * mcEvts = 0;
-  if ( evtStore()->retrieve( mcEvts, m_mcEventsName ).isFailure() ||
-       0 == mcEvts ) {
-    ATH_MSG_ERROR("Could not retrieve a McEventCollection at ["
-		  << m_mcEventsName << "] !!");
+  if ( evtStore()->retrieve( mcEvts, m_mcEventsName ).isFailure() || 0 == mcEvts ) {
+    ATH_MSG_ERROR("Could not retrieve a McEventCollection at [" << m_mcEventsName << "] !!");
     return StatusCode::FAILURE;
   }
 
@@ -129,48 +118,37 @@ StatusCode HepMcTupleWriterTool::execute()
 }
 
 /////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
 StatusCode HepMcTupleWriterTool::write( const HepMC::GenEvent* evt )
 {
-  m_particles.m_nParticles = std::min<std::size_t>( s_nMax,
-						    evt->particles_size() );
+#ifdef HEPMC3
+  m_particles.m_nParticles = std::min<std::size_t>( s_nMax, evt->particles().size() );
+#else  
+  m_particles.m_nParticles = std::min<std::size_t>( s_nMax, evt->particles_size() );
+#endif
   std::size_t i = 0;
-  for ( HepMC::GenEvent::particle_const_iterator 
-	  p = evt->particles_begin(),
-	  pEnd = evt->particles_end();
-	p != pEnd && i != static_cast<std::size_t>(m_particles.m_nParticles);
-	++p,++i ) {
-    const HepMC::FourVector mom = (*p)->momentum();
+  for (auto p: *evt)
+  {
+    if (i == static_cast<std::size_t>(m_particles.m_nParticles)) break;
+    i++;
+    const HepMC::FourVector mom = p->momentum();
     m_particles.m_px [i] = mom.px();
     m_particles.m_py [i] = mom.py();
     m_particles.m_pz [i] = mom.pz();
     m_particles.m_m  [i] = mom.m();
     m_particles.m_ene[i] = mom.e();
 
-    m_particles.m_pdgId[i]   = (*p)->pdg_id();
-    m_particles.m_status[i]  = (*p)->status();
-    m_particles.m_barcode[i] = (*p)->barcode();
+    m_particles.m_pdgId[i]   = p->pdg_id();
+    m_particles.m_status[i]  = p->status();
+    m_particles.m_barcode[i] = HepMC::barcode(p);
   }
-
   // commit event
   m_tuple->Fill();
 
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
@@ -182,9 +160,7 @@ void HepMcTupleWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*m_outpu
   IProperty * tSvc = 0;
   if ( !service( m_tupleSvc.name(), tSvc, createIf ).isSuccess() ) {
     ATH_MSG_ERROR("Could not retrieve THistSvc handle !!");
-    throw GaudiException( "Could not retrieve THistSvc", 
-			  name(), 
-			  StatusCode::FAILURE );
+    throw GaudiException( "Could not retrieve THistSvc",   name(),   StatusCode::FAILURE );
   }
 
   const std::string streamName = m_outputStreamName.value();
@@ -196,16 +172,12 @@ void HepMcTupleWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*m_outpu
   updatedProp.push_back
     ( streamName+" DATAFILE='"+m_outputFileName.value()+"' "
       "TYP='ROOT' "
-      "OPT='RECREATE'" 
-      );
+      "OPT='RECREATE'" );
   outputFileName.set( updatedProp );
   outputFileName.setName( propName );
   if ( !tSvc->setProperty( outputFileName ).isSuccess() ) {
-    ATH_MSG_ERROR("Could not configure the THistSvc's output filename ["
-		  << m_outputFileName.value() << "] !!");
-    throw GaudiException( "Could not configure THistSvc output file !!", 
-			  name(),
-			  StatusCode::FAILURE );
+    ATH_MSG_ERROR("Could not configure the THistSvc's output filename ["<< m_outputFileName.value() << "] !!");
+    throw GaudiException( "Could not configure THistSvc output file !!",   name(),  StatusCode::FAILURE );
   }
 
   return;
@@ -218,9 +190,7 @@ void HepMcTupleWriterTool::bookTuple()
   if ( !m_tupleSvc->regTree( "/" + streamName + "/hepmc", t ).isSuccess() ) {
     ATH_MSG_ERROR("Could not register HepMC validation tuple !!");
     delete t; t = 0;
-    throw GaudiException( "Could not register HepMC validation tuple !!",
-			  name(),
-			  StatusCode::FAILURE );
+    throw GaudiException( "Could not register HepMC validation tuple !!",  name(),  StatusCode::FAILURE );
   }
 
   // booking branches
