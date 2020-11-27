@@ -115,8 +115,8 @@ StatusCode Trk::TruthTrackCreation::execute()
     // some screen output
     ATH_MSG_VERBOSE("PRD_TruthTrajectoryBuilder delivered " << truthTraj.size() << " PRD truth trajectories, starting track creation.");
     // loop over truth trajectories and create track
-    std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::const_iterator ttIter  = truthTraj.begin();
-    std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::const_iterator ttIterE = truthTraj.end();
+    auto ttIter  = truthTraj.begin();
+    auto ttIterE = truthTraj.end();
     for ( ; ttIter != ttIterE; ++ttIter){
         // run through the selector chain
         if (m_prdTruthTrajectorySelectors.size()){
