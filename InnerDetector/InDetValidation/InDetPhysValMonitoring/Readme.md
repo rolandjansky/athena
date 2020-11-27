@@ -50,7 +50,7 @@ The `Reco_tf.py` transform already comes with the ability to run InDetPhysValMon
 To enable the InDetPhysValMonitoring histograms, add `--valid True  --validationFlags doInDet --outputNTUP_PHYSVALFile physval.root` to the transform you would run without the additional validation histograms. 
 - the switch `--valid True` will enable the decoration
 - the switch `--validationFlags doInDet` will enable the InDetPhysValMonitoring histograms
-- the switch `-outputNTUP_PHYSVALFile physval.root` tells `Reco_tf` to run the physics validation monitoring step and create the histogram files.
+- the switch `--outputNTUP_PHYSVALFile physval.root` tells `Reco_tf` to run the physics validation monitoring step and create the histogram files.
 
 For example: 
 ```   
@@ -104,7 +104,7 @@ This will run the same job as in our previous example, but add some additional p
 The flags are not directly available in the standalone job options. 
 There are two ways of steering them in this use case: 
 
-1. You can use a set of command line arguments supported by the [standalone job options](share/InDetPhysVal_topOptions.py) to have it set the flags for you. The following are supported: 
+1. You can use a set of command line arguments supported by the [standalone job options](share/InDetPhysValMonitoring_topOptions.py) to have it set the flags for you. The following are supported: 
     * `--doTightPrimary` will set  `InDetPhysValFlags.doValidateTightPrimaryTracks` to `True`
     * `--doTracksInJets` and `--doTracksInBJets` will set `InDetPhysValFlags.doValidateTracksInJets` and `InDetPhysValFlags.doValidateTracksInBJets` to `True`, respectively 
     * `--doExpertPlots` will set `InDetPhysValFlags.doExpertOutput` to `True`
@@ -121,5 +121,61 @@ There are two ways of steering them in this use case:
 ```
 athena.py  -c "from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True);InDetPhysValFlags.doExpertOutput.set_Value_and_Lock(True); " --filesInput <your input file, ESD/AOD/DAOD_IDTRKVALID> InDetPhysValMonitoring/InDetPhysValMonitoring_topOptions.py
 ```
-will run the same configuration as the command line arguments above or the transform example. Except for providing an example, there is no real point in using this in place of the command line arguments, but it can be used to set flags not exposed via this mechanism. 
+will run the same configuration as the command line arguments above or the transform example. Except for providing an example, there is no real point in using this to set flags that can also be steered more easily using command line arguments, but it can be used to set flags not exposed via this mechanism. 
 
+# Modifying the code 
+
+You may wish to add additional functionality to the package or change histogram binnings. 
+Such changes require a `local working copy` of the package to implement the changes.
+## Obtaining a working copy
+
+Please follow the [ATLAS GitLab workflow tutorial](https://atlassoftwaredocs.web.cern.ch/gittutorial/git-clone/) for detailed instructions on how to get such a copy - both sparse checkouts and full checkouts with package filters are supported. 
+
+So, for example: 
+1. Create an (empty) sparse checkout: 
+```  
+setupATLAS 
+lsetup git
+mkdir athena build run
+git-atlas init-workdir https://:@gitlab.cern.ch:8443/atlas/athena.git
+```
+2. Add the IDPVM package to your checkout: 
+```
+cd athena
+git-atlas addpkg InDetPhysValMonitoring
+```
+3. Create a development branch to work with: 
+``` 
+git fetch upstream
+git checkout -b MyDevelopmentBranch upstream/master --no-track
+``` 
+Now you can start making changes! 
+
+## Developing code 
+
+A quick pointer around the package: 
+* The [InDetPhysValMonitoringTool](src/InDetPhysValMonitoringTool.cxx) is the top level tool containing the main event loop and truth matching logic. It internally uses an [InDetRttPlots](src/InDetRttPlots.h) instance to handle the plot filling. 
+* The [InDetRttPlots](src/InDetRttPlots.cxx) implementation is the point where plot objects are attached and configured. Here you can add further child objects to fill the plots you need, or modify existing ones. 
+* The individual plot objects are a good place to add more histograms of the same type - for example, an additional efficiency plot versus a new variable to the existing ones. See for example the [InDetPerfPlot_Efficiency](src/InDetPerfPlot_Efficiency.cxx) implementation for an example of how they work. 
+* The binnings are defined in a xml file. For the current ID, take a look at [InDetPVMPlotDefRun2.xml](share/InDetPVMPlotDefRun2.xml)
+* Most of the configuration happens in the `python` folder, for example [InDetPhysValMonitoringTool.py](python/InDetPhysValMonitoringTool.py). The flags are defined in [InDetPhysValDecoration.py](python/InDetPhysValDecoration.py), here you can also add new ones. The standalone job options are in [InDetPhysValMonitoring_topOptions.py](share/InDetPhysValMonitoring_topOptions.py)
+* Please get in touch with Shaun and Götz, the maintainers, for more details
+
+## Testing your changes 
+Now, you need to compile your changes.
+
+This is done using the standard ATLAS build procedure with cmake, see for example [the gitlab tutorial](https://atlassoftwaredocs.web.cern.ch/gittutorial/branch-and-change/) for details. 
+
+For a full checkout, this could look like: 
+```
+cd build
+cmake -DATLAS_PACKAGE_FILTER_FILE=../package_filters.txt ../athena/Projects/WorkDir  # assumes you prevously set up the package_filters.txt! 
+make
+source x86*/setup.sh   # need to do at least once per session... 
+cd - 
+```
+
+In addition to just test-running the code, we recommend to also run the unit tests provided with the package when you have made changes. You can do this by typing `ctest` in the build folder after having compiled. 
+
+## Making a merge request
+If you have made a modification that may be useful to more users, please consider [making a merge request](https://atlassoftwaredocs.web.cern.ch/gittutorial/merge-request/) into master to share your work with others!
