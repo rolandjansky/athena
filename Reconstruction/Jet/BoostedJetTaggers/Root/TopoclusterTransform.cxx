@@ -5,7 +5,6 @@
 // Local include(s).
 #include "BoostedJetTaggers/TopoclusterTransform.h"
 
-// System include(s).
 #include <cmath>
 
 namespace {
@@ -71,10 +70,10 @@ double TopoclusterTransform::phi_shift_and_scale(double clust_phi, double jet_ph
 double TopoclusterTransform::calculate_theta_for_rotations(std::map<std::string,double> clusters){
   // Use secondary topocluster for rotation
   // Calculate cartesian coordinates
-  double y_axis = clusters["clust_1_pt"] * sin(clusters["clust_1_phi"]);
-  double z_axis = clusters["clust_1_pt"] * sinh(clusters["clust_1_eta"]);
+  double y_axis = clusters["clust_1_pt"] * std::sin(clusters["clust_1_phi"]);
+  double z_axis = clusters["clust_1_pt"] * std::sinh(clusters["clust_1_eta"]);
 
-  return atan2(y_axis, z_axis) + M_PI / 2;
+  return std::atan2(y_axis, z_axis) + M_PI / 2;
 }
 
 
@@ -90,27 +89,27 @@ void TopoclusterTransform::rotate_jet(std::map<std::string,double> &clusters, do
     double phi = clusters["clust_"+std::to_string(i)+"_phi"];
 
     // convert to cartesian
-    double px = pt * cos(phi);
-    double py = pt * sin(phi);
-    double pz = pt * sinh(eta);
+    double px = pt * std::cos(phi);
+    double py = pt * std::sin(phi);
+    double pz = pt * std::sinh(eta);
 
     // rotate
     double pxx = px;
-    double pyy = py * cos(angle) - pz * sin(angle);
-    double pzz = pz * cos(angle) + py * sin(angle);
+    double pyy = py * std::cos(angle) - pz * std::sin(angle);
+    double pzz = pz * std::cos(angle) + py * std::sin(angle);
 
     // convert to cylindrical
-    double pt_r = sqrt(pow(pxx,2) + pow(pyy,2));
+    double pt_r = std::sqrt(std::pow(pxx,2) + std::pow(pyy,2));
     double phi_r;
     double eta_r;
 
     if ((pxx == 0) & (pyy == 0) & (pzz == 0))
       theta = 0.0;
     else
-      theta = atan2(pt_r, pzz);  // why are we recalculating theta here? and not adding pi/2
+      theta = std::atan2(pt_r, pzz);  // why are we recalculating theta here? and not adding pi/2
 
-    if (pow(cos(theta),2) < 1)
-      eta_r = -0.5 * log((1 - cos(theta)) / (1 + cos(theta)));
+    if (std::pow(std::cos(theta),2) < 1)
+      eta_r = -0.5 * std::log((1 - std::cos(theta)) / (1 + std::cos(theta)));
     else if (pzz == 0.0)
       eta_r = 0;
     else
@@ -119,7 +118,7 @@ void TopoclusterTransform::rotate_jet(std::map<std::string,double> &clusters, do
     if ((pxx == 0) & (pyy == 0))
         phi_r = 0;
     else
-      phi_r = atan2(pyy, pxx);
+      phi_r = std::atan2(pyy, pxx);
 
     // save the transformed clusters
     clusters["clust_"+std::to_string(i)+"_pt"] = pt_r;

@@ -4,83 +4,51 @@
 
 #include "BoostedJetTaggers/JSSWTopTaggerBDT.h"
 
-#include "PathResolver/PathResolver.h"
-
-#include "TEnv.h"
-#include "TF1.h"
-#include "TSystem.h"
-
-#define APP_NAME "JSSWTopTaggerBDT"
-
 JSSWTopTaggerBDT::JSSWTopTaggerBDT( const std::string& name ) :
   JSSTaggerBase( name ),
-  m_name(name),
-  m_APP_NAME(APP_NAME),
   m_inputVariableSet("NvarM"),
-  m_BDTmethod("BDTG method"),
-  m_dec_mcutL("mcutL"),
-  m_dec_mcutH("mcutH"),
-  m_dec_scoreCut("scoreCut"),
-  m_dec_scoreValue("scoreValue")
+  m_BDTmethod("BDTG method")
 {
 
-    declareProperty( "JetPtMin",              m_jetPtMin = 200000.0);
-    declareProperty( "JetPtMax",              m_jetPtMax = 3000000.0);
-    declareProperty( "JetEtaMax",             m_jetEtaMax = 2.0);
+  declareProperty( "JetPtMin",  m_jetPtMin = 200.0e3);
+  declareProperty( "JetPtMax",  m_jetPtMax = 3000.0e3);
 
 }
 
-JSSWTopTaggerBDT::~JSSWTopTaggerBDT() {}
+StatusCode JSSWTopTaggerBDT::initialize() {
+  
+  ATH_MSG_INFO( "Initializing JSSWTopTaggerBDT tool" );
 
+  /// Use mass cut
+  m_useMassCut = true;
 
-StatusCode JSSWTopTaggerBDT::initialize(){
-  /* Initialize the BDT tagger tool */
-  ATH_MSG_INFO( (m_APP_NAME+": Initializing JSSWTopTaggerBDT tool").c_str() );
-  ATH_MSG_INFO( (m_APP_NAME+": Using config file :"+m_configFile).c_str() );
+  /// Use discriminant score cut
+  m_useScoreCut = true;
 
   if( ! m_configFile.empty() ) {
-    ATH_MSG_INFO( "Using config file : "<< m_configFile );
-    // check for the existence of the configuration file
-    std::string configPath;
 
-    configPath = PathResolverFindCalibFile(("BoostedJetTaggers/"+m_calibArea+"/"+m_configFile).c_str());
+    /// Get configReader
+    ATH_CHECK( getConfigReader() );
 
-    /* https://root.cern.ch/root/roottalk/roottalk02/5332.html */
-    FileStat_t fStats;
-    int fSuccess = gSystem->GetPathInfo(configPath.c_str(), fStats);
-    if(fSuccess != 0){
-      ATH_MSG_ERROR("Recommendations file could not be found : " << configPath);
-      return StatusCode::FAILURE;
-    }
-    else {
-      ATH_MSG_DEBUG("Recommendations file was found : "<<configPath);
-    }
+    /// Get tagger type
+    m_tagType = m_configReader.GetValue("TaggerType" ,"");
 
-    TEnv configReader;
-    if(configReader.ReadFile( configPath.c_str(), EEnvLevel(0) ) != 0 ) {
-      ATH_MSG_ERROR( "Error while reading config file : "<< configPath );
-      return StatusCode::FAILURE;
-    }
+    /// Get the CVMFS calib area where stuff is stored
+    m_tmvaCalibArea = m_configReader.GetValue("CalibAreaTMVA" ,"");
 
-    // get tagger type
-    m_tagType = configReader.GetValue("TaggerType" ,"");
+    /// Get the name/path of the JSON config
+    m_tmvaConfigFileName = m_configReader.GetValue("TMVAConfigFile" ,"");
 
-    // get the CVMFS calib area where stuff is stored
-    m_tmvaCalibArea = configReader.GetValue("CalibAreaTMVA" ,"");
+    /// Input parameter setting type
+    m_inputVariableSet = m_configReader.GetValue("InputVariableSet" ,"");
 
-    // get the name/path of the JSON config
-    m_tmvaConfigFileName = configReader.GetValue("TMVAConfigFile" ,"");
+    /// Get the configured cut values
+    m_strMassCutLow  = m_configReader.GetValue("MassCutLow" ,"");
+    m_strMassCutHigh = m_configReader.GetValue("MassCutHigh" ,"");
+    m_strScoreCut    = m_configReader.GetValue("ScoreCut" ,"");
 
-    // input parameter setting type
-    m_inputVariableSet = configReader.GetValue("InputVariableSet" ,"");
-
-    // get the configured cut values
-    m_strMassCutLow  = configReader.GetValue("MassCutLow" ,"");
-    m_strMassCutHigh = configReader.GetValue("MassCutHigh" ,"");
-    m_strScoreCut    = configReader.GetValue("ScoreCut" ,"");
-
-    // get the decoration name
-    m_decorationName = configReader.GetValue("DecorationName" ,"");
+    /// Get the decoration name
+    m_decorationName = m_configReader.GetValue("DecorationName" ,"");
 
     ATH_MSG_INFO( "Configurations Loaded  :");
     ATH_MSG_INFO( "tagType                : "<<m_tagType );
@@ -92,10 +60,10 @@ StatusCode JSSWTopTaggerBDT::initialize(){
     ATH_MSG_INFO( "decorationName         : "<<m_decorationName );
 
   }
-  else { // no config file
-    // Assume the cut functions have been set through properties.
-    // check they are non empty
-    if( m_tmvaConfigFileName.empty() ||
+  else { /// No config file
+    /// Assume the cut functions have been set through properties.
+    /// Check they are non empty
+    if ( m_tmvaConfigFileName.empty() ||
         m_strScoreCut.empty() ||
         m_strMassCutLow.empty() ||
         m_strMassCutHigh.empty() ||
@@ -107,383 +75,263 @@ StatusCode JSSWTopTaggerBDT::initialize(){
 
   }
 
-  // initialize decorators as decorationName+_decorator
-  ATH_MSG_INFO( "Decorators that will be attached to jet :" );
-  std::string dec_name;
+  ATH_MSG_INFO( "Mass cut low   : "<< m_strMassCutLow );
+  ATH_MSG_INFO( "Mass cut High  : "<< m_strMassCutHigh );
+  ATH_MSG_INFO( "Score cut low  : "<< m_strScoreCut );
 
-  dec_name = m_decorationName+"_Cut_mlow";
-  ATH_MSG_INFO( "  "<<dec_name<<" : lower mass cut for tagger choice" );
-  m_dec_mcutL      = SG::AuxElement::Decorator<float>((dec_name).c_str());
-  dec_name = m_decorationName+"_Cut_mhigh";
-  ATH_MSG_INFO( "  "<<dec_name<<" : upper mass cut for tagger choice" );
-  m_dec_mcutH      = SG::AuxElement::Decorator<float>((dec_name).c_str());
-  dec_name = m_decorationName+"_Cut_score";
-  ATH_MSG_INFO( "  "<<dec_name<<" : MVA score cut for tagger choice" );
-  m_dec_scoreCut   = SG::AuxElement::Decorator<float>((dec_name).c_str());
-  dec_name = m_decorationName+"_Score";
-  ATH_MSG_INFO( "  "<<dec_name<<" : evaluated MVA score" );
-  m_dec_scoreValue = SG::AuxElement::Decorator<float>((dec_name).c_str());
-
-  // transform these strings into functions
-  m_funcMassCutLow   = new TF1("strMassCutLow",  m_strMassCutLow.c_str(),  0, 14000);
-  m_funcMassCutHigh  = new TF1("strMassCutHigh", m_strMassCutHigh.c_str(), 0, 14000);
-  m_funcScoreCut     = new TF1("strScoreCut",    m_strScoreCut.c_str(),    0, 14000);
-
-  ATH_MSG_INFO( "BDT Tagger tool initialized" );
-  ATH_MSG_INFO( "  Mass cut low   : "<< m_strMassCutLow );
-  ATH_MSG_INFO( "  Mass cut High  : "<< m_strMassCutHigh );
-  ATH_MSG_INFO( "  Score cut low  : "<< m_strScoreCut );
-
-  // if the calibarea is specified to be "Local" then it looks in the same place as the top level configs
-  if( m_tmvaCalibArea.empty() ){
-    ATH_MSG_INFO( (m_APP_NAME+": You need to specify where the calibarea is as either being Local or on CVMFS") );
+  /// If the calibarea is specified to be "Local" then it looks in the same place as the top level configs
+  if ( m_tmvaCalibArea.empty() ) {
+    ATH_MSG_ERROR( "You need to specify where the calibarea is as either being Local or on CVMFS" );
     return StatusCode::FAILURE;
   }
-  else if(m_tmvaCalibArea.compare("Local")==0){
+  else if ( !m_tmvaCalibArea.compare("Local") ) {
     std::string localCalibArea = "BoostedJetTaggers/JSSWTopTaggerBDT/";
-    ATH_MSG_INFO( (m_APP_NAME+": Using Local calibarea "+localCalibArea));
-    // convert the JSON config file name to the full path
+    ATH_MSG_INFO( "Using Local calibarea " << localCalibArea );
+    /// Convert the JSON config file name to the full path
     m_tmvaConfigFilePath = PathResolverFindCalibFile(localCalibArea+m_tmvaConfigFileName);
   }
-  else{
-    ATH_MSG_INFO( (m_APP_NAME+": Using CVMFS calibarea") );
-    // get the config file from CVMFS
-    // necessary because xml files are too large to house on the data space
+  else {
+    ATH_MSG_INFO( "Using CVMFS calibarea" );
+    /// Get the config file from CVMFS
+    /// Necessary because xml files are too large to house on the data space
     m_tmvaConfigFilePath = PathResolverFindCalibFile( (m_tmvaCalibArea+m_tmvaConfigFileName).c_str() );
   }
 
-  // read json file for DNN weights
-  ATH_MSG_INFO( (m_APP_NAME+": BDT Tagger configured with: "+m_tmvaConfigFilePath.c_str() ));
+  /// Read json file for DNN weights
+  ATH_MSG_INFO( "BDT Tagger configured with: " << m_tmvaConfigFilePath );
 
-  // -- Initialize TMVA for BDTs
+  /// Initialize TMVA for BDTs
   TMVA::Tools::Instance();
-  m_bdtTagger = std::unique_ptr<TMVA::Reader> ( new TMVA::Reader( "!Color:!Silent" ) );
+  m_bdtTagger = std::make_unique<TMVA::Reader>( "!Color:!Silent" );
 
-  // set internal tagger type
-  size_t pos1;
-  size_t pos2;
-
-  pos1 = m_tagType.find("Top");
-  pos2 = m_tagType.find("W");
-
-  if(pos1!=std::string::npos){
+  /// Set internal tagger type
+  if ( !m_tagType.compare("TopQuarkContained") ) {
     ATH_MSG_DEBUG( "This is a top quark tagger" );
-    m_TagClass = TAGCLASS::TopQuark;
+    m_tagClass = TAGCLASS::TopQuark;
   }
-  else if(pos2!=std::string::npos){
+  else if ( !m_tagType.compare("WBoson") ) {
     ATH_MSG_DEBUG( "This is a W boson tagger" );
-    m_TagClass = TAGCLASS::WBoson;
+    m_tagClass = TAGCLASS::WBoson;
   }
-  else{
-    ATH_MSG_ERROR( "Your configuration is invalid because from it, I can't tell if it is for W tagging or top quark tagging." );
+  else if ( !m_tagType.compare("ZBoson") ) {
+    ATH_MSG_DEBUG( "This is a Z boson tagger" );
+    m_tagClass = TAGCLASS::ZBoson;
+  }
+  else {
+    ATH_MSG_ERROR( "I can't tell what kind of tagger your configuration is for." );
     return StatusCode::FAILURE;
   }
 
-  // parse the tagger type
-  if (m_tagType.compare("WBoson")==0){
+  /// Add variables based on tagger type
+  if ( m_tagClass == TAGCLASS::WBoson ) {
     ATH_MSG_DEBUG( "W Boson BDT Tagger Selected" );
 
-    m_bdtTagger->AddVariable( "fjet_D2",         &m_D2);
-    m_bdtTagger->AddVariable( "fjet_CaloTACombinedMassUncorrelated", &m_mass);
-    m_bdtTagger->AddVariable( "fjet_JetpTCorrByCombinedMass", &m_pt);
-    m_bdtTagger->AddVariable( "fjet_KtDR",         &m_KtDR);
-    m_bdtTagger->AddVariable( "fjet_Tau21_wta",  &m_Tau21_wta);
-    m_bdtTagger->AddVariable( "fjet_Angularity", &m_Angularity);
-    m_bdtTagger->AddVariable( "fjet_Tau1_wta",   &m_Tau1_wta);
-    m_bdtTagger->AddVariable( "fjet_PlanarFlow", &m_PlanarFlow);
-    m_bdtTagger->AddVariable( "fjet_FoxWolfram20", &m_FoxWolfram20);
-    m_bdtTagger->AddVariable( "fjet_Aplanarity",   &m_Aplanarity);
-    m_bdtTagger->AddVariable( "fjet_C2",  &m_C2);
+    m_bdtTagger->AddVariable( "fjet_CaloTACombinedMassUncorrelated", &m_mass );
+    m_bdtTagger->AddVariable( "fjet_JetpTCorrByCombinedMass", &m_pt );
+    m_bdtTagger->AddVariable( "fjet_KtDR", &m_KtDR );
+    m_bdtTagger->AddVariable( "fjet_Tau1_wta", &m_Tau1_wta );
+    m_bdtTagger->AddVariable( "fjet_Tau21_wta", &m_Tau21_wta );
+    m_bdtTagger->AddVariable( "fjet_C2", &m_C2 );
+    m_bdtTagger->AddVariable( "fjet_D2", &m_D2 );
+    m_bdtTagger->AddVariable( "fjet_Angularity", &m_Angularity );
+    m_bdtTagger->AddVariable( "fjet_Aplanarity", &m_Aplanarity );
+    m_bdtTagger->AddVariable( "fjet_PlanarFlow", &m_PlanarFlow );
+    m_bdtTagger->AddVariable( "fjet_FoxWolfram20", &m_FoxWolfram20 );
 
   }
-  else if (m_tagType.compare("TopQuarkContained")==0){
+  else if ( m_tagClass == TAGCLASS::TopQuark ) {
     ATH_MSG_DEBUG( "Top Quark (Fully Contained) BDT Tagger Selected" );
 
-    m_bdtTagger->AddVariable( "fjet_CaloTACombinedMassUncorrelated", &m_mass);
-    m_bdtTagger->AddVariable( "fjet_Split23", &m_Split23  );
-    m_bdtTagger->AddVariable( "fjet_Tau32_wta",  &m_Tau32_wta  );
-    m_bdtTagger->AddVariable( "fjet_Qw", &m_Qw  );
-    m_bdtTagger->AddVariable( "fjet_D2", &m_D2  );
+    m_bdtTagger->AddVariable( "fjet_CaloTACombinedMassUncorrelated", &m_mass );
+    m_bdtTagger->AddVariable( "fjet_JetpTCorrByCombinedMass", &m_pt );
     m_bdtTagger->AddVariable( "fjet_Tau2_wta", &m_Tau2_wta );
+    m_bdtTagger->AddVariable( "fjet_Tau21_wta", &m_Tau21_wta );
+    m_bdtTagger->AddVariable( "fjet_Tau32_wta", &m_Tau32_wta );
+    m_bdtTagger->AddVariable( "fjet_D2", &m_D2 );
     m_bdtTagger->AddVariable( "fjet_e3", &m_e3 );
-    m_bdtTagger->AddVariable( "fjet_Split12", &m_Split12  );
-    m_bdtTagger->AddVariable( "fjet_JetpTCorrByCombinedMass", &m_pt);
-    m_bdtTagger->AddVariable( "fjet_Tau21_wta", &m_Tau21_wta  );
+    m_bdtTagger->AddVariable( "fjet_Split12", &m_Split12 );
+    m_bdtTagger->AddVariable( "fjet_Split23", &m_Split23 );
+    m_bdtTagger->AddVariable( "fjet_Qw", &m_Qw );
 
   }
-  else{
+  else {
     ATH_MSG_DEBUG( "Using custom configuration - if you are doing this, you may need to do some hardcoding because the tool is not flexible enough to change inputs ..." );
   }
 
-  // configure the bdt
+  /// Configure the BDT
   m_bdtTagger->BookMVA( m_BDTmethod.c_str(), m_tmvaConfigFilePath.c_str() );
 
-  //setting the possible states that the tagger can be left in after the JSSTaggerBase::tag() function is called
-  m_accept.addCut( "ValidPtRangeHigh"    , "True if the jet is not too high pT"  );
-  m_accept.addCut( "ValidPtRangeLow"     , "True if the jet is not too low pT"   );
-  m_accept.addCut( "ValidEtaRange"       , "True if the jet is not too forward"     );
-  m_accept.addCut( "ValidJetContent"     , "True if the jet is alright technically (e.g. all attributes necessary for tag)"        );
-
-  if(m_tagType.compare("WBoson")==0 || m_tagType.compare("ZBoson")==0){
-    m_accept.addCut( "PassMassLow"         , "mJet > mCutLow"       );
-    m_accept.addCut( "PassMassHigh"        , "mJet < mCutHigh"      );
-    m_accept.addCut( "PassScore"           , "ScoreJet > ScoreCut"         );
+  /// Set the possible states that the tagger can be left in after the JSSTaggerBase::tag() function is called
+  m_accept.addCut( "PassMassLow" , "mJet > mCutLow" );
+  m_accept.addCut( "PassScore"   , "ScoreJet > ScoreCut" );
+  if ( m_tagClass == TAGCLASS::WBoson || m_tagClass == TAGCLASS::ZBoson ) {
+    m_accept.addCut( "PassMassHigh", "mJet < mCutHigh" );
   }
-  if(m_tagType.compare("TopQuarkContained")==0){
-    m_accept.addCut( "PassMassLow"         , "mJet > mCutLow"       );
-    m_accept.addCut( "PassScore"           , "ScoreJet > ScoreCut"         );
-  }
-  //loop over and print out the cuts that have been configured
-  ATH_MSG_INFO( "After tagging, you will have access to the following cuts as a Root::TAccept : (<NCut>) <cut> : <description>)" );
-  showCuts();
+  
+  /// Call base class initialize
+  ATH_CHECK( JSSTaggerBase::initialize() );
 
-
+  /// Loop over and print out the cuts that have been configured
+  printCuts();
+  
   ATH_MSG_INFO( "BDT Tagger tool initialized" );
 
   return StatusCode::SUCCESS;
+
 }
 
+Root::TAccept& JSSWTopTaggerBDT::tag( const xAOD::Jet& jet ) const {
 
+  ATH_MSG_DEBUG( "Obtaining BDT result" );
 
-Root::TAccept& JSSWTopTaggerBDT::tag(const xAOD::Jet& jet) const {
-  // helpful execute message
-  ATH_MSG_DEBUG("Obtaining BDT result" );
+  /// Reset the TAccept cut results
+  resetCuts();
 
-  //clear all accept values
-  m_accept.clear();
+  /// Check basic kinematic selection
+  checkKinRange(jet);
 
-  // set the jet validity bits to 1 by default
-  m_accept.setCutResult( "ValidPtRangeHigh", true);
-  m_accept.setCutResult( "ValidPtRangeLow" , true);
-  m_accept.setCutResult( "ValidEtaRange"   , true);
-  m_accept.setCutResult( "ValidJetContent" , true);
-
-  // check basic kinematic selection
-  if (std::fabs(jet.eta()) > m_jetEtaMax) {
-    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta());
-    m_accept.setCutResult("ValidEtaRange", false);
-  }
-  if (jet.pt() < m_jetPtMin) {
-    ATH_MSG_DEBUG("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin << "). Jet pT = " << jet.pt()/1.e3);
-    m_accept.setCutResult("ValidPtRangeLow", false);
-  }
-  if (jet.pt() > m_jetPtMax) {
-    ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT < " << m_jetPtMax << "). Jet pT = " << jet.pt()/1.e3);
-    m_accept.setCutResult("ValidPtRangeHigh", false);
-  }
-
-  // get the relevant attributes of the jet
-  // mass and pt - note that this will depend on the configuration of the calibration used
+  /// Get the relevant attributes of the jet
+  /// Mass and pt - note that this will depend on the configuration of the calibration used
   float jet_pt   = jet.pt()/1000.0;
   float jet_mass = jet.m()/1000.0;
 
-  // get BDT score
+  /// Get BDT score
   float jet_score = getScore(jet);
 
-  // evaluate the values of the upper and lower mass bounds and the d2 cut
+  /// Evaluate the values of the upper and lower mass bounds and the d2 cut
   float cut_mass_low  = m_funcMassCutLow ->Eval(jet_pt);
   float cut_mass_high = m_funcMassCutHigh->Eval(jet_pt);
   float cut_score     = m_funcScoreCut   ->Eval(jet_pt);
 
-  // decorate the cut value if needed;
-  if(m_decorate){
-    ATH_MSG_DEBUG("Decorating with score");
-    decorateJet(jet, cut_mass_high, cut_mass_low, cut_score, jet_score);
+  /// Decorate cut information if needed;
+  if ( m_decorate ) {
+    ATH_MSG_DEBUG( "Decorating with score" );
+    (*m_dec_mcutH)(jet)      = cut_mass_high;
+    (*m_dec_mcutL)(jet)      = cut_mass_low;
+    (*m_dec_scoreCut)(jet)   = cut_score;
+    (*m_dec_scoreValue)(jet) = jet_score;
   }
 
-  // evaluate the cut criteria on mass and score
-  ATH_MSG_VERBOSE(": CutsValues : MassWindow=["<<std::to_string(cut_mass_low)<<","<<std::to_string(cut_mass_high)<<"]  ,  scoreCut="<<std::to_string(cut_score) );
-  ATH_MSG_VERBOSE(": JetValues  : JetMass="<<std::to_string(jet_mass)<<"  ,  score="<<std::to_string(jet_score) );
+  /// Print cut criteria and jet values
+  ATH_MSG_VERBOSE( "Cut values : Mass window = [" << cut_mass_low << "," << cut_mass_high << "], score cut = " << cut_score );
+  ATH_MSG_VERBOSE( "Jet values : Mass = " << jet_mass << ", score = " << jet_score );
 
-  //set the TAccept depending on whether it is a W/Z or a top tag
-  if(m_tagType.compare("WBoson")==0 || m_tagType.compare("ZBoson")==0){
-    ATH_MSG_VERBOSE("Determining WZ tag return");
-    if( jet_mass>cut_mass_low )
-      m_accept.setCutResult( "PassMassLow"  , true );
-    if( jet_mass<cut_mass_high )
-      m_accept.setCutResult( "PassMassHigh" , true );
+  /// Set the TAccept depending on whether it is a W/Z or a top tag
+  if ( m_tagClass == TAGCLASS::WBoson || m_tagClass == TAGCLASS::ZBoson ) {
+    ATH_MSG_VERBOSE( "Determining WZ tag return" );
+    if( jet_mass > cut_mass_low )
+      m_accept.setCutResult( "PassMassLow", true );
+    if( jet_mass < cut_mass_high )
+      m_accept.setCutResult( "PassMassHigh", true );
     if( jet_score > cut_score )
-      m_accept.setCutResult( "PassScore"    , true );
+      m_accept.setCutResult( "PassScore", true );
   }
-  else if(m_tagType.compare("TopQuarkContained")==0){
-    ATH_MSG_VERBOSE("Determining TopQuarkContained tag return");
-    if( jet_mass>cut_mass_low )
-      m_accept.setCutResult( "PassMassLow"  , true );
+  else if ( m_tagClass == TAGCLASS::TopQuark ) {
+    ATH_MSG_VERBOSE( "Determining TopQuarkContained tag return" );
+    if( jet_mass > cut_mass_low )
+      m_accept.setCutResult( "PassMassLow", true );
     if( jet_score > cut_score )
-      m_accept.setCutResult( "PassScore"    , true );
+      m_accept.setCutResult( "PassScore", true );
   }
 
-  // return the TAccept object that you created and filled
+  /// Return the TAccept object that was created and filled
   return m_accept;
+
 }
 
+float JSSWTopTaggerBDT::getScore( const xAOD::Jet& jet ) const {
 
-float JSSWTopTaggerBDT::getScore(const xAOD::Jet& jet) const{
-
-  // load the new values of the variables for this jet
+  /// Load the new values of the variables for this jet
   getJetProperties(jet);
 
-  // evaluate bdt
-  float bdt_score(-666.);
-  if(m_undefInput){
-    ATH_MSG_WARNING("One (or more) tagger input variable has an undefined value (NaN), setting score to -666");
+  /// Evaluate BDT
+  float bdt_score = -666.;
+
+  /// Check that input variables are valid
+  bool validVars = true;
+  if ( acc_Tau21_wta(jet) < 0.0 ) validVars = false;
+  if ( acc_Tau32_wta(jet) < 0.0 ) validVars = false;
+
+  if ( !validVars ) {
+
+    if ( m_nWarnVar++ < m_nWarnMax ) ATH_MSG_WARNING( "One (or more) tagger input variable has an out-of-range value, setting score to -666" );
+    else ATH_MSG_DEBUG( "One (or more) tagger input variable has an out-of-range value, setting score to -666" );
+
     return bdt_score;
+  
   }
+
   bdt_score = m_bdtTagger->EvaluateMVA( m_BDTmethod.c_str() );
 
   return bdt_score;
+
 }
 
+void JSSWTopTaggerBDT::getJetProperties( const xAOD::Jet& jet ) const {
 
-void JSSWTopTaggerBDT::decorateJet(const xAOD::Jet& jet, float mcutH, float mcutL, float scoreCut, float scoreValue) const{
-  /* decorate jet with attributes */
-  m_dec_mcutH(jet)      = mcutH;
-  m_dec_mcutL(jet)      = mcutL;
-  m_dec_scoreCut(jet)   = scoreCut;
-  m_dec_scoreValue(jet) = scoreValue;
-}
+  /// Calculate NSubjettiness and ECF ratios
+  calculateJSSRatios(jet);
 
+  ATH_MSG_DEBUG( "Loading variables for common BDT tagger" );
 
-void JSSWTopTaggerBDT::getJetProperties(const xAOD::Jet& jet) const{
-  /* Update the jet substructure variables for this jet */
+  /// Mass and pT
+  /// It is assumed that these are the combined mass and calibrated mass and pT
+  m_pt   = jet.pt();
+  m_mass = jet.m();
 
-  // flag for if the input is nonsense
-  m_undefInput = false;
+  /// N-subjettiness
+  m_Tau1_wta = acc_Tau1_wta(jet);
+  m_Tau2_wta = acc_Tau2_wta(jet);
+  
+  m_Tau21_wta = acc_Tau21_wta(jet);
+  m_Tau32_wta = acc_Tau32_wta(jet);
 
-  if(m_TagClass == TAGCLASS::WBoson){
+  /// Energy Correlation Functions
+  m_C2 = acc_C2(jet);
+  m_D2 = acc_D2(jet);
+
+  /// e3 := normalized ECF3/ECF1**3
+  m_e3 = acc_e3(jet);
+
+  if ( m_tagClass == TAGCLASS::WBoson ) {
+
     ATH_MSG_DEBUG("Loading variables for W boson tagger");
-    // mass and pT
-    // it is assumed that these are the combined mass and calibrated mass and pT
-    m_pt   = jet.pt();
-    m_mass = jet.m();
 
-    // splitting scale
-    m_KtDR         = jet.getAttribute<float>("KtDR");
+    /// Splitting scales
+    m_KtDR = jet.getAttribute<float>("KtDR");
 
-    // N-subjettiness
-    m_Tau1_wta = jet.getAttribute<float>("Tau1_wta");
-    m_Tau2_wta = jet.getAttribute<float>("Tau2_wta");
-    m_Tau3_wta = jet.getAttribute<float>("Tau3_wta");
+    /// Angularity
+    m_Angularity = jet.getAttribute<float>("Angularity");
 
-    if(!jet.isAvailable<float>("Tau21_wta")){
-      m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
-      if(std::isnan(m_Tau21_wta)){
-        m_undefInput = true;
-      }
-    }
-    else{
-        m_Tau21_wta = jet.getAttribute<float>("Tau21_wta");
-    }
-
-    if(!jet.isAvailable<float>("Tau32_wta")){
-      m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
-      if(std::isnan(m_Tau32_wta)){
-        m_undefInput = true;
-      }
-    }
-    else{
-        m_Tau32_wta = jet.getAttribute<float>("Tau32_wta");
-    }
-
-    // Energy Correlation Functions
-    jet.getAttribute("ECF1", m_ECF1);
-    jet.getAttribute("ECF2", m_ECF2);
-    jet.getAttribute("ECF3", m_ECF3);
-
-    if(!jet.isAvailable<float>("C2"))
-      m_C2 = m_ECF3 * m_ECF1 / pow(m_ECF2, 2.0);
-    else
-      m_C2 = jet.getAttribute<float>("C2");
-    if(!jet.isAvailable<float>("D2"))
-      m_D2 = m_ECF3 * pow(m_ECF1, 3.0) / pow(m_ECF2, 3.0);
-    else
-      m_D2 = jet.getAttribute<float>("D2");
-
-    // e3 := normalized ECF3/ECF1**3
-    m_e3 = m_ECF3/pow(m_ECF1,3.0);
-
-    // angularity
-    m_Angularity   = jet.getAttribute<float>("Angularity");
-
-    // planar flow
+    /// Planar flow
     m_PlanarFlow   = jet.getAttribute<float>("PlanarFlow");
 
-    // fox wolfram ratio
+    /// Fox Wolfram ratio
     m_FoxWolfram20 = jet.getAttribute<float>("FoxWolfram2") / jet.getAttribute<float>("FoxWolfram0");
 
-    // aplanarity
-    m_Aplanarity   = jet.getAttribute<float>("Aplanarity");
+    /// Aplanarity
+    m_Aplanarity = jet.getAttribute<float>("Aplanarity");
 
   }
-  else if(m_TagClass == TAGCLASS::TopQuark){
-    ATH_MSG_DEBUG("Loading variables for top quark tagger");
+  
+  else if ( m_tagClass == TAGCLASS::TopQuark ) {
 
-    // mass and pT
-    // it is assumed that these are the combined mass and calibrated mass and pT
-    m_pt   = jet.pt();
-    m_mass = jet.m();
+    ATH_MSG_DEBUG( "Loading variables for top quark tagger" );
 
-    // Splitting Scales
-    m_Split12 = jet.getAttribute<float>("Split12");
-    m_Split23 = jet.getAttribute<float>("Split23");
+    /// Splitting scales
+    m_Split12 = acc_Split12(jet);
+    m_Split23 = acc_Split23(jet);
 
-    // N-subjettiness
-    m_Tau1_wta = jet.getAttribute<float>("Tau1_wta");
-    m_Tau2_wta = jet.getAttribute<float>("Tau2_wta");
-    m_Tau3_wta = jet.getAttribute<float>("Tau3_wta");
-
-    if(!jet.isAvailable<float>("Tau21_wta")){
-      m_Tau21_wta = m_Tau2_wta / m_Tau1_wta;
-      if(std::isnan(m_Tau21_wta)){
-        m_undefInput = true;
-      }
-    }
-    else{
-        m_Tau21_wta = jet.getAttribute<float>("Tau21_wta");
-    }
-
-    if(!jet.isAvailable<float>("Tau32_wta")){
-      m_Tau32_wta = m_Tau3_wta/ m_Tau2_wta;
-      if(std::isnan(m_Tau21_wta)){
-        m_undefInput = true;
-      }
-    }
-    else{
-        m_Tau32_wta = jet.getAttribute<float>("Tau32_wta");
-    }
-
-    // Energy Correlation Functions
-    jet.getAttribute("ECF1", m_ECF1);
-    jet.getAttribute("ECF2", m_ECF2);
-    jet.getAttribute("ECF3", m_ECF3);
-
-    if(!jet.isAvailable<float>("C2"))
-      m_C2 = m_ECF3 * m_ECF1 / pow(m_ECF2, 2.0);
-    else
-      m_C2 = jet.getAttribute<float>("C2");
-    if(!jet.isAvailable<float>("D2"))
-      m_D2 = m_ECF3 * pow(m_ECF1, 3.0) / pow(m_ECF2, 3.0);
-    else
-      m_D2 = jet.getAttribute<float>("D2");
-
-    // e3 := normalized ECF3/ECF1**3
-    m_e3 = m_ECF3/pow(m_ECF1,3.0);
-
-    // basically like a pari-wise subjet mass variable
-    m_Qw           = jet.getAttribute<float>("Qw");
+    /// Qw
+    m_Qw = jet.getAttribute<float>("Qw");
+  
   }
-  else{
-    ATH_MSG_ERROR( "Loading variables failed because the tagger you are using is not clear to me");
+ 
+  else {
+    ATH_MSG_ERROR( "Loading variables failed because the tagger type is not supported" );
   }
 
   return;
+
 }
 
-
-StatusCode JSSWTopTaggerBDT::finalize(){
-  /* Delete or clear anything */
-  return StatusCode::SUCCESS;
-}
-
-
-// the end

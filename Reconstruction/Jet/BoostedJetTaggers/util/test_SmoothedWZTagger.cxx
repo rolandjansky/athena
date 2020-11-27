@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
-#include <memory>
-#include <cstdlib>
 #include <string>
 
 // ROOT include(s):
 #include <TFile.h>
-#include <TError.h>
 #include <TString.h>
 #include <TTree.h>
 #include <TChain.h>
@@ -21,20 +18,11 @@
 #endif // ROOTCORE
 
 // EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
-#include <xAODJet/JetContainer.h>
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
-#include "AsgTools/Check.h"
-#include "AsgTools/AnaToolHandle.h"
-#include "PATCore/TAccept.h"
 
 // Tool testing include(s):
-#include "AsgTools/AnaToolHandle.h"
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
-#include "BoostedJetTaggers/IJetSelectorLabelTool.h"
 #include "BoostedJetTaggers/SmoothedWZTagger.h"
 
 int main( int argc, char* argv[] ) {
@@ -46,7 +34,7 @@ int main( int argc, char* argv[] ) {
   TString fileName = "/eos/atlas/atlascerngroupdisk/perf-jets/ReferenceFiles/mc16_13TeV.361028.Pythia8EvtGen_A14NNPDF23LO_jetjet_JZ8W.deriv.DAOD_FTAG1.e3569_s3126_r9364_r9315_p3260/DAOD_FTAG1.12133096._000074.pool.root.1";
   int  ievent=-1;
   int  nevents=-1;
-  bool m_IsMC=true;
+  bool m_isMC=true;
   bool verbose=false;
 
 
@@ -98,8 +86,8 @@ int main( int argc, char* argv[] ) {
   if(options.find("-m")!=std::string::npos){
     for( int ipos=0; ipos<argc ; ipos++ ) {
       if(std::string(argv[ipos]).compare("-m")==0){
-        m_IsMC = atoi(argv[ipos+1]);
-        Info( APP_NAME, "Argument (-m) : IsMC = %i", m_IsMC );
+        m_isMC = atoi(argv[ipos+1]);
+        Info( APP_NAME, "Argument (-m) : IsMC = %i", m_isMC );
         break;
       }
     }
@@ -167,7 +155,7 @@ int main( int argc, char* argv[] ) {
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
   std::cout<<"Initializing WZ Tagger"<<std::endl;
-  asg::AnaToolHandle<IJetSelectorTool> m_Tagger; //!
+  asg::AnaToolHandle<SmoothedWZTagger> m_Tagger; //!
   ASG_SET_ANA_TOOL_TYPE( m_Tagger, SmoothedWZTagger);
   m_Tagger.setName("MyTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::DEBUG);
@@ -175,7 +163,7 @@ int main( int argc, char* argv[] ) {
   //m_Tagger.setProperty( "ConfigFile",   "SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d_20190410.dat");
   m_Tagger.setProperty( "CalibArea", "Local");
   m_Tagger.setProperty( "ConfigFile",   "SmoothedWZTaggers/temp_SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16d.dat");
-  m_Tagger.setProperty( "IsMC", m_IsMC );
+  m_Tagger.setProperty( "IsMC", m_isMC );
   m_Tagger.retrieve();
 
   ////////////////////////////////////////////////////

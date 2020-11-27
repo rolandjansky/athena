@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // nn stuff
@@ -122,7 +122,6 @@ StatusCode HbbTaggerDNN::initialize(){
 
   using namespace BoostedJetTaggers;
 
-  // Initialize the DNN tagger tool
   ATH_MSG_INFO("Initializing HbbTaggerDNN tool");
 
   // read json file for DNN weights
@@ -216,14 +215,9 @@ StatusCode HbbTaggerDNN::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode HbbTaggerDNN::finalize(){
-  return StatusCode::SUCCESS;
-}
-
 int HbbTaggerDNN::keep(const xAOD::Jet& jet) const {
   return getScore(jet) > m_tag_threshold;
 }
-
 
 std::map<std::string, double> HbbTaggerDNN::getScores(const xAOD::Jet& jet)
   const {

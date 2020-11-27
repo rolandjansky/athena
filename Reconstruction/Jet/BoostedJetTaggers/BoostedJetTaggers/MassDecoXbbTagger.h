@@ -1,7 +1,7 @@
 // for editors : this file is -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BOOSTEDJETSTAGGERS_MassDecoXbbTagger_H_
@@ -26,7 +26,7 @@ class MassDecoXbbTagger :   public asg::AsgTool ,
 public:
   MassDecoXbbTagger(const std::string &name);
   ~MassDecoXbbTagger();
-  virtual StatusCode initialize() override final;
+  virtual StatusCode initialize() override;
 
   // keep method is inherited from IJetSelector, it returns 0 if the
   // jet doesn't pass. The threshold is set via the tagThreshold
