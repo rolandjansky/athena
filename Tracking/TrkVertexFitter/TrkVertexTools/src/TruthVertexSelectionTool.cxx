@@ -55,8 +55,11 @@ namespace Trk{
 //protection   
     if(!evt) return 0;
    
+#ifdef HEPMC3
+    auto vitr = evt->vertices().begin();
+#else
     HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin();
-  
+#endif
 //another one  
     if(!*vitr) return 0;
   
