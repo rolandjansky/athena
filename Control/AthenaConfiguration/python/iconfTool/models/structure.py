@@ -4,7 +4,7 @@ import ast
 import logging
 from typing import Callable, Dict, List, Sequence, Set, Tuple
 
-from models.element import (
+from AthenaConfiguration.iconfTool.models.element import (
     Element,
     SingleElement,
     GroupingElement,

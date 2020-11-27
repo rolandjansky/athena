@@ -4,10 +4,17 @@ import curses
 import logging
 from typing import Any, Tuple
 
-from gui.modals import DoubleHelpModal, SearchModal, SingleHelpModal
-from gui.pad import Pad
-from models.loaders import ComponentsDiffFileLoader, ComponentsFileLoader
-from models.structure import ComponentsStructure
+from AthenaConfiguration.iconfTool.gui.modals import (
+    DoubleHelpModal,
+    SearchModal,
+    SingleHelpModal,
+)
+from AthenaConfiguration.iconfTool.gui.pad import Pad
+from AthenaConfiguration.iconfTool.models.loaders import (
+    ComponentsDiffFileLoader,
+    ComponentsFileLoader,
+)
+from AthenaConfiguration.iconfTool.models.structure import ComponentsStructure
 
 logger = logging.getLogger(__name__)
 
