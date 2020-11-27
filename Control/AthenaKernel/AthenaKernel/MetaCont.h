@@ -211,7 +211,6 @@ MetaCont<T>::sources() const {
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( MetaContBase , 34480469 , 1 )
 
 
