@@ -44,6 +44,8 @@ from LongLivedParticleDPDMaker import HNLFlags
 from LongLivedParticleDPDMaker import HVFlags
 from LongLivedParticleDPDMaker import SmpCaloIdFlags
 from LongLivedParticleDPDMaker import SmpMsFlags
+from LongLivedParticleDPDMaker import VHFlags
+from LongLivedParticleDPDMaker import TauFlags
 
 #===============================================================
 # Set specific properties for each of the analysis selections
@@ -132,6 +134,21 @@ class doSmpMs(JobProperty):
     StoredValue = False
     pass
 primRPVLLDESDM.add_JobProperty(doSmpMs)
+
+class doVH(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+    pass
+primRPVLLDESDM.add_JobProperty(doVH)
+
+class doTaus(JobProperty):
+    statusOn = True
+    allowedTypes = ["bool"]
+    StoredValue = True
+    pass
+primRPVLLDESDM.add_JobProperty(doTaus)
+
 
 class prescaleFlags(JobProperty):
     statusOn = True

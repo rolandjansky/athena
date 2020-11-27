@@ -187,7 +187,7 @@ class KinkedTrack_singleJetMetFilterFlags(JobProperty):
     cutEtaMax = 3.2
     doLeptonVeto = True
     requireIsolatedTrack = True
-    electronIDKey = "Tight"
+    electronIDKey = "LHTight"
     muonIDKey = "Medium"
     leptonPtMax = 20.0*Units.GeV
     leptonEtaMax = 2.5
@@ -246,7 +246,7 @@ class KinkedTrack_ZeeFilterFlags(JobProperty):
     doTriggerMatch = False
     electronPtMin = 40*Units.GeV
     electronEtaMax = 2.5
-    electronIDKeys = ["Tight"]
+    electronIDKeys = ["LHTight"]
     clusterEtMin = 15*Units.GeV
     clusterEtaMax = 2.5
     diElectronMassLow = (91.1876-40)*Units.GeV

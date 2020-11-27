@@ -8,6 +8,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
 #include "FourMomUtils/P4Helpers.h"
 #include <vector>
 
@@ -36,7 +37,7 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_muonSGKey("Muons"),
   m_muonIDKey("Medium"),
   m_electronSGKey("ElectronCollection"),
-  m_electronIDKey("Tight"),
+  m_electronIDKey("LHTight"),
   m_metCut(-1),
   m_jetPtCuts(std::vector<float>()),
   m_jetEtaMax(3.2),
@@ -210,13 +211,27 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
   // at least 1 isolated pixel tracklet OR standard track
   if(m_isolatedTrack){
-    //if(true){
+
     // Find IsolatedTracklet
-    bool passIsolatedTracklet = false;
     const xAOD::TrackParticleContainer *pixelTrackletContainer=NULL;
     ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetDisappearingTrackParticles"), false );
+ 
+    const xAOD::VertexContainer* vertices(0);
+    ATH_CHECK( evtStore()->retrieve(vertices, "PrimaryVertices"), false );
+    const xAOD::Vertex* pv = 0;
+    for( const auto& v: *vertices ){
+      if( v->vertexType() == xAOD::VxType::PriVtx ){
+        pv = v;
+        break;
+      }
+    }
+    if( !pv ){
+      ATH_MSG_WARNING("Cannot find a PV in the event; reject it!");
+      return false;
+    }
     
-    for(auto Tracklet : *pixelTrackletContainer){
+    bool passIsolatedTracklet = false;
+    for(const auto& Tracklet : *pixelTrackletContainer){
       passIsolatedTracklet = true;
       for(unsigned int i=0;i<goodJets.size();i++){
 	double deltaPhi = (fabs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(Tracklet->phi()-goodJets.at(i)->phi()) : fabs(Tracklet->phi()-goodJets.at(i)->phi());
@@ -231,6 +246,11 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       
       if(passIsolatedTracklet==false)
 	continue;
+
+      if( Tracklet->pt() < 20000.0 ){
+        passIsolatedTracklet = false;
+        continue;
+      } 
       
       if(TMath::Abs(Tracklet->eta()) < 0.1 || TMath::Abs(Tracklet->eta()) > 1.9){
 	passIsolatedTracklet = false;
@@ -242,7 +262,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	continue;
       }
 
-      if(Tracklet->auxdata<UChar_t>("numberOfContribPixelLayers")<4){
+      if(Tracklet->auxdata<UChar_t>("numberOfContribPixelLayers")<3){
 	passIsolatedTracklet = false;
 	continue;
       }
@@ -251,9 +271,15 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 	passIsolatedTracklet = false;
 	continue;
       }
+
+      double z0SinTheta = (Tracklet->z0() + Tracklet->vz() - pv->z() ) * TMath::Sin(Tracklet->p4().Theta());
+      if( fabs(z0SinTheta) > 5.0 ){
+        passIsolatedTracklet = false;
+        continue;
+      }
       
-      if(passIsolatedTracklet)
-	break;
+      if(passIsolatedTracklet) break;
+
     }// for Tracklet
     
     if(passIsolatedTracklet==false){
@@ -263,7 +289,7 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       const xAOD::TrackParticleContainer *standardTrackContainer=NULL;
       ATH_CHECK( evtStore()->retrieve(standardTrackContainer, "InDetTrackParticles"), false );
       
-      for(auto StdTrack : *standardTrackContainer){
+      for(const auto& StdTrack : *standardTrackContainer){
 	if(StdTrack->pt()/1000.0 < 20.0)
 	  continue;
 

@@ -13,6 +13,7 @@
 #include "LongLivedParticleDPDMaker/KinkTrkZeeTagTool.h"
 #include "LongLivedParticleDPDMaker/EmergingJetsFilterTool.h"
 #include "LongLivedParticleDPDMaker/EmergingJetsHighPtFilterTool.h"
+#include "LongLivedParticleDPDMaker/VHLowTrackJetFilterTool.h"
 
 DECLARE_COMPONENT( DerivationFramework::RpvElectronD0Tool )
 DECLARE_COMPONENT( DerivationFramework::RpvMuonD0Tool )
@@ -29,4 +30,5 @@ DECLARE_COMPONENT( DerivationFramework::KinkTrkZeeTagTool )
 DECLARE_COMPONENT( DerivationFramework::HVJetMETFilterTool )
 DECLARE_COMPONENT( DerivationFramework::EmergingJetsFilterTool )
 DECLARE_COMPONENT( DerivationFramework::EmergingJetsHighPtFilterTool )
+DECLARE_COMPONENT( DerivationFramework::VHLowTrackJetFilterTool )
 
