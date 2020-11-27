@@ -1,5 +1,3 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
-
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -29,8 +27,7 @@ class ITHistSvc;
 class TTree;
 #include "AtlasHepMC/GenEvent_fwd.h"
 
-class HepMcTupleWriterTool : virtual public IIOHepMcTool,
-			             public AthAlgTool
+class HepMcTupleWriterTool : virtual public IIOHepMcTool, public AthAlgTool
 { 
 
   /////////////////////////////////////////////////////////////////// 
@@ -41,9 +38,7 @@ class HepMcTupleWriterTool : virtual public IIOHepMcTool,
   // Copy constructor: 
 
   /// Constructor with parameters: 
-  HepMcTupleWriterTool( const std::string& type,
-			const std::string& name, 
-			const IInterface* parent );
+  HepMcTupleWriterTool( const std::string& type, const std::string& name, const IInterface* parent );
 
   /// Destructor: 
   virtual ~HepMcTupleWriterTool(); 
@@ -52,10 +47,6 @@ class HepMcTupleWriterTool : virtual public IIOHepMcTool,
   StatusCode  initialize();
   StatusCode  execute();
   StatusCode  finalize();
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -125,12 +116,5 @@ class HepMcTupleWriterTool : virtual public IIOHepMcTool,
   /// cached pointer to the tuple
   TTree* m_tuple;
 }; 
-
-/// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> MCPARTICLETOOLS_HEPMCTUPLEWRITERTOOL_H

@@ -8,14 +8,11 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-
 // STL includes
 #include <algorithm>
 #include <cctype>
 
-// FrameWork includes
-
-// CLHEP/HepMC includes
+// HepMC includes
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "AtlasHepMC/IO_GenEvent.h"
@@ -25,20 +22,10 @@
 
 static const char * s_protocolSep = ":";
 
-struct ToLower
-{
-  char operator() (char c) const  { return std::tolower(c); }
-};
-
 /////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
 /// Constructors
 ////////////////
-HepMcWriterTool::HepMcWriterTool( const std::string& type, 
-				  const std::string& name, 
-				  const IInterface* parent ) : 
+HepMcWriterTool::HepMcWriterTool( const std::string& type,   const std::string& name,  const IInterface* parent ) : 
   AthAlgTool( type, name, parent ),
   m_ioBackend( 0 )
 {
@@ -102,10 +89,8 @@ StatusCode HepMcWriterTool::execute()
 {
   // retrieve the McEventCollection
   const McEventCollection * mcEvts = 0;
-  if ( evtStore()->retrieve( mcEvts, m_mcEventsName ).isFailure() ||
-       0 == mcEvts ) {
-    ATH_MSG_ERROR("Could not retrieve a McEventCollection at ["
-		  << m_mcEventsName << "] !!");
+  if ( evtStore()->retrieve( mcEvts, m_mcEventsName ).isFailure() || 0 == mcEvts ) {
+    ATH_MSG_ERROR("Could not retrieve a McEventCollection at ["  << m_mcEventsName << "] !!");
     return StatusCode::FAILURE;
   }
 
@@ -124,32 +109,18 @@ StatusCode HepMcWriterTool::execute()
 }
 
 /////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
 StatusCode HepMcWriterTool::write( const HepMC::GenEvent* evt )
 {
-  //m_ioBackend->write_comment( m_mcEventsName.value() );
+#ifdef HEPMC3
+  m_ioBackend->write_event(*evt);
+#else
   m_ioBackend->write_event(evt);
-
+#endif
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
 
 void HepMcWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*prop*/ )
 {
@@ -177,23 +148,26 @@ void HepMcWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*prop*/ )
   }
 
   // get the protocol name in lower cases
-  std::transform( protocol.begin(), protocol.end(), 
-		  protocol.begin(),
-		  ToLower() );
-
+  std::transform( protocol.begin(), protocol.end(), protocol.begin(), [](unsigned char c){ return std::tolower(c); } );
+#ifdef HEPMC3
   if ( "ascii" == protocol ) {
-    m_ioBackend = new HepMC::IO_GenEvent( fileName.c_str(), 
-                                          std::ios::out | std::ios::trunc );
+    m_ioBackend = new HepMC3::WriterAsciiHepMC2( fileName.c_str());
 
   } else {
-    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg
-		    << "Will use [ascii] instead...");
+    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg  << "Will use [ascii] instead...");
     protocol = "ascii";
-    m_ioBackend = new HepMC::IO_GenEvent( fileName.c_str(),
-                                          std::ios::out | std::ios::trunc );
+    m_ioBackend = new HepMC3::WriterAsciiHepMC2( fileName.c_str());
   }    
+#else
+  if ( "ascii" == protocol ) {
+    m_ioBackend = new HepMC::IO_GenEvent( fileName.c_str(), std::ios::out | std::ios::trunc );
 
-  ATH_MSG_DEBUG("Using protocol [" << protocol << "] and write to ["
-		<< fileName << "]");
+  } else {
+    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg  << "Will use [ascii] instead...");
+    protocol = "ascii";
+    m_ioBackend = new HepMC::IO_GenEvent( fileName.c_str(), std::ios::out | std::ios::trunc );
+  }    
+#endif
+  ATH_MSG_DEBUG("Using protocol [" << protocol << "] and write to ["<< fileName << "]");
   return;
 }
