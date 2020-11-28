@@ -32,7 +32,6 @@
 #include "VP1HEPVis/nodes/SoTubs.h"
 #include "VP1HEPVis/nodes/SoTessellated.h"
 
-#include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoIndexedFaceSet.h>
 #include <Inventor/nodes/SoVertexProperty.h>
 #include <VP1HEPVis/SbPolyhedron.h>
