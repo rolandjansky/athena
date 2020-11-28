@@ -8,6 +8,8 @@
 #ifndef TRK_IPIXELTOTPIDTOOL_H
 #define TRK_IPIXELTOTPIDTOOL_H
 
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>
 
@@ -29,11 +31,30 @@ namespace Trk {
        @param[in] track the track to be identified
        @returns   probability
      */
-    virtual float dEdx(const Trk::Track& track,
+    virtual float dEdx(const EventContext& ctx,
+                       const Trk::Track& track,
                        int& nUsedHits,
                        int& nUsedIBLOverflowHits) const = 0;
-    virtual std::vector<float> getLikelihoods(double dedx, double p, int nGoodPixels) const = 0;
-    virtual float getMass(double dedx, double p, int nGoodPixels) const = 0;
+
+    float dEdx(const Trk::Track& track,
+               int& nUsedHits,
+               int& nUsedIBLOverflowHits) const;
+
+    virtual std::vector<float> getLikelihoods(const EventContext& ctx,
+                                              double dedx,
+                                              double p,
+                                              int nGoodPixels) const = 0;
+
+    std::vector<float> getLikelihoods(double dedx,
+                                      double p,
+                                      int nGoodPixels) const;
+
+    virtual float getMass(const EventContext& ctx,
+                          double dedx,
+                          double p,
+                          int nGoodPixels) const = 0;
+
+    float getMass(double dedx, double p, int nGoodPixels) const;
   };
 
   inline const InterfaceID& Trk::IPixelToTPIDTool::interfaceID()
@@ -42,5 +63,6 @@ namespace Trk {
     }
 
 } // end of namespace
+#include "TrkToolInterfaces/IPixelToTPIDTool.icc"
 
 #endif 
