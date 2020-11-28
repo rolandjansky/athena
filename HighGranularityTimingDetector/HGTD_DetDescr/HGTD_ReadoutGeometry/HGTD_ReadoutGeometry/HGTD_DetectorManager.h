@@ -58,11 +58,9 @@ public:
 
     /** access to individual elements : via element identification */
     HGTD_DetectorElement * getDetectorElement(int endcap,
-                                              int disk,
-                                              int side,
-                                              int quadrant,
-                                              int row,
-                                              int module) const;
+                                              int layer,
+                                              int phi_module,
+                                              int eta_module) const;
 
     /** access to whole collection via Iterators */
     virtual const HGTD_DetectorElementCollection * getDetectorElementCollection() const;
