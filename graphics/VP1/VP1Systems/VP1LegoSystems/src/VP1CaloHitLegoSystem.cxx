@@ -18,8 +18,6 @@
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoTranslation.h>
 #include <Inventor/nodes/SoCube.h>
-#include <Inventor/nodes/SoTranslation.h>
-#include <Inventor/nodes/SoSeparator.h>
 
 #include <QMap>
 

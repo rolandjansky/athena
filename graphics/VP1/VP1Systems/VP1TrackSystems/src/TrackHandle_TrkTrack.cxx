@@ -28,7 +28,6 @@
 #include "VP1Base/VP1Msg.h"//fixme
 #include "VP1TrackSystems/VP1TrackSummary.h"
 #include "VP1TrackSystems/AscObj_TSOS.h"
-#include "VP1TrackSystems/TrkObjToString.h"
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoNode.h>
 

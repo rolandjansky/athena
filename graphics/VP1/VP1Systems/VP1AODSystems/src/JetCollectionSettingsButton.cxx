@@ -6,7 +6,6 @@
 #include "VP1Base/VP1ColorSelectButton.h"
 #include "VP1AODSystems/JetCollectionSettingsButton.h"
 // UIs
-//#include "ui_perjetcollectionsettings_form.h"
 #include "ui_periparticlecollectionsettings_form.h"
 #include "ui_jet_settings_display_form.h"
 
@@ -14,7 +13,6 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
-#include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Msg.h"
 
 //Coin3D
