@@ -39,7 +39,8 @@ def _make_simple_label(chain_parts):
               'chain fails substring selection: not "simple" '
 
         raise NotImplementedError(msg)
-    
+
+    chainpartind = 0
     label = 'simple(['
     for cp in chain_parts:
         smcstr =  str(cp['smc'])
@@ -65,9 +66,12 @@ def _make_simple_label(chain_parts):
                         condition_str += ',%s' % cut
                 else:
                     condition_str += ',%s' % momstr
+            condition_str += ', chainpartind{:0>3}'.format(chainpartind)
             if not condition_str.endswith(')'):
                 condition_str += ')'
             label += condition_str
+        chainpartind += 1
+
     label += '])'
     return label
 
@@ -100,6 +104,7 @@ def _make_vbenf_label(chain_parts):
     # scenario requires a dijet of mass > 900, and opening angle in phi > 2.6
 
     assert len(chain_parts) == 1
+
     scenario = chain_parts[0]['hypoScenario']
     assert scenario.startswith('vbenf')
     args = _args_from_scenario(scenario)
@@ -288,7 +293,6 @@ def _make_agg_label(chain_parts):
     print (argvals)
     assert len(argvals) == 2*nargs, 'no of args: %d, expected %d' % (len(argvals), 2*nargs)
 
-    print ('sent 100')
     result =  """
     ht([(%(htlo).0fht)
         (%(etlo).0fet)

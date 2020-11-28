@@ -37,7 +37,9 @@ std::string CapacityCheckedCondition::toString() const {
   const void* address = static_cast<const void*>(this);
   
   ss << "CapacityCheckedCondition (" << address << ") Multiplicity: "
-     << m_multiplicity << '\n' << m_condition->toString();
+     << m_multiplicity << " label "
+     << m_label << '\n'
+     << m_condition->toString();
 
   return ss.str();
 }

@@ -26,7 +26,7 @@ public:
   void addJets(const HypoJetCIter& begin,
 	       const HypoJetCIter& end,
 	       const std::string& label=""){
-    auto& jets = m_jets.at(label);
+    auto& jets = m_jets[label];
     jets.insert(jets.end(), begin, end);
   }
   
@@ -43,7 +43,12 @@ public:
   }
 
   std::vector<const xAOD::Jet*> xAODJets(const std::string& label) const {
-    
+
+    if (m_jets.count(label) == 0){
+      std::vector<const xAOD::Jet*> empty;
+      return empty;
+    }
+
     const auto& jets = m_jets.at(label);
     return xAODJets_(jets.cbegin(), jets.cend());
   }
@@ -66,8 +71,8 @@ public:
     m_jets[label].push_back(jet);
   }
 
-  std::size_t size() const {return m_jets.size();}
-  bool empty() const {return m_jets.empty();}
+  std::size_t size() const {return hypoJets().size();}
+  bool empty() const {return hypoJets().empty();}
  
  private:
 

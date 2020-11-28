@@ -73,51 +73,7 @@ class ConditionsToolSetterFastReduction(object):
             self._set_conditions(cn)
 
 
-    def _remove_combgen(self, node):                       
-        """Combination nodes represent parent children relationships.
-        The child may be a subtree. For now, the parent will be in the 
-        child list at position 0, and the child subtree in position 1."""
-
-        parent_children = {}
-        ipos  = 0
-
-        # identify the combgen nodes, and rotate them
-        for cn in node.children:
-            if cn.scenario == 'combgen':
-                assert (len(cn.children) == 2)
-                parent_children[ipos] = cn.children
-            ipos += 1
-
-        # rotate the first combgen child (parent) into the position of the
-        # combgen node, and set its child node.
-        for pos, p_c in parent_children.items():
-            node.children[pos] = p_c[0]
-            node.children[pos].children = [p_c[1]]
-
-        for cn in node.children:
-            self._remove_combgen(cn)
-
-    def _remove_scenario(self, node, scenario):                       
-        """Remove Partgen nodes by adding their children to their 
-        parent's children."""
-
-        def remove_scenario(node, scenario):
-            for cn in node.children:
-                if cn.scenario == scenario:
-                    node.children.remove(cn)
-                    node.children.extend(cn.children)
-                    return True
-
-            return False
-
-        more = True
-        while(more):
-            more = remove_scenario(node, scenario)
-
-        for cn in node.children:
-            self._remove_scenario(cn, scenario)
-
-  
+ 
     def _get_tool_instance(self, key, extra=''):
    
         klass = self.tool_factories[key][0]
@@ -138,7 +94,15 @@ class ConditionsToolSetterFastReduction(object):
 
         # loop  over elements of node.conf_attrs. The elements are (dict, int)
         # int is multiplicity, dict holds Condition parameters.
-        for c, mult in node.conf_attrs:
+        imax = len(node.conf_attrs)
+        for i in range(len(node.conf_attrs)):
+            c, mult = node.conf_attrs[i]
+            cpi = ''
+            if node.chainpartinds:
+                cpi = node.chainpartinds[i][0]
+                assert mult == node.chainpartinds[i][1]
+                    
+                
             condition_tools = [] # elemental conditions for this compounnd ct.
             for k, v in c.items(): # loop over elemental conditions
                 condition_tool = self._get_tool_instance(k)
@@ -159,12 +123,12 @@ class ConditionsToolSetterFastReduction(object):
 
             # create capacitychecked condition from elemental condition
             condition_tool =self._get_tool_instance('capacitychecked')
+            condition_tool.chainLegLabel = cpi
             condition_tool.conditionMakers = condition_tools
             condition_tool.multiplicity = mult
-
             # add capacitychecked condition to list
             outer_condition_tools.append(condition_tool)
-
+            
         return outer_condition_tools
 
     def _mod_leaf(self, node):
@@ -185,40 +149,6 @@ class ConditionsToolSetterFastReduction(object):
 
         node.compound_condition_tools = self._make_compound_condition_tools(
             node)
-
-    def _split_leaves(self, node):
-        """Recursively replace leaf nodes with >1 Condition tools by nodes with
-        one Condition tool."""
-
-        def split_leaves(node):   
-            for cn in node.children:
-                if is_leaf(cn):
-                    if len(cn.compound_condition_tools) > 1:
-                        new_children =  []
-                        new_node = copy.deepcopy(cn)
-                        # set scenarrio to other than leaf results in 
-                        # the assignement of  an acceptall condition
-                        new_node.scenario = 'inserted'
-                        new_node.compound_condition_tools = []
-                        for ct in cn.compound_condition_tools:
-                            new_children.append(copy.deepcopy(cn))
-                            new_children[-1].compound_condition_tools = [ct]
-                            new_children[-1].conf_attrs = []
-                        new_node.children.extend(new_children)
-                        node.children.remove(cn)
-                        node.children.append(new_node)
-                        return True # return after first modification
-
-            return False
-
-
-        more = True
-        while(more):
-            more = split_leaves(node)
-
-        for cn in node.children:
-            self._split_leaves(cn)
-
 
     def _find_shared(self, node, shared):
         """Determine which nodes are "shared" - shared nodes
@@ -258,6 +188,7 @@ class ConditionsToolSetterFastReduction(object):
     def _fill_conditions_map(self, node, cmap):
         if is_leaf(node):
 
+            print(self.__class__.__name__, node)
             assert (len(node.compound_condition_tools) == 1)
             cmap[node.node_id] = node.compound_condition_tools[0]
 
@@ -304,18 +235,8 @@ class ConditionsToolSetterFastReduction(object):
         
         # add Condition builders to leaf nodes.
         self._set_conditions(tree)
-        
-#         # Alg step 2: remove combgen nodes
-#         self._remove_combgen(root)
-
-        # Alg step 3: split leaf nodes with multiple Conditions with a
-        # single Condition
-#         self._split_leaves(root)
-        
-        # Alg step 4: remove partgen nodes
-        # single Condition
-
-        # Alg step 5: identify the leaf nodes that are to shared
+  
+        # identify the leaf nodes that are to shared
         # ie that see the input jet collection. Then remove And nodes
         shared = []
         self.shared = self._find_shared(tree, shared)
