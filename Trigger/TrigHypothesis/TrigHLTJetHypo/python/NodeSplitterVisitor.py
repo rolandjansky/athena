@@ -31,8 +31,6 @@ class NodeSplitterVisitor(object):
         new_children = []
         for c in node.children:
             if c.scenario == 'simple':
-                print ('chainparts', c.chainpartinds)
-                print ('conf_attrs', c.conf_attrs)
                 assert (len(c.chainpartinds) ==
                         len(c.conf_attrs)) or not c.chainpartinds
                 for cpi, c_a in zip(c.chainpartinds, c.conf_attrs):
@@ -40,9 +38,7 @@ class NodeSplitterVisitor(object):
                     n_c.conf_attrs = [c_a]
                     n_c.chainpartinds = [cpi]
                     new_children.append(n_c)
-                    print ('node dump', self.__class__.__name__ + '::mod()', n_c)
             else:
-                print ('node dump', self.__class__.__name__ + '::mod()', node)
                 new_children.append(c)
                 
 
