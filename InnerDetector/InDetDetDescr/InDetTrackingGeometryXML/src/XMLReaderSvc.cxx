@@ -1101,17 +1101,7 @@ void InDet::XMLReaderSvc::openDictFile(std::ofstream& file,std::string filename)
     <label name=\"negative_endcap\" value=\"-1\" />\n\
     <label name=\"positive_endcap\" value=\"+1\" />\n\
   </field>\n\
-\n\
-  <field name=\"hgtd_disk\">\n\
-    <label name=\"inner_disk\" value=\"0\" />\n\
-    <label name=\"outer_disk\" value=\"1\" />\n\
-  </field>\n\
-\n\
-  <field name=\"hgtd_side\">\n\
-    <label name=\"front_side\" value=\"0\" />\n\
-    <label name=\"back_side\" value=\"1\" />\n\
-  </field>\n\
-\n " << std::endl;
+\n" << std::endl;
 }
 
 void InDet::XMLReaderSvc::closeDictFile(std::ofstream& file) const
