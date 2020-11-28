@@ -5,7 +5,7 @@
 #********************************************************************
 from DerivationFrameworkCore.DerivationFrameworkMaster import (
     derivationFlags, buildFileName, MSMgr, DerivationFrameworkJob)
-from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs
+from DerivationFrameworkJetEtMiss.JetCommon import addJetOutputs, addDistanceInTrain
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkCore.WeightMetadata import *
@@ -149,6 +149,9 @@ DerivationFrameworkJob += STDM11Sequence
 #====================================================================s
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = STDM11Sequence)
+
+# Add the BCID info
+addDistanceInTrain(STDM11Sequence)
 
 #improved fJVT
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import applyMVfJvtAugmentation,getPFlowfJVT

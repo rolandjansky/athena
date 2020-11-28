@@ -157,6 +157,8 @@ if isMC:
     thinningTools.append(STDM3TruthBosTool)
     thinningTools.append(STDM3TruthThinning)
     thinningTools.append(STDM3PhotonThinning)
+
+
     
 #====================================================================
 # SKIMMING TOOL 
@@ -212,6 +214,20 @@ STDM3Sequence += CfgMgr.DerivationFramework__DerivationKernel("STDM3Kernel",
 reducedJetList = ["AntiKt2PV0TrackJets", "AntiKt4PV0TrackJets", "AntiKt4TruthJets", "AntiKt4TruthWZJets"]
 replaceAODReducedJets(reducedJetList, STDM3Sequence, "STDM3Jets")
 
+#Add fatjets (AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets)
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addDefaultTrimmedJets
+addDefaultTrimmedJets(STDM3Sequence, "STDM3")
+
+largeRJetCollections = ["AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ]
+
+from DerivationFrameworkFlavourTag.HbbCommon import addVRJets
+addVRJets(STDM3Sequence,largeRColls=largeRJetCollections)
+addVRJets(STDM3Sequence,largeRColls=largeRJetCollections, training='201903')
+
+#Aliases for VR track-jets
+from BTagging.BTaggingFlags import BTaggingFlags
+BTaggingFlags.CalibrationChannelAliases += ["AntiKtVR30Rmax4Rmin02Track->AntiKtVR30Rmax4Rmin02Track,AntiKt4EMTopo"]
+
 # FAKE LEPTON TAGGER
 import LeptonTaggers.LeptonTaggersConfig as LepTagConfig
 STDM3Sequence += LepTagConfig.GetDecorateImprovedPromptLeptonAlgs()
@@ -233,7 +249,6 @@ DerivationFrameworkJob += STDM3Sequence
 # augStream = MSMgr.GetStream( streamName )
 # evtStream = augStream.GetEventStream()
 # svcMgr += createThinningSvc( svcName="STDM3ThinningSvc", outStreams=[evtStream] )
-
 
 #====================================================================
 # Jet reconstruction/retagging
@@ -279,7 +294,12 @@ STDM3SlimmingHelper.SmartCollections = ["Electrons",
                                         "AntiKt4EMPFlowJets_BTagging201810", 
                                         "AntiKt4EMPFlowJets_BTagging201903",
                                         "InDetTrackParticles",
-                                        "PrimaryVertices" ]
+                                        "PrimaryVertices",
+                                        "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810",
+                                        "AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201810",
+                                        "BTagging_AntiKtVR30Rmax4Rmin02Track_201903" ]
 
 STDM3SlimmingHelper.IncludeEGammaTriggerContent = True
 STDM3SlimmingHelper.IncludeMuonTriggerContent = True
@@ -304,6 +324,8 @@ from  DerivationFrameworkFlavourTag.BTaggingContent import *
 STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMTopoJets")
 STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt2PV0TrackJets")
 STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKt4EMPFlowJets")
+STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201810")
+STDM3SlimmingHelper.ExtraVariables += BTaggingStandardContent("AntiKtVR30Rmax4Rmin02TrackJets_BTagging201903")
 
 ExtraDictionary["BTagging_AntiKt4EMTopo"]     = "xAOD::BTaggingContainer"
 ExtraDictionary["BTagging_AntiKt4EMTopoAux"]  = "xAOD::BTaggingAuxContainer"
