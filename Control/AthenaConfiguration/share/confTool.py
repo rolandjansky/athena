@@ -75,7 +75,7 @@ def parse_args():
     parser.add_argument(
         "--renameComps",
         nargs="*",
-        help="Pass comps You want to rename as NewName=OldName. These names will be treated as equal.",
+        help="Pass comps You want to rename as OldName=NewName.",
         action="append",
     )
 
@@ -195,12 +195,12 @@ def _loadSingleFile(fname, args):
     if conf is None:
         sys.exit("Unable to load %s file" % fname)
 
+    def flatten_list(l):
+        return [item for elem in l for item in elem] if l else []
+
     if (
         args.includeComps or args.excludeComps
     ):  # returning only wanted components
-
-        def flatten_list(l):
-            return [item for elem in l for item in elem] if l else []
 
         compsToReport = flatten_list(args.includeComps)
         compsToExclude = flatten_list(args.excludeComps)
@@ -244,7 +244,7 @@ def _loadSingleFile(fname, args):
         compsToRename = flatten_list(args.renameComps)
         splittedCompsNames = {
             old_name: new_name
-            for new_name, old_name in [
+            for old_name, new_name in [
                 element.split("=") for element in compsToRename
             ]
         }
