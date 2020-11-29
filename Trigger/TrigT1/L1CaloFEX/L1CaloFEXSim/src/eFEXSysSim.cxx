@@ -104,7 +104,7 @@ namespace LVL1 {
       int tmp_eTowersIDs_subset_eFEX[10][18];
       for (int i_efex{ 0 }; i_efex < 24; i_efex++) {
           ATH_CHECK(m_eFEXFPGATowerIdProviderTool->getRankedTowerIDineFEX(i_efex, tmp_eTowersIDs_subset_eFEX));
-          m_eFEXSimTool->init(i_efex);
+          m_eFEXSimTool->init(160 + (i_efex % 3) * 16 + int(i_efex / 3));
           ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset_eFEX));
           m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(i_efex, (m_eFEXSimTool->getEmTOBs() ) ));
           m_eFEXSimTool->reset();
