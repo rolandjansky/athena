@@ -17,8 +17,6 @@
 #include <algorithm>
 #include <string>
 
-using namespace LVL1::TOWERIDPROVIDER;
-
 LVL1::eFEXFPGATowerIdProvider::eFEXFPGATowerIdProvider(const std::string &type, const std::string &name, const IInterface *parent):
   AthAlgTool(type, name, parent)
 {

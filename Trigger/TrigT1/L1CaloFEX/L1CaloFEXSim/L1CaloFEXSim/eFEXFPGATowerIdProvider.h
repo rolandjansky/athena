@@ -21,16 +21,12 @@
 #include <unordered_map>
 #include <vector>
 namespace LVL1 {
-  namespace TOWERIDPROVIDER {
-    struct towerinfo {
-      int eTowerID;
-      int eTowerEta;
-      int eTowerPhi;
-    };
-  }
-
   class eFEXFPGATowerIdProvider : public AthAlgTool, virtual public IeFEXFPGATowerIdProvider {
-
+  struct towerinfo {
+    int eTowerID;
+    int eTowerEta;
+    int eTowerPhi;
+  };
   public:
     eFEXFPGATowerIdProvider(const std::string& type,const std::string& name,const IInterface* parent);
     ~eFEXFPGATowerIdProvider();
@@ -43,7 +39,7 @@ namespace LVL1 {
     bool m_hascsvfile;
     StatusCode rankTowerinFPGA(int) override;
     std::vector<std::vector<int>*> m_towerrankingcache;
-    std::unordered_map<int, std::vector<TOWERIDPROVIDER::towerinfo>* > m_alltowers;
+    std::unordered_map<int, std::vector<towerinfo>* > m_alltowers;
     bool hasFPGA(int) const override;
     StatusCode loadcsv() override;
     int getFPGAIndex(int, int) const override;

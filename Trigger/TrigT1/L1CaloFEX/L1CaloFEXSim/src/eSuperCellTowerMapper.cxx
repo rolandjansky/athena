@@ -52,7 +52,7 @@ StatusCode eSuperCellTowerMapper::initialize()
  
   ATH_CHECK( m_scellsCollectionSGKey.initialize() );
   ATH_CHECK( m_triggerTowerCollectionSGKey.initialize() );
-
+  ATH_CHECK( m_eFEXSuperCellTowerIdProviderTool.retrieve() );
   return StatusCode::SUCCESS;
     
 }
@@ -124,11 +124,41 @@ void eSuperCellTowerMapper::reset(){
     const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling();
     const Identifier ID = (cell)->ID(); // super cell unique ID
     int region = idHelper->region(ID);
+    float et = (cell)->energy();
+    if(m_eFEXSuperCellTowerIdProviderTool->ifhaveinputfile()){
+      int towerid{-1};
+      int slot{-1};
+      ATH_CHECK( m_eFEXSuperCellTowerIdProviderTool->geteTowerIDandslot(ID.get_compact(), towerid, slot) );
+      bool doenergysplit = false;
+      int layer_tem = -1;
+      // Layer 0:  Cell 0
+      // Layer 1:  Cell 1, 2, 3, 4
+      // Layer 2:  Cell 5, 6, 7, 8
+      // Layer 3:  Cell 9
+      // Layer 4:  Cell 10 (HEC or TILE, if we have them!)
+      if (slot == 0) {
+        layer_tem = 0;
+      } else if (slot <= 4) {
+        layer_tem = 1;
+      } else if (slot <= 8) {
+        layer_tem = 2;
+      } else if (slot == 9) {
+        layer_tem = 3;
+      } else {
+        layer_tem = 4;
+      }
+
+      if( region == 3) {
+        //TODO
+        doenergysplit = false;
+      }
+      ConnectSuperCellToTower( my_eTowerContainerRaw, towerid, ID, slot, et, layer_tem, doenergysplit);
+      continue;
+    }
     int layer = -1;
     int pos_neg = idHelper->pos_neg(ID);
     int eta_index = idHelper->eta(ID);
     const int phi_index = idHelper->phi(ID);
-    float et = (cell)->energy();
     int prov = (cell)->provenance();
 
     /*
