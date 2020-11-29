@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        Electron Skimmer
@@ -95,7 +95,7 @@ class ElectronFilter( PyAthena.AthFilterAlgorithm ):
 
         ## Import needed modules
         import PyUtils.RootUtils as ru
-        ROOT = ru.import_root()
+        ROOT = ru.import_root()  # noqa: F841
 
         ## Get the StoreGate service
         self.storeGateSvc = PyAthena.py_svc('StoreGateSvc')
@@ -110,7 +110,7 @@ class ElectronFilter( PyAthena.AthFilterAlgorithm ):
 
     def execute(self):
         self.nProcessed+=1
-        self.msg.debug( '==> execute %s on %r. event...' % (self.name(), self.nProcessed) )
+        self.msg.debug( '==> execute %s on %r. event...', self.name(), self.nProcessed )
         
         nElPassEta    = 0
         nElPassEt     = 0
@@ -126,7 +126,7 @@ class ElectronFilter( PyAthena.AthFilterAlgorithm ):
         
         ## If passAll is selected, accept all events
         if self.passAll :
-            self.msg.debug( '%s event passed because passAll is true' % self.name() )
+            self.msg.debug( '%s event passed because passAll is true', self.name() )
             self.setFilterPassed(True)
             return StatusCode.Success
 
@@ -138,7 +138,7 @@ class ElectronFilter( PyAthena.AthFilterAlgorithm ):
             electronCollection = self.storeGateSvc.retrieve( self.electronCollectionType, self.electronCollectionName )
             pass
         except LookupError:
-            self.msg.warning( 'Collection %s not found' % self.electronCollectionName )           
+            self.msg.warning( 'Collection %s not found', self.electronCollectionName )
             self.setFilterPassed(True)
             return StatusCode.Success
 
@@ -148,7 +148,7 @@ class ElectronFilter( PyAthena.AthFilterAlgorithm ):
             # Use Et of CaloCluster.
             cluster = None
             cluster = electron.cluster()
-            if cluster == None :
+            if cluster is None :
                 self.msg.warning( 'Could not get the cluster for this electron!' )
                 pass
             else :
@@ -193,18 +193,18 @@ class ElectronFilter( PyAthena.AthFilterAlgorithm ):
         #    goodElectronColl.push_back(el)
         #    pass
         if self.storeGateSvc.record( goodElectrons, self.goodElectronCollectionName ) != StatusCode.Success :
-            self.msg.error( 'Could not record the goodElectrons into StoreGate with the key = ' % self.goodElectronCollectionName )
+            self.msg.error( 'Could not record the goodElectrons into StoreGate with the key = ', self.goodElectronCollectionName )
             pass
 
 
         ## Check if the event is accepted
         if goodElectrons.__len__() >= self.minNumberPassed :
             self.nEventMinNumPassed += 1
-            self.msg.debug( '%s event passed.' % self.name() )
+            self.msg.debug( '%s event passed.', self.name() )
             self.setFilterPassed(True)
             pass
         else :
-            self.msg.debug( '%s event failed.' % self.name() )
+            self.msg.debug( '%s event failed.', self.name() )
             self.setFilterPassed(False)
             pass
 
@@ -257,17 +257,17 @@ class ElectronFilter( PyAthena.AthFilterAlgorithm ):
             pass
 
         
-        self.msg.info( '==> finalize %s...' % self.name() )
+        self.msg.info( '==> finalize %s...', self.name() )
         self.msg.info( '***************************************************************' )
-        self.msg.info( 'Cut-flow table of %s skimming algorithm:' % self.name() )
+        self.msg.info( 'Cut-flow table of %s skimming algorithm:', self.name() )
         self.msg.info( '-------------' )
-        self.msg.info( ' Number of processed events:  %r' % self.nProcessed )
-        self.msg.info( ' Number of all electrons:     %r and number of electrons per event: %3.3f +/- %3.3f' % ( self.nElectrons, effiElectrons, effiErrElectrons ) )
-        self.msg.info( ' Events after eta cut:        %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventElPassEta,    effiElPassEta,    effiErrElPassEta ) )
-        self.msg.info( ' Events after E_T cut:        %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventElPassEt,     effiElPassEt,     effiErrElPassEt ) )
-        self.msg.info( ' Events after author cut:     %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventElPassAuthor, effiElPassAuthor, effiErrElPassAuthor ) )
-        self.msg.info( ' Events after IsEM cut:       %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventElPassIsEM,   effiElPassIsEM,   effiErrElPassIsEM ) )
-        self.msg.info( ' Events after minNumberPassed %r and resulting efficiency = (%3.3f +/- %3.3f)%%' % ( self.nEventMinNumPassed, effiMinNumPassed, effiErrMinNumPassed ) )
+        self.msg.info( ' Number of processed events:  %r', self.nProcessed )
+        self.msg.info( ' Number of all electrons:     %r and number of electrons per event: %3.3f +/- %3.3f', self.nElectrons, effiElectrons, effiErrElectrons )
+        self.msg.info( ' Events after eta cut:        %r and resulting efficiency = (%3.3f +/- %3.3f)%%', self.nEventElPassEta,    effiElPassEta,    effiErrElPassEta )
+        self.msg.info( ' Events after E_T cut:        %r and resulting efficiency = (%3.3f +/- %3.3f)%%', self.nEventElPassEt,     effiElPassEt,     effiErrElPassEt )
+        self.msg.info( ' Events after author cut:     %r and resulting efficiency = (%3.3f +/- %3.3f)%%', self.nEventElPassAuthor, effiElPassAuthor, effiErrElPassAuthor )
+        self.msg.info( ' Events after IsEM cut:       %r and resulting efficiency = (%3.3f +/- %3.3f)%%', self.nEventElPassIsEM,   effiElPassIsEM,   effiErrElPassIsEM )
+        self.msg.info( ' Events after minNumberPassed %r and resulting efficiency = (%3.3f +/- %3.3f)%%', self.nEventMinNumPassed, effiMinNumPassed, effiErrMinNumPassed )
         self.msg.info( '***************************************************************' )
 
         return StatusCode.Success
