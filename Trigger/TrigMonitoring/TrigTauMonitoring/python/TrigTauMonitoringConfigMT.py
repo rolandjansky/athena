@@ -136,6 +136,13 @@ class TrigTauMonAlgBuilder:
     
     # This will be removed for future.
     monitoring_tau = [
+    'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_verylooseRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
     'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
     'HLT_tau80_medium1_tracktwo_L1TAU60',
     'HLT_tau0_perf_ptonly_L1TAU100',
