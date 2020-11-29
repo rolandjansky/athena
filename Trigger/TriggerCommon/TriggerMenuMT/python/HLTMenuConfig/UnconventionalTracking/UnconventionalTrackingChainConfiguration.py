@@ -6,7 +6,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.UnconventionalTracking.Unco
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-from AthenaCommon.CFElements import seqAND
+from AthenaCommon.CFElements import parOR
 from ..CommonSequences.FullScanDefs import caloFSRoI
 
 def unconventionalTrackingChainParts(chainParts):
@@ -101,7 +101,7 @@ def IsoHPtTrackTriggerSequence(ConfigFlags):
     prmVtx = vtxAlgs[-1]
 
 
-    TrkSeq = seqAND("UncTrkrecoSeq", [InputMakerAlg,TrkInputNoViewAlg, prmVtx])
+    TrkSeq = parOR("UncTrkrecoSeq", [InputMakerAlg,TrkInputNoViewAlg, prmVtx])
     sequenceOut = IDTrigConfig.FT.tracksFTF( doRecord = IDTrigConfig.isRecordable ) 
 
 
