@@ -33,6 +33,7 @@ int main( int argc, char* argv[] ) {
   char* APP_NAME = argv[ 0 ];
 
   // arguments
+  // Current only tested with FTAG1
   TString fileName = "/eos/user/y/yuchou/DxAOD/mc16_13TeV.346115.PowhegPy8EG_ggZH_H125_a20a20_4b.deriv.DAOD_FTAG1.e7370_a875_r9364_p4239/DAOD_FTAG1.22347060._000007.pool.root.1"; 
   int  ievent=-1;
   int  nevents=-1;
@@ -140,13 +141,13 @@ int main( int argc, char* argv[] ) {
   // setup the tool handle as per the
   // recommendation by ASG - https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AthAnalysisBase#How_to_use_AnaToolHandle
   ////////////////////////////////////////////////////
-  std::cout<<"Initializing DexterTool"<<std::endl;
-  asg::AnaToolHandle<DexterTool> m_Tagger; //!
-  m_Tagger.setTypeAndName("DexterTool","DexterTool");
+  std::cout<<"Initializing DeepsetXbbTagger"<<std::endl;
+  asg::AnaToolHandle<DeepsetXbbTagger> m_Tagger; //!
+  m_Tagger.setTypeAndName("DeepsetXbbTagger","DeepsetXbbTagger");
   if(verbose) m_Tagger.setProperty("OutputLevel", MSG::VERBOSE);
-  m_Tagger.setProperty( "KerasConfigFile","/eos/user/y/yuchou/Dexter/Models/nn-config.json");
+  m_Tagger.setProperty( "KerasConfigFile","/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/BTagging/DeepsetXbbTagger/202011/nn-config.json");
   m_Tagger.setProperty( "ConfigFile" ,"BoostedJetTaggers/DeepsetXbbTagger/test_config.json");
-  m_Tagger.setProperty( "negativeTagMode", "SVMassNegTrksFlip");  
+  // m_Tagger.setProperty( "negativeTagMode", "SVMassNegTrksFlip");  // Set this property to run in flipped tag mode 
   auto status_code = m_Tagger.retrieve();
   if (status_code.isFailure()) {
     return 1;
@@ -179,23 +180,21 @@ int main( int argc, char* argv[] ) {
 
     // Loop over jet container
     for(const xAOD::Jet* jet : *myJets ){
-
-      if (m_Tagger->n_subjets(*jet) == 2 && jet->pt() > 20e3) {
-        auto scores = m_Tagger->getScores(*jet);
-        if (verbose) {
-          std::cout << "BB Score: " << scores.at("dexter_pbb") << std::endl;
-          std::cout << "B Score: " << scores.at("dexter_pb") << std::endl;
-          std::cout << "Light Score: " << scores.at("dexter_pl") << std::endl;
-          std::cout << "Dbb Score: " << log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) ) << std::endl;
-        }
-        const Root::TAccept& res = m_Tagger->tag( *jet );
-        pass = res;
-        dexter_pbb = scores.at("dexter_pbb");
-        dexter_pb = scores.at("dexter_pb");
-        dexter_pl = scores.at("dexter_pl");
-        dexter_Dbb = log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) );
-        Tree->Fill();
+      const Root::TAccept& res = m_Tagger->tag( *jet ); 
+      pass = res;
+      if (verbose) std::cout << ( (res.getCutResult("ValidJet")) ? "Valid jet" : "Invalid jet" ) << std::endl;
+      auto scores = m_Tagger->getScores(*jet);
+      if (verbose) {
+        std::cout << "BB Score: " << scores.at("dexter_pbb") << std::endl;
+        std::cout << "B Score: " << scores.at("dexter_pb") << std::endl;
+        std::cout << "Light Score: " << scores.at("dexter_pl") << std::endl;
+        std::cout << "Dbb Score: " << log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) ) << std::endl;
       }
+      dexter_pbb = scores.at("dexter_pbb");
+      dexter_pb = scores.at("dexter_pb");
+      dexter_pl = scores.at("dexter_pl");
+      dexter_Dbb = log(scores.at("dexter_pbb") / (f_b * scores.at("dexter_pb") + (1- f_b) * scores.at("dexter_pl") ) );
+      Tree->Fill();
     }
 
     Info( APP_NAME, "===>>>  done processing event #%i, run #%i %i events processed so far  <<<===", static_cast< int >( evtInfo->eventNumber() ), static_cast< int >( evtInfo->runNumber() ), static_cast< int >( entry + 1 ) );
