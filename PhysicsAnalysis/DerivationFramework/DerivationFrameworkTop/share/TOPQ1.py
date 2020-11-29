@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # TOPQ1
@@ -153,6 +153,7 @@ addXbbTaggerInformation(TOPQ1Sequence, ToolSvc)
 # apply jet calibration
 from DerivationFrameworkTop.TOPQCommonJets import applyTOPQJetCalibration
 applyTOPQJetCalibration("AntiKt4EMTopo",DerivationFrameworkJob)
+applyTOPQJetCalibration("AntiKt4EMPFlow",DerivationFrameworkJob)
 applyTOPQJetCalibration("AntiKt10LCTopoTrimmedPtFrac5SmallR20",TOPQ1Sequence)
 
 # Then skim on the newly created fat jets and calibrated jets

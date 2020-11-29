@@ -691,17 +691,23 @@ def addExKtDoubleTaggerRCJets(sequence, ToolSvc):
 
    sequence += CfgMgr.xAODMaker__ElementLinkResetAlg("ELReset_AfterBtag", SGKeys=[name+"Aux." for name in ExKtJetCollection__SubJet])
 
-def addExKtDoubleTaggerScore(sequence, 
-                             ToolSvc,
+def addExKtDoubleTaggerScore(sequence, ToolSvc,
                              sec_vtx_collection = 'SoftBVrtClusterTool_MSVTight_Vertices',
-                             nn_file_name = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/BTagging/DeepsetXbbTagger/202010/nn-config.json',
-                             nn_config_file = 'BoostedJetTaggers/DeepsetXbbTagger/test_config.json'):
+                             nn_file_name = '/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/dev/BTagging/DeepsetXbbTagger/202011/nn-config.json',
+                             nn_config_file = 'BoostedJetTaggers/DeepsetXbbTagger/test_config.json',
+                             logger=None):
 
-    dexter_tagger_name = 'DexterTool' 
+    dexter_tagger_name = 'DeepsetXbbTagger' 
+    if logger is None:
+        logger = Logging.logging.getLogger('DexterLog')
+
     if not hasattr(ToolSvc, dexter_tagger_name):
-        dexterTagger = CfgMgr.DexterTool(
+        dexterTagger = CfgMgr.DeepsetXbbTagger(
             dexter_tagger_name,
             KerasConfigFile = nn_file_name,
             ConfigFile = nn_config_file,
             secvtxCollection = sec_vtx_collection)
         ToolSvc += dexterTagger
+    else:
+        logger.info('took {} from tool svc'.format(dexter_tagger_name))
+        dexterTagger = getattr(ToolSvc, dexter_tagger_name)   

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used by TOPQCommonSlimming.py
@@ -197,7 +197,8 @@ TOPQExtraVariables_AntiKt8EMPFlowJets_ForTOPQ1           =  ["AntiKt8EMPFlowJets
                                                              + "ExKtbb_dexter_pl_negtrksflip."
                                                              + "ExKtbb_dexter_pbb_negtrksflip_svmassflip."
                                                              + "ExKtbb_dexter_pb_negtrksflip_svmassflip."
-                                                             + "ExKtbb_dexter_pl_negtrksflip_svmassflip."]
+                                                             + "ExKtbb_dexter_pl_negtrksflip_svmassflip."
+                                                             ]
 TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ1 =  ["AntiKt8EMPFlowExKt2GASubJets."
                                                              + "AlgorithmType."
                                                              + "ConeExclTausFinal."

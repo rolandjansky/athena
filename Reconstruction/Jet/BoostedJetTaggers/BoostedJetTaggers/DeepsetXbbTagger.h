@@ -28,7 +28,7 @@ namespace lwt {
 }
 
 /** The namespace of all subclass for Dexter implementation */
-namespace DeepsetXbbTagger {
+namespace Dexter {
 
   struct TrackSelectorConfig
   {
@@ -41,7 +41,7 @@ namespace DeepsetXbbTagger {
   class DexterInputBuilder;
 }
 
-/**  \class DexterTool
+/**  \class DeepsetXbbTagger
     Jet modfier tool to run and add btagging information from 
     deep-set based Xbb tagger (DeXTer).
     The neuron network JSON contains the lwtnn model and 
@@ -52,15 +52,15 @@ namespace DeepsetXbbTagger {
      */
 
 
-class DexterTool :
+class DeepsetXbbTagger :   
   public JSSTaggerBase {
-    ASG_TOOL_CLASS0(DexterTool)
+  ASG_TOOL_CLASS0(DeepsetXbbTagger)
 
     public:
 
-      DexterTool(const std::string &name);
-      ~DexterTool();
-
+      DeepsetXbbTagger(const std::string &name);
+      ~DeepsetXbbTagger();
+  
       virtual StatusCode initialize() override;
 
       /** IJetSelectorTool interface */
@@ -93,6 +93,10 @@ class DexterTool :
       xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer*) const;
 
     protected:
+
+      // the subjet selection
+      float m_nSubjets;
+
       /** negative-tag mode */
       std::string m_negativeTagMode;
 
@@ -101,7 +105,7 @@ class DexterTool :
 
       /** neural network and feeder class */
       std::unique_ptr<lwt::LightweightGraph> m_lwnn;
-      std::unique_ptr<DeepsetXbbTagger::DexterInputBuilder> m_input_builder;
+      std::unique_ptr<Dexter::DexterInputBuilder> m_input_builder;
 
       /** internal stuff to keep track of the output node for the NN  */
       std::vector<std::string> m_output_value_names;
