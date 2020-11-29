@@ -40,21 +40,21 @@ class MuFastStationFitter: public AthAlgTool
       StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
 				 const TrigL2MuonSA::MuonRoad& muonRoad,
 				 TrigL2MuonSA::RpcFitResult& rpcFitResult,
-				 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+				 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
       StatusCode findSuperPointsSimple(const LVL1::RecMuonRoI*    p_roi,
 				       const TrigL2MuonSA::MuonRoad& muonRoad,
 				       TrigL2MuonSA::TgcFitResult& tgcFitResult,
-				       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+				       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
 
       StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
                                  const TrigL2MuonSA::MuonRoad& muonRoad,
                                  TrigL2MuonSA::TgcFitResult& tgcFitResult,
-                                 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+                                 std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns) const;
 
-      StatusCode superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern);
+      StatusCode superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern) const;
 
       StatusCode superPointFitter(TrigL2MuonSA::TrackPattern& trackPattern,
-                                  const TrigL2MuonSA::MuonRoad&  muonRoad);
+                                  const TrigL2MuonSA::MuonRoad&  muonRoad) const;
 
       StatusCode setMCFlag(BooleanProperty use_mcLUT);
 
@@ -99,14 +99,14 @@ class MuFastStationFitter: public AthAlgTool
 	this, "BackExtrapolator", "TrigMuonBackExtrapolator", "public tool for back extrapolating the muon tracks to the IV"};
 
    private:
-      float SetDriftSpace(float tdr, float rad, float zeta, float phim, float phiDir);
+      float SetDriftSpace(float tdr, float rad, float zeta, float phim, float phiDir) const;
       void  Xline(float *, float *, float *, int *, int ,
-                  float *, float *, float *, float *, float *, float *);
+                  float *, float *, float *, float *, float *, float *) const;
       void  Circfit (int, float *, float *, float *, float *, int *,
-                     float *, float *, float DAB[2][2], float *);
+                     float *, float *, float DAB[2][2], float *)  const;
       void  Circles (int, float *, float *, float *, float *, int *,
-                     float *, float *, float DAB[2][2], float *, float *);
-      int   Evlfit (int, TrigL2MuonSA::PBFitResult& fitres);
+                     float *, float *, float DAB[2][2], float *, float *) const;
+      int   Evlfit (int, TrigL2MuonSA::PBFitResult& fitres) const;
 
       ToolHandle<AlphaBetaEstimate>          m_alphaBetaEstimate {
 	this, "AlphaBetaEstimate", "TrigL2MuonSA::AlphaBetaEstimate"};
@@ -114,17 +114,17 @@ class MuFastStationFitter: public AthAlgTool
 	this, "PtFromAlphaBeta", "TrigL2MuonSA::PtFromAlphaBeta", ""};
       ToolHandle<NswStationFitter> m_nswStationFitter {this, "NswStationFitter", "TrigL2MuonSA::NswStationFitter"};
 
-      void findLayerCombination(std::vector<unsigned int> &a, int n, int r,std::vector<std::vector<unsigned int> > &c, int &nr);
+      void findLayerCombination(std::vector<unsigned int> &a, int n, int r,std::vector<std::vector<unsigned int> > &c, int &nr) const;
       void findSubLayerCombination(std::vector<unsigned int> &a, int n,int r, std::vector<unsigned int> &b, int index ,int num,
-                                   std::vector<std::vector<unsigned int> > &c, int &nr);
-      void makeReferenceLine(TrigL2MuonSA::TrackPattern& trackPattern,const TrigL2MuonSA::MuonRoad&    muonRoad);
+                                   std::vector<std::vector<unsigned int> > &c, int &nr) const;
+      void makeReferenceLine(TrigL2MuonSA::TrackPattern& trackPattern,const TrigL2MuonSA::MuonRoad&    muonRoad) const;
       void Circles (int, float *, float *, float *, float *, int *,
-                     float *, float *, float DAB[2][2], float *, float *, float *, float *, float *);
+                     float *, float *, float DAB[2][2], float *, float *, float *, float *, float *) const;
 
-      double fromAlphaPtToInn(TrigL2MuonSA::TgcFitResult& tgcFitResult,TrigL2MuonSA::TrackPattern& trackPattern);
-      void updateInnSP(TrigL2MuonSA::TrackPattern& trackPattern, double &aw,double &tgc_aw, double &bw);
+      double fromAlphaPtToInn(TrigL2MuonSA::TgcFitResult& tgcFitResult,TrigL2MuonSA::TrackPattern& trackPattern) const;
+      void updateInnSP(TrigL2MuonSA::TrackPattern& trackPattern, double &aw,double &tgc_aw, double &bw) const;
       void stationSPFit(TrigL2MuonSA::MdtHits*    mdtSegment, TrigL2MuonSA::SuperPoint* superPoint,
-                        TrigL2MuonSA::PBFitResult& pbFitResult, int s_address, int i_station,double aw, float phiDir);
+                        TrigL2MuonSA::PBFitResult& pbFitResult, int s_address, int i_station,double aw, float phiDir) const;
 
 
 };
