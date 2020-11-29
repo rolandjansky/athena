@@ -24,7 +24,7 @@ atlas_add_component( L1TopoSimulation
 atlas_add_component( L1TopoSimulationTest
    src/test/*.h src/test/*.cxx src/test/components/*.cxx src/AthenaL1TopoHistSvc.h src/AthenaL1TopoHistSvc.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib GaudiKernel L1TopoConfig L1TopoCoreSim L1TopoEvent L1TopoInterfaces StoreGateLib TrigConfBase TrigConfInterfaces )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib GaudiKernel L1TopoConfig L1TopoCoreSim L1TopoEvent L1TopoInterfaces StoreGateLib TrigConfBase TrigConfInterfaces TrigConfData TrigConfIO)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

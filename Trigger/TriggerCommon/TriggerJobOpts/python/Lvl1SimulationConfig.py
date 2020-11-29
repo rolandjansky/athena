@@ -213,7 +213,7 @@ def Lvl1SimulationSequence( flags = None ):
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1Topo    = not flags.Trigger.enableL1Phase1
-    ctp.UseCondL1Menu = False
+    ctp.UseNewConfig = True
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp])
 
