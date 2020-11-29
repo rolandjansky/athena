@@ -14,8 +14,7 @@
 __doc__ = """job flags for the RPV/LL HNL DRAW"""
 __version__ = "0.0.1"
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
-from AthenaCommon.JobProperties import jobproperties
+from AthenaCommon.JobProperties import JobProperty
 
 import AthenaCommon.SystemOfUnits as Units
 from xAODPrimitives.xAODIso import xAODIso
