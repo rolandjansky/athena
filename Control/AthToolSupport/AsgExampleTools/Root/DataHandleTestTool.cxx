@@ -55,12 +55,12 @@ namespace asg
   {
 #ifndef SIMULATIONBASE
     ANA_CHECK (m_readKey.initialize ());
+    ANA_CHECK (m_readKeyEmpty.initialize (!m_readKeyEmpty.empty ()));
     ANA_CHECK (m_readDecorKey.initialize ());
-    if (!m_writeKey.empty())
-      ANA_CHECK (m_writeKey.initialize ());
+    ANA_CHECK (m_readDecorKeyEmpty.initialize (!m_readDecorKeyEmpty.empty ()));
+    ANA_CHECK (m_writeKey.initialize (!m_writeKey.empty()));
     ANA_CHECK (m_readKeyArray.initialize());
-    if (!m_writeDecorKey.empty())
-      ANA_CHECK (m_writeDecorKey.initialize ());
+    ANA_CHECK (m_writeDecorKey.initialize (!m_writeDecorKey.empty ()));
 #endif
     return StatusCode::SUCCESS;
   }

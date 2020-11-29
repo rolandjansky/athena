@@ -68,19 +68,20 @@ public:
   explicit WriteDecorHandle (const WriteDecorHandleKey<T>& key);
 
 
-//   /**
-//    * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
-//    * @param key The key object holding the clid/key.
-//    * @param ctx The event context.
-//    *
-//    * This will raise an exception if the StoreGate key is blank,
-//    * or if the event store cannot be found.
-//    *
-//    * If the default event store has been requested, then the thread-specific
-//    * store from the event context will be used.
-//    */
-//   explicit WriteDecorHandle (const WriteDecorHandleKey<T>& key,
-//                              const EventContext& ctx);
+  /**
+   * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
+   * @param key The key object holding the clid/key.
+   * @param ctx The event context.
+   *
+   * This will raise an exception if the StoreGate key is blank,
+   * or if the event store cannot be found.
+   *
+   * If the default event store has been requested, then the thread-specific
+   * store from the event context will be used.
+   */
+  explicit WriteDecorHandle (const WriteDecorHandleKey<T>& key,
+                             const EventContext& ctx);
+
 
 //   /**
 //    * @brief Copy constructor.
@@ -172,7 +173,19 @@ public:
 //    */
 //   SG::auxid_t auxid() const;
 
-  
+
+  // /**
+  //  * @brief Return the mode (read/write/update) for this handle.
+  //  */
+  // Gaudi::DataHandle::Mode mode() const;
+
+
+  /**
+   * @brief Return the name of the decoration alias (CONT.DECOR).
+   */
+  std::string decorKey() const;
+
+
 // private:
 //   /**
 //    * @brief Retrieve an object from StoreGate.
@@ -228,9 +241,8 @@ public:
 //   const SG::AuxVectorData* vectorData();
 
 
-//   /// Handle for reading the referenced object using its original name
-//   /// (not the alias).
-//   SG::ReadHandle<T> m_contHandle;
+  /// Name of the decoration alias: CONT.DECOR.
+  std::string m_decorKey;
 
 
   /// Accessor for the aux data item.
