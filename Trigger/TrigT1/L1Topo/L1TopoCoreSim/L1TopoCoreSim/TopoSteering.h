@@ -1,4 +1,6 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef L1TopoCoreSim_TopoSteering
 #define L1TopoCoreSim_TopoSteering
@@ -16,6 +18,9 @@
 #include "L1TopoInterfaces/ParameterSpace.h"
 #include "L1TopoCoreSim/TopoCoreSimResult.h"
 #include "L1TopoCoreSim/TopoSteeringStructure.h"
+
+// Menu related dependencies
+#include "TrigConfData/L1Menu.h"
 
 namespace TXC {
    class L1TopoMenu;
@@ -48,15 +53,19 @@ namespace TCS {
 
       const TopoCoreSimResult & simulationResult() const { return m_simulationResult; }
 
+
       // @brief: build the execution structure and parameterspace from
       // the configuration
       StatusCode setupFromConfiguration(const TXC::L1TopoMenu& menu);
-     
+
+      StatusCode setupFromConfiguration(const TrigConf::L1Menu& l1menu);
+
       void setUseBitwise(bool useBitwise) { m_useBitwise = useBitwise; }
  
       // @brief: call the initialize function of the algorithms
       // will be called after the parameters are set and before the event loop starts
       StatusCode initializeAlgorithms();
+
 
       // run the topo simulation
       StatusCode executeEvent();
@@ -149,8 +158,9 @@ namespace TCS {
 
       std::bitset<numberOfL1TopoBits> m_triggerHdwBits;
       std::bitset<numberOfL1TopoBits> m_ovrflowHdwBits;
-
    };
-}
 
-#endif
+   
+} 
+
+#endif 

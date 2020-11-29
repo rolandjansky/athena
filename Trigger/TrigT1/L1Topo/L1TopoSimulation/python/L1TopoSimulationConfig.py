@@ -9,7 +9,12 @@ class L1TopoSimulation ( LVL1__L1TopoSimulation ):
 
         from L1TopoSimulation.L1TopoSimulationMonitoring import L1TopoSimulationMonitoring
         self.AthenaMonTools += [ L1TopoSimulationMonitoring() ]
-
+        enableDebugOutput = False
+        if enableDebugOutput:
+            from AthenaCommon.Constants import DEBUG
+            self.OutputLevel = DEBUG
+            self.TopoOutputLevel = DEBUG
+            self.TopoSteeringOutputLevel = DEBUG
 
 class RoiB2TopoInputDataCnv ( LVL1__RoiB2TopoInputDataCnv ):
 

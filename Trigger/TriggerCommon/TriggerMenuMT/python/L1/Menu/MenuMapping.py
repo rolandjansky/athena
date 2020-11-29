@@ -8,6 +8,7 @@ The resolved name is also being used in the L1/Config/ItemDef.py and L1/Config/T
 """
 
 menuMap = {
+    "Physics_pp_v7" : "MC_pp_v8",
     "LS2_v1" : "MC_pp_v8",
     "Physics_pp_run3_v1" : "MC_pp_v8",
     "MC_pp_run3_v1" : "MC_pp_v8",
