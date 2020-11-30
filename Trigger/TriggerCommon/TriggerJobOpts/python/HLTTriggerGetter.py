@@ -218,22 +218,6 @@ class HLTSimulationGetter(Configured):
 
 
         if TriggerFlags.writeBS():
-            # declare objects to go to BS (from the lists above)
-            ## if TriggerFlags.doLVL2():                
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSList
-            ##     TrigSteer_L2.Navigation.ClassesToPayload = getL2BSList()
-            ##     TrigSteer_L2.Navigation.ClassesToPreregister = []
-            ## 
-            ## if TriggerFlags.doEF():
-            ##     from TrigEDMConfig.TriggerEDM import getEFBSList
-            ##     TrigSteer_EF.Navigation.ClassesToPayload = getEFBSList()
-            ##     TrigSteer_EF.Navigation.ClassesToPreregister = []
-            ##     try:
-            ##         from TrigEDMConfig.TriggerEDM import getEFDSList
-            ##         TrigSteer_EF.Navigation.ClassesToPayload_DSonly = getEFDSList()
-            ##     except ImportError:
-            ##         log.warning("DataScouting not available in this release")
-
             if TriggerFlags.doHLT():
                 from TrigEDMConfig.TriggerEDM import  getHLTBSList 
                 TrigSteer_HLT.Navigation.ClassesToPayload = getHLTBSList() 
@@ -256,14 +240,6 @@ class HLTSimulationGetter(Configured):
             from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
             TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
             ToolSvc += TrigSerializeConvHelper
-
-            #do not activate T/P of EF classes at L2
-            ## if TriggerFlags.doLVL2(): 
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSTypeList
-            ##     TrigSerToolTP.ActiveClasses = getL2BSTypeList()
-            ## if TriggerFlags.doEF():
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSTypeList, getEFBSTypeList
-            ##     TrigSerToolTP.ActiveClasses = getL2BSTypeList() + getEFBSTypeList()
 
             if TriggerFlags.doHLT():
                 from TrigEDMConfig.TriggerEDM import getHLTBSTypeList 

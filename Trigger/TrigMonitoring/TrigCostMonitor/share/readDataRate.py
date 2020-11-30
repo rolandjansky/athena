@@ -17,8 +17,7 @@ globalflags.DataSource  = 'data'
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.readBS = True
 TriggerFlags.doLVL1 = False
-TriggerFlags.doLVL2 = False
-TriggerFlags.doEF   = False
+TriggerFlags.doHLT   = False
 
 #----------------------------------------------------------------------
 # Set services for reading BS files

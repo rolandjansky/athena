@@ -29,8 +29,7 @@ if rec.doTrigger():
     tf.readBS=True # needed in HLTTriggerGetter - do not understand why it is not
     # true by default when globalflags.InputFormat = 'bytestream'
     tf.doLVL1= False # needed to not rerun the trigger
-    tf.doEF= False # needed to not rerun the trigger
-    tf.doLVL2 = False  # needed to not rerun the trigger
+    tf.doHLT= False # needed to not rerun the trigger
     tf.configurationSourceList = ['ds']
 
     try:

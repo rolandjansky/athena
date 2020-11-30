@@ -15,8 +15,8 @@ class TrigDataAccess(_TrigDataAccess):
         from AthenaCommon.Logging import logging
         log = logging.getLogger(name)
      
-        self.loadFullCollections = ( TriggerFlags.doEF() or TriggerFlags.doHLT() )
-        self.loadAllSamplings    = ( TriggerFlags.doLVL2() or TriggerFlags.doHLT() )
+        self.loadFullCollections = TriggerFlags.doHLT()
+        self.loadAllSamplings    = TriggerFlags.doHLT()
         log.info('Not possible anymore to enable HLT calo offset correction, tools deprecated')
 
         from RecExConfig.RecFlags import rec

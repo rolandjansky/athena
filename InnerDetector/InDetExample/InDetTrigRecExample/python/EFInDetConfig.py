@@ -282,7 +282,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
     #    modify the sequence acoording to triggerflags
     from TriggerJobOpts.TriggerFlags  import TriggerFlags
 
-    if not ( TriggerFlags.doEF() or TriggerFlags.doHLT() ) or not TriggerFlags.doFEX():
+    if not TriggerFlags.doHLT() or not TriggerFlags.doFEX():
       from TrigSteeringTest.TrigSteeringTestConf import PESA__dummyAlgo as dummyAlgo_disabledByTriggerFlags_EFID
       dummyAlgEFID = dummyAlgo_disabledByTriggerFlags_EFID("doEF_or_doFEX_False_no_EFID")
       alglist = '[dummyAlgEFID]'

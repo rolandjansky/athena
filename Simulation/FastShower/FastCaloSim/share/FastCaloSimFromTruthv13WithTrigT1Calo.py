@@ -33,7 +33,6 @@ TriggerFlags.doID   = False
 TriggerFlags.doCalo = True
 TriggerFlags.doMuon = False
 
-TriggerFlags.doLVL2 = False
-TriggerFlags.doEF   = False
+TriggerFlags.doHLT   = False
 
 include ( "FastCaloSim/FastCaloSimFromTruthv13.py" )

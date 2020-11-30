@@ -133,7 +133,7 @@ if TriggerFlags.doMuon():
     # load services needed for converters
     import MuonCnvExample.MuonCablingConfig  # noqa: F401 configuration by import, old Run-2 job options
     import MuonRecExample.MuonReadCalib  # noqa: F401 configuration by import, old Run-2 job options
-    if (TriggerFlags.doEF() or TriggerFlags.doHLT()) and 'forceMuonDataPrep' in dir():
+    if TriggerFlags.doHLT() and 'forceMuonDataPrep' in dir():
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
             include("MuonRdoToPrepData/CscRdoToCscPrepData_jobOptions.py")
         else:

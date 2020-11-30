@@ -68,8 +68,7 @@ topSequence = AlgSequence()
 
 # Trying manual setup of L1 instead of automatic (throgh L1ConfigGetter).
 TriggerFlags.doLVL1 = False
-TriggerFlags.doLVL2 = True
-TriggerFlags.doEF = True
+TriggerFlags.doHLT = True
 
 TriggerFlags.doTruth.set_Value_and_Lock(False)
 
@@ -337,8 +336,6 @@ hlt = HLTSimulationGetter()
 
 rng = getattr(ToolSvc,'HLT::RandomScaler')
 rng.useEventSeed = True
-#EF gets an extra seed "hash-offset" of 1 to make it independent of L2
-rng.config(seed=int(TriggerFlags.doEF()), luxury=2)
 
 ### End of the mess.....
 ###############################

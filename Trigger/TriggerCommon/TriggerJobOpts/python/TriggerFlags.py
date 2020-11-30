@@ -54,8 +54,6 @@ default_false_flags = [
     "useRun1CaloEnergyScale",
     "doCosmicSim", # run the LVL1 simulation with special setup for cosmic simulation (set to FALSE by default, to do collisions simulation) """
     "disableRandomPrescale",  # if True, disable Random Prescales
-    "doLVL2",  # if False, disable LVL2 selection
-    "doEF",  # if False, disable EF selection
     "doTruth",
     "doFTK",  # if False, disable FTK result reader """
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
@@ -87,24 +85,6 @@ class doHLT(JobProperty):
     allowedType=['bool']
     StoredValue=True
     
-    def _do_action(self):
-        """ setup flag level consistency """
-        if self.get_Value() is True:
-            if TriggerFlags.doEF.is_locked():
-                TriggerFlags.doEF.unlock()
-                TriggerFlags.doEF.set_Off()
-                TriggerFlags.doEF.lock()
-            else:
-                TriggerFlags.doEF.set_Off()
-            if TriggerFlags.doEF.is_locked():
-                TriggerFlags.doLVL2.unlock()
-                TriggerFlags.doLVL2.set_Off()
-                TriggerFlags.doLVL2.lock()
-            else:
-                TriggerFlags.doLVL2.set_Off()
-            log = logging.getLogger( 'TriggerFlags.doHLT' )
-            log.info("doHLT is True: force doLVL2=False and doEF=False"  )
-
 _flags.append(doHLT)
 
 class doMT(JobProperty):
@@ -964,8 +944,7 @@ def sync_Trigger2Reco():
     if globalflags.InputFormat() == 'bytestream':
         TriggerFlags.readBS = True
         TriggerFlags.doLVL1 = False
-        TriggerFlags.doLVL2 = False
-        TriggerFlags.doEF   = False
+        TriggerFlags.doHLT   = False
 
     if rec.doWriteBS():
         TriggerFlags.writeBS = True
