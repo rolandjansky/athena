@@ -10,20 +10,11 @@
 #include <algorithm>
 #include <sstream>
 
-#include <iostream>
-
 FastReductionMatcher::FastReductionMatcher(ConditionPtrs conditions,
 					   const Tree& tree):
   m_conditions(std::move(conditions)),
   m_tree(tree){
 
-  std::cout << "FastReductionMatcher::FastReductionMatcher:\n"
-	    << " tree size " << m_tree.size() << '\n'
-	    << " leaves size " << (tree.leaves()).size() << '\n'
-	    << " conditions size " << m_conditions.size() << '\n';
-
-  for (const auto& c : m_conditions){std::cout << c->toString() << '\n';}
-  
   for (const auto& il : m_tree.leaves()){
     auto label = m_conditions[il]->label();
     if (label.rfind("leg", 0) != 0) { // startswith "leg"

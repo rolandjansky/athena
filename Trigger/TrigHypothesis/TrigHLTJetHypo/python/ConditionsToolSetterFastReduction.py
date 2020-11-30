@@ -167,7 +167,6 @@ class ConditionsToolSetterFastReduction(object):
     def _fill_conditions_map(self, node, cmap):
         if is_leaf(node):
 
-            print(self.__class__.__name__, node)
             assert (len(node.compound_condition_tools) == 1)
             cmap[node.node_id] = node.compound_condition_tools[0]
 
@@ -226,7 +225,6 @@ class ConditionsToolSetterFastReduction(object):
         conditionsMap = {}
         self._fill_conditions_map(tree, conditionsMap)
         conditionsVec = self._map_2_vec(conditionsMap)
-        print (self.__class__.__name__, 'conditoinsVec', conditionsVec)
                
         # make a config tool and provide it with condition makers
         config_tool = self._get_tool_instance('fastreduction')

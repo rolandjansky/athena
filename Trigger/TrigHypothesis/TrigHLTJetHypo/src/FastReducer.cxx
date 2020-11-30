@@ -44,10 +44,6 @@ FastReducer::FastReducer(const HypoJetGroupCIter& groups_b,
                          const Collector& collector):
   m_conditions(conditions),  m_tree(tree) {
 
-  // write pout the leaf nodes, after checking they have a suitable
-  // leg label. This label i sused to report passing jets to the Trigger
-  // framework.
-
   // create an empty vector of indices of satisfying jet groups
   // for each Condition.
   for(std::size_t i = 0; i < m_tree.size(); ++i){

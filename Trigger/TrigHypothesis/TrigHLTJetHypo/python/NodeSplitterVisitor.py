@@ -30,8 +30,6 @@ class NodeSplitterVisitor(object):
         new_children = []
         for c in node.children:
             if c.scenario == 'simple':
-                print ('nodesplitter::mod node', c)
-                print ('not chainpartinds', not c.chainpartinds, c.chainpartinds)
                 assert ((len(c.chainpartinds) ==
                         len(c.conf_attrs))) or not c.chainpartinds
                 for cpi, c_a in zip(c.chainpartinds, c.conf_attrs):
