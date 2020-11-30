@@ -32,17 +32,21 @@ def stack_subprocess(command,**kwargs):
 
 def setup_path_protection():
     # Addition for models directory
+    global MADGRAPH_COMMAND_STACK
     if 'PYTHONPATH' in os.environ:
         if 'Generators/madgraph/models' not in os.environ['PYTHONPATH']:
             os.environ['PYTHONPATH'] += ':/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest'
+            MADGRAPH_COMMAND_STACK += ['export PYTHONPATH=${PYTHONPATH}:/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest']
     # Make sure that gfortran doesn't write to somewhere it shouldn't
     if 'GFORTRAN_TMPDIR' in os.environ:
         return
     if 'TMPDIR' in os.environ:
         os.environ['GFORTRAN_TMPDIR']=os.environ['TMPDIR']
+        MADGRAPH_COMMAND_STACK += ['export GFORTRAN_TMPDIR=${TMPDIR}']
         return
     if 'TMP' in os.environ:
         os.environ['GFORTRAN_TMPDIR']=os.environ['TMP']
+        MADGRAPH_COMMAND_STACK += ['export GFORTRAN_TMPDIR=${TMP}']
         return
 
 
