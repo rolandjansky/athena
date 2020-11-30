@@ -47,6 +47,7 @@ from Wjj import Wjj
 from Wt_DR import Wt_DR
 from Wt_DS import Wt_DS
 from WW import WW
+from WWj import WWj
 from Wy import Wy
 from WZ import WZ
 from yj import yj

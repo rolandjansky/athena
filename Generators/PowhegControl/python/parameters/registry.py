@@ -574,6 +574,16 @@ class Registry(object):
         self.add_default("ZZvvqq", 0, hidden=True, description="ZZ decay mode: Z->qq Z->nunu. [1:enabled]")
         self.add_default("ZZvvtautau", 0, hidden=True, description="ZZ decay mode: Z->tautau Z->nunu. [1:enabled]")
         self.add_default("ZZvvvv", 0, hidden=True, description="ZZ decay mode: Z->nunu Z->nunu. [1:enabled]")
+        self.add_default("e+e-", 0, hidden=True, description="WWj decay mode [1:enabled]")
+        self.add_default("mu+mu-", 0, hidden=True, description="WWj decay mode [1:enabled]")
+        self.add_default("tau+tau-", 0, hidden=True, description="WWj decay mode [1:enabled]")
+        self.add_default("leptonic_notau", 0, hidden=True, description="WWj decay mode: W->lnu W->lnu (no tau) [1:enabled]")
+        self.add_default("leptonic", 0, hidden=True, description="WWj decay mode: W->lnu W->lnu [1:enabled]")
+        self.add_default("hadronic", 0, hidden=True, description="WWj decay mode: W->jj W->jj [1:enabled]")
+        #self.add_default("semileptonic", 0, hidden=True, description="WWj decay mode: W->lnu W->jj [1:enabled]") ## parameter with same same already exists, with different default
+        self.add_default("semileptonic_notau", 0, hidden=True, description="WWj decay mode: W->lnu W->jj (no tau) [1:enabled]")
+        self.add_default("e+mu-", 0, hidden=True, description="WWj decay mode [1:enabled]")
+        self.add_default("mu+e-", 0, hidden=True, description="WWj decay mode [1:enabled]")
         # SMEFT operator coefficients, all set to zero by default
         for coefficient_name in ["ReGEw", "ImGEw", "ReGEe", "ImGEe"]:
             self.add_default(coefficient_name, 0.0, description="SMEFT coefficient: {c}".format(c=coefficient_name))
