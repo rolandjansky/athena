@@ -59,7 +59,6 @@ AtlasFieldCacheCondObj::getInitializedCache (MagField::AtlasFieldCache& cache) c
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( AtlasFieldCacheCondObj, 258146572, 1)
-#include "AthenaKernel/CondCont.h"
 CONDCONT_DEF (AtlasFieldCacheCondObj, 3622068);
 
 

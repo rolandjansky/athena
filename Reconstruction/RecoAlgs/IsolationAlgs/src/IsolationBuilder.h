@@ -35,7 +35,6 @@
 #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "xAODPrimitives/IsolationConeSize.h"
 #include "xAODPrimitives/IsolationHelpers.h"
-#include "xAODPrimitives/IsolationFlavour.h"
 #include "xAODBase/IParticleContainer.h"
 
 #include "RecoToolInterfaces/ICaloCellIsolationTool.h"

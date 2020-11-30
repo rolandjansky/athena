@@ -3,7 +3,6 @@
 */
 
 #include "JetSubStructureUtils/BosonTag.h"
-#include <iostream>
 
 #ifndef ROOTCORE
 #include "PathResolver/PathResolver.h"

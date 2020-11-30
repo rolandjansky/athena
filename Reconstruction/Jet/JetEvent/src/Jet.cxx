@@ -22,8 +22,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include <cmath>
-
 // externals
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Vector/LorentzVector.h"
