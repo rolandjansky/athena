@@ -133,15 +133,18 @@ class PowhegControl(object):
         # Print executable being used
         logger.info("Configured for event generation with: {}".format(self.process.executable))
 
-    def generate(self, create_run_card_only=False, save_integration_grids=True, use_external_run_card=False, use_XML_reweighting=True):
+    def generate(self, create_run_card_only=False, save_integration_grids=True, use_external_run_card=False, remove_oldStyle_rwt_comments=False):
         """! Run normal event generation.
 
-        @param create_run_card_only    Only generate the run card.
-        @param save_integration_grids  Save the integration grids for future reuse.
-        @param use_external_run_card   Use a user-provided Powheg run card (powheg.input).
-        @param use_XML_reweighting     Use XML-based reweighting.
+        @param create_run_card_only         Only generate the run card.
+        @param save_integration_grids       Save the integration grids for future reuse.
+        @param use_external_run_card        Use a user-provided Powheg run card (powheg.input).
+        @param remove_oldStyle_rwt_comments Removes old-style '#rwgt', '#pdf', '#new weight', and ' #Random' comments in lhe files (kept by default despite using xml reweighting).
         """
-        self.process.use_XML_reweighting = use_XML_reweighting
+        # we are now always using xml reweighting - set this to False if you still want the old style
+        self.process.use_XML_reweighting = True
+
+        self.process.remove_oldStyle_rwt_comments = remove_oldStyle_rwt_comments
 
         # Schedule integration gridpack creator if requested
         if save_integration_grids:
