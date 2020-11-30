@@ -1,16 +1,16 @@
-"""Define method to configure and test SCT_ByteStreamErrorsTestAlg
+"""Define method to configure and test SCT_FlaggedConditionTestAlg
 
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
-def SCT_ByteStreamErrorsTestAlgCfg(flags, name="SCT_ByteStreamErrorsTestAlg", **kwargs):
-    """Return a configured SCT_ByteStreamErrorsTestAlg"""
+def SCT_FlaggedConditionTestAlgCfg(flags, name="SCT_FlaggedConditionTestAlg", **kwargs):
+    """Return a configured SCT_FlaggedConditionTestAlg"""
     acc = ComponentAccumulator()
-    from InDetConfig.InDetRecToolConfig import SCT_ByteStreamErrorsToolCfg
-    kwargs.setdefault("ByteStreamErrorsTool", acc.popToolsAndMerge(SCT_ByteStreamErrorsToolCfg(flags)))
-    acc.addEventAlgo(CompFactory.SCT_ByteStreamErrorsTestAlg(**kwargs))
+    from InDetConfig.InDetRecToolConfig import SCT_FlaggedConditionToolCfg
+    kwargs.setdefault("FlaggedConditionTool", acc.popToolsAndMerge(SCT_FlaggedConditionToolCfg(flags)))
+    acc.addEventAlgo(CompFactory.SCT_FlaggedConditionTestAlg(**kwargs))
     return acc
 
 if __name__=="__main__":
@@ -39,6 +39,6 @@ if __name__=="__main__":
 
     algkwargs = {}
     algkwargs["OutputLevel"] = INFO
-    cfg.merge(SCT_ByteStreamErrorsTestAlgCfg(ConfigFlags, **algkwargs))
+    cfg.merge(SCT_FlaggedConditionTestAlgCfg(ConfigFlags, **algkwargs))
 
     cfg.run(maxEvents=25)
