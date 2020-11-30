@@ -536,6 +536,20 @@ HLT_e17_lhvloose_nod0_L1EM15VH:
     2: 7
     3: 5
     4: 5
+HLT_e17_lhvloose_nod0_L1EM15VHI:
+  eventCount: 4
+  stepCounts:
+    0: 5
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 6
+    3: 4
+    4: 4
 HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3:
   eventCount: 0
   stepCounts:
