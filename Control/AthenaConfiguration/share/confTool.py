@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument(
         "--diff", dest="diff", action="store_true", help="Diffs two files"
     )
-    parser.add_argument("--toJSON", help="Convert to JSON file")
+    parser.add_argument("--toJSON", action="store_true", help="Convert to JSON file")
     parser.add_argument("--toPickle", help="Convert to pickle file")
 
     parser.add_argument("file", nargs="+", help="Files to work with")
@@ -106,9 +106,9 @@ def main(args):
             sys.exit(
                 "ERROR, can convert single file at a time, got: %s" % args.file
             )
-        conf = _loadSingleFile(args.file[0], args)
-        with open(args.toJSON, "w") as oFile:
-            json.dump(conf, oFile, indent=2, ensure_ascii=True)
+        from TrigConfIO.JsonUtils import create_joboptions_json
+        create_joboptions_json(args.file[0], args.file[0].replace("pkl","json"))
+
 
     if args.toPickle:
         if len(args.file) != 1:
