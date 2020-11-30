@@ -41,32 +41,24 @@ default_true_flags = [
     "doZdc",  # if False, disable ZDC algorithms at LVL2 & EF """"
     "doLucid", # if False, disable Lucid algorithms at LVL2 & EF
     "doMuon", # if FAlse, disable Muons, note: muons need input file containing digits"""
-    "doHLTpersistency",  # serialise L2result """
     "doNavigationSlimming",  # Enable the trigger navigation slimming"""
 ]
 
 default_false_flags = [
     "readLVL1FromJSON", # the authoritative L1 menu (xml or json) - this flag will be removed after the transition to json has been completed
-    "readLVL1Calo", # read LVL1 Calo info from pool or BS """
-    "readLVL1Muon", # read LVL1 Muon in from Pool or BS """
     "fakeLVL1", # create fake RoI from KINE info  """
     "useL1CaloCalibration", # Should be false for early data, true for later """
     "useRun1CaloEnergyScale",
     "doCosmicSim", # run the LVL1 simulation with special setup for cosmic simulation (set to FALSE by default, to do collisions simulation) """
-    "disableRandomPrescale",  # if True, disable Random Prescales
     "doTruth",
     "doFTK",  # if False, disable FTK result reader """
     "doTriggerConfigOnly",  # if True only the configuration services should be set, no algorithm """
-    "useOfflineSpacePoints", # use online convertors for Si SpacePoints
     "doTransientByteStream",  # Write transient ByteStream before executing HLT algorithms.
                               # To be used for running on MC RDO with clients which require BS inputs.
-    "doNtuple",
     "writeBS",  # Write ByteStream output file """
     "readBS",
     "readMenuFromTriggerDb", # define the TriggerDb to be the source of the LVL1 and HLT trigger menu
     "generateMenuDiagnostics",  # Generate additional files heling in menu diagnostics """
-    "abortOnConfigurationError", # Should the job be stoped if there is an error in configuration
-
 ]
 
 for name in default_true_flags:

@@ -72,9 +72,7 @@ TriggerFlags.doHLT = True
 
 TriggerFlags.doTruth.set_Value_and_Lock(False)
 
-TriggerFlags.doHLTpersistency = True
 TriggerFlags.writeBS = True
-TriggerFlags.abortOnConfigurationError = True
 
 TriggerFlags.enableMonitoring = []
 

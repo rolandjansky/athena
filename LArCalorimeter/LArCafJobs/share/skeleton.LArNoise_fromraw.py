@@ -219,7 +219,6 @@ if hasattr(runArgs,"outputNTUP_LARNOISEFile") or hasattr(runArgs,"outputNTUP_HEC
    tf.doLVL1.set_Value_and_Lock(False)
    tf.doHLT.set_Value_and_Lock(False)
    tf.doL1Topo.set_Value_and_Lock(False)
-   tf.readLVL1Calo.set_Value_and_Lock(True)
    tf.enableMonitoring.set_Value_and_Lock(False)
    tf.doID.set_Value_and_Lock(False)
    tf.doMuon.set_Value_and_Lock(False)
