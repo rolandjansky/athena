@@ -473,7 +473,7 @@ HLT_JetDS_j0_L1J100:
     1: 3
     2: 3
   stepFeatures:
-    0: 81
+    0: 137
     1: 32
     2: 3
 HLT_alfacalib_AlfaPEB_L1ALFA_ANY:
@@ -1371,7 +1371,7 @@ HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 28
+    0: 50
 HLT_j0_perf_L1J12_EMPTY:
   eventCount: 0
 HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20:
@@ -2723,11 +2723,11 @@ HLT_xe100_cvfpufit_L1XE50:
     0: 10
     1: 6
 HLT_xe100_mht_L1XE50:
-  eventCount: 9
+  eventCount: 7
   stepCounts:
-    0: 9
+    0: 7
   stepFeatures:
-    0: 9
+    0: 7
 HLT_xe100_mhtpufit_em_subjesgscIS_L1XE50:
   eventCount: 6
   stepCounts:
@@ -2783,11 +2783,11 @@ HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50:
     0: 6
     1: 5
 HLT_xe110_mht_L1XE50:
-  eventCount: 7
+  eventCount: 6
   stepCounts:
-    0: 7
+    0: 6
   stepFeatures:
-    0: 7
+    0: 6
 HLT_xe110_pfsum_L1XE50:
   eventCount: 4
   stepCounts:
