@@ -13,7 +13,6 @@
 #include "VP1Base/VP1ExtraSepLayerHelper.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1QtInventorUtils.h"
-#include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
 #include "VP1Base/VP1Msg.h"
 

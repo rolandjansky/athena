@@ -89,12 +89,9 @@ private:
 };
 std::atomic<int> MyDataObj::count;
 
-#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(MyDataObj, 8000, 3) 
 
-#include <cassert>
 #include <vector>
-#include <map>
 
 #include "TestTools/initGaudi.h"
 

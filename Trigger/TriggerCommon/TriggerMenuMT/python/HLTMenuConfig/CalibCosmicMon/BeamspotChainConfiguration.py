@@ -8,7 +8,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-from AthenaCommon.CFElements import seqAND
+from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
@@ -53,7 +53,7 @@ def allTE_trkfast( signature="FS" ):
         topSequence = AlgSequence()
         topSequence.SGInputLoader.Load += [( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
-        beamspotSequence = seqAND( "beamspotSequence_"+signature, viewAlgs+[vertexAlg] )
+        beamspotSequence = parOR( "beamspotSequence_"+signature, viewAlgs+[vertexAlg] )
         inputMakerAlg.ViewNodeName = beamspotSequence.name()
         beamspotViewsSequence = seqAND( "beamspotViewsSequence"+signature, [ inputMakerAlg, beamspotSequence ])
 

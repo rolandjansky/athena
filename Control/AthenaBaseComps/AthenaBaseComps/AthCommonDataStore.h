@@ -39,7 +39,6 @@ namespace Gaudi {
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/VarHandleKeyArray.h"
 #include "StoreGate/VarHandleProperty.h"
 #include "StoreGate/VarHandleKeyProperty.h"
 #include "StoreGate/VarHandleKey.h"

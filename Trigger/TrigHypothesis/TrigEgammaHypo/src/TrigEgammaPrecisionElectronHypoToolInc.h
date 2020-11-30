@@ -55,7 +55,7 @@ class TrigEgammaPrecisionElectronHypoToolInc : public extends<AthAlgTool, ITrigE
   float m_RelPtConeCut;
   
   /*Luminosity info*/
-  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "AveIntPerXKey", "EventInfo.AveIntPerXDecor", "Decoration for Average Interaction Per Crossing" };
+  SG::ReadDecorHandleKey<xAOD::EventInfo> m_avgMuKey { this, "averageInteractionsPerCrossingKey", "EventInfo.averageInteractionsPerCrossing", "Decoration for Average Interaction Per Crossing" };
   int findCutIndex( float eta ) const;
 
 }; 

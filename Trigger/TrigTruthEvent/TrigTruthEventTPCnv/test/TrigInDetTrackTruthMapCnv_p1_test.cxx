@@ -23,6 +23,7 @@
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/Operators.h"
 
 
 void compare (const TrigIDHitStats& p1,
@@ -107,6 +108,7 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
   auto particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
   HepMcParticleLink dummyHMPL(HepMC::barcode(particle),particle->parent_event()->event_number());
+
   assert(dummyHMPL.cptr()==particle);
 
   SG::WriteHandle<TrigInDetTrackCollection> coll{"coll"};

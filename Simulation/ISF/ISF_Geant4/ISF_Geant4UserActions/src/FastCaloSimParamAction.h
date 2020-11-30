@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FastCaloSimParamAction_H
@@ -9,16 +9,21 @@
 #include <string>
 #include <vector>
 
-// athena simulation includes
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "LArG4Code/ILArCalculatorSvc.h"
-#include "StoreGate/WriteHandle.h"
-#include "TileG4Interfaces/ITileCalculator.h"
-
 // CLHEP include for Hep3Vector
 #include "CLHEP/Vector/ThreeVector.h"
+
+// Geant4 includes
+#include "G4UserRunAction.hh"
+#include "G4UserEventAction.hh"
+#include "G4UserSteppingAction.hh"
+
+// Gaudi/Athena includes
+#include "GaudiKernel/ServiceHandle.h"
 #include "Identifier/Identifier.h"
+#include "LArG4Code/ILArCalculatorSvc.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/WriteHandle.h"
+#include "TileG4Interfaces/ITileCalculator.h"
 
 
 // forward declarations in namespaces
@@ -50,15 +55,6 @@ class Hep3Vector;
  *
  *
  */
-
-#include "G4UserRunAction.hh"
-#include "G4UserEventAction.hh"
-#include "G4UserSteppingAction.hh"
-
-
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
 
 namespace G4UA{
 

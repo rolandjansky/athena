@@ -142,14 +142,14 @@ StatusCode Trk::JetTruthNtupleTool::writeJetTruthData (
     m_mc_jetSphericity   = itJet->getSphericity();
     m_mc_jetThrust       = itJet->getThrust();
 
-    std::vector<const HepMC::GenParticle*> particles = itJet->getParticles();
+    auto particles = itJet->getParticles();
     m_mc_trackToJetAngle->reserve(particles.size());
     m_genParticleLinkIndex->reserve(particles.size());
     std::vector<int> indices         = itJet->getIndicesInEvent();
     std::vector<int>::iterator itIdx = indices.begin();
     m_genParticleLinkIndex->clear();
     m_mc_trackToJetAngle->clear();
-    for (std::vector<const HepMC::GenParticle*>::iterator itPrt = particles.begin();
+    for (auto itPrt = particles.begin();
          itPrt < particles.end(); ++itPrt, ++itIdx) {
       
       HepGeom::Vector3D<double> tempMomentum((*itPrt)->momentum().px(),

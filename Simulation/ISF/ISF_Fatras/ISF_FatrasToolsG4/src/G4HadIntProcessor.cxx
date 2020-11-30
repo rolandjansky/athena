@@ -43,10 +43,8 @@
 #include "G4UImanager.hh"
 #include "G4NistManager.hh"
 #include "G4VEnergyLossProcess.hh"
-#include <G4ProductionCutsTable.hh>
 #include <G4MaterialCutsCouple.hh>
 
-#include <G4NistManager.hh>
 #include "globals.hh"
 #include "G4CrossSectionDataStore.hh"
 #include "G4HadronElasticDataSet.hh"

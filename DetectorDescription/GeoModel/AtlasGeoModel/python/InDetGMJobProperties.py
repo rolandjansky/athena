@@ -155,14 +155,6 @@ class InDetGeometryFlags_JobProperties(JobPropertyContainer):
         self.GeoVersionName.set_Value_and_Lock(InDetGeoFlags.getValue("VersionName"))
         self.GeoLayout.set_Value_and_Lock(InDetGeoFlags.getValue("Layout"))
 
-    def setupDynamicAlignFolders(self):
-        from AthenaCommon.GlobalFlags import globalflags
-        from IOVDbSvc.CondDB import conddb
-        # Disable for MC or for Run 1 (AlignL* folders are not in COMP200).
-        if globalflags.DataSource.get_Value() != 'data' or conddb.dbname == 'COMP200':
-            self.useDynamicAlignFolders.set_Value_and_Lock(False)
-
-
     def reset(self,geoTagName="none"):
         
         self.isSLHC.unlock()
@@ -197,6 +189,5 @@ jobproperties.InDetGeometryFlags_JobProperties.add_JobProperty(useDynamicAlignFo
 
 InDetGeometryFlags = jobproperties.InDetGeometryFlags_JobProperties
 InDetGeometryFlags.setupValuesFromDB()
-InDetGeometryFlags.setupDynamicAlignFolders()
 
 

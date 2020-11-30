@@ -10,9 +10,6 @@
 #include "PileUpTools/IPileUpXingFolder.h"
 
 #include "EventInfo/EventInfo.h"
-#include "xAODEventInfo/EventInfoContainer.h"
-
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h" 
 #include "EventInfo/PileUpEventInfo.h" 

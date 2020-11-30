@@ -1,6 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
+from AthenaCommon.JobProperties import JobProperty
 from AthenaCommon.JobProperties import jobproperties
 
 import AthenaCommon.SystemOfUnits as Units
@@ -14,20 +14,20 @@ class Stopped_triggerFilterFlags(JobProperty):
     TriggerNames = [] # only put trigger names in this list if you want to override the below stream-specific ones
     EgammaTriggerNames = []
     JetTauEtmissTriggerNames = [
-	"L1_RD0_EMPTY",
-	"L1_RD0_FIRSTEMPTY",
+        "L1_RD0_EMPTY",
+        "L1_RD0_FIRSTEMPTY",
         "L1_RD1_EMPTY",
-	"L1_RD1_FIRSTEMPTY",
+        "L1_RD1_FIRSTEMPTY",
         "L1_J10_FIRSTEMPTY",
         "L1_J10_EMPTY",
-	"L1_J10_UNPAIRED",
-	"L1_J10_UNPAIRED_ISO",
-	"L1_J10_UNPAIRED_NONISO",
+        "L1_J10_UNPAIRED",
+        "L1_J10_UNPAIRED_ISO",
+        "L1_J10_UNPAIRED_NONISO",
         "L1_J30_FIRSTEMPTY",
         "L1_J30_EMPTY",
-	"L1_J30_UNPAIRED",
-	"L1_J30_UNPAIRED_ISO",
-	"L1_J30_UNPAIRED_NONISO"
+        "L1_J30_UNPAIRED",
+        "L1_J30_UNPAIRED_ISO",
+        "L1_J30_UNPAIRED_NONISO"
         ]
     MuonsTriggerNames = []
     signalPrescale      = 1

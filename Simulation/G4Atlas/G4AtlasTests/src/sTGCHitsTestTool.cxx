@@ -28,7 +28,6 @@
 #include "GaudiKernel/INTupleSvc.h"
 
 #include "TH2D.h"
-#include "TTree.h"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TTree.h"
