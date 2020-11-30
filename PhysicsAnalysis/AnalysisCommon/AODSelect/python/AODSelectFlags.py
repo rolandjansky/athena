@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # =============================================================================
 # Name:        AODSelectFlags
@@ -17,7 +17,6 @@ __author__  = "Karsten Koeneke <karsten.koeneke@cern.ch>"
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-from RecExConfig.RecoFunctions import AddValidItemToList,RemoveValidItemFromList
 
 # =====================================================================
 # First define container for the D2PDMaker flags  
@@ -111,19 +110,19 @@ class buildingBaseProperty(JobProperty):
     outputCollectionPrefix     = ""
     def add(self, inputItem="", createOutputCollection=None, createOutputLinkCollection=None ):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             if inputItem != "":
                 if not self.inputTypeAndKeyList.__contains__(inputItem): self.inputTypeAndKeyList.append(inputItem)
-                if createOutputCollection!=None: self.createOutputCollection = createOutputCollection or self.createOutputCollection
-                if createOutputLinkCollection!=None: self.createOutputLinkCollection = createOutputLinkCollection or self.createOutputLinkCollection
+                if createOutputCollection is not None: self.createOutputCollection = createOutputCollection or self.createOutputCollection
+                if createOutputLinkCollection is not None: self.createOutputLinkCollection = createOutputLinkCollection or self.createOutputLinkCollection
                 if len(self.inputTypeAndKeyList)>0 and ( self.createOutputCollection or self.createOutputLinkCollection ):
                     self.StoredValue = True
                     AODSelectFlags.doAODSelect = True
                     pass
                 pass
             else:
-                self._log.warning('We got an empty inputItem string for the JobProperty %s... doing nothing!' % self.__name__)
+                self._log.warning('We got an empty inputItem string for the JobProperty %s... doing nothing!', self.__name__)
                 pass
             pass
         return
@@ -138,7 +137,7 @@ class flaggingBaseProperty(JobProperty):
     varNameList         = []
     def add(self, inputItem="", varNameList=[] ):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             if inputItem != "":
                 self.StoredValue = True
@@ -151,7 +150,7 @@ class flaggingBaseProperty(JobProperty):
                     pass
                 pass
             else:
-                self._log.warning('We got an empty inputItem string for the JobProperty %s... doing nothing!' % self.__name__)
+                self._log.warning('We got an empty inputItem string for the JobProperty %s... doing nothing!', self.__name__)
                 pass
             pass
         return
@@ -167,25 +166,25 @@ class matchingBaseProperty(JobProperty):
     defaultMatchToItem = ""
     def add(self, inputItem="", matchToItemList=[], matchDistanceList=[] ):
         if self.is_locked():
-            self._log.info('The JobProperty %s is blocked' % self.__name__)
+            self._log.info('The JobProperty %s is blocked', self.__name__)
         else:
             if inputItem == "":
-                self._log.warning('We got an empty inputItem string for the JobProperty %s... doing nothing!' % self.__name__)
+                self._log.warning('We got an empty inputItem string for the JobProperty %s... doing nothing!', self.__name__)
                 return
             if len(matchToItemList)==0 and self.defaultMatchToItem == "" :
-                self._log.warning('We got an empty matchToItemList for the JobProperty %s... doing nothing!' % self.__name__)
+                self._log.warning('We got an empty matchToItemList for the JobProperty %s... doing nothing!', self.__name__)
                 return
             if len(matchToItemList)!=0 and len(matchDistanceList)!=0 and len(matchToItemList)!=len(matchDistanceList):
                 self._log.warning("We got non-empty lists with different lenght for the ",
-                                  "JobProperty %s... doing nothing! len(matchToItemList)=%s, len(matchDistanceList)=%s"
-                                  % (self.__name__, len(matchToItemList), len(matchDistanceList)) )
+                                  "JobProperty %s... doing nothing! len(matchToItemList)=%s, len(matchDistanceList)=%s",
+                                  self.__name__, len(matchToItemList), len(matchDistanceList) )
                 return
             # OK, we seem to have correct inputs... now, update the information
             self.StoredValue = True
             AODSelectFlags.doAODSelect = True
             # Prepare the final list of pairs of [ matchToItem, matchDistance ]
             finalMatchToItemList = []
-            for idx in xrange( len(matchToItemList) ):
+            for idx in range( len(matchToItemList) ):
                 matchToItem = matchToItemList[idx]
                 if len(matchDistanceList)==0 :
                     finalMatchToItemList.append( [matchToItem, self.defaultDeltaR] )
@@ -194,7 +193,7 @@ class matchingBaseProperty(JobProperty):
                     finalMatchToItemList.append( [matchToItem, matchDistanceList[idx]] )
                     pass
                 pass
-            if self.matchingDictionary.has_key(inputItem):
+            if inputItem in self.matchingDictionary:
                 valueList = self.matchingDictionary[inputItem]
                 for newPair in finalMatchToItemList:
                     if not valueList.__contains__(newPair):
