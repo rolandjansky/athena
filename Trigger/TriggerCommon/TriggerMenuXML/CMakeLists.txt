@@ -146,8 +146,8 @@ atlas_build_trigger_menu( Physics_HI_v4 PYTHON_SOURCES ${Physics_HI_v4_sources} 
 atlas_build_trigger_menu( MC_HI_v4 PYTHON_SOURCES ${MC_HI_v4_sources} )
 atlas_build_trigger_menu( MC_HI_v4_tight_mc_prescale PYTHON_SOURCES ${MC_HI_v4_sources} )
 
-atlas_build_trigger_menu( Physics_HI_v3 )
-atlas_build_trigger_menu( MC_HI_v3 )
-atlas_build_trigger_menu( MC_HI_v3_tight_mc_prescale )
+#atlas_build_trigger_menu( Physics_HI_v3 )
+#atlas_build_trigger_menu( MC_HI_v3 )
+#atlas_build_trigger_menu( MC_HI_v3_tight_mc_prescale )
 
 #atlas_build_trigger_menu( MC_PhaseII )

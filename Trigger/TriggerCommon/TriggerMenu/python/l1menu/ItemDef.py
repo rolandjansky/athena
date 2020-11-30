@@ -857,6 +857,11 @@ class ItemDef:
         LVL1MenuItem('L1_XE60_BGRP7').setLogic( XE60 & bgrp7cond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_XE70_BGRP7').setLogic( XE70 & bgrp7cond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_XE80_BGRP7').setLogic( XE80 & bgrp7cond).setTriggerType(TT.calo)    # noqa: F821
+
+        if  '_v8' in TriggerFlags.triggerMenuSetup():
+            LVL1MenuItem('L1_XE40.0ETA24').setLogic( XE400ETA24 & physcond).setTriggerType(TT.calo) # noqa: F821
+            LVL1MenuItem('L1_XE50.0ETA24').setLogic( XE500ETA24 & physcond).setTriggerType(TT.calo) # noqa: F821
+            LVL1MenuItem('L1_XE60.0ETA24').setLogic( XE600ETA24 & physcond).setTriggerType(TT.calo) # noqa: F821 
         # XS
         LVL1MenuItem('L1_XS20').setLogic( XS20.x(1) & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_XS30').setLogic( XS30.x(1) & physcond).setTriggerType(TT.calo)    # noqa: F821

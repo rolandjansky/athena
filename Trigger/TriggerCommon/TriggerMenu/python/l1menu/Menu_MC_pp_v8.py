@@ -149,7 +149,10 @@ def defineMenu():
         # 16 x 1-bit thresholds
 
         # 8 x weighted sum ET
-        #'RXE35', 'RXE40', 'RXE45', 'RXE50', 'RXE55', 'RXE60', 'RXE70', 'RXE80', # FTHR
+#        'RXE35', 'RXE40', 'RXE45', 'RXE50', 'RXE55', 'RXE60', 'RXE70', 'RXE80', # FTHR
+
+        # ATR-22426 - only three new restricted eta XE
+        'XE40.0ETA24','XE50.0ETA24','XE60.0ETA24',
 
         # 8 x restricted eta range
         #'TE3.0ETA24', 'TE5.0ETA24','TE10.0ETA24', 'TE15.0ETA24', 'TE20.0ETA24', 'TE25.0ETA24', 'TE30.0ETA24', 'TE40.0ETA24',
@@ -644,13 +647,16 @@ def defineMenu():
         # XE
         "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", 
         "L1_XE55", "L1_XE60",
-         'L1_XE30', 'L1_XE300',
-         'L1_gXERHO50',
-         'L1_gXEPUFIT50',
-         'L1_gXERHO20',
-         'L1_gXEPUFIT20',
-         'L1_gXE50',
-         'L1_jXE50',
+        'L1_XE30', 'L1_XE300',
+        'L1_gXERHO50',
+        'L1_gXEPUFIT50',
+        'L1_gXERHO20',
+        'L1_gXEPUFIT20',
+        'L1_gXE50',
+        'L1_jXE50',
+        'L1_XE40.0ETA24',
+        'L1_XE50.0ETA24',
+        'L1_XE60.0ETA24',
         
         #XS
         'L1_EM12_XS20', 'L1_EM15_XS30',
@@ -1196,6 +1202,11 @@ def defineMenu():
         'L1_XE50' : 147,
         'L1_XE55' : 148,
         'L1_XE60' : 149,
+        'L1_XE40.0ETA24' : 252,
+        'L1_XE50.0ETA24' : 253,
+        'L1_XE60.0ETA24' : 254,
+ 
+        
         'L1_gXERHO20' : 177,
         'L1_gXERHO50' : 30,
         'L1_gXEPUFIT20' : 174,
