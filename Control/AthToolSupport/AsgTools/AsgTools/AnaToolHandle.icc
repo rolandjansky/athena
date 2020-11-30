@@ -11,7 +11,7 @@
 #include <cstdlib>
 
 #ifndef XAOD_STANDALONE
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #endif
 
 
