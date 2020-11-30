@@ -40,7 +40,12 @@ if rec.doHeavyIon():
     JetCollectionKey='AntiKt4HIJets'
 else:
     JetCollectionKey='AntiKt4EMTopoJets'
-                           
+
+# add isolation variables for IsolationSelection
+from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+if not hasattr(topSequence,"IsolationBuilderTight1000"):
+    topSequence += GetUpdatedIsoTrackCones()
+
 # Import Algorithm
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 topSequence += AthenaMonManager( "GlobalMonManager" )
@@ -118,8 +123,8 @@ if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet
                                      MaxEta=2.4,
                                      MuQuality=1)
     ToolSvc += CfgMgr.CP__IsolationSelectionTool("DQTIsoGradientTool",
-                                                 MuonWP="LooseTrackOnly",
-                                                 ElectronWP="LooseTrackOnly"
+                                                 MuonWP="Loose_VarRad",
+                                                 ElectronWP="Loose_VarRad"
                                                  );
 
     from DataQualityTools.DataQualityToolsConf import DQTGlobalWZFinderTool
