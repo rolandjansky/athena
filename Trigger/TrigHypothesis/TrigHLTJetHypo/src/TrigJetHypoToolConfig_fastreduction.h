@@ -53,8 +53,8 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   Gaudi::Property<std::vector<std::size_t>> m_treeVec{
     this, "treeVector", {}, "integer sequence representation of jet hypo tree"};
 
-  Gaudi::Property<std::vector<int>> m_sharedNodesVec{
-    this, "sharedVector", {}, "nodeID groups for nodes that see input jets"};
+  Gaudi::Property<std::vector<int>> m_leafNodes{
+    this, "leafVector", {}, "node ids for leaf nodes"};
 
   std::vector<std::vector<int>> m_sharedNodes{};
 

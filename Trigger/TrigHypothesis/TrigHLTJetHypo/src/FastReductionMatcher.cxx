@@ -10,16 +10,29 @@
 #include <algorithm>
 #include <sstream>
 
-
+#include <iostream>
 
 FastReductionMatcher::FastReductionMatcher(ConditionPtrs conditions,
-					   const Tree& tree,
-					   const std::vector<std::vector<int>>& sharedNodes):
+					   const Tree& tree):
   m_conditions(std::move(conditions)),
-  m_tree(tree),
-  m_sharedNodes(sharedNodes){
-  }
+  m_tree(tree){
 
+  std::cout << "FastReductionMatcher::FastReductionMatcher:\n"
+	    << " tree size " << m_tree.size() << '\n'
+	    << " leaves size " << (tree.leaves()).size() << '\n'
+	    << " conditions size " << m_conditions.size() << '\n';
+
+  for (const auto& c : m_conditions){std::cout << c->toString() << '\n';}
+  
+  for (const auto& il : m_tree.leaves()){
+    auto label = m_conditions[il]->label();
+    if (label.rfind("leg", 0) != 0) { // startswith "leg"
+      throw std::runtime_error("Leaf condition " + std::to_string(il) +
+			       "has no leg label");
+    }
+  }
+}
+	 
 
 
 std::optional<bool>
@@ -46,7 +59,6 @@ FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
                       groups_e,
                       m_conditions,
                       m_tree,
-                      m_sharedNodes,
                       jetCollector,
                       collector);
 
@@ -56,17 +68,9 @@ FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
 
 std::string FastReductionMatcher::toString() const {
   std::stringstream ss;
-  ss << "FastReductionMatcher:\n";
-  ss << "  treeVector: " << m_tree << '\n';;
-  ss << "  shared node sets [" << m_sharedNodes.size() << "]:\n";
-  for(const auto& snodelist : m_sharedNodes){
-    for(const auto el : snodelist){
-      ss << el << " ";
-    }
-    ss << '\n';
-  }
-
-  ss << "FastReductionMatcher Conditions ["
+  ss << "FastReductionMatcher:\n"
+     << "  treeVector: " << m_tree << '\n'
+     << "FastReductionMatcher Conditions ["
      << m_conditions.size() << "]: \n";
 
   std::size_t count{0u};

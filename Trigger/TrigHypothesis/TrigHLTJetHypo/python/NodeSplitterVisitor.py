@@ -17,7 +17,6 @@ def is_leaf(node):
 
 
 def is_inner(node):
-    # return node.scenario in ('root', 'and', 'combgen', 'partgen' , 'inserted')
     return node.scenario in ('root', 'all', 'inserted')
 
 
@@ -31,8 +30,10 @@ class NodeSplitterVisitor(object):
         new_children = []
         for c in node.children:
             if c.scenario == 'simple':
-                assert (len(c.chainpartinds) ==
-                        len(c.conf_attrs)) or not c.chainpartinds
+                print ('nodesplitter::mod node', c)
+                print ('not chainpartinds', not c.chainpartinds, c.chainpartinds)
+                assert ((len(c.chainpartinds) ==
+                        len(c.conf_attrs))) or not c.chainpartinds
                 for cpi, c_a in zip(c.chainpartinds, c.conf_attrs):
                     n_c = copy.deepcopy(c)
                     n_c.conf_attrs = [c_a]

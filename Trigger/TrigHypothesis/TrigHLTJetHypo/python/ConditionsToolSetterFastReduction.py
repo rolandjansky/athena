@@ -10,8 +10,6 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 from collections import defaultdict
 
-import copy
-
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'ConditionsToolSetterFastReduction' )
 
@@ -94,7 +92,7 @@ class ConditionsToolSetterFastReduction(object):
 
         # loop  over elements of node.conf_attrs. The elements are (dict, int)
         # int is multiplicity, dict holds Condition parameters.
-        imax = len(node.conf_attrs)
+
         for i in range(len(node.conf_attrs)):
             c, mult = node.conf_attrs[i]
             cpi = ''
@@ -150,25 +148,6 @@ class ConditionsToolSetterFastReduction(object):
         node.compound_condition_tools = self._make_compound_condition_tools(
             node)
 
-    def _find_shared(self, node, shared):
-        """Determine which nodes are "shared" - shared nodes
-        are nodes that see the input jet collection. There
-        more than one set of shared nodes. These are generated
-        if an "And" not is present in the hypo tree"""
-
-        if node.scenario == 'simple':
-            shared.append(node.node_id)
-        else:
-            shared.append(-1)
-            
-        for cn in node.children:
-            self._find_shared(cn, shared)
-
-
-        return shared
-
-
-
     def report(self):
         wid = max(len(k) for k in self.tool_factories.keys())
         rep = '\n%s: ' % self.__class__.__name__
@@ -220,9 +199,8 @@ class ConditionsToolSetterFastReduction(object):
     def mod(self, tree):
         """Entry point for this module. 
         Modifies a  (usually compound) hypo tree node to 
-        reduce it to form from whuch the treevector, conditionsVector and
-        sharedNodes list can be extracted. These will be used to initialise
-        FastReductionMatcher.
+        reduce it to form from whuch the treevector, and conditionsVector
+        These will be used to initialise FastReductionMatcher.
 
         In particular: all leaf nodes will have a single ConmpoundCondition
         All other nodes will be assigned an AcceptAll condition.
@@ -236,30 +214,24 @@ class ConditionsToolSetterFastReduction(object):
         # add Condition builders to leaf nodes.
         self._set_conditions(tree)
   
-        # identify the leaf nodes that are to shared
-        # ie that see the input jet collection. Then remove And nodes
-        shared = []
-        self.shared = self._find_shared(tree, shared)
-        if shared[-1] != -1: self.shared.append(-1)
 
-        print ('shared ', self.shared)
         tree_map = {}
         self._fill_tree_map(tree, tree_map)
 
         for k, v in tree_map.items():
             log.debug("Tree map debug ", str(k), str(v))
             
-        self.treeVec = self._map_2_vec(tree_map)
+        treeVec = self._map_2_vec(tree_map)
 
         conditionsMap = {}
         self._fill_conditions_map(tree, conditionsMap)
-        self.conditionsVec = self._map_2_vec(conditionsMap)
+        conditionsVec = self._map_2_vec(conditionsMap)
+        print (self.__class__.__name__, 'conditoinsVec', conditionsVec)
                
         # make a config tool and provide it with condition makers
         config_tool = self._get_tool_instance('fastreduction')
-        config_tool.conditionMakers = self.conditionsVec
-        config_tool.treeVector = self.treeVec
-        config_tool.sharedVector = self.shared
+        config_tool.conditionMakers = conditionsVec
+        config_tool.treeVector = treeVec
 
         nodestr = 'n%dp%d' % (tree.node_id, tree.parent_id)
         helper_tool = self._get_tool_instance('helper', extra=nodestr)

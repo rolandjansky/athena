@@ -34,6 +34,8 @@ class ICapacityCheckedCondition: public IConditionMT {
 				     const Collector&) const = 0;
 
   virtual std::string label() const = 0;
+  virtual std::string toString() const = 0;
+
 };
 
 #endif

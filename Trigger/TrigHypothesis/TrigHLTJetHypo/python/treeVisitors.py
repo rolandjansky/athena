@@ -175,7 +175,7 @@ class ConditionsDictMaker(object):
             
             toks = c.split(',')  # parameters in par string are separated by ','
             toks = [t.strip() for t in toks]
-            cpis = [t for t in toks if t.startswith('chainpartind')]
+            cpis = [t for t in toks if t.startswith('leg')]
             assert len(cpis) < 2
             if cpis:
                 chainpartinds.append((cpis[0], mult))

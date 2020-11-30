@@ -66,7 +66,7 @@ def _make_simple_label(chain_parts):
                         condition_str += ',%s' % cut
                 else:
                     condition_str += ',%s' % momstr
-            condition_str += ', chainpartind{:0>3}'.format(chainpartind)
+            condition_str += ', leg{:0>3}'.format(chainpartind)
             if not condition_str.endswith(')'):
                 condition_str += ')'
             label += condition_str
@@ -104,7 +104,7 @@ def _make_vbenf_label(chain_parts):
     # scenario requires a dijet of mass > 900, and opening angle in phi > 2.6
 
     assert len(chain_parts) == 1
-
+    
     scenario = chain_parts[0]['hypoScenario']
     assert scenario.startswith('vbenf')
     args = _args_from_scenario(scenario)
@@ -152,14 +152,14 @@ def _make_vbenf_label(chain_parts):
       []
       simple
       (
-        [(%(etlo).0fet, 500neta)(%(etlo).0fet, peta500)]
+        [(%(etlo).0fet, 500neta, leg000)(%(etlo).0fet, peta500, leg000)]
       )
       dijet
       (
         [(%(masslo).0fdjmass, 26djdphi)]
         simple
         (
-          [(10et, 0eta320)(20et, 0eta320)]
+          [(10et, 0eta320, leg000)(20et, 0eta320, leg000)]
         )
       )
     )""" % argvals
@@ -225,12 +225,10 @@ def _make_dijet_label(chain_parts):
     assert len(args) == 0
 
     return """
-    all([]
-        dijet(
-              [(%(djmasslo).0fdjmass)])
-        simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
-                (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f)])
-    )""" % argvals
+    dijet(
+    [(%(djmasslo).0fdjmass)]
+    simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f, leg000)
+    (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f, leg000)]))""" % argvals
 
 
 def _make_agg_label(chain_parts):
@@ -294,9 +292,9 @@ def _make_agg_label(chain_parts):
     assert len(argvals) == 2*nargs, 'no of args: %d, expected %d' % (len(argvals), 2*nargs)
 
     result =  """
-    ht([(%(htlo).0fht)
-        (%(etlo).0fet)
-        (%(etalo).0feta%(etahi).0f)
+    ht([(%(htlo).0fht, leg000)
+        (%(etlo).0fet, leg000)
+        (%(etalo).0feta%(etahi).0f, leg000)
     ])"""  % argvals
     print (result)
     return result
