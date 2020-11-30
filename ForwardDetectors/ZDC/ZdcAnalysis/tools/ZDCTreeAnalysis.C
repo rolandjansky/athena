@@ -11,17 +11,11 @@
 #include <TH2.h>
 #include <TStyle.h>
 #include <TCanvas.h>
-
-#include <TH2.h>
-#include <TStyle.h>
-#include <TCanvas.h>
 #include <TMath.h>
 #include <TH1.h>
 #include <TF1.h>
 #include <TLatex.h>
 #include <TPaveStats.h>
-
-#include <cmath>
 
 template <typename T> T Sqr(const T& inT) {return inT*inT;}
 

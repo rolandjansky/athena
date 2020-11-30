@@ -14,13 +14,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "GeneratorObjects/McEventCollection.h"
-
-
-
-
 // FrameWork includes
 #include "GaudiKernel/ITHistSvc.h"
 #include "Gaudi/Property.h"
@@ -48,9 +41,6 @@ ALFA_BeamTransport::ALFA_BeamTransport(const std::string& name, ISvcLocator* pSv
   :
   AthAlgorithm(name,pSvcLocator)
 {
-  //  template for property decalration
-  //declareProperty("PropertyName", m_propertyName);
-
   declareProperty("ConfDir", m_FPConfig.ConfDir="./config");
   declareProperty("UseALFA", m_FPConfig.UseALFA=true);
   declareProperty("Debug", m_WriteDebugOutput=false);
