@@ -118,6 +118,9 @@ class PowhegBase(Configurable):
         ## Switch to determine whether XML reweighting should be used
         self.use_XML_reweighting = None
 
+        ## Switch to determine if the #rwgt and #pdf comments should be kept in lhe files despite using xml reweighting
+        self.remove_oldStyle_rwt_comments = None
+
     def add_algorithm(self, alg_or_process):
         """! Add an algorithm or external process to the sequence.
 
