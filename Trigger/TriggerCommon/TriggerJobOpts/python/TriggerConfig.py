@@ -47,13 +47,13 @@ def collectHypos( steps ):
     return OrderedDict(hypos)
 
 def __decisionsFromHypo( hypo ):
-    """ return all chains served by this hypo and the key of produced decision object """
+    """ return all chains served by this hypo and the keys of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    __log.debug("Hypo type %s is combo %r", hypo.getName(), __isCombo(hypo))
-    if __isCombo( hypo ):
-        return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], str(hypo.HypoOutputDecisions[0])
+    __log.debug("Hypo type %s is combo %r", hypo.getName(), __isCombo(hypo))    
+    if __isCombo(hypo):
+        return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions
     else: # regular hypos
-        return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], str(hypo.HypoOutputDecisions)
+        return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], [str(hypo.HypoOutputDecisions)]
 
 def __getSequenceChildrenIfIsSequence( s ):
     if isSequence( s ):
@@ -181,25 +181,18 @@ def triggerSummaryCfg(flags, hypos):
         # i.e. the chain has typically multiple steps and we want the collections from the last one
         # In a step the chain is handled by hypo or hypo followed by the combo,
         # in second case we want out of the later.
-        orderedStepHypos = sorted(stepHypos, key=lambda hypo: __isCombo(hypo))
+        # For that we process first ComboHypo and then regular Hypos 
+        # (TODO, review this whn config is symmetrised by addition of ComboHypos always)
+        orderedStepHypos = sorted(stepHypos, key=lambda hypo: not __isCombo(hypo))
+
         stepChains = OrderedDict()
-        # process first ComboHypo
-        for hypo in [h for h in orderedStepHypos if __isCombo(h)]:
-            hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
+        for hypo in orderedStepHypos:
+            hypoChains, hypoOutputKeys = __decisionsFromHypo( hypo )
             for chain in hypoChains:
                 if chain not in stepChains:
-                    stepChains[chain] = []
-                if hypoOutputKey not in stepChains[chain]:
-                    stepChains[chain].append( hypoOutputKey )
-
-        # if chain is not handled by the ComboHypo the final decision will be in the one output from the hypo
-        for hypo in [h for h in orderedStepHypos if not __isCombo(h)]:
-            hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
-            for chain in hypoChains:
-                if chain not in stepChains: # not added by Combo
-                    stepChains[chain] = [ hypoOutputKey ]
-
+                    stepChains[chain] = hypoOutputKeys
         allChains.update( stepChains )
+
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     if len(TriggerConfigHLT.dicts()) == 0:
@@ -213,7 +206,7 @@ def triggerSummaryCfg(flags, hypos):
                 allChains[chainName] = [ mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] ) ]
 
     for c, cont in allChains.items():
-        __log.debug("Final decision of chain  %s will be read from %d %s", c, len(cont), cont)
+        __log.info("Final decision of chain  %s will be read from %d %s", c, len(cont), str(cont))
     # Flatten all the collections preserving the order
     collectionsWithFinalDecisions = []
     for chain, collections in allChains.items():
@@ -248,8 +241,8 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     for stepName, stepHypos in sorted( hypos.items(), key=lambda x : int(x[0].split('_')[0][4:]) ):
         stepDecisionKeys = []
         for hypo in stepHypos:
-            hypoChains, hypoOutputKey  = __decisionsFromHypo( hypo )
-            stepDecisionKeys.append( hypoOutputKey )
+            hypoChains, hypoOutputKeys  = __decisionsFromHypo( hypo )
+            stepDecisionKeys.extend( hypoOutputKeys )
             allChains.update( hypoChains )
 
         dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(OrderedDict.fromkeys(stepDecisionKeys)))
