@@ -118,6 +118,7 @@ StatusCode
 LVL1CTP::ResultBuilder::constructTIPVector( const std::map<std::string, unsigned int> & thrMultiMap,
                                             std::vector<uint32_t> & tip ) const
 {
+
    tip.resize( m_ctpDataFormat->getTIPwords(), 0 );
    
    for( auto & entry : thrMultiMap ) {
@@ -183,7 +184,7 @@ LVL1CTP::ResultBuilder::buildItemDecision( const std::map<std::string, unsigned 
    itemDecisionMap.clear();
 
    try {
-      for( const auto & itemName : m_itemConfigMap->itemNames() ) {
+      for( auto itemName : m_itemConfigMap->itemNames() ) {
          auto ctpItem = m_itemConfigMap->getItem(itemName);
 
          bool pass_beforePrescale =  ctpItem->evaluate(thrMultiMap);
@@ -245,7 +246,7 @@ LVL1CTP::ResultBuilder::constructResultVectors( const std::map<std::string, unsi
       ATH_MSG_DEBUG( "  --> Trigger item " << itemName << 
                      " is " << ( !passBP ? "INACTIVE" : ( passAV ? "ACTIVE" : "ACTIVE (but PRESCALED)" ) ) );
    }
-   ATH_MSG_DEBUG( "REGTEST - " << "TriggerType byte is: 0x" << std::setw( 2 ) << std::setfill( '0' ) << std::hex << int(triggerType) );
+   ATH_MSG_DEBUG( "REGTEST - " << "TriggerType byte is: 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << triggerType );
 
    return StatusCode::SUCCESS;
 }
