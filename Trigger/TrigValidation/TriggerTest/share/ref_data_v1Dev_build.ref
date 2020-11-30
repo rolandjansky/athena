@@ -718,7 +718,7 @@ HLT_j45_ftf_L1J15:
   stepFeatures:
     0: 7
     1: 7
-HLT_j45_ftf_preselj45_L1J20:
+HLT_j45_ftf_preselj20_L1J20:
   eventCount: 5
   stepCounts:
     0: 5
@@ -740,7 +740,7 @@ HLT_j45_pf_ftf_L1J20:
   stepFeatures:
     0: 5
     1: 5
-HLT_j45_pf_ftf_preselj45_L1J20:
+HLT_j45_pf_ftf_preselj20_L1J20:
   eventCount: 5
   stepCounts:
     0: 5
@@ -788,7 +788,7 @@ HLT_j45_sktc_nojcalib_L1J20:
     0: 3
   stepFeatures:
     0: 3
-HLT_j45_subjesIS_ftf_preselj45_L1J20:
+HLT_j45_subjesIS_ftf_preselj20_L1J20:
   eventCount: 5
   stepCounts:
     0: 5
