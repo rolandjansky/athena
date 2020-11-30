@@ -56,8 +56,6 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
   Gaudi::Property<std::vector<int>> m_leafNodes{
     this, "leafVector", {}, "node ids for leaf nodes"};
 
-  std::vector<std::vector<int>> m_sharedNodes{};
-
   std::optional<ConditionPtrs> getCapacityCheckedConditions() const;
 
 };
