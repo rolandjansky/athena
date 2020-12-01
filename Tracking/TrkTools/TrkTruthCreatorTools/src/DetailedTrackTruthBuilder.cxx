@@ -446,7 +446,7 @@ void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, con
   for( const auto& i : rec2truth ) {
     // i.first = Identifier
     // i.second = HepMcParticleLink
-    const HepMC::GenParticle* pa = i.second.cptr();
+    auto pa = i.second.cptr();
     if( !pa ) { continue; } // skip noise
     if( HepMC::barcode(pa)==std::numeric_limits<int32_t>::max() &&
         pa->pdg_id()==999 ) { continue; } // skip geantinos
