@@ -32,7 +32,7 @@ function( _add_test name )
    atlas_add_test( ${name}
       SOURCES test/${name}.cxx
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-      LINK_LIBRARIES SGtests AthContainers StoreGateLib TestTools
+      LINK_LIBRARIES StoreGateLib TestTools
       ${extra_arg} )
 endfunction( _add_test )
 
