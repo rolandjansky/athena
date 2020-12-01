@@ -127,6 +127,7 @@ class SCTCalib : public AthAlgorithm {
 
       // Properties configurable from jobO
       IntegerProperty m_runNumber{this, "RunNumber", -1};
+      IntegerProperty m_eventNumber{this, "EventNumber", -1};
 
       StringProperty m_runStartTime{this, "RunStartTime", "", "from runInfo.txt"};
       StringProperty m_runEndTime{this, "RunEndTime", "", "from runInfo.txt"};
