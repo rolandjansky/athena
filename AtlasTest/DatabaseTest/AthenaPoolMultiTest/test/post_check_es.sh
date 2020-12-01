@@ -94,7 +94,9 @@ else
                 # ignore root version changes
                 egrep -a -v 'File version:' |\
                 # output stream helper tools
-                egrep -a -v 'Found HelperTools'
+                egrep -a -v 'Found HelperTools' |\
+                # FID changes
+                egrep -a -v 'FID ='
 
 	    diffStatus=$?
 	    if [ $diffStatus -ne 1 ] 
