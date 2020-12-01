@@ -88,6 +88,14 @@ class TrigTauMonAlgBuilder:
       def isL1Item(self):
         return True if self.chain().startswith('L1') else False
 
+      def L1seed(self):
+        l1seed = ''
+        splits = self.chain().split("_")
+        for split in splits:
+            if split.startswith('L1TAU'):
+                l1seed = split
+        return l1seed
+
       def isRNN(self):
         return True if "RNN" in self.chain() else False
 
@@ -188,9 +196,12 @@ class TrigTauMonAlgBuilder:
 
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
 
+    l1seeds = []
+
     for trigger in triggers:
       info = self.getTrigInfo(trigger)
-
+  
+      l1seeds.append(info.L1seed())
 
       if info.isRNN() is True:
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
@@ -205,6 +216,15 @@ class TrigTauMonAlgBuilder:
         self.bookbasicVars( monAlg, trigger, online=False )
         self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
         self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+
+    #remove duplicated from L1 seed list
+    l1seeds = list(dict.fromkeys(l1seeds))
+    for l1seed in l1seeds:
+        if not l1seed : 
+            continue
+        self.bookL1EffHistograms( monAlg, l1seed, nProng='1P')
+        self.bookL1EffHistograms( monAlg, l1seed, nProng='MP') 
+   
 
   #
   # Booking HLT efficiencies
@@ -227,6 +247,30 @@ class TrigTauMonAlgBuilder:
     defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
     defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
     defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2) 
+    defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
+
+  #
+  # Booking L1 efficiencies
+  #
+ 
+  def bookL1EffHistograms( self, monAlg, L1seed, nProng ):
+
+    monGroupName = L1seed+'_L1_Efficiency_'+nProng
+    monGroupPath = 'L1_Efficiency/'+L1seed+'/L1_Efficiency_'+ nProng
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_L1pass,'+monGroupName+'_'+xvariable+';EffL1_'+xvariable+'_wrt_Offline',
+                                title='L1 Efficiency ' +L1seed+' '+nProng+';'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
+    defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
+    defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2)
+    defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
 
   #
   # Book RNN Variables
