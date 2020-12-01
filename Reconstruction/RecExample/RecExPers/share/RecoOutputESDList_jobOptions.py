@@ -170,6 +170,13 @@ if rec.doEgamma():
     except:
         treatException("Could not load egamma ESD item list")
         pass
+
+    if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
+        try:
+            include ( "egammaRec/egammaLRTOutputItemList_jobOptions.py" )
+            fullESDList += CfgItemList( "egammaLRTEsd", items = egammaLRTESDList )
+        except Exception:
+            treatException("Could not load egamma ESD item list")
     pass   
 
 #eflow

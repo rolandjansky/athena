@@ -90,7 +90,7 @@ private:
   /** @brief Key for output clusters */
   SG::WriteHandleKey<xAOD::CaloClusterContainer>
     m_outputElectronSuperClustersKey{ this,
-                                      "SuperClusterCollestionName",
+                                      "SuperClusterCollectionName",
                                       "ElectronSuperClusters",
                                       "output calo cluster container" };
 

@@ -140,6 +140,7 @@ EMBremCollectionBuilder = AlgFactory(
     egammaBremCollectionBuilder,
     name='EMBremCollectionBuilder',
     TrackParticleContainerName=InDetKeys.xAODTrackParticleContainer(),
+    SelectedTrackParticleContainerName="egammaSelectedTrackParticles",
     OutputTrkPartContainerName=egammaKeys.outputTrackParticleKey(),
     OutputTrackContainerName=egammaKeys.outputTrackKey(),
     DoTruth=rec.doTruth(),

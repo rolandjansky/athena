@@ -71,7 +71,7 @@ private:
   /** @brief Key for output clusters */
   SG::WriteHandleKey<xAOD::CaloClusterContainer> m_outputPhotonSuperClustersKey{
     this,
-    "SuperClusterCollestionName",
+    "SuperClusterCollectionName",
     "PhotonSuperClusters",
     "output calo cluster container"
   };
