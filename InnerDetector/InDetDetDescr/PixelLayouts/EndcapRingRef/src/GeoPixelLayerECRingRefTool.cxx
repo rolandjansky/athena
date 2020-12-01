@@ -478,15 +478,19 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	    if (myhalfTubeTwd) {
 	      SphiTwd = myhalfTubeTwd->getSPhi();
 	      DphiTwd = myhalfTubeTwd->getDPhi();
-	      if (rminSvc>myhalfTubeTwd->getRMin()) rminSvc =  myhalfTubeTwd->getRMin();
-	      if (rmaxSvc<myhalfTubeTwd->getRMax()) rmaxSvc =  myhalfTubeTwd->getRMax();
+	      if (ringHelper.getSchemaVersion() <= 8) {
+	        if (rminSvc>myhalfTubeTwd->getRMin()) rminSvc =  myhalfTubeTwd->getRMin();
+	        if (rmaxSvc<myhalfTubeTwd->getRMax()) rmaxSvc =  myhalfTubeTwd->getRMax();
+	      }
 	    }
 	    const GeoTubs* myhalfTubeAway = dynamic_cast<const GeoTubs*> (ringList_PV[2*i+1]->getLogVol()->getShape());
 	    if (myhalfTubeAway) {
 	      SphiAway = myhalfTubeAway->getSPhi();
 	      DphiAway = myhalfTubeAway->getDPhi();
-	      if (rminSvc>myhalfTubeAway->getRMin()) rminSvc =  myhalfTubeAway->getRMin();
-	      if (rmaxSvc<myhalfTubeAway->getRMax()) rmaxSvc =  myhalfTubeAway->getRMax();
+	      if (ringHelper.getSchemaVersion() <= 8) {
+	        if (rminSvc>myhalfTubeAway->getRMin()) rminSvc =  myhalfTubeAway->getRMin();
+	        if (rmaxSvc<myhalfTubeAway->getRMax()) rmaxSvc =  myhalfTubeAway->getRMax();
+	      }
 	    }
 	  
 	    // supports half-rings supports with z-gap for services
