@@ -44,12 +44,21 @@ bool DerivationFramework::DiLepSkim::eventPassesFilter() const
   if(!m_dlf->GetTriggers(passFlags)) return false;
 
   // retrieve particle containers
-  const xAOD::ElectronContainer* elc = nullptr;
-  CHECK(evtStore()->retrieve(elc, "Electrons"), false);
-  const xAOD::MuonContainer* muc = nullptr;
-  CHECK(evtStore()->retrieve(muc, "Muons"), false);
-  const xAOD::PhotonContainer* phc = nullptr;
-  CHECK(evtStore()->retrieve(phc, "Photons"), false);
+  SG::ReadHandle<xAOD::ElectronContainer> elc("Electrons");
+  if( !elc.isValid() ) {
+    msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
+    return false;
+  }
+  SG::ReadHandle<xAOD::MuonContainer> muc("Muons");
+  if( !muc.isValid() ) {
+    msg(MSG::WARNING) << "No Muon container found, will skip this event" << endmsg;
+    return false;
+  }
+  SG::ReadHandle<xAOD::PhotonContainer> phc("Photons");
+  if( !phc.isValid() ) {
+    msg(MSG::WARNING) << "No Photon container found, will skip this event" << endmsg;
+    return false;
+  }
 
   // loop over containers and check filters
   if(m_filter == Filters::SiEl)
