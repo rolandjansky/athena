@@ -1745,13 +1745,13 @@ HLT_xe30_mht_L1XE10:
   stepFeatures:
     0: 14
 HLT_xe30_mhtpufit_em_subjesgscIS_L1XE10:
-  eventCount: 4
+  eventCount: 2
   stepCounts:
     0: 20
-    1: 4
+    1: 2
   stepFeatures:
     0: 20
-    1: 4
+    1: 2
 HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10:
   eventCount: 2
   stepCounts:
@@ -1799,13 +1799,13 @@ HLT_xe30_tcpufit_L1XE10:
   stepFeatures:
     0: 6
 HLT_xe30_trkmht_L1XE10:
-  eventCount: 7
+  eventCount: 6
   stepCounts:
     0: 20
-    1: 7
+    1: 6
   stepFeatures:
     0: 20
-    1: 7
+    1: 6
 HLT_xe65_cell_L1XE50:
   eventCount: 0
 HLT_xe65_cell_xe110_tcpufit_L1XE50:

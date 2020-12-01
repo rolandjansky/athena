@@ -1393,7 +1393,7 @@ HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20:
   stepCounts:
     0: 15
   stepFeatures:
-    0: 402
+    0: 398
 HLT_j225_subjesgscIS_ftf_bmv2c1040_split_L1J100:
   eventCount: 0
   stepCounts:
@@ -1597,13 +1597,13 @@ HLT_j45_subjesgscIS_ftf_011jvt_L1J15:
     0: 20
     1: 44
 HLT_j45_subjesgscIS_ftf_015jvt_L1J15:
-  eventCount: 18
+  eventCount: 17
   stepCounts:
     0: 20
-    1: 18
+    1: 17
   stepFeatures:
     0: 20
-    1: 44
+    1: 42
 HLT_j45_subjesgscIS_ftf_059jvt_L1J15:
   eventCount: 17
   stepCounts:
