@@ -55,7 +55,6 @@
 #include "TopPartons/CalcTbbarPartonHistory.h"
 #include "TopPartons/CalcWtbPartonHistory.h"
 #include "TopPartons/CalcTChannelSingleTopPartonHistory.h"
-
 #include "TopPartons/CalcTTZPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
 #include "TopPartons/CalcTtbarGammaPartonHistory.h"
