@@ -172,26 +172,26 @@ namespace top {
                                   int& spectatorquark_pdgId, int& spectatorquark_status) {
     bool hasSpectatorquark = false;
 
-    // identify "other" b quark that is not from radiation but from ME (Wtb)
-    // logic is simple: search for b quark that doesn't have top, proton, or
-    // nullptr as parent
+    //identify quark which does not originate from a decaying W boson
+    //should come from hard scattering process
 
+    ANA_MSG_INFO ("========================================================");
     ANA_MSG_INFO ("new Event");
 
-
+    float min_pt =0;
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle == nullptr) continue;
-      if (abs(particle->pdgId()) > 4) continue;
-      if(particle->status() != 23) continue;
+      if (abs(particle->pdgId()) > 4) continue; //only light quarks
 
-
-      //ANA_MSG_INFO ("particle ID: \t" <<particle->pdgId() << "\t particle status: \t" <<particle->status() << "\t particle PT: \t" << particle->p4().Pt());
+      ANA_MSG_INFO ("particle ID: \t" <<particle->pdgId() << "\t particle status: \t" <<particle->status() << "\t particle PT: \t" << particle->p4().Pt());
       for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) {
-        if (particle->parent(iparent) == nullptr) continue;
 
+        if (particle->parent(iparent) == nullptr){
+          continue;
+        }
 
-        // we dont want quarks that have same pdgID as parent, I dont know man
-        //if (abs(particle->parent(iparent)->pdgId()) == abs(particle->pdgId()) continue;
+        // we dont want quarks that have same pdgID as parent, since its a W interaction
+        if (abs(particle->parent(iparent)->pdgId()) == abs(particle->pdgId())) continue;
         // we dont want quarks that come from top
         if (abs(particle->parent(iparent)->pdgId()) == 6) continue;
 
@@ -201,21 +201,30 @@ namespace top {
         // we dont want quarks that come from proton
         if (abs(particle->parent(iparent)->pdgId()) == 2212) continue;
 
+        ANA_MSG_INFO ("    parent ID: \t" << particle->parent(iparent)->pdgId() << "\t parent status: \t" <<particle->parent(iparent)->status() << "\t particle PT: \t" << particle->parent(iparent)->p4().Pt());
 
-        //ANA_MSG_INFO ("parent ID: \t" << particle->parent(iparent)->pdgId() << "\t parent status: \t" <<particle->parent(iparent)->status());
+        if( particle->p4().Pt() > min_pt ) {
+          min_pt= particle->p4().Pt();
 
+          ANA_MSG_INFO ("\t\t setting PT: \t" << min_pt);
 
+          spectatorquark_beforeFSR = particle->p4();
+          spectatorquark_pdgId = particle->pdgId();
+          spectatorquark_status = particle->status();cd
+          hasSpectatorquark = true;
 
-        hasSpectatorquark = true;
-        spectatorquark_beforeFSR = particle->p4();
-        spectatorquark_pdgId = particle->pdgId();
-        spectatorquark_status = particle->status();
-
-        // find after FSR
-        particle = PartonHistoryUtils::findAfterFSR(particle);
-        spectatorquark_afterFSR = particle->p4();
+          // find after FSR
+          particle = PartonHistoryUtils::findAfterFSR(particle);
+          spectatorquark_afterFSR = particle->p4();
+          ANA_MSG_INFO ("\t\tPT before FSR: \t" << spectatorquark_beforeFSR.Pt());
+          ANA_MSG_INFO ("\t\tPT after FSR: \t" << spectatorquark_afterFSR.Pt());
+        }
       }
     }
+
+    ANA_MSG_INFO ("final spec quark: \t" <<spectatorquark_pdgId << "\t final spec quark status: \t" <<spectatorquark_status<< "\t final spec quark PT: \t" << spectatorquark_beforeFSR.Pt());
+
+
 
 
     if (hasSpectatorquark) return true;
