@@ -9,8 +9,6 @@
 #include "LongLivedParticleDPDMaker/DVMissingETFilterTool.h"
 #include <vector>
 #include <string>
-#include "xAODMissingET/MissingETContainer.h"
-#include "xAODJet/JetContainer.h"
 
 // Constructor
 DerivationFramework::DVMissingETFilterTool::DVMissingETFilterTool( const std::string& t,
@@ -19,20 +17,16 @@ DerivationFramework::DVMissingETFilterTool::DVMissingETFilterTool( const std::st
   AthAlgTool(t,n,p),
   m_ntot(0),
   m_npass(0),
-  m_metSGKey("MET_LocHadTopo"),
   m_metCut(50000.0),
   m_jetPtCut(50000.0),
   m_applyDeltaPhiCut(false),
-  m_deltaPhiCut(2.),
-  m_jetSGKey("AntiKt4LCTopoJets")
+  m_deltaPhiCut(2.)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
-    declareProperty("METContainerKey", m_metSGKey);
     declareProperty("METCut", m_metCut);
     declareProperty("JetPtCut", m_jetPtCut);
     declareProperty("applyDeltaPhiCut", m_applyDeltaPhiCut);
     declareProperty("DeltaPhiCut", m_deltaPhiCut);
-    declareProperty("JetContainerKey", m_jetSGKey);
   }
   
 // Destructor
@@ -43,6 +37,8 @@ DerivationFramework::DVMissingETFilterTool::~DVMissingETFilterTool() {
 StatusCode DerivationFramework::DVMissingETFilterTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_metSGKey.initialize());
+     ATH_CHECK(m_jetSGKey.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::DVMissingETFilterTool::finalize()
@@ -57,9 +53,8 @@ bool DerivationFramework::DVMissingETFilterTool::eventPassesFilter() const
 {
      ++m_ntot;
 
-     const xAOD::MissingETContainer* metContainer(0);
-     StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
-     if( sc.isFailure()  ||  !metContainer ) {
+     SG::ReadHandle<xAOD::MissingETContainer> metContainer(m_metSGKey);
+     if( !metContainer.isValid() ) {
        msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
        return false;
      } 
@@ -74,9 +69,8 @@ bool DerivationFramework::DVMissingETFilterTool::eventPassesFilter() const
        
        if (m_applyDeltaPhiCut) {
 	 double phiMET=metContainer->at(0)->phi();
-	 const xAOD::JetContainer* jetContainer(0);
-	 StatusCode sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
-	 if( sc.isFailure()  ||  !jetContainer ) {
+         SG::ReadHandle<xAOD::JetContainer> jetContainer(m_jetSGKey);
+         if( !jetContainer.isValid() ) {
 	   msg(MSG::WARNING) << "No jet container found, will skip this event" << endmsg;
 	   return false;
 	 }
