@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 def split_list1 (l, delim):
     """Split the string L at the character DELIM.
@@ -25,7 +25,6 @@ But don't split within groups nested in ([{}]) or in strings.
     i = 0
     out = []
     sz = len(l)
-    dd = delim + ')]}'
     while i < sz:
         nest = 0
         j = i
