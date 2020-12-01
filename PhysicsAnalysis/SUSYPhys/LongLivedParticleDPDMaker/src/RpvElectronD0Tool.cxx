@@ -10,7 +10,6 @@
 // Writes result to SG for later selection by string parser
 
 #include "LongLivedParticleDPDMaker/RpvElectronD0Tool.h"
-#include "xAODEgamma/ElectronContainer.h"
 #include <vector>
 #include <string>
 
@@ -19,11 +18,9 @@ DerivationFramework::RpvElectronD0Tool::RpvElectronD0Tool( const std::string& t,
 							   const std::string& n,
 							   const IInterface* p ) :
   AthAlgTool(t,n,p),
-  m_collName("Electrons"),
   m_sgPrefix("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
-    declareProperty("CollectionName", m_collName);
     declareProperty("SGPrefix", m_sgPrefix);
   }
  
@@ -35,6 +32,7 @@ DerivationFramework::RpvElectronD0Tool::~RpvElectronD0Tool() {
 StatusCode DerivationFramework::RpvElectronD0Tool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_collName.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::RpvElectronD0Tool::finalize()
@@ -48,14 +46,16 @@ StatusCode DerivationFramework::RpvElectronD0Tool::addBranches() const
 {
 
      // Retrieve data
-     const xAOD::ElectronContainer* electrons =  evtStore()->retrieve< const xAOD::ElectronContainer >( m_collName );
-     if( ! electrons ) {
+     SG::ReadHandle<xAOD::ElectronContainer> electrons(m_collName);
+     if( !electrons.isValid() ) {
 	ATH_MSG_ERROR("Couldn't retrieve e-gamma container with key: " << m_collName);
 	return StatusCode::FAILURE;
      }
 	
-     // Make a vector for the cut results
-     std::vector<float>* d0vec = new std::vector<float>();
+     // Write decision to SG for access by downstream algs 
+     std::string sgKey(m_sgPrefix+"D0");
+     SG::WriteHandle< std::vector<float> > d0vec(sgKey);
+     ATH_CHECK(d0vec.record(std::make_unique< std::vector<float> >()));
 
      // Loop over electrons, set decisions
      for (xAOD::ElectronContainer::const_iterator eIt = electrons->begin(); eIt!=electrons->end(); ++eIt) {
@@ -67,16 +67,6 @@ StatusCode DerivationFramework::RpvElectronD0Tool::addBranches() const
        d0vec->push_back(d0);
      
      }     
-
-     // Write decision to SG for access by downstream algs 
-     std::string sgKey(m_sgPrefix+"D0");
-
-     if (evtStore()->contains<std::vector<float> >(sgKey)) {
-       ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << sgKey << " which already exists. Please use a different key");
-       delete d0vec; // avoid mem leak
-       return StatusCode::FAILURE;
-     }
-     CHECK(evtStore()->record(d0vec, sgKey));       
      
      return StatusCode::SUCCESS;
 

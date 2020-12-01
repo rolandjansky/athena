@@ -16,6 +16,8 @@
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -43,7 +45,7 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
 
   private:
-    std::string m_collName;
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_collName { this, "ElectronContainerKey", "Electrons", ""};
     std::string m_sgPrefix;
 
   }; 
