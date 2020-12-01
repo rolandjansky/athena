@@ -203,7 +203,7 @@ MuonTruthTrackBuilder::createTrack(const Trk::PRD_TruthTrajectory& prdTraj, Trk:
     ATH_MSG_VERBOSE("Got PRD Truth trajectory with " << prdTraj.nDoF << " degrees of freedom, PdgID "
                                                      << genPart->pdg_id());
     // check min degrees of freedom
-    if (abs(genPart->pdg_id()) != 13 || (m_minNdof > 0 && prdTraj.nDoF < m_minNdof)) return 0;
+    if (std::abs(genPart->pdg_id()) != 13 || (m_minNdof > 0 && prdTraj.nDoF < m_minNdof)) return 0;
 
     const TrackRecord* trackRecord = getEntryRecord(*genPart);
     if (!trackRecord) {

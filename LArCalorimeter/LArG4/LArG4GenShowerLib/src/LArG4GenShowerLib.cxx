@@ -147,8 +147,8 @@ StatusCode LArG4GenShowerLib::execute()
 {
   const ShowerLib::StepInfoCollection* eventStepsES = getStepInfo();
 
-  const HepMC::GenParticle* theParticle = getParticleFromMC();
-  if (theParticle == NULL) {
+  auto theParticle = getParticleFromMC();
+  if (!theParticle) {
     ATH_MSG_ERROR ( "Couldn't get truth particle" );
     return StatusCode::FAILURE;
   }

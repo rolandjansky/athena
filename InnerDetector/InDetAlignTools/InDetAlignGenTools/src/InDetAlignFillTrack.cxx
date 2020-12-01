@@ -317,7 +317,7 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                               << endmsg;
             }
 
-            float genPt = sqrt((genParticle->momentum().x()) * (genParticle->momentum().x())
+            float genPt = std::sqrt((genParticle->momentum().x()) * (genParticle->momentum().x())
                                + (genParticle->momentum().y()) * (genParticle->momentum().y()));
 
             ATH_MSG_DEBUG("   * pt " << genPt / CLHEP::GeV << " CLHEP::GeV/c"
