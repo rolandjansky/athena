@@ -26,14 +26,15 @@
 # art-output: *.dat 
 
 Slices = ['bjet']
-RunEF   = False
-Events = 4000
-Threads = 4 
-Slots   = 4
+RunEF   = True
+Events  = 4000
+Threads = 8 
+Slots   = 8
 Input = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = [ 'Truth' ]
+TrackReference = [ 'Truth', 'Offline' ]
 
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")
+
