@@ -49,7 +49,7 @@ namespace top {
     int spectatorquark_pdgId;
     int spectatorquark_status;
 
-    bool event_sq = CalcTChannelSingleTopPartonHistory::spectatorquark(truthParticles, spectatorquark_before, spectatorquark_before, spectatorquark_pdgId, spectatorquark_status);
+    bool event_sq = CalcTChannelSingleTopPartonHistory::spectatorquark(truthParticles, spectatorquark_before, spectatorquark_after, spectatorquark_pdgId, spectatorquark_status);
 
     if (event_top && !event_antitop) {
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_top_beforeFSR_pt") = t_before.Pt();
