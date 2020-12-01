@@ -58,6 +58,7 @@ namespace xAOD {
     void IniVarTbbar();
     void IniVarWlv();
     void IniVarWtb();
+    void IniVarTChannelSingleTop();
     void IniVarZ();
     void IniVarTtGamma();
     void IniVarThq();
