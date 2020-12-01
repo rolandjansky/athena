@@ -142,23 +142,22 @@ namespace top {
       if (particle == nullptr) continue;
       if (abs(particle->pdgId()) > 4) continue; //only light quarks
 
-      ANA_MSG_INFO ("particle ID: \t" <<particle->pdgId() << "\t particle status: \t" <<particle->status() << "\t particle PT: \t" << particle->p4().Pt());
       for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) {
         if (particle->parent(iparent) == nullptr){
           continue;
         }
 
         // we dont want quarks that have same pdgID as parent, since its a W interaction it should change sign
-        if (abs(particle->parent(iparent)->pdgId()) == abs(particle->pdgId())) continue;
+        if (std::abs(particle->parent(iparent)->pdgId()) == std::abs(particle->pdgId())) continue;
 
         // we dont want quarks that come from top
-        if (abs(particle->parent(iparent)->pdgId()) == 6) continue;
+        if (std::abs(particle->parent(iparent)->pdgId()) == 6) continue;
 
         // we dont want quarks that come from W
-        if (abs(particle->parent(iparent)->pdgId()) == 24) continue;
+        if (std::abs(particle->parent(iparent)->pdgId()) == 24) continue;
 
         // we dont want quarks that come from proton
-        if (abs(particle->parent(iparent)->pdgId()) == 2212) continue;
+        if (std::abs(particle->parent(iparent)->pdgId()) == 2212) continue;
 
         if( particle->p4().Pt() > min_pt ) {
           min_pt= particle->p4().Pt();
