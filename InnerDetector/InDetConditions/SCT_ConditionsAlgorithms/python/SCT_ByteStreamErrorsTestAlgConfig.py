@@ -41,4 +41,4 @@ if __name__=="__main__":
     algkwargs["OutputLevel"] = INFO
     cfg.merge(SCT_ByteStreamErrorsTestAlgCfg(ConfigFlags, **algkwargs))
 
-    cfg.run(maxEvents=20)
+    cfg.run(maxEvents=25)

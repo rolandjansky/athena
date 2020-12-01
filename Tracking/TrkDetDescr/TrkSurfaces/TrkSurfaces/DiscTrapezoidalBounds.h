@@ -38,7 +38,7 @@ namespace Trk {
    @author Noemi.Calace@cern.ch , Andreas.Salzburger@cern.ch
 */
 
-class DiscTrapezoidalBounds : public SurfaceBounds
+class DiscTrapezoidalBounds final : public SurfaceBounds
 {
 
 public:

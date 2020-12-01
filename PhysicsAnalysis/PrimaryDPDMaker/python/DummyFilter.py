@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        DummyFilter.py
@@ -49,7 +49,7 @@ class DummyFilter( PyAthena.AthFilterAlgorithm ):
 
     def execute(self):
         self.nProcessed += 1
-        self.msg.debug( '==> execute %s on %r. event...' % (self.name(), self.nProcessed) )
+        self.msg.debug( '==> execute %s on %r. event...', self.name(), self.nProcessed )
         self.setFilterPassed(True)
         
         return StatusCode.Success

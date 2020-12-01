@@ -37,23 +37,23 @@ namespace xAOD
     /*!@{*/
     std::vector<MissingETBase::Types::jetlink_t> jetLink;            ///< @brief Link to MissingET_v1 object
     std::vector<MissingETBase::Types::objlink_vector_t> objectLinks; ///< @brief Link to object contributing to the MissingET_v1 object
-    std::vector<std::vector<double> > calpx;                         ///< @brief Object constituent calo 4-vector @f$ P_{x} @f$ for overlap removal
-    std::vector<std::vector<double> > calpy;                         ///< @brief Object constituent calo 4-vector @f$ P_{y} @f$ for overlap removal
-    std::vector<std::vector<double> > calpz;                         ///< @brief Object constituent calo 4-vector @f$ P_{z} @f$ for overlap removal
-    std::vector<std::vector<double> > cale;                          ///< @brief Object constituent calo 4-vector @f$ E @f$ for overlap removal
-    std::vector<std::vector<double> > calsumpt;                      ///< @brief Object constituent calo 4-vector sumpt for overlap removal
+    std::vector<std::vector<float> > calpx;                          ///< @brief Object constituent calo 4-vector @f$ P_{x} @f$ for overlap removal
+    std::vector<std::vector<float> > calpy;                          ///< @brief Object constituent calo 4-vector @f$ P_{y} @f$ for overlap removal
+    std::vector<std::vector<float> > calpz;                          ///< @brief Object constituent calo 4-vector @f$ P_{z} @f$ for overlap removal
+    std::vector<std::vector<float> > cale;                           ///< @brief Object constituent calo 4-vector @f$ E @f$ for overlap removal
+    std::vector<std::vector<float> > calsumpt;                       ///< @brief Object constituent calo 4-vector sumpt for overlap removal
     //
-    std::vector<std::vector<double> > trkpx;                         ///< @brief Object constituent track 4-vector @f$ P_{x} @f$ for overlap removal
-    std::vector<std::vector<double> > trkpy;                         ///< @brief Object constituent track 4-vector @f$ P_{y} @f$ for overlap removal
-    std::vector<std::vector<double> > trkpz;                         ///< @brief Object constituent track 4-vector @f$ P_{z} @f$ for overlap removal
-    std::vector<std::vector<double> > trke;                          ///< @brief Object constituent track 4-vector @f$ E @f$ for overlap removal
-    std::vector<std::vector<double> > trksumpt;                      ///< @brief Object constituent track 4-vector sumpt for overlap removal
+    std::vector<std::vector<float> > trkpx;                          ///< @brief Object constituent track 4-vector @f$ P_{x} @f$ for overlap removal
+    std::vector<std::vector<float> > trkpy;                          ///< @brief Object constituent track 4-vector @f$ P_{y} @f$ for overlap removal
+    std::vector<std::vector<float> > trkpz;                          ///< @brief Object constituent track 4-vector @f$ P_{z} @f$ for overlap removal
+    std::vector<std::vector<float> > trke;                           ///< @brief Object constituent track 4-vector @f$ E @f$ for overlap removal
+    std::vector<std::vector<float> > trksumpt;                       ///< @brief Object constituent track 4-vector sumpt for overlap removal
     //
-    std::vector<double> jettrkpx;                                    ///< @brief Jet track 4-vector @f$ P_{x} @f$ for overlap removal
-    std::vector<double> jettrkpy;                                    ///< @brief Jet track 4-vector @f$ P_{y} @f$ for overlap removal
-    std::vector<double> jettrkpz;                                    ///< @brief Jet track 4-vector @f$ P_{z} @f$ for overlap removal
-    std::vector<double> jettrke;                                     ///< @brief Jet track 4-vector @f$ E @f$ for overlap removal
-    std::vector<double> jettrksumpt;                                 ///< @brief Jet track 4-vector sumpt for overlap removal
+    std::vector<float> jettrkpx;                                     ///< @brief Jet track 4-vector @f$ P_{x} @f$ for overlap removal
+    std::vector<float> jettrkpy;                                     ///< @brief Jet track 4-vector @f$ P_{y} @f$ for overlap removal
+    std::vector<float> jettrkpz;                                     ///< @brief Jet track 4-vector @f$ P_{z} @f$ for overlap removal
+    std::vector<float> jettrke;                                      ///< @brief Jet track 4-vector @f$ E @f$ for overlap removal
+    std::vector<float> jettrksumpt;                                  ///< @brief Jet track 4-vector sumpt for overlap removal
     //
     std::vector<std::vector<std::vector<size_t> > > overlapIndices;  ///< @brief Indices of objects that overlap one another in an association
     std::vector<std::vector<std::vector<unsigned char> > > overlapTypes;  ///< @brief Types of overlap between matched objects

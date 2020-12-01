@@ -289,7 +289,8 @@ def getJetAlgorithm(jetname, jetdef, pjContNames, monTool = None):
     return jetalg
 
 ########################################################################
-# Function that substitues JetRecTool + JetAlgorithm
+# New JetRecAlgorithm to replace JetRecTool
+# This call is for a JRA that runs jet-finding
 #
 def getJetRecAlg( jetdef):
     """ """
@@ -314,6 +315,39 @@ def getJetRecAlg( jetdef):
         OutputContainer = jetname)
 
     autoconfigureModifiers(jra.Modifiers, jetname)
+
+    return jra
+
+
+########################################################################
+# Get a JetRecAlg set up to copy a jet collection and apply mods
+# In this setup we do not resolve dependencies because typically
+# these may be set up already in the original jet collection
+# In future we may wish to add a toggle.
+#
+def getJetCopyAlg(jetsin, jetsoutdef, shallowcopy=True, shallowIO=True):
+
+    jcopy = CompFactory.JetCopier(
+        "copier",
+        InputJets = jetsin,
+        ShallowCopy=shallowcopy,
+        ShallowIO=shallowIO)
+
+    # Convert mod aliases into concrete tools
+    from . import JetModConfig
+    mods = []
+    for mod in jetsoutdef.modifiers:
+        moddef = JetModConfig.aliasToModDef(mod,jetsoutdef)
+        mods.append(JetModConfig.getModifier(jetsoutdef,moddef,moddef.modspec))
+
+    jetsoutname = jetsoutdef.fullname()
+    jra = CompFactory.JetRecAlg(
+        "jetrecalg_copy_"+jetsoutname,
+        Provider = jcopy,
+        Modifiers = mods,
+        OutputContainer = jetsoutname)
+
+    autoconfigureModifiers(jra.Modifiers, jetsoutname)
 
     return jra
 

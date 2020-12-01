@@ -79,7 +79,6 @@
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
-#include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "StoreGate/StoreGateSvc.h"
 
 ////////////////////////////////////////////////////////

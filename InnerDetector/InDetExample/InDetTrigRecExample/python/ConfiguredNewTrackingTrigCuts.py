@@ -16,11 +16,8 @@ else:
 del _sharedcuts
 
 class ConfiguredNewTrackingTrigCuts(InDetTrigTrackingCuts):
-  def __set_indetflags(self):
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    self.__indetflags = InDetTrigFlags
-
-
+  pass
+  
 if not 'EFIDTrackingCuts' in globals():
   EFIDTrackingCuts = ConfiguredNewTrackingTrigCuts("Offline")
   EFIDTrackingCutsCosmics = ConfiguredNewTrackingTrigCuts("Cosmics")

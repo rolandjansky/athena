@@ -13,9 +13,8 @@
 #include <algorithm>
 #include <cctype>
 
-// FrameWork includes
 
-// CLHEP/HepMC includes
+//HepMC includes
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "AtlasHepMC/IO_GenEvent.h"
@@ -25,10 +24,6 @@
 
 static const char * s_protocolSep = ":";
 
-struct ToLower
-{
-  char operator() (char c) const  { return std::tolower(c); }
-};
 
 /////////////////////////////////////////////////////////////////// 
 /// Public methods: 
@@ -40,7 +35,7 @@ HepMcReaderTool::HepMcReaderTool( const std::string& type,
 				  const std::string& name, 
 				  const IInterface* parent ) : 
   AthAlgTool( type, name, parent ),
-  m_ioFrontend( 0 )
+  m_ioFrontend( nullptr )
 {
   //
   // Property declaration
@@ -100,14 +95,12 @@ StatusCode HepMcReaderTool::execute()
   // create a new McEventCollection and put it into StoreGate
   McEventCollection * mcEvts = new McEventCollection;
   if ( evtStore()->record( mcEvts, m_mcEventsOutputName ).isFailure() ) {
-    ATH_MSG_ERROR("Could not record a McEventCollection at ["
-		  << m_mcEventsOutputName << "] !!");
+    ATH_MSG_ERROR("Could not record a McEventCollection at ["<< m_mcEventsOutputName << "] !!");
     return StatusCode::FAILURE;
   }
   
   if ( evtStore()->setConst( mcEvts ).isFailure() ) {
-    ATH_MSG_WARNING("Could not setConst McEventCollection at ["
-		    << m_mcEventsOutputName << "] !!");
+    ATH_MSG_WARNING("Could not setConst McEventCollection at ["<< m_mcEventsOutputName << "] !!");
   }
 
   HepMC::GenEvent * evt = new HepMC::GenEvent;
@@ -117,27 +110,20 @@ StatusCode HepMcReaderTool::execute()
 }
 
 /////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
 StatusCode HepMcReaderTool::read( HepMC::GenEvent* evt )
 {
+#ifdef HEPMC3
+  m_ioFrontend->read_event(*evt);
+#else
   m_ioFrontend->fill_next_event(evt);
+#endif
 
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
@@ -169,23 +155,28 @@ void HepMcReaderTool::setupFrontend( Gaudi::Details::PropertyBase& /*prop*/ )
   }
 
   // get the protocol name in lower cases
-  std::transform( protocol.begin(), protocol.end(), 
-		  protocol.begin(),
-		  ToLower() );
+  std::transform( protocol.begin(), protocol.end(), protocol.begin(), [](unsigned char c){ return std::tolower(c); } );
 
+#ifdef HEPMC3
+  if ( "ascii" == protocol ) {
+    m_ioFrontend = new HepMC3::ReaderAsciiHepMC2( fileName.c_str());
+
+  } else {
+    msg(MSG::WARNING) << "UNKNOWN protocol [" << protocol << "] !!" << endmsg<< "Will use [ascii] instead..."<< endmsg;
+    protocol = "ascii";
+    m_ioFrontend = new HepMC3::ReaderAsciiHepMC2( fileName.c_str());
+  }    
+#else 
   if ( "ascii" == protocol ) {
     m_ioFrontend = new HepMC::IO_GenEvent( fileName.c_str(), std::ios::in );
 
   } else {
-    msg(MSG::WARNING)
-      << "UNKNOWN protocol [" << protocol << "] !!" << endmsg
-      << "Will use [ascii] instead..."
-      << endmsg;
+    msg(MSG::WARNING) << "UNKNOWN protocol [" << protocol << "] !!" << endmsg << "Will use [ascii] instead..."<< endmsg;
     protocol = "ascii";
     m_ioFrontend = new HepMC::IO_GenEvent( fileName.c_str(), std::ios::in );
   }    
+#endif
 
-  ATH_MSG_DEBUG("Using protocol [" << protocol << "] and write to ["
-		<< fileName << "]");
+  ATH_MSG_DEBUG("Using protocol [" << protocol << "] and write to ["<< fileName << "]");
   return;
 }

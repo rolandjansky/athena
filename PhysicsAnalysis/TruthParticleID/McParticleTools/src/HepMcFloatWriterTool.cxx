@@ -26,15 +26,7 @@
 
 static const char * s_protocolSep = ":";
 
-struct ToLower
-{
-  char operator() (char c) const  { return std::tolower(c); }
-};
-
 /////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
 /// Constructors
 ////////////////
 HepMcFloatWriterTool::HepMcFloatWriterTool( const std::string& type, 
@@ -51,8 +43,7 @@ HepMcFloatWriterTool::HepMcFloatWriterTool( const std::string& type,
 		   m_ioBackendURL = "ascii:hepmc.genevent.txt", 
 		   "Name of the back-end we'll use to write out the HepMC::GenEvent."
 		   "\nEx: ascii:hepmc.genevent.txt" );
-  m_ioBackendURL.declareUpdateHandler( &HepMcFloatWriterTool::setupBackend,
-				       this );
+  m_ioBackendURL.declareUpdateHandler( &HepMcFloatWriterTool::setupBackend,this );
   
   declareProperty( "McEvents",
 		   m_mcEventsName = "GEN_EVENT",
@@ -107,16 +98,13 @@ StatusCode HepMcFloatWriterTool::execute()
 {
   // retrieve the McEventCollection
   const McEventCollection * mcEvts = 0;
-  if ( evtStore()->retrieve( mcEvts, m_mcEventsName ).isFailure() ||
-       0 == mcEvts ) {
-    ATH_MSG_ERROR("Could not retrieve a McEventCollection at ["
-		  << m_mcEventsName << "] !!");
+  if ( evtStore()->retrieve( mcEvts, m_mcEventsName ).isFailure() || 0 == mcEvts ) {
+    ATH_MSG_ERROR("Could not retrieve a McEventCollection at [" << m_mcEventsName << "] !!");
     return StatusCode::FAILURE;
   }
 
   if ( mcEvts->empty() ) {
-    ATH_MSG_WARNING("McEventCollection at [" << m_mcEventsName
-		    << "] is EMPTY !!");
+    ATH_MSG_WARNING("McEventCollection at [" << m_mcEventsName << "] is EMPTY !!");
     return StatusCode::FAILURE;
   }
 
@@ -130,17 +118,11 @@ StatusCode HepMcFloatWriterTool::execute()
 }
 
 /////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
 StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
 {
-  //m_ioBackend->write_comment( m_mcEventsName.value() );
-  //m_ioBackend->write_event(evt);
   std::ostringstream out;
 
   // precision 8 (# digits following decimal point) is the minimum that
@@ -193,20 +175,14 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
       const float py = static_cast<float>(mom.py());
       const float pz = static_cast<float>(mom.pz());
       const float m  = static_cast<float>(mom.m());
-      const float e  = 
-	static_cast<float>(std::sqrt( std::pow( px, 2 ) +
-				      std::pow( py, 2 ) +
-				      std::pow( pz, 2 ) +
-				      std::pow( m,  2 ) ) );
-      buf << px << " " << py << " " << pz << " " << e 
-	  << " " << m 
-	  << "\n";
+      const float e  = static_cast<float>(std::sqrt( std::pow( px, 2 ) + std::pow( py, 2 ) + std::pow( pz, 2 ) + std::pow( m,  2 ) ) );
+      buf << px << " " << py << " " << pz << " " << e   << " " << m   << "\n";
 
       out << buf.str();
       out << "# "<< p->status() 
 	  << " " << p->polarization().theta()
 	  << " " << p->polarization().phi()
-	  << " " << ( p->end_vertex() ? p->end_vertex()->barcode() : 0 )
+	  << " " << ( p->end_vertex() ? HepMC::barcode(p->end_vertex()) : 0 )
 	  << " " << p->flow() 
 	  << "\n";
     }
@@ -245,14 +221,6 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
 }
 
 /////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
@@ -282,23 +250,15 @@ void HepMcFloatWriterTool::setupBackend( Gaudi::Details::PropertyBase& /*prop*/ 
   }
 
   // get the protocol name in lower cases
-  std::transform( protocol.begin(), protocol.end(), 
-		  protocol.begin(),
-		  ToLower() );
-
+  std::transform( protocol.begin(), protocol.end(), protocol.begin(), [](unsigned char c){ return std::tolower(c); } );
   if ( "ascii" == protocol ) {
-    m_ioBackend = new std::ofstream( fileName.c_str(), 
-				     std::ios::out | std::ios::trunc );
+    m_ioBackend = new std::ofstream( fileName.c_str(), std::ios::out | std::ios::trunc );
 
   } else {
-    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg
-		    << "Will use [ascii] instead...");
+    ATH_MSG_WARNING("UNKNOWN protocol [" << protocol << "] !!" << endmsg << "Will use [ascii] instead...");
     protocol = "ascii";
-    m_ioBackend = new std::ofstream( fileName.c_str(), 
-				     std::ios::out | std::ios::trunc );
-  }    
-
-  ATH_MSG_DEBUG("Using protocol [" << protocol << "] and write to ["
-		<< fileName << "]");
+    m_ioBackend = new std::ofstream( fileName.c_str(), std::ios::out | std::ios::trunc );
+  }
+  ATH_MSG_DEBUG("Using protocol [" << protocol << "] and write to ["<< fileName << "]");
   return;
 }

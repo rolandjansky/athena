@@ -42,7 +42,6 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
 #include "GaudiKernel/DataIncident.h" // For ContextIncident
-#include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ThreadLocalContext.h"
 #include "GaudiKernel/Algorithm.h"

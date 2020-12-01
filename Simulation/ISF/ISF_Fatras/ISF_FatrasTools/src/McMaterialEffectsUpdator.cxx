@@ -40,7 +40,6 @@
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MaterialProperties.h"
-#include "TrkGeometry/MaterialProperties.h"
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 // CLHEP
@@ -54,9 +53,6 @@
 #include "GaudiKernel/ITHistSvc.h" 
 // STD
 #include <math.h>
-
-// temporary
-#include "TrkGeometry/TrackingVolume.h"
 
 // constructor
 iFatras::McMaterialEffectsUpdator::McMaterialEffectsUpdator(const std::string& t, const std::string& n, const IInterface* p) :

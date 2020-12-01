@@ -1,9 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ROOTUtils.py 759047 2016-07-01 00:45:13Z beringer $
-
-from __future__ import print_function
-
 """
 Miscellaneous utilities for PyROOT.
 """
@@ -12,8 +8,6 @@ __version__ = '$Id: ROOTUtils.py 759047 2016-07-01 00:45:13Z beringer $'
 
 
 import ROOT
-from array import array
-
 
 protectedObjectList = []
 
@@ -54,11 +48,11 @@ class MyCanvas(ROOT.TCanvas):
     def __init__(self,name='MyCanvas', size='default', xdivs=1, ydivs=1, saveAsList=None, autoSaveOnExit=None):
         super(MyCanvas,self).__init__(name,name,myCanvasSizes[size][0],myCanvasSizes[size][1])
         self.name = name
-        if saveAsList!=None:
+        if saveAsList is not None:
             self.saveAsList = saveAsList
         else:
             self.saveAsList = MyCanvas.saveAsList
-        if autoSaveOnExit!=None:
+        if autoSaveOnExit is not None:
             self.autoSaveOnExit = autoSaveOnExit
         else:
             self.autoSaveOnExit = MyCanvas.autoSaveOnExit
@@ -130,7 +124,7 @@ class PlotLibrary:
                 c.cd(iCanvas)
                 try:
                     self.__class__.__dict__[code](self,w,*args)
-                except:
+                except Exception:
                     self.__class__.__bases__[0].__dict__[code](self,w,*args)
                 ROOT.gPad.Update()
                 # For some strange reason, this works only for .eps, but not e.g. for gif files...???
@@ -162,7 +156,7 @@ class PlotLibrary:
             c = self.protect( MyCanvas(what,self.singleCanvasSize) )
             try:
                 self.__class__.__dict__[code](self,what,*args)
-            except:
+            except Exception:
                 self.__class__.__bases__[0].__dict__[code](self,what,*args)
             ROOT.gPad.Update()
             for o in self.saveAsList:
@@ -216,9 +210,9 @@ class StyleFactory:
 def drawAxisFrame(xmin,xmax,ymin,ymax,title='',xTitleOffset=None,yTitleOffset=None,doPlot=True,protectFrame=True):
     frame = ROOT.TH2F('axisFrame',title,100,xmin,xmax,100,ymin,ymax)
     frame.SetStats(False)
-    if xTitleOffset!=None:
+    if xTitleOffset is not None:
         frame.GetXaxis().SetTitleOffset(xTitleOffset)
-    if yTitleOffset!=None:
+    if yTitleOffset is not None:
         frame.GetYaxis().SetTitleOffset(yTitleOffset)
     if doPlot:
         frame.Draw()
@@ -304,7 +298,7 @@ def moveStats(h,dx,dy,xw=0,yw=0,label=''):
 
 
 def atlasLabel(x,y,isPreliminary=False,color=1,offset=0.115,isForApproval=False,energy=8,customstring="",size=0.05):
-    if x==None or y==None:
+    if x is None or y is None:
         print ("Must set (x,y) position using --atlasx and --atlasy to add labels.  No ATLAS labels created.")
         return
     offset = offset/0.05*size
@@ -343,69 +337,69 @@ def atlasStyle(protectStyle=True):
 
     # use plain black on white colors
     icol=0  # WHITE
-    s.SetFrameBorderMode(icol);
-    s.SetFrameFillColor(icol);
-    s.SetCanvasBorderMode(icol);
-    s.SetCanvasColor(icol);
-    s.SetPadBorderMode(icol);
-    s.SetPadColor(icol);
-    s.SetStatColor(icol);
-    #s.SetFillColor(icol); # don't use: white fill color floa *all* objects
+    s.SetFrameBorderMode(icol)
+    s.SetFrameFillColor(icol)
+    s.SetCanvasBorderMode(icol)
+    s.SetCanvasColor(icol)
+    s.SetPadBorderMode(icol)
+    s.SetPadColor(icol)
+    s.SetStatColor(icol)
+    #s.SetFillColor(icol) # don't use: white fill color floa *all* objects
 
     # set the paper & margin sizes
-    s.SetPaperSize(20,26);
-    s.SetPadTopMargin(0.05);
-    s.SetPadRightMargin(0.05);
-    s.SetPadBottomMargin(0.16);
-    s.SetPadLeftMargin(0.16);
+    s.SetPaperSize(20,26)
+    s.SetPadTopMargin(0.05)
+    s.SetPadRightMargin(0.05)
+    s.SetPadBottomMargin(0.16)
+    s.SetPadLeftMargin(0.16)
 
     # set title offsets (for axis label)
     s.SetTitleXOffset(1.4)
     s.SetTitleYOffset(1.4)
 
     # use large fonts
-    #Int_t font=72; # Helvetica italics
+    #Int_t font=72 # Helvetica italics
     font = 42 # Helvetica
     tsize = 0.05
-    s.SetTextFont(font);
+    s.SetTextFont(font)
 
-    s.SetTextSize(tsize);
-    s.SetLabelFont(font,"x");
-    s.SetTitleFont(font,"x");
-    s.SetLabelFont(font,"y");
-    s.SetTitleFont(font,"y");
-    s.SetLabelFont(font,"z");
-    s.SetTitleFont(font,"z");
+    s.SetTextSize(tsize)
+    s.SetLabelFont(font,"x")
+    s.SetTitleFont(font,"x")
+    s.SetLabelFont(font,"y")
+    s.SetTitleFont(font,"y")
+    s.SetLabelFont(font,"z")
+    s.SetTitleFont(font,"z")
 
-    s.SetLabelSize(tsize,"x");
-    s.SetTitleSize(tsize,"x");
-    s.SetLabelSize(tsize,"y");
-    s.SetTitleSize(tsize,"y");
-    s.SetLabelSize(tsize,"z");
-    s.SetTitleSize(tsize,"z");
+    s.SetLabelSize(tsize,"x")
+    s.SetTitleSize(tsize,"x")
+    s.SetLabelSize(tsize,"y")
+    s.SetTitleSize(tsize,"y")
+    s.SetLabelSize(tsize,"z")
+    s.SetTitleSize(tsize,"z")
 
     # use bold lines and markers
-    s.SetMarkerStyle(20);
-    s.SetMarkerSize(1.2);
-    s.SetHistLineWidth(2);
-    s.SetLineStyleString(2,"[12 12]"); # postscript dashes
+    s.SetMarkerStyle(20)
+    s.SetMarkerSize(1.2)
+    s.SetHistLineWidth(2)
+    s.SetLineStyleString(2,"[12 12]") # postscript dashes
 
     # get rid of X error bars and y error bar caps
-    #s.SetErrorX(0.001);
+    #s.SetErrorX(0.001)
 
     # get rid of error bar caps
-    s.SetEndErrorSize(0.);
+    s.SetEndErrorSize(0.)
 
     # do not display any of the standard histogram decorations
-    s.SetOptTitle(0);
-    #s.SetOptStat(1111);
-    s.SetOptStat(0);
-    #s.SetOptFit(1111);
-    s.SetOptFit(0);
+    s.SetOptTitle(0)
+    #s.SetOptStat(1111)
+    s.SetOptStat(0)
+    #s.SetOptFit(1111)
+    s.SetOptFit(0)
 
     # put tick marks on top and RHS of plots
-    s.SetPadTickX(1);
-    s.SetPadTickY(1);
+    s.SetPadTickX(1)
+    s.SetPadTickY(1)
 
     if protectStyle:
         protect(s)

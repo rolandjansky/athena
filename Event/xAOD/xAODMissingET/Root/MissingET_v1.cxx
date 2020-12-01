@@ -29,7 +29,7 @@ MissingET_v1::MissingET_v1( const std::string& name,
 
 }
 
-MissingET_v1::MissingET_v1( double mpx, double mpy, double sumet,
+MissingET_v1::MissingET_v1( float mpx, float mpy, float sumet,
                             const std::string& name,
                             MissingETBase::Types::bitmask_t src )
    : SG::AuxElement() {
@@ -70,23 +70,23 @@ MissingET_v1::~MissingET_v1()
 void MissingET_v1::add(const IParticle* particle)
 {
   // retrieve kinematics
-  EXTRACT_PX( double, px, (*particle) );
-  EXTRACT_PY( double, py, (*particle) );
+  EXTRACT_PX( float, px, (*particle) );
+  EXTRACT_PY( float, py, (*particle) );
   // add
   this->add(px,py,particle->pt());
 }
 
-void MissingET_v1::add(const IParticle* particle,double scale)
+void MissingET_v1::add(const IParticle* particle,float scale)
 {
   // retrieve kinematics
-  EXTRACT_SCALED_PX( double, px, (*particle), scale);
-  EXTRACT_SCALED_PY( double ,py, (*particle), scale);
-  double pt(particle->pt()*scale);
+  EXTRACT_SCALED_PX( float, px, (*particle), scale);
+  EXTRACT_SCALED_PY( float ,py, (*particle), scale);
+  float pt(particle->pt()*scale);
   // add
   this->add(px,py,pt);
 }
 
-void xAOD::MissingET_v1::add(double px,double py, double pt)
+void xAOD::MissingET_v1::add(float px,float py, float pt)
 { this->f_mpx() -= px; this->f_mpy() -= py; this->f_sumet() += pt; }
 
 MissingET_v1& MissingET_v1::operator=(const MissingET_v1& met)
@@ -101,8 +101,8 @@ MissingET_v1& MissingET_v1::operator=(const MissingET_v1& met)
 
 MissingET_v1& MissingET_v1::operator-=(const IParticle* particle)
 {
-  EXTRACT_PX( double, px, (*particle) );
-  EXTRACT_PY( double, py, (*particle) );
+  EXTRACT_PX( float, px, (*particle) );
+  EXTRACT_PY( float, py, (*particle) );
   this->add(-px,-py,-particle->pt());
   return *this;
 }

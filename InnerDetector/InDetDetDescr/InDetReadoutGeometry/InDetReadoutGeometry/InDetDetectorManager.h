@@ -155,7 +155,7 @@ namespace InDetDD {
 
       /** Called by processAlignmentContainer, 
           applies only one key on the transform Collections */
-      bool processKey(const std::string key, 
+      bool processKey(const std::string& key, 
                       const AlignableTransform* transformCollection,
                       GeoVAlignmentStore* alignStore=nullptr) const;
     

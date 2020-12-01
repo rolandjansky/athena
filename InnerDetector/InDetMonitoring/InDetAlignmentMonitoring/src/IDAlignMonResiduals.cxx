@@ -4957,32 +4957,32 @@ void IDAlignMonResiduals::MakeTRTEndcapHistograms(MonGroup& al_mon){
       /** Endcap Residual plots vs Radius & Wheel */
       m_trt_ec_hist->resVsRadiusWheelPos[endcap] = new TH3F(("trt_ec_resVsRadiusWheelPos_"+endcapName[endcap]).c_str(),
 							    ("Residual Distribution vs Wheel & Radius on Wheel for TRT "+endcapName[endcap]+";Wheel;Radius [mm]; Res [mm]").c_str(),
-							    40, -0.5, 39.5, 60, 644,1004/*these are the radius limits in mm according to TRT SW*/,
+							    40, -0.5, 39.5, 30, 644,1004/*these are the radius limits in mm according to TRT SW*/,
 							    50, m_minTRTResWindow, m_maxTRTResWindow);
       RegisterHisto(al_mon,m_trt_ec_hist->resVsRadiusWheelPos[endcap]);
       m_trt_ec_hist->aveResVsRadiusWheelPos[endcap] = MakeHist("trt_ec_aveResVsRadiusWheelPos_"+endcapName[endcap],
 							       "Average Residual vs Wheel & Radius on Wheel for TRT "+endcapName[endcap],
-							       40, -0.5, 39.5, 60, 644, 1004,
+							       40, -0.5, 39.5, 30, 644, 1004,
 							       "Wheel Number","Radius on Wheel [mm]");
       RegisterHisto(al_mon,m_trt_ec_hist->aveResVsRadiusWheelPos[endcap]);
       m_trt_ec_hist->rmsResVsRadiusWheelPos[endcap] = MakeHist("trt_ec_rmsResVsRadiusWheelPos_"+endcapName[endcap],
 							       "Residual RMS vs Wheel & Radius on Wheel for TRT "+endcapName[endcap],
-							       40, -0.5, 39.5, 60, 644, 1004,
+							       40, -0.5, 39.5, 30, 644, 1004,
 							       "Wheel Number","Radius on Wheel [mm]");
       RegisterHisto(al_mon,m_trt_ec_hist->rmsResVsRadiusWheelPos[endcap]);
       m_trt_ec_hist->resVsRadiusWheelNeg[endcap] = new TH3F(("trt_ec_resVsRadiusWheelNeg_"+endcapName[endcap]).c_str(),
 							    ("Residual Distribution vs Wheel & Radius on Wheel for TRT "+endcapName[endcap]+";Wheel;Radius [mm]; Res [mm]").c_str(),
-							    40, -0.5, 39.5, 60, 644, 1004/*these are the radius limits in mm according to TRT SW*/,
+							    40, -0.5, 39.5, 30, 644, 1004/*these are the radius limits in mm according to TRT SW*/,
 							    50, m_minTRTResWindow, m_maxTRTResWindow);
       RegisterHisto(al_mon,m_trt_ec_hist->resVsRadiusWheelNeg[endcap]);
       m_trt_ec_hist->aveResVsRadiusWheelNeg[endcap] = MakeHist("trt_ec_aveResVsRadiusWheelNeg_"+endcapName[endcap],
 							       "Average Residual vs Wheel & Radius on Wheel for TRT "+endcapName[endcap],
-							       40, -0.5, 39.5, 60,644,1004,
+							       40, -0.5, 39.5, 30, 644,1004,
 							       "Wheel Number","Radius on Wheel [mm]");
       RegisterHisto(al_mon,m_trt_ec_hist->aveResVsRadiusWheelNeg[endcap]);
       m_trt_ec_hist->rmsResVsRadiusWheelNeg[endcap] = MakeHist("trt_ec_rmsResVsRadiusWheelNeg_"+endcapName[endcap],
 							       "Residual RMS vs Wheel & Radius on Wheel for TRT "+endcapName[endcap],
-							       40, -0.5, 39.5, 60, 644, 1004,
+							       40, -0.5, 39.5, 30, 644, 1004,
 							       "Wheel Number","Radius on Wheel [mm]");
       RegisterHisto(al_mon,m_trt_ec_hist->rmsResVsRadiusWheelNeg[endcap]);
 

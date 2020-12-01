@@ -434,7 +434,7 @@ void AnalysisConfigMT_Ntuple::loop() {
 		  
 		  int _ip = 0; /// count of particles in this interaction 
 		  
-		  int pid = (*evitr)->signal_process_id();
+		  int pid = HepMC::signal_process_id((*evitr));
 		  
 		  //      if ( (*evitr)->particles_size()>0 ) std::cout << "process " << "\tpid " << pid << std::endl;  
 		  

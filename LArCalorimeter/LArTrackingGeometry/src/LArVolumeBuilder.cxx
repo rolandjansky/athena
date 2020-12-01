@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,7 +53,6 @@ using Gaudi::Units::mm;
 // constructor
 LAr::LArVolumeBuilder::LArVolumeBuilder(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_lArMgr(0),
   m_lArMgrLocation("LArMgr"),
   m_lArTrackingVolumeHelper("Trk::TrackingVolumeHelper/LArTrackingVolumeHelper"),
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/TrackingVolumeCreator"),
@@ -96,11 +95,6 @@ LAr::LArVolumeBuilder::~ LArVolumeBuilder()
 // initialize
 StatusCode LAr::LArVolumeBuilder::initialize()
 {
-  // get LAr Detector Description Manager
-  if (detStore()->retrieve(m_lArMgr, m_lArMgrLocation).isFailure()) {
-    ATH_MSG_FATAL( "Could not get LArDetectorManager! Calo TrackingGeometry will not be built");
-    return StatusCode::FAILURE;
-  }
   
   // Retrieve the tracking volume helper   -------------------------------------------------    
   if (m_lArTrackingVolumeHelper.retrieve().isFailure())
@@ -156,12 +150,18 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   
   Trk::Material dummyMaterial;
 
+  // get LAr Detector Description Manager
+  const LArDetectorManager* lArMgr=nullptr;
+  if (detStore()->retrieve(lArMgr, m_lArMgrLocation).isFailure()) {
+    ATH_MSG_FATAL( "Could not get LArDetectorManager! Calo TrackingGeometry will not be built");
+  }
+
   // out of couriosity
-  unsigned int numTreeTops =  m_lArMgr->getNumTreeTops();
+  unsigned int numTreeTops =  lArMgr->getNumTreeTops();
   ATH_MSG_DEBUG( "Retrieved " << numTreeTops << " tree tops from the LArDetDescrManager. " );
   
   for (unsigned int itreetop = 0; itreetop<numTreeTops; ++itreetop){
-    PVConstLink currentVPhysVolLink   = m_lArMgr->getTreeTop(itreetop);
+    PVConstLink currentVPhysVolLink   = lArMgr->getTreeTop(itreetop);
     const GeoLogVol* currentLogVol = currentVPhysVolLink->getLogVol();
     
     unsigned int currentChilds = currentVPhysVolLink->getNChildVols();
@@ -1703,7 +1703,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    // ST this better to be done by CaloTrackingGeometry ( to glue with BeamPipe )
    // pass MBTS info to CaloTG 
   // MBTS
-  const PVConstLink topEC = m_lArMgr->getTreeTop(1U);
+  const PVConstLink topEC = lArMgr->getTreeTop(1U);
   Amg::Transform3D trIn= topEC->getX();   
   Amg::Transform3D tr2(trIn);   
   const PVConstLink mbts= getChild(topEC,"MBTS_mother",trIn);

@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """
 A library with miscellaneous beam spot related utilities and plots.
 """
@@ -11,9 +9,9 @@ __author__  = 'Juerg Beringer'
 __version__ = '$Id $'
 
 
-from math import *
-from time import *
-from numpy import *
+from math import sqrt
+from time import mktime, strptime
+from numpy import array
 
 import ROOT
 from InDetBeamSpotExample import ROOTUtils

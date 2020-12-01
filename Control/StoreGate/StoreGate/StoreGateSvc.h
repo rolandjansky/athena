@@ -41,7 +41,6 @@
 #include <type_traits>
 
 #include "AthenaKernel/StoreID.h"
-#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaKernel/DefaultKey.h"
 #include "AthAllocators/Arena.h"
@@ -53,7 +52,6 @@
 #include "AthenaKernel/IResetable.h"
 #include "AthenaKernel/IClassIDSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
-#include "StoreGate/SGHiveEventSlot.h"
 #include "StoreGate/SGIterator.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/SGWPtr.h"
@@ -61,7 +59,6 @@
 #include "StoreGate/SGObjectWithVersion.h"
 #include "CxxUtils/checker_macros.h"
 
-#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 
 #ifdef SG_DEPRECATION_WARNINGS

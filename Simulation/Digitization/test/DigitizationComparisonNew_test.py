@@ -8,6 +8,7 @@ from AthenaCommon.Logging import log
 from AthenaCommon.Constants import DEBUG
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+from Digitization.PileUpConfigNew import NoPileUpMuWriterCfg
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
@@ -65,6 +66,8 @@ if "EventInfo" not in ConfigFlags.Input.Collections:
     acc.merge(EventInfoCnvAlgCfg(ConfigFlags,
                                  inputKey="McEventInfo",
                                  outputKey="EventInfo"))
+# Decorate pile-up values
+acc.merge(NoPileUpMuWriterCfg(ConfigFlags))
 
 # Inner Detector
 acc.merge(BCM_DigitizationCfg(ConfigFlags))

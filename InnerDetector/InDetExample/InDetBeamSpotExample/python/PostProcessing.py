@@ -2,8 +2,6 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 """
 This module defines the generic infrastructure for task postprocessing.
 """
@@ -11,14 +9,13 @@ __author__  = 'Juerg Beringer'
 __version__ = '$Id $'
 
 
-import dircache, glob, re, time, sys, os, math
+import dircache, glob, time, sys, os, math
+import subprocess
 
-from InDetBeamSpotExample.TaskManager import *
+from InDetBeamSpotExample.TaskManager import TaskAnalyzer, TaskManager, getKey
 from InDetBeamSpotExample.Utils import getUserName
 
-from future import standard_library
-standard_library.install_aliases()
-import subprocess
+
 
 
 # Exception classes
@@ -221,7 +218,7 @@ class PostProcessingStep:
     def jobList(self):
         try:
             l = dircache.listdir(self.taskDir)
-        except:
+        except Exception:
             l = []
         return l
 
@@ -273,9 +270,9 @@ class PostProcessingStep:
         if not resultFileName:
             return
         resultFiles = self.taskDict['RESULTFILES']
-        if resultFiles==None:
+        if resultFiles is None:
             resultFiles = ''
-        if not resultFileName in resultFiles.split():
+        if resultFileName not in resultFiles.split():
             resultFiles = ' '.join([resultFiles,resultFileName])
             self.taskman.setValue(self.dsName,self.taskName,'RESULTFILES',resultFiles)
             self.taskDict['RESULTFILES'] = resultFiles

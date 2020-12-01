@@ -364,9 +364,27 @@ class SetupTrigConfigSvc(object):
                     self.mlog.info( "Will not setup HLTConfigSvc, since TriggerFlags doLVL2(), doEF(), and doHLT() are all False" )
                     self.states[self.states.index("xml")] = "xmll1"
 
-                self.mlog.info( "setup LVL1ConfigSvc and add instance to ServiceMgr (xml file="+self.l1XmlFile+")" )
+                # generating a json L1 menu for Physics_pp_v7_primaries
+                # is needed for a transition period where we still have jobs
+                # running on this old menu, but the software expects a
+                # json-style L1 menu
+                menuName = TriggerFlags.triggerMenuSetup()
+                doGenerateJsonMenuForRun2Menu = (menuName == "Physics_pp_v7_primaries")
+                if doGenerateJsonMenuForRun2Menu:
+                    self.mlog.info("Generating L1 menu %s", menuName)
+                    from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
+                    l1cfg = L1MenuConfig(menuName = menuName) # create menu
+                    fileName = 'L1Menu_' + menuName + '.json'
+                    l1JsonFileName = l1cfg.writeJSON(outputFile = fileName) # write menu
+                self.mlog.info("setup LVL1 ConfigSvc and add instance to ServiceMgr")
+                self.mlog.info("xml file = %s", self.l1XmlFile)
+                if doGenerateJsonMenuForRun2Menu:
+                    self.mlog.info("json file= %s", l1JsonFileName)
                 l1 = LVL1ConfigSvc("LVL1ConfigSvc")
                 l1.XMLMenuFile = self.l1XmlFile
+                if doGenerateJsonMenuForRun2Menu:
+                    l1.JsonFileName = l1JsonFileName
+
                 ServiceMgr += l1
 
                 self.mlog.info( "setup L1TopoConfigSvc and add instance to ServiceMgr (xml file="+self.l1topoXmlFile+")" )

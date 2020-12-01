@@ -6,7 +6,6 @@
 #include "G4ScoringProcessTool.h"
 // package headers
 #include "G4ParallelWorldScoringProcess.hh"
-#include "G4ProcessManager.hh"
 // Geant4 headers
 #include "G4ProcessManager.hh"
 #include "G4Version.hh"

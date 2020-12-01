@@ -24,5 +24,5 @@ dumpflag = 1;
 a0v = 10.5;
 z0v = 300.5;
 
-VertexSelection    = 0;
-VertexSelectionRec = 0;
+// VertexSelection    = 0;
+// VertexSelectionRec = 0;

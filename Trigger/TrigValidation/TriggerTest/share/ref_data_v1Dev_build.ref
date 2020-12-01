@@ -292,6 +292,8 @@ HLT_e17_lhloose_mu14_L1EM15VH_MU10:
   eventCount: 0
 HLT_e17_lhvloose_nod0_L1EM15VH:
   eventCount: 0
+HLT_e17_lhvloose_nod0_L1EM15VHI:
+  eventCount: 0
 HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3:
   eventCount: 0
 HLT_e24_lhmedium_2g12_loose_L1EM20VH_3EM10VH:
@@ -647,7 +649,7 @@ HLT_j0_perf_L1J12_EMPTY:
   stepCounts:
     0: 8
   stepFeatures:
-    0: 117
+    0: 127
 HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20:
   eventCount: 2
   stepCounts:
@@ -716,7 +718,7 @@ HLT_j45_ftf_L1J15:
   stepFeatures:
     0: 7
     1: 7
-HLT_j45_ftf_preselj45_L1J20:
+HLT_j45_ftf_preselj20_L1J20:
   eventCount: 5
   stepCounts:
     0: 5
@@ -738,7 +740,7 @@ HLT_j45_pf_ftf_L1J20:
   stepFeatures:
     0: 5
     1: 5
-HLT_j45_pf_ftf_preselj45_L1J20:
+HLT_j45_pf_ftf_preselj20_L1J20:
   eventCount: 5
   stepCounts:
     0: 5
@@ -786,7 +788,7 @@ HLT_j45_sktc_nojcalib_L1J20:
     0: 3
   stepFeatures:
     0: 3
-HLT_j45_subjesIS_ftf_preselj45_L1J20:
+HLT_j45_subjesIS_ftf_preselj20_L1J20:
   eventCount: 5
   stepCounts:
     0: 5
@@ -1743,13 +1745,13 @@ HLT_xe30_mht_L1XE10:
   stepFeatures:
     0: 14
 HLT_xe30_mhtpufit_em_subjesgscIS_L1XE10:
-  eventCount: 5
+  eventCount: 2
   stepCounts:
     0: 20
-    1: 5
+    1: 2
   stepFeatures:
     0: 20
-    1: 5
+    1: 2
 HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10:
   eventCount: 2
   stepCounts:
@@ -1797,13 +1799,13 @@ HLT_xe30_tcpufit_L1XE10:
   stepFeatures:
     0: 6
 HLT_xe30_trkmht_L1XE10:
-  eventCount: 7
+  eventCount: 6
   stepCounts:
     0: 20
-    1: 7
+    1: 6
   stepFeatures:
     0: 20
-    1: 7
+    1: 6
 HLT_xe65_cell_L1XE50:
   eventCount: 0
 HLT_xe65_cell_xe110_tcpufit_L1XE50:

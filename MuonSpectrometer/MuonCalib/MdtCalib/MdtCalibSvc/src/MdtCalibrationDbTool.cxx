@@ -10,6 +10,7 @@
 #include "MdtCalibData/WireSagCorFunc.h"
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
 #include "MdtCalibData/CalibFunc.h"
+#include <atomic>
 
 MdtCalibrationDbTool::MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent)
   : base_class(type, name, parent),
@@ -96,7 +97,12 @@ MuonCalib::MdtFullCalibData MdtCalibrationDbTool::getCalibration( const Identifi
   // find t0's
   if( m_getTubeConstants && tubeHash.is_valid() ) {
     if (m_hasBISsMDT) {
-      ATH_MSG_WARNING("skipping retrieval of TubeCalibContainer since no BIS sMDT calibrations available in conditions database");
+      // the following check/warning can be removed as soon as sMDT calibration data is available for BIS sMDTs
+      static std::atomic<bool> bisWarningPrinted = false;
+      if (!bisWarningPrinted) {
+        ATH_MSG_WARNING("skipping retrieval of TubeCalibContainer since no BIS sMDT calibrations available in conditions database, cf. ATLASRECTS-5805");
+        bisWarningPrinted.store(true, std::memory_order_relaxed);
+      }
     } else {
       tube = getTubeCalibContainer( tubeHash );
       if( !tube ){

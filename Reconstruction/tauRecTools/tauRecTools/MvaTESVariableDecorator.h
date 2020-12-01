@@ -32,8 +32,8 @@ class MvaTESVariableDecorator
   bool m_useSubtractedCluster;
 
   SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
-      "AveIntPerXKey", 
-      "EventInfo.AveIntPerXDecor",
+      "averageInteractionsPerCrossingKey", 
+      "EventInfo.averageInteractionsPerCrossing",
       "Decoration for Average Interaction Per Crossing"};
   
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainerKey {this,

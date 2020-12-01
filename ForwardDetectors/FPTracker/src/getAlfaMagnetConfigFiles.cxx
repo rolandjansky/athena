@@ -7,7 +7,6 @@
 #include "FPTracker/SimpleLogger.h"
 #include "../src/openFile.tpl"
 #include <sstream>
-#include <sstream>
 #include <stdexcept>
 
 namespace FPTracker{

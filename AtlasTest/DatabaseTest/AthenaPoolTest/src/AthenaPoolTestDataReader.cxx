@@ -23,7 +23,6 @@
 #include "AthenaPoolTestData/AthenaPoolTestC.h"
 #include "AthenaPoolTestData/AthenaPoolTestD.h"
 #include "AthenaPoolTestData/AthenaPoolTestMatrix.h"
-#include "AthenaPoolTestData/AthenaPoolTestMatrix.h"
 #include "AthenaPoolTestData/AthenaPoolTestMap.h"
 #include "AthenaPoolTestData/dummy_A.h"
 #include "AthenaPoolTestData/dummy_E.h"

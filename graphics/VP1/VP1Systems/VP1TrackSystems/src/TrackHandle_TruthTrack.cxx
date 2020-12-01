@@ -16,8 +16,6 @@
 #include "VP1TrackSystems/AscObj_TruthPoint.h"
 #include "VP1Base/VP1Msg.h"
 
-#include "TrkTrack/Track.h"
-#include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include "TrkTrack/Track.h"

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        PrimaryDPDFlags
@@ -9,15 +9,11 @@
 ## Description: Here, all neccessary job flags for the PrimaryDPDMaker
 ##              are defined.
 ##
-## $Id: PrimaryDPDFlags.py,v 1.44 2009-05-11 12:20:32 cgatti Exp $
 ##=============================================================================
 
 __doc__ = """Here, all neccessary job flags for the PrimaryDPDMaker are defined."""
 __version__ = "0.0.1"
 __author__  = "Karsten Koeneke <karsten.koeneke@desy.de>"
-
-## Import the module that allows to use named units, e.g. GeV
-import AthenaCommon.SystemOfUnits as Units
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
