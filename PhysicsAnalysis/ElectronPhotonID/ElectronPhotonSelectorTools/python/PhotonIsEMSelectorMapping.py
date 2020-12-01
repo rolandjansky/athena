@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        PhotonIsEMSelectorMapping.py
@@ -12,7 +12,7 @@
 import cppyy
 try :
     cppyy.load_library('libElectronPhotonSelectorToolsDict')
-except :
+except Exception:
     pass
 
 from ROOT import egammaPID
@@ -34,12 +34,10 @@ class photonPIDmenu:
     menuCurrentCuts = 5
     menuPtInclJan2018 = 6
 
-import ElectronPhotonSelectorTools.PhotonIsEMSelectorCutDefs as PhotonIsEMSelectorCutDefs
 import ElectronPhotonSelectorTools.PhotonIsEMLooseSelectorCutDefs as PhotonIsEMLooseSelectorCutDefs
 import ElectronPhotonSelectorTools.PhotonIsEMMediumSelectorCutDefs as PhotonIsEMMediumSelectorCutDefs
 import ElectronPhotonSelectorTools.PhotonIsEMTightSelectorCutDefs as PhotonIsEMTightSelectorCutDefs
 
-import ElectronPhotonSelectorTools.TrigPhotonIsEMCaloCutsOnlySelectorCutDefs as TrigPhotonIsEMCaloCutsOnlySelectorCutDefs
 
 # format - key: (mask, function)
 
