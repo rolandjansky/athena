@@ -142,16 +142,18 @@ def GetExtraImprovedPromptVariablesForDxAOD(name='', onlyBDT=False):
     # Decorate lepton only with the BDT outputs when the onlyBDT flag is true.
     #
     if onlyBDT:
+        # Add lepton raw pT and pTBin as default which is needed for the PLIV working points.
+        rawpt_vars ="PromptLeptonImprovedInput_MVAXBin.PromptLeptonImprovedInput_RawPt"
+
         if name == "" or name == "Electrons":
-            prompt_lep_vars += ["Electrons.PromptLeptonImprovedVetoBARR.PromptLeptonImprovedVetoECAP."]
+            prompt_lep_vars += ["Electrons.PromptLeptonImprovedVetoBARR.PromptLeptonImprovedVetoECAP.%s"%rawpt_vars]
 
         if name == "" or name == "Muons":
-            prompt_lep_vars += ["Muons.PromptLeptonImprovedVeto."]
+            prompt_lep_vars += ["Muons.PromptLeptonImprovedVeto.%s"%rawpt_vars]
 
         return prompt_lep_vars
- 
 
-    prompt_vars  = "PromptLeptonImprovedInput_MVAXBin."
+    prompt_vars  = "PromptLeptonImprovedInput_MVAXBin.PromptLeptonImprovedInput_RawPt."
     prompt_vars += "PromptLeptonImprovedInput_PtFrac.PromptLeptonImprovedInput_DRlj."
     prompt_vars += "PromptLeptonImprovedInput_topoetcone30rel.PromptLeptonImprovedInput_ptvarcone30rel."
 
@@ -311,7 +313,7 @@ def DecoratePromptLeptonImproved(BDT_name, lepton_name, track_jet_name):
 
     alg.stringIntVars            = getStringIntVars  (BDT_name)
     alg.stringFloatVars          = getStringFloatVars(BDT_name)
-    alg.extraDecoratorFloatVars  = []
+    alg.extraDecoratorFloatVars  = ['RawPt']
     alg.extraDecoratorShortVars  = ['CandVertex_NPassVtx']
     alg.vetoDecoratorFloatVars   = ['PromptLeptonRNN_prompt']
     alg.vetoDecoratorShortVars   = []

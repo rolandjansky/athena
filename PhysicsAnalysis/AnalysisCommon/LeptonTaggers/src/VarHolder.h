@@ -86,6 +86,7 @@ namespace Prompt
       ptvarcone30rel,
       ptvarcone30_TightTTVA_pt500rel,
       MVAXBin,
+      RawPt,
       CaloClusterERel,
       CaloClusterSumEtRel,
       PromptLeptonRNN_prompt,

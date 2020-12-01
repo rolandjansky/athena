@@ -756,6 +756,7 @@ void Prompt::DecoratePromptLeptonImproved::getMutualVariables(const xAOD::IParti
   }   
 
   vars.AddVar(Prompt::Def::MVAXBin, curr_bin);
+  vars.AddVar(Prompt::Def::RawPt,   lepPt);
 
   ATH_MSG_DEBUG("getMutualVariables - lepPt = " << lepPt << ", MVAXBin = " << curr_bin); 
 }
