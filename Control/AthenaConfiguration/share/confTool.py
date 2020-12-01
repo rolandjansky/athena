@@ -72,6 +72,12 @@ def parse_args():
         help="Ignore differences in e.g. outputlevel",
         action="store_true",
     )
+    parser.add_argument(
+        "--renameComps",
+        nargs="*",
+        help="Pass comps You want to rename as OldName=NewName.",
+        action="append",
+    )
 
     args = parser.parse_args()
     main(args)
@@ -189,12 +195,12 @@ def _loadSingleFile(fname, args):
     if conf is None:
         sys.exit("Unable to load %s file" % fname)
 
+    def flatten_list(l):
+        return [item for elem in l for item in elem] if l else []
+
     if (
         args.includeComps or args.excludeComps
     ):  # returning only wanted components
-
-        def flatten_list(l):
-            return [item for elem in l for item in elem] if l else []
 
         compsToReport = flatten_list(args.includeComps)
         compsToExclude = flatten_list(args.excludeComps)
@@ -230,6 +236,28 @@ def _loadSingleFile(fname, args):
 
         conf = [
             {key: remove_irrelevant(value) for (key, value) in dic.items()}
+            for dic in conf
+            if isinstance(dic, dict)
+        ]
+
+    if args.renameComps:
+        compsToRename = flatten_list(args.renameComps)
+        splittedCompsNames = {
+            old_name: new_name
+            for old_name, new_name in [
+                element.split("=") for element in compsToRename
+            ]
+        }
+
+        def rename_comps(comp_name):
+            return (
+                splittedCompsNames[comp_name]
+                if comp_name in splittedCompsNames
+                else comp_name
+            )
+
+        conf = [
+            {rename_comps(key): value for (key, value) in dic.items()}
             for dic in conf
             if isinstance(dic, dict)
         ]
