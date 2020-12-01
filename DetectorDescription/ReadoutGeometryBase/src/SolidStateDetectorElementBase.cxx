@@ -388,6 +388,9 @@ using Trk::distDepth;
     
     m_center = geoTransform * m_design->sensorCenter();
     
+    //Is this needed outside e.g. ReadSiDetElements? Maybe candidate for future removal?
+    m_centerCLHEP = HepGeom::Point3D<double>(m_center[0],m_center[1],m_center[2]);
+
     Amg::Vector3D centerGeoModel(0., 0., 0.);
     m_origin = geoTransform * centerGeoModel;
    
@@ -530,10 +533,14 @@ using Trk::distDepth;
 
     // Initialize various cached members, needs to be done here otherwise the necessary transforms are not yet initialized
     // The unit vectors
-    m_normal = m_transform * localRecoDepthAxis;
+    m_normal = m_transform.linear() * localRecoDepthAxis;
   
-    m_phiAxis = m_transform * localRecoPhiAxis;
-    m_etaAxis = m_transform * localRecoEtaAxis;
+    m_phiAxis = m_transform.linear() * localRecoPhiAxis;
+    m_etaAxis = m_transform.linear() * localRecoEtaAxis;
+    
+    //Check where these are actually needed - candidates for removal?
+    m_phiAxisCLHEP = HepGeom::Vector3D<double>(m_phiAxis[0],m_phiAxis[1],m_phiAxis[2]);
+    m_etaAxisCLHEP = HepGeom::Vector3D<double>(m_etaAxis[0],m_etaAxis[1],m_etaAxis[2]);
 
     getExtent(m_minR, m_maxR, m_minZ, m_maxZ, m_minPhi, m_maxPhi);
 
