@@ -6,13 +6,10 @@
 #define ANALYSISTOP_TOPPARTONS_CALCTCHANNELSINGLETOPPARTONHISTORY_H
 
 /**
- * @author Tomas Dado <tomas.dado@cern.ch>
+ * @author Jordy Degens <jdegens@nikhef.nl>
  *
- * @brief CalcWtbPartonHistory
- *   Class derived from CalcTopPartonHistory, used to store Wt SingleTop variables
- *
- * $Revision: 658996 $
- * $Date: 2015-04-04 16:57:15 +0100 (Sat, 04 Apr 2015) $
+ * @brief CalcTChannelSingleTopPartonHistory
+ *   Class derived from CalcTopPartonHistory, used to store t-channel SingleTop variables
  *
  **/
 
