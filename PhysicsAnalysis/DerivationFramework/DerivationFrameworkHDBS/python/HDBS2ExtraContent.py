@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #Content included in addition to the Smart Slimming Content
 
@@ -7,7 +7,10 @@ HDBS2ExtraContent=[
     "GSFTrackParticles.expectNextToInnermostPixelLayerHit.numberOfNextToInnermostPixelLayerHits.numberOfNextToInnermostPixelLayerOutliers",
     "Muons.quality.etcone20",
     "ExtrapolatedMuonTrackParticles.numberOfTRTHits.numberOfTRTOutliers",
-    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m"
+    "AntiKt4EMTopoJets.JetEMScaleMomentum_pt.JetEMScaleMomentum_eta.JetEMScaleMomentum_phi.JetEMScaleMomentum_m",
+    "TauJets.pi0PFOLinks.neutralPFOLinks.pi0PFOLinks",
+    "TauNeutralParticleFlowObjects.pt.eta.phi.m.rapidity.bdtPi0Score",
+    "TauChargedParticleFlowObjects.pt.eta.phi.m"
     ]
 
 HDBS2ExtraContentTruth=[
@@ -17,5 +20,5 @@ HDBS2ExtraContentTruth=[
 HDBS2ExtraContainers=[]
 
 HDBS2ExtraContainersTruth=[
-    "TruthBosonWithDecayParticles", "TruthBosonWithDecayVertices"
+    "TruthBosonsWithDecayParticles", "TruthBosonsWithDecayVertices"
     ]
