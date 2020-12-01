@@ -17,13 +17,11 @@ HGTD_ID::HGTD_ID(void):
     m_INDET_INDEX(0),
     m_HGTD_INDEX(1),
     m_ENDCAP_INDEX(2),
-    m_DISK_INDEX(3),
-    m_SIDE_INDEX(4),
-    m_QUADRANT_INDEX(5),
-    m_ROW_INDEX(6),
-    m_MODULE_INDEX(7),
-    m_PHI_INDEX_INDEX(8),
-    m_ETA_INDEX_INDEX(9),
+    m_LAYER_INDEX(3),
+    m_PHI_MODULE_INDEX(4),
+    m_ETA_MODULE_INDEX(5),
+    m_PHI_INDEX_INDEX(6),
+    m_ETA_INDEX_INDEX(7),
     m_dict(0),
     m_wafer_hash_max(0),
     m_pixel_hash_max(0) {
@@ -36,11 +34,9 @@ HGTD_ID::~HGTD_ID(void)
 
 void
 HGTD_ID::wafer_id_checks ( int endcap,
-                           int disk,
-                           int side,
-                           int quadrant,
-                           int row,
-                           int module ) const
+                           int layer,
+                           int phi_module,
+                           int eta_module ) const
 {
 
     // Check that id is within allowed range
@@ -48,7 +44,7 @@ HGTD_ID::wafer_id_checks ( int endcap,
     // Fill expanded id
     ExpandedIdentifier id;
     id << indet_field_value() << hgtd_field_value()
-       << endcap << disk << side << quadrant << row << module;
+       << endcap << layer << phi_module << eta_module;
     if (!m_full_wafer_range.match(id)) {  // module range check is sufficient
         MsgStream log(m_msgSvc, "HGTD_ID");
         if(m_msgSvc) log << MSG::ERROR << " HGTD_ID::wafer_id result is NOT ok. ID, range " 
@@ -60,11 +56,9 @@ HGTD_ID::wafer_id_checks ( int endcap,
 
 void
 HGTD_ID::pixel_id_checks ( int endcap,
-                           int disk,
-                           int side,
-                           int quadrant,
-                           int row,
-                           int module,
+                           int layer,
+                           int phi_module,
+                           int eta_module,
                            int phi_index,
                            int eta_index) const
 {
@@ -74,7 +68,7 @@ HGTD_ID::pixel_id_checks ( int endcap,
     // Fill expanded id
     ExpandedIdentifier id;
     id << indet_field_value() << hgtd_field_value()
-       << endcap << disk << side << quadrant << row << module << phi_index << eta_index;
+       << endcap << layer << phi_module << eta_module << phi_index << eta_index;
 
     if (!m_full_pixel_range.match(id)) {
         MsgStream log(m_msgSvc, "HGTD_ID");
@@ -86,7 +80,7 @@ HGTD_ID::pixel_id_checks ( int endcap,
 }
 
 int
-HGTD_ID::disk_max(const Identifier& id) const
+HGTD_ID::layer_max(const Identifier& id) const
 {
     // get max from dictionary
     ExpandedIdentifier expId;
@@ -95,9 +89,9 @@ HGTD_ID::disk_max(const Identifier& id) const
     for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
         const Range& range = m_full_wafer_range[i];
         if (range.match(expId)) {
-            const Range::field& disk_field = range[m_DISK_INDEX];
-            if (disk_field.has_maximum()) {
-                return (disk_field.get_maximum());
+            const Range::field& layer_field = range[m_LAYER_INDEX];
+            if (layer_field.has_maximum()) {
+                return (layer_field.get_maximum());
             }
         }
     }
@@ -105,7 +99,7 @@ HGTD_ID::disk_max(const Identifier& id) const
 }
 
 int
-HGTD_ID::side_max(const Identifier& id) const
+HGTD_ID::phi_module_max(const Identifier& id) const
 {
     // get max from dictionary
     ExpandedIdentifier expId;
@@ -114,17 +108,17 @@ HGTD_ID::side_max(const Identifier& id) const
     for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
         const Range& range = m_full_wafer_range[i];
         if (range.match(expId)) {
-            const Range::field& side_field = range[m_SIDE_INDEX];
-            if (side_field.has_maximum()) {
-                return (side_field.get_maximum());
+            const Range::field& phi_module_field = range[m_PHI_MODULE_INDEX];
+            if (phi_module_field.has_maximum()) {
+                return (phi_module_field.get_maximum());
             }
         }
     }
     return (-999);  // default
 }
 
-int
-HGTD_ID::quadrant_max(const Identifier& id) const
+int 
+HGTD_ID::eta_module_max(const Identifier& id) const
 {
     // get max from dictionary
     ExpandedIdentifier expId;
@@ -133,51 +127,32 @@ HGTD_ID::quadrant_max(const Identifier& id) const
     for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
         const Range& range = m_full_wafer_range[i];
         if (range.match(expId)) {
-            const Range::field& quadrant_field = range[m_QUADRANT_INDEX];
-            if (quadrant_field.has_maximum()) {
-                return (quadrant_field.get_maximum());
+            const Range::field& eta_module_field = range[m_ETA_MODULE_INDEX];
+            if (eta_module_field.has_maximum()) {
+                return (eta_module_field.get_maximum());
             }
         }
     }
-    return (-999);  // default
+    return (-999); // default
 }
 
 int
-HGTD_ID::row_max(const Identifier& id) const
+HGTD_ID::eta_module_min(const Identifier& id) const
 {
-    // get max from dictionary
+    // get min from dictionary
     ExpandedIdentifier expId;
     IdContext wafer_context1 = wafer_context();
     get_expanded_id(id, expId, &wafer_context1);
     for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
         const Range& range = m_full_wafer_range[i];
         if (range.match(expId)) {
-            const Range::field& row_field = range[m_ROW_INDEX];
-            if (row_field.has_maximum()) {
-                return (row_field.get_maximum());
+            const Range::field& eta_module_field = range[m_ETA_MODULE_INDEX];
+            if (eta_module_field.has_minimum()) {
+                return (eta_module_field.get_minimum());
             }
         }
     }
-    return (-999);  // default
-}
-
-int
-HGTD_ID::module_max(const Identifier& id) const
-{
-    // get max from dictionary
-    ExpandedIdentifier expId;
-    IdContext wafer_context1 = wafer_context();
-    get_expanded_id(id, expId, &wafer_context1);
-    for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
-        const Range& range = m_full_wafer_range[i];
-        if (range.match(expId)) {
-            const Range::field& module_field = range[m_MODULE_INDEX];
-            if (module_field.has_maximum()) {
-                return (module_field.get_maximum());
-            }
-        }
-    }
-    return (-999);  // default
+    return (-999); // default
 }
 
 int
@@ -219,9 +194,9 @@ HGTD_ID::eta_index_max(const Identifier& id) const
 }
 
 bool
-HGTD_ID::is_quadrant_max(const Identifier& id) const
+HGTD_ID::is_phi_module_max(const Identifier& id) const
 {
-    return (quadrant(id) == quadrant_max(id));
+    return (phi_module(id) == phi_module_max(id));
 }
 
 int
@@ -307,11 +282,14 @@ HGTD_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     region_id.add(inDetField);
     region_id.add(hgtdField);
     Range prefix;
-    m_full_wafer_range = m_dict->build_multirange(region_id, prefix, "module");
+    m_full_wafer_range = m_dict->build_multirange(region_id, prefix, "hgtd_eta_module");
     m_full_pixel_range = m_dict->build_multirange(region_id, prefix);
 
     // Setup the hash tables
     if(init_hashes()) return (1);
+
+    // Setup hash tables for finding neighbors
+    if(init_neighbors()) return (1);
 
     if(m_msgSvc) {
         log << MSG::DEBUG << " HGTD_ID::initialize_from_dict " 
@@ -359,11 +337,9 @@ HGTD_ID::init_hashes(void)
         for (; first != last; ++first) {
             const ExpandedIdentifier& exp_id = (*first);
             Identifier id = wafer_id (exp_id[m_ENDCAP_INDEX],
-                                      exp_id[m_DISK_INDEX],
-                                      exp_id[m_SIDE_INDEX],
-                                      exp_id[m_QUADRANT_INDEX],
-                                      exp_id[m_ROW_INDEX],
-                                      exp_id[m_MODULE_INDEX]);
+                                      exp_id[m_LAYER_INDEX],
+                                      exp_id[m_PHI_MODULE_INDEX],
+                                      exp_id[m_ETA_MODULE_INDEX]);
             if(!(ids.insert(id)).second) {
                 if(m_msgSvc) log << MSG::FATAL << " HGTD_ID::init_hashes "
                                  << " Error: duplicated id for wafer id. nid " << nids
@@ -409,6 +385,207 @@ HGTD_ID::init_hashes(void)
 }
 
 int
+HGTD_ID::get_prev_in_phi(const IdentifierHash& id, IdentifierHash& prev) const
+{
+    unsigned short index = id;
+    if (index < m_prev_phi_wafer_vec.size()) {
+        if (m_prev_phi_wafer_vec[index] == NOT_VALID_HASH) return (1);
+        prev =  m_prev_phi_wafer_vec[index];
+        return (0);
+    }
+    return (1);
+}
+
+int
+HGTD_ID::get_next_in_phi(const IdentifierHash& id, IdentifierHash& next) const
+{
+    unsigned short index = id;
+    if (index < m_next_phi_wafer_vec.size()) {
+        if (m_next_phi_wafer_vec[index] == NOT_VALID_HASH) return (1);
+        next =  m_next_phi_wafer_vec[index];
+        return (0);
+    }
+    return (1);
+}
+
+int
+HGTD_ID::get_prev_in_eta(const IdentifierHash& id, IdentifierHash& prev) const
+{
+    unsigned short index = id;
+    if (index < m_prev_eta_wafer_vec.size()) {
+        if (m_prev_eta_wafer_vec[index] == NOT_VALID_HASH) return (1);
+        prev =  m_prev_eta_wafer_vec[index];
+        return (0);
+    }
+    return (1);
+}
+
+int
+HGTD_ID::get_next_in_eta(const IdentifierHash& id, IdentifierHash& next) const
+{
+    unsigned short index = id;
+    if (index < m_next_eta_wafer_vec.size()) {
+        if (m_next_eta_wafer_vec[index] == NOT_VALID_HASH) return (1);
+        next =  m_next_eta_wafer_vec[index];
+        return (0);
+    }
+    return (1);
+}
+
+int
+HGTD_ID::init_neighbors(void)
+{
+    //
+    // create a vector(s) to retrieve the hashes for compact ids for
+    // wafer neighbors.
+    //
+    MsgStream log(m_msgSvc, "HGTD_ID");
+
+    if(m_msgSvc) log << MSG::DEBUG << "HGTD_ID::init_neighbors " << endmsg;
+    else std::cout << " DEBUG HGTD_ID::init_neighbors " << std::endl;
+
+    m_prev_phi_wafer_vec.clear();
+    m_next_phi_wafer_vec.clear();
+    m_prev_eta_wafer_vec.clear();
+    m_next_eta_wafer_vec.clear();
+    m_prev_phi_wafer_vec.resize(m_wafer_hash_max, NOT_VALID_HASH);
+    m_next_phi_wafer_vec.resize(m_wafer_hash_max, NOT_VALID_HASH);
+    m_prev_eta_wafer_vec.resize(m_wafer_hash_max, NOT_VALID_HASH);
+    m_next_eta_wafer_vec.resize(m_wafer_hash_max, NOT_VALID_HASH);
+
+    for (unsigned int i = 0; i < m_full_wafer_range.size(); ++i) {
+        const Range& range = m_full_wafer_range[i];
+        const Range::field& phi_field = range[m_PHI_MODULE_INDEX];
+        const Range::field& eta_field = range[m_ETA_MODULE_INDEX];
+
+        Range::const_identifier_factory first = range.factory_begin();
+        Range::const_identifier_factory last  = range.factory_end();
+        for (; first != last; ++first) {
+            const ExpandedIdentifier& exp_id = (*first);
+            ExpandedIdentifier::element_type previous_phi;
+            ExpandedIdentifier::element_type next_phi;
+            ExpandedIdentifier::element_type previous_eta;
+            ExpandedIdentifier::element_type next_eta;
+            bool pphi = phi_field.get_previous(exp_id[m_PHI_MODULE_INDEX], previous_phi);
+            bool nphi = phi_field.get_next    (exp_id[m_PHI_MODULE_INDEX], next_phi);
+            bool peta = eta_field.get_previous(exp_id[m_ETA_MODULE_INDEX], previous_eta);
+            bool neta = eta_field.get_next    (exp_id[m_ETA_MODULE_INDEX], next_eta);
+
+            IdContext      wcontext = wafer_context();
+            
+            // First get primary hash id
+            IdentifierHash hash_id;
+            Identifier id = wafer_id (exp_id[m_ENDCAP_INDEX],
+                                      exp_id[m_LAYER_INDEX],
+                                      exp_id[m_PHI_MODULE_INDEX],
+                                      exp_id[m_ETA_MODULE_INDEX]);
+            if (get_hash(id, hash_id, &wcontext)) {
+                if(m_msgSvc) log << MSG::FATAL << " HGTD_ID::init_neighbors - unable to get hash, exp/compact "
+                                 << id.getString() << " " << show_to_string(id) << endmsg;
+                else std::cout << " FATAL HGTD_ID::init_neighbors - unable to get hash, exp/compact "
+                               << id.getString() << " " << show_to_string(id) << std::endl;
+                return (1);
+            }
+
+            // index for the subsequent arrays
+            unsigned short index = hash_id;
+            assert (hash_id < m_prev_phi_wafer_vec.size());
+            assert (hash_id < m_next_phi_wafer_vec.size());
+            assert (hash_id < m_prev_eta_wafer_vec.size());
+            assert (hash_id < m_next_eta_wafer_vec.size());
+            
+            if (pphi) {
+                // Get previous phi hash id
+                ExpandedIdentifier expId = exp_id;
+                expId[m_PHI_MODULE_INDEX] = previous_phi;
+                Identifier id = wafer_id (expId[m_ENDCAP_INDEX],
+                                          expId[m_LAYER_INDEX],
+                                          expId[m_PHI_MODULE_INDEX],
+                                          expId[m_ETA_MODULE_INDEX]);
+                if (get_hash(id, hash_id, &wcontext)) {
+                    if(m_msgSvc) log << MSG::FATAL << " HGTD_ID::init_neighbors - unable to get previous phi hash, exp/compact "
+                                     << id.getString() << " " << show_to_string(id) << endmsg;
+                    else std::cout << " FATAL HGTD_ID::init_neighbors - unable to get previous phi hash, exp/compact "
+                                   << id.getString() << " " << show_to_string(id) << std::endl;
+                    return (1);
+                }
+                m_prev_phi_wafer_vec[index] = hash_id;
+            }
+            
+            if (nphi) {
+                // Get next phi hash id
+                ExpandedIdentifier expId = exp_id;
+                expId[m_PHI_MODULE_INDEX] = next_phi;
+                Identifier id = wafer_id (expId[m_ENDCAP_INDEX],
+                                          expId[m_LAYER_INDEX],
+                                          expId[m_PHI_MODULE_INDEX],
+                                          expId[m_ETA_MODULE_INDEX]);
+                if (get_hash(id, hash_id, &wcontext)) {
+                    if(m_msgSvc) log << MSG::FATAL << " HGTD_ID::init_neighbors - unable to get next phi hash, exp/compact " <<
+                                     id.getString() << " " << show_to_string(id) << endmsg;
+                    else std::cout << " FATAL HGTD_ID::init_neighbors - unable to get next phi hash, exp/compact " <<
+                             id.getString() << " " << show_to_string(id) << std::endl;
+                    return (1);
+                }
+                m_next_phi_wafer_vec[index] = hash_id;
+            }
+            
+            if (peta) {
+                // Get previous eta hash id
+                ExpandedIdentifier expId = exp_id;
+                expId[m_ETA_MODULE_INDEX] = previous_eta;
+                Identifier id = wafer_id (expId[m_ENDCAP_INDEX],
+                                          expId[m_LAYER_INDEX],
+                                          expId[m_PHI_MODULE_INDEX],
+                                          expId[m_ETA_MODULE_INDEX]);
+                if (get_hash(id, hash_id, &wcontext)) {
+                    if(m_msgSvc) log << MSG::FATAL << " HGTD_ID::init_neighbors - unable to get previous eta hash, exp/compact "
+                                     << id.getString() << " " << show_to_string(id) << endmsg;
+                    else std::cout << " FATAL HGTD_ID::init_neighbors - unable to get previous eta hash, exp/compact "
+                                   << id.getString() << " " << show_to_string(id) << std::endl;
+                    return (1);
+                }
+                m_prev_eta_wafer_vec[index] = hash_id;
+            }
+            
+            if (neta) {
+                // Get next eta hash id
+                ExpandedIdentifier expId = exp_id;
+                expId[m_ETA_MODULE_INDEX] = next_eta;
+                Identifier id = wafer_id (expId[m_ENDCAP_INDEX],
+                                          expId[m_LAYER_INDEX],
+                                          expId[m_PHI_MODULE_INDEX],
+                                          expId[m_ETA_MODULE_INDEX]);
+                if (get_hash(id, hash_id, &wcontext)) {
+                    if(m_msgSvc) log << MSG::FATAL << " HGTD_ID::init_neighbors - unable to get next eta hash, exp/compact "
+                                     << id.getString() << " " << show_to_string(id) << endmsg;
+                    else std::cout << " FATAL HGTD_ID::init_neighbors - unable to get next eta hash, exp/compact "
+                                   << id.getString() << " " << show_to_string(id) << std::endl;
+                    return (1);
+                }
+                m_next_eta_wafer_vec[index] = hash_id;
+            }
+            
+
+//          std::cout << " HGTD_ID::init_neighbors "
+//                    << " phi, previous, next " << id[m_PHI_MODULE_INDEX]
+//                    << " " << pphi
+//                    << " " << previous_phi
+//                    << " " << nphi
+//                    << " " << next_phi
+//                    << " eta, previous, next " << id[m_ETA_MODULE_INDEX]
+//                    << " " << peta
+//                    << " " << previous_eta
+//                    << " " << neta
+//                    << " " << next_eta
+//                    << " id " << (std::string)(*first)
+//                    << std::endl;
+        }
+    }
+    return (0);
+}
+
+int
 HGTD_ID::initLevelsFromDict(void)
 {
 
@@ -425,11 +602,9 @@ HGTD_ID::initLevelsFromDict(void)
     m_INDET_INDEX               = 999;
     m_HGTD_INDEX                = 999;
     m_ENDCAP_INDEX              = 999;
-    m_DISK_INDEX                = 999;
-    m_SIDE_INDEX                = 999;
-    m_QUADRANT_INDEX            = 999;
-    m_ROW_INDEX                 = 999;
-    m_MODULE_INDEX              = 999;
+    m_LAYER_INDEX               = 999;
+    m_PHI_MODULE_INDEX          = 999;
+    m_ETA_MODULE_INDEX          = 999;
     m_PHI_INDEX_INDEX           = 999;
     m_ETA_INDEX_INDEX           = 999;
 
@@ -469,76 +644,58 @@ HGTD_ID::initLevelsFromDict(void)
         return (1);
     }
 
-    field = m_dict->find_field("endcap");
+    field = m_dict->find_field("hgtd_endcap");
     if (field) {
         m_ENDCAP_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'endcap' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'endcap' field "  << std::endl;   
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_endcap' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_endcap' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("disk");
+    field = m_dict->find_field("hgtd_layer");
     if (field) {
-        m_DISK_INDEX = field->m_index;
+        m_LAYER_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'disk' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'disk' field "  << std::endl;   
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_layer' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_layer' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("side");
+    field = m_dict->find_field("hgtd_phi_module");
     if (field) {
-        m_SIDE_INDEX = field->m_index;
+        m_PHI_MODULE_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'side' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'side' field "  << std::endl;   
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_phi_module' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_phi_module' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("quadrant");
+    field = m_dict->find_field("hgtd_eta_module");
     if (field) {
-        m_QUADRANT_INDEX = field->m_index;
+        m_ETA_MODULE_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'quadrant' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'quadrant' field "  << std::endl;   
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_eta_module' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_eta_module' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("row");
-    if (field) {
-        m_ROW_INDEX = field->m_index;
-    }
-    else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'row' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'row' field "  << std::endl;   
-        return (1);
-    }
-    field = m_dict->find_field("module");
-    if (field) {
-        m_MODULE_INDEX = field->m_index;
-    }
-    else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'module' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'module' field "  << std::endl;   
-        return (1);
-    }
-    field = m_dict->find_field("phi_index");
+    field = m_dict->find_field("hgtd_phi_index");
     if (field) {
         m_PHI_INDEX_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'phi_index' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'phi_index' field "  << std::endl;   
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_phi_index' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_phi_index' field "  << std::endl;   
         return (1);
     }
-    field = m_dict->find_field("eta_index");
+    field = m_dict->find_field("hgtd_eta_index");
     if (field) {
         m_ETA_INDEX_INDEX = field->m_index;
     }
     else {
-        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'eta_index' field "  << endmsg;     
-        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'eta_index' field "  << std::endl;   
+        if(m_msgSvc) log << MSG::FATAL << "HGTD_ID::initLevelsFromDict - unable to find 'hgtd_eta_index' field "  << endmsg;     
+        else std::cout << " FATAL HGTD_ID::initLevelsFromDict - unable to find 'hgtd_eta_index' field "  << std::endl;   
         return (1);
     }
 
@@ -549,11 +706,9 @@ HGTD_ID::initLevelsFromDict(void)
     m_indet_impl      = region.m_implementation[m_INDET_INDEX];
     m_hgtd_impl       = region.m_implementation[m_HGTD_INDEX];
     m_ec_impl         = region.m_implementation[m_ENDCAP_INDEX];
-    m_disk_impl       = region.m_implementation[m_DISK_INDEX];
-    m_side_impl       = region.m_implementation[m_SIDE_INDEX];
-    m_quad_impl       = region.m_implementation[m_QUADRANT_INDEX];
-    m_row_impl        = region.m_implementation[m_ROW_INDEX];
-    m_mod_impl        = region.m_implementation[m_MODULE_INDEX];
+    m_layer_impl      = region.m_implementation[m_LAYER_INDEX];
+    m_phi_mod_impl    = region.m_implementation[m_PHI_MODULE_INDEX];
+    m_eta_mod_impl    = region.m_implementation[m_ETA_MODULE_INDEX];
     m_phi_index_impl  = region.m_implementation[m_PHI_INDEX_INDEX];
     m_eta_index_impl  = region.m_implementation[m_ETA_INDEX_INDEX];
 
@@ -562,11 +717,9 @@ HGTD_ID::initLevelsFromDict(void)
         log << MSG::DEBUG << "indet     "  << m_indet_impl.show_to_string() << endmsg;
         log << MSG::DEBUG << "hgtd      "  << m_hgtd_impl.show_to_string() << endmsg;
         log << MSG::DEBUG << "ec        "  << m_ec_impl.show_to_string() << endmsg;
-        log << MSG::DEBUG << "disk      "  << m_disk_impl.show_to_string() << endmsg;
-        log << MSG::DEBUG << "side      "  << m_side_impl.show_to_string() << endmsg;
-        log << MSG::DEBUG << "quad      "  << m_quad_impl.show_to_string() << endmsg;
-        log << MSG::DEBUG << "row       "  << m_row_impl.show_to_string() << endmsg;
-        log << MSG::DEBUG << "mod       "  << m_mod_impl.show_to_string() << endmsg;
+        log << MSG::DEBUG << "layer     "  << m_layer_impl.show_to_string() << endmsg;
+        log << MSG::DEBUG << "phi_mod   "  << m_phi_mod_impl.show_to_string() << endmsg;
+        log << MSG::DEBUG << "eta_mod   "  << m_eta_mod_impl.show_to_string() << endmsg;
         log << MSG::DEBUG << "phi_index "  << m_phi_index_impl.show_to_string() << endmsg;
         log << MSG::DEBUG << "eta_index "  << m_eta_index_impl.show_to_string() << endmsg;
     }
@@ -575,11 +728,9 @@ HGTD_ID::initLevelsFromDict(void)
         std::cout << " DEBUG indet     "  << m_indet_impl.show_to_string() << std::endl;
         std::cout << " DEBUG hgtd      "  << m_hgtd_impl.show_to_string() << std::endl;
         std::cout << " DEBUG ec        "  << m_ec_impl.show_to_string() << std::endl;
-        std::cout << " DEBUG disk      "  << m_disk_impl.show_to_string() << std::endl;
-        std::cout << " DEBUG side      "  << m_side_impl.show_to_string() << std::endl;
-        std::cout << " DEBUG quad      "  << m_quad_impl.show_to_string() << std::endl;
-        std::cout << " DEBUG row       "  << m_row_impl.show_to_string() << std::endl;
-        std::cout << " DEBUG mod       "  << m_mod_impl.show_to_string() << std::endl;
+        std::cout << " DEBUG layer     "  << m_layer_impl.show_to_string() << std::endl;
+        std::cout << " DEBUG phi_mod   "  << m_phi_mod_impl.show_to_string() << std::endl;
+        std::cout << " DEBUG eta_mod   "  << m_eta_mod_impl.show_to_string() << std::endl;
         std::cout << " DEBUG phi_index "  << m_phi_index_impl.show_to_string() << std::endl;
         std::cout << " DEBUG eta_index "  << m_eta_index_impl.show_to_string() << std::endl;
     }
@@ -605,41 +756,27 @@ HGTD_ID::initLevelsFromDict(void)
             << std::dec << m_ec_impl.shift() 
             << " " << m_ec_impl.bits() << " " << m_ec_impl.bits_offset() << " ";
     m_ec_impl.ored_field().show();
-    std::cout << "disk "  << m_disk_impl.decode_index() << " " 
-            << (std::string)m_disk_impl.ored_field() << " " 
-            << std::hex << m_disk_impl.mask() << " " 
-            << m_disk_impl.zeroing_mask() << " " 
-            << std::dec << m_disk_impl.shift() 
-            << " " << m_disk_impl.bits() << " " << m_disk_impl.bits_offset() << " ";
-    m_disk_impl.ored_field().show();
-    std::cout << "side "  << m_side_impl.decode_index() << " " 
-            << (std::string)m_side_impl.ored_field() << " " 
-            << std::hex << m_side_impl.mask() << " " 
-            << m_side_impl.zeroing_mask() << " " 
-            << std::dec << m_side_impl.shift() 
-            << " " << m_side_impl.bits() << " " << m_side_impl.bits_offset() << " ";
-    m_side_impl.ored_field().show();
-    std::cout << "quad "  << m_quad_impl.decode_index() << " " 
-            << (std::string)m_quad_impl.ored_field() << " " 
-            << std::hex << m_quad_impl.mask() << " " 
-            << m_quad_impl.zeroing_mask() << " " 
-            << std::dec << m_quad_impl.shift() 
-            << " " << m_quad_impl.bits() << " " << m_quad_impl.bits_offset() << " ";
-    m_quad_impl.ored_field().show();
-    std::cout << "row "  << m_row_impl.decode_index() << " " 
-            << (std::string)m_row_impl.ored_field() << " " 
-            << std::hex << m_row_impl.mask() << " " 
-            << m_row_impl.zeroing_mask() << " " 
-            << std::dec << m_row_impl.shift() 
-            << " " << m_row_impl.bits() << " " << m_row_impl.bits_offset() << " ";
-    m_row_impl.ored_field().show();
-    std::cout << "mod "  << m_mod_impl.decode_index() << " " 
-            << (std::string)m_mod_impl.ored_field() << " " 
-            << std::hex << m_mod_impl.mask() << " " 
-            << m_mod_impl.zeroing_mask() << " " 
-            << std::dec << m_mod_impl.shift() 
-            << " " << m_mod_impl.bits() << " " << m_mod_impl.bits_offset() << " ";
-    m_mod_impl.ored_field().show();
+    std::cout << "layer "  << m_layer_impl.decode_index() << " " 
+            << (std::string)m_layer_impl.ored_field() << " " 
+            << std::hex << m_layer_impl.mask() << " " 
+            << m_layer_impl.zeroing_mask() << " " 
+            << std::dec << m_layer_impl.shift() 
+            << " " << m_layer_impl.bits() << " " << m_layer_impl.bits_offset() << " ";
+    m_layer_impl.ored_field().show();
+    std::cout << "phi_mod "  << m_phi_mod_impl.decode_index() << " " 
+            << (std::string)m_phi_mod_impl.ored_field() << " " 
+            << std::hex << m_phi_mod_impl.mask() << " " 
+            << m_phi_mod_impl.zeroing_mask() << " " 
+            << std::dec << m_phi_mod_impl.shift() 
+            << " " << m_phi_mod_impl.bits() << " " << m_phi_mod_impl.bits_offset() << " ";
+    m_phi_mod_impl.ored_field().show();
+    std::cout << "eta_mod "  << m_eta_mod_impl.decode_index() << " " 
+            << (std::string)m_eta_mod_impl.ored_field() << " " 
+            << std::hex << m_eta_mod_impl.mask() << " " 
+            << m_eta_mod_impl.zeroing_mask() << " " 
+            << std::dec << m_eta_mod_impl.shift() 
+            << " " << m_eta_mod_impl.bits() << " " << m_eta_mod_impl.bits_offset() << " ";
+    m_eta_mod_impl.ored_field().show();
     std::cout << "phi_index "  << m_phi_index_impl.decode_index() << " " 
             << (std::string)m_phi_index_impl.ored_field() << " " 
             << std::hex << m_phi_index_impl.mask() << " " 
@@ -660,11 +797,9 @@ HGTD_ID::initLevelsFromDict(void)
     std::cout << "subdet        "      << m_INDET_INDEX        << std::endl;
     std::cout << "part          "      << m_HGTD_INDEX         << std::endl;
     std::cout << "endcap        "      << m_ENDCAP_INDEX       << std::endl;
-    std::cout << "disk          "      << m_DISK_INDEX         << std::endl;
-    std::cout << "side          "      << m_SIDE_INDEX         << std::endl;
-    std::cout << "quadrant      "      << m_QUADRANT_INDEX     << std::endl;
-    std::cout << "row           "      << m_ROW_INDEX          << std::endl;
-    std::cout << "module        "      << m_MODULE_INDEX       << std::endl;
+    std::cout << "layer         "      << m_LAYER_INDEX        << std::endl;
+    std::cout << "phi_module    "      << m_PHI_MODULE_INDEX   << std::endl;
+    std::cout << "eta_module    "      << m_ETA_MODULE_INDEX   << std::endl;
     std::cout << "phi_index     "      << m_PHI_INDEX_INDEX    << std::endl;
     std::cout << "eta_index     "      << m_ETA_INDEX_INDEX    << std::endl;
 
@@ -712,11 +847,9 @@ HGTD_ID::get_expanded_id        (const Identifier& id,
     exp_id << indet_field_value()
            << hgtd_field_value()
            << endcap(id)
-           << disk(id)
-           << side(id)
-           << quadrant(id)
-           << row(id)
-           << module(id);
+           << layer(id)
+           << phi_module(id)
+           << eta_module(id);
     if(!context || context->end_index() == m_ETA_INDEX_INDEX) {
         exp_id << phi_index(id)
                << eta_index(id);
@@ -736,7 +869,7 @@ HGTD_ID::get_id (const IdentifierHash& hash_id,
     size_t end   = (context) ? context->end_index()  : 0; 
     if (0 == begin) { 
         // No hashes yet for ids with prefixes
-        if (m_MODULE_INDEX == end) {
+        if (m_ETA_MODULE_INDEX == end) {
             if (hash_id < (unsigned int)(m_wafer_vec.end() - m_wafer_vec.begin())) {
                 id = m_wafer_vec[hash_id];
                 result = 0;
@@ -769,7 +902,7 @@ HGTD_ID::get_hash       (const Identifier& id,
     size_t end   = (context) ? context->end_index()  : 0;
     if (0 == begin) {
         // No hashes yet for ids with prefixes
-        if (m_MODULE_INDEX  == end) {
+        if (m_ETA_MODULE_INDEX  == end) {
             hash_id = wafer_hash(id);
             if (hash_id.is_valid()) result = 0;
         }
@@ -801,11 +934,9 @@ HGTD_ID::test_wafer_packing     (void) const
             ExpandedIdentifier expId;
             get_expanded_id(id, expId, &context);
             Identifier new_id = wafer_id (expId[m_ENDCAP_INDEX],
-                                          expId[m_DISK_INDEX], 
-                                          expId[m_SIDE_INDEX],
-                                          expId[m_QUADRANT_INDEX],
-                                          expId[m_ROW_INDEX],
-                                          expId[m_MODULE_INDEX]);
+                                          expId[m_LAYER_INDEX],
+                                          expId[m_PHI_MODULE_INDEX],
+                                          expId[m_ETA_MODULE_INDEX]);
             if (id != new_id) {
                 if(m_msgSvc) log << MSG::ERROR << "HGTD_ID::test_wafer_packing: new and old compact id not equal. New/old/expanded ids "
                                  << show_to_string(new_id) << " " << show_to_string(id) << " "
@@ -826,11 +957,9 @@ HGTD_ID::test_wafer_packing     (void) const
             ExpandedIdentifier new_exp_id;
 
             Identifier id = wafer_id (exp_id[m_ENDCAP_INDEX],
-                                      exp_id[m_DISK_INDEX], 
-                                      exp_id[m_SIDE_INDEX],
-                                      exp_id[m_QUADRANT_INDEX],
-                                      exp_id[m_ROW_INDEX],
-                                      exp_id[m_MODULE_INDEX]);
+                                      exp_id[m_LAYER_INDEX], 
+                                      exp_id[m_PHI_MODULE_INDEX],
+                                      exp_id[m_ETA_MODULE_INDEX]);
 
             get_expanded_id(id, new_exp_id, &context);
             if (exp_id[0] != new_exp_id[0] ||
@@ -838,9 +967,7 @@ HGTD_ID::test_wafer_packing     (void) const
                 exp_id[2] != new_exp_id[2] ||
                 exp_id[3] != new_exp_id[3] ||
                 exp_id[4] != new_exp_id[4] ||
-                exp_id[5] != new_exp_id[5] ||
-                exp_id[6] != new_exp_id[6] ||
-                exp_id[7] != new_exp_id[7]) {
+                exp_id[5] != new_exp_id[5]) {
                 if(m_msgSvc) log << MSG::ERROR << "HGTD_ID::test_wafer_packing: new and old expanded ids not equal. New/old/compact ids "
                                  << (std::string)new_exp_id 
                                  << " " << (std::string)exp_id 
@@ -852,19 +979,15 @@ HGTD_ID::test_wafer_packing     (void) const
             }
 
             Identifier pid = pixel_id (exp_id[m_ENDCAP_INDEX],
-                                       exp_id[m_DISK_INDEX], 
-                                       exp_id[m_SIDE_INDEX],
-                                       exp_id[m_QUADRANT_INDEX],
-                                       exp_id[m_ROW_INDEX],
-                                       exp_id[m_MODULE_INDEX],
+                                       exp_id[m_LAYER_INDEX], 
+                                       exp_id[m_PHI_MODULE_INDEX],
+                                       exp_id[m_ETA_MODULE_INDEX],
                                        exp_id[m_PHI_INDEX_INDEX],
                                        exp_id[m_ETA_INDEX_INDEX]);
             Identifier pid1 = pixel_id (endcap(pid),
-                                        disk(pid),
-                                        side(pid),
-                                        quadrant(pid),
-                                        row(pid),
-                                        module(pid),
+                                        layer(pid),
+                                        phi_module(pid),
+                                        eta_module(pid),
                                         phi_index(pid),
                                         eta_index(pid));
             if (pid != pid1) {

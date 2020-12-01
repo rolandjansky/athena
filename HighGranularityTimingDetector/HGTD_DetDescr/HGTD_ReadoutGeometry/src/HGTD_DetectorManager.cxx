@@ -71,9 +71,9 @@ HGTD_DetectorElement* HGTD_DetectorManager::getDetectorElement(const IdentifierH
     return m_elementCollection[idHash];
 }
 
-HGTD_DetectorElement* HGTD_DetectorManager::getDetectorElement(int endcap, int disk, int side, int quadrant, int row, int module) const
+HGTD_DetectorElement* HGTD_DetectorManager::getDetectorElement(int endcap, int layer, int phi_module, int eta_module) const
 {
-    return getDetectorElement(m_idHelper->wafer_id(endcap, disk, side, quadrant, row, module));
+    return getDetectorElement(m_idHelper->wafer_id(endcap, layer, phi_module, eta_module));
 }
 
 const HGTD_DetectorElementCollection* HGTD_DetectorManager::getDetectorElementCollection() const
