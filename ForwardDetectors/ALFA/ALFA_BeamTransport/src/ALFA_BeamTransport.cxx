@@ -212,14 +212,14 @@ StatusCode ALFA_BeamTransport::execute()
 ///////////////
 void ALFA_BeamTransport::MeVToGeV (HepMC::GenEvent* evt)
 {
-  for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
+  for (auto p:  *evt) {
     // std::cout << " PDG, BAR " << (*p)->pdg_id() << " " << (*p)->barcode() << std::endl;
-    const HepMC::FourVector fv((*p)->momentum().px() / 1000.,
-			       (*p)->momentum().py() / 1000.,
-			       (*p)->momentum().pz() / 1000.,
-			       (*p)->momentum().e() / 1000.);
+    const HepMC::FourVector fv(p->momentum().px() / 1000.,
+			       p->momentum().py() / 1000.,
+			       p->momentum().pz() / 1000.,
+			       p->momentum().e() / 1000.);
     
-    (*p)->set_momentum( fv);
+    p->set_momentum( fv);
   }
 }
 
@@ -227,13 +227,13 @@ void ALFA_BeamTransport::MeVToGeV (HepMC::GenEvent* evt)
 ///////////////
 void ALFA_BeamTransport::GeVToMeV (HepMC::GenEvent* evt)
 {
-     for ( HepMC::GenEvent::particle_iterator p = evt->particles_begin(); p != evt->particles_end(); ++p ) {
-	  const HepMC::FourVector fv((*p)->momentum().px() * 1000.,
-				      (*p)->momentum().py() * 1000.,
-				      (*p)->momentum().pz() * 1000.,
-				      (*p)->momentum().e() * 1000.);
+     for ( auto p: *evt) {
+	  const HepMC::FourVector fv(p->momentum().px() * 1000.,
+				      p->momentum().py() * 1000.,
+				      p->momentum().pz() * 1000.,
+				      p->momentum().e() * 1000.);
 				      
-				      (*p)->set_momentum( fv);
+				      p->set_momentum( fv);
      }
 }
 
