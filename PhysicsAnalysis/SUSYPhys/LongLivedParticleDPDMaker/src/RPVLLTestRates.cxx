@@ -61,13 +61,12 @@ StatusCode RPVLLTestRates::execute() {
   if (m_EventCounter==0) {
 
     ////////// first event! ////////////////////////
-    const SkimDecisionCollection *SDcoll = 0;
-    StatusCode sc = evtStore()->retrieve(SDcoll, "StreamDESDM_RPVLL_SkimDecisionsContainer");
-    if (sc.isSuccess()) {
+    SG::ReadHandle<SkimDecisionCollection> SDcoll("StreamDESDM_RPVLL_SkimDecisionsContainer");
+    if (SDcoll.isValid()) {
       std::cout<<"nick - booking skimPasshist"<<std::endl;
       m_skimPassHist = new TH1F("skim","skim",SDcoll->size(), 0.,(float)SDcoll->size());
       m_twoDskimHist = new TH2F("skim2D","skim",SDcoll->size(),0.,(float)SDcoll->size(),SDcoll->size(), 0.,(float)SDcoll->size());
-      sc = m_tHistSvc->regHist("/AANT/skimPass",m_skimPassHist);
+      StatusCode sc = m_tHistSvc->regHist("/AANT/skimPass",m_skimPassHist);
       if (sc.isFailure()) msg(MSG::ERROR)<<"Failed to book TH1"<<endmsg;
       sc = m_tHistSvc->regHist("/AANT/skimPass2D",m_twoDskimHist);
       if (sc.isFailure()) msg(MSG::ERROR)<<"Failed to book TH1"<<endmsg;
@@ -97,11 +96,10 @@ StatusCode RPVLLTestRates::execute() {
   
   
   //// these are the ones that are useful for RPVLL filters
-  const SkimDecisionCollection *SDcoll = 0;
-  StatusCode sc = evtStore()->retrieve(SDcoll, "StreamDESDM_RPVLL_SkimDecisionsContainer");
+  SG::ReadHandle<SkimDecisionCollection> SDcoll("StreamDESDM_RPVLL_SkimDecisionsContainer");
   int isAc=0;
 
-  if (sc.isSuccess()){
+  if (SDcoll.isValid()) {
     SkimDecisionCollection::const_iterator itr=SDcoll->begin(), itrEnd = SDcoll->end();
     int filterCount = 0;
     for(; itr != itrEnd; itr++) {
