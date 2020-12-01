@@ -161,10 +161,15 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	m_outerMarkers.clear();
 
 	for(int layerJ=0;layerJ<nLayers;layerJ++) {
-	    
-	  if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
-	  
+
 	  bool isPixel2 = (m_settings.m_layerGeometry[layerJ].m_subdet == 1);
+
+	  if((!m_settings.m_tripletDoPSS) && (!m_settings.m_tripletDoPPS)) {//no mixed seeds allowed
+	    if(isSct && isPixel2) continue;//no PSx
+	    if((!isSct) && (!isPixel2)) continue;//no xPS
+	  }
+	  
+	  if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
 	    
 	  bool checkPSS = (!m_settings.m_tripletDoPSS) && (isSct && isPixel2);
 
@@ -270,9 +275,15 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
 
 	    for(int layerJ=0;layerJ<nLayers;layerJ++) {//loop over other layers
 
-	      if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
-
 	      bool isPixel2 = (m_settings.m_layerGeometry[layerJ].m_subdet == 1);
+
+	      if((!m_settings.m_tripletDoPSS) && (!m_settings.m_tripletDoPPS)) {//no mixed seeds allowed
+		if(isSct && isPixel2) continue;//no PSx
+		if((!isSct) && (!isPixel2)) continue;//no xPS
+	      }
+
+	      if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
+	      
 	      bool checkPSS = (!m_settings.m_tripletDoPSS) && (isSct && isPixel2);
 
 	      for(auto phiJ : phiVec) {

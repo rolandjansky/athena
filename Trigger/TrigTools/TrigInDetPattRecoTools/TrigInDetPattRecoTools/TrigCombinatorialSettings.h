@@ -26,6 +26,7 @@ public:
     m_tripletD0_PPS_Max = 1.7; 
     m_tripletPtMin      = 2500.0;//was 1000.0
     m_tripletDoPSS      = false; // Allow Pixel SCT SCT seeds?
+    m_tripletDoPPS      = true; // Allow Pixel Pixel SCT seeds?
     m_doubletFilterRZ   = true;
     m_tripletDtCut      = 3.0;//in sigmas of mult.scattering for m_tripletPtMin track at eta=0
     m_magFieldZ = 2.0;//switch to configured value
@@ -47,6 +48,7 @@ public:
   float m_tripletPtMin;
   float m_seedRadBinWidth;
   bool  m_tripletDoPSS;
+  bool  m_tripletDoPPS;
   bool  m_doubletFilterRZ;
   float m_tripletDtCut;
   int m_nMaxPhiSlice;
