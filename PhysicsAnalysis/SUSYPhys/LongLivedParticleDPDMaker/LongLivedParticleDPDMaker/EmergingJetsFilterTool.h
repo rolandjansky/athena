@@ -17,6 +17,8 @@
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
+#include "xAODJet/JetContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -47,10 +49,10 @@ namespace DerivationFramework {
   private:
     ToolHandle< Trig::TrigDecisionTool > m_tdt;
     std::vector< std::string > m_triggers;
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
-    mutable unsigned int m_nptpass;
-    std::string m_jetSGKey;
+    mutable std::atomic<unsigned int> m_ntot;
+    mutable std::atomic<unsigned int> m_npass;
+    mutable std::atomic<unsigned int> m_nptpass;
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetSGKey { this, "JetContainerKey", "AntiKt4EMTopoJets", ""};
 
     double m_ptCut;
     double m_etaCut;

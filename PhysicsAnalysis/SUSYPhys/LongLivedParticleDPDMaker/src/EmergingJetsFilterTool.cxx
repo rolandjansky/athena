@@ -9,7 +9,6 @@
 #include "LongLivedParticleDPDMaker/EmergingJetsFilterTool.h"
 #include <vector>
 #include <string>
-#include "xAODJet/JetContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "TrigDecisionTool/ChainGroup.h"
@@ -25,7 +24,6 @@ DerivationFramework::EmergingJetsFilterTool::EmergingJetsFilterTool( const std::
   m_ntot(0),
   m_npass(0),
   m_nptpass(0),
-  m_jetSGKey("AntiKt4EMTopoJets"),
   m_ptCut(100000.0),
   m_etaCut(2.5),
   m_nJetsRequired(4)
@@ -33,7 +31,6 @@ DerivationFramework::EmergingJetsFilterTool::EmergingJetsFilterTool( const std::
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("TrigDecisionTool", m_tdt, "Tool to access the trigger decision");
     declareProperty("Triggers", m_triggers = std::vector< std::string >());
-    declareProperty("JetContainerKey", m_jetSGKey);
     declareProperty("JetPtCut", m_ptCut);
     declareProperty("JetEtaCut", m_etaCut);
     declareProperty("nJetsRequired", m_nJetsRequired);
@@ -53,6 +50,7 @@ StatusCode DerivationFramework::EmergingJetsFilterTool::initialize()
        return StatusCode::FAILURE;
      }
      ATH_MSG_INFO("Retrieved tool: " << m_tdt);
+     ATH_CHECK(m_jetSGKey.initialize());
      
      return StatusCode::SUCCESS;
      
@@ -91,9 +89,8 @@ bool DerivationFramework::EmergingJetsFilterTool::eventPassesFilter() const
 
 
   // access jet container
-  const xAOD::JetContainer* jets(0);
-  StatusCode sc = evtStore()->retrieve(jets,m_jetSGKey);
-  if( sc.isFailure() || !jets ){
+  SG::ReadHandle<xAOD::JetContainer> jets(m_jetSGKey);
+  if( !jets.isValid() ) {
     msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
     return false;
   } 
