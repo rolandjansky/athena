@@ -3,12 +3,6 @@
 */
 
 #include "LongLivedParticleDPDMaker/KinkTrkSingleJetMetFilterTool.h"
-#include "xAODJet/JetContainer.h"
-#include "xAODMissingET/MissingETContainer.h"
-#include "xAODMuon/MuonContainer.h"
-#include "xAODEgamma/ElectronContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
-#include "xAODTracking/VertexContainer.h"
 #include "FourMomUtils/P4Helpers.h"
 #include <vector>
 
@@ -30,13 +24,9 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_LeptonVeto(false),
   m_isolatedTrack(false),
   m_metHtCut(-1),
-  m_jetSGKey("AntiKt4LCTopoJets"),
-  m_metSGKey("MET_RefFinal"),
   m_metTerm("Final"),
   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-  m_muonSGKey("Muons"),
   m_muonIDKey("Medium"),
-  m_electronSGKey("ElectronCollection"),
   m_electronIDKey("LHTight"),
   m_metCut(-1),
   m_jetPtCuts(std::vector<float>()),
@@ -52,12 +42,8 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
     declareProperty("LeptonVeto", m_LeptonVeto);
     declareProperty("IsolatedTrack", m_isolatedTrack);
     declareProperty("MetHtCut", m_metHtCut);
-    declareProperty("JetContainerKey", m_jetSGKey);
-    declareProperty("MetContainerKey", m_metSGKey);
     declareProperty("MetTerm", m_metTerm);
-    declareProperty("MuonContainerKey", m_muonSGKey);
     declareProperty("MuonIDKey", m_muonIDKey);
-    declareProperty("ElectronContainerKey", m_electronSGKey);
     declareProperty("ElectronIDKey", m_electronIDKey);
     declareProperty("MetCut", m_metCut);
     declareProperty("JetPtCuts", m_jetPtCuts);
@@ -78,8 +64,10 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::~KinkTrkSingleJetMetFilterTo
 StatusCode DerivationFramework::KinkTrkSingleJetMetFilterTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize() ...");
-
-  CHECK(m_muonSelectionTool.retrieve());
+  ATH_CHECK(m_jetSGKey.initialize());
+  ATH_CHECK(m_metSGKey.initialize());
+  ATH_CHECK(m_muonSGKey.initialize());
+  ATH_CHECK(m_electronSGKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -107,9 +95,12 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
 
 
   // Retrieve MET container 
-  const xAOD::MissingETContainer* metContainer(0);
   const xAOD::MissingET* met(0);
-  ATH_CHECK( evtStore()->retrieve(metContainer, m_metSGKey), false );
+  SG::ReadHandle<xAOD::MissingETContainer> metContainer(m_metSGKey);
+  if( !metContainer.isValid() ) {
+    msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
+    return false;
+  }
   met = (*metContainer)[m_metTerm];
   if (!met) {
     ATH_MSG_ERROR("Cannot retrieve MissingET term " << m_metTerm << " in " << m_metSGKey);
@@ -119,8 +110,11 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   if (met->met() < m_metCut) return acceptEvent; 
 
   // Loop over jets
-  const DataVector<xAOD::Jet>* jetContainer(0);
-  ATH_CHECK( evtStore()->retrieve(jetContainer, m_jetSGKey), false );
+  SG::ReadHandle<xAOD::JetContainer> jetContainer(m_jetSGKey);
+  if( !jetContainer.isValid() ) {
+    msg(MSG::WARNING) << "No jet container found, will skip this event" << endmsg;
+    return false;
+  }
   ATH_MSG_DEBUG("retrieved jet collection size "<< jetContainer->size());
 
   std::vector<const xAOD::Jet *> sortedJetContainer;
@@ -169,8 +163,11 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   // Lepton VETO
   if (m_LeptonVeto) {
     // Retrieve muon container	
-    const xAOD::MuonContainer* muons(0);
-    ATH_CHECK( evtStore()->retrieve(muons, m_muonSGKey), false );
+    SG::ReadHandle<xAOD::MuonContainer> muons(m_muonSGKey);
+    if( !muons.isValid() ) {
+      msg(MSG::WARNING) << "No muons container found, will skip this event" << endmsg;
+      return false;
+    }
     int qflag(0);
     if (m_muonIDKey == "VeryLoose") {
       qflag = xAOD::Muon::VeryLoose;
@@ -196,8 +193,11 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     }
 
     // Retrieve electron container	
-    const xAOD::ElectronContainer* electrons(0);
-    ATH_CHECK(evtStore()->retrieve(electrons, m_electronSGKey), false);
+    SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronSGKey);
+    if( !electrons.isValid() ) {
+      msg(MSG::WARNING) << "No electron container found, will skip this event" << endmsg;
+      return false;
+    }
     for (auto ele: *electrons) {
       bool passID(false);
       if (!ele->passSelection(passID, m_electronIDKey)) {
@@ -213,11 +213,17 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   if(m_isolatedTrack){
 
     // Find IsolatedTracklet
-    const xAOD::TrackParticleContainer *pixelTrackletContainer=NULL;
-    ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetDisappearingTrackParticles"), false );
+    SG::ReadHandle<xAOD::TrackParticleContainer> pixelTrackletContainer("InDetDisappearingTrackParticles");
+    if( !pixelTrackletContainer.isValid() ) {
+      msg(MSG::WARNING) << "No pixel tracklet container found, will skip this event" << endmsg;
+      return false;
+    }
  
-    const xAOD::VertexContainer* vertices(0);
-    ATH_CHECK( evtStore()->retrieve(vertices, "PrimaryVertices"), false );
+    SG::ReadHandle<xAOD::VertexContainer> vertices("PrimaryVertices");
+    if( !vertices.isValid() ) {
+      msg(MSG::WARNING) << "No primary vertices container found, will skip this event" << endmsg;
+      return false;
+    }
     const xAOD::Vertex* pv = 0;
     for( const auto& v: *vertices ){
       if( v->vertexType() == xAOD::VxType::PriVtx ){
@@ -286,8 +292,12 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
       return acceptEvent; // std track OFF
 
       bool passIsolatedStdTrack = false;
-      const xAOD::TrackParticleContainer *standardTrackContainer=NULL;
-      ATH_CHECK( evtStore()->retrieve(standardTrackContainer, "InDetTrackParticles"), false );
+      SG::ReadHandle<xAOD::TrackParticleContainer> standardTrackContainer("InDetTrackParticles");
+      if( !standardTrackContainer.isValid() ) {
+        msg(MSG::WARNING) << "No Standard Track container found, will skip this event" << endmsg;
+        return false;
+      }
+      
       
       for(const auto& StdTrack : *standardTrackContainer){
 	if(StdTrack->pt()/1000.0 < 20.0)

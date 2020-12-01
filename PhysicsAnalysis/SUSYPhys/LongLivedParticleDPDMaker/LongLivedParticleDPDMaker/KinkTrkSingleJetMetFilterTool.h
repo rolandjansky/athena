@@ -15,6 +15,13 @@
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODMissingET/MissingETContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
   class KinkTrkSingleJetMetFilterTool : public AthAlgTool, public ISkimmingTool {
@@ -34,20 +41,20 @@ namespace DerivationFramework {
     virtual bool eventPassesFilter() const;
     
   private:
-    mutable unsigned int m_ntot;
-    mutable unsigned int m_npass;
+    mutable std::atomic<unsigned int> m_ntot;
+    mutable std::atomic<unsigned int> m_npass;
     bool m_passAll;
     bool m_LeptonVeto;
     bool m_isolatedTrack;
     float m_metHtCut;
-    std::string m_jetSGKey;
-    std::string m_metSGKey;
     std::string m_metTerm;
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-    std::string m_muonSGKey;
     std::string m_muonIDKey;
-    std::string m_electronSGKey;
     std::string m_electronIDKey;
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetSGKey { this, "JetContainerKey", "AntiKt4LCTopoJets", ""};
+    SG::ReadHandleKey<xAOD::MissingETContainer> m_metSGKey { this, "MetContainerKey", "MET_RefFinal", ""};
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey { this, "MuonContainerKey", "Muons", ""};
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronSGKey { this, "ElectronContainerKey", "ElectronCollection", ""};
     float m_metCut;
     std::vector<float> m_jetPtCuts;
     float m_jetEtaMax;
