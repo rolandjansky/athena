@@ -5,7 +5,7 @@ atlas_subdir( PerfMonVTune )
 
 ####
 # VTune hack for the time-being
-find_program( VTUNE_EXECUTABLE amplxe-cl )
+find_program( VTUNE_EXECUTABLE vtune )
 get_filename_component( VTUNE_DIR ${VTUNE_EXECUTABLE} PATH )
 set( ITT_PREFIX ${VTUNE_DIR}/.. )
 
@@ -22,6 +22,6 @@ atlas_add_component( PerfMonVTune
                      LINK_LIBRARIES GaudiKernel AthenaBaseComps AthenaKernel ${ITT_LIBRARY} ${CMAKE_DL_LIBS} )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_joboptions( share/*.py )
-atlas_install_scripts( scripts/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_joboptions( share/*.py  POST_BUILD_CMD ${ATLAS_FLAKE8} )
+atlas_install_scripts( scripts/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
