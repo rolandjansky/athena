@@ -13,8 +13,7 @@ namespace top {
                                              xAOD::PartonHistory* tChannelSingleTopPartonHistory) {
     tChannelSingleTopPartonHistory->IniVarTChannelSingleTop();
 
-
-    //this part is exactly the same as in Wtb
+    //find top and its decay particles:
     TLorentzVector t_before, t_after;
     TLorentzVector antit_before, antit_after;
     TLorentzVector WfromTop;
@@ -28,6 +27,7 @@ namespace top {
                                                  WfromTopDecay1, WfromTopDecay1_pdgId, WfromTopDecay2,
                                                  WfromTopDecay2_pdgId);
 
+    //find anti-top and its decay particles:
     TLorentzVector WfromAntiTop;
     TLorentzVector bFromAntiTop;
     TLorentzVector WfromAntiTopDecay1;
@@ -39,10 +39,7 @@ namespace top {
                                                      bFromAntiTop, WfromAntiTopDecay1, WfromAntiTopDecay1_pdgId,
                                                      WfromAntiTopDecay2, WfromAntiTopDecay2_pdgId);
 
-
-
-
-    //change this part
+    //find spectatorquark:
     TLorentzVector spectatorquark_before;
     TLorentzVector spectatorquark_after;
 
@@ -83,7 +80,7 @@ namespace top {
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay2_from_top_phi") = WfromTopDecay2.Phi();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay2_from_top_m") = WfromTopDecay2.M();
       tChannelSingleTopPartonHistory->auxdecor< int >("MC_Wdecay2_from_top_pdgId") = WfromTopDecay2_pdgId;
-    } else if (!event_top && event_antitop) {
+    } else if ( !event_top && event_antitop) {
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_top_beforeFSR_pt") = antit_before.Pt();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_top_beforeFSR_eta") = antit_before.Eta();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_top_beforeFSR_phi") = antit_before.Phi();
@@ -117,7 +114,7 @@ namespace top {
       tChannelSingleTopPartonHistory->auxdecor< int >("MC_Wdecay2_from_top_pdgId") = WfromAntiTopDecay2_pdgId;
     }
 
-    if(event_sq){
+    if(((event_top && !event_antitop) || (!event_top && event_antitop)) && event_sq){
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_beforeFSR_pt") = spectatorquark_before.Pt();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_beforeFSR_eta") = spectatorquark_before.Eta();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_beforeFSR_phi") = spectatorquark_before.Phi();
@@ -125,12 +122,10 @@ namespace top {
       tChannelSingleTopPartonHistory->auxdecor< int >("MC_spectatorquark_pdgId") = spectatorquark_pdgId;
       tChannelSingleTopPartonHistory->auxdecor< int >("MC_spectatorquark_status") = spectatorquark_status;
 
-
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_pt") = spectatorquark_after.Pt();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_eta") = spectatorquark_after.Eta();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_phi") = spectatorquark_after.Phi();
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_m") = spectatorquark_after.M();
-
     }
   }
 
@@ -140,12 +135,8 @@ namespace top {
                                   int& spectatorquark_pdgId, int& spectatorquark_status) {
     bool hasSpectatorquark = false;
 
-    //identify quark which does not originate from a decaying W boson
+    //identify quark which does not originate from a decaying top quark -> W -> qq
     //should come from hard scattering process
-
-    ANA_MSG_INFO ("========================================================");
-    ANA_MSG_INFO ("new Event");
-
     float min_pt =0;
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle == nullptr) continue;
@@ -153,13 +144,13 @@ namespace top {
 
       ANA_MSG_INFO ("particle ID: \t" <<particle->pdgId() << "\t particle status: \t" <<particle->status() << "\t particle PT: \t" << particle->p4().Pt());
       for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) {
-
         if (particle->parent(iparent) == nullptr){
           continue;
         }
 
-        // we dont want quarks that have same pdgID as parent, since its a W interaction
+        // we dont want quarks that have same pdgID as parent, since its a W interaction it should change sign
         if (abs(particle->parent(iparent)->pdgId()) == abs(particle->pdgId())) continue;
+
         // we dont want quarks that come from top
         if (abs(particle->parent(iparent)->pdgId()) == 6) continue;
 
@@ -169,12 +160,8 @@ namespace top {
         // we dont want quarks that come from proton
         if (abs(particle->parent(iparent)->pdgId()) == 2212) continue;
 
-        ANA_MSG_INFO ("    parent ID: \t" << particle->parent(iparent)->pdgId() << "\t parent status: \t" <<particle->parent(iparent)->status() << "\t particle PT: \t" << particle->parent(iparent)->p4().Pt());
-
         if( particle->p4().Pt() > min_pt ) {
           min_pt= particle->p4().Pt();
-
-          ANA_MSG_INFO ("\t\t setting PT: \t" << min_pt);
 
           spectatorquark_beforeFSR = particle->p4();
           spectatorquark_pdgId = particle->pdgId();
@@ -182,19 +169,11 @@ namespace top {
           hasSpectatorquark = true;
 
           // find after FSR
-          ANA_MSG_INFO ("\t\tPT before FSR: \t" << spectatorquark_beforeFSR.Pt());
           particle = PartonHistoryUtils::findAfterFSR(particle);
           spectatorquark_afterFSR = particle->p4();
-          ANA_MSG_INFO ("\t\tPT before FSR: \t" << spectatorquark_beforeFSR.Pt());
-          ANA_MSG_INFO ("\t\tPT after FSR: \t" << spectatorquark_afterFSR.Pt());
-        }
-      }
-    }
-
-    ANA_MSG_INFO ("final spec quark: \t" <<spectatorquark_pdgId << "\t final spec quark status: \t" <<spectatorquark_status<< "\t final spec quark PT: \t" << spectatorquark_beforeFSR.Pt());
-
-
-
+        } //if
+      } // parent loop
+    } // particle loop
 
     if (hasSpectatorquark) return true;
 
