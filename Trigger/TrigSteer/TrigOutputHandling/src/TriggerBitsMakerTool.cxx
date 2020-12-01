@@ -11,8 +11,6 @@
 TriggerBitsMakerTool::TriggerBitsMakerTool(const std::string& type, const std::string& name, const IInterface* parent) :
   base_class(type, name, parent){}
 
-TriggerBitsMakerTool::~TriggerBitsMakerTool() {}
-
 StatusCode TriggerBitsMakerTool::initialize() {
 
   ATH_CHECK( m_finalChainDecisions.initialize() );
@@ -115,7 +113,7 @@ StatusCode TriggerBitsMakerTool::getBits(boost::dynamic_bitset<uint32_t>& passRa
     } else if (decisionObject->name() == "HLTPrescaled") {
       HLTPrescaled = decisionObject;
     }
-    if (HLTPassRaw && HLTPrescaled) {
+    if (HLTPassRaw != nullptr && HLTPrescaled != nullptr) {
       break;
     }
   }

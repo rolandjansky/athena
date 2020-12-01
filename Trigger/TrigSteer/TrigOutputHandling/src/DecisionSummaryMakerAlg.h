@@ -19,7 +19,7 @@
 class DecisionSummaryMakerAlg : public AthReentrantAlgorithm {
 public:
   DecisionSummaryMakerAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~DecisionSummaryMakerAlg() override;
+  virtual ~DecisionSummaryMakerAlg() override = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;

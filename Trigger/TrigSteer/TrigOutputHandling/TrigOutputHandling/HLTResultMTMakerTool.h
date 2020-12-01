@@ -19,7 +19,7 @@ public:
 
   virtual StatusCode fill( HLT::HLTResultMT& resultToFill, const EventContext& ctx ) const = 0;
   
-  virtual ~HLTResultMTMakerTool() override {}
+  virtual ~HLTResultMTMakerTool() override = default;
 }; 
 
 #endif // TRIGOUTPUTHANDLING_HLTRESULTMTMAKERTOOL_H
