@@ -15,6 +15,7 @@
 // This algorithm
 #include "TrigT2BeamSpot/T2VertexBeamSpotTool.h"
 #include "T2TrackClusterer.h"
+#include "T2TrackManager.h"
 #include "T2Timer.h"
 // Specific to this algorithm
 #include "TrigInDetEvent/TrigVertex.h"
@@ -232,12 +233,15 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
                                            DataVector< TrigVertexCollection >&  mySplitVertexCollections, const EventContext& ctx) const {
     ATH_MSG_DEBUG( "Reconstructing vertices" );
 
+   unsigned bcid = ctx.eventID().bunch_crossing_id();
+
    //Monitoring counters and timers
    auto timerVertexRec = Monitored::Timer("TIME_VertexReconstruction");
    auto nClusters      = Monitored::Scalar<unsigned>("NClusters", 0);
    auto nVtx           = Monitored::Scalar<unsigned>("Nvtx", 0);
    auto nPassVtx       = Monitored::Scalar<unsigned>("NvtxPass", 0);
    auto nPassBCIDVtx   = Monitored::Scalar<unsigned>("NvtxPassBCID", 0);
+   auto BCID           = Monitored::Scalar<unsigned>("BCID", bcid);
 
   // Make collections for vertex splitting (unsorted)
   ConstDataVector<TrackCollection> mySplitTrackCollection( mySelectedTrackCollection );
@@ -310,7 +314,6 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       ATH_MSG_DEBUG( "Total number of tracks to fit    = " << trackClusterer.cluster().size() );
       ATH_MSG_DEBUG( "Average Z position (from trk Z0) = " << trackClusterer.seedZ0()         );
       ATH_MSG_DEBUG( "Fitting tracks");
-      ATH_MSG_DEBUG( "Number of tracks remaining = " << mySelectedTrackCollection.size() );
 
       // Fit a primary vertex to this cluster around its seed track
       TrackCollection vertexTracks;
@@ -368,7 +371,7 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
          {
             ATH_MSG_DEBUG( "Splitting the entire cluster of tracks into two");
             // Alternative 1: Split the entire cluster of track into two
-            mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+            mySplitTrackCollection.clear( SG::VIEW_ELEMENTS );
             mySplitTrackCollection.assign (trackClusterer.cluster().begin(),
                   trackClusterer.cluster().end());
          }
@@ -376,7 +379,7 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
          {
             ATH_MSG_DEBUG( "Splitting only tracks succesfully fitted to a vertex");
             // Alternative 2: Split only the tracks that were successfully fit to a vertex
-            mySelectedTrackCollection.clear( SG::VIEW_ELEMENTS );
+            mySplitTrackCollection.clear( SG::VIEW_ELEMENTS );
             mySplitTrackCollection.assign (vertexTracks.begin(), vertexTracks.end());
          }
 
@@ -397,7 +400,7 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
 
       if ( passVertexBCID ) {
          // Fill accepted per-BCID vertex histograms 
-         monitor_vertex( "Vertex", "BCID", myVertex ); 
+         monitor_vertex( "Vertex", "PassBCID", myVertex, bcid );
 
          // Update good per-BCID vertex counter
          nPassBCIDVtx++;
@@ -406,7 +409,7 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
     }//End looping over tracks
 
   //monitor number of (passed) vertices, clusters, etc
-  auto mon = Monitored::Group(m_monTool,  nVtx, nPassVtx, nPassBCIDVtx, nClusters, timerVertexRec );
+  auto mon = Monitored::Group(m_monTool,  nVtx, nPassVtx, nPassBCIDVtx, nClusters, timerVertexRec, BCID );
   return static_cast<unsigned int>(nPassVtx);
 }
 
@@ -424,19 +427,22 @@ void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollec
      auto mon = Monitored::Group(m_monTool,  timeToSortTracks ); 
   }
 
+
   // This returns m_nSplitVertices (ideally) or fewer (if clustering fails) track collections
-  vector< ConstDataVector<TrackCollection> > splitTrackCollections = m_trackManager.split( *myFullTrackCollection.asDataVector(), ctx );
+  T2TrackManager trackManager(m_nSplitVertices);
+  vector< ConstDataVector<TrackCollection> > splitTrackCollections = trackManager.split( *myFullTrackCollection.asDataVector(), ctx );
 
   // Add a new track collection for the split vertices corresponding to this primary vertex
   // There can be anywhere between zero and m_nSplitVertices entries in the collection
-  std::unique_ptr<TrigVertexCollection>  splitVertices =  std::make_unique<TrigVertexCollection>();
-  mySplitVertexCollections.push_back( splitVertices.get() ); // passes ownership
+  TrigVertexCollection* splitVertices =  new TrigVertexCollection();
+  mySplitVertexCollections.push_back(splitVertices); // passes ownership
 
   // Loop over the split track collections to perform clustering and vertex fitting
 
   for ( vector< ConstDataVector<TrackCollection> >::iterator tracks = splitTrackCollections.begin(); 
         tracks != splitTrackCollections.end(); ++tracks ){
      TrigVertex* splitVertex = 0;
+     ATH_MSG_DEBUG( "split vertex # of tracks " << tracks->size());
 
      if ( m_reclusterSplit ) {
         // Sort the tracks in pT for clustering around the highest-pT seed
@@ -480,6 +486,8 @@ void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollec
         ATH_MSG_DEBUG( "Reconstructed a split vertex");
         // Add split vertex to collection
         splitVertices->push_back( splitVertex );  // passes ownership to split vertex collection
+     } else {
+        ATH_MSG_DEBUG( "Could not reconstruct a split vertex");
      }
   }
 
@@ -489,9 +497,9 @@ void T2VertexBeamSpotTool::reconstructSplitVertices( ConstDataVector<TrackCollec
 
      // Store information on the first two vertices
      // There shouldn't be more, unless it's for systematic studies anyway
-     const T2SplitVertex mySplitVertex( *(*splitVertices)[0], *(*splitVertices)[1] );
+     const T2SplitVertex splitVertex( *(*splitVertices)[0], *(*splitVertices)[1] );
 
-     //TODO Fill split vertex histograms
+     monitor_split_vertex("SplitVertex", "Pass", splitVertex);
   }
 
       //Monitor timing
@@ -579,8 +587,8 @@ void T2VertexBeamSpotTool::monitor_tracks(const std::string& prefix, const std::
 
 void T2VertexBeamSpotTool::monitor_cluster( const T2TrackClusterer& clusterer  ) const {
    auto  clusterZ                = Monitored::Scalar<double>("ClusterZ", clusterer.seedZ0()            );
-   auto  clusterNtracks          = Monitored::Scalar<int>("ClusterZ", clusterer.cluster().size()       );
-   auto  clusterNUnusedTracks    = Monitored::Scalar<int>("ClusterZ", clusterer.unusedTracks().size()  );
+   auto  clusterNtracks          = Monitored::Scalar<int>("ClusterNTracks", clusterer.cluster().size()       );
+   auto  clusterNUnusedTracks    = Monitored::Scalar<int>("ClusterNTracksUnused", clusterer.unusedTracks().size()  );
 
    auto mon = Monitored::Group(m_monTool, clusterZ, clusterNtracks, clusterNUnusedTracks ); 
 }
@@ -599,7 +607,7 @@ void T2VertexBeamSpotTool::monitor_cluster_tracks(T2TrackClusterer &clusterer, c
 
 
 
-void T2VertexBeamSpotTool::monitor_vertex(const std::string& prefix, const std::string& suffix, const T2Vertex &vertex ) const {
+void T2VertexBeamSpotTool::monitor_vertex(const std::string& prefix, const std::string& suffix, const T2Vertex &vertex, int bcid ) const {
 
    auto ntrk      = Monitored::Scalar<int>   ( prefix + "NTrks"      + suffix, vertex.NTrks()      ); 
    auto sumpt     = Monitored::Scalar<double>( prefix + "SumPt"      + suffix, vertex.SumPt()      ); 
@@ -620,10 +628,45 @@ void T2VertexBeamSpotTool::monitor_vertex(const std::string& prefix, const std::
    auto pull      = Monitored::Scalar<double>( prefix + "Pull"       + suffix, vertex.Pull()       ); 
    auto ntrkInVtx = Monitored::Scalar<double>( prefix + "NTrksInVtx" + suffix, vertex.NTrksInVtx() );
 
-   auto mon = Monitored::Group(m_monTool, ntrk, sumpt, sumpt2, mass, qual, chi2, x, y, z, xzoom, yzoom, zzoom, xerr, yerr, zerr, xy, pull, ntrkInVtx ); 
+   if (bcid >= 0) {
+      auto BCID = Monitored::Scalar<unsigned>("BCID", unsigned(bcid));
+      auto mon = Monitored::Group(m_monTool, ntrk, sumpt, sumpt2, mass, qual, chi2, x, y, z, xzoom, yzoom, zzoom, xerr, yerr, zerr, xy, pull, ntrkInVtx, BCID );
+   } else {
+      auto mon = Monitored::Group(m_monTool, ntrk, sumpt, sumpt2, mass, qual, chi2, x, y, z, xzoom, yzoom, zzoom, xerr, yerr, zerr, xy, pull, ntrkInVtx );
+   }
 }
 
-  
+
+void T2VertexBeamSpotTool::monitor_split_vertex(const std::string& prefix, const std::string& suffix, const T2SplitVertex& vertex) const {
+
+   auto ntrk1 = Monitored::Scalar<unsigned>( prefix + "1NTrks"   + suffix, vertex.vertex1().NTrks());
+   auto x1 = Monitored::Scalar<double>( prefix + "1X"       + suffix, vertex.vertex1().X());
+   auto y1 = Monitored::Scalar<double>( prefix + "1Y"       + suffix, vertex.vertex1().Y());
+   auto z1 = Monitored::Scalar<double>( prefix + "1Z"       + suffix, vertex.vertex1().Z());
+   auto x1err = Monitored::Scalar<double>( prefix + "1Xerr"    + suffix, vertex.vertex1().Xerr());
+   auto y1err = Monitored::Scalar<double>( prefix + "1Yerr"    + suffix, vertex.vertex1().Yerr());
+   auto z1err = Monitored::Scalar<double>( prefix + "1Zerr"    + suffix, vertex.vertex1().Zerr());
+   auto ntrk2 = Monitored::Scalar<unsigned>( prefix + "2NTrks"   + suffix, vertex.vertex2().NTrks());
+   auto x2 = Monitored::Scalar<double>( prefix + "2X"       + suffix, vertex.vertex2().X());
+   auto y2 = Monitored::Scalar<double>( prefix + "2Y"       + suffix, vertex.vertex2().Y());
+   auto z2 = Monitored::Scalar<double>( prefix + "2Z"       + suffix, vertex.vertex2().Z());
+   auto x2err = Monitored::Scalar<double>( prefix + "2Xerr"    + suffix, vertex.vertex2().Xerr());
+   auto y2err = Monitored::Scalar<double>( prefix + "2Yerr"    + suffix, vertex.vertex2().Yerr());
+   auto z2err = Monitored::Scalar<double>( prefix + "2Zerr"    + suffix, vertex.vertex2().Zerr());
+   auto dntrk = Monitored::Scalar<double>( prefix + "DNTrks"   + suffix, vertex.DNTrks());
+   auto dx = Monitored::Scalar<double>( prefix + "DX"       + suffix, vertex.DX());
+   auto dy = Monitored::Scalar<double>( prefix + "DY"       + suffix, vertex.DY());
+   auto dz = Monitored::Scalar<double>( prefix + "DZ"       + suffix, vertex.DZ());
+   auto dxerr = Monitored::Scalar<double>( prefix + "DXerr"    + suffix, vertex.DXerr());
+   auto dyerr = Monitored::Scalar<double>( prefix + "DYerr"    + suffix, vertex.DYerr());
+   auto dzerr = Monitored::Scalar<double>( prefix + "DZerr"    + suffix, vertex.DZerr());
+   auto dxpull = Monitored::Scalar<double>( prefix + "DXpull"   + suffix, vertex.DXpull());
+   auto dypull = Monitored::Scalar<double>( prefix + "DYpull"   + suffix, vertex.DYpull());
+   auto dzpull = Monitored::Scalar<double>( prefix + "DZpull"   + suffix, vertex.DZpull());
+
+   auto mon = Monitored::Group(m_monTool, ntrk1, x1, y1, z1, x1err, y1err, z1err, ntrk2, x2, y2, z2, x2err, y2err, z2err,
+                               dntrk, dx, dy, dz, dxerr, dyerr, dzerr, dxpull, dypull, dzpull);
+}
 
 
 
