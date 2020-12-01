@@ -926,6 +926,19 @@ class WriteDAOD_STDM12Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM12Stream)
 listAODtoDPD.append(WriteDAOD_STDM12Stream.StreamName)
 
+class WriteDAOD_STDM13Stream (JobProperty):
+    """W+D analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM13'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM13.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM13Stream)
+listAODtoDPD.append(WriteDAOD_STDM13Stream.StreamName)
+
 #################################
 # Defined by the Tau group
 #################################
