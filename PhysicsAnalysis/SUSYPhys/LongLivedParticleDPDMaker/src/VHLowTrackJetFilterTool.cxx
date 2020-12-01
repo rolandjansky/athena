@@ -7,14 +7,10 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "LongLivedParticleDPDMaker/VHLowTrackJetFilterTool.h"
-#include "xAODEgamma/ElectronContainer.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODJet/JetContainer.h"
-#include "xAODMuon/MuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
-#include "xAODTracking/VertexContainer.h"
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingUtilities.h"
 
@@ -32,7 +28,6 @@ m_nEventsPassMuon(0),
 m_nJetsPassAlphaMax(0),
 m_nJetsPassCHF(0),
 m_debug(true),
-m_jetSGKey("AntiKt4EMTopoJets"),
 m_jetPtCut(0),
 m_jetEtaCut(2.1),
 m_TrackMinPt(400.0),
@@ -41,11 +36,9 @@ m_TrackD0Max(0.5),
 m_AlphaMaxCut(0.05),
 m_CHFCut(0.045),
 m_nJetsReq(0),
-m_electronSGKey("Electrons"),
 m_electronIDKey("LHMedium"),
 m_electronPtCut(0),
 m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-m_muonSGKey("Muons"),
 m_muonIDKey("Medium"),
 m_muonPtCut(0)
 
@@ -54,7 +47,6 @@ m_muonPtCut(0)
   declareInterface<DerivationFramework::ISkimmingTool>(this);
   declareProperty("Debug", m_debug);
   
-  declareProperty("JetContainerKey", m_jetSGKey);
   declareProperty("JetPtCut", m_jetPtCut);
   declareProperty("JetEtaCut", m_jetEtaCut);
   declareProperty("TrackMinPt", m_TrackMinPt);
@@ -64,16 +56,23 @@ m_muonPtCut(0)
   declareProperty("JetCHFCut", m_CHFCut);
   declareProperty("NJetsRequired", m_nJetsReq);
   
-  declareProperty("ElectronContainerKey", m_electronSGKey);
   declareProperty("ElectronIDKey", m_electronIDKey);
   declareProperty("ElectronPtCut", m_electronPtCut);
   
-  declareProperty("MuonContainerKey", m_muonSGKey);
   declareProperty("MuonIDKey", m_muonIDKey);
   declareProperty("MuonPtCut", m_muonPtCut);
   
 }
 
+// Athena initialize
+StatusCode DerivationFramework::VHLowTrackJetFilterTool::initialize()
+{
+     ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_electronSGKey.initialize());
+     ATH_CHECK(m_muonSGKey.initialize());
+     ATH_CHECK(m_jetSGKey.initialize());
+     return StatusCode::SUCCESS;
+}
 // Athena finalize
 StatusCode DerivationFramework::VHLowTrackJetFilterTool::finalize()
 {
@@ -99,16 +98,14 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   bool passesEl=false, passesMu=false, passesJet=false;
   m_nEventsTotal++;
   
-  const xAOD::EventInfo* eventInfo(0);
-  StatusCode sc = evtStore()->retrieve(eventInfo,"EventInfo");
-  if (sc.isFailure()) {
+  SG::ReadHandle<xAOD::EventInfo> eventInfo("EventInfo"); 
+  if( !eventInfo.isValid() ) {
     ATH_MSG_ERROR( "Could not retrieve event info" );
   }
   
   //Vertex Container
-  const xAOD::VertexContainer* vertices(0);
-  sc = evtStore()->retrieve(vertices, "PrimaryVertices");
-  if (sc.isFailure()) {
+  SG::ReadHandle<xAOD::VertexContainer> vertices("PrimaryVertices"); 
+  if( !eventInfo.isValid() ) {
     ATH_MSG_FATAL("No vertex collection with name PrimaryVertices found in StoreGate!");
     return false;
   }
@@ -117,9 +114,8 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
 
 
   //electron portion
-  const xAOD::ElectronContainer* electrons(0);
-  sc = evtStore()->retrieve(electrons,m_electronSGKey);
-  if (sc.isFailure()) {
+  SG::ReadHandle<xAOD::ElectronContainer> electrons(m_electronSGKey); 
+  if( !electrons.isValid() ) {
     ATH_MSG_FATAL("No electron collection with name " << m_electronSGKey << " found in StoreGate!");
     return false;
   }
@@ -169,9 +165,8 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   
   //muon portion
 
-  const xAOD::MuonContainer* muons(0);
-  sc = evtStore()->retrieve(muons,m_muonSGKey);
-  if (sc.isFailure()) {
+  SG::ReadHandle<xAOD::MuonContainer> muons(m_muonSGKey); 
+  if( !muons.isValid() ) {
     ATH_MSG_FATAL("No muon collection with name " << m_muonSGKey << " found in StoreGate!");
     return false;
   }
@@ -215,9 +210,8 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   //Jet portion
   
   int nJetsPassed=0;
-  const xAOD::JetContainer* jets(0);
-  sc=evtStore()->retrieve(jets,m_jetSGKey);
-  if( sc.isFailure() || !jets ) {
+  SG::ReadHandle<xAOD::JetContainer> jets(m_jetSGKey); 
+  if( !jets.isValid() ) {
     ATH_MSG_WARNING("No Jet container found, will skip this event");
     return false;
   }
@@ -265,7 +259,6 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
     
     TLorentzVector CHFNum = TLorentzVector(0.0,0.0,0.0,0.0);
     const xAOD::BTagging *bjet(nullptr);
-    //bjet = jet->btagging();
     bjet = xAOD::BTaggingUtilities::getBTagging( *jet );
     TrackLinks assocTracks = bjet->auxdata<TrackLinks>("BTagTrackToJetAssociator");
     

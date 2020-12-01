@@ -19,6 +19,10 @@
 #include "DerivationFrameworkInterfaces/ISkimmingTool.h"
 
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODMuon/MuonContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 
 namespace DerivationFramework {
@@ -33,21 +37,22 @@ namespace DerivationFramework {
     virtual ~VHLowTrackJetFilterTool() = default;
     
     // Athena algtool's Hooks
+    StatusCode  initialize();
     StatusCode  finalize() override;
     
     /** Check that the current event passes this filter */
     virtual bool eventPassesFilter() const override;
     
   private:
-    mutable unsigned int m_nEventsTotal;
-    mutable unsigned int m_nEventsPass;
-    mutable unsigned int m_nEventsPassJet;
-    mutable unsigned int m_nEventsPassElectron;
-    mutable unsigned int m_nEventsPassMuon;
-    mutable unsigned int m_nJetsPassAlphaMax;
-    mutable unsigned int m_nJetsPassCHF;
+    mutable std::atomic<unsigned int> m_nEventsTotal;
+    mutable std::atomic<unsigned int> m_nEventsPass;
+    mutable std::atomic<unsigned int> m_nEventsPassJet;
+    mutable std::atomic<unsigned int> m_nEventsPassElectron;
+    mutable std::atomic<unsigned int> m_nEventsPassMuon;
+    mutable std::atomic<unsigned int> m_nJetsPassAlphaMax;
+    mutable std::atomic<unsigned int> m_nJetsPassCHF;
     bool m_debug;
-    std::string m_jetSGKey;
+    SG::ReadHandleKey<xAOD::JetContainer> m_jetSGKey { this, "JetContainerKey", "AntiKt4EMTopoJets", ""};
     float m_jetPtCut;
     float m_jetEtaCut;
     float m_TrackMinPt;
@@ -56,13 +61,14 @@ namespace DerivationFramework {
     float m_AlphaMaxCut;
     float m_CHFCut;
     float m_nJetsReq;
-    std::string m_electronSGKey;
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_electronSGKey { this, "ElectronContainerKey", "Electrons", ""};
     std::string m_electronIDKey;
     float m_electronPtCut;
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-    std::string m_muonSGKey;
+    SG::ReadHandleKey<xAOD::MuonContainer> m_muonSGKey { this, "MuonContainerKey", "Muons", ""};
     std::string m_muonIDKey;
     float m_muonPtCut;
+
   }; 
   
 }
