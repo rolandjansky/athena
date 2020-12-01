@@ -89,20 +89,12 @@ int main(int argc, char *argv[])
 
   // Create the truth weight tool:
   ANA_MSG_INFO("Creating PMGTruthWeightTool...");
-#ifdef XAOD_STANDALONE
-  asg::AnaToolHandle< PMGTools::IPMGTruthWeightTool > weightTool;
-  ASG_SET_ANA_TOOL_TYPE(weightTool, PMGTools::PMGTruthWeightTool);
-  weightTool.setName("PMGTruthWeightTool");
-  ANA_CHECK(weightTool.initialize());
-#else
   asg::AnaToolHandle< PMGTools::IPMGTruthWeightTool > weightTool("PMGTools::PMGTruthWeightTool/PMGTruthWeightTool");
   ANA_CHECK(weightTool.retrieve());
-#endif
 
   // Loop over a few events:
   ANA_MSG_INFO("Preparing to loop over events...");
   const Long64_t nEntries = 5;
-  // double retrievalTimeNanoSeconds = 0;
   for(Long64_t entry = 0; entry < nEntries; ++entry) {
     if (event.getEntry(entry) < 0) { ANA_MSG_ERROR("Failed to read event " << entry); continue; }
 
