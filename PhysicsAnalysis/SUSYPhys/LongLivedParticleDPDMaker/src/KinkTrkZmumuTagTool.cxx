@@ -23,11 +23,9 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
   m_trigNames(std::vector<std::string>()),
   m_trigMatchDeltaR(0.1),
   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
-  m_muonSGKey("Muons"),
   m_muonIDKeys(std::vector<std::string>()),
   m_muonPtCut(0),
   m_muonEtaMax(9999),
-  m_trackSGKey("MuonSpectrometerTracks"),
   m_trackPtCut(0),
   m_trackEtaMax(9999),
   m_diMuonMassLow(50.),
@@ -42,18 +40,16 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
   declareProperty("Triggers", m_trigNames);
   declareProperty("TriggerMatchDeltaR", m_trigMatchDeltaR);
   declareProperty("RequireTriggerMatch", m_doTrigMatch);
-  declareProperty("MuonContainerKey", m_muonSGKey);
   declareProperty("MuonIDKeys", m_muonIDKeys);
   declareProperty("MuonPtMin", m_muonPtCut);
   declareProperty("MuonEtaMax", m_muonEtaMax);
-  declareProperty("TrackContainerKey", m_trackSGKey);
   declareProperty("TrackPtMin", m_trackPtCut);
   declareProperty("TrackEtaMax", m_trackEtaMax);
   declareProperty("DiMuonMassLow", m_diMuonMassLow);
   declareProperty("DiMuonMassHigh", m_diMuonMassHigh);
   declareProperty("DeltaPhiMax", m_dPhiMax); 
-  declareProperty("RequireOppositeSign", m_doOppositeSignReq); 
-  declareProperty("StoreGateKeyPrefix", m_sgKeyPrefix);
+  declareProperty("RequireOppositeSign", m_doOppositeSignReq);
+  declareProperty("StoreGateKeyPrefix", m_sgKeyPrefix); 
 }
   
 
@@ -85,6 +81,9 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::initialize()
 
   CHECK(m_muonSelectionTool.retrieve());
 
+  ATH_CHECK(m_muonSGKey.initialize());
+  ATH_CHECK(m_trackSGKey.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -100,16 +99,23 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::finalize()
 // Augmentation
 StatusCode DerivationFramework::KinkTrkZmumuTagTool::addBranches() const
 {
-  std::vector<float> *diMuonTrkMass = new std::vector<float>();
-  std::vector<float> *probeMuPt = new std::vector<float>();
-  std::string sgKey1(m_sgKeyPrefix+"DiMuMass");
-  std::string sgKey2(m_sgKeyPrefix+"ProbeMuPt");
+  SG::WriteHandle< std::vector<float> > diMuonTrkMass(m_sgKeyPrefix+"DiMuMass");
+  ATH_CHECK(diMuonTrkMass.record(std::make_unique< std::vector<float> >()));
 
-  const xAOD::MuonContainer* muons(0);
-  ATH_CHECK(evtStore()->retrieve(muons, m_muonSGKey));	
+  SG::WriteHandle< std::vector<float> > probeMuPt(m_sgKeyPrefix+"ProbeMuPt");
+  ATH_CHECK(probeMuPt.record(std::make_unique< std::vector<float> >()));
 
-  const xAOD::TrackParticleContainer* mstracks(0);
-  ATH_CHECK(evtStore()->retrieve(mstracks, m_trackSGKey));
+  SG::ReadHandle<xAOD::MuonContainer> muons(m_muonSGKey);
+  if( !muons.isValid() ) {
+    msg(MSG::WARNING) << "No Muon container found, will skip this event" << endmsg;
+    return StatusCode::FAILURE;
+  } 
+
+  SG::ReadHandle<xAOD::TrackParticleContainer> mstracks(m_trackSGKey);
+  if( !mstracks.isValid() ) {
+    msg(MSG::WARNING) << "No MS track container found, will skip this event" << endmsg;
+    return StatusCode::FAILURE;
+  } 
 
   for (auto muon: *muons) {
     if (!checkTagMuon(muon)) continue;
@@ -120,24 +126,6 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::addBranches() const
       probeMuPt->push_back(track->pt());
     }
   }
-
-  // Writing to SG
-  if (evtStore()->contains< float >(sgKey1)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey1 << "already exists.");
-    // avoid mem leak
-    delete diMuonTrkMass;
-    delete probeMuPt;
-    return StatusCode::FAILURE;
-  }
-  CHECK(evtStore()->record(diMuonTrkMass, sgKey1));
-
-  if (evtStore()->contains< float >(sgKey2)) {
-    ATH_MSG_ERROR("StoreGate key " << sgKey2 << "already exists.");
-    // avoid mem leak
-    delete probeMuPt;
-    return StatusCode::FAILURE;
-  }
-  CHECK(evtStore()->record(probeMuPt, sgKey2));
 
   return StatusCode::SUCCESS;
 }
