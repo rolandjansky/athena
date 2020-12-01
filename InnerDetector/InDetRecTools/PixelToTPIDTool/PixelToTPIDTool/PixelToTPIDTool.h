@@ -37,12 +37,23 @@ namespace InDet {
 
       virtual ~PixelToTPIDTool ();
       virtual StatusCode initialize() override;
-      virtual StatusCode finalize  () override; 
+      virtual StatusCode finalize  () override;
 
-      virtual float dEdx(const Trk::Track& track, int& nUsedHits, int& nUsedIBLOverflowHits) const override;
+      virtual float dEdx(const EventContext& ctx,
+                         const Trk::Track& track,
+                         int& nUsedHits,
+                         int& nUsedIBLOverflowHits) const override final;
 
-      virtual std::vector<float> getLikelihoods(double dedx, double p, int nGoodPixels) const override;
-      virtual float getMass(double dedx, double p, int nGoodPixels) const override;
+      virtual std::vector<float> getLikelihoods(
+        const EventContext& ctx,
+        double dedx,
+        double p,
+        int nGoodPixels) const override final;
+
+      virtual float getMass(const EventContext& ctx,
+                            double dedx,
+                            double p,
+                            int nGoodPixels) const override final;
 
     private:
       ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
