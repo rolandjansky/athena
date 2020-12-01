@@ -377,8 +377,7 @@ def getTauSubstructure():
     
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
     TauSubstructureVariables = TauSubstructureVariables(  name = _name,
-                                                          TauVertexCorrection = getTauVertexCorrection()
-                                                        )
+                                                          VertexCorrection = doVertexCorrection)
     
     cached_instances[_name] = TauSubstructureVariables
     return TauSubstructureVariables
@@ -712,6 +711,39 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, noSelector = False, prefix
 
     cached_instances[_name] = TauTrackFinder      
     return TauTrackFinder
+
+
+# Associate the cluster in jet constituents to the tau candidate
+def getTauClusterFinder():
+    _name = sPrefix + 'TauClusterFinder'
+
+    if _name in cached_instances:
+        return cached_instances[_name]
+  
+    from tauRecTools.tauRecToolsConf import TauClusterFinder
+    TauClusterFinder = TauClusterFinder(name = _name,
+                                        JetVertexCorrection = False)
+
+    cached_instances[_name] = TauClusterFinder
+    return TauClusterFinder
+
+
+def getTauVertexedClusterDecorator():
+    from tauRecTools.tauRecToolsConf import TauVertexedClusterDecorator
+
+    _name = sPrefix + 'TauVertexedClusterDecorator'
+    
+    if _name in cached_instances:
+        return cached_instances[_name]
+  
+    myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
+                                                                SeedJet = "",
+                                                                VertexCorrection = doVertexCorrection,
+                                                                JetVertexCorrection = False)
+    
+    cached_instances[_name] = myTauVertexedClusterDecorator
+    return myTauVertexedClusterDecorator
+
 
 ########################################################################
 # TauTrackClassifier

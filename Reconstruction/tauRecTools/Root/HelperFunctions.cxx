@@ -15,6 +15,21 @@ namespace tauRecTools {
   ANA_MSG_SOURCE(msgHelperFunction, "HelperFunction")
 }
 
+
+
+TLorentzVector tauRecTools::getTauAxis(const xAOD::TauJet& tau, bool doVertexCorrection) {
+  TLorentzVector tauAxis;
+  if (doVertexCorrection && tau.vertexLink().isValid()) {
+    tauAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
+  }
+  else {
+    tauAxis = tau.p4(xAOD::TauJetParameters::DetectorAxis);
+  }
+ 
+  return tauAxis;
+}
+
+
 //________________________________________________________________________________
 xAOD::TauTrack::TrackFlagType tauRecTools::isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag){
   const int flagsize=sizeof(flag)*8;
