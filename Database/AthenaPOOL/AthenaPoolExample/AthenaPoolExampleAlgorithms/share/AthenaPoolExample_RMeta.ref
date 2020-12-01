@@ -1,17 +1,17 @@
-Thu Nov 19 08:30:11 CET 20?0
+Thu Nov 26 22:51:03 CET 20?0
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_RMetaJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5589 configurables from 4 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5426 configurables from 28 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r1)
-                                          running on pc-tbed-pub-32.cern.ch on Thu Nov 19 08:30:24 20?0
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0p1)
+                                          running on lxplus742.cern.ch on Thu Nov 26 22:51:14 20?0
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
@@ -30,8 +30,9 @@ PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog2.xml) [ok
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-11-18T2101/Athena/22.0.21/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 8 servers found for host pc-tbed-pub-32.cern.ch [ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-11-25T2101/Athena/22.0.21/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 10 servers found for host lxplus742.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -74,10 +75,14 @@ SimplePoolFile5...  DEBUG ---->[0]:unsigned long long Typ:unsigned long long [23
 SimplePoolFile5...  DEBUG --->Reading Shape[8 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
 SimplePoolFile5...  DEBUG --->Reading Shape[9 , ????]: [1 Column(s)]
-SimplePoolFile5...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile5...  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile5...  DEBUG --->Reading Shape[10 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile5...  DEBUG --->Reading Shape[11 , ????]: [1 Column(s)]
+SimplePoolFile5...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
+SimplePoolFile5...  DEBUG --->Reading Shape[12 , ????]: [1 Column(s)]
 SimplePoolFile5...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
-##Shapes            DEBUG No objects passing selection criteria... Container has 11 Entries in total.
+##Shapes            DEBUG No objects passing selection criteria... Container has 13 Entries in total.
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opening
 ##Links             DEBUG    attributes# = 1
@@ -118,17 +123,21 @@ SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(BunchId) [20
 SimplePoolFile5...  DEBUG ---->ClassID:????
 SimplePoolFile5...  DEBUG --->Reading Assoc:????/POOLCollectionTree(EventWeight) [20?]  (13 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [20?]  (14 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [20?]  (14 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (15 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(ExampleHitContainer_p1/PedestalWriteData) [20?]  (15 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [20?]  (16 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (16 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [20?]  (17 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [20?]  (17 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [20?]  (18 , ffffffff)
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [20?]  (18 , ffffffff)
 SimplePoolFile5...  DEBUG ---->ClassID:????
-##Links             DEBUG No objects passing selection criteria... Container has 23 Entries in total.
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdr(DataHeader) [20?]  (19 , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+SimplePoolFile5...  DEBUG --->Reading Assoc:????/MetaDataHdrForm(DataHeaderForm) [20?]  (1a , ffffffff)
+SimplePoolFile5...  DEBUG ---->ClassID:????
+##Links             DEBUG No objects passing selection criteria... Container has 25 Entries in total.
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Params
 ##Params            DEBUG Opening
 ##Params            DEBUG    attributes# = 1
@@ -143,7 +152,7 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-ClassIDSvc           INFO  getRegistryEntries: read 1666 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1716 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile5...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
@@ -845,9 +854,9 @@ ToolSvc.AthPool...   INFO in finalize()
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.213(+-    1.44)/       0/      10 [ms] #= 47
-cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.455(+-    2.08)/       0/      10 [ms] #= 44
-ChronoStatSvc        INFO Time User   : Tot=  260 [ms]  #=  1
+cObjR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 47
+cObj_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.227(+-    1.49)/       0/      10 [ms] #= 44
+ChronoStatSvc        INFO Time User   : Tot=  290 [ms]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully
