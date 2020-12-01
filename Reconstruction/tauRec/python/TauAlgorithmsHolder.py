@@ -310,10 +310,7 @@ def getTauSubstructure():
         return cached_instances[_name]
     
     from tauRecTools.tauRecToolsConf import TauSubstructureVariables
-    TauSubstructureVariables = TauSubstructureVariables(  name = _name,
-                                                          TauVertexCorrection = getTauVertexCorrection(),
-                                                          UseSubtractedCluster = tauFlags.useSubtractedCluster()
-                                                       )
+    TauSubstructureVariables = TauSubstructureVariables(name = _name)
     
     cached_instances[_name] = TauSubstructureVariables
     return TauSubstructureVariables

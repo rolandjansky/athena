@@ -24,6 +24,8 @@ namespace tauRecTools
 {
   ANA_MSG_HEADER(msgHelperFunction)
 
+  TLorentzVector getTauAxis(const xAOD::TauJet& tau, bool doVertexCorrection = true);
+
   TLorentzVector GetConstituentP4(const xAOD::JetConstituent& constituent);
 
   const StatusCode GetJetClusterList(const xAOD::Jet* jet, std::vector<const xAOD::CaloCluster*> &clusterList, bool useSubtractedCluster);
