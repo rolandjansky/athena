@@ -22,12 +22,10 @@ DerivationFramework::RpvEgammaIDTool::RpvEgammaIDTool( const std::string& t,
 						       const std::string& n,
 						       const IInterface* p ) :
   AthAlgTool(t,n,p),
-  m_collName("ElectronCollection"),
   m_sgPrefix("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("SelectionVariables",m_qualFlags);
-    declareProperty("CollectionName", m_collName);
     declareProperty("SGPrefix", m_sgPrefix);
   }
  
@@ -43,6 +41,7 @@ StatusCode DerivationFramework::RpvEgammaIDTool::initialize()
         return StatusCode::FAILURE;
      }
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_collName.initialize());
      return StatusCode::SUCCESS;
 }
 StatusCode DerivationFramework::RpvEgammaIDTool::finalize()
@@ -56,17 +55,25 @@ StatusCode DerivationFramework::RpvEgammaIDTool::addBranches() const
 {
 
      // Retrieve data
-     const xAOD::EgammaContainer* egammas =  evtStore()->retrieve< const xAOD::EgammaContainer >( m_collName );
-     if( ! egammas ) {
+     SG::ReadHandle<xAOD::EgammaContainer> egammas(m_collName);
+     if( !egammas.isValid() ) {
         ATH_MSG_ERROR("Couldn't retrieve e-gamma container with key: " << m_collName);
         return StatusCode::FAILURE;
      }
        
      // Make vectors for the cut results
-     std::vector<std::vector<int>* > allSelectionResults;
-     for (std::vector<std::string>::const_iterator strItr = m_qualFlags.begin(); strItr!=m_qualFlags.end(); ++strItr) {
-        std::vector<int> *passEgamma = new std::vector<int>(); 
-        allSelectionResults.push_back(passEgamma);
+     std::vector<SG::WriteHandle<std::vector<int> > > allSelectionResults;
+     unsigned int itr(0);
+     for (std::vector<std::string>::const_iterator strItr = m_qualFlags.begin(); strItr!=m_qualFlags.end(); ++strItr, ++itr) {
+        std::string sgKey("");
+        if (m_sgPrefix=="") {
+                sgKey = *strItr;
+        } else {
+                sgKey = m_sgPrefix+*strItr;
+        }
+        SG::WriteHandle< std::vector<int> > tmp(sgKey);
+        allSelectionResults.push_back(tmp);
+        ATH_CHECK(allSelectionResults[itr].record(std::make_unique< std::vector<int> >()));
      } 
      // Loop over egammas, set decisions   
      for (xAOD::EgammaContainer::const_iterator eIt = egammas->begin(); eIt!=egammas->end(); ++eIt) {
@@ -83,21 +90,6 @@ StatusCode DerivationFramework::RpvEgammaIDTool::addBranches() const
         }
      }     
 
-     // Write decision to SG for access by downstream algs
-     unsigned int itr(0);
-     for (std::vector<std::string>::const_iterator strItr = m_qualFlags.begin(); strItr!=m_qualFlags.end(); ++strItr, ++itr) {
-        std::string sgKey("");
-        if (m_sgPrefix=="") {
-                sgKey = *strItr;
-        } else {
-                sgKey = m_sgPrefix+*strItr;
-        }   
-        if (evtStore()->contains<std::vector<int> >(sgKey)) {
-                ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << sgKey << " which already exists. Please use a different key");
-                return StatusCode::FAILURE;
-        }
-        CHECK(evtStore()->record(allSelectionResults[itr],sgKey));       
-     }
      return StatusCode::SUCCESS;
 
 }

@@ -18,6 +18,8 @@
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "xAODEgamma/EgammaContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -46,7 +48,7 @@ namespace DerivationFramework {
 
   private:
     std::vector<std::string> m_qualFlags;
-    std::string m_collName;
+    SG::ReadHandleKey<xAOD::EgammaContainer> m_collName { this, "CollectionName", "ElectronCollection", ""};
     std::string m_sgPrefix;
 
   };
