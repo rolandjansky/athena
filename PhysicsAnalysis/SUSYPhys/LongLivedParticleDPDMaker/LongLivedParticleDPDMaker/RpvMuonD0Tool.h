@@ -16,6 +16,8 @@
 
 // DerivationFramework includes
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
+#include "xAODMuon/MuonContainer.h"
+#include "StoreGate/ReadHandleKey.h"
 
 namespace DerivationFramework {
 
@@ -43,7 +45,7 @@ namespace DerivationFramework {
     virtual StatusCode addBranches() const;
 
   private:
-    std::string m_collName;
+    SG::ReadHandleKey<xAOD::MuonContainer> m_collName { this, "MuonContainerKey", "Muons", ""};
     std::string m_sgPrefix;
 
   }; 
