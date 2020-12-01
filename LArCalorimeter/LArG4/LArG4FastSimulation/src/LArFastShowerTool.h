@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARG4FASTSIMULATION_LARFASTSHOWERTOOL_H
@@ -15,8 +15,6 @@
 
 // STL headers
 #include <string>
-
-class G4FastSimulationModel;
 
 /// NEEDS DOCUMENTATION
 class LArFastShowerTool: public FastSimulationBase
