@@ -9,7 +9,6 @@
 #include "LongLivedParticleDPDMaker/DVTracklessJetFilterTool.h"
 #include <vector>
 #include <string>
-#include "xAODJet/JetContainer.h"
 
 
 // Constructor
@@ -19,11 +18,9 @@ DerivationFramework::DVTracklessJetFilterTool::DVTracklessJetFilterTool( const s
   AthAlgTool(t,n,p),
   m_ntot(0),
   m_npass(0),
-  m_jetSGKey("AntiKt4EMTopoJets"),
   m_ptCut(50000.0)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
-    declareProperty("JetContainerKey", m_jetSGKey);
     declareProperty("JetPtCut", m_ptCut);	
     declareProperty("JetEtaCut", m_etaCut);	
     declareProperty("sumPtTrkCut", m_sumPtTrkCut);	
@@ -38,6 +35,7 @@ DerivationFramework::DVTracklessJetFilterTool::~DVTracklessJetFilterTool() {
 StatusCode DerivationFramework::DVTracklessJetFilterTool::initialize()
 {
      ATH_MSG_VERBOSE("initialize() ...");
+     ATH_CHECK(m_jetSGKey.initialize());
      
      return StatusCode::SUCCESS;
      
@@ -57,12 +55,11 @@ bool DerivationFramework::DVTracklessJetFilterTool::eventPassesFilter() const
 
   int nJetsPassed=0;
   
-  const xAOD::JetContainer* jetContainer(0);
-  StatusCode sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
-  if( sc.isFailure()  ||  !jetContainer ) {
+  SG::ReadHandle<xAOD::JetContainer> jetContainer(m_jetSGKey); 
+  if( !jetContainer.isValid() ) {
     msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
     return false;
-  } 
+  }
   msg(MSG::DEBUG)<<"size of  Jet container is "<<jetContainer->size()<<endmsg;
   
   for (unsigned int i=0; i< jetContainer->size(); ++i) { 
