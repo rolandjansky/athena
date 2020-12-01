@@ -14,8 +14,8 @@ from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkInDet.InDetCommon import *
 if DerivationFrameworkHasTruth:
     from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents,addBosonsAndDownstreamParticles
-    addStandardTruthContents(DerivationFrameworkJob)
     addBosonsAndDownstreamParticles(DerivationFrameworkJob, -1)
+    addStandardTruthContents(DerivationFrameworkJob)
 from DerivationFrameworkCore.WeightMetadata import *
 import AthenaCommon.SystemOfUnits as Units
 
@@ -326,10 +326,10 @@ HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux." % HDBS2RecoKpi.OutputVt
 HDBS2StaticContent += ["xAOD::VertexAuxContainer#%sAux.-vxTrackAtVertex" % HDBS2RecoKpi.OutputVtxContainerName]
 
 if DerivationFrameworkHasTruth:
-    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayParticles"]
-    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayParticlesAux."]
-    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayVerticies"]
-    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonWithDecayVerticiesAux."]
+    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonsWithDecayParticles"]
+    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonsWithDecayParticlesAux."]
+    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonsWithDecayVerticies"]
+    HDBS2StaticContent += ["xAOD::TruthParticleContainer#TruthBosonsWithDecayVerticiesAux."]
 #================
 # THINNING
 #================
@@ -580,8 +580,8 @@ HDBS2SlimmingHelper.IncludeTauTriggerContent = True
 HDBS2SlimmingHelper.IncludeEGammaTriggerContent = True
 HDBS2SlimmingHelper.AppendToDictionary = {
     'TruthEvents':'xAOD::TruthEventContainer','TruthEventsAux':'xAOD::TruthEventAuxContainer',
-    'TruthBosonWithDecayParticles':'xAOD::TruthParticleContainer','TruthBosonWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
-    'TruthBosonWithDecayVertices':'xAOD::TruthVertexContainer','TruthBosonWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
+    'TruthBosonsWithDecayParticles':'xAOD::TruthParticleContainer','TruthBosonsWithDecayParticlesAux':'xAOD::TruthParticleAuxContainer',
+    'TruthBosonsWithDecayVertices':'xAOD::TruthVertexContainer','TruthBosonsWithDecayVerticesAux':'xAOD::TruthVertexAuxContainer',
     }
 
 
