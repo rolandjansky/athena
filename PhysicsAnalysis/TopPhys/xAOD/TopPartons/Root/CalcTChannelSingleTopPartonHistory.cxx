@@ -11,7 +11,7 @@ namespace top {
 
   void CalcTChannelSingleTopPartonHistory::tChannelSingleTopHistorySaver(const xAOD::TruthParticleContainer* truthParticles,
                                              xAOD::PartonHistory* tChannelSingleTopPartonHistory) {
-    tChannelSingleTopPartonHistory->IniVarWtb();
+    tChannelSingleTopPartonHistory->IniVarTChannelSingleTop();
 
 
     //this part is exactly the same as in Wtb
@@ -132,38 +132,6 @@ namespace top {
       tChannelSingleTopPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_m") = spectatorquark_after.M();
 
     }
-    /*
-    if (((event_top && !event_antitop) || (!event_top && event_antitop)) && event_WnotTop) {
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_W_not_from_top_pt") = WnotFromTop.Pt();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_W_not_from_top_eta") = WnotFromTop.Eta();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_W_not_from_top_phi") = WnotFromTop.Phi();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_W_not_from_top_m") = WnotFromTop.M();
-
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay1_not_from_top_pt") = WnotFromTopDecay1.Pt();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay1_not_from_top_eta") = WnotFromTopDecay1.Eta();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay1_not_from_top_phi") = WnotFromTopDecay1.Phi();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay1_not_from_top_m") = WnotFromTopDecay1.M();
-      tChannelSingleTopPartonHistory->auxdecor< int >("MC_Wdecay1_not_from_top_pdgId") = WnotFromTopDecay1_pdgId;
-
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay2_not_from_top_pt") = WnotFromTopDecay2.Pt();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay2_not_from_top_eta") = WnotFromTopDecay2.Eta();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay2_not_from_top_phi") = WnotFromTopDecay2.Phi();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_Wdecay2_not_from_top_m") = WnotFromTopDecay2.M();
-      tChannelSingleTopPartonHistory->auxdecor< int >("MC_Wdecay2_not_from_top_pdgId") = WnotFromTopDecay2_pdgId;
-    }//if
-
-    if (((event_top && !event_antitop) || (!event_top && event_antitop)) && event_b) {
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_b_not_from_top_beforeFSR_pt") = bNotFromTop_before.Pt();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_b_not_from_top_beforeFSR_eta") = bNotFromTop_before.Eta();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_b_not_from_top_beforeFSR_phi") = bNotFromTop_before.Phi();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_b_not_from_top_beforeFSR_m") = bNotFromTop_before.M();
-      tChannelSingleTopPartonHistory->auxdecor< int >("MC_b_not_from_top_pdgId") = bNotFromTop_pdgId;
-
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_b_not_from_top_afterFSR_pt") = bNotFromTop_after.Pt();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_b_not_from_top_afterFSR_eta") = bNotFromTop_after.Eta();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_b_not_from_top_afterFSR_phi") = bNotFromTop_after.Phi();
-      tChannelSingleTopPartonHistory->auxdecor< float >("MC_b_not_from_top_afterFSR_m") = bNotFromTop_after.M();
-    } */
   }
 
 
