@@ -210,10 +210,11 @@ namespace top {
 
           spectatorquark_beforeFSR = particle->p4();
           spectatorquark_pdgId = particle->pdgId();
-          spectatorquark_status = particle->status();cd
+          spectatorquark_status = particle->status();
           hasSpectatorquark = true;
 
           // find after FSR
+          ANA_MSG_INFO ("\t\tPT before FSR: \t" << spectatorquark_beforeFSR.Pt());
           particle = PartonHistoryUtils::findAfterFSR(particle);
           spectatorquark_afterFSR = particle->p4();
           ANA_MSG_INFO ("\t\tPT before FSR: \t" << spectatorquark_beforeFSR.Pt());
