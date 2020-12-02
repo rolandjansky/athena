@@ -30,8 +30,6 @@ public:
   virtual StatusCode execute(xAOD::TauJet& tau) const override;
   
 private:
-  //* Get the vertex used in jet reconstruction */
-  const xAOD::Vertex* getJetVertex(const xAOD::Jet& jet) const;
 
   /// Name of the seed jet
   std::string m_seedJet;  
@@ -39,9 +37,6 @@ private:
   /// Switch of the tau vertex correction
   bool m_doVertexCorrection;
   
-  /// Switch of the jet vertex correction
-  bool m_doJetVertexCorrection;
-
   /// Calibration state of cluster
   xAOD::CaloCluster::State m_clusterState; //!
 };
