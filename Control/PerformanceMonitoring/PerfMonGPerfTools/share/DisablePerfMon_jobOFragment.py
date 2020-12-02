@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # $Id: DisablePerfMon_jobOFragment.py 631453 2014-11-27 09:26:40Z will $
 #
 # This jobO fragment is used when setting up the profiling of an Athena job
@@ -6,7 +8,7 @@
 #
 
 # It should only be loaded once:
-include.block( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" )
+include.block( "PerfMonGPerfTools/DisablePerfMon_jobOFragment.py" ) # noqa: F821
 
 # Disable PerfMon as much as we can:
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
