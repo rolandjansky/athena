@@ -22,8 +22,6 @@
 #include <algorithm>
 #include <cmath>
 
-using namespace std;
-
 /////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////
 
@@ -199,6 +197,7 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
 
       // Iterate on the digits of the collection
       digit_iterator it_dig = mdtCollection->begin();
+      static bool bisWarningPrinted = false;
       for ( ; it_dig != mdtCollection->end() ; ++it_dig) 
 	{
 	  const MdtDigit* mdtDigit = *it_dig;
@@ -222,7 +221,10 @@ StatusCode MdtDigitToMdtRDO::fill_MDTdata() const {
           if (m_idHelperTool->mdtIdHelper().stationName(channelId)==1
              && std::abs(m_idHelperTool->mdtIdHelper().stationEta(channelId))>6
              && m_idHelperTool->issMdt(channelId)) {
-             ATH_MSG_WARNING("Found BIS78 sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 for now...");
+             if (!bisWarningPrinted) {
+               ATH_MSG_WARNING("Found BIS sMDT with tubeLayer="<<layer<<" and tubeNumber="<<tube<<". Setting to 1,1 until a proper cabling is implemented, cf. ATLASRECTS-5804");
+               bisWarningPrinted=true;
+             }
             cabling = m_cabling->getOnlineId(name, eta, phi, multilayer, 1, 1,subsystem, mrod, link, tdc, channel);
           }
           if (!cabling) {
