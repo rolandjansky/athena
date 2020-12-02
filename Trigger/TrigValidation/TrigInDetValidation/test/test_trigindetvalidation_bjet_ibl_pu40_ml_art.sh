@@ -265,7 +265,7 @@ i=0
 
 for git in $jobList ; do 
 
-    ARGS="$git;EventMax=1000;doBperf=True;mlExtensions=True;globalTag='OFLCOND-RUN12-SDR-17'"
+    ARGS="$git;EventMax=1000;mlExtensions=True;doBperf=True;globalTag='OFLCOND-RUN12-SDR-17'"
  
 #   echo "ARGS: $ARGS"
 
