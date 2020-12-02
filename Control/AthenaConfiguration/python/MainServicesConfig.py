@@ -116,6 +116,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         scheduler.ShowDataDependencies = cfgFlags.Scheduler.ShowDataDeps
         scheduler.ShowDataFlow         = cfgFlags.Scheduler.ShowDataFlow
         scheduler.ShowControlFlow      = cfgFlags.Scheduler.ShowControlFlow
+        scheduler.VerboseSubSlots      = cfgFlags.Scheduler.EnableVerboseViews
         scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
         cfg.addService(scheduler)
 
