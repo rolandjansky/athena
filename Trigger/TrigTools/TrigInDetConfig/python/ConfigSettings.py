@@ -481,6 +481,16 @@ class _Settings_tauIso( _GlobalSettings ):
       self._configPT = _PrecisionTracking( signatureType = 'tauIso', nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
       self._doRecord = True #Allow recording of track collections
 
+#This might be redundant but lets keep them for the time being...
+class _Settings_tauIsoBDT( _GlobalSettings ): 
+   def __init__( self ): 
+      _GlobalSettings.__init__(self)
+      self._name     = "tauIsoBDT" #To be appended to alg names
+      self._roi      = "HLT_Roi_TauIsoBDT" #FIXME: possibly different!  
+      self._configFT = _FastTracking(      signatureType = 'tauIso', nameSuffix = 'TauIso' ) #
+      self._configPT = _PrecisionTracking( signatureType = 'tauIso',    nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
+      self._doRecord = False #FIXME: Do I need to record these?
+
 class _Settings_bjet( _GlobalSettings ): 
    def __init__( self ): 
       _GlobalSettings.__init__(self)
@@ -548,6 +558,7 @@ _ConfigSettings = {
     "tauTau"      : _Settings_tauTau(),
     "tauCore"     : _Settings_tauCore(),
     "tauIso"      : _Settings_tauIso(),
+    "tauIsoBDT"   : _Settings_tauIsoBDT(),
 
     "bjet"        : _Settings_bjet(),
     "jet"         : _Settings_jet(),

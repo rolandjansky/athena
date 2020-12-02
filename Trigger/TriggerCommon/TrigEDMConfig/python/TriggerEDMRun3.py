@@ -280,6 +280,7 @@ TriggerHLTListRun3 = [
     ('TrigRoiDescriptorCollection#HLT_Roi_TauCore_MVA',                'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_Roi_TauCore',             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_Roi_TauIso',             'BS ESD AODFULL AODSLIM',  'Steer'),
+    ('TrigRoiDescriptorCollection#HLT_Roi_TauIsoBDT',             'BS ESD AODFULL AODSLIM',  'Steer'),
     ('TrigRoiDescriptorCollection#HLT_Roi_TauID',           'BS ESD AODFULL AODSLIM',  'Steer'),
 
     ('xAOD::JetContainer#HLT_jet_seed',                         'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Tau', 'inViews:TAUCaloViews,TAUCaloMVAViews'),
