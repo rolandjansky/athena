@@ -1567,7 +1567,6 @@ if not rec.oldFlagCompatibility:
 # -------------------------------------------------------------
 pdr.flag_domain('tag')
 if rec.doWriteTAGCOM():
-    # include( "RecExCommission/RecExCommissionTAG_jobOptions.py" )
     logRecExCommon_topOptions.warning( "TAGCOM has been retired !! Please use doWriteTAG instead !!" )
 
 try:
