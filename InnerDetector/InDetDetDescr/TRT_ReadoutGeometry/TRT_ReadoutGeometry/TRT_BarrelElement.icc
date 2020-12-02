@@ -6,49 +6,68 @@
 
 namespace InDetDD {
 
-inline const TRT_BarrelElement * TRT_BarrelElement::nextInPhi() const
+/** Type information */
+inline TRT_BaseElement::Type
+TRT_BarrelElement::type() const
+{
+  return TRT_BaseElement::BARREL;
+}
+
+inline const TRT_BarrelElement*
+TRT_BarrelElement::nextInPhi() const
 {
   return m_nextInPhi;
 }
 
-inline const TRT_BarrelElement * TRT_BarrelElement::previousInPhi() const
+inline const TRT_BarrelElement*
+TRT_BarrelElement::previousInPhi() const
 {
   return m_previousInPhi;
 }
 
-inline const TRT_BarrelElement * TRT_BarrelElement::nextInR() const
+inline const TRT_BarrelElement*
+TRT_BarrelElement::nextInR() const
 {
   return m_nextInR;
 }
 
-inline const TRT_BarrelElement * TRT_BarrelElement::previousInR() const
+inline const TRT_BarrelElement*
+TRT_BarrelElement::previousInR() const
 {
   return m_previousInR;
 }
 
-inline const TRT_BarrelCode & TRT_BarrelElement::getCode() const
+inline const TRT_BarrelCode&
+TRT_BarrelElement::getCode() const
 {
   return m_code;
 }
 
-
 // Get X Position - should not be used anymore
-inline double TRT_BarrelElement::strawXPos (unsigned int straw) const {
+inline double
+TRT_BarrelElement::strawXPos(unsigned int straw) const
+{
   return strawCenter(straw).x();
 }
 
 // Get Y Position - should not be used anymore
-inline double TRT_BarrelElement::strawYPos (unsigned int straw) const {
-    return strawCenter(straw).y();
+inline double
+TRT_BarrelElement::strawYPos(unsigned int straw) const
+{
+  return strawCenter(straw).y();
 }
 
 // Get Z Position - should not be used anymore
-inline double TRT_BarrelElement::strawZPos (unsigned int straw) const {
-    return strawCenter(straw).z();
+inline double
+TRT_BarrelElement::strawZPos(unsigned int straw) const
+{
+  return strawCenter(straw).z();
 }
 
 // Get the length of the straws:
-inline const double & TRT_BarrelElement::strawLength() const {
+inline const double&
+TRT_BarrelElement::strawLength() const
+{
   return m_descriptor->strawLength();
 }
 }
