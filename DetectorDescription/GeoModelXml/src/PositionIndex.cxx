@@ -3,15 +3,7 @@
 */
 
 #include <cstdlib>
-
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else
-#include <iostream>
-#endif
-
+#include "GeoModelXml/OutputDirector.h"
 #include <vector>
 #include <string>
 #include "ExpressionEvaluator/Evaluator.h"
@@ -106,22 +98,13 @@ void PositionIndex::indices(map<string, int> &index, Evaluator &eval) {
         string name = *n;
         index[name] = (int) eval.evaluate(m_formula[name].c_str());
         if (eval.status() != Evaluator::OK) {
-#ifndef STANDALONE_GMX
-            ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-            MsgStream log(&(*msgh), "GeoModelXml");
-            log << MSG::FATAL <<
+            OUTPUT_STREAM;
+            msglog << MSG::FATAL <<
                    "GeoModelXml Error processing Evaluator expression for PositionIndex. Error name " <<
                     eval.error_name() << endl << "Message: ";
             eval.print_error();
-            log << m_formula[name] << endl << string(eval.error_position(), '-') << '^' << '\n' << "Exiting program." << 
+            msglog << m_formula[name] << endl << string(eval.error_position(), '-') << '^' << '\n' << "Exiting program." << 
                    endmsg;
-#else
-	    std::cout<<"GeoModelXml Error processing Evaluator expression for PositionIndex. Error name " <<
-                    eval.error_name() << endl << "Message: ";
-            eval.print_error();
-            std::cout << m_formula[name] << endl << string(eval.error_position(), '-') << '^' << '\n' << "Exiting program." << 
-		  std::endl;
-#endif
             exit(999); // Should do better...
         }
 //

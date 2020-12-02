@@ -1,21 +1,17 @@
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
-
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else
-#include <iostream>
-#endif
+#include <string>
 
 #include "GeoModelXml/Element2GeoItem.h"
-#include <string>
+#include "GeoModelXml/OutputDirector.h"
+
+#include "xercesc/util/XercesDefs.hpp"
 #include <xercesc/dom/DOM.hpp>
+#include "xercesc/util/XMLString.hpp"
+
 #include "GeoModelXml/GmxUtil.h"
 #include "GeoModelKernel/RCBase.h"
-#include "GeoModelXml/translate.h"
 
 using namespace std;
 using namespace xercesc;
@@ -28,7 +24,7 @@ const RCBase * Element2GeoItem::process(const xercesc::DOMElement *element, GmxU
 
     char *name2release;
 
-    name2release = Translate(element->getAttribute(Translate("name")));
+    name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
     string name(name2release);
     XMLString::release(&name2release);
 
@@ -49,15 +45,9 @@ const RCBase * Element2GeoItem::process(const xercesc::DOMElement *element, GmxU
 }
 
 const RCBase * Element2GeoItem::make(const xercesc::DOMElement *element, GmxUtil & /* gmxUtil */) const {
-    char *name2release = Translate(element->getNodeName());
-
-#ifndef STANDALONE_GMX
-    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-    MsgStream log(&(*msgh), "GeoModelXml");
-    log << MSG::FATAL << "Oh oh: called base class make() method of Element2GeoType object; tag " << name2release << endmsg;
-#else
-    std::cerr<< "Oh oh: called base class make() method of Element2GeoType object; tag " << name2release << std::endl;
-#endif
+    char *name2release = XMLString::transcode(element->getNodeName());
+    OUTPUT_STREAM;
+    msglog << MSG::FATAL << "Oh oh: called base class make() method of Element2GeoType object; tag " << name2release << endmsg;
     XMLString::release(&name2release);
 
     exit(999); // Should improve on this 

@@ -5,23 +5,16 @@
 // Automatically generated code from /home/hessey/prog/gmx2geo/makeshape
 // Then heavily modified
 #include "GeoModelXml/shape/MakeSubtraction.h"
-
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else
-#include <iostream>
-#endif
-
+#include "GeoModelXml/OutputDirector.h"
 #include <string>
 #include <xercesc/dom/DOM.hpp>
 //   #include <CLHEP/Geometry/Transform3D.h>
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTransform.h"
 
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 using namespace xercesc;
@@ -33,11 +26,9 @@ const RCBase * MakeSubtraction::make(const xercesc::DOMElement *element, GmxUtil
 // 
 //    Process child elements; first is first shaperef; then transformation; then second shaperef.
 //
-    typedef Eigen::Affine3d Transform3D;
-
     GeoShape *first = 0;
     GeoShape *second = 0;
-    Transform3D hepXf=Transform3D::Identity();
+    GeoTrf::Transform3D hepXf=GeoTrf::Transform3D::Identity();
     int elementIndex = 0;
     for (DOMNode *child = element->getFirstChild(); child != 0; child = child->getNextSibling()) {
         if (child->getNodeType() == DOMNode::ELEMENT_NODE) { // Skips text nodes
@@ -47,7 +38,7 @@ const RCBase * MakeSubtraction::make(const xercesc::DOMElement *element, GmxUtil
                     break;
                 }
                 case 1: { // Second element is transformation or transformationref
-                    char *toRelease = Translate(child->getNodeName());
+                    char *toRelease = XMLString::transcode(child->getNodeName());
                     string nodeName(toRelease);
                     XMLString::release(&toRelease);
                     GeoTransform *geoXf = nodeName == "transformation"? 
@@ -61,13 +52,8 @@ const RCBase * MakeSubtraction::make(const xercesc::DOMElement *element, GmxUtil
                     break;
                 }
                 default: // More than 3 elements?
-#ifndef STANDALONE_GMX
-                    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-                    MsgStream log(&(*msgh), "GeoModelXml");
-                    log << MSG::FATAL  << "MakeSubtraction: Incompatible DTD? got more than 3 child elements" << endmsg;
-#else
-		    std::cout<<"MakeSubtraction: Incompatible DTD? got more than 3 child elements" << std::endl;
-#endif
+                    OUTPUT_STREAM;
+                    msglog << MSG::FATAL  << "MakeSubtraction: Incompatible DTD? got more than 3 child elements" << endmsg;
             }
             elementIndex++;
         }
