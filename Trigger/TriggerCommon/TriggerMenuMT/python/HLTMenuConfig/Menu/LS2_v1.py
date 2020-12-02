@@ -115,7 +115,7 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_nod0_L1EM3', groups=SingleElectronGroup),
-
+        
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SingleElectronGroup),
@@ -125,7 +125,7 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=SingleElectronGroup), Placeholder for GSF chain
+        ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=SingleElectronGroup), #Placeholder for GSF chain
         ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
