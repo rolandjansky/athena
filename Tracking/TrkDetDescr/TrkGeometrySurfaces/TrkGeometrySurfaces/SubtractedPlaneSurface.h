@@ -28,7 +28,7 @@ namespace Trk {
  @author Sarka.Todorova@cern.ch
  */
 
-class SubtractedPlaneSurface final : public PlaneSurface
+class SubtractedPlaneSurface : public PlaneSurface
 {
 public:
   /** Default Constructor - needed for persistency*/
@@ -50,7 +50,7 @@ public:
   SubtractedPlaneSurface& operator=(const SubtractedPlaneSurface& psf);
 
   /**Equality operator*/
-  bool operator==(const Surface& sf) const;
+  virtual bool operator==(const Surface& sf) const override final;
 
   /** This method indicates the subtraction mode */
   bool shared() const;

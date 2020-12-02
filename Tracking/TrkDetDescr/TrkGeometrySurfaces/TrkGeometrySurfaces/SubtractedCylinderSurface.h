@@ -29,7 +29,7 @@ namespace Trk {
  @author Sarka.Todorova@cern.ch
  */
 
-class SubtractedCylinderSurface final : public CylinderSurface
+class SubtractedCylinderSurface : public CylinderSurface
 {
 public:
   /** Default Constructor - needed for persistency*/
@@ -51,7 +51,7 @@ public:
   SubtractedCylinderSurface& operator=(const SubtractedCylinderSurface& psf);
 
   /**Equality operator*/
-  bool operator==(const Surface& sf) const;
+  virtual bool operator==(const Surface& sf) const override final;
 
   /** This method indicates the subtraction mode */
   bool shared() const;
