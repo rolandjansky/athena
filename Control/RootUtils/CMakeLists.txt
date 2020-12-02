@@ -10,6 +10,7 @@ find_package( ROOT COMPONENTS RIO Hist Tree Core MathCore ROOTTPython
    cppyy${Python_VERSION_MAJOR}_${Python_VERSION_MINOR} )
 
 set( ROOT_LIBRARIES_PYROOT ${ROOT_LIBRARIES} )
+unset( ROOT_FOUND )
 find_package( ROOT COMPONENTS RIO Hist Tree Core MathCore )
 
 # Component(s) in the package:
