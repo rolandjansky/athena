@@ -1,12 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @author: Hasan Ozturk <haozturk@cern.ch>
 
-
 __author__  = "Hasan Ozturk <haozturk@cern.ch"
 __doc__     = "A python module which parses the PerfMonMTSvc results and makes plots"
-
 
 import json
 
@@ -96,7 +95,7 @@ def plotSnapshotLevel(snapshotData, plotname):
   stepNames, dCPUVals, dWallVals, dVmemVals, dRssVals, dPssVals, dSwapVals = [],[],[],[],[],[],[]
   for step in ['Finalize', 'Execute', 'Initialize', 'Configure']:
     meas = snapshotData[step]
-    
+
     # Show in seconds
     dCPU = meas["dCPU"] * 0.001
     dWall = meas["dWall"] * 0.001
@@ -106,7 +105,7 @@ def plotSnapshotLevel(snapshotData, plotname):
     dRss = meas["dRss"] * 0.001
     dPss = meas["dPss"] * 0.001
     dSwap = meas["dSwap"] * 0.001
- 
+
     stepNames.append(step)
     dCPUVals.append(dCPU)
     dWallVals.append(dWall)
@@ -162,7 +161,7 @@ def plotSnapshotLevel(snapshotData, plotname):
     "ylabelFontSize": 40,
     "legendFontSize": 30
   }
-  
+
 
   plotBarChart(timeMonParams)
   plotBarChart(memMonParams)
@@ -176,7 +175,7 @@ def plotSnapshotLevel(snapshotData, plotname):
 
 
 def plotComponentLevel(componentLevelData, compCountPerPlot):
-  
+
   timeMonFig = plt.figure(figsize=(35,105))
   memMonFig = plt.figure(figsize=(35,105))
 
@@ -292,7 +291,7 @@ def plotEventLevel(eventLevelData):
 
   timeMonParams = {
     "ax": timeMonAx,
-    "yVals": timeMonVals, 
+    "yVals": timeMonVals,
     "xVals": eventVals, # Maybe x ticks?
     "xlabel": "Events",
     "ylabel": "Time [sec]",
@@ -317,7 +316,7 @@ def plotEventLevel(eventLevelData):
 
   memMonFig.set_tight_layout(True)
   memMonFig.savefig("Event_Level_Memory")
-  
+
 def main():
     ''' Main function for producing plots from PerfMonMT JSON file.'''
 

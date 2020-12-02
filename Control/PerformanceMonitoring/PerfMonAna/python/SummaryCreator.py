@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: SummaryCreator.py
 # @purpose: a set of classes to create a summary from a perfmon tuple
@@ -12,12 +12,11 @@ __author__  = 'Sebastien Binet'
 __version__ = "$Revision: 1.20 $"
 __doc__     = "a set of classes to create a summary from a perfmon tuple"
 
-import logging,os
+import logging
 import numpy
 import numpy.lib.polynomial
 import matplotlib.pyplot as plt
-from .Analyzer  import Analyzer, bookAvgHist,mon_project,project,make_canvas
-from .PyRootLib import importRoot
+from .Analyzer  import bookAvgHist,project
 from .Constants import Units
 
 def array_mean(a):
@@ -39,8 +38,10 @@ class SummaryCreator(object):
             }
         self._fitSlice = []
         for i in fitSlice.split(":"):
-            try:               self._fitSlice += [ int(i) ]
-            except ValueError: self._fitSlice += [ None   ]
+            try:
+                self._fitSlice += [ int(i) ]
+            except ValueError:
+                self._fitSlice += [ None   ]
         # text format of the summary
         self.txt = {}
         for i in ( 'ini','1st','evt','fin'):
@@ -50,7 +51,7 @@ class SummaryCreator(object):
                     'slice' : [],
                     'comps' : [],
                     }
-        
+
         # maximal number of top-XXX consumers to display
         self.max = 20
 
@@ -62,9 +63,10 @@ class SummaryCreator(object):
 
         from .PyRootLib import importRoot
         ROOT = importRoot(batch=True)
-        from .PyRootLib import setupRootStyle; setupRootStyle()
+        from .PyRootLib import setupRootStyle
+        setupRootStyle()
         c = ROOT.TCanvas('c_default')
-        
+
         for m in [ self.processIni,
                    self.processFirstEvt,
                    self.processEvt,
@@ -85,7 +87,7 @@ class SummaryCreator(object):
                              begSlice  = 0,
                              endSlice  = 1 )
         return
-    
+
     def processFirstEvt(self, dataSetMgr, monCompMgr):
 
         ## get top-20 consumers
@@ -96,40 +98,39 @@ class SummaryCreator(object):
                              begSlice  = 0,
                              endSlice  = 1 )
         return
-    
+
     def processEvt(self, dataSetMgr, monCompMgr):
         from .App import DataSetMgr
 
         from .PyRootLib import importRoot
         ROOT = importRoot(batch=True)
-        
+
         ## RootFct = ROOT.TF1
         ## dummyCanvas = ROOT.TCanvas("dummyFitCanvas")
         ## import PyRootLib as prl
-        
+
         ## self.sum['evt']['histos'] = []
         ## self.sum['evt']['fig']    = []
-        
+
         ## short-hand
         ms = Units.ms
         kb = Units.kb
         Mb = Units.Mb
-        Mb2Kb = 1000.
-        msg = self.msg
-        
+
         ## get top-20 consumers
         dsNames = DataSetMgr.names()
-        color = DataSetMgr.colorIter()
 
         _txt = self.txt['evt']
 
         monComp = monCompMgr['PerfMonSlice']
-        yMinCpu = []; yMaxCpu = []
-        yMinIo  = []; yMaxIo  = []
+        yMinCpu = []
+        yMaxCpu = []
+        yMinIo  = []
+        yMaxIo  = []
         for dsName in dsNames:
             data = monComp.data[dsName]
             histos = data['histos'] = {}
-            if not 'evt' in data:
+            if 'evt' not in data:
                 continue
             data = data['evt']
             if data is None:
@@ -144,7 +145,7 @@ class SummaryCreator(object):
             dcpu_s= cpu_s[:,2]
             dcpu_r= cpu_r[:,2]
             dcpu_c= cpu_c[:,2]
-            
+
             mem   = data['mem']
             vmem  = mem['vmem']
             dvmem = vmem[:,2]
@@ -155,7 +156,7 @@ class SummaryCreator(object):
 
             nallocs  = mem['nmall'][:,2]
             nfrees   = mem['nfree'][:,2]
-            
+
             yMinCpu.append(dcpu_c[self.minEvt:].min() * ms)
             yMaxCpu.append(dcpu_c[self.minEvt:].max() * ms)
 
@@ -163,9 +164,6 @@ class SummaryCreator(object):
             io_c = io['w']['cpu']
             yMinIo.append(io_c[self.minEvt:].min() * ms)
             yMaxIo.append(io_c[self.minEvt:].max() * ms)
-
-##             data['mem/vmem/d'] = data['mem/vmem/1'] - data['mem/vmem/0']
-##             data['mem/rss/d' ] = data['mem/rss/1' ] - data['mem/rss/0' ]
 
             ## fill-in some data for ASCII summary
             if dsName == '000':
@@ -192,12 +190,12 @@ class SummaryCreator(object):
                         nfrees[self.minEvt:].mean(),
                         ),
                     ]
-                
+
             ## book ROOT histos
             nEntries = len(dataSetMgr[dsName].bins)-1
             minEvt   = dataSetMgr[dsName].bins[self.minEvt]
             maxEvt   = dataSetMgr[dsName].bins[-1]
-            
+
             hId   = 'cpu_%s.%s' % (monComp.name, dsName)
             hName = 'cpu_%s'    % dsName
             histos[hName] = ROOT.TH1F(
@@ -242,7 +240,7 @@ class SummaryCreator(object):
                 nEntries, minEvt, maxEvt
                 )
             pass
-            
+
         yMinIo = min(yMinIo)
         yMaxIo = max(yMaxIo)
         yMinCpu = min(yMinCpu)
@@ -250,11 +248,11 @@ class SummaryCreator(object):
 
         def markForLegend(p): setattr(p, '_markedForLegend', True)
         def isMarked(p):      return hasattr(p, '_markedForLegend')
-            
+
         memLeak = []
         for dsName in dsNames:
 
-            if not 'evt' in monComp.data[dsName]:
+            if 'evt' not in monComp.data[dsName]:
                 continue
 
             data = monComp.data[dsName]
@@ -262,11 +260,11 @@ class SummaryCreator(object):
             cpu = data['evt']['cpu']
             cpu_c = cpu['cpu']
             dcpu_c= cpu_c[:,2]
-            
+
             ## CPU
             bins = dataSetMgr[dsName].bins
             xbins= bins[self.minEvt:]
-            if not 'evt/cpu' in monComp.figs:
+            if 'evt/cpu' not in monComp.figs:
                 monComp.figs['evt/cpu'] = plt.figure()
                 monComp.figs['evt/cpu'].add_subplot(211)
                 monComp.figs['evt/cpu'].add_subplot(212)
@@ -285,7 +283,7 @@ class SummaryCreator(object):
             ax.set_ylim((ax.get_ylim()[0]*0.9,
                          ax.get_ylim()[1]*1.1))
             markForLegend(pl[0])
-            
+
             h,b = numpy.histogram(
                 dcpu_c[self.minEvt:] * ms,
                 bins  = 20,
@@ -306,14 +304,14 @@ class SummaryCreator(object):
                 cpuTime = dcpu_c[i] * ms
                 h.Fill( float(bins[i]), cpuTime )
                 hAvg.Fill( cpuTime )
-                
+
             ## Mem
             mem = data['evt']['mem']
             vmem = mem['vmem']
             dvmem = vmem[:,2]
             dmall = mem['mall'][:,2]
-            
-            if not 'evt/mem' in monComp.figs:
+
+            if 'evt/mem' not in monComp.figs:
                 monComp.figs['evt/mem'] = plt.figure()
                 monComp.figs['evt/mem'].add_subplot(311)
                 monComp.figs['evt/mem'].add_subplot(312)
@@ -368,7 +366,7 @@ class SummaryCreator(object):
                           ax.get_ylim()[1]*1.1) )
             ax.grid( True )
             markForLegend( pl[0] )
-            
+
             ax = fig.axes[2]
             pl = ax.plot( xbins,
                           dmall[self.minEvt:] * Mb,
@@ -380,7 +378,7 @@ class SummaryCreator(object):
                           ax.get_ylim()[1]*1.1) )
             ax.grid( True )
             markForLegend( pl[0] )
-            
+
 
             h = data['histos']['vmem_%s' % dsName]
             hAvg = bookAvgHist(h, mem['vmem'][:,1] * Mb)
@@ -399,7 +397,7 @@ class SummaryCreator(object):
                 hAvg.Fill( rss )
 
             ## I/O
-            if not 'evt/io' in monComp.figs:
+            if 'evt/io' not in monComp.figs:
                 monComp.figs['evt/io'] = plt.figure()
                 monComp.figs['evt/io'].add_subplot(211)
                 monComp.figs['evt/io'].add_subplot(212)
@@ -441,7 +439,7 @@ class SummaryCreator(object):
                 cpuTime = io_c[i] * ms
                 h.Fill( float(bins[i]), cpuTime )
                 hAvg.Fill( cpuTime )
-                
+
             pass # loop over data sets
 
         ## handle mem-leak text
@@ -458,9 +456,10 @@ class SummaryCreator(object):
                  transform = ax.transAxes )
         for figName,fig in monComp.figs.items():
             loc = 'best'
-            if figName == 'evt/mem': loc = 'lower right'
+            if figName == 'evt/mem':
+                loc = 'lower right'
             for ax in fig.axes:
-                objs = [ l for l in ax.lines if isMarked(l) ]
+                objs = [ z for z in ax.lines if isMarked(z) ]
                 ax.legend( objs, DataSetMgr.labels(),
                            #loc='lower right'
                            #loc='best'
@@ -476,7 +475,7 @@ class SummaryCreator(object):
                              begSlice  = self.minEvt,
                              endSlice  = None )
         return
-    
+
     def processFin(self, dataSetMgr, monCompMgr):
 
         self._top_consumers(
@@ -488,28 +487,26 @@ class SummaryCreator(object):
             endSlice  = None
             )
         return
-    
+
     def processIo(self, dataSetMgr, monCompMgr):
 
-        from .App import DataSetMgr
         ## short-hand
         ms = Units.ms
-        kb = Units.kb
-        Mb = Units.Mb
 
         dsNames = dataSetMgr.keys()
         dsNames.sort()
 
         monComps = [ ]
-        cppTypes = {};
+        cppTypes = {}
         for monComp in monCompMgr.values():
 
             if monComp.type != 'io':
                 continue
-            
+
             monCompKeys = monComp.data.keys()
             monCompKeys.sort()
-            if monCompKeys != dsNames: continue
+            if monCompKeys != dsNames:
+                continue
             monComps.append( monComp )
             cppTypes[monComp.name.split("#")[0]] = {}
 
@@ -527,36 +524,41 @@ class SummaryCreator(object):
                    not k.startswith( "meta://outputPoolFiles/" ):
                     continue
                 n,i = k.split( "PoolFiles/" )
-                if   n.startswith( "meta://input" ): f = inputFiles
-                elif n.startswith( "meta://output"): f = outputFiles
-                else: continue
+                if   n.startswith( "meta://input" ):
+                    f = inputFiles
+                elif n.startswith( "meta://output"):
+                    f = outputFiles
+                else:
+                    continue
                 try:
                     f[dsName][int(i)]= d[k]
-                except KeyError: f[dsName] = {}; f[dsName][int(i)]= d[k]
+                except KeyError:
+                    f[dsName] = {}
+                    f[dsName][int(i)]= d[k]
 
         def _findFolders( files, pattern, dsName ):
             d = {}
             cppType = pattern[0]
             sgKey   = pattern[1]
-            if files.has_key(dsName):
+            if dsName in files:
                 for file in files[dsName].values():
-##                     print ":"*80,"-->file"
                     for f in file['data']:
                         n = f['name']
                         pat = n.startswith( cppType+"_" ) and \
                               n.endswith  ( "_"+sgKey   )
-#                        pat = n.endswith  ( "_"+sgKey   )
-#                        pat = n.count( sgKey   ) > 0
                         if pat:
                             size = f['diskSize'] / float( f['nEntries'] )
-                            try:             d[n] += size
-                            except KeyError: d[n]  = size
-##                         print "\t-%5s" % str(pat),n
+                            try:
+                                d[n] += size
+                            except KeyError:
+                                d[n]  = size
             keys = d.keys()
             if len(keys) > 1:
                 raise RuntimeError ("len(d) > 1: %r" % d)
-            if len(keys) == 0: return []
-            else:              return [ d.items()[0] ]
+            if len(keys) == 0:
+                return []
+            else:
+                return [ d.items()[0] ]
 
         ## helper function
         def io_proj(data, varexp):
@@ -570,12 +572,9 @@ class SummaryCreator(object):
         for monComp in monComps:
             monName = monComp.name
             cppType, sgKey = monComp.name.split("#")
-##             print "---- %-30s %-30s ----" % (cppType,sgKey)
-            #print "monComp:",monComp.name,cppType,sgKey
-            #tp_pattern = re.compile( r'%s_.*?%s' % ( cppType, sgKey ) )
             tp_pattern = ( cppType, sgKey )
             for dsName in dsNames:
-                if not cppTypes[cppType].has_key( dsName ):
+                if dsNames not in cppTypes[cppType]:
                     cppTypes[cppType][dsName] = {}
                 data = monComp.data[dsName]['evt']
 
@@ -586,9 +585,6 @@ class SummaryCreator(object):
                 ior = ( ior,  io_proj(data, varexp=monName+".r.user")  * ms )
                 iorr= ( iorr, io_proj(data, varexp=monName+".rr.user") * ms )
                 iow = ( iow,  io_proj(data, varexp=monName+".w.user")  * ms )
-##                 print "\tio-r ",ior
-##                 print "\tio-rr",iorr
-##                 print "\tio-w ",iow
                 if ior[0] > 0.:
                     d = { 'size' : _findFolders( inputFiles, tp_pattern,
                                                  dsName ),
@@ -597,7 +593,8 @@ class SummaryCreator(object):
                           }
                     monComp.data[dsName]['io/in'] = d
                     if len(d['size']) > 0:
-                        try: io_in = cppTypes[cppType][dsName]['io/in']
+                        try:
+                            io_in = cppTypes[cppType][dsName]['io/in']
                         except KeyError:
                             cppTypes[cppType][dsName]['io/in'] = {
                                 'size' : [], 'r' : [], 'rr' : []
@@ -613,7 +610,8 @@ class SummaryCreator(object):
                         }
                     monComp.data[dsName]['io/out']= d
                     if len(d['size']) > 0:
-                        try: io_out = cppTypes[cppType][dsName]['io/out']
+                        try:
+                            io_out = cppTypes[cppType][dsName]['io/out']
                         except KeyError:
                             cppTypes[cppType][dsName]['io/out'] = {
                                 'size' : [], 'w' : []
@@ -621,14 +619,8 @@ class SummaryCreator(object):
                             io_out = cppTypes[cppType][dsName]['io/out']
                         io_out['size'] += [ d['size'][0][1] ]
                         io_out['w'   ] += [ iow  ]
-##             try:
-##                 print "in: ",monComp.data['000']['io/in']
-##             except KeyError: print "<none>";pass
-##             try:
-##                 print "out:",monComp.data['000']['io/out']
-##             except KeyError: print "<none>";pass
             pass
-        
+
         self.sum['io']['fig'] = []
 
         def _createFig( ioKey, speedKey, cppTypes, dsNames, figTitle ):
@@ -640,7 +632,7 @@ class SummaryCreator(object):
 
             from .App import DataSetMgr
             color = DataSetMgr.colorIter()
-            
+
             # to hold 'cpu' for each dataSet
             axes = [ [], [], [] ]
 
@@ -650,7 +642,7 @@ class SummaryCreator(object):
                 names[dsName] = []
                 for cppType in cppTypes.keys():
                     store = cppTypes[cppType][dsName]
-                    if not store.has_key(ioKey):
+                    if ioKey not in store:
                         continue
                     store = store[ioKey]
                     if len(store['size']) <= 0:
@@ -691,8 +683,8 @@ class SummaryCreator(object):
                     } )
                 table = numpy.array( table, dtype = descr )
                 nData = len(table)
-##                 print speedKey,nData,names
-                if nData == 0: return None
+                if nData == 0:
+                    return None
 
                 table.sort( order=('size',) )
 
@@ -722,7 +714,7 @@ class SummaryCreator(object):
                 ax.set_yticks( pos + 0.5 )
                 ax.set_yticklabels( labels, fontsize =6,
                                     horizontalalignment = 'right' )
-                
+
                 # display 'user' part only
                 data = table[speedKey+'/user']
                 pos  = numpy.arange(nData)
@@ -746,7 +738,7 @@ class SummaryCreator(object):
                                  color = 'g',
                                  label = dsName,
                                  lw = lw )
-                    
+
 
                 ## -- Speed
                 ax = fig.axes[1]
@@ -767,7 +759,7 @@ class SummaryCreator(object):
                 ax.set_yticks( pos + 0.5 )
                 ax.set_yticklabels( labels, fontsize =6,
                                     horizontalalignment = 'right' )
-                
+
                 # display 'user' part only
                 data = table[speedKey+'/user']
                 data = table['speed']
@@ -800,7 +792,7 @@ class SummaryCreator(object):
                 ax.set_yticks( pos + 0.5 )
                 ax.set_yticklabels( labels, fontsize =6,
                                     horizontalalignment = 'right' )
-                
+
                 # display 'user' part only
                 data = table[speedKey+'/userFreq']
                 pos  = numpy.arange(nData)
@@ -820,18 +812,16 @@ class SummaryCreator(object):
 
         fig = _createFig( 'io/in',  'r',  cppTypes, dsNames,
                           figTitle = '[P->T] transformations' )
-        if fig: self.sum['io']['fig'] += [ fig ]
+        if fig:
+            self.sum['io']['fig'] += [ fig ]
 
-##         fig = _createFig( 'io/in',  'rr', cppTypes, dsNames,
-##                           figTitle = '[P->T] transformations (ROOT part)' )
-##         if fig: self.sum['io']['fig'] += [ fig ]
-        
         fig = _createFig( 'io/out', 'w',  cppTypes, dsNames,
                           figTitle = '[T->P] transformations' )
-        if fig: self.sum['io']['fig'] += [ fig ]
+        if fig:
+            self.sum['io']['fig'] += [ fig ]
 
         return
-    
+
     def _top_consumers(self, dataSetMgr, monCompMgr, compTypes,
                        title,
                        storeName,
@@ -845,16 +835,16 @@ class SummaryCreator(object):
         kb = Units.kb
         Mb = Units.Mb
         msg = self.msg
-        
+
         dsNames = list(dataSetMgr.keys())
         dsNames.sort()
 
         monComps = [ ]
         for monComp in monCompMgr.values():
 
-            if not monComp.type in compTypes:
+            if monComp.type not in compTypes:
                 continue
-            
+
             monCompKeys = list(monComp.data.keys())
             monCompKeys.sort()
             if monCompKeys != dsNames:
@@ -863,9 +853,9 @@ class SummaryCreator(object):
             if monComp.name in ('AthMasterSeq', 'AthAlgSeq',):
                 continue
             monComps.append(monComp)
-            
+
         if len(monComps) == 0:
-            msg.debug("Could not find any monitored component for" 
+            msg.debug("Could not find any monitored component for"
                       " _top_consumers_ analysis !")
             return
 
@@ -880,7 +870,7 @@ class SummaryCreator(object):
 
         # to hold 'cpu' for each dataSet
         axes = [ [], [], [], [] ]
-        
+
         color = DataSetMgr.colorIter()
         timings = {}
 
@@ -892,16 +882,10 @@ class SummaryCreator(object):
             timings[dsName] = []
             for monComp in _monComps:
 
-                if not storeName in monComp.data[dsName]:
+                if storeName not in monComp.data[dsName]:
                     continue
 
-                usrKey = 'cpu/user'
-                sysKey = 'cpu/sys'
-                realKey= 'cpu/real'
-                vm0Key = 'mem/vmem/0'
-                vm1Key = 'mem/vmem/1'
-                malKey = 'mem/malloc/d'
-                
+
                 store = monComp.data[dsName][storeName]
                 if store is None:
                     ## if storeName == 'evt':
@@ -917,13 +901,13 @@ class SummaryCreator(object):
                 cpu_s = cpu['sys'][:,2]
                 cpu_c = cpu['cpu'][:,2]
                 cpu_r = cpu['real'][:,2]
-                
+
                 mem = store['mem']
                 vmem= mem['vmem']
                 mall= mem['mall']
                 dvmem = vmem[:,2]
                 dmall = mall[:,2]
-                
+
                 monComps.append(monComp)
                 timings[dsName].append(monComp.name)
                 table.append(
@@ -952,7 +936,7 @@ class SummaryCreator(object):
                     table[-1] = tuple(new_value)
                     msg.warn(" +%s", table[-1])
                     pass
-                        
+
                 pass # loop over components
 
             descr = numpy.dtype( {
@@ -965,7 +949,7 @@ class SummaryCreator(object):
                 } )
             try:
                 table = numpy.array( table, dtype = descr )
-            
+
                 nData = min(
                     self.max,
                     len([ m for m in monComps if m.type in compTypes ])
@@ -977,7 +961,7 @@ class SummaryCreator(object):
                           title, storeName, sliceName, begSlice, endSlice)
                 nData = 0
                 continue
-            
+
             if nData == 0:
                 _warn = msg.warning
                 _warn("in top_consumers: no data to plot for [%s]!", title)
@@ -985,7 +969,7 @@ class SummaryCreator(object):
                 _warn("dsname=[%s] storename=[%s]", dsName, storeName)
                 _warn("no component found with type %s", compTypes)
                 continue
-        
+
             # linewidth for horizontal bars
             lw = 0.01
             names  = timings[dsName]
@@ -1013,7 +997,7 @@ class SummaryCreator(object):
             ax.set_yticklabels( labels,
                                 fontsize = 6,
                                 horizontalalignment = 'right' )
-            
+
             # display 'user' part only
             data = table['cpu/user'][-nData:]
             pos  = numpy.arange(nData)
@@ -1036,9 +1020,10 @@ class SummaryCreator(object):
                         _c += [
                             "[cpu/sys] %10.3f %10.3f (ms) | %s" % _i
                             ]
-                    else: self.msg.error( "%s contains weird data !!",_i[-1] )
+                    else:
+                        self.msg.error( "%s contains weird data !!",_i[-1] )
                 _c.reverse()
-                
+
             ## real-time
             table.sort( order=('cpu/real',) )
             labels = [ names[i] for i in table['name'][-nData:] ]
@@ -1092,7 +1077,8 @@ class SummaryCreator(object):
                                [ names[i] for i in table['name'] ] ):
                     if not numpy.isnan(_i[0]):
                         _c += [ "dVmem|dMalloc %10.3f %10.3f kB | %s" % _i ]
-                    else: self.msg.error( "%s contains weird data !!",_i[-1] )
+                    else:
+                        self.msg.error( "%s contains weird data !!",_i[-1] )
                 _c.reverse()
 
             ## malloc
@@ -1129,13 +1115,14 @@ class SummaryCreator(object):
                                [ names[i] for i in table['name'] ] ):
                     if not numpy.isnan(_i[0]):
                         _c += [ "alloc|free %10i %10i | %s" % _i ]
-                    else: self.msg.error( "%s contains weird data !!",_i[-1] )
+                    else:
+                        self.msg.error( "%s contains weird data !!",_i[-1] )
                 _c.reverse()
 
             pass # loop over data sets
 
         if nData != 0:
-        
+
             for ix, ax in zip(axes, fig.axes):
                 ax.legend(ix[::nData], DataSetMgr.labels(), loc='lower right')
         else:
@@ -1144,7 +1131,7 @@ class SummaryCreator(object):
             ##           dsName, monComp.name, storeName)
             ## return
             pass
-        
+
         m = monCompMgr['PerfMonSlice']
         d = m.data['000'][storeName]
         cpu = "%-20s [%10.3f ms    %10.3f ms\t real=  %10.3f ms ]" % (
@@ -1157,7 +1144,7 @@ class SummaryCreator(object):
         dvmem = d['mem']['vmem'][:,2]
         drss  = d['mem']['rss'][:,2]
         dmall = d['mem']['mall'][:,2]
-        
+
         mem = "%-20s [%10.3f MB -> %10.3f MB\t delta= %10.3f kB ]\n" \
               "%-20s [%10.3f MB -> %10.3f MB\t delta= %10.3f kB ]\n" \
               "%-20s [%10.3f MB -> %10.3f MB\t delta= %10.3f kB ]\n" \
@@ -1187,5 +1174,5 @@ class SummaryCreator(object):
 
         _txt['cpu']['slice'] += [ cpu ]
         _txt['mem']['slice'] += [ mem ]
-        
+
         return
