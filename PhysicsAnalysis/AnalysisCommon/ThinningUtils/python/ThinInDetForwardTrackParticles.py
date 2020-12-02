@@ -17,8 +17,7 @@ class ThinInDetForwardTrackParticles(Configured):
                                       and  any(InDetKeys.xAODForwardTrackParticleContainer() in elements
                                              for elements in inputFileSummary['eventdata_items']))
         if not have_InDetForwardParticles and ( not InDetFlags.doForwardTracks() or not InDetFlags.doParticleCreation() ) :
-            mlog.error("Not attempting to thin InDetForwardParticles, because the container %s does not seem to be available"
-                       % (InDetKeys.xAODForwardTrackParticleContainer()))
+            mlog.error("Not attempting to thin InDetForwardParticles, because the container %s does not seem to be available", InDetKeys.xAODForwardTrackParticleContainer())
             return True
 
         mlog.info('entering')

@@ -21,7 +21,6 @@ __doc__="AOD Building specific flags . "
 #=======================================================================
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-from AthenaCommon.Constants import *
 
 #=======================================================================
 # Define AOD properties by class, keeping compatibily with
@@ -257,7 +256,7 @@ class AODFlagsContainer(JobPropertyContainer):
             o=self.__dict__.get(k)
             if hasattr(o,'StoredValue'):
                 if o.statusOn and o.allowedTypes==['bool']:
-                    if o.get_Value()==True:
+                    if o.get_Value() is True:
                         print (format % (o.__name__, "ON"))
                     else:
                         print (format % (o.__name__, "--"))
