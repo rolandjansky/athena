@@ -17,7 +17,7 @@ atlas_add_library( TrigGlobalEfficiencyCorrectionLib
    #PUBLIC_HEADERS TrigGlobalEfficiencyCorrection/TrigGlobalEfficiencyCorrectionTool.h
    PUBLIC_HEADERS TrigGlobalEfficiencyCorrection
    PRIVATE_INCLUDE_DIRS ${BOOST_INCLUDE_DIRS} TriggerAnalysisInterfaces
-   LINK_LIBRARIES AsgTools xAODEgamma xAODMuon TriggerAnalysisInterfaces AthAnalysisBaseCompsLib EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib xAODEventInfo PathResolver TriggerMatchingToolLib
+   LINK_LIBRARIES AsgTools xAODEgamma xAODMuon TriggerAnalysisInterfaces EgammaAnalysisInterfacesLib MuonAnalysisInterfacesLib xAODEventInfo PathResolver TriggerMatchingToolLib
    PRIVATE_LINK_LIBRARIES ${BOOST_LIBRARIES}
 )
 
@@ -36,7 +36,7 @@ atlas_add_dictionary( TrigGlobalEfficiencyCorrectionDict
 
 set( pool_lib )
 if( NOT XAOD_STANDALONE )
-  set( pool_lib POOLRootAccessLib )
+  set( pool_lib POOLRootAccessLib AthAnalysisBaseCompsLib )
 endif()
 
 foreach(example TrigGlobEffCorrExample0 TrigGlobEffCorrExample1
