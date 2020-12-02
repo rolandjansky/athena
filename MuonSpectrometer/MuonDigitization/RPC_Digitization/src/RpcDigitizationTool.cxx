@@ -59,7 +59,6 @@
 #include <iostream>
 #include <fstream>
 
-
 using namespace MuonGM;
 #define SIG_VEL 4.8  // ns/m
 static double time_correction(double, double, double);
@@ -767,8 +766,12 @@ StatusCode RpcDigitizationTool::doDigitization() {
 
       // as long there is no proper implementation of the BI RPC cabling and digitisation,
       // skip this method to avoid hard crash of digitisation
+      static bool biWarningPrinted = false;
       if (stationName.find("BI")!=std::string::npos) {
-        ATH_MSG_WARNING("skipping RPC DetectionEfficiency for BI");
+        if (!biWarningPrinted) {
+          ATH_MSG_WARNING("skipping call of RPC DetectionEfficiency for BI as long as no proper cabling is implemented, cf. ATLASRECTS-5803");
+          biWarningPrinted=true;
+        }
       } else {
         if (DetectionEfficiency(&atlasRpcIdeta,&atlasRpcIdphi, undefPhiStripStat, trklink).isFailure()) return StatusCode::FAILURE ;
       }
@@ -2382,11 +2385,18 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
   else if(stationName>50) index = index - 44 ;
   // BME and BOE 53 and 54 are at indices 7 and 8 
 
+  static bool clusterIndexAPrinted = false;
+  static bool clusterIndexCPrinted = false;
   if( !m_ClusterSize_fromCOOL ){
     index += m_FracClusterSize1_A.size()/2*measuresPhi ;
     if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
 	index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-      ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName) ;
+      if (stationName==0 || stationName==1) {
+        if (!clusterIndexAPrinted) {
+          ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
+          clusterIndexAPrinted=true;
+        }
+      } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
       return 1;
     }
     FracClusterSize1    = m_FracClusterSize1_A      [index];
@@ -2398,8 +2408,13 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
 	  index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-	ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName) ;
-	return 1;
+        if (stationName==0 || stationName==1) {
+          if (!clusterIndexCPrinted) {
+            ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
+            clusterIndexCPrinted=true;
+          }
+        } else ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index <<" statName "<<stationName<<" (ClusterSize not from COOL)");
+        return 1;
       }
 
       FracClusterSize1    = m_FracClusterSize1_C      [index];
@@ -2414,18 +2429,35 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
     int    RPC_ProjectedTracks = 0;
 
     if( m_rSummarySvc->RPC_ProjectedTracksMap().find(Id) != m_rSummarySvc->RPC_ProjectedTracksMap().end()) RPC_ProjectedTracks = m_rSummarySvc->RPC_ProjectedTracksMap().find(Id)->second ;
-
+    static bool fracCluster1Printed = false;
+    static bool fracCluster2Printed = false;
     if(m_rSummarySvc->RPC_FracClusterSize1Map().find(Id) != m_rSummarySvc->RPC_FracClusterSize1Map().end()) FracClusterSize1	= float(m_rSummarySvc->RPC_FracClusterSize1Map().find(Id)->second) ;
-    else ATH_MSG_INFO ( "FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
+    else {
+    if (!fracCluster1Printed) {
+        ATH_MSG_INFO ( "FracClusterSize1 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used, cf. ATLASRECTS-5800") ;
+        fracCluster1Printed=true;
+      }
+    }
     if(m_rSummarySvc->RPC_FracClusterSize2Map().find(Id) != m_rSummarySvc->RPC_FracClusterSize2Map().end()) FracClusterSize2	= float(m_rSummarySvc->RPC_FracClusterSize2Map().find(Id)->second) ;
-    else ATH_MSG_INFO ( "FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
+    else {
+      if (!fracCluster2Printed) {
+        ATH_MSG_INFO ( "FracClusterSize2 entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used, cf. ATLASRECTS-5800") ;
+        fracCluster2Printed=true;
+      }
+    }
 
     ATH_MSG_DEBUG ( "FracClusterSize1 and 2 "<< FracClusterSize1 << " " << FracClusterSize2  );
 
     FracClusterSizeTail = 1. - FracClusterSize1 - FracClusterSize2 ;
 
+    static bool meanClusterPrinted = false;
     if(m_rSummarySvc->RPC_MeanClusterSizeMap().find(Id) != m_rSummarySvc->RPC_MeanClusterSizeMap().end()) MeanClusterSize     = float(m_rSummarySvc->RPC_MeanClusterSizeMap().find(Id)->second)  ;
-    else ATH_MSG_INFO ( "MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used") ;
+    else {
+      if (!meanClusterPrinted) {
+        ATH_MSG_INFO ( "MeanClusterSize entry not found for id = " <<m_idHelper->show_to_string(*IdRpcStrip)<<" default will be used, cf. ATLASRECTS-5801") ;
+        meanClusterPrinted=true;
+      }
+    }
 
     MeanClusterSizeTail = MeanClusterSize - FracClusterSize1 - 2*FracClusterSize2 ;
 
@@ -2436,7 +2468,12 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
       index += m_FracClusterSize1_A.size()/2*measuresPhi ;
       if( index>m_FracClusterSize1_A.size()    || index>m_FracClusterSize2_A.size() ||
 	  index>m_FracClusterSizeTail_A.size() || index>m_MeanClusterSizeTail_A.size() ) {
-	ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName) ;
+        if (stationName==0 || stationName==1) {
+          if (!clusterIndexAPrinted) {
+            ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName<<", cf. ATLASRECTS-5802");
+            clusterIndexAPrinted=true;
+          }
+        } else ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideA " << index << " statName "<<stationName) ;
 	return 1;
       }
       FracClusterSize1	= m_FracClusterSize1_A      [index];
@@ -2448,7 +2485,12 @@ int RpcDigitizationTool::ClusterSizeEvaluation(const Identifier* IdRpcStrip, flo
 	index += m_FracClusterSize1_C.size()/2*measuresPhi - m_FracClusterSize1_A.size()/2*measuresPhi ;
 	if( index>m_FracClusterSize1_C.size()    || index>m_FracClusterSize2_C.size() ||
 	    index>m_FracClusterSizeTail_C.size() || index>m_MeanClusterSizeTail_C.size() ) {
-	  ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName ) ;
+        if (stationName==0 || stationName==1) {
+          if (!clusterIndexCPrinted) {
+            ATH_MSG_WARNING("Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName<<", cf. ATLASRECTS-5802");
+            clusterIndexCPrinted=true;
+          }
+	    } else ATH_MSG_WARNING ( "Index out of array in ClusterSizeEvaluation SideC " << index << " statName "<<stationName ) ;
 	  return 1;
 	}
 
