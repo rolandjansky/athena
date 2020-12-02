@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ namespace Trk {
  @author Sarka.Todorova@cern.ch
  */
 
-class SubtractedCylinderSurface : public CylinderSurface
+class SubtractedCylinderSurface final : public CylinderSurface
 {
 public:
   /** Default Constructor - needed for persistency*/
@@ -57,50 +57,24 @@ public:
   bool shared() const;
 
   /**This method calls the inside() method of the Bounds*/
-  bool insideBounds(const Amg::Vector2D& locpos, double tol1 = 0., double tol2 = 0.) const;
+  virtual bool insideBounds(const Amg::Vector2D& locpos,
+                            double tol1 = 0.,
+                            double tol2 = 0.) const override final;
 
   /**This method allows access to the subtracted part*/
   SharedObject<AreaExcluder> subtractedVolume() const;
 
   /** Return properly formatted class name for screen output */
-  std::string name() const { return "Trk::SubtractedCylinderSurface"; }
+  virtual std::string name() const override final
+  {
+    return "Trk::SubtractedCylinderSurface";
+  }
 
 protected:
   SharedObject<AreaExcluder> m_subtrVol;
   bool m_shared;
 };
-
-inline bool
-SubtractedCylinderSurface::insideBounds(const Amg::Vector2D& locpos, double tol1, double tol2) const
-{
-  // no subtracted volume exists
-  if (!m_subtrVol.get())
-    return (this->bounds().inside(locpos, tol1, tol2));
-  // subtracted volume exists, needs to be checked
-  double rCyl = bounds().r();
-  double phiPos = locpos[Trk::locRPhi] / rCyl;
-  const Amg::Vector3D gp(rCyl * cos(phiPos), rCyl * sin(phiPos), locpos[Trk::locZ]);
-
-  bool inside_shared(this->bounds().inside(locpos, tol1, tol2) && m_subtrVol.get()->inside(gp, 0.));
-  bool inside(this->bounds().inside(locpos, tol1, tol2) && !m_subtrVol.get()->inside(gp, 0.));
-
-  if (m_shared)
-    return inside_shared;
-  return inside;
-}
-
-inline bool
-SubtractedCylinderSurface::shared() const
-{
-  return m_shared;
-}
-
-inline SharedObject<AreaExcluder>
-SubtractedCylinderSurface::subtractedVolume() const
-{
-  return m_subtrVol;
-}
-
 } // end of namespace
 
+#include "TrkGeometrySurfaces/SubtractedCylinderSurface.icc"
 #endif // TRKGEOMETRYSURFACES_SUBTRACTEDCYLINDERSURFACE_H
