@@ -3,9 +3,6 @@
 */
 #include "L1TopoCommon/StatusCode.h"
 
-#include "TrigConfData/L1Menu.h"
-#include "TrigConfData/L1TopoAlgorithm.h"
-
 #include <vector>
 #include <map>
 #include <string>
@@ -31,7 +28,7 @@ namespace TCS {
 
       ~TopoSteeringStructure();
 
-      StatusCode setupFromMenu(const TrigConf::L1Menu& l1menu, bool debug = false, bool legacy = false);
+      StatusCode setupFromMenu(const TXC::L1TopoMenu& menu, bool debug = false);
 
       // accessors
       bool isConfigured() const { return m_isConfigured; }

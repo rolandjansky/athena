@@ -7,8 +7,6 @@
 #include <stdint.h>
 
 #include "TrigConfBase/TrigConfMessaging.h"
-#include "TrigConfIO/JsonFileLoader.h"
-#include "TrigConfData/L1Menu.h"
 
 #include "L1TopoConfig/L1TopoXMLParser.h"
 #include "L1TopoCoreSim/TopoSteering.h"
@@ -29,7 +27,7 @@ using namespace std;
 
 int printHelp(const char * exeName) {
    cout << "Please specify menu and data file and optionally the message levels for the framework and the algorithms:" << endl << endl;
-   cout << exeName << " <menu.json> <data.txt> [INFO|DEBUG|WARNING] [INFO|DEBUG|WARNING] [filename.root] [optional arguments]" << endl << endl;
+   cout << exeName << " <menu.xml> <data.txt> [INFO|DEBUG|WARNING] [INFO|DEBUG|WARNING] [filename.root] [optional arguments]" << endl << endl;
    cout << "optional arguments:" << endl
         << "   -o|--outfile <filename.root>" << endl
         << "   -n|--nevt <#events>" << endl
@@ -99,14 +97,15 @@ int run(int argc, const char* argv[]) {
    msg.setLevel( msgLvl );
 
    // read the menu
-   TrigConf::L1Menu l1menu;
-   TrigConf::JsonFileLoader fileLoader;
-fileLoader.loadFile(argv[1], l1menu);
+   TXC::L1TopoXMLParser XMLParser;
+   XMLParser.msg().setLevel( msgLvl );
+   XMLParser.readConfiguration(argv[1]);
+   XMLParser.parseConfiguration();
+
+   //XMLParser.menu().print();
 
 
    //TFile *f = new TFile(argc>=4 ? argv[3] : "L1TopoSimulation.root","RECREATE");
-
-   /* Change once the final number of bits per module is fixed
    TH1* h[3];
    h[0] = new TH1F("Decision/DecisionModule1", "L1 Topo Decision (Module 1)", 64, 0, 64);
    h[1] = new TH1F("Decision/DecisionModule2", "L1 Topo Decision (Module 2)", 64, 0, 64);
@@ -118,21 +117,21 @@ fileLoader.loadFile(argv[1], l1menu);
    }
    for(uint i=0; i<3; ++i)
       h[i]->SetLabelSize(0.025);
-   */
+
 
    // instantiate steering
    TCS::TopoSteering steering;
    steering.setUseBitwise(false);
-   steering.setupFromConfiguration(l1menu);
+   steering.setupFromConfiguration(XMLParser.takeMenu());
 
    steering.setMsgLevel( msgLvl );
 
    steering.setAlgMsgLevel( algMsgLvl );
 
    std::shared_ptr<IL1TopoHistSvc> topoHistSvc = std::shared_ptr<IL1TopoHistSvc>( new StandaloneL1TopoHistSvc() );
-   //   topoHistSvc->setBaseDir("L1TopoSimulation.root:");
-   //   for(int i = 0; i < 3; i++ )
-   //      topoHistSvc->registerHist(h[i]);
+   topoHistSvc->setBaseDir("L1TopoSimulation.root:");
+   for(int i = 0; i < 3; i++ )
+      topoHistSvc->registerHist(h[i]);
 
    steering.setHistSvc(topoHistSvc);
 
@@ -165,15 +164,14 @@ fileLoader.loadFile(argv[1], l1menu);
 
       steering.executeEvent();
 
-      // const TCS::GlobalDecision & globalDec = 
-      steering.simulationResult().globalDecision();
-      /*
+      const TCS::GlobalDecision & globalDec = steering.simulationResult().globalDecision();
+
       for(unsigned int module=0; module<3; ++module)
          for(unsigned int trigger=0; trigger<64; ++trigger)
             if( globalDec.passed(module, trigger) ) h[module]->Fill(trigger);
-      */
+
       steering.reset();
-     
+
    }
    msg << TrigConf::MSGTC::INFO << "=======================================================" << TrigConf::endmsgtc;
   

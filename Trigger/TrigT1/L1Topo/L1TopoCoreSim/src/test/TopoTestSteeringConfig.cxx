@@ -8,37 +8,36 @@
 #include "L1TopoCoreSim/TopoSteering.h"
 #include "L1TopoConfig/L1TopoXMLParser.h"
 
-#include "TrigConfIO/JsonFileLoader.h"
-#include "TrigConfData/L1Menu.h"
-
 using namespace std;
 
 int run(int argc, const char * argv[]) {
 
    if(argc<2) {
-      cout << "Please specify topo menu input JSON file:\n" << argv[0] << " -v <menu.json>" << endl;
+      cout << "Please specify topo menu input XML file:\n" << argv[0] << " -v <menu.xml>" << endl;
       return 1;
    }
 
    bool verbose = (string(argv[1])=="-v");
 
-   TrigConf::L1Menu l1menu;
-   TrigConf::JsonFileLoader fileLoader;
 
+   TXC::L1TopoXMLParser parser;
+   parser.readConfiguration(argv[argc-1]);
    try {
-      fileLoader.loadFile( argv[0], l1menu);
+      parser.parseConfiguration();
    }
    catch(std::exception & e) {
-      cout << "TopoTestSteeringConfig: Caught exception from the topo menu loader, no topo menu will be available! Exception message: " << e.what() << endl;
+      cout << "TopoTestSteeringConfig: Caught exception from the topo menu parser, no topo menu will be available! Exception message: " << e.what() << endl;
       return 1;
    }
 
+   TXC::L1TopoMenu menu = parser.takeMenu();  // since parser goes out of scope, we take the menu
+
    if (verbose)
-      l1menu.printMenu(true);
+      menu.print();
 
    TCS::TopoSteering steering;
    try {
-      steering.setupFromConfiguration(l1menu);
+      steering.setupFromConfiguration( menu );
    } catch(exception & e) {
       cerr << "TopoTestSteeringConfig: Caught exception when configuring topo steering from menu: " << endl << e.what() << endl;
       return 1;
