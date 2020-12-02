@@ -1654,8 +1654,12 @@ class ItemDef:
             MenuItem('L1_LFV-MU6').setLogic( d.TOPO_0DR15_2MU6ab & d.MU6.x(2) & physcond)
             MenuItem('L1_LFV-MU').setLogic( d.R2TOPO_0DR10_MU10ab_MU6ab & d.MU10 & d.MU6.x(2) & physcond)
 
-            MenuItem('L1_LFV-EM8I').setLogic( d.TOPO_0DETA04_EM8abi_MU10ab & d.TOPO_0DPHI03_EM8abi_MU10ab & d.MU10 & physcond) #ATR-14282
-            MenuItem('L1_LFV-EM15I').setLogic( d.TOPO_0DETA04_EM15abi_MUab & d.TOPO_0DPHI03_EM15abi_MUab & physcond) #ATR-14282
+            if isV8 or isHIV5 or isPhaseII:
+                MenuItem('L1_LFV-EM8I').setLogic( d.TOPO_0DETA04_EM8abi_MU10ab & d.TOPO_0DPHI03_EM8abi_MU10ab & d.MU10 & physcond) #ATR-14282
+                MenuItem('L1_LFV-EM15I').setLogic( d.TOPO_0DETA04_EM15abi_MUab & d.TOPO_0DPHI03_EM15abi_MUab & physcond) #ATR-14282
+            else:
+                MenuItem('L1_LFV-EM8I').setLogic( d.TOPO_0DETA04_0DPHI03_EM8abi_MU10ab & physcond)
+                MenuItem('L1_LFV-EM15I').setLogic( d.TOPO_0DETA04_0DPHI03_EM15abi_MUab & physcond)
                 
             MenuItem('L1_DPHI-J20s2XE50').setLogic( d.TOPO_10MINDPHI_J20s2_XE50 & physcond)
             MenuItem('L1_DPHI-J20XE50').setLogic( d.R2TOPO_10MINDPHI_J20ab_XE50 & physcond)
@@ -1704,7 +1708,10 @@ class ItemDef:
             MenuItem('L1_DR-TAU20ITAU12I').setLogic( d.TOPO_0DR28_TAU20abi_TAU12abi & physcond)
             MenuItem('L1_BOX-TAU20ITAU12I').setLogic( d.R2TOPO_0DETA20_0DPHI20_TAU20abi_TAU12abi & physcond)
 
-            MenuItem('L1_DR-TAU20ITAU12I-J25').setLogic( d.TOPO_2DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond)
+            if isV8:
+                MenuItem('L1_DR-TAU20ITAU12I-J25').setLogic( d.TOPO_2DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond)
+            else:
+                MenuItem('L1_DR-TAU20ITAU12I-J25').setLogic( d.TOPO_1DISAMB_J25ab_0DR28_TAU20abi_TAU12abi & physcond)
 
             MenuItem('L1_DR25-TAU20ITAU12I-J25').setLogic( d.R2TOPO_1DISAMB_J25ab_0DR25_TAU20abi_TAU12abi & physcond)
             MenuItem('L1_LAR-EM').setLogic( d.R2TOPO_LAR_EM20shi1 & physcond).setTriggerType( TT.lardemo ) # LAr demo (ATR-11897)

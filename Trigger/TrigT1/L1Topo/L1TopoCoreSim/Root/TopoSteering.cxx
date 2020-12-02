@@ -1,10 +1,7 @@
-/*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #include "L1TopoInterfaces/AlgFactory.h" 
 #include "L1TopoInterfaces/IL1TopoHistSvc.h"
-
 
 #include "L1TopoInterfaces/ConfigurableAlg.h"
 #include "L1TopoInterfaces/ParameterSpace.h"
@@ -44,31 +41,22 @@ TopoSteering::~TopoSteering() {
    AlgFactory::destroy_instance();
 }
 
-TCS::StatusCode
-TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu&){
-  
-  // Keep this method to avoid crashes. TO-DO: Switch menu loading in L1TopoSimulation.cxx
-  TRG_MSG_WARNING("Cannot configure simulation from XML. Use JSON format");
+StatusCode
+TopoSteering::setupFromConfiguration(const TXC::L1TopoMenu& menu) {
+   
+   if(m_useBitwise){ TRG_MSG_INFO("Will be using bitwise implementation of algorithms");}
+   else{TRG_MSG_INFO("Will NOT be using bitwise implementation of algorithms");}
 
-  return TCS::StatusCode::SUCCESS;
 
+   StatusCode sc = m_structure.setupFromMenu( menu );
+
+   // configure layout of the simulation result
+   sc &= m_simulationResult.setupFromMenu( menu, m_structure.outputConnectors() );
+
+   return sc;
 }
 
-
-TCS::StatusCode
-TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
-
-
-  TCS::StatusCode sc = m_structure.setupFromMenu( l1menu );
-  
-  // configure layout of the simulation result
-  sc &= m_simulationResult.setupFromMenu( m_structure.outputConnectors() );
-
-  return sc;
-
-}
-
-TCS::StatusCode
+StatusCode
 TopoSteering::reset() {
 
    ClusterTOB::clearHeap();
@@ -86,11 +74,11 @@ TopoSteering::reset() {
 
    m_simulationResult.reset();
    
-   return TCS::StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::initializeAlgorithms() {
    TRG_MSG_INFO("initializing algorithms");
    if( ! structure().isConfigured() ) {
@@ -113,7 +101,7 @@ TopoSteering::initializeAlgorithms() {
 }
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::setHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) {
    TRG_MSG_INFO("setting L1TopoHistSvc ");
    m_histSvc = histSvc;
@@ -121,7 +109,7 @@ TopoSteering::setHistSvc(std::shared_ptr<IL1TopoHistSvc> histSvc) {
 }
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::saveHist() {
    if(m_histSvc) {
       m_histSvc->save();
@@ -132,7 +120,7 @@ TopoSteering::saveHist() {
 }
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::executeEvent() {
 
 
@@ -147,7 +135,7 @@ TopoSteering::executeEvent() {
    inputEvent().print();
 
    // execute all connectors
-   TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
+   StatusCode sc = StatusCode::SUCCESS;
    TRG_MSG_INFO("Going to execute " << m_structure.outputConnectors().size() << " connectors");
    for(auto outConn: m_structure.outputConnectors()) {
       TRG_MSG_INFO("executing trigger line " << outConn.first);
@@ -160,19 +148,19 @@ TopoSteering::executeEvent() {
    m_simulationResult.globalDecision().print();
 
    TRG_MSG_INFO("finished executing event " << m_evtCounter++);
-   return TCS::StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::executeTrigger(const std::string & TrigName) {
    if( ! structure().isConfigured() )
       TCS_EXCEPTION("TopoSteering has not been configured, can't run");
    
    DecisionConnector * outConn = m_structure.outputConnector(TrigName);
 
-   TCS::StatusCode sc = executeConnector(outConn);
+   StatusCode sc = executeConnector(outConn);
 
    m_simulationResult.collectResult(outConn);
 
@@ -180,22 +168,18 @@ TopoSteering::executeTrigger(const std::string & TrigName) {
 }
 
 
-
-
-
-
-TCS::StatusCode
+StatusCode
 TopoSteering::executeConnector(TCS::Connector *conn) {
 
    if (conn == NULL) {
-     return TCS::StatusCode::FAILURE;
+     return StatusCode::FAILURE;
    }
 
    // caching
    if(conn->isExecuted())
       return conn->executionStatusCode();
   
-   TCS::StatusCode sc(TCS::StatusCode::SUCCESS);
+   StatusCode sc(StatusCode::SUCCESS);
 
    if(conn->isInputConnector()) {
       //TRG_MSG_DEBUG("  ... executing input connector '" << conn->name() << "'");
@@ -216,14 +200,14 @@ TopoSteering::executeConnector(TCS::Connector *conn) {
 
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::executeInputConnector(TCS::InputConnector *conn) {
 
    if (conn == NULL) {
-     return TCS::StatusCode::FAILURE;
+     return StatusCode::FAILURE;
    }
 
-   TCS::StatusCode sc(TCS::StatusCode::SUCCESS);
+   StatusCode sc(StatusCode::SUCCESS);
 
    // attaching data from inputEvent to input connector, depending on the configured input type
 
@@ -239,14 +223,14 @@ TopoSteering::executeInputConnector(TCS::InputConnector *conn) {
 
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::executeSortingConnector(TCS::SortingConnector *conn) {
 
    if (conn == NULL) {
      return StatusCode::FAILURE;
    }
 
-   TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
+   StatusCode sc = StatusCode::SUCCESS;
   
    // execute all the prior connectors
    for( TCS::Connector* inputConn: conn->inputConnectors() ){
@@ -269,14 +253,14 @@ TopoSteering::executeSortingConnector(TCS::SortingConnector *conn) {
 
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
 
    if (conn == NULL) {
-     return TCS::StatusCode::FAILURE;
+     return StatusCode::FAILURE;
    }
 
-   TCS::StatusCode sc = TCS::StatusCode::SUCCESS;
+   StatusCode sc = StatusCode::SUCCESS;
   
    // execute all the prior connectors
    for( TCS::Connector* inputConn: conn->inputConnectors() ){
@@ -321,7 +305,7 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
 
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::executeSortingAlgorithm(TCS::SortingAlg *alg,
                                       TCS::InputConnector* inputConnector,
                                       TCS::TOBArray * & sortedOutput) {
@@ -334,12 +318,12 @@ TopoSteering::executeSortingAlgorithm(TCS::SortingAlg *alg,
    if(m_useBitwise) alg->sortBitCorrect(*input, *sortedOutput);
    else alg->sort(*input, *sortedOutput);
 
-   return TCS::StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 
 
-TCS::StatusCode
+StatusCode
 TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
                                        const std::vector<Connector*> & inputConnectors,
                                        const std::vector<TCS::TOBArray *> & output,
@@ -373,9 +357,8 @@ TopoSteering::executeDecisionAlgorithm(TCS::DecisionAlg *alg,
    else alg->process( input, output, decision );
    //TRG_MSG_ALWAYS("[XS1234sz]L1Topo Steering alg " << alg->name() << " has decision " << decision.decision());
      
-   return TCS::StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
-
 
 
 void
@@ -439,8 +422,8 @@ void TopoSteering::propagateHardwareBitsToAlgos()
        TCS::DecisionConnector *outCon = connector.second;
         outCon->decisionAlgorithm()->resetHardwareBits();
         unsigned int pos = 0; // for multi-output algorithms pos is the output index
-        for(const TrigConf::TriggerLine &trigger : outCon->triggers()){
-	    unsigned int bitNumber = trigger.startbit() + 32*trigger.fpga() + 16*clock();
+        for(const TXC::TriggerLine &trigger : outCon->triggers()){
+            unsigned int bitNumber = trigger.counter();
             outCon->decisionAlgorithm()->setHardwareBits(pos,
                                                          m_triggerHdwBits[bitNumber],
                                                          m_ovrflowHdwBits[bitNumber]);
