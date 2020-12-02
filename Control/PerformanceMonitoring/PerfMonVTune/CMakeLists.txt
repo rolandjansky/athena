@@ -13,6 +13,14 @@ find_path( ITT_INCLUDE_DIR NAMES ittnotify.h HINTS ${ITT_PREFIX}/include )
 find_library( ITT_LIBRARY NAMES ittnotify HINTS ${ITT_PREFIX}/lib64 )
 
 include_directories(${ITT_INCLUDE_DIR})
+
+if ( NOT ITT_LIBRARY OR NOT ITT_INCLUDE_DIR )
+  message( FATAL_ERROR
+    "\nYou must have VTune setup properly for compiling PerfMonVTune.\n"
+    "From within CERN this can be accomplished by doing:\n"
+    "source /cvmfs/projects.cern.ch/intelsw/psxe/linux/all-setup.sh\n"
+    "*BEFORE* setting up Athena." )
+endif()
 ####
 
 # Component(s) in the package:
