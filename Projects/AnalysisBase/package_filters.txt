@@ -12,7 +12,6 @@
 #+ PhysicsAnalysis/BPhys/BPhysTools
 #+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
 #+ Reconstruction/Jet/BoostedJetTaggers
-#+ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 #+ Trigger/TriggerSimulation/TrigBtagEmulationTool
 
 
@@ -111,6 +110,7 @@
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 + Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 + Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase
