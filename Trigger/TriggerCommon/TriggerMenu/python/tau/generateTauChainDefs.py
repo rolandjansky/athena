@@ -61,7 +61,7 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=False):
     L2ChainName = "L2_" + chainDict['chainName']
 
     topoThresh = chainDict['topoThreshold']
-    topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
+    topoStartFrom = None # setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
 
     topoAlgs = chainDict["topo"]
 
