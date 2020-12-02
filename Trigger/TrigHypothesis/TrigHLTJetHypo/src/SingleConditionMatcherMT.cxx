@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -32,7 +32,10 @@ SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
 
   for(auto i=jets_b; i != jets_e; ++i){
     if (m_condition->isSatisfied(*i, v)){
-      jetCollector.addJets((*i).cbegin(), (*i).cend());
+      // Note that this slightly out-of-date code does not expect
+      // chains with simple and non-simple scenarios to be present in the
+      // same chain. The leg label is hard coded here.
+      jetCollector.addJets((*i).cbegin(), (*i).cend(), "leg000");
       return std::make_optional<bool>(true);
     }
   }

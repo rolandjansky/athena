@@ -53,6 +53,14 @@ HypoJetVector xAODJetCollector::hypoJets() const {
   return HypoJetVector(js.begin(), js.end());
 }
 
+  
+HypoJetVector xAODJetCollector::hypoJets(const std::string& label) const {
+  auto begin = m_jets.at(label).cbegin();
+  auto end = m_jets.at(label).cend();
+  HypoJetSet js(begin, end);
+  return HypoJetVector(js.begin(), js.end());
+}
+
 
 void xAODJetCollector::addOneJet(const pHypoJet jet,
 				 const std::string& label){
@@ -86,4 +94,15 @@ xAODJetCollector::xAODJets_(const HypoJetVector::const_iterator begin,
   
   std::set<const xAOD::Jet*> js(xJets.begin(), xJets.end());
   return std::vector<const xAOD::Jet*> (js.begin(), js.end());
+}
+
+
+std::vector<std::string>  xAODJetCollector::legLabels() const {
+  std::vector<std::string> labels;
+
+  for(auto it = m_jets.begin(); it != m_jets.end(); ++it){
+    labels.push_back(it->first);
+  }
+
+  return labels;
 }

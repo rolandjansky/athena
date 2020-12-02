@@ -31,9 +31,8 @@ class ConditionsToolSetterFastReduction(object):
         'hecfrac' : 'HECFrac',
     }
 
-    def __init__(self, name):
+    def __init__(self):
 
-        self.name = name
         # for simple, use TrigJetConditionConfig_etaet. Needs to be
         # completed because simple can conain any single jet condition
         self.tool_factories = {
@@ -121,7 +120,12 @@ class ConditionsToolSetterFastReduction(object):
 
             # create capacitychecked condition from elemental condition
             condition_tool =self._get_tool_instance('capacitychecked')
-            condition_tool.chainLegLabel = cpi
+
+            if cpi:
+                condition_tool.chainLegLabel = cpi
+            else:
+                condition_tool.chainLegLabel = ''
+            
             condition_tool.conditionMakers = condition_tools
             condition_tool.multiplicity = mult
             # add capacitychecked condition to list

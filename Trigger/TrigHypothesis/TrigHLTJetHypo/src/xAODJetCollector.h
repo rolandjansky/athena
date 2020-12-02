@@ -15,6 +15,7 @@
 // xAODJetCollector - an object send to a (possibly recursive)
 // TrigJetHypoToolHelpers to obtain xAOD jets
 
+using CI = std::map<std::string, HypoJetVector>::const_iterator;
 
 class xAODJetCollector {
 
@@ -29,12 +30,16 @@ public:
   std::vector<const xAOD::Jet*> xAODJets(const std::string& label) const;
   
   HypoJetVector hypoJets() const;
+  HypoJetVector hypoJets(const std::string& label) const;
 
   void addOneJet(const pHypoJet jet, const std::string& label="");
 
   std::size_t size() const;
   bool empty() const;
- 
+
+
+  std::vector<std::string> legLabels() const;
+  
  private:
 
   std::map<std::string, HypoJetVector> m_jets;
