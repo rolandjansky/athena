@@ -359,9 +359,9 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_btagging( const ElementLinkVector< xAO
   MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_minimumTrackRelativeEta, float, bTaggingEL);
   MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_averageTrackRelativeEta, float, bTaggingEL);
 
-  MONITOR_BTAG_AUX_VAR(maximumTrackRelativeEta, float, bTaggingEL);
-  MONITOR_BTAG_AUX_VAR(minimumTrackRelativeEta, float, bTaggingEL);
-  MONITOR_BTAG_AUX_VAR(averageTrackRelativeEta, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_maximumAllJetTrackRelativeEta, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_minimumAllJetTrackRelativeEta, float, bTaggingEL);
+  MONITOR_BTAG_AUX_VAR(JetFitterSecondaryVertex_averageAllJetTrackRelativeEta, float, bTaggingEL);
 
 
 
@@ -412,9 +412,9 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_btagging( const ElementLinkVector< xAO
     monitor_for_JetFitterSecondaryVertex_maximumTrackRelativeEta,
     monitor_for_JetFitterSecondaryVertex_minimumTrackRelativeEta,
     monitor_for_JetFitterSecondaryVertex_averageTrackRelativeEta,
-    monitor_for_maximumTrackRelativeEta,
-    monitor_for_minimumTrackRelativeEta,
-    monitor_for_averageTrackRelativeEta,
+    monitor_for_JetFitterSecondaryVertex_maximumAllJetTrackRelativeEta,
+    monitor_for_JetFitterSecondaryVertex_minimumAllJetTrackRelativeEta,
+    monitor_for_JetFitterSecondaryVertex_averageAllJetTrackRelativeEta,
     monitor_for_MV2c10
   );
 

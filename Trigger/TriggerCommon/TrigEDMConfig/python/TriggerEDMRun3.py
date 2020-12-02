@@ -74,11 +74,20 @@ JetCopyVarsToKeep = ['pt', 'eta', 'phi', 'm',
                  ]
 JetCopyVars = '.'.join(JetCopyVarsToKeep)
 
-BTagOutput = ['jetLink','BTagTrackToJetAssociator','minimumTrackRelativeEta','maximumTrackRelativeEta','averageTrackRelativeEta','trkSum_ntrk','trkSum_SPt','trkSum_VPt','trkSum_VEta','Muons',]
+BTagOutput = ['jetLink','BTagTrackToJetAssociator','Muons',]
 BTagOutput_IP2D = ['IP2D_TrackParticleLinks','IP2D_gradeOfTracks','IP2D_weightBofTracks','IP2D_weightCofTracks','IP2D_weightUofTracks','IP2D_sigD0wrtPVofTracks','IP2D_flagFromV0ofTracks','IP2D_nTrks','IP2D_isDefaults','IP2D_cu','IP2D_bu','IP2D_bc',]
 BTagOutput_IP3D = ['IP3D_TrackParticleLinks','IP3D_gradeOfTracks','IP3D_weightBofTracks','IP3D_weightCofTracks','IP3D_weightUofTracks','IP3D_valD0wrtPVofTracks','IP3D_sigD0wrtPVofTracks','IP3D_valZ0wrtPVofTracks','IP3D_sigZ0wrtPVofTracks','IP3D_flagFromV0ofTracks','IP3D_nTrks','IP3D_isDefaults','IP3D_cu','IP3D_bu','IP3D_bc',]
 BTagOutput_SV1 = ['SV1_TrackParticleLinks','SV1_vertices','SV1_isDefaults','SV1_NGTinSvx','SV1_masssvx','SV1_N2Tpair','SV1_efracsvx','SV1_deltaR','SV1_Lxy','SV1_L3d','SV1_significance3d','SV1_energyTrkInJet','SV1_dstToMatLay','SV1_badTracksIP','SV1_normdist',]
-BTagOutput_JetFitter = ['JetFitter_deltaeta','JetFitter_deltaphi','JetFitter_fittedPosition','JetFitter_JFvertices','JetFitter_nVTX','JetFitter_nSingleTracks','JetFitter_isDefaults','JetFitter_deltaR','JetFitterSecondaryVertex_isDefaults','JetFitterSecondaryVertex_nTracks','JetFitterSecondaryVertex_mass','JetFitterSecondaryVertex_energy','JetFitterSecondaryVertex_energyFraction','JetFitterSecondaryVertex_displacement3d','JetFitterSecondaryVertex_displacement2d','JetFitterSecondaryVertex_minimumTrackRelativeEta','JetFitterSecondaryVertex_maximumTrackRelativeEta','JetFitterSecondaryVertex_averageTrackRelativeEta','JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d','JetFitter_nTracksAtVtx','JetFitter_N2Tpair','JetFitter_fittedCov','JetFitter_tracksAtPVchi2','JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks','JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',]
+BTagOutput_JetFitter = [
+    'JetFitter_deltaeta','JetFitter_deltaphi','JetFitter_fittedPosition','JetFitter_JFvertices','JetFitter_nVTX','JetFitter_nSingleTracks','JetFitter_isDefaults','JetFitter_deltaR',
+    'JetFitterSecondaryVertex_isDefaults','JetFitterSecondaryVertex_nTracks','JetFitterSecondaryVertex_mass','JetFitterSecondaryVertex_energy','JetFitterSecondaryVertex_energyFraction','JetFitterSecondaryVertex_displacement3d','JetFitterSecondaryVertex_displacement2d',
+    'JetFitterSecondaryVertex_minimumTrackRelativeEta',
+    'JetFitterSecondaryVertex_maximumTrackRelativeEta',
+    'JetFitterSecondaryVertex_averageTrackRelativeEta',
+    'JetFitterSecondaryVertex_minimumAllJetTrackRelativeEta',
+    'JetFitterSecondaryVertex_maximumAllJetTrackRelativeEta',
+    'JetFitterSecondaryVertex_averageAllJetTrackRelativeEta',
+    'JetFitter_mass','JetFitter_energyFraction','JetFitter_significance3d','JetFitter_nTracksAtVtx','JetFitter_N2Tpair','JetFitter_fittedCov','JetFitter_tracksAtPVchi2','JetFitter_tracksAtPVndf','JetFitter_tracksAtPVlinks','JetFitter_massUncorr','JetFitter_chi2','JetFitter_ndof','JetFitter_dRFlightDir',]
 BTagOutput_rnnip = ['rnnip_isDefaults','rnnip_pu','rnnip_pc','rnnip_pb','rnnip_ptau',]
 BTagOutput_highLevelTaggers = ['MV2c10_discriminant','DL1_pu','DL1_pc','DL1_pb','DL1r_pu','DL1r_pc','DL1r_pb',]
 
