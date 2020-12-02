@@ -302,6 +302,9 @@ class AthConfigFlags(object):
                                + repr(replacementNames - replacedNames))
         newFlags = AthConfigFlags(newFlagDict)
         newFlags._dynaflags = deepcopy(self._dynaflags)
+        
+        if self._locked:
+            newFlags.lock()
         return newFlags
 
 

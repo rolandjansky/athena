@@ -6,7 +6,6 @@
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/Units.h"
-#include "GeoModelKernel/Units.h"
 #include "GeoModelKernel/GeoElement.h"
 #include "GeoModelXml/translate.h"
 #include "GeoModelXml/GmxUtil.h"

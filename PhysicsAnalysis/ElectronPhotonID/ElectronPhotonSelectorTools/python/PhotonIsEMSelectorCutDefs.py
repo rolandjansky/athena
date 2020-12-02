@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of the PhotonIsEMSelectorCutDefs
 # This one is used for stadard photons cuts menus
@@ -6,13 +6,14 @@
 import cppyy
 try :
     cppyy.load_library('libElectronPhotonSelectorToolsDict')
-except :
+except Exception:
     pass
 
 from ROOT import egammaPID
 
 # Import a needed helper
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import GetTool
+from AthenaCommon.SystemOfUnits import GeV
 
 ## obsolete the old cut-def should be updated with the new selectors.
 def PhotonIsEMSelectorConfig2011(theTool) :

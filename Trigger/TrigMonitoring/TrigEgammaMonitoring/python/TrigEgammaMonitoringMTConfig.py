@@ -198,6 +198,7 @@ class TrigEgammaMonAlgBuilder:
             ]
 
     monitoringTP_electron = [
+            'HLT_e17_lhvloose_L1EM15VHI', 
             'HLT_e24_lhvloose_L1EM20VH', 
             'HLT_e26_lhloose_L1EM15VH',
             'HLT_e26_lhmedium_L1EM15VH',

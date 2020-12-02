@@ -4,7 +4,7 @@
 # This one is used for stadard Tight photons cuts menus
 
 # Import a needed helper
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import GetTool
 
 
 def ForwardElectronIsEMTightSelectorConfigMC15(theTool) :

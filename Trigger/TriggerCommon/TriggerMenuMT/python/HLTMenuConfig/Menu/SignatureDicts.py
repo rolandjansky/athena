@@ -133,7 +133,7 @@ JetChainParts = {
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
     'trkopt'       : ['notrk','ftk','ftkrefit','ftf'],
-    'trkpresel'    : ['nopresel','preselj45'],
+    'trkpresel'    : ['nopresel','preselj20'],
     'hypoScenario' : ['simple', 'vbenf',
                       'vbenfSEP30etSEP34mass35SEP50fbet',
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',

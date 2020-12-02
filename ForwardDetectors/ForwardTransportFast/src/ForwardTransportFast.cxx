@@ -60,10 +60,8 @@ StatusCode ForwardTransportFast::execute() {
     std::vector<HepMC::FourVector> fPosVector;
     std::vector<HepMC::FourVector> fMomVector;
     
-    for (HepMC::GenEvent::particle_const_iterator p = gEvent->particles_begin(); p != gEvent->particles_end(); ++p) {
+    for (auto gParticle: *gEvent) {
   
-      HepMC::GenParticle* gParticle = (*p); 
-
       if (gParticle->status() != 1) continue; // take only stable particles
       if (gParticle->end_vertex())  continue; // skip decay vertices
       

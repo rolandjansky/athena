@@ -7,7 +7,8 @@
 #--------------------------------------------------------------
 # RunNumber and number of events
 #--------------------------------------------------------------
-RunNumber = 364214
+#RunNumber = 364214
+RunNumber = 370059
 EvtMax    = -1  
 
 #--------------------------------------------------------------
@@ -151,5 +152,5 @@ ConditionsTagNF  = 'CONDBR2-ES1PA-2016-03'    # Solenoid=OFF, BarrelToroid=OFF
 
 #-------------------------------------------------------------- 
 # Read /SCT/Derived/Monotoring in COOL 
-NoisyReadNumRuns = 5   # Used in a criteria for upload of NoisyStrips 
+NoisyReadNumRuns = 3   # Used in a criteria for upload of NoisyStrips 
 TagID4NoisyUploadTest = 'SctDerivedMonitoring-RUN2-UPD4-005'

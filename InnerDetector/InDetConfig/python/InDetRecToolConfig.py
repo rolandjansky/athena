@@ -415,8 +415,13 @@ def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}
 
 
 def SCT_FlaggedConditionToolCfg(flags, name="SCT_FlaggedConditionTool", **kwargs):
-  tool = CompFactory.SCT_FlaggedConditionTool(name, **kwargs)
   result = ComponentAccumulator()
+
+  # For SCT_ID and SCT_DetectorElementCollection used in SCT_FlaggedConditionTool
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+  result.merge(SCT_GeometryCfg(flags))
+
+  tool = CompFactory.SCT_FlaggedConditionTool(name, **kwargs)
   result.setPrivateTools(tool)
   return result
 

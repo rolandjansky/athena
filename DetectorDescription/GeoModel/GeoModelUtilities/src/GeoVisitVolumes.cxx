@@ -10,10 +10,6 @@
  * Based on GeoAccessVolumeAction.
  */
 
-
-#include "GeoModelUtilities/GeoVisitVolumes.h"
-
-
 #include "GeoModelUtilities/GeoVisitVolumes.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoSerialDenominator.h"

@@ -5,7 +5,7 @@
 
 
 # Import a needed helper
-from PATCore.HelperUtils import *
+from PATCore.HelperUtils import GetTool
 
 
 def PhotonIsEMMediumSelectorConfig(theTool) :

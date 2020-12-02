@@ -118,6 +118,7 @@ def setupMenu():
 
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
+        ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VHI',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhloose_L1EM15VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhmedium_L1EM15VH', groups=SingleElectronGroup),
@@ -246,9 +247,9 @@ def setupMenu():
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j45_pf_ftf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_preselj45_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_preselj45_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_subjesIS_ftf_preselj45_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_preselj20_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subjesIS_ftf_preselj20_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_pf_ftf_L1J20', groups=SingleJetGroup),
 

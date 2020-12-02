@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # File: D3PDMakerTest/python/difftuple.py
@@ -11,11 +11,10 @@ from __future__ import print_function
 
 # Always run in batch mode.
 import os
-if os.environ.has_key('DISPLAY'):
+if 'DISPLAY' in os.environ:
     del os.environ['DISPLAY']
 
 import ROOT
-import cppyy
 import types
 import os
 from fnmatch import fnmatch
@@ -264,7 +263,7 @@ def compare (o1, o2, thresh = 1e-6, ithresh = None):
         return o1 == o2
     if type(o1) != type(o2):
         return False
-    if type(o1) == type([]):
+    if isinstance(o1,list):
         if len(o1) != len(o2):
             return False
         for i in range(len(o1)):
@@ -275,7 +274,7 @@ def compare (o1, o2, thresh = 1e-6, ithresh = None):
                              'map<string,float>',
                              'map<string,string>']:
         return ROOT.D3PDTest.MapDumper.equal (o1, o2)
-    if type(o1) == type(1.1):
+    if isinstance(o1, float):
         if ithresh and abs(o1) < ithresh and abs(o2) < ithresh:
             return True
         num = o1-o2

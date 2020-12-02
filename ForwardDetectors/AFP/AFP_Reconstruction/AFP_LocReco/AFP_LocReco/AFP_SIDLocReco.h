@@ -12,7 +12,6 @@
 #include <vector>
 #include <fstream>
 
-//#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ObjectVector.h"
@@ -31,12 +30,6 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-//#include "AFP_RawEv/AFP_RawData.h"
-//#include "AFP_RawEv/AFP_RawDataContainer.h"
-//#include "AFP_RawEv/AFP_RawDataCollection.h"
-//#include "AFP_RawEv/AFP_SIDDigitCollection.h"
-//#include "AFP_RawEv/AFP_TDDigitCollection.h"
-
 #include "AFP_Geometry/AFP_constants.h"
 #include "AFP_Geometry/AFP_Geometry.h"
 #include "AFP_Geometry/AFP_ConfigParams.h"
@@ -44,8 +37,6 @@
 
 #include "AFP_DigiEv/AFP_SiDigiCollection.h"
 #include "AFP_LocRecoEv/AFP_SIDLocRecoEvCollection.h"
-
-//#include "AFP_LocRecoEv/AFP_SIDLocRecoEvCollection.h"
 
 #include "AFP_LocReco/AFP_UserObjects.h"
 #include "AFP_LocReco/AFP_SIDBasicKalman.h"

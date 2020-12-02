@@ -74,9 +74,9 @@ def jetRecoSequence( configFlags, clustersKey, **jetRecoDict ):
             clustersKey=clustersKey, **jetRecoDict)
 
 # Normal jet reconstruction, no reclustering or grooming
-def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict ):
+def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDict ):
     jetDefString = jetRecoDictToString(jetRecoDict)
-    recoSeq = parOR( "JetRecSeq_"+jetDefString, [])
+    buildSeq = parOR( "JetBuildSeq_"+jetDefString, [])
     trkcolls = getTrkColls(jetRecoDict) if jetRecoDict["trkopt"]!="notrk" else {}
 
     # Add particle flow reconstruction if needed
@@ -87,10 +87,10 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         (pfseq, pfoPrefix) = RecoFragmentsPool.retrieve(
             PFHLTSequence,
             configFlags, clustersin=clustersKey, tracktype=jetRecoDict["trkopt"])
-        recoSeq += pfseq
-        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix, prefix=jetNamePrefix)
+        buildSeq += pfseq
+        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,pfoPrefix=pfoPrefix,prefix=jetNamePrefix)
     else:
-        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey, prefix=jetNamePrefix)
+        jetDef = JetRecoConfiguration.defineJets(jetRecoDict,clustersKey=clustersKey,prefix=jetNamePrefix)
 
     # chosen jet collection
     jetsFullName = jetDef.fullname()
@@ -105,12 +105,12 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         from JetRecConfig.ConstModHelpers import getConstitModAlg
         constitModAlg = getConstitModAlg(jetDef.inputdef, monTool=monJetRecTool)
         if constitModAlg:
-            recoSeq += constitModAlg
+            buildSeq += constitModAlg
 
     # Add the PseudoJetGetter alg to the sequence
     constitPJAlg = getConstitPJGAlg( jetDef.inputdef )
     constitPJKey = str(constitPJAlg.OutputContainer)
-    recoSeq += conf2toConfigurable( constitPJAlg )
+    buildSeq += conf2toConfigurable( constitPJAlg )
     # Basic list of PseudoJets is just the constituents
     # Append ghosts (tracks) if desired
     pjs = [constitPJKey]
@@ -122,21 +122,8 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         trkMods = JetRecoConfiguration.defineTrackMods(jetRecoDict["trkopt"])
         jetModList += trkMods
 
-    rhoKey = "auto"
-    if "sub" in jetRecoDict["jetCalib"]:
-        # Add the event shape alg if needed for area subtraction
-        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef,  "HLT_" )
-        recoSeq += conf2toConfigurable(eventShapeAlg)
-        # Not currently written because impossible to merge
-        # across event views, which is maybe a concern in
-        # the case of regional PFlow
-        rhoKey = str(eventShapeAlg.EventDensityTool.OutputContainer)
-
-    # Import the standard jet modifiers as defined for offline
-    # We can add/configure these differently if desired. 
-    calibMods = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource, rhoKey)
-    jetModList += calibMods
-
+    # Sort and filter
+    jetModList += ["Sort", "Filter:"+str(JetRecoConfiguration.getFilterCut(jetRecoDict["recoAlg"]))]
 
     # Get online monitoring tool
     from JetRec import JetOnlineMon
@@ -153,7 +140,47 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     # Generate a JetAlgorithm to run the jet finding and modifiers
     # (via a JetRecTool instance).
     jetRecAlg = JetRecConfig.getJetAlgorithm(jetsFullName, jetDef, pjs, monTool)
-    recoSeq += conf2toConfigurable( jetRecAlg )
+    buildSeq += conf2toConfigurable( jetRecAlg )
+    
+    return buildSeq, jetsOut, jetDef
+
+def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict ):
+    jetDefString = jetRecoDictToString(jetRecoDict)
+
+    if jetRecoDict["jetCalib"]=="nojcalib":
+        return RecoFragmentsPool.retrieve( standardJetBuildSequence, configFlags, dataSource=dataSource,
+                                           clustersKey=clustersKey,**jetRecoDict)
+
+    # Schedule reconstruction w/o calibration
+    # This is just a starting point -- will change so that
+    # the calibration is only ever done at the end for ungroomed
+    _jetRecoDictNoJCalib = dict(jetRecoDict)
+    _jetRecoDictNoJCalib["jetCalib"] = "nojcalib"
+
+    buildSeq, jetsNoCalib, jetDefNoCalib = RecoFragmentsPool.retrieve( standardJetBuildSequence, configFlags, dataSource=dataSource,
+                                                            clustersKey=clustersKey, **_jetRecoDictNoJCalib)
+
+    recoSeq = parOR( "JetRecSeq_"+jetDefString, [buildSeq])
+    # Get the calibration tool if desired. 
+    jetDef = jetDefNoCalib.clone()
+    jetDef.suffix = jetDefNoCalib.suffix.replace("nojcalib",jetRecoDict["jetCalib"])
+    jetsOut = jetDef.fullname()
+
+    rhoKey = "auto"
+    if "sub" in jetRecoDict["jetCalib"]:
+        # Add the event shape alg if needed for area subtraction
+        eventShapeAlg = JetInputConfig.buildEventShapeAlg( jetDef, jetNamePrefix )
+        recoSeq += conf2toConfigurable(eventShapeAlg)
+        # Not currently written because impossible to merge
+        # across event views, which is maybe a concern in
+        # the case of regional PFlow
+        rhoKey = str(eventShapeAlg.EventDensityTool.OutputContainer)
+
+    jetDef.modifiers = JetRecoConfiguration.defineCalibMods(jetRecoDict,dataSource,rhoKey)
+    jetDef.modifiers += jetDefNoCalib.modifiers[:-2] # Leave off sort + filter
+    copyCalibAlg = JetRecConfig.getJetCopyAlg(jetsin=jetsNoCalib,jetsoutdef=jetDef)
+
+    recoSeq += copyCalibAlg
 
     # End of basic jet reco
     return recoSeq, jetsOut, jetDef
@@ -168,17 +195,20 @@ def groomedJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict 
     ungroomedJetRecoDict["recoAlg"] = ungroomedJetRecoDict["recoAlg"].rstrip("tsd") # Drop grooming spec
     ungroomedJetRecoDict["jetCalib"] = "nojcalib" # No need to calibrate
 
-    (ungroomedJetRecoSequence,ungroomedJetsName, ungroomedDef) = RecoFragmentsPool.retrieve(
-        standardJetRecoSequence,
+    # Only jet building -- we do jet calib in a larger sequence via copy+calib
+    (ungroomedJetBuildSequence,ungroomedJetsName,ungroomedDef) = RecoFragmentsPool.retrieve(
+        standardJetBuildSequence,
         configFlags, dataSource=dataSource, clustersKey=clustersKey,
         **ungroomedJetRecoDict)
-    recoSeq += conf2toConfigurable( ungroomedJetRecoSequence )
+    recoSeq += ungroomedJetBuildSequence
     # Need to forward the pseudojets of the parents to the groomer
-    parentpjs = getattr(ungroomedJetRecoSequence,"jetalg_{}".format(ungroomedJetsName)).Tools[0].InputPseudoJets
+    # Should try to do this in a nicer way...
+    parentpjs = getattr(ungroomedJetBuildSequence,"jetalg_{}".format(ungroomedJetsName)).Tools[0].InputPseudoJets
 
     groomDef = JetRecoConfiguration.defineGroomedJets(jetRecoDict,ungroomedDef)
     groomedJetsFullName = groomDef.fullname()
-    groomDef.modifiers = JetRecoConfiguration.defineCalibFilterMods(jetRecoDict,dataSource)
+    groomDef.modifiers = JetRecoConfiguration.defineCalibMods(jetRecoDict,dataSource)
+    groomDef.modifiers += ["Sort","Filter:"+str(JetRecoConfiguration.getFilterCut(jetRecoDict["recoAlg"]))]
     # Can add substructure mods here
 
     # Get online monitoring tool

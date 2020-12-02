@@ -283,7 +283,7 @@ HLT::ErrorCode T2VertexBeamSpot::hltExecute( std::vector< HLT::TEVec >& tes_in,
       if ( m_attachSplitVertices ) attachFeatureSplitVertex(mySplitVertexCollections, allTEs, type_out );
    }
 
-
+   auto monitor = Monitored::Group(m_monTool, tTotal);
 
   // Return cause you're done!
   return errorCode;
@@ -475,6 +475,8 @@ StatusCode T2VertexBeamSpot::execute(){
       //Monitor total number of tracks
       auto monitor = Monitored::Group(m_monTool, tReconstructVertices);
    }
+
+   auto monitor = Monitored::Group(m_monTool, tTotal);
 
    ATH_MSG_DEBUG( "Number of track collection containers: " << mySelectedTrackCollection.size() );
 

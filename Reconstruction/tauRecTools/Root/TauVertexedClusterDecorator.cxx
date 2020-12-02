@@ -25,7 +25,7 @@ StatusCode TauVertexedClusterDecorator::initialize() {
     ATH_MSG_INFO("Set the cluster state to UNCALIBRATED");
     m_clusterState = xAOD::CaloCluster::State::UNCALIBRATED;
   } 
-  else {
+  else if (! inTrigger()) {
     ATH_MSG_ERROR("Seed jet " << m_seedJet << " not supported !");
     return StatusCode::FAILURE;
   }
@@ -75,12 +75,15 @@ StatusCode TauVertexedClusterDecorator::execute(xAOD::TauJet& tau) const {
   std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList;
   for (const xAOD::IParticle* particle : particleList) {
     const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
-
+    
     if (vertex) {
       vertexedClusterList.emplace_back(*cluster, m_clusterState, vertex->position());
     }
-    else {
+    else if (!inTrigger()) {
       vertexedClusterList.emplace_back(*cluster, m_clusterState);
+    }
+    else {
+      vertexedClusterList.emplace_back(*cluster);
     }
   }
 

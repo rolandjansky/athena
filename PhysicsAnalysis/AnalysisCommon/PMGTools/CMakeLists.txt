@@ -17,16 +17,14 @@ endif()
 
 # External(s) used by the package:
 find_package( ROOT COMPONENTS Core Hist RIO )
-find_package( Boost )
 
 # Libraries in the package:
 atlas_add_library( PMGToolsLib
    PMGTools/*.h Root/*.cxx
    PUBLIC_HEADERS PMGTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATCoreLib PATInterfaces PMGAnalysisInterfacesLib xAODTruth
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} CxxUtils FourMomUtils PathResolver RootCoreUtils xAODBase xAODEventInfo xAODJet xAODMetaData ${extra_private_libs})
+   PRIVATE_LINK_LIBRARIES FourMomUtils PathResolver RootCoreUtils xAODEventInfo xAODJet xAODMetaData ${extra_private_libs})
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( PMGTools
@@ -57,15 +55,17 @@ if( XAOD_STANDALONE )
    atlas_add_test( ut_PMGSherpa22VJetsWeightTool_test
       SOURCES test/ut_PMGSherpa22VJetsWeightTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces PMGToolsLib ${xaod_access_lib} )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib ${xaod_access_lib} )
 
    atlas_add_test( ut_PMGSherpaVjetsSysTool_test
       SOURCES test/ut_PMGSherpaVjetsSysTool_test.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces PMGAnalysisInterfacesLib PMGToolsLib ${xaod_access_lib} )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} PMGToolsLib ${xaod_access_lib} )
 endif()
 # ... AthAnalysis/AnalysisBase
+if( XAOD_STANDALONE ) # temporarily disabled in Athena (ATEAM-681)
 atlas_add_test( ut_PMGTruthWeightTool_test
    SOURCES test/ut_PMGTruthWeightTool_test.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools PMGAnalysisInterfacesLib PMGToolsLib xAODTruth ${xaod_access_lib} )
+endif()

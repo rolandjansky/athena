@@ -198,7 +198,7 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
       };
       setTheseElements(information, atPixelIndices, toZero);
       if (track.info().trackFitter() != TrackInfo::Unknown && !m_dedxtool.empty()) {
-        dedx = m_dedxtool->dEdx(track, nHitsUsed_dEdx, nOverflowHits_dEdx);
+        dedx = m_dedxtool->dEdx(ctx,track, nHitsUsed_dEdx, nOverflowHits_dEdx);
       }
       information[Trk::numberOfDBMHits] = 0;
     }

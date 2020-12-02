@@ -50,6 +50,7 @@ int main()
   tcs.m_nMaxPhiSlice = 53;
   tcs.m_maxTripletBufferLength = 3;
   tcs.m_tripletDoPSS = false;
+  tcs.m_tripletDoPPS = true;
   tcs.m_tripletDtCut      = 10.0;
   tcs.m_zvError = 10.0;
   tcs.m_maxBarrelPix    = -1;

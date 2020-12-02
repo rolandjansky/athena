@@ -7,7 +7,6 @@
 #include <sstream>
 #include <cmath>
 #include <stdexcept>
-#include <sstream>
 #include <iomanip>
 namespace FPTracker{
   Point::Point():m_x(0.), m_y(0.), m_z(0.){

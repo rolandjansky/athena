@@ -68,7 +68,7 @@ class JetChainConfiguration(ChainConfigurationBase):
             if self.recoDict["trkpresel"]=="nopresel":
                 clustersKey, caloRecoStep = self.getJetCaloRecoChainStep()
                 chainSteps.append( caloRecoStep )
-            elif self.recoDict["trkpresel"]=="preselj45":
+            else:
                 clustersKey, jetPreselStep = self.getJetCaloPreselChainStep()
                 chainSteps.append( jetPreselStep )
             jetCollectionName, jetTrackingHypoStep = self.getJetTrackingHypoChainStep(clustersKey)
@@ -133,6 +133,10 @@ class JetChainConfiguration(ChainConfigurationBase):
             'trkpresel': 'nopresel'
         }
         preselJetParts = dict(preselRecoDict)
+        preselParts    = self.recoDict["trkpresel"].split('j')
+        multiplicity   = preselParts[0].split('presel')[1] if preselParts[0] != 'presel' else '1'
+        threshold      = preselParts[1]
+        chainPartName  = multiplicity+'j'+threshold if multiplicity != '1' else 'j'+threshold
         preselJetParts.update(
             {'L1threshold': 'NOL1SEED',
              'TLA': '',
@@ -141,7 +145,7 @@ class JetChainConfiguration(ChainConfigurationBase):
              'bMatching': [],
              'bTag': '',
              'bTracking': '',
-             'chainPartName': 'j45',
+             'chainPartName': chainPartName,
              'cleaning': 'noCleaning',
              'dataScouting': '',
              'etaRange': '0eta320',
@@ -149,11 +153,11 @@ class JetChainConfiguration(ChainConfigurationBase):
              'hypoScenario': 'simple',
              'jvt': '',
              'momCuts': '',
-             'multiplicity': '1',
+             'multiplicity': multiplicity,
              'scan': 'FS',
              'signature': 'Jet',
              'smc': 'nosmc',
-             'threshold': '20',
+             'threshold': threshold,
              'topo': [],
              'trigType': 'j'}
         )
