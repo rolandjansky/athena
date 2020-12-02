@@ -30,7 +30,6 @@ private:
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( AtlasFieldMapCondObj, 122915602, 1)
-#include "AthenaKernel/CondCont.h"
 CONDCONT_DEF (AtlasFieldMapCondObj, 249359246);
 
 

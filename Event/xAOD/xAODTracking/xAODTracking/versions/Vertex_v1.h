@@ -29,9 +29,6 @@
 #include "xAODTracking/NeutralParticleContainer.h"
 #include "xAODBase/ObjectType.h"
 
-// Local include(s):
-#include "xAODTracking/TrackingPrimitives.h"
-
 //MT CachedValue
 #include "CxxUtils/CachedValue.h"
 

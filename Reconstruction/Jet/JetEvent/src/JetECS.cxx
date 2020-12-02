@@ -14,7 +14,6 @@ June 2004: Modified from CombinedJetSums to use Jet and new Navigation.
 
 #include "JetEvent/JetECS.h"
 #include "JetEvent/Jet.h"
-#include "JetEvent/Jet.h"
 
 
 JetECS::JetECS(double e, double eta, double phi, double m)
