@@ -177,7 +177,9 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         rhoKey = str(eventShapeAlg.EventDensityTool.OutputContainer)
 
     jetDef.modifiers = JetRecoConfiguration.defineCalibMods(jetRecoDict,dataSource,rhoKey)
-    jetDef.modifiers += jetDefNoCalib.modifiers[:-2] # Leave off sort + filter
+    # If we need JVT, just rerun the JVT modifier
+    if jetRecoDict["trkopt"] != "nojcalib":
+        jetDef.modifiers.append("JVT:"+jetRecoDict["trkopt"])
     copyCalibAlg = JetRecConfig.getJetCopyAlg(jetsin=jetsNoCalib,jetsoutdef=jetDef)
 
     recoSeq += copyCalibAlg
