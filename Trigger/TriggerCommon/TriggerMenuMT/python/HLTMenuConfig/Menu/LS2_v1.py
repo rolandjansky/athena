@@ -61,18 +61,9 @@ def setupMenu():
         ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SingleMuonGroup),
 
         # Additional intermediate thresholds for validation comparisons to match with Physics_pp_v7_primaries menu
-        ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu35_ivarmedium_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu80_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu60_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu22_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu10noL1_L1MU20', l1SeedThresholds=['MU20', 'FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu28_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu22_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu24_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name="HLT_mu10_L1MU10", groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu4_L12MU4',  groups=MultiMuonGroup),
 
@@ -88,7 +79,6 @@ def setupMenu():
         ChainProp(name="HLT_mu8_L1MU6", groups=SingleMuonGroup),
         ChainProp(name="HLT_mu14_L1MU10", groups=SingleMuonGroup),
         ChainProp(name="HLT_mu24_L1MU20", groups=SingleMuonGroup),
-        ChainProp(name="HLT_mu26_L1MU20", groups=SingleMuonGroup),
 
         #ATR-21003
         ChainProp(name='HLT_mu4_l2io_L1MU4', groups=SingleMuonGroup),

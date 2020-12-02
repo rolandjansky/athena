@@ -1904,6 +1904,22 @@ HLT_mu22_2mu4noL1_L1MU20:
     3: 6
     4: 2
     5: 2
+HLT_mu22_mu10noL1_L1MU20:
+  eventCount: 2
+  stepCounts:
+    0: 8
+    1: 6
+    2: 5
+    3: 5
+    4: 2
+    5: 2
+  stepFeatures:
+    0: 10
+    1: 7
+    2: 6
+    3: 6
+    4: 3
+    5: 3
 HLT_mu22_mu8noL1_L1MU20:
   eventCount: 2
   stepCounts:
@@ -1920,22 +1936,6 @@ HLT_mu22_mu8noL1_L1MU20:
     3: 6
     4: 3
     5: 3
-HLT_mu24_2mu4noL1_L1MU20:
-  eventCount: 1
-  stepCounts:
-    0: 8
-    1: 6
-    2: 5
-    3: 5
-    4: 1
-    5: 1
-  stepFeatures:
-    0: 10
-    1: 7
-    2: 6
-    3: 6
-    4: 2
-    5: 2
 HLT_mu24_L1MU20:
   eventCount: 5
   stepCounts:
@@ -1990,6 +1990,22 @@ HLT_mu24_mu10noL1_L1MU20:
     3: 6
     4: 3
     5: 3
+HLT_mu24_mu8noL1_L1MU20:
+  eventCount: 2
+  stepCounts:
+    0: 8
+    1: 6
+    2: 5
+    3: 5
+    4: 2
+    5: 2
+  stepFeatures:
+    0: 10
+    1: 7
+    2: 6
+    3: 6
+    4: 3
+    5: 3
 HLT_mu26_L1MU20:
   eventCount: 4
   stepCounts:
@@ -2016,38 +2032,6 @@ HLT_mu26_ivarmedium_L1MU20:
     2: 6
     3: 5
     4: 3
-HLT_mu26_mu10noL1_L1MU20:
-  eventCount: 1
-  stepCounts:
-    0: 8
-    1: 6
-    2: 5
-    3: 4
-    4: 1
-    5: 1
-  stepFeatures:
-    0: 10
-    1: 7
-    2: 6
-    3: 5
-    4: 2
-    5: 2
-HLT_mu26_mu8noL1_L1MU20:
-  eventCount: 1
-  stepCounts:
-    0: 8
-    1: 6
-    2: 5
-    3: 4
-    4: 1
-    5: 1
-  stepFeatures:
-    0: 10
-    1: 7
-    2: 6
-    3: 5
-    4: 2
-    5: 2
 HLT_mu28_ivarmedium_L1MU20:
   eventCount: 3
   stepCounts:
@@ -2062,36 +2046,6 @@ HLT_mu28_ivarmedium_L1MU20:
     2: 6
     3: 4
     4: 3
-HLT_mu28_mu8noL1_L1MU20:
-  eventCount: 1
-  stepCounts:
-    0: 8
-    1: 6
-    2: 5
-    3: 4
-    4: 1
-    5: 1
-  stepFeatures:
-    0: 10
-    1: 7
-    2: 6
-    3: 4
-    4: 1
-    5: 1
-HLT_mu35_ivarmedium_L1MU20:
-  eventCount: 2
-  stepCounts:
-    0: 8
-    1: 6
-    2: 4
-    3: 3
-    4: 2
-  stepFeatures:
-    0: 10
-    1: 7
-    2: 5
-    3: 3
-    4: 2
 HLT_mu4_l2io_L1MU4:
   eventCount: 11
   stepCounts:
@@ -2248,16 +2202,6 @@ HLT_mu6_xe30_mht_L1XE10:
     2: 12
     3: 12
     4: 11
-HLT_mu80_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 8
-    1: 6
-    2: 1
-  stepFeatures:
-    0: 10
-    1: 7
-    2: 1
 HLT_mu80_msonly_3layersEC_L1MU20:
   eventCount: 1
   stepCounts:

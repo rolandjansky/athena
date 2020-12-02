@@ -1002,7 +1002,7 @@ HLT_mu22_2mu4noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
-HLT_mu22_mu8noL1_L1MU20:
+HLT_mu22_mu10noL1_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
@@ -1010,7 +1010,7 @@ HLT_mu22_mu8noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
-HLT_mu24_2mu4noL1_L1MU20:
+HLT_mu22_mu8noL1_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
@@ -1050,6 +1050,14 @@ HLT_mu24_mu10noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu24_mu8noL1_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_mu26_L1MU20:
   eventCount: 0
   stepCounts:
@@ -1066,39 +1074,7 @@ HLT_mu26_ivarmedium_L1MU20:
   stepFeatures:
     0: 1
     1: 1
-HLT_mu26_mu10noL1_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
-HLT_mu26_mu8noL1_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
 HLT_mu28_ivarmedium_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
-HLT_mu28_mu8noL1_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
-HLT_mu35_ivarmedium_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
@@ -1185,14 +1161,6 @@ HLT_mu6_mu6noL1_L1MU6:
     0: 1
     1: 1
 HLT_mu6_xe30_mht_L1XE10:
-  eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 1
-    1: 1
-HLT_mu80_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
