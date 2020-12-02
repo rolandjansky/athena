@@ -8,7 +8,7 @@ from IOVDbSvc.CondDB import conddb
 
 # Disable for MC or for Run 1 (AlignL* folders are not in COMP200).
 if globalflags.DataSource.get_Value() != 'data' or conddb.dbname == 'COMP200':
-    _log.info("Disabling ID dynamic alignment")
+    _log.debug("Disabling ID dynamic alignment")
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
     InDetGeometryFlags.useDynamicAlignFolders=False
 
