@@ -696,6 +696,20 @@ HLT_e26_lhtight_L1EM22VHI:
     2: 6
     3: 4
     4: 4
+HLT_e26_lhtight_gsf_L1EM22VHI:
+  eventCount: 4
+  stepCounts:
+    0: 5
+    1: 4
+    2: 4
+    3: 4
+    4: 4
+  stepFeatures:
+    0: 5
+    1: 6
+    2: 6
+    3: 4
+    4: 4
 HLT_e26_lhtight_ivarloose_L1EM22VHI:
   eventCount: 3
   stepCounts:
