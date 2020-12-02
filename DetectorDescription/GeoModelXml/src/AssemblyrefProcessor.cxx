@@ -5,28 +5,22 @@
 //
 //    Process assemblyref items: basically, just find the referenced assembly and call its processor.
 //
-
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else 
-#include <iostream>
-#endif
-
-
+#include "GeoModelXml/OutputDirector.h"
 #include "GeoModelXml/AssemblyrefProcessor.h"
 #include <string>
+
+#include "xercesc/util/XercesDefs.hpp"
 #include <xercesc/dom/DOM.hpp>
+#include "xercesc/util/XMLString.hpp"
+
 #include "GeoModelXml/GmxUtil.h"
 #include "GeoModelXml/GeoNodeList.h"
-#include "GeoModelXml/translate.h"
 
 using namespace std;
 using namespace xercesc;
 
 void AssemblyrefProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
-const XMLCh *ref = Translate("ref");
+const XMLCh *ref = XMLString::transcode("ref");
 const XMLCh *idref;
 DOMDocument *doc = element->getOwnerDocument();
 char *toRelease;
@@ -38,26 +32,20 @@ char *toRelease;
 //
 //    Check it is the right sort
 //
-    toRelease = Translate(elem->getNodeName());
+    toRelease = XMLString::transcode(elem->getNodeName());
     string nodeName(toRelease);
     XMLString::release(&toRelease);
     if (nodeName != string("assembly")) {
-#ifndef STANDALONE_GMX
-        ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-        MsgStream log(&(*msgh), "GeoModelXml");
-        log << MSG::FATAL << "Error in xml/gmx file: assemblyref " << Translate(idref) << " referenced a " << 
+        OUTPUT_STREAM;
+        msglog << MSG::FATAL << "Error in xml/gmx file: assemblyref " << XMLString::transcode(idref) << " referenced a " << 
                               nodeName << " instead of an assembly.\n";
-#else
-	std::cerr<< "Error in xml/gmx file: assemblyref " << Translate(idref) << " referenced a " << 
-                              nodeName << " instead of an assembly.\n";
-#endif
         exit(999); // Should do better...
     }
 //
 //    Process it
 //
-    const XMLCh *zeroid = element->getAttribute(Translate("zeroid"));
-    if (XMLString::equals(zeroid, Translate("true"))) {
+    const XMLCh *zeroid = element->getAttribute(XMLString::transcode("zeroid"));
+    if (XMLString::equals(zeroid, XMLString::transcode("true"))) {
         gmxUtil.tagHandler.assembly.zeroId(elem);
     }
     gmxUtil.tagHandler.assembly.process(elem, gmxUtil, toAdd);

@@ -7,15 +7,15 @@
 #include <sstream>
 
 #include <xercesc/dom/DOM.hpp>
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 
 using namespace xercesc;
 
-void AddPlane::process(const DOMElement *element, double &zPlane, double &rMinPlane, double &rMaxPlane) {
+void AddPlane::process(const xercesc::DOMElement *element, double &zPlane, double &rMinPlane, double &rMaxPlane) {
 
-    std::istringstream(Translate(element->getAttribute(Translate("zplane")))) >> zPlane;
-    std::istringstream(Translate(element->getAttribute(Translate("rminplane")))) >> rMinPlane;
-    std::istringstream(Translate(element->getAttribute(Translate("rmaxplane")))) >> rMaxPlane;
+    std::istringstream(XMLString::transcode(element->getAttribute(XMLString::transcode("zplane")))) >> zPlane;
+    std::istringstream(XMLString::transcode(element->getAttribute(XMLString::transcode("rminplane")))) >> rMinPlane;
+    std::istringstream(XMLString::transcode(element->getAttribute(XMLString::transcode("rmaxplane")))) >> rMaxPlane;
 
     return;
 }

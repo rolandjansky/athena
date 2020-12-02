@@ -21,7 +21,7 @@ runArgs.maxEvents = -1
 
 runArgs.inputESDFile = ['myESD.pool.root']
 
-runArgs.preInclude = ['RecExCommon/RecoUsefulFlags.py', 'RecExCommission/MinimalCommissioningSetup.py', 'RecJobTransforms/UseOracle.py', 'RecJobTransforms/debugConfig.py']
+runArgs.preInclude = ['RecExCommon/RecoUsefulFlags.py', 'RecExCond/MinimalCommissioningSetup.py', 'RecJobTransforms/UseOracle.py', 'RecJobTransforms/debugConfig.py']
 
 runArgs.outputAODFile = 'myAOD.pool.root'
 

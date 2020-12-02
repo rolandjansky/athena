@@ -1496,6 +1496,8 @@ if rec.doWriteBS():
     #    StreamBSFileOutput.ItemList += topSequence.StreamBS.ItemList
 
     # LVL1
+    from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1ByteStreamEncodersRecExSetup
+    L1ByteStreamEncodersRecExSetup()  # Configure BS encoder for RoIBResult
     StreamBSFileOutput.ItemList += [ "ROIB::RoIBResult#*" ]
 
     StreamBSFileOutput.ItemList += [ "DataVector<LVL1::TriggerTower>#TriggerTowers" ]
@@ -1565,7 +1567,6 @@ if not rec.oldFlagCompatibility:
 # -------------------------------------------------------------
 pdr.flag_domain('tag')
 if rec.doWriteTAGCOM():
-    # include( "RecExCommission/RecExCommissionTAG_jobOptions.py" )
     logRecExCommon_topOptions.warning( "TAGCOM has been retired !! Please use doWriteTAG instead !!" )
 
 try:

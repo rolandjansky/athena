@@ -4,8 +4,11 @@
 
 #ifndef ADDPLANE_H
 #define ADDPLANE_H
+#include <xercesc/util/XercesDefs.hpp>
 
-#include <xercesc/dom/DOM.hpp>
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMElement;
+XERCES_CPP_NAMESPACE_END
 
 class AddPlane {
 public:

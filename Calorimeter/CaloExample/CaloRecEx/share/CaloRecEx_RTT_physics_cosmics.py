@@ -34,7 +34,7 @@ runArgs.preExec = ['from RecExConfig.RecFlags  import rec','rec.doMonitoring=Fal
 #runArgs.preExec = ['from RecExConfig.InputFilePeeker import inputFileSummary','inputFileSummary.stream_names=StreamESD']
 
 # Configuration fragment for DPD.
-runArgs.preInclude = ['RecExCommon/RecoUsefulFlags.py', 'RecExCommission/RecExCommissionRepro.py', 'RecExCommission/MinimalCommissioningSetup.py', 'RecJobTransforms/UseOracle.py']
+runArgs.preInclude = ['RecExCommon/RecoUsefulFlags.py', 'RecExCommission/RecExCommissionRepro.py', 'RecExCond/MinimalCommissioningSetup.py', 'RecJobTransforms/UseOracle.py']
 
 runArgs.postExec = ['from CaloRec.CaloRecConf import CBNTAA_CaloCluster','theCBNT_CaloClusterTopo=CBNTAA_CaloCluster("CBNT_CaloClusterTopo")','theCBNT_CaloClusterTopo.MaxCaloCluster = 2000']
 

@@ -189,7 +189,7 @@ class HLTSimulationGetter(Configured):
                 TrigSteer_HLT = ReruningTrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())             
                 
             # TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
-            TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated
+            TrigSteer_HLT.doL1TopoSimulation = False # always needs to run if the HLT is simulated
             if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
 
                 try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release

@@ -23,9 +23,12 @@ def _getTauSignatureShort( name ):
     elif "FTFCore" in name:
       signature = 'tauCore'
       signatureID = 'tauCore'
-    elif "FTFIso" in name:
+    elif "IsoInView" in name:
       signature = 'tauIso'
       signatureID = 'tauIso'
+    elif "IsoBDT" in name:
+      signature = 'tauIsoBDT'
+      signatureID = 'tauIsoBDT'
     elif "TrackInView" in name:
       signature = 'tauTrk'
       signatureID = 'tauTau'
@@ -89,6 +92,17 @@ def _algoTauTrackRoiUpdater(inputRoIs, tracks):
     algo.RoIInputKey                   = inputRoIs
     algo.RoIOutputKey                  = "UpdatedTrackRoI"
     algo.fastTracksKey                 = tracks
+    algo.Key_trigTauJetInputContainer  = ""
+    return algo
+
+def _algoTauTrackBDTRoiUpdater(inputRoIs, tracks):
+    from TrigTauHypo.TrigTauHypoConf import TrigTauTrackRoiUpdaterMT
+    algo                               = TrigTauTrackRoiUpdaterMT("TrackRoiUpdaterBDT")
+    algo.RoIInputKey                   = inputRoIs
+    algo.RoIOutputKey                  = "UpdatedTrackBDTRoI"
+    algo.fastTracksKey                 = tracks
+    algo.useBDT                        = True
+    algo.Key_trigTauJetInputContainer  = "HLT_TrigTauRecMerged_CaloOnly"
     return algo
 
 def _algoTauPreselection(inputRoIs, tracks, step):
@@ -357,6 +371,8 @@ def tauFTFSequence( RoIs, name ):
 
     if 'Core' in signatureName:
       tauTrackRoiUpdaterAlg = _algoTauTrackRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
+      tauTrackRoiUpdaterAlgBDT = _algoTauTrackBDTRoiUpdater(inputRoIs = RoIs, tracks = TrackCollection)
+      viewAlgs.append(tauTrackRoiUpdaterAlgBDT)
       viewAlgs.append(tauTrackRoiUpdaterAlg)
 
     tauFTFSequence += viewAlgs
@@ -443,6 +459,32 @@ def tauFTFIsoSequence(ConfigFlags):
 
     tauFastTrackIsoSequence = seqAND("tauFastTrackIsoSequence", [ftfIsoViewsMaker, tauFTFIsoInViewSequence ])
     return (tauFastTrackIsoSequence, ftfIsoViewsMaker, sequenceOut)
+
+# ===============================================================================================                                                                                                  
+#   Reco sequence for FTFTauIsoBDT (tracktwoMVABDT)                                                                                                                                                
+# ===============================================================================================                                                                                                  
+
+def tauFTFIsoBDTSequence(ConfigFlags):
+
+    RecoSequenceName                   = "tauFTFIsoBDTInViewSequence"
+
+    newRoITool                         = ViewCreatorFetchFromViewROITool()
+    newRoITool.RoisWriteHandleKey      = recordable("HLT_Roi_TauIsoBDT") #RoI collection recorded to EDM                                                                                           
+    newRoITool.InViewRoIs              = "UpdatedTrackBDTRoI" #input RoIs from calo only step                                                                                                      
+
+    ftfIsoViewsMaker                   = EventViewCreatorAlgorithm("IMFTFIsoBDT")
+    ftfIsoViewsMaker.RoIsLink          = "roi"
+    ftfIsoViewsMaker.RoITool           = newRoITool
+    ftfIsoViewsMaker.InViewRoIs        = "RoiForTauIsoBDT"
+    ftfIsoViewsMaker.Views             = "TAUFTFIsoBDTViews"
+    ftfIsoViewsMaker.ViewFallThrough   = True
+    ftfIsoViewsMaker.RequireParentView = True
+    ftfIsoViewsMaker.ViewNodeName      = RecoSequenceName
+
+    (tauFTFIsoBDTInViewSequence, sequenceOut) = tauFTFSequence( ftfIsoViewsMaker.InViewRoIs, RecoSequenceName)
+
+    tauFastTrackIsoBDTSequence = seqAND("tauFastTrackIsoBDTSequence", [ftfIsoViewsMaker, tauFTFIsoBDTInViewSequence ])
+    return (tauFastTrackIsoBDTSequence, ftfIsoViewsMaker, sequenceOut)
 
 
 # ===============================================================================================                                                            

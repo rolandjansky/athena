@@ -1,9 +1,9 @@
 ################################################################################
-# Package: RecPerfTests
+# Package: DerivationFrameworkPhysicsValidation
 ################################################################################
 
 # Declare the package name:
-atlas_subdir( RecPerfTests )
+atlas_subdir( DerivationFrameworkPhysicsValidation  )
 
 # Install files from the package:
-atlas_install_runtime( test/RecPerfTests_TestConfiguration.xml )
+atlas_install_joboptions( share/*.py )

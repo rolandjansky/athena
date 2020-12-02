@@ -61,18 +61,9 @@ def setupMenu():
         ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SingleMuonGroup),
 
         # Additional intermediate thresholds for validation comparisons to match with Physics_pp_v7_primaries menu
-        ChainProp(name='HLT_mu28_ivarmedium_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu35_ivarmedium_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_2mu15_L12MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_3mu8_msonly_L13MU6', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu80_L1MU20', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu60_L1MU20', groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu22_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
+        ChainProp(name='HLT_mu24_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu26_mu10noL1_L1MU20', l1SeedThresholds=['MU20', 'FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu28_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu22_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu24_2mu4noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name="HLT_mu10_L1MU10", groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu4_L12MU4',  groups=MultiMuonGroup),
 
@@ -88,7 +79,6 @@ def setupMenu():
         ChainProp(name="HLT_mu8_L1MU6", groups=SingleMuonGroup),
         ChainProp(name="HLT_mu14_L1MU10", groups=SingleMuonGroup),
         ChainProp(name="HLT_mu24_L1MU20", groups=SingleMuonGroup),
-        ChainProp(name="HLT_mu26_L1MU20", groups=SingleMuonGroup),
 
         #ATR-21003
         ChainProp(name='HLT_mu4_l2io_L1MU4', groups=SingleMuonGroup),
@@ -115,7 +105,7 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_nod0_L1EM3', groups=SingleElectronGroup),
-
+        
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VHI',  groups=SingleElectronGroup),
@@ -126,7 +116,7 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
-        #ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=SingleElectronGroup), Placeholder for GSF chain
+        ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=SingleElectronGroup), #Placeholder for GSF chain
         ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
@@ -367,6 +357,13 @@ def setupMenu():
         ChainProp(name="HLT_tau160_medium1_tracktwoEF_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_tracktwoEF_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_verylooseRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         # ATR-21797
         # the following 3 chains were in serial mode in Run-2
         ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40",         l1SeedThresholds=['TAU60','TAU40'],     groups=MultiTauGroup),

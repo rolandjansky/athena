@@ -4,9 +4,10 @@
 # Static classes to configure photon chain container names
 #----------------------------------------------------------------
 
+from TrigEDMConfig.TriggerEDMRun3 import recordable
+
 class TrigEgammaKeys(object):
       """Static class to collect all string manipulation in Electron sequences """
-      from TrigEDMConfig.TriggerEDMRun3 import recordable
       SuperElectronRecCollectionName = 'HLT_ElectronSuperRecCollection'
       outputElectronKey = recordable('HLT_egamma_Electrons')
       SuperPhotonRecCollectionName = 'HLT_PhotonSuperRecCollection'
@@ -15,9 +16,16 @@ class TrigEgammaKeys(object):
       outputClusterKey = 'HLT_egammaClusters'
       outputTopoSeededClusterKey = 'HLT_egammaTopoSeededClusters'
       TrigEMClusterToolOutputContainer = 'HLT_TrigEMClusterOutput'
-      TrigElectronTracksCollectionName = 'HLT_IDTrack_Electron_IDTrig'
+      TrigElectronTracksCollectionName = recordable('HLT_IDTrack_Electron_IDTrig')
       pidVersion = 'rel21_20180312'
 
+
+class TrigEgammaKeys_GSF(object):
+      """Static class to collect all string manipulation in Electron sequences """
+      outputElectronKey_GSF = recordable('HLT_egamma_Electrons_GSF')
+      outputTrackKey_GSF = 'HLT_IDTrkTrack_Electron_GSF'
+      outputTrackParticleKey_GSF = recordable('HLT_IDTrack_Electron_GSF')
+      
 
 def TrigElectronSelectors(sel):
     import logging

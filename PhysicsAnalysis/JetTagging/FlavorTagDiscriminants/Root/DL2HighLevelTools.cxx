@@ -44,24 +44,34 @@ namespace FlavorTagDiscriminants {
   }
   // do some input variable magic in case someone asked
   void remap_inputs(std::vector<lwt::Input>& nn,
-                    std::vector<DL2InputConfig>& dl2,
-                    std::map<std::string, std::string>& replaced_vars) {
-    if (nn.size() != dl2.size()) {
-      throw std::logic_error("DL2 input size != lwtnn input size");
-    }
-    for (size_t iii = 0; iii < nn.size(); iii++) {
-      std::string nn_name = nn.at(iii).name;
-      std::string dl_name = dl2.at(iii).name;
-      if (nn_name != dl_name) {
-        throw std::logic_error(
-          "DL2 input mismatch (" + nn_name + " != " + dl_name + ")");
-      }
+                    std::map<std::string, std::string>& replaced_vars,
+                    std::map<std::string, double>& defaults) {
+    // keep track of the new default values, and which values they
+    // were moved from
+    std::map<std::string, double> new_defaults;
+    std::set<std::string> moved_defaults;
+    for (lwt::Input& input: nn) {
+      std::string nn_name = input.name;
       auto replacement_itr = replaced_vars.find(nn_name);
       if (replacement_itr != replaced_vars.end()) {
-        nn.at(iii).name = replacement_itr->second;
-        dl2.at(iii).name = replacement_itr->second;
+        std::string new_name = replacement_itr->second;
+        input.name = new_name;
+        if (defaults.count(nn_name)) {
+          new_defaults[new_name] = defaults.at(nn_name);
+          moved_defaults.insert(nn_name);
+        }
         replaced_vars.erase(replacement_itr);
       }
+    }
+    for (const auto& new_default: new_defaults) {
+      defaults[new_default.first] = new_default.second;
+      // if something was a new default we don't want to delete it
+      // below.
+      moved_defaults.erase(new_default.first);
+    }
+    // delete anything that was moved but wasn't assigned to
+    for (const auto& moved: moved_defaults) {
+      defaults.erase(moved);
     }
   }
   std::vector<DL2TrackSequenceConfig> get_track_input_config(
