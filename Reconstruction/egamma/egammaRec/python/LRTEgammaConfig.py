@@ -1,19 +1,23 @@
-from egammaRec.Factories import AlgFactory
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from egammaRec import egammaKeys
 from egammaRec.egammaTruthAssociationAlg import egammaTruthAssociationAlg
 from egammaAlgs.egammaSelectedTrackCopy import egammaSelectedTrackCopy
 from egammaAlgs.EMBremCollectionBuilder import EMBremCollectionBuilder
 from egammaAlgs.EMGSFCaloExtensionBuilder import EMGSFCaloExtensionBuilder
 from egammaAlgs.egammaRecBuilder import egammaRecBuilder
-from egammaAlgs.egammaSuperClusterBuilder import electronSuperClusterBuilder, photonSuperClusterBuilder
+from egammaAlgs.egammaSuperClusterBuilder import (
+    electronSuperClusterBuilder, photonSuperClusterBuilder)
 from egammaAlgs.topoEgammaBuilder import topoEgammaBuilder
-from egammaAlgs.egammaLargeClusterMakerAlg import egammaLargeClusterMakerAlg
 from egammaTools.EMTrackMatchBuilder import EMTrackMatchBuilder
-from egammaTrackTools.egammaTrackToolsFactories import *
+from egammaTrackTools.egammaTrackToolsFactories import (
+    EMExtrapolationToolsCommonCache, EMExtrapolationToolsCache)
 from InDetRecExample.InDetKeys import InDetKeys
-from egammaTools.egammaToolsFactories import EMClusterTool, EMFourMomBuilder, EMShowerBuilder, egammaOQFlagsBuilder, ElectronPIDBuilder
+from egammaTools.egammaToolsFactories import (
+    EMClusterTool, EMFourMomBuilder,
+    EMShowerBuilder, egammaOQFlagsBuilder, ElectronPIDBuilder)
 
-LRTEMExtrapolationToolsCommonCache=EMExtrapolationToolsCommonCache.copy(
+LRTEMExtrapolationToolsCommonCache = EMExtrapolationToolsCommonCache.copy(
     name="LRTEMExtrapolationToolsCommonCache",
     LastCache='ParticleCaloExtension_LRT'
 )
@@ -26,7 +30,7 @@ LRTegammaSelectedTrackCopy = egammaSelectedTrackCopy.copy(
 )
 
 LRTEMBremCollectionBuilder = EMBremCollectionBuilder.copy(
-    name = "LRTEMBremCollectionBuilder",
+    name="LRTEMBremCollectionBuilder",
     TrackParticleContainerName=InDetKeys.xAODLargeD0TrackParticleContainer(),
     SelectedTrackParticleContainerName="LRTegammaSelectedTrackParticles",
     OutputTrkPartContainerName="LRT"+egammaKeys.outputTrackParticleKey(),
@@ -40,11 +44,11 @@ LRTEMGSFCaloExtensionBuilder = EMGSFCaloExtensionBuilder.copy(
     GFFTrkPartContainerName="LRT"+egammaKeys.outputTrackParticleKey())
 
 LRTEMExtrapolationToolsCache = EMExtrapolationToolsCache.copy(
-     name="LRTEMExtrapolationToolsCache",
-     PerigeeCache='LRTGSFPerigeeCaloExtension',
-     LastCache='LRTGSFLastCaloExtension',
-     useCaching=True,
-     useLastCaching=True
+    name="LRTEMExtrapolationToolsCache",
+    PerigeeCache='LRTGSFPerigeeCaloExtension',
+    LastCache='LRTGSFLastCaloExtension',
+    useCaching=True,
+    useLastCaching=True
 )
 
 LRTEMTrackMatchBuilder = EMTrackMatchBuilder.copy(
@@ -62,44 +66,40 @@ LRTegammaRecBuilder = egammaRecBuilder.copy(
 )
 
 LRTelectronSuperClusterBuilder = electronSuperClusterBuilder.copy(
-     name='LRTelectronSuperClusterBuilder',
-     InputEgammaRecContainerName="LRT"+egammaKeys.EgammaRecKey(),
-     SuperElectronRecCollectionName="LRT"+egammaKeys.ElectronSuperRecKey(),
-     SuperClusterCollectionName='LRTElectronSuperClusters',
-     TrackMatchBuilderTool=LRTEMTrackMatchBuilder
+    name='LRTelectronSuperClusterBuilder',
+    InputEgammaRecContainerName="LRT"+egammaKeys.EgammaRecKey(),
+    SuperElectronRecCollectionName="LRT"+egammaKeys.ElectronSuperRecKey(),
+    SuperClusterCollectionName='LRTElectronSuperClusters',
+    TrackMatchBuilderTool=LRTEMTrackMatchBuilder
 )
-    
+
 LRTphotonSuperClusterBuilder = photonSuperClusterBuilder.copy(
-     name='LRTphotonSuperClusterBuilder',
-     InputEgammaRecContainerName="LRT"+egammaKeys.EgammaRecKey(),
-     SuperPhotonRecCollectionName="LRT"+egammaKeys.PhotonSuperRecKey(),
-     SuperClusterCollectionName='LRTPhotonSuperClusters',
+    name='LRTphotonSuperClusterBuilder',
+    InputEgammaRecContainerName="LRT"+egammaKeys.EgammaRecKey(),
+    SuperPhotonRecCollectionName="LRT"+egammaKeys.PhotonSuperRecKey(),
+    SuperClusterCollectionName='LRTPhotonSuperClusters',
 )
 
 LRTEMClusterTool = EMClusterTool.copy(
     name='LRTEMClusterTool',
     OutputClusterContainerName="LRT"+egammaKeys.outputClusterKey(),
-    OutputTopoSeededClusterContainerName='LRT'+egammaKeys.outputTopoSeededClusterKey(),
+    OutputTopoSeededClusterContainerName='LRT' +
+    egammaKeys.outputTopoSeededClusterKey(),
 )
 
 LRTtopoEgammaBuilder = topoEgammaBuilder.copy(
-     name='LRTtopoEgammaBuilder',
-     SuperElectronRecCollectionName="LRT"+egammaKeys.ElectronSuperRecKey(),
-     ElectronOutputName="LRT"+egammaKeys.outputElectronKey(),
-     SuperPhotonRecCollectionName="LRT"+egammaKeys.PhotonSuperRecKey(),
-     PhotonOutputName="LRT"+egammaKeys.outputPhotonKey(),
-     EMClusterTool=LRTEMClusterTool,
-     EMShowerTool=EMShowerBuilder,
-     ObjectQualityTool=egammaOQFlagsBuilder,
-     egammaTools= [EMFourMomBuilder()],
-     ElectronTools= [ElectronPIDBuilder()],
-     doPhotons = False
+    name='LRTtopoEgammaBuilder',
+    SuperElectronRecCollectionName="LRT"+egammaKeys.ElectronSuperRecKey(),
+    ElectronOutputName="LRT"+egammaKeys.outputElectronKey(),
+    SuperPhotonRecCollectionName="LRT"+egammaKeys.PhotonSuperRecKey(),
+    PhotonOutputName="LRT"+egammaKeys.outputPhotonKey(),
+    EMClusterTool=LRTEMClusterTool,
+    EMShowerTool=EMShowerBuilder,
+    ObjectQualityTool=egammaOQFlagsBuilder,
+    egammaTools=[EMFourMomBuilder()],
+    ElectronTools=[ElectronPIDBuilder()],
+    doPhotons=False
 )
-
-#LRTegammaLargeClusterMakerAlg=egammaLargeClusterMakerAlg.copy(
-#     name="LRTegammaLargeClusterMaker",
-#     ClustersOutputName="LRT"+egammaKeys.EgammaLargeClustersKey(),
-#)
 
 LRTegammaTruthAssociationAlg = egammaTruthAssociationAlg.copy(
     name='LRTegammaTruthAssociationAlg',
@@ -109,4 +109,3 @@ LRTegammaTruthAssociationAlg = egammaTruthAssociationAlg.copy(
     MatchPhotons=False,
     MatchForwardElectrons=False,
 )
-
