@@ -107,7 +107,7 @@ namespace InDetDD {
    */
  
 
-  class SiDetectorElement : public InDetDD::SolidStateDetectorElementBase {
+  class SiDetectorElement final : public InDetDD::SolidStateDetectorElementBase {
 
   public:
     
@@ -217,7 +217,7 @@ namespace InDetDD {
     /**
      * Returns the full list of surfaces associated to this detector element
      */
-    virtual const std::vector<const Trk::Surface*>& surfaces() const;
+    const std::vector<const Trk::Surface*>& surfaces() const;
     //@{
 
     /**

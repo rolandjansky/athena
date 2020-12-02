@@ -214,14 +214,12 @@ namespace InDetDD {
     /**
      * identifier of this detector element (inline)
      */
-    //do these need to be virtual? - they are in 21.9 but I don't see why
-    Identifier identify() const;
+    virtual Identifier identify() const override final;
     
     /**
      * identifier hash (inline)
      */
-    //do these need to be virtual? - as above
-    IdentifierHash identifyHash() const;
+    virtual IdentifierHash identifyHash() const override final;
     
     /**
      * Returns the id helper (inline)
@@ -247,12 +245,12 @@ namespace InDetDD {
     /**
      * Element Surface
      */
-    virtual Trk::Surface& surface();
-    virtual const Trk::Surface& surface() const;
+    Trk::Surface& surface();
+    virtual const Trk::Surface& surface() const override final;
     /**
      * TrkDetElementBase interface (inline)
      */
-    virtual const Trk::Surface& surface(const Identifier&) const;
+    virtual const Trk::Surface& surface(const Identifier&) const override final;
     /**
      * @name Transformation
      */
@@ -260,17 +258,17 @@ namespace InDetDD {
     /**
      * Local (simulation/hit frame) to global transform
      */
-    virtual const GeoTrf::Transform3D& transformHit() const;
+    const GeoTrf::Transform3D& transformHit() const;
 
     /**
      * Local (reconstruction frame) to global transform
      */
     const HepGeom::Transform3D& transformCLHEP() const;
-    const Amg::Transform3D& transform() const;
+    virtual const Amg::Transform3D& transform() const override final;
     /**
      * TrkDetElementBase interface (inline)
      */
-    virtual const Amg::Transform3D& transform(const Identifier&) const;
+    virtual const Amg::Transform3D& transform(const Identifier&) const override final;
 
     /**
      * Default Local (reconstruction frame) to global transform
@@ -332,11 +330,11 @@ namespace InDetDD {
     /**
      * Get reconstruction local normal axes in global frame. Choosen to give right-handed coordinate frame.
      */
-    const Amg::Vector3D& normal() const;
+    virtual const Amg::Vector3D& normal() const override final;
     /**
      * TrkDetElementBase interface (inline)
      */
-    virtual const Amg::Vector3D& normal(const Identifier&) const;
+    virtual const Amg::Vector3D& normal(const Identifier&) const override final;
 
     //@}
 
@@ -347,11 +345,11 @@ namespace InDetDD {
     /**
      * Center in global coordinates
      */
-    const Amg::Vector3D& center() const;
+    virtual const Amg::Vector3D& center() const override final;
     /**
      * TrkDetElementBase interface (inline)
      */
-    virtual const Amg::Vector3D& center(const Identifier&) const;
+    virtual const Amg::Vector3D& center(const Identifier&) const override final;
 
     /**
      * transform a hit local position into a global position (inline):
@@ -426,11 +424,11 @@ namespace InDetDD {
     
     virtual const DetectorDesign& design() const;
     
-    virtual const Trk::SurfaceBounds& bounds() const;
+    virtual const Trk::SurfaceBounds& bounds() const override final;
     /**
      * TrkDetElementBase interface (inline)
      */
-    virtual const Trk::SurfaceBounds& bounds(const Identifier&) const;
+    virtual const Trk::SurfaceBounds& bounds(const Identifier&) const override final;
 
     /**
      * Methods from design (inline)
