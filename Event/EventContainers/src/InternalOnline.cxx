@@ -7,7 +7,6 @@
 #include "EventContainers/IDC_WriteHandleBase.h"
 #include "CxxUtils/AthUnlikelyMacros.h"
 #include "EventContainers/IdentifiableCacheBase.h"
-#include "CxxUtils/AthUnlikelyMacros.h"
 
 using namespace EventContainers;
 typedef I_InternalIDC::InternalConstItr InternalConstItr;

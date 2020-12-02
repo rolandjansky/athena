@@ -267,11 +267,6 @@ def generateChains( flags, chainDict ):
 
     #Clone and replace offline flags so we can set muon trigger specific values
     muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
-    muonflags.Muon.useTGCPriorNextBC=True
-    muonflags.Muon.enableErrorTuning=False
-    muonflags.Muon.MuonTrigger=True
-    muonflags.Muon.SAMuonTrigger=True
-    muonflags.lock()
 
     accMS = ComponentAccumulator()
     accMS.addSequence(stepEFMSView)

@@ -18,7 +18,6 @@
 #include "TGraph.h"
 #include "TH1.h"
 #include "TH2.h"
-#include "TGraph.h"
 #include "TProfile.h"
 #include "TCanvas.h"
 #include "TStyle.h"

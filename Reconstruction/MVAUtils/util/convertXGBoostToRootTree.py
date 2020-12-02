@@ -150,7 +150,7 @@ def test(model_file, tree_file, objective, tree_name='xgboost', ntests=10000, te
     tree = f.Get(tree_name)
     try:
         _ = ROOT.MVAUtils.BDT
-    except:
+    except Exception:
         print("cannot import MVAUtils")
         return None
 

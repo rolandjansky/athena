@@ -15,14 +15,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
-//#include "typeinfo.h"
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Kernel.h"
-//#include "GaudiKernel/PropertyCallbackFunctor.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -61,7 +59,6 @@
 #include "TGraph.h"
 #include "TApplication.h"
 #include "TH2F.h"
-#include "TCanvas.h"
 #include "TPad.h"
 #include "TObjArray.h"
 #include "TObjString.h"

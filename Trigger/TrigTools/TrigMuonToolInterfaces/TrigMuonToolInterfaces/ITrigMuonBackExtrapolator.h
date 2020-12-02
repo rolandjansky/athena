@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef __ITRIGMUONBACKEXTRAPOLATOR_H__ 
@@ -24,41 +24,41 @@ class ITrigMuonBackExtrapolator: virtual public IAlgTool
 
   // extrapolate without using the ID vertex measurement
   virtual 
-  StatusCode give_eta_phi_at_vertex (const MuonFeature*, // input muon track
-				     double& extEta,     // vertex eta
-				     double& sigmaEta,   // sigma vertex eta
-				     double& extPhi,     // vertex phi
-				     double& sigmaPhi,   // sigma vertex phi
-				     double PT) = 0;     // PT of the window
+  StatusCode give_eta_phi_at_vertex (const MuonFeature*,   // input muon track
+				     double& extEta,       // vertex eta
+				     double& sigmaEta,     // sigma vertex eta
+				     double& extPhi,       // vertex phi
+				     double& sigmaPhi,     // sigma vertex phi
+				     double PT) const = 0; // PT of the window
 
   virtual
-  StatusCode give_eta_phi_at_vertex (double pt,          // pt of muon track
-                                     const MuonFeature*, // input muon track
-				     double& extEta,     // vertex eta
-				     double& sigmaEta,   // sigma vertex eta
-				     double& extPhi,     // vertex phi
-				     double& sigmaPhi,   // sigma vertex phi
-				     double PT) = 0;     // PT of the window
+  StatusCode give_eta_phi_at_vertex (double pt,            // pt of muon track
+                                     const MuonFeature*,   // input muon track
+				     double& extEta,       // vertex eta
+				     double& sigmaEta,     // sigma vertex eta
+				     double& extPhi,       // vertex phi
+				     double& sigmaPhi,     // sigma vertex phi
+				     double PT) const = 0; // PT of the window
 
   // extrapolate using the ID vertext measurement
   virtual 
-  StatusCode give_eta_phi_at_vertex( const MuonFeature*, // input muon track
-                                     double ZetaID,      // Z vertex from ID
-				     double& extEta,     // vertex eta
-				     double& sigmaEta,   // sigma vertex eta
-				     double& extPhi,     // vertex phi
-				     double& sigmaPhi,   // sigma vertex phi
-				     double PT) = 0;     // PT of the window
+  StatusCode give_eta_phi_at_vertex( const MuonFeature*,   // input muon track
+                                     double ZetaID,        // Z vertex from ID
+				     double& extEta,       // vertex eta
+				     double& sigmaEta,     // sigma vertex eta
+				     double& extPhi,       // vertex phi
+				     double& sigmaPhi,     // sigma vertex phi
+				     double PT) const = 0; // PT of the window
 
   virtual 
-  StatusCode give_eta_phi_at_vertex( double pt,          // pt of muon track
-                                     const MuonFeature*, // input muon track
-                                     double ZetaID,      // Z vertex from ID
-				     double& extEta,     // vertex eta
-				     double& sigmaEta,   // sigma vertex eta
-				     double& extPhi,     // vertex phi
-				     double& sigmaPhi,   // sigma vertex phi
-				     double PT) = 0;     // PT of the window
+  StatusCode give_eta_phi_at_vertex( double pt,            // pt of muon track
+                                     const MuonFeature*,   // input muon track
+                                     double ZetaID,        // Z vertex from ID
+				     double& extEta,       // vertex eta
+				     double& sigmaEta,     // sigma vertex eta
+				     double& extPhi,       // vertex phi
+				     double& sigmaPhi,     // sigma vertex phi
+				     double PT) const = 0; // PT of the window
 
 
   // match ID track and Muon track applying a loose cut window
@@ -106,40 +106,40 @@ class ITrigMuonBackExtrapolator: virtual public IAlgTool
   // extrapolate without using the ID vertex measurement
   virtual 
   StatusCode give_eta_phi_at_vertex (const xAOD::L2StandAloneMuon*, // input muon track
-				     double& extEta,     // vertex eta
-				     double& sigmaEta,   // sigma vertex eta
-				     double& extPhi,     // vertex phi
-				     double& sigmaPhi,   // sigma vertex phi
-				     double PT) = 0;     // PT of the window
+				     double& extEta,                // vertex eta
+				     double& sigmaEta,              // sigma vertex eta
+				     double& extPhi,                // vertex phi
+				     double& sigmaPhi,              // sigma vertex phi
+				     double PT) const = 0;          // PT of the window
 
   virtual
-  StatusCode give_eta_phi_at_vertex (double pt,          // pt of muon track
+  StatusCode give_eta_phi_at_vertex (double pt,                     // pt of muon track
                                      const xAOD::L2StandAloneMuon*, // input muon track
-				     double& extEta,     // vertex eta
-				     double& sigmaEta,   // sigma vertex eta
-				     double& extPhi,     // vertex phi
-				     double& sigmaPhi,   // sigma vertex phi
-				     double PT) = 0;     // PT of the window
+				     double& extEta,                // vertex eta
+				     double& sigmaEta,              // sigma vertex eta
+				     double& extPhi,                // vertex phi
+				     double& sigmaPhi,              // sigma vertex phi
+				     double PT) const = 0;          // PT of the window
 
   // extrapolate using the ID vertext measurement
   virtual 
   StatusCode give_eta_phi_at_vertex( const xAOD::L2StandAloneMuon*, // input muon track
-                                     double ZetaID,      // Z vertex from ID
-				     double& extEta,     // vertex eta
-				     double& sigmaEta,   // sigma vertex eta
-				     double& extPhi,     // vertex phi
-				     double& sigmaPhi,   // sigma vertex phi
-				     double PT) = 0;     // PT of the window
+                                     double ZetaID,                 // Z vertex from ID
+				     double& extEta,                // vertex eta
+				     double& sigmaEta,              // sigma vertex eta
+				     double& extPhi,                // vertex phi
+				     double& sigmaPhi,              // sigma vertex phi
+				     double PT) const = 0;          // PT of the window
 
   virtual 
-  StatusCode give_eta_phi_at_vertex( double pt,          // pt of muon track
+  StatusCode give_eta_phi_at_vertex( double pt,                     // pt of muon track
                                      const xAOD::L2StandAloneMuon*, // input muon track
-                                     double ZetaID,      // Z vertex from ID
-				     double& extEta,     // vertex eta
-				     double& sigmaEta,   // sigma vertex eta
-				     double& extPhi,     // vertex phi
-				     double& sigmaPhi,   // sigma vertex phi
-				     double PT) = 0;     // PT of the window
+                                     double ZetaID,                 // Z vertex from ID
+				     double& extEta,                // vertex eta
+				     double& sigmaEta,              // sigma vertex eta
+				     double& extPhi,                // vertex phi
+				     double& sigmaPhi,              // sigma vertex phi
+				     double PT) const = 0;          // PT of the window
 
 
   // match ID track and Muon track applying a loose cut window

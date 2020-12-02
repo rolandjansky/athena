@@ -41,6 +41,11 @@ if 'LegacyEventInfo' in digitizationFlags.experimentalDigi() and \
     from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
     xAODEventInfoCnvAlgDefault (sequence = job)
 
+# Decorate zero pile-up
+if not (DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp()):
+    from PileUpComps.PileUpCompsConf import NoPileUpMuWriter
+    job += NoPileUpMuWriter()
+
 # Beam spot
 include( "Digitization/BeamSpot.py" )
 

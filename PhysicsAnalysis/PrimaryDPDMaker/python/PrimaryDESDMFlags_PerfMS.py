@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        PrimaryDESDMFlags_PerfMSStream
@@ -15,7 +15,6 @@ __author__  = "Saminder Dhaliwal <s.dhaliwal@cern.ch>"
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-import AthenaCommon.SystemOfUnits as Units
 
 
 #=====================================================================
@@ -39,11 +38,11 @@ primDPDAlignTrigMu=jobproperties.PrimaryDESDMFlags_PerfMSStream
 ## General switches
 
 class doAlignmentFormat(JobProperty):
-		"""  Switch between Alignment and Trigger DESDM format. Default is Trigger. """
-		statusOn			= True
-		allowedTypes	= ['bool']
-		StoredValue		= False
-		pass
+    """  Switch between Alignment and Trigger DESDM format. Default is Trigger. """
+    statusOn			= True
+    allowedTypes	= ['bool']
+    StoredValue		= False
+    pass
 jobproperties.PrimaryDESDMFlags_PerfMSStream.add_JobProperty(doAlignmentFormat)
 
 class ApplySkimming(JobProperty):

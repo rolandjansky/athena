@@ -186,6 +186,7 @@ namespace CP {
         ATH_CHECK(m_calibTool_1516.retrieve());
         ATH_CHECK(m_calibTool_17.retrieve());
         ATH_CHECK(m_calibTool_18.retrieve());
+        ATH_CHECK(m_eventInfo.initialize());
         return StatusCode::SUCCESS;
     }
     

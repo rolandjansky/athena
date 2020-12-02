@@ -18,7 +18,6 @@
 #include <TTree.h>
 #include <TStopwatch.h>
 #include <TH1D.h>
-#include <TFile.h>
 
 FileStagerAlg::FileStagerAlg(const std::string& name, ISvcLocator* pSvcLocator) 
  : Algorithm(name, pSvcLocator)

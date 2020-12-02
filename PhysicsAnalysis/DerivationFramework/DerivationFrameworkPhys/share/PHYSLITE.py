@@ -9,13 +9,13 @@ nanolog = Logging.logging.getLogger('PHYSLITE')
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkInDet.InDetCommon import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
-from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkEGamma.ElectronsCPDetailedContent import *
 from DerivationFrameworkMuons.MuonsCommon import *
 from DerivationFrameworkCore.WeightMetadata import *
+from DerivationFrameworkJetEtMiss.JetCommon import *
+from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.METCommon import *
 from DerivationFrameworkFlavourTag.FlavourTagCommon import FlavorTagInit
 from DerivationFrameworkFlavourTag.HbbCommon import *
 from TriggerMenu.api.TriggerAPI import TriggerAPI
@@ -362,11 +362,11 @@ trigger_names_full_tau = list(set(trig_tau+trig_txe))
 from RecExConfig.InputFilePeeker import inputFileSummary
 trigger_names_notau = []
 trigger_names_tau = []
+'''
 for trig_item in inputFileSummary['metadata']['/TRIGGER/HLT/Menu']:
     if not 'ChainName' in trig_item: continue
     if trig_item['ChainName'] in trigger_names_full_notau: trigger_names_notau += [ trig_item['ChainName'] ]
     if trig_item['ChainName'] in trigger_names_full_tau:   trigger_names_tau   += [ trig_item['ChainName'] ]
-'''
 # Create trigger matching decorations
 trigmatching_helper_notau = TriggerMatchingHelper(name='PHSYLITETriggerMatchingToolNoTau',
         OutputContainerPrefix = "Analysis",

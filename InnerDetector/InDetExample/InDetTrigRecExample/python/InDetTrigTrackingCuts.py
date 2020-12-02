@@ -194,7 +194,6 @@ class InDetTrigTrackingCuts :
       self.__nHolesMax               = 2 # was 3
       self.__nHolesGapMax            = 2 # was 3
 
-    """
     if self.__indetflags.cutLevel() >= 13 and DetFlags.detdescr.Calo_allOn():
       # --- turn on RoI seeded for Back Tracking and TRT only
       self.__RoISeededBackTracking   = True
@@ -232,7 +231,6 @@ class InDetTrigTrackingCuts :
       self.__minRoIClusterEt         = 6000. * Units.MeV
       self.__minSecondaryPt          = 3.0 * Units.GeV  # Increase pT cut used for back-tracking to match calo-RoI
 
-    """
 
     if self.__indetflags.cutLevel() >= mxlevel:
       print ('InDetTrigTrackingCuts INFO using cutLevel %d/%d' % (mxlevel,self.__indetflags.cutLevel()))
@@ -433,8 +431,8 @@ class InDetTrigTrackingCuts :
 # ----------------------------------------------------------------------------
 # --- private method
   def __set_indetflags(self):
-    from InDetRecExample.InDetJobProperties import InDetFlags
-    self.__indetflags = InDetFlags
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    self.__indetflags = InDetTrigFlags
 
 # ----------------------------------------------------------------------------
 # --- return methods for the cut values - the main purpose of this class

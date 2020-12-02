@@ -250,9 +250,9 @@ def schedulePostJetMCTruthAugmentations(kernel=None, decorationDressing=None):
         from DerivationFrameworkMCTruth.GenFilterToolSetup import DFCommonTruthGenFilter
 
         # schedule the special truth building tools and add them to a common augmentation; note taus are handled separately below
-        #from DerivationFrameworkMCTruth.TruthDerivationTools import DFCommonTruthDressedWZQGLabelTool
-        augmentationToolsList += [ DFCommonTruthGenFilter ]
-                                   #DFCommonTruthDressedWZQGLabelTool] - missing decoration from FTAG
+        from DerivationFrameworkMCTruth.TruthDerivationTools import DFCommonTruthDressedWZQGLabelTool
+        augmentationToolsList += [ DFCommonTruthGenFilter ,
+                                   DFCommonTruthDressedWZQGLabelTool]
     else:
         augmentationToolsList = []
     # SUSY signal decorations

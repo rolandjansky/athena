@@ -26,6 +26,6 @@ const InDetDD::SiDetectorElement* SiDetectorElementMap::readEntry(const Identifi
   for (auto it = m_detElementMap.begin(); it != m_detElementMap.end(); it++) {
     if(it->first==hashId) return it->second;
   }
-  return 0;
+  return nullptr;
 }
 

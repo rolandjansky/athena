@@ -202,9 +202,12 @@ def defineTrackMods(trkopt):
     ]
     return trkmods
 
+def getFilterCut(recoAlg):
+    return {"a4":5000, "a10":50000, "a10r": 50000, "a10t":50000, "a10sd":50000}[recoAlg]
+
 # Translate calib specification into something understood by
 # the calibration config helper
-def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
+def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
     # Minimum modifier set for calibration w/o track GSC
     # Should eventually build in more mods, depend on track info etc
@@ -220,7 +223,7 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
 
         if jetRecoDict["dataType"].endswith("tc"):
             calibContext,calibSeq = {
-                ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"),        # Calo GSC only
+                ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"), # Calo GSC only
                 ("a4","subjesIS"): ("TrigRun2","JetArea_EtaJES_GSC"), # Calo GSC only
                 ("a4","subjesgscIS"): ("TrigRun2GSC","JetArea_EtaJES_GSC"), # Calo+Trk GSC
                 ("a4","subresjesgscIS"): ("TrigRun2GSC","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
@@ -254,12 +257,9 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
         if jetalg=="a4":
             calibMods = ["ConstitFourMom_copy",
                          "CaloEnergies", # Needed for GSC
-                         "Calib:"+calibSpec,
-                         "Sort"]
+                         "Calib:"+calibSpec]
         else:
             calibMods = ["ConstitFourMom_copy",
-                         "Calib:"+calibSpec,
-                         "Sort"]
+                         "Calib:"+calibSpec]
 
-    filtercut = {"a4":7000, "a10":50000, "a10r": 50000, "a10t":50000, "a10sd":50000}[jetalg]
-    return calibMods + ["Filter:"+str(filtercut)]
+    return calibMods

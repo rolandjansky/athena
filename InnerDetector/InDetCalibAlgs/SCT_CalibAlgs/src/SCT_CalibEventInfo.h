@@ -53,7 +53,9 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
       virtual int numLumiBlocks() const;
 
       virtual void setRunNumber(const int rn);
+      virtual void setEventNumber(const int en);
       virtual int runNumber() const;
+      virtual int eventNumber() const;
 
       virtual void setCounter(const int counterVal);
       virtual void incrementCounter();
@@ -76,6 +78,7 @@ class SCT_CalibEventInfo: public extends<AthAlgTool, ISCT_CalibEvtInfo>
 
       //
       int  m_runNumber{0};
+      int  m_eventNumber{0};
       int  m_lumiBlock{0};
       int  m_timeStamp{0};
       int  m_bunchCrossing{0};

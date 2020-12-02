@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # File: share/xAODTestRead_jo.py
 # Author: snyder@bnl.gov
 # Date: May 2014
@@ -78,6 +76,9 @@ fullItemList+=["DMTest::C#scopy_cinfo"]
 fullItemList+=["xAOD::ShallowAuxInfo#scopy_cinfoAux."]
 fullItemList+=["DMTest::HVec#scopy_hvec"]
 fullItemList+=["xAOD::ShallowAuxContainer#scopy_hvecAux."]
+
+fullItemList+=["xAOD::EventInfo#EventInfo"]
+fullItemList+=["xAOD::EventAuxInfo#EventInfoAux."]
 
 ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += ["DEFAULT_SPLITLEVEL='1'"]
 

@@ -1,28 +1,18 @@
-################################################################################
-# Package: TrackToCalo
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrackToCalo )
-
-# External dependencies:
-find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_library( TrackToCaloLib
                    src/*.cxx
                    PUBLIC_HEADERS TrackToCalo
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} CaloEvent CaloGeoHelpers GeoPrimitives xAODCaloEvent GaudiKernel ParticleCaloExtension RecoToolInterfaces 
-		   TrackCaloClusterRecToolsLib TrkCaloExtension TrkParametersIdentificationHelpers CaloDetDescrLib CaloUtilsLib InDetReadoutGeometry TRT_ReadoutGeometry
-                   PRIVATE_LINK_LIBRARIES CaloIdentifier AthenaBaseComps AtlasDetDescr FourMomUtils xAODTracking xAODMuon xAODEgamma xAODTruth TrkSurfaces 
-                   TrkEventPrimitives TrkParameters TrkTrack TrkExInterfaces TrkToolInterfaces CxxUtils StoreGateLib EventKernel ParticlesInConeToolsLib ITrackToVertex
-                   InDetTrackSelectionToolLib )
+                   LINK_LIBRARIES CaloEvent CaloGeoHelpers CaloUtilsLib GaudiKernel GeoPrimitives InDetReadoutGeometry ParticleCaloExtension RecoToolInterfaces TrkCaloExtension TrkExInterfaces TrkParametersIdentificationHelpers TrkToolInterfaces TRT_ReadoutGeometry xAODCaloEvent xAODTruth
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps AtlasDetDescr CaloConditions CaloDetDescrLib CaloIdentifier StoreGateLib TrkDetDescrUtils TrkEventPrimitives TrkParameters TrkSurfaces TrkTrack VxVertex xAODEgamma xAODMuon xAODTracking )
 
 atlas_add_component( TrackToCalo
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES GaudiKernel TrackToCaloLib InDetTrackSelectionToolLib 
-                     ITrackToVertex TrkLinks VxVertex TrackVertexAssociationToolLib)
+                     LINK_LIBRARIES TrackToCaloLib )
 
-atlas_install_python_modules( python/*.py )
+# Install files from the package:
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

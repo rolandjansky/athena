@@ -653,10 +653,7 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
   for(i=0; i<numMuon; i++) {
     ATH_MSG_DEBUG( "++ i=" << i << ": result=" << mucombResult[i] );
     if( mucombResult[i] != i ) {
-      ATH_MSG_DEBUG( "   overlap to some one. skip." );
-
-      (*input[i]).passOR = false;
-
+      ATH_MSG_DEBUG( "   overlap to some one. already the best one was chosen. skip." );
       continue;
     }
     std::vector<unsigned int> others;

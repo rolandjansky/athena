@@ -15,9 +15,6 @@
 #include "EventInfo/EventID.h"
 #include "GeneratorObjects/McEventCollection.h"
 
-//class HepMCAnalysisGenEvent;
-using HepMCAnalysisGenEvent=HepMC::GenEvent;
-HepMCAnalysisGenEvent* PrepareHepMCAnalysisGenEvent(const HepMC::GenEvent* cevent);
 
 StatusCode   GetRunEventNumber(AthAlgorithm* a,int& runNumber,int& evtNumber,  const std::string im)
 {
@@ -37,7 +34,7 @@ StatusCode   GetRunEventNumber(AthAlgorithm* a,int& runNumber,int& evtNumber,  c
 }
 
 
-StatusCode  GetEvents(AthAlgorithm* a,std::vector<HepMCAnalysisGenEvent*>& evts, const std::string km)
+StatusCode  GetEventsFromCollection(AthAlgorithm* a,std::vector<const HepMC::GenEvent*>& evts, const std::string km)
 {
   // load HepMC info
   const McEventCollection* mcCollptr;
@@ -48,7 +45,7 @@ StatusCode  GetEvents(AthAlgorithm* a,std::vector<HepMCAnalysisGenEvent*>& evts,
 
     // loop over all events in McEventCollection
     for ( McEventCollection::const_iterator itr = mcCollptr->begin(); itr != mcCollptr->end(); ++itr ) {
-	evts.push_back(PrepareHepMCAnalysisGenEvent(*itr));
+	evts.push_back(*itr);
 }
 }
   return StatusCode::SUCCESS;

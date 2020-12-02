@@ -87,7 +87,7 @@ do
   idx=`expr $idx + 1`
 done
 
-TRFARGS="preInclude=RecExCommission/MinimalCommissioningSetup.py --ignoreunknown"
+TRFARGS="preInclude=RecExCond/MinimalCommissioningSetup.py --ignoreunknown"
 
 ## merge aods
 INFILE=job_${TRIGSTR}_0.AOD.pool.root

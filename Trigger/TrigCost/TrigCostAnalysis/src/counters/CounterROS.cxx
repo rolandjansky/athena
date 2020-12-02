@@ -39,7 +39,6 @@ StatusCode CounterROS::newEvent(const CostData& data, size_t index, const float 
   bool networkRequestIncremented = false;
   for (size_t i = 0; i < robIdsPerRequest.size(); ++i) {
     if (std::find(m_robIdsPerROS.begin(), m_robIdsPerROS.end(), robIdsPerRequest[i]) != m_robIdsPerROS.end()) {
-
       ATH_CHECK( fill("ROBStatus_perCall", getROBHistoryBin(robs_history[i]), weight) );
       if (robs_status[i]) {
         // The last bin of ROBStatus_perCall histogram store isStatusOk bool value
@@ -48,11 +47,12 @@ StatusCode CounterROS::newEvent(const CostData& data, size_t index, const float 
 
       // ROB request was fetched over the network
       if (robs_history[i] == robmonitor::RETRIEVED) {
-        ATH_CHECK( fill("NetworkROBSize_perEvent", robs_size[i], weight) );
+        // size is stored in words, should be in kilobytes
+        ATH_CHECK( fill("NetworkROBSize_perEvent", robs_size[i] / 500., weight) );
         networkRequestIncremented = true;
       }
-      else {
-        ATH_CHECK( fill("CachedROBSize_perEvent", robs_size[i], weight) );
+      else if (robs_history[i] == robmonitor::HLT_CACHED || robs_history[i] == robmonitor::DCM_CACHED) {
+        ATH_CHECK( fill("CachedROBSize_perEvent", robs_size[i] / 500., weight) );
       }
     }
   }

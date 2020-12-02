@@ -13,13 +13,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypo_TLA.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypo_SMC.h"
 #include "../TrigJetHypoAlgMT.h"
-#include "../TrigJetHypoToolConfig_simple.h"
-#include "../TrigJetHypoToolConfig_simple_partition.h"
-#include "../TrigJetHypoToolConfig_dijet.h"
-#include "../TrigJetHypoToolConfig_combgen.h"
-#include "../TrigJetHypoToolConfig_partgen.h"
 #include "../TrigJetHypoToolConfig_fastreduction.h"
-#include "../TrigJetHypoToolConfig_leaf.h"
 #include "../TrigJetHypoToolConfig_ht.h"
 //
 #include "../TrigJetConditionConfig_abs_eta.h"
@@ -58,13 +52,7 @@ DECLARE_COMPONENT(TrigEFDPhiMetJetAllTE)
 DECLARE_COMPONENT(TrigHLTJetHypo_Dijet)
 DECLARE_COMPONENT(TrigHLTJetHypo_DijetMassDEta)
 DECLARE_COMPONENT(TrigHLTJetHypo_DijetMassDEtaDPhi)
-DECLARE_COMPONENT(TrigJetHypoToolConfig_simple)
-DECLARE_COMPONENT(TrigJetHypoToolConfig_simple_partition)
-DECLARE_COMPONENT(TrigJetHypoToolConfig_dijet)
-DECLARE_COMPONENT(TrigJetHypoToolConfig_combgen)
-DECLARE_COMPONENT(TrigJetHypoToolConfig_partgen)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_fastreduction)
-DECLARE_COMPONENT(TrigJetHypoToolConfig_leaf)
 DECLARE_COMPONENT(TrigJetHypoToolConfig_ht)
 DECLARE_COMPONENT(TrigHLTJetHypo_SMC)
 DECLARE_COMPONENT(TrigHLTJetHypo_HT)

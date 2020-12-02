@@ -15,7 +15,7 @@ log = logging.getLogger("InDetTrigRec_jobOptions.py")
 log.info("InDetTrigRec_jobOptions: InDetTrigFlags - setting to defaults")
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 InDetTrigFlags.doNewTracking.set_Value_and_Lock(True)
-InDetTrigFlags.cutLevel.set_Value_and_Lock(12)      
+InDetTrigFlags.cutLevel=12
 #InDetTrigFlags.InDet25nsec = True      #autoconfig and runHLT_standalone setting for BS 
 InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
 InDetTrigFlags.doRefit = True    # switched on for ATR-12226 (z0 uncertainties in bjets)

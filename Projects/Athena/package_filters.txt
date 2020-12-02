@@ -32,7 +32,6 @@
 + PhysicsAnalysis/Algorithms/SelectionHelpers
 + PhysicsAnalysis/Algorithms/SystematicsHandles
 - PhysicsAnalysis/Algorithms/.*
-- PhysicsAnalysis/AnalysisCommon/PMGTools
 - PhysicsAnalysis/D3PDTools/EventLoop.*
 - PhysicsAnalysis/D3PDTools/MultiDraw
 - PhysicsAnalysis/D3PDTools/SampleHandler

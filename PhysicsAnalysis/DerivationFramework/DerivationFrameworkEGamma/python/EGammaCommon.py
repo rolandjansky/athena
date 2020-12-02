@@ -463,11 +463,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGamma
 # ADD TOOLS
 #=======================================
 
-#
-# Disabling this tool due to it's missing in R22
-#
-# import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-# if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-#     DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
-
-
+from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones()

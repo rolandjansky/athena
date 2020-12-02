@@ -19,7 +19,6 @@ msg = logging.getLogger( 'PrimaryDPDHelpers' )
 ## Import needed modules
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
-import cppyy
 
 
 # This function correctly determines the name of the output file.
@@ -50,42 +49,42 @@ def checkEgammaAuthor(egammaCand, authorName="either"):
             if ROOT.egamma.author(egammaCand) != 8 :
                 return True
             else :
-                msg.debug("Egamma object of type=%s failed authorName=%s" % (type(egammaCand), authorName) )
+                msg.debug("Egamma object of type=%s failed authorName=%s", type(egammaCand), authorName)
                 return False
 
         elif authorName == "forward" :
             if ROOT.egamma.author(egammaCand) == 8 :
                 return True
             else :
-                msg.debug("Egamma object of type=%s failed authorName=%s" % (type(egammaCand), authorName) )
+                msg.debug("Egamma object of type=%s failed authorName=%s", type(egammaCand), authorName)
                 return False
 
         elif authorName == "onlyEgamma" or authorName == "onlyElectron" :
             if ROOT.egamma.author(egammaCand) == 1 :
                 return True
             else :
-                msg.debug("Egamma object of type=%s failed authorName=%s" % (type(egammaCand), authorName) )
+                msg.debug("Egamma object of type=%s failed authorName=%s", type(egammaCand), authorName)
                 return False
 
         elif authorName == "egamma" or authorName == "Electron" :
             if ROOT.egamma.author(egammaCand) == 1 or ROOT.egamma.author(egammaCand) == 3 :
                 return True
             else :
-                msg.debug("Egamma object of type=%s failed authorName=%s" % (type(egammaCand), authorName) )
+                msg.debug("Egamma object of type=%s failed authorName=%s", type(egammaCand), authorName)
                 return False
 
         elif authorName == "onlySofte" :
             if ROOT.egamma.author(egammaCand) == 2 :
                 return True
             else :
-                msg.debug("Egamma object of type=%s failed authorName=%s" % (type(egammaCand), authorName) )
+                msg.debug("Egamma object of type=%s failed authorName=%s", type(egammaCand), authorName)
                 return False
 
         elif authorName == "softe" :
             if ROOT.egamma.author(egammaCand) == 2 or ROOT.egamma.author(egammaCand) == 3 :
                 return True
             else :
-                msg.debug("Egamma object of type=%s failed authorName=%s" % (type(egammaCand), authorName) )
+                msg.debug("Egamma object of type=%s failed authorName=%s", type(egammaCand), authorName)
                 return False
 
         elif authorName == "eitherElectron" :
@@ -94,18 +93,18 @@ def checkEgammaAuthor(egammaCand, authorName="either"):
                    or ROOT.egamma.author(egammaCand) == 3 :
                 return True
             else :
-                msg.debug("Egamma object of type=%s failed authorName=%s" % (type(egammaCand), authorName) )
+                msg.debug("Egamma object of type=%s failed authorName=%s", type(egammaCand), authorName)
                 return False
 
         elif authorName == "Photon" :
             if ROOT.egamma.author(egammaCand) == 4 :
                 return True
             else :
-                msg.debug("Egamma object of type=%s failed authorName=%s" % (type(egammaCand), authorName) )
+                msg.debug("Egamma object of type=%s failed authorName=%s", type(egammaCand), authorName)
                 return False
 
         else :
-            msg.debug("Unrecognized authorName=%s of egamma object of type=%s" % (authorName, type(egammaCand)) )
+            msg.debug("Unrecognized authorName=%s of egamma object of type=%s", authorName, type(egammaCand))
             return False
         
 
@@ -116,7 +115,7 @@ def checkEgammaAuthor(egammaCand, authorName="either"):
         return e
 
 
-    msg.error("Problem checking the author of the egamm object with provided authorName=%s and type of passed object=%s" % (authorName, type(egammaCand)) )
+    msg.error("Problem checking the author of the egamm object with provided authorName=%s and type of passed object=%s", authorName, type(egammaCand))
     return False
 
 
@@ -134,28 +133,28 @@ def checkElectronIsEM(electronCand, isemName="None"):
             if electronCand.isem(ROOT.egammaPID.ElectronLoose) == 0 or electronCand.isem(ROOT.egammaPID.frwdElectronLoose) == 0 :
                 return True
             else :
-                msg.debug("Electron object of type=%s failed isemName=%s" % (type(electronCand), isemName) )
+                msg.debug("Electron object of type=%s failed isemName=%s", type(electronCand), isemName)
                 return False
 
         elif isemName == "Medium" :
             if electronCand.isem(ROOT.egammaPID.ElectronMedium) == 0 :
                 return True
             else :
-                msg.debug("Electron object of type=%s failed isemName=%s" % (type(electronCand), isemName) )
+                msg.debug("Electron object of type=%s failed isemName=%s", type(electronCand), isemName)
                 return False
 
         elif isemName == "Tight" :
             if electronCand.isem(ROOT.egammaPID.ElectronTight) == 0 or electronCand.isem(ROOT.egammaPID.frwdElectronTight) == 0 :
                 return True
             else :
-                msg.debug("Electron object of type=%s failed isemName=%s" % (type(electronCand), isemName) )
+                msg.debug("Electron object of type=%s failed isemName=%s", type(electronCand), isemName)
                 return False
 
         elif isemName == "TightNoIsolation" :
             if electronCand.isem(ROOT.egammaPID.ElectronTightNoIsolation) == 0 :
                 return True
             else :
-                msg.debug("Electron object of type=%s failed isemName=%s" % (type(electronCand), isemName) )
+                msg.debug("Electron object of type=%s failed isemName=%s", type(electronCand), isemName)
                 return False
 
         else :
@@ -165,11 +164,11 @@ def checkElectronIsEM(electronCand, isemName="None"):
                 if electronCand.isem( cut ) == 0 :
                     return True
                 else :
-                    msg.debug("Electron object of type=%s failed isemName=%s" % (type(electronCand), isemName) )
+                    msg.debug("Electron object of type=%s failed isemName=%s", type(electronCand), isemName)
                     return False
                 pass
             except AttributeError as err :
-                msg.error("AttributeError when calling checkElectronIsEM with isemName=%s of electron object of type=%s. The error is %s" % (isemName, type(electronCand), err) )
+                msg.error("AttributeError when calling checkElectronIsEM with isemName=%s of electron object of type=%s. The error is %s", isemName, type(electronCand), err)
                 import traceback
                 msg.error(traceback.format_exc())
                 return False
@@ -181,7 +180,7 @@ def checkElectronIsEM(electronCand, isemName="None"):
         msg.error(traceback.format_exc())
         return e
 
-    msg.error("Problem checking the IsEM of the electron object with provided IsEM=%s and type of passed object=%s" % (isemName, type(electronCand)) )
+    msg.error("Problem checking the IsEM of the electron object with provided IsEM=%s and type of passed object=%s", isemName, type(electronCand))
     return False
 
 
@@ -198,14 +197,14 @@ def checkPhotonIsEM(photonCand, isemName="None"):
             if photonCand.isem(ROOT.egammaPID.PhotonLoose) == 0 :
                 return True
             else :
-                msg.debug("Photon object of type=%s failed isemName=%s" % (type(photonCand), isemName) )
+                msg.debug("Photon object of type=%s failed isemName=%s", type(photonCand), isemName)
                 return False
 
         elif isemName == "Photon" or isemName == "PhotonTight" or isemName == "Tight" :
             if photonCand.isem(ROOT.egammaPID.PhotonTight) == 0 :
                 return True
             else :
-                msg.debug("Photon object of type=%s failed isemName=%s" % (type(photonCand), isemName) )
+                msg.debug("Photon object of type=%s failed isemName=%s", type(photonCand), isemName)
                 return False
 
         else :
@@ -215,11 +214,11 @@ def checkPhotonIsEM(photonCand, isemName="None"):
                 if photonCand.isem( cut ) == 0 :
                     return True
                 else :
-                    msg.debug("Photon object of type=%s failed isemName=%s" % (type(photonCand), isemName) )
+                    msg.debug("Photon object of type=%s failed isemName=%s", type(photonCand), isemName)
                     return False
                 pass
             except AttributeError as err :
-                msg.error("AttributeError when calling checkElectronIsEM with isemName=%s of electron object of type=%s. The error is %s" % (isemName, type(photonCand), err) )
+                msg.error("AttributeError when calling checkElectronIsEM with isemName=%s of electron object of type=%s. The error is %s", isemName, type(photonCand), err)
                 import traceback
                 msg.error(traceback.format_exc())
                 return False
@@ -230,7 +229,7 @@ def checkPhotonIsEM(photonCand, isemName="None"):
         msg.error(traceback.format_exc())
         return e
 
-    msg.error("Problem checking the IsEM of the photon object with provided IsEM=%s and type of passed object=%s" % (isemName, type(photonCand)) )
+    msg.error("Problem checking the IsEM of the photon object with provided IsEM=%s and type of passed object=%s", isemName, type(photonCand))
     return False
 
 
@@ -238,7 +237,7 @@ def checkPhotonIsEM(photonCand, isemName="None"):
 def checkMuonAuthor(muonCandidate, authorName="all"):
 
     try:
-        if authorName is "all" :
+        if authorName == "all" :
             return True
     except TypeError as e:
         msg.error("Type error when calling checkMuonAuthor %s",e)
@@ -248,17 +247,17 @@ def checkMuonAuthor(muonCandidate, authorName="all"):
 
     muCandAuthor = ''
     authorNum = muonCandidate.author()
-    if authorNum is 1 or authorNum is 6 or authorNum is 12:
+    if authorNum == 1 or authorNum == 6 or authorNum == 12:
         muCandAuthor = 'combined'
-    elif authorNum is 2 or authorNum is 7 or authorNum is 13:
+    elif authorNum == 2 or authorNum == 7 or authorNum == 13:
         muCandAuthor = 'lowpt'
-    elif authorNum is 4 or authorNum is 5 or authorNum is 10 or authorNum is 11 :
+    elif authorNum == 4 or authorNum == 5 or authorNum == 10 or authorNum == 11 :
         muCandAuthor = 'standalone'
-    elif authorNum is 14 :
+    elif authorNum == 14 :
         muCandAuthor = 'calo'
     try:
 
-        if muCandAuthor is authorName :
+        if muCandAuthor == authorName :
             return True
         
         else :

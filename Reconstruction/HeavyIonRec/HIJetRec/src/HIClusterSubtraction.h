@@ -33,7 +33,6 @@
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 
-#include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
 
 class HIClusterSubtraction : virtual public asg::AsgTool,

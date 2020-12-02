@@ -23,7 +23,6 @@
 #include "AthenaMonitoring/ITriggerTranslatorTool.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
-#include "GaudiKernel/ToolHandle.h"
 #include "LumiBlockData/LuminosityCondData.h"
 #include "LumiBlockData/LBDurationCondData.h"
 #include "LumiBlockData/TrigLiveFractionCondData.h"

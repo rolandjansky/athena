@@ -7,6 +7,7 @@
 //
 #ifndef GEO_MODEL_XML_MAKE_ELEMENT_H
 #define GEO_MODEL_XML_MAKE_ELEMENT_H
+#include <xercesc/util/XercesDefs.hpp>
 
 #include "GeoModelXml/Element2GeoItem.h"
 

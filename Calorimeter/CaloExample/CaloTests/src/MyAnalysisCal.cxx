@@ -66,18 +66,14 @@ namespace MyAnalysisCal {
       {
        McEventCollection::const_iterator itr;
        for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) {
-        HepMC::GenEvent::particle_const_iterator itrPart;
-        for (itrPart = (*itr)->particles_begin(); itrPart!=(*itr)->particles_end(); ++itrPart )
+        for (auto part: **itr )
        {
-        HepMC::GenParticle *part=*itrPart;
-         if(  (abs(part->pdg_id())==11 || part->pdg_id()==22)
-              && part->momentum().e()> 5000.)
+         if(  (std::abs(part->pdg_id())==11 || part->pdg_id()==22)&& part->momentum().e()> 5000.)
          {
           e_true = part->momentum().e();
           eta_true = part->momentum().pseudoRapidity();
           phi_true = part->momentum().phi();
-          ATH_MSG_INFO( " true particle found " << part->pdg_id() << " " <<
-                        e_true << " " << eta_true << " " << phi_true  );
+          ATH_MSG_INFO( " true particle found " << part->pdg_id() << " " <<e_true << " " << eta_true << " " << phi_true  );
   
          } // e or gamma found
         }  // loop over particle

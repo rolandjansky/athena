@@ -4,6 +4,7 @@
 
 #ifndef GEO_MODEL_XML_ADD_BRANCH_PROCESSOR_H
 #define GEO_MODEL_XML_ADD_BRANCH_PROCESSOR_H
+#include <xercesc/util/XercesDefs.hpp>
 //
 //   Processor for addbranch tags.
 //

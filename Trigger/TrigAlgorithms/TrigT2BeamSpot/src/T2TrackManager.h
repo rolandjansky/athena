@@ -35,7 +35,11 @@ namespace PESA
   public:
 
     // List of the splitter algorithms
-    enum Algorithm { Alternating, Pt, Phi, NorthSouth, Charge };
+    // TODO: Only Alternating split works, Pt does things that look strange
+    //   and it should be validated before it can be used.
+    enum Algorithm { Alternating, Pt /*, Phi, NorthSouth, Charge */ };
+
+    explicit T2TrackManager(int nSplit=2, Algorithm alg=Alternating) : m_nSplit(nSplit), m_alg(alg) {}
 
     // Return a vector of sub-clusters
     std::vector< ConstDataVector<TrackCollection> > split(const TrackCollection& cluster, const EventContext& ctx) const;
@@ -43,12 +47,12 @@ namespace PESA
   private:
     
     // The splitter algorithms
-    constexpr int alternatingSplit(int key) const;         // 1 for me, 1 for you, 2 for me, ...
-    constexpr int orderedSplit(int key, int nEntries) const; // 1, 2, 3 for me, 1, 2, 3 for you ...
+    int alternatingSplit(int& key) const;         // 1 for me, 1 for you, 2 for me, ...
+    int orderedSplit(int& key, int nEntries) const; // 1, 2, 3 for me, 1, 2, 3 for you ...
     
     /// Data members
-    int m_nSplit = 2;      // How many output clusters
-    int m_alg = Alternating;         // Which algorithm to use
+    const int m_nSplit = 2;      // How many output clusters
+    const int m_alg = Alternating;         // Which algorithm to use
   };
 
 } //PESA

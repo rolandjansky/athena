@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##-----------------------------------------------------------------------------
 ## Name: PrimaryDPD_BasicOutput.py
@@ -9,7 +9,6 @@
 ## Description: This defines the basic output containers to be added to 
 ##              every output stream.
 ##
-## $Id: PrimaryDPD_OutputDefinitions.py,v 1.31 2009-05-04 19:56:52 kkoeneke Exp $
 ##-----------------------------------------------------------------------------
 
 
@@ -30,7 +29,7 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr # For release 14.
 def addAllItemsFromInputExceptExcludeList(streamName,ExcludeList):
     try:
         stream = MSMgr.GetStream(streamName)
-    except:
+    except Exception:
         raise RuntimeError("Unable to get stream %s"%streamName)
     
     # Get the list of all input event-type containers

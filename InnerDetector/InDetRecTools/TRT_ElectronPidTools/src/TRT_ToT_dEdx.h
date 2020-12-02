@@ -67,8 +67,8 @@ public:
 
 private:
   SG::ReadDecorHandleKey<xAOD::EventInfo> m_rdhkEvtInfo {this
-      , "AveIntPerXKey"
-      , "EventInfo.AveIntPerXDecor"
+      , "averageInteractionsPerCrossingKey"
+      , "EventInfo.averageInteractionsPerCrossing"
       , "Decoration for Average Interaction Per Crossing"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
   Trk::ParticleMasses        m_particlemasses;

@@ -22,7 +22,6 @@ PURPOSE:  A simple toy model to simulate longitudinal cross-talk
 #include "CaloEvent/CaloCell.h"
 
 #include "CaloDetDescr/CaloDetDescrElement.h"
-#include "CaloEvent/CaloCell.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 

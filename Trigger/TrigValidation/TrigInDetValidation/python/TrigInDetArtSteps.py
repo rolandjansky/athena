@@ -218,7 +218,7 @@ class TrigInDetCompStep(RefComparisonStep):
 
         self.args += self.input_file + ' ' 
 
-        if (self.reference == None):
+        if (self.reference is None):
             # if no reference found, use input file as reference - athout it doesn't matter - could use --noref
             self.args += self.input_file + ' ' 
         else:
@@ -252,7 +252,7 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     
     def configure(self, test):
         #self.args += self.input_file+' '+self.ref_file+' '+' -o '+self.output_dir
-        if (self.reference == None):
+        if (self.reference is None):
             ## if not reference found, run with "--noref" option
             self.args += ' {} --noref -o {} -p TIME'.format(self.input_file,self.output_dir)
         else:

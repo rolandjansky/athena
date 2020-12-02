@@ -25,6 +25,8 @@ using namespace Muon;
 
 namespace {
   static constexpr double const& inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458
+  // the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
 }
 
 Muon::MdtRdoToPrepDataToolCore::MdtRdoToPrepDataToolCore(const std::string& t, const std::string& n, const IInterface* p) :
@@ -1468,7 +1470,7 @@ void MdtRdoToPrepDataToolCore::initDeadChannels(const MuonGM::MdtReadoutElement*
   std::vector<int>::iterator it = tubes.begin();
   for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      int want_id = layer*100 + tube;
+      int want_id = layer*maxNTubesPerLayer + tube;
       if (it != tubes.end() && *it == want_id) {
         ++it;
       }

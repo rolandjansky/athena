@@ -296,7 +296,13 @@ def createTriggerFlags():
     # muon offline reco flags varaint for trigger
     def __muon():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
-        return createMuonConfigFlags()
+        muonflags = createMuonConfigFlags()
+        muonflags.Muon.useTGCPriorNextBC=True
+        muonflags.Muon.enableErrorTuning=False
+        muonflags.Muon.MuonTrigger=True
+        muonflags.Muon.SAMuonTrigger=True
+        return muonflags 
+
     flags.addFlagsCategory('Trigger.Offline', __muon, prefix=True)
 
     from TrigInDetConfig.TrigTrackingCutFlags import createTrigTrackingFlags

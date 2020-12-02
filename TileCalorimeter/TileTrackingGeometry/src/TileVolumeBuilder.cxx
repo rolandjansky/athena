@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -95,10 +95,6 @@ Tile::TileVolumeBuilder::~ TileVolumeBuilder()
 // initialize
 StatusCode Tile::TileVolumeBuilder::initialize()
 {
-  // Get the Calo geometry
-  StatusCode status = detStore()->retrieve(m_calo_dd);
-  if(status.isFailure()) return status;
-  
   // get Tile Detector Description Manager
   if (detStore()->retrieve(m_tileMgr, m_tileMgrLocation).isFailure()){  
     ATH_MSG_FATAL( "Could not get TileDetDescrManager! Tile TrackingVolumes will not be built" );

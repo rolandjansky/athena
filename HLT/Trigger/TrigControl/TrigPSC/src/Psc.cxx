@@ -44,8 +44,6 @@
 
 #include <boost/property_tree/xml_parser.hpp>
 
-#include "CxxUtils/checker_macros.h"
-
 using namespace boost::property_tree;
 
 namespace

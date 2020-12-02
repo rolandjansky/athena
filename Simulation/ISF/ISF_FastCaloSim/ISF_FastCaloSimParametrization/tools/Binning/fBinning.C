@@ -1,52 +1,40 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
-
-#include "TLorentzVector.h"
+// std includes
+#include <fstream>
 #include <iomanip>
-#include "TH1F.h"
-#include "TFile.h"
-#include "TPad.h"
 #include <iostream>
-#include <fstream>
 #include <iterator>
-#include <vector>
-#include <stdio.h>
-#include <string.h>
-#include <stddef.h>
-#include <string>
-#include "TGraph.h"
-#include "TGraphPolar.h"
-#include "TStyle.h"
-#include "TMatrixD.h"
-#include "TLine.h"
-#include "loader.C"
-#include <iostream>
-#include <fstream>
-#include <iterator>
-#include <vector>
-#include <stdio.h>
-#include <string.h>
-#include <stddef.h>
-#include <string>
-#include "TMath.h"
-#include "TH2F.h"
-#include "TH1F.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TLeaf.h"
-#include "TVector3.h"
-#include "TChain.h"
-#include <iostream>
-#include "TDirectory.h"
-#include "TROOT.h"
-#include "TCanvas.h"
-#include <string>
 #include <sstream>
-#include "TLegend.h"
-#include "TPie.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
+#include <vector>
+// root includes
+#include "TCanvas.h"
+#include "TChain.h"
+#include "TDirectory.h"
+#include "TFile.h"
+#include "TGraph.h"
+#include "TGraphPolar.h"
+#include "TH1F.h"
+#include "TH2F.h"
+#include "TLeaf.h"
+#include "TLegend.h"
+#include "TLine.h"
+#include "TLorentzVector.h"
+#include "TMath.h"
+#include "TMatrixD.h"
+#include "TPad.h"
+#include "TPie.h"
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TTree.h"
+#include "TVector3.h"
+// local includes
+#include "loader.C"
 
 using namespace std;
 

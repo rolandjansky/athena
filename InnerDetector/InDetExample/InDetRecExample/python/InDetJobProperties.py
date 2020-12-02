@@ -288,13 +288,13 @@ class doR3LargeD0(InDetFlagsJobProperty):
     """Turn running of doR3LargeD0 second pass on and off"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue   = False
+    StoredValue   = True
 
 class storeSeparateLargeD0Container(InDetFlagsJobProperty):
     """Separate the LargeD0 container from the main track container"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue   = False
+    StoredValue   = True
 
 class useExistingTracksAsInput(InDetFlagsJobProperty):
     """Use already processed Track from a (D)ESD input file.
