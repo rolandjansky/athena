@@ -8,7 +8,7 @@
 #include <xercesc/dom/DOM.hpp>
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/GeoPgon.h"
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 using namespace xercesc;
@@ -22,7 +22,7 @@ double p[nParams];
 char *toRelease;
 
     for (int i = 0; i < nParams; ++i) {
-        toRelease = Translate(element->getAttribute(Translate(parName[i])));
+        toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode(parName[i])));
         p[i] = gmxUtil.evaluate(toRelease);
         XMLString::release(&toRelease);
     }
@@ -36,7 +36,7 @@ char *toRelease;
     double rMaxPlane = 0.;
     for (DOMNode *child = element->getFirstChild(); child != 0; child = child->getNextSibling()) {
         if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
-            toRelease = Translate(child->getNodeName());
+            toRelease = XMLString::transcode(child->getNodeName());
             std::string name(toRelease);
             XMLString::release(&toRelease);
             if (name == "addplane") {

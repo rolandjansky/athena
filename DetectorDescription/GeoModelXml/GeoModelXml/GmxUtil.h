@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEO_MODEL_XML_GMXUTIL_H
@@ -28,7 +28,11 @@
 #include "GeoModelXml/MakeTransformationref.h"
 #include "GeoModelXml/MakeTranslation.h"
 #include "GeoModelXml/MakeRotation.h"
+#ifndef GEOMODEL_STANDALONE_GMX
+// #include "GeoModelXml/MakeScaling.h"
+#endif
 
+#include "GeoModelXml/shape/MakeSimplePolygonBrep.h"
 #include "GeoModelXml/shape/MakeBox.h"
 #include "GeoModelXml/shape/MakeCons.h"
 #include "GeoModelXml/shape/MakeGenericTrap.h"
@@ -78,6 +82,7 @@ public:
 //
         MakeElement element;
         MakeMaterial material;
+        MakeSimplePolygonBrep simplepolygonbrep;
         MakeBox box;
         MakeCons cons;
         MakeGenericTrap generictrap;
@@ -99,6 +104,9 @@ public:
 //
         MakeTranslation translation;
         MakeRotation rotation;
+#ifndef GEOMODEL_STANDALONE_GMX
+//        MakeScaling scaling;
+#endif
 //
 //    Other things
 //

@@ -6,23 +6,14 @@
 // Then heavily modified
 #include "GeoModelXml/shape/MakeIntersection.h"
 #include <string>
-
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else
-#include <iostream>
-#endif
-
+#include "GeoModelXml/OutputDirector.h"
 #include <xercesc/dom/DOM.hpp>
-//   #include <CLHEP/Geometry/Transform3D.h>
-#include <Eigen/Dense>
+#include "GeoModelKernel/GeoDefinitions.h"
 #include "GeoModelKernel/RCBase.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTransform.h"
 
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 using namespace xercesc;
@@ -34,14 +25,9 @@ const RCBase * MakeIntersection::make(const xercesc::DOMElement *element, GmxUti
 // 
 //    Process child elements; first is first shaperef; then transform; then second shaperef.
 //
-    typedef Eigen::Affine3d Transform3D;
-
     GeoShape *first = 0;
     GeoShape *second = 0;
-    // HepGeom::Transform3D hepXf;
-    
-    Transform3D hepXf=Transform3D::Identity();
-    
+    GeoTrf::Transform3D hepXf=GeoTrf::Transform3D::Identity(); 
     int elementIndex = 0;
     for (DOMNode *child = element->getFirstChild(); child != 0; child = child->getNextSibling()) {
         if (child->getNodeType() == DOMNode::ELEMENT_NODE) { // Skips text nodes
@@ -51,7 +37,7 @@ const RCBase * MakeIntersection::make(const xercesc::DOMElement *element, GmxUti
                     break;
                 }
                 case 1: { // Second element is transformation or transformationref
-                    char *toRelease = Translate(child->getNodeName());
+                    char *toRelease = XMLString::transcode(child->getNodeName());
                     string nodeName(toRelease);
                     XMLString::release(&toRelease);
                     GeoTransform *geoXf = nodeName == "transformation"? 
@@ -65,13 +51,8 @@ const RCBase * MakeIntersection::make(const xercesc::DOMElement *element, GmxUti
                     break;
                 }
                 default: // More than 3 elements?
-#ifndef STANDALONE_GMX
-                    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-                    MsgStream log(&(*msgh), "GeoModelXml");
-                    log << MSG::FATAL << "MakeIntersection: Incompatible DTD? got more than 3 child elements\n";
-#else
-		    std::cout<<"MakeIntersection: Incompatible DTD? got more than 3 child elements\n";
-#endif
+                    OUTPUT_STREAM;
+                    msglog << MSG::FATAL << "MakeIntersection: Incompatible DTD? got more than 3 child elements\n";
             }
             elementIndex++;
         }
