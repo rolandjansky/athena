@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 // Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-#ifndef ATHEXONNXRUNTIME_CXXAPIALGORITHM_H
-#define ATHEXONNXRUNTIME_CXXAPIALGORITHM_H
+#ifndef ATHEXONNXRUNTIME_EVALUATEMODEL_H
+#define ATHEXONNXRUNTIME_EVALUATEMODEL_H
 
 // Local include(s).
 #include "AthOnnxruntimeService/IONNXRuntimeSvc.h"
@@ -19,6 +19,8 @@
 #include <iostream> 
 #include <fstream>
 #include <arpa/inet.h>
+#include <vector>
+#include <iterator>
 
 namespace AthONNX {
 
@@ -29,7 +31,7 @@ namespace AthONNX {
    /// @author Debottam Bakshi Gupta <Debottam.Bakshi.Gupta@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   class CxxApiAlgorithm : public AthReentrantAlgorithm {
+   class EvaluateModel: public AthReentrantAlgorithm {
 
    public:
       /// Inherit the base class's constructor
@@ -62,6 +64,12 @@ namespace AthONNX {
          "dev/MLTest/2020-03-31/t10k-labels-idx1-ubyte",
          "Name of the label file to load" };
       Gaudi::Property<int> m_testSample {this, "TestSample", 0, "A Random Test Sample"};
+
+      /// Following properties needed to be consdered if the .onnx model is evaluated in batch mode
+      Gaudi::Property<bool> m_doBatches {this, "DoBatches", false, "Processing events by batches"};
+      Gaudi::Property<int> m_numberOfBatches {this, "NumberOfBatches", 1, "No. of batches to be passed"};
+      Gaudi::Property<int> m_sizeOfBatch {this, "SizeOfBatch", 1, "No. of elements/example in a batch"};
+      
       /// Handle to @c AthONNX::IONNXRuntimeSvc
       ServiceHandle< IONNXRuntimeSvc > m_svc{ this, "ONNXRuntimeSvc",
                                               "AthONNX::ONNXRuntimeSvc",
@@ -71,9 +79,11 @@ namespace AthONNX {
 
       /// The "session" of ONNX Runtime that we'll be using
       std::unique_ptr< Ort::Session > m_session;
+      std::vector<std::vector<float>> m_input_tensor_values;
+      std::vector<int> m_output_tensor_values;
 
-   }; // class CxxApiAlgorithm
+   }; // class EvaluateModel
 
 } // namespace AthONNX
 
-#endif // ATHEXONNXRUNTIME_CXXAPIALGORITHM_H
+#endif // ATHEXONNXRUNTIME_EVALUATEMODEL_H

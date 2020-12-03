@@ -3,9 +3,6 @@
 # Declare the package's name.
 atlas_subdir( AthExOnnxRuntime )
 
-# External dependencies.
-find_package( onnxruntime )
-
 # Component(s) in the package.
 atlas_add_library( AthExOnnxRuntimeLib
    INTERFACE
@@ -24,6 +21,7 @@ atlas_install_joboptions( share/*.py )
 # Set up tests for the package.
 atlas_add_test( AthExOnnxRuntimeJob_serial
    SCRIPT athena.py AthExOnnxRuntime/AthExOnnxRuntime_jobOptions.py )
+
 
 atlas_add_test( AthExOnnxRuntimeJob_mt
    SCRIPT athena.py --threads=2
