@@ -99,6 +99,9 @@ atlas_add_test( TestMajorityNewConf
 atlas_add_test( TestMonReadNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_MonitorConditionsTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestParametersNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConditionsParameterTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestRodVetoNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_RODVetoTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
