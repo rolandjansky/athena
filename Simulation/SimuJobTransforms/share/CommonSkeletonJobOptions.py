@@ -37,10 +37,6 @@ if hasattr(runArgs,"beamType"):
 if hasattr(runArgs, "eventService") and runArgs.eventService:
     import AthenaMP.EventService
 
-# Disable this while MC still uses old alignment folders
-from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-InDetGeometryFlags.useDynamicAlignFolders=False
-
 ## autoConfiguration keywords triggering pre-defined functions
 ## if hasattr(runArgs,"autoConfiguration"):
 ##     for key in runArgs.autoConfiguration:

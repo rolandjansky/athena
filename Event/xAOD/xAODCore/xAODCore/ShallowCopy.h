@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: ShallowCopy.h 766390 2016-08-04 11:18:59Z wlampl $
@@ -47,6 +47,10 @@ namespace xAOD {
    /// @param cont The container to make a shallow copy of
    /// @returns A pair of pointers to the created objects. The caller takes
    ///          ownership of the created objects
+   ///
+   /// Be aware: If CONT has decorations, then the scheduler won't automatically
+   /// known that they are available on the copy.  To make that happen, see
+   /// StoreGate/ShallowCopyDecorDeps.h.
    ///
    template< class T >
    std::pair< T*, ShallowAuxContainer* > shallowCopyContainer( const T& cont ) {
@@ -96,6 +100,10 @@ namespace xAOD {
    /// @param obj The object to make a shallow copy of
    /// @returns A pair of pointers to the created objects. The caller takes
    ///          ownership of the created objects
+   ///
+   /// Be aware: If CONT has decorations, then the scheduler won't automatically
+   /// known that they are available on the copy.  To make that happen, see
+   /// StoreGate/ShallowCopyDecorDeps.h.
    ///
    template< class T >
    std::pair< T*, ShallowAuxInfo* > shallowCopyObject( const T& obj ) {

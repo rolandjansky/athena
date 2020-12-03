@@ -15,8 +15,6 @@
 #include "TrkCaloExtension/CaloExtension.h"
 #include "TrkCaloExtension/CaloExtensionHelpers.h"
 
-#include "CaloUtils/CaloCellList.h"
-
 #include "xAODTracking/TrackingPrimitives.h"
 #include <cmath>
 #include <memory>

@@ -116,9 +116,9 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
       if(!trackMatch) continue;
 
       if( offlineTauIDCut=="") ;
-      else if( offlineTauIDCut=="loose")  {if( !aTau->isTau(xAOD::TauJetParameters::JetBDTSigLoose) ) continue;}
-      else if( offlineTauIDCut=="medium") {if( !aTau->isTau(xAOD::TauJetParameters::JetBDTSigMedium) ) continue;}
-      else if( offlineTauIDCut=="tight")  {if( !aTau->isTau(xAOD::TauJetParameters::JetBDTSigTight) ) continue;}
+      else if( offlineTauIDCut=="loose")  {if( !aTau->isTau(xAOD::TauJetParameters::JetRNNSigLoose) ) continue;}
+      else if( offlineTauIDCut=="medium") {if( !aTau->isTau(xAOD::TauJetParameters::JetRNNSigMedium) ) continue;}
+      else if( offlineTauIDCut=="tight")  {if( !aTau->isTau(xAOD::TauJetParameters::JetRNNSigTight) ) continue;}
 
       /* match to subleading jet*/
       float temp_dR=subleadingJetTLV.DeltaR(aTau->p4());

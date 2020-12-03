@@ -63,7 +63,7 @@ class TrigInDetReco(ExecStep):
         # get the cuttent atlas base release, and the previous base release
         import os
         DVERSION=os.getenv('Athena_VERSION')
-        if ( DVERSION == None ) : 
+        if ( DVERSION is None ) :
             AVERSION = "22.0.20"
         else :
             BASE=DVERSION[:5]
@@ -190,7 +190,7 @@ class TrigInDetCompStep(RefComparisonStep):
     '''
     def __init__( self, name='TrigInDetComp', slice=None, args=None, file=None, reference=None ):
         super(TrigInDetCompStep, self).__init__(name)
-        if reference == None : 
+        if reference is None :
             self.reference  = file # do we need this any more ??? 
             self.args  = args + " " + file + "  " + file + " --noref --oldrms "
         else:
@@ -231,7 +231,7 @@ class TrigInDetCpuCostStep(RefComparisonStep):
     
     def configure(self, test):
         #self.args += self.input_file+' '+self.ref_file+' '+' -o '+self.output_dir
-        if (self.reference == None):
+        if (self.reference is None):
             ## if not reference found, run with "--noref" option
             self.args += ' {} --noref -o {} -p TIME'.format(self.input_file,self.output_dir)
         else:

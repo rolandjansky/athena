@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System includes
@@ -172,8 +172,16 @@ namespace ORUtils
         // Don't reject jets with high track multiplicity and
         // high relative PT ratio
         bool highNumTrk = nTrk >= m_numJetTrk;
-        bool highRelPt = (muon->pt()/jet->pt() < m_muJetPtRatio ||
-                          muon->pt()/sumTrkPt < m_muJetTrkPtRatio);
+        bool highRelPt = false;
+
+	if (sumTrkPt < FLT_MIN){
+	  highRelPt = (muon->pt()/jet->pt() < m_muJetPtRatio);
+	}
+	else{
+	  highRelPt = (muon->pt()/jet->pt() < m_muJetPtRatio ||
+		       muon->pt()/sumTrkPt < m_muJetTrkPtRatio);
+	}
+
         if(highNumTrk && (!m_applyRelPt || highRelPt)) continue;
 
         if(m_dRMatchCone1->objectsMatch(*muon, *jet)){

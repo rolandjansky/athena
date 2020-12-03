@@ -21,8 +21,6 @@ from AthenaCommon.Logging import logging
 logAODSelect_helpers = logging.getLogger( 'AODSelect_helpers' )
 #logAODSelect_helpers.setLevel(logging.DEBUG)
 
-# Import the AODSelectFlags to steer the job
-from AODSelect.AODSelectFlags import AODSelectFlags
 from AthenaCommon import CfgMgr
 
 # Import the objKeyStore to be able to see what collections are available
@@ -73,10 +71,10 @@ class AODSelectConfiguration(object):
         if not aodSelectFlag:
             logAODSelect_helpers.warning( "You gave me an empty flag container... this won't work!" )
             return False
-        logAODSelect_helpers.debug( "Have inputTypeAndKeyList=%s, outputCollectionPrefix=%s, createOutputCollection=%s, createOutputLinkCollection=%s, selectorTool=%s "
-                                    % (aodSelectFlag.inputTypeAndKeyList,
+        logAODSelect_helpers.debug( "Have inputTypeAndKeyList=%s, outputCollectionPrefix=%s, createOutputCollection=%s, createOutputLinkCollection=%s, selectorTool=%s ",
+                                       aodSelectFlag.inputTypeAndKeyList,
                                        aodSelectFlag.outputCollectionPrefix, aodSelectFlag.createOutputCollection,
-                                       aodSelectFlag.createOutputLinkCollection, selectorTool ) )
+                                       aodSelectFlag.createOutputLinkCollection, selectorTool )
         for inputTypeAndKey in aodSelectFlag.inputTypeAndKeyList:
             # Prepare the names for this inputTypeAndKey
             inputType, inputKey = inputTypeAndKey.split("#")
@@ -93,10 +91,10 @@ class AODSelectConfiguration(object):
                 algConfigName = inputTypeAndKey
                 if index > 0: algConfigName = algConfigName + ("_%s" % index)
                 algConfig = self.findAlgConfig(algConfigName)
-                if algConfig != None:
+                if algConfig is not None:
                     # Check if it already has output (link) collections scheduled
                     if algConfig.outputCollection == algConfig.outputLinkCollection == "":
-                        logAODSelect_helpers.debug( "Modifying an existing AODSelectAlgConfig with name: %s" % algConfigName )
+                        logAODSelect_helpers.debug( "Modifying an existing AODSelectAlgConfig with name: %s", algConfigName )
                         algConfig.selectorToolList.append(selectorTool)
                         algConfig.outputCollection     = outCollKey
                         algConfig.outputLinkCollection = outLinkCollKey
@@ -110,7 +108,7 @@ class AODSelectConfiguration(object):
                     pass
                 else:
                     # Create a new one and add it
-                    logAODSelect_helpers.debug( "Adding a new AODSelectAlgConfig with name: %s" % algConfigName )
+                    logAODSelect_helpers.debug( "Adding a new AODSelectAlgConfig with name: %s", algConfigName )
                     algConfig = AODSelectAlgConfig(algConfigName)
                     algConfig.setInputTypeAndKey(inputTypeAndKey)
                     algConfig.selectorToolList.append(selectorTool)
@@ -144,18 +142,17 @@ class AODSelectConfiguration(object):
             return False
         for inputTypeAndKey in aodSelectFlag.inputTypeAndKeyList:
             algConfig = self.findAlgConfig(inputTypeAndKey)
-            if algConfig == None:
+            if algConfig is None:
                 # Create a new one and add it
-                logAODSelect_helpers.debug( "Adding a new AODSelectAlgConfig with name: %s" % inputTypeAndKey )
+                logAODSelect_helpers.debug( "Adding a new AODSelectAlgConfig with name: %s", inputTypeAndKey )
                 algConfig = AODSelectAlgConfig(inputTypeAndKey)
-                logAODSelect_helpers.debug( "Adding a new user data tool: %s" % userDataTool )
+                logAODSelect_helpers.debug( "Adding a new user data tool: %s", userDataTool )
                 algConfig.userDataToolList.append(userDataTool)
                 if logAODSelect_helpers.isEnabledFor(logging.DEBUG): algConfig.doPrint()
                 self.addAlgConfig(algConfig)
                 pass
             else:
-                logAODSelect_helpers.debug( "Adding a new user data tool of name %s to AODSelectAlgConfig with name: %s"
-                                            % (userDataTool, inputTypeAndKey) )
+                logAODSelect_helpers.debug( "Adding a new user data tool of name %s to AODSelectAlgConfig with name: %s", userDataTool, inputTypeAndKey )
                 algConfig.userDataToolList.append(userDataTool)
                 if logAODSelect_helpers.isEnabledFor(logging.DEBUG): algConfig.doPrint()
                 pass
@@ -181,7 +178,7 @@ class AODSelectConfiguration(object):
             logAODSelect_helpers.warning( "You gave me an empty inputTypeAndKey string... this won't work!" )
             return False
         if not inputTypeAndKey.__contains__("#"):
-            logAODSelect_helpers.warning( "The inputTypeAndKey string doesn't contain a '#', but it should: %s" % inputTypeAndKey )
+            logAODSelect_helpers.warning( "The inputTypeAndKey string doesn't contain a '#', but it should: %s", inputTypeAndKey )
             return False
         if not associationTool:
             logAODSelect_helpers.warning( "You gave me an empty associationTool... this won't work!" )
@@ -189,19 +186,19 @@ class AODSelectConfiguration(object):
         # Create the name of the associationMap container that will be created
         _tmpName = ((associationTool.getName()).split("__"))[-1]
         _outAssoName = (inputTypeAndKey.split("#"))[1] + "_MatchTo_" + _tmpName
-        logAODSelect_helpers.debug( "using inputTypeAndKey=%s, _tmpName=%s, _outAssoName=%s" % (inputTypeAndKey, _tmpName, _outAssoName ) )
+        logAODSelect_helpers.debug( "using inputTypeAndKey=%s, _tmpName=%s, _outAssoName=%s", inputTypeAndKey, _tmpName, _outAssoName )
         # Find the right AODSelectAlgConfig object
         algConfig = self.findAlgConfig(inputTypeAndKey)
-        if algConfig == None:
+        if algConfig is None:
             # Create a new one and add it
-            logAODSelect_helpers.debug( "Creating a new AODSelectAlgConfig with name=%s" % (inputTypeAndKey) )
+            logAODSelect_helpers.debug( "Creating a new AODSelectAlgConfig with name=%s", inputTypeAndKey )
             algConfig = AODSelectAlgConfig(inputTypeAndKey)
             algConfig.associationToolList.append(associationTool)
             algConfig.outputAssociationList.append(_outAssoName)
             self.addAlgConfig(algConfig)
             pass
         else:
-            logAODSelect_helpers.debug( "Using an existing AODSelectAlgConfig with name=%s" % (inputTypeAndKey) )
+            logAODSelect_helpers.debug( "Using an existing AODSelectAlgConfig with name=%s", inputTypeAndKey )
             algConfig.associationToolList.append(associationTool)
             algConfig.outputAssociationList.append(_outAssoName)
             pass
@@ -235,7 +232,7 @@ class AODSelectConfiguration(object):
             logAODSelect_helpers.debug( "Values of current AODSelectAlgConfig: " )
             if logAODSelect_helpers.isEnabledFor(logging.DEBUG): algConfig.doPrint()
             algName = "AODSelect_" + algConfig.name.split("#")[1] + "_SelectionAlg"
-            logAODSelect_helpers.debug( "Now creating an algorithm with name %s" % algName )
+            logAODSelect_helpers.debug( "Now creating an algorithm with name %s", algName )
             algClass = self.algDict[algConfig.inputType]
             alg = algClass( algName,
                             inputCollection                = algConfig.inputKey,
@@ -277,38 +274,38 @@ class AODSelectAlgConfig(object):
 
 
     def setInputTypeAndKey(self, inputTypeAndKey=None, inputKey=None):
-        if inputTypeAndKey == None:
+        if inputTypeAndKey is None:
             logAODSelect_helpers.warning( "Got an empty value in setInputTypeAndKey... exiting!" )
             return
         if inputTypeAndKey.__contains__("#"):
             self.inputTypeAndKey          = inputTypeAndKey
             self.inputType, self.inputKey = inputTypeAndKey.split("#")
-            logAODSelect_helpers.debug( "Setting inputTypeAndKey=%s, inputType=%s, inputKey=%s"
-                                        % (self.inputTypeAndKey, self.inputType, self.inputKey) )
+            logAODSelect_helpers.debug( "Setting inputTypeAndKey=%s, inputType=%s, inputKey=%s",
+                                        self.inputTypeAndKey, self.inputType, self.inputKey )
             return
-        elif inputKey != None:
+        elif inputKey is not None:
             self.inputTypeAndKey = inputTypeAndKey + "#" + inputKey
             self.inputType       = inputTypeAndKey
             self.inputKey        = inputKey
-            logAODSelect_helpers.debug( "Setting inputTypeAndKey=%s, inputType=%s, inputKey=%s"
-                                        % (self.inputTypeAndKey, self.inputType, self.inputKey) )
+            logAODSelect_helpers.debug( "Setting inputTypeAndKey=%s, inputType=%s, inputKey=%s",
+                                        self.inputTypeAndKey, self.inputType, self.inputKey )
             return
-        logAODSelect_helpers.warning( "Could not understand what to do with inputTypeAndKey=%s and inputKey=%s"
-                                      % (inputTypeAndKey, inputKey) )
+        logAODSelect_helpers.warning( "Could not understand what to do with inputTypeAndKey=%s and inputKey=%s",
+                                      inputTypeAndKey, inputKey )
         return
 
 
     def doPrint(self):
-        logAODSelect_helpers.info( "Found an AODSelectAlgConfig with name = %s" % self.name )
-        logAODSelect_helpers.info( "   and inputTypeAndKey       = %s" % self.inputTypeAndKey )
-        logAODSelect_helpers.info( "   and inputType             = %s" % self.inputType )
-        logAODSelect_helpers.info( "   and inputKey              = %s" % self.inputKey )
-        logAODSelect_helpers.info( "   and outputCollection      = %s" % self.outputCollection )
-        logAODSelect_helpers.info( "   and outputLinkCollection  = %s" % self.outputLinkCollection )
-        logAODSelect_helpers.info( "   and selectorToolList      = %s" % self.selectorToolList )
-        logAODSelect_helpers.info( "   and userDataToolList      = %s" % self.userDataToolList )
-        logAODSelect_helpers.info( "   and associationToolList   = %s" % self.associationToolList )
-        logAODSelect_helpers.info( "   and outputAssociationList = %s" % self.outputAssociationList )
+        logAODSelect_helpers.info( "Found an AODSelectAlgConfig with name = %s", self.name )
+        logAODSelect_helpers.info( "   and inputTypeAndKey       = %s", self.inputTypeAndKey )
+        logAODSelect_helpers.info( "   and inputType             = %s", self.inputType )
+        logAODSelect_helpers.info( "   and inputKey              = %s", self.inputKey )
+        logAODSelect_helpers.info( "   and outputCollection      = %s", self.outputCollection )
+        logAODSelect_helpers.info( "   and outputLinkCollection  = %s", self.outputLinkCollection )
+        logAODSelect_helpers.info( "   and selectorToolList      = %s", self.selectorToolList )
+        logAODSelect_helpers.info( "   and userDataToolList      = %s", self.userDataToolList )
+        logAODSelect_helpers.info( "   and associationToolList   = %s", self.associationToolList )
+        logAODSelect_helpers.info( "   and outputAssociationList = %s", self.outputAssociationList )
         return
 
     pass

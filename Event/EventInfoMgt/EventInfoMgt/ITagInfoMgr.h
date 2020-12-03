@@ -20,7 +20,6 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IAddressProvider.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
