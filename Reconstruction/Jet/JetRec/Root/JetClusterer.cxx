@@ -102,11 +102,11 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
     ATH_MSG_DEBUG("Creating input area cluster sequence");
     bool seedsok=true;
     fastjet::AreaDefinition adef = buildAreaDefinition(seedsok);
-    if(seedsok) {clSequence.reset(new fastjet::ClusterSequenceArea(*pseudoJetVector, jetdef, adef));}
+    if(seedsok) {clSequence = std::make_unique<fastjet::ClusterSequenceArea>(*pseudoJetVector, jetdef, adef);}
     else {return nullreturn;}
   } else {
     ATH_MSG_DEBUG("Creating input cluster sequence");
-    clSequence.reset(new fastjet::ClusterSequence(*pseudoJetVector, jetdef));
+    clSequence = std::make_unique<fastjet::ClusterSequence>(*pseudoJetVector, jetdef);
   } 
 
 
