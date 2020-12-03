@@ -1,19 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondSvc/TGCTriggerData.h"
 #include "AthenaBaseComps/AthMessaging.h"
 
 TGCTriggerData::TGCTriggerData()
-{  
-}
-
+{}
 
 TGCTriggerData::~TGCTriggerData()
-{  
-}
-
+{}
 
 std::string TGCTriggerData::getData(int cwtype, std::string file) const {
   auto itr = m_datamap[cwtype].find(file);
@@ -47,30 +43,37 @@ bool TGCTriggerData::isActive(int cwtype, int channel) const {
   return m_active[cwtype][channel];
 }
 
-std::map<int, std::map<int,int> > TGCTriggerData::getReadMapBw(int side, int octantId, int pt) const {
-  return m_readmap_bw[side][octantId][pt];
+const std::map<unsigned short, std::map<unsigned short, unsigned char>>& TGCTriggerData::getPtMapBw(const unsigned char side, const unsigned char octant) const
+{
+  unsigned char octantbit = (side<<3) + octant;
+  std::map<unsigned char, std::map<unsigned short, std::map<unsigned short, unsigned char>>>::const_iterator it = m_ptmap_bw.find(octantbit);
+  if(it == m_ptmap_bw.end()) return m_ptmap_bw.find(0)->second;  // also for non-full-CW
+  return it->second;
 }
 
-bool TGCTriggerData::getTrigBitEifi(int side, int slot, int ssc, int sectorId, int reg, int read, int bit) const {
-  return m_trigbit_eifi[side][slot][ssc][sectorId][reg][read][bit];
+unsigned short TGCTriggerData::getTrigBitEifi(int side, int slot, int ssc, int sectorId) const {
+  int sideindex = (this->getType(TGCTriggerData::CW_EIFI) != "full") ? 0 : side;
+  return m_trigbit_eifi[sectorId][ssc][slot][sideindex];
 }
 
-int TGCTriggerData::getFlagPtEifi(int side, int pt, int ssc, int sectorId) const {
-  return m_flagpt_eifi[side][pt][ssc][sectorId];
+unsigned char TGCTriggerData::getFlagPtEifi(int side, int ssc, int sectorId) const {
+  int sideindex = (this->getType(TGCTriggerData::CW_EIFI) != "full") ? 0 : side;
+  return m_flagpt_eifi[sectorId][ssc][sideindex];
 }
 
-int TGCTriggerData::getFlagRoiEifi(int side, int roi, int ssc, int sectorId) const {
-  return m_flagroi_eifi[side][roi][ssc][sectorId];
+unsigned char TGCTriggerData::getFlagRoiEifi(int side, int ssc, int sectorId) const {
+  int sideindex = (this->getType(TGCTriggerData::CW_EIFI) != "full") ? 0 : side;
+  return m_flagroi_eifi[sectorId][ssc][sideindex];
 }
 
-int TGCTriggerData::getTrigMaskTile(int slot, int ssc, int sectorId, int side) const {
-  return m_trigbit_tile[slot][ssc][sectorId][side];
+unsigned short TGCTriggerData::getTrigMaskTile(int ssc, int sectorId, int side) const {
+  return m_trigbit_tile[ssc][sectorId][side];
 }
 
-int TGCTriggerData::getFlagPtTile(int pt, int ssc, int sectorId, int side) const {
-  return m_flagpt_tile[pt][ssc][sectorId][side];
+unsigned char TGCTriggerData::getFlagPtTile(int ssc, int sectorId, int side) const {
+  return m_flagpt_tile[ssc][sectorId][side];
 }
 
-int TGCTriggerData::getFlagRoiTile(int roi, int ssc, int sectorId, int side) const {
-  return m_flagroi_tile[roi][ssc][sectorId][side];
+unsigned char TGCTriggerData::getFlagRoiTile(int ssc, int sectorId, int side) const {
+  return m_flagroi_tile[ssc][sectorId][side];
 }

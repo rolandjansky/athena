@@ -51,18 +51,21 @@ public:
 
   const TGCArguments* tgcArgs() const;
 
-private: // hide default constructor
+ private: // hide default constructor
   TGCRPhiCoincidenceMap() = delete;
 
-protected:
+ protected:
   bool checkVersion();
   int PHIPOS(int iphi, int type) const;
   int SUBSECTORADD(int ssid, int modid, int phimod2, int type) const;
+  unsigned short getRoIAddr(const char type, const unsigned char phimod2,
+                            const unsigned short module, const unsigned short roi) const;
+
   int getMODID(int addr) const;
   int getSSID(int addr) const;
   int getTYPE(int addr) const;
   int getTYPE(int lDR, int hDR, int lDPhi, int hDPhi ) const;
- 
+
   enum {TMap_HH=0, TMap_HL, TMap_LH, TMap_LL, N_TMap};
   enum {N_PT_THRESH=6};
   enum {NumberOfCoincidenceType=4};
@@ -168,6 +171,12 @@ inline
  int TGCRPhiCoincidenceMap::getTYPE(int addr) const
  { return ((addr>>16)&0x0003); }
 
+inline
+ unsigned short TGCRPhiCoincidenceMap::getRoIAddr(const char type, const unsigned char phimod2,
+                                                  const unsigned short module, const unsigned short roi) const
+{
+  return ((type & 0x3)<<13) + ((phimod2&0x1)<<12) + (module<<8) + roi;
+}
 
 } //end of namespace bracket
 

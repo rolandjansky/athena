@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCTRIGGERDBALG_H
@@ -12,10 +12,9 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include "MuonCondSvc/TGCTriggerData.h"
 
-class TGCTriggerDbAlg: public AthAlgorithm {
-
+class TGCTriggerDbAlg: public AthAlgorithm
+{
   public:
-
     TGCTriggerDbAlg (const std::string& name, ISvcLocator* pSvcLocator);
     virtual ~TGCTriggerDbAlg() = default;
     virtual StatusCode initialize() override;
@@ -23,13 +22,11 @@ class TGCTriggerDbAlg: public AthAlgorithm {
     virtual StatusCode finalize() override;
  
   protected:
-
-    enum {TMap_HH=0, TMap_HL, TMap_LH, TMap_LL, N_TMap};
-    int getTYPE(int lDR, int hDR, int lDPhi, int hDPhi) const;
-    int SUBSECTORADD(int ssid, int modid, int phimod2, int type) const;
+    char getTYPE(const short lDR, const short hDR, const short lDPhi, const short hDPhi) const;
+    unsigned short getRoIAddr(const char type, const unsigned char phimod2, 
+                              const unsigned short module, const unsigned short roi) const;
  
   private:
-    
     void loadParameters(TGCTriggerData* writeCdo,
                         const CondAttrListCollection* readKey,
                         int cw_type);
@@ -37,7 +34,6 @@ class TGCTriggerDbAlg: public AthAlgorithm {
     void fillReadMapBw(TGCTriggerData* writeCdo);
     void fillTrigBitEifi(TGCTriggerData* writeCdo);
     void fillTrigBitTile(TGCTriggerData* writeCdo);
-
 
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_bw;
     SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_eifi;
