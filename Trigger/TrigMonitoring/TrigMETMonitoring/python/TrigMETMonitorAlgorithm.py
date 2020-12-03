@@ -50,24 +50,46 @@ def TrigMETMonConfig(inputFlags):
     # without filters, all events are processed.
     TrigMETMonChain1Alg.TriggerChain = 'HLT_xe65_cell_L1XE50'
     
+    ### check Run2 or Run3 MT
+    from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
+    from TriggerJobOpts.TriggerFlags import TriggerFlags
 
-    ### use the follwoing if you run on Run2 AOD
-    #TrigMETMonAlg.hlt_cell_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET'
-    #TrigMETMonAlg.hlt_mt_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht'
-    #TrigMETMonAlg.hlt_tc_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl'
-    #TrigMETMonAlg.hlt_tcpufit_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC'
+    EDMDecodingVersion()
 
-    ### use the follwoing if you run on older Run3 AOD
-    #TrigMETMonAlg.hlt_tcpufit_key = 'HLT_MET_tcPufit'
-    #TrigMETMonAlg.hlt_trkmht_key = 'HLT_MET_mht'
-       
-    ### set chain names
-    ### These are the active chains as of 01 April 2020 for testing 
-    #TrigMETMonAlg.L1Chain1 = 'L1_XE10'
-    #TrigMETMonAlg.HLTChain1 = 'HLT_xe65_cell_L1XE50'
-    #TrigMETMonAlg.HLTChain2 = 'HLT_xe100_tcpufit_L1XE50'
-    TrigMETMonAlg.HLTChain2 = 'HLT_xe100_trkmht_L1XE50'
-    #TrigMETMonAlg.HLTChain2 = 'HLT_xe100_pfsum_L1XE50'
+    mt_chains = True
+    if ( TriggerFlags.EDMDecodingVersion < 3 ) :
+      mt_chains = False
+
+    ### container name selection
+    if mt_chains:
+      TrigMETMonAlg.hlt_tcpufit_key = 'HLT_MET_tcpufit'
+      ### use the follwoing if you run on older Run3 AOD
+      #TrigMETMonAlg.hlt_tcpufit_key = 'HLT_MET_tcPufit'
+      #TrigMETMonAlg.hlt_trkmht_key = 'HLT_MET_mht'
+    else:
+      TrigMETMonAlg.hlt_cell_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET'
+      TrigMETMonAlg.hlt_mt_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht'
+      TrigMETMonAlg.hlt_tc_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl'
+      TrigMETMonAlg.hlt_tcpufit_key = 'HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl_PUC'
+
+    ### chain name selection
+    if mt_chains:
+      TrigMETMonAlg.HLTChain2 = 'HLT_xe100_trkmht_L1XE50'
+    else: 
+      #TrigMETMonAlg.L1Chain02 = 'L1_XE50'
+      #TrigMETMonAlg.L1Chain03 = 'L1_XE50'
+      #TrigMETMonAlg.L1Chain04 = 'L1_XE50'
+      #TrigMETMonAlg.L1Chain05 = 'L1_XE50'
+      #TrigMETMonAlg.L1Chain06 = 'L1_XE50'
+      #TrigMETMonAlg.L1Chain07 = 'L1_XE50'
+      TrigMETMonAlg.HLTChain1 = 'HLT_xe70_mht_L1XE50'
+      TrigMETMonAlg.HLTChain2 = 'HLT_xe90_mht_L1XE50'
+      #TrigMETMonAlg.HLTChain03 = 'HLT_xe110_mht_L1XE50'
+      #TrigMETMonAlg.HLTChain04 = 'HLT_xe90_pufit_L1XE50'
+      #TrigMETMonAlg.HLTChain05 = 'HLT_xe100_pufit_L1XE50'
+      #TrigMETMonAlg.HLTChain06 = 'HLT_xe110_pufit_L1XE50'
+      #TrigMETMonAlg.HLTChain07 = 'HLT_xe110_pufit_xe65_L1XE50'
+      #TrigMETMonAlg.HLTChain08 = 'HLT_xe110_pufit_xe70_L1XE50'
 
 
     ### STEP 4 ###
@@ -466,8 +488,7 @@ if __name__=='__main__':
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     nightly = '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/'
     file = 'data16_13TeV.00311321.physics_Main.recon.AOD.r9264/AOD.11038520._000001.pool.root.1'
-    #ConfigFlags.Input.Files = [nightly+file]
-    ConfigFlags.Input.Files = ['/hep300/data/khamano/data18_athenaMT/fromElin/AOD_old.pool.root']
+    ConfigFlags.Input.Files = [nightly+file]
     ConfigFlags.Input.isMC = True
     ConfigFlags.Output.HISTFileName = 'TrigMETMonitorOutput.root'
     
