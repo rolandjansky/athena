@@ -612,12 +612,10 @@ namespace MyAnalysis {
          McEventCollection::const_iterator itr;
          for (itr = mcCollptr->begin(); itr!=mcCollptr->end(); ++itr) 
          {
-          HepMC::GenEvent::particle_const_iterator itrPart;
-          for (itrPart = (*itr)->particles_begin(); itrPart!=(*itr)->particles_end(); ++itrPart )
+          for (auto part: *(*itr))
           {
-          HepMC::GenParticle *part=*itrPart;
-           if(  (abs(part->pdg_id())==11 || part->pdg_id()==22 || part->pdg_id()==13
-                || (abs(part->pdg_id())==211) )
+           if(  (std::abs(part->pdg_id())==11 || part->pdg_id()==22 || part->pdg_id()==13
+                || (std::abs(part->pdg_id())==211) )
                 && part->momentum().e()> 5000.)
            {
              nn++;
@@ -627,7 +625,7 @@ namespace MyAnalysis {
                phi_true = part->momentum().phi();
                ATH_MSG_INFO( " true particle found " << part->pdg_id() << " " <<
                              e_true << " " << eta_true << " " << phi_true  );
-               HepMC::GenVertex* vertex = part->end_vertex();
+               auto vertex = part->end_vertex();
                if (vertex) {
                   m_xconv = vertex->position().x();
                   m_yconv = vertex->position().y();
