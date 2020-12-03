@@ -240,7 +240,7 @@ Root::TAccept& JSSWTopTaggerDNN::tag( const xAOD::Jet& jet ) const {
     (*m_dec_scoreCut)(jet)   = cut_score;
     (*m_dec_scoreValue)(jet) = jet_score;
   }
-
+  
   /// Set the TAccept depending on whether it is a W/Z or a top tagger
   if ( m_tagClass == TAGCLASS::WBoson || m_tagClass == TAGCLASS::ZBoson ) {
     ATH_MSG_VERBOSE( "Determining WZ tag return" );
@@ -257,6 +257,13 @@ Root::TAccept& JSSWTopTaggerDNN::tag( const xAOD::Jet& jet ) const {
       m_accept.setCutResult( "PassMassLow", true );
     if ( jet_score > cut_score )
       m_accept.setCutResult( "PassScore", true );
+  }
+
+  if ( m_decorate && m_calcSF ) {
+    TagResult::TypeEnum myCutResultForSF = TagResult::UNKNOWN;
+    if (m_accept) myCutResultForSF = TagResult::passAll;
+    else myCutResultForSF = TagResult::fail;
+    (*m_dec_accept)(jet) = myCutResultForSF;
   }
 
   /// Return the TAccept object that was created and filled
