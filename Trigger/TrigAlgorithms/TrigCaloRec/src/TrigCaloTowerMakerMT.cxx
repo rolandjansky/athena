@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -261,13 +261,13 @@ StatusCode TrigCaloTowerMakerMT::execute()
 	//return HLT::TOOL_FAILURE;
       //}
       if ( m_includeFcal ) {
-        if ( (*itrtwr)->execute(pCaloTowerContainer, theCellCont).isFailure() ) {
+        if ( (*itrtwr)->execute(ctx, pCaloTowerContainer, theCellCont).isFailure() ) {
 	  ATH_MSG_ERROR("Error executing tool " << m_towerMakerNames[index]);
         } else {
 	  ATH_MSG_DEBUG("Executed tool " << m_towerMakerNames[index]);
         }
       } else {
-        if ( (*itrtwr)->execute(pCaloTowerContainer,theCellCont, &subseg).isFailure() ) {
+        if ( (*itrtwr)->execute(ctx, pCaloTowerContainer,theCellCont, &subseg).isFailure() ) {
 	  ATH_MSG_ERROR("Error executing tool " << m_towerMakerNames[index]);
         } else {	
 	  ATH_MSG_DEBUG("Executed tool " << m_towerMakerNames[index]);
