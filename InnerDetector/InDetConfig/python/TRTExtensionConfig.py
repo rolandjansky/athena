@@ -5,14 +5,6 @@ import InDetConfig.TrackingCommonConfig         as   TC
 import AthenaCommon.SystemOfUnits               as   Units
 
 #///////////// Temporary location TrackingSiPatternConfig configurations ///////////////////////
-def SiDetElementBoundaryLinksCondAlg_xkCfg(name="InDetSiDetElementBoundaryLinksPixelCondAlg", **kwargs) :
-    acc = ComponentAccumulator()
-
-    kwargs.setdefault("ReadKey", "PixelDetectorElementCollection")
-    kwargs.setdefault("WriteKey", "PixelDetElementBoundaryLinks_xk")
-    acc.addCondAlgo(CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk(name = name))
-    return acc
-
 def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", TrackingFlags = None, **kwargs) :
     acc = ComponentAccumulator()
     #
@@ -33,13 +25,21 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", Tracki
     InDetPatternUpdator = TC.InDetPatternUpdatorCfg()
     acc.addPublicTool(InDetPatternUpdator)
 
+    from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
+    boundary_check_tool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
+    acc.addPublicTool(boundary_check_tool)
+
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
     kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
+    kwargs.setdefault("BoundaryCheckTool", boundary_check_tool)
     kwargs.setdefault("RIOonTrackTool", rot_creator_digital)
     kwargs.setdefault("usePixel", flags.Detector.RecoPixel)
     kwargs.setdefault("useSCT", flags.Detector.RecoSCT if not is_dbm else False)
     kwargs.setdefault("PixelClusterContainer", 'PixelClusters') # InDetKeys.PixelClusters()
     kwargs.setdefault("SCT_ClusterContainer", 'SCT_Clusters') # InDetKeys.SCT_Clusters()
+
+    if TrackingFlags.extension == "Offline": 
+        kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
 
     if is_dbm :
         kwargs.setdefault("MagneticFieldMode", "NoField")
@@ -56,11 +56,42 @@ def SiCombinatorialTrackFinder_xkCfg(flags, name="InDetSiComTrackFinder", Tracki
     acc.setPrivateTools(track_finder)
     return acc
 
+def SiDetElementsRoadMaker_xkCfg(flags, name="InDetSiRoadMaker", TrackingFlags = None, **kwargs) :
+    acc = ComponentAccumulator()
+    #
+    # --- SCT and Pixel detector elements road builder
+    #
+    InDetPatternPropagator = TC.InDetPatternPropagatorCfg()
+    acc.addPublicTool(InDetPatternPropagator)
+
+    kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
+    kwargs.setdefault("usePixel", TrackingFlags.usePixel )
+    kwargs.setdefault("PixManagerLocation", 'Pixel')
+    kwargs.setdefault("useSCT", TrackingFlags.useSCT)
+    kwargs.setdefault("SCTManagerLocation", 'SCT')
+    kwargs.setdefault("RoadWidth", TrackingFlags.roadWidth)
+
+    InDetSiDetElementsRoadMaker = CompFactory.InDet.SiDetElementsRoadMaker_xk(name = name+TrackingFlags.extension, **kwargs)
+    acc.setPrivateTools(InDetSiDetElementsRoadMaker)
+    return acc
+
 def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None, TrackingFlags = None, **kwargs) :
     acc = ComponentAccumulator()
     useBremMode = TrackingFlags.extension == "Offline" or TrackingFlags.extension == "SLHC" or TrackingFlags.extension == "DBM"
-    #InDetSiDetElementsRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags, TrackingFlags = TrackingFlags ))
-    #acc.addPublicTool(InDetSiDetElementsRoadMaker)
+    InDetSiDetElementsRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags, TrackingFlags = TrackingFlags ))
+    acc.addPublicTool(InDetSiDetElementsRoadMaker)
+    if flags.Detector.RecoPixel:
+        acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                                ReadKey  = "PixelDetectorElementCollection",
+                                                                                WriteKey = "PixelDetElementBoundaryLinks_xk") )
+    if TrackingFlags.useSCT:
+        acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
+
+        acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                                ReadKey  = "SCT_DetectorElementCollection",
+                                                                                WriteKey = "SCT_DetElementBoundaryLinks_xk") )
+
+
     track_finder = acc.popToolsAndMerge(SiCombinatorialTrackFinder_xkCfg(flags, TrackingFlags = TrackingFlags))
     acc.addPublicTool(track_finder)
 
@@ -74,7 +105,7 @@ def SiTrackMaker_xkCfg(flags, name="InDetSiTrackMaker", InputCollections = None,
 
     kwargs.setdefault("useSCT", TrackingFlags.useSCT)  #TrackingFlags.useSCT()
     kwargs.setdefault("usePixel", TrackingFlags.usePixel) #TrackingFlags.usePixel()
-    #kwargs.setdefault("RoadTool", InDetSiDetElementsRoadMaker)
+    kwargs.setdefault("RoadTool", InDetSiDetElementsRoadMaker)
     kwargs.setdefault("CombinatorialTrackFinder", track_finder)
     kwargs.setdefault("pTmin", TrackingFlags.minPT)
     kwargs.setdefault("pTminBrem", TrackingFlags.minPTBrem)
@@ -214,6 +245,8 @@ def SiSpacePointsSeedMakerCfg(flags, name="InDetSpSeedsMaker", InputCollections 
             kwargs.setdefault("alwaysKeepConfirmedPixelSeeds", TrackingFlags.keepAllConfirmedPixelSeeds)
             kwargs.setdefault("mindRadius", 10)
             kwargs.setdefault("maxSizeSP", 200)
+            kwargs.setdefault("dImpactCutSlopeUnconfirmedSSS", 1.25)
+            kwargs.setdefault("dImpactCutSlopeUnconfirmedPPP", 2.0)
         
     if TrackingFlags.extension == "R3LargeD0":
         kwargs.setdefault("optimisePhiBinning", False)
@@ -346,6 +379,9 @@ def SiSPSeededTrackFinderCfg(flags, name="InDetSiSpTrackFinder", InputCollection
     if flags.InDet.doHeavyIon :
         kwargs.setdefault("FreeClustersCut",2) #Heavy Ion optimization from Igor
 
+    if TrackingFlags.extension == "Offline":
+        kwargs.setdefault("writeHolesFromPattern", flags.InDet.useHolesFromPattern)
+
     InDetSiSPSeededTrackFinder = CompFactory.InDet.SiSPSeededTrackFinder(name = name+TrackingFlags.extension, **kwargs)
     acc.addEventAlgo(InDetSiSPSeededTrackFinder)
     return acc
@@ -401,6 +437,7 @@ def DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF', **kwargs):
 
 def InDetExtensionProcessorCfg(flags, TrackingFlags, SiTrackCollection=None, ExtendedTrackCollection = None, ExtendedTracksMap = None, doPhase=True, **kwargs):
     acc = ComponentAccumulator()
+
     ForwardTrackCollection = ExtendedTrackCollection
     # set output extension map name
     OutputExtendedTracks = ExtendedTracksMap
@@ -412,8 +449,19 @@ def InDetExtensionProcessorCfg(flags, TrackingFlags, SiTrackCollection=None, Ext
         InDetExtensionFitter = acc.popToolsAndMerge(DeterministicAnnealingFilterCfg(flags, name = 'InDetDAF'+ TrackingFlags.extension))
         acc.addPublicTool(InDetExtensionFitter)
     else:
-        InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetKalmanFitterCfg(flags, name = "InDetTrackFitter"))
-        acc.addPublicTool(InDetExtensionFitter)
+        fitter_args = {}
+        if flags.InDet.holeSearchInGX2Fit:
+            fitter_args.setdefault("DoHoleSearch", True)
+            from  InDetConfig.InDetRecToolConfig import InDetBoundaryCheckToolCfg
+            InDetBoundaryCheckTool = acc.popToolsAndMerge(InDetBoundaryCheckToolCfg(flags))
+            acc.addPublicTool(InDetBoundaryCheckTool)
+            fitter_args.setdefault("BoundaryCheckTool", InDetBoundaryCheckTool)
+        if TrackingFlags.extension != "LowPt":
+            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterCfg(flags, 'InDetTrackFitter_TRTExtension'+TrackingFlags.extension, **fitter_args))
+            acc.addPublicTool(InDetExtensionFitter)
+        else:
+            InDetExtensionFitter = acc.popToolsAndMerge(TC.InDetTrackFitterLowPt(flags, 'InDetTrackFitter_TRTExtension'+TrackingFlags.extension, **fitter_args))
+            acc.addPublicTool(InDetExtensionFitter)
     #
     # --- load scoring for extension
     #
@@ -519,6 +567,8 @@ if __name__ == "__main__":
 
     ConfigFlags.addFlag('InDet.doTRTExtension', True)
     ConfigFlags.addFlag('InDet.doExtensionProcessor', True)
+    ConfigFlags.addFlag('InDet.useHolesFromPattern', False)
+    ConfigFlags.addFlag('InDet.holeSearchInGX2Fit', True)
 
     # SiliconPreProcessing
     ConfigFlags.InDet.doPixelClusterSplitting = True
@@ -535,9 +585,6 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    top_acc.merge(MagneticFieldSvcCfg(ConfigFlags))
-
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
     top_acc.merge(PixelGeometryCfg(ConfigFlags))
@@ -553,8 +600,7 @@ if __name__ == "__main__":
     from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
     top_acc.merge(BeamSpotCondAlgCfg(ConfigFlags))
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg)
-    top_acc.merge(PixelOfflineCalibCondAlgCfg(ConfigFlags))
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelDistortionAlgCfg
     top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
 
     from InDetConfig.TRTSegmentFindingConfig import TRTActiveCondAlgCfg
@@ -569,14 +615,6 @@ if __name__ == "__main__":
     from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
     top_acc.addPublicTool(top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(ConfigFlags)))
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg, PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg)
-    top_acc.merge(PixelChargeCalibCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelConfigCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelCablingCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelReadoutSpeedAlgCfg(ConfigFlags))
-    top_acc.merge(PixelOfflineCalibCondAlgCfg(ConfigFlags))
-    top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
-
     top_acc.merge(TC.PixelClusterNnCondAlgCfg(ConfigFlags))
     top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(ConfigFlags))
 
@@ -587,30 +625,13 @@ if __name__ == "__main__":
     InputCollections = []
     
     InDetSpSeededTracksKey    = 'SiSPSeededTracks'  # InDetKeys.SiSpSeededTracks()
-
-    if ConfigFlags.InDet.doDBMstandalone:
-        InDetSpSeededTracksKey    = 'SiSPSeededDBMTracks' # InDetKeys.SiSpSeededDBMTracks()
-
     SiSPSeededTrackCollectionKey = InDetSpSeededTracksKey
 
     ExtendedTrackCollection = 'ExtendedTracksPhase' # InDetKeys.ExtendedTracksPhase
     ExtendedTracksMap = 'ExtendedTracksMapPhase'    # InDetKeys.ExtendedTracksMapPhase
 
     #################### Additional Configuration  ########################
-    from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Cond/StatusHT", "/TRT/Cond/StatusHT", className='TRTCond::StrawStatusMultChanContainer'))
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, 'INDET','/Indet/Onl/TrkErrorScaling','/Indet/TrkErrorScaling', className="CondAttrListCollection"))
-
-    top_acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksPixelCondAlg",
-                                                                                ReadKey  = "PixelDetectorElementCollection",
-                                                                                WriteKey = "PixelDetElementBoundaryLinks_xk") )
-
-    top_acc.addCondAlgo( CompFactory.InDet.SiDetElementBoundaryLinksCondAlg_xk( name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
-                                                                                ReadKey  = "SCT_DetectorElementCollection",
-                                                                                WriteKey = "SCT_DetElementBoundaryLinks_xk") )
-
-    top_acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
-
+    #######################################################################
     ################# TRTPreProcessing Configuration ######################
     from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
     if not ConfigFlags.InDet.doDBMstandalone:
@@ -627,8 +648,6 @@ if __name__ == "__main__":
 
     ####################### TrackingSiPattern #############################
     if ConfigFlags.InDet.doSiSPSeededTrackFinder:
-        if ConfigFlags.Detector.RecoPixel:
-            top_acc.merge(SiDetElementBoundaryLinksCondAlg_xkCfg())
         top_acc.merge(SiSPSeededTrackFinderCfg( ConfigFlags,
                                                 InputCollections = InputCollections, 
                                                 SiSPSeededTrackCollectionKey = InDetSpSeededTracksKey, 
@@ -659,4 +678,4 @@ if __name__ == "__main__":
     #
     top_acc.printConfig()
     top_acc.run(25)
-    top_acc.store(open("NewTrackingTRTExtensionConfig.pkl", "wb"))
+    top_acc.store(open("TRTExtensionConfig.pkl", "wb"))
