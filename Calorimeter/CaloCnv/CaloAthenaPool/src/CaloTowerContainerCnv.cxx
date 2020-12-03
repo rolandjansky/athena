@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTowerContainerCnv.h"
@@ -10,6 +10,7 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena
 #include "CaloUtils/CaloTowerBuilderToolBase.h"
@@ -48,6 +49,7 @@ CaloTowerContainerCnv::~CaloTowerContainerCnv()
 
 //StatusCode CaloTowerContainerCnv::PoolToDataObject(DataObject*& pObj,const std::string &token)
 CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     MsgStream log(msgSvc(), "CaloTowerContainerCnv::createTransient" );
     CaloTowerContainer* Cont = 0;
 
@@ -106,7 +108,7 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
 	    }
 	  }
          if (log.level() <= MSG::DEBUG)  log<<MSG::DEBUG<<" Towers rebuild for FCAL "<<endmsg; 
-	  StatusCode scfcal = m_fcalTowerBldr->execute(Cont); 
+          StatusCode scfcal = m_fcalTowerBldr->execute(ctx, Cont); 
 	  if (scfcal.isFailure()) {
 	    log<<MSG::ERROR<<" Towers rebuild for FCAL failed "<<endmsg; 
 	  }
@@ -122,7 +124,7 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
 	    }
 	  }
           if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" Towers rebuild for Tile "<<endmsg; 
-	  StatusCode sctile=m_tileTowerBldr->execute(Cont); 
+	  StatusCode sctile=m_tileTowerBldr->execute(ctx, Cont); 
 	  if (sctile.isFailure()) {
 	    log<<MSG::ERROR<<" Towers rebuild for Tile failed "<<endmsg; 
 	  }
@@ -142,7 +144,7 @@ CaloTowerContainer* CaloTowerContainerCnv::createTransient() {
 	  }
           if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" Towers rebuild for EM and/or HEC "<<endmsg; 
 	  m_emHecTowerBldr->setCalos(EmHec); 
-	  StatusCode scemHec=m_emHecTowerBldr->execute(Cont); 
+	  StatusCode scemHec=m_emHecTowerBldr->execute(ctx, Cont);
 	  if (scemHec.isFailure()) {
 	    log<<MSG::ERROR<<" Towers rebuild for EM and/or HEC failed "<<endmsg; 
 	  }
