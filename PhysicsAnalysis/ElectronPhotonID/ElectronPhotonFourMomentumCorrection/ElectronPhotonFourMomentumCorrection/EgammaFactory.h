@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// Dear emacs, this is -*-c++-*-
+
 #ifndef EGAMMAFACTORY_H
 #define EGAMMAFACTORY_H
 
@@ -49,7 +49,8 @@ public:
   xAOD::Photon* create_photon(float eta, float phi, float e0, float e1, float e2, float e3, float e, float rconv=0, float zconv=0);
   xAOD::Electron* create_electron(float eta, float phi, float e);
   xAOD::Electron* create_electron(float eta, float phi, float e0, float e1, float e2, float e3, float e);
-  xAOD::EventInfo* create_eventinfo(bool simulation, int runnumber, int eventnumber=1);
+    // TODO: fix mu
+  xAOD::EventInfo* create_eventinfo(bool simulation, int runnumber, int eventnumber=1, int average_interaction_per_crossing=20);
 private:
   xAOD::TStore m_store;  //!
   xAOD::CaloClusterContainer* m_clusters;  //!

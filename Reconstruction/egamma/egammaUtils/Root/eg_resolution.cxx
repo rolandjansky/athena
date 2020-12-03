@@ -18,10 +18,10 @@ T* get_object(TFile& file, const std::string& name){
 }
 
 eg_resolution::eg_resolution(const std::string& configuration)
-  : m_file0()
-  , m_file1()
-  , m_file2()
-  , m_file3()
+  : m_file0(),
+    m_file1(),
+    m_file2(),
+    m_file3()
 {
   if (configuration == "run1") {
     m_file0 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run1.root").c_str() );
@@ -35,10 +35,16 @@ eg_resolution::eg_resolution(const std::string& configuration)
     m_file2 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoConv_run2_pre.root").c_str());
     m_file3 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_trueUnconv_run2_pre.root").c_str());
   }
-
+  else if (configuration == "run2_R21_v1") {
+    m_file0 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/resolutionFit_electron_run2_release21_es2017_R21_v1.root").c_str());
+    m_file1 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/resolutionFit_recoUnconv_run2_release21_es2017_R21_v1.root").c_str());
+    m_file2 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/resolutionFit_recoConv_run2_release21_es2017_R21_v1.root").c_str());
+    m_file3 = std::make_unique<TFile> (PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v20/resolutionFit_trueUnconvertedPhoton_run2_release21_es2017_R21_v1.root").c_str()); // assume reco and true unconv having similar resolutions
+  }
   if (!m_file0 or !m_file1 or !m_file2 or !m_file3) {
     throw std::runtime_error("cannot find input file for resolutions");
   }
+
   m_hSampling[0][0] = get_object<TH1>(*m_file0, "hsamplingG");
   m_hSampling[0][1] = get_object<TH1>(*m_file0, "hsampling80");
   m_hSampling[0][2] = get_object<TH1>(*m_file0, "hsampling90");
@@ -120,6 +126,7 @@ double eg_resolution::getResolution(int particle_type, double energy, double eta
    const double rsampling = m_hSampling[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
    const double rnoise    = m_hNoise[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
    const double rconst    = m_hConst[particle_type][resolution_type]->GetBinContent(ibinEta + 1);
+
    const double sigma2 = rsampling*rsampling/energyGeV + rnoise*rnoise/energyGeV/energyGeV + rconst*rconst;
    return sqrt(sigma2);
 }

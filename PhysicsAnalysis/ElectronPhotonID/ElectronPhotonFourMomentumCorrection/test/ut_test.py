@@ -522,7 +522,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         tool_1NP.setProperty("int")("randomRunNumber", RUN2015).ignore()
         #tool_1NP.setProperty("int")("doSmearing", 0).ignore()   # remove
         #tool_1NP.msg().setLevel(ROOT.MSG.DEBUG)
-        
+
         tool_1NP.initialize().ignore()
 
         tool_FULL = ROOT.CP.EgammaCalibrationAndSmearingTool("tool_es2016data_mc15c_FULL")
@@ -536,7 +536,7 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
         tool_FULL.initialize().ignore()
 
         ei = self.factory.create_eventinfo(True, 100000)  # MC
-        for ptype, generator in self.generators().items():
+        for ptype, generator in self.generators().iteritems():
             for particle in generator:
                 sys_set = ROOT.CP.SystematicSet()
                 tool_FULL.applySystematicVariation(sys_set).ignore()
@@ -728,5 +728,5 @@ if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
 #    from ROOT import EgammaCalibPeriodRunNumbersExample
 
-    #ROOT.StatusCode.enableChecking()
+    #ROOT.xAOD.TReturnCode.enableFailure()
     unittest.main()
