@@ -32,7 +32,7 @@ class Volume;
    @author Andreas.Salzburger@cern.ch
    */
       
-  template <class Tvol> class BoundarySubtractedCylinderSurface : 
+  template <class Tvol> class BoundarySubtractedCylinderSurface final: 
                               virtual public BoundarySurface<Tvol>, public SubtractedCylinderSurface {
   
     /** typedef the BinnedArray */
@@ -70,22 +70,24 @@ class Volume;
      {}     
      
      /**Virtual Destructor*/
-     virtual ~BoundarySubtractedCylinderSurface()
-     {}
+     virtual ~BoundarySubtractedCylinderSurface() = default;
      
      /** Get the next Volume depending on the TrackParameters and the requested direction,
          gives back 0 if there's no volume attached to the requested direction
          - this is speed optimized as it doesn't invoke a local to global transformation
        */
-     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const override;    
-     
+     virtual const Tvol* attachedVolume(const TrackParameters& parms,
+                                        PropDirection dir) const override final;
+
      /** Get the next Volume depending on GlobalPosition, GlobalMomentum, dir
       on the TrackParameters and the requested direction */
-     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const override;
-                                          
+     virtual const Tvol* attachedVolume(const Amg::Vector3D& pos,
+                                        const Amg::Vector3D& mom,
+                                        PropDirection dir) const override final;
+
      /** The Surface Representation of this */
-     const Surface& surfaceRepresentation() const override;
-     
+     virtual const Surface& surfaceRepresentation() const override final;
+
      /**Assignment operator*/
      BoundarySubtractedCylinderSurface& operator=(const BoundarySubtractedCylinderSurface& vol);
      

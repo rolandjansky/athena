@@ -35,7 +35,7 @@ class Volume;
     @author Andreas.Salzburger@cern.ch 
    */
   
-  template <class Tvol> class BoundaryDiscSurface : 
+  template <class Tvol> class BoundaryDiscSurface final: 
                        virtual public BoundarySurface<Tvol>, public DiscSurface {
                            
     /** typedef the BinnedArray */
@@ -70,24 +70,29 @@ class Volume;
      BoundaryDiscSurface(const Tvol* inside, const Tvol* outside, const DiscSurface& dsf, const Amg::Transform3D& tr) :
        BoundarySurface<Tvol>(inside,outside),
        DiscSurface(dsf,tr)
-     {}     
-     
-     /** Get the next Volume depending on the TrackParameters and the requested direction,
-         gives back 0 if there's no volume attached to the requested direction
-         - this is speed optimized as it doesn't invoke a local to global transformation
+     {}
+
+     /** Get the next Volume depending on the TrackParameters and the requested
+        direction, gives back 0 if there's no volume attached to the requested
+        direction
+         - this is speed optimized as it doesn't invoke a local to global
+        transformation
       */
-     const Tvol* attachedVolume(const TrackParameters& parms, PropDirection dir) const override;
-         
+     virtual const Tvol* attachedVolume(const TrackParameters& parms,
+                                        PropDirection dir) const override final;
+
      /** Get the next Volume depending on GlobalPosition, GlobalMomentum, dir
       on the TrackParameters and the requested direction */
-     const Tvol* attachedVolume(const Amg::Vector3D& pos, const Amg::Vector3D& mom, PropDirection dir) const override;
-          
+     virtual const Tvol* attachedVolume(const Amg::Vector3D& pos,
+                                        const Amg::Vector3D& mom,
+                                        PropDirection dir) const override final;
+
      /** The Surface Representation of this */
-     const Surface& surfaceRepresentation() const override;
-     
+     virtual const Surface& surfaceRepresentation() const override final;
+
      /**Virtual Destructor*/
-     virtual ~BoundaryDiscSurface(){}
-     
+     virtual ~BoundaryDiscSurface() = default;
+
      /**Assignment operator*/
      BoundaryDiscSurface& operator=(const BoundaryDiscSurface& vol);
              
