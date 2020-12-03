@@ -28,6 +28,7 @@
 class CaloTowerContainer;
 class CaloTowerSeg;
 class CaloCellContainer;
+class EventContext;
 
 
 // Declaration of the interface ID ( interface id, major version, minor version) 
@@ -51,12 +52,14 @@ class ICaloTowerBuilderToolBase : virtual public IAlgTool
    *        The segmentation of the tower container must match
    *        the region over which we're running the tower building.
    *
+   * @param ctx The current event context.
    * @param theContainer The tower container to fill.
    * @param theCell The cell container to read.  If null, we fetch from SG.
    * @param subseg If provided, run tower building only within this window.
    *               The tower container segmentation must match.
    */
-  virtual StatusCode execute(CaloTowerContainer* theContainer,
+  virtual StatusCode execute(const EventContext& ctx,
+                             CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
                              const CaloTowerSeg::SubSeg* subseg = 0) const = 0;
   virtual StatusCode initialize ATLAS_NOT_THREAD_SAFE () =0;
@@ -71,9 +74,5 @@ class ICaloTowerBuilderToolBase : virtual public IAlgTool
     static const InterfaceID IID("ICaloTowerBuilderToolBase", 1 , 0);
     return IID;
   }
-
- protected:
-
-
 };
 #endif
