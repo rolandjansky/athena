@@ -347,6 +347,59 @@ namespace xAOD {
     this->auxdecor< int >("MC_b_not_from_top_pdgId") = 0;
   }
 
+
+  // Initialize variable for single top t-channel events
+  void PartonHistory::IniVarTChannelSingleTop() {
+    // top or antitop
+    this->auxdecor< float >("MC_top_beforeFSR_pt") = -1;
+    this->auxdecor< float >("MC_top_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top_beforeFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top_beforeFSR_m") = -1;
+    this->auxdecor< float >("MC_top_afterFSR_pt") = -1;
+    this->auxdecor< float >("MC_top_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_top_afterFSR_phi") = -1000;
+    this->auxdecor< float >("MC_top_afterFSR_m") = -1;
+
+    // b from top
+    this->auxdecor< float >("MC_b_from_top_pt") = -1;
+    this->auxdecor< float >("MC_b_from_top_eta") = -1000;
+    this->auxdecor< float >("MC_b_from_top_phi") = -1000;
+    this->auxdecor< float >("MC_b_from_top_m") = -1;
+
+    // W from top
+    this->auxdecor< float >("MC_W_from_top_pt") = -1;
+    this->auxdecor< float >("MC_W_from_top_eta") = -1000;
+    this->auxdecor< float >("MC_W_from_top_phi") = -1000;
+    this->auxdecor< float >("MC_W_from_top_m") = -1;
+
+    // W from top decay product 1
+    this->auxdecor< float >("MC_Wdecay1_from_top_pt") = -1;
+    this->auxdecor< float >("MC_Wdecay1_from_top_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_top_phi") = -1000;
+    this->auxdecor< float >("MC_Wdecay1_from_top_m") = -1;
+    this->auxdecor< int >("MC_Wdecay1_from_top_pdgId") = 0;
+
+    // W from top decay product 2
+    this->auxdecor< float >("MC_Wdecay2_from_top_pt") = -1;
+    this->auxdecor< float >("MC_Wdecay2_from_top_eta") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_top_phi") = -1000;
+    this->auxdecor< float >("MC_Wdecay2_from_top_m") = -1;
+    this->auxdecor< int >("MC_Wdecay2_from_top_pdgId") = 0;
+
+    // spectatorquark
+
+    this->auxdecor< int >("MC_spectatorquark_pdgId") = 0;
+    this->auxdecor< int >("MC_spectatorquark_status") = 0;
+    this->auxdecor< float >("MC_spectatorquark_beforeFSR_pt") = -1;
+    this->auxdecor< float >("MC_spectatorquark_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_beforeFSR_phi") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_beforeFSR_m") = -1;
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_pt") = -1;
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_phi") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_m") = -1;
+  }
+
   // Initialize variables for an additional final-state Z.
   void PartonHistory::IniVarZ() {
     this->auxdecor< float >("MC_Z_m") = -1;
