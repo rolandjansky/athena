@@ -149,7 +149,7 @@ StatusCode CaloTowerAlgorithm::execute (const EventContext& ctx) const
       theTicker->chronoStart((*firstITool)->name());
     }
 
-    processStatus = (*firstITool)->execute(theTowers.ptr());
+    processStatus = (*firstITool)->execute(ctx, theTowers.ptr());
 
     if (theTicker != nullptr) {
       theTicker->chronoStop((*firstITool)->name());
