@@ -218,7 +218,7 @@ StatusCode Epos::genInitialize()
      std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_ilheout<< " " <<  m_paramFile.c_str() << std::endl;
     ATH_MSG_INFO( " CRMC SET F.\n" );
 
-    crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, m_paramFile.c_str() ); 
+    crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str() ); 
 
     std::string name1 = "tabs/epos.inirj.lhc";
     std::string name2 = "tabs/epos.inics.lhc";
