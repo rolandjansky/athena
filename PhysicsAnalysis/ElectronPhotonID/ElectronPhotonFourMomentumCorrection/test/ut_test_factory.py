@@ -36,7 +36,7 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(ph.caloCluster().auxdata("float")("phiCalo"), phi)
         self.assertAlmostEqual(ph.e(), e, delta=0.01)
         self.assertEqual(ph.caloCluster().e(), e)
-        for i in range(3):
+        for i in xrange(3):
             self.assertGreater(ph.caloCluster().energyBE(i), 0)
 
     def test_converted(self):
@@ -60,7 +60,7 @@ class TestEgammaFactory(unittest.TestCase):
         self.assertAlmostEqual(ph.caloCluster().auxdata("float")("phiCalo"), phi)
         self.assertAlmostEqual(ph.e(), e, delta=0.01)
         self.assertEqual(ph.caloCluster().e(), e)
-        for i in range(3):
+        for i in xrange(3):
             self.assertGreater(ph.caloCluster().energyBE(i), 0)
 
     def test_photon(self):
