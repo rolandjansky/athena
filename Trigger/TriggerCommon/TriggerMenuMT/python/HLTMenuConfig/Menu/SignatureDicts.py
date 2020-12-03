@@ -97,33 +97,63 @@ TestChainParts_Default = {
 AllowedTopos_jet = []
 # ---- Jet Dictionary of all allowed Values ----
 JetChainParts = {
+    # Information common to all signatures
     'signature'     : ['Jet'],
     'alignmentGroup': ['Jet','JetMET'],
     'L1threshold'   : '',
     'chainPartName' : '',
     'threshold'     : '',
     'multiplicity'  : '',
-    'etaRange'      : ['0eta320', '320eta490', '0eta240', '0eta290'],
-    'jvt'           : ['011jvt', '015jvt', '059jvt'],
-    'momCuts'       : ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
-    # May need to reinstate in the event that preselection is
-    # needed before running tracking
-    #'gscThreshold' : ['gsc'],
     'trigType'     : ['j'],
+    'topo'          : AllowedTopos_jet,
     'extra'        : [],
-    'cleaning'     : ['noCleaning',],
-    'recoAlg'      : ['a4', 'a10', 'a10r', 'a10t', 'a10sd'],
-    'dataType'     : ['tc','pf','sktc','cssktc','csskpf'],
-    'calib'        : ['em', 'lcw'],
-    'jetCalib'     : ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
-    'scan'         : ['FS',],
     'addInfo'      : ['perf'],
+    'sigFolder'     : 'Jet',
+    'subSigs'       : ['Jet'],
 
-    'TLA'          : [],
-    'dataScouting' : ['JetDS'],
-
-    'topo'         : AllowedTopos_jet,
-
+    # Information unique to the jet slice
+    # Reco information
+    'recoAlg'      : # Jet clustering algorithm
+      ['a4', 'a10', 'a10r', 'a10t', 'a10sd'],
+    'dataType'     : # Jet input type (rename?)
+      ['tc','pf','sktc','cssktc','csskpf'],
+    'calib'        : # Topocluster calibration (change to constit mods?)
+      ['em', 'lcw'],
+    'jetCalib'     : # Jet calibration
+      ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
+    'scan'         : # No longer used?
+      ['FS',],
+    'trkopt'       : # Tracking configuration
+      ['notrk','ftf'],
+    'trkpresel'    : # Tracking preselection
+      ['nopresel','preselj20'],
+    # Hypo information
+    #   If hypoScenario is 'simple', then hypo configuration is handled based on the
+    #   other dict contents. If it is not 'simple', then the configuration is 100%
+    #   from the hypoScenario specification, and all other hypo entries are ignored.
+    'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
+                      'vbenf',  # Test VBF-like chain
+                      'vbenfSEP30etSEP34mass35SEP50fbet', # Test VBF-like chain with more info
+                      'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
+                      # 'agg' category is for single variable computed by aggregation over single jets
+                      'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
+                      'aggSEP500htSEP30etSEP0eta320',
+                      'aggSEP100htSEP10etSEP0eta320',],
+    # Simple hypo configuration. Single property cuts defined as MINvarMAX
+    'etaRange'      :
+      ['0eta320', '320eta490', '0eta240', '0eta290'],
+    'jvt'           : # Jet Vertex Tagger pileup discriminant
+      ['011jvt', '015jvt', '059jvt'],
+    'momCuts'       : # Generic moment cut on single jets
+      ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
+    'cleaning'      : # Jet cleaning per jet (currently unused)
+      ['noCleaning',],
+    'smc'           : # "Single mass condition" -- rename?
+      ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
+    # Setup for alternative data stream readout
+    'TLA'          : [],        # Unused
+    'dataScouting' : ['JetDS'], # Triggers TLA jet selection + recording
+    # B-tagging information
     'bTag'         : ['boffperf'  ,
                       'bmv2c2040' , 'bmv2c2050' , 'bmv2c2060' , 'bmv2c2070' , 'bmv2c2077' , 'bmv2c2085' ,
                       'bmv2c1040' , 'bmv2c1050' , 'bmv2c1060' , 'bmv2c1070' , 'bmv2c1077' , 'bmv2c1085' ,
@@ -132,17 +162,6 @@ JetChainParts = {
     'bTracking'    : [],
     'bConfig'      : ['split',],
     'bMatching'    : ['antimatchdr05mu'],
-    'trkopt'       : ['notrk','ftk','ftkrefit','ftf'],
-    'trkpresel'    : ['nopresel','preselj20'],
-    'hypoScenario' : ['simple', 'vbenf',
-                      'vbenfSEP30etSEP34mass35SEP50fbet',
-                      'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
-                      'aggSEP1000htSEP30etSEP0eta320',
-                      'aggSEP500htSEP30etSEP0eta320',
-                      'aggSEP100htSEP10etSEP0eta320',],
-    'smc'          : ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
-    'sigFolder'     : 'Jet',
-    'subSigs'       : ['Jet']
 }
 
 # ---- Jet Dictionary of default Values ----
@@ -152,31 +171,35 @@ JetChainParts_Default = {
     'L1threshold'   : '',
     'threshold'     : '',
     'multiplicity'  : '',
-    'etaRange'      : '0eta320',
-    'jvt'           : '',
-    'momCuts'       : '',
     'trigType'      :'j',
+    'topo'          : [],
     'extra'         : '',
-    'cleaning'      : 'noCleaning',
+    'addInfo'       : [],
+    'sigFolder'     : 'Jet',
+    'subSigs'       : ['Jet'],
+    #
     'recoAlg'       :'a4',
     'dataType'      :'tc',
     'calib'         :'em',
     'jetCalib'      :'default',
     'scan'          :'FS',
-    'addInfo'       : [],
+    'trkopt'        : 'notrk',
+    'trkpresel'     : 'nopresel',
+    #
+    'etaRange'      : '0eta320',
+    'jvt'           : '',
+    'momCuts'       : '',
+    'cleaning'      : 'noCleaning',
+    'hypoScenario'  : 'simple',
+    'smc'           : 'nosmc',
+    #
     'TLA'           : '',
-    'topo'          : [],
+    'dataScouting'  : '',
+    #
     'bTag'          : '',
     'bTracking'     : '',
     'bConfig'       : [],
     'bMatching'     : [],
-    'dataScouting'  : '',
-    'trkopt'        : 'notrk',
-    'trkpresel'     : 'nopresel',
-    'hypoScenario'  : 'simple',
-    'smc'           : 'nosmc',
-    'sigFolder'     : 'Jet',
-    'subSigs'       : ['Jet']
 }
 
 # ---- bJet Dictionary of default Values that are different to the ones for normal jet chains ----
