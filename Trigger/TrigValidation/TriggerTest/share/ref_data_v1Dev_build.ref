@@ -282,8 +282,8 @@ HLT_e12_lhloose_2mu10_L12MU10:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 4
+    0: 2
+    1: 5
 HLT_e140_lhloose_L1EM22VHI:
   eventCount: 0
 HLT_e140_lhloose_nod0_L1EM22VHI:
@@ -351,9 +351,9 @@ HLT_e3_etcut1step_g5_etcut_L12EM3:
     1: 10
     2: 10
   stepFeatures:
-    0: 23
-    1: 23
-    2: 23
+    0: 57
+    1: 57
+    2: 66
 HLT_e3_etcut_L1EM3:
   eventCount: 13
   stepCounts:
@@ -978,48 +978,48 @@ HLT_mu20_2mu4noL1_L1MU20:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu20_ivarmedium_mu4noL1_10invm70_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu20_ivarmedium_mu8noL1_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu22_2mu4noL1_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu22_mu10noL1_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu22_mu8noL1_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu24_L1MU20:
   eventCount: 0
   stepCounts:
@@ -1050,16 +1050,16 @@ HLT_mu24_mu10noL1_L1MU20:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu24_mu8noL1_L1MU20:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu26_L1MU20:
   eventCount: 0
   stepCounts:
@@ -1160,16 +1160,16 @@ HLT_mu6_mu6noL1_L1MU6:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu6_xe30_mht_L1XE10:
   eventCount: 0
   stepCounts:
     0: 1
     1: 1
   stepFeatures:
-    0: 1
-    1: 1
+    0: 2
+    1: 2
 HLT_mu80_msonly_3layersEC_L1MU20:
   eventCount: 0
   stepCounts:
@@ -1795,7 +1795,7 @@ HLT_xe30_cell_xe30_tcpufit_L1XE10:
   stepCounts:
     0: 3
   stepFeatures:
-    0: 3
+    0: 6
 HLT_xe30_cvfpufit_L1XE10:
   eventCount: 6
   stepCounts:
@@ -1887,6 +1887,6 @@ HLT_xe80_tcpufit_unconvtrk80_isohpttrack_imedium_L1XE50:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 1
+    0: 2
 HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50:
   eventCount: 0

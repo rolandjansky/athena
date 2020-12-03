@@ -10,6 +10,11 @@ __log = logging.getLogger('TriggerConfig')
 def __isCombo(alg):
     return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
 
+def __stepNumber(stepName):
+    """extract step number frmo strings like Step2... -> 2"""
+    return int(stepName.split('_')[0].replace("Step",""))
+
+
 def collectHypos( steps ):
     """
     Method iterating over the CF and picking all the Hypothesis algorithms
@@ -173,9 +178,6 @@ def triggerSummaryCfg(flags, hypos):
 
     # sort steps according to the step number i.e. strings Step1 Step2 ... Step10 Step11 rather than
     # alphabetic order Step10 Step11 Step1 Step2
-    def __stepNumber(stepName):
-        return int(stepName.split('_')[0].replace("Step",""))
-
     for stepName, stepHypos in sorted( hypos.items(), key=lambda x : __stepNumber(x[0]) ):
         # While filling the allChains dict we will replace the content intentionally
         # i.e. the chain has typically multiple steps and we want the collections from the last one
@@ -206,7 +208,7 @@ def triggerSummaryCfg(flags, hypos):
                 allChains[chainName] = [ mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] ) ]
 
     for c, cont in allChains.items():
-        __log.info("Final decision of chain  %s will be read from %d %s", c, len(cont), str(cont))
+        __log.debug("Final decision of chain  %s will be read from %d %s", c, len(cont), str(cont))
     # Flatten all the collections preserving the order
     collectionsWithFinalDecisions = []
     for chain, collections in allChains.items():
@@ -238,7 +240,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 
     # lambda sort because we have strings Step1 Step2 ... Step10 Step11 and python sorts that
     # to Step10 Step11 Step1 Step2
-    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : int(x[0].split('_')[0][4:]) ):
+    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : __stepNumber(x[0])):
         stepDecisionKeys = []
         for hypo in stepHypos:
             hypoChains, hypoOutputKeys  = __decisionsFromHypo( hypo )
