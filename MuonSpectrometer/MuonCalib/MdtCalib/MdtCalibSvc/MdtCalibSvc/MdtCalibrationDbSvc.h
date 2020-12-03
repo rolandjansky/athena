@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -22,12 +22,9 @@
 #include "MdtCalibData/MdtRtRelationCollection.h"
 #include "MdtCalibData/MdtTubeCalibContainerCollection.h"
 #include "MdtCalibData/MdtCorFuncSetCollection.h"
-
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class MdtCalibrationRegionSvc;
-class MdtIdHelper;
-class Identifier;
-class IdentifierHash;
 
 namespace MuonCalib{
   class IMdtCalibDBTool;
@@ -104,9 +101,8 @@ private:
 
   /** handle to region service */
   ServiceHandle<MdtCalibrationRegionSvc> m_regionSvc;
-    
-  /** Id Helper used to retrieve hashes from IDs */ 
-  const MdtIdHelper *m_mdtIdHelper;
+
+  ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
     
   /** create the correction functions */
   void initialize_B_correction(MuonCalib::MdtCorFuncSet *funcSet,
@@ -127,6 +123,8 @@ private:
 
   bool m_getTubeConstants; //<! flag to switch off loading of tube constants
   bool m_getCorrections;   //<! flag to switch off loading of correction function constants
+
+  bool m_hasBISsMDT;
     
 };
 
