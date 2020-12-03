@@ -111,6 +111,7 @@ StatusCode JSSTaggerBase::initialize() {
     m_dec_weight     = std::make_unique< SG::AuxElement::Decorator<float> >( m_decorationName + "_" + m_weightdecorationName );
     m_dec_effSF      = std::make_unique< SG::AuxElement::Decorator<float> >( m_decorationName + "_effSF" );
     m_dec_efficiency = std::make_unique< SG::AuxElement::Decorator<float> >( m_decorationName + "_efficiency" );
+    m_dec_accept     = std::make_unique< SG::AuxElement::Decorator<int> >( m_decorationName + "_accept" );
     m_acc_truthLabel = std::make_unique< SG::AuxElement::ConstAccessor<int> >( m_truthLabelName );
   }
 
@@ -423,9 +424,9 @@ std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet ) const {
 
   }
   
-  /// W/Z or inclusive top tagger
-  else {
 
+  /// W/Z tagger
+  else if ( m_weightHistograms.count("V_qq") ) {
     /// Top
     if ( jetContainment==LargeRJetTruthLabel::tqqb || jetContainment==LargeRJetTruthLabel::other_From_t ) {
       truthLabelStr = "t";
@@ -438,11 +439,25 @@ std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet ) const {
     else if ( jetContainment==LargeRJetTruthLabel::notruth || jetContainment==LargeRJetTruthLabel::qcd ) {
       truthLabelStr = "q";
     }
+  }
+
+  
+  // inclusive top tagger
+  else {
+    /// Top
+    if ( jetContainment==LargeRJetTruthLabel::tqqb || jetContainment==LargeRJetTruthLabel::other_From_t || jetContainment==LargeRJetTruthLabel::Wqq_From_t ) {
+      truthLabelStr = "t";
+    }
+    /// QCD
+    else if ( jetContainment==LargeRJetTruthLabel::notruth || jetContainment==LargeRJetTruthLabel::qcd ) {
+      truthLabelStr = "q";
+    }
 
   }
 
   double logmOverPt = std::log(jet.m()/jet.pt());
-  if ( m_decorationName.find("SmoothZ") != std::string::npos ) {
+  if ( m_decorationName.find("SmoothZ") != std::string::npos ||
+       m_decorationName.find("SmoothInclusiveZ") != std::string::npos ) {
     /// To apply W-tagging efficiency SF to Z-tagger, jet mass is shifted by 10.803 GeV
     const double WtoZmassShift = 10803;
     logmOverPt = std::log((jet.m()-WtoZmassShift)/jet.pt());
@@ -464,8 +479,23 @@ std::pair<double, double> JSSTaggerBase::getSF( const xAOD::Jet& jet ) const {
 
   }
   else {
-    ATH_MSG_DEBUG( "SF for truth label for " << truthLabelStr << " is not available. Returning 1.0" );
-    return std::make_pair( 1.0, 1.0 );
+    ATH_MSG_DEBUG( "SF for truth label for " << truthLabelStr << " is not available. Returning SF=1.0" );
+
+    // set the efficiency for "Other" category to be the signal efficiency
+    std::string signal_truthLabel="";
+    if ( m_weightHistograms.count("t_qqb") ) {
+      signal_truthLabel="t_qqb";
+    }else if ( m_weightHistograms.count("V_qq") ){
+      signal_truthLabel="V_qq";
+    }else if ( m_weightHistograms.count("t") ){
+      signal_truthLabel="t";
+    }
+    if ( signal_truthLabel != "" && !m_efficiencyHistogramName.empty() ){
+      int pt_mPt_bin = (m_weightHistograms.find(signal_truthLabel.c_str())->second)->FindBin(jet.pt()*0.001, logmOverPt);
+      eff = (m_efficiencyHistograms.find(signal_truthLabel.c_str())->second)->GetBinContent(pt_mPt_bin);
+    }
+
+    return std::make_pair( 1.0, eff );
   }
 
   if ( SF < 1e-3 ) {

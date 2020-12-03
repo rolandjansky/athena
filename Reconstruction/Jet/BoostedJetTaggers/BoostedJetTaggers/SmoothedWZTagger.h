@@ -38,7 +38,6 @@ class SmoothedWZTagger :
       /// Decorators
       std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_d2cut;
       std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_ntrkcut;
-      std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_accept;
 
   };
 

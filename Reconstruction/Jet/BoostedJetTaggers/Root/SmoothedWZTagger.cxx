@@ -141,10 +141,6 @@ StatusCode SmoothedWZTagger::initialize() {
     m_dec_ntrkcut = std::make_unique< SG::AuxElement::Decorator<float> >( m_decorationName + "_Cut_Ntrk" );
   }
   
-  if ( m_calcSF ) {
-    m_dec_accept = std::make_unique< SG::AuxElement::Decorator<int> >( m_decorationName + "_accept" );
-  }
-
   return StatusCode::SUCCESS;
 
 }
@@ -293,6 +289,10 @@ Root::TAccept& SmoothedWZTagger::tag( const xAOD::Jet& jet ) const {
       }
     }
   }
+  else{
+    if ( m_accept ) myCutResultForSF = TagResult::passAll;
+    else myCutResultForSF = TagResult::fail;
+  }
 
   /// Decorate truth label for SF provider
   if ( m_calcSF && (!m_acc_truthLabel->isAvailable(jet) || LargeRJetTruthLabel::intToEnum((*m_acc_truthLabel)(jet))==LargeRJetTruthLabel::UNKNOWN) ) {
@@ -308,7 +308,7 @@ Root::TAccept& SmoothedWZTagger::tag( const xAOD::Jet& jet ) const {
 
   if ( m_decorate ) {
     if ( m_calcSF ) { 
-      (*m_dec_accept)(jet) = myCutResultForSF;
+      (*m_dec_accept)(jet)     = myCutResultForSF;
     }
   }
 

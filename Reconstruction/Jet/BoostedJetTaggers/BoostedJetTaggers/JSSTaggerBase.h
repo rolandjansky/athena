@@ -191,6 +191,7 @@ class JSSTaggerBase :   public asg::AsgTool ,
     std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_weight;
     std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_efficiency;
     std::unique_ptr< SG::AuxElement::Decorator<float> > m_dec_effSF;
+    std::unique_ptr< SG::AuxElement::Decorator<int> > m_dec_accept;
 
     /// Get configReader StatusCode
     StatusCode getConfigReader();
