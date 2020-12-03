@@ -39,6 +39,7 @@ namespace asg
     declareProperty ("readArray", m_readArray, "whether to read from the array");
     declareProperty ("doWriteName", m_doWriteName, "if we should write, the name we expect to write to");
     declareProperty ("doWriteDecorName", m_doWriteDecorName, "if we should write a decoration, the name we expect to write to");
+    declareProperty ("doWriteDecorNameExisting", m_doWriteDecorNameExisting, "if we should try to overwrite an existing decoration, the name we expect to write to");
   }
 
 
@@ -61,6 +62,7 @@ namespace asg
     ANA_CHECK (m_writeKey.initialize (!m_writeKey.empty()));
     ANA_CHECK (m_readKeyArray.initialize());
     ANA_CHECK (m_writeDecorKey.initialize (!m_writeDecorKey.empty ()));
+    ANA_CHECK (m_writeDecorKeyExisting.initialize (!m_writeDecorKeyExisting.empty ()));
 #endif
     return StatusCode::SUCCESS;
   }
@@ -92,9 +94,13 @@ namespace asg
     SG::ReadDecorHandle<xAOD::MuonContainer,float> readDecorHandle (m_readDecorKey);
     if (m_readDecorFailure == true)
     {
+      EXPECT_TRUE(readDecorHandle.isPresent());
+      EXPECT_FALSE(readDecorHandle.isAvailable());
       EXPECT_ANY_THROW (readDecorHandle (*testMuon));
     } else
     {
+      EXPECT_TRUE(readDecorHandle.isPresent());
+      EXPECT_TRUE(readDecorHandle.isAvailable());
       SG::AuxElement::ConstAccessor<float> acc ("pt");
       EXPECT_EQ (acc (*testMuon), readDecorHandle (*testMuon));
     }
@@ -128,9 +134,18 @@ namespace asg
     if (!m_doWriteDecorName.empty())
     {
       auto writeDecorHandle = SG::makeHandle<unsigned> (m_writeDecorKey);
+      EXPECT_TRUE(writeDecorHandle.isPresent());
+      EXPECT_FALSE(writeDecorHandle.isAvailable());
       writeDecorHandle (*(*muonsStore)[0]) = 42u;
       SG::AuxElement::ConstAccessor<unsigned> acc (m_doWriteDecorName);
       EXPECT_EQ (42u, acc (*(*muonsStore)[0]));
+    }
+
+    if (!m_doWriteDecorNameExisting.empty())
+    {
+      auto writeDecorHandleExisting = SG::makeHandle<float> (m_writeDecorKeyExisting);
+      EXPECT_TRUE(writeDecorHandleExisting.isPresent());
+      EXPECT_TRUE(writeDecorHandleExisting.isAvailable());
     }
 #endif
   }

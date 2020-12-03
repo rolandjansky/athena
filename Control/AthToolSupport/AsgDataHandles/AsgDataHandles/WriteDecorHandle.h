@@ -113,15 +113,15 @@ public:
 //   WriteDecorHandle& operator= (WriteDecorHandle&& rhs);
 
 
-//   /**
-//    * @brief Is the referenced container present in SG?
-//    *
-//    * Note that this tests for the presence of the _container_,
-//    * not for the decoration.
-//    *
-//    * Const method; the handle does not change as a result of this.
-//    */
-//   bool isPresent() const;
+  /**
+   * @brief Is the referenced container present in SG?
+   *
+   * Note that this tests for the presence of the _container_,
+   * not for the decoration.
+   *
+   * Const method; the handle does not change as a result of this.
+   */
+  bool isPresent() const;
 
 
 //   /**
@@ -161,11 +161,11 @@ public:
 //   getDecorationArray();
 
 
-//   /**
-//    * @brief Test to see if this variable exists in the store,
-//    *        for the referenced object.
-//    */
-//   bool isAvailable();
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   */
+  bool isAvailable();
 
 
 //   /**
@@ -197,22 +197,22 @@ public:
 //   virtual void* typeless_dataPointer_impl (bool quiet) override;
 
 
-//   /**
-//    * @brief Test to see if this variable exists in the store,
-//    *        for the referenced object.
-//    *        Specialization for the case of a standalone object
-//    *        (@c T derives from @c SG::AuxElement).
-//    */
-//   bool isAvailable (std::true_type);
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   *        Specialization for the case of a standalone object
+   *        (@c T derives from @c SG::AuxElement).
+   */
+  bool isAvailable (std::true_type);
 
 
-//   /**
-//    * @brief Test to see if this variable exists in the store,
-//    *        for the referenced object.
-//    *        Specialization for the case of a container
-//    *        (@c T does not derive from @c SG::AuxElement).
-//    */
-//   bool isAvailable (std::false_type);
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   *        Specialization for the case of a container
+   *        (@c T does not derive from @c SG::AuxElement).
+   */
+  bool isAvailable (std::false_type);
 
 
 //   /** 

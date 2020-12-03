@@ -161,17 +161,17 @@ ReadDecorHandle<T, D>::operator() (size_t i)
 // }
 
 
-// /**
-//  * @brief Test to see if this variable exists in the store,
-//  *        for the referenced object.
-//  */
-// template <class T, class D>
-// inline
-// bool ReadDecorHandle<T, D>::isAvailable()
-// {
-//   const SG::AuxVectorData* vec = this->vectorData();
-//   return vec && vec->isAvailable (m_acc.auxid());
-// }
+/**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ */
+template <class T, class D>
+inline
+bool ReadDecorHandle<T, D>::isAvailable()
+{
+  const SG::AuxVectorData* vec = this->vectorData();
+  return vec && vec->isAvailable (m_acc.auxid());
+}
 
 
 // /**

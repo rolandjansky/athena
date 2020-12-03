@@ -59,12 +59,14 @@ namespace asg
     SG::ReadHandleKeyArray<xAOD::MuonContainer> m_readKeyArray {this, "readKeyArray", {}, "array read key"};
     SG::WriteHandleKey<xAOD::MuonContainer> m_writeKey {this, "writeKey", "", "regular write key"};
     SG::WriteDecorHandleKey<xAOD::MuonContainer> m_writeDecorKey {this, "writeDecorKey", "", "write decor key"};
+    SG::WriteDecorHandleKey<xAOD::MuonContainer> m_writeDecorKeyExisting {this, "writeDecorKeyExisting", "", "write decor key (existing)"};
 #endif
     bool m_readFailure {false};
     bool m_readArray {false};
     bool m_readDecorFailure {false};
     std::string m_doWriteName;
     std::string m_doWriteDecorName;
+    std::string m_doWriteDecorNameExisting;
   };
 }
 

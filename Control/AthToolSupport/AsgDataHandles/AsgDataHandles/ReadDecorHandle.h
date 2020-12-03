@@ -147,11 +147,11 @@ public:
 //   getDataArray();
 
 
-//   /**
-//    * @brief Test to see if this variable exists in the store,
-//    *        for the referenced object.
-//    */
-//   bool isAvailable();
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   */
+  bool isAvailable();
 
 
 //   /**

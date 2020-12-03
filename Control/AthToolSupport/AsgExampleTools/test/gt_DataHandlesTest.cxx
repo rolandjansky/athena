@@ -157,6 +157,17 @@ namespace asg
 
 
 
+  // do an existing write decor handle test
+  TEST_F (DataHandlesTest, write_decor_handle_existing)
+  {
+    config.setPropertyFromString ("writeDecorKeyExisting", "Muons.pt");
+    config.setPropertyFromString ("doWriteDecorNameExisting", "pt");
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    tool->runTest ();
+  }
+
+
+
   // empty initial handles
   TEST_F (DataHandlesTest, empty_initial_handles)
   {

@@ -131,19 +131,19 @@ WriteDecorHandle<T, D>::WriteDecorHandle (const WriteDecorHandleKey<T>& key,
 // }
 
 
-// /**
-//  * @brief Is the referenced container present in SG?
-//  *
-//  * Note that this tests for the presence of the _container_,
-//  * not for the decoration.
-//  *
-//  * Const method; the handle does not change as a result of this.
-//  */
-// template <class T, class D>
-// bool WriteDecorHandle<T, D>::isPresent() const
-// {
-//   return Base::isPresent();
-// }
+/**
+ * @brief Is the referenced container present in SG?
+ *
+ * Note that this tests for the presence of the _container_,
+ * not for the decoration.
+ *
+ * Const method; the handle does not change as a result of this.
+ */
+template <class T, class D>
+bool WriteDecorHandle<T, D>::isPresent() const
+{
+  return Base::isPresent();
+}
 
 
 // /**
@@ -205,62 +205,62 @@ WriteDecorHandle<T, D>::operator() (const AuxElement& e)
 // }
 
 
-// /**
-//  * @brief Test to see if this variable exists in the store,
-//  *        for the referenced object.
-//  *        Specialization for the case of a standalone object
-//  *        (@c T derives from @c SG::AuxElement).
-//  */
-// template <class T, class D>
-// inline
-// bool WriteDecorHandle<T, D>::isAvailable (std::true_type)
-// {
-//   const T* ptr = this->ptr();
-//   if (ptr) {
-//     const SG::AuxVectorData* obj = ptr->container();
-//     if (obj) {
-//       return obj->isAvailable (m_acc.auxid());
-//     }
-//   }
+/**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ *        Specialization for the case of a standalone object
+ *        (@c T derives from @c SG::AuxElement).
+ */
+template <class T, class D>
+inline
+bool WriteDecorHandle<T, D>::isAvailable (std::true_type)
+{
+  const T* ptr = this->ptr();
+  if (ptr) {
+    const SG::AuxVectorData* obj = ptr->container();
+    if (obj) {
+      return obj->isAvailable (m_acc.auxid());
+    }
+  }
 
-//   return false;
-// }
-
-
-// /**
-//  * @brief Test to see if this variable exists in the store,
-//  *        for the referenced object.
-//  *        Specialization for the case of a container
-//  *        (@c T does not derive from @c SG::AuxElement).
-//  */
-// template <class T, class D>
-// inline
-// bool WriteDecorHandle<T, D>::isAvailable (std::false_type)
-// {
-//   const T* ptr = this->ptr();
-//   if (ptr) {
-//     return ptr->isAvailable (m_acc.auxid());
-//   }
-
-//   return false;
-// }
+  return false;
+}
 
 
-// /**
-//  * @brief Test to see if this variable exists in the store,
-//  *        for the referenced object.
-//  */
-// template <class T, class D>
-// inline
-// bool WriteDecorHandle<T, D>::isAvailable()
-// {
-//   if (!this->m_ptr) {
-//     ReadHandle<T>::typeless_dataPointer_impl (true);
-//   }
-//   // We can't just use vectorData() because that will create the decoration
-//   // as a side effect.
-//   return isAvailable (typename std::is_base_of<SG::AuxElement, T>::type());
-// }
+/**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ *        Specialization for the case of a container
+ *        (@c T does not derive from @c SG::AuxElement).
+ */
+template <class T, class D>
+inline
+bool WriteDecorHandle<T, D>::isAvailable (std::false_type)
+{
+  const T* ptr = this->ptr();
+  if (ptr) {
+    return ptr->isAvailable (m_acc.auxid());
+  }
+
+  return false;
+}
+
+
+/**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ */
+template <class T, class D>
+inline
+bool WriteDecorHandle<T, D>::isAvailable()
+{
+  // if (!this->m_ptr) {
+  //   ReadHandle<T>::typeless_dataPointer_impl (true);
+  // }
+  // We can't just use vectorData() because that will create the decoration
+  // as a side effect.
+  return isAvailable (typename std::is_base_of<SG::AuxElement, T>::type());
+}
 
 
 // /**
