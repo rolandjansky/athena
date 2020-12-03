@@ -216,6 +216,11 @@ class TrigTauMonAlgBuilder:
         self.bookbasicVars( monAlg, trigger, online=False )
         self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
         self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+      else:
+        self.bookBDTOut( monAlg, trigger, nProng='1P')
+        self.bookBDTOut( monAlg, trigger, nProng='MP')
+        self.bookBDTNoCorr( monAlg, trigger, nProng='1P')
+        self.bookBDTNoCorr( monAlg, trigger, nProng='MP')
 
     #remove duplicated from L1 seed list
     l1seeds = list(dict.fromkeys(l1seeds))
@@ -345,7 +350,6 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hEFEta;hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
                                path=monGroupPath,
                                xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2)
-    #addHistogram(new TH2F("hEFEtaVsPhi","EF TrigCaloCluster Eta vs Phi; #eta ; #phi ; Nevents",26,-2.6,2.6,16,-3.2,3.2));
     monGroup.defineHistogram('hEFEt;hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
                                path=monGroupPath,
                                xbins=16,xmin=-3.2,xmax=3.2,ybins=50,ymin=0,ymax=100)
@@ -357,5 +361,42 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
     monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
 
-    #monGroup.defineHistogram('hEFIsoFrac', title='Iso Fraction at EF; isoFrac at EF; Candidates',xbins=50,xmin=-0.1,xmax=1.1)
-    #monGroup.defineHistogram('hEFEMFraction', title='Em Fraction at EF; EM Fraction at EF; Candidates',xbins=50,xmin=-0.05,xmax=1.1)
+  #                                                                                                                                                                                                                                   
+  # Book BDT Variables                                                                                                                                                                                                                
+  #                                                  
+  def bookBDTOut( self, monAlg, trigger, nProng):
+
+    monGroupName = trigger+'_BDT_HLT_Out_'+nProng
+    monGroupPath = 'BDT/Out_'+nProng+'/'+trigger
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    print('MonGroup name is python: ', monGroupName)
+
+    monGroup.defineHistogram('BDTJetScore', title='BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
+    monGroup.defineHistogram('BDTJetScoreSigTrans', title='Flattened BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
+
+
+  def bookBDTNoCorr( self, monAlg, trigger, nProng ):
+
+    monGroupName = trigger+'_BDT_HLT_NoCorr_'+nProng
+    monGroupPath = 'BDT/NoCorr_'+nProng+'/'+trigger
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    monGroup.defineHistogram('CentFrac', title='Centrality Fraction ('+nProng+') non-corrected; centFrac; Candidates',xbins=50,xmin=-0.05,xmax=1.2)
+    monGroup.defineHistogram('ChPiEMEOverCaloEME', title='ChPiEMEOverCaloEME ('+nProng+') non-corrected; ChPiEMEOverCaloEME; Candidates',xbins=51,xmin=-20,xmax=20)
+    monGroup.defineHistogram('EMPOverTrkSys', title='EMPOverTrkSys ('+nProng+') non-corrected; EMPOverTrkSys; Candidates',xbins=41,xmin=0,xmax=40)
+    monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk ('+nProng+') non-corrected; etOverPtLeadTrk; Candidates',xbins=51,xmin=-0.1,xmax=25)
+    monGroup.defineHistogram('innerTrkAvgDist', title='innerTrkAvgDist ('+nProng+') non-corrected; innerTrkAvgDist; Candidates',xbins=50,xmin=-0.05,xmax=0.5)
+    monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+') non-corrected; ptRatioEflowApprox; Candidates',xbins=50,xmin=0,xmax=2)
+    monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
+
+    if nProng=='1P':
+      monGroup.defineHistogram('SumPtTrkFrac', title='SumPtTrkFrac ('+nProng+') non-corrected; SumPtTrkFrac; Candidates',xbins=50,xmin=-0.5,xmax=1.1)
+
+    if nProng=='MP':
+      monGroup.defineHistogram('dRmax', title='dRmax ('+nProng+') non-corrected; dRmax; Candidates',xbins=50,xmin=-0.1,xmax=0.3)
+      monGroup.defineHistogram('massTrkSys', title='massTrkSys ('+nProng+') non-corrected; massTrkSys; Candidates',xbins=50,xmin=-0.1,xmax=15)
+      monGroup.defineHistogram('mEflowApprox', title='mEflowApprox ('+nProng+') non-corrected; mEflowApprox; Candidates',xbins=61,xmin=-0.2,xmax=60.2)
+      monGroup.defineHistogram('trFlightPathSig', title='trFlightPathSig ('+nProng+') non-corrected; trFlightPathSig; Candidates',xbins=50,xmin=-20,xmax=20)
