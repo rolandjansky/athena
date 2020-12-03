@@ -1861,6 +1861,7 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // definitions are disabled, so we currently just configure all overlap
     // tools and disable the pointer safety checks
     ATH_CHECK( m_orToolbox.masterTool.setProperty("RequireExpectedPointers", false) );
+    ATH_CHECK( m_orToolbox.masterTool.setProperty("OutputLevel", this->msg().level()) );
 
     // Override boosted OR sliding cone options
     ATH_CHECK( m_orToolbox.eleJetORT.setProperty("UseSlidingDR", m_orDoBoostedElectron) );
