@@ -11,9 +11,9 @@ atlas_add_component( DerivationFrameworkHiggs
                      src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                      DEFINITIONS ${CLHEP_DEFINITIONS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps DerivationFrameworkInterfaces TrigDecisionToolLib xAODEgamma xAODEventInfo xAODJet xAODMuon xAODTracking )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps DerivationFrameworkInterfaces TrigDecisionToolLib TruthRivetToolsLib TruthUtils PathResolver xAODEgamma xAODEventInfo xAODJet xAODMuon xAODTracking xAODTruth)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
-
+atlas_install_data( share/*.cfg )

@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import os
 __all__ = []
 
-from PyJobTransformsCore.TransformConfig import *
+from PyJobTransformsCore.TransformConfig import TransformConfig
 
 class BsConfig(TransformConfig):
     # prevent any mistypings by not allowing dynamic members

@@ -24,7 +24,7 @@
 #include <GaudiKernel/AlgTool.h>
 #include <AsgMessaging/MessageCheck.h>
 #include <GaudiKernel/IToolSvc.h>
-#include <GaudiKernel/IJobOptionsSvc.h>
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #endif
 
 //
@@ -187,11 +187,16 @@ namespace asg
   namespace detail
   {
    StatusCode hasPropertiesInCatalogue( const std::string& toolName ) {
-      ServiceHandle<IJobOptionsSvc> svc("JobOptionsSvc","AnaToolHandle");
+      ServiceHandle<Gaudi::Interfaces::IOptionsSvc> svc("JobOptionsSvc","AnaToolHandle");
       if( svc.retrieve().isFailure() ) return StatusCode::FAILURE;
-      auto props = svc->getProperties(toolName);
+      auto props = svc->items(std::regex("^" + toolName + "\\."));
       StatusCode out = StatusCode::FAILURE;
-      if( props && props->size()>0 ) out = StatusCode::SUCCESS;
+      for (auto& prop : svc->items())
+      {
+        if (std::get<0>(prop).substr (0, toolName.size()) == toolName &&
+            std::get<0>(prop)[toolName.size()] == '.')
+          out = StatusCode::SUCCESS;
+      }
       svc.release().ignore();
       //delete props;
       return out;
@@ -199,15 +204,9 @@ namespace asg
 
     StatusCode addPropertyToCatalogue( const std::string& toolName, const std::string& propertyName, const std::string& propertyValue ) {
 //std::cout << "Adding " << toolName << " ." << propertyName << " = " << propertyValue << std::endl;
-      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AnaToolHandle");
+      ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","AnaToolHandle");
       //check if propertyName contains '.' . If it does, then assume settng a property of a private tool, so adjust toolname
-      std::string theToolName = toolName; std::string thePropertyName=propertyName;
-      std::string::size_type dotLocation = thePropertyName.find_last_of('.');
-      if(dotLocation != std::string::npos) {
-         theToolName = toolName + "." + thePropertyName.substr(0,dotLocation);
-         thePropertyName = thePropertyName.substr(dotLocation+1,thePropertyName.length()-dotLocation);
-      }
-      if(joSvc->addPropertyToCatalogue( theToolName , StringProperty(thePropertyName,propertyValue) ).isFailure()) return StatusCode::FAILURE;
+      joSvc->set( toolName + "." + propertyName, propertyValue );
       if(joSvc.release().isFailure()) return StatusCode::FAILURE;
       return StatusCode::SUCCESS;
    }
@@ -215,7 +214,7 @@ namespace asg
 
 
    StatusCode removePropertyFromCatalogue( const std::string& toolName, const std::string& propertyName ) {
-      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AnaToolHandle");
+      ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","AnaToolHandle");
       //check if propertyName contains '.' . If it does, then assume settng a property of a private tool, so adjust toolname
       std::string theToolName = toolName; std::string thePropertyName=propertyName;
       std::string::size_type dotLocation = thePropertyName.find_last_of('.');
@@ -223,7 +222,7 @@ namespace asg
          theToolName = toolName + "." + thePropertyName.substr(0,dotLocation);
          thePropertyName = thePropertyName.substr(dotLocation+1,thePropertyName.length()-dotLocation);
       }
-      if(joSvc->removePropertyFromCatalogue( theToolName , thePropertyName ).isFailure()) return StatusCode::FAILURE;
+      joSvc->pop( theToolName + "." + thePropertyName );
       if(joSvc.release().isFailure()) return StatusCode::FAILURE;
       return StatusCode::SUCCESS;
    }
@@ -254,23 +253,11 @@ namespace asg
 //std::cout << "copy : " << fromTool << " -> " << toTool << std::endl;
       if(fromTool == toTool) return StatusCode::SUCCESS; //nothing to do
 
-      ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AnaToolHandle");
-      auto fromProps = joSvc->getProperties(fromTool);
-      if(fromProps) {
-         for(auto prop : *fromProps) {
-            ANA_CHECK( joSvc->addPropertyToCatalogue( toTool , *prop ) );
-         }
-         for(auto prop : *fromProps) {
-            ANA_CHECK( joSvc->removePropertyFromCatalogue( fromTool , prop->name() ) );
-         }
-      }
-      //now also check for subtools which will need copying over 
-      auto clients = joSvc->getClients();
-      for(auto& client : clients) {
-         if(client.find(fromTool+".") == 0 && client!=fromTool) {
-            std::string newClient(client); newClient.replace(0,strlen(fromTool.c_str()),toTool);
-            ANA_CHECK( copyPropertiesInCatalogue( client , newClient ) );
-         }
+      ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","AnaToolHandle");
+      auto fromProps = joSvc->items(std::regex ("^" + fromTool));
+      for(auto& prop : fromProps) {
+        std::get<0>(prop).replace (0, fromTool.size(), toTool);
+        joSvc->set( std::get<0>(prop) , std::get<1>(prop) );
       }
       if(joSvc.release().isFailure()) return StatusCode::FAILURE;
       return StatusCode::SUCCESS;

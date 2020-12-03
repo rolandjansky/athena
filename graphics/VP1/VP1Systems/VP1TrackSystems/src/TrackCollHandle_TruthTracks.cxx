@@ -58,9 +58,9 @@ public:
 
   TrackCollHandle_TruthTracks * theclass;
   bool loadHitLists(std::map<SimBarCode,SimHitList> & hitLists);
-  void loadGenParticles( std::map<SimBarCode,const HepMC::GenParticle*> & genParticles,
-			 const HepMC::GenVertex* vtx );
-  bool loadGenParticles( std::map<SimBarCode,const HepMC::GenParticle*> & genParticles,
+  void loadGenParticles( std::map<SimBarCode,HepMC::ConstGenParticlePtr> & genParticles,
+			 HepMC::ConstGenVertexPtr vtx );
+  bool loadGenParticles( std::map<SimBarCode,HepMC::ConstGenParticlePtr> & genParticles,
 			 const QString& hepMcCollKey );
 
   template <class collT>
@@ -99,7 +99,7 @@ public:
   bool displayAscObjs;
   void updateVisibleAssociatedObjects();
 
-  bool fixMomentumInfoInSimHits(const HepMC::GenParticle* p,SimHitList& hitlist);
+  bool fixMomentumInfoInSimHits(HepMC::ConstGenParticlePtr p,SimHitList& hitlist);
 
   static const int maxPdgCode = 1000000000;
 
@@ -316,23 +316,27 @@ void TrackCollHandle_TruthTracks::fixPDGCode(SimHitHandleBase* handle) const
 }
 
 //____________________________________________________________________
-void TrackCollHandle_TruthTracks::Imp::loadGenParticles( std::map<SimBarCode,const HepMC::GenParticle*> & genParticles,
-							 const HepMC::GenVertex* vtx )
+void TrackCollHandle_TruthTracks::Imp::loadGenParticles( std::map<SimBarCode,HepMC::ConstGenParticlePtr> & genParticles,
+							 HepMC::ConstGenVertexPtr vtx )
 {
   if (!vtx)
     return;
+#ifdef HEPMC3
+  for (auto p: vtx->particles_out()){
+#else    
   HepMC::GenVertex::particles_out_const_iterator itPart(vtx->particles_out_const_begin());
   HepMC::GenVertex::particles_out_const_iterator itPartEnd(vtx->particles_out_const_end());
 
   for (;itPart!=itPartEnd;++itPart) {
     const HepMC::GenParticle* p = *itPart;
+#endif
     if (!p)//fixme: message.
       continue;
     const HepMC::GenEvent* evt = p->parent_event();
     if (!evt)
       continue;//fixme: message.
     //Fixme: If verbose: check barcode does not already exists!
-    SimBarCode simBarCode(p->barcode(),0/*evt->event_number()...fixme: correct??*/,p->pdg_id());
+    SimBarCode simBarCode(HepMC::barcode(p),0/*evt->event_number()...fixme: correct??*/,p->pdg_id());
     genParticles[simBarCode] = p;
     if (!simBarCode.isNonUniqueSecondary())
       extBarCode2pdg[simBarCode.extBarCode()] = p->pdg_id();
@@ -342,7 +346,7 @@ void TrackCollHandle_TruthTracks::Imp::loadGenParticles( std::map<SimBarCode,con
 }
 
 //____________________________________________________________________
-bool TrackCollHandle_TruthTracks::Imp::loadGenParticles( std::map<SimBarCode,const HepMC::GenParticle*> & genParticles,
+bool TrackCollHandle_TruthTracks::Imp::loadGenParticles( std::map<SimBarCode,HepMC::ConstGenParticlePtr> & genParticles,
 							 const QString& hepMcCollKey )
 {
   possiblyUpdateGUI();
@@ -361,10 +365,14 @@ bool TrackCollHandle_TruthTracks::Imp::loadGenParticles( std::map<SimBarCode,con
     const HepMC::GenEvent * evt = *itEvt;
     if (!evt)
       continue;
+#ifdef HEPMC3
+   for(auto itVtx: evt->vertices()) loadGenParticles(genParticles,itVtx);
+#else
     HepMC::GenEvent::vertex_const_iterator itVtx(evt->vertices_begin()), itVtxEnd(evt->vertices_end());
     for(;itVtx!=itVtxEnd;++itVtx) {
       loadGenParticles(genParticles,*itVtx);
     }
+#endif
   }
 
   return true;
@@ -384,7 +392,7 @@ bool TrackCollHandle_TruthTracks::load()
   }
 
   //get genparticles (should be done BEFORE we load sim. hits., so the barCode2pdg map gets filled):
-  std::map<SimBarCode,const HepMC::GenParticle*> genParticles;
+  std::map<SimBarCode,HepMC::ConstGenParticlePtr> genParticles;
   if (!hepmckey.isEmpty())
     if (!m_d->loadGenParticles(genParticles,hepmckey))
       return false;
@@ -408,7 +416,7 @@ bool TrackCollHandle_TruthTracks::load()
   //handles for the remaining genparticle (unless they have production
   //and decay vertices ultra-close to each other):
 
-  std::map<SimBarCode,const HepMC::GenParticle*>::iterator itGenPart, itGenPartEnd(genParticles.end());
+  std::map<SimBarCode,HepMC::ConstGenParticlePtr>::iterator itGenPart, itGenPartEnd(genParticles.end());
   std::map<SimBarCode,SimHitList>::iterator itHitList, itHitListEnd(hitLists.end()), itHitListTemp;
 
   //First we attempt to sort secondaries with barcode=0 into new lists
@@ -439,7 +447,7 @@ bool TrackCollHandle_TruthTracks::load()
       continue;
     }
     itGenPart = genParticles.find(itHitList->first);
-    const HepMC::GenParticle * p(0);
+    HepMC::ConstGenParticlePtr p{nullptr};
     if (itGenPart!=itGenPartEnd) {
       p = itGenPart->second;
       itGenPart->second = 0;
@@ -454,7 +462,7 @@ bool TrackCollHandle_TruthTracks::load()
   const double minSpacialSeparation = 1.0e-3*CLHEP::mm;
   const double minSepSq = minSpacialSeparation*minSpacialSeparation;
   for (itGenPart=genParticles.begin();itGenPart!=itGenPartEnd;++itGenPart) {
-    const HepMC::GenParticle * p = itGenPart->second;
+    auto p = itGenPart->second;
     if (!p)
       continue;
      if (abs(p->pdg_id())>=Imp::maxPdgCode)//Internal particle... (fixme: find proper limit!!)
@@ -746,7 +754,7 @@ std::list<SimHitHandleBase*>::iterator TrackCollHandle_TruthTracks::Imp::closest
 
 
 //____________________________________________________________________
-bool TrackCollHandle_TruthTracks::Imp::fixMomentumInfoInSimHits(const HepMC::GenParticle* p,SimHitList& hitlist) {
+bool TrackCollHandle_TruthTracks::Imp::fixMomentumInfoInSimHits(HepMC::ConstGenParticlePtr p,SimHitList& hitlist) {
   //Returns false only if we prune down to zero information!
 
   if (hitlist.empty())
@@ -756,7 +764,7 @@ bool TrackCollHandle_TruthTracks::Imp::fixMomentumInfoInSimHits(const HepMC::Gen
   static double unknown = -1.0e99;
   double mom(unknown), time(unknown);
   if (p) {
-    const HepMC::GenVertex * v = p->production_vertex();
+    auto v = p->production_vertex();
     if (v) {
       mom = mag(p->momentum());
       time = v->position().t()/CLHEP::c_light;
