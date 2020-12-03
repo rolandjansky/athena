@@ -36,13 +36,15 @@ StatusCode tester( TriggerEDMSerialiserTool* ser) {
     cluster->setE277(0);
     
     // got trivial object to serialise, need to create addresses
-    TriggerEDMSerialiserTool::Address interfaceAddress( "xAOD::TrigEMClusterContainer", "xAOD::TrigEMClusterContainer_v1", 
-							1264979038/*clid*/, "HLT_one", {}, 
-							TriggerEDMSerialiserTool::Address::xAODInterface );
+    TriggerEDMSerialiserTool::Address interfaceAddress{
+      "xAOD::TrigEMClusterContainer", "xAOD::TrigEMClusterContainer_v1",
+      1264979038/*clid*/, "HLT_one", {},
+      TriggerEDMSerialiserTool::Address::Category::xAODInterface};
 
-    TriggerEDMSerialiserTool::Address auxAddress( "xAOD::TrigEMClusterAuxContainer", "xAOD::TrigEMClusterAuxContainer_v1", 
-						  1111649561/*clid*/, "HLT_oneAux.", {}, 
-						  TriggerEDMSerialiserTool::Address::xAODAux );
+    TriggerEDMSerialiserTool::Address auxAddress{
+      "xAOD::TrigEMClusterAuxContainer", "xAOD::TrigEMClusterAuxContainer_v1",
+      1111649561/*clid*/, "HLT_oneAux.", {},
+      TriggerEDMSerialiserTool::Address::Category::xAODAux};
      
     auto status = ser->serialiseContainer( (void*)em, interfaceAddress, serialisedData );
     VALUE( status ) EXPECTED( StatusCode::SUCCESS );

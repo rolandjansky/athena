@@ -32,13 +32,14 @@ class TriggerEDMDeserialiserAlg : public AthReentrantAlgorithm {
 public:
   class WritableAuxStore;
 
-  enum Offsets {
-    CLIDOffset = 1,
-    NameLengthOffset = 2,
-    NameOffset = 3
-  };
+  using Payload = std::vector<uint32_t>;
+  using PayloadIterator = Payload::const_iterator;
+  static constexpr size_t CLIDOffset = 1;
+  static constexpr size_t NameLengthOffset = 2;
+  static constexpr size_t NameOffset = 3;
+
   TriggerEDMDeserialiserAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~TriggerEDMDeserialiserAlg() override;
+  virtual ~TriggerEDMDeserialiserAlg() override = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
@@ -62,45 +63,6 @@ private:
 
   std::unique_ptr<TList> m_streamerInfoList;
 
-  typedef  std::vector<uint32_t> Payload;
-  typedef  std::vector<uint32_t>::const_iterator PayloadIterator;
-  
-  /**
-   * returns starting point of the next fragment, can be == end()
-   * intended to be used like this: start = advance(start); if ( start != data.end() )... decode else ... done
-   **/  
-  inline PayloadIterator toNextFragment( PayloadIterator start ) const {
-    return start + (*start) ; // point ahead by the number of words pointed to by start iterator
-  }
-  /**
-   * CLID of the collection stored in the next fragment
-   **/
-  inline CLID collectionCLID( PayloadIterator start  ) const {
-    return *( start + CLIDOffset );
-  }
-  /**
-   * Length of the serialised name payload
-   **/
-  size_t nameLength( TriggerEDMDeserialiserAlg::PayloadIterator start ) const;
-
-  /**
-   * string description of the collection stored in the next fragment, 
-   * returns persistent type name and the SG key
-   **/
-  std::vector<std::string> collectionDescription( PayloadIterator start ) const;
-
-  /**
-   * size of the buffer that is needed to decode next fragment data content
-   * @warning measured in bytes
-   **/  
-  size_t dataSize( PayloadIterator start ) const;
-
-  /**
-   * copies fragment to the buffer, no size checking, use above to do so
-   **/  
-  void toBuffer( PayloadIterator start, char* buffer ) const;
-
-
   /**
    * Performs actual deserialisation loop
    */ 
@@ -110,13 +72,13 @@ private:
    * Handle decoration
    */
   StatusCode deserialiseDynAux( const std::string& transientTypeName, const std::string& persistentTypeName, const std::string& decorationName, 
-				void* data,  WritableAuxStore* currentAuxStore, SG::AuxVectorBase* interface ) const;
+				void* obj,  WritableAuxStore* currentAuxStore, SG::AuxVectorBase* interface ) const;
 
 
   /**
    * Checker for data integrity, one and only one of the passed booleans can be true, else FAILURE is returned and relevant diagnostics printed
    */
-  StatusCode checkSanity( const std::string& tn, bool isxAODInterfaceContainer, bool isxAODAuxContainer, bool isDecoration, bool isTPContainer ) const;
+  StatusCode checkSanity( const std::string& transientTypeName, bool isxAODInterfaceContainer, bool isxAODAuxContainer, bool isDecoration, bool isTPContainer ) const;
   
 
 
