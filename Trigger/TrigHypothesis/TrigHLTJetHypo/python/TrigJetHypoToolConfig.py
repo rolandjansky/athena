@@ -116,7 +116,6 @@ def  trigJetHypoToolFromDict_(chain_dict, tool):
 
     # controls whether debug visitor is sent to helper tool
     debug = False  # SET TO False WHEN COMMITTING
-    debug = True  # SET TO False WHEN COMMITTING
     tool.visit_debug = debug
     log.debug('%s', tool)
 
