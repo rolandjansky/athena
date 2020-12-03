@@ -90,6 +90,9 @@ atlas_add_test( TestConfigNewConf
 atlas_add_test( TestDCSConditionsNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_DCSConditionsTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestLinkMaskingNewConf
+                SCRIPT share/TestLinkMaskingNewConf.sh
+                PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestMajorityNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_MajorityConditionsTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
