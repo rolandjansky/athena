@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # Author: Laurynas Mince
 # Created on 26.07.2019
 
