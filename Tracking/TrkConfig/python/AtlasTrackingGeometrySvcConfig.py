@@ -242,6 +242,9 @@ def TrackingGeometrySvcCfg( flags , name = 'AtlasTrackingGeometrySvc', doMateria
 
     if flags.Detector.GeometryMuon:
       # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry import MuonTrackingGeometryBuilder
+      # Add the muon geometry model to the CA
+      from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+      result.merge(MuonGeoModelCfg(flags))
       Muon__MuonStationTypeBuilder=CompFactory.Muon.MuonStationTypeBuilder
       muonStationTypeBuilder= Muon__MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
     
