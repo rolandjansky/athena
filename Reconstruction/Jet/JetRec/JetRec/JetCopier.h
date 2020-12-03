@@ -19,9 +19,11 @@
 #include "AsgTools/PropertyWrapper.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgDataHandles/ReadHandleKey.h"
+#include "AsgDataHandles/WriteHandleKey.h"
 #include "JetInterface/IJetProvider.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODCore/ShallowAuxContainer.h"
+#include "StoreGate/ShallowCopyDecorDeps.h"
 
 class JetCopier
   : public asg::AsgTool,
@@ -32,20 +34,29 @@ class JetCopier
   public:
     using asg::AsgTool::AsgTool;
 
+    // Called in parent initialize()
     virtual StatusCode initialize() override;
+    // Needed to initialise the ShallowCopyDecorDeps object, which propagates
+    // decorations on the original into the copy in StoreGate.
+    virtual StatusCode initWithOutput(const SG::WriteHandleKey<xAOD::JetContainer>& outputJets) override;
 
+    // Called during execution
     virtual StatusCode getAndRecordJets(SG::WriteHandle<xAOD::JetContainer>& jetHandle) const override;
-
     virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > getJets() const override;
+
+  private:
+
     virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > ShallowCopyJets() const;
     virtual std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > DeepCopyJets() const;
 
-  private:
     // Handle Input JetContainer
     SG::ReadHandleKey<xAOD::JetContainer> m_inputJets {this, "InputJets", "", "Jet collection to be copied"};
 
     Gaudi::Property<bool> m_shallowCopy {this, "ShallowCopy", true, "True for shallow copy, false for deep copy"};
     Gaudi::Property<bool> m_shallowIO {this, "ShallowIO", false, "True for storing only modified data"};
+
+    SG::ShallowCopyDecorDeps<xAOD::JetContainer> m_decorDeps { this, "DecorDeps", {},
+          "List of decorations to propagate through the shallow copy." };
 };
 
 #endif

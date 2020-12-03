@@ -263,3 +263,19 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
                          "Calib:"+calibSpec]
 
     return calibMods
+
+def getDecorList(doTracks,isPFlow):
+    # Basic jet info provided by the jet builder
+    decorlist = [ 'AlgorithmType', 'InputType' 
+                  'ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m',
+                  'ActiveArea4vec_phi', 'ActiveArea4vec_pt']
+
+    if doTracks:
+        decorlist += ["GhostTrack",
+                      "NumTrkPt500","NumTrkPt1000",
+                      "SumPtTrkPt500","SumPtTrkPt1000",
+                      "TrackWidthPt1000",
+                      "JVFCorr"]
+        if isPFlow:
+            decorlist += ["SumPtChargedPFOPt500"]
+    return decorlist
