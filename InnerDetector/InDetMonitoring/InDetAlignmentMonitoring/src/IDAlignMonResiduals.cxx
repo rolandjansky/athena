@@ -655,8 +655,8 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     //
     //-----------------------------------
 
-    const Int_t nx = 21;
-    TString siliconLayers[nx] = {"Pix L0","Pix L1","Pix L2","SCT L0 S0","S1","SCT L1 S0","S1","SCT L2 S0","S1","SCT L3 S0","S1","SCT L4 S0","S1","SCT L5 S0","S1","SCT L6 S0","S1","SCT L7 S0","S1","SCT L8 S0","S1"};
+    const Int_t nsilay = 21;
+    TString siliconLayers[nsilay] = {"Pix L0","Pix L1","Pix L2","SCT L0 S0","S1","SCT L1 S0","S1","SCT L2 S0","S1","SCT L3 S0","S1","SCT L4 S0","S1","SCT L5 S0","S1","SCT L6 S0","S1","SCT L7 S0","S1","SCT L8 S0","S1"};
 
     //These histograms are filled in post-processing - only initiated here such that they can be registered as "shift".
 
@@ -664,23 +664,19 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     // m_si_barrel_resX_mean = new TH1F("si_barrel_resX_mean","Mean Residual X vs Silicon Barrel Layer;Mean Residual X",11,-0.5,10.5);
     //for (int i=1;i<=11;i++) m_si_barrel_resX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     //RegisterHisto(al_mon,m_si_barrel_resX_mean);
-    m_si_eca_resX_mean = new TH1F("si_eca_resX_mean","Mean Residual X vs Silicon ECA Layer; Mean Residual X",21,-0.5,21.5);
-    for (int i=1;i<=nx;i++) m_si_eca_resX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_resX_mean = new TH1F("si_eca_resX_mean","Mean Residual X vs Silicon ECA Layer; Mean Residual X", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_eca_resX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_eca_resX_mean);
-    m_si_ecc_resX_mean = new TH1F("si_ecc_resX_mean","Mean Residual X vs Silicon ECC Layer; Mean Residual X",21,-0.5,21.5);
-    for (int i=1;i<=nx;i++) m_si_ecc_resX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_resX_mean = new TH1F("si_ecc_resX_mean","Mean Residual X vs Silicon ECC Layer; Mean Residual X", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_ecc_resX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_ecc_resX_mean);
 
-    //m_si_barrel_resY_mean = new TH1F("si_barrel_resY_mean","Mean Residual Y vs Silicon Barrel Layer;Mean Residual Y",11,-0.5,10.5);
-    //for (int i=1;i<=11;i++) m_si_barrel_resY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
-    //RegisterHisto(al_mon,m_si_barrel_resY_mean);
 
-
-    m_si_eca_resY_mean = new TH1F("si_eca_resY_mean","Mean Residual Y vs Silicon ECA Layer;Mean Residual Y",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_eca_resY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_resY_mean = new TH1F("si_eca_resY_mean","Mean Residual Y vs Silicon ECA Layer;Mean Residual Y", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_eca_resY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_eca_resY_mean);
-    m_si_ecc_resY_mean = new TH1F("si_ecc_resY_mean","Mean Residual Y vs Silicon ECC Layer;Mean Residual Y",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_ecc_resY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_resY_mean = new TH1F("si_ecc_resY_mean","Mean Residual Y vs Silicon ECC Layer;Mean Residual Y", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_ecc_resY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_ecc_resY_mean);
 
 
@@ -699,24 +695,21 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     //for (int i=1;i<=11;i++) m_si_barrel_pullX_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     //m_si_barrel_pullX_width->GetYaxis()->SetTitle("Pull X Gaussian Width");
     //RegisterHisto(al_mon,m_si_barrel_pullX_width);
-    m_si_eca_pullX_width = new TH1F("si_eca_pullX_width","Pull X Gaussian Width vs Silicon ECA Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_eca_pullX_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_pullX_width = new TH1F("si_eca_pullX_width","Pull X Gaussian Width vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay ;i++) m_si_eca_pullX_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     m_si_eca_pullX_width->GetYaxis()->SetTitle("Pull X Gaussian Width");
     RegisterHisto(al_mon,m_si_eca_pullX_width);
-    m_si_ecc_pullX_width = new TH1F("si_ecc_pullX_width","Pull X Gaussian Width vs Silicon ECC Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_ecc_pullX_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_pullX_width = new TH1F("si_ecc_pullX_width","Pull X Gaussian Width vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_ecc_pullX_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     m_si_ecc_pullX_width->GetYaxis()->SetTitle("Pull X Gaussian Width");
     RegisterHisto(al_mon,m_si_ecc_pullX_width);
-    //m_si_barrel_pullY_width = new TH1F("si_barrel_pullY_width","Pull Y Gaussian Width vs Silicon Barrel Layer",11,-0.5,10.5);
-    //for (int i=1;i<=11;i++) m_si_barrel_pullY_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
-    //m_si_barrel_pullY_width->GetYaxis()->SetTitle("Pull Y Gaussian Width");
-    //RegisterHisto(al_mon,m_si_barrel_pullY_width);
-    m_si_eca_pullY_width = new TH1F("si_eca_pullY_width","Pull Y Gaussian Width vs Silicon ECA Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_eca_pullY_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+
+    m_si_eca_pullY_width = new TH1F("si_eca_pullY_width","Pull Y Gaussian Width vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_eca_pullY_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     m_si_eca_pullY_width->GetYaxis()->SetTitle("Pull Y Gaussian Width");
     RegisterHisto(al_mon,m_si_eca_pullY_width);
-    m_si_ecc_pullY_width = new TH1F("si_ecc_pullY_width","Pull Y Gaussian Width vs Silicon ECC Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_ecc_pullY_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_pullY_width = new TH1F("si_ecc_pullY_width","Pull Y Gaussian Width vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_ecc_pullY_width->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     m_si_ecc_pullY_width->GetYaxis()->SetTitle("Pull Y Gaussian Width");
     RegisterHisto(al_mon,m_si_ecc_pullY_width);
 
@@ -726,22 +719,22 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     //for (int i=1;i<=11;i++) m_si_barrel_resX_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     //m_si_barrel_resX_rms->GetYaxis()->SetTitle("Residual X RMS");
     //RegisterHisto(al_mon,m_si_barrel_resX_rms);
-    m_si_eca_resX_rms = new TH1F("si_eca_resX_rms","Residual X RMS vs Silicon ECA Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_eca_resX_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_resX_rms = new TH1F("si_eca_resX_rms","Residual X RMS vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_eca_resX_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     m_si_eca_resX_rms->GetYaxis()->SetTitle("Residual X RMS");
     RegisterHisto(al_mon,m_si_eca_resX_rms);
-    m_si_ecc_resX_rms = new TH1F("si_ecc_resX_rms","Residual X RMS vs Silicon ECC Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_ecc_resX_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_resX_rms = new TH1F("si_ecc_resX_rms","Residual X RMS vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_ecc_resX_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     m_si_ecc_resX_rms->GetYaxis()->SetTitle("Residual X RMS");
     RegisterHisto(al_mon,m_si_ecc_resX_rms);
     //Residual Y (only Pixel is filled currently - don't have SCT Y residuals yet)
 
-    m_si_eca_resY_rms = new TH1F("si_eca_resY_rms","Residual Y RMS vs Silicon ECA Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_eca_resY_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_resY_rms = new TH1F("si_eca_resY_rms","Residual Y RMS vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<=nsilay; i++) m_si_eca_resY_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     m_si_eca_resY_rms->GetYaxis()->SetTitle("Residual Y RMS");
     RegisterHisto(al_mon,m_si_eca_resY_rms);
-    m_si_ecc_resY_rms = new TH1F("si_ecc_resY_rms","Residual Y RMS vs Silicon ECC Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_ecc_resY_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_resY_rms = new TH1F("si_ecc_resY_rms","Residual Y RMS vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i<= nsilay; i++) m_si_ecc_resY_rms->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     m_si_ecc_resY_rms->GetYaxis()->SetTitle("Residual Y RMS");
     RegisterHisto(al_mon,m_si_ecc_resY_rms);
 
@@ -756,58 +749,62 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     RegisterHisto(al_mon,m_sirescalcfailure) ;
 
     //Si (Pix & SCT) residual histograms
-    m_si_residualx = new TH1F("si_residualx","Silicon UnBiased X Residual", 200,m_minSiResFillRange,m_maxSiResFillRange);
+    m_si_residualx = new TH1F("si_residualx","Silicon UnBiased X Residual", 100, m_minSiResFillRange, m_maxSiResFillRange);
     RegisterHisto(al_mon,m_si_residualx) ;
-    m_si_b_residualx = new TH1F("si_b_residualx","Silicon Barrel Only UnBiased X Residual",200, m_minSiResFillRange,m_maxSiResFillRange);
+    m_si_b_residualx = new TH1F("si_b_residualx","Silicon Barrel Only UnBiased X Residual", 100, m_minSiResFillRange, m_maxSiResFillRange);
     RegisterHisto(al_mon,m_si_b_residualx);
 
     //Pull 2D histograms for filling of Pull Gaussian width and mean plots in post-processing
 
-    m_si_eca_pullX = new TH2F("si_eca_pullX","Pull X vs Silicon ECA Layer", 21, -0.5, 20.5, 100,-m_RangeOfPullHistos, m_RangeOfPullHistos);
-    for (int i=1;i<=nx;i++) m_si_eca_pullX->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_pullX = new TH2F("si_eca_pullX","Pull X vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5, 50,-m_RangeOfPullHistos, m_RangeOfPullHistos);
+    for (int i=1; i<=nsilay; i++) m_si_eca_pullX->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_eca_pullX);
-    m_si_ecc_pullX = new TH2F("si_ecc_pullX","Pull X vs Silicon ECC Layer", 21, -0.5, 20.5, 100,-m_RangeOfPullHistos, m_RangeOfPullHistos);
-    for (int i=1;i<=nx;i++) m_si_ecc_pullX->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_pullX = new TH2F("si_ecc_pullX","Pull X vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5, 50,-m_RangeOfPullHistos, m_RangeOfPullHistos);
+    for (int i=1; i<=nsilay; i++) m_si_ecc_pullX->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_ecc_pullX);
 
-    m_si_eca_pullY = new TH2F("si_eca_pullY","Pull Y vs Silicon ECA Layer", 21, -0.5, 20.5, 100,-m_RangeOfPullHistos, m_RangeOfPullHistos);
-    for (int i=1;i<=nx;i++) m_si_eca_pullY->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_pullY = new TH2F("si_eca_pullY","Pull Y vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5, 50,-m_RangeOfPullHistos, m_RangeOfPullHistos);
+    for (int i=1; i<=nsilay; i++) m_si_eca_pullY->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_eca_pullY);
-    m_si_ecc_pullY = new TH2F("si_ecc_pullY","Pull Y vs Silicon ECC Layer", 21, -0.5, 20.5, 100,-m_RangeOfPullHistos, m_RangeOfPullHistos);
-    for (int i=1;i<=nx;i++) m_si_ecc_pullY->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_pullY = new TH2F("si_ecc_pullY","Pull Y vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5, 50,-m_RangeOfPullHistos, m_RangeOfPullHistos);
+    for (int i=1; i<=nsilay; i++) m_si_ecc_pullY->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_ecc_pullY);
 
     //Residual 2D histograms for filling of Residual Gaussian width and mean plots in post-processing
 
-    m_si_eca_resX = new TH2F("si_eca_resX","Residual X vs Silicon ECA Layer",21,-0.5,20.5,100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
-    for (int i=1;i<=nx;i++) m_si_eca_resX->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_resX = new TH2F("si_eca_resX","Residual X vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5,
+			     100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
+    for (int i=1; i<=nsilay; i++) m_si_eca_resX->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_eca_resX);
-    m_si_ecc_resX = new TH2F("si_ecc_resX","Residual X vs Silicon ECC Layer",21,-0.5,20.5,100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
-    for (int i=1;i<=nx;i++) m_si_ecc_resX->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_resX = new TH2F("si_ecc_resX","Residual X vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5,
+			     100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
+    for (int i=1; i<=nsilay; i++) m_si_ecc_resX->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_ecc_resX);
 
-    m_si_eca_resY = new TH2F("si_eca_resY","Residual Y vs Silicon ECA Layer",21,-0.5,20.5,100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
-    for (int i=1;i<=nx;i++) m_si_eca_resY->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_resY = new TH2F("si_eca_resY","Residual Y vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5,
+			     100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
+    for (int i=1; i <= nsilay; i++) m_si_eca_resY->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_eca_resY);
-    m_si_ecc_resY = new TH2F("si_ecc_resY","Residual Y vs Silicon ECC Layer",21,-0.5,20.5,100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
-    for (int i=1;i<=nx;i++) m_si_ecc_resY->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_resY = new TH2F("si_ecc_resY","Residual Y vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5,
+			     100*m_FinerBinningFactor,m_minSiResFillRange,m_maxSiResFillRange);
+    for (int i=1; i <= nsilay; i++) m_si_ecc_resY->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_ecc_resY);
 
     //These histograms are filled in post-processing - only initiated here such that they can be registered to dqm
     //mean of Gaussian fit to pull distribution in each layer of the silicon
 
-    m_si_eca_pullX_mean = new TH1F("si_eca_pullX_mean","Pull X Gaussian Mean vs Silicon ECA Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_eca_pullX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_pullX_mean = new TH1F("si_eca_pullX_mean","Pull X Gaussian Mean vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i <= nsilay; i++) m_si_eca_pullX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_eca_pullX_mean);
-    m_si_ecc_pullX_mean = new TH1F("si_ecc_pullX_mean","Pull X Gaussian Mean vs Silicon ECC Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_ecc_pullX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_pullX_mean = new TH1F("si_ecc_pullX_mean","Pull X Gaussian Mean vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i <= nsilay; i++) m_si_ecc_pullX_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_ecc_pullX_mean);
 
-    m_si_eca_pullY_mean = new TH1F("si_eca_pullY_mean","Pull Y Gaussian Mean vs Silicon ECA Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_eca_pullY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_eca_pullY_mean = new TH1F("si_eca_pullY_mean","Pull Y Gaussian Mean vs Silicon ECA Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i <= nsilay; i++) m_si_eca_pullY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_eca_pullY_mean);
-    m_si_ecc_pullY_mean = new TH1F("si_ecc_pullY_mean","Pull Y Gaussian Mean vs Silicon ECC Layer",21,-0.5,20.5);
-    for (int i=1;i<=nx;i++) m_si_ecc_pullY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
+    m_si_ecc_pullY_mean = new TH1F("si_ecc_pullY_mean","Pull Y Gaussian Mean vs Silicon ECC Layer", nsilay, -0.5, nsilay-0.5);
+    for (int i=1; i <= nsilay; i++) m_si_ecc_pullY_mean->GetXaxis()->SetBinLabel(i,siliconLayers[i-1]);
     RegisterHisto(al_mon,m_si_ecc_pullY_mean);
 
     //Overlap Residual Plots - Pixel Mean and RMS vs Layer histograms (concatenated - both barrel and endcaps in one plot)
@@ -841,23 +838,24 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     RegisterHisto(al_mon,m_sct_bec_Oyresx_rms);
 
     //Special histograms
-    if (m_extendedPlots)
-      {
-	m_totalEvents  = new TH1F("TotalEvents","TotalEvents",2,0,2);
-	RegisterHisto(al_mon,m_totalEvents);
+    if (m_extendedPlots) {
+      m_totalEvents  = new TH1F("TotalEvents","TotalEvents", 1, -0.5, 0.5);
+      RegisterHisto(al_mon,m_totalEvents);
 
-	m_mu_perEvent = new TH1F("mu_perEvent","<#mu> per event", m_nBinsMuRange, m_muRangeMin, m_muRangeMax);
-	RegisterHisto(al_mon,m_mu_perEvent);
-      }
+      m_mu_perEvent = new TH1F("mu_perEvent","<#mu> per event", m_nBinsMuRange, m_muRangeMin, m_muRangeMax);
+      RegisterHisto(al_mon,m_mu_perEvent);
+    }
     //Lumi wise histo
 
     //All modules
-    m_pix_b0_resXvsetaLumiBlock = new TProfile2D("pix_b0_resXvsetaLumiBlock","2D profile of X unbiased residuals vs IBL eta module per Lumi Block; LumiBlock;Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+    m_pix_b0_resXvsetaLumiBlock = new TProfile2D("pix_b0_resXvsetaLumiBlock","2D profile of X unbiased residuals vs IBL eta module per Lumi Block; LumiBlock;Module Eta",
+						 m_nBinsLB,m_LBRangeMin,m_LBRangeMax, 20,-10.5,9.5, m_minPIXResXFillRange,m_maxPIXResXFillRange);
     RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock);
 
     //Only planars
 
-    m_pix_b0_resXvsetaLumiBlock_planars = new TProfile2D("pix_b0_resXvsetaLumiBlock_planars","2D profile of X unbiased residuals vs IBL eta module per Lumi Block;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,12,-6.5,5.5,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+    m_pix_b0_resXvsetaLumiBlock_planars = new TProfile2D("pix_b0_resXvsetaLumiBlock_planars","2D profile of X unbiased residuals vs IBL eta module per Lumi Block;LumiBlock; Module Eta",
+							 m_nBinsLB,m_LBRangeMin,m_LBRangeMax, 12,-6.5,5.5, m_minPIXResXFillRange,m_maxPIXResXFillRange);
     RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_planars);
 
 
@@ -1051,10 +1049,8 @@ void IDAlignMonResiduals::RegisterHisto(MonGroup& mon, TH2* histo) {
 }
 
 //---------------------------------------------------------------------------------------
-
 StatusCode IDAlignMonResiduals::fillHistograms()
 {
-  
   const EventContext& ctx = Gaudi::Hive::currentContext();
   ++m_events;
   ATH_MSG_DEBUG ("IDAlignMonResiduals::fillHistograms ** START ** call for m_events " << m_events << " for track collection: " <<   m_tracksName.key());
@@ -4922,14 +4918,14 @@ void IDAlignMonResiduals::MakeTRTEndcapHistograms(MonGroup& al_mon){
       /** Residuals and pulls vs mu*/
       m_trt_ec_hist->residualR_mu[endcap] = MakeHist("trt_ec_residualR_mu_"+endcapName[endcap],
 						     "UnBiased Residual vs mu for TRT "+endcapName[endcap],
-						     m_nBinsPtRange, -m_PtRange, m_PtRange,
 						     m_nBinsMuRange, m_muRangeMin, m_muRangeMax,
+						     100, m_minTRTResWindow, m_maxTRTResWindow,
 						     "#mu ","Residual [mm]"); 
       RegisterHisto(al_mon,m_trt_ec_hist->residualR_mu[endcap]);
       
       m_trt_ec_hist->pullR_mu[endcap] = MakeHist("trt_ec_pullR_mu_"+endcapName[endcap],"Unbiased residual pull vs mu for TRT "+endcapName[endcap],
-						 m_nBinsPtRange, -m_PtRange, m_PtRange,
 						 m_nBinsMuRange, m_muRangeMin, m_muRangeMax,
+						 100, -m_RangeOfPullHistos,m_RangeOfPullHistos,
 						 "#mu","Pull");
       RegisterHisto(al_mon,m_trt_ec_hist->pullR_mu[endcap]);
     }
