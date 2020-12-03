@@ -47,9 +47,9 @@ class HiggsTruthCategoryTool
    Rivet::HiggsTemplateCrossSections *higgsTemplateCrossSections; //!
    virtual StatusCode  initialize() override;
    StatusCode finalize () override;
-   HTXS::HiggsClassification* getHiggsTruthCategoryObject(const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode) override;
+   HTXS::HiggsClassification* getHiggsTruthCategoryObject(const HepMC::GenEvent& HepMCEvent, const HTXS::HiggsProdMode prodMode) const override;
  private:
-   bool m_isInitialized;
+   mutable std::atomic<bool> m_isInitialized;
    bool m_outHistos;
 };
 
