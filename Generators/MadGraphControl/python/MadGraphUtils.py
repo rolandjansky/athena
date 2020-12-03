@@ -427,13 +427,14 @@ def generate(process_dir='PROC_mssm_0', grid_pack=False, gridpack_compile=False,
     new_opts.close()
     mglog.info('Make file hacking complete.')
 
-    print_cards_from_dir(process_dir=process_dir)
-
     currdir=os.getcwd()
     os.chdir(process_dir)
 
     # Check the run card
     run_card_consistency_check(isNLO=isNLO)
+
+    # Since the consistency check can update some settings, print the cards now
+    print_cards_from_dir(process_dir=os.getcwd())
 
     # Check the param card
     code = check_PMG_updates(process_dir)
@@ -578,7 +579,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     if not isNLO:
         settings['python_seed']=str(random_seed)
     modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings=settings)
-    print_cards_from_dir(process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
     mglog.info('Generating events from gridpack')
 
@@ -601,6 +601,35 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     setNCores(process_dir=MADGRAPH_GRIDPACK_LOCATION)
     global MADGRAPH_CATCH_ERRORS
 
+    # Run the consistency check, print some useful info
+    ls_dir(currdir)
+    ls_dir(MADGRAPH_GRIDPACK_LOCATION)
+
+    if not isNLO:
+        # hack script to add reweighting and systematics, if required
+        hack_gridpack_script()
+
+    # Update the run card according to consistency checks
+    run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
+
+    # Now all done with updates, so print the cards with the final settings
+    print_cards_from_dir(process_dir=MADGRAPH_GRIDPACK_LOCATION)
+
+    if isNLO:
+        #turn off systematics for gridpack generation and store settings for standalone run
+        run_card_dict=getDictFromCard(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat')
+        systematics_settings=None
+        if checkSetting('systematics_program','systematics',run_card_dict):
+            if not checkSettingIsTrue('store_rwgt_info',run_card_dict):
+                raise RuntimeError('Trying to run NLO systematics but reweight info not stored')
+            if checkSettingExists('systematics_arguments',run_card_dict):
+                systematics_settings=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
+            else:
+                systematics_settings={}
+            mglog.info('Turning off systematics for now, running standalone later')
+            modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'systematics_program':'none'},skipBaseFragment=True)
+
+
     if not isNLO:
         ### LO RUN ###
         if not os.access(MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',os.R_OK):
@@ -608,12 +637,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             raise RuntimeError('Could not find run.sh executable')
         else:
             mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh, starting generation.')
-        # hack script to add reweighting and systematics, if required
-        hack_gridpack_script()
-
-        ls_dir(currdir)
-        ls_dir(MADGRAPH_GRIDPACK_LOCATION)
-        run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
 
         generate_prep(MADGRAPH_GRIDPACK_LOCATION)
         generate = stack_subprocess([MADGRAPH_GRIDPACK_LOCATION+'/bin/run.sh',str(int(nevents)),str(int(random_seed))],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
@@ -627,9 +650,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
         else:
             mglog.info('Found '+MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events, starting generation.')
 
-        ls_dir(currdir)
         ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
-
         global MADGRAPH_COMMAND_STACK
         if os.access(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name, os.F_OK):
             mglog.info('Removing '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+' directory from gridpack generation')
@@ -643,21 +664,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             shutil.rmtree(MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'_decayed_1')
 
         ls_dir(MADGRAPH_GRIDPACK_LOCATION+'/Events/')
-
-        run_card_consistency_check(isNLO=isNLO,process_dir=MADGRAPH_GRIDPACK_LOCATION)
-
-        #turn off systematics for gridpack generation and store settings for standalone run
-        run_card_dict=getDictFromCard(MADGRAPH_GRIDPACK_LOCATION+'/Cards/run_card.dat')
-        systematics_settings=None
-        if checkSetting('systematics_program','systematics',run_card_dict):
-            if not checkSettingIsTrue('store_rwgt_info',run_card_dict):
-                raise RuntimeError('Trying to run NLO systematics but reweight info not stored')
-            if checkSettingExists('systematics_arguments',run_card_dict):
-                systematics_settings=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
-            else:
-                systematics_settings={}
-            mglog.info('Turning off systematics for now, running standalone later')
-            modify_run_card(process_dir=MADGRAPH_GRIDPACK_LOCATION,settings={'systematics_program':'none'},skipBaseFragment=True)
 
         if not gridpack_compile:
             mglog.info('Copying make_opts from Template')
@@ -2235,9 +2241,6 @@ def is_NLO_run(process_dir=MADGRAPH_GRIDPACK_LOCATION):
 def run_card_consistency_check(isNLO=False,process_dir='.'):
     cardpath=process_dir+'/Cards/run_card.dat'
     mydict=getDictFromCard(cardpath)
-
-    for k,v in mydict.iteritems():
-        mglog.info( '"'+k+'" = '+v )
 
     # We should always use event_norm = average [AGENE-1725] otherwise Pythia cross sections are wrong
     # Modification: average or bias is ok; sum is incorrect. Change the test to set sum to average

@@ -33,7 +33,7 @@ madspin_card = None
 param_card = None # Only set if you *can't* just modify the default param card to get your settings (e.g. pMSSM)
 
 # Default run settings
-run_settings = {'event_norm':'sum',
+run_settings = {'event_norm':'average',
                 'drjj':0.0,
                 'lhe_version':'3.0',
                 'cut_decays':'F',
