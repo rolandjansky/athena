@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Lvl1 specific flags
@@ -11,7 +11,7 @@ from .Limits import Limits
 __author__  = 'J.Stelzer'
 __doc__="Level 1 specific flags for Run 2"
 
-log = logging.getLogger('TriggerMenu.L1Flags.py')
+log = logging.getLogger('LVL1.Lvl1Flags.py')
 
 _flags = [] 
 class CTPVersion(JobProperty):
