@@ -342,22 +342,18 @@ StatusCode ALFA_GloRec::Truth_info(){
 
   //loop over collection (container) with hits (i.e. over 1 event)
   for(;mcTruBeg!=mcTruEnd;++mcTruBeg){
-
-    HepMC::GenEvent::particle_const_iterator begGenItr = (**mcTruBeg).particles_begin();
-    HepMC::GenEvent::particle_const_iterator endGenItr = (**mcTruBeg).particles_end();    
    
     //loop over one event
     m_z_g_pos = -1.e10;
     m_z_g_neg =  1.e10;
-    for(int i = 0;begGenItr!=endGenItr;++begGenItr){
- 	  //if(((*begGenItr)->status()==1)&&((abs((*begGenItr)->pdg_id())==2212)||(abs((*begGenItr)->pdg_id())==211))){
-	 		if(((abs((*begGenItr)->pdg_id())==2212)||(abs((*begGenItr)->pdg_id())==211))){
+    for(auto begGen:  (**mcTruBeg)){
+	 		if(((std::abs(begGen->pdg_id())==2212)||(std::abs(begGen->pdg_id())==211))){
 				double px, py, pz;
 				double x, y, z;
-				px = (**begGenItr).momentum().px();	  
-			  py = (**begGenItr).momentum().py();
-				pz = (**begGenItr).momentum().pz();
-				HepMC::GenVertex * l_prodvert = (**begGenItr).production_vertex();
+				px = begGen->momentum().px();	  
+				py = begGen->momentum().py();
+				pz = begGen->momentum().pz();
+				auto  l_prodvert = begGen->production_vertex();
 				x = l_prodvert->position().x();
 				y = l_prodvert->position().y();
 				z = l_prodvert->position().z();
@@ -379,7 +375,6 @@ StatusCode ALFA_GloRec::Truth_info(){
 					continue;							
 				}
 		
-			  i++;
 			  // ... break the loop if both suitable vertices were found
 			  if (m_z_g_pos > 0. && m_z_g_neg < 0.){
 				msg(MSG::DEBUG) << "gen px, py, pz = " << m_px_g_pos <<  "  " << m_py_g_pos << "  " << m_pz_g_pos << endmsg;
