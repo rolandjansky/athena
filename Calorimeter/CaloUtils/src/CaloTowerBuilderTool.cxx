@@ -156,13 +156,15 @@ CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
  *        The segmentation of the tower container must match
  *        the region over which we're running the tower building.
  *
+ * @param ctx The current event context.
  * @param theContainer The tower container to fill.
  * @param theCell The cell container to read.  If null, we fetch from SG.
  * @param subseg If provided, run tower building only within this window.
  *               The tower container segmentation must match.
  */
 StatusCode
-CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
+CaloTowerBuilderTool::execute(const EventContext& ctx,
+                              CaloTowerContainer* theTowers,
                               const CaloCellContainer* theCells /*= 0*/,
                               const CaloTowerSeg::SubSeg* subseg /*= 0*/) const
 {
@@ -179,7 +181,7 @@ CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
     }
   }
 
-  const ElementLink<CaloCellContainer> cellsEL (*theCells, 0);
+  const ElementLink<CaloCellContainer> cellsEL (*theCells, 0, ctx);
   if (subseg)
     iterateSubSeg (theTowers, cellsEL, subseg);
   else
@@ -209,19 +211,21 @@ CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
 
 /**
  * @brief Run tower building and add results to the tower container.
+ * @param ctx The current event context.
  * @param theContainer The tower container to fill.
  *
  * If the segmentation hasn't been set, take it from the tower container.
  * This is for use by converters.
  */
-StatusCode CaloTowerBuilderTool::execute (CaloTowerContainer* theContainer)
+StatusCode CaloTowerBuilderTool::execute (const EventContext& ctx,
+                                          CaloTowerContainer* theContainer)
 {
   if (m_cellStore.size() == 0) {
     setTowerSeg (theContainer->towerseg());
     ATH_CHECK( rebuildLookup() );
   }
 
-  return execute (theContainer, nullptr, nullptr);
+  return execute (ctx, theContainer, nullptr, nullptr);
 }
 
 
