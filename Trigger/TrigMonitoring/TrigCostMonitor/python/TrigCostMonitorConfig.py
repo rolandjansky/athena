@@ -444,12 +444,7 @@ def setupCostJob(config = 'OPI ROB NOPS'):
         from TriggerJobOpts.TriggerFlags import TriggerFlags
         if TriggerFlags.doHLT():
             configSteeringOPI(topSeq, 'TrigSteer_HLT', config, log)
-        else: 
-            if TriggerFlags.doEF():
-                configSteeringOPI(topSeq, 'TrigSteer_EF', config, log)
-            if TriggerFlags.doLVL2():
-                configSteeringOPI(topSeq, 'TrigSteer_L2', config, log)
-        
+
     if config.count('ROB'):
         log.info('Will try to configure online monitoring for ROBDataProviderSvc...')
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr

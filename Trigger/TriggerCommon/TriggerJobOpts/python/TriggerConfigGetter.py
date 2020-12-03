@@ -141,15 +141,13 @@ class TriggerConfigGetter(Configured):
 
         # first check the input
         if "HIT2RDO" in self._environment:
-            TriggerFlags.doLVL2 = False
-            TriggerFlags.doEF = False
+            TriggerFlags.doHLT = False
             log.info("For simulation jobs the following flags are set:")
             log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
             log.info("globalflags.DataSource              : %s", globalflags.DataSource())
             log.info("TriggerFlags.configForStartup       : %s", TriggerFlags.configForStartup())
             log.info("TriggerFlags.dataTakingConditions   : %s", TriggerFlags.dataTakingConditions())
-            log.info("TriggerFlags.doLVL2                 : %s", TriggerFlags.doLVL2())
-            log.info("TriggerFlags.doEF                   : %s", TriggerFlags.doEF())
+            log.info("TriggerFlags.doHLT                  : %s", TriggerFlags.doHLT())
         else:
             if not self.checkInput():
                 log.error("Could not determine job input. Can't setup trigger configuration and will return!")
@@ -190,14 +188,14 @@ class TriggerConfigGetter(Configured):
 
         # reading from the TriggerDB can mean different things:
 
-        # a) TriggerFlags doLVL2() and doEF() are both False:
+        # a) TriggerFlags doHLT() is False:
         #    - create a tmp sqlite file with the conditions (menu)
         #    - use DSConfigSvc
 
 
-        # b) TriggerFlags doLVL2() or doEF() is True:
+        # b) TriggerFlags doHLT() is True:
         #    - use HLTConfigSvc
-        if self.readTriggerDB and (TriggerFlags.doLVL2() or TriggerFlags.doEF() or TriggerFlags.doHLT()):
+        if self.readTriggerDB and TriggerFlags.doHLT():
 
             self.ConfigSrcList = ['xml'] # to use L1/HLTConfigSvc and not DSConfigSvc, but only if we are running the HLT
 

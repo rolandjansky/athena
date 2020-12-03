@@ -354,14 +354,14 @@ class SetupTrigConfigSvc(object):
                 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 
-                if TriggerFlags.doLVL2() or TriggerFlags.doEF() or TriggerFlags.doHLT() or TriggerFlags.configForStartup()=='HLToffline':
+                if TriggerFlags.doHLT() or TriggerFlags.configForStartup()=='HLToffline':
                     self.mlog.info( "setup HLTConfigSvc and add instance to ServiceMgr (xml file="+self.hltXmlFile+")" )
                     hlt = HLTConfigSvc("HLTConfigSvc")
                     hlt.XMLMenuFile = self.hltXmlFile
                     hlt.doMergedHLT = TriggerFlags.doHLT()
                     ServiceMgr += hlt
                 else:
-                    self.mlog.info( "Will not setup HLTConfigSvc, since TriggerFlags doLVL2(), doEF(), and doHLT() are all False" )
+                    self.mlog.info( "Will not setup HLTConfigSvc, since doHLT() is False" )
                     self.states[self.states.index("xml")] = "xmll1"
 
                 self.mlog.info( "setup LVL1ConfigSvc and add instance to ServiceMgr (xml file="+self.l1XmlFile+")" )

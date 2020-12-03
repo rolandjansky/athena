@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: TrigConfMetadata.py 618376 2014-09-24 15:33:35Z tamartin $
 #
 # This module holds the code that should be used to add trigger configuration
 # metadata to the D3PD.
@@ -74,10 +73,8 @@ def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCo
             else: 
               logger.info( "TrigConfMetadataTool will use TriggerFlags flags for config" )
               from TriggerJobOpts.TriggerFlags import TriggerFlags
-              if TriggerFlags.doHLT() and not (TriggerFlags.doEF() or TriggerFlags.doLVL2()):
+              if TriggerFlags.doHLT():
                 _trigConfTool.keyConfig = "HLT_TrigMonConfigCollection_OPI_HLT_monitoring_config"
-              elif TriggerFlags.doEF() or TriggerFlags.doLVL2():
-                _trigConfTool.keyConfig = "HLT_TrigMonConfigCollection_OPI_EF_monitoring_config"
             logger.info( "TrigConfMetadataTool will use the StoreGate key " + _trigConfTool.keyConfig )
             d3pdalg.MetadataTools += [ _trigConfTool ]
     else:

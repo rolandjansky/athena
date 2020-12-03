@@ -15,8 +15,7 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
     # --- turn off trigger
     #rec.doTrigger = False
     from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.doLVL2.set_Value_and_Lock(False)
-    TriggerFlags.doEF.set_Value_and_Lock(False)
+    TriggerFlags.doHLT.set_Value_and_Lock(False)
 
     # --- this is the SLHC 
     InDetFlags.doSLHC = True
