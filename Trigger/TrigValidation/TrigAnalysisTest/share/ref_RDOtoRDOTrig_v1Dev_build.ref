@@ -2737,7 +2737,19 @@ HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM:
     3: 11
     4: 8
 HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25:
-  eventCount: 0
+  eventCount: 1
+  stepCounts:
+    0: 6
+    1: 3
+    2: 2
+    3: 2
+    4: 1
+  stepFeatures:
+    0: 15
+    1: 6
+    2: 4
+    3: 4
+    4: 2
 HLT_tau80_medium1_tracktwo_L1TAU60:
   eventCount: 0
   stepCounts:
