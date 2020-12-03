@@ -28,9 +28,7 @@ then
  echo "Compare two directories"
  art.py compare ref --entries 10 --mode=semi-detailed --order-trees --diff-root . ../runOne/ | tee diffFiveThreads.log
  rcDiff=${PIPESTATUS[0]}
- diff digestTwo.log ../runOne/digestOne.log | tee temp.log
- grep nTopo digestTwo.log | sed 's/^/   /g' >& grep.log
- cat grep.log temp.log >& digestDiffOneTwo.log 
+ collateDigest.sh digestTwo.log ../runOne/digestOne.log digestDiffOneTwo.log 
  echo "art-result: $rcDiff Diff-Serial-OneThread"
 fi
 
