@@ -100,9 +100,7 @@ def getTauAxis():
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    VertexCorrection = doVertexCorrection,
-                                    JetVertexCorrection = False
-                                  )
+                                    VertexCorrection = doVertexCorrection )
     # No Axis correction at trigger level
                                     
     cached_instances[_name] = TauAxisSetter                
@@ -738,8 +736,7 @@ def getTauVertexedClusterDecorator():
   
     myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
                                                                 SeedJet = "",
-                                                                VertexCorrection = doVertexCorrection,
-                                                                JetVertexCorrection = False)
+                                                                VertexCorrection = doVertexCorrection)
     
     cached_instances[_name] = myTauVertexedClusterDecorator
     return myTauVertexedClusterDecorator
