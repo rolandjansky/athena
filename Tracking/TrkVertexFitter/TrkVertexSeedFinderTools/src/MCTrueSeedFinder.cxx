@@ -230,7 +230,7 @@ namespace Trk
     return true;
   }
 
-  bool MCTrueSeedFinder::pass( const HepMC::GenParticle* part,
+  bool MCTrueSeedFinder::pass( HepMC::ConstGenParticlePtr part,
 			       const McEventCollection* coll ) const {
 
     // Check if the particle is coming from a "good" GenEvent:
