@@ -425,7 +425,8 @@ def main():
    if opt.min is not None:
       # Use VMem or self-VMem for filtering
       def vmem( c ): 
-          c.dvmem_self if (opt.self is True and hasattr(c,'dvmem_self')) else c.dvmem
+          result = c.dvmem_self if (opt.self is True and hasattr(c,'dvmem_self')) else c.dvmem
+          return result
       for r in resTree: 
           r.show(lambda c: vmem(c)>opt.min)
    else:
