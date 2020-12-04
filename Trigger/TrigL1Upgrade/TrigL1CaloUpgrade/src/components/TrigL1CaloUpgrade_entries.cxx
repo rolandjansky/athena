@@ -5,6 +5,7 @@
 #include "src/SimpleLArDigitsChecks.h"
 #include "src/LArFex.h"
 #include "src/SuperCellBCIDAlg.h"
+#include "src/SuperCellBCIDEmAlg.h"
 #include "src/TrigT1CaloRun3TauFex.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -15,6 +16,7 @@ DECLARE_ALGORITHM_FACTORY( SimpleSuperCellChecks )
 DECLARE_ALGORITHM_FACTORY( SimpleLArDigitsChecks )
 DECLARE_ALGORITHM_FACTORY( LArFex )
 DECLARE_ALGORITHM_FACTORY( SuperCellBCIDAlg )
+DECLARE_ALGORITHM_FACTORY( SuperCellBCIDEmAlg )
 DECLARE_ALGORITHM_FACTORY( TrigT1CaloRun3TauFex )
 DECLARE_FACTORY_ENTRIES(TrigL1CaloUpgrade) {
 	DECLARE_ALGORITHM( TrigT1CaloEFex );
@@ -24,5 +26,6 @@ DECLARE_FACTORY_ENTRIES(TrigL1CaloUpgrade) {
 	DECLARE_ALGORITHM( TrigT1CaloTauFex );
 	DECLARE_ALGORITHM( LArFex );
 	DECLARE_ALGORITHM( SuperCellBCIDAlg );
+	DECLARE_ALGORITHM( SuperCellBCIDiEmAlg );
 	DECLARE_ALGORITHM( TrigT1CaloRun3TauFex );
 }
