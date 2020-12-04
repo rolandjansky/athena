@@ -83,7 +83,7 @@ case $ArtProcess in
       from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags; \
       InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(True); \
       InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(False); \
-      InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(False); \
+      InDetPhysValFlags.doValidateGSFTracks.set_Value_and_Lock(True); \
       InDetPhysValFlags.doPhysValOutput.set_Value_and_Lock(True); \
       rec.doDumpProperties=True; rec.doCalo=True; rec.doEgamma=True; \
       rec.doForwardDet=False; rec.doInDet=True; rec.doJetMissingETTag=True; \
