@@ -103,7 +103,11 @@ def TrigMETMonConfig(inputFlags):
       #TrigMETMonAlg.HLTChain13 = 'HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50'
       #TrigMETMonAlg.HLTChain14 = 'HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50'
     if mt_chains:
-      TrigMETMonAlg.HLTChain02 = 'HLT_xe30_cell_L1XE10'
+      TrigMETMonAlg.HLTChain02 = 'HLT_xe110_mht_L1XE50'
+      TrigMETMonAlg.HLTChain03 = 'HLT_xe110_tcpufit_L1XE50'
+      TrigMETMonAlg.HLTChain05 = 'HLT_xe110_pfsum_L1XE50'
+      TrigMETMonAlg.HLTChain10 = 'HLT_xe110_pfsum_cssk_L1XE50'
+      TrigMETMonAlg.HLTChain11 = 'HLT_xe110_pfsum_vssk_L1XE50'
     else: 
       TrigMETMonAlg.L1Chain02 = 'L1_XE10'
       TrigMETMonAlg.L1Chain03 = 'L1_XE30'
