@@ -108,6 +108,9 @@ atlas_add_test( TestReadoutNewConf
 atlas_add_test( TestRodVetoNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_RODVetoTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestSensorsNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_SensorsTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestStripVetoNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_StripVetoTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
