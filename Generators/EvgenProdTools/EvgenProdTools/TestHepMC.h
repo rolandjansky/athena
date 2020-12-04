@@ -48,7 +48,7 @@ public:
   double      m_eff_warn_threshold, m_eff_fail_threshold, m_tau_eff_threshold;
   double      m_accur_margin;
   bool m_doHist;
-  bool m_beamEnergyTest, m_vtxNaNTest, m_vtxDisplacedTest, m_momNaNTest, m_lifeTimeTest, m_energyG4Test;
+  bool m_beamEnergyTest, m_vtxNumTest, m_vtxNaNTest, m_vtxDisplacedTest, m_momNaNTest, m_lifeTimeTest, m_energyG4Test;
   bool m_energyImbalanceTest, m_momImbalanceTest, m_negativeEnergyTest, m_tachyonsTest, m_unstableNoVtxTest;
   bool m_pi0NoVtxTest, m_undisplacedDaughtersTest, m_unknownPDGIDTest;
 
@@ -63,6 +63,7 @@ public:
   int m_invalidBeamParticlesCheckRate;
   int m_beamParticleswithStatusNotFourCheckRate;
   int m_beamEnergyCheckRate;
+  int m_vtxNumCheckRate;
   int m_vtxNANandINFCheckRate;
   int m_vtxDisplacedstatuscode12CheckRate;
   int m_vtxDisplacedstatuscodenot12CheckRate;
