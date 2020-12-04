@@ -41,7 +41,7 @@ StatusCode ALPDecayPositionFilter::filterInitialize() {
 
 StatusCode ALPDecayPositionFilter::filterEvent() {
   int nPass = 0;
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) { 
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if (abs((*pitr)->pdg_id()) == m_PDGID) {

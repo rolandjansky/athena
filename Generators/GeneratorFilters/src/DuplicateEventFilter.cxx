@@ -15,8 +15,8 @@ StatusCode DuplicateEventFilter::filterEvent() {
   ATH_MSG_DEBUG("DuplicateEventFilter FILTERING");
 
   
-  for(McEventCollection::const_iterator evt = events()->begin();
-      evt != events()->end() ; ++evt){
+  for(McEventCollection::const_iterator evt = events_const()->begin();
+      evt != events_const()->end() ; ++evt){
     int eventNumber = (*evt)->event_number();
     if(m_previousEvents.count(eventNumber) != 0){
       setFilterPassed(false);

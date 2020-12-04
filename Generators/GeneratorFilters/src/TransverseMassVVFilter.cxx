@@ -24,7 +24,7 @@ StatusCode TransverseMassVVFilter::filterInitialize() {
 StatusCode TransverseMassVVFilter::filterEvent() {
   float MZ = 91187.6;
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     CLHEP::HepLorentzVector Boson1;
     CLHEP::HepLorentzVector Boson2;

@@ -17,7 +17,7 @@ MultiElectronFilter::MultiElectronFilter(const std::string& name, ISvcLocator* p
 StatusCode MultiElectronFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   int numElectrons = 0;
-  for (itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if ( (*pitr)->status() != 1) continue;

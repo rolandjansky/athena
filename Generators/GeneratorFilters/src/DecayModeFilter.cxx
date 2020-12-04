@@ -114,8 +114,8 @@ StatusCode DecayModeFilter::filterFinalize() {
 StatusCode DecayModeFilter::filterEvent() {
   setFilterPassed(false);
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr != events()->end(); ++itr) {
-    const HepMC::GenEvent* theGenEvent = *(events()->begin());
+  for (itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
+    const HepMC::GenEvent* theGenEvent = *(events_const()->begin());
     HepMC::GenEvent::vertex_const_iterator vtx_iter = theGenEvent->vertices_begin();
     HepMC::GenEvent::vertex_const_iterator vtx_end = theGenEvent->vertices_end();
     for (; vtx_iter!=vtx_end; ++vtx_iter) {

@@ -210,7 +210,7 @@ double TruthJetWeightFilter::getRescaledJetPt(const CLHEP::HepLorentzVector &jet
   double hadpart = 0;
 
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if ((*pitr)->status() != 1) continue;
@@ -247,7 +247,7 @@ void TruthJetWeightFilter::getLeadTruthParts(const CLHEP::HepLorentzVector& jet,
   highm10.set(0., 0., 0., 0.);
 
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr ) {
       if ((*pitr)->status() != 1) continue;
@@ -334,7 +334,7 @@ CLHEP::HepLorentzVector TruthJetWeightFilter::getJetSubcomponent(const CLHEP::He
   CLHEP::HepLorentzVector subcomp(0., 0., 0., 0.);
 
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if ((*pitr)->status() != 1) continue;

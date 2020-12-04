@@ -71,7 +71,7 @@ StatusCode M4MuIntervalFilter::filterEvent() {
   // Find overlap objects
   std::vector<HepMC::FourVector> MCTruthMuonList;
   // std::vector<HepMC::GenParticle*> MCTruthMuonList;
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();	pitr != genEvt->particles_end(); ++pitr) {
 	   // muon

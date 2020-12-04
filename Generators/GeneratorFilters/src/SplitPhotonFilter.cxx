@@ -18,7 +18,7 @@ StatusCode SplitPhotonFilter::filterEvent() {
   int NPhotons = 0;
   bool GoodFlav = m_dauPdg.size() == 0 ? true : false;
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     ATH_MSG_VERBOSE("----->>> Process : " << genEvt->signal_process_id());
 

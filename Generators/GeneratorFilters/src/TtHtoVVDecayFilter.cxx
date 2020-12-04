@@ -61,7 +61,7 @@ StatusCode TtHtoVVDecayFilter::filterEvent() {
   bool sameCharge = true;
   int  charge = -2;
 
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {

@@ -28,7 +28,7 @@ StatusCode SameParticleHardScatteringFilter::filterEvent() {
   N_Parent[0] = 0;
   N_Parent[1] = 0;
 
-  for (McEventCollection::const_iterator itr = events()->begin(); itr!= events()->end(); ++itr) 
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr!= events_const()->end(); ++itr) 
     {
       const HepMC::GenEvent* genEvt = (*itr);
       for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) 

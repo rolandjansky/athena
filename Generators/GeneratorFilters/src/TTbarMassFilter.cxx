@@ -23,7 +23,7 @@ StatusCode TTbarMassFilter::filterEvent() {
   std::vector<HepMC::GenParticle*> tops;
   std::vector<const HepMC::GenVertex*>   top_vtxs;
 
-  for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin();
     for (; pitr!=genEvt->particles_end(); ++pitr) {

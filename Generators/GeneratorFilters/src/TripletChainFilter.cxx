@@ -148,7 +148,7 @@ StatusCode TripletChainFilter::filterEvent() {
   McEventCollection::const_iterator itr;
   std::vector< HepMC::GenParticle* > tripvec; // for veto the same combinations
 
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
 
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
