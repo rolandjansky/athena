@@ -110,10 +110,18 @@ public:
 
   virtual const xAOD::TruthParticle* isHadronFromB(const xAOD::TruthParticle*) const = 0;
 
+  /// \brief main function used in \ref MCTruthClassifier returning the value from defOrigofParticle to \ref TruthClassificationDecorator
+  virtual unsigned int classify(const xAOD::TruthParticle *) const = 0;
+
+  /// \brief function used in \ref MCTruthClassifier classifying truth particles with HepMC status 1 & 2
+  virtual unsigned int defOrigOfParticle(const xAOD::TruthParticle*) const = 0;    
+
+
 #ifndef XAOD_ANALYSIS /*This can not run in Analysis Base*/
   virtual std::pair<MCTruthPartClassifier::ParticleType, MCTruthPartClassifier::ParticleOrigin> particleTruthClassifier(
     HepMC::ConstGenParticlePtr,
     Info* info = nullptr) const = 0;
+
 #endif
   //
 #ifndef GENERATIONBASE /*These can not run in Generation only release*/
@@ -136,6 +144,7 @@ public:
   particleTruthClassifier(const xAOD::Jet*, bool DR, Info* info = nullptr) const = 0;
 
   virtual const xAOD::TruthParticle* getGenPart(const xAOD::TrackParticle*, Info* info = nullptr) const = 0;
+
 #endif
 };
 
