@@ -290,11 +290,11 @@ Trk::TrackSummaryTool::fillSummary(const EventContext& ctx,
 
   // add detailed summary for indet
   if( m_addInDetDetailedSummary && !m_idTool.empty() ){
-    m_idTool->addDetailedTrackSummary(track,ts);
+    m_idTool->addDetailedTrackSummary(ctx,track,ts);
   }
   // add detailed summary for muons
   if( m_addMuonDetailedSummary && !m_muonTool.empty() ){
-    m_muonTool->addDetailedTrackSummary(track,ts);
+    m_muonTool->addDetailedTrackSummary(ctx,track,ts);
   }
 }
 
@@ -332,7 +332,9 @@ Trk::TrackSummaryTool::updateAdditionalInfo(const Track& track,
   }
   m_idTool->updateAdditionalInfo(summary, eProbability,dedx, nHitsUsed_dEdx,nOverflowHits_dEdx);
   m_idTool->updateExpectedHitInfo(track, summary);
-  if (m_addInDetDetailedSummary) m_idTool->addDetailedTrackSummary(track,summary);
+  if (m_addInDetDetailedSummary) {
+    m_idTool->addDetailedTrackSummary(track,summary);
+  }
 }
 
 /*
