@@ -39,6 +39,7 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("NoDecayVertexStatuses", m_vertexStatuses );
 
   declareProperty("BeamEnergyTest",           m_beamEnergyTest = true); //switching off inactive
+  declareProperty("VtxNumTest",               m_vtxNumTest = true);
   declareProperty("VtxNaNTest",               m_vtxNaNTest = true);
   declareProperty("VtxDisplacedTest",         m_vtxDisplacedTest = true);
   declareProperty("MomNaNTest",               m_momNaNTest = true);
@@ -74,6 +75,7 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   m_beamParticleswithStatusNotFourCheckRate = 0;
   m_beamEnergyCheckRate = 0;
   m_vtxNANandINFCheckRate = 0;
+  m_vtxNumCheckRate = 0;
   m_vtxDisplacedstatuscode12CheckRate = 0;
   m_vtxDisplacedstatuscodenot12CheckRate = 0;
   m_partMomentumNANandINFCheckRate = 0;
@@ -407,7 +409,12 @@ StatusCode TestHepMC::execute() {
     if (m_vtxDisplacedstatuscode12CheckRateCnt>0) ++m_vtxDisplacedstatuscode12CheckRate;
     if (m_vtxDisplacedstatuscodenot12CheckRateCnt>0) ++m_vtxDisplacedstatuscodenot12CheckRate;
     if (m_vtxDisplacedMoreThan_1m_CheckRateCnt>0) ++m_vtxDisplacedMoreThan_1m_CheckRate;
-
+    if (evt->vertices_empty()) { 
+        ++m_vtxNumCheckRate;
+        if (m_vtxNumTest) {
+          filter_pass = false;
+        }
+       }
      m_negativeEnergyTachyonicCheckRateCnt = 0;
     // Check particles
     for (HepMC::GenEvent::particle_const_iterator pitr = evt->particles_begin(); pitr != evt->particles_end(); ++pitr ) {
@@ -749,6 +756,8 @@ StatusCode TestHepMC::finalize() {
   ATH_MSG_INFO(" Event rate with invalid Beam Particles = " << m_invalidBeamParticlesCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with beam particles and status not equal to 4 = " << m_beamParticleswithStatusNotFourCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
   ATH_MSG_INFO(" Event rate with incorrect beam particle energies = " << m_beamEnergyCheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
+  ATH_MSG_INFO(" Event rate with zero vertices = " << m_vtxNumCheckRate*100.0/double(m_nPass+m_nFail));
+  if (!m_vtxNumTest) ATH_MSG_INFO(" The check for number of vertices is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with NaN (Not A Number) or inf found in the event record vertex positions = " << m_vtxNANandINFCheckRate*100.0/double(m_nPass + m_nFail) << "%");
   if (!m_vtxNaNTest) ATH_MSG_INFO(" The check for NaN or inf in vtx. record is switched off, so is not included in the final TestHepMC efficiency ");
   ATH_MSG_INFO(" Event rate with vertices displaced more than " << m_max_dist_trans << "~mm in transverse direction for particles with status code other than 1 and 2 = " << m_vtxDisplacedstatuscodenot12CheckRate*100.0/double(m_nPass + m_nFail) << "% (not included in test efficiency)");
