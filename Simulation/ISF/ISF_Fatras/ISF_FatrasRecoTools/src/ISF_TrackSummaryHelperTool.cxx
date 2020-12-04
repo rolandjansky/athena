@@ -23,7 +23,7 @@ iFatras::ISF_TrackSummaryHelperTool::ISF_TrackSummaryHelperTool(const std::strin
   base_class(t,n,p),
   m_pixelId(0),
   m_sctId(0),
-  m_assoTool("iFatras::ISF_PRD_AssociationTool"), 
+  m_assoTool("iFatras::ISF_PRD_AssociationTool"),
   m_doSharedHits(false)
 {
   declareProperty("AssoTool",            m_assoTool);
@@ -31,7 +31,7 @@ iFatras::ISF_TrackSummaryHelperTool::ISF_TrackSummaryHelperTool(const std::strin
   declareProperty("usePixel",            m_usePixel = true);
   declareProperty("useSCT",              m_useSCT   = true);
   declareProperty("OverwriteIDSummary",  m_overwriteidsummary = false);
-} 
+}
 
 //==========================================================================
 
@@ -47,14 +47,14 @@ StatusCode iFatras::ISF_TrackSummaryHelperTool::initialize()
       return StatusCode::FAILURE;
     } else msg(MSG::VERBOSE) << "PixelID helper retrieved successfully!" << endmsg;
   }
-  
+
   if (m_useSCT) {
     if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
       msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endmsg;
       return StatusCode::FAILURE;
     } else msg(MSG::VERBOSE) << "PixelID helper retrieved successfully!" << endmsg;
   }
-  
+
   ATH_CHECK(m_assoTool.retrieve(DisableTool{!m_doSharedHits || m_assoTool.empty() } ) );
 
   msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
@@ -64,25 +64,28 @@ StatusCode iFatras::ISF_TrackSummaryHelperTool::initialize()
 
 //==========================================================================
 
-void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
-                                                  const Trk::PRDtoTrackMap *prd_to_track_map,
-						  const Trk::RIO_OnTrack* rot,
-						  const Trk::TrackStateOnSurface* tsos,
-						  std::vector<int>& information,
-						  std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const
+void
+iFatras::ISF_TrackSummaryHelperTool::analyse(
+  const EventContext&,
+  const Trk::Track& track,
+  const Trk::PRDtoTrackMap* prd_to_track_map,
+  const Trk::RIO_OnTrack* rot,
+  const Trk::TrackStateOnSurface* tsos,
+  std::vector<int>& information,
+  std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const
 {
   const Identifier& id = rot->identify();
   bool  isOutlier      = (tsos->type(Trk::TrackStateOnSurface::Outlier));
   bool  ispatterntrack =  (track.info().trackFitter()==Trk::TrackInfo::Unknown);
-  
+
   if (msgLvl(MSG::DEBUG)) msg() << "Starting analyse()" << endmsg;
 
   if ( m_usePixel && m_pixelId->is_pixel(id) ) {
 
     if (msgLvl(MSG::DEBUG)) msg() << "Pixel hit found" << endmsg;
-    
+
     if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits
-      
+
       if (msgLvl(MSG::DEBUG)) msg() << "Pixel outlier info storing" << endmsg;
 
       information[Trk::numberOfPixelOutliers]++;
@@ -93,16 +96,16 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
 	information[Trk::numberOfNextToInnermostPixelLayerOutliers]++;
       }
     } else {
-      
+
       if (msgLvl(MSG::DEBUG)) msg() << "Pixel info storing" << endmsg;
 
       information[Trk::numberOfPixelHits]++;
       if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
-      if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
-      
+      if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;
+
       if ( ( m_pixelId->is_barrel(id) ) ) {
 	if (msgLvl(MSG::DEBUG)) msg() << "Barrel hit" << endmsg;
-	int offset = m_pixelId->layer_disk(id); 
+	int offset = m_pixelId->layer_disk(id);
 	if (!hitPattern.test(offset)) information[Trk::numberOfContribPixelLayers]++;
 	hitPattern.set(offset); // assumes numbered consecutively
       } else {
@@ -120,20 +123,20 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
 	  information[Trk::numberOfPixelSharedHits]++;
 	  if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0) ) {
 	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in innermost layer" << endmsg;
-	    information[Trk::numberOfInnermostPixelLayerSharedHits]++;        
-	  } 
+	    information[Trk::numberOfInnermostPixelLayerSharedHits]++;
+	  }
 	  if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1) ) {
 	    if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in next to innermost layer" << endmsg;
-	    information[Trk::numberOfNextToInnermostPixelLayerSharedHits]++;        
+	    information[Trk::numberOfNextToInnermostPixelLayerSharedHits]++;
 	  }
 	} else ATH_MSG_DEBUG("shared Pixel hit NOT found");
       }
     }
   } else if (m_useSCT && m_sctId->is_sct(id) ) {
-    
+
     if (msgLvl(MSG::DEBUG)) msg() << "SCT hit found" << endmsg;
-    
-    if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
+
+    if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits
       if (msgLvl(MSG::DEBUG)) msg() << "SCT outlier info storing" << endmsg;
       information[Trk::numberOfSCTOutliers]++;
     } else {
@@ -164,18 +167,19 @@ void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track& track,
       }
     }
   } else  ATH_MSG_WARNING("Nor Pixel or SCT used... Check!!");
-  
+
   return;
 }
-
-void iFatras::ISF_TrackSummaryHelperTool::analyse(const Trk::Track&,
-                                                  const Trk::PRDtoTrackMap *,
-						  const Trk::CompetingRIOsOnTrack*,
-						  const Trk::TrackStateOnSurface*,
-						  std::vector<int>&,
-						  std::bitset<Trk::numberOfDetectorTypes>&) const
+void
+iFatras::ISF_TrackSummaryHelperTool::analyse(
+  const Trk::Track&,
+  const Trk::CompetingRIOsOnTrack*,
+  const Trk::TrackStateOnSurface*,
+  std::vector<int>& ,
+  std::bitset<Trk::numberOfDetectorTypes>&) const
 {
-  ATH_MSG_DEBUG("analyse not implemented for Trk::CompetingRIOsOnTrack !!");
+
+  ATH_MSG_DEBUG("Analyze not implemented for Trk::CompetingRIOsOnTrack!!");
   return;
 }
 
