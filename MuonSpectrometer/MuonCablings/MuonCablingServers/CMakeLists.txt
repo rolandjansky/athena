@@ -10,11 +10,11 @@ atlas_add_library( MuonCablingServersLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonCablingServers
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel RPCcablingInterfaceLib TGCcablingInterfaceLib StoreGateLib SGtests
-                   PRIVATE_LINK_LIBRARIES EventInfo EventInfoMgtLib )
+                   PRIVATE_LINK_LIBRARIES EventInfoMgtLib )
 
 atlas_add_component( MuonCablingServers
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel RPCcablingInterfaceLib TGCcablingInterfaceLib StoreGateLib SGtests EventInfo MuonCablingServersLib )
+                     LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel RPCcablingInterfaceLib TGCcablingInterfaceLib StoreGateLib SGtests EventInfoMgtLib MuonCablingServersLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
