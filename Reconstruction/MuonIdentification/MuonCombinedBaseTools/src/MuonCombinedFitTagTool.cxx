@@ -37,7 +37,6 @@ namespace MuonCombined {
     ATH_MSG_INFO( "Initializing MuonCombinedFitTagTool - package version " << PACKAGE_VERSION );
     
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_tagTool.retrieve());
     ATH_CHECK(m_trackBuilder.retrieve());
     if(! m_outwardsBuilder.empty() ) ATH_CHECK(m_outwardsBuilder.retrieve());
     ATH_CHECK(m_trackQuery.retrieve());
@@ -171,7 +170,6 @@ namespace MuonCombined {
     }
     
     if( bestCandidate ){
-      double outerMatchChi2 = 1e19;
       // take the best MS Track, first the update extrapolated, than the extrapolated, last the spectrometer track
       bool haveME=true;
       if( !bestMETrack ){
@@ -181,7 +179,6 @@ namespace MuonCombined {
       }
 
       if( bestCandidate->indetTrackParticle().trackLink().isValid() && bestMETrack ){
-        outerMatchChi2 = m_tagTool->chi2(*bestCandidate->indetTrackParticle().track(),*bestMETrack);
         
         if(msgLevel() >= MSG::DEBUG) {
           dumpCaloEloss(bestCombTrack.get(), " bestCandidate Combined Track ");
@@ -192,7 +189,7 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("Final combined muon: "<<m_printer->print(*bestCombTrack));
       ATH_MSG_DEBUG(m_printer->printStations(*bestCombTrack));
       ATH_MSG_DEBUG("Combined Muon with ID " << m_printer->print(bestCandidate->indetTrackParticle().perigeeParameters())
-        << " match chi2 " << bestTag->matchChi2() << " outer match " << outerMatchChi2 );
+        << " match chi2 " << bestTag->matchChi2());
       combTracks->push_back(bestCombTrack.release());
       ElementLink<TrackCollection> comblink( *combTracks,combTracks->size()-1);
       bestTag->setCombinedTrackLink(comblink);
