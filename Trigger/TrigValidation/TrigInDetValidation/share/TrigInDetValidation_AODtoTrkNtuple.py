@@ -130,6 +130,9 @@ if ( True ) :
     # "Taus_Loose_3Prong",
     # "Taus_Medium_3Prong",
     # "Taus_Tight_3Prong",
+
+    "Taus:Medium:1Prong",
+    "Taus:Tight:1Prong",
     
     # "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF",
     # "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
@@ -171,15 +174,30 @@ if ( True ) :
     "HLT_e.*:HLT_IDTrack_Electron_FTF",
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
 
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF:roi=HLT_TAURoI"
-    "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
+
+    # two stage tau FTF
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
+
+    # two stage tau precision tracking - empty ???
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
+
+
+    # should get single stage tau
+    "HLT_tau.*_idperf.*_track_.*:HLT_IDTrack_Tau_FTF:roi=HLT_Roi_Tau",
+    "HLT_tau.*_idperf.*_track_.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_Tau",
+
+
+
+    # none of these will work
     "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_TAURoI",
-    "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
+
+    # should work for single stage tau ???
+    # "HLT_tau.*_idperf.*:HLT_IDTrack_Tau_FTF",
+
+    # should work for a two stage tau ??
+    # "HLT_tau.*_idperf.*:HLT_IDTrack_TauIso_FTF",
+
 
     "HLT_mb.*:HLT_IDTrack_MinBias_FTF",
     
