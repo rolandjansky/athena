@@ -172,7 +172,7 @@ Particles ZHWWLeptonPairMassFilter::getPromptLeptons()
 {
   // Loop over all events in McEventCollection, then all particles in the event
   Particles leptons;
-  for (auto event_itr = events()->begin(); event_itr!=events()->end(); ++event_itr) {
+  for (auto event_itr = events_const()->begin(); event_itr!=events_const()->end(); ++event_itr) {
     const auto event = (*event_itr);
     for (auto pitr = event->particles_begin(); pitr != event->particles_end(); ++pitr) {
       const auto particle = *pitr;

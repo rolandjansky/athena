@@ -57,7 +57,7 @@ bool DirectPhotonFilterCmpByPt(HepMC::GenParticle* p1, HepMC::GenParticle* p2) {
 
 StatusCode DirectPhotonFilter::filterEvent() {
   std::vector<HepMC::GenParticle*> promptPhotonsInEta;
-  for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     ATH_MSG_DEBUG("----->>> Process : " << genEvt->signal_process_id());
 

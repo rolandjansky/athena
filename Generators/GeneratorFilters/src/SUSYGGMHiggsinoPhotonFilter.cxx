@@ -21,7 +21,7 @@ SUSYGGMHiggsinoPhotonFilter::SUSYGGMHiggsinoPhotonFilter(const std::string& name
 StatusCode SUSYGGMHiggsinoPhotonFilter::filterEvent() {
   int NPhotons = 0;
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     ATH_MSG_DEBUG("----->>> Process : " << genEvt->signal_process_id());
 

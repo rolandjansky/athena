@@ -21,7 +21,7 @@ StatusCode ChargedTracksFilter::filterEvent() {
   int nChargedTracks = 0;
 
   // Loop over all events in McEventCollection
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
 
     // Loop over all particles in event

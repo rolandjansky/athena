@@ -66,7 +66,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
   std::vector<HepMC::GenParticle*> leps; // e, mu, tau from W decay (from ws)
   std::vector<HepMC::GenParticle*> nus;  // nutrino from W decay (from ws)
 
-  for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       if (fabs((*pitr)->pdg_id()) == 6) {
@@ -228,7 +228,7 @@ StatusCode TTbarBoostCatFilter::filterEvent() {
   if (N_quark_t < 1 || N_quark_tbar < 1) {
     ATH_MSG_ERROR("No t or tbar quarks were found decaying to W in a (presumably) ttbar event! Event is rejected. Event dump follows.");
     int event = 0;
-    for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
+    for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
       event++;
       const HepMC::GenEvent* genEvt = (*itr);
       HepMC::GenEvent::particle_const_iterator mcpartItr  = genEvt->particles_begin();

@@ -34,7 +34,7 @@ StatusCode TTbarLJetsVptFilter::filterEvent() {
   //  float W_lep_eta = 0; // for debugging: no requirement in filter
   //---
 
-  for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       // get the top
@@ -169,7 +169,7 @@ StatusCode TTbarLJetsVptFilter::filterEvent() {
   if (N_quark_t < 1 || N_quark_tbar < 1) {
     ATH_MSG_ERROR("No t or tbar quarks were found decaying to W in a (presumably) ttbar event! Event is rejected. Event dump follows.");
     int event = 0;
-    for (McEventCollection::const_iterator itr = events()->begin(); itr!=events()->end(); ++itr) {
+    for (McEventCollection::const_iterator itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
       event++;
       const HepMC::GenEvent* genEvt = (*itr);
       HepMC::GenEvent::particle_const_iterator mcpartItr  = genEvt->particles_begin();

@@ -75,7 +75,7 @@ StatusCode MultiHiggsFilter::filterEvent() {
   // Loop over all events in McEventCollection
   McEventCollection::const_iterator itr;
   int nGoodParent = 0;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
     for(HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin();

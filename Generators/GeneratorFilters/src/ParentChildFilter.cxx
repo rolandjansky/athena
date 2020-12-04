@@ -41,7 +41,7 @@ StatusCode ParentChildFilter::filterInitialize() {
 
 
 StatusCode ParentChildFilter::filterEvent() {
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       int okPDGParent = 0;
