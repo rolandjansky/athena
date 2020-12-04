@@ -113,8 +113,6 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 
   if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
 
-  ATH_MSG_INFO( "SiTrackerSpacePointFinder::initialized for package version " << PACKAGE_VERSION );
-  
   return StatusCode::SUCCESS;
 }
 
