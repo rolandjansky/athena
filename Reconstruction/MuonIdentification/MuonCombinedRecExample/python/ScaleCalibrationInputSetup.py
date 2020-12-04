@@ -1,11 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AlgSequence import AlgSequence
+from AthenaCommon.Constants import INFO
 from AthenaCommon import CfgMgr
+import os
 
 def setupScaleCalibrationInput():
+    from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
     print("Setting up setupScaleCalibrationInput")
 
     topSequence = AlgSequence()
@@ -17,7 +18,7 @@ def setupScaleCalibrationInput():
     # Setup GRL
     GRL = os.path.expandvars( '$TestArea/PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPtCalibNtupleMaker/grl/data12_8TeV.periodAllYear_HEAD_DQDefects-00-01-02_PHYS_CombinedPerf_Muon_Muon_calo.xml' )
     ToolSvc += CfgMgr.GoodRunsListSelectionTool( 'GRLTool' , GoodRunsListVec = [ GRL ] )
-	
+
     # Setup MST
     ToolSvc += CfgMgr.CP__MuonSelectionTool( 'MuonSelectorTool', OutputLevel = INFO )
     ToolSvc += CfgMgr.CalibMuonsSelectorTool( 'CalibMuonsSelectorTool', MuonSelectorTool = ToolSvc.MuonSelectorTool, OutputLevel = INFO )
