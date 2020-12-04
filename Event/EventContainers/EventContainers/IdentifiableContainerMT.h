@@ -189,11 +189,9 @@ public:
     virtual StatusCode naughtyRetrieve(IdentifierHash hashId, T* &collToRetrieve) const override final;
 
 
-#ifdef IdentifiableCacheBaseRemove
     /// remove collection from container for id hash, returning it
     /// (and ownership) to client
     T*  removeCollection(IdentifierHash hashId);
-#endif
 
     /// reset m_hashids and call IdentifiableCache's cleanup
     virtual void cleanup() override final;
@@ -250,14 +248,12 @@ public:
     }
 };
 
-#ifdef IdentifiableCacheBaseRemove
 template < class T>
 T*  //Please don't do this we want to get rid of this
 IdentifiableContainerMT<T>::removeCollection( IdentifierHash hashId )
 {
     return reinterpret_cast<T*>(m_link->removeCollection(hashId));
 }
-#endif
 
 
 

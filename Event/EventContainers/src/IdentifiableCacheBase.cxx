@@ -197,18 +197,7 @@ void IdentifiableCacheBase::createSet (const std::vector<IdentifierHash>& hashes
    }
 }
 
-#ifdef IdentifiableCacheBaseRemove
-bool IdentifiableCacheBase::remove (IdentifierHash hash)
-{
-   if (hash >= m_vec.size()) return false;
-   if(m_vec[hash]){
-      m_vec[hash] = nullptr;
-      m_currentHashes--;
-      return true;
-   }
-   return false;
-}
-#endif
+
 size_t IdentifiableCacheBase::numberOfHashes()
 {
   return m_currentHashes.load(std::memory_order_relaxed); //Not to be used for syncing

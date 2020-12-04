@@ -384,7 +384,6 @@ int ID_ContainerTest::execute(){
     std::cout<<" Number of Collections from Random Access "
              << nColl<< std::endl;
 
-#ifdef IdentifiableCacheBaseRemove
     // Test removal of collections
     unsigned int collsRemoved = 0;
     for (int coll =0; coll <hfmax; coll += 3) {
@@ -404,7 +403,6 @@ int ID_ContainerTest::execute(){
               << vCollRem.size() << " removed collections found again " << collsFound
               << " tested " << collsFound1
               << std::endl;
-#endif        
               
               
     m_container->cleanup();
