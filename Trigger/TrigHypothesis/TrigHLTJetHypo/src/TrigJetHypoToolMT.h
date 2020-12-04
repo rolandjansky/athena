@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHYPOTOOLMT_H
@@ -22,6 +22,8 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODJet/JetContainer.h"
+
+#include <string>
 
 struct EventSN{
   std::size_t m_id{0};
@@ -60,8 +62,11 @@ public:
   ToolHandle<ITrigJetHypoToolHelperMT> m_helper {
     this, "helper_tool", {}, "Jet hypo helper AlgTool"};
   
-  Gaudi::Property<bool>
-    m_visitDebug {this, "visit_debug", false, "debug flag"};
+  Gaudi::Property<bool> m_visitDebug {
+    this, "visit_debug", false, "debug flag"};
+
+  Gaudi::Property<std::string> m_chainName {
+    this, "chain_name", {}, "chain name"};
   
   
   std::unique_ptr<EventSN> m_eventSN;

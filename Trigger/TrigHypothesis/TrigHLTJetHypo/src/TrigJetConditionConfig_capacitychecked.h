@@ -35,6 +35,14 @@ public extends<AthAlgTool, ITrigJetCapacityCheckedConditionConfig> {
   Gaudi::Property<std::size_t> m_multiplicity {this, "multiplicity", {1},
       "no. of occurences of identical condition"};
 
+  
+  Gaudi::Property<std::string> m_chainLegLabel {this,
+    "chainLegLabel",
+    {""},
+    "identifier for chain leg - used to group jets for jet hypo clients "};
+
+
+
   StatusCode checkVals()  const;
  
 };
