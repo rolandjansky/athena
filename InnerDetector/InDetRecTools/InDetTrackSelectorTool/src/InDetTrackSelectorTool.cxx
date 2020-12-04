@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetTrackSelectorTool.h"
@@ -51,12 +51,6 @@ InDetTrackSelectorTool::~InDetTrackSelectorTool()
 //_______________________________________________________________________________
 StatusCode InDetTrackSelectorTool::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-  if(sc.isFailure()) {
-    msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
-    return StatusCode::FAILURE;
-  }
-
   m_trackSumToolAvailable = false;
   if (!m_trackSumTool.empty())
   {
@@ -79,12 +73,6 @@ StatusCode InDetTrackSelectorTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-//_______________________________________________________________________________
-StatusCode InDetTrackSelectorTool::finalize()
-{
-  ATH_MSG_INFO("Finalize successful");
-  return StatusCode::SUCCESS;
-}
 
 //_______________________________________________________________________________
 bool InDetTrackSelectorTool::decision(const Trk::Track & track, const Trk::Vertex * vertex) const

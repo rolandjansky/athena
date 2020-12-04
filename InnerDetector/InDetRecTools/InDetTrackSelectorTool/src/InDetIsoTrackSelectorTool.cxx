@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetIsoTrackSelectorTool.h"
@@ -62,12 +62,6 @@ StatusCode InDet::InDetIsoTrackSelectorTool::initialize()
   return StatusCode::SUCCESS;
 }
 
-//_______________________________________________________________________________
-StatusCode InDet::InDetIsoTrackSelectorTool::finalize()
-{
-  ATH_MSG_INFO("Finalize successful");
-  return StatusCode::SUCCESS;
-}
 
 //_______________________________________________________________________________
 bool InDet::InDetIsoTrackSelectorTool::decision(const Trk::AtaStraightLine& atl, const Trk::Track& track) const
