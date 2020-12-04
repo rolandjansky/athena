@@ -122,15 +122,17 @@ class ConditionsToolSetterFastReduction(object):
             condition_tool =self._get_tool_instance('capacitychecked')
 
             if cpi:
-                condition_tool.chainLegLabel = cpi
+                # convert label from string to int for more efficient
+                # processing in C++ land.
+                condition_tool.chainPartInd = int(cpi[len('leg'):])
             else:
-                condition_tool.chainLegLabel = ''
+                condition_tool.chainPartInd = 0
             
             condition_tool.conditionMakers = condition_tools
             condition_tool.multiplicity = mult
             # add capacitychecked condition to list
             outer_condition_tools.append(condition_tool)
-            
+
         return outer_condition_tools
 
     def _mod_leaf(self, node):
@@ -229,6 +231,7 @@ class ConditionsToolSetterFastReduction(object):
         conditionsMap = {}
         self._fill_conditions_map(tree, conditionsMap)
         conditionsVec = self._map_2_vec(conditionsMap)
+
                
         # make a config tool and provide it with condition makers
         config_tool = self._get_tool_instance('fastreduction')
@@ -242,3 +245,5 @@ class ConditionsToolSetterFastReduction(object):
         helper_tool.parent_id = tree.parent_id
 
         self.tool = helper_tool
+
+        print (self.tool)

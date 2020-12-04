@@ -9,8 +9,8 @@
 
 void xAODJetCollector::addJets(const HypoJetCIter& begin,
 			       const HypoJetCIter& end,
-			       const std::string& label){
-  auto& jets = m_jets[label];
+			       int chainPartInd){
+  auto& jets = m_jets[chainPartInd];
   jets.insert(jets.end(), begin, end);
 }
   
@@ -29,14 +29,14 @@ std::vector<const xAOD::Jet*> xAODJetCollector::xAODJets() const {
 
 
 std::vector<const xAOD::Jet*>
-xAODJetCollector::xAODJets(const std::string& label) const {
+xAODJetCollector::xAODJets(int chainPartInd) const {
   
-  if (m_jets.count(label) == 0){
+  if (m_jets.count(chainPartInd) == 0){
     std::vector<const xAOD::Jet*> empty;
     return empty;
   }
   
-  const auto& jets = m_jets.at(label);
+  const auto& jets = m_jets.at(chainPartInd);
   return xAODJets_(jets.cbegin(), jets.cend());
 }
 
@@ -54,17 +54,17 @@ HypoJetVector xAODJetCollector::hypoJets() const {
 }
 
   
-HypoJetVector xAODJetCollector::hypoJets(const std::string& label) const {
-  auto begin = m_jets.at(label).cbegin();
-  auto end = m_jets.at(label).cend();
+HypoJetVector xAODJetCollector::hypoJets(int chainPartInd) const {
+  auto begin = m_jets.at(chainPartInd).cbegin();
+  auto end = m_jets.at(chainPartInd).cend();
   HypoJetSet js(begin, end);
   return HypoJetVector(js.begin(), js.end());
 }
 
 
 void xAODJetCollector::addOneJet(const pHypoJet jet,
-				 const std::string& label){
-  m_jets[label].push_back(jet);
+				 int chainPartInd){
+  m_jets[chainPartInd].push_back(jet);
 }
 
 
@@ -97,12 +97,12 @@ xAODJetCollector::xAODJets_(const HypoJetVector::const_iterator begin,
 }
 
 
-std::vector<std::string>  xAODJetCollector::legLabels() const {
-  std::vector<std::string> labels;
+std::vector<int>  xAODJetCollector::legInds() const {
+  std::vector<int> legInds;
 
   for(auto it = m_jets.begin(); it != m_jets.end(); ++it){
-    labels.push_back(it->first);
+    legInds.push_back(it->first);
   }
 
-  return labels;
+  return legInds;
 }

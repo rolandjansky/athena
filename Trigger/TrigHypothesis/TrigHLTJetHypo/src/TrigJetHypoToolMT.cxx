@@ -123,10 +123,10 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
 	collect(name(),
 		"no of xAODJets " + std::to_string(participating_jets.size()));
 
-      auto labels = jetCollector.legLabels();
+      auto legInds = jetCollector.legInds();
       std::stringstream ss;
       
-      for(const auto& label : labels){
+      for(const auto& label : legInds){
 	auto jets = jetCollector.xAODJets(label);
 	ss << label << " [\n";
 	for(const auto& j : jets){

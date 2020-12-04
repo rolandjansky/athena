@@ -30,7 +30,7 @@ class CapacityCheckedCondition: public ICapacityCheckedCondition {
  public:
  CapacityCheckedCondition(std::unique_ptr<IConditionMT> cp,
 			  std::size_t mult,
-			  const std::string& label="");
+			  int chainPartind = -1);
   virtual ~CapacityCheckedCondition();
   
   virtual bool
@@ -44,13 +44,17 @@ class CapacityCheckedCondition: public ICapacityCheckedCondition {
   
   virtual std::string toString() const override;
 
-  virtual std::string label() const override;
+  virtual int label() const override;
+
+  virtual bool isFromChainPart() const override;
 
 private:
 
   std::unique_ptr<IConditionMT> m_condition;
-  std::size_t m_multiplicity;
-  std::string m_label;
+  std::size_t m_multiplicity{1};
+
+  // record of which chain part in the chainDict this conditions comes from
+  int m_chainPartInd{-1};
 };
 
 std::ostream& operator<<(std::ostream&,

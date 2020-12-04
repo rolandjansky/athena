@@ -23,26 +23,28 @@ public:
 
   void addJets(const HypoJetCIter& begin,
 	       const HypoJetCIter& end,
-	       const std::string& label="");
+	       int chainPartInd = -1);
   
   std::vector<const xAOD::Jet*> xAODJets() const;
     
-  std::vector<const xAOD::Jet*> xAODJets(const std::string& label) const;
+  std::vector<const xAOD::Jet*> xAODJets(int chainPartInd) const;
   
   HypoJetVector hypoJets() const;
-  HypoJetVector hypoJets(const std::string& label) const;
+  HypoJetVector hypoJets(int chainPartInd) const;
 
-  void addOneJet(const pHypoJet jet, const std::string& label="");
+  void addOneJet(const pHypoJet jet, int ind = -1);
 
   std::size_t size() const;
   bool empty() const;
 
 
-  std::vector<std::string> legLabels() const;
+  std::vector<int> legInds() const;
   
  private:
 
-  std::map<std::string, HypoJetVector> m_jets;
+  // store passing jets by chainPart index. this defaults to -1
+  // only leaf nodes have indices >= 0
+  std::map<int, HypoJetVector> m_jets;
 
     
   std::vector<const xAOD::Jet*>

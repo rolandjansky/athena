@@ -10,8 +10,8 @@
 
 CapacityCheckedCondition::CapacityCheckedCondition(std::unique_ptr<IConditionMT> cp,
 						   std::size_t mult,
-						   const std::string& label):
-  m_condition{std::move(cp)}, m_multiplicity{mult}, m_label{label}{}
+						   int cpInd):
+  m_condition{std::move(cp)}, m_multiplicity{mult}, m_chainPartInd{cpInd}{}
 
 
 CapacityCheckedCondition::~CapacityCheckedCondition(){}
@@ -37,15 +37,19 @@ std::string CapacityCheckedCondition::toString() const {
   const void* address = static_cast<const void*>(this);
   
   ss << "CapacityCheckedCondition (" << address << ") Multiplicity: "
-     << m_multiplicity << " label "
-     << m_label << '\n'
+     << m_multiplicity
+     << " chainPartInd " << m_chainPartInd << '\n'
      << m_condition->toString();
 
   return ss.str();
 }
 
-std::string CapacityCheckedCondition::label() const {
-  return m_label;
+int CapacityCheckedCondition::label() const {
+  return m_chainPartInd;
+}
+
+bool CapacityCheckedCondition::isFromChainPart() const {
+  return m_chainPartInd >= 0;
 }
 
 std::ostream& operator<<(std::ostream& out,

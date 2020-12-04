@@ -34,8 +34,8 @@ SingleConditionMatcherMT::match(const HypoJetGroupCIter& jets_b,
     if (m_condition->isSatisfied(*i, v)){
       // Note that this slightly out-of-date code does not expect
       // chains with simple and non-simple scenarios to be present in the
-      // same chain. The leg label is hard coded here.
-      jetCollector.addJets((*i).cbegin(), (*i).cend(), "leg000");
+      // same chain. The chain part ind is hard coded here to be 0.
+      jetCollector.addJets((*i).cbegin(), (*i).cend(), 0);
       return std::make_optional<bool>(true);
     }
   }
