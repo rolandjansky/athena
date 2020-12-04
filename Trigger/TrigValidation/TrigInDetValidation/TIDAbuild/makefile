@@ -25,6 +25,8 @@ JOBS =  \
 	TrigInDetValidation_beamspot_ttbar_pu40.xml                   \
 	TrigInDetValidation_beamspot_ttbar_pu40_zfinder.xml           \
 	TrigInDetValidation_beamspot_ttbar_pu80_zfinder.xml           \
+	TrigInDetValidation_beamspot_ttbar_pu80_zfinder_ml.xml        \
+	TrigInDetValidation_beamspot_ttbar_pu80_zfinder_ml2.xml       \
                                                                       \
 	TrigInDetValidation_el_Jpsiee_pu40.xml                        \
 	TrigInDetValidation_el_single_e_7-80_larged0.xml              \
@@ -38,15 +40,15 @@ JOBS =  \
 	TrigInDetValidation_el_ttbar_pu40.xml                         \
 	TrigInDetValidation_el_ttbar_pu80.xml                         \
                                                                       \
-	TrigInDetValidation_cosmic.xml                                \
-                                                                      \
 	TrigInDetValidation_bjet_IBL_pu40.xml                         \
+	TrigInDetValidation_bjet_IBL_pu40_ml.xml                      \
 	TrigInDetValidation_bjet_IBL_pu40_offline.xml                 \
 	TrigInDetValidation_bjet_IBL_pu80.xml                         \
 	TrigInDetValidation_bjet_IBL_pu40_2016config.xml              \
 	TrigInDetValidation_bjet_IBL_pu40_offline_2016config.xml      \
                                                                       \
 	TrigInDetValidation_tau_IBL_pu46.xml                          \
+	TrigInDetValidation_tau_IBL_pu46_ml.xml                       \
 	TrigInDetValidation_tau_IBL_pu46_offline.xml                  \
                                                                       \
 	TrigInDetValidation_mu_single_mu_larged0.xml                  \
