@@ -5,7 +5,7 @@ atlas_subdir( PerfMonGPerfTools )
 
 # External dependencies:
 find_package( gperftools COMPONENTS profiler )
-#find_package( pprof )
+find_package( pprof )
 
 # Component(s) in the package:
 atlas_add_component( PerfMonGPerfTools
