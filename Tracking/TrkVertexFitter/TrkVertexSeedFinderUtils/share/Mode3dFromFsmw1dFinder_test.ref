@@ -13,5 +13,4 @@ EventLoopMgr      WARNING Unable to locate service "EventSelector"
 EventLoopMgr      WARNING No events will be processed from external input.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
-ToolSvc.Trk::Mo...   INFO Initialize successful
 test1

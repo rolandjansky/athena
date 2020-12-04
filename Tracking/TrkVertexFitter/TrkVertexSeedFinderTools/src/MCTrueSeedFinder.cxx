@@ -67,13 +67,6 @@ namespace Trk
   StatusCode MCTrueSeedFinder::initialize() 
   { 
     ATH_CHECK( m_mcEventCollectionKey.initialize() );
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MCTrueSeedFinder::finalize() 
-  {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 

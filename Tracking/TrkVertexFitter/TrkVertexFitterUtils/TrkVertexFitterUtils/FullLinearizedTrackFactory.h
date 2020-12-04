@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrkVertexFitterUtils_FULLLINEARIZEDTRACKFACTORY_H
@@ -59,10 +59,8 @@ namespace Trk
   /**
    * Standard AlgToolMethods
    */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
   
-    StatusCode finalize();
-    
   /**
    * Default constructor due to Athena interface
    */

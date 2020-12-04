@@ -36,9 +36,6 @@ class TrkDistanceFinderNeutralCharged : public AthAlgTool
       return IID_TrkDistanceFinderNeutralCharged;
     };
 
-    StatusCode initialize();
-    StatusCode finalize();
-
  private:
 
   //parameters for precision
