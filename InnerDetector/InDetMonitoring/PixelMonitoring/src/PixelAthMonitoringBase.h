@@ -45,6 +45,7 @@ class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
   void fill2DProfLumiLayers( const std::string& prof2Dname, int lb, float (*weights)[PixLayers::COUNT], const int* nCategories ) const;
 
   int getPixLayersID(int ec, int ld) const;
+  int getNumberOfFEs(int pixlayer, int etaMod) const;
   void getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod, bool& copyFE) const;
   bool isHitOnTrack(Identifier id, std::vector<Identifier> const &RDOIDs) const;
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const &ClusterIDs) const;
@@ -64,6 +65,8 @@ class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
     
     void add( const int layer, const Identifier& id,
 	      const PixelID* pid, float value=1.0 );
+    void add( const int layer, const Identifier& id,
+	      const PixelID* pid, int iFE, float value);
   };
   void fill2DProfLayerAccum( const VecAccumulator2DMap& accumulator ) const;
 

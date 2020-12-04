@@ -17,7 +17,7 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODMuon xAODJet
       xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces
-      tauRecToolsLib MCTruthClassifierLib
+      tauRecToolsLib MCTruthClassifierLib AsgAnalysisInterfaces
       PRIVATE_LINK_LIBRARIES AthLinks xAODEventInfo xAODMetaData PathResolver )
 else()
    atlas_add_library( TauAnalysisToolsLib
@@ -27,12 +27,13 @@ else()
       LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma xAODMuon xAODJet
       xAODTau xAODTracking xAODTruth TruthUtils PATCoreLib PATInterfaces
       ElectronPhotonSelectorToolsLib tauRecToolsLib MCTruthClassifierLib
+      AsgAnalysisInterfaces
       PRIVATE_LINK_LIBRARIES AthLinks xAODEventInfo xAODMetaData PathResolver )
 endif()
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( TauAnalysisTools
-      src/*.cxx src/components/*.cxx		     
+      src/*.cxx src/components/*.cxx
       LINK_LIBRARIES AthenaBaseComps AsgTools xAODTau GaudiKernel
       TauAnalysisToolsLib )
 endif()

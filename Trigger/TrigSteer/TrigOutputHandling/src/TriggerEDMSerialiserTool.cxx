@@ -32,8 +32,6 @@ TriggerEDMSerialiserTool::TriggerEDMSerialiserTool( const std::string& type,
 						    const IInterface* parent )
   : base_class( type, name, parent ) {}
 
-TriggerEDMSerialiserTool::~TriggerEDMSerialiserTool() {}
-
 StatusCode TriggerEDMSerialiserTool::initialize() {
   // Initialise tools and services
   ATH_CHECK( m_serializerSvc.retrieve() );
@@ -147,22 +145,24 @@ StatusCode TriggerEDMSerialiserTool::addCollectionToSerialise(const std::string&
       if (!allVars.empty()) {
         std::set<std::string> variableNames;
         boost::split( variableNames, allVars, [](const char c){ return c == '.'; } );
-        for ( auto el: variableNames ) {
-          ATH_MSG_DEBUG( " \"" << el << "\""  );
+        if (msgLvl(MSG::DEBUG)) {
+          for ( const auto& el: variableNames ) {
+            ATH_MSG_DEBUG( " \"" << el << "\""  );
+          }
         }
         sel.selectAux( variableNames );
       }
-      addressVec.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::xAODAux, sel );
+      addressVec.push_back( {transientType, persistentType, clid, key, moduleIdVec, Address::Category::xAODAux, sel} );
     } else {
-    addressVec.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::xAODInterface, xAOD::AuxSelection() );
+    addressVec.push_back( {transientType, persistentType, clid, key, moduleIdVec, Address::Category::xAODInterface} );
     }
   } else { // an old T/P type
-    addressVec.emplace_back( transientType, persistentType, clid, key, moduleIdVec, Address::OldTP, xAOD::AuxSelection() );
+    addressVec.push_back( {transientType, persistentType, clid, key, moduleIdVec, Address::Category::OldTP} );
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode TriggerEDMSerialiserTool::makeHeader(const Address& address, std::vector<uint32_t>& buffer  ) const {
+StatusCode TriggerEDMSerialiserTool::makeHeader(const Address& address, std::vector<uint32_t>& buffer  ) {
   buffer.push_back(0); // fragment size placeholder
   buffer.push_back( address.clid ); // type info via CLID
 
@@ -244,19 +244,18 @@ StatusCode TriggerEDMSerialiserTool::serialiseDynAux( DataObject* dObj, const Ad
     if ( mem == nullptr or sz == 0 ) {
       ATH_MSG_ERROR( "Serialisation of " << address.persType <<"#" << address.key << "."<< decorationName << " unsuccessful" );
       return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG( "Serialised " << address.persType <<"#" << address.key << "."<< decorationName  << " memory size " << sz );
     }
+    ATH_MSG_DEBUG( "Serialised " << address.persType <<"#" << address.key << "."<< decorationName  << " memory size " << sz );
 
     std::vector<uint32_t> fragment;
 
-    Address auxAddress = { typeName, cls->GetName(), clid, decorationName, address.moduleIdVec, Address::xAODDecoration };
+    Address auxAddress { typeName, cls->GetName(), clid, decorationName, address.moduleIdVec, Address::Category::xAODDecoration };
 
     ATH_CHECK( makeHeader( auxAddress, fragment ) );
     ATH_CHECK( fillPayload( mem, sz, fragment ) );
     fragment[0] = fragment.size();
 
-    if ( mem ) delete [] static_cast<const char*>( mem );
+    if ( mem != nullptr ) delete [] static_cast<const char*>( mem );
 
     buffer.insert( buffer.end(), fragment.begin(), fragment.end() );
     ++nDynWritten;
@@ -282,7 +281,7 @@ StatusCode TriggerEDMSerialiserTool::serialiseContainer( void* data, const Addre
   std::vector<uint32_t> fragment;
   ATH_CHECK( makeHeader( address, fragment ) );
   ATH_CHECK( fillPayload( mem, sz, fragment ) );
-  if ( mem ) delete [] static_cast<const char*>( mem );
+  if ( mem != nullptr ) delete [] static_cast<const char*>( mem );
 
 
   ATH_MSG_DEBUG( address.transType << "#" << address.key << " Fragment size :" << fragment.size()*sizeof(uint32_t) << " bytes");
@@ -305,7 +304,7 @@ StatusCode TriggerEDMSerialiserTool::serialisexAODAuxContainer( void* data,
   static const RootType interface_c = RootType::ByNameNoQuiet( "xAOD::AuxContainerBase" );
 
   void* data_interface = classDesc.Cast (interface_c, data, true);
-  if (data_interface) {
+  if (data_interface != nullptr) {
     const xAOD::AuxContainerBase* store = reinterpret_cast<const xAOD::AuxContainerBase*> (data_interface);
     copy = classDesc.Construct();
     void* copy_interface = classDesc.Cast (interface, copy, true);
@@ -340,7 +339,7 @@ StatusCode TriggerEDMSerialiserTool::serialiseTPContainer( void* data, const Add
   ATH_MSG_DEBUG("TP Container, converting from: " <<  address.transType << " to " << address.persType  );
   std::string converterPersistentType;
   void * persistent = m_tpTool->convertTP( address.transType,  data, converterPersistentType );
-  ATH_CHECK( persistent != 0 );
+  ATH_CHECK( persistent != nullptr );
   ATH_CHECK ( converterPersistentType == address.persType );
   ATH_CHECK( serialiseContainer( persistent, address, buffer ) );
 
@@ -361,16 +360,16 @@ StatusCode TriggerEDMSerialiserTool::serialise( const Address& address, std::vec
   }
   ATH_MSG_DEBUG("Obtained raw pointer " << rawptr );
 
-  if ( address.category == Address::xAODInterface ) {
+  if ( address.category == Address::Category::xAODInterface ) {
     return serialiseContainer( rawptr, address, buffer );
-  } else if ( address.category == Address::xAODAux ) {
-    return serialisexAODAuxContainer( rawptr, address, buffer, evtStore );
-  } else if ( address.category == Address::OldTP ) {
-    return serialiseTPContainer( rawptr, address, buffer );
-  } else {
-    ATH_MSG_ERROR("Unknown Address category - neither of xAODInterface, xAODAux, OldTP");
-    return StatusCode::FAILURE;
   }
+  if ( address.category == Address::Category::xAODAux ) {
+    return serialisexAODAuxContainer( rawptr, address, buffer, evtStore );
+  } 
+  if ( address.category == Address::Category::OldTP ) {
+    return serialiseTPContainer( rawptr, address, buffer );
+  } 
+  ATH_MSG_ERROR("Unknown Address category - neither of xAODInterface, xAODAux, OldTP");
   return StatusCode::FAILURE;
 }
 
@@ -382,7 +381,7 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill, const
     return StatusCode::FAILURE;
   }
 
-  SGImplSvc* evtStore = static_cast<SGImplSvc*>(Atlas::getExtendedEventContext(ctx).proxy());
+  SGImplSvc* evtStore = dynamic_cast<SGImplSvc*>(Atlas::getExtendedEventContext(ctx).proxy());
   ATH_CHECK( evtStore != nullptr );
 
   // Map storing information to be written out in case of truncation for each module
@@ -420,11 +419,11 @@ StatusCode TriggerEDMSerialiserTool::fill( HLT::HLTResultMT& resultToFill, const
       if (resultToFill.getTruncatedModuleIds().count(id)==0) {
         ATH_MSG_DEBUG("Module " << id << " payload after inserting " << address.persTypeName() << " has "
                       << resultToFill.getSerialisedData().at(id).size()*sizeof(uint32_t) << " bytes");
-        truncationInfoMap[id].emplace_back(&address, thisFragmentSize, true);
+        truncationInfoMap[id].push_back({&address, thisFragmentSize, true});
       }
       else {
         ATH_MSG_WARNING("HLTResult with module ID " << id << " truncated - could not add " << address.persTypeName());
-        truncationInfoMap[id].emplace_back(&address, thisFragmentSize, false);
+        truncationInfoMap[id].push_back({&address, thisFragmentSize, false});
       }
     }
   }
@@ -505,7 +504,7 @@ StatusCode TriggerEDMSerialiserTool::fillDebugInfo(const TruncationInfoMap& trun
         sizeSum += truncationInfo.size;
         typeNameVec(*debugInfoThisModule).push_back(truncationInfo.addrPtr->persTypeName());
         sizeVec(*debugInfoThisModule).push_back(truncationInfo.size);
-        isRecordedVec(*debugInfoThisModule).push_back(truncationInfo.recorded);
+        isRecordedVec(*debugInfoThisModule).push_back(static_cast<char>(truncationInfo.recorded));
         if (truncationInfo.recorded && truncationInfo.size > largestRecorded.second) {
           largestRecorded = {truncationInfo.addrPtr->persTypeName(), truncationInfo.size};
         }
@@ -549,12 +548,13 @@ StatusCode TriggerEDMSerialiserTool::fillDebugInfo(const TruncationInfoMap& trun
   return StatusCode::SUCCESS;
 }
 
-std::string TriggerEDMSerialiserTool::version( const std::string& name ) const {
+std::string TriggerEDMSerialiserTool::version( const std::string& name ) {
   if ( name.find("DataVector") != std::string::npos ) {
-    size_t start = name.find("_");
-    return name.substr( start, name.find(">") - start );
+    size_t start = name.find('_');
+    return name.substr( start, name.find('>') - start );
   }
-  if ( name.find("_") != std::string::npos )
-    return name.substr( name.find("_") );
+  if ( name.find('_') != std::string::npos ) {
+    return name.substr( name.find('_') );
+  }
   return "";
 }

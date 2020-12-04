@@ -41,7 +41,7 @@ DecisionSvc          INFO Inserting stream: Bad with no Algs
 Bad.BadTool          INFO Initializing Bad.BadTool - package version AthenaServices-00-00-00
 Bad.Bad_MakeEve...   INFO Initializing Bad.Bad_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Bad                  INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Bad_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Bad_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_Bad'])
-Bad                  INFO Data output: AthenaPoolMultiTest_Missed.root
+Bad                  INFO Data output: AthenaPoolMultiTest_Bad.root
 Bad                  INFO I/O reinitialization...
 Stream2.FileMet...   INFO Invalid "/TagInfo" handle
 Stream1.FileMet...   INFO Invalid "/TagInfo" handle
@@ -297,18 +297,9 @@ Stream2              INFO Metadata records written: 8
 Stream1              INFO Metadata records written: 8
 Stream3              INFO Metadata records written: 6
 Others               INFO Metadata records written: 2
+Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_Bad.root
+RootDatabase.open    INFO AthenaPoolMultiTest_Bad.root File version:62200
 Bad                  INFO Metadata records written: 1
-MetaData(EventS...  ERROR Every branch must have the same number of entries.
-MetaData(EventS...  ERROR Every branch must have the same number of entries.
-MetaData(xAOD::...  ERROR Every branch must have the same number of entries.
-MetaData(xAOD::...  ERROR Every branch must have the same number of entries.
-PersistencySvc::GlobalTransaction Error Could not commit the transaction for the database with
-PersistencySvc::GlobalTransaction Error FID = C7FBD6B6-27C3-D444-9C05-9696E650C80A
-PersistencySvc::GlobalTransaction Error PFN = AthenaPoolMultiTest_Missed.root
-PoolSvc             ERROR POOL commit failed 0x1c95f8d0
-PoolSvc             ERROR disconnect failed to commit 0x1c95f8d0
-PoolSvc             FATAL Cannot disconnect Stream: 4
-ServiceManager      ERROR Unable to stop Service: PoolSvc
 Splitter1            INFO in finalize()
 Splitter2            INFO in finalize()
 Splitter3            INFO in finalize()

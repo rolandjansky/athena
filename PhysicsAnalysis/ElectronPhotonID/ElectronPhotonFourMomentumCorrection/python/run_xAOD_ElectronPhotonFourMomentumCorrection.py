@@ -1,7 +1,6 @@
 #!/bin/env python
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import ROOT
 import math
@@ -38,7 +37,7 @@ def xAOD_particle_generator(tree, collection_getter, newevent_function=None, end
     elif type(event_numbers) is int:
         event_numbers = [event_numbers]
 
-    for ievent in range(tree.GetEntries()):
+    for ievent in xrange(tree.GetEntries()):
         tree.GetEntry(ievent)
         ei = tree.EventInfo
         event_number = ei.eventNumber()
@@ -51,7 +50,7 @@ def xAOD_particle_generator(tree, collection_getter, newevent_function=None, end
 
         collection = collection_getter(tree)
 
-        for i in range(collection.size()):
+        for i in xrange(collection.size()):
             p = collection.at(i)
             if min_pt is not None and p.pt() < min_pt:
                 continue
@@ -99,6 +98,7 @@ def main(filename, **args):
     logging.debug("initializing tool")
     tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
     tool.setProperty("ESModel", args["esmodel"]).ignore()
+    tool.setProperty("decorrelationModel", args["decorrelation"]).ignore()
     if args["no_smearing"]:
         tool.setProperty("int")("doSmearing", 0).ignore()
     if args['debug']:
@@ -108,6 +108,11 @@ def main(filename, **args):
 
     tool.initialize()
 
+    if args['variation'] is not None:
+        logging.info("applying systematic variation %s", args['variation'])
+        sys_set = ROOT.CP.SystematicSet()
+        sys_set.insert(ROOT.CP.SystematicVariation(args['variation'], args['variation_sigma']))
+        tool.applySystematicVariation(sys_set)
 
     logging.debug("creating output tree")
     fout = ROOT.TFile("output.root", "recreate")
@@ -154,7 +159,8 @@ def main(filename, **args):
         tree_out.Fill(ei.eventNumber(), cluster.eta(), cluster.phi(),
                       true_e, pdgId, calibrated_energy, xAOD_energy, raw_e, raw_ps)
         if math.isnan(calibrated_energy) or math.isnan(calibrated_energy) or calibrated_energy < 1:
-            print ("==>", particle.author(), particle.eta(), particle.phi(), xAOD_energy, calibrated_energy)
+            print("==>", particle.author(), particle.eta(), particle.phi(), xAOD_energy, calibrated_energy)
+
 
     logging.info("%d events written", tree_out.GetEntries())
 
@@ -179,6 +185,9 @@ if __name__ == '__main__':
     parser.add_argument('--no-layer-correction', action='store_true', default=False)
     parser.add_argument('--no-smearing', action='store_true')
     parser.add_argument('--esmodel', default="es2015c_summer")
+    parser.add_argument('--decorrelation', default='1NP_v1')
+    parser.add_argument('--variation', type=str, help='variation to apply (optional)')
+    parser.add_argument('--variation-sigma', type=int, default=1, help='number of sigma for the variation (+1 or -1)')
     parser.add_argument('--use-afii', type=int)
 
     args = parser.parse_args()

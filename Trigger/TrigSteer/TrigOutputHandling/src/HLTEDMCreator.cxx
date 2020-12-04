@@ -24,8 +24,8 @@ StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
   renounceArray( handles.views );
 
   // the case w/o reading from views, both views handles and collection in views should be empty
-  if ( handles.views.size() == 0 ) {
-    ATH_CHECK( handles.in.size() == 0 );
+  if ( handles.views.empty() ) {
+    ATH_CHECK( handles.in.empty() );
   } else {
     // the case with views, for every output we expect an input View and an input collection inside that View
     ATH_CHECK( handles.out.size() == handles.in.size() );
@@ -167,7 +167,7 @@ template<typename T>
 StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::ReadHandleKey<T>& inViewKey,
                EventContext const& context, T & output ) const {
   
-  typedef typename T::base_value_type type_in_container;
+  using type_in_container = typename T::base_value_type;
   StoreGateSvc* sg = evtStore().operator->(); // why the get() method is returing a null ptr is a puzzle, we have to use this ugly call to operator instead of it
   ATH_CHECK( sg != nullptr );
   ViewHelper::ViewMerger merger( sg, msg() );
@@ -178,7 +178,7 @@ StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::Rea
 
  
 StatusCode HLTEDMCreator::fixLinks() const {
-  if ( m_fixLinks.size() == 0 ) {
+  if ( m_fixLinks.value().empty() ) {
     ATH_MSG_DEBUG("fixLinks: No collections defined for this tool");
     return StatusCode::SUCCESS;
   }
@@ -269,7 +269,7 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
   for (size_t i = 0; i < handles.out.size(); ++i) {
     SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i);
 
-    if ( handles.views.size() == 0 ) { // no merging will be needed
+    if ( handles.views.empty() ) { // no merging will be needed
       // Note: This is correct. We are testing if we can read, and if we cannot then we write.
       // What we write will either be a dummy (empty) container, or be populated from N in-View collections.
       SG::ReadHandle<T> readHandle( writeHandleKey.key() );

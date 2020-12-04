@@ -7,8 +7,6 @@
 DecisionSummaryMakerAlg::DecisionSummaryMakerAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator) {}
 
-DecisionSummaryMakerAlg::~DecisionSummaryMakerAlg() {}
-
 StatusCode DecisionSummaryMakerAlg::initialize() {
   renounceArray( m_finalDecisionKeys );
   ATH_CHECK( m_finalDecisionKeys.initialize() );
@@ -72,7 +70,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
           thisCollFilter->second.begin(), thisCollFilter->second.end(),
           std::inserter(passingFinalIDs, passingFinalIDs.begin() ) ); // should be faster than remove_if
 
-      if (passingFinalIDs.size() == 0) {
+      if (passingFinalIDs.empty()) {
         continue;
       }
 
@@ -149,10 +147,9 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   // in events which are accepted by one ore more chains.
   bool filterStatus = true;
   if (m_setFilterStatus) {
-    filterStatus = (allPassingFinalIDs.size() > 0);
+    filterStatus = (not allPassingFinalIDs.empty());
   }
   setFilterPassed(filterStatus, context );
 
   return StatusCode::SUCCESS;
 }
-

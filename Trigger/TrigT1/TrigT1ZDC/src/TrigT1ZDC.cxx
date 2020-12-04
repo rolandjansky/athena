@@ -53,8 +53,7 @@ namespace LVL1 {
     // Connect to the Detector Store to retrieve ZDC identifier helper.
     sc = detStore().retrieve();
     if (sc.isFailure()) {
-      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << detStore().typeAndName()
-					     << endmsg;
+      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << detStore().typeAndName() << endmsg;
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
@@ -65,26 +64,22 @@ namespace LVL1 {
     // Connect to the LVL1ConfigSvc to retrieve threshold settings.
     sc = m_configSvc.retrieve();
     if (sc.isFailure()) {
-      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName() 
-					      << endmsg;
+      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << m_configSvc.typeAndName()  << endmsg;
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() 
-		      << endmsg;
+      msg(MSG::DEBUG) << "Connected to " << m_configSvc.typeAndName() << endmsg;
     }
 
     // Connect to StoreGate service to retrieve input ZDC
     // trigger simulation container.
     sc = evtStore().retrieve();
     if (sc.isFailure()) {
-      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << evtStore().typeAndName() 
-					     << endmsg;
+      if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Couldn't connect to " << evtStore().typeAndName() << endmsg;
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Connected to " <<  evtStore().typeAndName() 
-		      << endmsg;
+      msg(MSG::DEBUG) << "Connected to " <<  evtStore().typeAndName() << endmsg;
     }
     
     // Get level 1 ZDC threshold settings from the level 1
@@ -171,53 +166,48 @@ namespace LVL1 {
       // Loop over MC GenParticles contained in McEventCollection
       McEventCollection::const_iterator mcCollection_itr = mcEventCollection->begin();
       McEventCollection::const_iterator mcCollection_itr_end = mcEventCollection->end();
-      HepMC::GenEvent::particle_const_iterator hepmc_part_itr;
-      HepMC::GenEvent::vertex_const_iterator hepmc_vtx_itr;
-      HepMC::GenVertex *end_vtx;
 
       // Loop over the McEventCollections
       for (; mcCollection_itr != mcCollection_itr_end; mcCollection_itr++) {
       
         // Loop over the particles and build up the particle-index map.  
-        for (hepmc_part_itr = (*mcCollection_itr)->particles_begin(); 
-	     hepmc_part_itr != (*mcCollection_itr)->particles_end();
-	     hepmc_part_itr++) {
+        for (auto hepmc_part:  *(*mcCollection_itr)) {
 
 	  //Stop after 500 particles (avoid crash on long truth logs)
 	  if(particlesProcessed > 500) break;
 	  particlesProcessed++;
 	
 	  // Exclude Geant particles
-	  if((*hepmc_part_itr)->barcode() >= 200000) continue;
+	  if(HepMC::barcode(hepmc_part) >= 200000) continue;
 	
 	  // Require stable particles, to avoid the top of the generator record.
-	  if((*hepmc_part_itr)->status() != 1) continue;
+	  if(hepmc_part->status() != 1) continue;
     
 	  // Require neutral hadronic particles which are able to penetrate LHCf and the BRAN.
 	  // This consists of neutrons along with long lived neutral mesons & baryons with
 	  // sufficient Lorentz boost to travel the 140m to the TAN where the ZDC is located.
-	  if     (abs((*hepmc_part_itr)->pdg_id()) == 2112) {} // Neutron
-	  else if(    (*hepmc_part_itr)->pdg_id()  == 22   && !m_zdcIncludeLHCf) {} // Photon (Only without LHCf)
-	  else if(    (*hepmc_part_itr)->pdg_id()  == 130  && fabs((*hepmc_part_itr)->momentum().pz()) > 4500) {} // Boosed K_L0
-	  else if(abs((*hepmc_part_itr)->pdg_id()) == 3122 && fabs((*hepmc_part_itr)->momentum().pz()) > 2e6) {} // Boosted Lambda_0
-	  else if(abs((*hepmc_part_itr)->pdg_id()) == 3322 && fabs((*hepmc_part_itr)->momentum().pz()) > 2.1e6) {} // Boosted Xi_0
+	  if     (std::abs(hepmc_part->pdg_id()) == 2112) {} // Neutron
+	  else if(    hepmc_part->pdg_id()  == 22   && !m_zdcIncludeLHCf) {} // Photon (Only without LHCf)
+	  else if(    hepmc_part->pdg_id()  == 130  && std::abs(hepmc_part->momentum().pz()) > 4500) {} // Boosed K_L0
+	  else if(std::abs(hepmc_part->pdg_id()) == 3122 && std::abs(hepmc_part->momentum().pz()) > 2e6) {} // Boosted Lambda_0
+	  else if(std::abs(hepmc_part->pdg_id()) == 3322 && std::abs(hepmc_part->momentum().pz()) > 2.1e6) {} // Boosted Xi_0
 	  else continue;
 	
 	  // Check if the particle points at the ZDC.
-	  if(fabs((*hepmc_part_itr)->momentum().pseudoRapidity()) < 8.3) continue;
+	  if(std::abs(hepmc_part->momentum().pseudoRapidity()) < 8.3) continue;
 	
 	  // If the particle has an end vertex check that it reaches the TAN.
-	  end_vtx = (*hepmc_part_itr)->end_vertex();
+	  auto end_vtx = hepmc_part->end_vertex();
 	  if(end_vtx) {
-	    if(fabs(end_vtx->position().z())/1000.0 < 140.) continue;
+	    if(std::abs(end_vtx->position().z())/1000.0 < 140.) continue;
 	  }
 	
 	  // Increment the energy deposited in this side of the ZDC
-	  if((*hepmc_part_itr)->momentum().pz() < 0) {
-	    energyECC += (*hepmc_part_itr)->momentum().e();
+	  if(hepmc_part->momentum().pz() < 0) {
+	    energyECC += hepmc_part->momentum().e();
 	  }
 	  else {
-	    energyECA += (*hepmc_part_itr)->momentum().e();
+	    energyECA += hepmc_part->momentum().e();
 	  }
         }
       }
@@ -280,8 +270,7 @@ namespace LVL1 {
       return sc;
     } 
     else if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << LVL1::DEFAULT_ZdcCTPLocation << " registered successfully "
-		      << endmsg;
+      msg(MSG::DEBUG) << LVL1::DEFAULT_ZdcCTPLocation << " registered successfully " << endmsg;
     }
     
     return StatusCode::SUCCESS;
