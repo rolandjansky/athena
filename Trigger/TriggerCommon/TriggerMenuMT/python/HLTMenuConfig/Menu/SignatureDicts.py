@@ -143,7 +143,7 @@ JetChainParts = {
     'etaRange'      :
       ['0eta320', '320eta490', '0eta240', '0eta290'],
     'jvt'           : # Jet Vertex Tagger pileup discriminant
-      ['011jvt', '015jvt', '059jvt'],
+      ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
     'cleaning'      : # Jet cleaning per jet (currently unused)

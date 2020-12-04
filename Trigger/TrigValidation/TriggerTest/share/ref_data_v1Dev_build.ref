@@ -734,6 +734,30 @@ HLT_j45_nojcalib_L1J20:
     0: 3
   stepFeatures:
     0: 3
+HLT_j45_pf_ftf_010jvt_L1J20:
+  eventCount: 5
+  stepCounts:
+    0: 5
+    1: 5
+  stepFeatures:
+    0: 5
+    1: 5
+HLT_j45_pf_ftf_020jvt_L1J20:
+  eventCount: 5
+  stepCounts:
+    0: 5
+    1: 5
+  stepFeatures:
+    0: 5
+    1: 5
+HLT_j45_pf_ftf_050jvt_L1J20:
+  eventCount: 5
+  stepCounts:
+    0: 5
+    1: 5
+  stepFeatures:
+    0: 5
+    1: 5
 HLT_j45_pf_ftf_L1J20:
   eventCount: 5
   stepCounts:
