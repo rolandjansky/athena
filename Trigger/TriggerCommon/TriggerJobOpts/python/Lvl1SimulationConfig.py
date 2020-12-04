@@ -33,6 +33,7 @@ def Lvl1SimulationSequence( flags = None ):
     ##################################################
     # Calo
     ##################################################
+
     if flags.Trigger.enableL1CaloLegacy:
 
         from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMaker
@@ -131,6 +132,7 @@ def Lvl1SimulationSequence( flags = None ):
 
         muctpi = L1MuctpiPhase1()
         muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
+
     else:
         log.info("Configuring legacy (Run 2) MUCTPI simulation")
         from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
@@ -185,34 +187,20 @@ def Lvl1SimulationSequence( flags = None ):
     ##################################################
 
     l1TopoSim = None
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+    l1TopoSim = L1TopoSimulation()
+    l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
     if flags.Trigger.enableL1Phase1:
-        from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-        l1TopoSim = L1TopoSimulation()
-
-        l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
-
-        # enable the reduced (coarse) granularity topo simulation
-        # currently only for MC
-        from AthenaCommon.GlobalFlags  import globalflags
-        if globalflags.DataSource()!='data':
-            l1TopoSim.MuonInputProvider.MuonEncoding = 1
-        else:
-            l1TopoSim.MuonInputProvider.MuonEncoding = 0
     else:
-        from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-        l1TopoSim = L1TopoSimulation()
-
-        l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
-
-        # enable the reduced (coarse) granularity topo simulation
-        # currently only for MC
-        from AthenaCommon.GlobalFlags  import globalflags
-        if globalflags.DataSource()!='data':
-            l1TopoSim.MuonInputProvider.MuonEncoding = 1
-        else:
-            l1TopoSim.MuonInputProvider.MuonEncoding = 0
+    # enable the reduced (coarse) granularity topo simulation
+    # currently only for MC
+    from AthenaCommon.GlobalFlags  import globalflags
+    if globalflags.DataSource()!='data':
+        l1TopoSim.MuonInputProvider.MuonEncoding = 1
+    else:
+        l1TopoSim.MuonInputProvider.MuonEncoding = 0
 
     ##################################################
     # CTP
