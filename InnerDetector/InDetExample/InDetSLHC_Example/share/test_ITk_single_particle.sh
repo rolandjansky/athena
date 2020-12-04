@@ -216,7 +216,6 @@ if [ $dorec -ne 0 ]; then
       --outputAODFile    "physval_${particle}_${energy}.AOD.root" \
       --outputDAOD_IDTRKVALIDFile "$daod_particle_energy" \
       --maxEvents        -1 \
-      --steering 'doRAWtoALL' \
       --digiSteeringConf 'StandardInTimeOnlyTruth' \
       --geometryVersion "all:${geometry}" \
       --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
@@ -236,6 +235,9 @@ if [ $dorec -ne 0 ]; then
       echo "$script: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
       run rm -f jobReport.json
   fi
+
+  mv runargs.RAWtoALL.py runargs.default.RAWtoALL.py
+  mv log.RAWtoALL log.default.RAWtoALL
   
   mv ./PixelRDOAnalysis.root ./$dcubemon_digi_pixel
   mv ./SCT_RDOAnalysis.root ./$dcubemon_digi_strip
@@ -303,6 +305,7 @@ if [ $dofast -ne 0 ]; then
       --geometryVersion "all:${geometry}" \
       --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
       --DataRunNumber    242000 \
+      --steering doRAWtoALL \
       --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'default:'${clustering_type}''\
       --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True)'\
      'default:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False); InDetFlags.doFastTracking.set_Value_and_Lock(True);'\
@@ -315,6 +318,9 @@ if [ $dofast -ne 0 ]; then
       echo "$script: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
       run rm -f jobReport.json
   fi
+
+  mv runargs.RAWtoALL.py runargs.fast.RAWtoALL.py
+  mv log.RAWtoALL log.fast.RAWtoALL
 
   if [ $dophyfast -ne 0 ]; then
 
