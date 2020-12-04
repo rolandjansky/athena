@@ -21,30 +21,32 @@ namespace SG {
  */
 template <class T, class D>
 ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
-  : Base (key),
+  : Base (key.contHandleKey()),
+    m_decorKey (key.key()),
     m_acc (SG::decorKeyFromKey (key.key()))
 {
 }
 
 
-// /**
-//  * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
-//  * @param key The key object holding the clid/key.
-//  * @param ctx The event context.
-//  *
-//  * This will raise an exception if the StoreGate key is blank,
-//  * or if the event store cannot be found.
-//  *
-//  * If the default event store has been requested, then the thread-specific
-//  * store from the event context will be used.
-//  */
-// template <class T, class D>
-// ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key,
-//                                         const EventContext& ctx)
-//   : Base (key, ctx),
-//     m_acc (SG::decorKeyFromKey (key.key()))
-// {
-// }
+/**
+ * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
+ * @param key The key object holding the clid/key.
+ * @param ctx The event context.
+ *
+ * This will raise an exception if the StoreGate key is blank,
+ * or if the event store cannot be found.
+ *
+ * If the default event store has been requested, then the thread-specific
+ * store from the event context will be used.
+ */
+template <class T, class D>
+ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key,
+                                        const EventContext& ctx)
+  : Base (key.contHandleKey(), ctx),
+    m_decorKey (key.key()),
+    m_acc (SG::decorKeyFromKey (key.key()))
+{
+}
 
 
 // /**
@@ -53,6 +55,7 @@ ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
 // template <class T, class D>
 // ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandle& rhs)
 //   : Base (rhs),
+//     m_decorKey (rhs.m_decorKey),
 //     m_acc (rhs.m_acc)
 // {
 // }
@@ -64,6 +67,7 @@ ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
 // template <class T, class D>
 // ReadDecorHandle<T, D>::ReadDecorHandle (ReadDecorHandle&& rhs)
 //   : Base (std::move (rhs)),
+//     m_decorKey (std::move (rhs.m_decorKey)),
 //     m_acc (std::move (rhs.m_acc))
 // {
 // }
@@ -77,6 +81,7 @@ ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
 // {
 //   if (this != &rhs) {
 //     *static_cast<Base*>(this) = rhs;
+//     m_decorKey = rhs.m_decorKey;
 //     m_acc = rhs.m_acc;
 //   }
 //   return *this;
@@ -91,6 +96,7 @@ ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
 // {
 //   if (this != &rhs) {
 //     *static_cast<Base*>(this) = std::move (rhs);
+//     m_decorKey = std::move (rhs.m_decorKey);
 //     m_acc = std::move (rhs.m_acc);
 //   }
 //   return *this;
@@ -106,9 +112,10 @@ ReadDecorHandle<T, D>::ReadDecorHandle (const ReadDecorHandleKey<T>& key)
  * Const method; the handle does not change as a result of this.
  */
 template <class T, class D>
+inline
 bool ReadDecorHandle<T, D>::isPresent() const
 {
-  return this->isPresent_impl (contKeyFromKey (this->key()));
+  return Base::isPresent();
 }
 
 
@@ -154,17 +161,17 @@ ReadDecorHandle<T, D>::operator() (size_t i)
 // }
 
 
-// /**
-//  * @brief Test to see if this variable exists in the store,
-//  *        for the referenced object.
-//  */
-// template <class T, class D>
-// inline
-// bool ReadDecorHandle<T, D>::isAvailable()
-// {
-//   const SG::AuxVectorData* vec = this->vectorData();
-//   return vec && vec->isAvailable (m_acc.auxid());
-// }
+/**
+ * @brief Test to see if this variable exists in the store,
+ *        for the referenced object.
+ */
+template <class T, class D>
+inline
+bool ReadDecorHandle<T, D>::isAvailable()
+{
+  const SG::AuxVectorData* vec = this->vectorData();
+  return vec && vec->isAvailable (m_acc.auxid());
+}
 
 
 // /**
@@ -176,6 +183,17 @@ ReadDecorHandle<T, D>::operator() (size_t i)
 // {
 //   return m_acc.auxid();
 // }
+
+
+/**
+ * @brief Return the name of the decoration alias (CONT.DECOR).
+ */
+template <class T, class D>
+inline
+std::string ReadDecorHandle<T, D>::decorKey() const
+{
+  return m_decorKey;
+}
 
 
 /** 
