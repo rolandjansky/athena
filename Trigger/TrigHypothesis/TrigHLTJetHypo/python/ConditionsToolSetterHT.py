@@ -16,9 +16,8 @@ class ConditionsToolSetterHT(object):
 
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
-    def __init__(self, name):
+    def __init__(self):
 
-        self.name = name
         # for simple, use TrigJetConditionConfig_etaet. Needs to be
         # completed because simple can conain any single jet condition
         self.tool_factories = {

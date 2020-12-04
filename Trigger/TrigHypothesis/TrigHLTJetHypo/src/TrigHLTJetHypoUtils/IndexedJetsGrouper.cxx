@@ -22,13 +22,24 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IndexedJetsGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DescendingEt.h"
 
-IndexedJetsGrouper::IndexedJetsGrouper(const std::vector<unsigned int>& indices):
-  m_indices(indices){
-  if (indices.empty()) {
-    std::string m = "IndexedJetsGrouper: Attempt to iniatialize with an ";
-    m += "empty indices vector";
-    throw std::out_of_range(m); 
-  }
+
+IndexedJetsGrouper::IndexedJetsGrouper(const std::vector<unsigned int>& inds):
+  m_indices(inds){
+}
+
+IndexedJetsGrouper::IndexedJetsGrouper(const std::vector<unsigned int>& indices,
+				       const HypoJetVector& jets):
+  m_indices(indices), m_jets(jets){
+    
+  //sort the indices because the last one will be used to 
+  // check there are enough jets to process;
+  std::sort(m_indices.begin(), m_indices.end());
+}
+
+IndexedJetsGrouper::IndexedJetsGrouper(const std::vector<unsigned int>& indices,
+				       const HypoJetCIter& b,
+				       const HypoJetCIter& e):
+  m_indices(indices), m_jets(b, e){
     
   //sort the indices because the last one will be used to 
   // check there are enough jets to process;
@@ -39,6 +50,9 @@ IndexedJetsGrouper::IndexedJetsGrouper(const std::vector<unsigned int>& indices)
 std::vector<HypoJetGroupVector>
 IndexedJetsGrouper::group(HypoJetIter& begin, HypoJetIter& end) const{
   
+
+  if (m_indices.empty()) {return std::vector<HypoJetGroupVector>{};}
+
   // check if there are enough jets find the highest (last, as the vector is
   // ordered) and see if it lies within the jet vector
   
@@ -65,27 +79,36 @@ IndexedJetsGrouper::group(HypoJetIter& begin, HypoJetIter& end) const{
 
 
 std::optional<HypoJetGroupVector>
-IndexedJetsGrouper::next(HypoJetIter& begin, HypoJetIter& end) const{
+IndexedJetsGrouper::next(){
+
+  // exhausts after a single group
   
   // check if there are enough jets find the highest (last, as the vector is
   // ordered) and see if it lies within the jet vector
+
+  if (m_done) { return std::optional<HypoJetGroupVector>(); }
+  if (m_indices.empty()) { return std::optional<HypoJetGroupVector>(); }
   
   auto hjgv = HypoJetGroupVector();
   auto last_jet_pos =  m_indices.back();
-  if(end - begin - 1 < last_jet_pos){return std::optional<HypoJetGroupVector>();}
+  if (m_jets.size() <= last_jet_pos) {
+    m_done = true;
+    return std::optional<HypoJetGroupVector>();
+  }
   
   // sort jets by descending Et
-  std::partial_sort (begin,
-                     begin + last_jet_pos + 1,
-                     end,
+  std::partial_sort (m_jets.begin(),
+                     m_jets.begin() + last_jet_pos + 1,
+                     m_jets.end(),
                      DescendingEt());
   
   // place the jets at positions in the index vector into the inner vector
   HypoJetVector inner;
-  for (auto i : m_indices){inner.push_back(*(begin + i));}
+  for (auto i : m_indices){inner.push_back(*(m_jets.begin() + i));}
   
   // push the inner vector into the outer vector
   hjgv.push_back(inner);
+  m_done = true;
   return std::make_optional<HypoJetGroupVector>(hjgv);
 }
 

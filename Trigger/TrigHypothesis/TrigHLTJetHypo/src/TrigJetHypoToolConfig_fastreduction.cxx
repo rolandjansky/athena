@@ -11,7 +11,6 @@
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-// #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
 #include "./groupsMatcherFactoryMT.h"
@@ -46,25 +45,6 @@ StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
     return StatusCode::FAILURE;
   }
   
-  // gymnastics as cannot pass vecor<vecotr<int>> as a Gaudi::Property
-  if(m_sharedNodesVec.empty()){
-    ATH_MSG_ERROR("shared node vector empty");
-
-    return StatusCode::FAILURE;}
-
-  std::vector<int> shared;
-  for(const auto& i : m_sharedNodesVec){
-    if(i  == -1){
-      m_sharedNodes.push_back(shared);
-      shared = std::vector<int>();
-    } else {
-      shared.push_back(i);
-    }
-  }
-  if(!shared.empty()){
-    m_sharedNodes.push_back(shared);
-  }
-
   
   /* set the capacity of the acceptAll nodes (or nay
      nodes with modifiable capciity.
@@ -176,8 +156,7 @@ TrigJetHypoToolConfig_fastreduction::getMatcher () const {
   }
 
   return groupsMatcherFactoryMT_FastReduction(std::move(*opt_conds),
-					      m_treeVec,
-					      m_sharedNodes);
+					      m_treeVec);
 }
 
 StatusCode TrigJetHypoToolConfig_fastreduction::checkVals() const {

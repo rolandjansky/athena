@@ -20,9 +20,10 @@ from TrigHLTJetHypo.NodeSplitterVisitor import NodeSplitterVisitor
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
-def  trigJetHypoToolHelperFromDict_(chain_label,
-                                    chain_name,
-                                    toolSetter=None):
+def  trigJetHypoToolHelperFromDict_(
+        chain_label, # simple([(260et,320eta490, leg000)])
+        chain_name, # HLT_j260_320eta490_L1J75_31ETA49
+        toolSetter=None):
 
     parser = ChainLabelParser(chain_label, debug=False)
 
@@ -92,22 +93,22 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 
     toolSetter = None
     if 'agg' in chain_name:
-        toolSetter=ConditionsToolSetterHT(chain_name)
+        toolSetter=ConditionsToolSetterHT()
     else:
-        toolSetter=ConditionsToolSetterFastReduction(chain_name)
+        toolSetter=ConditionsToolSetterFastReduction()
 
     return trigJetHypoToolHelperFromDict_(chain_label,
                                           chain_name,
                                           toolSetter)
 
 
-def  trigJetHypoToolFromDict(chain_dict):
+def  trigJetHypoToolFromDict_(chain_dict, tool):
     """Produce  a jet trigger hypo tool from a chainDict"""
 
-    log.debug('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
-
-    chain_name = chain_dict['chainName']
-    tool = CompFactory.TrigJetHypoToolMT(name=chain_name)
+    log.debug('trigJetHypoToolFromDict_ tool type ',
+              tool.__class__.__name__,
+              ' chainDict ',
+              str(chain_dict))
 
     # obtain  a Helper Tool (possibly a tree of tools) to
     # make the hypo decision.
@@ -119,26 +120,17 @@ def  trigJetHypoToolFromDict(chain_dict):
     log.debug('%s', tool)
 
     return tool
+
 
 def  trigJetTLAHypoToolFromDict(chain_dict):
-    """Produce  a TLA jet trigger hypo tool from a chainDict"""
+    tool = CompFactory.TrigJetTLAHypoToolMT(name=chain_dict['chainName'])
+    return trigJetHypoToolFromDict_(chain_dict, tool)
 
-    log.info('trigJetTLAHypoToolFromDict chainDict %s', str(chain_dict))
 
-    chain_name = chain_dict['chainName']
-    tool = CompFactory.TrigJetTLAHypoToolMT(name=chain_name)
+def  trigJetHypoToolFromDict(chain_dict):
+    tool = CompFactory.TrigJetHypoToolMT(name=chain_dict['chainName'])
+    return trigJetHypoToolFromDict_(chain_dict, tool)
 
-    # obtain  a Helper Tool (possibly a tree of tools) to
-    # make the hypo decision.
-    # CD: why do we do this? Question to TJ
-    tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
-
-    # controls whether debug visitor is sent to helper tool
-    debug = False  # SET TO False WHEN COMMITTING
-    tool.visit_debug = debug
-    log.debug('%s', tool)
-
-    return tool
 
 import unittest
 class TestStringMethods(unittest.TestCase):
