@@ -33,11 +33,3 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
     algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
 
     return [ algSequence, PTTrackParticles ]
-
-
-
-
-
-
-
-

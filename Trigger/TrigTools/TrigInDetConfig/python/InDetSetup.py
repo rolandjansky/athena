@@ -25,7 +25,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   #Add suffix to the algorithms
   signature =  '_{}'.format( config.name )
 
-  #Global keys/names for Trigger collections 
+  #Global keys/names for Trigger collections
   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
   from InDetRecExample.InDetKeys import InDetKeys
   from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
@@ -48,7 +48,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
-    
+
     viewAlgs.append( ViewDataVerifier )
 
     # Load RDOs if we aren't loading bytestream
@@ -103,7 +103,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
     InDetPixelRawDataProvider.RDOCacheKey = InDetCacheNames.PixRDOCacheKey
     InDetPixelRawDataProvider.BSErrorsCacheKey = InDetCacheNames.PixBSErrCacheKey
 
-    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel 
+    from RegionSelector.RegSelToolConfig import makeRegSelTool_Pixel
 
     InDetPixelRawDataProvider.RegSelTool = makeRegSelTool_Pixel()
 
@@ -150,7 +150,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
   #Pixel clusterisation
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import TrigPixelLorentzAngleTool, TrigSCTLorentzAngleTool
-  
+
   from SiClusterizationTool.SiClusterizationToolConf import InDet__ClusterMakerTool
   InDetClusterMakerTool = InDet__ClusterMakerTool(name                 = "InDetClusterMakerTool_" + signature,
                                                   SCTLorentzAngleTool = TrigSCTLorentzAngleTool,
@@ -218,7 +218,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
   sct_ByteStreamErrorsToolSetup.setToolName("InDetSCT_BSErrorTool_" + signature)
   sct_ByteStreamErrorsToolSetup.setConfigTool(sct_ConfigurationConditionsToolSetup.getTool())
   sct_ByteStreamErrorsToolSetup.setup()
-  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())     
+  InDetSCT_ConditionsSummaryToolWithoutFlagged.ConditionsTools.append(sct_ByteStreamErrorsToolSetup.getTool().getFullName())
 
   if (InDetTrigFlags.doPrintConfigurables()):
      print (InDetSCT_ConditionsSummaryToolWithoutFlagged)
@@ -272,7 +272,7 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
                                                                     SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
                                                                     PixelsClustersName     = TrigPixelKeys.Clusters,
                                                                     SpacePointsPixelName   = TrigPixelKeys.SpacePoints,
-                                                                    SCT_ClustersName	    = TrigSCTKeys.Clusters, 
+                                                                    SCT_ClustersName	    = TrigSCTKeys.Clusters,
                                                                     SpacePointsSCTName     = TrigSCTKeys.SpacePoints,
                                                                     SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                     ProcessPixels          = DetFlags.haveRIO.pixel_on(),
@@ -294,7 +294,8 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       condSeq += InDet__SiElementPropertiesTableCondAlg(name = "InDetSiElementPropertiesTableCondAlg")
 
   #FIXME have a flag for now set for True( as most cases call FTF) but potentially separate
-  if doFTF: 
+  #do not add if the config is LRT
+  if doFTF:
       #Load signature configuration (containing cut values, names of collections, etc)
       #from .InDetTrigConfigSettings import getInDetTrigConfig
       #configSetting = getInDetTrigConfig( whichSignature )
@@ -305,12 +306,12 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       #TODO: eventually adapt IDTrigConfig also in FTF configuration (pass as additional param)
       theFTF = TrigFastTrackFinderBase("TrigFastTrackFinder_" + signature, config.FT.signatureType )
       theFTF.RoIs           = rois
-      theFTF.TracksName     = config.FT.trkTracksFTF() 
+      theFTF.TracksName     = config.FT.trkTracksFTF()
       theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
 
       viewAlgs.append(theFTF)
 
-      
+
       from TrigInDetConf.TrigInDetPostTools import  InDetTrigParticleCreatorToolFTF
       from InDetTrigParticleCreation.InDetTrigParticleCreationConf import InDet__TrigTrackingxAODCnvMT
 
@@ -319,8 +320,8 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       theTrackParticleCreatorAlg = InDet__TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
                                                                 TrackName = config.FT.trkTracksFTF(),
                                                                 ParticleCreatorTool = InDetTrigParticleCreatorToolFTF)
-    
-      
+
+
       #In general all FTF trackParticle collections are recordable except beamspot to save space
       theTrackParticleCreatorAlg.TrackParticlesName = config.FT.tracksFTF( doRecord = config.isRecordable )
 
@@ -328,4 +329,3 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
 
 
   return viewAlgs, ViewDataVerifier
-
