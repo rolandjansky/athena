@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMULTIVARHYPO_RINGERREADER_H
@@ -30,9 +30,7 @@ namespace Ringer{
     public:
       /* constructor */
       RingerReader( std::string );
-      /* destructor */
-      ~RingerReader();
-      
+
       /* use this methods to retrieve the tools from the archieve */
       bool retrieve(std::string &, std::vector<std::shared_ptr<Ringer::IModel>>      &);
       bool retrieve(std::string &, std::vector<std::shared_ptr<Ringer::IThresholds>> &);
