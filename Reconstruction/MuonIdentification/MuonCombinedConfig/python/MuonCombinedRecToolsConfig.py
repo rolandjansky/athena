@@ -576,8 +576,11 @@ def MuidSegmentRegionRecoveryToolCfg(flags, name ='MuidSegmentRegionRecoveryTool
 
 
 def MuidErrorOptimisationToolCfg(flags, name='MuidErrorOptimisationToolFit', **kwargs ):
-    result = MuonCombinedTrackSummaryToolCfg(flags)
+    from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryHelperToolCfg
+    result = MuonTrackSummaryHelperToolCfg(flags)
     kwargs.setdefault("TrackSummaryTool",  result.popPrivateTools() )
+    tool = CompFactory.Muon.MuonErrorOptimisationTool(name, **kwargs)
+    result.setPrivateTools(tool)
     return result
 
 def MuonAlignmentUncertToolThetaCfg(flags,name ="MuonAlignmentUncertToolTheta", **kwargs):
@@ -690,7 +693,9 @@ def CombinedMuonTrackBuilderCfg(flags, name='CombinedMuonTrackBuilder', **kwargs
     if flags.Muon.enableErrorTuning and 'MuonErrorOptimizer' not in kwargs:
         # use alignment effects on track for all algorithms
 
-        useAlignErrs = True
+        # FIXME - useAlignErrs set to false until MuonAlignmentErrorDBAlg config is available 
+        useAlignErrs = False
+
         # FIXME - handle this.
         #    if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline or TriggerFlags.MuonSlice.doTrigMuonConfig:
         #         useAlignErrs = False
