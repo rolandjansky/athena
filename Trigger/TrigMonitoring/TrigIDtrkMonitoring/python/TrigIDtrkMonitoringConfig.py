@@ -259,8 +259,8 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                         tidatau.ntupleChainNames += [
                                 "Offline",
                                 "HLT_tau.*idperf.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso_TauID",
-                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_TauIso_TauID"
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
+                                "HLT_tau.*idperf.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso"
                          ]
                 else:
                         tidatau.ntupleChainNames += [
