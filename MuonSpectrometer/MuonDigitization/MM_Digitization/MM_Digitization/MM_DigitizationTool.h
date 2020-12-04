@@ -204,6 +204,9 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 		float m_electronicsThreshold; // threshold "Voltage" for histoBNL
 		float m_stripdeadtime; // dead-time for strip
 		float m_ARTdeadtime; // dead-time for ART
+		
+		// Temporary until moving away from TRandom
+		unsigned long int m_randomSeed;
 
 		bool  m_vmmNeighborLogic; // switch for the usage of the vmm neighbor logic
 
