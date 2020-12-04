@@ -207,6 +207,7 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_MuonLate_FTF',                 'BS ESD AODFULL', 'Muon', 'inViews:MUEFLATEViewRoIs'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MuonLate_FTFAux.',          'BS ESD AODFULL', 'Muon'),
 
+
     ('xAOD::TrackParticleContainer#HLT_IDTrack_MuonLate_IDTrig',              'BS ESD AODFULL', 'Muon', 'inViews:MUEFLATEViewRoIs'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MuonLate_IDTrigAux.',       'BS ESD AODFULL', 'Muon'),
 
@@ -389,7 +390,7 @@ TriggerHLTListRun3 = [
     ('xAOD::VertexAuxContainer#HLT_IDVertex_FSAux.',          'BS ESD AODFULL', 'Jet'),
 
 
-    # custom BeamSpot tracks - we don't want to write these out in general so this 
+    # custom BeamSpot tracks - we don't want to write these out in general so this
     # is commented, if we want to write them out at some point, then these lines
     # should be uncommented and they should get written out
     #    ('xAOD::TrackParticleContainer#HLT_IDTrack_BeamSpot_FTF',         'BS ESD AODFULL', 'ID', 'inViews:beamspotViewRoIs' ),
@@ -474,6 +475,8 @@ TriggerHLTListRun3 = [
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bjet_FTF',        'BS ESD AODFULL', 'Bjet', 'inViews:BTagViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bjet_FTFAux.', 'BS ESD AODFULL', 'Bjet'),
 
+
+
     # bjet Second Stage Precision tracks
     ('xAOD::TrackParticleContainer#HLT_IDTrack_Bjet_IDTrig',        'BS ESD AODFULL', 'Bjet', 'inViews:BTagViews'),
     ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_Bjet_IDTrigAux.', 'BS ESD AODFULL', 'Bjet'),
@@ -487,12 +490,12 @@ TriggerHLTListRun3 = [
 
     # secvertex for b-jets
     ('xAOD::VertexContainer#HLT_BTaggingSecVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
-    ('xAOD::VertexAuxContainer#HLT_BTaggingSecVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),  
+    ('xAOD::VertexAuxContainer#HLT_BTaggingSecVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
 
     # btagvertex for b-jets
     ('xAOD::BTagVertexContainer#HLT_BTaggingJFVtx',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
     ('xAOD::BTagVertexAuxContainer#HLT_BTaggingJFVtxAux.',                   'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
-    
+
     # bjet b-tagging
     ('xAOD::BTaggingContainer#HLT_BTagging',                          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet', 'inViews:BTagViews'),
     ('xAOD::BTaggingAuxContainer#HLT_BTaggingAux.'+BTagVars,          'BS ESD AODFULL AODSLIM AODVERYSLIM', 'Bjet'),
