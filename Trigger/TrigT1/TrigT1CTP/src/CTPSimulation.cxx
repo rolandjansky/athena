@@ -47,7 +47,7 @@ const std::function< CLHEP::HepRandomEngine*(void) > CTPSimRanluxFactory = [](vo
 
 
 LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSvcLocator ) :
-   AthReentrantAlgorithm ( name, pSvcLocator ), 
+   AthReentrantAlgorithm ( name, pSvcLocator ),
    m_RNGEngines( CTPSimRanluxFactory, SG::getNSlots() ),
    m_decoder( new LVL1::CPRoIDecoder() ),
    m_jetDecoder( new LVL1::JEPRoIDecoder() )
@@ -103,14 +103,14 @@ LVL1CTP::CTPSimulation::start() {
 
    const TrigConf::L1Menu * l1menu = nullptr;
    if( m_useNewConfig ) {
-      ATH_CHECK( m_detStore->retrieve(l1menu) ); 
-      ATH_MSG_INFO( "start(): use L1 trigger menu from detector store" );
+      ATH_CHECK( detStore()->retrieve(l1menu) );
+      ATH_MSG_INFO( "start(): use new-style L1 menu (json)" );
       if(l1menu == nullptr) { // if no L1 configuration is available yet
          delayConfig = true;
       }
    } else {
-      ATH_MSG_INFO( "start(): use L1 trigger menu from L1ConfigSvc" );
-      if( (m_configSvc->ctpConfig()==nullptr) || 
+      ATH_MSG_INFO( "start(): use old-style L1 menu (xml))" );
+      if( (m_configSvc->ctpConfig()==nullptr) ||
           (m_configSvc->ctpConfig()->menu().itemVector().size() == 0) ) { // if no L1 configuration is available yet
          delayConfig = true;
       }
@@ -120,7 +120,7 @@ LVL1CTP::CTPSimulation::start() {
    if( ! delayConfig ) {
       // configure the CTP ResultBuilder
       // currently both types of configuration can be given (transition period towards Run 3)
-      std::call_once(m_onceflag, [this, l1menu]{ 
+      std::call_once(m_onceflag, [this, l1menu]{
             m_resultBuilder->setConfiguration( m_configSvc->ctpConfig(), l1menu ).ignore();
             setHistLabels().ignore();
          });
@@ -137,7 +137,7 @@ LVL1CTP::CTPSimulation::execute( const EventContext& context ) const {
    std::call_once(m_onceflag, [this]{
          const TrigConf::L1Menu * l1menu = nullptr;
          if( m_useNewConfig ) {
-            m_detStore->retrieve(l1menu).ignore(); 
+            detStore()->retrieve(l1menu).ignore();
          }
          m_resultBuilder->setConfiguration( m_configSvc->ctpConfig(), l1menu ).ignore();
          setHistLabels().ignore();
@@ -153,8 +153,6 @@ LVL1CTP::CTPSimulation::execute( const EventContext& context ) const {
 
    return StatusCode::SUCCESS;
 }
-
-
 
 StatusCode
 LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigned int maxMult ) const {
@@ -185,7 +183,6 @@ LVL1CTP::CTPSimulation::createMultiplicityHist(const std::string & type, unsigne
    }
    return sc;
 }
-
 
 StatusCode
 LVL1CTP::CTPSimulation::setMultiplicityHistLabels(const ConfigSource & cfgSrc, const std::string & type, TrigConf::L1DataDef::TriggerType tt ) const {
@@ -305,7 +302,7 @@ LVL1CTP::CTPSimulation::setHistLabels() const {
 
    const TrigConf::L1Menu * l1menu = nullptr;
    if( m_useNewConfig ) {
-      ATH_CHECK( m_detStore->retrieve(l1menu) ); 
+      ATH_CHECK( detStore()->retrieve(l1menu) );
       ATH_MSG_DEBUG("setHistLabels(). L1 menu " << l1menu->size() << " items" );
    } else {
       ATH_MSG_DEBUG("setHistLabels(). ConfigSvc with " << m_configSvc->ctpConfig()->menu().itemVector().size() << " items");
@@ -321,24 +318,21 @@ LVL1CTP::CTPSimulation::setHistLabels() const {
    ATH_CHECK ( setMultiplicityHistLabels( cfgSrc, "tau",  L1DataDef::TAU ) );
 
    // Topo
-   auto hTopo0 = *get1DHist("/input/topo/l1topo0");
-   auto hTopo1 = *get1DHist("/input/topo/l1topo1");
    if ( l1menu ) {
-      // to be implemented
-   } else {
-      for(const TIP * tip : m_configSvc->ctpConfig()->menu().tipVector() ) {
-         if ( tip->tipNumber() < 384 )
+      std::vector<std::string> connNames = l1menu->connectorNames();
+      for( const std::string connName : {"LegacyTopo0", "LegacyTopo1", "Topo1El", "Topo2El", "Topo3El"}) {
+         if( find(connNames.begin(), connNames.end(), connName) == connNames.end() ) {
             continue;
-         unsigned int tipNumber = (unsigned int) ( tip->tipNumber() - 384 );
-         switch(tipNumber / 64) {
-         case 0:
-            hTopo0->GetXaxis()->SetBinLabel(1+ tipNumber % 64, tip->thresholdName().c_str() );
-            break;
-         case 1:
-            hTopo1->GetXaxis()->SetBinLabel(1+ tipNumber % 64, tip->thresholdName().c_str() );
-            break;
-         default:
-            break;
+         }
+         auto hTopo = *get1DHist("/input/topo/" + connName);
+         for(uint fpga : {0,1}) {
+            for(uint clock : {0,1}) {
+               for(auto & tl : l1menu->connector(connName).triggerLines(fpga,clock)) {
+                  //uint flatIndex = 32*tl.fpga() + 2*tl.startbit() + tl.clock(); // activate later
+                  uint flatIndex = 32*tl.fpga() + tl.startbit() + 16*tl.clock();
+                  hTopo->GetXaxis()->SetBinLabel(flatIndex+1,tl.name().c_str());
+               }         
+            }
          }
       }
    }
@@ -385,7 +379,6 @@ LVL1CTP::CTPSimulation::setHistLabels() const {
    return StatusCode::SUCCESS;
 }
 
-
 StatusCode
 LVL1CTP::CTPSimulation::bookHists() const {
 
@@ -426,10 +419,10 @@ LVL1CTP::CTPSimulation::bookHists() const {
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("jJets","Number of jets (jJ)", 40, 0, 40) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("jLJets","Number of jets (jLJ)", 40, 0, 40) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("gJets","Number of jets (gJ)", 40, 0, 40) ));
-   ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("muons","Number of muons", 10, 0, 10) ));  
+   ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("muons","Number of muons", 10, 0, 10) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("emcluster","Number of EM clusters", 20, 0, 20) ));
    ATH_CHECK ( hbook( "/input/counts/", std::make_unique<TH1I>("taus","Number of TAU candidates", 20, 0, 20) ));
- 
+
    // threshold multiplicities
    ATH_CHECK ( createMultiplicityHist( "muon" ) );
    ATH_CHECK ( createMultiplicityHist( "jet" ) );
@@ -443,8 +436,12 @@ LVL1CTP::CTPSimulation::bookHists() const {
    ATH_CHECK ( hbook( "/multi/all", (std::unique_ptr<TH2>)std::make_unique<TH2I>("R3Mult", "New thresholds multiplicity", 1, 0, 1, 10, 0, 10) ));
 
    // Topo
-   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("l1topo0","L1Topo Decision Cable 0", 64, 0, 64) ));
-   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("l1topo1","L1Topo Decision Cable 1", 64, 0, 64) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("LegacyTopo0","L1Topo Decision (Legacy 0)", 64, 0, 64) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("LegacyTopo1","L1Topo Decision (Legacy 1)", 64, 0, 64) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo1El","L1Topo Decision (Topo 1 electrical)", 64, 0, 64) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo2El","L1Topo Decision (Topo 2 electrical)", 64, 0, 64) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo3El","L1Topo Decision (Topo 3 electrical)", 64, 0, 64) ));
+   ATH_CHECK( hbook( "/input/topo/", std::make_unique<TH1I>("Topo1Opt0","L1Topo Decision (Topo 1 optical 0)", 90, 0, 90) ));
 
    // item decision
    ATH_CHECK ( hbook( "/output/", std::make_unique<TH1I>("tbpById", "Items decision (tbp)", 512, 0, 512) ));
@@ -460,7 +457,6 @@ LVL1CTP::CTPSimulation::bookHists() const {
 
    return StatusCode::SUCCESS;
 }
-
 
 StatusCode
 LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
@@ -581,24 +577,43 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
    }
 
    // topo
+   auto legacyTopoInput = SG::makeHandle( m_iKeyLegacyTopo, context );
+   if(legacyTopoInput.isValid()) {
+      ATH_MSG_DEBUG("Retrieved input from L1Topo from StoreGate with key " << m_iKeyTopo);
+      ATH_MSG_DEBUG("L1TopoLegacy0 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << legacyTopoInput->cableWord1(0));
+      ATH_MSG_DEBUG("L1TopoLegacy0 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << legacyTopoInput->cableWord1(1));
+      ATH_MSG_DEBUG("L1TopoLegacy1 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << legacyTopoInput->cableWord2(0));
+      ATH_MSG_DEBUG("L1TopoLegacy1 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << legacyTopoInput->cableWord2(1));
+      auto h0 = *get1DHist("/input/topo/LegacyTopo0");
+      auto h1 = *get1DHist("/input/topo/LegacyTopo1");
+      for(unsigned int i=0; i<32; ++i) {
+         uint32_t mask = 0x1; mask <<= i;
+         if( (legacyTopoInput->cableWord1(0) & mask) != 0 ) h0->Fill(i); // cable 0, clock 0
+         if( (legacyTopoInput->cableWord1(1) & mask) != 0 ) h0->Fill(32 + i); // cable 0, clock 1
+         if( (legacyTopoInput->cableWord2(0) & mask) != 0 ) h1->Fill(i); // cable 1, clock 0
+         if( (legacyTopoInput->cableWord2(1) & mask) != 0 ) h1->Fill(32 + i); // cable 1, clock 1
+      }
+   }
+
    auto topoInput = SG::makeHandle( m_iKeyTopo, context );
    if(topoInput.isValid()) {
       ATH_MSG_DEBUG("Retrieved input from L1Topo from StoreGate with key " << m_iKeyTopo);
-      ATH_MSG_DEBUG("L1Topo0 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord1(0));
-      ATH_MSG_DEBUG("L1Topo0 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord1(1));
-      ATH_MSG_DEBUG("L1Topo1 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord2(0));
-      ATH_MSG_DEBUG("L1Topo1 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord2(1));
-      auto h0 = *get1DHist("/input/topo/l1topo0");
-      auto h1 = *get1DHist("/input/topo/l1topo1");
+      ATH_MSG_DEBUG("L1Topo 2 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord1(0));
+      ATH_MSG_DEBUG("L1Topo 2 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord1(1));
+      ATH_MSG_DEBUG("L1Topo 3 word 0 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord2(0));
+      ATH_MSG_DEBUG("L1Topo 3 word 1 is: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << topoInput->cableWord2(1));
+      auto h0 = *get1DHist("/input/topo/Topo1El");
+      auto h1 = *get1DHist("/input/topo/Topo2El");
+      auto h2 = *get1DHist("/input/topo/Topo3El");
       for(unsigned int i=0; i<32; ++i) {
          uint32_t mask = 0x1; mask <<= i;
-         if( (topoInput->cableWord1(0) & mask) != 0 ) h0->Fill(i); // cable 0, clock 0
-         if( (topoInput->cableWord1(1) & mask) != 0 ) h0->Fill(32 + i); // cable 0, clock 1
-         if( (topoInput->cableWord2(0) & mask) != 0 ) h1->Fill(i); // cable 1, clock 0
-         if( (topoInput->cableWord2(1) & mask) != 0 ) h1->Fill(32 + i); // cable 1, clock 1
+         if( (topoInput->cableWord0(0) & mask) != 0 ) h0->Fill(i); // cable 0, clock 0
+         if( (topoInput->cableWord0(1) & mask) != 0 ) h0->Fill(32 + i); // cable 0, clock 1
+         if( (topoInput->cableWord1(0) & mask) != 0 ) h1->Fill(i); // cable 0, clock 0
+         if( (topoInput->cableWord1(1) & mask) != 0 ) h1->Fill(32 + i); // cable 0, clock 1
+         if( (topoInput->cableWord2(0) & mask) != 0 ) h2->Fill(i); // cable 1, clock 0
+         if( (topoInput->cableWord2(1) & mask) != 0 ) h2->Fill(32 + i); // cable 1, clock 1
       }
-   } else {
-      ATH_MSG_DEBUG("No collection " << m_iKeyTopo);
    }
 
    // bcid
@@ -619,13 +634,66 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
 
    const TrigConf::L1Menu * l1menu = nullptr;
    if( m_useNewConfig ) {
-      ATH_CHECK( m_detStore->retrieve(l1menu) );
+      ATH_CHECK( detStore()->retrieve(l1menu) );
    }
 
    thrMultiMap.clear();
 
    if( l1menu ) {
+      std::vector<std::string> connNames = l1menu->connectorNames();
+      for( const std::string connName : {"LegacyTopo0", "LegacyTopo1", "Topo1El", "Topo2El", "Topo3El"}) {
+         if( find(connNames.begin(), connNames.end(), connName) == connNames.end() ) {
+            continue;
+         }
+         uint64_t cable {0};
+         if (connName.find("Legacy")==0) { // legacy topo
+            auto topoInput = SG::makeHandle( m_iKeyLegacyTopo, context );
+            if (not topoInput.isValid()) {
+               continue;
+            }
+            if(connName == "LegacyTopo0") {
+               cable = ( (uint64_t)topoInput->cableWord1( 1 ) << 32) + topoInput->cableWord1( 0 );
+            } else if (connName == "LegacyTopo1") {
+               cable = ( (uint64_t)topoInput->cableWord2( 1 ) << 32) + topoInput->cableWord2( 0 );
+            }
+         } else { // new topo
+            auto topoInput = SG::makeHandle( m_iKeyTopo, context );
+            if (not topoInput.isValid()) {
+               continue;
+            }
+            if(connName == "Topo1El") {
+               cable = ( (uint64_t)topoInput->cableWord0( 1 ) << 32) + topoInput->cableWord0( 0 );
+            } else if(connName == "Topo2El") {
+               cable = ( (uint64_t)topoInput->cableWord1( 1 ) << 32) + topoInput->cableWord1( 0 );
+            } else if (connName == "Topo3El") {
+               cable = ( (uint64_t)topoInput->cableWord2( 1 ) << 32) + topoInput->cableWord2( 0 );
+            }
+         }
+         auto & conn = l1menu->connector(connName);
+         for(uint fpga : {0,1}) {
+            for(uint clock : {0,1}) {
+               for(auto & tl : conn.triggerLines(fpga,clock)) {
+                  //uint flatIndex = 32*tl.fpga() + 2*tl.startbit() + tl.clock(); // activate later
+                  uint flatIndex = 32*tl.fpga() + tl.startbit() + 16*tl.clock();
+                  uint pass = (cable & (uint64_t(0x1) << flatIndex)) == 0 ? 0 : 1;
+                  if(size_t pos = tl.name().find('['); pos == std::string::npos) {
+                     thrMultiMap[tl.name()] = pass;
+                     ATH_MSG_DEBUG(tl.name() << " MULT calculated mult for topo " << pass);
+                  } else {
+                     auto thrName = tl.name().substr(0,pos);
+                     int bit = std::stoi(tl.name().substr(pos+1));
+                     thrMultiMap.try_emplace(thrName, 0);
+                     thrMultiMap[thrName] += (pass << bit);
+                     ATH_MSG_DEBUG(thrName << " MULT updated mult for topo " << pass);
+                  }
+               }
+            }
+         }
+      }
       for ( auto & thr : l1menu->thresholds() ) {
+         if(thr->type() == "TOPO" or thr->type()== "R2TOPO" or thr->type() == "MULTTOPO" or thr->type() == "MUTOPO") {
+            continue; 
+         }
          // get the multiplicity for each threshold
          unsigned int multiplicity = calculateMultiplicity( *thr, l1menu, context );
          // and record in threshold--> multiplicity map (to be used for item decision)
@@ -670,7 +738,6 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
 
    return StatusCode::SUCCESS;
 }
-
 
 
 unsigned int
@@ -740,7 +807,6 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::L1Threshold & 
 }
 
 
-
 unsigned int
 LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const {
    unsigned int multiplicity = 0;
@@ -752,7 +818,7 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::TriggerThresho
          } else if ( confThr->cableName() == "JEP2" || confThr->cableName() == "JET2" ) {
             multiplicity = CTPUtil::getMult( ctpinJet->cableWord1(), confThr->cableStart(), confThr->cableEnd() );
          }
-      } 
+      }
    } else {
       // Run-3 threshold
       const SG::ReadHandleKey< xAOD::JetRoIContainer > * rhk { nullptr };
@@ -831,11 +897,10 @@ LVL1CTP::CTPSimulation::calculateEMMultiplicity( const TrigConf::L1Threshold & c
 }
 
 
-
 unsigned int
 LVL1CTP::CTPSimulation::calculateEMMultiplicity( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const {
    unsigned int multiplicity (0);
-   if ( confThr->name()[0]=='e' ) { 
+   if ( confThr->name()[0]=='e' ) {
       // new EM threshold from eFEX
       auto eFexCluster = SG::makeHandle( m_iKeyEFexCluster, context );
       for ( const auto & cl : *eFexCluster ) {
@@ -904,7 +969,7 @@ LVL1CTP::CTPSimulation::calculateTauMultiplicity( const TrigConf::L1Threshold & 
 unsigned int
 LVL1CTP::CTPSimulation::calculateTauMultiplicity( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const {
    unsigned int multiplicity = 0;
-   if ( confThr->name()[0]=='e' ) { 
+   if ( confThr->name()[0]=='e' ) {
       // new TAU threshold from eFEX
       auto eFexTaus  = SG::makeHandle( m_iKeyEFexTau, context );
       const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3ClusterET");
@@ -936,7 +1001,6 @@ LVL1CTP::CTPSimulation::calculateTauMultiplicity( const TrigConf::TriggerThresho
    ATH_MSG_DEBUG("TAU MULT calculated mult for threshold " << confThr->name() << " : " << multiplicity);
    return multiplicity;
 }
-
 
 
 unsigned int
@@ -987,7 +1051,6 @@ LVL1CTP::CTPSimulation::calculateMETMultiplicity( const TrigConf::L1Threshold & 
 }
 
 
-
 unsigned int
 LVL1CTP::CTPSimulation::calculateMETMultiplicity( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const {
    unsigned int multiplicity = 0;
@@ -1002,7 +1065,7 @@ LVL1CTP::CTPSimulation::calculateMETMultiplicity( const TrigConf::TriggerThresho
          }
       }
    } else if ( confThr->name().find("TE")==0 ) {
-      // old TE 
+      // old TE
       auto ctpinEnergy = SG::makeHandle( m_iKeyCtpinXE, context );
       if ( ctpinEnergy.isValid() ) {
          if ( confThr->cableName() == "JEP3" || confThr->cableName() == "EN1") {
@@ -1128,10 +1191,10 @@ LVL1CTP::CTPSimulation::calculateTopoMultiplicity( const TrigConf::TriggerThresh
 unsigned int
 LVL1CTP::CTPSimulation::calculateMultiplicity( const TrigConf::TriggerThreshold * confThr, const EventContext& context ) const {
    unsigned int multiplicity = 0;
-   if( confThr->cableName() == "CTPCAL" || 
-       confThr->cableName() == "ALFA" || 
-       confThr->cableName() == "NIM1" || 
-       confThr->cableName() == "NIM2" || 
+   if( confThr->cableName() == "CTPCAL" ||
+       confThr->cableName() == "ALFA" ||
+       confThr->cableName() == "NIM1" ||
+       confThr->cableName() == "NIM2" ||
        confThr->type() == "NIM") {
       return 0;
    }
@@ -1168,8 +1231,6 @@ LVL1CTP::CTPSimulation::calculateMultiplicity( const TrigConf::L1Threshold & con
          multiplicity = calculateJetMultiplicity( confThr, l1menu, context );
       } else if ( confThr.type() == "MU" ) {
          multiplicity = calculateMuonMultiplicity( confThr, l1menu, context );
-      } else if ( confThr.type() == "TOPO" ) {
-         multiplicity = calculateTopoMultiplicity( confThr, l1menu, context );
       }
    }
    catch(std::exception & ex) {
@@ -1238,7 +1299,7 @@ LVL1CTP::CTPSimulation::finalize() {
 
    const TrigConf::L1Menu * l1menu = nullptr;
    if( m_useNewConfig ) {
-      ATH_CHECK( m_detStore->retrieve(l1menu) );
+      ATH_CHECK( detStore()->retrieve(l1menu) );
    }
 
    constexpr unsigned int sizeOfCTPOutput = 512;
@@ -1297,7 +1358,7 @@ LVL1CTP::CTPSimulation::finalize() {
       } else {
          thrHists = { "em/em", "muon/muon", "tau/tau", "jet/jet", "xe/xe", "te/te", "xs/xs" };
       }
-      auto hist = * get2DHist( "/multi/all/LegacyMult" ); 
+      auto hist = * get2DHist( "/multi/all/LegacyMult" );
       for(const std::string & histpath : thrHists) {
          auto h = * get2DHist( "/multi/" + histpath + "Mult" );
          auto xaxis = h->GetXaxis();
@@ -1319,7 +1380,7 @@ LVL1CTP::CTPSimulation::finalize() {
    {
       // run 3 thresholds
       if( l1menu ) {
-         auto hist = * get2DHist( "/multi/all/R3Mult" ); 
+         auto hist = * get2DHist( "/multi/all/R3Mult" );
          std::vector<std::string> thrHists = { "em/eEM", "muon/MU", "tau/eTAU", "jet/jJ", "jet/gJ", "xe/gXE", "xe/jXE" };
          for(const std::string & histpath : thrHists) {
             auto h = * get2DHist( "/multi/" + histpath + "Mult" );
