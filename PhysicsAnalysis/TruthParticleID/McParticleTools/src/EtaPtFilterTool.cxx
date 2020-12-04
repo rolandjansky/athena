@@ -390,7 +390,7 @@ StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx, HepMC::Ge
 
 bool EtaPtFilterTool::isFromHardScattering( const HepMC::GenVertex* vtx ) const
 {
-  if ( std::abs(vtx->barcode()) <= m_maxHardScatteringVtxBarcode.value() &&
+  if ( std::abs(HepMC::barcode(vtx)) <= m_maxHardScatteringVtxBarcode.value() &&
        m_ppFilter.isAccepted(vtx) &&
        ! m_showerFilter.isAccepted(vtx) ) {
 

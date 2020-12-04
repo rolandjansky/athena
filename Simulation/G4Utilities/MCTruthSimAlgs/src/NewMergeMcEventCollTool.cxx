@@ -129,7 +129,7 @@ StatusCode NewMergeMcEventCollTool::processEvent(const McEventCollection *pMcEvt
       const HepMC::GenEvent& c_evt(*((*pMcEvtColl)[iEv]));
 #ifdef HEPMC3
       HepMC::GenEvent * evt = new HepMC::GenEvent(c_evt);
-      for (auto  itVer:  evt->vertice()) {
+      for (auto  itVer:  evt->vertices()) {
         HepMC::FourVector newPos(itVer->position().x(),itVer->position().y(),itVer->position().z(),itVer->position().t()+timeOffset);
         itVer->set_position(newPos);
       }
@@ -166,7 +166,8 @@ void NewMergeMcEventCollTool::printDetailsOfMergedMcEventCollection(McEventColle
     char fname[80];
     sprintf(fname,"%s.event%d.txt",m_truthCollInputKey.value().c_str(),event_number);
     std::ofstream of(fname);
-    HepMC::Print::line(of,(*outputEventItr)); // verbose output
+    const HepMC::GenEvent *evt=(*outputEventItr);
+    HepMC::Print::line(of,*evt); // verbose output
     of.close();
     ++outputEventItr;
   }
