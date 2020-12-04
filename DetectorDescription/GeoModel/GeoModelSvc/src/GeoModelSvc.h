@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELSVC_GEOMODELSVC_H
@@ -22,8 +22,9 @@ class ISvcLocator;
 
 template <class TYPE> class SvcFactory;
 
-class GeoModelSvc : public AthService, virtual public IGeoModelSvc {
-
+class GeoModelSvc : public AthService, virtual public IGeoModelSvc,
+                    virtual public ITagInfoMgr::Listener
+{
 public:
 
     virtual StatusCode initialize();
@@ -36,8 +37,10 @@ public:
     // N.B. Don't forget to release the interface after use!!!
     virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
-    virtual StatusCode align        (IOVSVC_CALLBACK_ARGS);
-    virtual StatusCode compareTags  (IOVSVC_CALLBACK_ARGS);
+    /// Callback from TagInfoMgr on TagInfo change
+    virtual void       tagInfoUpdated() override final;
+
+    StatusCode compareTags();
 
     virtual const IGeoModelTool* getTool(std::string toolName) const;
 
@@ -127,3 +130,4 @@ private:
 };
 
 #endif // GEOMODELSVC_GEOMODELSVC_H
+
