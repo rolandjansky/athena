@@ -126,16 +126,10 @@ namespace Trk
   } 
     msg(MSG::INFO) << "Retrieved tool " << m_AnnealingMaker << endmsg;
   
-  
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+
     return StatusCode::SUCCESS;
   }
   
-  StatusCode AdaptiveVertexFitter::finalize()
-  {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
 
   xAOD::Vertex*
   AdaptiveVertexFitter::_fit(

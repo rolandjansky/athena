@@ -55,7 +55,7 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
 StatusCode  ClusterMakerTool::initialize(){
   // Code entered here will be executed once at program start.
 
-   ATH_MSG_INFO ( name() << " initialize()" );
+   ATH_MSG_DEBUG ( name() << " initialize()" );
 
    if (not m_pixelCabling.empty()) {
      ATH_CHECK(m_pixelCabling.retrieve());

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERUTILS_NEUTRALPARTICLEPARCALCULATOR_H
@@ -43,9 +43,8 @@ namespace Trk
   class NeutralParticleParameterCalculator : public AthAlgTool, virtual public INeutralParticleParameterCalculator
   {
   public:
-    StatusCode initialize();
-    StatusCode finalize();
-    
+    virtual StatusCode initialize() override;
+
   /**
    * Default constructor due to Athena interface
    */

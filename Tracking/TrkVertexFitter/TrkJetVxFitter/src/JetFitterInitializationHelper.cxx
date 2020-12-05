@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -99,19 +99,11 @@ namespace Trk
     }
     
 
-   ATH_MSG_INFO ("Initialize successful");
     return StatusCode::SUCCESS;
 
   }
 
-  StatusCode JetFitterInitializationHelper::finalize() {
 
-    ATH_MSG_INFO ("Finalize successful");
-    return StatusCode::SUCCESS;
-
-  }
-
-  
   /**
    * Initialize the JetCandidate using a vector of Trk::ITrackLink* - needed for example 
    * if you run on ESD (Track*), but you have additional neutral tracks (TrackParticleBase*)

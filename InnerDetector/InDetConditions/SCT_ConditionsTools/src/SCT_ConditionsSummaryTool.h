@@ -36,7 +36,6 @@ public:
   //@name Gaudi STool Implementation
   //@{
   virtual StatusCode initialize() override;          //!< Tool init
-  virtual StatusCode finalize() override;            //!< Tool finalize
   //@}
   
   //@name reimplemented from IInDetConditionsTool

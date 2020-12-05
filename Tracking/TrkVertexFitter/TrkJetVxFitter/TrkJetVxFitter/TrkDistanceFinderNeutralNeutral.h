@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DISTNEUNEU_H
@@ -30,12 +30,6 @@ class TrkDistanceFinderNeutralNeutral : public AthAlgTool
     {
       return IID_TrkDistanceFinderNeutralNeutral;
     };
-
-    StatusCode initialize();
-    StatusCode finalize();
-
- private:
-
 
 };
 
