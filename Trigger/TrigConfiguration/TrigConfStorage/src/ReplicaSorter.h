@@ -14,16 +14,8 @@ namespace TrigConf {
    class ReplicaSorter : virtual public coral::IReplicaSortingAlgorithm {
    public:
       ReplicaSorter();
-      void sort(std::vector<const coral::IDatabaseServiceDescription*>& replicaSet);
-
-      void setUseFrontier(bool useFrontier) { m_useFrontier = useFrontier; }
-      void setUseFrontierGen(bool useFrontierGen) { m_useFrontierGen = useFrontierGen; }
-      void setUseSQLite(bool useSQLite) { m_useSQLite = useSQLite; }
-
-      bool useFrontier() const { return m_useFrontier; }
-      bool useFrontierGen() const { return m_useFrontierGen; }
-      bool useSQLite() const { return m_useSQLite; }
-
+      void sort(std::vector<const coral::IDatabaseServiceDescription*>& 
+                replicaSet);
    private:
       bool readConfig();
       FILE* findFile(const std::string filename, const std::string pathvar);
@@ -31,9 +23,7 @@ namespace TrigConf {
       typedef std::pair<std::string,int> ServerPair;
       typedef std::vector< ServerPair > ServerMap;
       ServerMap m_servermap;
-      bool m_useFrontierGen {false};
-      bool m_useSQLite {true};
-      bool m_useFrontier {true};
+      bool m_frontiergen;
    };
 
 }
