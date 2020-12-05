@@ -85,8 +85,8 @@ class MuonTGMeasAssocAlg : public AthAlgorithm {
     bool m_misAlign;
     bool m_allowGeomAssoc;
 
-    mutable const Trk::TrackingGeometry* m_trackingGeometry;
-    std::string                          m_trackingGeometryName;
+    SG::ReadCondHandleKey<Trk::TrackingGeometry>  m_trackingGeometryReadKey;
+
 
     ToolHandle<Muon::IMuonTGMeasTool> m_muonTgTool{
         this,
