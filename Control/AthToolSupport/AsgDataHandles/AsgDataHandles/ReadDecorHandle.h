@@ -22,7 +22,7 @@
 #include "AsgDataHandles/ReadDecorHandleKey.h"
 #include "AsgDataHandles/ReadHandle.h"
 #include "AsgDataHandles/DecorKeyHelpers.h"
-// #include "AthContainers/AuxElement.h"
+#include "AthContainers/AuxElement.h"
 // #include "GaudiKernel/EventContext.h"
 // #include <type_traits>
 
@@ -72,21 +72,21 @@ public:
   explicit ReadDecorHandle (const ReadDecorHandleKey<T>& key);
 
 
-//   /**
-//    * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
-//    * @param key The key object holding the clid/key.
-//    * @param ctx The event context.
-//    *
-//    * This will raise an exception if the StoreGate key is blank,
-//    * or if the event store cannot be found.
-//    *
-//    * If the default event store has been requested, then the thread-specific
-//    * store from the event context will be used.
-//    */
-//   explicit ReadDecorHandle (const ReadDecorHandleKey<T>& key,
-//                             const EventContext& ctx);
+  /**
+   * @brief Constructor from a ReadDecorHandleKey and an explicit event context.
+   * @param key The key object holding the clid/key.
+   * @param ctx The event context.
+   *
+   * This will raise an exception if the StoreGate key is blank,
+   * or if the event store cannot be found.
+   *
+   * If the default event store has been requested, then the thread-specific
+   * store from the event context will be used.
+   */
+  explicit ReadDecorHandle (const ReadDecorHandleKey<T>& key,
+                            const EventContext& ctx);
 
-  
+
 //   /**
 //    * @brief Copy constructor.
 //    */
@@ -147,17 +147,23 @@ public:
 //   getDataArray();
 
 
-//   /**
-//    * @brief Test to see if this variable exists in the store,
-//    *        for the referenced object.
-//    */
-//   bool isAvailable();
+  /**
+   * @brief Test to see if this variable exists in the store,
+   *        for the referenced object.
+   */
+  bool isAvailable();
 
 
 //   /**
 //    * @brief Return the aux id for this variable.
 //    */
 //   SG::auxid_t auxid() const;
+
+
+  /**
+   * @brief Return the name of the decoration alias (CONT.DECOR).
+   */
+  std::string decorKey() const;
 
   
 private:
@@ -185,6 +191,10 @@ private:
    * then we need to call container() on the object.
    */
   const SG::AuxVectorData* vectorData();
+
+
+  /// Name of the decoration alias.
+  std::string m_decorKey;
 
 
   /// Accessor for the aux data item.

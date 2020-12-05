@@ -53,8 +53,6 @@ SolenoidalIntersector::SolenoidalIntersector (const std::string&	type,
 StatusCode
 SolenoidalIntersector::initialize()
 {
-    // print name and package version
-    ATH_MSG_INFO( "SolenoidalIntersector::initialize() - package version " << PACKAGE_VERSION );
     ATH_CHECK( m_solenoidParametrizationKey.initialize() );
     ATH_CHECK(m_rungeKuttaIntersector.retrieve());
     return StatusCode::SUCCESS;
@@ -63,7 +61,7 @@ SolenoidalIntersector::initialize()
 StatusCode
 SolenoidalIntersector::finalize()
 {
-    ATH_MSG_INFO( "finalized after " << m_countExtrapolations << " extrapolations with "
+    ATH_MSG_DEBUG( "finalized after " << m_countExtrapolations << " extrapolations with "
 		  << m_countRKSwitches << " switches to RK integration");
 
     return StatusCode::SUCCESS;

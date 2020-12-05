@@ -42,8 +42,6 @@ include("RecExCond/AllDet_detDescr.py")
 # use TriggerGetter but disable HLT
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 TF.doLVL1 = True
-TF.doLVL2 = False
-TF.doEF = False
 TF.doHLT = False
 TF.readLVL1configFromXML=True
 TF.triggerMenuSetup = "MC_pp_v5"

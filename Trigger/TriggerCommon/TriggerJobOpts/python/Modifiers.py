@@ -633,10 +633,6 @@ class rerunLVL1(_modifier):
     """
     def preSetup(self):
 
-        # Do nothing for EF only running
-        if not TriggerFlags.doLVL2() and TriggerFlags.doEF():
-            return
-
         from AthenaCommon.Include import include
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
@@ -735,10 +731,6 @@ class rerunDMLVL1(_modifier):
     Reruns the L1 simulation on real data with dead material corrections
     """
     def preSetup(self):
-
-         # Do nothing for EF only running
-         if not TriggerFlags.doLVL2() and TriggerFlags.doEF():
-             return
 
          from AthenaCommon.Include import include
          from AthenaCommon.AlgSequence import AlgSequence

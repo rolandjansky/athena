@@ -87,7 +87,7 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
 	     const std::string& name, 
 	     const IInterface* parent );
 
-  virtual ~HLTEDMCreator(){}
+  virtual ~HLTEDMCreator() override = default;
   virtual StatusCode createOutput(const EventContext& context) const override;
   virtual StatusCode initialize() override;
 

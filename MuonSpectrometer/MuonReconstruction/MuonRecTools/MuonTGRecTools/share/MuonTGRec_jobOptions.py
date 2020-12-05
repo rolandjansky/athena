@@ -18,8 +18,7 @@ MuonTrackingGeometrySvc = TrackingGeometrySvc( name ="MuonTrackingGeometrySvc",
                                                TrackingGeometryName = "MuonStandaloneTrackingGeometry",
                                                GeometryBuilder = MuonStandAloneGeometryBuilder,
                                                BuildGeometryFromTagInfo = True ,
-                                               AssignMaterialFromCOOL = False,
-                                               CallbackStringCheck = True )
+                                               AssignMaterialFromCOOL = False)
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr += MuonTrackingGeometrySvc

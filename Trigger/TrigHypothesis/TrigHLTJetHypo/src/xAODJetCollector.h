@@ -34,9 +34,9 @@ public:
 
   void addOneJet(const pHypoJet jet, int ind = -1);
 
+
   std::size_t size() const;
   bool empty() const;
-
 
   std::vector<int> legInds() const;
   
@@ -48,6 +48,7 @@ public:
 
     
   std::vector<const xAOD::Jet*>
+
   xAODJets_(const HypoJetVector::const_iterator begin,
 	    const HypoJetVector::const_iterator end
 	    )  const;

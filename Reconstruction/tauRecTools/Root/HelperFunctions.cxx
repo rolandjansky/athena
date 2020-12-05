@@ -17,9 +17,43 @@ namespace tauRecTools {
 
 
 
+const xAOD::Vertex* tauRecTools::getJetVertex(const xAOD::Jet& jet) {
+  const xAOD::Vertex* jetVertex = nullptr;
+  
+  bool isAvailable = jet.getAssociatedObject("OriginVertex", jetVertex); 
+  if (! isAvailable) {
+    return nullptr;
+  }
+
+  return jetVertex;
+}
+
+
+
+const xAOD::Vertex* tauRecTools::getTauVertex(const xAOD::TauJet& tau, bool inTrigger) {
+  using namespace tauRecTools::msgHelperFunction;
+  
+  const xAOD::Vertex* tauVertex = nullptr;
+  if (tau.vertexLink().isValid()) {
+    tauVertex = tau.vertex();
+  }
+  else if (! inTrigger) {
+    if (! tau.jetLink().isValid()) {
+      ANA_MSG_WARNING("Link to seed jet is not valid !");
+      return nullptr;
+    } 
+    const xAOD::Jet* seedJet = tau.jet();
+    tauVertex = tauRecTools::getJetVertex(*seedJet);
+  }
+
+  return tauVertex;
+}
+
+
+
 TLorentzVector tauRecTools::getTauAxis(const xAOD::TauJet& tau, bool doVertexCorrection) {
   TLorentzVector tauAxis;
-  if (doVertexCorrection && tau.vertexLink().isValid()) {
+  if (doVertexCorrection) {
     tauAxis = tau.p4(xAOD::TauJetParameters::IntermediateAxis);
   }
   else {
@@ -28,7 +62,6 @@ TLorentzVector tauRecTools::getTauAxis(const xAOD::TauJet& tau, bool doVertexCor
  
   return tauAxis;
 }
-
 
 //________________________________________________________________________________
 xAOD::TauTrack::TrackFlagType tauRecTools::isolateClassifiedBits(xAOD::TauTrack::TrackFlagType flag){

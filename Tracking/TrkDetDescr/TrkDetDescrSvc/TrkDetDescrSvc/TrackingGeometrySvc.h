@@ -16,8 +16,8 @@
 #include "TrkDetDescrInterfaces/IGeometryProcessor.h"
 #include "Gaudi/Property.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
 
 #ifdef TRKDETDESCR_MEMUSAGE   
 #include "TrkDetDescrUtils/MemoryLogger.h"
@@ -42,8 +42,11 @@ namespace Trk {
   
       @author Andreas.Salzburger@cern.ch */
      
-  class ATLAS_NOT_THREAD_SAFE TrackingGeometrySvc : public AthService, virtual public ITrackingGeometrySvc {
-  
+  class ATLAS_NOT_THREAD_SAFE TrackingGeometrySvc :
+      public AthService,
+      virtual public ITrackingGeometrySvc,
+      virtual public ITagInfoMgr::Listener
+  {
     public:
   
       //!< Retrieve interface ID
@@ -59,8 +62,11 @@ namespace Trk {
       / N.B. Don't forget to release the interface after use!!! **/
       StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   
+      // TagInfoMgr callback
+      virtual void tagInfoUpdated() override final;
+
       /** Create the geometry */
-      StatusCode trackingGeometryInit(IOVSVC_CALLBACK_ARGS);
+      StatusCode trackingGeometryInit(bool needsInit = true);
   
       /** Provide the TrackingGeometry */
       const Trk::TrackingGeometry* trackingGeometry() const;
@@ -100,9 +106,6 @@ namespace Trk {
       float                                       m_changeRss   {0.0};
   #endif
       
-      Gaudi::Property<bool>                       m_callbackStringForced {this, "CallbackStringForced",false};
-      Gaudi::Property<std::string>                m_callbackString {this, "CallbackString", ""};//!< the name of the callback string
-      Gaudi::Property<bool>                       m_callbackStringCheck{this, "CallbackStringCheck", true};
       Gaudi::Property<bool>                       m_rerunOnCallback {this, "RerunOnCallback", false};
       //!< enables the callback
       Gaudi::Property<bool>                       m_buildGeometryFromTagInfo {this, "BuildGeometryFromTagInfo", true};

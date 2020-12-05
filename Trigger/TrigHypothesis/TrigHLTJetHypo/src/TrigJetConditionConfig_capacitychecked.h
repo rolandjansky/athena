@@ -36,6 +36,7 @@ public extends<AthAlgTool, ITrigJetCapacityCheckedConditionConfig> {
       "no. of occurences of identical condition"};
 
   
+
   Gaudi::Property<std::size_t> m_chainPartInd {this,
     "chainPartInd",
     {0},

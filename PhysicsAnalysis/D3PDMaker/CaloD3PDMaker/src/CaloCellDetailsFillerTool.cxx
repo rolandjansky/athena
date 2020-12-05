@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -24,7 +24,7 @@
 
 #include "CaloEvent/CaloCell.h"
 #include "AthenaKernel/errorcheck.h"
-#include "CaloInterface/ICaloNoiseTool.h"
+#include "StoreGate/ReadCondHandle.h"
 #include <sstream>
 #include <cmath>
 
@@ -45,7 +45,7 @@ CaloCellDetailsFillerTool::CaloCellDetailsFillerTool
 	m_saveDetInfo(false),m_saveTimeInfo(false),m_saveCellStatus(false),
 	m_saveId(false),m_savePosition(false), m_saveSigma(false),
     m_pb_tool("CaloBadChanTool"),
-    m_useNoiseTool(false)
+    m_useNoise(false)
 {
 
   declareProperty("SaveCellGain",m_saveCellGain);
@@ -58,7 +58,6 @@ CaloCellDetailsFillerTool::CaloCellDetailsFillerTool
   declareProperty("SaveSigma",m_saveSigma);
 
   declareProperty("BadChannelTool",m_pb_tool);
-  declareProperty("NoiseTool",m_noise_tool);
 
   m_fitQCells = 0;
   m_gainCells = 0;
@@ -102,14 +101,14 @@ StatusCode CaloCellDetailsFillerTool::book()
 
 
   // retrieve the noise tool
-  if(m_saveSigma) m_useNoiseTool = true;
-  if(m_useNoiseTool) {
-     if(!m_noise_tool.empty()){
-       CHECK (m_noise_tool.retrieve() );
+  if(m_saveSigma) m_useNoise = true;
+  if(m_useNoise) {
+    if(!m_caloNoiseKey.empty()){
+      ATH_CHECK( m_caloNoiseKey.initialize() );
     } else {
-       ATH_MSG_ERROR( "CellFillerTool::book() : m_noise_tool empty."
+       ATH_MSG_ERROR( "CellFillerTool::book() : CaloNoise empty."
                       << "Information on cell noise will not be stored" );
-      m_useNoiseTool = false;
+      m_useNoise = false;
     }
   }
 
@@ -151,7 +150,10 @@ StatusCode CaloCellDetailsFillerTool::fill ( const CaloCell& c)
   if (m_saveId)       *m_offId = id.get_identifier32().get_compact()     ;
   if (m_saveCellStatus)    *m_badCell = m_pb_tool->caloStatus(id).packedData() ;
 
-  if (m_useNoiseTool && m_saveSigma)  *m_sigma = m_noise_tool-> getNoise(cell);
+  if (m_useNoise && m_saveSigma) {
+    SG::ReadCondHandle<CaloNoise> caloNoise{m_caloNoiseKey};
+    *m_sigma = caloNoise-> getNoise(cell->ID(), cell->gain());
+  }
 
   return StatusCode::SUCCESS ;
 }

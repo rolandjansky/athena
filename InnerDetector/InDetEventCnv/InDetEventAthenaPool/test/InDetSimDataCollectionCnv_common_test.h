@@ -15,6 +15,7 @@
 
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Operators.h"
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictParser/IdDictParser.h"

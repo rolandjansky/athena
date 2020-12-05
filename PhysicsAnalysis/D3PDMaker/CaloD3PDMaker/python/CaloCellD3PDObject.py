@@ -6,7 +6,6 @@ import EventCommonD3PDMaker
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
 from CaloIdentifier import SUBCALO
 from CaloD3PDMaker.makeCaloCellFilterAlg import makeCaloCellFilterAlg 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 prefix_to_det = {}
 prefix_to_det["cc_sel_"] = [SUBCALO.LAREM,SUBCALO.LARHEC,SUBCALO.LARFCAL,SUBCALO.TILE] 
@@ -102,9 +101,9 @@ def makeCaloCellD3PDObject (maker, prefix, object_name) :
                                 SavePositionInfo=True,
                                 )
 
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    theCaloNoiseTool = CaloNoiseToolDefault()
-    svcMgr.ToolSvc+=theCaloNoiseTool
+    noiseType = "totalNoise"
+    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+    CaloNoiseCondAlg(noisetype=noiseType)
 
     cellD3PDObject.defineBlock (3, 'Detail3',
                                 CaloD3PDMaker.CaloCellDetailsFillerTool,
@@ -116,7 +115,7 @@ def makeCaloCellD3PDObject (maker, prefix, object_name) :
                                 SaveId =False,
                                 SavePositionInfo=False,
                                 SaveSigma = True,
-                                NoiseTool = theCaloNoiseTool
+                                CaloNoise = noiseType
                                 )
 
     # Raw eta/phi --- off by default.
@@ -160,11 +159,9 @@ def makeCaloCellSlimmedD3PDObject (maker, prefix, object_name) :
                                 WriteE  = True,  WriteM = False, WritePt = False)
 
 
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    theCaloNoiseTool = CaloNoiseToolDefault()
-    svcMgr.ToolSvc+=theCaloNoiseTool
-
-
+    noiseType = "totalNoise"
+    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+    CaloNoiseCondAlg(noisetype=noiseType)
 
     cellD3PDObject.defineBlock (1, 'Detail1',
                                 CaloD3PDMaker.CaloCellDetailsFillerTool,
@@ -173,9 +170,9 @@ def makeCaloCellSlimmedD3PDObject (maker, prefix, object_name) :
                                 SaveSigma = True,
                                 SaveId = True,
                                 SaveDetInfo=True,
-                                NoiseTool = theCaloNoiseTool
+                                CaloNoise = noiseType
                                )
 
-    return cellD3PDObject 
+    return cellD3PDObject
 
 SelCaloCellSlimmedD3PDObject = makeCaloCellSlimmedD3PDObject(makeCellD3PDObject, 'cc_sel_', 'SelCaloCellSlimmedD3PDObject')

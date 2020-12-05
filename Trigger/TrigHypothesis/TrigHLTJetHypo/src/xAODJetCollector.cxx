@@ -54,6 +54,7 @@ HypoJetVector xAODJetCollector::hypoJets() const {
 }
 
   
+
 HypoJetVector xAODJetCollector::hypoJets(int chainPartInd) const {
   auto begin = m_jets.at(chainPartInd).cbegin();
   auto end = m_jets.at(chainPartInd).cend();
@@ -63,6 +64,7 @@ HypoJetVector xAODJetCollector::hypoJets(int chainPartInd) const {
 
 
 void xAODJetCollector::addOneJet(const pHypoJet jet,
+
 				 int chainPartInd){
   m_jets[chainPartInd].push_back(jet);
 }

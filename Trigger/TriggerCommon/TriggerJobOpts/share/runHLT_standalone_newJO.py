@@ -42,6 +42,7 @@ flags.Scheduler.CheckDependencies = True
 flags.Scheduler.ShowDataDeps = True
 flags.Scheduler.ShowDataFlow = True
 flags.Scheduler.ShowControlFlow = True
+flags.Scheduler.EnableVerboseViews = True
 
 flags.Exec.MaxEvents=50
 flags.Input.isMC = False

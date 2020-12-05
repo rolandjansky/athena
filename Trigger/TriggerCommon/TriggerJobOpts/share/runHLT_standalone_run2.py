@@ -324,10 +324,7 @@ if setModifiers:
 include.block("RecExCond/RecExCommon_flags.py")
 log = logging.getLogger('runHLT_standalone.py')
 
-TriggerFlags.doHLTpersistency=False
 TriggerFlags.writeBS=True
-TriggerFlags.abortOnConfigurationError=True
-
 TriggerFlags.triggerMenuSetup=setMenu
 
 def stripPrescales(menu):

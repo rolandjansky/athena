@@ -19,6 +19,6 @@ atlas_add_library( AsgDataHandlesLib
    AsgDataHandles/*.h AsgDataHandles/*.icc Root/*.cxx
    PUBLIC_HEADERS AsgDataHandles
    PRIVATE_INCLUDE_DIRS
-   LINK_LIBRARIES AsgMessagingLib xAODRootAccessInterfaces )
+   LINK_LIBRARIES AthContainers AsgMessagingLib xAODRootAccessInterfaces )
 
 endif()

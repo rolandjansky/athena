@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <ElectronPhotonFourMomentumCorrection/GainUncertainty.h>
-#include "PathResolver/PathResolver.h"
-#include <TH1F.h>
-#include <TH1D.h>
+#include <TH1.h>
 #include <TFile.h>
-#include <iostream>
 
 
 namespace egGain {
@@ -15,23 +12,23 @@ namespace egGain {
 
 //--------------------------------------
 
-  GainUncertainty::GainUncertainty(std::string filename) : asg::AsgMessaging("GainUncertainty") {
-    
-    ATH_MSG_INFO("opening file " << filename);
-    m_gainFile = std::make_unique<TFile>(filename.c_str());
+  GainUncertainty::GainUncertainty(const std::string& filename) : asg::AsgMessaging("GainUncertainty") {
 
-    if (not (m_alpha_specialGainRun = (TH1F*)(m_gainFile->Get("alpha_specialGainRun")))) ATH_MSG_FATAL("cannot open histogram1");
-    if (not (m_gain_impact_Zee = (TH1F*)(m_gainFile->Get("gain_impact_Zee")))) ATH_MSG_FATAL("cannot open histogram2");
+    ATH_MSG_INFO("opening file " << filename);
+    m_gainFile.reset( TFile::Open( filename.c_str(), "READ" ) );
+
+    if (not (m_alpha_specialGainRun = (TH1*)(m_gainFile->Get("alpha_specialGainRun")))) ATH_MSG_FATAL("cannot open histogram1");
+    if (not (m_gain_impact_Zee = (TH1*)(m_gainFile->Get("gain_impact_Zee")))) ATH_MSG_FATAL("cannot open histogram2");
     for (int i=0;i<m_NUM_ETA_BINS;i++) {
      char name[60];
      sprintf(name,"gain_Impact_elec_%d",i);
-     if (not (m_gain_Impact_elec[i] = (TH1D*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram3");
+     if (not (m_gain_Impact_elec[i] = (TH1*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram3");
      sprintf(name,"gain_Impact_conv_%d",i);
-     if (not (m_gain_Impact_conv[i] = (TH1D*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram4");
+     if (not (m_gain_Impact_conv[i] = (TH1*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram4");
      sprintf(name,"gain_Impact_unco_%d",i);
-     if (not (m_gain_Impact_unco[i]= (TH1D*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram5");
+     if (not (m_gain_Impact_unco[i]= (TH1*)(m_gainFile->Get(name)))) ATH_MSG_FATAL("cannot open histogram5");
     }
-    
+
   }
 
 //----------------------------------------------
@@ -59,10 +56,10 @@ namespace egGain {
        else if (aeta<1.80) ibin=3;
        else if (aeta<2.50) ibin=4;
        if (ibin<0) return 0.;
-       
+
        //Protection needed as the histograms stops at 1 TeV
        if(et_input>999999.) et_input = 999999.;
-       
+
 //       std::cout << " --- in  GainUncertainty::getUncertainty " << etaCalo_input << " " << et_input << " " << ptype << " ibin " << ibin << std::endl;
 
        double impact=0.;

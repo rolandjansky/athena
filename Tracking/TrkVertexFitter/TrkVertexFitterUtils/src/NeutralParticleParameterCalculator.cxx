@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -44,16 +44,9 @@ namespace Trk
       }
     }
 
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
-  StatusCode NeutralParticleParameterCalculator::finalize() 
-  {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
 
   NeutralPerigee* NeutralParticleParameterCalculator::createNeutralTrackFromVertex
     (const xAOD::Vertex & myVertex) const

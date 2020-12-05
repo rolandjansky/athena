@@ -71,51 +71,16 @@ namespace InDet
   
 
   StatusCode InDetJetFitterVxFinder::initialize() {
-    
-    
-    StatusCode sc = AthAlgTool::initialize();
-    if(sc.isFailure())
-      {
-	msg(MSG::ERROR) << " Unable to initialize the AlgTool" << endmsg;
-	return sc;
-      }
-    
-    //retrieving the udator itself 	 
-    sc =  m_helper.retrieve();
-    if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_helper<<endmsg; 	 
-      return StatusCode::FAILURE; 	 
-    }else msg(MSG::INFO) << "JetFitter Helper retrieved"<<endmsg; 
-    
-    
-    sc = m_initializationHelper.retrieve();
-    if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_initializationHelper<<endmsg; 	 
-      return StatusCode::FAILURE; 	 
-    }else msg(MSG::INFO) << "JetFitter Initialization Helper retrieved"<<endmsg; 
-    
-    sc = m_routines.retrieve();
-    if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR) << " Unable to retrieve the JetFitter routines"<<m_routines<<endmsg; 	 
-      return StatusCode::FAILURE; 	 
-    }else msg(MSG::INFO) << "JetFitter Routines class retrieved"<<endmsg; 
 
-    if(m_trkFilter.retrieve().isFailure()) {
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_trkFilter<<endmsg;
-      return StatusCode::FAILURE;
-    } else msg(MSG::INFO) << "Track filter retrieved"<<endmsg; 
-    
-    msg(MSG::INFO) << "Initialize successful" << endmsg;
+    //retrieving the udator itself 	 
+    ATH_CHECK( m_helper.retrieve() );
+    ATH_CHECK( m_initializationHelper.retrieve() );
+    ATH_CHECK( m_routines.retrieve() );
+    ATH_CHECK( m_trkFilter.retrieve() );
+
     return StatusCode::SUCCESS;
   }
   
-
-   StatusCode InDetJetFitterVxFinder::finalize() {
-
-    msg(MSG::INFO) <<  "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS;
-
-  } 
 
   const Trk::VxSecVertexInfo* InDetJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
 							      const TLorentzVector & jetMomentum,

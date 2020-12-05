@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019, 2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -32,26 +32,10 @@ StraightLineIntersector::StraightLineIntersector (const std::string&	type,
 {
 }
 
-StraightLineIntersector::~StraightLineIntersector (void)
-{}
- 
-StatusCode
-StraightLineIntersector::initialize()
-{
-    // print name and package version
-    ATH_MSG_INFO( "StraightLineIntersector::initialize()"
-		  << " - package version " << PACKAGE_VERSION );
-
-    // initialize base class
-    if (StatusCode::SUCCESS != AlgTool::initialize()) return StatusCode::FAILURE;
-
-    return StatusCode::SUCCESS;
-}
-
 StatusCode
 StraightLineIntersector::finalize()
 {
-    ATH_MSG_INFO( "finalized after " << m_countExtrapolations << " extrapolations" );
+    ATH_MSG_DEBUG( "finalized after " << m_countExtrapolations << " extrapolations" );
 
     return StatusCode::SUCCESS;
 }

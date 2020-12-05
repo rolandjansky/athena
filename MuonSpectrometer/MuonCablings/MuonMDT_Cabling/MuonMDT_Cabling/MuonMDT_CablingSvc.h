@@ -5,17 +5,16 @@
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 #define MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
 
 class MuonMDT_CablingMap;
 class MdtMezzanineType;
 class StoreGateSvc;
 class IMDTCablingDbTool;
-class ITagInfoMgr;
 class IdentifierHash;
 
 #include <list>
@@ -23,8 +22,10 @@ class IdentifierHash;
 
 static const InterfaceID IID_IMuonMDT_CablingSvc("MuonMDT_CablingSvc", 1, 0);
 
-class MuonMDT_CablingSvc : public AthService  {
 
+class MuonMDT_CablingSvc : public AthService ,
+			   virtual public ITagInfoMgr::Listener
+{
  public:
 
   MuonMDT_CablingSvc(const std::string& name,ISvcLocator* sl);
@@ -99,7 +100,10 @@ class MuonMDT_CablingSvc : public AthService  {
 		   uint8_t& tdcId, uint8_t& channelId);
 
 
-  virtual StatusCode compareTags(IOVSVC_CALLBACK_ARGS);
+   // TagInfoMgr callback
+   virtual void tagInfoUpdated() override final { compareTags().ignore(); }
+
+   StatusCode compareTags();
 
   /** Returns true if we're using the old (non-DB) cabling*/
   bool usingOldCabling() const;

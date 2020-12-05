@@ -52,7 +52,7 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', Tracki
     else:
         asso_tool = None
 
-    InDetTrackFitterTRT = acc.popToolsAndMerge(TC.GlobalChi2FitterCfg(flags))
+    InDetTrackFitterTRT = acc.popToolsAndMerge(TC.InDetTrackFitterTRTCfg(flags))
     acc.addPublicTool(InDetTrackFitterTRT)
 
     InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
@@ -230,9 +230,6 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    top_acc.merge(MagneticFieldSvcCfg(ConfigFlags))
-
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
     top_acc.merge(TRT_GeometryCfg( ConfigFlags ))
 
@@ -264,9 +261,6 @@ if __name__ == "__main__":
     PixeldEdxAlg = CompFactory.PixeldEdxAlg(name="PixeldEdxAlg", ReadFromCOOL = True)
     top_acc.addCondAlgo(PixeldEdxAlg)
     ###
-    ###
-    top_acc.merge(addFoldersSplitOnline(ConfigFlags, "TRT", "/TRT/Onl/Cond/Status", "/TRT/Cond/Status", className='TRTCond::StrawStatusMultChanContainer'))
-
     InDetTRTStrawStatusSummaryTool = top_acc.popToolsAndMerge(TC.InDetTRTStrawStatusSummaryToolCfg(ConfigFlags))
     top_acc.addPublicTool(InDetTRTStrawStatusSummaryTool)
 
@@ -302,11 +296,11 @@ if __name__ == "__main__":
 
     top_acc.merge(TRTActiveCondAlgCfg(ConfigFlags))
     top_acc.merge(TC.TRT_DetElementsRoadCondAlgCfg())
-
+    ############################# TRTPreProcessing configuration ############################
     from InDetConfig.TRTPreProcessing import TRTPreProcessingCfg
     if not ConfigFlags.InDet.doDBMstandalone:
         top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
-
+    ########################### TRTSegmentFindingCfg configuration ##########################
     TrackingFlags = ConfigFlags.InDet.Tracking
     # NewTracking collection keys
     InputCombinedInDetTracks = []
@@ -316,7 +310,7 @@ if __name__ == "__main__":
                                         InputCombinedInDetTracks,
                                         TrackingFlags,
                                         'TRTSegments')) # InDetKeys.TRT_Segments
-
+    #########################################################################################
     ############################### TRTStandalone configuration #############################
     top_acc.merge(TRTStandaloneCfg( ConfigFlags, 
                                     extension = "",
@@ -327,7 +321,5 @@ if __name__ == "__main__":
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
 
-    top_acc.getService('StoreGateSvc').Dump = True
-    top_acc.printConfig(withDetails = True, summariseProps = True)
     top_acc.run(25)
     top_acc.store(open("test_TRTStandaloneConfig.pkl", "wb"))

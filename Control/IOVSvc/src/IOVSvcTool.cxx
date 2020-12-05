@@ -996,9 +996,13 @@ IOVSvcTool::preLoadProxies() {
         ATH_MSG_VERBOSE("preloading data for ("
                         << dp->clID() << "/"
                         << dp->name() << ")");
-
-        sc =  ( dp->accessData() != nullptr ?
-                StatusCode::SUCCESS : StatusCode::FAILURE );
+        if( dp->accessData() != nullptr ) {
+           sc = StatusCode::SUCCESS;
+        } else {
+           sc = StatusCode::FAILURE;
+           ATH_MSG_ERROR("preLoading proxies: accessData() failed for " <<
+                         dp->clID() << "/" << dp->name() << ")");
+        }
       }
     }
 

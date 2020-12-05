@@ -1,6 +1,5 @@
  <lcgdict>
 
-   <class name="CP::IEgammaCalibrationAndSmearingTool" />
    <class name="CP::EgammaCalibrationAndSmearingTool" />
 
    <class name="AtlasRoot::egammaEnergyCorrectionTool" />
@@ -19,5 +18,6 @@
 
    <class name="EgammaFactory" />
    <class name="LArTemperatureCorrectionTool" />
+
 
 </lcgdict>

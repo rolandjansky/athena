@@ -237,6 +237,9 @@ def setupMenu():
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j45_pf_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_010jvt_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_020jvt_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_050jvt_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_ftf_preselj20_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_subjesIS_ftf_preselj20_L1J20', groups=SingleJetGroup),
@@ -357,6 +360,7 @@ def setupMenu():
         ChainProp(name="HLT_tau160_medium1_tracktwoEF_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_tracktwoEF_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
+        #ATR-18804
         ChainProp(name="HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
@@ -364,6 +368,10 @@ def setupMenu():
         ChainProp(name="HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_perf_tracktwoMVABDT_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_idperf_tracktwoMVABDT_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100",groups=SingleTauGroup),  
+
         # ATR-21797
         # the following 3 chains were in serial mode in Run-2
         ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40",         l1SeedThresholds=['TAU60','TAU40'],     groups=MultiTauGroup),

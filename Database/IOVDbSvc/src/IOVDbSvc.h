@@ -35,6 +35,7 @@
 #include "AthenaKernel/IIOVDbSvc.h"
 #include "IOVDbSvc/IIOVCondDbSvc.h"
 #include "AthenaKernel/IOVTime.h"
+#include "AthenaKernel/IAddressProvider.h"
 
 #include "CoolKernel/IDatabase.h"
 #include "CoolKernel/ValidityKey.h"

@@ -1034,16 +1034,23 @@ namespace asg
     std::make_tuple ("anaPublicHandle",  "public",  "NOINIT"),
     std::make_tuple ("regPublicHandle",  "public",  "empty"),
     std::make_tuple ("anaPublicHandle",  "public",  "empty"),
-    std::make_tuple ("regPrivateHandle", "private", "ATH"),
-    std::make_tuple ("anaPrivateHandle", "private", "ATH"),
-    std::make_tuple ("regPrivateHandle", "private", "TH"),
-    std::make_tuple ("anaPrivateHandle", "private", "TH"),
-    std::make_tuple ("regPrivateHandle", "private", "NOINIT"),
-    std::make_tuple ("anaPrivateHandle", "private", "NOINIT"),
     std::make_tuple ("regPrivateHandle", "private", "empty"),
     std::make_tuple ("anaPrivateHandle", "private", "empty"),
     std::make_tuple ("regPrivateHandle", "private", "none"),
     std::make_tuple ("anaPrivateHandle", "private", "none")));
+
+  // these tests no longer work in Athena since the migration to
+  // IOptionsSvc
+#ifdef XAOD_STANDALONE
+  INSTANTIATE_TEST_SUITE_P
+  (MySubtoolTest2, SubtoolTest, ::testing::Values
+   (std::make_tuple ("regPrivateHandle", "private", "ATH"),
+    std::make_tuple ("anaPrivateHandle", "private", "ATH"),
+    std::make_tuple ("regPrivateHandle", "private", "TH"),
+    std::make_tuple ("anaPrivateHandle", "private", "TH"),
+    std::make_tuple ("regPrivateHandle", "private", "NOINIT"),
+    std::make_tuple ("anaPrivateHandle", "private", "NOINIT")));
+#endif
 }
 
 ATLAS_GOOGLE_TEST_MAIN

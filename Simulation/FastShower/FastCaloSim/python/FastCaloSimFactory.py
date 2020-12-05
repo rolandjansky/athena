@@ -1,14 +1,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.Constants import *
-from RecExConfig.Configured import Configured
-
 def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
 
     from AthenaCommon.Logging import logging
     mlog = logging.getLogger( 'FastCaloSimFactory::configure:' )
 
-    from CaloRec.CaloCellFlags import jobproperties
     from AthenaCommon.AppMgr import ToolSvc
 
     #########################################################################################################
@@ -45,11 +41,10 @@ def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
     #theFastShowerCellBuilderTool.Invisibles=[12, 14, 16, 1000022]
     
     #########################################################################################################
-    import os
 
     try:
         ParticleParametrizationFileName=theFastShowerCellBuilderTool.ParticleParametrizationFileName
-    except:
+    except Exception:
         ParticleParametrizationFileName=""
     
     if ParticleParametrizationFileName=="" and len(theFastShowerCellBuilderTool.AdditionalParticleParametrizationFileNames)==0:
@@ -66,8 +61,3 @@ def FastCaloSimFactory(name="FastCaloSimFactory", **kwargs):
     mlog.info (theFastShowerCellBuilderTool)
 
     return theFastShowerCellBuilderTool
-
-def getFastShowerCellBuilderTool(name="FastShowerCellBuilderTool", **kwargs):
-
-    return FastShowerCellBuilderTool()
-
