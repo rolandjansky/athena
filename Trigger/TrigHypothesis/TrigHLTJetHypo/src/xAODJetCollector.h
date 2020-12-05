@@ -48,7 +48,6 @@ public:
 
     
   std::vector<const xAOD::Jet*>
-
   xAODJets_(const HypoJetVector::const_iterator begin,
 	    const HypoJetVector::const_iterator end
 	    )  const;

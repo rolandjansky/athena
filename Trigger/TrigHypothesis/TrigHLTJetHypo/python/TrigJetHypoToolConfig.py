@@ -102,23 +102,26 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
                                           toolSetter)
 
 
-def  trigJetHypoToolFromDict_(chain_dict, tool, debug=False):
+def  trigJetHypoToolFromDict_(chain_dict, hypo_tool, debug=False):
     """Produce  a jet trigger hypo tool from a chainDict"""
 
     log.debug('trigJetHypoToolFromDict_ tool type ',
-              tool.__class__.__name__,
+              hypo_tool.__class__.__name__,
               ' chainDict ',
               str(chain_dict))
 
     # obtain  a Helper Tool (possibly a tree of tools) to
     # make the hypo decision.
-    tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
+    hypo_tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
 
     # controls whether debug visitor is sent to helper tool
-    tool.visit_debug = debug
-    log.debug('%s', tool)
+    hypo_tool.visit_debug = debug
 
-    return tool
+    hypo_tool.chain_name = chain_dict['chainName']
+
+    log.debug('%s', hypo_tool)
+
+    return hypo_tool
 
 
 def  trigJetTLAHypoToolFromDict(chain_dict):
