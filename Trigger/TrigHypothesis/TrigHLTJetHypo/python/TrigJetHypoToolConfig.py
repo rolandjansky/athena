@@ -130,7 +130,7 @@ def  trigJetTLAHypoToolFromDict(chain_dict):
 
 
 def  trigJetHypoToolFromDict(chain_dict):
-    debug = True  # REMOVE WHEN COMMITTING
+    debug = False  # REMOVE WHEN COMMITTING
     tool = CompFactory.TrigJetHypoToolMT(name=chain_dict['chainName'])
     return trigJetHypoToolFromDict_(chain_dict, tool, debug)
 
