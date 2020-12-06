@@ -11,5 +11,5 @@ atlas_add_component( TauDQA
    src/*.h src/*.cxx src/components/*.cxx
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps
-   AthenaMonitoringLib TauAnalysisToolsLib TauHistUtils xAODJet xAODEgamma
+   AthenaMonitoringLib TauAnalysisToolsLib TrkValHistUtils xAODJet xAODEgamma
    xAODTau xAODTruth )

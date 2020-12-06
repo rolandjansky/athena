@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TauHistUtils/Migration.h"
+#include "Migration.h"
 
 namespace Tau{
 

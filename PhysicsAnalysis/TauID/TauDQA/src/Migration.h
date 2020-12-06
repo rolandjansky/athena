@@ -1,15 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUHISTUTILS_MIGRATION_H
-#define TAUHISTUTILS_MIGRATION_H
+#ifndef TAUDQA_MIGRATION_H
+#define TAUDQA_MIGRATION_H
 
 #include "TrkValHistUtils/PlotBase.h"
-#include "TauHistUtils/ParamPlots.h"
-#include "xAODTau/TauDefs.h" 
+#include "ParamPlots.h"
 #include "xAODTau/TauJet.h"
-#include "xAODPFlow/versions/PFO_v1.h"
+#include "xAODPFlow/PFO.h"
 
 namespace Tau{
 

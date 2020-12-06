@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUHISTUTILS_NEWCOREPLOTS_H
-#define TAUHISTUTILS_NEWCOREPLOTS_H
+#ifndef TAUDQA_NEWCOREPLOTS_H
+#define TAUDQA_NEWCOREPLOTS_H
 
 #include "GeneralTauPlots.h"
 #include "xAODTau/TauJet.h"
