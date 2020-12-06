@@ -92,8 +92,8 @@ MdtCalibrationTool::Imp::Imp(std::string name) :
 {}
 
 
-MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent)
-  : base_class(type, name, parent)
+MdtCalibrationTool::MdtCalibrationTool(const std::string& type, const std::string &name, const IInterface* parent) : base_class(type, name, parent),
+  m_hasBISsMDT(false)
 {
   m_imp.reset(new MdtCalibrationTool::Imp(name));
   // settable properties
@@ -134,6 +134,11 @@ StatusCode MdtCalibrationTool::initialize() {
     ATH_MSG_INFO("Processing configuration for layouts with BMG chambers.");
     m_imp->m_BMGid = m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG");
   }
+
+  int bisIndex=m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
+  Identifier bis7Id = m_idHelperSvc->mdtIdHelper().elementID(bisIndex, 7, 1);
+  if (m_idHelperSvc->issMdt(bis7Id)) m_hasBISsMDT=true;
+
   // initialise MuonGeoModel access
   ATH_CHECK(detStore()->retrieve( m_imp->m_muonGeoManager ));
 
@@ -258,9 +263,15 @@ bool MdtCalibrationTool::driftRadiusFromTime( MdtCalibHit &hit,
     // get t0 shift from tool (default: no shift, value is zero)
     if (m_imp->m_doT0Shift) t0 += m_imp->m_t0ShiftSvc->getValue(id);
   } else {
-    ATH_MSG_WARNING("MdtTubeCalibContainer not found for "
-		      << m_idHelperSvc->mdtIdHelper().print_to_string( id ));
-    ATH_MSG_WARNING( "Tube cannot be calibrated!!!" );
+    if (m_hasBISsMDT) {
+      static std::atomic<bool> bisWarningPrinted = false;
+      if (!bisWarningPrinted) {
+        ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated, cf. ATLASRECTS-5819");
+        bisWarningPrinted.store(true, std::memory_order_relaxed);
+      }
+    } else {
+      ATH_MSG_WARNING("MdtTubeCalibContainer not found for " << m_idHelperSvc->mdtIdHelper().print_to_string( id ) << " - Tube cannot be calibrated!");
+    }
     return false;
   }
 
@@ -480,7 +491,7 @@ bool MdtCalibrationTool::twinPositionFromTwinHits( MdtCalibHit &hit,
   } else {
     ATH_MSG_WARNING( "MdtTubeCalibContainer not found for "
 		     << m_idHelperSvc->mdtIdHelper().print_to_string( id ) );
-    ATH_MSG_WARNING( "Tube cannot be calibrated!!!" );
+    ATH_MSG_WARNING( "Tube cannot be calibrated!!" );
     return false;
   }
 
