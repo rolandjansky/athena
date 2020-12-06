@@ -29,6 +29,8 @@
 // DeltaR calculation
 #include "FourMomUtils/xAODP4Helpers.h"
 
+#include "tauRecTools/HelperFunctions.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 
 namespace met {
@@ -108,8 +110,26 @@ namespace met {
                                                    const met::METAssociator::ConstitHolder& /*tcCont*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
-    tclist = xAOD::TauHelpers::clusters(*tau, 0.2);
+    TLorentzVector tauAxis = tauRecTools::getTauAxis(*tau);
+    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
 
+    auto clusterList = tau->clusters();
+    for (const xAOD::IParticle* particle : clusterList) {
+      const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
+      
+      TLorentzVector clusterP4 = cluster->p4();
+      
+      // Correct the four momentum to point at the tau vertex
+      if (tauVertex) {
+        xAOD::CaloVertexedTopoCluster vertexedCluster(*cluster, tauVertex->position()); 
+        clusterP4 = vertexedCluster.p4();
+      }
+        
+      if (clusterP4.DeltaR(tauAxis) > 0.2) continue;
+    
+      tclist.push_back(particle);
+    }
+  
     return StatusCode::SUCCESS;
   }
 
