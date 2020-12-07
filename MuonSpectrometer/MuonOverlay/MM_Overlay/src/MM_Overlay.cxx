@@ -107,7 +107,7 @@ MM_Overlay::MM_Overlay(const std::string &name, ISvcLocator *pSvcLocator) :
   m_storeGateTemp("StoreGateSvc/BkgEvent_1_SG", name),
   m_storeGateTempBkg("StoreGateSvc/BkgEvent_2_SG", name),
   m_mmHelper(0),
-  m_digTool("MmDigitizationTool", this ),
+  m_digTool("MM_DigitizationTool", this ),
   m_rdoTool("MuonRdoToMuonDigitTool", this )
 {
   
