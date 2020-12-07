@@ -34,6 +34,9 @@ using namespace GeoXF;
 
 #define verbose_multilayer false
 
+// the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+static constexpr unsigned int const maxNTubesPerLayer = 120;
+
 namespace MuonGM {
 
 MultiLayer::MultiLayer(std::string n): DetectorElement(n),
@@ -294,7 +297,9 @@ GeoFullPhysVol* MultiLayer::build()
     slay = &(slay->subtract( (*sbox)<<HepGeom::Translate3D(0.,0.,length/2.)));
 
     for (int i = 0; i < nrOfLayers; i++) {
-      if (xx[i] > tubePitch/2. + 10.*CLHEP::mm) {
+      // check in which tubeLayers the layer x position is outside of the envelope and add tube to envelope (not for BMG)
+      if (logVolName.find("BMG")==std::string::npos && 2*xx[i]>=tubePitch) {
+
         // subtract tube at the start
         if (verbose_multilayer) std::cout << " Cutting tube at xx = " << yy[i]
                                           << " z = " << -length/2. << std::endl;
@@ -577,7 +582,7 @@ GeoFullPhysVol* MultiLayer::build()
             TRANSFUNCTION t = HepGeom::TranslateY3D(0.)*HepGeom::RotateX3D(90*CLHEP::deg)*
                               HepGeom::TranslateX3D(tstart)*Pow(HepGeom::TranslateY3D(1.0),f);
             GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nt);
-            play->add(new GeoSerialIdentifier(100*(i+1)+nttot + 1));
+            play->add(new GeoSerialIdentifier(maxNTubesPerLayer*(i+1)+nttot + 1));
             play->add(s);
 
             nttot = nttot + nt;
@@ -639,7 +644,7 @@ GeoFullPhysVol* MultiLayer::build()
             TRANSFUNCTION t = HepGeom::TranslateY3D(dy)*HepGeom::RotateX3D(90*CLHEP::deg)*
                               HepGeom::TranslateX3D(tstart)*Pow(HepGeom::TranslateY3D(1.0),f);
             GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nt);
-            play->add(new GeoSerialIdentifier(100*(i+1)+nttot + 1));
+            play->add(new GeoSerialIdentifier(maxNTubesPerLayer*(i+1)+nttot + 1));
             play->add(s);
 
             nttot = nttot + nt;
@@ -665,7 +670,7 @@ GeoFullPhysVol* MultiLayer::build()
                           Pow(HepGeom::TranslateY3D(1.0),f);
         GeoVPhysVol* tV = tubeVector[0];	
         GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nrOfTubes);
-	play->add(new GeoSerialIdentifier(100*(i+1)+1));
+	play->add(new GeoSerialIdentifier(maxNTubesPerLayer*(i+1)+1));
         play->add(s);
       }
     } else {
@@ -683,7 +688,7 @@ GeoFullPhysVol* MultiLayer::build()
           TRANSFUNCTION t = HepGeom::RotateX3D(90*CLHEP::deg)*HepGeom::TranslateX3D(tstart)*
                             Pow(HepGeom::TranslateY3D(1.0),f);
           GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nrTubesPerStep);
-          play->add(new GeoSerialIdentifier(100*(i+1)+j*nrTubesPerStep + 1));
+          play->add(new GeoSerialIdentifier(maxNTubesPerLayer*(i+1)+j*nrTubesPerStep + 1));
           play->add(s);      
         }
       }

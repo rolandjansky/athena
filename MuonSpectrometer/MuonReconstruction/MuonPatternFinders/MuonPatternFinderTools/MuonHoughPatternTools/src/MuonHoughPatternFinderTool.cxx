@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonHoughPatternTools/MuonHoughPatternFinderTool.h"
@@ -21,8 +21,6 @@
 
 #include "TrkSurfaces/Surface.h"
 
-//#include "MuonGeoModel/MuonDetectorManager.h"
-//#include "MuonGeoModel/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 
@@ -47,6 +45,8 @@
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
 #include "StoreGate/StoreGateSvc.h"
+
+// maxNTubesPerLayer is included via DriftCircle.h
 
 using namespace TrkDriftCircleMath;
 
@@ -1658,7 +1658,7 @@ namespace Muon {
     int nhits = 0;
     for( ;it1!=it_end;++it1, nhits++ ) {
       sel[nhits] = 0;
-      int isort = 100*(4*(it1->id().ml()) + it1->id().lay()) + it1->id().tube();
+      int isort = maxNTubesPerLayer*(4*(it1->id().ml()) + it1->id().lay()) + it1->id().tube();
       dcsId[isort] = nhits;
       int ilay = 4*(it1->id().ml()) + it1->id().lay();
       ATH_MSG_VERBOSE (" ilay " << ilay << " isort " << isort);
@@ -1755,7 +1755,7 @@ namespace Muon {
     TrkDriftCircleMath::DCOnTrackIt itt_end = hitsOnLineSel.end();
     int i = 0;
     for( ;itt!=itt_end;++itt,i++ ) {
-      int isort = 100*(4*(itt->id().ml()) + itt->id().lay()) + itt->id().tube();
+      int isort = maxNTubesPerLayer*(4*(itt->id().ml()) + itt->id().lay()) + itt->id().tube();
       if (dcsId.count(isort) == 1) {
 	int dcsIndex = dcsId[isort];
 	sel[dcsIndex] = 1;

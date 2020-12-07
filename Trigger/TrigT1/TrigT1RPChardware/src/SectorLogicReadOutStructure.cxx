@@ -70,8 +70,7 @@ ubit16 SectorLogicReadOutStructure::decodeFragment(ubit16 inputWord, char &field
 bool SectorLogicReadOutStructure::isBody()
 {
   ubit16 theword = (m_word&0xf000)>>12;
-  if( (theword != headerVal) && 
-      (theword != footerVal) ) return true;
+  if( (theword != headerVal) && (theword != footerVal) ) return true;
   return false;
 }
 //----------------------------------------------------------------------------//

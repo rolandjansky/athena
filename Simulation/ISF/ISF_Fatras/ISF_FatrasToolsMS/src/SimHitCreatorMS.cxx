@@ -33,6 +33,9 @@
 #include "CLHEP/Random/RandLandau.h"
 #include "CLHEP/Random/RandGauss.h"
 
+// the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+static constexpr unsigned int const maxNTubesPerLayer = 120;
+
 //================ Constructor =================================================
 
 iFatras::SimHitCreatorMS::SimHitCreatorMS(const std::string& t,
@@ -527,8 +530,8 @@ void iFatras::SimHitCreatorMS::initDeadChannels(const MuonGM::MdtReadoutElement*
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
       bool tubefound = false;
       for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        int tubegeo = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / maxNTubesPerLayer;
         if( tubegeo == tube && layergeo == layer ) {
           tubefound=true;
           break;
