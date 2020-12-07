@@ -61,13 +61,13 @@ def generateChains( flags,  chainDict ):
                                                           RequireParentView = True)
     del name
 
-    from TrigInDetConfig.TrigInDetConfig import trigInDetCfg
-    idTracking = trigInDetCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName="Electron")
+    from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
+    idTracking = trigInDetFastTrackingCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName="Electron")
 
     fastInDetReco = InViewReco("FastElectron", viewMaker=evtViewMaker)
     fastInDetReco.mergeReco(idTracking)
-    fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier( name = 'VDVElectronFastCalo',
-                              DataObjects=[('xAOD::TrigEMClusterContainer' , 'StoreGateSvc+HLT_FastCaloEMClusters')]) )
+    fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVElectronFastCalo',
+                              DataObjects=[('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_FastCaloEMClusters')]))
 
     from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import fastElectronFexAlgCfg
     fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=evtViewMaker.InViewRoIs))
@@ -92,8 +92,9 @@ def generateChains( flags,  chainDict ):
     
     # # # EF calo
 
-    # # # EF ID
+    # # # Precison tracking
     
+
     # # # offline egamma
     emptyStep = ChainStep(name="EmptyElStep", Sequences=[EmptyMenuSequence("EmptyElStep")], chainDicts=[chainDict])
     chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep, emptyStep, emptyStep])

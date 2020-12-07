@@ -6,7 +6,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigL2MuonSA.TrigL2MuonSAConfig_newJO import l2MuFastAlgCfg, l2MuFastHypoCfg
 from TrigmuComb.TrigmuCombConfig_newJO import l2MuCombRecoCfg, l2MuCombHypoCfg
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMufastHypoToolFromDict, TrigmuCombHypoToolFromDict, TrigMuonEFMSonlyHypoToolFromDict, TrigMuonEFCombinerHypoToolFromDict
-from TrigInDetConfig.TrigInDetConfig import trigInDetCfg
+from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainDict
 
@@ -244,7 +244,7 @@ def generateChains( flags, chainDict ):
         recoL2CB.mergeReco( MuCombViewDataVerifier() )
 
         #ID tracking
-        accID = trigInDetCfg( flags, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" )
+        accID = trigInDetFastTrackingCfg( flags, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" )
         recoL2CB.mergeReco(accID)
 
         accL2CB.merge(recoL2CB, sequenceName = stepL2CBReco.getName())
