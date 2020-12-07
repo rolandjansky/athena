@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ 1;95;0c Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s).
@@ -27,4 +27,6 @@ AUX_VAR( DL1r_pu );
 AUX_VAR( MV2c00_discriminant );
 AUX_VAR( MV2c10_discriminant );
 AUX_VAR( MV2c20_discriminant );
+AUX_VAR( MV2c10mu_discriminant );
+AUX_VAR( MV2c10rnn_discriminant );
 AUX_VAR( SMT_discriminant );
