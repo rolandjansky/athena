@@ -118,7 +118,6 @@ namespace Muon {
     typedef std::vector<HoughDataPerSector>       HoughDataPerSectorVec;
     typedef HoughDataPerSectorVec::const_iterator HoughDataPerSectorCit;
     
-    
     class Road {
     public:
       Road(MuonHough::MuonLayerHough::Maximum& seed_) : neighbouringRegion(MuonStationIndex::DetectorRegionUnknown), neighbouringSector(-1), seed(&seed_) { add(seed); }
