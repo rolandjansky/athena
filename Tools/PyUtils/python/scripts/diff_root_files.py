@@ -248,7 +248,10 @@ def main(args):
         new_dump_iter = fnew.dump(args.tree_name, itr_entries_new)
 
         def leafname_fromdump(entry):
-            return '.'.join([s for s in entry[2] if not s.isdigit()])
+            if entry is None:
+                return None
+            else:
+                return '.'.join([s for s in entry[2] if not s.isdigit()])
         
         @memoize
         def skip_leaf(name_from_dump, skip_leaves):
