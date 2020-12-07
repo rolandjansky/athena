@@ -24,35 +24,6 @@ addJetRecoToAlgSequence(DerivationFrameworkJob,eventShapeTools=None)
 DFJetAlgs = {}
 
 ##################################################################
-# Schedule the augmentation of a flag to label events with large
-# EMEC-IW Noise based on the presence of many bad quality clusters
-##################################################################
-if hasattr(DerivationFrameworkJob,"BadBatmanAugmentation"):
-    dfjetlog.warning( "BadBatmanAugmentation: BadBatmanAugmentation already scheduled on sequence "+DerivationFrameworkJob.name )
-else:
-    # Check if we have clusters.  If we don't then this cannot run
-    from RecExConfig.ObjKeyStore import objKeyStore
-    if objKeyStore.isInInput( "xAOD::CaloClusterContainer", "CaloCalTopoClusters" ):
-        # schedule it
-        batmanaug = CfgMgr.DerivationFramework__CommonAugmentation("BadBatmanAugmentation")
-        DerivationFrameworkJob += batmanaug
-        batmanaugtool = None
-        from AthenaCommon.AppMgr import ToolSvc        
-        # create and add the tool to the alg if needed
-        if hasattr(ToolSvc,"BadBatmanAugmentationTool"):
-            batmanaugtool = getattr(ToolSvc,"BadBatmanAugmentationTool")
-        else:
-            batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
-            ToolSvc += batmanaugtool
-        if not batmanaugtool in batmanaug.AugmentationTools:
-            batmanaug.AugmentationTools.append(batmanaugtool)
-    else:
-        if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
-            dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
-
-######################
-
-##################################################################
 #                  Definitions of helper functions 
 ##################################################################
 
@@ -497,25 +468,33 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
 # EMEC-IW Noise based on the presence of many bad quality clusters
 ##################################################################
 def addBadBatmanFlag(sequence=DerivationFrameworkJob):
-    # simple set up -- either the alg exists and contains the tool, in which case we exit
     if hasattr(sequence,"BadBatmanAugmentation"):
-        print "BadBatmanAugmentation: BadBatmanAugmentation already scheduled on sequence", sequence.name
-        return
+        dfjetlog.warning( "BadBatmanAugmentation: BadBatmanAugmentation already scheduled on sequence "+sequence.name )
     else:
-        # otherwise schedule it
-        batmanaug = CfgMgr.DerivationFramework__CommonAugmentation("BadBatmanAugmentation")
-        sequence += batmanaug
-
-        batmanaugtool = None
-        from AthenaCommon.AppMgr import ToolSvc        
-        # create and add the tool to the alg if needed
-        if hasattr(ToolSvc,"BadBatmanAugmentationTool"):
-            batmanaugtool = getattr(ToolSvc,"BadBatmanAugmentationTool")
+        # Check if we have clusters.  If we don't then this cannot run
+        from RecExConfig.ObjKeyStore import objKeyStore
+        if objKeyStore.isInInput( "xAOD::CaloClusterContainer", "CaloCalTopoClusters" ):
+            # schedule it
+            batmanaug = CfgMgr.DerivationFramework__CommonAugmentation("BadBatmanAugmentation")
+            sequence += batmanaug
+            batmanaugtool = None
+            from AthenaCommon.AppMgr import ToolSvc        
+            # create and add the tool to the alg if needed
+            if hasattr(ToolSvc,"BadBatmanAugmentationTool"):
+                batmanaugtool = getattr(ToolSvc,"BadBatmanAugmentationTool")
+            else:
+                batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
+                ToolSvc += batmanaugtool
+            if not batmanaugtool in batmanaug.AugmentationTools:
+                batmanaug.AugmentationTools.append(batmanaugtool)
         else:
-            batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
-            ToolSvc += batmanaugtool
-        if not batmanaugtool in batmanaug.AugmentationTools:
-            batmanaug.AugmentationTools.append(batmanaugtool)
+            if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+                dfjetlog.warning('Could not schedule BadBatmanAugmentation (fine if running on EVNT)')
+
+# Run it by default if we are not running on EVNT
+if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+    addBadBatmanFlag(DerivationFrameworkJob)
+##################################################################
 
 ##################################################################
 # Schedule the adding of BCID info
