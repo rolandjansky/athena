@@ -14,7 +14,6 @@ geometry=$3
 script=$4
 clustering=$5
 
-
 echo 'Particle type: '${particle}', energy: '${energy}', geometry: '${geometry}', script name: '${script}', clustering: '${clustering}
 
 if [ ${particle} == "muons" ]; then
@@ -49,8 +48,10 @@ run() { (set -x; exec "$@") }
 
 # Following specify which steps to run.
 dosim=1
-dorec=1    # Reco_tf.py not yet working
+dorec=1
 dophy=1    # If dorec=0, set dophy=1 to run InDetPhysValMonitoring over old ESD
+dofast=1    # Run fast reco
+dophyfast=1 # Run IDPVM over fast reco outputs
 
 # Following specify DCube output directories. Set empty to disable.
 dcube_sim_fixref="dcube_sim_${particle}_${energy}"
@@ -86,7 +87,6 @@ if [ $dosim -ne 0 ]; then
 else
   echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
   exit
-###  hits_muons_1GeV="$hits_ref_muons_1GeV"
 fi
 if [ $dorec -ne 0 ]; then
   esd_particle_energy=physval_${particle}_${energy}.ESD.root
@@ -94,15 +94,12 @@ if [ $dorec -ne 0 ]; then
 else
   echo "Sim job not configured to run... no HITS input available for reco step, exiting test!"
   exit
-###   esd_muons_1GeV=$artdata/InDetSLHC_Example/inputs/InclinedDuals_ESD_mu_1GeV.root
-###   daod_muons_1GeV=$artdata/InDetSLHC_Example/inputs/physval_muons_1GeV.DAOD_IDTRKVALID.root
 fi
-#jo=$artdata/InDetSLHC_Example/jobOptions/PhysValITk_jobOptions.py moved to share/
+
 dcubemon_sim=SiHitValid_${particle}_${energy}.root
 dcubemon_digi_pixel=PixelRDOAnalysis_${particle}_${energy}.root
 dcubemon_digi_strip=SCT_RDOAnalysis_${particle}_${energy}.root
 dcubemon_rec=physval_${particle}_${energy}.root
-
 
 
 dcubecfg_sim=${artdata}/InDetSLHC_Example/dcube/config/ITk_SiHitAnalysis.xml
@@ -112,14 +109,14 @@ dcubecfg_rec=${artdata}/InDetSLHC_Example/dcube/config/ITk_IDPVM.xml
 
 
 if [ ${clustering} == 'digital' ]; then
-  dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_digi.root
+  dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-22-02-00_single_${particle1}_${energy1}_digi.root
 elif [ ${clustering} == 'analogue' ]; then
-  dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}_ana.root
+  dcuberef_rec=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-22-02-00_single_${particle1}_${energy1}_ana.root
 fi
 
-dcuberef_sim=${artdata}/InDetSLHC_Example/ReferenceHistograms/SiHit_ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
-dcuberef_digi_pixel=${artdata}/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
-dcuberef_digi_strip=${artdata}/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis.ATLAS-P2-ITK-17-04-02_single_${particle1}_${energy1}.root
+dcuberef_sim=${artdata}/InDetSLHC_Example/ReferenceHistograms/SiHit_ATLAS-P2-ITK-22-02-00_single_${particle1}_${energy1}.root
+dcuberef_digi_pixel=${artdata}/InDetSLHC_Example/ReferenceHistograms/PixelRDOAnalysis.ATLAS-P2-ITK-22-02-00_single_${particle1}_${energy1}.root
+dcuberef_digi_strip=${artdata}/InDetSLHC_Example/ReferenceHistograms/SCT_RDOAnalysis.ATLAS-P2-ITK-22-02-00_single_${particle1}_${energy1}.root
 
 
 art_dcube=/cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube
@@ -152,6 +149,8 @@ dcube() {
   test "$dcubedir" != "dcube" && run mv -f dcube "$dcubedir"
   test -n "$keep" && run mv -f "$keep" dcube
 }
+
+
 
 if [ $dosim -ne 0 ]; then
 
@@ -217,7 +216,6 @@ if [ $dorec -ne 0 ]; then
       --outputAODFile    "physval_${particle}_${energy}.AOD.root" \
       --outputDAOD_IDTRKVALIDFile "$daod_particle_energy" \
       --maxEvents        -1 \
-      --steering 'doRAWtoALL' \
       --digiSteeringConf 'StandardInTimeOnlyTruth' \
       --geometryVersion "all:${geometry}" \
       --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
@@ -231,16 +229,15 @@ if [ $dorec -ne 0 ]; then
 
 
 
-
-
-
-
   reco_stat=$?
   echo "art-result: $reco_stat reco"
   if [ "$reco_stat" -ne 0 ]; then
       echo "$script: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
       run rm -f jobReport.json
   fi
+
+  mv runargs.RAWtoALL.py runargs.default.RAWtoALL.py
+  mv log.RAWtoALL log.default.RAWtoALL
   
   mv ./PixelRDOAnalysis.root ./$dcubemon_digi_pixel
   mv ./SCT_RDOAnalysis.root ./$dcubemon_digi_strip
@@ -262,7 +259,6 @@ if [ $dophy -ne 0 ]; then
   if [ ! -s "$esd_particle_energy" ]; then
     echo "$script: Reco_tf output '$esd_particle_energy' not created - exit" 2>&1
     echo "art-result: 21 physval"
-#   test -n "$dcube_rec_fixref"  && echo "art-result: 22 plot-fixref"
     test -n "$dcube_rec_lastref" && echo "art-result: 22 plot"
     exit
   fi
@@ -271,7 +267,6 @@ if [ $dophy -ne 0 ]; then
   # It should eventually be possible to include this in the reco step, but this needs Reco_tf to support the ITk IDPVM setup.
   ( set -x
     exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py -c "INFILE='$daod_particle_energy'"
-###MW    exec athena.py InDetSLHC_Example/PhysValITk_jobOptions.py -c "INFILE='$daod_particle_energy'"
   )
   echo "art-result: $? physval"
   
@@ -282,4 +277,77 @@ if [ $dophy -ne 0 ]; then
   dcube InDetPhysValMonitoring plot "$dcubemon_rec" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec" "$dcube_rec_lastref"
   dcube InDetPhysValMonitoring ""   "$dcubemon_rec" "$dcubecfg_rec"                         "$dcuberef_rec" "$dcube_rec_fixref"
   
+fi
+
+
+if [ $dofast -ne 0 ]; then
+
+  esd_particle_energy_fast=physval_${particle}_${energy}.fast.ESD.root
+  aod_particle_energy_fast=physval_${particle}_${energy}.fast.AOD.root
+  daod_particle_energy_fast=physval_${particle}_${energy}.fast.DAOD_IDTRKVALID.root
+
+  dcubemon_rec_fast=physval_${particle}_${energy}.fast.root
+  dcuberef_rec_fast=${artdata}/InDetSLHC_Example/ReferenceHistograms/physval.ATLAS-P2-ITK-22-02-00_single_${particle1}_${energy1}_fast.root
+
+  dcube_rec_fast_fixref="dcube_fast_${particle}_${energy}"
+  dcube_rec_fast_lastref="dcube_fast_${particle}_${energy}_last"
+  dcube_rec_fast_std="dcube_fast_${particle}_${energy}_std"
+
+
+  # Reco step for fast tracking, starting from previous RDO
+  run Reco_tf.py \
+      --inputRDOFile    "physval_${particle}_${energy}.RDO.root" \
+      --outputESDFile    "$esd_particle_energy_fast" \
+      --outputAODFile    "$aod_particle_energy_fast" \
+      --outputDAOD_IDTRKVALIDFile "$daod_particle_energy_fast" \
+      --maxEvents        -1 \
+      --digiSteeringConf 'StandardInTimeOnlyTruth' \
+      --geometryVersion "all:${geometry}" \
+      --conditionsTag    OFLCOND-MC15c-SDR-14-03 \
+      --DataRunNumber    242000 \
+      --steering doRAWtoALL \
+      --postInclude 'all:InDetSLHC_Example/postInclude.SLHC_Setup_ITK.py,InDetSLHC_Example/postInclude.SLHC_Setup.py' 'default:'${clustering_type}''\
+      --preExec 'all:from AthenaCommon.GlobalFlags import globalflags; globalflags.DataSource.set_Value_and_Lock("geant4"); from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags; SLHC_Flags.doGMX.set_Value_and_Lock(True)'\
+     'default:from InDetRecExample.InDetJobProperties import InDetFlags;from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc;ServiceMgr +=PixelCalibSvc();InDetFlags.useDCS.set_Value_and_Lock(True);ServiceMgr.PixelCalibSvc.DisableDB=True; from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags; InDetDxAODFlags.DumpLArCollisionTime.set_Value_and_Lock(False);InDetDxAODFlags.DumpSctInfo.set_Value_and_Lock(True); InDetDxAODFlags.ThinHitsOnTrack.set_Value_and_Lock(False); InDetFlags.doFastTracking.set_Value_and_Lock(True);'\
+       --preInclude  'all:InDetSLHC_Example/preInclude.SLHC_Setup.py,InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py' 'default:InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py,InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py'\
+       --postExec 'RAWtoESD:ToolSvc.InDetSCT_ClusteringTool.useRowInformation=True; from AthenaCommon.AppMgr import ToolSvc; ToolSvc.InDetTrackSummaryTool.OutputLevel=INFO;from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysHitDecoratorTool;hitDecoratorTool = InDetPhysHitDecoratorTool(UseNewITkLayerNumbering = False);ToolSvc += hitDecoratorTool;from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg;decorators = InDetPhysValDecoratorAlg();topSequence += decorators;' 'all:ServiceMgr.PixelLorentzAngleSvc.ITkL03D = True'
+
+  reco_stat=$?
+  echo "art-result: $reco_stat reco"
+  if [ "$reco_stat" -ne 0 ]; then
+      echo "$script: Reco_tf.py isn't working yet. Remove jobReport.json to prevent pilot declaring a failed job."
+      run rm -f jobReport.json
+  fi
+
+  mv runargs.RAWtoALL.py runargs.fast.RAWtoALL.py
+  mv log.RAWtoALL log.fast.RAWtoALL
+
+  if [ $dophyfast -ne 0 ]; then
+
+    ## phys validation and dcube for single particles
+    run ls -lLU "$esd_particle_energy_fast"
+
+    if [ ! -s "$esd_particle_energy_fast" ]; then
+      echo "$script: Reco_tf output '$esd_particle_energy_fast' not created - exit" 2>&1
+      echo "art-result: 21 physval"
+      test -n "$dcube_rec_fast_lastref" && echo "art-result: 22 plot"
+      exit
+    fi
+
+    # Run InDetPhysValMonitoring on DAOD.
+    # It should eventually be possible to include this in the reco step, but this needs Reco_tf to support the ITk IDPVM setup.
+    ( set -x
+      exec athena.py InDetPhysValMonitoring/PhysValITk_jobOptions.py -c "INFILE='$daod_particle_energy_fast'"
+    )
+    echo "art-result: $? physval"
+
+    mv ./MyPhysVal.root ./$dcubemon_rec_fast
+
+    # DCube InDetPhysValMonitoring performance plots
+    dcube InDetPhysValMonitoring plot "$dcubemon_rec_fast" "$dcubecfg_rec" "$lastref_dir/$dcubemon_rec_fast" "$dcube_rec_fast_lastref"
+    dcube InDetPhysValMonitoring ""   "$dcubemon_rec_fast" "$dcubecfg_rec" "$dcuberef_rec_fast" "$dcube_rec_fast_fixref"
+    dcube InDetPhysValMonitoring ""   "$dcubemon_rec_fast" "$dcubecfg_rec" "$dcubemon_rec" "$dcube_rec_fast_std"
+
+  fi
+
 fi
