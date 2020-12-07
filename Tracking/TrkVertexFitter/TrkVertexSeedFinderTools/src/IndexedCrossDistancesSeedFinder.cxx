@@ -60,13 +60,6 @@ namespace Trk
   { 
     ATH_CHECK( m_mode3dfinder.retrieve() );
     ATH_CHECK( m_distancefinder.retrieve() );
-    ATH_MSG_INFO( "Initialize successful" );
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode IndexedCrossDistancesSeedFinder::finalize() 
-  {
-    ATH_MSG_INFO( "Finalize successful" );
     return StatusCode::SUCCESS;
   }
 

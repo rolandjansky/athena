@@ -298,7 +298,6 @@ def createTriggerFlags():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         muonflags = createMuonConfigFlags()
         muonflags.Muon.useTGCPriorNextBC=True
-        muonflags.Muon.enableErrorTuning=False
         muonflags.Muon.MuonTrigger=True
         muonflags.Muon.SAMuonTrigger=True
         return muonflags 

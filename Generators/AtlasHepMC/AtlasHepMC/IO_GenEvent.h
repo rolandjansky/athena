@@ -11,8 +11,7 @@
 #include "HepMC3/Writer.h"
 #include "HepMC3/ReaderAsciiHepMC2.h"
 #include "HepMC3/WriterAsciiHepMC2.h"
-namespace HepMC
-{
+namespace HepMC {
 typedef HepMC3::WriterAsciiHepMC2   WriterAsciiHepMC2;
 typedef HepMC3::ReaderAsciiHepMC2   ReaderAsciiHepMC2;
 class IO_GenEvent {

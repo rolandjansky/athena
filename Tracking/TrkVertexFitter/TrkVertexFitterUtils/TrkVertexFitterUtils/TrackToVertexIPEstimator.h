@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERUTILS_TRACKTOVERTEXIPESTIMATOR_H
@@ -78,9 +78,8 @@ namespace Trk
  /**
   * Default Athena interface methods
   */
-    StatusCode initialize();
-    
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+
  
  /**
   * Default Athena interface constructor and destructor 

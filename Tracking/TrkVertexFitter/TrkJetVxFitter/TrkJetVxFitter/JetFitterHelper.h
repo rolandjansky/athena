@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -48,9 +48,6 @@ namespace Trk {
     static const InterfaceID& interfaceID() {
       return IID_JetFitterHelper;
     }
-
-    StatusCode initialize();
-    StatusCode finalize();
 
     /**
      * Constructor

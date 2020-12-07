@@ -51,18 +51,24 @@ const std::map<unsigned short, std::map<unsigned short, unsigned char>>& TGCTrig
   return it->second;
 }
 
-unsigned short TGCTriggerData::getTrigBitEifi(int side, int slot, int ssc, int sectorId) const {
-  int sideindex = (this->getType(TGCTriggerData::CW_EIFI) != "full") ? 0 : side;
+unsigned short TGCTriggerData::getTrigBitEifi(int side, int slot, int ssc, int sectorId) const
+{
+  if(m_active[CW_EIFI][0] == false) return 0;   // not required EIFI coincidence.
+  int sideindex = (this->getType(CW_EIFI) != "full") ? 0 : side;
   return m_trigbit_eifi[sectorId][ssc][slot][sideindex];
 }
 
-unsigned char TGCTriggerData::getFlagPtEifi(int side, int ssc, int sectorId) const {
-  int sideindex = (this->getType(TGCTriggerData::CW_EIFI) != "full") ? 0 : side;
+unsigned char TGCTriggerData::getFlagPtEifi(int side, int ssc, int sectorId) const
+{
+  if(m_active[CW_EIFI][0] == false) return 0;   // not required EIFI coincidence.
+  int sideindex = (this->getType(CW_EIFI) != "full") ? 0 : side;
   return m_flagpt_eifi[sectorId][ssc][sideindex];
 }
 
-unsigned char TGCTriggerData::getFlagRoiEifi(int side, int ssc, int sectorId) const {
-  int sideindex = (this->getType(TGCTriggerData::CW_EIFI) != "full") ? 0 : side;
+unsigned char TGCTriggerData::getFlagRoiEifi(int side, int ssc, int sectorId) const
+{
+  if(m_active[CW_EIFI][0] == false) return 0;   // not required EIFI coincidence.
+  int sideindex = (this->getType(CW_EIFI) != "full") ? 0 : side;
   return m_flagroi_eifi[sectorId][ssc][sideindex];
 }
 

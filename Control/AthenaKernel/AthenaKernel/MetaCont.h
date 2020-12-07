@@ -104,7 +104,7 @@ namespace SG {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
-MetaCont<T>::~MetaCont<T>() {
+MetaCont<T>::~MetaCont() {
   for (auto t : m_metaSet) {
     delete t.second;
   }

@@ -82,8 +82,6 @@ namespace Trk
 
   StatusCode
   MaterialAllocator::initialize() {
-    // print name and package version
-    ATH_MSG_INFO("MaterialAllocator::initialize() - package version " << PACKAGE_VERSION);
 
     // fill WARNING messages
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
@@ -99,45 +97,30 @@ namespace Trk
     m_messageHelper->setMessage(5, "spectrometerMaterial: extrapolateM finds no material on track");
 
     // retrieve the necessary Extrapolators (muon tracking geometry is very picky!)
-    if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
+    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_extrapolator);
     
-    if (m_intersector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_intersector);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved tool " << m_intersector);
-    
+    ATH_CHECK( m_intersector.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_intersector);
 
     // retrieve services
-    if (m_trackingGeometrySvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingGeometrySvc);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved Svc " << m_trackingGeometrySvc);
+    ATH_CHECK( m_trackingGeometrySvc.retrieve() );
+    ATH_MSG_DEBUG("Retrieved Svc " << m_trackingGeometrySvc);
     
-
     // need to create the IndetExit and MuonEntrance TrackingVolumes
-    if (m_trackingVolumesSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingVolumesSvc);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved Svc " << m_trackingVolumesSvc);
-      m_calorimeterVolume = new Volume(
+    ATH_CHECK( m_trackingVolumesSvc.retrieve() );
+    ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
+    m_calorimeterVolume = new Volume(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
-      m_indetVolume = new Volume(
+    m_indetVolume = new Volume(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-    
 
     if (m_useStepPropagator > 0 && m_stepPropagator.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_stepPropagator);
       return StatusCode::FAILURE;
     }
 
-// Field for StepPropagator
+    // Field for StepPropagator
     m_stepField = Trk::MagneticFieldProperties(Trk::FullField);
     if (m_useStepPropagator == 2) m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
 
@@ -146,7 +129,6 @@ namespace Trk
 
   StatusCode
   MaterialAllocator::finalize() {
-    ATH_MSG_INFO("finalize() ");
 
     // summarize WARNINGs
     m_messageHelper->printSummary();

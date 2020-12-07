@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetMultipleVertexSeedFinder_HistogrammingMultiSeedFinder_H
@@ -42,9 +42,7 @@ namespace InDet
  {
   public:
    
-   StatusCode initialize();
- 
-   StatusCode finalize();
+   virtual StatusCode initialize() override;
 
 /**
  * Constructor and destructor

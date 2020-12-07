@@ -155,6 +155,9 @@ StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
      return StatusCode::SUCCESS;
   }
 
+  // EL to the container, to allow making other ELs quickly.
+  ElementLink<CaloCellContainer> theCellsEL (m_cellContainerKey.key(), 0, ctx);
+
   ///+++ pick up CaloCell2ClusterMap from StoreGate
   const CaloClusterContainer* clusterContainer = nullptr;
   
@@ -312,7 +315,7 @@ StatusCode CaloTopoTowerAlg::execute (const EventContext& ctx) const
               energyTower += cellEnergy;
               numberOfClustersInTower++;           
 
-              newTower->addUniqueCellNoKine(theCells.cptr(),globalIndex,weight, 10);
+              newTower->addUniqueCellNoKine(theCellsEL,globalIndex,weight, 10);
             
               // now that we found the cell in at least one cluster above threshold, stop looking at associated clusters
               ATH_MSG_VERBOSE( " -- Found at least one cluster passing cuts. 'break'"  );

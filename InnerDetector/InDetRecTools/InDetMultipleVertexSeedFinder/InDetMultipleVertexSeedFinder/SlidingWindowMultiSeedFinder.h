@@ -29,9 +29,7 @@ namespace InDet
  {
   public:
   
-   StatusCode initialize();
- 
-   StatusCode finalize();
+   virtual StatusCode initialize() override;
 
 /**
  * Constructor and destructor
