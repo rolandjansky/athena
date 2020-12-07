@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MDTSensitiveDetector.h"
@@ -13,6 +13,9 @@
 #include <limits>
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
+
+// the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+static constexpr unsigned int const maxNTubesPerLayer = 120;
 
 // construction/destruction
 MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::string& hitCollectionName, const unsigned int nTubesMax)
@@ -210,8 +213,8 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
       }
       multilayer = gmID;
     } else if ((npos = volName.find("Drift")) != std::string::npos) {         // layer and tube
-      tubeLayer = touchHist->GetVolume(i)->GetCopyNo()/100;
-      tube      = touchHist->GetVolume(i)->GetCopyNo()%100;
+      tubeLayer = touchHist->GetVolume(i)->GetCopyNo()/maxNTubesPerLayer;
+      tube      = touchHist->GetVolume(i)->GetCopyNo()%maxNTubesPerLayer;
     }
   }
   //construct the hit identifier

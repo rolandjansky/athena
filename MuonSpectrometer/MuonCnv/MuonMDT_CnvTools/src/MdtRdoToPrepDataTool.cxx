@@ -1,10 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-// MdtRdoToPrepDataTool.cxx, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #include "MdtRdoToPrepDataTool.h"
 #include "GaudiKernel/MsgStream.h"
@@ -39,6 +35,9 @@
 using namespace MuonGM;
 using namespace Trk;
 using namespace Muon;
+
+// the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+static constexpr unsigned int const maxNTubesPerLayer = 120;
 
 Muon::MdtRdoToPrepDataTool::MdtRdoToPrepDataTool(const std::string& t,
               const std::string& n,
@@ -1902,8 +1901,8 @@ void MdtRdoToPrepDataTool::initDeadChannels(const MuonGM::MdtReadoutElement* myd
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
       bool tubefound = false;
       for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        int tubegeo = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / maxNTubesPerLayer;
         if( tubegeo == tube && layergeo == layer ) {
           tubefound=true;
           break;

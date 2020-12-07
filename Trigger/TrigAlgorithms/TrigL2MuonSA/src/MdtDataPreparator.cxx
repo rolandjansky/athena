@@ -41,6 +41,9 @@
 using namespace Muon;
 using namespace MuonGM;
 
+// the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+static constexpr unsigned int const maxNTubesPerLayer = 120;
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -1195,8 +1198,8 @@ void TrigL2MuonSA::MdtDataPreparator::initDeadChannels(const MuonGM::MdtReadoutE
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
       bool tubefound = false;
       for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        int tubegeo = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / maxNTubesPerLayer;
         if( tubegeo == tube && layergeo == layer ) {
           tubefound=true;
           break;

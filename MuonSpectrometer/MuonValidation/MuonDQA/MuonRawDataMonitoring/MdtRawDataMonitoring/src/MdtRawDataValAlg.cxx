@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,12 +36,9 @@
 #include "MdtRawDataMonitoring/MuonChamberIDSelector.h"
 #include "MdtRawDataMonitoring/MdtRawDataValAlg.h"
 #include "TrkEventPrimitives/FitQuality.h"
-//#include "xAODEventInfo/EventInfo.h"
-//#include "xAODMuon/MuonContainer.h"
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 #include "xAODTrigger/MuonRoIContainer.h"
-// #include "GaudiKernel/Property.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -75,6 +72,9 @@ float parESD1, parESD2, parESD3, parESD4;
 enum {enumBarrelA, enumBarrelC, enumEndCapA, enumEndCapC};
 enum {enumBarrel, enumEndCap};
 enum {enumInner, enumMiddle, enumOuter, enumExtra};
+
+// the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+static constexpr unsigned int const maxNTubesPerLayer = 120;
 
 /////////////////////////////////////////////////////////////////////////////
 // *********************************************************************
@@ -2329,8 +2329,8 @@ void MdtRawDataValAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
       bool tubefound = false;
       for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        int tubegeo = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / maxNTubesPerLayer;
         if( tubegeo == tube && layergeo == layer ) {
           tubefound=true;
           break;

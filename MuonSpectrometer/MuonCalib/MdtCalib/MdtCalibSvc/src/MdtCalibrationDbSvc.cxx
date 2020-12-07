@@ -80,6 +80,16 @@ StatusCode MdtCalibrationDbSvc::initialize() {
     return StatusCode::FAILURE;
   }
 
+  ATH_CHECK(m_idHelperTool.retrieve());
+
+  int bisIndex=m_idHelperTool->mdtIdHelper().stationNameIndex("BIS");
+  Identifier bis7Id = m_idHelperTool->mdtIdHelper().elementID(bisIndex, 7, 1);
+  if (m_idHelperTool->issMdt(bis7Id)) m_hasBISsMDT=true;
+  if (m_hasBISsMDT) {
+    ATH_MSG_WARNING("Skipping retrieval of MdtTubeCalibContainerCollection until sMDT BIS calibration data is working");
+    return StatusCode::SUCCESS;
+  }
+
   // register call backs requiring to be called after the Tool 
   // will work for Ascii Tool only
   // for real DB access the callback is registered with 2 functions 
@@ -98,17 +108,15 @@ StatusCode MdtCalibrationDbSvc::initialize() {
       return StatusCode::FAILURE;
     }
   }
-
-  ATH_CHECK(m_idHelperTool.retrieve());
-
-  int bisIndex=m_idHelperTool->mdtIdHelper().stationNameIndex("BIS");
-  Identifier bis7Id = m_idHelperTool->mdtIdHelper().elementID(bisIndex, 7, 1);
-  if (m_idHelperTool->issMdt(bis7Id)) m_hasBISsMDT=true;
     
   return StatusCode::SUCCESS;
 }  //end MdtCalibrationDbSvc::initialize
 
 StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
+  if (m_hasBISsMDT) {
+    ATH_MSG_WARNING("Skipping retrieval of MdtTubeCalibContainerCollection until sMDT BIS calibration data is working");
+    return StatusCode::SUCCESS;
+  }
   std::list<std::string>::const_iterator itr;
   if( msgLvl(MSG::DEBUG) ) {
     ATH_MSG_DEBUG( "LoadCalibration has been triggered for the following keys " );
@@ -134,6 +142,10 @@ StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 }  //end MdtCalibrationDbSvc::LoadCalibration
 
 StatusCode MdtCalibrationDbSvc::loadTube(IOVSVC_CALLBACK_ARGS) { 
+  if (m_hasBISsMDT) {
+    ATH_MSG_WARNING("Skipping retrieval of MdtTubeCalibContainerCollection until sMDT BIS calibration data is working");
+    return StatusCode::SUCCESS;
+  }
   ATH_MSG_DEBUG( "In loadTube " );  
   return m_detStore->retrieve(m_tubeData, m_tubeDataLocation);
 }
