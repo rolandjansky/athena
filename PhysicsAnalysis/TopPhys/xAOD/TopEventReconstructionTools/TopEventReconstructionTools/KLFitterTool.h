@@ -26,6 +26,8 @@
 #include "KLFitter/LikelihoodBase.h"
 #include "KLFitter/DetectorAtlas_8TeV.h"
 #include "KLFitter/Permutations.h"
+//custom KLFitter packages
+#include "TopEventReconstructionTools/LikelihoodSingleTopAllHadronic.h"
 
 // system include(s):
 #include <iostream>
@@ -108,6 +110,11 @@ namespace top {
 
     void permutationLoopStandard(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer);
     bool permutationLoopAutoSet(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event);
+    bool permutationLoopAutoSetSingleT(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event);
+
+    void findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,float& sumEventProbability);
+    void findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,float& sumEventProbability);
+
 
     // configuration
     std::shared_ptr<top::TopConfig> m_config;
@@ -140,6 +147,7 @@ namespace top {
     std::unique_ptr<KLFitter::LikelihoodTTZTrilepton> m_myLikelihood_TTZ;
     std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> m_myLikelihood_AllHadronic;
     std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> m_myLikelihood_BoostedLJets;
+    std::unique_ptr<KLFitter::LikelihoodSingleTopAllHadronic> m_myLikelihood_SingleTop;
 
     std::unique_ptr<KLFitter::DetectorAtlas_8TeV> m_myDetector;
 

@@ -19,6 +19,8 @@ find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO Math MathMore Mat
 # source code pulled from https://www.github.com/KLFitter/KLFitter.
 find_package( KLFitter )
 
+find_package( BAT )
+
 # Generate a CINT dictionary source file:
 atlas_add_root_dictionary( TopEventReconstructionTools _cintDictSource
                            ROOT_HEADERS Root/LinkDef.h
@@ -36,8 +38,9 @@ atlas_add_library( TopEventReconstructionTools Root/*.cxx Root/*.h Root/*.icc
                                   TopEventSelectionTools
                                   TopAnalysis
                                   ${KLFITTER_LIBRARIES}
+				  ${BAT_LIBRARIES}
                                   ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${KLFITTER_INCLUDE_DIRS} )
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${KLFITTER_INCLUDE_DIRS} ${BAT_INCLUDE_DIRS})
 
 # Install data files from the package:
 atlas_install_data( share/* )
@@ -54,5 +57,5 @@ atlas_add_executable( topreco_test_mt2
                                      ${KLFITTER_LIBRARIES}
                                      ${ROOT_LIBRARIES}
                                      TopEventReconstructionTools
-                      INCLUDE_DIRS ${KLFITTER_INCLUDE_DIRS} )
+                      INCLUDE_DIRS ${KLFITTER_INCLUDE_DIRS} ${BAT_INCLUDE_DIRS})
 
