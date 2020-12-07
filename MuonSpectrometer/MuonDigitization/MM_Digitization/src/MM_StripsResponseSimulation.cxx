@@ -117,8 +117,6 @@ void MM_StripsResponseSimulation::initFunctions()
 	//m_transverseDiffusionFunction = new TF1("transdiff", "gaus", -1., 1.);
   //m_transverseDiffusionFunction->SetParameters(1.,0.,1.);
 
-	m_random = new TRandom3(0);
-
 	ATH_MSG_DEBUG("MM_StripsResponseSimulation::initFunctions DONE");
 
 }
@@ -128,11 +126,13 @@ void MM_StripsResponseSimulation::clearValues()
 }
 
 /*******************************************************************************/
-void MM_StripsResponseSimulation::initialize()
+void MM_StripsResponseSimulation::initialize(unsigned long int seed)
 {
 
 	initHistos ();
 	initFunctions();
+
+	m_random = new TRandom3(seed);
 
 	ATH_MSG_DEBUG("MM_StripsResponseSimulation::initializationFrom set values");
 
