@@ -41,13 +41,13 @@ def jetRecoDictForMET(**recoDict):
     jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys}
     if "jetDataType" in recoDict:
         # Allow for the renaming dataType -> jetDataType
-        jrd["dataType"] = recoDict["jetDataType"]
-        if jrd["dataType"] == "pf":
+        jrd["constitType"] = recoDict["jetDataType"]
+        if jrd["constitType"] == "pf":
             # We only use em calibration for PFOs
-            jrd["calib"] = "em"
+            jrd["clusterCalib"] = "em"
     # For various reasons, we can store the constituent modifiers separately
     # to the data type, so we have to add that back in
-    jrd["dataType"] = recoDict.get("constitmod", "") + jrd["dataType"]
+    jrd["constitMod"] = recoDict.get("constitmod", "")
     if jrd["jetCalib"] == "default":
         jrd["jetCalib"] = interpretJetCalibDefault(jrd)
     return jrd

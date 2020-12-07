@@ -80,7 +80,7 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     trkcolls = getTrkColls(jetRecoDict) if jetRecoDict["trkopt"]!="notrk" else {}
 
     # Add particle flow reconstruction if needed
-    if "pf" in jetRecoDict["dataType"]:
+    if jetRecoDict["constitType"] == "pf":
         if not trkcolls:
             raise RuntimeError("PFlow jet chain requested with no tracking option!")
         from eflowRec.PFHLTSequence import PFHLTSequence
@@ -95,8 +95,8 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     # chosen jet collection
     jetsFullName = jetDef.fullname()
     jetsOut = recordable(jetsFullName)
-    doConstitMods = jetRecoDict["dataType"] in ["sktc","cssktc", "pf", "csskpf"]
     JetRecConfig.instantiateAliases(jetDef)
+    doConstitMods = jetRecoDict["constitMod"]+jetRecoDict["constitType"] in ["sktc","cssktc", "pf", "csskpf"]
     if doConstitMods:
         # Get online monitoring jet rec tool
         from JetRecTools import OnlineMon                                                  
