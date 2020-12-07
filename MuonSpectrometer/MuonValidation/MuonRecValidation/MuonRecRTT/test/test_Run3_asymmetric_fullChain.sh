@@ -19,7 +19,7 @@
 # run simulation on 25 events using the asymmetric Run3 layout
 LOG_SIM="log_Run3_asymmetric_sim.log"
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --geometryVersion 'default:ATLAS-R3-2021-01-00-00_VALIDATION' \
+          --geometryVersion 'default:ATLAS-R3-2021-01-00-01_VALIDATION' \
           --AMI=s3512 \
           --maxEvents 25 \
           --imf False \
@@ -36,7 +36,7 @@ NERROR="$(cat ${LOG_SIM} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_SIM} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_SIM}"
 # check differences wrt reference HITS file
-acmd.py diff-root --ignore-leaves timings --mode semi-detailed --error-mode resilient OUT_HITS.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v1.root &> log_diff_HITS.log
+acmd.py diff-root --ignore-leaves timings --mode semi-detailed --error-mode resilient OUT_HITS.root /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v2.root &> log_diff_HITS.log
 exit_code=$?
 echo  "art-result: ${exit_code} diff-root_sim"
 if [ ${exit_code} -ne 0 ]
