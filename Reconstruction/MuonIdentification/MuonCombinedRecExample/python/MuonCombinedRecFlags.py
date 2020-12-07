@@ -144,16 +144,6 @@ class printSummary(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class createTagAndProbeInput(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class createScaleCalibrationInput(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
 ## Decide whether to wrap the new configuration in the old.
 class useNewConfig(JobProperty):
     statusOn=True
