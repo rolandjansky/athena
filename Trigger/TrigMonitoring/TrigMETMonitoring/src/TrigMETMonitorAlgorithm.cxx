@@ -229,10 +229,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     auto offline_Ey = Monitored::Scalar<float>("offline_Ey",0.0);
     auto offline_Et = Monitored::Scalar<float>("offline_Et",0.0);
     auto offline_sumEt = Monitored::Scalar<float>("offline_sumEt",0.0);
-    auto L1_Ex = Monitored::Scalar<float>("L1_Ex",0.0);
-    auto L1_Ey = Monitored::Scalar<float>("L1_Ey",0.0);
-    auto L1_Et = Monitored::Scalar<float>("L1_Et",0.0);
-    auto L1_sumEt = Monitored::Scalar<float>("L1_sumEt",0.0);
+    auto L1_roi_Ex = Monitored::Scalar<float>("L1_roi_Ex",0.0);
+    auto L1_roi_Ey = Monitored::Scalar<float>("L1_roi_Ey",0.0);
+    auto L1_roi_Et = Monitored::Scalar<float>("L1_roi_Et",0.0);
+    auto L1_roi_sumEt = Monitored::Scalar<float>("L1_roi_sumEt",0.0);
     auto L1_jnc_Ex = Monitored::Scalar<float>("L1_jnc_Ex",0.0);
     auto L1_jnc_Ey = Monitored::Scalar<float>("L1_jnc_Ey",0.0);
     auto L1_jnc_Et = Monitored::Scalar<float>("L1_jnc_Et",0.0);
@@ -414,10 +414,10 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // access L1 roi MET values
     if ( l1_roi_cont.isValid() ) {
       if ((l1_roi_cont->energyX())>-9e12 && (l1_roi_cont->energyX())<9e12 && (l1_roi_cont->energyY())>-9e12 && (l1_roi_cont->energyY())<9e12) { 
-	L1_Ex = - (l1_roi_cont->energyX())/1000.;
-	L1_Ey = - (l1_roi_cont->energyY())/1000.;
-        L1_Et = std::sqrt(L1_Ex*L1_Ex + L1_Ey*L1_Ey);
-        L1_sumEt = (l1_roi_cont->energyT())/1000.;
+	L1_roi_Ex = - (l1_roi_cont->energyX())/1000.;
+	L1_roi_Ey = - (l1_roi_cont->energyY())/1000.;
+        L1_roi_Et = std::sqrt(L1_roi_Ex*L1_roi_Ex + L1_roi_Ey*L1_roi_Ey);
+        L1_roi_sumEt = (l1_roi_cont->energyT())/1000.;
       }
     }
 
@@ -747,7 +747,7 @@ StatusCode TrigMETMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     // Alternative fill method. Get the group yourself, and pass it to the fill function.
     auto tool = getGroup("TrigMETMonitor");
     fill(tool,offline_Ex,offline_Ey,offline_Et,offline_sumEt,
-         L1_Ex,L1_Ey,L1_Et,L1_sumEt,
+         L1_roi_Ex,L1_roi_Ey,L1_roi_Et,L1_roi_sumEt,
          L1_jnc_Ex,L1_jnc_Ey,L1_jnc_Et,L1_jnc_sumEt,
          L1_jrho_Ex,L1_jrho_Ey,L1_jrho_Et,L1_jrho_sumEt,
          L1_gnc_Ex,L1_gnc_Ey,L1_gnc_Et,L1_gnc_sumEt,
