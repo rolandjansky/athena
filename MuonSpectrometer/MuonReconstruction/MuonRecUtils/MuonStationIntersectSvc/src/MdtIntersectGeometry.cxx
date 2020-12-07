@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonStationIntersectSvc/MdtIntersectGeometry.h"
@@ -11,6 +11,8 @@
 #include "MuonCondInterface/IMDTConditionsSvc.h"
 
 #include "MuonIdHelpers/MdtIdHelper.h"
+
+// maxNTubesPerLayer is included via MdtChamberGeometry.h -> DriftCircle.h
 
 namespace Muon{
 
@@ -246,8 +248,8 @@ namespace Muon{
             bool tubefound = false;
             for(int kk=0; kk < nGrandchildren; kk++) {
                auto idOfChildVol = cv->getIdOfChildVol(kk);
-               int tubegeo = idOfChildVol % 100;
-               int layergeo = ( idOfChildVol - tubegeo ) / 100;
+               int tubegeo = idOfChildVol % maxNTubesPerLayer;
+               int layergeo = ( idOfChildVol - tubegeo ) / maxNTubesPerLayer;
                if( tubegeo == tube && layergeo == layer ) {
                  tubefound=true;
                  break;

@@ -15,6 +15,9 @@
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+// the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+static constexpr unsigned int const maxNTubesPerLayer = 120;
+
 typedef std::istringstream my_isstream;
 
 // construction/destruction
@@ -253,8 +256,8 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
       }
       multilayer = gmID;
     } else if ((npos = volName.find("Drift")) != std::string::npos) {         // layer and tube
-      tubeLayer = touchHist->GetVolume(i)->GetCopyNo()/100;
-      tube      = touchHist->GetVolume(i)->GetCopyNo()%100;
+      tubeLayer = touchHist->GetVolume(i)->GetCopyNo()/maxNTubesPerLayer;
+      tube      = touchHist->GetVolume(i)->GetCopyNo()%maxNTubesPerLayer;
     }
   }
   //construct the hit identifier
