@@ -3,7 +3,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import cppyy
 import ROOT
-import sys
 
 class StreamerInfoGenerator:
   def __init__(self):
@@ -70,7 +69,7 @@ class StreamerInfoGenerator:
     except Exception as ex:
       print('Cannot create class of {}: {}'.format(typename, ex))
       if typename not in exceptions:
-        sys.exit(-1)
+        raise ex
 
     t = self.type.ByName(typename)
 
