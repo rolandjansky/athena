@@ -295,7 +295,8 @@ class PowhegControl(object):
 
         if len(self.process.parameters_by_keyword("for_reweighting")) == 1:
             if self.process.parameters_by_keyword("for_reweighting")[0].value == 1:
-                self.scheduler.add("LHE file nominal weight updater", *extra_args.get(algorithm, []))
+                algorithm = "LHE file nominal weight updater"
+                self.scheduler.add(algorithm, *extra_args.get(algorithm, []))
                 logger.info ("Since parameter for_reweighting was set to 1, virtual corrections are added at the reweighting stage only.")
                 logger.info ("Will run LHE file nominal weight updater so that XWGTUP value is updated with value of reweighted nominal weight.")
 
