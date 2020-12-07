@@ -32,13 +32,13 @@ class RPCcablingServerSvc : public AthService,
     RPCcablingServerSvc(const std::string& name, ISvcLocator* svc);
     virtual ~RPCcablingServerSvc() {}
   
-    virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF);
-    virtual StatusCode initialize(void);
-    virtual StatusCode finalize(void);
+    virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF) override;
+    virtual StatusCode initialize(void) override;
+    virtual StatusCode finalize(void) override;
 
     // Interface implementation
-    virtual StatusCode giveCabling(const IRPCcablingSvc*&) const;
-    virtual bool isAtlas(void) const;
+    virtual StatusCode giveCabling(const IRPCcablingSvc*&) const override;
+    virtual bool isAtlas(void) const override;
     // ITagInfoMgr callback
     virtual void tagInfoUpdated() override final { compareTags().ignore(); }
 
