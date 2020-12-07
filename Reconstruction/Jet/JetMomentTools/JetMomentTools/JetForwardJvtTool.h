@@ -27,7 +27,6 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "xAODTracking/VertexContainer.h"
 #include "JetInterface/IJetDecorator.h"
 #include "AsgTools/IAsgTool.h"
 

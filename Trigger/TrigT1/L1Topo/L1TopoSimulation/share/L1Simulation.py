@@ -47,8 +47,6 @@ include ( "RecExCond/RecExCommon_flags.py" )
 
 TriggerFlags.doL1Topo = True
 TriggerFlags.doLVL1   = True
-TriggerFlags.doLVL2   = False
-TriggerFlags.doEF     = False
 TriggerFlags.doHLT    = True
 
 TriggerFlags.triggerMenuSetup = "MC_pp_v5"

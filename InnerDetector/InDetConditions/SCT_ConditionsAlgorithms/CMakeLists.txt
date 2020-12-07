@@ -90,8 +90,32 @@ atlas_add_test( TestConfigNewConf
 atlas_add_test( TestDCSConditionsNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_DCSConditionsTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestLinkMaskingNewConf
+                SCRIPT share/TestLinkMaskingNewConf.sh
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestMajorityNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_MajorityConditionsTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestModuleVetoNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ModuleVetoTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestMonReadNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_MonitorConditionsTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestParametersNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConditionsParameterTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestReadoutNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ReadoutTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestRodVetoNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_RODVetoTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestSensorsNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_SensorsTestAlgConfig
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestStripVetoNewConf
+                SCRIPT python -m SCT_ConditionsAlgorithms.SCT_StripVetoTestAlgConfig
                 PROPERTIES TIMEOUT 600 )
 atlas_add_test( TestSummaryNewConf
                 SCRIPT python -m SCT_ConditionsAlgorithms.SCT_ConditionsSummaryTestAlgConfig

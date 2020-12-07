@@ -30,10 +30,6 @@
 
 #include <ios>
 
-#include "AthenaPoolUtilities/TPCnvTokenList_p1.h"
-
-#include <ios>
-
 namespace Rec
 {
     class TrackParticleContainer_tlp3

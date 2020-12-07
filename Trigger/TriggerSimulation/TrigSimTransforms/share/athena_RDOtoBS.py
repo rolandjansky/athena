@@ -76,8 +76,7 @@ recAlgs.doTrigger.set_Value_and_Lock(True)
 
 # Config trigger
 TriggerFlags.doLVL1.set_Value_and_Lock(True)   # this should be disabled in the future
-TriggerFlags.doLVL2.set_Value_and_Lock(False)
-TriggerFlags.doEF.set_Value_and_Lock(False)
+TriggerFlags.doHLT.set_Value_and_Lock(False)
 #-------------------------------------------------------------------------------
 TriggerFlags.configurationSourceList.set_Value_and_Lock(["xml"])
 

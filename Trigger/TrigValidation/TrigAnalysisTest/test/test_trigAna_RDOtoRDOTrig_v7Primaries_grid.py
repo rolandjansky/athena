@@ -23,7 +23,6 @@
 # art-output: LVL1config*.xml
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
-from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
 
 preExec = ';'.join([
   'from TriggerJobOpts.TriggerFlags import TriggerFlags',
@@ -42,7 +41,6 @@ test = Test.Test()
 test.art_type = 'grid'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
-add_analysis_steps(test, input_file='RDO_TRIG.pool.root')
 
 import sys
 sys.exit(test.run())

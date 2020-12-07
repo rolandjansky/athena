@@ -40,7 +40,8 @@ else
              grep -v 'PoolXMLFileCatalog' |\
              grep -v 'AthenaSealSvc' |\
              grep -v 'EventBookkeeper' |\
-             grep -v 'EventTagWriter' > ${joblog}.small
+             grep -v 'EventTagWriter' |\
+             grep -v 'Py:ConfigurableDb' > ${joblog}.small
 	joblog=${joblog}.small
 	if [ -r $reflog ]
 	    then

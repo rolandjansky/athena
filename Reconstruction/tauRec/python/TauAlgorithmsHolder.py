@@ -74,19 +74,10 @@ def getTauAxis():
     if _name in cached_instances:
         return cached_instances[_name]
     
-    from JetRec.JetRecFlags import jetFlags
-    
-    doJetVertexCorrection = False
-    if tauFlags.isStandalone:
-        doJetVertexCorrection = True
-    if jetFlags.useVertices() and jetFlags.useTracks():
-        doJetVertexCorrection = True
-    
     from tauRecTools.tauRecToolsConf import TauAxisSetter
     TauAxisSetter = TauAxisSetter(  name = _name, 
                                     ClusterCone = 0.2,
-                                    VertexCorrection = True,
-                                    JetVertexCorrection = doJetVertexCorrection)
+                                    VertexCorrection = True )
                                     
     cached_instances[_name] = TauAxisSetter                
     return TauAxisSetter
@@ -1035,23 +1026,15 @@ def getTauVertexCorrection():
 def getTauVertexedClusterDecorator():
     from tauRec.tauRecFlags import tauFlags
     from tauRecTools.tauRecToolsConf import TauVertexedClusterDecorator
-    from JetRec.JetRecFlags import jetFlags
 
     _name = sPrefix + 'TauVertexedClusterDecorator'
     
     if _name in cached_instances:
         return cached_instances[_name]
   
-    doJetVertexCorrection = False
-    if tauFlags.isStandalone:
-        doJetVertexCorrection = True
-    if jetFlags.useVertices() and jetFlags.useTracks():
-        doJetVertexCorrection = True
-
     myTauVertexedClusterDecorator = TauVertexedClusterDecorator(name = _name,
                                                                 SeedJet = tauFlags.tauRecSeedJetCollection(), 
-                                                                VertexCorrection = True,
-                                                                JetVertexCorrection = doJetVertexCorrection)
+                                                                VertexCorrection = True)
     
     cached_instances[_name] = myTauVertexedClusterDecorator
     return myTauVertexedClusterDecorator

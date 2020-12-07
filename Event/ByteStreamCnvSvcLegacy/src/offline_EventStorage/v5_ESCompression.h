@@ -11,7 +11,6 @@
 #include <string>
 #include <sys/uio.h>
 #include "ers/ers.h"
-#include <string>
 
 #include "ByteStreamCnvSvcLegacy/offline_EventStorage/v5_EventStorageRecords.h"
 

@@ -7,7 +7,7 @@
 @brief Configuration of Pixel Monitoring Clusters, Tracks and Status Histograms for Run 3
 '''
 
-from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, definePP0Histos
+from PixelMonitoring.PixelAthMonitoringBase import define2DProfHist, define2DProfPerFEHist, definePP0Histos
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers, defineMapVsLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx, ztotbinsy, ztotminsy
@@ -19,6 +19,7 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     doOnline  = kwargs.get('doOnline',  False)
     doLumiBlock = kwargs.get('doLumiBlock', False)
+    doFEPlots  = kwargs.get('doFEPlots',  False)
 
 ### begin status histograms
 
@@ -35,6 +36,11 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
     if doLumiBlock:
         title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
         define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
+
+    if doFEPlots:
+        histoGroupName = 'MapOfFEsStatus' 
+        title = 'FEs Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
+        define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TProfile2D')
 
     histoGroupName = 'BadModulesPerLumi'
     title          = 'Number of bad modules (bad+active) per event per LB'
@@ -110,7 +116,8 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     varName = 'pixclusmontool_lb,ntrks_per_event'
     title = fullDressTitle('Number of tracks per event per LB', False, ';lumi block', ';tracks/event')
-    varName += ';tracksPerEvtPerLumi'
+
+    varName += ';TracksPerEvtPerLumi'
     trackGroup.defineHistogram(varName,
                                 type='TProfile', path=path, title=title,
                                 xbins=lumibinsx, xmin=-0.5, xmax=-0.5+lumibinsx)
@@ -260,6 +267,10 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
             title = addOnTrackTxt('Average per module(FE) cluster occupancy reset every 5 min', ontrack, True)
             definePP0Histos(helper, alg, histoGroupName, title, pathGroup, opt='kLBNHistoryDepth=5')
 
+        if not ontrack and doFEPlots:
+            histoGroupName = 'ClusterFEOccupancy' 
+            title = 'Cluster occupancy per FE'
+            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathGroup, type='TH2F')
 
         if doLumiBlock:
             pathGroup = addOnTrackToPath(pathLowStat, ontrack)

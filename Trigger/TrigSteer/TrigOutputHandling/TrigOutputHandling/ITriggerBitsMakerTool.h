@@ -22,7 +22,7 @@ public:
     boost::dynamic_bitset<uint32_t>& rerun,
     const EventContext& ctx) const = 0;
 
-  virtual ~ITriggerBitsMakerTool() override {}
+  virtual ~ITriggerBitsMakerTool() override = default;
 }; 
 
 #endif // TRIGOUTPUTHANDLING_ITRIGGERBITSMAKERTOOL_H

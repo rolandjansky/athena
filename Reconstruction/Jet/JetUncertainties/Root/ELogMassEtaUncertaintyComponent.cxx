@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/ELogMassEtaUncertaintyComponent.h"
@@ -57,7 +57,7 @@ bool ELogMassEtaUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, cons
 
 double ELogMassEtaUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return m_uncHist->getValue(jet.pt()*m_energyScale,log(getMassOverE(jet,m_massDef)),m_absEta ? fabs(jet.eta()) : jet.eta());
+    return m_uncHist->getValue(jet.e()*m_energyScale,log(getMassOverE(jet,m_massDef)),m_absEta ? fabs(jet.eta()) : jet.eta());
 }
 
 } // end jet namespace

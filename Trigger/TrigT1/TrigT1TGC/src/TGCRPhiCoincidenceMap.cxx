@@ -34,32 +34,41 @@ bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector,
 
   int sector=(moduleId-2)/3+octantId*3;
   int phimod2 = (moduleId==2||moduleId==5||moduleId==8)&&(sector%2==1) ? 1 : 0;
-  int addr=SUBSECTORADD(subsector, moduleId, phimod2,type);
 
-  SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
-  const TGCTriggerData* readCdo{*readHandle};
+  if(tgcArgs()->USE_CONDDB()) {
+    SG::ReadCondHandle<TGCTriggerData> readHandle{m_readCondKey};
+    const TGCTriggerData* readCdo{*readHandle};
 
-  std::map<int, std::map<int, int> > readMap;
+    std::map<unsigned short, std::map<unsigned short, unsigned char>> roiMap = readCdo->getPtMapBw(m_side, m_octant);
 
-  if (tgcArgs()->USE_CONDDB()){
-    readMap = readCdo->getReadMapBw(m_side, m_octant, pt);
+    unsigned short addr = getRoIAddr((char)type, (unsigned char)phimod2, (unsigned short)moduleId, (unsigned short)subsector);
+    std::map<unsigned short, std::map<unsigned short, unsigned char> >::const_iterator it = roiMap.find(addr);
+    if(it == roiMap.end()) return false;
+
+    std::map<unsigned short, unsigned char> ptMap = it->second;
+    std::map<unsigned short, unsigned char>::const_iterator itWindow = ptMap.find( (((dr+15)&0x1f)<<4) + ((dphi+7)&0xf) );
+
+    if (itWindow == ptMap.end()) return false;
+
+    if ( (itWindow->second) == (pt+1) ) return true;
+    else return false;
+
   } else {
-    readMap = m_mapDB[pt];
+    int addr=SUBSECTORADD(subsector, moduleId, phimod2,type);
+    std::map<int, std::map<int, int> > readMap = m_mapDB[pt];
+
+    std::map<int, std::map<int, int> >::const_iterator it = readMap.find(addr);
+    if (it==(readMap.end())) return false;
+
+    std::map<int, int> aMap = it->second;
+    std::map<int, int>::const_iterator itWindow= aMap.find( dr );
+    if (itWindow==aMap.end()) return false;
+
+    if ( (itWindow->second) & ( 1<<(PHIPOS(dphi,type)) ) ) return true;
+    else return false;
   }
 
-  std::map<int, std::map<int, int> >::const_iterator it = readMap.find(addr);
-
-  if (it==(readMap.end())) return false;
- 
-  std::map<int, int> aMap = it->second;
-  std::map<int, int>::const_iterator itWindow= aMap.find( dr );
-
-  if (itWindow==aMap.end()) return false;
- 
-  if ( (itWindow->second) & ( 1<<(PHIPOS(dphi,type)) ) ) return true;
-  else return false;
 }
-
 
 
 

@@ -103,7 +103,6 @@ public:
 
 //--------------  TPConverterTypeMap<CONVERTER_BASE>  -------------
 #include <map>
-#include <typeinfo>
 
 /** class TPConverterTypeMap
     Converter registry template: a map from type_info to the appropriate converter.

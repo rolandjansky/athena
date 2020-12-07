@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTrackSelectorTool_InDetCosmicTrackSelectorTool_H
@@ -32,9 +32,7 @@ namespace InDet
 
   public:
 
-    StatusCode initialize();
-
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
 
     InDetCosmicTrackSelectorTool(const std::string& t, const std::string& n, const IInterface*  p);
 

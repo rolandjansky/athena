@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOMODELINTERFACES_IGEOMODELSVC_H
@@ -9,21 +9,15 @@
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-#include "AthenaKernel/IOVSvcDefs.h"
 #include <string>
 
 // Forward declarations
-class IIncidentListener;
-class Incident;
 class IGeoModelTool;
 
 class IGeoModelSvc : virtual public IInterface {
-
 public:
-
     /// Retrieve interface ID
-  static const InterfaceID& interfaceID();
-
+    static const InterfaceID& interfaceID();
 
     virtual const std::string & atlasVersion()         const =0;
     virtual const std::string & inDetVersion()         const =0;
@@ -51,10 +45,6 @@ public:
     virtual const std::string & forwardDetectorsVersionOverride() const =0;
     
     virtual GeoModel::GeoConfig geoConfig() const = 0;
-
-    // Callback functions
-    virtual StatusCode align       (IOVSVC_CALLBACK_ARGS) = 0;
-    virtual StatusCode compareTags (IOVSVC_CALLBACK_ARGS) = 0;
 
     // Access to subsystem tool for callback registration
     virtual const IGeoModelTool* getTool(std::string toolName) const = 0;

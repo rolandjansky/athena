@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkJetVxFitter/KalmanVertexOnJetAxisSmoother.h"
@@ -43,12 +43,7 @@ namespace Trk
 
   return StatusCode::SUCCESS;
  }
- 
- StatusCode KalmanVertexOnJetAxisSmoother::finalize()
- {
-   ATH_MSG_INFO( "Finalize successful" );
-  return StatusCode::SUCCESS;
- }
+
  
  KalmanVertexOnJetAxisSmoother::KalmanVertexOnJetAxisSmoother(const std::string& t, const std::string& n, const IInterface*  p):
    AthAlgTool(t,n,p),

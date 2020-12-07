@@ -40,13 +40,9 @@ FastReducer::FastReducer(const HypoJetGroupCIter& groups_b,
                          const HypoJetGroupCIter& groups_e,
                          const ConditionPtrs& conditions,
                          const Tree& tree,
-                         const std::vector<std::vector<int>>& sharedConditions,
                          xAODJetCollector& jetCollector,
                          const Collector& collector):
-  m_conditions(conditions),
-  m_tree(tree),
-  m_sharedConditions(std::move(sharedConditions))
-{
+  m_conditions(conditions),  m_tree(tree) {
 
   // create an empty vector of indices of satisfying jet groups
   // for each Condition.
@@ -56,18 +52,15 @@ FastReducer::FastReducer(const HypoJetGroupCIter& groups_b,
   }
 
 
-  for(const auto& leaves: m_sharedConditions){
-    if(!findInitialJetGroups(leaves,
-			     groups_b,
-			     groups_e,
-			     collector)){
-      if(collector){
-	collector->collect("FastReducer early return",
-			   "from findInitialJetGroups");
-	dumpDataStructures(collector);
-      }
-      return;  // m_pass retains initial value ie false 
+  if(!findInitialJetGroups(groups_b,
+			   groups_e,
+			   collector)){
+    if(collector){
+      collector->collect("FastReducer early return",
+			 "from findInitialJetGroups");
+      dumpDataStructures(collector);
     }
+    return;  // m_pass retains initial value ie false 
   }
 
   
@@ -97,43 +90,79 @@ void FastReducer::collectLeafJets(xAODJetCollector& jetCollector,
 
   // basic passing jet reporting
 
-  // find the indices of the leaf nodes
-  std::set<int> leafCondInds;
-  for (const auto& leaves: m_sharedConditions){
-    leafCondInds.insert(leaves.begin(), leaves.end());
+  // find the indices of the jets that make up the jet groups that pass
+  // the root node.
+
+  //.. obtain the passing jet groups for the root node...
+
+  std::set<std::size_t> rootSatJetGroupInds(m_satisfiedBy.at(0).begin(),
+					    m_satisfiedBy.at(0).end());
+
+  // ...obtain the elemental jet group indicies...
+
+  std::set<std::size_t> rootElSatJetGroupInds;
+  for (const auto& ji : rootSatJetGroupInds) {
+    rootElSatJetGroupInds.insert(m_jg2elemjgs.at(ji).begin(),
+				 m_jg2elemjgs.at(ji).end());
   }
 
-  // obtain the jet group indices for the jet groups satisfying the leaf conds
-  std::set<std::size_t> satJetGroupInds;
-  for (const auto& ci : leafCondInds) {
+    
 
+  // now do the same for the leaf nodes
+  
+
+  auto leaves = m_tree.leaves();
+  // obtain the jet group indices for the jet groups satisfying the leaf conds
+  for (const auto& ci : leaves) {  // for each leaf node...
+    std::set<std::size_t> satJetGroupInds;
+    
+    // ... collect the (possibly compound) jet group indices...
     satJetGroupInds.insert(m_satisfiedBy.at(ci).cbegin(),
                            m_satisfiedBy.at(ci).cend());
-  }
-  
-  // obtain the corresponding elemental jet group indices
-  std::set<std::size_t> elSatJetGroupInds;
-  for (const auto& ji : satJetGroupInds) {
-    elSatJetGroupInds.insert(m_jg2elemjgs.at(ji).begin(),
-			     m_jg2elemjgs.at(ji).end());
-  }
+    
+    // ...obtain the corresponding elemental jet group indices...
+    std::set<std::size_t> elSatJetGroupInds;
+    for (const auto& ji : satJetGroupInds) {
+      elSatJetGroupInds.insert(m_jg2elemjgs.at(ji).begin(),
+			       m_jg2elemjgs.at(ji).end());
+    }
+    
+    // .. get the leg label for the condition (possibly "")
+    auto conditionLabel = (m_conditions.at(ci))->label();
+    
+    if (collector) {
+      std::stringstream ss;
+      ss <<  "elSatJettGroupInds.size() "
+	 << conditionLabel
+	 << ": "
+	 << elSatJetGroupInds.size();
+      collector->collect("FastReducer", ss.str());
+    }
 
+    // ... use the elemental jet group induces to recover the jets
+
+    // if the leaf not jet is one of the jets that contributes to
+    // passing root, store it in the collector, labelled by the leaf node
+    // chainLegLabel
+    
+    auto end = rootElSatJetGroupInds.end();
+    for(const auto& ji : elSatJetGroupInds) {
+      
+      if (rootElSatJetGroupInds.find(ji) != end){  /// jets by indices
+	jetCollector.addJets(m_indJetGroup.at(ji).begin(), //jets py ptrs
+			     m_indJetGroup.at(ji).end(),
+			     conditionLabel);
+      }
+    }
+  }
   if (collector) {
-    std::stringstream ss;
-    ss <<  "elSatJettGroupInds.size() " << elSatJetGroupInds.size();
-    collector->collect("FastReducer", ss.str());
+    collector->collect("FastReducer",
+		       "collected " + std::to_string(jetCollector.size()));
   }
-  
-  for(const auto& ji : elSatJetGroupInds) {
-    jetCollector.addJets(m_indJetGroup.at(ji).begin(),
-                         m_indJetGroup.at(ji).end());
-  }
-
 }
 
 
-bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
-				       const HypoJetGroupCIter& groups_b,
+bool FastReducer::findInitialJetGroups(const HypoJetGroupCIter& groups_b,
 				       const HypoJetGroupCIter& groups_e,
 				       const Collector& collector) {
   
@@ -141,8 +170,10 @@ bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
   /*
     Will now test the incoming jet groups against the leaf conditions.
   */
-  
+
   std::size_t ijg{0};
+  auto leaves = m_tree.leaves();
+
   for(auto iter = groups_b; iter != groups_e; ++iter){
     auto jg = *iter;
     
@@ -160,17 +191,19 @@ bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
       
       m_testedBy[leaf].insert(cur_jg);
       if (m_conditions[leaf]->isSatisfied(jg, collector)){
-	  jg_used= true;
-	  if(collector){recordJetGroup(cur_jg, jg, collector);}
-	  // do the following for each satisfied condition ...
-	  m_satisfiedBy[leaf].push_back(cur_jg);
+	jg_used= true;
+	if(collector){recordJetGroup(cur_jg, jg, collector);}
+	// do the following for each satisfied condition ...
+	m_satisfiedBy[leaf].push_back(cur_jg);
       }
     }
+    
     if(jg_used){
       m_jg2elemjgs[cur_jg] =  std::vector<std::size_t>{cur_jg};
       m_indJetGroup.emplace(cur_jg, jg);
       ++ijg;
     }
+    
   }
   
   if(collector){
@@ -186,7 +219,7 @@ bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
       return false;
     }
   }
-
+  
   /*
     For the special but important case where all leaf nodes have
     the root node as a parent, check that there are enough jets
@@ -213,7 +246,7 @@ bool FastReducer::findInitialJetGroups(const std::vector<int>& leaves,
   if (std::all_of(m_tree.cbegin(),
 		  m_tree.cend(),
 		  [](std::size_t i){return i == 0;})) {
-
+    
     if (m_conditions[0]->capacity() > ijg) {
       
       if (collector){
@@ -406,14 +439,6 @@ std::string FastReducer::toString() const {
   std::stringstream ss;
   ss << "FastReducer:\n";
   ss << "  treeVector: " << m_tree << '\n';;
-  ss << "  shared node sets [" << m_sharedConditions.size() << "]:\n";
-  for(const auto& snodelist : m_sharedConditions){
-    for(const auto el : snodelist){
-      ss << el << " ";
-    }
-    ss << '\n';
-  }
-
   ss << "FastReducer Conditions ["
      << m_conditions.size() << "]: \n";
 

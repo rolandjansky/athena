@@ -55,10 +55,10 @@ else:
 
 
 # Add an instance of TrigL1TopoWriteValData to the sequence
-from AthenaCommon import CfgMgr
-l1topoWriteValData = CfgMgr.TrigL1TopoWriteValData("l1topoWriteValData")
-topSequence += l1topoWriteValData
-log.debug("added l1topoWriteValData to topSequence")
+#from AthenaCommon import CfgMgr
+#l1topoWriteValData = CfgMgr.TrigL1TopoWriteValData("l1topoWriteValData")
+#topSequence += l1topoWriteValData
+#log.debug("added l1topoWriteValData to topSequence")
 #l1topoWriteValData.OutputLevel=1
 
 #--------------------------------------------------------------

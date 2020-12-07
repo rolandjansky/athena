@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -49,18 +49,11 @@ SCT_CablingTool::SCT_CablingTool(const std::string& type, const std::string& nam
 //
 StatusCode
 SCT_CablingTool::initialize() {
-  ATH_MSG_INFO("Initialize SCT cabling");
+  ATH_MSG_DEBUG("Initialize SCT cabling");
   const std::string cablingDataSource = m_cablingDataSource.value();
   m_usingDatabase=(cablingDataSource == coracool) or (cablingDataSource == coolVectorPayload) or (cablingDataSource == file);
   ATH_CHECK(detStore()->retrieve(m_idHelper, "SCT_ID"));
   ATH_CHECK(m_data.initialize());
-  return StatusCode::SUCCESS;
-}
-
-// 
-StatusCode
-SCT_CablingTool::finalize() {
-  ATH_MSG_INFO("Thank-you for using the SCT_CablingTool");
   return StatusCode::SUCCESS;
 }
 

@@ -34,33 +34,7 @@
 #include "dumpAllSystematics.h"
 
 DumpAllSystematics::DumpAllSystematics(const std::string& name, ISvcLocator* svcLoc)
-  : AthAlgorithm(name, svcLoc),
-  m_EventNumber(0),
-  m_RunNumber(0),
-  m_instance_index(0),
-  m_actualIntPerXing(0.),
-  m_averageIntPerXing(0.),
-  m_truth_pt(0.),
-  m_truth_phi(0.),
-  m_truth_eta(0.),
-  m_truth_E(0.),
-  m_truth_pdgId(0),
-  m_truth_parent_pdgId(0),
-  m_truth_matched(false),
-  m_truth_isConv(false),
-  m_truth_Rconv(0.),
-  m_npv(0),
-  m_cl_phi(0.),
-  m_cl_eta(0.),
-  m_cl_etaCalo(0.),
-  m_cl_rawcl_Es0(0.),
-  m_cl_rawcl_Es1(0.),
-  m_cl_rawcl_Es2(0.),
-  m_cl_rawcl_Es3(0.),
-  m_cl_E(0.),
-  m_ph_Rconv(0.),
-  m_ph_convFlag(0),
-  m_wstot(0.)
+  : AthAlgorithm(name, svcLoc)
 {
   declareProperty("EgammaCalibrationAndSmearingTools", m_EgammaCalibrationAndSmearingTools);
   declareProperty("particle", m_particle_name="", "electron/photon");

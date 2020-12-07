@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -22,6 +22,8 @@
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
+
+#include <sstream>
 
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
@@ -120,7 +122,21 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
       infocollector->
 	collect(name(),
 		"no of xAODJets " + std::to_string(participating_jets.size()));
+
+      auto labels = jetCollector.legLabels();
+      std::stringstream ss;
+      
+      for(const auto& label : labels){
+	auto jets = jetCollector.xAODJets(label);
+	ss << label << " [\n";
+	for(const auto& j : jets){
+	  ss << static_cast<const void*>(j) << '\n';
+	}
+	ss << "]\n";
+      }
+      infocollector->collect(name(), ss.str());
     }
+
 
     for (auto& pair : jetHypoInputs) { 
       auto it = std::find(participating_jets.begin(),

@@ -1,8 +1,5 @@
 TagInfoMgr          DEBUG initialize()
-TagInfoMgr          DEBUG OverrideEventInfoTags    'OverrideEventInfoTags':True
-TagInfoMgr          DEBUG TagInfoKey               'TagInfoKey':'ProcessingTags'
 TagInfoMgr          DEBUG ExtraTagValuePairs 
-TagInfoMgr          DEBUG  Value/tag pair: AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG in queryInterface()
@@ -18,23 +15,21 @@ TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /L
 TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/OnOffIdMap
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TagInfo
-TagInfoMgr          DEBUG preLoadAddresses - add transient address for TagInfo to detector store
-TagInfoMgr          DEBUG preLoadAddresses - Found CLID: 61780915 key from ioa ProcessingTags
+TagInfoMgr          DEBUG in queryInterface()
+TagInfoMgr          DEBUG matched ITagInfoMgr
+TagInfoMgr          DEBUG adding IOV callback object to DetStore
+TagInfoMgr          DEBUG Registered IOV callback for TagInfo changes
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG matched ITagInfoMgr
 TagInfoMgr          DEBUG start()
 TagInfoMgr          DEBUG Registered checkTagInfo callback for  /TagInfo 
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginInputFile from EventSelector
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
-TagInfoMgr          DEBUG handle: First BeginRun incident - Event ID: [1,1:0] 
+TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [1,1:0] 
 TagInfoMgr          DEBUG handle: currentRun = 1
 TagInfoMgr          DEBUG Signaled begin run to IOVDbSvc [1,1:0]
-TagInfoMgr          DEBUG Retrieve tag info 
-TagInfoMgr          DEBUG in queryInterface()
-TagInfoMgr          DEBUG in queryInterface()
-TagInfoMgr          DEBUG in queryInterface()
-TagInfoMgr          DEBUG createObj: get TagInfo
-TagInfoMgr          DEBUG createObj: Retrieved TagInfo meta data from detStore. size 1
+TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
 TagInfoMgr          DEBUG fillTagInfo: 
 TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
@@ -43,8 +38,6 @@ TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/ta
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease Athena-22.0.21
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagA1 A1
@@ -58,20 +51,19 @@ TagInfoMgr          DEBUG TagInfo tag:
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: print out tags
 TagInfoMgr          DEBUG TagInfo tag: 
-TagInfoMgr          DEBUG createObj: Filled TagInfo from file meta data 
+TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
 TagInfoMgr          DEBUG entering fillMetaData
 TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
 TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG TagA1 A1
 TagInfoMgr          DEBUG TagB1 B1
 TagInfoMgr          DEBUG TagD1 D1
+TagInfoMgr          DEBUG IOV minRange from IOVMetaData: {[1,0] - [3,0]}
 TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 1 {[1,0] - [3,0]}
 TagInfoMgr          DEBUG fillMetaData: start, stop: [1,0] [3,0]
 TagInfoMgr.IOVD...  DEBUG begin registerFolder 
@@ -81,16 +73,14 @@ TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been reg
 TagInfoMgr.IOVD...  DEBUG begin addPayload 
 TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
 TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
-TagInfoMgr          DEBUG createObj: Wrote TagInfo to MetaDataStore 
-TagInfoMgr          DEBUG createObj:  created new TagInfo object 
-TagInfoMgr          DEBUG Retrieved tag info 
+TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 TagInfoMgr          DEBUG handle: TagInfo successfully processed by IOVDbSvc to register callback
-TagInfoMgr          DEBUG checkTagInfo: entering checkTagInfo
-TagInfoMgr          DEBUG checkTagInfo: retrieved TagInfo to save its contents
-TagInfoMgr          DEBUG checkTagInfo: saved TagInfo contents
-TagInfoMgr          DEBUG checkTagInfo: reset TagInfo
-TagInfoMgr          DEBUG createObj: get TagInfo
-TagInfoMgr          DEBUG createObj: Retrieved TagInfo meta data from detStore. size 1
+TagInfoMgr          DEBUG updateAddress
+TagInfoMgr          DEBUG IOV callback
+TagInfoMgr          DEBUG notifyListeners  (1 registered)
+TagInfoMgr          DEBUG checkTagInfo IOV callback
+TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
 TagInfoMgr          DEBUG fillTagInfo: 
 TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
@@ -99,8 +89,6 @@ TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/ta
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease Athena-22.0.21
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagA1 A1
@@ -114,16 +102,14 @@ TagInfoMgr          DEBUG TagInfo tag:
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: print out tags
 TagInfoMgr          DEBUG TagInfo tag: 
-TagInfoMgr          DEBUG createObj: Filled TagInfo from file meta data 
+TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
 TagInfoMgr          DEBUG entering fillMetaData
 TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
 TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG TagA1 A1
 TagInfoMgr          DEBUG TagB1 B1
@@ -137,19 +123,41 @@ TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been reg
 TagInfoMgr.IOVD...  DEBUG begin addPayload 
 TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
 TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
-TagInfoMgr          DEBUG createObj: Wrote TagInfo to MetaDataStore 
-TagInfoMgr          DEBUG createObj:  created new TagInfo object 
-TagInfoMgr          DEBUG checkTagInfo: retrieved TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
-TagInfoMgr          DEBUG handle: secondary BeginRun incident - Event ID: [2,1:85] 
+TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [2,1:85] 
 TagInfoMgr          DEBUG handle: currentRun = 2
-TagInfoMgr          DEBUG handle - BeginRun: Retrieved TagInfo meta data from detStore
+TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
+TagInfoMgr          DEBUG fillTagInfo: 
+TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
+TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagA1 A1
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TagA1 A1
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagB1 B1
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TagB1 B1
+TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagD1 D1
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TagD1 D1
+TagInfoMgr          DEBUG fillTagInfo: print out tags before adding extra tags
+TagInfoMgr          DEBUG TagInfo tag: 
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: print out tags
+TagInfoMgr          DEBUG TagInfo tag: 
+TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
 TagInfoMgr          DEBUG entering fillMetaData
 TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
 TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG TagA1 A1
 TagInfoMgr          DEBUG TagB1 B1
@@ -163,5 +171,5 @@ TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been reg
 TagInfoMgr.IOVD...  DEBUG begin addPayload 
 TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
 TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
-TagInfoMgr          DEBUG handle - BeginRun: Wrote TagInfo to MetaDataStore 
+TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 TagInfoMgr          DEBUG finalize()

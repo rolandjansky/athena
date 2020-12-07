@@ -14,18 +14,11 @@
 #include <sstream>
 #include <map>
 
-// local include(s):
-//#include "LArG4Code/EnergySpot.h"
-//#include "LArG4ShowerLib/Shower.h"
-//#include "LArG4ShowerLib/ShowerLibList.h"
-
 #include "ISF_FastCaloSimEvent/FCS_StepInfo.h"
 #include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
 // athena includes
 #include "GeoModelInterfaces/IGeoModelSvc.h"
-#include "EventInfo/TagInfo.h"
-
 
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloGeoHelpers/CaloSampling.h"

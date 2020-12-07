@@ -76,18 +76,6 @@ def _loadBasicEventInfoMgt():
     print ("EventInfoMgtInit: Got release version ",release)
     svcMgr.TagInfoMgr.ExtraTagValuePairs = {"AtlasRelease" : release }
 
-    # Add TagInfoMgr as cnv svc
-    from GaudiCommonSvc.GaudiCommonSvcConf import EvtPersistencySvc
-    if not hasattr (svcMgr, 'EventPersistencySvc'):
-        svcMgr += EvtPersistencySvc( "EventPersistencySvc" )
-    svcMgr.EventPersistencySvc.CnvServices += [ "TagInfoMgr" ]
-
-    # Set TagInfoMgr as proxy provider
-    from AthenaCommon.ConfigurableDb import getConfigurable
-    if not hasattr (svcMgr, 'ProxyProviderSvc'):
-        svcMgr += getConfigurable("ProxyProviderSvc")()
-    svcMgr.ProxyProviderSvc.ProviderNames += [ "TagInfoMgr" ]
-
     msg.debug( "Loading basic services for EventInfoMgt... [DONE]" )
     return
 

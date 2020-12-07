@@ -18,7 +18,7 @@
 #include "../xAODTestFilterCVec.h"
 #include "../xAODTestClearDecor.h"
 #include "../xAODTestTypelessRead.h"
-#include "../xAODTestShallowCopy.h"
+#include "../xAODTestShallowCopyHVec.h"
 #include "../HLTResultReader.h"
 
 DECLARE_COMPONENT( DMTest::DMTestRead )
@@ -33,6 +33,6 @@ DECLARE_COMPONENT( DMTest::xAODTestReadHVec )
 DECLARE_COMPONENT( DMTest::xAODTestFilterCVec )
 DECLARE_COMPONENT( DMTest::xAODTestClearDecor )
 DECLARE_COMPONENT( DMTest::xAODTestTypelessRead )
-DECLARE_COMPONENT( DMTest::xAODTestShallowCopy )
+DECLARE_COMPONENT( DMTest::xAODTestShallowCopyHVec )
 DECLARE_COMPONENT( DMTest::HLTResultReader )
 

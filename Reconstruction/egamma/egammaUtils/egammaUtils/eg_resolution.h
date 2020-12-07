@@ -7,11 +7,12 @@
 
 #include <cstdlib>
 #include <cmath>
+#include <memory>
+
 #include "xAODEgamma/Egamma.h"
 #include "TH1.h"
 #include "TFile.h"
 #include "TArrayD.h"
-#include <memory>
 /**
   @class eg_resolution
   @brief get resolution for electron and photons (converted / unconverted) vs E,eta

@@ -72,12 +72,12 @@ private:
   typedef LArFCalTowerStore::tower_iterator tower_iterator;
 
   void addTower (const tower_iterator& t,
-                 const CaloCellContainer* cells,
+                 const ElementLink<CaloCellContainer>& cellsEL,
                  CaloTower* tower) const;
   void iterateFull (CaloTowerContainer* towers,
-                    const CaloCellContainer* cells) const;
+                    const ElementLink<CaloCellContainer>& cellsEL) const;
   void iterateSubSeg (CaloTowerContainer* towers,
-                      const CaloCellContainer* cells,
+                      const ElementLink<CaloCellContainer>& cellsEL,
                       const CaloTowerSeg::SubSeg* subseg) const;
 
 

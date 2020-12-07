@@ -39,8 +39,7 @@ namespace InDet {
             return IID_JetFitterTrackSelectorTool;
         }
 
-        StatusCode initialize();
-        StatusCode finalize();
+        virtual StatusCode initialize() override;
 
         JetFitterTrackSelectorTool(const std::string &t, const std::string &n, const IInterface *p);
         ~JetFitterTrackSelectorTool();

@@ -11,15 +11,18 @@
 
 using namespace TrigCompositeUtils;
 
+namespace {
+  std::string formatStreamTagInfo(const StreamTagMakerTool::StreamTagInfo& info) {
+    std::ostringstream ss;
+    ss << "[" << std::get<0>(info) << ", " << std::get<1>(info) << ", " << std::get<2>(info) << ", " << std::get<3>(info) << "]";
+    return ss.str();
+  }
+}
+
 // =============================================================================
 
 StreamTagMakerTool::StreamTagMakerTool( const std::string& type, const std::string& name, const IInterface* parent ):
-   base_class( type, name, parent )
-{}
-
-// =============================================================================
-
-StreamTagMakerTool::~StreamTagMakerTool() {}
+  base_class( type, name, parent ) {}
 
 // =============================================================================
 
@@ -141,7 +144,7 @@ StatusCode StreamTagMakerTool::fill( HLT::HLTResultMT& resultToFill, const Event
     
     const std::vector<StreamTagInfo>& streams = mappingIter->second;
     for (const StreamTagInfo& streamTagInfo : streams) {
-      auto [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
+      const auto& [st_name, st_type, obeysLB, forceFullEvent] = streamTagInfo;
       ATH_MSG_DEBUG("Chain " << HLT::Identifier( chain ) << " accepted event into stream " << st_type << "_" << st_name
                     << " (obeysLB=" << obeysLB << ", forceFullEvent=" << forceFullEvent << ")");
       std::set<uint32_t> robs;
@@ -209,14 +212,3 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
   } // Loop over decision containers
   return StatusCode::SUCCESS;
 }
-
-// =============================================================================
-
-std::string
-StreamTagMakerTool::formatStreamTagInfo (const StreamTagInfo& info) const
-{
-  std::ostringstream ss;
-  ss << "[" << std::get<0>(info) << ", " << std::get<1>(info) << ", " << std::get<2>(info) << ", " << std::get<3>(info) << "]";
-  return ss.str();
-}
-

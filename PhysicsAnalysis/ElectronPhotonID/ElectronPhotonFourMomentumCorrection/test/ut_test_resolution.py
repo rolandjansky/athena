@@ -97,7 +97,7 @@ class TestEgammaResolution(unittest.TestCase):
         f = ROOT.TFile(rootfile)
         tree = f.Get("test_resolution_nonregression_data_run1")
 
-        for ievent in range(tree.GetEntries()):
+        for ievent in xrange(tree.GetEntries()):
 
             tree.GetEntry(ievent)
             resolution = self.tool_run1.getResolution(tree.ptype,

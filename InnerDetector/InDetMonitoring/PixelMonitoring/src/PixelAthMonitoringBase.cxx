@@ -7,7 +7,7 @@
 
 //////////////////////////////////////////////
 ///
-/// helper class to accumulate points to fill a 2D plot with
+/// helper class to accumulate points to fill a 2D per-module plot with
 ///
 void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Identifier& id,
 						  const PixelID* pid, float value ) {
@@ -42,6 +42,62 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Id
     m_em[layer].push_back(em);
     m_val[layer].push_back(value);
   }   
+}
+
+//////////////////////////////////////////////
+///
+/// helper class to accumulate points to fill a 2D per-FE plot with
+///
+void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Identifier& id,
+						       const PixelID* pid, int iFE, float value ) {
+
+  // value
+  m_val[layer].push_back(value);
+
+  // for old pixel see https://twiki.cern.ch/twiki/pub/Atlas/PixelCOOLoffline/pixel_modules_sketch.png
+  // 
+  // phi (Y) coordinate
+  if ( layer == PixLayers::kIBL || layer == PixLayers::kDBMC || layer == PixLayers::kDBMA )
+    m_pm[layer].push_back( pid->phi_module(id) );
+  else {
+    if ( (layer == PixLayers::kECA || layer == PixLayers::kECC) && ( pid->phi_module(id) % 2 == 0 ) ) {
+      // even disk modules
+      m_pm[layer].push_back( pid->phi_module(id)*2 + iFE/8 );
+    } else { 
+      m_pm[layer].push_back( pid->phi_module(id)*2 + 1 - iFE/8 );
+    }
+  }
+  // eta (X) coordinate
+  int ld = pid->layer_disk(id);
+  int em(0);
+  // endcaps/DBM
+  if ( layer == PixLayers::kDBMC || layer == PixLayers::kDBMA ) em = ld;
+  else {
+    em = ld * 8;
+    if (iFE<8) em+= ( 7 - iFE%8 ); 
+    else em+= iFE%8; 
+  } 
+  // barrel
+  //
+  if (pid->barrel_ec(id) == 0) { 
+    if (ld == 0) {  //ibl
+      em = pid->eta_module(id);
+      int emf;
+      if (em < -6) {
+	emf = em - 6;
+      } else if (em > -7 && em < 6) {
+	emf = 2 * em + iFE;
+      } else {
+	emf = em + 6;
+      }
+      em = emf;
+    } else {
+      em = pid->eta_module(id) * 8 - 4;
+      if (iFE<8) em+= ( 7 - iFE%8 );
+      else em+= iFE%8; 
+    }
+  } // end barrel
+  m_em[layer].push_back(em);
 }
 
 //////////////////////////////////////////////
@@ -229,6 +285,20 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
   return layer;
 }
 //////////////////////////////////////////////
+
+///
+/// helper function to get number of FEs per module
+///
+int PixelAthMonitoringBase::getNumberOfFEs(int pixlayer, int etaMod) const {
+  int nFE(16);
+  if (pixlayer == PixLayers::kIBL || pixlayer == PixLayers::kDBMC || pixlayer == PixLayers::kDBMA) {
+    nFE = 1;
+    if (etaMod>-7 && etaMod<6) nFE = 2; //IBL Planar
+  } 
+  return nFE;
+}
+//////////////////////////////////////////////
+
 
 ///
 /// helper function to get eta phi coordinates of per-layer arrays

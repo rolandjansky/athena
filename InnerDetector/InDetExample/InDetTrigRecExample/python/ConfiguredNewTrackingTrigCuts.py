@@ -17,7 +17,7 @@ del _sharedcuts
 
 class ConfiguredNewTrackingTrigCuts(InDetTrigTrackingCuts):
   pass
-  
+
 if not 'EFIDTrackingCuts' in globals():
   EFIDTrackingCuts = ConfiguredNewTrackingTrigCuts("Offline")
   EFIDTrackingCutsCosmics = ConfiguredNewTrackingTrigCuts("Cosmics")
@@ -25,4 +25,5 @@ if not 'EFIDTrackingCuts' in globals():
   EFIDTrackingCutsLowPt = ConfiguredNewTrackingTrigCuts("LowPt")
   EFIDTrackingCutsTRT = ConfiguredNewTrackingTrigCuts("TRT")
   EFIDTrackingCutsHeavyIon = ConfiguredNewTrackingTrigCuts("HeavyIon")
+  EFIDTrackingCutLRT = ConfiguredNewTrackingTrigCuts("LRT")
   L2IDTrackingCuts = EFIDTrackingCuts

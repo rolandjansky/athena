@@ -24,7 +24,7 @@
 
 #else
 
-#include <GaudiKernel/IJobOptionsSvc.h>
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include <GaudiKernel/ServiceHandle.h>
 
 #endif
@@ -360,7 +360,7 @@ namespace asg
 
     ANA_CHECK (checkTypeName (nestedNames));
 
-    ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc","AsgComponentConfig");
+    ServiceHandle<Gaudi::Interfaces::IOptionsSvc> joSvc("JobOptionsSvc","AsgComponentConfig");
     ANA_CHECK (joSvc.retrieve());
 
     for (const auto& tool : m_privateTools)
@@ -368,19 +368,13 @@ namespace asg
       std::string toolPath = prefix + m_name + "." + tool.first;
       const auto split = toolPath.rfind ('.');
       std::string toolName = toolPath.substr (split+1);
-      std::string parentName = toolPath.substr (0, split);
-      StringProperty athenaProperty (toolName, tool.second + "/" + toolName);
-      ANA_CHECK (joSvc->addPropertyToCatalogue (parentName, std::move (athenaProperty)));
+      joSvc->set (toolPath, tool.second + "/" + toolName);
     }
 
     for (const auto& property : m_propertyValues)
     {
       std::string propertyPath = prefix + m_name + "." + property.first;
-      const auto split = propertyPath.rfind ('.');
-      std::string propertyName = propertyPath.substr (split+1);
-      std::string componentName = propertyPath.substr (0, split);
-      StringProperty athenaProperty (propertyName, property.second);
-      ANA_CHECK (joSvc->addPropertyToCatalogue (componentName, std::move (athenaProperty)));
+      joSvc->set (propertyPath, property.second);
     }
 
     return StatusCode::SUCCESS;

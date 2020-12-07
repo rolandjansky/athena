@@ -8,8 +8,7 @@
 #ifdef HEPMC3
 #include "HepMC3/FourVector.h"
 #include "HepMC3/PrintStreams.h"
-namespace HepMC
-{
+namespace HepMC {
 typedef HepMC3::FourVector FourVector;
 }
 #else

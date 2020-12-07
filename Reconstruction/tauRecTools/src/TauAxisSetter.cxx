@@ -66,10 +66,13 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
     // Tau intermediate axis (corrected for tau vertex)
     TLorentzVector tauInterAxis;
 
-    const xAOD::Vertex* jetVertex = getJetVertex(*jetSeed);
-    
-    const xAOD::Vertex* tauVertex = nullptr;
-    if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
+    // In trigger, jet candidate do not have a vertex
+    const xAOD::Vertex* jetVertex = nullptr;
+    if (!inTrigger()) {
+      jetVertex = tauRecTools::getJetVertex(*jetSeed);
+    }
+
+    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(tau, inTrigger());
 
     // Redo the vertex correction when tau vertex is different from jet vertex
     if (jetVertex != tauVertex) {
@@ -120,23 +123,6 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& tau) const {
 
 
 
-const xAOD::Vertex* TauAxisSetter::getJetVertex(const xAOD::Jet& jet) const {
-  
-  const xAOD::Vertex* jetVertex = nullptr;
-  
-  if (m_doJetVertexCorrection && !inTrigger()) {
-    bool isAvailable = jet.getAssociatedObject("OriginVertex", jetVertex);
-    if (!isAvailable) {
-      ATH_MSG_WARNING("OriginVertex not available !");
-      jetVertex = nullptr;
-    }
-  }
-
-  return jetVertex;
-}
-
-
-
 TLorentzVector TauAxisSetter::getVertexCorrectedP4(const xAOD::JetConstituent& constituent,
                                                    const Amg::Vector3D& position) const {
   TLorentzVector vertexCorrectedP4;
@@ -170,15 +156,9 @@ TLorentzVector TauAxisSetter::getVertexCorrectedP4(const xAOD::PFO& pfo,
 
     // If there is a vertex correction in jet reconstruction, then pfo.p4() is the four momentum 
     // at EM scale. Otherwise, pfo.p4() is at LC scale (not clear), and pfo.p4EM() is the four 
-    // momentum at EM scale. 
-    // TODO: May need further modifications, depending on how the jet reconstruction fix ATLJETMET-1280
-    // The strategy only works for PFlow at EM scale.
-    if (m_doJetVertexCorrection && !inTrigger()) {
-      vertexCorrectedP4 = pfo.GetVertexCorrectedFourVec(pos);
-    }
-    else {
-      vertexCorrectedP4 = pfo.GetVertexCorrectedEMFourVec(pos);
-    }
+    // momentum at EM scale. Here, we assume jet always perform the vertex correction in offline 
+    // reconstruction.
+    vertexCorrectedP4 = pfo.GetVertexCorrectedFourVec(pos);
   }
   else {
     vertexCorrectedP4 = pfo.p4();

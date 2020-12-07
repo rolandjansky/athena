@@ -1,8 +1,5 @@
 TagInfoMgr          DEBUG initialize()
-TagInfoMgr          DEBUG OverrideEventInfoTags    'OverrideEventInfoTags':True
-TagInfoMgr          DEBUG TagInfoKey               'TagInfoKey':'ProcessingTags'
 TagInfoMgr          DEBUG ExtraTagValuePairs 
-TagInfoMgr          DEBUG  Value/tag pair: AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG in queryInterface()
@@ -18,10 +15,10 @@ TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /L
 TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/OnOffIdMap
 TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TagInfo
-TagInfoMgr          DEBUG preLoadAddresses - add transient address for TagInfo to detector store
-TagInfoMgr          DEBUG preLoadAddresses - Found CLID: 61780915 key from ioa ProcessingTags
 TagInfoMgr          DEBUG in queryInterface()
 TagInfoMgr          DEBUG matched ITagInfoMgr
+TagInfoMgr          DEBUG adding IOV callback object to DetStore
+TagInfoMgr          DEBUG Registered IOV callback for TagInfo changes
 EventInfoWriter     DEBUG EventInfoWriter::initialize()
 EventInfoWriter     DEBUG CreateDummyTags          'CreateDummyTags':False
 EventInfoWriter     DEBUG RemoveDummyTags          'RemoveDummyTags':True
@@ -37,15 +34,11 @@ TagInfoMgr          DEBUG start()
 TagInfoMgr          DEBUG Registered checkTagInfo callback for  /TagInfo 
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginInputFile from EventSelector
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
-TagInfoMgr          DEBUG handle: First BeginRun incident - Event ID: [1,1:0] 
+TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [1,1:0] 
 TagInfoMgr          DEBUG handle: currentRun = 1
 TagInfoMgr          DEBUG Signaled begin run to IOVDbSvc [1,1:0]
-TagInfoMgr          DEBUG Retrieve tag info 
-TagInfoMgr          DEBUG in queryInterface()
-TagInfoMgr          DEBUG in queryInterface()
-TagInfoMgr          DEBUG in queryInterface()
-TagInfoMgr          DEBUG createObj: get TagInfo
-TagInfoMgr          DEBUG createObj: Retrieved TagInfo meta data from detStore. size 1
+TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
 TagInfoMgr          DEBUG fillTagInfo: 
 TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
@@ -54,8 +47,6 @@ TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/ta
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease Athena-22.0.21
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagA1 A1
@@ -71,22 +62,21 @@ TagInfoMgr          DEBUG TagInfo tag:
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: print out tags
 TagInfoMgr          DEBUG TagInfo tag: 
-TagInfoMgr          DEBUG createObj: Filled TagInfo from file meta data 
+TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
 TagInfoMgr          DEBUG entering fillMetaData
 TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
 TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG TagA1 A1
 TagInfoMgr          DEBUG TagB1 B1
 TagInfoMgr          DEBUG TagD1 D1
-TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 1 {[1,0] - [2,0]}
-TagInfoMgr          DEBUG fillMetaData: start, stop: [1,0] [2,0]
+TagInfoMgr          DEBUG IOV minRange from IOVMetaData: {[1,0] - [3,0]}
+TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 1 {[1,0] - [3,0]}
+TagInfoMgr          DEBUG fillMetaData: start, stop: [1,0] [3,0]
 TagInfoMgr.IOVD...  DEBUG begin registerFolder 
 TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
 TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
@@ -94,17 +84,15 @@ TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been reg
 TagInfoMgr.IOVD...  DEBUG begin addPayload 
 TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
 TagInfoMgr.IOVD...  DEBUG Added new payload for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG {[1,0] - [2,0]} iov size 0
-TagInfoMgr          DEBUG createObj: Wrote TagInfo to MetaDataStore 
-TagInfoMgr          DEBUG createObj:  created new TagInfo object 
-TagInfoMgr          DEBUG Retrieved tag info 
+TagInfoMgr.IOVD...  DEBUG {[1,0] - [3,0]} iov size 0
+TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 TagInfoMgr          DEBUG handle: TagInfo successfully processed by IOVDbSvc to register callback
-TagInfoMgr          DEBUG checkTagInfo: entering checkTagInfo
-TagInfoMgr          DEBUG checkTagInfo: retrieved TagInfo to save its contents
-TagInfoMgr          DEBUG checkTagInfo: saved TagInfo contents
-TagInfoMgr          DEBUG checkTagInfo: reset TagInfo
-TagInfoMgr          DEBUG createObj: get TagInfo
-TagInfoMgr          DEBUG createObj: Retrieved TagInfo meta data from detStore. size 1
+TagInfoMgr          DEBUG updateAddress
+TagInfoMgr          DEBUG IOV callback
+TagInfoMgr          DEBUG notifyListeners  (1 registered)
+TagInfoMgr          DEBUG checkTagInfo IOV callback
+TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
 TagInfoMgr          DEBUG fillTagInfo: 
 TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
@@ -113,8 +101,6 @@ TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/ta
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease Athena-22.0.21
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagA1 A1
@@ -130,22 +116,20 @@ TagInfoMgr          DEBUG TagInfo tag:
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: print out tags
 TagInfoMgr          DEBUG TagInfo tag: 
-TagInfoMgr          DEBUG createObj: Filled TagInfo from file meta data 
+TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
 TagInfoMgr          DEBUG entering fillMetaData
 TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
 TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG TagA1 A1
 TagInfoMgr          DEBUG TagB1 B1
 TagInfoMgr          DEBUG TagD1 D1
-TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 1 {[1,0] - [2,0]}
-TagInfoMgr          DEBUG fillMetaData: start, stop: [1,0] [2,0]
+TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 1 {[1,0] - [3,0]}
+TagInfoMgr          DEBUG fillMetaData: start, stop: [1,0] [3,0]
 TagInfoMgr.IOVD...  DEBUG begin registerFolder 
 TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
 TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
@@ -153,20 +137,16 @@ TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been reg
 TagInfoMgr.IOVD...  DEBUG begin addPayload 
 TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
 TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
-TagInfoMgr          DEBUG createObj: Wrote TagInfo to MetaDataStore 
-TagInfoMgr          DEBUG createObj:  created new TagInfo object 
-TagInfoMgr          DEBUG checkTagInfo: retrieved TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967296:0] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -175,24 +155,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967297:5] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -201,24 +177,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967298:10] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -227,24 +199,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967299:15] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -253,24 +221,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967300:20] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -279,24 +243,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967301:25] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -305,24 +265,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967302:30] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -331,24 +287,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967303:35] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -357,24 +309,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967304:40] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -383,24 +331,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967305:45] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -409,24 +353,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967306:50] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -435,24 +375,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967307:55] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -461,24 +397,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967308:60] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -487,24 +419,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967309:65] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -513,24 +441,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967310:70] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -539,24 +463,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967311:75] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -565,24 +485,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [1,4294967312:80] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -591,43 +507,16 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
 EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
-TagInfoMgr          DEBUG handle: secondary BeginRun incident - Event ID: [2,1:85] 
+TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [2,1:85] 
 TagInfoMgr          DEBUG handle: currentRun = 2
-TagInfoMgr          DEBUG handle - BeginRun: Retrieved TagInfo meta data from detStore
-TagInfoMgr          DEBUG entering fillMetaData
-TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
-TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
-TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
-TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG AtlasRelease Athena-22.0.21
-TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
-TagInfoMgr          DEBUG TagA1 A1
-TagInfoMgr          DEBUG TagB1 B1
-TagInfoMgr          DEBUG TagD1 D1
-TagInfoMgr          DEBUG fillMetaData: run number is outside of previous IOVRange: 2 {[1,0] - [2,0]}. Reset range to run number.
-TagInfoMgr          DEBUG fillMetaData: start, stop: [2,0] [3,0]
-TagInfoMgr.IOVD...  DEBUG begin registerFolder 
-TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
-TagInfoMgr.IOVD...  DEBUG begin addPayload 
-TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
-TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
-TagInfoMgr          DEBUG handle - BeginRun: Wrote TagInfo to MetaDataStore 
-TagInfoMgr          DEBUG checkTagInfo: entering checkTagInfo
-TagInfoMgr          DEBUG checkTagInfo: retrieved TagInfo to save its contents
-TagInfoMgr          DEBUG checkTagInfo: saved TagInfo contents
-TagInfoMgr          DEBUG checkTagInfo: reset TagInfo
-TagInfoMgr          DEBUG createObj: get TagInfo
-TagInfoMgr          DEBUG createObj: Retrieved TagInfo meta data from detStore. size 1
+TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Retrieved TagInfo meta data from detStore. size 1
 TagInfoMgr          DEBUG fillTagInfo: 
 TagInfoMgr          DEBUG fillTagInfo: - tags coming from COOL file meta data
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
@@ -636,14 +525,14 @@ TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/ta
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo AtlasRelease Athena-22.0.21
-TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagA1 A1
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TagA1 A1
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagB1 B1
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TagB1 B1
+TagInfoMgr          DEBUG fillTagInfo: Did NOT add tag - on remove list: name/tag: TagC1 C1
+TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TagC1 C1
 TagInfoMgr          DEBUG fillTagInfo: Added name/tag to TagInfo TagD1 D1
 TagInfoMgr          DEBUG fillTagInfo: Added value/tag to TagInfo as input tag TagD1 D1
 TagInfoMgr          DEBUG fillTagInfo: print out tags before adding extra tags
@@ -651,21 +540,19 @@ TagInfoMgr          DEBUG TagInfo tag:
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG fillTagInfo: print out tags
 TagInfoMgr          DEBUG TagInfo tag: 
-TagInfoMgr          DEBUG createObj: Filled TagInfo from file meta data 
+TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from file meta data 
 TagInfoMgr          DEBUG entering fillMetaData
 TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
 TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-TagInfoMgr          DEBUG AtlasRelease Athena-22.0.21
 TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 TagInfoMgr          DEBUG TagA1 A1
 TagInfoMgr          DEBUG TagB1 B1
 TagInfoMgr          DEBUG TagD1 D1
-TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 2 {[2,0] - [3,0]}
+TagInfoMgr          DEBUG fillMetaData: run number is in previous IOVRange: 2 {[1,0] - [3,0]}
 TagInfoMgr          DEBUG fillMetaData: start, stop: [2,0] [3,0]
 TagInfoMgr.IOVD...  DEBUG begin registerFolder 
 TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
@@ -674,20 +561,16 @@ TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been reg
 TagInfoMgr.IOVD...  DEBUG begin addPayload 
 TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
 TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
-TagInfoMgr          DEBUG createObj: Wrote TagInfo to MetaDataStore 
-TagInfoMgr          DEBUG createObj:  created new TagInfo object 
-TagInfoMgr          DEBUG checkTagInfo: retrieved TagInfo
+TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,1:85] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -696,23 +579,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
+EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,2:90] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -721,23 +601,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
+EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,3:95] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -746,23 +623,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
+EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,4:100] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -771,23 +645,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
+EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,5:105] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -796,23 +667,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
+EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,6:110] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -821,23 +689,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
+EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,7:115] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -846,23 +711,20 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
+EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::execute()
 EventInfoWriter     DEBUG Event ID: [2,8:120] 
 EventInfoWriter     DEBUG Event type: user type McEvent
-EventInfoWriter     DEBUG Retrieved TagInfo
-EventInfoWriter     DEBUG Tags from  TagInfo:
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
 EventInfoWriter     DEBUG TagInfo tag: 
 EventInfoWriter     DEBUG Current tags: 
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
@@ -871,11 +733,10 @@ EventInfoWriter     DEBUG Input tags:
 EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
 EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
 EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
-EventInfoWriter     DEBUG     AtlasRelease Athena-22.0.21
 EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
 EventInfoWriter     DEBUG     TagA1 A1
 EventInfoWriter     DEBUG     TagB1 B1
+EventInfoWriter     DEBUG     TagC1 C1
 EventInfoWriter     DEBUG     TagD1 D1
-EventInfoWriter     DEBUG Found Release version from TagInfo: Athena-22.0.21
 EventInfoWriter     DEBUG EventInfoWriter::finalize()
 TagInfoMgr          DEBUG finalize()

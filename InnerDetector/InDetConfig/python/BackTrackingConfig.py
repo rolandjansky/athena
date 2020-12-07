@@ -94,10 +94,9 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', Tracki
     InDetSiComTrackFinder = acc.popToolsAndMerge(TC.SiCombinatorialTrackFinder_xkCfg(flags))
     acc.addPublicTool(InDetSiComTrackFinder)
 
-    InDetTRT_SeededSiRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags, TrackingFlags=TrackingFlags))
-    acc.addPublicTool(InDetTRT_SeededSiRoadMaker)
-
     if (TrackingFlags.usePixel and TrackingFlags.useSCT) is not False:
+        InDetTRT_SeededSiRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags, TrackingFlags=TrackingFlags))
+        acc.addPublicTool(InDetTRT_SeededSiRoadMaker)
         kwargs.setdefault("RoadTool", InDetTRT_SeededSiRoadMaker)
 
     #
@@ -155,8 +154,8 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', TrackingF
         suffix = ''
         usePrdAssociationTool = False
 
-    InDetTrackFitter = acc.popToolsAndMerge(TC.InDetKalmanFitterCfg(flags))
-    acc.addPublicTool(InDetTrackFitter)
+    InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
+    acc.addPublicTool(InDetTrackFitterBT)
 
     InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
     acc.addPublicTool(InDetTrackSummaryToolNoHoleSearch)
@@ -174,7 +173,7 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', TrackingF
                                                                                  InputCollections=InputCollections))
     acc.addPublicTool(InDetTRT_SeededTrackTool)
 
-    kwargs.setdefault("RefitterTool", InDetTrackFitter)
+    kwargs.setdefault("RefitterTool", InDetTrackFitterBT)
     kwargs.setdefault("TrackTool", InDetTRT_SeededTrackTool)
     kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else "")
     kwargs.setdefault("TrackSummaryTool", InDetTrackSummaryToolNoHoleSearch)
@@ -251,8 +250,8 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     #
     # --- load Ambiguity Processor
     #
-    InDetTrackFitter = acc.popToolsAndMerge(TC.InDetKalmanFitterCfg(flags))
-    acc.addPublicTool(InDetTrackFitter)
+    InDetTrackFitterBT = acc.popToolsAndMerge(TC.InDetTrackFitterBTCfg(flags))
+    acc.addPublicTool(InDetTrackFitterBT)
 
     InDetPRDtoTrackMapToolGangedPixels = TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags)
     acc.addPublicTool(InDetPRDtoTrackMapToolGangedPixels)
@@ -274,7 +273,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags, TrackingFlags=TrackingFlags))
     acc.addPublicTool(InDetTRT_SeededAmbiTrackSelectionTool)
 
-    kwargs.setdefault("Fitter", InDetTrackFitter)
+    kwargs.setdefault("Fitter", InDetTrackFitterBT)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("TrackSummaryTool", InDetTRT_SeededSummaryTool)
     kwargs.setdefault("SelectionTool", InDetTRT_SeededAmbiTrackSelectionTool)
@@ -383,9 +382,6 @@ if __name__ == "__main__":
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
 
-    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
-    top_acc.merge(MagneticFieldSvcCfg(ConfigFlags))
-
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
     top_acc.merge( PixelGeometryCfg(ConfigFlags) )
 
@@ -418,7 +414,7 @@ if __name__ == "__main__":
     from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
     top_acc.addPublicTool(top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(ConfigFlags)))
     ##
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg)
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg
     top_acc.merge(PixelOfflineCalibCondAlgCfg(ConfigFlags))
     top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
     ##
@@ -462,8 +458,6 @@ if __name__ == "__main__":
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
 
-    top_acc.getService('StoreGateSvc').Dump = True
-    top_acc.printConfig(withDetails = True, summariseProps = True)
-
+    top_acc.printConfig()
     top_acc.run(25)
     top_acc.store(open("test_BackTrackingConfig.pkl", "wb"))

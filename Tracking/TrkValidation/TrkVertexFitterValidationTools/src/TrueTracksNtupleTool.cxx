@@ -134,15 +134,18 @@ StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& 
             if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << " truth is missing" << endmsg;
          } else {  
              TrackTruth trk_truth=found->second;
-             const HepMC::GenParticle * particle;
-             particle = trk_truth.particleLink();
-             HepMC:: GenVertex* prod_vtx = particle->production_vertex();
+             auto particle = trk_truth.particleLink();
+             auto prod_vtx = particle->production_vertex();
              //fill prod vertex
              m_prod_x->push_back(prod_vtx->position().x());
              m_prod_y->push_back(prod_vtx->position().y());
              m_prod_z->push_back(prod_vtx->position().z());
 
+#ifdef HEPMC3
+             auto   parent_iter = prod_vtx->particles_in().begin();
+#else
              HepMC::GenVertex::particle_iterator   parent_iter = prod_vtx->particles_begin(HepMC::parents);
+#endif
              m_parent_id->push_back((*parent_iter)->pdg_id());
              m_particle_id->push_back(particle->pdg_id());
             }

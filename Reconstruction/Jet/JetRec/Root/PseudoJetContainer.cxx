@@ -14,7 +14,6 @@
 #include <ios>
 #include <iostream>
 #include <exception>
-#include <map>
 
 using fastjet::PseudoJet;
 

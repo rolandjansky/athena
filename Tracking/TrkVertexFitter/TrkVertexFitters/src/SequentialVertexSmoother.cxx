@@ -19,18 +19,11 @@ namespace  Trk
     return StatusCode::FAILURE;
   } 
     msg(MSG::INFO) << "Retrieved tool " << m_vertexTrackUpdator << endmsg;
-  
-  
-  msg(MSG::INFO)<<"Initialization successfull"<<endmsg;
+
   return StatusCode::SUCCESS;
  }//end of initialize method
  
- StatusCode SequentialVertexSmoother::finalize()
- {
-  msg(MSG::INFO)  << "Finalize successful" << endmsg;
-  return StatusCode::SUCCESS;
- }//end of finalize method
- 
+
  //class constructor 
  SequentialVertexSmoother::SequentialVertexSmoother(const std::string& t, const std::string& n, const IInterface*  p):
     AthAlgTool(t,n,p),

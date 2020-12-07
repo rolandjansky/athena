@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetCosmicTrackSelectorTool.h"
@@ -45,11 +45,6 @@ namespace InDet
   //----------------------------------------------------------------------------
   StatusCode  InDetCosmicTrackSelectorTool::initialize()
   {
-    if(AthAlgTool::initialize().isFailure()) {
-      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
-      return StatusCode::FAILURE;
-    }
-
      m_trackSumToolAvailable = false;
      if (!m_trackSumTool.empty()) {
        if(m_trackSumTool.retrieve().isFailure())
@@ -65,13 +60,6 @@ namespace InDet
      ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
      return StatusCode::SUCCESS;
-  }
-
-  //----------------------------------------------------------------------------
-  StatusCode InDetCosmicTrackSelectorTool::finalize()
-  {
-    ATH_MSG_INFO("Finalize successful");
-    return StatusCode::SUCCESS;
   }
 
   //----------------------------------------------------------------------------
