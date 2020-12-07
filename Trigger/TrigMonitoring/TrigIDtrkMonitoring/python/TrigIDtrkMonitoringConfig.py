@@ -90,7 +90,7 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
                 if mt_chains: 
                         tidaegamma.ntupleChainNames += [
                                 "Offline",
-                                "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+                                "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
                                 "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig",
                                 "HLT_e.*_gsf_idperf.*:key=GSFTrigTrackParticles"
                         ]
