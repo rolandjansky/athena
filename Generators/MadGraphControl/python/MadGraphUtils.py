@@ -1680,15 +1680,19 @@ output -f
 
 def SUSY_Generation(runArgs = None, process=None,\
                     syst_mod=None, keepOutput=False, param_card=None, writeGridpack=False,\
-                    madspin_card=None, run_settings={}, params={}, fixEventWeightsForBridgeMode=False, add_lifetimes_lhe=False):
+                    madspin_card=None, run_settings={}, params={}, fixEventWeightsForBridgeMode=False, add_lifetimes_lhe=False, usePMGSettings=True):
 
+    """
+    Keyword Arguments:
+        usePMGSettings (bool): See :py:func:`new_process`. Will set SM parameters to the appropriate values. Default: True.
+    """
     ktdurham = run_settings['ktdurham'] if 'ktdurham' in run_settings else None
     ktdurham , alpsfact , scalefact = get_SUSY_variations( params['MASS'] , syst_mod , ktdurham=ktdurham )
 
     process_dir = MADGRAPH_GRIDPACK_LOCATION
     if not is_gen_from_gridpack():
         full_proc = SUSY_process(process)
-        process_dir = new_process(full_proc)
+        process_dir = new_process(full_proc, usePMGSettings=usePMGSettings)
     mglog.info('Using process directory '+str(process_dir))
 
     # Grab the param card and move the new masses into place
