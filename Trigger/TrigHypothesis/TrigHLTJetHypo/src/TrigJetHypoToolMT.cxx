@@ -109,14 +109,13 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
 
   if (!pass) {
    
-    std::string msg =
+    if (infocollector){
+
+      std::string msg =
       "hypo testing done: no of input jets " + std::to_string(jets->size())
-      + " no of particlating jets " + std::to_string(jetCollector.size())
+      + " no of participating jets " + std::to_string(jetCollector.size())
       +  " pass: false ";
     
-    ATH_MSG_DEBUG(msg);
-    
-    if (infocollector){
       infocollector->collect("TrigJetHypoToolMT", msg);
       infocollector->write();
     }
