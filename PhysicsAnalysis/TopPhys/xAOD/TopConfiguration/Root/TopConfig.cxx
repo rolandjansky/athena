@@ -72,8 +72,6 @@ namespace top {
     m_isAFII(false),
     // Is Data Overlay
     m_isDataOverlay(false),
-    // Generators
-    m_generators("SetMe"),
     // AMITag
     m_AMITag("SetMe"),
     // Is Primary xAOD
@@ -888,9 +886,6 @@ namespace top {
           ATH_MSG_INFO("AodMetaData :: Simulation Type " << simulatorName << " -> " << "Setting IsAFII to " <<
             aodMetaDataIsAFII);
           this->setIsAFII(aodMetaDataIsAFII);
-          auto generatorsName = m_aodMetaData->get("/TagInfo", "generators");
-          ATH_MSG_INFO("AodMetaData :: Generators Type " << generatorsName);
-          this->setGenerators(generatorsName);
           auto AMITagName = m_aodMetaData->get("/TagInfo", "AMITag");
           ATH_MSG_INFO("AodMetaData :: AMITag " << AMITagName);
           this->setAMITag(AMITagName);
@@ -901,8 +896,6 @@ namespace top {
           this->ReadIsAFII(settings);
           ATH_MSG_WARNING("We will attempt to read the IsDataOverlay flag from your config.");
           this->ReadIsDataOverlay(settings);
-          ATH_MSG_WARNING("Unfortunately, we can not read MC generators and AMITag without valid MetaData.");
-          this->setGenerators("unknown");
           this->setAMITag("unknown");
         }
       } else {
