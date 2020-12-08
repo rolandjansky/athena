@@ -734,6 +734,7 @@ namespace top {
     std::unordered_map<std::string, std::vector<char> > m_ljet_isTagged;
     std::unordered_map<std::string, std::vector<char> > m_ljet_taggingPassedRangeCheck;
     std::unordered_map<std::string, std::vector<float> > m_ljet_tagSF;
+    std::unordered_map<std::string, std::vector<std::vector<float>> > m_ljet_tagSFSysVars;
 
     //track jets
     std::vector<float> m_tjet_pt;

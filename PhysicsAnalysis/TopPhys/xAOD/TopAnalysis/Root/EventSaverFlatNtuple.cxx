@@ -1071,6 +1071,23 @@ namespace top {
           for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
             systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_" + taggerName);
           }
+	  
+	  if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) {
+	    
+	    for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
+	      const std::vector<std::string>& sysNames = m_config->boostedTaggersSFSysNames().at(taggerName);
+	      m_ljet_tagSFSysVars[taggerName].resize(sysNames.size());
+	      for(size_t i=0;i<sysNames.size();i++) {
+		systematicTree->makeOutputVariable(m_ljet_tagSFSysVars[taggerName][i],"ljet_tagSF_" + sysNames[i]);
+	      }
+	      
+	    }
+	    
+	  }
+	  
+	  
+	  
+	  
         }
       }
 
@@ -3026,9 +3043,16 @@ namespace top {
       }
       if (m_config->isMC()) {
         m_ljet_truthLabel.resize(nLargeRJets);
-        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated)
+        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
           m_ljet_tagSF[taggerName].resize(nLargeRJets);
-      }
+	  
+	  if (event.m_hashValue == m_config->nominalHashValue()) {
+	    for(std::vector<float>& vec : m_ljet_tagSFSysVars[taggerName]) {
+	       vec.resize(nLargeRJets);
+	    }
+	  }
+	}
+      } // end isMC()
 
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
@@ -3049,8 +3073,24 @@ namespace top {
         if (m_config->isMC()) {
           m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
           for (const std::pair<std::string, std::string>& tagSF : m_config->boostedTaggerSFnames()) {
-            m_ljet_tagSF[tagSF.first][i] = jetPtr->isAvailable<float>(tagSF.second) ? jetPtr->auxdata<float>(tagSF.second) : -999;
+            const std::string& taggerName = tagSF.first;
+	    const std::string& sfNameNominal = tagSF.second;
+	    
+	    
+	    
+	    m_ljet_tagSF[taggerName][i] = jetPtr->isAvailable<float>(sfNameNominal) ? jetPtr->auxdata<float>(sfNameNominal) : -999;
+	    
+	    if (event.m_hashValue == m_config->nominalHashValue()) {
+	      const std::vector<std::string>& sysNames = m_config->boostedTaggersSFSysNames().at(taggerName);
+	      std::vector<std::vector<float>>& vec = m_ljet_tagSFSysVars[taggerName];
+	      for(size_t iname = 0; iname<sysNames.size();iname++) {
+		const std::string& sfNameShifted=sysNames[iname];
+		vec[iname][i] = jetPtr->isAvailable<float>(sfNameShifted) ? jetPtr->auxdata<float>(sfNameShifted) : -999;
+	      }
+	    }
+
           }
+
         }
 
         ++i;

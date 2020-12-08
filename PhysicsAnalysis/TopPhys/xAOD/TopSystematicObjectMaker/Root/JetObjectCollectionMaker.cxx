@@ -240,20 +240,29 @@ namespace top {
 	  for (const CP::SystematicVariation& sys : recommendedSys) {
 	    bool res = ((sys.name().find("TopTag") == std::string::npos) &&
 			(sys.name().find("WTag") == std::string::npos) &&
+			(sys.name().find("ZTag") == std::string::npos) &&
 			(sys.name().find("JetTag") == std::string::npos));
 	    
-	    if(res) correlatedSys.insert(sys);
-	    else uncorrelatedSys.insert(sys);
+	    if(res) {
+	      correlatedSys.insert(sys);
+	    }
+	    else {
+	      uncorrelatedSys.insert(sys);
+	    }
 	  }
 	  
-
 	  m_tagSFUncorrelatedSystematics[name.first] = CP::make_systematics_vector(uncorrelatedSys);
+	  for(const CP::SystematicSet& sys : m_tagSFUncorrelatedSystematics[name.first]) {
+	    if(sys.name()!="") m_tagSFSysNames[name.first].push_back(name.first + "_" + sys.name());
+	  }
 
 	  
           largeRsysts.insert(correlatedSys);
           m_tagSFuncertTool[name.first] = tmp_SF_uncert_tool;
         }
       }
+      m_config->setBoostedTaggersSFSysNames(m_tagSFSysNames);
+      
     }
 
     // add the merged set of systematics for large-R jets including the tagging SF systs
@@ -551,32 +560,36 @@ namespace top {
     std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >
     shallow_xaod_copy = xAOD::shallowCopyContainer(*ljets);
     
+    const size_t njets = ljets->size();
+    
     const std::unordered_map<std::string,std::string>& sfNames = m_config->boostedTaggerSFnames();
+   
    
     for(auto& it : m_tagSFuncertTool) {
       ToolHandle<ICPJetUncertaintiesTool>& tool = it.second;
       const std::string& fullName=it.first;
       
+      const SG::AuxElement::Accessor< char > accRange("passedRangeCheck_" + fullName);
+      const std::string sfNameNominal =  sfNames.at(fullName);
+      const SG::AuxElement::Accessor< float > accSF(sfNameNominal);
+      
       for(const CP::SystematicSet& sys : m_tagSFUncorrelatedSystematics[fullName]) {
-	
+	  
 	top::check(tool->applySystematicVariation(sys), "Failed to applySystematicVariation");
 	
-	for(xAOD::Jet* jet : *(shallow_xaod_copy.first)) {
-	  
-	  for (std::pair<const std::string, ToolHandle<ICPJetUncertaintiesTool> >& tagSF : m_tagSFuncertTool) {
-	    std::string fullName=tagSF.first;
-	    std::replace(std::begin(fullName),std::end(fullName),':','_');
-	    const SG::AuxElement::Accessor< char > acc("passedRangeCheck_" + fullName);
-	    
-	    if(acc.isAvailable(*jet) && acc(*jet)) {
-	      top::check(tagSF.second->applyCorrection(*jet), "Failed to applyCorrection");
-	    }
+	const std::string sfNameShifted = fullName + "_" + sys.name();
+      
+	for(size_t i=0;i<njets;i++) {
+	  xAOD::Jet* shallowJet = shallow_xaod_copy.first->at(i);
+	  const xAOD::Jet* jet = ljets->at(i);
+      
+	  if(accRange.isAvailable(*shallowJet) && accRange(*shallowJet)) {
+	    top::check(tool->applyCorrection(*shallowJet), "Failed to applyCorrection");
+	    float sf = accSF.isAvailable(*shallowJet) ? accSF(*shallowJet) : -999.;
+	    jet->auxdecor<float>(sfNameShifted.c_str()) = sf;
 	  }
 	  
-	  
-	  
 	}
-	
 	
       }
       
