@@ -4739,7 +4739,7 @@ CombinedMuonTrackBuilder::dumpCaloEloss(const Trk::Track* track, std::string txt
 
 
 bool
-CombinedMuonTrackBuilder::checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const
+CombinedMuonTrackBuilder::checkTrack(const std::string& txt, const Trk::Track* newTrack, const Trk::Track* track) const
 {
     if (!newTrack) return false;
 

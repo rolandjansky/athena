@@ -167,7 +167,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
 
     void dumpCaloEloss(const Trk::Track* track, std::string txt) const;
     int  countAEOTs(const Trk::Track* track, std::string txt) const;
-    bool checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const;
+    bool checkTrack(const std::string& txt, const Trk::Track* newTrack, const Trk::Track* track) const;
 
     // helpers, managers, tools
     ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{
