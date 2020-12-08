@@ -63,9 +63,6 @@ class TauRecRunner ( TauRecRunConfigured ) :
 
         if tauFlags.doRunTauDiscriminant():
             tools.append(taualgs.getTauIDVarCalculator())
-            tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT1P", weightsFile="vars2016_pt_gamma_1p_isofix.root", minNTracks=0, maxNTracks=1))
-            tools.append(taualgs.getTauJetBDTEvaluator("TauJetBDT3P", weightsFile="vars2016_pt_gamma_3p_isofix.root", minNTracks=2, maxNTracks=1000))
-            tools.append(taualgs.getTauWPDecoratorJetBDT())
             tools.append(taualgs.getTauJetRNNEvaluator("TauJetRNN",
                                                        NetworkFile1P="rnnid_mc16d_config_1p.json",
                                                        NetworkFile3P="rnnid_mc16d_config_3p.json",
