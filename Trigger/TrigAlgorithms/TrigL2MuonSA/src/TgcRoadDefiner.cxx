@@ -19,8 +19,7 @@
 TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
 					     const std::string& name,
 					     const IInterface*  parent):
-     AthAlgTool(type, name, parent),
-     m_regionSelector( "RegSelSvc", name )
+     AthAlgTool(type, name, parent)
 {
 }
 
@@ -333,8 +332,11 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   if(phiMin < M_PI*-1) phiMin += M_PI*2.;
   TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
-  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
+  if (iroi) m_regionSelector->HashIDList(*iroi, mdtHashList);
+  else {
+    TrigRoiDescriptor fullscan_roi( true );
+    m_regionSelector->HashIDList(fullscan_roi, mdtHashList);
+  }
   if(roi) delete roi;
   
   for(const IdentifierHash& i_hash : mdtHashList ){
