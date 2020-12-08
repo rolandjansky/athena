@@ -177,7 +177,7 @@ def TrigJetMonConfig(inputFlags):
 
   # This is the right place to get the info, but the autoconfig of the flag
   # is not yet implemented
-  AthenaMT = ConfigFlags.Trigger.EDMDecodingVersion==3
+  AthenaMT = ConfigFlags.Trigger.EDMVersion==3
 
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'

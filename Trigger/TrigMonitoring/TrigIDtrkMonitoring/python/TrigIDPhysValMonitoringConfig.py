@@ -12,13 +12,10 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
   if 'rec' not in dir():
     from RecExConfig.RecFlags  import rec
     
-  from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
-  from TriggerJobOpts.TriggerFlags import TriggerFlags
-      
-  EDMDecodingVersion()
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
       
   mt_chains = True
-  if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
+  if ( ConfigFlags.Trigger.EDMVersion < 3 or legacy_monitoring ) :
     mt_chains = False
         
   if rec.doInDet:

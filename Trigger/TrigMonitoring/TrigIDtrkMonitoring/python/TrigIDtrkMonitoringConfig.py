@@ -6,13 +6,10 @@ def TrigIDtrkMonitoringTool( legacy_monitoring=False ):
 
         # do we want the lagacy monitoring ?
  
-        from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-
-        EDMDecodingVersion()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
         mt_chains = True
-        if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
+        if ( ConfigFlags.Trigger.EDMVersion < 3 or legacy_monitoring ) :
                 mt_chains = False
 
         list = []

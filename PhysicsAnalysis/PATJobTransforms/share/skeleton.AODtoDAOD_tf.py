@@ -39,6 +39,8 @@ if hasattr(runArgs,"inputAODFile"):
     rec.doDPD.set_Value_and_Lock(True)
     rec.OutputFileNameForRecoStep.set_Value_and_Lock("AODtoDAOD")
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolAODInput()
 elif hasattr(runArgs,'inputEVNTFile') or hasattr(runArgs,'jobConfig'):
     # Assume that we're running from EVNT or straight through evgen
     globalflags.InputFormat.set_Value_and_Lock('pool')
