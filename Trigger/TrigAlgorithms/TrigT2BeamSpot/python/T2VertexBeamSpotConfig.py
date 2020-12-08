@@ -21,6 +21,7 @@ InDetTrigMTBeamSpotTool = PESA__T2VertexBeamSpotTool(
     MonTool = bsToolMonitoring,
     WeightClusterZ      = True,     # Use the track Z0 weighted cluster Z position as seed
     ReclusterSplit      = False,    # Recluster split track collections before vertex fitting
+    ClusterPerigee      = "beamspot",
     nSplitVertices      = 2,        # Turn on (>1) or off vertex splitting
     TotalNTrackMin      = 4,        # Minimum number of tracks required in an event
     TrackMinPt          = 0.5,      # Minimum track pT to be considered for vertexing
