@@ -17,9 +17,13 @@ namespace TrigCompositeUtils
   {
     /// Allow all combinations
     All,
+    /// Do not allow any repeated objects
+    UniqueObjects,
     /// Do not allow any two objects to share an RoI
     UniqueRoIs,
   };
+  /// Helper fucntion that returns true if no objects are repeated
+  bool uniqueObjects(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links);
   /// Helper function that returns true if no objects share an initial RoI
   bool uniqueRoIs(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links);
 
@@ -61,13 +65,13 @@ namespace TrigCompositeUtils
      */
     IPartCombItr(
         const std::vector<std::tuple<std::size_t, LInfoItr_t, LInfoItr_t>> &pieces,
-        FilterType filter = FilterType::All);
+        FilterType filter = FilterType::UniqueObjects);
 
     /// Base case constructor for the variadic constructors
     IPartCombItr(const std::function<bool(const VecLInfo_t &)> filter);
 
     /// Base case constructor for the variadict constructors
-    IPartCombItr(FilterType filter = FilterType::All);
+    IPartCombItr(FilterType filter = FilterType::UniqueObjects);
 
     template <typename... Ts>
     IPartCombItr(std::size_t k, const LInfoItr_t &begin, const LInfoItr_t &end, Ts &&... args)
@@ -130,7 +134,7 @@ namespace TrigCompositeUtils
 
   private:
     std::function<bool(const VecLInfo_t &)> m_filter;
-    std::vector<std::pair<KFromNItr, LInfoItr_t>> m_itrs;
+    std::vector<std::pair<KFromNItr, const LInfoItr_t>> m_itrs;
     VecLInfo_t m_current;
 
   }; //> end class IPartCombItr

@@ -22,11 +22,11 @@ namespace TrigCompositeUtils
     Combinations(
         const std::vector<std::size_t> &legMultiplicities,
         const std::vector<VecLInfo_t> &legFeatures,
-        FilterType filter = FilterType::All);
+        FilterType filter = FilterType::UniqueObjects);
 
     Combinations(const std::function<bool(const VecLInfo_t &)> &filter);
 
-    Combinations(FilterType filter = FilterType::All);
+    Combinations(FilterType filter = FilterType::UniqueObjects);
 
     void reserve(std::size_t capacity);
 

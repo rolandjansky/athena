@@ -4,6 +4,15 @@
 
 namespace TrigCompositeUtils
 {
+  bool uniqueObjects(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links)
+  {
+    std::set<const xAOD::IParticle *> seen;
+    for (const auto &info : links)
+      if (!seen.insert(*info.link).second)
+        return false;
+    return true;
+  }
+
   bool uniqueRoIs(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links)
   {
     std::set<std::pair<uint32_t, uint32_t>> seen;
@@ -23,6 +32,8 @@ namespace TrigCompositeUtils
     {
     case FilterType::All:
       return [](const std::vector<LinkInfo<xAOD::IParticleContainer>> &) { return true; };
+    case FilterType::UniqueObjects:
+      return uniqueObjects;
     case FilterType::UniqueRoIs:
       return uniqueRoIs;
     default:
@@ -83,9 +94,8 @@ namespace TrigCompositeUtils
         for (std::size_t ii = 0; ii < idxItr.size(); ++ii)
           *(outItr++) = LinkInfo<xAOD::IParticleContainer>{};
       else
-        std::transform(
-            idxItr->begin(), idxItr->end(), outItr,
-            [begin = itrPair.second](std::size_t idx) { return *(begin + idx); });
+        for (std::size_t idx : *idxItr)
+          *(outItr++) = *(itrPair.second + idx);
     }
     // make sure that the starting set makes sense
     if (!exhausted() && !m_filter(m_current))
@@ -124,13 +134,13 @@ namespace TrigCompositeUtils
     {
       KFromNItr &idxItr = backItr->first;
       step += idxItr.size();
-      if (!backItr++->first.exhausted())
+      if (!(++backItr->first).exhausted())
       {
         // This is the starting point for a good combination
         // We need to update the current value
         auto outItr = m_current.end() - step;
         for (std::size_t idx : *idxItr)
-          *(outItr) = *(backItr->second + idx);
+          *(outItr++) = *(backItr->second + idx);
 
         // Any iterators we passed by up to this point were exhausted so we have
         // to reset them before we use their values

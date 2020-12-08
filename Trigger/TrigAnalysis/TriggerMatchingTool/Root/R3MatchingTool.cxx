@@ -31,6 +31,7 @@ namespace Trig
 
   R3MatchingTool::R3MatchingTool(const std::string &name) : asg::AsgTool(name)
   {
+    m_trigDecTool.setTypeAndName("Trig::TrigDecisionTool/TrigDecisionTool");
     declareProperty("TrigDecisionTool", m_trigDecTool, "The trigger decision tool");
   }
 
@@ -72,20 +73,34 @@ namespace Trig
     const Trig::ChainGroup *chainGroup = m_trigDecTool->getChainGroup(chain);
     for (const std::string &chainName : chainGroup->getListOfTriggers())
     {
+      if (msgLvl(MSG::DEBUG))
+        ATH_MSG_DEBUG("Chain " << chainName << " was passed? " << m_trigDecTool->isPassed(chainName));
       // Now we have to build up combinations
-      // TODO - right now we use a filter that passes everything through.
+      // TODO - right now we use a filter that passes everything that isn't pointer-equal.
       // This will probably need to be fixed to something else later - at least the unique RoI filter
       TrigCompositeUtils::Combinations combinations(TrigCompositeUtils::FilterType::All);
       const TrigConf::HLTChain *chainInfo = m_trigDecTool->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainName);
       std::vector<std::size_t> multiplicities = chainInfo->leg_multiplicities();
       combinations.reserve(multiplicities.size());
-      for (std::size_t legIdx = 0; legIdx < multiplicities.size(); ++legIdx)
+      // Get all the features for the chain
+      VecLinkInfo_t chainFeatures = m_trigDecTool->features<xAOD::IParticleContainer>(chainName, condition);
+      ATH_MSG_VERBOSE("Chain " << chainName << " has " << chainFeatures.size() << " features and " << multiplicities.size() << " legs with multiplicities, nFeatures: ");
+      if (multiplicities.size() == 1)
       {
-        HLT::Identifier legID = TrigCompositeUtils::createLegName(chainName, legIdx);
-        combinations.addLeg(
-            multiplicities.at(legIdx),
-            m_trigDecTool->features<xAOD::IParticleContainer>(legID.name(), condition));
+        ATH_MSG_VERBOSE("  :" << multiplicities.at(0) << ", " << chainFeatures.size());
+        combinations.addLeg(multiplicities.at(0), std::move(chainFeatures));
       }
+      else
+        for (std::size_t legIdx = 0; legIdx < multiplicities.size(); ++legIdx)
+        {
+          HLT::Identifier legID = TrigCompositeUtils::createLegName(chainName, legIdx);
+          VecLinkInfo_t legFeatures;
+          for (const IPartLinkInfo_t &info : chainFeatures)
+            if (TrigCompositeUtils::isAnyIDPassing(info.source, {legID.numeric()}))
+              legFeatures.push_back(info);
+          ATH_MSG_VERBOSE(legID.name() << " (" << legID.numeric() << "): " << multiplicities.at(legIdx) << ", " << legFeatures.size());
+          combinations.addLeg(multiplicities.at(legIdx), std::move(legFeatures));
+        }
       // Warn once per call if one of the chain groups is too small to match anything
       if (combinations.size() < recoObjects.size())
       {
@@ -104,11 +119,13 @@ namespace Trig
         {
           bool match = true;
           for (std::size_t recoIdx = 0; recoIdx < recoObjects.size(); ++recoIdx)
+          {
             if (!matchObjects(recoObjects[recoIdx], combination[onlineIndices[recoIdx]].link, cachedComparisons[recoIdx], matchThreshold))
             {
               match = false;
               break;
             }
+          }
           if (match)
             return true;
         } while (std::next_permutation(onlineIndices.begin(), onlineIndices.end()));
@@ -117,45 +134,6 @@ namespace Trig
 
     // If we reach here we've tried all combinations from all chains in the group and none of them matched
     return false;
-
-    // if (recoObjects.size() != 1)
-    // {
-    //   ATH_MSG_WARNING("Matching of multiple objects is not yet supported!");
-    //   return false;
-    // }
-    // // This has to assume that the last IParticle feature in each chain is the
-    // // correct one - I don't *think* this will cause any issues.
-    // // Unlike with TEs, each chain should build in nodes that it actually uses.
-    // // This means that we don't need anything clever for the etcut triggers any more (for example)
-    // VecLinkInfo features = m_trigDecTool->features<xAOD::IParticleContainer>(
-    //     chain,
-    //     rerun ? TrigDefs::Physics | TrigDefs::allowResurrectedDecision : TrigDefs::Physics);
-    // ATH_MSG_DEBUG("Found " << features.size() << " features for chain group " << chain);
-    // // TODO:
-    // //  Right now we are only looking at single object chains, so we only need
-    // //  to find a single match for one reco-object.
-    // //  Longer term we need to deal with combinations so this gets harder
-    // const xAOD::IParticle &recoObject = *recoObjects.at(0);
-    // for (const IPartLinkInfo_t &info : features)
-    // {
-    //   if (!info.link.isValid())
-    //   {
-    //     // This could result in false negatives...
-    //     ATH_MSG_WARNING("Invalid link to trigger feature for chain " << chain);
-    //     continue;
-    //   }
-    //   const xAOD::IParticle &trigObject = **info.link;
-    //   if (fastDR(
-    //           recoObject.eta(),
-    //           recoObject.phi(),
-    //           trigObject.eta(),
-    //           trigObject.phi(),
-    //           matchThreshold))
-    //     // Once we find one match, that is enough
-    //     return true;
-    // }
-    // // If we get here then there was no good match
-    // return false;
   }
 
   bool R3MatchingTool::match(
