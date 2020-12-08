@@ -55,4 +55,13 @@ if __name__=="__main__":
 
     cfg.merge(SCT_TestCablingAlgCfg(ConfigFlags))
 
+    # IOVDbSvc = cfg.getService("IOVDbSvc")
+    #
+    ## To dump database in JSON files (c.f. SCT_CablingWriteToFile.py in the old job configuration)
+    # IOVDbSvc.OutputToFile = True
+    #
+    ## To use CREST database (c.f. TestSCT_CablingFromCrest.py in the old job configuration)
+    ## together with ConfigFlags.IOVDb.GlobalTag="CREST-RUN12-SDR-25-MC" for MC
+    # IOVDbSvc.Source = "CREST"
+
     cfg.run(maxEvents=20)
