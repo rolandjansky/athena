@@ -232,7 +232,25 @@ namespace top {
       for (const std::pair<std::string, std::string>& name : m_config->boostedTaggerSFnames()) {
         ToolHandle<ICPJetUncertaintiesTool> tmp_SF_uncert_tool("JetSFuncert_" + name.first);
         if (tmp_SF_uncert_tool.retrieve()) {
-          largeRsysts.insert(tmp_SF_uncert_tool->recommendedSystematics());
+	  
+	  m_tagSFUncorrelatedSystematics[name.first].clear();
+	  CP::SystematicSet correlatedSys,uncorrelatedSys;
+	  const CP::SystematicSet& recommendedSys = tmp_SF_uncert_tool->recommendedSystematics();
+	  
+	  for (const CP::SystematicVariation& sys : recommendedSys) {
+	    bool res = ((sys.name().find("TopTag") == std::string::npos) &&
+			(sys.name().find("WTag") == std::string::npos) &&
+			(sys.name().find("JetTag") == std::string::npos));
+	    
+	    if(res) correlatedSys.insert(sys);
+	    else uncorrelatedSys.insert(sys);
+	  }
+	  
+
+	  m_tagSFUncorrelatedSystematics[name.first] = CP::make_systematics_vector(uncorrelatedSys);
+
+	  
+          largeRsysts.insert(correlatedSys);
           m_tagSFuncertTool[name.first] = tmp_SF_uncert_tool;
         }
       }
@@ -361,6 +379,7 @@ namespace top {
       // for systematically-shifted shallow copies as well
       top::check(tagNominalLargeRJets(), "Failed to tag large-R jets");
       if (m_config->isMC()) {
+	top::check(applyTaggingSFSystematic(),"Failed to apply large-R tagging SFs syst.");
         top::check(applySystematic(m_jetUncertaintiesToolLargeR, m_systMap_LargeR,
                                    true), "Failed to apply large-R syst.");
       }
@@ -520,6 +539,53 @@ namespace top {
     return StatusCode::SUCCESS;
   }
 
+  StatusCode JetObjectCollectionMaker::applyTaggingSFSystematic() {
+    
+    ///-- Get calibrated jets --///
+    const xAOD::JetContainer* ljets(nullptr);
+    top::check(evtStore()->retrieve(ljets, m_config->sgKeyLargeRJets(
+                                        m_nominalSystematicSet.hash())), "Failed to retrieve Jets");
+					
+					
+    ///-- Shallow copy of the xAOD --///
+    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >
+    shallow_xaod_copy = xAOD::shallowCopyContainer(*ljets);
+    
+    const std::unordered_map<std::string,std::string>& sfNames = m_config->boostedTaggerSFnames();
+   
+    for(auto& it : m_tagSFuncertTool) {
+      ToolHandle<ICPJetUncertaintiesTool>& tool = it.second;
+      const std::string& fullName=it.first;
+      
+      for(const CP::SystematicSet& sys : m_tagSFUncorrelatedSystematics[fullName]) {
+	
+	top::check(tool->applySystematicVariation(sys), "Failed to applySystematicVariation");
+	
+	for(xAOD::Jet* jet : *(shallow_xaod_copy.first)) {
+	  
+	  for (std::pair<const std::string, ToolHandle<ICPJetUncertaintiesTool> >& tagSF : m_tagSFuncertTool) {
+	    std::string fullName=tagSF.first;
+	    std::replace(std::begin(fullName),std::end(fullName),':','_');
+	    const SG::AuxElement::Accessor< char > acc("passedRangeCheck_" + fullName);
+	    
+	    if(acc.isAvailable(*jet) && acc(*jet)) {
+	      top::check(tagSF.second->applyCorrection(*jet), "Failed to applyCorrection");
+	    }
+	  }
+	  
+	  
+	  
+	}
+	
+	
+      }
+      
+      
+    }
+   
+    return StatusCode::SUCCESS;
+  }
+
   StatusCode JetObjectCollectionMaker::applySystematic(ToolHandle<ICPJetUncertaintiesTool>& tool,
                                                        const std::unordered_map<CP::SystematicSet,
                                                                                 CP::SystematicSet>& map,
@@ -603,7 +669,13 @@ namespace top {
           ///-- Apply large-R jet tagging SF uncertainties --///
           if (isLargeR && m_config->isMC()) {
             for (std::pair<const std::string, ToolHandle<ICPJetUncertaintiesTool> >& tagSF : m_tagSFuncertTool) {
-              top::check(tagSF.second->applyCorrection(*jet), "Failed to applyCorrection");
+	      std::string fullName=tagSF.first;
+	      std::replace(std::begin(fullName),std::end(fullName),':','_');
+	      const SG::AuxElement::Accessor< char > acc("passedRangeCheck_" + fullName);
+	      
+	      if(acc.isAvailable(*jet) && acc(*jet)) {
+		top::check(tagSF.second->applyCorrection(*jet), "Failed to applyCorrection");
+	      }
             }
           }
         }
@@ -763,8 +835,34 @@ namespace top {
 
   StatusCode JetObjectCollectionMaker::tagLargeRJet(const xAOD::Jet& jet) {
     //decorate with boosted-tagging flags
+    
+    double lowMassCut{35000.};
+    double highMassCut{1000000.};
+    double lowPtCut{300000.};
+    double highPtCut{3000000.};
+    double etaCut{2.0};
+    
+    const double jet_pt=jet.pt();
+    const double jet_m=jet.m();
+    const double jet_eta=jet.eta();
+    
+    
     for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
-      std::string fullName = name.first + "_" + name.second;
+      const std::string fullName = name.first + "_" + name.second;
+
+      // Checking kinematic range
+      if(name.first=="SmoothedWZTagger") lowPtCut = 175000.;
+      else lowPtCut=300000.;
+      
+      char passedRangeCheck = (jet_pt>lowPtCut &&
+			       jet_pt<highPtCut && 
+			       jet_m > lowMassCut &&
+			       jet_m < highMassCut &&
+			       std::abs(jet_eta)<etaCut);
+      jet.auxdecor<char>("passedRangeCheck_" + fullName) = passedRangeCheck;
+      if(!passedRangeCheck) continue;
+      
+      // Tagging jet
       const Root::TAccept& result = m_boostedJetTaggers[fullName]->tag(jet);
       // TAccept has bool operator overloaded, but let's be more explicit in the output to char
       jet.auxdecor<char>("isTagged_" + fullName) = (result ? 1 : 0);

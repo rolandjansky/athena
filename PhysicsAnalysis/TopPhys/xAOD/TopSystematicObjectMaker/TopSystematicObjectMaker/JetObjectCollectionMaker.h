@@ -101,6 +101,8 @@ namespace top {
     virtual StatusCode applySystematic(ToolHandle<ICPJetUncertaintiesTool>& tool,
                                        const std::unordered_map<CP::SystematicSet, CP::SystematicSet>& map,
                                        bool isLargeR = false);
+				       
+    virtual StatusCode applyTaggingSFSystematic();
 
     StatusCode printout(const bool isLargeR);
 
@@ -131,6 +133,7 @@ namespace top {
 
     ToolHandle<ICPJetUncertaintiesTool> m_jetUncertaintiesToolLargeR;
     std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool> > m_tagSFuncertTool;
+    std::unordered_map<std::string, std::vector<CP::SystematicSet>> m_tagSFUncorrelatedSystematics; // Uncertainties name fo
 
     // do decorate the large-R jets with the boosted-tagging flags
     // and decorate jets with TAccept object containing detailed tag result informaiton
