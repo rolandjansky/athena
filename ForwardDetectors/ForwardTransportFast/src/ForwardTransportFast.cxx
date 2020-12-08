@@ -116,8 +116,8 @@ StatusCode ForwardTransportFast::execute() {
 
     for (int i=0; i<(int)fPidVector.size(); i++) { // add vertices for G4 tracking (status code = 1)  
 
-      HepMC::GenVertex*   gVertex   = new HepMC::GenVertex  (fPosVector.at(i));
-      HepMC::GenParticle* gParticle = new HepMC::GenParticle(fMomVector.at(i), fPidVector.at(i), 1);
+      HepMC::GenVertexPtr   gVertex   = HepMC::newGenVertexPtr  (fPosVector.at(i));
+      HepMC::GenParticlePtr gParticle = HepMC::newGenParticlePtr(fMomVector.at(i), fPidVector.at(i), 1);
       
       gVertex->add_particle_out(gParticle);
       
