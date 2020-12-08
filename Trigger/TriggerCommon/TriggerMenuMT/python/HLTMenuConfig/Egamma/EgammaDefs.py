@@ -5,6 +5,12 @@
 #----------------------------------------------------------------
 
 from TrigEDMConfig.TriggerEDMRun3 import recordable
+from AthenaCommon.Logging import logging
+from AthenaCommon import CfgMgr
+from ROOT import egammaPID
+from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
+
+mlog = logging.getLogger ('EgammaDefs')
 
 class TrigEgammaKeys(object):
       """Static class to collect all string manipulation in Electron sequences """
@@ -26,16 +32,13 @@ class TrigEgammaKeys_GSF(object):
       outputTrackKey_GSF = 'HLT_IDTrkTrack_Electron_GSF'
       outputTrackParticleKey_GSF = recordable('HLT_IDTrack_Electron_GSF')
       
+# Print configuration once:
+mlog.info("TrigEgammaPidTools version %s", TrigEgammaKeys.pidVersion)
 
 def TrigElectronSelectors(sel):
-    import logging
-
-    mlog = logging.getLogger ('EgammaDefs')
 
     # Configure the LH selectors
-    from AthenaCommon import CfgMgr
     #TrigEgammaKeys.pidVersion.set_On()
-    mlog.info("TrigEgammaPidTools version %s", TrigEgammaKeys.pidVersion)
     ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
     
     SelectorNames = {
@@ -51,33 +54,23 @@ def TrigElectronSelectors(sel):
           'lhmedium':'ElectronLikelihoodMediumTriggerConfig.conf',
           'lhtight':'ElectronLikelihoodTightTriggerConfig.conf',
           }
-    
 
-    mlog.info('Configuring electron PID tools...')
     if sel not in SelectorNames:
         mlog.error('No selector defined for working point %s for electrons :-( ', sel)
         return
     else:
-        mlog.info('Configuring electron PID for %s', sel)
+        mlog.debug('Configuring electron PID for %s', sel)
         SelectorTool=CfgMgr.AsgElectronLikelihoodTool(SelectorNames[sel])
         SelectorTool.ConfigFile = ConfigFilePath + '/' + ElectronToolConfigFile[sel]
         SelectorTool.usePVContainer = False 
         SelectorTool.skipDeltaPoverP = True
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += SelectorTool
 
         return SelectorTool
 
 
 def TrigPhotonSelectors(sel):
-    import logging
-
-    mlog = logging.getLogger ('EgammaDefs')
-
     # Configure the IsEM selectors
-    from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import ConfiguredAsgPhotonIsEMSelector
-    from ROOT import egammaPID
-    
+
     SelectorNames = {
             'loose'  : 'LoosePhotonSelector',
             'medium' : 'MediumPhotonSelector',
@@ -99,20 +92,17 @@ def TrigPhotonSelectors(sel):
             'tight'  : egammaPID.PhotonTight,
             }
 
-    mlog.info('Configuring photon PID tools...')
     if sel not in SelectorNames:
         mlog.error('No selector defined for working point %s for photons :-( ', sel)
         return
     else:
-        mlog.info('Configuring photon PID for %s', sel)
+        mlog.debug('Configuring photon PID for %s', sel)
         SelectorTool = ConfiguredAsgPhotonIsEMSelector(SelectorNames[sel], SelectorPID[sel])
         ConfigFilePath = 'ElectronPhotonSelectorTools/trigger/'+TrigEgammaKeys.pidVersion
         ConfigFile = ConfigFilePath + '/' + PhotonToolConfigFile[sel] 
-        mlog.info('Configuration file: %s', ConfigFile)
+        mlog.debug('Configuration file: %s', ConfigFile)
         SelectorTool.ConfigFile = ConfigFile
         SelectorTool.ForceConvertedPhotonPID = True
         SelectorTool.isEMMask = PhotonIsEMBits[sel] 
-        from AthenaCommon.AppMgr import ToolSvc
-        ToolSvc += SelectorTool
 
         return SelectorTool
