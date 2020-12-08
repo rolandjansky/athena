@@ -904,6 +904,15 @@ class _Settings_bphysicsHighPt( _GlobalSettings ):
       self._configPT = _PrecisionTracking( signatureType = 'bphysHighPt',   nameSuffix = 'Bjet' )
       self._doRecord = False
 
+class _Settings_bmumux( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name      = "bmumux" #To be appended to alg names
+      self._roi       = "HLT_Roi_Bmumux"
+      self._configFT  = _FastTracking(      signatureType = 'bphysics', nameSuffix = 'Bmumux' )
+      self._configPT  = _PrecisionTracking( signatureType = 'bphysics', nameSuffix = 'Bmumux' )
+      self._doRecord  = True #Allow recording of track collections
+
 class _Settings_beamgas( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -961,6 +970,7 @@ _ConfigSettings = {
     "minBias0"     : _Settings_minBias(),
     "bphysics"    : _Settings_bphysics(),
     "bphysHighPt" : _Settings_bphysicsHighPt(),
+    "bmumux"      : _Settings_bmumux(),
 
     "beamgas"     : _Settings_beamgas(),
     "hadCalib"    : _Settings_hadCalib()
