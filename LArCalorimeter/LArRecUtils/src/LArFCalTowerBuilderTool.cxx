@@ -125,7 +125,8 @@ LArFCalTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
 /////////////////////////
 
 StatusCode
-LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
+LArFCalTowerBuilderTool::execute(const EventContext& ctx,
+                                 CaloTowerContainer* theTowers,
                                  const CaloCellContainer* theCells,
                                  const CaloTowerSeg::SubSeg* subseg) const
 {
@@ -155,7 +156,7 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
   // register this calorimeter
   theTowers->setCalo(m_caloIndex);
 
-  const ElementLink<CaloCellContainer> cellsEL (*theCells, 0);
+  const ElementLink<CaloCellContainer> cellsEL (*theCells, 0, ctx);
   if (subseg)
     iterateSubSeg (theTowers, cellsEL, subseg);
   else
@@ -167,19 +168,21 @@ LArFCalTowerBuilderTool::execute(CaloTowerContainer* theTowers,
 
 /**
  * @brief Run tower building and add results to the tower container.
+ * @param ctx The current event context.
  * @param theContainer The tower container to fill.
  *
  * If the segmentation hasn't been set, take it from the tower container.
  * This is for use by converters.
  */
-StatusCode LArFCalTowerBuilderTool::execute (CaloTowerContainer* theContainer)
+StatusCode LArFCalTowerBuilderTool::execute (const EventContext& ctx,
+                                             CaloTowerContainer* theContainer)
 {
   if (m_cellStore.size() == 0) {
     setTowerSeg (theContainer->towerseg());
     ATH_CHECK( rebuildLookup() );
   }
 
-  return execute (theContainer, nullptr, nullptr);
+  return execute (ctx, theContainer, nullptr, nullptr);
 }
 
 

@@ -46,19 +46,22 @@ class LArFCalTowerBuilderTool : public CaloTowerBuilderToolBase
 
   virtual ~LArFCalTowerBuilderTool();
 
-  virtual StatusCode execute(CaloTowerContainer* theContainer,
+  virtual StatusCode execute(const EventContext& ctx,
+                             CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
                              const CaloTowerSeg::SubSeg* subseg = 0) const override;
 
 
   /**
    * @brief Run tower building and add results to the tower container.
+   * @param ctx The current event context.
    * @param theContainer The tower container to fill.
    *
    * If the segmentation hasn't been set, take it from the tower container.
    * This is for use by converters.
    */
-  virtual StatusCode execute (CaloTowerContainer* theContainer) override;
+  virtual StatusCode execute (const EventContext& ctx,
+                              CaloTowerContainer* theContainer) override;
 
 
   virtual void handle(const Incident&) override;
