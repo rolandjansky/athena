@@ -76,9 +76,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
-        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig"
       ]
     else:
@@ -95,9 +95,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
-        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig"
       ]
     else:      
