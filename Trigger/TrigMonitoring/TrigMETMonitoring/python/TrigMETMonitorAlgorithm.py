@@ -168,17 +168,19 @@ def TrigMETMonConfig(inputFlags):
     sumet_bins_log=20 #sumEt_log
     sumet_min_log=-1.875
     sumet_max_log=4.125
-    sume_bins=153 #sumE
-    sume_min=-27.0
-    sume_max=24003.0
-    sume_bins_log=40 #sumE_log
-    sume_min_log=-1.875
-    sume_max_log=6.125
+    ## These bin settings are for future use.
+    ## commented to avoid compiler warning.
+    #sume_bins=153 #sumE
+    #sume_min=-27.0
+    #sume_max=24003.0
+    #sume_bins_log=40 #sumE_log
+    #sume_min_log=-1.875
+    #sume_max_log=6.125
     phi_bins=100 # phi
     phi_bins_2d=24 # phi
     phi_min=-3.1416
     phi_max=3.1416
-    eta_bins=100 # eta
+    #eta_bins=100 # eta
     eta_bins_2d=24# eta
     eta_min=-4.8
     eta_max=4.8
