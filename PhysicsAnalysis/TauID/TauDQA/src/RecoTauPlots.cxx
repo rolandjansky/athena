@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TauHistUtils/RecoTauPlots.h"
+#include "RecoTauPlots.h"
 
 namespace Tau{
 
@@ -30,8 +30,6 @@ namespace Tau{
     m_pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts(nullptr),
     m_pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed(nullptr),
     m_pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged(nullptr),
-    m_id_BDTJetScore(nullptr),
-    m_id_BDTEleScore(nullptr),
     m_sTauJetContainerName(sTauJetContainerName)
   {
   }

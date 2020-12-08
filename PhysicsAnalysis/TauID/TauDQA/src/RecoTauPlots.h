@@ -2,14 +2,13 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUHISTUTILS_RECOTAUPLOTS_H
-#define TAUHISTUTILS_RECOTAUPLOTS_H
+#ifndef TAUDQA_RECOTAUPLOTS_H
+#define TAUDQA_RECOTAUPLOTS_H
 
 #include "TrkValHistUtils/PlotBase.h"
-#include "TauHistUtils/ParamPlots.h"
-#include "xAODTau/TauDefs.h" 
+#include "ParamPlots.h"
 #include "xAODTau/TauJet.h"
-#include "xAODPFlow/versions/PFO_v1.h"
+#include "xAODPFlow/PFO.h"
 
 namespace Tau{
 
@@ -47,10 +46,6 @@ class RecoTauPlots: public PlotBase {
     TH1* m_pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed;
     TH1* m_pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged;
 
-    // BDT output
-
-    TH1* m_id_BDTJetScore;
-    TH1* m_id_BDTEleScore;
 
   private:
     void initializePlots();

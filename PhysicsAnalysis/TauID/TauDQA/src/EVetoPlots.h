@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUHISTUTILS_EVETOPLOTS_H
-#define TAUHISTUTILS_EVETOPLOTS_H
+#ifndef TAUDQA_EVETOPLOTS_H
+#define TAUDQA_EVETOPLOTS_H
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODTau/TauJet.h"
@@ -20,13 +20,13 @@ class EVetoPlots: public PlotBase {
     TH1* m_EMRadius;	 
     TH1* m_IsoFrac;	 
     TH1* m_CentFrac;	 
-    TH1* m_id_BDTEleScore;
-    TH1* m_pt_eleBDTloose;
-    TH1* m_pt_eleBDTmed; 
-    TH1* m_pt_eleBDTtight;
-    TH1* m_pt_eleBDTlooseHighPt;
-    TH1* m_pt_eleBDTmedHighPt; 
-    TH1* m_pt_eleBDTtightHighPt;
+    TH1* m_id_RNNEleScore;
+    TH1* m_pt_eleRNNloose;
+    TH1* m_pt_eleRNNmed; 
+    TH1* m_pt_eleRNNtight;
+    TH1* m_pt_eleRNNlooseHighPt;
+    TH1* m_pt_eleRNNmedHighPt; 
+    TH1* m_pt_eleRNNtightHighPt;
     
   private:
     void initializePlots();

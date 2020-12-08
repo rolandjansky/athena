@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUHISTUTILS_PARAMPLOTS_H
-#define TAUHISTUTILS_PARAMPLOTS_H
+#ifndef TAUDQA_PARAMPLOTS_H
+#define TAUDQA_PARAMPLOTS_H
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODBase/IParticle.h"
@@ -30,6 +30,6 @@ class ParamPlots:public PlotBase {
 
 }
 
-#endif // TRKVALHISTUTILS_PARAMPLOTS_H
+#endif // TAUDQA_PARAMPLOTS_H
 
 
