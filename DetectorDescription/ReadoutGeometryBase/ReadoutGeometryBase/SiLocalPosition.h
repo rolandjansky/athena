@@ -118,9 +118,6 @@ namespace InDetDD {
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-inline SiLocalPosition::~SiLocalPosition()
-{}
-
 inline double SiLocalPosition::xEta() const
 {
   return m_xEta;
@@ -138,12 +135,12 @@ inline double SiLocalPosition::xDepth() const
 
 inline double SiLocalPosition::r() const
 {
-  return sqrt(m_xEta * m_xEta + m_xPhi * m_xPhi);
+  return std::sqrt(m_xEta * m_xEta + m_xPhi * m_xPhi);
 }
 
 inline double SiLocalPosition::phi() const
 {
-  return atan2(m_xPhi, m_xEta);
+  return std::atan2(m_xPhi, m_xEta);
 }
 
 inline double SiLocalPosition::xColumn() const

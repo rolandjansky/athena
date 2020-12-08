@@ -55,15 +55,13 @@ DetectorDesign::DetectorDesign(double thickness,
 
 DetectorDesign::~DetectorDesign(){}
 
-  //HepGeom::Point3D<double> DetectorDesign::sensorCenter() const {
-  //return HepGeom::Point3D<double>(0., 0., 0.);
-  //}
+ 
 
-  Amg::Vector3D DetectorDesign::sensorCenter() const {
+Amg::Vector3D DetectorDesign::sensorCenter() const {
     return Amg::Vector3D(0., 0., 0.);
-  }
+}
 
-
+//For future: Should update to use appropriate message streams in place of cout
 void DetectorDesign::setSymmetry(bool phiSymmetric, bool etaSymmetric,
                                  bool depthSymmetric) {
     // Flags can be changed from true to false but not false to true.

@@ -347,8 +347,6 @@ namespace InDetDD {
      *
      * All return pitch in distance units. 
      */
-    //double etaPitch() const;
-    
 
     double phiPitch() const;
     /**

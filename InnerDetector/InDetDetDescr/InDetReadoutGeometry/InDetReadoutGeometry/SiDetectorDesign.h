@@ -18,7 +18,6 @@
 #include "CLHEP/Geometry/Vector3D.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-//#include "InDetDD_Defs.h"
 
 #include <list>
 #include <vector>
