@@ -1560,6 +1560,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
         // fail as calo incorrectly described
         m_messageHelper->printWarning(12);
         delete track;
+	delete extrapolated;
         spectrometerTSOS->clear();
         delete spectrometerTSOS;
 
@@ -1576,7 +1577,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
 
     if (m_refineELossStandAloneTrackFit) {
         ATH_MSG_VERBOSE("Refining Calorimeter TSOS in StandAlone Fit ...");
-        std::unique_ptr<Trk::Track> oldTrack = std::make_unique<Trk::Track>(Trk::Track(*track));
+        std::unique_ptr<Trk::Track> oldTrack = std::make_unique<Trk::Track>(Trk::Track(*track)); //Deep copy of track here??? 
 
         m_materialUpdator->updateCaloTSOS(*track);
 
@@ -1592,6 +1593,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
             track = refinedTrack;
         } else {
             ATH_MSG_VERBOSE("refined track fit failed");
+	    delete track;
             track = oldTrack.release();
             improvementsFailed++;
         }
@@ -1645,6 +1647,7 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
             ++m_countDegradedStandaloneFit;
             if (improvementsFailed == 2) {
                 ATH_MSG_WARNING("reject track, quality degraded and improvements failed");
+		delete track;
                 return nullptr;
             }
         }

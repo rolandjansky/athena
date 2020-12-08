@@ -119,6 +119,7 @@ namespace MuonCombined {
 	  }
 	}
 	if(!skipTrack){
+	  delete standaloneTrack;
 	  standaloneTrack=new Trk::Track(msTrack);
 	  trackLinks[ standaloneTrack ] = std::make_pair(trackLink,nullptr);
 	}
