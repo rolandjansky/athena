@@ -75,7 +75,8 @@ private:
     xAOD::TrackParticleContainer* finalTrkPartContainer,
     const xAOD::TrackParticleContainer* AllTracks) const;
 
-  StatusCode createNew(TrackWithIndex& Info,
+  StatusCode createNew(const EventContext& ctx,
+                       TrackWithIndex& Info,
                        TrackCollection* finalTracks,
                        xAOD::TrackParticleContainer* finalTrkPartContainer,
                        const xAOD::TrackParticleContainer* AllTracks) const;

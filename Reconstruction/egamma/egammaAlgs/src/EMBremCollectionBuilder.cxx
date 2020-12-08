@@ -106,7 +106,7 @@ EMBremCollectionBuilder::execute(const EventContext& ctx) const
   std::vector<const xAOD::TrackParticle*> siliconTrkTracks;
   siliconTrkTracks.reserve(16);
   std::vector<TrackWithIndex> trtAloneTrkTracks;
-  trtAloneTrkTracks.reserve(16);
+  trtAloneTrkTracks.reserve(8);
   for(const xAOD::TrackParticle* track : *selectedTracks){
     const Trk::Track* trktrack{nullptr};
     if (  track->trackLink().isValid() ){
@@ -209,21 +209,25 @@ EMBremCollectionBuilder::createCollections(
   }
 
   for (auto& Info : refitted){
-    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
+    ATH_CHECK(
+      createNew(ctx, Info, finalTracks, finalTrkPartContainer, AllTracks));
   }
 
   for (auto& Info  :  failedfit){
-    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
+    ATH_CHECK(
+      createNew(ctx, Info, finalTracks, finalTrkPartContainer, AllTracks));
   }
 
   for (auto& Info : trtAlone){
-    ATH_CHECK(createNew(Info,finalTracks,finalTrkPartContainer,AllTracks));
+    ATH_CHECK(
+      createNew(ctx, Info, finalTracks, finalTrkPartContainer, AllTracks));
   }
   return StatusCode::SUCCESS;
 }
 
 StatusCode
 EMBremCollectionBuilder::createNew(
+  const EventContext& ctx,
   TrackWithIndex& Info,
   TrackCollection* finalTracks,
   xAOD::TrackParticleContainer* finalTrkPartContainer,
@@ -236,7 +240,7 @@ EMBremCollectionBuilder::createNew(
    * Create TrackParticle it should be now owned by finalTrkPartContainer
    */
   xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle(
-    *(Info.track), finalTrkPartContainer, nullptr, xAOD::electron);
+    ctx, *(Info.track), finalTrkPartContainer, nullptr, xAOD::electron);
 
   if (!aParticle) {
     ATH_MSG_WARNING(
