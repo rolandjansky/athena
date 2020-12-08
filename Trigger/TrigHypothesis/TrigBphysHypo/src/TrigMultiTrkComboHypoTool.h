@@ -34,7 +34,7 @@ class TrigMultiTrkComboHypoTool: public ComboHypoToolBase {
  public:
   TrigMultiTrkComboHypoTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual StatusCode initialize() override;
-  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<TrigCompositeUtils::DecisionIDContainer*>&) const override;
+  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<const TrigCompositeUtils::DecisionIDContainer*>&) const override;
 
  private:
   bool passed(const xAOD::TrigBphys*) const;

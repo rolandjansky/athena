@@ -35,7 +35,7 @@ public:
   **/  
   virtual StatusCode decide(LegDecisionsMap & passingLegs, const EventContext& /* ctx */ ) const override;
   
-  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<TrigCompositeUtils::DecisionIDContainer*>&) const { return StatusCode::SUCCESS; }
+  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<const TrigCompositeUtils::DecisionIDContainer*>&) const { return StatusCode::SUCCESS; }
   
   /**
    * @brief retrieves this decision Id
