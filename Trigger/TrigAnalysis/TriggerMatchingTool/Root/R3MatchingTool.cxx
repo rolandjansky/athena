@@ -4,6 +4,10 @@
 
 #include "TriggerMatchingTool/R3MatchingTool.h"
 #include "xAODBase/IParticleContainer.h"
+#include "TrigCompositeUtils/Combinations.h"
+#include "xAODEgamma/Egamma.h"
+#include <numeric>
+#include <algorithm>
 
 // Anonymous namespace for helper functions
 namespace
@@ -11,14 +15,15 @@ namespace
   // Helper function to efficiently decide if two objects are within a drThreshold of each other
   bool fastDR(float eta1, float phi1, float eta2, float phi2, float drThreshold)
   {
-    float dEta = eta1 - eta2;
+    float dEta = std::abs(eta1 - eta2);
     if (dEta > drThreshold)
       return false;
-    float dPhi = phi1 - phi2;
+    float dPhi = std::abs(TVector2::Phi_mpi_pi(phi1 - phi2));
     if (dPhi > drThreshold)
       return false;
     return dEta * dEta + dPhi * dPhi < drThreshold * drThreshold;
   }
+
 } // namespace
 
 namespace Trig
@@ -34,6 +39,7 @@ namespace Trig
   StatusCode R3MatchingTool::initialize()
   {
     ATH_CHECK(m_trigDecTool.retrieve());
+    m_trigDecTool->ExperimentalAndExpertMethods()->enable();
     return StatusCode::SUCCESS;
   }
 
@@ -48,47 +54,108 @@ namespace Trig
       return true;
     // Make the LinkInfo type less verbose
     using IPartLinkInfo_t = TrigCompositeUtils::LinkInfo<xAOD::IParticleContainer>;
+    using VecLinkInfo_t = std::vector<IPartLinkInfo_t>;
     // TODO - detect if we're looking at run 3 data.
     // If we are, then setting rerun to true should give a warning as it no
     // longer makes sense for run 3
-    if (recoObjects.size() != 1)
+    unsigned int condition = rerun ? TrigDefs::Physics | TrigDefs::allowResurrectedDecision : TrigDefs::Physics;
+
+    // In what follows, the same comparisons between reco and trigger objects will done
+    // fairly frequently. As these include DR checks we want to minimise how often we do these
+    // Therefore we keep track of any comparisons that we've already done
+    // There is one map per input reco object, and then each map entry is the keyed on information
+    // extracted from the element link
+    std::vector<std::map<std::pair<uint32_t, uint32_t>, bool>> cachedComparisons(recoObjects.size());
+
+    // Note that the user can supply a regex pattern which matches multiple chains
+    // We should return true if any individual chain matches
+    const Trig::ChainGroup *chainGroup = m_trigDecTool->getChainGroup(chain);
+    for (const std::string &chainName : chainGroup->getListOfTriggers())
     {
-      ATH_MSG_WARNING("Matching of multiple objects is not yet supported!");
-      return false;
-    }
-    // This has to assume that the last IParticle feature in each chain is the
-    // correct one - I don't *think* this will cause any issues.
-    // Unlike with TEs, each chain should build in nodes that it actually uses.
-    // This means that we don't need anything clever for the etcut triggers any more (for example)
-    std::vector<IPartLinkInfo_t> features = m_trigDecTool->features<xAOD::IParticleContainer>(
-        chain,
-        rerun ? TrigDefs::Physics | TrigDefs::allowResurrectedDecision : TrigDefs::Physics);
-    ATH_MSG_DEBUG("Found " << features.size() << " features for chain group " << chain);
-    // TODO:
-    //  Right now we are only looking at single object chains, so we only need
-    //  to find a single match for one reco-object.
-    //  Longer term we need to deal with combinations so this gets harder
-    const xAOD::IParticle &recoObject = *recoObjects.at(0);
-    for (const IPartLinkInfo_t &info : features)
-    {
-      if (!info.link.isValid())
+      // Now we have to build up combinations
+      // TODO - right now we use a filter that passes everything through.
+      // This will probably need to be fixed to something else later - at least the unique RoI filter
+      TrigCompositeUtils::Combinations combinations(TrigCompositeUtils::FilterType::All);
+      const TrigConf::HLTChain *chainInfo = m_trigDecTool->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainName);
+      std::vector<std::size_t> multiplicities = chainInfo->leg_multiplicities();
+      combinations.reserve(multiplicities.size());
+      for (std::size_t legIdx = 0; legIdx < multiplicities.size(); ++legIdx)
       {
-        // This could result in false negatives...
-        ATH_MSG_WARNING("Invalid link to trigger feature for chain " << chain);
+        HLT::Identifier legID = TrigCompositeUtils::createLegName(chainName, legIdx);
+        combinations.addLeg(
+            multiplicities.at(legIdx),
+            m_trigDecTool->features<xAOD::IParticleContainer>(legID.name(), condition));
+      }
+      // Warn once per call if one of the chain groups is too small to match anything
+      if (combinations.size() < recoObjects.size())
+      {
+        ATH_MSG_WARNING(
+            "Chain " << chainName << " (matching pattern " << chain << ") has too few objects ("
+                     << combinations.size() << ") to match the number of provided reco objects (" << recoObjects.size() << ")");
         continue;
       }
-      const xAOD::IParticle &trigObject = **info.link;
-      if (fastDR(
-              recoObject.eta(),
-              recoObject.phi(),
-              trigObject.eta(),
-              trigObject.phi(),
-              matchThreshold))
-        // Once we find one match, that is enough
-        return true;
+      // Now we iterate through the available combinations
+      for (const VecLinkInfo_t &combination : combinations)
+      {
+        // Prepare the index vector
+        std::vector<std::size_t> onlineIndices(combination.size());
+        std::iota(onlineIndices.begin(), onlineIndices.end(), 0);
+        do
+        {
+          bool match = true;
+          for (std::size_t recoIdx = 0; recoIdx < recoObjects.size(); ++recoIdx)
+            if (!matchObjects(recoObjects[recoIdx], combination[onlineIndices[recoIdx]].link, cachedComparisons[recoIdx], matchThreshold))
+            {
+              match = false;
+              break;
+            }
+          if (match)
+            return true;
+        } while (std::next_permutation(onlineIndices.begin(), onlineIndices.end()));
+      }
     }
-    // If we get here then there was no good match
+
+    // If we reach here we've tried all combinations from all chains in the group and none of them matched
     return false;
+
+    // if (recoObjects.size() != 1)
+    // {
+    //   ATH_MSG_WARNING("Matching of multiple objects is not yet supported!");
+    //   return false;
+    // }
+    // // This has to assume that the last IParticle feature in each chain is the
+    // // correct one - I don't *think* this will cause any issues.
+    // // Unlike with TEs, each chain should build in nodes that it actually uses.
+    // // This means that we don't need anything clever for the etcut triggers any more (for example)
+    // VecLinkInfo features = m_trigDecTool->features<xAOD::IParticleContainer>(
+    //     chain,
+    //     rerun ? TrigDefs::Physics | TrigDefs::allowResurrectedDecision : TrigDefs::Physics);
+    // ATH_MSG_DEBUG("Found " << features.size() << " features for chain group " << chain);
+    // // TODO:
+    // //  Right now we are only looking at single object chains, so we only need
+    // //  to find a single match for one reco-object.
+    // //  Longer term we need to deal with combinations so this gets harder
+    // const xAOD::IParticle &recoObject = *recoObjects.at(0);
+    // for (const IPartLinkInfo_t &info : features)
+    // {
+    //   if (!info.link.isValid())
+    //   {
+    //     // This could result in false negatives...
+    //     ATH_MSG_WARNING("Invalid link to trigger feature for chain " << chain);
+    //     continue;
+    //   }
+    //   const xAOD::IParticle &trigObject = **info.link;
+    //   if (fastDR(
+    //           recoObject.eta(),
+    //           recoObject.phi(),
+    //           trigObject.eta(),
+    //           trigObject.phi(),
+    //           matchThreshold))
+    //     // Once we find one match, that is enough
+    //     return true;
+    // }
+    // // If we get here then there was no good match
+    // return false;
   }
 
   bool R3MatchingTool::match(
@@ -99,6 +166,45 @@ namespace Trig
   {
     std::vector<const xAOD::IParticle *> tmpVec{&recoObject};
     return match(tmpVec, chain, matchThreshold, rerun);
+  }
+
+  bool R3MatchingTool::matchObjects(
+      const xAOD::IParticle *reco,
+      const ElementLink<xAOD::IParticleContainer> &onlineLink,
+      std::map<std::pair<uint32_t, uint32_t>, bool> &cache,
+      double drThreshold) const
+  {
+    if (!onlineLink.isValid())
+    {
+      ATH_MSG_WARNING("Invalid element link!");
+      return false;
+    }
+    std::pair<uint32_t, uint32_t> linkIndices(onlineLink.persKey(), onlineLink.persIndex());
+    auto cacheItr = cache.find(linkIndices);
+    if (cacheItr == cache.end())
+    {
+      const xAOD::IParticle *online = *onlineLink;
+      bool match = online->type() == reco->type();
+      if (online->type() == xAOD::Type::CaloCluster && (reco->type() == xAOD::Type::Electron || reco->type() == xAOD::Type::Photon))
+      {
+        // Calo cluster is a special case - some of the egamma chains can return these (the etcut chains)
+        // In these cases we need to match this against the caloCluster object contained in electrons or photons
+        const xAOD::Egamma *egamma = dynamic_cast<const xAOD::Egamma *>(reco);
+        if (!egamma)
+          // this should never happen
+          throw std::runtime_error("Failed to cast to egamma object");
+        const xAOD::IParticle *cluster = egamma->caloCluster();
+        if (cluster)
+          reco = cluster;
+        else
+          ATH_MSG_WARNING("Cannot retrieve egamma object's primary calorimeter cluster, will match to the egamma object");
+        match = true;
+      }
+      if (match)
+        match = fastDR(reco->eta(), reco->phi(), online->eta(), online->phi(), drThreshold);
+      cacheItr = cache.insert(std::make_pair(linkIndices, match)).first;
+    }
+    return cacheItr->second;
   }
 
 } // namespace Trig

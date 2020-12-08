@@ -13,7 +13,8 @@ endif()
 atlas_add_library( TrigCompositeUtilsLib
   TrigCompositeUtils/*.h TrigCompositeUtils/*.icc Root/*.cxx
   PUBLIC_HEADERS TrigCompositeUtils
-  LINK_LIBRARIES TrigConfHLTUtilsLib CxxUtils AsgMessagingLib AsgDataHandlesLib AsgTools TrigDecisionInterface xAODBase xAODTrigger ${extra_libs}  )
+  LINK_LIBRARIES TrigConfHLTUtilsLib CxxUtils AsgMessagingLib AsgDataHandlesLib AsgTools TrigDecisionInterface xAODBase xAODTrigger ${extra_libs}
+  PRIVATE_LINK_LIBRARIES TrigSteeringEvent )
 
 if( NOT XAOD_STANDALONE )
   atlas_add_component( TrigCompositeUtils

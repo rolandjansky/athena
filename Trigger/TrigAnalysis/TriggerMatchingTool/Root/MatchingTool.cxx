@@ -17,7 +17,6 @@ MatchingTool::MatchingTool(const std::string& name) :
   m_matchingThreshold(0)
 {
   declareProperty( "TrigDecisionTool", m_trigDecTool);
-
 }
 
 #ifndef XAOD_STANDALONE

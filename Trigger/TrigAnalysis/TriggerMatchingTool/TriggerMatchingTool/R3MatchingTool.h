@@ -35,6 +35,16 @@ namespace Trig
 
   private:
     ToolHandle<TrigDecisionTool> m_trigDecTool;
+    bool matchObjects(
+        const xAOD::IParticle *reco,
+        const ElementLink<xAOD::IParticleContainer> &onlineLink,
+        std::map<std::pair<uint32_t, uint32_t>, bool> &cache,
+        double drThreshold) const;
+
+    // Internal functions
+    /// Inherited from the interface but does nothing
+    virtual MatchingImplementation *impl() const override { return nullptr; }
+
   }; //> end class R3MatchingTool
 } // namespace Trig
 
