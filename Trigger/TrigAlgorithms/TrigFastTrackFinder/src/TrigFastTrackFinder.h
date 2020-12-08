@@ -187,7 +187,7 @@ protected:
   // Large Radius Tracking
   bool m_LRTmode;
   
-
+  std::string m_trigseedML_LUT;//ML-based track seeding LUT name
 };
 
 #endif // not TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
