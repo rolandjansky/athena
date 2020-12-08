@@ -19,7 +19,7 @@ atlas_install_scripts( bin/acmd.py bin/checkFile.py bin/checkPlugins.py
    bin/diffPoolFiles.py bin/dlldep.py bin/dso-stats.py bin/dump-athfile.py
    bin/dumpAthfilelite.py bin/filter-and-merge-d3pd.py bin/getMetadata.py
    bin/gprof2dot bin/issues bin/magnifyPoolFile.py bin/merge-poolfiles.py
-   bin/pool_extractFileIdentifier.py
+   bin/apydep.py bin/pool_extractFileIdentifier.py
    bin/pool_insertFileToCatalog.py bin/print_auditor_callgraph.py bin/pyroot.py
    bin/vmem-sz.py bin/meta-reader.py bin/meta-diff.py bin/tree-orderer.py
    POST_BUILD_CMD ${ATLAS_FLAKE8} )
@@ -54,3 +54,19 @@ atlas_add_test( RootUtils
 
 atlas_add_test( fprint_test
                 SCRIPT python -m PyUtils.fprint )
+
+
+# Create python package dependencies in release building mode.
+# Used as input for `acmd.py cmake depends`:
+if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "WorkDir" )
+
+   set( _pydot ${CMAKE_CURRENT_BINARY_DIR}/packages.py.dot )
+   add_custom_command( OUTPUT ${_pydot}
+      COMMAND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/atlas_build_run.sh
+      ${CMAKE_CURRENT_SOURCE_DIR}/bin/apydep.py -o ${_pydot} -p ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/packages.txt ${CMAKE_SOURCE_DIR}/../../ )
+
+   add_custom_target( build_pydeps ALL DEPENDS ${_pydot} )
+
+   # Install output if available:
+   install( FILES ${_pydot} DESTINATION . OPTIONAL )
+endif()
