@@ -52,9 +52,6 @@ namespace InDetDD {
     SiLocalPosition(const double xEta,const double xPhi,
   		  const double xDepth=0);
 
-    /** Destructor: */
-    ~SiLocalPosition();
-
     /** Assignment operator: */
     SiLocalPosition &operator=(const SiLocalPosition &position);
 
