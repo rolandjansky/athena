@@ -36,7 +36,8 @@ TrigJetConditionConfig_capacitychecked::getCapacityCheckedCondition() const {
 
   return std::make_unique<CapacityCheckedCondition>(std::move(cc),
 						    m_multiplicity,
-						    m_chainLegLabel);
+
+						    m_chainPartInd);
 }
 				     
 

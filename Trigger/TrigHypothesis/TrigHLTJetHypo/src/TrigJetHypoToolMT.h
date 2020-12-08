@@ -70,6 +70,15 @@ public:
   
   
   std::unique_ptr<EventSN> m_eventSN;
+
+
+  StatusCode
+  checkPassingJets(xAODJetCollector&,
+		   std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
+    
+  StatusCode reportPassingJets(xAODJetCollector&,
+			       std::vector<JetDecision>& jetHypoInputs) const;
+ 
  
 };
 #endif

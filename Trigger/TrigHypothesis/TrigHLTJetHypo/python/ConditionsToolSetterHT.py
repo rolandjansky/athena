@@ -69,7 +69,6 @@ class ConditionsToolSetterHT(object):
             
         assert node.scenario == 'ht'
 
-        print (node)
         conditionMaker = self._get_tool_instance('htcondition')
         config_tool = self._get_tool_instance('htconfig')
         cut_windows = {}
@@ -78,7 +77,7 @@ class ConditionsToolSetterHT(object):
         for d in node.conf_attrs: assert d[1] == 1
         
         [cut_windows.update(d[0]) for d in node.conf_attrs]
-        print (cut_windows)
+
         conditionMaker.htmin = cut_windows['ht']['min']
         conditionMaker.etmin = cut_windows['et']['min']
         conditionMaker.etamin = cut_windows['eta']['min']

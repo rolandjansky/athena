@@ -48,12 +48,10 @@ def preprocess(s):
     s = ss      
 
     check_parens(s)
-    print(s)
     from TrigHLTJetHypo.constants import alphabet
     for c in s:
         if c not in alphabet:
             raise RuntimeError('bad character %s in string %s' % (c, s))
-    print('end of preprocess: ', s)
     check_parens(s)
     return s
 
