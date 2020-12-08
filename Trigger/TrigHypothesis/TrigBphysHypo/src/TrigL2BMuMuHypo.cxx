@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -232,6 +232,6 @@ HLT::ErrorCode TrigL2BMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   // store result
   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
       ATH_MSG_ERROR("Could not store TrigPassBits! ");
-      ATH_MSG_DEBUG("End of hltExecute, passMass, passChi2, pass= " <<  PassedBsMass << "  " << PassedChi2Cut << "  " << pass);
-      return HLT::OK;
+  ATH_MSG_DEBUG("End of hltExecute, passMass, passChi2, pass= " <<  PassedBsMass << "  " << PassedChi2Cut << "  " << pass);
+  return HLT::OK;
 }
