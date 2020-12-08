@@ -1230,7 +1230,7 @@ TRT_ToT_dEdx::trackOccupancyCorrection(const EventContext& ctx,
   const TRTDedxcorrection* dEdxCorrection{*readHandle};
 
   double corr=-999.;
-  double trackOcc = m_localOccTool->LocalOccupancy(*track);
+  double trackOcc = m_localOccTool->LocalOccupancy(ctx,*track);
   const Trk::TrackParameters* perigee = track->perigeeParameters();
   const Amg::VectorX& parameterVector = perigee->parameters();
   double theta  = parameterVector[Trk::theta];
