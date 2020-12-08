@@ -115,6 +115,29 @@ private:
  */
 std::ostream& operator<<(std::ostream& os, const ByteStreamMetadata& bsmd);
 
+/**
+ * Compare ByteStreamMetadata objects for equality
+ *
+ * Implementation of standard comparison operator. Uses the public interface of
+ * @c ByteStreamMetadata to compare GUIDs. It returns true if the GUIDs are
+ * equal, false otherwise.
+ */
+inline bool
+    operator==(const ByteStreamMetadata& lhs, const ByteStreamMetadata& rhs) {
+      return lhs.getGuid() == rhs.getGuid();
+    }
+
+/**
+ * Compare ByteStreamMetadata objects for inequality
+ *
+ * Implementation of standard comparison operator. Uses the public interface of
+ * @c ByteStreamMetadata to compare GUIDs. It returns true if the GUIDs are not
+ * equal, false if they are.
+ */
+inline bool
+    operator!=(const ByteStreamMetadata& lhs, const ByteStreamMetadata& rhs) {
+      return lhs.getGuid() != rhs.getGuid();
+    }
 
 #include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF(ByteStreamMetadata, 170625359, 1)
