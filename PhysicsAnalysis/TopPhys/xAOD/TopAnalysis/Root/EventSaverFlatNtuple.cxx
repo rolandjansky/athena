@@ -1075,12 +1075,7 @@ namespace top {
 	  if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) {
 	    
 	    for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
-	      const std::vector<std::string>& sysNames = m_config->boostedTaggersSFSysNames().at(taggerName);
-	      m_ljet_tagSFSysVars[taggerName].resize(sysNames.size());
-	      for(size_t i=0;i<sysNames.size();i++) {
-		systematicTree->makeOutputVariable(m_ljet_tagSFSysVars[taggerName][i],"ljet_tagSF_" + sysNames[i]);
-	      }
-	      
+	      systematicTree->makeOutputVariable(m_ljet_tagSFSysVars[taggerName],"ljet_tagSF_" + taggerName + "_variations");
 	    }
 	    
 	  }
@@ -3045,11 +3040,9 @@ namespace top {
         m_ljet_truthLabel.resize(nLargeRJets);
         for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
           m_ljet_tagSF[taggerName].resize(nLargeRJets);
-	  
 	  if (event.m_hashValue == m_config->nominalHashValue()) {
-	    for(std::vector<float>& vec : m_ljet_tagSFSysVars[taggerName]) {
-	       vec.resize(nLargeRJets);
-	    }
+	    m_ljet_tagSFSysVars[taggerName].clear();
+	    m_ljet_tagSFSysVars[taggerName].resize(nLargeRJets);
 	  }
 	}
       } // end isMC()
@@ -3082,10 +3075,10 @@ namespace top {
 	    
 	    if (event.m_hashValue == m_config->nominalHashValue()) {
 	      const std::vector<std::string>& sysNames = m_config->boostedTaggersSFSysNames().at(taggerName);
-	      std::vector<std::vector<float>>& vec = m_ljet_tagSFSysVars[taggerName];
+	      std::vector<float>& vec = m_ljet_tagSFSysVars[taggerName][i];
+	      vec.resize(sysNames.size());
 	      for(size_t iname = 0; iname<sysNames.size();iname++) {
-		const std::string& sfNameShifted=sysNames[iname];
-		vec[iname][i] = jetPtr->isAvailable<float>(sfNameShifted) ? jetPtr->auxdata<float>(sfNameShifted) : -999;
+		vec[iname] = jetPtr->isAvailable<float>(sysNames[iname]) ? jetPtr->auxdata<float>(sysNames[iname]) : -999;
 	      }
 	    }
 

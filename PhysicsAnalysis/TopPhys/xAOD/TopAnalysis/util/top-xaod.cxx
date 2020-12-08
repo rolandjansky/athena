@@ -504,6 +504,8 @@ int main(int argc, char** argv) {
   std::string AMITag = topConfig->getAMITag();
   ULong64_t totalEvents = 0;
   ULong64_t totalEventsInFiles = 0;
+  std::unordered_map<std::string, std::vector<std::string>> boostedTaggersSFSysNames = topConfig->boostedTaggersSFSysNames();
+  
   sumWeights->Branch("dsid", &dsid);
   sumWeights->Branch("isAFII", &isAFII);
   sumWeights->Branch("generators", &generators);
@@ -514,6 +516,11 @@ int main(int argc, char** argv) {
     sumWeights->Branch("names_mc_generator_weights", &names_LHE3);
   }
   sumWeights->Branch("totalEvents", &totalEvents, "totalEvents/l");
+
+  for(auto& it : boostedTaggersSFSysNames) {
+    it.second.clear();
+    sumWeights->Branch(("sysNames_"+it.first).c_str(),&it.second);
+  }
 
   TTree* sumPdfWeights = 0;
   std::unordered_map<std::string, std::vector<float>*> totalEventsPdfWeighted;
@@ -613,6 +620,11 @@ int main(int argc, char** argv) {
         initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
         sumW_file = initialEvents; // this is data, it's the same number...
       }
+    }
+
+
+    for(auto& it : boostedTaggersSFSysNames) {
+      it.second = topConfig->boostedTaggersSFSysNames().at(it.first);
     }
 
     totalEventsWeighted += sumW_file;
