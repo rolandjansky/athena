@@ -162,6 +162,7 @@ namespace Trig
     if (cacheItr == cache.end())
     {
       const xAOD::IParticle *online = *onlineLink;
+      ATH_MSG_DEBUG("Match online " << online->type() << " to offline " << reco->type());
       bool match = online->type() == reco->type();
       if (online->type() == xAOD::Type::CaloCluster && (reco->type() == xAOD::Type::Electron || reco->type() == xAOD::Type::Photon))
       {
