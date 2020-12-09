@@ -469,7 +469,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
 
             if suppressNonJobOptions:
                 for k in list(physics):
-                    if k in ['productionStep', 'transformation', 'SWReleaseCache']:
+                    if k in ['inputs', 'outputs', 'productionStep', 'transformation', 'SWReleaseCache']:
                         physics.pop(k)
 
             for k, v in iteritems(physics):
