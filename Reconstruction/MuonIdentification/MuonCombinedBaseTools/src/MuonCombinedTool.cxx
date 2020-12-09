@@ -111,4 +111,10 @@ namespace MuonCombined {
     }
   }
 
+  void MuonCombinedTool::cleanUp() const {
+    for(auto& tool : m_muonCombinedTagTools){
+      tool->cleanUp();
+    }
+  }
+
 }	// end of namespace

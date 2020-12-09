@@ -171,4 +171,10 @@ namespace MuonCombined {
                                                                           covCB ) );
   }
 
+
+  void MuonCombinedStacoTagTool::cleanUp() const {
+    //Nothing to clean up here .. hopefully
+    return;
+  }
+
 }	// end of namespace

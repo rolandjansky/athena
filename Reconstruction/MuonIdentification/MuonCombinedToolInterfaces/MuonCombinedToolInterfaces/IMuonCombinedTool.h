@@ -34,6 +34,8 @@ namespace MuonCombined {
     virtual void combine( const MuonCandidateCollection& muonCandidates,  const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps,
 			  TrackCollection* combTracks, TrackCollection* METracks) const = 0;
 
+    virtual void cleanUp() const = 0;
+
   };
 
   inline const InterfaceID& IMuonCombinedTool::interfaceID()
