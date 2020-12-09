@@ -8,13 +8,13 @@ else:
     else:
         raise AttributeError("AthenaPoolOutputStream not found")
 
+from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.CfgGetter import getService, getPublicTool
 if DetFlags.digitize.pixel_on():
     outStream.ItemList+=["SiHitCollection#PixelHits"]
     #disable some Pixel stuff
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    pixelTool = svcMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
+    pixelTool = ServiceMgr.GeoModelSvc.DetectorTools['PixelDetectorTool']
     pixelTool.Alignable = False
     from Digitization.DigitizationFlags import digitizationFlags
     pixeldigi = None
@@ -46,7 +46,8 @@ if DetFlags.digitize.pixel_on():
         pixeldigi.UsePixCondSum = False
         pixeldigi.DisableDistortions = True
     else:
-        #From PixelDigitization-01-00-05 onwards configure tools directly
+        ## From PixelDigitization-01-00-05 onwards configure tools directly
+        from AthenaCommon.CfgGetter import getService, getPublicTool
         getPublicTool("SpecialPixelGenerator").UsePixCondSum = False
         getPublicTool("PixelBarrelChargeTool").DisableDistortions = True
         getPublicTool("PixelECChargeTool").DisableDistortions = True
@@ -54,18 +55,10 @@ if DetFlags.digitize.pixel_on():
         getPublicTool("IblPlanarChargeTool").DisableDistortions = True
         getPublicTool("Ibl3DChargeTool").DisableDistortions = True
 
-    ServiceMgr.PixelCalibSvc.DisableDB     = True
+    ServiceMgr.PixelCalibSvc.DisableDB     = False
 
     if hasattr(pixeldigi,'OfflineCalibSvc') :
        pixeldigi.OfflineCalibSvc=""
-
-##     if DetFlags.pileup.pixel_on():
-##         #changing the range of the Pixels
-##         from AthenaCommon.AppMgr import ServiceMgr
-##         from PileUpComps.PileUpCompsConf import PileUpXingFolder
-##         pixelxingFolder = ServiceMgr.PileUpMergeSvc.Intervals['PixelRange']
-##         pixelxingFolder.FirstXing = -50
-##         pixelxingFolder.LastXing = 25
 
 if DetFlags.digitize.SCT_on():
     outStream.ItemList+=["SiHitCollection#SCT_Hits"]
@@ -74,11 +67,15 @@ if DetFlags.digitize.SCT_on():
         ToolSvc += SCT_FrontEnd("SCT_FrontEnd")
     getPublicTool("SCT_DigitizationTool").FrontEnd.UseCalibData = False
     getPublicTool("SCT_DigitizationTool").FrontEnd.MaxStripsPerSide = 1280
+    getPublicTool("SCT_DigitizationTool").FrontEnd.DataReadOutMode = 0
+    getPublicTool("SCT_DigitizationTool").FrontEnd.DataCompressionMode = 2
 
-    if DetFlags.pileup.SCT_on():
-        #changing the range of the SCT
-        from AthenaCommon.AppMgr import ServiceMgr
-        from PileUpComps.PileUpCompsConf import PileUpXingFolder
-        sctxingFolder = ServiceMgr.PileUpMergeSvc.Intervals['SiliconRange']
-        sctxingFolder.FirstXing = -50
-        sctxingFolder.LastXing = 25
+
+    if not digitizationFlags.doXingByXingPileUp():
+        if DetFlags.pileup.SCT_on():
+            #changing the range of the SCT
+            from AthenaCommon.AppMgr import ServiceMgr
+            from PileUpComps.PileUpCompsConf import PileUpXingFolder
+            sctxingFolder = ServiceMgr.PileUpMergeSvc.Intervals['SiliconRange']
+            sctxingFolder.FirstXing = -50
+            sctxingFolder.LastXing = 25
