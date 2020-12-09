@@ -53,6 +53,12 @@ dophy=1    # If dorec=0, set dophy=1 to run InDetPhysValMonitoring over old ESD
 dofast=1    # Run fast reco
 dophyfast=1 # Run IDPVM over fast reco outputs
 
+# Disable ART tests for fast tracking with 1 GeV config, since reco has 2 GeV pt cut
+if [ ${energy} == "1GeV" ]; then
+  dofast=0
+  dophyfast=0
+fi
+
 # Following specify DCube output directories. Set empty to disable.
 dcube_sim_fixref="dcube_sim_${particle}_${energy}"
 dcube_sim_lastref="dcube_sim_${particle}_${energy}_last"
