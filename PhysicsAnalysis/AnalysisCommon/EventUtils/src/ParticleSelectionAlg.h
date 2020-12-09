@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSelectionAlg.h
@@ -22,6 +22,8 @@
 #include "AthAnalysisBaseComps/AthAnalysisAlgorithm.h"
 #include "xAODBase/IParticleContainer.h"
 //#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "PATCore/IAsgSelectionTool.h"
+#include "PATCore/IAsgSelectionWithVertexTool.h"
 
 // // Forward declarations
 // namespace Trig{
@@ -76,6 +78,12 @@ class ParticleSelectionAlg
   // Private data:
   ///////////////////////////////////////////////////////////////////
  private:
+  /// The list of IAsgSelectionTools
+  ToolHandleArray<IAsgSelectionTool> m_selTools;
+
+  /// The list of IAsgSelectionWithVertexTools
+  ToolHandleArray<IAsgSelectionWithVertexTool> m_selWVtxTools;
+
   /// Name of the EventInfo object
   StringProperty m_evtInfoName;
 
