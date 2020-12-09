@@ -504,12 +504,6 @@ if not opt.createHLTMenuExternally:
 
 
 
-#Needed to get full output from TrigSignatureMoniMT with a large menu: see ATR-21487
-#Can be removed once chainDump.py is used instead of log file parsing
-svcMgr.MessageSvc.infoLimit=10000
-
-
-
 from TrigConfigSvc.TrigConfigSvcCfg import getHLTConfigSvc
 svcMgr += conf2toConfigurable( getHLTConfigSvc(ConfigFlags) )
 
@@ -626,9 +620,13 @@ if opt.reverseViews or opt.filterViews:
 include("TriggerTest/disableChronoStatSvcPrintout.py")
 
 #-------------------------------------------------------------
-# Disable spurious warnings from HepMcParticleLink, ATR-21838
+# MessageSvc
 #-------------------------------------------------------------
+svcMgr.MessageSvc.Format = "% F%40W%C%4W%R%e%s%8W%R%T %0W%M"
+svcMgr.MessageSvc.enableSuppression = False
+
 if ConfigFlags.Input.isMC:
+    # Disable spurious warnings from HepMcParticleLink, ATR-21838
     svcMgr.MessageSvc.setError += ['HepMcParticleLink']
 
 #-------------------------------------------------------------
