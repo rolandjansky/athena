@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: IoAnalyzer.py
 # @purpose: a set of classes to analyze (I/O) data from a perfmon tuple
@@ -34,11 +34,11 @@ class IoAnalyzer( Analyzer ):
         return
 
     def visit(self, monComp):
-        if not monComp.type in ['io']:#'cfg']:
+        if monComp.type not in ['io']:#'cfg']:
             self.msg.debug( " skipping %s [%s]",monComp.name,monComp.type )
             return False
         return True
-    
+
     def bookHistos(self, monComp):
         ROOT = importRoot()
         #Analyzer.__bookHistos(self)
@@ -94,8 +94,10 @@ class IoAnalyzer( Analyzer ):
         ms = Units.ms
 
         dsNames = DataSetMgr.names()
-        yMinRead  = []; yMaxRead  = []
-        yMinWrite = []; yMaxWrite = []
+        yMinRead  = []
+        yMaxRead  = []
+        yMinWrite = []
+        yMaxWrite = []
         for dsName in dsNames:
             if dsName not in monComp.data:
                 continue
@@ -117,7 +119,7 @@ class IoAnalyzer( Analyzer ):
         yMaxRead = max(yMaxRead)
         yMinWrite = min(yMinWrite)
         yMaxWrite = max(yMaxWrite)
-        
+
         for dsName in dsNames:
             if dsName not in monComp.data:
                 continue
@@ -136,11 +138,11 @@ class IoAnalyzer( Analyzer ):
             fig = monComp.figs['evt/io']
             ax = fig.axes[0]
             _iy = self.minEvt + len(bins[self.minEvt:])
-            pl = ax.plot( bins[self.minEvt:],
-                          data['evt']['io/cpu/r'][self.minEvt:_iy] * ms,
-                          linestyle = 'steps',
-                          label = dsName )
-            
+            ax.plot( bins[self.minEvt:],
+                     data['evt']['io/cpu/r'][self.minEvt:_iy] * ms,
+                     linestyle = 'steps',
+                     label = dsName )
+
             ax.grid( True )
             ax.set_title ( "[%s]" % monComp.name )
             ax.set_ylabel( '(R) CPU time [ms]' )
@@ -160,15 +162,15 @@ class IoAnalyzer( Analyzer ):
             ax.set_xlabel( '(R) CPU time [ms]' )
             ax.set_ylim( (ax.get_ylim()[0],
                           ax.get_ylim()[1]*1.1) )
-            
+
             ## write
             fig = monComp.figs['evt/io']
             ax = fig.axes[2]
             _iy = self.minEvt + len(bins[self.minEvt:])
-            pl = ax.plot( bins[self.minEvt:],
-                          data['evt']['io/cpu/w'][self.minEvt:_iy] * ms,
-                          linestyle = 'steps',
-                          label = dsName )
+            ax.plot( bins[self.minEvt:],
+                     data['evt']['io/cpu/w'][self.minEvt:_iy] * ms,
+                     linestyle = 'steps',
+                     label = dsName )
             ax.grid( True )
             ax.set_title ( "[%s]" % monComp.name )
             ax.set_ylabel( '(W) CPU time [ms]' )
@@ -233,10 +235,10 @@ class IoAnalyzer( Analyzer ):
             fig = monComp.figs['evt/rio']
             ax = fig.axes[0]
             _iy = self.minEvt + len(bins[self.minEvt:])
-            pl = ax.plot( bins[self.minEvt:],
-                          data['evt']['io/cpu/rr'][self.minEvt:_iy] * ms,
-                          linestyle = 'steps',
-                          label = dsName )
+            ax.plot( bins[self.minEvt:],
+                     data['evt']['io/cpu/rr'][self.minEvt:_iy] * ms,
+                     linestyle = 'steps',
+                     label = dsName )
             ax.set_title ( "[%s]" % monComp.name )
             ax.set_ylabel( '(RR) CPU time [ms]' )
             ax.set_xlabel( 'Event number'  )
@@ -259,22 +261,23 @@ class IoAnalyzer( Analyzer ):
             ratios = []
             for idx,num in enumerate(data['evt']['io/cpu/rr'][self.minEvt:_iy]):
                 den = data['evt']['io/cpu/r'][idx]
-                if den == 0.: r = 0
-                else        : r = num/den*100.
+                if den == 0.:
+                    r = 0
+                else:
+                    r = num/den*100.
                 ratios.append(r)
-##                 print "%3i %8.3f %8.3f %8.3f" % (idx,num,den,r)
-                
+
             ratios = numpy.array(ratios)
             yMinRatio = min(ratios)
             yMaxRatio = max(ratios)
-            
+
             ## pure ROOT read over T/P read
             fig = monComp.figs['evt/rio']
             ax = fig.axes[2]
-            pl = ax.plot( bins[self.minEvt:],
-                          ratios,
-                          linestyle = 'steps',
-                          label = dsName )
+            ax.plot( bins[self.minEvt:],
+                     ratios,
+                     linestyle = 'steps',
+                     label = dsName )
             ax.set_title ( "[%s]" % monComp.name )
             ax.set_ylabel( 'Pure-ROOT over Full read CPU time (%)' )
             ax.set_xlabel( 'Event number'  )
