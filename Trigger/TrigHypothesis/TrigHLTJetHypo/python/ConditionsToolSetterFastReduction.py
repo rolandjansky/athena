@@ -225,7 +225,7 @@ class ConditionsToolSetterFastReduction(object):
         self._fill_tree_map(tree, tree_map)
 
         for k, v in tree_map.items():
-            log.debug("Tree map debug ", str(k), str(v))
+            log.debug("Tree map debug %s %s", str(k), str(v))
             
         treeVec = self._map_2_vec(tree_map)
 
