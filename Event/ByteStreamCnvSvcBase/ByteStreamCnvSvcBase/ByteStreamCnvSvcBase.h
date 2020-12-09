@@ -43,6 +43,20 @@ public:
 protected: // data
    std::vector<std::string> m_initCnvs;
    std::vector<std::string> m_ROD2ROBmap;
+
+private:
+   /** @name Flags which are not used by this service.
+    *  It only serves as an entity storing these values and some other components read it from here.
+    *  TODO: Remove this solution and move the properties where they are needed.
+    */
+   ///@{
+   /// flags for Simulation EventType
+   Gaudi::Property<bool> m_isSimulation{this, "IsSimulation", false};
+   /// flags for TestBeam EventType
+   Gaudi::Property<bool> m_isTestbeam{this, "IsTestbeam", false};
+   /// flags for Calibration EventType
+   Gaudi::Property<bool> m_isCalibration{this, "IsCalibration", false};
+   ///@}
 };
 
 #endif
