@@ -636,6 +636,10 @@ namespace met {
               ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index() 
                            << " with pt " << object->pt() << ", phi " << object->phi() );
             }
+
+            // Correctly handle this jet if we're using very greedy photons
+            if (object && object->type() == xAOD::Type::Photon && m_veryGreedyPhotons) hardJet = true;
+
           }
         }
 
