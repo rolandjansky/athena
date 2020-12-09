@@ -732,7 +732,9 @@ namespace top {
 
     std::unordered_map<std::string, std::vector<float> > m_ljet_substructure;
     std::unordered_map<std::string, std::vector<char> > m_ljet_isTagged;
+    std::unordered_map<std::string, std::vector<char> > m_ljet_taggingPassedRangeCheck;
     std::unordered_map<std::string, std::vector<float> > m_ljet_tagSF;
+    std::unordered_map<std::string, std::vector<std::vector<float>> > m_ljet_tagSFSysVars;
 
     //track jets
     std::vector<float> m_tjet_pt;
@@ -1358,6 +1360,7 @@ namespace top {
 
     const std::unordered_map<std::string, std::vector<float> >& ljet_substructure() const {return m_ljet_substructure;}
     const std::unordered_map<std::string, std::vector<char> >& ljet_isTagged() const {return m_ljet_isTagged;}
+    const std::unordered_map<std::string, std::vector<char> >& ljet_taggingPassedRangeCheck() const {return m_ljet_taggingPassedRangeCheck;}
     const std::vector<char>& ljet_isTagged(const std::string& taggerName) {return m_ljet_isTagged[taggerName];}
 
     //track jets

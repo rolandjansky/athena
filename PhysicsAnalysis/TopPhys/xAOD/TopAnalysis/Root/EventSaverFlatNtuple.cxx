@@ -1063,6 +1063,7 @@ namespace top {
 
         for (const std::string& taggerName : m_boostedJetTaggersNames) {
           systematicTree->makeOutputVariable(m_ljet_isTagged[taggerName], "ljet_isTagged_" + taggerName);
+          systematicTree->makeOutputVariable(m_ljet_taggingPassedRangeCheck[taggerName], "ljet_passedRangeCheck_" + taggerName);
         }
 
         if (m_config->isMC()) {
@@ -1070,6 +1071,18 @@ namespace top {
           for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
             systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_" + taggerName);
           }
+	  
+	  if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) {
+	    
+	    for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
+	      systematicTree->makeOutputVariable(m_ljet_tagSFSysVars[taggerName],"ljet_tagSF_" + taggerName + "_variations");
+	    }
+	    
+	  }
+	  
+	  
+	  
+	  
         }
       }
 
@@ -3019,13 +3032,19 @@ namespace top {
 	m_ljet_substructure[it.first].resize(nLargeRJets);
       }
 
-      for (const std::string& taggerName : m_boostedJetTaggersNames)
+      for (const std::string& taggerName : m_boostedJetTaggersNames) {
         m_ljet_isTagged[taggerName].resize(nLargeRJets);
+	m_ljet_taggingPassedRangeCheck[taggerName].resize(nLargeRJets);
+      }
       if (m_config->isMC()) {
         m_ljet_truthLabel.resize(nLargeRJets);
-        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated)
+        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
           m_ljet_tagSF[taggerName].resize(nLargeRJets);
-      }
+	  if (event.m_hashValue == m_config->nominalHashValue()) {
+	    m_ljet_tagSFSysVars[taggerName].resize(nLargeRJets);
+	  }
+	}
+      } // end isMC()
 
       for (const auto* const jetPtr : event.m_largeJets) {
         m_ljet_pt[i] = jetPtr->pt();
@@ -3039,14 +3058,31 @@ namespace top {
 	}
 
         for (const std::string& taggerName : m_boostedJetTaggersNames) {
-          m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_" + taggerName);
+          m_ljet_isTagged[taggerName][i] = jetPtr->isAvailable<char>("isTagged_" + taggerName) ? jetPtr->getAttribute<char>("isTagged_" + taggerName) : 0;
+	  m_ljet_taggingPassedRangeCheck[taggerName][i] = jetPtr->isAvailable<char>("passedRangeCheck_" + taggerName) ? jetPtr->getAttribute<char>("passedRangeCheck_" + taggerName) : 0;
         }
 
         if (m_config->isMC()) {
           m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
           for (const std::pair<std::string, std::string>& tagSF : m_config->boostedTaggerSFnames()) {
-            m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
+            const std::string& taggerName = tagSF.first;
+	    const std::string& sfNameNominal = tagSF.second;
+	    
+	    
+	    
+	    m_ljet_tagSF[taggerName][i] = jetPtr->isAvailable<float>(sfNameNominal) ? jetPtr->auxdata<float>(sfNameNominal) : -999;
+	    
+	    if (event.m_hashValue == m_config->nominalHashValue()) {
+	      const std::vector<std::string>& sysNames = m_config->boostedTaggersSFSysNames().at(taggerName);
+	      std::vector<float>& vec = m_ljet_tagSFSysVars[taggerName][i];
+	      vec.resize(sysNames.size());
+	      for(size_t iname = 0; iname<sysNames.size();iname++) {
+		vec[iname] = jetPtr->isAvailable<float>(sysNames[iname]) ? jetPtr->auxdata<float>(sysNames[iname]) : -999;
+	      }
+	    }
+
           }
+
         }
 
         ++i;
