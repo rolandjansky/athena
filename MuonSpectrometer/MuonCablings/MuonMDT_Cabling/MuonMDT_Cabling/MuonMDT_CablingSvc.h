@@ -31,8 +31,8 @@ class MuonMDT_CablingSvc : public AthService ,
   MuonMDT_CablingSvc(const std::string& name,ISvcLocator* sl);
   virtual ~MuonMDT_CablingSvc();
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /** methods called at trigger stop/start */
   //  virtual StatusCode start();
@@ -43,7 +43,7 @@ class MuonMDT_CablingSvc : public AthService ,
 
   static const InterfaceID& interfaceID() { return IID_IMuonMDT_CablingSvc; }
 
-  virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
+  virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface ) override;
 
   // IOV service callback
   StatusCode initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys));
