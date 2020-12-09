@@ -1,18 +1,18 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AGDDControl/XMLHandler.h"
 #include "AGDDControl/XMLHandlerStore.h"
 
 #include <vector>
+#include <memory>
 
 DOMNode* XMLHandler::currentElement=0;
 bool XMLHandler::printFlag=false;
 
 XMLHandler::XMLHandler(std::string n):name(n) 
 {
-//    std::cout<< " creating new handler "<<n<<std::endl;
 	stopLoop=false;
 	RegisterToStore();
 }
@@ -38,27 +38,34 @@ bool XMLHandler::isAttribute(const std::string name) const
 }
 std::string XMLHandler::getAttribute(const std::string name, bool& isPresent) const
 {
-	std::string retValue="";
-	isPresent=false;
-	if (currentElement->hasAttributes()) {
-		DOMNamedNodeMap *pAttributes = currentElement->getAttributes();
-		DOMAttr *pAttributeNode = (DOMAttr*) pAttributes->getNamedItem(XMLString::transcode(name.c_str()));
-		if (pAttributeNode) {
+    std::string retValue="";
+    isPresent=false;
+    
+    if (currentElement->hasAttributes()) {
+        DOMNamedNodeMap *pAttributes = currentElement->getAttributes();
 
-  		  char* val=XMLString::transcode(pAttributeNode->getValue());
-		  if (val) {
-			
-			isPresent=true;
-			retValue=val;
-			XMLString::release(&val);
-			return retValue;
-		  }
-		}
-		else return retValue;
-			
-	}
-	return retValue;
+        auto deleter = [&](XMLCh buf[]) { XMLString::release(&buf); };
+        std::unique_ptr<XMLCh[], decltype(deleter)> ptr(XMLString::transcode(name.c_str()), deleter);
+        DOMAttr *pAttributeNode = (DOMAttr*) pAttributes->getNamedItem(ptr.get());
+
+        if (pAttributeNode) {
+
+            char* val=XMLString::transcode(pAttributeNode->getValue());
+            if (val) {			
+                      isPresent=true;
+                      retValue=val;
+                      XMLString::release(&val);
+                      return retValue;
+                      }
+        }
+ 
+        else return retValue;
+
+        }
+
+        return retValue;
 }
+
 std::string XMLHandler::getAttributeAsString(const std::string name) const
 {
 	bool isPresent;

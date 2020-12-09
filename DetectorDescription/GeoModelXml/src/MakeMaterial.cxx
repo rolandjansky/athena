@@ -45,10 +45,10 @@ char *toRelease;
     }
     double scaleFactor(1.0);
     DOMElement *el = dynamic_cast<DOMElement *> (parent);
-//    if (el->hasAttribute(translate("densitysf"))) { // Guaranteed by DTD; don't recheck.
+
         densitySF = translate(el->getAttribute(translate("densitysf")));
         scaleFactor = gmxUtil.evaluate(densitySF);
-//    }
+	XMLString::release(&densitySF);
 //
 //    Get my name
 //
