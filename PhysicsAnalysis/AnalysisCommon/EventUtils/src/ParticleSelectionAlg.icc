@@ -88,13 +88,13 @@ StatusCode ParticleSelectionAlg::selectParticles(const xAOD::IParticleContainer*
     for ( std::size_t toolIdx=0; toolIdx < m_selTools.size(); ++toolIdx ){
       if (passEverything){
         ATH_MSG_VERBOSE("Now going to try AsgSelectionTools number " << toolIdx );
-        const Root::TAccept& tAccept = m_selTools[toolIdx]->accept(part);
-        if (!m_doCutFlow){ passEverything &= static_cast<bool>(tAccept); }
+        const asg::AcceptData acceptData = m_selTools[toolIdx]->accept(part);
+        if (!m_doCutFlow){ passEverything &= static_cast<bool>(acceptData); }
         else {
           const std::size_t cbkStartIdx = m_selToolIdxOffset[toolIdx];
-          const unsigned int nCuts = tAccept.getNCuts();
+          const unsigned int nCuts = acceptData.getNCuts();
           for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
-            passEverything &= tAccept.getCutResult(iCut);
+            passEverything &= acceptData.getCutResult(iCut);
             if (passEverything){
               const std::size_t currentCBKIdx = cbkStartIdx + iCut;
               xAOD::CutBookkeeper* cutBK = cutBKCont->at(currentCBKIdx);
@@ -130,13 +130,13 @@ StatusCode ParticleSelectionAlg::selectParticles(const xAOD::IParticleContainer*
       for ( std::size_t toolIdx=0; toolIdx < m_selWVtxTools.size(); ++toolIdx ){
         if (passEverything){
           ATH_MSG_VERBOSE("Now going to try AsgSelectionWithVertexTools number " << toolIdx );
-          const Root::TAccept& tAccept = m_selWVtxTools[toolIdx]->accept(part,primVtx);
-          if (!m_doCutFlow){ passEverything &= static_cast<bool>(tAccept); }
+          const asg::AcceptData acceptData = m_selWVtxTools[toolIdx]->accept(part,primVtx);
+          if (!m_doCutFlow){ passEverything &= static_cast<bool>(acceptData); }
           else {
             const std::size_t cbkStartIdx = m_selWPVToolIdxOffset[toolIdx];
-            const unsigned int nCuts = tAccept.getNCuts();
+            const unsigned int nCuts = acceptData.getNCuts();
             for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
-              passEverything &= tAccept.getCutResult(iCut);
+              passEverything &= acceptData.getCutResult(iCut);
               if (passEverything){
                 const std::size_t currentCBKIdx = cbkStartIdx + iCut;
                 xAOD::CutBookkeeper* cutBK = cutBKCont->at(currentCBKIdx);

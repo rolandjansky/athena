@@ -240,12 +240,12 @@ StatusCode ParticleSelectionAlg::start()
     m_selToolIdxOffset.push_back( cutBKCont->size() );
     // Get some needed quantities
     const std::string toolName = tool->name();
-    const Root::TAccept& tAccept = tool->getTAccept();
-    const unsigned int nCuts = tAccept.getNCuts();
+    const asg::AcceptInfo& acceptInfo = tool->getAcceptInfo();
+    const unsigned int nCuts = acceptInfo.getNCuts();
     for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
       // Get the name and description of this cut
-      const std::string cutName  = (tAccept.getCutName(iCut)).Data();
-      const std::string cutDescr = (tAccept.getCutDescription(iCut)).Data();
+      const std::string cutName  = acceptInfo.getCutName(iCut);
+      const std::string cutDescr = acceptInfo.getCutDescription(iCut);
       // Create a new xAOD::CutBookkeeper and add it to the container
       xAOD::CutBookkeeper* cutBK = new xAOD::CutBookkeeper();
       cutBKCont->push_back(cutBK);
@@ -268,12 +268,12 @@ StatusCode ParticleSelectionAlg::start()
     m_selWPVToolIdxOffset.push_back( cutBKCont->size() );
     // Get some needed quantities
     const std::string toolName = tool->name();
-    const Root::TAccept& tAccept = tool->getTAccept();
-    const unsigned int nCuts = tAccept.getNCuts();
+    const asg::AcceptInfo& acceptInfo = tool->getAcceptInfo();
+    const unsigned int nCuts = acceptInfo.getNCuts();
     for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
       // Get the name and description of this cut
-      const std::string cutName  = (tAccept.getCutName(iCut)).Data();
-      const std::string cutDescr = (tAccept.getCutDescription(iCut)).Data();
+      const std::string cutName  = acceptInfo.getCutName(iCut);
+      const std::string cutDescr = acceptInfo.getCutDescription(iCut);
       // Create a new xAOD::CutBookkeeper and add it to the container
       xAOD::CutBookkeeper* cutBK = new xAOD::CutBookkeeper();
       cutBKCont->push_back(cutBK);
