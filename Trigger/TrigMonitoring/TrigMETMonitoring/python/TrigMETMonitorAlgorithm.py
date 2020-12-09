@@ -52,7 +52,7 @@ def TrigMETMonConfig(inputFlags):
     
     ### check Run2 or Run3 MT
     mt_chains = True
-    if ( inputFlags.Trigger.EDMDecodingVersion < 3 ) :
+    if ( inputFlags.Trigger.EDMVersion < 3 ) :
       mt_chains = False
 
     ### container name selection
