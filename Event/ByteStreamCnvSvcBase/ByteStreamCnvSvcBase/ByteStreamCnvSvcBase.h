@@ -11,13 +11,9 @@
 #include "ByteStreamData/RawEvent.h"
 
 /**
-  @class ByteStreamCnvSvcBase
-  @brief base class for ByteStream conversion service.
-
-  description
-         This class is used as a conversion service in online HLT
-	 and it is the base class for offline bytestream conversion service.
-*/
+ * @class ByteStreamCnvSvcBase
+ * @brief The base class for offline and HLT ByteStream conversion services
+ */
 class ByteStreamCnvSvcBase : public ::AthCnvSvc,
 		public virtual IIncidentListener,
 		public virtual IByteStreamEventAccess {
