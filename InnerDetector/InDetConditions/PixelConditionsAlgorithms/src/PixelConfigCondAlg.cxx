@@ -177,6 +177,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalkRUN1);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancyRUN1);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbabilityRUN1);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorrRUN1);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThresholdRUN1);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatencyRUN1);
@@ -186,6 +187,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalkRUN1);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancyRUN1);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbabilityRUN1);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorrRUN1);
 
     // This is ad-hoc solution.
     for (size_t i=0; i<m_BLayerNoiseShapeRUN1.size(); i++) { writeCdo->setBarrelNoiseShape(0,m_BLayerNoiseShapeRUN1[i]); }
@@ -206,6 +208,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2016);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2016);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2016);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2016);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2016);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2016);
@@ -215,6 +218,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2016);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2016);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2016);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2016);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2016);
     writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2016);
@@ -250,11 +254,13 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalkITK);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancyITK);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbabilityITK);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorrITK);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThresholdITK);
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalkITK);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancyITK);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbabilityITK);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorrITK);
 
     // This is ad-hoc solution.
     for (size_t i=0; i<m_InnermostNoiseShapeITK.size(); i++)     { writeCdo->setBarrelNoiseShape(0,m_InnermostNoiseShapeITK[i]); }
@@ -276,6 +282,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2016);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2016);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2016);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2016);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2016);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2016);
@@ -285,6 +292,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2016);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2016);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2016);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2016);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2016);
     writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2016);
@@ -315,6 +323,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2017);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2017);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2017);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2017);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2017);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2017);
@@ -324,6 +333,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2017);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2017);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2017);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2017);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2017);
     writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2017);
@@ -354,6 +364,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2018);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2018);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2018);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2018);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2018);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2018);
@@ -363,6 +374,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2018);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2018);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2018);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2018);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2018);
     writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2018);

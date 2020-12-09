@@ -25,6 +25,7 @@ StatusCode PixelSiLorentzAngleCondAlg::initialize() {
 
   ATH_CHECK(m_condSvc.retrieve());
 
+  ATH_CHECK(m_moduleDataKey.initialize());
   ATH_CHECK(m_readKeyTemp.initialize());
   ATH_CHECK(m_readKeyHV.initialize());
   ATH_CHECK(m_writeKey.initialize());
@@ -55,6 +56,8 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid." << " In theory this should not be called, but may happen" << " if multiple concurrent events are being processed out of order.");
     return StatusCode::SUCCESS;
   }
+
+  SG::ReadCondHandle<PixelModuleData>moduleData(m_moduleDataKey, ctx);
 
   // Read Cond Handle (temperature)
   SG::ReadCondHandle<PixelDCSTempData> readHandleTemp(m_readKeyTemp, ctx);
@@ -137,6 +140,13 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     }
 
     const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+
+    const PixelID* pixelId = static_cast<const PixelID *>(element->getIdHelper());
+    int barrel_ec   = pixelId->barrel_ec(element->identify());
+    int layerIndex  = pixelId->layer_disk(element->identify());
+
+    double LACorr = moduleData->getLorentzAngleCorr(barrel_ec,layerIndex);
+
     if (not p_design){
       ATH_MSG_FATAL("Dynamic cast to PixelModuleDesign* failed in PixelSiLorentzAngleCondAlg::execute");
       return StatusCode::FAILURE;
@@ -157,25 +167,25 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     // The hit depth axis is pointing from the readout side to the backside if  m_design->readoutSide() < 0
     // The hit depth axis is pointing from the backside to the readout side if  m_design->readoutSide() > 0
     double tanLorentzAnglePhi = forceLorentzToZero*element->design().readoutSide()*mobility*element->hitDepthDirection()*element->hitPhiDirection()*(element->normal().cross(magneticField)).dot(element->phiAxis());
-    writeCdo->setTanLorentzAngle(elementHash, m_correctionFactor*tanLorentzAnglePhi);
+    writeCdo->setTanLorentzAngle(elementHash, LACorr*tanLorentzAnglePhi);
 
     // This gives the effective correction in the reconstruction frame hence the extra hitPhiDirection()
     // as the angle above is in the hit frame.
     double lorentzCorrectionPhi = -0.5*element->hitPhiDirection()*tanLorentzAnglePhi*depletionDepth;
-    writeCdo->setLorentzShift(elementHash, m_correctionFactor*lorentzCorrectionPhi);
+    writeCdo->setLorentzShift(elementHash, LACorr*lorentzCorrectionPhi);
  
     // The Lorentz eta shift very small and so can be ignored, but we include it for completeness.
     double tanLorentzAngleEta = forceLorentzToZero*element->design().readoutSide()*mobility*element->hitDepthDirection()*element->hitEtaDirection()*(element->normal().cross(magneticField)).dot(element->etaAxis());
-    writeCdo->setTanLorentzAngleEta(elementHash, m_correctionFactor*tanLorentzAngleEta);
+    writeCdo->setTanLorentzAngleEta(elementHash, LACorr*tanLorentzAngleEta);
     double lorentzCorrectionEta = -0.5*element->hitPhiDirection()*tanLorentzAngleEta*depletionDepth;
-    writeCdo->setLorentzShiftEta(elementHash, m_correctionFactor*lorentzCorrectionEta);
+    writeCdo->setLorentzShiftEta(elementHash, LACorr*lorentzCorrectionEta);
 
     // Monitoring value
     writeCdo->setBiasVoltage(elementHash, biasVoltage/CLHEP::volt);
     writeCdo->setTemperature(elementHash, temperature-273.15);
     writeCdo->setDepletionVoltage(elementHash, deplVoltage/CLHEP::volt);
 
-    ATH_MSG_DEBUG("Hash = " << elementHash << " tanPhi = " << lorentzCorrectionPhi << " shiftPhi = " << writeCdo->getLorentzShift(elementHash) << " Factor = " << m_correctionFactor << "Depletion depth = " << depletionDepth);
+    ATH_MSG_DEBUG("Hash = " << elementHash << " tanPhi = " << lorentzCorrectionPhi << " shiftPhi = " << writeCdo->getLorentzShift(elementHash) << " Factor = " << LACorr << " Depletion depth = " << depletionDepth);
     ATH_MSG_DEBUG("Hash = " << elementHash << " tanPhi = " << lorentzCorrectionPhi << " shiftPhi = " << writeCdo->getLorentzShift(elementHash) << "Depletion depth = " << depletionDepth);
     ATH_MSG_VERBOSE("Temperature (C), bias voltage, depletion voltage: " << temperature-273.15 << ", " << biasVoltage/CLHEP::volt << ", " << deplVoltage/CLHEP::volt);
     ATH_MSG_VERBOSE("Depletion depth: " << depletionDepth/CLHEP::mm);

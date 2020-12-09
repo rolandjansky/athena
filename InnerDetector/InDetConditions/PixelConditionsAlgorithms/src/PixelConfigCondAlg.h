@@ -170,6 +170,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbability2016
     {this, "BarrelDisableProbability2016", {9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in 2015/2016"};
 
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorr2016
+    {this, "BarrelLorentzAngleCorr2016", {1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in 2015/2016"};
+
 // So far, Gaudi::Property does not support 2D vector.
 //    Gaudi::Property<std::vector<std::vector<float>>> m_BarrelNoiseShape2016
 //    {this, "BarrelNoiseShape", {{0.0,1.0},{0.0,1.0},{0.0,1.0},{0.0,1.0}}, "Noise shape of barrel pixel layers"};
@@ -208,6 +211,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbability2016
     {this, "EndcapDisableProbability2016", {9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in 2015/2016"};
+
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorr2016
+    {this, "EndcapLorentzAngleCorr2016", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in 2015/2016"};
 
     // DBM RUN2 2015/2016
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2016
@@ -248,6 +254,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbability2017
     {this, "BarrelDisableProbability2017", {9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in 2017"};
 
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorr2017
+    {this, "BarrelLorentzAngleCorr2017", {1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in 2017"};
+
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_IBLNoiseShape2017
     {this, "IBLNoiseShape2017", {0.0,1.0}, "Noise shape for IBL in 2017"};
@@ -282,6 +291,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbability2017
     {this, "EndcapDisableProbability2017", {9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in 2017"};
+
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorr2017
+    {this, "EndcapLorentzAngleCorr2017", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in 2017"};
 
     // DBM RUN2 2017
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2017
@@ -322,6 +334,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbability2018
     {this, "BarrelDisableProbability2018", {9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in 2018"};
 
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorr2018
+    {this, "BarrelLorentzAngleCorr2018", {1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in 2018"};
+
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_IBLNoiseShape2018
     {this, "IBLNoiseShape2018", {0.0,1.0}, "Noise shape for IBL in 2018"};
@@ -356,6 +371,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbability2018
     {this, "EndcapDisableProbability2018", {9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in 2018"};
+
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorr2018
+    {this, "EndcapLorentzAngleCorr2018", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in 2018"};
 
     // DBM RUN2 2018
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2018
@@ -396,6 +414,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbabilityRUN1
     {this, "BarrelDisableProbabilityRUN1", {9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in RUN1"};
 
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorrRUN1
+    {this, "BarrelLorentzAngleCorrRUN1", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in RUN1"};
+
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_BLayerNoiseShapeRUN1
     {this, "BLayerNoiseShapeRUN1", {0.0,1.0}, "Noise shape for b-layer in RUN1"};
@@ -428,6 +449,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbabilityRUN1
     {this, "EndcapDisableProbabilityRUN1", {9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in RUN1"};
 
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorrRUN1
+    {this, "EndcapLorentzAngleCorrRUN1", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in RUN1"};
+
     //====================================================================================
     // Barrel ITK
     Gaudi::Property<std::vector<int>> m_BarrelToTThresholdITK
@@ -441,6 +465,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbabilityITK
     {this, "BarrelDisableProbabilityITK", {9e-3,9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in ITK"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorrITK
+    {this, "BarrelLorentzAngleCorrITK", {1.0,1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in ITK"};
 
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_InnermostNoiseShapeITK
@@ -464,6 +491,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbabilityITK
     {this, "EndcapDisableProbabilityITK", {9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in ITK"};
+
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorrITK
+    {this, "EndcapLorentzAngleCorrITK", {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in ITK"};
 
     //====================================================================================
     // The following parameters are default values which will be overwritten by the one 
