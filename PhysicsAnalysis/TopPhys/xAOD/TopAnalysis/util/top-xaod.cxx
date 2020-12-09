@@ -518,7 +518,6 @@ int main(int argc, char** argv) {
   sumWeights->Branch("totalEvents", &totalEvents, "totalEvents/l");
 
   for(auto& it : boostedTaggersSFSysNames) {
-    it.second.clear();
     sumWeights->Branch(("sysNames_"+it.first).c_str(),&it.second);
   }
 
@@ -620,11 +619,6 @@ int main(int argc, char** argv) {
         initialEvents = top::getRawEventsBookkeeper(cutBookKeepers, topConfig->HLLHC());
         sumW_file = initialEvents; // this is data, it's the same number...
       }
-    }
-
-
-    for(auto& it : boostedTaggersSFSysNames) {
-      it.second = topConfig->boostedTaggersSFSysNames().at(it.first);
     }
 
     totalEventsWeighted += sumW_file;

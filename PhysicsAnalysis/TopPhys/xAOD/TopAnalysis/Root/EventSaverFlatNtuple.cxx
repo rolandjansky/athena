@@ -3041,7 +3041,6 @@ namespace top {
         for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
           m_ljet_tagSF[taggerName].resize(nLargeRJets);
 	  if (event.m_hashValue == m_config->nominalHashValue()) {
-	    m_ljet_tagSFSysVars[taggerName].clear();
 	    m_ljet_tagSFSysVars[taggerName].resize(nLargeRJets);
 	  }
 	}
