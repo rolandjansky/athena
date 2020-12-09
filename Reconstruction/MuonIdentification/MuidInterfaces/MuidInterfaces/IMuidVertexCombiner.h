@@ -7,7 +7,6 @@
 //  tool interface to match tracks from an input muon spectrometer
 //  TrackParticleContainer to vertices in the InnerDetector.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDVERTEXCOMBINER_H

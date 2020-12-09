@@ -8,7 +8,6 @@
 //  and/or MeasurementSet, gathering material effects along the
 //  track (in particular for the calorimeter).
 //
-//  (c) ATLAS Combined Muon software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_ICOMBINEDMUONTRACKBUILDER_H

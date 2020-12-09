@@ -6,7 +6,6 @@
 // MuonCreatorTool
 //  Creates xAOD::Muon objects from muon candidates
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCreatorTool.h"

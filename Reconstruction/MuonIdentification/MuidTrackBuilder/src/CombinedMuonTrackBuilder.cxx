@@ -9,7 +9,6 @@
 //  Coulomb scattering.
 //  The resulting track is fitted at the IP
 //
-//  (c) ATLAS Combined Muon softwarem_trackingGeometrySvcm_trackingGeometrySvc
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuidTrackBuilder/CombinedMuonTrackBuilder.h"

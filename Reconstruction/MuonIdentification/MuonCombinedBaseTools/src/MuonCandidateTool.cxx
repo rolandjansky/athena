@@ -7,7 +7,6 @@
 //  AlgTool performing pre-selection on MS tracks, extrapolation and creation
 //  of MuonCandidate collection. 
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "TrkTrackSummary/MuonTrackSummary.h"

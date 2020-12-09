@@ -10,7 +10,6 @@
 //  Authors: Nicolo de Groot & Antonio Salvucci
 //  based on: CaloTrkMuId
 //  
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 

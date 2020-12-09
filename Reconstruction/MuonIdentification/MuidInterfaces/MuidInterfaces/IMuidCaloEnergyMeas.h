@@ -8,7 +8,6 @@
 //  calorimeters. The energy deposit is estimated according to
 //  the active measurements in the traversed calorimeter cells.
 //
-//  (c) ATLAS Combined Muon software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDCALOENERGYMEAS_H
