@@ -312,7 +312,7 @@ StatusCode CaloTopoTowerAlgorithm::execute (const EventContext& ctx) const
               ATH_MSG_INFO( "this is theTowers: " << theTowers  );
       */
       
-      processStatus = (*firstITool)->execute(theTowers.ptr());
+      processStatus = (*firstITool)->execute(ctx, theTowers.ptr());
       
       // ATH_MSG_INFO( "processStatus is: " << processStatus  );
       

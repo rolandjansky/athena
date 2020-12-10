@@ -66,12 +66,15 @@ namespace D3PD {
    /// pileUpType=5: dummy event used to separate types
    /// pileUpType=-1: not filled
    StatusCode GenEventPileUpFillerTool::fill( const HepMC::GenEvent& p ) {
-
+#ifdef HEPMC3
+      *m_nparticle = p.particles().size();
+#else
       *m_nparticle = p.particles_size();
+#endif
 
       *m_pileUpType = -1;
 
-      if( ( p.event_number() == -1 ) && ( p.signal_process_id() == 0 ) ) {
+      if( ( p.event_number() == -1 ) && ( HepMC::signal_process_id(p) == 0 ) ) {
          *m_pileUpType = 5;
          return StatusCode::SUCCESS;
       }
@@ -95,7 +98,7 @@ namespace D3PD {
       for( ;iter != end; ++iter ) {
 
          if( ( ( ( *iter )->event_number() == -1 ) &&
-               ( ( *iter )->signal_process_id() == 0 ) ) ) {
+               ( HepMC::signal_process_id(( *iter )) == 0 ) ) ) {
             ++gotzero;
          }
          if( &p == *iter ) break;

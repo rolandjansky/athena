@@ -47,21 +47,21 @@ def createTriggerFlags():
     flags.addFlag('Trigger.doCalo', True)
 
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3
-    def EDMDecodingVersion(flags):
+    def EDMVersion(flags):
         '''
         Determine Trigger EDM version based on the input file. For ByteStream, Run-3 EDM is indicated
         by HLT ROD version > 1.0, for both Runs 1 and 2 the HLT ROD version was 0.0 and the run number
         is used to disambiguate between them. For POOL inputs, the EDM version is determined based on
         finding a characteristic HLT navigation collection in the file.
         '''
-        _log = logging.getLogger('TriggerConfigFlags.EDMDecodingVersion')
-        _log.debug("Attempting to determine EDMDecodingVersion")
+        _log = logging.getLogger('TriggerConfigFlags.EDMVersion')
+        _log.debug("Attempting to determine EDMVersion")
         default_version = 3
         if flags.Input.Format=="BS":
             _log.debug("Input format is ByteStream")
             inputFileName = flags.Input.Files[0]
             if not inputFileName and flags.Common.isOnline():
-                _log.info("Online reconstruction, no input file. Return default EDMDecodingVersion=%d", default_version)
+                _log.info("Online reconstruction, no input file. Return default EDMVersion=%d", default_version)
                 return default_version
 
             _log.debug("Checking ROD version")
@@ -84,7 +84,7 @@ def createTriggerFlags():
                 _log.warning("Cannot determine HLT ROD version from input file, falling back to run-number-based decision")
             # Case 2: ROD version indicating Run 3
             elif rodVersionM >= 1:
-                _log.info("Determined EDMDecodingVersion to be 3, because running on BS file with HLT ROD version %d.%d",
+                _log.info("Determined EDMVersion to be 3, because running on BS file with HLT ROD version %d.%d",
                           rodVersionM, rodVersionL)
                 return 3
             # Case 3: ROD version indicating Run 1 or 2 - use run number to disambiguate
@@ -96,41 +96,41 @@ def createTriggerFlags():
 
             if not runNumber or runNumber <= 0:
                 _log.warning("Cannot determine EDM version because run number %s is invalid. "
-                             "Return default EDMDecodingVersion=%d", runNumber, default_version)
+                             "Return default EDMVersion=%d", runNumber, default_version)
                 return default_version
             elif runNumber < boundary_run12:
                 # Run-1 data
-                _log.info("Determined EDMDecodingVersion to be 1 based on BS file run number (runNumber < %d)",
+                _log.info("Determined EDMVersion to be 1 based on BS file run number (runNumber < %d)",
                           boundary_run12)
                 return 1
             elif runNumber < boundary_run23:
                 # Run-2 data
-                _log.info("Determined EDMDecodingVersion to be 2 based on BS file run number (%d < runNumber < %d)",
+                _log.info("Determined EDMVersion to be 2 based on BS file run number (%d < runNumber < %d)",
                           boundary_run12, boundary_run23)
                 return 2
             else:
                 # Run-3 data
-                _log.info("Determined EDMDecodingVersion to be 3 based on BS file run number (runNumber > %d)",
+                _log.info("Determined EDMVersion to be 3 based on BS file run number (runNumber > %d)",
                           boundary_run23)
                 return 3
         else:
             # POOL files: decide based on HLT output type present in the file
-            _log.debug("EDMDecodingVersion: Input format is POOL -- determine from input file collections")
+            _log.debug("EDMVersion: Input format is POOL -- determine from input file collections")
             if "HLTResult_EF" in flags.Input.Collections:
-                _log.info("Determined EDMDecodingVersion to be 1, because HLTResult_EF found in POOL file")
+                _log.info("Determined EDMVersion to be 1, because HLTResult_EF found in POOL file")
                 return 1
             elif "TrigNavigation" in flags.Input.Collections:
-                _log.info("Determined EDMDecodingVersion to be 2, because TrigNavigation found in POOL file")
+                _log.info("Determined EDMVersion to be 2, because TrigNavigation found in POOL file")
                 return 2
             elif "HLTNav_Summary" in flags.Input.Collections:
-                _log.info("Determined EDMDecodingVersion to be 3, because HLTNav_Summary found in POOL file")
+                _log.info("Determined EDMVersion to be 3, because HLTNav_Summary found in POOL file")
                 return 3
 
-        _log.warning("Could not determine EDM version from the input file. Return default EDMDecodingVersion=%d",
+        _log.warning("Could not determine EDM version from the input file. Return default EDMVersion=%d",
                      default_version)
         return default_version
 
-    flags.addFlag('Trigger.EDMDecodingVersion', lambda prevFlags: EDMDecodingVersion(prevFlags))
+    flags.addFlag('Trigger.EDMVersion', lambda prevFlags: EDMVersion(prevFlags))
                      
     # enables additional algorithms colecting MC truth infrmation  (this is only used by IDso maybe we need Trigger.ID.doTruth only?)
     flags.addFlag('Trigger.doTruth', False)
@@ -143,6 +143,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.CostMonitoring.chain', 'HLT_costmonitor_CostMonDS_L1All')
     flags.addFlag('Trigger.CostMonitoring.outputCollection', 'HLT_TrigCostContainer')
     flags.addFlag('Trigger.CostMonitoring.monitorAllEvents', False)
+    flags.addFlag('Trigger.CostMonitoring.monitorROBs', False)
 
 
     # enable Bcm inputs simulation
@@ -298,7 +299,6 @@ def createTriggerFlags():
         from MuonConfig.MuonConfigFlags import createMuonConfigFlags
         muonflags = createMuonConfigFlags()
         muonflags.Muon.useTGCPriorNextBC=True
-        muonflags.Muon.enableErrorTuning=False
         muonflags.Muon.MuonTrigger=True
         muonflags.Muon.SAMuonTrigger=True
         return muonflags 

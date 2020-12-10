@@ -36,13 +36,14 @@ TrigJetConditionConfig_capacitychecked::getCapacityCheckedCondition() const {
 
   return std::make_unique<CapacityCheckedCondition>(std::move(cc),
 						    m_multiplicity,
-						    m_chainLegLabel);
+
+						    m_chainPartInd);
 }
 				     
 
 StatusCode TrigJetConditionConfig_capacitychecked::checkVals() const {
 
-  if (m_multiplicity < 1) {
+  if (m_multiplicity < 1u) {
     ATH_MSG_ERROR("m_multiplicity = " + std::to_string(m_multiplicity) +
 		  "expected > 0");
     return StatusCode::FAILURE;

@@ -44,13 +44,8 @@ class TriggerGetter(Configured):
 
         # start with print some information what this will do
         log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d", recAlgs.doTrigger(), rec.doTrigger(), TF.doTriggerConfigOnly() )
-        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doHLT: %s, doMT: %s", TF.doL1Topo(), TF.doLVL1(), TF.doHLT(), TF.doMT() )
+        log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doHLT: %s", TF.doL1Topo(), TF.doLVL1(), TF.doHLT() )
 
-        # RDOtoRDOTrigger MT temporarily coded in the transform skeleton, so skip here
-        if TF.doMT() and rec.readRDO() and rec.doWriteRDO():
-            log.info("Nothing happens in TriggerGetter for RDOtoRDOTrigger MT")
-            return True
-        
         willGenerateMenu = recAlgs.doTrigger() and (TF.doLVL1() or TF.doHLT()) and not TF.doTriggerConfigOnly()
         willRunTriggerConfigGetter = recAlgs.doTrigger() or rec.doTrigger() or TF.doTriggerConfigOnly()
         willRunLVL1SimulationGetter = recAlgs.doTrigger() and not TF.doTriggerConfigOnly()

@@ -111,7 +111,7 @@ GenParticleTruthParticleAssociationTool::get (const HepMC::GenParticle& p)
     return 0;
   }
 
-  return m_container->truthParticle (p.barcode());
+  return m_container->truthParticle (HepMC::barcode(p));
 }
 
 

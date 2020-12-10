@@ -16,15 +16,12 @@ FastReductionMatcher::FastReductionMatcher(ConditionPtrs conditions,
   m_tree(tree){
 
   for (const auto& il : m_tree.leaves()){
-    auto label = m_conditions[il]->label();
-    if (label.rfind("leg", 0) != 0) { // startswith "leg"
-      throw std::runtime_error("Leaf condition " + std::to_string(il) +
-			       "has no leg label");
+    if (!m_conditions[il]->isFromChainPart()) {
+      throw std::runtime_error("Tree leaf condition  but not from ChainPart");
     }
   }
 }
 	 
-
 
 std::optional<bool>
 FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,

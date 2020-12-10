@@ -23,20 +23,20 @@ bool InternalOfflineMap::tryAddFromCache(IdentifierHash hash)
 
 void InternalOfflineMap::wait() const {
    std::scoped_lock lock (m_waitMutex);
-   if(m_needsupdate == false) return;
+   if(m_needsupdate.load(std::memory_order_acquire) == false) return;
    m_map.clear();
    m_map.reserve(m_fullMap.size());
    for(const auto &pair : m_fullMap){
      m_map.emplace_back(pair.first, pair.second);
    }
    std::sort(m_map.begin(), m_map.end());
-   m_needsupdate.store(false);
+   m_needsupdate.store(false, std::memory_order_release);
 }
 
 std::vector<IdentifierHash> InternalOfflineMap::getAllCurrentHashes() const {
     std::vector<IdentifierHash> ids;
     ids.reserve(m_fullMap.size());
-    if(m_needsupdate == true){
+    if(m_needsupdate.load(std::memory_order_acquire) == true){
        for(const auto &pair : m_fullMap){
          ids.emplace_back(pair.first);
        }
@@ -51,23 +51,23 @@ std::vector<IdentifierHash> InternalOfflineMap::getAllCurrentHashes() const {
 
 InternalConstItr
  InternalOfflineMap::cend() const {
-    if(m_needsupdate) wait();
+    if(m_needsupdate.load(std::memory_order_acquire)) wait();
     return m_map.cend();
 }
 
 const std::vector < I_InternalIDC::hashPair >& InternalOfflineMap::getAllHashPtrPair() const{
-    if(m_needsupdate) wait();
+    if(m_needsupdate.load(std::memory_order_acquire)) wait();
     return m_map;
 }
 
 InternalConstItr
  InternalOfflineMap::cbegin() const {
-    if(m_needsupdate) wait();
+    if(m_needsupdate.load(std::memory_order_acquire)) wait();
     return m_map.cbegin();
 }
 
 InternalConstItr InternalOfflineMap::indexFind( IdentifierHash hashId ) const{
-   if(m_needsupdate) wait();
+   if(m_needsupdate.load(std::memory_order_acquire)) wait();
    auto itr = std::lower_bound( m_map.cbegin(), m_map.cend(), hashId.value(), [](const hashPair &lhs,  IdentifierHash::value_type rhs) -> bool { return lhs.first < rhs; } );
    if(itr!= m_map.cend() && itr->first==hashId) return itr;
    return m_map.cend();
@@ -81,7 +81,7 @@ void InternalOfflineMap::cleanUp(deleter_f* deleter) noexcept {
     destructor(deleter);
     m_map.clear();
     m_fullMap.clear();
-    m_needsupdate.store(false, std::memory_order_relaxed);
+    m_needsupdate.store(false, std::memory_order_release);
 }
 
 bool InternalOfflineMap::insert(IdentifierHash hashId, const void* ptr) {
@@ -124,7 +124,7 @@ StatusCode InternalOfflineMap::fetchOrCreate(const std::vector<IdentifierHash>&)
 }
 
 void InternalOfflineMap::destructor(deleter_f* deleter) noexcept {
-    if(!m_needsupdate) for(const auto& x : m_map)  deleter(x.second);
+    if(!m_needsupdate.load(std::memory_order_acquire)) for(const auto& x : m_map)  deleter(x.second);
     else {
       for(const auto &pair : m_fullMap) {  deleter(pair.second);  }
     }

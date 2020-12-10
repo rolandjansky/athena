@@ -162,7 +162,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
     CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider" + postFix,
                                                   ProviderTool = MuonCscRawDataProviderTool,
                                                   DoSeededDecoding        = not forFullScan,
-                                                  RoIs                    = RoIs)
+                                                  RoIs                    = RoIs,
+                                                  RegionSelectionTool=makeRegSelTool_CSC())
 
     from CscClusterization.CscClusterizationConf import CscThresholdClusterBuilderTool
     CscClusterBuilderTool = CscThresholdClusterBuilderTool(name        = "CscThresholdClusterBuilderTool" )
@@ -219,8 +220,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider" + postFix,
                                                 ProviderTool = MuonMdtRawDataProviderTool,
                                                 DoSeededDecoding = not forFullScan,
-                                                RoIs = RoIs
-                                                )
+                                                RoIs = RoIs,
+                                                RegionSelectionTool=makeRegSelTool_MDT())
 
   if globalflags.InputFormat.is_bytestream():
     viewAlgs_MuonPRD.append( MdtRawDataProvider )
@@ -269,7 +270,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider" + postFix,
                                                 ProviderTool = MuonRpcRawDataProviderTool,
                                                 DoSeededDecoding = not forFullScan,
-                                                RoIs = RoIs)
+                                                RoIs = RoIs,
+                                                RegionSelectionTool=makeRegSelTool_RPC())
 
   if globalflags.InputFormat.is_bytestream():
     viewAlgs_MuonPRD.append( RpcRawDataProvider )
@@ -308,7 +310,8 @@ def makeMuonPrepDataAlgs(RoIs="MURoIs", forFullScan=False):
   TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider" + postFix,                                                
                                                 ProviderTool = MuonTgcRawDataProviderTool,
                                                 DoSeededDecoding = not forFullScan,
-                                                RoIs             = RoIs )
+                                                RoIs             = RoIs,
+                                                RegionSelectionTool = makeRegSelTool_TGC() )
 
   if globalflags.InputFormat.is_bytestream():
     viewAlgs_MuonPRD.append( TgcRawDataProvider )

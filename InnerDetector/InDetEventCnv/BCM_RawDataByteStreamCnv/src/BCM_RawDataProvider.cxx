@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -74,7 +74,7 @@ StatusCode BCM_RawDataProvider::execute() {
 
   // ask ROBDataProviderSvc for the vector of ROBFragment for all BCM ROBIDs
   // std::vector<const ROBFragment*> listOfRobf_all;
-  std::vector<const ROBFragment*> listOfRobf;
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> listOfRobf;
   
   // std::vector<unsigned int> ROBIDs_all;
   std::vector<unsigned int> ROBIDs;

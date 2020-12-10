@@ -84,9 +84,23 @@ const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, b
   if (std::abs(p->pdg_id())==11 || std::abs(p->pdg_id())==13 ) return 0; //don't want light leptons from tau decays
   if ( std::abs(p->pdg_id())==pdg_id ) return p;   /// recursive stopping conditions
     
-  const HepMC::GenVertex* vertex = p->production_vertex();
+  auto vertex = p->production_vertex();
+  if ( !vertex) return 0; // has no production vertex !!!
+#ifdef HEPMC3
+  if ( vertex->particles_in().size() < 1 ) return 0;  /// recursive stopping conditions
   
-  if ( vertex==0 ) return 0; // has no production vertex !!!
+  if ( printout ) { 
+    TruthParticle t(p);
+  }
+
+  for ( auto in: vertex->particles_in()) {
+    auto parent = fromParent( pdg_id, in, printout );
+    TruthParticle t(in);
+    if ( parent && std::abs(parent->pdg_id())==pdg_id) { 
+      return parent;
+    } 
+  }
+#else  
   if ( vertex->particles_in_size() < 1 ) return 0;  /// recursive stopping conditions
   //if ( vertex->particles_in_size() > 1 ) std::cout << "more than 1 parent!!!" << std::endl;
   
@@ -107,6 +121,7 @@ const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, b
     }   /// recursive stopping conditions
     in++;
   }
+#endif
   
   return 0;
 }

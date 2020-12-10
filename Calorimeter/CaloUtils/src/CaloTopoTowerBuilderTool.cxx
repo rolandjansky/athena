@@ -67,7 +67,8 @@ StatusCode CaloTopoTowerBuilderTool::initializeTool()
 // Tower Builder //
 ///////////////////
 
-StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, const CaloCellContainer* /*theCells*/) const
+StatusCode CaloTopoTowerBuilderTool::execute(const EventContext& ctx,
+                                             CaloTopoTowerContainer* theTowers, const CaloCellContainer* /*theCells*/) const
 {
   //////////////////////////////////////////////////////////////////////////////
   //Starting loading  variables from CaloTopoTowerContainer
@@ -86,7 +87,7 @@ StatusCode CaloTopoTowerBuilderTool::execute(CaloTopoTowerContainer* theTowers, 
     return StatusCode::SUCCESS;
   }
 
-  const ElementLink<CaloCellContainer> CellsEL (*Cells, 0);
+  const ElementLink<CaloCellContainer> CellsEL (*Cells, 0, ctx);
 
   const CaloCell2ClusterMap*  cellToClusterMap=theTowers->GetCellToClusterMap();
   bool delete_cellToClusterMap=false;

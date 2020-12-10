@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./EMTauInputProvider.h"
 
 #include <math.h>
-#include "TH1.h"
-#include "TH2.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -59,22 +57,45 @@ EMTauInputProvider::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   m_hEMEt = new TH1I( "EMTOBEt", "EM TOB Et", 40, 0, 200);
-   m_hEMEt->SetXTitle("E_{T}");
-   m_hEMEtaPhi = new TH2I( "EMTOBPhiEta", "EM TOB Location", 25, -50, 50, 64, 0, 64);
-   m_hEMEtaPhi->SetXTitle("#eta");
-   m_hEMEtaPhi->SetYTitle("#phi");
+   auto hEMEt = std::make_unique<TH1I>( "EMTOBEt", "EM TOB Et", 40, 0, 200);
+   hEMEt->SetXTitle("E_{T}");
+   auto hEMEtaPhi = std::make_unique<TH2I>( "EMTOBPhiEta", "EM TOB Location", 25, -50, 50, 64, 0, 64);
+   hEMEtaPhi->SetXTitle("#eta");
+   hEMEtaPhi->SetYTitle("#phi");
 
-   m_hTauEt = new TH1I( "TauTOBEt", "Tau TOB Et", 40, 0, 200);
-   m_hTauEt->SetXTitle("E_{T}");
-   m_hTauEtaPhi = new TH2I( "TauTOBPhiEta", "Tau TOB Location", 25, -50, 50, 64, 0, 64);
-   m_hTauEtaPhi->SetXTitle("#eta");
-   m_hTauEtaPhi->SetYTitle("#phi");
+   auto hTauEt = std::make_unique<TH1I>( "TauTOBEt", "Tau TOB Et", 40, 0, 200);
+   hTauEt->SetXTitle("E_{T}");
+   auto hTauEtaPhi = std::make_unique<TH2I>( "TauTOBPhiEta", "Tau TOB Location", 25, -50, 50, 64, 0, 64);
+   hTauEtaPhi->SetXTitle("#eta");
+   hTauEtaPhi->SetYTitle("#phi");
 
-   m_histSvc->regHist( histPath + "EMTOBEt", m_hEMEt ).ignore();
-   m_histSvc->regHist( histPath + "EMTOBPhiEta", m_hEMEtaPhi ).ignore();
-   m_histSvc->regHist( histPath + "TauTOBEt", m_hTauEt ).ignore();
-   m_histSvc->regHist( histPath + "TauTOBPhiEta", m_hTauEtaPhi ).ignore();
+
+   if (m_histSvc->regShared( histPath + "EMTOBEt", std::move(hEMEt), m_hEMEt ).isSuccess()){
+     ATH_MSG_DEBUG("EMTOBEt histogram has been registered successfully for EMTauProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register EMTOBEt histogram for EMTauProvider");
+   }
+   if (m_histSvc->regShared( histPath + "EMTOBPhiEta", std::move(hEMEtaPhi), m_hEMEtaPhi ).isSuccess()){
+     ATH_MSG_DEBUG("EMTOBPhiEta histogram has been registered successfully for EMTauProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register EMTOBPhiEta histogram for EMTauProvider");
+   }
+
+   if (m_histSvc->regShared( histPath + "TauTOBEt", std::move(hTauEt), m_hTauEt ).isSuccess()){
+     ATH_MSG_DEBUG("TauTOBEt histogram has been registered successfully for EMTauProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TauTOBEt histogram for EMTauProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TauTOBPhiEta", std::move(hTauEtaPhi), m_hTauEtaPhi ).isSuccess()){
+     ATH_MSG_DEBUG("TauTOBPhiEta histogram has been registered successfully for EMTauProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TauTOBPhiEta histogram for EMTauProvider");
+   }
+   
 }
 
 

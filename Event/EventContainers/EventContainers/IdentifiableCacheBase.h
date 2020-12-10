@@ -16,10 +16,7 @@
 #include <mutex>
 #include <atomic>
 #include "EventContainers/IDC_WriteHandleBase.h"
-//abarton
-//Enabling the ability to remove collections to help compatability with old code.
-//This may be removed to improved thread-safety.
-#define IdentifiableCacheBaseRemove
+
 
 namespace EventContainers {
 
@@ -35,7 +32,6 @@ static constexpr uintptr_t ABORTEDflag = UINTPTR_MAX-1;
 static constexpr size_t s_defaultBucketSize =2;
 
 typedef std::true_type thread_safe;
-typedef std::set<IdentifierHash> idset_t;
 
 #include "EventContainers/deleter.h"
 
@@ -85,11 +81,6 @@ typedef std::set<IdentifierHash> idset_t;
   ///Create a set of hashes, updates an IDC mask as appropriate
   void createSet (const std::vector<IdentifierHash>& hashes, std::vector<bool> &mask);
 
-#ifdef IdentifiableCacheBaseRemove
-  ///Use to remove a collection from the cache, this is for backwards compatability 
-  /// and should not be used in a concurrent environment
-  bool remove (IdentifierHash hash);
-#endif
   size_t fullSize() const { return m_vec.size(); }
   ///In a concurrent situation this number isn't necessarily perfectly synchronised with ids().size()
   size_t numberOfHashes();

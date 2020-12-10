@@ -3,7 +3,7 @@
 from TrigHLTMonitoring.HLTMonTriggerList import HLTMonTriggerList
 hltmonList = HLTMonTriggerList()
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 # default configuration for pp
 #if hltmonList.pp_mode :
@@ -17,7 +17,7 @@ containers = [
               "HLT_xAOD__TrigBphysContainer_MultiTrkFex",
               "HLT_xAOD__TrigBphysContainer_EFTrackMass"
               ]
-if TriggerFlags.EDMDecodingVersion == 3 :
+if ConfigFlags.Trigger.EDMVersion == 3 :
   # will add the MT version of TrigBphys containers once they are available in EDM
   containers = [ "HLT_DimuEF" ]
   

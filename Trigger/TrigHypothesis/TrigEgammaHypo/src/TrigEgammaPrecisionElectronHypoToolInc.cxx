@@ -17,11 +17,9 @@ TrigEgammaPrecisionElectronHypoToolInc::TrigEgammaPrecisionElectronHypoToolInc( 
 		    const std::string& name, 
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
-    m_decisionId( HLT::Identifier::fromToolName( name ) ) 
-   {
-        declareProperty("ElectronLHSelector"        ,m_egammaElectronLHTool   );
-	declareProperty("RelPtConeCut"              ,m_RelPtConeCut=-999.);
-    }
+    m_decisionId( HLT::Identifier::fromToolName( name ) ) {
+}
+
 
 StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
   ATH_MSG_DEBUG( "Initialization completed successfully"   );    
@@ -53,10 +51,6 @@ StatusCode TrigEgammaPrecisionElectronHypoToolInc::initialize()  {
 
   return StatusCode::SUCCESS;
 }
-
-
-
-TrigEgammaPrecisionElectronHypoToolInc::~TrigEgammaPrecisionElectronHypoToolInc(){}
 
 
 bool TrigEgammaPrecisionElectronHypoToolInc::decide( const ITrigEgammaPrecisionElectronHypoTool::ElectronInfo& input,const EventContext& ctx) const {

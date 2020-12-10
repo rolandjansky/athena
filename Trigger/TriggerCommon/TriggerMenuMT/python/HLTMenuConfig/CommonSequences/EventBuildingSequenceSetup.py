@@ -8,7 +8,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSeque
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
 from DecisionHandling import DecisionHandlingConf
-from libpyeformat_helper import SubDetector
+from libpyeformat_helper import SourceIdentifier, SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger('EventBuildingSequenceSetup')
@@ -169,3 +169,46 @@ def alignEventBuildingSteps(all_chains):
             numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
             log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainDict['chainName'], numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
+
+
+# Unit test
+if __name__ == "__main__":
+    failures = 0
+    for eb_identifier in EventBuildingInfo.getAllEventBuildingIdentifiers():
+        tool = None
+        try:
+            tool = pebInfoWriterTool('TestTool_'+eb_identifier, eb_identifier)
+        except Exception as ex:
+            failures += 1
+            log.error('Caught exception while configuring PEBInfoWriterTool for %s: %s', eb_identifier, ex)
+            continue
+
+        if not tool:
+            failures += 1
+            log.error('No tool created for %s', eb_identifier)
+            continue
+
+        if tool.__cpp_type__ not in ['StaticPEBInfoWriterTool', 'RoIPEBInfoWriterTool']:
+            failures += 1
+            log.error('Unexpected tool type for %s: %s', eb_identifier, tool.__cpp_type__)
+            continue
+
+        robs = tool.ROBList if tool.__cpp_type__ == 'StaticPEBInfoWriterTool' else tool.ExtraROBs
+        dets = tool.SubDetList if tool.__cpp_type__ == 'StaticPEBInfoWriterTool' else tool.ExtraSubDets
+        robs_check_passed = True
+        for rob_id in robs:
+            rob_sid = SourceIdentifier(rob_id)
+            rob_det_id = rob_sid.subdetector_id()
+            if int(rob_det_id) in dets:
+                robs_check_passed = False
+                log.error('Redundant configuration for %s: ROB %s added to the ROB list while full SubDetector '
+                          '%s is already in the SubDets list', eb_identifier, rob_sid.human(), str(rob_det_id))
+
+        if not robs_check_passed:
+            failures += 1
+            continue
+
+        log.info('%s correctly configured', tool.name)
+
+    import sys
+    sys.exit(failures)

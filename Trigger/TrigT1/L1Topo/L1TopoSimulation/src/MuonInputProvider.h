@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoSimulation_MuonInputProvider
@@ -9,14 +9,15 @@
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/LockedHandle.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include <vector>
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 
-class TH1I;
-class TH2I;
+#include "TH1.h"
+#include "TH2.h"
 
 class ITHistSvc;
 
@@ -87,8 +88,8 @@ namespace LVL1 {
       SG::ReadHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPItoL1TopoLocationPlusOne { this, "BCPlusOneLocation", "", "Storegate key for MuCTPItoL1TopoPlusOne"};
       Gaudi::Property<uint16_t> m_MuonEncoding {this, "MuonEncoding", 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity"};
 
-      TH1I * m_hPt {nullptr};
-      TH2I * m_hEtaPhi {nullptr};
+      mutable LockedHandle<TH1> m_hPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
    };
 }
 

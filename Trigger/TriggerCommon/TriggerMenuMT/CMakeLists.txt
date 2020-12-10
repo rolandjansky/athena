@@ -151,6 +151,12 @@ atlas_add_test( LS2_emu_menu_DH
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
 
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
+atlas_add_test( EventBuildingSequenceSetup
+                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup
+                POST_EXEC_SCRIPT nopost.sh )
+
 #----------------------------------
 # List of menus to be created:
 atlas_build_lvl1_trigger_menu( LS2_v1 )

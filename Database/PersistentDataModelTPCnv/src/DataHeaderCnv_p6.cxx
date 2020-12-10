@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file DataHeaderCnv_p6.cxx
@@ -36,8 +36,9 @@ void DataHeaderCnv_p6::persToElem( const DataHeader_p6* pers, unsigned p_idx,
          oid2 = full_el.oid2;
       }
       // Append DbGuid
-      token->setDb(         form.getDbGuid(db_idx ) );
-      token->setTechnology( form.getDbTech(db_idx ) );
+      token->setDb(         form.getDbGuid( db_idx ) );
+      token->setCont(       form.getObjContainer( obj_idx ) );
+      token->setTechnology( form.getDbTech( db_idx ) );
       // Append ClassId
       token->setClassID(    form.getObjClassId(obj_idx) );
       token->setOid( Token::OID_t( form.getObjOid1(obj_idx), oid2) );
@@ -85,7 +86,8 @@ void DataHeaderCnv_p6::elemToPers(const DataHeaderElement* trans,
       DataHeaderForm_p6::DbRecord  db_rec( token->dbID(), token->technology() );
       unsigned db_idx = form.insertDb( db_rec );
       // StoreGate Type/Key & persistent Class GUID
-      DataHeaderForm_p6::ObjRecord transObj( token->classID(), trans->m_key, trans->m_pClid, token->oid().first );
+      DataHeaderForm_p6::ObjRecord transObj( token->classID(), token->contID(), trans->m_key,
+                                             trans->m_pClid, token->oid().first );
       unsigned obj_idx = form.insertObj(transObj, trans->m_alias, trans->m_clids, trans->m_hashes);
       unsigned long long oid2 = token->oid().second;
 

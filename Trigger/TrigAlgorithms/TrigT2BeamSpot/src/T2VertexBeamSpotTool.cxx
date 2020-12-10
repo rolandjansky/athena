@@ -14,7 +14,6 @@
 //============================================================
 // This algorithm
 #include "TrigT2BeamSpot/T2VertexBeamSpotTool.h"
-#include "T2TrackClusterer.h"
 #include "T2TrackManager.h"
 #include "T2Timer.h"
 // Specific to this algorithm
@@ -85,6 +84,7 @@ PESA::T2VertexBeamSpotTool::T2VertexBeamSpotTool( const std::string& type, const
    declareProperty("WeightClusterZ",    m_weightSeed        = true     ); 
    declareProperty("ReclusterSplit",    m_reclusterSplit    = true     ); 
    declareProperty("SplitWholeCluster", m_splitWholeCluster = false    ); 
+   declareProperty("ClusterPerigee",    m_clusterPerigee    = "beamspot" );
 
    // Track Selection criteria 
    declareProperty("TrackMinPt",      m_minTrackPt       =  0.7*GeV ); 
@@ -125,9 +125,6 @@ PESA::T2VertexBeamSpotTool::T2VertexBeamSpotTool( const std::string& type, const
    // Single interaction trigger
    declareProperty("minNpvTrigger",  m_minNpvTrigger  = 0);
    declareProperty("maxNpvTrigger",  m_maxNpvTrigger  = 2);
-
-
- 
 }
 
 
@@ -144,6 +141,8 @@ StatusCode T2VertexBeamSpotTool::initialize(){
 
    //Retrieve primary vertex fitter tool
    ATH_CHECK( m_primaryVertexFitterTool.retrieve() );
+
+   m_clusterTrackPerigee = T2TrackClusterer::trackPerigeeFromString(m_clusterPerigee);
 
    return StatusCode::SUCCESS;
 }
@@ -253,9 +252,18 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
      auto mon = Monitored::Group(m_monTool,  timeToSortTracks ); 
   }
 
+  // Extract beam spot parameters
+  SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
+  const InDet::BeamSpotData* indetBeamSpot(*beamSpotHandle);
+  const T2BeamSpot beamSpot(indetBeamSpot);
+   ATH_MSG_DEBUG( "Beamspot from BeamCondSvc: " << beamSpot);
+
   // Prepare a track clustering algorithm with the given parameters
   // Should we leave this as a standalone class or merge with the tool?
-   T2TrackClusterer trackClusterer( m_trackClusDZ, m_trackSeedPt, m_weightSeed, m_vtxNTrkMax );
+   T2TrackClusterer trackClusterer( m_trackClusDZ, m_trackSeedPt, m_weightSeed, m_vtxNTrkMax,
+                                    m_clusterTrackPerigee );
+
+   std::vector<double> clusterZ0; // Z0 for each cluster, for monitoring only
 
   // Create clusters from the track collection until all its tracks are used
    while ( ! mySelectedTrackCollection.empty() ) {
@@ -270,7 +278,7 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       // as the seed.
       {
          auto timeToZCluster = Monitored::Timer("TIME_toZCluster");
-         trackClusterer.cluster( *mySelectedTrackCollection.asDataVector() );
+         trackClusterer.cluster( *mySelectedTrackCollection.asDataVector(), indetBeamSpot );
          auto mon = Monitored::Group(m_monTool,  timeToZCluster ); 
       }
 
@@ -330,13 +338,6 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       // Update vertex counter
       nVtx++;
 
-      // Extract beam spot parameters
-      SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey, ctx };
-
-      T2BeamSpot beamSpot(*beamSpotHandle);
-
-      ATH_MSG_DEBUG( "Beamspot from BeamCondSvc: " << beamSpot);
-
       const T2Vertex myVertex( *primaryVertex, vertexTracks, beamSpot, trackClusterer.seedZ0() );
 
       // Monitor all vertices parameters
@@ -363,6 +364,13 @@ unsigned int T2VertexBeamSpotTool::reconstructVertices( ConstDataVector<TrackCol
       // Learn something more about the cluster that ended up in this vertex
       auto deltaVtxZ  = Monitored::Scalar<double>   ( "ClusterDeltaVertexZ",  trackClusterer.seedZ0() - myVertex.Z() );
       auto mon = Monitored::Group(m_monTool,  deltaVtxZ ); 
+
+      // monitor cluster-cluster delta Z0
+      for (double prevClusterZ0: clusterZ0) {
+         auto clusterClusterDeltaZ  = Monitored::Scalar<double>("ClusterClusterDeltaZ0",  trackClusterer.seedZ0() - prevClusterZ0);
+         auto mon = Monitored::Group(m_monTool,  clusterClusterDeltaZ);
+      }
+      clusterZ0.push_back(trackClusterer.seedZ0());
 
       // If the vertex is good, splits are requested, and we have enough tracks to split, split them!
       if ( passVertex && m_nSplitVertices > 1 ) {

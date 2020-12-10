@@ -10,6 +10,11 @@ __log = logging.getLogger('TriggerConfig')
 def __isCombo(alg):
     return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
 
+def __stepNumber(stepName):
+    """extract step number frmo strings like Step2... -> 2"""
+    return int(stepName.split('_')[0].replace("Step",""))
+
+
 def collectHypos( steps ):
     """
     Method iterating over the CF and picking all the Hypothesis algorithms
@@ -24,7 +29,7 @@ def collectHypos( steps ):
     for stepSeq in getSequenceChildren( steps ):
         if not isSequence( stepSeq ):
             continue
-        
+
         if "filter" in stepSeq.getName():
             __log.debug("Skipping filtering steps %s", stepSeq.getName() )
             continue
@@ -47,13 +52,13 @@ def collectHypos( steps ):
     return OrderedDict(hypos)
 
 def __decisionsFromHypo( hypo ):
-    """ return all chains served by this hypo and the key of produced decision object """
+    """ return all chains served by this hypo and the keys of produced decision object """
     from TrigCompositeUtils.TrigCompositeUtils import isLegId
-    __log.debug("Hypo type %s is combo %r", hypo.getName(), __isCombo(hypo))
-    if __isCombo( hypo ):
-        return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], str(hypo.HypoOutputDecisions[0])
+    __log.debug("Hypo type %s is combo %r", hypo.getName(), __isCombo(hypo))    
+    if __isCombo(hypo):
+        return [key for key in list(hypo.MultiplicitiesMap.keys()) if not isLegId(key)], hypo.HypoOutputDecisions
     else: # regular hypos
-        return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], str(hypo.HypoOutputDecisions)
+        return [ t.getName() for t in hypo.HypoTools if not isLegId(t.getName())], [str(hypo.HypoOutputDecisions)]
 
 def __getSequenceChildrenIfIsSequence( s ):
     if isSequence( s ):
@@ -168,17 +173,28 @@ def triggerSummaryCfg(flags, hypos):
     DecisionSummaryMakerAlg=CompFactory.DecisionSummaryMakerAlg
     from TrigEDMConfig.TriggerEDMRun3 import recordable
     decisionSummaryAlg = DecisionSummaryMakerAlg()
-    allChains = OrderedDict()
+    allChains = OrderedDict() # keys are chain names, values are lists of collections
 
-    
-    # lambda sort because we have strings Step1 Step2 ... Step10 Step11 and python sorts that
-    # to Step10 Step11 Step1 Step2
-    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : int(x[0].split('_')[0][4:]) ):
-        # order hypos so that ComboHypos are last ones
-        orderedStepHypos = sorted(stepHypos, key=lambda hypo: __isCombo(hypo))  
+
+    # sort steps according to the step number i.e. strings Step1 Step2 ... Step10 Step11 rather than
+    # alphabetic order Step10 Step11 Step1 Step2
+    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : __stepNumber(x[0]) ):
+        # While filling the allChains dict we will replace the content intentionally
+        # i.e. the chain has typically multiple steps and we want the collections from the last one
+        # In a step the chain is handled by hypo or hypo followed by the combo,
+        # in second case we want out of the later.
+        # For that we process first ComboHypo and then regular Hypos 
+        # (TODO, review this whn config is symmetrised by addition of ComboHypos always)
+        orderedStepHypos = sorted(stepHypos, key=lambda hypo: not __isCombo(hypo))
+
+        stepChains = OrderedDict()
         for hypo in orderedStepHypos:
-            hypoChains,hypoOutputKey = __decisionsFromHypo( hypo )
-            allChains.update( OrderedDict.fromkeys( hypoChains, hypoOutputKey ) )
+            hypoChains, hypoOutputKeys = __decisionsFromHypo( hypo )
+            for chain in hypoChains:
+                if chain not in stepChains:
+                    stepChains[chain] = hypoOutputKeys
+        allChains.update( stepChains )
+
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     from L1Decoder.L1DecoderConfig import mapThresholdToL1DecisionCollection
     if len(TriggerConfigHLT.dicts()) == 0:
@@ -189,13 +205,18 @@ def triggerSummaryCfg(flags, hypos):
                 __log.debug("The chain %s is not mentioned in any step", chainName)
                 # TODO once sequences available in the menu we need to crosscheck it here
                 assert len(chainDict['chainParts'])  == 1, "Chains w/o the steps can not have mutiple parts in chainDict, it makes no sense: %s"%chainName
-                allChains[chainName] = mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] )
-                __log.debug("The chain %s final decisions will be taken from %s", chainName, allChains[chainName] )
-
+                allChains[chainName] = [ mapThresholdToL1DecisionCollection( chainDict['chainParts'][0]['L1threshold'] ) ]
 
     for c, cont in allChains.items():
-        __log.debug("Final decision of chain  %s will be read from %s", c, cont)
-    decisionSummaryAlg.FinalDecisionKeys = list(OrderedDict.fromkeys(allChains.values()))
+        __log.debug("Final decision of chain  %s will be read from %d %s", c, len(cont), str(cont))
+    # Flatten all the collections preserving the order
+    collectionsWithFinalDecisions = []
+    for chain, collections in allChains.items():
+        for c in collections:
+            if c not in collectionsWithFinalDecisions:
+                collectionsWithFinalDecisions.append(c)
+    __log.debug("Final keys %s", collectionsWithFinalDecisions)
+    decisionSummaryAlg.FinalDecisionKeys = collectionsWithFinalDecisions
     decisionSummaryAlg.FinalStepDecisions = dict(allChains)
     decisionSummaryAlg.DecisionsSummaryKey = "HLTNav_Summary" # Output
     decisionSummaryAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
@@ -219,11 +240,11 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 
     # lambda sort because we have strings Step1 Step2 ... Step10 Step11 and python sorts that
     # to Step10 Step11 Step1 Step2
-    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : int(x[0].split('_')[0][4:]) ):
+    for stepName, stepHypos in sorted( hypos.items(), key=lambda x : __stepNumber(x[0])):
         stepDecisionKeys = []
         for hypo in stepHypos:
-            hypoChains, hypoOutputKey  = __decisionsFromHypo( hypo )
-            stepDecisionKeys.append( hypoOutputKey )
+            hypoChains, hypoOutputKeys  = __decisionsFromHypo( hypo )
+            stepDecisionKeys.extend( hypoOutputKeys )
             allChains.update( hypoChains )
 
         dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(OrderedDict.fromkeys(stepDecisionKeys)))
@@ -390,7 +411,7 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
 def triggerPOOLOutputCfg(flags, edmSet):
     # Get the list of output collections from TriggerEDM
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-    edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMDecodingVersion)
+    edmList = getTriggerEDMList(edmSet, flags.Trigger.EDMVersion)
 
     # Build the output ItemList
     itemsToRecord = []
@@ -560,7 +581,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     acc.merge( L1ConfigSvcCfg(flags) )
 
     acc.addSequence( seqOR( "HLTTop") )
-    
+
     acc.addSequence( parOR("HLTBeginSeq"), parentName="HLTTop" )
     # bit of a hack as for "legacy" type JO a seq name for cache creators has to be given,
     # in newJO realm the seqName will be removed as a comp fragment shoudl be unaware of where it will be attached
@@ -583,7 +604,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     filters = collectFilters( HLTSteps )
     acc.addSequence( parOR("HLTEndSeq"), parentName="HLTTop" )
     acc.addSequence( seqAND("HLTFinalizeSeq"), parentName="HLTEndSeq" )
-    
+
     summaryAcc, summaryAlg = triggerSummaryCfg( flags, hypos )
     acc.merge( summaryAcc, sequenceName="HLTFinalizeSeq" )
     acc.addEventAlgo( summaryAlg, sequenceName="HLTFinalizeSeq" )
@@ -664,13 +685,13 @@ if __name__ == "__main__":
         menuCA.addSequence( seqAND("HLTAllSteps") )
         return menuCA
 
-        
+
     acc = triggerRunCfg( ConfigFlags, seqName = None, menu = testMenu )
     Configurable.configurableRun3Behavior=0
     from AthenaConfiguration.ComponentAccumulator import appendCAtoAthena
     appendCAtoAthena( acc )
 
-    
+
     f=open("TriggerRunConf.pkl","wb")
     acc.store(f)
     f.close()

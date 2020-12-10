@@ -826,8 +826,8 @@ def getTauWPDecoratorJetRNN():
                                        flatteningFile1Prong = "rnnid_mc16d_flat_1p.root",
                                        flatteningFile3Prong = "rnnid_mc16d_flat_3p.root",
                                        CutEnumVals =
-                                       [ ROOT.xAOD.TauJetParameters.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
-                                         ROOT.xAOD.TauJetParameters.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
+                                       [ ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigVeryLoose, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigLoose,
+                                         ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigMedium, ROOT.xAOD.TauJetParameters.IsTauFlag.JetRNNSigTight ],
                                        SigEff1P = [0.95, 0.85, 0.75, 0.60],
                                        SigEff3P = [0.95, 0.75, 0.60, 0.45],
                                        ScoreName = "RNNJetScore",

@@ -2,6 +2,7 @@
 
 // Local include(s):
 #include "THolderCache.h"
+#include <mutex>
 
 namespace xAOD {
 

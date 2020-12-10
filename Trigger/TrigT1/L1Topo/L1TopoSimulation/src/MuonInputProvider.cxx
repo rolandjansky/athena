@@ -1,12 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonInputProvider.h"
 
 #include <math.h>
-#include "TH1.h"
-#include "TH2.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -99,15 +97,25 @@ MuonInputProvider::handle(const Incident& incident) {
    string histPath = "/EXPERT/" + name() + "/";
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
-   m_hPt = new TH1I( "MuonTOBPt", "Muon TOB Pt", 40, 0, 200);
-   m_hPt->SetXTitle("p_{T}");
+   auto hPt = std::make_unique<TH1I>("MuonTOBPt", "Muon TOB Pt", 40, 0, 200);
+   hPt->SetXTitle("p_{T}");
 
-   m_hEtaPhi = new TH2I( "MuonTOBPhiEta", "Muon TOB Location", 25, -50, 50, 32, -32, 32);
-   m_hEtaPhi->SetXTitle("#eta");
-   m_hEtaPhi->SetYTitle("#phi");
+   auto hEtaPhi = std::make_unique<TH2I>("MuonTOBPhiEta", "Muon TOB Location", 25, -50, 50, 32, -32, 32);
+   hEtaPhi->SetXTitle("#eta");
+   hEtaPhi->SetYTitle("#phi");
 
-   m_histSvc->regHist( histPath + "TOBPt", m_hPt ).ignore();
-   m_histSvc->regHist( histPath + "TOBPhiEta", m_hEtaPhi ).ignore();
+   if (m_histSvc->regShared( histPath + "TOBPt", std::move(hPt), m_hPt ).isSuccess()){
+     ATH_MSG_DEBUG("TOBPt histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TOBPt histogram for MuonProvider");
+   }
+   if (m_histSvc->regShared( histPath + "TOBPhiEta", std::move(hEtaPhi), m_hEtaPhi ).isSuccess()){
+     ATH_MSG_DEBUG("TOBPhiEta histogram has been registered successfully for MuonProvider.");
+   }
+   else{
+     ATH_MSG_WARNING("Could not register TOBPhiEta histogram for MuonProvider");
+   }
 }
 
 
@@ -146,8 +154,8 @@ MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
     muon.setEtaDouble( etaTopo );
     muon.setPhiDouble( phiTopo );
 
-   m_hPt->Fill(muon.Et());
-   m_hEtaPhi->Fill(muon.eta(),muon.phi());
+    m_hPt->Fill(muon.Et());
+    m_hEtaPhi->Fill(muon.eta(),muon.phi());
 
    return muon;
 }
