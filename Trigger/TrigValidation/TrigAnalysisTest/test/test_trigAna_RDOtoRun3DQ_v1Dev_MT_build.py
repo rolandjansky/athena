@@ -11,7 +11,7 @@
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_mc_prescale\'',
+  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
   'from TriggerJobOpts.TriggerFlags import TriggerFlags',
   'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
 ])
