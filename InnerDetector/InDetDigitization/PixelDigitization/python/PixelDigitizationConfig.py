@@ -213,6 +213,7 @@ def PixelConfigCondAlg_MC():
     alg.BarrelCrossTalk2016          = [ 0.30, 0.06, 0.06, 0.06]
     alg.BarrelNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8, 5e-8]
     alg.BarrelDisableProbability2016 = [ 9e-3, 9e-3, 9e-3, 9e-3]
+    alg.BarrelLorentzAngleCorr2016   = [  1.0,  1.0,  1.0,  1.0]
 
     alg.EndcapToTThreshold2016       = [    5,    5,    5]
     alg.FEI3EndcapLatency2016        = [  256,  256,  256]
@@ -222,6 +223,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2016          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2016 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2016   = [  1.0,  1.0,  1.0]
 
     alg.DBMToTThreshold2016       = [   -1,   -1,   -1]
     alg.DBMCrossTalk2016          = [ 0.06, 0.06, 0.06]
@@ -248,6 +250,7 @@ def PixelConfigCondAlg_MC():
     alg.BarrelCrossTalk2017          = [ 0.30, 0.06, 0.06, 0.06]
     alg.BarrelNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8, 5e-8]
     alg.BarrelDisableProbability2017 = [ 9e-3, 9e-3, 9e-3, 9e-3]
+    alg.BarrelLorentzAngleCorr2017   = [  1.0,  1.0,  1.0,  1.0]
 
     alg.EndcapToTThreshold2017       = [    5,    5,    5]
     alg.FEI3EndcapLatency2017        = [  256,  256,  256]
@@ -257,6 +260,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2017          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2017 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2017   = [  1.0,  1.0,  1.0]
 
     alg.DBMToTThreshold2017       = [   -1,   -1,   -1]
     alg.DBMCrossTalk2017          = [ 0.06, 0.06, 0.06]
@@ -277,6 +281,7 @@ def PixelConfigCondAlg_MC():
     alg.BarrelCrossTalk2018          = [ 0.30, 0.06, 0.06, 0.06]
     alg.BarrelNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8, 5e-8]
     alg.BarrelDisableProbability2018 = [ 9e-3, 9e-3, 9e-3, 9e-3]
+    alg.BarrelLorentzAngleCorr2018   = [  1.0,  1.0,  1.0,  1.0]
 
     alg.EndcapToTThreshold2018       = [    5,    5,    5]
     alg.FEI3EndcapLatency2018        = [  256,  256,  256]
@@ -286,6 +291,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2018          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2018 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2018   = [  1.0,  1.0,  1.0]
 
     alg.DBMToTThreshold2018       = [   -1,   -1,   -1]
     alg.DBMCrossTalk2018          = [ 0.06, 0.06, 0.06]
@@ -306,6 +312,7 @@ def PixelConfigCondAlg_MC():
     alg.BarrelCrossTalkRUN1          = [ 0.06, 0.06, 0.06]
     alg.BarrelNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8]
     alg.BarrelDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3]
+    alg.BarrelLorentzAngleCorrRUN1   = [  1.0,  1.0,  1.0]
 
     alg.EndcapToTThresholdRUN1       = [    3,    3,    3]
     alg.FEI3EndcapLatencyRUN1        = [  256,  256,  256]
@@ -315,6 +322,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalkRUN1          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorrRUN1   = [  1.0,  1.0,  1.0]
 
     alg.BLayerNoiseShapeRUN1 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
     alg.PixelNoiseShapeRUN1  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0]
@@ -325,11 +333,13 @@ def PixelConfigCondAlg_MC():
     alg.BarrelCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06]
     alg.BarrelNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]
     alg.BarrelDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3]
+    alg.BarrelLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0]
 
     alg.EndcapToTThresholdITK       = [    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3]
     alg.EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0]
 
     alg.InnermostNoiseShapeITK     = [0.0, 1.0]
     alg.NextInnermostNoiseShapeITK = [0.0, 1.0]

@@ -180,6 +180,8 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     double lorentzCorrectionEta = -0.5*element->hitPhiDirection()*tanLorentzAngleEta*depletionDepth;
     writeCdo->setLorentzShiftEta(elementHash, LACorr*lorentzCorrectionEta);
 
+    std::cout << "STSTST " << elementHash << " " << barrel_ec << " " << layerIndex << " " << LACorr*tanLorentzAnglePhi << " " << LACorr*lorentzCorrectionPhi << " " << LACorr*tanLorentzAngleEta << " " << LACorr*lorentzCorrectionEta << std::endl;
+
     // Monitoring value
     writeCdo->setBiasVoltage(elementHash, biasVoltage/CLHEP::volt);
     writeCdo->setTemperature(elementHash, temperature-273.15);

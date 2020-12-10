@@ -63,6 +63,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             BarrelCrossTalk2016          = [ 0.30, 0.06, 0.06, 0.06],
             BarrelNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8, 5e-8],
             BarrelDisableProbability2016 = [ 9e-3, 9e-3, 9e-3, 9e-3],
+            BarrelLorentzAngleCorr2016   = [  1.0,  1.0,  1.0,  1.0],
             EndcapToTThreshold2016       = [    5,    5,    5],
             FEI3EndcapLatency2016        = [  256,  256,  256],
             FEI3EndcapHitDuplication2016 = [False,False,False],
@@ -71,6 +72,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapCrossTalk2016          = [ 0.06, 0.06, 0.06],
             EndcapNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8],
             EndcapDisableProbability2016 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorr2016   = [  1.0,  1.0,  1.0],
             DBMToTThreshold2016       = [   -1,   -1,   -1],
             DBMCrossTalk2016          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8],
@@ -95,6 +97,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             BarrelCrossTalk2017          = [ 0.30, 0.06, 0.06, 0.06],
             BarrelNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8, 5e-8],
             BarrelDisableProbability2017 = [ 9e-3, 9e-3, 9e-3, 9e-3],
+            BarrelLorentzAngleCorr2017   = [  1.0,  1.0,  1.0,  1.0],
             EndcapToTThreshold2017       = [    5,    5,    5],
             FEI3EndcapLatency2017        = [  256,  256,  256],
             FEI3EndcapHitDuplication2017 = [False,False,False],
@@ -103,6 +106,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapCrossTalk2017          = [ 0.06, 0.06, 0.06],
             EndcapNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8],
             EndcapDisableProbability2017 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorr2017   = [  1.0,  1.0,  1.0],
             DBMToTThreshold2017       = [   -1,   -1,   -1],
             DBMCrossTalk2017          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8],
@@ -122,6 +126,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             BarrelCrossTalk2018          = [ 0.30, 0.06, 0.06, 0.06],
             BarrelNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8, 5e-8],
             BarrelDisableProbability2018 = [ 9e-3, 9e-3, 9e-3, 9e-3],
+            BarrelLorentzAngleCorr2018   = [  1.0,  1.0,  1.0,  1.0],
             EndcapToTThreshold2018       = [    5,    5,    5],
             FEI3EndcapLatency2018        = [  256,  256,  256],
             FEI3EndcapHitDuplication2018 = [False,False,False],
@@ -130,6 +135,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapCrossTalk2018          = [ 0.06, 0.06, 0.06],
             EndcapNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8],
             EndcapDisableProbability2018 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorr2018   = [  1.0,  1.0,  1.0],
             DBMToTThreshold2018       = [   -1,   -1,   -1],
             DBMCrossTalk2018          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8],
@@ -149,6 +155,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             BarrelCrossTalkRUN1          = [ 0.06, 0.06, 0.06],
             BarrelNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8],
             BarrelDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3],
+            BarrelLorentzAngleCorrRUN1   = [  1.0,  1.0,  1.0],
             EndcapToTThresholdRUN1       = [    3,    3,    3],
             FEI3EndcapLatencyRUN1        = [  256,  256,  256],
             FEI3EndcapHitDuplicationRUN1 = [ True, True, True],
@@ -157,6 +164,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapCrossTalkRUN1          = [ 0.06, 0.06, 0.06],
             EndcapNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8],
             EndcapDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorrRUN1   = [  1.0,  1.0,  1.0],
             BLayerNoiseShapeRUN1 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0],
             PixelNoiseShapeRUN1  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0],
         )
@@ -167,13 +175,29 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             BarrelCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06],
             BarrelNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8],
             BarrelDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3],
+            BarrelLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0],
             EndcapToTThresholdITK       = [    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3],
             EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06],
             EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8],
             EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
             InnermostNoiseShapeITK     = [0.0, 1.0],
             NextInnermostNoiseShapeITK = [0.0, 1.0],
             PixelNoiseShapeITK         = [0.0, 1.0]
+        )
+      else:
+        # for data, make sure no Lorentz angle correction
+        CondArgs.update(
+            BarrelLorentzAngleCorr2016 = [  1.0,  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorr2016 = [  1.0,  1.0,  1.0],
+            BarrelLorentzAngleCorr2017 = [  1.0,  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorr2017 = [  1.0,  1.0,  1.0],
+            BarrelLorentzAngleCorr2018 = [  1.0,  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorr2018 = [  1.0,  1.0,  1.0],
+            BarrelLorentzAngleCorrRUN1 = [  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorrRUN1 = [  1.0,  1.0,  1.0],
+            BarrelLorentzAngleCorrITK  = [  1.0,  1.0,  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorrITK  = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0]
         )
 
     # Charge calibration parameters
@@ -181,8 +205,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         DefaultCalibrationParameterA=70.2,
         DefaultCalibrationParameterE=-3561.25,
         DefaultCalibrationParameterC=26000.0
-#        IBLChargeScale=1.0,
-#        IBLSpecificCorrection=False
     )
     # DCS parameters
     CondArgs.update(
