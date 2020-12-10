@@ -224,9 +224,6 @@ FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = jetm4Seq)
 from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
 addRecommendedXbbTaggers(jetm4Seq, ToolSvc)
 
-# Add the BCID info
-addDistanceInTrain(jetm4Seq)
-
 # Alternative rho definition
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()

@@ -524,7 +524,6 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
     # simple set up -- either the alg exists and contains the tool, in which case we exit
     if hasattr(sequence,"DistanceInTrainAugmentation"):
         dfjetlog.warning( "DistanceInTrainAugmentation: DistanceInTrainAugmentation already scheduled on sequence"+sequence.name )
-        return
     else:
         isMC = False
         if DerivationFrameworkHasTruth:
@@ -551,6 +550,9 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
         if not distanceintrainaugtool in distanceintrainaug.AugmentationTools:
             distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
 
+# Run it by default if we are not running on EVNT
+if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+    addDistanceInTrain(DerivationFrameworkJob)
 ##################################################################
 
 ##################################################################
