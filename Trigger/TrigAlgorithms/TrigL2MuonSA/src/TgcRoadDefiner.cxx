@@ -31,6 +31,9 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::initialize()
    
   ATH_CHECK(AthAlgTool::initialize());
 
+  ATH_CHECK(m_regionSelector.retrieve());
+  ATH_MSG_DEBUG("Retrieved the RegionSelector tool ");
+
   ATH_CHECK(m_tgcFit.retrieve());
   ATH_MSG_DEBUG("Retrieved service " << m_tgcFit);
 

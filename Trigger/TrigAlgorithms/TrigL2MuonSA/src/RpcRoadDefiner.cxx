@@ -24,6 +24,10 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
 StatusCode TrigL2MuonSA::RpcRoadDefiner::initialize()
 {
   ATH_CHECK(m_idHelperSvc.retrieve());
+
+  ATH_CHECK(m_regionSelector.retrieve());
+  ATH_MSG_DEBUG("Retrieved the RegionSelector tool ");
+
   return StatusCode::SUCCESS;
 }
 

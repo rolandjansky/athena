@@ -32,9 +32,6 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 
    ATH_CHECK(m_readKey.initialize());
   
-   ATH_CHECK(m_regionSelector.retrieve());
-   ATH_MSG_DEBUG("Retrieved the RegionSelector tool ");
-
    if (m_use_rpc) {
      ATH_CHECK(m_rpcDataPreparator.retrieve());
      ATH_MSG_DEBUG("Retrieved service " << m_rpcDataPreparator);
@@ -63,10 +60,6 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 
    ATH_CHECK(m_rpcPatFinder.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
-
-   // set the geometry tools
-   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector);
-   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector);
 
    return StatusCode::SUCCESS; 
 }
