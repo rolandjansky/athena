@@ -2,6 +2,7 @@
 # the navigation structure
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 rec.doCBNT=False
 rec.doWriteRDO=False
@@ -29,6 +30,7 @@ else:
     acf.PoolAODOutput = PoolAODOutput
 
 acf.FilesInput=acf.PoolAODInput()
+ConfigFlags.Input.Files = acf.FilesInput()
 
 # Setup slimming
 include ("TrigNavTools/TrigNavigationSlimming_test.py")

@@ -4,6 +4,7 @@
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("testAthenaTrigBStoESD.py:") 
@@ -50,6 +51,7 @@ import os
 if not os.path.exists(acf.BSRDOInput()[0]):
    log.fatal(" ERROR FATAL Input file acf.BSRDOInput()[0] does not exist: " + acf.BSRDOInput()[0])
    exit(-2)
+ConfigFlags.Input.Files = acf.BSRDOInput()
 
 exit
 
