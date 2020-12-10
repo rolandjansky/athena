@@ -36,17 +36,26 @@ TFCSEnergyInterpolationHistogram::TFCSEnergyInterpolationHistogram(const char* n
 FCSReturnCode TFCSEnergyInterpolationHistogram::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
   float Emean;
-  if(truth->Ekin()<m_hist.GetXaxis()->GetBinLowEdge(1)) {
-    Emean=m_hist.GetBinContent(1)*truth->Ekin();
+  float Einit;
+  const float Ekin=truth->Ekin();
+  if(OnlyScaleEnergy()) Einit=simulstate.E();
+  else Einit=Ekin;
+  if(Einit<m_hist.GetXaxis()->GetBinLowEdge(1)) {
+    Emean=m_hist.GetBinContent(1)*Einit;
   } else {
-    if(truth->Ekin()>m_hist.GetXaxis()->GetBinUpEdge(m_hist.GetNbinsX())) {
-      Emean=m_hist.GetBinContent(m_hist.GetNbinsX())*truth->Ekin();
+    if(Einit>m_hist.GetXaxis()->GetBinUpEdge(m_hist.GetNbinsX())) {
+      Emean=m_hist.GetBinContent(m_hist.GetNbinsX())*Einit;
     } else {
-      Emean=m_hist.GetBinContent(m_hist.GetXaxis()->FindBin(truth->Ekin()))*truth->Ekin();
+      Emean=m_hist.GetBinContent(m_hist.GetXaxis()->FindBin(Einit))*Einit;
     }  
   }  
 
-  ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin());
+  if(OnlyScaleEnergy()) {
+    ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin()<<" and E="<<Einit);
+  }
+  else{
+    ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin());
+  }
   simulstate.set_E(Emean);
 
   return FCSSuccess;
@@ -60,7 +69,7 @@ void TFCSEnergyInterpolationHistogram::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSParametrization::Print(option);
 
-  if(longprint) ATH_MSG_INFO(optprint <<"  histNbins="<<m_hist.GetNbinsX()
+  if(longprint) ATH_MSG_INFO(optprint <<(OnlyScaleEnergy()?"  E()*":"  Ekin()*")<<"histNbins="<<m_hist.GetNbinsX()
                            <<" "<<m_hist.GetXaxis()->GetBinLowEdge(1)<<"<=Ekin<="<<m_hist.GetXaxis()->GetBinUpEdge(m_hist.GetNbinsX()));
 }
 
@@ -90,11 +99,6 @@ void TFCSEnergyInterpolationHistogram::unit_test(TFCSSimulationState* simulstate
     hist->SetBinContent(16,0.943673);
   }  
   
-  /*
-  TFile* file=TFile::Open("Example.root");
-  TH1F* hist=(TH1F*)file->Get("Hist");
-  file->Close();
-  */
   TH1F* hdraw=(TH1F*)hist->Clone();
   hdraw->SetMarkerColor(46);
   hdraw->SetMarkerStyle(8);
@@ -108,6 +112,7 @@ void TFCSEnergyInterpolationHistogram::unit_test(TFCSSimulationState* simulstate
   test.set_eta_min(0.2);
   test.set_eta_max(0.25);
   test.InitFromHist(*hist);
+  //test.set_OnlyScaleEnergy();
   test.Print();
   test.hist().Dump();
   
@@ -122,6 +127,7 @@ void TFCSEnergyInterpolationHistogram::unit_test(TFCSSimulationState* simulstate
   for(float Ekin=std::max(test.Ekin_min()*0.25,0.1);Ekin<=test.Ekin_max()*4;Ekin*=1.05) {
     //Init LorentzVector for truth. For photon Ekin=E
     truth->SetPxPyPzE(Ekin,0,0,Ekin);
+    simulstate->set_E(Ekin);
     if (test.simulate(*simulstate,truth,extrapol) != FCSSuccess) {
       return;
     }
