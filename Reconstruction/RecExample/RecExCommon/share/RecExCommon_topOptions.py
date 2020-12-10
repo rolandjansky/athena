@@ -147,6 +147,9 @@ amitag = ""
 from PyUtils.MetaReaderPeeker import metadata
 try:
     amitag = metadata['AMITag']
+    # In some cases AMITag can be a list, just take the last one
+    if type(amitag) == list:
+        amitag=amitag[-1]
 except:
     logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
