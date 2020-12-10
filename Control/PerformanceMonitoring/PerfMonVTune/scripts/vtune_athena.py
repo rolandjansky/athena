@@ -1,14 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import glob
 import logging
-import multiprocessing
-import os
 import subprocess
 import sys
-import uuid
 
 # Setting logging options
 fmt = '%(asctime)s :: %(levelname)-8s :: %(message)s'
@@ -25,32 +21,32 @@ console.setFormatter(formatter)
 logger.addHandler(console)
 
 ####
-## Check Athena Setup 
+## Check Athena Setup
 ####
 def checkAthenaSetup():
     try:
-      a = subprocess.check_output(['athena','--version']) 
+      a = subprocess.check_output(['athena','--version'])
       logger.debug('Athena version information \n %s',a)
-    except:
+    except Exception:
       logger.fatal('Athena is not setup!')
-      sys.exit(-1) 
+      sys.exit(-1)
 
 ####
 ## Check VTune Setup
 ####
 def checkVTuneSetup():
     try:
-      a = subprocess.check_output(['amplxe-cl','--version']) 
+      a = subprocess.check_output(['vtune','--version'])
       logger.debug('VTune version information \n %s',a)
-    except:
+    except Exception:
       logger.fatal('VTune is not setup!')
-      sys.exit(-1) 
+      sys.exit(-1)
 
 ####
-## AutoGen a jobOptions fragment 
+## AutoGen a jobOptions fragment
 ####
 def generateJOFragment(fileName,firstEvent,lastEvent):
-    logger.info('Creating jOptions fragment %s', fileName) 
+    logger.info('Creating jOptions fragment %s', fileName)
     with open('{}'.format(fileName),'w') as f:
        f.write('# Auto generated jobOptions fragment to setup Athena VTune profiler')
        f.write('\ninclude(\'PerfMonVTune/VTuneProfileEventLoop_preInclude.py\')')
@@ -122,11 +118,11 @@ def main():
     checkAthenaSetup()
     checkVTuneSetup()
 
-    # Perpare the JO fragment 
+    # Perpare the JO fragment
     joFragment = 'PerfMonVTune_autoSetup.py'
-    generateJOFragment(joFragment, options.start, options.stop) 
+    generateJOFragment(joFragment, options.start, options.stop)
 
-    # Prepare the transformation command to execute 
+    # Prepare the transformation command to execute
     if not options.tf:
         logger.fatal('The transformation command is empty, quitting...')
         sys.exit(-1)
@@ -139,7 +135,7 @@ def main():
         args.extend(['--preInclude',joFragment])
 
     # Run the command
-    cmd = ( 'amplxe-cl' + 
+    cmd = ( 'vtune' +
             ' -collect '  + options.collect  +
             ' -strategy ' + options.strategy +
             ' -start-paused -- ' )
