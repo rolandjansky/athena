@@ -47,6 +47,7 @@ namespace Muon {
 
     using IExtendedTrackSummaryHelperTool::analyse;
     using IExtendedTrackSummaryHelperTool::updateSharedHitCount;
+    using IExtendedTrackSummaryHelperTool::updateExpectedHitInfo;
     using IExtendedTrackSummaryHelperTool::addDetailedTrackSummary;
     virtual void analyse(
       const Trk::Track& trk,
@@ -67,10 +68,15 @@ namespace Muon {
       std::vector<int>& information,
       Trk::ParticleHypothesis hyp) const override final;
 
-    virtual void updateSharedHitCount(
-      const Trk::Track&,
-      const Trk::PRDtoTrackMap*,
-      Trk::TrackSummary&) const override final{};
+    virtual void updateSharedHitCount(const Trk::Track&,
+                                      const Trk::PRDtoTrackMap*,
+                                      Trk::TrackSummary&) const override final
+    {}
+
+    virtual void updateExpectedHitInfo(
+      const Trk::Track&, 
+      Trk::TrackSummary&) const override final
+    {}
 
     virtual void addDetailedTrackSummary(
       const Trk::Track& track,

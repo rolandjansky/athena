@@ -17,7 +17,7 @@ TrackSummaryTool::updateTrackSummary(const EventContext& ctx,
   /*suppress hole search*/
   UpdateSummary(ctx, track, nullptr, true);
   /*Needed for expected B-Layer*/
-  m_idTool->updateExpectedHitInfo(track, *track.trackSummary());
+  m_idTool->updateExpectedHitInfo(ctx,track, *track.trackSummary());
 }
 
 inline void
