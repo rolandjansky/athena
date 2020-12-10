@@ -37,6 +37,8 @@
 #     include   "TrigInDetValidation_beamspot_ttbar_pu40.xml"
 #     include   "TrigInDetValidation_beamspot_ttbar_pu40_zfinder.xml"
 #     include   "TrigInDetValidation_beamspot_ttbar_pu80_zfinder.xml"
+#     include   "TrigInDetValidation_beamspot_ttbar_pu80_zfinder_ml.xml"
+#     include   "TrigInDetValidation_beamspot_ttbar_pu80_zfinder_ml2.xml"
 
 #     include   "TrigInDetValidation_beamspot_ttbar_pu80_fs.xml"
 #     include   "TrigInDetValidation_beamspot_ttbar_pu80_fsml.xml"
@@ -62,11 +64,12 @@
 #     include   "TrigInDetValidation_el_ttbar_pu80.xml"
 <!-- #     include   "TrigInDetValidation_el_ttbar_pu100.xml" -->
 
-#     include   "TrigInDetValidation_cosmic.xml"
+<!-- #     include   "TrigInDetValidation_cosmic.xml" -->
 
 <!-- #     include   "TrigInDetValidation_bjet.xml"  -->
 <!-- #     include   "TrigInDetValidation_bjet_pu46.xml"  -->
 #     include   "TrigInDetValidation_bjet_IBL_pu40.xml"
+#     include   "TrigInDetValidation_bjet_IBL_pu40_ml.xml"
 <!-- #     include   "TrigInDetValidation_bjet_IBL_pu40_test.xml" -->
 #     include   "TrigInDetValidation_bjet_IBL_pu40_offline.xml"
 
@@ -85,6 +88,7 @@
 
 <!-- #     include   "TrigInDetValidation_tau_pu46.xml"  -->
 #     include   "TrigInDetValidation_tau_IBL_pu46.xml"
+#     include   "TrigInDetValidation_tau_IBL_pu46_ml.xml"
 #     include   "TrigInDetValidation_tau_IBL_pu46_NoDoublet.xml"
 #     include   "TrigInDetValidation_tau_IBL_pu46_RoiParam.xml"
 #     include   "TrigInDetValidation_tau_IBL_pu46_offline.xml"
