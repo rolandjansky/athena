@@ -50,6 +50,17 @@ TrigEgammaFastElectronHypoTool::~TrigEgammaFastElectronHypoTool() {}
 
 bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElectron* electron, 
 						   size_t cutIndex ) const {
+  bool pass=false;
+
+  if ( m_acceptAll ) {
+    pass = true;
+    ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
+    return pass;
+   } else {
+     pass = false;
+     ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
+   }
+
   auto cutCounter = Monitored::Scalar<int>( "CutCounter", -1 );  
   auto cutIndexM  = Monitored::Scalar<int>( "CutIndex", cutIndex );  // one can do 2D plots for each cut independently
   auto ptCalo     = Monitored::Scalar( "PtCalo", -999. );
@@ -67,8 +78,10 @@ bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElect
 					     caloEta, caloPhi );
 
   const xAOD::TrackParticle* trkIter = electron-> trackParticle();
-  if ( trkIter == 0 )  // disconsider candidates without track
-    return  false;
+  if ( trkIter == 0 ){  // disconsider candidates without track
+     pass = false;
+     return pass;
+  }
   cutCounter++;
 
   // Retrieve all quantities
@@ -87,38 +100,50 @@ bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElect
   ATH_MSG_VERBOSE( "Cut index " << cutIndex );
   if ( ptCalo < m_trackPt[cutIndex] ){ 
     ATH_MSG_VERBOSE( "Fails pt cut" << ptCalo << " < " << m_trackPt[cutIndex] );
-    return  false;
+    pass = false;
+    return  pass;
   }
   cutCounter++;
 
   if ( dEtaCalo > m_caloTrackDEta[cutIndex] ) {
     ATH_MSG_VERBOSE( "Fails dEta cut " << dEtaCalo << " < " << m_caloTrackDEta[cutIndex] );
-    return  false;
+    
+    pass = false;
+    return  pass;
   }
   cutCounter++;
   if ( dPhiCalo > m_caloTrackDPhi[cutIndex] ) {
     ATH_MSG_VERBOSE( "Fails dPhi cut " << dPhiCalo << " < " << m_caloTrackDPhi[cutIndex] );
-    return  false;
+    
+    pass = false;
+    return  pass;
   }
 
   cutCounter++;
   if( eToverPt <  m_caloTrackdEoverPLow[cutIndex] ) {
     ATH_MSG_VERBOSE( "Fails eoverp low cut " << eToverPt << " < " <<  m_caloTrackdEoverPLow[cutIndex] );
-    return  false;
+
+    pass = true;
+    return  pass;
   }
   cutCounter++;
   if ( eToverPt > m_caloTrackdEoverPHigh[cutIndex] ) {
     ATH_MSG_VERBOSE( "Fails eoverp high cut " << eToverPt << " < " << m_caloTrackdEoverPHigh[cutIndex] );
-    return  false;
+
+    pass = false;
+    return  pass;
   }
   cutCounter++;
   if ( TRTHitRatio < m_trtRatio[cutIndex] ){
     ATH_MSG_VERBOSE( "Fails TRT cut " << TRTHitRatio << " < " << m_trtRatio[cutIndex] );
-    return  false;
+
+    pass = false;
+    return  pass;
   }
   cutCounter++;
   ATH_MSG_DEBUG( "Passed selection" );
-  return  true;
+  pass = true;
+  return  pass;
 
 }
 

@@ -4,7 +4,6 @@ from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
-
 log = logging.getLogger('TrigEgammaFastElectronHypoTool')
 
 def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
@@ -16,7 +15,7 @@ def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
     name = chainDict['chainName']
     from AthenaConfiguration.ComponentFactory import CompFactory
     tool = CompFactory.TrigEgammaFastElectronHypoTool(name)
-
+ 
     if 'idperf' in name:
         tool.AcceptAll = True
     
@@ -56,6 +55,7 @@ def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
                     tool.CaloTrackdPHI[ th ] =  999.
             else:
                     raise RuntimeError('No threshold: Default cut configured')
+    
     return tool
 
 

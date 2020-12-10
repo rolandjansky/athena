@@ -1,7 +1,6 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-from AthenaConfiguration.AllConfigFlags import ConfigFlags 
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
@@ -9,7 +8,6 @@ from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
-from AthenaCommon.Constants import DEBUG
 
 def fastElectronSequence(do_idperf):
     """ second step:  tracking....."""
@@ -38,7 +36,7 @@ def fastElectronSequence(do_idperf):
     theElectronFex.TrackParticlesName = TrackParticlesName
     theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
     theElectronFex.DummyElectronsName= "HLT_FastDummyElectrons"
-    #theElectronFex.OutputLevel = DEBUG
+ 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
     l2ElectronViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
@@ -72,9 +70,11 @@ def fastElectronMenuSequence(do_idperf):
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlgMT
-    theElectronHypo = TrigEgammaFastElectronHypoAlgMT()
+    if do_idperf is True:
+        theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT_idperf")
+    else:
+        theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT")
     theElectronHypo.Electrons = sequenceOut
-
     theElectronHypo.RunInView=True
 
     from TrigEgammaHypo.TrigEgammaFastElectronHypoTool import TrigEgammaFastElectronHypoToolFromDict

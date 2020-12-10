@@ -108,8 +108,10 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
   ATH_MSG_DEBUG( "Made WriteHandle " << m_outputElectronsKey );
 
   auto trigDummyElecColl =   SG::makeHandle (m_outputDummyElectronsKey, ctx);
-
+ 
   ATH_MSG_DEBUG( "Made Dummy WriteHandle " << m_outputDummyElectronsKey );
+  ATH_CHECK( trigDummyElecColl.record (std::make_unique<xAOD::TrigElectronContainer>(),
+                           std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );  
 
   auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
   ATH_MSG_DEBUG( "Made handle " << m_roiCollectionKey  );
@@ -196,6 +198,7 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
  /**********************/
   ATH_MSG_DEBUG("Debo6");  
      
+     trigDummyElecColl->push_back(trigDummyElec);
      trigDummyElec->init( 0,
                       0, 0,  0,
                       clusEL,
@@ -204,7 +207,6 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
    /**********************/
     ATH_MSG_DEBUG("Debo7");
  
-    trigDummyElecColl->push_back(trigDummyElec);
   // loop over tracks
 
   /**********************/

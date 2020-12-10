@@ -105,6 +105,7 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_nod0_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_idperf_L1EM3', groups=SingleElectronGroup),
         
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
