@@ -8,7 +8,7 @@ set( extra_libs )
 if( NOT GENERATIONBASE )
    list( APPEND extra_libs xAODPFlow )
    if( NOT XAOD_STANDALONE )
-      list( APPEND extra_libs AthenaMonitoringKernelLib )
+      list( APPEND extra_libs AthenaMonitoringKernelLib StoreGateLib )
    endif()
 endif()
 
@@ -24,7 +24,7 @@ atlas_add_library( JetRecLib
   JetRec/*.h Root/*.h Root/*.cxx
   PUBLIC_HEADERS JetRec
   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS} ${FASTJETCONTRIB_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} ${ROOT_LIBRARIES} AsgDataHandlesLib AsgTools AthLinks EventShapeInterface JetEDM JetInterface xAODBase xAODCaloEvent xAODCore xAODEventInfo xAODJet xAODMuon StoreGateLib ${extra_libs}
+  LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} ${FASTJETCONTRIB_LIBRARIES} ${ROOT_LIBRARIES} AsgDataHandlesLib AsgTools AthLinks EventShapeInterface JetEDM JetInterface xAODBase xAODCaloEvent xAODCore xAODEventInfo xAODJet xAODMuon ${extra_libs}
   PRIVATE_LINK_LIBRARIES CxxUtils xAODTracking )
 
 if( NOT XAOD_STANDALONE )

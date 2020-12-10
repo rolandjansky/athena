@@ -38,7 +38,11 @@ StatusCode JetCopier::initialize() {
 
 // Setup helper to propagate decorations from original to copy
 StatusCode JetCopier::initWithOutput(const SG::WriteHandleKey<xAOD::JetContainer>& outputJets) {
+#ifndef XAOD_ANALYSIS
   return m_decorDeps.initialize(m_inputJets, outputJets) ;
+#else
+  return StatusCode::SUCCESS;
+#endif
 }
 
 
@@ -52,12 +56,16 @@ StatusCode JetCopier::getAndRecordJets(SG::WriteHandle<xAOD::JetContainer>& jetH
   if(m_shallowCopy){
     std::unique_ptr<xAOD::ShallowAuxContainer> auxCont_derived(static_cast<xAOD::ShallowAuxContainer*>(auxCont.release()));
     ATH_CHECK( jetHandle.record(std::move(jets), std::move(auxCont_derived)) );
+#ifndef XAOD_ANALYSIS
     ATH_CHECK( m_decorDeps.linkDecors (m_inputJets) );
+#endif
   }
   else{
     std::unique_ptr<xAOD::JetAuxContainer> auxCont_derived(static_cast<xAOD::JetAuxContainer*>(auxCont.release()));
     ATH_CHECK( jetHandle.record(std::move(jets), std::move(auxCont_derived)) );
+#ifndef XAOD_ANALYSIS
     ATH_CHECK( m_decorDeps.linkDecors (m_inputJets) );
+#endif
   }
   return StatusCode::SUCCESS;
 }

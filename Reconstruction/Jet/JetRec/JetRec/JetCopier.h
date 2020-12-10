@@ -23,7 +23,12 @@
 #include "JetInterface/IJetProvider.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODCore/ShallowAuxContainer.h"
+
+// This class doesn't (yet) exist for AnalysisBase, so in that release
+// we will simply have to rerun modifiers if we need them.
+#ifndef XAOD_ANALYSIS
 #include "StoreGate/ShallowCopyDecorDeps.h"
+#endif
 
 class JetCopier
   : public asg::AsgTool,
@@ -55,8 +60,10 @@ class JetCopier
     Gaudi::Property<bool> m_shallowCopy {this, "ShallowCopy", true, "True for shallow copy, false for deep copy"};
     Gaudi::Property<bool> m_shallowIO {this, "ShallowIO", false, "True for storing only modified data"};
 
+#ifndef XAOD_ANALYSIS
     SG::ShallowCopyDecorDeps<xAOD::JetContainer> m_decorDeps { this, "DecorDeps", {},
           "List of decorations to propagate through the shallow copy." };
+#endif
 };
 
 #endif
