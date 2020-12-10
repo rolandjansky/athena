@@ -64,6 +64,9 @@ private:
   /** Allow user to set the number of truth particles per clusterCaloCluster or PFO, in descending pt order, for which to store calibration hit enery */
   Gaudi::Property<unsigned int> m_numTruthParticles{this,"NumTruthParticles",3,"Set number of truth particles per CaloCluster/PFO for which we store calibration hit energy"};
 
+
+  Gaudi::Property<bool> m_useFlowElements{this,"useFlowElements",false,"Set decoration of flow element container as well as PFO"};
+
   // functions to do the links between either PFO or FlowElements
   StatusCode LinkCalibHitPFO(
 			     SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector< std::pair<unsigned int, double> > >& pfoWriteDecorHandle,

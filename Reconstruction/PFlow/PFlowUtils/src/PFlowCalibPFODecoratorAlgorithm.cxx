@@ -13,6 +13,7 @@ StatusCode PFlowCalibPFODecoratorAlgorithm::initialize(){
   ATH_CHECK(m_mapTruthBarcodeToTruthParticleReadHandleKey.initialize());
 
   ATH_CHECK(m_pfoWriteDecorHandleKeyNLeadingTruthParticles.initialize());
+  ATH_CHECK(m_feWriteDecorHandleKeyNLeadingTruthParticles.initialize());
 
   ATH_CHECK(m_truthAttributerTool.retrieve());
 
@@ -84,8 +85,8 @@ StatusCode PFlowCalibPFODecoratorAlgorithm::execute(const EventContext& ctx) con
 				      pfoWriteDecorHandleNLeadingTruthParticles,
 				      mapIdentifierToCalibHitsReadHandle,
 				      mapTruthBarcodeToTruthParticleReadHandle)); // end of check block 
-  bool doFlowElements=true;
-  if(doFlowElements){
+
+  if(m_useFlowElements){
     SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<std::pair<unsigned int, double> > > feWriteDecorHandleNLeadingTruthParticles(m_feWriteDecorHandleKeyNLeadingTruthParticles,ctx);
     
     ATH_CHECK(this->LinkCalibHitPFO(
