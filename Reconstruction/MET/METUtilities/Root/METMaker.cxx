@@ -315,29 +315,20 @@ namespace met {
         ATH_MSG_VERBOSE(obj->type() << " (" << orig <<") with pt " << obj->pt()
                         << " is " << ( selected ? "non-" : "") << "overlapping");
 
-        // Greedy photon option: set selection flags
-        if (selected && obj->type() == xAOD::Type::Photon && m_greedyPhotons) {
-          for (size_t i = 0; i < assocs.size(); i++) {
-            std::vector<size_t> ind = assocs[i]->overlapIndices(orig);
-            std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
-            for (size_t indi = 0; indi < ind.size(); indi++) {
-              if (allObjects[ind[indi]] && allObjects[ind[indi]]->type()==xAOD::Type::Electron)
-                helper->setObjSelectionFlag(assocs[i], allObjects[ind[indi]], true);
+        // Greedy photon options: set selection flags
+        if ((m_greedyPhotons || m_veryGreedyPhotons) && selected && obj->type() == xAOD::Type::Photon){
+          for(const xAOD::MissingETAssociation* assoc : assocs){
+            std::vector<size_t> indices = assoc->overlapIndices(orig);
+            std::vector<const xAOD::IParticle*> allObjects = assoc->objects();
+            for (size_t index : indices){
+              const xAOD::IParticle* thisObj = allObjects[index];
+              if(!thisObj) continue;
+              if ((thisObj->type() == xAOD::Type::Jet && m_veryGreedyPhotons) ||
+                   thisObj->type() == xAOD::Type::Electron)
+                helper->setObjSelectionFlag(assoc, thisObj, true);
             }
           }
         }
-        // Very greedy photon option: set selection flags
-        if (selected && obj->type() == xAOD::Type::Photon && m_veryGreedyPhotons) {
-          for (size_t i = 0; i < assocs.size(); i++) {
-            std::vector<size_t> ind = assocs[i]->overlapIndices(orig);
-            std::vector<const xAOD::IParticle*> allObjects = assocs[i]->objects();
-            for (size_t indi = 0; indi < ind.size(); indi++) {
-              if (allObjects[ind[indi]] && (allObjects[ind[indi]]->type()==xAOD::Type::Electron ||  allObjects[ind[indi]]->type()==xAOD::Type::Jet))
-                helper->setObjSelectionFlag(assocs[i], allObjects[ind[indi]],true);
-            }
-          }
-        }
-
 
         //Do special overlap removal for calo tagged muons
         if(m_orCaloTaggedMuon && !removeOverlap && orig->type()==xAOD::Type::Muon && static_cast<const xAOD::Muon*>(orig)->muonType()==xAOD::Muon::CaloTagged) {
