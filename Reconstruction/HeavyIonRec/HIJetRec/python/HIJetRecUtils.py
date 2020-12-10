@@ -131,7 +131,7 @@ def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
         from HIEventUtils.HIEventUtilsConf import HIEventShapeMapTool
         map_tool=HIEventShapeMapTool()
 
-    subtr=HIJetConstituentSubtractionTool(("HICS_"+suffix))
+    subtr=HIJetConstituentSubtractionTool("HICS_"+suffix)
     subtr.EventShapeKey=shapeKey
     subtr.Modulator=mod_tool
     subtr.MomentName='JetSubtractedScale%sMomentum' % moment_name
