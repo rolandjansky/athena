@@ -38,6 +38,9 @@ static const InterfaceID IID_MuPatHitTool("Muon::MuPatHitTool", 1, 0);
 
 class MuPatHitTool : public AthAlgTool {
   public:
+    using HitGarbage = std::vector<std::unique_ptr<MuPatHit> >;
+    using ParGarbage = std::vector<std::unique_ptr<const Trk::TrackParameters> >;
+
     /** default AlgTool constructor */
     MuPatHitTool(const std::string&, const std::string&, const IInterface*);
 
@@ -68,14 +71,17 @@ class MuPatHitTool : public AthAlgTool {
         @param hitList the list to be filled
         @return true if creation succeded
     */
-    bool create(const MuonSegment& seg, MuPatHitList& hitList) const;
+    bool create(const MuonSegment& seg, MuPatHitList& hitList,
+                HitGarbage& hitsToBeDeleted,
+                ParGarbage& parsToBeDeleted) const;
 
     /** @brief create a MuPatHitList from a Track
         @param track the input track
         @param hitList the list to be filled
         @return true if creation succeded
     */
-    bool create(const Trk::Track& track, MuPatHitList& hitList) const;
+    bool create(const Trk::Track& track, MuPatHitList& hitList,
+                HitGarbage& hitsToBeDeleted) const;
 
     /** @brief create a MuPatHitList from a Track
         @param pars the input parameters
@@ -84,7 +90,9 @@ class MuPatHitTool : public AthAlgTool {
         @return true if creation succeded
     */
     bool create(const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec,
-                MuPatHitList& hitList) const;
+                MuPatHitList& hitList,
+                HitGarbage& hitsToBeDeleted,
+                ParGarbage& parsToBeDeleted) const;
 
     /** @brief merge two MuPatHitLists into a new one
         @param hitList1 the first  list
@@ -92,14 +100,16 @@ class MuPatHitTool : public AthAlgTool {
         @param outList  the resulting list
         @return true if merge succeded
     */
-    bool merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList) const;
+    bool merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList,
+               ParGarbage& parsToBeDeleted) const;
 
     /** @brief merge two MuPatHitLists into a new one. The first list will be added to the second
         @param hitList1 the first  list
         @param hitList2 the second list
         @return true if merge succeded
     */
-    bool merge(const MuPatHitList& hitList1, MuPatHitList& hitList2) const;
+    bool merge(const MuPatHitList& hitList1, MuPatHitList& hitList2,
+               ParGarbage& parsToBeDeleted) const;
 
     /** @brief extract a sorted vector of MeasurementBase objects
         @param hitList the input  list
@@ -126,9 +136,6 @@ class MuPatHitTool : public AthAlgTool {
 
     /** update hit list for a give track */
     bool update(const Trk::Track& track, MuPatHitList& hitList) const;
-
-    /** clean up MCTB hits allocated up to now */
-    void cleanUp() const;
 
     /** @brief print data part of Muon MeasurementBase to string.
      *
@@ -211,11 +218,6 @@ class MuPatHitTool : public AthAlgTool {
     };  //<! multipurpose helper tool
 
     Trk::MagneticFieldProperties m_magFieldProperties;  //!< magnetic field properties
-
-    mutable std::vector<MuPatHit*> m_hitsToBeDeleted                   ATLAS_THREAD_SAFE;
-    mutable std::vector<const Trk::TrackParameters*> m_parsToBeDeleted ATLAS_THREAD_SAFE;
-    mutable std::mutex                                                 m_hitsMutex;
-    mutable std::mutex                                                 m_parsMutex;
 };
 
 }  // namespace Muon
