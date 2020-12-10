@@ -24,7 +24,10 @@ def electronFastCaloCfg( flags ):
     return fastCaloMenuSequence("Electron", doRinger=True)
 
 def fastElectronSequenceCfg( flags ):
-    return fastElectronMenuSequence()
+    return fastElectronMenuSequence(do_idperf=False)
+
+def fastElectronSequenceCfg_idperf( flags ):
+    return fastElectronMenuSequence(do_idperf=True)
 
 def precisionCaloSequenceCfg( flags ):
     return precisionCaloMenuSequence('Electron')
@@ -73,6 +76,7 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = {
                 'etcut1step': ['getFastCalo'],
+                'idperf'    : ['getFastCalo', 'getFastElectron_idperf', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'etcut'     : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking'],
                 'lhloose'   : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
                 'lhvloose'  : ['getFastCalo', 'getFastElectron', 'getPrecisionCaloElectron', 'getPrecisionTracking', 'getPrecisionElectron'],
@@ -143,6 +147,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
     def getFastElectron(self):
         stepName = "fast_electron"
         return self.getStep(2,stepName,[ fastElectronSequenceCfg])
+   
+    def getFastElectron_idperf(self):
+        stepName = "fast_electron_idperf"
+        return self.getStep(2,stepName,[ fastElectronSequenceCfg_idperf])
 
     def getPrecisionCaloElectron(self):
         stepName = "precisionCalo_electron"

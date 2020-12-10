@@ -80,6 +80,7 @@ ATH_CHECK( m_roiCollectionKey.initialize() );
 ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
 ATH_CHECK( m_TrackParticleContainerKey.initialize() );
 ATH_CHECK( m_outputElectronsKey.initialize() );
+ATH_CHECK( m_outputDummyElectronsKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -103,8 +104,12 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
   auto trigElecColl =   SG::makeHandle (m_outputElectronsKey, ctx);  
   ATH_CHECK( trigElecColl.record (std::make_unique<xAOD::TrigElectronContainer>(),
                            std::make_unique<xAOD::TrigEMClusterAuxContainer>()) );
-
+  
   ATH_MSG_DEBUG( "Made WriteHandle " << m_outputElectronsKey );
+
+  auto trigDummyElecColl =   SG::makeHandle (m_outputDummyElectronsKey, ctx);
+
+  ATH_MSG_DEBUG( "Made Dummy WriteHandle " << m_outputDummyElectronsKey );
 
   auto roiCollection = SG::makeHandle(m_roiCollectionKey, ctx);
   ATH_MSG_DEBUG( "Made handle " << m_roiCollectionKey  );
@@ -171,8 +176,14 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
 
   auto mon = Monitored::Group(m_monTool,  caloPtMon, trackPtMon, caloTrackDEtaMon, caloTrackDPhiMon, etOverPtMon, caloTrackDEtaNoExtrapMon );
 
-
-
+  // Make Dummy Electron
+     xAOD::TrigElectron* trigDummyElec = new xAOD::TrigElectron();
+     ElementLink<xAOD::TrackParticleContainer> trackDummyEL = ElementLink<xAOD::TrackParticleContainer> (*tracks, 0);
+     trigDummyElec->init(  roiDescriptor->roiWord(),
+                      0, 0,  0,
+                      clusEL,
+                      trackDummyEL);
+     trigDummyElecColl->push_back(trigDummyElec);
   // loop over tracks
 
   unsigned int track_index=0;

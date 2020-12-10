@@ -10,7 +10,7 @@ from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
-def fastElectronSequence(ConfigFlags):
+def fastElectronSequence(do_idperf):
     """ second step:  tracking....."""
     
     from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -36,6 +36,7 @@ def fastElectronSequence(ConfigFlags):
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
     theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
+    theElectronFex.DummyElectronsName= "HLT_FastDummyElectrons"
 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
@@ -57,13 +58,16 @@ def fastElectronSequence(ConfigFlags):
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
     electronAthSequence = seqAND("electronAthSequence", [l2ElectronViewsMaker, electronInViewAlgs ] )
-    return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.ElectronsName)
 
+    if not do_idperf:
+        return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.ElectronsName)
+    else:
+        return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.DummyElectronsName)
 
-def fastElectronMenuSequence():
+def fastElectronMenuSequence(do_idperf):
     """ Creates 2nd step Electron  MENU sequence"""
     # retrievee the reco seuqence+IM
-    (electronAthSequence, l2ElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastElectronSequence, ConfigFlags)
+    (electronAthSequence, l2ElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastElectronSequence, {'do_idperf':do_idperf})
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlgMT
