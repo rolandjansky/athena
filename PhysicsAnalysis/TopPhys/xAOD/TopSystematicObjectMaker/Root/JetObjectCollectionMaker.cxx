@@ -238,17 +238,16 @@ namespace top {
 	  const CP::SystematicSet& recommendedSys = tmp_SF_uncert_tool->recommendedSystematics();
 	  
 	  for (const CP::SystematicVariation& sys : recommendedSys) {
+	    // Splitting uncertainties into two categories
+	    // correlated will get a special tree
+	    // uncorrelated SFs will be stored in the nominal tree
 	    bool res = ((sys.name().find("TopTag") == std::string::npos) &&
 			(sys.name().find("WTag") == std::string::npos) &&
 			(sys.name().find("ZTag") == std::string::npos) &&
-			(sys.name().find("JetTag") == std::string::npos));
+			(sys.name().find("JetTag") == std::string::npos) &&
+			(sys.name().find("bTag") == std::string::npos));
 	    
-	    if(res) {
-	      correlatedSys.insert(sys);
-	    }
-	    else {
-	      uncorrelatedSys.insert(sys);
-	    }
+	    res ? correlatedSys.insert(sys) : uncorrelatedSys.insert(sys);
 	  }
 	  
 	  m_tagSFUncorrelatedSystematics[name.first] = CP::make_systematics_vector(uncorrelatedSys);
@@ -558,7 +557,10 @@ namespace top {
 					
     ///-- Shallow copy of the xAOD --///
     std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* >
-    shallow_xaod_copy = xAOD::shallowCopyContainer(*ljets);
+      shallow_xaod_copy = xAOD::shallowCopyContainer(*ljets);
+    auto shallowJets = std::make_pair(std::unique_ptr<xAOD::JetContainer>{shallow_xaod_copy.first},
+      std::unique_ptr<xAOD::ShallowAuxContainer>{shallow_xaod_copy.second});
+    
     
     const size_t njets = ljets->size();
     
@@ -580,7 +582,7 @@ namespace top {
 	const std::string sfNameShifted = fullName + "_" + sys.name();
       
 	for(size_t i=0;i<njets;i++) {
-	  xAOD::Jet* shallowJet = shallow_xaod_copy.first->at(i);
+	  xAOD::Jet* shallowJet = shallowJets.first->at(i);
 	  const xAOD::Jet* jet = ljets->at(i);
       
 	  if(accRange.isAvailable(*shallowJet) && accRange(*shallowJet)) {
@@ -588,12 +590,8 @@ namespace top {
 	    float sf = accSF.isAvailable(*shallowJet) ? accSF(*shallowJet) : -999.;
 	    jet->auxdecor<float>(sfNameShifted.c_str()) = sf;
 	  }
-	  
 	}
-	
       }
-      
-      
     }
    
     return StatusCode::SUCCESS;
