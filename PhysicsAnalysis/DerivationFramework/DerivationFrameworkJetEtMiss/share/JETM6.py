@@ -376,9 +376,6 @@ if DerivationFrameworkHasTruth:
   import DerivationFrameworkCore.WeightMetadata
   import DerivationFrameworkCore.LHE3WeightMetadata
 
-# Add the BCID info
-addDistanceInTrain(jetm6Seq)
-
 # Alternative rho definition
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()

@@ -184,9 +184,6 @@ if DerivationFrameworkHasTruth:
   addRecursiveSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, N=-1,  mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
 
-# Add the BCID info
-addDistanceInTrain(jetm3Seq)
-
 # Alternative rho definition
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()

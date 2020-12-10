@@ -125,9 +125,6 @@ applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm5Seq, algname='JetFo
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlg',includePV=False)
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlowJvtToolAlgNew',outLabel="fJvtWithPV",includePV=True)
 
-# Add the BCID info
-addDistanceInTrain(jetm5Seq)
-
 # Alternative rho definition
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()

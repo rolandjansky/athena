@@ -198,9 +198,6 @@ addConstModJets("AntiKt",0.4,"EMTopo",["CS","SK"],jetm1Seq,"JETM1",
 addConstModJets("AntiKt",0.4,"EMPFlow",["CS","SK"],jetm1Seq,"JETM1",
                 ptmin=2000,ptminFilter=2000)
 
-# Add the BCID info
-addDistanceInTrain(jetm1Seq)
-
 #add pFlow fJVT and MVfJVT for EMTopo
 applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=jetm1Seq, algname='JetForwardJvtToolBDTAlg')
 getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm1Seq, algname='JetForwardPFlowJvtToolAlg')
