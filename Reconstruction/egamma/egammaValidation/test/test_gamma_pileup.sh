@@ -30,7 +30,7 @@ case $ArtProcess in
         echo "Unsetting ATHENA_NUM_PROC=${ATHENA_NUM_PROC}"
         unset  ATHENA_NUM_PROC
 
-        AODMerge_tf.py --inputAODFile=art_core_*/Nightly_AOD_gamma.pool.root --outputAOD_MRGFile=Nightly_AOD_gamma.pool.root --preExec "from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doTrigger=False" --postInclude "all:egammaValidation/egammaArtCaloCalPostInclude.py" 
+        AODMerge_tf.py --inputAODFile=art_core_*/Nightly_AOD_gamma.pool.root --outputAOD_MRGFile=Nightly_AOD_gamma.pool.root --preExec "rec.doTrigger=False; from RecExConfig.RecAlgsFlags import recAlgs; recAlgs.doTrigger=False" --postInclude "all:egammaValidation/egammaArtCaloCalPostInclude.py" 
 
 	echo  "art-result: $? AODMerge"
 
