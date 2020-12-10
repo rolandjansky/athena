@@ -50,6 +50,9 @@
 // m_ep = 1.0e-5; // 10 ppm
 // m_en = 1.0e-5; // 10 ppm
 
+// the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+static constexpr unsigned int const maxNTubesPerLayer = 120;
+
 namespace MuonGM {
 
 MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
@@ -208,6 +211,10 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
       if (nGrandchildren <= 0) return tlength;
       // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
       int ii = (tubeLayer-1)*m_ntubesperlayer+tube;
+      const Identifier id=identify();
+      // BIS78 only (the BIS7 of Run1/2 has no cutouts, thus, this block won't be reached)
+      if ((idh->stationName(id)==1 && std::abs(idh->stationEta(id))==7)) --ii;
+
       if( (getStationName()).find("BMG") != std::string::npos ) {
         // usually the tube number corresponds to the child number, however for
         // BMG chambers full tubes are skipped during the building process
@@ -215,8 +222,8 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
         int tubenbr = -1;
         int layernbr = -1;
         for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-           tubenbr = cv->getIdOfChildVol(kk) % 100;
-           layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
+           tubenbr = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+           layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / maxNTubesPerLayer;
            if( tubenbr == tube && layernbr == tubeLayer) {
              ii = kk;
              if (reLog().level() <= MSG::DEBUG)  
@@ -235,7 +242,7 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
 	  //ii = nGrandchildren-1;
 	  return tlength;
 	}
-      if (ii<=0) 
+      if (ii<0) 
 	{
 	  reLog() << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
 		  << " stPhi " << getStationPhi() << " multilayer "<<getMultilayer()<<" has cutouts, nChild = "<<nGrandchildren
@@ -567,6 +574,11 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
         int nGrandchildren = cv->getNChildVols();
         // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
         int ii = (tubelayer-1)*m_ntubesperlayer+tube;
+        const Identifier id=identify();
+        const MdtIdHelper* idh = manager()->mdtIdHelper();
+        // BIS78 only (the BIS7 of Run1/2 has no cutouts, thus, this block won't be reached)
+        if ((idh->stationName(id)==1 && std::abs(idh->stationEta(id))==7)) --ii;
+
         if( (getStationName()).find("BMG") != std::string::npos ) {
           // usually the tube number corresponds to the child number, however for
           // BMG chambers full tubes are skipped during the building process
@@ -574,8 +586,8 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
           int tubenbr = -1;
           int layernbr = -1;
           for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-             tubenbr = cv->getIdOfChildVol(kk) % 100;
-             layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
+             tubenbr = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+             layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / maxNTubesPerLayer;
              if( tubenbr == tube && layernbr == tubelayer) {
                ii = kk;
                if (reLog().level() <= MSG::DEBUG)  

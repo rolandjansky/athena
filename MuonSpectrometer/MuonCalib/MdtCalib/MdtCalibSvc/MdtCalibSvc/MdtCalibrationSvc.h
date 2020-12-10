@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDTCALIBSVC_MDTCALIBRATIONSVC_H
@@ -16,6 +16,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "Identifier/Identifier.h"
 #include "MuonPrepRawData/MdtDriftCircleStatus.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
 
 class MdtCalibHit;
 class MdtCalibrationSvcInput;
@@ -119,6 +120,9 @@ private:
   /// they should be added to Imp to keep the class free from data exposed to clients
   class Imp;
   Imp *m_imp;
+
+  ToolHandle<Muon::MuonIdHelperTool> m_muIdHelper;
+  bool m_hasBISsMDT;
 };
 
 #endif
