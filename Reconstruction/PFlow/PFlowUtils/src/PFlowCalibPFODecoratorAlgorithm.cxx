@@ -80,18 +80,18 @@ StatusCode PFlowCalibPFODecoratorAlgorithm::execute(const EventContext& ctx) con
   // pfo linker alg
   SG::WriteDecorHandle<xAOD::PFOContainer, std::vector< std::pair<unsigned int, double> > > pfoWriteDecorHandleNLeadingTruthParticles(m_pfoWriteDecorHandleKeyNLeadingTruthParticles, ctx);
 
-  StatusCode sc=this->LinkCalibHitPFO(
+  ATH_CHECK(this->LinkCalibHitPFO(
 				      pfoWriteDecorHandleNLeadingTruthParticles,
 				      mapIdentifierToCalibHitsReadHandle,
-				      mapTruthBarcodeToTruthParticleReadHandle); // end of check block 
+				      mapTruthBarcodeToTruthParticleReadHandle)); // end of check block 
   bool doFlowElements=true;
   if(doFlowElements){
     SG::WriteDecorHandle<xAOD::FlowElementContainer,std::vector<std::pair<unsigned int, double> > > feWriteDecorHandleNLeadingTruthParticles(m_feWriteDecorHandleKeyNLeadingTruthParticles,ctx);
     
-    StatusCode sc=this->LinkCalibHitPFO(
+    ATH_CHECK(this->LinkCalibHitPFO(
 					feWriteDecorHandleNLeadingTruthParticles,
 					mapIdentifierToCalibHitsReadHandle,
-					mapTruthBarcodeToTruthParticleReadHandle); // end of check block
+					mapTruthBarcodeToTruthParticleReadHandle)); // end of check block
   }
   
   return StatusCode::SUCCESS;
