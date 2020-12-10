@@ -185,7 +185,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             NextInnermostNoiseShapeITK = [0.0, 1.0],
             PixelNoiseShapeITK         = [0.0, 1.0]
         )
-      else:
+    else:
         # for data, make sure no Lorentz angle correction
         CondArgs.update(
             BarrelLorentzAngleCorr2016 = [  1.0,  1.0,  1.0,  1.0],
