@@ -134,7 +134,9 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
 
   auto clusContainer = SG::makeHandle (m_TrigEMClusterContainerKey, ctx);
   ATH_MSG_DEBUG( "Made handle " << m_TrigEMClusterContainerKey  );
-  
+
+ /**********************/
+  ATH_MSG_DEBUG("Debo1");  
   
   //JTB Should only be 1 cluster in each RoI 
 
@@ -151,7 +153,8 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
   ATH_MSG_DEBUG("Cluster: ET=" << calo_et);
   ATH_MSG_DEBUG("searching a matching track: loop over tracks");
 
-
+  /**********************/
+  ATH_MSG_DEBUG("Debo2");
 
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrackParticleContainerKey, ctx);
   ATH_MSG_DEBUG( "Made handle " << m_TrackParticleContainerKey  );
@@ -161,6 +164,9 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
       return StatusCode::SUCCESS; // Exit early if there are no tracks
   }
   
+  /**********************/
+  ATH_MSG_DEBUG("Debo3");
+
   size_t coll_size = tracks->size();
   trigElecColl->reserve(coll_size);
 
@@ -176,15 +182,33 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
 
   auto mon = Monitored::Group(m_monTool,  caloPtMon, trackPtMon, caloTrackDEtaMon, caloTrackDPhiMon, etOverPtMon, caloTrackDEtaNoExtrapMon );
 
+  /**********************/
+  ATH_MSG_DEBUG("Debo4");
+
   // Make Dummy Electron
      xAOD::TrigElectron* trigDummyElec = new xAOD::TrigElectron();
+  
+ /**********************/
+  ATH_MSG_DEBUG("Debo5");
+
      ElementLink<xAOD::TrackParticleContainer> trackDummyEL = ElementLink<xAOD::TrackParticleContainer> (*tracks, 0);
-     trigDummyElec->init(  roiDescriptor->roiWord(),
+     
+ /**********************/
+  ATH_MSG_DEBUG("Debo6");  
+     
+     trigDummyElec->init( 0,
                       0, 0,  0,
                       clusEL,
                       trackDummyEL);
-     trigDummyElecColl->push_back(trigDummyElec);
+   
+   /**********************/
+    ATH_MSG_DEBUG("Debo7");
+ 
+    trigDummyElecColl->push_back(trigDummyElec);
   // loop over tracks
+
+  /**********************/
+  ATH_MSG_DEBUG("Debo8");
 
   unsigned int track_index=0;
   for(const auto trkIter:(*tracks)){

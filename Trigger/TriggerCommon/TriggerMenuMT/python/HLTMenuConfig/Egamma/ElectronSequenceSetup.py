@@ -9,6 +9,7 @@ from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
+from AthenaCommon.Constants import DEBUG
 
 def fastElectronSequence(do_idperf):
     """ second step:  tracking....."""
@@ -37,7 +38,7 @@ def fastElectronSequence(do_idperf):
     theElectronFex.TrackParticlesName = TrackParticlesName
     theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
     theElectronFex.DummyElectronsName= "HLT_FastDummyElectrons"
-
+    #theElectronFex.OutputLevel = DEBUG
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
     l2ElectronViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
