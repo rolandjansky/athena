@@ -7,7 +7,7 @@
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 
 MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator) {
+    : AthAlgorithm(name, pSvcLocator) {
 }
 
 StatusCode
@@ -31,8 +31,9 @@ MuonCombinedInDetExtensionAlg::initialize()
 }
 
 StatusCode
-MuonCombinedInDetExtensionAlg::execute(const EventContext& ctx) const
-{
+MuonCombinedInDetExtensionAlg::execute() {
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection(m_indetCandidateCollectionName, ctx);
     if (!indetCandidateCollection.isValid()) {
