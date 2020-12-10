@@ -307,12 +307,9 @@ def getUsedTables(output, condition, schemaname, tables):
 
 
 def isRun2(cursor,schemaname):
-    try:
-        import cx_Oracle
-        if not hasattr(cursor,'connection') or type(cursor.connection)!=cx_Oracle.Connection:
-            log.warning('Detection of DB schema only supported for Oracle. Will assume run-2')
-            return True
-    except ImportError:
+    import cx_Oracle
+    if not hasattr(cursor,'connection') or type(cursor.connection)!=cx_Oracle.Connection:
+        log.warning('Detection of DB schema only supported for Oracle. Will assume run-2')
         return True
 
     owner = schemaname.rstrip('.')
