@@ -17,12 +17,6 @@
 
 class ZdcCablingService
 {
-  //friend class ZdcInfoLoader;
-  //friend class ZdcDetectorTool;
-  //friend class ZdcDetectorFactory;
-  friend class ZdcCablingSvc;
-  //friend class ZdcROD_Decoder;
-
 public:
 
     /** get pointer to service instance*/
