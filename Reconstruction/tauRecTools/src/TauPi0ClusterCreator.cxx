@@ -12,16 +12,8 @@
 #include "xAODJet/Jet.h"
 
 
-
 TauPi0ClusterCreator::TauPi0ClusterCreator(const std::string& name) :
     TauRecToolBase(name) {
-}
-
-
-
-StatusCode TauPi0ClusterCreator::initialize() {
-  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
-  return StatusCode::SUCCESS;
 }
 
 
@@ -51,21 +43,24 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
   // Map shot to the pi0 cluster 
   std::map<unsigned, const xAOD::CaloCluster*> shotToClusterMap = getShotToClusterMap(shotPFOs, pi0ClusterContainer, tau);
 
-  // FIXME: These clusters are custom ones, so could be corrected using tau vertex directly
-  if (! tau.jetLink().isValid()) {
-    ATH_MSG_ERROR("Tau jet link is invalid.");
-    return StatusCode::FAILURE;
-  }
-  const xAOD::Jet *jetSeed = tau.jet();
-  const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
-  const xAOD::Vertex* tauVertex = nullptr;
-  if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
-  TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
+  // We will always perform the vertex correction
+  const xAOD::Vertex* vertex = tauRecTools::getTauVertex(tau);
+  
+  // Tau custom PFO reconstruction is only used in offline reconstrution
+  TLorentzVector tauAxis = tauRecTools::getTauAxis(tau);
 
-  // Loop over clusters, and create neutral PFOs
+  // Loop over custom pi0 clusters, and create neutral PFOs
   for (const xAOD::CaloCluster* cluster: pi0ClusterContainer) {
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
-    
+    // custom clusters could be correctd directly using the tau vertex
+    TLorentzVector clusterP4; 
+    if (vertex) {
+      xAOD::CaloVertexedTopoCluster vertexedCluster(*cluster, vertex->position());
+      clusterP4 = vertexedCluster.p4();
+    }
+    else {
+      clusterP4 = cluster->p4();
+    }
+
     // Clusters must have enough energy, and within 0.4 cone of the tau candidate
     if (clusterP4.Pt() < m_clusterEtCut)   continue;
     if (clusterP4.DeltaR(tauAxis) > 0.4) continue;
@@ -82,18 +77,19 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
     ATH_CHECK(configureNeutralPFO(*cluster, pi0ClusterContainer, tau, shotPFOs, shotToClusterMap, *neutralPFO));
   }
 
-  // Loop over clusters, and create hadronic PFOs
-  std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster));
-  for (const xAOD::CaloCluster* cluster: clusterList) {
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+  // Loop over clusters from jet seed, and create hadronic PFOs
+  std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = tau.vertexedClusters();
+  for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList){
+    TLorentzVector clusterP4 = vertexedCluster.p4();
        
     // Clusters must have positive energy, and within 0.2 cone of the tau candidate 
     if(clusterP4.E()<=0.) continue;
     if(clusterP4.DeltaR(tauAxis) > 0.2) continue;
 
     double clusterEnergyHad = 0.;
-    const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
+    
+    const xAOD::CaloCluster& cluster = vertexedCluster.clust();
+    const CaloClusterCellLink* cellLinks = cluster.getCellLinks();
     CaloClusterCellLink::const_iterator cellLink = cellLinks->begin();
 	for (; cellLink != cellLinks->end(); ++cellLink) {
 	  const CaloCell* cell = static_cast<const CaloCell*>(*cellLink);
@@ -101,6 +97,7 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
       int sampling = cell->caloDDE()->getSampling();
       if (sampling < 8) continue;
 
+      // TODO: what is the weight for EMTopo
       double cellEnergy = cell->e() * cellLink.weight();
       clusterEnergyHad += cellEnergy;
     }
@@ -117,7 +114,7 @@ StatusCode TauPi0ClusterCreator::executePi0ClusterCreator(xAOD::TauJet& tau, xAO
     PFOElementLink.toContainedElement( hadronicPFOContainer, hadronicPFO );
     tau.addHadronicPFOLink( PFOElementLink );
     
-    ATH_CHECK(configureHadronicPFO(*cluster, clusterEnergyHad, *hadronicPFO));
+    ATH_CHECK(configureHadronicPFO(cluster, clusterEnergyHad, *hadronicPFO));
   }
 
   return StatusCode::SUCCESS;
@@ -138,24 +135,26 @@ std::map<unsigned, const xAOD::CaloCluster*> TauPi0ClusterCreator::getShotToClus
     }
     const IdentifierHash seedHash = static_cast<const IdentifierHash>(seedHashInt);
 
-    const xAOD::Jet *jetSeed = tau.jet();
-    if (!jetSeed) {
-      ATH_MSG_ERROR("Tau jet link is invalid.");
-      return shotToClusterMap;
-    }
-    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
+    // We will always perform the vertex correction
+    const xAOD::Vertex* vertex = tauRecTools::getTauVertex(tau);
   
-    const xAOD::Vertex* tauVertex = nullptr;
-    if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
+    // Tau custom PFO reconstruction is only used in offline reconstrution
+    TLorentzVector tauAxis = tauRecTools::getTauAxis(tau);
     
-    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
-
     float weightInCluster = -1.;
     float weightInPreviousCluster = -1;
     
-    for (const xAOD::CaloCluster* cluster : pi0ClusterContainer) {
-      // FIXME: cluster here is not corrected
-      TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+    // Loop over custom pi0 clusters, and map shot to the cluster
+    for (const xAOD::CaloCluster* cluster: pi0ClusterContainer) {
+      // custom clusters could be correctd directly using the tau vertex
+      TLorentzVector clusterP4; 
+      if (vertex) {
+        xAOD::CaloVertexedTopoCluster vertexedCluster(*cluster, vertex->position());
+        clusterP4 = vertexedCluster.p4();
+      }
+      else {
+        clusterP4 = cluster->p4();
+      }
       
       weightInCluster = -1.;
       if (clusterP4.Et() < m_clusterEtCut) continue;

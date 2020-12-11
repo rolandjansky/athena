@@ -41,6 +41,7 @@
 #include "xAODTau/TauDefs.h"
 #include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
@@ -845,7 +846,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
       std::map<std::string, std::map<std::string, std::vector<double>> > rnn_vector;
 
       std::vector<const xAOD::TauTrack *> tracks;
-      std::vector<const xAOD::CaloCluster *> clusters;
+      std::vector<xAOD::CaloVertexedTopoCluster> clusters;
       // TODO: these lines are commented out since the check returns "StatusCode", while "HLT::ErrorCode" is expected. This means no cluster or track variables are monitored
       //ATH_CHECK(m_rnn_evaluator->get_tracks(*p_tau, tracks));
       //ATH_CHECK(m_rnn_evaluator->get_clusters(*p_tau, clusters));
