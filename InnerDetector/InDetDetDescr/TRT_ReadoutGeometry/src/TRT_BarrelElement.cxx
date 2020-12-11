@@ -197,7 +197,7 @@ void TRT_BarrelElement::createSurfaceCache() const
 {
  // create the surface cache
  if (!m_surfaceCache) {
-   m_surfaceCache.set(std::move(createSurfaceCacheHelper()));
+   m_surfaceCache.set(createSurfaceCacheHelper());
  }
  // creaete the surface (only if needed, links are still ok even if cache
  // update)
