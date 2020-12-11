@@ -11,6 +11,7 @@ monLog.info('************* Starting HLTMon transform ***********')
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 #Common job options disable most RecExCommon by default. Re-enable below on demand
 
 rec.doWriteESD=False
@@ -44,6 +45,7 @@ if hasattr(runArgs,"inputBSFile"):
     rec.doAOD=True
     globalflags.InputFormat.set_Value_and_Lock('bytestream')
     athenaCommonFlags.BSRDOInput.set_Value_and_Lock( runArgs.inputBSFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.BSRDOInput()
 
 if hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock(True)
@@ -51,6 +53,7 @@ if hasattr(runArgs,"inputAODFile"):
 
     globalflags.InputFormat.set_Value_and_Lock('pool')
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolAODInput()
 
 if hasattr(runArgs,"outputHIST_TEMPFile"):
     rec.doMonitoring.set_Value_and_Lock(False)
