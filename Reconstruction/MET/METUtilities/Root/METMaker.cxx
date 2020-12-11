@@ -117,6 +117,9 @@ namespace met {
 
     declareProperty("DoMuonEloss",        m_muEloss            = false               );
     declareProperty("ORCaloTaggedMuons",  m_orCaloTaggedMuon   = true                );
+    declareProperty("GreedyPhotons",      m_greedyPhotons      = false               );
+    declareProperty("VeryGreedyPhotons",  m_veryGreedyPhotons  = false               );
+
     
     declareProperty("UseGhostMuons",      m_useGhostMuons      = false               );
     declareProperty("DoRemoveMuonJets",   m_doRemoveMuonJets   = true                );
@@ -311,6 +314,21 @@ namespace met {
         selected = MissingETComposition::selectIfNoOverlaps(helper,orig,p) || !removeOverlap;
         ATH_MSG_VERBOSE(obj->type() << " (" << orig <<") with pt " << obj->pt()
                         << " is " << ( selected ? "non-" : "") << "overlapping");
+
+        // Greedy photon options: set selection flags
+        if ((m_greedyPhotons || m_veryGreedyPhotons) && selected && obj->type() == xAOD::Type::Photon){
+          for(const xAOD::MissingETAssociation* assoc : assocs){
+            std::vector<size_t> indices = assoc->overlapIndices(orig);
+            std::vector<const xAOD::IParticle*> allObjects = assoc->objects();
+            for (size_t index : indices){
+              const xAOD::IParticle* thisObj = allObjects[index];
+              if(!thisObj) continue;
+              if ((thisObj->type() == xAOD::Type::Jet && m_veryGreedyPhotons) ||
+                   thisObj->type() == xAOD::Type::Electron)
+                helper->setObjSelectionFlag(assoc, thisObj, true);
+            }
+          }
+        }
 
         //Do special overlap removal for calo tagged muons
         if(m_orCaloTaggedMuon && !removeOverlap && orig->type()==xAOD::Type::Muon && static_cast<const xAOD::Muon*>(orig)->muonType()==xAOD::Muon::CaloTagged) {
@@ -609,6 +627,10 @@ namespace met {
               ATH_MSG_VERBOSE("  Jet overlaps with " << object->type() << " " << object->index() 
                            << " with pt " << object->pt() << ", phi " << object->phi() );
             }
+
+            // Correctly handle this jet if we're using very greedy photons
+            if (object && object->type() == xAOD::Type::Photon && m_veryGreedyPhotons) hardJet = true;
+
           }
         }
 
