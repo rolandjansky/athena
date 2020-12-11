@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from MuGirlCandidate.MuGirlCandidateConf import MuGirlNS__CandidateTool
 from AthenaCommon.Configurable import *
 from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 from MuonRecExample import MuonRecTools
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
 class MuGirlNS__CandidateToolConfig(MuGirlNS__CandidateTool):
     __slots__ = {}
@@ -16,31 +17,17 @@ class MuGirlNS__CandidateToolConfig(MuGirlNS__CandidateTool):
         MuGirlCandidateRegSelSvc = RegSelSvcDefault()
         MuGirlCandidateRegSelSvc.enableMuon = True
         ServiceMgr += MuGirlCandidateRegSelSvc
-        self.doCSC = True
+        if MuonGeometryFlags.hasCSC(): self.doCSC = True
         self.RegionSelector = MuGirlCandidateRegSelSvc
         from DCMathSegmentMaker.DCMathSegmentMakerConf import Muon__MdtMathSegmentFinder
         finder_candidate = Muon__MdtMathSegmentFinder("MuGirlCandidateSegmentFinder")
         ToolSvc += finder_candidate
 
-        #from DCMathSegmentMaker.DCMathSegmentMakerConf import Muon__DCMathSegmentMaker
-        #maker_candidate = Muon__DCMathSegmentMaker("MuGirlCandidateSegmentMaker")
-        #maker_candidate.MdtSegmentFinder = finder_candidate
-#       maker_candidate.CurvedErrorScaling=True
-        #ToolSvc += maker_candidate
-        #from MdtDriftCircleOnTrackCreator.MdtDriftCircleOnTrackCreatorConf import Muon__MdtDriftCircleOnTrackCreator
-        #DriftCircleOnTrack = Muon__MdtDriftCircleOnTrackCreator("MuGirlCandidateDriftCircleOnTrack")
-        #ToolSvc += DriftCircleOnTrack
-        #self.MdtSegmentMaker = maker_candidate
         self.MdtSegmentMaker = MuonRecTools.getPublicTool("DCMathSegmentMaker")
         self.MdtDriftCircleOnTrackCreator = MuonRecTools.getPublicTool("MdtDriftCircleOnTrackCreator")
-        #self.MdtDriftCircleOnTrackCreator = DriftCircleOnTrack
         import MuonRecExample.MuonReadCalib # setup the calibration service
-        #from CscSegmentMakers.Csc2dSegmentMaker import Csc2dSegmentMaker 
-        #from CscSegmentMakers.Csc4dSegmentMaker import Csc4dSegmentMaker
-        self.CscSegmentMaker = MuonRecTools.getPublicTool("Csc4dSegmentMaker")
-        #from MuidCaloEnergyTools.MuidCaloEnergyToolsConf import Rec__MuidCaloEnergyTool
-        #ToolSvc += Rec__MuidCaloEnergyTool(name = 'MuidCaloEnergyToolParam',EnergyLossMeasurement = False)
-        #ToolSvc += Rec__MuidCaloEnergyTool(name = 'MuidCaloEnergyTool')
+        if MuonGeometryFlags.hasCSC(): self.CscSegmentMaker = MuonRecTools.getPublicTool("Csc4dSegmentMaker")
+        else: self.CscSegmentMaker = None
         from MuonRecExample import MuonPrdProviderToolsConfig
         from AthenaCommon.DetFlags import DetFlags
 
@@ -56,11 +43,11 @@ class MuGirlNS__CandidateToolConfig(MuGirlNS__CandidateTool):
              self.TgcRdoToPrepDataTool = ToolSvc.TgcPrepDataProviderTool
         else:
              self.TgcRdoToPrepDataTool = None
-        if DetFlags.haveRDO.CSC_on():
+        if MuonGeometryFlags.hasCSC() and DetFlags.haveRDO.CSC_on():
              self.CscRdoToPrepDataTool = ToolSvc.CscPrepDataProviderTool
         else:
              self.CscRdoToPrepDataTool = None
 
-        #from CscClusterization.CscThresholdClusterBuilderTool import CscThresholdClusterBuilderTool
-        self.CscClusterProviderTool = MuonRecTools.getPublicTool("CscThresholdClusterBuilderTool")
+        if MuonGeometryFlags.hasCSC(): self.CscClusterProviderTool = MuonRecTools.getPublicTool("CscThresholdClusterBuilderTool")
+        else: self.CscClusterProviderTool = None
 MuGirlNS__CandidateTool = MuGirlNS__CandidateToolConfig()

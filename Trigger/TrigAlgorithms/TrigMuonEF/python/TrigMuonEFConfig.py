@@ -405,6 +405,7 @@ def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool",*
     return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
 
 def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwargs):
+    kwargs.setdefault('MuonIdHelperTool',CfgGetter.getPublicTool('MuonIdHelperTool'))
     kwargs.setdefault('MuonRecoValidationTool','')
     kwargs.setdefault('MuonPRDSelectionTool','TMEF_MuonPRDSelectionTool')
     kwargs.setdefault('MuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
@@ -507,7 +508,7 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
 
         self.useRpcData=muonRecFlags.doRPCs()
         self.useTgcData=muonRecFlags.doTGCs()
-        self.useCscData=muonRecFlags.doCSCs()
+        self.useCscData=(MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs())
         # to select barrel(useMdtData=2), endcap(useMdtData=3)
         if muonRecFlags.doMDTs():
             self.useMdtData=1
