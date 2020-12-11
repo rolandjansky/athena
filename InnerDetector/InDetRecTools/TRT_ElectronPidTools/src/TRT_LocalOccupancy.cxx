@@ -89,6 +89,8 @@ StatusCode TRT_LocalOccupancy::initialize()
   std::string OccupancyCacheName = name() + "OccupancyData";
   m_occupancyCacheRead = OccupancyCacheName;
   m_occupancyCacheWrite = OccupancyCacheName;
+  ATH_CHECK(m_occupancyCacheRead.initialize());
+  ATH_CHECK(m_occupancyCacheWrite.initialize());
 
   return StatusCode::SUCCESS;
 }
