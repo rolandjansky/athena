@@ -68,10 +68,10 @@ namespace Muon {
     /** Default AlgTool functions */
     MuonCandidateTrackBuilderTool(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~MuonCandidateTrackBuilderTool()=default;
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /**IMuonCandidateTrackBuilderTool interface: buildCombinedTrack */   
-    Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const;
+    virtual Trk::Track* buildCombinedTrack( const Trk::Track& idTrack, const MuonCandidate& candidate ) const override;
 
     virtual void cleanUp() const override;
 
