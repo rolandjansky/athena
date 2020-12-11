@@ -38,7 +38,7 @@ del _getpagesz
 
 pat = re.compile (' *[0-9]* ([^ ]+) *([0-9a-f]+)')
 
-format = "%(name)-30s %(dso)5s %(code)5s %(puredata)5s %(cpp)5s %(initdata)5s %(bss)5s %(frag)5s %(total)6s"
+format = "%(name)-30s %(dso)5s %(code)5s %(puredata)5s %(cpp)5s %(initdata)5s %(bss)5s %(tbss)5s %(frag)5s %(total)6s"
 
 def parse_lib (lib):
     out = subprocess.getoutput ("objdump -h " + lib)
@@ -77,6 +77,7 @@ class Data:
         self.java = 0
         self.initdata = 0
         self.bss = 0
+        self.tbss = 0
         self.frag = 0
 
         self.ro = 0
@@ -96,6 +97,7 @@ class Data:
         self.java += other.java
         self.initdata += other.initdata
         self.bss += other.bss
+        self.tbss += other.tbss
         self.ro += other.ro
         self.rw += other.rw
         self.frag += other.frag
@@ -106,12 +108,13 @@ class Data:
         self.frag += _frag (self.ro)
         self.frag += _frag (self.rw)
         self.frag += _frag (self.bss)
+        self.frag += _frag (self.tbss)
         return
 
 
     def total (self):
         return (self.dso + self.code + self.puredata + self.cpp +
-                self.java + self.initdata + self.frag + self.bss)
+                self.java + self.initdata + self.frag + self.bss + self.tbss)
 
 
     def add_secs (self, secs):
@@ -156,6 +159,9 @@ class Data:
             elif s in ['.bss']:
                 self.bss += sz
 
+            elif s in ['.tbss']:
+                self.tbss += sz
+
             elif s in ['.comment', '.gnu_debuglink'] or s.startswith ('.debug'):
                 pass
 
@@ -177,6 +183,7 @@ class Data:
         kw['initdata'] = _form (self.initdata)
         kw['frag'] = _form (self.frag)
         kw['bss'] = _form (self.bss)
+        kw['tbss'] = _form (self.tbss)
         kw['total'] = _form (self.total())
         print (format % kw, file=f)
 
@@ -206,6 +213,7 @@ def main():
          'java' : 'Java',
          'initdata': 'data',
          'bss'  : 'BSS',
+         'tbss' : 'TBSS',
          'frag' : 'Frag',
          'total': 'Total'}
    print (format % kw, file=sys.stdout)
