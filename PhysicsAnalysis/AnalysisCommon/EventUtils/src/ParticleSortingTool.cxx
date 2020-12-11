@@ -29,10 +29,6 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "AthContainers/ConstDataVector.h"
 
-// STL includes
-#include <vector>
-#include <string>
-
 // Constructors
 ////////////////
 ParticleSortingTool::ParticleSortingTool( const std::string& type,
@@ -220,37 +216,37 @@ StatusCode ParticleSortingTool::doSort( xAOD::IParticleContainer* cont ) const
   }
   // Actually do the sorting, using a C++11 lambda function construct
   // to be able to use the member function here
-  if ( abs(m_sortID) == 1 ) {
+  if ( std::abs(m_sortID) == 1 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->comparePt(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 2 ) {
+  else if ( std::abs(m_sortID) == 2 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareEta(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 3 ) {
+  else if ( std::abs(m_sortID) == 3 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->comparePhi(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 4 ) {
+  else if ( std::abs(m_sortID) == 4 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareMass(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 5 ) {
+  else if ( std::abs(m_sortID) == 5 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareEnergy(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 6 ) {
+  else if ( std::abs(m_sortID) == 6 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareRapidity(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 7 ) {
+  else if ( std::abs(m_sortID) == 7 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareAuxData(a,b);
                 } );
