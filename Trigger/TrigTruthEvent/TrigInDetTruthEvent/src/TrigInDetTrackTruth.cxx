@@ -28,6 +28,7 @@
 #include "TrigInDetTruthEvent/TrigInDetTrackTruth.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/IMessageSvc.h"
+#include "AtlasHepMC/Operators.h"
 
 /** accessor to fill object: returns index of new entry in vectors */
 int TrigInDetTrackTruth::addMatch(HepMcParticleLink p_tru_part,TrigIDHitStats hits)
@@ -140,7 +141,7 @@ int TrigInDetTrackTruth::updateFamilyTree()
 	}  
      auto p_mum = p_child_vtx->particles_in().begin();
       
- #else
+#else
       HepMC::GenVertex::particles_in_const_iterator p_mum = p_child_vtx->particles_in_const_begin();
       
       // check a mother was found
