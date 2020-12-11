@@ -15,7 +15,7 @@ The JO can contain the following steering parameters for the tar creator:
 * `genSeq.Sherpa_i.RunCard` (mandatory): the RunCard of the process
 * `genSeq.Sherpa_i.NCores` (default=24): number of cores used for the integration
 * `genSeq.Sherpa_i.MemoryMB` (default=2500): reserved memory for the integration
-* `genSeq.Sherpa_i.OpenLoopsLibs` (default=[]): list of needed OpenLoops libraries -- this is usually not needed anymore for Sherpa >=2.2.8 in Athena >=21.6.13 since they can be read from the central cvmfs installation (`/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/proclib/`) and thus don't need to be included in the tarball anymore. In case you need a library that is not included in cvmfs you can add it through `OpenLoopsLibs`.
+* `genSeq.Sherpa_i.OpenLoopsLibs` (default=[]): list of needed OpenLoops libraries -- this is usually not needed anymore for Sherpa >=2.2.8 in Athena >=21.6.13 since they can be read from the central cvmfs installation (`/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-centos7-gcc62-opt/proclib/`) and thus don't need to be included in the tarball anymore. In case you need a library that is not included in cvmfs you can add it through `OpenLoopsLibs`.
 * `genSeq.Sherpa_i.ExtraFiles` (default=[]): list of extra files which should end up in the tarball (if needed)
 
 Example for a setup with a few options:
@@ -32,7 +32,7 @@ $ ls myExampleSetup/
 mc.Sh_Example.py
 ```
 * Optional: Copy or link additional needed files into the working directory, like "libSherpaFastjetMAXHTPTV.so" (these files have to be listed in "genSeq.Sherpa_i.ExtraFiles" in the JO in order to end up in the tarball)
-* `asetup 21.6.xy,AthGeneration,slc6`
+* `asetup 21.6.xy,AthGeneration`
 * Start sherpaTarCreator in dry-run mode if you want to check what it would write out and submit to the cluster: `sherpaTarCreator.py myExampleSetup -d`
 * Start sherpaTarCreator and submit jobs to the cluster: `sherpaTarCreator.py myExampleSetup`
 
