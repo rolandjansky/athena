@@ -2,7 +2,6 @@
 
 from JetRecConfig.StandardJetConstits import jetconstitdic as cst
 from .JetDefinition import  JetDefinition
-from xAODBase.xAODType import xAODType
 
 
 
