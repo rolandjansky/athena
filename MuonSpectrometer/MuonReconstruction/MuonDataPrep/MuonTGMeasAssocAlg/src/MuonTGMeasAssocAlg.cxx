@@ -39,8 +39,7 @@ Muon::MuonTGMeasAssocAlg::MuonTGMeasAssocAlg(const std::string& name, ISvcLocato
       m_reAlign(false),
       m_misAlign(false),
       m_allowGeomAssoc(true),
-      m_trackingGeometry(0),
-      m_trackingGeometryName("AtlasTrackingGeometry"),
+      m_trackingGeometryReadKey("AtlasTrackingGeometry"),
       m_inputSegmentCollectionMoore("MooreSegments"),
       m_inputSegmentCollectionMoMu("MuonSegments_MoMu"),
       m_inputSegmentCollectionMBoy("ConvertedMBoySegments"),
@@ -56,7 +55,6 @@ Muon::MuonTGMeasAssocAlg::MuonTGMeasAssocAlg(const std::string& name, ISvcLocato
       m_allHits(0),
       m_allSegments(0)
 {
-    declareProperty("TrackingGeometry", m_trackingGeometryName);
     declareProperty("ProcessMdtHits", m_mdtIn);
     declareProperty("ProcessRpcHits", m_rpcIn);
     declareProperty("ProcessCscHits", m_cscIn);
@@ -84,6 +82,8 @@ Muon::MuonTGMeasAssocAlg::initialize()
     ATH_MSG_DEBUG("MuonTGMeasAssocAlg::initialize()");
 
     ATH_CHECK(m_DetectorManagerKey.initialize());
+
+    ATH_CHECK(m_trackingGeometryReadKey.initialize());
 
     // Get an Identifier helper object
     ATH_CHECK(service("ActiveStoreSvc", m_activeStore));
@@ -144,14 +144,18 @@ Muon::MuonTGMeasAssocAlg::execute()
 
     StatusCode sc;
 
-    if (!m_trackingGeometry) {
-
-        ATH_CHECK(detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName));
-        ATH_MSG_DEBUG("tracking geometry Svc \"" << m_trackingGeometryName << "\" booked ");
+    //Set up read handle
+    SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+    if (!readHandle.isValid() || *readHandle == nullptr) {
+        ATH_MSG_WARNING(m_trackingGeometryReadKey.fullKey() << " is not available.");
+        return StatusCode::FAILURE;
     }
+    const Trk::TrackingGeometry* trkGeom = *readHandle;
+
+
     // create station map if not done already ; misalign stations if required
     if (!m_stationMap.size()) {
-        const Trk::TrackingVolume* vol = m_trackingGeometry->highestTrackingVolume();
+        const Trk::TrackingVolume* vol = trkGeom->highestTrackingVolume();
         ATH_MSG_INFO("creating station map ");
         createStationMap(vol, MuonDetMgr);
         ATH_MSG_INFO("station map created with " << m_stationMap.size() << " members ");
@@ -371,6 +375,13 @@ Muon::MuonTGMeasAssocAlg::createStationSegmentCollection(const MuonGM::MuonDetec
 
     m_allSegments = new MuonTGSegments;
 
+    SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+    if (!readHandle.isValid() || *readHandle == nullptr) {
+        ATH_MSG_WARNING(m_trackingGeometryReadKey.fullKey() << " is not available.");
+        return StatusCode::FAILURE;
+    }
+    const Trk::TrackingGeometry* trkGeom = *readHandle;
+
     for (unsigned int ic = 0; ic < segmColls.size(); ic++) {
         const Trk::SegmentCollection* segmColl = segmColls[ic];
         for (Trk::SegmentCollection::const_iterator iter = segmColl->begin(); iter != segmColl->end(); ++iter) {
@@ -381,7 +392,7 @@ Muon::MuonTGMeasAssocAlg::createStationSegmentCollection(const MuonGM::MuonDetec
                 // retrieve station
                 const Trk::DetachedTrackingVolume*                     detVol = 0;
                 const std::vector<const Trk::DetachedTrackingVolume*>* detVols =
-                    m_trackingGeometry->lowestDetachedTrackingVolumes(segment->globalPosition());
+                    trkGeom->lowestDetachedTrackingVolumes(segment->globalPosition());
                 if (detVols) {
                     if (detVols->size() > 1) ATH_MSG_INFO("station overlaps ? ");
                     if (detVols->size()) detVol = detVols->front();
@@ -406,7 +417,7 @@ Muon::MuonTGMeasAssocAlg::createStationSegmentCollection(const MuonGM::MuonDetec
                                 const MuonGM::TgcReadoutElement* tgcROE = MuonDetMgr->getTgcReadoutElement(id);
                                 pos                                     = tgcROE->channelPos(id);
                             }
-                            const Trk::Layer* lay = m_trackingGeometry->associatedLayer(pos);
+                            const Trk::Layer* lay = trkGeom->associatedLayer(pos);
                             if (lay) detVol = lay->enclosingDetachedTrackingVolume();
                             if (detVol) ATH_MSG_DEBUG(" enclosing detached volume retrieved:" << detVol->name());
                         }
@@ -970,8 +981,15 @@ Muon::MuonTGMeasAssocAlg::associatedLayer(int techn, Identifier id, const MuonGM
             // Get the TgcReadoutElement and the tube position from it
             const MuonGM::TgcReadoutElement*                 tgcROE = MuonDetMgr->getTgcReadoutElement(id);
             Amg::Vector3D                                    pos    = tgcROE->channelPos(id);
-            std::vector<const Trk::DetachedTrackingVolume*>* detVols =
-                m_trackingGeometry->lowestDetachedTrackingVolumes(pos);
+
+            //Get the TrackingGeometry
+            SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+            if (!readHandle.isValid() || *readHandle == nullptr) {
+                ATH_MSG_WARNING(m_trackingGeometryReadKey.fullKey() << " is not available.");
+            }
+            const Trk::TrackingGeometry* trkGeom = *readHandle;
+            std::vector<const Trk::DetachedTrackingVolume*>* detVols = trkGeom->lowestDetachedTrackingVolumes(pos);
+
             for (unsigned int i = 0; i < detVols->size(); i++) {
                 Identifier sId((*detVols)[i]->layerRepresentation()->layerType());
                 ATH_MSG_INFO("geom assoc with station:" << (*detVols)[i] << "," << (*detVols)[i]->name() << ","
