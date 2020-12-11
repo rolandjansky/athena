@@ -1308,8 +1308,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                                                  StreamName = 'StreamAOD',
                                                  Cells = 'AllCalo',
                                                  CellLinks = 'CaloCalTopoClusters_links',
-                                                 Taus = "TauJets",
-                                                 UseSubtractedCluster = tauFlags.useSubtractedCluster())
+                                                 Taus = "TauJets")
                 topSequence += tauCellAlg3
                 
         except Exception:
