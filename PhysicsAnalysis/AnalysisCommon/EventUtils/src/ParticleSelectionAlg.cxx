@@ -226,7 +226,7 @@ StatusCode ParticleSelectionAlg::start()
   // Now, register one CutBookkeeper per cut that will be applied.
   // For each of the registered tools, get the TAccept and ask it for all known cuts.
   for ( std::size_t toolIdx=0; toolIdx < m_selTools.size(); ++toolIdx ){
-    const TooHandle<IAsgSelectionTool>& tool = m_selTools[toolIdx];
+    const ToolHandle<IAsgSelectionTool>& tool = m_selTools[toolIdx];
     // Fill the index bookkeeping at what index in the CutBookkeeperContainer
     // the CutBookkeepers for this tool start.
     m_selToolIdxOffset.push_back( cutBKCont->size() );
