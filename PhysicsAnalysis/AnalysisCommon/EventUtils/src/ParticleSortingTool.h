@@ -11,10 +11,6 @@
 #ifndef EVENTUTILS_PARTICLESORTINGTOOL_H
 #define EVENTUTILS_PARTICLESORTINGTOOL_H 1
 
-// STL includes
-#include <vector>
-#include <string>
-
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
@@ -25,7 +21,9 @@
 #include "xAODBase/IParticleContainer.h"
 #include "AthContainers/ConstDataVector.h"
 
-
+// STL includes
+#include <vector>
+#include <string>
 
 class ParticleSortingTool
   : virtual public ::DerivationFramework::IAugmentationTool,

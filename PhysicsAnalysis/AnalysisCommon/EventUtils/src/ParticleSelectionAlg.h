@@ -11,10 +11,6 @@
 #ifndef EVENTUTILS_PARTICLESELECTIONALG_H
 #define EVENTUTILS_PARTICLESELECTIONALG_H 1
 
-// STL includes
-#include <string>
-#include <vector>
-
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
 // #include "GaudiKernel/ServiceHandle.h"
@@ -23,6 +19,10 @@
 #include "xAODBase/IParticleContainer.h"
 //#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "PATCore/IAsgSelectionTool.h"
+
+// STL includes
+#include <string>
+#include <vector>
 
 // // Forward declarations
 // namespace Trig{

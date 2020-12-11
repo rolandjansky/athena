@@ -9,15 +9,8 @@
 // Author: Karsten Koeneke <karsten.koeneke@cern.ch>
 ///////////////////////////////////////////////////////////////////
 
-
 // EventUtils includes
 #include "ParticleSortingTool.h"
-
-// STL includes
-#include <vector>
-#include <string>
-
-// FrameWork includes
 
 // EDM includes
 #include "xAODBase/IParticle.h"
@@ -36,7 +29,9 @@
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "AthContainers/ConstDataVector.h"
 
-
+// STL includes
+#include <vector>
+#include <string>
 
 // Constructors
 ////////////////

@@ -11,23 +11,19 @@
 #ifndef EVENTUTILS_PARTICLESORTINGALG_H
 #define EVENTUTILS_PARTICLESORTINGALG_H 1
 
-// STL includes
-#include <string>
-
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+// STL includes
+#include <string>
 
-// forward declarations
+// Forward declarations
 class IJobOptionsSvc;
 namespace DerivationFramework {
   class IAugmentationTool;
 }
-
-
-
 
 class ParticleSortingAlg
   : public ::AthAlgorithm

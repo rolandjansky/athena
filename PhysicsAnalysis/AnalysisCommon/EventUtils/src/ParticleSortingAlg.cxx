@@ -12,14 +12,10 @@
 // EventUtils includes
 #include "ParticleSortingAlg.h"
 
-// STL includes
-
 // FrameWork includes
 #include "Gaudi/Property.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-
-
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
