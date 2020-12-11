@@ -16,6 +16,10 @@ class PixLayers {
  public:
   enum PixLayersID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, NFEI3LAYERS=kIBL, kDBMA, kDBMC, COUNT};
 };
+class DataReadErrors {
+ public:
+  enum DataReadErrorsID {ContainerInvalid = 0, CollectionInvalid, EmptyContainer, COUNT};
+};
 const std::string pixLayersLabel[PixLayers::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "DBMA", "DBMC"};
 const float inv_nmod_per_layer[PixLayers::COUNT] = {1./144., 1./144., 1./286., 1./494., 1./676., 1./448., 1./12., 1./12.};
 const int clusterToTMinCut[PixLayers::COUNT] = {15, 15, 15, 15, 15, 4, 4, 4};
