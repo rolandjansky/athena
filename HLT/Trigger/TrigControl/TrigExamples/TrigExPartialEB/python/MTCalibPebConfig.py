@@ -91,6 +91,7 @@ class MTCalibPebHypoOptions:
         self.NumBurnCycles = 0
         self.BurnTimeRandomly = True
         self.Crunch = False
+        self.CheckDataConsistency = False
         self.ROBAccessDict = rob_access_dict
         self.TimeBetweenROBReqMillisec = 0
         self.PEBROBList = []
@@ -168,6 +169,7 @@ def make_hypo_tool(name, options=default_options):
     hypo_tool.NumBurnCycles             = options.NumBurnCycles
     hypo_tool.BurnTimeRandomly          = options.BurnTimeRandomly
     hypo_tool.Crunch                    = options.Crunch
+    hypo_tool.CheckDataConsistency      = options.CheckDataConsistency
     hypo_tool.ROBAccessDict             = options.ROBAccessDict
     hypo_tool.TimeBetweenROBReqMillisec = options.TimeBetweenROBReqMillisec
     hypo_tool.PEBROBList                = options.PEBROBList
@@ -304,7 +306,7 @@ def make_summary_algs(hypo_algs):
     summMaker.FinalStepDecisions = {}
     for hypo in hypo_algs:
         for tool in hypo.HypoTools:
-            summMaker.FinalStepDecisions[tool.getName()] = str(hypo.HypoOutputDecisions)
+            summMaker.FinalStepDecisions[tool.getName()] = [str(hypo.HypoOutputDecisions)]
     log.info('summMaker = %s', summMaker)
     return [summary, summMaker]
 

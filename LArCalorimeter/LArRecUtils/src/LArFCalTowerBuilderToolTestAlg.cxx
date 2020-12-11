@@ -18,6 +18,7 @@
 #include "AthenaKernel/errorcheck.h"
 #include "TestTools/random.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
@@ -91,12 +92,13 @@ LArFCalTowerBuilderToolTestAlg::make_cells()
 
 
 StatusCode
-LArFCalTowerBuilderToolTestAlg::test_subseg (const CaloTowerSeg::SubSeg& subseg,
+LArFCalTowerBuilderToolTestAlg::test_subseg (const EventContext& ctx,
+                                             const CaloTowerSeg::SubSeg& subseg,
                                              const CaloCellContainer* cells,
                                              const CaloTowerContainer* tow0)
 {
   CaloTowerContainer* tow = new CaloTowerContainer (subseg.segmentation());
-  CHECK( m_builder->execute (tow, cells, &subseg) );
+  CHECK( m_builder->execute (ctx, tow, cells, &subseg) );
 
   for (size_t i = 0; i < tow->size(); i++) {
     typedef CaloTowerContainer::index_t index_t;
@@ -155,10 +157,11 @@ LArFCalTowerBuilderToolTestAlg::test_subseg (const CaloTowerSeg::SubSeg& subseg,
 StatusCode LArFCalTowerBuilderToolTestAlg::test1()
 {
   std::cout << "test1\n";
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   const CaloCellContainer* cells = make_cells();
   CaloTowerContainer* tow1 = new CaloTowerContainer (m_seg);
-  CHECK( m_builder->execute (tow1, cells) );
+  CHECK( m_builder->execute (ctx, tow1, cells) );
 
 #if 0
   std::cout << "cells\n";
@@ -186,8 +189,8 @@ StatusCode LArFCalTowerBuilderToolTestAlg::test1()
     std::cout << "\n";
   }
 
-  CHECK( test_subseg (m_seg.subseg ( 4.5, 0.3, -0.2, 0.4), cells, tow1) );
-  CHECK( test_subseg (m_seg.subseg (-4.5, 0.3,  3.1, 0.4), cells, tow1) );
+  CHECK( test_subseg (ctx, m_seg.subseg ( 4.5, 0.3, -0.2, 0.4), cells, tow1) );
+  CHECK( test_subseg (ctx, m_seg.subseg (-4.5, 0.3,  3.1, 0.4), cells, tow1) );
 
   delete cells;
   delete tow1;

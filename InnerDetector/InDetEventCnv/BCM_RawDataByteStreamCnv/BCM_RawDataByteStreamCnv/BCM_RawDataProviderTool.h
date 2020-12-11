@@ -15,8 +15,6 @@
 class BCM_RDO_Container;
 class BCM_RodDecoder;
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 // the tool to decode a ROB fragment
 
 class BCM_RawDataProviderTool : public AthAlgTool

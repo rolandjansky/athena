@@ -147,6 +147,9 @@ amitag = ""
 from PyUtils.MetaReaderPeeker import metadata
 try:
     amitag = metadata['AMITag']
+    # In some cases AMITag can be a list, just take the last one
+    if type(amitag) == list:
+        amitag=amitag[-1]
 except:
     logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
@@ -567,23 +570,26 @@ if rec.doTrigger:
             treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
             recAlgs.doTrigger=False
 
-#MT part
-## Outputs
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-if TriggerFlags.doMT() and rec.readESD() and rec.doAOD():
-    # Don't run any trigger - only pass the HLT contents from ESD to AOD
-    # Add HLT output
-    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-    hltOutput = HLTTriggerResultGetter()
-    # Add Trigger menu metadata
-    if rec.doFileMetaData():
-        from RecExConfig.ObjKeyStore import objKeyStore
-        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                          "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-        objKeyStore.addManyTypesMetaData( metadataItems )
-    # Add L1 output (to be consistent with R2)
-    from TrigEDMConfig.TriggerEDM import getLvl1AODList
-    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
+# Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
+if rec.readESD() and rec.doAOD():
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    # The simplest protection in case ConfigFlags.Input.Files is not set, doesn't cover all cases:
+    if ConfigFlags.Input.Files == ['_ATHENA_GENERIC_INPUTFILE_NAME_'] and athenaCommonFlags.FilesInput():
+        ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+
+    if ConfigFlags.Trigger.EDMVersion == 3:
+        # Add HLT output
+        from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+        hltOutput = HLTTriggerResultGetter()
+        # Add Trigger menu metadata
+        if rec.doFileMetaData():
+            from RecExConfig.ObjKeyStore import objKeyStore
+            metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                              "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+            objKeyStore.addManyTypesMetaData( metadataItems )
+        # Add L1 output (to be consistent with R2)
+        from TrigEDMConfig.TriggerEDM import getLvl1AODList
+        objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
 
 AODFix_postTrigger()
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 // Based on handling of gFEX objects implemeted in Trigger/TrigT1/TrigT1CTP/src/CTPEmulation by Joerg Stelzer.  
 
@@ -10,11 +10,12 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/LockedHandle.h"
 
 #include "xAODTrigger/JetRoIContainer.h" //jets from gFEX
 
-class TH1I;
-class TH2I;
+#include "TH1.h"
+#include "TH2.h"
 
 class ITHistSvc;
 
@@ -38,9 +39,9 @@ namespace LVL1 {
 
       StringProperty m_gFEXJetLoc {""};
 
-      TH1I * m_hPt1 {nullptr};
-      TH1I * m_hPt2 {nullptr};
-      TH2I * m_hEtaPhi {nullptr};
+      mutable LockedHandle<TH1> m_hPt1 ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hPt2 ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEtaPhi ATLAS_THREAD_SAFE;
    };
 }
 

@@ -62,7 +62,6 @@ Tile::TileVolumeBuilder::TileVolumeBuilder(const std::string& t, const std::stri
   AthAlgTool(t,n,p),
   m_tileMgr(0),
   m_tileMgrLocation("Tile"),
-  m_calo_dd(0),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
   m_trackingVolumeCreator("Trk::CylinderVolumeCreator/TrackingVolumeCreator"),
   m_tileBarrelEnvelope(25.*mm),

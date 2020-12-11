@@ -23,7 +23,7 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
     input:             name: The name of the tool (should be unique).
           useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
-    output: The actual tool."""
+    output: The actual tool."""    
     acc = ComponentAccumulator()
     options['name'] = name
     options['xAODBaseName'] = 'SV1'
@@ -32,6 +32,7 @@ def SV1TagCfg( flags, name = 'SV1Tag', scheme = '', useBTagFlagsDefaults = True,
         defaults = { 'Runmodus'                         : flags.BTagging.RunModus,
                      'referenceType'                    : flags.BTagging.ReferenceType,
                      'jetPtMinRef'                      : flags.BTagging.JetPtMinRef,
+                     'SaveProbabilities'                : flags.BTagging.SaveSV1Probabilities,
                      'SVAlgType'                        : 'SV1',
                      'jetCollectionList'                : [], #used only in reference mode
                      'SecVxFinderName'                  : 'SV1',

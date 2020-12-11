@@ -30,7 +30,7 @@ physval.args = '--inputAODFile=AOD.pool.root --outputNTUP_PHYSVALFile=NTUP_PHYSV
 physval.args += ' --postInclude="TriggerTest/disableChronoStatSvcPrintout.py"'
 
 validationFlags = 'doTrigEgamma,doTrigBphys,doTrigMET,doTrigJet,doTrigMuon,doTrigHLTResult,doTrigCalo,doTrigMinBias,doTrigTau,doTrigIDtrk,doTrigBjet'
-validationPreExec = 'TriggerFlags.EDMDecodingVersion.set_Value_and_Lock(3); from TrigEDMConfig import ContainerRemapping_Run2Run3; ContainerRemapping_Run2Run3.remapHLTContainerNames();'
+validationPreExec = 'from TrigEDMConfig import ContainerRemapping_Run2Run3; ContainerRemapping_Run2Run3.remapHLTContainerNames();'
 physval.args += ' --validationFlags="{:s}" --preExec="{:s}"'.format(validationFlags, validationPreExec)
 
 test = Test.Test()

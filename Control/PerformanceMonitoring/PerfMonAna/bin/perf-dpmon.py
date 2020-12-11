@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file: perf-dpmon.py
 # @purpose: analyze the output of PerfMon::StorePayloadMon to display the
 #           DataProxies' payload sizes
@@ -13,38 +13,31 @@ __doc__     = "analyze the output of PerfMon::StorePayloadMon to display the Dat
 
 import os, glob
 import sys
-import traceback
 
 def ana(fname, n_consumers):
     
-    import numpy as np
-    import matplotlib.pyplot as plt
-    DpLoad_dtype = np.dtype([('b0','int32'), ('b1','int32'), ('delta','int32'),
-                             ('clid','|S40'),('sg','|S40')])
-
     import imp
     mod_name = 'perf_dpmon_data_%s' % (
         os.path.splitext(os.path.basename(fname))[0],
         )
     mod_file = open(fname)
     mod = imp.load_module(mod_name, mod_file, fname, ('', '', imp.PY_SOURCE))
-    #execfile(fname)
 
     dp_mon_data = getattr(mod, 'data')
 
     nevts = len(dp_mon_data)
-    for ievt in xrange(nevts):
+    for ievt in range(nevts):
         data = dp_mon_data[ievt]
         store= data[-1]
-        print "::: evt=%4i: %10d -> %10d -- delta= %10d (= %10.3f kb)" % (
-            ievt, store[0], store[1], store[2], store[2]/1024.)
+        print( "::: evt=%4i: %10d -> %10d -- delta= %10d (= %10.3f kb)" % (
+            ievt, store[0], store[1], store[2], store[2]/1024.) )
         top_consumers = [ d for d in data[:-1] ]
-        top_consumers.sort(cmp=lambda x,y: cmp(x[2], y[2]))
-        print ":::  top-consumers: (%s/%s)" % (n_consumers,len(top_consumers))
+        top_consumers = sorted(top_consumers, key=lambda x: x[2])
+        print( ":::  top-consumers: (%s/%s)" % (n_consumers,len(top_consumers)) )
         for c in top_consumers[:n_consumers]:
-            print "%4s %10d -> %10d -- delta= %10d (= %10.3f kb) [%s#%s]" % (
+            print( "%4s %10d -> %10d -- delta= %10d (= %10.3f kb) [%s#%s]" % (
                 '', c[0], c[1], c[2], c[2]/1024., c[3], c[4],
-                )
+                ) )
 
     del dp_mon_data
     del mod
@@ -71,7 +64,7 @@ def main():
 
     (options, args) = parser.parse_args()
 
-    if isinstance(options.input_files, basestring):
+    if isinstance(options.input_files, str):
         options.input_files = [ options.input_files ]
 
     for arg in args:
@@ -85,23 +78,23 @@ def main():
         input_files += f
         
     if len(input_files) == 0:
-        print "ERROR: invalid input files (do they exist ?)"
-        print "ERROR: got: %r" % options.input_files
+        print( "ERROR: invalid input files (do they exist ?)" )
+        print( "ERROR: got: %r" % options.input_files )
         return 1
 
     all_good = True
     for fname in input_files:
         try:
-            print ":"*80
-            print "::: analyzing: [%s]..." % (fname,)
+            print( ":"*80 )
+            print( "::: analyzing: [%s]..." % (fname,) )
             ana(fname, options.n_consumers)
-            print "::: analyzing: [%s]... [done]" % (fname,)
-            print ""
-        except Exception, err:
-            print "ERROR: caught:\n%s" % (err,)
+            print( "::: analyzing: [%s]... [done]" % (fname,) )
+            print( "" )
+        except Exception as err:
+            print( "ERROR: caught:\n%s" % (err,) )
             all_good = False
 
-    print "::: bye."
+    print( "::: bye." )
     if all_good:
         return 0
     return 1

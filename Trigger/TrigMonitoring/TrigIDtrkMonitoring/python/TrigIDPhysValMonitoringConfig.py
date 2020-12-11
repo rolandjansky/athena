@@ -12,13 +12,10 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
   if 'rec' not in dir():
     from RecExConfig.RecFlags  import rec
     
-  from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
-  from TriggerJobOpts.TriggerFlags import TriggerFlags
-      
-  EDMDecodingVersion()
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
       
   mt_chains = True
-  if ( TriggerFlags.EDMDecodingVersion < 3 or legacy_monitoring ) :
+  if ( ConfigFlags.Trigger.EDMVersion < 3 or legacy_monitoring ) :
     mt_chains = False
         
   if rec.doInDet:
@@ -79,9 +76,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useHighestPT = True
     if mt_chains:
       chainnames = [
-        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
-        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig"
       ]
     else:
@@ -98,9 +95,9 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     useOffline=True
     if mt_chains:
       chainnames = [
-        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*idperf.*:key=HLT_IDTrack_Electron_IDTrig",
-        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF",
+        "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
         "HLT_e.*etcut.*:key=HLT_IDTrack_Electron_IDTrig"
       ]
     else:      
@@ -157,8 +154,8 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
     if mt_chains:
       chainnames = [
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso_TauID",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso_TauID"
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso"
       ]
     else:
       chainnames = [
@@ -180,7 +177,7 @@ def TrigIDPhysValMonitoringTool( legacy_monitoring=False ):
       chainnames = [
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
-        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig",
+        "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
         "HLT_tau.*idperf.*tracktwo.*:key=HLT_IDTrack_Tau_FTF"
       ]
     else:

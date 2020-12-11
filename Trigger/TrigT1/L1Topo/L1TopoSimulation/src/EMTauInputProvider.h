@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoSimulation_EMTauInputProvider
@@ -8,9 +8,11 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/LockedHandle.h"
 #include "TrigT1CaloEvent/CPCMXTopoData.h"
-class TH1I;
-class TH2I;
+
+#include "TH1.h"
+#include "TH2.h"
 
 class ITHistSvc;
 
@@ -38,10 +40,10 @@ namespace LVL1 {
 
       SG::ReadHandleKey<DataVector<LVL1::CPCMXTopoData>> m_emTauLocation;    //!<  EMTAU ROI SG key
 
-      TH1I * m_hEMEt {nullptr};
-      TH2I * m_hEMEtaPhi {nullptr};
-      TH1I * m_hTauEt {nullptr};
-      TH2I * m_hTauEtaPhi {nullptr};
+      mutable LockedHandle<TH1> m_hEMEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hEMEtaPhi ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH2> m_hTauEtaPhi ATLAS_THREAD_SAFE;
 
    };
 }

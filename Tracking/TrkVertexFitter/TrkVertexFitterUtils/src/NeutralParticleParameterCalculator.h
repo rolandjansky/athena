@@ -58,7 +58,7 @@ namespace Trk
    /**
     * method that makes the parameters of a V0 or photon before decay to two tracks
     */
-    NeutralPerigee* createNeutralTrackFromVertex(const xAOD::Vertex& ) const;
+    virtual NeutralPerigee* createNeutralTrackFromVertex(const xAOD::Vertex& ) const override;
 
   private:
 

@@ -27,8 +27,6 @@
 #include "eformat/SourceIdentifier.h"
 #include <atomic>
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
-
 class BCM_RodDecoder : public AthAlgTool
 {
 

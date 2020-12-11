@@ -445,7 +445,7 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
     // create a new output Decision object, backed by the 'decisions' container.
     Decision* decision = TrigCompositeUtils::newDecisionIn(decisions);
 
-    std::vector<DecisionIDContainer*> previousDecisionIDs;
+    std::vector<const DecisionIDContainer*> previousDecisionIDs;
     for (size_t itrk : trigBphysTrackIdx[idx]) {
       // attach all previous decisions: if the same previous decision is called twice, that's fine - internally takes care of that
       for (const ElementLink<DecisionContainer>& previousDecisionEL : tracks[itrk].second) {

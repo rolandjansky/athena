@@ -21,14 +21,18 @@ recoLog.info( '****************** STARTING ESD->AOD MAKING *****************' )
 
 from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 ## Input
-if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
+if hasattr(runArgs,"inputFile"):
+    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 if hasattr(runArgs,"inputESDFile"):
     globalflags.InputFormat.set_Value_and_Lock('pool')
     rec.readESD.set_Value_and_Lock( True )
     rec.readRDO.set_Value_and_Lock( False )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolESDInput()
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -48,8 +52,8 @@ if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True ) 
     athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
-    # Begin temporary trigger block
-    if TriggerFlags.doMT():
+    # Begin temporary block for Run-3 Trigger outputs
+    if ConfigFlags.Trigger.EDMVersion == 3:
         # Lock DQ configuration to prevent downstream override
         from AthenaMonitoring.DQMonFlags import DQMonFlags
         print('DQMonFlags override')

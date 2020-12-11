@@ -158,7 +158,7 @@ bool TrigMultiTrkComboHypoTool::passed(const xAOD::TrigBphys* trigBphys) const {
 }
 
 
-StatusCode TrigMultiTrkComboHypoTool::decideOnSingleObject(Decision* decision, const std::vector<DecisionIDContainer*>& previousDecisionIDs) const {
+StatusCode TrigMultiTrkComboHypoTool::decideOnSingleObject(Decision* decision, const std::vector<const DecisionIDContainer*>& previousDecisionIDs) const {
 
   ATH_CHECK( decision->hasObjectLink(TrigCompositeUtils::featureString()) );
 

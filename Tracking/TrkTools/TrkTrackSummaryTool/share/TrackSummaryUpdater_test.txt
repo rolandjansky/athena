@@ -1,0 +1,8 @@
+EventDataSvc.ForceLeaves = true;
+EventDataSvc.RootCLID    = 1;
+ApplicationMgr.Dlls += { "AthenaServices", "StoreGate" };
+ApplicationMgr.ExtSvc = {"StoreGateSvc", "StoreGateSvc/DetectorStore"};
+ApplicationMgr.EvtMax = 1;
+ApplicationMgr.EvtSel = "TestEvtSelector";
+ApplicationMgr.HistogramPersistency = "NONE";
+MessageSvc.OutputLevel = 3;

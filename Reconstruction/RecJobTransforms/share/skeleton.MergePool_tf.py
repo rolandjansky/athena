@@ -15,6 +15,8 @@ import logging
 recoLog = logging.getLogger('merge_pool')
 recoLog.info( '****************** STARTING POOL FILE MERGING *****************' )
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
 ## Input
 # Deal with generic case first of all
 if hasattr(runArgs, "inputPOOL_MRG_INPUTFile"):
@@ -43,6 +45,7 @@ if hasattr(runArgs,"inputAODFile"):
     rec.readAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolAODInput.set_Value_and_Lock( runArgs.inputAODFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolAODInput()
     rec.doAODMerging.set_Value_and_Lock(True)
     rec.doApplyAODFix.set_Value_and_Lock(False)
 
@@ -50,6 +53,7 @@ if hasattr(runArgs,"inputESDFile"):
     rec.readESD.set_Value_and_Lock( True )
     rec.doWriteESD.set_Value_and_Lock( True )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolESDInput()
 
 ## Output
 if hasattr(runArgs,"outputAOD_MRGFile"): athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAOD_MRGFile )

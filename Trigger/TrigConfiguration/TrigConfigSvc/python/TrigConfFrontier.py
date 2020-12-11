@@ -42,9 +42,30 @@ def testUrl(url):
         return False
     return True
 
+def resolveUrl(url):
+    """
+    Expects input string to be a URL or $FRONTIER_SERVER
+    Returns an accessible URL or None"""
+    import re
+    if re.match("http://",url): # simple URL specification http://...
+        return url if testUrl(url) else None
+
+    if re.match(r'\(serverurl=(.*?)\)',url): # syntax of FRONTIER_SERVER
+        for url in getServerUrls(url):
+            if testUrl(url):
+                return url     
+        return None
+
+
 def getFrontierCursor(url, schema, loglevel = logging.INFO):
     log = logging.getLogger( "TrigConfFrontier.py" )
     log.setLevel(loglevel)
+    url = resolveUrl(url)
+    if url is None:
+        log.warning("Cannot find a valid frontier connection, will not return a Frontier cursor")
+        return None
+    else:
+        log.info(f"Will use Frontier server at {url}")
     if useFrontierClient:
         log.info("Using frontier_client from TrigConfDBConnection")
         return FrontierCursor2( url = url, schema = schema)
@@ -201,8 +222,6 @@ class FrontierCursor(object):
         queryStart = time.localtime()
         log.debug("Query started: %s", time.strftime("%m/%d/%y %H:%M:%S %Z", queryStart))
 
-        print(request)
-
         t1 = time.time()
         result = urllib.request.urlopen(request,None,10).read().decode()
         t2 = time.time()
@@ -308,21 +327,15 @@ def testQuery(query, bindvars):
 
     from TrigConfigSvc.TrigConfigSvcUtils import interpretConnection
     connectionParameters = interpretConnection("TRIGGERDBMC")
-    for url in getServerUrls( connectionParameters['url'] ):
-        if not testUrl(url):
-            log.info("Skipping %s (failing connection test)", url)
-            continue
-        log.info("Testing %s", url)
-        cursor = getFrontierCursor( url = url, schema = connectionParameters['schema'])
-        cursor.execute(query, bindvars)
-        log.info("Raw response:")
-        print(cursor.result)
-        cursor.decodeResult()
-        log.info("Decoded response:")
-        log.info(cursor.result[0][0])        
-        if cursor.result[0][0] != 'MC_pp_v7':
-            return 1
-        break
+    cursor = getFrontierCursor( url = connectionParameters['url'], schema = connectionParameters['schema'])
+    cursor.execute(query, bindvars)
+    log.info("Raw response:")
+    print(cursor.result)
+    cursor.decodeResult()
+    log.info("Decoded response:")
+    log.info(cursor.result[0][0])        
+    if cursor.result[0][0] != 'MC_pp_v7':
+        return 1
     return 0
 
 

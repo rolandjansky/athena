@@ -237,6 +237,8 @@ class T2VertexBeamSpotToolMonitoring(BaseMonitoringTool):
                              title="ClusterDeltaZ0; Delta of track Z0 and cluster Z position [mm]; Number of tracks")
             self.makeHisto1D('ClusterZ0Pull', 'TH1I', 100, -10.0, 10.0,
                              title="ClusterZ0Pull; Pull of track Z0 with respect to cluster Z position; Number of tracks")
+            self.makeHisto1D('ClusterClusterDeltaZ0', 'TH1I', 200, -100.0, 100.0,
+                             title="ClusterClusterDeltaZ0; Delta of cluster-cluster Z position [mm]; Number of clusters")
 
     def defineVertexHistos(self, detail):
 

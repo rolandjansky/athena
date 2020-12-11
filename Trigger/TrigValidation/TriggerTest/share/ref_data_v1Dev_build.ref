@@ -94,6 +94,46 @@ HLT_2mu4_L12MU4:
     0: 1
   stepFeatures:
     0: 4
+HLT_2mu4_bBmumux_BcmumuPi_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 4
+    1: 2
+HLT_2mu4_bBmumux_BdmumuKst_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 4
+    1: 2
+HLT_2mu4_bBmumux_BpmumuKp_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 4
+    1: 2
+HLT_2mu4_bBmumux_BsmumuPhi_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 4
+    1: 2
+HLT_2mu4_bBmumux_LbPqKm_L12MU4:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 4
+    1: 2
 HLT_2mu4_bDimu_L12MU4:
   eventCount: 0
   stepCounts:
