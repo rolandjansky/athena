@@ -59,7 +59,6 @@ namespace Trig
     // TODO - detect if we're looking at run 3 data.
     // If we are, then setting rerun to true should give a warning as it no
     // longer makes sense for run 3
-    unsigned int condition = rerun ? TrigDefs::Physics | TrigDefs::allowResurrectedDecision : TrigDefs::Physics;
 
     // In what follows, the same comparisons between reco and trigger objects will done
     // fairly frequently. As these include DR checks we want to minimise how often we do these
@@ -73,8 +72,12 @@ namespace Trig
     const Trig::ChainGroup *chainGroup = m_trigDecTool->getChainGroup(chain);
     for (const std::string &chainName : chainGroup->getListOfTriggers())
     {
-      if (msgLvl(MSG::DEBUG))
-        ATH_MSG_DEBUG("Chain " << chainName << " was passed? " << m_trigDecTool->isPassed(chainName));
+      if (!m_trigDecTool->isPassed(chainName, rerun ? TrigDefs::Physics | TrigDefs::allowResurrectedDecision : TrigDefs::Physics))
+      {
+        ATH_MSG_DEBUG("Chain " << chainName << " did not pass");
+        continue;
+      }
+      ATH_MSG_DEBUG("Chain " << chainName << " passed");
       // Now we have to build up combinations
       // TODO - right now we use a filter that passes everything that isn't pointer-equal.
       // This will probably need to be fixed to something else later - at least the unique RoI filter
@@ -83,7 +86,7 @@ namespace Trig
       std::vector<std::size_t> multiplicities = chainInfo->leg_multiplicities();
       combinations.reserve(multiplicities.size());
       // Get all the features for the chain
-      VecLinkInfo_t chainFeatures = m_trigDecTool->features<xAOD::IParticleContainer>(chainName, condition);
+      VecLinkInfo_t chainFeatures = m_trigDecTool->features<xAOD::IParticleContainer>(chainName);
       ATH_MSG_VERBOSE("Chain " << chainName << " has " << chainFeatures.size() << " features and " << multiplicities.size() << " legs with multiplicities, nFeatures: ");
       if (multiplicities.size() == 1)
       {

@@ -13,12 +13,25 @@ namespace TrigCompositeUtils
     return true;
   }
 
+  bool uniqueInitialRoIs(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links)
+  {
+    std::set<std::pair<uint32_t, uint32_t>> seen;
+    for (const auto &info : links)
+    {
+      LinkInfo<TrigRoiDescriptorCollection> roi = findLink<TrigRoiDescriptorCollection>(info.source, initialRoIString());
+      if (!seen.insert(std::make_pair(roi.link.persKey(), roi.link.persIndex())).second)
+        // Insert returns false if that item already exists in it
+        return false;
+    }
+    return true;
+  }
+
   bool uniqueRoIs(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links)
   {
     std::set<std::pair<uint32_t, uint32_t>> seen;
     for (const auto &info : links)
     {
-      LinkInfo<TrigRoiDescriptorCollection> roi = findLink<TrigRoiDescriptorCollection>(info.source, "initialRoI");
+      LinkInfo<TrigRoiDescriptorCollection> roi = findLink<TrigRoiDescriptorCollection>(info.source, "roi");
       if (!seen.insert(std::make_pair(roi.link.persKey(), roi.link.persIndex())).second)
         // Insert returns false if that item already exists in it
         return false;

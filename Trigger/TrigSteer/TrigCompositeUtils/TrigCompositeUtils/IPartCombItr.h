@@ -21,10 +21,14 @@ namespace TrigCompositeUtils
     UniqueObjects,
     /// Do not allow any two objects to share an RoI
     UniqueRoIs,
+    /// Do not allow any two objects to share an initial RoI
+    UniqueInitialRoIs
   };
   /// Helper fucntion that returns true if no objects are repeated
   bool uniqueObjects(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links);
   /// Helper function that returns true if no objects share an initial RoI
+  bool uniqueInitialRoIs(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links);
+  /// Helper function that returns true if no objects share a final RoI
   bool uniqueRoIs(const std::vector<LinkInfo<xAOD::IParticleContainer>> &links);
 
   /// Get a lambda corresponding to the specified FilterType enum.
