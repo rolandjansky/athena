@@ -36,14 +36,12 @@ StatusCode JetCopier::initialize() {
 }
 
 
+#ifndef XAOD_ANALYSIS
 // Setup helper to propagate decorations from original to copy
 StatusCode JetCopier::initWithOutput(const SG::WriteHandleKey<xAOD::JetContainer>& outputJets) {
-#ifndef XAOD_ANALYSIS
   return m_decorDeps.initialize(m_inputJets, outputJets) ;
-#else
-  return StatusCode::SUCCESS;
-#endif
 }
+#endif
 
 
 StatusCode JetCopier::getAndRecordJets(SG::WriteHandle<xAOD::JetContainer>& jetHandle) const {

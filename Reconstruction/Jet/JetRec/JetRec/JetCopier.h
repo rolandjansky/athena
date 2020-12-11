@@ -41,9 +41,13 @@ class JetCopier
 
     // Called in parent initialize()
     virtual StatusCode initialize() override;
+
+#ifndef XAOD_ANALYSIS
     // Needed to initialise the ShallowCopyDecorDeps object, which propagates
     // decorations on the original into the copy in StoreGate.
+    // Override interface implementation in Athena only
     virtual StatusCode initWithOutput(const SG::WriteHandleKey<xAOD::JetContainer>& outputJets) override;
+#endif
 
     // Called during execution
     virtual StatusCode getAndRecordJets(SG::WriteHandle<xAOD::JetContainer>& jetHandle) const override;
