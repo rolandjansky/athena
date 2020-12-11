@@ -3,7 +3,7 @@
 */
 
 #include "EventInfoByteStreamAuxCnv.h"
-#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
+#include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
@@ -62,9 +62,9 @@ StatusCode EventInfoByteStreamAuxCnv::initialize()
     ATH_MSG_ERROR("Cannot get ByteStreamCnvSvc ");
     return sc;
   }
-  m_ByteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(svc);
+  m_ByteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvcBase*>(svc);
   if (!m_ByteStreamCnvSvc) {
-    ATH_MSG_ERROR("Cannot cast to ByteStreamCnvSvc");
+    ATH_MSG_ERROR("Cannot cast to ByteStreamCnvSvcBase");
     return StatusCode::FAILURE;
   }
 
