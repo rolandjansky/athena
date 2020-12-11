@@ -60,7 +60,7 @@ namespace Trk
   * belonging to the VxCandidate with the knowledge
   * of the vertex position
   */
-   virtual void smooth(xAOD::Vertex& vtx) const;
+   virtual void smooth(xAOD::Vertex& vtx) const override;
   
   private:
 
