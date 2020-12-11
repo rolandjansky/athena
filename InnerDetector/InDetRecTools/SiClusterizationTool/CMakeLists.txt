@@ -9,6 +9,7 @@ find_package( Eigen )
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core MathCore Hist )
 find_package( COOL COMPONENTS CoolKernel CoolApplication )
+find_package( Boost )
 
 # Component(s) in the package:
 atlas_add_library( SiClusterizationToolLib
