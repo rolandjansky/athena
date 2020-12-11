@@ -1,38 +1,21 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-
-///////////////////////////////////////////////////////////////////
-// MuonCurvedSegmentCombiner.h, (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
 
 #ifndef MUONMUONCURVEDSEGMENTCOMBINER_H
 #define MUONMUONCURVEDSEGMENTCOMBINER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ToolHandle.h"
+
 #include "MuonSegmentCombinerToolInterfaces/IMuonCurvedSegmentCombiner.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentPairFittingTool.h"
 #include "MuonEDM_AssociationObjects/MuonSegPatAssMap.h"
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonCurvedSegmentCombiner/MCSCSegmentInfo.h"
 
 #include <string>
 #include <map>
-
-#include "GaudiKernel/ToolHandle.h"
-
-#include "MuonCurvedSegmentCombiner/MCSCSegmentInfo.h"
-
-class Identifier;
-
-namespace MuonGM {
-    class MuonDetectorManager;
-}
-
-class RpcIdHelper;
-class TgcIdHelper;
-class CscIdHelper;
-class MdtIdHelper;
 
 namespace Muon
 {
@@ -58,12 +41,10 @@ namespace Muon
     MuonCurvedSegmentCombiner(const std::string&,const std::string&,const IInterface*);
 
     /** default destructor */
-    virtual ~MuonCurvedSegmentCombiner ();
+    virtual ~MuonCurvedSegmentCombiner ()=default;
       
     /** standard Athena-Algorithm method */
     virtual StatusCode initialize();
-    /** standard Athena-Algorithm method */
-    virtual StatusCode finalize  ();
       
     /** INSERT main method here.*/
     MuonSegmentCombinationCollection* combineSegments(    const MuonSegmentCombinationCollection& mdtCombiColl, 
@@ -93,15 +74,8 @@ namespace Muon
 
 
   private:
-     
-    //       const Muon::MuonSegPatAssMap* m_assCscMap;
 
-    const MuonGM::MuonDetectorManager*  m_detMgr;
-
-    const RpcIdHelper*                  m_rpcIdHelper;
-    const TgcIdHelper*                  m_tgcIdHelper;
-    const CscIdHelper*                  m_cscIdHelper;
-    const MdtIdHelper*                  m_mdtIdHelper;
+    ToolHandle<Muon::MuonIdHelperTool> m_idHelperTool;
 
     ToolHandle< MuonEDMPrinterTool> m_printer;
 

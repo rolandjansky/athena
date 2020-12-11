@@ -43,6 +43,7 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
 {
    declareInterface<TrigL2MuonSA::MuFastDataPreparator>(this);
    declareProperty("RPCRecRoiSvc",      m_recRPCRoiSvc,      "Reconstruction of RPC RoI");
+   declareProperty("CscDataPreparator", m_cscDataPreparator);
 }
 
 // --------------------------------------------------------------------------------
@@ -121,12 +122,14 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    }
    ATH_MSG_DEBUG("Retrieved service " << m_mdtDataPreparator);
    
-   sc =m_cscDataPreparator.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_cscDataPreparator);
-     return sc;
+   if (!m_cscDataPreparator.empty()) {
+     sc =m_cscDataPreparator.retrieve();
+     if ( sc.isFailure() ) {
+       ATH_MSG_ERROR("Could not retrieve " << m_cscDataPreparator);
+       return sc;
+     }
+     ATH_MSG_DEBUG("Retrieved service " << m_cscDataPreparator);
    }
-   ATH_MSG_DEBUG("Retrieved service " << m_cscDataPreparator);
 
    sc =m_rpcRoadDefiner.retrieve();
    if ( sc.isFailure() ) {
@@ -232,7 +235,7 @@ void TrigL2MuonSA::MuFastDataPreparator::setRoIBasedDataAccess(bool use_RoIBased
   m_mdtDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_MDT);
   m_rpcDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_RPC);
   m_tgcDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_TGC);
-  m_cscDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_CSC);
+  if (!m_cscDataPreparator.empty()) m_cscDataPreparator->setRoIBasedDataAccess(use_RoIBasedDataAccess_CSC);
   return;
 }
 
@@ -371,14 +374,16 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
   ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
   
-  sc = m_cscDataPreparator->prepareData(p_roids,
-                                        muonRoad,
-                                        cscHits);
-  if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Error in CSC data preparation.");
-    return sc;
+  if (!m_cscDataPreparator.empty()) {
+    sc = m_cscDataPreparator->prepareData(p_roids,
+                                          muonRoad,
+                                          cscHits);
+    if (!sc.isSuccess()) {
+      ATH_MSG_WARNING("Error in CSC data preparation.");
+      return sc;
+    }
+    ATH_MSG_DEBUG("nr of CSC hits=" << cscHits.size());
   }
-  ATH_MSG_DEBUG("nr of CSC hits=" << cscHits.size());
 
   return StatusCode::SUCCESS; 
 }
