@@ -82,7 +82,6 @@ fi
 # (without the postInclude, a standard reconstruction job would run)
 LOG_RECO="log_Run3_asymmetric_reco.log"
 Reco_tf.py --inputRDOFile OUT_RDO.root \
-           --preExec "from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.setDefaults();muonRecFlags.doFastDigitization=False;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);from RecExConfig.RecFlags import rec;rec.doTrigger=False;rec.doEgamma=True;rec.doLucid=True;rec.doZdc=True;rec.doJetMissingETTag=True" \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
