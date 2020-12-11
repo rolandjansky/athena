@@ -789,6 +789,10 @@ namespace MuonCombined {
       return false;
     }
   }
+
+  void MuonCombinedFitTagTool::cleanUp() const {
+    m_trackBuilder->cleanUp();
+  }
   
   
 }	// end of namespace

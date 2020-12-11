@@ -39,6 +39,8 @@ namespace MuonCombined {
       void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
 		    TrackCollection* combTracks, TrackCollection* METracks) const override;
 
+    void cleanUp() const override;
+
   private:
 
     std::unique_ptr<const Trk::Perigee> theCombIdMu( const Trk::Perigee& indetPerigee, const Trk::Perigee& extrPerigee, double& chi2 ) const;
