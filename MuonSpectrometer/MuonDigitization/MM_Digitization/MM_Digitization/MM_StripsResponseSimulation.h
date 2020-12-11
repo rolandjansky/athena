@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_STRIPRESPONSESIMULATION_H
@@ -183,7 +183,7 @@ private:
   MM_StripsResponseSimulation & operator=(const MM_StripsResponseSimulation &right);
   MM_StripsResponseSimulation(const MM_StripsResponseSimulation&);
 
-  std::vector<MM_IonizationCluster> m_IonizationClusters;
+  std::vector<std::unique_ptr<MM_IonizationCluster>> m_IonizationClusters;
 
   std::map<TString, TH1F* > m_mapOfHistograms;
   std::map<TString, TH2F* > m_mapOf2DHistograms;
