@@ -274,14 +274,18 @@ StatusCode LArG4GenShowerLib::execute()
   return StatusCode::SUCCESS;
 }
 
-const HepMC::GenParticle* LArG4GenShowerLib::getParticleFromMC()
+HepMC::ConstGenParticlePtr LArG4GenShowerLib::getParticleFromMC()
 {
   const DataHandle<McEventCollection> mcEvent;
   if (evtStore()->retrieve(mcEvent,"BeamTruthEvent").isFailure()) return 0;
 
   // Return the first particle of the first event
   if (mcEvent)
+#ifdef HEPMC3
+    return (* mcEvent->begin())->particles().front();
+#else
     return ( * (* mcEvent->begin())->particles_begin());
+#endif
 
   return NULL;
 }

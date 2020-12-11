@@ -372,7 +372,7 @@ StatusCode MuonTool::muonSetup(MissingETMuonData *muondata) {
 
   StatusCode sc = StatusCode::SUCCESS; 
 
-  const std::vector<const HepMC::GenParticle*> &truth_muons      = muondata->used_truth_muons();
+  const std::vector<HepMC::ConstGenParticlePtr> &truth_muons      = muondata->used_truth_muons();
   std::vector<const Analysis::Muon*> spectroMuons               = muondata->used_MuonBoy_Spectro_Muons();
   std::vector<const Analysis::Muon*> trackMuons                 = muondata->used_MuonBoy_Track_Muons();
 
