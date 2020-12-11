@@ -117,7 +117,7 @@ int main( int argc, char* argv[] )
                     << ", prong = " << int(xTau->nTracks())
                     << ", charge = " << int(xTau->charge()));
 
-      if ((bool)xTau->auxdata<char>("IsTruthMatched"))
+      if ((bool)xTau->auxdata<char>("IsTruthMatched") && (xTruthTau != nullptr))
       {
         if (xTruthTau->isTau())
         {
