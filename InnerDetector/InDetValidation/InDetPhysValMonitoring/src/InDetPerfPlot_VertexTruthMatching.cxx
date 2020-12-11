@@ -286,19 +286,28 @@ const xAOD::TruthVertex* InDetPerfPlot_VertexTruthMatching::getTruthVertex(const
     const xAOD::TruthVertex* truthVtx = nullptr;
     if (recoVtx) {
         const static xAOD::Vertex::Decorator<std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>> truthMatchingInfos("TruthEventMatchingInfos");
-        const std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>& truthInfos = truthMatchingInfos(*recoVtx);
-        if (!truthInfos.empty()) {
-            const InDetVertexTruthMatchUtils::VertexTruthMatchInfo& truthInfo = truthInfos.at(0);
-            const ElementLink<xAOD::TruthEventBaseContainer> truthEventLink = std::get<0>(truthInfo);
-            const xAOD::TruthEvent* truthEvent = nullptr;
-            if (truthEventLink.isValid()) {
-                truthEvent = static_cast<const xAOD::TruthEvent*>(*truthEventLink);
-                if (truthEvent) {
-                    truthVtx = truthEvent->truthVertex(0);
+        try{
+            if (!truthMatchingInfos.isAvailable(*recoVtx)){
+                ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR not available -- returning nullptr!");
+                return truthVtx;
+            }
+            const std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>& truthInfos = truthMatchingInfos(*recoVtx);
+            if (!truthInfos.empty()) {
+                const InDetVertexTruthMatchUtils::VertexTruthMatchInfo& truthInfo = truthInfos.at(0);
+                const ElementLink<xAOD::TruthEventBaseContainer> truthEventLink = std::get<0>(truthInfo);
+                const xAOD::TruthEvent* truthEvent = nullptr;
+                if (truthEventLink.isValid()) {
+                    truthEvent = static_cast<const xAOD::TruthEvent*>(*truthEventLink);
+                    if (truthEvent) {
+                        truthVtx = truthEvent->truthVertex(0);
+                    }
                 }
             }
+            else {
+                ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
+            }
         }
-        else {
+        catch (SG::ExcBadAuxVar &){
             ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
         }
     }
