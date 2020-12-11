@@ -6,7 +6,7 @@ atlas_subdir( xAODCaloEventAthenaPool )
 # Extra libraries, depending on the build environment.
 set( extra_libs )
 if( NOT XAOD_ANALYSIS )
-   set( extraLibs CaloInterfaceLib )
+   set( extra_libs CaloInterfaceLib )
 endif()
 
 # Component(s) in the package:
