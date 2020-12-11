@@ -7,7 +7,6 @@
 //  AlgTool performing combined fit of ID and MS tracks (Muid)
 //  A CombinedFitTag is added to the InDetCandidate object.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCombinedFitTagTool.h"

@@ -8,7 +8,6 @@
 //  collection to any corresponding tracks from an inner detector collection.
 //  Perform a full track-fit to the resultant combined tracks.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDMATCHMAKER_H

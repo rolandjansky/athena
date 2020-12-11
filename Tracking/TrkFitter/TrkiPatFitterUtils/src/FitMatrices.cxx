@@ -20,7 +20,6 @@
 //               5*5 final covariance with possible external contribution representing
 //               	leading material and field gradient effects
 //
-//  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
 
 #include <iomanip>

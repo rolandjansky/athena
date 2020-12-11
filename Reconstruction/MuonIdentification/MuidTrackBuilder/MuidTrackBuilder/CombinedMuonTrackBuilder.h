@@ -9,7 +9,6 @@
 //  Coulomb scattering.
 //  The resulting track is fitted at the IP
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H

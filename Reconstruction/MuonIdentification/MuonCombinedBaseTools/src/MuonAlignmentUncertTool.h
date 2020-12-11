@@ -6,7 +6,6 @@
 //   MuonAlignmentUncertTool
 //      Helper classes to read the scattering and alignment uncertainties
 //      of the muons from the histograms
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUONCOMBINEDBASETOOLS_MUONALIGNMENTUNCERTTOOL_H

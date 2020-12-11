@@ -7,7 +7,6 @@
 //  AlgTool performing statistical combination of ID and MS tracks (STACO)
 //  A StacoTag is added to the InDetCandidate object.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCombinedStacoTagTool.h"
