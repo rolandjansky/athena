@@ -1,8 +1,7 @@
 /*
- * Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
  */
 
-// $Id$
 /**
  * @file AthenaBaseComps/test/AthAlgTool_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -137,7 +136,7 @@ void test1 (ISvcLocator* svcloc)
 
   MyAlg alg ("toolalg", svcloc);  alg.addRef();
   MyAlgTool tool ("MyAlgTool", "tool2", &alg);  tool.addRef();
-  assert (tool.setProperties().isSuccess());
+  tool.bindPropertiesTo(svcloc->getOptsSvc());
   assert (tool.sysInitialize().isSuccess());
 
   assert (tool.rkey.clid() == 293847295);
@@ -210,14 +209,14 @@ void test2 (ISvcLocator* svcLoc)
 
   MyAlg alg ("arralg", svcLoc);  alg.addRef();
   MyArrAlgTool tool ("MyAlgTool", "arrtool", &alg);  tool.addRef();
-  assert (tool.setProperties().isSuccess());
+  tool.bindPropertiesTo(svcLoc->getOptsSvc());
   assert (tool.sysInitialize().isSuccess());
   comphandles (tool.inputHandles(),{"StoreGateSvc+raa", "StoreGateSvc+rbb", "StoreGateSvc+rcc", "StoreGateSvc+rdd", "StoreGateSvc+ree", "StoreGateSvc+rff", "StoreGateSvc+rrr"});
   comphandles (tool.outputHandles(),{"StoreGateSvc+waa", "StoreGateSvc+wbb", "StoreGateSvc+wcc", "StoreGateSvc+wdd", "StoreGateSvc+wee", "StoreGateSvc+wff", "StoreGateSvc+www"});
 
   // Test that circular dependency detection worksd.
   MyArrAlgTool tool2 ("MyArrAlgTool", "arrtool2", &alg);  tool2.addRef();
-  assert (tool2.setProperties().isSuccess());
+  tool2.bindPropertiesTo(svcLoc->getOptsSvc());
   assert (tool2.sysInitialize().isFailure());
 }
 
