@@ -2287,12 +2287,15 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
       float topR=(*it_commonTopSP).second->radius();
       float topZ=(*it_commonTopSP).second->z();
 
-      float theta1=std::atan2(topR-bottomR,topZ-bottomZ);
-      float eta1=-std::log(std::tan(.5*theta1));
+      float Zot = std::abs(topR - bottomR) > 10e-9 ?
+        bottomZ - (bottomR - originalSeedQuality) * ((topZ - bottomZ) / (topR - bottomR)) : bottomZ;
 
-      float Zot=bottomZ - (bottomR-originalSeedQuality) * ((topZ-bottomZ)/(topR-bottomR));
-      float theta0=std::atan2(seedIP,Zot);
-      float eta0=-std::log(std::tan(.5*theta0));
+      float theta1 = std::abs(topR - bottomR) > 10e-9 ?
+        std::atan2(topR - bottomR, topZ - bottomZ) : 0.;
+      float eta1 = theta1 > 0 ? -std::log(std::tan(.5 * theta1)) : 0.;
+
+      float theta0 = seedIP > 0 ? std::atan2(seedIP, Zot) : 0;
+      float eta0 = theta0 > 0 ? -std::log(std::tan(.5 * theta0)) : 0.;
 
       float deltaEta=std::abs(eta1-eta0); //For LLP daughters, the direction of the track is correlated with the direction of the LLP (which is correlated with the direction of the point of closest approach
       //calculate weighted average of d0 and deltaEta, normalized by their maximum values
