@@ -38,6 +38,7 @@ namespace PFO {
       m_FE_pt_etaBinA = Book1D("_Pt_A",m_sFEContainerName + "_Pt (Entries/1 GeV, |eta| < 1 )",30,-10.0,20.0);
       m_FE_pt_etaBinB = Book1D("_Pt_B",m_sFEContainerName + "_Pt (Entries/1 GeV,  1 <= |eta| < 2 )",30,-10.0,20.0);
       m_FE_pt_etaBinC = Book1D("_Pt_C",m_sFEContainerName + "_Pt (Entries/1 GeV, |eta| >= 2 )",30,-10.0,20.0);
+      m_FE_eta_posE=Book1D("_EtaPosE",m_sFEContainerName+"_Eta (E>0) (Entries/0.1)",100,-5.0,5.0);
     }
   }
 
@@ -64,7 +65,10 @@ namespace PFO {
     if (fabs(FE.eta()) < 1)  m_FE_pt_etaBinA->Fill(FE.pt()/1000.0);
     else if (fabs(FE.eta()) < 2) m_FE_pt_etaBinB->Fill(FE.pt()/1000.0);
     else m_FE_pt_etaBinC->Fill(FE.pt()/1000.0);
-    
+    // additional debug plot: Eta given FlowElem energy>0
+    if (FE.e()>0){
+      m_FE_eta_posE->Fill(FE.eta());
+    }
   }
 
 }
