@@ -441,23 +441,25 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
 
 void
 InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
+  const EventContext& ctx,
   const Trk::Track& track,
   Trk::TrackSummary& summary) const
 {
 
-  if (m_usePixel and not m_testBLayerTool.empty() ) {
+  if (m_usePixel and not m_testBLayerTool.empty()) {
 
-    if ( summary.m_information[Trk::numberOfContribPixelLayers] == 0 ) {
+    if (summary.m_information[Trk::numberOfContribPixelLayers] == 0) {
       ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
       summary.m_information[Trk::expectInnermostPixelLayerHit] = 0;
       summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 0;
-    } else{
-      //innermost layer block
-      if (summary.m_information[Trk::numberOfInnermostPixelLayerHits] > 0){
-        ATH_MSG_DEBUG("Innermost pixel Layer hit on track, so we expect a innermost pixel layer hit !");
+    } else {
+      // innermost layer block
+      if (summary.m_information[Trk::numberOfInnermostPixelLayerHits] > 0) {
+        ATH_MSG_DEBUG("Innermost pixel Layer hit on track, so we expect a "
+                      "innermost pixel layer hit !");
         summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInInnermostPixelLayer(&track) ) {
+        if (m_testBLayerTool->expectHitInInnermostPixelLayer(ctx,&track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 0 hit !");
           summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
         } else {
@@ -466,11 +468,12 @@ InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
         }
       }
 
-      //next to innermost block
-      if (summary.m_information[Trk::numberOfNextToInnermostPixelLayerHits] > 0){
+      // next to innermost block
+      if (summary.m_information[Trk::numberOfNextToInnermostPixelLayerHits] >
+          0) {
         summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(&track) ) {
+        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(ctx,&track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 1 hit !");
           summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
         } else {
