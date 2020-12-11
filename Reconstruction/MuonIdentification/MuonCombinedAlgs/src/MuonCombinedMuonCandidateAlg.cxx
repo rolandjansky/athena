@@ -37,5 +37,7 @@ MuonCombinedMuonCandidateAlg::execute()
     SG::WriteHandle<TrackCollection> msOnlyTracks(m_msOnlyTracks);
     ATH_CHECK(msOnlyTracks.record(std::make_unique<TrackCollection>()));
     m_muonCandidateTool->create(*muonTrackParticles, *muonCandidates, *msOnlyTracks);
+
+    m_muonCandidateTool->cleanUp();
     return StatusCode::SUCCESS;
 }
