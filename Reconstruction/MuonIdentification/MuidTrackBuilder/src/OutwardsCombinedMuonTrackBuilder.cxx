@@ -742,5 +742,8 @@ OutwardsCombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters* para
     return new Trk::PseudoMeasurementOnTrack(localParameters, covarianceMatrix, surface);
 }
 
+ void OutwardsCombinedMuonTrackBuilder::cleanUp() const {
+    if (!m_muonHoleRecovery.empty()) m_muonHoleRecovery->cleanUp();
+  }
 
 }  // namespace Rec

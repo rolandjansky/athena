@@ -169,4 +169,10 @@ namespace MuonCombined {
     // delete all remaining tracks in the set
     for( auto it = tracksToBeDeleted.begin();it!=tracksToBeDeleted.end();++it ) delete *it;
   }
+
+
+  void MuonCandidateTool::cleanUp() const {
+    m_trackBuilder->cleanUp();
+  }
+
 }	// end of namespace

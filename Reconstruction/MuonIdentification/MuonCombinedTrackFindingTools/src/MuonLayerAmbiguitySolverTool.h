@@ -34,6 +34,9 @@ namespace Muon {
     /**IMuonLayerAmbiguitySolverTool interface: find */   
     void resolveOverlaps( const std::vector<Muon::MuonLayerRecoData>& allLayers, std::vector< MuonCandidate >& resolvedCandidates ) const;
 
+
+    void cleanUp() const override;
+
   private:
     void buildLayerVec( const std::vector<MuonLayerRecoData>& allLayers,  
                         std::vector< std::vector<MuonLayerIntersection> >& muonLayerDataHashVec ) const;

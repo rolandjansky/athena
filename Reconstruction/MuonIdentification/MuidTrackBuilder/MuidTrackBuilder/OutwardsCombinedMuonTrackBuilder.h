@@ -105,6 +105,8 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
                     const Trk::RunOutlierRemoval  runOutlier         = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
+    void cleanUp() const override;
+
   private:
     Trk::Track* addIDMSerrors(Trk::Track* track) const;
 
