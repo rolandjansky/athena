@@ -68,9 +68,7 @@ ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
                                             ISvcLocator* pSvcLocator ) :
   ::AthAnalysisAlgorithm( name, pSvcLocator ),
   m_selTools(),     // makes these tools public
-  m_selWVtxTools(), // makes these tools public
   m_evtInfoName("EventInfo"),
-  m_inPrimVtxCont("PrimaryVertices"),
   m_inCollKey(""),
   m_outCollKey(""),
   m_writeSplitAux(true),
@@ -85,11 +83,9 @@ ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
   m_contType(UNKNOWN),
   m_cutBKStartIdx(0),
   m_selToolIdxOffset(),
-  m_selWPVToolIdxOffset(),
   m_idxSelParster(0)
 {
   declareProperty("EventInfo",                 m_evtInfoName,   "Input container name");
-  declareProperty("PrimaryVertexContainer",    m_inPrimVtxCont, "The input primary vertex container name");
   declareProperty("InputContainer",            m_inCollKey,     "Input container name");
   declareProperty("OutputContainer",           m_outCollKey,
                   "The name of the output container with the deep copy of selected xAOD::IParticles");
@@ -99,7 +95,6 @@ ParticleSelectionAlg::ParticleSelectionAlg( const std::string& name,
                   "Defines the ownership policy of the output container (default: 'OWN_ELEMENTS'; also allowed: 'VIEW_ELEMENTS')");
 
   declareProperty("SelectionToolList",       m_selTools,     "The list of IAsgSelectionTools");
-  declareProperty("SelectionWithPVToolList", m_selWVtxTools, "The list of IAsgSelectionWithVertexTools");
   declareProperty("Selection",               m_selection,
                   "The selection string that defines which xAOD::IParticles to select from the container");
 
@@ -125,13 +120,15 @@ StatusCode ParticleSelectionAlg::initialize()
   ATH_MSG_DEBUG ("Initializing " << name() << "...");
 
   // Print out the used configuration
-  ATH_MSG_DEBUG ( " using = " << m_inCollKey );
-  ATH_MSG_DEBUG ( " using = " << m_outCollKey );
-  ATH_MSG_DEBUG ( " using = " << m_writeSplitAux );
-  ATH_MSG_DEBUG ( " using = " << m_outOwnPolicyName );
-  ATH_MSG_DEBUG ( " using = " << m_selection );
+  ATH_MSG_DEBUG ( " using EventInfo = " << m_evtInfoName );
+  ATH_MSG_DEBUG ( " using InputContainer = " << m_inCollKey );
+  ATH_MSG_DEBUG ( " using OutputContainer = " << m_outCollKey );
+  ATH_MSG_DEBUG ( " using WriteSplitOutputContainer = " << m_writeSplitAux );
+  ATH_MSG_DEBUG ( " using OutputContainerOwnershipPolicy = " << m_outOwnPolicyName );
+  ATH_MSG_DEBUG ( " using SelectionToolList = " << m_selTools );
+  ATH_MSG_DEBUG ( " using Selection = " << m_selection );
   ATH_MSG_DEBUG ( " using DoCutBookkeeping = " << m_doCutFlow );
-  ATH_MSG_DEBUG ( " using = " << m_cutBKCName );
+  ATH_MSG_DEBUG ( " using CutBookkeeperContainer = " << m_cutBKCName );
 
   // initialize proxy loaders for expression parsing
   if ( !(m_selection.value().empty()) ){
@@ -160,7 +157,6 @@ StatusCode ParticleSelectionAlg::initialize()
 
   // Retrieve all tools
   ATH_CHECK( m_selTools.retrieve() );
-  ATH_CHECK( m_selWVtxTools.retrieve() );
 
   ATH_MSG_DEBUG ( "==> done with initialize " << name() << "..." );
   return StatusCode::SUCCESS;
@@ -174,7 +170,6 @@ StatusCode ParticleSelectionAlg::finalize()
 
   // Release all tools and services
   ATH_CHECK( m_selTools.release() );
-  ATH_CHECK( m_selWVtxTools.release() );
 
   // Clean up the memory
   if (m_parser) {
@@ -238,34 +233,6 @@ StatusCode ParticleSelectionAlg::start()
     // Fill the index bookkeeping at what index in the CutBookkeeperContainer
     // the CutBookkeepers for this tool start.
     m_selToolIdxOffset.push_back( cutBKCont->size() );
-    // Get some needed quantities
-    const std::string toolName = tool->name();
-    const asg::AcceptInfo& acceptInfo = tool->getAcceptInfo();
-    const unsigned int nCuts = acceptInfo.getNCuts();
-    for ( unsigned int iCut=0; iCut<nCuts; ++iCut ){
-      // Get the name and description of this cut
-      const std::string cutName  = acceptInfo.getCutName(iCut);
-      const std::string cutDescr = acceptInfo.getCutDescription(iCut);
-      // Create a new xAOD::CutBookkeeper and add it to the container
-      xAOD::CutBookkeeper* cutBK = new xAOD::CutBookkeeper();
-      cutBKCont->push_back(cutBK);
-      // Now, set its properties
-      cutBK->setName(toolName+"_"+cutName);
-      cutBK->setDescription(cutDescr);
-      cutBK->setCutLogic(xAOD::CutBookkeeper::CutLogic::REQUIRE); // Each cut must be passed, thus REQUIRE, i.e, logical AND
-      cutBK->setInputStream(inputStreamName);
-      cutBK->setCycle(maxInputCycle);
-    }
-  }
-
-  //------------- for the AsgSelectionWithVertexTools --------------
-  // Now, register one CutBookkeeper per cut that will be applied.
-  // For each of the registered tools, get the TAccept and ask it for all known cuts.
-  for ( std::size_t toolIdx=0; toolIdx < m_selWVtxTools.size(); ++toolIdx ){
-    const auto& tool = m_selWVtxTools[toolIdx];
-    // Fill the index bookkeeping at what index in the CutBookkeeperContainer
-    // the CutBookkeepers for this tool start.
-    m_selWPVToolIdxOffset.push_back( cutBKCont->size() );
     // Get some needed quantities
     const std::string toolName = tool->name();
     const asg::AcceptInfo& acceptInfo = tool->getAcceptInfo();

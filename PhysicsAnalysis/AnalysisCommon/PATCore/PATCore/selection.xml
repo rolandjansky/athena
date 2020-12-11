@@ -3,5 +3,4 @@
     <class name="asg::AcceptData" />
     <!--<class name="std::bitset<32>" />-->
     <class name="IAsgSelectionTool" />
-    <class name="IAsgSelectionWithVertexTool" />
 </lcgdict>

@@ -23,7 +23,6 @@
 #include "xAODBase/IParticleContainer.h"
 //#include "TrigDecisionTool/TrigDecisionTool.h"
 #include "PATCore/IAsgSelectionTool.h"
-#include "PATCore/IAsgSelectionWithVertexTool.h"
 
 // // Forward declarations
 // namespace Trig{
@@ -81,14 +80,8 @@ class ParticleSelectionAlg
   /// The list of IAsgSelectionTools
   ToolHandleArray<IAsgSelectionTool> m_selTools;
 
-  /// The list of IAsgSelectionWithVertexTools
-  ToolHandleArray<IAsgSelectionWithVertexTool> m_selWVtxTools;
-
   /// Name of the EventInfo object
   StringProperty m_evtInfoName;
-
-  /// Name of the PrimaryVertex container
-  StringProperty m_inPrimVtxCont;
 
   /// Input container name
   StringProperty m_inCollKey;
@@ -160,10 +153,6 @@ class ParticleSelectionAlg
   /// The list of pairs of the tool index of the AsgSelectionTools and the
   /// starting index of the corresponding CutBookKeeper inside the CutBookkeeperContainer.
   std::vector<std::size_t> m_selToolIdxOffset;
-
-  /// The list of pairs of the tool index of the AsgSelectionWithVertexTools and the
-  /// starting index of the corresponding CutBookKeeper inside the CutBookkeeperContainer.
-  std::vector<std::size_t> m_selWPVToolIdxOffset;
 
   /// Store the index of the CutBookKeeper in the CutBookkeeperContainer for the
   /// selection using the ExpressionParser
