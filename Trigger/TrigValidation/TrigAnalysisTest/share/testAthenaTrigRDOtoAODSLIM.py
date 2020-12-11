@@ -2,6 +2,7 @@
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 if not acf.EvtMax.is_locked():
     acf.EvtMax=10
@@ -20,6 +21,9 @@ rec.doESD=True
 doTAG=False
 rec.doCBNT=False 
 #rec.doTruth=True
+
+# Legacy (Run-2) trigger produces Run-2 EDM
+ConfigFlags.Trigger.EDMVersion = 2
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
