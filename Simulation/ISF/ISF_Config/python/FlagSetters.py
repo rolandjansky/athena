@@ -162,6 +162,11 @@ def configureFlagsG4FastCaloMT():
     ISF_Flags.ParticleBroker = ""
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "G4FastCaloMT"
+
+def configureFlagsG4FastCalo_QS():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo_QS"
     return
 
 def configureFlagsG4FastCaloTest():
