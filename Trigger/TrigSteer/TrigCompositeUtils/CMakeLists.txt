@@ -41,3 +41,11 @@ endif()
 atlas_add_test( Combinators_test
   SOURCES test/Combinators_test.cxx
   LINK_LIBRARIES TestTools TrigCompositeUtilsLib )
+
+atlas_add_test( KFromNItr_test
+  SOURCES test/KFromNItr_test.cxx
+  LINK_LIBRARIES TestTools TrigCompositeUtilsLib )
+
+atlas_add_test( IPartCombItr_test
+  SOURCES test/IPartCombItr_test.cxx
+  LINK_LIBRARIES TestTools TrigCompositeUtilsLib xAODBase xAODTrigger)
