@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,18 +11,23 @@
 // Version 2.1 01/08/2001 David Calvet
 ///////////////////////////////////////////////////////////////////
 
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 
 namespace InDetDD {
 
-// Default constructor:
+// Implicit constructor:
 SiLocalPosition::SiLocalPosition() :
   m_xEta(0),
   m_xPhi(0),
   m_xDepth(0)
 {}
 
-
+// Copy constructor:
+SiLocalPosition::SiLocalPosition(const SiLocalPosition &position) :
+  m_xEta(position.m_xEta),
+  m_xPhi(position.m_xPhi),
+  m_xDepth(position.m_xDepth)
+{}
 
 // Constructor with parameters:
 SiLocalPosition::SiLocalPosition(const double xEta,const double xPhi,
@@ -44,7 +49,16 @@ SiLocalPosition::operator Amg::Vector2D(void) const
   return Amg::Vector2D(m_xPhi, m_xEta);
 }
 
-
+// Assignment operator:
+SiLocalPosition &SiLocalPosition::operator=(const SiLocalPosition &position)
+{
+  if (this!=&position) {
+    m_xEta=position.m_xEta;
+    m_xPhi=position.m_xPhi;
+    m_xDepth=position.m_xDepth;
+  } else {}
+  return *this;
+}
 
 // addition of positions:
 SiLocalPosition &SiLocalPosition::operator+=(const SiLocalPosition &position)

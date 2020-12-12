@@ -1,15 +1,15 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
 // PixelDiodeMatrix.h
 ///////////////////////////////////////////////////////////////////
 
-#ifndef INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
-#define INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
+#ifndef READOUTGEOMETRYBASE_PIXELDIODEMATRIX_H
+#define READOUTGEOMETRYBASE_PIXELDIODEMATRIX_H
 
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 
@@ -199,4 +199,4 @@ namespace InDetDD {
 
 } // end namespace
 
-#endif //INDETREADOUTGEOMETRY_PIXELDIODEMATRIX_H
+#endif //READOUTGEOMETRYBASE_PIXELDIODEMATRIX_H

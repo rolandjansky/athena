@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,15 +8,15 @@
 // (c) ATLAS Pixel Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef INDETREADOUTGEOMETRY_PIXELREADOUTSCHEME_H
-#define INDETREADOUTGEOMETRY_PIXELREADOUTSCHEME_H
+#ifndef READOUTGEOMETRYBASE_PIXELREADOUTSCHEME_H
+#define READOUTGEOMETRYBASE_PIXELREADOUTSCHEME_H
 
 // Data member classes
-#include "PixelReadoutGeometry/PixelMultipleConnection1D.h"
+#include "ReadoutGeometryBase/PixelMultipleConnection1D.h"
 
 // Input and output classes
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 
 namespace InDetDD {
 
@@ -154,4 +154,4 @@ inline int PixelReadoutScheme::rows() const
 
 } // namespace InDetDD
 
-#endif // INDETREADOUTGEOMETRY_PIXELREADOUTSCHEME_H
+#endif // READOUTGEOMETRYBASE_PIXELREADOUTSCHEME_H

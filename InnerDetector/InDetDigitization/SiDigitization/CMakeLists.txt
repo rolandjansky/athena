@@ -9,5 +9,5 @@ atlas_add_library( SiDigitization
                    src/SiChargedDiodeCollection.cxx
                    src/SiSurfaceCharge.cxx
                    PUBLIC_HEADERS SiDigitization
-                   LINK_LIBRARIES AthenaKernel AthAllocators Identifier GaudiKernel InDetReadoutGeometry InDetSimEvent )
+                   LINK_LIBRARIES AthenaKernel AthAllocators Identifier GaudiKernel InDetReadoutGeometry ReadoutGeometryBase InDetSimEvent )
 

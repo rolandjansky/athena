@@ -7,7 +7,7 @@
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 #include "SiDigitization/SiHelper.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 
 #include "CLHEP/Random/RandFlat.h"
 

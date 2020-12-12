@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,15 +9,15 @@
 ///////////////////////////////////////////////////////////////////
 
 
-#ifndef INDETREADOUTGEOMETRY_PIXELMODULEDESIGN_H
-#define INDETREADOUTGEOMETRY_PIXELMODULEDESIGN_H
+#ifndef PIXELREADOUTGEOMETRY_PIXELMODULEDESIGN_H
+#define PIXELREADOUTGEOMETRY_PIXELMODULEDESIGN_H
 
 // Base class
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 
 // Data member classes
-#include "PixelReadoutGeometry/PixelDiodeMap.h"
-#include "PixelReadoutGeometry/PixelReadoutScheme.h"
+#include "ReadoutGeometryBase/PixelDiodeMap.h"
+#include "ReadoutGeometryBase/PixelReadoutScheme.h"
 
 // Other includes
 #include "CxxUtils/CachedUniquePtr.h"
@@ -351,4 +351,4 @@ namespace InDetDD {
 
 } // namespace InDetDD
 
-#endif // INDETREADOUTGEOMETRY_PIXELMODULEDESIGN_H
+#endif // READOUTGEOMETRYBASE_PIXELMODULEDESIGN_H
