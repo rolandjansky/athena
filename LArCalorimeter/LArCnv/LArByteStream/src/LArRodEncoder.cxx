@@ -48,17 +48,20 @@ void LArRodEncoder::add(const LArRawChannel* rc)
 
 // Add free gain digits
 void LArRodEncoder::add(const LArDigit* dg)
-{uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
+{
+ uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
  m_mFEB[FEB_ID].vLArDigit.push_back(dg);
 }
 //Add fixed gain digits
 void LArRodEncoder::add(const LArDigit* dg, const int gain)
-{uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
+{
+ uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
  m_mFEB[FEB_ID].vLArDigitFixed[gain].push_back(dg);
 }
 //Add calibration digits
 void LArRodEncoder::add(const LArCalibDigit* dg, const int gain)
-{uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
+{
+ uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
  m_mFEB[FEB_ID].vLArCalibDigit[gain].push_back(dg);
 }
 
@@ -215,7 +218,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 	  m_BlStruct->setDAC((*digit_it)->DAC());
 	  m_BlStruct->setDelay((*digit_it)->delay());
 	  for (;digit_it!=digit_it_end;digit_it++) { 
-	    int cId =  m_cablingSvc.channel((*digit_it)->channelID()); 
+	    int cId =  m_onOffIdMapping.channel((*digit_it)->channelID()); 
 	    cId = m_BlStruct->FebToRodChannel(cId);
 	    m_BlStruct->setRawData(cId, (*digit_it)->samples(), (*digit_it)->gain());
 	    m_BlStruct->setIsPulsed(cId);

@@ -12,7 +12,10 @@
 #include "ByteStreamData/RawEvent.h" 
 
 #include "LArRawEvent/LArCalibDigitContainer.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/StorableConversions.h"
 
 //STL-Stuff
@@ -25,7 +28,9 @@ LArCalibDigitContByteStreamCnv::LArCalibDigitContByteStreamCnv(ISvcLocator* svcl
   m_tool("LArRawDataContByteStreamTool"),
   m_rdpSvc("ROBDataProviderSvc", name()),
   m_byteStreamEventAccess("ByteStreamCnvSvc", name()),
-  m_byteStreamCnvSvc(nullptr)
+  m_byteStreamCnvSvc(nullptr),
+  m_calibLineMappingKey ("LArCalibLineMap"),
+  m_onOffIdMappingKey ("LArOnOffIdMap")
 {}
 
 LArCalibDigitContByteStreamCnv::~LArCalibDigitContByteStreamCnv() {
@@ -49,6 +54,8 @@ LArCalibDigitContByteStreamCnv::initialize()
   m_byteStreamCnvSvc = dynamic_cast<ByteStreamCnvSvc*>(&*m_byteStreamEventAccess);
 
   ATH_CHECK( m_tool.retrieve() );
+  ATH_CHECK( m_calibLineMappingKey.initialize() );
+  ATH_CHECK( m_onOffIdMappingKey.initialize() );
   
   return StatusCode::SUCCESS;
 }
@@ -87,8 +94,13 @@ LArCalibDigitContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr, DataObject
   // Convert the RawEvent to  LArCalibDigitContainer
   ATH_MSG_DEBUG( "Converting LArCalibDigits (from ByteStream). key=" << key << " ,gain=" << gain );
  
+  SG::ReadCondHandle<LArCalibLineMapping> calibLineMapping (m_calibLineMappingKey);
+  SG::ReadCondHandle<LArOnOffIdMapping> onOffIdMapping (m_onOffIdMappingKey);
+
   LArCalibDigitContainer *CalibDigitContainer=new LArCalibDigitContainer;
-  StatusCode sc=m_tool->convert(re,CalibDigitContainer,gain);
+  StatusCode sc=m_tool->convert(re,CalibDigitContainer,gain,
+                                **calibLineMapping,
+                                **onOffIdMapping);
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_WARNING( "Conversion tool returned an error. LArCalibDigitContainer might be empty." );
   }
