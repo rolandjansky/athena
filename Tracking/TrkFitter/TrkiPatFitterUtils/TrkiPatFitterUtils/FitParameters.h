@@ -105,19 +105,20 @@ public:
     void			setPhiInstability (void);
     double			sinPhi (void) const;
     double			sinTheta (void) const;
-    Perigee*			startingPerigee (void) const;
-    const TrackParameters*	trackParameters (MsgStream&		log,
-						 const FitMeasurement&	measurement,
-						 bool			withCovariance=false) const;
-    void			update (const Amg::VectorX&		differences);
-    void			update (Amg::Vector3D			position,
-					Amg::Vector3D			direction,
-					double				qOverP,
-					const Amg::MatrixX&	leadingCovariance);
-    const Amg::Vector3D&	vertex (void) const;
-    double			z0 (void) const;
+    Perigee* startingPerigee(void) const;
+    //The following can update parameters 
+    const TrackParameters* trackParameters(MsgStream& log,
+                                           const FitMeasurement& measurement,
+                                           bool withCovariance = false);
+    void update(const Amg::VectorX& differences);
+    void update(Amg::Vector3D position,
+                Amg::Vector3D direction,
+                double qOverP,
+                const Amg::MatrixX& leadingCovariance);
+    const Amg::Vector3D& vertex(void) const;
+    double z0(void) const;
 
-private:
+  private:
     // assignment: no semantics, no implementation
     FitParameters &operator= (const FitParameters&);
 
@@ -126,9 +127,9 @@ private:
     std::vector<double> 	m_alignmentOffset;
     std::vector<double> 	m_alignmentOffsetConstraint;
     double			m_cosPhi;
-    mutable double		m_cosPhi1;
+    double		m_cosPhi1;
     double			m_cosTheta;
-    mutable double		m_cosTheta1;
+    double		m_cosTheta1;
     double			m_cotTheta;
     double			m_d0;
     Amg::VectorX*		m_differences;
@@ -150,7 +151,7 @@ private:
     bool			m_phiInstability;
     Amg::Vector3D	       	m_position;
     double	       		m_qOverP;
-    mutable double		m_qOverP1;
+    double		m_qOverP1;
     std::vector<double>		m_scattererPhi;
     std::vector<double>		m_scattererTheta;
     double			m_sinPhi;
