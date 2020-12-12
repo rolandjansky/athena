@@ -7,6 +7,7 @@ FilesInput = [ "AOD.pool.root" ]
 theApp.EvtMax=-1                                       #says how many events to run over. Set to -1 for all events
 
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = FilesInput
 
 import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POOL files (e.g. xAODs)
 # svcMgr.EventSelector.InputCollections=[os.environ['ASG_TEST_FILE_DATA']] #replace with input file
