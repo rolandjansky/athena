@@ -4,6 +4,7 @@
 
 #include "SCT_ReadoutGeometry/StripStereoAnnulusDesign.h"
 #include "Identifier/Identifier.h"
+#include  "GeoPrimitives/GeoPrimitivesHelpers.h"
 
 #include <stdexcept>
 #include <algorithm> // For upper_bound
@@ -72,8 +73,8 @@ StripStereoAnnulusDesign::StripStereoAnnulusDesign(const SiDetectorDesign::Axis 
 
 }
 
-HepGeom::Point3D<double> StripStereoAnnulusDesign::sensorCenter() const {
-    return HepGeom::Point3D<double>(m_R, 0., 0.);
+Amg::Vector3D StripStereoAnnulusDesign::sensorCenter() const {
+  return Amg::Vector3D(m_R, 0., 0.);
 }
 
 double StripStereoAnnulusDesign::sinStripAngleReco(double phiCoord, double etaCoord) const {
@@ -407,8 +408,8 @@ DetectorShape StripStereoAnnulusDesign::shape() const
    return InDetDD::Annulus;
  }
 
-const HepGeom::Transform3D StripStereoAnnulusDesign::SiHitToGeoModel() const {
-   return HepGeom::RotateY3D(90.*CLHEP::deg) ;
+const Amg::Transform3D StripStereoAnnulusDesign::SiHitToGeoModel() const {
+   return Amg::getRotateY3D(90.*CLHEP::deg) ;
 }
 
 double StripStereoAnnulusDesign::stripLength(const InDetDD::SiCellId &cellId) const

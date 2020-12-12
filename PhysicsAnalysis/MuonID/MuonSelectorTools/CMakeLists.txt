@@ -1,6 +1,4 @@
-################################################################################
-# Package: MuonSelectorTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MuonSelectorTools )
@@ -13,14 +11,14 @@ atlas_add_library( MuonSelectorToolsLib
    MuonSelectorTools/*.h Root/*.cxx
    PUBLIC_HEADERS MuonSelectorTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODMuon PATCoreLib MuonAnalysisInterfacesLib AsgDataHandlesLib
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo PATCoreLib MuonAnalysisInterfacesLib AsgDataHandlesLib
    PRIVATE_LINK_LIBRARIES xAODTracking PathResolver )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( MuonSelectorTools
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODCore xAODEventInfo xAODMuon MuonAnalysisInterfacesLib
-      MuonSelectorToolsLib )
+      LINK_LIBRARIES AthenaBaseComps GaudiKernel xAODCore xAODMuon MuonAnalysisInterfacesLib
+      MuonSelectorToolsLib PATCoreLib )
 endif()
 
 atlas_add_dictionary( MuonSelectorToolsDict
@@ -34,7 +32,7 @@ if( XAOD_STANDALONE )
       util/MuonSelectorToolsTester.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess xAODEventInfo xAODMuon MCTruthClassifierLib
-      xAODTracking xAODCore MuonSelectorToolsLib )
+      xAODTracking xAODCore MuonSelectorToolsLib PATCoreLib )
 endif()
 
 
@@ -42,10 +40,9 @@ endif()
 if( XAOD_STANDALONE )
    atlas_add_test( ut_MuonSelectorToolsTester_data
       SOURCES test/ut_MuonSelectorToolsTester_data.cxx
-      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools )
+      LINK_LIBRARIES AsgMessagingLib )
 endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

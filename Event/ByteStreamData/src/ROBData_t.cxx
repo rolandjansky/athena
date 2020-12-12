@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -11,12 +11,10 @@
 
 namespace ByteStreamDataTest {
 
-  void ROBDataT() {
+  void ROBDataT(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFrag) {
 
-    typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment ROBF;
     typedef ROBData::iterator IT;
 
-    ROBF* robFrag = 0;
     ROBData* robData = new ROBData(robFrag);
     ROBData robData2 = *robData;
 

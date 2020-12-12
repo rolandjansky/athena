@@ -119,8 +119,6 @@ private:
     Trk::ParticleHypothesis particleHypothesis,
     MaterialUpdateType updateType) const;
 
-  bool updateP(double& qOverP, double deltaP) const;
-
   std::pair<const Trk::MaterialProperties*, double> getMaterialProperties(
     const Trk::TrackParameters* trackParameters,
     const Trk::Layer& layer) const;

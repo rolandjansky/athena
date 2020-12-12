@@ -19,7 +19,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthMessaging.h"
 
-class ByteStreamCnvSvc;
+class ByteStreamCnvSvcBase;
 class IROBDataProviderSvc;
 class StoreGateSvc;
 
@@ -47,7 +47,7 @@ class EventInfoByteStreamAuxCnv : public Converter, public AthMessaging
 
  private:
   std::string ascTime(unsigned int t);    //!< convert timestamp to ascii time.
-  ByteStreamCnvSvc* m_ByteStreamCnvSvc;   //!< pointer to BS CnvSvc
+  ByteStreamCnvSvcBase* m_ByteStreamCnvSvc;   //!< pointer to BS CnvSvc
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider; //!< RODDataProviderSvc handle
   ServiceHandle<StoreGateSvc> m_mdSvc;                  //!< TDS handle
   

@@ -37,20 +37,21 @@ def _initializeGeometryParameters(geoTag):
     dbGeomCursor = AtlasGeoDBInterface(geoTag)
     dbGeomCursor.ConnectAndBrowseGeoDB()
 
-    # FIXME: geometry parameter names need to be unique across systems!
-    params = {}
-    params.update(CommonGeoDB.InitializeGeometryParameters(dbGeomCursor))
-    params.update(PixelGeoDB.InitializeGeometryParameters(dbGeomCursor))
-    params.update(LArGeoDB.InitializeGeometryParameters(dbGeomCursor))
-    params.update(MuonGeoDB.InitializeGeometryParameters(dbGeomCursor))
+    params = { 'Common' : CommonGeoDB.InitializeGeometryParameters(dbGeomCursor),
+               'Pixel' : PixelGeoDB.InitializeGeometryParameters(dbGeomCursor),
+               'LAr' : LArGeoDB.InitializeGeometryParameters(dbGeomCursor),
+               'Muon' : MuonGeoDB.InitializeGeometryParameters(dbGeomCursor) }
 
     return params
 
 
 @lru_cache(maxsize=4)  # maxsize=1 should be enough for most jobs
-def GetDetDescrInfo(geoTag):
-    """Query geometry DB for detector description"""
+def DetDescrInfo(geoTag):
+    """Query geometry DB for detector description. Returns dictionary with
+    detector description. Queries DB for each tag only once.
 
+    geoTag: gemometry tag (e.g. ATLAS-R2-2016-01-00-01)
+    """
     detDescrInfo = _initializeGeometryParameters(geoTag)
     detDescrInfo["geomTag"] = geoTag
     return detDescrInfo

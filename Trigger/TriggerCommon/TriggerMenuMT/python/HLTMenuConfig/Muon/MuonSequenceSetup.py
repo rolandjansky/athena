@@ -183,6 +183,59 @@ def muCombSequence():
                          HypoToolGen = TrigmuCombHypoToolFromDict )
   
 
+def muCombLRTAlgSequence(ConfigFlags):
+    ### set the EVCreator ###
+    l2muCombLRTViewsMaker = EventViewCreatorAlgorithm("IMl2muCombLRT")
+    newRoITool = ViewCreatorFetchFromViewROITool()
+    newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_L2SAMuon_LRT") #RoI collection recorded to EDM
+    newRoITool.InViewRoIs = muNames.L2forIDName #input RoIs from L2 SA views
+
+    #
+    l2muCombLRTViewsMaker.RoIsLink = "initialRoI" # ROI for merging is still from L1, we get exactly one L2 SA muon per L1 ROI
+    l2muCombLRTViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1 
+    #
+    l2muCombLRTViewsMaker.Views = "MUCombLRTViewRoIs" #output of the views maker (key in "storegate")
+    l2muCombLRTViewsMaker.InViewRoIs = "MUIDRoIs" # Name of the RoI collection inside of the view, holds the single ROI used to seed the View.
+    #
+    l2muCombLRTViewsMaker.RequireParentView = True
+    l2muCombLRTViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
+
+    ### get ID tracking and muComb reco sequences ###    
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muCombRecoSequence, muonIDFastTrackingSequence
+
+    muCombLRTRecoSequence, sequenceOut = muCombRecoSequence( l2muCombLRTViewsMaker.InViewRoIs, "FTF_LRT" )
+
+    extraLoads = []
+
+    muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombLRTViewsMaker.InViewRoIs , "LRT", extraLoads, doLRT=True )
+
+    muCombLRTIDSequence = parOR("l2muCombLRTIDSequence", [muFastIDRecoSequence, muCombLRTRecoSequence])
+
+    l2muCombLRTViewsMaker.ViewNodeName = muCombLRTIDSequence.name()
+
+    l2muCombLRTSequence = seqAND("l2muCombLRTSequence", [l2muCombLRTViewsMaker, muCombLRTIDSequence] )
+
+    return (l2muCombLRTSequence, l2muCombLRTViewsMaker, sequenceOut)
+
+
+
+def muCombLRTSequence():
+   
+    (l2muCombLRTSequence, l2muCombLRTViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(muCombLRTAlgSequence, ConfigFlags)
+
+    ### set up muCombHypo algorithm ###
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoAlg
+    #trigmuCombHypo = TrigmuCombHypoAlg("L2muCombHypoAlg") # avoid to have "Comb" string in the name due to HLTCFConfig.py. 
+    trigmuCombHypo = TrigmuCombHypoAlg("TrigL2MuCBHypoAlg_LRT")
+    trigmuCombHypo.MuonL2CBInfoFromMuCombAlg = sequenceOut
+
+    from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigmuCombHypoToolFromDict
+
+    return MenuSequence( Sequence    = l2muCombLRTSequence,
+                         Maker       = l2muCombLRTViewsMaker,
+                         Hypo        = trigmuCombHypo,
+                         HypoToolGen = TrigmuCombHypoToolFromDict )
+  
 
 def muCombOvlpRmSequence():
    

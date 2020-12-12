@@ -39,7 +39,7 @@ CutAlg::CutAlg( const std::string& name,
   m_cut(""),
   m_nEventsProcessed(0)
 {
-  declareProperty("Cut",              m_cut="",           "The name of the output container" );
+  declareProperty("Cut",              m_cut="",           "The cut expression" );
   declareProperty("TrigDecisionTool", m_trigDecisionTool, "If you do not use trigger decisions and want to ensure the TrigDecisionTool is not loaded, set this to a blank string");
 }
 

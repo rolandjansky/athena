@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ### This module contains functions which may need to peek at the input file metadata
 
+import os
 ## Get the logger
-from AthenaCommon.Logging import *
+from AthenaCommon.Logging import logging
 simMDlog = logging.getLogger('Sim_Metadata')
 
 def get_metadata(mode='lite'):
@@ -19,7 +20,7 @@ def get_metadata(mode='lite'):
                 metadata = read_metadata(input_file, mode = mode)
                 metadata = metadata[input_file]  # promote all keys one level up
                 return metadata
-            except:
+            except Exception:
                 simMDlog.warning("MetaReader failed to open %s", athenaCommonFlags.PoolEvgenInput()[0])
     else:
         simMDlog.info("G4ATLAS_SKIPFILEPEEK environment variable present, so skipping all input file peeking.")
@@ -59,7 +60,7 @@ def patch_mc_channel_numberMetadata(addToFile=True):
             simMDlog.warning("No mc_channel_number in input file metadata. Using run number.")
             mc_channel_number = metadata_lite['runNumbers']
             if addToFile:
-                simMDlog.info('Adding mc_channel_number to \TagInfo: %s', str(mc_channel_number))
+                simMDlog.info('Adding mc_channel_number to TagInfo: %s', str(mc_channel_number))
                 # Initialize tag info management
                 #import EventInfoMgt.EventInfoMgtInit
                 from AthenaCommon.AppMgr import ServiceMgr
@@ -134,8 +135,8 @@ def fillAtlasMetadata(dbFiller):
     import os
     dbFiller.addSimParam('G4Version', str(os.environ['G4VERS']))
     dbFiller.addSimParam('RunType', 'atlas')
-    from AthenaCommon.BeamFlags import jobproperties
-    dbFiller.addSimParam('beamType', jobproperties.Beam.beamType.get_Value())
+    from AthenaCommon.BeamFlags import beamFlags
+    dbFiller.addSimParam('beamType', beamFlags.beamType.get_Value())
 
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
     from AthenaCommon.DetFlags import DetFlags
@@ -157,6 +158,7 @@ def fillTestBeamMetadata(dbFiller):
     SimParams = ['CalibrationRun','DoLArBirk','LArParameterization',
                  'MagneticField','PhysicsList','Seeds','SeedsG4','SimLayout',
                  'WorldZRange','NeutronTimeCut','NeutronEnergyCut','ApplyEMCuts','RunNumber']
+    from G4AtlasApps.SimFlags import simFlags
     for o in [ o for o in SimParams if simFlags.__dict__.keys().__contains__(o) ]:
         testValue = 'default'
         if (simFlags.__dict__.__contains__(o) and simFlags.__dict__.get(o).statusOn) :
@@ -171,7 +173,8 @@ def fillTestBeamMetadata(dbFiller):
         dbFiller.addSimParam('EtaPhiStatus', 'default')
         dbFiller.addSimParam('VRangeStatus', 'default')
     dbFiller.addSimParam('G4Version', str(os.environ['G4VERS']))
-    dbFiller.addSimParam('beamType',jobproperties.Beam.beamType.get_Value())
+    from AthenaCommon.BeamFlags import beamFlags
+    dbFiller.addSimParam('beamType',beamFlags.beamType.get_Value())
 
     ####### Hard coded simulation hit file magic number (for major changes) ######
     dbFiller.addSimParam('hitFileMagicNumber','0')
@@ -179,7 +182,7 @@ def fillTestBeamMetadata(dbFiller):
 def fillISFMetadata(dbFiller):
     from ISF_Config.ISF_jobProperties import ISF_Flags
     dbFiller.addSimParam('Simulator', ISF_Flags.Simulator())
-    if ISF_Flags.Simulator() in ['G4FastCalo', 'G4FastCaloTest', 'G4FastCaloDNN']:
+    if ISF_Flags.Simulator() in ['G4FastCalo', 'G4FastCaloTest', 'G4FastCaloDNN', 'G4FastCalo_QS']:
         from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
         dbFiller.addSimParam('FCSParamFile', ISF_FastCaloSimFlags.ParamsInputFilename())
 
@@ -189,7 +192,6 @@ def createSimulationParametersMetadata():
     ## Set run numbers
     minrunnum = 0
     maxrunnum = 2147483647 # MAX
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags, 'RunNumber') and simFlags.RunNumber.statusOn:
        minrunnum = simFlags.RunNumber()
@@ -203,7 +205,7 @@ def createSimulationParametersMetadata():
            raise Exception('IllegalRunNumber')
     else:
         simMDlog.info('Skipping run number setting - would need to set simFlags.RunNumber for this.')
-    simMDlog.info("Using the following run number range for MetaData IOV: ("+str(minrunnum)+","+str(maxrunnum)+").")
+    simMDlog.info("Using the following run number range for MetaData IOV: (%s,%s).", str(minrunnum), str(maxrunnum) )
     dbFiller.setBeginRun(minrunnum)
     dbFiller.setEndRun(maxrunnum)
 
@@ -215,7 +217,7 @@ def createSimulationParametersMetadata():
     dbFiller.genSimDb()
     folder = "/Simulation/Parameters"
     dbConnection = "sqlite://;schema=SimParams.db;dbname=SIMPARAM"
-    import IOVDbSvc.IOVDb
+    import IOVDbSvc.IOVDb # noqa : F401
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.IOVDbSvc.Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
     ServiceMgr.IOVDbSvc.FoldersToMetaData += [folder]
@@ -225,25 +227,24 @@ def createTBSimulationParametersMetadata():
     from IOVDbMetaDataTools import ParameterDbFiller
     dbFiller = ParameterDbFiller.ParameterDbFiller()
     ## Set run numbers
-    minrunnum = 0
-    maxrunnum = 2147483647 # MAX
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    minRunNumber = 0
+    maxRunNumber = 2147483647 # MAX
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags, 'RunNumber') and simFlags.RunNumber.statusOn:
-       minrunnum = simFlags.RunNumber()
-       ## FIXME need to use maxrunnum = 2147483647 for now to keep overlay working but in the future this should be set properly.
-       #maxrunnum = minrunnum + 1
+       minRunNumber = simFlags.RunNumber()
+       ## FIXME need to use maxRunNumber = 2147483647 for now to keep overlay working but in the future this should be set properly.
+       #maxRunNumber = minRunNumber + 1
     elif metadata_lite is not None:
        if len(metadata_lite['runNumbers']) > 0:
-           minrunnum = metadata_lite['runNumbers'][0]
-           maxrunnum = minrunnum + 1
+           minRunNumber = metadata_lite['runNumbers'][0]
+           maxRunNumber = minRunNumber + 1
        else:
            raise Exception('IllegalRunNumber')
     else:
         simMDlog.info('Skipping run number setting - would need to set simFlags.RunNumber for this.')
-    simMDlog.info("Using the following run number range for MetaData IOV: ("+str(minrunnum)+","+str(maxrunnum)+").")
-    dbFiller.setBeginRun(myMinRunNumber)
-    dbFiller.setEndRun(myMaxRunNumber)
+    simMDlog.info("Using the following run number range for MetaData IOV: (%s,%s).", str(minRunNumber), str(maxRunNumber) )
+    dbFiller.setBeginRun(minRunNumber)
+    dbFiller.setEndRun(maxRunNumber)
 
     fillTestBeamMetadata(dbFiller)
     if simFlags.ISFRun:
@@ -253,7 +254,7 @@ def createTBSimulationParametersMetadata():
     dbFiller.genSimDb()
     folder = "/Simulation/Parameters"
     dbConnection = "sqlite://;schema=SimParams.db;dbname=SIMPARAM"
-    import IOVDbSvc.IOVDb
+    import IOVDbSvc.IOVDb # noqa : F401
     from AthenaCommon.AppMgr import ServiceMgr
     ServiceMgr.IOVDbSvc.Folders += [ folder + "<dbConnection>" + dbConnection + "</dbConnection>" ]
     ServiceMgr.IOVDbSvc.FoldersToMetaData += [folder]
@@ -268,7 +269,7 @@ def configureRunNumberOverrides():
     from G4AtlasApps.SimFlags import simFlags
     if hasattr(simFlags, "RunNumber") and simFlags.RunNumber.statusOn:
         myRunNumber = simFlags.RunNumber.get_Value()
-        simMDlog.info('Found run number %d in sim flags.' % myRunNumber)
+        simMDlog.info('Found run number %d in sim flags.', myRunNumber)
         ## Set event selector details based on evgen metadata
 
         ######update the run/event info for each event
@@ -295,7 +296,7 @@ def configureRunNumberOverrides():
           from RunDependentSimComps.RunDMCFlags import runDMCFlags
           myInitialTimeStamp = runDMCFlags.RunToTimestampDict.getTimestampForRun(myRunNumber)
           #print "FOUND TIMESTAMP ", str(myInitialTimeStamp)
-        except:
+        except Exception:
           myInitialTimeStamp = 1
         ServiceMgr.EvtIdModifierSvc.add_modifier(run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=totalNumber)
         if hasattr(ServiceMgr.EventSelector,'OverrideRunNumberFromInput'): ServiceMgr.EventSelector.OverrideRunNumberFromInput = True
@@ -303,7 +304,7 @@ def configureRunNumberOverrides():
         ## Get evgen run number and lumi block
         if len(metadata_lite['runNumbers']) > 0:
             myRunNumber = metadata_lite['runNumbers'][0]
-            simMDlog.info('Found run number %d in hits file metadata.'% myRunNumber)
+            simMDlog.info('Found run number %d in hits file metadata.', myRunNumber)
         else:
             simMDlog.warning('Failed to find run number in hits file metadata.')
         if metadata_lite['lumiBlockNumbers']:

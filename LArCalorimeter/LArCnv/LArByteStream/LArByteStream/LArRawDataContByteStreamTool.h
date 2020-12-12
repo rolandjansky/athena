@@ -82,8 +82,11 @@ public:
    * to get all ROD fragments belonging to LAr. Methods from @c LArRodDecoder 
    * are used to deal with the individual ROD fragments. 
   */
-  template <class COLLECTION >
-  StatusCode convert(const RawEvent* re, COLLECTION* digit_cont, CaloGain::CaloGain gain) const;
+  template <class COLLECTION, typename ...ARGS >
+  StatusCode convert(const RawEvent* re,
+                     COLLECTION* digit_cont,
+                     CaloGain::CaloGain gain,
+                     ARGS&&... args) const;
 
   /** 
    * @brief Fill channels from LArDigitContainer to a FullEvent
@@ -118,7 +121,6 @@ private:
   /** Prepare ROB index before conversion */
   StatusCode prepareRobIndex (const RawEvent* event, RobIndex_t& robIndex) const;
  
-
   /** Construct a RodBlockStructure instance of the proper concrete type. */
   std::unique_ptr<LArRodBlockStructure> makeRodBlockStructure() const;
 
@@ -131,17 +133,12 @@ private:
   template <class COLLECTION >
     bool checkGainConsistency(const COLLECTION* coll) const;
  
-  CxxUtils::CachedUniquePtr<Hid2RESrcID> m_hid2re;       //!< Contains the mapping from channel to ROD (writing only)
-  LArRodDecoder *m_decoder;   //!< Pointer to RodDecoder class
   const Hid2RESrcID& getHid2RESrcID (const LArFebRodMapping& rodMapping) const;
 
-  /** Pointer to @c LArRodBlockStructure base class. 
-      Which concrete implementation is used depends on the value of 
-      @c m_DSPRunMode and @c m_RodBlockVersion. Ony for writing. 
-  */
-  LArRodBlockStructure *m_RodBlockStructure;
+  CxxUtils::CachedUniquePtr<Hid2RESrcID> m_hid2re;       //!< Contains the mapping from channel to ROD (writing only)
+  LArRodDecoder *m_decoder;   //!< Pointer to RodDecoder class
 
-  /** Indicateds which version of DSP code should be used for writing.
+  /** Indicates which version of DSP code should be used for writing.
       This is equivalent to the DetectorEventType word in the ROD block header.
       Only for writing. 
    */

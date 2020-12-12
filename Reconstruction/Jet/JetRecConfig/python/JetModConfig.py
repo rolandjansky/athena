@@ -91,8 +91,6 @@ def jetModWithAlternateTrk(jetdef, trkopt):
     IMPORTANT : this must be called after instantiateAliases() .
     """
     
-    from JetRecTools.JetRecToolsConfig import trackcollectionmap
-
     def changeJetModSpec( mod ):
         if mod in ['mod:JVT','mod:JVF', 'mod:TrackMoments', 'mod:TrackSumMoments']:
             return mod+':'+trkopt

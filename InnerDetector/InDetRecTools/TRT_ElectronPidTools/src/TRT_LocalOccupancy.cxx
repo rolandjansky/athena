@@ -86,6 +86,12 @@ StatusCode TRT_LocalOccupancy::initialize()
   ATH_CHECK( m_trt_driftcircles.initialize(!m_trt_driftcircles.empty()) );
   ATH_CHECK( m_strawReadKey.initialize() );
 
+  std::string OccupancyCacheName = name() + "OccupancyData";
+  m_occupancyCacheRead = OccupancyCacheName;
+  m_occupancyCacheWrite = OccupancyCacheName;
+  ATH_CHECK(m_occupancyCacheRead.initialize());
+  ATH_CHECK(m_occupancyCacheWrite.initialize());
+
   return StatusCode::SUCCESS;
 }
 
@@ -492,11 +498,12 @@ int TRT_LocalOccupancy::mapEtaToPartition(const double t_eta) const {
 
 const TRT_LocalOccupancy::OccupancyData* TRT_LocalOccupancy::getData(const EventContext& ctx) const
 {
-  SG::ReadHandle<OccupancyData> rh (name() + "OccupancyData");
-  if (rh.isValid())
+  SG::ReadHandle<OccupancyData> rh (m_occupancyCacheRead,ctx);
+  if (rh.isValid()){
     return rh.cptr();
+  }
 
-  SG::WriteHandle<OccupancyData> wh (name() + "OccupancyData");
+  SG::WriteHandle<OccupancyData> wh (m_occupancyCacheWrite,ctx);
   return wh.put (makeData(ctx), true);
 }
 

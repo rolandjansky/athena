@@ -126,6 +126,7 @@ namespace Muon {
 
   void MuonCandidateTrackBuilderTool::cleanUp() const {
     m_trackFitter->cleanUp();
+    m_muonTrackBuilder->cleanUp();
   }
 }
  

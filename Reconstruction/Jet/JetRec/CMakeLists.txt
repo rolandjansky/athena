@@ -10,6 +10,9 @@ if( NOT GENERATIONBASE )
    if( NOT XAOD_ANALYSIS )
       list( APPEND extra_libs AthenaMonitoringKernelLib )
    endif()
+   if( NOT XAOD_STANDALONE )
+      list( APPEND extra_libs StoreGateLib )
+   endif()
 endif()
 
 # External dependencies:

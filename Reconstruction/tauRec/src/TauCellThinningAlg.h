@@ -53,11 +53,6 @@ class TauCellThinningAlg : public AthReentrantAlgorithm
   // Tau container
   SG::ReadHandleKey<xAOD::TauJetContainer> m_taus
     { this, "Taus", "TauJets", "Container of taus for which cells should be saved" };
-
-  // Use shower subtracted clusters, only relevant for PFlow seed jets
-  Gaudi::Property<bool> m_useSubtractedCluster 
-    { this, "UseSubtractedCluster", false, "Use shower subtracted clusters" };
-
 };
 
 #endif // not TAUREC_TAUCELLTHINNING_H

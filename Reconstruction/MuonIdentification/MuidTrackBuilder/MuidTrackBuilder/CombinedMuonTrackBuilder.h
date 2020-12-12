@@ -9,7 +9,6 @@
 //  Coulomb scattering.
 //  The resulting track is fitted at the IP
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
@@ -107,7 +106,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
                     const Trk::RunOutlierRemoval  runOutlier         = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-    void cleanUp() const;
+    void cleanUp() const override;
 
   private:
     bool        optimizeErrors(Trk::Track* track) const;
@@ -167,7 +166,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
 
     void dumpCaloEloss(const Trk::Track* track, std::string txt) const;
     int  countAEOTs(const Trk::Track* track, std::string txt) const;
-    bool checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const;
+    bool checkTrack(const std::string& txt, const Trk::Track* newTrack, const Trk::Track* track) const;
 
     // helpers, managers, tools
     ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{

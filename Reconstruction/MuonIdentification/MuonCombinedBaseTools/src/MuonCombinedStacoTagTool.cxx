@@ -7,7 +7,6 @@
 //  AlgTool performing statistical combination of ID and MS tracks (STACO)
 //  A StacoTag is added to the InDetCandidate object.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCombinedStacoTagTool.h"
@@ -169,6 +168,12 @@ namespace MuonCombined {
       (indetPerigee.associatedSurface().createParameters<5,Trk::Charged>( parsCB[Trk::locX], parsCB[Trk::locY],
                                                                           parsCB[Trk::phi],  parsCB[Trk::theta], parsCB[Trk::qOverP], 
                                                                           covCB ) );
+  }
+
+
+  void MuonCombinedStacoTagTool::cleanUp() const {
+    //Nothing to clean up here .. hopefully
+    return;
   }
 
 }	// end of namespace

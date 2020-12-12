@@ -20,22 +20,14 @@
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
-  TauRecToolBase(name),
-  m_useSubtractedCluster(true)
-{
-  declareProperty("UseSubtractedCluster", m_useSubtractedCluster);
+  TauRecToolBase(name) {
+  declareProperty("VertexCorrection", m_doVertexCorrection = true);
 }
 
-StatusCode TauIDVarCalculator::initialize()
-{  
-  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
-  return StatusCode::SUCCESS;
-}
 
-StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
-{
+
+StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const {
   static const SG::AuxElement::Accessor<float> acc_absipSigLeadTrk("absipSigLeadTrk");
-
   acc_absipSigLeadTrk(tau) = (tau.nTracks()>0) ? std::abs(tau.track(0)->d0SigTJVA()) : 0.;
   
   if(inTrigger()) return StatusCode::SUCCESS;
@@ -79,37 +71,25 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau) const
   std::vector<CaloSampling::CaloSample> Had1Samps = { 
         CaloSampling::HEC0, CaloSampling::TileBar0, CaloSampling::TileGap1, CaloSampling::TileExt0};
 
-  if (! tau.jetLink().isValid()) {
-    ATH_MSG_ERROR("Tau jet link is invalid.");
-    return StatusCode::FAILURE;
-  }
-  const xAOD::Jet *jetSeed = tau.jet();
-  
-  const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
-  
-  const xAOD::Vertex* tauVertex = nullptr;
-  if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
-  
-  TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
-
-  std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusterList, m_useSubtractedCluster));
-  
   float eEMAtEMScaleFixed = 0.;
   float eHadAtEMScaleFixed = 0.;
   float eHad1AtEMScaleFixed = 0.;
 
-  for (const xAOD::CaloCluster* cluster  : clusterList) {
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
+  TLorentzVector tauAxis = tauRecTools::getTauAxis(tau, m_doVertexCorrection);
+
+  std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = tau.vertexedClusters();
+  for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList){
+    TLorentzVector clusterP4 = vertexedCluster.p4();
     
-    if( tauAxis.DeltaR(clusterP4) > 0.2 ) continue;
-    
+    if( clusterP4.DeltaR(tauAxis) > 0.2 ) continue;
+   
+    const xAOD::CaloCluster& cluster = vertexedCluster.clust(); 
     for( auto samp : EMSamps )
-      eEMAtEMScaleFixed += cluster->eSample(samp);
+      eEMAtEMScaleFixed += cluster.eSample(samp);
     for( auto samp : HadSamps )
-      eHadAtEMScaleFixed += cluster->eSample(samp);
+      eHadAtEMScaleFixed += cluster.eSample(samp);
     for( auto samp : Had1Samps )
-      eHad1AtEMScaleFixed += cluster->eSample(samp);  
+      eHad1AtEMScaleFixed += cluster.eSample(samp);  
   }
   acc_EMFracFixed(tau) = ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) != 0. ? 
       eEMAtEMScaleFixed / ( eEMAtEMScaleFixed + eHadAtEMScaleFixed ) : LOW_NUMBER;

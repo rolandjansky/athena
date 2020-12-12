@@ -77,7 +77,6 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
 
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+suffix,
-                                                                 Extrapolator            = InDetExtrapolator,
                                                                  TrackSummaryTool        = track_summary_tool,
                                                                  BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                  KeepParameters          = True,
@@ -140,7 +139,7 @@ def convertTrackParticles(aod_track_particles_in, track_particle_truth_in,track_
         xAODTrackParticleCnvAlg.TrackTruthContainerName = ""
         from MCTruthClassifier.MCTruthClassifierBase import MCTruthClassifier
         xAODTrackParticleCnvAlg.MCTruthClassifier = MCTruthClassifier
-        topSequence += xAODTrackParticleCnvAlg 
+        topSequence += xAODTrackParticleCnvAlg
 
 if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <---- [XXX JDC Should we included this?
                                 #                                                    problems appear when nothing should
@@ -151,7 +150,7 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
     #           if finally there is no need of the special "MergedTrack" name
     if 'InputTrackCollectionTruth' not in dir():
         InputTrackCollectionTruth = InDetKeys.TracksTruth()
-    if not InDetFlags.doDBMstandalone(): 
+    if not InDetFlags.doDBMstandalone():
         if doCreation :
             createTrackParticles(InputTrackCollection, InputTrackCollectionTruth, InDetKeys.xAODTrackParticleContainer(),topSequence)
             from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
@@ -167,7 +166,7 @@ if (doCreation or doConversion):# or InDetFlags.useExistingTracksAsInput()) : <-
 
 
     if (InDetFlags.doDBMstandalone() or InDetFlags.doDBM() ) and doCreation :
-        # or instead of InDetKeys.DBMTracksTruth()  rather InDetKeys.DBMDetailedTracksTruth() ? 
+        # or instead of InDetKeys.DBMTracksTruth()  rather InDetKeys.DBMDetailedTracksTruth() ?
         createTrackParticles( InDetKeys.xAODDBMTrackParticleContainer(), InDetKeys.DBMTracksTruth(), InDetKeys.xAODDBMTrackParticleContainer(),topSequence)
 
 if not InDetFlags.doVertexFinding():
@@ -177,7 +176,7 @@ if not InDetFlags.doVertexFinding():
         if len(getRecVertexNameIfInFile(InDetKeys.PrimaryVertices()))>0 :
             from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__VertexCnvAlg
             xAODVertexCnvAlg = xAODMaker__VertexCnvAlg("VertexCnvAlg")
-            xAODVertexCnvAlg.xAODContainerName = InDetKeys.xAODVertexContainer() 
+            xAODVertexCnvAlg.xAODContainerName = InDetKeys.xAODVertexContainer()
             xAODVertexCnvAlg.AODContainerName = InDetKeys.PrimaryVertices()
             xAODVertexCnvAlg.TPContainerName = InDetKeys.xAODTrackParticleContainer()
             topSequence += xAODVertexCnvAlg
@@ -214,8 +213,8 @@ if InDetFlags.doPseudoTracking():
 if InDetFlags.doR3LargeD0() and InDetFlags.storeSeparateLargeD0Container():
     if doCreation :
         createTrackParticles(InDetKeys.ExtendedLargeD0Tracks(), InDetKeys.ExtendedLargeD0TracksTruth(), InDetKeys.xAODLargeD0TrackParticleContainer(),topSequence)
-        
- 
+
+
 if InDetFlags.doTrackSegmentsPixel() and InDetFlags.doParticleCreation():
     if doCreation :
         createTrackParticles(InDetKeys.PixelTracks(), InDetKeys.PixelTracksTruth(), InDetKeys.xAODPixelTrackParticleContainer(),topSequence)

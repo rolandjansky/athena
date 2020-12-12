@@ -41,6 +41,8 @@ def setupMenu():
         #test chains
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
+        ChainProp(name='HLT_mu6_idperfLRT_l2lrt_L1MU6',     groups=SingleMuonGroup),
+
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
 
         # commented because it is conflict with dimuon noL1 serial chain

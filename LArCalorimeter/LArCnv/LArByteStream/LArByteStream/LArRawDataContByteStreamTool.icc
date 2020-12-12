@@ -32,8 +32,11 @@ bool LArRawDataContByteStreamTool::checkGainConsistency(const COLLECTION* coll) 
 // The Following collection types are included :
 // LArAccumulatedCalibDigit, LArAccumulatedDigit, LArCalibDigit, LArDigit,
 // LArFebHeader and LArRawChannel
-template <class COLLECTION >
-StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION* coll, CaloGain::CaloGain gain) const
+template <class COLLECTION, typename ...ARGS >
+StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re,
+                                                 COLLECTION* coll,
+                                                 CaloGain::CaloGain gain,
+                                                 ARGS&&... args) const
 {
         RobIndex_t robIndex;
 	if (prepareRobIndex(re, robIndex).isFailure()){
@@ -74,7 +77,8 @@ StatusCode LArRawDataContByteStreamTool::convert(const RawEvent* re, COLLECTION*
               ATH_MSG_VERBOSE ( "Calling RodDecoder for source ID " << MSG::hex 
                                 << robFrag.rod_source_id() << MSG::dec );
 	      m_decoder->fillCollection(robFrag,
-                                        p,n,*coll,gain); // ..and decode them.
+                                        p,n,*coll,gain,
+                                        std::forward<ARGS>(args)...); // ..and decode them.
             }
             catch (eformat::Issue& ex) {
               ATH_MSG_WARNING ( " exception thrown by ROBFragment, badly corrupted event. Abort decoding " );

@@ -19,13 +19,6 @@
 #include "TauJetAccessors_v3.h"
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
-namespace{
-  bool
-  inRange(const double val, const double lo, const double hi){
-    return (val>=lo) and (val<=hi);
-  }
-
-}
 
 namespace xAOD {
   
@@ -112,9 +105,7 @@ namespace xAOD {
 
   TauJet_v3::FourMom_t TauJet_v3::p4() const {
     FourMom_t p4{};
-    bool validAnswer = inRange(eta(),-10,10);
-    validAnswer&= inRange(phi(),-M_PI,+M_PI);
-    if (validAnswer) p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+    p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
     return p4;	
   }
 
