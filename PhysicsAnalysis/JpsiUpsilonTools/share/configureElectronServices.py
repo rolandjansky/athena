@@ -40,7 +40,7 @@ print      InDetTrackSelectorToolEE
 #
 #from egammaTrackTools.egammaTrackToolsConf import CaloCluster_OnTrackBuilder
 #ccotBuilderTool = CaloCluster_OnTrackBuilder(name = "ccotBuilderTool",
-#                                             UseClusterEnergy = False, 
+#                                             UseClusterEnergy = False,
 #                                             UseClusterPhi = False)
 #ToolSvc += ccotBuilderTool
 #
@@ -64,7 +64,6 @@ print      InDetTrackSelectorToolEE
 from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
 InDetParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetParticleCreatorTool",
                                                          KeepParameters = True,
-                                                         Extrapolator = InDetExtrapolator,
                                                          TrackSummaryTool = InDetTrackSummaryTool,
                                                          UseTrackSummaryTool = True)
 ToolSvc += InDetParticleCreatorTool

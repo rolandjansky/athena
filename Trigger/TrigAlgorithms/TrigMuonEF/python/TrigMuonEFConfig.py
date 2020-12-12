@@ -269,7 +269,6 @@ def TMEF_TrackSummaryToolNoHole(name='TMEF_TrackSummaryToolNoHole',**kwargs):
 
 def TMEF_TrkToTrackParticleConvTool(name="TMEF_TrkToTrackParticleConvTool",**kwargs):
     #import MuonCombinedRecExample.CombinedMuonTrackSummary
-    kwargs.setdefault("Extrapolator", "AtlasExtrapolator" )
     kwargs.setdefault("TrackSummaryTool", 'TMEF_TrackSummaryToolNoHole')#ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("KeepAllPerigee",False )
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)

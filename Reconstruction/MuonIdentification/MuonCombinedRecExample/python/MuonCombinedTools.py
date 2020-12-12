@@ -47,11 +47,11 @@ def MuonCombinedInDetDetailedTrackSelectorTool_LRT(name='MuonCombinedInDetDetail
     kwargs.setdefault("nHitSct", 4 )
     kwargs.setdefault("nHitSi", 4 )
     kwargs.setdefault("nHitTrt", 0 )
-    kwargs.setdefault("useTrackQualityInfo", False )    
+    kwargs.setdefault("useTrackQualityInfo", False )
     kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs)
-    
+
 
 
 def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwargs):
@@ -66,7 +66,6 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
-    kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
     if beamFlags.beamType() == 'cosmics':
@@ -75,7 +74,6 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
 
 def MuonCaloParticleCreator(name="MuonCaloParticleCreator",**kwargs):
     import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
-    kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("PerigeeExpression","Origin")
@@ -133,8 +131,8 @@ def MuonCreatorTool_LRT(name="MuonCreatorTool_LRT",**kwargs):
     kwargs.setdefault("MuonPrinter", getPublicTool("MuonPrintingTool") )
     kwargs.setdefault("RequireIDTrack", True)
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
-    
-    
+
+
 
 
 

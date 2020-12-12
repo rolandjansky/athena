@@ -123,10 +123,6 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**k
         kwargs.setdefault("TrackSummaryTool", acc.getPrimary() ) 
         result.merge (acc)
 
-    acc = AtlasExtrapolatorCfg(flags)
-    kwargs.setdefault("Extrapolator", acc.getPrimary() )
-    result.addPublicTool(kwargs['Extrapolator'])
-    result.merge(acc)
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
     if flags.Beam.Type=="cosmics":
@@ -179,7 +175,6 @@ def MuonMaterialProviderToolCfg(flags,  name = "MuonMaterialProviderTool"):
     result.merge(acc)
     result.addPublicTool(atlas_extrapolator)
     kwargs = dict()
-    kwargs["Extrapolator"] = atlas_extrapolator
     if flags.Muon.SAMuonTrigger:
         from MuonConfig.MuonRecToolsConfig import MuonTrackSummaryToolCfg
         acc = MuonTrackSummaryToolCfg(flags)
