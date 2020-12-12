@@ -52,15 +52,15 @@ namespace Trk {
       //!< Retrieve interface ID
       static const InterfaceID& interfaceID() { return IID_ITrackingGeometrySvc; }
   
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
   
       /** Query the interfaces.
       /   Input: riid, Requested interface ID
       /          ppvInterface, Pointer to requested interface
       /   Return: StatusCode indicating SUCCESS or FAILURE.
       / N.B. Don't forget to release the interface after use!!! **/
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
+      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
   
       // TagInfoMgr callback
       virtual void tagInfoUpdated() override final;
@@ -69,10 +69,10 @@ namespace Trk {
       StatusCode trackingGeometryInit(bool needsInit = true);
   
       /** Provide the TrackingGeometry */
-      const Trk::TrackingGeometry* trackingGeometry() const;
+      virtual const Trk::TrackingGeometry* trackingGeometry() const override;
   
       //!< Returns the name of the TrackingGeometry built with this Svc
-      const std::string& trackingGeometryName() const;
+      virtual const std::string& trackingGeometryName() const override;
   
       friend class SvcFactory<TrackingGeometrySvc>;
   

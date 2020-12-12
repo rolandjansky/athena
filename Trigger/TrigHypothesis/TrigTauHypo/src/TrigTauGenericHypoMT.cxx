@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -16,39 +16,15 @@
  *
  *********************************************************************/
 
-#include <iterator>
-#include <sstream>
-
-//
-#include "TLorentzVector.h"
-#include "TFormula.h"
-
-#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ListItem.h"
-//
-#include "TrigTauGenericHypoMT.h"
-
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-#include "xAODCaloEvent/CaloCluster.h"
-#include "xAODCaloEvent/CaloClusterContainer.h"
-
-#include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
-
-#include "TrkTrack/Track.h"
-#include "TrkTrack/TrackCollection.h"
-
-#include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 
-//class ISvcLocator;
+#include "xAODJet/Jet.h"
+#include "xAODTau/TauJet.h"
 
-using namespace TrigCompositeUtils;
+#include "TrigTauGenericHypoMT.h"
+#include "TrigCompositeUtils/HLTIdentifier.h"
+
 
 TrigTauGenericHypoMT::TrigTauGenericHypoMT( const std::string& type,
                   const std::string& name, 
@@ -60,31 +36,24 @@ TrigTauGenericHypoMT::TrigTauGenericHypoMT( const std::string& type,
   declareProperty("Formulas", m_formula);
 }
 
-TrigTauGenericHypoMT::~TrigTauGenericHypoMT()
-{}
 
-StatusCode TrigTauGenericHypoMT::initialize()
-{
+StatusCode TrigTauGenericHypoMT::initialize() {
 
   if ( !m_monTool.empty() ) CHECK( m_monTool.retrieve() );
 
-  ATH_MSG_DEBUG( "AcceptAll            = " 
-      << ( m_acceptAll==true ? "True" : "False" ) ); 
-
-  //m_multiplicity = m_lowerPtCut.size();
-  ATH_MSG_DEBUG( "Tool configured for chain/id: " << m_decisionId  );
-
-  ATH_MSG_INFO(" REGTEST: TrigTauGenericHypoMT will cut on ");
-  ATH_MSG_INFO(" REGTEST: ------ ");
+  ATH_MSG_DEBUG("Tool configured for chain/id: " << m_decisionId <<
+                ", AcceptAll = " << (m_acceptAll ? "True" : "False"));
 
   // Here we store the formulas since they need to compile
+  m_store.reserve(m_member.size());
+  msg(MSG::INFO) << "Cuts: ";
   for(unsigned int i=0; i<m_member.size(); i++)
   {
-     m_store.push_back(TFormula(("TauHypoCut"+m_formula.at(i)).c_str(), m_formula.at(i).c_str()));
-     ATH_MSG_INFO(" REGTEST: " << m_formula.at(i));
+    m_store.push_back(TFormula(("TauHypoCut"+m_formula.at(i)).c_str(), m_formula.at(i).c_str()));
+    msg(MSG::INFO) << "(" << m_formula.at(i) << ") ";
+    // x is the ID variables, y is Tau pT and z is Tau eta
   }
-  ATH_MSG_INFO(" REGTEST: where x is the ID variables, y is Tau pT and z is Tau eta ");
-  ATH_MSG_INFO("Initialization of TrigTauGenericHypoMT completed successfully");
+  msg(MSG::INFO) << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -94,36 +63,26 @@ bool TrigTauGenericHypoMT::decide( const ITrigTauGenericHypoTool::ClusterInfo& i
 
   bool pass = false;
 
-
-  auto PassedCuts        = Monitored::Scalar<int>( "CutCounter", -1 );
-  auto monitorIt         = Monitored::Group( m_monTool, PassedCuts );
-
-  // when leaving scope it will ship data to monTool
-  PassedCuts = PassedCuts + 1; //got called (data in place)
+  auto passedCuts        = Monitored::Scalar<unsigned int>( "CutCounter", 0 );
+  auto monitorIt         = Monitored::Group( m_monTool, passedCuts );
 
   if ( m_acceptAll ) {
     pass = true;
     ATH_MSG_DEBUG( "AcceptAll property is set: taking all events" );
-  } else {
-    pass = false;
-    ATH_MSG_DEBUG( "AcceptAll property not set: applying selection" );
   }
 
   // get tau collection
   auto pTauCont = input.taucontainer;
 
-  if(pTauCont->size()!=0){
-    ATH_MSG_DEBUG(" Input tau collection has size " << pTauCont->size());
+  if( not pTauCont->empty() ){
+    ATH_MSG_DEBUG("Input tau collection has size " << pTauCont->size());
   }else {
-	 ATH_MSG_DEBUG("No taus in input collection: Rejecting");
-   pass=false;
-	return pass;
+    ATH_MSG_DEBUG("No taus in input collection: Rejecting");
+    return false;
   }
 
   const xAOD::TauJet* aTau = pTauCont->back();
   
-  int hasFailed = 0;
-
   // We have to implement the cuts here - Eventually, declare the formulas in the initialize
   for(unsigned int i=0; i<m_member.size(); i++)
     {
@@ -131,38 +90,35 @@ bool TrigTauGenericHypoMT::decide( const ITrigTauGenericHypoTool::ClusterInfo& i
       
       // Detail -1 ignores by convention the ID variables
       if(m_member.at(i) != -1)
-	{
-	  xAOD::TauJetParameters::Detail myDetail = xAOD::TauJetParameters::Detail(m_member.at(i));
-	  aTau->detail(myDetail, theValue);
-	}
+        {
+          xAOD::TauJetParameters::Detail myDetail = xAOD::TauJetParameters::Detail(m_member.at(i));
+          aTau->detail(myDetail, theValue);
+        }
       
       // What about upper and lower bounds? can work using x, y, z, t...
       double theResult = m_store.at(i).Eval(theValue, aTau->pt(), aTau->eta());
-      ATH_MSG_DEBUG(" Evaluating Hypothesis on ID Variable #: " << m_member.at(i) );
-      ATH_MSG_DEBUG(" With Cut = " << m_formula.at(i).c_str() );
-      ATH_MSG_DEBUG(" And value x (ID), y (pT), z (Eta) = " << theValue <<", "<< aTau->pt() << ", " << aTau->eta() );
-      ATH_MSG_DEBUG(" Result = " << (theResult > 0.5) );
+      ATH_MSG_DEBUG("Evaluating Hypothesis on ID Variable #: " << m_member.at(i) <<
+                    " with cut = " << m_formula.at(i).c_str() <<
+                    " and value x (ID), y (pT), z (Eta) = " << theValue <<", "<< aTau->pt() <<
+                    ", " << aTau->eta() <<
+                    ", Result = " << (theResult > 0.5));
 
       if(theResult < 0.5)
-	{
-	  hasFailed = i+1;
-	  break;
-	}
+        break;  // cut failed
+      else
+        ++passedCuts;
     }
   
-  if (hasFailed)
+  if ( passedCuts!=m_member.size() )
     {
-      ATH_MSG_DEBUG(" REGTEST: Cut Number: "
-	      << hasFailed-1
-         << " did not pass the threshold");
+      ATH_MSG_DEBUG(" REGTEST: Cut Number: " << passedCuts
+                    << " did not pass the threshold");
       return pass;
     }
 
   pass = true;
-  
   ATH_MSG_DEBUG(" REGTEST: TE accepted !! ");
-  
-  
+
   return pass;
 }
 
@@ -170,10 +126,12 @@ bool TrigTauGenericHypoMT::decide( const ITrigTauGenericHypoTool::ClusterInfo& i
 
 StatusCode TrigTauGenericHypoMT::decide(  std::vector<ClusterInfo>& input )  const {
 
+  using namespace TrigCompositeUtils;
+
   for ( auto& i: input ) {
     if ( passed ( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
       if ( decide( i ) ) {
-   addDecisionID( m_decisionId, i.decision );
+        addDecisionID( m_decisionId, i.decision );
       }
     }
   }

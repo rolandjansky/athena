@@ -118,7 +118,7 @@ namespace Muon {
     /** @brief returns a new track with segments recovered using RegionSelector*/
     Trk::Track* recover( const Trk::Track& track ) const;
     
-    void cleanUp() const;
+    void cleanUp() const override;
 
   private:
 

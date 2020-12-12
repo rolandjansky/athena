@@ -101,12 +101,13 @@ namespace top {
  * @brief Search bookkeepers for ones matching AllExecutedEvents, and which
  * originate from AOD before skimming.
  *
- * @param cutBookKeepers Container with bookkeepers
+ * @param TEvent to retrieve the cutbookkeepers
+ * @param number of the generator weights
  * @param names Vector of names of the selected bookkeepers
  * @param sumW Vector of sum of weights of the selected bookkeepers
  * @param isHLLHC Whether this is a HLLHC ugprade sample, it uses different stream for bookkeepers
  */
-  void parseCutBookkeepers(const xAOD::CutBookkeeperContainer *cutBookKeepers,
+  void parseCutBookkeepers(xAOD::TEvent& event, const std::size_t size,
       std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC=false);
 
 /**

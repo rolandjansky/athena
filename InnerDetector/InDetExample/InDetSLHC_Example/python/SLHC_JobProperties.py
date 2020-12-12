@@ -7,7 +7,6 @@
 __author__ =   "A. Salzburger"
 __version__=   "$Revision: 1.13 $"
 __doc__    =   "SLHC_JobProperties"
-__all__    = [ "SLHC_JobProperties" ]
 
 # kindly stolen from AthenaCommonFlags from S. Binet and M. Gallas
 

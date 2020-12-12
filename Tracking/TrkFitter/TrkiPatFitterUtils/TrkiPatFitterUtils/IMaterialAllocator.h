@@ -7,7 +7,6 @@
 //  tool interface to allocate tracking geometry material onto indet and/or
 //  muon spectrometer tracks
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRKIPATFITTERUTILS_IMATERIALALLOCATOR_H

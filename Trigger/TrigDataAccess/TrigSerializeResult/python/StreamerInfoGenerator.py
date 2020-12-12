@@ -2,6 +2,7 @@
 
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import cppyy
+import ROOT
 
 class StreamerInfoGenerator:
   def __init__(self):
@@ -15,7 +16,7 @@ class StreamerInfoGenerator:
     self.type.EnableCintex()
     cppyy.load_library('libAtlasSTLAddReflexDict')
     #MN: switch off auto dict generation - god knows what that can mess up
-    cppyy.gbl.gROOT.ProcessLine(".autodict")
+    ROOT.gROOT.ProcessLine(".autodict")
 
     
   def inspect(self, typename):
@@ -44,6 +45,8 @@ class StreamerInfoGenerator:
     except Exception:
       pass
 
+    # can't handle anonymous types
+    exceptions = ["string::(anonymous)"]
     try:
       # This doesn't work in ROOT 6.22 anymore
       # cl = cppyy.makeClass(typename)
@@ -63,8 +66,10 @@ class StreamerInfoGenerator:
       if not dontAdd:
         self.classlist.append(typename)
         print("appended type to the classlist")
-    except Exception:
-      print('Cannot create class of ', typename)
+    except Exception as ex:
+      print('Cannot create class of {}: {}'.format(typename, ex))
+      if typename not in exceptions:
+        raise ex
 
     t = self.type.ByName(typename)
 

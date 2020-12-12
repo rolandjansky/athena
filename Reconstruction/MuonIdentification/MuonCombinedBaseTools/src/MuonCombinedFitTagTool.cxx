@@ -7,7 +7,6 @@
 //  AlgTool performing combined fit of ID and MS tracks (Muid)
 //  A CombinedFitTag is added to the InDetCandidate object.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCombinedFitTagTool.h"
@@ -789,6 +788,10 @@ namespace MuonCombined {
       if (matchChiSq1 < matchChiSq2) return true;
       return false;
     }
+  }
+
+  void MuonCombinedFitTagTool::cleanUp() const {
+    m_trackBuilder->cleanUp();
   }
   
   

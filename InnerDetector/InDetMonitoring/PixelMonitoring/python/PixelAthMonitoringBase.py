@@ -262,6 +262,12 @@ ErrCatLabelsNorm = [
       "TimeoutErrorsFracPerEvent"
 ]
 
+ReadingDataErrLabels = [
+      "Invalid container",
+      "Invalid collection", 
+      "Container empty"
+]
+
 layergroups = {}
 def getLayerGroup(helper, alg, layer):
     if alg not in layergroups:

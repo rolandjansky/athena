@@ -292,28 +292,28 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     // layer entry/exit    
 
     // binned material for LAr : steering in binEta
-    std::vector<const Trk::IdentifiedMaterial*> matID;
+    std::vector<Trk::IdentifiedMaterial> matID;
     // layer material can be adjusted here
     int baseID = Trk::GeometrySignature(Trk::Calo)*1000;
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial,0));
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial,baseID+1));
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial,baseID+2));
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial,baseID+3));
+    matID.emplace_back(lArBarrelMaterial,0);
+    matID.emplace_back(lArBarrelMaterial,baseID+1);
+    matID.emplace_back(lArBarrelMaterial,baseID+2);
+    matID.emplace_back(lArBarrelMaterial,baseID+3);
     // scaling factors refer to avZ(avA) change
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(1.3),baseID+1));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(1.3),baseID+2));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(0.6),baseID+3));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(0.7),baseID+3));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(0.8),baseID+3));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(0.9),baseID+3));
-    throwIntoGarbage(matID.back()->first);
-    matID.push_back(new std::pair<const Trk::Material*,int>(lArBarrelMaterial->scale(1.1),baseID+3));
-    throwIntoGarbage(matID.back()->first);
+    matID.emplace_back(lArBarrelMaterial->scale(1.3),baseID+1);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(1.3),baseID+2);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(0.6),baseID+3);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(0.7),baseID+3);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(0.8),baseID+3);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(0.9),baseID+3);
+    throwIntoGarbage(matID.back().first);
+    matID.emplace_back(lArBarrelMaterial->scale(1.1),baseID+3);
+    throwIntoGarbage(matID.back().first);
 
     //std::cout <<"matID:"<< matID[3]->second<< std::endl;
     //
@@ -536,10 +536,10 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
     std::vector<size_t> dummylay (1,0);
     // binned material for Presampler : 
-    std::vector<const Trk::IdentifiedMaterial*> matBP;
+    std::vector<Trk::IdentifiedMaterial> matBP;
     // layer material can be adjusted here
     int baseID = Trk::GeometrySignature(Trk::Calo)*1000;
-    matBP.push_back(new Trk::IdentifiedMaterial(lArBarrelPresamplerMaterial,baseID));
+    matBP.emplace_back(lArBarrelPresamplerMaterial,baseID);
 
     const Trk::BinnedMaterial* lArBarrelPresamplerMaterialBinPos = new Trk::BinnedMaterial(lArBarrelPresamplerMaterial,rBU,dummylay,matBP);
     const Trk::BinnedMaterial* lArBarrelPresamplerMaterialBinNeg = new Trk::BinnedMaterial(lArBarrelPresamplerMaterial,rBUc,dummylay,matBP);
@@ -748,68 +748,68 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     Trk::BinUtility* bun = new Trk::BinUtility(37,-3.2,-1.35,Trk::open,Trk::binEta);
 
     // binned material for LAr : steering in binEta
-    std::vector<const Trk::IdentifiedMaterial*> matEID;
+    std::vector<Trk::IdentifiedMaterial> matEID;
     // layer material can be adjusted here
     int baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 4;
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial,0));
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial,baseID+1));
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial,baseID+2));
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial,baseID+3));
+    matEID.emplace_back(lArEndcapMaterial,0);
+    matEID.emplace_back(lArEndcapMaterial,baseID+1);
+    matEID.emplace_back(lArEndcapMaterial,baseID+2);
+    matEID.emplace_back(lArEndcapMaterial,baseID+3);
     // scaled
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.05),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.1),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.15),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.2),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.25),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.3),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.35),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.4),baseID+1));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.05),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.1),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.15),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.2),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.25),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.3),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.35),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.4),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.45),baseID+2));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.7),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.75),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.8),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.85),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.9),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(0.95),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.05),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.1),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.15),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
-    matEID.push_back(new std::pair<const Trk::Material*,int>(lArEndcapMaterial->scale(1.2),baseID+3));
-    throwIntoGarbage(matEID.back()->first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.05),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.1),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.15),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.2),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.25),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.3),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.35),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.4),baseID+1);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.05),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.1),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.15),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.2),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.25),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.3),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.35),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.4),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.45),baseID+2);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.7),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.75),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.8),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.85),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.9),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(0.95),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.05),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.1),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.15),baseID+3);
+    throwIntoGarbage(matEID.back().first);
+    matEID.emplace_back(lArEndcapMaterial->scale(1.2),baseID+3);
+    throwIntoGarbage(matEID.back().first);
 
     // binned material for LAr : layer depth per eta bin
     std::vector< Trk::BinUtility*> layEUP(bup->bins());
@@ -963,7 +963,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   const GeoLogVol* lArECPresamplerLogVol = lArECPresamplerPhysVol ? lArECPresamplerPhysVol->getLogVol() : 0;
 
   // binned material for EC Presampler : layers only
-   std::vector<const Trk::IdentifiedMaterial*> matECP;
+   std::vector<Trk::IdentifiedMaterial> matECP;
    const Trk::Material* mAr = new Trk::Material(140., 1170./1.4, 40., 18., 0.0014);
    const Trk::Material* mAl = new Trk::Material(88.93, 388.8, 27., 13., 0.0027);
    throwIntoGarbage(mAr);
@@ -971,8 +971,8 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // layer material can be adjusted here
    int baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 4;
-   matECP.push_back(new std::pair<const Trk::Material*,int>(mAl,0));
-   matECP.push_back(new std::pair<const Trk::Material*,int>(mAr,baseID));
+   matECP.emplace_back(mAl,0);
+   matECP.emplace_back(mAr,baseID);
 
   if (  lArECPresamplerLogVol ) {
   
@@ -1441,7 +1441,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    lArFcalZposition = hecFcalCoverZpos;
 
    // binned material for HEC : layers only
-   std::vector<const Trk::IdentifiedMaterial*> matHEC;
+   std::vector<Trk::IdentifiedMaterial> matHEC;
    //Trk::MaterialProperties lArHecFcalCoverMaterial = geoMaterialToMaterialProperties.convert(lArPositiveHec1Material);
    //Trk::MaterialProperties lArHecFcalCoverMaterial = Trk::MaterialProperties(1., 18.6, 0.00345, 27.);
    const Trk::Material* lArHecFcalCoverMaterial=new Trk::Material(18.4, 201.9, 57.2, 26.1, 0.0071);
@@ -1451,14 +1451,16 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // layer material can be adjusted here
    baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 8;
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(0.13*m_scale_HECmaterial),0));
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecMaterial->scale(m_scale_HECmaterial),baseID));
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(0.93*m_scale_HECmaterial),baseID+1));
-   throwIntoGarbage(matHEC.back()->first);
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(1.09*m_scale_HECmaterial),baseID+2));
-   throwIntoGarbage(matHEC.back()->first);
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(1.12*m_scale_HECmaterial),baseID+3));
-   throwIntoGarbage(matHEC.back()->first);
+   matHEC.emplace_back(lArHecFcalCoverMaterial->scale(0.13*m_scale_HECmaterial),0);
+   throwIntoGarbage(matHEC.back().first);
+   matHEC.emplace_back(lArHecMaterial->scale(m_scale_HECmaterial),baseID);
+   throwIntoGarbage(matHEC.back().first);
+   matHEC.emplace_back(lArHecFcalCoverMaterial->scale(0.93*m_scale_HECmaterial),baseID+1);
+   throwIntoGarbage(matHEC.back().first);
+   matHEC.emplace_back(lArHecFcalCoverMaterial->scale(1.09*m_scale_HECmaterial),baseID+2);
+   throwIntoGarbage(matHEC.back().first);
+   matHEC.emplace_back(lArHecFcalCoverMaterial->scale(1.12*m_scale_HECmaterial),baseID+3);
+   throwIntoGarbage(matHEC.back().first);
 
    // divide the HEC into two parts per EC :
    // -  fit one around the FCAL - and adopt to LAr Endcap outer radius
@@ -1600,7 +1602,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    
    // Now the FCAL
    // binned material for FCAL : layers only
-   std::vector<const Trk::IdentifiedMaterial*> matFCAL;
+   std::vector<Trk::IdentifiedMaterial> matFCAL;
    // convert the Material 
    //Trk::MaterialProperties lArFcalMaterial = geoMaterialToMaterialProperties.convert(lArPositiveEndcapMaterial);
    const Trk::Material* lArFcalMaterial =new Trk::Material(8.4, 175.5, 100.8, 42.1, 0.0097);
@@ -1610,13 +1612,13 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // layer material can be adjusted here
    baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 20;
-   matFCAL.push_back(new std::pair<const Trk::Material*,int>(lArFcalMaterial0,0));
-   matFCAL.push_back(new std::pair<const Trk::Material*,int>(lArFcalMaterial->scale(0.5),baseID+1));
-   throwIntoGarbage(matFCAL.back()->first);
-   matFCAL.push_back(new std::pair<const Trk::Material*,int>(lArFcalMaterial->scale(1.5),baseID+2));
-   throwIntoGarbage(matFCAL.back()->first);
-   matFCAL.push_back(new std::pair<const Trk::Material*,int>(lArFcalMaterial->scale(1.4),baseID+3));
-   throwIntoGarbage(matFCAL.back()->first);
+   matFCAL.emplace_back(lArFcalMaterial0,0);
+   matFCAL.emplace_back(lArFcalMaterial->scale(0.5),baseID+1);
+   throwIntoGarbage(matFCAL.back().first);
+   matFCAL.emplace_back(lArFcalMaterial->scale(1.5),baseID+2);
+   throwIntoGarbage(matFCAL.back().first);
+   matFCAL.emplace_back(lArFcalMaterial->scale(1.4),baseID+3);
+   throwIntoGarbage(matFCAL.back().first);
 
    // smooth the FCal to Tube form
    if (lArPositiveFcal1Bounds && lArPositiveFcal2Bounds && lArPositiveFcal3Bounds &&

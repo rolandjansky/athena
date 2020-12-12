@@ -35,17 +35,11 @@ class SensorSimPlanarTool : public SensorSimTool {
     SensorSimPlanarTool();
 
     // Map for radiation damage simulation
-    std::map<std::pair<int, int>, TH3F*> m_ramoPotentialMap;
-    std::map<std::pair<int, int>, TH1F*> m_eFieldMap;
-    std::map<std::pair<int, int>, TH2F*> m_distanceMap_e;
-    std::map<std::pair<int, int>, TH2F*> m_distanceMap_h;
-    std::map<std::pair<int, int>, TH1F*> m_timeMap_e;
-    std::map<std::pair<int, int>, TH1F*> m_timeMap_h;
-    std::map<std::pair<int, int>, TH2F*> m_lorentzMap_e;
-    std::map<std::pair<int, int>, TH2F*> m_lorentzMap_h;
-
-    std::vector<double> m_fluence_layers,m_voltage_layers; //merging information from m_fluence* and m_voltage*
-    std::map<std::pair<int, int>, double> m_fluence_layersMaps;
+    std::vector<TH3F*> m_ramoPotentialMap;
+    std::vector<TH2F*> m_distanceMap_e;
+    std::vector<TH2F*> m_distanceMap_h;
+    std::vector<TH2F*> m_lorentzMap_e;
+    std::vector<TH2F*> m_lorentzMap_h;
 
     Gaudi::Property<int> m_numberOfSteps
     {this, "numberOfSteps", 50, "Geant4:number of steps for PixelPlanar"};
@@ -56,35 +50,21 @@ class SensorSimPlanarTool : public SensorSimTool {
     Gaudi::Property<bool> m_doRadDamage
     {this, "doRadDamage", false, "doRadDmaage bool: should be flag"};
 
-    Gaudi::Property<double> m_trappingTimeElectrons
-    {this, "trappingTimeElectrons", 0.0, "Characteristic time till electron is trapped [ns]"};
+    Gaudi::Property<bool> m_doInterpolateEfield
+    {this, "doInterpolateEfield", false, "doInterpolateEfield bool: should be flag"};
 
-    Gaudi::Property<double> m_trappingTimeHoles
-    {this, "trappingTimeHoles", 0.0, "Characteristic time till hole is trapped [ns]"};
+    Gaudi::Property<std::vector<std::string>> m_fluenceMap
+    {this, "FluenceMap", {"PixelDigitization/maps_IBL_PL_400V_fl5_5e14.root",
+                          "PixelDigitization/maps_PIX_400V_fl5_19e14.root",
+                          "PixelDigitization/maps_PIX_250V_fl2_28e14.root",
+                          "PixelDigitization/maps_PIX_250V_fl1_53e14.root"},
+                          "Fluence map for radiation damage when interpolation method is activated"};
 
-    Gaudi::Property<double> m_fluence
-    {this, "fluence", 0, "this is the fluence benchmark, 0-6. 0 is unirradiated, 1 is start of Run 2, 5 is end of 2018 and 6 is projected end of 2018"};
+    Gaudi::Property<std::vector<double>> m_fluenceLayer
+    {this, "FluenceLayer", {5.50e14, 5.19e14, 2.28e14, 1.53e14}, "Fluence for radiation damage when interpolation method is activated"};
 
-    Gaudi::Property<double> m_fluenceB
-    {this, "fluenceB", -1, "fluence detector has recieved in neqcm2 at the B layer."};
-
-    Gaudi::Property<double> m_fluence1
-    {this, "fluence1", -1, "fluence detector has recieved in neqcm2 at the layer 1."};
-
-    Gaudi::Property<double> m_fluence2
-    {this, "fluence2", -1, "fluence detector has recieved in neqcm2 at the layer 2."};
-
-    Gaudi::Property<double> m_voltage
-    {this, "voltage", -1.0, "this is the bias voltage applied to the IBL - if not set use values from applied at benchmark points according to fluence"};
-
-    Gaudi::Property<double> m_voltageB
-    {this, "voltageB", -1.0, "bias voltage applied to the B layer."};
-
-    Gaudi::Property<double> m_voltage1
-    {this, "voltage1", -1.0, "bias voltage applied to the layer 1."};
-
-    Gaudi::Property<double> m_voltage2
-    {this, "voltage2", -1.0, "bias voltage applied to the layer 2."};
+    Gaudi::Property<std::vector<float>> m_voltageLayer
+    {this, "BiasVoltageLayer", {400.0,400.0,250.0,250.0}, "Bias voltage for radiation damage when interpolation method is activated"};
 
     ToolHandle<RadDamageUtil> m_radDamageUtil
     {this, "RadDamageUtil", "RadDamageUtil", "Rad Damage utility"};

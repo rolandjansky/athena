@@ -9,7 +9,6 @@
 //  Coulomb scattering.
 //  The resulting track is fitted at the IP using the ITrackFitter interface.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDTRACKBUILDER_OUTWARDSCOMBINEDMUONTRACKBUILDER_H
@@ -104,6 +103,8 @@ class OutwardsCombinedMuonTrackBuilder : public AthAlgTool, virtual public IComb
     Trk::Track* fit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
                     const Trk::RunOutlierRemoval  runOutlier         = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
+
+    void cleanUp() const override;
 
   private:
     Trk::Track* addIDMSerrors(Trk::Track* track) const;

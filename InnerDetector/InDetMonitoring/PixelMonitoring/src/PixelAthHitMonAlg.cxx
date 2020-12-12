@@ -45,6 +45,8 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
   auto rdocontainer = SG::makeHandle(m_pixelRDOName, ctx);
   if ( !(rdocontainer.isValid()) ) {
     ATH_MSG_ERROR("Pixel Monitoring: Pixel RDO container "<< m_pixelRDOName << " could not be found.");
+    auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::ContainerInvalid );
+    fill(hitGroup, dataread_err);
     return StatusCode::RECOVERABLE;
   } else {
     ATH_MSG_DEBUG("Pixel Monitoring: Pixel RDO container "<< rdocontainer.name() <<" is found.");
@@ -148,6 +150,8 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
     const InDetRawDataCollection<PixelRDORawData>* PixelCollection(*colNext);
     if (!PixelCollection) {
       ATH_MSG_DEBUG("Pixel Monitoring: Pixel Hit container is empty.");
+      auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::CollectionInvalid );
+      fill(hitGroup, dataread_err);
       continue;
     }
 
@@ -223,6 +227,11 @@ StatusCode PixelAthHitMonAlg::fillHistograms( const EventContext& ctx ) const {
       avgocc_ratio_toIBL_layer[i] = avgocc_good_layer[i] / avgocc_good_layer[PixLayers::kIBL];
     }
     fill1DProfLumiLayers( "AvgOccRatioToIBLPerLumi", lb, avgocc_ratio_toIBL_layer );
+  }
+
+  if (nhits==0) {
+    auto dataread_err = Monitored::Scalar<int>( "hitdataread_err", DataReadErrors::EmptyContainer );
+    fill(hitGroup, dataread_err);
   }
   //*******************************************************************************
   //************************** End of filling Hit Histograms **********************

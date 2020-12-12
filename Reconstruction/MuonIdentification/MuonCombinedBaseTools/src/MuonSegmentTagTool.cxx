@@ -7,7 +7,6 @@
 //  AlgTool performing MS segment tagging of ID tracks.
 //  A SegmentTag is added to the InDetCandidate object.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonSegmentTagTool.h"

@@ -30,6 +30,8 @@ namespace MuonCombined {
     void combine(const MuonCandidateCollection& muonCandidates,const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps, 
 		 TrackCollection* combinedTracks, TrackCollection* METracks) const;
 
+    void cleanUp() const override;
+
   private:
 
     void associate( const MuonCandidate& muonCandidate, const InDetCandidateCollection& inDetCandidates,  

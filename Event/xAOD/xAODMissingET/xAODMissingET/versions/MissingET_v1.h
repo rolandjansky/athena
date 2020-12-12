@@ -114,6 +114,10 @@ namespace xAOD
 
   private:
     std::size_t m_nameHash;/*!< @brief Stores the hash for the current f_name string */
+
+    static const SG::AuxElement::Accessor<float> m_acc_mpx;
+    static const SG::AuxElement::Accessor<float> m_acc_mpy;
+    static const SG::AuxElement::Accessor<float> m_acc_sumet;
   };
 }
 

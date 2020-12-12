@@ -13,7 +13,6 @@
 //  for clarity (i.e. to avoid an overly long class) the inner loop over
 //  measurements is performed by MeasurementProcessor
 //
-//  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
 
 

@@ -41,12 +41,17 @@ namespace InDet {
     virtual StatusCode initialize() override;
     virtual StatusCode finalize() override;
 
-    //    bool expectHitInBLayer(const Rec::TrackParticle*) const ;
-    virtual bool expectHitInBLayer(const Trk::TrackParticleBase*, bool recompute = false) const override;
-    virtual bool expectHitInBLayer(const Trk::Track*, bool recompute = false) const override;
-    virtual bool expectHitInBLayer(const Trk::TrackParameters* trackpar) const override;
+    virtual bool expectHitInBLayer(const EventContext& ctx,
+                                   const Trk::Track*,
+                                   bool recompute = false) const override final;
 
-    virtual const Trk::ResidualPull* bLayerHitResidual(const Trk::Track*) const override;
+    virtual bool expectHitInBLayer(const Trk::TrackParticleBase*,
+                                   bool recompute = false) const override final;
+    virtual bool expectHitInBLayer(
+      const Trk::TrackParameters* trackpar) const override final;
+
+    virtual const Trk::ResidualPull* bLayerHitResidual(
+      const Trk::Track*) const override;
     virtual const Trk::ResidualPull* bLayerHitResidual(const Trk::TrackParticleBase*) const override;
 
     //// return false if extrapolation failed
@@ -57,10 +62,15 @@ namespace InDet {
     virtual bool getTrackStateOnBlayerInfo(const Trk::TrackParameters* trackpar,
                                            std::vector<TrackStateOnBLayerInfo>& infoList) const override;
 
-    virtual bool expectHitInInnermostPixelLayer(const Trk::TrackParticleBase*,
-                                                bool recompute = false) const override;
-    virtual bool expectHitInInnermostPixelLayer(const Trk::Track*, bool recompute = false) const override;
-    virtual bool expectHitInInnermostPixelLayer(const Trk::TrackParameters* trackpar) const override;
+    virtual bool expectHitInInnermostPixelLayer(
+      const EventContext& ctx,
+      const Trk::Track* track,
+      bool recompute = false) const override final;
+    virtual bool expectHitInInnermostPixelLayer(
+      const Trk::TrackParticleBase*,
+      bool recompute = false) const override final;
+    virtual bool expectHitInInnermostPixelLayer(
+      const Trk::TrackParameters* trackpar) const override final;
 
     virtual const Trk::ResidualPull* innermostPixelLayerHitResidual(const Trk::Track*) const override;
     virtual const Trk::ResidualPull* innermostPixelLayerHitResidual(
@@ -78,11 +88,15 @@ namespace InDet {
       const Trk::TrackParameters* trackpar,
       std::vector<TrackStateOnBLayerInfo>& infoList) const override;
 
-    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::TrackParticleBase*,
-                                                      bool recompute = false) const override;
-    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::Track*,
-                                                      bool recompute = false) const override;
-    virtual bool expectHitInNextToInnermostPixelLayer(const Trk::TrackParameters* trackpar) const override;
+    virtual bool expectHitInNextToInnermostPixelLayer(
+      const EventContext& ctx,
+      const Trk::Track*,
+      bool recompute = false) const override final;
+    virtual bool expectHitInNextToInnermostPixelLayer(
+      const Trk::TrackParticleBase*,
+      bool recompute = false) const override final;
+    virtual bool expectHitInNextToInnermostPixelLayer(
+      const Trk::TrackParameters* trackpar) const override final;
 
     virtual const Trk::ResidualPull* nextToInnermostPixelLayerHitResidual(const Trk::Track*) const override;
     virtual const Trk::ResidualPull* nextToInnermostPixelLayerHitResidual(
@@ -99,9 +113,22 @@ namespace InDet {
       std::vector<TrackStateOnBLayerInfo>& infoList) const override;
 
   private:
-    bool expectHitInPixelLayer(const Trk::TrackParticleBase*, int layer, bool recompute = false) const;
-    bool expectHitInPixelLayer(const Trk::Track*, int layer, bool recompute = false) const;
-    bool expectHitInPixelLayer(const Trk::TrackParameters* trackpar, int layer) const;
+    bool expectHitInPixelLayer(const EventContext& ctx,
+                               const Trk::Track*,
+                               int layer,
+                               bool recompute = false) const;
+    bool expectHitInPixelLayer(const Trk::TrackParticleBase*,
+                               int layer,
+                               bool recompute = false) const;
+    bool expectHitInPixelLayer(const EventContext& ctx,
+                               const Trk::TrackParameters* trackpar,
+                               int layer) const;
+    bool expectHitInPixelLayer(const Trk::TrackParameters* trackpar,
+                               int layer) const
+    {
+      return expectHitInPixelLayer(
+        Gaudi::Hive::currentContext(), trackpar, layer);
+    }
 
     const Trk::ResidualPull* pixelLayerHitResidual(const Trk::Track*, int layer) const;
    
@@ -119,9 +146,20 @@ namespace InDet {
 
     bool isActive(const Trk::TrackParameters* trackpar) const;
 
-    bool getPixelLayerParameters(const Trk::TrackParameters* trackpar,
-                                 std::vector<std::unique_ptr<const Trk::TrackParameters>>& blayerParam,
-                                 int layer) const;
+    bool getPixelLayerParameters(
+      const EventContext& ctx,
+      const Trk::TrackParameters* trackpar,
+      std::vector<std::unique_ptr<const Trk::TrackParameters>>& blayerParam,
+      int layer) const;
+
+    bool getPixelLayerParameters(
+      const Trk::TrackParameters* trackpar,
+      std::vector<std::unique_ptr<const Trk::TrackParameters>>& blayerParam,
+      int layer) const
+    {
+      return getPixelLayerParameters(
+        Gaudi::Hive::currentContext(), trackpar, blayerParam, layer);
+    }
 
     double getFracGood(const Trk::TrackParameters* trackpar,
                        double phiRegionSize,

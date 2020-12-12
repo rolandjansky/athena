@@ -63,6 +63,8 @@ StatusCode MuonCombinedAlg::execute()
   //note that STACO does not create new Trk::Tracks so it doesn't need collections here
   m_muonCombinedTool->combine(*muonCandidateCollection,*inDetCandidateCollection,maps,muidCombTracks.ptr(),muidMETracks.ptr());
 
+  m_muonCombinedTool->cleanUp();
+  
   return StatusCode::SUCCESS;
 }
 
