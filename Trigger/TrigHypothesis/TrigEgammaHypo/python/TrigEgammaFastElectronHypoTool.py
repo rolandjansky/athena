@@ -18,7 +18,7 @@ def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
  
     if 'idperf' in name:
         tool.AcceptAll = True
-    
+   
     else:
         monTool = GenericMonitoringTool("MonTool"+name)
         monTool.defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="FastElectron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative")

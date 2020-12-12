@@ -123,7 +123,7 @@ bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElect
   if( eToverPt <  m_caloTrackdEoverPLow[cutIndex] ) {
     ATH_MSG_VERBOSE( "Fails eoverp low cut " << eToverPt << " < " <<  m_caloTrackdEoverPLow[cutIndex] );
 
-    pass = true;
+    pass = false;
     return  pass;
   }
   cutCounter++;
