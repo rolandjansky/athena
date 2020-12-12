@@ -193,10 +193,6 @@ private:
     "Trk::TrackSummaryTool/AtlasTrackSummaryTool"
   };
 
-  PublicToolHandle<IExtrapolator> m_extrapolator{ this,
-                                                  "Extrapolator",
-                                                  "Trk::Extrapolator/AtlasExtrapolator" };
-
   ToolHandle<Reco::ITrackToVertex> m_trackToVertex{ this,
                                                     "TrackToVertex",
                                                     "Reco::TrackToVertex/TrackToVertex" };

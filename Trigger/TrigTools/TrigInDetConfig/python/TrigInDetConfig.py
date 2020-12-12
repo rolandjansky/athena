@@ -660,7 +660,6 @@ def trackConverterCfg(flags, signature, signatureName):
   acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
 
   creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
-                                                          Extrapolator = acc.getPublicTool( "InDetTrigExtrapolator" ),
                                                           TrackSummaryTool      = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
                                                           KeepParameters        = True,
                                                           ComputeAdditionalInfo = True,
