@@ -230,6 +230,7 @@ class TrigTauMonAlgBuilder:
     for l1seed in l1seeds:
         if not l1seed : 
             continue
+        self.bookL1( monAlg, l1seed )
         self.bookL1EffHistograms( monAlg, l1seed, nProng='1P')
         self.bookL1EffHistograms( monAlg, l1seed, nProng='MP') 
    
@@ -280,6 +281,67 @@ class TrigTauMonAlgBuilder:
     defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2)
     defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
 
+  #
+  # Booking L1 Variables
+  #
+
+  def bookL1( self, monAlg, trigL1Item):
+
+    monGroupName = trigL1Item+'_L1'
+    monGroupPath = 'L1/'+trigL1Item+'/L1'
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+    #hL1EtVsEta hL1EtVsPhi hL1EtaVsPhi hL1RoIEMIso hL1RoIEta hL1RoIHadCore hL1RoIHadIsol hL1RoIPhi hL1RoITauClus hL1RoITauClusEMIso hL1RoITauVsJet hL1RoITauVsJetDEt hL1RoITauVsJetMismatch hL1RoIeT hL1RoIisol
+
+    monGroup.defineHistogram('L1RoIEt;L1RoIEta', type='TH2F', title='L1 RoI Et vs Eta; E_{T}[GeV]; #eta',
+                            path=monGroupPath,
+                            xbins=100,xmin=0,xmax=100,
+                            ybins=100,ymin=-2.6,ymax=2.6)
+    monGroup.defineHistogram('L1RoIEt;L1RoIPhi', type='TH2F', title='L1 RoI Et vs Phi; E_{T}[GeV]; #phi',
+                            path=monGroupPath,
+                            xbins=100,xmin=0,xmax=100,
+                            ybins=100,ymin=-3.2,ymax=3.2)
+    monGroup.defineHistogram('L1RoIEta;L1RoIPhi', type='TH2F', title='L1 RoI Eta vs Phi; #eta; #phi',
+                            path=monGroupPath,
+                            xbins=100,xmin=-2.6,xmax=2.6,
+                            ybins=100,ymin=-3.2,ymax=3.2)
+    monGroup.defineHistogram('L1RoIEMIso', title='L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIEta', title='L1 RoI Eta ; #eta; N RoI',xbins=100,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('L1RoIHadCore', title='L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIHadIsol', title='L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIPhi', title='L1 RoI Phi ; #phi; N RoI',xbins=100,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('L1RoITauClus', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
+    monGroup.defineHistogram('L1RoITauClus;L1RoIEMIso', type='TH2F', title='L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]',
+                            path=monGroupPath,
+                            xbins=140,xmin=10,xmax=80,
+                            ybins=42,ymin=-1,ymax=20)
+    #hL1RoITauVsJet hL1RoITauVsJetDEt hL1RoITauVsJetMismatch
+    monGroup.defineHistogram('L1RoIeT', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
+
+    """     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItemShort+"/L1RoI",run));
+        setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/L1RoI");
+        ATH_MSG_DEBUG("After setting CurrentMonGroup" << "HLT/TauMon/Expert/"+trigItemShort+"/L1RoI");
+        addHistogram(new TH1F("hL1RoIEta","L1 RoI Eta ; #eta; N RoI",100,-2.6,2.6));
+        addHistogram(new TH1F("hL1RoIPhi","L1 RoI Phi ; #phi; N RoI",100,-3.2,3.2));
+        
+        addHistogram(new TH2F("hL1EtaVsPhi","L1 RoI Eta vs Phi; #eta; #phi",100,-2.6,2.6,100,-3.2,3.2));
+        addHistogram(new TH1F("hL1RoIisol","L1 RoI Isolation; RoI Isolation Bit; N RoI",10,0.5,9.5));
+        addHistogram(new TH1F("hL1RoIeT","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",260,0.,130.));
+        addHistogram(new TH1F("hL1RoITauClus","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",260,0.,130.));
+          //addHistogram(new TH1F("hL1RoITauClus2","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,1000.));
+          addHistogram(new TH1F("hL1RoIEMIso","L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI",16,-2,30));
+          addHistogram(new TH1F("hL1RoIHadCore","L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI",16,-2,30));
+          addHistogram(new TH1F("hL1RoIHadIsol","L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI",16,-2,30));
+          addHistogram(new TH2F("hL1RoITauClusEMIso","L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]",140.,10.,80.,42,-1.,20.));
+          addHistogram(new TH2F("hL1RoITauVsJet","L1 RoI Tau Et vs Jet Et ; Tau E_{T} [GeV]; Jet E_{T} [GeV]",200,0.,100.,200,0.,100));
+          addHistogram(new TH2F("hL1RoITauVsJetMismatch","L1 RoI Tau-Jet deta-dphi if Jet Et< Tau Et ; d#eta; d#phi",50,-0.3,0.3,50,-0.3,0.3));
+          addHistogram(new TH2F("hL1RoITauVsJetDEt","L1 RoI Tau-Jet dEt if Jet Et< Tau Et ; Tau E_{t}; dE_{T}",200,0.,100.,50,0.,25.));
+        addHistogram(new TH2F("hL1EtVsPhi","L1 RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,100,-3.2,3.2));
+        addHistogram(new TH2F("hL1EtVsEta","L1 RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,100,-2.6,2.6));    """
+
+
+                             
   #
   # Book RNN Variables
   #
