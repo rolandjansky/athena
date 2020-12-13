@@ -319,28 +319,6 @@ class TrigTauMonAlgBuilder:
     #hL1RoITauVsJet hL1RoITauVsJetDEt hL1RoITauVsJetMismatch
     monGroup.defineHistogram('L1RoIeT', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
 
-    """     addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+trigItemShort+"/L1RoI",run));
-        setCurrentMonGroup("HLT/TauMon/Expert/"+trigItemShort+"/L1RoI");
-        ATH_MSG_DEBUG("After setting CurrentMonGroup" << "HLT/TauMon/Expert/"+trigItemShort+"/L1RoI");
-        addHistogram(new TH1F("hL1RoIEta","L1 RoI Eta ; #eta; N RoI",100,-2.6,2.6));
-        addHistogram(new TH1F("hL1RoIPhi","L1 RoI Phi ; #phi; N RoI",100,-3.2,3.2));
-        
-        addHistogram(new TH2F("hL1EtaVsPhi","L1 RoI Eta vs Phi; #eta; #phi",100,-2.6,2.6,100,-3.2,3.2));
-        addHistogram(new TH1F("hL1RoIisol","L1 RoI Isolation; RoI Isolation Bit; N RoI",10,0.5,9.5));
-        addHistogram(new TH1F("hL1RoIeT","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",260,0.,130.));
-        addHistogram(new TH1F("hL1RoITauClus","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",260,0.,130.));
-          //addHistogram(new TH1F("hL1RoITauClus2","L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI",200,0.,1000.));
-          addHistogram(new TH1F("hL1RoIEMIso","L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI",16,-2,30));
-          addHistogram(new TH1F("hL1RoIHadCore","L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI",16,-2,30));
-          addHistogram(new TH1F("hL1RoIHadIsol","L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI",16,-2,30));
-          addHistogram(new TH2F("hL1RoITauClusEMIso","L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]",140.,10.,80.,42,-1.,20.));
-          addHistogram(new TH2F("hL1RoITauVsJet","L1 RoI Tau Et vs Jet Et ; Tau E_{T} [GeV]; Jet E_{T} [GeV]",200,0.,100.,200,0.,100));
-          addHistogram(new TH2F("hL1RoITauVsJetMismatch","L1 RoI Tau-Jet deta-dphi if Jet Et< Tau Et ; d#eta; d#phi",50,-0.3,0.3,50,-0.3,0.3));
-          addHistogram(new TH2F("hL1RoITauVsJetDEt","L1 RoI Tau-Jet dEt if Jet Et< Tau Et ; Tau E_{t}; dE_{T}",200,0.,100.,50,0.,25.));
-        addHistogram(new TH2F("hL1EtVsPhi","L1 RoI Et vs Phi; E_{T}[GeV]; #phi",100,0.,100.,100,-3.2,3.2));
-        addHistogram(new TH2F("hL1EtVsEta","L1 RoI Et vs Eta; E_{T}[GeV]; #eta",100,0.,100.,100,-2.6,2.6));    """
-
-
                              
   #
   # Book RNN Variables

@@ -54,7 +54,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
   std::vector< std::pair<const xAOD::TauJet*, const TrigCompositeUtils::Decision*>> pairObjs;
  
   std::vector<std::string> L1seed_list;
-  bool fill_l1eff = false;
+  bool fill_l1 = false;
 
   for(const auto& trigger : m_trigList){
 
@@ -67,20 +67,22 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     }  
 
     if(info.trigL1Item.empty()){ // L1 item not found
-       fill_l1eff = false;
+       fill_l1 = false;
     }
     else if (std::find(L1seed_list.begin(), L1seed_list.end(), info.trigL1Item) == L1seed_list.end())
     {
         // check if L1 seed has been already filled -> L1 seed must be filled only once for triggers with same L1 seed
-        fill_l1eff = true;
+        fill_l1 = true;
         L1seed_list.push_back(info.trigL1Item);
         
     } else {
-        fill_l1eff = false;
+        fill_l1 = false;
     }
 
-    fillDistributions( ctx, pairObjs, trigger, info.HLTthr, fill_l1eff, info.trigL1Item, info.L1thr); 
-    fillL1Distributions( ctx, pairObjs, trigger, info.HLTthr, fill_l1eff, info.trigL1Item, info.L1thr); 
+    fillDistributions( ctx, pairObjs, trigger, info.HLTthr, info.trigL1Item, info.L1thr); 
+    if(fill_l1){
+      fillL1Distributions( ctx, pairObjs, trigger, info.HLTthr,info.trigL1Item, info.L1thr);  
+    }   
     pairObjs.clear();
                                                             
   }
@@ -136,7 +138,7 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   return StatusCode::SUCCESS;
 }
 
-void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger, float HLTthr, const bool fill_l1eff, const std::string trigL1Item, float L1thr) const
+void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger, float HLTthr, const std::string trigL1Item, float L1thr) const
 {
   ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillDistributions");
 
@@ -144,8 +146,6 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
 
   std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_1p; // offline 1p taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_mp; // offline mp taus used for studying HLT performance
-  std::vector<const xAOD::TauJet*> offline_for_l1_tau_vec_1p; // offline 1p taus used for studying L1 performance 
-  std::vector<const xAOD::TauJet*> offline_for_l1_tau_vec_mp; // offline mp taus used for studying L1 performance
   std::vector<const xAOD::TauJet*> online_tau_vec_1p; // online 1p taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_mp; // online mp taus used for studying HLT performance
 
@@ -226,7 +226,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   online_tau_vec_mp.clear();
 }
 
-  void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger, float HLTthr, const bool fill_l1eff, const std::string trigL1Item, float L1thr) const
+  void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger, float HLTthr, const std::string trigL1Item, float L1thr) const
   {
     ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillL1Distributions");
 
@@ -265,12 +265,9 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
       fillL1(trigL1Item, L1rois);
     //}
 
-    if(fill_l1eff) {
       fillL1Efficiencies(ctx, trigger, offline_for_l1_tau_vec_1p, "1P", trigL1Item, L1rois);
       fillL1Efficiencies(ctx, trigger, offline_for_l1_tau_vec_mp, "MP", trigL1Item, L1rois);
-    }
-
-
+    
     offline_for_l1_tau_vec_1p.clear();
     offline_for_l1_tau_vec_mp.clear();
     L1rois.clear();
