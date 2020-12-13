@@ -429,7 +429,7 @@ HLT_e5_lhloose_L1EM3:
     0: 19
     1: 22
     2: 13
-    3: 9
+    3: 10
 HLT_e5_lhloose_noringer_L1EM3:
   eventCount: 0
   stepCounts:
@@ -440,7 +440,7 @@ HLT_e5_lhloose_noringer_L1EM3:
   stepFeatures:
     0: 15
     1: 22
-    2: 23
+    2: 22
     3: 12
 HLT_e5_lhmedium_L1EM3:
   eventCount: 0
@@ -452,8 +452,8 @@ HLT_e5_lhmedium_L1EM3:
   stepFeatures:
     0: 21
     1: 24
-    2: 15
-    3: 11
+    2: 16
+    3: 12
 HLT_e5_lhmedium_noringer_L1EM3:
   eventCount: 0
   stepCounts:
@@ -476,8 +476,8 @@ HLT_e5_lhtight_L1EM3:
   stepFeatures:
     0: 17
     1: 17
-    2: 10
-    3: 7
+    2: 11
+    3: 8
 HLT_e5_lhtight_nod0_L1EM3:
   eventCount: 0
   stepCounts:
@@ -488,8 +488,8 @@ HLT_e5_lhtight_nod0_L1EM3:
   stepFeatures:
     0: 17
     1: 17
-    2: 10
-    3: 7
+    2: 11
+    3: 8
 HLT_e5_lhtight_noringer_L1EM3:
   eventCount: 0
   stepCounts:
@@ -652,7 +652,7 @@ HLT_g5_loose_L1EM3:
   stepFeatures:
     0: 15
     1: 15
-    2: 28
+    2: 27
     3: 3
 HLT_g5_medium_L1EM3:
   eventCount: 3
