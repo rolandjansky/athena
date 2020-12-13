@@ -224,6 +224,9 @@ class PowhegControl(object):
                     if "scale_variation" not in self.__event_weight_groups.keys(): # skip if this group already exists
                         mu_Rs = self.process.parameters_by_name("mu_R")[0].value
                         mu_Fs = self.process.parameters_by_name("mu_F")[0].value
+                        if len(parameter.value) < 2:
+                            logger.error("Use 'PowhegConfig.{1} = {0}' rather than 'PowhegConfig.{1} = [{0}]'".format(parameter.value[0] if len(parameter.value) > 0 else "<value>", parameter.name))
+                            raise TypeError("Use 'PowhegConfig.{1} = {0}' rather than 'PowhegConfig.{1} = [{0}]'".format(parameter.value[0] if len(parameter.value) > 0 else "<value>", parameter.name))
                         if not isinstance(mu_Rs, collections.Iterable) or not isinstance(mu_Fs, collections.Iterable) or len(mu_Rs) != len(mu_Fs):
                             logger.error("Number of mu_R and mu_F variations must be the same.")
                             raise ValueError("Number of mu_R and mu_F variations must be the same.")
@@ -242,8 +245,16 @@ class PowhegControl(object):
             logger.warning("The cross-section passed to the parton shower will be inaccurate.")
             logger.warning("Please use the cross-section printed in the log file before showering begins.")
 
-        # Schedule reweighting if more than the nominal weight is requested
-        if len(self.__event_weight_groups) > 1:
+        # Schedule reweighting if more than the nominal weight is requested, or if for_reweighting is set to 1
+        doReweighting = False
+        if len(self.__event_weight_groups) >= 1:
+            doReweighting = True
+        elif len(self.process.parameters_by_keyword("for_reweighting")) == 1:
+            if self.process.parameters_by_keyword("for_reweighting")[0].value == 1:
+                logger.warning ("No more than the nominal weight is requested, but for_reweighting is set to 1")
+                logger.warning ("Therefore, reweighting is enabled anyway, otherwise virtual corrections wouldn't be included")
+                doReweighting = True
+        if doReweighting:
             # Change the order so that scale comes first and user-defined is last
             __ordered_event_weight_groups_list = []
             for __key in ["scale_variation", "PDF_variation"]:
