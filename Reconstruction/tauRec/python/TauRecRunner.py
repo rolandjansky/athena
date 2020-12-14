@@ -63,15 +63,9 @@ class TauRecRunner ( TauRecRunConfigured ) :
 
         if tauFlags.doRunTauDiscriminant():
             tools.append(taualgs.getTauIDVarCalculator())
-            tools.append(taualgs.getTauJetRNNEvaluator("TauJetRNN",
-                                                       NetworkFile1P="rnnid_mc16d_config_1p.json",
-                                                       NetworkFile3P="rnnid_mc16d_config_3p.json",
-                                                       OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6))
+            tools.append(taualgs.getTauJetRNNEvaluator())
             tools.append(taualgs.getTauWPDecoratorJetRNN())
-            tools.append(taualgs.getTauEleRNNEvaluator("TauEleRNN",
-                                                         NetworkFile1P="rnneveto_mc16d_config_1p.json",
-                                                         NetworkFile3P="rnneveto_mc16d_config_3p.json",
-                                                         OutputVarname="RNNEleScore", MaxTracks=10, MaxClusters=6))
+            tools.append(taualgs.getTauEleRNNEvaluator())
             tools.append(taualgs.getTauWPDecoratorEleRNN())
             tools.append(taualgs.getTauDecayModeNNClassifier())
             

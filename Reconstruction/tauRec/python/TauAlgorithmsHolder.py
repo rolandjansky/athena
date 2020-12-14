@@ -93,10 +93,9 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    calibrationFile = "TES_MC16a_prelim.root",
+                                    calibrationFile = tauFlags.tauRecCalibrateLCConfig(),
                                     doPtResponse = True,
-                                    Key_vertexInputContainer = _DefaultVertexContainer 
-                                    )
+                                    Key_vertexInputContainer = _DefaultVertexContainer)
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
@@ -697,7 +696,7 @@ def getMvaTESEvaluator():
     _name = sPrefix + 'MvaTESEvaluator'
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = 'MvaTES_20170207_v2_BDTG.weights.root') #update config?
+                                      WeightFileName = tauFlags.tauRecMvaTESConfig())
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator
 
@@ -707,7 +706,7 @@ def getCombinedP4FromRecoTaus():
     _name = sPrefix + 'CombinedP4FromRecoTaus'
     from tauRecTools.tauRecToolsConf import CombinedP4FromRecoTaus
     CombinedP4FromRecoTaus = CombinedP4FromRecoTaus(name = _name,
-                                                    WeightFileName = 'CalibLoopResult_v04-04.root') #update config?
+                                                    WeightFileName = tauFlags.tauRecCombinedP4Config())
     cached_instances[_name] = CombinedP4FromRecoTaus
     return CombinedP4FromRecoTaus
     
@@ -884,23 +883,23 @@ def getTauWPDecoratorEleBDT():
 
 
 #
-def getTauJetRNNEvaluator(_n, NetworkFile0P="", NetworkFile1P="", NetworkFile3P="", OutputVarname="RNNJetScore", MaxTracks=10, MaxClusters=6, MaxClusterDR=1.0, InputLayerScalar="scalar", InputLayerTracks="tracks", InputLayerClusters="clusters", OutputLayer="rnnid_output", OutputNode="sig_prob"):
-    _name = sPrefix + _n
+def getTauJetRNNEvaluator():
+    _name = sPrefix + 'TauJetRNN'
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
-    myTauJetRNNEvaluator = TauJetRNNEvaluator(name=_name,
-                                              NetworkFile0P=NetworkFile0P,
-                                              NetworkFile1P=NetworkFile1P,
-                                              NetworkFile3P=NetworkFile3P,
-                                              OutputVarname=OutputVarname,
-                                              MaxTracks=MaxTracks,
-                                              MaxClusters=MaxClusters,
-                                              MaxClusterDR=MaxClusterDR,
-                                              VertexCorrection=True,
-                                              InputLayerScalar=InputLayerScalar,
-                                              InputLayerTracks=InputLayerTracks,
-                                              InputLayerClusters=InputLayerClusters,
-                                              OutputLayer=OutputLayer,
-                                              OutputNode=OutputNode)
+    myTauJetRNNEvaluator = TauJetRNNEvaluator(name = _name,
+                                              NetworkFile0P = "",
+                                              NetworkFile1P = tauFlags.tauRecTauJetRNNConfig()[0],
+                                              NetworkFile3P = tauFlags.tauRecTauJetRNNConfig()[1],
+                                              OutputVarname = "RNNJetScore",
+                                              MaxTracks = 10,
+                                              MaxClusters = 6,
+                                              MaxClusterDR = 1.0,
+                                              VertexCorrection = True,
+                                              InputLayerScalar = "scalar",
+                                              InputLayerTracks = "tracks",
+                                              InputLayerClusters = "clusters",
+                                              OutputLayer = "rnnid_output",
+                                              OutputNode = "sig_prob")
 
     cached_instances[_name] = myTauJetRNNEvaluator
     return myTauJetRNNEvaluator
@@ -928,28 +927,22 @@ def getTauIDVarCalculator():
     cached_instances[_name] = myTauIDVarCalculator
     return myTauIDVarCalculator
 
-def getTauEleRNNEvaluator(_n,
-        NetworkFile1P="", NetworkFile3P="",
-        OutputVarname="RNNEleScore", MaxTracks=10,
-        MaxClusters=6, MaxClusterDR=1.0, InputLayerScalar="scalar",
-        InputLayerTracks="tracks", InputLayerClusters="clusters",
-        OutputLayer="rnneveto_output", OutputNode="sig_prob"):
-
-    _name = sPrefix + _n 
+def getTauEleRNNEvaluator():
+    _name = sPrefix + 'TauEleRNN' 
     from tauRecTools.tauRecToolsConf import TauJetRNNEvaluator
-    tool = TauJetRNNEvaluator(name=_name,
-                              NetworkFile1P=NetworkFile1P,
-                              NetworkFile3P=NetworkFile3P,
-                              OutputVarname=OutputVarname,
-                              MaxTracks=MaxTracks,
-                              MaxClusters=MaxClusters,
-                              MaxClusterDR=MaxClusterDR,
-                              VertexCorrection=True,
-                              InputLayerScalar=InputLayerScalar,
-                              InputLayerTracks=InputLayerTracks,
-                              InputLayerClusters=InputLayerClusters,
-                              OutputLayer=OutputLayer,
-                              OutputNode=OutputNode)
+    tool = TauJetRNNEvaluator(name = _name,
+                              NetworkFile1P = tauFlags.tauRecTauEleRNNConfig()[0],
+                              NetworkFile3P = tauFlags.tauRecTauEleRNNConfig()[1],
+                              OutputVarname = "RNNEleScore",
+                              MaxTracks = 10,
+                              MaxClusters = 6,
+                              MaxClusterDR = 1.0,
+                              VertexCorrection = True,
+                              InputLayerScalar = "scalar",
+                              InputLayerTracks = "tracks",
+                              InputLayerClusters = "clusters",
+                              OutputLayer = "rnneveto_output",
+                              OutputNode = "sig_prob")
 
     cached_instances[_name] = tool
     return tool
