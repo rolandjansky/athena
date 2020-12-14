@@ -43,6 +43,17 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
         from AthenaCommon.Logging import logging
         log = logging.getLogger(name)
 
+        from RegionSelector.RegSelToolConfig import makeRegSelTool_TTEM, makeRegSelTool_TTHEC, makeRegSelTool_FCALEM, makeRegSelTool_FCALHAD, makeRegSelTool_TILE
+        from AthenaCommon.AlgSequence import AthSequencer
+        from LArCabling.LArCablingAccess import LArOnOffIdMapping
+        LArOnOffIdMapping()
+        self.RegSelToolEM = makeRegSelTool_TTEM()
+        self.RegSelToolHEC = makeRegSelTool_TTHEC()
+        self.RegSelToolFCALEM = makeRegSelTool_FCALEM()
+        self.RegSelToolFCALHAD = makeRegSelTool_FCALHAD()
+        self.RegSelToolTILE = makeRegSelTool_TILE()
+        condseq = AthSequencer('AthCondSeq')
+        condseq.RegSelCondAlg_TTEM.RegSelLUT="ConditionStore+RegSelLUTCondData_TTEM"
 
         if ( globalflags.DatabaseInstance == "COMP200" and TriggerFlags.doCaloOffsetCorrection() ) :
             log.warning("Not possible to run BCID offset correction with COMP200")
@@ -87,5 +98,7 @@ class TrigCaloDataAccessSvc(_TrigCaloDataAccessSvc):
 
             else:
                 log.info('Disable HLT calo offset correction')
+
+
 
         return
