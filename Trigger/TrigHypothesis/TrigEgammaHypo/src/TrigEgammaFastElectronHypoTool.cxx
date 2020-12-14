@@ -97,23 +97,23 @@ bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElect
   float NStrawHits  = ( float )( electron->nTRTHiThresholdHits() );
   float TRTHitRatio = NStrawHits == 0 ? 1e10 : NTRHits/NStrawHits;
 
-  ATH_MSG_VERBOSE( "Cut index " << cutIndex );
+  ATH_MSG_DEBUG( "Cut index " << cutIndex );
   if ( ptCalo < m_trackPt[cutIndex] ){ 
-    ATH_MSG_VERBOSE( "Fails pt cut" << ptCalo << " < " << m_trackPt[cutIndex] );
+    ATH_MSG_DEBUG( "Fails pt cut" << ptCalo << " < " << m_trackPt[cutIndex] );
     pass = false;
     return  pass;
   }
   cutCounter++;
 
   if ( dEtaCalo > m_caloTrackDEta[cutIndex] ) {
-    ATH_MSG_VERBOSE( "Fails dEta cut " << dEtaCalo << " < " << m_caloTrackDEta[cutIndex] );
+    ATH_MSG_DEBUG( "Fails dEta cut " << dEtaCalo << " < " << m_caloTrackDEta[cutIndex] );
     
     pass = false;
     return  pass;
   }
   cutCounter++;
   if ( dPhiCalo > m_caloTrackDPhi[cutIndex] ) {
-    ATH_MSG_VERBOSE( "Fails dPhi cut " << dPhiCalo << " < " << m_caloTrackDPhi[cutIndex] );
+    ATH_MSG_DEBUG( "Fails dPhi cut " << dPhiCalo << " < " << m_caloTrackDPhi[cutIndex] );
     
     pass = false;
     return  pass;
@@ -121,21 +121,21 @@ bool TrigEgammaFastElectronHypoTool::decideOnSingleObject( const xAOD::TrigElect
 
   cutCounter++;
   if( eToverPt <  m_caloTrackdEoverPLow[cutIndex] ) {
-    ATH_MSG_VERBOSE( "Fails eoverp low cut " << eToverPt << " < " <<  m_caloTrackdEoverPLow[cutIndex] );
+    ATH_MSG_DEBUG( "Fails eoverp low cut " << eToverPt << " < " <<  m_caloTrackdEoverPLow[cutIndex] );
 
     pass = false;
     return  pass;
   }
   cutCounter++;
   if ( eToverPt > m_caloTrackdEoverPHigh[cutIndex] ) {
-    ATH_MSG_VERBOSE( "Fails eoverp high cut " << eToverPt << " < " << m_caloTrackdEoverPHigh[cutIndex] );
+    ATH_MSG_DEBUG( "Fails eoverp high cut " << eToverPt << " < " << m_caloTrackdEoverPHigh[cutIndex] );
 
     pass = false;
     return  pass;
   }
   cutCounter++;
   if ( TRTHitRatio < m_trtRatio[cutIndex] ){
-    ATH_MSG_VERBOSE( "Fails TRT cut " << TRTHitRatio << " < " << m_trtRatio[cutIndex] );
+    ATH_MSG_DEBUG( "Fails TRT cut " << TRTHitRatio << " < " << m_trtRatio[cutIndex] );
 
     pass = false;
     return  pass;
