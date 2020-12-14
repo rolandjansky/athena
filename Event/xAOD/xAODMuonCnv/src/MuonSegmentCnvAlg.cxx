@@ -1,13 +1,9 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonSegmentCnvAlg.cxx 298140 2013-11-19 11:32:49Z emoyse $
+#include "MuonSegmentCnvAlg.h"
 
-// Gaudi/Athena include(s):
-#include "AthenaKernel/errorcheck.h"
-
-// EDM include(s):
 #include "xAODMuon/MuonSegmentAuxContainer.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -15,19 +11,10 @@
 #include "MuonSegment/MuonSegment.h"
 #include "AthLinks/ElementLink.h"
 
-// Local include(s):
-#include "MuonSegmentCnvAlg.h"
-
 namespace xAODMaker {
 
-  MuonSegmentCnvAlg::MuonSegmentCnvAlg( const std::string& name,
-    ISvcLocator* svcLoc )
-    : AthAlgorithm( name, svcLoc ),
-      m_muonSegmentConverterTool("Muon::MuonSegmentConverterTool/MuonSegmentConverterTool")
-  {
-
-    declareProperty( "SegmentContainerName", m_muonSegmentLocation = "MuonSegments" );
-    declareProperty( "xAODContainerName", m_xaodContainerName = "MuonSegments" );
+  MuonSegmentCnvAlg::MuonSegmentCnvAlg(const std::string& name, ISvcLocator* svcLoc) :
+    AthAlgorithm(name, svcLoc) {
   }
 
   StatusCode MuonSegmentCnvAlg::initialize() {
@@ -44,7 +31,7 @@ namespace xAODMaker {
   StatusCode MuonSegmentCnvAlg::execute() {
 
      // Retrieve the AOD particles:
-     const Trk::SegmentCollection* segments = 0;
+     const Trk::SegmentCollection* segments = nullptr;
      SG::ReadHandle<Trk::SegmentCollection> h_segments(m_muonSegmentLocation);
      if(h_segments.isValid()) {
        segments = h_segments.cptr();
