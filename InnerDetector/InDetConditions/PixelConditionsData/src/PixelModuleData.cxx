@@ -283,10 +283,15 @@ float PixelModuleData::getDefaultQ2TotC() const { return m_paramC; }
 // Lorentz angle correction
 void PixelModuleData::setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr) { m_BarrelLorentzAngleCorr = BarrelLorentzAngleCorr; }
 void PixelModuleData::setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr) { m_EndcapLorentzAngleCorr = EndcapLorentzAngleCorr; }
-double PixelModuleData::getLorentzAngleCorr(const int bec, const int layer) const {
+double PixelModuleData::getLorentzAngleCorr(int bec, int layer) const {
   double LAcorr = 1.0;
   if (std::abs(bec)==0 && layer<(int)m_BarrelLorentzAngleCorr.size()) { LAcorr=m_BarrelLorentzAngleCorr.at(layer); }
   if (std::abs(bec)==2 && layer<(int)m_EndcapLorentzAngleCorr.size()) { LAcorr=m_EndcapLorentzAngleCorr.at(layer); }
+  return LAcorr;
+}
+
+double PixelModuleData::getLorentzAngleCorr2() const { 
+  double LAcorr = 1.0;
   return LAcorr;
 }
 
