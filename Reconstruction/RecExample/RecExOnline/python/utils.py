@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from collections import defaultdict
 import numpy as np
 def tree(key_wrapper = None):
@@ -15,10 +15,10 @@ def get_array(hist):
     arr.SetSize(hist.GetNbinsX() + 2)
     return np.fromiter(arr, np.float)
 
-TAIL   = lambda s: u' └── {} '.format(s)
-BRANCH = lambda s: u' ├── {} '.format(s)
-LINE   = lambda s: u' │   {} '.format(s)
-SPACE  = lambda s: u'     {} '.format(s)
+TAIL   = lambda s: u' └── {} '.format(s)  # noqa: E731
+BRANCH = lambda s: u' ├── {} '.format(s)  # noqa: E731
+LINE   = lambda s: u' │   {} '.format(s)  # noqa: E731
+SPACE  = lambda s: u'     {} '.format(s)  # noqa: E731
 class TreeDict(defaultdict):
     def __init__(self, dic = {}, key_wrapper=None):
         super(defaultdict,self).__init__(dic)
