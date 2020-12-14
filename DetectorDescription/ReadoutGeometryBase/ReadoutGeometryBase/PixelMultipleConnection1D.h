@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,8 +9,8 @@
 ///////////////////////////////////////////////////////////////////
 
 
-#ifndef INDETREADOUTGEOMETRY_PIXELMULTIPLECONNECTION1D_H
-#define INDETREADOUTGEOMETRY_PIXELMULTIPLECONNECTION1D_H
+#ifndef READOUTGEOMETRYBASE_PIXELMULTIPLECONNECTION1D_H
+#define READOUTGEOMETRYBASE_PIXELMULTIPLECONNECTION1D_H
 
 #include <vector>
 
@@ -125,4 +125,4 @@ inline int PixelMultipleConnection1D::gangedCell(const int index) const
 
 } // namespace InDetDD
 
-#endif // INDETREADOUTGEOMETRY_PIXELMULTIPLECONNECTION1D_H
+#endif // READOUTGEOMETRYBASE_PIXELMULTIPLECONNECTION1D_H

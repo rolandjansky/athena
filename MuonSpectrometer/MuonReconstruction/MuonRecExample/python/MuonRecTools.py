@@ -294,7 +294,6 @@ class MuonParticleCreatorTool(Trk__TrackParticleCreatorTool,ConfiguredBase):
 
     def __init__(self,name="MuonParticleCreatorTool",**kwargs):
         self.applyUserDefaults(kwargs,name)
-        kwargs.setdefault("Extrapolator", "AtlasExtrapolator" )
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
         kwargs.setdefault("KeepAllPerigee", True )
         kwargs.setdefault("UseMuonSummaryTool", True)

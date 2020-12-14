@@ -8,7 +8,7 @@ set( extra_libs )
 if( NOT GENERATIONBASE )
    list( APPEND extra_libs xAODPFlow )
    if( NOT XAOD_STANDALONE )
-      list( APPEND extra_libs AthenaMonitoringKernelLib )
+      list( APPEND extra_libs AthenaMonitoringKernelLib StoreGateLib )
    endif()
 endif()
 

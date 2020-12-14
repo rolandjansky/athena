@@ -9,8 +9,6 @@
 @brief Configuration for Run 3 based on InDetGlobalPrimaryVertexMonTool.cxx
 """
 
-from math import pi as M_PI
-
 def InDetGlobalPrimaryVertexMonAlgCfg(helper, alg, **kwargs):
 
     # this creates a "pvGroup" called "alg" which will put its histograms into the subdirectory "PrimaryVertex"

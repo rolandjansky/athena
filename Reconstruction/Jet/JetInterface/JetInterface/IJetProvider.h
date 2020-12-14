@@ -53,6 +53,17 @@ public:
   /// from the templated JetProvider class provided below.
   virtual StatusCode getAndRecordJets(SG::WriteHandle<xAOD::JetContainer>& jetHandle) const = 0;
 
+  /// Method to allow the client to pass in a WriteHandle during
+  /// initialisation, in case this is needed for anything...
+  ///
+  /// The main (only?) use case is for copying jets, and propagating
+  /// any decorations already on the original to the copy in StoreGate
+  ///
+  /// Quietly return success in the general case -- the JetRecAlg
+  /// will always call this, so as to remain agnostic as to the
+  /// concrete type.
+  virtual StatusCode initWithOutput(const SG::WriteHandleKey<xAOD::JetContainer>&) {return StatusCode::SUCCESS;};
+
 };
 
 
@@ -65,8 +76,8 @@ template <typename CONCRETEAUX> class JetProvider
   : virtual public IJetProvider
 {
 
-public:
-
+  public:
+  
   StatusCode getAndRecordJets(SG::WriteHandle<xAOD::JetContainer>& jetHandle) const {
     std::unique_ptr<xAOD::JetContainer> jets(nullptr);
     std::unique_ptr<SG::IAuxStore> auxCont(nullptr);

@@ -2,15 +2,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 
-from AtlasGeoModel import GeoModelInit
-from AtlasGeoModel import SetGeometryVersion
-from AthenaCommon.GlobalFlags import jobproperties
-from AthenaCommon.DetFlags import DetFlags
-from AthenaCommon.GlobalFlags import globalflags
+
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AlgSequence import AlgSequence
 from GaudiSvc.GaudiSvcConf import THistSvc
+from AthenaCommon.GlobalFlags import jobproperties
+from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.GlobalFlags import globalflags
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
@@ -28,6 +27,10 @@ DetFlags.ID_setOff()
 
 jobproperties.Global.DetDescrVersion = Geometry
 
+# We need the following two here to properly have
+# Geometry
+from AtlasGeoModel import GeoModelInit
+from AtlasGeoModel import SetGeometryVersion
 include("CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 include("LArDetDescr/LArDetDescr_joboptions.py")
 

@@ -31,8 +31,7 @@ class ConfiguredxAODTrackParticleCreation:
 
          #Always the same (so far) so can in principle go in InDetRecLoadTools
          from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
-         InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+InputTrackCollection, 
-                                                                      Extrapolator            = InDetExtrapolator,
+         InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+InputTrackCollection,
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
                                                                       BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                       KeepParameters          = True,

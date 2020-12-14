@@ -112,7 +112,7 @@ private:
   //std::vector<FebData> m_vFEB;
   std::map<uint32_t,FebData_t> m_mFEB;
 
-  const LArOnlineID&    m_onlineHelper; 
+  const LArOnlineID&         m_onlineHelper; 
   const CaloDetDescrManager& m_CaloDetDescrManager;
   const LArOnOffIdMapping&   m_onOffIdMapping;
   LArRodBlockStructure* m_BlStruct;

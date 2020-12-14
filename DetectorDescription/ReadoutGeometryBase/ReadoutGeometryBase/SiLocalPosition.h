@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,11 +36,11 @@ namespace InDetDD {
     ///////////////////////////////////////////////////////////////////
   public:
 
-    /** Default constructor: */
+    /** Implicit constructor: */
     SiLocalPosition();
-    
+
     /** Copy constructor: */
-    SiLocalPosition(const SiLocalPosition &position) =  default;
+    SiLocalPosition(const SiLocalPosition &position);
 
     /** This allows one to pass a Amg::Vector2D  to a SiLocalPosition */
     SiLocalPosition(const Amg::Vector2D &position);
@@ -52,14 +52,8 @@ namespace InDetDD {
     SiLocalPosition(const double xEta,const double xPhi,
   		  const double xDepth=0);
 
-    /** Destructor: */
-    ~SiLocalPosition()=default;
-
     /** Assignment operator: */
-    SiLocalPosition &operator=(const SiLocalPosition &) = default;
-    
-    /** Move assignment **/
-    SiLocalPosition &operator=(SiLocalPosition &&) = default;
+    SiLocalPosition &operator=(const SiLocalPosition &position);
 
     ///////////////////////////////////////////////////////////////////
     // Const methods:
@@ -121,7 +115,6 @@ namespace InDetDD {
 ///////////////////////////////////////////////////////////////////
 // Inline methods:
 ///////////////////////////////////////////////////////////////////
-
 inline double SiLocalPosition::xEta() const
 {
   return m_xEta;
