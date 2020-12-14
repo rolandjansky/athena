@@ -707,7 +707,8 @@ TH1D* EfieldInterpolator::createEfieldProfile(double aimFluence, double aimVolta
                     case linearField    : m_useSpline = false;  
                                           aimEf = estimateEfield(yvoltage, xfluence, efieldfluvol,aimFluence, aimVoltage )              ; break; 
                     case TCAD           : aimEf = estimateEfieldLinear(aimVoltage)                                                      ;
-                                          if(aimEf < 0.) ATH_MSG_ERROR("TCAD E field negative at" << pixeldepth <<" !")                 ; break;
+                                          if(aimEf < 0.) ATH_MSG_ERROR("TCAD E field negative at" << pixeldepth <<" !")                 ;
+                                          break;
                 }
 
                 if(aimEf < 0.){ 
