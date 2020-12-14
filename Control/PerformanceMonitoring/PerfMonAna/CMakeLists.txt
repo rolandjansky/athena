@@ -4,13 +4,10 @@
 atlas_subdir( PerfMonAna )
 
 # External dependencies:
+find_package( matplotlib )
+find_package( numpy )
 find_package( pandas )
 find_package( sqlalchemy )
-# These need to be added to Externals first, then enabled
-# However, the fact that they're missing is not an immediate
-# Showstopper...
-#find_package( matplotlib )
-#find_package( numpy )
 find_package( ROOT COMPONENTS Core PyROOT Tree MathCore Hist RIO pthread )
 
 # Install files from the package:
