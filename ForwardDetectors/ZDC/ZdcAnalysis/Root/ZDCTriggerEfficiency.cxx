@@ -3,7 +3,7 @@
 */
 
 #include "ZdcAnalysis/ZDCTriggerEfficiency.h"
-#include <AsgTools/MessageCheck.h>
+#include "AsgTools/MessageCheck.h"
 #include <vector>
 
 double ZDCTriggerEfficiency::GetEfficiency(int side, float ADCSum){

@@ -28,7 +28,7 @@ TH1* ZDCPulseAnalyzer::s_delayedFitHist    = nullptr;
 TF1* ZDCPulseAnalyzer::s_combinedFitFunc   = nullptr;
 float ZDCPulseAnalyzer::s_combinedFitTMax  = 1000;
 float ZDCPulseAnalyzer::s_combinedFitTMin  = -0.5;   // add to allow switch to high gain by skipping early samples
-std::vector<float> ZDCPulseAnalyzer::pullValues;
+std::vector<float> ZDCPulseAnalyzer::s_pullValues;
 
 void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, double* par, int flag)
 {
@@ -38,7 +38,7 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
   int nSamples = s_undelayedFitHist->GetNbinsX();
 
   if (flag == 3) {
-    pullValues.assign(nSamples * 2, 0);
+    s_pullValues.assign(nSamples * 2, 0);
   }
 
   double chiSquare = 0;
@@ -59,7 +59,7 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
 
     double pull = (histValue - funcVal) / histError;
 
-    if (flag == 3) pullValues[2 * isample] = pull;
+    if (flag == 3) s_pullValues[2 * isample] = pull;
     chiSquare += pull * pull;
   }
 
@@ -76,7 +76,7 @@ void ZDCPulseAnalyzer::CombinedPulsesFCN(int& /*numParam*/, double*, double& f, 
     double funcVal = s_combinedFitFunc->EvalPar(&t, &par[1]) + delayBaselineAdjust;
     double pull = (histValue - funcVal) / histError;
 
-    if (flag == 3) pullValues[2 * isample + 1] = pull;
+    if (flag == 3) s_pullValues[2 * isample + 1] = pull;
     chiSquare += pull * pull;
   }
 
@@ -118,7 +118,7 @@ ZDCPulseAnalyzer::ZDCPulseAnalyzer(ZDCMsg::MessageFunctionPtr msgFunc_p, std::st
 }
 
 
-void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline)
+void ZDCPulseAnalyzer::enableDelayed(float deltaT, float pedestalShift, bool fixedBaseline)
 {
   m_useDelayed = true;
   m_useFixedBaseline = fixedBaseline;
@@ -137,7 +137,7 @@ void ZDCPulseAnalyzer::EnableDelayed(float deltaT, float pedestalShift, bool fix
   m_ADCSamplesHGSub.assign(2 * m_Nsample, 0);
 }
 
-void ZDCPulseAnalyzer::EnableRepass(float peak2ndDerivMinRepassHG, float peak2ndDerivMinRepassLG)
+void ZDCPulseAnalyzer::enableRepass(float peak2ndDerivMinRepassHG, float peak2ndDerivMinRepassLG)
 {
   m_enableRepass = true;
   m_peak2ndDerivMinRepassHG = peak2ndDerivMinRepassHG;
@@ -1338,7 +1338,7 @@ void ZDCPulseAnalyzer::DoFitCombined()
   //
   arglist[0] = 3; // number of function calls
   theFitter->ExecuteCommand("Cal1fcn", arglist, 1);
-  m_fitPulls = pullValues;
+  m_fitPulls = s_pullValues;
 
   m_fitAmplitude = fitWrapper->GetAmplitude();
   m_fitTime      = fitWrapper->GetTime();

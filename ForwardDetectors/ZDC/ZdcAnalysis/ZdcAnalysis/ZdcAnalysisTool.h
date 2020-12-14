@@ -76,7 +76,7 @@ public:
 
   static void SetDebugLevel(int debugLevel = 0)
   {
-    _debugLevel = debugLevel;
+    s_debugLevel = debugLevel;
   }
 
   ZDCMsg::MessageFunctionPtr MakeMessageFunction()
@@ -95,7 +95,7 @@ public:
   }
 
   void Dump_setting() {
-    if (_debugLevel > 2) {
+    if (s_debugLevel > 2) {
       ATH_MSG_INFO("========================================================================================================================");
       for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 4; j++) {
@@ -174,7 +174,7 @@ private:
 
   std::shared_ptr<ZDCTriggerEfficiency> m_zdcTriggerEfficiency;
 
-  static int _debugLevel;
+  static int s_debugLevel;
 
 };
 

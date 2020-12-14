@@ -29,7 +29,7 @@
 
 #include "CountBits.C"
 
-int ZDCTreeAnalysis::m_DebugLevel = 5;
+int ZDCTreeAnalysis::s_DebugLevel = 5;
 
 template <typename T> T Sqr(const T& inT) {return inT * inT;}
 
@@ -175,7 +175,7 @@ void ZDCTreeAnalysis::OpenOutputTree(std::string file)
 
     m_OutTree->Branch("zdc_delayedBS", zdc_delayedBS, "zdc_delayedBS[2][4]/F");
 
-    if (mcBranches) {
+    if (m_mcBranches) {
         m_OutTree->Branch("zdc_maxSumTruthEnergyModule"   , zdc_maxSumTruthEnergyModule   , "zdc_maxSumTruthEnergyModule[2]/I"   );
         m_OutTree->Branch("zdc_maxSumTruthEnergy"         , zdc_maxSumTruthEnergy         , "zdc_maxSumTruthEnergy[2]/F"         );
         m_OutTree->Branch("zdc_maxSumTruthEnergyGapModule", zdc_maxSumTruthEnergyGapModule, "zdc_maxSumTruthEnergyGapModule[2]/I");
@@ -267,14 +267,14 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
         }
 
         if (doSavePlot) {
-            if (!saveEvent) {
+            if (!m_saveEvent) {
                 continue;
             }
         }
 
         DoAnalysis();
 
-        if (mcBranches) {
+        if (m_mcBranches) {
             for (size_t side : {0, 1}) {
                 int   m_maxSumTruthEnergyModule    = 0;
                 float m_maxSumTruthEnergy          = 0;
@@ -303,11 +303,11 @@ void ZDCTreeAnalysis::Loop(int numEntries, int startEntry)
         }
 
         if (doSavePlot) {
-            if (saveEvent) {
+            if (m_saveEvent) {
                 index++;
                 eventIndex = jentry;
                 PlotFits(0);
-                saveEvent = false;
+                m_saveEvent = false;
             }
 
             if (index == nSave) {
@@ -373,7 +373,7 @@ void ZDCTreeAnalysis::DoAnalysis()
                 //
                 m_dataAnalyzer_p->LoadAndAnalyzeData(side, module, HGADCSamples, LGADCSamples);
             }
-            if (m_DebugLevel <= 3) m_dataAnalyzer_p->GetPulseAnalyzer(side, module)->Dump();
+            if (s_DebugLevel <= 3) m_dataAnalyzer_p->GetPulseAnalyzer(side, module)->Dump();
         }
     }
 

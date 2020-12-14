@@ -2,16 +2,16 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _ZDCDataAnalyzer_h
-#define _ZDCDataAnalyzer_h
+#ifndef ZDCANALYSIS_ZDCDataAnalyzer_h
+#define ZDCANALYSIS_ZDCDataAnalyzer_h
 
-#include <ZdcAnalysis/ZDCPulseAnalyzer.h>
-#include <TSpline.h>
+#include "ZdcAnalysis/ZDCPulseAnalyzer.h"
+#include "ZdcAnalysis/ZDCMsg.h"
+#include "TSpline.h"
 
 #include <array>
 #include <string>
 
-#include "ZdcAnalysis/ZDCMsg.h"
 
 class ZDCDataAnalyzer
 {
@@ -85,10 +85,10 @@ public:
 
   ~ZDCDataAnalyzer();
 
-  void EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
-  void EnableDelayed(const ZDCModuleFloatArray& delayDeltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
+  void enableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
+  void enableDelayed(const ZDCModuleFloatArray& delayDeltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff);
 
-  void EnableRepass(const ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCModuleFloatArray& peak2ndDerivMinRepassLG);
+  void enableRepass(const ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCModuleFloatArray& peak2ndDerivMinRepassLG);
 
   unsigned int GetModuleMask() const {return m_moduleMask;}
 
@@ -115,7 +115,7 @@ public:
 
   const ZDCPulseAnalyzer* GetPulseAnalyzer(size_t side, size_t module) const {return m_moduleAnalyzers.at(side).at(module).get();}
 
-  bool DisableModule(size_t side, size_t module);
+  bool disableModule(size_t side, size_t module);
 
   void SetPeak2ndDerivMinTolerances(size_t tolerance);
 

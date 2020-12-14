@@ -9,17 +9,18 @@
 // found on file: data15_hi.00287259.calibration_zdcCalib.recon.AOD.c931.root
 //////////////////////////////////////////////////////////
 
-#ifndef ZDCTreeAnalysis_h
-#define ZDCTreeAnalysis_h
+#ifndef ZDCANALYSIS_ZDCTreeAnalysis_h
+#define ZDCANALYSIS_ZDCTreeAnalysis_h
 
-#include <TROOT.h>
-#include <TChain.h>
-#include <TFile.h>
-#include <TH1.h>
-#include <TF1.h>
-#include <TSpline.h>
-#include <TEntryList.h>
-#include <TCut.h>
+#include "ZdcAnalysis/ZDCDataAnalyzer.h"
+#include "TROOT.h"
+#include "TChain.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TF1.h"
+#include "TSpline.h"
+#include "TEntryList.h"
+#include "TCut.h"
 
 // Header file for the classes stored in the TTree if any.
 #include <vector>
@@ -29,7 +30,6 @@
 #include <memory>
 #include <set>
 
-#include "ZdcAnalysis/ZDCDataAnalyzer.h"
 
 class ZDCTreeAnalysis {
 public :
@@ -182,10 +182,10 @@ private:
   float m_deltaTSample;
   int   m_preSampleIdx;
 
-  static int m_DebugLevel;
+  static int s_DebugLevel;
 
-  bool saveEvent  = false;
-  bool mcBranches = false;
+  bool m_saveEvent  = false;
+  bool m_mcBranches = false;
 
   ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinSamples;
   ZDCDataAnalyzer::ZDCModuleFloatArray m_peak2ndDerivMinThresholdsHG;
@@ -265,21 +265,21 @@ public:
     m_dataAnalyzer_p->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
   }
 
-  void EnableDelayed(float deltaT, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
+  void enableDelayed(float deltaT, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
   {
     m_useDelayed = true;
-    m_dataAnalyzer_p->EnableDelayed(deltaT, undelayedDelayedPedestalDiff);
+    m_dataAnalyzer_p->enableDelayed(deltaT, undelayedDelayedPedestalDiff);
   }
 
-  void EnableDelayed(const ZDCDataAnalyzer::ZDCModuleFloatArray& delayDeltaTArray, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
+  void enableDelayed(const ZDCDataAnalyzer::ZDCModuleFloatArray& delayDeltaTArray, const ZDCDataAnalyzer::ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
   {
     m_useDelayed = true;
-    m_dataAnalyzer_p->EnableDelayed(delayDeltaTArray, undelayedDelayedPedestalDiff);
+    m_dataAnalyzer_p->enableDelayed(delayDeltaTArray, undelayedDelayedPedestalDiff);
   }
 
-  void EnableRepass(const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassLG)
+  void enableRepass(const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCDataAnalyzer::ZDCModuleFloatArray& peak2ndDerivMinRepassLG)
   {
-    m_dataAnalyzer_p->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
+    m_dataAnalyzer_p->enableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
   }
 
   void SetCutValues(const ZDCDataAnalyzer::ZDCModuleFloatArray& chisqDivAmpCutHG,
@@ -307,7 +307,7 @@ public:
 
   static void SetDebugLevel(int debugLevel = 0)
   {
-    m_DebugLevel = debugLevel;
+    s_DebugLevel = debugLevel;
   }
 
   static bool msgFunction(unsigned int level, std::string message)
@@ -317,7 +317,7 @@ public:
       throw;
     }
 
-    if (level >= (unsigned int) m_DebugLevel) {
+    if (level >= (unsigned int) s_DebugLevel) {
       if (message != "") std::cout << message << std::endl;
       return true;
     }
@@ -325,12 +325,12 @@ public:
   }
 
   void enableMCBranches(bool enable = false) {
-    mcBranches = enable;
+    m_mcBranches = enable;
   }
 
-  void DisableModule(size_t side, size_t module)
+  void disableModule(size_t side, size_t module)
   {
-    m_dataAnalyzer_p->DisableModule(side, module);
+    m_dataAnalyzer_p->disableModule(side, module);
   }
 
   void SetPeak2ndDerivMinTolerances(size_t tolerance)
@@ -367,7 +367,7 @@ public:
   void OutputPlot(bool x = false, int y = 0) {doSavePlot = x; nSave = y;}
 
   void Dump_setting() {
-    if (m_DebugLevel < 4) {
+    if (s_DebugLevel < 4) {
       std::cout << "========================================================================================================================" << std::endl;
       for (int i = 0; i < 2; i++) {
         for (int j = 0; j < 4; j++) {

@@ -84,7 +84,7 @@ ZDCDataAnalyzer::~ZDCDataAnalyzer()
 {
 }
 
-bool ZDCDataAnalyzer::DisableModule(size_t side, size_t module)
+bool ZDCDataAnalyzer::disableModule(size_t side, size_t module)
 {
   if (side < 2 && module < 4) {
     //
@@ -101,18 +101,18 @@ bool ZDCDataAnalyzer::DisableModule(size_t side, size_t module)
   }
 }
 
-void ZDCDataAnalyzer::EnableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
+void ZDCDataAnalyzer::enableDelayed(float deltaT, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
 {
   int delayedOrder = deltaT < 0 ? -1 : 1;
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
       m_delayedOrder[side][module] = delayedOrder;
-      m_moduleAnalyzers[side][module]->EnableDelayed(std::abs(deltaT), undelayedDelayedPedestalDiff[side][module]);
+      m_moduleAnalyzers[side][module]->enableDelayed(std::abs(deltaT), undelayedDelayedPedestalDiff[side][module]);
     }
   }
 }
 
-void ZDCDataAnalyzer::EnableDelayed(const ZDCModuleFloatArray& delayDeltaTArray, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
+void ZDCDataAnalyzer::enableDelayed(const ZDCModuleFloatArray& delayDeltaTArray, const ZDCModuleFloatArray& undelayedDelayedPedestalDiff)
 {
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
@@ -122,17 +122,17 @@ void ZDCDataAnalyzer::EnableDelayed(const ZDCModuleFloatArray& delayDeltaTArray,
       (*m_msgFunc_p)(ZDCMsg::Verbose, "Enabling use of delayed samples on side, module = " + std::to_string(side) + ", " +
                      std::to_string(module) + ", delta t = " + std::to_string(delayDeltaTArray[side][module]));
 
-      m_moduleAnalyzers[side][module]->EnableDelayed(std::abs(delayDeltaTArray[side][module]), undelayedDelayedPedestalDiff[side][module]);
+      m_moduleAnalyzers[side][module]->enableDelayed(std::abs(delayDeltaTArray[side][module]), undelayedDelayedPedestalDiff[side][module]);
     }
   }
 }
 
-void ZDCDataAnalyzer::EnableRepass(const ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCModuleFloatArray& peak2ndDerivMinRepassLG)
+void ZDCDataAnalyzer::enableRepass(const ZDCModuleFloatArray& peak2ndDerivMinRepassHG, const ZDCModuleFloatArray& peak2ndDerivMinRepassLG)
 {
   m_repassEnabled = true;
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
-      m_moduleAnalyzers[side][module]->EnableRepass(peak2ndDerivMinRepassHG[side][module], peak2ndDerivMinRepassLG[side][module]);
+      m_moduleAnalyzers[side][module]->enableRepass(peak2ndDerivMinRepassHG[side][module], peak2ndDerivMinRepassLG[side][module]);
     }
   }
 }
@@ -242,10 +242,8 @@ void ZDCDataAnalyzer::StartEvent(int lumiBlock)
 
   // By default we perform quiet pulse fits
   //
-  if ((*m_msgFunc_p)(ZDCMsg::Verbose, ""))
-    ZDCPulseAnalyzer::SetQuietFits(false);
-  else
-    ZDCPulseAnalyzer::SetQuietFits(true);
+  if ((*m_msgFunc_p)(ZDCMsg::Verbose, "")) {ZDCPulseAnalyzer::SetQuietFits(false);}
+  else {ZDCPulseAnalyzer::SetQuietFits(true);}
 
   //  See if we have to load up new calibrations
   //
@@ -394,8 +392,8 @@ bool ZDCDataAnalyzer::FinishEvent()
 
   for (size_t side : {0, 1}) {
     for (size_t module : {0, 1, 2, 3}) {
-      if (!m_dataLoaded[side][module] && !m_moduleDisabled[side][module]) return false;
-      if (m_moduleAnalyzers[side][module]->ArmSumInclude()) sideNPulsesMod[side]++;
+      if (!m_dataLoaded[side][module] && !m_moduleDisabled[side][module]) {return false;}
+      if (m_moduleAnalyzers[side][module]->ArmSumInclude()) {sideNPulsesMod[side]++;}
     }
   }
 
@@ -438,8 +436,8 @@ bool ZDCDataAnalyzer::FinishEvent()
         float calibAmpError = ampError * m_currentECalibCoeff[side][module];
 
         float timeCalib = pulseAna_p->GetT0Corr();
-        if (pulseAna_p->UseLowGain()) timeCalib -= m_currentT0OffsetsLG[side][module];
-        else timeCalib -= m_currentT0OffsetsHG[side][module];
+        if (pulseAna_p->UseLowGain()) {timeCalib -= m_currentT0OffsetsLG[side][module];}
+        else {timeCalib -= m_currentT0OffsetsHG[side][module];}
 
         m_calibTime[side][module] = timeCalib;
 

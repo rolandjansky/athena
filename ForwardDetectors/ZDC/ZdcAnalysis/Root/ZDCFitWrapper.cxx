@@ -192,8 +192,8 @@ double ZDCFermiExpFit(double* xvec, double* pvec)
   double tauRatio = tau2 / tau1;
   double tauRatioMinunsOne = tauRatio - 1;
 
-  double norm = ( std::exp(-offsetScale / tauRatio) * pow(1. / tauRatioMinunsOne, 1. / (1 + tauRatio)) /
-                  ( 1 + pow(1. / tauRatioMinunsOne, 1. / (1 + 1 / tauRatio)))                         );
+  double norm = ( std::exp(-offsetScale / tauRatio) * std::pow(1. / tauRatioMinunsOne, 1. / (1 + tauRatio)) /
+                  ( 1 + std::pow(1. / tauRatioMinunsOne, 1. / (1 + 1 / tauRatio)))                         );
 
   double deltaT = t - (t0 - offsetScale * tau1);
   if (deltaT < 0) deltaT = 0;

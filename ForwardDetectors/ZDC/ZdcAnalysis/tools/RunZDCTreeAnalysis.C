@@ -140,18 +140,18 @@ ZDCTreeAnalysis* InitZDCAnalysis(TChain *chain, int year, int nSamples, bool frq
     ana->SetDebugLevel(5);
 
     if (useTwoPass) {
-        ana->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
+        ana->enableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG);
     }
 
     if (year == 1111) ana->enableMCBranches(1); // year 1111 is for MC samples
-    if (year == 2016) ana->DisableModule(0, 0);
+    if (year == 2016) ana->disableModule(0, 0);
 
     if (useDelayed) {
         ZDCDataAnalyzer::ZDCModuleFloatArray delayUndelPedestalDiff = {0, 0, 0, 0, 0, 0, 0, 0};
-        if (year == 2016) ana->EnableDelayed(-12.5, delayUndelPedestalDiff);
+        if (year == 2016) ana->enableDelayed(-12.5, delayUndelPedestalDiff);
         if (year == 2018) {
             ZDCDataAnalyzer::ZDCModuleFloatArray delayDeltaTs = {{{{12.5, -12.5, -12.5, -12.5}}, {{ -12.5, -12.5, -12.5, -12.5}}}};
-            ana->EnableDelayed(delayDeltaTs, delayUndelPedestalDiff);
+            ana->enableDelayed(delayDeltaTs, delayUndelPedestalDiff);
         }
     }
 

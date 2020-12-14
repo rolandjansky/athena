@@ -2,21 +2,19 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef _ZDCPulseAnalyzer_h
-#define _ZDCPulseAnalyzer_h
+#ifndef ZDCANALYSIS_ZDCPulseAnalyzer_h
+#define ZDCANALYSIS_ZDCPulseAnalyzer_h
+
+#include "ZdcAnalysis/ZDCFitWrapper.h"
+#include "ZdcAnalysis/ZDCMsg.h"
+#include "TGraphErrors.h"
+#include "TFitter.h"
+#include "TList.h"
+#include "TF1.h"
+#include "TH1.h"
 
 #include <vector>
 #include <string>
-
-#include <TF1.h>
-#include <TH1.h>
-#include <TGraphErrors.h>
-#include <TList.h>
-#include "TFitter.h"
-
-// #include <AsgTools/MessageCheck.h>
-#include "ZdcAnalysis/ZDCMsg.h"
-#include "ZdcAnalysis/ZDCFitWrapper.h"
 
 class ZDCPulseAnalyzer
 {
@@ -59,7 +57,7 @@ private:
   static TF1* s_combinedFitFunc;
   static float s_combinedFitTMax;
   static float s_combinedFitTMin;
-  static std::vector<float> pullValues;
+  static std::vector<float> s_pullValues;
 
   // Quantities provided/set in the constructor
   //
@@ -323,9 +321,9 @@ public:
   static void SetSaveFitFunc(bool save ) {s_saveFitFunc = save;}
   static bool QuietFits() {return s_quietFits;}
 
-  void EnableDelayed(float deltaT, float pedestalShift, bool fixedBaseline = false);
+  void enableDelayed(float deltaT, float pedestalShift, bool fixedBaseline = false);
 
-  void EnableRepass(float peak2ndDerivMinRepassHG, float peak2ndDerivMinRepassLG);
+  void enableRepass(float peak2ndDerivMinRepassHG, float peak2ndDerivMinRepassLG);
 
   void SetPeak2ndDerivMinTolerance(size_t tolerance) {m_peak2ndDerivMinTolerance = tolerance;}
 

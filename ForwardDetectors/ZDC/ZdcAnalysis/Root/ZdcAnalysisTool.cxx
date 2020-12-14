@@ -16,7 +16,7 @@
 
 namespace ZDC
 {
-int ZdcAnalysisTool::_debugLevel = 0;
+int ZdcAnalysisTool::s_debugLevel = 0;
 ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name)
     : asg::AsgTool(name), m_name(name), m_init(false),
       m_writeAux(false), m_eventReady(false),
@@ -236,7 +236,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializeDefault()
     if (m_combineDelay) {
         ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
-        zdcDataAnalyzer->EnableDelayed(m_delayDeltaT, defaultPedestalShifts);
+        zdcDataAnalyzer->enableDelayed(m_delayDeltaT, defaultPedestalShifts);
     }
 
     return zdcDataAnalyzer;
@@ -395,7 +395,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
 
     // We alwyas disable the 12EM (sideC) module which was not present (LHCf)
     //
-    zdcDataAnalyzer->DisableModule(0, 0);
+    zdcDataAnalyzer->disableModule(0, 0);
 
     zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
     zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1Arr, tau2Arr, t0HG, t0LG);
@@ -407,7 +407,7 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializepPb2016()
     m_combineDelay = true;
     ZDCDataAnalyzer::ZDCModuleFloatArray defaultPedestalShifts = {{{{0, 0, 0, 0}}, {{0, 0, 0, 0}}}};
 
-    zdcDataAnalyzer->EnableDelayed(-12.5, defaultPedestalShifts);
+    zdcDataAnalyzer->enableDelayed(-12.5, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting
     zdcDataAnalyzer->SetSaveFitFunc(false);
     zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
@@ -526,10 +526,10 @@ std::unique_ptr<ZDCDataAnalyzer> ZdcAnalysisTool::initializePbPb2018()
         }
     };
 
-    zdcDataAnalyzer->EnableDelayed(delayDeltaTs, defaultPedestalShifts);
+    zdcDataAnalyzer->enableDelayed(delayDeltaTs, defaultPedestalShifts);
     zdcDataAnalyzer->SetFitTimeMax(140); // This restrict the fit range of the pulse fitting, requested by BAC 4/6/19
     zdcDataAnalyzer->SetSaveFitFunc(false);
-    zdcDataAnalyzer->EnableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG); // add repass as default Jul 21 2020 Bill
+    zdcDataAnalyzer->enableRepass(peak2ndDerivMinRepassHG, peak2ndDerivMinRepassLG); // add repass as default Jul 21 2020 Bill
     zdcDataAnalyzer->SetTimingCorrParams(slewingParamsHG, slewingParamsLG); // add time slewing correction Sep 17 2019 Bill
     // ref. https://indico.cern.ch/event/849143/contributions/3568263/attachments/1909759/3155352/ZDCWeekly_20190917_PengqiYin.pdf
 
@@ -754,7 +754,7 @@ void ZdcAnalysisTool::initialize80MHz()
 
 StatusCode ZdcAnalysisTool::initialize()
 {
-    m_tf1SincInterp.reset (new TF1("SincInterp", ZDC::SincInterp, -5., 160., 8));
+    m_tf1SincInterp.reset (new TF1("SincInterp", ZDC::sincInterp, -5., 160., 8));
     m_tf1SincInterp->SetNpx(300);
 
     // Set up calibrations
