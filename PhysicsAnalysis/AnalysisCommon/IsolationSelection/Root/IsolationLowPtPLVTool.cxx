@@ -100,7 +100,7 @@ namespace CP {
     //Check is PLV variable is set
     if( s_acc_PLV.isAvailable(Particle) ) {
       if( s_acc_PLV(Particle) <= -1.1 ){
-	ATH_MSG_WARNING( "Nominal PLV score " << s_acc_PLV(Particle) << ". Returning -1.1" );
+	ATH_MSG_DEBUG( "Nominal PLV score " << s_acc_PLV(Particle) << ". Returning -1.1" );
 	s_dec_iso_PLT(Particle) = -1.1;
 	return StatusCode::SUCCESS;
       }
