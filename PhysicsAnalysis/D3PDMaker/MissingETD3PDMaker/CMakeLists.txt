@@ -15,6 +15,6 @@ atlas_add_component( MissingETD3PDMaker
                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent StoreGateLib EventKernel GaudiKernel D3PDMakerInterfaces D3PDMakerUtils JetEvent MissingETEvent MissingETGoodnessLib MissingETPerformanceLib Particle AthenaKernel FourMomUtils xAODMissingET muonEvent egammaEvent tauEvent )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 
