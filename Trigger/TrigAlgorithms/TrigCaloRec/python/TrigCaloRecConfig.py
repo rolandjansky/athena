@@ -1608,7 +1608,7 @@ class HLTCaloCellMaker (_HLTCaloCellMaker):
     def __init__(self, name):
         super( HLTCaloCellMaker, self ).__init__(name)
         self.ExtraInputs=[('TileEMScale','ConditionStore+TileEMScale'),('TileBadChannels','ConditionStore+TileBadChannels')]
-        self.ExtraInputs+=[( 'LArOnOffIdMapping' , 'ConditionStore+LArOnOffIdMap' )]
+        self.ExtraInputs+=[( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TTHEC' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_TILE' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALEM' ), ( 'IRegSelLUTCondData' , 'ConditionStore+RegSelLUTCondData_FCALHAD' ) ]
         from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
         monTool = GenericMonitoringTool('MonTool')
         maxNumberOfCells=1600.0
