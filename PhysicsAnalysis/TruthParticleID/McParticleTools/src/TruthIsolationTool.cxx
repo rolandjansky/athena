@@ -39,7 +39,7 @@ namespace {
   { return HepLorentzVector( v.x(), v.y(), v.z(), v.t() ); }
 }
 
-typedef std::list<const HepMC::GenParticle*> GenParticles_t;
+typedef std::list<HepMC::ConstGenParticlePtr> GenParticles_t;
 
 TruthIsolationTool::TruthIsolationTool( const std::string& type, 
 					const std::string& name, 
@@ -199,33 +199,25 @@ TruthIsolationTool::buildEtIsolations( const std::string& mcEvtName,
 
   // create a reduced list of particles
   GenParticles_t particles;
-  for ( HepMC::GenEvent::particle_const_iterator 
-	  i    = genEvt->particles_begin(),
-	  iEnd = genEvt->particles_end();
-	i != iEnd;
-	++i ) {
-    if ( isStable(*i) && isInteracting(*i) ) {
-      particles.push_back( *i );
+  for ( auto i: *genEvt) {
+    if ( isStable(i) && isInteracting(i) ) {
+      particles.push_back( i );
     }
   }
 
-  for ( HepMC::GenEvent::particle_const_iterator
-	  i    = genEvt->particles_begin(),
-	  iEnd = genEvt->particles_end(); 
-	i != iEnd;
-	++i ) {
-    const HepMC::FourVector hlv = (*i)->momentum();
-    const int    ida = std::abs((*i)->pdg_id());
-    const int    sta = (*i)->status();
+  for ( auto i: *genEvt) {
+    const HepMC::FourVector hlv = i->momentum();
+    const int    ida = std::abs(i->pdg_id());
+    const int    sta = i->status();
     const double pt  = hlv.perp();
 
     // Compute isolation only for photon, electron, muon or tau. 
     // Not for documentation particle
     const bool doComputeIso = ( ( ida == 22 && pt > m_ptGamMin ) ||
                                 ida == 11 || ida == 13 || ida == 15 ) &&
-                                sta != 3 && isInteracting(*i);
+                                sta != 3 && isInteracting(i);
     if ( doComputeIso ) {
-      computeIso( particles, *i, etIsols, partSel );
+      computeIso( particles, i, etIsols, partSel );
     }
   }
   
@@ -234,7 +226,7 @@ TruthIsolationTool::buildEtIsolations( const std::string& mcEvtName,
 
 void
 TruthIsolationTool::computeIso( const GenParticles_t& particles, 
-				const HepMC::GenParticle* part,
+				HepMC::ConstGenParticlePtr part,
 				TruthEtIsolations& etIsolations, 
 				ITruthIsolationTool::ParticleSelect partSel  )
 {
@@ -252,7 +244,7 @@ TruthIsolationTool::computeIso( const GenParticles_t& particles,
 	  iEnd = particles.end(); 
 	i != iEnd; 
 	++i ) {
-    if ( (*i)->barcode() == part->barcode() ) {
+    if ( HepMC::barcode(*i) == HepMC::barcode(part) ) {
       continue;
     }
     if( partSel == ITruthIsolationTool::UseChargedOnly ) {
@@ -279,17 +271,14 @@ TruthIsolationTool::computeIso( const GenParticles_t& particles,
   double pyv = 0.*GeV;
   auto decVtx = part->end_vertex();
   if (ida == 15 && decVtx) {
-    HepMC::GenVertex::particle_iterator child  = decVtx->particles_begin(HepMC::children);
-    HepMC::GenVertex::particle_iterator childE = decVtx->particles_end(HepMC::children);
-    for (; child != childE; ++child) {
-      if ( isInteracting(*child) ) {
+    for (auto child:  *decVtx) {
+      if ( isInteracting(child) ) {
 	if( partSel == ITruthIsolationTool::UseChargedOnly ) {
-	  double particleCharge = McUtils::chargeFromPdgId((*child)->pdg_id(),
-							   m_pdt);
+	  double particleCharge = McUtils::chargeFromPdgId(child->pdg_id(),m_pdt);
 	  if( std::abs(particleCharge)<1.e-2 )
 	    continue;
 	}
- 	const HepMC::FourVector childHlv = (*child)->momentum();
+ 	const HepMC::FourVector childHlv = child->momentum();
 	pxv += childHlv.px();
 	pyv += childHlv.py();
       }
