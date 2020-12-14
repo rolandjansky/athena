@@ -38,7 +38,7 @@ namespace Trk {
 
       /** main method returning vector of truth-jets */
       virtual std::vector< Trk::GenParticleJet >*  jetMCFinder
-        (std::vector <const HepMC::GenParticle*> & ) const;
+        (std::vector <HepMC::ConstGenParticlePtr> & ) const;
 
   private:
       float           m_yijCut; // the Durham ycut parameter
