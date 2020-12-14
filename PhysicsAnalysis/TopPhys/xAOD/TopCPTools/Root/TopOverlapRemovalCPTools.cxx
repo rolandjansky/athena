@@ -68,8 +68,6 @@ namespace top {
 
     ATH_MSG_INFO("Overlap removal procedure = " << OR_procedure);
 
-//     ORUtils::ORFlags OR_flags("OverlapRemovalTool",
-//                               "passPreORSelection");
     ORUtils::ORFlags OR_flags("OverlapRemovalTool",
                               "ORToolDecoration");
 
@@ -85,7 +83,7 @@ namespace top {
       OR_flags.boostedLeptons = true;
     }
     OR_flags.doFatJets = (m_config->useLargeRJets() && m_config->doLargeJetOverlapRemoval());
-    OR_flags.doMuPFJetOR = (m_config->useParticleFlowJets());
+    OR_flags.doMuPFJetOR = (m_config->useParticleFlowJets() && m_config->useMuons());
 
     const float floatMax = std::numeric_limits<float>::max();
 
@@ -175,7 +173,6 @@ namespace top {
     m_overlapRemovalTool = std::move(m_ORtoolBox.masterTool);
 
     OR_flags.masterName = "OverlapRemovalToolLoose";
-//     OR_flags.inputLabel = "passPreORSelectionLoose";
     OR_flags.inputLabel = "ORToolDecorationLoose";
 
     top::check(ORUtils::recommendedTools(OR_flags, m_ORtoolBox_Loose),
