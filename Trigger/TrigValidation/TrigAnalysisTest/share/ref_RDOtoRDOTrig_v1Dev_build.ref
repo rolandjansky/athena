@@ -2444,6 +2444,8 @@ HLT_noalg_cosmiccalo_L1J30_EMPTY:
   eventCount: 0
 HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY:
   eventCount: 0
+HLT_noalg_cosmiccalo_L1RD0_FIRSTEMPTY:
+  eventCount: 0
 HLT_noalg_cosmiccalo_L1RD1_EMPTY:
   eventCount: 0
 HLT_noalg_eb_L1ABORTGAPNOTCALIB_noPS:
