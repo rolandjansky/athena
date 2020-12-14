@@ -3,7 +3,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 import InDetConfig.TrackingCommonConfig         as   TC
 
-def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', TrackingFlags=None, **kwargs):
+def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', **kwargs):
     acc = ComponentAccumulator()
     #
     # Silicon det elements road maker tool
@@ -12,9 +12,9 @@ def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', Tracking
     acc.addPublicTool(InDetPatternPropagator)
 
     kwargs.setdefault("PropagatorTool", InDetPatternPropagator)
-    kwargs.setdefault("usePixel", TrackingFlags.usePixel)
+    kwargs.setdefault("usePixel", flags.InDet.Tracking.usePixel)
     kwargs.setdefault("PixManagerLocation", 'Pixel') # InDetKeys.PixelManager()
-    kwargs.setdefault("useSCT", TrackingFlags.useSCT)
+    kwargs.setdefault("useSCT", flags.InDet.Tracking.useSCT)
     kwargs.setdefault("SCTManagerLocation", 'SCT') # InDetKeys.SCT_Manager()
     kwargs.setdefault("RoadWidth", 35.)
     kwargs.setdefault("MaxStep", 20.)
@@ -22,7 +22,7 @@ def SiDetElementsRoadMaker_xkCfg(flags, name = 'InDetTRT_SeededSiRoad', Tracking
     if flags.Beam.Type == "cosmics":
         kwargs.setdefault("RoadWidth", 50)
     # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
-    if TrackingFlags.useSCT:
+    if flags.InDet.Tracking.useSCT:
         acc.addCondAlgo(CompFactory.InDet.SiDetElementsRoadCondAlg_xk(name = "InDet__SiDetElementsRoadCondAlg_xk"))
 
     InDetTRT_SeededSiRoadMaker = CompFactory.InDet.SiDetElementsRoadMaker_xk(name = name, **kwargs)
@@ -52,7 +52,7 @@ def SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder
     acc.setPrivateTools(InDetTRT_SeededSpacePointFinder)
     return acc
 
-def TRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', TrackingFlags=None, InputCollections=[], **kwargs):
+def TRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', InputCollections=[], **kwargs):
     acc = ComponentAccumulator()
     #
     # --- decide if use the association tool
@@ -74,13 +74,13 @@ def TRT_SeededSpacePointFinder_ATLCfg(flags, name='InDetTRT_SeededSpFinder', Tra
     kwargs.setdefault("NeighborSearch", True)
     kwargs.setdefault("LoadFull", False)
     kwargs.setdefault("DoCosmics", flags.Beam.Type == "cosmics")
-    kwargs.setdefault("pTmin", TrackingFlags.minSecondaryPt)
+    kwargs.setdefault("pTmin", flags.InDet.Tracking.minSecondaryPt)
 
     InDetTRT_SeededSpacePointFinder = CompFactory.InDet.TRT_SeededSpacePointFinder_ATL(name = name, **kwargs)
     acc.setPrivateTools(InDetTRT_SeededSpacePointFinder)
     return acc
 
-def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', TrackingFlags=None, InputCollections=[], **kwargs):
+def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', InputCollections=[], **kwargs):
     acc = ComponentAccumulator()
     #
     # --- TRT seeded back tracking tool
@@ -94,8 +94,8 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', Tracki
     InDetSiComTrackFinder = acc.popToolsAndMerge(TC.SiCombinatorialTrackFinder_xkCfg(flags))
     acc.addPublicTool(InDetSiComTrackFinder)
 
-    if (TrackingFlags.usePixel and TrackingFlags.useSCT) is not False:
-        InDetTRT_SeededSiRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags, TrackingFlags=TrackingFlags))
+    if (flags.InDet.Tracking.usePixel and flags.InDet.Tracking.useSCT) is not False:
+        InDetTRT_SeededSiRoadMaker = acc.popToolsAndMerge(SiDetElementsRoadMaker_xkCfg(flags))
         acc.addPublicTool(InDetTRT_SeededSiRoadMaker)
         kwargs.setdefault("RoadTool", InDetTRT_SeededSiRoadMaker)
 
@@ -104,7 +104,6 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', Tracki
     #
     if flags.InDet.loadTRTSeededSPFinder:
         InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(TRT_SeededSpacePointFinder_ATLCfg(flags, 
-                                                                                                 TrackingFlags=TrackingFlags,
                                                                                                  InputCollections=InputCollections))
     elif flags.InDet.loadSimpleTRTSeededSPFinder:
         InDetTRT_SeededSpacePointFinder = acc.popToolsAndMerge(SimpleTRT_SeededSpacePointFinder_ATLCfg(flags, InputCollections=InputCollections))
@@ -115,11 +114,11 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', Tracki
     kwargs.setdefault("UpdatorTool", InDetPatternUpdator)
     kwargs.setdefault("SeedTool", InDetTRT_SeededSpacePointFinder)
     kwargs.setdefault("CombinatorialTrackFinder", InDetSiComTrackFinder)
-    kwargs.setdefault("pTmin", TrackingFlags.minSecondaryPt)
-    kwargs.setdefault("nHolesMax", TrackingFlags.SecondarynHolesMax)
-    kwargs.setdefault("nHolesGapMax", TrackingFlags.SecondarynHolesGapMax)
-    kwargs.setdefault("Xi2max", TrackingFlags.SecondaryXi2max)
-    kwargs.setdefault("Xi2maxNoAdd", TrackingFlags.SecondaryXi2maxNoAdd)
+    kwargs.setdefault("pTmin", flags.InDet.Tracking.minSecondaryPt)
+    kwargs.setdefault("nHolesMax", flags.InDet.Tracking.SecondarynHolesMax)
+    kwargs.setdefault("nHolesGapMax", flags.InDet.Tracking.SecondarynHolesGapMax)
+    kwargs.setdefault("Xi2max", flags.InDet.Tracking.SecondaryXi2max)
+    kwargs.setdefault("Xi2maxNoAdd", flags.InDet.Tracking.SecondaryXi2maxNoAdd)
     kwargs.setdefault("SearchInCaloROI", False)
     kwargs.setdefault("InputClusterContainerName", 'InDetCaloClusterROIs') # InDetKeys.CaloClusterROIContainer()
     kwargs.setdefault("ConsistentSeeds", True)
@@ -132,7 +131,7 @@ def TRT_SeededTrackFinder_ATLCfg(flags, name='InDetTRT_SeededTrackMaker', Tracki
     acc.setPrivateTools(InDetTRT_SeededTrackTool)
     return acc
 
-def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', TrackingFlags = None, InputCollections=[], **kwargs):
+def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', InputCollections=[], **kwargs):
     acc = ComponentAccumulator()
 
     #
@@ -160,7 +159,7 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', TrackingF
     InDetTrackSummaryToolNoHoleSearch = acc.popToolsAndMerge(TC.InDetTrackSummaryToolNoHoleSearchCfg(flags))
     acc.addPublicTool(InDetTrackSummaryToolNoHoleSearch)
 
-    InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags, TrackingFlags = TrackingFlags))
+    InDetTRTExtensionTool = acc.popToolsAndMerge(TC.InDetTRT_ExtensionToolCfg(flags))
     acc.addPublicTool(InDetTRTExtensionTool)
 
     from  InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
@@ -169,7 +168,6 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', TrackingF
     acc.merge(tmpAcc)
 
     InDetTRT_SeededTrackTool = acc.popToolsAndMerge(TRT_SeededTrackFinder_ATLCfg(flags, 
-                                                                                 TrackingFlags = TrackingFlags,
                                                                                  InputCollections=InputCollections))
     acc.addPublicTool(InDetTRT_SeededTrackTool)
 
@@ -178,24 +176,24 @@ def TRT_SeededTrackFinderCfg(flags, name='InDetTRT_SeededTrackFinder', TrackingF
     kwargs.setdefault("PRDtoTrackMap", prefix+'PRDtoTrackMap'+suffix if usePrdAssociationTool else "")
     kwargs.setdefault("TrackSummaryTool", InDetTrackSummaryToolNoHoleSearch)
     kwargs.setdefault("TrackExtensionTool", InDetTRTExtensionTool)
-    kwargs.setdefault("MinTRTonSegment", TrackingFlags.minSecondaryTRTonTrk)
-    kwargs.setdefault("MinTRTonly", TrackingFlags.minTRTonly)
+    kwargs.setdefault("MinTRTonSegment", flags.InDet.Tracking.minSecondaryTRTonTrk)
+    kwargs.setdefault("MinTRTonly", flags.InDet.Tracking.minTRTonly)
     kwargs.setdefault("TrtExtension", True)
-    kwargs.setdefault("SiExtensionCuts", TrackingFlags.SiExtensionCuts)
-    kwargs.setdefault("minPt", TrackingFlags.minSecondaryPt)
-    kwargs.setdefault("maxRPhiImp", TrackingFlags.maxSecondaryImpact)
-    kwargs.setdefault("maxZImp", TrackingFlags.maxZImpact)
-    kwargs.setdefault("maxEta", TrackingFlags.maxEta)
+    kwargs.setdefault("SiExtensionCuts", flags.InDet.Tracking.SiExtensionCuts)
+    kwargs.setdefault("minPt", flags.InDet.Tracking.minSecondaryPt)
+    kwargs.setdefault("maxRPhiImp", flags.InDet.Tracking.maxSecondaryImpact)
+    kwargs.setdefault("maxZImp", flags.InDet.Tracking.maxZImpact)
+    kwargs.setdefault("maxEta", flags.InDet.Tracking.maxEta)
     kwargs.setdefault("Extrapolator", InDetExtrapolator)
-    kwargs.setdefault("RejectShortExtension", TrackingFlags.rejectShortExtensions)
+    kwargs.setdefault("RejectShortExtension", flags.InDet.Tracking.rejectShortExtensions)
     kwargs.setdefault("FinalRefit", False)
     kwargs.setdefault("FinalStatistics", False)
     kwargs.setdefault("OutputSegments", False)
     kwargs.setdefault("InputSegmentsLocation", 'TRTSegments') # InDetKeys.TRT_Segments()
     kwargs.setdefault("OutputTracksLocation", TRTSeededTracks)
-    kwargs.setdefault("CaloClusterEt", TrackingFlags.minRoIClusterEt)
+    kwargs.setdefault("CaloClusterEt", flags.InDet.Tracking.minRoIClusterEt)
 
-    if TrackingFlags.RoISeededBackTracking:
+    if flags.InDet.Tracking.RoISeededBackTracking:
         from RegionSelector.RegSelToolConfig import regSelTool_SCT_Cfg
         RegSelTool_SCT   = acc.popToolsAndMerge(regSelTool_SCT_Cfg(flags))
         acc.addPublicTool(RegSelTool_SCT)
@@ -221,10 +219,10 @@ def TrkAmbiguityScoreCfg(name='InDetTRT_SeededAmbiguityScore', **kwargs):
     acc.addEventAlgo(InDetAmbiguityScore)
     return acc
 
-def InDetAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', TrackingFlags=None, **kwargs):
+def InDetAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectionTool', **kwargs):
     acc = ComponentAccumulator()
 
-    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags, TrackingFlags= TrackingFlags)
+    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags)
     acc.addPublicTool(InDetTRTDriftCircleCut)
 
     InDetPRDtoTrackMapToolGangedPixels = TC.InDetPRDtoTrackMapToolGangedPixelsCfg(flags)
@@ -233,11 +231,11 @@ def InDetAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectio
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels)
     kwargs.setdefault("minScoreShareTracks", -1.) # off !
-    kwargs.setdefault("minHits", TrackingFlags.minSecondaryClusters)
-    kwargs.setdefault("minNotShared", TrackingFlags.minSecondarySiNotShared)
-    kwargs.setdefault("maxShared", TrackingFlags.maxSecondaryShared)
-    kwargs.setdefault("minTRTHits", TrackingFlags.minSecondaryTRTonTrk)
-    kwargs.setdefault("UseParameterization", TrackingFlags.useParameterizedTRTCuts)
+    kwargs.setdefault("minHits", flags.InDet.Tracking.minSecondaryClusters)
+    kwargs.setdefault("minNotShared", flags.InDet.Tracking.minSecondarySiNotShared)
+    kwargs.setdefault("maxShared", flags.InDet.Tracking.maxSecondaryShared)
+    kwargs.setdefault("minTRTHits", flags.InDet.Tracking.minSecondaryTRTonTrk)
+    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.useParameterizedTRTCuts)
     kwargs.setdefault("Cosmics", flags.Beam.Type == "cosmics")
     kwargs.setdefault("doPixelSplitting", flags.InDet.doPixelClusterSplitting)
 
@@ -245,7 +243,7 @@ def InDetAmbiTrackSelectionToolCfg(flags, name='InDetTRT_SeededAmbiTrackSelectio
     acc.setPrivateTools(InDetTRT_SeededAmbiTrackSelectionTool)
     return acc
 
-def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcessor', TrackingFlags=None, ClusterSplitProbContainer="", **kwargs):
+def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcessor', ClusterSplitProbContainer="", **kwargs):
     acc = ComponentAccumulator()
     #
     # --- load Ambiguity Processor
@@ -260,17 +258,17 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     # --- set up special Scoring Tool for TRT seeded tracks
     #
     if flags.Beam.Type == "cosmics":
-        InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetCosmicScoringTool_TRTCfg(flags, TrackingFlags=TrackingFlags))
+        InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetCosmicScoringTool_TRTCfg(flags))
         acc.addPublicTool(InDetTRT_SeededScoringTool)
         InDetTRT_SeededSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolSharedHitsCfg(flags))
         acc.addPublicTool(InDetTRT_SeededSummaryTool)
     else:
-        InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetTRT_SeededScoringToolCfg(flags, TrackingFlags=TrackingFlags))
+        InDetTRT_SeededScoringTool = acc.popToolsAndMerge(TC.InDetTRT_SeededScoringToolCfg(flags))
         acc.addPublicTool(InDetTRT_SeededScoringTool)
         InDetTRT_SeededSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
         acc.addPublicTool(InDetTRT_SeededSummaryTool)
 
-    InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags, TrackingFlags=TrackingFlags))
+    InDetTRT_SeededAmbiTrackSelectionTool = acc.popToolsAndMerge(InDetAmbiTrackSelectionToolCfg(flags))
     acc.addPublicTool(InDetTRT_SeededAmbiTrackSelectionTool)
 
     kwargs.setdefault("Fitter", InDetTrackFitterBT)
@@ -278,7 +276,7 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     kwargs.setdefault("TrackSummaryTool", InDetTRT_SeededSummaryTool)
     kwargs.setdefault("SelectionTool", InDetTRT_SeededAmbiTrackSelectionTool)
     kwargs.setdefault("InputClusterSplitProbabilityName", ClusterSplitProbContainer)
-    kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetTRT_SeededAmbiguityProcessorSplitProb'+TrackingFlags.extension)
+    kwargs.setdefault("OutputClusterSplitProbabilityName", 'InDetTRT_SeededAmbiguityProcessorSplitProb'+flags.InDet.Tracking.extension)
     kwargs.setdefault("RefitPrds", not flags.InDet.refitROT)
     kwargs.setdefault("SuppressTrackFit", False)
     kwargs.setdefault("SuppressHoleSearch", False)
@@ -293,13 +291,12 @@ def SimpleAmbiguityProcessorToolCfg(flags, name='InDetTRT_SeededAmbiguityProcess
     acc.setPrivateTools(InDetTRT_SeededAmbiguityProcessor)
     return acc
 
-def TrkAmbiguitySolverCfg(flags, name='InDetTRT_SeededAmbiguitySolver', TrackingFlags=None, ClusterSplitProbContainer ='', **kwargs):
+def TrkAmbiguitySolverCfg(flags, name='InDetTRT_SeededAmbiguitySolver', ClusterSplitProbContainer ='', **kwargs):
     acc = ComponentAccumulator()
 
     ResolvedTRTSeededTracks = 'ResolvedTRTSeededTracks' # InDetKeys.ResolvedTRTSeededTracks()
 
     InDetTRT_SeededAmbiguityProcessor = acc.popToolsAndMerge(SimpleAmbiguityProcessorToolCfg(flags, 
-                                                                                             TrackingFlags=TrackingFlags, 
                                                                                              ClusterSplitProbContainer=ClusterSplitProbContainer))
     acc.addPublicTool(InDetTRT_SeededAmbiguityProcessor)
 
@@ -317,7 +314,7 @@ def TrkAmbiguitySolverCfg(flags, name='InDetTRT_SeededAmbiguitySolver', Tracking
 #
 # ------------------------------------------------------------
 
-def BackTrackingCfg(flags, InputCollections = None, TrackingFlags = None, TrackCollectionKeys=[] , TrackCollectionTruthKeys=[], ClusterSplitProbContainer=''):
+def BackTrackingCfg(flags, InputCollections = None, TrackCollectionKeys=[] , TrackCollectionTruthKeys=[], ClusterSplitProbContainer=''):
     acc = ComponentAccumulator()
     # ------------------------------------------------------------
     #
@@ -330,7 +327,6 @@ def BackTrackingCfg(flags, InputCollections = None, TrackingFlags = None, TrackC
         # --- decide which TRT seed space point finder to use
         #
         acc.merge(TRT_SeededTrackFinderCfg( flags,
-                                            TrackingFlags=TrackingFlags, 
                                             InputCollections=InputCollections))
     # ------------------------------------------------------------
     #
@@ -340,7 +336,6 @@ def BackTrackingCfg(flags, InputCollections = None, TrackingFlags = None, TrackC
     if flags.InDet.doResolveBackTracks:
         acc.merge(TrkAmbiguityScoreCfg())
         acc.merge(TrkAmbiguitySolverCfg(flags,
-                                        TrackingFlags=TrackingFlags,
                                         ClusterSplitProbContainer = ClusterSplitProbContainer))
 
     return acc
@@ -433,13 +428,11 @@ if __name__ == "__main__":
 
     ######################################## TRTSegmentFinding Configuration ###########################################
     InputCollections = []
-    TrackingFlags = ConfigFlags.InDet.Tracking
 
     from InDetConfig.TRTSegmentFindingConfig import TRTSegmentFindingCfg
     top_acc.merge(TRTSegmentFindingCfg( ConfigFlags,
                                         extension = "",
                                         InputCollections = InputCollections,
-                                        TrackingFlags = TrackingFlags,
                                         BarrelSegments = 'TRTSegments', # InDetKeys.TRT_Segments
                                         doPhase = False))
 
@@ -448,7 +441,6 @@ if __name__ == "__main__":
 
     top_acc.merge(BackTrackingCfg(  ConfigFlags,
                                     InputCollections = InputCollections,
-                                    TrackingFlags = TrackingFlags,
                                     TrackCollectionKeys=TrackCollectionKeys,
                                     TrackCollectionTruthKeys=[],
                                     ClusterSplitProbContainer=''))
@@ -459,5 +451,8 @@ if __name__ == "__main__":
     iovsvc.OutputLevel=5
 
     top_acc.printConfig()
-    top_acc.run(25)
     top_acc.store(open("test_BackTrackingConfig.pkl", "wb"))
+    import sys
+    if "--norun" not in sys.argv:
+        sc = top_acc.run(25)
+        sys.exit(not sc.isSuccess())
