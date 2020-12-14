@@ -290,11 +290,6 @@ double PixelModuleData::getLorentzAngleCorr(int bec, int layer) const {
   return LAcorr;
 }
 
-double PixelModuleData::getLorentzAngleCorr2() const { 
-  double LAcorr = 1.0;
-  return LAcorr;
-}
-
 // DCS parameters
 void PixelModuleData::setDefaultBiasVoltage(float biasVoltage) { m_biasVoltage=biasVoltage; }
 float PixelModuleData::getDefaultBiasVoltage() const { return m_biasVoltage; }

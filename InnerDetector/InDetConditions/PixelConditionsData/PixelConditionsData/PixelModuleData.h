@@ -143,7 +143,6 @@ class PixelModuleData {
     void setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr);
     void setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr);
     double getLorentzAngleCorr(int bec, int layer) const;
-    double getLorentzAngleCorr2() const;
 
     // DCS parameters
     void setDefaultBiasVoltage(float biasVoltage);
