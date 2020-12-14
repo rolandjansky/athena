@@ -58,7 +58,7 @@ class bblvlv(PowhegRES):
         self.add_keyword("foldcsi", 2)
         self.add_keyword("foldphi", 5)
         self.add_keyword("foldy", 5)
-        self.add_keyword("for_reweighting", 1)
+        self.add_keyword("for_reweighting")
         self.add_keyword("fullrwgt")
         self.add_keyword("hdamp", 172.5)
         self.add_keyword("hfact")
