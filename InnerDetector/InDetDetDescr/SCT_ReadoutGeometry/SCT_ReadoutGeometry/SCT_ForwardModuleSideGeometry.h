@@ -11,7 +11,7 @@
 #ifndef INDETREADOUTGEOMETRY_SCT_FORWARDMODULESIDEGEOMETRY_H
 #define INDETREADOUTGEOMETRY_SCT_FORWARDMODULESIDEGEOMETRY_H
 
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "SCT_ReadoutGeometry/SCT_ForwardPolarPosition.h"
 
 namespace InDetDD {

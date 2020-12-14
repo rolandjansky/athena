@@ -11,7 +11,7 @@
 #include "PixelSwitches.h" 
 
 #include "PixelReadoutGeometry/PixelDetectorManager.h" 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "DetDescrConditions/AlignableTransformContainer.h"
 #include "PixelGeoModelAthenaComps.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"

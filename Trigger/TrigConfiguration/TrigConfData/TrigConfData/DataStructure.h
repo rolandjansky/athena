@@ -13,6 +13,7 @@
 #include <vector>
 #include <memory>
 #include <type_traits>
+#include <optional>
 #include "boost/property_tree/ptree.hpp"
 
 namespace TrigConf {

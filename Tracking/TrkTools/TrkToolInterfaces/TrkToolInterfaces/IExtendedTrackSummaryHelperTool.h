@@ -42,7 +42,11 @@ namespace Trk {
 
     /* Expand/Extend the interface , with methods  using the EventContext
      * and Trk::PRDtoTrackMap.
-     * For now due to compatibility we provide a default  implementation
+     */
+
+     /*
+     * For now due to client compatibility 
+     * we provide a default  implementations
      * in terms of the the older interface
      */
 
@@ -81,15 +85,21 @@ namespace Trk {
       (void)ctx;
       addDetailedTrackSummary(track,summary);
     };
+
+    virtual void updateExpectedHitInfo(const EventContext& ctx, 
+                                       const Trk::Track& track,
+                                       Trk::TrackSummary& summary) const{
+
+      (void)ctx;
+      updateExpectedHitInfo(track,summary);
+    }
+ 
     virtual void updateSharedHitCount(
       const Trk::Track&,
       const Trk::PRDtoTrackMap*,
       Trk::TrackSummary&) const {};
 
-    virtual void updateExpectedHitInfo(const Trk::Track&,
-                                       Trk::TrackSummary&) const {};
-
-    virtual void updateAdditionalInfo(Trk::TrackSummary&,
+   virtual void updateAdditionalInfo(Trk::TrackSummary&,
                                       std::vector<float>&,
                                       float&,
                                       int&,
@@ -100,7 +110,6 @@ namespace Trk {
      * of the interface for  the methods with the same
      * name as the method above.
      */
-
     virtual void analyse(
       const Trk::Track& track,
       const RIO_OnTrack* rot,
@@ -139,6 +148,14 @@ namespace Trk {
     {
       addDetailedTrackSummary(Gaudi::Hive::currentContext(), track, summary);
     }
+  
+     virtual void updateExpectedHitInfo(const Trk::Track& track,
+                                       Trk::TrackSummary& summary) const override{
+
+      updateExpectedHitInfo(Gaudi::Hive::currentContext(),track,summary);
+    }
+  
+
   };
 
   inline const InterfaceID& Trk::IExtendedTrackSummaryHelperTool::interfaceID()

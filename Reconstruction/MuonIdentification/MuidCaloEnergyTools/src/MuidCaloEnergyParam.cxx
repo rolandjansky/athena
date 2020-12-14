@@ -8,7 +8,6 @@
 //  deposited by a traversing muon. The energy is parametrized according
 //  to trackParameters given at the calo mid-surface.
 //  
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>

@@ -16,6 +16,8 @@ import PyUtils.acmdlib as acmdlib
 import argparse
 import pygraphviz
 
+# Style for python dependencies:
+py_style = 'dashed'
 
 def read_package_list(package_file):
    """Read packages.txt as a source for the full package path"""
@@ -100,7 +102,7 @@ def add_legend(graph):
    for n in 'abcd':
       l.add_node(n, shape='point', style='invis')
    l.add_edge('a','b', label='C++', constraint=False)
-   l.add_edge('c','d', label='Python', style='dashed', constraint=False)
+   l.add_edge('c','d', label='Python', style=py_style, constraint=False)
 
 
 class AthGraph:
@@ -173,7 +175,7 @@ class AthGraph:
                   help='recursively resolve dependencies up to DEPTH (default: unlimited)')
 
 @acmdlib.argument('--py', action='store_true',
-                  help='add Python dependencies')
+                  help=f'add Python dependencies (marked with ":py" in printout, {py_style} in graph)')
 
 @acmdlib.argument('--regex', action='store_true',
                   help='treat NAME as regular expression')
@@ -184,8 +186,8 @@ class AthGraph:
 @acmdlib.argument('-d', '--dot', action='store_true',
                   help='print DOT graph')
 
-@acmdlib.argument('--noLegend', action='store_true',
-                  help='do not add legend to graph')
+@acmdlib.argument('--legend', action='store_true',
+                  help='add legend to graph')
 
 
 # Debugging/expert options:
@@ -286,17 +288,17 @@ def main(args):
          g = subgraph(pygraph, pysources, reverse=args.clients,
                       maxdepth=args.recursive, nodegetter=lambda n : n.name)
 
-         graph.get_subgraph(target).add_edges_from(g.edges(), style='dashed')
+         graph.get_subgraph(target).add_edges_from(g.edges(), style=py_style)
 
          # Change style of nodes that have only Python dependencies:
          g = graph.get_subgraph(target)
          for n in g.nodes_iter():
-            if all(e.attr['style']=='dashed' for e in g.edges_iter(n)):
-               n.attr['style'] = 'dashed'
+            if all(e.attr['style']==py_style for e in g.edges_iter(n)):
+               n.attr['style'] = py_style
 
 
    # Output final graph:
-   if not args.noLegend:
+   if args.dot and args.legend:
       add_legend(graph)
 
    if args.dot:
@@ -305,4 +307,5 @@ def main(args):
       nodes = [e[0] for e in graph.in_edges_iter()] if args.clients \
          else [e[1] for e in graph.out_edges_iter()]
       for p in sorted(set(nodes)):
-         print(p)
+         suffix = ':py' if p.attr['style']==py_style else ''
+         print(f'{p}{suffix}')

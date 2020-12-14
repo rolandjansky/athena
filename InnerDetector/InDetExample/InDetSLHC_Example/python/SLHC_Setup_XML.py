@@ -9,11 +9,6 @@ from __future__ import print_function
 __author__ =   "A. Salzburger"
 __version__=   "$Revision: 1.13 $"
 __doc__    =   "SLHC_PathSetting"
-__all__    = [ "SLHC_PathSetting" ]
-
-import os
-from os.path import exists, join
-from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
@@ -24,7 +19,6 @@ class SLHC_Setup_XMLReader :
         print (dir(XMLReaderFlags))
         if XMLReaderFlags.Initialized(): return
 
-        import os, shutil
         from PyJobTransformsCore.envutil import find_file_env
 
         print ("*******************************************************************************************")
@@ -42,13 +36,6 @@ class SLHC_Setup_XMLReader :
         from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__XMLReaderSvc
         xmlReader = InDet__XMLReaderSvc(name='InDetXMLReaderSvc')
 
-        dictionaryFileName = ""
-        if "dictionaryFileName" in kwargs: dictionaryFileName = kwargs["dictionaryFileName"]
-        createXML = False
-        if "createXML" in kwargs: createXML = kwargs["createXML"]
-        doPix = kwargs["doPix"]
-        doSCT = kwargs["doSCT"]
-        
         PIXMODULEFILE = "ITK_PixelModules.xml"
         PIXSTAVEFILE  = str(kwargs["PixelLayout"]) + "_PixelStave.xml"
         PIXBARRELFILE = str(kwargs["PixelLayout"]) + "_PixelBarrel.xml"
@@ -61,7 +48,7 @@ class SLHC_Setup_XMLReader :
         SCTENDCAPFILE = str(kwargs["SCTLayout"]) + "_SCTEndcap.xml"
 
         ## ###### Setup dictionary file to use  ######
-        ## dictDir = os.path.dirname(dictionaryFileName)
+        ## dictDir = os.path.dirname(kwargs["dictionaryFileName"])
         ## if not os.path.exists(dictDir):
         ##     os.makedirs(dictDir)
 

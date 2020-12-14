@@ -11,9 +11,9 @@
 
 inline float xAOD::MissingET_v1::met()   const { return sqrt(this->mpx()*this->mpx()+this->mpy()*this->mpy()); }
 inline float xAOD::MissingET_v1::phi()   const { return atan2(this->mpy(),this->mpx()); }
-inline float xAOD::MissingET_v1::mpx()   const { static const SG::AuxElement::Accessor<float> acc("mpx"); return acc(*this); }
-inline float xAOD::MissingET_v1::mpy()   const { static const SG::AuxElement::Accessor<float> acc("mpy"); return acc(*this); }
-inline float xAOD::MissingET_v1::sumet() const { static const SG::AuxElement::Accessor<float> acc("sumet"); return acc(*this); }
+inline float xAOD::MissingET_v1::mpx()   const { return m_acc_mpx(*this); }
+inline float xAOD::MissingET_v1::mpy()   const { return m_acc_mpy(*this); }
+inline float xAOD::MissingET_v1::sumet() const { return m_acc_sumet(*this); }
 
 inline const std::string&              xAOD::MissingET_v1::name()     const { static const SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
 inline std::size_t xAOD::MissingET_v1::nameHash() const { return m_nameHash; }
@@ -23,9 +23,9 @@ inline MissingETBase::Types::bitmask_t xAOD::MissingET_v1::source()   const { st
 // MissingET_v1 Inline Functions: Setters //
 ////////////////////////////////////////////
 
-inline float& xAOD::MissingET_v1::f_mpx()   { static const SG::AuxElement::Accessor<float> acc("mpx"); return acc(*this); }
-inline float& xAOD::MissingET_v1::f_mpy()   { static const SG::AuxElement::Accessor<float> acc("mpy"); return acc(*this); }
-inline float& xAOD::MissingET_v1::f_sumet() { static const SG::AuxElement::Accessor<float> acc("sumet"); return acc(*this); }
+inline float& xAOD::MissingET_v1::f_mpx()   { return m_acc_mpx(*this); }
+inline float& xAOD::MissingET_v1::f_mpy()   { return m_acc_mpy(*this); }
+inline float& xAOD::MissingET_v1::f_sumet() { return m_acc_sumet(*this); }
 
 inline std::string& xAOD::MissingET_v1::f_name()                       { static const SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
 inline const std::string& xAOD::MissingET_v1::f_nameConst()            { static const SG::AuxElement::ConstAccessor<std::string> acc("name"); return acc(*this); }

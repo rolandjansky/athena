@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SelectionHelpers/SelectionExprParser.h"
@@ -45,7 +45,7 @@ bool Separator::operator()(std::string::const_iterator& next,
   return true;
 }
 
-Lexer::Lexer(const std::string& s) : m_string(s), m_tokenizer(s, {}) {
+Lexer::Lexer(const std::string& s) : m_string(s), m_tokenizer(m_string, {}) {
   m_iterator = m_tokenizer.begin();
 }
 

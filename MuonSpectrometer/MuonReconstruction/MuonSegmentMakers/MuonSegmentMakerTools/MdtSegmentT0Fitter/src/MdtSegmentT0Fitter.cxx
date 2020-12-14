@@ -233,9 +233,7 @@ namespace TrkDriftCircleMath {
     
     fval = 0.;
     // Add t0 constraint 
-    if(g_fcnData->use_shift_constraint) {
-     fval += par[2]*par[2]/(g_fcnData->constrainT0Error*g_fcnData->constrainT0Error);
-    } else if (g_fcnData->t0Error == WEAK_TOPO_T0ERROR ) {
+    if (g_fcnData->t0Error == WEAK_TOPO_T0ERROR ) {
      fval += par[2]*par[2]/(1.0 *g_fcnData->t0Error*g_fcnData->t0Error);
     }
     double t, r, z, y, w, dist;
@@ -245,22 +243,17 @@ namespace TrkDriftCircleMath {
       y = g_fcnData->data[i].y;
       w = g_fcnData->data[i].w;
       dist = std::abs(b*cosin + z*sinus - y*cosin); // same thing as fabs(a*z - y + b)/sqrt(1. + a*a);
-      double uppercut = g_fcnData->use_hardcoded ? TUBE_TIME : g_fcnData->data[i].rt->tUpper();
-      double lowercut = g_fcnData->use_hardcoded ? 0 : g_fcnData->data[i].rt->tLower();
+      double uppercut = g_fcnData->data[i].rt->tUpper();
+      double lowercut = g_fcnData->data[i].rt->tLower();
 // Penalty for t<lowercut and t >uppercut
       if (t> uppercut ) { // too large 
 	fval += (t-uppercut)* (t-uppercut)*0.1;
       }else if (t < 0 ) {// too small
 	fval += (t-lowercut)*(t-lowercut)*0.1;
       }
-      if(g_fcnData->use_hardcoded) {
-	  if(t<0) r=0;
-	  else r = t2r(t);
-      } else {
 	  if(t<lowercut) r =  g_fcnData->data[i].rt->radius(lowercut);
           else if(t>uppercut)  r =  g_fcnData->data[i].rt->radius(uppercut);
 	  else r = g_fcnData->data[i].rt->radius(t);
-      }
       fval += (dist - r)*(dist - r)*w;
       
     }
@@ -285,10 +278,6 @@ namespace TrkDriftCircleMath {
     unsigned int N = dcs_keep.size();
 
     std::unique_ptr<MdtSegmentT0FcnData> fcnData = std::make_unique<MdtSegmentT0FcnData>();
-    fcnData->use_hardcoded = m_useInternalRT;
-    fcnData->use_shift_constraint = m_constrainShifts;
-    fcnData->constrainT0Error = m_constrainT0Error;
-
 
     fcnData->used=0;
     result.setT0Shift(-99999,-99999);
@@ -438,9 +427,7 @@ namespace TrkDriftCircleMath {
     int selcount(0);
     DCOnTrackVec::const_iterator it = dcs_keep.begin();
     DCOnTrackVec::const_iterator it_end = dcs_keep.end();
-    
-    fcnData->t_lo = 1e10;
-    fcnData->t_hi = -1e10;
+
     // replicate for the case where the external rt is used...
     // each hit has an rt function with some range...we want to fit such that
     // tlower_i < ti - t0 < tupper_i
@@ -461,15 +448,11 @@ namespace TrkDriftCircleMath {
         fcnData->data[selcount].w = w[ii];
         fcnData->data[selcount].rt = rtpointers[ii];
         double r2tval;
-        if(fcnData->use_hardcoded) {
-          r2tval = r2t(r[ii]);
-        } else {
-          r2tval = r2t_ext(&rtpointers,  r[ii], ii) ;
-          tl = rtpointers[ii]->tLower();
-          th = rtpointers[ii]->tUpper();
-          if(t[ii] - tl < min_tlower) min_tlower = t[ii] - tl;
-          if(t[ii] - th > max_tupper) max_tupper = t[ii] - th;
-        }
+        r2tval = r2t_ext(&rtpointers,  r[ii], ii) ;
+        tl = rtpointers[ii]->tLower();
+        th = rtpointers[ii]->tUpper();
+        if(t[ii] - tl < min_tlower) min_tlower = t[ii] - tl;
+        if(t[ii] - th > max_tupper) max_tupper = t[ii] - th;
         tee0 = t[ii] - r2tval;
 
         if(m_trace) {
@@ -478,10 +461,8 @@ namespace TrkDriftCircleMath {
                  <<" r "<<r[ii]
                  <<" t "<<t[ii]
                  <<" t0 "<<tee0;
-          if(!fcnData->use_hardcoded) {
-            msg() << MSG::DEBUG <<" tLower "<<tl;
-            msg() << MSG::DEBUG <<" tUpper "<<th;
-          }
+          msg() << MSG::DEBUG <<" tLower "<<tl;
+          msg() << MSG::DEBUG <<" tUpper "<<th;
           msg() << MSG::DEBUG << endmsg;
         }
         t0seed += tee0;
@@ -489,52 +470,15 @@ namespace TrkDriftCircleMath {
         if(tee0 < min_t0 && std::abs(r2tval) < R2TSPURIOUS) min_t0 = tee0;
         
         fcnData->data[selcount].t = t[ii];
-        if(t[ii]< fcnData->t_lo) fcnData->t_lo = t[ii];
-        if(t[ii] > fcnData->t_hi) fcnData->t_hi = t[ii];
         selcount++;
       } 
     }
     t0seed /= selcount;
     st0 = st0/selcount - t0seed*t0seed;
     st0 = st0 > 0. ? std::sqrt(st0) : 0.;
-    fcnData->t_hi -= MAX_DRIFT;
-    
-    if(!fcnData->use_hardcoded) {
-      fcnData->t_hi = max_tupper;
-      fcnData->t_lo = min_tlower;
-    }
-    
-    if(m_trace) ATH_MSG_DEBUG("t_hi "<<fcnData->t_hi<<" t_lo "<<fcnData->t_lo<<" t0seed "<<t0seed<<" sigma "<<st0<< " min_t0 "<<min_t0);
-    if(fcnData->t_hi > fcnData->t_lo ) {
-      if(m_dumpNoFit) {
-        std::ofstream gg;
-        gg.open("fitnotdone.txt", std::ios::out | std::ios::app);
-        DCOnTrackVec::const_iterator it = dcs_keep.begin();
-        DCOnTrackVec::const_iterator it_end = dcs_keep.end();
-        for(int ii=0 ;it!=it_end; ++it, ++ii ){
-          const Muon::MdtDriftCircleOnTrack *roto = it->rot();
-          const Muon::MdtPrepData *peerd;
-          if(!roto) continue; 
-          peerd = dynamic_cast<const Muon::MdtPrepData*>( roto->prepRawData() );
-          if(!peerd) continue; 
-          Identifier id = roto->identify();
-          gg<<id;
-          gg<<" z "<<z[ii];
-          gg<<" y "<<y[ii];
-          gg<<" r "<<r[ii];
-          gg<<" t "<<t[ii];
-          gg<<" t0 "<<t[ii] - r2t_ext(&rtpointers,  r[ii], ii);
-          gg<<" adc "<<peerd->adc();
-          gg<<" tdc "<<peerd->tdc();
-          gg<<*it;
-          gg<<" sel "<<selection[ii];
-          gg<< std::endl;
-        }
-        gg<<"--------------\n";
-      }
-    }
-    
-    
+
+    if(m_trace) ATH_MSG_DEBUG(" t0seed "<<t0seed<<" sigma "<<st0<< " min_t0 "<<min_t0);
+
     // ************************* seed the parameters
     double theta = line.phi();
     double cosin = std::cos(theta);
@@ -754,8 +698,7 @@ namespace TrkDriftCircleMath {
     double dy0 = cosin * bErr - b * sinus * aErr;
     
     double del_t;
-    if(fcnData->use_hardcoded) del_t = std::abs(t2r((t0+t0Err)) - t2r(t0));
-    else del_t = std::abs(rtpointers[0]->radius((t0+t0Err)) - rtpointers[0]->radius(t0)) ;
+    del_t = std::abs(rtpointers[0]->radius((t0+t0Err)) - rtpointers[0]->radius(t0)) ;
     
     if(m_trace) {
       ATH_MSG_DEBUG("____________FINAL VALUES________________" );
@@ -794,17 +737,11 @@ namespace TrkDriftCircleMath {
     for(int i=0; it!=it_end; ++it, ++i ){
       double rad, drad;
       
-      double uppercut = fcnData->use_hardcoded ? TUBE_TIME : rtpointers[i]->tUpper();
-      double lowercut = fcnData->use_hardcoded ? 0 :  rtpointers[i]->tLower();
-      if(fcnData->use_hardcoded) { 
-        rad = t2r(t[i]-t0);
-        if(t[i]-t0<lowercut) rad = t2r(lowercut);
-        if(t[i]-t0>uppercut) rad = t2r(uppercut);
-      } else {
-        rad = rtpointers[i]->radius(t[i]-t0);
-        if(t[i]-t0<lowercut) rad = rtpointers[i]->radius(lowercut);     
-        if(t[i]-t0>uppercut) rad = rtpointers[i]->radius(uppercut);     
-      } 
+      double uppercut = rtpointers[i]->tUpper();
+      double lowercut = rtpointers[i]->tLower();
+      rad = rtpointers[i]->radius(t[i]-t0);
+      if(t[i]-t0<lowercut) rad = rtpointers[i]->radius(lowercut);     
+      if(t[i]-t0>uppercut) rad = rtpointers[i]->radius(uppercut);     
       if (w[i]==0) {
         ATH_MSG_WARNING("w[i]==0, continuing");
         continue;
@@ -833,8 +770,7 @@ namespace TrkDriftCircleMath {
       deriv[1] = sign(dd) * cosin ;
       // del R / del t0
       
-      if(fcnData->use_hardcoded) deriv[2] = -1* t2rprime(t[i]-t0);
-      else deriv[2] = -1* rtpointers[i]->driftvelocity(t[i]-t0);
+      deriv[2] = -1* rtpointers[i]->driftvelocity(t[i]-t0);
       
       double covsq=0;
       for(int rr=0; rr<3; rr++) {

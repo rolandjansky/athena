@@ -228,54 +228,72 @@ namespace InDet {
 
   }
 
-  bool InDet::InDetTestBLayerTool::expectHitInBLayer(const Trk::Track* track, bool recompute) const
+  bool
+  InDet::InDetTestBLayerTool::expectHitInBLayer(const EventContext& ctx,
+                                                const Trk::Track* track,
+                                                bool recompute) const
   {
-    return expectHitInPixelLayer(track,0, recompute);
+    return expectHitInPixelLayer(ctx, track, 0, recompute);
   }
 
-   bool InDet::InDetTestBLayerTool::expectHitInInnermostPixelLayer(const Trk::Track* track, bool recompute) const
+  bool
+  InDet::InDetTestBLayerTool::expectHitInInnermostPixelLayer(
+    const EventContext& ctx,
+    const Trk::Track* track,
+    bool recompute) const
   {
-    return expectHitInPixelLayer(track,0, recompute);
+    return expectHitInPixelLayer(ctx, track, 0, recompute);
   }
 
-  bool InDet::InDetTestBLayerTool::expectHitInNextToInnermostPixelLayer(const Trk::Track* track, bool recompute) const
+  bool
+  InDet::InDetTestBLayerTool::expectHitInNextToInnermostPixelLayer(
+    const EventContext& ctx,
+    const Trk::Track* track,
+    bool recompute) const
   {
-    return expectHitInPixelLayer(track,1, recompute);
+    return expectHitInPixelLayer(ctx, track, 1, recompute);
   }
 
-  bool InDet::InDetTestBLayerTool::expectHitInPixelLayer(const Trk::Track *track, int layer, bool recompute) const {
-    assert( layer>=0 && layer<=1);
-    if(!recompute){
-      const Trk::TrackSummary* ts =  track->trackSummary();
-      if(ts){
-	int ehbl = ts->get(s_layerSummaryTypeExpectHit[layer]);
-	if(0==ehbl || 1==ehbl ){
-	  ATH_MSG_DEBUG("Found the expected hit in the " << s_layerNames[layer] << " info in TrackSummary: return cached value" );
-	  return ehbl;
-	}
+  bool
+  InDet::InDetTestBLayerTool::expectHitInPixelLayer(const EventContext& ctx,
+                                                    const Trk::Track* track,
+                                                    int layer,
+                                                    bool recompute) const
+  {
+    assert(layer >= 0 && layer <= 1);
+    if (!recompute) {
+      const Trk::TrackSummary* ts = track->trackSummary();
+      if (ts) {
+        int ehbl = ts->get(s_layerSummaryTypeExpectHit[layer]);
+        if (0 == ehbl || 1 == ehbl) {
+          ATH_MSG_DEBUG("Found the expected hit in the "
+                        << s_layerNames[layer]
+                        << " info in TrackSummary: return cached value");
+          return ehbl;
+        }
       }
-    }
-    else{
-      ATH_MSG_DEBUG("Forced to recompute whether a hit is expected in the " << s_layerNames[layer] << " or not." );
+    } else {
+      ATH_MSG_DEBUG("Forced to recompute whether a hit is expected in the "
+                    << s_layerNames[layer] << " or not.");
     }
 
-    ATH_MSG_DEBUG("Computing whether a hit is expected in the " << s_layerNames[layer] << " or not." );
+    ATH_MSG_DEBUG("Computing whether a hit is expected in the "
+                  << s_layerNames[layer] << " or not.");
 
     const Trk::Perigee* mp = track->perigeeParameters();
 
-    if (!mp)
-      {
-	//This can happen if re-creating the summary for tracks prior to ambi-solving and final fit, e.g. in StatisticAlg 
-        ATH_MSG_DEBUG("Found Track with no perigee parameters: no information whether a hit is expected in the " << s_layerNames[layer] << " will be provided." );
-	return false;
-      }
-    else
-      {
-	ATH_MSG_DEBUG("Track perigee parameters");
-	return this->expectHitInPixelLayer(mp,layer);
-      }
+    if (!mp) {
+      // This can happen if re-creating the summary for tracks prior to
+      // ambi-solving and final fit, e.g. in StatisticAlg
+      ATH_MSG_DEBUG("Found Track with no perigee parameters: no information "
+                    "whether a hit is expected in the "
+                    << s_layerNames[layer] << " will be provided.");
+      return false;
+    } else {
+      ATH_MSG_DEBUG("Track perigee parameters");
+      return this->expectHitInPixelLayer(ctx,mp, layer);
+    }
   }
-
 
   bool InDet::InDetTestBLayerTool::expectHitInBLayer(const Trk::TrackParticleBase* track, bool recompute) const
   {
@@ -343,74 +361,79 @@ namespace InDet {
     return expectHitInPixelLayer(trackpar, 1);
   }
 
-  bool InDet::InDetTestBLayerTool::expectHitInPixelLayer(const Trk::TrackParameters* trackpar,int layer) const
+  bool
+  InDet::InDetTestBLayerTool::expectHitInPixelLayer(
+    const EventContext& ctx,
+    const Trk::TrackParameters* trackpar,
+    int layer) const
   {
-    assert( layer >=0 && layer<=1);
-    const std::string layer_name=s_layerNames[layer];
+    assert(layer >= 0 && layer <= 1);
+    const std::string layer_name = s_layerNames[layer];
 
-    if(!m_configured){
-      ATH_MSG_WARNING("Unconfigured tool, unable to compute expected hit in the " << layer_name << ".");
+    if (!m_configured) {
+      ATH_MSG_WARNING(
+        "Unconfigured tool, unable to compute expected hit in the "
+        << layer_name << ".");
       return false;
     }
 
-    bool expect_hit = false; /// will be set to true if at least on good module is passed
+    bool expect_hit =
+      false; /// will be set to true if at least on good module is passed
 
     //// Cylinder bigger than the given layer ? ////
-    std::vector<std::unique_ptr<const Trk::TrackParameters> > blayerParam;
-    if(!this->getPixelLayerParameters(trackpar, blayerParam,layer)) return false;
-
+    std::vector<std::unique_ptr<const Trk::TrackParameters>> blayerParam;
+    if (!this->getPixelLayerParameters(ctx,trackpar, blayerParam, layer))
+      return false;
 
     for (std::unique_ptr<const Trk::TrackParameters>& p : blayerParam) {
 
-      Identifier id = p->associatedSurface().associatedDetectorElement()->identify();
+      Identifier id =
+        p->associatedSurface().associatedDetectorElement()->identify();
 
-      if( m_pixelCondSummaryTool->isGood(id,InDetConditions::PIXEL_MODULE) ){
+      if (m_pixelCondSummaryTool->isGood(id, InDetConditions::PIXEL_MODULE,ctx)) {
 
-	if( m_checkActiveAreas ){
+        if (m_checkActiveAreas) {
 
-	  if( isActive(p.get()) ){
+          if (isActive(p.get())) {
 
-	    if(m_checkDeadRegions){
+            if (m_checkDeadRegions) {
 
-	      double fracGood = getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize);
-	      if(fracGood>m_goodFracCut){
-		ATH_MSG_DEBUG("Condition Summary: " << layer_name << " good");
-		expect_hit=true;  /// pass good module -> hit is expected on blayer
-	      }
-	      else{
-		ATH_MSG_DEBUG( layer_name << " in dead region");
-	      }
+              double fracGood =
+                getFracGood(p.get(), m_phiRegionSize, m_etaRegionSize);
+              if (fracGood > m_goodFracCut) {
+                ATH_MSG_DEBUG("Condition Summary: " << layer_name << " good");
+                expect_hit =
+                  true; /// pass good module -> hit is expected on blayer
+              } else {
+                ATH_MSG_DEBUG(layer_name << " in dead region");
+              }
 
-	    }
-	    else{ /// check dead regios
-	      ATH_MSG_DEBUG("Condition Summary: " << layer_name << " good");
-	      expect_hit=true;  /// pass good module -> hit is expected on blayer
-	    }
+            } else { /// check dead regios
+              ATH_MSG_DEBUG("Condition Summary: " << layer_name << " good");
+              expect_hit =
+                true; /// pass good module -> hit is expected on blayer
+            }
 
-	  }
-	  else{
-	    ATH_MSG_DEBUG("Condition Summary: " << layer_name << " good but outside active area");
-	  }
+          } else {
+            ATH_MSG_DEBUG("Condition Summary: "
+                          << layer_name << " good but outside active area");
+          }
 
-	} /// check active area (check edges)
-	else{
-	  ATH_MSG_DEBUG("Condition Summary: " << layer_name << " good, active areas not checked");
-	  expect_hit=true; /// pass good module -> hit is expected on blayer
-	}
+        } /// check active area (check edges)
+        else {
+          ATH_MSG_DEBUG("Condition Summary: "
+                        << layer_name << " good, active areas not checked");
+          expect_hit = true; /// pass good module -> hit is expected on blayer
+        }
 
-      }
-      else{
-	ATH_MSG_DEBUG( layer_name << " not good");
+      } else {
+        ATH_MSG_DEBUG(layer_name << " not good");
       }
 
     } /// blayer param
 
-
     return expect_hit;
-
   }
-
-
 
   bool InDet::InDetTestBLayerTool::isActive(const Trk::TrackParameters* trackpar) const
   {
@@ -639,72 +662,69 @@ namespace InDet {
 
   }
 
-  bool InDet::InDetTestBLayerTool::getPixelLayerParameters
-    (const Trk::TrackParameters* trackpar,
-     std::vector<std::unique_ptr<const Trk::TrackParameters> >& blayerParam,
+  bool
+  InDet::InDetTestBLayerTool::getPixelLayerParameters
+
+    (const EventContext& ctx,
+     const Trk::TrackParameters* trackpar,
+     std::vector<std::unique_ptr<const Trk::TrackParameters>>& blayerParam,
      int layer) const
   {
 
     //// Cylinder bigger than the b-layer ////
     ATH_MSG_DEBUG("Trying to extrapolate to Pixel layer " << layer);
 
-    Trk::CylinderSurface BiggerThanBLayerSurface (new Transform3D(Transform3D::Identity()),
-						  100.0,
-						  10000.0);
+    Trk::CylinderSurface BiggerThanBLayerSurface(
+      new Transform3D(Transform3D::Identity()), 100.0, 10000.0);
 
-    // extrapolate stepwise to this parameter (be careful, sorting might be wrong)
-    std::vector<std::unique_ptr<const Trk::TrackParameters> > paramList =
-      m_extrapolator->extrapolateStepwise(*trackpar,
-					  BiggerThanBLayerSurface,
-					  Trk::alongMomentum,
-					  false);
+    // extrapolate stepwise to this parameter (be careful, sorting might be
+    // wrong)
+    std::vector<std::unique_ptr<const Trk::TrackParameters>> paramList =
+      m_extrapolator->extrapolateStepwise(
+        ctx, *trackpar, BiggerThanBLayerSurface, Trk::alongMomentum, false);
 
+    if (paramList.empty()) {
+      ATH_MSG_DEBUG("No parameter returned by propagator ");
+      ATH_MSG_VERBOSE("dumping track parameters " << *trackpar);
+      return false;
+    }
 
+    ATH_MSG_DEBUG(
+      " Number of generated parameters by propagator: " << paramList.size());
 
+    int s_int = 0;
+    for (std::unique_ptr<const Trk::TrackParameters>& p : paramList) {
 
-   if(paramList.empty()){
-     ATH_MSG_DEBUG("No parameter returned by propagator ");
-     ATH_MSG_VERBOSE("dumping track parameters " <<*trackpar);
-     return false;
-   }
+      ATH_MSG_DEBUG(s_int++ << "th surface : ");
 
-   ATH_MSG_DEBUG(" Number of generated parameters by propagator: " << paramList.size() );
+      Identifier id;
+      if (!(p->associatedSurface().associatedDetectorElement() != 0 &&
+            p->associatedSurface().associatedDetectorElement()->identify() !=
+              0)) {
+        continue;
+      }
 
+      id = p->associatedSurface().associatedDetectorElement()->identify();
+      if (!m_idHelper->is_pixel(id)) {
+        continue;
+      }
 
-   int s_int = 0;
-   for (std::unique_ptr<const Trk::TrackParameters>& p : paramList) {
+      ATH_MSG_DEBUG("Found pixel module : Associated track parameter");
+      if (!m_pixelId->is_barrel(id)) {
+        continue;
+      }
+      ATH_MSG_DEBUG("Found pixel barrel");
+      if (m_pixelId->layer_disk(id) != layer) {
+        continue;
+      }
 
-     ATH_MSG_DEBUG( s_int++ << "th surface : ");
+      ATH_MSG_DEBUG("Found layer  " << layer << " ID: " << id.get_compact());
+      blayerParam.push_back(std::move(p));
 
-     Identifier id;
-     if( !( p->associatedSurface().associatedDetectorElement() !=0 &&
-	 p->associatedSurface().associatedDetectorElement()->identify() !=0 ) )
-     {
-       continue;
-     }
+    } /// all params
 
-     id = p->associatedSurface().associatedDetectorElement()->identify();
-     if (!m_idHelper->is_pixel(id)){
-       continue;
-     }
-
-     ATH_MSG_DEBUG("Found pixel module : Associated track parameter");
-     if(!m_pixelId->is_barrel(id)){
-       continue;
-     }
-     ATH_MSG_DEBUG("Found pixel barrel");
-     if(m_pixelId->layer_disk(id)!=layer) {
-       continue;
-     }
-
-     ATH_MSG_DEBUG( "Found layer  " <<  layer << " ID: " << id.get_compact() );
-     blayerParam.push_back (std::move (p));
-
-   } /// all params
-
-   return true;
+    return true;
   }
-
 
   double InDet::InDetTestBLayerTool::getFracGood(const Trk::TrackParameters* trkParam,
 						 double phiRegionSize, double etaRegionSize) const{

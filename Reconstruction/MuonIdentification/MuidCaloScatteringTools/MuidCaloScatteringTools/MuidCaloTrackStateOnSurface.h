@@ -13,7 +13,6 @@
   using the IMuidCaloMaterialParam and IMuidCaloEnergy interfaces
 
    @author Alan.Poppleton@cern.ch
-  (c) ATLAS Combined Muon software
 */
 //////////////////////////////////////////////////////////////////////////////
 

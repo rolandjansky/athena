@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -11,16 +11,6 @@ namespace InDetDD {
   ///////////////////////////////////////////////////////////////////
   // Inline methods:
   ///////////////////////////////////////////////////////////////////
-    
-  inline void SiDetectorElement::invalidate()
-  {
-    m_cacheValid = false;
-  }
-
-  inline void SiDetectorElement::setCache()
-  {
-    updateCache();
-  }
 
   inline void SiDetectorElement::setNextInEta(const SiDetectorElement* element)
   {
@@ -71,242 +61,15 @@ namespace InDetDD {
   {
     return m_otherSide;
   }
-    
-  inline const SiCommonItems* SiDetectorElement::getCommonItems() const
-  {
-    return m_commonItems;
-  }
-
-  inline Identifier SiDetectorElement::identify() const
-  {
-    return m_id;
-  }
-
-  inline IdentifierHash SiDetectorElement::identifyHash() const
-  {
-    return m_idHash;
-  }
-
-  inline const AtlasDetectorID* SiDetectorElement::getIdHelper() const
-  {
-    return m_commonItems->getIdHelper();
-  }
 
   inline bool SiDetectorElement::isEndcap() const
   {
     return (!isBarrel() && !isDBM());
   }
-
-  inline const Trk::Surface& SiDetectorElement::surface(const Identifier&) const
-  {
-    return surface();
-  }
-
-  inline const Amg::Transform3D& SiDetectorElement::transform(const Identifier&) const
-  {
-    return transform();
-  }
-
-  inline double SiDetectorElement::hitDepthDirection() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return (m_depthDirection) ? 1. : -1.;
-  }
-    
-  inline double SiDetectorElement::hitPhiDirection() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return (m_phiDirection) ? 1. : -1.;
-  }
-    
-  inline double SiDetectorElement::hitEtaDirection() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return (m_etaDirection) ? 1. : -1.;
-  }
-    
-  inline const Amg::Vector3D& SiDetectorElement::normal(const Identifier&) const
-  {
-    return normal();
-  }
-
-  inline const Amg::Vector3D& SiDetectorElement::center(const Identifier&) const
-  {
-    return center();
-  }
-
-  inline HepGeom::Point3D<double> SiDetectorElement::globalPositionHit(const HepGeom::Point3D<double>& simulationLocalPos) const
-  {
-    return Amg::EigenTransformToCLHEP(transformHit())*simulationLocalPos;
-  }
-
-  inline Amg::Vector3D SiDetectorElement::globalPositionHit(const Amg::Vector3D& simulationLocalPos) const
-  {
-    return transformHit() * simulationLocalPos;
-  }
-
-  inline HepGeom::Point3D<double> SiDetectorElement::globalPosition(const HepGeom::Point3D<double>& localPos) const
-  {
-    return transformCLHEP() * localPos;
-  }
-    
-  inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector3D& localPos) const
-  {
-    return transform() * localPos;
-  }
-    
-  inline HepGeom::Point3D<double> SiDetectorElement::globalPositionCLHEP(const Amg::Vector2D& localPos) const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_centerCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
-  }
-
-  inline Amg::Vector3D SiDetectorElement::globalPosition(const Amg::Vector2D& localPos) const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_center + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
-  }
-
-  inline Amg::Vector2D SiDetectorElement::localPosition(const HepGeom::Point3D<double>& globalPosition) const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    HepGeom::Vector3D<double> relativePos = globalPosition - m_centerCLHEP;
-    return Amg::Vector2D(relativePos.dot(m_phiAxisCLHEP), relativePos.dot(m_etaAxisCLHEP));
-  }
-
-  inline Amg::Vector2D SiDetectorElement::localPosition(const Amg::Vector3D& globalPosition) const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    Amg::Vector3D relativePos = globalPosition - m_center;
-    return Amg::Vector2D(relativePos.dot(m_phiAxis), relativePos.dot(m_etaAxis));
-  }
-
-  inline double SiDetectorElement::rMin() const 
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_minR;
-  }
-    
-  inline double SiDetectorElement::rMax() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_maxR;
-  }
-    
-  inline double SiDetectorElement::zMin() const 
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_minZ;
-  }
-    
-  inline double SiDetectorElement::zMax() const 
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_maxZ;
-  }
-    
-  inline double SiDetectorElement::phiMin() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_minPhi;
-  }
-    
-  inline double SiDetectorElement::phiMax() const
-  {
-    if (!m_cacheValid) {
-      std::lock_guard<std::mutex> lock(m_mutex);
-      if (!m_cacheValid) updateCache();
-    }
-
-    return m_maxPhi;
-  }
     
   inline const SiDetectorDesign& SiDetectorElement::design() const
   {
     return *m_design;
-  }
-    
-  inline const Trk::SurfaceBounds& SiDetectorElement::bounds(const Identifier&) const
-  {
-    return bounds();
-  }
-
-  inline double SiDetectorElement::width() const
-  {
-    return m_design->width();
-  }
-    
-  inline double SiDetectorElement::minWidth() const
-  {
-    return m_design->minWidth();
-  }
-    
-  inline double SiDetectorElement::maxWidth() const
-  {
-    return m_design->maxWidth();
-  }
-    
-  inline double SiDetectorElement::length() const
-  {
-    return m_design->length();
-  }
-    
-  inline double SiDetectorElement::thickness() const
-  {
-    return m_design->thickness();
-  }
-    
-  inline double SiDetectorElement::etaPitch() const
-  {
-    return m_design->etaPitch();
   }
     
   inline double SiDetectorElement::phiPitch() const
@@ -348,7 +111,7 @@ namespace InDetDD {
     
   inline SiCellId SiDetectorElement::gangedCell(const SiCellId& cellId) const
   {
-    return m_design->gangedCell(cellId);
+    return  m_design->gangedCell(cellId);
   }
     
   inline MsgStream& SiDetectorElement::msg(MSG::Level lvl) const
@@ -360,5 +123,7 @@ namespace InDetDD {
   {
     return m_commonItems->msgLvl(lvl);
   }
+
+
 
 } // namespace InDetDD

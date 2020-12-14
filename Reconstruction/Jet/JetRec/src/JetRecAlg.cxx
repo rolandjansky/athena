@@ -17,7 +17,13 @@ using std::string;
 
 StatusCode JetRecAlg::initialize() {
 
+  ATH_CHECK(m_output.initialize());
+
   ATH_CHECK(m_jetprovider.retrieve());
+  // Some providers (e.g. copy) need the output WriteHandle
+  // to be provided during initialisation
+  ATH_CHECK(m_jetprovider->initWithOutput(m_output));
+
   ATH_MSG_INFO(" Initialized  IJetProvider : "<< m_jetprovider->name());
   
   ATH_MSG_INFO(" Initialize .... List of modifiers: ");
@@ -26,7 +32,6 @@ StatusCode JetRecAlg::initialize() {
     ATH_MSG_INFO("    --> : "<< t->name());
   }
 
-  ATH_CHECK(m_output.initialize());
   return StatusCode::SUCCESS;
 }
 

@@ -13,9 +13,9 @@
 // Det Descr
 #include "Identifier/Identifier.h"
 
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 

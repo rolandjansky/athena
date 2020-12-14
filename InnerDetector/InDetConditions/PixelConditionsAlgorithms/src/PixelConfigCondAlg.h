@@ -12,6 +12,7 @@
 #define PIXELCONFIGCONDALG
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "StoreGate/ReadCondHandleKey.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -87,7 +88,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //
     // MC Project:               RUN1            RUN2 mc16a            RUN2 mc16d            RUN2 mc16e 
     //  Year:                  - 2014             2015/2016                  2017                  2018
-    //  Run Number:           <222222                284500                300000                310000
+    // MC Run Number:         <222222                284500                300000                310000
+    // Reference run#:            ---                303638                336506                357193
+    // Luminosity(fb-1):                               17.3                  69.0                 119.4
     //                                 
     // Barrel:                             
     //  ToT:         [   3,   3,   3] [  -1,   5,   5,   5] [  -1,   5,   5,   5] [  -1,   3,   5,   5]
@@ -99,7 +102,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  NoiseOcc.:   [5e-8,5e-8,5e-8] [5e-8,5e-8,5e-8,5e-8] [5e-8,5e-8,5e-8,5e-8] [5e-8,5e-8,5e-8,5e-8]
     //  DisalbePix:  [9e-3,9e-3,9e-3] [9e-3,9e-3,9e-3,9e-3] [9e-3,9e-3,9e-3,9e-3] [9e-3,9e-3,9e-3,9e-3]
     //  NoiseShape:  [2018,2018,2018] [2018,2018,2018,2018] [2018,2018,2018,2018] [2018,2018,2018,2018]
-    //                                     
+    //  BiasVoltage: [ 150, 150, 150] [  80, 350, 200, 150] [ 350, 350, 200, 150] [ 400, 400, 250, 250]
+    //  Fluence(e14):[1.01,0.44,0.30] [0.80,1.61,0.71,0.48] [3.18,3.42,1.50,1.01] [5.50,5.19,2.28,1.53]
+    //
     // Endcap:                             
     //  ToT:         [   3,   3,   3]      [   5,   5,   5]      [   5,   5,   5]      [   5,   5,   5]
     //  Latency:     [ 256, 256, 256]      [ 256, 256, 256]      [ 256, 256, 256]      [ 256, 256, 256]
@@ -110,12 +115,15 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  NoiseOcc.:   [5e-8,5e-8,5e-8]      [5e-8,5e-8,5e-8]      [5e-8,5e-8,5e-8]      [5e-8,5e-8,5e-8]
     //  DisalbePix:  [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]
     //  NoiseShape:  [2018,2018,2018]      [2018,2018,2018]      [2018,2018,2018]      [2018,2018,2018]
-    //                                
+    //  BiasVoltage: [ 150, 150, 150]      [ 150, 150, 150]      [ 150, 150, 150]      [ 250, 250, 250]
+    //  Fluence(e14):[ n/a, n/a, n/a]      [ n/a, n/a, n/a]      [ n/a, n/a, n/a]      [ n/a, n/a, n/a]
+    //
     // DBM:                           
     //  ToT:                    [N/A]      [  -1,  -1,  -1]      [  -1,  -1,  -1]      [  -1,  -1,  -1]
     //  CrossTalk:              [N/A]      [0.06,0.06,0.06]      [0.06,0.06,0.06]      [0.06,0.06,0.06]
     //  NoiseOcc.:              [N/A]      [5e-8,5e-8,5e-8]      [5e-8,5e-8,5e-8]      [5e-8,5e-8,5e-8]
     //  DisalbePix:             [N/A]      [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]      [9e-3,9e-3,9e-3]
+    //  BiasVoltage:            [N/A]      [ 500, 500, 500]      [ 500, 500, 500]      [ 500, 500, 500]
     //
     // See  https://twiki.cern.ch/twiki/bin/view/Atlas/PixelConditionsRUN2
     // for further details.
@@ -133,6 +141,8 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  NoiseOcc.:   [5e-8,5e-8,5e-8,5e-8,5e-8]
     //  DisalbePix:  [9e-3,9e-3,9e-3,9e-3,9e-3]
     //  NoiseShape:  [2018,2018,2018,2018,2018]
+    //  BiasVoltage: [ 150, 150, 150, 150, 150]
+    //  Fluence(e14):[ 0.0, 0.0, 0.0, 0.0, 0.0]
     //                               
     // Endcap:                       
     //  ToT:         [   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3,   3]
@@ -140,14 +150,28 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     //  NoiseOcc.:   [5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8,5e-8]
     //  DisalbePix:  [9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3]
     //  NoiseShape:  [2018,2018,2018,2018,2018,2018,2018,2018,2018,2018,2018,2018,2018,2018]
+    //  BiasVoltage: [ 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150]
+    //  Fluence(e14):[ n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a, n/a]
     //
     //====================================================================================
 
-    // Variable definition is a bit ugly here...
     //====================================================================================
     // Barrel RUN2 2015/2016
     Gaudi::Property<std::vector<int>> m_BarrelToTThreshold2016
     {this, "BarrelToTThreshold2016", {-1, 5, 5, 5}, "ToT thresholds for barrel pixel layers in 2015/2016"};
+
+    Gaudi::Property<std::vector<float>> m_BarrelBiasVoltage2016
+    {this, "DefaultBarrelBiasVoltage2016", {80.0,350.0,200.0,150.0}, "Default barrel bias voltage in 2015/2016"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelFluence2016
+    {this, "BarrelFluence2016", {0.80e14, 1.61e14, 0.71e14, 0.48e14}, "Barrel fluence for radiation damage in 2016"};
+
+    Gaudi::Property<std::vector<std::string>> m_BarrelFluenceMap2016
+    {this, "BarrelFluenceMap2016", {"PixelDigitization/maps_IBL_PL_80V_fl0_8e14.root",
+                                    "PixelDigitization/maps_PIX_350V_fl1_61e14.root",
+                                    "PixelDigitization/maps_PIX_200V_fl0_71e14.root",
+                                    "PixelDigitization/maps_PIX_150V_fl0_48e14.root"},
+                                    "Barrel fluence map for radiation damage in 2016"};
 
     Gaudi::Property<std::vector<int>> m_FEI3BarrelLatency2016
     {this, "FEI3BarrelLatency2016", {  0,151,256,256}, "FEI3 latency for barrel pixel layers in 2015/2016"};
@@ -191,6 +215,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_EndcapToTThreshold2016
     {this, "EndcapToTThreshold2016", { 5, 5, 5}, "ToT thresholds for endcap pixel layers in 2015/2016"};
 
+    Gaudi::Property<std::vector<float>> m_EndcapBiasVoltage2016
+    {this, "DefaultEndcapBiasVoltage2016", {150.0,150.0,150.0}, "Default endcap bias voltage in 2015/2016"};
+
     Gaudi::Property<std::vector<int>> m_FEI3EndcapLatency2016
     {this, "FEI3EndcapLatency2016", {256,256,256}, "FEI3 latency for endcap pixel layers in 2015/2016"};
 
@@ -219,6 +246,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2016
     {this, "DBMToTThreshold2016", {-1,-1,-1}, "ToT thresholds for DBM layers in 2015/2016"};
 
+    Gaudi::Property<std::vector<float>> m_DBMBiasVoltage2016
+    {this, "DefaultDBMBiasVoltage2016", {500.0,500.0,500.0}, "Default DBM bias voltage in 2015/2016"};
+
     Gaudi::Property<std::vector<double>> m_DBMCrossTalk2016
     {this, "DBMCrossTalk2016", {0.06,0.06,0.06}, "Cross-talk fraction of barrel DBM layers in 2015/2016"};
 
@@ -232,6 +262,19 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     // Barrel RUN2 2017
     Gaudi::Property<std::vector<int>> m_BarrelToTThreshold2017
     {this, "BarrelToTThreshold2017", {-1, 5, 5, 5}, "ToT thresholds for barrel pixel layers in 2017"};
+
+    Gaudi::Property<std::vector<float>> m_BarrelBiasVoltage2017
+    {this, "DefaultBarrelBiasVoltage2017", {350.0,350.0,200.0,150.0}, "Default barrel bias voltage in 2017"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelFluence2017
+    {this, "BarrelFluence2017", {3.18e14, 3.42e14, 1.50e14, 1.01e14}, "Barrel fluence for radiation damage in 2017"};
+
+    Gaudi::Property<std::vector<std::string>> m_BarrelFluenceMap2017
+    {this, "BarrelFluenceMap2017", {"PixelDigitization/maps_IBL_PL_350V_fl3_18e14.root",
+                                    "PixelDigitization/maps_PIX_350V_fl3_42e14.root",
+                                    "PixelDigitization/maps_PIX_200V_fl1_5e14.root",
+                                    "PixelDigitization/maps_PIX_150V_fl1_01e14.root"},
+                                    "Barrel fluence map for radiation damage in 2017"};
 
     Gaudi::Property<std::vector<int>> m_FEI3BarrelLatency2017
     {this, "FEI3BarrelLatency2017", {  0,151,256,256}, "FEI3 latency for barrel pixel layers in 2017"};
@@ -271,6 +314,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_EndcapToTThreshold2017
     {this, "EndcapToTThreshold2017", { 5, 5, 5}, "ToT thresholds for endcap pixel layers in 2017"};
 
+    Gaudi::Property<std::vector<float>> m_EndcapBiasVoltage2017
+    {this, "DefaultEndcapBiasVoltage2017", {150.0,150.0,150.0}, "Default endcap bias voltage in 2017"};
+
     Gaudi::Property<std::vector<int>> m_FEI3EndcapLatency2017
     {this, "FEI3EndcapLatency2017", {256,256,256}, "FEI3 latency for endcap pixel layers in 2017"};
 
@@ -299,6 +345,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2017
     {this, "DBMToTThreshold2017", {-1,-1,-1}, "ToT thresholds for DBM layers in 2017"};
 
+    Gaudi::Property<std::vector<float>> m_DBMBiasVoltage2017
+    {this, "DefaultDBMBiasVoltage2017", {500.0,500.0,500.0}, "Default DBM bias voltage in 2017"};
+
     Gaudi::Property<std::vector<double>> m_DBMCrossTalk2017
     {this, "DBMCrossTalk2017", {0.06,0.06,0.06}, "Cross-talk fraction of barrel DBM layers in 2017"};
 
@@ -312,6 +361,19 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     // Barrel RUN2 2018
     Gaudi::Property<std::vector<int>> m_BarrelToTThreshold2018
     {this, "BarrelToTThreshold2018", {-1, 3, 5, 5}, "ToT thresholds for barrel pixel layers in 2018"};
+
+    Gaudi::Property<std::vector<float>> m_BarrelBiasVoltage2018
+    {this, "DefaultBarrelBiasVoltage2018", {400.0,400.0,250.0,250.0}, "Default barrel bias voltage in 2018"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelFluence2018
+    {this, "BarrelFluence2018", {5.50e14, 5.19e14, 2.28e14, 1.53e14}, "Barrel fluence for radiation damage in 2018"};
+
+    Gaudi::Property<std::vector<std::string>> m_BarrelFluenceMap2018
+    {this, "BarrelFluenceMap2018", {"PixelDigitization/maps_IBL_PL_400V_fl5_5e14.root",
+                                    "PixelDigitization/maps_PIX_400V_fl5_19e14.root",
+                                    "PixelDigitization/maps_PIX_250V_fl2_28e14.root",
+                                    "PixelDigitization/maps_PIX_250V_fl1_53e14.root"},
+                                    "Barrel fluence map for radiation damage in 2018"};
 
     Gaudi::Property<std::vector<int>> m_FEI3BarrelLatency2018
     {this, "FEI3BarrelLatency2018", {  0,151,256,256}, "FEI3 latency for barrel pixel layers in 2018"};
@@ -351,6 +413,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_EndcapToTThreshold2018
     {this, "EndcapToTThreshold2018", { 5, 5, 5}, "ToT thresholds for endcap pixel layers in 2018"};
 
+    Gaudi::Property<std::vector<float>> m_EndcapBiasVoltage2018
+    {this, "DefaultEndcapBiasVoltage2018", {250.0,250.0,250.0}, "Default endcap bias voltage in 2018"};
+
     Gaudi::Property<std::vector<int>> m_FEI3EndcapLatency2018
     {this, "FEI3EndcapLatency2018", {256,256,256}, "FEI3 latency for endcap pixel layers in 2018"};
 
@@ -379,6 +444,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2018
     {this, "DBMToTThreshold2018", {-1,-1,-1}, "ToT thresholds for DBM layers in 2018"};
 
+    Gaudi::Property<std::vector<float>> m_DBMBiasVoltage2018
+    {this, "DefaultDBMBiasVoltage2018", {500.0,500.0,500.0}, "Default DBM bias voltage in 2018"};
+
     Gaudi::Property<std::vector<double>> m_DBMCrossTalk2018
     {this, "DBMCrossTalk2018", {0.06,0.06,0.06}, "Cross-talk fraction of barrel DBM layers in 2018"};
 
@@ -392,6 +460,18 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     // Barrel RUN1
     Gaudi::Property<std::vector<int>> m_BarrelToTThresholdRUN1
     {this, "BarrelToTThresholdRUN1", {3, 3, 3}, "ToT thresholds for barrel pixel layers in RUN1"};
+
+    Gaudi::Property<std::vector<float>> m_BarrelBiasVoltageRUN1
+    {this, "DefaultBarrelBiasVoltageRUN1", {150.0,150.0,150.0}, "Default barrel bias voltage in RUN1"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelFluenceRUN1
+    {this, "BarrelFluenceRUN1", {1.01e14, 0.44e14, 0.30e14}, "Barrel fluence for radiation damage in RUN1"};
+
+    Gaudi::Property<std::vector<std::string>> m_BarrelFluenceMapRUN1
+    {this, "BarrelFluenceMapRUN1", {"PixelDigitization/maps_PIX_150V_fl1_01e14.root",   // this needs to be updated
+                                    "PixelDigitization/maps_PIX_150V_fl0_44e14.root",
+                                    "PixelDigitization/maps_PIX_150V_fl0_3e14.root"},
+                                    "Barrel fluence map for radiation damage in RUN1"};
 
     Gaudi::Property<std::vector<int>> m_FEI3BarrelLatencyRUN1
     {this, "FEI3BarrelLatencyRUN1", {256,256,256}, "FEI3 latency for barrel pixel layers in RUN1"};
@@ -428,6 +508,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_EndcapToTThresholdRUN1
     {this, "EndcapToTThresholdRUN1", { 3, 3, 3}, "ToT thresholds for endcap pixel layers in RUN1"};
 
+    Gaudi::Property<std::vector<float>> m_EndcapBiasVoltageRUN1
+    {this, "DefaultEndcapBiasVoltageRUN1", {150.0,150.0,150.0}, "Default endcap bias voltage in RUN1"};
+
     Gaudi::Property<std::vector<int>> m_FEI3EndcapLatencyRUN1
     {this, "FEI3EndcapLatencyRUN1", {256,256,256}, "FEI3 latency for endcap pixel layers in RUN1"};
 
@@ -457,6 +540,20 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<int>> m_BarrelToTThresholdITK
     {this, "BarrelToTThresholdITK", {3,3,3,3,3}, "ToT thresholds for barrel pixel layers in ITK"};
 
+    Gaudi::Property<std::vector<float>> m_BarrelBiasVoltageITK
+    {this, "DefaultBarrelBiasVoltageITK", {150.0,150.0,150.0,150.0,150.0}, "Default barrel bias voltage in ITK"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelFluenceITK
+    {this, "BarrelFluenceITK", {0.0e14, 0.0e14, 0.0e14, 0.0e14, 0.0e14}, "Barrel fluence for radiation damage in ITK"};
+
+    Gaudi::Property<std::vector<std::string>> m_BarrelFluenceMapITK
+    {this, "BarrelFluenceMapITK", {"PixelDigitization/maps_IBL_PL_80V_fl0e14.root",   // this needs to be updated
+                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"},
+                                   "Barrel fluence map for radiation damage in ITK"};
+
     Gaudi::Property<std::vector<double>> m_BarrelCrossTalkITK
     {this, "BarrelCrossTalkITK", {0.06,0.06,0.06,0.06,0.06}, "Cross-talk fraction of barrel pixel layers in ITK"};
 
@@ -482,6 +579,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     // Endcap ITK
     Gaudi::Property<std::vector<int>> m_EndcapToTThresholdITK
     {this, "EndcapToTThresholdITK", {3,3,3,3,3,3,3,3,3,3,3,3,3,3}, "ToT thresholds for endcap pixel layers in ITK"};
+
+    Gaudi::Property<std::vector<float>> m_EndcapBiasVoltageITK
+    {this, "DefaultEndcapBiasVoltageITK", {150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0}, "Default endcap bias voltage in ITK"};
 
     Gaudi::Property<std::vector<double>> m_EndcapCrossTalkITK
     {this, "EndcapCrossTalkITK", {0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06,0.06}, "Cross-talk fraction of barrel endcap layers in ITK"};

@@ -1080,12 +1080,12 @@ std::pair<EventIDRange, const Trk::TrackingGeometry*> Calo::CaloTrackingGeometry
    // the Tile Crack volume (TileGap3, enum 17) inserted here
    // binned material for Crack : steering in binEta
    // TODO turn into 2D binned array
-   std::vector<const Trk::IdentifiedMaterial*> matCrack;
+   std::vector<Trk::IdentifiedMaterial> matCrack;
    // layer material can be adjusted here
    int baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 17;
-   matCrack.push_back(new std::pair<const Trk::Material*,int>(mScint,baseID));
-   matCrack.push_back(new std::pair<const Trk::Material*,int>(m_caloMaterial,-1));
-   matCrack.push_back(new std::pair<const Trk::Material*,int>(mAl,-1));
+   matCrack.emplace_back(mScint,baseID);
+   matCrack.emplace_back(m_caloMaterial,-1);
+   matCrack.emplace_back(mAl,-1);
    //
    Trk::BinUtility* bun = new Trk::BinUtility(3,-1.8,-1.2,Trk::open,Trk::binEta);
    Trk::BinUtility* bup = new Trk::BinUtility(3, 1.2,1.8,Trk::open,Trk::binEta);

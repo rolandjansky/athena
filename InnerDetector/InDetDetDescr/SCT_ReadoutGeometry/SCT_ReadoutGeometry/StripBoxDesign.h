@@ -13,7 +13,7 @@
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 
 #include "GeoModelKernel/GeoDefinitions.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "TrkSurfaces/RectangleBounds.h"
 
 #include "CLHEP/Geometry/Vector3D.h" // For unused phiMeasureSegment

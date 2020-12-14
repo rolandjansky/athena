@@ -47,6 +47,8 @@ namespace MuonCombined {
       void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
 		    TrackCollection* combTracks, TrackCollection* METracks) const override;
 
+    void cleanUp() const override;
+
   private:
 
     Trk::Track* buildCombinedTrack(const Trk::Track& indetTrack,					     

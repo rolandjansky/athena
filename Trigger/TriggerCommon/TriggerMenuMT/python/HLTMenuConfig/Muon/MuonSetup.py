@@ -490,7 +490,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
 
   return muFastRecoSequence, sequenceOut
 
-def muonIDFastTrackingSequence( RoIs, name, extraLoads=None ):
+def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, doLRT=False ):
 
   from AthenaCommon.CFElements import parOR
 
@@ -517,11 +517,11 @@ def muonIDFastTrackingSequence( RoIs, name, extraLoads=None ):
 def muCombRecoSequence( RoIs, name ):
 
   from AthenaCommon.CFElements import parOR
-  muCombRecoSequence = parOR("l2muCombViewNode")
+  muCombRecoSequence = parOR("l2muCombViewNode_"+name)
   ### A simple algorithm to confirm that data has been inherited from parent view ###
   ### Required to satisfy data dependencies                                       ###
   import AthenaCommon.CfgMgr as CfgMgr
-  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier")
+  ViewVerify = CfgMgr.AthViews__ViewDataVerifier("muFastViewDataVerifier_"+name)
   ViewVerify.DataObjects = [('xAOD::L2StandAloneMuonContainer','StoreGateSvc+%s' % muNames.L2SAName)]
 
   muCombRecoSequence+=ViewVerify
@@ -529,9 +529,12 @@ def muCombRecoSequence( RoIs, name ):
   ### please read out TrigmuCombMTConfig file ###
   ### and set up to run muCombMT algorithm    ###
   from TrigmuComb.TrigmuCombMTConfig import TrigmuCombMTConfig
-  muCombAlg = TrigmuCombMTConfig("Muon", name)
+  muCombAlg = TrigmuCombMTConfig("Muon",name)
   muCombAlg.L2StandAloneMuonContainerName = muNames.L2SAName
-  muCombAlg.TrackParticlesContainerName = TrackParticlesName
+  if ("LRT" in name):
+    muCombAlg.TrackParticlesContainerName = recordable("HLT_IDTrack_MuonLRT_FTF") ### TODO This should be set correctly elsewhere - see also note about TrackParticlesName at start of file.
+  else:
+    muCombAlg.TrackParticlesContainerName = TrackParticlesName
   muCombAlg.L2CombinedMuonContainerName = muNames.L2CBName
 
   muCombRecoSequence += muCombAlg
@@ -668,6 +671,7 @@ def muEFSARecoSequence( RoIs, name ):
 
 
 def muEFCBRecoSequence( RoIs, name ):
+
 
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
