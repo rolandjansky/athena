@@ -11,7 +11,7 @@ def mkGetOpenLoopsJob(options):
 
     # check availability of OL libs in /cvmfs and warn user
     if not options.OLskipcvmfs:
-        cvmfsInstalledOpenLoopsLibs = glob.glob("/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/proclib/*.so")
+        cvmfsInstalledOpenLoopsLibs = glob.glob("/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-centos7-gcc62-opt/proclib/*.so")
         if not any(not any(x in fil for fil in cvmfsInstalledOpenLoopsLibs) for x in options.Sherpa_i.OpenLoopsLibs):
             print("You requested the inclusion of OpenLoops libs in the tarball (genSeq.Sherpa_i.OpenLoopsLibs), but all of them are available centrally in /cvmfs. Will continue without including them in the tarball, and you can remove the genSeq.Sherpa_i.OpenLoopsLibs line from your JO.")
             return None
@@ -171,13 +171,13 @@ def mkIntegrateJob(options, ecm, prevJob):
             job.cmds += ["sed '/.*\}(run).*/i\ \ "+s+"' -i Run.dat"]
 
     if not options.sherpaInstallPath:
-        options.sherpaInstallPath = "/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/sherpa/${SHERPAVER}.openmpi3/x86_64-slc6-gcc62-opt"
+        options.sherpaInstallPath = "/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/sherpa/${SHERPAVER}.openmpi3/x86_64-centos7-gcc62-opt"
 
-    job.cmds += ["source /cvmfs/sft.cern.ch/lcg/releases/LCG_88/gcc/6.2.0/x86_64-slc6/setup.sh"]
-    job.cmds += ["export PATH=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-slc6-gcc62-opt/bin:$PATH"]
+    job.cmds += ["source /cvmfs/sft.cern.ch/lcg/releases/LCG_88/gcc/6.2.0/x86_64-centos7/setup.sh"]
+    job.cmds += ["export PATH=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-centos7-gcc62-opt/bin:$PATH"]
     job.cmds += ["export LHAPATH=/cvmfs/sft.cern.ch/lcg/external/lhapdfsets/current:/cvmfs/atlas.cern.ch/repo/sw/Generators/lhapdfsets/current/"]
-    job.cmds += ["export OPAL_PREFIX=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-slc6-gcc62-opt"]
-    job.cmds += ["export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-slc6-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/sqlite/3110100/x86_64-slc6-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/HepMC/2.06.11/x86_64-slc6-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/lhapdf/6.2.3/x86_64-slc6-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/fastjet/3.2.0/x86_64-slc6-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-slc6-gcc62-opt/proclib:"+options.sherpaInstallPath+"/lib/SHERPA-MC:$LD_LIBRARY_PATH"]
+    job.cmds += ["export OPAL_PREFIX=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-centos7-gcc62-opt"]
+    job.cmds += ["export LD_LIBRARY_PATH=/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/openmpi/3.1.0/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/sqlite/3110100/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/HepMC/2.06.11/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/lhapdf/6.2.3/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/fastjet/3.2.0/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-centos7-gcc62-opt/lib:/cvmfs/sft.cern.ch/lcg/releases/LCG_88b/MCGenerators/openloops/2.0.0/x86_64-centos7-gcc62-opt/proclib:"+options.sherpaInstallPath+"/lib/SHERPA-MC:$LD_LIBRARY_PATH"]
 
     job.cmds += ["mpirun -n {0} ".format(str(targetCores))+options.sherpaInstallPath+"/bin/Sherpa EVENTS=0 FRAGMENTATION=Off MI_HANDLER=None BEAM_ENERGY_1="+str(ecm/2.*1000)+" BEAM_ENERGY_2="+str(ecm/2.*1000)]
 

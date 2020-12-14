@@ -29,7 +29,7 @@ class batchJobBase:
       executable += '  exec singularity exec -e --no-home'
       for dir in ["/cvmfs", "/var", self.basedir, "$(pwd | cut -d '/' -f 1-2)"] + extraDirs:
         executable += ' -B '+dir
-      executable += ' /cvmfs/atlas.cern.ch/repo/containers/fs/singularity/x86_64-centos6 /bin/bash -- "$0" --really "$@";\n'
+      executable += ' /cvmfs/atlas.cern.ch/repo/containers/fs/singularity/x86_64-centos7 /bin/bash -- "$0" --really "$@";\n'
       executable += 'fi\n'
       executable += "shift;\n\n"
       executable += "export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase\n"
