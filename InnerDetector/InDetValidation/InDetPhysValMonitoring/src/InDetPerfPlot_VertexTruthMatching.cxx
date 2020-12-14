@@ -352,6 +352,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
         const xAOD::Vertex* bestRecoHSVtx_sumpt2 = getHSRecoVertexSumPt2(vertexContainer); // Could potentially use the first vertex in the container if sumpt2-ordered
         // Best reco HS vertex identified via truth HS weights
         const xAOD::Vertex* bestRecoHSVtx_truth = InDetVertexTruthMatchUtils::bestHardScatterMatch(vertexContainer);
+        if (!bestRecoHSVtx_truth){
+            ATH_MSG_INFO("No bestRecoHS vertex - not filling vertex truth matching.");
+            return;
+        }
 
         // Did we correctly select the best reco HS vertex using sumpt2?
         truthVtx = getTruthVertex(bestRecoHSVtx_sumpt2);
