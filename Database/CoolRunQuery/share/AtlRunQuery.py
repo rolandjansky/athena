@@ -15,7 +15,7 @@ def main():
     arguments = sys.argv
 
     if len(arguments) <= 1:
-        print 'No query argument given'
+        print('No query argument given')
         return 1
 
     fileindex = None
@@ -70,13 +70,13 @@ def main():
         atlqueryarg = arguments[0].rsplit('/',1)[-1] + " " + ap.ParseArgument( ' '.join(arguments[1:]) )
 
         if '--verbose' in atlqueryarg:
-            print atlqueryarg
+            print(atlqueryarg)
 
         (options, args) = AtlRunQueryOptions().parse(atlqueryarg)
 
 
     from CoolRunQuery.AtlRunQueryLib import AtlRunQuery
-    print "Data path %s" % datapath
+    print("Data path %s" % datapath)
     AtlRunQuery(options, html="AUTO", origQuery=origQuery, datapath=datapath, parsedstring=atlqueryarg)  # html can be "YES", "NO", "AUTO"
     return 0
 

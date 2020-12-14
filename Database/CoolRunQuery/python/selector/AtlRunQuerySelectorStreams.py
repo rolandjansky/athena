@@ -12,7 +12,7 @@ from time import time
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn
 from CoolRunQuery.AtlRunQueryRun import Run
-from .AtlRunQuerySelectorBase import Selector, DataKey
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector, DataKey
 
 
 class StreamSelector(Selector):
@@ -212,11 +212,12 @@ class StreamSelector(Selector):
             for k,v,s in zip(streams,strevents,strsize):
                 run.addResult('STR:'+k, (v,s))
 
-        def cmp(a, b):
-            return (a > b) - (a < b)
         allStreams = ['STR:'+s for s in allStreams]
-        allStreams.sort(lambda x,y: 2*cmp(y[4],x[4]) + cmp(x[5:],y[5:]))
 
+        ### this should work as sort is "order safe"
+        allStreams.sort(key = lambda x: (x[5:]) )
+        allStreams.sort(key = lambda x: (x[4]), reverse=True )
+   
         # fill the gaps
         for run in runlist:
             for s in allStreams:
