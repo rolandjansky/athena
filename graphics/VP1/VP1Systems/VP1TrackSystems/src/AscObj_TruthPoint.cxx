@@ -36,18 +36,18 @@
 //____________________________________________________________________
 class AscObj_TruthPoint::Imp {
 public:
-  Imp(const HepMC::GenVertex * v, const HepMC::GenParticle * p)
-    : genVertex(v), genParticle(p), simhit(0) {}
+  Imp(HepMC::ConstGenVertexPtr  v, HepMC::ConstGenParticlePtr p)
+    : genVertex(v), genParticle(p), simhit(nullptr) {}
   Imp(SimHitHandleBase*s)
-    : genVertex(0), genParticle(0), simhit(s) {}
-  const HepMC::GenVertex * genVertex;
-  const HepMC::GenParticle * genParticle;
+    : genVertex(nullptr), genParticle(nullptr), simhit(s) {}
+  HepMC::ConstGenVertexPtr genVertex;
+  HepMC::ConstGenParticlePtr genParticle;
   SimHitHandleBase * simhit;
 };
 
 
 //____________________________________________________________________
-AscObj_TruthPoint::AscObj_TruthPoint(TrackHandleBase*th, const HepMC::GenVertex * v, const HepMC::GenParticle * p)
+AscObj_TruthPoint::AscObj_TruthPoint(TrackHandleBase*th, HepMC::ConstGenVertexPtr v, HepMC::ConstGenParticlePtr p)
   : AssociatedObjectHandleBase(th), m_d(new Imp(v,p))
 {
 }
