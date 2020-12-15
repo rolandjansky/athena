@@ -51,13 +51,13 @@ public:
 					    ParticleHypothesis		  particleHypothesis,
 					    FitParameters&		  fitParameters,
                                             Garbage_t&                    garbage) const = 0;
-    
+
     /**IMaterialAllocator interface: allocate material */
-    virtual void	allocateMaterial (std::vector<FitMeasurement*>&	measurements,
-					  ParticleHypothesis		particleHypothesis,
-					  const FitParameters&		fitParameters,
-					  const TrackParameters&	startParameters,
-                                          Garbage_t&                    garbage) const = 0;
+    virtual void allocateMaterial(std::vector<FitMeasurement*>& measurements,
+                                  ParticleHypothesis particleHypothesis,
+                                  FitParameters& fitParameters,
+                                  const TrackParameters& startParameters,
+                                  Garbage_t& garbage) const = 0;
 
     /**IMaterialAllocator interface: initialize scattering (needs to know X0 integral) */
     virtual void	initializeScattering (std::vector<FitMeasurement*>& measurements) const = 0;
@@ -72,12 +72,11 @@ public:
     virtual void	orderMeasurements (std::vector<FitMeasurement*>& measurements,
 					   Amg::Vector3D		 startDirection,
 					   Amg::Vector3D		 startPosition) const = 0;
-    
-    /**IMaterialAllocator interface: has material been reallocated? */   
-    virtual bool	reallocateMaterial (std::vector<FitMeasurement*>& measurements,
-					    const FitParameters&	  fitParameters,
-                                            Garbage_t&                    garbage) const = 0;
 
+    /**IMaterialAllocator interface: has material been reallocated? */
+    virtual bool reallocateMaterial(std::vector<FitMeasurement*>& measurements,
+                                    FitParameters& fitParameters,
+                                    Garbage_t& garbage) const = 0;
 };
  
 }	// end of namespace
