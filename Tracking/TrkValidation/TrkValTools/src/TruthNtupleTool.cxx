@@ -266,7 +266,7 @@ StatusCode Trk::TruthNtupleTool::writeTruthData (
     m_runNumber=evt->runNumber();
     m_eventNumber=evt->eventNumber();
 
-    const HepMC::GenParticle*   genParticle = 0;
+    HepMC::ConstGenParticlePtr   genParticle{nullptr};
     const Trk::TrackParameters* truePerigee = 0;
     for (unsigned int index = 0; index < truthData.size(); index++) {
         genParticle = truthData[index].genParticle;

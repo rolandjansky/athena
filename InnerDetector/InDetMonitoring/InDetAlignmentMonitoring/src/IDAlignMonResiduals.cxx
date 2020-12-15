@@ -935,7 +935,6 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     RegisterHisto(al_mon,m_base_vs_LB_planars);
 
 
-    //std::cout<<"INITIALIZED GENERALHISTOS FOR RESIDUALS"<<std::endl;
     if(msgLvl(MSG::VERBOSE)) msg() << " INITIALIZED GENERALHISTOS FOR RESIDUALS "<< endmsg;
     //PrintIBLGeometry();
     MakePIXBarrelHistograms (al_mon);
@@ -947,11 +946,11 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     MakeTRTHistograms(al_mon);
 
     MakeSiliconHistograms(al_mon);
-    //std::cout<<"INITIALIZED GENERALHISTOS FOR RESIDUALS 2"<<std::endl;
     if(msgLvl(MSG::VERBOSE)) msg() << " INITIALIZED GENERALHISTOS FOR RESIDUALS "<< endmsg;
     ++m_histosBooked;
   }
 
+  ATH_MSG_VERBOSE(" Residual histograms booking COMPLETED");
   return StatusCode::SUCCESS;
 
 }
@@ -1083,13 +1082,13 @@ StatusCode IDAlignMonResiduals::fillHistograms()
   float timeCor = 0.;
   if (not m_comTimeObjectName.key().empty()) {
     SG::ReadHandle<ComTime> theComTime{m_comTimeObjectName};
-    if (not theComTime.isValid()) {
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "ComTime object not found with name " << m_comTimeObjectName.key() << "!!!" << endmsg;
-      //return StatusCode::FAILURE;
+    if (theComTime.isValid()) {
+      ATH_MSG_DEBUG ( "ComTime object found successfully ");
+      timeCor = theComTime->getTime();
     }
     else{
-      if (msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "ComTime object found successfully " << endmsg;
-      timeCor = theComTime->getTime();
+      ATH_MSG_DEBUG ("ComTime object not found with name " << m_comTimeObjectName.key() << "!!!");
+      //return StatusCode::FAILURE;
     }
   }
 
@@ -1098,6 +1097,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
     ATH_MSG_DEBUG ("IDAlignMonResiduals::fillHistograms() -- " << m_tracksName.key() << " could not be retrieved");
     return StatusCode::RECOVERABLE;
   }
+
   const DataVector<Trk::Track>* tracks = m_trackSelection->selectTracks(inputTracks);
   ATH_MSG_DEBUG ("IDAlignMonResiduals::fillHistograms() -- event: " << m_events
 		 << " with Track collection " << m_tracksName.key()
@@ -1107,6 +1107,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
   int nHitsEvent = 0;
 
   for (DataVector<Trk::Track>::const_iterator trackItr  = tracks->begin(); trackItr != tracks->end(); ++trackItr) { //looping over tracks
+    ATH_MSG_DEBUG (" -- looping over track " << nTracks << "/" << tracks->size());
     //need to get the Trk::Track object from which the TrackParticle object was created
     //this has the hit information
     const Trk::Track* track = *trackItr;
@@ -1120,7 +1121,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       ATH_MSG_DEBUG ("** IDAlignMonResiduals::fillHistograms ** Not all TSOS contain track parameters - will be missing residuals/pulls ");
     }
     else {
-      ATH_MSG_DEBUG ("All TSOS of track " << nTracks << " contain track parameters - Good! ");
+      ATH_MSG_DEBUG ("All TSOS of track " << nTracks <<"/" << tracks->size() << " contain track parameters - Good! ");
     }
 
     //trackStateOnSurfaces is a vector of Trk::TrackStateOnSurface objects which contain information
@@ -1148,11 +1149,11 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       int binNumber = m_etapTWeight->FindBin( trketa_w, trkpt );
       hweight       = m_etapTWeight->GetBinContent( binNumber );
     }
-    ATH_MSG_DEBUG ("** IDAlignMonResiduals::fillHistograms() ** track: " << nTracks << " pt: " <<  trkpt << "  eta: " << trketa_w << "   weight: " << hweight);
-
-    //looping over the hits
+    //looping over the hits of this track
+    ATH_MSG_DEBUG ("** track " << nTracks << "/" << tracks->size() 
+		   << " pt: " <<  trkpt << "  eta: " << trketa_w << "   weight: " << hweight
+		   << " ** start looping on hits/TSOS ");
     for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
-
       ++nTSOS;
       if (tsos == NULL) {
 	ATH_MSG_DEBUG ("     TSOS (hit) = " << nTSOS << " is NULL ");
@@ -1208,7 +1209,7 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       if(TrackParCovariance==NULL) {
 	//if no MeasuredTrackParameters the hit will not have associated convariance error matrix and will not
 	//be able to define a pull or unbiased residual (errors needed for propagation)
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Skipping TSOS " << nTSOS << " because does not have MeasuredTrackParameters" << endmsg;
+	ATH_MSG_DEBUG ("Skipping TSOS " << nTSOS << " because does not have MeasuredTrackParameters");
 	continue;
       }
 
@@ -1359,6 +1360,11 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    ATH_MSG_DEBUG("** fillHistograms() ** TRT endcap hit in layer_or_wheel: " <<  layer_or_wheel << "  hitGlobalR: " << hitGlobalR);
 	  }
 	  
+	  ATH_MSG_DEBUG(" fillHistograms() ** filling TRT histos:" 
+			<< "  Barrel/EndCap: " << barrel_ec 
+			<< "  layer/wheel: " << layer_or_wheel
+			<< "  phi: " << phi_module
+			<< "  Residual: " << residualR);
 	  /** filling TRT histograms */
 	  fillTRTHistograms(barrel_ec
 			    ,layer_or_wheel
@@ -1381,7 +1387,6 @@ StatusCode IDAlignMonResiduals::fillHistograms()
       
       //if (detType==0 || detType==1)
       else {//have identified pixel or SCT hit
-	
 	ATH_MSG_DEBUG ("** fillHistograms() ** Hit is pixel or SCT, type: " << detType);
 	if(m_doHitQuality) {
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
@@ -1883,18 +1888,15 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    float xValueForHist = modEta +  mlocalY / m_PixelBarrelYSize;
 	    float yValueForHist = modPhi +  mlocalX / m_PixelBarrelXSize;
 	    
-	    if (false) {
-	      std::cout << " -- filling detailed pixel maps -- layer = " << layerDisk
-			<< "  eta: " << modEta
-			<< "  phi " << modPhi
-			<< "  local (" << mlocalX << " / " << m_PixelBarrelXSize
-			<< ", "        << mlocalY << " / " << m_PixelBarrelYSize << ") "
-			<< "  normalized (" << mlocalY/m_PixelBarrelYSize * m_mapSplit << ", " << mlocalX/m_PixelBarrelXSize * m_mapSplit << ") "
-			<< std::endl;
-	      std::cout << "                                                      "
-			<< " fill (" << xValueForHist << ", " << yValueForHist << ") "
-			<< std::endl;
-	    }
+	    ATH_MSG_VERBOSE (" -- filling detailed pixel maps -- layer = " << layerDisk
+			     << "  eta: " << modEta
+			     << "  phi " << modPhi
+			     << "  local (" << mlocalX << " / " << m_PixelBarrelXSize
+			     << ", "        << mlocalY << " / " << m_PixelBarrelYSize << ") "
+			     << "  normalized (" << mlocalY/m_PixelBarrelYSize * m_mapSplit << ", " << mlocalX/m_PixelBarrelXSize * m_mapSplit << ") ");
+	    ATH_MSG_VERBOSE ( "                                                      "
+			      << " fill (" << xValueForHist << ", " << yValueForHist << ") ");
+
 	    // biased 3d histos turned into detailed 3d histos (for the time being use unbiased residuals)
 	    //m_pix_b_biased_xresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX, residualX, hweight);
 	    //m_pix_b_biased_yresvsmodetaphi_3ds[layerDisk] -> Fill(ModCenterPosX+mlocalY, ModCenterPosY+mlocalX, residualY, hweight);

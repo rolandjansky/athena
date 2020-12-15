@@ -19,7 +19,7 @@ from CoolRunQuery.AtlRunQueryRun         import Run
 from CoolRunQuery.utils.AtlRunQueryUtils import addKommaToNumber, filesize
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-from .AtlRunQueryPageMaker               import PageMaker as PM
+from CoolRunQuery.html.AtlRunQueryPageMaker        import PageMaker as PM
 from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey
 
 

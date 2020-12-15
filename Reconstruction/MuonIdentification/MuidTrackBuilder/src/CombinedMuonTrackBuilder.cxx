@@ -1559,7 +1559,11 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
         // fail as calo incorrectly described
         m_messageHelper->printWarning(12);
         delete track;
-	delete extrapolated;
+	if (track != extrapolated) {
+	  //pointer comparison! 
+	  //With the somewhat complicated code above, 'track' and 'extrapolated' may or may not point to the same object 
+	  delete extrapolated;
+	}
         spectrometerTSOS->clear();
         delete spectrometerTSOS;
 

@@ -1644,7 +1644,6 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   ATH_MSG_DEBUG ("IDAlignMonGenericTracks::fillHistograms() -- event: " << m_events
 		 << " with Track collection " << m_tracksName.key()
 		 << " has size =" << tracks->size());
-
   float xv=-999;
   float yv=-999;
   float zv=-999;
@@ -1652,12 +1651,12 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   if (not m_VxPrimContainerName.key().empty()) {
     SG::ReadHandle<xAOD::VertexContainer> vxContainer{m_VxPrimContainerName};
     if (not vxContainer.isValid()) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name  "<<m_VxPrimContainerName.key()<<" found in StoreGate" << endmsg;
+      ATH_MSG_DEBUG ("No Collection with name  "<<m_VxPrimContainerName.key()<<" found in StoreGate");
       return StatusCode::SUCCESS;
     } else {
       m_vertices = vxContainer.get();
 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name  "<<m_VxPrimContainerName.key()<< " with size " << m_vertices->size() <<" found  in StoreGate" << endmsg;
+      ATH_MSG_DEBUG ("Collection with name  "<<m_VxPrimContainerName.key()<< " with size " << m_vertices->size() <<" found  in StoreGate");
   
       xAOD::VertexContainer::const_iterator vxItr  = m_vertices->begin();
       xAOD::VertexContainer::const_iterator vxItrE = m_vertices->end();    
@@ -1697,6 +1696,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   float beamSpotZ = 0.;
   float beamTiltX = 0.;
   float beamTiltY = 0.;
+  ATH_MSG_DEBUG(" retrieveing beam spot information for event " << m_events);
   if (m_hasBeamCondSvc) {
     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
     Amg::Vector3D bpos = beamSpotHandle->beamPos();
@@ -1705,12 +1705,9 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     beamSpotZ = bpos.z();
     beamTiltX = beamSpotHandle->beamTilt(0);
     beamTiltY = beamSpotHandle->beamTilt(1);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Beamspot from " << beamSpotHandle.retrieve() << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
-          << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
-          << ", tiltY = " << beamTiltY <<endmsg;
-
-
-    
+    ATH_MSG_DEBUG ("Beamspot from " << beamSpotHandle.retrieve() << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
+		   << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
+		   << ", tiltY = " << beamTiltY);
   }
   
   // Get EventInfo
@@ -1721,31 +1718,31 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     return StatusCode::FAILURE;
   }
   //EventID* eventID = eventInfo->event_ID();
-  unsigned int LumiBlock = eventInfo->lumiBlock();
+  float LumiBlock = static_cast<float>(eventInfo->lumiBlock());
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " LumiBlock = " <<  LumiBlock << endmsg;
-  m_LumiBlock->Fill(float(LumiBlock), hweight);
-  
-  if (m_extendedPlots)
-      {
-	//Fill BeamSpot Position histos
-	m_YBs_vs_XBs->Fill(beamSpotX,beamSpotY, hweight);
-	m_YBs_vs_ZBs->Fill(beamSpotZ,beamSpotY, hweight);
-	m_XBs_vs_ZBs->Fill(beamSpotZ,beamSpotX, hweight);
-	
-	m_XBs->Fill(beamSpotX, hweight);
-	m_YBs->Fill(beamSpotY, hweight);
-	m_ZBs->Fill(beamSpotZ, hweight);
-	m_TiltX_Bs->Fill(1e6*beamTiltX, hweight);
-	m_TiltY_Bs->Fill(1e6*beamTiltY, hweight);
-	
-	//Fill BeamSpot Position versus lumiblock histos
-	m_XBs_vs_LumiBlock->Fill(float(LumiBlock),beamSpotX, hweight);
-	m_YBs_vs_LumiBlock->Fill(float(LumiBlock),beamSpotY, hweight);
-	m_ZBs_vs_LumiBlock->Fill(float(LumiBlock),beamSpotZ, hweight);
-	m_BeamSpotTiltX_vs_LumiBlock->Fill(float(LumiBlock),1e3*beamTiltX, hweight);
-	m_BeamSpotTiltY_vs_LumiBlock->Fill(float(LumiBlock),1e3*beamTiltY, hweight);
-      }
+  ATH_MSG_DEBUG(" Run: " << eventInfo->runNumber() << "   Event: " << eventInfo->eventNumber() << "   LumiBlock: " <<  LumiBlock);
+
+  m_LumiBlock->Fill(LumiBlock, hweight);
+
+  if (m_extendedPlots) {
+    //Fill BeamSpot Position histos
+    m_YBs_vs_XBs->Fill(beamSpotX,beamSpotY, hweight);
+    m_YBs_vs_ZBs->Fill(beamSpotZ,beamSpotY, hweight);
+    m_XBs_vs_ZBs->Fill(beamSpotZ,beamSpotX, hweight);
+    
+    m_XBs->Fill(beamSpotX, hweight);
+    m_YBs->Fill(beamSpotY, hweight);
+    m_ZBs->Fill(beamSpotZ, hweight);
+    m_TiltX_Bs->Fill(1e6*beamTiltX, hweight);
+    m_TiltY_Bs->Fill(1e6*beamTiltY, hweight);
+    
+    //Fill BeamSpot Position versus lumiblock histos
+    m_XBs_vs_LumiBlock->Fill(LumiBlock,beamSpotX, hweight);
+    m_YBs_vs_LumiBlock->Fill(LumiBlock,beamSpotY, hweight);
+    m_ZBs_vs_LumiBlock->Fill(LumiBlock,beamSpotZ, hweight);
+    m_BeamSpotTiltX_vs_LumiBlock->Fill(LumiBlock,1e3*beamTiltX, hweight);
+    m_BeamSpotTiltY_vs_LumiBlock->Fill(LumiBlock,1e3*beamTiltY, hweight);
+  }
   
 
   int nHits=0;
@@ -1764,35 +1761,33 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   //DataVector<xAOD::TrackParticle>::const_iterator trkPsItr  = trkPs->begin();
   //DataVector<xAOD::TrackParticle>::const_iterator trkPsItrE = trkPs->end();
   
-  if (m_doIP)
-    {
-      SG::ReadHandle<xAOD::VertexContainer> vxContainer{m_VxPrimContainerName};
-      if (not vxContainer.isValid()) {
-	ATH_MSG_DEBUG("Could not retrieve primary vertex info: " << m_VxPrimContainerName.key());
-	return StatusCode::FAILURE;
-      }
-      if(vxContainer.get()) {
-	ATH_MSG_VERBOSE("Nb of reco primary vertex for coll "
-			<< " = " << vxContainer->size() );
-	
-	
-	xAOD::VertexContainer::const_iterator vxI = vxContainer->begin();
-	xAOD::VertexContainer::const_iterator vxE = vxContainer->end();
-	for(; vxI!=vxE; ++vxI) {
-	  //int nbtk = 0;
-	  //const std::vector<Trk::VxTrackAtVertex*>* tracks = (*vxI)->vxTrackAtVertex();
-	  if ((*vxI)->type()==1) {
-	    m_pvtx=(*vxI);
-	  }
+  if (m_doIP) {
+    SG::ReadHandle<xAOD::VertexContainer> vxContainer{m_VxPrimContainerName};
+    if (not vxContainer.isValid()) {
+      ATH_MSG_DEBUG("Could not retrieve primary vertex info: " << m_VxPrimContainerName.key());
+      return StatusCode::FAILURE;
+    }
+    if(vxContainer.get()) {
+      ATH_MSG_VERBOSE("Nb of reco primary vertex for coll "
+		      << " = " << vxContainer->size() );
+      
+      
+      xAOD::VertexContainer::const_iterator vxI = vxContainer->begin();
+      xAOD::VertexContainer::const_iterator vxE = vxContainer->end();
+      for(; vxI!=vxE; ++vxI) {
+	//int nbtk = 0;
+	//const std::vector<Trk::VxTrackAtVertex*>* tracks = (*vxI)->vxTrackAtVertex();
+	if ((*vxI)->type()==1) {
+	  m_pvtx=(*vxI);
 	}
       }
     }
+  }
   
-  
-  for (; trksItr != trksItrE; ++trksItr) {
-    
+  ATH_MSG_DEBUG ("Start loop on tracks. Number of tracks " << tracks->size());
+  for (; trksItr != trksItrE; ++trksItr) {  
     nTracks++;  
-    
+    ATH_MSG_DEBUG ("    dealing with track " << nTracks << " / " << tracks->size() );
     
     double chi2Prob=0.;
     float chisquared     = 0.;
@@ -1909,13 +1904,11 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr  = TSOS->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItrE = TSOS->end();
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"starting to loop over TSOS"<<endmsg;
- 
-    for (; TSOSItr != TSOSItrE; ++TSOSItr) {
-     
+    ATH_MSG_VERBOSE ("  starting to loop over TSOS: " << TSOS->size());
+    for (; TSOSItr != TSOSItrE; ++TSOSItr) {      
       //check that we have track parameters defined for the surface (pointer is not null)
       if(!((*TSOSItr)->trackParameters())) {
-        if (msgLvl(MSG::DEBUG)) msg() << "hit skipped because no associated track parameters" << endmsg;
+	ATH_MSG_DEBUG(" hit skipped because no associated track parameters");
         continue;
       }
       
@@ -1929,22 +1922,24 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
 
       if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
-
         //hit quality cuts for Si hits if tool is configured - default is NO CUTS
         if (m_idHelper->is_pixel(surfaceID) ||  m_idHelper->is_sct(surfaceID)){
-          
           if(m_doHitQuality) {
             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
             
             const Trk::RIO_OnTrack* hit = m_hitQualityTool->getGoodHit(*TSOSItr);
-            if(hit==NULL) {
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endmsg;
+            if(hit == nullptr) {
+              ATH_MSG_DEBUG ("hit failed quality cuts and is rejected.");
               continue;
             }
-            else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit passed quality cuts" << endmsg;
+            else {
+	      ATH_MSG_DEBUG ("hit passed quality cuts");
+	    }
           }
-          else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to Silicon hit." << endmsg;
-        }
+          else {
+	    ATH_MSG_DEBUG ("hit quality cuts NOT APPLIED to Silicon hit.");
+	  }
+        } // hit is Pixel or SCT
       
         const Trk::Surface& hitSurface  = mesb->associatedSurface();
         float hitSurfaceX = hitSurface.center().x();
@@ -2136,10 +2131,10 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
     
 
-    m_Tracks_per_LumiBlock->Fill(float(LumiBlock), hweight);
-    m_NPIX_per_LumiBlock->Fill(float(LumiBlock), nhpix*hweight);
-    m_NSCT_per_LumiBlock->Fill(float(LumiBlock), nhsct*hweight);
-    m_NTRT_per_LumiBlock->Fill(float(LumiBlock), nhtrt*hweight);
+    m_Tracks_per_LumiBlock->Fill(LumiBlock, hweight);
+    m_NPIX_per_LumiBlock->Fill(LumiBlock, nhpix*hweight);
+    m_NSCT_per_LumiBlock->Fill(LumiBlock, nhsct*hweight);
+    m_NTRT_per_LumiBlock->Fill(LumiBlock, nhtrt*hweight);
 
     
 

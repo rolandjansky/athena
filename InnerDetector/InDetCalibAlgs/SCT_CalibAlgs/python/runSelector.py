@@ -107,7 +107,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0, Stream = None ):
     #--- Check if Run0 is next to the last run uploaded
     while Wait:
         #--- Read last run uploaded
-        RunLast = 0
+        RunLast = '0'
         if os.path.exists('/afs/cern.ch/user/s/sctcalib/scratch0/lastRun') :
             f = open('/afs/cern.ch/user/s/sctcalib/scratch0/lastRun')
             line = f.readline()

@@ -87,12 +87,17 @@ StatusCode RegSelCondAlg_Tile::execute(const EventContext& ctx)  const {
   /// Once the calorimeter has it own conditions data cabling, then we can
   /// dispense with this and use the calorimeter conditions data directly
 
-  SG::ReadCondHandle<PixelCablingCondData> cabling( m_cablingKey, ctx );
+  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl(m_cablingKey,ctx);
+  const LArOnOffIdMapping* cabling{*cablingHdl};
+  if(!cabling) {
+     ATH_MSG_ERROR( "Do not have cabling mapping from key " << m_cablingKey.key() );
+     return StatusCode::FAILURE;
+  }
 
   EventIDRange id_range;
   
-  if( !cabling.range( id_range ) ) {
-    ATH_MSG_ERROR("Failed to retrieve validity range for " << cabling.key());
+  if( !cablingHdl.range( id_range ) ) {
+    ATH_MSG_ERROR("Failed to retrieve validity range for " << cablingHdl.key());
     return StatusCode::FAILURE;
   }   
 

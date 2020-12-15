@@ -11,4 +11,12 @@ if AODMerge_tf.py --inputAODFile=Nightly_AOD_electron.pool.root --outputAOD_MRGF
 else
 	echo "Merge failure"
 fi
-	
+
+get_files -jo egamma_art_checker_joboptions.py >> /dev/null
+if athena -c "particleType='electron'" egamma_art_checker_joboptions.py >> /dev/null 2>&1; then
+	echo "Plot maker success"
+else
+	echo "Plot maker failure"
+fi
+
+

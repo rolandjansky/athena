@@ -13,13 +13,13 @@
 from __future__ import with_statement, print_function
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-from utils.AtlRunQueryUtils        import addKommaToNumber, filesize, prettyNumber, RunPeriods
-from utils.AtlRunQueryLookup       import DecodeDetectorMask
-from utils.AtlRunQueryIOV          import IOVRange,IOVTime
-from utils.AtlRunQueryLookup       import LArConfig, isDQ, OLCAlgorithms
-from output.AtlRunQueryRoot        import makeLBPlot, makeLBPlotList, makeTimePlotList, makeBSPlots, SaveGraphsToFile
-from AtlRunQueryQueryConfig        import QC
-from selector.AtlRunQuerySelectorBase import DataKey, Selector
+from CoolRunQuery.utils.AtlRunQueryUtils           import addKommaToNumber, filesize, prettyNumber, RunPeriods
+from CoolRunQuery.utils.AtlRunQueryLookup          import DecodeDetectorMask
+from CoolRunQuery.utils.AtlRunQueryIOV             import IOVRange,IOVTime
+from CoolRunQuery.utils.AtlRunQueryLookup          import LArConfig, isDQ, OLCAlgorithms
+from CoolRunQuery.output.AtlRunQueryRoot           import makeLBPlot, makeLBPlotList, makeTimePlotList, makeBSPlots, SaveGraphsToFile
+from CoolRunQuery.AtlRunQueryQueryConfig           import QC
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey, Selector
 
 import math
 import time, calendar

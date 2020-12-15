@@ -1362,6 +1362,8 @@ HLT_noalg_cosmiccalo_L1J30_EMPTY:
   eventCount: 4
 HLT_noalg_cosmiccalo_L1J30_FIRSTEMPTY:
   eventCount: 4
+HLT_noalg_cosmiccalo_L1RD0_FIRSTEMPTY:
+  eventCount: 20
 HLT_noalg_cosmiccalo_L1RD1_EMPTY:
   eventCount: 20
 HLT_noalg_eb_L1ABORTGAPNOTCALIB_noPS:
