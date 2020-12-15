@@ -172,7 +172,7 @@ if ( True ) :
 
 #    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_FTF",
 #    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
-    "HLT_e.*:HLT_IDTrack_Electron_FTF",
+    "HLT_e.*:HLT_IDTrack_Electron_FTF:HLT_Roi_FastElectron",
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
 
 
